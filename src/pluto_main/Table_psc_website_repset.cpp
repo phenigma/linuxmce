@@ -152,8 +152,9 @@ return is_null[2];}
 
 			
 void Row_psc_website_repset::Value_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 	
 
 string Row_psc_website_repset::PK_psc_website_repset_asSQL()

@@ -206,23 +206,29 @@ return is_null[6];}
 
 			
 void Row_EventCategory::FK_EventCategory_Parent_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[1]=val;}
+is_null[1]=val;
+is_modified=true;
+}
 void Row_EventCategory::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 void Row_EventCategory::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[3]=val;}
+is_null[3]=val;
+is_modified=true;
+}
 void Row_EventCategory::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
+is_null[4]=val;
+is_modified=true;
+}
 void Row_EventCategory::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[5]=val;}
+is_null[5]=val;
+is_modified=true;
+}
 void Row_EventCategory::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[6]=val;}
+is_null[6]=val;
+is_modified=true;
+}
 	
 
 string Row_EventCategory::PK_EventCategory_asSQL()

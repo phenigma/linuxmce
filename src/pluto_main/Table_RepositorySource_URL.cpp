@@ -240,26 +240,33 @@ return is_null[10];}
 
 			
 void Row_RepositorySource_URL::FK_Country_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[3]=val;}
+is_null[3]=val;
+is_modified=true;
+}
 void Row_RepositorySource_URL::Username_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
+is_null[4]=val;
+is_modified=true;
+}
 void Row_RepositorySource_URL::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[6]=val;}
+is_null[6]=val;
+is_modified=true;
+}
 void Row_RepositorySource_URL::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[7]=val;}
+is_null[7]=val;
+is_modified=true;
+}
 void Row_RepositorySource_URL::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[8]=val;}
+is_null[8]=val;
+is_modified=true;
+}
 void Row_RepositorySource_URL::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[9]=val;}
+is_null[9]=val;
+is_modified=true;
+}
 void Row_RepositorySource_URL::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[10]=val;}
+is_null[10]=val;
+is_modified=true;
+}
 	
 
 string Row_RepositorySource_URL::PK_RepositorySource_URL_asSQL()

@@ -184,17 +184,21 @@ return is_null[4];}
 
 			
 void Row_Household::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[1]=val;}
+is_null[1]=val;
+is_modified=true;
+}
 void Row_Household::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 void Row_Household::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[3]=val;}
+is_null[3]=val;
+is_modified=true;
+}
 void Row_Household::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
+is_null[4]=val;
+is_modified=true;
+}
 	
 
 string Row_Household::PK_Household_asSQL()

@@ -349,56 +349,73 @@ return is_null[19];}
 
 			
 void Row_Installation::Name_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 void Row_Installation::Address_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[3]=val;}
+is_null[3]=val;
+is_modified=true;
+}
 void Row_Installation::City_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
+is_null[4]=val;
+is_modified=true;
+}
 void Row_Installation::State_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[5]=val;}
+is_null[5]=val;
+is_modified=true;
+}
 void Row_Installation::Zip_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[6]=val;}
+is_null[6]=val;
+is_modified=true;
+}
 void Row_Installation::FK_Country_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[7]=val;}
+is_null[7]=val;
+is_modified=true;
+}
 void Row_Installation::ActivationCode_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[8]=val;}
+is_null[8]=val;
+is_modified=true;
+}
 void Row_Installation::LastStatus_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[9]=val;}
+is_null[9]=val;
+is_modified=true;
+}
 void Row_Installation::LastAlive_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[10]=val;}
+is_null[10]=val;
+is_modified=true;
+}
 void Row_Installation::FK_Version_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[12]=val;}
+is_null[12]=val;
+is_modified=true;
+}
 void Row_Installation::isMonitored_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[13]=val;}
+is_null[13]=val;
+is_modified=true;
+}
 void Row_Installation::FK_RepositoryType_Source_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[14]=val;}
+is_null[14]=val;
+is_modified=true;
+}
 void Row_Installation::FK_RepositoryType_Binaries_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[15]=val;}
+is_null[15]=val;
+is_modified=true;
+}
 void Row_Installation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[16]=val;}
+is_null[16]=val;
+is_modified=true;
+}
 void Row_Installation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[17]=val;}
+is_null[17]=val;
+is_modified=true;
+}
 void Row_Installation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[18]=val;}
+is_null[18]=val;
+is_modified=true;
+}
 void Row_Installation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[19]=val;}
+is_null[19]=val;
+is_modified=true;
+}
 	
 
 string Row_Installation::PK_Installation_asSQL()

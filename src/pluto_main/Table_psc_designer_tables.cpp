@@ -184,8 +184,9 @@ return is_null[2];}
 
 			
 void Row_psc_designer_tables::filter_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 	
 
 string Row_psc_designer_tables::PK_psc_designer_tables_asSQL()

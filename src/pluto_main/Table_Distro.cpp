@@ -299,35 +299,45 @@ return is_null[16];}
 
 			
 void Row_Distro::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 void Row_Distro::Installer_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
+is_null[4]=val;
+is_modified=true;
+}
 void Row_Distro::KickStartCD_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[5]=val;}
+is_null[5]=val;
+is_modified=true;
+}
 void Row_Distro::Binaries_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[6]=val;}
+is_null[6]=val;
+is_modified=true;
+}
 void Row_Distro::SourceCode_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[7]=val;}
+is_null[7]=val;
+is_modified=true;
+}
 void Row_Distro::InstallerURL_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[12]=val;}
+is_null[12]=val;
+is_modified=true;
+}
 void Row_Distro::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[13]=val;}
+is_null[13]=val;
+is_modified=true;
+}
 void Row_Distro::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[14]=val;}
+is_null[14]=val;
+is_modified=true;
+}
 void Row_Distro::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[15]=val;}
+is_null[15]=val;
+is_modified=true;
+}
 void Row_Distro::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[16]=val;}
+is_null[16]=val;
+is_modified=true;
+}
 	
 
 string Row_Distro::PK_Distro_asSQL()

@@ -253,23 +253,29 @@ return is_null[12];}
 
 			
 void Row_DeviceCategory_DeviceData::IK_DeviceData_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 void Row_DeviceCategory_DeviceData::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[6]=val;}
+is_null[6]=val;
+is_modified=true;
+}
 void Row_DeviceCategory_DeviceData::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[9]=val;}
+is_null[9]=val;
+is_modified=true;
+}
 void Row_DeviceCategory_DeviceData::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[10]=val;}
+is_null[10]=val;
+is_modified=true;
+}
 void Row_DeviceCategory_DeviceData::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[11]=val;}
+is_null[11]=val;
+is_modified=true;
+}
 void Row_DeviceCategory_DeviceData::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[12]=val;}
+is_null[12]=val;
+is_modified=true;
+}
 	
 
 string Row_DeviceCategory_DeviceData::FK_DeviceCategory_asSQL()

@@ -334,23 +334,29 @@ return is_null[22];}
 
 			
 void Row_StartupScript::When_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[1]=val;}
+is_null[1]=val;
+is_modified=true;
+}
 void Row_StartupScript::FK_DeviceTemplate_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[18]=val;}
+is_null[18]=val;
+is_modified=true;
+}
 void Row_StartupScript::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[19]=val;}
+is_null[19]=val;
+is_modified=true;
+}
 void Row_StartupScript::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[20]=val;}
+is_null[20]=val;
+is_modified=true;
+}
 void Row_StartupScript::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[21]=val;}
+is_null[21]=val;
+is_modified=true;
+}
 void Row_StartupScript::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[22]=val;}
+is_null[22]=val;
+is_modified=true;
+}
 	
 
 string Row_StartupScript::PK_StartupScript_asSQL()

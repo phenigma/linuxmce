@@ -267,29 +267,37 @@ return is_null[13];}
 
 			
 void Row_CannedEvents_CriteriaParmList::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
+is_null[4]=val;
+is_modified=true;
+}
 void Row_CannedEvents_CriteriaParmList::Parm_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[6]=val;}
+is_null[6]=val;
+is_modified=true;
+}
 void Row_CannedEvents_CriteriaParmList::DefaultValue_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[7]=val;}
+is_null[7]=val;
+is_modified=true;
+}
 void Row_CannedEvents_CriteriaParmList::ExtraInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[8]=val;}
+is_null[8]=val;
+is_modified=true;
+}
 void Row_CannedEvents_CriteriaParmList::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[10]=val;}
+is_null[10]=val;
+is_modified=true;
+}
 void Row_CannedEvents_CriteriaParmList::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[11]=val;}
+is_null[11]=val;
+is_modified=true;
+}
 void Row_CannedEvents_CriteriaParmList::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[12]=val;}
+is_null[12]=val;
+is_modified=true;
+}
 void Row_CannedEvents_CriteriaParmList::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[13]=val;}
+is_null[13]=val;
+is_modified=true;
+}
 	
 
 string Row_CannedEvents_CriteriaParmList::PK_CannedEvents_CriteriaParmList_asSQL()

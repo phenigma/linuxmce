@@ -265,26 +265,33 @@ return is_null[13];}
 
 			
 void Row_DesignObjVariation_Zone::FK_DesignObjVariation_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[1]=val;}
+is_null[1]=val;
+is_modified=true;
+}
 void Row_DesignObjVariation_Zone::FK_Button_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 void Row_DesignObjVariation_Zone::FK_DesignObj_Goto_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
+is_null[4]=val;
+is_modified=true;
+}
 void Row_DesignObjVariation_Zone::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[10]=val;}
+is_null[10]=val;
+is_modified=true;
+}
 void Row_DesignObjVariation_Zone::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[11]=val;}
+is_null[11]=val;
+is_modified=true;
+}
 void Row_DesignObjVariation_Zone::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[12]=val;}
+is_null[12]=val;
+is_modified=true;
+}
 void Row_DesignObjVariation_Zone::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[13]=val;}
+is_null[13]=val;
+is_modified=true;
+}
 	
 
 string Row_DesignObjVariation_Zone::PK_DesignObjVariation_Zone_asSQL()

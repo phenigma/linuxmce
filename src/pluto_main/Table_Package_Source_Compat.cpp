@@ -235,29 +235,37 @@ return is_null[9];}
 
 			
 void Row_Package_Source_Compat::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 void Row_Package_Source_Compat::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[3]=val;}
+is_null[3]=val;
+is_modified=true;
+}
 void Row_Package_Source_Compat::MustBuildFromSource_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
+is_null[4]=val;
+is_modified=true;
+}
 void Row_Package_Source_Compat::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[5]=val;}
+is_null[5]=val;
+is_modified=true;
+}
 void Row_Package_Source_Compat::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[6]=val;}
+is_null[6]=val;
+is_modified=true;
+}
 void Row_Package_Source_Compat::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[7]=val;}
+is_null[7]=val;
+is_modified=true;
+}
 void Row_Package_Source_Compat::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[8]=val;}
+is_null[8]=val;
+is_modified=true;
+}
 void Row_Package_Source_Compat::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[9]=val;}
+is_null[9]=val;
+is_modified=true;
+}
 	
 
 string Row_Package_Source_Compat::PK_Package_Source_Compat_asSQL()

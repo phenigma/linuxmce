@@ -330,38 +330,49 @@ return is_null[20];}
 
 			
 void Row_StyleVariation::FK_Skin_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 void Row_StyleVariation::FK_Criteria_D_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[3]=val;}
+is_null[3]=val;
+is_modified=true;
+}
 void Row_StyleVariation::ForeColor_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[5]=val;}
+is_null[5]=val;
+is_modified=true;
+}
 void Row_StyleVariation::ShadowX_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[10]=val;}
+is_null[10]=val;
+is_modified=true;
+}
 void Row_StyleVariation::ShadowY_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[11]=val;}
+is_null[11]=val;
+is_modified=true;
+}
 void Row_StyleVariation::ShadowColor_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[12]=val;}
+is_null[12]=val;
+is_modified=true;
+}
 void Row_StyleVariation::BackColor_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[16]=val;}
+is_null[16]=val;
+is_modified=true;
+}
 void Row_StyleVariation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[17]=val;}
+is_null[17]=val;
+is_modified=true;
+}
 void Row_StyleVariation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[18]=val;}
+is_null[18]=val;
+is_modified=true;
+}
 void Row_StyleVariation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[19]=val;}
+is_null[19]=val;
+is_modified=true;
+}
 void Row_StyleVariation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[20]=val;}
+is_null[20]=val;
+is_modified=true;
+}
 	
 
 string Row_StyleVariation::PK_StyleVariation_asSQL()

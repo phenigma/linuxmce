@@ -169,14 +169,17 @@ return is_null[3];}
 
 			
 void Row_psc_local_bathdr::IPAddress_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[1]=val;}
+is_null[1]=val;
+is_modified=true;
+}
 void Row_psc_local_bathdr::date_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+is_null[2]=val;
+is_modified=true;
+}
 void Row_psc_local_bathdr::comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[3]=val;}
+is_null[3]=val;
+is_modified=true;
+}
 	
 
 string Row_psc_local_bathdr::PK_psc_local_bathdr_asSQL()
