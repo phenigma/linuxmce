@@ -421,9 +421,10 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
     while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
     {
 		struct stat s;
-		stat((sDirectory + entry.d_name).c_str(), &s);
+		lstat((sDirectory + entry.d_name).c_str(), &s);
         if (!S_ISDIR(s.st_mode) && !S_ISLNK(s.st_mode) && entry.d_name[0] != '.')
         {
+			cout << "" << endl;
 // g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
             size_t pos = 0;
             for (;;)
