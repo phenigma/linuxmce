@@ -50,10 +50,14 @@ typedef enum {
  * @todo complete documentation
  */
 
+#ifndef MythTV_PlugIn_h
+class MythTV_PlugIn;
+#endif
+
 class MythTvWrapper
 {
-    QApplication * m_pQApplication;
-    Command_Impl * m_pDCEDeviceWrapper;
+    QApplication  * m_pQApplication;
+    Command_Impl  * m_pDCEDeviceWrapper;
 
 protected:
 
@@ -99,7 +103,6 @@ protected:
 public:
 
     /** @brief constructor */
-
     MythTvWrapper(Command_Impl *pCommandImpl);
 
     /** Methods used by the MythTV_PlugIn */

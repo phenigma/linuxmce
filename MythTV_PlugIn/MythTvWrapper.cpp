@@ -5,6 +5,7 @@
  *
  */
 
+#include "MythTV_PlugIn.h"
 #include "MythTvWrapper.h"
 
 #include "DCE/Logger.h"
@@ -20,6 +21,7 @@
 #include <libmythtv/programinfo.h>
 
 #include <libmythtv/remoteutil.h>
+
 
 using namespace DCE;
 
@@ -234,7 +236,6 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
         colStart++;
     }
 
-//     g_pPlutoLogger->Write(LV_STATUS, "Quant %d --> Period: %s <--> %s", m_iQuantInSecs, startDataAsString.ascii(), endDateAsString.ascii());
     if ( query.numRowsAffected() > 0 )
     {
         int currentChannelId = 0, nextChannelId = 0;
@@ -267,14 +268,6 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
                 programStartColumn = 0;
             }
 
-//             g_pPlutoLogger->Write(LV_STATUS, "Program %d->(%d+%d) %d: %s<-->%s (%s)",
-//                         channelPos,
-//                         programStartColumn, programColumnSpan,
-//                         currentChannelId,
-//                         dateStart.toString().ascii(),
-//                         dateEnd.toString().ascii(),
-//                         programName.ascii());
-
             DataGridCell *pCell = new DataGridCell(
                     programName.ascii(),
                     QString::number(currentChannelId)
@@ -290,7 +283,6 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
                         .append(QString::number(dateStart.time().minute())).ascii());
 
             pCell->m_Colspan = programColumnSpan;
-//             g_pPlutoLogger->Write(LV_STATUS, "Setting cell to position: %d, %d", programStartColumn + colStart, channelPos);
             SetData(programStartColumn  + colStart, channelPos + rowStart, pCell);
         }
     }
@@ -464,7 +456,7 @@ WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(string showStartTimeEn
         {
             DCE::CMD_PIP_Channel_Up channelUp(
                     m_pDCEDeviceWrapper->m_dwPK_Device,
-                    37);
+                    ((MythTV_PlugIn*)m_pDCEDeviceWrapper)->m_dwTargetDevice);
 
             m_pDCEDeviceWrapper->SendCommand(channelUp);
             return WatchTVResult_Tuned;
@@ -473,7 +465,7 @@ WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(string showStartTimeEn
         {
             DCE::CMD_PIP_Channel_Down channelDown(
                     m_pDCEDeviceWrapper->m_dwPK_Device,
-                    37);
+                    ((MythTV_PlugIn*)m_pDCEDeviceWrapper)->m_dwTargetDevice);
 
             m_pDCEDeviceWrapper->SendCommand(channelDown);
             return WatchTVResult_Tuned;
@@ -487,7 +479,7 @@ WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(string showStartTimeEn
     {
         DCE::CMD_Tune_to_channel tuneToChannel(
                 m_pDCEDeviceWrapper->m_dwPK_Device,
-                37,
+                ((MythTV_PlugIn*)m_pDCEDeviceWrapper)->m_dwTargetDevice,
                 showStartTimeEncoded);
 
         m_pDCEDeviceWrapper->SendCommand(tuneToChannel);
