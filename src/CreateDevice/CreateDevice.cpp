@@ -226,7 +226,7 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 	{
 		while( row=mysql_fetch_row( result.r ) )
 		{
-			DoIt(0,atoi(row[0]),"","",iPK_Device);
+			int PK_Device = DoIt(0,atoi(row[0]),"","",iPK_Device);
 			if( row[1] && atoi(row[1]) )
 			{
 				// Need to reroute messages to parent
