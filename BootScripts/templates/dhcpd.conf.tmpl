@@ -12,15 +12,17 @@ authoritative;
 
 option routers %CORE_INTERNAL_ADDRESS%;
 option subnet-mask %INTERNAL_SUBNET_MASK%;
-default-lease-time 600;
-max-lease-time 7200;
+
+# lease IPs for 1 day, maximum 1 week
+default-lease-time 86400;
+max-lease-time 604800;
 
 allow booting;
 allow bootp;
 
 subnet %INTERNAL_SUBNET% netmask %INTERNAL_SUBNET_MASK% {
-	default-lease-time 600;
-	max-lease-time 7200;
+	default-lease-time 86400;
+	max-lease-time 604800;
 }
 
 option space pxelinux;

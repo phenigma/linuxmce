@@ -1,3 +1,4 @@
+DEFAULT Pluto
 LABEL Pluto
 	KERNEL vmlinuz-2.6.8-1-386
-	APPEND root=/dev/nfs vga=normal initrd=initrd.img-2.6.8-1-386 ramdisk_size=10240 rw nfsroot=%CORE_INTERNAL_ADDRESS%:/usr/pluto/diskless/%s ip=dhcp 
+	APPEND root=/dev/nfs vga=normal initrd=initrd.img-2.6.8-1-386 ramdisk_size=10240 rw nfsroot=%CORE_INTERNAL_ADDRESS%:/usr/pluto/diskless/%MOON_ADDRESS% ip=dhcp 

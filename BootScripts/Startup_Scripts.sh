@@ -6,12 +6,17 @@ Parameter="$1"; shift
 Device="$PK_Device"
 
 [ "$Parameter" == "stop" ] && exit 0
+if [ "$Parameter" == "script" ]; then
+	Script=1
+	moonIP="$1"
+fi
+
 Parameter="$1"
 [ -z "$Parameter" ] && unset Parameter
 
-Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Processing startup scripts for device $Device; parameter: $Parameter"
+[ -z "$Script" ] && Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Processing startup scripts for device $Device; parameter: $Parameter"
 if [ -e /usr/pluto/install/.notdone ]; then
-	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It appears the installation was not successful. Pluto's startup scripts are disabled. To enable them, complete the installation process, or manually remove the file /usr/pluto/install/.notdone"
+	[ -z "$Script" ] && Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It appears the installation was not successful. Pluto's startup scripts are disabled. To enable them, complete the installation process, or manually remove the file /usr/pluto/install/.notdone"
 	exit 1
 fi
 
@@ -28,20 +33,35 @@ RunSQL()
 	fi
 }
 
+if [ ! -z "$Script" ]; then
+	Q="SELECT PK_Device
+FROM Device
+WHERE IPaddress='$moonIP'
+LIMIT 1"
+	Device=$(RunSQL 0 "$Q")
+fi
+
 Q="SELECT Command,Enabled
 FROM Device_StartupScript
 JOIN StartupScript ON FK_StartupScript=PK_StartupScript
 WHERE FK_Device='$Device'
 ORDER BY Boot_Order"
 
-# susceptibile to "spaces in name" problem
-result=$(RunSQL 0 "$Q" | sed 's/\t/,/')
+if [ ! -e /etc/pluto.startup ]; then
+	result=$(RunSQL 0 "$Q" | tr '\t ' ',~')
+else
+	result=$(cat /etc/pluto.startup)
+fi
 
-[ -z $result ] && echo "No boot scripts were configured for device $Device" && exit;
+if [ ! -z "$Script" ]; then
+	echo "$result"
+	exit
+fi
+[ -z "$result" ] && echo "No boot scripts were configured for device $Device" && exit
 
 echo "$result" |
 while read line; do
-	script=$(echo "$line" | cut -d, -f1)
+	script=$(echo "$line" | cut -d, -f1 | tr '~' ' ')
 	enabled=$(echo "$line" | cut -d, -f2)
 
 	if [ "$enabled" -eq 0 ]; then

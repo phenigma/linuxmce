@@ -7,7 +7,7 @@ ConfEval()
 	[ -e /etc/pluto.conf ] || exit 0
 	sed "$NoSpace" /etc/pluto.conf >/tmp/pluto.conf
 	while read line; do
-		eval "export $line"
+		eval "export $line" &>/dev/null
 	done </tmp/pluto.conf
 }
 

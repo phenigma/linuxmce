@@ -28,7 +28,7 @@ UserList=
 
 for Users in $R; do
 	PlutoUserID=$(echo "$Users" | cut -d, -f1)
-	UserName=$(echo "$Users" | cut -d, -f2)
+	UserName=$(echo "$Users" | cut -d, -f2 | tr 'A-Z' 'a-z' | tr -dc "a-z0-9-")
 	LinuxPassword=$(echo "$Users" | cut -d, -f3)
 	SambaPassword=$(echo "$Users" | cut -d, -f4)
 
