@@ -103,11 +103,6 @@ public:
 	int m_GraphicToDisplay;
 	int m_GraphicToPlay;
 
-	//// m_pGraphicToUndoSelect is a temporary snapshot of the background that may be created during a select or restore
-	//// to return it to it's previous state
-	//PlutoGraphic *m_pGraphic,*m_pSelectedGraphic,*m_pCurrentGraphic,*m_pHighlightedGraphic,*m_pGraphicToUndoSelect;
-	//vector<PlutoGraphic *> vectAltGraphics;
-
 	// m_pGraphicToUndoSelect is a temporary snapshot of the background that may be created during a select or restore
 	// to return it to it's previous state
 	PlutoGraphic *m_pGraphicToUndoSelect;

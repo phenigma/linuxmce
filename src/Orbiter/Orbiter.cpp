@@ -218,6 +218,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
 	m_iTimeoutBlank = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
 
+	m_sCacheFolder = DATA_Get_CacheFolder();
+	m_iCacheSize = DATA_Get_CacheSize();
+
 	pthread_cond_init(&m_MaintThreadCond, NULL);
 	m_MaintThreadMutex.Init(NULL);
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
@@ -6035,8 +6038,9 @@ void Orbiter::CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,Message *pMes
 			/** Normally when a device is turned on the corresponding "pipes" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic */
 
 void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
+//<-dceag-c192-e->
 {
-/*
+	/*
 	BeginPaint();
 	PlutoColor color(200, 200, 200, 100);
 	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
@@ -6047,9 +6051,9 @@ void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Me
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	RenderText(&text, pTextStyle);
 	EndPaint();
-*/
-}
-//<-dceag-c192-e->
+	*/
+} 
+
 //<-dceag-c193-b->
 
 	/** @brief COMMAND: #193 - Off */
@@ -6058,6 +6062,7 @@ void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Me
 			/** Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set. */
 
 void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
+//<-dceag-c193-e->
 {
 	BeginPaint();
 	PlutoColor color(200, 200, 200, 100);
@@ -6069,5 +6074,4 @@ void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	RenderText(&text, pTextStyle);
 	EndPaint();
-}
-//<-dceag-c193-e->
+} 

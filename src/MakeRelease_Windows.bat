@@ -5,7 +5,7 @@ CALL SET INPUT_PATH=c:\pluto.makerelease\trunk
 CALL SET MAKERELEASE_PATH=C:\pluto\trunk\src
 CALL SET LOG_PATH=c:
 
-del %LOG_PATH%\Build_Windows.log
+del %LOG_PATH%\Build.log
 
 ren %INPUT_PATH%\src\pluto.sln pluto.sln.temp
 %MAKERELEASE_PATH%\bin\MakeRelease.exe -h 10.0.0.170 -o 7 -s %INPUT_PATH% -n / -c -k 192,193,213,212,201,237,255,254,277,278,116,135,126,145,226,227,119,138,124,143,241,242,154,155,159,160,202,203,118,137,303,304,272,281,280,279,195,194,191,190,162,161,128,147

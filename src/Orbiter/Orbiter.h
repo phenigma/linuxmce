@@ -143,6 +143,8 @@ protected:
 	string m_sNowPlaying; /** < set by the media engine, this is whatever media is currently playing */
 	int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
 	time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */
+	string m_sCacheFolder; /** < Where to store graphic files for caching */
+	int m_iCacheSize; /** < The maximum size of the graphics files stored (MB) */
 
 	DesignObjText *m_pCaptureKeyboard_Text; /** < @todo ask */
 	map<int,  vector<PlutoGraphic*> *> m_mapUserIcons; /** < user icons */
@@ -757,6 +759,8 @@ public:
 	string DATA_Get_Update_Name();
 	string DATA_Get_Communication_file();
 	string DATA_Get_Timeout();
+	string DATA_Get_CacheFolder();
+	int DATA_Get_CacheSize();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

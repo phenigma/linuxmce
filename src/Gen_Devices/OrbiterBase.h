@@ -40,6 +40,8 @@ public:
 	string Get_Update_Name() { return m_mapParameters[41];}
 	string Get_Communication_file() { return m_mapParameters[43];}
 	string Get_Timeout() { return m_mapParameters[56];}
+	string Get_CacheFolder() { return m_mapParameters[57];}
+	int Get_CacheSize() { return atoi(m_mapParameters[58].c_str());}
 };
 
 
@@ -89,6 +91,8 @@ public:
 	string DATA_Get_Update_Name() { return GetData()->Get_Update_Name(); }
 	string DATA_Get_Communication_file() { return GetData()->Get_Communication_file(); }
 	string DATA_Get_Timeout() { return GetData()->Get_Timeout(); }
+	string DATA_Get_CacheFolder() { return GetData()->Get_CacheFolder(); }
+	int DATA_Get_CacheSize() { return GetData()->Get_CacheSize(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
