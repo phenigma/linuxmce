@@ -15,6 +15,7 @@
 //<-dceag-d-e->
 
 class Database_pluto_main;
+#include "DeviceData_Router.h"
 
 //<-dceag-decl-b->
 namespace DCE
@@ -23,6 +24,8 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 	// Private member variables 
+    pluto_pthread_mutex_t m_SecurityMutex;
+    class Orbiter_Plugin *m_pOrbiter_Plugin;
 
 	// Private methods
 public:
@@ -39,12 +42,17 @@ public:
 //<-dceag-const-e->
 
 	class Datagrid_Plugin *m_pDatagrid_Plugin;
-	class Orbiter_Plugin *m_pOrbiter_Plugin;
 	Database_pluto_main *m_pDatabase_pluto_main;
 
 	/** Datagrids */
 	class DataGridTable *SecurityScenariosGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
 							, class Message *pMessage );
+
+	bool SetHouseMode(DeviceData_Router *pDevice,int PK_HouseMode,string sHandlingInstructions);
+	void HandleSetModeFailure(Message *pMessage);
+
+	/** Interceptors */
+    bool SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 //<-dceag-h-b->
 	/*
@@ -75,9 +83,11 @@ public:
 			/** The password or PIN of the user.  This can be plain text or md5. */
 		/** @param #100 PK_DeviceGroup */
 			/** DeviceGroups are treated as zones.  If this device group is specified, only the devices in these zones (groups) will be set. */
+		/** @param #101 Handling Instructions */
+			/** How to handle any sensors that we are trying to arm, but are blocked.  Valid choices are: R-Report, change to a screen on the orbiter reporting this and let the user decide, W-Wait, arm anyway, but wait for the sensors to clear and then arm them, B-Bypass */
 
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),iPK_DeviceGroup,sCMD_Result,NULL);};
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

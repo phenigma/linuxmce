@@ -242,7 +242,7 @@ Telecom_Plugin::find_AsteriskDevice() {
 	DeviceData_Router *pDeviceData = NULL;
 			
 	ListDeviceData_Router* pListDeviceData = 
-								m_pRouter->m_mapDeviceTemplate_Find(DEVICETEMPLATE_Asterisk_CONST);
+								m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_Asterisk_CONST);
 	if(pListDeviceData) {
 		if(pListDeviceData->size() > 1) {
 			string errStr = "More then 1 Asterisk Handlers found:";

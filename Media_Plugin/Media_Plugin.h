@@ -159,7 +159,6 @@ public:
 //<-dceag-const-e->
     class MediaAttributes *m_pMediaAttributes;
 
-
     friend class MediaPluginInfo;
     pluto_pthread_mutex_t m_MediaMutex; // Other classes may need this
 

@@ -36,6 +36,8 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include <sstream>
+
 #include "DCERouter/DCERouter.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "DCE/DataGrid.h"
@@ -44,14 +46,18 @@ using namespace DCE;
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_DataGrid.h"
-
+#include "pluto_main/Define_HouseMode.h"
+#include "pluto_main/Define_Event.h"
 
 //<-dceag-const-b->
 Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Security_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: Security_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_SecurityMutex("security")
 //<-dceag-const-e->
 {
+	m_SecurityMutex.Init(NULL);
+
 	m_pDatabase_pluto_main = new Database_pluto_main( );
 	if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
 	{
@@ -97,6 +103,8 @@ bool Security_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( 
 		new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Security_Plugin::SecurityScenariosGrid ) )
 		, DATAGRID_Security_Scenarios_CONST );
+
+    RegisterMsgInterceptor((MessageInterceptorFn)(&Security_Plugin::SensorTrippedEvent) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Sensor_Tripped_CONST);
 
 	return Connect( ); 
 }
@@ -169,11 +177,14 @@ class DataGridTable *Security_Plugin::SecurityScenariosGrid( string GridID, stri
 			/** The password or PIN of the user.  This can be plain text or md5. */
 		/** @param #100 PK_DeviceGroup */
 			/** DeviceGroups are treated as zones.  If this device group is specified, only the devices in these zones (groups) will be set. */
+		/** @param #101 Handling Instructions */
+			/** How to handle any sensors that we are trying to arm, but are blocked.  Valid choices are: R-Report, change to a screen on the orbiter reporting this and let the user decide, W-Wait, arm anyway, but wait for the sensors to clear and then arm them, B-Bypass */
 
-void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string &sCMD_Result,Message *pMessage)
+void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage)
 //<-dceag-c19-e->
 {
-	/*
+/*
+	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	int PK_HouseMode = atoi(sValue_To_Assign.c_str());
 	if( PK_HouseMode<HOUSEMODE_Unarmed_at_home_CONST || PK_HouseMode>HOUSEMODE_Armed_Extended_away_CONST )
 	{
@@ -191,13 +202,113 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
-	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL )
+	if( ( result_set.r=m_pRouter->mysql_query_result( sql.str( ) ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"User: %d failed to set house mode: %d",iPK_Users,PK_HouseMode);
 		sendtoinvalidscreen();
 		return;		
 	}
-	// Go through all devices.  If the status is TRIPPED, and 
-	m_pRouter->SetDeviceData(m_dwPK_Device,housemode,
-	*/
+
+	bool bFailed=false; // Will be set to true if any of the devices fail to get set
+
+	if( iPK_DeviceGroup )
+	{
+		DeviceGroup *pDeviceGroup = m_pRouter->m_mapDeviceGroup_Find(iPK_DeviceGroup);
+		if( !pDeviceGroup )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Trying to set house mode with invalid device group: %d",iPK_DeviceGroup);
+			return;
+		}
+
+		for(size_t s=0;s<pDeviceGroup->m_vectDeviceData_Base.size();++s)
+		{
+			DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceGroup->m_vectDeviceData_Base[s];  // it's coming from the router, so it's safe to cast it
+			if( !SetHouseMode(pDevice,PK_HouseMode,sHandling_Instructions) )
+			{
+				bFailed=true;
+				break;
+			}
+		}
+	}
+	else
+	{
+		ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(environment_security);
+		if( !pListDeviceData_Router )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Trying to set house mode with no security devices");
+		else
+		{
+			for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+			{
+				DeviceData_Router *pDevice = *it;
+				if( !SetHouseMode(pDevice,PK_HouseMode,sHandling_Instructions) )
+				{
+					bFailed=true;
+					break;
+				}
+			}
+		}
+	}
+	if( bFailed )
+	{
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_cannot_arm_CONST), "", "", false );
+		SendCommand( CMD_Goto_Screen );
+	}
+*/
 }
+
+bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int PK_HouseMode,string sHandlingInstructions) 
+{
+	/*
+	string NewMode = GetModeString(PK_HouseMode);
+	string State = m_pRouter->State_get(pDevice->m_dwPK_Device);
+	string::size_type pos=0;
+	string Mode = StringUtils::Tokenize(State,",",pos);
+	string Bypass = StringUtils::Tokenize(State,",",pos);
+
+	if( Bypass=="PERMBYPASS" )
+	{
+		m_pRouter->State_Set(pDevice->m_dwPK_Device,NewMode + "," + Bypass);
+		return true; // We're bypassing this one
+	}
+
+	if( SensorIsTripped(PK_HouseMode,pDevice) )
+	{
+		if( sHandlingInstructions!='W' && sHandlingInstructions!='B' )
+			return false;  // Sensors are tripped.  The user needs to figure out what to do
+
+		if( sHandlingInstructions=='W' )
+			Bypass = "WAIT";
+		else
+			Bypass = "BYPASS";
+	}
+	else
+		Bypass = "";
+
+	m_pRouter->State_Set(pDevice->m_dwPK_Device,NewMode + "," + Bypass);
+	*/
+	return true;
+}
+/*
+bool Security_Plugin::SensorIsTripped(int PK_HouseMode,DeviceData_Base *pDevice)
+{
+	if( pDevice->GetState()!="TRIPPED" )
+		return false;
+
+	int Reaction = GetReaction(PK_HouseMode,pDevice);
+	return Reaction==SECURITY_BREAK || Reaction==FIRE_ALARM;
+}
+*/
+
+bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"Receieved a sensor trip from an unrecognized device: %d",pMessage->m_dwPK_Device_From);
+		return false;
+	}
+
+
+
+	return true;
+}
+

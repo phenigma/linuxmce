@@ -263,19 +263,19 @@ namespace DCE
 	};
 	class CMD_Set_House_Mode : public PreformedCommand {
 	public:
-		CMD_Set_House_Mode(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,19,5,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),18,sErrors.c_str(),99,sPassword.c_str(),100,StringUtils::itos(iPK_DeviceGroup).c_str()); }
+		CMD_Set_House_Mode(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,19,6,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),18,sErrors.c_str(),99,sPassword.c_str(),100,StringUtils::itos(iPK_DeviceGroup).c_str(),101,sHandling_Instructions.c_str()); }
 	};
 	class CMD_Set_House_Mode_DL : public PreformedCommand {
 	public:
-		CMD_Set_House_Mode_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,19,5,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),18,sErrors.c_str(),99,sPassword.c_str(),100,StringUtils::itos(iPK_DeviceGroup).c_str()); }
+		CMD_Set_House_Mode_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,19,6,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),18,sErrors.c_str(),99,sPassword.c_str(),100,StringUtils::itos(iPK_DeviceGroup).c_str(),101,sHandling_Instructions.c_str()); }
 	};
 	class CMD_Set_House_Mode_DT : public PreformedCommand {
 	public:
-		CMD_Set_House_Mode_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,19,5,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),18,sErrors.c_str(),99,sPassword.c_str(),100,StringUtils::itos(iPK_DeviceGroup).c_str()); }
+		CMD_Set_House_Mode_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,19,6,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),18,sErrors.c_str(),99,sPassword.c_str(),100,StringUtils::itos(iPK_DeviceGroup).c_str(),101,sHandling_Instructions.c_str()); }
 	};
 	class CMD_Set_House_Mode_Cat : public PreformedCommand {
 	public:
-		CMD_Set_House_Mode_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,19,5,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),18,sErrors.c_str(),99,sPassword.c_str(),100,StringUtils::itos(iPK_DeviceGroup).c_str()); }
+		CMD_Set_House_Mode_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,19,6,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),18,sErrors.c_str(),99,sPassword.c_str(),100,StringUtils::itos(iPK_DeviceGroup).c_str(),101,sHandling_Instructions.c_str()); }
 	};
 	class CMD_Set_Object_Parameter : public PreformedCommand {
 	public:

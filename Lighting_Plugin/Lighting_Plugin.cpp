@@ -94,7 +94,7 @@ bool Lighting_Plugin::Register()
 		new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Lighting_Plugin::LightingScenariosGrid ) )
 		, DATAGRID_Lighting_Scenarios_CONST );
 
-    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_CONST, MESSAGETYPE_COMMAND, 0 );
+    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_Device_CONST, MESSAGETYPE_COMMAND, 0 );
 
 	return Connect( ); 
 }

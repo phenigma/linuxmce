@@ -1094,6 +1094,10 @@
 #define DESIGNOBJ_go_to_voicemail_CONST 3260
 #define DESIGNOBJ_go_to_telecom_menu_CONST 3261
 #define DESIGNOBJ_go_to_phone_menu_CONST 3262
+#define DESIGNOBJ_transfer_call_or_conference_CONST 3263
+#define DESIGNOBJ_go_to_transfer_or_conference_CONST 3264
+#define DESIGNOBJ_go_to_users_CONST 3265
+#define DESIGNOBJ_users_CONST 3266
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
