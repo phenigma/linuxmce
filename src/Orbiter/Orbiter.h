@@ -116,8 +116,7 @@ public:
 	*/
 	virtual bool SelfUpdate() { return false; };
 
-	pluto_pthread_mutex_t m_CallbackMutex; /** < Don't allow 2 threads to operate on the callback map at the same time */
-	pluto_pthread_mutex_t m_MaintThreadMutex;
+	pluto_pthread_mutex_t m_MaintThreadMutex;  // This will also protect the callback map
 	pthread_cond_t m_MaintThreadCond;
 
 //<-dceag-const-e->

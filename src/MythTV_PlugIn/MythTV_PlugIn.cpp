@@ -210,7 +210,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 			DCE::CMD_Goto_Screen cmdGotoScreen(
                     m_dwPK_Device, pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
                     0, StringUtils::itos(DESIGNOBJ_mnuPVROptions_CONST).c_str(),
-                    "", "", false);
+                    "", "", false, false);
 			SendCommand(cmdGotoScreen);
 
 			return true;
