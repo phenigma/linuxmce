@@ -13,4 +13,7 @@ WHERE externalcommand='$0 $1' and hostname='`hostname`'";
 
 CONNECTION_ID=$(echo "$QUERY" | $SQL_COMMAND);
 echo "Found this connection id: $CONNECTION_ID and channel number: $2 "; 
-echo Tunning command $* >> /usr/pluto/bin/logs
+
+
+/usr/pluto/bin/MessageSend dcerouter 0 $1 1 187 68 $2
+
