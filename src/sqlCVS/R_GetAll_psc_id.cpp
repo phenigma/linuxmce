@@ -45,6 +45,7 @@ R_GetAll_psc_id::R_GetAll_psc_id( string sTable, int psc_id )
 
 bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	cout << "R_GetAll_psc_id" << endl;
 	std::ostringstream sSQL;
 	sSQL << "SELECT psc_id FROM " << m_sTable << " ORDER BY psc_id";
 	PlutoSqlResult res;

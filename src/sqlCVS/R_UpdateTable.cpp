@@ -61,6 +61,7 @@ R_UpdateTable::~R_UpdateTable( )
 
 bool R_UpdateTable::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	cout << "Update table: " << m_sTableName << endl;
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 
 	psqlCVSprocessor->m_pTable = g_GlobalConfig.m_pDatabase->m_mapTable_Find( m_sTableName );

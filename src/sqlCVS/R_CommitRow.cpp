@@ -43,6 +43,10 @@ R_CommitRow::R_CommitRow( sqlCVS::ChangedRow *pChangedRow )
 	m_psc_user = pChangedRow->m_psc_user;
 	m_iOriginalAutoIncrID = pChangedRow->m_iOriginalAutoIncrID;
 	m_eTypeOfChange = pChangedRow->m_eTypeOfChange;
+if( m_eTypeOfChange==toc_Delete )
+{
+int k=2;
+}
 	m_bFrozen=false;
 	m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=0;
 }

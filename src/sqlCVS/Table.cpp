@@ -450,6 +450,7 @@ void Table::GetDependencies( )
 
 #pragma warning( "todo -- warn if other tables already have a timestamp that we can't use them" )
 
+// Executed on the client side to update a table
 bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 {
 	vector<string> vectFields;
@@ -517,6 +518,7 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 	return true;
 }
 
+// Executed on the server side in repsonse to update table
 void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 {
 #pragma warning( "take into account filter" )
@@ -745,6 +747,7 @@ bool Table::ConfirmDependency( ChangedRow *pChangedRow, Field *pField_Referring,
 
 bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, DCE::Socket **ppSocket )
 {
+	cout << "DetermineDeletions for table: " << m_sName << " from psc_id: " << m_psc_id_last_sync << endl;
 	if( m_psc_id_last_sync<1 )
 		return true; /** We haven't synced any records with the server anyway */
 	R_GetAll_psc_id r_GetAll_psc_id( m_sName, m_psc_id_last_sync );
@@ -770,11 +773,15 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	}
 	else
 	{
+cout << "Got: ";
 for(size_t s=0;s<r_GetAll_psc_id.m_vectAll_psc_id.size();++s)
 {
 int k=r_GetAll_psc_id.m_vectAll_psc_id[s];
 int k2=9;
+cout << k << ",";
 }
+cout << endl;
+
 		while( ( row = mysql_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
@@ -785,6 +792,8 @@ int k2=9;
 			/** If the value of our local row[] is > than the server's vect, then we deleted some records locally */
 			while( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )>r_GetAll_psc_id.m_vectAll_psc_id[pos] )
 			{
+cout << "Deleted a local row - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
+	" atoi: " << atoi( row[0] ) << " comp: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << endl;
 				ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos] );
 				AddChangedRow( pChangedRow );
 				pos++;
@@ -792,6 +801,8 @@ int k2=9;
 			/** If the value in the server's vect is > than our local row[], then the server deleted this row */
 			if( pos>=r_GetAll_psc_id.m_vectAll_psc_id.size( ) || r_GetAll_psc_id.m_vectAll_psc_id[pos]>atoi( row[0] ) )
 			{
+cout << "Deleted a server row - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
+	" atoi: " << atoi( row[0] ) << " comp: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << endl;
 				m_vectRowsToDelete.push_back( atoi( row[0] ) );
 				continue; 
 			}
@@ -809,6 +820,8 @@ int k2=9;
 		
 		for( ;pos<r_GetAll_psc_id.m_vectAll_psc_id.size( );++pos )
 		{
+cout << "Still rows in server's vect - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
+	" comp: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << endl;
 			ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos] );
 			AddChangedRow( pChangedRow );
 		}

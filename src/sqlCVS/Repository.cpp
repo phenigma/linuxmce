@@ -725,6 +725,7 @@ int Repository::CreateBatch( sqlCVSprocessor *psqlCVSprocessor, map<int,Validate
 			cerr << "Failed to create batch: " << sSQL.str( ) << endl;
 		else
 		{
+			cout << "Created Batch: " << BatchID << " in repository: " << m_sName << endl;
 			for(map<int,ValidatedUser *>::iterator it=mapValidatedUsers->begin();it!=mapValidatedUsers->end();++it)
 			{
 				ValidatedUser *pValidatedUser = (*it).second;

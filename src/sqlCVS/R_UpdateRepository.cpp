@@ -45,6 +45,7 @@ R_UpdateRepository::R_UpdateRepository( string sRepository )
 
 bool R_UpdateRepository::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	cout << "Update Repository: " << m_sRepository << endl;
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 	Repository *pRepository = g_GlobalConfig.m_pDatabase->m_mapRepository_Find( m_sRepository );
 	if( !pRepository )
