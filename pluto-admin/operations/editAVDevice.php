@@ -172,8 +172,9 @@ $out.='
 <input type="hidden" name="action" value="update">
 <input type="hidden" name="deviceID" value="'.$deviceID.'">
 <br>';
-if($from=='devices')
-	$out.='WARNING: the changes will affect all devices from <B>'.$deviceTemplateName.'</B> category.';
+
+if(ereg('devices',$from))
+	$out.='<div class="err" align="center"><B>WARNING</B>: the changes will affect all devices from <B>'.$deviceTemplateName.'</B> category.</div>';
 
 $out.='
 <br>		

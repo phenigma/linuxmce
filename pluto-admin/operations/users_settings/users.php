@@ -126,7 +126,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			<tr>
 				<td colspan="5"> ';
 				if(!isset($_SESSION['masterUserData'])){
-					$out.='
+					$out.='Add user to installation: 
 					<input type="text" name="addUserToInstallation" value="" size="20">
 					<input type="submit" name="addUser" value="Add"> 
 						'.(@$_SESSION['users']['userNotValid'] == 1?'(<b>Invalid username</b>)':'').'

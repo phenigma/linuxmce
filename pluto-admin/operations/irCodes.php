@@ -95,7 +95,7 @@ function irCodes($output,$dbADO) {
 					$out.='
 					<fieldset>
 						<legend>Commands:</legend>							
-							<table>
+							<table border="0">
 								';
 					$queryC = "
 						SELECT PK_Input,PK_Output,PK_DSPMode,InfraredGroup_Command.*, Command.Description as C_Description 
@@ -128,50 +128,76 @@ function irCodes($output,$dbADO) {
 							$commandsDisplayed[]=$row['FK_Command'];
 						}
 						
-						$out.='<tr><td><B>Normal Commands</B></td></tr>';
+						$normalCommandsTxt='<tr><td><B>Normal Commands</B></td></tr>';
 						foreach($simpleCommands AS $commandID=>$commandDescription){
-							$out.="<tr ".(strlen(trim($commandDescription))==0?" bgColor='lightgreen' ":"")."><td>#{$commandDescription}<br />#{$commandID}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$commandID}\">".stripslashes($commandDescription).'</textarea></td><td> ';
-							$out.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=irCodes&infraredGroupID='.$infraredGroupID.'&commandID='.$commandID.'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
-							$out.='</td></tr>';
+							$normalCommandsTxt.="<tr ".(strlen(trim($commandDescription))==0?" bgColor='lightgreen' ":"")."><td>#{$commandDescription}<br />#{$commandID}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$commandID}\">".stripslashes($commandDescription).'</textarea></td><td> ';
+							$normalCommandsTxt.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=irCodes&infraredGroupID='.$infraredGroupID.'&commandID='.$commandID.'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
+							$normalCommandsTxt.='</td></tr>';
 						}
 
-						$out.='<tr><td><B>Intput Commands</B></td></tr>';
+						$inputCommandsTxt='<tr><td><B>Intput Commands</B></td></tr>';
 						foreach($inputCommands AS $commandID=>$commandDescription){
-							$out.="<tr ".(strlen(trim($commandDescription))==0?" bgColor='lightgreen' ":"")."><td>#{$commandDescription}<br />#{$commandID}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$commandID}\">".stripslashes($commandDescription).'</textarea></td><td> ';
-							$out.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=irCodes&infraredGroupID='.$infraredGroupID.'&commandID='.$commandID.'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
-							$out.='</td></tr>';
+							$inputCommandsTxt.="<tr ".(strlen(trim($commandDescription))==0?" bgColor='lightgreen' ":"")."><td>#{$commandDescription}<br />#{$commandID}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$commandID}\">".stripslashes($commandDescription).'</textarea></td><td> ';
+							$inputCommandsTxt.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=irCodes&infraredGroupID='.$infraredGroupID.'&commandID='.$commandID.'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
+							$inputCommandsTxt.='</td></tr>';
 						}
 
 						
-						$out.='<tr><td><B>Output Commands</B></td></tr>';
+						$outputCommandsTxt='<tr><td><B>Output Commands</B></td></tr>';
 						foreach($outputCommands AS $commandID=>$commandDescription){
-							$out.="<tr ".(strlen(trim($commandDescription))==0?" bgColor='lightgreen' ":"")."><td>#{$commandDescription}<br />#{$commandID}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$commandID}\">".stripslashes($commandDescription).'</textarea></td><td> ';
-							$out.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=irCodes&infraredGroupID='.$infraredGroupID.'&commandID='.$commandID.'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
-							$out.='</td></tr>';
+							$outputCommandsTxt.="<tr ".(strlen(trim($commandDescription))==0?" bgColor='lightgreen' ":"")."><td>#{$commandDescription}<br />#{$commandID}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$commandID}\">".stripslashes($commandDescription).'</textarea></td><td> ';
+							$outputCommandsTxt.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=irCodes&infraredGroupID='.$infraredGroupID.'&commandID='.$commandID.'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
+							$outputCommandsTxt.='</td></tr>';
 						}
 						
-						$out.='<tr><td><B>DSPMode Commands</B></td></tr>';
+						$dspModeCommandsTxt='<tr><td><B>DSPMode Commands</B></td></tr>';
 						foreach($dspModeCommands AS $commandID=>$commandDescription){
-							$out.="<tr ".(strlen(trim($commandDescription))==0?" bgColor='lightgreen' ":"")."><td>#{$commandDescription}<br />#{$commandID}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$commandID}\">".stripslashes($commandDescription).'</textarea></td><td> ';
-							$out.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=irCodes&infraredGroupID='.$infraredGroupID.'&commandID='.$commandID.'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
-							$out.='</td></tr>';
+							$dspModeCommandsTxt.="<tr ".(strlen(trim($commandDescription))==0?" bgColor='lightgreen' ":"")."><td>#{$commandDescription}<br />#{$commandID}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$commandID}\">".stripslashes($commandDescription).'</textarea></td><td> ';
+							$dspModeCommandsTxt.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=irCodes&infraredGroupID='.$infraredGroupID.'&commandID='.$commandID.'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
+							$dspModeCommandsTxt.='</td></tr>';
 						}
 						
 					}
-					$queryGetCommands = "select PK_Command,Description from Command where PK_Command NOT IN (".join(",",$commandsDisplayed).") order by Description asc";
+					$queryGetCommands = "
+						SELECT PK_Input,PK_Output,PK_DSPMode,PK_Command,Command.Description 
+						FROM Command 
+							LEFT JOIN Input ON Input.FK_Command=PK_Command
+							LEFT JOIN Output ON Output.FK_Command=PK_Command
+							LEFT JOIN DSPMode ON DSPMode.FK_Command=PK_Command
+						WHERE PK_Command NOT IN (".join(",",$commandsDisplayed).") ORDER BY Description ASC";
 					$otherCommands = '<option value="0">-please select-</option>';
+					$otherInputCommands = '<option value="0">-please select-</option>';
+					$otherOutputCommands = '<option value="0">-please select-</option>';
+					$otherDSPModeCommands = '<option value="0">-please select-</option>';
 					$res = $dbADO->Execute($queryGetCommands);
 					if ($res->RecordCount()==0) {
 						$otherCommands = '<option value="0">No commands left</option>';
 					}
 					if ($res) {
 						while ($row=$res->FetchRow()) {
-							$otherCommands.="<option value='{$row['PK_Command']}'>".stripslashes($row['Description']).'</option>';
+							if(is_null($row['PK_Input']) && is_null($row['PK_Output']) && is_null($row['PK_DSPMode']))
+								$otherCommands.="<option value='{$row['PK_Command']}'>".stripslashes($row['Description']).'</option>';
+							if(!is_null($row['PK_Input']) && $row['PK_Input']!='')
+								$otherInputCommands.="<option value='{$row['PK_Command']}'>".stripslashes($row['Description']).'</option>';
+							if(!is_null($row['PK_Output']) && $row['PK_Output']!='')
+								$otherOutputCommands.="<option value='{$row['PK_Command']}'>".stripslashes($row['Description']).'</option>';
+							if(!is_null($row['PK_DSPMode']) && $row['PK_DSPMode']!='')
+								$otherDSPModeCommands.="<option value='{$row['PK_Command']}'>".stripslashes($row['Description']).'</option>';
+			
 						}
 					}
+					$otherCommands .= '</select>';
+					$otherInputCommands .= '</select>';
+					$otherOutputCommands .= '</select>';
+					$otherDSPModeCommands .= '</select>';
+
+					$out.=$normalCommandsTxt.'<tr><td colspan="2" align="right">Add command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherCommands.'</td><td><input type="submit" name="submitX" value="Add"></td></tr>';
+					$out.=$inputCommandsTxt.'<tr><td colspan="2" align="right">Add input command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherInputCommands.'</td><td><input type="submit" name="submitX" value="Add"></td></tr>';
+					$out.=$outputCommandsTxt.'<tr><td colspan="2" align="right">Add output command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherOutputCommands.'</td><td><input type="submit" name="submitX" value="Add"></td></tr>';
+					$out.=$dspModeCommandsTxt.'<tr><td colspan="2" align="right">Add DSPMode command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherDSPModeCommands.'</td><td><input type="submit" name="submitX" value="Add"></td></tr>';
 					$out.='
 								</table>
-							<br />Add this command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherCommands.'</select><input type="submit" name="submitX" value="Add">';
+							<br />';
 					$out.='<br /><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommand&from=editInfraredGroupFromMasterDevice\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Create new command</a>';
 					$out.='<input type="hidden" name="displayedCommands" value="'.(join(",",$commandsDisplayed)).'">
 					</fieldset>

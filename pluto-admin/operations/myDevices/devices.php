@@ -214,7 +214,7 @@ function devices($output,$dbADO) {
 			$out.='	
 					<td align="center">';
 			if($type=='avEquipment')
-				$out.='<input type="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=devices&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&from=devices&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> ';
+				$out.='<input type="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=devices&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> ';
 					$out.='<input type="submit" name="delete_'.$rowD['PK_Device'].'" value="Delete"></td>
 				</tr>';
 			}

@@ -115,7 +115,7 @@ textarea {
    text-decoration: underline;
 }
 
-err {
+.err {
 	font-family: Arial, Verdana,  Helvetica, sans-serif;
 	font-size: 12px;
 	color: red;
