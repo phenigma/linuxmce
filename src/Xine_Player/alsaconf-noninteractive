@@ -620,26 +620,18 @@ else
     /sbin/modprobe $CARD_DRIVER
     sleep 4   # Wait for automatic "alsactl restore" to finish
 fi
-    echo Setting default volumes...
-    if [ -x $bindir/set_default_volume ]; then
-	$bindir/set_default_volume -f
-    else
-	set_mixers
-    fi
     if [ ! -r /var/lib/alsa/asound.state ]; then
+	echo Setting default volumes...
+	if [ -x $bindir/set_default_volume ]; then
+	    $bindir/set_default_volume -f
+	else
+	    set_mixers
+	fi
 	xecho "Saving the mixer setup used for this in /var/lib/alsa/asound.state."
 	$sbindir/alsactl store
+    else
+	$sbindir/alsactl restore
     fi
-    clear
-    xecho "
-===============================================================================
-
- Now ALSA is ready to use.
- For adjustment of volumes, use your favorite mixer.
-
- Have a lot of fun!
-
-"
 }
 
 #
