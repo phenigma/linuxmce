@@ -464,13 +464,13 @@ if($action=='form') {
 					(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
 				VALUES
 					(?,?,?,?,?,?,?)';
-			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'Arm Disarm',0,0,0,$GLOBALS['SecurityArmDisarmTemplate']));
+			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'Security Panel',0,0,0,$GLOBALS['SecurityArmDisarmTemplate']));
 			$armDisarmCG=$dbADO->Insert_ID();
 			$newDisarmCG=1;
 			
 			$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
-			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityPanel']));
 		}
 
 		$selectViewAll='SELECT * FROM CommandGroup WHERE FK_Template=?  AND FK_Installation=?';

@@ -343,7 +343,7 @@ function telecomScenarios($output,$dbADO) {
 				if($newScenario==1){
 					// insert new CG
 					$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
-					$dbADO->Execute($insertTelecomScenario,array($arrayID,$installationID,'Phones scenario',$templateWizard,$displayedRoomNamesArray[$key]));
+					$dbADO->Execute($insertTelecomScenario,array($arrayID,$installationID,'Phone',$templateWizard,$displayedRoomNamesArray[$key]));
 					$cgID=$dbADO->Insert_ID();
 					
 					$insertCG_R='INSERT INTO CommandGroup_Room (FK_Room, FK_CommandGroup,Sort) VALUES (?,?,?)';

@@ -1,6 +1,6 @@
 <?PHP
   	//debuging
-  	$GLOBALS['inDebug']=0;
+  	$GLOBALS['inDebug']=1;
   	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
@@ -165,6 +165,7 @@
 	$GLOBALS['butViewDesignObj']=3283;					// butView
 	$GLOBALS['TelecomMenu']=1323;						// Telecom Menu mnuMakeCallFavorites
 	$GLOBALS['mnuPicturesDocumentsList']=3282;			// mnuPicturesDocumentsList
+	$GLOBALS['mnuSecurityPanel']=1389;					// mnuSecurityPanel for Arm/Disarm
 	
 	// PK_CriteriaList from table CriteriaList
 	

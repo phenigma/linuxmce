@@ -80,7 +80,7 @@ function learnCode($output,$dbADO) {
 			</tr>
 			<tr>
 				<td align="center"><input type="radio" name="newCodeType" value="1" '.(($noRefresh==1)?'checked':'').' onClick="disableManually(false);"></td>
-				<td align="left"><B>Type code manually</B></td>
+				<td align="left"><B>Type code manually</B> (in Pronto format)</td>
 			</tr>
 			<tr>
 				<td align="center">&nbsp;</td>
