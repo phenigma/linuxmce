@@ -124,7 +124,12 @@ int k=2;
 }
         // If this is the main menu, there will be an array of them
         if( m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() ||
-			m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping->PK_DesignObj_get() )
+			m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping->PK_DesignObj_get() ||
+			m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuLights_CONST ||
+			m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuMedia_CONST ||
+			m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuClimate_CONST ||
+			m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuSecurity_CONST ||
+			m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuTelephony_CONST )
         {
             m_iVersion = m_pOrbiterGenerator->m_iLocation;
         }
@@ -1624,7 +1629,9 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
 
         if( sVariable[0]=='!' && sVariable.length()==1 )
             sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
-        else if( sVariable.substr(0,2)=="MM" )
+		else if( sVariable=="L" )
+			sValue = StringUtils::itos(m_pOrbiterGenerator->m_iLocation);
+		else if( sVariable.substr(0,2)=="MM" )
             sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get());
         else if( sVariable.substr(0,2)=="MS" )
         {
