@@ -55,6 +55,12 @@ function networkSettings($output,$dbADO) {
 		$fatalError='No record in Device_DeviceData for Network Interfaces.';
 	}	
 
+	$swaphtml = "";
+	if (($externalInterfaceArray[0] === "eth0" && $internalInterfaceArray[0] === "eth1")
+		|| ($externalInterfaceArray[0] === "eth1" && $internalInterfaceArray[0] === "eth0"))
+	{
+		$swaphtml = "<br>Swap button goes here<br>";
+	}
 	if ($action == 'form') {
 		if(!isset($fatalError)){
 			$out.='
@@ -207,6 +213,9 @@ function networkSettings($output,$dbADO) {
 			<td>&nbsp;</td>
 			<td>Subnet mask:</td>
 			<td><input type="text" maxlength="3" name="internalCoreNetMask_1" size="3" value="'.@$internalCoreNetMaskArray[0].'">.<input type="text" maxlength="3" name="internalCoreNetMask_2" size="3" value="'.@$internalCoreNetMaskArray[1].'">.<input type="text" maxlength="3" name="internalCoreNetMask_3" size="3" value="'.@$internalCoreNetMaskArray[2].'">.<input type="text" maxlength="3" name="internalCoreNetMask_4" size="3" value="'.@$internalCoreNetMaskArray[3].'"></td>
+		</tr>
+		<tr>
+			<td colspan=3>'.$swaphtml.'</td>
 		</tr>
 		<tr>
 			<td colspan="3" align="center" bgcolor="#EEEEEE"><input type="button" class="button" name="update" value="Update" onClick="validateForm()"> <input type="reset" class="button" name="reset" value="Reset"></td>
