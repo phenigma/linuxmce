@@ -142,6 +142,17 @@ fi
 
 
 if [ $version -ne 1 ]; then
+    mkdir -p /home/builds/upload
+    pushd /home/builds
+    rm upload/download.tar.gz
+    tar zcvf upload/download.tar.gz $version_name/*
+    scp upload/download.tar.gz problems@69.25.176.44:~/
+
+    cd upload
+    sh -x `dirname $0`/scripts/DumpVersionPackage.sh
+    scp dumpvp.tar.gz problems@69.25.176.44:~/
+    popd
+
 	# SourceForge CVS
 	if ! MakeRelease -a -o 1 -r 12 -m 1 -s /home/MakeRelease/trunk -n / -b -v $version  > /home/MakeRelease/MakeRelease6.log ; then
 		reportError
@@ -171,22 +182,6 @@ if [ $version -ne 1 ]; then
 	fi
 
 	(echo -e "Need to propagate new SourceForge\n\n") | mail -s "SourceForge" dan.h@plutohome.com -c aaron@plutohome.com
-	cd /home
-	
-	#rm debian.tar.gz
-	#tar zcvf /home/debian.tar.gz /var/www/debian/dists/20dev/main/binary-i386/*
-	#scp debian.tar.gz problems@69.25.176.44:~/
-
-	mkdir -p /home/builds/upload
-	pushd /home/builds/upload
-	rm download.tar.gz
-	tar zcvf download.tar.gz $version_name/*
-	scp download.tar.gz problems@69.25.176.44:~/
-
-	cd upload
-	sh -x `dirname $0`/scripts/DumpVersionPackage.sh
-	scp dumpvp.tar.gz problems@69.25.176.44:~/
-	popd
 	
 	echo "Sent to server."
 fi

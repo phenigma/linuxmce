@@ -326,7 +326,7 @@ void Bluetooth_Dongle::Intern_LostDevice(class PhoneDevice *pDevice)
 
 void Bluetooth_Dongle::NewDeviceDetected( class PhoneDevice *pDevice )
 {
-printf("Bluetooth_Dongle::NewDeviceDetected");	
+//printf("Bluetooth_Dongle::NewDeviceDetected");	
 	// We'll just handle this the same way
 	SignalStrengthChanged( pDevice );
 }
@@ -372,7 +372,7 @@ void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 
 void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 {
-printf("Bluetooth_Dongle::SignalStrengthChanged");
+//printf("Bluetooth_Dongle::SignalStrengthChanged");
 
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 

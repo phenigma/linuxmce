@@ -65,7 +65,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 	//printf("Start of scan loop %p\n",g_pPlutoLogger);
 	int num_rsp, length, flags, dev_id = 0;
 
-	length  = 2 * 8;	/* ~20 seconds */
+	length  = 8;	/* ~10 seconds */
 	num_rsp = 100;
 	flags   = 0;
 	const uint8_t *lap=NULL;
@@ -188,6 +188,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 	
 	while (!__io_canceled && cancel) {
 		p.revents = 0;
+
 		if (poll(&p, 1, 100) > 0) {
 			printf("# in poll\n");
 			/* Read the next HCI event (in H4 format) */
@@ -213,15 +214,14 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 					result.clock_offset = info->clock_offset;
 					result.rssi = 0;
 
-					char addr[18];
-					ba2str(&(info+i)->bdaddr, addr);
-
 					char name[248];
 					memset(name, 0, sizeof(name));
+					//if(hci_read_remote_name(dd, &(info+i)->bdaddr, sizeof(name), name, 100000) < 0)
+					strcpy(name, "n/a");
 
-// TODO - HACK !!!  SEE BELOW For some reason when I do this, I can only scan once and all future scans fail
-//                  if (hci_read_remote_name(dd, &(info+i)->bdaddr, sizeof(name), name, 100000) < 0)
-
+                    char addr[18];
+					ba2str(&(info+i)->bdaddr, addr);
+					
 					PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
 					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 					g_pPlutoLogger->Write(LV_STATUS, "Device %s responded.", pDNew->m_sMacAddress.c_str());
@@ -294,14 +294,13 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int
 					char name[248];
 					memset(name, 0, sizeof(name));
 // For some reason when I do this, I can only scan once and all future scans fail
-//                  if (hci_read_remote_name(dd, &(info+i)->bdaddr, sizeof(name), name, 100000) < 0)
-                        strcpy(name, "see notes in code");
+	                //if (hci_read_remote_name(dd, &(info+i)->bdaddr, sizeof(name), name, 100000) < 0)
+                    strcpy(name, "n/a");
 
 					PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
 					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 					
 					AddDeviceToDetectionList(pDNew);
-
 
 					/*
 					PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDNew->m_iMacAddress);
@@ -395,6 +394,12 @@ g_pPlutoLogger->Write(LV_STATUS,"lost device size is now: %d",(int) listDevicesL
 					err = bt_error(cs->status); 
 					cancel = 0;
 				}
+				break;
+
+			default:
+				printf("# unknown stage: %d\n", hdr->evt);
+				
+
 				break;
 			}
 		}
