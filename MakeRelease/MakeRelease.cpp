@@ -986,9 +986,7 @@ AsksSourceQuests:
 
 bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-	// Marius -- here you need to figure out how to take the package and upload it to SourceForge's CVS
-	
-	// 1.	Create a temporary directory
+		// 1.	Create a temporary directory
 	// 2.   chdir to the directory and do a cvs co .
 	// 3.   copy the files over one at a time
 	// 4.	Do a cvs add for each sub-directory
@@ -1138,9 +1136,15 @@ cout << "Copying Files\n";
 	}
 ///////////////////////////////////////////////////////////
 ////////---------------- Findinf old files and delete them
+	flag = false;
 	cout << "Removing older files\n";
 	for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
 	{
+			cmd2 = FileUtils::BasePath(*iMyList);
+			pos = cmd2.rfind("/");
+			length = cmd2.length();
+			cmd2 = cmd2.substr(pos+1,length-pos-1);
+			cmd2 = cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
 		for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
 		{
 			FileInfo *pFileInfo = (*iFileInfo);
@@ -1151,22 +1155,20 @@ cout << "Copying Files\n";
 			cmd = cmd.substr(pos+1,length-pos-1);
 			cmd = cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 			
-			cmd2 = FileUtils::BasePath(*iMyList);
-			pos = cmd2.rfind("/");
-			length = cmd2.length();
-			cmd2 = cmd2.substr(pos+1,length-pos-1);
-			cmd2 = cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
-
 			cout << cmd.c_str() << "=" << cmd2.c_str() << endl;
-			if(cmd.compare (cmd2) != 0) {
+			if(cmd.compare (cmd2) == 0) {
+				flag = true
+			}
+		}
+		if (flag != true) {
 				cmd = "rm -r -f " + cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
 				system(cmd.c_str());
 				cout << cmd << endl;
 				cmd = "cvs remove " + cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
 				system(cmd.c_str());
 				cout << cmd << endl;
-			}
 		}
+		flag = false;
 	}
 
 	cout<<"\n Commit\n";
