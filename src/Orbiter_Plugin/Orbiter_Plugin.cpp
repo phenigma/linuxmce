@@ -532,7 +532,8 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p",pOH_Orbiter);
     string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
 
     Row_Device *pRow_Device = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device;
-    if( (pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion) && pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
+    //if( (pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion) && pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
+	if( pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion )
 		SendAppToPhone(pOH_Orbiter,pDeviceFrom);
 
 	DeviceData_Router *pDevice_PriorDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
