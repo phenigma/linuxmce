@@ -146,8 +146,7 @@ namespace DCE
 		public:
 		
 			int m_iLevel; /** < this entry's level > @todo ask*/
-			long m_dwTime; /** < the time for the entry */
-			long m_dwMicroseconds; /** < the microseconds for the entry time */
+			timeval m_TimeStamp; /** < the time for the entry time */
 			std::string m_sName; /** < entry name */
 			std::string m_sData; /** < entry data */
 			int m_dwPK_Device; /** < the device that generated the entry */
@@ -157,18 +156,18 @@ namespace DCE
 			/**
 			* @brief constructor that assignes values to the data members
 			*/
-			Entry( int Level, int Time, int Microseconds, string sName, string sData, int iPK_Device )
+			Entry( int Level, timeval TimeStamp, string sName, string sData, int iPK_Device )
 			{
-				m_iLevel = Level; m_dwTime = Time; m_dwMicroseconds = Microseconds;
+				m_iLevel = Level; m_TimeStamp = TimeStamp;
 				m_sName = sName; m_sData = sData; m_dwPK_Device = iPK_Device;
 			}
-			
+		
 			/**
 			* @brief serializes the class data
 			*/
 			void SetupSerialization(int iSC_Version)
 			{
-				StartSerializeList() +	m_iLevel + m_dwTime + m_dwMicroseconds + m_sName + m_sData + m_dwPK_Device;
+				StartSerializeList() +	m_iLevel + m_TimeStamp.tv_sec + m_TimeStamp.tv_usec + m_sName + m_sData + m_dwPK_Device;
 			}
 			
 			/**

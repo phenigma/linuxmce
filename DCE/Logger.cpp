@@ -139,7 +139,7 @@ void Logger::Write( int iLevel, const char *pcFormat, ... )
 	else
 		sData = s;
 
-	Entry e( iLevel, tv.tv_sec, tv.tv_sec, m_Name, sData, 0 ); // creating the entry
+	Entry e( iLevel, tv, m_Name, sData, 0 ); // creating the entry
 
 	WriteEntry( e ); // writting it
 }
@@ -207,11 +207,11 @@ void FileLogger::WriteEntry( Entry& Entry )
 {
 	PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 	
-	struct tm *t = localtime((time_t *)&Entry.m_dwTime);
+	struct tm *t = localtime((time_t *)&Entry.m_TimeStamp.tv_sec);
 	char acBuff[50];
-	double dwSec = (double)(Entry.m_dwMicroseconds/1E6) + t->tm_sec;
+	double dwSec = (double)(Entry.m_TimeStamp.tv_usec/1E6) + t->tm_sec;
 	snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dwSec );
-	
+
 #ifdef LOG_MOUSE_CLICKS
 	static time_t tLastTouch=0;
 	if( Entry.m_iLevel == LV_MOUSE_CLICKS ) // print the interval passed since the last writting of the mouse clicks entry

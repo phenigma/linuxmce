@@ -86,10 +86,7 @@ void ServerLogger::WriteEntry(Logger::Entry& entry)
 		fprintf(stderr, "Trying to log to a disconnected server (%s)\n", entry.m_sData.c_str());
 		return;
 	}
-	
-	double sec = (double)(entry.m_dwMicroseconds/1E6) + entry.m_dwTime;
-	char c[32];
-	snprintf(c,sizeof(c),"%f", sec);
+
 	Message* msg = new Message(m_dwPK_Device, DEVICEID_LOGGER,PRIORITY_NORMAL, MESSAGETYPE_LOG, 0, 0);
 	entry.SerializeWrite();
 /*
