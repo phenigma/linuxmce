@@ -1,15 +1,20 @@
 <?PHP
-	include_once($_SERVER['DOCUMENT_ROOT'].'/PlutoAdminConfig/config.inc.php');
-	
-	error_reporting(E_ALL);
+  	//debuging
+  	$GLOBALS['inDebug']=1;
+  	
+  	if($GLOBALS['inDebug']!=1){
+  		// production settings
+  		error_reporting(E_ALL ^ E_NOTICE);
+  		include_once('/var/www/globalconfig/globalconfig.inc.php');
+  	}else{
+  		error_reporting(E_ALL);
+  		include_once('/var/www/test/globalconfig/globalconfig.inc.php');
+  	}
 	
 	$GLOBALS['sendErrorsTo']='support@plutohome.com';
 	
 	$directory="/pluto-admin/";
 	$domain="http://localhost";
-	
-	//	$MasterUsersHost="https://plutohome.com/masterusers/";
-	$MasterUsersHost="http://plutohome.com/masterusers/";
 	
 	// path where the media pics are uploaded
 	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/mediapics/';
@@ -91,13 +96,15 @@
 	
 	$GLOBALS['commandParamPK_Device']=2;			// PK_Device
 	$GLOBALS['commandParamPK_DesignObj']=3;			// PK_DesignObj
+	$GLOBALS['commandParameterVariableNumber']=4;	// Variable Number (PK_Variable)
+	$GLOBALS['commandParameterValueToAsign']=5;		// Value to assign
 	$GLOBALS['commandParamFilename']=13;			// Filename
 	$GLOBALS['commandParamPK_MediaType']=29;		// PK_MediaType
 	$GLOBALS['commandParamPK_DeviceTemplate']=44;	// PK_DeviceTemplate
 	$GLOBALS['commandParamPK_EntertainArea']=45;	// PK_EntertainArea
 	$GLOBALS['commandParamAbsoluteLevel']=76;		// Absolute Level
-	$GLOBALS['commandParameterVariableNumber']=4;	// Variable Number (PK_Variable)
-	$GLOBALS['commandParameterValueToAsign']=5;		// Value to assign
+	
+	
 	$GLOBALS['commandParameterObjectScreen']=16;	// Object(Screen)
 	
 	// PK_DeviceData from table DeviceData
@@ -120,6 +127,7 @@
 	$GLOBALS['mnuSecurityCamerasDesignObj']=1414;		// Security cameras
 	$GLOBALS['mnuSingleCameraViewOnlyDesignObj']=1405;	// Single Camera View Only
 	$GLOBALS['mnuMediaFileListDesignObj']=2071;			// mnuMediaFileList
+	$GLOBALS['mnuMediaFileList2DesignObj']=3226;		// mnuMediaFileList2
 	
 	// PK_CriteriaList from table CriteriaList
 	

@@ -1,5 +1,6 @@
 <?
 function users($output,$dbADO) {
+	global $checkMasterUserUrl;
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 /* @var $resUserTypes ADORecordSet */
@@ -123,11 +124,24 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 		
 		$out.='
 			<tr>
-				<td colspan="5"> 
+				<td colspan="5"> ';
+				if(!isset($_SESSION['masterUserData'])){
+					$out.='
 					<input type="text" name="addUserToInstallation" value="" size="20">
-					<input type="submit" name="submitX" value="Add"> 
+					<input type="submit" name="addUser" value="Add"> 
 						'.(@$_SESSION['users']['userNotValid'] == 1?'(<b>Invalid username</b>)':'').'
-						'.(@$_SESSION['users']['userNotValid'] == 2?'(<b>User already in this installation</b>)':'').'
+						'.(@$_SESSION['users']['userNotValid'] == 2?'(<b>User already in this installation</b>)':'');
+					}else{
+						parse_str($_SESSION['masterUserData']);
+						$out.='
+							<input type="hidden" name="addUserToInstallation" value="'.$_SESSION['masterUserName'].'">
+							User found in Pluto database. Please type the local password for him:
+							<input type="password" name="masterUserPas"> <input type="submit" name="addtoInst" value="Save"> <input type="submit" name="cancel" value="Cancel">
+						';
+						$usersFormValidation.='
+							frmvalidator.addValidation("masterUserPas","req","Please enter a password");';
+					}
+				$out.='
 				</td>
 			</tr>
 			<tr><td colspan="2"><input type="submit" name="submitX" value="Submit">'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
@@ -156,7 +170,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			$displayedUsers = cleanString($_POST['displayedUsers']);	
 			$displayedUsersArray = explode(",",$displayedUsers);
 			
-			if ($addNewUser!='') {
+			if ($addNewUser!='' && isset($_POST['addUser'])) {
 				$grabTheUserID = 'SELECT PK_Users From Users WHERE UserName = ?';
 				$resGrabTheUserID = $dbADO->Execute($grabTheUserID,array($addNewUser));
 				if ($resGrabTheUserID && $resGrabTheUserID->RecordCount()==1) {
@@ -175,11 +189,45 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						$_SESSION['users']['userNotValid'] = 2;
 					}			
 				} else {
-					$_SESSION['users']['userNotValid'] = 1;
+					// check MasterUser database and if user exist, prompt password field for him
+					$isMasterUsers=checkMasterUsers($addNewUser, '',$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=');
+					if(!$isMasterUsers[0]){
+						$_SESSION['users']['userNotValid'] = 1;
+					}
+					else {
+						$_SESSION['masterUserData']=$isMasterUsers[1];
+						$_SESSION['masterUserName']=$addNewUser;
+					}
 				}
-				
+				$msg='';
+				header("Location: index.php?section=users&msg=".$msg.$locationGoTo);
 			}
 			
+			if(isset($_POST['addtoInst'])){
+				$md5Pass=md5($_POST['masterUserPas']);
+				parse_str($_SESSION['masterUserData']);
+								$insertUser = '
+					INSERT INTO Users (PK_Users,UserName,Password,samePasswordMasterUsers, HasMailbox,
+					AccessGeneralMailbox,FirstName,
+					LastName,Nickname,Extension,ExtensionRingTimeout,ForwardEmail,
+					FK_Language,FK_Installation_Main) 
+					values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+				$query = $dbADO->Execute($insertUser,array($MasterUsersID,$_SESSION['masterUserName'],$md5Pass,2,0,0,'','','','','',$Email,NULL,NULL));
+				$insertUserToInstallation = "
+					INSERT INTO Installation_Users(FK_Installation,FK_Users) VALUES(?,?)
+						";			
+				$query=$dbADO->Execute($insertUserToInstallation,array($installationID,$MasterUsersID));
+				unset($_SESSION['masterUserData']);
+				unset($_SESSION['masterUserName']);
+				header("Location: index.php?section=users&msg=User added.".$locationGoTo);
+			}
+			
+			
+			if(isset($_POST['cancel'])){
+				unset($_SESSION['masterUserData']);
+				unset($_SESSION['masterUserName']);
+				header("Location: index.php?section=users");
+			}
 			
 			if (!is_array($displayedUsersArray) || $displayedUsersArray===array()) {
 				$displayedUsersArray=array();

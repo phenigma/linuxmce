@@ -59,7 +59,7 @@
   var $topMenu = '';
   
   var $bottomMenu = '';
-  var $HelpSrc= "";
+  var $HelpSrc= "/support/index.php?section=document&docID=35";
   var $body = "";
   
   var $leftFrameSrc = 'index.php?section=menu';

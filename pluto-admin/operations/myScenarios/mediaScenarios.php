@@ -335,6 +335,12 @@ function mediaScenarios($output,$dbADO) {
 								$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
 								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_MediaType'],1));
 								
+							}elseif($optionName=='playlists'){
+								$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));	
+								$CG_C_insertID=$dbADO->Insert_ID();
+								$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuMediaFileList2DesignObj']));
+								
 							}else{
 								
 								$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));			

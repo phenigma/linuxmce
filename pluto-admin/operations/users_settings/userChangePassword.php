@@ -127,12 +127,13 @@ function userChangePassword($output,$dbADO) {
 			if ($userPassword!='' && (($queryUserInst && $queryUserInst->RecordCount()==1) || $_SESSION['userID']==$userID)) {
 				//(only the creator and the owner can change the password
 				// attempt to change MasterUsers password
-				$MasterUsersPasswordUpdated=updateMasterUsersPassword($FK_MasterUsers,$masterPassMd5,$changePassMasterUserUrl);
-				if(!$MasterUsersPasswordUpdated[0]){
-					header("Location: index.php?section=userChangePassword&error=".$MasterUsersPasswordUpdated[1]."&userID=$userID&from=$from");
-					exit();
-				}
-				
+				if($rowTheSamePassword['samePasswordMasterUsers']!=2){
+					$MasterUsersPasswordUpdated=updateMasterUsersPassword($FK_MasterUsers,$userMasterPassword,$changePassMasterUserUrl);
+					if(!$MasterUsersPasswordUpdated[0]){
+						header("Location: index.php?section=userChangePassword&error=".$MasterUsersPasswordUpdated[1]."&userID=$userID&from=$from");
+						exit();
+					}
+				}				
 				$insertUser = '
 						UPDATE Users set Password = ? WHERE PK_Users = ?';
 				$query = $dbADO->Execute($insertUser,array(md5($userPassword),$userID));
