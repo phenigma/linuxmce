@@ -1,33 +1,39 @@
-allow booting;
-allow bootp;
+#
+# Sample configuration file for ISC dhcpd for Debian
+#
+# $Id: dhcpd.conf,v 1.4.2.2 2002/07/10 03:50:33 peloy Exp $
+#
+
+# option definitions common to all supported networks...
+#option domain-name "fugue.com";
+#option domain-name-servers toccata.fugue.com;
+option domain-name-servers %CORE_INTERNAL_ADDRESS%;
 authoritative;
 
-# PXELINUX OPTIONS
+option routers %CORE_INTERNAL_ADDRESS%;
+option subnet-mask %INTERNAL_SUBNET_MASK%;
+default-lease-time 600;
+max-lease-time 7200;
+
+allow booting;
+allow bootp;
+
+subnet %INTERNAL_SUBNET% netmask %INTERNAL_SUBNET_MASK% {
+	default-lease-time 600;
+	max-lease-time 7200;
+}
+
 option space pxelinux;
-option pxelinux.magic      code 208 = string;
-option pxelinux.pathprefix code 210 = text;
+option pxelinux.magic code 208 = string;
 option pxelinux.configfile code 209 = text;
 option pxelinux.pathprefix code 210 = text;
 option pxelinux.reboottime code 211 = unsigned integer 32;
 
-subnet 192.168.2.0 netmask 255.255.255.0 {
-  range 192.168.2.230 192.168.2.254;
-  default-lease-time 3600;
-  max-lease-time 7200;
-  option domain-name "1control.com";
-  option subnet-mask 255.255.255.0;
-  option broadcast-address 192.168.2.255;
-  option routers 192.168.2.1;
-  option domain-name-servers 66.167.63.130;
-  # PHONE
-  # IOBOARD
-}
-
-# Media consoles
 group {
-  next-server 192.168.2.1;
-  filename "pxelinux.0";
-  option pxelinux.reboottime = 30;
+	next-server %CORE_INTERNAL_ADDRESS%;
+	filename "/tftpboot/pxelinux.0";
+	option pxelinux.reboottime = 30;
 
-  # DLMC
+	%MOON_ENTRIES%
 }
+

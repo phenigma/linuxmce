@@ -4,10 +4,8 @@
 proc            /proc           proc    defaults                0       0
 /dev/fd0        /floppy         auto    user,noauto             0       0
 /dev/cdrom      /cdrom          iso9660 ro,user,noauto          0       0
-/swap.file none swap sw 0 0
+#/swap.file none swap sw 0 0
 
-192.168.2.1:/mnt/media /mnt/media nfs intr,tcp 1 1
-192.168.2.1:/usr/local/pluto/bootpluto /usr/local/pluto/bootpluto nfs intr,tcp 1 1
-192.168.2.1:/usr/local/pluto/var/log /usr/local/pluto/var/log nfs intr,tcp 1 1
-192.168.2.1:/home /home nfs intr,tcp 1 1
-192.168.2.1:/u/home/.dvdcss /root/.dvdcss nfs rsize=8192,wsize=8192,intr,tcp 1 1
+%CORE_INTERNAL_ADDRESS%:/mnt/media /mnt/media nfs intr,tcp 1 1
+%CORE_INTERNAL_ADDRESS%:/home /home nfs intr,tcp 1 1
+#%CORE_INTERNAL_ADDRESS%:/u/home/.dvdcss /root/.dvdcss nfs rsize=8192,wsize=8192,intr,tcp 1 1

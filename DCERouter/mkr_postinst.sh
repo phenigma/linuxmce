@@ -71,4 +71,5 @@ JOIN Users;"
 (echo "$Q4";) | /usr/bin/mysql pluto_main
 
 /usr/pluto/bin/Update_StartupScrips.sh
-
+mkdir -p /tftpboot/pxelinux.cfg
+cp /usr/lib/syslinux/pxelinux.0 /tftpboot
