@@ -1132,11 +1132,11 @@ DEP_CPP_GRAPH=\
 	"..\OrbiterData.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\TextStyle.h"\
-	".\PocketFrogWrapper.h"\
 	
 NODEP_CPP_GRAPH=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -1230,13 +1230,13 @@ DEP_CPP_HANDL=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_HANDL=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -1451,6 +1451,7 @@ DEP_CPP_MAIN_=\
 	"..\OrbiterData.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\SDL\OrbiterSDL.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
@@ -1458,15 +1459,14 @@ DEP_CPP_MAIN_=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
-	".\PocketFrogWrapper.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIN_=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -1605,21 +1605,22 @@ DEP_CPP_MAIND=\
 	"..\OrbiterData.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\SDL\OrbiterSDL.h"\
+	"..\SelfUpdate.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
-	".\PocketFrogWrapper.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIND=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -2117,6 +2118,8 @@ DEP_CPP_ORBITE=\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_Direction.h"\
+	"..\..\pluto_main\Define_HorizAlignment.h"\
+	"..\..\pluto_main\Define_VertAlignment.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -2138,18 +2141,18 @@ DEP_CPP_ORBITE=\
 	"..\OrbiterData.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
-	".\PocketFrogWrapper.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_ORBITE=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -2397,9 +2400,9 @@ DEP_CPP_PFGHE=\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PFGHelper.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\RendererOCG.h"\
 	"..\TextStyle.h"\
-	".\PocketFrogWrapper.h"\
 	
 NODEP_CPP_PFGHE=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -2546,8 +2549,8 @@ DEP_CPP_POCKE=\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PFGHelper.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\TextStyle.h"\
-	".\PocketFrogWrapper.h"\
 	
 NODEP_CPP_POCKE=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -2558,24 +2561,24 @@ NODEP_CPP_POCKE=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\PocketFrogWrapper.cpp
+SOURCE=..\PocketFrog\PocketFrogWrapper.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
 
 DEP_CPP_POCKET=\
-	".\PocketFrogWrapper.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
 
 DEP_CPP_POCKET=\
-	".\PocketFrogWrapper.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
 
 DEP_CPP_POCKET=\
-	".\PocketFrogWrapper.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
@@ -2595,7 +2598,7 @@ DEP_CPP_POCKET=\
 	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
 	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
 	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
-	".\PocketFrogWrapper.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	
 
 !ENDIF 
@@ -3083,21 +3086,21 @@ DEP_CPP_SELFU=\
 	"..\OrbiterData.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\SDL\OrbiterSDL.h"\
 	"..\SelfUpdate.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
-	".\PocketFrogWrapper.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SELFU=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -3319,6 +3322,7 @@ DEP_CPP_SIMUL=\
 	"..\OrbiterData.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\SDL\OrbiterSDL.h"\
 	"..\SDL_Bluetooth\OrbiterSDLBluetooth.h"\
 	"..\Simulator.h"\
@@ -3326,15 +3330,14 @@ DEP_CPP_SIMUL=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
-	".\PocketFrogWrapper.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SIMUL=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -3607,18 +3610,18 @@ DEP_CPP_START=\
 	"..\OrbiterData.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\SDL\OrbiterSDL.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
-	".\PocketFrogWrapper.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_START=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -3942,10 +3945,6 @@ SOURCE=..\..\DCE\PlutoLockLogger.h
 # Begin Source File
 
 SOURCE=..\PocketFrog\PocketFrogGraphic.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PocketFrogWrapper.h
 # End Source File
 # Begin Source File
 
