@@ -189,7 +189,7 @@ function devices($output,$dbADO) {
 								$queryTable="SELECT * FROM $tableName $filterQuery ORDER BY Description ASC";
 								$resTable=$dbADO->Execute($queryTable);
 								$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'">
-										<option value="0"></option>';
+										<option value="0">- Please select -</option>';
 								while($rowTable=$resTable->FetchRow()){
 									$out.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').'>'.$rowTable['Description'].'</option>';
 								}
@@ -231,7 +231,7 @@ function devices($output,$dbADO) {
 					<td colspan="5">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="5" align="center"><input type="button" class="button" name="button" value="Pick Device Template" onClick="windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="5" align="center"><input type="button" class="button" name="button" value="Add device" onClick="windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 		</form>

@@ -32,6 +32,8 @@ $out='';
 		$isPlugIn = $row['IsPlugIn'];
 		$isEmbedded = $row['IsEmbedded'];
 		$inheritsMacFromPC = $row['InheritsMacFromPC'];
+		$isIPBased=$row['IsIPBased'];
+		$comments=$row['Comments'];
 		$rs->Close();
 		
 		$out='
@@ -191,6 +193,15 @@ $out='';
 					<td><input type="checkbox" name="inheritsMacFromPC" value="1" '.(($inheritsMacFromPC==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
 					<input type="hidden" name="oldInheritsMacFromPC" value="'.(($inheritsMacFromPC==1)?'1':'0').'"></td>
 				</tr>					
+				<tr>
+					<td valign="top">Is IP Based</td>
+					<td><input type="checkbox" name="isIPBased" value="1" '.(($isIPBased==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
+					<input type="hidden" name="oldIsIPBased" value="'.(($isIPBased==1)?'1':'0').'"></td>
+				</tr>	
+				<tr>
+					<td valign="top">Comments</td>
+					<td><textarea name="comments" rows="2" style="width:500;">'.$comments.'</textarea></td>
+				</tr>	
 				<tr>
 					<td valign="top">Contact</td>
 					<td>';
@@ -604,13 +615,12 @@ $out='';
 		$oldIsEmbedded = cleanInteger(@$_POST['oldIsEmbedded']);
 		$inheritsMacFromPC = cleanInteger(@$_POST['inheritsMacFromPC']);
 		$oldInheritsMacFromPC= cleanInteger(@$_POST['oldInheritsMacFromPC']);
+		$isIPBased= cleanInteger(@$_POST['isIPBased']);
+		$oldIsIPBased= cleanInteger(@$_POST['oldIsIPBased']);
+		$comments=cleanString($_POST['comments']);
 		
 		$locationGoTo=''; 
 
-		
-		/*if ($ImplementsDCE==0 && $commandLine=='') {
-			header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=Missed parrameters!");
-		}*/
 		
 		$usedParams = @cleanString($_POST['usedData']);
 		
@@ -803,10 +813,12 @@ $out='';
 							FK_Package=?,
 							IsPlugIn =?,
 							IsEmbedded=?,
-							InheritsMacFromPC=?
+							InheritsMacFromPC=?,
+							IsIPBased=?,
+							Comments=?
 							WHERE PK_DeviceTemplate = ?";
 
-		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$deviceID));
+		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$isIPBased,$comments,$deviceID));
 
 		if($isPlugIn==1 && $oldIsPlugIn==0){
 			$insertControlledVia = '

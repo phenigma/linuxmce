@@ -13,10 +13,12 @@ function avWizard($output,$dbADO) {
 	switch($type){
 		case 'avEquipment':
 			$deviceCategory=$GLOBALS['rootAVEquipment'];
+			$specificFloorplanType=$GLOBALS['EntertainmentZone'];
 			$title='A/V Equipment';
 		break;
 		case 'media_directors':
 			$deviceCategory=$GLOBALS['rootMediaDirectors'];
+			$specificFloorplanType=$GLOBALS['EntertainmentZone'];
 		break;
 	}
 	// get selected category Device Templates
@@ -265,12 +267,11 @@ function avWizard($output,$dbADO) {
 
 					$resDDforDevice=$dbADO->Execute($queryDDforDevice,array($rowD['PK_Device'],$value));
 
-					if($resDDforDevice->RecordCount()>0){
-						$rowDDforDevice=$resDDforDevice->FetchRow();
-						$ddValue=$rowDDforDevice['IK_DeviceData'];
-					}
-					if(@$rowDDforDevice['ShowInWizard']==1){
-						$out.='<b>'.(($rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> ';
+					$rowDDforDevice=$resDDforDevice->FetchRow();
+					$ddValue=$rowDDforDevice['IK_DeviceData'];
+					
+					if($rowDDforDevice['ShowInWizard']==1){
+						$out.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> ';
 						switch($DDTypesToDisplay[$key]){
 							case 'int':
 								if(in_array($DeviceDataDescriptionToDisplay[$key],$GLOBALS['DeviceDataLinkedToTables']))
@@ -412,7 +413,7 @@ function avWizard($output,$dbADO) {
 					<td colspan="8">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Pick Device Template" onClick="windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Add device" onClick="windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 		</form>

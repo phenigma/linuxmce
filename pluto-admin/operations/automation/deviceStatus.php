@@ -21,16 +21,20 @@ function deviceStatus($output,$dbADO) {
 			<input type="hidden" name="section" value="deviceStatus">
 			<input type="hidden" name="action" value="update">
 		<table cellpadding="4" cellspacing="0" border="0" align="center">
-			<tr bgcolor="lightblue">
-				<td align="center"><B>Device</B></td>
+			<tr>
+				<td align="center" bgcolor="#EEEEEE"><B>Device</B></td>
 				<td align="center"><B>State</B></td>
-				<td align="center"><B>Status</B></td>
+				<td align="center" bgcolor="#EEEEEE"><B>Status</B></td>
 				<td align="center"><B>IP Address</B></td>
-				<td align="center"><B>MAC Address</B></td>
+				<td align="center" bgcolor="#EEEEEE"><B>MAC Address</B></td>
 			</tr>';
 		$queryDevices='
-			SELECT PK_Device, Device.Description AS DeviceName, State,Status, IPaddress,MACaddress,Room.Description AS RoomName
+			SELECT PK_Device, Device.Description AS DeviceName, State,Status, IPaddress,MACaddress,Room.Description AS RoomName, 
+			Manufacturer.Description AS ManufName, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName
 			FROM Device
+			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 			LEFT JOIN Room ON FK_Room=PK_Room
 			WHERE Device.FK_Installation=?
 			ORDER BY RoomName ASC, DeviceName ASC';
@@ -48,11 +52,14 @@ function deviceStatus($output,$dbADO) {
 			}
 			$out.='
 				<tr bgcolor="'.(($pos%2==0)?'#EBEFF9':'').'">
-					<td><a href="index.php?section=editDeviceParams&deviceID='.$rowDevices['PK_Device'].'">'.$rowDevices['DeviceName'].'</a></td>
+					<td bgcolor="#EEEEEE"><a href="index.php?section=editDeviceParams&deviceID='.$rowDevices['PK_Device'].'">'.$rowDevices['DeviceName'].'</a></td>
 					<td>'.$rowDevices['State'].'</td>
-					<td>'.$rowDevices['Status'].'</td>
+					<td bgcolor="#EEEEEE">'.$rowDevices['Status'].'</td>
 					<td>'.$rowDevices['IPaddress'].'</td>
-					<td>'.$rowDevices['MACaddress'].'</td>
+					<td bgcolor="#EEEEEE">'.$rowDevices['MACaddress'].'</td>
+				</tr>
+				<tr>
+					<td colspan="5">Device Template: <B>'.$rowDevices['TemplateName'].'</B> Manufacturer: <B>'.$rowDevices['ManufName'].'</B> Device Category: <B>'.$rowDevices['CategoryName'].'</B></td>
 				</tr>
 			';
 		}

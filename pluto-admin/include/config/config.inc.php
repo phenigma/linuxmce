@@ -138,7 +138,8 @@
 	$GLOBALS['LightingFoorplanType']=2;		// Lighting Zone
 	$GLOBALS['ClimateFoorplanType']=3;		// Climate Zone
 	$GLOBALS['CameraFoorplanType']=4;		// Camera Zone
-	$GLOBALS['Entertainment Zone']=5;		// Entertainment Zone
+	$GLOBALS['EntertainmentZone']=5;		// Entertainment Zone
+	$GLOBALS['AVEquipmentFlorplanType']=6;	// AV Equipment
 	
 	// PK_DesignObj from table DesignObj
 	

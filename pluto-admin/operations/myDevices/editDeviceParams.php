@@ -65,12 +65,12 @@ $installationID = (int)@$_SESSION['installationID'];
 			DeviceData.PK_DeviceData as PK_DD,
 			ParameterType.Description as PT_Desc,
 			Device_DeviceData.IK_DeviceData as IK_DeviceData,
-			AllowedToModify
+			AllowedToModify,DeviceTemplate_DeviceData.FK_DeviceTemplate AS DT_DD_Exists
 		FROM Device_DeviceData 
 			INNER JOIN DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData
 			INNER JOIN ParameterType on FK_ParameterType = PK_ParameterType
 			INNER JOIN Device ON FK_Device=PK_Device
-			INNER JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate AND DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData
+			LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate AND DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData
 		 WHERE FK_Device = $deviceID";
 	$resDeviceData = $dbADO->_Execute($deviceData);
 	$childsNo = getChildsNo($deviceID,$dbADO);
@@ -462,7 +462,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			$out.="
 				<tr>
 					<td>{$rowDevicedata['DD_desc']}({$rowDevicedata['PT_Desc']})</td>
-					<td><input type=\"text\" name=\"deviceData_".$rowDevicedata['PK_DD']."\" value=\"".stripslashes($rowDevicedata['IK_DeviceData'])."\" ".(($rowDevicedata['AllowedToModify']==0)?'disabled':'')."></td>
+					<td><input type=\"text\" name=\"deviceData_".$rowDevicedata['PK_DD']."\" value=\"".stripslashes($rowDevicedata['IK_DeviceData'])."\" ".(($rowDevicedata['AllowedToModify']==1 || $rowDevicedata['DT_DD_Exists']=='')?'':'disabled')."></td>
 				</tr>";
 			$deviceData[]=$rowDevicedata['PK_DD'];
 		}

@@ -13,7 +13,11 @@ function usersOrbiters($output,$dbADO) {
 
 	$usersArray=array();
 	$checkedArray=array();
-	$resUsers=$dbADO->Execute('SELECT * FROM Users ORDER BY UserName ASC');
+	$resUsers=$dbADO->Execute('
+		SELECT * FROM Users 
+		INNER JOIN Installation_Users ON FK_Users=PK_Users
+		WHERE FK_Installation=?
+		ORDER BY UserName ASC',$installationID);
 	while($rowUsers=$resUsers->FetchRow()){
 		$usersArray[$rowUsers['PK_Users']]=$rowUsers['UserName'];
 		$checkedArray[$rowUsers['PK_Users']][]=0;
@@ -22,7 +26,9 @@ function usersOrbiters($output,$dbADO) {
 	$orbiterDTArray=getDeviceTemplatesFromCategory($GLOBALS['rootOrbiterID'],$dbADO);
 	if(count($orbiterDTArray)==0)
 		$orbiterDTArray[]=0;
-	$resDevices=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate IN ('.join(',',$orbiterDTArray).') AND FK_Installation=?',$installationID);
+	$resDevices=$dbADO->Execute('
+		SELECT * FROM Device 
+		WHERE FK_DeviceTemplate IN ('.join(',',$orbiterDTArray).') AND FK_Installation=?',$installationID);
 	$orbitersArray=array();
 	while($rowDevices=$resDevices->FetchRow()){
 		$orbitersArray[$rowDevices['PK_Device']]=$rowDevices['Description'];
@@ -56,7 +62,7 @@ function usersOrbiters($output,$dbADO) {
 			<tr bgcolor="#EEEEEE">
 				<td><B>User/Orbiter</B></td>';
 		foreach($orbitersArray AS $orbiterName){
-			$out.='<td align="center"><B>'.$orbiterName.'</B></td>';
+			$out.='<td align="center"><B>'.stripslashes($orbiterName).'</B></td>';
 		}
 		$out.='
 			</tr>

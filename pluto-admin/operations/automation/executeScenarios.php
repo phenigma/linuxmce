@@ -50,7 +50,8 @@ function executeScenarios($output,$dbADO) {
 					FROM CommandGroup
 					INNER JOIN CommandGroup_Room ON FK_CommandGroup=PK_CommandGroup
 					INNER JOIN Array ON FK_Array=PK_Array
-					WHERE FK_Installation=? AND FK_Room=?';
+					WHERE FK_Installation=? AND FK_Room=?
+					ORDER BY FK_Array ASC, ScenarioName ASC';
 				$resCG_R=$dbADO->Execute($queryCG_R,array($installationID,$rowEntAreas['FK_Room']));
 				while($rowCG_R=$resCG_R->FetchRow()){
 					$displayedCG[]=$rowCG_R['PK_CommandGroup'];

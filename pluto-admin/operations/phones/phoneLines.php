@@ -138,11 +138,11 @@ function phoneLines($output,$dbADO) {
 				exit();
 			}
 			
-			$insertPhoneLine='INSERT INTO sip_buddies (username, secret, name, host, port, rtptimeout, type) VALUES (?,?,?,?,?,?,?)';
-			$dbADO->Execute($insertPhoneLine,array($username,$secret,$name,$host,$port,$rtptimeout,'peer'));
+			$insertPhoneLine='INSERT INTO sip_buddies (username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
+			$dbADO->Execute($insertPhoneLine,array($username,$secret,$name,$host,$port,$rtptimeout,'peer','registered-lines',$phoneNumber,$host,'Y',$phoneNumber));
 			
 			if(!isset($defaultLineID)){
-				$dbADO->Execute('INSERT INTO extensions_table (`context`, `exten`, `priority`, `app`, `appdata`) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_.',1,'SetVar','DIALLINE='.$name));
+				$dbADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_.',1,'SetVar','DIALLINE='.$name));
 			}else{
 				if($isDefault==1){
 					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$name,$defaultLineID));

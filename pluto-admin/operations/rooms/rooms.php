@@ -16,7 +16,7 @@ if (@$_SESSION['userLoggedIn']!=true) {
 $installationID = cleanInteger($_SESSION['installationID']);
 
 $fotArray=array();
-$resFOT=$dbADO->Execute('SELECT * FROM FloorplanObjectType WHERE FK_FloorplanType=? ORDER BY Description ASC',$GLOBALS['Entertainment Zone']);
+$resFOT=$dbADO->Execute('SELECT * FROM FloorplanObjectType WHERE FK_FloorplanType=? ORDER BY Description ASC',$GLOBALS['EntertainmentZone']);
 while($rowFOT=$resFOT->FetchRow()){
 	$fotArray[$rowFOT['PK_FloorplanObjectType']]=$rowFOT['Description'];
 }

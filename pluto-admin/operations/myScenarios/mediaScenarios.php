@@ -12,6 +12,17 @@ function mediaScenarios($output,$dbADO) {
 	$arrayID=$GLOBALS['ArrayIDForMedia'];
 	$templateWizard=$GLOBALS['MediaScenariosTemplate'];			// from table Template, PK_Template for Media Wizard
 	
+	$queryEntAreas='
+		SELECT 
+			EntertainArea.*,
+			Room.Description AS RoomName 
+		FROM EntertainArea
+			INNER JOIN Room on FK_Room=PK_Room
+		WHERE FK_Installation=?
+		ORDER BY RoomName ASC, Description ASC';
+	$resEntAreas=$dbADO->Execute($queryEntAreas,$installationID);
+	$displayedMediaScenarios=array();
+
 	$out='Each Media Scenario will be a button on the Orbiter.  To use Media from a Pluto Media Director, just check the box for the type of media you want.  To use Media from
 	another source, like a VCR, DVD player, etc., use the "Add Media Scenario" section.';
 	if($action=='form'){
@@ -32,17 +43,102 @@ function mediaScenarios($output,$dbADO) {
 				<input type="hidden" name="GoTo" value="">	
 			<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 			<div align="center"><h2>Media scenarios</h2></div>
+			<table>
+				<tr>
+					<td colspan="2"><B>Add Media Scenario</B><a name="addMS"></a></td>
+				</tr>
+				<tr>
+					<td>Description</td>
+					<td><input type="text" name="newDescription" value="'.@$_POST['newDescription'].'"></td>
+				</tr>
+				<tr>
+					<td>Entertain Area</td>
+					<td><select name="newEntArea" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
+						<option value="0">please select</option>';
+			
+			while($rowEntAreas=$resEntAreas->FetchRow()){
+				$out.='<option value="'.$rowEntAreas['PK_EntertainArea'].'" '.((@$_POST['newEntArea']==$rowEntAreas['PK_EntertainArea'])?'selected':'').'>'.$rowEntAreas['Description'].'</option>';
+			}
+			$out.='
+					</select></td>
+				</tr>';
+			if((int)@$_POST['newEntArea']!=0){
+				$queryDevices='
+					SELECT DISTINCT PK_Device, Device.Description, Device.FK_DeviceTemplate
+						FROM Device_EntertainArea
+					INNER JOIN Device ON FK_Device=PK_Device
+					INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+					INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=Device.FK_DeviceTemplate
+					WHERE FK_EntertainArea=?';
+				$out.='
+					<tr>
+						<td>Device</td>
+						<td><select name="MSDevice" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
+							<option value="0">Please select</option>';
+				$resDevices=$dbADO->Execute($queryDevices,array($_POST['newEntArea']));
+				while($rowDevices=$resDevices->FetchRow()){
+					$out.='<option value="'.$rowDevices['PK_Device'].'-'.$rowDevices['FK_DeviceTemplate'].'" '.((@$_POST['MSDevice']==$rowDevices['PK_Device'].'-'.$rowDevices['FK_DeviceTemplate'])?'selected':'').'>'.$rowDevices['Description'].'</option>';
+				}
+				$out.='
+						</select></td>
+					</tr>';
+
+				if(isset($_POST['MSDevice']) && $_POST['MSDevice']!='0'){
+					$deviceArray=explode('-',$_POST['MSDevice']);
+					$out.='
+					<tr>
+						<td>Type</td>
+						<td><select name="newType" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
+							<option value="0">Please select</option>';
+					$getMediaTypes='
+						SELECT * FROM MediaType 
+							INNER JOIN DeviceTemplate_MediaType ON FK_MediaType=PK_MediaType
+						WHERE FK_DeviceTemplate=? ORDER BY Description ASC';
+					$resMediaTypes=$dbADO->Execute($getMediaTypes,$deviceArray[1]);
+					while($rowMediaTypes=$resMediaTypes->FetchRow()){
+						$out.='<option value="'.$rowMediaTypes['PK_DeviceTemplate_MediaType'].'" '.((@$_POST['newType']==$rowMediaTypes['PK_DeviceTemplate_MediaType'])?'selected':'').'>'.$rowMediaTypes['Description'].'</option>';
+					}
+					$out.='
+						</select>
+						</td>
+					</tr>';
+					
+					if(isset($_POST['newType']) && $_POST['newType']!='0'){
+						$queryRemotes='				
+							SELECT 
+								FK_DesignObj,DeviceTemplate_MediaType_DesignObj.Description,DesignObj.Description AS dobjDescription
+							FROM DeviceTemplate_MediaType_DesignObj
+								JOIN DesignObj ON FK_DesignObj=PK_DesignObj
+							WHERE FK_DeviceTemplate_MediaType=?';
+						$resRemotes=$dbADO->Execute($queryRemotes,$_POST['newType']);
+
+						$out.='
+						<tr>
+							<td>Remote</td>
+							<td><select name="newRemote" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
+								<option value="0">Please select</option>
+						';
+						while($rowRemotes=$resRemotes->FetchRow()){
+							$out.='<option value="'.$rowRemotes['FK_DesignObj'].'" '.(($rowRemotes['FK_DesignObj']==@$_POST['newRemote'])?'selected':'').'>'.(($rowRemotes['Description']!='')?$rowRemotes['Description']:$rowRemotes['dobjDescription']).'</option>';
+						}
+						$out.='</select>
+						</td>
+					</tr>';
+					}
+					if(isset($_POST['newRemote']) && $_POST['newRemote']!='0'){
+						$out.='
+						<tr>
+							<td colspan="2" align="center"><input type="submit" class="button" name="add" value="add"  ></td>
+						</tr>
+						';
+					}
+				}
+			}
+		$out.='
+			</table>
+		
 			<table width="100%" border="0">';
-		$queryEntAreas='
-			SELECT 
-				EntertainArea.*,
-				Room.Description AS RoomName 
-			FROM EntertainArea
-				INNER JOIN Room on FK_Room=PK_Room
-			WHERE FK_Installation=?
-			ORDER BY RoomName ASC, Description ASC';
-		$resEntAreas=$dbADO->Execute($queryEntAreas,$installationID);
-		$displayedMediaScenarios=array();
+		$resEntAreas->MoveFirst();
 		while($rowEntAreas=$resEntAreas->FetchRow()){
 			$checkBoxes='';
 			foreach($GLOBALS['mediaOptionsArray'] AS $value){
@@ -53,7 +149,7 @@ function mediaScenarios($output,$dbADO) {
 					WHERE Template.Description=? AND FK_EntertainArea=?';
 				$resOptions=$dbADO->Execute($selectOptions,array('Media Wiz - '.$value,$rowEntAreas['PK_EntertainArea']));
 				
-				$checkBoxes.='<input type="checkbox" name="checkbox" value="1" '.(($resOptions->RecordCount()>0)?'checked':'').' onClick="javascript:document.mediaScenarios.optionEntArea.value=\''.$rowEntAreas['PK_EntertainArea'].'\';document.mediaScenarios.actionType.value=\''.(($resOptions->RecordCount()>0)?'deleteOption':'addOption').'\';document.mediaScenarios.optionName.value=\''.$value.'\';document.mediaScenarios.EntAreaDescription.value=\''.$rowEntAreas['Description'].'\';document.mediaScenarios.submit()"> '.$value.'<br>';
+				$checkBoxes.='<input type="checkbox" name="checkbox" value="1" '.(($resOptions->RecordCount()>0)?'checked':'').' onClick="javascript:document.mediaScenarios.optionEntArea.value=\''.$rowEntAreas['PK_EntertainArea'].'\';document.mediaScenarios.actionType.value=\''.(($resOptions->RecordCount()>0)?'deleteOption':'addOption').'\';document.mediaScenarios.optionName.value=\''.$value.'\';document.mediaScenarios.EntAreaDescription.value=\''.$rowEntAreas['Description'].'\';document.mediaScenarios.submit()"> '.$value.' ';
 			}
 
 			$out.='
@@ -149,99 +245,6 @@ function mediaScenarios($output,$dbADO) {
 					<td colspan="7">&nbsp;</td>
 				</tr>
 			</table>	
-			<table>
-				<tr>
-					<td colspan="2"><B>Add Media Scenario</B><a name="addMS"></a></td>
-				</tr>
-				<tr>
-					<td>Description</td>
-					<td><input type="text" name="newDescription" value="'.@$_POST['newDescription'].'"></td>
-				</tr>
-				<tr>
-					<td>Entertain Area</td>
-					<td><select name="newEntArea" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
-						<option value="0">please select</option>';
-			$resEntAreas->MoveFirst();
-			while($rowEntAreas=$resEntAreas->FetchRow()){
-				$out.='<option value="'.$rowEntAreas['PK_EntertainArea'].'" '.((@$_POST['newEntArea']==$rowEntAreas['PK_EntertainArea'])?'selected':'').'>'.$rowEntAreas['Description'].'</option>';
-			}
-			$out.='
-					</select></td>
-				</tr>';
-			if((int)@$_POST['newEntArea']!=0){
-				$queryDevices='
-					SELECT DISTINCT PK_Device, Device.Description, Device.FK_DeviceTemplate
-						FROM Device_EntertainArea
-					INNER JOIN Device ON FK_Device=PK_Device
-					INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-					INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=Device.FK_DeviceTemplate
-					WHERE FK_EntertainArea=?';
-				$out.='
-					<tr>
-						<td>Device</td>
-						<td><select name="MSDevice" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
-							<option value="0">Please select</option>';
-				$resDevices=$dbADO->Execute($queryDevices,array($_POST['newEntArea']));
-				while($rowDevices=$resDevices->FetchRow()){
-					$out.='<option value="'.$rowDevices['PK_Device'].'-'.$rowDevices['FK_DeviceTemplate'].'" '.((@$_POST['MSDevice']==$rowDevices['PK_Device'].'-'.$rowDevices['FK_DeviceTemplate'])?'selected':'').'>'.$rowDevices['Description'].'</option>';
-				}
-				$out.='
-						</select></td>
-					</tr>';
-
-				if(isset($_POST['MSDevice']) && $_POST['MSDevice']!='0'){
-					$deviceArray=explode('-',$_POST['MSDevice']);
-					$out.='
-					<tr>
-						<td>Type</td>
-						<td><select name="newType" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
-							<option value="0">Please select</option>';
-					$getMediaTypes='
-						SELECT * FROM MediaType 
-							INNER JOIN DeviceTemplate_MediaType ON FK_MediaType=PK_MediaType
-						WHERE FK_DeviceTemplate=? ORDER BY Description ASC';
-					$resMediaTypes=$dbADO->Execute($getMediaTypes,$deviceArray[1]);
-					while($rowMediaTypes=$resMediaTypes->FetchRow()){
-						$out.='<option value="'.$rowMediaTypes['PK_DeviceTemplate_MediaType'].'" '.((@$_POST['newType']==$rowMediaTypes['PK_DeviceTemplate_MediaType'])?'selected':'').'>'.$rowMediaTypes['Description'].'</option>';
-					}
-					$out.='
-						</select>
-						</td>
-					</tr>';
-					
-					if(isset($_POST['newType']) && $_POST['newType']!='0'){
-						$queryRemotes='				
-							SELECT 
-								FK_DesignObj,DeviceTemplate_MediaType_DesignObj.Description,DesignObj.Description AS dobjDescription
-							FROM DeviceTemplate_MediaType_DesignObj
-								JOIN DesignObj ON FK_DesignObj=PK_DesignObj
-							WHERE FK_DeviceTemplate_MediaType=?';
-						$resRemotes=$dbADO->Execute($queryRemotes,$_POST['newType']);
-
-						$out.='
-						<tr>
-							<td>Remote</td>
-							<td><select name="newRemote" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
-								<option value="0">Please select</option>
-						';
-						while($rowRemotes=$resRemotes->FetchRow()){
-							$out.='<option value="'.$rowRemotes['FK_DesignObj'].'" '.(($rowRemotes['FK_DesignObj']==@$_POST['newRemote'])?'selected':'').'>'.(($rowRemotes['Description']!='')?$rowRemotes['Description']:$rowRemotes['dobjDescription']).'</option>';
-						}
-						$out.='</select>
-						</td>
-					</tr>';
-					}
-					if(isset($_POST['newRemote']) && $_POST['newRemote']!='0'){
-						$out.='
-						<tr>
-							<td colspan="2" align="center"><input type="submit" class="button" name="add" value="add"  ></td>
-						</tr>
-						';
-					}
-				}
-			}
-		$out.='
-			</table>
 			</form>
 			<script>
 		 		var frmvalidator = new formValidator("mediaScenarios");

@@ -103,7 +103,7 @@ function floorplanWizard($output,$dbADO) {
 	}
 	$out.='</form>';
 	
-	if($type==$GLOBALS['Entertainment Zone']){
+	if($type==$GLOBALS['EntertainmentZone']){
 		$queryCoords = "
 			SELECT 
 				EntertainArea.PK_EntertainArea as id, 
@@ -229,7 +229,7 @@ function floorplanWizard($output,$dbADO) {
 		$arIncomingCoords = explode(',',$hidFloorplanData);
 		$scaleFactor=isset($_POST['scaleFactor'])?$_POST['scaleFactor']:1;
 
-		if($type==$GLOBALS['Entertainment Zone']){
+		if($type==$GLOBALS['EntertainmentZone']){
 			// exception: for entertain zone I get data from Entertain area
 			while (isset($arIncomingCoords[$intCursor])){
 				$entAreaID=$arIncomingCoords[$intCursor];
