@@ -58,7 +58,7 @@ function uploadFloorplan($output,$dbADO) {
 									</tr>
 									<tr>
 										<td class="normal">
-											Choose an file:<br />&nbsp; &nbsp; (must be PNG)
+											Choose a file:<br />&nbsp; &nbsp; (must be PNG)
 										</td>
 										<td><input type="file" name="fileImage"></td>
 									</tr>

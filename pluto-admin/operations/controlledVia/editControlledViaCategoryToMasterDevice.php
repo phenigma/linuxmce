@@ -212,21 +212,6 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 		}
 		
 		
-		//check if the added category is a parent category, if so - delete the childs
-		$queryCheckIsParent = 'select PK_DeviceCategory from DeviceCategory where FK_DeviceCategory_Parent = ?';
-		$res = $dbADO->Execute($queryCheckIsParent,array($controlledVia));
-			$childsID=array();
-			$childsID[]=$controlledVia;
-			if ($res) {
-				while ($row = $res->FetchRow()) {
-					$childsID[] = (int)$row['PK_DeviceCategory'];
-				}
-			}
-			
-		$queryDeleteChilds = 'delete from DeviceTemplate_DeviceCategory_ControlledVia where FK_DeviceCategory in ('.join(",",$childsID).') AND  PK_DeviceTemplate_DeviceCategory_ControlledVia != \''.$objID.'\'';
-		$res = $dbADO->_Execute($queryDeleteChilds);
-		
-		
 		if ((int)$controlledVia!=0 && (int)$deviceID!=0 ) {
 			$updateObjToDevice = 'UPDATE DeviceTemplate_DeviceCategory_ControlledVia
 					SET 
