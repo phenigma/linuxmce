@@ -580,6 +580,9 @@ function wizard($output,$dbADO) {
 					
 					if($enableDHCP==1){
 						if($IPtoDeviceDeviceData!=$oldDHCP || $oldDHCP==''){
+							$deleteDDD='DELETE FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+							$dbADO->Execute($deleteDDD,array($_SESSION['deviceID'],$GLOBALS['DHCPDeviceData']));
+
 							$insertDHCP='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 							$dbADO->Execute($insertDHCP,array($_SESSION['deviceID'],$GLOBALS['DHCPDeviceData'],$IPtoDeviceDeviceData));
 						}else{

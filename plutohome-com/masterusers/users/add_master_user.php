@@ -50,7 +50,11 @@ function add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMant
 				// sync with phpBB
 				$insertphpBB=mysql_query("INSERT INTO phpbb_users (user_id,username,user_password,user_email,user_lang,user_regdate)
 													VALUES	('$PK_MasterUsers','$username','$random_passwordMD5','$email','english', UNIX_TIMESTAMP(NOW()))",$connphpBB);
-			
+				if(in_array($referrer,$GLOBALS['testersRefArray'])){
+					$insertphpBBuser_group=mysql_query("INSERT INTO phpbb_user_group (group_id, user_id) VALUES	('5','$PK_MasterUsers')",$connphpBB);
+					$insertphpBBuser_group=mysql_query("INSERT INTO phpbb_user_group (group_id, user_id) VALUES	('6','$PK_MasterUsers')",$connphpBB);
+				}
+					
 				$insertExtPassword=mysql_query("INSERT INTO Users(FK_MasterUsers,ExtPassword)
 													VALUES	('$PK_MasterUsers','$random_password')",$connPlutoHome);
 				if($insertphpBB && $insertExtPassword)
