@@ -22,6 +22,7 @@ Table_Type_AttributeType.cpp \
 Table_Type_Extension.cpp \
 Table_psc_media_batdet.cpp \
 Table_psc_media_bathdr.cpp \
+Table_psc_media_batuser.cpp \
 Table_psc_media_repset.cpp \
 Table_psc_media_schema.cpp \
 Table_psc_media_tables.cpp

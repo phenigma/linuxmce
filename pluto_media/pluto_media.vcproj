@@ -157,6 +157,9 @@
 				RelativePath=".\Table_psc_media_bathdr.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_psc_media_batuser.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_media_repset.cpp">
 			</File>
 			<File

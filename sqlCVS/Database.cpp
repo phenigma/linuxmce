@@ -106,7 +106,7 @@ void Database::LoadDatabaseStructure()
 	/** And build our list of tables and repositories	*/
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
-	if( res.r=mysql_list_tables( &m_MySQL, NULL ) )
+	if( res.r=mysql_list_tables( m_pMySQL, NULL ) )
 	{
 		while ( ( row = mysql_fetch_row( res.r ) ) )
 		{

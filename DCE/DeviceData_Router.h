@@ -72,10 +72,6 @@ namespace DCE
 	public:
 		unsigned long m_dwPK_Room;
 		string m_sDescription;
-		bool m_bLightsLastOn,m_bClimateLastOn;
-		class CommandGroup *m_pagLightsOff,*m_pagLightsOn,*m_pagClimateOff,*m_pagClimateOn;
-		int PK_CommandGroup_LightsOff,PK_CommandGroup_LightsOn,PK_CommandGroup_ClimateOff,PK_CommandGroup_ClimateOn;
-		int m_iTemperature;
 		vector<class CommandGroup *> m_vectCommandGroups;
 		list<class DeviceData_Router *> m_listDevices;
 
@@ -83,8 +79,6 @@ namespace DCE
 		{	
 			m_dwPK_Room = dwPK_Room;
 			m_sDescription = sDescription;
-			m_pagLightsOff=NULL; m_pagLightsOn=NULL; m_pagClimateOff=NULL; m_pagClimateOn=NULL;
-			m_bLightsLastOn=false; m_bClimateLastOn=false; m_iTemperature=0;
 		}
 	};
 

@@ -24,7 +24,7 @@ class MySqlHelper
 {
 public:
 	pluto_pthread_mutex_t m_MySqlMutex;
-	MYSQL m_MySQL;
+	MYSQL *m_pMySQL;
 	bool m_bConnected;
 	string m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName;
 	int m_iMySQLPort;
@@ -32,6 +32,7 @@ public:
 	MySqlHelper()
 		: m_MySqlMutex("mysql")
 	{
+		m_pMySQL=NULL;
 		m_bConnected=false;
 		m_MySqlMutex.Init(NULL);
 	}
@@ -40,7 +41,7 @@ public:
 		: m_MySqlMutex("mysql")
 	{
 		m_MySqlMutex.Init(NULL);
-		mysql_init(&m_MySQL);
+		m_pMySQL = mysql_init(NULL);
 		m_sMySQLHost=host;
 		m_sMySQLUser=user;
 		m_sMySQLPass=pass;
@@ -51,7 +52,7 @@ public:
 
 	bool MySQLConnect(string host, string user, string pass, string db_name, int port=3306,bool bReset=false)
 	{
-		mysql_init(&m_MySQL);
+		mysql_init(m_pMySQL);
 		m_sMySQLHost=host;
 		m_sMySQLUser=user;
 		m_sMySQLPass=pass;
@@ -63,13 +64,19 @@ public:
 	bool MySQLConnect(bool bReset=false)
 	{
 		if( bReset && m_bConnected )
-			mysql_close(&m_MySQL);
+			mysql_close(m_pMySQL);
 
-		if (mysql_real_connect(&m_MySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
+		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
 			m_bConnected=false;
 		else
 			m_bConnected=true;
 		return m_bConnected;
+	}
+
+	void SetConnection(MYSQL *pMySQL)
+	{
+		m_pMySQL = pMySQL;
+		m_bConnected = true;
 	}
 
 	string md5(string Input)
@@ -89,9 +96,9 @@ public:
 	#endif
 		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_MySqlMutex);
 		int iresult;
-		if( (iresult=mysql_query(&m_MySQL,query.c_str()))!=0 )
+		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(&m_MySQL),query.c_str(),iresult);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			MySQLConnect(true);
 			return NULL;
 		}
@@ -111,7 +118,7 @@ public:
 		}
 	#endif
 
-		return mysql_store_result(&m_MySQL);
+		return mysql_store_result(m_pMySQL);
 	}
 
 	int threaded_mysql_query(string query,bool bIgnoreErrors=false)
@@ -121,11 +128,11 @@ public:
 	#endif
 		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_MySqlMutex);
 		int iresult;
-		if( (iresult=mysql_query(&m_MySQL,query.c_str()))!=0 )
+		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
 			if( bIgnoreErrors )
 				return -1;
-			g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(&m_MySQL),query.c_str(),iresult);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			MySQLConnect(true);
 		}
 
@@ -149,9 +156,9 @@ public:
 	#endif
 		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_MySqlMutex);
 		int iresult;
-		if( (iresult=mysql_query(&m_MySQL,query.c_str()))!=0 )
+		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(&m_MySQL),query.c_str(),iresult);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			MySQLConnect(true);
 			return 0;
 		}
@@ -166,7 +173,7 @@ public:
 			g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
-		return (int) mysql_insert_id(&m_MySQL);
+		return (int) mysql_insert_id(m_pMySQL);
 	}
 };
 #endif

@@ -413,7 +413,7 @@ update_values_list = update_values_list + "FK_File="+pRow->FK_File_asSQL()+", FK
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_File_Attribute *pRow = (Row_File_Attribute *)(*i);
+		Row_File_Attribute* pRow = (Row_File_Attribute*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -426,7 +426,7 @@ update_values_list = update_values_list + "FK_File="+pRow->FK_File_asSQL()+", FK
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_File_Attribute* pRow = (Row_File_Attribute*) (*i).second;
+		Row_File_Attribute* pRow = (Row_File_Attribute*) (*i).second;	
 
 		char tmp_FK_File[32];
 sprintf(tmp_FK_File, "%li", key.pk1);
@@ -447,6 +447,7 @@ condition = condition + "FK_File=" + tmp_FK_File+" AND "+"FK_Attribute=" + tmp_F
 			return false;
 		}	
 		
+		pRow = (Row_File_Attribute*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

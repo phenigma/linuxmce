@@ -152,10 +152,16 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 		g_pPlutoLogger->Write( LV_CRITICAL, "Requesting data from unknown grid %s", sDataGrid_ID.c_str() );
 		return;
 	}
-	try
-	{
+//	try
+//	{
 		pDataGridTable = ( *dg ).second;
 
+		bool bValue = false;
+		if( sSeek.length() && sSeek[0]=='~' )
+		{
+			bValue=true;
+			sSeek = sSeek.substr(1);
+		}
 		if( sSeek.length() )
 		{
 			sSeek = StringUtils::ToUpper(sSeek);
@@ -171,7 +177,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 					break;
 				}
 				string::size_type posStart=0,posEnd=0;
-				string CellText = StringUtils::ToUpper(pCell->m_Text);
+				string CellText = bValue ? StringUtils::ToUpper(pCell->m_Value) : StringUtils::ToUpper(pCell->m_Text);
 				if( CellText[0]=='~' )
 					posStart++;
 				if( CellText[posStart]=='`' )
@@ -185,7 +191,11 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 				else
 					CellText = CellText.substr(posStart+1);
 */
-				if( StringUtils::ToUpper(CellText)>StringUtils::ToUpper(sSeek) )
+				// If we're looking for a specific ID, we need to match it.  Otherwise we're looking for 
+				// a value and will assume anything past the value is okay.
+				if( bValue==false && CellText>sSeek )
+					break;
+				if( bValue==true && CellText==sSeek )
 					break;
 			}
 			if( dgrow>0 )
@@ -204,6 +214,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 #ifdef DEBUG
 		g_pPlutoLogger->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d", sDataGrid_ID.c_str(), *iData_Size, iColumn_count, iRow_count );
 #endif
+/*
 	}
 	catch( ... )
 	{
@@ -214,6 +225,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 			g_pPlutoLogger->Write( LV_CRITICAL, "cell count: %d col count: %d row count %d", pDataGridTable->m_CellCount, pDataGridTable->m_ColumnCount, pDataGridTable->m_RowCount );
 #endif
 	}
+*/
 }
 
 //<-dceag-c35-b->

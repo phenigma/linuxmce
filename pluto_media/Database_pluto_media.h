@@ -6,7 +6,8 @@
 #else
 #define DLL_EXPORT
 #endif
-class DLL_EXPORT Database_pluto_media
+#include "PlutoUtils/MySQLHelper.h"
+class DLL_EXPORT Database_pluto_media: public MySqlHelper
 {
 public:
 MYSQL *db_handle;
@@ -30,6 +31,7 @@ class Table_Type_AttributeType* tblType_AttributeType;
 class Table_Type_Extension* tblType_Extension;
 class Table_psc_media_batdet* tblpsc_media_batdet;
 class Table_psc_media_bathdr* tblpsc_media_bathdr;
+class Table_psc_media_batuser* tblpsc_media_batuser;
 class Table_psc_media_repset* tblpsc_media_repset;
 class Table_psc_media_schema* tblpsc_media_schema;
 class Table_psc_media_tables* tblpsc_media_tables;
@@ -50,6 +52,7 @@ class Table_Type_AttributeType* Type_AttributeType_get() { return tblType_Attrib
 class Table_Type_Extension* Type_Extension_get() { return tblType_Extension; }
 class Table_psc_media_batdet* psc_media_batdet_get() { return tblpsc_media_batdet; }
 class Table_psc_media_bathdr* psc_media_bathdr_get() { return tblpsc_media_bathdr; }
+class Table_psc_media_batuser* psc_media_batuser_get() { return tblpsc_media_batuser; }
 class Table_psc_media_repset* psc_media_repset_get() { return tblpsc_media_repset; }
 class Table_psc_media_schema* psc_media_schema_get() { return tblpsc_media_schema; }
 class Table_psc_media_tables* psc_media_tables_get() { return tblpsc_media_tables; }
@@ -73,6 +76,7 @@ void CreateTable_Type_AttributeType();
 void CreateTable_Type_Extension();
 void CreateTable_psc_media_batdet();
 void CreateTable_psc_media_bathdr();
+void CreateTable_psc_media_batuser();
 void CreateTable_psc_media_repset();
 void CreateTable_psc_media_schema();
 void CreateTable_psc_media_tables();
@@ -92,6 +96,7 @@ void DeleteTable_Type_AttributeType();
 void DeleteTable_Type_Extension();
 void DeleteTable_psc_media_batdet();
 void DeleteTable_psc_media_bathdr();
+void DeleteTable_psc_media_batuser();
 void DeleteTable_psc_media_repset();
 void DeleteTable_psc_media_schema();
 void DeleteTable_psc_media_tables();

@@ -81,7 +81,8 @@ public:
 	void SayToDevices(string sText,map<int,DeviceData_Router *> &mapAudioDevices,DeviceData_Router *pDeviceData_Router);
 
 	// Follow-me
-	virtual void ExecuteFollowMe(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
+	virtual void FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
+	virtual void FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
 
 //<-dceag-h-b->
 	/*

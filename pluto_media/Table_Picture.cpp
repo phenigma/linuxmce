@@ -408,7 +408,7 @@ update_values_list = update_values_list + "PK_Picture="+pRow->PK_Picture_asSQL()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Picture *pRow = (Row_Picture *)(*i);
+		Row_Picture* pRow = (Row_Picture*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -421,7 +421,7 @@ update_values_list = update_values_list + "PK_Picture="+pRow->PK_Picture_asSQL()
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Picture* pRow = (Row_Picture*) (*i).second;
+		Row_Picture* pRow = (Row_Picture*) (*i).second;	
 
 		char tmp_PK_Picture[32];
 sprintf(tmp_PK_Picture, "%li", key.pk);
@@ -439,6 +439,7 @@ condition = condition + "PK_Picture=" + tmp_PK_Picture;
 			return false;
 		}	
 		
+		pRow = (Row_Picture*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

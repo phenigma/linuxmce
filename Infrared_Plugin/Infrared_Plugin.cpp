@@ -12,10 +12,18 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "DCE/DataGrid.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_InfraredGroup.h"
 #include "pluto_main/Table_InfraredGroup_Command.h"
 #include "pluto_main/Table_DeviceTemplate_InfraredGroup.h"
+#include "pluto_main/Table_Command.h"
+#include "pluto_main/Table_DeviceTemplate_AV.h"
+#include "pluto_main/Table_DeviceTemplate_Input.h"
+#include "pluto_main/Table_Manufacturer.h"
+#include "pluto_main/Define_DataGrid.h"
+#include "pluto_main/Define_Variable.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -46,6 +54,41 @@ Infrared_Plugin::~Infrared_Plugin()
 bool Infrared_Plugin::Register()
 //<-dceag-reg-e->
 {
+	m_pDatagrid_Plugin=NULL;
+	ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find(DEVICETEMPLATE_Datagrid_Plugin_CONST);
+
+	if( !pListCommand_Impl || pListCommand_Impl->size()!=1 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"File grids cannot find datagrid handler %s",(pListCommand_Impl ? "There were more than 1" : ""));
+		return false;
+	}
+
+	m_pDatagrid_Plugin=(Datagrid_Plugin *) pListCommand_Impl->front();
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::DevicesGrid)),
+		DATAGRID_Devices_by_Room_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::CommandsGrid)),
+		DATAGRID_Commmands_By_Device_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::Manufacturers)),
+		DATAGRID_Manufacturers_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::IRGroupCategories)),
+		DATAGRID_Infrared_Group_Categories_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::InfraredGroups)),
+		DATAGRID_Infrared_Groups_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::InfraredCodes)),
+		DATAGRID_Infrared_Codes_CONST);
+
 	return Connect(); 
 }
 
@@ -76,8 +119,287 @@ void Infrared_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessa
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
+class DataGridTable *Infrared_Plugin::DevicesGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	int Type = atoi(Parms.c_str());
+	int iRow=0;
+
+    for(map<int,Room *>::const_iterator it=m_pRouter->m_mapRoom_get()->begin();it!=m_pRouter->m_mapRoom_get()->end();++it)
+    {
+		Room *pRoom = (*it).second;
+		bool bFirst=true;
+
+		for(list<class DeviceData_Router *>::iterator itD=pRoom->m_listDevices.begin();itD!=pRoom->m_listDevices.end();++itD)
+		{
+			class DeviceData_Router *pDeviceData_Router = *itD;
+			if( Type==1 && !pDeviceData_Router->WithinCategory(DEVICECATEGORY_AV_CONST) )
+				continue;
+
+			pCell = new DataGridCell( (bFirst ? pRoom->m_sDescription + "\n  " : "  ") + pDeviceData_Router->m_sDescription,
+				StringUtils::itos(pDeviceData_Router->m_dwPK_Device) );
+			pDataGrid->SetData(0,iRow++,pCell);
+			bFirst=false;
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	string::size_type pos=0;
+	int PK_Device = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	if( !PK_Device )
+		return pDataGrid;
+
+	int PK_Orbiter = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	int PK_Text = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+
+	int iRow=0;
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+
+	vector<Row_DeviceTemplate_AV *> vectRow_DeviceTemplate_AV;
+	pDevice->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_AV_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_AV);
+	Row_DeviceTemplate_AV *pRow_DeviceTemplate_AV = vectRow_DeviceTemplate_AV.size() ? vectRow_DeviceTemplate_AV[0] : NULL;
+	bool bUsesIR = pRow_DeviceTemplate_AV && pRow_DeviceTemplate_AV->UsesIR_get()==1;
+
+	for(map<int,string>::iterator it=pDevice->m_mapCommands.begin();it!=pDevice->m_mapCommands.end();++it)
+	{
+		// Handle some special cases
+		if( (*it).first == COMMAND_Power_CONST && bUsesIR && pRow_DeviceTemplate_AV->TogglePower_get()==0 )
+		{
+			// We don't toggle power, we have discrete on and off's
+			pCell = new DataGridCell( "ON",	StringUtils::itos(COMMAND_Generic_On_CONST) );
+			pCell->m_Colspan = 4;
+			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
+			pDataGrid->SetData(0,iRow,pCell);
+
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Generic_On_CONST);
+			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+			pDataGrid->SetData(4,iRow++,pCell);
+
+			pCell = new DataGridCell( "OFF",	StringUtils::itos(COMMAND_Generic_Off_CONST) );
+			pCell->m_Colspan = 4;
+			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
+			pDataGrid->SetData(0,iRow,pCell);
+
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR2(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Generic_Off_CONST);
+			pCell->m_pMessage = CMD_Learn_IR2.m_pMessage;
+			pDataGrid->SetData(4,iRow++,pCell);
+		}
+		else if( (*it).first == COMMAND_Jump_Position_In_Playlist_CONST && bUsesIR )
+		{
+			for(int i=0;i<=9;++i)
+			{
+				pCell = new DataGridCell( StringUtils::itos(i),	StringUtils::itos(COMMAND_0_CONST + i) );
+				pCell->m_Colspan = 4;
+				pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_0_CONST + i,0);
+				pDataGrid->SetData(0,iRow,pCell);
+
+				pCell = new DataGridCell( "learn","" );
+				DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_0_CONST + i);
+				pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+				pDataGrid->SetData(4,iRow++,pCell);
+			}
+			pCell = new DataGridCell( "Enter",	StringUtils::itos(COMMAND_Send_Generic_EnterGo_CONST) );
+			pCell->m_Colspan = 4;
+			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Send_Generic_EnterGo_CONST,0);
+			pDataGrid->SetData(0,iRow,pCell);
+
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Send_Generic_EnterGo_CONST);
+			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+			pDataGrid->SetData(4,iRow++,pCell);
+		}
+		else
+		{
+			pCell = new DataGridCell( (*it).second,	StringUtils::itos((*it).first) );
+			pCell->m_Colspan = 4;
+			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,(*it).first,0);
+			pDataGrid->SetData(0,iRow,pCell);
+
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,(*it).first);
+			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+			pDataGrid->SetData(4,iRow++,pCell);
+		}
+	}
+
+	// Add the inputs
+	vector<Row_DeviceTemplate_Input *> vectRow_DeviceTemplate_Input;
+	pDevice->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_Input_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_Input);
+	for(size_t s=0;s<vectRow_DeviceTemplate_Input.size();++s)
+	{
+		Row_DeviceTemplate_Input *pRow_DeviceTemplate_Input = vectRow_DeviceTemplate_Input[s];
+
+		pCell = new DataGridCell( pRow_DeviceTemplate_Input->FK_Command_getrow()->Description_get(), StringUtils::itos(pRow_DeviceTemplate_Input->FK_Command_get()) );
+		pCell->m_Colspan = 4;
+		pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pRow_DeviceTemplate_Input->FK_Command_get(),0);
+		pDataGrid->SetData(0,iRow,pCell);
+
+		if( pRow_DeviceTemplate_AV && pRow_DeviceTemplate_AV->ToggleInput_get()==0 )
+		{
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,pRow_DeviceTemplate_Input->FK_Command_get());
+			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+		}
+		else
+			pCell = new DataGridCell( "TOAD","" );
+
+		pDataGrid->SetData(4,iRow++,pCell);
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *Infrared_Plugin::InfraredCodes(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	if( Parms.length()==0 )
+		return pDataGrid;
+
+	string::size_type pos=0;
+	string sPK_Device = StringUtils::Tokenize(Parms,",",pos);
+	string sPK_InfraredGroup = StringUtils::Tokenize(Parms,",",pos);
+
+	Row_InfraredGroup *pRow_InfraredGroup = m_pDatabase_pluto_main->InfraredGroup_get()->GetRow( atoi(sPK_InfraredGroup.c_str()) );
+	if( !pRow_InfraredGroup )
+		return pDataGrid;
+
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(sPK_Device.c_str()) );
+	if( !pRow_Device )
+		return pDataGrid;
+
+	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command;
+	pRow_InfraredGroup->InfraredGroup_Command_FK_InfraredGroup_getrows(&vectRow_InfraredGroup_Command);
+
+	if( vectRow_InfraredGroup_Command.size()==0 )
+	{
+		pCell = new DataGridCell( "No commands","" );
+		pDataGrid->SetData(0,0,pCell);
+	}
+
+	for(size_t s=0;s<vectRow_InfraredGroup_Command.size();++s)
+	{
+		Row_InfraredGroup_Command *pRow_InfraredGroup_Command = vectRow_InfraredGroup_Command[s];
+		pCell = new DataGridCell( pRow_InfraredGroup_Command->FK_Command_getrow()->Description_get(),"" );
+		DCE::CMD_Send_Code CMD_Send_Code(m_dwPK_Device,pRow_Device->PK_Device_get(),pRow_InfraredGroup_Command->IRData_get());
+		pCell->m_pMessage = CMD_Send_Code.m_pMessage;
+		pDataGrid->SetData(0,s,pCell);
+	}
+	return pDataGrid;
+}
+class DataGridTable *Infrared_Plugin::Manufacturers(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+	Row_Device *pRow_Device = NULL;  // The initially selected manufacturer can be passed in as a device
+
+	if( Parms.length() )
+	{
+		pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(atoi(Parms.c_str()));
+		if( pRow_Device )
+		{
+			*iPK_Variable = VARIABLE_Misc_Data_1_CONST;
+			*sValue_To_Assign = StringUtils::itos(pRow_Device->FK_DeviceTemplate_getrow()->FK_Manufacturer_get());
+		}
+	}
+	vector<Row_Manufacturer *> vectRow_Manufacturer;
+	m_pDatabase_pluto_main->Manufacturer_get()->GetRows("1=1 ORDER BY Description",&vectRow_Manufacturer);
+	for(size_t s=0;s<vectRow_Manufacturer.size();++s)
+	{
+		Row_Manufacturer *pRow_Manufacturer = vectRow_Manufacturer[s];
+		pCell = new DataGridCell( pRow_Manufacturer->Description_get(),StringUtils::itos(pRow_Manufacturer->PK_Manufacturer_get()) );
+		pDataGrid->SetData(0,s,pCell);
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *Infrared_Plugin::InfraredGroups(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	string::size_type pos=0;
+	string sPK_Manufacturer = StringUtils::Tokenize(Parms,",",pos);
+	string sPK_DeviceCategory = StringUtils::Tokenize(Parms,",",pos);
+
+	if( !sPK_DeviceCategory.length() )
+	{
+		if( !sPK_Manufacturer.length() )
+			return pDataGrid;
+		// If we got in only 1 number, it's really a device
+		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(atoi(sPK_Manufacturer.substr(1).c_str()));
+		if( !pRow_Device )
+			return pDataGrid;
+		sPK_Manufacturer = StringUtils::itos(pRow_Device->FK_DeviceTemplate_getrow()->FK_Manufacturer_get());
+		sPK_DeviceCategory = StringUtils::itos(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get());
+	}
+
+	vector<Row_InfraredGroup *> vectRow_InfraredGroup;
+	m_pDatabase_pluto_main->InfraredGroup_get()->GetRows("FK_Manufacturer=" + sPK_Manufacturer + " AND FK_DeviceCategory=" + sPK_DeviceCategory,&vectRow_InfraredGroup);
+
+	for(size_t s=0;s<vectRow_InfraredGroup.size();++s)
+	{
+		Row_InfraredGroup *pRow_InfraredGroup = vectRow_InfraredGroup[s];
+		pCell = new DataGridCell( pRow_InfraredGroup->Description_get(), StringUtils::itos(pRow_InfraredGroup->PK_InfraredGroup_get()) );
+        pDataGrid->SetData( 0, s, pCell );
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *Infrared_Plugin::IRGroupCategories(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;	
+
+	if( Parms.length()==0 )
+		return pDataGrid;
+
+	Row_Device *pRow_Device = NULL;
+	// The first time the populate is called when the screen appears we don't know the category yet.  The initial options for this
+	// grid pass in "D" + the device number, and we fill in the category automatically.  After that we're passed in the manufacturer
+	if( Parms.length()>1 && Parms[0]=='D' )
+	{
+		pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(atoi(Parms.substr(1).c_str()));
+		if( pRow_Device )
+		{
+			*iPK_Variable = VARIABLE_Misc_Data_2_CONST;
+			*sValue_To_Assign = StringUtils::itos(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get());
+			Parms = StringUtils::itos(pRow_Device->FK_DeviceTemplate_getrow()->FK_Manufacturer_get());  // We're going to expect this to be the manufacturer
+		}
+	}
+
+	string sql = "SELECT DISTINCT PK_DeviceCategory,DeviceCategory.Description FROM InfraredGroup JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory WHERE FK_Manufacturer=" + Parms;
+
+	PlutoSqlResult result;
+    MYSQL_ROW row;
+    int RowCount=0;
+
+    if( ( result.r=m_pDatabase_pluto_main->mysql_query_result( sql ) ) )
+    {
+        while( ( row=mysql_fetch_row( result.r ) ) )
+        {
+            pCell = new DataGridCell( row[1], row[0] );
+            pDataGrid->SetData( 0, RowCount++, pCell );
+		}
+	}
+	return pDataGrid;
+}
+
 //<-dceag-sample-b->!
-//<-dceag-sample-e->
 
 /*
 

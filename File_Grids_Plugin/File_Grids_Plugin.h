@@ -35,8 +35,6 @@ public:
 	// Public member variables
 
 	// Datagrids
-	class DataGridTable *DevicesGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
-	class DataGridTable *CommandsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 	class DataGridTable *FileList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
 //<-dceag-h-b->

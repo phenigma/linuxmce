@@ -314,8 +314,9 @@ int main( int argc, char *argv[] )
 	db_h_out << "#include <mysql.h>" << endl;
 
 	db_h_out << "#ifdef SQL2CPP_DLLEXPORT" << endl << "#define DLL_EXPORT __declspec(dllexport)" << endl << "#else" << endl << "#define DLL_EXPORT" << endl << "#endif" << endl;
+	db_h_out << "#include \"PlutoUtils/MySQLHelper.h\"" << endl;
 
-	db_h_out << "class DLL_EXPORT Database_" << sDBName << endl;
+	db_h_out << "class DLL_EXPORT Database_" << sDBName << ": public MySqlHelper" << endl;
 	db_h_out << "{" << endl;
 	db_h_out << "public:" << endl;
 	db_h_out << "MYSQL *db_handle;" <<  endl;
@@ -406,7 +407,7 @@ int main( int argc, char *argv[] )
 	db_cpp_out << "if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)" << endl;
 	db_cpp_out << "{return false;}" << endl;
 	db_cpp_out << "else" << endl;
-	db_cpp_out << "{return true;}" << endl;
+	db_cpp_out << "{SetConnection(db_handle); return true;}" << endl;
 
 	db_cpp_out << "}" << endl << endl;
 

@@ -79,12 +79,6 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	// do stuff with this
 }
 
-void MediaHandlerBase::GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice)
-{
-	if( pMediaStream && pMediaStream->m_pDeviceData_Router_Source )
-		(*pmapMediaDevice)[pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device] = m_pMedia_Plugin->m_mapMediaDevice_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
-}
-
 //<-dceag-const-b->! custom
 Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEventHandler, bool bLocalMode, class Router *pRouter )
     : Media_Plugin_Command( DeviceID, ServerAddress, bConnectEventHandler, bLocalMode, pRouter ),
@@ -105,24 +99,10 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
         return;
     }
 
-    if( !MySQLConnect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to main database!" );
-        m_bQuit=true;
-        return;
-    }
-
     m_pDatabase_pluto_media = new Database_pluto_media( );
     if( !m_pDatabase_pluto_media->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) ) )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
-        m_bQuit=true;
-        return;
-    }
-
-    if( !m_MySqlHelper_Media.MySQLConnect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) ) )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to media database!" );
         m_bQuit=true;
         return;
     }
@@ -1033,7 +1013,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 
     string AttributesFirstSearch; // Because we're going to search twice and want to exclude any attributes we hit the first search
 
-    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -1064,7 +1044,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 		" ORDER BY Name "\
         "limit 30;";
 
-    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -1117,7 +1097,7 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
     MYSQL_ROW row;
     int RowCount=0;
 
-    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -1169,7 +1149,7 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
     MYSQL_ROW row;
     int RowCount=0;
 
-    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -1217,7 +1197,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
     MYSQL_ROW row;
     int RowCount=0;
 
-    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -1300,7 +1280,7 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
     MYSQL_ROW row;
     int RowCount=0;
 
-    if( (result.r=m_MySqlHelper_Media.mysql_query_result(SQL)) )
+    if( (result.r=m_pDatabase_pluto_media->mysql_query_result(SQL)) )
     {
         while( (row=mysql_fetch_row(result.r)) )
         {
@@ -1646,7 +1626,7 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
     int RowCount=0;
 
     DataGridTable *pDataGrid = new DataGridTable();
-    if( (result.r=m_MySqlHelper_Media.mysql_query_result(SQL)) )
+    if( (result.r=m_pDatabase_pluto_media->mysql_query_result(SQL)) )
         while( (row=mysql_fetch_row(result.r)) )
             pDataGrid->SetData(0,RowCount++,new DataGridCell(row[1], row[0]));
 

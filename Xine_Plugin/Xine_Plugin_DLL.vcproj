@@ -146,6 +146,9 @@
 				RelativePath="..\Media_Plugin\MediaAttributes.cpp">
 			</File>
 			<File
+				RelativePath="..\Media_Plugin\MediaHandlerBase.cpp">
+			</File>
+			<File
 				RelativePath="..\Media_Plugin\MediaHandlerInfo.cpp">
 			</File>
 			<File

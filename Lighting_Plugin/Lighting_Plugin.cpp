@@ -35,6 +35,7 @@ using namespace DCE;
 
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_CommandGroup.h"
+#include "pluto_main/Table_CommandGroup_Room.h"
 #include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DataGrid.h"
@@ -55,6 +56,29 @@ Lighting_Plugin::Lighting_Plugin(int DeviceID, string ServerAddress,bool bConnec
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
 		m_bQuit=true;
 		return;
+	}
+
+	// The first 2 command groups for each room are considered the 'on' and 'off'
+	string sWhere = "JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup WHERE FK_Array=" + StringUtils::itos(ARRAY_Lighting_Scenarios_CONST) + " ORDER BY FK_Room,Sort";
+	vector<Row_CommandGroup_Room *> vectRow_CommandGroup_Room;
+	m_pDatabase_pluto_main->CommandGroup_Room_get()->GetRows(sWhere,&vectRow_CommandGroup_Room);
+
+	int PK_CommandGroup_On,PK_CommandGroup_Off,PK_Room=0;
+	for(size_t s=0;s<vectRow_CommandGroup_Room.size();++s)
+	{
+		Row_CommandGroup_Room *pRow_CommandGroup_Room = vectRow_CommandGroup_Room[s];
+		if( !PK_Room || pRow_CommandGroup_Room->FK_Room_get()!=PK_Room )
+		{
+			// This is a new room
+			PK_Room = pRow_CommandGroup_Room->FK_Room_get();
+			PK_CommandGroup_On = pRow_CommandGroup_Room->FK_CommandGroup_get();
+			PK_CommandGroup_Off = 0;
+		}
+		else if( !PK_CommandGroup_Off )
+		{
+			PK_CommandGroup_Off = pRow_CommandGroup_Room->FK_CommandGroup_get();
+			m_mapRoom_CommandGroup[PK_Room] = longPair(PK_CommandGroup_On,PK_CommandGroup_Off);
+		}
 	}
 }
 
@@ -207,3 +231,12 @@ void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Rout
 */
 
 
+void Lighting_Plugin::FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current)
+{
+	ExecCommandGroup(m_mapRoom_CommandGroup[pRoom_Current->m_dwPK_Room].first);
+}
+
+void Lighting_Plugin::FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current)
+{
+	ExecCommandGroup(m_mapRoom_CommandGroup[pRoom_Prior->m_dwPK_Room].second);
+}

@@ -70,7 +70,7 @@ namespace sqlCVS
 		 * @todo complete documentation
 		 */
 		 
-		MYSQL *MYSQL_get( ) { return &m_MySQL; }
+		MYSQL *MYSQL_get( ) { return m_pMySQL; }
 
 		/**
 		 * @brief This will search in the repository 

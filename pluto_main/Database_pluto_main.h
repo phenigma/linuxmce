@@ -6,7 +6,8 @@
 #else
 #define DLL_EXPORT
 #endif
-class DLL_EXPORT Database_pluto_main
+#include "PlutoUtils/MySQLHelper.h"
+class DLL_EXPORT Database_pluto_main: public MySqlHelper
 {
 public:
 MYSQL *db_handle;

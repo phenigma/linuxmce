@@ -124,28 +124,31 @@ int k=2;
         {
             m_iVersion = m_pOrbiterGenerator->m_iLocation;
         }
-        else if( m_pOrbiterGenerator->m_bOrbiterChanged==false )
+        if( m_pOrbiterGenerator->m_bOrbiterChanged==false )
         {
             // Let's see if we can just use a cached version
             Row_CachedScreens *pdrCachedScreen = m_mds->CachedScreens_get()->GetRow(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),m_pRow_DesignObj->PK_DesignObj_get(),m_iVersion);
             if( pdrCachedScreen  )
             {
-                time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
-                time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
-                if( lModDate1==lModDate2 )
-                {
-                    string Filename = m_pOrbiterGenerator->m_sOutputPath + "screen " + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
-                        StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
-                    if( FileUtils::FileExists(Filename) )
-                    {
-                        if( SerializeRead(Filename) )
-                        {
-                            m_bUsingCache=true;
-                            cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
-                            return;
-                        }
-                    }
-                }
+				if( pdrCachedScreen->ContainsArrays_get()==0 || m_pOrbiterGenerator->m_bDontAutoRegenArrays )
+				{
+					time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
+					time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
+					if( lModDate1==lModDate2 )
+					{
+						string Filename = m_pOrbiterGenerator->m_sOutputPath + "screen " + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
+							StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
+						if( FileUtils::FileExists(Filename) )
+						{
+							if( SerializeRead(Filename) )
+							{
+								m_bUsingCache=true;
+								cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
+								return;
+							}
+						}
+					}
+				}
             }
         }
         string Filespec = m_pOrbiterGenerator->m_sOutputPath + "*" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +

@@ -405,7 +405,7 @@ update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", Ex
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Type_Extension *pRow = (Row_Type_Extension *)(*i);
+		Row_Type_Extension* pRow = (Row_Type_Extension*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -418,7 +418,7 @@ update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", Ex
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Type_Extension* pRow = (Row_Type_Extension*) (*i).second;
+		Row_Type_Extension* pRow = (Row_Type_Extension*) (*i).second;	
 
 		char tmp_FK_Type[32];
 sprintf(tmp_FK_Type, "%li", key.pk);
@@ -436,6 +436,7 @@ condition = condition + "FK_Type=" + tmp_FK_Type;
 			return false;
 		}	
 		
+		pRow = (Row_Type_Extension*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

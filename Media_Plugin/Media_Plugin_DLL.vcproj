@@ -150,6 +150,9 @@
 				RelativePath=".\MediaAttributes.cpp">
 			</File>
 			<File
+				RelativePath=".\MediaHandlerBase.cpp">
+			</File>
+			<File
 				RelativePath=".\MediaHandlerInfo.cpp">
 			</File>
 		</Filter>

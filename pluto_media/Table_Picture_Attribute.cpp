@@ -413,7 +413,7 @@ update_values_list = update_values_list + "FK_Picture="+pRow->FK_Picture_asSQL()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Picture_Attribute *pRow = (Row_Picture_Attribute *)(*i);
+		Row_Picture_Attribute* pRow = (Row_Picture_Attribute*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -426,7 +426,7 @@ update_values_list = update_values_list + "FK_Picture="+pRow->FK_Picture_asSQL()
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_Picture_Attribute* pRow = (Row_Picture_Attribute*) (*i).second;
+		Row_Picture_Attribute* pRow = (Row_Picture_Attribute*) (*i).second;	
 
 		char tmp_FK_Picture[32];
 sprintf(tmp_FK_Picture, "%li", key.pk1);
@@ -447,6 +447,7 @@ condition = condition + "FK_Picture=" + tmp_FK_Picture+" AND "+"FK_Attribute=" +
 			return false;
 		}	
 		
+		pRow = (Row_Picture_Attribute*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

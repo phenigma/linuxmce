@@ -161,7 +161,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		}
 
 		g_pPlutoLogger->Write(LV_STATUS, "Starting logger...");
-		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",PK_Device);
+		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
 		//now it's safe to start orbiter's thread
 		StartOrbiterThread();

@@ -13,6 +13,8 @@
 #include "Orbiter_Plugin/FollowMe_Plugin.h"
 class Database_pluto_main;
 
+typedef pair<long, long> longPair;
+
 //<-dceag-decl-b->!
 namespace DCE
 {
@@ -20,6 +22,7 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 	// Private member variables
+		map<int,longPair> m_mapRoom_CommandGroup;
 
 	// Private methods
 public:
@@ -46,7 +49,8 @@ public:
 	class DataGridTable *LightingScenariosGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
 	// Follow-me
-	virtual void ExecuteFollowMe(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
+	virtual void FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current);
+	virtual void FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current);
 
 //<-dceag-h-b->
 	/*

@@ -413,7 +413,7 @@ update_values_list = update_values_list + "FK_SearchToken="+pRow->FK_SearchToken
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_SearchToken_Attribute *pRow = (Row_SearchToken_Attribute *)(*i);
+		Row_SearchToken_Attribute* pRow = (Row_SearchToken_Attribute*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -426,7 +426,7 @@ update_values_list = update_values_list + "FK_SearchToken="+pRow->FK_SearchToken
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_SearchToken_Attribute* pRow = (Row_SearchToken_Attribute*) (*i).second;
+		Row_SearchToken_Attribute* pRow = (Row_SearchToken_Attribute*) (*i).second;	
 
 		char tmp_FK_SearchToken[32];
 sprintf(tmp_FK_SearchToken, "%li", key.pk1);
@@ -447,6 +447,7 @@ condition = condition + "FK_SearchToken=" + tmp_FK_SearchToken+" AND "+"FK_Attri
 			return false;
 		}	
 		
+		pRow = (Row_SearchToken_Attribute*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

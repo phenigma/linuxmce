@@ -5,8 +5,10 @@
 #define PSC_MEDIA_BATHDR_TABLE "psc_media_bathdr"
 #define PSC_MEDIA_BATHDR_PK_PSC_MEDIA_BATHDR_FIELD "PK_psc_media_bathdr"
 #define PSC_MEDIA_BATHDR_PK_PSC_MEDIA_BATHDR_TABLE_FIELD "psc_media_bathdr.PK_psc_media_bathdr"
-#define PSC_MEDIA_BATHDR_VALUE_FIELD "Value"
-#define PSC_MEDIA_BATHDR_VALUE_TABLE_FIELD "psc_media_bathdr.Value"
+#define PSC_MEDIA_BATHDR_DATE_FIELD "date"
+#define PSC_MEDIA_BATHDR_DATE_TABLE_FIELD "psc_media_bathdr.date"
+#define PSC_MEDIA_BATHDR_COMMENTS_FIELD "comments"
+#define PSC_MEDIA_BATHDR_COMMENTS_TABLE_FIELD "psc_media_bathdr.comments"
 
 
 #endif

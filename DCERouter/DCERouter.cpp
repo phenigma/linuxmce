@@ -46,6 +46,7 @@ using namespace std;
 #include "pluto_main/Table_Device_Device_Pipe.h"
 #include "pluto_main/Table_Command.h"
 #include "pluto_main/Table_Room.h"
+#include "pluto_main/Table_Installation.h"
 
 #ifndef WIN32
 #include "dlfcn.h" // for Plugins (Dynamically Loaded Shared Objects)
@@ -474,6 +475,11 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,size_t sStartingCommand)
 
 void Router::SendCommand(CommandGroup_Command *pCommandGroup_Command)
 {
+	if( !pCommandGroup_Command->m_pDeviceData_Router )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Tried to execute commandgroup_command with no dest device");
+		return;
+	}
 	Message *pMessage = new Message(0,pCommandGroup_Command->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommandGroup_Command->m_pCommand->m_dwPK_Command,0);
 	for(map<int,string>::iterator it=pCommandGroup_Command->m_mapParameter.begin();it!=pCommandGroup_Command->m_mapParameter.end();++it)
 		pMessage->m_mapParameters[(*it).first]=(*it).second;
@@ -1704,7 +1710,8 @@ void Router::Configure()
 
     // Build all the command groups
     vector<Row_CommandGroup *> vectRow_CommandGroup;
-    GetDatabase()->CommandGroup_get()->GetRows("1=1",&vectRow_CommandGroup);  // All rows
+	Row_Installation *pRow_Installation = GetDatabase()->Installation_get()->GetRow(m_dwPK_Installation);
+    pRow_Installation->CommandGroup_FK_Installation_getrows(&vectRow_CommandGroup);  // All rows
     for(size_t s=0;s<vectRow_CommandGroup.size();++s)
     {
         Row_CommandGroup *pRow_CommandGroup = vectRow_CommandGroup[s];

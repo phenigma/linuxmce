@@ -1,0 +1,17 @@
+#ifndef __Define_psc_media_batuser_H__
+#define __Define_psc_media_batuser_H__
+
+
+#define PSC_MEDIA_BATUSER_TABLE "psc_media_batuser"
+#define PSC_MEDIA_BATUSER_PK_PSC_MEDIA_BATUSER_FIELD "PK_psc_media_batuser"
+#define PSC_MEDIA_BATUSER_PK_PSC_MEDIA_BATUSER_TABLE_FIELD "psc_media_batuser.PK_psc_media_batuser"
+#define PSC_MEDIA_BATUSER_FK_PSC_MEDIA_BATHDR_FIELD "FK_psc_media_bathdr"
+#define PSC_MEDIA_BATUSER_FK_PSC_MEDIA_BATHDR_TABLE_FIELD "psc_media_batuser.FK_psc_media_bathdr"
+#define PSC_MEDIA_BATUSER_PSC_USER_FIELD "psc_user"
+#define PSC_MEDIA_BATUSER_PSC_USER_TABLE_FIELD "psc_media_batuser.psc_user"
+#define PSC_MEDIA_BATUSER_IS_SUP_FIELD "is_sup"
+#define PSC_MEDIA_BATUSER_IS_SUP_TABLE_FIELD "psc_media_batuser.is_sup"
+
+
+#endif
+

@@ -23,8 +23,20 @@
 #include "PlutoUtils/Other.h"
 #include "DeviceData_Router.h"
 
-void FollowMe_Plugin::HandleFollowMe(DeviceData_Router *pDevice_PriorDetector,OH_Orbiter *pOH_Orbiter)
+void FollowMe_Plugin::HandleFollowMe(class DeviceData_Router *pDevice_PriorDetector,char Type, class OH_Orbiter *pOH_Orbiter)
 {
-	ExecuteFollowMe(pOH_Orbiter,pDevice_PriorDetector ? pDevice_PriorDetector->m_pRoom : NULL, pOH_Orbiter->m_pDevice_CurrentDetected->m_pRoom);
+	if( !pOH_Orbiter->m_pDevice_CurrentDetected->m_pRoom )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter is in follow-me mode, but detected device %d isn't in a room",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device);
+		return;
+	}
+	if( pDevice_PriorDetector && pDevice_PriorDetector->m_pRoom )
+		FollowMe_LeftRoom(pOH_Orbiter,pDevice_PriorDetector->m_pRoom, pOH_Orbiter->m_pDevice_CurrentDetected->m_pRoom);
+	if( !m_bOneAtATime )  // Some things, like media, climate, etc. can only have 1 thing going.  Others like Telecom don't have that restriction
+		FollowMe_EnteredRoom(pOH_Orbiter,pDevice_PriorDetector ? pDevice_PriorDetector->m_pRoom : NULL, pOH_Orbiter->m_pDevice_CurrentDetected->m_pRoom);
+}
+
+void FollowMe_Plugin::CancelPendingMovesByType(class OH_Orbiter *pOH_Orbiter,char cType)
+{
 }
 

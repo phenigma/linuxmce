@@ -231,7 +231,7 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char *buf = new char[201];
+char *buf = new char[511];
 mysql_real_escape_string(table->database->db_handle, buf, m_filter.c_str(), (unsigned long) m_filter.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
@@ -387,7 +387,7 @@ update_values_list = update_values_list + "PK_psc_media_tables="+pRow->PK_psc_me
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_psc_media_tables *pRow = (Row_psc_media_tables *)(*i);
+		Row_psc_media_tables* pRow = (Row_psc_media_tables*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -400,7 +400,7 @@ update_values_list = update_values_list + "PK_psc_media_tables="+pRow->PK_psc_me
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_psc_media_tables* pRow = (Row_psc_media_tables*) (*i).second;
+		Row_psc_media_tables* pRow = (Row_psc_media_tables*) (*i).second;	
 
 		char tmp_PK_psc_media_tables[32];
 sprintf(tmp_PK_psc_media_tables, "%li", key.pk);
@@ -418,6 +418,7 @@ condition = condition + "PK_psc_media_tables=" + tmp_PK_psc_media_tables;
 			return false;
 		}	
 		
+		pRow = (Row_psc_media_tables*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

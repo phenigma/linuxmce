@@ -407,7 +407,7 @@ update_values_list = update_values_list + "PK_SearchToken="+pRow->PK_SearchToken
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_SearchToken *pRow = (Row_SearchToken *)(*i);
+		Row_SearchToken* pRow = (Row_SearchToken*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -420,7 +420,7 @@ update_values_list = update_values_list + "PK_SearchToken="+pRow->PK_SearchToken
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_SearchToken* pRow = (Row_SearchToken*) (*i).second;
+		Row_SearchToken* pRow = (Row_SearchToken*) (*i).second;	
 
 		char tmp_PK_SearchToken[32];
 sprintf(tmp_PK_SearchToken, "%li", key.pk);
@@ -438,6 +438,7 @@ condition = condition + "PK_SearchToken=" + tmp_PK_SearchToken;
 			return false;
 		}	
 		
+		pRow = (Row_SearchToken*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

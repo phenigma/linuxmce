@@ -86,8 +86,14 @@ long int m_FK_Playlist;
 long int m_FK_File;
 string m_Path;
 string m_Filename;
+long int m_Order;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[5];
+		bool is_null[11];
 	
 	public:
 		long int PK_PlaylistEntry_get();
@@ -95,6 +101,12 @@ long int FK_Playlist_get();
 long int FK_File_get();
 string Path_get();
 string Filename_get();
+long int Order_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_PlaylistEntry_set(long int val);
@@ -102,16 +114,32 @@ void FK_Playlist_set(long int val);
 void FK_File_set(long int val);
 void Path_set(string val);
 void Filename_set(string val);
+void Order_set(long int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool FK_File_isNull();
 bool Path_isNull();
 bool Filename_isNull();
+bool Order_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void FK_File_setNull(bool val);
 void Path_setNull(bool val);
 void Filename_setNull(bool val);
+void Order_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -133,7 +161,7 @@ class Row_File* FK_File_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_PlaylistEntry+ m_FK_Playlist+ m_FK_File+ m_Path+ m_Filename;
+			StartSerializeList() + m_PK_PlaylistEntry+ m_FK_Playlist+ m_FK_File+ m_Path+ m_Filename+ m_Order+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -143,6 +171,12 @@ string FK_Playlist_asSQL();
 string FK_File_asSQL();
 string Path_asSQL();
 string Filename_asSQL();
+string Order_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

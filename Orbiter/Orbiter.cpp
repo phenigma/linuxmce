@@ -143,6 +143,7 @@ void *MaintThread(void *p);
 	'P' means make the first/last cell a 'page up'/'page down'
 	'h' means that moving the highlight should de-select any selected cells so you don't have both a highlighted and selected cell.  Only meaningfull with 'H'.
 	'X' means that clear the selected cell entry whenever the user scrolls
+	'S' means that on the initial acquire it should scroll to the highlighted cell
 */
 
 /*
@@ -1376,7 +1377,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 							PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 							m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
 						}
-                        CMD_Scroll_Grid( "",  "",  DIRECTION_Down_CONST );
+                        CMD_Scroll_Grid( "",  pDesignObj_DataGrid->m_ObjectID,  DIRECTION_Down_CONST );
                         return false;  // No more processing
                     }
                     else
@@ -1387,7 +1388,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 							PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 							m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
 						}
-                        CMD_Scroll_Grid( "",  "",  DIRECTION_Up_CONST );
+                        CMD_Scroll_Grid( "",  pDesignObj_DataGrid->m_ObjectID,  DIRECTION_Up_CONST );
                         return false;  // No more processing
                     }
                 }
@@ -3516,6 +3517,19 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += m_pScreenHistory_Current->m_pObj->m_ObjectID;
         else if(  Variable=="O"  )
             Output += pObj->m_ObjectID;
+        else if( Variable.length()>1 && Variable[0]=='D'  )
+		{
+			int PK_Variable=atoi(Variable.substr(1).c_str());
+            PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+			int PK_Device = atoi(m_mapVariable[PK_Variable].c_str());
+            vm.Release(  );
+
+			DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find( PK_Device );
+			if( pDevice )
+			{
+				Output += pDevice->m_sDescription;
+			}
+		}
         else
             PK_Variable = atoi( Variable.c_str(  ) );
 
@@ -3611,13 +3625,17 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &Grid
     if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
     {
 		pObj->m_iHighlightedColumn=pObj->m_iHighlightedRow=-1;
-
-		pObj->bReAcquire=false;
         if ( pDataGridTable )
         {
             delete pDataGridTable;
             pDataGridTable = NULL;
         }
+		else if( pObj->m_sExtraInfo.find('S')!=string::npos && pObj->m_sSeek.length()==0 && !pObj->sSelVariable.empty(  ) && !pObj->bReAcquire )
+	    {
+		    PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+            pObj->m_sSeek = "~" + m_mapVariable[atoi( pObj->sSelVariable.c_str(  ) )];
+	    }
+		pObj->bReAcquire=false;
 
         ++m_dwIDataGridRequestCounter;
 
@@ -4112,62 +4130,75 @@ void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,str
 void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
 //<-dceag-c9-e->
 {
-    PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+    PLUTO_SAFETY_LOCK( dng, m_DatagridMutex );
     // todo 2.0?    NeedsUpdate( 2 ); // Moving grids is slow; take care of an animation if necessary
 
-    DesignObj_Orbiter *pObj;
+    DesignObj_Orbiter *pObj=NULL;
 
     int LoopNum=-1;
     if ( sPK_DesignObj.empty(  ) )
         LoopNum=0;
     else
         pObj = FindObject( sPK_DesignObj );
+
+	DesignObj_DataGrid *pObj_Datagrid = NULL;
+	if( pObj && pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		pObj_Datagrid = (DesignObj_DataGrid *) pObj;
+	else if( pObj )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Trying to scroll a non-grid %s",sPK_DesignObj.c_str());
+		return;
+	}
+
     while( LoopNum<( int ) m_vectObjs_GridsOnScreen.size(  ) )
     {
         if(  LoopNum!=-1  )
         {
-            pObj = m_vectObjs_GridsOnScreen[LoopNum++];
+            pObj_Datagrid = m_vectObjs_GridsOnScreen[LoopNum++];
         }
 
-        if ( pObj && pObj->m_pDataGridTable )
+        if ( pObj_Datagrid && pObj_Datagrid->m_pDataGridTable )
         {
-            m_vectObjs_NeedRedraw.push_back( pObj );
+            m_vectObjs_NeedRedraw.push_back( pObj_Datagrid );
             if(  sRelative_Level=="-1"  )
             {
                 if(  iPK_Direction == DIRECTION_Up_CONST  )
-                    pObj->m_GridCurRow = 0;
+                    pObj_Datagrid->m_GridCurRow = 0;
             }
             else
             {
-                if(  iPK_Direction == DIRECTION_Up_CONST && pObj->m_GridCurRow>0  )
+                if(  iPK_Direction == DIRECTION_Up_CONST && pObj_Datagrid->m_GridCurRow>0  )
                 {
-                    CalculateGridUp( ( DesignObj_DataGrid * )pObj,  pObj->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
-                    ( ( DesignObj_DataGrid * )pObj )->m_pDataGridTableCache[DIRECTION_Up_CONST]=NULL;
-                    delete pObj->m_pDataGridTable;
-                    pObj->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj )->m_pDataGridTableCache[DIRECTION_Up_CONST];
+                    CalculateGridUp( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
+                    ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Up_CONST]=NULL;
+                    delete pObj_Datagrid->m_pDataGridTable;
+                    pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Up_CONST];
+					pObj_Datagrid->bReAcquire=true;
                 }
                 else if(  iPK_Direction == DIRECTION_Down_CONST  )
                 {
-                    CalculateGridDown( ( DesignObj_DataGrid * )pObj,  pObj->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
-                    ( ( DesignObj_DataGrid * )pObj )->m_pDataGridTableCache[DIRECTION_Down_CONST]=NULL;
-                    delete pObj->m_pDataGridTable;
-                    pObj->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj )->m_pDataGridTableCache[DIRECTION_Down_CONST];
+                    CalculateGridDown( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
+                    ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Down_CONST]=NULL;
+                    delete pObj_Datagrid->m_pDataGridTable;
+                    pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Down_CONST];
+					pObj_Datagrid->bReAcquire=true;
                 }
                 else if(  iPK_Direction == DIRECTION_Left_CONST  )
                 {
-                    CalculateGridLeft( ( DesignObj_DataGrid * )pObj,  pObj->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) );
-                    ( ( DesignObj_DataGrid * )pObj )->m_pDataGridTableCache[DIRECTION_Left_CONST]=NULL;
-                    delete pObj->m_pDataGridTable;
-                    pObj->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj )->m_pDataGridTableCache[DIRECTION_Left_CONST];
+                    CalculateGridLeft( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) );
+                    ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Left_CONST]=NULL;
+                    delete pObj_Datagrid->m_pDataGridTable;
+                    pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Left_CONST];
+					pObj_Datagrid->bReAcquire=true;
                 }
                 else if(  iPK_Direction == DIRECTION_Right_CONST  )
                 {
-                    CalculateGridRight( ( DesignObj_DataGrid * )pObj,  pObj->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) );
-                    ( ( DesignObj_DataGrid * )pObj )->m_pDataGridTableCache[DIRECTION_Right_CONST]=NULL;
-                    delete pObj->m_pDataGridTable;
-                    pObj->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj )->m_pDataGridTableCache[DIRECTION_Right_CONST];
+                    CalculateGridRight( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) );
+                    ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Right_CONST]=NULL;
+                    delete pObj_Datagrid->m_pDataGridTable;
+                    pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Right_CONST];
+					pObj_Datagrid->bReAcquire=true;
                 }
-
             }
         }
         if(  LoopNum==-1  )

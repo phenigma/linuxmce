@@ -434,7 +434,7 @@ update_values_list = update_values_list + "PK_Type="+pRow->PK_Type_asSQL()+", De
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Type *pRow = (Row_Type *)(*i);
+		Row_Type* pRow = (Row_Type*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -447,7 +447,7 @@ update_values_list = update_values_list + "PK_Type="+pRow->PK_Type_asSQL()+", De
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Type* pRow = (Row_Type*) (*i).second;
+		Row_Type* pRow = (Row_Type*) (*i).second;	
 
 		char tmp_PK_Type[32];
 sprintf(tmp_PK_Type, "%li", key.pk);
@@ -465,6 +465,7 @@ condition = condition + "PK_Type=" + tmp_PK_Type;
 			return false;
 		}	
 		
+		pRow = (Row_Type*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

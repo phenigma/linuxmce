@@ -7,13 +7,14 @@
 #include "Gen_Devices/Infrared_PluginBase.h"
 //<-dceag-d-e->
 
+#include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "DCERouter/DCERouter.h"
 #include "pluto_main/Database_pluto_main.h"
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class Infrared_Plugin : public Infrared_Plugin_Command
+	class Infrared_Plugin : public Infrared_Plugin_Command, public DataGridGeneratorPlugIn
 	{
 //<-dceag-decl-e->
 		// Private member variables
@@ -31,8 +32,16 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
-		
+
+		class Datagrid_Plugin *m_pDatagrid_Plugin;
 		Database_pluto_main *m_pDatabase_pluto_main;
+
+		class DataGridTable *DevicesGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+		class DataGridTable *CommandsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+		class DataGridTable *Manufacturers(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+		class DataGridTable *InfraredGroups(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+		class DataGridTable *InfraredCodes(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+		class DataGridTable *IRGroupCategories(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 		
 //<-dceag-h-b->
 	/*

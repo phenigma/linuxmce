@@ -95,9 +95,8 @@ int main(int argc, char *argv[])
 #else
 	string GraphicsFiles="/usr/pluto/orbiter/skins",FontFiles="/usr/share/fonts/truetype/msttcorefonts",OutputFiles="/usr/pluto/orbiter";
 #endif
-	int DBPort=3306,PK_Orbiter=0;
+	int DBPort=3306,PK_Orbiter=0,iDontAutoRegenArrays=0;
 	bool bRegen=false;
-
 	bool bError=false; // An error parsing the command line
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
@@ -138,6 +137,9 @@ int main(int argc, char *argv[])
 		case 'o':
 			OutputFiles = argv[++optnum];
 			break;
+		case 'a':
+			iDontAutoRegenArrays = 1;
+			break;
 		case 'r':
 			bRegen=true;
 			break;
@@ -150,11 +152,12 @@ int main(int argc, char *argv[])
 	if (bError || GraphicsFiles.length()==0 || FontFiles.length()==0 || OutputFiles.length()==0 || !PK_Orbiter)
 	{
 		cout << "OrbiterGen, v." << VERSION << endl
-			<< "Usage: OrbiterGen -d Orbiter -r [-g graphics files] [-f font files]" << endl
+			<< "Usage: OrbiterGen -d Orbiter [-r] [-a] [-g graphics files] [-f font files]" << endl
 				<< "[-o output path] [-h hostname] [-u username] [-p password] [-D database]" << endl
 				<< "[-P mysql port]" << endl
 			<< "-d orbiter   -- the ID of the orbiter to generate" << endl
 			<< "-r           -- Regenerate all screens--ignore cache" << endl
+			<< "-a           -- Don't auto regenerate screens with arrays" << endl
 			<< "-g graphics  -- path to find the input (source) graphics files" << endl
 			<< "-f fonts     -- path to find the font files" << endl
 			<< "-o output    -- path to put all output files" << endl
@@ -195,6 +198,8 @@ int main(int argc, char *argv[])
 		OrbiterGenerator cg(GraphicsFiles,FontFiles,OutputFiles,PK_Orbiter,DBHost,DBUser,DBPassword,DBName,DBPort);
 		if( bRegen )
 			cg.m_bOrbiterChanged=true;
+		cg.m_bDontAutoRegenArrays= iDontAutoRegenArrays==1;
+
 		iResult = cg.DoIt();
 	}
 	catch(const char *error)
@@ -780,26 +785,24 @@ int OrbiterGenerator::DoIt()
 				{
 					throw "Failed to render screen " + oco->m_ObjectID + " error: " + s ;
 				}
-				if( !oco->m_bContainsArrays )
+				// We can cache this the next time
+				Row_CachedScreens *pdrCachedScreen = mds.CachedScreens_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),oco->m_pRow_DesignObj->PK_DesignObj_get(),oco->m_iVersion);
+				if( !pdrCachedScreen )
 				{
-					// We can cache this the next time
-					Row_CachedScreens *pdrCachedScreen = mds.CachedScreens_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),oco->m_pRow_DesignObj->PK_DesignObj_get(),oco->m_iVersion);
-					if( !pdrCachedScreen )
-					{
-						pdrCachedScreen = mds.CachedScreens_get()->AddRow();
-						pdrCachedScreen->FK_Orbiter_set(m_pRow_Orbiter->PK_Orbiter_get());
-						pdrCachedScreen->FK_DesignObj_set(oco->m_pRow_DesignObj->PK_DesignObj_get());
-						pdrCachedScreen->Version_set(oco->m_iVersion);
+					pdrCachedScreen = mds.CachedScreens_get()->AddRow();
+					pdrCachedScreen->FK_Orbiter_set(m_pRow_Orbiter->PK_Orbiter_get());
+					pdrCachedScreen->FK_DesignObj_set(oco->m_pRow_DesignObj->PK_DesignObj_get());
+					pdrCachedScreen->Version_set(oco->m_iVersion);
+					pdrCachedScreen->ContainsArrays_set(oco->m_bContainsArrays ? 1 : 0);
 
-					}
-					string Filename = m_sOutputPath + "screen " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get()) + "." + 
-						StringUtils::itos(oco->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(oco->m_iVersion) + "." + 
-						StringUtils::itos((int) StringUtils::SQLDateTime(oco->m_pRow_DesignObj->psc_mod_get())) + ".cache";
-
-					oco->SerializeWrite(Filename);
-					pdrCachedScreen->Modification_LastGen_set(oco->m_pRow_DesignObj->psc_mod_get());
-					mds.CachedScreens_get()->Commit();
 				}
+				string Filename = m_sOutputPath + "screen " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get()) + "." + 
+					StringUtils::itos(oco->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(oco->m_iVersion) + "." + 
+					StringUtils::itos((int) StringUtils::SQLDateTime(oco->m_pRow_DesignObj->psc_mod_get())) + ".cache";
+
+				oco->SerializeWrite(Filename);
+				pdrCachedScreen->Modification_LastGen_set(oco->m_pRow_DesignObj->psc_mod_get());
+				mds.CachedScreens_get()->Commit();
 			}
 			else
 			{

@@ -34,6 +34,7 @@ CreateTable_Type_AttributeType();
 CreateTable_Type_Extension();
 CreateTable_psc_media_batdet();
 CreateTable_psc_media_bathdr();
+CreateTable_psc_media_batuser();
 CreateTable_psc_media_repset();
 CreateTable_psc_media_schema();
 CreateTable_psc_media_tables();
@@ -62,6 +63,7 @@ DeleteTable_Type_AttributeType();
 DeleteTable_Type_Extension();
 DeleteTable_psc_media_batdet();
 DeleteTable_psc_media_bathdr();
+DeleteTable_psc_media_batuser();
 DeleteTable_psc_media_repset();
 DeleteTable_psc_media_schema();
 DeleteTable_psc_media_tables();
@@ -73,7 +75,7 @@ db_handle = mysql_init(NULL);
 if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
 {return false;}
 else
-{return true;}
+{SetConnection(db_handle); return true;}
 }
 
 bool Database_pluto_media::Connect(class DCEConfig *pDCEConfig)

@@ -28,6 +28,7 @@
 #define DATAGRID_Manufacturers_CONST 25
 #define DATAGRID_Infrared_Groups_CONST 26
 #define DATAGRID_Infrared_Group_Categories_CONST 27
+#define DATAGRID_Infrared_Codes_CONST 28
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

@@ -84,6 +84,20 @@ Orbiter_Plugin::~Orbiter_Plugin()
     m_mapUnknownDevices.clear();
 }
 
+/* Kind of a hack -- The goal was to allow the lighting, telecom, media, climate and security plug-ins to be
+replaced with another model.  This plug-in needs to call them for handling floorplans and follow-me.  
+So rather than including including pointers directly to the plug-ins, I made generic 'follow-me plugin' and 'floorplan plugin'
+classes which our lcmts plug-ins are derived from.  However I can't just cast the pointer to those plug-in which I
+receive as pointers to Command_Impl, because they are not the first base class (ie multiple derived).  So, here the
+lcmts plug-ins are included, the command_impl is cast to that class, then it's recast to a follow-me or floorplan plugin.
+Don't know the best solution to allow for this type of abstraction. */
+
+#include "../Lighting_PlugIn/Lighting_PlugIn.h"
+#include "../Climate_PlugIn/Climate_PlugIn.h"
+#include "../Media_PlugIn/Media_PlugIn.h"
+#include "../Telecom_PlugIn/Telecom_PlugIn.h"
+#include "../Security_PlugIn/Security_PlugIn.h"
+
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool Orbiter_Plugin::Register()
@@ -100,8 +114,9 @@ bool Orbiter_Plugin::Register()
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Lighting plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
-	m_pLighting_Followme=( FollowMe_Plugin * ) pListCommand_Impl->front( );
-	m_pLighting_Floorplan=( FloorplanInfoProvider * ) pListCommand_Impl->front( );
+	Lighting_Plugin *pLighting_Plugin = ( Lighting_Plugin * ) pListCommand_Impl->front( );
+	m_pLighting_Followme=( FollowMe_Plugin * ) pLighting_Plugin;
+	m_pLighting_Floorplan=( FloorplanInfoProvider * ) pLighting_Plugin;
 
 	m_pClimate_Floorplan=NULL;
 	m_pClimate_Followme=NULL;
@@ -111,8 +126,9 @@ bool Orbiter_Plugin::Register()
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Climate plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
-	m_pClimate_Followme=( FollowMe_Plugin * ) pListCommand_Impl->front( );
-	m_pClimate_Floorplan=( FloorplanInfoProvider * ) pListCommand_Impl->front( );
+	Climate_Plugin *pClimate_Plugin = ( Climate_Plugin * ) pListCommand_Impl->front( );
+	m_pClimate_Followme=( FollowMe_Plugin * ) pClimate_Plugin;
+	m_pClimate_Floorplan=( FloorplanInfoProvider * ) pClimate_Plugin;
 
 	m_pMedia_Floorplan=NULL;
 	m_pMedia_Followme=NULL;
@@ -123,9 +139,9 @@ bool Orbiter_Plugin::Register()
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Media plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
-	m_pMedia_Followme=( FollowMe_Plugin * ) pListCommand_Impl->front( );
-	m_pMedia_Floorplan=( FloorplanInfoProvider * ) pListCommand_Impl->front( );
 	m_pMedia_Plugin=( Media_Plugin * ) pListCommand_Impl->front( );
+	m_pMedia_Followme=( FollowMe_Plugin * ) m_pMedia_Plugin;
+	m_pMedia_Floorplan=( FloorplanInfoProvider * ) m_pMedia_Plugin;
 
 	m_pSecurity_Floorplan=NULL;
 	m_pSecurity_Followme=NULL;
@@ -135,8 +151,9 @@ bool Orbiter_Plugin::Register()
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Security plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
-	m_pSecurity_Followme=( FollowMe_Plugin * ) pListCommand_Impl->front( );
-	m_pSecurity_Floorplan=( FloorplanInfoProvider * ) pListCommand_Impl->front( );
+	Security_Plugin *pSecurity_Plugin = ( Security_Plugin * ) pListCommand_Impl->front( );
+	m_pSecurity_Followme=( FollowMe_Plugin * ) pSecurity_Plugin;
+	m_pSecurity_Floorplan=( FloorplanInfoProvider * ) pSecurity_Plugin;
 
 	m_pTelecom_Floorplan=NULL;
 	m_pTelecom_Followme=NULL;
@@ -146,8 +163,9 @@ bool Orbiter_Plugin::Register()
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Telecom plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
-	m_pTelecom_Followme=( FollowMe_Plugin * ) pListCommand_Impl->front( );
-	m_pTelecom_Floorplan=( FloorplanInfoProvider * ) pListCommand_Impl->front( );
+	Telecom_Plugin *pTelecom_Plugin = ( Telecom_Plugin * ) pListCommand_Impl->front( );
+	m_pTelecom_Followme=( FollowMe_Plugin * ) pTelecom_Plugin;
+	m_pTelecom_Floorplan=( FloorplanInfoProvider * ) pTelecom_Plugin;
 
     // Check for all orbiters
     for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
@@ -485,19 +503,19 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
     SendCommand(CMD_Create_Mobile_Orbiter);
 
 	if( pOH_Orbiter->m_bFollowMe_Lighting )
-		m_pLighting_Followme->HandleFollowMe( pDevice_PriorDetected, pOH_Orbiter );
+		m_pLighting_Followme->HandleFollowMe( pDevice_PriorDetected, 'L', pOH_Orbiter );
 
 	if( pOH_Orbiter->m_bFollowMe_Media )
-		m_pMedia_Followme->HandleFollowMe( pDevice_PriorDetected, pOH_Orbiter );
+		m_pMedia_Followme->HandleFollowMe( pDevice_PriorDetected, 'M', pOH_Orbiter );
 
 	if( pOH_Orbiter->m_bFollowMe_Climate )
-		m_pClimate_Followme->HandleFollowMe( pDevice_PriorDetected, pOH_Orbiter );
+		m_pClimate_Followme->HandleFollowMe( pDevice_PriorDetected, 'C', pOH_Orbiter );
 
 	if( pOH_Orbiter->m_bFollowMe_Security )
-		m_pSecurity_Followme->HandleFollowMe( pDevice_PriorDetected, pOH_Orbiter );
+		m_pSecurity_Followme->HandleFollowMe( pDevice_PriorDetected, 'S', pOH_Orbiter );
 
 	if( pOH_Orbiter->m_bFollowMe_Telecom )
-		m_pTelecom_Followme->HandleFollowMe( pDevice_PriorDetected, pOH_Orbiter );
+		m_pTelecom_Followme->HandleFollowMe( pDevice_PriorDetected, 'T', pOH_Orbiter );
 
 		// See if there's an ent group involved
 
@@ -971,7 +989,7 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
 
             if ( pDeviceData_Router == NULL )
             {
-				pEntertainArea = this->m_pMedia_Plugin->m_mapEntertainAreas_Find(PK_Device);
+				pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(PK_Device);
 				if( !pEntertainArea )
 				{
 					g_pPlutoLogger->Write(LV_CRITICAL, "Device referred by the floorplan %d for orbiter %d does not exist", PK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
@@ -1093,40 +1111,53 @@ void Orbiter_Plugin::CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,
 		return;
 	}
 
+	bool bOnOff = sText[1]=='1';
+
 	switch( sText[0] )
 	{
 	case 'L':
 		{
-			pOH_Orbiter->m_bFollowMe_Lighting = sText[1]!='1' ? true : false;
+			pOH_Orbiter->m_bFollowMe_Lighting = bOnOff;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Lighting ? "1" : "0","follow_light");
 			SendCommand(CMD_Set_Bound_Icon);
+			if( !bOnOff )
+				m_pLighting_Followme->CancelPendingMovesByType(pOH_Orbiter,'L');
 		}
+		break;
 	case 'M':
 		{
-			pOH_Orbiter->m_bFollowMe_Media = sText[1]!='1' ? true : false;
+			pOH_Orbiter->m_bFollowMe_Media = bOnOff;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Media ? "1" : "0","follow_media");
 			SendCommand(CMD_Set_Bound_Icon);
+			if( !bOnOff )
+				m_pMedia_Followme->CancelPendingMovesByType(pOH_Orbiter,'M');
 		}
 		break;
 	case 'C':
 		{
-			pOH_Orbiter->m_bFollowMe_Climate = sText[1]!='1' ? true : false;
+			pOH_Orbiter->m_bFollowMe_Climate = bOnOff;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Climate ? "1" : "0","follow_climate");
 			SendCommand(CMD_Set_Bound_Icon);
+			if( !bOnOff )
+				m_pClimate_Followme->CancelPendingMovesByType(pOH_Orbiter,'C');
 		}
 		break;
 	case 'T':
 		{
-			pOH_Orbiter->m_bFollowMe_Telecom = sText[1]!='1' ? true : false;
+			pOH_Orbiter->m_bFollowMe_Telecom = bOnOff;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Telecom ? "1" : "0","follow_telecom");
 			SendCommand(CMD_Set_Bound_Icon);
+			if( !bOnOff )
+				m_pTelecom_Followme->CancelPendingMovesByType(pOH_Orbiter,'T');
 		}
 		break;
 	case 'S':
 		{
-			pOH_Orbiter->m_bFollowMe_Security = sText[1]!='1' ? true : false;
+			pOH_Orbiter->m_bFollowMe_Security = bOnOff;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Security ? "1" : "0","follow_security");
 			SendCommand(CMD_Set_Bound_Icon);
+			if( !bOnOff )
+				m_pSecurity_Followme->CancelPendingMovesByType(pOH_Orbiter,'S');
 		}
 		break;
 	}

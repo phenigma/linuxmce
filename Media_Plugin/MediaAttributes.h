@@ -11,7 +11,6 @@
 #include <deque>
 using namespace std;
 
-#include "PlutoUtils/MySQLHelper.h"
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Table_PlaylistEntry.h"
 
@@ -58,7 +57,7 @@ typedef list<MediaPicture *> listMediaPicture;
  * @todo ask
  */
 
-class MediaAttributes : public MySqlHelper
+class MediaAttributes
 {
 private:
     Database_pluto_media *m_pDatabase_pluto_media;

@@ -25,7 +25,6 @@
 #include "pluto_main/Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "MediaAttributes.h"
-#include "PlutoUtils/MySQLHelper.h"
 
 #include "../Orbiter/Floorplan.h"
 #include "Orbiter_Plugin/FollowMe_Plugin.h"
@@ -47,7 +46,7 @@ namespace DCE
 
 
 //<-dceag-decl-b->!
-class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn, public MySqlHelper, public FloorplanInfoProvider, public FollowMe_Plugin
+class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Plugin
 {
 //<-dceag-decl-e->
     friend class MediaStream;
@@ -72,9 +71,8 @@ private:
     int m_iStreamID;
     pthread_mutexattr_t m_MutexAttr;
     MapMediaStream m_mapMediaStream; // All active streams
-    MySqlHelper m_MySqlHelper_Media; // A connection for the pluto_media database
 
-    Database_pluto_main *m_pDatabase_pluto_main;
+	Database_pluto_main *m_pDatabase_pluto_main;
     Database_pluto_media *m_pDatabase_pluto_media;
     class Datagrid_Plugin *m_pDatagrid_Plugin;
 
@@ -222,7 +220,8 @@ public:
     bool PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 	// Follow-me
-	virtual void ExecuteFollowMe(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
+	virtual void FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
+	virtual void FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
 	
 //<-dceag-h-b->
 	/*
