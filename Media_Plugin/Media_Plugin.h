@@ -115,31 +115,6 @@ public:
 
 typedef map<int,class EntertainArea *> MapEntertainArea;
 
-class MediaPluginBase
-{
-public:
-    class Media_Plugin *m_pMedia_Plugin;
-
-    /** @brief constructor */
-    MediaPluginBase() {}
-
-    /** @brief Each Plugin will create its own instance of MediaStream, so it can create a derived version with extra information */
-    virtual class MediaStream *CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,class EntertainArea *pEntertainArea,MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeMediaFile,int StreamID)=0;
-    virtual bool StartMedia(class MediaStream *pMediaStream)=0;
-    virtual bool StopMedia(class MediaStream *pMediaStream)=0;
-    virtual bool BroadcastMedia(class MediaStream *pMediaStream)=0;
-
-    virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream)=0;
-	virtual MediaDevice *GetMediaDeviceForEntertainArea(EntertainArea *pEntertainArea,int PK_DeviceTemplate)
-	{
-		ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(PK_DeviceTemplate);
-		if( pListMediaDevice && pListMediaDevice->size())
-			return pListMediaDevice->front();
-		else
-			return NULL;
-	}
-};
-
 // When a media device can save and restore a position, it must create a derived class that stores the position information.
 // For a CD, this may be a track and timecount.  For a DVD it is more complicated, involving a lot of settings, like sub-title and audio, needed to restore this position/state
 // GetID must return a unique string identifying the format.  This way media devices can see the format based on GetID, and cast MediaPosition to the correct type, handling it accordingly
