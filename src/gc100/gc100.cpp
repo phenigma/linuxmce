@@ -1186,8 +1186,12 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		{
 			timeout.tv_sec--;
 			timeout_tmp = tv1s;
+			FD_ZERO(&fdset);
+			FD_SET(learn_fd, &fdset);
 		}
 
+		FD_ZERO(&fdset);
+		FD_SET(learn_fd, &fdset);
 		if (timeout.tv_sec > 0 && ! m_bQuit && ! m_bStopLearning && select(learn_fd + 1, &fdset, NULL, NULL, &tv1s) > 0)
 		{
 			retval = read(learn_fd, learn_buffer, 511);
