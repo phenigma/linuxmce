@@ -13,7 +13,9 @@ foreach $line (@data) {
   } elsif ($option eq "MySqlUser") {
     $DBUSER=$value;
   } elsif ($option eq "MySqlPassword") {
-     $DBPASSWD=$value;
+    $DBPASSWD=$value;
+  } elsif ($option eq "PK_Device") {
+    $PKDEV=$value;
   }
 }
 
@@ -121,10 +123,13 @@ sub get_install {
     @frag = split(/ /,$value);
     $value = $frag[0];
     if($var eq "PK_Installation") {
-      if($value eq "") {
-        return 1;
+      $sql = "select FK_Installation from Device WHERE PK_Device='$PKDEV'";
+      $st = $db_handle->prepare($sql);
+      $st->execute();
+      if($row = $st->fetchrow_hashref()) {
+        return $row->{'FK_Installation'};
       } else {
-        return $value;
+        return 1;
       }
     }
   }
