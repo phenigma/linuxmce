@@ -1475,8 +1475,13 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 
 function builtTopMenu($website,$dbADO)
 {
-	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website' ORDER BY OrderNum";
-	$resSelectMenu = $dbADO->Execute($selectMenu);
+	$selectMenu = "
+		SELECT DISTINCT PageSetup.* FROM PageSetup 
+		LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
+		LEFT JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website' AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND FK_Installation=?))
+		ORDER BY OrderNum";
+	$resSelectMenu = $dbADO->Execute($selectMenu,$_SESSION['installationID']);
 	$menuPages='';
 	$pos=0;	
 	while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
@@ -1493,8 +1498,14 @@ function builtTopMenu($website,$dbADO)
 
 function getSubmenu($website,$level,$parentID,$dbADO)
 {
-	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent =? AND showInTopMenu = 1 AND Website=? ORDER BY OrderNum";
-	$resSelectMenu = $dbADO->Execute($selectMenu,array($parentID,$website));
+	$selectMenu = "
+		SELECT PageSetup.* 
+		FROM PageSetup 
+		LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
+		LEFT JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE FK_PageSetup_Parent =? AND showInTopMenu = 1 AND Website=? AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND FK_Installation=?))
+		ORDER BY OrderNum";
+	$resSelectMenu = $dbADO->Execute($selectMenu,array($parentID,$website,$_SESSION['installationID']));
 	$menuPages='';
 	$pos=0;	
 	if($resSelectMenu->RecordCount()>0)

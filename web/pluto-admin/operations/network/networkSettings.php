@@ -95,8 +95,6 @@ function networkSettings($output,$dbADO) {
 			if(validGW)
 				validDNS1=validateElement(new Array("coreDNS1_1","coreDNS1_2","coreDNS1_3","coreDNS1_4"),"Please enter first DNS address.");
 			if(validDNS1)
-				validDNS2=validateElement(new Array("coreDNS2_1","coreDNS2_2","coreDNS2_3","coreDNS2_4"),"Please enter second DNS address.");
-			if(validDNS2)
 				document.networkSettings.submit();
 		}else
 			document.networkSettings.submit();
