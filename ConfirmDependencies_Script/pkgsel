@@ -50,7 +50,7 @@ case "$1" in
 
 	[ "$want_pluto" -eq 1 ] && /usr/pluto/install/Initial_Config.sh
 
-	if [ "$want_pluto" -eq 1 ] && which tasksel >/dev/null 2>&1; then
+	if [ "$want_pluto" -eq 0 ] && which tasksel >/dev/null 2>&1; then
 		if [ "$1" = new ]; then
 			tasksel_param="--new-install"
 		fi
