@@ -172,3 +172,11 @@ bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *
 	pcDataBlock = m_pcDataBlock; dwAllocatedSize = m_dwAllocatedSize; pcCurrentPosition = m_pcCurrentPosition;
 	return true;
 }
+
+DeviceData_Base *AllDevices::m_mapDeviceData_Base_FindFirstOfCategory( unsigned long dwPK_DeviceCategory ) 
+{
+	for(map<int,class DeviceData_Base *>::iterator it = m_mapDeviceData_Base.begin();it != m_mapDeviceData_Base.end();++it)
+		if( (*it).second->m_dwPK_DeviceCategory==dwPK_DeviceCategory )
+			return (*it).second;
+	return NULL;
+}

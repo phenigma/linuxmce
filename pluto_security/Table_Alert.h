@@ -90,8 +90,13 @@ short int m_ResetBeforeExpiration;
 short int m_Benign;
 string m_ResetTime;
 long int m_EK_Users;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[9];
+		bool is_null[14];
 	
 	public:
 		long int PK_Alert_get();
@@ -103,6 +108,11 @@ short int ResetBeforeExpiration_get();
 short int Benign_get();
 string ResetTime_get();
 long int EK_Users_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_Alert_set(long int val);
@@ -114,6 +124,11 @@ void ResetBeforeExpiration_set(short int val);
 void Benign_set(short int val);
 void ResetTime_set(string val);
 void EK_Users_set(long int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool FK_AlertType_isNull();
@@ -122,6 +137,10 @@ bool ResetBeforeExpiration_isNull();
 bool Benign_isNull();
 bool ResetTime_isNull();
 bool EK_Users_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void FK_AlertType_setNull(bool val);
@@ -130,6 +149,10 @@ void ResetBeforeExpiration_setNull(bool val);
 void Benign_setNull(bool val);
 void ResetTime_setNull(bool val);
 void EK_Users_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -152,7 +175,7 @@ void Picture_FK_Alert_getrows(vector <class Row_Picture*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Alert+ m_FK_AlertType+ m_EK_Device+ m_DetectionTime+ m_ExpirationTime+ m_ResetBeforeExpiration+ m_Benign+ m_ResetTime+ m_EK_Users;
+			StartSerializeList() + m_PK_Alert+ m_FK_AlertType+ m_EK_Device+ m_DetectionTime+ m_ExpirationTime+ m_ResetBeforeExpiration+ m_Benign+ m_ResetTime+ m_EK_Users+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -166,6 +189,11 @@ string ResetBeforeExpiration_asSQL();
 string Benign_asSQL();
 string ResetTime_asSQL();
 string EK_Users_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

@@ -599,23 +599,6 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
 
 */
 
-//<-dceag-c26-b->
-
-	/** @brief COMMAND: #26 - Set User Mode */
-	/** Change a user's status (at home, sleeping, etc.) */
-		/** @param #5 Value To Assign */
-			/** A Value from the UserMode table */
-		/** @param #17 PK_Users */
-			/** The User to change */
-
-void Orbiter_Plugin::CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,Message *pMessage)
-//<-dceag-c26-e->
-{
-    cout << "Need to implement command #26 - Set User Mode" << endl;
-    cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-    cout << "Parm #17 - PK_Users=" << iPK_Users << endl;
-}
-
 //<-dceag-c58-b->
 
 	/** @brief COMMAND: #58 - Set Current User */
@@ -1014,3 +997,22 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
 
     m_bFloorPlansArePrepared = true;
 }
+//<-dceag-c255-b->
+
+	/** @brief COMMAND: #255 - Orbiter Registered */
+	/** Indicates the orbiter has registered, or unregistered */
+		/** @param #8 On/Off */
+			/** 1 means it is registering, 0 means it is closing */
+
+void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Message *pMessage)
+//<-dceag-c255-e->
+{
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
+	if( !pOH_Orbiter )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Received registration from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
+	}
+	else
+		pOH_Orbiter->m_bRegistered = sOnOff=="1";
+}
+

@@ -123,6 +123,24 @@
 			<File
 				RelativePath=".\Table_Picture.cpp">
 			</File>
+			<File
+				RelativePath=".\Table_psc_security_batdet.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_security_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_security_batuser.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_security_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_security_schema.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_security_tables.cpp">
+			</File>
 
 		</Filter>
 		<Filter

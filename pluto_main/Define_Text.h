@@ -413,6 +413,9 @@
 #define TEXT_Press_enter_to_go_to_security_alerts_CONST 1088
 #define TEXT_To_enter_PIN_press_Enter_CONST 1089
 #define TEXT_Choose_a_user_CONST 1090
+#define TEXT_House_Mode_Time_CONST 1091
+#define TEXT_Alerts_since_last_change_CONST 1092
+#define TEXT_Alerts_Placeholder_CONST 1093
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

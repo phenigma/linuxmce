@@ -90,7 +90,7 @@ public:
 	void EVENT_Fire_Alarm(int iPK_Device) { GetEvents()->Fire_Alarm(iPK_Device); }
 	void EVENT_Reset_Alarm() { GetEvents()->Reset_Alarm(); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -110,11 +110,10 @@ public:
 						string sCMD_Result="OK";
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
-					string sErrors=pMessage->m_mapParameters[18];
 					string sPassword=pMessage->m_mapParameters[99];
 					int iPK_DeviceGroup=atoi(pMessage->m_mapParameters[100].c_str());
 					string sHandling_Instructions=pMessage->m_mapParameters[101];
-						CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,pMessage);
+						CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

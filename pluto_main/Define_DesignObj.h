@@ -1103,6 +1103,9 @@
 #define DESIGNOBJ_House_Modes_CONST 3271
 #define DESIGNOBJ_go_to_security_alerts_CONST 3272
 #define DESIGNOBJ_go_to_enter_PIN_CONST 3273
+#define DESIGNOBJ_objHouseStatusIndicator_CONST 3275
+#define DESIGNOBJ_arrFloorsTelecom_CONST 3276
+#define DESIGNOBJ_butFloorsTelecom_CONST 3277
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

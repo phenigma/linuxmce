@@ -92,7 +92,7 @@ Renderer::~Renderer()
 void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio)
 {
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-    if( pDesignObj_Generator->m_ObjectID.find("3107")!=string::npos || pDesignObj_Generator->m_ObjectID.find("3111")!=string::npos || pDesignObj_Generator->m_ObjectID.find("3109")!=string::npos )
+    if( pDesignObj_Generator->m_ObjectID.find("3275")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -154,7 +154,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
         }
 
         bool bIsMenu=false;
-        if( iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage )
+        if( iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage || pDesignObj_Generator->m_vectAltGraphicFilename.size() || pDesignObj_Generator->m_sHighlightGraphicFilename.size() || pDesignObj_Generator->m_sSelectedFile.size() )
         {
             // We're going to save this out as a separate file
             sSaveToFile=pDesignObj_Generator->m_ObjectID;

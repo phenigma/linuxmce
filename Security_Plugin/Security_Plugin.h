@@ -34,7 +34,9 @@ namespace DCE
 	DeviceData_Router *m_pDeviceData_Router_this;
 	class AlarmManager *m_pAlarmManager;
 	vector<Row_Alert *> m_vectPendingAlerts;
-	Row_ModeChange *m_pRow_ModeChange_Last;
+	map<int,Row_ModeChange *> m_mapRow_ModeChange_Last;  // Map based on the zone (DeviceGroup) or 0 for all zones
+    Row_ModeChange *m_mapRow_ModeChange_Last_Find(int PK_DeviceGroup) { map<int,class Row_ModeChange *>::iterator it = m_mapRow_ModeChange_Last.find(PK_DeviceGroup); return it==m_mapRow_ModeChange_Last.end() ? NULL : (*it).second; }
+	int m_PK_Device_TextToSpeach;
 
 	// Private methods
 public:
@@ -66,13 +68,16 @@ public:
 	int GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice);
 	void SecurityBreach(DeviceData_Router *pDevice);
 	void FireAlarm(DeviceData_Router *pDevice);
-	string GetErrorsSinceLastReset();
+	string AlertsSinceLastChange(int PK_DeviceGroup);
 
 	/** Interceptors */
     bool SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+	bool OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 	// Alarm callback
 	virtual void AlarmCallback(int id, void* param);
+	void ProcessCountdownBeforeAlarm();
+	void SayToDevices(string sText,map<int,DeviceData_Router *> &mapAudioDevices,DeviceData_Router *pDeviceData_Router);
 
 //<-dceag-h-b->
 	/*
@@ -100,8 +105,6 @@ public:
 			/** A value from the HouseMode table */
 		/** @param #17 PK_Users */
 			/** The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode. */
-		/** @param #18 Errors */
-			/** not used by the Orbiter.  This is used only when sending the action to the core. */
 		/** @param #99 Password */
 			/** The password or PIN of the user.  This can be plain text or md5. */
 		/** @param #100 PK_DeviceGroup */
@@ -109,8 +112,8 @@ public:
 		/** @param #101 Handling Instructions */
 			/** How to handle any sensors that we are trying to arm, but are blocked.  Valid choices are: R-Report, change to a screen on the orbiter reporting this and let the user decide, W-Wait, arm anyway, but wait for the sensors to clear and then arm them, B-Bypass */
 
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

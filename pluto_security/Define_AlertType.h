@@ -5,18 +5,31 @@
 #define ALERTTYPE_Fire_CONST 2
 #define ALERTTYPE_Air_Quality_CONST 3
 #define ALERTTYPE_Movement_CONST 4
+#define ALERTTYPE_Announcement_CONST 5
 
 #define ALERTTYPE_TABLE "AlertType"
 #define ALERTTYPE_PK_ALERTTYPE_FIELD "PK_AlertType"
 #define ALERTTYPE_PK_ALERTTYPE_TABLE_FIELD "AlertType.PK_AlertType"
-#define ALERTTYPE_ENTRYDELAY_FIELD "EntryDelay"
-#define ALERTTYPE_ENTRYDELAY_TABLE_FIELD "AlertType.EntryDelay"
+#define ALERTTYPE_DELAYBEFOREALARM_FIELD "DelayBeforeAlarm"
+#define ALERTTYPE_DELAYBEFOREALARM_TABLE_FIELD "AlertType.DelayBeforeAlarm"
 #define ALERTTYPE_EXITDELAY_FIELD "ExitDelay"
 #define ALERTTYPE_EXITDELAY_TABLE_FIELD "AlertType.ExitDelay"
+#define ALERTTYPE_ALARMDURATION_FIELD "AlarmDuration"
+#define ALERTTYPE_ALARMDURATION_TABLE_FIELD "AlertType.AlarmDuration"
 #define ALERTTYPE_DESCRIPTION_FIELD "Description"
 #define ALERTTYPE_DESCRIPTION_TABLE_FIELD "AlertType.Description"
 #define ALERTTYPE_DEFINE_FIELD "Define"
 #define ALERTTYPE_DEFINE_TABLE_FIELD "AlertType.Define"
+#define ALERTTYPE_PSC_ID_FIELD "psc_id"
+#define ALERTTYPE_PSC_ID_TABLE_FIELD "AlertType.psc_id"
+#define ALERTTYPE_PSC_BATCH_FIELD "psc_batch"
+#define ALERTTYPE_PSC_BATCH_TABLE_FIELD "AlertType.psc_batch"
+#define ALERTTYPE_PSC_USER_FIELD "psc_user"
+#define ALERTTYPE_PSC_USER_TABLE_FIELD "AlertType.psc_user"
+#define ALERTTYPE_PSC_FROZEN_FIELD "psc_frozen"
+#define ALERTTYPE_PSC_FROZEN_TABLE_FIELD "AlertType.psc_frozen"
+#define ALERTTYPE_PSC_MOD_FIELD "psc_mod"
+#define ALERTTYPE_PSC_MOD_TABLE_FIELD "AlertType.psc_mod"
 
 
 #endif

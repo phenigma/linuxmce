@@ -92,6 +92,11 @@ namespace DCE
 		}
 	
 		/**
+		 * @brief finds the DeviceData_Base item associated with the specified device
+		 */
+		DeviceData_Base *m_mapDeviceData_Base_FindFirstOfCategory( unsigned long dwPK_DeviceCategory );
+
+		/**
 		 * @brief finds the DeviceCategory item associated with the specified device category id
 		 */
 		DeviceCategory *m_mapDeviceCategory_Find( unsigned long dwPK_DeviceCategory ) {

@@ -126,6 +126,13 @@ is_null[5] = true;
 is_null[6] = true;
 is_null[7] = true;
 is_null[8] = true;
+is_null[9] = true;
+is_null[10] = true;
+is_null[11] = true;
+m_psc_frozen = 0;
+is_null[12] = false;
+m_psc_mod = "00000000000000";
+is_null[13] = false;
 
 
 	is_added=false;
@@ -160,6 +167,21 @@ return m_ResetTime;}
 long int Row_Alert::EK_Users_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_EK_Users;}
+long int Row_Alert::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_id;}
+long int Row_Alert::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_batch;}
+long int Row_Alert::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_user;}
+short int Row_Alert::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_frozen;}
+string Row_Alert::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_Alert::PK_Alert_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -189,6 +211,21 @@ m_ResetTime = val; is_modified=true; is_null[7]=false;}
 void Row_Alert::EK_Users_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_EK_Users = val; is_modified=true; is_null[8]=false;}
+void Row_Alert::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_id = val; is_modified=true; is_null[9]=false;}
+void Row_Alert::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_batch = val; is_modified=true; is_null[10]=false;}
+void Row_Alert::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_user = val; is_modified=true; is_null[11]=false;}
+void Row_Alert::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_frozen = val; is_modified=true; is_null[12]=false;}
+void Row_Alert::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[13]=false;}
 
 		
 bool Row_Alert::FK_AlertType_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -209,6 +246,18 @@ return is_null[7];}
 bool Row_Alert::EK_Users_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
+bool Row_Alert::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[9];}
+bool Row_Alert::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[10];}
+bool Row_Alert::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[11];}
+bool Row_Alert::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[12];}
 
 			
 void Row_Alert::FK_AlertType_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -229,6 +278,18 @@ is_null[7]=val;}
 void Row_Alert::EK_Users_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[8]=val;}
+void Row_Alert::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[9]=val;}
+void Row_Alert::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[10]=val;}
+void Row_Alert::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[11]=val;}
+void Row_Alert::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[12]=val;}
 	
 
 string Row_Alert::PK_Alert_asSQL()
@@ -351,6 +412,72 @@ sprintf(buf, "%li", m_EK_Users);
 return buf;
 }
 
+string Row_Alert::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[9])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
+}
+
+string Row_Alert::psc_batch_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[10])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_batch);
+
+return buf;
+}
+
+string Row_Alert::psc_user_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[11])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_user);
+
+return buf;
+}
+
+string Row_Alert::psc_frozen_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[12])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_psc_frozen);
+
+return buf;
+}
+
+string Row_Alert::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[13])
+return "NULL";
+
+char *buf = new char[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
 
 
 
@@ -389,10 +516,10 @@ bool Table_Alert::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Alert_asSQL()+", "+pRow->FK_AlertType_asSQL()+", "+pRow->EK_Device_asSQL()+", "+pRow->DetectionTime_asSQL()+", "+pRow->ExpirationTime_asSQL()+", "+pRow->ResetBeforeExpiration_asSQL()+", "+pRow->Benign_asSQL()+", "+pRow->ResetTime_asSQL()+", "+pRow->EK_Users_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Alert_asSQL()+", "+pRow->FK_AlertType_asSQL()+", "+pRow->EK_Device_asSQL()+", "+pRow->DetectionTime_asSQL()+", "+pRow->ExpirationTime_asSQL()+", "+pRow->ResetBeforeExpiration_asSQL()+", "+pRow->Benign_asSQL()+", "+pRow->ResetTime_asSQL()+", "+pRow->EK_Users_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Alert (PK_Alert, FK_AlertType, EK_Device, DetectionTime, ExpirationTime, ResetBeforeExpiration, Benign, ResetTime, EK_Users) values ("+
+		string query = "insert into Alert (PK_Alert, FK_AlertType, EK_Device, DetectionTime, ExpirationTime, ResetBeforeExpiration, Benign, ResetTime, EK_Users, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -442,7 +569,7 @@ condition = condition + "PK_Alert=" + tmp_PK_Alert;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Alert="+pRow->PK_Alert_asSQL()+", FK_AlertType="+pRow->FK_AlertType_asSQL()+", EK_Device="+pRow->EK_Device_asSQL()+", DetectionTime="+pRow->DetectionTime_asSQL()+", ExpirationTime="+pRow->ExpirationTime_asSQL()+", ResetBeforeExpiration="+pRow->ResetBeforeExpiration_asSQL()+", Benign="+pRow->Benign_asSQL()+", ResetTime="+pRow->ResetTime_asSQL()+", EK_Users="+pRow->EK_Users_asSQL();
+update_values_list = update_values_list + "PK_Alert="+pRow->PK_Alert_asSQL()+", FK_AlertType="+pRow->FK_AlertType_asSQL()+", EK_Device="+pRow->EK_Device_asSQL()+", DetectionTime="+pRow->DetectionTime_asSQL()+", ExpirationTime="+pRow->ExpirationTime_asSQL()+", ResetBeforeExpiration="+pRow->ResetBeforeExpiration_asSQL()+", Benign="+pRow->Benign_asSQL()+", ResetTime="+pRow->ResetTime_asSQL()+", EK_Users="+pRow->EK_Users_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Alert set " + update_values_list + " where " + condition;
@@ -632,6 +759,61 @@ else
 {
 pRow->is_null[8]=false;
 sscanf(row[8], "%li", &(pRow->m_EK_Users));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%li", &(pRow->m_psc_id));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%li", &(pRow->m_psc_user));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
 }
 
 
@@ -837,6 +1019,61 @@ else
 {
 pRow->is_null[8]=false;
 sscanf(row[8], "%li", &(pRow->m_EK_Users));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%li", &(pRow->m_psc_id));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%li", &(pRow->m_psc_user));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
 }
 
 

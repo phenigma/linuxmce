@@ -189,6 +189,9 @@ m_CallbackMutex( "callback" ), m_RendererThreadMutex("rendererthread")
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
+	DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0" );
+    SendCommand( CMD_Orbiter_Registered );
+
 	m_vectTexts_NeedRedraw.clear();
 	m_vectObjs_NeedRedraw.clear();
 	m_vectObjs_TabStops.clear();
@@ -2045,6 +2048,8 @@ void Orbiter::Initialize( GraphicType Type )
         SendCommand( CMD_Set_Entertainment_Area );
         DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, pLocationInfo_Initial->PK_Room );
         SendCommand( CMD_Set_Current_Room );
+		DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1" );
+        SendCommand( CMD_Orbiter_Registered );
 
         CMD_Display_OnOff( "1" );
     }
@@ -4176,31 +4181,6 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
     }
 }
 
-//<-dceag-c19-b->
-
-	/** @brief COMMAND: #19 - Set House Mode */
-	/** Change the house's mode.  When this message comes to the orbiter, it ignores all the parameters with pin code, and only looks at the new house mode. */
-		/** @param #5 Value To Assign */
-			/** A value from the HouseMode table */
-		/** @param #17 PK_Users */
-			/** The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode. */
-		/** @param #18 Errors */
-			/** not used by the Orbiter.  This is used only when sending the action to the core. */
-		/** @param #99 Password */
-			/** The password or PIN of the user.  This can be plain text or md5. */
-		/** @param #100 PK_DeviceGroup */
-			/** DeviceGroups are treated as zones.  If this device group is specified, only the devices in these zones (groups) will be set. */
-		/** @param #101 Handling Instructions */
-			/** How to handle any sensors that we are trying to arm, but are blocked.  Valid choices are: R-Report, change to a screen on the orbiter reporting this and let the user decide, W-Wait, arm anyway, but wait for the sensors to clear and then arm them, B-Bypass */
-
-void Orbiter::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage)
-//<-dceag-c19-e->
-{
-    cout << "Need to implement command #19 - Set House Mode" << endl;
-    cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-    cout << "Parm #18 - Errors=" << sErrors << endl;
-}
-
 //<-dceag-c20-b->
 
 	/** @brief COMMAND: #20 - Set Object Parameter */
@@ -4332,19 +4312,31 @@ void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string
 
 //<-dceag-c26-b->
 
-	/** @brief COMMAND: #26 - Set User Mode */
-	/** Changes a user's mode */
+	/** @brief COMMAND: #26 - Set Bound Icon */
+	/** Sets an icon that is bound to status.  "Bind Icon" is put in the object's on load commands, and then this command sets the status at runtime. */
 		/** @param #5 Value To Assign */
-			/** A Value from the UserMode table */
-		/** @param #17 PK_Users */
-			/** The User to change */
+			/** The value corresponding to an alt graphic. */
+		/** @param #14 Type */
+			/** The type of bound icon. */
 
-void Orbiter::CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c26-e->
 {
-    cout << "Need to implement command #26 - Set User Mode" << endl;
-    cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-    cout << "Parm #17 - PK_Users=" << iPK_Users << endl;
+	DesignObj_DataList *pDesignObj_DataList = m_mapObj_Bound_Find(sType);
+	if( !pDesignObj_DataList )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Got SetBoundIcon for unknown type: %s",sType.c_str());
+		return;
+	}
+
+	int iValue = atoi(sValue_To_Assign.c_str());
+	for(DesignObj_DataList::iterator it=pDesignObj_DataList->begin();it!=pDesignObj_DataList->end();++it)
+	{
+		DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) *it;
+		pObj->m_GraphicToDisplay = iValue;
+		if( pObj->m_bOnScreen )
+			m_vectObjs_NeedRedraw.push_back(pObj);
+	}
 }
 
 //<-dceag-c27-b->
@@ -5000,7 +4992,7 @@ void Orbiter::ContinuousRefresh( void *data )
 //<-dceag-c238-b->
 
 	/** @brief COMMAND: #238 - Continuous Refresh */
-	/**  */
+	/** Continuously refresh the current page.  Used when the page contains constantly changing data. */
 		/** @param #102 Time */
 			/** The interval time in seconds */
 
@@ -5012,3 +5004,39 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 }
 
 //timingofsetnowplaying
+//<-dceag-c254-b->
+
+	/** @brief COMMAND: #254 - Bind Icon */
+	/** Used to make a button have an icon that reflects a current state, such as the user's status, the house mode, etc.  This is accomplished by creating an object with multiple alternate versions, and then executing a "Set  Status" to select the right one.  Se */
+		/** @param #3 PK_DesignObj */
+			/** The object which contains the icon, or whose child objects contain the icon. */
+		/** @param #14 Type */
+			/** The type of binding, like "housemode", "userstatus_39288", etc. */
+		/** @param #104 Child */
+			/** If true, it will set the property for the child object(s), rather than the designated object. */
+
+void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string &sCMD_Result,Message *pMessage)
+//<-dceag-c254-e->
+{
+	DesignObj_Orbiter *pObj = FindObject( sPK_DesignObj );
+	if( !pObj )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find object: %s for bind icon",sPK_DesignObj.c_str());
+		return;
+	}
+
+	DesignObj_DataList *pDesignObj_DataList = m_mapObj_Bound_Find(sType);
+	if( !pDesignObj_DataList )
+	{
+		pDesignObj_DataList = new DesignObj_DataList();
+		m_mapObj_Bound[sType] = pDesignObj_DataList;
+	}
+
+	if( bChild )
+	{
+		for( DesignObj_DataList::iterator it=pObj->m_ChildObjects.begin(  ); it != pObj->m_ChildObjects.end(  ); ++it )
+			pDesignObj_DataList->push_back( (DesignObj_Orbiter *) *it);
+	}
+	else
+		pDesignObj_DataList->push_back(pObj);
+}

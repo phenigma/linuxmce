@@ -86,8 +86,13 @@ long int m_FK_Alert;
 string m_NotificationTime;
 string m_Info;
 string m_Result;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[5];
+		bool is_null[10];
 	
 	public:
 		long int PK_Notification_get();
@@ -95,6 +100,11 @@ long int FK_Alert_get();
 string NotificationTime_get();
 string Info_get();
 string Result_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_Notification_set(long int val);
@@ -102,14 +112,27 @@ void FK_Alert_set(long int val);
 void NotificationTime_set(string val);
 void Info_set(string val);
 void Result_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool Info_isNull();
 bool Result_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void Info_setNull(bool val);
 void Result_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -130,7 +153,7 @@ void Result_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Notification+ m_FK_Alert+ m_NotificationTime+ m_Info+ m_Result;
+			StartSerializeList() + m_PK_Notification+ m_FK_Alert+ m_NotificationTime+ m_Info+ m_Result+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -140,6 +163,11 @@ string FK_Alert_asSQL();
 string NotificationTime_asSQL();
 string Info_asSQL();
 string Result_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

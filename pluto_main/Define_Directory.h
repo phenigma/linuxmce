@@ -8,6 +8,8 @@
 #define DIRECTORY_Configuration_CONST 5
 #define DIRECTORY_Compiled_Output_CONST 6
 #define DIRECTORY_Miscellaneous_Files_CONST 7
+#define DIRECTORY_Makefile_CONST 8
+#define DIRECTORY_vcproj_CONST 9
 
 #define DIRECTORY_TABLE "Directory"
 #define DIRECTORY_PK_DIRECTORY_FIELD "PK_Directory"

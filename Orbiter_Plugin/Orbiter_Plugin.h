@@ -32,8 +32,8 @@ namespace DCE
         int m_dwPK_Room;  // The current room
 
         int m_iLastSignalStrength;
-
         int m_iFailedToConnectCount;
+		bool m_bRegistered;
 
         OH_Orbiter(class DeviceData_Router *pDeviceData_Router)
         {
@@ -43,6 +43,7 @@ namespace DCE
             m_iLastSignalStrength = 0;
             m_pDevice_CurrentDetected = NULL;
             m_iFailedToConnectCount = 0;
+			m_bRegistered=false;
         }
     };
 
@@ -171,17 +172,6 @@ public:
 	*/
 
 
-	/** @brief COMMAND: #26 - Set User Mode */
-	/** Change a user's status (at home, sleeping, etc.) */
-		/** @param #5 Value To Assign */
-			/** A Value from the UserMode table */
-		/** @param #17 PK_Users */
-			/** The User to change */
-
-	virtual void CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users) { string sCMD_Result; CMD_Set_User_Mode(sValue_To_Assign.c_str(),iPK_Users,sCMD_Result,NULL);};
-	virtual void CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #58 - Set Current User */
 	/** Set what user is currently using the orbiter.  The 'From' device is assumed to be the orbiter. */
 		/** @param #17 PK_Users */
@@ -253,6 +243,15 @@ public:
 
 	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Current_Floorplan(sID.c_str(),iPK_FloorplanType,sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #255 - Orbiter Registered */
+	/** Indicates the orbiter has registered, or unregistered */
+		/** @param #8 On/Off */
+			/** 1 means it is registering, 0 means it is closing */
+
+	virtual void CMD_Orbiter_Registered(string sOnOff) { string sCMD_Result; CMD_Orbiter_Registered(sOnOff.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

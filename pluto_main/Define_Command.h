@@ -24,7 +24,7 @@
 #define COMMAND_Set_Pos_Rel_To_Parent_CONST 23
 #define COMMAND_Set_Size_Rel_To_Parent_CONST 24
 #define COMMAND_Set_Text_CONST 25
-#define COMMAND_Set_User_Mode_CONST 26
+#define COMMAND_Set_Bound_Icon_CONST 26
 #define COMMAND_Set_Variable_CONST 27
 #define COMMAND_Simulate_Keypress_CONST 28
 #define COMMAND_Simulate_Mouse_Click_CONST 29
@@ -249,6 +249,9 @@
 #define COMMAND_Start_Streaming_CONST 249
 #define COMMAND_Store_Infrared_Code_CONST 250
 #define COMMAND_Save_Current_Frame_CONST 251
+#define COMMAND_Send_Audio_To_Device_CONST 253
+#define COMMAND_Bind_Icon_CONST 254
+#define COMMAND_Orbiter_Registered_CONST 255
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

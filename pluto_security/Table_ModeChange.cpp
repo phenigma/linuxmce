@@ -115,10 +115,18 @@ void Row_ModeChange::SetDefaultValues()
 is_null[0] = false;
 m_EK_HouseMode = 0;
 is_null[1] = false;
+is_null[2] = true;
 m_ChangeTime = "0000-00-00 00:00:00";
-is_null[2] = false;
-m_EK_Users = 0;
 is_null[3] = false;
+m_EK_Users = 0;
+is_null[4] = false;
+is_null[5] = true;
+is_null[6] = true;
+is_null[7] = true;
+m_psc_frozen = 0;
+is_null[8] = false;
+m_psc_mod = "00000000000000";
+is_null[9] = false;
 
 
 	is_added=false;
@@ -132,12 +140,30 @@ return m_PK_ModeChange;}
 long int Row_ModeChange::EK_HouseMode_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_EK_HouseMode;}
+long int Row_ModeChange::EK_DeviceGroup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_EK_DeviceGroup;}
 string Row_ModeChange::ChangeTime_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ChangeTime;}
 long int Row_ModeChange::EK_Users_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_EK_Users;}
+long int Row_ModeChange::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_id;}
+long int Row_ModeChange::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_batch;}
+long int Row_ModeChange::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_user;}
+short int Row_ModeChange::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_frozen;}
+string Row_ModeChange::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_ModeChange::PK_ModeChange_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -146,16 +172,64 @@ m_PK_ModeChange = val; is_modified=true; is_null[0]=false;}
 void Row_ModeChange::EK_HouseMode_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_EK_HouseMode = val; is_modified=true; is_null[1]=false;}
+void Row_ModeChange::EK_DeviceGroup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_EK_DeviceGroup = val; is_modified=true; is_null[2]=false;}
 void Row_ModeChange::ChangeTime_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_ChangeTime = val; is_modified=true; is_null[2]=false;}
+m_ChangeTime = val; is_modified=true; is_null[3]=false;}
 void Row_ModeChange::EK_Users_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_EK_Users = val; is_modified=true; is_null[3]=false;}
+m_EK_Users = val; is_modified=true; is_null[4]=false;}
+void Row_ModeChange::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_id = val; is_modified=true; is_null[5]=false;}
+void Row_ModeChange::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_batch = val; is_modified=true; is_null[6]=false;}
+void Row_ModeChange::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_user = val; is_modified=true; is_null[7]=false;}
+void Row_ModeChange::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_frozen = val; is_modified=true; is_null[8]=false;}
+void Row_ModeChange::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[9]=false;}
 
 		
+bool Row_ModeChange::EK_DeviceGroup_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[2];}
+bool Row_ModeChange::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[5];}
+bool Row_ModeChange::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
+bool Row_ModeChange::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[7];}
+bool Row_ModeChange::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[8];}
 
 			
+void Row_ModeChange::EK_DeviceGroup_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[2]=val;}
+void Row_ModeChange::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[5]=val;}
+void Row_ModeChange::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
+void Row_ModeChange::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[7]=val;}
+void Row_ModeChange::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[8]=val;}
 	
 
 string Row_ModeChange::PK_ModeChange_asSQL()
@@ -184,11 +258,24 @@ sprintf(buf, "%li", m_EK_HouseMode);
 return buf;
 }
 
-string Row_ModeChange::ChangeTime_asSQL()
+string Row_ModeChange::EK_DeviceGroup_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_EK_DeviceGroup);
+
+return buf;
+}
+
+string Row_ModeChange::ChangeTime_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
 return "NULL";
 
 char *buf = new char[39];
@@ -202,13 +289,79 @@ string Row_ModeChange::EK_Users_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[3])
+if (is_null[4])
 return "NULL";
 
 char buf[32];
 sprintf(buf, "%li", m_EK_Users);
 
 return buf;
+}
+
+string Row_ModeChange::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
+}
+
+string Row_ModeChange::psc_batch_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_batch);
+
+return buf;
+}
+
+string Row_ModeChange::psc_user_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_user);
+
+return buf;
+}
+
+string Row_ModeChange::psc_frozen_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_psc_frozen);
+
+return buf;
+}
+
+string Row_ModeChange::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[9])
+return "NULL";
+
+char *buf = new char[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 
@@ -249,10 +402,10 @@ bool Table_ModeChange::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_ModeChange_asSQL()+", "+pRow->EK_HouseMode_asSQL()+", "+pRow->ChangeTime_asSQL()+", "+pRow->EK_Users_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_ModeChange_asSQL()+", "+pRow->EK_HouseMode_asSQL()+", "+pRow->EK_DeviceGroup_asSQL()+", "+pRow->ChangeTime_asSQL()+", "+pRow->EK_Users_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into ModeChange (PK_ModeChange, EK_HouseMode, ChangeTime, EK_Users) values ("+
+		string query = "insert into ModeChange (PK_ModeChange, EK_HouseMode, EK_DeviceGroup, ChangeTime, EK_Users, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -302,7 +455,7 @@ condition = condition + "PK_ModeChange=" + tmp_PK_ModeChange;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_ModeChange="+pRow->PK_ModeChange_asSQL()+", EK_HouseMode="+pRow->EK_HouseMode_asSQL()+", ChangeTime="+pRow->ChangeTime_asSQL()+", EK_Users="+pRow->EK_Users_asSQL();
+update_values_list = update_values_list + "PK_ModeChange="+pRow->PK_ModeChange_asSQL()+", EK_HouseMode="+pRow->EK_HouseMode_asSQL()+", EK_DeviceGroup="+pRow->EK_DeviceGroup_asSQL()+", ChangeTime="+pRow->ChangeTime_asSQL()+", EK_Users="+pRow->EK_Users_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update ModeChange set " + update_values_list + " where " + condition;
@@ -420,23 +573,89 @@ sscanf(row[1], "%li", &(pRow->m_EK_HouseMode));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_ChangeTime = "";
+pRow->m_EK_DeviceGroup = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_ChangeTime = string(row[2],lengths[2]);
+sscanf(row[2], "%li", &(pRow->m_EK_DeviceGroup));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_EK_Users = 0;
+pRow->m_ChangeTime = "";
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_EK_Users));
+pRow->m_ChangeTime = string(row[3],lengths[3]);
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_EK_Users = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_EK_Users));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_psc_id));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%li", &(pRow->m_psc_user));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_psc_mod = string(row[9],lengths[9]);
 }
 
 
@@ -570,23 +789,89 @@ sscanf(row[1], "%li", &(pRow->m_EK_HouseMode));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_ChangeTime = "";
+pRow->m_EK_DeviceGroup = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_ChangeTime = string(row[2],lengths[2]);
+sscanf(row[2], "%li", &(pRow->m_EK_DeviceGroup));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_EK_Users = 0;
+pRow->m_ChangeTime = "";
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_EK_Users));
+pRow->m_ChangeTime = string(row[3],lengths[3]);
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_EK_Users = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_EK_Users));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_psc_id));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%li", &(pRow->m_psc_user));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_psc_mod = string(row[9],lengths[9]);
 }
 
 

@@ -23,6 +23,12 @@ CreateTable_AlertType();
 CreateTable_ModeChange();
 CreateTable_Notification();
 CreateTable_Picture();
+CreateTable_psc_security_batdet();
+CreateTable_psc_security_bathdr();
+CreateTable_psc_security_batuser();
+CreateTable_psc_security_repset();
+CreateTable_psc_security_schema();
+CreateTable_psc_security_tables();
 }
 
 Database_pluto_security::~Database_pluto_security()
@@ -37,6 +43,12 @@ DeleteTable_AlertType();
 DeleteTable_ModeChange();
 DeleteTable_Notification();
 DeleteTable_Picture();
+DeleteTable_psc_security_batdet();
+DeleteTable_psc_security_bathdr();
+DeleteTable_psc_security_batuser();
+DeleteTable_psc_security_repset();
+DeleteTable_psc_security_schema();
+DeleteTable_psc_security_tables();
 }
 
 bool Database_pluto_security::Connect(string host, string user, string pass, string sDBName, int port)

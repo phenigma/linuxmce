@@ -15,7 +15,7 @@
 #define Orbiter_h
 
 //	DCE Implemenation for #8 Orbiter
-#include "PlutoUtils/Other.h"
+
 #include "Gen_Devices/OrbiterBase.h"
 //<-dceag-d-e->
 
@@ -159,6 +159,9 @@ protected:
 	list < ScreenHistory * > m_listScreenHistory; /** < A history of the screens we've visited */
 	map<int,class DeviceData_Base *> m_mapDevice_Selected;  /** < We can select multiple devices on the floorplan to send messages to, instead of the usual one */
 	
+	map < string, DesignObj_DataList * > m_mapObj_Bound; /** < All objects bound with the Bind Icon command */
+	DesignObj_DataList *m_mapObj_Bound_Find(string PK_DesignObj) { map<string,DesignObj_DataList *>::iterator it = m_mapObj_Bound.find(PK_DesignObj); return it==m_mapObj_Bound.end() ? NULL : (*it).second; }
+
 	/**
 	 * @brief stores objects that need to be redrawned
 	 * When it's time to redraw some objects without redrawing the whole screen, store them here
@@ -879,25 +882,6 @@ public:
 	virtual void CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #19 - Set House Mode */
-	/** Change the house's mode.  When this message comes to the orbiter, it ignores all the parameters with pin code, and only looks at the new house mode. */
-		/** @param #5 Value To Assign */
-			/** A value from the HouseMode table */
-		/** @param #17 PK_Users */
-			/** The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode. */
-		/** @param #18 Errors */
-			/** not used by the Orbiter.  This is used only when sending the action to the core. */
-		/** @param #99 Password */
-			/** The password or PIN of the user.  This can be plain text or md5. */
-		/** @param #100 PK_DeviceGroup */
-			/** DeviceGroups are treated as zones.  If this device group is specified, only the devices in these zones (groups) will be set. */
-		/** @param #101 Handling Instructions */
-			/** How to handle any sensors that we are trying to arm, but are blocked.  Valid choices are: R-Report, change to a screen on the orbiter reporting this and let the user decide, W-Wait, arm anyway, but wait for the sensors to clear and then arm them, B-Bypass */
-
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #20 - Set Object Parameter */
 	/** changes one of the object's DesignObjParameters */
 		/** @param #3 PK_DesignObj */
@@ -976,15 +960,15 @@ public:
 	virtual void CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #26 - Set User Mode */
-	/** Changes a user's mode */
+	/** @brief COMMAND: #26 - Set Bound Icon */
+	/** Sets an icon that is bound to status.  "Bind Icon" is put in the object's on load commands, and then this command sets the status at runtime. */
 		/** @param #5 Value To Assign */
-			/** A Value from the UserMode table */
-		/** @param #17 PK_Users */
-			/** The User to change */
+			/** The value corresponding to an alt graphic. */
+		/** @param #14 Type */
+			/** The type of bound icon. */
 
-	virtual void CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users) { string sCMD_Result; CMD_Set_User_Mode(sValue_To_Assign.c_str(),iPK_Users,sCMD_Result,NULL);};
-	virtual void CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Bound_Icon(string sValue_To_Assign,string sType) { string sCMD_Result; CMD_Set_Bound_Icon(sValue_To_Assign.c_str(),sType.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Bound_Icon(string sValue_To_Assign,string sType,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #27 - Set Variable */
@@ -1099,7 +1083,7 @@ public:
 
 
 	/** @brief COMMAND: #238 - Continuous Refresh */
-	/**  */
+	/** Continuously refresh the current page.  Used when the page contains constantly changing data. */
 		/** @param #102 Time */
 			/** The interval time in seconds */
 
@@ -1114,6 +1098,19 @@ public:
 
 	virtual void CMD_Set_Now_Playing(string sValue_To_Assign) { string sCMD_Result; CMD_Set_Now_Playing(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Now_Playing(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #254 - Bind Icon */
+	/** Used to make a button have an icon that reflects a current state, such as the user's status, the house mode, etc.  This is accomplished by creating an object with multiple alternate versions, and then executing a "Set  Status" to select the right one.  Se */
+		/** @param #3 PK_DesignObj */
+			/** The object which contains the icon, or whose child objects contain the icon. */
+		/** @param #14 Type */
+			/** The type of binding, like "housemode", "userstatus_39288", etc. */
+		/** @param #104 Child */
+			/** If true, it will set the property for the child object(s), rather than the designated object. */
+
+	virtual void CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild) { string sCMD_Result; CMD_Bind_Icon(sPK_DesignObj.c_str(),sType.c_str(),bChild,sCMD_Result,NULL);};
+	virtual void CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
