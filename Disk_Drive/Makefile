@@ -18,7 +18,7 @@ sources = Main.cpp Disk_Drive.cpp $(Gen_Dev_Files)
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS += -lcddb
+LDLIBS += -lcddb -lSerializeClass -lPlutoUtils
 
 Gen_Dev_Files +=
 sources +=

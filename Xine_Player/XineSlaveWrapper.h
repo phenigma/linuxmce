@@ -30,10 +30,13 @@
 #include <X11/extensions/xf86vmode.h>
 #include <X11/cursorfont.h>
 
-
-class Xine_Player;
-
 using namespace std;
+using namespace DCE;
+
+namespace DCE
+{
+class Xine_Player;
+}
 /**
 This class will handle all the low level work related to the xine-lib control.
 
@@ -61,7 +64,7 @@ class XineSlaveWrapper
         friend class XineSlaveWrapper;
     };
 
-    friend class Xine_Player;
+    friend class DCE::Xine_Player;
 
     Xine_Player *m_pAggregatorObject;
 

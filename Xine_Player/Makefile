@@ -18,7 +18,7 @@ sources = Main.cpp Xine_Player.cpp $(Gen_Dev_Files)
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS += -L/usr/X11R6/lib
-LDLIBS += `xine-config --libs` -lpng -lX11 -lm -lXext -lXxf86vm
+LDLIBS += `xine-config --libs` -lpng -lX11 -lm -lXext -lXxf86vm -lSerializeClass -lPlutoUtils
 
 Gen_Dev_Files +=
 sources +=  XineSlaveWrapper.cpp
