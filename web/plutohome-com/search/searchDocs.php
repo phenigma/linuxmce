@@ -3,7 +3,7 @@ function searchDocs($output,$dbADO,$conn){
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 
-	$searchString=@$_REQUEST['cuvant'];
+	$searchString=@$_REQUEST['searchString'];
 	
 	$out='
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">

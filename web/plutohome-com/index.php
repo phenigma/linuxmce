@@ -369,7 +369,7 @@ switch ($section) {
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/locator.php');
-	    get_pluto($output);
+	    get_pluto($output,$conn);
     break;
         case 'dealer':
 		$output = new Template();

@@ -266,6 +266,8 @@ if($_SESSION['sollutionType']==3){
 	
 	}elseif($action=='add'){
 		// process form step 5
+		updateMediaDirectors($displayedDevicesArray,$dbADO);
+		
 		if(isset($_POST['continue'])){
 			$description=stripslashes($_POST['Description']);
 			$FK_DeviceTemplate=$_POST['newType'];
@@ -323,6 +325,7 @@ if($_SESSION['sollutionType']==3){
 				$dbADO->Execute($insertDeviceDeviceData,array($insertID,$GLOBALS['rootDisklessBoot'],1));
 			}
 		}
+		
 		header("Location: index.php?section=wizard&step=6");
 	}else{
 		// action =update and jump to next step
@@ -339,60 +342,64 @@ if($_SESSION['sollutionType']==3){
 				exit();
 			}
 		}
+		updateMediaDirectors($displayedDevicesArray,$dbADO);
 		
-		
-		foreach($displayedDevicesArray as $value){
-			$description=stripslashes(@$_POST['description_'.$value]);
-			$FK_DeviceTemplate=@$_POST['deviceTemplate_'.$value];
-			$oldInstallSourceCode=@$_POST['oldInstallSourceCode_'.$value];
-			$oldDisklessBoot=@$_POST['oldDisklessBoot_'.$value];
-			$diskless=(isset($_POST['disklessBoot_'.$value]))?$_POST['disklessBoot_'.$value]:0;
-			$macAddress=($diskless!=0)?@$_POST['mdMAC_'.$value]:NULL;
-			$oldRoomID=@$_POST['oldRoomID_'.$value];
-			$oldRoom=@$_POST['oldRoom_'.$value];
-			$mdRoom=stripslashes(@$_POST['room_'.$value]);
-	
-			$updateDevice='UPDATE Device SET Description=?, FK_DeviceTemplate=?,MACaddress=? WHERE PK_Device=?';
-			$dbADO->Execute($updateDevice,array($description,$FK_DeviceTemplate,$macAddress,$value));
-	
-			if($oldRoom!=$mdRoom && $mdRoom!=''){
-				$updateRoom='UPDATE Room SET Description=? WHERE PK_Room=?';
-				$dbADO->Execute($updateRoom,array($mdRoom,$oldRoomID));
-			}
-	
-			if($oldDisklessBoot!=$diskless){
-				if($diskless==1 && $value!=''){
-					$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device,FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
-					$dbADO->Execute($insertDeviceDeviceData,array($value,$GLOBALS['rootDisklessBoot'],1));
-				}else{
-					$deleteDeviceDeviceData='DELETE FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
-					$dbADO->Execute($deleteDeviceDeviceData,array($value,$GLOBALS['rootDisklessBoot']));
-				}
-			}
+		header("Location: index.php?section=wizard&step=".(($action=='updateOnly')?'6':'7'));
+	}
+}
 
-			// install options - delete or insert devices
-			//$dbADO->debug=true;
-			$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
-			$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$orbiterMDChild]);
-			foreach($installOptionsArray AS $elem){
-				$oldDevice=@$_POST['oldDevice_'.$orbiterMDChild.'_requiredTemplate_'.$elem];
-				$optionalDevice=(isset($_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]))?$_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]:0;
-				if($optionalDevice!=0){
-					$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
-					$insertDevice='
-										INSERT INTO Device 
-											(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) 
-										VALUES (?,?,?,?,?)';
-					if($oldDevice==''){
-						$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$orbiterMDChild,$oldRoomID));
-						$optionInsertId=$dbADO->Insert_ID();
-					}
-				}else{
-					deleteDevice($oldDevice,$dbADO);
-				}
+function updateMediaDirectors($displayedDevicesArray,$dbADO)
+{
+	foreach($displayedDevicesArray as $value){
+		$description=stripslashes(@$_POST['description_'.$value]);
+		$FK_DeviceTemplate=@$_POST['deviceTemplate_'.$value];
+		$oldInstallSourceCode=@$_POST['oldInstallSourceCode_'.$value];
+		$oldDisklessBoot=@$_POST['oldDisklessBoot_'.$value];
+		$diskless=(isset($_POST['disklessBoot_'.$value]))?$_POST['disklessBoot_'.$value]:0;
+		$macAddress=($diskless!=0)?@$_POST['mdMAC_'.$value]:NULL;
+		$oldRoomID=@$_POST['oldRoomID_'.$value];
+		$oldRoom=@$_POST['oldRoom_'.$value];
+		$mdRoom=stripslashes(@$_POST['room_'.$value]);
+
+		$updateDevice='UPDATE Device SET Description=?, FK_DeviceTemplate=?,MACaddress=? WHERE PK_Device=?';
+		$dbADO->Execute($updateDevice,array($description,$FK_DeviceTemplate,$macAddress,$value));
+
+		if($oldRoom!=$mdRoom && $mdRoom!=''){
+			$updateRoom='UPDATE Room SET Description=? WHERE PK_Room=?';
+			$dbADO->Execute($updateRoom,array($mdRoom,$oldRoomID));
+		}
+
+		if($oldDisklessBoot!=$diskless){
+			if($diskless==1 && $value!=''){
+				$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device,FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
+				$dbADO->Execute($insertDeviceDeviceData,array($value,$GLOBALS['rootDisklessBoot'],1));
+			}else{
+				$deleteDeviceDeviceData='DELETE FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+				$dbADO->Execute($deleteDeviceDeviceData,array($value,$GLOBALS['rootDisklessBoot']));
 			}
 		}
-		header("Location: index.php?section=wizard&step=".(($action=='updateOnly')?'6':'7'));
+
+		// install options - delete or insert devices
+		//$dbADO->debug=true;
+		$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
+		$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$orbiterMDChild]);
+		foreach($installOptionsArray AS $elem){
+			$oldDevice=@$_POST['oldDevice_'.$orbiterMDChild.'_requiredTemplate_'.$elem];
+			$optionalDevice=(isset($_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]))?$_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]:0;
+			if($optionalDevice!=0){
+				$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
+				$insertDevice='
+						INSERT INTO Device 
+							(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) 
+						VALUES (?,?,?,?,?)';
+				if($oldDevice==''){
+					$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$orbiterMDChild,$oldRoomID));
+					$optionInsertId=$dbADO->Insert_ID();
+				}
+			}else{
+				deleteDevice($oldDevice,$dbADO);
+			}
+		}
 	}
 }
 ?>
