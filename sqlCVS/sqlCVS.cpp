@@ -92,9 +92,11 @@ string GetCommand( )
 		<< "5.	Create a 'dump' file with the tables in the current repository ( dump )" << endl
 		<< "6.	List all the tables and what repositories they are in ( list-tables )" << endl
 		<< "7.	List all the repositories and what tables they have ( list-repositories )" << endl
-		<< "8.	Reset psc_ fields in all tables ( reset-psc )" << endl
-		<< "9.	History on all tables ( history-all )" << endl
-		<< "10.	History on no tables ( history-none )" << endl
+		<< "8.	History on all tables ( history-all )" << endl
+		<< "9.	History on no tables ( history-none )" << endl
+		<< "---The following are not normally used---" << endl
+		<< "20.	Reset entire database--sqlCVS clients will be out of sync ( reset-all )" << endl
+		<< "21.	Update psc_id's ( update-psc )" << endl
 		<< "------Client-side functions------" << endl
 		<< "A.	Import a 'dump' file from a server and make a local, working copy ( import )" << endl
 		<< "B.	Check-in changes you've made locally ( checkin )" << endl
@@ -121,11 +123,13 @@ string GetCommand( )
 	else if( s=="7" )
 		return "list-repositories";
 	else if( s=="8" )
-		return "reset-psc";
-	else if( s=="9" )
 		return "history-all";
-	else if( s=="10" )
+	else if( s=="9" )
 		return "history-none";
+	else if( s=="20" )
+		return "reset-all";
+	else if( s=="21" )
+		return "update-psc";
 	else if( s=="a" || s=="A" )
 		return "import";
 	else if( s=="b" || s=="B" )
@@ -321,9 +325,13 @@ int main( int argc, char *argv[] )
 			{
 				database.ListRepositories( );
 			}
-			else if( g_GlobalConfig.m_sCommand=="reset-psc" )
+			else if( g_GlobalConfig.m_sCommand=="reset-all" )
 			{
-				database.Reset_psc();
+				database.Reset_all();
+			}
+			else if( g_GlobalConfig.m_sCommand=="update-psc" )
+			{
+				database.Update_psc();
 			}
 			else if( g_GlobalConfig.m_sCommand=="history-all" )
 			{
@@ -351,6 +359,10 @@ return 0;
 	catch( char *pException )
 	{
 		cerr << "Caught exception: " << pException;
+	}
+	catch( string sException )
+	{
+		cerr << "Caught exception: " << sException;
 	}
 
 	delete g_pPlutoLogger;

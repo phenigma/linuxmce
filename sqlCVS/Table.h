@@ -61,6 +61,7 @@ namespace sqlCVS
 		vector<int> m_vectRowsToDelete; 
 
 		MapField m_mapField;
+		class Field *m_mapField_Find( string sField ) { MapField::iterator it = m_mapField.find( sField ); return it==m_mapField.end( ) ? NULL : ( *it ).second; }
 		string m_sName;
 		class Repository *m_pRepository;
 		bool m_bIsSystemTable;
@@ -157,8 +158,6 @@ namespace sqlCVS
 		void psc_batch_last_sync_set( int psc_batch_last_sync ) { m_psc_batch_last_sync=psc_batch_last_sync; }
 		bool bIsSystemTable_get( ) { return m_bIsSystemTable; }
 
-		class Field *m_mapField_Find( string sField ) 
-		{ MapField::iterator it = m_mapField.find( sField ); return it==m_mapField.end( ) ? NULL : ( *it ).second; }
 
 		/** @brief Accessors */
 		string Name_get( ) { return m_sName; }

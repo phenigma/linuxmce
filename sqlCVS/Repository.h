@@ -23,6 +23,7 @@ namespace sqlCVS
 	 
 	class Repository
 	{
+		friend class Database;
 		class Database *m_pDatabase;
 		
 		/** @brief All our system tables */		
@@ -74,6 +75,10 @@ namespace sqlCVS
 	
 		string GetSetting(string Setting,string Default);
 		void SetSetting(string Setting,string Value);
+		void ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable);
+		void UpdateSchema(int PriorSchema);
+
+		class Table *m_mapTable_Find( string sTable ) { MapTable::iterator it = m_mapTable.find( sTable ); return it==m_mapTable.end( ) ? NULL : ( *it ).second; }
 	};
 	
 	typedef map<string, Repository *> MapRepository;

@@ -133,9 +133,14 @@ namespace sqlCVS
 		void HasFullHistory_set_all( bool bOn );
 
 		/**
-		 *  @brief Reset the psc_ fields on all tables
+		 *  @brief Reset all the tables, updating the psc_id, clearing out the 'mod', recreating the system tables, etc.
 		 */
-		void Reset_psc();
+		void Reset_all();
+
+		/**
+		 *  @brief Update the psc_id fields for any records that are new
+		 */
+		void Update_psc();
 
 		/** Implement all these */
 		void Lock( ) {}

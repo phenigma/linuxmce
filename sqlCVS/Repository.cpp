@@ -101,7 +101,7 @@ void Repository::MatchUpTables( )
 
 				sql.str( "" );
 				sql << "DELETE FROM `" << Tablename << "` WHERE Tablename='" << row[0] << "'";
-		    m_pDatabase->threaded_mysql_query( sql.str( ) );
+			    m_pDatabase->threaded_mysql_query( sql.str( ) );
 				continue; /**< Nothing more to do */
 			}
 			if( pTable->Repository_get( ) && pTable->Repository_get( )!=this )
@@ -115,7 +115,7 @@ void Repository::MatchUpTables( )
 
 				sql.str( "" );
 				sql << "DELETE FROM `" << Tablename << "` WHERE Tablename='" << row[0] << "'";
-		    m_pDatabase->threaded_mysql_query( sql.str( ) );
+			    m_pDatabase->threaded_mysql_query( sql.str( ) );
 				continue; /**< Nothing more to do */
 			}
 			/** Go ahead and add the table */
@@ -627,6 +627,16 @@ void Repository::psc_batch_last_sync_set( Table *pTable, int psc_batch )
 void Repository::Dump( )
 {
 	SerializeableStrings str;
+	if( (m_pTable_Setting && !m_pTable_Setting->Dump( str )) ||
+		(m_pTable_BatchHeader && !m_pTable_BatchHeader->Dump( str )) ||
+		(m_pTable_BatchDetail && !m_pTable_BatchDetail->Dump( str )) ||
+		(m_pTable_Tables && !m_pTable_Tables->Dump( str )) ||
+		(m_pTable_Schema && !m_pTable_Schema->Dump( str )) )
+	{
+		cerr << "Failed to output table data!" << endl;
+		return; /**< Just return without doing anything */
+	}
+
 	str.m_vectString.push_back( StringUtils::itos( ( int ) m_mapTable.size( ) ) );
 	for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
 	{
@@ -636,16 +646,6 @@ void Repository::Dump( )
 			cerr << "Failed to output table data!" << endl;
 			return; /**< Just return without doing anything */
 		}
-	}
-
-	if( (m_pTable_Setting && !m_pTable_Setting->Dump( str )) ||
-		(m_pTable_BatchHeader && !m_pTable_BatchHeader->Dump( str )) ||
-		(m_pTable_BatchDetail && !m_pTable_BatchDetail->Dump( str )) ||
-		(m_pTable_Tables && !m_pTable_Tables->Dump( str )) ||
-		(m_pTable_Schema && !m_pTable_Schema->Dump( str )) )
-	{
-		cerr << "Failed to output table data!" << endl;
-		return; /**< Just return without doing anything */
 	}
 
 	str.SerializeWrite( );
@@ -672,3 +672,193 @@ void Repository::ListTables( )
 	}
 }
 
+void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable)
+{
+if( sTableName=="Package_Directory_File" ) 
+{
+int k=2;
+}
+	int NumFields = atoi( str.m_vectString[pos++].c_str( ) );
+
+	if( !pTable )
+	{
+		if( m_pDatabase->threaded_mysql_query( "DROP TABLE IF EXISTS " + sTableName )!=0 )
+		{
+			cerr << "Could not drop table " << sTableName << endl;
+			throw "Database error";
+		}
+	}
+
+	map<string,int> mapFields;
+	list<string> listFields;
+	int iField_psc_id = -1;
+
+	// We will go through the create table process even if
+	// bCleanImport is false and we're not going to use it because we need
+	// to pull of the correct strings, and we need the mapFields member
+	// populated so we can be sure the schema is correct
+	std::ostringstream sSQL;
+	sSQL << "CREATE TABLE `" << sTableName << "` ( ";
+	string sPrimaryKey;
+	bool bContainsAutoIncrement=false;
+	for( int j=0;j<NumFields;++j )
+	{
+		string sField = str.m_vectString[pos++];
+		string sType = str.m_vectString[pos++];
+		string sNULL = str.m_vectString[pos++];
+		string sIndex = str.m_vectString[pos++];
+		string sDefault = str.m_vectString[pos++];
+		string sExtra = str.m_vectString[pos++];
+		if( sExtra=="auto_increment" )
+			bContainsAutoIncrement=true;
+
+		if( sField=="psc_id" )
+			iField_psc_id = j;
+		mapFields[sField]=j;
+		listFields.push_back(sField);  // We need both a map and a list
+
+		if( j!=0 )
+			sSQL << ", ";
+		if( sIndex=="PRI" )
+			sPrimaryKey += ( sPrimaryKey.length( ) ? ", " : "" ) + string( "`" ) + sField + "`";
+		sSQL << "`" << sField << "` " << sType
+			<< ( sNULL!="YES" ? " NOT NULL " : "" );
+		if( sDefault.length( ) )
+			sSQL << " default " << ( sDefault=="**( NULL )**" ? "NULL" : "'" + sDefault + "'" );
+		sSQL << " " << sExtra;
+	}
+	if( sPrimaryKey.length( ) )
+		sSQL << ", PRIMARY KEY( " << sPrimaryKey << " )";
+
+	sSQL << " ) TYPE=InnoDB";
+	if( bContainsAutoIncrement )
+		sSQL << " AUTO_INCREMENT=1000000000";
+
+#pragma warning( "This doesn't really handle types correctly, and may not handle indexes right either" );
+
+	if( !pTable )
+	{
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		{
+			cerr << "SQL Failed: " << sSQL.str( ) << endl;
+			throw "Database error";
+		}
+	}
+	else
+	{
+		// Confirm the schema is correct
+		for( map<string,int>::iterator it=mapFields.begin();it!=mapFields.end();++it )
+		{
+			string sField = (*it).first;
+			if( !pTable->m_mapField_Find(sField) )
+			{
+				cerr << "Cannot import.  Field: " << sField << " doesn't  exist in current table." << sTableName << endl;
+				throw "Schema error";
+			}
+		}
+		// Confirm the schema is correct
+		for( MapField::iterator it=pTable->m_mapField.begin();it!=pTable->m_mapField.end();++it )
+		{
+			Field *pField = (*it).second;
+			if( mapFields.find(pField->Name_get())==mapFields.end() )
+			{
+				cerr << "Cannot import.  Field: " << pField->Name_get() << " doesn't  exist in import." << sTableName << endl;
+				throw "Schema error";
+			}
+		}
+	}
+
+	int NumRows = atoi( str.m_vectString[pos++].c_str( ) );
+	for( int j=0;j<NumRows;++j )
+	{
+		bool bUpdate=false; // Make this an update rather than an insert
+		int i_psc_id=0; // If an update, this will be the psc_id
+		if( iField_psc_id!=-1 )
+		{
+			// See if a record with this psc_id already exists
+			i_psc_id = atoi(str.m_vectString[pos+iField_psc_id].c_str());
+			sSQL.str( "" );
+			sSQL << "SELECT psc_id,psc_mod FROM " << sTableName << " WHERE psc_id=" << i_psc_id;
+			PlutoSqlResult result_set;
+			MYSQL_ROW row=NULL;
+			if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+			{
+				bUpdate=true;
+				if( row[1] && atoi(row[1]) )
+				{
+					cout << endl << "***Warning*** While importing into table: " << sTableName << " pscid: " << i_psc_id << endl;
+					cout << "You modified the row that is being re-imported." << endl;
+					char Response = AskMCQuestion("Overwrite your changes (yes,no,abort)?","yna");
+					if( Response=='a' )
+						exit (1);
+					else if( Response=='n' )
+					{
+						pos += listFields.size();
+						continue;
+					}
+				}
+			}
+		}
+if( i_psc_id==72 )
+{
+int k=2;
+}
+		sSQL.str( "" );
+		if( bUpdate )
+			sSQL << "UPDATE " << sTableName << " SET ";
+		else
+			sSQL << "INSERT INTO " << sTableName << " VALUES( ";
+		bool bFirst=true;
+		for(list<string>::iterator it=listFields.begin();it!=listFields.end();++it)
+		{
+			if( bFirst )
+				bFirst = false;
+			else
+				sSQL << ", ";
+
+			if( bUpdate )
+				sSQL << " " << *it << "=";
+
+			string Value = str.m_vectString[pos++];
+			if( Value=="**( NULL )**" )
+				sSQL << "NULL";
+			else
+				sSQL << "'" << StringUtils::SQLEscape( Value ) << "'";
+		}
+		if( bUpdate )
+			sSQL << " WHERE psc_id=" << i_psc_id;
+		else
+			sSQL << " )";
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		{
+			cerr << "SQL Failed: " << sSQL.str( ) << endl;
+			throw "Database error";
+		}
+	}
+}
+
+void Repository::UpdateSchema(int PriorSchema)
+{
+	std::ostringstream sSQL;
+	sSQL << "SELECT Value FROM psc_" << m_sName << "_schema WHERE PK_psc_" << m_sName << "_schema>" << PriorSchema << " ORDER BY PK_psc_" << m_sName << "_schema";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
+	{
+		 while( ( row = mysql_fetch_row( result_set.r ) ) ) 
+		 {
+			 vector<string> vectCommands;
+			 StringUtils::Tokenize(string(row[0]),"\r\n",vectCommands);
+			 for(size_t s=0;s<vectCommands.size();++s)
+			 {
+				if( m_pDatabase->threaded_mysql_query( vectCommands[s] )!=0 )
+				{
+					cout << "SQL failed: " << vectCommands[s] << endl;
+					cerr << "The database is now corrupted, and the schema is out of sync" << endl
+						<< "because the schema update failed!" << endl;
+					throw "Schema update failed";
+				}
+			 }
+		 }
+	}
+}
