@@ -63,6 +63,8 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 		iLValue = &pEventInfo->m_pDevice->m_dwPK_DeviceCategory;
 		break;
 	case CRITERIAPARMLIST_PK_Room_CONST:
+		if( !pEventInfo->m_pDevice->m_pRoom )
+			return false;
 		iLValue = &pEventInfo->m_pDevice->m_pRoom->m_dwPK_Room;
 		break;
 //	case CRITERIAPARMLIST_PK_DeviceGroup_CONST:

@@ -69,7 +69,7 @@ namespace DCE
 	{
 	public:
 		unsigned long m_dwPK_Room;
-		string m_Description;
+		string m_sDescription;
 		bool m_bLightsLastOn,m_bClimateLastOn;
 		class CommandGroup *m_pagLightsOff,*m_pagLightsOn,*m_pagClimateOff,*m_pagClimateOn;
 		int PK_CommandGroup_LightsOff,PK_CommandGroup_LightsOn,PK_CommandGroup_ClimateOff,PK_CommandGroup_ClimateOn;
@@ -78,8 +78,10 @@ namespace DCE
 		vector<class CommandGroup *> m_vectCommandGroups;
 		list<class DeviceData_Router *> m_listDevices;
 
-		Room()
+		Room(unsigned long dwPK_Room,string sDescription)
 		{	
+			m_dwPK_Room = dwPK_Room;
+			m_sDescription = sDescription;
 			m_pagLightsOff=NULL; m_pagLightsOn=NULL; m_pagClimateOff=NULL; m_pagClimateOn=NULL;
 			m_bLightsLastOn=false; m_bClimateLastOn=false; m_iTemperature=0;
 		}
@@ -145,13 +147,13 @@ namespace DCE
 
 		// **** POINTERS CREATED BY THE SERIALIZED ID'S ****
 
-		class Room *m_pRoom;
+		Room *m_pRoom;
 		class DeviceData_Router *m_pDevice_SlaveTo;
 		class DeviceData_Router *m_pDevice_Audio,*m_pDevice_Video;
 
-		DeviceData_Router(unsigned long  iPK_Device,unsigned long  iPK_Installation,unsigned long  iPK_DeviceTemplate,unsigned long  iPK_Device_ControlledVia, unsigned long m_dwPK_DeviceCategory, unsigned long iPK_Room,bool bImplementsDCE,bool bIsEmbedded,
+		DeviceData_Router(unsigned long  iPK_Device,unsigned long  iPK_Installation,unsigned long  iPK_DeviceTemplate,unsigned long  iPK_Device_ControlledVia, unsigned long m_dwPK_DeviceCategory, Room *pRoom,bool bImplementsDCE,bool bIsEmbedded,
 			string sCommandLine,bool bIsPlugIn,string sDescription,string sIPAddress,string sMacAddress)
-			: DeviceData_Impl(iPK_Device,iPK_Installation,iPK_DeviceTemplate,iPK_Device_ControlledVia,m_dwPK_DeviceCategory,iPK_Room,
+			: DeviceData_Impl(iPK_Device,iPK_Installation,iPK_DeviceTemplate,iPK_Device_ControlledVia,m_dwPK_DeviceCategory,pRoom ? pRoom->m_dwPK_Room : 0,
 			bImplementsDCE,bIsEmbedded,sCommandLine,bIsPlugIn,sDescription,sIPAddress,sMacAddress)
 		{
 			m_dwPK_Device_SlaveTo=0;
@@ -159,7 +161,7 @@ namespace DCE
 			m_bForceReloadOnFirstConnect=m_bIsRegistered=m_bIsReady=m_bBusy=m_bAlert=false;
 			m_tLastused=m_tCanReceiveNextCommand=0;
 
-			m_pRoom=NULL;
+			m_pRoom=pRoom;
 			m_pDevice_ControlledVia=m_pDevice_SlaveTo=NULL;
 			m_pDevice_Audio=m_pDevice_Video=NULL;
 			m_pMySerializedData=NULL;

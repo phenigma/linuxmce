@@ -14,6 +14,7 @@ using namespace DCE;
 
 #include "DCERouter/DCERouter.h"
 #include "Event.h"
+#include "EventInfo.h"
 #include "EventHandler.h"
 #include "Criteria.h"
 #include "CriteriaParm.h"
@@ -158,8 +159,7 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 		return true;
 	}
 
-//	EventInfo *pEventInfo = new EventInfo(this,pEvent,pMessage,g_pPlutoLogger,pDevice,m_iPKID_C_HouseMode);
-//x	pEventInfo->m_dwPK_Event = pMessage->m_dwID;
+	EventInfo *pEventInfo = new EventInfo(pMessage->m_dwID,pMessage,(DeviceData_Router *)pDeviceFrom,1 /*m_iPKID_C_HouseMode*/);
 //	m_listEventInfo.push_back(pEventInfo);
 
 //	g_pPlutoLogger->Write(LV_EVENT,"Event #%d has %d handlers",pEventInfo->m_iPKID_Event,(int)pEvent->m_vectEventHandlers.size());
@@ -177,7 +177,7 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 		{
 			try
 			{
-				if( !pEventHandler->m_pCriteria->Evaluate(NULL) )
+				if( !pEventHandler->m_pCriteria->Evaluate(pEventInfo) )
 					bResult=false;
 			}
 			catch(exception e)

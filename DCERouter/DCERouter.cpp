@@ -45,6 +45,7 @@ using namespace std;
 #include "pluto_main/Table_DeviceTemplate_DSPMode.h"
 #include "pluto_main/Table_Device_Device_Pipe.h"
 #include "pluto_main/Table_Command.h"
+#include "pluto_main/Table_Room.h"
 
 #ifndef WIN32
 #include "dlfcn.h" // for Plugins (Dynamically Loaded Shared Objects)
@@ -1353,6 +1354,16 @@ void Router::Configure()
 {
     AllDevices allDevices; // We're going to want a serialized copy of all the device information
 
+    // Get the rooms
+    vector<Row_Room *> vectRow_Room;
+    GetDatabase()->Room_get()->GetRows("1=1",&vectRow_Room);  // All rows
+    for(size_t s=0;s<vectRow_Room.size();++s)
+    {
+        Row_Room *pRow_Room = vectRow_Room[s];
+        Room *pRoom = new Room(pRow_Room->PK_Room_get(),pRow_Room->Description_get());
+        m_mapRoom[pRoom->m_dwPK_Room] = pRoom;
+    }
+
     // Get the device categories
     vector<Row_DeviceCategory *> vectDeviceCategories;
     GetDatabase()->DeviceCategory_get()->GetRows("1=1",&vectDeviceCategories);  // All rows
@@ -1392,7 +1403,9 @@ void Router::Configure()
 
         DeviceData_Router *pDevice = new DeviceData_Router(
             pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),
-            pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRow_Device->FK_Room_get(),pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
+            pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),
+			m_mapRoom_Find(pRow_Device->FK_Room_get()),pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,
+			pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
             CommandLine,pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(),pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get());
 
         m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
