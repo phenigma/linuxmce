@@ -11,8 +11,8 @@ RunSQL()
 }
 
 cp /usr/pluto/templates/group.tmpl /etc/group.$$
-cp /usr/pluto/templates/passwd.tmp /etc/passwd.$$
-cp /usr/pluto/templates/shadow.tmp /etc/shadow.$$
+cp /usr/pluto/templates/passwd.tmpl /etc/passwd.$$
+cp /usr/pluto/templates/shadow.tmpl /etc/shadow.$$
 cp /usr/pluto/templates/smb.conf.tmpl /etc/samba/smb.conf.$$
 cp /usr/pluto/templates/smbpasswd.tmpl /etc/samba/smbpasswd.$$
 
@@ -24,18 +24,20 @@ DefaultSambaPassword=609FCABC7B0F9AEAAAD3B435B51404EE:DDFF3B733E17BE6500375694FE
 DefaultLinuxPassword=
 
 user_dirs="data data/movies data/pictures data/music data/documents data/home~videos data/play~lists data/tv~shows"
+UserList=
 
 for Users in $R; do
-	PlutoUserID=$(echo "$R" | cut -d, -f1)
-	UserName=$(echo "$R" | cut -d, -f2)
-	LinuxPassword=$(echo "$R" | cut -d, -f3)
-	SambaPassword=$(echo "$R" | cut -d, -f4)
+	PlutoUserID=$(echo "$Users" | cut -d, -f1)
+	UserName=$(echo "$Users" | cut -d, -f2)
+	LinuxPassword=$(echo "$Users" | cut -d, -f3)
+	SambaPassword=$(echo "$Users" | cut -d, -f4)
 
 	[ -z "$LinuxPassword" ] && LinuxPassword="$DefaultLinuxPassword"
 	[ -z "$SambaPassword" ] && SambaPassword="$DefaultSambaPassword"
+#	echo "$Users : $PlutoUserID - $UserName - $LinuxPassword - $SambaPassword"
 	
 	SambaShare="[$UserName]
-	comment = $Username's private files
+	comment = $UserName's private files
 	browseable = yes
 	writable = yes
 	create mask = 0770
@@ -43,10 +45,11 @@ for Users in $R; do
 	path = /home/user_$PlutoUserID
 	public = no
 "
-	SambaEntry="$UserName:$LinuxUserID:$SambaPassword:[U          ]:LCT-00000000:,,,"
+# TODO: replace 00000001 with a real number of seconds (never set to 00000000)
+	SambaEntry="$UserName:$LinuxUserID:$SambaPassword:[U          ]:LCT-00000001:,,,"
 	ShadowEntry="$UserName:$LinuxPassword:12221:0:99999:7:::"
-	PasswdEntry="$Username:x:$LinuxUserID:$LinuxUserID:,,,:/home/user_$PlutoUserID:/bin/false"
-	GroupEntry="$Username:x:$LinuxUserID:www-data"
+	PasswdEntry="$UserName:x:$LinuxUserID:$LinuxUserID:,,,:/home/user_$PlutoUserID:/bin/false"
+	GroupEntry="$UserName:x:$LinuxUserID:www-data"
 	
 	echo "$SambaShare" >>/etc/samba/smb.conf.$$
 	echo "$SambaEntry" >>/etc/samba/smbpasswd.$$
@@ -54,33 +57,41 @@ for Users in $R; do
 	echo "$PasswdEntry" >>/etc/passwd.$$
 	echo "$GroupEntry" >>/etc/group.$$
 
-	mkdir -m 0770 /home/user_$PlutoUserID
+	mkdir -p -m 0770 /home/user_$PlutoUserID
 	for dir in $user_dirs; do
-		mkdir -m 0770 ${dir/~/ }
+		mkdir -p -m 0770 /home/user_$PlutoUserID/${dir/~/ }
 	done
+	rm -f /home/$UserName
 	ln -sf /home/user_$PlutoUserID /home/$UserName
-	adduser $UserName public
-	chown -R $UserName.$UserName /home/user_$PlutoUserID
+	UserList="$UserList $UserName"
+# Files not updated at this point (woking on copies)
+#	chown -R $UserName.$UserName /home/user_$PlutoUserID
 
 	LinuxUserID=$((LinuxUserID+1))
 done
 
 static_dirs="/home/public /home/public/data /home/public/data/movies /home/public/data/pictures /home/public/data/music /home/public/data/documents /home/temp_pvr /home/mydvd /home/cameras /home/public/data/tv~shows /home/public/data/home~videos /home/public/data/play~lists /home/tv_listing"
 for dir in $static_dirs; do
-	mkdir -m 0755 ${dir/~/ }
+	mkdir -p -m 0755 ${dir/~/ }
 done
 
 # Get a list of all Media Directors
 Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=28"
-R=$(RunSql "$Q")
+R=$(RunSQL "$Q")
 
 for Device in $R; do
 	MD=$(echo "$R" | cut -d, -f1)
-	mkdir -m 0755 /home/tmp_$MD
+	mkdir -p -m 0755 /home/tmp_$MD
 done
 
 files="samba/smb.conf samba/smbpasswd shadow passwd group"
 for file in $files; do
 	mv -f /etc/$file.$$ /etc/$file
+done
+
+# Only now we have the copies in place of the originals so we can add users and set ownerships
+for User in $UserList; do
+	adduser $User public
+	chown --dereference -R $User.$User /home/$User/
 done
 
