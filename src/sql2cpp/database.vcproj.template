@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/*DBName*.lib"/>
+				OutputFile="../lib/*DBName*.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -66,7 +66,7 @@
 				OmitFramePointers="TRUE"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -76,7 +76,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/*DBName*-r.lib"/>
+				OutputFile="../lib/*DBName*-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
