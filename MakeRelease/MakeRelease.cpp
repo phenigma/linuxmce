@@ -1027,7 +1027,7 @@ cout << "Making CVS Checkout to temporary\n";
 
 	//reading actual directory list
 cout << "Reading files from temporary";
-	FileUtils::FindFiles(MyList, "", "*", true, "");
+//	FileUtils::FindFiles(MyList, "", "*", true, "");
 cout << " [Done]\n";
 //	cout<<"\n\n SourceForgeCVS : "<<pRow_Package_Source->FK_Package_getrow()->Description_get();
 //	cout<<"\n Nr of files : "<<listFileInfo.size();
