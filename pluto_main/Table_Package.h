@@ -83,13 +83,16 @@ class DLL_EXPORT Row_Package : public TableRow, public SerializeClass
 string m_Description;
 long int m_FK_Package_Sourcecode;
 short int m_IsSource;
+string m_HomePage;
+long int m_FK_Document_User;
+long int m_FK_Document_Programmer;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[9];
+		bool is_null[12];
 	
 		bool is_deleted;
 		bool is_added;
@@ -100,6 +103,9 @@ string m_psc_mod;
 string Description_get();
 long int FK_Package_Sourcecode_get();
 short int IsSource_get();
+string HomePage_get();
+long int FK_Document_User_get();
+long int FK_Document_Programmer_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -111,6 +117,9 @@ string psc_mod_get();
 void Description_set(string val);
 void FK_Package_Sourcecode_set(long int val);
 void IsSource_set(short int val);
+void HomePage_set(string val);
+void FK_Document_User_set(long int val);
+void FK_Document_Programmer_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -119,6 +128,9 @@ void psc_mod_set(string val);
 
 		
 		bool FK_Package_Sourcecode_isNull();
+bool HomePage_isNull();
+bool FK_Document_User_isNull();
+bool FK_Document_Programmer_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -126,6 +138,9 @@ bool psc_frozen_isNull();
 
 			
 		void FK_Package_Sourcecode_setNull(bool val);
+void HomePage_setNull(bool val);
+void FK_Document_User_setNull(bool val);
+void FK_Document_Programmer_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -156,7 +171,7 @@ void Package_Source_FK_Package_getrows(vector <class Row_Package_Source*> *rows)
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package+ m_Description+ m_FK_Package_Sourcecode+ m_IsSource+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Package+ m_Description+ m_FK_Package_Sourcecode+ m_IsSource+ m_HomePage+ m_FK_Document_User+ m_FK_Document_Programmer+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -165,6 +180,9 @@ void Package_Source_FK_Package_getrows(vector <class Row_Package_Source*> *rows)
 string Description_asSQL();
 string FK_Package_Sourcecode_asSQL();
 string IsSource_asSQL();
+string HomePage_asSQL();
+string FK_Document_User_asSQL();
+string FK_Document_Programmer_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

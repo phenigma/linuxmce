@@ -36,10 +36,10 @@ private:
 	struct Key
 	{
 		friend class Row_FloorplanObjectType_Color;
-		long int pk_PK_FloorplanDesignObjType_Color;
+		long int pk_PK_FloorplanObjectType_Color;
 
 		
-		Key(long int in_PK_FloorplanDesignObjType_Color);
+		Key(long int in_PK_FloorplanObjectType_Color);
 	
 		Key(class Row_FloorplanObjectType_Color *pRow);
 	};
@@ -61,7 +61,7 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_FloorplanObjectType_Color* GetRow(long int in_PK_FloorplanDesignObjType_Color);
+	class Row_FloorplanObjectType_Color* GetRow(long int in_PK_FloorplanObjectType_Color);
 	
 
 private:	
@@ -79,8 +79,8 @@ class DLL_EXPORT Row_FloorplanObjectType_Color : public TableRow, public Seriali
 	private:
 		Table_FloorplanObjectType_Color *table;
 		
-		long int m_PK_FloorplanDesignObjType_Color;
-long int m_FK_DesignObjType_Floorplan;
+		long int m_PK_FloorplanObjectType_Color;
+long int m_FK_FloorplanObjectType;
 string m_Description;
 string m_Define;
 long int m_Color;
@@ -97,8 +97,8 @@ string m_psc_mod;
 		bool is_modified;					
 	
 	public:
-		long int PK_FloorplanDesignObjType_Color_get();
-long int FK_DesignObjType_Floorplan_get();
+		long int PK_FloorplanObjectType_Color_get();
+long int FK_FloorplanObjectType_get();
 string Description_get();
 string Define_get();
 long int Color_get();
@@ -109,8 +109,8 @@ short int psc_frozen_get();
 string psc_mod_get();
 
 		
-		void PK_FloorplanDesignObjType_Color_set(long int val);
-void FK_DesignObjType_Floorplan_set(long int val);
+		void PK_FloorplanObjectType_Color_set(long int val);
+void FK_FloorplanObjectType_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
 void Color_set(long int val);
@@ -143,7 +143,7 @@ void psc_frozen_setNull(bool val);
 		class Table_FloorplanObjectType_Color *Table_FloorplanObjectType_Color_get() { return table; };
 
 		// Return the rows for foreign keys 
-		class Row_DesignObjType* FK_DesignObjType_Floorplan_getrow();
+		class Row_FloorplanObjectType* FK_FloorplanObjectType_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -151,13 +151,13 @@ void psc_frozen_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_FloorplanDesignObjType_Color+ m_FK_DesignObjType_Floorplan+ m_Description+ m_Define+ m_Color+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_FloorplanObjectType_Color+ m_FK_FloorplanObjectType+ m_Description+ m_Define+ m_Color+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_FloorplanDesignObjType_Color_asSQL();
-string FK_DesignObjType_Floorplan_asSQL();
+		string PK_FloorplanObjectType_Color_asSQL();
+string FK_FloorplanObjectType_asSQL();
 string Description_asSQL();
 string Define_asSQL();
 string Color_asSQL();

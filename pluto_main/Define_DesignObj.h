@@ -1273,8 +1273,10 @@
 #define DESIGNOBJ_go_to_tv_CONST 3143
 #define DESIGNOBJ_go_to_music_CONST 3144
 #define DESIGNOBJ_test_epg_CONST 3145
-#define DESIGNOBJ_test_epg_data_CONST 3147
 #define DESIGNOBJ_test_epg_dg_CONST 3148
+#define DESIGNOBJ_New_phone_detected_CONST 3150
+#define DESIGNOBJ_yes_CONST 3151
+#define DESIGNOBJ_no_CONST 3152
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
@@ -1301,6 +1303,8 @@
 #define DESIGNOBJ_ANIMATE_TABLE_FIELD "DesignObj.Animate"
 #define DESIGNOBJ_FK_STABILITYSTATUS_FIELD "FK_StabilityStatus"
 #define DESIGNOBJ_FK_STABILITYSTATUS_TABLE_FIELD "DesignObj.FK_StabilityStatus"
+#define DESIGNOBJ_FK_DOCUMENT_FIELD "FK_Document"
+#define DESIGNOBJ_FK_DOCUMENT_TABLE_FIELD "DesignObj.FK_Document"
 #define DESIGNOBJ_PSC_ID_FIELD "psc_id"
 #define DESIGNOBJ_PSC_ID_TABLE_FIELD "DesignObj.psc_id"
 #define DESIGNOBJ_PSC_BATCH_FIELD "psc_batch"

@@ -2,6 +2,7 @@
 #define ESTABLISHMENTSOCKET_H
 
 #include "ClientSocket.h"
+using namespace DCE;
 
 class EstablishmentSocket : public ClientSocket
 {

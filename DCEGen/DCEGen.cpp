@@ -801,7 +801,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 	while( (pos=sBuffer.find("DCE_Template"))!=string::npos )
 		sBuffer.replace(pos,12,Classname);
 
-#warning !!!! COMMENTED THIS LINE OUT SO IT WOULD COMPILE !!!!
+//#warning !!!! COMMENTED THIS LINE OUT SO IT WOULD COMPILE !!!!
 //	while( (pos=sBuffer.find("DCE_DestinationPackage"))!=string::npos )
 //		sBuffer.replace(pos,22,pDeviceInfo->m_pRow_DeviceTemplate->DestinationPackage_get());
 

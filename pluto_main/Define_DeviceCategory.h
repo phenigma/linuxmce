@@ -28,6 +28,9 @@
 #define DEVICECATEGORY_Climate_Plugins_CONST 68
 #define DEVICECATEGORY_Telecom_Plugins_CONST 69
 #define DEVICECATEGORY_Security_Plugins_CONST 70
+#define DEVICECATEGORY_Interfaces_CONST 71
+#define DEVICECATEGORY_Environment_CONST 72
+#define DEVICECATEGORY_Lighting_CONST 73
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

@@ -31,9 +31,12 @@ using namespace DCE;
 
 //<-dceag-const-b->
 Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Orbiter_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: Orbiter_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_UnknownDevicesMutex("Unknown devices varibles")
 //<-dceag-const-e->
 {
+	m_bNoUnknownDeviceIsProcessing = false;
+	m_UnknownDevicesMutex.Init(NULL);
+
 	m_pDatabase_pluto_main = new Database_pluto_main();
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
@@ -47,6 +50,7 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 Orbiter_Plugin::~Orbiter_Plugin()
 //<-dceag-dest-e->
 {
+	m_mapUnknownDevices.clear();
 }
 
 //<-dceag-reg-b->
@@ -136,6 +140,97 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
 	return false;  // Continue to process it
 }
 
+void Orbiter_Plugin::ProcessUnknownDevice()
+{
+	m_bNoUnknownDeviceIsProcessing = true;
+
+	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+
+	//if(!m_mapUnknownDevices.size())
+	//	return;  //nothing to process
+
+	string sMacAddress;
+	UnknownDeviceInfos *pUnknownDeviceInfos = NULL;
+
+	map<string,UnknownDeviceInfos *>::iterator itUnknownDevice;
+	for(itUnknownDevice = m_mapUnknownDevices.begin(); itUnknownDevice != m_mapUnknownDevices.end(); ++itUnknownDevice)
+	{
+		if(false == (*itUnknownDevice).second->m_bProcessed) //unprocessed unknown device
+		{
+			(*itUnknownDevice).second->m_bProcessed = true; //mark as processed
+
+			sMacAddress = (*itUnknownDevice).first;
+			pUnknownDeviceInfos = (*itUnknownDevice).second;
+
+			break;
+		}
+	}
+
+	if(NULL == pUnknownDeviceInfos)
+		return; //no new unknown device to process
+
+	g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s", sMacAddress.c_str());
+
+	// A list of all the orbiters we will notify of this device's presence
+	list<int> listOrbiter;
+
+	// First see if we can find orbiters in the same room
+	if( pUnknownDeviceInfos->m_pDeviceFrom )
+	{
+		for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
+		{
+			OH_Orbiter *pOH_Orbiter = (*it).second;
+			if( pOH_Orbiter->m_dwPK_Room == pUnknownDeviceInfos->m_pDeviceFrom->m_dwPK_Room )
+				listOrbiter.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+		}
+	}
+
+	if( !listOrbiter.size() )
+	{
+		// We didn't find any Orbiters.  Use them all
+		for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
+		{
+			OH_Orbiter *pOH_Orbiter = (*it).second;
+			listOrbiter.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+		}
+	}
+
+	string sOrbiterIDList;
+	list<int>::iterator itOrbiter;
+	for(itOrbiter = listOrbiter.begin(); itOrbiter != listOrbiter.end(); ++itOrbiter)
+		sOrbiterIDList += StringUtils::itos(*itOrbiter) + ",";
+
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter list: %s", sOrbiterIDList.c_str()); 
+
+	for(itOrbiter = listOrbiter.begin(); itOrbiter != listOrbiter.end(); ++itOrbiter)
+	{
+		int iOrbiterID = *itOrbiter;
+
+		DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device, iOrbiterID, VARIABLE_Misc_Data_1_CONST, sMacAddress);
+		DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device, iOrbiterID, VARIABLE_Misc_Data_2_CONST, pUnknownDeviceInfos->m_sID);
+		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device, iOrbiterID, 0, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "", "", true);
+
+		// Send them all 3 in one message for efficiency
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable.m_pMessage );
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable2.m_pMessage );
+		QueueMessage(CMD_Goto_Screen.m_pMessage);
+	}
+
+	//TODO: Find why CMD_Set_Variable_DL is not working
+	//CMD_Set_Variable_DL doesn't work!!! 
+	/*
+	DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device, sOrbiterIDList, VARIABLE_Misc_Data_1_CONST, sMacAddress);
+	DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device, sOrbiterIDList, VARIABLE_Misc_Data_2_CONST, sID);
+	DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device, sOrbiterIDList, 0, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "", "", true);
+
+	// Send them all 3 in one message for efficiency
+	CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
+	CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL2.m_pMessage );
+	QueueMessage(CMD_Goto_Screen_DL.m_pMessage);*/
+    
+	listOrbiter.clear();
+}
+
 bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
 {
 printf("Mobile orbiter detected\n");
@@ -154,11 +249,17 @@ printf("Mobile orbiter detected\n");
 
 	if(!pOH_Orbiter)
 	{
-		m_mapUnknownDevices[sMacAddress] = pMessage->m_dwPK_Device_From;  // We need to remember who detected this device
+		PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+		
+		if(NULL == m_mapUnknownDevices_Find(sMacAddress))
+			m_mapUnknownDevices[sMacAddress] = new UnknownDeviceInfos(pDeviceFrom, pMessage->m_dwPK_Device_From, sID);  // We need to remember who detected this device
+
+		mm.Release();
 
 		// We don't know what this is.  Let's see if it's a known phone, or anything else we recognize
 		vector<Row_Device *> vectRow_Device;
-		m_pDatabase_pluto_main->Device_get()->GetRows( DEVICE_MACADDRESS_FIELD + string("=") + sMacAddress, &vectRow_Device );
+		m_pDatabase_pluto_main->Device_get()->GetRows( DEVICE_MACADDRESS_FIELD + string("='") + sMacAddress + "' ", &vectRow_Device );
+
 g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int) vectRow_Device.size(),sMacAddress.c_str());
 
 		// If we have any records, then it's something that is already in our database, and it's not a phone, since it's
@@ -171,45 +272,10 @@ g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int)
 
 			// If we found it here, then we've seen it before and the user already added it to the unknown table.  If not
 			// we need to ask the user if it's a phone that he wants to use on the system.
-			if( !vectRow_Device.size() )
+			if( !vectRow_UnknownDevices.size() )
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
-
-				// A list of all the orbiters we will notify of this device's presence
-				string sOrbiterList = "";
-
-				// First see if we can find orbiters in the same room
-				if( pDeviceFrom )
-				{
-					for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
-					{
-						OH_Orbiter *pOH_Orbiter = (*it).second;
-						if( pOH_Orbiter->m_dwPK_Room == pDeviceFrom->m_dwPK_Room )
-							sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) + ",";
-					}
-				}
-
-				if( !sOrbiterList.size() )
-				{
-					// We didn't find any Orbiters.  Use them all
-					for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
-					{
-						OH_Orbiter *pOH_Orbiter = (*it).second;
-						sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) + ",";
-					}
-				}
-
-				g_pPlutoLogger->Write(LV_STATUS,"Orbiter list: %s",sOrbiterList.c_str());
-				sOrbiterList="1"; // HACK!!!
-				DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device,sOrbiterList,VARIABLE_Misc_Data_1_CONST,sMacAddress);
-				DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device,sOrbiterList,VARIABLE_Misc_Data_2_CONST,sID);
-int DESIGNOBJ_New_phone_detected_CONST=0;  // TODO -- HACK
-				DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,sOrbiterList,0,StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST),"","",true);
-
-				// Send them all 3 in one message for efficiency
-				CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
-				CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL2.m_pMessage );
-				QueueMessage(CMD_Goto_Screen_DL.m_pMessage);
+				if(!m_bNoUnknownDeviceIsProcessing) //the list was empty... we are processing the first unknown device
+					ProcessUnknownDevice();
 			}
 		}
 	}
@@ -594,18 +660,61 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
 {
 	if( !iPK_DeviceTemplate )
 		iPK_DeviceTemplate = DEVICETEMPLATE_Symbian_60_CONST;  // hack - todo fix this
+
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->AddRow();
 	pRow_Device->FK_DeviceTemplate_set(iPK_DeviceTemplate);
 	pRow_Device->MACaddress_set(sMac_address);
 	m_pDatabase_pluto_main->Device_get()->Commit();
-g_pPlutoLogger->Write(LV_STATUS,"new mobile orbiter, setting: %d to mac: %s",pRow_Device->PK_Device_get(),pRow_Device->MACaddress_get().c_str());
+
+	g_pPlutoLogger->Write(
+		LV_STATUS, 
+		"New mobile orbiter, setting: %d to mac: %s",
+		pRow_Device->PK_Device_get(),
+		pRow_Device->MACaddress_get().c_str()
+	);
+
 	// todo -- need to restart the dce router automatically
-	int iPK_Device_Dongle = m_mapUnknownDevices[sMac_address];
-	if( !iPK_Device_Dongle )
+	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
+	if( !pUnknownDeviceInfos->m_iDeviceIDFrom )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
 	else
 	{
-		DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(m_dwPK_Device, iPK_Device_Dongle,"PlutoMO.sis",sMac_address,"");
+		DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(m_dwPK_Device, pUnknownDeviceInfos->m_iDeviceIDFrom, "PlutoMO.sis", sMac_address, "");
 		SendCommand(CMD_Send_File_To_Device);
 	}
+
+	m_bNoUnknownDeviceIsProcessing = false;
+
+	ProcessUnknownDevice();
+}
+//<-dceag-c79-b->
+/* 
+	COMMAND: #79 - Add Unknown Device
+	COMMENTS: After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that the device is a phone and it should be added
+	PARAMETERS:
+		#9 Text
+			A description of the device
+		#10 ID
+			The IP Address
+		#47 Mac address
+			The MAC address of the device
+*/
+void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,Message *pMessage)
+//<-dceag-c79-e->
+{
+	Row_UnknownDevices *pRow_Device = m_pDatabase_pluto_main->UnknownDevices_get()->AddRow();
+	pRow_Device->MacAddress_set(sMac_address);
+	pRow_Device->IPAddress_set(sID);
+	m_pDatabase_pluto_main->UnknownDevices_get()->Commit();
+
+	g_pPlutoLogger->Write(
+		LV_STATUS,
+		"Added phone to unknown devices table, setting: %d to mac: %s",
+		pRow_Device->PK_UnknownDevices_get(), 
+		pRow_Device->MacAddress_get().c_str()
+	);
+
+	m_bNoUnknownDeviceIsProcessing = false;
+
+	ProcessUnknownDevice();
 }

@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="CxImage"
 	ProjectGUID="{FDFD1D87-2577-4071-AC48-3FE51443F621}"
 	SccProjectName=""
@@ -55,6 +55,12 @@
 				Culture="1040"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
@@ -102,15 +108,20 @@
 				Culture="1040"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
-			<File
-				RelativePath=".\xImage.cpp">
-			</File>
 			<File
 				RelativePath=".\ximabmp.cpp">
 			</File>
@@ -122,6 +133,9 @@
 			</File>
 			<File
 				RelativePath=".\ximaexif.cpp">
+			</File>
+			<File
+				RelativePath=".\xImage.cpp">
 			</File>
 			<File
 				RelativePath=".\ximagif.cpp">
@@ -182,9 +196,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath=".\xImage.h">
-			</File>
-			<File
 				RelativePath=".\xfile.h">
 			</File>
 			<File
@@ -192,6 +203,9 @@
 			</File>
 			<File
 				RelativePath=".\ximadefs.h">
+			</File>
+			<File
+				RelativePath=".\xImage.h">
 			</File>
 			<File
 				RelativePath=".\ximagif.h">

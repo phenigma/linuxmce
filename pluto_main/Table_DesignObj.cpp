@@ -156,10 +156,11 @@ is_null[11] = false;
 is_null[12] = true;
 is_null[13] = true;
 is_null[14] = true;
+is_null[15] = true;
 m_psc_frozen = 0;
-is_null[15] = false;
-m_psc_mod = "00000000000000";
 is_null[16] = false;
+m_psc_mod = "00000000000000";
+is_null[17] = false;
 
 
 	is_added=false;
@@ -203,6 +204,9 @@ return m_Animate;}
 long int Row_DesignObj::FK_StabilityStatus_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_StabilityStatus;}
+long int Row_DesignObj::FK_Document_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Document;}
 long int Row_DesignObj::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -256,21 +260,24 @@ m_Animate = val; is_modified=true; is_null[10]=false;}
 void Row_DesignObj::FK_StabilityStatus_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_StabilityStatus = val; is_modified=true; is_null[11]=false;}
+void Row_DesignObj::FK_Document_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Document = val; is_modified=true; is_null[12]=false;}
 void Row_DesignObj::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[12]=false;}
+m_psc_id = val; is_modified=true; is_null[13]=false;}
 void Row_DesignObj::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[13]=false;}
+m_psc_batch = val; is_modified=true; is_null[14]=false;}
 void Row_DesignObj::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[14]=false;}
+m_psc_user = val; is_modified=true; is_null[15]=false;}
 void Row_DesignObj::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[15]=false;}
+m_psc_frozen = val; is_modified=true; is_null[16]=false;}
 void Row_DesignObj::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[16]=false;}
+m_psc_mod = val; is_modified=true; is_null[17]=false;}
 
 		
 bool Row_DesignObj::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -282,18 +289,21 @@ return is_null[5];}
 bool Row_DesignObj::TimeoutSeconds_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
-bool Row_DesignObj::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DesignObj::FK_Document_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[12];}
-bool Row_DesignObj::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DesignObj::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[13];}
-bool Row_DesignObj::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DesignObj::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[14];}
-bool Row_DesignObj::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DesignObj::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[15];}
+bool Row_DesignObj::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[16];}
 
 			
 void Row_DesignObj::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -305,18 +315,21 @@ is_null[5]=val;}
 void Row_DesignObj::TimeoutSeconds_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[9]=val;}
-void Row_DesignObj::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DesignObj::FK_Document_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[12]=val;}
-void Row_DesignObj::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DesignObj::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[13]=val;}
-void Row_DesignObj::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DesignObj::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[14]=val;}
-void Row_DesignObj::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DesignObj::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[15]=val;}
+void Row_DesignObj::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[16]=val;}
 	
 
 string Row_DesignObj::PK_DesignObj_asSQL()
@@ -473,11 +486,24 @@ sprintf(buf, "%li", m_FK_StabilityStatus);
 return buf;
 }
 
-string Row_DesignObj::psc_id_asSQL()
+string Row_DesignObj::FK_Document_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[12])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Document);
+
+return buf;
+}
+
+string Row_DesignObj::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -490,7 +516,7 @@ string Row_DesignObj::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[13])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -503,7 +529,7 @@ string Row_DesignObj::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[14])
+if (is_null[15])
 return "NULL";
 
 char buf[32];
@@ -516,7 +542,7 @@ string Row_DesignObj::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[15])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -529,7 +555,7 @@ string Row_DesignObj::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[16])
+if (is_null[17])
 return "NULL";
 
 char buf[29];
@@ -575,10 +601,10 @@ void Table_DesignObj::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObj_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_DesignObjType_asSQL()+", "+pRow->FK_DesignObjCategory_asSQL()+", "+pRow->FK_DesignObj_IncludeIfOtherIncluded_asSQL()+", "+pRow->Priority_asSQL()+", "+pRow->CantGoBack_asSQL()+", "+pRow->CommandsProcessedAtServer_asSQL()+", "+pRow->TimeoutSeconds_asSQL()+", "+pRow->Animate_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObj_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_DesignObjType_asSQL()+", "+pRow->FK_DesignObjCategory_asSQL()+", "+pRow->FK_DesignObj_IncludeIfOtherIncluded_asSQL()+", "+pRow->Priority_asSQL()+", "+pRow->CantGoBack_asSQL()+", "+pRow->CommandsProcessedAtServer_asSQL()+", "+pRow->TimeoutSeconds_asSQL()+", "+pRow->Animate_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into DesignObj (PK_DesignObj, Description, Define, FK_DesignObjType, FK_DesignObjCategory, FK_DesignObj_IncludeIfOtherIncluded, Priority, CantGoBack, CommandsProcessedAtServer, TimeoutSeconds, Animate, FK_StabilityStatus, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DesignObj (PK_DesignObj, Description, Define, FK_DesignObjType, FK_DesignObjCategory, FK_DesignObj_IncludeIfOtherIncluded, Priority, CantGoBack, CommandsProcessedAtServer, TimeoutSeconds, Animate, FK_StabilityStatus, FK_Document, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -627,7 +653,7 @@ condition = condition + "PK_DesignObj=" + tmp_PK_DesignObj;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DesignObj="+pRow->PK_DesignObj_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_DesignObjType="+pRow->FK_DesignObjType_asSQL()+", FK_DesignObjCategory="+pRow->FK_DesignObjCategory_asSQL()+", FK_DesignObj_IncludeIfOtherIncluded="+pRow->FK_DesignObj_IncludeIfOtherIncluded_asSQL()+", Priority="+pRow->Priority_asSQL()+", CantGoBack="+pRow->CantGoBack_asSQL()+", CommandsProcessedAtServer="+pRow->CommandsProcessedAtServer_asSQL()+", TimeoutSeconds="+pRow->TimeoutSeconds_asSQL()+", Animate="+pRow->Animate_asSQL()+", FK_StabilityStatus="+pRow->FK_StabilityStatus_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_DesignObj="+pRow->PK_DesignObj_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_DesignObjType="+pRow->FK_DesignObjType_asSQL()+", FK_DesignObjCategory="+pRow->FK_DesignObjCategory_asSQL()+", FK_DesignObj_IncludeIfOtherIncluded="+pRow->FK_DesignObj_IncludeIfOtherIncluded_asSQL()+", Priority="+pRow->Priority_asSQL()+", CantGoBack="+pRow->CantGoBack_asSQL()+", CommandsProcessedAtServer="+pRow->CommandsProcessedAtServer_asSQL()+", TimeoutSeconds="+pRow->TimeoutSeconds_asSQL()+", Animate="+pRow->Animate_asSQL()+", FK_StabilityStatus="+pRow->FK_StabilityStatus_asSQL()+", FK_Document="+pRow->FK_Document_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update DesignObj set " + update_values_list + " where " + condition;
@@ -843,56 +869,67 @@ sscanf(row[11], "%li", &(pRow->m_FK_StabilityStatus));
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Document = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_id));
+sscanf(row[12], "%li", &(pRow->m_FK_Document));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_batch));
+sscanf(row[13], "%li", &(pRow->m_psc_id));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_user));
+sscanf(row[14], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[15], "%li", &(pRow->m_psc_user));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_psc_mod = string(row[16],lengths[16]);
+sscanf(row[16], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[17] == NULL)
+{
+pRow->is_null[17]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[17]=false;
+pRow->m_psc_mod = string(row[17],lengths[17]);
 }
 
 
@@ -1136,56 +1173,67 @@ sscanf(row[11], "%li", &(pRow->m_FK_StabilityStatus));
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Document = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_id));
+sscanf(row[12], "%li", &(pRow->m_FK_Document));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_batch));
+sscanf(row[13], "%li", &(pRow->m_psc_id));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_user));
+sscanf(row[14], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[15], "%li", &(pRow->m_psc_user));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_psc_mod = string(row[16],lengths[16]);
+sscanf(row[16], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[17] == NULL)
+{
+pRow->is_null[17]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[17]=false;
+pRow->m_psc_mod = string(row[17],lengths[17]);
 }
 
 

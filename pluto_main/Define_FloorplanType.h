@@ -1,6 +1,13 @@
 #ifndef __Define_FloorplanType_H__
 #define __Define_FloorplanType_H__
 
+#define FLOORPLANTYPE_Security_Zone_CONST 1
+#define FLOORPLANTYPE_Lighting_Zone_CONST 2
+#define FLOORPLANTYPE_Climate_Zone_CONST 3
+#define FLOORPLANTYPE_Camera_CONST 4
+#define FLOORPLANTYPE_Entertainment_Zone_CONST 5
+#define FLOORPLANTYPE_AV_Equipment_CONST 6
+#define FLOORPLANTYPE_Phones_CONST 7
 
 #define FLOORPLANTYPE_TABLE "FloorplanType"
 #define FLOORPLANTYPE_PK_FLOORPLANTYPE_FIELD "PK_FloorplanType"

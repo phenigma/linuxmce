@@ -91,13 +91,14 @@ short int m_CommandsProcessedAtServer;
 short int m_TimeoutSeconds;
 short int m_Animate;
 long int m_FK_StabilityStatus;
+long int m_FK_Document;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[17];
+		bool is_null[18];
 	
 		bool is_deleted;
 		bool is_added;
@@ -116,6 +117,7 @@ short int CommandsProcessedAtServer_get();
 short int TimeoutSeconds_get();
 short int Animate_get();
 long int FK_StabilityStatus_get();
+long int FK_Document_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -135,6 +137,7 @@ void CommandsProcessedAtServer_set(short int val);
 void TimeoutSeconds_set(short int val);
 void Animate_set(short int val);
 void FK_StabilityStatus_set(long int val);
+void FK_Document_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -145,6 +148,7 @@ void psc_mod_set(string val);
 		bool Define_isNull();
 bool FK_DesignObj_IncludeIfOtherIncluded_isNull();
 bool TimeoutSeconds_isNull();
+bool FK_Document_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -154,6 +158,7 @@ bool psc_frozen_isNull();
 		void Define_setNull(bool val);
 void FK_DesignObj_IncludeIfOtherIncluded_setNull(bool val);
 void TimeoutSeconds_setNull(bool val);
+void FK_Document_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -202,7 +207,7 @@ void Orbiter_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Orbiter*> *rows)
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_DesignObj+ m_Description+ m_Define+ m_FK_DesignObjType+ m_FK_DesignObjCategory+ m_FK_DesignObj_IncludeIfOtherIncluded+ m_Priority+ m_CantGoBack+ m_CommandsProcessedAtServer+ m_TimeoutSeconds+ m_Animate+ m_FK_StabilityStatus+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DesignObj+ m_Description+ m_Define+ m_FK_DesignObjType+ m_FK_DesignObjCategory+ m_FK_DesignObj_IncludeIfOtherIncluded+ m_Priority+ m_CantGoBack+ m_CommandsProcessedAtServer+ m_TimeoutSeconds+ m_Animate+ m_FK_StabilityStatus+ m_FK_Document+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -219,6 +224,7 @@ string CommandsProcessedAtServer_asSQL();
 string TimeoutSeconds_asSQL();
 string Animate_asSQL();
 string FK_StabilityStatus_asSQL();
+string FK_Document_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

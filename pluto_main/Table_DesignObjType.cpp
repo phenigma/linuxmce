@@ -21,7 +21,6 @@ using namespace std;
 
 #include "Table_DesignObj.h"
 #include "Table_DesignObjType_DesignObjParameter.h"
-#include "Table_FloorplanObjectType_Color.h"
 
 
 void Database_pluto_main::CreateTable_DesignObjType()
@@ -873,13 +872,6 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjType_DesignObjParameter *pTable = table->database->DesignObjType_DesignObjParameter_get();
 pTable->GetRows("FK_DesignObjType=" + StringUtils::itos(m_PK_DesignObjType),rows);
-}
-void Row_DesignObjType::FloorplanObjectType_Color_FK_DesignObjType_Floorplan_getrows(vector <class Row_FloorplanObjectType_Color*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_FloorplanObjectType_Color *pTable = table->database->FloorplanObjectType_Color_get();
-pTable->GetRows("FK_DesignObjType_Floorplan=" + StringUtils::itos(m_PK_DesignObjType),rows);
 }
 
 

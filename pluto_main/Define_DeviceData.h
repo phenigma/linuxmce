@@ -10,6 +10,8 @@
 #define DEVICEDATA_PK_Distro_CONST 7
 #define DEVICEDATA_Development_CONST 8
 #define DEVICEDATA_Diskless_Boot_CONST 9
+#define DEVICEDATA_Floorplan_Info_CONST 10
+#define DEVICEDATA_PK_FloorplanObjectType_CONST 11
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="demo"
 	SccProjectName=""
 	SccLocalPath=""
@@ -65,7 +65,13 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
@@ -122,9 +128,17 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
@@ -134,6 +148,18 @@
 			</File>
 			<File
 				RelativePath=".\ChildFrm.cpp">
+			</File>
+			<File
+				RelativePath=".\demo.cpp">
+			</File>
+			<File
+				RelativePath=".\demo.rc">
+			</File>
+			<File
+				RelativePath=".\demoDoc.cpp">
+			</File>
+			<File
+				RelativePath=".\demoView.cpp">
 			</File>
 			<File
 				RelativePath=".\DlgCapture.cpp">
@@ -187,6 +213,9 @@
 				RelativePath=".\DlgURL.cpp">
 			</File>
 			<File
+				RelativePath=".\logomdi.cpp">
+			</File>
+			<File
 				RelativePath=".\MainFrm.cpp">
 			</File>
 			<File
@@ -213,21 +242,6 @@
 				RelativePath=".\TwainCpp.cpp">
 			</File>
 			<File
-				RelativePath=".\demo.cpp">
-			</File>
-			<File
-				RelativePath=".\demo.rc">
-			</File>
-			<File
-				RelativePath=".\demoDoc.cpp">
-			</File>
-			<File
-				RelativePath=".\demoView.cpp">
-			</File>
-			<File
-				RelativePath=".\logomdi.cpp">
-			</File>
-			<File
 				RelativePath=".\xTargetButton.cpp">
 			</File>
 		</Filter>
@@ -239,6 +253,15 @@
 			</File>
 			<File
 				RelativePath=".\ChildFrm.h">
+			</File>
+			<File
+				RelativePath=".\demo.h">
+			</File>
+			<File
+				RelativePath=".\demoDoc.h">
+			</File>
+			<File
+				RelativePath=".\demoView.h">
 			</File>
 			<File
 				RelativePath=".\DlgCapture.h">
@@ -292,6 +315,9 @@
 				RelativePath=".\DlgURL.h">
 			</File>
 			<File
+				RelativePath=".\logomdi.h">
+			</File>
+			<File
 				RelativePath=".\MainFrm.h">
 			</File>
 			<File
@@ -304,30 +330,12 @@
 				RelativePath=".\TwainCpp.h">
 			</File>
 			<File
-				RelativePath=".\demo.h">
-			</File>
-			<File
-				RelativePath=".\demoDoc.h">
-			</File>
-			<File
-				RelativePath=".\demoView.h">
-			</File>
-			<File
-				RelativePath=".\logomdi.h">
-			</File>
-			<File
 				RelativePath=".\xTargetButton.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe">
-			<File
-				RelativePath=".\res\Explorer.ico">
-			</File>
-			<File
-				RelativePath=".\res\Toolbar.bmp">
-			</File>
 			<File
 				RelativePath=".\res\b1.ico">
 			</File>
@@ -353,6 +361,9 @@
 				RelativePath=".\res\demoDoc.ico">
 			</File>
 			<File
+				RelativePath=".\res\Explorer.ico">
+			</File>
+			<File
 				RelativePath=".\res\gray.ico">
 			</File>
 			<File
@@ -372,6 +383,9 @@
 			</File>
 			<File
 				RelativePath=".\res\testbmp.bmp">
+			</File>
+			<File
+				RelativePath=".\res\Toolbar.bmp">
 			</File>
 			<File
 				RelativePath=".\res\toolbar1.bmp">

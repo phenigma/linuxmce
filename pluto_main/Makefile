@@ -1,6 +1,6 @@
 ROOT = ..
 CXXFLAGS = -Wall -D_GNU_SOURCE
-CPPFLAGS = -I/../.. -I/.. -I/usr/include/mysql -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DUSE_MYSQL
+CPPFLAGS = -I/usr/include/mysql -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DUSE_MYSQL
 CXX = g++
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS =  -lmysqlclient_r

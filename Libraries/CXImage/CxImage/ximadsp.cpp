@@ -857,9 +857,9 @@ bool CxImage::Gamma(float gamma)
 #endif //CXIMAGE_SUPPORT_SELECTION
 				{
 					color = GetPixelColor(x,y);
-					color.rgbRed = (BYTE)max(0,min(255,(int)( pow(color.rgbRed, dinvgamma) / dMax)));
-					color.rgbGreen = (BYTE)max(0,min(255,(int)( pow(color.rgbGreen, dinvgamma) / dMax)));
-					color.rgbBlue = (BYTE)max(0,min(255,(int)( pow(color.rgbBlue, dinvgamma) / dMax)));
+					color.rgbRed = (BYTE)max(0,min(255,(int)( pow(float(color.rgbRed), float(dinvgamma)) / dMax)));
+					color.rgbGreen = (BYTE)max(0,min(255,(int)( pow(float(color.rgbGreen), float(dinvgamma)) / dMax)));
+					color.rgbBlue = (BYTE)max(0,min(255,(int)( pow(float(color.rgbBlue), float(dinvgamma)) / dMax)));
 					SetPixelColor(x,y,color);
 				}
 			}
@@ -867,9 +867,9 @@ bool CxImage::Gamma(float gamma)
 	} else {
 		for(DWORD j=0; j<head.biClrUsed; j++){
 			color = GetPaletteColor((BYTE)j);
-			color.rgbRed = (BYTE)max(0,min(255,(int)( pow(color.rgbRed, dinvgamma) / dMax)));
-			color.rgbGreen = (BYTE)max(0,min(255,(int)( pow(color.rgbGreen, dinvgamma) / dMax)));
-			color.rgbBlue = (BYTE)max(0,min(255,(int)( pow(color.rgbBlue, dinvgamma) / dMax)));
+			color.rgbRed = (BYTE)max(0,min(255,(int)( pow(float(color.rgbRed), float(dinvgamma)) / dMax)));
+			color.rgbGreen = (BYTE)max(0,min(255,(int)( pow(float(color.rgbGreen), float(dinvgamma)) / dMax)));
+			color.rgbBlue = (BYTE)max(0,min(255,(int)( pow(float(color.rgbBlue), float(dinvgamma)) / dMax)));
 			SetPaletteIndex((BYTE)j,color);
 		}
 	}
@@ -1166,7 +1166,7 @@ bool CxImage::FFT2(CxImage* srcReal, CxImage* srcImag, CxImage* dstReal, CxImage
 
 	/* converting from double to byte, there is a HUGE loss in the dynamics
 	  "nn" tries to keep an acceptable SNR, but 8bit=48dB: don't ask more */
-	double nn=pow(2,log(max(w,h))/log(2)-4);
+	double nn=pow(float(2),float(log(float(max(w,h)))/log(float(2))-4));
 	//reversed gain for reversed transform
 	if (direction==-1) nn=1/nn;
 	//bMagnitude : just to see it on the screen

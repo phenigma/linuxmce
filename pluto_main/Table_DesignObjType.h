@@ -148,7 +148,6 @@ void psc_frozen_setNull(bool val);
 		// Return the rows in other tables with foreign keys pointing here
 		void DesignObj_FK_DesignObjType_getrows(vector <class Row_DesignObj*> *rows);
 void DesignObjType_DesignObjParameter_FK_DesignObjType_getrows(vector <class Row_DesignObjType_DesignObjParameter*> *rows);
-void FloorplanObjectType_Color_FK_DesignObjType_Floorplan_getrows(vector <class Row_FloorplanObjectType_Color*> *rows);
 
 
 		// Setup binary serialization

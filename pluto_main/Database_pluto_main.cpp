@@ -13,8 +13,6 @@ using namespace std;
 
 #include "Database_pluto_main.h"
 
-#include "DCEConfig.h"
-
 Database_pluto_main::Database_pluto_main()
 {
 CreateTable_Array();
@@ -355,7 +353,3 @@ else
 {return true;}
 }
 
-bool Database_pluto_main::Connect(class DCEConfig *pDCEConfig)
-{
-	return Connect(pDCEConfig->m_sDBHost,pDCEConfig->m_sDBUser,pDCEConfig->m_sDBPassword,pDCEConfig->m_sDBName,pDCEConfig->m_iDBPort);
-}

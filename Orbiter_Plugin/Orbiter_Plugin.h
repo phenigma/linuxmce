@@ -37,6 +37,23 @@ public:
 
 };
 
+class UnknownDeviceInfos
+{
+public:
+	class DeviceData_Router *m_pDeviceFrom;
+	int m_iDeviceIDFrom;
+	string m_sID;
+	bool m_bProcessed;
+
+	UnknownDeviceInfos(class DeviceData_Router *pDeviceFrom, int iDeviceIDFrom, string sID)
+	{
+		m_pDeviceFrom = pDeviceFrom;
+		m_iDeviceIDFrom = iDeviceIDFrom;
+		m_sID = sID;
+		m_bProcessed = false;
+	}
+};
+
 /*
 
 	class Device *m_pDevice_CurrentDetected;
@@ -70,7 +87,15 @@ public:
 	Database_pluto_main *m_pDatabase_pluto_main;
 
 	// Private methods
-	map<string,int> m_mapUnknownDevices; // A temporary map to match Bluetooth Dongle's with devices they detect
+	map<string,UnknownDeviceInfos *> m_mapUnknownDevices; // A temporary map to match Bluetooth Dongle's with devices they detect
+	UnknownDeviceInfos *m_mapUnknownDevices_Find(string sMacAddress) 
+	{
+		map<string,UnknownDeviceInfos *>::iterator it = m_mapUnknownDevices.find(sMacAddress);
+		return it == m_mapUnknownDevices.end() ? NULL : (*it).second;
+	}
+
+	pluto_pthread_mutex_t m_UnknownDevicesMutex;
+	bool m_bNoUnknownDeviceIsProcessing;
 
 public:
 	// Public member variables
@@ -91,6 +116,8 @@ public:
 	bool MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo);
 	bool MobileOrbiterLinked(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo);
 	bool MobileOrbiterLost(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo);
+
+	void ProcessUnknownDevice();
 
 //<-dceag-h-b->
 	/*
@@ -159,6 +186,20 @@ public:
 */
 	virtual void CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_address) { string sCMD_Result; CMD_New_Mobile_Orbiter(iPK_DeviceTemplate,sMac_address.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,Message *pMessage);
+
+/* 
+	COMMAND: #79 - Add Unknown Device
+	COMMENTS: After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that the device is a phone and it should be added
+	PARAMETERS:
+		#9 Text
+			A description of the device
+		#10 ID
+			The IP Address
+		#47 Mac address
+			The MAC address of the device
+*/
+	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address) { string sCMD_Result; CMD_Add_Unknown_Device(sText.c_str(),sID.c_str(),sMac_address.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

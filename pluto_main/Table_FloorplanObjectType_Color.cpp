@@ -18,7 +18,7 @@
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_FloorplanObjectType_Color.h"
-#include "Table_DesignObjType.h"
+#include "Table_FloorplanObjectType.h"
 
 
 
@@ -108,9 +108,9 @@ Row_FloorplanObjectType_Color::Row_FloorplanObjectType_Color(Table_FloorplanObje
 
 void Row_FloorplanObjectType_Color::SetDefaultValues()
 {
-	m_PK_FloorplanDesignObjType_Color = 0;
+	m_PK_FloorplanObjectType_Color = 0;
 is_null[0] = false;
-m_FK_DesignObjType_Floorplan = 0;
+m_FK_FloorplanObjectType = 0;
 is_null[1] = false;
 m_Description = "";
 is_null[2] = false;
@@ -132,12 +132,12 @@ is_null[9] = false;
 	is_modified=false;
 }
 
-long int Row_FloorplanObjectType_Color::PK_FloorplanDesignObjType_Color_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_FloorplanObjectType_Color::PK_FloorplanObjectType_Color_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_PK_FloorplanDesignObjType_Color;}
-long int Row_FloorplanObjectType_Color::FK_DesignObjType_Floorplan_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_PK_FloorplanObjectType_Color;}
+long int Row_FloorplanObjectType_Color::FK_FloorplanObjectType_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_DesignObjType_Floorplan;}
+return m_FK_FloorplanObjectType;}
 string Row_FloorplanObjectType_Color::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
@@ -164,12 +164,12 @@ string Row_FloorplanObjectType_Color::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->
 return m_psc_mod;}
 
 		
-void Row_FloorplanObjectType_Color::PK_FloorplanDesignObjType_Color_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_FloorplanObjectType_Color::PK_FloorplanObjectType_Color_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_PK_FloorplanDesignObjType_Color = val; is_modified=true; is_null[0]=false;}
-void Row_FloorplanObjectType_Color::FK_DesignObjType_Floorplan_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_PK_FloorplanObjectType_Color = val; is_modified=true; is_null[0]=false;}
+void Row_FloorplanObjectType_Color::FK_FloorplanObjectType_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_DesignObjType_Floorplan = val; is_modified=true; is_null[1]=false;}
+m_FK_FloorplanObjectType = val; is_modified=true; is_null[1]=false;}
 void Row_FloorplanObjectType_Color::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Description = val; is_modified=true; is_null[2]=false;}
@@ -224,7 +224,7 @@ void Row_FloorplanObjectType_Color::psc_frozen_setNull(bool val){PLUTO_SAFETY_LO
 is_null[8]=val;}
 	
 
-string Row_FloorplanObjectType_Color::PK_FloorplanDesignObjType_Color_asSQL()
+string Row_FloorplanObjectType_Color::PK_FloorplanObjectType_Color_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -232,12 +232,12 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_PK_FloorplanDesignObjType_Color);
+sprintf(buf, "%li", m_PK_FloorplanObjectType_Color);
 
 return buf;
 }
 
-string Row_FloorplanObjectType_Color::FK_DesignObjType_Floorplan_asSQL()
+string Row_FloorplanObjectType_Color::FK_FloorplanObjectType_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -245,7 +245,7 @@ if (is_null[1])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_DesignObjType_Floorplan);
+sprintf(buf, "%li", m_FK_FloorplanObjectType);
 
 return buf;
 }
@@ -354,9 +354,9 @@ return string()+"\""+buf+"\"";
 
 
 
-Table_FloorplanObjectType_Color::Key::Key(long int in_PK_FloorplanDesignObjType_Color)
+Table_FloorplanObjectType_Color::Key::Key(long int in_PK_FloorplanObjectType_Color)
 {
-			pk_PK_FloorplanDesignObjType_Color = in_PK_FloorplanDesignObjType_Color;
+			pk_PK_FloorplanObjectType_Color = in_PK_FloorplanObjectType_Color;
 	
 }
 
@@ -364,14 +364,14 @@ Table_FloorplanObjectType_Color::Key::Key(Row_FloorplanObjectType_Color *pRow)
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
-			pk_PK_FloorplanDesignObjType_Color = pRow->m_PK_FloorplanDesignObjType_Color;
+			pk_PK_FloorplanObjectType_Color = pRow->m_PK_FloorplanObjectType_Color;
 	
 }		
 
 bool Table_FloorplanObjectType_Color::Key_Less::operator()(const Table_FloorplanObjectType_Color::Key &key1, const Table_FloorplanObjectType_Color::Key &key2) const
 {
-			if (key1.pk_PK_FloorplanDesignObjType_Color!=key2.pk_PK_FloorplanDesignObjType_Color)
-return key1.pk_PK_FloorplanDesignObjType_Color<key2.pk_PK_FloorplanDesignObjType_Color;
+			if (key1.pk_PK_FloorplanObjectType_Color!=key2.pk_PK_FloorplanObjectType_Color)
+return key1.pk_PK_FloorplanObjectType_Color<key2.pk_PK_FloorplanObjectType_Color;
 else
 return false;	
 }	
@@ -389,10 +389,10 @@ void Table_FloorplanObjectType_Color::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_FloorplanDesignObjType_Color_asSQL()+", "+pRow->FK_DesignObjType_Floorplan_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Color_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_FloorplanObjectType_Color_asSQL()+", "+pRow->FK_FloorplanObjectType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Color_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into FloorplanObjectType_Color (PK_FloorplanDesignObjType_Color, FK_DesignObjType_Floorplan, Description, Define, Color, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into FloorplanObjectType_Color (PK_FloorplanObjectType_Color, FK_FloorplanObjectType, Description, Define, Color, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -407,7 +407,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_FloorplanDe
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
 			if (id!=0)
-pRow->m_PK_FloorplanDesignObjType_Color=id;
+pRow->m_PK_FloorplanObjectType_Color=id;
 	
 			
 			addedRows.erase(i);
@@ -431,17 +431,17 @@ pRow->m_PK_FloorplanDesignObjType_Color=id;
 		Row_FloorplanObjectType_Color* pRow = (*i).second;	
 		Key key(pRow);	
 
-		char tmp_PK_FloorplanDesignObjType_Color[32];
-sprintf(tmp_PK_FloorplanDesignObjType_Color, "%li", key.pk_PK_FloorplanDesignObjType_Color);
+		char tmp_PK_FloorplanObjectType_Color[32];
+sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk_PK_FloorplanObjectType_Color);
 
 
 string condition;
-condition = condition + "PK_FloorplanDesignObjType_Color=" + tmp_PK_FloorplanDesignObjType_Color;
+condition = condition + "PK_FloorplanObjectType_Color=" + tmp_PK_FloorplanObjectType_Color;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_FloorplanDesignObjType_Color="+pRow->PK_FloorplanDesignObjType_Color_asSQL()+", FK_DesignObjType_Floorplan="+pRow->FK_DesignObjType_Floorplan_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Color="+pRow->Color_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_FloorplanObjectType_Color="+pRow->PK_FloorplanObjectType_Color_asSQL()+", FK_FloorplanObjectType="+pRow->FK_FloorplanObjectType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Color="+pRow->Color_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update FloorplanObjectType_Color set " + update_values_list + " where " + condition;
@@ -472,12 +472,12 @@ update_values_list = update_values_list + "PK_FloorplanDesignObjType_Color="+pRo
 	
 		Key key = (*i).first;
 	
-		char tmp_PK_FloorplanDesignObjType_Color[32];
-sprintf(tmp_PK_FloorplanDesignObjType_Color, "%li", key.pk_PK_FloorplanDesignObjType_Color);
+		char tmp_PK_FloorplanObjectType_Color[32];
+sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk_PK_FloorplanObjectType_Color);
 
 
 string condition;
-condition = condition + "PK_FloorplanDesignObjType_Color=" + tmp_PK_FloorplanDesignObjType_Color;
+condition = condition + "PK_FloorplanObjectType_Color=" + tmp_PK_FloorplanObjectType_Color;
 
 	
 		string query = "delete from FloorplanObjectType_Color where " + condition;
@@ -525,23 +525,23 @@ bool Table_FloorplanObjectType_Color::GetRows(string where_statement,vector<clas
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_FloorplanDesignObjType_Color = 0;
+pRow->m_PK_FloorplanObjectType_Color = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_FloorplanDesignObjType_Color));
+sscanf(row[0], "%li", &(pRow->m_PK_FloorplanObjectType_Color));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_DesignObjType_Floorplan = 0;
+pRow->m_FK_FloorplanObjectType = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_DesignObjType_Floorplan));
+sscanf(row[1], "%li", &(pRow->m_FK_FloorplanObjectType));
 }
 
 if (row[2] == NULL)
@@ -668,11 +668,11 @@ Row_FloorplanObjectType_Color* Table_FloorplanObjectType_Color::AddRow()
 
 
 
-Row_FloorplanObjectType_Color* Table_FloorplanObjectType_Color::GetRow(long int in_PK_FloorplanDesignObjType_Color)
+Row_FloorplanObjectType_Color* Table_FloorplanObjectType_Color::GetRow(long int in_PK_FloorplanObjectType_Color)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_FloorplanDesignObjType_Color);
+	Key row_key(in_PK_FloorplanObjectType_Color);
 
 	map<Key, Row_FloorplanObjectType_Color*, Key_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -701,12 +701,12 @@ Row_FloorplanObjectType_Color* Table_FloorplanObjectType_Color::FetchRow(Table_F
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
-	char tmp_PK_FloorplanDesignObjType_Color[32];
-sprintf(tmp_PK_FloorplanDesignObjType_Color, "%li", key.pk_PK_FloorplanDesignObjType_Color);
+	char tmp_PK_FloorplanObjectType_Color[32];
+sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk_PK_FloorplanObjectType_Color);
 
 
 string condition;
-condition = condition + "PK_FloorplanDesignObjType_Color=" + tmp_PK_FloorplanDesignObjType_Color;
+condition = condition + "PK_FloorplanObjectType_Color=" + tmp_PK_FloorplanObjectType_Color;
 
 
 	string query = "select * from FloorplanObjectType_Color where " + condition;		
@@ -741,23 +741,23 @@ condition = condition + "PK_FloorplanDesignObjType_Color=" + tmp_PK_FloorplanDes
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_FloorplanDesignObjType_Color = 0;
+pRow->m_PK_FloorplanObjectType_Color = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_FloorplanDesignObjType_Color));
+sscanf(row[0], "%li", &(pRow->m_PK_FloorplanObjectType_Color));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_DesignObjType_Floorplan = 0;
+pRow->m_FK_FloorplanObjectType = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_DesignObjType_Floorplan));
+sscanf(row[1], "%li", &(pRow->m_FK_FloorplanObjectType));
 }
 
 if (row[2] == NULL)
@@ -856,12 +856,12 @@ pRow->m_psc_mod = string(row[9],lengths[9]);
 }
 
 
-class Row_DesignObjType* Row_FloorplanObjectType_Color::FK_DesignObjType_Floorplan_getrow()
+class Row_FloorplanObjectType* Row_FloorplanObjectType_Color::FK_FloorplanObjectType_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_DesignObjType *pTable = table->database->DesignObjType_get();
-return pTable->GetRow(m_FK_DesignObjType_Floorplan);
+class Table_FloorplanObjectType *pTable = table->database->FloorplanObjectType_get();
+return pTable->GetRow(m_FK_FloorplanObjectType);
 }
 
 

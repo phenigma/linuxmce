@@ -41,6 +41,8 @@
 #define DEVICETEMPLATE_Telecom_Plugin_CONST 34
 #define DEVICETEMPLATE_MythTV_Player_CONST 35
 #define DEVICETEMPLATE_MythTV_PlugIn_CONST 36
+#define DEVICETEMPLATE_Light_Switch_onoff_CONST 37
+#define DEVICETEMPLATE_Light_Switch_dimmable_CONST 38
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

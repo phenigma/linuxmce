@@ -36,10 +36,10 @@ private:
 	struct Key
 	{
 		friend class Row_FloorplanObjectType;
-		long int pk_PK_FloorplanDesignObjType;
+		long int pk_PK_FloorplanObjectType;
 
 		
-		Key(long int in_PK_FloorplanDesignObjType);
+		Key(long int in_PK_FloorplanObjectType);
 	
 		Key(class Row_FloorplanObjectType *pRow);
 	};
@@ -61,7 +61,7 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_FloorplanObjectType* GetRow(long int in_PK_FloorplanDesignObjType);
+	class Row_FloorplanObjectType* GetRow(long int in_PK_FloorplanObjectType);
 	
 
 private:	
@@ -79,7 +79,7 @@ class DLL_EXPORT Row_FloorplanObjectType : public TableRow, public SerializeClas
 	private:
 		Table_FloorplanObjectType *table;
 		
-		long int m_PK_FloorplanDesignObjType;
+		long int m_PK_FloorplanObjectType;
 long int m_FK_FloorplanType;
 string m_Description;
 string m_Define;
@@ -101,7 +101,7 @@ string m_psc_mod;
 		bool is_modified;					
 	
 	public:
-		long int PK_FloorplanDesignObjType_get();
+		long int PK_FloorplanObjectType_get();
 long int FK_FloorplanType_get();
 string Description_get();
 string Define_get();
@@ -117,7 +117,7 @@ short int psc_frozen_get();
 string psc_mod_get();
 
 		
-		void PK_FloorplanDesignObjType_set(long int val);
+		void PK_FloorplanObjectType_set(long int val);
 void FK_FloorplanType_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
@@ -164,16 +164,17 @@ class Row_DesignObj* FK_DesignObj_Control_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		
+		void FloorplanObjectType_Color_FK_FloorplanObjectType_getrows(vector <class Row_FloorplanObjectType_Color*> *rows);
+
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_FloorplanDesignObjType+ m_FK_FloorplanType+ m_Description+ m_Define+ m_Direction+ m_FK_DesignObj_Control+ m_Filename+ m_FillX+ m_FillY+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_FloorplanObjectType+ m_FK_FloorplanType+ m_Description+ m_Define+ m_Direction+ m_FK_DesignObj_Control+ m_Filename+ m_FillX+ m_FillY+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_FloorplanDesignObjType_asSQL();
+		string PK_FloorplanObjectType_asSQL();
 string FK_FloorplanType_asSQL();
 string Description_asSQL();
 string Define_asSQL();
