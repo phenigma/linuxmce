@@ -36,13 +36,13 @@ function myPluto($output,$dbADO,$conn) {
 
 	if(isset($_GET['redirect'])){
 		if($_GET['redirect']=='forum'){
-			header("Location: ".$forumHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
+			header("Location: support/phpbb2/login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
 		}
 		else{
 			//header("Location: ".$MantisHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
 			echo "
 			<script>
-				window.open('".$MantisHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1','_blank','');
+				window.open('support/mantis/login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1','_blank','');
 				self.location='index.php?section=myPluto'
 			</script>";
 		}
@@ -135,8 +135,6 @@ function myPluto($output,$dbADO,$conn) {
 
 
 	$output->setNavigationMenu(array("Client home"=>"index.php?section=userHome"));
-
-	$output->setLeftMenu($leftMenu);
 
 	$output->setScriptCalendar('null');
 	$output->setScriptTRColor('null');

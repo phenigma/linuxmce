@@ -381,7 +381,7 @@ function wizard($output,$dbADO) {
 							$queryCoreDeviceTemplates='SELECT * FROM DeviceTemplate WHERE FK_DeviceCategory=?';
 							$resCoreDeviceTemplates=$dbADO->Execute($queryCoreDeviceTemplates,$GLOBALS['rootCoreID']);
 							while($rowCoreDeviceTemplates=$resCoreDeviceTemplates->FetchRow()){
-								$out.='<option value="'.$rowCoreDeviceTemplates['PK_DeviceTemplate'].'" '.(($rowCoreDeviceTemplates['PK_DeviceTemplate']==$FK_DeviceTemplate || $rowCoreDeviceTemplates['PK_DeviceTemplate']==$_POST['computerType'])?'selected':'').'>'.$rowCoreDeviceTemplates['Description'].'</option>';
+								$out.='<option value="'.$rowCoreDeviceTemplates['PK_DeviceTemplate'].'" '.(($rowCoreDeviceTemplates['PK_DeviceTemplate']==$FK_DeviceTemplate || $rowCoreDeviceTemplates['PK_DeviceTemplate']==@$_POST['computerType'])?'selected':'').'>'.$rowCoreDeviceTemplates['Description'].'</option>';
 							}
 					$out.='		</td>
 							</tr>				
@@ -426,14 +426,14 @@ function wizard($output,$dbADO) {
 								<td colspan="2">&nbsp;</td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2"><input type="checkbox" name="installSourceCode" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.(($_SESSION['installSourceCode']==1)?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Install Pluto’s source code</b> too.  This will also add any development libraries that are needed to compile.</span></td>
+								<td colspan="2"><input type="checkbox" name="installSourceCode" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.((@$_SESSION['installSourceCode']==1)?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Install Pluto’s source code</b> too.  This will also add any development libraries that are needed to compile.</span></td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2"><input type="checkbox" name="enableDHCP" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.(($_SESSION['EnableDHCP']==1)?'checked':'').' onClick="enableDHCPElements();"><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Enable DHCP.  Base IP Address</b> <input type="text" name="ip_1" size="3" value="'.((isset($ipPartsArray[0]))?$ipPartsArray[0]:'192').'" '.(($_SESSION['EnableDHCP']!=1)?'disabled':'').'>.<input type="text" name="ip_2" size="3" value="'.((isset($ipPartsArray[1]))?$ipPartsArray[1]:'168').'" '.(($_SESSION['EnableDHCP']!=1)?'disabled':'').'>.<input type="text" name="ip_3" size="3" value="'.((isset($ipPartsArray[2]))?$ipPartsArray[2]:'1').'" '.(($_SESSION['EnableDHCP']!=1)?'disabled':'').'>.x</span>  
+								<td colspan="2"><input type="checkbox" name="enableDHCP" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.((@$_SESSION['EnableDHCP']==1)?'checked':'').' onClick="enableDHCPElements();"><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Enable DHCP.  Base IP Address</b> <input type="text" name="ip_1" size="3" value="'.((isset($ipPartsArray[0]))?$ipPartsArray[0]:'192').'" '.((@$_SESSION['EnableDHCP']!=1)?'disabled':'').'>.<input type="text" name="ip_2" size="3" value="'.((isset($ipPartsArray[1]))?$ipPartsArray[1]:'168').'" '.((@$_SESSION['EnableDHCP']!=1)?'disabled':'').'>.<input type="text" name="ip_3" size="3" value="'.((isset($ipPartsArray[2]))?$ipPartsArray[2]:'1').'" '.((@$_SESSION['EnableDHCP']!=1)?'disabled':'').'>.x</span>  
 								<br><b>Note:</b>  If you want to use diskless media directors (step 5), or if you want Pluto to auto-configure your devices, you will need to check this box to enable DHCP.  Your Pluto Core can co-exist with your existing DHCP server if you leave the next option checked.  <a href="/support/index.php?section=document&docID=138" target="_blank">explain this</a>  All your Pluto devices will be given an IP address that starts with the 3 numbers above.  The Core will end with .1</td>
 							</tr>					
 							<tr class="normaltext">
-								<td colspan="2"><input type="checkbox" name="plutoOnlyIP" value="1" '.((!isset($_SESSION['deviceID']) || @$_SESSION['EnableDHCP']!=1)?'disabled':'').' '.(($_SESSION['plutoOnlyIP']==1)?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Provide IP\'s only to Pluto equipment</b></span>  
+								<td colspan="2"><input type="checkbox" name="plutoOnlyIP" value="1" '.((!isset($_SESSION['deviceID']) || @$_SESSION['EnableDHCP']!=1)?'disabled':'').' '.((@$_SESSION['plutoOnlyIP']==1)?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Provide IP\'s only to Pluto equipment</b></span>  
 								This means your Pluto Core will only provide IP addresses to the media directors and other Pluto devices with a MAC Address in your Core\'s database.  
 								If you already have a router that is giving out IP addresses (ie a DHCP server), leave this option checked and the Pluto Core will not interfere with it, or any of your existing computer.
 								If you want the Pluto Core to be your primary DHCP server, uncheck the box. <a href="/support/index.php?section=document&docID=138" target="_blank">networking issues explained</a></td>
@@ -511,16 +511,16 @@ function wizard($output,$dbADO) {
 					$installSourceCode=(isset($_POST['installSourceCode'])?$_POST['installSourceCode']:0);
 					$oldInstallSourceCode=(isset($_SESSION['installSourceCode'])?$_SESSION['installSourceCode']:0);
 					
-					$enableDHCP=$_POST['enableDHCP'];
+					$enableDHCP=@$_POST['enableDHCP'];
 					$plutoOnlyIP=@$_POST['plutoOnlyIP'];
 					$oldDHCP=(isset($_POST['oldDHCP']))?$_POST['oldDHCP']:'';
 					if($enableDHCP==1){
-						$ip_1=$_POST['ip_1'];
-						$ip_2=$_POST['ip_2'];
-						$ip_3=$_POST['ip_3'];
+						$ip_1=(int)$_POST['ip_1'];
+						$ip_2=(int)$_POST['ip_2'];
+						$ip_3=(int)$_POST['ip_3'];
+						$IPtoDeviceDeviceData=($plutoOnlyIP==1)?"$ip_1.$ip_2.$ip_3.2-$ip_1.$ip_2.$ip_3.254":"$ip_1.$ip_2.$ip_3.2-$ip_1.$ip_2.$ip_3.128,$ip_1.$ip_2.$ip_3.129-$ip_1.$ip_2.$ip_3.254";
 					}
 					
-					$IPtoDeviceDeviceData=($plutoOnlyIP==1)?"$ip_1.$ip_2.$ip_3.2-$ip_1.$ip_2.$ip_3.254":"$ip_1.$ip_2.$ip_3.2-$ip_1.$ip_2.$ip_3.128,$ip_1.$ip_2.$ip_3.129-$ip_1.$ip_2.$ip_3.254";
 					if($enableDHCP==1){
 						if($IPtoDeviceDeviceData!=$oldDHCP || $oldDHCP==''){
 							$insertDHCP='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
@@ -551,7 +551,7 @@ function wizard($output,$dbADO) {
 					
 					$oldHybridCore=(isset($_SESSION['coreHybridID'])?1:0);
 					$hybridCore=(isset($_POST['hybridCore'])?1:0);
-					$coreHybridID=$_SESSION['coreHybridID'];
+					$coreHybridID=@$_SESSION['coreHybridID'];
 					if($oldHybridCore==0 || @$_SESSION['recreateHybrid']==1){
 						if($hybridCore!=0 || @$_SESSION['recreateHybrid']==1){
 							$insertDeviceMD='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) VALUES (?,?,?,?)';
@@ -590,12 +590,16 @@ function wizard($output,$dbADO) {
 						$oldDevice=$_POST['oldDevice_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem];
 						if($optionalDevice!=0){
 							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
+							$queryIsPlugin='SELECT IsPlugIn FROM DeviceTemplate WHERE PK_DeviceTemplate=? AND IsPlugIn=1';
+							$resIsPlugin=$dbADO->Execute($queryIsPlugin,$elem);
+							$parentDevice=($resIsPlugin->RecordCount()>0)?$_SESSION['CoreDCERouter']:$_SESSION['deviceID'];
+								
 							$insertDevice='
 									INSERT INTO Device 
 										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
 									VALUES (?,?,?,?)';
 							if($oldDevice=='')
-								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$_SESSION['CoreDCERouter']));
+								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$parentDevice));
 						}else{
 							$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
 						}
@@ -627,7 +631,7 @@ function wizard($output,$dbADO) {
 					SELECT Distro.*, OperatingSystem.Description AS OS FROM Distro
 						INNER JOIN OperatingSystem 
 							ON FK_OperatingSystem=PK_OperatingSystem
-					WHERE Distro.MediaDirector=1 '.$filterRestrictions;
+					WHERE Distro.MediaDirector=1 '.@$filterRestrictions;
 				$resDistroOS=$dbADO->Execute($queryDistroOS);
 				$distroIdArray=array();
 				$distroDescriptionArray=array();
@@ -982,7 +986,7 @@ function wizard($output,$dbADO) {
 					SELECT Distro.*, OperatingSystem.Description AS OS FROM Distro
 						INNER JOIN OperatingSystem 
 							ON FK_OperatingSystem=PK_OperatingSystem
-					WHERE Distro.Orbiter=1 '.$filterRestrictions;
+					WHERE Distro.Orbiter=1 '.@$filterRestrictions;
 				$resDistroOS=$dbADO->Execute($queryDistroOS);
 				$distroIdArray=array();
 				$distroDescriptionArray=array();
@@ -1593,8 +1597,6 @@ function wizard($output,$dbADO) {
 
 
 	$output->setNavigationMenu(array("Client home"=>"index.php?section=userHome"));
-
-	$output->setLeftMenu($leftMenu);
 
 	$output->setScriptCalendar('null');
 	$output->setScriptTRColor('null');

@@ -439,19 +439,25 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 			$displayCategory='-';
 		// check if the device actually exist to display actual entries
 		if($device!=''){
-			$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
-			$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$device));
-			$deviceTemplateChecked=($resDevice->RecordCount()==0)?'':'checked';
-			$rowDevice=$resDevice->FetchRow();
-			$oldDevice=$rowDevice['PK_Device'];
+			if($device!=@$_SESSION['CoreDCERouter']){
+				$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
+				$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$device));
+			}else{
+				// if device is DCE Router, check also childs of Core
+				$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND (FK_Device_ControlledVia=? OR FK_Device_ControlledVia=?)';
+				$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$_SESSION['CoreDCERouter'],$_SESSION['deviceID']));
+			}
+				$deviceTemplateChecked=($resDevice->RecordCount()==0)?'':'checked';
+				$rowDevice=$resDevice->FetchRow();
+				$oldDevice=$rowDevice['PK_Device'];
 		}
 
-		if($device==$_SESSION['CoreDCERouter'] && @$_SESSION['isCoreFirstTime']==1){
+		if($device==@$_SESSION['CoreDCERouter'] && @$_SESSION['isCoreFirstTime']==1){
 			$isCoreFirstTime=1;
 			unset($_SESSION['isCoreFirstTime']);
 		}
 
-		if($device==$_SESSION['OrbiterHybridChild'] && @$_SESSION['isHybridFirstTime']==1){
+		if($device==@$_SESSION['OrbiterHybridChild'] && @$_SESSION['isHybridFirstTime']==1){
 			$isHybridFirstTime=1;
 			unset($_SESSION['isHybridFirstTime']);
 		}
@@ -470,7 +476,7 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 			WHERE (FK_Distro IS NULL OR FK_Distro=?) AND (FK_OperatingSystem=? OR FK_OperatingSystem IS NULL) AND FK_InstallWizard=?';
 		$res=$dbADO->Execute($query,array($distro,$operatingSystem,$row['PK_InstallWizard']));
 		$rowIWD=$res->FetchRow();
-		$templateIsChecked=((isset($deviceTemplateChecked) && @$isCoreFirstTime!=1 && $isHybridFirstTime!=1)?$deviceTemplateChecked:(($rowIWD['Default']==1)?'checked':''));
+		$templateIsChecked=((isset($deviceTemplateChecked) && @$isCoreFirstTime!=1 && @$isHybridFirstTime!=1)?$deviceTemplateChecked:(($rowIWD['Default']==1)?'checked':''));
 		$out.='<td><input type="checkbox" '.(($res->RecordCount()==0)?'disabled':'').' '.$templateIsChecked.' name="device_'.$device.'_requiredTemplate_'.$row['FK_DeviceTemplate'].'" value="1"> 
 			<input type="hidden" name="templateName_'.$row['FK_DeviceTemplate'].'" value="'.$row['Template'].'">
 			<input type="hidden" name="oldDevice_'.$device.'_requiredTemplate_'.$row['FK_DeviceTemplate'].'" value="'.@$oldDevice.'">				

@@ -9,7 +9,7 @@ if($_SERVER['HTTP_HOST']=='www.plutohome.com'){
 	header('Location: http://plutohome.com'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
 }
 // autologin check: if cookie is set grab the user's data from database
-if ($_SESSION['userIsLogged']!="yes"){
+if (@$_SESSION['userIsLogged']!="yes"){
 	//print_r($_COOKIE);
 	if(isset($_COOKIE['PlutoHomeAutoLogin'])){
 		parse_str(base64_decode($_COOKIE['PlutoHomeAutoLogin']));
