@@ -4824,6 +4824,12 @@ void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string
     if(  sPK_DesignObj.length(  )  )
         pObj = FindObject( sPK_DesignObj );
 
+	if( !pObj )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "SetText: cannot find text object %d", iPK_Text );
+		return;
+	}
+
     DesignObjText *pText = FindText( pObj, iPK_Text );
     if(  !pText  )
         g_pPlutoLogger->Write( LV_CRITICAL, "SetText: cannot find object %s text %d", sPK_DesignObj.c_str(  ), iPK_Text );
@@ -5824,6 +5830,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 			case GR_PNG:
 			case GR_BMP:
 			case GR_OCG:
+			case GR_PFG:
 				{
 
 #if ( defined( PROFILING ) )
