@@ -99,6 +99,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StdDLL", "WinBluetooth\StdD
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopNetUtil", "http://localhost/ShopNetUtil/ShopNetUtil.csproj", "{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -205,6 +209,10 @@ Global
 		{D7399E52-D787-4C51-9085-C341D579647B}.Debug.Build.0 = Debug|Win32
 		{D7399E52-D787-4C51-9085-C341D579647B}.Release.ActiveCfg = Release|Win32
 		{D7399E52-D787-4C51-9085-C341D579647B}.Release.Build.0 = Release|Win32
+		{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}.Debug.ActiveCfg = Debug|.NET
+		{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}.Debug.Build.0 = Debug|.NET
+		{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}.Release.ActiveCfg = Release|.NET
+		{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

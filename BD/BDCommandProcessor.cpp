@@ -17,9 +17,7 @@
 
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/MyStl.h"
-#ifndef SYMBIAN
-	#include "DCE/Logger.h"
-#endif
+#include "DCE/Logger.h"
 
 #include "BD/BDCommandProcessor.h"
 #include "BD/BDCommand.h"
@@ -36,38 +34,29 @@
 	#define Role "Phone"
 #endif
 
-#ifdef SYMBIAN
-	#define LD(x,y,z,cmd)
-#else
-	#define LD(x,y,z,cmd) {FILE *x=fopen("C:\\dialog.txt","a");  fprintf(x,"%s: %d %s (%s)\n",Role,(int) y,z,cmd); fclose(x);}
-#endif
+#define LD(x,y,z,cmd) {FILE *x=fopen("C:\\dialog.txt","a");  fprintf(x,"%s: %d %s (%s)\n",Role,(int) y,z,cmd); fclose(x);}
 
 using namespace DCE;
 
 BDCommandProcessor::BDCommandProcessor( string sMacAddressPhone ) 
-#ifndef SYMBIAN
 	: m_CommandMutex("command"), m_PollingMutex("Polling")
-#endif
 {
-#ifndef SYMBIAN	
 	printf( "btcp const: %p\n\n", g_pPlutoLogger );
-#endif
 
 	m_bDead = false;
 	m_bExit = false;
 	m_pcReceiveCmdData = NULL;
 	m_pcReceiveAckData = NULL;
-	m_pcReceiveCmdData = NULL;
+	m_pcReceiveCmdHeader = NULL;
 	m_pcReceiveAckHeader = NULL;
 	m_pCommand_Sent = NULL;
 	m_sMacAddressPhone = sMacAddressPhone;
-#ifndef SYMBIAN
+
 	m_CommandMutex.Init( NULL );
 	pthread_cond_init( &m_PollingCond, NULL );
 	m_PollingMutex.Init( NULL );
 
 	printf( "end of btcp const: %p\n\n", g_pPlutoLogger );
-#endif
 }
 
 bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
@@ -75,12 +64,10 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	bImmediateCallback = false;
 	
 	// This also sends the Command, and starts receiving the acknowledge
-#ifndef SYMBIAN
 	PLUTO_SAFETY_LOCK( cm, m_CommandMutex );
-#endif
 	if( MYSTL_SIZEOF_LIST( m_listCommands ) == 0 )
 	{
-#if (defined(VIPPHONE) || defined(SYMBIAN))
+#ifdef VIPPHONE
 		m_pCommand_Sent = new BD_WhatDoYouHave();
 		_LOG_( "BD_WhatDoYouHave" );
 #else
@@ -93,9 +80,9 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 		MYSTL_EXTRACT_FIRST( m_listCommands, BDCommand, pC );
 		m_pCommand_Sent = pC;
 	}
-#ifndef SYMBIAN
+
 	cm.Release();
-#endif
+
 	m_pCommand_Sent->ConvertCommandToBinary();
 	g_pPlutoLogger->Write(LV_WARNING,"# Sending %s command #", m_pCommand_Sent->Description());
 
@@ -204,27 +191,26 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 	}
 	else
 	{
-		if( NULL != m_pcReceiveCmdData )
+		if( NULL != m_pcReceiveCmdHeader )
 		{
-#ifndef SYMBIAN
 			printf( "delete receive cmd: %p\n", m_pcReceiveCmdData );
-#endif
-			delete m_pcReceiveCmdData;
-			m_pcReceiveCmdData = NULL;
+
+			delete m_pcReceiveCmdHeader;
+			m_pcReceiveCmdHeader = NULL;
 		}
 
-		m_pcReceiveCmdData = ReceiveData( 8 );
-#ifndef SYMBIAN
+		m_pcReceiveCmdHeader = ReceiveData( 8 );
+
 		printf( "create receive cmd from receive data: %p\n", m_pcReceiveCmdData );
-#endif
-		if( !m_pcReceiveCmdData ) // no data received
+
+		if( !m_pcReceiveCmdHeader ) // no data received
 			return false;
 
-		long *dwSize = (long *)(m_pcReceiveCmdData + 4);
+		long *dwSize = (long *)(m_pcReceiveCmdHeader + 4);
 
 		if( *dwSize )
 		{
-			if( NULL != m_pcReceiveCmdData ) /** @todo ask if "if" is neccessary */
+			if(NULL != m_pcReceiveCmdData)
 			{
 				delete m_pcReceiveCmdData;
 				m_pcReceiveCmdData = NULL;
@@ -235,9 +221,15 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 				return false;
 		}
 		
-		long *dwType = (long *) m_pcReceiveCmdData;
-		dwSize = (long *)(m_pcReceiveCmdData + 4);
+		long *dwType = (long *) m_pcReceiveCmdHeader;
+		dwSize = (long *)(m_pcReceiveCmdHeader + 4);
 		BDCommand *pCommand = BuildCommandFromData( *dwType );
+
+		if(!pCommand)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"# Command %d not implemented! #", *dwType);
+			return false;
+		}
 
 		g_pPlutoLogger->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
 
@@ -276,16 +268,11 @@ long BDCommandProcessor::ReceiveLong()
 
 void BDCommandProcessor::AddCommand( class BDCommand *pCommand )
 {
-#ifndef SYMBIAN
 	PLUTO_SAFETY_LOCK( cm, m_CommandMutex );
-#endif
 	MYSTL_ADDTO_LIST( m_listCommands, pCommand );
 	
 	// If we're sitting waiting for a keypress, be sure to wake up that thread now
-	
-#ifndef SYMBIAN
 	pthread_cond_broadcast( &m_PollingCond );
-#endif
 }
 
 // Whatever project uses this must implement this function

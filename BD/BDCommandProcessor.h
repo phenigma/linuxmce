@@ -31,9 +31,7 @@ public:
 	bool m_bExit; /** < set if the BDCommandProcessor has exited for some reason (ex: has been disconnected). used to terminate scan loops */
 	string m_sMacAddressPhone; /** < the mac address of the phone */
 
-#ifndef SYMBIAN
 	pthread_t m_BDSockThreadID; /** < the bidirectional socket thread ID */
-#endif
 
 	bool m_bDead; /** < set to tell others having a pointer to the BDCoammandProcessor the processor is dead */
 	char *m_pcReceiveCmdHeader; /** < pointer to the received command header, sent before the data */
@@ -42,11 +40,9 @@ public:
 	char *m_pcReceiveAckData; /** < pointer to received command acknowledge data */
 	class BDCommand *m_pCommand_Sent; /** < pointer to the command */
 
-#ifndef SYMBIAN
 	pluto_pthread_mutex_t m_CommandMutex; /** < protect the list */
 	pthread_cond_t m_PollingCond; /** < polling will be done every so often */
 	pluto_pthread_mutex_t m_PollingMutex;
-#endif
 
 	/** 
 	 * @brief included for Symbian comapatibility

@@ -168,6 +168,17 @@ void Bluetooth_Dongle::NewDeviceDetected(class PhoneDevice *pDevice)
 void Bluetooth_Dongle::LostDevice(class PhoneDevice *pDevice)
 {
 	GetEvents()->Mobile_orbiter_lost(pDevice->m_sMacAddress.c_str());
+
+	//TODO: destroy the orbiter, if exists
+	BD_Orbiter *pBD_Orbiter = m_OrbiterSockets_Find(pDevice->m_sMacAddress);
+
+	if(NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pOrbiter)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Orbiter deleted for %s device!", pDevice->m_sID.c_str());
+
+		delete pBD_Orbiter->m_pOrbiter;
+		pBD_Orbiter->m_pOrbiter = NULL;
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void Bluetooth_Dongle::SignalStrengthChanged(class PhoneDevice *pDevice)
@@ -367,21 +378,20 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_addr
 			pBD_Orbiter->m_pOrbiter = NULL;
 		}
 
-		if(NULL == pBD_Orbiter->m_pOrbiter)
-		{
-			class OrbiterSDLBluetooth *pOrbiter = 
-				StartOrbiterSDLBluetooth(
-					pBD_Orbiter->m_pBDCommandProcessor,
-					iPK_Device, 
-					m_IPAddress, 
-					"", 
-					false,
-					176,
-					300
-				);
+		g_pPlutoLogger->Write(LV_WARNING, "Orbiter created for %s device", sMac_address);
 
-			pBD_Orbiter->m_pOrbiter = (Orbiter *)pOrbiter;
-		}
+		class OrbiterSDLBluetooth *pOrbiter = 
+			StartOrbiterSDLBluetooth(
+				pBD_Orbiter->m_pBDCommandProcessor,
+				iPK_Device, 
+				m_IPAddress, 
+				"", 
+				false,
+				176,
+				300
+			);
+
+		pBD_Orbiter->m_pOrbiter = (Orbiter *)pOrbiter;
 	}
 }
 //-----------------------------------------------------------------------------------------------------

@@ -122,7 +122,7 @@ BOOL CRfCommExp::hexPair(const TCHAR *text, BYTE *val)
 }
 
 
-bool CRfCommExp::RfPortOpen( const char* device )
+bool CRfCommExp::RfPortOpen( const CString& device )
 {
 	const CSdpDiscoveryRec* service;
 	LinkStatus ls;
@@ -330,6 +330,8 @@ void CRfCommExp::RfPortWrite( BYTE* data, ULONG len )
 	BYTE* data_to_send = data;
 
 	const int iMaxValue = 0xFFFF; //(UINT16 max value)
+
+	DWORD StartTime = ::GetTickCount();
 	
 	while(bytes_sent < len)
 	{
@@ -341,6 +343,16 @@ void CRfCommExp::RfPortWrite( BYTE* data, ULONG len )
 
 		data_to_send += written;
 		bytes_sent += written;
+
+
+//#ifdef TIMED_OUT
+		if(::GetTickCount() - StartTime > 5 * 1000)
+		{	
+			data = NULL;
+	
+			break;
+		}
+//#endif
 	}
 
 	ASSERT( bytes_sent == len );
