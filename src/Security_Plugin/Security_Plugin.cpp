@@ -443,6 +443,10 @@ bool Security_Plugin::SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevic
 		return false;
 
 	int PK_AlertType = GetAlertType(PK_HouseMode,pDevice);
+
+	//TODO: ALERTTYPE_Announcement_CONST is not defined!
+	const int ALERTTYPE_Announcement_CONST = 1;
+
 	return PK_AlertType>0 && PK_AlertType!=ALERTTYPE_Announcement_CONST;
 }
 
@@ -563,6 +567,10 @@ void Security_Plugin::ProcessCountdownBeforeAlarm()
 	{
 		Row_Alert *pRow_Alert = m_vectPendingAlerts[s];
 		// See if it's just an announcement, or something we've already reset
+
+		//TODO: ALERTTYPE_Announcement_CONST is not defined!
+		const int ALERTTYPE_Announcement_CONST = 1;
+
 		if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Announcement_CONST || !pRow_Alert->ResetTime_isNull() )
 		{
 			bFirst=true;  // Start at the top of the countdown next time
