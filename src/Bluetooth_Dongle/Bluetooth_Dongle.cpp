@@ -136,13 +136,12 @@ void *HandleBDCommandProcessorThread( void *p )
 	while( pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL ) && NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead ); // loop for receiving commands
 
 	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor...");
-	
+
 	g_pPlutoLogger->Write( LV_STATUS, "Sending 'Mobile_orbiter_lost' to Orbiter_Plugin...");
 	pBluetooth_Dongle->GetEvents()->Mobile_orbiter_lost( pBD_Orbiter->m_pPhoneDevice->m_sMacAddress.c_str(), true );
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Removing phone from the detection list...");
-	pBluetooth_Dongle->RemovePhoneFromList( pBD_Orbiter->m_pPhoneDevice);
-
+	pBluetooth_Dongle->RemoveDeviceFromDetectionList( pBD_Orbiter->m_pPhoneDevice);
 	
 	if( NULL != pBD_Orbiter->m_pPhoneDevice )
 		pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
@@ -295,8 +294,13 @@ void Bluetooth_Dongle::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 		if( pBD_Orbiter )
 			g_pPlutoLogger->Write(LV_STATUS,"Status: %p %p %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
 
+		PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDevice->m_iMacAddress);
+
+		if(pDExisting)
+			delete pDExisting;
+
 		PLUTO_SAFETY_LOCK(mm,m_MapMutex);
-		m_mapPhoneDevice_Detected[pDevice->m_iMacAddress]=pDevice;
+		m_mapPhoneDevice_Detected[pDevice->m_iMacAddress] = pDevice;
 	}
 }
 

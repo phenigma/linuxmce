@@ -76,11 +76,12 @@ public:
 	virtual void LostDevice(class PhoneDevice *pDevice)=0;
 	virtual void SignalStrengthChanged(class PhoneDevice *pDevice)=0;
 
+	virtual void AddDeviceToDetectionList(class PhoneDevice *pDevice);
+	virtual void RemoveDeviceFromDetectionList(class PhoneDevice *pDevice);
+
 	//this method should not be overrided in derived classes
 	virtual void DetectionLogic(); 
 	
-	virtual void RemovePhoneFromList(class PhoneDevice *pDevice);
-
 	// Since the scanning routine can be sensitive, rather than handling everything on the 
 	// same thread, we'll just span a new thread to handle the events.  These Intern_
 	// functions spawn a new thread which calls the event handlers above

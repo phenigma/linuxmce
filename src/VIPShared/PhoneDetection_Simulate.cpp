@@ -80,7 +80,7 @@ bool PhoneDetection_Simulate::ScanningLoop()
 				}
 
 				pDNew->m_iMacAddress = iMacAddress;
-				m_mapDevicesDetectedThisScan[iMacAddress] = pDNew;
+				AddDeviceToDetectionList(pDNew);
 			}
 			else
 				break;
@@ -88,7 +88,7 @@ bool PhoneDetection_Simulate::ScanningLoop()
 		fclose(file);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Inquiry finished (simulation)");
+	g_pPlutoLogger->Write(LV_STATUS,"Inquiry completed (simulation)");
 
 	Sleep(1000);  // Don't this run wild
 	return !m_bAbortScanLoop;

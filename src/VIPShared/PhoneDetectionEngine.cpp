@@ -88,57 +88,17 @@ void *SignalStrengthThread(void *p)
 
 void PhoneDetectionEngine::DetectionLogic()
 {
-	//TODO: put here the logic of detection; use:
-	//map<u_int64_t,class PhoneDevice *> m_mapPhoneDevice_Detected;
-	//map<u_int64_t,class PhoneDevice *> m_mapDevicesDetectedThisScan;
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 	g_pPlutoLogger->Write(LV_STATUS, "Devices detected last loop: %d", m_mapPhoneDevice_Detected.size());
 	g_pPlutoLogger->Write(LV_STATUS, "Devices detected this loop: %d", m_mapDevicesDetectedThisScan.size());
 
-	//new devices
-	map<u_int64_t,class PhoneDevice *>::iterator it;
-	for(it = m_mapDevicesDetectedThisScan.begin(); it != m_mapDevicesDetectedThisScan.end(); it++)
-	{
-		PhoneDevice *pPhone = (*it).second;
-
-		//g_pPlutoLogger->Write(LV_STATUS, "Analyzing phone detected this scan: mac %s, %s",
-		//	pPhone->m_sIPAddress.c_str(), pPhone->m_sID.c_str());
-
-		PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pPhone->m_iMacAddress);
-		if( pDExisting && abs(pDExisting->m_iLinkQuality - pPhone->m_iLinkQuality) < 10 )
-		{
-			// nothing to do
-			delete pPhone;
-			continue;
-		}
-
-		if( !pDExisting )
-		{
-			//g_pPlutoLogger->Write(LV_WARNING, "New device detected: mac %s, %s",
-			//	pPhone->m_sMacAddress.c_str(), pPhone->m_sID.c_str());
-
-			Intern_NewDeviceDetected(pPhone);
-		}
-		else
-		{
-			//g_pPlutoLogger->Write(LV_WARNING, "Signal strength changed for device: mac %s, %s, signal strength is now %d",
-			//	pPhone->m_sMacAddress.c_str(), pPhone->m_sID.c_str(), pPhone->m_iLinkQuality);
-
-			Intern_SignalStrengthChanged(pPhone);
-		}
-	}
-
-	//list devices?
 	list<PhoneDevice *> listDevicesLost;
 	map<u_int64_t,class PhoneDevice *>::iterator itDevice;
 	for(itDevice=m_mapPhoneDevice_Detected.begin();itDevice!=m_mapPhoneDevice_Detected.end();)
 	{
 		PhoneDevice *pDeviceDetected = (*itDevice).second;
-
-		//g_pPlutoLogger->Write(LV_STATUS, "Analyzing phone detected last scan: mac %s, %s",
-		//	pDeviceDetected->m_sIPAddress.c_str(), pDeviceDetected->m_sID.c_str());
-
 		PhoneDevice *pDeviceDetectedThisScan = m_mapDevicesDetectedThisScan_Find(pDeviceDetected->m_iMacAddress);
+
 		if( !pDeviceDetectedThisScan ) //not found this loop
 		{
 			PhoneDevice *pPhoneDevice = (*itDevice).second;
@@ -159,6 +119,9 @@ void PhoneDetectionEngine::DetectionLogic()
 			(*itLost)->m_sMacAddress.c_str(), (*itLost)->m_sID.c_str());
 		Intern_LostDevice(*itLost);
 	}
+
+	//prepare for next scanning loop
+	m_mapDevicesDetectedThisScan.clear();
 }
 
 void PhoneDetectionEngine::StartScanning()
@@ -185,7 +148,14 @@ void PhoneDetectionEngine::StopScanning()
 void PhoneDetectionEngine::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
-	m_mapPhoneDevice_Detected[pDevice->m_iMacAddress]=pDevice;
+
+	PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDevice->m_iMacAddress);
+	
+    if(pDExisting)
+		delete pDExisting;
+
+	m_mapPhoneDevice_Detected[pDevice->m_iMacAddress] = pDevice;
+
 g_pPlutoLogger->Write(LV_STATUS,"Adding device to map1: %s m_mapPhoneDevice_Detected size is now: %d",pDevice->m_sID.c_str(),(int) m_mapPhoneDevice_Detected.size());
 
 	pthread_t t;
@@ -205,6 +175,7 @@ g_pPlutoLogger->Write(LV_STATUS,"lost dev 2 m_mapPhoneDevice_Detected size: %d",
 void PhoneDetectionEngine::Intern_SignalStrengthChanged(class PhoneDevice *pDevice)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
+
 	m_mapPhoneDevice_Detected[pDevice->m_iMacAddress]->m_iLinkQuality = pDevice->m_iLinkQuality;
 
 g_pPlutoLogger->Write(LV_STATUS,"ssc1 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
@@ -214,7 +185,7 @@ g_pPlutoLogger->Write(LV_STATUS,"ssc1 m_mapPhoneDevice_Detected size: %d",(int) 
 g_pPlutoLogger->Write(LV_STATUS,"ssc 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 }
 
-void PhoneDetectionEngine::RemovePhoneFromList(class PhoneDevice *pDevice)
+void PhoneDetectionEngine::RemoveDeviceFromDetectionList(class PhoneDevice *pDevice)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 	map<u_int64_t,class PhoneDevice *>::iterator itDevice = m_mapDevicesDetectedThisScan.find(pDevice->m_iMacAddress);
@@ -227,4 +198,28 @@ void PhoneDetectionEngine::RemovePhoneFromList(class PhoneDevice *pDevice)
 	}
 	else
 		g_pPlutoLogger->Write(LV_WARNING, "Cannot remove device %s from the detection list", pDevice->m_sMacAddress.c_str());
+}
+
+void PhoneDetectionEngine::AddDeviceToDetectionList(class PhoneDevice *pDevice)
+{
+	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
+	m_mapDevicesDetectedThisScan[pDevice->m_iMacAddress] = pDevice;
+
+	PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDevice->m_iMacAddress);
+
+	//first time detected or not connected yet
+	if( !pDExisting || !pDExisting->m_bIsConnected)
+	{
+		Intern_NewDeviceDetected(pDevice);
+	}
+	else 
+		//if this is not first time detected, but the link quality changed
+		if(pDExisting && abs(pDExisting->m_iLinkQuality - pDevice->m_iLinkQuality) >= 10)
+		{
+			Intern_SignalStrengthChanged(pDevice);
+		}
+		else //an existing one and with the same link quality
+		{
+			delete pDevice;
+		}
 }

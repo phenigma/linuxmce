@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;../VIPShared/;../pluto_dce;&quot;../../libs/CrossPlatform/sge030809-w32&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../Orbiter;../../libs/CrossPlatform/lpng127;../../libs/CrossPlatform/zlib;&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;../BD;../Orbiter/Win32;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../Orbiter/SDL;../OrbiterGen"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONOLE;ORBITER;BLUETOOTH_DONGLE;SIMULATE_DETECTIONX"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONOLE;ORBITER;BLUETOOTH_DONGLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

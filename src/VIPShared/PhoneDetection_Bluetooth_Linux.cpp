@@ -184,8 +184,6 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 	p.fd = dd;
 	p.events = POLLIN | POLLERR | POLLHUP;
 
-	m_mapDevicesDetectedThisScan.clear();
-
 	g_pPlutoLogger->Write(LV_WARNING, "Inquiry started");	
 	
 	while (!__io_canceled && cancel) {
@@ -228,9 +226,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 					g_pPlutoLogger->Write(LV_STATUS, "Device %s responded.", pDNew->m_sMacAddress.c_str());
 					
-					PLUTO_SAFETY_LOCK(mm,m_MapMutex);
-					m_mapDevicesDetectedThisScan[pDNew->m_iMacAddress] = pDNew;
-					mm.Release();
+					AddDeviceToDetectionList(pDNew);
 
 					/*
 					PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDNew->m_iMacAddress);
@@ -304,9 +300,8 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int
 					PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
 					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 					
-					PLUTO_SAFETY_LOCK(mm,m_MapMutex);
-					m_mapDevicesDetectedThisScan[pDNew->m_iMacAddress] = pDNew;
-					mm.Release();
+					AddDeviceToDetectionList(pDNew);
+
 
 					/*
 					PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDNew->m_iMacAddress);

@@ -37,7 +37,6 @@ bool PhoneDetection_Bluetooth_Windows::ScanningLoop()
 		return false;
 
 	m_bWaitingForInquiry=true;
-	m_mapDevicesDetectedThisScan.clear();
 	if( !StartInquiry() )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to start inquiry");
@@ -80,9 +79,7 @@ void PhoneDetection_Bluetooth_Windows::OnDeviceResponded(BD_ADDR bda,
 	g_pPlutoLogger->Write(LV_STATUS,"Device %s responded.", bd_name);
 
 	PhoneDevice *pDNew = new PhoneDevice(name,iMacAddress,255);
-
-	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
-	m_mapDevicesDetectedThisScan[iMacAddress] = pDNew;
+	AddDeviceToDetectionList(pDNew);
 }
 
 
