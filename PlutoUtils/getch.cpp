@@ -36,7 +36,7 @@ int THE_getch(bool echo) // :P
 		new_ts.c_lflag &= !ECHO;
 	ioctl(0, TCSETS, &new_ts);
 
-	c = getchar();
+	while ((c = getchar()) == '\r') {}
 //	cin >> c;
 
 	ioctl(0, TCSETS, &ts);

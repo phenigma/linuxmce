@@ -30,6 +30,7 @@ bool AskYNQuestion(string Question,bool bDefault)
 	{
 		cout << Question << (bDefault ? " [Y/n] " : " [N/y] ");
 		char c = getch();
+cout << endl << "got: " << (int) c << endl;		
 		cout << endl;
 		if( c==3 )
 			exit(1);
