@@ -1,16 +1,16 @@
-/* 
+/*
 	Socket
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
 
@@ -25,10 +25,10 @@
 
 
 
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "DCE/Logger.h"
 
-#ifndef WIN32 
+#ifndef WIN32
 	#include <fcntl.h>
 #endif
 
@@ -49,7 +49,7 @@
 
 #ifdef PLUTOSERVER
 	const char *Module="PlutoServer";
-#else 
+#else
   #ifdef APPDAEMON
 	const char *Module="AppDaemon";
   #else
@@ -151,7 +151,7 @@ Socket::~Socket()
 
 	if(NULL != m_pcInSockBuffer)
 	{
-		delete[] m_pcInSockBuffer; 
+		delete[] m_pcInSockBuffer;
 		m_pcInSockBuffer = NULL;
 	}
 
@@ -180,7 +180,7 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 	unsigned long dwSize;
 	pMessage->ToData( dwSize, pcData, true ); // converts the message to data
 	bool bReturnValue = SendData( dwSize, pcData ); // and sends it
-	
+
 	if(NULL != pcData)
 	{
 		// delete[] pcData; // free heap
@@ -201,7 +201,7 @@ Message *Socket::SendReceiveMessage( Message *pMessage )
 {
 	pMessage->m_eExpectedResponse=ER_ReplyMessage;
 	PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, m_SocketMutex );  // Don't log anything but failures
-	
+
 	/** @todo check comment */
 	// HACK Message->m_eExpectedResponse=ER_Message;
 
@@ -215,7 +215,7 @@ Message *Socket::SendReceiveMessage( Message *pMessage )
 		pOutMessage = ReceiveMessage( atoi( sResult.substr( 8 ).c_str() ) );
 		return pOutMessage; // return the response
 	}
-	
+
 	return NULL; // what we got wasn't what we expected it to be
 }
 
@@ -248,14 +248,14 @@ Message *Socket::ReceiveMessage( int iLength )
 			FILE *file = fopen( m_pcSockLogFile, "a" );
 			if( !file )
 			{
-				cout << "cannot open file: " m_pcSockLogFile << ": " << strerror(errno) << endl;
-				cerr << "cannot open file: " m_pcSockLogFile << ": " << strerror(errno) << endl;
+				cout << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+				cerr << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
 				file = fopen( m_pcSockLogErrorFile, "a" );
 
 				if( !file )
 				{
-					cout << "cannot open file: " m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-xxx					cerr << "cannot open file: " m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+					cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+xxx					cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 				}
 
 				// Don't check -- if this still fails just throw an exception something is very wrong!
@@ -271,7 +271,7 @@ xxx					cerr << "cannot open file: " m_pcSockLogErrorFile << ": " << strerror(er
 #endif
 				delete[] pcBuffer; // freeing the buffer we no longer need
 			#ifdef LOG_ALL_CONTROLLER_ACTIVITY
-				LACA_B4_5( "Received Message from: %d to: %d type: %d id: %d %s", 
+				LACA_B4_5( "Received Message from: %d to: %d type: %d id: %d %s",
 					pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To, pMessage->m_dwMessage_Type, pMessage->m_dwID, m_sName.c_str() );
 			#endif
 				return pMessage;
@@ -298,7 +298,7 @@ xxx					cerr << "cannot open file: " m_pcSockLogErrorFile << ": " << strerror(er
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);
 	}
-	
+
 	return NULL; // errors, just returning NULL
 }
 
@@ -324,7 +324,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 		LACA_B4_4( "Sending after lock: (%d) %s %p %s", iSize, pcData, pthread_self(), m_sName.c_str() );
 
 #endif
-	
+
 	/** @todo check comment */
 	// pthread_mutex_lock(&m_DCESocketMutex);  AB 1-25-2004 - use safety lock instead
 
@@ -401,9 +401,9 @@ bool Socket::SendData( int iSize, const char *pcData )
 			}
 			ll2.Release();
 #endif
-			return false;		
+			return false;
 		}
-		
+
 		FD_ZERO( &wrfds );
 		FD_SET( m_Socket, &wrfds );
 		int iRet;
@@ -416,11 +416,11 @@ bool Socket::SendData( int iSize, const char *pcData )
 			iRet = select( (int)(m_Socket+1), NULL, &wrfds, NULL, &tv );
 			// without timeout
 			iRet = select( (int)(m_Socket+1), NULL, &wrfds, NULL, NULL );
-	
+
 		} while( iRet != -1 && iRet != 1 );
 		int iSendBytes = ( iBytesLeft > 16192 ) ? 16192 : iBytesLeft;
 		iSendBytes = send( m_Socket, pcData+( iSize-iBytesLeft ), iSendBytes, 0 );
-		
+
 		if ( iSendBytes > 0 )
 			iBytesLeft -= iSendBytes;
 		else
@@ -492,7 +492,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 
 	int iBytesLeft = iSize;
 	time_t end=0, start = 0;
-	
+
 	while( iBytesLeft > 0 )
 	{
 		if ( m_pcCurInsockBuffer )
@@ -565,7 +565,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 						break;
 				}
 			}
-			
+
 			if( iRet == 0 || iRet == -1 )
 			{
 				closesocket( m_Socket );
@@ -608,20 +608,20 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 					(*g_pSocketCrashHandler)(this);
 				return false;
 			}
-			
+
 #ifdef LOG_ALL_CONTROLLER_ACTIVITY
 		if( m_sName.substr(0,6) != "Logger" )
 		{
 			LACA_B4_1( "before recv %s", m_sName.c_str() );
 		}
-#endif			
-			m_iSockBufBytesLeft = recv( m_Socket, m_pcInSockBuffer, INSOCKBUFFER_SIZE - 1, 0 ); 
+#endif
+			m_iSockBufBytesLeft = recv( m_Socket, m_pcInSockBuffer, INSOCKBUFFER_SIZE - 1, 0 );
 #ifdef LOG_ALL_CONTROLLER_ACTIVITY
 		if( m_sName.substr(0,6) != "Logger" )
 		{
 			LACA_B4_2( "after recv: %d %s", m_iSockBufBytesLeft, m_sName.c_str() );
 		}
-#endif			
+#endif
 			if ( m_iSockBufBytesLeft <= 0 )
 			{
 #ifdef WIN32
@@ -659,7 +659,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #endif
 
 #else
-	
+
 				g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveData failed, bytes left %d socket %d %s", m_iSockBufBytesLeft, m_Socket, m_sName.c_str() );
 #endif
 				return false;
@@ -674,7 +674,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			SYSTEMTIME lt;
 			::GetLocalTime(&lt);
 			sprintf( ac, "%d/%d/%d %d:%d:%d", lt.wDay, lt.wMonth, lt.wYear, lt.wHour, lt.wMinute, lt.wSecond );
-#else  
+#else
 		   	time_t ts;
 			time (&ts );
 			struct tm *t = localtime( &ts );
@@ -739,7 +739,7 @@ bool Socket::ReceiveString( string &sRefString )
 		++pcBuf;
 		--iLen;
 	} while( *(pcBuf-1) != '\n' && *(pcBuf-1) != 0 && iLen ); // while within iLen and not reached the string's end
-	
+
 	if ( !iLen ) // didn't get all that was expected or more @todo ask
 	{
 		if( m_bQuit )
@@ -774,18 +774,18 @@ bool Socket::ReceiveString( string &sRefString )
 
 		return false;
 	}
-	
+
 	*pcBuf = 0;
 	pcBuf--;
 	while( *pcBuf == '\r' || *pcBuf == '\n' && pcBuf > acBuf ) // replacing cariage return and \n with \0
 		*pcBuf-- = '\0';
 	sRefString = acBuf;
-	
+
 #ifdef LL_DEBUG
 	printf( "%s-Received String: %s\n", Module, acBuf );
 #endif
 #ifdef LL_DEBUG_FILE
-	PLUTO_SAFETY_LOCK_ERRORSONLY( ll4, (*m_LL_DEBUG_Mutex) ); 
+	PLUTO_SAFETY_LOCK_ERRORSONLY( ll4, (*m_LL_DEBUG_Mutex) );
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file )
 	{
@@ -800,7 +800,7 @@ bool Socket::ReceiveString( string &sRefString )
 		fprintf( file, "%d-%s-Received Text: %s\n\n", m_Socket, Module, acBuf );
 		fclose( file );
 	}
-	ll4.Release(); 
+	ll4.Release();
 #endif
 
 #ifdef LOG_ALL_CONTROLLER_ACTIVITY
@@ -810,7 +810,7 @@ bool Socket::ReceiveString( string &sRefString )
 	}
 #endif
 	return true;
-cout << "temp: received string in dce socket" << endl;		
+cout << "temp: received string in dce socket" << endl;
 }
 
 bool Socket::SendString( string sLine )
@@ -819,7 +819,7 @@ bool Socket::SendString( string sLine )
 	printf( "%s-Send strng: %s\n", Module, sLine.c_str() );
 #endif
 #ifdef LL_DEBUG_FILE
-	PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) ); 
+	PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) );
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file )
 	{
