@@ -77,6 +77,9 @@ TKeyResponse CPlutoMOContainer::OfferKeyEventL(
 	if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
 		return EKeyWasNotConsumed;
 
+	if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bPlutoEventVisible)
+		return EKeyWasNotConsumed;
+
     TInt code = aKeyEvent.iCode;
     switch(code)
         {

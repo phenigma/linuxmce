@@ -213,10 +213,8 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 
 	TRect rect(X, Y, Width, Height);
 
-//#ifndef __WINS__
 	CFbsBitmap *pBitmap = CImageLoader::LoadBitmap(string(Filename).Des());
 	m_pGC->BitBlt(rect.iTl, pBitmap);
-//#endif
 
 	return bResult;
 }
@@ -720,7 +718,12 @@ void CPlutoVMCUtil::OpenProgram(string ProgramName)
 	DrawText(Msg, RowRect);
 	*/
 
-	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote;
-	informationNote->ExecuteLD(_L("Connecting to server..."));
+	//CAknInformationNote* informationNote = new (ELeave) CAknInformationNote;
+	//informationNote->ExecuteLD(_L("Connecting to server..."));
+
+	//TODO: implement this
+	CPlutoMOAppUi* pApp = (CPlutoMOAppUi*)(CCoeEnv::Static()->AppUi());
+	pApp->iURL.Append(ProgramName.Des());
+	pApp->LaunchBrowser();
 }
 //------------------------------------------------------------------------------------------------------------------

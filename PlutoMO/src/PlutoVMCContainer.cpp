@@ -106,45 +106,8 @@ TInt CPlutoVMCContainer::KeyTimerCallBack(TAny* aContainer)
 	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
 
 	CPlutoVMCContainer *pContainer = (CPlutoVMCContainer *)aContainer;
-/*
-	int iNow = User::TickCount();
-	const int iDiff = KEY_TIMER_INTERVAL / 200000;
-	
-	int KeyIndex = pContainer->NumberKeyIndex(pContainer->m_uLastKeyCode);
 
-	if(pContainer->m_uLastKeyCode > 0)
-		//if(iNow - pContainer->m_iLastTick >= iDiff)
-		{
-			if(KeyIndex != 9 && KeyIndex != 7)
-				pContainer->m_iRepeatStep %= 3;
-			else
-				pContainer->m_iRepeatStep %= 4;
-
-			char KeyChar = KeysMap[pContainer->NumberKeyIndex(pContainer->m_uLastKeyCode)][pContainer->m_iRepeatStep];
-			pContainer->m_iRepeatStep = 0;
-
-			pVMCUtil->m_CaptureKeyboardParam.sVariableValue += KeyChar;
-
-			bool bDoRefresh = false;
-
-			if(pVMCUtil->ScrollListPartialMatch())
-			{
-				pVMCUtil->m_bRedrawOnlyGrid = true;
-				bDoRefresh = true;
-			}
-
-			if(pVMCUtil->m_CaptureKeyboardParam.bTextBox)
-			{
-				pVMCUtil->m_bRedrawOnlyEdit = true;
-				bDoRefresh = true;
-			}
-
-			if(bDoRefresh)
-				pContainer->DrawDeferred();
-		}
-*/
 	pContainer->iKeyTimer->Cancel();
-
 	pContainer->m_iRepeatStep = 0;
 	pContainer->m_iLastTick = 0;
 	pContainer->m_uLastKeyCode = 0;
@@ -572,6 +535,12 @@ TKeyResponse CPlutoVMCContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEven
 {
 	//if the viewer is not visible on the screen, ignore the key pressed
 	if(!((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
+		return EKeyWasNotConsumed;
+
+	if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bPlutoEventVisible)
+		return EKeyWasNotConsumed;
+
+	if(!((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bMakeVisibleAllowed)
 		return EKeyWasNotConsumed;
 
 	TKeyResponse Response = EKeyWasNotConsumed;

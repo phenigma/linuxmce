@@ -26,6 +26,7 @@ _LIT(KPlutoCfgFile,"c:\\PlutoMO.cfg");
 class CPlutoVMCView;
 class CPlutoMOContainer;
 class CPlutoMOGridContainer;
+class CPlutoEventView;
 class BDCommandProcessor_Symbian_Bluetooth;
 
 class MBluetoothListener;
@@ -111,11 +112,6 @@ public:
 	CGetCallerId *iGetCallerId;
 	CIncomingCallWatcher *iIncomingCallWatcher;
 
-	TInt iNumPhoneTypes, iNumEventTypes, iCurType;
-	CPlutoPhoneTypes iPhoneTypes[MAX_PHONE_TYPES];
-	TBuf<128> iPlutoEventTypes[MAX_EVENT_TYPES];
-	TBuf<256> iURL;
-
 	RCall			iCall;
 	RLine			iLine;
 	RPhone			iPhone;
@@ -124,6 +120,13 @@ public:
 	CIdle *iIdle;
 	static TInt DoIdleStatic(TAny *aApp);
 	TInt DoIdle();
+
+	TInt iNumPhoneTypes, iNumEventTypes, iCurType;
+	CPlutoPhoneTypes iPhoneTypes[MAX_PHONE_TYPES];
+	TBuf<128> iPlutoEventTypes[MAX_EVENT_TYPES];
+	TBuf<256> iURL;
+
+	bool m_bPlutoEventVisible;
 
 private:
     void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
@@ -136,9 +139,9 @@ private:
 	void CreateVMCView();
 	void MakeViewerVisible(bool Value);
 
-private:
     CPlutoMOContainer* iAppContainer; 
 	CPlutoMOGridContainer* iGridContainer; 
+	CPlutoEventView* iPlutoEventView;
 
 	TInt m_iCapturedKeyId;
  };

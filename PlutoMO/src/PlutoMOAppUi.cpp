@@ -28,6 +28,9 @@
 #include "GetCallerId.h"
 #include "NotifyIncomingCall.h"
 #include "LineReader.h"
+
+#include "PlutoEventView.h"
+#include "PlutoEventContainer.h"
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ConstructL()
 {
@@ -37,6 +40,9 @@ void CPlutoMOAppUi::ConstructL()
     iAppContainer->ConstructL( ClientRect() );
     AddToStackL( iAppContainer );
 
+	iPlutoEventView = NULL;
+	m_pVMCView = NULL;
+
 	SymbianLogger *pLogger = new SymbianLogger(string("PlutoMO.log"), KCPlutoLoggerId, CCoeStatic::EApp);
 
 	LOG("Setup members\n");
@@ -44,7 +50,6 @@ void CPlutoMOAppUi::ConstructL()
 	m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
 	m_bSendKeyStrokes = false;
 	m_bMakeVisibleAllowed = false;
-	m_pVMCView = NULL;
 	m_pBDCommandProcessor_Symbian_Bluetooth = 
 		new BDCommandProcessor_Symbian_Bluetooth("", this);
 	m_pBDCommandProcessor = m_pBDCommandProcessor_Symbian_Bluetooth;
@@ -52,6 +57,8 @@ void CPlutoMOAppUi::ConstructL()
 	m_pBDCommandProcessor_Symbian_Bluetooth->Listen();
 	m_pBDCommandProcessor_Symbian_Bluetooth->SetupSecurityManager();
 	m_pBDCommandProcessor_Symbian_Bluetooth->AdvertiseThePlutoService();
+
+	m_bPlutoEventVisible = false;
 
 	LOG("Waiting for connections...\n");
 
@@ -61,12 +68,7 @@ void CPlutoMOAppUi::ConstructL()
 	LOG("Setup incoming call notifier\n");
 	SetupIncomingCallNotifier(); // ARMI only (it is crashing in WINS)
 
-
 	iCurType = 0;
-
-
-
-
 
 	/*
 	LOG("Http client\n");
@@ -192,9 +194,19 @@ void CPlutoMOAppUi::DynInitMenuPaneL(
 TKeyResponse CPlutoMOAppUi::HandleKeyEventL(
     const TKeyEvent& aKeyEvent,TEventCode aType)
 {
-	m_pVMCView->iContainer->OfferKeyEvent(aKeyEvent, aType);
+	if(m_bVMCViewerVisible && m_pVMCView)
+	{
+		m_pVMCView->iContainer->OfferKeyEvent(aKeyEvent, aType);
+	    return EKeyWasConsumed;
+	}
 
-    return EKeyWasConsumed;
+	if(m_bPlutoEventVisible && iPlutoEventView)
+	{
+		iPlutoEventView->iContainer->OfferKeyEvent(aKeyEvent, aType);
+	    return EKeyWasConsumed;
+	}
+
+	return EKeyWasNotConsumed;
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::HandleCommandL(TInt aCommand)
@@ -258,9 +270,8 @@ void CPlutoMOAppUi::HandleCommandL(TInt aCommand)
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::CreateVMCView()
 {
-	if(m_pVMCView == NULL)
+	if(NULL == m_pVMCView)
 	{
-		// Create and add views.
 		m_pVMCView = new (ELeave) CPlutoVMCView();
 		CleanupStack::PushL(m_pVMCView);
 		m_pVMCView->ConstructL();
@@ -541,10 +552,38 @@ TInt CPlutoMOAppUi::DoIdle()
 	{
 		ret = EFalse; //finished do not come back
 		iCall.Close();
-		LOG("ta da ... ");
+		LOG("Ready to open PlutoEventView\n");
 
 		LOG(iCurType);
 
+		//test
+		if(NULL == iPlutoEventView)
+		{
+			iPlutoEventView = new (ELeave) CPlutoEventView();
+			CleanupStack::PushL(iPlutoEventView);
+			iPlutoEventView->ConstructL();
+			CleanupStack::Pop();    // view1
+
+			LOG("PlutoEventView created\n");
+
+			AddViewL(iPlutoEventView);        // transfer ownership to CAknViewAppUi
+			ActivateLocalViewL(iPlutoEventView->Id());
+
+			LOG("PlutoEventView activated\n");
+		}
+		else
+		{
+			iPlutoEventView->iContainer->MakeVisible(true);
+		}
+
+		TApaTask task(CEikonEnv::Static()->WsSession());
+		task.SetWgId(CEikonEnv::Static()->RootWin().Identifier());
+		task.BringToForeground();
+
+		LOG("Bring to foreground\n");
+
+
+		/*
 		TBuf<256> msg;
 		msg.Copy(iPlutoEventTypes[iPhoneTypes[iCurType].iWAP_EventType - 1]);
 		msg.Append(_L(":\n"));
@@ -568,6 +607,7 @@ TInt CPlutoMOAppUi::DoIdle()
 			LOG("O fost un ok... open the browser\n");
 			LaunchBrowser();
 		}
+		*/
 
 		/*
 		TFileName file_name;

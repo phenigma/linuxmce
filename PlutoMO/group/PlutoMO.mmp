@@ -58,6 +58,8 @@ SOURCE  ImageLoader.cpp
 SOURCE  GetCallerID.cpp
 SOURCE  LineReader.cpp
 SOURCE  NotifyIncomingCall.cpp
+SOURCE  PlutoEventContainer.cpp
+SOURCE 	PlutoEventView.cpp
 
 RESOURCE ..\data\PlutoMO.rss
 RESOURCE ..\data\PlutoMO_caption.rss
