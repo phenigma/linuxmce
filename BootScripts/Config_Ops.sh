@@ -44,3 +44,4 @@ if [ -n "$Valgrind" ]; then
 		echo "*** WARNING *** Valgrind not installed. Running programs the normal way ***"
 	fi
 fi
+ulimit -c unlimited
