@@ -199,6 +199,9 @@
 				RelativePath="..\Gen_Devices\Bluetooth_DongleBase.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\CacheImageManager.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\DesignObj_Data.cpp">
 			</File>
 			<File
