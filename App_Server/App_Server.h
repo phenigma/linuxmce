@@ -22,14 +22,18 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
-	// Private member variables
-	typedef map<string, vector<int> > vector_map;
-	vector_map AppPIDs; // PIDs associated with an AppName - used for application mass killing (not massacres :P)
 
-	// Private methods
-	bool StartApp(string CmdExecutable, string CmdParams, string AppName);
+        // Private member variables
+        typedef map<string, map<int, pair<string, string> > > vector_map;
+        vector_map m_mapAppPids; // PIDs associated with an AppName - used for application mass killing (not massacres :P)
+
+        // Private methods
+        bool StartApp(string CmdExecutable, string CmdParams, string AppName, string sCommandsOnSuccess, string sCommandsOnFailure);
+        void ProcessExited(int pid, int status);
+
+        void SendMessageList(string messageList);
 public:
-	// Public member variables
+    // Public member variables
 
 
 //<-dceag-h-b->
@@ -68,9 +72,13 @@ public:
 			/** A name that we'll remember the application by for future kill commands */
 		/** @param #51 Arguments */
 			/** Command arguments */
+		/** @param #94 SendOnFailure */
+			/** Send this messages if the process exited with failure error code. */
+		/** @param #95 SendOnSuccess */
+			/** Send this messages if the process exited with success error code. */
 
-	virtual void CMD_Spawn_Application(string sFilename,string sOptions,string sName,string sArguments) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sOptions.c_str(),sName.c_str(),sArguments.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Spawn_Application(string sFilename,string sOptions,string sName,string sArguments,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #69 - Kill Application */
