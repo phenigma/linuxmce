@@ -63,8 +63,8 @@ function pluto_system_overview($output,$conn){
         <a href="index.php?section=accesories">more details</a> <br />
         <br />
         <img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> <span class="title">Software</span><br />
-        Pluto is sold as a complete, turnkey appliance. However, Pluto\'s components are really modified PC computers inside custom cases. What makes Pluto totally remarkable is that we decided to give away all the software for free. That\'s right, you can make your own Pluto system using your PC computers together with our special software. It will do everything our turnkey product does, and you don\'t have to pay us anything. Not only do we promise not to prosecute you for copying our software, we\'ll actually help you do it with a simple wizard that guides you through the process, and provides step-by-step instructions. The wizard will even give you all our source code if you want it.</p>
-      <p><a href="index.php?section=letter">Why is Pluto doing this? What\'s Pluto\'s open source strategy?</a><br />
+        Pluto is sold as a complete, turnkey appliance. However, Pluto\'s components are really modified PC computers inside custom cases. What makes Pluto totally remarkable is that we decided to give away all the software for free. That\'s right, you can make your own Pluto system using your PC computers together with our special software. It will do everything our turnkey product does, and you don\'t have to pay us anything. Not only do we promise not to prosecute you for copying our software, we\'ll actually help you do it with a simple wizard that guides you through the process, and provides step-by-step instructions. The wizard will even give you all our source code if you want it.<br>
+      	<a href="index.php?section=letter">Why is Pluto doing this? What\'s Pluto\'s open source strategy?</a><br />
         <a href="index.php?section=developer">I\'m a techie. Tell me about the software. </a><br />
         <a href="index.php?section=get_pluto">How can I get Pluto, either as a pre-configured appliance or as software I install myself?</a></p>
     </td>
