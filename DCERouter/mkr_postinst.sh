@@ -2,7 +2,12 @@
 sed -i 's/^skip-networking/#skip-networking/' /etc/mysql/my.cnf
 /etc/init.d/mysql restart
 
-echo "setting up dce router"
+echo "setting up dce router2"
+hasRecords=`echo 'SELECT count(PK_Installation) FROM Installation' | mysql pluto_main | tail -n 1`;
+if [ $hasRecords -ne 0 ]; then 
+	echo "Database already setup";
+	exit 0
+fi
 
 . /usr/pluto/bin/Config_Ops.sh
 
