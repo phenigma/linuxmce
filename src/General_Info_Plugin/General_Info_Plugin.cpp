@@ -379,7 +379,7 @@ void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,st
 
         case -1:
             g_pPlutoLogger->Write(LV_CRITICAL, "Error starting %s, err: %s", sFilename.c_str(), strerror(errno));
-            return false;
+            return;
             break;
 
         default:
