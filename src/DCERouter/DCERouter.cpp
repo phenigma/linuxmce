@@ -627,6 +627,12 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
                 (pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
                 (*SafetyMessage)->m_dwMessage_Type, (*SafetyMessage)->m_dwID,Desc.c_str());
     }
+	else
+        g_pPlutoLogger->Write(LV_STATUS, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d, parameters:",
+            (*SafetyMessage)->m_dwPK_Device_From,
+            (pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),(*SafetyMessage)->m_dwPK_Device_To,
+            (pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
+            (*SafetyMessage)->m_dwMessage_Type, (*SafetyMessage)->m_dwID);
 
     if ((*SafetyMessage)->m_dwPK_Device_To != DEVICEID_LOGGER)
     {
