@@ -1,5 +1,5 @@
 <?
-function register($output){
+function register($output,$conn){
 	global $addMasterUserUrl,$checkMasterUserUrl;
 
 	if(isset($_SESSION['userIsLogged']) && $_SESSION['userIsLogged']=="yes"){
@@ -113,7 +113,7 @@ function register($output){
   			$_SESSION['userIsLogged']="yes";
   			$_SESSION['categ']=$typeUser;
   			
-  			$res=mysql_query("SELECT * FROM Users WHERE FK_MasterUsers='$MasterUsersID'");
+  			$res=mysql_query("SELECT * FROM Users WHERE FK_MasterUsers='$MasterUsersID'",$conn);
 			if(mysql_num_rows($res)!=0){
 				$res=mysql_fetch_object($res);
 				$_SESSION['extPassword']=$res->ExtPassword;

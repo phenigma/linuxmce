@@ -218,13 +218,15 @@ function cleanArray($array2Parse) {
 $GLOBALS['childsArray'] = array();
 
 function getDeviceChildsArray($parentID,$dbADO) {
-	$queryGP = "select * from Device where FK_Device_ControlledVia = $parentID";
-	$resGP = $dbADO->Execute($queryGP);
-	
-	if ($resGP) {
-		while ($row=$resGP->FetchRow()) {
-				$GLOBALS['childsArray'][]=$row['PK_Device'];
-				$GLOBALS['childsArray'][]=getDeviceChildsArray($row['PK_Device'],$dbADO);
+	if($parentID!=''){
+		$queryGP = "SELECT * FROM Device WHERE FK_Device_ControlledVia = $parentID";
+		$resGP = $dbADO->Execute($queryGP);
+		
+		if ($resGP) {
+			while ($row=$resGP->FetchRow()) {
+					$GLOBALS['childsArray'][]=$row['PK_Device'];
+					$GLOBALS['childsArray'][]=getDeviceChildsArray($row['PK_Device'],$dbADO);
+			}
 		}
 	}
 	//return $childsArray;
@@ -633,12 +635,14 @@ function deleteDevice($PK_Device,$dbADO)
 	foreach ($toDelete as $elem) {
 	
 		$arrayFKDeviceTables=array('CommandGroup_Command','Device_Command','Device_CommandGroup','Device_DeviceData','Device_DeviceGroup','Device_Device_Related','Device_EntertainArea','Device_HouseMode','Device_Orbiter','Device_StartupScript','Device_Users','InfraredGroup_Command');
-		foreach($arrayFKDeviceTables AS $tablename){	
-			$queryDelFromTable='DELETE FROM '.$tablename.' WHERE FK_Device='.$elem;
-			$dbADO->Execute($queryDelFromTable);
-		}		
-		$queryDelDevice = 'DELETE FROM Device WHERE PK_Device = '.$elem;
-		$dbADO->_Execute($queryDelDevice);
+		if($elem!=''){
+			foreach($arrayFKDeviceTables AS $tablename){	
+				$queryDelFromTable='DELETE FROM '.$tablename.' WHERE FK_Device='.$elem;
+				$dbADO->Execute($queryDelFromTable);
+			}		
+			$queryDelDevice = 'DELETE FROM Device WHERE PK_Device = '.$elem;
+			$dbADO->_Execute($queryDelDevice);
+		}
 	}
 
 }

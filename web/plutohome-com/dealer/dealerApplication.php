@@ -329,9 +329,9 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 
 		$insertDealer="
 			INSERT INTO Dealer
-				(SubmitDate,CompanyName, CurrentAddress, City, State, Zip, Phone, Fax, Country, EmployeesNo, StoreFront, IndividualName, Title, IndividualPhone, IndividualEmail, CoreBusiness, OtherBusiness, MarketFocus, OtherMarketFocus,OtherProducts, EstimatedRevenue, Reference1, Reference2, Reference3, ReturnPolicy,SignInAs)
+				(SubmitDate,CompanyName, CurrentAddress, City, State, Zip, Phone, Fax, Country, EmployeesNo, StoreFront, IndividualName, Title, IndividualPhone, IndividualEmail, IndividualFax,CoreBusiness, OtherBusiness, MarketFocus, OtherMarketFocus,OtherProducts, EstimatedRevenue, Reference1, Reference2, Reference3, ReturnPolicy,SignInAs)
 			VALUES
-				(NOW(), '$companyName', '$currentAddress', '$city', '$state', '$zip', '$phone', '$fax', '$country', '$employees', '$storeFront', '$individualName', '$title', '$individualPhone', '$individualEmail', '$coreBusiness', '$otherBusiness', '$marketFocus', '$otherMarketFocus','$otherProducts', '$estimatedRevenue', '$reference1', '$reference2', '$reference3', '$returnPolicy','$signedAs')";
+				(NOW(), '$companyName', '$currentAddress', '$city', '$state', '$zip', '$phone', '$fax', '$country', '$employees', '$storeFront', '$individualName', '$title', '$individualPhone', '$individualEmail', '$individualFax', '$coreBusiness', '$otherBusiness', '$marketFocus', '$otherMarketFocus','$otherProducts', '$estimatedRevenue', '$reference1', '$reference2', '$reference3', '$returnPolicy','$signedAs')";
 		dbQuery($insertDealer,$conn);
 		
 		$headers = "From: Pluto Home<website@plutohome.com>\n";

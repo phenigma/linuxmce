@@ -1,7 +1,7 @@
 <?
 if($_SESSION['sollutionType']==3){
 		$out='
-			<table align="left" border="0" width="100%">
+			<table align="center" border="0" width="100%">
 				 <tr>
 					<td align="left" class="normaltext"><img src="images/install_wizard.gif"></td>
 					<td align="right" class="normaltext"><a href="index.php?section=wizard&step=5">&lt;&lt; Previous</a> <a href="index.php?section=wizard&step=7">Next &gt;&gt;</a></td>
@@ -10,8 +10,11 @@ if($_SESSION['sollutionType']==3){
 					<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 6 of 8: Media Directors</B></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="left" class="insidetable" height="200">You have selected the single PC solution, so you can skip this step by clicking NEXT.  </td>
+					<td colspan="2" align="center" class="insidetable" height="150">You have selected the single PC solution, so you can skip this step by clicking NEXT.  </td>
 				</tr>
+				<tr>
+					<td colspan="2" class="insidetable" align="center"><input type="button" name="next" value="Next" onClick="self.location=\'index.php?section=wizard&step=7\'"></td>
+				</tr>		
 		</table>
 	';
 }else{
@@ -385,7 +388,7 @@ if($_SESSION['sollutionType']==3){
 						$optionInsertId=$dbADO->Insert_ID();
 					}
 				}else{
-					$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
+					deleteDevice($oldDevice,$dbADO);
 				}
 			}
 		}

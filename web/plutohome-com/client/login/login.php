@@ -61,7 +61,12 @@ if (isset($_POST['submitX'])) {
 		}
 	}
 }
-	$out .= '<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td  valign="top" align="center" class="insidetable">
+	$out .= '
+	<script>
+	var setFocus=0
+	</script>
+	<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
+		<td  valign="top" align="center" class="insidetable">
 		
 	
 	<b>Log - In</b>
@@ -75,7 +80,7 @@ if (isset($_POST['submitX'])) {
 	      <td>&nbsp;<input type="text" name="username" value="'.@$_SESSION['username'].'" /></td></tr>
 	    <tr> 
 	      <td align="right">Password</td>
-	      <td>&nbsp;<input type="password" name="password" value="" /></td>
+	      <td>&nbsp;<input type="password" name="password" value="" onkeypress="assignVal(1)"/></td>
 	    </tr>
         <tr>
         	<td height="20" align="right">Remember my password</td>
@@ -99,9 +104,14 @@ If you ever have a question, click Live chat to get instant support.
 	  </table>
 	</form>
 	<script>
-		 	var frmvalidator = new formValidator("login");
- 			frmvalidator.addValidation("username","req","Please enter an username.");			
-	 		frmvalidator.addValidation("password","req","Please enter your password.");			
+		function assignVal(val)
+		{
+			setFocus=val;
+		}
+			
+		var frmvalidator = new formValidator("login");
+ 		frmvalidator.addValidation("username","req","Please enter an username.");			
+	 	frmvalidator.addValidation("password","req","Please enter your password.");			
 	</script>
 	
 	
@@ -111,7 +121,7 @@ If you ever have a question, click Live chat to get instant support.
 
 
 
-	$output->setScriptInBody("onload=\"document.login.username.focus();\"");
+	$output->setScriptInBody("onload=\"if(setFocus==0);document.login.username.focus();\"");
 	//$output->setLeftMenu($leftMenu);
 	$output->setScriptCalendar('null');
 	$output->setScriptTRColor('null');

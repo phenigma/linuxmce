@@ -33,12 +33,25 @@ $section = @$_REQUEST['section'];
 
 switch ($section) {
 	//admin area	
-   case 'search':
-       $output=new Template();
-       $output->setTemplateFileType('home');
-       include_once('search/search.php');
-	    search($output);
-       break;
+   	case 'search':
+    	$output=new Template();
+       	$output->setTemplateFileType('home');
+       	include_once('search/search.php');
+	    search($output,$dbADO,$conn);
+   break;
+   case 'searchWeb':
+       	$output=new Template();
+       	$output->setTemplateFileType('home');
+       	include_once('search/searchWeb.php');
+	    searchWeb($output,$conn);
+	break;
+   case 'searchDocs':
+       	$output=new Template();
+       	$output->setTemplateFileType('home');
+       	include_once('search/searchDocs.php');
+	    searchDocs($output,$conn);
+	break;
+   
    case 'clientLoginForm':
        $output = new Template();
        $output->setTemplateFileType('home');
@@ -55,7 +68,7 @@ switch ($section) {
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('client/login/register.php');
-	    register($output);
+	    register($output,$conn);
 	break;
 	case 'myPluto':
 		$output = new Template();
@@ -442,6 +455,13 @@ switch ($section) {
 	    include_once('dealer/dealerApplication.php');
 	    dealerApplication($output,$conn);
     break;
+    case 'updateProfile':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('dealer/updateProfile.php');
+	    updateProfile($output,$conn,$dbADO);
+    break;
+    
     case 'programGuidelines':
 		$output = new Template();
 		$output->setTemplateFileType('home');

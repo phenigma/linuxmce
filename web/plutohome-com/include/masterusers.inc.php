@@ -47,7 +47,6 @@ function checkMasterUsers($username, $password,$url,$FieldsNames='')
 {
 	$params = "username=".$username."&password=".$password.$FieldsNames;
 	$MasterUsersResponse=queryExternalServer($params,$url);
-
 	if(ereg("MasterUsersID",$MasterUsersResponse)){
 		return array(true,$MasterUsersResponse);	// return true and PK_MasterUsers
 	}

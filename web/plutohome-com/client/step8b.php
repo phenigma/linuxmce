@@ -34,7 +34,7 @@ $out .= '
 		<td valign="top" colspan="2">
 		<table width="75%" align="center" border="0">
 			<tr class="normaltext" bgcolor="#DADDE4">
-				<td width="30%" align="left">'.(($distroInstaller=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\''.$InstallerURL.'?code='.$AutoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowDevice['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
+				<td width="30%" align="left">'.(($distroInstaller=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\''.$InstallerURL.'?code='.@$AutoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowDevice['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
 				<td>'.(($distroInstaller=='')?'<span style="color:#999999;">Not available for '.$DistroNameOS.'</span>':'A script for '.$DistroNameOS.' that will install all the software automatically.').'</td>
 			</tr>
 			<tr class="normaltext" bgcolor="#DADDE4">

@@ -347,7 +347,7 @@ if($action=='form'){
 					$childDeviceId=$dbADO->Insert_ID();
 				}
 			}else{
-				$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
+				deleteDevice($oldDevice,$dbADO);
 			}
 		}
 
