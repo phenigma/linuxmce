@@ -41,6 +41,7 @@ echo "Writing network configuration with one in database"
 /etc/init.d/networking stop
 
 File=/etc/network/interfaces
+#cp "$File" "$File.%(date +%F-%T)"
 IfConf="auto lo
 iface lo inet loopback
 "
