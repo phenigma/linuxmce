@@ -63,6 +63,7 @@
 #define DEVICEDATA_Use_OCG_Format_CONST 64
 #define DEVICEDATA_Video_Input_Type_CONST 65
 #define DEVICEDATA_Connector_CONST 68
+#define DEVICEDATA_Port_Type_CONST 69
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
