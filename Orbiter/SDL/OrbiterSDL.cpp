@@ -110,7 +110,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDL::~OrbiterSDL()
 {
-#ifdef USE_ONLY_SCREEN_SURFACE
+#ifndef USE_ONLY_SCREEN_SURFACE
 	SDL_FreeSurface(m_pScreenImage);
 #endif
 

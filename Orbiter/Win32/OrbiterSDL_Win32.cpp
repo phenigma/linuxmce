@@ -6,6 +6,15 @@
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
 
+#define VK_A 0x41
+#define VK_C 0x43
+#define VK_E 0x45
+#define VK_T 0x54
+#define VK_P 0x50
+#define VK_L 0x4C
+#define VK_R 0x52
+#define VK_Z 0x5A
+
 const MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
 LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -141,18 +150,17 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
         m_cKeyDown=0;
 
         g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d",(int) wParam, (int) m_bRepeat, (int) m_bShiftDown);
-/*
+
 #ifndef PHONEKEYS
-        if(wParam >= 'a' && wParam <= 'z')
+        if(wParam >= VK_A && wParam <= VK_Z) // A-Z keys
         {
             if((!m_bCapsLock && !m_bShiftDown) || (m_bCapsLock && m_bShiftDown))
-                bHandled = ButtonDown(BUTTON_a_CONST + wParam - 'a');
+                bHandled = ButtonDown(BUTTON_a_CONST + wParam - VK_A);
             else
-                bHandled = ButtonDown(BUTTON_A_CONST + wParam - 'a');
+                bHandled = ButtonDown(BUTTON_A_CONST + wParam - VK_Z);
         }
         else
 #endif 
-			*/
         if( wParam == VK_SHIFT)
             m_bShiftDown=false;
         else if( wParam == VK_CONTROL)
@@ -161,17 +169,6 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
             m_bAltDown=false;
 		else if( wParam == VK_ESCAPE && m_bControlDown && m_bAltDown)
 		{
-			/*
-			m_bQuit = true;
-
-			atexit(SDL_Quit);
-			::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
-
-			SDL_Event event;
-			event.type = SDL_USEREVENT;
-			SDL_PushEvent(&event); 
-			*/
-
 			OnQuit();
 		}
 		else if( wParam == VK_F10)
@@ -214,22 +211,22 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					break;
 
 #ifdef PHONEKEYS
-                case 'c':
+                case VK_C:
                     bHandled = ButtonDown(BUTTON_Phone_C_CONST);
                     break;
-                case 'p':
+                case VK_P:
                     bHandled = ButtonDown(BUTTON_Phone_Pencil_CONST);
                     break;
-                case 't':
+                case VK_T:
                     bHandled = ButtonDown(BUTTON_Phone_Talk_CONST);
                     break;
-                case 'e':
+                case VK_E:
                     bHandled = ButtonDown(BUTTON_Phone_End_CONST);
                     break;
-                case 'l':
+                case VK_L:
                     bHandled = ButtonDown(BUTTON_Phone_Soft_left_CONST);
                     break;
-                case 'r':
+                case VK_R:
                     bHandled = ButtonDown(BUTTON_Phone_Soft_right_CONST);
                     break;
                 case '*':
@@ -338,28 +335,28 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					bHandled=ButtonDown(BUTTON_Rept_9_CONST);
 					break;
 #ifdef PHONEKEYS
-                case 'c':
+                case VK_C:
                     bHandled = ButtonDown(BUTTON_Rept_Phone_C_CONST);
                     break;
-                case 'p':
+                case VK_P:
                     bHandled = ButtonDown(BUTTON_Rept_Phone_Pencil_CONST);
                     break;
-                case 't':
+                case VK_T:
                     bHandled = ButtonDown(BUTTON_Rept_Phone_Talk_CONST);
                     break;
-                case 'e':
+                case VK_E:
                     bHandled = ButtonDown(BUTTON_Rept_Phone_End_CONST);
                     break;
-                case 'l':
+                case VK_L:
                     bHandled = ButtonDown(BUTTON_Rept_Phone_Soft_left_CONST);
                     break;
-                case 'r':
+                case VK_R:
                     bHandled = ButtonDown(BUTTON_Rept_Phone_Soft_right_CONST);
                     break;
                 case '*':
                     bHandled = ButtonDown(BUTTON_Rept_Asterisk_CONST);
                     break;
-					case '#':
+				case '#':
                     bHandled = ButtonDown(BUTTON_Rept_Pound_CONST);
                     break;
 #endif 
