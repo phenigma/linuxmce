@@ -71,6 +71,7 @@ void CPlutoMOAppUi::ConstructL()
 	m_bSendKeyStrokes = false;
 	m_bMakeVisibleAllowed = false;
 
+#ifndef __WINS__ 
 	m_pBDCommandProcessor_Symbian_Bluetooth = 
 		new BDCommandProcessor_Symbian_Bluetooth("", this);
 	m_pBDCommandProcessor = m_pBDCommandProcessor_Symbian_Bluetooth;
@@ -78,6 +79,7 @@ void CPlutoMOAppUi::ConstructL()
 	m_pBDCommandProcessor_Symbian_Bluetooth->Listen();
 	m_pBDCommandProcessor_Symbian_Bluetooth->SetupSecurityManager();
 	m_pBDCommandProcessor_Symbian_Bluetooth->AdvertiseThePlutoService();
+#endif
 
 	m_bPlutoEventVisible = false;
 

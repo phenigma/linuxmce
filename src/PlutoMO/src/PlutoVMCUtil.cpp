@@ -37,7 +37,7 @@
 #include "ImageLoader.h"
 #include "Logger.h"
 
-#define TEST_DATAGRID
+//#define TEST_DATAGRID
 
 //------------------------------------------------------------------------------------------------------------------
 CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aUid, scop)
@@ -62,7 +62,7 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 	m_GridList.Reset();
 
 	//TEST! (testing showlist command)
-	/*
+
 #ifdef TEST_DATAGRID
 	m_bGridExists = true;
 
@@ -87,19 +87,21 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 
 	//TEST!! (testing capture keyboard command)
 	m_CaptureKeyboardParam.bOnOff = true;
-	m_CaptureKeyboardParam.bDataGrid = true;
+	m_CaptureKeyboardParam.bDataGrid = false;
 	m_CaptureKeyboardParam.bReset = true;
 	m_CaptureKeyboardParam.bTypePin = true;
 	m_CaptureKeyboardParam.bTextBox = true;
-	m_CaptureKeyboardParam.iVariable = 1;
-	m_CaptureKeyboardParam.sVariableValue = "abc";
-	m_CaptureKeyboardParam.TextX = 10;
-	m_CaptureKeyboardParam.TextY = 180;
-	m_CaptureKeyboardParam.TextWidth = 120;
-	m_CaptureKeyboardParam.TextHeight = 20;
+	m_CaptureKeyboardParam.iVariable = 17;
+	m_CaptureKeyboardParam.sVariableValue = "";
+	m_CaptureKeyboardParam.TextX = 0;
+	m_CaptureKeyboardParam.TextY = 0;
+	m_CaptureKeyboardParam.TextWidth = 174;
+	m_CaptureKeyboardParam.TextHeight = 25;
 	m_CaptureKeyboardParam.Reset();	
 #endif
-	*/
+
+	//test keyboard.
+	//SetCaptureKeyboardCommand(1, 0, 1, 1, 17, string("0,0,176,25"));
 }
 //------------------------------------------------------------------------------------------------------------------
 /*virtual*/ CPlutoVMCUtil::~CPlutoVMCUtil()
@@ -201,29 +203,22 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 
 		m_CaptureKeyboardParam.iVariable = iVariable;
 
-		string tokens = sText;
 		unsigned int msgpos = 0;
 		string token;
 
 		m_CaptureKeyboardParam.bTextBox = 0 != sText.length();
 
-		if((token = StringUtils::Tokenize(tokens, ",", msgpos)) != "") 	
+		if((token = StringUtils::Tokenize(sText, ",", msgpos)) != "") 	
 			m_CaptureKeyboardParam.TextX = atoi(token.c_str());
 
-		if((token = StringUtils::Tokenize(tokens, ",", msgpos)) != "") 	
+		if((token = StringUtils::Tokenize(sText, ",", msgpos)) != "") 	
 			m_CaptureKeyboardParam.TextY = atoi(token.c_str());
 
-		if((token = StringUtils::Tokenize(tokens, ",", msgpos)) != "") 	
+		if((token = StringUtils::Tokenize(sText, ",", msgpos)) != "") 	
 			m_CaptureKeyboardParam.TextWidth = atoi(token.c_str());
 
-		if((token = StringUtils::Tokenize(tokens, ",", msgpos)) != "") 	
+		if((token = StringUtils::Tokenize(sText, ",", msgpos)) != "") 	
 			m_CaptureKeyboardParam.TextHeight = atoi(token.c_str());
-
-		if(m_CaptureKeyboardParam.TextHeight == 0)
-			m_CaptureKeyboardParam.TextHeight == 20;
-
-		if(m_CaptureKeyboardParam.TextWidth == 0)
-			m_CaptureKeyboardParam.TextWidth == 120;
 	}
 	else
 	{
