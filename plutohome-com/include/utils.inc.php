@@ -363,7 +363,7 @@ function InheritCategoryDeviceData($masterDeviceID,$insertID,$dbADO)
 	$dbADO->Execute($getParentCategoryDeviceData,$insertID);
 }
 
-function createChildsForDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO,$roomID,$entertainAreaID)
+function createChildsForDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO,$roomID)
 {
 	$queryDeviceTemplate='SELECT Description FROM DeviceTemplate WHERE PK_DeviceTemplate=?';
 	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate,$masterDeviceID);
@@ -373,12 +373,10 @@ function createChildsForDeviceTemplate($masterDeviceID,$installationID,$insertID
 	$dbADO->Execute($queryInsertDevice,array($installationID,$rowDeviceTemplate['Description'],$insertID,$masterDeviceID,$roomID));
 	$insertChildID = $dbADO->Insert_ID();
 	InheritDeviceData($masterDeviceID,$insertChildID,$dbADO);
-	if(!is_null($entertainAreaID))
-		addDeviceToEntertainArea($insertChildID,$entertainAreaID,$dbADO);
-	createChildsForControledViaDeviceTemplate($masterDeviceID,$installationID,$insertChildID,$dbADO,$roomID,$entertainAreaID);
+	createChildsForControledViaDeviceTemplate($masterDeviceID,$installationID,$insertChildID,$dbADO,$roomID);
 }
 
-function createChildsForControledViaDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO,$roomID,$entertainAreaID)
+function createChildsForControledViaDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO,$roomID)
 {
 	// check if DeviceTemplate controll anything
 	$queryDeviceTemplate_DeviceTemplate_ControlledVia='SELECT * FROM DeviceTemplate_DeviceTemplate_ControlledVia
@@ -387,12 +385,12 @@ function createChildsForControledViaDeviceTemplate($masterDeviceID,$installation
 	if($resDeviceTemplate_DeviceTemplate_ControlledVia->RecordCount()>0){
 		// insert the children
 		while($row=$resDeviceTemplate_DeviceTemplate_ControlledVia->FetchRow()){
-			createChildsForDeviceTemplate($row['FK_DeviceTemplate'],$installationID,$insertID,$dbADO,$roomID,$entertainAreaID);
+			createChildsForDeviceTemplate($row['FK_DeviceTemplate'],$installationID,$insertID,$dbADO,$roomID);
 		}
 	}
 }
 
-function createChildsForControledViaDeviceCategory($masterDeviceID,$installationID,$insertID,$dbADO,$roomID,$entertainAreaID)
+function createChildsForControledViaDeviceCategory($masterDeviceID,$installationID,$insertID,$dbADO,$roomID)
 {
 	$getTemplateGategory='SELECT * FROM DeviceTemplate WHERE PK_DeviceTemplate=?';
 	$resTemplateGategory=$dbADO->Execute($getTemplateGategory,$masterDeviceID);
@@ -411,7 +409,7 @@ function createChildsForControledViaDeviceCategory($masterDeviceID,$installation
 		}
 	}
 	foreach($deviceTemplateArray as $value)
-		createChildsForDeviceTemplate($value,$installationID,$insertID,$dbADO,$roomID,$entertainAreaID);
+		createChildsForDeviceTemplate($value,$installationID,$insertID,$dbADO,$roomID);
 }
 
 // $device is the PK_Device of the device who has current options, if '' use default options
