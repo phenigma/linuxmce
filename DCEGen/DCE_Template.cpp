@@ -42,6 +42,16 @@ bool DCE_Template::Register()
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
+/*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
+	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
+	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
+//<-dceag-createinst-b->
+DCE_Template_Command *Create_DCE_Template(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+{
+	return new DCE_Template(pPrimaryDeviceCommand, pData, pEvent, pRouter);
+}
+//<-dceag-createinst-e->
+
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class

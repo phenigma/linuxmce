@@ -242,3 +242,4 @@ void Speech::SomeFunction()
 	COMMANDS TO IMPLEMENT
 
 */
+//<-dceag-createinst-b->!

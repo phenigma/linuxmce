@@ -729,6 +729,8 @@ pRow->m_PK_Device=id;
 	
 
 	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+{
+class TableRow*pTR = (*i).second;
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_Device* pRow = (Row_Device*) (*i).second;	
@@ -756,7 +758,8 @@ update_values_list = update_values_list + "PK_Device="+pRow->PK_Device_asSQL()+"
 		}
 	
 		pRow->is_modified = false;	
-	}	
+	}
+}
 	
 
 //delete deleted added

@@ -1301,3 +1301,4 @@ void gc100::SetQuitFlag()
 	m_bQuit = true;
 }
 
+//<-dceag-createinst-b->!

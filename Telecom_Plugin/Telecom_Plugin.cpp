@@ -579,3 +579,4 @@ void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
 		CallManager::getInstance()->removeCall(pCallData);
 	}	
 }
+//<-dceag-createinst-b->!

@@ -590,3 +590,4 @@ void MythTV_Player::CMD_Back(string &sCMD_Result,Message *pMessage)
 {
     processKeyBoardInputRequest(XK_Escape);
 }
+//<-dceag-createinst-b->!

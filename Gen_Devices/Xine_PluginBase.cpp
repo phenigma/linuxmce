@@ -3,6 +3,8 @@
 #include "Logger.h"
 
 using namespace DCE;
+#include "Xine_PluginBase.h"
+extern Xine_Plugin_Command *Create_Xine_Plugin(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 DeviceData_Impl *Xine_Plugin_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position

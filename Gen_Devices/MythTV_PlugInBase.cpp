@@ -3,6 +3,8 @@
 #include "Logger.h"
 
 using namespace DCE;
+#include "MythTV_PlugInBase.h"
+extern MythTV_PlugIn_Command *Create_MythTV_PlugIn(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 DeviceData_Impl *MythTV_PlugIn_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position

@@ -500,3 +500,4 @@ void Infrared_Plugin::CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_As
 
 	sCMD_Result = "OK";
 }
+//<-dceag-createinst-b->!

@@ -365,3 +365,4 @@ void Event_Plugin::CMD_Toggle_Event_Handler(int iPK_EventHandler,string &sCMD_Re
 	pRow_EventHandler->Disabled_set( pRow_EventHandler->Disabled_get()!=1 );
 	m_pDatabase_pluto_main->EventHandler_get()->Commit();
 }
+//<-dceag-createinst-b->!

@@ -361,3 +361,4 @@ void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,in
 {
     m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, *iMediaPosition, *iMedia_Length);
 }
+//<-dceag-createinst-b->!

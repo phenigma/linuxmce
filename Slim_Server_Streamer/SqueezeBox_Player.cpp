@@ -334,3 +334,9 @@ void SqueezeBox_Player::CMD_Report_Playback_Position(int iStreamID,string *sOpti
 {
 
 }
+//<-dceag-createinst-b->
+SqueezeBox_Player_Command *Create_SqueezeBox_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+{
+	return new SqueezeBox_Player(pPrimaryDeviceCommand, pData, pEvent, pRouter);
+}
+//<-dceag-createinst-e->

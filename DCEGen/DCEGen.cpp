@@ -670,14 +670,15 @@ int k=2;
 	fstr_DeviceCommand << "using namespace DCE;" << endl;
 
 	map<int,class Row_DeviceTemplate *>::iterator itMDL;
-/*
+
 	for(itMDL=p_mapRow_MasterDevice_Children->begin();itMDL!=p_mapRow_MasterDevice_Children->end();++itMDL)
 	{
 		Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
 
-		fstr_DeviceCommand << "#include \"" + m_sTemplateOutput + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + ".h\"" << endl;
+		fstr_DeviceCommand << "#include \"" + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "Base.h\"" << endl;
+		fstr_DeviceCommand << "extern " + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "_Command *Create_" + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);" << endl;
 	}
-*/
+
 	fstr_DeviceCommand << "DeviceData_Impl *" + Name + "_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)" << endl;
 	fstr_DeviceCommand << "{" << endl;
 	fstr_DeviceCommand << "\t// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position" << endl;
@@ -735,7 +736,7 @@ int k=2;
 			if( p_Row_DeviceTemplate->PK_DeviceTemplate_get()!=m_dwPK_DeviceTemplate )  // Don't do this for ourselves since we can't have a child of the same type
 			{
 				fstr_DeviceCommand << "\t\tcase " << StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) << ":" << endl;
-				fstr_DeviceCommand << "\t\t\treturn (Command_Impl *) new " << FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) << "(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);" << endl;
+				fstr_DeviceCommand << "\t\t\treturn (Command_Impl *) Create_" << FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) << "(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);" << endl;
 			}
 		}
 		fstr_DeviceCommand << "\t};" << endl;

@@ -3,6 +3,8 @@
 #include "Logger.h"
 
 using namespace DCE;
+#include "App_ServerBase.h"
+extern App_Server_Command *Create_App_Server(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 DeviceData_Impl *App_Server_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position

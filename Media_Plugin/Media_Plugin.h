@@ -197,6 +197,8 @@ public:
 	// Returns 0 if a command group exists for this entarea/template.  Otherwise creates one and returns the id
 	int FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription);  
 	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
+	// For each MD, all it's direct children go in the same room, and if it has an on-screen Orbiter, it's direct children too
+	void PutMDsChildrenInRoom(DeviceData_Router *pDeviceData_Router);
 
     /**
      * @brief Required for plug-ins that render floorplans
@@ -372,6 +374,33 @@ public:
 
 	virtual void CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea) { string sCMD_Result; CMD_MH_Move_Media(iStreamID,sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #269 - Move Playlist entry Up */
+	/** Moves a entry up in the current playlist. */
+		/** @param #48 Value */
+			/** The id of the entry that needs to be moved up. */
+
+	virtual void CMD_Move_Playlist_entry_Up(int iValue) { string sCMD_Result; CMD_Move_Playlist_entry_Up(iValue,sCMD_Result,NULL);};
+	virtual void CMD_Move_Playlist_entry_Up(int iValue,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #270 - Move Playlist entry Down */
+	/** Moves a entry down in the current playlist. */
+		/** @param #48 Value */
+			/** The id of the entry that needs to be moved down in the playlist. */
+
+	virtual void CMD_Move_Playlist_entry_Down(int iValue) { string sCMD_Result; CMD_Move_Playlist_entry_Down(iValue,sCMD_Result,NULL);};
+	virtual void CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #271 - Remove playlist entry. */
+	/** Removes an entry from the playlist. */
+		/** @param #48 Value */
+			/** The Id of the entry that needs to be removed from the playlist. */
+
+	virtual void CMD_Remove_playlist_entry(int iValue) { string sCMD_Result; CMD_Remove_playlist_entry(iValue,sCMD_Result,NULL);};
+	virtual void CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -683,3 +683,4 @@ void Xine_Plugin::SomeFunction()
 }
 */
 //<-dceag-sample-e->
+//<-dceag-createinst-b->!

@@ -1216,3 +1216,4 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 	Message *pMessageOut = new Message(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
 	SendMessageToRouter(pMessageOut);
 }
+//<-dceag-createinst-b->!

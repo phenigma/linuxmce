@@ -223,3 +223,4 @@ void CM11A::SomeFunction()
 */
 
 
+//<-dceag-createinst-b->!

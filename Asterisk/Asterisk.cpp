@@ -239,3 +239,4 @@ void Asterisk::CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Re
     AsteriskManager *manager = AsteriskManager::getInstance();
     manager->Hangup(sPhoneCallID, iCommandID);
 }
+//<-dceag-createinst-b->!

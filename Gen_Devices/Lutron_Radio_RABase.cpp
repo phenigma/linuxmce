@@ -3,6 +3,8 @@
 #include "Logger.h"
 
 using namespace DCE;
+#include "Lutron_Radio_RABase.h"
+extern Lutron_Radio_RA_Command *Create_Lutron_Radio_RA(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 DeviceData_Impl *Lutron_Radio_RA_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position

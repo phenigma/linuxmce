@@ -3,6 +3,8 @@
 #include "Logger.h"
 
 using namespace DCE;
+#include "Xine_PlayerBase.h"
+extern Xine_Player_Command *Create_Xine_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 DeviceData_Impl *Xine_Player_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position

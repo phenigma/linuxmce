@@ -1509,21 +1509,21 @@ namespace DCE
 	public:
 		CMD_NOREP_Get_Video_Frame_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,4,23,sDisable_Aspect_Lock.c_str(),41,StringUtils::itos(iStreamID).c_str(),60,StringUtils::itos(iWidth).c_str(),61,StringUtils::itos(iHeight).c_str()); }
 	};
-	class CMD_Rest_Highlight : public PreformedCommand {
+	class CMD_Reset_Highlight : public PreformedCommand {
 	public:
-		CMD_Rest_Highlight(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,85,0); }
+		CMD_Reset_Highlight(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,85,0); }
 	};
-	class CMD_Rest_Highlight_DL : public PreformedCommand {
+	class CMD_Reset_Highlight_DL : public PreformedCommand {
 	public:
-		CMD_Rest_Highlight_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,85,0); }
+		CMD_Reset_Highlight_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,85,0); }
 	};
-	class CMD_Rest_Highlight_DT : public PreformedCommand {
+	class CMD_Reset_Highlight_DT : public PreformedCommand {
 	public:
-		CMD_Rest_Highlight_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,85,0); }
+		CMD_Reset_Highlight_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,85,0); }
 	};
-	class CMD_Rest_Highlight_Cat : public PreformedCommand {
+	class CMD_Reset_Highlight_Cat : public PreformedCommand {
 	public:
-		CMD_Rest_Highlight_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,85,0); }
+		CMD_Reset_Highlight_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,85,0); }
 	};
 	class CMD_Goto_Menu_not_used : public PreformedCommand {
 	public:
@@ -4636,6 +4636,54 @@ namespace DCE
 	class CMD_Reboot_Cat : public PreformedCommand {
 	public:
 		CMD_Reboot_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,268,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_Move_Playlist_entry_Up : public PreformedCommand {
+	public:
+		CMD_Move_Playlist_entry_Up(long DeviceIDFrom, long DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,269,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Move_Playlist_entry_Up_DL : public PreformedCommand {
+	public:
+		CMD_Move_Playlist_entry_Up_DL(long DeviceIDFrom, string DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,269,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Move_Playlist_entry_Up_DT : public PreformedCommand {
+	public:
+		CMD_Move_Playlist_entry_Up_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,269,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Move_Playlist_entry_Up_Cat : public PreformedCommand {
+	public:
+		CMD_Move_Playlist_entry_Up_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,269,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Move_Playlist_entry_Down : public PreformedCommand {
+	public:
+		CMD_Move_Playlist_entry_Down(long DeviceIDFrom, long DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,270,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Move_Playlist_entry_Down_DL : public PreformedCommand {
+	public:
+		CMD_Move_Playlist_entry_Down_DL(long DeviceIDFrom, string DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,270,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Move_Playlist_entry_Down_DT : public PreformedCommand {
+	public:
+		CMD_Move_Playlist_entry_Down_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,270,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Move_Playlist_entry_Down_Cat : public PreformedCommand {
+	public:
+		CMD_Move_Playlist_entry_Down_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,270,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Remove_playlist_entry : public PreformedCommand {
+	public:
+		CMD_Remove_playlist_entry(long DeviceIDFrom, long DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,271,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Remove_playlist_entry_DL : public PreformedCommand {
+	public:
+		CMD_Remove_playlist_entry_DL(long DeviceIDFrom, string DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,271,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Remove_playlist_entry_DT : public PreformedCommand {
+	public:
+		CMD_Remove_playlist_entry_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,271,1,48,StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Remove_playlist_entry_Cat : public PreformedCommand {
+	public:
+		CMD_Remove_playlist_entry_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,271,1,48,StringUtils::itos(iValue).c_str()); }
 	};
 }
 #endif

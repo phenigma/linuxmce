@@ -3,6 +3,8 @@
 #include "Logger.h"
 
 using namespace DCE;
+#include "File_Grids_PluginBase.h"
+extern File_Grids_Plugin_Command *Create_File_Grids_Plugin(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 DeviceData_Impl *File_Grids_Plugin_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position

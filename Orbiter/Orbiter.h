@@ -1082,11 +1082,11 @@ public:
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #85 - Rest Highlight */
+	/** @brief COMMAND: #85 - Reset Highlight */
 	/** Resets the currently highlighted object.  Do this when you hide or unhide blocks that have tab stops. */
 
-	virtual void CMD_Rest_Highlight() { string sCMD_Result; CMD_Rest_Highlight(sCMD_Result,NULL);};
-	virtual void CMD_Rest_Highlight(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Reset_Highlight() { string sCMD_Result; CMD_Reset_Highlight(sCMD_Result,NULL);};
+	virtual void CMD_Reset_Highlight(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #88 - Set Current Location */

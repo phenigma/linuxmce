@@ -553,3 +553,4 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result
             break;
     }
 }
+//<-dceag-createinst-b->!

@@ -658,3 +658,4 @@ void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sO
 
 	g_pPlutoLogger->Write(LV_STATUS, "Detected data: position %d from %d", *iMediaPosition, *iMedia_Length);
 }
+//<-dceag-createinst-b->!

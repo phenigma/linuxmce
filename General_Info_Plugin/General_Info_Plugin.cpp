@@ -296,3 +296,4 @@ void General_Info_Plugin::CMD_Reboot(int iPK_Device,string &sCMD_Result,Message 
 //<-dceag-c268-e->
 {
 }
+//<-dceag-createinst-b->!

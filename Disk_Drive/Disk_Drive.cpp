@@ -1319,3 +1319,4 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 }
 
 //<-dceag-sample-b->! no sample
+//<-dceag-createinst-b->!

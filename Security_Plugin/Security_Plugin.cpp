@@ -657,3 +657,4 @@ bool Security_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMe
 	}
 	return true;
 }
+//<-dceag-createinst-b->!

@@ -214,3 +214,4 @@ list<pair<string, string> > Mozilla_Plugin::GetUserBookmarks(string sPK_User)
 }
 
 //<-dceag-sample-b->!
+//<-dceag-createinst-b->!

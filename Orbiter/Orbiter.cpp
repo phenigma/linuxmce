@@ -5019,10 +5019,10 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
 //<-dceag-sample-b->!
 //<-dceag-c85-b->
 
-	/** @brief COMMAND: #85 - Rest Highlight */
+	/** @brief COMMAND: #85 - Reset Highlight */
 	/** Resets the currently highlighted object.  Do this when you hide or unhide blocks that have tab stops. */
 
-void Orbiter::CMD_Rest_Highlight(string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Reset_Highlight(string &sCMD_Result,Message *pMessage)
 //<-dceag-c85-e->
 {
     HighlightFirstObject(  );
@@ -5599,3 +5599,4 @@ void Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
 {
 	OnQuit();
 }
+//<-dceag-createinst-b->!

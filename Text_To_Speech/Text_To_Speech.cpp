@@ -301,3 +301,4 @@ unsigned int Text_To_Speech::Find_Exact_Size(string sText)
 }
 */
 
+//<-dceag-createinst-b->!

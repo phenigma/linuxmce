@@ -581,3 +581,4 @@ void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_addr
 #endif
 }
 
+//<-dceag-createinst-b->!

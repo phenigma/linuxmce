@@ -156,3 +156,4 @@ class DataGridTable *Climate_Plugin::ClimateScenariosGrid(string GridID,string P
 */
 
 
+//<-dceag-createinst-b->!

@@ -133,8 +133,10 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 			if( pListMediaDirectors )
 				for(ListDeviceData_Router::iterator it=pListMediaDirectors->begin();it!=pListMediaDirectors->end();++it)
 					if( (*it)->m_dwPK_Room == pRow_Room->PK_Room_get() )
+					{
 						bContainsMD = true;
-
+						PutMDsChildrenInRoom(*it);
+					}
 
 			bool bContainsOtherVideo=false,bContainsAudio=false;
 			if( !bContainsMD )
@@ -195,7 +197,25 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
                     pRow_EntertainArea->FK_FloorplanObjectType_set(FLOORPLANOBJECTTYPE_ENTERTAINMENT_AUDIO_ZONE_CONST);
 
 				AddDevicesToEntArea(pRow_EntertainArea);
+
+				// Be sure all the devices in this entertainment area are only in the one entertainment area
+				vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;
+				pRow_EntertainArea->Device_EntertainArea_FK_EntertainArea_getrows(&vectRow_Device_EntertainArea);
+				for(size_t s=0;s<vectRow_Device_EntertainArea.size();++s)
+				{
+					Row_Device_EntertainArea *pRow_Device_EntertainArea = vectRow_Device_EntertainArea[s];
+					if( pRow_Device_EntertainArea )
+					{
+						vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea2;
+						m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRows("WHERE FK_EntertainArea<>" + 
+							StringUtils::itos(pRow_Device_EntertainArea->FK_EntertainArea_get()) + " AND FK_Device=" + StringUtils::itos(pRow_Device_EntertainArea->FK_Device_get()),
+							&vectRow_Device_EntertainArea2);
+						for(size_t s2=0;s2<vectRow_Device_EntertainArea2.size();++s2)
+							vectRow_Device_EntertainArea2[s2]->Delete();
+					}
+				}
 				m_pDatabase_pluto_main->EntertainArea_get()->Commit();
+				m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
 			}
 		}
 
@@ -249,6 +269,20 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
             pMediaDevice->m_listEntertainArea.push_back( pEntertainArea );
         }
     }
+}
+
+void Media_Plugin::PutMDsChildrenInRoom(DeviceData_Router *pDeviceData_Router)
+{
+	for(size_t s=0;s<pDeviceData_Router->m_vectDeviceData_Impl_Children.size();++s)
+	{
+		DeviceData_Router *pDeviceData_Router_Child = (DeviceData_Router *) pDeviceData_Router->m_vectDeviceData_Impl_Children[s];
+		pDeviceData_Router_Child->m_dwPK_Room = pDeviceData_Router->m_dwPK_Room;
+		pDeviceData_Router_Child->m_pRoom = pDeviceData_Router->m_pRoom;
+		pDeviceData_Router_Child->m_pRow_Device->FK_Room_set(pDeviceData_Router_Child->m_dwPK_Room);
+		pDeviceData_Router_Child->m_pRow_Device->Table_Device_get()->Commit();
+		if( pDeviceData_Router_Child->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+			PutMDsChildrenInRoom(pDeviceData_Router_Child);
+	}
 }
 
 void Media_Plugin::DeleteEntertainArea(Row_EntertainArea *pRow_EntertainArea)
@@ -2184,3 +2218,41 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 			TurnDeviceOff(PK_Pipe,pDeviceData_RouterChild,pmapMediaDevice_Current);
 	}
 }
+//<-dceag-createinst-b->!
+
+//<-dceag-c269-b->
+
+	/** @brief COMMAND: #269 - Move Playlist entry Up */
+	/** Moves a entry up in the current playlist. */
+		/** @param #48 Value */
+			/** The id of the entry that needs to be moved up. */
+
+void Media_Plugin::CMD_Move_Playlist_entry_Up(int iValue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c269-e->
+{
+}
+
+//<-dceag-c270-b->
+
+	/** @brief COMMAND: #270 - Move Playlist entry Down */
+	/** Moves a entry down in the current playlist. */
+		/** @param #48 Value */
+			/** The id of the entry that needs to be moved down in the playlist. */
+
+void Media_Plugin::CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c270-e->
+{
+}
+
+//<-dceag-c271-b->
+
+	/** @brief COMMAND: #271 - Remove playlist entry. */
+	/** Removes an entry from the playlist. */
+		/** @param #48 Value */
+			/** The Id of the entry that needs to be removed from the playlist. */
+
+void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c271-e->
+{
+}
+

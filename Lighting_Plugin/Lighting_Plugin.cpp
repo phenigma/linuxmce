@@ -240,3 +240,4 @@ void Lighting_Plugin::FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoo
 {
 	ExecCommandGroup(m_mapRoom_CommandGroup[pRoom_Prior->m_dwPK_Room].second);
 }
+//<-dceag-createinst-b->!

@@ -122,7 +122,7 @@ public:
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sTime,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Rest_Highlight(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Reset_Highlight(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Continuous_Refresh(string sTime,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Now_Playing(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
@@ -670,7 +670,7 @@ public:
 				case 85:
 					{
 						string sCMD_Result="OK";
-						CMD_Rest_Highlight(sCMD_Result,pMessage);
+						CMD_Reset_Highlight(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
