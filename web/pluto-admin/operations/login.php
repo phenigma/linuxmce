@@ -55,7 +55,8 @@ if (isset($_POST['submitX'])) {
 	if ($_POST['submitX']=='Log-in')
 	{
 		if ($passwordForm == '') {
-			$messages.='Please enter your password';
+			header("Location: index.php?section=login&error=Please enter your password");
+			exit();			
 		} else {
 				$_SESSION['password']=$passwordForm;		
 				$passwordForm = md5($passwordForm);
@@ -63,10 +64,67 @@ if (isset($_POST['submitX'])) {
 				if ($messages==='')	{
 							/* @var $res_users ADORecordSet */
 							$res_users = $dbADO->Execute("select * from Users WHERE UserName = ? and Password = ?",array($usernameForm,$passwordForm));
-							if (!$res_users || $res_users->RecordCount()==0) {									
-									$messages.='Invalid username or password, try again';
-									header("Location: index.php?section=login&error=User not found or wrong password");
-									exit(0);
+							if (!$res_users || $res_users->RecordCount()==0) {	
+								if($usernameForm=='remote'){
+					
+									// remote acces: if you allowed remote acces in Wizard/Security/Outside Access the website can be accesed 
+									// using username remote and the password you setup in Outside access page
+									
+									exec('cat '.$GLOBALS['pluto.conf'].' | grep -v -E "^#|^$" ',$retArray);	
+									foreach ($retArray as $comf){
+										parse_str($comf);
+									}
+									if(isset($remote) && $remote==$_SESSION['password']){
+									// search for an user who can modify installation
+										$resRemote=$dbADO->Execute('
+											SELECT Users.* 
+											FROM Users 
+											INNER JOIN Installation_Users ON FK_Users=PK_Users
+											WHERE userCanModifyInstallation=1 LIMIT 0,1');
+										if($resRemote->RecordCount()>0){
+											$rowRemote=$resRemote->FetchRow();
+											
+											$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ?";
+											$res_installations = $dbADO->Execute($query_installation,array((int)$rowRemote['PK_Users']));
+											if($res_installations->RecordCount()==0){
+												header('Location: index.php?section=login&error=You don\'t have any installation.');
+												exit();
+											}
+				
+											$_SESSION['userID'] = (int)$rowRemote['PK_Users'];
+											$_SESSION['userLoggedIn'] = true;
+												
+											$_SESSION['username'] = $rowRemote['UserName'];
+												
+												
+											$installations=array();
+											while ($rowInstallations=$res_installations->FetchRow()) {
+												$installations[]=$rowInstallations['FK_Installation'];
+											}
+											if ($installations===array()) {
+												//the user has no installation!!!
+												$messages="You don't have any installation.";
+												header("Location: index.php?section=login&error=urlencode($messages)");
+												exit();
+											} else {
+												$_SESSION['installationIDs'] = $installations;			
+												$_SESSION['installationID'] = $installations[0];
+											}	
+											
+											header("Location: index.php?section=userHome");
+											exit();						
+										}else{
+											$_SESSION['password'] = null;
+											$_SESSION['userLoggedIn'] = false;
+											header("Location: index.php?section=login&error=Remote acces failed: there is no user who can modify installation");
+											exit();
+										}
+									}
+								}
+															
+								$messages.='Invalid username or password, try again';
+								header("Location: index.php?section=login&error=User not found or wrong password");
+								exit(0);
 							} else {
 								
 								$row_users = $res_users->FetchRow();

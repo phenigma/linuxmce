@@ -3,8 +3,7 @@ function outsideAccess($output,$dbADO) {
 	/* @var $dbADO ADOConnection */
 	/* @var $res ADORecordSet */
 
-	// TODO: change file address to real one
-	$accessFile='/etc/pluto.conf';
+	$accessFile=$GLOBALS['pluto.conf'];
 	exec('cat '.$accessFile.' | grep -v -E "^#|^$" ',$retArray);	
 	foreach ($retArray as $comf){
 		parse_str($comf);

@@ -267,7 +267,7 @@ function devices($output,$dbADO) {
 				}
 			$out.='	</td>
 					<td align="center">';
-					$out.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  ></td>
+					$out.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onClick="if(!confirm(\'Are you sure you want to delete this device?\'))return false;"></td>
 				</tr>';
 			}
 			$out.='

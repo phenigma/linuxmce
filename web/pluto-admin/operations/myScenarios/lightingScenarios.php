@@ -76,7 +76,7 @@ if($action=='form') {
 					<input type="button" class="button" name="posUp" value="+" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
 				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
-				<td><a href="index.php?section=scenarioWizard&from=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&roomID='.$rowRooms['PK_Room'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=lightingScenarios&action=del&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td><a href="#" onclick="document.lightingScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=lightingScenarios&action=del&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 			</tr>
 			';
 			$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
@@ -131,7 +131,7 @@ if($action=='form') {
 		}
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		if(@(int)$_REQUEST['editedCgID']!=0 && @(int)$_REQUEST['roomID']!=0){
-			header('Location: index.php?section=lightingScenarios&cgID='.$_REQUEST['editedCgID'].'&action=edit&roomID='.$_REQUEST['roomID']);
+			header('Location: index.php?section=scenarioWizard&from=lightingScenarios&cgID='.$_REQUEST['editedCgID'].'&roomID='.$_REQUEST['roomID']);
 			exit();
 		}
 		$msg=(isset($msg))?$msg:"Lighting Scenario updated&lastAdded=$insertID";

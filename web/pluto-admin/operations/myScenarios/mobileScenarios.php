@@ -66,7 +66,7 @@ if($action=='form') {
 				<td>Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b>').'</td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
-				<td><a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=mobileScenarios">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td><a href="#" onclick="document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 			</tr>
 			';
 		$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
@@ -106,7 +106,7 @@ if($action=='form') {
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		
 		if(@(int)$_REQUEST['editedCgID']!=0){
-			header('Location: index.php?section=mobileScenarios&cgID='.$_REQUEST['editedCgID'].'&action='.(((int)$_REQUEST['editedTemplate']==$GLOBALS['LightingScenariosTemplate'])?'editLighting':'editClimate'));
+			header('Location: index.php?section=scenarioWizard&from=mobileScenarios&cgID='.$_REQUEST['editedCgID'].'&wizard=2');
 			exit();
 		}
 		$msg=(isset($msg))?$msg:"Mobile Orbiter Scenario updated.";

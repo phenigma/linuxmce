@@ -53,7 +53,7 @@ if($action=='form') {
 		<tr bgcolor="#D1D9EA">
 			<td><B>'.$rowRooms['RoomName'].'</B></td>
 			<td>&nbsp;</td>
-			<td align="right"><input type="button" class="button" name="add" value="Add scenario" onClick="javascript:document.climateScenarios.action.value=\'addToRoom\';document.climateScenarios.roomID.value='.$rowRooms['PK_Room'].';document.climateScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.climateScenarios.submit();"></td>
+			<td align="right"><input type="button" class="button" name="add" value="Add scenario" onClick="javascript:document.climateScenarios.action.value=\'addToRoom\';document.climateScenarios.roomID.value='.$rowRooms['PK_Room'].';document.climateScenarios.roomName.value=\''.urlencode($rowRooms['RoomName']).'\';document.climateScenarios.submit();"></td>
 		</tr>';
 		$selectCommandGroups='
 			SELECT * 
@@ -85,7 +85,7 @@ if($action=='form') {
 					<input type="button" class="button" name="posUp" value="+" onClick="self.location=\'index.php?section=climateScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
 			 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
-				<td><a href="index.php?section=scenarioWizard&from=climateScenarios&cgID='.$rowCG['PK_CommandGroup'].'&roomID='.$rowRooms['PK_Room'].'&wizard=1">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=climateScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td><a href="#" onclick="document.climateScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.climateScenarios.roomID.value='.$rowRooms['PK_Room'].';document.climateScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=climateScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 			</tr>
 			';
 			$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
@@ -116,7 +116,7 @@ if($action=='form') {
 	// insert command group in specified room
 	if($action=='addToRoom'){
 		$roomID=(int)$_POST['roomID'];
-		$roomName=$_POST['roomName'];
+		$roomName=urldecode($_POST['roomName']);
 		$insertCommandGroup='INSERT INTO CommandGroup (Description,FK_Array,FK_Installation,FK_Template,Hint) VALUES (?,?,?,?,?)';
 		$dbADO->Execute($insertCommandGroup,array('New Climate Scenario',$arrayID,$installationID,$GLOBALS['ClimateScenariosTemplate'],$roomName));
 		$insertID=$dbADO->Insert_ID();
@@ -137,7 +137,7 @@ if($action=='form') {
 		setOrbitersNeedConfigure($installationID,$dbADO);
 
 		if(@(int)$_REQUEST['editedCgID']!=0 && @(int)$_REQUEST['roomID']!=0){
-			header('Location: index.php?section=climateScenarios&cgID='.$_REQUEST['editedCgID'].'&action=edit&roomID='.$_REQUEST['roomID']);
+			header('Location: index.php?section=scenarioWizard&from=climateScenarios&cgID='.$_REQUEST['editedCgID'].'&roomID='.$_REQUEST['roomID'].'&wizard=1');
 			exit();
 		}
 		

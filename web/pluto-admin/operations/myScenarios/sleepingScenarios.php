@@ -89,7 +89,7 @@ if($action=='form') {
 				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
-				<td><a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=sleepingScenarios&roomID='.$rowRooms['PK_Room'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=sleepingScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td><a href="#" onclick="document.sleepingScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.sleepingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.sleepingScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=sleepingScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 				<td>&nbsp;</td>
 			</tr>
 			';
@@ -136,7 +136,7 @@ if($action=='form') {
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		
 		if(@(int)$_REQUEST['editedCgID']!=0 && @(int)$_REQUEST['roomID']!=0){
-			header('Location: index.php?section=sleepingScenarios&cgID='.$_REQUEST['editedCgID'].'&action='.(((int)$_REQUEST['editedTemplate']==$GLOBALS['LightingScenariosTemplate'])?'editLighting':'editClimate').'&roomID='.$_REQUEST['roomID']);
+			header('Location: index.php?section=scenarioWizard&from=sleepingScenarios&cgID='.$_REQUEST['editedCgID'].'&roomID='.$_REQUEST['roomID'].'&wizard=2');
 			exit();
 		}
 		$msg=(isset($msg))?$msg:"Sleeping Scenario updated.";

@@ -92,8 +92,8 @@ function addControlledViaCategoryToMasterDevice($output,$dbADO) {
 			$lastInsert = $dbADO->Insert_ID();
 			
 			if ($autocreate==1) {
-				$insertPipe = "INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia_Pipe (FK_DeviceTemplate_DeviceCategory_ControlledVia) values (?)";
-				$query = $dbADO->Execute($insertPipe,array($lastInsert));
+//				$insertPipe = "INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia_Pipe (FK_DeviceTemplate_DeviceCategory_ControlledVia) values (?)";
+//				$query = $dbADO->Execute($insertPipe,array($lastInsert));
 				
 				header("Location: index.php?section=editControlledViaCategoryToMasterDevice&from=$from&objID=$lastInsert");
 				exit();

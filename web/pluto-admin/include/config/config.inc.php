@@ -7,10 +7,12 @@
   		error_reporting(E_ALL ^ E_NOTICE);
   		$GLOBALS['globalConfigPath']='/var/www/globalconfig/';
   		$GLOBALS['floorplansPath']='/var/www/pluto-admin/floorplans';
+  		$GLOBALS['pluto.conf']='/etc/pluto.conf';
   	}else{
   		error_reporting(E_ALL);
   		$GLOBALS['globalConfigPath']='/home/users/vali/work/web/globalconfig/';
   		$GLOBALS['floorplansPath']='/home/users/vali/work/web/pluto-admin/floorplans/';
+  		$GLOBALS['pluto.conf']='/home/users/vali/work/web/pluto.conf';
   	}
 
   	include_once($GLOBALS['globalConfigPath'].'globalconfig.inc.php');

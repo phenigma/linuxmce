@@ -5,10 +5,11 @@ function deletePipeFromDeviceTemplateControlledViaCategory($output,$dbADO) {
 	
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';		
 	$objID = (int)$_REQUEST['objID'];
-		
+	$pipe= (int)$_REQUEST['pipe'];
+	
 	if ((int)$objID!=0) {
-			$deleteObjFromDevice = 'delete from DeviceTemplate_DeviceCategory_ControlledVia_Pipe  where FK_DeviceTemplate_DeviceCategory_ControlledVia = ?';
-			$query = $dbADO->Execute($deleteObjFromDevice,array($objID));
+			$deleteObjFromDevice = 'DELETE FROM DeviceTemplate_DeviceCategory_ControlledVia_Pipe WHERE FK_DeviceTemplate_DeviceCategory_ControlledVia = ? AND FK_Pipe=?';
+			$query = $dbADO->Execute($deleteObjFromDevice,array($objID,$pipe));
 			$out.="
 			<script>
 				alert('Pipe - controlled via device category - ".($dbADO->Affected_Rows()==1?"":"not")." deleted from master device!');
@@ -18,7 +19,7 @@ function deletePipeFromDeviceTemplateControlledViaCategory($output,$dbADO) {
 				window.close();
 			</script>
 			";			
-			$out = '<a href="javascript:window.close();">Close</a>';
+			$out .= '<a href="javascript:window.close();">Close</a>';
 		} else {
 			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">Close</a>';
 		}		

@@ -61,7 +61,7 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 							select PK_DeviceCategory,Description from DeviceCategory where FK_DeviceCategory_Parent is null order by Description asc';
 						$rs = $dbADO->_Execute($queryMasterDeviceCategories_parents);
 							while ($row = $rs->FetchRow()) {
-								$out.='<option '.($row['PK_DeviceCategory']==$controlledVia?' selected ': ' ').' value="'.$row['PK_DeviceCategory'].'">'.$row['Description'].'</option>';
+								$out.='<option '.($row['PK_DeviceCategory']==$controlledVia?' selected ': ' ').' value="'.$row['PK_DeviceCategory'].'">'.$row['Description'].' #'.$row['PK_DeviceCategory'].'</option>';
 								$out.=getDeviceCategoryChildsOptions($row['PK_DeviceCategory'],$row['Description'],$controlledVia,'',$dbADO);
 							}
 						$rs->Close();
@@ -99,6 +99,10 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 							
 							$selectPipes = 'SELECT * FROM Pipe Order By Description ASC';
 							$resSelectPipes = $dbADO->Execute($selectPipes);
+							$pipesNames=array();
+							while ($rowSelPipes = $resSelectPipes->FetchRow()) {
+								$pipesNames[$rowSelPipes['PK_Pipe']]=$rowSelPipes['Description'];
+							}
 							
 							$selectPipesUsed = 'SELECT DeviceTemplate_DeviceCategory_ControlledVia_Pipe.*,
 														DT.Description as Desc_From,
@@ -111,10 +115,13 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 														INNER JOIN DeviceCategory DC ON DC.PK_DeviceCategory = DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory
 												WHERE  FK_DeviceTemplate_DeviceCategory_ControlledVia = ?';
 							$resSelectPipesUsed = $dbADO->Execute($selectPipesUsed,array($objID));
+							$displayedPipes=array();
 							
 							if ($resSelectPipesUsed) {
 								while ($rowSelectedPipesUsed = $resSelectPipesUsed->FetchRow()) {
-									$out.='<tr><td>'.$rowSelectedPipesUsed['Desc_To']." <input type='hidden' name='deviceTo_{$rowSelectedPipesUsed['FK_To']}'> &nbsp;&nbsp;&nbsp;&nbsp;</td>";
+									$displayedPipes[]=$rowSelectedPipesUsed['FK_Pipe'];
+									$out.='<tr bgcolor="#EEEEEE">
+											<td align="center"><B>'.$rowSelectedPipesUsed['Desc_To']."</B> <input type='hidden' name='deviceTo_{$rowSelectedPipesUsed['FK_To']}'> &nbsp;&nbsp;&nbsp;&nbsp;</td>";
 									
 									$resSelectInputs->MoveFirst();			
 									$selectInputsTxt='';
@@ -122,7 +129,7 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 										$selectInputsTxt.= '<option '.($rowSelInputs['PK_Command']==$rowSelectedPipesUsed['FK_Command_Input']?" selected='selected' ":"").' value="'.$rowSelInputs['PK_Command'].'">'.$rowSelInputs['Description'].'</option>';
 									}
 									
-									$out.='<td> Input on '.($rowSelectedPipesUsed['ToChild']==0?$rowSelectedPipesUsed['Desc_To']:$rowSelectedPipesUsed['Desc_From']).' <select name="input_'.$rowSelectedPipesUsed['FK_To'].'"><option value="0">-please select-</option>'.$selectInputsTxt.'</select></td>';
+									$out.='<td align="center"> <B>Input on '.($rowSelectedPipesUsed['ToChild']==0?$rowSelectedPipesUsed['Desc_To']:$rowSelectedPipesUsed['Desc_From']).'</B> <select name="input_'.$rowSelectedPipesUsed['FK_To'].'_'.$rowSelectedPipesUsed['FK_Pipe'].'"><option value="0">-please select-</option>'.$selectInputsTxt.'</select></td>';
 									
 									$resSelectOutputs->MoveFirst();			
 									$selectOutputsTxt='';
@@ -130,18 +137,14 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 										$selectOutputsTxt.= '<option '.($rowSelOutputs['PK_Command']==$rowSelectedPipesUsed['FK_Command_Output']?" selected='selected' ":"").' value="'.$rowSelOutputs['PK_Command'].'">'.$rowSelOutputs['Description'].'</option>';
 									}
 									
-									$out.='<td> Output on '.($rowSelectedPipesUsed['ToChild']==0?$rowSelectedPipesUsed['Desc_From']:$rowSelectedPipesUsed['Desc_To']).' <select name="output_'.$rowSelectedPipesUsed['FK_To'].'"><option value="0">-please select-</option>'.$selectOutputsTxt.'</select></td>';
+									$out.='<td align="center"> <B>Output on '.($rowSelectedPipesUsed['ToChild']==0?$rowSelectedPipesUsed['Desc_From']:$rowSelectedPipesUsed['Desc_To']).'</B> <select name="output_'.$rowSelectedPipesUsed['FK_To'].'_'.$rowSelectedPipesUsed['FK_Pipe'].'"><option value="0">-please select-</option>'.$selectOutputsTxt.'</select></td>';
 									
 						
-									$resSelectPipes->MoveFirst();			
-									$selectPipesTxt='';
-									while ($rowSelPipes = $resSelectPipes->FetchRow()) {
-										$selectPipesTxt.= '<option '.($rowSelPipes['PK_Pipe']==$rowSelectedPipesUsed['FK_Pipe']?" selected='selected' ":"").' value="'.$rowSelPipes['PK_Pipe'].'">'.$rowSelPipes['Description'].'</option>';
-									}
+
 									
-									$out.='<td> Pipe <select name="pipe_'.$rowSelectedPipesUsed['FK_To'].'"><option value="0">-please select-</option>'.$selectPipesTxt.'</select></td>';
-									$out.='<td> Flip In/Out: <input type="checkbox" '.($rowSelectedPipesUsed['ToChild']==1?" checked='checked'":'').' name="toChild_'.$rowSelectedPipesUsed['FK_To'].'" value="1"></td>';
-									$out.='<td><input value="Delete" type="button" class="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deletePipeFromDeviceTemplateControlledViaCategory&objID='.$rowSelectedPipesUsed['FK_DeviceTemplate_DeviceCategory_ControlledVia'].'&from=editControlledViaToMasterDevice\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
+									$out.='<td valign="top" align="center"> <B>Pipe</B> '.@$pipesNames[$rowSelectedPipesUsed['FK_Pipe']].'<input type="hidden" name="pipe_'.$rowSelectedPipesUsed['FK_To'].'" value="'.$rowSelectedPipesUsed['FK_Pipe'].'"></td>';
+									$out.='<td align="center" valign="top"> <B>Flip In/Out:</B> <input type="checkbox" '.($rowSelectedPipesUsed['ToChild']==1?" checked='checked'":'').' name="toChild_'.$rowSelectedPipesUsed['FK_To'].'_'.$rowSelectedPipesUsed['FK_Pipe'].'" value="1"></td>';
+									$out.='<td><input value="Delete" type="button" class="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deletePipeFromDeviceTemplateControlledViaCategory&objID='.$rowSelectedPipesUsed['FK_DeviceTemplate_DeviceCategory_ControlledVia'].'&from=editControlledViaCategoryToMasterDevice&pipe='.$rowSelectedPipesUsed['FK_Pipe'].'\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
 									
 									$out.='</tr>';
 								}
@@ -154,7 +157,19 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 					</td>
 				</tr>';
 												
-				$out.='<tr>
+		$out.='	<tr>
+					<td colspan="2" align="center">New pipe <select name="newPipe">
+						<option value="0">-please select-</option>';
+		$resSelectPipes->MoveFirst();			
+		while ($rowSelPipes = $resSelectPipes->FetchRow()) {
+			if(!in_array($rowSelPipes['PK_Pipe'],$displayedPipes))
+				$out.= '<option value="'.$rowSelPipes['PK_Pipe'].'">'.$rowSelPipes['Description'].'</option>';
+		}
+
+		$out.='		</select> <input type="submit" class="button" name="addPipe" value="Add">
+					</td>
+				</tr>
+				<tr>
 					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
@@ -173,8 +188,15 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 		$reroute = cleanInteger(@$_POST['RerouteMessagesToParent']);
 		$autocreate = cleanInteger(@$_POST['AutoCreateChildren']);
 		
+		if(isset($_POST['addPipe']) && (int)$_POST['newPipe']!=0){
+			$newPipe=(int)$_POST['newPipe'];
+			$insertPipe = "INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia_Pipe (FK_DeviceTemplate_DeviceCategory_ControlledVia,FK_Pipe) values (?,?)";
+			$dbADO->Execute($insertPipe,array($objID,$newPipe));				
+			header("Location: index.php?section=editControlledViaCategoryToMasterDevice&from=$from&objID=$objID");
+			exit();
+		}
 		
-		
+		/*
 		if ($autocreate==1) {
 				$checkIfIsAPipeAlready = "SELECT FK_DeviceTemplate_DeviceCategory_ControlledVia FROM DeviceTemplate_DeviceCategory_ControlledVia_Pipe  where FK_DeviceTemplate_DeviceCategory_ControlledVia = ?";
 				$query = $dbADO->Execute($checkIfIsAPipeAlready,array($objID));
@@ -185,6 +207,7 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 					exit();
 				}
 		}
+		*/
 		
 		$selectPipesUsed = 'SELECT DeviceTemplate_DeviceCategory_ControlledVia_Pipe.*,
 														DT.Description as Desc_From,
@@ -201,14 +224,15 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 		
 		$affectedPipes = 'Pipes not updated!';
 		while ($rowSelectedPipesUsed = $resSelectPipesUsed->FetchRow()) {	
-			$input=cleanInteger(@$_POST['input_'.$rowSelectedPipesUsed['FK_To']]);
-			$outputs=cleanInteger(@$_POST['output_'.$rowSelectedPipesUsed['FK_To']]);
+			$input=($_POST['input_'.$rowSelectedPipesUsed['FK_To'].'_'.$rowSelectedPipesUsed['FK_Pipe']]!='0')?cleanInteger(@$_POST['input_'.$rowSelectedPipesUsed['FK_To'].'_'.$rowSelectedPipesUsed['FK_Pipe']]):NULL;
+			$outputs=(@$_POST['output_'.$rowSelectedPipesUsed['FK_To'].'_'.$rowSelectedPipesUsed['FK_Pipe']]!='0')?cleanInteger(@$_POST['output_'.$rowSelectedPipesUsed['FK_To'].'_'.$rowSelectedPipesUsed['FK_Pipe']]):NULL;
 			$pipe=cleanInteger(@$_POST['pipe_'.$rowSelectedPipesUsed['FK_To']]);
-			$toChild = cleanInteger(@$_POST['toChild_'.$rowSelectedPipesUsed['FK_To']]);
+			$toChild = cleanInteger(@$_POST['toChild_'.$rowSelectedPipesUsed['FK_To'].'_'.$rowSelectedPipesUsed['FK_Pipe']]);
 			$deviceTo=$rowSelectedPipesUsed['FK_To'];
-				$updateDevicePipe = 'UPDATE DeviceTemplate_DeviceCategory_ControlledVia_Pipe SET FK_Command_Input=?,FK_Command_Output=?,FK_Pipe=?,ToChild=? WHERE FK_DeviceTemplate_Devicecategory_ControlledVia = ? ';
-				$res=$dbADO->Execute($updateDevicePipe,array($input,$outputs,$pipe,$toChild,$objID));
-				$affectedPipes = $dbADO->Affected_Rows()==1 && $affectedPipes == 'Pipes not updated!'?"Pipes updated!":"Pipes not updated!";
+
+			$updateDevicePipe = 'UPDATE DeviceTemplate_DeviceCategory_ControlledVia_Pipe SET FK_Command_Input=?,FK_Command_Output=?,ToChild=? WHERE FK_Pipe=? AND FK_DeviceTemplate_Devicecategory_ControlledVia = ?';
+			$res=$dbADO->Execute($updateDevicePipe,array($input,$outputs,$toChild,$pipe,$objID));
+			$affectedPipes = $dbADO->Affected_Rows()==1 && $affectedPipes == 'Pipes not updated!'?"Pipes updated!":"Pipes not updated!";
 		}
 		
 		
@@ -225,8 +249,8 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 				alert('Controlled via ".($dbADO->Affected_Rows()==1?"":"not")." modified! {$affectedPipes}');
 			    opener.document.forms.{$from}.action.value='form';
 				opener.document.forms.{$from}.submit();
-				//self.close();
-				document.location.href='index.php?section=editControlledViaCategoryToMasterDevice&from=$from&objID=$objID';
+				self.close();
+				//document.location.href='index.php?section=editControlledViaCategoryToMasterDevice&from=$from&objID=$objID';
 			</script>
 			";			
 		} else {
