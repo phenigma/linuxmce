@@ -5455,7 +5455,8 @@ void Orbiter::CMD_Reset_Highlight(string &sCMD_Result,Message *pMessage)
 
 bool Orbiter::ReceivedMessage( class Message *pMessageOriginal )
 {
-    NeedToRender render( this, (string("ReceivedMessage: ") + StringUtils::itos(pMessageOriginal->m_dwID)).c_str() );  // Redraw anything that was changed by this command
+	string strMessage = string("ReceivedMessage: ") + StringUtils::itos(pMessageOriginal->m_dwID);
+    NeedToRender render( this, strMessage.c_str() );  // Redraw anything that was changed by this command
     bool bResult = Orbiter_Command::ReceivedMessage( pMessageOriginal );
     return bResult;
 }
