@@ -424,8 +424,15 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 		case REPOSITORYSOURCE_Pluto_Debian_CONST:
 			CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
 			break;
+		default:
+			cout << "**Error** Don't know how to create this source." << endl;
+			return false;
 		}
 	}
+
+	// Update the version record
+	pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
+	pRow_Package_Source->Table_Package_Source_get()->Commit();
 
 	return true;
 }
