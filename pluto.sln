@@ -79,16 +79,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Infrared_Plugin", "Infrared
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlutoUtils", "PlutoUtils\PlutoUtils.vcproj", "{83573C48-C7BA-4A9B-9834-6A64659932FB}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DCEGen", "DCEGen\DCEGen.vcproj", "{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -106,6 +96,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OrbiterGen", "OrbiterGen\Or
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pluto_main", "pluto_main\pluto_main.vcproj", "{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UpdateBinary", "Orbiter\UpdateBinary\UpdateBinary.vcproj", "{25F052AE-7830-4ABD-BE96-1978C8B270B2}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pluto_media", "pluto_media\pluto_media.vcproj", "{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -195,10 +193,6 @@ Global
 		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.Build.0 = Debug|Win32
 		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.ActiveCfg = Release|Win32
 		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.Build.0 = Release|Win32
-		{83573C48-C7BA-4A9B-9834-6A64659932FB}.Debug.ActiveCfg = Debug|Win32
-		{83573C48-C7BA-4A9B-9834-6A64659932FB}.Debug.Build.0 = Debug|Win32
-		{83573C48-C7BA-4A9B-9834-6A64659932FB}.Release.ActiveCfg = Release|Win32
-		{83573C48-C7BA-4A9B-9834-6A64659932FB}.Release.Build.0 = Release|Win32
 		{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}.Debug.ActiveCfg = Debug|Win32
 		{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}.Debug.Build.0 = Debug|Win32
 		{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}.Release.ActiveCfg = Release|Win32
@@ -215,6 +209,14 @@ Global
 		{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}.Debug.Build.0 = Debug|Win32
 		{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}.Release.ActiveCfg = Release|Win32
 		{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}.Release.Build.0 = Release|Win32
+		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Debug.ActiveCfg = Debug|Win32
+		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Debug.Build.0 = Debug|Win32
+		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Release.ActiveCfg = Release|Win32
+		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Release.Build.0 = Release|Win32
+		{25F052AE-7830-4ABD-BE96-1978C8B270B2}.Debug.ActiveCfg = Debug|Win32
+		{25F052AE-7830-4ABD-BE96-1978C8B270B2}.Debug.Build.0 = Debug|Win32
+		{25F052AE-7830-4ABD-BE96-1978C8B270B2}.Release.ActiveCfg = Release|Win32
+		{25F052AE-7830-4ABD-BE96-1978C8B270B2}.Release.Build.0 = Release|Win32
 		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Debug.ActiveCfg = Debug|Win32
 		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Debug.Build.0 = Debug|Win32
 		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Release.ActiveCfg = Release|Win32

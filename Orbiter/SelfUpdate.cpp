@@ -1,7 +1,10 @@
 #include "SelfUpdate.h"
 
 #include <WINDOWS.H>
+
+#ifndef WINCE
 #include <assert.h>
+#endif
 
 #include <iostream>
 using namespace std;
@@ -14,6 +17,22 @@ using namespace std;
 
 using namespace DCE;
 
+#ifdef WINCE
+	const string csOrbiter_Update("bin/Orbiter_WinCE.dat");
+#else
+	const string csOrbiter_Update("bin/Orbiter_Win32.dat");
+#endif
+
+#ifdef WINCE
+#include "OrbiterSDL_WinCE.h"
+#else
+#include "OrbiterSDL_Win32.h"
+#endif 
+
+
+//-----------------------------------------------------------------------------------------------------
+#include "MainDialog.h"
+extern CommandLineParams CmdLineParams;
 //-----------------------------------------------------------------------------------------------------
 OrbiterSelfUpdate::OrbiterSelfUpdate(Orbiter *pOrbiter)
 {
@@ -50,236 +69,225 @@ void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
-bool OrbiterSelfUpdate::IsTheNewOrbiter()
-{
-	return string::npos == m_sOrbiterFilePath.find("Orbiter.exe");
-}
-//-----------------------------------------------------------------------------------------------------
 string OrbiterSelfUpdate::GetOrbiterCheckSum()
 {
-	//load the file into a buffer
-	unsigned int iSizeOrbiterFile;
-	char *pOrbiterFile = FileUtils::ReadFileIntoBuffer(m_sOrbiterFilePath, iSizeOrbiterFile);
+	string sMD5FilePath = m_sOrbiterFilePath;
+	StringUtils::Replace(sMD5FilePath, ".exe", ".MD5");
 
-	//compute the checksum
-	MD5_CTX ctx;
-	MD5Init(&ctx);
-	MD5Update(&ctx, (unsigned char *)pOrbiterFile, (unsigned int)iSizeOrbiterFile);
-	unsigned char digest[16];
-	MD5Final(digest, &ctx);
+	//read data from the comm file
+	size_t iMD5Size;
+	char *pMD5Data = FileUtils::ReadFileIntoBuffer(sMD5FilePath, iMD5Size);
 
-	char tmp[3];
+	if(NULL == pMD5Data)
+		return "";
+
+	return string(pMD5Data);
+}
+//-----------------------------------------------------------------------------------------------------
+bool OrbiterSelfUpdate::UpdateAvailable()
+{
+	char *pUpdateFile = NULL;
+	int iSizeUpdateFile = 0;
+
 	string sChecksum;
-	for (int i = 0; i < 16; i++)
+	bool bChecksumOnly = true;
+
+	//get the checksum for the update file
+	DCE::CMD_Request_File_And_Checksum_Cat CMD_Request_File_And_Checksum_Cat(
+		m_pOrbiter->m_dwPK_Device, 
+		DEVICECATEGORY_General_Info_Plugins_CONST, 
+		false,
+		BL_SameHouse,
+		csOrbiter_Update.c_str(),
+		&pUpdateFile, 
+		&iSizeUpdateFile, 
+		&sChecksum, 
+		&bChecksumOnly
+		);
+
+	m_pOrbiter->SendCommand(CMD_Request_File_And_Checksum_Cat);
+
+	if(sChecksum == "") 
 	{
-		sprintf(tmp, "%02x", digest[i]);
-		sChecksum += tmp;
+		//retriving the checksum from the server failed
+		g_pPlutoLogger->Write( LV_CRITICAL,  "The update file is missing on the server" );
+		return false; //we'll continue with this version
 	}
 
-	return sChecksum;
+	string sActualChecksum = GetOrbiterCheckSum();
+
+	if(sActualChecksum == "")
+	{
+		//no MD5 file found
+		g_pPlutoLogger->Write( LV_CRITICAL,  "The MD5 file is missing." );
+		return false; //we'll continue with this version
+	}
+
+	if(sActualChecksum == sChecksum)
+		return false; //no updates needed
+	else
+		return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool OrbiterSelfUpdate::DownloadUpdateBinary()
+{
+	//we've got an update
+	char *pUpdateFile = NULL;
+	int iSizeUpdateFile = 0;	
+
+	string sUpdateName = m_pOrbiter->DATA_Get_Update_Name();
+	string sStoragePath = m_pOrbiter->DATA_Get_Path();
+
+	DCE::CMD_Request_File_Cat CMD_Request_File_Cat(
+		m_pOrbiter->m_dwPK_Device, 
+		DEVICECATEGORY_General_Info_Plugins_CONST, 
+		false,
+		BL_SameHouse,
+		"bin/" + sUpdateName, //update binary file
+		&pUpdateFile,
+		&iSizeUpdateFile
+		);
+	m_pOrbiter->SendCommand(CMD_Request_File_Cat);
+
+	if ( !iSizeUpdateFile )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL,  "The update file '%s' is missing on the server.", sUpdateName.c_str());
+		return false; //we'll continue with this version
+	}
+
+	string sNewOrbiterPath = sStoragePath + sUpdateName;
+
+#ifdef WINCE
+	wchar_t OrbiterFileNameW[256];
+	mbstowcs(OrbiterFileNameW, sNewOrbiterPath.c_str(), 256);
+#define ORBITER_FILE OrbiterFileNameW	
+#else
+#define ORBITER_FILE const_cast<char *>(sNewOrbiterPath.c_str())
+#endif		
+
+	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to delete the orbiter.exe file");
+	::DeleteFile(ORBITER_FILE);
+
+	if(!FileUtils::WriteBufferIntoFile(sNewOrbiterPath, pUpdateFile, iSizeUpdateFile))
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the update file to location '%s'", sNewOrbiterPath.c_str() );
+		return false; //we'll continue with this version
+	}
+
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool OrbiterSelfUpdate::CreateCommunicationFile()
+{
+	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
+
+#ifdef WINCE
+	char sTextBuffer[256];
+	wcstombs(sTextBuffer, GetCommandLine(), 256);
+
+	string sData = m_sOrbiterFilePath + " " + sTextBuffer;
+#else
+	string sData = GetCommandLine();
+#endif
+
+	if(!FileUtils::WriteBufferIntoFile(sCommFile, const_cast<char *>(sData.c_str()), sData.length()))
+		return false; 
+	else
+		return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
+{
+	g_pPlutoLogger->Write( LV_STATUS,  "Orbiter SelfUpdate: Spawning UpdateBinary process..." );
+
+	//starting the new orbiter
+	PROCESS_INFORMATION pi;
+	::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+	STARTUPINFO si;
+	::ZeroMemory(&si, sizeof(STARTUPINFO));
+	si.cb = sizeof(STARTUPINFO);
+	si.lpReserved = 0;
+
+	string sUpdateName = m_pOrbiter->DATA_Get_Update_Name();
+	string sStoragePath = m_pOrbiter->DATA_Get_Path();
+	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
+	string sUpdateBinaryFilePath = sStoragePath + sUpdateName;
+
+	string sCmdLine = "";
+
+	sCmdLine += "-d " + StringUtils::ltos(CmdLineParams.PK_Device);
+	sCmdLine += " -r " + CmdLineParams.sRouter_IP;
+
+	sCmdLine += " -l " + sUpdateName + ".log";
+	sCmdLine += " -i " + csOrbiter_Update;
+	sCmdLine += " -o " + m_sOrbiterFilePath;
+	sCmdLine += " -c " + sCommFile;
+
+	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to start OrbiterNew from the file: %s", sUpdateBinaryFilePath.c_str());
+
+#ifdef WINCE
+	wchar_t CmdLineW[256];
+	mbstowcs(CmdLineW, sCmdLine.c_str(), 256);
+	wchar_t OrbiterPathW[256];
+	mbstowcs(OrbiterPathW, sUpdateBinaryFilePath.c_str(), 256);
+
+	if(!::CreateProcess(OrbiterPathW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
+#else
+	sUpdateBinaryFilePath += " " + sCmdLine;
+	if(!::CreateProcess(NULL, const_cast<char *>(sUpdateBinaryFilePath.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
+#endif
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to start UpdateBinary application '%s'", sUpdateBinaryFilePath.c_str() );
+		return false; 
+	}
+
+	return true; //close the process, a new orbiter is starting
+}
+//-----------------------------------------------------------------------------------------------------
+bool OrbiterSelfUpdate::LastUpdateFailed()
+{
+	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
+
+	if(FileUtils::FileExists(sCommFile))
+		return true; //UpdateBinary app should delete this file if everything was ok
+	else
+		return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::Run()
 {
-	if(!IsTheNewOrbiter())
-	{
-		char *pUpdateFile = NULL;
-		int iSizeUpdateFile = 0;	
-
-		string sChecksum;
-		bool bChecksumOnly = true;
-
-		//get the checksum for the update file
-		DCE::CMD_Request_File_And_Checksum_Cat CMD_Request_File_And_Checksum_Cat(
-			m_pOrbiter->m_dwPK_Device, 
-			DEVICECATEGORY_General_Info_Plugins_CONST, 
-			false,
-			BL_SameHouse,
 #ifdef WINCE
-			"Orbiter_WinCE.dat",
+	((OrbiterSDL_WinCE *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
 #else
-			"Orbiter_Win32.dat",
-#endif
-			&pUpdateFile, 
-			&iSizeUpdateFile, 
-			&sChecksum, 
-			&bChecksumOnly
-		);
+	((OrbiterSDL_Win32 *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
+#endif 
 
-		m_pOrbiter->SendCommand(CMD_Request_File_And_Checksum_Cat);
-
-		if(sChecksum == "") 
-		{
-			//retriving the checksum from the server failed
-			g_pPlutoLogger->Write( LV_CRITICAL,  "The update file is missing on the server" );
-			return false; //we'll continue with this version
-		}
-
-
-#ifdef WINCE
-		//load the file into a buffer
-		unsigned int iSizeOrbiterFile;
-		char *pOrbiterFile = FileUtils::ReadFileIntoBuffer(m_sOrbiterFilePath, iSizeOrbiterFile);
-
-		//compute the checksum
-		MD5_CTX ctx;
-		MD5Init(&ctx);
-		MD5Update(&ctx, (unsigned char *)pOrbiterFile, (unsigned int)iSizeOrbiterFile);
-		unsigned char digest[16];
-		MD5Final(digest, &ctx);
-
-		char tmp[3];
-		string sActualChecksum;
-		for (int i = 0; i < 16; i++)
-		{
-			sprintf(tmp, "%02x", digest[i]);
-			sActualChecksum += tmp;
-		}		
-
-		//Stlport is crashing when I'm returning a string in WinCE, so I won't use GetOrbiterCheckSum method
-#else
-		string sActualChecksum = GetOrbiterCheckSum();
-#endif
-		
-		if(sActualChecksum == sChecksum)
-			return false; //no updates needed
-
-		//we've got an update
-		DCE::CMD_Request_File_Cat CMD_Request_File_Cat(
-			m_pOrbiter->m_dwPK_Device, 
-			DEVICECATEGORY_General_Info_Plugins_CONST, 
-			false,
-			BL_SameHouse,
-#ifdef WINCE
-			"Orbiter_WinCE.dat",
-#else
-			"Orbiter_Win32.dat",
-#endif
-			&pUpdateFile,
-			&iSizeUpdateFile
-		);
-		m_pOrbiter->SendCommand(CMD_Request_File_Cat);
-
-		if ( !iSizeUpdateFile )
-		{
-			g_pPlutoLogger->Write( LV_CRITICAL,  "The update file is missing on the server." );
-			return false; //we'll continue with this version
-		}
-
-        //save the file to "OrbiterNew.exe"
-#ifdef WINCE
-		string sNewOrbiterPath("/OrbiterNew.exe"); //in the root folder		
-#else
-		string sNewOrbiterPath = m_sOrbiterFilePath;
-		sNewOrbiterPath = StringUtils::Replace(sNewOrbiterPath, "Orbiter.exe", "OrbiterNew.exe");
-#endif
-
-		if(!FileUtils::WriteBufferIntoFile(sNewOrbiterPath, pUpdateFile, iSizeUpdateFile))
-		{
-			g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the update file" );
-			return false; //we'll continue with this version
-		}
-
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Orbiter SelfUpdate: Spawning OrbiterNew process..." );
-
-		//starting the new orbiter
-		PROCESS_INFORMATION pi;
-		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
-
-		STARTUPINFO si;
-		::ZeroMemory(&si, sizeof(STARTUPINFO));
-		si.cb = sizeof(STARTUPINFO);
-		si.lpReserved = 0;
-
-#ifdef WINCE
-		char CmdLine[256];
-		wcstombs(CmdLine, ::GetCommandLine(), 256);
-		sNewOrbiterPath = sNewOrbiterPath + " " + string(CmdLine);
-#else
-		string CommandLine = string(::GetCommandLine());
-		sNewOrbiterPath = StringUtils::Replace(CommandLine, "Orbiter.exe", "OrbiterNew.exe");
-#endif
-
-#ifdef WINCE
-		wchar_t NewOrbiterCmdLineW[256];
-		mbstowcs(NewOrbiterCmdLineW, sNewOrbiterPath.c_str(), 256);
-
-		#define NEWORBITER_CMD_LINE NewOrbiterCmdLineW	
-#else
-		#define NEWORBITER_CMD_LINE const_cast<char *>(sNewOrbiterPath.c_str())
-#endif
-
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to start OrbiterNew from the file: %s", sNewOrbiterPath.c_str());
-		::CreateProcess(NULL, NEWORBITER_CMD_LINE, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
-
-
-		return true; //close the process, a new orbiter is starting
-	}
-	else // OrbiterNew.exe
-	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "We are in OrbiterNew.exe now." );
-
-		string sOrbiterPath = m_sOrbiterFilePath;
-		sOrbiterPath = StringUtils::Replace(sOrbiterPath, "OrbiterNew.exe", "Orbiter.exe");
-
-#ifdef WINCE
-		wchar_t OrbiterPathW[256];
-		mbstowcs(OrbiterPathW, m_sOrbiterFilePath.c_str(), 256);
-		#define ORBITER_PATH OrbiterPathW	
-
-		wchar_t NewOrbiterPathW[256];
-		mbstowcs(NewOrbiterPathW, "/InternalStorage/Orbiter.exe", 256);
-		#define NEWORBITER_PATH OrbiterPathW	
-
-#else
-		#define ORBITER_PATH m_sOrbiterFilePath.c_str()
-		#define NEWORBITER_PATH sOrbiterPath.c_str()
-#endif
-
-
-		while(!::CopyFile(ORBITER_PATH, NEWORBITER_PATH, false))
-		{
-			g_pPlutoLogger->Write( LV_CRITICAL, "Unable to copy '%s' over '%s'", 
-				m_sOrbiterFilePath.c_str(), sOrbiterPath.c_str()
-			);
-
-			Sleep(2000);
-		}
-
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Orbiter's file updated successfully." );
-
-		//starting the new orbiter
-		PROCESS_INFORMATION pi;
-		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
-
-		STARTUPINFO si;
-		::ZeroMemory(&si, sizeof(STARTUPINFO));
-		si.cb = sizeof(STARTUPINFO);
-		si.lpReserved = 0;
-
-#ifdef WINCE
-		char CmdLine[256];
-		wcstombs(CmdLine, ::GetCommandLine(), 256);
-		string CommandLine = "/InternalStorage/Orbiter.exe " + string(CmdLine); 
-#else
-		string CommandLine = string(::GetCommandLine());
-		sOrbiterPath = StringUtils::Replace(CommandLine, "OrbiterNew.exe", "Orbiter.exe");
-#endif
-
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Starting the updated orbiter..." );
-
-#ifdef WINCE
-		wchar_t OrbiterCmdLineW[256];
-		mbstowcs(OrbiterCmdLineW, sOrbiterPath.c_str(), 256);
-		#define ORBITER_CMD_LINE OrbiterCmdLineW	
-#else
-		#define ORBITER_CMD_LINE const_cast<char *>(sOrbiterPath.c_str())
-#endif		
-
-		::CreateProcess(NULL, ORBITER_CMD_LINE, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
-		return true; //close the process, a new orbiter is starting
+	if(LastUpdateFailed())
+	{	
+		g_pPlutoLogger->Write( LV_CRITICAL,  "Last update failed. We won't try to update again." );
+		return false;
 	}
 
-	return false;	
+	if(!UpdateAvailable())
+	{
+		g_pPlutoLogger->Write( LV_STATUS,  "No update available on the server." );
+		return false;
+	}
+
+	if(!DownloadUpdateBinary())
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to download UpdateBinary application from the server." );
+		return false;
+	}
+
+	if(!CreateCommunicationFile())
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to create the commuication file for UpdateBinary applicaiton." );
+		return false;
+	}
+
+	SpawnUpdateBinaryProcess();
+	return true;	//need restart
 }
 //-----------------------------------------------------------------------------------------------------

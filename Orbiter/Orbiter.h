@@ -691,9 +691,12 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Path();
 	int DATA_Get_PK_Users();
 	string DATA_Get_Current_Screen();
 	void DATA_Set_Current_Screen(string Value);
+	string DATA_Get_Update_Name();
+	string DATA_Get_Communication_file();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

@@ -148,7 +148,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../Win32" /I "../.." /I "../../DCE" /I "../../Libraries/pthreads-snap-2002-11-04" /I "../../Libraries/pthreads-win32/include" /I "../../CrossPlatform-Libs/sge030809-w32/src" /I "../../CrossPlatform-Libs/SDL_ttf-2.0.6" /I "../../CrossPlatform-Libs/SDL_image-1.2.3" /I "../../CrossPlatform-Libs/SDL-1.2.7/include" /I "../../Splitter" /I "../../CrossPlatform-Libs/zlib" /I "../../CrossPlatform-Libs/lpng127" /I "../../Libraries/STLport-4.5.3/stlport" /I "../../Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../CrossPlatform-Libs/SDL_rotozoom-1.6" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "#PROFILING" /D "#CACHE_IMAGES" /I /pluto/trunk" /M$(CECrtMTDebug) " /c
+# ADD CPP /nologo /Zp8 /W1 /Zi /Od /I "." /I ".." /I "../Win32" /I "../.." /I "../../DCE" /I "../../Libraries/pthreads-snap-2002-11-04" /I "../../Libraries/pthreads-win32/include" /I "../../CrossPlatform-Libs/sge030809-w32/src" /I "../../CrossPlatform-Libs/SDL_ttf-2.0.6" /I "../../CrossPlatform-Libs/SDL_image-1.2.3" /I "../../CrossPlatform-Libs/SDL-1.2.7/include" /I "../../Splitter" /I "../../CrossPlatform-Libs/zlib" /I "../../CrossPlatform-Libs/lpng127" /I "../../Libraries/STLport-4.5.3/stlport" /I "../../Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../CrossPlatform-Libs/SDL_rotozoom-1.6" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "#PROFILING" /D "#CACHE_IMAGES" /I /pluto/trunk" /M$(CECrtMTDebug) " /c
 # SUBTRACT CPP /YX /Yc /Yu
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -347,6 +347,7 @@ DEP_CPP_COMMA=\
 	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\pluto_main\Database_pluto_main.h"\
 	"..\..\pluto_main\Define_Device.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Table_Device.h"\
 	"..\..\pluto_main\Table_DeviceTemplate.h"\
@@ -643,6 +644,7 @@ DEP_CPP_DESIGN=\
 	"..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -709,6 +711,7 @@ NODEP_CPP_DEVIC=\
 
 DEP_CPP_DEVIC=\
 	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -788,6 +791,7 @@ DEP_CPP_DEVICE=\
 	"..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1310,6 +1314,7 @@ DEP_CPP_MAIND=\
 	"..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1762,6 +1767,7 @@ DEP_CPP_ORBITE=\
 	"..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -2109,6 +2115,7 @@ DEP_CPP_ORBITERS=\
 	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\pluto_main\Define_Button.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_Direction.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
@@ -2477,9 +2484,17 @@ DEP_CPP_SELFU=\
 	"..\OrbiterData.h"\
 	"..\SelfUpdate.h"\
 	"..\TextStyle.h"\
+	"..\Win32\MainDialog.h"\
+	"..\Win32\StartOrbiter_Win32.h"\
+	".\StartOrbiterCE.h"\
+	".\stdafx.h"\
 	".\wince.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SELFU=\
+	"..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -2662,6 +2677,7 @@ DEP_CPP_SIMUL=\
 	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\pluto_main\Define_Button.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -2883,6 +2899,7 @@ DEP_CPP_START=\
 	"..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\

@@ -33,9 +33,12 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 8; } ;
 	virtual const char *GetDeviceDescription() { return "Orbiter"; } ;
+	string Get_Path() { return m_mapParameters[2];}
 	int Get_PK_Users() { return atoi(m_mapParameters[3].c_str());}
 	string Get_Current_Screen() { return m_mapParameters[4];}
 	void Set_Current_Screen(string Value) { SetParm(4,Value.c_str()); }
+	string Get_Update_Name() { return m_mapParameters[41];}
+	string Get_Communication_file() { return m_mapParameters[43];}
 };
 
 
@@ -76,9 +79,12 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Path() { return GetData()->Get_Path(); }
 	int DATA_Get_PK_Users() { return GetData()->Get_PK_Users(); }
 	string DATA_Get_Current_Screen() { return GetData()->Get_Current_Screen(); }
 	void DATA_Set_Current_Screen(string Value) { GetData()->Set_Current_Screen(Value); }
+	string DATA_Get_Update_Name() { return GetData()->Get_Update_Name(); }
+	string DATA_Get_Communication_file() { return GetData()->Get_Communication_file(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server

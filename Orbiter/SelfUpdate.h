@@ -14,8 +14,13 @@ public:
 	~OrbiterSelfUpdate();
 
 	void GetProcessFilePath(char *pProcessFilePath);
-	bool IsTheNewOrbiter();
+	//bool IsTheNewOrbiter();
 	string GetOrbiterCheckSum();
+	bool UpdateAvailable();
+	bool DownloadUpdateBinary();
+	bool CreateCommunicationFile();
+	bool SpawnUpdateBinaryProcess();
+	bool LastUpdateFailed();
 
 	bool Run();
 };
