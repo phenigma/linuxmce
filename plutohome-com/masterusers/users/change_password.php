@@ -1,5 +1,5 @@
 <?
-function change_password($conn){
+function change_password($conn,$connMain){
 	if(isset($_POST['PK_MasterUsers'])){
 		// change password for a specific Master User
 		// the password received is not MD5 
@@ -24,8 +24,9 @@ function change_password($conn){
                 $SambaPass=''; // we can't issue an error here, can we?
             $LinuxSalt = '$1$Pluto$'; // should we generate this? :)
             $LinuxPass = crypt($_POST['password'], $LinuxSalt);
-
-			$updateMasterUsers=dbQuery("UPDATE MasterUsers SET Password='$password', Password_Unix='$LinuxPass', Password_Samba='$SambaPass' WHERE PK_MasterUsers = '$PK_MasterUsers'",$conn);
+			$updateMasterUsers=dbQuery("UPDATE MasterUsers SET Password='$password' WHERE PK_MasterUsers = '$PK_MasterUsers'",$conn);
+			
+			$updateUsers=dbQuery("UPDATE Users SET Password_Unix='$LinuxPass', Password_Samba='$SambaPass' WHERE PK_Users = '$PK_MasterUsers'",$connMain);
 			if($updateMasterUsers)
 				$out="Password changed";
 			else

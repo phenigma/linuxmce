@@ -242,7 +242,7 @@ function calculatePIN()
 	
 function dbQuery($query,$conn,$error='MySQL error')
 {
-	$res=mysql_query($query,$conn) or die($error.": ".mysql_error());
+	$res=mysql_query($query,$conn) or die($error.": ".mysql_error($conn));
 	return $res;
 }
 

@@ -14,7 +14,7 @@ switch ($section) {
 	break;
 	case 'change_password':
 	    include_once('users/change_password.php');
-	    change_password($conn);
+	    change_password($conn,$connMain);
 	break;
 	case 'check_master_user':
 	    include_once('users/check_master_user.php');

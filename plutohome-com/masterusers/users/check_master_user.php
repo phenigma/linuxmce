@@ -3,10 +3,9 @@ function check_master_user($conn){
 	// add to MasterUsers table 
 	$errorsCount=0;
 	if(isset($_POST['username']) && $_POST['username']!=''){
-		
 		$username=$_POST['username'];
 		$password=md5($_POST['password']);
-		if($password!=''){
+		if($_POST['password']!=''){
 			// login attempt: check both user and password
 			$queryMasterUser=dbQuery("SELECT * from MasterUsers WHERE Username='".$username."' AND Password='$password'",$conn);
 			if(mysql_num_rows($queryMasterUser)==0){
