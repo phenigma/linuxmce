@@ -24,7 +24,7 @@
 #include "BD/BD_HaveNothing.h"
 #include "BD/BD_WhatDoYouHave.h"
 
-
+/*
 #define _LOG_(log) 
 #ifdef APPSERVER
 	//const char *Role="PC:";
@@ -33,8 +33,9 @@
 	//const char *Role="Phone:";
 	#define Role "Phone"
 #endif
+*/
 
-#define LD(x,y,z,cmd) {FILE *x=fopen("C:\\dialog.txt","a");  fprintf(x,"%s: %d %s (%s)\n",Role,(int) y,z,cmd); fclose(x);}
+//#define LD(x,y,z,cmd) {FILE *x=fopen("C:\\dialog.txt","a");  fprintf(x,"%s: %d %s (%s)\n",Role,(int) y,z,cmd); fclose(x);}
 
 using namespace DCE;
 
@@ -71,10 +72,10 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	{
 #ifdef VIPPHONE
 		m_pCommand_Sent = new BD_WhatDoYouHave();
-		_LOG_( "BD_WhatDoYouHave" );
+		//_LOG_( "BD_WhatDoYouHave" );
 #else
 		m_pCommand_Sent = new BD_HaveNothing();
-		_LOG_( "BD_HaveNothing" );
+		//_LOG_( "BD_HaveNothing" );
 #endif
 	}
 	else
@@ -93,7 +94,7 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	SendData( m_pCommand_Sent->GetCommandOrAckSize(), m_pCommand_Sent->GetCommandOrAckData() );
 	m_pCommand_Sent->FreeSerializeMemory();
 
-	LD( f1, m_pCommand_Sent->ID(), "Sent Command", m_pCommand_Sent->Description() );
+	//LD( f1, m_pCommand_Sent->ID(), "Sent Command", m_pCommand_Sent->Description() );
 	
 	// If we sent a "What do you have", we're going to get a command in return - not a normal acknowledge
 	if( NULL != m_pcReceiveAckHeader ) // we didn't send a WhatDoYouHave
@@ -187,9 +188,9 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 		SendData( pCommand->GetCommandOrAckSize(), pCommand->GetCommandOrAckData() );
 		pCommand->FreeSerializeMemory();
 
-		LD( f1, pCommand->ID(), pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK", pCommand->Description() );
-		_LOG_( ( pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK" ) );
-		_LOG_( pCommand->Description() );
+		//LD( f1, pCommand->ID(), pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK", pCommand->Description() );
+		//_LOG_( ( pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK" ) );
+		//_LOG_( pCommand->Description() );
 		
 		if( NULL != pCommand )
 		{
@@ -205,7 +206,7 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 		//_LOG_("RECEIVE_CMD_STAGE_HEADER");
 		if( NULL != m_pcReceiveCmdHeader )
 		{
-			printf( "delete receive cmd: %p\n", m_pcReceiveCmdData );
+			//printf( "delete receive cmd: %p\n", m_pcReceiveCmdData );
 
 			delete m_pcReceiveCmdHeader;
 			m_pcReceiveCmdHeader = NULL;
@@ -213,7 +214,7 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 
 		m_pcReceiveCmdHeader = ReceiveData( 8 );
 
-		printf( "create receive cmd from receive data: %p\n", m_pcReceiveCmdData );
+		//printf( "create receive cmd from receive data: %p\n", m_pcReceiveCmdData );
 
 		/** @todo check comment */
 		//_LOG_("RECEIVE_CMD_STAGE_DATA");
@@ -263,7 +264,7 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 			SendLong( pCommand->GetCommandOrAckSize() );
 			SendData( pCommand->GetCommandOrAckSize(), pCommand->GetCommandOrAckData() );
 			pCommand->FreeSerializeMemory();
-			LD( f1, pCommand->ID(), pCommand->ID()==BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK", pCommand->Description() );
+			//LD( f1, pCommand->ID(), pCommand->ID()==BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK", pCommand->Description() );
 		}
 
 		/** @todo check comments */

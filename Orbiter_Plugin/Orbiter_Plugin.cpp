@@ -166,9 +166,6 @@ void Orbiter_Plugin::ProcessUnknownDevice()
 
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 
-    //if(!m_mapUnknownDevices.size())
-    //  return;  //nothing to process
-
     string sMacAddress;
     UnknownDeviceInfos *pUnknownDeviceInfos = NULL;
 
@@ -280,7 +277,7 @@ printf("Mobile orbiter detected\n");
         vector<Row_Device *> vectRow_Device;
         m_pDatabase_pluto_main->Device_get()->GetRows( DEVICE_MACADDRESS_FIELD + string("='") + sMacAddress + "' ", &vectRow_Device );
 
-g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int) vectRow_Device.size(),sMacAddress.c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Found: %d rows in unknown devices for %s",(int) vectRow_Device.size(),sMacAddress.c_str());
 
         // If we have any records, then it's something that is already in our database, and it's not a phone, since it's
         // not in the OH_Orbiter map.  Just ignore it.
@@ -347,7 +344,6 @@ g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int)
                 DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
                     -1,
                     pDeviceFrom->m_dwPK_Device,
-                    //-1, //pDeviceTo->m_dwPK_Device,
                     1, //iMediaPosition = On
                     sMacAddress);
 
@@ -355,7 +351,7 @@ g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int)
             }
         }
     }
-printf("finished processing\n");
+	printf("finished processing\n");
 
     return true;
 }
@@ -507,14 +503,13 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
         if(bConnectionFailed)
         {
             pOH_Orbiter->m_iFailedToConnectCount++;
-            g_pPlutoLogger->Write(LV_WARNING,
+            g_pPlutoLogger->Write(
+				LV_WARNING,
                 "Failed to connect to app on %s device, loop %d",
                 sMacAddress.c_str(),
                 pOH_Orbiter->m_iFailedToConnectCount
             );
         }
-//      else
-//          pOH_Orbiter->m_iFailedToConnectCount = 0;
 
         if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
         {
@@ -705,7 +700,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
 	int iFK_Room = 1; 
 	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
 
-    if( pUnknownDeviceInfos->m_iDeviceIDFrom && pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom)
+    if( pUnknownDeviceInfos && pUnknownDeviceInfos->m_iDeviceIDFrom && pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom)
 		iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_PK_Room;
 
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->AddRow();
