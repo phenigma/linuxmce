@@ -507,7 +507,10 @@ void Command_Impl::ProcessMessageQueue()
 		{
 			pthread_cond_wait( &m_listMessageQueueCond, &m_listMessageQueueMutex.mutex );
 			if( m_bQuit )
+			{
+				pthread_mutex_unlock( &m_listMessageQueueMutex.mutex );
 				return;
+			}
 		}
 
 		list<Message*> copyMessageQueue;
@@ -565,7 +568,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Requesting confirmation for message id: %d resu
 		if(pResponse)
 			delete pResponse;
 
-g_pPlutoLogger->Write(LV_STATUS,"Requesting confirmation 2 for message id: %d failed", pPreformedCommand.m_pMessage->m_dwID);
+g_pPlutoLogger->Write(LV_CRITICAL,"Requesting confirmation 2 for message id: %d failed", pPreformedCommand.m_pMessage->m_dwID);
 
 		return false;
 	}
