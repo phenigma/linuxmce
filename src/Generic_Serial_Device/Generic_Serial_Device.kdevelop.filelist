@@ -91,3 +91,5 @@ RubySerialIOManager.cpp
 /RubyDCEConnector.cpp
 /InterThreadCallMasquerader.h
 /InterThreadCallMasquerader.cpp
+IOEvent.cpp
+IOEvent.h

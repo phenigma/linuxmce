@@ -14,6 +14,8 @@
 
 #include "DCE/DeviceData_Impl.h"
 #include "DCE/Logger.h"
+#include "DCE/Message.h"
+#include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Table_DeviceData.h"
 
@@ -29,7 +31,6 @@ RubySerialIOManager::RubySerialIOManager()
 
 
 RubySerialIOManager::~RubySerialIOManager() {
-	WaitDevices();
 }
 
 int 
@@ -63,16 +64,7 @@ RubySerialIOManager::addDevice(DeviceData_Impl* pdevdata) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "There is already a device configured for port: %s.", port.c_str());
 		return -1;
 	} 
-/*	
-	RubyDeviceWrapper devwrap;
-	devwrap.setDevId(pdevdata->m_dwPK_Device);
-	std::map<int, string>::iterator it = pdevdata->m_mapParameters.begin();
-	while(it != pdevdata->m_mapParameters.end()) {
-		Row_DeviceData *p_Row_DeviceData = pdb->DeviceData_get()->GetRow((*it).first);
-		devwrap.setData(p_Row_DeviceData->Description_get().c_str(), (*it).second.c_str());
-		it++;
-	}
-	*/	
+	
 	pserpool = new RubySerialIOPool(&cs_, pdb_, pdevdata);
 	pserpool->setDCEConnector(this);
 	
@@ -104,26 +96,103 @@ RubySerialIOManager::hasDevice(DeviceData_Base* pdevdata) {
 	
 int 
 RubySerialIOManager::RouteMessageToDevice(DeviceData_Base* pdevdata, Message *pMessage) {
-	POOLMAP::iterator it = pools_.begin();
-	while(it != pools_.end()) {
-		if((*it).second != NULL && (*it).second->getDeviceData() && 
-				(*it).second->getDeviceData()->m_dwPK_Device == pdevdata->m_dwPK_Device) {
-			return (*it).second->RouteMessage(pMessage);
-		}
-		it++;
-	}
+	g_pPlutoLogger->Write(LV_STATUS, "Pushing message to stack..."); 
+	mmsg_.Lock();
+	std::pair<unsigned, Message> msg(pdevdata->m_dwPK_Device, *pMessage);
+	msgqueue_.push_back(msg);
+	mmsg_.Unlock();
+	emsg_.Signal();
 	return -1;
 }
 
+void* 
+RubySerialIOManager::_Run() {
+	while(!isStopRequested()) {
+		if(!emsg_.Wait(500)) {
+			ProcessIdle();
+		} else {
+			Message *pmsg = NULL;
+			unsigned deviceid = 0;
+	
+			while(1) {		
+				mmsg_.Lock();
+				if(msgqueue_.size() > 0) {
+					deviceid = (*msgqueue_.begin()).first;
+					pmsg = new Message((*msgqueue_.begin()).second);
+					msgqueue_.pop_front();
+				}
+				mmsg_.Unlock();
+				
+				if(pmsg != NULL) {
+					DispatchMessageToDevice(pmsg, deviceid);
+					delete pmsg;
+					pmsg = NULL;
+				} else {
+					break;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
 void 
-RubySerialIOManager::RunDevices() {
+RubySerialIOManager::ProcessIdle() {
+	static Message 	
+				idlemsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_IDLE_CONST, 0),
+				datamsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Incoming_Data_CONST, 0);
+	
+	POOLMAP::iterator it = pools_.begin();
+	while(it != pools_.end()) {
+		if((*it).second != NULL) {
+			IOConnection* pconn = (*it).second->getConnection();
+			if(pconn != NULL && pconn->isDataAvailable()) {
+				(*it).second->RouteMessage(&datamsg);
+			} else {
+				(*it).second->RouteMessage(&idlemsg);
+			}
+		}
+		it++;
+	}
+}
+
+bool 
+RubySerialIOManager::DispatchMessageToDevice(Message *pmsg, unsigned deviceid) {
+	bool bret = false;
+	
+	POOLMAP::iterator it = pools_.begin();
+	while(it != pools_.end()) {
+		if((*it).second != NULL && (*it).second->getDeviceData() && 
+				(!deviceid || (*it).second->getDeviceData()->m_dwPK_Device == deviceid)) {
+			g_pPlutoLogger->Write(LV_STATUS, "Routing message to Ruby Interpreter...");
+			(*it).second->RouteMessage(pmsg);
+			bret = true;
+		}
+		it++;
+	}
+	return bret;
+}
+
+
+void 
+RubySerialIOManager::SendCommand(RubyCommandWrapper* pcmd) {
+	g_pPlutoLogger->Write(LV_STATUS, "Ruby code requested to send command %d, from %d to %d... Sending...", 
+								pcmd->getId(), pcmd->getDevIdFrom(), pcmd->getDevIdTo());
+	Message* pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getDevIdTo(), pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
+	pmsg->m_mapParameters = pcmd->getParams();
+	pevdisp_->SendMessage(pmsg);
+	g_pPlutoLogger->Write(LV_STATUS, "Command sent.");
+}
+
+bool 
+RubySerialIOManager::handleStartup() {
 	try {
 		g_pPlutoLogger->Write(LV_STATUS, "Loading generated code...");
 		RubyEmbeder::getInstance()->loadCode(&cs_);
 		g_pPlutoLogger->Write(LV_STATUS, "Generated code loaded.");
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed loading code: %s.", e.getMessage());
-		return;
+		return false;
 	}
 
 	/*start serial pools*/
@@ -134,10 +203,11 @@ RubySerialIOManager::RunDevices() {
 		}
 		it++;
 	}
+	return true;
 }
 
-void 
-RubySerialIOManager::WaitDevices() {
+void
+RubySerialIOManager::handleTerminate() {
 	/*signal pools stop*/
 	POOLMAP::iterator it = pools_.begin();
 	while(it != pools_.end()) {
@@ -156,16 +226,6 @@ RubySerialIOManager::WaitDevices() {
 		}
 		it++;
 	}
-}
-
-void 
-RubySerialIOManager::SendCommand(RubyCommandWrapper* pcmd) {
-	g_pPlutoLogger->Write(LV_STATUS, "Ruby code requested to send command %d, from %d to %d... Sending...", 
-								pcmd->getId(), pcmd->getDevIdFrom(), pcmd->getDevIdTo());
-	Message* pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getDevIdTo(), pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
-	pmsg->m_mapParameters = pcmd->getParams();
-	pevdisp_->SendMessage(pmsg);
-	g_pPlutoLogger->Write(LV_STATUS, "Command sent.");
 }
 
 };

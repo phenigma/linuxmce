@@ -29,7 +29,7 @@ class Event_Impl;
 */
 
 /*manages instances of serial pools*/
-class RubySerialIOManager : protected RubyDCEConnector {
+class RubySerialIOManager : protected RubyDCEConnector, public IOThread {
 public:
     RubySerialIOManager();
     virtual ~RubySerialIOManager();
@@ -54,19 +54,30 @@ public:
 	bool hasDevice(DeviceData_Base* pdevdata);
 	
 public:
-	void RunDevices();
-	void WaitDevices();
 	int RouteMessageToDevice(DeviceData_Base* pdevdata, Message *pMessage);
 	
 protected:
 	/*methods for comunicating with DCE, accessed by wrappers */
 	virtual void SendCommand(RubyCommandWrapper* pcmd);
-	
 
+protected:
+	virtual bool handleStartup();
+	virtual void handleTerminate();
+	virtual void* _Run();
+		
+private:
+	void ProcessIdle();
+	bool DispatchMessageToDevice(Message *pmsg, unsigned deviceid);
+	
 private:
 	RubyDCECodeSupplier cs_;
 	Database_pluto_main* pdb_;
 	Event_Impl* pevdisp_;
+	
+	typedef std::list< std::pair<unsigned, Message> > MESSAGEQUEUE;
+	MESSAGEQUEUE msgqueue_;
+	IOMutex mmsg_;
+	IOEvent emsg_;
 	
 	typedef std::map<std::string, RubySerialIOPool*> POOLMAP;
 	POOLMAP pools_; /*[serial port <--> pool] map*/

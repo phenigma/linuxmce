@@ -30,10 +30,6 @@ IOThread::isRunning() {
 
 int 
 IOThread::Run(bool wait) {
-	if(!handleStartup()) {
-		return false;	
-	}
-	
 	int ret = 0;
 	if(!usemain_) {
 		ret = pthread_create(&threadid_, NULL, _threadproc, (void*)this);
@@ -80,14 +76,17 @@ IOThread::_Run() {
 
 void* IOThread::_threadproc(void *arg) {
 	IOThread* pme = (IOThread*)arg;
-
-	void* pret = pme->_Run();
-	pme->threadid_ = 0;
-	pme->requeststop_ = false;
-	pme->handleTerminate();
-	if(pme->threadid_ != 0) {
-		pthread_exit(pret);
+	
+	if(pme->handleStartup()) {
+		void* pret = pme->_Run();
+		pme->threadid_ = 0;
+		pme->requeststop_ = false;
+		pme->handleTerminate();
+		if(pme->threadid_ != 0) {
+			pthread_exit(pret);
+		}
 	}
 	return 0;
 }
+
 };

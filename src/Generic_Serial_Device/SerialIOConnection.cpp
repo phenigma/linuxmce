@@ -97,7 +97,11 @@ SerialIOConnection::isOpened() {
 
 bool 
 SerialIOConnection::isDataAvailable() {
-	return false;
+	if(psp_ != NULL) {
+		return !(psp_->IsReadEmpty());
+	} else {
+		return false;
+	}
 }
 
 std::string 

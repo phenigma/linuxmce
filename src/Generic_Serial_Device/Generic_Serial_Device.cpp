@@ -120,6 +120,7 @@ void Generic_Serial_Device::ReceivedUnknownCommand(string &sCMD_Result,Message *
 //<-dceag-cmduk-e->
 {
 	sCMD_Result = "UNKNOWN DEVICE";
+    g_pPlutoLogger->Write(LV_STATUS, "Received UNKNOWN command.");
 	if(sermanager_.hasDevice(m_pData)) {
 		sermanager_.RouteMessageToDevice(m_pData, pMessage);
 	} else {
@@ -180,8 +181,8 @@ void Generic_Serial_Device::RunThread() {
 		}
 	}
 	
-	sermanager_.RunDevices();
+	sermanager_.Run(false);
 	Generic_Serial_Device_Command::RunThread();
     g_pPlutoLogger->Write(LV_STATUS, "Generic Serial Device RunThread ended.");
-	sermanager_.WaitDevices();
+	sermanager_.Wait();
 }

@@ -96,8 +96,8 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, DeviceData_Base* pdeviced
 			
 			rcode_ += ")""\n"; // SetLevel(
 			//rcode_ += "conn_ = getConn()""\n";
-			rcode_ += rowcmd[1];
-			
+			rcode_ += TranslateCommandToRuby(rowcmd[1]);
+		
 			/*insert ruby code for the method*/
 			rcode_ += "\n""end""\n"; // def
 			
@@ -142,6 +142,10 @@ RubyDCECodeSupplier::getParamsNamesForCmd(/*in*/int cmd, /*out*/std::list<string
 	return params.size();
 }
 
+bool 
+RubyDCECodeSupplier::isCmdImplemented(int cmd) {
+	return (cmdparammap_.find(cmd) != cmdparammap_.end());
+}
 
 RubyDCECodeSupplier::RubyDCECodeSupplier() {
 }
@@ -150,4 +154,11 @@ RubyDCECodeSupplier::RubyDCECodeSupplier() {
 RubyDCECodeSupplier::~RubyDCECodeSupplier() {
 }
 
+std::string 
+RubyDCECodeSupplier::TranslateCommandToRuby(const std::string& cmdtxt) {
+	return cmdtxt;
+}
+
+
 };
+

@@ -39,6 +39,10 @@ RubyDCEEmbededClass::~RubyDCEEmbededClass()
 
 void 
 RubyDCEEmbededClass::CallCmdHandler(RubyDCECodeSupplier* pcg, Message *pMessage) {
+	if(!pcg->isCmdImplemented(pMessage->m_dwID)) {
+		return;
+	}
+	
 	std::list<int> paramids;
 	pcg->getParamsOrderForCmd(pMessage->m_dwID, paramids);
 	

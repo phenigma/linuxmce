@@ -39,10 +39,14 @@ public:
 	const char* getRubyCode() {
 		return rcode_.c_str();
 	}
-	
+
+	bool isCmdImplemented(int cmd);
 	int getParamsOrderForCmd(/*in*/int cmd, /*out*/std::list<int>& params);
 	int getParamsNamesForCmd(/*in*/int cmd, /*out*/std::list<std::string>& params);
 	
+private:
+	std::string TranslateCommandToRuby(const std::string& cmdtxt);
+
 private:
 	/*command to param names mapping*/
 	typedef 

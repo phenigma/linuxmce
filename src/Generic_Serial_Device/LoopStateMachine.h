@@ -22,6 +22,8 @@
 
 #include "StateMachine.h"
 #include "IOThread.h"
+#include "IOMutex.h"
+#include "IOEvent.h"
 
 namespace DCE {
 
