@@ -1098,6 +1098,8 @@ cout << "Copying Files\n";
 					//if we are not in ther root
 					if(FileUtils::DirExists(cmd) != true) {
 						mkdir(cmd.c_str(), 0777);
+						cmd2 = "cvs add " + cmd;
+						system(cmd2.c_str());
 						cmd2 = "cp " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
 						cmd2 = "cvs add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
@@ -1126,7 +1128,7 @@ cout << "Copying Files\n";
 		cmd2 = cmd2.substr(pos+1,length-pos-1);
 		if(cmd2 == "") {
 			cmd2 = FileUtils::FilenameWithoutPath(*iMyList);
-		} else if(cmd2 == "CVS") {
+		} else if(cmd2 == "CVS" || cmd2 == "CVSROOT") {
 			cmd2 = "";
 		} else {
 			cmd2 = cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
