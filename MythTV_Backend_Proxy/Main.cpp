@@ -40,7 +40,7 @@ extern "C" {
 	{
 		if( sLogger=="dcerouter" )
 		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
+			g_pPlutoLogger = new ServerLogger(PK_Device, MythTV_Backend_Proxy::PK_DeviceTemplate_get_static(), "localhost");
 			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
 			{
 				sLogger="stdout";
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
+			g_pPlutoLogger = new ServerLogger(PK_Device, MythTV_Backend_Proxy::PK_DeviceTemplate_get_static(), sRouter_IP);
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		MythTV_Backend_Proxy *pMythTV_Backend_Proxy = new MythTV_Backend_Proxy(PK_Device, sRouter_IP);	
-		if ( pMythTV_Backend_Proxy->Connect() ) 
+		if ( pMythTV_Backend_Proxy->Connect(pEvent_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pMythTV_Backend_Proxy->CreateChildren();
