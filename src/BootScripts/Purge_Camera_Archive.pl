@@ -60,3 +60,11 @@ if($datas eq "") {
 
 print "$devices\n";
 print "$datas\n";
+
+opendir(DIR, /var/log) || die "can' T to opendir #: $!";
+@dots = grep {/^\./ && - F" # _ "} readdir(DIR); 
+to closedir DIR;
+
+foreach $line (@dots) {
+	print "[$line]\n";
+}
