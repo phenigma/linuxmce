@@ -5,6 +5,7 @@ DCEConfig::DCEConfig(string sFilename)
 { 
 	m_sDBHost="dce_router"; m_sDBUser="root"; m_sDBPassword=""; m_sDBName="pluto_main"; m_sDCERouter="dce_router";
 	m_iPK_Device_Computer=0; m_iDBPort=3306; m_iDCERouterPort=3450;
+	m_iPK_Distro=m_iPK_Installation=-1;
 
 	FILE *file = fopen(sFilename.c_str(),"rb");
 	if( !file )
@@ -90,4 +91,8 @@ DCEConfig::DCEConfig(string sFilename)
 		m_iDCERouterPort=atoi(m_mapParameters_Find("DCERouterPort").c_str());
 	if( m_mapParameters_Exists("PK_Device") )
 		m_iPK_Device_Computer=atoi(m_mapParameters_Find("PK_Device").c_str());
+	if( m_mapParameters_Exists("PK_Installation") )
+		m_iPK_Installation=atoi(m_mapParameters_Find("PK_Installation").c_str());
+	if( m_mapParameters_Exists("PK_Distro") )
+		m_iPK_Distro=atoi(m_mapParameters_Find("PK_Distro").c_str());
 }
