@@ -31,22 +31,27 @@ public:
 	vector<string> *m_pvectFields;	/**< The fields of the table @todo ask */
 	int m_i_psc_batch;
 	sqlCVS::Repository *m_pRepository; /**< The repository we're currently committing */
-	bool m_bSupervisor;
+	bool m_bSupervisor,m_bAllAnonymous;
 	int m_iNew,m_iMod,m_iDel,m_ipsc_user_default;
+	string m_sComments;  /**< Optional comments to be included with this transaction */
 
-	int m_psc_bathdr_orig,m_psc_bathdr_auth,m_psc_bathdr_unauth;
+	int m_psc_bathdr_orig,m_psc_bathdr_auth,m_psc_bathdr_unauth,m_psc_user_needs_to_authorize;
 	
 	/**< This will create a transaction for every processor that will rollback automatically if the processor goes away with an R_CloseTransaction */
 	SafetyTransaction st;
 
 	/** @brief constructor assigning null to all the pointers */
 	sqlCVSprocessor( ) : RA_Processor( 0, 1 ), st(g_GlobalConfig.m_pDatabase) { 
-		m_pTable=NULL; m_pvectFields=NULL; m_i_psc_batch=1; m_pRepository=NULL; m_bSupervisor=false; m_iNew=m_iMod=m_iDel=0; 
-		m_psc_bathdr_orig=m_psc_bathdr_auth=m_psc_bathdr_unauth=m_ipsc_user_default=0;
+		m_pTable=NULL; m_pvectFields=NULL; m_i_psc_batch=1; m_pRepository=NULL; m_bSupervisor=false; m_bAllAnonymous=true; m_iNew=m_iMod=m_iDel=0; 
+		m_psc_bathdr_orig=m_psc_bathdr_auth=m_psc_bathdr_unauth=m_ipsc_user_default=m_psc_user_needs_to_authorize=0;
 	}
 	virtual ~sqlCVSprocessor( ) { if( st.m_bIsOpen_get() ) st.Rollback(); }
 
-	/** @brief Creates a batch for holding unauthorized transactions */
+	/** @brief Creates a batch for holding unauthorized transactions.  psc_user_needs_to_authorize is the user who is needed
+		to authorize the transaction, or if null, that means any user can do it.  The function will return the id of the batch
+		to hold the unauthorized transaction.  The batch # will be negative, meaning it was never a 'real' batch.  When a new
+		unauthorized batch is requested and one has already been opened and psc_user_needs_to_authorize is 0 or the same as the
+		prior, it will return the same batch id, which is stored in m_psc_bathdr_unauth. */
 	int UnauthorizedBatch(int psc_user_needs_to_authorize);
 
 	/** @brief As a table is updated the counters (New/Mod/Del) are incremented.  When we have finished updating a table, this will record those changes into the batch */

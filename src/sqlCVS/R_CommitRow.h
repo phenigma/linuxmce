@@ -50,7 +50,7 @@ public:
 	R_CommitRow( sqlCVS::ChangedRow *pChangedRow );
 	
 	/** @brief constructor */
-	R_CommitRow( ) { m_bFrozen=false; m_psc_user_needs_to_authorize=0; };
+	R_CommitRow( ) { m_bFrozen=false; m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=0; };
 
 	/**
 	 * @brief  Returns the id of the request
@@ -73,7 +73,7 @@ public:
 	virtual void SetupSerialization_Response( )
 	{
 		RA_Request::SetupSerialization_Response( );
-		StartSerializeList( ) + m_iNewAutoIncrID + m_psc_id_new + m_psc_batch_new + m_sResponseMessage;
+		StartSerializeList( ) + m_iNewAutoIncrID + m_psc_id_new + m_psc_batch_new + m_bFrozen + m_psc_user_needs_to_authorize + m_sResponseMessage;
 	}
 
 	/**

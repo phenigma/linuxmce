@@ -215,6 +215,9 @@ int main( int argc, char *argv[] )
 		case 'r':
 			g_GlobalConfig.m_sRepository = argv[++optnum];
 			break;
+		case 'c':
+			g_GlobalConfig.m_sComments = argv[++optnum];
+			break;
 		case 't':
 			g_GlobalConfig.m_sTable = argv[++optnum];
 			break;
@@ -254,7 +257,7 @@ int main( int argc, char *argv[] )
 			<< "Usage: sqlCVS [-h MySql hostname] [-u MySql username] " << endl
 			<< "[-p MySql password] [-D MySql database] [-P mysql port] " << endl
 			<< "[-H sqlCVS hostname] [-R sqlCVS port] " << endl
-			<< "[-r Repository( -ies )] [-v verify]" << endl
+			<< "[-r Repository( -ies )] [-v verify] [-c comments]" << endl
 			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
 			<< "[-a Allow unmet dependencies] [-e everyone] [-" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
@@ -278,7 +281,8 @@ int main( int argc, char *argv[] )
 			<< "            to a modified/ew row in another table that is not" << endl
 			<< "            being checked in" << endl
 			<< "-e everyone    -- Checkin all records from every user" << endl
-			<< "-n no prompts  -- Don't ever prompt, just exit if necessary" << endl;
+			<< "-n no prompts  -- Don't ever prompt, just exit if necessary" << endl
+			<< "-c comments    -- Optional comments to be included with a checkin" << endl;
 
 		exit( 1 );
 	}
@@ -416,6 +420,10 @@ int main( int argc, char *argv[] )
 			else if( g_GlobalConfig.m_sCommand=="approve" )
 			{
 				database.Approve();
+			}
+			else
+			{
+				cerr << "Unknown command: " << g_GlobalConfig.m_sCommand << endl;
 			}
 		
 			if( database.m_bInteractiveMode )

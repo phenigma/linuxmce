@@ -26,6 +26,9 @@ namespace sqlCVS
 	class Table;
 	class Repository;
 	class Database;
+	class ChangedRow;
+	typedef list<ChangedRow *> ListChangedRow;
+
 	typedef map<string,Table *> MapTable;
 	typedef map<string,Repository *> MapRepository;
 
@@ -53,9 +56,10 @@ namespace sqlCVS
 		string m_sCommand;      /**< Command line */
 		string m_sRepository;   /**< Command line  */
 		string m_sTable; 	/**< Command line  */
-		
+
 		string m_sSqlCVSHost;	/**< The host name or IP for the sqlCVS listener */
-		
+		string m_sComments; /**< Comments to be included during a checkin  */
+
 		int m_iDBPort;		/**< The port of the database */
 		int m_iSqlCVSPort;	/**< The port of the sqlCVS */
 
@@ -77,6 +81,8 @@ namespace sqlCVS
 		Repository *m_pRepository;	/**< points to the Repository */
 
 		map<int,ValidatedUser *> m_mapValidatedUsers; /**< Map of user id's to bool's if the user is a supervisor */
+
+		map<int, ListChangedRow *> m_mapBatch_ChangedRow;  // Records that couldn't be checked in, by the unauthorized batch number (a negative number)
 
 		bool m_bNewDatabase,m_bVerify,m_bAllowUnmetDependencies,m_bCheckinEveryone,m_bNoPrompts;
 
@@ -126,7 +132,7 @@ cout << "Map was null, using internal" << endl;
 			}
 			bSupervisor=false;
 			bool bValidatedUser=false;  // Be sure there is at least 1 user that was validated, and the map isn't empty
-cout << "Ready to loop.  size is: " << pmapUsersPasswords->size() << endl;
+cout << "Ready to loop.  size is: " << (int) pmapUsersPasswords->size() << endl;
 			for(MapStringString::iterator it=pmapUsersPasswords->begin();it!=pmapUsersPasswords->end();++it)
 			{
 				bool bNoPassword,bSupervisor;

@@ -87,7 +87,7 @@ void Repository::MatchUpTables( )
 	string Tablename = "psc_" + m_sName + "_tables";
 
 	ostringstream sql;
-	sql << "SELECT Tablename,filter,frozen FROM `" << Tablename << "`";
+	sql << "SELECT Tablename,filter,frozen,anonymous FROM `" << Tablename << "`";
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
@@ -97,6 +97,8 @@ void Repository::MatchUpTables( )
 			Table *pTable = m_pDatabase->m_mapTable_Find( row[0] );
 			if( !pTable )
 			{
+				if( g_GlobalConfig.m_sCommand=="import" )
+					continue;
 				cerr << "Found an entry in " << Tablename << " for the table: " << row[0] << endl
 					<< "But it no longer exists in the database." << endl
 					<< "I must delete it from the repository's database to continue." << endl;
@@ -111,6 +113,8 @@ void Repository::MatchUpTables( )
 			}
 			if( pTable->Repository_get( ) && pTable->Repository_get( )!=this )
 			{
+				if( g_GlobalConfig.m_sCommand=="import" )
+					continue;
 				cerr << "Found an entry in " << Tablename << " for the table: " << row[0] << endl
 					<< "But it already exists in the repository: " << pTable->Repository_get( )->Name_get( ) << endl
 					<< "I must delete it from this repository's database to continue." << endl;
@@ -128,6 +132,7 @@ void Repository::MatchUpTables( )
 			pTable->SetRepository( this, false );
 			pTable->m_sFilter = row[1] ? row[1] : "";
 			pTable->m_bFrozen = row[2] && row[2][0]=='1';
+			pTable->m_bAnonymous = row[3] && row[3][0]=='1';
 		}
 	}
 }
@@ -532,7 +537,7 @@ bool Repository::CheckIn( )
 	/** An exception will be thrown and a roll back called if this falls out of scope and hasn't been committed or rolled back */
 	SafetyTransaction st( m_pDatabase );
 
-	R_CommitChanges r_CommitChanges( m_sName, g_GlobalConfig.m_sDefaultUser );
+	R_CommitChanges r_CommitChanges( m_sName, g_GlobalConfig.m_sDefaultUser, g_GlobalConfig.m_sComments );
 	for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
 	{
 		// We don't care about user 0, or users who didn't log in
@@ -703,7 +708,7 @@ void Repository::AddTablesToMap( )
 		g_GlobalConfig.m_mapTable[ ( *it ).first ] = ( *it ).second;
 }
 
-int Repository::CreateBatch( map<int,ValidatedUser *> *mapValidatedUsers )
+int Repository::CreateBatch( sqlCVSprocessor *psqlCVSprocessor, map<int,ValidatedUser *> *mapValidatedUsers )
 {
 	if( !m_pTable_BatchHeader || !m_pTable_BatchUser || !m_pTable_BatchDetail )
 	{
@@ -713,7 +718,8 @@ int Repository::CreateBatch( map<int,ValidatedUser *> *mapValidatedUsers )
 	else
 	{
 		std::ostringstream sSQL;
-		sSQL << "INSERT INTO " << m_pTable_BatchHeader->Name_get( ) << "( date ) VALUES( NOW() )";
+		sSQL << "INSERT INTO " << m_pTable_BatchHeader->Name_get( ) << "( IPAddress,date,comments ) VALUES( '" << 
+			(psqlCVSprocessor->m_pSocket ? psqlCVSprocessor->m_pSocket->m_sIPAddress : "")<< "',NOW(),'" << StringUtils::SQLEscape(psqlCVSprocessor->m_sComments) << "' )";
 		int BatchID = m_pDatabase->threaded_mysql_query_withID( sSQL.str( ) );
 		if( !BatchID )
 			cerr << "Failed to create batch: " << sSQL.str( ) << endl;

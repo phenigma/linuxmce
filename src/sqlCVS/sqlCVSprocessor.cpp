@@ -37,24 +37,31 @@ int sqlCVSprocessor::UnauthorizedBatch(int psc_user_needs_to_authorize)
 {
 	RecordChangesToTable();
 
+	// See if we started an unauthorized batch and it's still the same user.  If so, we'll just re-use it
+	if( m_psc_bathdr_unauth && psc_user_needs_to_authorize==m_psc_user_needs_to_authorize )
+		return m_psc_bathdr_unauth;
+
 	std::ostringstream sSQL;
 
 	sSQL << "SELECT min(PK_psc_" << m_pRepository->Name_get() << "_bathdr) FROM psc_" << m_pRepository->Name_get() << "_bathdr";
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
+
+	// The new batch is going to be a negative number, find the lowest used number, or -1, whichever is less
 	m_psc_bathdr_unauth=-1;
 	if( (result_set.r=m_pRepository->m_pDatabase->mysql_query_result(sSQL.str())) && (row = mysql_fetch_row( result_set.r ) ) )
 		m_psc_bathdr_unauth = min(m_psc_bathdr_unauth,atoi(row[0])-1);
 
 	sSQL.str("");
-	sSQL << "INSERT INTO psc_" << m_pRepository->Name_get( ) << "_bathdr (PK_psc_" << m_pRepository->Name_get() << "_bathdr, date ) VALUES( "
-		<< m_psc_bathdr_unauth << ", NOW() )";
+	sSQL << "INSERT INTO psc_" << m_pRepository->Name_get( ) << "_bathdr (PK_psc_" << m_pRepository->Name_get() << "_bathdr, IPAddress, date, comments ) VALUES( "
+		<< m_psc_bathdr_unauth << ",'" << (m_pSocket ? m_pSocket->m_sIPAddress : "") << "', NOW(), '" << StringUtils::SQLEscape(m_sComments) << "' )";
 	if( m_pRepository->m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "Cannot create unauthorized batch" << endl;
 		throw "Database error";
 	}
 
+	m_psc_user_needs_to_authorize = psc_user_needs_to_authorize;
 	return m_psc_bathdr_unauth;
 }
 

@@ -68,6 +68,7 @@ bool RA_Processor::SendRequests( string sServerAddress, DCE::Socket **ppSocket )
 
 bool RA_Processor::SendRequests(DCE::Socket *pSocket)
 {
+	m_pSocket = pSocket;
     // Merge in the new requests
     MYSTL_ITERATE_LIST( m_listNewRequests, RA_Request, pRequest, itList )
     {
@@ -204,8 +205,10 @@ bool RA_Processor::SendRequest(RA_Request *pRequest,DCE::Socket *pSocket)
 	return true;
 }
 
-bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket )
+bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket)
 {
+	m_pSocket = pSocket;
+
     char acRequestHeader[13] = HEADER;
 
     if (!pSocket->ReceiveData( 12, acRequestHeader ) )  // Not a valid message

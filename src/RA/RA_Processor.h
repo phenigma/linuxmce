@@ -37,6 +37,7 @@ private:
 
 public:
 
+	DCE::Socket *m_pSocket;
     /**
      * @brief basic constructor
      * @param EstablishmentID ID of the establishment
@@ -47,6 +48,7 @@ public:
         m_dwEstablishmentID = dwEstablishmentID; 
 		m_dwSoftwareVersion = dwSoftwareVersion;
 		m_pRA_Config        = pRA_Config;
+		m_pSocket			= NULL;
     };
 
 	virtual ~RA_Processor() {}

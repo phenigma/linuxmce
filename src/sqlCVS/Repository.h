@@ -67,7 +67,7 @@ namespace sqlCVS
 		void Dump( );
 		bool DetermineDeletions( );
 		void AddTablesToMap( );
-		int CreateBatch( map<int,ValidatedUser *> *mapValidatedUsers );
+		int CreateBatch( sqlCVSprocessor *psqlCVSprocessor, map<int,ValidatedUser *> *mapValidatedUsers );
 		int psc_id_last_sync_get( Table *pTable );
 		void psc_id_last_sync_set( Table *pTable, int psc_id );
 		int psc_batch_last_sync_get( Table *pTable );

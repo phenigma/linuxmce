@@ -173,7 +173,7 @@ void PlutoLock::CheckLocks()
 	for(itMapLock=mapLocks.begin();itMapLock!=mapLocks.end();++itMapLock)
 	{
 		PlutoLock *pSafetyLock = (*itMapLock).second;
-		if( time(NULL)-pSafetyLock->m_tTime>15 )
+		if( time(NULL)-pSafetyLock->m_tTime>DEADLOCK_TIMEOUT_ERROR )
 		{
 			pSafetyLock_Problem=pSafetyLock;
 			break;
@@ -270,7 +270,7 @@ void PlutoLock::DumpOutstandingLocks()
 			continue;
 		}
 		struct tm *ptm = localtime(&pSafetyLock->m_tTime);
-		string sTime = (((int) time(NULL)-pSafetyLock->m_tTime)>=5 && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased ? "*****DL******" : "") + 
+		string sTime = (((int) time(NULL)-pSafetyLock->m_tTime)>=TRYLOCK_TIMEOUT_WARNING && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased ? "*****DL******" : "") + 
 			StringUtils::itos(ptm->tm_hour==0 ? 12 : (ptm->tm_hour>13 ? ptm->tm_hour-12 : ptm->tm_hour)) + ":" + 
 			(ptm->tm_min<10 ? "0" : "") + StringUtils::itos(ptm->tm_min) + (ptm->tm_sec<10 ? ":0" : ":") + 
 			StringUtils::itos(ptm->tm_sec) + (ptm->tm_hour>11 ? "p" : "a");
@@ -287,7 +287,7 @@ void PlutoLock::DumpOutstandingLocks()
 			pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
 #endif
 
-		if( ((int) time(NULL)-pSafetyLock->m_tTime)>=60 && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased )
+		if( ((int) time(NULL)-pSafetyLock->m_tTime)>=KILL_THREAD_TIMEOUT && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased )
 		{
 			strcat(Message,"**RELEASING**");
 			listMessages.push_back(string(Message));
@@ -448,7 +448,7 @@ void PlutoLock::DoLock()
 	pthread_mutex_lock(&m_pMyLock->mutex);
 	m_bGotLock=true;
 #else
-	while( t+5>time(NULL) && !m_bGotLock)
+	while( t+TRYLOCK_TIMEOUT_WARNING>time(NULL) && !m_bGotLock)
 	{
 		m_bGotLock = (pthread_mutex_trylock(&m_pMyLock->mutex)!=EBUSY);
 		if( m_bGotLock )

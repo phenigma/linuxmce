@@ -393,7 +393,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 		int iRet;
 		do
 		{
-			tv.tv_sec = 30;
+			tv.tv_sec = SOCKET_TIMEOUT;
 			tv.tv_usec = 0;
 			/** @todo check comment */
 			//time_t end, start = time(NULL);

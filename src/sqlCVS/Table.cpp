@@ -326,6 +326,11 @@ void Table::MatchUpHistory( )
 		pMainTable->m_pTable_History = this;
 		m_pTable_WeAreHistoryFor = pMainTable;
 		m_bIsSystemTable = true;
+
+		// It's possible that we added some new rows that have not yet been authorized, we'll need to 
+		// be sure we don't re-use those id's
+		if( m_psc_id_next > m_pTable_WeAreHistoryFor->m_psc_id_next )
+			m_pTable_WeAreHistoryFor->m_psc_id_next = m_psc_id_next;
 	}
 	if( GetTrailingString( )=="pschmask" )
 	{
@@ -642,6 +647,9 @@ void Table::AddChangedRow( ChangedRow *pChangedRow )
 
 bool Table::ConfirmDependencies( )
 {
+	if( g_GlobalConfig.m_bAllowUnmetDependencies )
+		return true; 
+
 	bool bDependenciesMet=true;
 
 	for( map<int, MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
@@ -667,6 +675,8 @@ bool Table::ConfirmDependencies( )
 						bDependenciesMet=false;
 						cerr << "Field: " << m_sName << ":" << pField->Name_get( ) << " Refers to: " << pField->m_pField_IReferTo_Directly->m_pTable->Name_get( ) << " which is not being checked in." << endl;
 					}
+/*
+TODO -- This won't work for indirect fields -- we can't match any field to any field.  For the moment comment it out and don't verify dependencies for indirect fields
 					for( ListField::iterator itList=pField->m_listField_IReferTo_Indirectly.begin( );itList!=pField->m_listField_IReferTo_Indirectly.end( );++itList )
 					{
 						Field *pField_Indirect = *itList;
@@ -676,6 +686,7 @@ bool Table::ConfirmDependencies( )
 							cerr << "Field: " << m_sName << ":" << pField->Name_get( ) << " indirectly refers to: " << pField_Indirect->m_pTable->Name_get( ) << " which is not being checked in." << endl;
 						}
 					}
+*/
 				}
 			}
 		}
@@ -880,6 +891,22 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 				ra_Processor.RemoveRequest( &r_CommitRow );
 				cerr << "Failed to commit row in table: " << m_sName << endl << r_CommitRow.m_sResponseMessage << endl;
 				return false;
+			}
+
+			pChangedRow->m_bFrozen = r_CommitRow.m_bFrozen;
+			pChangedRow->m_psc_user_needs_to_authorize = r_CommitRow.m_psc_user_needs_to_authorize;
+			pChangedRow->m_psc_batch_new = r_CommitRow.m_psc_batch_new;
+			pChangedRow->m_psc_id_new = r_CommitRow.m_psc_id_new;
+			if( pChangedRow->m_bFrozen || pChangedRow->m_psc_user_needs_to_authorize )
+			{
+				ListChangedRow *pListChangedRow = g_GlobalConfig.m_mapBatch_ChangedRow[pChangedRow->m_psc_batch_new];
+				if( !pListChangedRow )
+				{
+					pListChangedRow = new ListChangedRow( );
+					g_GlobalConfig.m_mapBatch_ChangedRow[pChangedRow->m_psc_batch_new] = pListChangedRow;
+				}
+				pListChangedRow->push_back( pChangedRow );
+
 			}
 
 			if( toc==toc_New )
@@ -1105,13 +1132,13 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 		MYSQL_ROW row=NULL;
 		if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
 		{
-			if( row[1] && row[1][0]=='1' )
+			if( m_bFrozen || (row[1] && row[1][0]=='1') )
 				bFrozen=true;
 			else
 				bFrozen=false;
 
 			int i = row[0] ? atoi(row[0]) : 0;
-			if( i && g_GlobalConfig.m_mapValidatedUsers.find(i)==g_GlobalConfig.m_mapValidatedUsers.end() )
+			if( i && (g_GlobalConfig.m_mapValidatedUsers.find(i)==g_GlobalConfig.m_mapValidatedUsers.end() || g_GlobalConfig.m_mapValidatedUsers[i]->m_bWithoutPassword) )
 				psc_user = i;
 			else
 				psc_user = 0;
@@ -1159,7 +1186,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 				bFrozen=false;
 
 			int i = row[0] ? atoi(row[0]) : 0;
-			if( i && g_GlobalConfig.m_mapValidatedUsers.find(i)==g_GlobalConfig.m_mapValidatedUsers.end() )
+			if( i && (g_GlobalConfig.m_mapValidatedUsers.find(i)==g_GlobalConfig.m_mapValidatedUsers.end() || g_GlobalConfig.m_mapValidatedUsers[i]->m_bWithoutPassword) )
 				psc_user = i;
 			else
 				psc_user = 0;
@@ -1173,8 +1200,22 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 		}
 		else
 		{
-			pR_CommitRow->m_sResponseMessage = "Error: row not found";
-			throw "Error: row not found";
+			if( m_pTable_History )
+			{
+				sSQL.str("");
+				sSQL << "SELECT psc_user,psc_batch FROM " << m_pTable_History->m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id << " AND psc_batch<0";
+				PlutoSqlResult result_set;
+				MYSQL_ROW row=NULL;
+				if( (result_set.r=m_pDatabase->mysql_query_result(sSQL.str())) && (row = mysql_fetch_row(result_set.r)) )
+				{
+					psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(atoi(row[0]));
+					AddToHistory( pR_CommitRow, psqlCVSprocessor, atoi(row[1]) );
+					return;
+				}
+			}
+			cerr << "Error row not found " << sSQL.str() << endl;
+			pR_CommitRow->m_sResponseMessage = "Error: row not found to update";
+			throw "Error: row not found to update";
 		}
 	}
 
@@ -1200,10 +1241,23 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	AddToHistory( pR_CommitRow, psqlCVSprocessor );
 }
 
-void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor )
+void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen )
 {
+	bool bUnauthorizedRow=false;
 	std::ostringstream sSQL;
-	sSQL << "INSERT INTO " << m_sName << "( ";
+
+	if( (!m_bAnonymous && psqlCVSprocessor->m_bAllAnonymous) || (!psqlCVSprocessor->m_bSupervisor && m_bFrozen) )
+	{
+		// This row is unauthorized, so we're going to insert into the history instead.  But we'll insert it here
+		// rather than in AddToHistory because AddToHistory is intended to add rows that already were added to the database,
+		// but in this case, we're not putting the row in the database--only in the history file
+		bFrozen=true;
+		psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psqlCVSprocessor->m_ipsc_user_default);
+		bUnauthorizedRow=true;
+		sSQL << "INSERT INTO " << m_pTable_History->Name_get( ) << "( ";
+	}
+	else
+		sSQL << "INSERT INTO " << m_sName << "( ";
 
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )
 		sSQL << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`, ";
@@ -1218,6 +1272,7 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
 	}
 
+	// Even if the row is unauthorized, it will need a unique psc_id so we can change it later
 	sSQL << m_psc_id_next << ", " << psqlCVSprocessor->m_i_psc_batch << ", ";
 	
 	if( pR_CommitRow->m_psc_user )
@@ -1234,7 +1289,7 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	pR_CommitRow->m_psc_id_new = m_psc_id_next;
 	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
 
-	if( m_pField_AutoIncrement )
+	if( !bUnauthorizedRow && m_pField_AutoIncrement )
 	{
 		if( !( pR_CommitRow->m_iNewAutoIncrID=m_pDatabase->threaded_mysql_query_withID( sSQL.str( ) ) ) )
 		{
@@ -1254,14 +1309,19 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 		pR_CommitRow->m_iNewAutoIncrID=0;
 	}
 
-	AddToHistory( pR_CommitRow, psqlCVSprocessor );
+	if( !bUnauthorizedRow ) // See notes above
+		AddToHistory( pR_CommitRow, psqlCVSprocessor );
+
 	m_psc_id_next++;
 }
 
-void Table::GetCurrentValues(int psc_id,MapStringString *mapCurrentValues)
+void Table::GetCurrentValues(int psc_id,MapStringString *mapCurrentValues,int psc_batch_in_history)
 {
 	std::ostringstream sSql;
-	sSql << "SELECT * FROM " << m_sName << " WHERE psc_id=" << psc_id;
+	if( psc_batch_in_history )
+		sSql << "SELECT * FROM " << m_pTable_History->Name_get() << " WHERE psc_id=" << psc_id << " AND psc_batch=" << psc_batch_in_history;
+	else
+		sSql << "SELECT * FROM " << m_sName << " WHERE psc_id=" << psc_id;
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sSql.str() ) ) && ( row = mysql_fetch_row( result_set.r ) ) )
@@ -1276,7 +1336,7 @@ void Table::GetCurrentValues(int psc_id,MapStringString *mapCurrentValues)
 	}
 	else
 	{
-		cerr << "Unable to find record to retrieve current values for table: " << m_sName << " psc_id: " << psc_id << endl;
+		cerr << "Unable to find record to retrieve current values (gcv) for table: " << m_sName << " psc_id: " << psc_id << endl;
 		throw "Canot locate record";
 	}
 }
@@ -1337,12 +1397,12 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 	}
 	else
 	{
-		cerr << "Unable to find record to retrieve current values for table: " << m_sName << " psc_batch: " << psc_batch << endl;
+		cerr << "Unable to find record to retrieve current values (gbc) for table: " << m_sName << " psc_batch: " << psc_batch << endl;
 		throw "Cannot locate record";
 	}
 }
 
-void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor )
+void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor,int psc_batch_in_history )
 {
 	if( !m_pTable_History || !m_pTable_History_Mask )
 		return;
@@ -1366,7 +1426,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 	sSqlMask << "INSERT INTO " << m_pTable_History_Mask->Name_get( ) << "( ";
 
 	MapStringString mapCurrentValues;
-	GetCurrentValues((pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id),&mapCurrentValues);
+	GetCurrentValues((pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id),&mapCurrentValues,psc_batch_in_history);
 	int NumChangedFields=0;
 
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )

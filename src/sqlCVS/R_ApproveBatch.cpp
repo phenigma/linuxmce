@@ -63,7 +63,7 @@ bool R_ApproveBatch::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 
 		psqlCVSprocessor->m_pRepository = pRepository;
-		psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &g_GlobalConfig.m_mapValidatedUsers );
+		psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( psqlCVSprocessor, &g_GlobalConfig.m_mapValidatedUsers );
 		psqlCVSprocessor->m_psc_bathdr_unauth = m_psc_batch;
 
 		if( !psqlCVSprocessor->m_i_psc_batch || !pRepository->ApproveBatch(this,psqlCVSprocessor) )

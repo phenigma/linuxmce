@@ -83,6 +83,9 @@ namespace sqlCVS
 		/** If the table is frozen, then no records can be changed */
 		bool m_bFrozen;
 
+		/** If the table allows anonymous checkins from users without specifying a password */
+		bool m_bAnonymous;
+
 		/** For the server: 
 		 *  Because we can't have 2 auto-increment fields, and the primary key may be one already, 
 		 * we'll have to manually keep track of this 
@@ -147,13 +150,13 @@ namespace sqlCVS
 		void AddChangedRow( ChangedRow *pChangedRow );
 		bool CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSocket, enum TypeOfChange toc );
 		bool DetermineDeletions( RA_Processor &ra_Processor, string Connection, DCE::Socket **ppSocket );
-		void AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor );
+		void AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen ); /**< Server side add */
 		void DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user ); /**< Server side delete */
 		void UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user ); /**< Server side update */
 		void ApplyChangedRow(ChangedRow *pChangedRow); /**< Applies a changed row.  Used when authorizing a previously unauthorized batch */
 		
 		void UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable, sqlCVSprocessor *psqlCVSprocessor ); /**< Client side update */
-		void AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor );
+		void AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor,int psc_batch_in_history=0 );
 		void AddToHistory( ChangedRow *pChangedRow );
 
 		void PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow );
@@ -166,8 +169,10 @@ namespace sqlCVS
 
 		bool bIsSystemTable_get( ) { return m_bIsSystemTable; }
 
-		/** Give the psc_id, this will fill a map where the first string is the field name, and the second is the value of the field*/
-		void GetCurrentValues(int psc_id,MapStringString *mapCurrentValues);
+		/** Give the psc_id, this will fill a map where the first string is the field name, and the second is the value of the field.
+		If psc_batch_in_history is not 0, that means this batch is still unauthorized, and needs to be retrieved from the history 
+		table, not the main table. */
+		void GetCurrentValues(int psc_id,MapStringString *mapCurrentValues,int psc_batch_in_history=0);
 		void GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow);
 
 		/** @brief Accessors */

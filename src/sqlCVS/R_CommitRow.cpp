@@ -44,7 +44,7 @@ R_CommitRow::R_CommitRow( sqlCVS::ChangedRow *pChangedRow )
 	m_iOriginalAutoIncrID = pChangedRow->m_iOriginalAutoIncrID;
 	m_eTypeOfChange = pChangedRow->m_eTypeOfChange;
 	m_bFrozen=false;
-	m_psc_user_needs_to_authorize=0;
+	m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=0;
 }
 
 bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )
@@ -66,7 +66,7 @@ bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )
 		{
 			psqlCVSprocessor->m_iNew++;
 			/**  This is a new record */
-			psqlCVSprocessor->m_pTable->AddRow( this, psqlCVSprocessor );
+			psqlCVSprocessor->m_pTable->AddRow( this, psqlCVSprocessor, m_bFrozen );
 		}
 		else if( m_eTypeOfChange==( int ) sqlCVS::toc_Modify )
 		{

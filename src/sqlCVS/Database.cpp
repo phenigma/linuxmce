@@ -31,6 +31,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "RA/RA_Processor.h"
+#include "R_ApproveBatch.h"
 #include "CommonFunctions.h"
 #include <iomanip>
 #include <sstream>
@@ -617,7 +618,8 @@ void Database::CheckIn( )
 		string Password = (*it).second;
 		while( Password.length()==0 )
 		{
-			cout << "Enter the password for user " << (*it).first << " or 0 if you don't know it: ";
+			cout << "Enter the password for user " << (*it).first << " or 0 if you don't know it or "
+				<< "'nopass' to checkin without his password: ";
 			cin >> Password;
 		}
 
@@ -655,6 +657,31 @@ void Database::CheckIn( )
 	{
 		cerr << "Checkin threw exception: " << pException << endl;
 		return;
+	}
+
+	if( g_GlobalConfig.m_mapBatch_ChangedRow.size() )
+	{
+		cout << "Some records have been checked-in, but are pending" << endl
+			<< "because you are not authorized to modify the table." << endl
+			<< "You will need to have the record owner or a supervisor" << endl
+			<< "approve the batch.  Refer to the batch ID's below:" << endl;
+
+		for( map<int, ListChangedRow *>::iterator it=g_GlobalConfig.m_mapBatch_ChangedRow.begin();it!=g_GlobalConfig.m_mapBatch_ChangedRow.end();++it )
+		{
+			cout << "----------------------------------------------" << endl
+				<< "Batch #" << (*it).first << endl;
+			ListChangedRow *pListChangedRow = (*it).second;
+			for(ListChangedRow::iterator it2=pListChangedRow->begin();it2!=pListChangedRow->end();++it2)
+			{
+				ChangedRow *pChangedRow = *it2;
+				cout << "Table: " << pChangedRow->m_pTable->Name_get() << " psc_id: " << pChangedRow->m_psc_id_new;
+				if( pChangedRow->m_bFrozen )
+					cout << " frozen";
+				if( pChangedRow->m_psc_user_needs_to_authorize )
+					cout << " owner: " << pChangedRow->m_psc_user_needs_to_authorize;
+				cout << endl;
+			}
+		}
 	}
 }
 
@@ -1330,6 +1357,27 @@ void Database::Approve( )
 	/** Now mapTable has all the tables we need to check in. Confirm the users if none were passed in on the command line   */
 	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToCheckIn( )<1 )
 		return;
+
+	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
+	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+
+	for(MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin();it!=g_GlobalConfig.m_mapRepository.end();++it)
+	{
+		Repository *pRepository = (*it).second;
+		R_ApproveBatch r_ApproveBatch( pRepository->Name_get(), g_GlobalConfig.m_psc_batch );
+		ra_Processor.AddRequest( &r_ApproveBatch );
+		DCE::Socket *pSocket=NULL;
+		while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
+
+		if( r_ApproveBatch.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
+		{
+			ra_Processor.RemoveRequest( &r_ApproveBatch ); /**< It's going to fall out of scope, so we don't want the processor to retry */
+			cerr << "Unable to approve batch" << endl;
+			delete pSocket;
+			return;
+		}
+		cout << "Approved batch in repository: " << pRepository->Name_get() << endl;
+	}
 }
 
 int Database::ConfirmUsersToUpdate()

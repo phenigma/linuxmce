@@ -4,6 +4,11 @@
 #include <pthread.h>
 #include "PlutoUtils/CommonIncludes.h"	
 
+// Todo: temporarily increase these values for valgrid
+#define TRYLOCK_TIMEOUT_WARNING		30 // normally 5
+#define DEADLOCK_TIMEOUT_ERROR		60 // normally 15
+#define KILL_THREAD_TIMEOUT			60 // normally 60 -- the thread will be killed if it blocks for this many seconds
+
 #ifdef WIN32
 	#define PTW32_TIMESPEC_TO_FILETIME_OFFSET   ( ((LONGLONG) 27111902 << 32) + (LONGLONG) 3577643008 )
 

@@ -15,6 +15,9 @@
 
 #define INSOCKBUFFER_SIZE 8192
 
+// Todo: temporarily increase these values for valgrid
+#define SOCKET_TIMEOUT		90		// Normally 30
+
 namespace DCE
 {
 	

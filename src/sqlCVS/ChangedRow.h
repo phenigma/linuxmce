@@ -85,6 +85,10 @@ namespace sqlCVS
 		int m_iOriginalAutoIncrID;
 		int m_iNewAutoIncrID;
 		bool m_bCommitted;     /**< whether or not the change was committed */
+		bool m_bFrozen;  		/**< The row could not be committed because it's frozen */
+		int m_psc_user_needs_to_authorize; /**< If not 0 the row could not be committed because this user needs to authorize it */
+		int m_psc_batch_new; /**< The new batch after a checkin */
+		int m_psc_id_new; /**< The new psc_id after a checkin */
 		class Table *m_pTable; /**< points to a Table */
 
 		/**< This class has different uses.  Sometimes it's used to just to keep pointers to changed rows, in which case m_vectPrimaryKey
@@ -107,6 +111,8 @@ namespace sqlCVS
 			m_iOriginalAutoIncrID=iOriginalAutoIncrID;
 			m_iNewAutoIncrID=-1;
 			m_bCommitted=false;
+			m_bFrozen=false;
+			m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=0;
 		}
 		
 		/**
@@ -119,6 +125,8 @@ namespace sqlCVS
 			m_eTypeOfChange = toc_Delete;
 			m_psc_id=psc_id;
 			m_bCommitted=false;
+			m_bFrozen=false;
+			m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=0;
 		}
 
 		/**
@@ -132,6 +140,8 @@ namespace sqlCVS
 			m_psc_id=psc_id;
 			m_psc_batch=psc_batch;
 			m_bCommitted=true;  // This is storing info on a batch.  It's already been committed
+			m_bFrozen=false;
+			m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=0;
 		}
 
 		/** 
