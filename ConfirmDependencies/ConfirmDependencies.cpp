@@ -215,7 +215,7 @@ void CheckPackage(Row_Device *pRow_Device,map<int,string> &mapPackages,bool bDev
 				}
 
 				// If this source is at least in the same country we'll consider it a tentative match while we keep looking for an exact match
-				if( pInstallation_RepositorySource_URL->FK_Installation_getrow()->FK_Country_get()==pRow_RepositorySource_URL_test->FK_Country_get() )
+				if( pRow_Device->FK_Installation_getrow()->FK_Country_get()==pRow_RepositorySource_URL_test->FK_Country_get() )
 					pRow_RepositorySource_URL_Country = pRow_RepositorySource_URL_test;  
 			}
 			if( !pRow_RepositorySource_URL )
