@@ -47,7 +47,7 @@ void *ServerSocket::BeginWapClientThread( void *SvSock )
 		return NULL; // Should have been set in the constructor
 	}
 	pCS->_Run();
-//	delete pCS;  // TODO: HACK -- we've got a socket leak here
+	delete pCS;  // TODO: HACK -- we've got a socket leak here
 	return NULL;
 }
 
@@ -73,8 +73,8 @@ ServerSocket::~ServerSocket()
 	
 
 	if( m_Socket != INVALID_SOCKET ) {
-		close(m_Socket);
 		closesocket( m_Socket );
+		close(m_Socket);
 	}
 	
 
@@ -255,6 +255,7 @@ void ServerSocket::_Run()
    	if ( !SOCKFAIL( m_Socket ) )
 	{
 		closesocket( m_Socket );
+		close(m_Socket);
 		m_Socket = INVALID_SOCKET;
 	}
 	g_pPlutoLogger->Write( LV_WARNING, "TCPIP: Closing connection to %d (%s)", m_dwPK_Device,m_pListener->m_sName.c_str() );

@@ -58,6 +58,7 @@ ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : S
 
 ClientSocket::~ClientSocket()
 {
+    Disconnect();
 }
 
 bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
@@ -243,6 +244,7 @@ void ClientSocket::Disconnect()
 	if ( m_Socket != INVALID_SOCKET )
 	{
 		closesocket( m_Socket );
+		close(m_Socket);
 		m_Socket= INVALID_SOCKET;
 	}
 }

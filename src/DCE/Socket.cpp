@@ -147,8 +147,10 @@ Socket::~Socket()
 	g_pPlutoLogger->Write( LV_SOCKET, "deleting socket %p %s", this, m_sName.c_str() );
 #endif
 
-	if ( m_Socket != INVALID_SOCKET )
+	if ( m_Socket != INVALID_SOCKET ) {
 		closesocket( m_Socket );
+		close(m_Socket);
+	}
 	m_Socket = INVALID_SOCKET;
 
 	if(NULL != m_pcInSockBuffer)
@@ -458,7 +460,9 @@ bool Socket::SendData( int iSize, const char *pcData )
 			iBytesLeft -= iSendBytes;
 		else
 		{
+			
 			closesocket( m_Socket );
+			close(m_Socket);
 			/** @todo check comment */
 			// AB 1-25-2004 pthread_mutex_unlock(&m_DCESocketMutex);
 			m_Socket = INVALID_SOCKET;
@@ -612,6 +616,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 						break;
 						
 					if(iRet <= 0 || iRet > 1) { // error
+					    g_pPlutoLogger->Write( LV_WARNING, "Error in socket SELECT: %s", strerror(errno));
 					    break;
 					}
 				}
@@ -620,6 +625,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			if( iRet == 0 || iRet == -1 )
 			{
 				closesocket( m_Socket );
+				close( m_Socket);
 				m_Socket = INVALID_SOCKET;
 				if( m_bQuit )
 					return false;
@@ -688,6 +694,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 				g_pPlutoLogger->Write(LV_STATUS,"Socket closure error code: %d",WSAGetLastError());
 #endif
 				closesocket( m_Socket );
+				close( m_Socket );
 				m_Socket = INVALID_SOCKET;
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
