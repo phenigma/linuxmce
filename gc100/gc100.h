@@ -93,6 +93,7 @@ private:
 	map<IntPair, string> m_CodeMap;
 	bool m_bIRComplete;
 	bool m_bLearning;
+	bool m_bStopLearning;
 
 //<-dceag-const-b->
 public:
@@ -120,7 +121,7 @@ public:
 
 
 //<-dceag-h-e->
-		virtual void LEARN_IR(string PKID_Device, string CommandID);
+		virtual void LEARN_IR(string PKID_Device, string CommandID, long OrbiterID);
 		virtual void LEARN_IR_CANCEL();
 
 		void LearningThread(LearningInfo * pLearningInfo);

@@ -44,12 +44,12 @@ using namespace DCE;
 // Items in the 'fast' loop
 //#define MONITOR_DELAY_MS 25 // number of ms to delay each time trough loop - "short" delay
 //#define LEARNING_TIMEOUT (1000/MONITOR_DELAY_MS) * 1 // 1 sec. at 1ms sleep times in main
-#define LEARNING_TIMEOUT 40000
+const timespec LEARNING_TIMEOUT = {40, 0}; // 40 s
 
 // Figure the poll multiplier so that the slow loop happens every 100ms
 //#define POLL_MULTIPLIER 100/MONITOR_DELAY_MS
 //#define READY_TIMEOUT (1000/MONITOR_DELAY_MS)/POLL_MULTIPLIER * 0.800 // 800 msec. ready timeout
-#define READY_TIMEOUT 800
+const timespec READY_TIMEOUT = {0, 800000000}; // 800 ms
 
 #define LEARN_PREFIX "GC-IRL"
 #define GC100_COMMAND_PORT 4998
@@ -84,7 +84,7 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	//ReplaceParams(replacement);
 	recv_pos = 0;
 	ir_cmd_id = 1;
-	is_open_for_learning = open_for_learning();
+	m_bStopLearning = false;
 
 	// TODO: learn_device
 	//learn_device = GetData()->Get_SERIAL_PORT();
@@ -92,6 +92,7 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	gc100_mutex.Init(NULL);
 	m_bQuit = false;
 	m_bLearning = false;
+	is_open_for_learning = open_for_learning();
 	
 	if (!Open_gc100_Socket())
 	{
@@ -147,15 +148,6 @@ void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 		printf("Message processed by IRBase class\n");
 		sCMD_Result = "OK";
 		return;
-	}
-
-	if (pMessage->m_dwID == COMMAND_Learn_IR_CONST)
-	{
-		map<long, string> * mapParam = &pMessage->m_mapParameters;
-		if (atoi((*mapParam)[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0)
-			LEARN_IR((*mapParam)[COMMANDPARAMETER_PK_Device_CONST], (*mapParam)[COMMANDPARAMETER_PK_Command_Input_CONST]);
-		else
-			LEARN_IR_CANCEL();
 	}
 
 	// This is a relay command
@@ -240,6 +232,25 @@ void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 void gc100::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-cmduk-e->
 {
+	cout << "Message ID: " << pMessage->m_dwID << endl;
+	cout << "From: " << pMessage->m_dwPK_Device_From << endl;
+	cout << "To: " << pMessage->m_dwPK_Device_To << endl;
+	
+	map<long, string>::iterator i;
+	for (i = pMessage->m_mapParameters.begin(); i != pMessage->m_mapParameters.end(); i++)
+	{
+		cout << "Parameter: " << i->first << " Value: " << i->second << endl;
+	}
+	
+	if (pMessage->m_dwID == COMMAND_Learn_IR_CONST)
+	{
+		cout << "Cmd: Learn IR" << endl;
+		if (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0)
+			LEARN_IR(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST], pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_Input_CONST], pMessage->m_dwPK_Device_From);
+		else
+			LEARN_IR_CANCEL();
+	}
+
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
@@ -1023,11 +1034,19 @@ void gc100::SendIR(string Port, string IRCode)
 			ir_cmd_id++;
 		} // end if it's IR
 	} // end loop through devices
-	clock_t StartTime = xClock();
+	timeval StartTime;
+	gettimeofday(&StartTime, NULL);
+	timespec tsStartTime;
+	timeval_to_timespec(&StartTime, &tsStartTime);
 
 	while (! m_bIRComplete)
 	{
-		if (xClock() > StartTime + MS_TO_CLK(READY_TIMEOUT))
+		timeval CurTime;
+		gettimeofday(&CurTime, NULL);
+		timespec tsCurTime;
+		timeval_to_timespec(&CurTime, &tsCurTime);
+
+		if (tsCurTime > tsStartTime + READY_TIMEOUT)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Timed out waiting for completeir");
 			// Do not reissue the previous command, because it may be a sendir command to an ir port
@@ -1042,28 +1061,35 @@ void gc100::SendIR(string Port, string IRCode)
 
 // Not done
 // TODO: Create LearningInfo object and spawn new thread
-void gc100::LEARN_IR(string PKID_Device, string CommandID)
+void gc100::LEARN_IR(string PKID_Device, string CommandID, long OrbiterID)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"RECEIVED LEARN_IR PKID_Device='%s' CommandID='%s'", PKID_Device, CommandID);
+	g_pPlutoLogger->Write(LV_STATUS,"RECEIVED LEARN_IR PKID_Device='%s' CommandID='%s'", PKID_Device.c_str(), CommandID.c_str());
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	m_IRDeviceID = atoi(PKID_Device.c_str()); // Device_To
 	m_IRCommandID = atoi(CommandID.c_str());
-	m_ControllerID = m_pThisMessage->m_dwPK_Device_From; // Device_From
+	m_ControllerID = OrbiterID; // Device_From
 
 	learn_input_string=""; // Clear out the IR to learn the next sequence clean
 
 	if (is_open_for_learning)
 	{
-		LearningInfo * pLI = new LearningInfo(m_IRDeviceID, m_IRCommandID, m_ControllerID, this);
-		if (pthread_create(&m_LearningThread, NULL, StartLearningThread, (void *) pLI))
+		if (! m_bLearning)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
-			m_bQuit = 1;
-			exit(1);
+			LearningInfo * pLI = new LearningInfo(m_IRDeviceID, m_IRCommandID, m_ControllerID, this);
+			if (pthread_create(&m_LearningThread, NULL, StartLearningThread, (void *) pLI))
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
+				m_bQuit = 1;
+				exit(1);
+			}
+			m_bLearning = true;
+			pthread_detach(m_LearningThread);
 		}
-		m_bLearning = true;
-		pthread_detach(m_LearningThread);
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Learning thread already running");
+		}
 	}
 	else
 	{
@@ -1075,7 +1101,7 @@ bool gc100::open_for_learning()
 {
 	bool return_value;
 
-	return_value=true;
+	return_value = true;
 
 #ifdef WIN32
 #define O_RDONLY _O_RDONLY
@@ -1083,11 +1109,17 @@ bool gc100::open_for_learning()
 #define open _open
 #endif
 
+	g_pPlutoLogger->Write(LV_STATUS, "Trying to open learning device: %s", learn_device.c_str());
 	learn_fd = open(learn_device.c_str(), O_RDONLY | O_NONBLOCK);
 
 	if (learn_fd < 1)
 	{
+		g_pPlutoLogger->Write(LV_WARNING, "Failed to open learning device: %s %s", learn_device.c_str(), strerror(errno));
 		return_value = false;
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Opened learning device successfully: %s", learn_device.c_str());
 	}
 
 #ifdef WIN32
@@ -1101,22 +1133,33 @@ bool gc100::open_for_learning()
 
 void gc100::LearningThread(LearningInfo * pLearningInfo)
 {
-	clock_t StartTime = xClock();
 	bool bLearnedCode = false;
 	char learn_buffer[512];
 	int retval;
 	bool learning_error = false;
 	bool receiving_data = false;
 
+	g_pPlutoLogger->Write(LV_STATUS, "Learning thread started");
+	timeval StartTime;
+	gettimeofday(&StartTime, NULL);
+	timespec tsStartTime;
+	timeval_to_timespec(&StartTime, &tsStartTime);
+	
 	// Read any IR data present
 	retval = 0;
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
+	m_bLearning = false;
 	if (is_open_for_learning)
 	{
 		retval = read(learn_fd, learn_buffer, 511);
 
-		while (xClock() < StartTime + MS_TO_CLK(LEARNING_TIMEOUT) && (retval > 0) && !learning_error)
+		timeval CurTime;
+		gettimeofday(&CurTime, NULL);
+		timespec tsCurTime;
+		timeval_to_timespec(&CurTime, &tsCurTime);
+		
+		while (tsCurTime < tsStartTime + LEARNING_TIMEOUT && (retval > 0) && !learning_error && !m_bStopLearning)
 		{
 			string new_string;
 			learn_buffer[retval]='\0';
@@ -1208,8 +1251,7 @@ void gc100::LEARN_IR_CANCEL()
 {
 	if (m_bLearning)
 	{
-		pthread_cancel(m_LearningThread);
-		m_bLearning = false;
+		m_bStopLearning = true;
 	}
 }
 
@@ -1217,3 +1259,4 @@ void gc100::SetQuitFlag()
 {
 	m_bQuit = true;
 }
+
