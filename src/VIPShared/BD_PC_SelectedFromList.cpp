@@ -47,6 +47,8 @@ bool BD_PC_SelectedFromList::ProcessCommand(BDCommandProcessor *pProcessor)
 	BD_Orbiter *pOrbiter = 
 		m_pProcessor->m_pBluetooth_Dongle->m_mapOrbiterSockets_Find(pProcessor->m_sMacAddressPhone);
 
+	printf("selected item: %d", m_uItemIndex);
+	
 	if(NULL == pOrbiter)
 	{
 		//TODO: log this

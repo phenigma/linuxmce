@@ -1685,7 +1685,19 @@ bool Orbiter::SelectedGrid( int DGRow )
 
     vector<class DesignObj_DataGrid *>::iterator it = m_vectObjs_GridsOnScreen.begin(  );
     DesignObj_DataGrid *pDesignObj_DataGrid = *it;
-    DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( 0,  DGRow );
+
+	int iSelectedColumn = pDesignObj_DataGrid->m_iInitialColNum;
+	//if 'c' - column  extraoption is specified, we'll send to phone the specified column
+	size_t sPos;
+	if((sPos = pDesignObj_DataGrid->m_sExtraInfo.find( 'c' )) != string::npos)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pDesignObj_DataGrid->m_sExtraInfo.c_str());
+		
+		if(sPos + 1 < pDesignObj_DataGrid->m_sExtraInfo.size())
+			iSelectedColumn = pDesignObj_DataGrid->m_sExtraInfo[sPos + 1] - '0';
+	}
+
+    DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
 
     return SelectedGrid( pDesignObj_DataGrid,  pCell );
 }

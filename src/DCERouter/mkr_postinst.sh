@@ -49,7 +49,13 @@ fi
 
 size=$(stat -c "%s" /usr/pluto/install/database_initial_data.sql)
 if [ "$size" -lt 100 ]; then
-	echo "Error getting your initial data."
+	echo "01 Error getting your initial data."
+	echo "This installation will not work correctly."
+	echo "The installation will continue anyway, but"
+	echo "you will need to contact tech support to correct"
+	echo "this before you can use it."
+	echo "Press any key to continue."
+	read
 	cat /usr/pluto/install/database_initial_data.sql
 else
 	/usr/bin/mysql pluto_main </usr/pluto/install/database_initial_data.sql
