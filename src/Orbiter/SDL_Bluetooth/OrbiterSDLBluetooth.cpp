@@ -134,8 +134,9 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
     png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
 
-    BitsPerColor = Drawing->format->BitsPerPixel / Drawing->format->BytesPerPixel;
-    png_set_IHDR(png_ptr, png_info, Drawing->w, Drawing->h, BitsPerColor, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+    //BitsPerColor = Drawing->format->BitsPerPixel / Drawing->format->BytesPerPixel;
+	BitsPerColor = 2; //2 bytes per color
+    png_set_IHDR(png_ptr, png_info, Drawing->w, Drawing->h, BitsPerColor, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
     png_write_info(png_ptr, png_info);
@@ -189,8 +190,9 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     fread(pImage, 1, ImageSize, file);
     fclose(file);
 
-    BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(ImageType, ImageSize, pImage);
+	g_pPlutoLogger->Write(LV_WARNING, "Ready to send a picture, size %d", ImageSize);
 
+    BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(ImageType, ImageSize, pImage);
     delete pImage;
     pImage = NULL;
 
@@ -215,7 +217,9 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     }
 
     if( m_pBDCommandProcessor )
+	{
         m_pBDCommandProcessor->AddCommand(pBD_CP_ShowImage);
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
