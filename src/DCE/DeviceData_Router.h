@@ -205,6 +205,19 @@ namespace DCE
 			return it==m_mapDeviceRelation.end() ? NULL : (*it).second;
 		}
 
+		void FindSibblingsWithinCategory(DeviceCategory *pDeviceCategory,vector<DeviceData_Router *> &vectDeviceData_Router)
+		{
+			if( !pDeviceCategory || !m_pDevice_ControlledVia )
+				return;
+			for( size_t s=0;s<((DeviceData_Router *)m_pDevice_ControlledVia)->m_vectDeviceData_Impl_Children.size();++s )
+			{
+				DeviceData_Router *pDevice = (DeviceData_Router *) ((DeviceData_Router *)m_pDevice_ControlledVia)->m_vectDeviceData_Impl_Children[s];
+				if( pDevice->WithinCategory(pDeviceCategory) )
+					vectDeviceData_Router.push_back(pDevice);
+			}
+
+		}
+
 		// We're not going to use this, since we're not creating actual devices.  Implement this pure virtual function from our base class
 		class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition) { return NULL; };
 	};

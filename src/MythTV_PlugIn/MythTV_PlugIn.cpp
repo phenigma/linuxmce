@@ -194,6 +194,20 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
     m_dwTargetDevice = pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
 
+	vector<DeviceData_Router *> vectDeviceData_Router_PVR;
+	DeviceData_Router *pDevice_Myth = m_pRouter->m_mapDeviceData_Router_Find(pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	pDevice_Myth->FindSibblingsWithinCategory(m_pRouter->m_mapDeviceCategory_Find(DEVICECATEGORY_PVR_Capture_Cards_CONST),vectDeviceData_Router_PVR);
+	for(size_t s=0;s<vectDeviceData_Router_PVR.size();++s)
+	{
+		DeviceData_Router *pDevice_CaptureCard = vectDeviceData_Router_PVR[s];
+		for(size_t s2=0;s2<pDevice_CaptureCard->m_vectDevices_SendingPipes.size();++s2)
+		{
+			DeviceData_Router *pDevice_Tuner = pDevice_CaptureCard->m_vectDevices_SendingPipes[s2];
+			DCE::CMD_On(m_dwPK_Device,pDevice_Tuner->m_dwPK_Device,0,"");
+		}
+	}
+
+
 	if ( pMythTvMediaStream->ShouldTuneToNewChannel() )
 	{
 		if ( WatchTVResult_Tuned == m_pMythWrapper->ProcessWatchTvRequest( pMythTvMediaStream->m_iNextProgramChannelID,
@@ -237,6 +251,20 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 	map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
     if( it!=m_mapDevicesToStreams.end() )
         m_mapDevicesToStreams.erase(it);
+
+
+	vector<DeviceData_Router *> vectDeviceData_Router_PVR;
+	DeviceData_Router *pDevice_Myth = m_pRouter->m_mapDeviceData_Router_Find(pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	pDevice_Myth->FindSibblingsWithinCategory(m_pRouter->m_mapDeviceCategory_Find(DEVICECATEGORY_PVR_Capture_Cards_CONST),vectDeviceData_Router_PVR);
+	for(size_t s=0;s<vectDeviceData_Router_PVR.size();++s)
+	{
+		DeviceData_Router *pDevice_CaptureCard = vectDeviceData_Router_PVR[s];
+		for(size_t s2=0;s2<pDevice_CaptureCard->m_vectDevices_SendingPipes.size();++s2)
+		{
+			DeviceData_Router *pDevice_Tuner = pDevice_CaptureCard->m_vectDevices_SendingPipes[s2];
+			DCE::CMD_Off(m_dwPK_Device,pDevice_Tuner->m_dwPK_Device,0,"");
+		}
+	}
 
 	int i; // report the current playback position here.
 

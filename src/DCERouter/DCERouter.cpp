@@ -1950,6 +1950,17 @@ void Router::Configure()
             pDevice->m_pDevice_ControlledVia = pDevice_Parent;
             pDevice_Parent->m_vectDeviceData_Impl_Children.push_back(pDevice);
         }
+
+		DeviceData_Router *pDevice_To_Last = NULL;
+		for( map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();
+			it!=pDevice->m_mapPipe_Available.end();++it )
+		{
+			Pipe *pPipe = (*it).second;
+			DeviceData_Router *pDevice_To = m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+			if( pDevice_To && pDevice_To_Last!=pDevice_To )
+				pDevice_To->m_vectDevices_SendingPipes.push_back(pDevice);
+			pDevice_To_Last=pDevice_To;  // Don't put the same thing in there twice if both the a/v use the same path
+		}
     }
 
     // Now match up route to's

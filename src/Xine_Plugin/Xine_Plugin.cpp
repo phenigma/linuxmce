@@ -207,6 +207,7 @@ XineMediaStream *Xine_Plugin::ConvertToXineMediaStream(MediaStream *pMediaStream
 bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
 	g_pPlutoLogger->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
 
 	XineMediaStream *pXineMediaStream = NULL;
