@@ -33,9 +33,9 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 43; } ;
 	virtual const char *GetDeviceDescription() { return "Generic_Input_Ouput"; } ;
-	int Get_Channel() { return atoi(m_mapParameters[12].c_str());}
 	int Get_InputOrOutput() { return atoi(m_mapParameters[18].c_str());}
 	int Get_Default_State() { return atoi(m_mapParameters[19].c_str());}
+	string Get_Port() { return m_mapParameters[37];}
 };
 
 
@@ -74,9 +74,9 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
-	int DATA_Get_Channel() { return GetData()->Get_Channel(); }
 	int DATA_Get_InputOrOutput() { return GetData()->Get_InputOrOutput(); }
 	int DATA_Get_Default_State() { return GetData()->Get_Default_State(); }
+	string DATA_Get_Port() { return GetData()->Get_Port(); }
 	//Event accessors
 	void EVENT_Pin_Changed(bool bOnOff) { GetEvents()->Pin_Changed(bOnOff); }
 	//Commands - Override these to handle commands from the server

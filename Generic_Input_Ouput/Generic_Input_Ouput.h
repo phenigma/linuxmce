@@ -37,9 +37,9 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	int DATA_Get_Channel();
 	int DATA_Get_InputOrOutput();
 	int DATA_Get_Default_State();
+	string DATA_Get_Port();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Pin_Changed(bool bOnOff);

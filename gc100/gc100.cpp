@@ -723,9 +723,10 @@ void gc100::parse_message_statechange(std::string message, bool change)
 
 	// First look up this module to see what its global pin number is; we might need it later
 	map_iter=module_map.find(module_address);
-
+	
 	if (map_iter != module_map.end())
 	{
+		g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: found module of type %s, %d", map_iter->second.type.c_str(), map_iter->second.global_slot);
 		target_type = map_iter->second.type;
 
 		if ( (target_type == "IR") || (target_type=="RELAY"))
@@ -759,9 +760,11 @@ void gc100::parse_message_statechange(std::string message, bool change)
 
 			const char * directions[] = {"IN", "OUT", "BOTH"};
 			io_direction = "** UNKNOWN **";
-			if (child->DATA_Get_InputOrOutput() >= 1 && child->DATA_Get_InputOrOutput() <= 3)
+			int InOrOut = child->DATA_Get_InputOrOutput();
+			if (InOrOut >= 0 && InOrOut <= 2)
 				io_direction = directions[child->DATA_Get_InputOrOutput()];
-			this_pin = child->GetData()->Get_Channel();
+			this_pin = child->DATA_Get_Port();
+			g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: testing %s", child->m_sName.c_str());
 
 			//g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
 
@@ -798,7 +801,8 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	if (result!=NULL)
 	{
 		std::string verify_request;
-		result->GetEvents()->Pin_Changed(input_state); 
+		result->EVENT_Pin_Changed(input_state);
+//		result->GetEvents()->Pin_Changed(input_state); 
 
 		if (change)
 		{
@@ -1071,7 +1075,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 			io_direction = "** UNKNOWN **";
 			if (child->DATA_Get_InputOrOutput() >= 1 && child->DATA_Get_InputOrOutput() <= 3)
 				io_direction = directions[child->DATA_Get_InputOrOutput()];
-			this_pin = child->GetData()->Get_Channel();
+			this_pin = child->DATA_Get_Port();
 
 			if (strcasecmp(io_direction.c_str(),"OUT")==0)
 			{
