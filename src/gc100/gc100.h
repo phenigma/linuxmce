@@ -50,7 +50,7 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 	private:
-		void SendIR_Loop(string Port, string IRCode, int Times);
+		void SendIR_Loop(string Port, string IRCode, int Times = 1);
 		void SendIR_Real(string Port, string IRCode);
 
 		// Private methods

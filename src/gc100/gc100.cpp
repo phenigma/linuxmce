@@ -1026,7 +1026,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 
 void gc100::SendIR(string Port, string IRCode)
 {
-	SendIR_Loop(Port, IRCode, 2);
+	SendIR_Loop(Port, IRCode, 1);
 }
 
 void gc100::SendIR_Loop(string Port, string IRCode, int Times)
@@ -1043,9 +1043,10 @@ void gc100::SendIR_Real(string Port, string IRCode)
 	std::map<std::string,class module_info>::iterator slot_iter;
 	//int timeout_count;
 
-	ConvertPronto(IRCode.substr(2), gc_code);
+	//ConvertPronto(IRCode.substr(2), gc_code);
+	ConvertPronto(IRCode, gc_code);
 
-	//g_pPlutoLogger->Write(LV_STATUS, "SendIR: Result of Pronto conversion was %s",gc_code.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "SendIR: Result of Pronto conversion was: %s", gc_code.c_str());
 
 	// Search through all the IR modules and send the code to any IR modules which either matches
 	// the 4:2 style port id or the absolute ('6') port ID or if the port string is blank
