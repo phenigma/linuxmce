@@ -674,10 +674,6 @@ void Repository::ListTables( )
 
 void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable)
 {
-if( sTableName=="Package_Directory_File" ) 
-{
-int k=2;
-}
 	int NumFields = atoi( str.m_vectString[pos++].c_str( ) );
 
 	if( !pTable )
@@ -769,6 +765,7 @@ int k=2;
 	}
 
 	int NumRows = atoi( str.m_vectString[pos++].c_str( ) );
+	cout << "Importing table: " << sTableName << " " << NumRows << " rows" << endl;
 	for( int j=0;j<NumRows;++j )
 	{
 		bool bUpdate=false; // Make this an update rather than an insert
