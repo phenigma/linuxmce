@@ -1,4 +1,3 @@
-#include "BD/BDCommandProcessor.h"
 #include "BD/BDCommandProcessor_Symbian_Bluetooth.h"
 
 #include <bt_sock.h>

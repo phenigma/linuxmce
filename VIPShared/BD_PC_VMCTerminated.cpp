@@ -1,7 +1,10 @@
+#ifndef SYMBIAN
+#include "BD/BDCommandProcessor.h"
+#endif
+
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/MyStl.h"
 #include "VIPShared/VIPMenu.h"
-#include "BD/BDCommandProcessor.h"
 #include "BD_PC_VMCTerminated.h"
 
 BD_PC_VMCTerminated::BD_PC_VMCTerminated(char TerminatingResolution,unsigned long MenuCollectionID) 

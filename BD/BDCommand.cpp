@@ -16,7 +16,10 @@
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/MyStl.h"
 #include "BD/BDCommand.h"
+
+#ifndef SYMBIAN
 #include "BD/BDCommandProcessor.h"
+#endif //SYMBIAN
 
 // changing them when I'm renaming the files
 // the ones starting with BD are cleaned up

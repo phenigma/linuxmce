@@ -11,17 +11,15 @@
 #endif
 
 #ifndef SYMBIAN
-//#include "PlutoUtils/CommonIncludes.h"
-//#include "VIPShared/PlutoConfig.h"
+#include "BD/BDCommandProcessor.h"
 #else
-//#include "VIPShared/VIPIncludes.h"
 #include "PlutoMOAppUi.h"
 #include "Logger.h" 
 #endif
 
 #include "PlutoUtils/MyStl.h"
 #include "BD_CP_ShowList.h"
-#include "BD/BDCommandProcessor.h"
+
 
 #ifndef SYMBIAN
 BD_CP_ShowList::BD_CP_ShowList(

@@ -12,8 +12,14 @@
 #define BDHAVENOTHINGH
 
 #include "BD/BDCommand.h"
-#include "BD/BDCommandProcessor.h"
 #include "VIPShared/PlutoPhoneCommands.h"
+
+#ifndef SYMBIAN
+#include "BD/BDCommandProcessor.h"
+#else
+#include "BD/BDCommandProcessor_Symbian_Base.h"
+#endif
+
 
 /**
  * @brief the response to WhatDoYouHave when there are no commands

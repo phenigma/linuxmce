@@ -14,6 +14,10 @@
 
 #include "SerializeClass/SerializeClass.h"
 
+#ifdef SYMBIAN
+	class BDCommandProcessor {};
+#endif
+
 
 /**
  * @brief class defining a command
@@ -91,6 +95,7 @@ public:
 	/**
 	 * @brief pure virtual, should be overriden in inheriting classes
 	 */
+
 	virtual bool ProcessCommand( class BDCommandProcessor *pProcessor )=0;
 };
 

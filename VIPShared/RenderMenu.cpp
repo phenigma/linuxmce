@@ -10,7 +10,9 @@
 
 #include "VIPShared/BD_PC_KeyWasPressed.h"
 
+#ifndef SYMBIAN
 #include "BD/BDCommandProcessor.h"
+#endif
 
 #include "PlutoUtils/StringUtils.h"
 

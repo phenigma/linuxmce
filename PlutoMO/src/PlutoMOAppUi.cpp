@@ -10,6 +10,17 @@
 #include "PlutoVMCUtil.h"
 #include "PlutoVMCView.h"
 #include "Logger.h"
+
+
+//test
+#include <http\rhttpsession.h>
+#include <http\mhttptransactioncallback.h>
+#include <uri8.h>
+#include <e32base.h>
+#include <http.h>
+#include <chttpformencoder.h>
+
+#include "httpclient.h"
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ConstructL()
 {
@@ -36,9 +47,17 @@ void CPlutoMOAppUi::ConstructL()
 	m_pBDCommandProcessor_Symbian_Bluetooth->SetupSecurityManager();
 	m_pBDCommandProcessor_Symbian_Bluetooth->AdvertiseThePlutoService();
 
-	Hide();
-
 	LOG("Waiting for connections...\n");
+
+
+//	Hide();
+
+	/*
+	TUriParser8 uri;
+	uri.Parse(_L8("news.yahoo.com"));
+
+	PlutoHttpClient hc;
+	hc.SendRequest(uri);*/
 }
 //----------------------------------------------------------------------------------------------
 CPlutoMOAppUi::~CPlutoMOAppUi()

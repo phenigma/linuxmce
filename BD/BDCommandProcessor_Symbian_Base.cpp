@@ -10,20 +10,6 @@
 #include "PlutoMOAppUi.h"
 #include "Logger.h"
 //----------------------------------------------------------------------------------------------
-void BDCommandProcessor_Symbian_Base::GotoStage(TBluetoothState state)
-{
-	iState = state;
-
-	GotoNextStage();
-}
-//----------------------------------------------------------------------------------------------
-void BDCommandProcessor_Symbian_Base::GotoNextStage()
-{
-	LOG("@GotoNext@:\n");
-	TRequestStatus* s = &iStatus; 
-	User::RequestComplete(s, KErrNone); 
-}
-//----------------------------------------------------------------------------------------------
 BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 	(
 		const string& sMacAddressPhone,
@@ -33,11 +19,9 @@ BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 		CActive(EPriorityStandard), 
 		iListener(aListener)
 { 
-	//iTimer.CreateLocal(); // created for this thread
 	iPendingKey = false;
 
 	m_bDead = false;
-//	m_bExit = false;
 
 	m_ReceiveCmdData=NULL;
 	m_ReceiveAckData=NULL;
@@ -54,6 +38,9 @@ BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 	m_sMacAddressPhone=sMacAddressPhone;
 
 	m_Recv_iBuf = NULL;
+	m_Send_iBuf = NULL;
+
+	m_HBuf_SendBuffer = NULL;
 
 	CActiveScheduler::Add(this);
 }
@@ -79,26 +66,50 @@ BDCommandProcessor_Symbian_Base::~BDCommandProcessor_Symbian_Base()
 	Cancel();
 }
 //----------------------------------------------------------------------------------------------
+void BDCommandProcessor_Symbian_Base::GotoStage(TBluetoothState state)
+{
+	iState = state;
+
+	GotoNextStage();
+}
+//----------------------------------------------------------------------------------------------
+void BDCommandProcessor_Symbian_Base::GotoNextStage()
+{
+	LOG("@GotoNext@:\n");
+	TRequestStatus* s = &iStatus; 
+	User::RequestComplete(s, KErrNone); 
+}
+//----------------------------------------------------------------------------------------------
 bool  BDCommandProcessor_Symbian_Base::SendData(int size, const char *data) 
 {
 	if(size)
 	{
-		iSocket.CancelWrite(); //flush the write internal buffer. symbian RSocket bug ?
+		iSocket.CancelWrite();
 
-		HBufC8* pStr = HBufC8::NewL(size);
-		TPtr8 str = pStr->Des();
+		if(NULL != m_HBuf_SendBuffer)
+		{
+			delete m_HBuf_SendBuffer;
+			m_HBuf_SendBuffer = NULL;
+		}
 		
-		for (int i = 0; i < size; i++)
-			str.Append(TUint8(data[i]));
+		if(NULL != m_Send_iBuf)
+		{
+			delete m_Send_iBuf;
+			m_Send_iBuf = NULL;
+		}
 
-		iSocket.Write(str, iStatus);
+		m_HBuf_SendBuffer = HBufC8::NewL(size);
+		m_Send_iBuf = new TPtr8(NULL, 0);
+		m_Send_iBuf->Set((TUint8*)m_HBuf_SendBuffer->Ptr(), 0, size);
+
+		for (int i = 0; i < size; i++)
+			m_Send_iBuf->Append(TUint8(data[i]));
+
+		iSocket.Write(*m_Send_iBuf, iStatus);
 
 		LOG(">>> Sending: ");
 		LOGN(size);
 		LOGN(" bytes\n");
-
-		delete pStr;
-		pStr = NULL;
 	}
 	else //nothing to send ... just go to the next stage
 	{
@@ -110,6 +121,10 @@ bool  BDCommandProcessor_Symbian_Base::SendData(int size, const char *data)
 //----------------------------------------------------------------------------------------------
 bool BDCommandProcessor_Symbian_Base::SendLong(long l)
 {
+	LOG("@ About to send a long  with value : \n");
+	LOGN(l);
+	LOGN(" \n");
+
 	SendData(4,(const char *)&l);
 
 	return true;

@@ -2,12 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include "PlutoUtils/CommonIncludes.h"
+#include "BD/BDCommandProcessor.h"
 #else
 #include "VIPShared/VIPIncludes.h"
 #endif
 
 #include "PlutoUtils/MyStl.h"
-#include "BD/BDCommandProcessor.h"
 #include "BD_PC_OrderPlaced.h"
 
 BD_PC_OrderPlaced::BD_PC_OrderPlaced(unsigned long MenuCollectionID) 

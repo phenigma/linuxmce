@@ -12,6 +12,7 @@
 
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"
+#include "BD/BDCommandProcessor.h"
 #else
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoMOAppUi.h"
@@ -20,7 +21,6 @@
 
 #include "PlutoUtils/MyStl.h"
 #include "BD_CP_ShowImage.h"
-#include "BD/BDCommandProcessor.h"
 
 BD_CP_ShowImage::BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize,const char *pImage) 
 	

@@ -12,6 +12,7 @@
 
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"
+#include "BD/BDCommandProcessor.h"
 #else
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoMOAppUi.h"
@@ -21,7 +22,6 @@
 #include "PlutoUtils/MyStl.h"
 #include "VIPShared/VIPMenu.h"
 #include "BD_CP_ShowVMC.h"
-#include "BD/BDCommandProcessor.h"
 
 BD_CP_ShowVMC::BD_CP_ShowVMC(unsigned char Store,unsigned long VMCSize,const char *pVMC) 
 	

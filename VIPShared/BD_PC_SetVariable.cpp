@@ -1,11 +1,11 @@
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"
+#include "BD/BDCommandProcessor.h"
 #else
 #include "Logger.h"
 #endif
 
 #include "PlutoUtils/MyStl.h"
-#include "BD/BDCommandProcessor.h"
 #include "BD_PC_SetVariable.h"
 
 #ifdef BLUETOOTH_DONGLE

@@ -1,9 +1,9 @@
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"
+#include "BD/BDCommandProcessor.h"
 #endif
 
 #include "PlutoUtils/MyStl.h"
-#include "BD/BDCommandProcessor.h"
 #include "BD_PC_VMCHidden.h"
 
 BD_PC_VMCHidden::BD_PC_VMCHidden(unsigned long MenuCollectionID) 

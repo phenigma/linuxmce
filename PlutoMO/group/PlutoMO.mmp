@@ -91,6 +91,9 @@ LIBRARY fbscli.lib
 LIBRARY ws32.lib
 LIBRARY bitgdi.lib
 
+LIBRARY http.lib
+LIBRARY InetProtUtil.lib 
+
 // Creates Mbm file.
 START BITMAP    PlutoMO.mbm
 HEADER

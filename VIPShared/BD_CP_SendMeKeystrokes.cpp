@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include "PlutoUtils/CommonIncludes.h"
+#include "BD/BDCommandProcessor.h"
 #else
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoMOAppUi.h"
@@ -9,7 +10,6 @@
 #endif
 
 #include "PlutoUtils/MyStl.h"
-#include "BD/BDCommandProcessor.h"
 #include "BD_CP_SendMeKeystrokes.h"
 
 

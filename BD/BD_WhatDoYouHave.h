@@ -12,7 +12,12 @@
 #define BDPCWHATDOYOUHAVE
 
 #include "BD/BDCommand.h"
-#include "BDCommandProcessor.h"
+
+#ifndef SYMBIAN
+#include "BD/BDCommandProcessor.h"
+#else
+#include "BD/BDCommandProcessor_Symbian_Base.h"
+#endif
 
 /**
  * @brief the command sent to find out if the outher side has any commands

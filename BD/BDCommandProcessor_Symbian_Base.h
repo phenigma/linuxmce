@@ -13,6 +13,8 @@
 #include "VIPShared/VIPIncludes.h"
 #include "VipMenu.h"
 
+#define BD_PC_WHAT_DO_YOU_HAVE			1
+#define BD_CP_HAVE_NOTHING				100
 //----------------------------------------------------------------------------------------------
 #define KServiceName _L8("Pluto")
 #define KServiceDescription _L8("PlutoInc")
@@ -118,8 +120,11 @@ protected:
 	HBufC8  *m_HBuf_ReceiveCmdHeader,*m_HBuf_ReceiveCmdData;
 	HBufC8  *m_HBuf_ReceiveAckHeader,*m_HBuf_ReceiveAckData;
 
+	HBufC8  *m_HBuf_SendBuffer;
+	TPtr8   *m_Send_iBuf;
 	TPtr8   *m_Recv_iBuf;
 	int		m_iRecvSize;
+
 	bool	m_bStartRecv;
 
 	string m_sMacAddressPhone;

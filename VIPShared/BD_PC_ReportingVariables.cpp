@@ -1,7 +1,10 @@
+#ifndef SYMBIAN
+#include "BD/BDCommandProcessor.h"
+#endif
+
 #include "VIPShared/VIPMenu.h"
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/MyStl.h"
-#include "BD/BDCommandProcessor.h"
 #include "BD_PC_ReportingVariables.h"
 
 BD_PC_ReportingVariables::BD_PC_ReportingVariables(unsigned long MenuCollectionID) 
