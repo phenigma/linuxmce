@@ -62,6 +62,7 @@ while [ "$ok" -eq 0 ]; do
 done
 
 [ "$ok" -eq 0 ] && exit 1
+chmod +x "$DIR"/activation.sh
 if "$DIR"/activation.sh; then
 	echo "Activation went ok"
 else
@@ -71,8 +72,14 @@ fi
 wget -O "$DIR"/build.sh "$ACTIV/build.php?code=$activation_key" || no_build=1
 wget -O "$DIR"/build_all.sh "$ACTIV/build_all.php?code=$activation_key" || no_build_all=1
 
-[ -z "$no_build" -a -s "$DIR"/build.sh ] && echo "$BUILD_MSG"
-[ -z "$no_build_all" -a -s "$DIR"/build_all.sh ] && echo "$BUILD_ALL_MSG"
+if [ -z "$no_build" -a -s "$DIR"/build.sh ]; then
+	chmod +x "$DIR"/build.sh
+	echo "$BUILD_MSG"
+fi
+if [ -z "$no_build_all" -a -s "$DIR"/build_all.sh ]; then
+	chmod +x "$DIR"/build_all.sh
+	echo "$BUILD_ALL_MSG"
+fi
 
 wget -O "$DIR/message.txt" "$ACTIV/message.php?code=$CODE" && cat "$DIR/message.txt"
 
