@@ -1828,6 +1828,26 @@ void Router::Configure()
         }
     }
 
+	// Be sure nothing is recursive
+    for(itCat=m_mapDeviceCategory.begin();itCat!=m_mapDeviceCategory.end();++itCat)
+    {
+        DeviceCategory *pCat = (*itCat).second;
+        DeviceCategory *pCat2 = pCat;
+        while( pCat2 && pCat2->m_pDeviceCategory_Parent )
+		{
+			if( pCat2->m_pDeviceCategory_Parent==pCat )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Category %d recurses",pCat->m_dwPK_DeviceCategory);
+				pCat->m_pDeviceCategory_Parent = NULL;
+				pCat->m_dwPK_DeviceCategory_Parent = 0;
+		        Row_DeviceCategory *pRow_DeviceCategory = 
+					m_pDatabase_pluto_main->DeviceCategory_get()->GetRow(pCat->m_dwPK_DeviceCategory);
+				pRow_DeviceCategory->Table_DeviceCategory_get()->Commit();
+			}
+			pCat2 = pCat2->m_pDeviceCategory_Parent;
+		}
+    }
+
     vector<Row_Device *> vectDevices;
     GetDatabase()->Device_get()->GetRows(
         string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation),&vectDevices);
@@ -1837,10 +1857,6 @@ void Router::Configure()
         Row_Device *pRow_Device = vectDevices[s];
 		if( pRow_Device->PK_Device_get()>=m_dwPK_Device_Largest )
 			m_dwPK_Device_Largest=pRow_Device->PK_Device_get();
-if( pRow_Device->PK_Device_get()==3632 || pRow_Device->PK_Device_get()==3633 )
-{
-int k=2;
-}
 
         string CommandLine=pRow_Device->FK_DeviceTemplate_getrow()->CommandLine_get();
         if( CommandLine.size()==0 && pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get() )
@@ -1945,6 +1961,30 @@ int k=2;
             pDevice->m_pDevice_RouteTo = pDevice_RouteTo;
     }
 
+	// Be sure nothing is recursive
+    for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
+    {
+        DeviceData_Router *pDevice = (*itDevice).second;
+        DeviceData_Router *pDevice2 = pDevice;
+        while( pDevice2 && pDevice2->m_pDevice_ControlledVia )
+		{
+			if( pDevice2->m_pDevice_ControlledVia==pDevice )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Device %d recurses",pDevice->m_dwPK_Device);
+				((DeviceData_Router *)pDevice->m_pDevice_ControlledVia)->m_vectDeviceData_Impl_Children.clear();
+				pDevice->m_pDevice_ControlledVia = NULL;
+				pDevice->m_dwPK_Device_ControlledVia = 0;
+				pDevice->m_pRow_Device->FK_Device_ControlledVia_setNull(true);
+				pDevice->m_pRow_Device->Table_Device_get()->Commit();
+
+				DeviceData_Base *pDevice3 = allDevices.m_mapDeviceData_Base_Find(pDevice->m_dwPK_Device);
+				pDevice3->m_pDevice_ControlledVia = NULL;
+				pDevice3->m_dwPK_Device_ControlledVia = 0;
+			}
+			pDevice2 = (DeviceData_Router *) pDevice2->m_pDevice_ControlledVia;
+		}
+    }
+
     // Now match up devices with Core's and Media Directors
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
     {
@@ -1960,7 +2000,7 @@ int k=2;
 			pDevice->m_dwPK_Device_MD = pDevice_AL->m_dwPK_Device_MD = pDevice->m_pDevice_MD->m_dwPK_Device;
     }
 
-    // Get the device groups
+	// Get the device groups
     vector<Row_DeviceGroup *> vectDeviceGroup;
     GetDatabase()->DeviceGroup_get()->GetRows(string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation),&vectDeviceGroup);
 
