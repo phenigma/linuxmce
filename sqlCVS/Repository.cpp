@@ -897,6 +897,8 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 #pragma warning( "This doesn't really handle types correctly, and may not handle indexes right either" );
 #pragma warning( "need to make an index for psc_id" );
 
+	map<int,int> map_id_mod;
+
 	if( !pTable )
 	{
 		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
@@ -927,32 +929,38 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 				throw "Schema error";
 			}
 		}
+
+		sSQL.str( "" );
+		sSQL << "SELECT psc_id,psc_mod FROM " << sTableName;
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
+		{
+			while( (row = mysql_fetch_row( result_set.r ) ) )
+				map_id_mod[atoi(row[0])] = row[1] ? atoi(row[1]) : 0;
+		}
 	}
+
+	bool bCheckForUpdate = map_id_mod.size()!=0;
 
 	int NumRows = atoi( str.m_vectString[pos++].c_str( ) );
 	cout << "Importing table: " << sTableName << " (" << m_sName << ") " << NumRows << " rows" << endl;
 	for( int j=0;j<NumRows;++j )
 	{
-		if( j && j % 1000 == 0 )
-			if( j==1000 )
-				cout << "Please be patient.  I am comparing each row one" << endl << "at a time to preserve any local changes you made" << endl;
-			else
-				cout << "Completed " << j << " rows out of " << NumRows << endl;
+		if( j && j % 500 == 0 )
+			cout << "Completed " << j << " rows out of " << NumRows << endl;
 
 		bool bUpdate=false; // Make this an update rather than an insert
 		int i_psc_id=0; // If an update, this will be the psc_id
-		if( iField_psc_id!=-1 )
+		if( bCheckForUpdate )
 		{
-			// See if a record with this psc_id already exists
+			// See if a record with this psc_id already exists, only if we didn't create the table new
 			i_psc_id = atoi(str.m_vectString[pos+iField_psc_id].c_str());
-			sSQL.str( "" );
-			sSQL << "SELECT psc_id,psc_mod FROM " << sTableName << " WHERE psc_id=" << i_psc_id;
-			PlutoSqlResult result_set;
-			MYSQL_ROW row=NULL;
-			if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+			if( map_id_mod.find(i_psc_id)!=map_id_mod.end() )
 			{
 				bUpdate=true;
-				if( row[1] && atoi(row[1]) )
+
+				if( map_id_mod[i_psc_id] )
 				{
 					cout << endl << "***Warning*** While importing into table: " << sTableName << " pscid: " << i_psc_id << endl;
 					cout << "You modified the row that is being re-imported." << endl;
@@ -994,6 +1002,16 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 			sSQL << " WHERE psc_id=" << i_psc_id;
 		else
 			sSQL << " )";
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		{
+			cerr << "SQL Failed: " << sSQL.str( ) << endl;
+			throw "Database error";
+		}
+	}
+	if( !pTable && iField_psc_id!=-1 )
+	{
+		sSQL.str( "" );
+		sSQL << "ALTER TABLE `" << sTableName << "` add unique `psc_id` ( `psc_id` )";
 		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 		{
 			cerr << "SQL Failed: " << sSQL.str( ) << endl;

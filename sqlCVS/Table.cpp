@@ -1494,6 +1494,8 @@ bool Table::Dump( SerializeableStrings &str )
 	StringUtils::Replace(m_sFilter,"<%=U%>",g_GlobalConfig.csvUserID());
 	sSQL.str( "" );
 	sSQL << "SELECT " << sFieldList << " FROM " << m_sName << (m_sFilter.length() && StringUtils::ToUpper(m_sFilter).find("WHERE")==string::npos ? " WHERE " : " " ) << m_sFilter;
+	if( num_psc_id!=-1 )
+		sSQL << " ORDER BY psc_id";
 	PlutoSqlResult result_set;
 	if( !( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
 		return false;
