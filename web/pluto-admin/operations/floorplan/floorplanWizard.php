@@ -11,7 +11,6 @@ function floorplanWizard($output,$dbADO) {
 	$maxWidth=400;
 	$maxHeight=400;
 
-	echo (int)@$_REQUEST['mumu'];
 	if($installationID==0){
 		header('Location: index.php?section=login');
 		exit();
