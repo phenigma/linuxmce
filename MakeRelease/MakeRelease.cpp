@@ -837,6 +837,8 @@ AsksSourceQuests:
 // - the target destination will be /usr/pluto/<relative path>
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,map<string,string> &mapFilesToMove)
 {
+	// Get a vector<Row_Package_Package *> and pass it to pRow_Package_Source->FK_Package_getrow()->Package_Package_FK_Package_getrows()
+	// 
 	cout << "------------DEBIAN PACKAGE OUTPUT" << endl;
 	cout << " rep: " << pRow_Package_Source->Repository_get() << " ver: " << pRow_Package_Source->Version_get() << " parm: " << pRow_Package_Source->Parms_get() << endl;
 	cout << "Press any key to continue..." << endl;
