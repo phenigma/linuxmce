@@ -1,0 +1,2 @@
+<?
+header('LOCATION: /index.php');
