@@ -52,9 +52,10 @@ void CPlutoMOContainer::SetPlutoMO(TInt aDirectory, TInt aSizeDate)
         iListBox->HandleItemRemovalL();  
         }
 
-    iAppEngine->SetDirectory(aDirectory);  
-    iAppEngine->SetSizeDate(aSizeDate);     
-    if(iAppEngine->StartPlutoMO() == KErrNone)
+	iAppEngine->SetDirectory(aDirectory);  
+	iAppEngine->SetSizeDate(aSizeDate);     
+    
+	if(iAppEngine->StartPlutoMO() == KErrNone)
         {        
         iAppEngine->GetPlutoMOItems(items);       
         }

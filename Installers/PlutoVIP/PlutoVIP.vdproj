@@ -45,6 +45,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3DFCBD6FEC544AF6B370DFA40AB121A4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_849872C9CE46414A9103CFE693CABCBF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -64,6 +70,12 @@
         "Entry"
         {
         "MsmKey" = "8:_AAB375E126A44B24B6EBC314DCC79B69"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BBB311B8019544719BF5FE0811C7E330"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -116,10 +128,10 @@
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
         "OutputFilename" = "8:Release\\PlutoVIP.msi"
-        "PackageFilesAs" = "3:2"
+        "PackageFilesAs" = "3:4"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
-        "Compression" = "3:2"
+        "Compression" = "3:3"
         "SignOutput" = "11:FALSE"
         "CertificateFile" = "8:"
         "PrivateKeyFile" = "8:"
@@ -209,6 +221,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_3DFCBD6FEC544AF6B370DFA40AB121A4"
+            {
+            "SourcePath" = "8:Files\\Images\\logo.bmp"
+            "TargetName" = "8:logo.bmp"
+            "Tag" = "8:"
+            "Folder" = "8:_8686197E7B124C2D8CF838DBC92F9709"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{A582A373-4685-4296-BEFE-614B80A702C3}:_849872C9CE46414A9103CFE693CABCBF"
             {
             "SourcePath" = "8:Files\\wbtapi.dll"
@@ -224,7 +256,7 @@
             "Permanent" = "11:FALSE"
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
-            "Register" = "3:4"
+            "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
@@ -273,6 +305,26 @@
             {
             "SourcePath" = "8:Files\\PlutoConfig.conf"
             "TargetName" = "8:PlutoConfig.conf"
+            "Tag" = "8:"
+            "Folder" = "8:_1B5D852E068541949D4C4EFC20232C0B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_BBB311B8019544719BF5FE0811C7E330"
+            {
+            "SourcePath" = "8:..\\License\\Pluto License.rtf"
+            "TargetName" = "8:Pluto License.rtf"
             "Tag" = "8:"
             "Folder" = "8:_1B5D852E068541949D4C4EFC20232C0B"
             "Condition" = "8:"
@@ -409,7 +461,7 @@
                         {
                             "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_DD010703E8AC475CBB9F4B0B7A5E5B6F"
                             {
-                            "Name" = "8:PlutoVIP 1.0"
+                            "Name" = "8:PlutoVIP 2.0.0.0"
                             "AlwaysCreate" = "11:FALSE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
@@ -438,7 +490,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:PlutoVIP"
         "ProductCode" = "8:{9C63DA26-918F-4889-A576-3F7DA5279117}"
-        "PackageCode" = "8:{928F66E4-5A5A-4BA8-AC3A-7196FEE7C69A}"
+        "PackageCode" = "8:{98A0EA98-D2EB-4B76-AEA4-0D954456DB87}"
         "UpgradeCode" = "8:{7D538009-CD8B-45CE-A97C-3A71A6D9580C}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -554,7 +606,7 @@
         {
             "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_00322C040A6248EDB0142415A8F94CB5"
             {
-            "Name" = "8:PlutoVIP 1.0"
+            "Name" = "8:PlutoVIP 2.0.0.0"
             "Arguments" = "8:"
             "Description" = "8:Pluto VIP 1.0 application"
             "ShowCmd" = "3:1"
@@ -568,7 +620,7 @@
             }
             "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_32E4A59DD3A14E99BEC6F31EC2CCC983"
             {
-            "Name" = "8:PlutoVIP 1.0"
+            "Name" = "8:PlutoVIP 2.0.0.0"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -746,7 +798,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:0"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -773,6 +825,53 @@
                             "Setting" = "3:1"
                             "Value" = "8:#1203"
                             "DefaultValue" = "8:#1203"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
+                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_D9756EC594A64F6D93B1DF0F6FC12C88"
+                    {
+                    "Sequence" = "3:400"
+                    "DisplayName" = "8:License Agreement"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdLicenseDlg.wid"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "EulaText"
+                            {
+                            "Name" = "8:EulaText"
+                            "DisplayName" = "8:#1008"
+                            "Description" = "8:#1108"
+                            "Type" = "3:6"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BBB311B8019544719BF5FE0811C7E330"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Sunken"
+                            {
+                            "Name" = "8:Sunken"
+                            "DisplayName" = "8:#1007"
+                            "Description" = "8:#1107"
+                            "Type" = "3:5"
+                            "ContextData" = "8:4;True=4;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:4"
+                            "DefaultValue" = "3:4"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }

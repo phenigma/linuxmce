@@ -17,15 +17,13 @@
 #include <eikapp.h>
 #include <eikdoc.h>
 
-_LIT(KPlutoVMCFile,"c:\\PlutoMO.vmc");
-_LIT(KPlutoCfgFile,"c:\\PlutoMO.cfg");
+_LIT(KPlutoVMCFile,"C:\\system\\apps\\PlutoMO\\PlutoMO.vmc");
 
 #include "BD/BDCommandProcessor_Symbian_Bluetooth.h"
 //----------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS
 class CPlutoVMCView;
 class CPlutoMOContainer;
-class CPlutoMOGridContainer;
 class CPlutoEventView;
 class BDCommandProcessor_Symbian_Bluetooth;
 
@@ -147,7 +145,6 @@ private:
 	void MakeViewerVisible(bool Value);
 
     CPlutoMOContainer* iAppContainer; 
-	CPlutoMOGridContainer* iGridContainer; 
 	CPlutoEventView* iPlutoEventView;
 
 	TInt m_iCapturedKeyId;

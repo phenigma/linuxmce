@@ -5,6 +5,7 @@
 #include "PlutoPhoneCommands.h"
 #include "BD_HaveNothing.h"
 #include "BD_WhatDoYouHave.h"
+#include "PlutoUtils/PlutoDefs.h"
 
 #include "PlutoMOApp.h"
 #include "PlutoMOAppUi.h"
@@ -41,6 +42,7 @@ BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 	m_Send_iBuf = NULL;
 
 	m_HBuf_SendBuffer = NULL;
+	iCommandTimer = NULL;
 
 	CActiveScheduler::Add(this);
 }
@@ -48,20 +50,43 @@ BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 BDCommandProcessor_Symbian_Base::~BDCommandProcessor_Symbian_Base()
 {
 	if (iCommandTimer)
+	{
 		iCommandTimer->Cancel();
+	}
 
-	delete iCommandTimer;
-	iCommandTimer = NULL;
+	PLUTO_SAFE_DELETE(iCommandTimer);
 
-	iSocket.CancelAll();
+	iListeningSocket.CancelAccept();
 
 	iState = EIdle;
 	iConnected = EFalse;
+
+	iSocket.CancelAll();
+	iSocket.Close();
 
 	iSdpDatabase.Close();
     iSdpSession.Close();
 
 	iSocketServ.Close();
+
+	MYSTL_CLEAR_LIST(m_listCommands);
+
+	PLUTO_SAFE_DELETE(m_ReceiveCmdHeader);
+	PLUTO_SAFE_DELETE(m_ReceiveCmdData);
+	PLUTO_SAFE_DELETE(m_ReceiveAckHeader);
+	PLUTO_SAFE_DELETE(m_ReceiveAckData);
+
+	PLUTO_SAFE_DELETE(m_HBuf_ReceiveCmdHeader);
+	PLUTO_SAFE_DELETE(m_HBuf_ReceiveCmdData);
+	PLUTO_SAFE_DELETE(m_HBuf_ReceiveAckHeader);
+	PLUTO_SAFE_DELETE(m_HBuf_ReceiveAckData);
+
+	PLUTO_SAFE_DELETE(m_HBuf_SendBuffer);
+	PLUTO_SAFE_DELETE(m_Send_iBuf);
+	PLUTO_SAFE_DELETE(m_Recv_iBuf);
+
+	PLUTO_SAFE_DELETE(m_pCommand_Sent); 
+	PLUTO_SAFE_DELETE(m_pCommand);
 
 	Cancel();
 }
@@ -132,7 +157,6 @@ bool BDCommandProcessor_Symbian_Base::SendLong(long l)
 //----------------------------------------------------------------------------------------------
 void  BDCommandProcessor_Symbian_Base::Listen() 
 {
-//	iPendingKey = 0;
 	iCommandTimer = CPeriodic::NewL(EPriorityStandard);
 
 	User::LeaveIfError( iListeningSocket.Listen( KListeningQueSize ) );
@@ -313,7 +337,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		MYSTL_CLEAR_LIST(m_listCommands);
 
 		iConnected = false;
-		//iSocket.CancelAll();
+
 		iSocket.Close();
 		
 		User::LeaveIfError( iSocket.Open( iSocketServ ) );
@@ -784,11 +808,6 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 //----------------------------------------------------------------------------------------------
 void  BDCommandProcessor_Symbian_Base::Close() 
 {
-/*
-	iTransferSocket.Close();
-	iListenSocket.Close();
-	iSocketServ.Close();
-*/
 }
 //----------------------------------------------------------------------------------------------
 void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=true*/)

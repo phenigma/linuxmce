@@ -1,6 +1,5 @@
 #include "PlutoMOAppUi.h"
 #include "PlutoMOContainer.h" 
-#include "PlutoMOGridContainer.h"
 #include <PlutoMO.rsg>
 #include "PlutoMO.hrh"
 
@@ -43,13 +42,14 @@ void CPlutoMOAppUi::ConstructL()
 	iPlutoEventView = NULL;
 	m_pVMCView = NULL;
 
-	SymbianLogger *pLogger = new SymbianLogger(string("PlutoMO.log"), KCPlutoLoggerId, CCoeStatic::EApp);
+	SymbianLogger *pLogger = new SymbianLogger(string("C:\\system\\apps\\PlutoMO\\PlutoMO.log"), KCPlutoLoggerId, CCoeStatic::EApp);
 
 	LOG("Setup members\n");
 	//members initialization
 	m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
 	m_bSendKeyStrokes = false;
 	m_bMakeVisibleAllowed = false;
+
 	m_pBDCommandProcessor_Symbian_Bluetooth = 
 		new BDCommandProcessor_Symbian_Bluetooth("", this);
 	m_pBDCommandProcessor = m_pBDCommandProcessor_Symbian_Bluetooth;
@@ -67,19 +67,8 @@ void CPlutoMOAppUi::ConstructL()
 
 	LOG("Setup incoming call notifier\n");
 	SetupIncomingCallNotifier(); // ARMI only (it is crashing in WINS)
-
+	
 	iCurType = 0;
-
-	/*
-	LOG("Http client\n");
-	TUriParser8 uri;
-	uri.Parse(_L8("news.yahoo.com"));
-
-	PlutoHttpClient hc;
-	LOG("PlutoHttpClient hc;");
-	hc.SendRequest(uri);
-	LOG("SendRequest\n");
-	*/
 }
 //----------------------------------------------------------------------------------------------
 CPlutoMOAppUi::~CPlutoMOAppUi()
@@ -90,8 +79,11 @@ CPlutoMOAppUi::~CPlutoMOAppUi()
 		m_iCapturedKeyId = 0;
 	}
 
-	delete m_pBDCommandProcessor_Symbian_Bluetooth;
-	m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
+	if(NULL != m_pBDCommandProcessor_Symbian_Bluetooth)
+	{
+		delete m_pBDCommandProcessor_Symbian_Bluetooth;
+		m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
+	}
 
 	if (iAppContainer)
     {
@@ -109,7 +101,7 @@ CPlutoMOAppUi::~CPlutoMOAppUi()
 void CPlutoMOAppUi::ReadConfigurationFile()
 {
 	CAsciiLineReader lr;
-	lr.OpenL(_L("c:\\PlutoMO.cfg"));
+	lr.OpenL(_L("C:\\system\\apps\\PlutoMO\\PlutoMO.cfg"));
 	TInt iCurrentLineOffset;
 	TPtrC8 iCurrentLine;
 
@@ -217,42 +209,29 @@ void CPlutoMOAppUi::HandleCommandL(TInt aCommand)
     {
     switch ( aCommand )
         {
-
-		case EAknSoftkeyOk:
-//			iBluetoothHandler->PressedKey('o');
-			break;
-        case EAknSoftkeyExit:
-//			iBluetoothHandler->PressedKey('q');
-            break;
-//        case EEikCmdExit:
-//            Exit();
-//          break; 
-
-
-//       case EAknSoftkeyBack:
         case EEikCmdExit:
             {
 			if(!m_bVMCViewerVisible)
 				Exit();
             break;
             }
-        // Have to change what it does currently
+
+		// Have to change what it does currently
 		// Opens the file 
 		case EPlutoMOCmdAppTest1:
             {
             iAppContainer->CallLaunch();
 			break;
             }
-		// List view
-        case EPlutoMOCmdAppTest2:
+
+		// Version
+		case EPlutoMOCmdAppTest2:
             {
-			    //BaseConstructL();
-				//iGridContainer = new (ELeave) CPlutoMOGridContainer;
-				//iGridContainer->SetMopParent(this);
-				//iGridContainer->ConstructL( ClientRect() );
-				//AddToStackL( iGridContainer );
-				break;
+            CAknInformationNote* informationNote = new (ELeave) CAknInformationNote;
+			informationNote->ExecuteLD(_L("PlutoMO version 1.0.0"));
+			break;
             }
+			
 		// Deleting a VMC file
         case EPlutoMOCmdAppTest3:
             {
@@ -260,11 +239,13 @@ void CPlutoMOAppUi::HandleCommandL(TInt aCommand)
 			iAppContainer->SetPlutoMO(EPlutoMOPictures, EPlutoMOSizeDateNoChange);
 			break;
             }
-		// Help Screen
+		
+		// About
         case EPlutoMOCmdAppTest4:
             {
-            // Will not do anything now
-            break;
+			CAknInformationNote* informationNote = new (ELeave) CAknInformationNote;
+			informationNote->ExecuteLD(_L("Pluto\nPluto Mobile Orbiter"));
+			break;
             }
 
         default:

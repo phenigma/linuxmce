@@ -33,11 +33,10 @@ void CPlutoMOGridEngine::SetupGridIconsL(TInt aIconFileResource)
 	HBufC* iconFileName;
 	iconFileName = StringLoader::LoadLC(aIconFileResource);	
 	
-	
 	// Create an array of icons, reading them from the file
 	CArrayPtr<CGulIcon>* icons = new(ELeave) CAknIconArray(KNumberOfIcons);
 	CleanupStack::PushL(icons);
-	/*
+	
 	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOSnap, EMbmPlutoMOCard_mask));
 	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOGolf, EMbmPlutoMOCard_mask));
 	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOClock, EMbmPlutoMOCard_mask));
@@ -45,11 +44,11 @@ void CPlutoMOGridEngine::SetupGridIconsL(TInt aIconFileResource)
 	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOHearts, EMbmPlutoMOCard_mask));
 	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMORummy, EMbmPlutoMOCard_mask));
 	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOPoker, EMbmPlutoMOCard_mask));
-	*/
+	
 	CleanupStack::Pop(icons);
 	CleanupStack::PopAndDestroy(iconFileName);
 	
-	//ItemDrawer()->FormattedCellData()->SetIconArray(icons); // passing ownership of icons
+	ItemDrawer()->FormattedCellData()->SetIconArray(icons); // passing ownership of icons
 
 	}
 

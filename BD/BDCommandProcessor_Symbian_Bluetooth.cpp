@@ -6,11 +6,7 @@ const TInt KPort = 19; //3460;
 
 void BDCommandProcessor_Symbian_Bluetooth::Start() 
 {
-	iCommandTimer = CPeriodic::NewL(EPriorityStandard);
-
 	User::LeaveIfError(iSocketServ.Connect());
-	User::LeaveIfError(iNotifier.Connect());
-
     User::LeaveIfError(iSdpSession.Connect());
     User::LeaveIfError(iSdpDatabase.Open(iSdpSession));
 

@@ -99,7 +99,6 @@ void CPlutoMOEngine::LaunchCurrent(TInt aPosition)
 
     if(!iDirList)
         return;
-
  
     CDocumentHandler* handler = CDocumentHandler::NewL(NULL);
     CleanupStack::PushL(handler);
@@ -199,10 +198,7 @@ void CPlutoMOEngine::FindFiles()
 
 	informationNote = new (ELeave) CAknInformationNote;
     
-	//informationNote->ExecuteLD(_L("TEST"));	
-	
 	informationNote->ExecuteLD(number);	
-
 };
 //------------------------------------------------------------------------------------------------------------------
 TBool CPlutoMOEngine::RemoveItems(CDesCArray* aItems)

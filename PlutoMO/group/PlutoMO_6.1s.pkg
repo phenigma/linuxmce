@@ -11,7 +11,7 @@
 ; Series 60 identifier
 (0x101F6F88), 0, 0, 0, {"Series60ProductID"}
 
-"\Symbian\7.0s\Series60_v21\Epoc32\release\armi\urel\PlutoMO.app"         -"!:\system\apps\PlutoMO\PlutoMO.app"
+"\Symbian\6.1\Series60\Epoc32\release\armi\urel\PlutoMO.app"         -"!:\system\apps\PlutoMO\PlutoMO.app"
 {
 "C:\pluto\trunk\PlutoMO\group\Res\PlutoMO.rsc"
 }

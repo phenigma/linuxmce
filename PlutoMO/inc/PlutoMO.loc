@@ -2,9 +2,9 @@
 // LOCALISATION STRINGS
 
 #define qtn_appl_option_item1 "Open"
-#define qtn_appl_option_item2 "List View"
+#define qtn_appl_option_item2 "Version"
 #define qtn_appl_option_item3 "Delete"
-#define qtn_appl_option_item4 "Help"
+#define qtn_appl_option_item4 "About"
 
 #define qtn_app_caption_string "PlutoMO"
 

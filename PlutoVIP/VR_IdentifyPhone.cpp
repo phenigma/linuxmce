@@ -111,6 +111,8 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 	MYSQL_ROW PlutoIdRow=NULL;
 	MYSQL_ROW UsersRow=NULL,AddressRow=NULL,ExtraDataRow=NULL,ShareRow=NULL,PhoneRow=NULL;
 
+	string sRevision;
+
 	std::ostringstream s;
 	s << 
 		"SELECT FK_MasterUsers,FKID_C_PhoneStatus,FKID_BinaryVersion,BinaryRevision,"
@@ -120,21 +122,34 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 		"LEFT JOIN BinaryVersion ON FKID_BinaryVersion = PKID_BinaryVersion "
 		"WHERE PKID_MacAddress = " << m_iMacAddress;
 
+	enum SqlFields
+	{
+		sf_FK_MasterUsers		= 0, 
+		sf_FKID_C_PhoneStatus   = 1, 
+		sf_FKID_BinaryVersion   = 2, 
+		sf_BinaryRevision       = 3, 
+		sf_NoBinary             = 4,  
+		sf_Revision             = 5, 
+		sf_BinaryFilename       = 6 
+	};
+
 	cout << "Executing: " << s.str() << "\n";
 	if( 
 		(rsMacAddress.r = pDCEMySqlConfig->MySqlQueryResult(s.str())) && 
 		(MacAddressRow = mysql_fetch_row(rsMacAddress.r)) 
 	)
 	{
+		sRevision= MacAddressRow[sf_Revision];
+
 		/** See if: This phone does take a binary, and NoBinary is not set, and there is revision */
-		if( MacAddressRow[2] && (!MacAddressRow[4] || MacAddressRow[4][0]=='0') && MacAddressRow[5] )
+		if( MacAddressRow[sf_FKID_BinaryVersion] && (!MacAddressRow[sf_NoBinary] || MacAddressRow[sf_NoBinary][0]=='0') && MacAddressRow[sf_Revision] )
 		{
-			if( !MacAddressRow[3] || atoi(MacAddressRow[3])<atoi(MacAddressRow[5]) )
-				FileName = MacAddressRow[6]; /** This is going to the phone */
+			if( !MacAddressRow[sf_BinaryRevision] || atoi(MacAddressRow[sf_BinaryRevision])<atoi(MacAddressRow[sf_Revision]) )
+				FileName = MacAddressRow[sf_BinaryFilename]; /** This is going to the phone */
 		}
-		cout << "Found Mac " << m_iMacAddress << " associated with user: " << MacAddressRow[0] << "\n";
-		m_iPlutoId = atoi(MacAddressRow[0]);
-		PKID_C_PhoneStatus = atoi(MacAddressRow[1]);
+		cout << "Found Mac " << m_iMacAddress << " associated with user: " << MacAddressRow[sf_FK_MasterUsers] << "\n";
+		m_iPlutoId = atoi(MacAddressRow[sf_FK_MasterUsers]);
+		PKID_C_PhoneStatus = atoi(MacAddressRow[sf_FKID_C_PhoneStatus]);
 
 		cout << "Request from " << m_iEstablishmentID << " mac: " << m_iMacAddress << 
 			" PlutoID: " << m_iPlutoId << " Status: " << PKID_C_PhoneStatus << endl; 
@@ -330,6 +345,9 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 
     m_iUseCache=0;
 
+
+CheckForVMC:
+
 	//send sis file to phone if needed
 	if(!FileName.empty())
 	{
@@ -339,9 +357,16 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 		VA_SendFileToPhone *pVA_SendFileToPhone = new VA_SendFileToPhone(pDCEMySqlConfig->m_sSisFilesPath, FileName, m_iMacAddress);
 
 		MYSTL_ADDTO_LIST(m_listActions, pVA_SendFileToPhone);
-	}
 
-CheckForVMC:
+		//let's now update the FKID_BinaryVersion in MacAddress
+		assert(!sRevision.empty());
+		s.str("");
+		s << "UPDATE MacAddress SET BinaryRevision = " << sRevision
+		  << " WHERE PKID_MacAddress = " << m_iMacAddress;
+
+		cout << "\n# Executing: " << s.str() << "\n";
+		pDCEMySqlConfig->MySqlQueryResult(s.str());
+	}
 	
 	/** Let's see if we're storing the Establishment's customer ID, or if there's a VMC that we should automatically send to the phone */
 	

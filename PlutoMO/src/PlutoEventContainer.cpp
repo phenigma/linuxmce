@@ -41,7 +41,7 @@ void CPlutoEventContainer::Draw(const TRect& aRect) const
 	CWindowGc& gc = SystemGc();
 
 	TRect rect(0, 0, -1, -1);
-	CFbsBitmap *pBitmap = CImageLoader::LoadBitmap(string("PlutoEvent.png").Des());
+	CFbsBitmap *pBitmap = CImageLoader::LoadBitmap(string("C:\\system\\apps\\PlutoMO\\PlutoEvent.png").Des());
 	gc.BitBlt(rect.iTl, pBitmap);
 
 	CGraphicsDevice* screenDevice = CCoeEnv::Static()->ScreenDevice();
