@@ -46,6 +46,7 @@ using namespace DCE;
 #include "pluto_main/Define_DataGrid.h"
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 Climate_Plugin::Climate_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Climate_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -58,6 +59,8 @@ Climate_Plugin::Climate_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 		return;
 	}
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 Climate_Plugin::~Climate_Plugin()

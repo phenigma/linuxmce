@@ -15,7 +15,7 @@ public:
 	Asterisk_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID, ServerAddress, bConnectEventHandler) {};
 	Asterisk_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
-	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
+	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
 	virtual void PBX_CommandResult(int iCommandID,int iResult,string sMessage)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 14,3,19,StringUtils::itos(iCommandID).c_str(),20,StringUtils::itos(iResult).c_str(),21,sMessage.c_str()));
@@ -165,7 +165,7 @@ public:
 			{
 				DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
-				if( pDeviceData_Base->IsChildOf(m_pData) )
+				if( pDeviceData_Base && pDeviceData_Base->IsChildOf(m_pData) )
 					ReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);

@@ -16,11 +16,14 @@ using namespace DCE;
 using namespace ASTERISK;
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 Asterisk::Asterisk(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Asterisk_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 Asterisk::~Asterisk()

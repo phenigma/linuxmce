@@ -46,6 +46,7 @@ using namespace DCE;
 #include "callmanager.h"
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Telecom_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -60,6 +61,8 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 
 	iCmdCounter = 0;
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 Telecom_Plugin::~Telecom_Plugin()

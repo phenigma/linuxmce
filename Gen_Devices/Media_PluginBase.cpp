@@ -3,7 +3,7 @@
 #include "Logger.h"
 
 using namespace DCE;
-#include "Media_PluginBase.h"
+#include "../Media_Plugin/Media_Plugin.h"
 DeviceData_Impl *Media_Plugin_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position
@@ -20,22 +20,17 @@ DeviceData_Impl *Media_Plugin_Data::CreateData(DeviceData_Impl *Parent,char *pDa
 	return NULL;
 }
 
-Event_Impl *Media_Plugin_Event::CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID)
+Event_Impl *Media_Plugin_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice )
 {
-	switch(PK_DeviceTemplate) {
+	switch(dwPK_DeviceTemplate) {
 		case 2:
-			return (Event_Impl *) new Media_Plugin_Event(pOCClientSocket, DeviceID);
+			return (Event_Impl *) new Media_Plugin_Event(pOCClientSocket, dwDevice);
 	};
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", PK_DeviceTemplate);
+	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
 	return NULL;
 }
 Command_Impl  *Media_Plugin_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
 {
-	switch(PK_DeviceTemplate)
-	{
-		case 2:
-			return (Command_Impl *) new Media_Plugin_Command(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);
-	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
 	return NULL;
 }

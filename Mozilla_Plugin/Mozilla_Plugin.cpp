@@ -35,11 +35,14 @@ using namespace DCE;
 #include "DCE/DataGrid.h"
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 Mozilla_Plugin::Mozilla_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Mozilla_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 Mozilla_Plugin::~Mozilla_Plugin()

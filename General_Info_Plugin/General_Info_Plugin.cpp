@@ -37,6 +37,7 @@ using namespace DCE;
 #include "../pluto_main/Table_UnknownDevices.h"
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: General_Info_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -49,6 +50,8 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 		return;
 	}
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 General_Info_Plugin::~General_Info_Plugin()

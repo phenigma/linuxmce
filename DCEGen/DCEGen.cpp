@@ -190,6 +190,7 @@ int main(int argc, char *argv[])
 			Row_DeviceTemplate *pRow_DeviceTemplate = vectRow_DeviceTemplate[s];
 			cout << "Recreating headers for " << pRow_DeviceTemplate->PK_DeviceTemplate_get() << " " << pRow_DeviceTemplate->Description_get() << endl;
 			gen.m_mapGeneratedDevices.clear(); // Clear this since we're doing each device new
+			gen.m_dwPK_DeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
 			gen.GenerateDevice(pRow_DeviceTemplate->PK_DeviceTemplate_get(),bTemplates);
 		}
 	}
@@ -718,7 +719,7 @@ int k=2;
 
 	fstr_DeviceCommand << "Command_Impl  *" + Name + "_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)" << endl;
 	fstr_DeviceCommand << "{" << endl;
-	if( p_mapRow_MasterDevice_Children->size() )
+	if( p_mapRow_MasterDevice_Children->size()>1 )  // We will always have on for ourselves
 	{
 		fstr_DeviceCommand << "\tswitch(PK_DeviceTemplate)" << endl;
 		fstr_DeviceCommand << "\t{" << endl;
@@ -726,9 +727,11 @@ int k=2;
 		for(itMDL=p_mapRow_MasterDevice_Children->begin();itMDL!=p_mapRow_MasterDevice_Children->end();++itMDL)
 		{
 			Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
-
-			fstr_DeviceCommand << "\t\tcase " << StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) << ":" << endl;
-			fstr_DeviceCommand << "\t\t\treturn (Command_Impl *) new " << FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) << "(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);" << endl;
+			if( p_Row_DeviceTemplate->PK_DeviceTemplate_get()!=m_dwPK_DeviceTemplate )  // Don't do this for ourselves since we can't have a child of the same type
+			{
+				fstr_DeviceCommand << "\t\tcase " << StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) << ":" << endl;
+				fstr_DeviceCommand << "\t\t\treturn (Command_Impl *) new " << FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) << "(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);" << endl;
+			}
 		}
 		fstr_DeviceCommand << "\t};" << endl;
 	}
@@ -1101,7 +1104,9 @@ string foo = sGeneratedFile.substr(pos,999);
 		{
 			FILE *file = fopen(sHandwrittenFilename.c_str(),"wb");
 			if( !file )
+			{
 				throw "Cannot open " + sHandwrittenFilename + " for writing.";
+			}
 			if( fwrite(sHandwrittenFile.c_str(),1,sHandwrittenFile.length(),file)!=sHandwrittenFile.length() )
 				throw "Failed to write to file " + sHandwrittenFilename;
 			fclose(file);

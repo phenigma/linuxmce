@@ -71,6 +71,8 @@ Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHand
 {
 }
 
+//<-dceag-const2-b->!
+
 //<-dceag-dest-b->
 Disk_Drive::~Disk_Drive()
 //<-dceag-dest-e->

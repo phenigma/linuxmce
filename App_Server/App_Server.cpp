@@ -49,6 +49,7 @@ void sh(int i) /* signal handler */
 }
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: App_Server_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -58,6 +59,8 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
     signal(SIGCHLD, sh); /* install handler */
 #endif
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 App_Server::~App_Server()

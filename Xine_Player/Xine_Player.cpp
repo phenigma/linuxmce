@@ -38,6 +38,7 @@ using namespace DCE;
 //<-dceag-d-e->
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Xine_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -61,6 +62,8 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 
     m_pXineSlaveControl->setXinePlayerObject(this);
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 Xine_Player::~Xine_Player()

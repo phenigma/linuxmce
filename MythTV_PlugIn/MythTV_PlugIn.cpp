@@ -31,12 +31,15 @@ using namespace DCE;
 #include <libmythtv/frame.h>
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
     m_pMythWrapper = new MythTvWrapper(this);
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 MythTV_PlugIn::~MythTV_PlugIn()

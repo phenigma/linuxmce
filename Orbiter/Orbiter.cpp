@@ -198,6 +198,8 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
 }
 
+//<-dceag-const2-b->!
+
 //<-dceag-dest-b->
 Orbiter::~Orbiter()
 //<-dceag-dest-e->

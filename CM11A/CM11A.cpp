@@ -19,11 +19,14 @@ using namespace DCE;
 #include "cm11aconsts.h"
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 CM11A::CM11A(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: CM11A_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 CM11A::~CM11A()

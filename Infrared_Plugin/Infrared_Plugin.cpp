@@ -19,6 +19,7 @@ using namespace DCE;
 #include "pluto_main/Table_InfraredGroup_Command.h"
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 Infrared_Plugin::Infrared_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Infrared_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -32,6 +33,8 @@ Infrared_Plugin::Infrared_Plugin(int DeviceID, string ServerAddress,bool bConnec
 	}
 
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 Infrared_Plugin::~Infrared_Plugin()

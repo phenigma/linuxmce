@@ -70,6 +70,7 @@ using namespace DCE;
 #define PROCESS_COUNTDOWN_BEFORE_ALARM	2
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Security_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -113,6 +114,8 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Text_To_Speech_CONST);
 	m_PK_Device_TextToSpeach = pDeviceData_Base ? pDeviceData_Base->m_dwPK_Device : 0;
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 Security_Plugin::~Security_Plugin()

@@ -5,11 +5,6 @@
 //	DCE Implemenation for #57 Text To Speech
 
 #include "Gen_Devices/Text_To_SpeechBase.h"
-
-#ifdef WIN32
-	#include "atlbase.h"
-	#include "atlstr.h"
-#endif
 //<-dceag-d-e->
 
 //<-dceag-decl-b->
@@ -70,8 +65,8 @@ public:
 
 	virtual void CMD_Text_To_Wave(string sText,char **pData,int *iData_Size) { string sCMD_Result; CMD_Text_To_Wave(sText.c_str(),pData,iData_Size,sCMD_Result,NULL);};
 	virtual void CMD_Text_To_Wave(string sText,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
-	unsigned int Find_Exact_Size(string sText);
-	char *CreateWAV(string sText,int &Size);
+
+
 //<-dceag-h-e->
 	};
 
@@ -79,3 +74,4 @@ public:
 }
 #endif
 //<-dceag-end-e->
+//<-dceag-const2-b->!

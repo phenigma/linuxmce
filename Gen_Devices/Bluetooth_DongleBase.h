@@ -15,7 +15,7 @@ public:
 	Bluetooth_Dongle_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID, ServerAddress, bConnectEventHandler) {};
 	Bluetooth_Dongle_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
-	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
+	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
 	virtual void Mobile_orbiter_detected(string sMac_Address,int iSignal_Strength,string sID)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 4,3,5,sMac_Address.c_str(),6,StringUtils::itos(iSignal_Strength).c_str(),7,sID.c_str()));
@@ -186,7 +186,7 @@ public:
 			{
 				DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
-				if( pDeviceData_Base->IsChildOf(m_pData) )
+				if( pDeviceData_Base && pDeviceData_Base->IsChildOf(m_pData) )
 					ReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);

@@ -96,3 +96,4 @@ public:
 }
 #endif
 //<-dceag-end-e->
+//<-dceag-const2-b->!

@@ -180,6 +180,7 @@ Bluetooth_Dongle::Bluetooth_Dongle( int iDeviceID, string sServerAddress, bool b
 	}
 	StartScanning(); // start the scanning loop
 }
+//<-dceag-const2-b->!
 
 //-----------------------------------------------------------------------------------------------------
 

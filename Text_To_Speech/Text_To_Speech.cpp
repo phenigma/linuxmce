@@ -12,11 +12,14 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 Text_To_Speech::Text_To_Speech(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Text_To_Speech_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 Text_To_Speech::~Text_To_Speech()

@@ -44,6 +44,7 @@ using namespace DCE;
 #include "pluto_main/Define_FloorplanObjectType_Color.h"
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 Lighting_Plugin::Lighting_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Lighting_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -56,6 +57,8 @@ Lighting_Plugin::Lighting_Plugin(int DeviceID, string ServerAddress,bool bConnec
 		return;
 	}
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 Lighting_Plugin::~Lighting_Plugin()

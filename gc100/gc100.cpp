@@ -75,6 +75,7 @@ void * StartEventThread(void * Arg)
 }
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: gc100_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -99,6 +100,8 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	    exit(1);
 	}
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 gc100::~gc100()

@@ -76,6 +76,8 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
     m_bFloorPlansArePrepared = false;
 }
 
+//<-dceag-const2-b->!
+
 //<-dceag-dest-b->
 Orbiter_Plugin::~Orbiter_Plugin()
 //<-dceag-dest-e->

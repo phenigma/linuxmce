@@ -28,6 +28,7 @@ using namespace DCE;
 #include "pluto_main/Table_EventHandler.h"
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Event_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -78,6 +79,8 @@ int k=2;
 		pListEventHandler->push_back(pEventHandler);
 	}
 }
+
+//<-dceag-const2-b->!
 
 CriteriaParmNesting *Event_Plugin::LoadCriteriaParmNesting(CriteriaParmNesting *pCriteriaParmNesting_Parent,Row_CriteriaParmNesting *pRow_CriteriaParmNesting)
 {

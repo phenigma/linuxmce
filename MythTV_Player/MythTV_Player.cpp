@@ -72,6 +72,7 @@ public:
 MythContext *gContext;
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: MythTV_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
@@ -80,6 +81,8 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 
     m_iMythFrontendWindowId = 0;
 }
+
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 MythTV_Player::~MythTV_Player()
