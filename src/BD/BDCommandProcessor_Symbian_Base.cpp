@@ -768,7 +768,20 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 			return;
 		}
 
-		if(bCriticalRequest /*&& IsActive()*/) //the object is already active.
+		//on timer tick, we found an EIdle state. what if the connection was lost?
+		m_iTimedOut++;
+
+		LOG("@ Inactivity : ");
+		LOGN(m_iTimedOut);
+		LOGN(" \n");
+
+		if(m_iTimedOut >= 5)
+		{
+			m_bStatusOk = false;
+			return;
+		}
+
+		if(bCriticalRequest && IsActive()) //the object is already active.
 		{
 			LOG("Key was press, but the object is still active. Will just set a flag\n"); 
 			//GotoStage(ESendingCommand); //don't force object activation
@@ -782,18 +795,6 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 			GotoStage(ESendingCommand);
 			SetActive();
 			return;
-		}
-
-		//on timer tick, we found an EIdle state. what if the connection was lost?
-		m_iTimedOut++;
-
-		LOG("@ Inactivity : ");
-		LOGN(m_iTimedOut);
-		LOGN(" \n");
-
-		if(m_iTimedOut >= 5)
-		{
-			m_bStatusOk = false;
 		}
 	}
 }

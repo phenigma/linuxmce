@@ -41,6 +41,7 @@
 //------------------------------------------------------------------------------------------------------------------
 CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aUid, scop)
 {
+	m_bSimulation = false;
 	m_pGC = NULL;
 
 	m_pContainer = NULL;
@@ -242,6 +243,7 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 
 	CFbsBitmap *pBitmap = CImageLoader::LoadBitmap(string(Filename).Des());
 	m_pGC->BitBlt(rect.iTl, pBitmap);
+	delete pBitmap;
 
 	return bResult;
 }
@@ -260,8 +262,6 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 
 	HBufC16 *pPath = HBufC16::NewL(256);
 	TPtr16 aPath = pPath->Des();
-
-	delete [] (char *)pGraphic;
 
 	RFile file;
 	RFs aFs;
@@ -826,7 +826,7 @@ void CPlutoVMCUtil::LocalKeyPressed(int KeyCode)
 	BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
 	pBDCommandProcessor_Symbian_Base->AddCommand(pBD_WhatDoYouHave);
 
-	pBDCommandProcessor_Symbian_Base->ProcessCommands();
+	pBDCommandProcessor_Symbian_Base->ProcessCommands(!m_bSimulation);
 }
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::OpenProgram(string ProgramName)

@@ -67,6 +67,8 @@ public:
 
 		TRect m_ImageRect;
 
+		bool m_bSimulation;
+
 protected:
 		// From RenderMenu
 		virtual void MessageBox(const char *Message,const char *Title);

@@ -45,16 +45,16 @@ BD_CP_ShowImage::BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize
 {
 	m_iImageType=ImageType;
 	m_ImageSize=ImageSize;
-	m_pImage = new char[m_ImageSize];
+	m_pImage = (char *)malloc(m_ImageSize);
 	memcpy(m_pImage, pImage, m_ImageSize);
 }
 
 BD_CP_ShowImage::~BD_CP_ShowImage()
 {
-#ifndef SYMBIAN //VCMUtil is responsable for deleting the image
-	if(NULL != m_pImage)
+#ifndef SYMBIAN
+	if(NULL != m_pImage)  //the symbian app (plutovmcutil will delete the data)
 	{
-		delete m_pImage;
+		delete [] m_pImage;
 		m_pImage = NULL;
 	}
 #endif
@@ -78,10 +78,11 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 	m_pImage = Read_block(m_ImageSize);
 
 #ifdef SYMBIAN
-	LOG("#	Received 'ShowImage' command  #\n");
+	 LOG("#	Received 'ShowImage' command  #\n");
 
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenImage(m_iImageType, m_ImageSize, m_pImage);
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Show();
+
 #endif //SYMBIAN
 
 #ifdef VIPDESIGN

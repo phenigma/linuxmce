@@ -659,6 +659,10 @@ int CPlutoVMCContainer::GetSymbianKeyEventFromKeyCode(TKeyEvent& aKeyEvent, TEve
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCContainer::SimulateEvent(long eventType, long key)
 {
+	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
+
+	pVMCUtil->m_bSimulation = true;
+
 	TKeyEvent aKeyEvent;
 	TEventCode aType;
 
@@ -666,6 +670,8 @@ void CPlutoVMCContainer::SimulateEvent(long eventType, long key)
 
 	GetSymbianKeyEventFromKeyCode(aKeyEvent, aType, key);
 	OfferKeyEvent(aKeyEvent, aType);
+
+	pVMCUtil->m_bSimulation = false;
 }
 //------------------------------------------------------------------------------------------------------------------
 // End of File  
