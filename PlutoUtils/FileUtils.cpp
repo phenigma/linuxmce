@@ -335,6 +335,10 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 #include <iostream>
 bool FileUtils::PUCopyFile(string sSource,string sDestination)
 {
+#ifndef WIN32
+	system(("mkdir -p " + FileUtils::BasePath(sDestination)).c_str());
+#endif
+
 	FILE *fileSource = fopen(sSource.c_str(),"rb");
 	if( !fileSource )
 		return false;
