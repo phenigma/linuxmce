@@ -2768,7 +2768,9 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 {
 	global $dbPlutoMainDatabase;
 	
+	$orbiterID=getMediaDirectorOrbiterChild($controlledBy,$dbADO);
+	
 	$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation);
-	$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=?,FK_Room=? WHERE PK_Device=?',array($controlledBy,$roomID,$insertID));
+	$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=?,FK_Room=? WHERE PK_Device=?',array($orbiterID,$roomID,$insertID));
 }
 ?>

@@ -68,8 +68,8 @@
 	$GLOBALS['AmpsReceivers']=103;				// Amps/Receivers
 	$GLOBALS['GenericSerialDevices']=119;		// GenericSerialDevices
 	$GLOBALS['PVRCaptureCards']=75;			// PVR Capture Cards
-	$GLOBALS['SoundCards']=-1;			// Sound Cards
-	$GLOBALS['VideoCards']=-1;			// Video Cards
+	$GLOBALS['SoundCards']=124;			// Sound Cards
+	$GLOBALS['VideoCards']=125;			// Video Cards
 
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	

@@ -413,7 +413,7 @@ function irCodes($output,$dbADO) {
 			
 			$customCodesNoArray=explode(',',@$_POST['displayedIRGC']);
 			foreach ($customCodesNoArray as $ig_c){
-				$irData=stripslashes(urldecode(@$_POST['irData_'.$ig_c]));
+				$irData=(isset($_POST['isHidden_'.$ig_c]))?stripslashes(urldecode(@$_POST['irData_'.$ig_c])):stripslashes(@$_POST['irData_'.$ig_c]);
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$ig_c));
 			}
 
@@ -484,7 +484,8 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 			}else{
 				$textAreaElem='
 					<textarea name="ir" rows="2" cols="100" disabled>'.$rowStandardCode['IRData'].'</textarea>
-					<input type="hidden" name="irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'" value="'.urlencode(addslashes($rowStandardCode['IRData'])).'">';
+					<input type="hidden" name="irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'" value="'.urlencode(addslashes($rowStandardCode['IRData'])).'">
+					<input type="hidden" name="isHidden_'.$rowStandardCode['PK_InfraredGroup_Command'].'" value="1">';
 			}
 			$out.='
 				<tr bgcolor="lightblue">
@@ -508,7 +509,8 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 			}else{
 				$textareaUserCode='
 					<textarea name="ir" rows="2" cols="100" disabled onClick="setPreferred(\'prefered_'.$rowUserCode['FK_Command'].'_'.(($infraredGroupID==0)?'':$infraredGroupID).'\','.$rowUserCode['PK_InfraredGroup_Command'].')">'.$rowUserCode['IRData'].'</textarea>
-					<input type="hidden" name="irData_'.$rowUserCode['PK_InfraredGroup_Command'].'" value="'.urlencode(addslashes($rowUserCode['IRData'])).'">';
+					<input type="hidden" name="irData_'.$rowUserCode['PK_InfraredGroup_Command'].'" value="'.urlencode(addslashes($rowUserCode['IRData'])).'">
+					<input type="hidden" name="isHidden_'.$rowUserCode['PK_InfraredGroup_Command'].'" value="1">';
 			}
 
 			$RowColor=(($rowUserCode['FK_Users']==$_SESSION['userID'])?'yellow':'lightyellow');
