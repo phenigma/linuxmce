@@ -1060,7 +1060,13 @@ function getChilds($parentID,$dbADO) {
 function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0)
 {
 	global $dbPlutoMainDatabase;
-	$out='';
+	$out='
+	<script>
+	function windowOpen(locationA,attributes) {
+		window.open(locationA,\'\',attributes);
+	}
+	</script>';
+	
 	$selectedManufacturer = (int)@$_REQUEST['manufacturers'];
 	$selectedDeviceCateg= (int)@$_REQUEST['deviceCategSelected'];
 	$selectedDevice= (int)@$_REQUEST['deviceSelected'];
@@ -1169,12 +1175,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		
 		$scriptInHead = "
 		
-		<script>
-		function windowOpen(locationA,attributes) {
-			window.open(locationA,'',attributes);
-		}
-		</script>
-		
+	
 		<!-- As in a client-side built tree, all the tree infrastructure is put in place
 		     within the HEAD block, but the actual tree rendering is trigered within the
 		     BODY -->
@@ -1240,7 +1241,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 				}
 				return null;	
 			} 
-		
+
 			function showHideObject(obj) {
 				obj = getObj(obj);					
 				if(document.all || getObj) {  			
@@ -1434,6 +1435,12 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			 		if ($deviceSelected!=0 && $manufacturerSelected!=0) {	 			
 			 			$queryInsertMasterDevice = 'INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer) values(?,?,?)';
 			 			$res = $dbADO->Execute($queryInsertMasterDevice,array($DeviceTemplate_Desc,$deviceSelected,$manufacturerSelected));	 			
+			 			$dtID=$dbADO->Insert_ID();
+
+			 			if(in_array($deviceSelected,$GLOBALS['TVdevicesArray'])){
+							$openTunerConfig='windowOpen(\'index.php?section=tunerConfig&categoryID='.$deviceSelected.'&dtID='.$dtID.'\',\'width=600,height=400,toolbars=true,scrollbars=1,resizable=1\')';
+						}else
+							$openTunerConfig='';
 			 			
 			 			if($categoryID==$GLOBALS['rootAVEquipment']){
 			 				$templateID=$dbADO->Insert_ID();
@@ -1441,11 +1448,16 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 							$out.='
 								<script>
+									'.$openTunerConfig.'
 									opener.location="index.php?section=avWizard&type=avEquipment#deviceLink_'.$insertID.'";
 									self.close();
 								</script>';
 			 			}else{
-							header("Location: index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode");			 			
+			 				$out.='
+								<script>
+									'.$openTunerConfig.'
+									self.location="index.php?section='.$section.'&manufacturers='.$manufacturerSelected.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'&allowAdd='.$boolDeviceTemplate.'&justAddedNode='.$justAddedNode.'";
+								</script>';
 			 			}
 			 		}	 			 		
 			 	}

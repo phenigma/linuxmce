@@ -172,7 +172,7 @@ function eibDevices($output,$dbADO,$eibADO) {
 		if(in_array($rowDevices['FK_DeviceTemplate'],$multiGroupAddress)){
 			$out.='	<tr>
 						<td>'.@$labels[1].'</td>
-						<td><input type="text" name="dimName_'.$rowDevices['PK_Device'].'" size="50" value="'.@$channelArray[$channelParts[1]].' ('.@$channelParts[0].')'.'" disabled> <input type="hidden" name="dim_'.$rowDevices['PK_Device'].'" value="'.@$channelParts[1].'"></td>
+						<td><input type="text" name="dimName_'.$rowDevices['PK_Device'].'" size="50" value="'.@$channelArray[$channelParts[1]].' ('.@$channelParts[1].')'.'" disabled> <input type="hidden" name="dim_'.$rowDevices['PK_Device'].'" value="'.@$channelParts[1].'"></td>
 						<td><input type="button" class="button" name="setGroup" value="Pick" onClick="pickGroupAddress(\'dimName_'.$rowDevices['PK_Device'].'\',\'dim_'.$rowDevices['PK_Device'].'\');"></td>
 					</tr>
 			';
@@ -256,22 +256,18 @@ function eibDevices($output,$dbADO,$eibADO) {
 				$eibADO->Execute('TRUNCATE TABLE eib.groupaddresses');
 				$linesAdded=0;
 				foreach($fileArray AS $line){
-					if($pos!=0){
-						$lineItems=explode("\t",$line);
-						$startIndex=0;
-						while($lineItems[$startIndex]==' ')
-							$startIndex++;
-						$name=str_replace('"','',$lineItems[$startIndex]);
-						$adr1=trim((($lineItems[$startIndex+1]=='" "')?'':str_replace('"','',$lineItems[$startIndex+1])));
-						$adr2=trim((($lineItems[$startIndex+2]=='" "')?'':str_replace('"','',$lineItems[$startIndex+2])));
-						$adr3=trim((($lineItems[$startIndex+3]=='" "')?'':str_replace('"','',$lineItems[$startIndex+3])));
+					preg_match_all('/\".*?\"/',$line,$matches);
+					if(count($matches[0])==4){
+						$name=str_replace('"','',$matches[0][0]);
+						$adr1=str_replace('"','',trim($matches[0][1]));
+						$adr2=str_replace('"','',trim($matches[0][2]));
+						$adr3=str_replace('"','',trim($matches[0][3]));
 						$address=$adr1.'/'.$adr2.'/'.$adr3;
 						if(is_numeric($adr1) && is_numeric($adr2) && is_numeric($adr3)){
 							$eibADO->Execute('INSERT INTO groupaddresses (name,address) VALUES (?,?)',array($name,trim($address)));
 							$linesAdded++;
 						}
 					}
-					$pos++;
 				}
 				header("Location: index.php?section=eibDevices&type=$type&msg=Group addresses updated, $linesAdded group addreses added.");
 				exit();

@@ -15,7 +15,7 @@ function irCodes($output,$dbADO) {
 		header("Location: index.php?section=login");
 	}
 
-	$infraredGroupID=(int)$_REQUEST['infraredGroupID'];
+	$infraredGroupID=@(int)$_REQUEST['infraredGroupID'];
 	$GLOBALS['displayedIRGC']=array();
 	$GLOBALS['preferredIGC']=array();
 	$GLOBALS['igcPrefered']=array();	
@@ -284,6 +284,8 @@ function irCodes($output,$dbADO) {
 
 		if($action=='testCode'){
 			$irCode=$_REQUEST['irCode'];
+			$ig_c=(int)$_REQUEST['ig_c'];
+			$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irCode,$ig_c));
 			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 70 "'.$irCode.'"';
 			system($commandToTest);
 			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=The command was sent.");
@@ -443,7 +445,7 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 					<td>'.((is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<B> Not in database</B>':'<textarea name="irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'" rows="2" cols="100" '.((is_null($deviceID)?'':'disabled')).'>'.$rowStandardCode['IRData'].'</textarea>').'</td>
 					<td align="center">';
 					if(!is_null($rowStandardCode['PK_InfraredGroup_Command']))
-						$out.=((!is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&from=avWizard&action=testCode&irCode=\'+document.irCodes.irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'.value;">':'').'
+						$out.=((!is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&from=avWizard&action=testCode&ig_c='.$rowStandardCode['PK_InfraredGroup_Command'].'&irCode=\'+document.irCodes.irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'.value;">':'').'
 					</td>
 				</tr>';
 		}
@@ -464,7 +466,7 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 						$out.='<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowUserCode['PK_InfraredGroup_Command'].';document.irCodes.submit();}"> <br>';
 					}
 					$out.='
-						<input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&from=avWizard&action=testCode&irCode=\'+document.irCodes.irData_'.$rowUserCode['PK_InfraredGroup_Command'].'.value;">
+						<input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&from=avWizard&action=testCode&ig_c='.$rowUserCode['PK_InfraredGroup_Command'].'&irCode=\'+document.irCodes.irData_'.$rowUserCode['PK_InfraredGroup_Command'].'.value;">
 					</td>
 				</tr>';
 		}

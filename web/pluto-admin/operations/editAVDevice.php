@@ -16,7 +16,6 @@ $deviceID = (int)$_REQUEST['deviceID'];
 		header("Location: index.php?section=userHome");
 	}
 	
-	
 
 if ($action=='form') {
 	
@@ -220,12 +219,29 @@ if ($action=='form') {
 	$checkedUsesIR = $usesIR>0?"checked":"";
 	$enabledIROptions=($usesIR>0)?'':'disabled';
 	
+	$mediaTypeCheckboxes='';
+	$resMT=$dbADO->Execute('
+		SELECT MediaType.Description, PK_MediaType, FK_DeviceTemplate 
+		FROM MediaType 
+		LEFT JOIN DeviceTemplate_MediaType ON FK_MediaType=PK_MediaType AND FK_DeviceTemplate=?
+		WHERE DCEaware=0',$deviceID);
+	$displayedMT=array();
+	$checkedMT=array();
+	while($rowMT=$resMT->FetchRow()){
+		$displayedMT[]=$rowMT['PK_MediaType'];
+		if(!is_null($rowMT['FK_DeviceTemplate']))
+			$checkedMT[]=$rowMT['PK_MediaType'];
+		$mediaTypeCheckboxes.='<input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.(($rowMT['FK_DeviceTemplate']!='')?'checked':'').'>'.$rowMT['Description'].' ';
+		$mediaTypeCheckboxes.=((count($displayedMT))%5==0)?'<br>':'';
+	}
 $out.='
 
 <form action="index.php" method="POST" name="editAVDevice" onSubmit="setCheckboxes();">
 <input type="hidden" name="section" value="editAVDevice">
 <input type="hidden" name="action" value="update">
 <input type="hidden" name="deviceID" value="'.$deviceID.'">
+<input type="hidden" name="displayedMT" value="'.join(',',$displayedMT).'">
+<input type="hidden" name="checkedMT" value="'.join(',',$checkedMT).'">
 <br>';
 
 if(ereg('devices',$from))
@@ -252,8 +268,14 @@ $out.='
 			<td align="right"><span class="'.(($usesIR>0)?'':'grayout').'">Toggle Power: </span></td>
 			<td><input type="checkbox" name="toggle_power" value="1" '.$checkedTogglePower.' '.$enabledIROptions.' onClick="setCheckboxes();document.editAVDevice.submit();"></td>
 		</tr>
+		<tr>
+			<td align="center" colspan="2"><B>Media Type</B></td>
+		</tr>
+		<tr>
+			<td align="center" colspan="2">'.$mediaTypeCheckboxes.'</td>
+		</tr>
 	</table>
-
+<div align="center"><input type="submit" class="button" name="mdl" value="Update"  /></div>
 		<table cellpadding="5" cellspacing="0" border="1" align="center">
 		<tr>
 			<th>DSP Modes</th><th>Inputs</th><th>Outputs</th>
@@ -779,6 +801,19 @@ function deleteFromArray(toDelete,targetArray)
 			}
 		}
 		$pos++;	
+	}
+	
+	// add or delete records in DeviceTemplate_MediaType
+	$displayedMTArray=explode(',',$_POST['displayedMT']);
+	$checkedMTArray=explode(',',$_POST['checkedMT']);
+	foreach ($displayedMTArray AS $mediaType){
+		if(isset($_POST['mediaType_'.$mediaType])){
+			if(!in_array($mediaType,$checkedMTArray)){
+				$dbADO->Execute('INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($deviceID,$mediaType));
+			}
+		}elseif(in_array($mediaType,$checkedMTArray)){
+			$dbADO->Execute('DELETE FROM DeviceTemplate_MediaType WHERE FK_DeviceTemplate=? AND FK_MediaType=?',array($deviceID,$mediaType));
+		}
 	}
 	
 	header("Location: index.php?section=editAVDevice&deviceID=$deviceID&from=$from");

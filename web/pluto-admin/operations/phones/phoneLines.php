@@ -80,7 +80,7 @@ function phoneLines($output,$dbADO) {
 			</tr>
 			<tr>
 				<td><B>Password</B></td>
-				<td><input type="password" name="secret" value=""></td>
+				<td><input type="text" name="secret" value=""></td>
 			</tr>
 			<tr>
 				<td><B>Name</B></td>

@@ -1021,6 +1021,12 @@ switch ($section) {
 	    include_once('operations/myDevices/core.php');
 	    core($output,$dbADO);
 	break;	
+	case 'tunerConfig';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/tunerConfig.php');
+	    tunerConfig($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

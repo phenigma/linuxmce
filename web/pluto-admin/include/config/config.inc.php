@@ -61,6 +61,11 @@
 	$GLOBALS['rootPhones'] = 89;				// Phones
 	$GLOBALS['specialized']=97;					// Specialized
 	$GLOBALS['InfraredInterface']=114;			// Infrared Interface
+	$GLOBALS['TVdevices']=77;					// TV's
+	$GLOBALS['TVVCRCombo']=106;					// TV VCR Combo
+	$GLOBALS['AmpsReceivers']=103;				// Amps/Receivers
+	
+	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	
 	// PK_DeviceTemplate from table DeviceTemplate
 	
@@ -76,6 +81,7 @@
 	$GLOBALS['GenericInputOuput']=43;			// Generic Input Ouput 
 	$GLOBALS['DrapesSwitch']=68;				// Drapes Switch
 	$GLOBALS['StandardThermostat']=4;			// Standard Thermostat
+	$GLOBALS['Tuner']=75;						// Generic Tuner
 	
 	
 	// PK_Template from table Template
