@@ -2,6 +2,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/fs.h>
+#include <linux/poll.h>
 #include <asm/uaccess.h>
 
 #ifndef SET_MODULE_OWNER
@@ -14,6 +15,8 @@
 
 #define BUF_SIZE (size_t) 511
 #define N_DEVS (int) 16
+
+DECLARE_WAIT_QUEUE_HEAD (gc100_read_queue);
 
 struct gc100_dev
 {
@@ -44,6 +47,8 @@ ssize_t gc100_read(struct file * filp, char * buffer, size_t length, loff_t * of
 
     if (down_interruptible(&dev->sem))
 		return -ERESTARTSYS;
+	
+	printk("<1> Read PID: %d\n", current->pid);
 	
 	minor_number = dev->minor_number & 0x0f;
 	which_driver_set = (int) (minor_number / 2);
@@ -128,6 +133,8 @@ ssize_t gc100_write(struct file * filp, const char * buffer, size_t length, loff
 	if (down_interruptible(&dev->sem))
 		return -ERESTARTSYS;
 
+	printk("<1> Write PID: %d\n", current->pid);
+	
 	minor_number = dev->minor_number & 0x0f;
 	which_driver_set = (int) (minor_number / 2);
 	bufwritesize = min(length, BUF_SIZE);
@@ -146,9 +153,9 @@ ssize_t gc100_write(struct file * filp, const char * buffer, size_t length, loff
 				ret = -EFAULT;
 				goto out;
 			}
-			gc100_s_to_d_flag[which_driver_set] = 1;
-			gc100_s_to_d_pos[which_driver_set] = 0;
 			gc100_s_to_d_len[which_driver_set] = bufwritesize;
+			gc100_s_to_d_pos[which_driver_set] = 0;
+			gc100_s_to_d_flag[which_driver_set] = 1;
 
 			ret = bufwritesize;
 		}
@@ -194,6 +201,7 @@ static int gc100_device_open(struct inode * inode, struct file * filp)
 	struct gc100_dev * dev;
 	int num = MINOR(inode->i_rdev);
 
+	printk("<1> Open PID: %d\n", current->pid);
     dev = (struct gc100_dev *) filp->private_data;
 	if (!dev)
 	{
@@ -212,8 +220,39 @@ static int gc100_device_open(struct inode * inode, struct file * filp)
 
 static int gc100_device_release(struct inode * inode, struct file * filp)
 {
+	printk("<1> Close PID: %d\n", current->pid);
 	module_put(THIS_MODULE);
 //	MOD_DEC_USE_COUNT;
+	return 0;
+}
+
+unsigned int gc100_poll(struct file * filp, struct poll_table_struct * poll_table)
+{
+    struct gc100_dev * dev = filp->private_data;
+
+	int which_driver_set, minor_number;
+
+	if (down_interruptible(&dev->sem))
+		return -ERESTARTSYS;
+
+	printk("<1> Release PID: %d\n", current->pid);
+	minor_number = dev->minor_number & 0x0f;
+	which_driver_set = (int) (minor_number / 2);
+
+    if (minor_number % 2 == 0)
+	{ // s polling
+		if (gc100_d_to_s_flag[which_driver_set] == 1)
+		{
+			return POLLIN | POLLRDNORM;
+		}
+	}
+	else
+	{ // d polling
+		if (gc100_s_to_d_flag[which_driver_set] == 1)
+		{
+			return POLLIN | POLLRDNORM;
+		}
+	}
 	return 0;
 }
 
@@ -227,6 +266,7 @@ static void /*__exit*/ gc100_exit(void)
 
 static struct file_operations gc100_fops =
 {
+//	.poll = gc100_poll,
 	.read = gc100_read,
 	.write = gc100_write,
 	.open = gc100_device_open,
