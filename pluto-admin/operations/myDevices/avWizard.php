@@ -12,11 +12,13 @@ function avWizard($output,$dbADO) {
 
 	switch($type){
 		case 'avEquipment':
+			$output->setHelpSrc('/support/index.php?section=document&docID=131');
 			$deviceCategory=$GLOBALS['rootAVEquipment'];
 			$specificFloorplanType=$GLOBALS['AVEquipmentFlorplanType'];
 			$title='A/V Equipment';
 		break;
 		case 'media_directors':
+			$output->setHelpSrc('/support/index.php?section=document&docID=129');
 			$deviceCategory=$GLOBALS['rootMediaDirectors'];
 			$specificFloorplanType=$GLOBALS['EntertainmentZone'];
 		break;
