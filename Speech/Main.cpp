@@ -155,6 +155,7 @@ int main(int argc, char* argv[])
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pSpeech->CreateChildren();
+			pSpeech->InitSpeech();
 			pthread_join(pSpeech->m_RequestHandlerThread, NULL);
 
 		} 
@@ -165,7 +166,6 @@ int main(int argc, char* argv[])
 
 		delete pSpeech;
 	}
-	cout << "Insert Here " << endl;
 	catch(string s)
 	{
 		cerr << "Exception: " << s << endl;
