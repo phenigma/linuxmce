@@ -167,7 +167,7 @@ function editCommandGroup($output,$dbADO) {
 					LEFT JOIN 
 						Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
 					WHERE 
-						(Device.FK_Installation = ? OR Device.PK_Device IS NULL)
+						(Device.FK_Installation = ? OR Device.FK_Installation IS NULL)
 					AND CommandGroup_Command.FK_CommandGroup = ?
 				ORDER BY PK_CommandGroup_Command ASC
 				";

@@ -98,8 +98,8 @@ if($action=='form') {
 			$cameraStr='<table><tr>';
 			foreach($cameraDevices as $cameraID=>$cameraDescription){
 				if(isset($camerasCGArray[$cameraID])){
-					$queryCG_R='SELECT * FROM CommandGroup_Room WHERE FK_CommandGroup=? AND FK_Room=? AND FK_Installation=?';
-					$resCG_R=$dbADO->Execute($queryCG_R,array($camerasCGArray[$cameraID],$rowRooms['PK_Room'],$installationID));
+					$queryCG_R='SELECT * FROM CommandGroup_Room WHERE FK_CommandGroup=? AND FK_Room=?';
+					$resCG_R=$dbADO->Execute($queryCG_R,array($camerasCGArray[$cameraID],$rowRooms['PK_Room']));
 					$cg_room_checked=($resCG_R->RecordCount()>0)?'checked':'';
 				}else 
 					$cg_room_checked='';

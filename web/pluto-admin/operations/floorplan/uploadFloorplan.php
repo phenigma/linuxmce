@@ -99,12 +99,12 @@ function uploadFloorplan($output,$dbADO) {
 			}
 			
 			if(isset($invalidType)){
-				header("Location: index.php?section=uploadFloorplan&error=Invalid file type.&page=".$page);
+				header("Location: index.php?section=uploadFloorplan&error=Invalid file type.&page=$page&fpID=$page");
 				exit();
 			}
 			
 			if(!file_exists($path) && !@mkdir($path)){
-				header("Location: index.php?section=uploadFloorplan&error=Cannot create directory.&page=".$page);
+				header("Location: index.php?section=uploadFloorplan&error=Cannot create directory.&page=$page&fpID=$page");
 				exit();
 			}
 			

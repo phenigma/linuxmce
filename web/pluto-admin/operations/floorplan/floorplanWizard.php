@@ -30,7 +30,7 @@ function floorplanWizard($output,$dbADO) {
 		<p align="center">You can add as many floorplans as you like, and Pluto can create floorplans for you as well.  Click "help" for more information and samples.</p>
 		<table bgcolor="#EEEEEE" cellpadding="0" cellspacing="0" border="0" align="center">
 			<tr>
-				<td><select name="page" onchange="submitForm();">';
+				<td><select name="page" onchange="document.form1.page_orig.value=\''.$page.'\';submitForm();">';
 				while($rowFloorplans=$resFloorplans->FetchRow()){
 					$out.='<option value="'.$rowFloorplans['Page'].'" '.(($page==$rowFloorplans['Page'])?'selected':'').'>'.$rowFloorplans['Description'].'</option>';
 				}
@@ -80,10 +80,9 @@ function floorplanWizard($output,$dbADO) {
 			</tr>
 		</table>
 		<input type="hidden" name="hidFloorplanData" value="" />
-		<input type="hidden" name="page_orig" value="1" />
-		<input type="hidden" name="type_orig" value="1" />
+		<input type="hidden" name="page_orig" value="0" />
+		<input type="hidden" name="type_orig" value="0" />
 		';
-
 	if(file_exists($path.'/'.$page.'.png')){
 		$randNumber=rand(0,99999);
 		$floorPlanImage='operations/floorplan/image.php?imagepath='.$GLOBALS['floorplansPath'].'/inst'.$installationID.'/'.$page.'.png&rand='.$randNumber;
@@ -107,6 +106,7 @@ function floorplanWizard($output,$dbADO) {
 	}else{
 		$origWidth=384;
 		$origHeight=359;
+		$scaleFactor=1;
 	}
 	$out.='</form>';
 	
@@ -191,8 +191,8 @@ function floorplanWizard($output,$dbADO) {
 				if ($arValues[$intCursor] == $page && $arValues[$intCursor+1]!=-1 && $arValues[$intCursor+2] !=-1)
 				{
 					$item['hascoordinatesthispage'] = true;
-					$item['x'] = (round($arValues[$intCursor+1] ))/$scaleFactor-10;
-					$item['y'] = (round($arValues[$intCursor+2] ))/$scaleFactor-10;
+					$item['x'] = floor((round($arValues[$intCursor+1] ))/$scaleFactor-10);
+					$item['y'] = floor((round($arValues[$intCursor+2] ))/$scaleFactor-10);
 					
 				}
 				$intCursor += 3;
@@ -231,6 +231,11 @@ function floorplanWizard($output,$dbADO) {
 					
 	}else{
 		// process
+		$pageToRedirect=$page;
+		if((int)$_POST['page_orig']!=0){
+			$page=(int)$_POST['page_orig'];
+		}
+		
 		$hidFloorplanData=$_POST['hidFloorplanData'];
 		$intCursor = 1; //the first one should be empty
 		$arIncomingCoords = explode(',',$hidFloorplanData);
@@ -247,8 +252,8 @@ function floorplanWizard($output,$dbADO) {
 				if($res->RecordCount()==0){
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$entAreaCoords[]=$rowFloorplans['Page'];
-						$entAreaCoords[]=($rowFloorplans['Page']==$page)?$scaleFactor*($arIncomingCoords[$intCursor+1]):-1;
-						$entAreaCoords[]=($rowFloorplans['Page']==$page)?$scaleFactor*($arIncomingCoords[$intCursor+2]):-1;
+						$entAreaCoords[]=($rowFloorplans['Page']==$page)?floor($scaleFactor*($arIncomingCoords[$intCursor+1])):-1;
+						$entAreaCoords[]=($rowFloorplans['Page']==$page)?floor($scaleFactor*($arIncomingCoords[$intCursor+2])):-1;
 					}
 					
 					$updateCoords='UPDATE EntertainArea SET FloorplanInfo=? WHERE PK_EntertainArea=?';
@@ -259,8 +264,8 @@ function floorplanWizard($output,$dbADO) {
 					$key=0;
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$entAreaCoords[$key]=$rowFloorplans['Page'];
-						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?$scaleFactor*($arIncomingCoords[$intCursor+1]+10):-1;
-						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?$scaleFactor*($arIncomingCoords[$intCursor+2]+10):-1;
+						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?floor($scaleFactor*($arIncomingCoords[$intCursor+1]+10)):-1;
+						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?floor($scaleFactor*($arIncomingCoords[$intCursor+2]+10)):-1;
 						$entAreaCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
 						$entAreaCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
 						$key+=3;
@@ -281,8 +286,8 @@ function floorplanWizard($output,$dbADO) {
 				if($res->RecordCount()==0){
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$deviceCoords[]=$rowFloorplans['Page'];
-						$deviceCoords[]=($rowFloorplans['Page']==$page)?$scaleFactor*($arIncomingCoords[$intCursor+1]):-1;
-						$deviceCoords[]=($rowFloorplans['Page']==$page)?$scaleFactor*($arIncomingCoords[$intCursor+2]):-1;
+						$deviceCoords[]=($rowFloorplans['Page']==$page)?floor($scaleFactor*($arIncomingCoords[$intCursor+1])):-1;
+						$deviceCoords[]=($rowFloorplans['Page']==$page)?floor($scaleFactor*($arIncomingCoords[$intCursor+2])):-1;
 					}
 					
 					$insertDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
@@ -293,22 +298,25 @@ function floorplanWizard($output,$dbADO) {
 					$key=0;
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$deviceCoords[$key]=$rowFloorplans['Page'];
-						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?$scaleFactor*($arIncomingCoords[$intCursor+1]+10):-1;
-						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?$scaleFactor*($arIncomingCoords[$intCursor+2]+10):-1;
+						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?floor($scaleFactor*($arIncomingCoords[$intCursor+1]+10)):-1;
+						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?floor($scaleFactor*($arIncomingCoords[$intCursor+2]+10)):-1;
 						$deviceCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
 						$deviceCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
 						$key+=3;
 					}
-						
-					$updateDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
-					$dbADO->Execute($updateDD,array(join(',',$deviceCoords),$deviceID,$GLOBALS['FloorplanInfo']));
+					if(join(',',$deviceCoords)!=join(',',$oldCoordsArray)){
+						//$dbADO->debug=true;
+						$updateDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
+						$dbADO->Execute($updateDD,array(join(',',$deviceCoords),$deviceID,$GLOBALS['FloorplanInfo']));
+						$dbADO->debug=false;
+					}
 				}
 				unset($deviceCoords);
 				$intCursor+=3;
 			}
 		}
 		setOrbitersNeedConfigure($installationID,$dbADO);
-		header("Location: index.php?section=floorplanWizard&page=".$page."&type=".$type);
+		header("Location: index.php?section=floorplanWizard&page=".$pageToRedirect."&type=".$type);
 	}
 
 	$output->setScriptInHead($scriptInHead);

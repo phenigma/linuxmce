@@ -10,7 +10,7 @@
   	}else{
   		error_reporting(E_ALL);
   		$GLOBALS['globalConfigPath']='/home/users/vali/work/web/globalconfig/';
-  		$GLOBALS['floorplansPath']='/var/www/test/pluto-admin/floorplans';
+  		$GLOBALS['floorplansPath']='/home/users/vali/work/web/pluto-admin/floorplans/';
   	}
 
   	include_once($GLOBALS['globalConfigPath'].'globalconfig.inc.php');
