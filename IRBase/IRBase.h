@@ -23,8 +23,9 @@ inline clock_t xClock()
 #ifdef WIN32
 	return clock();
 #else
-	struct tms mytms;
-	return times(&mytms);
+	return 0;
+//		struct tms mytms;
+//	return times(&mytms);
 #endif
 }
 
