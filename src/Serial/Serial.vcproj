@@ -102,9 +102,6 @@
 				RelativePath=".\GenericIODevice.cpp">
 			</File>
 			<File
-				RelativePath=".\ParseCommandString.cpp">
-			</File>
-			<File
 				RelativePath=".\SerialPort.cpp">
 			</File>
 			<File
