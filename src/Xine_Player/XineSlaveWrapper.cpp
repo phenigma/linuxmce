@@ -72,9 +72,9 @@ XineSlaveWrapper::XineSlaveWrapper()
 
 XineSlaveWrapper::~XineSlaveWrapper()
 {
-    closeWindow();
+	stopMedia(1); // any number will do.
+	closeWindow();
 }
-
 
 static const char noCursorDataDescription[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -531,6 +531,10 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
             xineStream->m_bIsRendering = false;
             break;
+		case XINE_EVENT_QUIT:
+			g_pPlutoLogger->Write(LV_STATUS, "Stream was disposed");
+			// the playback completed is sent from another place. (see the stopMedia)
+			break;
 
         case XINE_EVENT_PROGRESS:
            /**
@@ -557,8 +561,6 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 //                int dummy;
                 xine_ui_data_t *data = (xine_ui_data_t *) event->data;
 
-
-
 				//if(sscanf(data->str, "DVD Navigator: Menu, %s", volume)==1 ||
                    //sscanf(data->str, "DVD Menu, %s", volume)==1 ||
 				   //sscanf(data->str, "DVD Root Menu, %s", volume)==1)
@@ -576,6 +578,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
             	g_pPlutoLogger->Write(LV_STATUS, "Event ui set title");
 				// xineStream->m_pOwner->
 				g_pPlutoLogger->Write(LV_STATUS, "data: %s", data->str);
+/*
 				g_pPlutoLogger->Write(LV_STATUS, "Stream title: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_TITLE));
 				g_pPlutoLogger->Write(LV_STATUS, "Stream comment: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_COMMENT));
 				g_pPlutoLogger->Write(LV_STATUS, "Stream artist: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_ARTIST));
@@ -583,6 +586,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 				g_pPlutoLogger->Write(LV_STATUS, "Stream album: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_ALBUM));
 				g_pPlutoLogger->Write(LV_STATUS, "Stream year: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_YEAR));
 				g_pPlutoLogger->Write(LV_STATUS, "Stream track: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_TRACK_NUMBER));
+*/
 			}
 			break;
 
@@ -778,7 +782,7 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
         case Expose:
         {
             XExposeEvent *exposeEvent = (XExposeEvent *)&event;
-			g_pPlutoLogger->Write(LV_STATUS, "Expose with count %d", exposeEvent->count);
+			// g_pPlutoLogger->Write(LV_STATUS, "Expose with count %d", exposeEvent->count);
 
             if( exposeEvent->count != 0 )
                 break;
@@ -925,7 +929,7 @@ XineSlaveWrapper::PlayBackSpeedType XineSlaveWrapper::getPlaybackStream(int iStr
 {
 	XineStream *pStream;
 
-	if ( (pStream = getStreamForId(iStreamID, "Can't set the speed of a non existent stream (%d)!")) == NULL )
+	if ( (pStream = getStreamForId(iStreamID, "Can't get the speed of a non existent stream (%d)!")) == NULL )
 		return PLAYBACK_STOP;
 
 	int currentSpeed;
