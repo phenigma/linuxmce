@@ -163,6 +163,9 @@
 	// PK_PageSetup from table PageSetup
 	$GLOBALS['InstallationPage']=11;	// Installation Settings
 	
+	// date format
+	$GLOBALS['defaultDateFormat']='Y-m-d h:i:s';
+	
 	// do not change the following lines
 	$addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
 	$checkMasterUserUrl=$MasterUsersHost."index.php?section=check_master_user";

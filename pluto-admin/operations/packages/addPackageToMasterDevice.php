@@ -100,7 +100,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 						   <tr>
 								<td align="right">The source code for this package is:</td>
 								<td><select name="SourceCode" '.(($rowPackage['IsSource']==1)?'disabled':'').'>
-										<option value="0">-Please select</option>';
+										<option value="0">- Please select -</option>';
 				$querySourceCode='SELECT * FROM Package WHERE IsSource=1 ORDER BY Description ASC';
 				$resSourceCode=$dbADO->execute($querySourceCode);
 				while($rowSourceCode=$resSourceCode->FetchRow()){
@@ -118,9 +118,53 @@ function addPackageToMasterDevice($output,$dbADO) {
 					$out.='<option value="'.$rowPackageType['PK_PackageType'].'" '.(($rowPackageType['PK_PackageType']==$rowPackage['FK_PackageType'])?'selected':'').'>'.$rowPackageType['Description'].'</option>';
 				}
 				$out.='</select></td>
-						</tr>';
+						</tr>
+						<tr>
+							<td align="right">Manufacturer</td>
+							<td align="left">'.generatePullDown('manufacturer','Manufacturer','PK_Manufacturer','Description',$rowPackage['FK_Manufacturer'],$dbADO).'</td>
+						</tr>
+				';
 				if($PK_Package!=0){
-					$out.='	 <tr>
+					$out.='	<tr>
+								<td colspan="2">
+								<fieldset><legend> Package Compatibility </legend>
+								<table>
+									<tr bgcolor="#F0F3F8">
+										<td align="center">Operating system</td>
+										<td align="center">Distribution</td>
+										<td align="center">&nbsp;</td>
+									</tr>';
+					$PackageCompatArray=array();
+					$queryPackageCompat='SELECT * FROM Package_Compat WHERE FK_Package=?';
+					$resPackageCompat=$dbADO->Execute($queryPackageCompat,$PK_Package);
+					while($rowPackageCompat=$resPackageCompat->FetchRow()){
+						$PackageCompatArray[]=$rowPackageCompat['PK_Package_Compat'];
+						
+						$out.='<tr>
+									<td><select name="osPackageCompat_'.$rowPackageCompat['PK_Package_Compat'].'">
+										<option value="0">-Any-</option>';
+							foreach($arrayDescriptionOperatingSystem as $key => $value){
+								$out.='<option value="'.$arrayIdOperatingSystem[$key].'" '.(($arrayIdOperatingSystem[$key]==$rowPackageCompat['FK_OperatingSystem'])?'selected':'').'>'.$value.'</option>';
+							}
+							$out.='	</select></td>
+									<td><select name="distroPackageCompat_'.$rowPackageCompat['PK_Package_Compat'].'">
+										<option value="0">-Any-</option>';
+							foreach($arrayDescriptionDistro as $key => $value){
+								$out.='<option value="'.$arrayIdDistro[$key].'" '.(($arrayIdDistro[$key]==$rowPackageCompat['FK_Distro'])?'selected':'').'>'.$value.'</option>';
+							}
+							$out.='	</select></td>
+									<td><input type="submit" name="deletePackageCompat_'.$rowPackageCompat['PK_Package_Compat'].'" value="Delete compat"></td>
+								</tr>';
+					}
+						$out.='
+								<input type="hidden" name="PackageCompatArray" value="'.join(',',$PackageCompatArray).'">
+									<tr>
+										<td colspan="2"><input type="submit" name="addPackageCompatibility" value="Add compatibility"></td>
+									</tr>
+								</table>
+								</fieldset>
+							</tr> 
+							<tr>
 								<td colspan="2">
 								<fieldset><legend> Packages this depends on </legend>';
 					$out.='		<table>';
@@ -216,7 +260,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 						foreach($arrayDescriptionDistro as $key => $value){
 							$out.='<option value="'.$arrayIdDistro[$key].'" '.(($arrayIdDistro[$key]==$rowCompatibility['FK_Distro'])?'selected':'').'>'.$value.'</option>';
 						}
-//						echo $rowCompatibility['PK_Package_Source_Compat'];
+
 						$out.='	</select></td>
 								<td><input type="checkbox" name="mustBuild_'.$rowCompatibility['PK_Package_Source_Compat'].'" '.(($rowCompatibility['MustBuildFromSource']==1)?'checked':'').' value="1">Must build from source</td>
 								<td colspan="2"><textarea name="comments_'.$rowCompatibility['PK_Package_Source_Compat'].'">'.$rowCompatibility['Comments'].'</textarea></td>
@@ -358,12 +402,13 @@ function addPackageToMasterDevice($output,$dbADO) {
 			$compatArray=explode(",",@$_POST['compatArray']);
 			$FK_Directory = cleanInteger(@$_REQUEST['FK_Directory']);
 			$FK_PackageType=(@$_POST['PackageType'])?(int)@$_POST['PackageType']:NULL;
+			$FK_Manufacturer=(@$_POST['manufacturer'])?(int)@$_POST['manufacturer']:NULL;
 			
 			$updatePackage='
 				UPDATE Package 
-					SET Description=?, FK_Package_Sourcecode =?, IsSource=?, FK_PackageType=?
+					SET Description=?, FK_Package_Sourcecode =?, IsSource=?, FK_PackageType=?,FK_Manufacturer=?
 				WHERE PK_Package=?';
-			$dbADO->Execute($updatePackage,array($description, $FK_Package_Sourcecode,$isSourceCode,$FK_PackageType,$PK_Package));
+			$dbADO->Execute($updatePackage,array($description, $FK_Package_Sourcecode,$isSourceCode,$FK_PackageType,$FK_Manufacturer,$PK_Package));
 			
 			foreach($displayedPackagesArray AS $value){
 				$OnlyToBuild=(isset($_POST['OnlyToBuild_'.$value]))?$_POST['OnlyToBuild_'.$value]:0;
@@ -469,6 +514,27 @@ function addPackageToMasterDevice($output,$dbADO) {
 				$dbADO->Execute($updatePackageDirectoryFile,array($pdfOS,$pdfDistro,$pdfFile,$pdfMakeCommand,$elem));
 				
 			}
+			
+			// update Package_Compat
+			$PackageCompatArray=explode(',',$_POST['PackageCompatArray']);
+			foreach($PackageCompatArray AS $PK_Package_Compat){
+				if(isset($_POST['deletePackageCompat_'.$PK_Package_Compat])){
+					$deletePackageCompat='DELETE FROM Package_Compat WHERE PK_Package_Compat=?';
+					$dbADO->Execute($deletePackageCompat,$PK_Package_Compat);
+				}else{
+					$os=((int)@$_POST['osPackageCompat_'.$PK_Package_Compat]!=0)?@$_POST['osPackageCompat_'.$PK_Package_Compat]:NULL;
+					$distro=((int)@$_POST['distroPackageCompat_'.$PK_Package_Compat]!=0)?@$_POST['distroPackageCompat_'.$PK_Package_Compat]:NULL;
+					
+					$updatePackageCompat='UPDATE Package_Compat SET FK_OperatingSystem=?, FK_Distro=? WHERE PK_Package_Compat=?';
+					$dbADO->Execute($updatePackageCompat,array($os,$distro,$PK_Package_Compat));
+				}
+			}
+			
+			// add Package_Compat
+			if(isset($_POST['addPackageCompatibility'])){
+				$insertPackageCompat='INSERT INTO Package_Compat (FK_Package,FK_Distro,FK_OperatingSystem) VALUES (?,?,?)';
+				$dbADO->Execute($insertPackageCompat,array($PK_Package,NULL,NULL));
+			}
 			$out.="
 			<script>
 			    opener.document.forms.{$from}.action.value='form';
@@ -485,10 +551,14 @@ function addPackageToMasterDevice($output,$dbADO) {
 			$description=$_POST['Description'];
 			$FK_Package_Sourcecode=($isSourceCode==0)?(int)@$_POST['SourceCode']:NULL;
 			$FK_PackageType=(@$_POST['PackageType'])?(int)@$_POST['PackageType']:NULL;
+			$FK_Manufacturer=(@$_POST['manufacturer'])?(int)@$_POST['manufacturer']:NULL;
 						
-			$insertPackage='INSERT INTO Package (Description, FK_Package_Sourcecode, IsSource, FK_PackageType) VALUES (?,?,?,?)';
-			$dbADO->Execute($insertPackage,array($description,$FK_Package_Sourcecode,$isSourceCode,$FK_PackageType));
+			$insertPackage='INSERT INTO Package (Description, FK_Package_Sourcecode, IsSource, FK_PackageType,FK_Manufacturer) VALUES (?,?,?,?,?)';
+			$dbADO->Execute($insertPackage,array($description,$FK_Package_Sourcecode,$isSourceCode,$FK_PackageType,$FK_Manufacturer));
 			$PK_Package=$dbADO->Insert_ID();
+			
+			$insertPackageCompat='INSERT INTO Package_Compat (FK_Package,FK_Distro,FK_OperatingSystem) VALUES (?,?,?)';
+			$dbADO->Execute($insertPackageCompat,array($PK_Package,NULL,NULL));
 			
 			if($deviceID!=0){		
 				$updateDeviceTemplate='UPDATE DeviceTemplate SET FK_Package=? WHERE PK_DeviceTemplate=?';

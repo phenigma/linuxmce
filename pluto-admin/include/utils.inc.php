@@ -1471,4 +1471,18 @@ function getSubmenu($website,$level,$parentID,$dbADO)
 	}
 	return $menuPages;
 }
+
+function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValue,$dbADO)
+{
+	$pullDown='
+		<select name="'.$name.'">	
+			<option value="0">- Please select -</option>';
+	$query="SELECT $valueField,$labelField FROM $tableName ORDER BY $labelField ASC";
+	$res=$dbADO->Execute($query);
+	while($row=$res->FetchRow()){
+		$pullDown.='<option value="'.$row[$valueField].'" '.(($row[$valueField]==$selectedValue)?'selected':'').'>'.$row[$labelField].'</option>';
+	}
+	$pullDown.='</select>';
+	return $pullDown;
+}
 ?>

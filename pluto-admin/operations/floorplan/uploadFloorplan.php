@@ -81,44 +81,52 @@ function uploadFloorplan($output,$dbADO) {
 		
 		$newDescription=cleanString($_POST['txtDescription']);
 		$path=$GLOBALS['floorplansPath'].'/inst'.$installationID;
-		
-		switch($_FILES['fileImage']['type']){
-			case 'image/x-png':
-			case 'image/png': $extension = 'png'; break;
-			default:
-				$invalidType=true;
-			break;
+
+		if($page!=0){
+			$updateFloorplan='UPDATE Floorplan SET Description=? WHERE FK_Installation=? AND Page=?';
+			$dbADO->Execute($updateFloorplan,array($newDescription,$installationID,$page));
 		}
 		
-		if(isset($invalidType)){
-			header("Location: index.php?section=uploadFloorplan&error=Invalid file type.&page=".$page);
-			exit();
+		if($_FILES['fileImage']['name']!=''){
+			switch($_FILES['fileImage']['type']){
+				case 'image/x-png':
+				case 'image/png': $extension = 'png'; break;
+				default:
+					$invalidType=true;
+				break;
+			}
+			
+			if(isset($invalidType)){
+				header("Location: index.php?section=uploadFloorplan&error=Invalid file type.&page=".$page);
+				exit();
+			}
+			
+			if(!file_exists($path) && !@mkdir($path)){
+				header("Location: index.php?section=uploadFloorplan&error=Cannot create directory.&page=".$page);
+				exit();
+			}
+			
+			if($page==0){
+				$selectPage='SELECT (MAX(Page)+1) AS newPage FROM Floorplan WHERE FK_Installation=?';
+				$res=$dbADO->Execute($selectPage,$installationID);
+				$row=$res->FetchRow();
+				$newPage=(isset($row['newPage']))?$row['newPage']:1;
+				$newPicName=$newPage.'.'.$extension;
+			}else
+				$newPicName=$page.'.'.$extension;
+			
+			if(!move_uploaded_file($_FILES['fileImage']['tmp_name'],$path.'/'.$newPicName)){
+				header("Location: index.php?section=uploadFloorplan&error=Upload failed. Check the rights for $path&page=".$page);
+				exit();
+			}
+			
+			if($page==0){
+				$insertFloorplan='INSERT INTO Floorplan (FK_Installation, Page, Description) VALUES (?,?,?)';
+				$dbADO->Execute($insertFloorplan,array($installationID,$newPage,$newDescription));
+				$page=$newPage;
+			}
 		}
-		
-		if(!file_exists($path) && !@mkdir($path)){
-			header("Location: index.php?section=uploadFloorplan&error=Cannot create directory.&page=".$page);
-			exit();
-		}
-		
-		if($page==0){
-			$selectPage='SELECT (MAX(Page)+1) AS newPage FROM Floorplan WHERE FK_Installation=?';
-			$res=$dbADO->Execute($selectPage,$installationID);
-			$row=$res->FetchRow();
-			$newPage=(isset($row['newPage']))?$row['newPage']:1;
-			$newPicName=$newPage.'.'.$extension;
-		}else
-			$newPicName=$page.'.'.$extension;
-		
-		if(!move_uploaded_file($_FILES['fileImage']['tmp_name'],$path.'/'.$newPicName)){
-			header("Location: index.php?section=uploadFloorplan&error=Upload failed. Check the rights for $path&page=".$page);
-			exit();
-		}
-		
-		if($page==0){
-			$insertFloorplan='INSERT INTO Floorplan (FK_Installation, Page, Description) VALUES (?,?,?)';
-			$dbADO->Execute($insertFloorplan,array($installationID,$newPage,$newDescription));
-			$page=$newPage;
-		}
+
 		header("Location: index.php?section=floorplanWizard&page=".$page."&type=".$type);
 	}
 	$output->setNavigationMenu(array("Floorplans Wizard"=>'index.php?section=floorplanWizard&page='.$page.'&type='.$type));	

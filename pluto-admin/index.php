@@ -1,4 +1,9 @@
 <?php
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Cache-Control: no-store, no-cache, must-revalidate");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 
 session_start('Pluto-admin');
 
@@ -679,7 +684,7 @@ switch ($section) {
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
 	    include_once('operations/myDevices/securitySettings.php');
-	    securitySettings($output,$dbADO);
+	    securitySettings($output,$dbADO,$securityADO);
 	break;
 	case 'videoLinks':
 		$output = new Template($dbADO);
@@ -724,6 +729,32 @@ switch ($section) {
 	    include_once('operations/steps.php');
 	    steps($output,$dbADO);
 	break;
+	
+	case 'alertTypes';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/security/alertTypes.php');
+	    alertTypes($output,$securityADO);
+	break;
+	case 'alertsLog';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/security/alertsLog.php');
+	    alertsLog($output,$securityADO,$dbADO);
+	break;
+	case 'modeChangesLog';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/security/modeChangesLog.php');
+	    modeChangesLog($output,$securityADO,$dbADO);
+	break;
+	case 'securityStatus';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/security/securityStatus.php');
+	    securityStatus($output,$dbADO);
+	break;
+
 	
 	case '';
 		$output = new Template($dbADO);	

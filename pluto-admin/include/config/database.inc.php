@@ -15,7 +15,10 @@
 
   $mediaDSN = $dbPlutoMediaType.'://'.urlencode($dbPlutoMediaUser).':'.urlencode($dbPlutoMediaPass).'@'.$dbPlutoMediaServer.'/'.urlencode($dbPlutoMediaDatabase); 
   $mediadbADO = &ADONewConnection($mediaDSN);
-  
+
+  $securityDSN = $dbPlutoSecurityType.'://'.urlencode($dbPlutoSecurityUser).':'.urlencode($dbPlutoSecurityPass).'@'.$dbPlutoSecurityServer.'/'.urlencode($dbPlutoSecurityDatabase); 
+  $securityADO = &ADONewConnection($securityDSN);
+
   //for sqlite
   //$db = &ADONewConnection('sqlite');
   //$db->NConnect($GLOBALS['appRoot'].'sqlite.db'); # sqlite will create if does not exist

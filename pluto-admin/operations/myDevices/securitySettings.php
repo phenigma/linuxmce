@@ -1,5 +1,5 @@
 <?
-function securitySettings($output,$dbADO) {
+function securitySettings($output,$dbADO,$securitydbADO) {
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -8,8 +8,15 @@ function securitySettings($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 	
 	$deviceCategory=$GLOBALS['rootSecurity'];
-	$pullDownArray = array('Do Nothing','Security Breach','Fire Alarm','Announcement Only');
-	$properties = array('armed','armed_home','entertaining','sleeping','unarmed');
+	
+	$queryAlertTypes='SELECT * FROM AlertType';
+	$pullDownArray = array('Do Nothing');
+	$resAlertType=$securitydbADO->Execute($queryAlertTypes);
+	while($rowAlertType=$resAlertType->FetchRow()){
+		$pullDownArray[]=$rowAlertType['Description'];
+	}
+	
+	$properties = array('disarmed', 'armed - away', 'armed - at home', 'sleeping', 'entertaining', 'extended away');
 	
 	getDeviceCategoryChildsArray($deviceCategory,$dbADO);
 	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
@@ -34,6 +41,7 @@ function securitySettings($output,$dbADO) {
 				window.open(locationA,\'\',attributes);
 			}
 	</script>
+	<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<form action="index.php" method="POST" name="securitySettings">
 	<input type="hidden" name="section" value="securitySettings">
@@ -42,12 +50,11 @@ function securitySettings($output,$dbADO) {
 		<table align="center">
 			<tr bgcolor="lightblue">
 				<td></td>
-				<td align="center"><B>Monitor Mode</B></td>
-				<td align="center"><B>Armed</B></td>
-				<td align="center"><B>Armed Home</B></td>
-				<td align="center"><B>Entertaining</B></td>
-				<td align="center"><B>Sleeping</B></td>
-				<td align="center"><B>Unarmed</B></td>
+				<td align="center"><B>Monitor mode</B></td>';
+			foreach($properties AS $label){
+				$out.='<td align="center"><B>'.$label.'</B></td>';
+			}
+		$out.='				
 			</tr>';
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();
@@ -76,7 +83,7 @@ function securitySettings($output,$dbADO) {
 							<td align="center"><b>'.$rowD['Description'].'</b><br>('.$rowD['DTemplate'].')</td>';
 					$out.='<td align="center"><input type="checkbox" name="monitor_mode_'.$rowD['PK_Device'].'" '.((@$oldPropertiesArray[0]==1)?'checked':'').'></td>';
 					foreach($properties AS $itemNo=> $itemValue){
-						$out.='<td><select name="'.$itemValue.'_'.$rowD['PK_Device'].'">';
+						$out.='<td><select name="'.str_replace(' ','',$itemValue).'_'.$rowD['PK_Device'].'">';
 						foreach($pullDownArray AS $key=>$value){
 							$out.='<option value="'.$key.'" '.((@$oldPropertiesArray[$itemNo+1]==$key)?'selected':'').'>'.$value.'</option>';
 						}
@@ -108,7 +115,7 @@ function securitySettings($output,$dbADO) {
 			$oldProperties=$_POST['oldProperties_'.$device];
 			$newProperties=(isset($_POST['monitor_mode_'.$device]))?1:0;
 			foreach($properties AS $itemNo=> $itemValue){
-				$newProperties.=','.$_POST[$itemValue.'_'.$device];
+				$newProperties.=','.$_POST[str_replace(' ','',$itemValue).'_'.$device];
 			}
 			if($oldProperties==''){
 				$insertDDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
@@ -119,7 +126,7 @@ function securitySettings($output,$dbADO) {
 			}
 		}		
 		
-		header("Location: index.php?section=securitySettings");		
+		header("Location: index.php?section=securitySettings&msg=Security settings updated.");		
 	}
 
 	
