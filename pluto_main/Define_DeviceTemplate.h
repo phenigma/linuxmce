@@ -30,7 +30,7 @@
 #define DEVICETEMPLATE_Bluetooth_Dongle_CONST 13
 #define DEVICETEMPLATE_test_CONST 14
 #define DEVICETEMPLATE_Symbian_60_CONST 24
-#define DEVICETEMPLATE_Media_Grids_Plugin_CONST 25
+#define DEVICETEMPLATE_not_usedMedia_Grids_Plug_CONST 25
 #define DEVICETEMPLATE_App_Server_CONST 26
 #define DEVICETEMPLATE_General_Info_Plugin_CONST 27
 #define DEVICETEMPLATE_Generic_Linux_MD_CONST 28
@@ -46,6 +46,8 @@
 #define DEVICETEMPLATE_Infrared_Plugin_CONST 39
 #define DEVICETEMPLATE_gc100_CONST 40
 #define DEVICETEMPLATE_Test_TV_CONST 41
+#define DEVICETEMPLATE_IO_Relay_CONST 42
+#define DEVICETEMPLATE_Generic_Input_Ouput_CONST 43
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

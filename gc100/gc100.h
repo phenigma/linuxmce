@@ -8,11 +8,15 @@
 //<-dceag-d-e->
 
 #include "IRBase/IRBase.h"
+#include <map>
+using namespace std;
+
+typedef pair<int, int> IntPair;
 
 //<-dceag-decl-b->
 namespace DCE
 {
-	class gc100 : public gc100_Command, IRBase
+	class gc100 : public gc100_Command
 	{
 //<-dceag-decl-e->
 		// Private member variables
@@ -20,6 +24,7 @@ namespace DCE
 		// Private methods
 protected:
 	virtual void SendIR(string Port, string IRCode);
+	class Message *m_pThisMessage;
 
 private:
 	void parse_gc100_reply(std::string message);
@@ -61,6 +66,8 @@ private:
 	bool learning_timeout;
 	int learning_timeout_count;
 
+	map<IntPair, string> m_CodeMap;
+
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
@@ -82,32 +89,6 @@ public:
 
 			*****COMMANDS***** we need to implement
 	*/
-
-/* 
-	COMMAND: #75 - Start TV
-	COMMENTS: Start TV playback on this device.
-	PARAMETERS:
-*/
-	virtual void CMD_Start_TV() { string sCMD_Result; CMD_Start_TV(sCMD_Result,NULL);};
-	virtual void CMD_Start_TV(string &sCMD_Result,Message *pMessage);
-
-/* 
-	COMMAND: #76 - Stop TV
-	COMMENTS: Stop TV playback on this device.
-	PARAMETERS:
-*/
-	virtual void CMD_Stop_TV() { string sCMD_Result; CMD_Stop_TV(sCMD_Result,NULL);};
-	virtual void CMD_Stop_TV(string &sCMD_Result,Message *pMessage);
-
-/* 
-	COMMAND: #187 - Tune to channel
-	COMMENTS: This will make the device to tune to a specific channel.
-	PARAMETERS:
-		#48 ProgramID
-			The Program ID that we need to tune to.
-*/
-	virtual void CMD_Tune_to_channel(string sProgramID) { string sCMD_Result; CMD_Tune_to_channel(sProgramID.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	virtual Command_Impl *CreateCommand(int iPK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

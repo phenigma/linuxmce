@@ -141,6 +141,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Serial", "Serial\Serial.vcp
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Generic_Input_Ouput", "Generic_Input_Ouput\Generic_Input_Ouput.vcproj", "{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -279,6 +283,10 @@ Global
 		{6DFB5B29-7311-4F45-BC48-A93BEC812270}.Debug.Build.0 = Debug|Win32
 		{6DFB5B29-7311-4F45-BC48-A93BEC812270}.Release.ActiveCfg = Release|Win32
 		{6DFB5B29-7311-4F45-BC48-A93BEC812270}.Release.Build.0 = Release|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.ActiveCfg = Debug|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.Build.0 = Debug|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.ActiveCfg = Release|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

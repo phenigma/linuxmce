@@ -18,6 +18,9 @@
 #define DEVICEDATA_Digit_Delay_CONST 15
 #define DEVICEDATA_IR_Power_Delay_CONST 16
 #define DEVICEDATA_IR_Mode_Delay_CONST 17
+#define DEVICEDATA_InputOrOutput_CONST 18
+#define DEVICEDATA_Default_State_CONST 19
+#define DEVICEDATA_IP_Address_CONST 20
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

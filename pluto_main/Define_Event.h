@@ -8,6 +8,9 @@
 #define EVENT_Mobile_orbiter_linked_CONST 5
 #define EVENT_Mobile_orbiter_lost_CONST 6
 #define EVENT_Menu_Onscreen_CONST 7
+#define EVENT_Error_Occured_CONST 8
+#define EVENT_Pin_Changed_CONST 9
+#define EVENT_Learned_IR_code_CONST 10
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"

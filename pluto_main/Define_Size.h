@@ -15,6 +15,8 @@
 #define SIZE_SCALEX_TABLE_FIELD "Size.ScaleX"
 #define SIZE_SCALEY_FIELD "ScaleY"
 #define SIZE_SCALEY_TABLE_FIELD "Size.ScaleY"
+#define SIZE_PRESERVEASPECTRATIO_FIELD "PreserveAspectRatio"
+#define SIZE_PRESERVEASPECTRATIO_TABLE_FIELD "Size.PreserveAspectRatio"
 #define SIZE_PSC_ID_FIELD "psc_id"
 #define SIZE_PSC_ID_TABLE_FIELD "Size.psc_id"
 #define SIZE_PSC_BATCH_FIELD "psc_batch"

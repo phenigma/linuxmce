@@ -79,8 +79,8 @@ public:
 	void relay_power(class OCMessage *pMessage, bool power_on);
 
 	void Start_seriald();
+
 protected:
-	
 	virtual void SendIR(string Port, string IRCode);
 
 private:
