@@ -43,6 +43,53 @@ void* MessageQueueThread_DCECI( void* param ) // renamed to cancel link-time nam
 	return NULL;
 }
 
+void *WatchDogThread( void *pData )
+{
+#ifdef WIN32
+
+	Command_Impl *pCommand_Impl = (Command_Impl *)pData;
+
+	Sleep(3000);
+	bool bConnectionLost = false;
+
+	while( !pCommand_Impl->m_bStopWatchdog)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "About to send PING to the router.");
+		string sResponse = pCommand_Impl->SendReceiveString( "PING " + StringUtils::itos( pCommand_Impl->m_dwPK_Device ) );
+		g_pPlutoLogger->Write(LV_STATUS, "Sent PING to the router.");
+
+		if ( sResponse != "OOPS!!!" )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Before Disconnect.");
+			pCommand_Impl->Disconnect();
+			g_pPlutoLogger->Write(LV_STATUS, "After Disconnect.");
+			
+			bConnectionLost = true;
+			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d", 
+				sResponse.c_str(), pCommand_Impl->m_dwPK_Device );
+			break;
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Received PONG from the router.");
+			Sleep(5000);
+		}
+	}
+
+	if(bConnectionLost)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Before MB_ICONEXCLAMATION.");
+		::MessageBeep( MB_ICONEXCLAMATION );
+	}
+	
+	g_pPlutoLogger->Write(LV_STATUS, "WatchDog stopped");
+	pCommand_Impl->m_bWatchdogRunning = false;
+
+#endif
+
+	return NULL;
+}
+
 Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode, class Router *pRouter )
 	: HandleRequestSocket( DeviceID, ServerAddress, "Command_Impl1 Dev #" + StringUtils::itos(DeviceID) ), m_listMessageQueueMutex( "MessageQueue" )
 {
@@ -251,6 +298,13 @@ bool Command_Impl::Connect()
 		bResult = false;
 	}
 
+	m_bStopWatchdog = false;
+	m_bWatchdogRunning = false;
+
+#ifdef WIN32
+	//StartWatchDog(10000);	
+#endif
+
 	return bResult;
 }
 
@@ -425,4 +479,24 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 		return false;
 	pPreformedCommand.ParseResponse( pResponse );
 	return true;
+}
+
+void Command_Impl::StartWatchDog( clock_t Timeout )
+{
+	m_bStopWatchdog = false;
+	m_clockTimeout = clock() + Timeout;
+	if ( m_bWatchdogRunning ) return;
+	m_bWatchdogRunning = true;
+    pthread_create( &m_pThread, NULL, WatchDogThread, (void *)this );
+    Sleep(1);
+}
+
+void Command_Impl::StopWatchDog()
+{
+    if ( m_pThread != 0 )
+    {
+        m_bStopWatchdog = true;
+        pthread_join( m_pThread, NULL );
+        m_pThread = 0;
+    }
 }

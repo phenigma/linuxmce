@@ -35,16 +35,17 @@ private:
 
 public:
 
-	list<TextWinCEObject *> m_listTextWinCEObject;
+	bool m_bConnectionLost;
 
-	bool m_bQuitWinCE;
+	list<TextWinCEObject *> m_listTextWinCEObject;
 
 	WNDPROC OldSDLWindowProc;
 	HWND hSDLWindow;
 
 	~OrbiterSDL_WinCE();
 
-	//OrbiterSDL public methods
+	//base public methods
+	void OnQuit();
 	void RenderScreen();
 	void RenderText(DesignObjText *Text,TextStyle *pTextStyle);
 
@@ -54,6 +55,7 @@ public:
 	void RenderTextObjectsWinCE(HWND hWnd);
 	void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+	static void Cleanup();
 	static void BuildOrbiterSDL_WinCE(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	static OrbiterSDL_WinCE *GetInstance();

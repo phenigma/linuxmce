@@ -64,8 +64,17 @@ DataGridCell::~DataGridCell()
 	if (m_Value)
 		free(m_Value);
 
-//	delete m_pMessage;
-	delete m_pGraphicData;
+	if(NULL != m_pMessage)
+	{
+		delete m_pMessage;
+		m_pMessage = NULL;
+	}
+
+	if(NULL != m_pGraphicData)
+	{
+		delete m_pGraphicData;
+		m_pGraphicData = NULL;
+	}
 }
 
 DataGridCell::DataGridCell(string Text, string Value)

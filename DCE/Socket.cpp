@@ -128,7 +128,12 @@ Socket::~Socket()
 		closesocket( m_Socket );
 	m_Socket = INVALID_SOCKET;
 
-	delete[] m_pcInSockBuffer; 
+	if(NULL != m_pcInSockBuffer)
+	{
+		delete[] m_pcInSockBuffer; 
+		m_pcInSockBuffer = NULL;
+	}
+
 	pthread_mutexattr_destroy( &m_SocketMutexAttr );
 	pthread_mutex_destroy( &m_SocketMutex.mutex );
 #ifdef LL_DEBUG_FILE
@@ -452,6 +457,13 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #ifdef DEBUG
 					clk_select2 = clock();
 #endif
+					/*
+					//added by Chris : 2004.12.15
+					timeval tout;
+					tout.tv_sec = 5;
+					tout.tv_usec = 0;
+					iRet = select( (int)(m_Socket+1), &rfds, NULL, NULL, &tout );*/
+
 					iRet = select( (int)(m_Socket+1), &rfds, NULL, NULL, NULL );
 #ifdef DEBUG
 					clk_select2b = clock();

@@ -58,6 +58,10 @@ namespace DCE
 		
 		int m_iTargetDeviceID; /** < the device targeted by the command */
 
+		bool m_bWatchdogRunning; /** < specifies if the watchdog is running */
+		bool m_bStopWatchdog; /** < specifies if the watchdog is stoped @todo ask is it used? */
+		pthread_t m_pThread; /** < the wachdog thread */
+
 		/** flags */
 		
 		bool m_bQuit; /** < set when DeviceManager wants the app to terminate */
@@ -259,6 +263,26 @@ namespace DCE
 			else
 				return Socket::ReceiveData( iSize, pcData );
 		}
+
+		/**
+		 * 
+		 * Watchdog will kill the connection if it exceeds Timeout.
+		 * Eventually SendMessage will need to be overridden to create
+		 * a watchdog and retransmit if they don't go through.
+		 * 
+		 */
+
+		/**
+		 * @brief starts the watchdog thread with the specified timeout
+		 */
+		void StartWatchDog( clock_t Timeout );
+
+
+		/**
+		 * @brief stops the watchdog tread
+		 */
+		void StopWatchDog();
+
 	};
 }
 

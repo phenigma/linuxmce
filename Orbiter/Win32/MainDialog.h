@@ -16,7 +16,6 @@
 
 	#include "StartOrbiter_Win32.h"
 #endif
-
 //-----------------------------------------------------------------------------------------------------
 WORD				MyRegisterClass	(HINSTANCE, LPTSTR);
 BOOL				InitInstance	(HINSTANCE, int);
@@ -28,6 +27,8 @@ void				ShowSDLWindow();
 
 void				RecordMouseAction(int x, int y);
 void				RecordKeyboardAction(long key);
+//-----------------------------------------------------------------------------------------------------
+void				StartOrbiterThread();
 //-----------------------------------------------------------------------------------------------------
 struct CommandLineParams
 {

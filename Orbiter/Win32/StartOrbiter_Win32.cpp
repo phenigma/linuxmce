@@ -38,6 +38,7 @@ OrbiterSDL_Win32* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 
 	try
 	{
+		OrbiterSDL_Win32::Cleanup();
 		OrbiterSDL_Win32::BuildOrbiterSDL_Win32(
 			PK_Device, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
@@ -132,7 +133,7 @@ bool SDLEventLoop(OrbiterSDL_Win32* pOrbiter)
 #endif
     }  // while
 
-	return true; //all ok
+	return !pOrbiter->m_bConnectionLost; 
 }
 //-----------------------------------------------------------------------------------------------------
 void StartOrbiter_Win32(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
@@ -172,9 +173,7 @@ void StartOrbiter_Win32(int PK_Device,string sRouter_IP,string sLocalDirectory,b
 		}
 	}
     
-	//hack: if we'll try to delete pOrbiter, we'll stuck here
-	pOrbiter->~OrbiterSDL_Win32(); 
-
+	OrbiterSDL_Win32::Cleanup();
 	pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------

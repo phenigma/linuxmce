@@ -12,9 +12,11 @@
 
 #define  VERSION "<=version=>"
 
+extern HWND	g_hWndList; //maindialog logger list
+
 namespace DCE
 {
-	Logger *g_pPlutoLogger;
+	Logger *g_pPlutoLogger = NULL;
 }
 
 using namespace DCE; 
@@ -26,7 +28,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 {
     string sRouter_IP="dce_router";
     int PK_Device=0;
-    string sLogger="orbiter.txt";
+	string sLogger="orbiter";
+
     int Width=800,Height=600;
     bool bLocalMode=false; // If true, it will not connect to PlutoServer but will look for it's files in the local directory
 	bool bFullScreen=false;
@@ -86,21 +89,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	}
 	while(token != "");
 
-    try
-    {
-        if( sLogger=="null" )
-            g_pPlutoLogger = new NullLogger();
-        else if( sLogger=="stdout" )
-            g_pPlutoLogger = new FileLogger(stdout);
-        else
-            g_pPlutoLogger = new FileLogger(sLogger.c_str());
-    }
-    catch(...)
-    {
-        printf("Unable to create logger\n");
-		return -1;
-    }
-
     if (bError)
     {
 		printf("Orbiter, v. %s\n", VERSION);
@@ -121,9 +109,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
     }
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Starting logger...");
-		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",PK_Device);
-
 		if( sLocalDirectory.length()>0 && sLocalDirectory[ sLocalDirectory.length()-1 ]!='/' )
 			sLocalDirectory += "/";
 
@@ -154,6 +139,28 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		{
 			return FALSE;
 		}
+
+		try
+		{
+			if( sLogger=="null" )
+				g_pPlutoLogger = new NullLogger();
+			else 
+				if( sLogger == "orbiter" )
+					g_pPlutoLogger = new WinOrbiterLogger(g_hWndList);
+				else
+					g_pPlutoLogger = new FileLogger(sLogger.c_str());
+		}
+		catch(...)
+		{
+			printf("Unable to create logger\n");
+			return -1;
+		}
+
+		g_pPlutoLogger->Write(LV_STATUS, "Starting logger...");
+		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",PK_Device);
+
+		//now it's safe to start orbiter's thread
+		StartOrbiterThread();
 
 		// Main message loop:
 		while (GetMessage(&msg, NULL, 0, 0)) 

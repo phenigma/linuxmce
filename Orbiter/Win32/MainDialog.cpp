@@ -58,7 +58,7 @@ HWND				g_hWndPage2;
 HWND				g_hWndPage3;
 //-----------------------------------------------------------------------------------------------------
 //page 1
-HWND				g_hWndList;
+/*extern*/ HWND				g_hWndList;
 //-----------------------------------------------------------------------------------------------------
 //page 2
 HWND				g_hWndRecord_MouseCheckBox; 
@@ -125,6 +125,13 @@ void OnRandom_Generate();
 void OnRandom_Stop();
 
 void GetEditText(HWND hWndEdit, string& Text);
+//-----------------------------------------------------------------------------------------------------
+DWORD WINAPI OrbiterThread( LPVOID lpParameter);
+
+void StartOrbiterThread()
+{
+	::CreateThread(NULL, 0, OrbiterThread, 0, 0, &OrbiterThreadId);
+}
 //-----------------------------------------------------------------------------------------------------
 DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 {
@@ -382,6 +389,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	LoadString(hInstance, IDC_ORBITER, szWindowClass, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 
+	/*
 	//If it is already running, then focus on the window
 	hWnd = FindWindow(szWindowClass, szTitle);	
 	if (hWnd) 
@@ -392,6 +400,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		SetForegroundWindow((HWND)((ULONG) hWnd | 0x00000001));
 		return 0;
 	} 
+	*/
 
 	MyRegisterClass(hInstance, szWindowClass);
 
@@ -555,9 +564,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				::SetWindowLong(g_hWndPage3, GWL_WNDPROC, reinterpret_cast<long>(PagesWndProc));
 
 				SetActivePage(piLogger);
-
-				//Create orbiter
-				::CreateThread(NULL, 0, OrbiterThread, 0, 0, &OrbiterThreadId);
 			}
 			break;
 
@@ -572,6 +578,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #ifdef WINCE
 			CommandBar_Destroy(g_hwndCB);
 #endif
+			{
+				HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
+				::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
+				Sleep(250);
+			}
+
 			PostQuitMessage(0);
 			break;
 		case WM_ACTIVATE:
@@ -876,10 +888,25 @@ void WriteStatusOutput(const char* pMessage)
 	#define MESSAGE pMessage
 #endif
 
+	string s = string(pMessage) + "\n";
+	FILE* f = fopen("logger.out", "a+");
+	fseek(f, 0, SEEK_END);
+	fwrite(s.c_str(), s.length(), 1, f);
+	fclose(f);
+
+#ifdef WINCE
+	::PostMessage(g_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE);
+
+	int Count = (int)::PostMessage(g_hWndList, LB_GETCOUNT, 0L, 0L);
+	::PostMessage(g_hWndList, LB_SETTOPINDEX, Count - 1, 0L);
+#else
+
 	::SendMessage(g_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE);
 
 	int Count = (int)::SendMessage(g_hWndList, LB_GETCOUNT, 0L, 0L);
 	::SendMessage(g_hWndList, LB_SETTOPINDEX, Count - 1, 0L);
+
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void ShowMainDialog() //actually, hides the sdl window
@@ -1212,7 +1239,7 @@ void GetEditText(HWND hWndEdit, string& Text)
 	union
 		{
 #ifdef WINCE
-			wchar_t str[4];
+			wchar_t str[2];
 #else
 			char str[4];
 #endif
@@ -1224,8 +1251,11 @@ void GetEditText(HWND hWndEdit, string& Text)
 
 	lpstrFile[0] = temp.str[0];
 	lpstrFile[1] = temp.str[1];
+
+#ifndef WINCE
 	lpstrFile[2] = temp.str[2];
 	lpstrFile[3] = temp.str[3];
+#endif
 
 	::SendMessage(hWndEdit, EM_GETLINE, 0, reinterpret_cast<long>(lpstrFile));
 

@@ -29,6 +29,8 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "../PlutoUtils/md5.h"
+
 #include "DCERouter/DCERouter.h"
 #include "DCE/DeviceData_Router.h"
 #include "pluto_main/Database_pluto_main.h"
@@ -194,4 +196,46 @@ g_pPlutoLogger->Write(LV_STATUS,"uknown device, setting: %d to mac: %s",pRow_Unk
 void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **pData,int *iData_Size,string *sChecksum,bool *bChecksum_Only,string &sCMD_Result,Message *pMessage)
 //<-dceag-c239-e->
 {
+	cout << "Command #239 - Request File And Checksum" << endl;
+	cout << "Parm #13 - Filename=" << sFilename << endl;
+	cout << "Parm #19 - Data  (data value)" << endl;
+	cout << "Parm #91 - Checksum=" << sChecksum << endl;
+	cout << "Parm #92 - Checksum_Only=" << bChecksum_Only << endl; 
+
+	g_pPlutoLogger->Write(LV_FILEREQUEST, "request missing  file: %s", sFilename.c_str());
+	size_t Length;
+	char *c = FileUtils::ReadFileIntoBuffer(sFilename, Length);
+	if( c==NULL && m_pRouter )
+		c = FileUtils::ReadFileIntoBuffer(m_pRouter->sBasePath_get() + sFilename, Length);
+
+	*iData_Size = (int) Length;
+	*pData = c;
+
+	//compute the checksum
+	MD5_CTX ctx;
+	MD5Init(&ctx);
+	MD5Update(&ctx, (unsigned char *)*pData, (unsigned int)*iData_Size);
+	unsigned char digest[16];
+	MD5Final(digest, &ctx);
+
+	char tmp[3];
+	string md5;
+	for (int i = 0; i < 16; i++)
+	{
+		sprintf(tmp, "%02x", digest[i]);
+		md5 += tmp;
+	}
+
+	*sChecksum = md5;
+
+	if(*bChecksum_Only)
+	{
+		iData_Size = 0;
+
+		if(NULL != pData)
+		{
+			delete pData;
+			pData = NULL;
+		}
+	}
 }

@@ -134,6 +134,107 @@ m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "d
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
+	//todo
+	m_vectObjs_NeedRedraw.clear();
+	m_vectObjs_TabStops.clear();
+	m_vectObjs_Selected.clear();
+
+	//clearing device groups map
+	map<int,class DeviceGroup *>::iterator itDeviceGroups;
+	for(itDeviceGroups = m_mapDeviceGroups.begin(); itDeviceGroups != m_mapDeviceGroups.end(); itDeviceGroups++)
+	{
+		delete (*itDeviceGroups).second;
+		(*itDeviceGroups).second = NULL;
+	}
+	m_mapDeviceGroups.clear();
+
+	//clearing user icons map
+	map<int, CHAGraphic *>::iterator itUserIcons;
+	for(itUserIcons = m_mapUserIcons.begin(); itUserIcons != m_mapUserIcons.end(); itUserIcons++)
+	{
+		delete (*itUserIcons).second;
+		(*itUserIcons).second = NULL;
+	}
+	m_mapUserIcons.clear();
+
+	//clearing floor plan object map
+	map<int, FloorplanObjectVectorMap *>::iterator itFPObjVM;
+	for(itFPObjVM = m_mapFloorplanObjectVector.begin(); itFPObjVM != m_mapFloorplanObjectVector.end(); itFPObjVM++)
+	{
+		FloorplanObjectVectorMap *fpObjVM = (*itFPObjVM).second;
+		if( fpObjVM )
+		{
+			map<int,FloorplanObjectVector *>::iterator itFPObjVect;
+			for(itFPObjVect=fpObjVM->begin();itFPObjVect!=fpObjVM->end();++itFPObjVect)
+			{
+				FloorplanObjectVector *fpObjVect = (*itFPObjVect).second;
+				if( fpObjVect )
+				{
+					for(int i=0;i<(int) fpObjVect->size();++i)
+					{
+						FloorplanObject *fpObj = (*fpObjVect)[i];
+						delete fpObj;
+						fpObj = NULL;
+					}
+					delete fpObjVect;
+					fpObjVect = NULL;
+				}
+			}
+			delete fpObjVM;
+			fpObjVM = NULL;
+		}
+	}
+	m_mapFloorplanObjectVector.clear();
+
+	//clearing design objects map
+	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
+	for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
+	{
+		delete (*itDesignObjOrbiter).second;
+		(*itDesignObjOrbiter).second = NULL;
+	}
+	m_mapObj_All.clear();
+
+	//clearing design object data list
+	list < ScreenHistory * >::iterator itDesignObjData;
+	for(itDesignObjData = m_listScreenHistory.begin(); itDesignObjData != m_listScreenHistory.end(); itDesignObjData++)
+	{
+		delete *itDesignObjData;
+		*itDesignObjData = NULL;
+	}
+	m_listScreenHistory.clear();
+
+	//clearing device data map
+	map<int,class DeviceData_Base *>::iterator itDeviceData;
+	for(itDeviceData = m_mapDevice_Selected.begin(); itDeviceData != m_mapDevice_Selected.end(); itDeviceData++)
+	{
+		delete (*itDeviceData).second;
+		(*itDeviceData).second = NULL;
+	}
+	m_mapDevice_Selected.clear();
+
+	//clearing design object datagrid vector
+	vector < class DesignObj_DataGrid * >::iterator itDesignDataGrid;
+	for(itDesignDataGrid = m_vectObjs_GridsOnScreen.begin(); itDesignDataGrid != m_vectObjs_GridsOnScreen.end(); itDesignDataGrid++)
+	{
+		delete *itDesignDataGrid;
+		*itDesignDataGrid = NULL;
+	}
+	m_vectObjs_GridsOnScreen.clear();
+
+	//clearing device data map
+	map< string, class DesignObj_DataGrid * >::iterator itDesignObjDataGrid;
+	for(itDesignObjDataGrid = m_mapObjs_AllGrids.begin(); itDesignObjDataGrid != m_mapObjs_AllGrids.end(); itDesignObjDataGrid++)
+	{
+		delete (*itDesignObjDataGrid).second;
+		(*itDesignObjDataGrid).second = NULL;
+	}
+	m_mapObjs_AllGrids.clear();
+
+	pthread_mutexattr_destroy(&m_MutexAttr);
+	pthread_mutex_destroy(&m_ScreenMutex.mutex);
+	pthread_mutex_destroy(&m_VariableMutex.mutex);
+	pthread_mutex_destroy(&m_DatagridMutex.mutex);
 }
 
 //<-dceag-reg-b->
@@ -336,7 +437,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
     }
     else if( pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentLocation_CONST )
     {
-        if( m_pScreenHistory_Current->m_pLocationInfo->m_pGraphic )
+        if( m_pScreenHistory_Current->m_pLocationInfo && m_pScreenHistory_Current->m_pLocationInfo->m_pGraphic )
             pObj->m_pCurrentGraphic = m_pScreenHistory_Current->m_pLocationInfo->m_pGraphic;
         if( pObj->m_pCurrentGraphic )
             RenderGraphic(pObj, rectTotal);

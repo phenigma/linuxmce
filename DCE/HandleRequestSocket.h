@@ -26,8 +26,8 @@ namespace DCE
 		pthread_t m_RequestHandlerThread; /** < he thread that runs the main loop */
 
 		bool m_bRunning; /** < the socket is running */
-		bool m_bUnexpected; /** < set if the socket got an unexpected error */
 		bool m_bTerminate; /** < specifies that the socket terminated (the main loop exits) */
+		bool m_bUnexpected; /** < set if the socket got an unexpected error */
 
 		/**
 		 * @brief calls the base class constructor and assignes 0 to m_RequestHandlerThread

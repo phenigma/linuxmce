@@ -45,34 +45,19 @@ using namespace DCE;
 	#include "wince.h"
 #endif
 
-void *WatchDogThread( void *pData )
-{
-	ClientSocket *pClientSocket = (ClientSocket *)pData;
-	while( !pClientSocket->m_bStopWatchdog && clock() < pClientSocket->m_clockTimeout ) // till the watch dog is stopped or we get a clock timeout
-		Sleep( 10 );
-	
-	if ( clock() >= pClientSocket->m_clockTimeout ) // timeout
-	{
-		g_pPlutoLogger->Write( LV_WARNING, "Connection timed out" );
-#ifdef _WIN32
-		::MessageBeep( MB_ICONEXCLAMATION );
-#endif
-		pClientSocket->Disconnect();
-	}
-
-	pClientSocket->m_bWatchdogRunning = false;
-
-	return NULL;
-}
-
 ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : Socket( sName )
 {
 	m_dwPK_Device = iDeviceID;
 	m_sIPAddress = sIPAddress;
-	
+
 	/** @todo check comment */
 	//	if( g_pDCELogger ) // This won't be created yet if this is the server logger socket
 	//		g_pDCELogger->Write(LV_SOCKET,"Created client socket %p device: %d ip: %s",this,m_DeviceID,m_IPAddress.c_str());
+}
+
+
+ClientSocket::~ClientSocket()
+{
 }
 
 bool ClientSocket::Connect( string sExtraInfo )
@@ -229,12 +214,14 @@ bool ClientSocket::OnConnect( string sExtraInfo )
 		Sleep( 500 );
 		Disconnect();
 	}
-	else int k=2;
+
 	return true;
 }
 
 void ClientSocket::Disconnect()
 {
+	g_pPlutoLogger->Write( LV_CRITICAL, "void ClientSocket::Disconnect()");
+		
 	if ( m_Socket != INVALID_SOCKET )
 	{
 		closesocket( m_Socket );
@@ -242,25 +229,4 @@ void ClientSocket::Disconnect()
 	}
 }
 
-#ifndef WINCE
-void ClientSocket::StartWatchDog( clock_t Timeout )
-{
-	m_bStopWatchdog = false;
-	m_clockTimeout = clock() + Timeout;
-	if ( m_bWatchdogRunning ) return;
-	m_bWatchdogRunning = true;
-    pthread_create( &m_pThread, NULL, WatchDogThread, (void *)this );
-    Sleep(1);
-}
-#endif 
-
-void ClientSocket::StopWatchDog()
-{
-    if ( m_pThread != 0 )
-    {
-        m_bStopWatchdog = true;
-        pthread_join( m_pThread, NULL );
-        m_pThread = 0;
-    }
-}
 

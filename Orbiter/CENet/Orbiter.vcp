@@ -148,7 +148,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../Win32" /I "../.." /I "../../DCE" /I "../../Libraries/pthreads-snap-2002-11-04" /I "../../Libraries/pthreads-win32/include" /I "../../CrossPlatform-Libs/sge030809-w32/src" /I "../../CrossPlatform-Libs/SDL_ttf-2.0.6" /I "../../CrossPlatform-Libs/SDL_image-1.2.3" /I "../../CrossPlatform-Libs/SDL-1.2.7/include" /I "../../Splitter" /I "../../CrossPlatform-Libs/zlib" /I "../../CrossPlatform-Libs/lpng127" /I "../../Libraries/STLport-4.5.3/stlport" /I "../../Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "PROFILING" /D "CACHE_IMAGES" /I /pluto/trunk" /M$(CECrtMTDebug) " /c
+# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../Win32" /I "../.." /I "../../DCE" /I "../../Libraries/pthreads-snap-2002-11-04" /I "../../Libraries/pthreads-win32/include" /I "../../CrossPlatform-Libs/sge030809-w32/src" /I "../../CrossPlatform-Libs/SDL_ttf-2.0.6" /I "../../CrossPlatform-Libs/SDL_image-1.2.3" /I "../../CrossPlatform-Libs/SDL-1.2.7/include" /I "../../Splitter" /I "../../CrossPlatform-Libs/zlib" /I "../../CrossPlatform-Libs/lpng127" /I "../../Libraries/STLport-4.5.3/stlport" /I "../../Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "PROFILING" /D "#CACHE_IMAGES" /I /pluto/trunk" /M$(CECrtMTDebug) " /c
 # SUBTRACT CPP /YX /Yc /Yu
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -1184,6 +1184,7 @@ DEP_CPP_MAIN_=\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\Win32\main.h"\
 	"..\Win32\MainDialog.h"\
+	"..\Win32\StartOrbiter_Win32.h"\
 	".\StartOrbiterCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
@@ -1194,7 +1195,6 @@ DEP_CPP_MAIN_=\
 NODEP_CPP_MAIN_=\
 	"..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiterSDL.h"\
 	
 
 !ENDIF 
@@ -1268,6 +1268,7 @@ DEP_CPP_MAIND=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\Win32\MainDialog.h"\
+	"..\Win32\StartOrbiter_Win32.h"\
 	".\StartOrbiterCE.h"\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
@@ -1277,7 +1278,6 @@ DEP_CPP_MAIND=\
 NODEP_CPP_MAIND=\
 	"..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiterSDL.h"\
 	
 
 !ENDIF 
@@ -2041,6 +2041,7 @@ DEP_CPP_ORBITERS=\
 	"..\SDL\OrbiterSDL.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
+	"..\Win32\StartOrbiter_Win32.h"\
 	".\OrbiterSDL_WinCE.h"\
 	".\StartOrbiterCE.h"\
 	".\stdafx.h"\
@@ -2052,7 +2053,6 @@ DEP_CPP_ORBITERS=\
 NODEP_CPP_ORBITERS=\
 	"..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiterSDL.h"\
 	
 
 !ENDIF 
@@ -2529,6 +2529,7 @@ DEP_CPP_START=\
 	"..\SDL\OrbiterSDL.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
+	"..\Win32\StartOrbiter_Win32.h"\
 	".\OrbiterSDL_WinCE.h"\
 	".\StartOrbiterCE.h"\
 	".\stdafx.h"\
@@ -2540,7 +2541,6 @@ DEP_CPP_START=\
 NODEP_CPP_START=\
 	"..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiterSDL.h"\
 	
 
 !ENDIF 
@@ -2734,6 +2734,10 @@ DEP_CPP_WINCE=\
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\DesignObj_Data.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\Win32\MainDialog.h

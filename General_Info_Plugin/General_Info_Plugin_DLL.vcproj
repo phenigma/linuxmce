@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include;../PlutoUtils"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -132,6 +132,9 @@
 			</File>
 			<File
 				RelativePath="Main.cpp">
+			</File>
+			<File
+				RelativePath="..\PlutoUtils\md5c.cpp">
 			</File>
 		</Filter>
 		<Filter

@@ -39,7 +39,7 @@ public:
 		m_PK_Device=PK_Device;
 		m_PK_DeviceGroup=PK_DeviceGroup;
 	};
-	virtual ~DesignObjCommand() {}
+	virtual ~DesignObjCommand() { m_ParameterList.clear(); } 
 	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_PK_Command + m_PK_Device + m_PK_DeviceGroup + 
@@ -65,6 +65,8 @@ public:
 
 		for(iA = m_Commands.begin(); iA != m_Commands.end(); ++iA)
 			delete *iA;
+		
+		m_Commands.clear();
 	}
 	PlutoRectangle m_Rect;
 	DesignObjCommandList m_Commands;
@@ -108,7 +110,21 @@ public:
 		m_pObject=pObj; m_iLastXOffset=m_iLastYOffset=0; 
 	}
 	DesignObjText() {}
-	virtual ~DesignObjText() {};
+	
+	virtual ~DesignObjText() 
+	{  
+		m_pObject = NULL; //someone else should detele the object
+
+		MapTextStyle::iterator it;
+
+		for(it = m_mapTextStyle.begin(); it != m_mapTextStyle.end(); it++)
+		{
+			delete (*it).second;
+			(*it).second = NULL;
+		}
+		m_mapTextStyle.clear();
+	};
+
 	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_sText + m_bPreRender +

@@ -101,20 +101,22 @@ bool HandleRequestSocket::OnConnect( string sExtraInfo )
 		g_pPlutoLogger->Write( LV_CRITICAL, "Connection for requesthandler %p (device: %d) reported %s. %s", this, m_dwPK_Device, sResponse.c_str(), m_sName.c_str() );
 		return false;
 	}
+	
 	m_bRunning = true;
 	m_bTerminate = false;
     pthread_create( &m_RequestHandlerThread, NULL, BeginHandleRequestThread, (void *)this );
+
 	return true;
 }
 
 void HandleRequestSocket::RunThread()
 {
+
 #ifdef UNDER_CE
 	__try
 	{
 #endif
 
-	m_bUnexpected = false;
 	string sMessage = "";
 
 	while( !m_bTerminate )
@@ -131,6 +133,8 @@ void HandleRequestSocket::RunThread()
 		}
 		else
 		{
+			g_pPlutoLogger->Write(LV_STATUS, "Receive string: %s", sMessage.c_str());
+
 			if ( sMessage == "CORRUPT SOCKET" )
 			{
 				g_pPlutoLogger->Write( LV_STATUS, "Socket flagged as corrupted %p device: %d", this, m_dwPK_Device );
@@ -195,6 +199,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection...");
 //		m_dwPK_Device, (int) m_bUnexpected, sMessage.c_str(), (int) m_bTerminate, m_sName.c_str() );
 	if ( m_bUnexpected )
 	{
+		g_pPlutoLogger->Write(LV_STATUS, "OnUnexpectedDisconnect");
 		OnUnexpectedDisconnect();
 	}
 #ifdef UNDER_CE

@@ -384,7 +384,10 @@ void PlutoLock::DumpOutstandingLocks()
 	}
 	pthread_mutex_unlock(&m_mapLockMutex->mutex);
 
+#ifndef WINCE
 	printf("ready to dump locks using logger: %p\n",g_pPlutoLogger);
+#endif
+
 	list<string>::iterator itMessages;
 	for(itMessages=listMessages.begin();itMessages!=listMessages.end();++itMessages)
 	{

@@ -12,6 +12,9 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 {
 	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
 
+	if(pOrbiter == NULL)
+		return 0L;
+
 	LRESULT Result = pOrbiter->OldSDLWindowProc(hWnd, uMsg, wParam, lParam);
 
     switch(uMsg)
@@ -40,7 +43,7 @@ OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, string ServerAddress, string sL
 	if(NULL != hSDLWindow)
 	{
 		OldSDLWindowProc = reinterpret_cast<WNDPROC>(::SetWindowLong(hSDLWindow, 
-			GWL_WNDPROC, reinterpret_cast<long>(SDLWindowProc)));
+			GWL_WNDPROC, reinterpret_cast<LONG>(SDLWindowProc)));
 	}
 
     m_bShiftDown = false;
@@ -49,11 +52,13 @@ OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, string ServerAddress, string sL
 	m_bRepeat = false;
 	m_bCapsLock = false;
     m_cKeyDown=0;
-	//m_bQuitWinCE=false;
+	m_bConnectionLost = false;
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_Win32::~OrbiterSDL_Win32()
 {
+	//restore old sdl windowproc
+	::SetWindowLong(hSDLWindow, GWL_WNDPROC, reinterpret_cast<long>(OldSDLWindowProc));
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_Win32::BuildOrbiterSDL_Win32(
@@ -73,13 +78,21 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 	}
 }
 //-----------------------------------------------------------------------------------------------------
+/*static*/ void OrbiterSDL_Win32::Cleanup()
+{
+	if(NULL != m_pInstance)
+	{
+		delete m_pInstance;
+		m_pInstance = NULL;
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 /*static*/ OrbiterSDL_Win32 *OrbiterSDL_Win32::GetInstance()
 {
 	if(NULL != m_pInstance)
 		return m_pInstance;
 	else
 	{
-		throw "OrbiterSDL_Win32 not created yet!";
 		return NULL;
 	}
 }
@@ -141,6 +154,7 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
             m_bAltDown=false;
 		else if( wParam == VK_ESCAPE && m_bControlDown && m_bAltDown)
 		{
+			/*
 			m_bQuit = true;
 
 			atexit(SDL_Quit);
@@ -149,6 +163,9 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			SDL_Event event;
 			event.type = SDL_USEREVENT;
 			SDL_PushEvent(&event); 
+			*/
+
+			OnQuit();
 		}
 		else if( wParam == VK_F10)
 		{
@@ -366,5 +383,19 @@ void OrbiterSDL_Win32::WriteStatusOutput(const char* pMessage)
 		DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE); 
 
 	::ReleaseDC(hSDLWindow, hDC);
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterSDL_Win32::OnQuit()
+{
+	m_bQuit = true;
+	m_bConnectionLost = true;
+
+	//atexit(SDL_Quit);
+	//::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
+	::ShowWindow(hSDLWindow, SW_HIDE);
+
+	SDL_Event event;
+	event.type = SDL_USEREVENT;
+	SDL_PushEvent(&event); 
 }
 //-----------------------------------------------------------------------------------------------------

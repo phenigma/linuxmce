@@ -12,6 +12,9 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 {
 	OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
 
+	if(pOrbiter == NULL)
+		return 0L;
+
 	LRESULT Result = pOrbiter->OldSDLWindowProc(hWnd, uMsg, wParam, lParam);
 
     switch(uMsg)
@@ -53,12 +56,14 @@ OrbiterSDL_WinCE::OrbiterSDL_WinCE(int DeviceID, string ServerAddress, string sL
 	m_bRepeat = false;
 	m_bCapsLock = false;
     m_cKeyDown=0;
-	m_bQuitWinCE=false;
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
 {
 	ClearWinCETextObjectsList();
+
+	//restore old sdl windowproc
+	::SetWindowLong(hSDLWindow, GWL_WNDPROC, reinterpret_cast<long>(OldSDLWindowProc));	
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_WinCE::BuildOrbiterSDL_WinCE(
@@ -78,13 +83,21 @@ OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
 	}
 }
 //-----------------------------------------------------------------------------------------------------
+/*static*/ void OrbiterSDL_WinCE::Cleanup()
+{
+	if(NULL != m_pInstance)
+	{
+		delete m_pInstance;
+		m_pInstance = NULL;
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 /*static*/ OrbiterSDL_WinCE *OrbiterSDL_WinCE::GetInstance()
 {
 	if(NULL != m_pInstance)
 		return m_pInstance;
 	else
 	{
-		throw "OrbiterSDL_WinCE not created yet!";
 		return NULL;
 	}
 }
@@ -265,7 +278,7 @@ void OrbiterSDL_WinCE::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
             m_bAltDown=false;
 		else if( wParam == VK_ESCAPE && m_bControlDown && m_bAltDown)
 		{
-			m_bQuitWinCE = true;
+			m_bQuit = true;
 
 			atexit(SDL_Quit);
 			::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
@@ -431,5 +444,20 @@ void OrbiterSDL_WinCE::WriteStatusOutput(const char* pMessage)
 		DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE); 
 
 	::ReleaseDC(hSDLWindow, hDC);
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterSDL_WinCE::OnQuit()
+{
+	g_pPlutoLogger->Write(LV_STATUS, "OnQuit()");
+
+	m_bQuit = true;
+	m_bConnectionLost = true;
+
+	//::ShowWindow(hSDLWindow, SW_HIDE);
+	ShowMainDialog();
+
+	SDL_Event event;
+	event.type = SDL_USEREVENT;
+	SDL_PushEvent(&event); 
 }
 //-----------------------------------------------------------------------------------------------------

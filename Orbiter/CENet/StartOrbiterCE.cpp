@@ -31,8 +31,11 @@ OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 	if(!bLocalMode)
 		WriteStatusOutput("Connecting to DCERouter...");
 
+	bool bFailed = false;
+
 	try
 	{
+		OrbiterSDL_WinCE::Cleanup();
 		OrbiterSDL_WinCE::BuildOrbiterSDL_WinCE(
 			PK_Device, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
@@ -41,21 +44,26 @@ OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 	}
 	catch(...)
 	{
-		return NULL;
+		bFailed = true;
 	}
 
-	OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
-
-	if(!bLocalMode)
+	OrbiterSDL_WinCE *pOrbiter = NULL;
+	
+	if(!bFailed)
 	{
-		bool bConnected = pOrbiter->Connect();
+		pOrbiter = OrbiterSDL_WinCE::GetInstance();
 
-		if(!bConnected)
+		if(!bLocalMode)
 		{
-			delete pOrbiter;
-			pOrbiter = NULL;
-		}
+			bool bConnected = pOrbiter->Connect();
 
+			if(!bConnected)
+			{
+				delete pOrbiter;
+				pOrbiter = NULL;
+			}
+
+		}
 	}
 
 	return pOrbiter;
@@ -68,18 +76,22 @@ bool Run(OrbiterSDL_WinCE* pOrbiter, bool bLocalMode)
 
     pOrbiter->Initialize(gtSDLGraphic);
 
-	if(pOrbiter->m_bReload)
-		return false;
+	bool bResult = false;
 
-    if (!bLocalMode)
-        pOrbiter->CreateChildren();
+	if(!pOrbiter->m_bReload)
+	{
+		if (!bLocalMode)
+			pOrbiter->CreateChildren();
 
-    g_pPlutoLogger->Write(LV_STATUS, "Starting processing events");
+		g_pPlutoLogger->Write(LV_STATUS, "Starting processing events");
 
-	WriteStatusOutput("Starting processing events...");
-	pOrbiter->WriteStatusOutput("Parsing configuration data...");
+		WriteStatusOutput("Starting processing events...");
+		pOrbiter->WriteStatusOutput("Starting processing events...");
 
-	return SDLEventLoop(pOrbiter);
+		bResult = SDLEventLoop(pOrbiter);
+	}
+
+	return bResult;
 }
 //-----------------------------------------------------------------------------------------------------
 bool SDLEventLoop(OrbiterSDL_WinCE* pOrbiter)
@@ -91,7 +103,7 @@ bool SDLEventLoop(OrbiterSDL_WinCE* pOrbiter)
     // For now I'll assume that shift + arrows scrolls a grid
     bool bShiftDown=false,bControlDown=false,bAltDown=false,bRepeat=false,bCapsLock=false;
     clock_t cKeyDown=0;
-    while (!pOrbiter->m_bQuitWinCE && !pOrbiter->m_bReload)
+    while (!pOrbiter->m_bQuit && !pOrbiter->m_bReload)
     {
         SDL_WaitEvent(&Event);
 
@@ -127,7 +139,7 @@ bool SDLEventLoop(OrbiterSDL_WinCE* pOrbiter)
 #endif
     }  // while
 
-	return true; //all ok
+	return !pOrbiter->m_bConnectionLost;
 }
 //-----------------------------------------------------------------------------------------------------
 void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
@@ -167,8 +179,7 @@ void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool 
 		}
 	}
     
-	//hack: if we'll try to delete pOrbiter, we'll stuck here
-	pOrbiter->~OrbiterSDL_WinCE(); 
+	OrbiterSDL_WinCE::Cleanup();
 
 	pOrbiter = NULL;
 }

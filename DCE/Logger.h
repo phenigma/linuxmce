@@ -59,9 +59,10 @@
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "PlutoLockLogger.h"
 
-#define LT_LOGGER_NULL		1
-#define LT_LOGGER_FILE		2
-#define LT_LOGGER_SERVER	3
+#define LT_LOGGER_NULL		 1
+#define LT_LOGGER_FILE		 2
+#define LT_LOGGER_SERVER	 3
+#define LT_LOGGER_ORBITERWIN 4
 
 namespace DCE 
 {
@@ -256,6 +257,30 @@ namespace DCE
 		virtual int GetType() { return LT_LOGGER_FILE; }
 
 	};
+
+	/**
+	* @brief a WinOrbiter DCE logger
+	*/
+#ifdef WIN32
+	class WinOrbiterLogger : public Logger
+	{
+		HWND m_hWndList;
+	
+	public:
+	
+		WinOrbiterLogger(HWND hWndList) : Logger("")
+		{ m_hWndList = hWndList; }
+	
+		virtual ~WinOrbiterLogger()
+		{}
+
+		virtual int GetType() { return LT_LOGGER_ORBITERWIN; }
+	
+		virtual void WriteEntry( class Logger::Entry& entry );
+	};
+#endif
+
+
 	typedef map<string, Logger*> NameLoggerMap;
 	typedef map<string, string> StringStringMap;
 }
