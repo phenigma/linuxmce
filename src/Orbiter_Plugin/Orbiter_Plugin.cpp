@@ -692,7 +692,7 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
     }
 
 	int iPK_Users_Last = pOH_Orbiter->m_iPK_Users;
-	if( pOH_Orbiter->m_iPK_Users && pOH_Orbiter->m_iPK_Users!=iPK_Users )
+	if( pOH_Orbiter->m_iPK_Users && pOH_Orbiter->m_iPK_Users!=iPK_Users && NULL != pOH_Orbiter->m_pDevice_CurrentDetected)
 		FireFollowMe("LCMST",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,pOH_Orbiter->m_iPK_Users,0,0);
     pOH_Orbiter->m_iPK_Users=iPK_Users;
 	if( pOH_Orbiter->m_iPK_Users && pOH_Orbiter->m_iPK_Users!=iPK_Users_Last && pOH_Orbiter->m_dwPK_Room )
@@ -772,7 +772,10 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
     printf("CMD_New_Mobile_Orbiter\n");
 
     int iFK_Room = 1;
-    UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
+
+	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);	
+	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
+	mm.Release();
 
     if( pUnknownDeviceInfos && pUnknownDeviceInfos->m_iDeviceIDFrom && pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom)
         iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_dwPK_Room;
