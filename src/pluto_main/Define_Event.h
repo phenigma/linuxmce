@@ -25,6 +25,11 @@
 #define EVENT_Stopped_Listening_To_Medi_CONST 22
 #define EVENT_MythTV_Channel_Changed_CONST 23
 #define EVENT_New_PNP_Device_Detected_CONST 24
+#define EVENT_Temperature_Changed_CONST 25
+#define EVENT_Humidity_Changed_CONST 26
+#define EVENT_Thermostat_Set_Point_Chan_CONST 27
+#define EVENT_On_CONST 28
+#define EVENT_Off_CONST 29
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"

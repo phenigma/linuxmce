@@ -17,6 +17,8 @@
 #define TEMPLATE_Security_SOS_CONST 14
 #define TEMPLATE_Security_View_Cameras_CONST 15
 #define TEMPLATE_Security_View_Camera_CONST 16
+#define TEMPLATE_Telecom_Scenarios_CONST 17
+#define TEMPLATE_Media_Wiz_Disc_CDDVD_CONST 18
 
 #define TEMPLATE_TABLE "Template"
 #define TEMPLATE_PK_TEMPLATE_FIELD "PK_Template"

@@ -50,6 +50,7 @@
 #define DEVICEDATA_Motion_Option_CONST 51
 #define DEVICEDATA_Sensitivity_CONST 52
 #define DEVICEDATA_Noise_CONST 53
+#define DEVICEDATA_Purge_Period_CONST 54
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

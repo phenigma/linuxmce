@@ -274,6 +274,9 @@
 #define COMMAND_EIB_Read_CONST 275
 #define COMMAND_Add_GC100_CONST 276
 #define COMMAND_Get_Capture_Video_Frame_CONST 277
+#define COMMAND_Set_Temperature_CONST 278
+#define COMMAND_Set_Fan_CONST 279
+#define COMMAND_Set_HeatCool_CONST 280
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
