@@ -225,7 +225,9 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
             m_pXineVisualizationPlugin = NULL;
         }
 
-        xine_close(xineStream->m_pStream);
+		// this can be null if we weren't able to open any ports in a previous atempt
+		if ( xineStream->m_pStream )
+        	xine_close(xineStream->m_pStream);
 
         g_pPlutoLogger->Write(LV_STATUS, "Closed!");
 
