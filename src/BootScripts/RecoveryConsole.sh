@@ -2,10 +2,12 @@
 
 Connectivity()
 {
-#	while ./bin/ping -c 1 dcerouter &>/dev/null; do
-#		./bin/sleep 5
-#	done
-	./bin/nc dcerouter 3450
+	Fail=0
+	Threshold=5;
+	while [[ "$Fail" -lt "$Threshold" ]]; do
+		./bin/ping -c 1 dcerouter &>/dev/null && Fail=0 || : $((Fail+=1))
+		./bin/sleep 5
+	done
 }
 
 ShellLoop()
@@ -34,4 +36,5 @@ mount -t devfs devfs dev
 mount -t proc proc proc
 
 Emergency &
-ShellLoop &
+#ShellLoop &
+openvt -c 11 -- /usr/pluto/bin/RecoveryConsole_ShellLoop.sh
