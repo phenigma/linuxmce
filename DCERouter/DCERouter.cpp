@@ -12,7 +12,7 @@ using namespace std;
 #include <sys/vfs.h>
 #include <dirent.h>
 #endif
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -109,19 +109,19 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     }
 
     if( !m_dwPK_Installation && g_DCEConfig.m_iPK_Installation>0 )
-		m_dwPK_Installation = g_DCEConfig.m_iPK_Installation;
+        m_dwPK_Installation = g_DCEConfig.m_iPK_Installation;
 
-	if( !m_dwPK_Device && g_DCEConfig.m_iPK_Device_Computer>0 )
-	{
+    if( !m_dwPK_Device && g_DCEConfig.m_iPK_Device_Computer>0 )
+    {
         vector<Row_Device *> vectRow_Device;
         m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST)
-			+ " AND " + DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + "=" + StringUtils::itos(g_DCEConfig.m_iPK_Device_Computer), &vectRow_Device);
+            + " AND " + DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + "=" + StringUtils::itos(g_DCEConfig.m_iPK_Device_Computer), &vectRow_Device);
         if( vectRow_Device.size()==1 )
-		{
-			Row_Device *pRow_Device = vectRow_Device[0];
-			m_dwPK_Device = pRow_Device->PK_Device_get();
-		}
-	}
+        {
+            Row_Device *pRow_Device = vectRow_Device[0];
+            m_dwPK_Device = pRow_Device->PK_Device_get();
+        }
+    }
 
     if( !m_dwPK_Installation && !m_dwPK_Device )
     {
@@ -195,7 +195,7 @@ Router::~Router()
     delete m_pAlarmManager;
     m_pAlarmManager = NULL;
 
-	delete m_pDatabase_pluto_main;
+    delete m_pDatabase_pluto_main;
 }
 
 void Router::RegisterAllPlugins()
@@ -241,11 +241,11 @@ void Router::RegisterAllPlugins()
 
     map<int,class Command_Impl *>::iterator it;
     for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
-	{
-		Command_Impl *pPlugIn = (*it).second;
-		g_pPlutoLogger->Write(LV_STATUS,"Registering plugin: %s",pPlugIn->m_sName.c_str());
+    {
+        Command_Impl *pPlugIn = (*it).second;
+        g_pPlutoLogger->Write(LV_STATUS,"Registering plugin: %s",pPlugIn->m_sName.c_str());
         pPlugIn->Register();
-	}
+    }
 }
 
 // sCommandLine = Plugin filename
@@ -318,33 +318,33 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
 
 void Router::RegisterMsgInterceptor(Message *pMessage)
 {
-	int PK_Device_From = atoi( pMessage->m_mapParameters[PARM_FROM].c_str() );
-	int PK_Device_To = atoi( pMessage->m_mapParameters[PARM_TO].c_str() );
-	int PK_DeviceTemplate = atoi( pMessage->m_mapParameters[PARM_TEMPLATE].c_str() );
-	int PK_DeviceCategory = atoi( pMessage->m_mapParameters[PARM_CATEGORY].c_str() );
-	int MessageType = atoi( pMessage->m_mapParameters[PARM_MESSAGE_TYPE].c_str() );
-	int MessageID = atoi( pMessage->m_mapParameters[PARM_MESSAGE_ID].c_str() );
-	
-	RegisterMsgInterceptor(
-			new MessageInterceptorCallBack(pMessage->m_dwPK_Device_From, pMessage->m_dwID),
-			PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID );
+    int PK_Device_From = atoi( pMessage->m_mapParameters[PARM_FROM].c_str() );
+    int PK_Device_To = atoi( pMessage->m_mapParameters[PARM_TO].c_str() );
+    int PK_DeviceTemplate = atoi( pMessage->m_mapParameters[PARM_TEMPLATE].c_str() );
+    int PK_DeviceCategory = atoi( pMessage->m_mapParameters[PARM_CATEGORY].c_str() );
+    int MessageType = atoi( pMessage->m_mapParameters[PARM_MESSAGE_TYPE].c_str() );
+    int MessageID = atoi( pMessage->m_mapParameters[PARM_MESSAGE_ID].c_str() );
+
+    RegisterMsgInterceptor(
+            new MessageInterceptorCallBack(pMessage->m_dwPK_Device_From, pMessage->m_dwID),
+            PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID );
 }
 
 void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 {
     SafetyMessage SafetyMessage(pMessageWillBeDeleted);
 
-	if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_REGISTER_INTERCEPTOR )
-	{
-		RegisterMsgInterceptor( (*SafetyMessage) );
-		return;
-	}
+    if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_REGISTER_INTERCEPTOR )
+    {
+        RegisterMsgInterceptor( (*SafetyMessage) );
+        return;
+    }
 
     if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_MASTERDEVICE || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_CATEGORY || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_GROUP )
     {
         // We're going to have to come up with the list of matching devices
         if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_MASTERDEVICE )
-            (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByDeviceTemplate((*SafetyMessage)->m_dwPK_Device_Template,(*SafetyMessage)->m_eBroadcastLevel);
+            (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByDeviceTemplate((*SafetyMessage)->m_dwPK_Device_Template,(*SafetyMessage)->m_eBroadcastLevel, (*SafetyMessage)->m_bRelativeToSender ? (*SafetyMessage)->m_dwPK_Device_From : (*SafetyMessage)->m_dwPK_Device_To);
         else if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_CATEGORY )
             (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByCategory((*SafetyMessage)->m_dwPK_Device_Category_To,(*SafetyMessage)->m_eBroadcastLevel);
 //      else if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_GROUP )  TODO
@@ -868,28 +868,9 @@ bool Router::GetParameterWithDefinedMessage(Message *sendMessage, string &sResul
     return false;
 }
 
-int Router::FindClosestRelative(int MasterDeviceType, int CurrentDevice)
-{
-    DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(CurrentDevice);
-    if( pDevice )
-    {
-        int DeviceID = pDevice->m_dwPK_Device_ControlledVia;
-        if( DeviceID && (pDevice = m_mapDeviceData_Router_Find(DeviceID)))
-        {
-            for(int i=0;i<(int)pDevice->m_vectDeviceData_Impl_Children.size();++i)
-            {
-                DeviceData_Impl *pChildDevice = pDevice->m_vectDeviceData_Impl_Children[i];
-                if (pChildDevice->m_dwPK_DeviceTemplate == MasterDeviceType)
-                {
-                    return pChildDevice->m_dwPK_Device;
-                }
-            }
-            // Not here.  Go up one.
-            return FindClosestRelative(MasterDeviceType, DeviceID);
-        }
-    }
-    return -1;
-}
+
+// moved inline in the header
+// int Router::FindClosestRelative(int MasterDeviceType, int CurrentDevice)
 
 string Router::GetPublicIP()
 {
@@ -997,79 +978,79 @@ void Router::ProcessQueue()
 
 void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 {
-	Command *pCommand = mapCommand_Find((*(*pSafetyMessage))->m_dwID);
-	int PK_Device = (*(*pSafetyMessage))->m_dwPK_Device_To;
-	DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find(PK_Device);
-	if( !pCommand || !pDeviceData_Router )
-	{
-		if( pCommand && pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST && PK_Device==DEVICEID_NULL )
-			m_bQuit=true;
-		return;
-	}
+    Command *pCommand = mapCommand_Find((*(*pSafetyMessage))->m_dwID);
+    int PK_Device = (*(*pSafetyMessage))->m_dwPK_Device_To;
+    DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find(PK_Device);
+    if( !pCommand || !pDeviceData_Router )
+    {
+        if( pCommand && pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST && PK_Device==DEVICEID_NULL )
+            m_bQuit=true;
+        return;
+    }
 
-	if( pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST )
-	{
-		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
-		{
-			Pipe *pPipe = (*it).second;
-			Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
-				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
-			ReceivedMessage(NULL,pMessage);
-		}
-		pDeviceData_Router->m_mapPipe_Active.clear();
-	}
-	else if( pCommand->m_dwPK_Command==COMMAND_Generic_On_CONST )
-	{
-		bool bDontSetInputs=false;
-		if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_Dont_Set_Inputs_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() ||
-			(*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_Dont_Set_Inputs_CONST]=="1") 
-				bDontSetInputs=true;
+    if( pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST )
+    {
+        for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
+        {
+            Pipe *pPipe = (*it).second;
+            Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+                PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
+            ReceivedMessage(NULL,pMessage);
+        }
+        pDeviceData_Router->m_mapPipe_Active.clear();
+    }
+    else if( pCommand->m_dwPK_Command==COMMAND_Generic_On_CONST )
+    {
+        bool bDontSetInputs=false;
+        if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_Dont_Set_Inputs_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() ||
+            (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_Dont_Set_Inputs_CONST]=="1")
+                bDontSetInputs=true;
 
-		string sPipesDevices;
-		if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
-			sPipesDevices = "," + (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] + ",";
-		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
-		{
-			Pipe *pPipe = (*it).second;
-			if( sPipesDevices.length()==0 || sPipesDevices.find("," + StringUtils::itos((*it).first) + ",")!=string::npos )
-				pDeviceData_Router->m_mapPipe_Active[pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()]=pPipe;
+        string sPipesDevices;
+        if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
+            sPipesDevices = "," + (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] + ",";
+        for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
+        {
+            Pipe *pPipe = (*it).second;
+            if( sPipesDevices.length()==0 || sPipesDevices.find("," + StringUtils::itos((*it).first) + ",")!=string::npos )
+                pDeviceData_Router->m_mapPipe_Active[pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()]=pPipe;
 
-			if( !bDontSetInputs )
-			{
-				if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )
-				{
-					Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
-						PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
+            if( !bDontSetInputs )
+            {
+                if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )
+                {
+                    Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+                        PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
 
-					Message *pMessage2 = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
-						PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,
-						COMMANDPARAMETER_PK_Command_Input_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get()).c_str());
-					pMessage->m_vectExtraMessages.push_back(pMessage2);
-					ReceivedMessage(NULL,pMessage);
-				}
-				if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_isNull() )
-				{
-					Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
-						PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,1,
-						COMMANDPARAMETER_PK_Command_Output_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get()).c_str());
-					ReceivedMessage(NULL,pMessage);
-				}
-			}
-		}
-	}
-	else if( pCommand->m_listPipe.size() )
-	{
-		for(list<int>::iterator it=pCommand->m_listPipe.begin();it!=pCommand->m_listPipe.end();++it)
-		{
-			Pipe *pPipe;
-			if( (pPipe=pDeviceData_Router->m_mapPipe_Active_Find(*it))!=NULL )
-			{
-				(*(*pSafetyMessage))->m_dwPK_Device_To = pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get();
-				RealSendMessage(pSocket,pSafetyMessage);
-			}
-			(*(*pSafetyMessage))->m_dwPK_Device_To = PK_Device;
-		}
-	}
+                    Message *pMessage2 = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+                        PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,
+                        COMMANDPARAMETER_PK_Command_Input_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get()).c_str());
+                    pMessage->m_vectExtraMessages.push_back(pMessage2);
+                    ReceivedMessage(NULL,pMessage);
+                }
+                if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_isNull() )
+                {
+                    Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+                        PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,1,
+                        COMMANDPARAMETER_PK_Command_Output_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get()).c_str());
+                    ReceivedMessage(NULL,pMessage);
+                }
+            }
+        }
+    }
+    else if( pCommand->m_listPipe.size() )
+    {
+        for(list<int>::iterator it=pCommand->m_listPipe.begin();it!=pCommand->m_listPipe.end();++it)
+        {
+            Pipe *pPipe;
+            if( (pPipe=pDeviceData_Router->m_mapPipe_Active_Find(*it))!=NULL )
+            {
+                (*(*pSafetyMessage))->m_dwPK_Device_To = pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get();
+                RealSendMessage(pSocket,pSafetyMessage);
+            }
+            (*(*pSafetyMessage))->m_dwPK_Device_To = PK_Device;
+        }
+    }
 }
 
 void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
@@ -1087,13 +1068,13 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
         return;
     }
 
-	// We have to do this here after we've parsed the DEVICEID_LIST
+    // We have to do this here after we've parsed the DEVICEID_LIST
     DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find((*(*pSafetyMessage))->m_dwPK_Device_To);
-	if( pDeviceTo && pDeviceTo->m_pDevice_RouteTo )
-		(*(*pSafetyMessage))->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
+    if( pDeviceTo && pDeviceTo->m_pDevice_RouteTo )
+        (*(*pSafetyMessage))->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
 
     if ( (*(*pSafetyMessage))->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-		HandleCommandPipes(pSocket,pSafetyMessage);
+        HandleCommandPipes(pSocket,pSafetyMessage);
 //  g_pPlutoLogger->Write(LV_STATUS,"begin realsendmessage before lock");
     PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
     int RouteToDevice = DEVICEID_NULL;
@@ -1186,7 +1167,7 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 */
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %d %s on socket %d using lock: %p",
-	(bResult ? 1 : 0),
+    (bResult ? 1 : 0),
     (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pDeviceConnection->m_dwPK_Device,
     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
     pDeviceConnection->m_Socket,&pDeviceConnection->m_ConnectionMutex);
@@ -1234,7 +1215,7 @@ if ( ID == 54 )
 {
     g_pPlutoLogger->Write(LV_WARNING, "Reading message response id for %s", sResponse.substr(8).c_str());
 }
-								DCE::Message *pMessage = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(8).c_str()));
+                                DCE::Message *pMessage = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(8).c_str()));
 if ( ID == 54 )
 {
     g_pPlutoLogger->Write(LV_WARNING, "Response message was read (%d) with %d params: %s %s", pMessage->m_dwID,
@@ -1412,15 +1393,15 @@ void Router::Configure()
 
         m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
 
-		vector<Row_Device_Device_Pipe *> vectRow_Device_Device_Pipe;
-		pRow_Device->Device_Device_Pipe_FK_Device_From_getrows(&vectRow_Device_Device_Pipe);
-		for(size_t sp=0;sp<vectRow_Device_Device_Pipe.size();++sp)
-		{
-			Row_Device_Device_Pipe *pRow_Device_Device_Pipe = vectRow_Device_Device_Pipe[sp];
-			pDevice->m_mapPipe_Available[pRow_Device_Device_Pipe->FK_Pipe_get()] = new Pipe(pRow_Device_Device_Pipe);
-		}
+        vector<Row_Device_Device_Pipe *> vectRow_Device_Device_Pipe;
+        pRow_Device->Device_Device_Pipe_FK_Device_From_getrows(&vectRow_Device_Device_Pipe);
+        for(size_t sp=0;sp<vectRow_Device_Device_Pipe.size();++sp)
+        {
+            Row_Device_Device_Pipe *pRow_Device_Device_Pipe = vectRow_Device_Device_Pipe[sp];
+            pDevice->m_mapPipe_Available[pRow_Device_Device_Pipe->FK_Pipe_get()] = new Pipe(pRow_Device_Device_Pipe);
+        }
 
-		ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceByTemplate_Find(pDevice->m_dwPK_DeviceTemplate);
+        ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceByTemplate_Find(pDevice->m_dwPK_DeviceTemplate);
         if( !pListDeviceData_Router )
         {
             pListDeviceData_Router = new ListDeviceData_Router();
@@ -1436,7 +1417,7 @@ void Router::Configure()
         }
         pListDeviceData_Router->push_back(pDevice);
 
-		// We also need a minimal version from the topmost base class that we'll serialize in alldevices and send to each device that registers so they have a complete device tree
+        // We also need a minimal version from the topmost base class that we'll serialize in alldevices and send to each device that registers so they have a complete device tree
         DeviceData_Base *pDevice_Base = new DeviceData_Base(
             pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),
             pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRow_Device->FK_Room_get(),pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
@@ -1488,7 +1469,7 @@ void Router::Configure()
         }
     }
 
-	// Now match up route to's
+    // Now match up route to's
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
     {
         DeviceData_Router *pDevice = (*itDevice).second;
@@ -1499,20 +1480,20 @@ void Router::Configure()
 
     // Get the device groups
     vector<Row_DeviceGroup *> vectDeviceGroup;
-	GetDatabase()->DeviceGroup_get()->GetRows(string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation),&vectDeviceGroup);
+    GetDatabase()->DeviceGroup_get()->GetRows(string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation),&vectDeviceGroup);
 
     for(size_t s=0;s<vectDeviceGroup.size();++s)
     {
         Row_DeviceGroup *pRow_DeviceGroup = vectDeviceGroup[s];
         DeviceGroup *pDeviceGroup = new DeviceGroup(pRow_DeviceGroup->PK_DeviceGroup_get(),pRow_DeviceGroup->Description_get());
 
-		vector<Row_Device_DeviceGroup *> vectRow_Device_DeviceGroup;
-		pRow_DeviceGroup->Device_DeviceGroup_FK_DeviceGroup_getrows(&vectRow_Device_DeviceGroup);
-		for(size_t s2=0;s2<vectRow_Device_DeviceGroup.size();++s2)
-		{
-			Row_Device_DeviceGroup *pRow_Device_DeviceGroup = vectRow_Device_DeviceGroup[s2];
-			pDeviceGroup->m_vectPK_Device.push_back(pRow_Device_DeviceGroup->FK_Device_get());
-		}
+        vector<Row_Device_DeviceGroup *> vectRow_Device_DeviceGroup;
+        pRow_DeviceGroup->Device_DeviceGroup_FK_DeviceGroup_getrows(&vectRow_Device_DeviceGroup);
+        for(size_t s2=0;s2<vectRow_Device_DeviceGroup.size();++s2)
+        {
+            Row_Device_DeviceGroup *pRow_Device_DeviceGroup = vectRow_Device_DeviceGroup[s2];
+            pDeviceGroup->m_vectPK_Device.push_back(pRow_Device_DeviceGroup->FK_Device_get());
+        }
         allDevices.m_mapDeviceGroup[pDeviceGroup->m_dwPK_DeviceGroup] = pDeviceGroup;
     }
 
@@ -1540,45 +1521,45 @@ void Router::Configure()
     for(size_t s=0;s<vectRow_Command.size();++s)
     {
         Row_Command *pRow_Command = vectRow_Command[s];
-		Command *pCommand = new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get());
-		vector<Row_Command_Pipe *> vectRow_Command_Pipe;
-		pRow_Command->Command_Pipe_FK_Command_getrows(&vectRow_Command_Pipe);
-		for(size_t sp=0;sp<vectRow_Command_Pipe.size();++sp)
-		{
-			Row_Command_Pipe *pRow_Command_Pipe = vectRow_Command_Pipe[sp];
-			pCommand->m_listPipe.push_back( pRow_Command_Pipe->FK_Pipe_get() );
-		}
+        Command *pCommand = new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get());
+        vector<Row_Command_Pipe *> vectRow_Command_Pipe;
+        pRow_Command->Command_Pipe_FK_Command_getrows(&vectRow_Command_Pipe);
+        for(size_t sp=0;sp<vectRow_Command_Pipe.size();++sp)
+        {
+            Row_Command_Pipe *pRow_Command_Pipe = vectRow_Command_Pipe[sp];
+            pCommand->m_listPipe.push_back( pRow_Command_Pipe->FK_Pipe_get() );
+        }
         m_mapCommand[pRow_Command->PK_Command_get()]=pCommand;
     }
 
-	// Build all the command groups
+    // Build all the command groups
     vector<Row_CommandGroup *> vectRow_CommandGroup;
     GetDatabase()->CommandGroup_get()->GetRows("1=1",&vectRow_CommandGroup);  // All rows
     for(size_t s=0;s<vectRow_CommandGroup.size();++s)
     {
         Row_CommandGroup *pRow_CommandGroup = vectRow_CommandGroup[s];
-		CommandGroup *pCommandGroup = new CommandGroup(pRow_CommandGroup->PK_CommandGroup_get(),pRow_CommandGroup->FK_Array_get());
-		m_mapCommandGroup[pRow_CommandGroup->PK_CommandGroup_get()]=pCommandGroup;
-		vector<Row_CommandGroup_Command *> vectRow_CommandGroup_Command;
-		pRow_CommandGroup->CommandGroup_Command_FK_CommandGroup_getrows(&vectRow_CommandGroup_Command);
-		for(size_t s2=0;s2<vectRow_CommandGroup_Command.size();++s2)
-		{
-			Row_CommandGroup_Command *pRow_CommandGroup_Command = vectRow_CommandGroup_Command[s2];
-			CommandGroup_Command *pCommandGroup_Command = new CommandGroup_Command(
-				m_mapCommand[pRow_CommandGroup_Command->FK_Command_get()], 
-				m_mapDeviceData_Router_Find(pRow_CommandGroup_Command->FK_Device_get()));
-			pCommandGroup->m_vectCommandGroup_Command.push_back(pCommandGroup_Command);
-			vector<Row_CommandGroup_Command_CommandParameter *> vectRow_CommandGroup_Command_CommandParameter;
-			pRow_CommandGroup_Command->CommandGroup_Command_CommandParameter_FK_CommandGroup_Command_getrows(&vectRow_CommandGroup_Command_CommandParameter);
-			for(size_t s3=0;s3<vectRow_CommandGroup_Command_CommandParameter.size();++s3)
-			{
-				Row_CommandGroup_Command_CommandParameter *pRow_CommandGroup_Command_CommandParameter = vectRow_CommandGroup_Command_CommandParameter[s3];
-				pCommandGroup_Command->m_mapParameter[pRow_CommandGroup_Command_CommandParameter->FK_CommandParameter_get()]=
-					pRow_CommandGroup_Command_CommandParameter->IK_CommandParameter_get();
+        CommandGroup *pCommandGroup = new CommandGroup(pRow_CommandGroup->PK_CommandGroup_get(),pRow_CommandGroup->FK_Array_get());
+        m_mapCommandGroup[pRow_CommandGroup->PK_CommandGroup_get()]=pCommandGroup;
+        vector<Row_CommandGroup_Command *> vectRow_CommandGroup_Command;
+        pRow_CommandGroup->CommandGroup_Command_FK_CommandGroup_getrows(&vectRow_CommandGroup_Command);
+        for(size_t s2=0;s2<vectRow_CommandGroup_Command.size();++s2)
+        {
+            Row_CommandGroup_Command *pRow_CommandGroup_Command = vectRow_CommandGroup_Command[s2];
+            CommandGroup_Command *pCommandGroup_Command = new CommandGroup_Command(
+                m_mapCommand[pRow_CommandGroup_Command->FK_Command_get()],
+                m_mapDeviceData_Router_Find(pRow_CommandGroup_Command->FK_Device_get()));
+            pCommandGroup->m_vectCommandGroup_Command.push_back(pCommandGroup_Command);
+            vector<Row_CommandGroup_Command_CommandParameter *> vectRow_CommandGroup_Command_CommandParameter;
+            pRow_CommandGroup_Command->CommandGroup_Command_CommandParameter_FK_CommandGroup_Command_getrows(&vectRow_CommandGroup_Command_CommandParameter);
+            for(size_t s3=0;s3<vectRow_CommandGroup_Command_CommandParameter.size();++s3)
+            {
+                Row_CommandGroup_Command_CommandParameter *pRow_CommandGroup_Command_CommandParameter = vectRow_CommandGroup_Command_CommandParameter[s3];
+                pCommandGroup_Command->m_mapParameter[pRow_CommandGroup_Command_CommandParameter->FK_CommandParameter_get()]=
+                    pRow_CommandGroup_Command_CommandParameter->IK_CommandParameter_get();
 
-			}
+            }
 
-		}
+        }
 
     }
 
@@ -1605,34 +1586,63 @@ void Router::Configure()
         Row_EventParameter *pRow_EventParameter = vectRow_EventParameter[s];
         m_mapEventParmNames[pRow_EventParameter->PK_EventParameter_get()]=pRow_EventParameter->Description_get();
     }
-	
-	//free device data map
-	Map_DeviceData_Base::iterator iD;
-	for(iD = allDevices.m_mapDeviceData_Base.begin();
-			iD != allDevices.m_mapDeviceData_Base.end(); iD++) {
-		delete (*iD).second;
-	}
+
+    //free device data map
+    Map_DeviceData_Base::iterator iD;
+    for(iD = allDevices.m_mapDeviceData_Base.begin();
+            iD != allDevices.m_mapDeviceData_Base.end(); iD++) {
+        delete (*iD).second;
+    }
 
 }
 
-// tempoarary hack.  need to optimize & handle broadcats
-string Router::GetDevicesByDeviceTemplate(int PK_DeviceTemplate,eBroadcastLevel BroadcastLevel)
+// tempoarary hack. need to optimize & handle broadcats
+// handles some broadcasts ( The Same Computer one )
+string Router::GetDevicesByDeviceTemplate(int PK_DeviceTemplate, eBroadcastLevel BroadcastLevel, int sourceDeviceForBroadcastLevel)
 {
+    DeviceData_Base *pRequestedComputer = NULL; // only usefull when doing broadcast_level_same_computer
+
+    pRequestedComputer = m_mapDeviceData_Router_Find(sourceDeviceForBroadcastLevel);
+
+    if ( BroadcastLevel == BL_SameComputer )
+    {
+        while ( pRequestedComputer != NULL && ! pRequestedComputer->WithinCategory(DEVICECATEGORY_Computers_CONST) )
+            pRequestedComputer = pRequestedComputer->m_pDevice_ControlledVia;
+
+        if ( ! pRequestedComputer )
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL, "Requested broadcast level same computer and the computer was not found for the device: %d", sourceDeviceForBroadcastLevel);
+            return "";
+        }
+
+        g_pPlutoLogger->Write(LV_STATUS, "Found computer object with ID: %d", pRequestedComputer->m_dwPK_Device);
+    }
+
     string Result="";
     map<int,class DeviceData_Router *>::iterator itDevice;
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
     {
         DeviceData_Router *pDevice = (*itDevice).second;
-if( !pDevice )
-{
+
+        if( !pDevice )
+        {
 #pragma warning("this shouldn't happen");
-g_pPlutoLogger->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL in it");
-continue;
-}
-        if( pDevice->m_dwPK_DeviceTemplate!=PK_DeviceTemplate )
+            g_pPlutoLogger->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL assciated with id: %d", (*itDevice).first);
             continue;
+        }
+
+        if( pDevice->m_dwPK_DeviceTemplate != PK_DeviceTemplate )
+            continue;
+
+        if ( BroadcastLevel == BL_SameComputer && ! pDevice->IsChildOf(pRequestedComputer) )
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "Broadcasting to same computer but the device (%d) with correct template is not a child of the computer object", pDevice->m_dwPK_Device );
+            continue;
+        }
+
         if( Result.length() )
             Result += ",";
+
         Result += StringUtils::itos(pDevice->m_dwPK_Device);
     }
     return Result;

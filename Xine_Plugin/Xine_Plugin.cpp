@@ -257,6 +257,8 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
     if ( ! isValidStreamForPlugin(pMediaStream) )
         return false;
 
+    XineMediaStream *pXineMediaStream = static_cast<XineMediaStream*>(pMediaStream);
+
     EntertainArea *pTmpEntertainArea;
     // stop all the media where it needs to be stopped.
     // to stop the media we will actually call our StopMedia function while passing it a "touched" pMediaStream parameter.
@@ -274,9 +276,10 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
         pMediaStream->m_mapEntertainArea.erase((*itEntArea)->m_iPK_EntertainArea);
         (*itEntArea)->m_pMediaStream = NULL; // remove this stream from ent areas on which it was playing
     }
-
     // we have succesfully stopped the devices; Restore the state.
     pMediaStream->m_pMediaDevice = pCurrentDevice;
+
+    // if the target change set is one we just restart the media on it.
     if ( (listStart.size() + listChange.size()) == 1 )
     {
         pTmpEntertainArea = (listStart.size() != 0) ? pTmpEntertainArea = listStart.front() : pTmpEntertainArea = listChange.front();
@@ -286,15 +289,29 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
         if ( pMediaStream->m_pMediaDevice == NULL )
         {
             g_pPlutoLogger->Write(LV_STATUS, "Could not find a proper device on which to start media in the entertainment area: %d", pTmpEntertainArea->m_iPK_EntertainArea);
+            return false;
         }
-        else
+
+        g_pPlutoLogger->Write(LV_STATUS, "Found device %d to play in the entertainemnt area %d", pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pTmpEntertainArea->m_iPK_EntertainArea);
+        StartMedia(pMediaStream);
+        pTmpEntertainArea->m_pMediaStream = pMediaStream;
+        pMediaStream->m_mapEntertainArea[pTmpEntertainArea->m_iPK_EntertainArea] = pTmpEntertainArea;
+        return true;
+    }
+
+
+    if ( pXineMediaStream->getStreamerDeviceID() == 0 )
+    {
+        pXineMediaStream->setStreamerDeviceID(m_pRouter->FindClosestRelative(DEVICETEMPLATE_Slim_Server_Streamer_CONST, m_dwPK_Device));
+
+        if ( pXineMediaStream->getStreamerDeviceID() == 0 )
         {
-            g_pPlutoLogger->Write(LV_STATUS, "Found device %d to play in the entertainemnt area %d", pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pTmpEntertainArea->m_iPK_EntertainArea);
-            StartMedia(pMediaStream);
-            pTmpEntertainArea->m_pMediaStream = pMediaStream;
-            pMediaStream->m_mapEntertainArea[pTmpEntertainArea->m_iPK_EntertainArea] = pTmpEntertainArea;
+            g_pPlutoLogger->Write(LV_STATUS, "I wasn't able to lookup the Streamer device to use for multiple ent areas streaming. Failing!.");
+            return false;
         }
     }
+
+    g_pPlutoLogger->Write(LV_STATUS, "I have the streamer device ID: %d", pXineMediaStream->getStreamerDeviceID());
 }
 
 bool Xine_Plugin::isValidStreamForPlugin(class MediaStream *pMediaStream)
@@ -396,6 +413,16 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
         SendCommand( CMD_Go_back_DL );
     }
   return true;
+}
+
+int XineMediaStream::getStreamerDeviceID()
+{
+    return m_dwStreamer;
+}
+
+void XineMediaStream::setStreamerDeviceID(int deviceID)
+{
+    m_dwStreamer = deviceID; // we should lookup and put the actual in here.
 }
 
 

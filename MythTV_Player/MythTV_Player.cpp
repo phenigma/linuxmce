@@ -93,6 +93,7 @@ bool MythTV_Player::LaunchMythFrontend()
     string commandToFire = StringUtils::Format("0 %d %d %d", m_pData->m_dwPK_Device_ControlledVia, MESSAGETYPE_COMMAND, COMMAND_Go_back_CONST);
 
     DCE::CMD_Spawn_Application_DT spawnApplication(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, "/usr/bin/mythfrontend", MYTH_WINDOW_NAME, "", commandToFire, commandToFire);
+    spawnApplication.m_pMessage->m_bRelativeToSender = true;
     SendCommand(spawnApplication);
 
     g_pPlutoLogger->Write(LV_STATUS, "Vaca domnului: %d", m_pData->m_dwPK_Device_ControlledVia);

@@ -182,6 +182,9 @@ public:
 
 class XineMediaStream : public MediaStream
 {
+    private:
+        int m_dwStreamer;
+
     public:
         class Xine_Plugin *m_pXinePlugin;
 
@@ -189,6 +192,9 @@ class XineMediaStream : public MediaStream
             : MediaStream(pMediaPluginInfo, pMediaDevice, PK_DesignObj_Remote, PK_Users,sourceType, iStreamID) { m_pXinePlugin = pXinePlugin; }
 
         virtual int GetType() { return MEDIASTREAM_TYPE_XINE; }
+
+        int getStreamerDeviceID();
+        void setStreamerDeviceID(int deviceID);
 };
 
 //<-dceag-end-b->
