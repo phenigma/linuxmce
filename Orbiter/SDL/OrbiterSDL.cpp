@@ -124,6 +124,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
     SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
     SDL_Flip(Screen);
 g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
+
+	
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
@@ -253,7 +255,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
 {
     SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_nImageWidth, m_nImageHeight, 32, rmask, gmask, bmask, amask);
-
+/*
     // copy pixel by pixel (this can be optimized to get line by line?)
     for (int x = 0; x < pObj->m_rPosition.Width; x++)
     {
@@ -263,6 +265,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
             putpixel(pSDL_Surface, x, y, getpixel(m_pScreenImage, x + pObj->m_rPosition.X, y + pObj->m_rPosition.Y));
         }
     }
+*/
     pObj->m_pGraphicToUndoSelect = new SDLGraphic(pSDL_Surface);
 }
 //-----------------------------------------------------------------------------------------------------

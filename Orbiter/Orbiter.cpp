@@ -76,7 +76,8 @@ namespace DCE
 //------------------------------------------------------------------------
 template<class T> inline static T Dist( T x,  T y ) { return x * x + y * y; }
 //------------------------------------------------------------------------
-
+void *RendererThread(void *p);
+//------------------------------------------------------------------------
 /*
 
 Constructors/Destructor
@@ -86,7 +87,8 @@ Constructors/Destructor
 //<-dceag-const-b->!
 Orbiter::Orbiter( int DeviceID,  string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight )
 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
-m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ), m_CallbackMutex( "callback" )
+m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ), 
+m_CallbackMutex( "callback" ), m_RendererThreadMutex("rendererthread")
 //<-dceag-const-e->
 
 {
@@ -110,7 +112,7 @@ m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "d
     m_ScreenMutex.Init( &m_MutexAttr );
     m_DatagridMutex.Init( &m_MutexAttr );
 	m_CallbackMutex.Init( NULL );
-
+	
     m_dwIDataGridRequestCounter=0;
 
     if(  !m_bLocalMode  )
@@ -128,6 +130,10 @@ m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "d
     m_sCaptureKeyboard_Text = "";
     m_sCaptureKeyboard_InternalBuffer = "";
     m_pCaptureKeyboard_Text = NULL;
+
+	pthread_cond_init(&m_RendererThreadCond, NULL);
+	m_RendererThreadMutex.Init(NULL);
+	pthread_create(&m_RendererThreadID, NULL, RendererThread, (void*)this);
 }
 
 //<-dceag-dest-b->
@@ -235,6 +241,7 @@ Orbiter::~Orbiter()
 	pthread_mutex_destroy(&m_ScreenMutex.mutex);
 	pthread_mutex_destroy(&m_VariableMutex.mutex);
 	pthread_mutex_destroy(&m_DatagridMutex.mutex);
+	pthread_mutex_destroy(&m_RendererThreadMutex.mutex);
 }
 
 //<-dceag-reg-b->
@@ -316,7 +323,8 @@ void Orbiter::RedrawObjects(  )
     // There appears to be a problem with SDL_Flip sometimes calling _XRead to wait for an event,  causing the thread
     // to block until there's an event,  so that our loop no longer gets back to the SDL_WaitEvent in the main pump
     // So for now just do the redraw's always on a separate thread
-    CallMaintenanceInTicks( 0, &Orbiter::RealRedraw, NULL, true );
+    //CallMaintenanceInTicks( 0, &Orbiter::RealRedraw, NULL, true ); //chris
+	CallMaintenanceInTicks( clock(), &Orbiter::RealRedraw, NULL, true ); 
 }
 
 void Orbiter::RealRedraw( void *data )
@@ -327,6 +335,7 @@ void Orbiter::RealRedraw( void *data )
     {
         m_vectObjs_NeedRedraw.clear(  );
         RenderScreen(  );
+		m_bRerenderScreen = false;//added by chris
         return;
     }
 
@@ -525,7 +534,8 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
         break;
 #endif
     case DESIGNOBJTYPE_Broadcast_Video_CONST:
-        CallMaintenanceInTicks( CLOCKS_PER_SEC*6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+        //CallMaintenanceInTicks( CLOCKS_PER_SEC*6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+		CallMaintenanceInTicks( clock() + CLOCKS_PER_SEC*6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
         break;
 
         // Grabbing up to four video frames can take some time.  Draw the rest of the
@@ -1071,7 +1081,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 
             SaveBackgroundForDeselect( pObj );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
             if(  !pObj->m_bDontResetState  )
-                CallMaintenanceInTicks( CLOCKS_PER_SEC, &Orbiter::DeselectObjects, ( void * ) pObj, true );
+				CallMaintenanceInTicks( clock() + CLOCKS_PER_SEC, &Orbiter::DeselectObjects, ( void * ) pObj, true );
 
             // Unless the screen's don't reset state is set,  we'll clear any other selected graphics
             if(  !m_pScreenHistory_Current->m_pObj->m_bDontResetState  )
@@ -3358,14 +3368,16 @@ public:
 	CallBackInfo(pluto_pthread_mutex_t *pCallbackMutex) { m_iCounter=iCallbackCounter++; m_bStop=false; m_pCallbackMutex=pCallbackMutex; }
     Orbiter *m_pOrbiter;
     OrbiterCallBack m_fnCallBack;
-    clock_t m_clock;
+    clock_t m_clock;//absolute time
     void *m_pData;
 	int m_iCounter; // A unique ID
 	bool m_bStop; // Don't execute after all, we've decided to stop it (probably started another one of same type)
 	pluto_pthread_mutex_t *m_pCallbackMutex; 
 };
+
 map<int,CallBackInfo *> mapPendingCallbacks;
 
+/*
 void *DoCallBack( void *vpCallBackInfo )
 {
 	g_pPlutoLogger->Write(LV_STATUS,"doing a callback");
@@ -3381,11 +3393,123 @@ void *DoCallBack( void *vpCallBackInfo )
 
     return NULL;
 }
+*/
+void *RendererThread(void *p)
+{
+	Orbiter* pOrbiter = (Orbiter *)p;
+
+	while(!pOrbiter->m_bQuit) //
+	{
+		PLUTO_SAFETY_LOCK( pm, pOrbiter->m_CallbackMutex );
+		
+		if(mapPendingCallbacks.size() == 0)
+		{
+			pm.Release();
+
+			pthread_mutex_lock(&pOrbiter->m_RendererThreadMutex.mutex);
+
+			timespec abstime;
+			abstime.tv_sec = time(NULL) + 10000; //nothing to process. let's wait 10 sec or to be wake up
+			abstime.tv_nsec = 0;
+			pthread_cond_timedwait(&pOrbiter->m_RendererThreadCond,&pOrbiter->m_RendererThreadMutex.mutex, &abstime);
+			pthread_mutex_unlock(&pOrbiter->m_RendererThreadMutex.mutex);
+		}
+		else
+		{
+			int Index = (*mapPendingCallbacks.begin()).second->m_iCounter;
+			int ClockMin = (*mapPendingCallbacks.begin()).second->m_clock;
+
+			g_pPlutoLogger->Write( LV_CONTROLLER, "### The queue size is %d", mapPendingCallbacks.size());
+
+			//let's choose the one which must be rendered first
+			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+			{
+				CallBackInfo *pCallBackInfo = (*it).second;
+
+				if(pCallBackInfo->m_clock < ClockMin)
+				{
+					ClockMin = pCallBackInfo->m_clock;
+					Index = pCallBackInfo->m_iCounter;
+				}
+			}
+
+			CallBackInfo *pCallBackInfo = mapPendingCallbacks[Index];
+			pm.Release();
+
+			g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, clock = %d", 
+				(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
+
+			if(pCallBackInfo->m_clock <= clock()) 
+			{
+				if( ! pCallBackInfo->m_bStop ) //let's process this one, is ready to go
+					CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
+				
+				PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex ); 
+				mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
+
+				g_pPlutoLogger->Write( LV_CONTROLLER, "### 1. Now is %d. Callback processed id = %d, clock = %d", 
+					(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
+
+				delete pCallBackInfo;
+				pCallBackInfo = NULL;
+
+				pm2.Release();
+			}
+			else
+			{
+				g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Waiting to process callback id = %d, clock = %d", 
+					(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
+
+				pthread_mutex_lock(&pOrbiter->m_RendererThreadMutex.mutex);
+
+
+
+				timespec abstime;
+				abstime.tv_sec = time(NULL) + (pCallBackInfo->m_clock - clock()) / 1000;
+				abstime.tv_nsec = (pCallBackInfo->m_clock - clock()) * 1000000;
+
+				g_pPlutoLogger->Write( LV_CONTROLLER, "@@@ %d, %d", abstime.tv_sec, abstime.tv_nsec);
+
+				if(ETIMEDOUT == pthread_cond_timedwait(&pOrbiter->m_RendererThreadCond,
+					&pOrbiter->m_RendererThreadMutex.mutex, &abstime)
+				)
+				{
+					//no new events while waiting.. so let's render this one
+					if( ! pCallBackInfo->m_bStop ) //let's process this one, is ready to go
+						CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
+					
+					PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex ); 
+					mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
+
+					g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Callback processed id = %d, clock = %d", 
+						(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
+
+					delete pCallBackInfo;
+					pCallBackInfo = NULL;
+
+					pm2.Release();
+				}
+				else
+					g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Something is changed, let's review the map", 
+						(int)clock());
+
+				pthread_mutex_unlock(&pOrbiter->m_RendererThreadMutex.mutex);
+			}
+		}
+	}
+
+	return NULL;
+}
 
 //------------------------------------------------------------------------
 void Orbiter::CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, void *data, bool bPurgeExisting )
 {
+	g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d. Waiting for mutex to be unlocked", (int)clock());
+
     PLUTO_SAFETY_LOCK( cm, m_CallbackMutex );
+
+	g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d.Mutex was unlocked", (int)clock());
+
 	if( bPurgeExisting )
 	{
 		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
@@ -3395,18 +3519,29 @@ void Orbiter::CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, voi
 				pCallBackInfo->m_bStop=true;
 		}
 	}
-    pthread_t CallBackThread;  // We don't care about this
+
+//    pthread_t CallBackThread;  // We don't care about this
     CallBackInfo *pCallBack = new CallBackInfo( &m_CallbackMutex );
     pCallBack->m_clock=c;
     pCallBack->m_fnCallBack=fnCallBack;
     pCallBack->m_pData=data;
     pCallBack->m_pOrbiter=this;
+	
 	mapPendingCallbacks[pCallBack->m_iCounter]=pCallBack;
 
+	g_pPlutoLogger->Write( LV_CONTROLLER, "### Added callback id = %d, clock = %d", 
+		pCallBack->m_iCounter, (int)pCallBack->m_clock);
+
+	cm.Release();
+
+	pthread_cond_broadcast(&m_RendererThreadCond); 
+
+	/*
 	int iResult1=pthread_create( &CallBackThread,  NULL,  DoCallBack,  ( void * ) pCallBack );
     int iResult2=pthread_detach( CallBackThread );
     if(  iResult1 || iResult2  )
         g_pPlutoLogger->Write( LV_CRITICAL, "CallMaint failed: %d %d", iResult1, iResult2 );
+	*/
 }
 
 /*

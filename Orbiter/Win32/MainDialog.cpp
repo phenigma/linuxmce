@@ -887,12 +887,12 @@ void WriteStatusOutput(const char* pMessage)
 #else
 	#define MESSAGE pMessage
 #endif
-
+/*
 	string s = string(pMessage) + "\n";
 	FILE* f = fopen("logger.out", "a+");
 	fseek(f, 0, SEEK_END);
 	fwrite(s.c_str(), s.length(), 1, f);
-	fclose(f);
+	fclose(f);*/
 
 #ifdef WINCE
 	::PostMessage(g_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE);

@@ -303,19 +303,20 @@ void WinOrbiterLogger::WriteEntry( Entry& entry )
 	fseek(f, 0, SEEK_END);
 	fwrite(s.c_str(), s.length(), 1, f);
 	fclose(f);
-
+/*
 #ifdef WINCE
 	::PostMessage(m_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE);
 
 	int Count = (int)::PostMessage(m_hWndList, LB_GETCOUNT, 0L, 0L);
 	::PostMessage(m_hWndList, LB_SETTOPINDEX, Count - 1, 0L);
 #else
+/*/
 	::SendMessage(m_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE);
 
 	int Count = (int)::SendMessage(m_hWndList, LB_GETCOUNT, 0L, 0L);
 	::SendMessage(m_hWndList, LB_SETTOPINDEX, Count - 1, 0L);
 
-#endif	
+//#endif	
 	
 	
 	//WriteStatusOutput(str.c_str());
