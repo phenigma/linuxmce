@@ -33,25 +33,25 @@ LIB_FILE="$LIB_LOC/lib$ORIG_APPNAME.a"
 
 pushd "$PACK_DIR"
 
-mkdir -p pluto/bin
-mkdir -p pluto/lib
+mkdir -p root/usr/pluto/bin
+mkdir -p root/usr/pluto/lib
 
 echo "-- $BIN_FILE"
 if [ -f "$BIN_FILE" ]; then
 	echo "Found bin file"
-	cp "$BIN_FILE" root/pluto/bin
+	cp "$BIN_FILE" root/usr/pluto/bin
 fi
 
 echo "-- $PLUGIN_FILE"
 if [ -f "$PLUGIN_FILE" ]; then
 	echo "Found plugin file"
-	cp "$PLUGIN_FILE" root/pluto/bin
+	cp "$PLUGIN_FILE" root/usr/pluto/bin
 fi
 
 echo "-- $LIB_FILE"
 if [ -f "$LIB_FILE" ]; then
 	echo "Found lib file"
-	cp "$LIB_FILE" root/pluto/lib
+	cp "$LIB_FILE" root/usr/pluto/lib
 fi
 
 popd
