@@ -202,11 +202,7 @@ ParseConfigGetPackages() {
   echo $content|awk -F" " '{print $5}'
 }
 
-BuildMySqlCommand(){
-
-}
 # When we source this file, we want to read the config right away.
 ReadConfig
-BuildMyqlCommand
 export PATH=/usr/sbin:/usr/local/sbin:/usr/local/bin:/usr/bin:/sbin:/bin:/usr/bin/X11
 
