@@ -1199,7 +1199,7 @@ cout << "Copying Files\n";
 
 	cout<<"\n Commit\n";
 	//Updating files from the server to the sourceforge
-	cmd = "cvs -m "Automatic Update" -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + 
+	cmd = "cvs -m 'Automatic Update' -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + 
 		" commit";
 	system(cmd.c_str());
 
