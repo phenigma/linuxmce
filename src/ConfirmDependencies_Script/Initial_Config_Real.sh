@@ -1,6 +1,7 @@
 #!/bin/bash
 
 Type="$1"
+. /usr/pluto/install/Common.sh
 
 if [ "$Type" == "diskless" -a -f /etc/diskless.conf ]; then
 	. /etc/diskless.conf
@@ -31,8 +32,10 @@ BUILD_ALL_MSG="We created a file called '$DIR/build_all.sh' which will make the 
 # ask "Try again?" question; return 1 on "Nn", 0 otherwise
 try_again()
 {
-	echo -n "Do you want to try again? (Y/n): "
-	read again
+#	echo "$(CatMessages "$@")"
+#	echo -n "Do you want to try again? (Y/n): "
+#	read again
+	again=$(QuestionBox "$@" "Do you want to try again?")
 	[ "$again" == "N" -o "$again" == "n" ] && return 1
 	return 0
 }
@@ -61,19 +64,30 @@ while [ "$ok" -eq 0 ]; do
 
 	ok_device="$ok_key"
 	while [ "$ok_device" -ne 1 ]; do
-		echo "What device is this going to be? : "
-		echo "The device number is listed on step 7 of the new installation wizard at plutohome.com"
-		echo -n "Device number: "
-		read device
-		[ -z "$device" ] && echo "Empty device number" || ok_device=1
+		Message1="What device is this going to be?"
+		Message2="The device number is listed on step 8 of the new installation wizard at plutohome.com"
+
+#		echo "$Message1"
+#		echo "$Message2"
+#		echo -n "Device number: "
+#		read device
+#		[ -z "$device" ] && echo "Empty device number" || ok_device=1
+		
+		device=$(InputBox "$Message1" "$Message2")
+		[ -z "$device" ] && MessageBox "Empty device number" || ok_device=1
 	done
 
 	ok_code="$ok_key"
 	while [ "$ok_code" -ne 1 ]; do
-		echo "What is your activation code for this installation from plutohome.com? "
-		echo -n "Activation code: "
-		read code
-		[ -z "$code" ] && echo "Empty activation code" || ok_code=1
+		Message1="What is your activation code for this installation from plutohome.com?"
+
+#		echo "$Message1"
+#		echo -n "Activation code: "
+#		read code
+#		[ -z "$code" ] && echo "Empty activation code" || ok_code=1
+
+		code=$(InputBox "$Message1")
+		[ -z "$code" ] && MessageBox "Empty activation code" || ok_device=1
 	done
 
 	activation_key="$device-$code"
@@ -83,9 +97,9 @@ while [ "$ok" -eq 0 ]; do
 	while [ "$ok_internet" -eq 0 ]; do
 		answer=$(wget -O - "$activation_url?code=$activation_key" 2>/dev/null)
 		if [ "$?" -ne 0 ]; then
-			echo "Failed to contact activation server over the Internet"
-			try_again && continue
-			echo "$ICS_MSG"
+			try_again "Failed to contact activation server over the Internet" && continue
+#			echo "$ICS_MSG"
+			MessageBox "$ICS_MSG"
 			break
 		fi
 		ok_internet=1
@@ -96,10 +110,13 @@ while [ "$ok" -eq 0 ]; do
 # verify activation answer
 	result=$(echo "$answer" | head -1)
 	if [ "$result" != "OK" ]; then
-		echo "Failed getting activation data. Server answer was:"
-		echo "$result"
-		try_again && continue
-		echo "$NOCODE_MSG"
+		Message1="Failed getting activation data. Server answer was:"
+		Message2="$result"
+#		echo "$Message1"
+#		echo "$Message2"
+		try_again "$Message1" "$Message2" && continue
+#		echo "$NOCODE_MSG"
+		MessageBox "$NOCODE_MSG"
 		break
 	fi
 
@@ -124,8 +141,7 @@ DCERouterPort = 3450
 PK_Device = $Device
 PK_Installation = 
 PK_Distro = 
-Activation_Code = $Code
-"
+Activation_Code = $Code"
 	echo "$pluto_conf" >/etc/pluto.conf
 	chmod 666 /etc/pluto.conf # that 666 is octal, and equals 438 in decimal :)
 	
@@ -133,15 +149,16 @@ Activation_Code = $Code
 done
 
 [ "$ok" -eq 0 ] && exit 1
+
+wget -O "$DIR"/build.sh "$ACTIV/build.php?code=$activation_key" 2>/dev/null || no_build=1
+wget -O "$DIR"/build_all.sh "$ACTIV/build_all.php?code=$activation_key" 2>/dev/null || no_build_all=1
+
 chmod +x "$DIR"/activation.sh
 if "$DIR"/activation.sh; then
 	echo "Activation went ok"
 else
 	echo "$ACTIV_MSG"
 fi
-
-wget -O "$DIR"/build.sh "$ACTIV/build.php?code=$activation_key" 2>/dev/null || no_build=1
-wget -O "$DIR"/build_all.sh "$ACTIV/build_all.php?code=$activation_key" 2>/dev/null || no_build_all=1
 
 if [ -z "$no_build" -a -s "$DIR"/build.sh ]; then
 	chmod +x "$DIR"/build.sh
@@ -177,17 +194,21 @@ case "$R" in
 esac
 
 wget -O "$DIR/message.txt" "$ACTIV/message.php?code=$CODE" 2>/dev/null && cat "$DIR/message.txt"
-echo "Congratulations.  Pluto installation has completed."
-echo "The system will now reboot.  The Pluto Core software will"
-echo "be started automatically.  As soon as the computer finishes"
-echo "rebooting you will be able to access the Pluto Admin website"
-echo "to configure it, and you can start plugging in your media"
-echo "directors and other plug-and-play devices.  If you are an"
-echo "advanced Linux user and want to access a terminal before"
-echo "the reboot, press ALT+F2.  Otherwise..."
-echo ""
-echo "Press the Enter key to reboot and startup your new Pluto $SysType."
-read
+Message1="Congratulations.  Pluto installation has completed.
+The system will now reboot.  The Pluto Core software will
+be started automatically.  As soon as the computer finishes
+rebooting you will be able to access the Pluto Admin website
+to configure it, and you can start plugging in your media
+directors and other plug-and-play devices.  If you are an
+advanced Linux user and want to access a terminal before
+the reboot, press ALT+F2.  Otherwise..."
+#Key="the Enter key"
+Key="OK"
+Message2="Press $Key to reboot and startup your new Pluto $SysType."
+
+#echo "$(CatMessages "$Message1" "$Message2")"
+#read
+MessageBox "$Message1" "$Message2"
 
 if [ "$Type" == "diskless" ]; then
 	# Replace Initial_Config.sh entry with regular one in inittab

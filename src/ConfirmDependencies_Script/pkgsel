@@ -38,15 +38,16 @@ case "$1" in
 		fi
 	done
 
-	ok=0
-	until [ "$ok" -eq 1 ]; do
-		echo "Do you want a Pluto system or a regular Debian system?"
-		echo "(P=Pluto (default),D=Debian): "
-		read answer
-		[ "$answer" == "P" -o "$answer" == "p" -o -z "$answer" ] && want_pluto=1 && ok=1
-		[ "$answer" == "D" -o "$answer" == "d" ] && want_pluto=0 && ok=1
-		[ "$ok" -eq 0 ] && echo "Unrecognized answer '$answer'. Try again"
-	done
+	want_pluto=1
+#	ok=0
+#	until [ "$ok" -eq 1 ]; do
+#		echo "Do you want a Pluto system or a regular Debian system?"
+#		echo "(P=Pluto (default),D=Debian): "
+#		read answer
+#		[ "$answer" == "P" -o "$answer" == "p" -o -z "$answer" ] && want_pluto=1 && ok=1
+#		[ "$answer" == "D" -o "$answer" == "d" ] && want_pluto=0 && ok=1
+#		[ "$ok" -eq 0 ] && echo "Unrecognized answer '$answer'. Try again"
+#	done
 	[ "$want_pluto" -eq 1 ] && echo "Installing a Pluto system" || echo "Installing a Debian system"
 
 	[ "$want_pluto" -eq 1 ] && /usr/pluto/install/Initial_Config.sh

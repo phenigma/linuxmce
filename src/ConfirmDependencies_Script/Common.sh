@@ -24,3 +24,36 @@ CONFIG=$(echo "${10}" | sed "$SPACE_SED") # configuration
 USERNAME=$(echo "${11}" | sed "$SPACE_SED") # CVS/SVN username
 PASSWORD=$(echo "${12}" | sed "$SPACE_SED") # CVS/SVN password
 PARAMETER=$(echo "${13}" | sed "$SPACE_SED") # Parameter
+
+CatMessages()
+{
+	local M="(No message)"
+	if [ "$#" -gt 0 ]; then
+		M="$1"
+		shift
+	fi
+
+	while [ "$#" -gt 0 ]; do
+		M="$(printf "%s\n\n%s" "$M" "$1")"
+		shift
+	done
+	echo "$M"
+}
+
+InputBox()
+{
+	# 13 80
+	whiptail --inputbox "$(CatMessages "$@")" 0 0 --fb --nocancel --title Pluto 2>&1
+}
+
+MessageBox()
+{
+	# 10 30
+	whiptail --msgbox "$(CatMessages "$@")" 0 0 --fb --title Pluto
+}
+
+QuestionBox()
+{
+	# 13 80
+	whiptail --yesno "$(CatMessages "$@")" 0 0 --fb --title Pluto && echo "y" || echo "n"
+}
