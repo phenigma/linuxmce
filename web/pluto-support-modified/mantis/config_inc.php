@@ -50,4 +50,7 @@
 	# Specify where the user should be sent after logging out.
 	$g_logout_redirect_page			= 'plutoLogout.php';
 
+	$g_short_date_format    = 'Y-m-d';
+	$g_normal_date_format   = 'Y-m-d H:i';
+	$g_complete_date_format = 'Y-m-d H:i T';
 ?>
