@@ -10,7 +10,7 @@
 class DLL_EXPORT Database_pluto_main: public MySqlHelper
 {
 public:
-MYSQL *db_handle;
+MYSQL *m_pMySQL;
 Database_pluto_main();
 ~Database_pluto_main();
 void DeleteAllTables();
@@ -112,6 +112,7 @@ class Table_EventCategory* tblEventCategory;
 class Table_EventHandler* tblEventHandler;
 class Table_EventParameter* tblEventParameter;
 class Table_Event_EventParameter* tblEvent_EventParameter;
+class Table_FAQ* tblFAQ;
 class Table_Firewall* tblFirewall;
 class Table_Floorplan* tblFloorplan;
 class Table_FloorplanObjectType* tblFloorplanObjectType;
@@ -322,6 +323,7 @@ class Table_EventCategory* EventCategory_get() { return tblEventCategory; }
 class Table_EventHandler* EventHandler_get() { return tblEventHandler; }
 class Table_EventParameter* EventParameter_get() { return tblEventParameter; }
 class Table_Event_EventParameter* Event_EventParameter_get() { return tblEvent_EventParameter; }
+class Table_FAQ* FAQ_get() { return tblFAQ; }
 class Table_Firewall* Firewall_get() { return tblFirewall; }
 class Table_Floorplan* Floorplan_get() { return tblFloorplan; }
 class Table_FloorplanObjectType* FloorplanObjectType_get() { return tblFloorplanObjectType; }
@@ -536,6 +538,7 @@ void CreateTable_EventCategory();
 void CreateTable_EventHandler();
 void CreateTable_EventParameter();
 void CreateTable_Event_EventParameter();
+void CreateTable_FAQ();
 void CreateTable_Firewall();
 void CreateTable_Floorplan();
 void CreateTable_FloorplanObjectType();
@@ -745,6 +748,7 @@ void DeleteTable_EventCategory();
 void DeleteTable_EventHandler();
 void DeleteTable_EventParameter();
 void DeleteTable_Event_EventParameter();
+void DeleteTable_FAQ();
 void DeleteTable_Firewall();
 void DeleteTable_Floorplan();
 void DeleteTable_FloorplanObjectType();

@@ -300,7 +300,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Name.c_str(), (unsigned long) m_Name.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Name.c_str(), (unsigned long) m_Name.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -327,7 +327,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->db_handle, buf, m_Repository.c_str(), (unsigned long) m_Repository.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Repository.c_str(), (unsigned long) m_Repository.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -341,7 +341,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Version.c_str(), (unsigned long) m_Version.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Version.c_str(), (unsigned long) m_Version.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -355,7 +355,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Parms.c_str(), (unsigned long) m_Parms.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Parms.c_str(), (unsigned long) m_Parms.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -421,7 +421,7 @@ if (is_null[11])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -471,18 +471,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Sou
 		string query = "insert into Package_Source (`PK_Package_Source`, `FK_Package`, `Name`, `FK_RepositorySource`, `Repository`, `Version`, `Parms`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_Package_Source=id;
@@ -524,7 +524,7 @@ update_values_list = update_values_list + "`PK_Package_Source`="+pRow->PK_Packag
 	
 		string query = "update Package_Source set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -564,7 +564,7 @@ condition = condition + "`PK_Package_Source`=" + tmp_PK_Package_Source;
 	
 		string query = "delete from Package_Source where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -591,14 +591,14 @@ bool Table_Package_Source::GetRows(string where_statement,vector<class Row_Packa
 	else
 		query = "select * from Package_Source where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -827,14 +827,14 @@ condition = condition + "`PK_Package_Source`=" + tmp_PK_Package_Source;
 
 	string query = "select * from Package_Source where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

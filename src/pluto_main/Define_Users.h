@@ -39,6 +39,8 @@
 #define USERS_PASSWORD_SAMBA_TABLE_FIELD "Users.Password_Samba"
 #define USERS_FK_USERMODE_FIELD "FK_UserMode"
 #define USERS_FK_USERMODE_TABLE_FIELD "Users.FK_UserMode"
+#define USERS_EK_DEALER_FIELD "EK_Dealer"
+#define USERS_EK_DEALER_TABLE_FIELD "Users.EK_Dealer"
 #define USERS_PSC_ID_FIELD "psc_id"
 #define USERS_PSC_ID_TABLE_FIELD "Users.psc_id"
 #define USERS_PSC_BATCH_FIELD "psc_batch"

@@ -421,7 +421,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[41];
-mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) m_Description.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -435,7 +435,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Name.c_str(), (unsigned long) m_Name.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Name.c_str(), (unsigned long) m_Name.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -449,7 +449,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[101];
-mysql_real_escape_string(table->database->db_handle, buf, m_Address.c_str(), (unsigned long) m_Address.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Address.c_str(), (unsigned long) m_Address.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -463,7 +463,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[41];
-mysql_real_escape_string(table->database->db_handle, buf, m_City.c_str(), (unsigned long) m_City.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_City.c_str(), (unsigned long) m_City.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -477,7 +477,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[21];
-mysql_real_escape_string(table->database->db_handle, buf, m_State.c_str(), (unsigned long) m_State.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_State.c_str(), (unsigned long) m_State.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -491,7 +491,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[21];
-mysql_real_escape_string(table->database->db_handle, buf, m_Zip.c_str(), (unsigned long) m_Zip.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Zip.c_str(), (unsigned long) m_Zip.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -518,7 +518,7 @@ if (is_null[8])
 return "NULL";
 
 char *buf = new char[101];
-mysql_real_escape_string(table->database->db_handle, buf, m_ActivationCode.c_str(), (unsigned long) m_ActivationCode.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ActivationCode.c_str(), (unsigned long) m_ActivationCode.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -532,7 +532,7 @@ if (is_null[9])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->db_handle, buf, m_LastStatus.c_str(), (unsigned long) m_LastStatus.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_LastStatus.c_str(), (unsigned long) m_LastStatus.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -546,7 +546,7 @@ if (is_null[10])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->db_handle, buf, m_LastAlive.c_str(), (unsigned long) m_LastAlive.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_LastAlive.c_str(), (unsigned long) m_LastAlive.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -677,7 +677,7 @@ if (is_null[20])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -727,18 +727,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Installatio
 		string query = "insert into Installation (`PK_Installation`, `Description`, `Name`, `Address`, `City`, `State`, `Zip`, `FK_Country`, `ActivationCode`, `LastStatus`, `LastAlive`, `isActive`, `FK_Version`, `isMonitored`, `FK_RepositoryType_Source`, `FK_RepositoryType_Binaries`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_Installation=id;
@@ -780,7 +780,7 @@ update_values_list = update_values_list + "`PK_Installation`="+pRow->PK_Installa
 	
 		string query = "update Installation set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -820,7 +820,7 @@ condition = condition + "`PK_Installation`=" + tmp_PK_Installation;
 	
 		string query = "delete from Installation where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -847,14 +847,14 @@ bool Table_Installation::GetRows(string where_statement,vector<class Row_Install
 	else
 		query = "select * from Installation where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -1182,14 +1182,14 @@ condition = condition + "`PK_Installation`=" + tmp_PK_Installation;
 
 	string query = "select * from Installation where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

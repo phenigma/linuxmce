@@ -150,10 +150,11 @@ is_null[17] = true;
 is_null[18] = true;
 is_null[19] = true;
 is_null[20] = true;
+is_null[21] = true;
 m_psc_frozen = 0;
-is_null[21] = false;
-m_psc_mod = "00000000000000";
 is_null[22] = false;
+m_psc_mod = "00000000000000";
+is_null[23] = false;
 
 
 	is_added=false;
@@ -215,6 +216,9 @@ return m_Password_Samba;}
 long int Row_Users::FK_UserMode_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_UserMode;}
+long int Row_Users::EK_Dealer_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_EK_Dealer;}
 long int Row_Users::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -286,21 +290,24 @@ m_Password_Samba = val; is_modified=true; is_null[16]=false;}
 void Row_Users::FK_UserMode_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_UserMode = val; is_modified=true; is_null[17]=false;}
+void Row_Users::EK_Dealer_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_EK_Dealer = val; is_modified=true; is_null[18]=false;}
 void Row_Users::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[18]=false;}
+m_psc_id = val; is_modified=true; is_null[19]=false;}
 void Row_Users::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[19]=false;}
+m_psc_batch = val; is_modified=true; is_null[20]=false;}
 void Row_Users::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[20]=false;}
+m_psc_user = val; is_modified=true; is_null[21]=false;}
 void Row_Users::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[21]=false;}
+m_psc_frozen = val; is_modified=true; is_null[22]=false;}
 void Row_Users::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[22]=false;}
+m_psc_mod = val; is_modified=true; is_null[23]=false;}
 
 		
 bool Row_Users::Extension_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -336,18 +343,21 @@ return is_null[16];}
 bool Row_Users::FK_UserMode_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[17];}
-bool Row_Users::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Users::EK_Dealer_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[18];}
-bool Row_Users::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Users::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[19];}
-bool Row_Users::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Users::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[20];}
-bool Row_Users::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Users::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[21];}
+bool Row_Users::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[22];}
 
 			
 void Row_Users::Extension_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -383,18 +393,21 @@ is_null[16]=val;}
 void Row_Users::FK_UserMode_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[17]=val;}
-void Row_Users::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Users::EK_Dealer_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[18]=val;}
-void Row_Users::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Users::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[19]=val;}
-void Row_Users::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Users::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[20]=val;}
-void Row_Users::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Users::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[21]=val;}
+void Row_Users::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[22]=val;}
 	
 
 string Row_Users::PK_Users_asSQL()
@@ -418,7 +431,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[51];
-mysql_real_escape_string(table->database->db_handle, buf, m_UserName.c_str(), (unsigned long) m_UserName.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_UserName.c_str(), (unsigned long) m_UserName.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -432,7 +445,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[65];
-mysql_real_escape_string(table->database->db_handle, buf, m_Password.c_str(), (unsigned long) m_Password.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Password.c_str(), (unsigned long) m_Password.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -446,7 +459,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[65];
-mysql_real_escape_string(table->database->db_handle, buf, m_PINCode.c_str(), (unsigned long) m_PINCode.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_PINCode.c_str(), (unsigned long) m_PINCode.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -499,7 +512,7 @@ if (is_null[7])
 return "NULL";
 
 char *buf = new char[41];
-mysql_real_escape_string(table->database->db_handle, buf, m_FirstName.c_str(), (unsigned long) m_FirstName.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_FirstName.c_str(), (unsigned long) m_FirstName.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -513,7 +526,7 @@ if (is_null[8])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_LastName.c_str(), (unsigned long) m_LastName.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_LastName.c_str(), (unsigned long) m_LastName.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -527,7 +540,7 @@ if (is_null[9])
 return "NULL";
 
 char *buf = new char[31];
-mysql_real_escape_string(table->database->db_handle, buf, m_Nickname.c_str(), (unsigned long) m_Nickname.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Nickname.c_str(), (unsigned long) m_Nickname.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -554,7 +567,7 @@ if (is_null[11])
 return "NULL";
 
 char *buf = new char[101];
-mysql_real_escape_string(table->database->db_handle, buf, m_ForwardEmail.c_str(), (unsigned long) m_ForwardEmail.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ForwardEmail.c_str(), (unsigned long) m_ForwardEmail.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -607,7 +620,7 @@ if (is_null[15])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->db_handle, buf, m_Password_Unix.c_str(), (unsigned long) m_Password_Unix.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Password_Unix.c_str(), (unsigned long) m_Password_Unix.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -621,7 +634,7 @@ if (is_null[16])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->db_handle, buf, m_Password_Samba.c_str(), (unsigned long) m_Password_Samba.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Password_Samba.c_str(), (unsigned long) m_Password_Samba.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -640,11 +653,24 @@ sprintf(buf, "%li", m_FK_UserMode);
 return buf;
 }
 
-string Row_Users::psc_id_asSQL()
+string Row_Users::EK_Dealer_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[18])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_EK_Dealer);
+
+return buf;
+}
+
+string Row_Users::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[19])
 return "NULL";
 
 char buf[32];
@@ -657,7 +683,7 @@ string Row_Users::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[19])
+if (is_null[20])
 return "NULL";
 
 char buf[32];
@@ -670,7 +696,7 @@ string Row_Users::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[20])
+if (is_null[21])
 return "NULL";
 
 char buf[32];
@@ -683,7 +709,7 @@ string Row_Users::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[21])
+if (is_null[22])
 return "NULL";
 
 char buf[32];
@@ -696,11 +722,11 @@ string Row_Users::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[22])
+if (is_null[23])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -744,24 +770,24 @@ bool Table_Users::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Users_asSQL()+", "+pRow->UserName_asSQL()+", "+pRow->Password_asSQL()+", "+pRow->PINCode_asSQL()+", "+pRow->HasMailbox_asSQL()+", "+pRow->AccessGeneralMailbox_asSQL()+", "+pRow->Extension_asSQL()+", "+pRow->FirstName_asSQL()+", "+pRow->LastName_asSQL()+", "+pRow->Nickname_asSQL()+", "+pRow->ExtensionRingTimeout_asSQL()+", "+pRow->ForwardEmail_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->FK_Installation_Main_asSQL()+", "+pRow->Staff_asSQL()+", "+pRow->Password_Unix_asSQL()+", "+pRow->Password_Samba_asSQL()+", "+pRow->FK_UserMode_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Users_asSQL()+", "+pRow->UserName_asSQL()+", "+pRow->Password_asSQL()+", "+pRow->PINCode_asSQL()+", "+pRow->HasMailbox_asSQL()+", "+pRow->AccessGeneralMailbox_asSQL()+", "+pRow->Extension_asSQL()+", "+pRow->FirstName_asSQL()+", "+pRow->LastName_asSQL()+", "+pRow->Nickname_asSQL()+", "+pRow->ExtensionRingTimeout_asSQL()+", "+pRow->ForwardEmail_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->FK_Installation_Main_asSQL()+", "+pRow->Staff_asSQL()+", "+pRow->Password_Unix_asSQL()+", "+pRow->Password_Samba_asSQL()+", "+pRow->FK_UserMode_asSQL()+", "+pRow->EK_Dealer_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Users (`PK_Users`, `UserName`, `Password`, `PINCode`, `HasMailbox`, `AccessGeneralMailbox`, `Extension`, `FirstName`, `LastName`, `Nickname`, `ExtensionRingTimeout`, `ForwardEmail`, `FK_Language`, `FK_Installation_Main`, `Staff`, `Password_Unix`, `Password_Samba`, `FK_UserMode`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into Users (`PK_Users`, `UserName`, `Password`, `PINCode`, `HasMailbox`, `AccessGeneralMailbox`, `Extension`, `FirstName`, `LastName`, `Nickname`, `ExtensionRingTimeout`, `ForwardEmail`, `FK_Language`, `FK_Installation_Main`, `Staff`, `Password_Unix`, `Password_Samba`, `FK_UserMode`, `EK_Dealer`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_Users=id;
@@ -798,12 +824,12 @@ condition = condition + "`PK_Users`=" + tmp_PK_Users;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Users`="+pRow->PK_Users_asSQL()+", `UserName`="+pRow->UserName_asSQL()+", `Password`="+pRow->Password_asSQL()+", `PINCode`="+pRow->PINCode_asSQL()+", `HasMailbox`="+pRow->HasMailbox_asSQL()+", `AccessGeneralMailbox`="+pRow->AccessGeneralMailbox_asSQL()+", `Extension`="+pRow->Extension_asSQL()+", `FirstName`="+pRow->FirstName_asSQL()+", `LastName`="+pRow->LastName_asSQL()+", `Nickname`="+pRow->Nickname_asSQL()+", `ExtensionRingTimeout`="+pRow->ExtensionRingTimeout_asSQL()+", `ForwardEmail`="+pRow->ForwardEmail_asSQL()+", `FK_Language`="+pRow->FK_Language_asSQL()+", `FK_Installation_Main`="+pRow->FK_Installation_Main_asSQL()+", `Staff`="+pRow->Staff_asSQL()+", `Password_Unix`="+pRow->Password_Unix_asSQL()+", `Password_Samba`="+pRow->Password_Samba_asSQL()+", `FK_UserMode`="+pRow->FK_UserMode_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Users`="+pRow->PK_Users_asSQL()+", `UserName`="+pRow->UserName_asSQL()+", `Password`="+pRow->Password_asSQL()+", `PINCode`="+pRow->PINCode_asSQL()+", `HasMailbox`="+pRow->HasMailbox_asSQL()+", `AccessGeneralMailbox`="+pRow->AccessGeneralMailbox_asSQL()+", `Extension`="+pRow->Extension_asSQL()+", `FirstName`="+pRow->FirstName_asSQL()+", `LastName`="+pRow->LastName_asSQL()+", `Nickname`="+pRow->Nickname_asSQL()+", `ExtensionRingTimeout`="+pRow->ExtensionRingTimeout_asSQL()+", `ForwardEmail`="+pRow->ForwardEmail_asSQL()+", `FK_Language`="+pRow->FK_Language_asSQL()+", `FK_Installation_Main`="+pRow->FK_Installation_Main_asSQL()+", `Staff`="+pRow->Staff_asSQL()+", `Password_Unix`="+pRow->Password_Unix_asSQL()+", `Password_Samba`="+pRow->Password_Samba_asSQL()+", `FK_UserMode`="+pRow->FK_UserMode_asSQL()+", `EK_Dealer`="+pRow->EK_Dealer_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Users set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -843,7 +869,7 @@ condition = condition + "`PK_Users`=" + tmp_PK_Users;
 	
 		string query = "delete from Users where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -870,14 +896,14 @@ bool Table_Users::GetRows(string where_statement,vector<class Row_Users*> *rows)
 	else
 		query = "select * from Users where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -1096,56 +1122,67 @@ sscanf(row[17], "%li", &(pRow->m_FK_UserMode));
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_id = 0;
+pRow->m_EK_Dealer = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%li", &(pRow->m_psc_id));
+sscanf(row[18], "%li", &(pRow->m_EK_Dealer));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%li", &(pRow->m_psc_batch));
+sscanf(row[19], "%li", &(pRow->m_psc_id));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_psc_user));
+sscanf(row[20], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[21]=false;
-sscanf(row[21], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[21], "%li", &(pRow->m_psc_user));
 }
 
 if (row[22] == NULL)
 {
 pRow->is_null[22]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[22]=false;
-pRow->m_psc_mod = string(row[22],lengths[22]);
+sscanf(row[22], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[23] == NULL)
+{
+pRow->is_null[23]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[23]=false;
+pRow->m_psc_mod = string(row[23],lengths[23]);
 }
 
 
@@ -1227,14 +1264,14 @@ condition = condition + "`PK_Users`=" + tmp_PK_Users;
 
 	string query = "select * from Users where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -1457,56 +1494,67 @@ sscanf(row[17], "%li", &(pRow->m_FK_UserMode));
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_id = 0;
+pRow->m_EK_Dealer = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%li", &(pRow->m_psc_id));
+sscanf(row[18], "%li", &(pRow->m_EK_Dealer));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%li", &(pRow->m_psc_batch));
+sscanf(row[19], "%li", &(pRow->m_psc_id));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_psc_user));
+sscanf(row[20], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[21]=false;
-sscanf(row[21], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[21], "%li", &(pRow->m_psc_user));
 }
 
 if (row[22] == NULL)
 {
 pRow->is_null[22]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[22]=false;
-pRow->m_psc_mod = string(row[22],lengths[22]);
+sscanf(row[22], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[23] == NULL)
+{
+pRow->is_null[23]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[23]=false;
+pRow->m_psc_mod = string(row[23],lengths[23]);
 }
 
 

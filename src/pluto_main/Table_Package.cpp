@@ -26,6 +26,7 @@ using namespace std;
 #include "Table_Document.h"
 
 #include "Table_DeviceTemplate.h"
+#include "Table_FAQ.h"
 #include "Table_News.h"
 #include "Table_Package.h"
 #include "Table_Package_Compat.h"
@@ -382,7 +383,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[511];
-mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) m_Description.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -448,7 +449,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->db_handle, buf, m_HomePage.c_str(), (unsigned long) m_HomePage.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_HomePage.c_str(), (unsigned long) m_HomePage.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -527,7 +528,7 @@ if (is_null[12])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->db_handle, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -593,7 +594,7 @@ if (is_null[17])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -643,18 +644,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asS
 		string query = "insert into Package (`PK_Package`, `Description`, `FK_PackageType`, `FK_Package_Sourcecode`, `IsSource`, `NonExecutable`, `HomePage`, `FK_License`, `FK_Manufacturer`, `FK_Document`, `FK_Document_UsersManual`, `FK_Document_ProgrammersGuide`, `Comments`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_Package=id;
@@ -696,7 +697,7 @@ update_values_list = update_values_list + "`PK_Package`="+pRow->PK_Package_asSQL
 	
 		string query = "update Package set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -736,7 +737,7 @@ condition = condition + "`PK_Package`=" + tmp_PK_Package;
 	
 		string query = "delete from Package where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -763,14 +764,14 @@ bool Table_Package::GetRows(string where_statement,vector<class Row_Package*> *r
 	else
 		query = "select * from Package where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -1065,14 +1066,14 @@ condition = condition + "`PK_Package`=" + tmp_PK_Package;
 
 	string query = "select * from Package where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -1356,6 +1357,13 @@ void Row_Package::DeviceTemplate_FK_Package_getrows(vector <class Row_DeviceTemp
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
+}
+void Row_Package::FAQ_FK_Package_getrows(vector <class Row_FAQ*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_FAQ *pTable = table->database->FAQ_get();
 pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::News_FK_Package_getrows(vector <class Row_News*> *rows)

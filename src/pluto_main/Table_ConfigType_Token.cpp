@@ -255,7 +255,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_FindStr.c_str(), (unsigned long) m_FindStr.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_FindStr.c_str(), (unsigned long) m_FindStr.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -269,7 +269,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->db_handle, buf, m_ReplaceStr.c_str(), (unsigned long) m_ReplaceStr.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ReplaceStr.c_str(), (unsigned long) m_ReplaceStr.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -335,7 +335,7 @@ if (is_null[8])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -395,18 +395,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_ConfigType_
 		string query = "insert into ConfigType_Token (`FK_ConfigType_Setting`, `FK_ConfigType_File`, `FindStr`, `ReplaceStr`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 				
 			
@@ -438,7 +438,7 @@ char tmp_FK_ConfigType_File[32];
 sprintf(tmp_FK_ConfigType_File, "%li", key.pk_FK_ConfigType_File);
 
 char tmp_FindStr[61];
-mysql_real_escape_string(database->db_handle,tmp_FindStr, key.pk_FindStr.c_str(), (unsigned long) key.pk_FindStr.size());
+mysql_real_escape_string(database->m_pMySQL,tmp_FindStr, key.pk_FindStr.c_str(), (unsigned long) key.pk_FindStr.size());
 
 
 string condition;
@@ -452,7 +452,7 @@ update_values_list = update_values_list + "`FK_ConfigType_Setting`="+pRow->FK_Co
 	
 		string query = "update ConfigType_Token set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -489,7 +489,7 @@ char tmp_FK_ConfigType_File[32];
 sprintf(tmp_FK_ConfigType_File, "%li", key.pk_FK_ConfigType_File);
 
 char tmp_FindStr[61];
-mysql_real_escape_string(database->db_handle,tmp_FindStr, key.pk_FindStr.c_str(), (unsigned long) key.pk_FindStr.size());
+mysql_real_escape_string(database->m_pMySQL,tmp_FindStr, key.pk_FindStr.c_str(), (unsigned long) key.pk_FindStr.size());
 
 
 string condition;
@@ -498,7 +498,7 @@ condition = condition + "`FK_ConfigType_Setting`=" + tmp_FK_ConfigType_Setting+"
 	
 		string query = "delete from ConfigType_Token where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -525,14 +525,14 @@ bool Table_ConfigType_Token::GetRows(string where_statement,vector<class Row_Con
 	else
 		query = "select * from ConfigType_Token where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -725,7 +725,7 @@ char tmp_FK_ConfigType_File[32];
 sprintf(tmp_FK_ConfigType_File, "%li", key.pk_FK_ConfigType_File);
 
 char tmp_FindStr[61];
-mysql_real_escape_string(database->db_handle,tmp_FindStr, key.pk_FindStr.c_str(), (unsigned long) key.pk_FindStr.size());
+mysql_real_escape_string(database->m_pMySQL,tmp_FindStr, key.pk_FindStr.c_str(), (unsigned long) key.pk_FindStr.size());
 
 
 string condition;
@@ -734,14 +734,14 @@ condition = condition + "`FK_ConfigType_Setting`=" + tmp_FK_ConfigType_Setting+"
 
 	string query = "select * from ConfigType_Token where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

@@ -354,7 +354,7 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 
     DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, sMacAddress);
     DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, Description);
-    DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "", "", true);
+    DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "", "", true);
 
     // Send them all 3 in one message for efficiency
     CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
@@ -809,7 +809,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
-	DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "1");
+	DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "1");
     SendCommand(CMD_Go_back_DL);
 
 	m_bNoUnknownDeviceIsProcessing = false;
@@ -844,7 +844,7 @@ void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_
 
     m_bNoUnknownDeviceIsProcessing = false;
 
-	DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "1");
+	DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "1");
     SendCommand(CMD_Go_back_DL);
 
     ProcessUnknownDevice();

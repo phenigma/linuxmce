@@ -4,8 +4,11 @@
 #define DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST -303
 #define DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST -302
 #define DEVICETEMPLATE_Orbiters_in_my_room_CONST -301
+#define DEVICETEMPLATE_This_Orbiter_CONST -300
+#define DEVICETEMPLATE_VirtDev_Orbiter_Onscreen_CONST -203
 #define DEVICETEMPLATE_VirtDev_Disc_Drive_CONST -202
 #define DEVICETEMPLATE_VirtDev_AppServer_CONST -201
+#define DEVICETEMPLATE_VirtDev_Media_Director_CONST -200
 #define DEVICETEMPLATE_VirtDev_Local_AppServer_CONST -150
 #define DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST -110
 #define DEVICETEMPLATE_VirtDev_Event_Plugin_CONST -109
@@ -78,6 +81,8 @@
 #define DEVICETEMPLATE_Generic_Serial_Device_CONST 69
 #define DEVICETEMPLATE_DVDA11_CONST 70
 #define DEVICETEMPLATE_AVCA1SRA_RS232_CONST 71
+#define DEVICETEMPLATE_CDDB_Identifier_CONST 72
+#define DEVICETEMPLATE_LIRC_CONST 73
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

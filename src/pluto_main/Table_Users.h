@@ -99,13 +99,14 @@ short int m_Staff;
 string m_Password_Unix;
 string m_Password_Samba;
 long int m_FK_UserMode;
+long int m_EK_Dealer;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[23];
+		bool is_null[24];
 	
 	public:
 		long int PK_Users_get();
@@ -126,6 +127,7 @@ short int Staff_get();
 string Password_Unix_get();
 string Password_Samba_get();
 long int FK_UserMode_get();
+long int EK_Dealer_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -151,6 +153,7 @@ void Staff_set(short int val);
 void Password_Unix_set(string val);
 void Password_Samba_set(string val);
 void FK_UserMode_set(long int val);
+void EK_Dealer_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -169,6 +172,7 @@ bool Staff_isNull();
 bool Password_Unix_isNull();
 bool Password_Samba_isNull();
 bool FK_UserMode_isNull();
+bool EK_Dealer_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -186,6 +190,7 @@ void Staff_setNull(bool val);
 void Password_Unix_setNull(bool val);
 void Password_Samba_setNull(bool val);
 void FK_UserMode_setNull(bool val);
+void EK_Dealer_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -220,7 +225,7 @@ void Room_Users_FK_Users_getrows(vector <class Row_Room_Users*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Users+ m_UserName+ m_Password+ m_PINCode+ m_HasMailbox+ m_AccessGeneralMailbox+ m_Extension+ m_FirstName+ m_LastName+ m_Nickname+ m_ExtensionRingTimeout+ m_ForwardEmail+ m_FK_Language+ m_FK_Installation_Main+ m_Staff+ m_Password_Unix+ m_Password_Samba+ m_FK_UserMode+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Users+ m_UserName+ m_Password+ m_PINCode+ m_HasMailbox+ m_AccessGeneralMailbox+ m_Extension+ m_FirstName+ m_LastName+ m_Nickname+ m_ExtensionRingTimeout+ m_ForwardEmail+ m_FK_Language+ m_FK_Installation_Main+ m_Staff+ m_Password_Unix+ m_Password_Samba+ m_FK_UserMode+ m_EK_Dealer+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -243,6 +248,7 @@ string Staff_asSQL();
 string Password_Unix_asSQL();
 string Password_Samba_asSQL();
 string FK_UserMode_asSQL();
+string EK_Dealer_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -232,7 +232,7 @@ if (is_null[0])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->db_handle, buf, m_PK_Image.c_str(), (unsigned long) m_PK_Image.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_PK_Image.c_str(), (unsigned long) m_PK_Image.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -246,7 +246,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->db_handle, buf, m_Date.c_str(), (unsigned long) m_Date.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Date.c_str(), (unsigned long) m_Date.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -338,7 +338,7 @@ if (is_null[8])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -388,18 +388,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Image_asSQL
 		string query = "insert into Image (`PK_Image`, `Date`, `Width`, `Height`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 				
 			
@@ -425,7 +425,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Image_asSQL
 		Table_Image::Key key(pRow->m_PK_Image);
 
 		char tmp_PK_Image[201];
-mysql_real_escape_string(database->db_handle,tmp_PK_Image, key.pk_PK_Image.c_str(), (unsigned long) key.pk_PK_Image.size());
+mysql_real_escape_string(database->m_pMySQL,tmp_PK_Image, key.pk_PK_Image.c_str(), (unsigned long) key.pk_PK_Image.size());
 
 
 string condition;
@@ -439,7 +439,7 @@ update_values_list = update_values_list + "`PK_Image`="+pRow->PK_Image_asSQL()+"
 	
 		string query = "update Image set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -470,7 +470,7 @@ update_values_list = update_values_list + "`PK_Image`="+pRow->PK_Image_asSQL()+"
 		Row_Image* pRow = (Row_Image*) (*i).second;	
 
 		char tmp_PK_Image[201];
-mysql_real_escape_string(database->db_handle,tmp_PK_Image, key.pk_PK_Image.c_str(), (unsigned long) key.pk_PK_Image.size());
+mysql_real_escape_string(database->m_pMySQL,tmp_PK_Image, key.pk_PK_Image.c_str(), (unsigned long) key.pk_PK_Image.size());
 
 
 string condition;
@@ -479,7 +479,7 @@ condition = condition + "`PK_Image`=" + "\"" + tmp_PK_Image+ "\"";
 	
 		string query = "delete from Image where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -506,14 +506,14 @@ bool Table_Image::GetRows(string where_statement,vector<class Row_Image*> *rows)
 	else
 		query = "select * from Image where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -700,7 +700,7 @@ Row_Image* Table_Image::FetchRow(Table_Image::Key &key)
 
 	//defines the string query for the value of key
 	char tmp_PK_Image[201];
-mysql_real_escape_string(database->db_handle,tmp_PK_Image, key.pk_PK_Image.c_str(), (unsigned long) key.pk_PK_Image.size());
+mysql_real_escape_string(database->m_pMySQL,tmp_PK_Image, key.pk_PK_Image.c_str(), (unsigned long) key.pk_PK_Image.size());
 
 
 string condition;
@@ -709,14 +709,14 @@ condition = condition + "`PK_Image`=" + "\"" + tmp_PK_Image+ "\"";
 
 	string query = "select * from Image where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

@@ -358,7 +358,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[81];
-mysql_real_escape_string(table->database->db_handle, buf, m_Path.c_str(), (unsigned long) m_Path.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Path.c_str(), (unsigned long) m_Path.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -372,7 +372,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[81];
-mysql_real_escape_string(table->database->db_handle, buf, m_InputPath.c_str(), (unsigned long) m_InputPath.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_InputPath.c_str(), (unsigned long) m_InputPath.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -464,7 +464,7 @@ if (is_null[13])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -514,18 +514,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Dir
 		string query = "insert into Package_Directory (`PK_Package_Directory`, `FK_Package`, `FK_Directory`, `FK_OperatingSystem`, `FK_Distro`, `Path`, `InputPath`, `FlipSource`, `GenerateDoxygen`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_Package_Directory=id;
@@ -567,7 +567,7 @@ update_values_list = update_values_list + "`PK_Package_Directory`="+pRow->PK_Pac
 	
 		string query = "update Package_Directory set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -607,7 +607,7 @@ condition = condition + "`PK_Package_Directory`=" + tmp_PK_Package_Directory;
 	
 		string query = "delete from Package_Directory where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -634,14 +634,14 @@ bool Table_Package_Directory::GetRows(string where_statement,vector<class Row_Pa
 	else
 		query = "select * from Package_Directory where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -892,14 +892,14 @@ condition = condition + "`PK_Package_Directory`=" + tmp_PK_Package_Directory;
 
 	string query = "select * from Package_Directory where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

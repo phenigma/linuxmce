@@ -693,7 +693,7 @@ if (is_null[20])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_sFK_DesignObj_TiedTo.c_str(), (unsigned long) m_sFK_DesignObj_TiedTo.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_sFK_DesignObj_TiedTo.c_str(), (unsigned long) m_sFK_DesignObj_TiedTo.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -707,7 +707,7 @@ if (is_null[21])
 return "NULL";
 
 char *buf = new char[21];
-mysql_real_escape_string(table->database->db_handle, buf, m_VisibleStates.c_str(), (unsigned long) m_VisibleStates.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_VisibleStates.c_str(), (unsigned long) m_VisibleStates.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -773,7 +773,7 @@ if (is_null[26])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -823,18 +823,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVa
 		string query = "insert into DesignObjVariation_DesignObj (`PK_DesignObjVariation_DesignObj`, `FK_DesignObjVariation_Parent`, `FK_DesignObj_Child`, `DisplayOrder`, `X`, `Y`, `Width`, `Height`, `FK_DesignObj_InsteadOf`, `CanBeHidden`, `HideByDefault`, `RegenerateForEachScreen`, `DisplayChildrenBeforeText`, `DisplayChildrenBehindBackground`, `DontMergeBackground`, `IsTabStop`, `FK_DesignObj_Up`, `FK_DesignObj_Down`, `FK_DesignObj_Left`, `FK_DesignObj_Right`, `sFK_DesignObj_TiedTo`, `VisibleStates`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_DesignObjVariation_DesignObj=id;
@@ -876,7 +876,7 @@ update_values_list = update_values_list + "`PK_DesignObjVariation_DesignObj`="+p
 	
 		string query = "update DesignObjVariation_DesignObj set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -916,7 +916,7 @@ condition = condition + "`PK_DesignObjVariation_DesignObj`=" + tmp_PK_DesignObjV
 	
 		string query = "delete from DesignObjVariation_DesignObj where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -943,14 +943,14 @@ bool Table_DesignObjVariation_DesignObj::GetRows(string where_statement,vector<c
 	else
 		query = "select * from DesignObjVariation_DesignObj where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -1344,14 +1344,14 @@ condition = condition + "`PK_DesignObjVariation_DesignObj`=" + tmp_PK_DesignObjV
 
 	string query = "select * from DesignObjVariation_DesignObj where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

@@ -16,32 +16,33 @@
 
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
-#include "Table_psc_local_schema.h"
+#include "Table_FAQ.h"
+#include "Table_Package.h"
 
 
 
-void Database_pluto_main::CreateTable_psc_local_schema()
+void Database_pluto_main::CreateTable_FAQ()
 {
-	tblpsc_local_schema = new Table_psc_local_schema(this);
+	tblFAQ = new Table_FAQ(this);
 }
 
-void Database_pluto_main::DeleteTable_psc_local_schema()
+void Database_pluto_main::DeleteTable_FAQ()
 {
-	delete tblpsc_local_schema;
+	delete tblFAQ;
 }
 
-Table_psc_local_schema::~Table_psc_local_schema()
+Table_FAQ::~Table_FAQ()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		Row_psc_local_schema *pRow = (Row_psc_local_schema *) (*it).second;
+		Row_FAQ *pRow = (Row_FAQ *) (*it).second;
 		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		Row_psc_local_schema *pRow = (Row_psc_local_schema *) (*it).second;
+		Row_FAQ *pRow = (Row_FAQ *) (*it).second;
 		delete pRow;
 	}
 
@@ -53,16 +54,16 @@ Table_psc_local_schema::~Table_psc_local_schema()
 }
 
 
-void Row_psc_local_schema::Delete()
+void Row_FAQ::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-	Row_psc_local_schema *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_FAQ *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
 			vector<TableRow*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_psc_local_schema *) *i != this); i++);
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_FAQ *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,7 +73,7 @@ void Row_psc_local_schema::Delete()
 		}
 		else
 		{
-			SingleLongKey key(pRow->m_PK_psc_local_schema);
+			SingleLongKey key(pRow->m_PK_FAQ);
 			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
@@ -82,17 +83,17 @@ void Row_psc_local_schema::Delete()
 		}	
 }
 
-void Row_psc_local_schema::Reload()
+void Row_FAQ::Reload()
 {
-	Row_psc_local_schema *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_FAQ *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		SingleLongKey key(pRow->m_PK_psc_local_schema);
-		Row_psc_local_schema *pRow = table->FetchRow(key);
+		SingleLongKey key(pRow->m_PK_FAQ);
+		Row_FAQ *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
 		{
@@ -104,17 +105,18 @@ void Row_psc_local_schema::Reload()
 	
 }
 
-Row_psc_local_schema::Row_psc_local_schema(Table_psc_local_schema *pTable):table(pTable)
+Row_FAQ::Row_FAQ(Table_FAQ *pTable):table(pTable)
 {
 	SetDefaultValues();
 }
 
-void Row_psc_local_schema::SetDefaultValues()
+void Row_FAQ::SetDefaultValues()
 {
-	m_PK_psc_local_schema = 0;
+	m_PK_FAQ = 0;
 is_null[0] = false;
-m_Value = "";
-is_null[1] = false;
+is_null[1] = true;
+is_null[2] = true;
+is_null[3] = true;
 
 
 	is_added=false;
@@ -122,27 +124,57 @@ is_null[1] = false;
 	is_modified=false;
 }
 
-long int Row_psc_local_schema::PK_psc_local_schema_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_FAQ::PK_FAQ_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_PK_psc_local_schema;}
-string Row_psc_local_schema::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_PK_FAQ;}
+long int Row_FAQ::FK_Package_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Value;}
+return m_FK_Package;}
+string Row_FAQ::Summary_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-		
-void Row_psc_local_schema::PK_psc_local_schema_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_Summary;}
+string Row_FAQ::Content_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_PK_psc_local_schema = val; is_modified=true; is_null[0]=false;}
-void Row_psc_local_schema::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_Value = val; is_modified=true; is_null[1]=false;}
+return m_Content;}
 
 		
+void Row_FAQ::PK_FAQ_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_PK_FAQ = val; is_modified=true; is_null[0]=false;}
+void Row_FAQ::FK_Package_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Package = val; is_modified=true; is_null[1]=false;}
+void Row_FAQ::Summary_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Summary = val; is_modified=true; is_null[2]=false;}
+void Row_FAQ::Content_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Content = val; is_modified=true; is_null[3]=false;}
+
+		
+bool Row_FAQ::FK_Package_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[1];}
+bool Row_FAQ::Summary_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[2];}
+bool Row_FAQ::Content_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[3];}
 
 			
+void Row_FAQ::FK_Package_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[1]=val;}
+void Row_FAQ::Summary_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[2]=val;}
+void Row_FAQ::Content_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[3]=val;}
 	
 
-string Row_psc_local_schema::PK_psc_local_schema_asSQL()
+string Row_FAQ::PK_FAQ_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -150,20 +182,47 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_PK_psc_local_schema);
+sprintf(buf, "%li", m_PK_FAQ);
 
 return buf;
 }
 
-string Row_psc_local_schema::Value_asSQL()
+string Row_FAQ::FK_Package_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
 
+char buf[32];
+sprintf(buf, "%li", m_FK_Package);
+
+return buf;
+}
+
+string Row_FAQ::Summary_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char *buf = new char[201];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Summary.c_str(), (unsigned long) m_Summary.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
+string Row_FAQ::Content_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Value.c_str(), (unsigned long) m_Value.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Content.c_str(), (unsigned long) m_Content.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -172,29 +231,29 @@ return s;
 
 
 
-Table_psc_local_schema::Key::Key(long int in_PK_psc_local_schema)
+Table_FAQ::Key::Key(long int in_PK_FAQ)
 {
-			pk_PK_psc_local_schema = in_PK_psc_local_schema;
+			pk_PK_FAQ = in_PK_FAQ;
 	
 }
 
-Table_psc_local_schema::Key::Key(Row_psc_local_schema *pRow)
+Table_FAQ::Key::Key(Row_FAQ *pRow)
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
-			pk_PK_psc_local_schema = pRow->m_PK_psc_local_schema;
+			pk_PK_FAQ = pRow->m_PK_FAQ;
 	
 }		
 
-bool Table_psc_local_schema::Key_Less::operator()(const Table_psc_local_schema::Key &key1, const Table_psc_local_schema::Key &key2) const
+bool Table_FAQ::Key_Less::operator()(const Table_FAQ::Key &key1, const Table_FAQ::Key &key2) const
 {
-			if (key1.pk_PK_psc_local_schema!=key2.pk_PK_psc_local_schema)
-return key1.pk_PK_psc_local_schema<key2.pk_PK_psc_local_schema;
+			if (key1.pk_PK_FAQ!=key2.pk_PK_FAQ)
+return key1.pk_PK_FAQ<key2.pk_PK_FAQ;
 else
 return false;	
 }	
 
-bool Table_psc_local_schema::Commit()
+bool Table_FAQ::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -203,14 +262,14 @@ bool Table_psc_local_schema::Commit()
 	{
 		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_psc_local_schema *pRow = (Row_psc_local_schema *)*i;
+		Row_FAQ *pRow = (Row_FAQ *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_local_schema_asSQL()+", "+pRow->Value_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_FAQ_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Summary_asSQL()+", "+pRow->Content_asSQL();
 
 	
-		string query = "insert into psc_local_schema (`PK_psc_local_schema`, `Value`) values ("+
+		string query = "insert into FAQ (`PK_FAQ`, `FK_Package`, `Summary`, `Content`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -227,11 +286,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_local_s
 			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
-pRow->m_PK_psc_local_schema=id;
+pRow->m_PK_FAQ=id;
 	
 			
 			addedRows.erase(i);
-			SingleLongKey key(pRow->m_PK_psc_local_schema);	
+			SingleLongKey key(pRow->m_PK_FAQ);	
 			cachedRows[key] = pRow;
 					
 			
@@ -248,23 +307,23 @@ pRow->m_PK_psc_local_schema=id;
 	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
-		Row_psc_local_schema* pRow = (Row_psc_local_schema*) (*i).second;	
-		SingleLongKey key(pRow->m_PK_psc_local_schema);
+		Row_FAQ* pRow = (Row_FAQ*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_FAQ);
 
-		char tmp_PK_psc_local_schema[32];
-sprintf(tmp_PK_psc_local_schema, "%li", key.pk);
+		char tmp_PK_FAQ[32];
+sprintf(tmp_PK_FAQ, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PK_psc_local_schema`=" + tmp_PK_psc_local_schema;
+condition = condition + "`PK_FAQ`=" + tmp_PK_FAQ;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_psc_local_schema`="+pRow->PK_psc_local_schema_asSQL()+", `Value`="+pRow->Value_asSQL();
+update_values_list = update_values_list + "`PK_FAQ`="+pRow->PK_FAQ_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `Summary`="+pRow->Summary_asSQL()+", `Content`="+pRow->Content_asSQL();
 
 	
-		string query = "update psc_local_schema set " + update_values_list + " where " + condition;
+		string query = "update FAQ set " + update_values_list + " where " + condition;
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
@@ -281,7 +340,7 @@ update_values_list = update_values_list + "`PK_psc_local_schema`="+pRow->PK_psc_
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_psc_local_schema* pRow = (Row_psc_local_schema*) (*i);
+		Row_FAQ* pRow = (Row_FAQ*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -294,17 +353,17 @@ update_values_list = update_values_list + "`PK_psc_local_schema`="+pRow->PK_psc_
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_psc_local_schema* pRow = (Row_psc_local_schema*) (*i).second;	
+		Row_FAQ* pRow = (Row_FAQ*) (*i).second;	
 
-		char tmp_PK_psc_local_schema[32];
-sprintf(tmp_PK_psc_local_schema, "%li", key.pk);
+		char tmp_PK_FAQ[32];
+sprintf(tmp_PK_FAQ, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PK_psc_local_schema`=" + tmp_PK_psc_local_schema;
+condition = condition + "`PK_FAQ`=" + tmp_PK_FAQ;
 
 	
-		string query = "delete from psc_local_schema where " + condition;
+		string query = "delete from FAQ where " + condition;
 		
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
@@ -313,7 +372,7 @@ condition = condition + "`PK_psc_local_schema`=" + tmp_PK_psc_local_schema;
 			return false;
 		}	
 		
-		pRow = (Row_psc_local_schema*) (*i).second;;
+		pRow = (Row_FAQ*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
@@ -321,17 +380,17 @@ condition = condition + "`PK_psc_local_schema`=" + tmp_PK_psc_local_schema;
 	return true;
 }
 
-bool Table_psc_local_schema::GetRows(string where_statement,vector<class Row_psc_local_schema*> *rows)
+bool Table_FAQ::GetRows(string where_statement,vector<class Row_FAQ*> *rows)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from psc_local_schema " + where_statement;
+		query = "select * from FAQ " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from psc_local_schema where " + where_statement;
+		query = "select * from FAQ where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
@@ -356,42 +415,64 @@ bool Table_psc_local_schema::GetRows(string where_statement,vector<class Row_psc
 	{	
 		unsigned long *lengths = mysql_fetch_lengths(res);
 
-		Row_psc_local_schema *pRow = new Row_psc_local_schema(this);
+		Row_FAQ *pRow = new Row_FAQ(this);
 		
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_psc_local_schema = 0;
+pRow->m_PK_FAQ = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_psc_local_schema));
+sscanf(row[0], "%li", &(pRow->m_PK_FAQ));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Value = "";
+pRow->m_FK_Package = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Value = string(row[1],lengths[1]);
+sscanf(row[1], "%li", &(pRow->m_FK_Package));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Summary = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Summary = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Content = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_Content = string(row[3],lengths[3]);
 }
 
 
 
 		//checking for duplicates
 
-		SingleLongKey key(pRow->m_PK_psc_local_schema);
+		SingleLongKey key(pRow->m_PK_FAQ);
 		
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (Row_psc_local_schema *)(*i).second;
+			pRow = (Row_FAQ *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -404,11 +485,11 @@ pRow->m_Value = string(row[1],lengths[1]);
 	return true;					
 }
 
-Row_psc_local_schema* Table_psc_local_schema::AddRow()
+Row_FAQ* Table_FAQ::AddRow()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Row_psc_local_schema *pRow = new Row_psc_local_schema(this);
+	Row_FAQ *pRow = new Row_FAQ(this);
 	pRow->is_added=true;
 	addedRows.push_back(pRow);
 	return pRow;		
@@ -416,11 +497,11 @@ Row_psc_local_schema* Table_psc_local_schema::AddRow()
 
 
 
-Row_psc_local_schema* Table_psc_local_schema::GetRow(long int in_PK_psc_local_schema)
+Row_FAQ* Table_FAQ::GetRow(long int in_PK_FAQ)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	SingleLongKey row_key(in_PK_psc_local_schema);
+	SingleLongKey row_key(in_PK_FAQ);
 
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -433,9 +514,9 @@ Row_psc_local_schema* Table_psc_local_schema::GetRow(long int in_PK_psc_local_sc
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (Row_psc_local_schema*) (*i).second;
+		return (Row_FAQ*) (*i).second;
 	//we have to fetch row
-	Row_psc_local_schema* pRow = FetchRow(row_key);
+	Row_FAQ* pRow = FetchRow(row_key);
 
 	if (pRow!=NULL)
 		cachedRows[row_key] = pRow;
@@ -444,20 +525,20 @@ Row_psc_local_schema* Table_psc_local_schema::GetRow(long int in_PK_psc_local_sc
 
 
 
-Row_psc_local_schema* Table_psc_local_schema::FetchRow(SingleLongKey &key)
+Row_FAQ* Table_FAQ::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
-	char tmp_PK_psc_local_schema[32];
-sprintf(tmp_PK_psc_local_schema, "%li", key.pk);
+	char tmp_PK_FAQ[32];
+sprintf(tmp_PK_FAQ, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PK_psc_local_schema`=" + tmp_PK_psc_local_schema;
+condition = condition + "`PK_FAQ`=" + tmp_PK_FAQ;
 
 
-	string query = "select * from psc_local_schema where " + condition;		
+	string query = "select * from FAQ where " + condition;		
 
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
@@ -486,28 +567,50 @@ condition = condition + "`PK_psc_local_schema`=" + tmp_PK_psc_local_schema;
 						
 	unsigned long *lengths = mysql_fetch_lengths(res);
 
-	Row_psc_local_schema *pRow = new Row_psc_local_schema(this);
+	Row_FAQ *pRow = new Row_FAQ(this);
 		
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_psc_local_schema = 0;
+pRow->m_PK_FAQ = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_psc_local_schema));
+sscanf(row[0], "%li", &(pRow->m_PK_FAQ));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Value = "";
+pRow->m_FK_Package = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Value = string(row[1],lengths[1]);
+sscanf(row[1], "%li", &(pRow->m_FK_Package));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Summary = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Summary = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Content = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_Content = string(row[3],lengths[3]);
 }
 
 
@@ -518,6 +621,13 @@ pRow->m_Value = string(row[1],lengths[1]);
 }
 
 
+class Row_Package* Row_FAQ::FK_Package_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package *pTable = table->database->Package_get();
+return pTable->GetRow(m_FK_Package);
+}
 
 
 

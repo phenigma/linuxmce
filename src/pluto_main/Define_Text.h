@@ -441,6 +441,15 @@
 #define TEXT_Addgc_CONST 1116
 #define TEXT_New_PnP_CONST 1117
 #define TEXT_Regen_all_Orbiters_CONST 1118
+#define TEXT_Orbiter_controling_CONST 1119
+#define TEXT_Orbiter_I_am_CONST 1120
+#define TEXT_ON_display_CONST 1121
+#define TEXT_OFF_display_CONST 1122
+#define TEXT_Display_CONST 1123
+#define TEXT_Power_ON_CONST 1124
+#define TEXT_Current_media_CONST 1125
+#define TEXT_Halt_CONST 1126
+#define TEXT_My_Media_CONST 1127
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

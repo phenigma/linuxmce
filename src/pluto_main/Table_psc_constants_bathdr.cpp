@@ -199,7 +199,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[33];
-mysql_real_escape_string(table->database->db_handle, buf, m_IPAddress.c_str(), (unsigned long) m_IPAddress.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_IPAddress.c_str(), (unsigned long) m_IPAddress.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -213,7 +213,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->db_handle, buf, m_date.c_str(), (unsigned long) m_date.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_date.c_str(), (unsigned long) m_date.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -227,7 +227,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->db_handle, buf, m_comments.c_str(), (unsigned long) m_comments.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_comments.c_str(), (unsigned long) m_comments.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -277,18 +277,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_constan
 		string query = "insert into psc_constants_bathdr (`PK_psc_constants_bathdr`, `IPAddress`, `date`, `comments`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_psc_constants_bathdr=id;
@@ -330,7 +330,7 @@ update_values_list = update_values_list + "`PK_psc_constants_bathdr`="+pRow->PK_
 	
 		string query = "update psc_constants_bathdr set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -370,7 +370,7 @@ condition = condition + "`PK_psc_constants_bathdr`=" + tmp_PK_psc_constants_bath
 	
 		string query = "delete from psc_constants_bathdr where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -397,14 +397,14 @@ bool Table_psc_constants_bathdr::GetRows(string where_statement,vector<class Row
 	else
 		query = "select * from psc_constants_bathdr where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -545,14 +545,14 @@ condition = condition + "`PK_psc_constants_bathdr`=" + tmp_PK_psc_constants_bath
 
 	string query = "select * from psc_constants_bathdr where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

@@ -115,6 +115,7 @@ CreateTable_EventCategory();
 CreateTable_EventHandler();
 CreateTable_EventParameter();
 CreateTable_Event_EventParameter();
+CreateTable_FAQ();
 CreateTable_Firewall();
 CreateTable_Floorplan();
 CreateTable_FloorplanObjectType();
@@ -333,6 +334,7 @@ DeleteTable_EventCategory();
 DeleteTable_EventHandler();
 DeleteTable_EventParameter();
 DeleteTable_Event_EventParameter();
+DeleteTable_FAQ();
 DeleteTable_Firewall();
 DeleteTable_Floorplan();
 DeleteTable_FloorplanObjectType();
@@ -449,11 +451,11 @@ DeleteTable_psc_website_tables();
 
 bool Database_pluto_main::Connect(string host, string user, string pass, string sDBName, int port)
 {
-db_handle = mysql_init(NULL);
-if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
+m_pMySQL = mysql_init(NULL);
+if (mysql_real_connect(m_pMySQL, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
 {return false;}
 else
-{SetConnection(db_handle); return true;}
+{SetConnection(m_pMySQL); return true;}
 }
 
 bool Database_pluto_main::Connect(class DCEConfig *pDCEConfig)

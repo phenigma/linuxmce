@@ -328,7 +328,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->db_handle, buf, m_IK_DeviceData.c_str(), (unsigned long) m_IK_DeviceData.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_IK_DeviceData.c_str(), (unsigned long) m_IK_DeviceData.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -381,7 +381,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[101];
-mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) m_Description.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -421,7 +421,7 @@ if (is_null[9])
 return "NULL";
 
 char *buf = new char[51];
-mysql_real_escape_string(table->database->db_handle, buf, m_ShortDescription.c_str(), (unsigned long) m_ShortDescription.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ShortDescription.c_str(), (unsigned long) m_ShortDescription.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -487,7 +487,7 @@ if (is_null[14])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -542,18 +542,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTempl
 		string query = "insert into DeviceTemplate_DeviceData (`FK_DeviceTemplate`, `FK_DeviceData`, `IK_DeviceData`, `Required`, `AllowedToModify`, `SetByDevice`, `Description`, `UseDeviceTemplateDefault`, `ShowInWizard`, `ShortDescription`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 				
 			
@@ -596,7 +596,7 @@ update_values_list = update_values_list + "`FK_DeviceTemplate`="+pRow->FK_Device
 	
 		string query = "update DeviceTemplate_DeviceData set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -639,7 +639,7 @@ condition = condition + "`FK_DeviceTemplate`=" + tmp_FK_DeviceTemplate+" AND "+"
 	
 		string query = "delete from DeviceTemplate_DeviceData where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -666,14 +666,14 @@ bool Table_DeviceTemplate_DeviceData::GetRows(string where_statement,vector<clas
 	else
 		query = "select * from DeviceTemplate_DeviceData where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -938,14 +938,14 @@ condition = condition + "`FK_DeviceTemplate`=" + tmp_FK_DeviceTemplate+" AND "+"
 
 	string query = "select * from DeviceTemplate_DeviceData where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

@@ -400,6 +400,9 @@
 				RelativePath=".\Table_Event_EventParameter.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_FAQ.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Firewall.cpp">
 			</File>
 			<File

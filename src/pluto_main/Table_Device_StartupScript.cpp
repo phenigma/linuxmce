@@ -315,7 +315,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[101];
-mysql_real_escape_string(table->database->db_handle, buf, m_Parameter.c_str(), (unsigned long) m_Parameter.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Parameter.c_str(), (unsigned long) m_Parameter.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -381,7 +381,7 @@ if (is_null[10])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -436,18 +436,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Device_asSQ
 		string query = "insert into Device_StartupScript (`FK_Device`, `FK_StartupScript`, `Boot_Order`, `Background`, `Enabled`, `Parameter`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 				
 			
@@ -490,7 +490,7 @@ update_values_list = update_values_list + "`FK_Device`="+pRow->FK_Device_asSQL()
 	
 		string query = "update Device_StartupScript set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -533,7 +533,7 @@ condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_StartupScrip
 	
 		string query = "delete from Device_StartupScript where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -560,14 +560,14 @@ bool Table_Device_StartupScript::GetRows(string where_statement,vector<class Row
 	else
 		query = "select * from Device_StartupScript where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -788,14 +788,14 @@ condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_StartupScrip
 
 	string query = "select * from Device_StartupScript where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

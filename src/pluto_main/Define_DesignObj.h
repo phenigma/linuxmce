@@ -998,7 +998,7 @@
 #define DESIGNOBJ_go_to_security_CONST 3142
 #define DESIGNOBJ_go_to_tv_CONST 3143
 #define DESIGNOBJ_go_to_music_CONST 3144
-#define DESIGNOBJ_New_phone_detected_CONST 3150
+#define DESIGNOBJ_mnuNewPhoneDetected_CONST 3150
 #define DESIGNOBJ_yes_CONST 3151
 #define DESIGNOBJ_no_CONST 3152
 #define DESIGNOBJ_go_to_new_device_CONST 3153
@@ -1154,6 +1154,16 @@
 #define DESIGNOBJ_butRegenAllOrbiters_CONST 3329
 #define DESIGNOBJ_objExitController2_CONST 3330
 #define DESIGNOBJ_objResetUniverse2_CONST 3331
+#define DESIGNOBJ_mnuDisplayOptions_CONST 3332
+#define DESIGNOBJ_DisplayON_OtherControlling_CONST 3333
+#define DESIGNOBJ_mnuMyMedia_OFF_CONST 3334
+#define DESIGNOBJ_DisplayOFF_CurrentMedia_CONST 3335
+#define DESIGNOBJ_radu_CONST 3336
+#define DESIGNOBJ_goto3336_CONST 3337
+#define DESIGNOBJ_DisplayOFF_Display_CONST 3338
+#define DESIGNOBJ_DisplayOFF_halt_CONST 3339
+#define DESIGNOBJ_mnuMyDisplay_Off_CONST 3340
+#define DESIGNOBJ_mnuMyMD_Halt_CONST 3341
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

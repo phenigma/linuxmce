@@ -2203,18 +2203,18 @@ void Orbiter::Initialize( GraphicType Type )
         }
 
 
-        class LocationInfo *pLocationInfo_Initial=NULL;;
+        m_pLocationInfo_Initial=NULL;
         for( DequeLocationInfo::iterator itLocations=m_dequeLocation.begin(  );itLocations!=m_dequeLocation.end(  );++itLocations )
         {
             class LocationInfo *pLocationInfo = *itLocations;
             if(  pLocationInfo->iLocation==m_iLocation_Initial  )
             {
-                pLocationInfo_Initial = pLocationInfo;
+                m_pLocationInfo_Initial = pLocationInfo;
                 break;
             }
         }
 
-        if(  !pLocationInfo_Initial  )
+        if(  !m_pLocationInfo_Initial  )
         {
             g_pPlutoLogger->Write( LV_CRITICAL, "No initial Location" );
             exit( 1 );
@@ -2226,14 +2226,14 @@ void Orbiter::Initialize( GraphicType Type )
             exit( 1 );
 		}
 
-        m_pScreenHistory_Current->m_pLocationInfo = pLocationInfo_Initial;
+        m_pScreenHistory_Current->m_pLocationInfo = m_pLocationInfo_Initial;
         m_pScreenHistory_Current->m_dwPK_Users = m_dwPK_Users_Default;
 
         DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pScreenHistory_Current->m_dwPK_Users );
         SendCommand( CMD_Set_Current_User );
-		DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(pLocationInfo_Initial->PK_EntertainArea) );
+		DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(m_pLocationInfo_Initial->PK_EntertainArea) );
         SendCommand( CMD_Set_Entertainment_Area );
-        DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, pLocationInfo_Initial->PK_Room );
+        DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pLocationInfo_Initial->PK_Room );
         SendCommand( CMD_Set_Current_Room );
 		DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1" );
         SendCommand( CMD_Orbiter_Registered );
@@ -3306,46 +3306,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
             if(  pCommand->m_PK_DeviceTemplate<0  )
             {
                 pCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;  // Set this to a temporary value,  so we'll know if it's changes at teh end of the if
-                // This is going to a virtual device
-                switch(  pCommand->m_PK_DeviceTemplate  )
-                {
-                case DEVICETEMPLATE_VirtDev_AppServer_CONST:
-                    pCommand->m_PK_Device=m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_AppServer;
-                    break;
-                case DEVICETEMPLATE_VirtDev_Security_Plugin_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_SecurityPlugIn;
-                    break;
-                case DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_TelecomPlugIn;
-                    break;
-                case DEVICETEMPLATE_VirtDev_Media_Plugin_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_MediaPlugIn;
-                    break;
-                case DEVICETEMPLATE_VirtDev_Climate_PlugIn_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_ClimatePlugIn;
-                    break;
-                case DEVICETEMPLATE_VirtDev_Lighting_PlugIn_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_LightingPlugIn;
-                    break;
-                case DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_InfraredPlugIn;
-                    break;
-                case DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_GeneralInfoPlugIn;
-                    break;
-                case DEVICETEMPLATE_VirtDev_Event_Plugin_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_EventPlugIn;
-                    break;
-                case DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_DatagridPlugIn;
-                    break;
-                case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_OrbiterPlugIn;
-                    break;
-                case DEVICETEMPLATE_VirtDev_Local_AppServer_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_LocalAppServer;
-                    break;
-                }
+				pCommand->m_PK_Device = TranslateVirtualDevice(pCommand->m_PK_DeviceTemplate);
                 if(  pCommand->m_PK_Device==DEVICEID_NULL  )
                 {
                     // We recognized it as one of the known cases in the switch block,  but apparently this option isn't sent
@@ -3597,6 +3558,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
         else if(  Variable=="E" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
             Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_EntertainArea );
+        else if(  Variable=="MD" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
+            Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector );
+        else if(  Variable=="MDH"  )
+            Output += StringUtils::itos( m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector );
         else if(  Variable=="L" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
             Output += m_pScreenHistory_Current->m_pLocationInfo->Description;
         else if(  Variable=="V" )
@@ -3671,6 +3636,11 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
 			int PK_Text=atoi(Variable.substr(1).c_str());
 			Output += m_mapTextString[PK_Text];
+		}
+        else if( Variable.length()>1 && Variable[0]=='V'  )
+		{
+			int VirtDev=atoi(Variable.substr(1).c_str());
+			Output += StringUtils::itos(TranslateVirtualDevice(VirtDev));
 		}
         else if( Variable.length()>1 && Variable[0]=='D'  )
 		{
@@ -5772,4 +5742,57 @@ void Orbiter::KillMaintThread()
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
 	while(bMaintThreadIsRunning)
 		Sleep(10);
+}
+
+int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
+{
+	// This is going to a virtual device
+	switch(  PK_DeviceTemplate )
+	{
+	case DEVICETEMPLATE_VirtDev_AppServer_CONST:
+		return m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_AppServer;
+		
+	case DEVICETEMPLATE_VirtDev_Orbiter_Onscreen_CONST:
+		return m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_Orbiter;
+		
+	case DEVICETEMPLATE_VirtDev_Media_Director_CONST:
+		return m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector;
+		
+	case DEVICETEMPLATE_This_Orbiter_CONST:
+		return m_dwPK_Device;
+		
+	case DEVICETEMPLATE_VirtDev_Security_Plugin_CONST:
+		return m_dwPK_Device_SecurityPlugIn;
+		
+	case DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST:
+		return m_dwPK_Device_TelecomPlugIn;
+		
+	case DEVICETEMPLATE_VirtDev_Media_Plugin_CONST:
+		return m_dwPK_Device_MediaPlugIn;
+		
+	case DEVICETEMPLATE_VirtDev_Climate_PlugIn_CONST:
+		return m_dwPK_Device_ClimatePlugIn;
+		
+	case DEVICETEMPLATE_VirtDev_Lighting_PlugIn_CONST:
+		return m_dwPK_Device_LightingPlugIn;
+		
+	case DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST:
+		return m_dwPK_Device_InfraredPlugIn;
+		
+	case DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST:
+		return m_dwPK_Device_GeneralInfoPlugIn;
+		
+	case DEVICETEMPLATE_VirtDev_Event_Plugin_CONST:
+		return m_dwPK_Device_EventPlugIn;
+		
+	case DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST:
+		return m_dwPK_Device_DatagridPlugIn;
+		
+	case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
+		return m_dwPK_Device_OrbiterPlugIn;
+		
+	case DEVICETEMPLATE_VirtDev_Local_AppServer_CONST:
+		return m_dwPK_Device_LocalAppServer;
+		
+	}
 }

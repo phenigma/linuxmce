@@ -129,6 +129,7 @@ protected:
 	class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
 	int m_iLastEntryInDeviceGroup; // Used by floorplans to go through a selected device group
 	map<int,class DeviceGroup *> m_mapDeviceGroups;
+	class LocationInfo *m_pLocationInfo_Initial; // The initial location
 
 	/** flags */
 	bool m_bCaptureKeyboard_OnOff; /** < flag for capture keyboard */
@@ -370,6 +371,11 @@ protected:
 	 * @brief Kill the maintenance thread that handles tasks like redraws.  This function will block until the thread exits
 	 */
 	void KillMaintThread();
+
+	/**
+	 * @brief Convert a virtual device (a negative device that corresponds to the VirtDev entries in DeviceTemplate) into the real device ID
+	 */
+	int TranslateVirtualDevice(int PK_DeviceTemplate);
 
 /*	virtual void RenderScreen(  );	// Render the screen in m_pScreenHistory_Current
 	virtual void RedrawObjects(  );   // These will redraw any objects in m_vectObjsToRedraw.  Use this to queue objects to redraw,  such as those tht

@@ -295,7 +295,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[511];
-mysql_real_escape_string(table->database->db_handle, buf, m_URL.c_str(), (unsigned long) m_URL.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_URL.c_str(), (unsigned long) m_URL.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -322,7 +322,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Username.c_str(), (unsigned long) m_Username.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Username.c_str(), (unsigned long) m_Username.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -336,7 +336,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Password.c_str(), (unsigned long) m_Password.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Password.c_str(), (unsigned long) m_Password.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -350,7 +350,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -416,7 +416,7 @@ if (is_null[11])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -466,18 +466,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositoryS
 		string query = "insert into RepositorySource_URL (`PK_RepositorySource_URL`, `FK_RepositorySource`, `URL`, `FK_Country`, `Username`, `Password`, `Comments`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_RepositorySource_URL=id;
@@ -519,7 +519,7 @@ update_values_list = update_values_list + "`PK_RepositorySource_URL`="+pRow->PK_
 	
 		string query = "update RepositorySource_URL set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -559,7 +559,7 @@ condition = condition + "`PK_RepositorySource_URL`=" + tmp_PK_RepositorySource_U
 	
 		string query = "delete from RepositorySource_URL where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -586,14 +586,14 @@ bool Table_RepositorySource_URL::GetRows(string where_statement,vector<class Row
 	else
 		query = "select * from RepositorySource_URL where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -822,14 +822,14 @@ condition = condition + "`PK_RepositorySource_URL`=" + tmp_PK_RepositorySource_U
 
 	string query = "select * from RepositorySource_URL where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

@@ -327,7 +327,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[27];
-mysql_real_escape_string(table->database->db_handle, buf, m_VersionName.c_str(), (unsigned long) m_VersionName.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_VersionName.c_str(), (unsigned long) m_VersionName.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -341,7 +341,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[27];
-mysql_real_escape_string(table->database->db_handle, buf, m_BuildName.c_str(), (unsigned long) m_BuildName.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_BuildName.c_str(), (unsigned long) m_BuildName.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -355,7 +355,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[21];
-mysql_real_escape_string(table->database->db_handle, buf, m_Date.c_str(), (unsigned long) m_Date.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Date.c_str(), (unsigned long) m_Date.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -369,7 +369,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) m_Description.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -396,7 +396,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[5000000];
-mysql_real_escape_string(table->database->db_handle, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -410,7 +410,7 @@ if (is_null[7])
 return "NULL";
 
 char *buf = new char[5000000];
-mysql_real_escape_string(table->database->db_handle, buf, m_NextSteps.c_str(), (unsigned long) m_NextSteps.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_NextSteps.c_str(), (unsigned long) m_NextSteps.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -437,7 +437,7 @@ if (is_null[9])
 return "NULL";
 
 char *buf = new char[51];
-mysql_real_escape_string(table->database->db_handle, buf, m_SvnBranch.c_str(), (unsigned long) m_SvnBranch.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_SvnBranch.c_str(), (unsigned long) m_SvnBranch.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -503,7 +503,7 @@ if (is_null[14])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -553,18 +553,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Version_asS
 		string query = "insert into Version (`PK_Version`, `VersionName`, `BuildName`, `Date`, `Description`, `Repository`, `Comments`, `NextSteps`, `SvnRevision`, `SvnBranch`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_Version=id;
@@ -606,7 +606,7 @@ update_values_list = update_values_list + "`PK_Version`="+pRow->PK_Version_asSQL
 	
 		string query = "update Version set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -646,7 +646,7 @@ condition = condition + "`PK_Version`=" + tmp_PK_Version;
 	
 		string query = "delete from Version where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -673,14 +673,14 @@ bool Table_Version::GetRows(string where_statement,vector<class Row_Version*> *r
 	else
 		query = "select * from Version where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -942,14 +942,14 @@ condition = condition + "`PK_Version`=" + tmp_PK_Version;
 
 	string query = "select * from Version where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

@@ -196,6 +196,7 @@ class Row_Document* FK_Document_ProgrammersGuide_getrow();
 
 		// Return the rows in other tables with foreign keys pointing here
 		void DeviceTemplate_FK_Package_getrows(vector <class Row_DeviceTemplate*> *rows);
+void FAQ_FK_Package_getrows(vector <class Row_FAQ*> *rows);
 void News_FK_Package_getrows(vector <class Row_News*> *rows);
 void Package_FK_Package_Sourcecode_getrows(vector <class Row_Package*> *rows);
 void Package_Compat_FK_Package_getrows(vector <class Row_Package_Compat*> *rows);

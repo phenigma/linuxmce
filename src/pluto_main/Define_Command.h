@@ -304,6 +304,16 @@
 #define COMMAND_Stereo_CONST 311
 #define COMMAND_Stadium_CONST 312
 #define COMMAND_Set_Volume_CONST 313
+#define COMMAND_Identify_Media_CONST 314
+#define COMMAND_Key_Pressed_CONST 315
+#define COMMAND_AV_1_CONST 316
+#define COMMAND_AV_2_CONST 317
+#define COMMAND_AV_3_CONST 318
+#define COMMAND_SVideoYC_1_CONST 319
+#define COMMAND_SVideoYC_2_CONST 320
+#define COMMAND_SVideoYC_3_CONST 321
+#define COMMAND_Wake_Device_CONST 322
+#define COMMAND_Halt_Device_CONST 323
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -103,6 +103,7 @@ Table_EventCategory.cpp \
 Table_EventHandler.cpp \
 Table_EventParameter.cpp \
 Table_Event_EventParameter.cpp \
+Table_FAQ.cpp \
 Table_Firewall.cpp \
 Table_Floorplan.cpp \
 Table_FloorplanObjectType.cpp \
