@@ -361,7 +361,11 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_isNull() )
 		cout << "#No package info for device: " << pRow_Device->Description_get() << " (" << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ")" << endl;
 	else
+	{
+		string PkgName = pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow()->Description_get();
+		cout << "# Package: " << PkgName << endl;
 		CheckPackage(pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow(),pRow_Device,bDevelopment,pRow_Distro,false);
+	}
 
 	vector<Row_Device *> vectRow_Device;
 	pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectRow_Device);
@@ -372,6 +376,8 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource)
 {
 	Database_pluto_main *pDatabase_pluto_main = pRow_Distro->Table_Distro_get()->Database_pluto_main_get();
+
+	string PkgName = pRow_Package->Description_get();
 
 	// Start with the dependencies first, since we want the lowest dependency, and then the top one
 	vector<Row_Package_Package *> vectRow_Package_Package;
@@ -513,16 +519,16 @@ Row_Package_Source_Compat *FindPreferredSource(vector<Row_Package_Source_Compat 
 
 void AddAlternateSources(vector<Row_Package_Source_Compat *> &vectRow_Package_Source_Compat,PackageInfo *pPackageInfo)
 {
-	// See if we cand find some alternates if the primary fails
+	// See if we can find some alternates if the primary fails
 	for(size_t s=0;s<vectRow_Package_Source_Compat.size();++s)
 	{
 		Row_Package_Source_Compat *pRow_Package_Source_Compat = vectRow_Package_Source_Compat[s];
 		if( pRow_Package_Source_Compat!=pPackageInfo->m_pRow_Package_Source_Compat )
 		{
 			// This isn't our primary, add this to the list of alternates
-			PackageInfo *pPackageInfo = MakePackageInfo(pRow_Package_Source_Compat,pRow_Package_Source_Compat->MustBuildFromSource_get()==1);
-			if( pPackageInfo  )
-				pPackageInfo->m_vectPackageInfo.push_back( pPackageInfo );
+			PackageInfo *pPackageInfo_local = MakePackageInfo(pRow_Package_Source_Compat,pRow_Package_Source_Compat->MustBuildFromSource_get()==1);
+			if( pPackageInfo_local )
+				pPackageInfo->m_vectPackageInfo.push_back( pPackageInfo_local );
 		}
 	}
 }
