@@ -734,7 +734,7 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
 void Orbiter_Plugin::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c59-e->
 {
-	int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
+	EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
     if( !pOH_Orbiter )
     {
@@ -742,7 +742,8 @@ void Orbiter_Plugin::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string 
         return;
     }
 
-    pOH_Orbiter->m_iPK_EntertainArea=iPK_EntertainArea;
+    pOH_Orbiter->m_pEntertainArea=pEntertainArea;
+	SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaStream ? pEntertainArea->m_pMediaStream->m_sMediaDescription : "" );
 }
 
 //<-dceag-sample-b->! no sample

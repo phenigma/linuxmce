@@ -124,6 +124,8 @@ protected:
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
 	string m_sCaptureKeyboard_InternalBuffer; /** < capture keyboard internal buffer */
+	string m_sNowPlaying; /** < set by the media engine, this is whatever media is currently playing */
+
 	DesignObjText *m_pCaptureKeyboard_Text; /** < @todo ask */
 	map<int,  CHAGraphic *> m_mapUserIcons; /** < user icons */
 	map<int,FloorplanObjectVectorMap *> m_mapFloorplanObjectVector;
@@ -1056,6 +1058,15 @@ public:
 
 	virtual void CMD_Set_Current_Location(int iLocationID) { string sCMD_Result; CMD_Set_Current_Location(iLocationID,sCMD_Result,NULL);};
 	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #242 - Set Now Playing */
+	/** Used by the media engine to set the "now playing" text on an orbiter.  If the orbiter is bound to the remote for an entertainment area it will get more updates than just media,  like cover art, but this is the basic information that is visible on screens */
+		/** @param #5 Value To Assign */
+			/** The description of the media */
+
+	virtual void CMD_Set_Now_Playing(string sValue_To_Assign) { string sCMD_Result; CMD_Set_Now_Playing(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

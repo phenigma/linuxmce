@@ -376,7 +376,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
         return false;
     }
 
-    EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(pMediaStream->m_pOH_Orbiter->m_iPK_EntertainArea);
+    EntertainArea *pEntertainArea = pMediaStream->m_pOH_Orbiter->m_pEntertainArea;
 
 //     pMediaStream->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device
     if ( pEntertainArea == NULL )
@@ -452,7 +452,7 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
             for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
             {
                 OH_Orbiter *pOH_Orbiter = (*it).second;
-                if( pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end() )
+                if( !pOH_Orbiter->m_pEntertainArea || pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end() )
                     continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream
 
                 int iPK_DesignObj_Remote = pMediaStream->m_iPK_DesignObj_Remote;
@@ -531,13 +531,12 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
         // We didn't handle it. Give it to the appropriate plug-in. Assume it's coming from an orbiter
         class EntertainArea *pEntertainArea;
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
-        if( !pOH_Orbiter ||
-                ( pEntertainArea=m_mapEntertainAreas_Find( pOH_Orbiter->m_iPK_EntertainArea ) )==NULL ||
-                ! pEntertainArea->m_pMediaStream  )
+        if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea || !pOH_Orbiter->m_pEntertainArea->m_pMediaStream  )
         {
             g_pPlutoLogger->Write( LV_CRITICAL, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
             return false;
         }
+		pEntertainArea=pOH_Orbiter->m_pEntertainArea;
 
         // We know it's derived from CommandImpl
         class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pCommand_Impl;
@@ -572,6 +571,12 @@ void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream )
             BoundRemote *pBoundRemote = ( *itBR ).second;
             pBoundRemote->UpdateOrbiter( pMediaStream );
         }
+		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+		{
+			OH_Orbiter *pOH_Orbiter = (*it).second;
+			if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
+				m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription );
+		}
     }
 }
 
@@ -846,7 +851,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
     DataGridCell *pCell;
 
     if( Parms.length( )==0 )
-        return NULL; // Nothing passed in yet
+        return pDataGrid; // Nothing passed in yet
 
     string AC = Parms;
 
@@ -867,7 +872,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
             string label = /* string( "~`S24`" ) + */ row[1];
             if( row[2] && *row[2] )
                 label += string( ", " ) + row[2];
-            label += string( "\n`S1`" ) + row[3];
+            label += string( "\n" ) + row[3];
             pCell = new DataGridCell( "", row[0] );
             pDataGrid->SetData( 0, RowCount, pCell );
 
@@ -891,7 +896,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
             string label = /*string( "~`S24`" ) + */ row[1];
             if( row[2] && *row[2]  )
                 label += string( ", " ) + row[2];
-            label += string( "\n`S1`" ) + row[3];
+            label += string( "\n" ) + row[3];
             pCell = new DataGridCell( "", row[0] );
             pDataGrid->SetData( 0, RowCount, pCell );
 
@@ -944,7 +949,7 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
             string label = row[1];
             if( row[2] && *row[2] )
                 label += string( ", " ) + row[2];
-            label += string( "\n`S29`" ) + row[3];
+            label += string( "\n" ) + row[3];
             pCell = new DataGridCell( label, row[0] );
             pDataGrid->SetData( 0, RowCount++, pCell );
         }
@@ -987,7 +992,7 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
             string label = row[1];
             if( row[2] )
                 label += string( ", " ) + row[2];
-            label += string( "\n`S29`" ) + row[3];
+            label += string( "\n" ) + row[3];
             pCell = new DataGridCell( label, row[0] );
             pDataGrid->SetData( 0, RowCount++, pCell );
         }
@@ -1032,7 +1037,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
             string label = row[1];
             if( row[2] && *row[2] )
                 label += string( ", " ) + row[2];
-            label += string( "\n`S29`" ) + row[3];
+            label += string( "\n" ) + row[3];
             pCell = new DataGridCell( label, row[0] );
             pDataGrid->SetData( 0, RowCount++, pCell );
         }
@@ -1148,7 +1153,7 @@ EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_D
             return NULL; // Don't know what area it should be played in
         }
 
-        iPK_EntertainArea = pOH_Orbiter->m_iPK_EntertainArea;
+		iPK_EntertainArea = pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0;
         if( !iPK_EntertainArea )
         {
             g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter with no entertainment area" );
@@ -1489,4 +1494,5 @@ void Media_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,
 void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c241-e->
 {
+	int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
 }

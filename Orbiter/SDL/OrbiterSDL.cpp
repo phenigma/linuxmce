@@ -175,7 +175,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
     SDL_Rect Rectangle;
     Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
 
-    SDL_FillRect(m_pScreenImage, &Rectangle, color.m_Value);
+    SDL_FillRect(m_pScreenImage, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -346,6 +346,10 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 {
 	SDL_PixelFormat * PF = m_pScreenImage->format;
 	Uint32 PlutoPixelDest, PlutoPixelSrc, Pixel;
+
+	g_pPlutoLogger->Write(LV_STATUS, "ReplaceColor: %u %u %u : %u %u %u",
+		ColorToReplace.R(), ColorToReplace.G(), ColorToReplace.B(),
+		ReplacementColor.R(), ReplacementColor.G(), ReplacementColor.B());
 
 	PlutoPixelSrc = (ColorToReplace.R() << PF->Rshift) | (ColorToReplace.G() << PF->Gshift) | (ColorToReplace.B() << PF->Bshift) | (ColorToReplace.A() << PF->Ashift);
 	PlutoPixelDest = ReplacementColor.R() << PF->Rshift | ReplacementColor.G() << PF->Gshift | ReplacementColor.B() << PF->Bshift | ReplacementColor.A() << PF->Ashift;

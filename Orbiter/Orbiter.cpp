@@ -1244,6 +1244,8 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 
                 if ( PlutoRectangle( x,  y,  w,  h ).Contains( ContainsX,  ContainsY ) )
                 {
+					pDesignObj_DataGrid->m_iHighlightedColumn=DGColumn;
+					pDesignObj_DataGrid->m_iHighlightedRow=DGRow;
                     SelectedGrid( pDesignObj_DataGrid,  pCell );
                     bFinishLoop = true;
                     bFoundSelection = true; // Is this correct????  Hacked in this time
@@ -1944,7 +1946,7 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
     */
     // Initially the first row and column will be highlighted
     string::size_type posH;
-    if(  (posH=pObj->m_sExtraInfo.find( 'H' ))!=string::npos  )
+    if(  (posH=pObj->m_sExtraInfo.find( 'H' ))!=string::npos && pObj->sSelVariable.length()==0 )
     {
         pObj->m_iHighlightedRow = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='c') ? 0 : -1;
         pObj->m_iHighlightedColumn = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='r') ? 0 : -1;
@@ -3172,6 +3174,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_EntertainArea );
         else if(  Variable=="V" )
             Output += string(VERSION);
+        else if(  Variable=="NP" )
+            Output += m_sNowPlaying;
         else if(  Variable=="ND" )
 			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
         else if(  Variable=="SD" )
@@ -4587,9 +4591,16 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
                     continue;
                 }
 
-                PlutoColor Magenta(255,102,255);
-                ReplaceColorInRectangle(fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
-                    fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color);
+				if( Color )
+				{
+					PlutoColor Magenta(255,102,255);
+PlutoColor p0(128,0,0);
+PlutoColor p1(0,128,0);
+PlutoColor p2(0,128,128);
+
+					ReplaceColorInRectangle(fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
+						fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color);
+				}
 
                 if( fpObj->pObj->m_vectDesignObjText.size()==1 && Description!="" )
                 {
@@ -4632,4 +4643,16 @@ NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
     m_pOrbiter = pOrbiter;
     g_cLastTime = clock();
     g_iDontRender++;
+}
+//<-dceag-c242-b->
+
+	/** @brief COMMAND: #242 - Set Now Playing */
+	/** Used by the media engine to set the "now playing" text on an orbiter.  If the orbiter is bound to the remote for an entertainment area it will get more updates than just media,  like cover art, but this is the basic information that is visible on screens */
+		/** @param #5 Value To Assign */
+			/** The description of the media */
+
+void Orbiter::CMD_Set_Now_Playing(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c242-e->
+{
+	m_sNowPlaying = sValue_To_Assign;
 }

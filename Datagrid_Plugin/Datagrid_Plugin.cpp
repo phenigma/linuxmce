@@ -222,6 +222,11 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 			for(dgrow=0;dgrow<pDataGridTable->GetRows();++dgrow)
 			{
 				DataGridCell *pCell = pDataGridTable->GetData(iOffset,dgrow);
+				if( !pCell )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"Cannot seek because there's an empty cell");
+					break;
+				}
 				string::size_type posStart=0,posEnd=0;
 				string CellText = StringUtils::ToUpper(pCell->m_Text);
 				if( CellText[0]=='~' )

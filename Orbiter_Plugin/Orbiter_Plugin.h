@@ -28,7 +28,7 @@ namespace DCE
         class DeviceData_Router *m_pDevice_CurrentDetected;
 
         int m_iPK_Users;  // The current user
-        int m_iPK_EntertainArea;  // The current entertain area
+        class EntertainArea *m_pEntertainArea;  // The current entertain area
         int m_dwPK_Room;  // The current room
 
         int m_iLastSignalStrength;
@@ -38,7 +38,8 @@ namespace DCE
         OH_Orbiter(class DeviceData_Router *pDeviceData_Router)
         {
             m_pDeviceData_Router = pDeviceData_Router;
-            m_iPK_Users = m_iPK_EntertainArea = m_dwPK_Room = 0;
+            m_iPK_Users = m_dwPK_Room = 0;
+			m_pEntertainArea = NULL;
             m_iLastSignalStrength = 0;
             m_pDevice_CurrentDetected = NULL;
             m_iFailedToConnectCount = 0;
@@ -147,7 +148,15 @@ public:
 		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 		SendCommand( CMD_Goto_Screen );
 	}
-//<-dceag-h-b->
+
+	void SetNowPlaying( int dwPK_Device, string sNowPlaying )
+	{
+		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, sNowPlaying );
+		SendCommand( CMD_Set_Now_Playing );
+	}
+
+
+	//<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
 				Do not change the declarations
