@@ -565,7 +565,9 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			{
 				if( g_bInteractive && !AskYNQuestion("About to execute: " + pRow_Package_Directory_File->MakeCommand_get() + " Continue?",false) )
 					return false;
-
+#ifndef WIN32
+				system(("mkdir -p " + sDirectory).c_str());
+#endif
 				chdir(sDirectory.c_str());
 				cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sDirectory << endl;
 				if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
@@ -920,7 +922,6 @@ AsksSourceQuests:
 		FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs");
 		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 		{
-			cout << "Setting version for: " << sSourceDirectory + "/" + *it;
 			StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it,"<=version=>",g_pRow_Version->VersionName_get());
 		}
 
