@@ -1,16 +1,16 @@
-#include "PlutoBTGridEngine.h"
+#include "PlutoMOGridEngine.h"
 
 #include <akniconarray.h> // CAknIconArray
 #include <aknlists.h> // AknListBoxLayouts
 #include <barsread.h> // TResourceReader
-#include <PlutoBT.mbg> // contains icon enumeration
+#include <PlutoMO.mbg> // contains icon enumeration
 #include <stringloader.h> // StringLoader
 
 const TInt KNumberOfIcons(7);
 const TInt KGraphicsHeight = 50;
 const TInt KTextColor = 215;
 
-void CPlutoBTGridEngine::ConstructL(TInt aGridResource, TInt aIconFileResource)
+void CPlutoMOGridEngine::ConstructL(TInt aGridResource, TInt aIconFileResource)
 	{
 
 	// Construct the grid from resource
@@ -27,7 +27,7 @@ void CPlutoBTGridEngine::ConstructL(TInt aGridResource, TInt aIconFileResource)
 	}
 
 
-void CPlutoBTGridEngine::SetupGridIconsL(TInt aIconFileResource)
+void CPlutoMOGridEngine::SetupGridIconsL(TInt aIconFileResource)
 	{
 	
 	HBufC* iconFileName;
@@ -37,13 +37,13 @@ void CPlutoBTGridEngine::SetupGridIconsL(TInt aIconFileResource)
 	// Create an array of icons, reading them from the file
 	CArrayPtr<CGulIcon>* icons = new(ELeave) CAknIconArray(KNumberOfIcons);
 	CleanupStack::PushL(icons);
-	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoBTSnap, EMbmPlutoBTCard_mask));
-	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoBTGolf, EMbmPlutoBTCard_mask));
-	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoBTClock, EMbmPlutoBTCard_mask));
-	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoBTAces, EMbmPlutoBTCard_mask));
-	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoBTHearts, EMbmPlutoBTCard_mask));
-	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoBTRummy, EMbmPlutoBTCard_mask));
-	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoBTPoker, EMbmPlutoBTCard_mask));
+	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOSnap, EMbmPlutoMOCard_mask));
+	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOGolf, EMbmPlutoMOCard_mask));
+	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOClock, EMbmPlutoMOCard_mask));
+	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOAces, EMbmPlutoMOCard_mask));
+	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOHearts, EMbmPlutoMOCard_mask));
+	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMORummy, EMbmPlutoMOCard_mask));
+	icons->AppendL(iEikonEnv->CreateIconL(*iconFileName, EMbmPlutoMOPoker, EMbmPlutoMOCard_mask));
 	CleanupStack::Pop(icons);
 	CleanupStack::PopAndDestroy(iconFileName);
 	
@@ -51,7 +51,7 @@ void CPlutoBTGridEngine::SetupGridIconsL(TInt aIconFileResource)
 
 	}
 
-void CPlutoBTGridEngine::SetupGrid()
+void CPlutoMOGridEngine::SetupGrid()
 	{
 		
 	AknListBoxLayouts::SetupStandardGrid(*this);
@@ -94,7 +94,7 @@ void CPlutoBTGridEngine::SetupGrid()
 	}
 
 
-void CPlutoBTGridEngine::SizeChanged()
+void CPlutoMOGridEngine::SizeChanged()
 	{
 	CAknGrid::SizeChanged();
 	SetupGrid();

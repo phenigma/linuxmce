@@ -18,4 +18,6 @@
 #define BD_CP_UPDATE_VARIABLES			106
 #define BD_CP_CAPTURE_KEYBOARD			107
 
+class BDCommand *BuildCommandFromData( unsigned long dwType );
+
 #endif

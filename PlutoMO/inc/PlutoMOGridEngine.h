@@ -1,10 +1,10 @@
-#ifndef PLUTOBTGRIDENGINE_H
-#define PLUTOBTGRIDENGINE_H
+#ifndef PLUTOMOGRIDENGINE_H
+#define PLUTOMOGRIDENGINE_H
 
 #include <akngrid.h> // CAknGrid
 
 
-class CPlutoBTGridEngine : public CAknGrid
+class CPlutoMOGridEngine : public CAknGrid
 	{
 public: 
 

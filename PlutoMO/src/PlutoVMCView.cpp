@@ -6,7 +6,7 @@
 #include <aknviewappui.h>
 #include <avkon.hrh>
 
-#include "PlutoBT.hrh"
+#include "PlutoMO.hrh"
 #include "PlutoVMCView.h"
 #include "PlutoVMCUtil.h"
 #include "PlutoVMCContainer.h" 

@@ -6,9 +6,9 @@
 #define qtn_appl_option_item3 "Delete"
 #define qtn_appl_option_item4 "Help"
 
-#define qtn_app_caption_string "PlutoBT"
+#define qtn_app_caption_string "PlutoMO"
 
-#define qtn_app_short_caption_string "PlutoBT"
+#define qtn_app_short_caption_string "PlutoMO"
 
 #define GAMES_GRID_ITEM1_TEXT "0\tSnap"
 #define GAMES_GRID_ITEM2_TEXT "1\tGolf"
@@ -18,7 +18,7 @@
 #define GAMES_GRID_ITEM6_TEXT "5\tRummy"
 #define GAMES_GRID_ITEM7_TEXT "6\tPoker"
 
-#define ICON_FILE_NAME "\\system\\apps\\PlutoBT\\PlutoBT.mbm"
+#define ICON_FILE_NAME "\\system\\apps\\PlutoMO\\PlutoMO.mbm"
 
 
 // End of File

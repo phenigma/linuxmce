@@ -4,6 +4,7 @@
 #include <fstream>
 #else
 #include "VIPShared/VIPIncludes.h"
+#include "Logger.h"
 #endif
 
 #include "PlutoUtils/MyStl.h"
@@ -28,6 +29,10 @@ BD_PC_KeyWasPressed::BD_PC_KeyWasPressed(int Key)
 	
 {
 	m_Key=Key;
+
+#ifdef SYMBIAN
+	LOG("#	Sending 'KeyWasPressed' command  #\n");
+#endif 
 }
 
 void BD_PC_KeyWasPressed::ConvertCommandToBinary()

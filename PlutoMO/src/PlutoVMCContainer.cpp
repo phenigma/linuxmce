@@ -1,5 +1,5 @@
 // INCLUDE FILES
-#include "plutobt.hrh"
+#include "plutomo.hrh"
 #include <avkon.hrh>
 #include <aknnotewrappers.h> 
 #include <aknutils.h>  // for Fonts. 
@@ -13,11 +13,11 @@
 #include <aknviewappui.h>
 #include <avkon.hrh>
 
-#include "PlutoBT.hrh"
+#include "PlutoMO.hrh"
 #include "PlutoVMCView.h"
 #include "PlutoVMCContainer.h" 
 #include "PlutoVMCUtil.h"
-#include "PlutoBTAppUi.h"
+#include "PlutoMOAppUi.h"
 
 #include "Pluto_Main/Define_Button.h"
 
@@ -78,7 +78,7 @@ void CPlutoVMCContainer::Draw(const TRect& aRect) const
 	pVMCUtil->LocalDoRender();
 	pVMCUtil->EndPaint();
 
-	((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_bMakeVisibleAllowed = true;
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bMakeVisibleAllowed = true;
 }
 //------------------------------------------------------------------------------------------------------------------
 TInt CPlutoVMCContainer::ScrollTimerCallBack(TAny* aContainer)
@@ -89,12 +89,12 @@ TInt CPlutoVMCContainer::ScrollTimerCallBack(TAny* aContainer)
 	if(pContainer->m_bScrollUp)
 	{
 		if(pVMCUtil->ScrollListUp())
-			((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_pVMCView->Refresh();
+			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pVMCView->Refresh();
 	}
 	else
 	{
 		if(pVMCUtil->ScrollListDown())
-			((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_pVMCView->Refresh();
+			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pVMCView->Refresh();
 	}
 
 	return 0;
@@ -243,7 +243,7 @@ bool CPlutoVMCContainer::HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode
 	{
 		if(KeyCode==BUTTON_Rept_Phone_C_CONST)
 		{
-			((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->CloseVMC();
+			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->CloseVMC();
 			pVMCUtil->m_bRedrawOnlyGrid = false;
 			pVMCUtil->m_bRedrawOnlyEdit = false;
 
@@ -571,7 +571,7 @@ TKeyResponse CPlutoVMCContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent, TEve
 TKeyResponse CPlutoVMCContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
 	//if the viewer is not visible on the screen, ignore the key pressed
-	if(!((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
+	if(!((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
 		return EKeyWasNotConsumed;
 
 	TKeyResponse Response = EKeyWasNotConsumed;

@@ -1,4 +1,4 @@
-#include "plutobt.hrh"
+#include "plutomo.hrh"
 #include <avkon.hrh>
 #include <aknnotewrappers.h> 
 #include <aknutils.h>  // for Fonts. 
@@ -7,10 +7,10 @@
 #include <aknviewappui.h>
 #include <avkon.hrh>
 
-#include "PlutoBTAppUi.h"
-#include "BT_PC_SelectedFromList.h"
-#include "BT_PC_SetVariable.h"
-#include "BT_PC_WhatDoYouHave.h"
+#include "PlutoMOAppUi.h"
+#include "BD_PC_SelectedFromList.h"
+#include "BD_PC_SetVariable.h"
+#include "BD/BD_WhatDoYouHave.h"
 
 #include "PlutoVMCContainer.h"
 #include "PlutoVMCUtil.h"
@@ -606,11 +606,11 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 /*virtual*/ bool CPlutoVMCUtil::SelectCurrentItem()
 {
 	if(
-		((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_pBTCommandProcessor
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor
 	)
 	{
-		BTCommand *pCommand = new BT_PC_SelectedFromList(m_uGridSelectedItem); 
-		((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_pBTCommandProcessor->AddCommand(pCommand);
+		BDCommand *pCommand = new BD_PC_SelectedFromList(m_uGridSelectedItem); 
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor->AddCommand(pCommand);
 	}
 
 	return false; //don't redraw
@@ -683,14 +683,14 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 {
 	if(m_CaptureKeyboardParam.iVariable != 0)
 	{
-		if(((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_pBTCommandProcessor)
+		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor)
 		{
-			BTCommand *pCommand = new BT_PC_SetVariable(
+			BDCommand *pCommand = new BD_PC_SetVariable(
 				m_CaptureKeyboardParam.iVariable, 
 				m_CaptureKeyboardParam.sVariableValue
 			);
 
-			((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_pBTCommandProcessor->AddCommand(pCommand);
+			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor->AddCommand(pCommand);
 		}
 	}
 
@@ -701,13 +701,12 @@ void CPlutoVMCUtil::LocalKeyPressed(int KeyCode)
 { 
 	RenderMenu::KeyPressed(KeyCode);
 
-	BTCommandProcessor_Symbian_Base* pBTCommandProcessor_Symbian_Base = 
-		((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_pBTCommandProcessor_Symbian_Bluetooth;
+	BDCommandProcessor_Symbian_Base* pBDCommandProcessor_Symbian_Base = 
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor_Symbian_Bluetooth;
 
+	BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
+	pBDCommandProcessor_Symbian_Base->AddCommand(pBD_WhatDoYouHave);
 
-	BT_PC_WhatDoYouHave *pBT_PC_WhatDoYouHave = new BT_PC_WhatDoYouHave();
-	pBTCommandProcessor_Symbian_Base->AddCommand(pBT_PC_WhatDoYouHave);
-
-	pBTCommandProcessor_Symbian_Base->ProcessCommands();
+	pBDCommandProcessor_Symbian_Base->ProcessCommands();
 }
 //------------------------------------------------------------------------------------------------------------------

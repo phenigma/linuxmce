@@ -23,7 +23,19 @@
 	#include <map>
 	#include <list>
 	using namespace std;
+#else
+	#include <f32file.h>
+	#include <eikenv.h>
+	#include <e32std.h>
+
+	#define u_int64_t TInt64
+	#define malloc(x) User::Alloc(x)
+	#define free(x) User::Free(x)
+	#define realloc(x,y) User::ReAlloc(x,y)
+	#define memcpy Mem::Copy
 #endif
+
+
 
 /**
  *
@@ -81,7 +93,7 @@ public:
 #ifdef SYMBIAN
 
 #include <e32std.h>
-#include "/VIPShared/MyString.h"
+#include "../PlutoUtils/MyString.h"
 
 class SerializeClass : public CBase
 
@@ -185,8 +197,8 @@ public:
 	SerializeClass &operator+ (bool &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); } /** < @brief overloading + to take an bool */
 	SerializeClass &operator+ (char &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); } /** < @brief overloading + to take an char */
 	SerializeClass &operator+ (short &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SHORT,(void *) &i)); return (*this); } /** < @brief overloading + to take an short */
-	SerializeClass &operator+ (u_int64_t &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); } /** < @brief overloading + to take an u_int64_t */
 	SerializeClass &operator+ (string &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a string */
+	SerializeClass &operator+ (u_int64_t &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); } /** < @brief overloading + to take an u_int64_t */
 
 #ifndef SYMBIAN
 	SerializeClass &operator+ (vector<string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a vector of strings */

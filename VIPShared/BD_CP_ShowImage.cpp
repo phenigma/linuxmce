@@ -14,7 +14,8 @@
 #include "PlutoUtils/CommonIncludes.h"
 #else
 #include "VIPShared/VIPIncludes.h"
-#include "PlutoBTAppUi.h"
+#include "PlutoMOAppUi.h"
+#include "Logger.h"
 #endif
 
 #include "PlutoUtils/MyStl.h"
@@ -57,8 +58,10 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 	unsigned long Size = Read_long();
 	const char *Data = Read_block(Size);
 
-	((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->OpenImage(Type, Size, Data);
-	((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->Show();
+	LOG("#	Received 'ShowImage' command  #\n");
+
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenImage(Type, Size, Data);
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Show();
 #endif //SYMBIAN
 
 #ifdef VIPDESIGN

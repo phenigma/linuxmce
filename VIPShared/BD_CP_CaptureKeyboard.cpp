@@ -4,7 +4,8 @@
 #include "PlutoUtils/CommonIncludes.h"
 #else
 #include "VIPShared/VIPIncludes.h"
-#include "PlutoBTAppUi.h"
+#include "PlutoMOAppUi.h"
+#include "Logger.h"
 #endif
 
 #include "PlutoUtils/MyStl.h"
@@ -57,7 +58,9 @@ bool BD_CP_CaptureKeyboard::ProcessCommand(BDCommandProcessor *pProcessor)
 #ifndef SYMBIAN 
 	//
 #else
-	((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->SetCaptureKeyboardCommand(
+	LOG("#	Received 'CaptureKeyboard' command  #\n");
+
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->SetCaptureKeyboardCommand(
 		m_bOnOff, m_bDataGrid, m_bReset, m_bTypePin, m_iVariable, m_sText
 	);
 

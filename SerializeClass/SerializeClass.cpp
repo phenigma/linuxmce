@@ -74,9 +74,11 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 			case SERIALIZE_DATA_TYPE_UNSIGNED_LONG:
 				Write_unsigned_long( *((unsigned long *) pItem->m_pItem) );
 				break;
+#ifndef SYMBIAN
 			case SERIALIZE_DATA_TYPE_INT64:
 				Write_int64( *((u_int64_t *) pItem->m_pItem) );
 				break;
+#endif
 			case SERIALIZE_DATA_TYPE_STRING:
 				Write_string( *((string *) pItem->m_pItem) );
 				break;
@@ -166,9 +168,11 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 			case SERIALIZE_DATA_TYPE_UNSIGNED_LONG:
 				*((unsigned long *) pItem->m_pItem)=Read_unsigned_long();
 				break;
+#ifndef SYMBIAN
 			case SERIALIZE_DATA_TYPE_INT64:
 				*((u_int64_t *) pItem->m_pItem)=Read_int64();
 				break;
+#endif
 			case SERIALIZE_DATA_TYPE_STRING:
 				Read_string( *((string *) pItem->m_pItem) );
 				break;

@@ -1,21 +1,21 @@
-#ifndef PLUTOBTDOCUMENT_H
-#define PLUTOBTDOCUMENT_H
+#ifndef PLUTOMODOCUMENT_H
+#define PLUTOMODOCUMENT_H
 
 #include <akndoc.h>
 
    
 class  CEikAppUi;
 
-class CPlutoBTDocument : public CAknDocument
+class CPlutoMODocument : public CAknDocument
     {
     public: 
-        static CPlutoBTDocument* NewL(CEikApplication& aApp);
+        static CPlutoMODocument* NewL(CEikApplication& aApp);
 
-        virtual ~CPlutoBTDocument();
+        virtual ~CPlutoMODocument();
 
     private:
 
-        CPlutoBTDocument(CEikApplication& aApp);
+        CPlutoMODocument(CEikApplication& aApp);
         void ConstructL();
 
     private: 

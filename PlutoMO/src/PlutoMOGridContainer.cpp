@@ -1,18 +1,18 @@
-#include "PlutoBTGridContainer.h"
+#include "PlutoMOGridContainer.h"
 
-#include <PlutoBT.rsg> // R_SIMPLEGRID_GAMES_GRID, R_ICON_FILE_NAME
+#include <PlutoMO.rsg> // R_SIMPLEGRID_GAMES_GRID, R_ICON_FILE_NAME
 
-#include "PlutoBTGridEngine.h"
+#include "PlutoMOGridEngine.h"
 
 #define KGridPosition TPoint(0,0)
 
-void CPlutoBTGridContainer::ConstructL(const TRect& aRect)
+void CPlutoMOGridContainer::ConstructL(const TRect& aRect)
 	{
 	CreateWindowL();
 
-	iGamesGrid = new (ELeave)CPlutoBTGridEngine;
+	iGamesGrid = new (ELeave)CPlutoMOGridEngine;
 	iGamesGrid->SetContainerWindowL(*this);
-	iGamesGrid->ConstructL(R_PLUTOBT_GAMES_GRID, R_ICON_FILE_NAME);
+	iGamesGrid->ConstructL(R_PLUTOMO_GAMES_GRID, R_ICON_FILE_NAME);
 	
 	iGamesGrid->SetListBoxObserver(this);
 	
@@ -20,25 +20,25 @@ void CPlutoBTGridContainer::ConstructL(const TRect& aRect)
 	ActivateL();
 	}
 
-CPlutoBTGridContainer* CPlutoBTGridContainer::NewL(const TRect& aRect)
+CPlutoMOGridContainer* CPlutoMOGridContainer::NewL(const TRect& aRect)
 	{
-	CPlutoBTGridContainer* self = CPlutoBTGridContainer::NewLC(aRect);
+	CPlutoMOGridContainer* self = CPlutoMOGridContainer::NewLC(aRect);
 	CleanupStack::Pop(self);
 	return self;
 	}
-CPlutoBTGridContainer* CPlutoBTGridContainer::NewLC(const TRect& aRect)
+CPlutoMOGridContainer* CPlutoMOGridContainer::NewLC(const TRect& aRect)
 	{
-	CPlutoBTGridContainer* self = new (ELeave) CPlutoBTGridContainer;
+	CPlutoMOGridContainer* self = new (ELeave) CPlutoMOGridContainer;
 	CleanupStack::PushL(self);
 	self->ConstructL(aRect);
 	return self;
 	}
-CPlutoBTGridContainer::~CPlutoBTGridContainer()
+CPlutoMOGridContainer::~CPlutoMOGridContainer()
 	{
 	delete iGamesGrid;
 	}
 
-void CPlutoBTGridContainer::SizeChanged()
+void CPlutoMOGridContainer::SizeChanged()
 	{
 	if (iGamesGrid)
 		{
@@ -46,12 +46,12 @@ void CPlutoBTGridContainer::SizeChanged()
 		}
 	}
 
-TInt CPlutoBTGridContainer::CountComponentControls() const
+TInt CPlutoMOGridContainer::CountComponentControls() const
 	{
 	return 1; 
 	}
 
-CCoeControl* CPlutoBTGridContainer::ComponentControl(TInt aIndex) const
+CCoeControl* CPlutoMOGridContainer::ComponentControl(TInt aIndex) const
 	{
 	switch (aIndex)
 		{
@@ -62,13 +62,13 @@ CCoeControl* CPlutoBTGridContainer::ComponentControl(TInt aIndex) const
 		}
 	}
 
-void CPlutoBTGridContainer::Draw(const TRect& aRect) const
+void CPlutoMOGridContainer::Draw(const TRect& aRect) const
 	{
 	CWindowGc& gc = SystemGc();
 	gc.Clear(aRect);
 	}
 
-TKeyResponse CPlutoBTGridContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType)
+TKeyResponse CPlutoMOGridContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType)
 	{
 
 	if (aType != EEventKey)
@@ -80,12 +80,12 @@ TKeyResponse CPlutoBTGridContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent,TE
 		return EKeyWasNotConsumed;
 	}
 
-void CPlutoBTGridContainer::PlaySelectedGame()
+void CPlutoMOGridContainer::PlaySelectedGame()
 	{
 		iEikonEnv->InfoMsg(_L("An Icon was clicked"));
 	}
 
-void CPlutoBTGridContainer::HandleListBoxEventL(CEikListBox* /*aListBox*/, TListBoxEvent aListBoxEvent)
+void CPlutoMOGridContainer::HandleListBoxEventL(CEikListBox* /*aListBox*/, TListBoxEvent aListBoxEvent)
 	{
 	if ((aListBoxEvent == MEikListBoxObserver::EEventEnterKeyPressed) ||
 		(aListBoxEvent == MEikListBoxObserver::EEventItemClicked))

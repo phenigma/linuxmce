@@ -14,7 +14,8 @@
 #include "PlutoUtils/CommonIncludes.h"
 #else
 #include "VIPShared/VIPIncludes.h"
-#include "PlutoBTAppUi.h"
+#include "PlutoMOAppUi.h"
+#include "Logger.h"
 #endif
 
 #include "PlutoUtils/MyStl.h"
@@ -46,13 +47,16 @@ void BD_CP_ShowVMC::ParseCommand(unsigned long size,const char *data)
 
 #ifdef SYMBIAN
 	long VMCSize = Read_long();
+
+	LOG("#	Received 'ShowVMC' command  #\n");
 	VIPMenuCollection *pVMC = new VIPMenuCollection(VMCSize, m_pcCurrentPosition);
-	((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->UpdateScreen(pVMC);
-	((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->Show();
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->UpdateScreen(pVMC);
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Show();
 #endif
 
 #ifdef VIPDESIGN
 	long VMCSize = Read_long();
+
 	VIPMenuCollection *pVMC = new VIPMenuCollection(VMCSize, m_pcCurrentPosition);
 	g_pPlutoConfig->m_pDoc->m_pMenuCollection=pVMC;
 	g_pPlutoConfig->m_pDoc->m_pMenu=pVMC->m_pMenu_Starting;

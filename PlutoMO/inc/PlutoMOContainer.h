@@ -1,23 +1,23 @@
-#ifndef PLUTOBTCONTAINER_H
-#define PLUTOBTCONTAINER_H
+#ifndef PLUTOMOCONTAINER_H
+#define PLUTOMOCONTAINER_H
 
 #include <coecntrl.h>
 #include <aknlists.h>
 #include "eiklbx.h"         // For Listbox
-#include "PlutoBTEngine.h"
+#include "PlutoMOEngine.h"
 
 
 
 
-class CPlutoBTContainer : public CCoeControl, MCoeControlObserver
+class CPlutoMOContainer : public CCoeControl, MCoeControlObserver
     {
     public: 
         void ConstructL(const TRect& aRect);
 
-        ~CPlutoBTContainer();
+        ~CPlutoMOContainer();
 
     public: 
-        void SetPlutoBT(TInt aDirectory, TInt aSizeDate);
+        void SetPlutoMO(TInt aDirectory, TInt aSizeDate);
 		
 		// Handles open from option menu
 		void CallLaunch();		
@@ -49,12 +49,12 @@ class CPlutoBTContainer : public CCoeControl, MCoeControlObserver
         void HandleControlEventL(CCoeControl* aControl,TCoeEvent aEventType);
 
     public:
-        CPlutoBTEngine* iAppEngine;
+        CPlutoMOEngine* iAppEngine;
 	
     private: //data
         // Listbox
         CAknDoubleNumberStyleListBox* iListBox;
-		//CPlutoBTGridEngine* iGamesGrid; // the grid
+		//CPlutoMOGridEngine* iGamesGrid; // the grid
 
     };
 

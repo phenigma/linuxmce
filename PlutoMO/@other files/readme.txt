@@ -1,1 +1,1 @@
-1. copy PlutoBT.mbg here => c:\Symbian\6.1\Series60\Epoc32\Include\
+1. copy PlutoMO.mbg here => c:\Symbian\7.0s\Series60_v21\Epoc32\include\

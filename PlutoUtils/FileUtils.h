@@ -18,7 +18,7 @@
 using namespace ::std;
 #else
 
-#include "../VIPShared/MyString.h" //for Symbian compatibility
+#include "MyString.h" //for Symbian compatibility
 
 #define abs(x) Abs(x)
 #define atoi(x) SymbianAtoi(x, 0)

@@ -1,5 +1,7 @@
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"
+#else
+#include "Logger.h"
 #endif
 
 #include "PlutoUtils/MyStl.h"
@@ -17,6 +19,11 @@ BD_PC_SelectedFromList::BD_PC_SelectedFromList(unsigned long uItemIndex)
 	
 {
 	m_uItemIndex = uItemIndex;
+
+#ifdef SYMBIAN
+	LOG("#	Sending 'SelectedFromList' command  #\n");
+#endif
+
 }
 
 void BD_PC_SelectedFromList::ConvertCommandToBinary()

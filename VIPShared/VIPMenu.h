@@ -12,8 +12,11 @@
 #include <map>
 using namespace std;
 
-#include "PlutoUtils/MyStl.h"
+#else
+#include "PlutoUtils/MyString.h"
 #endif
+
+#include "PlutoUtils/MyStl.h"
 
 class VIPMenuElement
 {

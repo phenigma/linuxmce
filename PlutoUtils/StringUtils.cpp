@@ -85,7 +85,7 @@ string StringUtils::ToLower(string sInput)
     transform( sInput.begin(), sInput.end(), sInput.begin(), tolower );
     return sInput;
 #else
-    string sOutput(Input);
+    string sOutput(sInput);
     sOutput.tolower();
     return sOutput;
 #endif
@@ -102,14 +102,6 @@ string StringUtils::itos( int iNum )
 #endif
 }
 
-string StringUtils::ltos( long lNum )
-{
-    char acS[81];
-    sprintf( acS, "%ld", lNum );
-    return string( acS );
-}
-
-
 #ifdef SYMBIAN
 #pragma warning("SYMBIAN defined!!")
 #else
@@ -117,6 +109,13 @@ string StringUtils::ltos( long lNum )
 #endif
 
 #ifndef SYMBIAN
+
+string StringUtils::ltos( long lNum )
+{
+    char acS[81];
+    sprintf( acS, "%ld", lNum );
+    return string( acS );
+}
 
 void StringUtils::Tokenize(string &Input, string Tokens, vector<string> &vect_strings)
 {

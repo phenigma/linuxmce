@@ -1,9 +1,28 @@
-#include "BD/BDCommandProcessor.h"
-#include "MyString.h"
+#include "BDCommandProcessor_Symbian_Base.h"
+#include "PlutoUtils/MyString.h"
 
-#include "PlutoBTApp.h"
-#include "PlutoBTAppUi.h"
+#include "BDCommand.h"
+#include "PlutoPhoneCommands.h"
+#include "BD_HaveNothing.h"
+#include "BD_WhatDoYouHave.h"
 
+#include "PlutoMOApp.h"
+#include "PlutoMOAppUi.h"
+#include "Logger.h"
+//----------------------------------------------------------------------------------------------
+void BDCommandProcessor_Symbian_Base::GotoStage(TBluetoothState state)
+{
+	iState = state;
+
+	GotoNextStage();
+}
+//----------------------------------------------------------------------------------------------
+void BDCommandProcessor_Symbian_Base::GotoNextStage()
+{
+	LOG("@GotoNext@:\n");
+	TRequestStatus* s = &iStatus; 
+	User::RequestComplete(s, KErrNone); 
+}
 //----------------------------------------------------------------------------------------------
 BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 	(
@@ -11,32 +30,70 @@ BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 		MBluetoothListener* aListener
 	) 
 	: 
-		BDCommandProcessor(sMacAddressPhone), 
 		CActive(EPriorityStandard), 
-		iListener(aListener),
-		iVmcBuf(NULL)
+		iListener(aListener)
 { 
+	//iTimer.CreateLocal(); // created for this thread
+	iPendingKey = false;
+
+	m_bDead = false;
+//	m_bExit = false;
+
+	m_ReceiveCmdData=NULL;
+	m_ReceiveAckData=NULL;
+	m_ReceiveCmdHeader=NULL;
+	m_ReceiveAckHeader=NULL;
+
+	m_HBuf_ReceiveCmdData=NULL;
+	m_HBuf_ReceiveAckData=NULL;
+	m_HBuf_ReceiveCmdHeader=NULL;
+	m_HBuf_ReceiveAckHeader=NULL;
+
+	m_pCommand = NULL;
+	m_pCommand_Sent=NULL;
+	m_sMacAddressPhone=sMacAddressPhone;
+
+	m_Recv_iBuf = NULL;
+
 	CActiveScheduler::Add(this);
 }
 //----------------------------------------------------------------------------------------------
 BDCommandProcessor_Symbian_Base::~BDCommandProcessor_Symbian_Base()
 {
+	LOG("Canceling timer...\n");
+
+	if (iCommandTimer)
+		iCommandTimer->Cancel();
+
+	LOG("Deleting timer...\n");
+	delete iCommandTimer;
+	iCommandTimer = NULL;
+
+	LOG("Canceling active object request...\n");
 	Cancel();
 
-	CloseAllResources();
+	LOG("Canceling socket requests...\n");
+	iSocket.CancelAll();
 
-	delete iCommandTimer;
-	delete iWaitDialog;
-	delete iProgressDialog;
+	iState = EIdle;
+	iConnected = EFalse;
 
+	LOG("Closing sdp stuffs...\n");
+	iSdpDatabase.Close();
+    iSdpSession.Close();
+
+	LOG("Closing socket server...\n");
 	iSocketServ.Close();
-	iNotifier.Close();
+
+	LOG("Ok all... exiting destruction... \n");
 }
 //----------------------------------------------------------------------------------------------
 bool  BDCommandProcessor_Symbian_Base::SendData(int size, const char *data) 
 {
-	if (iConnected) 
+	if(size)
 	{
+		iSocket.CancelWrite(); //flush the write internal buffer. symbian RSocket bug ?
+
 		HBufC8* pStr = HBufC8::NewL(size);
 		TPtr8 str = pStr->Des();
 		
@@ -44,63 +101,32 @@ bool  BDCommandProcessor_Symbian_Base::SendData(int size, const char *data)
 			str.Append(TUint8(data[i]));
 
 		iSocket.Write(str, iStatus);
-		User::WaitForRequest(iStatus);
+
+		LOG(">>> Sending: ");
+		LOGN(size);
+		LOGN(" bytes\n");
 
 		delete pStr;
 		pStr = NULL;
-
-		if(KErrNone != iStatus.Int())
-			return EFalse;
-
-		return ETrue;
 	}
-	else
-		return EFalse;
+	else //nothing to send ... just go to the next stage
+	{
+		GotoNextStage();
+	}
+
+	return true;
 }
 //----------------------------------------------------------------------------------------------
-char *BDCommandProcessor_Symbian_Base::ReceiveData(int size) 
+bool BDCommandProcessor_Symbian_Base::SendLong(long l)
 {
-	if (iConnected) 
-	{
-		char *buffer = (char *)malloc(size);
+	SendData(4,(const char *)&l);
 
-		pReceivedStr = HBufC8::NewL(size);// < 6000 ? size : 6000);
-		TPtr8 str = pReceivedStr->Des();
-
-		TSockXfrLength aLen;
-
-		int bytes_received = 0;
-
-		while(bytes_received < size)
-		{
-			//iSocket.Recv(str, 0, iStatus, aLen);  
-			iSocket.RecvOneOrMore(str, 0, iStatus, aLen);  //it works with BT_Dongle under windows
-			User::WaitForRequest(iStatus);
-
-			int len = str.Length();
-			for (int i = 0; i < len; i++) 
-				buffer[bytes_received + i] = (char)str[i];
-
-			bytes_received += len;
-
-			str.Zero();
-		}
-
-		iState = EAccepting; //all ok
- 
-		delete pReceivedStr;
-		pReceivedStr = NULL;
-
-		return buffer;
-	}
-	else
-		return NULL;
-
+	return true;
 }
 //----------------------------------------------------------------------------------------------
 void  BDCommandProcessor_Symbian_Base::Listen() 
 {
-	iPendingKey = 0;
+//	iPendingKey = 0;
 	iCommandTimer = CPeriodic::NewL(EPriorityStandard);
 
 	User::LeaveIfError( iListeningSocket.Listen( KListeningQueSize ) );
@@ -125,14 +151,14 @@ void  BDCommandProcessor_Symbian_Base::SetupSecurityManager()
 	CleanupClosePushL(secSettingsSession);
 
 	// the security settings 
-	TBTServiceSecurity serviceSecurity( KUidPlutoBT, KSolBtRFCOMM, 0 );
+	TBTServiceSecurity serviceSecurity( KUidPlutoMO, KSolBtRFCOMM, 0 );
 
 	//Define security requirements
 	serviceSecurity.SetAuthentication(false);    
 	serviceSecurity.SetEncryption(false); 
 	serviceSecurity.SetAuthorisation(false);
 
-	serviceSecurity.SetChannelID(KPlutoBTPort );
+	serviceSecurity.SetChannelID(KPlutoMOPort );
 	TRequestStatus status;
 	secSettingsSession.RegisterService(serviceSecurity, status);
 
@@ -141,6 +167,7 @@ void  BDCommandProcessor_Symbian_Base::SetupSecurityManager()
 
 	CleanupStack::PopAndDestroy();  //  secManager
 	CleanupStack::PopAndDestroy();  //  secSettingsSession
+
 }
 //----------------------------------------------------------------------------------------------
 void BDCommandProcessor_Symbian_Base::AdvertiseThePlutoService()
@@ -166,7 +193,7 @@ void BDCommandProcessor_Symbian_Base::AdvertiseThePlutoService()
 	 // the port number in the protocol should be a TUint8, not a 4 byte UInt 
 	 TBuf8<1> portNumber;
 	 portNumber.SetLength(1);
-	 portNumber[0] = (TUint8)KPlutoBTPort ;
+	 portNumber[0] = (TUint8)KPlutoMOPort ;
 	 attrValDES = CSdpAttrValueDES::NewDESL(0);
 	 CleanupStack::PushL(attrValDES);
 	 attrValDES
@@ -268,77 +295,476 @@ void BDCommandProcessor_Symbian_Base::AdvertiseThePlutoService()
 	 attrVal = 0;
 }
 //----------------------------------------------------------------------------------------------
-void BDCommandProcessor_Symbian_Base::RequestVmcFile()
-{
-	if (!iConnected)
-	{
-		iState = EIdle;
-		return;
-	}
-	iPacketBuf.Copy(_L8("VMC"));
-	iSocket.Write(iPacketBuf, iStatus);
-	SetActive();
-	iState = EWritingVmcRequest; 
-}
-//----------------------------------------------------------------------------------------------
-void BDCommandProcessor_Symbian_Base::PressedKey(TInt aKey)
-{
-	if (!iConnected)
-		return;
-	if (iState != EIdle)
-	{
-		iPendingKey = aKey;
-		return;
-	}
-	iPacketBuf.Copy(_L8("KY  "));
-	iPacketBuf[2] = (TInt8)( aKey % 256 );
-	iPacketBuf[3] = (TInt8)( aKey / 256 );
-
-	iSocket.Write(iPacketBuf, iStatus);
-	SetActive();
-	iState = EWritingKey; 
-}
-//----------------------------------------------------------------------------------------------
 void  BDCommandProcessor_Symbian_Base::RunL() 
 {
-	if (iStatus != KErrNone)
+	if (iStatus != KErrNone || iState == EConnectionLost)
 	{
+		LOG("Disconnected! [iStatus != KErrNone || iState == EConnectionLost]\n");
+
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bMakeVisibleAllowed = false;
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ResetViewer();
+
 		iConnected = false;
+		//iSocket.CancelAll();
 		iSocket.Close();
-		iListener->Hide();
+
 		User::LeaveIfError( iSocket.Open( iSocketServ ) );
 		iListeningSocket.Accept( iSocket, iStatus );
 		iState = EAccepting;
 		SetActive();
+
+		iListener->Hide();
+
+		LOG("Waiting for new connections...\n");
 		return;
 	}
 
+	if(iPendingKey)
+	{
+		iPendingKey = false;
+		iState = ESendingCommand;
+	}
+
+	m_bStatusOk = true;
+
 	switch (iState)
 	{
-	case EIdle:
-		SetActive();
-		break;
 	case EAccepting:
-		iConnected = true;
-		
-		if (iCommandTimer->IsActive())
 		{
-			iCommandTimer->Cancel();
+			LOG("EAccepting\n");
+			iConnected = true;
 
-			delete iCommandTimer;
-			iCommandTimer = NULL;
+			if (iCommandTimer->IsActive())
+			{
+				iCommandTimer->Cancel();
 
-			iCommandTimer = CPeriodic::NewL(EPriorityStandard);
+				delete iCommandTimer;
+				iCommandTimer = NULL;
+
+				iCommandTimer = CPeriodic::NewL(EPriorityIdle);
+			}
+
+			iCommandTimer->Start(100000, 5 * 1000000,
+				TCallBack(CommandTimerCallBack, this)); 
+
+			iState = EIdle;
+		}
+		break;
+
+	case ESendingCommand:
+		{
+			LOG("ESendingCommand\n");
+			m_bImmediateCallback = false;
+
+			if( MYSTL_SIZEOF_LIST(m_listCommands)==0 )
+				m_pCommand_Sent = new BD_WhatDoYouHave();
+			else
+			{
+				MYSTL_EXTRACT_FIRST(m_listCommands, BDCommand, pC);
+				m_pCommand_Sent = pC;
+			}
+
+			m_pCommand_Sent->ConvertCommandToBinary();
+			SendLong(m_pCommand_Sent->ID());
+
+			iState = ESendingCommandId;
+			SetActive();
+		}
+		break;
+
+	case ESendingCommandId:
+		{
+			LOG("ESendingCommandId\n");
+			SendLong(m_pCommand_Sent->GetCommandOrAckSize());
+			iState = ESendingCommandOrAckSize;
+			SetActive();
+		}
+		break;
+
+	case ESendingCommandOrAckSize:
+		{
+			LOG("ESendingCommandOrAckSize\n");
+			SendData(m_pCommand_Sent->GetCommandOrAckSize(),m_pCommand_Sent->GetCommandOrAckData());
+			iState = ESendingCommandOrAckData;
+			SetActive();
+		}
+		break;
+
+	case ESendingCommandOrAckData:
+		{
+			LOG("ESendingCommandOrAckData\n");
+			int AckHeaderSize;
+			if( m_pCommand_Sent->ID() == BD_PC_WHAT_DO_YOU_HAVE )
+				AckHeaderSize = 8; 
+			else
+				AckHeaderSize = 4;
+
+			if(NULL != m_HBuf_ReceiveAckHeader)
+			{
+				delete m_HBuf_ReceiveAckHeader;
+				m_HBuf_ReceiveAckHeader = NULL;
+			}
+
+			if(NULL != m_ReceiveAckHeader)
+			{
+				delete m_ReceiveAckHeader;
+				m_ReceiveAckHeader = NULL;
+			}
+
+			if(NULL != m_Recv_iBuf)
+			{
+				delete m_Recv_iBuf;
+				m_Recv_iBuf = NULL;
+			}
+
+			m_iRecvSize = AckHeaderSize;
+			m_HBuf_ReceiveAckHeader = HBufC8::NewL(m_iRecvSize);
+			
+			m_Recv_iBuf = new TPtr8(NULL, 0); 
+			m_Recv_iBuf->Set((TUint8*)m_HBuf_ReceiveAckHeader->Ptr(), 0, m_iRecvSize); 
+			iSocket.Read(*m_Recv_iBuf, iStatus);
+
+			iState = EReceivingAckHeader;
+			m_pCommand_Sent->FreeSerializeMemory();
+
+			SetActive();
+		}
+		break;
+
+	case EReceivingAckHeader:
+		{
+			LOG("EReceivingAckHeader\n");
+			
+			m_ReceiveAckHeader = new char[m_iRecvSize];
+			for (int i = 0; i < m_iRecvSize; i++) 
+				m_ReceiveAckHeader[i] = (char)(*m_Recv_iBuf)[i];
+
+			LOG("<<< Received: ");
+			LOGN(m_iRecvSize);
+			LOGN(" bytes\n");
+
+			long *lSize;
+			if( m_pCommand_Sent->ID()==BD_PC_WHAT_DO_YOU_HAVE )
+				lSize = (long *) (m_ReceiveAckHeader + 4);
+			else
+				lSize = (long *) (m_ReceiveAckHeader);
+
+			if( *lSize )
+			{
+				if(NULL != m_HBuf_ReceiveAckData)
+				{
+					delete m_HBuf_ReceiveAckData;
+					m_HBuf_ReceiveAckData = NULL;
+				}
+
+				if(NULL != m_ReceiveAckData)
+				{
+					delete m_ReceiveAckData;
+					m_ReceiveAckData = NULL;
+				}
+
+				m_iRecvSize = *lSize;
+				m_bStartRecv = true;
+
+				GotoStage(EReceivingAckData_Loop);
+			}
+			else
+				GotoStage(EReceivingAckData);
+
+			SetActive();
+		}
+		break;
+
+
+	case EReceivingAckData_Loop:
+		{
+			LOG("EReceivingAckData_Loop\n");
+			if(m_bStartRecv)
+			{
+				m_bStartRecv = false;
+
+				if(m_HBuf_ReceiveAckData)
+				{
+					delete m_HBuf_ReceiveAckData;
+					m_HBuf_ReceiveAckData = NULL;
+				}
+
+				if(m_ReceiveAckData)
+				{
+					delete m_ReceiveAckData;
+					m_ReceiveAckData = NULL;
+				}
+
+				if(NULL != m_Recv_iBuf)
+				{
+					delete m_Recv_iBuf;
+					m_Recv_iBuf = NULL;
+				}
+
+				m_HBuf_ReceiveAckData = HBufC8::NewL(m_iRecvSize);
+				m_ReceiveAckData = new char[m_iRecvSize];
+				
+				m_Recv_iBuf = new TPtr8(NULL, 0); 
+				m_Recv_iBuf->Set((TUint8*)m_HBuf_ReceiveAckData->Ptr(), 0, m_iRecvSize); 
+				iSocket.Read(*m_Recv_iBuf, iStatus);
+
+				iState = EReceivingAckData_Loop;
+			}
+			else
+			{
+				for (int i = 0; i < m_iRecvSize; i++) 
+					m_ReceiveAckData[i] = (char)(*m_Recv_iBuf)[i];
+
+				LOG("<<< Received: ");
+				LOGN(m_iRecvSize);
+				LOGN(" bytes\n");
+
+				GotoStage(EReceivingAckData);
+			}
+
+			SetActive();
+		}
+		break;
+
+	case EReceivingAckData:
+		{
+			LOG("EReceivingAckData\n");
+			if( m_pCommand_Sent->ID() == BD_PC_WHAT_DO_YOU_HAVE )
+			{
+				iStatus = KErrNone;
+				iState = EReceivingCommand;
+
+				//no break, continue
+			}
+			else
+			{
+				long *lSize = (long *) (m_ReceiveAckHeader);
+				m_pCommand_Sent->ParseAck(*lSize, m_ReceiveAckData);
+
+				delete m_pCommand_Sent;
+				m_pCommand_Sent=NULL;
+
+				iState = EIdle;
+				break;
+			}
 		}
 
-		iCommandTimer->Start(100000, 1 * 10000000,
-			TCallBack(CommandTimerCallBack, this)); 
+	case EReceivingCommand:
+		{
+			LOG("EReceivingCommand\n");
+			// The Ack will be a command that's parsed directly
+			long *lType = (long *) m_ReceiveAckHeader;
+			long *lSize = (long *) (m_ReceiveAckHeader + 4);
 
+			if(*lType)
+			{
+				m_pCommand = BuildCommandFromData(*lType);
+				m_pCommand->ParseCommand(*lSize, m_ReceiveAckData);
+				m_pCommand->ProcessCommand(NULL);
+				m_pCommand->ConvertAckToBinary();
+
+				iState = ERecvCommand_ReadyToSendAck;
+				//no break, continue
+			}
+			else
+			{
+				if(NULL != m_HBuf_ReceiveCmdHeader)
+				{
+					delete m_HBuf_ReceiveCmdHeader;
+					m_HBuf_ReceiveCmdHeader = NULL;
+				}
+				
+				if(NULL != m_ReceiveCmdHeader)
+				{
+					delete m_ReceiveCmdHeader;
+					m_ReceiveCmdHeader = NULL;
+				}
+
+				if(NULL != m_Recv_iBuf)
+				{
+					delete m_Recv_iBuf;
+					m_Recv_iBuf = NULL;
+				}
+
+				m_iRecvSize = 8;
+				m_HBuf_ReceiveCmdHeader = HBufC8::NewL(m_iRecvSize);
+				
+				m_Recv_iBuf = new TPtr8(NULL, 0); 
+				m_Recv_iBuf->Set((TUint8*)m_HBuf_ReceiveCmdHeader->Ptr(), 0, m_iRecvSize); 
+				iSocket.Read(*m_Recv_iBuf, iStatus);
+
+				iState = EReceivingCmdHeader;
+				SetActive();
+				break;
+			}
+		}
+
+	case ERecvCommand_ReadyToSendAck:
+		{
+			LOG("ERecvCommand_ReadyToSendAck\n");
+			SendLong(m_pCommand->GetCommandOrAckSize());
+			iState = ERecvCommand_SendingCommandOrAckSize;
+			SetActive();
+		}
 		break;
 
+	case ERecvCommand_SendingCommandOrAckSize:
+		{
+			LOG("ERecvCommand_SendingCommandOrAckSize\n");
+			SendData(m_pCommand->GetCommandOrAckSize(),m_pCommand->GetCommandOrAckData());
+			iState = ERecvCommand_SendingCommandOrAckData;
+			SetActive();
+		}
+		break;
+
+	case ERecvCommand_SendingCommandOrAckData:
+		{
+			LOG("ERecvCommand_SendingCommandOrAckData\n");
+			m_pCommand->FreeSerializeMemory();
+
+			delete m_pCommand;
+			m_pCommand = NULL;
+
+			iState = ERecvCommand_End;
+
+			//no break, continue
+		}
+
+	case ERecvCommand_End:
+		{
+			LOG("ERecvCommand_End\n");
+			long *lType = (long *) m_ReceiveAckHeader;
+
+			if( *lType != BD_CP_HAVE_NOTHING )
+			{
+				GotoStage(ESendingCommand);
+				SetActive();
+			}
+			else
+				iState = EIdle;
+		}
+		break;
+
+	case EReceivingCmdHeader:
+		{
+			LOG("EReceivingCmdHeader\n");
+
+			m_ReceiveCmdHeader = new char[m_iRecvSize];
+			for (int i = 0; i < m_iRecvSize; i++) 
+				m_ReceiveCmdHeader[i] = (char)(*m_Recv_iBuf)[i];
+
+			LOG("<<< Received: ");
+			LOGN(m_iRecvSize);
+			LOGN(" bytes\n");
+			
+			long *lSize = (long *) (m_ReceiveCmdHeader + 4);
+
+			if( *lSize )
+			{
+				if(NULL != m_HBuf_ReceiveCmdData)
+				{
+					delete m_HBuf_ReceiveCmdData;
+					m_HBuf_ReceiveCmdData = NULL;
+				}
+
+				if(NULL != m_ReceiveCmdData)
+				{
+					delete m_ReceiveCmdData;
+					m_ReceiveCmdData = NULL;
+				}
+
+				if(NULL != m_Recv_iBuf)
+				{
+					delete m_Recv_iBuf;
+					m_Recv_iBuf = NULL;
+				}
+
+				m_iRecvSize = 8;
+				m_HBuf_ReceiveCmdData = HBufC8::NewL(m_iRecvSize);
+				
+				m_Recv_iBuf = new TPtr8(NULL, 0); 
+				m_Recv_iBuf->Set((TUint8*)m_HBuf_ReceiveCmdData->Ptr(), 0, m_iRecvSize); 
+				iSocket.Read(*m_Recv_iBuf, iStatus);
+
+				iState = EReceivingCmdData;
+			}
+			else
+				GotoStage(EReceivingCommand_BuildCommand);
+
+			SetActive();
+		}
+		break;
+
+	case EReceivingCmdData:
+		{
+			LOG("EReceivingCmdData\n");
+
+			m_ReceiveCmdData = new char[m_iRecvSize];
+			for (int i = 0; i < m_iRecvSize; i++) 
+				m_ReceiveCmdData[i] = (char)(*m_Recv_iBuf)[i];
+
+			LOG("<<< Received: ");
+			LOGN(m_iRecvSize);
+			LOGN(" bytes\n");
+
+			GotoStage(EReceivingCommand_BuildCommand);
+			SetActive();
+		}
+		break;
+
+	case EReceivingCommand_BuildCommand:
+		{
+			LOG("EReceivingCommand_BuildCommand\n");
+			long *lType = (long *) m_ReceiveCmdHeader;
+			long *lSize = (long *) (m_ReceiveCmdHeader+4);
+			m_pCommand = BuildCommandFromData(*lType);
+			if( m_pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE )
+			{
+				iState = ESendingCommand;
+			}
+			else
+			{
+				m_pCommand->ParseCommand(*lSize,m_ReceiveCmdData);
+				m_pCommand->ProcessCommand(NULL);
+				m_pCommand->ConvertAckToBinary();
+
+				SendLong(m_pCommand->GetCommandOrAckSize());
+				iState = ERecvCommand_SendingCommandOrAckSize_Step2;
+			}
+			
+			SetActive();
+		}
+		break;
+
+	case ERecvCommand_SendingCommandOrAckSize_Step2:
+		{
+			LOG("ERecvCommand_SendingCommandOrAckSize_Step2\n");
+			SendData(m_pCommand->GetCommandOrAckSize(), m_pCommand->GetCommandOrAckData());
+			iState = ERecvCommand_SendingCommandOrAckData_Step2;
+			SetActive();
+		}
+		break;
+
+	case ERecvCommand_SendingCommandOrAckData_Step2:
+		{
+			LOG("ERecvCommand_SendingCommandOrAckData_Step2\n");
+			m_pCommand->FreeSerializeMemory();
+			iState = ERecvCommand_End;
+
+			long *lType = (long *) m_ReceiveCmdHeader;
+
+			if( *lType != BD_CP_HAVE_NOTHING )
+			{
+				GotoStage(ESendingCommand);
+				SetActive();
+			}
+			else
+				iState = EIdle;
+		}
 
 	default:
 		{
+		LOG("Unexpected Bluetooth state\n");
 		TBuf<256> formatBuf;
 		formatBuf.Format(_L("Unexpected Bluetooth state %d"), iState);
 		CEikonEnv::Static()->InfoWinL(KNullDesC, formatBuf);
@@ -357,20 +783,35 @@ void  BDCommandProcessor_Symbian_Base::Close()
 */
 }
 //----------------------------------------------------------------------------------------------
-void BDCommandProcessor_Symbian_Base::ProcessCommands(BDCommandProcessor_Symbian_Base* pProcessor)
+void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=true*/)
 {
-	if(pProcessor->iConnected && pProcessor->iState == EAccepting)
+	if(iConnected)
 	{
-		pProcessor->iState = EIdle;
-		
-		do
+		if(!m_bStatusOk)
 		{
-			bool bImmediateCallback;
-			while( pProcessor->SendCommand(bImmediateCallback) && bImmediateCallback);
+			//it's seems that in last x seconds, we had only EIdle state
+			//connection lost!
+			iSocket.CancelAll();
+			iState = EConnectionLost;
+			return;
 		}
-		while(pProcessor->m_listCommands.Count());
 
-		pProcessor->iState = EAccepting;
+		if(bCriticalRequest && IsActive()) //the object is already active.
+		{
+			//GotoStage(ESendingCommand); //don't force object activation
+			iPendingKey = true;
+			return;
+		}
+
+		if(iState == EIdle || bCriticalRequest)
+		{
+			GotoStage(ESendingCommand);
+			SetActive();
+			return;
+		}
+
+		//on timer tick, we found an EIdle state. what if the connection was lost?
+		m_bStatusOk = false;
 	}
 }
 //----------------------------------------------------------------------------------------------
@@ -379,7 +820,7 @@ TInt BDCommandProcessor_Symbian_Base::CommandTimerCallBack(TAny* aBluetoothHandl
 	BDCommandProcessor_Symbian_Base* pProcessor = 
 		(BDCommandProcessor_Symbian_Base*)aBluetoothHandler;
 
-	pProcessor->ProcessCommands(pProcessor);
+	pProcessor->ProcessCommands(false);
 
 	return 0;
 }
@@ -402,43 +843,10 @@ TInt BDCommandProcessor_Symbian_Base::RunError(TInt aError)
 //----------------------------------------------------------------------------------------------
 void BDCommandProcessor_Symbian_Base::DoCancel()
 {
-	switch (iState)
-	{
-		case EAccepting:
-			iListeningSocket.CancelAccept();
-			break;
-		case EReadingVmcSize:
-		case EReadingVmc:
-			iSocket.CancelRead();
-			break;
-		case EWritingVmcRequest:
-		case EWritingKey:
-			iSocket.CancelWrite();
-			break;
-		default:
-			break;
-	}
 }
 //----------------------------------------------------------------------------------------------
-void BDCommandProcessor_Symbian_Base::CloseAllResources()
+void BDCommandProcessor_Symbian_Base::AddCommand(class BDCommand *pCommand)
 {
-	iState = EIdle;
-	iConnected = EFalse;
-
-	if (iCommandTimer)
-		iCommandTimer->Cancel();
-
-	if (iWaitDialog)
-		iWaitDialog->ProcessFinishedL();
-
-	if (iProgressDialog)
-		iProgressDialog->ProcessFinishedL();
-
-    iSdpDatabase.DeleteRecordL(iRecord);
-    iRecord = 0;
-
-	iSdpDatabase.Close();
-    iSdpSession.Close();
-	iSocket.Close();
+	MYSTL_ADDTO_LIST(m_listCommands,pCommand);
 }
 //----------------------------------------------------------------------------------------------

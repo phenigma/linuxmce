@@ -4,8 +4,8 @@ NAME    FILE // 4 letter ID
 //  INCLUDES
 
 #include <eikon.rh>
-#include "plutobt.hrh"
-#include "plutobt.loc"
+#include "plutomo.hrh"
+#include "plutomo.loc"
 #include <avkon.rsg>
 #include <avkon.rh>
 #include <avkon.mbg>
@@ -15,22 +15,22 @@ NAME    FILE // 4 letter ID
 
 RESOURCE RSS_SIGNATURE { }
 
-RESOURCE TBUF { buf="PlutoBT"; }
+RESOURCE TBUF { buf="PlutoMO"; }
 
 RESOURCE EIK_APP_INFO
     {
-    hotkeys=r_plutobt_hotkeys;
-    menubar=r_plutobt_menubar;
+    hotkeys=r_plutomo_hotkeys;
+    menubar=r_plutomo_menubar;
     cba=R_AVKON_SOFTKEYS_OPTIONS_BACK;     
     }
 
 //----------------------------------------------------
 //   
-//    r_plutobt_hotkeys
+//    r_plutomo_hotkeys
 //
 //----------------------------------------------------
 //
-RESOURCE HOTKEYS r_plutobt_hotkeys
+RESOURCE HOTKEYS r_plutomo_hotkeys
     {
     control=
         {
@@ -40,47 +40,47 @@ RESOURCE HOTKEYS r_plutobt_hotkeys
 
 //----------------------------------------------------
 //   
-//    r_plutobt_menubar
+//    r_plutomo_menubar
 //
 //----------------------------------------------------
 //
-RESOURCE MENU_BAR r_plutobt_menubar
+RESOURCE MENU_BAR r_plutomo_menubar
     {
     titles=
         {
-        MENU_TITLE { menu_pane=r_plutobt_menu; txt="File"; }
+        MENU_TITLE { menu_pane=r_plutomo_menu; txt="File"; }
         };
     }
 
 //----------------------------------------------------
 //   
-//    r_plutobt_menu
+//    r_plutomo_menu
 //
 //----------------------------------------------------
 //
-RESOURCE MENU_PANE r_plutobt_menu
+RESOURCE MENU_PANE r_plutomo_menu
     {
     items=
         {
-        MENU_ITEM { command=EPlutoBTCmdAppTest1; txt=qtn_appl_option_item1; },
-        MENU_ITEM { command=EPlutoBTCmdAppTest2; txt=qtn_appl_option_item2; },
-        MENU_ITEM { command=EPlutoBTCmdAppTest3; txt=qtn_appl_option_item3; },
-        MENU_ITEM { command=EPlutoBTCmdAppTest4; txt=qtn_appl_option_item4; },
+        MENU_ITEM { command=EPlutoMOCmdAppTest1; txt=qtn_appl_option_item1; },
+        MENU_ITEM { command=EPlutoMOCmdAppTest2; txt=qtn_appl_option_item2; },
+        MENU_ITEM { command=EPlutoMOCmdAppTest3; txt=qtn_appl_option_item3; },
+        MENU_ITEM { command=EPlutoMOCmdAppTest4; txt=qtn_appl_option_item4; },
         MENU_ITEM { command=EAknCmdExit; txt="Exit"; }
         };
     }
 
 //----------------------------------------------------
 //   
-//    r_plutobt_app_menu
+//    r_plutomo_app_menu
 //
 //----------------------------------------------------
 //
-RESOURCE MENU_PANE r_plutobt_app_menu
+RESOURCE MENU_PANE r_plutomo_app_menu
     {
     items=
         {
-        MENU_ITEM { command=EPlutoBTCmdAppTest; txt="<App spesific menu item>"; },
+        MENU_ITEM { command=EPlutoMOCmdAppTest; txt="<App spesific menu item>"; },
         MENU_ITEM { command=EAknCmdExit; txt="Exit"; }
         };
     }
@@ -93,11 +93,11 @@ RESOURCE MENU_PANE r_plutobt_app_menu
 //
 //---------------------------------------------------
 
-RESOURCE GRID r_plutobt_games_grid
+RESOURCE GRID r_plutomo_games_grid
 	{
-	array_id = r_plutobt_games_grid_items;
+	array_id = r_plutomo_games_grid_items;
 	flags = EAknListBoxSelectionGrid;
-	style=r_plutobt_games_grid_style;
+	style=r_plutomo_games_grid_style;
 	}
 
 // ---------------------------------------------------------
@@ -106,7 +106,7 @@ RESOURCE GRID r_plutobt_games_grid
 //
 // ---------------------------------------------------------
 //
-RESOURCE ARRAY r_plutobt_games_grid_items
+RESOURCE ARRAY r_plutomo_games_grid_items
 	{
 	items =
 		{
@@ -144,7 +144,7 @@ RESOURCE ARRAY r_plutobt_games_grid_items
 
 
 
-RESOURCE GRID_STYLE r_plutobt_games_grid_style
+RESOURCE GRID_STYLE r_plutomo_games_grid_style
 	{
 	layoutflags=EAknGridHorizontalOrientation| EAknGridLeftToRight | EAknGridTopToBottom;
 	primaryscroll= EAknGridFollowsItemsAndLoops; // horizontal scroll

@@ -1,5 +1,5 @@
-#ifndef PLUTOBTENGINE_H
-#define PLUTOBTENGINE_H
+#ifndef PLUTOMOENGINE_H
+#define PLUTOMOENGINE_H
 
 #include <coecntrl.h>
 #include <coemain.h>
@@ -22,24 +22,24 @@
 //------------------------------------------------------------------------------------------------------------------
 const TInt KLengthOfStringToShowIndex = 40;
 //------------------------------------------------------------------------------------------------------------------
-class CPlutoBTEngine : public CCoeControl
+class CPlutoMOEngine : public CCoeControl
 {
 public: 
 
     void ConstructL();
 
-    ~CPlutoBTEngine();
+    ~CPlutoMOEngine();
 
 public: 
 
-    TInt StartPlutoBT();
+    TInt StartPlutoMO();
 
-    void GetPlutoBTItems(CDesCArray* iItems);
+    void GetPlutoMOItems(CDesCArray* iItems);
 
     void SetDirectory(TInt aDirectory);
     void SetSizeDate(TInt aSizeDate);
 
-    void EndPlutoBT();
+    void EndPlutoMO();
 
     TBool RemoveItems(CDesCArray* aItems);
 

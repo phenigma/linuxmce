@@ -5,11 +5,11 @@
 #include "bitmapmethods.h"
 #include "palbimageviewerbasic.h"
 
-#include "MyString.h"
-#include "PlutoBTEngine.h"
-#include "PlutoBT.hrh"     // enumerations
+#include "PlutoUtils/MyString.h"
+#include "PlutoMOEngine.h"
+#include "PlutoMO.hrh"     // enumerations
 
-#include "PlutoBTAppUi.h"
+#include "PlutoMOAppUi.h"
 
 //------------------------------------------------------------------------------------------------------------------
 // Number, name and file size
@@ -23,16 +23,16 @@ _LIT(KDirPictures,"c:\\Nokia\\Images\\");
 // Directory for Videos
 _LIT(KDirVideos,"c:\\Nokia\\Videos\\");
 //------------------------------------------------------------------------------------------------------------------
-void CPlutoBTEngine::ConstructL()
+void CPlutoMOEngine::ConstructL()
     {
     }
 //------------------------------------------------------------------------------------------------------------------
-CPlutoBTEngine::~CPlutoBTEngine()
+CPlutoMOEngine::~CPlutoMOEngine()
     {
     delete iDirList;
     }
 //------------------------------------------------------------------------------------------------------------------
-TInt CPlutoBTEngine::StartPlutoBT()
+TInt CPlutoMOEngine::StartPlutoMO()
     {
     if (iDirList)
         {        
@@ -46,13 +46,13 @@ TInt CPlutoBTEngine::StartPlutoBT()
 
     switch (iDirectory)
         {
-        case EPlutoBTSounds:
+        case EPlutoMOSounds:
             error = iFsSession.GetDir(KDirSounds,KEntryAttNormal,ESortByName,iDirList);
             break;
-        case EPlutoBTPictures:
+        case EPlutoMOPictures:
             error = iFsSession.GetDir(KDirPictures,KEntryAttNormal,ESortByName,iDirList);
             break;
-        case EPlutoBTVideos:
+        case EPlutoMOVideos:
             error = iFsSession.GetDir(KDirVideos,KEntryAttNormal,ESortByName,iDirList);
             break;
         default:
@@ -64,7 +64,7 @@ TInt CPlutoBTEngine::StartPlutoBT()
 
     }
 //------------------------------------------------------------------------------------------------------------------
-void CPlutoBTEngine::GetPlutoBTItems(CDesCArray* aItems)
+void CPlutoMOEngine::GetPlutoMOItems(CDesCArray* aItems)
     {
     if(!iDirList)
         return;
@@ -72,7 +72,7 @@ void CPlutoBTEngine::GetPlutoBTItems(CDesCArray* aItems)
     for (TInt i=0;i<iDirList->Count();i++)
         {
         TFileName filename = NULL;
-        if(iSizeDate==EPlutoBTSize)
+        if(iSizeDate==EPlutoMOSize)
             {
             filename.Format(KStringSize,i+1,&(*iDirList)[i].iName,(*iDirList)[i].iSize);
             }
@@ -88,13 +88,13 @@ void CPlutoBTEngine::GetPlutoBTItems(CDesCArray* aItems)
         
     }
 //------------------------------------------------------------------------------------------------------------------
-void CPlutoBTEngine::SetDirectory(TInt aDirectory)
+void CPlutoMOEngine::SetDirectory(TInt aDirectory)
     {
-    if (aDirectory!=EPlutoBTDirNoChange)
+    if (aDirectory!=EPlutoMODirNoChange)
         iDirectory=aDirectory;
     }
 //------------------------------------------------------------------------------------------------------------------
-void CPlutoBTEngine::LaunchCurrent(TInt aPosition)
+void CPlutoMOEngine::LaunchCurrent(TInt aPosition)
     {
 
     if(!iDirList)
@@ -107,13 +107,13 @@ void CPlutoBTEngine::LaunchCurrent(TInt aPosition)
 
     switch (iDirectory)
         {   
-        case EPlutoBTSounds:
+        case EPlutoMOSounds:
             descr.Append(KDirSounds);
             break;
-        case EPlutoBTPictures:
+        case EPlutoMOPictures:
             descr.Append(KDirPictures);
             break;
-        case EPlutoBTVideos:
+        case EPlutoMOVideos:
             descr.Append(KDirVideos);
             break;
         default:
@@ -131,14 +131,14 @@ void CPlutoBTEngine::LaunchCurrent(TInt aPosition)
 		handler->OpenFileL(descr, nullType);
 	else
 		//g_pAppUi->OpenVMC(descr);
-		((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->OpenVMC(false, descr, NULL);
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenVMC(false, descr, NULL);
 
 
     CleanupStack::PopAndDestroy(); // handler
     };
 //------------------------------------------------------------------------------------------------------------------
 // Remove Files
-void CPlutoBTEngine::RemoveFile(TInt aPosition)
+void CPlutoMOEngine::RemoveFile(TInt aPosition)
     {
 
     if(!iDirList)
@@ -150,13 +150,13 @@ void CPlutoBTEngine::RemoveFile(TInt aPosition)
 	
 	switch (iDirectory)
         {   
-        case EPlutoBTSounds:
+        case EPlutoMOSounds:
             descr.Append(KDirSounds);
             break;
-        case EPlutoBTPictures:
+        case EPlutoMOPictures:
             descr.Append(KDirPictures);
             break;
-        case EPlutoBTVideos:
+        case EPlutoMOVideos:
             descr.Append(KDirVideos);
             break;
         default:
@@ -181,7 +181,7 @@ void CPlutoBTEngine::RemoveFile(TInt aPosition)
 };
 //------------------------------------------------------------------------------------------------------------------
 // Find number of files in current folder
-void CPlutoBTEngine::FindFiles()
+void CPlutoMOEngine::FindFiles()
 {
 	if(!iDirList)
         return;
@@ -205,7 +205,7 @@ void CPlutoBTEngine::FindFiles()
 
 };
 //------------------------------------------------------------------------------------------------------------------
-TBool CPlutoBTEngine::RemoveItems(CDesCArray* aItems)
+TBool CPlutoMOEngine::RemoveItems(CDesCArray* aItems)
     {
     if(iDirList)
         {        
@@ -218,19 +218,19 @@ TBool CPlutoBTEngine::RemoveItems(CDesCArray* aItems)
     return EFalse;
     };
 //------------------------------------------------------------------------------------------------------------------
-void CPlutoBTEngine::SetSizeDate(TInt aSizeDate)
+void CPlutoMOEngine::SetSizeDate(TInt aSizeDate)
     {
-    if (aSizeDate==EPlutoBTToggle)
-        if (iSizeDate==EPlutoBTSize)
-            iSizeDate=EPlutoBTDate;
+    if (aSizeDate==EPlutoMOToggle)
+        if (iSizeDate==EPlutoMOSize)
+            iSizeDate=EPlutoMODate;
         else
-            iSizeDate=EPlutoBTSize;
+            iSizeDate=EPlutoMOSize;
     else
-        if (aSizeDate!=EPlutoBTSizeDateNoChange)
+        if (aSizeDate!=EPlutoMOSizeDateNoChange)
             iSizeDate=aSizeDate;
     };
 //------------------------------------------------------------------------------------------------------------------
-void CPlutoBTEngine::EndPlutoBT()
+void CPlutoMOEngine::EndPlutoMO()
     {
     iFsSession.Close();
     };

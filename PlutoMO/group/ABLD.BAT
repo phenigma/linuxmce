@@ -3,7 +3,7 @@
 REM Bldmake-generated batch file - ABLD.BAT
 REM ** DO NOT EDIT **
 
-perl -S ABLD.PL "\PLUTO\PLUTOBT\GROUP\\" %1 %2 %3 %4 %5 %6 %7 %8 %9
+perl -S ABLD.PL "\PLUTO\TRUNK\PLUTOMO\GROUP\\" %1 %2 %3 %4 %5 %6 %7 %8 %9
 if errorlevel==1 goto CheckPerl
 goto End
 

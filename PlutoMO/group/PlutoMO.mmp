@@ -1,67 +1,70 @@
-TARGET  PlutoBT.app
+TARGET  PlutoMO.app
 TARGETTYPE  app
 UID  0x100039CE 0x01ef0015 
-TARGETPATH \system\apps\PlutoBT
+TARGETPATH \system\apps\PlutoMO
 
 MACRO   SYMBIAN
 MACRO	VIPPHONE
 
 SOURCEPATH ..\..\VIPShared
-SOURCE  BT_CP_Disconnect.cpp
-SOURCE  BT_CP_Have_Nothing.cpp
-SOURCE  BT_CP_SendMeKeystrokes.cpp
-SOURCE  BT_CP_ShowImage.cpp
-SOURCE  BT_CP_ShowVMC.cpp
-SOURCE  BT_CP_ShowList.cpp
-SOURCE  BT_CP_UpdateVariables.cpp
-SOURCE  BT_CP_CaptureKeyboard.cpp
-SOURCE  BT_PC_SelectedFromList.cpp
-SOURCE  BT_PC_Disconnect.cpp
-SOURCE  BT_PC_KeyWasPressed.cpp
-SOURCE  BT_PC_OrderPlaced.cpp
-SOURCE  BT_PC_ReportingVariables.cpp
-SOURCE  BT_PC_VMCHidden.cpp
-SOURCE  BT_PC_VMCTerminated.cpp
-SOURCE  BT_PC_WhatDoYouHave.cpp
-SOURCE  BT_PC_SetVariable.cpp
-SOURCE  BTCommand.cpp
-SOURCE  MyString.cpp
-SOURCE  PlutoConfig.cpp
+SOURCE  BD_CP_Disconnect.cpp
+SOURCE  BD_CP_SendMeKeystrokes.cpp
+SOURCE  BD_CP_ShowImage.cpp
+SOURCE  BD_CP_ShowVMC.cpp
+SOURCE  BD_CP_ShowList.cpp
+SOURCE  BD_CP_UpdateVariables.cpp
+SOURCE  BD_CP_CaptureKeyboard.cpp
+SOURCE  BD_PC_SelectedFromList.cpp
+SOURCE  BD_PC_Disconnect.cpp
+SOURCE  BD_PC_KeyWasPressed.cpp
+SOURCE  BD_PC_OrderPlaced.cpp
+SOURCE  BD_PC_ReportingVariables.cpp
+SOURCE  BD_PC_VMCHidden.cpp
+SOURCE  BD_PC_VMCTerminated.cpp
+SOURCE  BD_PC_SetVariable.cpp
+SOURCE  PlutoPhoneCommands.cpp
 SOURCE  RenderMenu.cpp
 SOURCE  VIPMenu.cpp
-SOURCE  BTCommandProcessor_Symbian_Base.cpp
-SOURCE  BTCommandProcessor_Symbian_Bluetooth.cpp
 
-SOURCEPATH ..\..\DCE
+SOURCEPATH ..\..\BD
+SOURCE  BDCommandProcessor_Symbian_Base.cpp
+SOURCE  BDCommandProcessor_Symbian_Bluetooth.cpp
+SOURCE  BDCommand.cpp
+
+SOURCEPATH ..\..\PlutoUtils
+SOURCE  MyString.cpp
 SOURCE  StringUtils.cpp
-SOURCE  BinarySerialize.cpp
 
-SOURCEPATH ..\..\..\Symbian\7.0s\Series60_v21\Series60Ex\helperfunctions
+SOURCEPATH ..\..\SerializeClass
+SOURCE  SerializeClass.cpp
+
+SOURCEPATH ..\..\..\..\Symbian\7.0s\Series60_v21\Series60Ex\helperfunctions
 SOURCE  BitmapMethods.cpp
 
 SOURCEPATH ..\src
-SOURCE  PlutoBTApp.cpp 
-SOURCE  PlutoBTAppUi.cpp
-SOURCE  PlutoBTDocument.cpp
-SOURCE  PlutoBTContainer.cpp
-SOURCE  PlutoBTEngine.cpp
-SOURCE  PlutoBTGridEngine.cpp
-SOURCE  PlutoBTGridContainer.cpp
+SOURCE  PlutoMOApp.cpp 
+SOURCE  PlutoMOAppUi.cpp
+SOURCE  PlutoMODocument.cpp
+SOURCE  PlutoMOContainer.cpp
+SOURCE  PlutoMOEngine.cpp
+SOURCE  PlutoMOGridEngine.cpp
+SOURCE  PlutoMOGridContainer.cpp
 SOURCE  PlutoVMCContainer.cpp
 SOURCE  PlutoVMCUtil.cpp
 SOURCE  PlutoVMCView.cpp
 SOURCE  Logger.cpp
 SOURCE  ImageLoader.cpp
 
-RESOURCE ..\data\PlutoBT.rss
-RESOURCE ..\data\PlutoBT_caption.rss
+RESOURCE ..\data\PlutoMO.rss
+RESOURCE ..\data\PlutoMO_caption.rss
 LANG     SC
 
 USERINCLUDE . ..\inc
-USERINCLUDE ..\..\DCE
+USERINCLUDE ..\..\BD
+USERINCLUDE ..\..\PlutoUtils
 USERINCLUDE ..\..\VIPShared
 USERINCLUDE ..\..
-USERINCLUDE ..\..\..\Symbian\7.0s\Series60_v21\Series60Ex\helperfunctions
+USERINCLUDE ..\..\..\..\Symbian\7.0s\Series60_v21\Series60Ex\helperfunctions
 
 SYSTEMINCLUDE   . \epoc32\include
 
@@ -89,9 +92,9 @@ LIBRARY ws32.lib
 LIBRARY bitgdi.lib
 
 // Creates Mbm file.
-START BITMAP    PlutoBT.mbm
+START BITMAP    PlutoMO.mbm
 HEADER
-TARGETPATH      \system\apps\PlutoBT
+TARGETPATH      \system\apps\PlutoMO
 SOURCEPATH      ..\bitmaps
 SOURCE          C12 Snap.bmp
 SOURCE          C12 Golf.bmp
@@ -103,6 +106,6 @@ SOURCE          C12 Rummy.bmp
 SOURCE          C12 Poker.bmp
 END
 
-AIF PlutoBT.aif ..\aif PlutoBTaif.rss c8 context_pane_icon.bmp context_pane_icon_mask.bmp list_icon.bmp list_icon_mask.bmp
+AIF PlutoMO.aif ..\aif PlutoMOaif.rss c8 context_pane_icon.bmp context_pane_icon_mask.bmp list_icon.bmp list_icon_mask.bmp
 
 SRCDBG

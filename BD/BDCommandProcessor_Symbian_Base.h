@@ -10,14 +10,14 @@
 #include <AknWaitDialog.h>
 #include <AknProgressDialog.h>
 
-
-#include "BDCommandProcessor.h"
+#include "VIPShared/VIPIncludes.h"
 #include "VipMenu.h"
+
 //----------------------------------------------------------------------------------------------
 #define KServiceName _L8("Pluto")
 #define KServiceDescription _L8("PlutoInc")
 
-const TInt KPlutoBTPort = 19;
+const TInt KPlutoMOPort = 19;
 const TInt KSerialPortService = 0x1101;
 
 _LIT( KServerTransportName, "RFCOMM" );
@@ -34,28 +34,48 @@ public:
 	virtual CCoeEnv* CoeEnv() = 0;
 };
 //----------------------------------------------------------------------------------------------
-class BDCommandProcessor_Symbian_Base:public BDCommandProcessor, public CActive 
+class BDCommandProcessor_Symbian_Base: public CActive 
 {
 
 public:
 
 	enum TBluetoothState 
 	{
+		EError,
 		EIdle,
 		EAccepting,
-		EWritingVmcRequest,
-		EReadingVmcSize,
-		EReadingVmc,
-		EWritingKey
 
+		ESendingCommand,
+
+		ESendingCommandId,
+		ESendingCommandOrAckSize,
+		ESendingCommandOrAckData,
+		ESendingCommandOrAckDataAndFinish,
+
+		EReceivingAckHeader,
+		EReceivingAckData_Loop,
+		EReceivingAckData,
+
+		EReceivingCommand,
+
+		ERecvCommand_ReadyToSendAck,
+		ERecvCommand_SendingCommandOrAckSize,
+		ERecvCommand_SendingCommandOrAckData,
+
+		EReceivingCmdHeader,
+		EReceivingCmdData,
+
+		EReceivingCommand_BuildCommand,
+
+		ERecvCommand_SendingCommandOrAckSize_Step2,
+		ERecvCommand_SendingCommandOrAckData_Step2,
+
+		ERecvCommand_End,
+
+		EConnectionLost
 	};
 
 	virtual void Connect();
-
-public: // New functions.
-
-	virtual void RequestVmcFile();
-	virtual void PressedKey(TInt aKey);
 
 private: // Inherited from CActive.
 	
@@ -65,54 +85,48 @@ private: // Inherited from CActive.
 
 private: // New functions.
 
-	virtual void CloseAllResources();
-
 	static TInt CommandTimerCallBack(TAny* aBluetoothHandler);
+
+	inline void GotoStage(TBluetoothState state);
+	inline void GotoNextStage();
 
 protected:
 
-	TInt iPendingKey;
+	MBluetoothListener* iListener;
+	CPeriodic* iCommandTimer;
 
 	RSocketServ iSocketServ;
 	RSocket iListeningSocket;
 	RSocket iSocket;
 
+	TBool iConnected;
 	TBluetoothState iState;
-	RNotifier iNotifier;
 
-	TBTDeviceResponseParamsPckg iDeviceSelectionPckg;
-	TBTDeviceResponseParamsPckg iDeviceFoundPckg;
-
-	TSockXfrLength iXfrLength;
-	HBufC8 *iVmcBuf;
-	TBuf8<2> iVmcSizeBuf;
-	TBuf8<1024> iPacketBuf;
-	TBuf8<2048> iTotalPacketBuf;
-
-	TInt iSdpCurrentRecordCount;
-	TInt iSdpTotalRecordCount;
 	RSdp iSdpSession;
 	RSdpDatabase iSdpDatabase;
-	TSdpServRecordHandle iRecord;
-	TSdpServRecordHandle iRecord2;
-	TBool iIsConnected;
+	RNotifier iNotifier;
 
-	CAknWaitDialog* iWaitDialog;
-	CAknProgressDialog* iProgressDialog;
+	//btcommandprocessor 
+	MYSTL_CREATE_LIST(m_listCommands, BDCommand);
 
-	CEikProgressInfo* iProgressInfo;
+	TBool m_bImmediateCallback;
+	TBool m_bDead;
 
-	TUUID iServiceClass;
-	TUint iRemotePort;
-	TBool iConnected;
+	char  *m_ReceiveCmdHeader,*m_ReceiveCmdData;
+	char  *m_ReceiveAckHeader,*m_ReceiveAckData;
 
-	TInt iVmcLength;
-	CPeriodic* iCommandTimer;
-	TNameEntry iNameEntry;
+	HBufC8  *m_HBuf_ReceiveCmdHeader,*m_HBuf_ReceiveCmdData;
+	HBufC8  *m_HBuf_ReceiveAckHeader,*m_HBuf_ReceiveAckData;
 
-	MBluetoothListener* iListener;
+	TPtr8   *m_Recv_iBuf;
+	int		m_iRecvSize;
+	bool	m_bStartRecv;
 
-	HBufC8* pReceivedStr;
+	string m_sMacAddressPhone;
+	class BDCommand *m_pCommand_Sent;  // The command we're in the process of sending
+	class BDCommand *m_pCommand;
+
+	bool iPendingKey;
 
 public:
 
@@ -125,10 +139,14 @@ public:
 	virtual void AdvertiseThePlutoService();
 
 	virtual bool SendData(int size,const char *data);
-	virtual char *ReceiveData(int size);
+	virtual bool SendLong(long l);
 	virtual void Close();
 
-	void ProcessCommands(BDCommandProcessor_Symbian_Base* pProcessor);
+	void AddCommand(class BDCommand *pCommand);
+
+	void ProcessCommands(bool bCriticalRequest = true);
+
+	bool m_bStatusOk;
 };
 //----------------------------------------------------------------------------------------------
 #endif

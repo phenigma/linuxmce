@@ -1,5 +1,7 @@
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"
+#else
+#include "Logger.h"
 #endif
 
 #include "PlutoUtils/MyStl.h"
@@ -18,6 +20,10 @@ BD_PC_SetVariable::BD_PC_SetVariable(int iVariable, string sVariableValue)
 {
 	m_iVariable = iVariable;
 	m_sVariableValue = sVariableValue;
+
+#ifdef SYMBIAN
+	LOG("#	Sending 'SetVariable' command  #\n");
+#endif 
 }
 
 void BD_PC_SetVariable::ConvertCommandToBinary()

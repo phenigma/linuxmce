@@ -4,7 +4,8 @@
 #include "PlutoUtils/CommonIncludes.h"
 #else
 #include "VIPShared/VIPIncludes.h"
-#include "PlutoBTAppUi.h"
+#include "PlutoMOAppUi.h"
+#include "Logger.h"
 #endif
 
 #include "PlutoUtils/MyStl.h"
@@ -37,7 +38,8 @@ bool BD_CP_SendMeKeystrokes::ProcessCommand(BDCommandProcessor *pProcessor)
 #ifndef SYMBIAN 
 	g_pPlutoConfig->m_bSendKeyStrokes = m_YesNo;
 #else
-	((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_bSendKeyStrokes = m_YesNo;
+	LOG("#	Received 'SendKeyStrokes' command  #\n");
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSendKeyStrokes = m_YesNo;
 #endif
 
 #endif

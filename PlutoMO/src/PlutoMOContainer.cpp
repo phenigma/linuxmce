@@ -1,16 +1,16 @@
-#include "PlutoBTAppUi.h"
-#include "PlutoBTContainer.h"
-#include "PlutoBTEngine.h"
-#include "PlutoBT.hrh"
+#include "PlutoMOAppUi.h"
+#include "PlutoMOContainer.h"
+#include "PlutoMOEngine.h"
+#include "PlutoMO.hrh"
 
 // For Grid
 
-#include <PlutoBT.rsg> // R_PlutoBT_GAMES_GRID, R_ICON_FILE_NAME
+#include <PlutoMO.rsg> // R_PlutoMO_GAMES_GRID, R_ICON_FILE_NAME
 
 
-#include "PlutoBTGridEngine.h"//CPlutoBTGridEngine
+#include "PlutoMOGridEngine.h"//CPlutoMOGridEngine
 
-void CPlutoBTContainer::ConstructL(const TRect& aRect)
+void CPlutoMOContainer::ConstructL(const TRect& aRect)
     {
     CreateWindowL();
   
@@ -27,22 +27,22 @@ void CPlutoBTContainer::ConstructL(const TRect& aRect)
     iListBox->Model()->SetOwnershipType( ELbmOwnsItemArray );
     iListBox->ActivateL();
 
-    // Create the PlutoBTEngine
-    iAppEngine = new (ELeave) CPlutoBTEngine;  
+    // Create the PlutoMOEngine
+    iAppEngine = new (ELeave) CPlutoMOEngine;  
 
-    SetPlutoBT(EPlutoBTPictures, EPlutoBTDate);
+    SetPlutoMO(EPlutoMOPictures, EPlutoMODate);
 	
 	SetRect(aRect);
     ActivateL();
     }
 
-CPlutoBTContainer::~CPlutoBTContainer()
+CPlutoMOContainer::~CPlutoMOContainer()
     {
     delete iAppEngine;
     delete iListBox;
     }
 
-void CPlutoBTContainer::SetPlutoBT(TInt aDirectory, TInt aSizeDate)
+void CPlutoMOContainer::SetPlutoMO(TInt aDirectory, TInt aSizeDate)
     {
 
     CDesCArray* items = static_cast<CDesCArray*>(iListBox->Model()->ItemTextArray());
@@ -54,27 +54,27 @@ void CPlutoBTContainer::SetPlutoBT(TInt aDirectory, TInt aSizeDate)
 
     iAppEngine->SetDirectory(aDirectory);  
     iAppEngine->SetSizeDate(aSizeDate);     
-    if(iAppEngine->StartPlutoBT() == KErrNone)
+    if(iAppEngine->StartPlutoMO() == KErrNone)
         {        
-        iAppEngine->GetPlutoBTItems(items);       
+        iAppEngine->GetPlutoMOItems(items);       
         }
-    iAppEngine->EndPlutoBT();                  
+    iAppEngine->EndPlutoMO();                  
 
 	iListBox->HandleItemAdditionL();
     iListBox->SetCurrentItemIndex(0);
     iListBox->DrawNow();
     }
 
-void CPlutoBTContainer::SizeChanged()
+void CPlutoMOContainer::SizeChanged()
     {
     iListBox->SetExtent(TPoint(0,0),TSize(176,160));
     }
 
 
-TKeyResponse CPlutoBTContainer::OfferKeyEventL(
+TKeyResponse CPlutoMOContainer::OfferKeyEventL(
     const TKeyEvent& aKeyEvent,TEventCode aType)
     {
-	if(((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
+	if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
 		return EKeyWasNotConsumed;
 
     TInt code = aKeyEvent.iCode;
@@ -91,12 +91,12 @@ TKeyResponse CPlutoBTContainer::OfferKeyEventL(
         }
     }
 
-TInt CPlutoBTContainer::CountComponentControls() const
+TInt CPlutoMOContainer::CountComponentControls() const
     {
     return 1; 
     }
 
-CCoeControl* CPlutoBTContainer::ComponentControl(TInt aIndex) const
+CCoeControl* CPlutoMOContainer::ComponentControl(TInt aIndex) const
     {
     switch ( aIndex )
         {
@@ -107,7 +107,7 @@ CCoeControl* CPlutoBTContainer::ComponentControl(TInt aIndex) const
         }
     }
 
-void CPlutoBTContainer::Draw(const TRect& aRect) const
+void CPlutoMOContainer::Draw(const TRect& aRect) const
     {
     CWindowGc& gc = SystemGc();
     gc.SetPenStyle(CGraphicsContext::ENullPen);
@@ -116,31 +116,31 @@ void CPlutoBTContainer::Draw(const TRect& aRect) const
     gc.DrawRect(aRect);
     }
 
-void CPlutoBTContainer::HandleControlEventL(
+void CPlutoMOContainer::HandleControlEventL(
     CCoeControl* /*aControl*/,TCoeEvent /*aEventType*/)
     {
 		int a = 0;
     }
 
-void CPlutoBTContainer::CallLaunch() 
+void CPlutoMOContainer::CallLaunch() 
 {
 	iAppEngine->LaunchCurrent(iListBox->CurrentItemIndex());	
 }
 
-void CPlutoBTContainer::CallDelete() 
+void CPlutoMOContainer::CallDelete() 
 {
 	iAppEngine->RemoveFile(iListBox->CurrentItemIndex());	
 }
 
-void CPlutoBTContainer::FindNumberFiles() 
+void CPlutoMOContainer::FindNumberFiles() 
 {
 	iAppEngine->FindFiles();	
 }
 
-void CPlutoBTContainer::MakeGridL()
+void CPlutoMOContainer::MakeGridL()
 {
 /*
-	iGamesGrid = new (ELeave)CPlutoBTGridEngine;
+	iGamesGrid = new (ELeave)CPlutoMOGridEngine;
 
   CreateWindowL();
 

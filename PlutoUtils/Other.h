@@ -18,7 +18,7 @@ using namespace ::std;
 
 #else
 
-#include "../VIPShared/MyString.h"
+#include "../PlutoUtils/MyString.h"
 
 #define abs(x) Abs(x)
 #define atoi(x) SymbianAtoi(x, 0)

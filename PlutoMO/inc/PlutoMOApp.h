@@ -1,11 +1,11 @@
-#ifndef PLUTOBTAPP_H
-#define PLUTOBTAPP_H
+#ifndef PLUTOMOAPP_H
+#define PLUTOMOAPP_H
 
 #include <aknapp.h>
 #include <documenthandler.h>
 
-const TUid KUidPlutoBT = { 0x01ef0015 };
-class CPlutoBTApp : public CAknApplication
+const TUid KUidPlutoMO = { 0x01ef0015 };
+class CPlutoMOApp : public CAknApplication
     {
     
     public: // Functions from base classes

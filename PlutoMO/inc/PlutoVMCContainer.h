@@ -4,10 +4,10 @@
 // INCLUDES
 #include <aknview.h>
 
-#include "MyString.h"
+#include "PlutoUtils/MyString.h"
 
 #include "VIPShared/RenderMenu.h"
-#include "VIPShared/PlutoConfig.h"
+//#include "VIPShared/PlutoConfig.h"
 #include "PlutoVMCUtil.h"
 //------------------------------------------------------------------------------------------------------------------
 // CLASS DECLARATION

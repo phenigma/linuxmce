@@ -1,5 +1,5 @@
 #include "VIPIncludes.h"
-#include "VIPShared/PlutoConfig.h"
+//#include "VIPShared/PlutoConfig.h"
 #include "VIPMenu.h"
 
 #ifndef SYMBIAN

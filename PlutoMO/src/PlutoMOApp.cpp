@@ -1,19 +1,19 @@
-#include    "PlutoBTApp.h"
-#include    "PlutoBTDocument.h"
+#include    "PlutoMOApp.h"
+#include    "PlutoMODocument.h"
 
-TUid CPlutoBTApp::AppDllUid() const
+TUid CPlutoMOApp::AppDllUid() const
     {
-    return KUidPlutoBT;
+    return KUidPlutoMO;
     }
 
-CApaDocument* CPlutoBTApp::CreateDocumentL()
+CApaDocument* CPlutoMOApp::CreateDocumentL()
     {
-    return CPlutoBTDocument::NewL( *this );
+    return CPlutoMODocument::NewL( *this );
     }
 
 EXPORT_C CApaApplication* NewApplication()
     {
-    return new CPlutoBTApp;
+    return new CPlutoMOApp;
     }
 GLDEF_C TInt E32Dll( TDllReason )
     {

@@ -1,8 +1,8 @@
-#include "PlutoBTAppUi.h"
-#include "PlutoBTContainer.h" 
-#include "PlutoBTGridContainer.h"
-#include <PlutoBT.rsg>
-#include "PlutoBT.hrh"
+#include "PlutoMOAppUi.h"
+#include "PlutoMOContainer.h" 
+#include "PlutoMOGridContainer.h"
+#include <PlutoMO.rsg>
+#include "PlutoMO.hrh"
 
 #include <avkon.hrh>
 
@@ -11,43 +11,43 @@
 #include "PlutoVMCView.h"
 #include "Logger.h"
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::ConstructL()
+void CPlutoMOAppUi::ConstructL()
 {
-	m_pBTCommandProcessor_Symbian_Bluetooth = NULL;
+	m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
 	m_bSendKeyStrokes = false;
 	m_bMakeVisibleAllowed = false;
 	m_pVMCView = NULL;
 
 	BaseConstructL();
-    iAppContainer = new (ELeave) CPlutoBTContainer;
+    iAppContainer = new (ELeave) CPlutoMOContainer;
     iAppContainer->SetMopParent(this);
     iAppContainer->ConstructL( ClientRect() );
     AddToStackL( iAppContainer );
 
-	SymbianLogger *pLogger = new SymbianLogger(string("PlutoBT.log"), KCPlutoLoggerId, CCoeStatic::EApp);
+	SymbianLogger *pLogger = new SymbianLogger(string("PlutoMO.log"), KCPlutoLoggerId, CCoeStatic::EApp);
 
-	m_pBTCommandProcessor_Symbian_Bluetooth = 
-		new BTCommandProcessor_Symbian_Bluetooth("", this);
+	m_pBDCommandProcessor_Symbian_Bluetooth = 
+		new BDCommandProcessor_Symbian_Bluetooth("", this);
 
-	m_pBTCommandProcessor = m_pBTCommandProcessor_Symbian_Bluetooth;
+	m_pBDCommandProcessor = m_pBDCommandProcessor_Symbian_Bluetooth;
 
-	m_pBTCommandProcessor_Symbian_Bluetooth->Start();
-	m_pBTCommandProcessor_Symbian_Bluetooth->Listen();
-	m_pBTCommandProcessor_Symbian_Bluetooth->SetupSecurityManager();
-	m_pBTCommandProcessor_Symbian_Bluetooth->AdvertiseThePlutoService();
+	m_pBDCommandProcessor_Symbian_Bluetooth->Start();
+	m_pBDCommandProcessor_Symbian_Bluetooth->Listen();
+	m_pBDCommandProcessor_Symbian_Bluetooth->SetupSecurityManager();
+	m_pBDCommandProcessor_Symbian_Bluetooth->AdvertiseThePlutoService();
 
 	Hide();
 
 	LOG("Waiting for connections...\n");
 }
 //----------------------------------------------------------------------------------------------
-CPlutoBTAppUi::~CPlutoBTAppUi()
+CPlutoMOAppUi::~CPlutoMOAppUi()
 {
 	if(m_iCapturedKeyId)
 		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);	
 
-	delete m_pBTCommandProcessor_Symbian_Bluetooth;
-	m_pBTCommandProcessor_Symbian_Bluetooth = NULL;
+	delete m_pBDCommandProcessor_Symbian_Bluetooth;
+	m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
 
 	if (iAppContainer)
     {
@@ -56,12 +56,12 @@ CPlutoBTAppUi::~CPlutoBTAppUi()
     }
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::DynInitMenuPaneL(
+void CPlutoMOAppUi::DynInitMenuPaneL(
     TInt /*aResourceId*/,CEikMenuPane* /*aMenuPane*/)
     {
     }
 //----------------------------------------------------------------------------------------------
-TKeyResponse CPlutoBTAppUi::HandleKeyEventL(
+TKeyResponse CPlutoMOAppUi::HandleKeyEventL(
     const TKeyEvent& aKeyEvent,TEventCode aType)
 {
 	m_pVMCView->iContainer->OfferKeyEvent(aKeyEvent, aType);
@@ -69,7 +69,7 @@ TKeyResponse CPlutoBTAppUi::HandleKeyEventL(
     return EKeyWasConsumed;
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::HandleCommandL(TInt aCommand)
+void CPlutoMOAppUi::HandleCommandL(TInt aCommand)
     {
     switch ( aCommand )
         {
@@ -94,30 +94,30 @@ void CPlutoBTAppUi::HandleCommandL(TInt aCommand)
             }
         // Have to change what it does currently
 		// Opens the file 
-		case EPlutoBTCmdAppTest1:
+		case EPlutoMOCmdAppTest1:
             {
             iAppContainer->CallLaunch();
 			break;
             }
 		// List view
-        case EPlutoBTCmdAppTest2:
+        case EPlutoMOCmdAppTest2:
             {
 			    //BaseConstructL();
-				iGridContainer = new (ELeave) CPlutoBTGridContainer;
+				iGridContainer = new (ELeave) CPlutoMOGridContainer;
 				//iGridContainer->SetMopParent(this);
 				iGridContainer->ConstructL( ClientRect() );
 				//AddToStackL( iGridContainer );
 				break;
             }
 		// Deleting a VMC file
-        case EPlutoBTCmdAppTest3:
+        case EPlutoMOCmdAppTest3:
             {
             iAppContainer->CallDelete();
-			iAppContainer->SetPlutoBT(EPlutoBTPictures, EPlutoBTSizeDateNoChange);
+			iAppContainer->SetPlutoMO(EPlutoMOPictures, EPlutoMOSizeDateNoChange);
 			break;
             }
 		// Help Screen
-        case EPlutoBTCmdAppTest4:
+        case EPlutoMOCmdAppTest4:
             {
             // Will not do anything now
             break;
@@ -128,7 +128,7 @@ void CPlutoBTAppUi::HandleCommandL(TInt aCommand)
         }
     }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::CreateVMCView()
+void CPlutoMOAppUi::CreateVMCView()
 {
 	if(m_pVMCView == NULL)
 	{
@@ -143,7 +143,7 @@ void CPlutoBTAppUi::CreateVMCView()
 	}
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::MakeViewerVisible(bool Value)
+void CPlutoMOAppUi::MakeViewerVisible(bool Value)
 {
 	if(Value)
 	{
@@ -156,7 +156,7 @@ void CPlutoBTAppUi::MakeViewerVisible(bool Value)
 	m_bVMCViewerVisible = true;
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::OpenImage(unsigned char Type, unsigned long Size, const char *Data) //fullscreen (!)
+void CPlutoMOAppUi::OpenImage(unsigned char Type, unsigned long Size, const char *Data) //fullscreen (!)
 {
 	CreateVMCView();
 
@@ -168,7 +168,7 @@ void CPlutoBTAppUi::OpenImage(unsigned char Type, unsigned long Size, const char
 	MakeViewerVisible(m_bMakeVisibleAllowed);
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::OpenVMC(bool bParsed, TFileName& iFileName, 
+void CPlutoMOAppUi::OpenVMC(bool bParsed, TFileName& iFileName, 
 								 VIPMenuCollection *pVMC)
 {
 	CreateVMCView();
@@ -186,7 +186,7 @@ void CPlutoBTAppUi::OpenVMC(bool bParsed, TFileName& iFileName,
 	MakeViewerVisible(m_bMakeVisibleAllowed);
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::ShowList(
+void CPlutoMOAppUi::ShowList(
 	unsigned long x, 
 	unsigned long y, 
 	unsigned long Width, 
@@ -200,7 +200,7 @@ void CPlutoBTAppUi::ShowList(
 	pVCMUtil->SetList(x, y, Width, Height, DatagridStringList);
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::SetCaptureKeyboardCommand(
+void CPlutoMOAppUi::SetCaptureKeyboardCommand(
 	bool bOnOff, 
 	bool bDataGrid, 
 	bool bReset, 
@@ -215,14 +215,14 @@ void CPlutoBTAppUi::SetCaptureKeyboardCommand(
 	pVCMUtil->SetCaptureKeyboardCommand(bOnOff, bDataGrid, bReset, bTypePin, iVariable, sText);
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::UpdateScreen(VIPMenuCollection *pVMC)
+void CPlutoMOAppUi::UpdateScreen(VIPMenuCollection *pVMC)
 {
 	TFileName iDummy;
 
 	OpenVMC(true, iDummy, pVMC);
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::UpdateScreen(bool bParsed, const TDes8& aVmc, unsigned int uSize, 
+void CPlutoMOAppUi::UpdateScreen(bool bParsed, const TDes8& aVmc, unsigned int uSize, 
 								 VIPMenuCollection *pVMC)
 {
 	TFileName iFileName;
@@ -258,7 +258,7 @@ void CPlutoBTAppUi::UpdateScreen(bool bParsed, const TDes8& aVmc, unsigned int u
 	OpenVMC(bParsed, iFileName, pVMC);
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::Hide()
+void CPlutoMOAppUi::Hide()
 {
 	TApaTask task(CEikonEnv::Static()->WsSession());
 	task.SetWgId(CEikonEnv::Static()->RootWin().Identifier());
@@ -270,7 +270,7 @@ void CPlutoBTAppUi::Hide()
 		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);	
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::Show()
+void CPlutoMOAppUi::Show()
 {
 	TApaTask task(CEikonEnv::Static()->WsSession());
 	task.SetWgId(CEikonEnv::Static()->RootWin().Identifier());
@@ -282,7 +282,7 @@ void CPlutoBTAppUi::Show()
 		m_iCapturedKeyId = CEikonEnv::Static()->RootWin().CaptureKeyUpAndDowns(EStdKeyNo, 0, 0);
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoBTAppUi::ResetViewer()
+void CPlutoMOAppUi::ResetViewer()
 {
 	LOG("Reseting list...\n");
 	RPointerArray<string> Dummy;

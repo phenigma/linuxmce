@@ -1,18 +1,18 @@
-#ifndef PLUTOBTGRIDCONTAINER_H
-#define PLUTOBTGRIDCONTAINER_H
+#ifndef PLUTOMOGRIDCONTAINER_H
+#define PLUTOMOGRIDCONTAINER_H
 
 #include <coecntrl.h> // CCoeControl
 #include <eiklbo.h> // MEikListBoxObserver
 
-class CPlutoBTGridEngine;
+class CPlutoMOGridEngine;
 
-class CPlutoBTGridContainer : public CCoeControl, MEikListBoxObserver
+class CPlutoMOGridContainer : public CCoeControl, MEikListBoxObserver
 	{
 public: 
 
-	static CPlutoBTGridContainer* NewL(const TRect& aRect);
-	static CPlutoBTGridContainer* NewLC(const TRect& aRect);
-	~CPlutoBTGridContainer();
+	static CPlutoMOGridContainer* NewL(const TRect& aRect);
+	static CPlutoMOGridContainer* NewLC(const TRect& aRect);
+	~CPlutoMOGridContainer();
 
 public: 
 	
@@ -36,7 +36,7 @@ private:
 
 private: 
 
-	CPlutoBTGridEngine* iGamesGrid; // the grid
+	CPlutoMOGridEngine* iGamesGrid; // the grid
 	};
 
 #endif	

@@ -1,31 +1,31 @@
-#ifndef PLUTOBT_HRH
-#define PLUTOBT_HRH
+#ifndef PLUTOMO_HRH
+#define PLUTOMO_HRH
 
-enum TPlutoBTCommandIds
+enum TPlutoMOCommandIds
     {
-    EPlutoBTCmdAppTest = 1,
-    EPlutoBTCmdAppTest1,
-    EPlutoBTCmdAppTest2,
-    EPlutoBTCmdAppTest3,
-    EPlutoBTCmdAppTest4,
-    EPlutoBTCmdAppTest5
+    EPlutoMOCmdAppTest = 1,
+    EPlutoMOCmdAppTest1,
+    EPlutoMOCmdAppTest2,
+    EPlutoMOCmdAppTest3,
+    EPlutoMOCmdAppTest4,
+    EPlutoMOCmdAppTest5
     };
 
-enum TPlutoBTDirectories
+enum TPlutoMODirectories
     {
-    EPlutoBTSounds = 1,
-	EPlutoBTPictures,
-	EPlutoBTVideos,
-	EPlutoBTDirNoChange
+    EPlutoMOSounds = 1,
+	EPlutoMOPictures,
+	EPlutoMOVideos,
+	EPlutoMODirNoChange
     };
 
-enum TPlutoBTSizeDate
+enum TPlutoMOSizeDate
     {
-    EPlutoBTSize = 1,
-	EPlutoBTDate,
-	EPlutoBTToggle,
-	EPlutoBTSizeDateNoChange
+    EPlutoMOSize = 1,
+	EPlutoMODate,
+	EPlutoMOToggle,
+	EPlutoMOSizeDateNoChange
     };
 
 
-#endif      // PLUTOBT_HRH
+#endif      // PLUTOMO_HRH

@@ -1,14 +1,14 @@
 // Copyright (c) 1998-2000 Symbian Ltd.  All rights reserved.
 //
 
-enum TMbmPlutoBT
+enum TMbmPlutoMO
 	{
-		EMbmPlutoBTSnap,
-		EMbmPlutoBTGolf,
-		EMbmPlutoBTClock,
-		EMbmPlutoBTCard_mask, 
-		EMbmPlutoBTAces,
-		EMbmPlutoBTHearts,
-		EMbmPlutoBTRummy,
-		EMbmPlutoBTPoker
+		EMbmPlutoMOSnap,
+		EMbmPlutoMOGolf,
+		EMbmPlutoMOClock,
+		EMbmPlutoMOCard_mask, 
+		EMbmPlutoMOAces,
+		EMbmPlutoMOHearts,
+		EMbmPlutoMORummy,
+		EMbmPlutoMOPoker
 	};

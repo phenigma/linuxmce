@@ -1,23 +1,23 @@
-#include "PlutoBTDocument.h"
-#include "PlutoBTAppUi.h"
+#include "PlutoMODocument.h"
+#include "PlutoMOAppUi.h"
 
-CPlutoBTDocument::CPlutoBTDocument(CEikApplication& aApp)
+CPlutoMODocument::CPlutoMODocument(CEikApplication& aApp)
 : CAknDocument(aApp)    
     {
     }
 
-CPlutoBTDocument::~CPlutoBTDocument()
+CPlutoMODocument::~CPlutoMODocument()
     {
     }
 
-void CPlutoBTDocument::ConstructL()
+void CPlutoMODocument::ConstructL()
     {
     }
 
-CPlutoBTDocument* CPlutoBTDocument::NewL(
+CPlutoMODocument* CPlutoMODocument::NewL(
         CEikApplication& aApp)    
     {
-    CPlutoBTDocument* self = new (ELeave) CPlutoBTDocument( aApp );
+    CPlutoMODocument* self = new (ELeave) CPlutoMODocument( aApp );
     CleanupStack::PushL( self );
     self->ConstructL();
     CleanupStack::Pop();
@@ -27,9 +27,9 @@ CPlutoBTDocument* CPlutoBTDocument::NewL(
 
 
     
-CEikAppUi* CPlutoBTDocument::CreateAppUiL()
+CEikAppUi* CPlutoMODocument::CreateAppUiL()
     {
-		return new (ELeave) CPlutoBTAppUi;
+		return new (ELeave) CPlutoMOAppUi;
     }
 
 // End of File  

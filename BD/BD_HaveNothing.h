@@ -12,6 +12,8 @@
 #define BDHAVENOTHINGH
 
 #include "BD/BDCommand.h"
+#include "BD/BDCommandProcessor.h"
+#include "VIPShared/PlutoPhoneCommands.h"
 
 /**
  * @brief the response to WhatDoYouHave when there are no commands

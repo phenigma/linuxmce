@@ -15,7 +15,8 @@
 //#include "VIPShared/PlutoConfig.h"
 #else
 //#include "VIPShared/VIPIncludes.h"
-#include "PlutoBTAppUi.h"
+#include "PlutoMOAppUi.h"
+#include "Logger.h" 
 #endif
 
 #include "PlutoUtils/MyStl.h"
@@ -84,7 +85,8 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 		DatagridStringList.Append(s);
 	}
 
-	((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->ShowList(x, y, Width, Height, DatagridStringList);
+	LOG("#	Received 'ShowList' command  #\n"); 
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ShowList(x, y, Width, Height, DatagridStringList);
 	//((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->Show();
 
 #endif //SYMBIAN

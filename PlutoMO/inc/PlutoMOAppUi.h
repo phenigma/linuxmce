@@ -1,5 +1,5 @@
-#ifndef PLUTOBTAPPUI_H
-#define PLUTOBTAPPUI_H
+#ifndef PLUTOMOAPPUI_H
+#define PLUTOMOAPPUI_H
 
 #include <eikapp.h>
 #include <eikdoc.h>
@@ -7,21 +7,21 @@
 #include <coeccntx.h>
 #include <aknviewappui.h>
 
-#include "BTCommandProcessor_Symbian_Bluetooth.h"
+#include "BD/BDCommandProcessor_Symbian_Bluetooth.h"
 
 #include "PlutoVMCView.h"
 //----------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS
-class CPlutoBTContainer;
-class CPlutoBTGridContainer;
+class CPlutoMOContainer;
+class CPlutoMOGridContainer;
 //----------------------------------------------------------------------------------------------
-class CPlutoBTAppUi : public CAknViewAppUi, public MBluetoothListener
+class CPlutoMOAppUi : public CAknViewAppUi, public MBluetoothListener
 {
 public: 
 
     void ConstructL();
 
-    ~CPlutoBTAppUi();
+    ~CPlutoMOAppUi();
 
 	CCoeEnv* CoeEnv() { return CEikonEnv::Static();}
 	void UpdateScreen(bool bParsed, const TDes8& aVmc, unsigned int uSize, 
@@ -61,8 +61,8 @@ public:
 
 	void ResetViewer();
 	
-	BTCommandProcessor_Symbian_Bluetooth *m_pBTCommandProcessor;
-	BTCommandProcessor_Symbian_Bluetooth *m_pBTCommandProcessor_Symbian_Bluetooth;
+	BDCommandProcessor_Symbian_Bluetooth *m_pBDCommandProcessor;
+	BDCommandProcessor_Symbian_Bluetooth *m_pBDCommandProcessor_Symbian_Bluetooth;
 	
 	bool m_bSendKeyStrokes;
 	bool m_bVMCViewerVisible;
@@ -82,8 +82,8 @@ private:
 	void MakeViewerVisible(bool Value);
 
 private:
-    CPlutoBTContainer* iAppContainer; 
-	CPlutoBTGridContainer* iGridContainer; 
+    CPlutoMOContainer* iAppContainer; 
+	CPlutoMOGridContainer* iGridContainer; 
 
 	TInt m_iCapturedKeyId;
  };
