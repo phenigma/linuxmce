@@ -707,8 +707,8 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 	int bitrate_peak = 7500000;
 #if 1
 	bitrate_mode = BLACKBIRD_VIDEO_VBR;
-	bitrate = 4090000;
-	bitrate_peak = 4500000;
+	bitrate = 3500000;
+	bitrate_peak = 4000000;
 #endif
 
 	/* assign stream type */
