@@ -32,7 +32,10 @@ esac
 
 if [ -z "$URL_TYPE" ]; then
 	case "$REPOS_SRC" in
-		deb*) URL_TYPE=apt; REPOS_SRC="$(echo $REPOS_SRC | sed "$SPACE_SED")" ;;
+		deb*)
+			URL_TYPE=apt;
+			REPOS_SRC="$(echo $REPOS_SRC | sed "$SPACE_SED; s/^deb *//")"
+		;;
 		http://*|ftp://*) URL_TYPE=direct ;;
 		*) [ -z "$URL_TYPE" ] && echo "Unknown URL form in '$REPOS_SRC'" && exit $ERR_UNKNOWN_REPOS_SRC_FORM ;;
 	esac
@@ -53,11 +56,16 @@ case "$URL_TYPE" in
 			SECTIONS="$TMP_SECT"
 			REPOS=$(echo -n "$REPOS" | cut -d' ' -f1)
 		fi
-#		echo "Repository test string: '$REPOS_SRC.+$REPOS.+$SECTIONS'"
-		results=$(cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep -c "$REPOS_SRC.+$REPOS.+$SECTIONS" 2>/dev/null)
+		FilteredRepos=$(echo "$REPOS_SRC" | sed 's/[^A-Za-z0-9_./+=:-]/-/g')
+#		echo "Repository test string: '$FilteredRepos.+$REPOS.+$SECTIONS'"
+		results=$(cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep -c -- "$FilteredRepos.+$REPOS.+$SECTIONS" 2>/dev/null)
 		if [ "$results" -eq 0 ]; then
-			echo "$REPOS_SRC $REPOS $SECTIONS" >>/etc/apt/sources.list
+			echo "deb http://dcerouter:9999/$FilteredRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
+			if dpkg --get-selections apt-proxy 2>/dev/null | grep -q install; then
+				echo "add_backend /$FilteredRepos \$APT_PROXY_CACHE/$FilteredRepos $REPOS_SRC" >>/etc/apt-proxy/backends.sh
+			fi
 			apt-get update
+			apt-proxy-import /usr/pluto/install/deb-cache
 		fi
 
 		if ! dpkg --get-selections "$PKG_NAME" | grep -q install; then
