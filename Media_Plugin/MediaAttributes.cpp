@@ -1012,3 +1012,8 @@ void MediaAttributes::MarkAsMissing(int iKey, string fileName)
     m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
 }
 
+void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
+{
+    for(size_t s=0;s<dAdditional.size();++s)
+        dTarget.push_back(dAdditional[s]);
+}

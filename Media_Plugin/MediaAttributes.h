@@ -130,4 +130,6 @@ public:
 	}
 };
 
+void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional);
+
 #endif
