@@ -302,6 +302,7 @@ function mediaScenarios($output,$dbADO) {
 					}
 
 					if(isset($_POST['optionEntArea']) && $_POST['optionEntArea']!=''){
+
 						$FK_EntertainArea=$_POST['optionEntArea'];
 						$optionName=$_POST['optionName'];
 						$optionValue=$_POST['actionType'];
@@ -323,34 +324,30 @@ function mediaScenarios($output,$dbADO) {
 									(FK_CommandGroup,FK_Command,FK_Device) 
 								VALUES(?,?,?)";								
 							if($optionName=='TV'){
-								$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandMHPlayMedia'],$GLOBALS['localOrbiter']));			
+								$queryMediaPlugin='SELECT * FROM Device WHERE FK_Installation=? AND FK_DeviceTemplate=?';
+								$resMediaPlugin=$dbADO->Execute($queryMediaPlugin,array($installationID,$GLOBALS['rootMediaPlugin']));
+								$rowMediaPlugin=$resMediaPlugin->FetchRow();
+								$mediaPluginID=$rowMediaPlugin['PK_Device'];
+								
+								$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandMHPlayMedia'],$mediaPluginID));			
 								$CG_C_insertID=$dbADO->Insert_ID();
-								$queryInsertCommandGroup_Command_CParamater = "
-									INSERT INTO CommandGroup_Command_CommandParameter 
-										(FK_CommandGroup_Command,FK_CommandParameter)
-									SELECT 
-										".$CG_C_insertID.",FK_CommandParameter FROM Command_CommandParameter WHERE FK_Command=?";		
-								$dbADO->Execute($queryInsertCommandGroup_Command_CParamater,$GLOBALS['commandMHPlayMedia']);
+								
+								$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_MediaType'],1));
 								
 							}else{
 								
 								$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));			
 								$CG_C_insertID=$dbADO->Insert_ID();
-								$queryInsertCommandGroup_Command_CParamater = "
-									INSERT INTO CommandGroup_Command_CommandParameter 
-										(FK_CommandGroup_Command,FK_CommandParameter)
-									SELECT 
-										".$CG_C_insertID.",FK_CommandParameter FROM Command_CommandParameter WHERE FK_Command=?";		
-								$dbADO->Execute($queryInsertCommandGroup_Command_CParamater,$GLOBALS['commandSetVar']);
+								
+								$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],2));
+								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$optionName));
 								
 								$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));	
 								$CG_C_insertID=$dbADO->Insert_ID();
-								$queryInsertCommandGroup_Command_CParamater = "
-									INSERT INTO CommandGroup_Command_CommandParameter 
-										(FK_CommandGroup_Command,FK_CommandParameter) 
-									SELECT ".$CG_C_insertID.",FK_CommandParameter FROM Command_CommandParameter
-										WHERE FK_Command=?";		
-								$dbADO->Execute($queryInsertCommandGroup_Command_CParamater,$GLOBALS['commandGotoScreen']);
+								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuMediaFileListDesignObj']));
+								
 							}							
 						}else{
 							$selectOptions='

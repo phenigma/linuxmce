@@ -78,25 +78,10 @@ function addControlledViaCategoryToMasterDevice($output,$dbADO) {
 		';
 		
 	} else {
-		
 		$controlledVia = isset($_POST['controlledVia'])?cleanString($_POST['controlledVia']):'0';
 		$deviceID = isset($_POST['deviceID'])?cleanString($_POST['deviceID']):'0';		
 		$reroute = cleanInteger(@$_POST['RerouteMessagesToParent']);
 		$autocreate = cleanInteger(@$_POST['AutoCreateChildren']);
-		
-		//check if the added category is a parent category, if so - delete the childs
-		$queryCheckIsParent = 'select PK_DeviceCategory from DeviceCategory where FK_DeviceCategory_Parent = ?';
-		$res = $dbADO->Execute($queryCheckIsParent,array($controlledVia));
-			$childsID=array();
-			$childsID[]=$controlledVia;
-			if ($res) {
-				while ($row = $res->FetchRow()) {
-					$childsID[] = (int)$row['PK_DeviceCategory'];
-				}
-			}
-			
-		$queryDeleteChilds = 'delete from DeviceTemplate_DeviceCategory_ControlledVia where FK_DeviceCategory in ('.join(",",$childsID).')';
-		$res = $dbADO->_Execute($queryDeleteChilds);
 		
 		if ((int)$controlledVia!=0 && (int)$deviceID!=0 ) {
 			$insertObjToDevice = 'insert into DeviceTemplate_DeviceCategory_ControlledVia

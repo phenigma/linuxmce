@@ -373,7 +373,8 @@ function setTemplateFileType($type) {
   function displayTopMenu(){
 	if (@$_SESSION['userLoggedIn']==true) {
 	
-	$menuPages = getTopMenu(1,$this->dbADO);
+	if($this->templateType!='index')
+		$menuPages = getTopMenu(1,$this->dbADO);
 			
 	$topMenu='
 	<SCRIPT LANGUAGE="JavaScript">

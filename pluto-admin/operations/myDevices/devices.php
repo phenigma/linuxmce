@@ -113,10 +113,12 @@ function devices($output,$dbADO) {
 					ORDER BY Description ASC';
 				$resDDD=$dbADO->Execute($queryDeviceDeviceData);
 				while($rowDDD=$resDDD->FetchRow()){
-					$DeviceDataToDisplay[]=$rowDDD['PK_DeviceData'];
-					$DDTypesToDisplay[]=$rowDDD['paramName'];
-					$DeviceDataDescriptionToDisplay[]=$rowDDD['Description'];;
-					$out.='<td align="center"><b>'.$rowDDD['Description'].'</b></td>';
+					if($rowDDD['Description']!='Floorplan Info'){
+						$DeviceDataToDisplay[]=$rowDDD['PK_DeviceData'];
+						$DDTypesToDisplay[]=$rowDDD['paramName'];
+						$DeviceDataDescriptionToDisplay[]=$rowDDD['Description'];
+						$out.='<td align="center"><b>'.$rowDDD['Description'].'</b></td>';
+					}
 				}	
 				
 				$out.='<td align="center">&nbsp;</td>

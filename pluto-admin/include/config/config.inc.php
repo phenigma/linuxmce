@@ -108,9 +108,6 @@
 	$GLOBALS['OtherPhoneNotifications']=35;		// Other Phone Notifications 
 	$GLOBALS['NeighborstoCall']=36;				// Neighbors to Call 
 	
-	
-	
-
 	// PK_FloorplanType from table FloorplanType 
 
 	$GLOBALS['SecurityFoorplanType']=1;		// Security Zone
@@ -122,6 +119,7 @@
 	
 	$GLOBALS['mnuSecurityCamerasDesignObj']=1414;		// Security cameras
 	$GLOBALS['mnuSingleCameraViewOnlyDesignObj']=1405;	// Single Camera View Only
+	$GLOBALS['mnuMediaFileListDesignObj']=2071;			// mnuMediaFileList
 	
 	// PK_CriteriaList from table CriteriaList
 	
