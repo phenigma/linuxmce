@@ -46,6 +46,13 @@ while (1 eq 1) {
       system("rm -f dhcpd_temp.file");
       
       $db_handle = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUSER;password=$DBPASSWD") or die "Could not connect to MySQL server\n";
+
+      $sql = "select PK_Device from Device WHERE MACaddress='$mac_found' AND IPaddress='$ip_sent'";
+      $st = $db_handle->prepare($sql);
+      $st->execute();
+      if($row = $st->fetchrow_hashref()) {
+      
+      } else {
       $sql = "select PK_DHCPDevice,FK_DeviceTemplate,ConfigureScript,Package_Source.Name FROM DHCPDevice JOIN DeviceTemplate ON DHCPDevice.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate LEFT JOIN Package ON DeviceTemplate.FK_Package=PK_Package LEFT JOIN Package_Source ON Package_Source.FK_Package=Package.PK_Package WHERE Mac_Range_Low<=$mac_2_nr AND Mac_Range_High>=$mac_2_nr";
       $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
       $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
@@ -97,6 +104,7 @@ while (1 eq 1) {
         }
       }
       $db_handle->disconnect();
+    }
     }
   }
 }
