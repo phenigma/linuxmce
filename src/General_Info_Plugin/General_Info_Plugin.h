@@ -161,17 +161,6 @@ public:
 	virtual void CMD_Restart_DCERouter(string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #274 - Set Room For Device */
-	/** Updates the record in the database for a given device putting in a certain room. */
-		/** @param #2 PK_Device */
-			/** The device */
-		/** @param #57 PK_Room */
-			/** The room */
-
-	virtual void CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room) { string sCMD_Result; CMD_Set_Room_For_Device(iPK_Device,iPK_Room,sCMD_Result,NULL);};
-	virtual void CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,Message *pMessage);
-
-
 //<-dceag-h-e->
 };
 

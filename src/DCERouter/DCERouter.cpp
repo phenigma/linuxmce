@@ -1303,7 +1303,12 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
         {
             (*(*pSafetyMessage))->m_dwPK_Device_To=atoi(sPK_Device.c_str());
 			for(size_t s=0;s<(*(*pSafetyMessage))->m_vectExtraMessages.size();++s)
-				(*(*pSafetyMessage))->m_vectExtraMessages[s]->m_dwPK_Device_To=atoi(sPK_Device.c_str());
+			{
+				// This may be NULL because the embedded message may have had a destination, which means it would
+				// have been removed from the vect and sent separately
+				if( (*(*pSafetyMessage))->m_vectExtraMessages[s] )
+					(*(*pSafetyMessage))->m_vectExtraMessages[s]->m_dwPK_Device_To=atoi(sPK_Device.c_str());
+			}
 
             RealSendMessage(pSocket,pSafetyMessage);
         }

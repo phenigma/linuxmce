@@ -3995,6 +3995,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
 
+	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex )
     ScreenHistory *pScreenHistory=NULL;
     while(  m_listScreenHistory.size(  )  )
     {
@@ -4018,6 +4019,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 		for(VariableMap::iterator it=pScreenHistory->m_mapVariable.begin();it!=pScreenHistory->m_mapVariable.end();++it)
 			m_mapVariable[ (*it).first ] = (*it).second;
 
+		vm.Release();
         NeedToChangeScreens( pScreenHistory, false );
 	}
 }
@@ -4057,12 +4059,15 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
         return;
     }
 
+	/* Sometimes we layer the same screen on top of each other, such as with new device detection
+		// AB 2-5-05 removed this block of code
     if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==pObj_New  )
     {
         g_pPlutoLogger->Write( LV_STATUS, "Changing to same screen: %s", pObj_New->m_ObjectID.c_str(  ) );
 	    NeedToChangeScreens( m_pScreenHistory_Current, false );  // Don't add this to the history, just do the change
         return;
     }
+	*/
 
     // We're going to change screens,  create the new ScreenHistory object
     ScreenHistory *pScreenHistory_New = new ScreenHistory( pObj_New, m_pScreenHistory_Current );
@@ -4153,9 +4158,17 @@ void Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c8-e->
 {
-    cout << "Need to implement command #8 - Remove Screen From History" << endl;
-    cout << "Parm #3 - PK_DesignObj=" << sPK_DesignObj << endl;
-    cout << "Parm #10 - ID=" << sID << endl;
+	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+	for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();)
+	{
+		ScreenHistory *pScreenHistory = *it;
+		if( pScreenHistory->m_pObj->m_ObjectID.find(sPK_DesignObj+".")==0 && (sID.length()==0 || sID==pScreenHistory->m_sID) )
+			it = m_listScreenHistory.erase( it );
+		else
+			++it;
+	}
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_ObjectID.find(sPK_DesignObj+".")==0 && (sID.length()==0 || sID==m_pScreenHistory_Current->m_sID) )
+		CMD_Go_back("","");
 }
 
 //<-dceag-c9-b->

@@ -1075,7 +1075,6 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 		pos=0;
 		while( (pos=sGeneratedFile.find("<-dceag-",pos))!=string::npos )
 		{
-string foo = sGeneratedFile.substr(pos,999);
 			string::size_type posTerminateBegin = sGeneratedFile.find("->",pos);
 			if( posTerminateBegin==string::npos || sGeneratedFile[posTerminateBegin-1]!='b' )
 			{
@@ -1093,7 +1092,6 @@ string foo = sGeneratedFile.substr(pos,999);
 				fclose(file);
 				return;
 			}
-
 			bModifications=true;
 			string::size_type posEndBlock,posStartBlock = sHandwrittenFile.find(Token + "b->");
 			// Found the block in the handwritten file.  If the token is in the format xxx-b->! the ! means don't replace

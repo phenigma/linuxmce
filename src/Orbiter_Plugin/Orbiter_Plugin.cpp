@@ -52,6 +52,7 @@ using namespace DCE;
 #include "pluto_main/Table_Orbiter.h"
 #include "pluto_main/Table_DHCPDevice.h"
 #include "pluto_main/Table_Manufacturer.h"
+#include "pluto_main/Table_Room.h"
 #include "DCERouter.h"
 #include "CreateDevice/CreateDevice.h"
 #include "BD/PhoneDevice.h"
@@ -1275,20 +1276,44 @@ bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessag
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got invalid pnp device: %d",PK_Device);
 		return false;
 	}
-    for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
-    {
-        OH_Orbiter *pOH_Orbiter = (*it).second;
 
-		DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), "", "", true );
-		DCE::CMD_Set_Variable CMD_Set_Variable1( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, VARIABLE_Misc_Data_1_CONST, pRow_Device->Description_get());
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
-		DCE::CMD_Set_Variable CMD_Set_Variable2( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, VARIABLE_Misc_Data_2_CONST, pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
-		DCE::CMD_Set_Variable CMD_Set_Variable3( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, VARIABLE_Misc_Data_3_CONST, StringUtils::itos(PK_Device));
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable3.m_pMessage);
+	DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(PK_Device), "", true );
+	// The destination devices must match
+	DCE::CMD_Set_Variable_DL CMD_Set_Variable1( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, pRow_Device->Description_get());
+	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
+	DCE::CMD_Set_Variable_DL CMD_Set_Variable2( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
+	DCE::CMD_Set_Variable_DL CMD_Set_Variable3( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_3_CONST, StringUtils::itos(PK_Device));
+	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable3.m_pMessage);
 
-        QueueMessageToRouter(CMD_Goto_Screen.m_pMessage);
-	}
+	QueueMessageToRouter(CMD_Goto_Screen.m_pMessage);
 
 	return false;  // Let anybody else have this who wants it
+}
+
+//<-dceag-c274-b->
+
+	/** @brief COMMAND: #274 - Set Room For Device */
+	/** Updates the record in the database for a given device putting in a certain room. */
+		/** @param #2 PK_Device */
+			/** The device */
+		/** @param #57 PK_Room */
+			/** The room */
+
+void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,Message *pMessage)
+//<-dceag-c274-e->
+{
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
+	if( !pRow_Device || !pRow_Room )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set device %d to room %d",iPK_Device,iPK_Room);
+		return;
+	}
+g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to room %d",iPK_Device,iPK_Room);
+	pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
+	pRow_Device->Table_Device_get()->Commit();
+
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(iPK_Device) );
+	SendCommand(CMD_Remove_Screen_From_History_DL);
 }
