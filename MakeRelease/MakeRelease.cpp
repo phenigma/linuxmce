@@ -1073,6 +1073,8 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	fp = fopen("npkg.tmp","wt");
 	cmd = pRow_Package_Source->Name_get();
 	fprintf(fp,"%s\n",cmd.c_str());
+	cmd = FileUtils::BasePath(pFileInfo->m_sSource);
+	fprintf(fp,"%s\n",cmd.c_str());
 	fclose(fp);
 	system("./sync-SF.pl");
 return true;
