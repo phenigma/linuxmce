@@ -35,7 +35,13 @@ switch => Realtime/outgoing-local@realtime_ext
 [outgoing-extern-selectline]
 switch => Realtime/outgoing-extern-selectline@realtime_ext
 [outgoing-place-call]
-switch => Realtime/outgoing-place-call@realtime_ext" >> /etc/asterisk/extensions.conf
+switch => Realtime/outgoing-place-call@realtime_ext
+[incoming-local]
+switch => Realtime/incoming-local@realtime_ext
+[incoming-place-call]
+switch => Realtime/incoming-place-call@realtime_ext
+[registered-lines]
+switch => Realtime/registered-lines@realtime_ext" >> /etc/asterisk/extensions.conf
 
 # update manager.conf
 : >/etc/asterisk/manager.conf
