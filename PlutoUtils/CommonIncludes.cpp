@@ -15,6 +15,8 @@ bool AskYNQuestion(string Question,bool bDefault)
 		cout << Question << (bDefault ? " [Y/n] " : " [N/y] ");
 		char c = getch();
 		cout << endl;
+		if( c==3 )
+			exit(1);
 		if( c=='y' || c=='Y' )
 			return true;
 		if( c=='n' || c=='N' )
@@ -45,6 +47,8 @@ char AskMCQuestion(string Question,string Prompts)
 		char c = (char) getch();
 //#pragma warning("need something unbuffered && need to clear the buffer, otherwise it uses old keystrokes")
 //		cin.read( &c[0], 1 );
+		if( c==3 )
+			exit(1);
 		cout << endl;
 		if( c=='\n' && cDefault)
 			return cDefault;

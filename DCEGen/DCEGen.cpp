@@ -906,20 +906,19 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 
 			if( bDefinition )
 				fputs(("//<-dceag-c" + StringUtils::itos(pRow_Command->PK_Command_get()) + "-b->\n").c_str(),file);
-			fputs(("/* \n\tCOMMAND: #" + StringUtils::itos(pRow_Command->PK_Command_get()) + " - " + pRow_Command->Description_get() + "\n").c_str(),file);
-			fputs(("\tCOMMENTS: " + pRow_DeviceCommandGroup_Command->Description_get() + "\n").c_str(),file);
-			fputs("\tPARAMETERS:\n",file);
+			fputs(("\n\t/** @brief COMMAND: #" + StringUtils::itos(pRow_Command->PK_Command_get()) + " - " + pRow_Command->Description_get() + " */\n").c_str(),file);
+			fputs(("\t/** " + pRow_DeviceCommandGroup_Command->Description_get() + " */\n").c_str(),file);
 			vector<Row_Command_CommandParameter *> vectRow_Command_CommandParameter;
 			pRow_Command->Command_CommandParameter_FK_Command_getrows(&vectRow_Command_CommandParameter);
 			for(size_t i3=0;i3<vectRow_Command_CommandParameter.size();++i3)
 			{
 				Row_Command_CommandParameter *pRow_Command_CommandParameter = vectRow_Command_CommandParameter[i3];
-				fputs(("\t\t#" + StringUtils::itos(pRow_Command_CommandParameter->FK_CommandParameter_get()) + " " + 
-					pRow_Command_CommandParameter->FK_CommandParameter_getrow()->Description_get() + "\n").c_str(),file);
+				fputs(("\t\t/** @param #" + StringUtils::itos(pRow_Command_CommandParameter->FK_CommandParameter_get()) + " " + 
+					pRow_Command_CommandParameter->FK_CommandParameter_getrow()->Description_get() + " */\n").c_str(),file);
 				if( !pRow_Command_CommandParameter->Description_isNull() )
-					fputs(("\t\t\t" + pRow_Command_CommandParameter->Description_get() + "\n").c_str(),file);
+					fputs(("\t\t\t/** " + pRow_Command_CommandParameter->Description_get() + " */\n").c_str(),file);
 			}
-			fputs("*/\n",file);
+			fputs("\n",file);
 
 			if( bDefinition )
 			{

@@ -479,6 +479,8 @@ string StringUtils::GetStringFromConsole()
 			cout << " " << "\x08";
 			continue;
 		}
+		else if( c==3 )
+			exit(1); // Ctrl+c
 		cout << c;
 		if( c=='\n' || c=='\r' )
 			return sOutput;
