@@ -145,7 +145,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
 
 	g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
 
-	PlutoRectangle rectTotal(100, 100, 300, 300);
+	//PlutoRectangle rectTotal(100, 100, 300, 300);
 	//PlayMNG(NULL, rectTotal);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -196,12 +196,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 {
     bool bDeleteSurface=true;  // Will set to false if we're going to cache
     SDL_Surface * obj_image = NULL;
-    //if( pObj->m_pCurrentGraphic->GraphicType_get()==gtSDLGraphic )
-    //{
-    //    SDLGraphic *pSDL = (SDLGraphic *) pObj->m_pCurrentGraphic;
-    //    obj_image = pSDL->m_pSDL_Surface;
-    //}
-    //else 
+
 	if( pObj->m_pCurrentGraphic->GraphicType_get()==gtSDLGraphic )
     {
 		SDLGraphic *pSDLGraphic = (SDLGraphic *) pObj->m_pCurrentGraphic;
@@ -241,66 +236,56 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
         bDeleteSurface = false;
 #endif
     }
-/*
-	else if( pObj->m_pCurrentGraphic->GraphicType_get()==gtWinGraphic )
-    {
-        WinGraphic *pWinGraphic = (WinGraphic *) pObj->m_pCurrentGraphic;
-        if( pWinGraphic->m_pCompressedImage && pWinGraphic->m_CompressedImageLength )
-        {
-            SDL_RWops * rw = SDL_RWFromMem(pWinGraphic->m_pCompressedImage, pWinGraphic->m_CompressedImageLength);
-            obj_image = IMG_Load_RW(rw, 1); // rw is freed here
-        }
-    }
-*/
     else
-        g_pPlutoLogger->Write(LV_CRITICAL,"SDL Got a type of graphic I don't know how to render");
+        g_pPlutoLogger->Write(LV_CRITICAL, "SDL Got a type of graphic I don't know how to render");
 
     if( !obj_image )
         return;
 
-	//obj_image->h
-	//obj_image->w
-
+	//render the sdl surface
 	SDL_Rect Destination;
     Destination.x = rectTotal.X; Destination.y = rectTotal.Y;
 	Destination.w = pObj->m_rPosition.Width; Destination.h = pObj->m_rPosition.Height;
 
 	if(obj_image->w == 0 || obj_image->h == 0) //nothing to render
-		return;
-
-	if(obj_image->w != pObj->m_rPosition.Width || obj_image->h != pObj->m_rPosition.Height) //different size. we'll have to stretch the surface
 	{
-		double ZoomX = 1;
-		double ZoomY = 1;
-
-		SDL_Surface *rotozoom_picture;
-
-		if(pObj->m_bDisableAspectLock) //no aspect ratio kept
-		{
-			ZoomX = pObj->m_rPosition.Width / double(obj_image->w);
-			ZoomY = pObj->m_rPosition.Height / double(obj_image->h);
-		}
-		else //we'll have to keep the aspect
-		{
-			ZoomX = ZoomY = min(pObj->m_rPosition.Width / double(obj_image->w), 
-				pObj->m_rPosition.Height / double(obj_image->h));
-		}
-
-		rotozoom_picture = zoomSurface(obj_image, ZoomX, ZoomY, SMOOTHING_ON);
-
-		SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination);
-		SDL_FreeSurface(rotozoom_picture);
+		//do nothing
 	}
-	else //same size ... just blit the surface
-		SDL_BlitSurface(obj_image, NULL, m_pScreenImage, &Destination);
+	else
+		if(obj_image->w != pObj->m_rPosition.Width || obj_image->h != pObj->m_rPosition.Height) //different size. we'll have to stretch the surface
+		{
+			double ZoomX = 1;
+			double ZoomY = 1;
 
+			SDL_Surface *rotozoom_picture;
+
+			if(pObj->m_bDisableAspectLock) //no aspect ratio kept
+			{
+				ZoomX = pObj->m_rPosition.Width / double(obj_image->w);
+				ZoomY = pObj->m_rPosition.Height / double(obj_image->h);
+			}
+			else //we'll have to keep the aspect
+			{
+				ZoomX = ZoomY = min(pObj->m_rPosition.Width / double(obj_image->w), 
+					pObj->m_rPosition.Height / double(obj_image->h));
+			}
+
+			rotozoom_picture = zoomSurface(obj_image, ZoomX, ZoomY, SMOOTHING_ON);
+
+			SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination);
+			SDL_FreeSurface(rotozoom_picture);
+		}
+		else //same size ... just blit the surface
+			SDL_BlitSurface(obj_image, NULL, m_pScreenImage, &Destination);
+
+	//free the surface
 	if( bDeleteSurface )
 	{
-        SDL_FreeSurface(obj_image);
-
 		if( pObj->m_pCurrentGraphic->GraphicType_get()==gtSDLGraphic )
 		{
 			SDLGraphic *pSDLGraphic = (SDLGraphic *) pObj->m_pCurrentGraphic;
+			SDL_FreeSurface(obj_image);
+
 			pSDLGraphic->m_pSDL_Surface = NULL;
 		}
 	}
