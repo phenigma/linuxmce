@@ -48,7 +48,7 @@ public:
 	int m_Width,m_Height;
 	SDL_Surface * Screen;
 
-	Renderer(string FontPath,string OutputDirectory,int Width,int Height);
+	Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo=false);
 	~Renderer();
 
 	RendererImage * CreateBlankCanvas(PlutoSize size = PlutoSize(0,0));

@@ -29,8 +29,13 @@ using namespace std;
 
 int myCounter=0;
 
-Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height)
+Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo)
 {
+#ifndef WIN32
+	if( bDisableVideo )
+		setenv("SDL_VIDEODRIVER", "dummy", 1); // force SDL to use its dummy video driver (removed a dependency on the X server)
+#endif
+
 	m_sFontPath=FontPath;
 	m_sOutputDirectory=OutputDirectory;
 	m_Width=Width;
@@ -740,9 +745,9 @@ void DoRender(string font, string output,int width,int height,bool bAspectRatio,
 
 // Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
 #ifdef WIN32
-Renderer r("C:/windows/fonts/", "", 800, 600);
+Renderer r("C:/windows/fonts/", "", 800, 600,true);
 #else
-Renderer r("/usr/share/fonts/truetype/msttcorefonts", "", 800, 600);
+Renderer r("/usr/share/fonts/truetype/msttcorefonts", "", 800, 600,true);
 #endif
 
 
