@@ -30,7 +30,8 @@ for i in /var/log/pluto/*.{,new}log; do
 	grep "^01" "$i" >"$Critical/$(basename $i)"
 done
 
-tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump
+tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump 2>/dev/null
+rm -f /usr/pluto/coredump/*
 
 if [ "$1" != "0" ]; then
 	UploadLogs &
@@ -38,7 +39,7 @@ fi
 
 rm -rf "$Critical"
 
-tar -czf "$Output/log-$Filename.tar.gz" /var/log/pluto/*.{,new}log
+tar -czf "$Output/log-$Filename.tar.gz" /var/log/pluto/*.{,new}log 2>/dev/null
 rm -f /var/log/pluto/*.log
 
 find "$Output" -mtime +5 -exec rm -f '{}' ';'
