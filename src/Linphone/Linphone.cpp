@@ -62,17 +62,17 @@ bool Linphone::Connect(int iPK_DeviceTemplate) {
 		return false;
 	}
 	
-	DeviceData_Base *pDeviceData = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_pData->m_dwPK_Device_Core);
-	if ( pDeviceData == NULL )
+	DeviceData_Base *pCoreDevData = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
+	if ( pCoreDevData == NULL )
 	{
 			g_pPlutoLogger->Write(LV_CRITICAL, 
-					"I could not find CORE (%d) in the list of devices that i got from the router!", m_pData->m_dwPK_Device_Core);
+					"I could not find CORE in the list of devices that i got from the router!");
 			return false;
 	}
-
-	g_pPlutoLogger->Write(LV_STATUS, "Using CORE ip address %s as registrar IP", pDeviceData->GetIPAddress().c_str());
 	
-	manager_.setHost(pDeviceData->GetIPAddress().c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Using CORE ip address %s as registrar IP", pCoreDevData->GetIPAddress().c_str());
+	
+	manager_.setHost(pCoreDevData->GetIPAddress().c_str());
 	manager_.setPhoneNum(sPhoneNumber.c_str());
 	manager_.regInterceptor(this);
 	return manager_.Open();
