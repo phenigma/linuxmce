@@ -74,9 +74,9 @@ class DelayedCommandInfo {
 		int m_PK_CommandGroup,m_iStartingCommand;
 };
 
-extern void (*g_pDeadlockHandler)();
+extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 Router *g_pRouter=NULL;
-void DeadlockHandler()
+void DeadlockHandler(PlutoLock *pPlutoLock)
 {
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
 	if( g_pRouter )
