@@ -2704,4 +2704,40 @@ function setLeftMenu($dbADO)
 	}
 	return $jsRedirect;
 }
+
+function CheckValidCode($code,$dbADO)
+{
+	list($device, $pin) = explode("-", $code);
+	$sql = "SELECT ActivationCode
+			FROM Device
+	 			INNER JOIN Installation ON Device.FK_Installation = Installation.PK_Installation
+			WHERE Device.PK_Device = '$device' LIMIT 1";
+	$res = $dbADO->Execute($sql);
+	if ($res->RecordCount() == 0)
+		return false;
+	$row = $res->FetchRow();
+	if ($row['ActivationCode'] !== $pin)
+		return false;
+	return true;
+}
+
+// return an array of packages
+function GetActivationSh($code,$param='install',$otherParam='')
+{
+	global $dbPlutoMainUser;
+	global $dbPlutoMainPass;
+	global $dbPlutoMainServer;
+
+
+	list($device, $pin) = explode("-", $code);
+#	echo("/usr/pluto/bin/ConfirmDependencies -h ".$dbPlutoMainServer." -u ".$dbPlutoMainUser." -p ".$dbPlutoMainPass." -d $device install");
+	exec("/usr/pluto/bin/ConfirmDependencies -D pluto_main -h $dbPlutoMainServer -u $dbPlutoMainUser -p '$dbPlutoMainPass' -d $device $otherParam $param", $result, $retcode);
+	// || die("ERROR. Can't generate answer: $device:$pin");
+
+	if ($retcode == 0)
+		$return = "OK\n" . implode("\n", (array)$result) . "\n#EOF";
+	else
+		$return = "ERROR. Something went terribly wrong while generating the activation script. The installation can not continue. Please contact Plutohome to solve this problem. Thank you.";
+	return $return;
+}
 ?>
