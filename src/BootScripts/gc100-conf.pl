@@ -11,9 +11,9 @@ system("rm -f /var/log/pluto/gc100-conf.log >> /dev/null");
 
 if($ARGV[0] eq "") {
     loggc("Finding GC100 on the network\n");
+    $flag = allias_up();
     if(find_gc100() == 1) {
         loggc("GC100 Found\n");
-	$flag = allias_up();
 	$mac = get_gc100mac();
 	if($flag == 1) {
 	    allias_down();
@@ -106,7 +106,7 @@ sub get_install {
     @frag = split(/ /,$var);
     $var = $frag[0];
     @frag = split(/ /,$value);
-    $value = $frag[0];
+    $value = $frag[1];
     if($var eq "PK_Installation") {
       if($value eq "") {
         return 1;
@@ -172,14 +172,19 @@ sub allias_up {
 	@frag = split(/\|/,$data);
 	@frag = split(/\,/,$frag[1]);
 	$local_dev = $frag[0];
+	($fst, $nd) = split(/\:/,$frag[0]);
+	$local_dev = $fst;
 	$local_ip = $frag[1];
     } else {
 	$local_ip = "192.168.1.1";
     }
     
+    loggc("Using dev=$local_dev ip=$local_ip\n");
     $gw = $local_ip;
     @frag = split(/\./,$local_ip);
-    if($frag[0] ne "192" && $frag[1] ne "168" && $frag[3] ne "1") {
+    loggc("Fragments [$frag[0]] [$frag[1]] [$frag[2]] [$frag[3]]\n");
+    if($frag[0] ne "192" || $frag[1] ne "168" || $frag[2] ne "1") {
+        loggc("Making allias\n");
 	system("ifconfig $local_dev:100 192.168.1.1 broadcast 255.255.255.255 netmask 255.255.255.0");
 	return 1;
     } else {
