@@ -5,28 +5,29 @@ use Socket;
 
 $db = DBI->connect("dbi:mysql:database=Simulate_Clicks;host=10.0.0.150;user=root;password=") or die "Could not conect to Database";
 
-if($ARGV[0] eq "fm") {
-  print "Making click for Fresh Meat for project\n";
-  $type_project = 1;
-} elsif($ARGV[0] eq "sf") {
-  print "Making click for Source Forge for project\n";
-  $type_project = 2;
-} else {
-  print "Not known\n";
-  exit(1);
-}	
-
 do {
   $prox = get_proxy();
 } while(check_proxy($prox) == 0);
 print "Proxy Found : $prox\n";
 
-$proj = get_project($type_project);
-print "Project Found : $proj\n";
+$proj = "";
+
+$proj = get_project(1);
+if($proj ne "") {
+  print "FM project found : $proj\n";
+  system("curl -x $prox --connect-timeout 5 -f http://freshmeat.net/projects/$proj/");
+}
+
+$proj = "";
+
+$proj = get_project(2);
+if($proj ne "") {
+  print "SF project found : $proj\n";
+  system("curl -x $prox --connect-timeout 5 -f http://sourceforge.net/projects/$proj/");
+}
  
 $db->disconnect();
 
-system("curl -x $prox --connect-timeout 5 -f http://freshmeat.net/projects/$proj/");
 print "[DONE]\n";
 
 sub get_project() {
