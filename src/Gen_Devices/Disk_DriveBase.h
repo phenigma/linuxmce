@@ -21,6 +21,11 @@ public:
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3,2,3,StringUtils::itos(iFK_MediaType).c_str(),4,sMRL.c_str()));
 	}
 
+	virtual void Ripping_Completed(int iResult,string sName)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 35,2,20,StringUtils::itos(iResult).c_str(),35,sName.c_str()));
+	}
+
 };
 
 
@@ -81,6 +86,7 @@ public:
 	void DATA_Set_Drive(string Value) { GetData()->Set_Drive(Value); }
 	//Event accessors
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str()); }
+	void EVENT_Ripping_Completed(int iResult,string sName) { GetEvents()->Ripping_Completed(iResult,sName.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,class Message *pMessage) {};
@@ -95,6 +101,7 @@ public:
 	virtual void CMD_Start_Ripping_DVD(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Format_Drive(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Close_Tray(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rip_Disk(string sName,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -296,6 +303,22 @@ public:
 					{
 						string sCMD_Result="OK";
 						CMD_Close_Tray(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 337:
+					{
+						string sCMD_Result="OK";
+					string sName=pMessage->m_mapParameters[50];
+						CMD_Rip_Disk(sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
