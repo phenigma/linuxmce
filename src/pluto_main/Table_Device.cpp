@@ -734,7 +734,6 @@ pRow->m_PK_Device=id;
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_Device* pRow = (Row_Device*) (*i).second;	
-printf("*!*~Committing device %d with mac %s\n",pRow->PK_Device_get(),pRow->MACaddress_get().c_str());
 		SingleLongKey key(pRow->m_PK_Device);
 
 		char tmp_PK_Device[32];
