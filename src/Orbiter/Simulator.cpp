@@ -187,7 +187,27 @@ void *GeneratorThread( void *p)
 					BUTTON_Phone_Talk_CONST,
 					BUTTON_Phone_End_CONST,
 					BUTTON_Phone_Soft_left_CONST,
-					BUTTON_Phone_Soft_right_CONST
+					BUTTON_Phone_Soft_right_CONST,
+					BUTTON_Asterisk_CONST,
+                    BUTTON_Pound_CONST,
+                    BUTTON_Rept_1_CONST,
+                    BUTTON_Rept_2_CONST,
+                    BUTTON_Rept_3_CONST,
+                    BUTTON_Rept_4_CONST,
+                    BUTTON_Rept_5_CONST,
+                    BUTTON_Rept_6_CONST,
+                    BUTTON_Rept_7_CONST,
+                    BUTTON_Rept_8_CONST,
+                    BUTTON_Rept_9_CONST,
+                    BUTTON_Rept_0_CONST,
+                    BUTTON_Rept_Phone_C_CONST,
+                    BUTTON_Rept_Phone_Pencil_CONST,
+                    BUTTON_Rept_Phone_Talk_CONST,
+                    BUTTON_Rept_Phone_End_CONST,
+                    BUTTON_Rept_Phone_Soft_left_CONST,
+					BUTTON_Rept_Phone_Soft_right_CONST,
+                    BUTTON_Rept_Asterisk_CONST,
+                    BUTTON_Rept_Pound_CONST
 				};
 				int index = rand() % sizeof(list)/sizeof(list[0]);
 

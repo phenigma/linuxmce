@@ -23,9 +23,6 @@ call "MakeRelease_WindowsCE.bat"
 echo Building pluto(windows) sources, release version... (for now, only Orbiter)
 call "MakeRelease_Windows_Release.bat"
 
-echo Updating Orbiter release binary for OrbiterInstaller
-copy C:\pluto.makerelease\trunk\src\release\Orbiter.exe C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Files\
-
 echo Misc actions...
 cd "c:\pluto.makerelease\trunk\src\bin"
 copy Orbiter.exe Orbiter_Win32.dat
@@ -46,6 +43,6 @@ copy *.lib "\\10.0.0.150\builds\Windows_Output\src\lib"
 
 echo Copying MSI files...
 cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Release\
-scp *.msi "\\10.0.0.150\builds\Windows_Output\src\bin"
+copy *.msi "\\10.0.0.150\builds\Windows_Output\src\bin"
 
 
