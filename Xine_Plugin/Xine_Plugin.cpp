@@ -46,7 +46,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
@@ -75,7 +75,7 @@ bool Xine_Plugin::Register()
   m_pMedia_Plugin->RegisterMediaPlugin( this, this, DEVICETEMPLATE_Xine_Player_CONST, true );
 
   RegisterMsgInterceptor(( MessageInterceptorFn )( &Xine_Plugin::MenuOnScreen ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Menu_Onscreen_CONST );
-   
+
   /**
   // The constructor for this class registers itself, so we don't worry about deleting it or doing anything with it
 
@@ -124,17 +124,17 @@ void Xine_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 
 class MediaStream *Xine_Plugin::CreateMediaStream( class MediaPluginInfo *pMediaPluginInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
-	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-	if( (!pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST) && pEntertainArea )
-		pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea,DEVICETEMPLATE_Xine_Player_CONST);
+    PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+    if( (!pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST) && pEntertainArea )
+        pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea,DEVICETEMPLATE_Xine_Player_CONST);
 
-	if( !pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Xine plugin being told to play in an entertainment area without a xine player");
-		return NULL;
-	}
+    if( !pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"Xine plugin being told to play in an entertainment area without a xine player");
+        return NULL;
+    }
 
-	return new MediaStream( pMediaPluginInfo, pMediaDevice, pMediaPluginInfo->m_iPK_DesignObj, iPK_Users, st_RemovableMedia, StreamID ); // hack hack hack
+    return new XineMediaStream( this, pMediaPluginInfo, pMediaDevice, pMediaPluginInfo->m_iPK_DesignObj, iPK_Users, st_RemovableMedia, StreamID ); // hack hack hack
 }
 
 bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
@@ -205,7 +205,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
                              mediaURL,
                              pMediaStream->m_iPK_MediaType,
                              pMediaStream->m_iStreamID_get( ),
-                            0 );
+                             pMediaStream->m_iStoppedAtPosition );
 
     m_pMedia_Plugin->MediaInfoChanged( pMediaStream );
 
@@ -225,34 +225,93 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 {
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-  g_pPlutoLogger->Write( LV_STATUS, "Stopping media stream playback--sending command, waiting for response" );
+    g_pPlutoLogger->Write( LV_STATUS, "Stopping media stream playback--sending command, waiting for response" );
 
-  DCE::CMD_Stop_Media cmd(  m_dwPK_Device,                          // Send from us
-                            pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,	// Send to the device that is actually playing
-                            pMediaStream->m_iStreamID_get( ),       // Send teh stream ID that we want to actually stop
-                            &pMediaStream->m_iStoppedAtPosition);   // Get Back the position at which this stream was stopped.
-  string Response;
-  if( !SendCommand( cmd, &Response ) )
-  {
-    g_pPlutoLogger->Write( LV_CRITICAL, "Xine player didn't respond to stop media command!" );
-    // handle failure
-#pragma warning( "Ignore this for now" )
+    DCE::CMD_Stop_Media cmd( m_dwPK_Device,                          // Send from us
+                             pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,  // Send to the device that is actually playing
+                             pMediaStream->m_iStreamID_get( ),       // Send teh stream ID that we want to actually stop
+                             &pMediaStream->m_iStoppedAtPosition);   // Get Back the position at which this stream was stopped.
+    string Response;
+    if( !SendCommand( cmd, &Response ) )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "Xine player didn't respond to stop media command!" );
+        // handle failure
+        #pragma warning( "Ignore this for now" )
+        return true;
+        return false;
+    }
+    g_pPlutoLogger->Write( LV_STATUS, "Xine player responded to stop media command! Stopped at position: %d", pMediaStream->m_iStoppedAtPosition );
     return true;
-    return false;
-  }
-  g_pPlutoLogger->Write( LV_STATUS, "Xine player responded to stop media command!" );
-  return true;
+}
+
+/**
+ * @brief Called by the Media Plugin when we need to move media around in entertainment areas. The media plugin will pass 3 lists:
+ *          < listStart: the list on which media needs to be started. >
+ *          < listStop: the list on which media needs tobe stopped >
+ *          < listChange: the list on which media needs to be changed (if we move the media from one place to another it might be possible that the actual source of the stream to change). >
+ */
+bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)
+{
+    list<EntertainArea*>::iterator itEntArea;
+
+    if ( ! isValidStreamForPlugin(pMediaStream) )
+        return false;
+
+    EntertainArea *pTmpEntertainArea;
+    // stop all the media where it needs to be stopped.
+    // to stop the media we will actually call our StopMedia function while passing it a "touched" pMediaStream parameter.
+    MediaDevice *pCurrentDevice = pMediaStream->m_pMediaDevice;
+    for ( itEntArea = listStop.begin(); itEntArea != listStop.end(); itEntArea++ )
+    {
+        pMediaStream->m_pMediaDevice = GetMediaDeviceForEntertainArea(*itEntArea, DEVICETEMPLATE_Xine_Player_CONST);
+        if  ( ! pMediaStream->m_pMediaDevice )
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "Could not find a device that needs stopped in the entertainment area: %d", (*itEntArea)->m_iPK_EntertainArea);
+            continue;
+        }
+
+        StopMedia(pMediaStream);
+        pMediaStream->m_mapEntertainArea.erase((*itEntArea)->m_iPK_EntertainArea);
+        (*itEntArea)->m_pMediaStream = NULL; // remove this stream from ent areas on which it was playing
+    }
+
+    // we have succesfully stopped the devices; Restore the state.
+    pMediaStream->m_pMediaDevice = pCurrentDevice;
+    if ( (listStart.size() + listChange.size()) == 1 )
+    {
+        pTmpEntertainArea = (listStart.size() != 0) ? pTmpEntertainArea = listStart.front() : pTmpEntertainArea = listChange.front();
+
+        pMediaStream->m_pMediaDevice = GetMediaDeviceForEntertainArea(pTmpEntertainArea, DEVICETEMPLATE_Xine_Player_CONST);
+
+        if ( pMediaStream->m_pMediaDevice == NULL )
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "Could not find a proper device on which to start media in the entertainment area: %d", pTmpEntertainArea->m_iPK_EntertainArea);
+        }
+        else
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "Found device %d to play in the entertainemnt area %d", pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pTmpEntertainArea->m_iPK_EntertainArea);
+            StartMedia(pMediaStream);
+            pTmpEntertainArea->m_pMediaStream = pMediaStream;
+            pMediaStream->m_mapEntertainArea[pTmpEntertainArea->m_iPK_EntertainArea] = pTmpEntertainArea;
+        }
+    }
 }
 
 bool Xine_Plugin::isValidStreamForPlugin(class MediaStream *pMediaStream)
 {
-    return pMediaStream->GetType() == MEDIASTREAM_TYPE_GENERIC;
+    if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_XINE )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "This stream is not a valid Xine stream (%d)", pMediaStream->m_iStreamID_get());
+        return false;
+    }
+
+    return true;
 }
 
 bool Xine_Plugin::BroadcastMedia( class MediaStream *pMediaStream )
 {
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-  return true;
+    return true;
 }
 
 
@@ -349,12 +408,12 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 
 //<-dceag-c36-b->
 
-	/** @brief COMMAND: #36 - Create Media */
-	/** Create a media stream descriptor. */
-		/** @param #13 Filename */
-			/** The filename of the media stream. */
-		/** @param #41 StreamID */
-			/** The media descriptor which will be associated with the current media. */
+    /** @brief COMMAND: #36 - Create Media */
+    /** Create a media stream descriptor. */
+        /** @param #13 Filename */
+            /** The filename of the media stream. */
+        /** @param #41 StreamID */
+            /** The media descriptor which will be associated with the current media. */
 
 void Xine_Plugin::CMD_Create_Media(string sFilename,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c36-e->
@@ -364,16 +423,16 @@ void Xine_Plugin::CMD_Create_Media(string sFilename,int iStreamID,string &sCMD_R
 
 //<-dceag-c37-b->
 
-	/** @brief COMMAND: #37 - Play Media */
-	/** Play a media stream descriptor. */
-		/** @param #13 Filename */
-			/** The file to play.  The format is specific on the media type and the media player. */
-		/** @param #29 PK_MediaType */
-			/** The type of media */
-		/** @param #41 StreamID */
-			/** The media that we need to play. */
-		/** @param #42 MediaPosition */
-			/** The position at which we need to start playing. */
+    /** @brief COMMAND: #37 - Play Media */
+    /** Play a media stream descriptor. */
+        /** @param #13 Filename */
+            /** The file to play.  The format is specific on the media type and the media player. */
+        /** @param #29 PK_MediaType */
+            /** The type of media */
+        /** @param #41 StreamID */
+            /** The media that we need to play. */
+        /** @param #42 MediaPosition */
+            /** The position at which we need to start playing. */
 
 void Xine_Plugin::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
@@ -383,12 +442,12 @@ void Xine_Plugin::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 
 //<-dceag-c38-b->
 
-	/** @brief COMMAND: #38 - Stop Media */
-	/** Stop playing a media stream descriptor. */
-		/** @param #41 StreamID */
-			/** The media needing to be stopped. */
-		/** @param #42 MediaPosition */
-			/** The position at which this stream was last played. */
+    /** @brief COMMAND: #38 - Stop Media */
+    /** Stop playing a media stream descriptor. */
+        /** @param #41 StreamID */
+            /** The media needing to be stopped. */
+        /** @param #42 MediaPosition */
+            /** The position at which this stream was last played. */
 
 void Xine_Plugin::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
@@ -398,10 +457,10 @@ void Xine_Plugin::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
 
 //<-dceag-c39-b->
 
-	/** @brief COMMAND: #39 - Pause Media */
-	/** Pause a media playback. */
-		/** @param #41 StreamID */
-			/** The media stream for which we need to pause playback. */
+    /** @brief COMMAND: #39 - Pause Media */
+    /** Pause a media playback. */
+        /** @param #41 StreamID */
+            /** The media stream for which we need to pause playback. */
 
 void Xine_Plugin::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
@@ -413,10 +472,10 @@ void Xine_Plugin::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
 }
 //<-dceag-c40-b->
 
-	/** @brief COMMAND: #40 - Restart Media */
-	/** Restart a media playback. */
-		/** @param #41 StreamID */
-			/** The media stream that we need to restart playback for. */
+    /** @brief COMMAND: #40 - Restart Media */
+    /** Restart a media playback. */
+        /** @param #41 StreamID */
+            /** The media stream that we need to restart playback for. */
 
 void Xine_Plugin::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
@@ -426,12 +485,12 @@ void Xine_Plugin::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *p
 
 //<-dceag-c41-b->
 
-	/** @brief COMMAND: #41 - Change Playback Speed */
-	/** Change the playback speed of a media stream. */
-		/** @param #41 StreamID */
-			/** The media needing the playback speed change. */
-		/** @param #43 MediaPlaybackSpeed */
-			/** The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS */
+    /** @brief COMMAND: #41 - Change Playback Speed */
+    /** Change the playback speed of a media stream. */
+        /** @param #41 StreamID */
+            /** The media needing the playback speed change. */
+        /** @param #43 MediaPlaybackSpeed */
+            /** The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS */
 
 void Xine_Plugin::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
@@ -444,10 +503,10 @@ void Xine_Plugin::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 
 //<-dceag-c65-b->
 
-	/** @brief COMMAND: #65 - Jump Position In Playlist */
-	/** Jumps to a position within some media, such as songs in a playlist, tracks on a cd, etc.  It will assume the sender is an orbiter, and find the entertainment area and stream associated with it.  The track can be an absolute or relative position. */
-		/** @param #5 Value To Assign */
-			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+    /** @brief COMMAND: #65 - Jump Position In Playlist */
+    /** Jumps to a position within some media, such as songs in a playlist, tracks on a cd, etc.  It will assume the sender is an orbiter, and find the entertainment area and stream associated with it.  The track can be an absolute or relative position. */
+        /** @param #5 Value To Assign */
+            /** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
 
 void Xine_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->

@@ -101,7 +101,6 @@ Message::Message( string sMessageInStringFormat )
 {
     vector<string> vectTokens;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Here");
     StringUtils::Tokenize(sMessageInStringFormat, " ", vectTokens);
     if ( vectTokens.size() < 4 )
     {
@@ -111,9 +110,9 @@ Message::Message( string sMessageInStringFormat )
 
 
     m_dwPK_Device_From = atoi(vectTokens[0].c_str()); // From
-    m_dwPK_Device_To = atoi(vectTokens[1].c_str()); // From
-    m_dwMessage_Type = atoi(vectTokens[2].c_str()); // From
-    m_dwID =  atoi(vectTokens[3].c_str()); // From
+    m_dwPK_Device_To = atoi(vectTokens[1].c_str()); // To
+    m_dwMessage_Type = atoi(vectTokens[2].c_str()); // Type
+    m_dwID =  atoi(vectTokens[3].c_str()); // ID
 
     if ( (vectTokens.size() % 2) == 1 )
     {

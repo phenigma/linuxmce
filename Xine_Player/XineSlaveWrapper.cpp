@@ -694,6 +694,40 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
             break;
         }
 
+        case KeyPress:
+        {
+            XKeyEvent  kevent;
+            KeySym     ksym;
+            char       kbuf[256];
+            int        len;
+
+            kevent = event.xkey;
+
+            XLockDisplay(kevent.display);
+            len = XLookupString(&kevent, kbuf, sizeof(kbuf), &ksym, NULL);
+            XUnlockDisplay(kevent.display);
+            g_pPlutoLogger->Write(LV_STATUS, "Key (%d), %s %d", len, kbuf, ksym);
+
+            xine_event_t       xineEvent;
+            xine_input_data_t  xineInput;
+
+            switch ( ksym )
+            {
+                case XK_Up: xineEvent.type = XINE_EVENT_INPUT_UP; break;
+                case XK_Down: xineEvent.type = XINE_EVENT_INPUT_DOWN; break;
+                case XK_Left: xineEvent.type = XINE_EVENT_INPUT_LEFT; break;
+                case XK_Right: xineEvent.type = XINE_EVENT_INPUT_RIGHT; break;
+                case XK_Return: xineEvent.type = XINE_EVENT_INPUT_SELECT; break;
+                default:
+                    xineEvent.type = 0;
+            }
+            xineEvent.stream      = pStream->m_pStream;
+            xineEvent.data        = NULL;
+            xineEvent.data_length = 0;
+            gettimeofday(&xineEvent.tv, NULL);
+            xine_event_send(pStream->m_pStream, &xineEvent);
+        }
+
         case Expose:
         {
             XExposeEvent *exposeEvent = (XExposeEvent *)&event;

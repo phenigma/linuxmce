@@ -39,7 +39,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Xine_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : Xine_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
     m_pXineSlaveControl = new XineSlaveWrapper();
@@ -151,7 +151,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
 {
     g_pPlutoLogger->Write(LV_STATUS, "Got a stop media for stream ID %d", iStreamID);
     m_pXineSlaveControl->pauseMediaStream(iStreamID);
-    // *iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID);
+    *iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID);
     m_pXineSlaveControl->stopMedia(iStreamID);
     g_pPlutoLogger->Write(LV_STATUS, "The stream playback should be stopped at this moment and the resources should be freed!");
 }
@@ -293,14 +293,14 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 
 //<-dceag-c87-b->
 
-	/** @brief COMMAND: #87 - Goto Media Menu */
-	/** Goto to the current media Root Menu. */
-		/** @param #41 StreamID */
-			/** The stream ID */
-		/** @param #64 MenuType */
-			/** The type of menu that the user want to jump to.
+    /** @brief COMMAND: #87 - Goto Media Menu */
+    /** Goto to the current media Root Menu. */
+        /** @param #41 StreamID */
+            /** The stream ID */
+        /** @param #64 MenuType */
+            /** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu 
+0 - Root menu
 1 - Title menu
 2 - Media menu */
 
@@ -336,5 +336,5 @@ void Xine_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string
         return; // no port was available (couldn't enable broadcast)
     }
 
-       *sMediaURL = string("slave://localhost") + StringUtils::itos(iBroadcastPort);
+    *sMediaURL = string("slave://localhost") + StringUtils::itos(iBroadcastPort);
 }

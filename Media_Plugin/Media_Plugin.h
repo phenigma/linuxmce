@@ -9,7 +9,7 @@
 #ifndef Media_Plugin_h
 #define Media_Plugin_h
 
-//	DCE Implemenation for #2 Media Plug-in
+//  DCE Implemenation for #2 Media Plug-in
 
 #include "Gen_Devices/Media_PluginBase.h"
 //<-dceag-d-e->
@@ -38,8 +38,7 @@ class MediaFile;
  * what type of media it can play.  It may register several times with different types of media and different capabilities.
  */
 
-/** All media plugins must implement this class */
-
+// WARN: MediaPluginBase was moved below because it needed the definition of the EntertainArea object
 namespace DCE
 {
 
@@ -77,11 +76,11 @@ public:
 
     map<int, class MediaDevice *> m_mapMediaDevice;  /** All the media devices in the area */
     MediaDevice *m_mapMediaDevice_Find(int PK_Device) { map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(PK_Device); return it==m_mapMediaDevice.end() ? NULL : (*it).second; }
-	map<int, ListMediaDevice *> m_mapMediaDeviceByTemplate;  /** All the media devices in the area by device template */
+    map<int, ListMediaDevice *> m_mapMediaDeviceByTemplate;  /** All the media devices in the area by device template */
     ListMediaDevice *m_mapMediaDeviceByTemplate_Find(int PK_DeviceTemplate) { map<int,ListMediaDevice *>::iterator it = m_mapMediaDeviceByTemplate.find(PK_DeviceTemplate); return it==m_mapMediaDeviceByTemplate.end() ? NULL : (*it).second; }
 
-	// These are the Orbiters that are currently controling this entertainment area.  When an 
-	// orbiter goes to a remote control for an entertainment area it becomes "bound".
+    // These are the Orbiters that are currently controling this entertainment area.  When an
+    // orbiter goes to a remote control for an entertainment area it becomes "bound".
     MapBoundRemote m_mapBoundRemote;
 
     BoundRemote *m_mapBoundRemote_Find(int iPK_Orbiter)
@@ -113,6 +112,7 @@ public:
         return it==m_mapMediaPluginInfo_Extension.end() ? NULL : (*it).second;
     }
 };
+
 typedef map<int,class EntertainArea *> MapEntertainArea;
 
 class MediaPluginBase
@@ -149,6 +149,34 @@ public:
     virtual string GetID()=0;
 };
 
+/** All media plugins must implement this class */
+class MediaPluginBase
+{
+public:
+    class Media_Plugin *m_pMedia_Plugin;
+
+    /** @brief constructor */
+    MediaPluginBase() {}
+
+    /** @brief Each Plugin will create its own instance of MediaStream, so it can create a derived version with extra information */
+    virtual class MediaStream *CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,class EntertainArea *pEntertainArea,MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeMediaFile,int StreamID)=0;
+    virtual bool StartMedia(class MediaStream *pMediaStream)=0;
+    virtual bool StopMedia(class MediaStream *pMediaStream)=0;
+    virtual bool BroadcastMedia(class MediaStream *pMediaStream)=0;
+    virtual bool MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)=0;
+
+    virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream)=0;
+
+    // it can't virtual and static at the same time.
+    virtual MediaDevice *GetMediaDeviceForEntertainArea(EntertainArea *pEntertainArea, int PK_DeviceTemplate)
+    {
+        list<MediaDevice*> *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(PK_DeviceTemplate);
+        if( pListMediaDevice && pListMediaDevice->size())
+            return pListMediaDevice->front();
+        else
+            return NULL;
+    }
+};
 
 //<-dceag-decl-b->!
 class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn, public MySqlHelper, public FloorplanInfoProvider
@@ -193,7 +221,7 @@ private:
 
     class DataGridTable *AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
-	class DataGridTable *ActiveMediaStreams( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+    class DataGridTable *ActiveMediaStreams( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
 protected:
     void PlayMediaByDeviceTemplate(int iPK_DeviceTemplate, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
@@ -275,7 +303,7 @@ public:
     /**
      * @brief Required for plug-ins that render floorplans
      */
-	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD);
+    virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD);
 
     bool StartMedia(MediaPluginInfo *pMediaPluginInfo,int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile);
 
@@ -309,134 +337,134 @@ public:
      */
     bool PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 //<-dceag-h-b->
-	/*
-				AUTO-GENERATED SECTION
-				Do not change the declarations
-	*/
+    /*
+                AUTO-GENERATED SECTION
+                Do not change the declarations
+    */
 
-	/*
-			*****DATA***** accessors inherited from base class
+    /*
+            *****DATA***** accessors inherited from base class
 
-			*****EVENT***** accessors inherited from base class
+            *****EVENT***** accessors inherited from base class
 
-			*****COMMANDS***** we need to implement
-	*/
-
-
-	/** @brief COMMAND: #43 - MH Play Media */
-	/** The Orbiters send the play media command to the actual media handler. rnrnThe Orbiter can send anyone or a combination of parameters. rnrnIt's up to media handler to figure out how to handle it. The media handler must find out if the media is already pla */
-		/** @param #2 PK_Device */
-			/** The ID of the actual device to start playing. */
-		/** @param #3 PK_DesignObj */
-			/** The Remote Control to use for playing this media. */
-		/** @param #13 Filename */
-			/** The filename to play or a pipe delimited list of filenames. */
-		/** @param #29 PK_MediaType */
-			/** The ID of the media type descriptor (if it is TV, movie, audio, etc ..  ) */
-		/** @param #44 PK_DeviceTemplate */
-			/** The DeviceTemplate ID. */
-		/** @param #45 PK_EntertainArea */
-			/** The desired target area for the playback. If this is missing then the orbiter should decide the target based on his controlled area. */
-
-	virtual void CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea) { string sCMD_Result; CMD_MH_Play_Media(iPK_Device,sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+            *****COMMANDS***** we need to implement
+    */
 
 
-	/** @brief COMMAND: #44 - MH Stop Media */
-	/** Stop media. All parameters are optional. The Media handler must find out what media to stop. */
-		/** @param #2 PK_Device */
-			/** The specific device to stop media on. */
-		/** @param #29 PK_MediaType */
-			/** The type of media to stop. */
-		/** @param #44 PK_DeviceTemplate */
-			/** The type of device to stop the media on. */
-		/** @param #45 PK_EntertainArea */
-			/** This is the location on which we need to stop the media. This is optional. If not specified the orbiter will decide the location based on the controlled area. */
+    /** @brief COMMAND: #43 - MH Play Media */
+    /** The Orbiters send the play media command to the actual media handler. rnrnThe Orbiter can send anyone or a combination of parameters. rnrnIt's up to media handler to figure out how to handle it. The media handler must find out if the media is already pla */
+        /** @param #2 PK_Device */
+            /** The ID of the actual device to start playing. */
+        /** @param #3 PK_DesignObj */
+            /** The Remote Control to use for playing this media. */
+        /** @param #13 Filename */
+            /** The filename to play or a pipe delimited list of filenames. */
+        /** @param #29 PK_MediaType */
+            /** The ID of the media type descriptor (if it is TV, movie, audio, etc ..  ) */
+        /** @param #44 PK_DeviceTemplate */
+            /** The DeviceTemplate ID. */
+        /** @param #45 PK_EntertainArea */
+            /** The desired target area for the playback. If this is missing then the orbiter should decide the target based on his controlled area. */
 
-	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea) { string sCMD_Result; CMD_MH_Stop_Media(iPK_Device,iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #65 - Jump Position In Playlist */
-	/** This will allow an orbiter to change the current playing position in the playlist */
-		/** @param #5 Value To Assign */
-			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
-
-	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+    virtual void CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea) { string sCMD_Result; CMD_MH_Play_Media(iPK_Device,sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
+    virtual void CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #73 - MH Send Me To Remote */
-	/** An Orbiter sends this command when it wants to go to the active remote control.  This device will send the sender of the command a 'goto' command with the current remote. */
-		/** @param #93 Not Full Screen */
-			/** Normally all Orbiters that are on screen displays (ie running on a media director) are always sent to a 'full screen'  application desktop as the remote whenever video is playing, since the user will have another remote control.  Setting this to 1 explici */
+    /** @brief COMMAND: #44 - MH Stop Media */
+    /** Stop media. All parameters are optional. The Media handler must find out what media to stop. */
+        /** @param #2 PK_Device */
+            /** The specific device to stop media on. */
+        /** @param #29 PK_MediaType */
+            /** The type of media to stop. */
+        /** @param #44 PK_DeviceTemplate */
+            /** The type of device to stop the media on. */
+        /** @param #45 PK_EntertainArea */
+            /** This is the location on which we need to stop the media. This is optional. If not specified the orbiter will decide the location based on the controlled area. */
 
-	virtual void CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen) { string sCMD_Result; CMD_MH_Send_Me_To_Remote(bNot_Full_Screen,sCMD_Result,NULL);};
-	virtual void CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #74 - Bind to Media Remote */
-	/** When an orbiter goes to a media remote control screen, it fires this command so that the media plug-in knows it is sitting at a remote, and needs to be notified when the media changes or the cover art changes.  This should be in the onLoad commands of eve */
-		/** @param #2 PK_Device */
-			/** The device the orbiter is controlling. */
-		/** @param #3 PK_DesignObj */
-			/** The object where the remote displays the graphical image of the cover art.  It will get update object images when the cover art changes. */
-		/** @param #8 On/Off */
-			/** If 1, bind (the Orbiter is sitting at the remote screen).  If 0, the orbiter has left the remote screen, and does not need media changed commands. */
-		/** @param #16 PK_DesignObj_CurrentScreen */
-			/** The current screen. */
-		/** @param #25 PK_Text */
-			/** The text object that contains the media description.  This will get set whenever the media changes, such as changing discs or channels. */
-		/** @param #39 Options */
-			/** Miscellaneous options.  These are not pre-defined, but are specific to a remote and the plug-in.  For example, the PVR plug-in needs to know what tuning device is active. */
-		/** @param #45 PK_EntertainArea */
-			/** The entertainment area the orbiter is controlling. */
-		/** @param #56 PK_Text_Timecode */
-			/** If the remote wants time code information, the object is stored here.  This can include an optional |n at the end, where n is the number of seconds to update (ie how often to update the counter). */
-		/** @param #62 PK_Text_SectionDesc */
-			/** The text object for the section description.  The section is tracks on a cd, or shows on a tv channel. */
-		/** @param #63 PK_Text_Synopsis */
-			/** The text object for the synopsis, a full description.  Examples are a DVD synopsis, or a description of a tv show. */
-
-	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis) { string sCMD_Result; CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),iPK_Text,sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Timecode,iPK_Text_SectionDesc,iPK_Text_Synopsis,sCMD_Result,NULL);};
-	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage);
+    virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea) { string sCMD_Result; CMD_MH_Stop_Media(iPK_Device,iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
+    virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #214 - Save playlist */
-	/** This will instruct the device to save the currently playing list */
-		/** @param #17 PK_Users */
-			/** The user that will own the new playlist. Can be missing. It will pick the current user then. */
-		/** @param #45 PK_EntertainArea */
-			/** Which playlist to save. You can direct the command to save a specific entertainment area's playlist or you can leave it blank to pick the current entertainment area's playlist */
-		/** @param #50 Name */
-			/** It will use the this name when saving. If it is not specified it will either use the name of the loaded playlist in the database or it will generate a new one. */
-		/** @param #77 Save as new */
-			/** Save the playlist as a new playlist. This will override the default behaviour. (If this playlist was not loaded from the database it will be saved as new. If it was loaded it will be overridded). This will make it always save it as new. */
+    /** @brief COMMAND: #65 - Jump Position In Playlist */
+    /** This will allow an orbiter to change the current playing position in the playlist */
+        /** @param #5 Value To Assign */
+            /** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
 
-	virtual void CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,string sName,bool bSave_as_new) { string sCMD_Result; CMD_Save_playlist(iPK_Users,sPK_EntertainArea.c_str(),sName.c_str(),bSave_as_new,sCMD_Result,NULL);};
-	virtual void CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,string sName,bool bSave_as_new,string &sCMD_Result,Message *pMessage);
+    virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+    virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #231 - Load Playlist */
-	/** This will instruct the device to load the specific playlist. */
-		/** @param #45 PK_EntertainArea */
-			/** The entertainment area in which to load the  playlist. By defualt it will be the entertainment in which the current orbiter is running. */
-		/** @param #78 EK_Playlist */
-			/** The id of the playlist to load */
+    /** @brief COMMAND: #73 - MH Send Me To Remote */
+    /** An Orbiter sends this command when it wants to go to the active remote control.  This device will send the sender of the command a 'goto' command with the current remote. */
+        /** @param #93 Not Full Screen */
+            /** Normally all Orbiters that are on screen displays (ie running on a media director) are always sent to a 'full screen'  application desktop as the remote whenever video is playing, since the user will have another remote control.  Setting this to 1 explici */
 
-	virtual void CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist) { string sCMD_Result; CMD_Load_Playlist(sPK_EntertainArea.c_str(),iEK_Playlist,sCMD_Result,NULL);};
-	virtual void CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,string &sCMD_Result,Message *pMessage);
+    virtual void CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen) { string sCMD_Result; CMD_MH_Send_Me_To_Remote(bNot_Full_Screen,sCMD_Result,NULL);};
+    virtual void CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #241 - MH Move Media */
-	/** Moves an existing media stream to the specified entertainment areas. */
-		/** @param #41 StreamID */
-			/** The ID of the media stream to move */
-		/** @param #45 PK_EntertainArea */
-			/** The entertainment area(s) to send the Media Stream to. */
+    /** @brief COMMAND: #74 - Bind to Media Remote */
+    /** When an orbiter goes to a media remote control screen, it fires this command so that the media plug-in knows it is sitting at a remote, and needs to be notified when the media changes or the cover art changes.  This should be in the onLoad commands of eve */
+        /** @param #2 PK_Device */
+            /** The device the orbiter is controlling. */
+        /** @param #3 PK_DesignObj */
+            /** The object where the remote displays the graphical image of the cover art.  It will get update object images when the cover art changes. */
+        /** @param #8 On/Off */
+            /** If 1, bind (the Orbiter is sitting at the remote screen).  If 0, the orbiter has left the remote screen, and does not need media changed commands. */
+        /** @param #16 PK_DesignObj_CurrentScreen */
+            /** The current screen. */
+        /** @param #25 PK_Text */
+            /** The text object that contains the media description.  This will get set whenever the media changes, such as changing discs or channels. */
+        /** @param #39 Options */
+            /** Miscellaneous options.  These are not pre-defined, but are specific to a remote and the plug-in.  For example, the PVR plug-in needs to know what tuning device is active. */
+        /** @param #45 PK_EntertainArea */
+            /** The entertainment area the orbiter is controlling. */
+        /** @param #56 PK_Text_Timecode */
+            /** If the remote wants time code information, the object is stored here.  This can include an optional |n at the end, where n is the number of seconds to update (ie how often to update the counter). */
+        /** @param #62 PK_Text_SectionDesc */
+            /** The text object for the section description.  The section is tracks on a cd, or shows on a tv channel. */
+        /** @param #63 PK_Text_Synopsis */
+            /** The text object for the synopsis, a full description.  Examples are a DVD synopsis, or a description of a tv show. */
 
-	virtual void CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea) { string sCMD_Result; CMD_MH_Move_Media(iStreamID,sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+    virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis) { string sCMD_Result; CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),iPK_Text,sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Timecode,iPK_Text_SectionDesc,iPK_Text_Synopsis,sCMD_Result,NULL);};
+    virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage);
+
+
+    /** @brief COMMAND: #214 - Save playlist */
+    /** This will instruct the device to save the currently playing list */
+        /** @param #17 PK_Users */
+            /** The user that will own the new playlist. Can be missing. It will pick the current user then. */
+        /** @param #45 PK_EntertainArea */
+            /** Which playlist to save. You can direct the command to save a specific entertainment area's playlist or you can leave it blank to pick the current entertainment area's playlist */
+        /** @param #50 Name */
+            /** It will use the this name when saving. If it is not specified it will either use the name of the loaded playlist in the database or it will generate a new one. */
+        /** @param #77 Save as new */
+            /** Save the playlist as a new playlist. This will override the default behaviour. (If this playlist was not loaded from the database it will be saved as new. If it was loaded it will be overridded). This will make it always save it as new. */
+
+    virtual void CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,string sName,bool bSave_as_new) { string sCMD_Result; CMD_Save_playlist(iPK_Users,sPK_EntertainArea.c_str(),sName.c_str(),bSave_as_new,sCMD_Result,NULL);};
+    virtual void CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,string sName,bool bSave_as_new,string &sCMD_Result,Message *pMessage);
+
+
+    /** @brief COMMAND: #231 - Load Playlist */
+    /** This will instruct the device to load the specific playlist. */
+        /** @param #45 PK_EntertainArea */
+            /** The entertainment area in which to load the  playlist. By defualt it will be the entertainment in which the current orbiter is running. */
+        /** @param #78 EK_Playlist */
+            /** The id of the playlist to load */
+
+    virtual void CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist) { string sCMD_Result; CMD_Load_Playlist(sPK_EntertainArea.c_str(),iEK_Playlist,sCMD_Result,NULL);};
+    virtual void CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,string &sCMD_Result,Message *pMessage);
+
+
+    /** @brief COMMAND: #241 - MH Move Media */
+    /** Moves an existing media stream to the specified entertainment areas. */
+        /** @param #41 StreamID */
+            /** The ID of the media stream to move */
+        /** @param #45 PK_EntertainArea */
+            /** The entertainment area(s) to send the Media Stream to. */
+
+    virtual void CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea) { string sCMD_Result; CMD_MH_Move_Media(iStreamID,sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
+    virtual void CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

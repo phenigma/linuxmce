@@ -28,6 +28,9 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 
 #include <iostream>
 using namespace std;
@@ -53,6 +56,7 @@ using namespace DCE;
 #include "X11/keysym.h"
 #include <X11/extensions/XTest.h>
 
+
 #define MYTH_WINDOW_NAME "mythfrontend"
 
 class RatPoisonWrapper : public RatpoisonHandler<RatPoisonWrapper>
@@ -75,65 +79,8 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
     m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
     m_iMythFrontendWindowId = 0;
-
-    LaunchMythFrontend();
 }
 
-bool MythTV_Player::InitMythTvStuff()
-{
-    int argc = 1;
-    char *argv[] = { "", "", "" };
-
-
-    g_pPlutoLogger->Write( LV_STATUS, "Passing params: %d", argc );
-
-    m_pQApplication = new QApplication( argc, argv );
-
-    if ( ! InitMythTvGlobalContext() )
-    return false;
-
-    QSqlDatabase *db = QSqlDatabase::addDatabase( "QMYSQL3" );
-    if ( !db )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Could not connect to mysql database" );
-        return false;
-    }
-
-    if ( !gContext->OpenDatabase( db ) )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Could not open mysql database" );
-        return false;
-    }
-
-    m_pMythMainWindow = new MythMainWindowResizable();
-
-    m_pMythMainWindow->setCaption("mythtv-playback-window");
-    // m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(NULL));
-
-    m_pMythMainWindow->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
-    m_pMythMainWindow->setMinimumSize( 0, 0 );
-    m_pMythMainWindow->show();
-
-    gContext->SetMainWindow( m_pMythMainWindow );
-
-    TV::InitKeys();
-
-    m_pMythTV = new TV();
-    m_pMythTV->Init();
-
-//     m_pMythMainWindow->setEventFilterOnChild(m_pMythTV);
-
-    if ( pthread_create(&m_qApplicationThreadId, NULL, ProcessQApplicationEventThreadFunction, this) != 0 )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Could not create the video event processing thread. Bailing out!");
-        return false;
-    }
-
-    pthread_detach(m_qApplicationThreadId);
-
-    g_pPlutoLogger->Write(LV_STATUS, "TV object initialized.");
-    return true;
-}
 //<-dceag-dest-b->
 MythTV_Player::~MythTV_Player()
 //<-dceag-dest-e->
@@ -141,43 +88,14 @@ MythTV_Player::~MythTV_Player()
     delete m_pRatWrapper;
 }
 
-void *MythTV_Player::ProcessQApplicationEventThreadFunction(void *data)
-{
-    MythTV_Player *m_pPlayer = (MythTV_Player *)data;
-
-    m_pPlayer->m_pQApplication->exec();
-}
-
-bool MythTV_Player::InitMythTvGlobalContext()
-{
-    gContext = new MythContext( MYTH_BINARY_VERSION, false ); /** create a non GUI version to test the server connectivity. */
-
-    if ( ! ( gContext->ConnectToMasterServer() && gContext->IsConnectedToMaster() ) )
-    {
-        this->EVENT_Error_Occured( "The player wasn't able to connect to the master server!" );
-        delete gContext;
-        return false;
-    }
-
-    delete gContext;
-
-    gContext = new MythContext( MYTH_BINARY_VERSION );
-    gContext->LoadQtConfig();
-
-    return true;
-}
-
 bool MythTV_Player::LaunchMythFrontend()
 {
-//     char *const frontendCommand[] = { "/usr/bin/mythfrontend" };
-//     forkAndWait( frontendCommand, 3 ); // make a process and wait 3 secondss
+    string commandToFire = StringUtils::Format("0 %d %d %d", m_pData->m_dwPK_Device_ControlledVia, MESSAGETYPE_COMMAND, COMMAND_Go_back_CONST);
 
-    string command = "`which " MYTH_WINDOW_NAME "`&";
-    g_pPlutoLogger->Write(LV_STATUS, "Launching process: %s", command.c_str());
-    system(command.c_str());
+    DCE::CMD_Spawn_Application_DT spawnApplication(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, "/usr/bin/mythfrontend", MYTH_WINDOW_NAME, "", commandToFire, commandToFire);
+    SendCommand(spawnApplication);
 
-//    m_pData->m_AllDevices.
-
+    g_pPlutoLogger->Write(LV_STATUS, "Vaca domnului: %d", m_pData->m_dwPK_Device_ControlledVia);
     sleep(5);
 
     if ( ! m_pRatWrapper )
@@ -185,11 +103,8 @@ bool MythTV_Player::LaunchMythFrontend()
 
     selectWindow();
     locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
-}
 
-bool MythTV_Player::Connect()
-{
-    return Command_Impl::Connect(); //  && InitMythTvStuff();
+    return true;
 }
 
 //<-dceag-reg-b->
@@ -200,6 +115,10 @@ bool MythTV_Player::Register()
     return Connect();
 }
 
+void MythTV_Player::CreateChildren()
+{
+    LaunchMythFrontend();
+}
 /*
     When you receive commands that are destined to one of your children,
     then if that child implements DCE then there will already be a separate class
@@ -267,42 +186,6 @@ void MythTV_Player::waitToFireMediaChanged()
     }
 }
 
-bool MythTV_Player::forkAndWait(char *const args[], int waitTime)
-{
-    switch ( fork() )
-    {
-        case -1:
-            g_pPlutoLogger->Write(LV_WARNING, "There was an error trying to fork.");
-            break;
-        case 0:
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "In Child process");
-            stringstream commandLine;
-
-            int arg = 0;
-            while ( args[arg] != 0 )
-                commandLine << " " << args[arg++] << "";
-
-            g_pPlutoLogger->Write(LV_STATUS, "Spawning process: %s", commandLine.str().c_str());
-
-            int result;
-            if ( (result = execv(args[0], args)) == -1 )
-            {
-                g_pPlutoLogger->Write(LV_WARNING, "Exec failed %d", errno);
-                perror("Execve error: ");
-                execl("/bin/false", NULL); // Cause the image to owerwritten so that an exit will not close the XServerDisplay
-            }
-        }
-//             break; // it doesn't reach here anyway.
-        default:
-            // i'm in the parent here
-            g_pPlutoLogger->Write(LV_STATUS, "Fork was succesfull. Waiting %d", waitTime);
-            usleep(waitTime * 1000 * 1000);
-    }
-
-    return true;
-}
-
 void MythTV_Player::selectWindow()
 {
     m_pRatWrapper->commandRatPoison(":select " MYTH_WINDOW_NAME);
@@ -354,7 +237,6 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
         return true;
     }
 
-    /* finally, make the query for the above values. */
     XQueryTree(m_pRatWrapper->getDisplay(), (Window)window, &root_win, &parent_win, &child_windows, &num_child_windows);
 
     for ( int i = 0; i < num_child_windows; i++ )
@@ -381,25 +263,11 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c75-e->
 {
-//     if ( m_pMythTV )
-//     {
-//         if ( m_pMythTV->GetState() == kState_WatchingLiveTV || m_pMythTV->GetState() == kState_ChangingState )
-//         {
-//             g_pPlutoLogger->Write( LV_STATUS, "LiveTV is already started or is starting now" );
-//             return;
-//         }
-//
-//         g_pPlutoLogger->Write( LV_STATUS, "Starting Live TV Playback!" );
-//         if ( m_pMythTV->LiveTV( false ) == 0 )
-//         {
-//             EVENT_Error_Occured( "We weren't able to start LiveTV." );
-//         }
-//         else
-//         {
-//             m_iControllingDevice = pMessage->m_dwPK_Device_From;
-//             waitToFireMediaChanged();
-//         }
-//     }
+    if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
+    {
+            LaunchMythFrontend();
+            locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+    }
 
     selectWindow();
 }
@@ -413,9 +281,10 @@ void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c76-e->
 {
-//  m_pRemoteEncoder->StopLiveTV();
- if ( m_pMythTV )
-  m_pMythTV->Stop();
+    //  m_pRemoteEncoder->StopLiveTV();
+    // DCE::CMD_Spawn_Application_DT (m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, "/usr/bin/mythfrontend", MYTH_WINDOW_NAME, "", "", "");
+    DCE::CMD_Kill_Application_DT killApplicationCommand(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, MYTH_WINDOW_NAME);
+    SendCommand(killApplicationCommand);
 }
 
 //<-dceag-c187-b->
@@ -519,11 +388,7 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c129-e->
 {
-    if ( m_pMythTV && m_pMythTV->GetState() == kState_WatchingLiveTV )
-    {
-        m_pMythTV->ChangeChannel(CHANNEL_DIRECTION_UP);
-        waitToFireMediaChanged();
-    }
+    CMD_Move_Up(sCMD_Result, pMessage);
 }
 
 //<-dceag-c130-b->
@@ -534,11 +399,7 @@ void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c130-e->
 {
-    if ( m_pMythTV && m_pMythTV->GetState() == kState_WatchingLiveTV )
-    {
-        m_pMythTV->ChangeChannel(CHANNEL_DIRECTION_DOWN);
-        waitToFireMediaChanged();
-    }
+    CMD_Move_Down(sCMD_Result, pMessage);
 }
 //<-dceag-c190-b->
 

@@ -30,8 +30,8 @@
 
 void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
 {
-	for(size_t s=0;s<dAdditional.size();++s)
-		dTarget.push_back(dAdditional[s]);
+    for(size_t s=0;s<dAdditional.size();++s)
+        dTarget.push_back(dAdditional[s]);
 }
 
 MediaPluginInfo::MediaPluginInfo( class MediaPluginBase *pMediaPluginBase, class Command_Impl *pCommand_Impl, int PK_MediaType, int PK_DeviceTemplate, bool bCanJumpPosition, bool bUsesDevices, bool bDontRegister )
@@ -147,21 +147,22 @@ MediaStream::MediaStream( class MediaPluginInfo *pMediaPluginInfo, MediaDevice *
     m_eSourceType=sourceType;
     m_bPlaying=false;
     m_pMediaPosition=NULL;
+    m_iStoppedAtPosition = 0;
     m_pOH_Orbiter=NULL;
     m_pPictureData=NULL;
     m_iPictureSize=0;
-	m_iOrder=0;
+    m_iOrder=0;
     m_iDequeMediaFile_Pos=-1;
     m_iPK_Playlist=0;
     m_sPlaylistName="";
 
-	m_pMediaDevice=pMediaDevice;
+    m_pMediaDevice=pMediaDevice;
 
     if ( m_pMediaPluginInfo ) // If this stream is a "valid stream only"
         m_pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaStream[m_iStreamID] = this;
 
-	if( !m_pMediaDevice || !m_pMediaPluginInfo )
-		g_pPlutoLogger->Write( LV_CRITICAL, "Media stream is invalid because of NULL pointers! %p %p",m_pMediaDevice, m_pMediaPluginInfo);
+    if( !m_pMediaDevice || !m_pMediaPluginInfo )
+        g_pPlutoLogger->Write( LV_CRITICAL, "Media stream is invalid because of NULL pointers! %p %p",m_pMediaDevice, m_pMediaPluginInfo);
 
 g_pPlutoLogger->Write( LV_STATUS, "create Mediastream %p on menu id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
 g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", m_mapEntertainArea.size( ) );
@@ -171,12 +172,13 @@ void MediaStream::SetPlaylistPosition(int position)
 {
     m_iDequeMediaFile_Pos = position;
 
-    // The animals .... size_t vs int...
     if ( m_iDequeMediaFile_Pos >= (int)m_dequeMediaFile.size() )
         m_iDequeMediaFile_Pos = m_dequeMediaFile.size() - 1;
 
     if ( m_iDequeMediaFile_Pos < 0 )
         m_iDequeMediaFile_Pos = 0;
+
+    m_iStoppedAtPosition = 0; // reset the file pointer also.
 }
 
 
@@ -215,7 +217,7 @@ void MediaStream::DumpPlaylist()
 void MediaStream::ClearPlaylist()
 {
     m_iDequeMediaFile_Pos = -1;
-	MediaAttributes::PurgeDequeMediaFile(m_dequeMediaFile);
+    MediaAttributes::PurgeDequeMediaFile(m_dequeMediaFile);
     m_dequeMediaFile.clear();
 }
 
@@ -228,7 +230,7 @@ MediaStream::~MediaStream( )
 {
     if ( m_pMediaPluginInfo )
         m_pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaStream_Remove( m_iStreamID );
-	ClearPlaylist();
+    ClearPlaylist();
 }
 
 void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream )

@@ -29,8 +29,9 @@ namespace DCE
 #define MEDIASTREAM_TYPE_DVD            2
 
     // Specific to plugins
+    // ? Shouldn't this be managed using plugin database ID's or something ?
 #define MEDIASTREAM_TYPE_MYTHTV         100
-
+#define MEDIASTREAM_TYPE_XINE           101
 
     /** @brief
      *
@@ -110,9 +111,9 @@ namespace DCE
      * the destinations are seeing the same thing, and the appropriate plug-in must concern itself with proper audio/video sync,
      * and ensure that if 1 person changes the stream, they all stay in sync.
      * It is possible to do this even with non-stored media, like Broadcast TV.
-	 * Whatever media plugin first created the media is considered the 'responsible' plug-in.  A MediaStream can contain a 'playlist' or group
-	 * of files or media clips.  However, all must be of the same type since there is only 1 MediaPluginInfo for a stream.  You cannot, therefore, mix
-	 * audio and video clips in a playlist, or some stored audio (WAV, MP3, etc) with CD's or DVD's.
+     * Whatever media plugin first created the media is considered the 'responsible' plug-in.  A MediaStream can contain a 'playlist' or group
+     * of files or media clips.  However, all must be of the same type since there is only 1 MediaPluginInfo for a stream.  You cannot, therefore, mix
+     * audio and video clips in a playlist, or some stored audio (WAV, MP3, etc) with CD's or DVD's.
     */
     class MediaStream
     {
@@ -146,7 +147,7 @@ namespace DCE
         bool m_bPlaying;        /** True if the media is now playing */
         int m_iPK_Users;        /** Who started the media */
         bool m_bFollowMe;       /** True if the media is supposed to follow the above user */
-		int m_iOrder;  /** This is used for the floorplans to order and color code the streams */
+        int m_iOrder;  /** This is used for the floorplans to order and color code the streams */
 
         enum SourceType m_eSourceType;  /** Where the media is coming from */
 

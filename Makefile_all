@@ -1,7 +1,7 @@
 LIBRARIES=pluto_main DCE VIPShared
 APPS=DCEGen DCERouter sql2cpp MessageSend 
 DCEDEVS=App_Server Bluetooth_Dongle Disk_Drive
-PLUGINS=Datagrid_Plugin File_Grids_Plugin Media_Plugin Orbiter_Plugin Xine_Plugin Media_Grids_Plugin \
+PLUGINS=Datagrid_Plugin File_Grids_Plugin Media_Plugin Orbiter_Plugin Xine_Plugin \
 	General_Info_Plugin Mozilla_Plugin Lighting_Plugin Climate_Plugin Security_Plugin Telecom_Plugin \
 	MythTV_PlugIn
 CONFLICTING=OrbiterGen Orbiter Xine_Player 
