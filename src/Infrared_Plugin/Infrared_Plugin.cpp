@@ -577,6 +577,8 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 						}
 					}
 					fclose(fp);
+				} else {
+					g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
 				}
 				g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
 			} else {
@@ -594,6 +596,8 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 						}
 					}
 					fclose(fp);
+				} else {
+					g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
 				}
 				g_pPlutoLogger->Write(LV_STATUS, "The configure script failed to configure gc100");
 			}
