@@ -55,7 +55,7 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 {
 	struct cx88_core *core = dev->core;
 
-	dprintk(1, "cx8802_start_mpegport_dma %d\n", buf->vb.width);
+	dprintk(0, "cx8802_start_mpegport_dma %d\n", buf->vb.width);
 
 	/* setup fifo + format */
 	cx88_sram_channel_setup(core, &cx88_sram_channels[SRAM_CH28],
@@ -101,11 +101,12 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 
 	/* enable irqs */
 	cx_set(MO_PCI_INTMSK, core->pci_irqmask | 0x04);
-	cx_write(MO_TS_INTMSK,  0x1f0011);
+	//cx_write(MO_TS_INTMSK,  0x1f0011);
+	cx_write(MO_TS_INTMSK,  0x0f0011);
 
 	/* start dma */
-	cx_write(MO_DEV_CNTRL2, (1<<5)); /* FIXME: s/write/set/ ??? */
-	cx_write(MO_TS_DMACNTRL, 0x11);
+	cx_set(MO_DEV_CNTRL2, (1<<5)); /* FIXME: s/write/set/ ??? */
+	cx_set(MO_TS_DMACNTRL, 0x11);
 	return 0;
 }
 
@@ -132,13 +133,10 @@ static int cx8802_restart_queue(struct cx8802_dev    *dev,
 	struct cx88_buffer *buf;
 	struct list_head *item;
 
+	dprintk( 0, "cx8802_restart_queue\n" );
 	if (list_empty(&q->active))
 	{
 		dprintk( 0, "queue is empty\n" );
-		if (list_empty(&q->queued))
-		{
-			dprintk( 0, "queued is empty\n" );
-		}
 		return 0;
 	}
 
@@ -196,17 +194,20 @@ void cx8802_buf_queue(struct cx8802_dev *dev, struct cx88_buffer *buf)
 	buf->risc.jmp[1] = cpu_to_le32(q->stopper.dma);
 
 	if (list_empty(&q->active)) {
-		dprintk( 0, "queue is empty\n" );
+		dprintk( 0, "queue is empty - first active\n" );
 		list_add_tail(&buf->vb.queue,&q->active);
+		//cx8802_stop_dma(dev);
+		//cx8802_restart_queue(dev,q);
 		cx8802_start_dma(dev, q, buf);
 		buf->vb.state = STATE_ACTIVE;
 		buf->count    = q->count++;
 		mod_timer(&q->timeout, jiffies+BUFFER_TIMEOUT);
 		dprintk(0,"[%p/%d] %s - first active\n",
 			buf, buf->vb.i, __FUNCTION__);
+		udelay(10);
 
 	} else {
-		dprintk( 0, "queue is not empty\n" );
+		dprintk( 0, "queue is not empty - append to active\n" );
 		prev = list_entry(q->active.prev, struct cx88_buffer, vb.queue);
 		list_add_tail(&buf->vb.queue,&q->active);
 		buf->vb.state = STATE_ACTIVE;
@@ -214,6 +215,7 @@ void cx8802_buf_queue(struct cx8802_dev *dev, struct cx88_buffer *buf)
 		prev->risc.jmp[1] = cpu_to_le32(buf->risc.dma);
 		dprintk(0,"[%p/%d] %s - append to active\n",
 			buf, buf->vb.i, __FUNCTION__);
+		udelay(10);
 	}
 }
 
@@ -237,10 +239,6 @@ static void do_cancel_buffers(struct cx8802_dev *dev, char *reason, int restart)
 	if (restart)
 	{
 		dprintk( 0, "restarting queue\n" );
-		//videobuf_streamoff(q);
-		//videobuf_streamon(q);
-		//if( list_empty(&q->active) )
-		//	INIT_LIST_HEAD(&q->active);
 		cx8802_restart_queue(dev,q);
 	}
 	spin_unlock_irqrestore(&dev->slock,flags);

@@ -641,7 +641,7 @@ void cx88_wakeup(struct cx88_core *core,
 		//mod_timer(&q->timeout, jiffies+10*BUFFER_TIMEOUT);
 	} else {
 		dprintk(0,"mod_timer\n");
-		mod_timer(&q->timeout, jiffies+10*BUFFER_TIMEOUT);
+		mod_timer(&q->timeout, jiffies+BUFFER_TIMEOUT);
 	}
 	if (bc != 1)
 		printk("%s: %d buffers handled (should be 1)\n",__FUNCTION__,bc);
