@@ -76,7 +76,7 @@ function leftMenu($output,$dbADO) {
 					if ($res1) {
 						while ($row1 = $res1->FetchRow()) {
 							$jsTree.='				    
-								auxS'.$row1['PK_Device'].' = insFld(foldersTree, gFld("'.$row1['Description'].'", "index.php?section=editDeviceParams&deviceID='.$row1['PK_Device'].'"));
+								auxS'.$row1['PK_Device'].' = insFld(foldersTree, gFld("'.addslashes($row1['Description']).'", "index.php?section=editDeviceParams&deviceID='.$row1['PK_Device'].'"));
 								auxS'.$row1['PK_Device'].'.xID = -'.$row1['PK_Device'].';
 							';
 							$jsTree.=getDeviceChilds($row1['PK_Device'],$dbADO);
@@ -277,7 +277,7 @@ function getDeviceChilds($parentID,$dbADO) {
 	if ($resGP) {
 		while ($row=$resGP->FetchRow()) {
 				$jsTree.= '
-					auxS'.$row['PK_Device'].' = insFld(auxS'.$parentID.', gFld("'.$row['Description'].'", "index.php?section=editDeviceParams&deviceID='.$row['PK_Device'].'"))
+					auxS'.$row['PK_Device'].' = insFld(auxS'.$parentID.', gFld("'.addslashes($row['Description']).'", "index.php?section=editDeviceParams&deviceID='.$row['PK_Device'].'"))
 					auxS'.$row['PK_Device'].'.xID = '.$row['PK_Device'].';
 				';
 				$jsTree.=getDeviceChilds($row['PK_Device'],$dbADO);
