@@ -907,8 +907,10 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 	/* assign 3 2 pulldown */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_3_2_PULLDOWN, 1, 0, BLACKBIRD_3_2_PULLDOWN_DISABLED);
 
+	/* assign audio properties */
 	/* note: it's not necessary to set the samplerate, the mpeg encoder seems to autodetect/adjust */
 	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_AUDIO_PROPERTIES, 1, 0, (2<<2) | (8<<4));
+	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_AUDIO_PROPERTIES, 1, 0, 0 | (2 << 2) | (14 << 4));
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_AUDIO_PARAMS, 1, 0,
 			BLACKBIRD_AUDIO_BITS_44100HZ |
 			BLACKBIRD_AUDIO_BITS_LAYER_2 |
@@ -924,8 +926,6 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 	/* assign gop closure */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_GOP_CLOSURE, 1, 0, BLACKBIRD_GOP_CLOSURE_OFF);
 
-	/* assign audio properties */
-	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_AUDIO_PROPERTIES, 1, 0, 0 | (2 << 2) | (14 << 4));
 
 	/* assign dnr filter mode */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_DNR_MODE, 2, 0,
