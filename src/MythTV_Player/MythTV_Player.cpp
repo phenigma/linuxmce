@@ -261,7 +261,7 @@ bool MythTV_Player::checkWindowName(long unsigned int window, string windowName)
     XTextProperty text;
 
 	if ( ! checkXServerConnection())
-		return;
+		return false;
 
 	if ( XGetWMName (m_pRatWrapper->getDisplay(), window, &text) && windowName == string((const char*)text.value) )
         return true;
@@ -275,7 +275,7 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
     unsigned int num_child_windows;
 
 	if ( ! checkXServerConnection())
-		return;
+		return false;
 
     if ( checkWindowName(window, MYTH_WINDOW_NAME ) )
     {
