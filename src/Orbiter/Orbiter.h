@@ -63,7 +63,7 @@ public:
 	class LocationInfo *m_pLocationInfo; /** < The current location */
 	bool m_bCantGoBack; /** < If we get a go back, skip over this screen unless "Force" is set to true */
 	class DesignObj_Orbiter *m_pObj; /** < The screen we're viewing */
-	map<int, string> m_mapVariables; /** < Any variables we need to restore when returning to this screen */
+	map<int, string> m_mapVariable; /** < Any variables we need to restore when returning to this screen */
 };
 
 typedef void ( Orbiter::*OrbiterCallBack )( void *data );

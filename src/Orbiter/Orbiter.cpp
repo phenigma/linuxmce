@@ -4011,7 +4011,13 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 
     // We've got a screen to go back to
     if(  pScreenHistory  )
+	{
+		// If we stored variables, be sure to restore them
+		for(VariableMap::iterator it=pScreenHistory->m_mapVariable.begin();it!=pScreenHistory->m_mapVariable.end();++it)
+			m_mapVariable[ (*it).first ] = (*it).second;
+
         NeedToChangeScreens( pScreenHistory, false );
+	}
 }
 
 //<-dceag-c5-b->
@@ -4042,16 +4048,8 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
     DesignObj_Orbiter *pObj_New=m_ScreenMap_Find( sDestScreen );
     if(  !pObj_New  )
 		pObj_New=m_ScreenMap_Find( StringUtils::itos(atoi(sDestScreen.c_str())) + ".0.0" );
-DesignObj_OrbiterMap::iterator it;
-for(it = m_ScreenMap.begin(); it != m_ScreenMap.end(); it++)
-{
-DesignObj_Orbiter* pDesignObj_Orbiter = (DesignObj_Orbiter*)((*it).second);
-if( pDesignObj_Orbiter->m_ObjectID.substr(0,2)=="32" )
-{
-int k=2;
-}
-}
-    if(  !pObj_New  )
+
+	if(  !pObj_New  )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "cannot find screen %s in goto", sPK_DesignObj.c_str(  ) );
         return;
@@ -4616,7 +4614,13 @@ void Orbiter::CMD_Stop_Sound(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Store_Variables(string &sCMD_Result,Message *pMessage)
 //<-dceag-c31-e->
 {
-    cout << "Need to implement command #31 - Store Variables" << endl;
+	if( !m_pScreenHistory_Current )
+		return;
+
+	for(VariableMap::iterator it=m_mapVariable.begin();it!=m_mapVariable.end();++it)
+	{
+		m_pScreenHistory_Current->m_mapVariable[ (*it).first ] = (*it).second;
+	}
 }
 
 //<-dceag-c32-b->

@@ -408,7 +408,10 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
 	{
 		pCommand_Impl = RegisterAsPlugin(this, PK_Device, "dcerouter"); // hack!!!
 	}
-	catch(...) {}
+	catch(...) 
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Plugin %d threw an exception",pCommand_Impl->m_dwPK_Device);
+	}
 
 	return pCommand_Impl;
 }
