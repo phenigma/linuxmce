@@ -1761,9 +1761,11 @@ DEP_CPP_ORBITE=\
 	"..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
 	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyMap.h"\
 	"..\..\PlutoUtils\MyStl.h"\
@@ -1771,6 +1773,13 @@ DEP_CPP_ORBITE=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\TextStyle.h"\
 	".\wince.h"\
 	
 NODEP_CPP_ORBITE=\
@@ -1912,6 +1921,7 @@ DEP_CPP_ORBITER=\
 	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_version.h"\
 	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_video.h"\
 	"..\..\CrossPlatform-Libs\SDL_image-1.2.3\SDL_image.h"\
+	"..\..\CrossPlatform-Libs\SDL_rotozoom-1.6\SDL_rotozoom.h"\
 	"..\..\CrossPlatform-Libs\SDL_ttf-2.0.6\SDL_ttf.h"\
 	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge.h"\
 	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_blib.h"\
@@ -1969,7 +1979,6 @@ DEP_CPP_ORBITER=\
 	
 NODEP_CPP_ORBITER=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\SDL\SDL_rotozoom.h"\
 	
 
 !ENDIF 
@@ -2119,6 +2128,7 @@ DEP_CPP_ORBITERS=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\SDL\OrbiterSDL.h"\
+	"..\SelfUpdate.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
@@ -2334,6 +2344,142 @@ DEP_CPP_RENDE=\
 	
 NODEP_CPP_RENDE=\
 	"..\..\CrossPlatform-Libs\lpng127\pngusr.h"\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\SelfUpdate.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_SELFU=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\SelfUpdate.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SELFU=\
+	"..\DCE\Logger.h"\
+	"..\Gen_Devices\AllCommandsRequests.h"\
+	"..\Gen_Devices\OrbiterBase.h"\
+	"..\Message.h"\
+	"..\Orbiter\DesignObj_Data.h"\
+	"..\pluto_main\Define_DesignObjType.h"\
+	"..\pluto_main\Define_DeviceCategory.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\md5.h"\
+	"..\PlutoUtils\StringUtils.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SELFU=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\SelfUpdate.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SELFU=\
+	"..\DCE\Logger.h"\
+	"..\Gen_Devices\AllCommandsRequests.h"\
+	"..\Gen_Devices\OrbiterBase.h"\
+	"..\Message.h"\
+	"..\Orbiter\DesignObj_Data.h"\
+	"..\pluto_main\Define_DesignObjType.h"\
+	"..\pluto_main\Define_DeviceCategory.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\md5.h"\
+	"..\PlutoUtils\StringUtils.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_SELFU=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\SelfUpdate.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SELFU=\
+	"..\DCE\Logger.h"\
+	"..\Gen_Devices\AllCommandsRequests.h"\
+	"..\Gen_Devices\OrbiterBase.h"\
+	"..\Message.h"\
+	"..\Orbiter\DesignObj_Data.h"\
+	"..\pluto_main\Define_DesignObjType.h"\
+	"..\pluto_main\Define_DeviceCategory.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\md5.h"\
+	"..\PlutoUtils\StringUtils.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_SELFU=\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\md5.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\SelfUpdate.h"\
+	"..\TextStyle.h"\
+	".\wince.h"\
+	
+NODEP_CPP_SELFU=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 

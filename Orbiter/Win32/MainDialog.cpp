@@ -167,6 +167,8 @@ DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 		WriteStatusOutput(s);
 	}
 
+	PostMessage(g_hwndMainDialog, WM_QUIT, 0, 0);
+
 	return 0L;
 }
 //-----------------------------------------------------------------------------------------------------

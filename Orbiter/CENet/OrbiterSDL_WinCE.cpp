@@ -6,6 +6,8 @@
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
 
+#include "SelfUpdate.h"
+
 //#define PROFILING_CE
 
 const MAX_STRING_LEN = 4096;
@@ -572,5 +574,12 @@ void OrbiterSDL_WinCE::OnQuit()
 	SDL_Event event;
 	event.type = SDL_USEREVENT;
 	SDL_PushEvent(&event); 
+}
+//-----------------------------------------------------------------------------------------------------
+bool OrbiterSDL_WinCE::SelfUpdate()
+{
+	OrbiterSelfUpdate orbiterSelfUpdate(this);
+
+	return orbiterSelfUpdate.Run();
 }
 //-----------------------------------------------------------------------------------------------------

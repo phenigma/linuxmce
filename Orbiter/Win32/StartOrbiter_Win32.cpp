@@ -12,6 +12,7 @@ using namespace std;
 #include "ServerLogger.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/PlutoDefs.h"
 
 #include "MainDialog.h"
 //-----------------------------------------------------------------------------------------------------
@@ -53,8 +54,7 @@ OrbiterSDL_Win32* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 
 		if(!bConnected)
 		{
-			delete pOrbiter;
-			pOrbiter = NULL;
+			PLUTO_SAFE_DELETE(pOrbiter);
 		}
 
 	}
@@ -68,6 +68,9 @@ bool Run(OrbiterSDL_Win32* pOrbiter, bool bLocalMode)
 	pOrbiter->WriteStatusOutput("Parsing configuration data...");
 
     pOrbiter->Initialize(gtSDLGraphic);
+
+	if(pOrbiter->m_bQuit)
+		return true;
 
 	if(pOrbiter->m_bReload)
 		return false;
@@ -155,6 +158,13 @@ void StartOrbiter_Win32(int PK_Device,string sRouter_IP,string sLocalDirectory,b
 				{
 			        g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 					stage = osRun;
+
+					g_pPlutoLogger->Write( LV_STATUS, "Orbiter SelfUpdate: starting" );
+					if(pOrbiter->SelfUpdate())
+					{
+						g_pPlutoLogger->Write( LV_STATUS, "SOrbiter SelfUpdate: need to close orbiter" );
+						stage = osQuit;
+					}
 				}
 				else
 					stage = osErrorReconnect;
@@ -175,7 +185,6 @@ void StartOrbiter_Win32(int PK_Device,string sRouter_IP,string sLocalDirectory,b
 		}
 	}
     
-	OrbiterSDL_Win32::Cleanup();
 	pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------

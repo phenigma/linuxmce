@@ -27,6 +27,7 @@ public:
 	//base public methods
 	void OnQuit();
 	void RenderScreen();
+	bool SelfUpdate();
 
 	void WriteStatusOutput(const char* pMessage);
 

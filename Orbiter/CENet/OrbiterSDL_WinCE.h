@@ -59,6 +59,8 @@ public:
 	void OnQuit();
 	void RenderText(DesignObjText *Text,TextStyle *pTextStyle);
 	void WriteStatusOutput(const char* pMessage);
+	bool SelfUpdate();
+
 
 	//OrbiterSDL_WinCE public methods
 	void RenderTextObjectsWinCE(HWND hWnd);

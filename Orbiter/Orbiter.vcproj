@@ -158,6 +158,9 @@
 				RelativePath=".\RendererMNG.cpp">
 			</File>
 			<File
+				RelativePath=".\SelfUpdate.cpp">
+			</File>
+			<File
 				RelativePath=".\Simulator.cpp">
 			</File>
 			<File

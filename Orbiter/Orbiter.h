@@ -109,6 +109,12 @@ public:
 	time_t GetLastScreenChangedTime();
 	string GetCurrentScreenID();
 
+	/**
+	* @brief searches for updates, returns true if an update was found
+	* @todo ask
+	*/
+	virtual bool SelfUpdate() { return false; };
+
 	pluto_pthread_mutex_t m_CallbackMutex; /** < Don't allow 2 threads to operate on the callback map at the same time */
 	pluto_pthread_mutex_t m_MaintThreadMutex;
 	pthread_cond_t m_MaintThreadCond;	

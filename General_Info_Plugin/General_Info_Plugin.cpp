@@ -208,10 +208,16 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 	cout << "Parm #92 - Checksum_Only=" << bChecksum_Only << endl; 
 
 	g_pPlutoLogger->Write(LV_FILEREQUEST, "request missing  file: %s", sFilename.c_str());
-	size_t Length;
+	size_t Length = 0;
 	char *c = FileUtils::ReadFileIntoBuffer(sFilename, Length);
 	if( c==NULL && m_pRouter )
 		c = FileUtils::ReadFileIntoBuffer(m_pRouter->sBasePath_get() + sFilename, Length);
+
+	if(c==NULL) //file not found
+	{
+		g_pPlutoLogger->Write(LV_FILEREQUEST, "The requested file '%s' was not found", sFilename.c_str());
+		return;
+	}
 
 	*iData_Size = (int) Length;
 	*pData = c;
@@ -235,12 +241,12 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 
 	if(*bChecksum_Only)
 	{
-		iData_Size = 0;
+		*iData_Size = 0;
 
-		if(NULL != pData)
+		if(NULL != *pData)
 		{
-			delete pData;
-			pData = NULL;
+			delete *pData;
+			*pData = NULL;
 		}
 	}
 }

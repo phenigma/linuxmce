@@ -159,6 +159,13 @@ void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool 
 				{
 			        g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 					stage = osRun;
+
+					g_pPlutoLogger->Write( LV_STATUS, "Orbiter SelfUpdate: starting" );
+					if(pOrbiter->SelfUpdate())
+					{
+						g_pPlutoLogger->Write( LV_STATUS, "SOrbiter SelfUpdate: need to close orbiter" );
+						stage = osQuit;
+					}
 				}
 				else
 					stage = osErrorReconnect;

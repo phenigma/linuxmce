@@ -6,6 +6,8 @@
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
 
+#include "SelfUpdate.h"
+
 #define VK_A 0x41
 #define VK_C 0x43
 #define VK_E 0x45
@@ -403,5 +405,12 @@ void OrbiterSDL_Win32::OnQuit()
 	SDL_Event event;
 	event.type = SDL_USEREVENT;
 	SDL_PushEvent(&event); 
+}
+//-----------------------------------------------------------------------------------------------------
+bool OrbiterSDL_Win32::SelfUpdate()
+{
+	OrbiterSelfUpdate orbiterSelfUpdate(this);
+
+	return orbiterSelfUpdate.Run();
 }
 //-----------------------------------------------------------------------------------------------------

@@ -74,6 +74,21 @@ char *FileUtils::ReadFileIntoBuffer( string sFileName, size_t &Size )
     return pChr;
 }
 
+bool FileUtils::WriteBufferIntoFile( string sFileName, char *pBuffer, size_t Size )
+{
+	if( sFileName.length()==0 )
+		return false;
+
+	FILE *pFile = fopen( sFileName.c_str(), "wb" );
+	if ( pFile == NULL )
+		return false;
+
+	fwrite( pBuffer, Size, 1, pFile );
+	fclose( pFile );
+
+	return true;
+}
+
 void FileUtils::ReadFileIntoVector( string sFileName, vector<string> &vectString )
 {
 	size_t s;
