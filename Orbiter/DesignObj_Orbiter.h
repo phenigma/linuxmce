@@ -3,7 +3,7 @@
 
 #include "DesignObj_Data.h"
 #include "PlutoUtils/GraphicFormat.h"
-
+//-------------------------------------------------------------------------------------------------------
 class ProntoCCF;
 namespace DCE
 {
@@ -11,27 +11,24 @@ namespace DCE
 	class Logger;
 	class DataGridTable;
 }
-
+//-------------------------------------------------------------------------------------------------------
 using namespace DCE;
-
+//-------------------------------------------------------------------------------------------------------
 // Graphic memory management.  GR_DYNAMIC means that this is a dynamic image
 // and there's no reason to ever keep it.  Discardonchange may keep the image
 // if there's enough system memory. 
-
+//-------------------------------------------------------------------------------------------------------
 enum eGraphicManagement { GR_KEEPUNCOMPRESSED, GR_KEEPCOMPRESSED, GR_DISCARDONCHANGE, GR_DYNAMIC, GR_STORAGE };
 
 // Windows-style RGB management
-
+//-------------------------------------------------------------------------------------------------------
 #ifndef RGB
-
-#define RGB(r,g,b)          ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
-
-#define GetRValue(rgb)      ((BYTE)(rgb))
-#define GetGValue(rgb)      ((BYTE)(((WORD)(rgb)) >> 8))
-#define GetBValue(rgb)      ((BYTE)((rgb)>>16))
-
+	#define RGB(r,g,b)          ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
+	#define GetRValue(rgb)      ((BYTE)(rgb))
+	#define GetGValue(rgb)      ((BYTE)(((WORD)(rgb)) >> 8))
+	#define GetBValue(rgb)      ((BYTE)((rgb)>>16))
 #endif
-
+//-------------------------------------------------------------------------------------------------------
 #ifndef max
 #define max(a,b)            (((a) > (b)) ? (a) : (b))
 #endif
@@ -75,7 +72,7 @@ class SDLGraphic : public PlutoGraphic
 {
 public:
 	SDLGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pCI);
-	SDLGraphic(struct SDL_Surface *pSDL_Surface) { m_pSDL_Surface=pSDL_Surface; }
+	SDLGraphic(struct SDL_Surface *pSDL_Surface);
 	SDLGraphic(Orbiter *pCI);
 	~SDLGraphic();
 

@@ -104,12 +104,26 @@ SDLGraphic::SDLGraphic(Orbiter *pOrbiter)
 	Initialize();
 }
 //-------------------------------------------------------------------------------------------------------
+SDLGraphic::SDLGraphic(struct SDL_Surface *pSDL_Surface) 
+{ 
+	Initialize();
+
+	m_pSDL_Surface = pSDL_Surface; 
+}
+//-------------------------------------------------------------------------------------------------------
 SDLGraphic::~SDLGraphic()
 {
 	if (m_pImage)
+	{
 		delete m_pImage;
+		m_pImage = NULL;
+	}
+
 	if (m_pSDL_Surface)
+	{
 		SDL_FreeSurface(m_pSDL_Surface);
+		m_pSDL_Surface = NULL;
+	}
 }
 //-------------------------------------------------------------------------------------------------------
 void SDLGraphic::Initialize() 

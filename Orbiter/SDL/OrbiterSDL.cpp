@@ -295,7 +295,15 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 		SDL_BlitSurface(obj_image, NULL, m_pScreenImage, &Destination);
 
 	if( bDeleteSurface )
+	{
         SDL_FreeSurface(obj_image);
+
+		if( pObj->m_pCurrentGraphic->GraphicType_get()==gtSDLGraphic )
+		{
+			SDLGraphic *pSDLGraphic = (SDLGraphic *) pObj->m_pCurrentGraphic;
+			pSDLGraphic->m_pSDL_Surface = NULL;
+		}
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
