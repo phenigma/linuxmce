@@ -1006,11 +1006,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	cout << "\nCreting temporary directory\n";
 	MyPath = "cvs_temp";
 	//Building Temporary Directory
-#ifdef WIN32
-	mkdir(MyPath.c_str());
-#else
 	mkdir(MyPath.c_str(), 0777);
-#endif
 	//ChDir to Temporary Directory
 	chdir(MyPath.c_str());
 
@@ -1072,17 +1068,12 @@ cout << "Copying Files\n";
 					cmd = "";
 				}
 				if(FileUtils::DirExists(cmd) != true) {
-#ifdef WIN32
-					cmd = "copy /y " + pFileInfo->m_sSource + " " + cmd + "\\" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-					system(cmd.c_str());
-#else
 					if(cmd == "") {
 						cmd = "cp -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					} else {
 						cmd = "cp -f " + pFileInfo->m_sSource + " " + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					}
 					system(cmd.c_str());
-#endif
 				}
 				flag = true;
 				break;
@@ -1098,49 +1089,26 @@ cout << "Copying Files\n";
 				//if we are on the root dir we just copy it as a file
 				if(cmd.compare(pRow_Package_Source->Name_get()) == 0)
 				{
-#ifdef WIN32
-					cmd = "copy /y " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-					system(cmd.c_str());
-					cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ add "
-						+ FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-					system(cmd.c_str());
-#else
 					cmd = "cp -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
-					cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ add "
-						+ FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					cmd = "cvs add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
-#endif
 				}
 				else {
 					//if we are not in ther root
 					if(FileUtils::DirExists(cmd) != true) {
-#ifdef WIN32
-						mkdir(cmd.c_str());
-						cmd2 = "copy /y " + pFileInfo->m_sSource + " " + cmd + "\\" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-						system(cmd2.c_str());
-#else
 						mkdir(cmd.c_str(), 0777);
 						cmd2 = "cp " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
-						cmd2 = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ add "
-							+ cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd2 = "cvs add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
-#endif
 					}
 					else {
-#ifdef WIN32
-						cmd = "copy /y " + pFileInfo->m_sSource + " " + cmd + "\\" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-						system(cmd.c_str());
-						cout << cmd.c_str() << endl;
-#else
 						cmd2 = "cp -f " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
-						cmd2 = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ add "
-							+ cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd2 = "cvs add " +	cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
 						cout << cmd2.c_str() << endl;
-#endif
 					}
 				}
 		}
@@ -1205,6 +1173,7 @@ cout << "Copying Files\n";
 	cout << "[Done]\n";
 
 	//at the end we delete the temporary directory
+	return true;
 	cout << "Clearing Temporary ";
 	cmd = "../../";
 	chdir(cmd.c_str());
