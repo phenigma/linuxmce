@@ -2,11 +2,17 @@
 
 . /usr/pluto/bin/pluto.func
 
+# DEBUG
+set -x
+LogFile="/var/log/pluto/KillScreens.log"
+date >>"$LogFile"
+exec 2>>"$LogFile"
+
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Killing these processes: $*"
 
 Tab="$(echo -e "\t")"
 for Process in "$@"; do
-	Pids="$Pids $(screen -ls | grep -F $Process | cut -d. -f1 | cut -d"$Tab" -f2)"
+	Pids="$Pids $(shopt -s nullglob; cd /var/run/screen/S-root/; echo * | grep -F $Process | cut -d. -f1 | cut -d"$Tab" -f2)"
 done
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Killing these PIDs: $Pids"
