@@ -5830,7 +5830,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 			case GR_PNG:
 			case GR_BMP:
 			case GR_OCG:
-			case GR_PFG:
+			//case GR_PFG:
 				{
 
 #if ( defined( PROFILING ) )
