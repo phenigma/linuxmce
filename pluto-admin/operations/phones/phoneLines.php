@@ -195,7 +195,8 @@ function phoneLines($output,$dbADO) {
 				$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.@$newDefaultLine,$defaultLineID));
 			}
 			
-			$sync=exec('/usr/pluto/bin/SyncronizeAsterisk.sh');
+			$sync=exec('/usr/pluto/bin/SyncronizeAsterisk.sh',$retArray);
+
 			if($sync!=0){
 				header("Location: index.php?section=phoneLines&error=Synchronisation failed.");
 				exit();
