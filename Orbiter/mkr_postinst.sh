@@ -1,7 +1,7 @@
-config=$(X -configure 2>&1 | grep 'Your XF86Config file' | cut -d" " -f5-)
+config=$(/usr/bin/X11/X -configure 2>&1 | grep 'Your XF86Config file' | cut -d" " -f5-)
 retcode=$?
 if [ "$retcode" -ne 0 -o -z "$config" -o ! -e "$config" ]; then
-	echo "Something went wrong while configuring X: '$config', $retcode"
+	echo "Something went wrong while configuring X"
 	exit 1
 fi
 
