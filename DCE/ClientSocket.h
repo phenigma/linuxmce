@@ -28,7 +28,7 @@ namespace DCE
 	public:
 		
 		string m_sIPAddress; /** < the server to connect to IP address */
-		double m_dwPK_Device; /** < the device identifier */
+		long m_dwPK_Device; /** < the device identifier */
 		clock_t m_clockTimeout; /** < used to set timeouts */
 		bool m_bWatchdogRunning; /** < specifies if the watchdog is running */
 		bool m_bStopWatchdog; /** < specifies if the watchdog is stoped @todo ask is it used? */
