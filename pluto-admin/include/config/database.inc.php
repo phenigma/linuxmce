@@ -1,14 +1,5 @@
 <?PHP
 
-
-  $dbUser = 'root';
-  $dbPass = '';
-  $dbDatabase = 'pluto_main';
-  $dbServer = 'localhost';
-  $dbType = 'mysql';
-
- 
-  
  include('include/adodb/adodb-errorhandler.inc.php');
  require('include/adodb/adodb.inc.php');
  include('include/adodb/tohtml.inc.php');

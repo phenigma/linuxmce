@@ -1,5 +1,5 @@
 <?PHP
-   
+	include_once($_SERVER['DOCUMENT_ROOT'].'/PlutoAdminConfig/config.inc.php');   
       
    error_reporting(E_ALL);
   //debuging
