@@ -35,7 +35,7 @@ function register_b($output)
   			<tr>
 				<td align="right">Password</td>
 				<td><input type="password" name="password" value="" /></td>
-				<td class="formextrainfo">Your password must be at least 6 characters long and must contain both letters and numbers.<br />This is for your own protection.</td>
+				<td class="formextrainfo">&nbsp;</td>
 			</tr>
 			<tr>
 				<td align="right">Confirm</td>
@@ -91,12 +91,8 @@ function register_b($output)
   			$out.='<table align="center"><tr><td align="center" colspan="3"> Please enter all fields.</td></tr></table>';
   			$errorsCount++;
   		}
-       if($pass<6) {
-  			$out.='<table align="center"><tr><td align="center" colspan="3"> The password is too short.</td></tr></table>';
-  			$errorsCount++;
-  		}
 
-  		$pass=md5($_POST['password']);
+  		$pass=$_POST['password'];
   		if($referrer!=''){
   			// query MasterUsers table for PK_MasterUsers value
   			$isMasterUsers=checkMasterUsers($referrer, '',$checkMasterUserUrl);

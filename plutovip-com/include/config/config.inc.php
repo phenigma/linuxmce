@@ -1,24 +1,27 @@
 <?PHP
    
       
- //  error_reporting(E_ALL~E_NOTICE);
-  //debuging
   	$GLOBALS['inDebug']=1;
-  	$GLOBALS['sendErrorsTo']='dragos.grosu@gmail.com';
-	
-  	$MasterUsersHost="https://10.0.0.150/masterusers/";
   	
-  	$addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
-  	$checkMasterUserUrl=$MasterUsersHost."index.php?section=check_master_user";
-	$changePassMasterUserUrl=$MasterUsersHost."index.php?section=change_password";	
-	$updateMasterUserUrl=$MasterUsersHost."index.php?section=update_master_users";
+  	if($GLOBALS['inDebug']!=1){
+  		// production settings
+  		error_reporting(E_ALL ^ E_NOTICE);
+  		include_once('/var/www/globalconfig/globalconfig.inc.php');
+  		$GLOBALS['sendNotificationsTo']='info@plutohome.com';
+  	}else{
+  		error_reporting(E_ALL);
+  		include_once('/var/www/test/globalconfig/globalconfig.inc.php');
+  		$GLOBALS['sendNotificationsTo']='valentin.g@newflavorstudio.com';
+  	}
+  	
+  	
+  	$GLOBALS['sendErrorsTo']='info@plutohome.com';
 	
-	$addReferrerUrl="https://10.0.0.150/masterusers/index.php?section=add_referrer";
-	$checkReferrerUrl="https://10.0.0.150/masterusers/index.php?section=referral_summary";
-	
-	$directory="/pluto_vip/";
-	$domain="http://localhost";
-	$https="https://10.0.0.150/pluto_vip/";
+  	$MasterUsersHost="http://plutohome.com/masterusers/";
+  	
+	$directory="";
+	$domain="http://plutovip.com/";
+	$https="http://plutovip.com/";
 	
 	define("VERSION","0.1");
 	define("APPLICATION_NAME","Plutovip.com");
@@ -37,6 +40,14 @@
     
   	//database 
   	require_once("database.inc.php");
-      
-	
+
+  	// do not change the following lines
+  	$addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
+  	$checkMasterUserUrl=$MasterUsersHost."index.php?section=check_master_user";
+	$changePassMasterUserUrl=$MasterUsersHost."index.php?section=change_password";	
+	$updateMasterUserUrl=$MasterUsersHost."index.php?section=update_master_users";
+
+	$addReferrerUrl=$MasterUsersHost."index.php?section=add_referrer";
+	$checkReferrerUrl=$MasterUsersHost."index.php?section=referral_summary";
+
 ?>

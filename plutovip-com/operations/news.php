@@ -13,8 +13,7 @@ $out.='
         <td><img src="images/home page img/login.jpg" width="251" height="23"></td>
       </tr>
     <tr><td width="244" class="td_main"><table width="224"  border="0" cellpadding="0" cellspacing="0" bgcolor="#F1F3F6">';
-    session_start();
-    if($_SESSION['userIsLogged']=="yes")
+    if(@$_SESSION['userIsLogged']=="yes")
   {
       $out.='<tr><table><td><img src="images/home page img/logged_in_as.gif" align="middle"></td><td> <b>'.$_SESSION['username'].'</b></td></td></tr></table>';
   }
@@ -22,7 +21,7 @@ $out.='
   {
    $out.='   
       <tr>
-      <form name="form1" id="form1" action="'.$https.'index.php" method="POST">
+      <form name="form1" id="form1" action="index.php" method="POST">
      <input type="hidden" name="section" value="login">
       <td><table width="100%"  border="0" cellspacing="0" cellpadding="0">
             <tr>
@@ -49,7 +48,7 @@ $out.='
      <td ><table width="100%"  border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td width="50"><input type="image" src="images/home page img/l_sign_in.gif"  name="submitX"></td>
-              <td><a href="'.$https.'index.php?section=forgot"><img src="images/home page img/l_forgot_pass.gif" width="114" height="14" border="0"></a></td>
+              <td><a href="index.php?section=forgot"><img src="images/home page img/l_forgot_pass.gif" width="114" height="14" border="0"></a></td>
             </tr>
         </table></td>
      </tr>
@@ -60,8 +59,8 @@ $out.='
         <td><table width="100%"  border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td width="62"><img src="images/home page img/l_sign_up.gif" width="62" height="17"></td>
-              <td width="87"><a href="'.$https.'index.php?section=register"><img src="images/home page img/l_individuals.gif" width="87" height="17" border="0"></a></td>
-              <td><a href="'.$https.'index.php?section=register_b"><img src="images/home page img/l_business.gif" width="76" height="17" border="0"></a></td>
+              <td width="87"><a href="index.php?section=register"><img src="images/home page img/l_individuals.gif" width="87" height="17" border="0"></a></td>
+              <td><a href="index.php?section=register_b"><img src="images/home page img/l_business.gif" width="76" height="17" border="0"></a></td>
             </tr>
         </table></td>
       </tr>
@@ -70,11 +69,10 @@ $out.='
   </td>
   </tr> ';
   }
-      $out.=' <tr>
-        <td align="left">
-        <embed src="flash/default.swf" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" width="100%" height="90" align="center"></embed>
-        </td>
-        </tr>
+      $out.='
+     <tr>
+     	<td align="left"><a href="http://plutohome.com/support/index.php?section=document&docID=1"><img src="images/24-nov.jpg" border="0"></a></td>
+     </tr>
       <tr>
         <td><img src="images/home page img/news.jpg" width="251" height="23"></td>
       </tr></form>';

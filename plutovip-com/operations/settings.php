@@ -19,7 +19,11 @@ function settings($output)
   var BinaryVersionArray= new Array();
   function setBinaryVersion()
   {
-  	document.getElementById(\'binaryVersion\').innerHTML=BinaryVersionArray[document.form1.Users_FKID_PhoneModel.selectedIndex];
+  	selectedPhoneName=document.form1.Users_FKID_PhoneModel[document.form1.Users_FKID_PhoneModel.selectedIndex].text;
+  	if(BinaryVersionArray[selectedPhoneName])
+  		document.getElementById(\'binaryVersion\').innerHTML=BinaryVersionArray[selectedPhoneName];
+  	else
+  	document.getElementById(\'binaryVersion\').innerHTML=\'\';
   }
   </script>
 <table width="100%" border="0" align="right" cellpadding="0" cellspacing="0" class="maintable">
@@ -94,10 +98,10 @@ function settings($output)
       $roeh=mysql_fetch_object($rh);
       $share="select * from ShareWithVip where FK_MasterUsers='".$_SESSION['userID']."' and  FKID_C_Field='".$roeh->PKID_C_Field."'";
       $rs=mysql_query($share);
-				$out.='<th><input type="checkbox" name="ShareVip[]" value="'.$roeh->PKID_C_Field.'"'; if(mysql_num_rows($rs)!=0) $out.='checked="checked"'; $out.='/></th>';
+				$out.='<th width="20"><input type="checkbox" name="ShareVip[]" value="'.$roeh->PKID_C_Field.'"'; if(mysql_num_rows($rs)!=0) $out.='checked="checked"'; $out.='/></th>';
  $share="select * from ShareWithEstablishment where FK_MasterUsers='".$_SESSION['userID']."' and  FKID_C_Field='".$roeh->PKID_C_Field."'";
       $rs=mysql_query($share);
-				$out.='<th><input type="checkbox" name="ShareEst[]" value="'.$roeh->PKID_C_Field.'"'; if(mysql_num_rows($rs)!=0) $out.='checked="checked"'; $out.=' /></th>
+				$out.='<th width="20"><input type="checkbox" name="ShareEst[]" value="'.$roeh->PKID_C_Field.'"'; if(mysql_num_rows($rs)!=0) $out.='checked="checked"'; $out.=' /></th>
 			</tr>
 			<tr>
 				<td align="right" width="33%">
@@ -170,28 +174,32 @@ $share="select * from ShareWithEstablishment where FK_MasterUsers='".$_SESSION['
 		<select name="PhoneModel_FKID_PhoneMake" onchange="select_phonemake(this);">';
       $sql_query="select * from PhoneMake";
       $result=mysql_query($sql_query);
-      while($rows=mysql_fetch_object($result))
-  {
-      $out.='<option value="'.$rows->PKID_PhoneMake.'"';if($rows->PKID_PhoneMake==$row2->FKID_PhoneMake) $out.='selected="selected"'; $out.='>'.$rows->Description.'</option>';
-  }
-  $out.='</select><input type="text" name="Users_PhoneMakeOther" value="" id="phonemakeother" style="visibility:hidden" /><br />
-     
-      Model: <select name="Users_FKID_PhoneModel" id="phonemodel" onchange="select_phonemodel(this);setBinaryVersion();">';
-        
-
-        $sql_r="
+      while($rows=mysql_fetch_object($result)){
+      	$out.='<option value="'.$rows->PKID_PhoneMake.'"';if($rows->PKID_PhoneMake==$row2->FKID_PhoneMake) $out.='selected="selected"'; $out.='>'.$rows->Description.'</option>';
+      
+        $sqlBinary="
         SELECT 
         	PhoneModel.*,
         	BinaryVersion.Description AS Version, BinaryVersion.Revision
         FROM PhoneModel
 			LEFT JOIN BinaryVersion ON FKID_BinaryVersion=PKID_BinaryVersion
-        WHERE FKID_PhoneMake='".$row2->FKID_PhoneMake."'";
+        WHERE FKID_PhoneMake='".$rows->PKID_PhoneMake."'";
+        $resBinary=mysql_query($sqlBinary);
+		while($rowsBinary=mysql_fetch_object($resBinary)){
+   			$out.='<script>BinaryVersionArray[\''.$rowsBinary->Description.'\']=\''.$rowsBinary->Version.' '.(($rowsBinary->Revision!='')?'Rev: ':'').$rowsBinary->Revision.'\';</script>';
+		}
+  	}
+  $out.='</select><input type="text" name="Users_PhoneMakeOther" value="" id="phonemakeother" style="visibility:hidden" /><br />
+     
+      Model: <select name="Users_FKID_PhoneModel" id="phonemodel" onchange="select_phonemodel(this);setBinaryVersion();">';
+        
+
+        $sql_r="SELECT PhoneModel.* FROM PhoneModel WHERE FKID_PhoneMake='".$row2->FKID_PhoneMake."'";
+        
         $r_s=mysql_query($sql_r);
-        while($rows_r=mysql_fetch_object($r_s))
-    {
-    	$out.='<script>BinaryVersionArray[BinaryVersionArray.length]=\''.$rows_r->Version.' '.(($rows_r->Revision!='')?'Rev: ':'').$rows_r->Revision.'\';</script>';
-     $out.='<option value="'.$rows_r->PKID_PhoneModel.'"';if($rows_r->PKID_PhoneModel==$row2->PKID_PhoneModel) $out.='selected="selected"'; $out.='>'.$rows_r->Description.'</option>';
-    }
+        while($rows_r=mysql_fetch_object($r_s)){
+     		$out.='<option value="'.$rows_r->PKID_PhoneModel.'"';if($rows_r->PKID_PhoneModel==$row2->PKID_PhoneModel) $out.='selected="selected"'; $out.='>'.$rows_r->Description.'</option>';
+    	}
   
     $out.='</select> <span id="binaryVersion"></span><input type="text" name="Users_PhoneModelOther" value="" id="phonemodelother" style="visibility:hidden" /></td>';
  $sh="select * from C_Field where Name='FKID_PhoneModel'";
@@ -292,10 +300,12 @@ else
 			<tr>
 				<th align="right">Add Phone Numbers</th>
 				<td colspan="3">
-										<table border="0" cellpadding="2" cellspacing="0" width="100%">
-						<tr><td align="center">
+						<table border="0" cellpadding="2" cellspacing="0" width="100%">
+						<tr>
+        					<td width="75">&nbsp;</td>
+        					<td align="center">
 							<select name="PhoneNumber_NEW_FKID_PhoneNumberCategory"><option value=""></option>';
-            $ph="select * from PhoneNumber where FK_MasterUsers='".$_SESSION['userId']."'";
+            $ph="select * from PhoneNumber where FK_MasterUsers='".$_SESSION['userID']."'";
             $r_p=mysql_query($ph);
             $phone=mysql_fetch_object($r_p);
             $s_n="select * from PhoneNumberCategory";
@@ -309,9 +319,9 @@ else
               	$out.='<option value="'.$number_c->PKID_PhoneNumberCategory.'"';$out.='>'.$number_c->Description.'</option>';
   			}
               $out.='  </select> ( <input type="text" name="PhoneNumber_NEW_AreaCode" value="" maxlength="3" size="3" /> ) <input type="text" name="PhoneNumber_NEW_Number" value="" maxlength="9" size="9" /> ext.<input type="text" name="PhoneNumber_NEW_Extension" value="" size="4" />						</td>
-						<td><font size="-2">Other VIPs</font></td>
-						<td><font size="-2">Businesses</font></td>
-						<td>&nbsp;</td></tr></table>';
+						<td width="50"><font size="-2">Other VIPs</font></td>
+						<td width="50"><font size="-2">Businesses</font></td>
+						</tr></table>';
               $reqPhoneNumbers=mysql_query("SELECT PhoneNumber.*, PhoneNumberCategory.Description from PhoneNumber 
               		INNER JOIN PhoneNumberCategory ON PKID_PhoneNumberCategory = FKID_PhoneNumberCategory 
               		WHERE FK_MasterUsers='".$_SESSION['userID']."'");
@@ -321,11 +331,12 @@ else
                $out.='<tr>
 				<th align="right"> Phone Numbers</th>
 				<td colspan="3">
-										<table border="0" cellpadding="2" cellspacing="0" width="100%">';
+					<table border="0" cellpadding="2" cellspacing="0" width="100%">';
   }
             while($resPhoneNumbers=mysql_fetch_object($reqPhoneNumbers)){
  				$out.='
 	 				<tr bgcolor="#DDDDDD">
+						<td width="75"><input type="submit" value="Delete"  name="deletephone_'.$resPhoneNumbers->PKID_PhoneNumber.'" onclick="if(confirm(\'Are you sure you want to delete this phone number ?\')){this.form.action.value=\'deletephone_'.$resPhoneNumbers->PKID_PhoneNumber.'\';this.form.submit();}" /></td> 				
 	 					<td align="center">
 						<select name="PhoneNumber_'.$resPhoneNumbers->PKID_PhoneNumber.'"><option value=""></option>';
 	                  	for($i=0;$i<count($PhoneCategoriesPK);$i++){
@@ -345,10 +356,9 @@ else
 	           else 
 	           		$shareWithEstablishmentsChecked='';
 
-           		$out.='	<td><input type="checkbox" name="ShareVip_'.$resPhoneNumbers->PKID_PhoneNumber.'"  value="" '.$shareWithVipChecked.'></td>
-						<td><input type="checkbox" name="ShareEst_'.$resPhoneNumbers->PKID_PhoneNumber.'"  value="" '.$shareWithEstablishmentsChecked.'></td>
-						<td><input type="submit" value="Delete"  name="deletephone_'.$resPhoneNumbers->PKID_PhoneNumber.'" onclick="if(confirm(\'Are you sure you want to delete this phone number ?\')){this.form.action.value=\'deletephone_'.$resPhoneNumbers->PKID_PhoneNumber.'\';this.form.submit();}" /></td>
-							</tr> ';       
+           		$out.='	<td width="50" align="center"><input type="checkbox" name="ShareVip_'.$resPhoneNumbers->PKID_PhoneNumber.'"  value="" '.$shareWithVipChecked.'></td>
+						<td width="50" align="left"><input type="checkbox" name="ShareEst_'.$resPhoneNumbers->PKID_PhoneNumber.'"  value="" '.$shareWithEstablishmentsChecked.'></td>
+					</tr> ';       
             }
 				$out.='</tr>';
             if(mysql_num_rows($reqPhoneNumbers)!=0)
@@ -375,7 +385,7 @@ else
     }
     else
     {
-      $sql="insert into Users (FKID_PhoneModel , Nickname,  Gender, BirthDate,AllowContactOtherVip, FirstName ,LastName) values('".$_POST['Users_FKID_PhoneModel']."','".$_SESSION['username']."','".$_POST['Users_Gender']."','".$bdate."','".$_POST['Users_AllowContactOtherVip']."','".$_POST['Users_FirstName']."','".$_POST['Users_LastName']."')";
+      $sql="insert into Users (FK_MasterUsers,FKID_PhoneModel , Nickname,  Gender, BirthDate,AllowContactOtherVip, FirstName ,LastName) values('".$_SESSION['userID']."','".$_POST['Users_FKID_PhoneModel']."','".$_SESSION['username']."','".$_POST['Users_Gender']."','".$bdate."','".$_POST['Users_AllowContactOtherVip']."','".$_POST['Users_FirstName']."','".$_POST['Users_LastName']."')";
       mysql_query($sql) or die("Can not insert into Users ".mysql_error());
     }
     
@@ -432,7 +442,7 @@ else
 	  
      
     $j=0;
- $Vip=$_POST['ShareVip'];
+ $Vip=@$_POST['ShareVip'];
     for($i=0;$i<count($Vip);$i++)
   {
      $sql1="select * from  ShareWithVip where FKID_C_Field='".$Vip[$i]."' and FK_MasterUsers='".$_SESSION['userID']."'";
@@ -458,7 +468,7 @@ else
       
       if($j==count($Vip)) $del[]= $row_e['FKID_C_Field'];
   }
-    for($i=0;$i<count($del);$i++)
+    for($i=0;$i<count(@$del);$i++)
     {
       
       $sql="delete from ShareWithVip where FKID_C_Field='".$del[$i]."' and FK_MasterUsers='".$_SESSION['userID']."'";
@@ -467,7 +477,7 @@ else
   
   
   $j=0;
-    $Est=$_POST['ShareEst'];
+    $Est=@$_POST['ShareEst'];
      for($i=0;$i<count($Est);$i++)
   {
        $sql1="select * from  ShareWithEstablishment where FKID_C_Field='".$Est[$i]."' and FK_MasterUsers='".$_SESSION['userID']."'";
@@ -492,7 +502,7 @@ else
     }
       if($j==count($Est)) $del1[]= $row_e->FKID_C_Field;
   }
-    for($i=0;$i<count($del1);$i++)
+    for($i=0;$i<count(@$del1);$i++)
     {
       $sql="delete from ShareWithEstablishment where FKID_C_Field='".$del1[$i]."' and FK_MasterUsers='".$_SESSION['userID']."'";
       $r=mysql_query($sql) or die("Can not delete from ShareWithEstablishment ".mysql_error());

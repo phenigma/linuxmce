@@ -72,8 +72,7 @@ function setTemplateFileType($type) {
 	
 		switch ($type) {
 			case "home":
-            session_start();
-            if($_SESSION['userIsLogged']!="yes")
+            if(@$_SESSION['userIsLogged']!="yes")
 				$this->content = implode('',file(APPROOT."include/templates/template.home.tpl.html")); 
             else $this->content = implode('',file(APPROOT."include/templates/template.user1.tpl.php"));
             break;

@@ -57,7 +57,7 @@ $out.='
     <p>If you are interested in working with Pluto, please complete the following inquiry form and a sales rep will contact you promptly:</p>
    
   <table height="285" class="insidetable">
-  <form action="index.php?section=contact" method="POST">
+  <form action="index.php?section=manufacturer" method="POST">
   <input type="hidden" name="section" value="contact">
 	<tr>
 		<td height="22">Name:</td>
@@ -96,7 +96,7 @@ $out.='
         while($row=mysql_fetch_object($r1))
           {
   				
-  				$out.='<option value="'.$row->PKID_LeadType.'">'.$row->Description.'</option>';
+  				$out.='<option value="'.$row->PKID_LeadType.'-'.$row->Description.'">'.$row->Description.'</option>';
           }
   			$out.='</select>
 		</td>
@@ -116,15 +116,42 @@ $out.='
 	</tr>
 </table>
 </form></td></table>'; 
-if(isset($_POST['send']))
-  {
-  
-  $address=$_POST['Address1'].' '.$_POST['Address2'];
-  $sql="insert into LEAD_Lead(Name,CustomerID,Address1,Address2,City,State,Postal_Code,Country,Phone,Fax,Email,website,FKID_LEAD_LeadType,Comments) values('".$_POST['Name']."','".$_POST['CustomerID']."','".$_POST['Address1']."','".$_POST['Address2']."','".$_POST['City'].
-    "','".$_POST['State']."','".$_POST['Postal_Code']."','".$_POST['Country']."','".$_POST['Phone']."','".$_POST['Fax']."','".$_POST['Email']."','".$_POST['Website']."','".$_POST['FKID_LEAD_LeadType']."','".$_POST['Comments']."')";
-  $r=mysql_query($sql) or die("Can not insert into database". mysql_error());
-   $message=$_POST['Comments'];
-   $headers = 'From: website@plutohome.com';
+if(isset($_POST['send'])){
+    $leadTypeDescr=explode('-',$_POST['FKID_LEAD_LeadType']);
+  	$leadType=@$leadTypeDescr[0];
+  	$leadDescription=@$leadTypeDescr[1];
+  	
+  	$address=$_POST['Address1'].' '.$_POST['Address2'];
+  	$sql="insert into LEAD_Lead(Name,CustomerID,Address1,Address2,City,State,Postal_Code,Country,Phone,Fax,Email,website,FKID_LEAD_LeadType,Comments) values('".$_POST['Name']."','".$_POST['CustomerID']."','".$_POST['Address1']."','".$_POST['Address2']."','".$_POST['City'].
+    "','".$_POST['State']."','".$_POST['Postal_Code']."','".$_POST['Country']."','".$_POST['Phone']."','".$_POST['Fax']."','".$_POST['Email']."','".$_POST['Website']."','".$leadType."','".$_POST['Comments']."')";
+  	$r=mysql_query($sql) or die("Can not insert into database". mysql_error());
+  	
+  	$message='
+  		Name: <B>'.$_POST['Name'].'</B><br>
+  		ID: <B>'.$_POST['CustomerID'].'</B><br>
+  		Address: '.$_POST['Address1'].'<br>
+  		'.$_POST['Address2'].'<br>
+  		City: '.$_POST['City'].'<br>
+  		State: '.$_POST['State'].'<br>
+  		Postal code: '.$_POST['Postal_Code'].'<br>
+  		Country: '.$_POST['Country'].'<br>
+  		Phone: '.$_POST['Phone'].'<br>
+  		Fax: '.$_POST['Fax'].'<br>
+  		Email: <B>'.$_POST['Email'].'</B><br>
+  		Website: '.$_POST['Website'].'<br>
+  		Interest: '.$leadDescription.'<br>
+  		Comments: <hr>'.nl2br($_POST['Comments']).'
+  		<hr><br><br>This email was sent from PlutoVIP Website.';
+   	
+   	$headers = "From: Pluto VIP<website@plutohome.com>\n";
+	$headers .= "X-Sender: <website@plutohome.com>\n";
+	$headers .= "X-Mailer: PHP\n"; //mailer
+	$headers .= "X-Priority: 3\n"; //1 UrgentMessage, 3 Normal
+	$headers .= "Return-Path: <website@plutohome.com>\n";
+	$headers .= "Content-Type: text/html; charset=iso-8859-1\n";
+	$headers .= "cc: \n"; 
+	$headers .= "bcc: "; 
+	
 	$subject = 'Website Form';
 	$to = 'info@plutohome.com';
 	@mail($to,$subject,$message,$headers);

@@ -37,7 +37,7 @@ function change_pass($output)
 		</td></tr></table></form>';
 
 	   if(isset($_POST['change_password'])){
-	   	$new_pass=md5($_POST['password']);
+	   	$new_pass=$_POST['password'];
 	   	$updMasterUsers=updateMasterUsersPassword($_SESSION['userID'],$new_pass,$changePassMasterUserUrl,$_SESSION['Password']);
 	   	if($updMasterUsers[0]){
 	   		$_SESSION['Password']=$new_pass;

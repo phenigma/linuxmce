@@ -1,11 +1,5 @@
 <?PHP
 
-
-  $dbUser = 'root';
-  $dbPass = '';
-  $dbDatabase = 'plutovip';
-  $dbServer = '10.0.0.150';
-  $dbType = 'mysql';
 /*
  include('include/adodb/adodb-errorhandler.inc.php');
  require('include/adodb/adodb.inc.php');
@@ -34,6 +28,6 @@
   $dbADO->debug=true;*/
   
   //-you must not modify anything bellow this line
-  $conn=mysql_connect($dbServer,$dbUser,$dbPass) or die('could not connect to database');
-  $db=mysql_selectdb($dbDatabase,$conn) or die("could not select $dbDatabase");
+  $conn=mysql_connect($dbPlutoVipServer,$dbPlutoVipUser,$dbPlutoVipPass) or die('could not connect to database');
+  $db=mysql_selectdb($dbPlutoVipDatabase,$conn) or die("could not select $dbPlutoVipDatabase");
 ?>

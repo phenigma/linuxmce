@@ -152,7 +152,7 @@ function settings_b($output){
          $subject=" PlutoVip E-mail verification ";
          $id=$_SESSION['userID'];
          $code=md5($_SESSION['userID']);
-         $message='For validate your email click on the link: http://10.0.0.150/pluto_vip/index.php?section=settings_b&id='.$id.'&action=verify&code='.$code.'&email='.$emailD;
+         $message='For validate your email click on the link: http://www.plutovip.com/index.php?section=settings_b&id='.$id.'&action=verify&code='.$code.'&email='.$emailD;
          mail($emailD,$subject,$message,"From:webmaster@plutovip.com");
          $sql="insert into EmailConfirmation(FK_MasterUsers ,Email ,CodeNew) values('".$id."','".$emailD."','".$code."')";
          mysql_query($sql) or die("Can not insert into EmailConfirmation ".mysql_error());

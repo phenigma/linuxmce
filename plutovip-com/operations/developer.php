@@ -56,8 +56,8 @@ $out.='
     <p>These are the principal programs in the Pluto system.  Note that the Pluto license is essentially the same as GPL, but requires a license when a manufacturer or dealer wants to sell the Pluto platform along with hardware.  For software developers, the same rights and restrictions apply as with GPL.  The full text of the license will be available when version 2 is released.  All DCE devices, libraries and utilities are GPL.</p>';
     $sql="SELECT PK_Project, Project.Description AS Description, Overview, HomePage, Platform, Language, License.Description AS License, ProjectLevel.Description AS ProjectLevel
 FROM `Project`
-JOIN License ON FK_License = PK_License
-JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
+INNER JOIN License ON FK_License = PK_License
+INNER JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
   where FK_ProjectLevel=1
 ORDER BY FK_ProjectLevel, Description";
 $r=mysql_query($sql) or die("Can not grab from database ".mysql_error());
@@ -76,8 +76,8 @@ $out.='
     <p>These are common libraries which are used throughout all the Pluto projects. We have tried to break them into separate classes so that they are useful to programmers outside the scope of Pluto as well.</p>';
        $sql="SELECT PK_Project, Project.Description AS Description, Overview, HomePage, Platform, Language, License.Description AS License, ProjectLevel.Description AS ProjectLevel
 FROM `Project`
-JOIN License ON FK_License = PK_License
-JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
+INNER JOIN License ON FK_License = PK_License
+INNER JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
   where FK_ProjectLevel=2
 ORDER BY FK_ProjectLevel, Description";
 $r=mysql_query($sql) or die("Can not grab from database ".mysql_error());
@@ -95,8 +95,8 @@ cellSpacing=0 borderColor=#808EA8 class="insidetable" id=AutoNumber1 style="BORD
     <p>Various utilities, some specific to Pluto, some general purpose</p>';
        $sql="SELECT PK_Project, Project.Description AS Description, Overview, HomePage, Platform, Language, License.Description AS License, ProjectLevel.Description AS ProjectLevel
 FROM `Project`
-JOIN License ON FK_License = PK_License
-JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
+INNER JOIN License ON FK_License = PK_License
+INNER JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
   where FK_ProjectLevel=3
 ORDER BY FK_ProjectLevel, Description";
 $r=mysql_query($sql) or die("Can not grab from database ".mysql_error());
@@ -115,8 +115,8 @@ cellSpacing=0 borderColor=#808EA8 class="insidetable" id=AutoNumber1 style="BORD
     <p>Following are the DCE devices that will be ready for release in October. Less commonly used DCE devices will be released later.</p>';
        $sql="SELECT PK_Project, Project.Description AS Description, Overview, HomePage, Platform, Language, License.Description AS License, ProjectLevel.Description AS ProjectLevel
 FROM `Project`
-JOIN License ON FK_License = PK_License
-JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
+INNER JOIN License ON FK_License = PK_License
+INNER JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
   where FK_ProjectLevel=4
 ORDER BY FK_ProjectLevel, Description";
 $r=mysql_query($sql) or die("Can not grab from database ".mysql_error());

@@ -35,11 +35,13 @@ $out.='
   </td>
    <td width="100%" class="insidetable" align="left">
     <p><img src="images/submeniuri/im_an_business_txt.gif" width="103" height="13"><br>
-      <p><strong>If you are a business</strong></p>
-        <p>
+			<p>
+				To download the PlutoVIP Windows software <a href="http://plutohome.com/support/index.php?section=document&docID=104">click here</a>.
+			</p>
+			<p>
 				You will need a Windows-based cash register, point of sale system, or computer that supports 
 				Bluetooth.&nbsp; If yours does not already support Bluetooth (most do not), then 
-				you can purchase a little adapter for $79 that plugs into the USB port.  Businesses that sign up now will never pay for the software or the service.
+				you can purchase a little Bluetooth adapter that plugs into the USB port for around $40.
 			</p>
 			<p>
 				PlutoVIP is also working with leading cash register manufacturers to have the 

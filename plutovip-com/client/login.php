@@ -2,7 +2,6 @@
 function login($output) {
 	global $checkMasterUserUrl;
 	$out='';
-	session_start();
 	$usernameForm = $_POST['username'];
 	$username=mysql_escape_string($usernameForm);
 	$passwordForm = $_POST['password'];
@@ -20,7 +19,7 @@ function login($output) {
 		$messages.='<br>Please enter your password <br><a href="index.php"> Go back</a>';
 	} else {
 
-		$passwordForm = md5($passwordForm);
+		//$passwordForm = md5($passwordForm);
 
 		$isMasterUsers=checkMasterUsers($username, $passwordForm,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=');
 		if(!$isMasterUsers[0])
@@ -36,7 +35,6 @@ function login($output) {
 		$_SESSION['userIsLogged']="yes";
 		$_SESSION['categ']=$FirstAccount;
 		$_SESSION['Email']=$Email;
-		$_SESSION['Password']=$passwordForm;
 		if($_SESSION['categ']==0)
 			header("Location: index.php?section=settings");
 		else
