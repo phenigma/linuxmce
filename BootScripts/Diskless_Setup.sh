@@ -197,8 +197,8 @@ for Client in $DisklessR; do
 	echo -n " hostname"
 	echo "moon$MoonNumber" >$DlPath/etc/hostname
 
-	echo -n " Startup_Scripts"
-	/etc/init.d/Startup_Scripts.sh script "$IP" >$DlPath/etc/pluto.startup
+#	echo -n " Startup_Scripts"
+#	/etc/init.d/Startup_Scripts.sh script "$IP" >$DlPath/etc/pluto.startup
 
 	echo -n " MythTV DB Settings"
 	mkdir -p $DlPath/etc/mythtv
