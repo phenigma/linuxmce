@@ -7,7 +7,7 @@
  Dan Kegel
  Copyright Activision 1998
 -------------------------------------------------------------------------*/
-#include "DCE/CommonIncludes.h"
+#include "PlutoUtils/CommonIncludes.h"
 
 #include <assert.h>
 #include <stdlib.h>

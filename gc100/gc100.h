@@ -68,6 +68,7 @@ public:
 	virtual void CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
+	virtual bool ReceivedMessage(class Message *pMessageOriginal);
 	};
 
 //<-dceag-end-b->

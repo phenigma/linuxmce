@@ -142,4 +142,20 @@ void gc100::CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Message *p
 	cout << "Parm #48 - ProgramID=" << sProgramID << endl;
 }
 
-
+/*virtual*/ bool gc100::ReceivedMessage(class Message *pMessageOriginal)
+{
+	if (gc100_Command::ReceivedMessage(pMessageOriginal))
+		return true; // message handled by parent
+	// we handle unknown messages
+	cout << "Message ID: " << pMessageOriginal->m_dwID << endl;
+	cout << "From:" << pMessageOriginal->m_dwPK_Device_From << endl;
+	cout << "To: " << pMessageOriginal->m_dwPK_Device_To << endl;
+	
+	map<long, string>::iterator i;
+	for (i = pMessageOriginal->m_mapParameters.begin(); i != pMessageOriginal->m_mapParameters.end(); i++)
+	{
+		cout << "Parameter: " << i->first << " Value: " << i->second << endl;
+	}
+	// TODO: no handled until I see what I should be handling :)
+	return false;
+}
