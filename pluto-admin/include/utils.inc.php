@@ -1485,4 +1485,22 @@ function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValu
 	$pullDown.='</select>';
 	return $pullDown;
 }
+
+function getDeviceTemplatesFromCategory($categoryID,$dbADO)
+{
+	getDeviceCategoryChildsArray($categoryID,$dbADO);
+	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
+	$GLOBALS['childsDeviceCategoryArray'][]=$categoryID;
+	
+	$queryDeviceTemplate='
+		SELECT * FROM DeviceTemplate 
+			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
+		ORDER BY Description ASC';
+	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
+	$DTArray=array();
+	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
+		$DTArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
+	}
+	return $DTArray;
+}
 ?>

@@ -6,7 +6,6 @@ function wizardOrbiters($output,$dbADO) {
 	$userID = (int)@$_SESSION['userID'];
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
-	$type = isset($_REQUEST['type'])?cleanString($_REQUEST['type']):'lights';
 	$installationID = (int)@$_SESSION['installationID'];
 	
 	$deviceCategory=$GLOBALS['rootOrbiterID'];
@@ -220,7 +219,7 @@ function wizardOrbiters($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=devices&type=$type&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=devices&error=You are not authorised to change the installation.");
 			exit(0);
 		}
 		$displayedDevicesArray=explode(',',$_POST['displayedDevices']);

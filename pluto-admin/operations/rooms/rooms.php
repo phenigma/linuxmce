@@ -79,7 +79,7 @@ $displayedRooms = array();
 			
 			while($rowEntertain=$resEntertain->FetchRow()){
 				$displayedEntertainArea[]=$rowEntertain['PK_EntertainArea'];
-				$out.='<input type="text" name="entertainArea_'.$rowEntertain['PK_EntertainArea'].'" value="'.$rowEntertain['Description'].'"> <a href="index.php?section=rooms&eaid='.$rowEntertain['PK_EntertainArea'].'">Delete area</a> ';
+				$out.='<input type="text" name="entertainArea_'.$rowEntertain['PK_EntertainArea'].'" value="'.$rowEntertain['Description'].'"> <input type="checkbox" name="private_'.$rowEntertain['PK_EntertainArea'].'" '.(($rowEntertain['Private']==1)?'checked':'').' value="1"> Private <a href="index.php?section=rooms&eaid='.$rowEntertain['PK_EntertainArea'].'">Delete area</a> ';
 			}
 			$out.='  <input type="submit" name="addEA_'.$rowRoom['PK_Room'].'" value="Add EA"></td>
 					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">Delete Room</a>
@@ -164,8 +164,9 @@ $displayedRooms = array();
 			$displayedEntertainAreaArray=explode(',',$_POST['displayedEntertainArea']);
 			foreach ($displayedEntertainAreaArray as $key => $value){
 				$entertainAreaDescription=@$_POST['entertainArea_'.$value];
-				$updateEntertainArea='UPDATE EntertainArea SET Description=? WHERE PK_EntertainArea=?';
-				$dbADO->Execute($updateEntertainArea,array($entertainAreaDescription,$value));
+				$private=isset($_POST['private_'.$value])?$_POST['private_'.$value]:0;
+				$updateEntertainArea='UPDATE EntertainArea SET Description=?, Private=? WHERE PK_EntertainArea=?';
+				$dbADO->Execute($updateEntertainArea,array($entertainAreaDescription,$private,$value));
 			}
 		}
 	}
