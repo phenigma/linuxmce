@@ -451,11 +451,13 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #17 PK_Users */
+			/** The user who needs this rip in his private area. */
 		/** @param #50 Name */
 			/** The target disk name. */
 
-	virtual void CMD_Rip_Disk(string sName) { string sCMD_Result; CMD_Rip_Disk(sName.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(string sName,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

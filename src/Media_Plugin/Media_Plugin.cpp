@@ -631,11 +631,11 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
     for ( itFiles = pMediaStream->m_dequeMediaFile.begin(); itFiles != pMediaStream->m_dequeMediaFile.end(); itFiles++ )
     {
         // int index = itFiles - pMediaStream->m_dequeMediaFile.begin();
-
         sCurrentFile = (*itFiles)->FullyQualifiedFile();
 
         pDataGrid->SetData(0, currentPos++,
                 new DataGridCell((*itFiles)->m_sFilename, StringUtils::itos(itFiles - pMediaStream->m_dequeMediaFile.begin())));
+		g_pPlutoLogger->Write(LV_STATUS, "Returning data: (%d) -> %s", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str());
     }
     return pDataGrid;
 }
@@ -2278,10 +2278,12 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #17 PK_Users */
+			/** The user who needs this rip in his private area. */
 		/** @param #50 Name */
 			/** The target disk name. */
 
-void Media_Plugin::CMD_Rip_Disk(string sName,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	// we only have the sources device. This should be an orbiter
@@ -2321,8 +2323,7 @@ void Media_Plugin::CMD_Rip_Disk(string sName,string &sCMD_Result,Message *pMessa
 			return;
 		}
 
-
-		DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, sName);
+		DCE::CMD_Rip_Disk cmdRipDisk(iPK_Users, m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, sName);
 		SendCommand(cmdRipDisk);
 		m_mapRippingJobsToRippingDevices[sName] = make_pair<int, int>(pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMessage->m_dwPK_Device_From);
 		return;

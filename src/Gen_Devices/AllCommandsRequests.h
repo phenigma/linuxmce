@@ -5655,19 +5655,19 @@ namespace DCE
 	};
 	class CMD_Rip_Disk : public PreformedCommand {
 	public:
-		CMD_Rip_Disk(long DeviceIDFrom, long DeviceIDTo,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,1,50,sName.c_str()); }
+		CMD_Rip_Disk(long DeviceIDFrom, long DeviceIDTo,int iPK_Users,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,2,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str()); }
 	};
 	class CMD_Rip_Disk_DL : public PreformedCommand {
 	public:
-		CMD_Rip_Disk_DL(long DeviceIDFrom, string DeviceIDTo,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,1,50,sName.c_str()); }
+		CMD_Rip_Disk_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Users,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,2,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str()); }
 	};
 	class CMD_Rip_Disk_DT : public PreformedCommand {
 	public:
-		CMD_Rip_Disk_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sName) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,1,50,sName.c_str()); }
+		CMD_Rip_Disk_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Users,string sName) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,2,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str()); }
 	};
 	class CMD_Rip_Disk_Cat : public PreformedCommand {
 	public:
-		CMD_Rip_Disk_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,1,50,sName.c_str()); }
+		CMD_Rip_Disk_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Users,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,2,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str()); }
 	};
 }
 #endif

@@ -1269,10 +1269,12 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #17 PK_Users */
+			/** The user who needs this rip in his private area. */
 		/** @param #50 Name */
 			/** The target disk name. */
 
-void Disk_Drive::CMD_Rip_Disk(string sName,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	if ( m_isRipping )
@@ -1280,4 +1282,18 @@ void Disk_Drive::CMD_Rip_Disk(string sName,string &sCMD_Result,Message *pMessage
 		EVENT_Ripping_Completed(RIP_RESULT_ALREADY_RIPPING, sName);
 		return;
 	}
+
+	if ( ! m_mediaInserted )
+	{
+		EVENT_Ripping_Completed(RIP_RESULT_NO_DISC, sName);
+		return;
+	}
+
+	if ( m_mediaDiskStatus != DISCTYPE_CD_AUDIO && m_mediaDiskStatus != DISCTYPE_DVD_VIDEO && m_mediaDiskStatus != DISCTYPE_CD_MIXED && m_mediaDiskStatus != DISCTYPE_CD_VCD )
+	{
+		EVENT_Ripping_Completed(RIP_RESULT_INVALID_DISC_TYPE, sName);
+		return;
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Should launch ripping job with name \"%s\" for disk with type \"%d\"", sName.c_str(), m_mediaDiskStatus );
 }
