@@ -1034,7 +1034,9 @@ cout << "Making CVS Checkout to temporary\n";
 	cout << "Copying Files " << endl;
 /////////////-------------------- We copy the files from the project to the temporary
 	flag = false;
-	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
+
+	cout << MyList.size() << endl;
+/*	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
 		FileInfo *pFileInfo = (*iFileInfo);
 		for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
@@ -1128,7 +1130,8 @@ cout << "Making CVS Checkout to temporary\n";
 				}
 		}
 		flag = false;
-	}
+	}*/
+		return true;
 ///////////////////////////////////////////////////////////
 ////////---------------- Findinf old files and delete them
 	for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
