@@ -48,7 +48,7 @@ public:
     void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio);
     void RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iIteration);
     void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile);
-	void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File);
+	void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, bool Signature = true);
     RendererImage *Subset(RendererImage *pRenderImage,PlutoRectangle rect);
     // If Crop is true and PreserveAspectRatio is true, then instead of shrinking to fit within the given space, it will
     // fill the target space, and any excess will be cropped

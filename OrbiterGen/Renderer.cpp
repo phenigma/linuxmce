@@ -305,7 +305,7 @@ void Renderer::RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator
     }
 }
 
-void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File)
+void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, bool Signature)
 {
     // we can't just save NULL pointers...
     if (pRendererImage == NULL || pRendererImage->m_pSDL_Surface == NULL)
@@ -325,6 +325,10 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File)
     png_infop png_info = png_create_info_struct(png_ptr);
 
     png_init_io(png_ptr, File);
+
+	if (!Signature)
+		png_set_sig_bytes(png_ptr, 8);
+
     png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
     png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
 
@@ -622,7 +626,7 @@ void Renderer::SaveMNGToFile(string FileName, RendererMNG * MNG)
 
 	for (size_t i = 0; i < MNG->count() ; i++)
 	{
-		SaveImageToPNGFile(& MNG->GetFrame(i), File);
+		SaveImageToPNGFile(& MNG->GetFrame(i), File, false);
 	}
 
 	const char * MEND = "\x00\x00\x00\x00MEND\x21\x20\xF7\xD5";
