@@ -288,7 +288,7 @@ void Command_Impl::KillSpawnedDevices()
 	g_pPlutoLogger->Write(LV_STATUS, "Need to kill %d child devices", (int)m_vectSpawnedDevices.size());
 	for( size_t s=0; s < m_vectSpawnedDevices.size(); ++s )
 	{
-		string sCmd = (string("") + "screen -list | grep " + m_vectSpawnedDevices[s] + " | cut -f 1 -d '.' | cut -f 2 -d '\t' | xargs kill -9";
+		string sCmd = string("") + "screen -list | grep '" + m_vectSpawnedDevices[s] + "' | cut -f 1 -d '.' | cut -f 2 -d '\t' | xargs kill -9";
 		g_pPlutoLogger->Write(LV_WARNING,"Killing spawned device %s with %s",m_vectSpawnedDevices[s].c_str(),sCmd.c_str());
 		system( sCmd.c_str() );
 	}
