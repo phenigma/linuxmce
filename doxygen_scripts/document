@@ -1,0 +1,99 @@
+#!/bin/bash
+
+
+if [ $# -ne 1 ];
+then
+	echo "There's no directory parameter. Specify one now. It must be the root of the whole project, with an ending / (ex: .../trunk/)"
+	read DIR
+else
+	DIR=$1
+fi
+
+
+# creating the documentation directory
+DOCDIR=`echo $DIR | sed "s/.$//g"`_doc'/'
+rm -fr $DOCDIR
+mkdir $DOCDIR
+
+
+# here I get the subprojects I'm generating documentation for
+PRJS=`mysql -h 10.0.0.150 -u root < query | tail +2`
+
+for i in $PRJS
+do 
+	echo creating documentation directory for project: $i
+	mkdir $DOCDIR$i
+done
+
+
+for i in $PRJS; 
+do
+	echo creating directory structure for project: $i
+	#mkdir $DOCDIR/$i/${i} #2>/dev/null
+	mkdir $DOCDIR/$i/${i}_doxygenconfig #2>/dev/null
+done
+
+# the tagfiles
+TAGFILES=
+for i in $PRJS; 
+do
+	TMPREALPATH=`realpath $DOCDIR$i/${i}_doxygenconfig/`
+	TAGFILES="$TAGFILES$TMPREALPATH/${i}"'.tagfile'=$TMPREALPATH'/../'html' '
+done
+
+
+for i in $PRJS; 
+do 
+	echo adding configuration files for project: $i
+
+	# some temp variables with meaningless names :))
+	TMPREALPATH=`realpath $DOCDIR$i/`
+	TMPRP=`realpath $DOCDIR$i/${i}_doxygenconfig/`
+	BASEREALPATH=`realpath $DIR$i`
+	DBASEREALPATH=`realpath $DOCDIR$i`
+
+	echo $DBASEREALPATH
+#	read
+ 
+
+
+	# removing the tag for this project from the list of tag files for all pojects - otherwise things 
+	# get really messy when we generate the documentation the second time for cross-referencing
+	TMPTAG=`echo $TAGFILES | sed s!"$TMPRP/${i}"'.tagfile'=$TMPRP'/../'html' '!!g`
+		
+	# creating custom files for each template - this could be done nicer with pipes - but it's not this that takes hours :D 
+	cat templates/TemplateMainPage | sed "s/xprojectnamex/$i/g" > $DIR$i/${i}.mainpage
+	cat templates/TemplateDoxyfile | sed "s/xprojectnamex/$i/g;
+											s!xoutputdirectoryx!$TMPREALPATH!g;
+											s!xtagfileslistx!$TMPTAG!g;
+											s!xinputdirectorylistx!$BASEREALPATH/!g;
+											s!xexternalx!$DBASEREALPATH/${i}_doxygenconfig/$i.tagfile!g" > $DOCDIR$i/${i}_doxygenconfig/${i}.Doxyfile
+done
+
+
+printf "this would be a good time to go through the .mainpage files and do any changes U want... "
+printf "this isn't that great, in the future U'll probablly want to include the .mainpage files in the repository so U don't get to edit the HTML output a thousand times"
+printf "press ENTER to start generating the documenation..."
+read x
+
+
+for i in $PRJS; 
+do
+	echo generating configuration for project: $i
+	doxygen $DOCDIR$i/${i}_doxygenconfig/${i}.Doxyfile
+done
+
+#doing it another time to settle cross-references
+for i in $PRJS; 
+do
+	echo regenerating configuration for project: $i
+	doxygen $DOCDIR$i/${i}_doxygenconfig/${i}.Doxyfile
+done
+
+# cleaning up temporary configs
+for i in $PRJS; 
+do
+	echo creating directory structure for project: $i
+	rm -fr $DOCDIR/$i/${i}_doxygenconfig #2>/dev/null
+done
+

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+o=`realpath $1`
+
+STRIP=`echo $o` # | sed "s/.$//g"`
+rm -fr ${STRIP}_doc
+mkdir ${STRIP}_doc
+
+
+PRJS=`ls $o -l |grep ^d | rev | cut -d' ' -f1 | rev`
+
+for i in $PRJS
+do 
+
+	echo moving documentation for project $i
+	mkdir ${STRIP}_doc/$i
+	cp -r ${o}/$i/${i}_doxygendoc ${STRIP}_doc/$i/${i}_doxygendoc
+#	cp -r $o/$i/${i}_doxygenconfig ${STRIP}_doc/$i/${i}_doxygenconfig
+	rm -fdr $o/$i/${i}_doxygendoc #2>/dev/null
+	rm -fdr $o/$i/${i}_doxygenconfig #2>/dev/null
+
+done

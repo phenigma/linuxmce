@@ -1,0 +1,22 @@
+/** 
+ * \mainpage Project xprojectnamex Index Page
+ *
+ * \section intro_sec Description
+ *
+ * Description goes here
+ *
+ * \section part How it should be used
+ *
+ * Bla Bla text
+ *
+ * \subsection step1 How we use it in Pluto
+ *  
+ * Bla bla text
+ * 
+ * \subsection sugest Suggestions
+ *
+ * Other places where we think this could be used... notify us if you have more ideas
+ *
+ * \section bla Next Session
+ *
+ */
