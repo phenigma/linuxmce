@@ -292,6 +292,7 @@ int main(int argc, char *argv[])
 			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_BinaryLibrary,pPackageInfo->m_sBinaryLibraryPath);
 			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_Configuration,pPackageInfo->m_sConfiguration);
 		}
+		cout << "rm -f /usr/pluto/install/.notdone" << endl;
 		cout << "echo \"Installation complete. If there was any source code that needed to be built, we created a file '/usr/pluto/install/compile.sh' which compiles them.\"" << endl;
 		cout << "echo \"Press enter to continue\"" << endl;
 		cout << "read" << endl;
