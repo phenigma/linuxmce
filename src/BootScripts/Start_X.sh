@@ -7,4 +7,4 @@ screen -d -m -S XWindowSystem X -ac -allowMouseOpenFail vt7
 sleep 5
 
 # Disable DPMS and screen saver
-xset -display :0 -dpms s off
+#xset -display :0 -dpms s off

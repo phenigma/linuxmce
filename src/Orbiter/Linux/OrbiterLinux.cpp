@@ -50,6 +50,9 @@ OrbiterLinux::OrbiterLinux(int DeviceID,
 	SDL_WM_SetCaption(m_strWindowName.c_str(), "");
 
 	m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
+
+	// Disable DPMS and screen saver
+	system("/usr/bin/X11/xset -display :0 -dpms s off");
 }
 
 OrbiterLinux::~OrbiterLinux()

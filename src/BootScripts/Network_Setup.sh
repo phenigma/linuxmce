@@ -6,7 +6,7 @@
 
 if [ "$NetIfConf" -eq 0 ]; then
 	echo "Populating network settings from current system config"
-	NCards=$(lspci | egrep 'Ethernet|Network' | wc -l)
+	NCards=$(ip addr | grep -cF 'link/ether')
 	NetSettings=$(ParseInterfaces)
 	ExtData=$(echo "$NetSettings" | head -1)
 	ExtractData "$ExtData"
