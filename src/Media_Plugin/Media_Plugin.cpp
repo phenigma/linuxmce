@@ -733,12 +733,12 @@ void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream )
 g_pPlutoLogger->Write(LV_STATUS, "We have %d media entries in the playback list", pMediaStream->m_dequeMediaFile.size());
 		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
         pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(
-													pMediaFile->m_sPath + "/" + FileUtils::FileWithoutExtension(pMediaFile->m_sFilename) + ".png", pMediaStream->m_iPictureSize);
+													pMediaFile->m_sPath + "/" + FileUtils::FileWithoutExtension(pMediaFile->m_sFilename) + ".jpg", pMediaStream->m_iPictureSize);
 
 g_pPlutoLogger->Write(LV_STATUS, "Got 1 picture data %p", pMediaStream->m_pPictureData);
         if( !pMediaStream->m_pPictureData )
         {
-            pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(pMediaFile->m_sPath + "/cover.png", pMediaStream->m_iPictureSize);
+            pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(pMediaFile->m_sPath + "/cover.jpg", pMediaStream->m_iPictureSize);
 
 g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaStream->m_pPictureData, pMediaFile->m_dwPK_File);
             if( !pMediaStream->m_pPictureData && pMediaFile->m_dwPK_File )
@@ -775,7 +775,7 @@ g_pPlutoLogger->Write(LV_STATUS, "We got %d rows.", vectRow_Picture_File.size() 
 g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
                 }
                 if( PK_Picture )
-                    pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".png", pMediaStream->m_iPictureSize);
+                    pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
             }
         }
     }
