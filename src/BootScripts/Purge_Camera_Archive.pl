@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/sbin/perl
 
 use DBI;
 
@@ -74,12 +74,25 @@ print "Found $count camera devices. Purgeing ...";
 ($lsec,$lmin,$lhour,$lmday,$lmon,$lyear,$lwday,$lyday,$lisdst) = localtime(time);
 $lmon = $lmon + 1;
 
+$lyear = $lyear - 100;
+if($lyear < 10) {
+	$lyear = 2000 + $lyear;
+} else {
+	$lyear = 2000 + $lyear;
+}
+
 $count = 0;
 $path = "/home/cameras/";
 foreach $dev (@de) {
 	$path1 = "/home/cameras/".$dev;
 	$time = time - $da[$count]*86400;
 	($osec,$omin,$ohour,$omday,$omon,$oyear,$owday,$oyday,$oisdst) = localtime($time);
+	$oyear = $oyear - 100;
+	if($oyear < 10) {
+        	$oyear = 2000 + $oyear;
+        } else {
+                $oyear = 2000 + $oyear;
+        }
 	$omon = $omon + 1;
 	opendir(ROOTDIR, $path1);
 	@years = grep {!/^\./} readdir(ROOTDIR);
