@@ -374,7 +374,7 @@ makerelease isn't building all and isn't updating the versions
 			if( bInteractive )
 			{
 				cout << "\t\techo -n 'Do you want to try again? [Y/n]: '" EOL
-					"\t\tread answer" EOL;
+					"\t\tread answer" EOL
 					"\t\tif [ \"$answer\" == n -o \"$answer\" == N ]; then" EOL
 					"\t\t\techo '*** Leaving package uninstalled'" EOL
 					"\t\t\tok=1" EOL
