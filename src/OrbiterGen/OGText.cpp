@@ -6,6 +6,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "pluto_main/Database_pluto_main.h"
+#include "pluto_main/Define_Text.h"
 #include "pluto_main/Table_Text_LS.h"
 #include "pluto_main/Table_Language.h"
 #include "pluto_main/Table_DesignObjVariation_Text_Skin_Language.h"
@@ -76,7 +77,10 @@ Row_Text_LS *CGText::GetText_LS(int PK_Text,OrbiterGenerator *pOrbiterGen)
 	if( pRow_Text_LS==NULL )
 		pRow_Text_LS=mds->Text_LS_get()->GetRow(PK_Text,1);
 	if( pRow_Text_LS==NULL )
+	{
 		cerr << "Warning!  Text Object: " << PK_Text << " has no text!" << endl;
+		pRow_Text_LS=mds->Text_LS_get()->GetRow(TEXT_USR_ENTRY_CONST,1);  // Generic text object
+	}
 
-	return NULL;
+	return pRow_Text_LS;
 }
