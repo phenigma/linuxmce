@@ -18,7 +18,7 @@
 #include "IRBase.h"
 
 #include "pluto_main/Define_DeviceData.h"
-#include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "Infrared_Plugin/Infrared_Plugin.h"
@@ -45,6 +45,7 @@ IRBase::~IRBase()
 // get details (IR sequences, Delays, etc.) of all child devices (it seems)
 void IRBase::ParseDevices()
 {
+	g_pPlutoLogger->Write(LV_STATUS, "In IRBase::ParseDevices");
 	MapCommand_Impl::iterator iChild;
 	// pair: {long (DeviceID), Command_Impl *}
 	for (iChild = m_pCommand_Impl->m_mapCommandImpl_Children.begin(); iChild != m_pCommand_Impl->m_mapCommandImpl_Children.end(); ++iChild)
@@ -53,7 +54,7 @@ void IRBase::ParseDevices()
 		
 		string codes;
 		m_mapsDevicePort[DeviceID] = (*iChild).second->m_pData->m_mapParameters[DEVICEDATA_Channel_CONST];
-		DCE::CMD_Get_Infrared_Codes_Cat vCMD_Get_Infrared_Codes_Cat(m_pCommand_Impl->m_dwPK_Device, DEVICETEMPLATE_Infrared_Plugin_CONST,
+		DCE::CMD_Get_Infrared_Codes_Cat vCMD_Get_Infrared_Codes_Cat(m_pCommand_Impl->m_dwPK_Device, DEVICECATEGORY_Infrared_Plugins_CONST,
 			false, BL_SameHouse, DeviceID, &codes);
 		m_pCommand_Impl->SendCommand(vCMD_Get_Infrared_Codes_Cat);
 	
@@ -166,7 +167,6 @@ void IRBase::AddIRToQueue(string Port, string IRCode, long Delay, long DeviceNum
 		if (iPort != m_mapsDevicePort.end())
 		{
 			Port = (*iPort).second;
-
 		}
 	}
 	else
@@ -271,12 +271,12 @@ bool IRBase::ProcessMessage(Message *pMessage)
 #else
 #warning MSG
 #endif
-		map<int,string>::iterator param;
-		if (param != m_pCommand_Impl->m_mapCommandImpl_Children[TargetDevice]->m_pData->m_mapParameters.end())
-		{
-			TargetDevice = atoi((*param).second.c_str());
-			g_pPlutoLogger->Write(LV_STATUS, "Destination is slave device, changing target ID from %d to %d.", pMessage->m_dwPK_Device_To, TargetDevice);
-		}
+		//map<int,string>::iterator param = (*iTD).second->m_pData->m_mapParameters.find(DEVICEPARAMETER_DEVICE_SLAVE_TO_CONST);
+		//if (param != m_pCommand_Impl->m_mapCommandImpl_Children[TargetDevice]->m_pData->m_mapParameters.end())
+		//{
+		//	TargetDevice = atoi((*param).second.c_str());
+		//	g_pPlutoLogger->Write(LV_STATUS, "Destination is slave device, changing target ID from %d to %d.", pMessage->m_dwPK_Device_To, TargetDevice);
+		//}
 	}
 
 	if (pMessage->m_dwID == COMMAND_Send_Code_CONST)

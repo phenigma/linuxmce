@@ -79,6 +79,7 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	// TODO: learn_device
 	//learn_device=GetData()->Get_SERIAL_PORT();
 	learn_device="/dev/gcs0"; // DEBUG
+	shared_lock.Init(NULL);
 }
 
 //<-dceag-dest-b->
@@ -481,7 +482,7 @@ bool gc100::send_to_gc100()
 	// returns true if it was ready to send, false if blocked because of not ready
 	char command[16384];
 	std::string next_cmd;
-	unsigned int result;
+	int result;
 	bool return_value;
 
 	return_value=true;
@@ -525,10 +526,11 @@ bool gc100::send_to_gc100()
 				}
 			}
 
-			result=write(gc100_socket,command,strlen(command));
-			if (result<strlen(command))
+			result = send(gc100_socket,command,strlen(command), 0);
+			if (result < (int)strlen(command))
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Short write to GC100\n");
+				string x = strerror(errno);
+				g_pPlutoLogger->Write(LV_CRITICAL, "Short write to GC100: %s\n", strerror(errno));
 			}
 		}
 		else
@@ -859,7 +861,7 @@ std::string gc100::read_from_gc100()
 	PLUTO_SAFETY_LOCK(sl, shared_lock);
 	return_value="";
 
-	while (read(gc100_socket, (void *) &recv_buffer[recv_pos],1)>0)
+	while (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0)>0)
 	{
 		if (recv_buffer[recv_pos]=='\x0d')
 		{
@@ -902,7 +904,7 @@ bool gc100::Open_gc100_Socket()
 	}
 	else
 	{
-		gc100_socket=socket(PF_INET, SOCK_STREAM, 0);
+		gc100_socket = socket(PF_INET, SOCK_STREAM, 0);
 		if (gc100_socket < 0)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to allocate socket.  Could not connect to GC100");
@@ -922,13 +924,15 @@ bool gc100::Open_gc100_Socket()
 			else
 			{
 #ifdef WIN32
-#define fcntl
-#define F_GETFL 0
-#define F_SETFL 0
-#define O_NONBLOCK 0
-#endif
+				{
+					unsigned long x = 1;
+					res = ioctlsocket(gc100_socket, FIONBIO, &x);
+				}
+				if ((res == SOCKET_ERROR))
+#else
 				res = fcntl(gc100_socket, F_GETFL);
 				if ((res < 0) || (fcntl(gc100_socket, F_SETFL, res | O_NONBLOCK) < 0))
+#endif
 				{
 					g_pPlutoLogger->Write(LV_CRITICAL, "Unable to set flags on GC100 socket.");
 					close(gc100_socket);
@@ -949,7 +953,7 @@ bool gc100::ReceivedMessage(class Message *pMessage)
 {
 	m_pThisMessage = pMessage;
 
-	cout << "Message ID: " << pMessage->m_dwID << endl;
+	cout << "123 Message ID: " << pMessage->m_dwID << endl;
 	cout << "From:" << pMessage->m_dwPK_Device_From << endl;
 	cout << "To: " << pMessage->m_dwPK_Device_To << endl;
 	
@@ -960,7 +964,8 @@ bool gc100::ReceivedMessage(class Message *pMessage)
 	}
 
 	// Let the IR Base classes try to handle the message
-	if (gc100_Command::ReceivedMessage(pMessage))
+//	if (gc100_Command::ReceivedMessage(pMessage))
+	if (IRBase::ProcessMessage(pMessage))
 		return true;
 
 	cout << "Processing..." << endl;
@@ -1148,7 +1153,6 @@ void gc100::SendIR(string Port, string IRCode)
 	std::map<std::string,class module_info>::iterator slot_iter;
 	//int timeout_count;
 
-
 	if (IRCode.length()>2)
 	{
 		if (IRCode.substr(0,2)=="P," || IRCode.substr(0,2)=="p,")
@@ -1242,16 +1246,24 @@ bool gc100::open_for_learning()
 
 #ifdef WIN32
 #define O_RDONLY _O_RDONLY
+#define O_NONBLOCK 0
 #define open _open
 #endif
 
 	learn_fd=open(learn_device.c_str(), O_RDONLY | O_NONBLOCK);
+
 
 	if (learn_fd<1)
 	{
 		return_value=false;
 	}
 
+#ifdef WIN32
+	{
+		unsigned long x = 1;
+		int res = ioctlsocket(gc100_socket, FIONBIO, &x);
+	}
+#endif
 	return return_value;
 }
 
@@ -1264,7 +1276,8 @@ void gc100::MonitorIR()
 
 	learning_error=false;
 
-	ProcessMessageQueue();
+	//ProcessMessageQueue();
+	ProcessQueue();
 
 	// Read any IR data present
 	retval=0;
@@ -1405,4 +1418,65 @@ void gc100::MonitorIR()
 	}
 	*/
 	//sleep_ms(25);
+}
+
+void gc100::CreateChildren()
+{
+	Command_Impl::CreateChildren();
+	IRBase::Init(this);
+	if (!Open_gc100_Socket())
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't open socket connection to GC100");
+	    exit(1);
+	}
+
+	MainLoop(); // I can't put this in main without getting it overwritten next time devices are regenerated from templates
+}
+
+void gc100::MainLoop()
+{
+	std::string device_data;
+	int time_to_poll;
+
+	{
+		PLUTO_SAFETY_LOCK(sl, shared_lock);
+		command_list.push_back("getdevices");
+	}
+
+	send_to_gc100();
+	do
+	{
+	    device_data = read_from_gc100();
+	} while (device_data != "endlistdevices");
+	Start_seriald(); // Start gc_seriald processes according to serial port inventory
+
+	time_to_poll=0;
+
+	// Open device for learning, report error if problem
+
+	{
+		PLUTO_SAFETY_LOCK(sl2, shared_lock);
+		receiving_data = false;
+		learning_timeout_count = 0;
+		is_open_for_learning = open_for_learning();
+
+		if (!is_open_for_learning)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Couldn't open device for IR learning: %s", learn_device.c_str());
+		}
+	}
+
+	while (!m_bQuit)
+	{
+		MonitorIR();
+		time_to_poll++;
+		// Longer delay for IR-speed events
+		if (time_to_poll >= POLL_MULTIPLIER)
+		{  // Only check the GC100 IO every nth loop
+			time_to_poll=0;
+			read_from_gc100();
+			send_to_gc100();
+		}
+		sleep_ms(MONITOR_DELAY_MS); // Short delay for reading IO
+	}
 }

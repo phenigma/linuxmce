@@ -9,6 +9,7 @@ using namespace DCE;
 #define DEFAULT_PREDELAY 100
 #define DEFAULT_POSTDELAY 0
 
+// IR Queue element
 class IRQueue
 {
 public:

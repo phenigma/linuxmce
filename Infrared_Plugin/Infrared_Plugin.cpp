@@ -12,6 +12,12 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_DeviceCategory.h"
+#include "pluto_main/Table_DeviceTemplate.h"
+#include "pluto_main/Table_InfraredGroup.h"
+#include "pluto_main/Table_InfraredCode.h"
+
 //<-dceag-const-b->
 Infrared_Plugin::Infrared_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Infrared_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
@@ -170,9 +176,9 @@ void Infrared_Plugin::SomeFunction()
 void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c188-e->
 {
-	//cout << "Command #188 - Get Infrared Codes" << endl;
-	//cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
-	//cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
+	cout << "Command #188 - Get Infrared Codes" << endl;
+	cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
+	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
 
 	vector<Row_Device *> vectpRow_Device;
 
