@@ -18,4 +18,8 @@ Conf="<?
 
 mkdir -p $(/usr/bin/dirname "$ConfFile")
 echo "$Conf" >"$ConfFile"
+mkdir -p /usr/pluto/orbiter/floorplans
+mkdir -p /usr/pluto/orbiter/users
+ln -sf /usr/pluto/orbiter/floorplans/ /var/www/floorplans
+ln -sf /usr/pluto/orbiter/users/ /var/www/users
 

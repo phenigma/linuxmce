@@ -5,7 +5,16 @@
 cd /usr/pluto/bin
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting DCERouter"
 
-screen -d -m -S DCERouter bash -c "(echo \$(date) Starting; /usr/pluto/bin/DCERouter -h localhost) | tee DCERouter.log"
+log_file="/var/log/pluto/DCERouter";
+new_log="$log_file.newlog"
+real_log="$log_file.log"
+
+Logging $TYPE $SEVERITY_NORMAL "$module" "Appending log..."
+cat "$new_log" >> "$real_log"
+Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
+echo $(date) Starting > "$new_log"
+
+screen -d -m -S DCERouter bash -c "(echo \$(date) Starting; /usr/pluto/bin/DCERouter -h localhost) | tee $new_log"
 timeout=60
 waited=0
 while ! nc -z localhost 3450 &>/dev/null && [ "$waited" -lt "$timeout" ]; do
