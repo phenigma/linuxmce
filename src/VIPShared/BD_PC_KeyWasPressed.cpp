@@ -15,6 +15,7 @@
 #include "../Bluetooth_Dongle/Bluetooth_Dongle.h"
 #include "../Orbiter/Orbiter.h"
 #include "BDCommandProcessor_BluetoothDongle.h"
+#include "../DCE/Logger.h"	
 #endif
 
 #ifdef APPSERVER
@@ -60,6 +61,8 @@ bool BD_PC_KeyWasPressed::ProcessCommand(BDCommandProcessor *pProcessor)
 		//TODO: log this
 		return false;
 	}
+
+	g_pPlutoLogger->Write(LV_WARNING, "Received BD_PC_KeyWasPressed from PlutoMO. Phone code: %d", m_Key);
 
 	Orbiter::Event orbiterEvent;
 	orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;

@@ -3024,8 +3024,6 @@ bool Orbiter::PreprocessEvent(Orbiter::Event &event)
 
 bool Orbiter::ProcessEvent( Orbiter::Event &event )
 {
-
-
 	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(
 	if ( event.type != Orbiter::Event::QUIT && event.type != Orbiter::Event::NOT_PROCESSED )
 	{

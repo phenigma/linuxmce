@@ -655,10 +655,18 @@ void CPlutoVMCUtil::LocalDoRender()
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char *ImageBuf)
 {	
+	m_pImageStatic_Type=0;
+	m_pImageStatic_Size=0;
 	if(NULL != m_pImageStatic_Data)
 	{
 		delete (char *)m_pImageStatic_Data;
 		m_pImageStatic_Data = NULL;
+	}
+
+	if(NULL != m_pMenuCollection)
+	{
+		delete m_pMenuCollection;
+		m_pMenuCollection = NULL;
 	}
 
 	m_pImageStatic_Type = Type; 

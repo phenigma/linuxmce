@@ -369,6 +369,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		LOG("Waiting for new connections...\n");
 		//TODO: delete "connection.vmc"
 
+		/*
 		RFile file;
 		RFs   aFs;
 		aFs.Connect();
@@ -378,6 +379,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		fileMan->Delete(FilesPath.Des());
 		CleanupStack::PopAndDestroy();
 		aFs.Close();
+		*/
 		return;
 	}
 
@@ -432,6 +434,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 			iState = EIdle;
 
+			/*
 			//create a dummy vmc file
 			RFile file;
 			RFs   aFs;
@@ -443,6 +446,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 			}
 			file.Close();
 			aFs.Close();
+			*/
 
 		}
 		break;
