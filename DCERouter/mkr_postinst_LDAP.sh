@@ -7,8 +7,7 @@ SlapdConf="/etc/ldap/slapd.conf"
 
 mkdir -p /usr/share/ldap/data
 
-echo "
-# Pluto
+ConfAppend="# Pluto
 database bdb
 suffix \"dc=plutohome, dc=org\"
 rootdn \"cn=admin, dc=plutohome, dc=org\"
@@ -30,8 +29,9 @@ access to *
        by dn=\"cn=admin,dc=plutohome,dc=org\" write
        by dn=\"cn=admin,dc=plutohome,dc=org\" read
 
-" >> "$SlapdConf"
+"
 
+grep -F "# Pluto" "$SlapdConf" >/dev/null || echo "$ConfAppend" >> "$SlapdConf"
 
 TemplateDB='database bdb
 suffix "dc=$UserName, dc=plutohome, dc=org"
