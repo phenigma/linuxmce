@@ -62,6 +62,10 @@ public:
 	FileInfo(string sSource,string sDestination,Row_Package_Directory *pRow_Package_Directory)
 	{
 		m_sSource=sSource;
+		if( m_sSource.find("*")!=string::npos )
+		{
+int k=2;
+		}
 		m_sDestination=sDestination;
 		m_pRow_Package_Directory=pRow_Package_Directory;
 	}
@@ -110,7 +114,7 @@ bool ZipFiles(string sArchiveFileName);
 bool PackageIsCompatible(Row_Package *pRow_Package);
 bool CopySourceFile(string sInput,string sOutput)
 {
-	if( StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
+	if( !g_bSimulate && StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
 			StringUtils::EndsWith(sInput,".h",true) )
 		return StringUtils::Replace( sInput, sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
 	else
@@ -365,8 +369,11 @@ bool CreateSources(Row_Package *pRow_Package)
 
 	// Now go through and figure out what files we need to move over.  The process is different if this is a source package versus a binary package
 	list<FileInfo *> listFileInfo;
-	if( pRow_Package->IsSource_get() && !GetSourceFilesToMove(pRow_Package,listFileInfo) )
-		return false;
+	if( pRow_Package->IsSource_get() )
+	{
+		if( !GetSourceFilesToMove(pRow_Package,listFileInfo) )
+			return false;
+	}
 	else if( !GetNonSourceFilesToMove(pRow_Package,listFileInfo) )
 		return false;
 
@@ -437,58 +444,61 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 
 bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo)
 {
-	// Start with source code.
-	// First is there a separate directory specified for the source headers?
-	Row_Package_Directory *pRow_Package_Directory_SourceIncludes=NULL;
 	vector<Row_Package_Directory *> vectRow_Package_Directory;
-	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
-		"FK_Package=" + StringUtils::itos(pRow_Package->PK_Package_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Source_Includes_CONST),
-		&vectRow_Package_Directory);
-	if( vectRow_Package_Directory.size() )
-		pRow_Package_Directory_SourceIncludes = vectRow_Package_Directory[0];
-
-	// What are the source code implementation files for this?
-	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
-		"FK_Package=" + StringUtils::itos(pRow_Package->PK_Package_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Source_Implementation_CONST),
-		&vectRow_Package_Directory);
+	pRow_Package->Package_Directory_FK_Package_getrows(&vectRow_Package_Directory);
 	for(size_t s=0;s<vectRow_Package_Directory.size();++s)
 	{
 		Row_Package_Directory *pRow_Package_Directory = vectRow_Package_Directory[s];
+		if( pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Compiled_Output_CONST )
+			continue; // We ignore these
+
 		string sDirectory;
-		if( pRow_Package_Directory->Path_get()[0]=='/' )
-			sDirectory = pRow_Package_Directory->Path_get();
+		if( pRow_Package_Directory->InputPath_get()!="" )
+		{
+			if( pRow_Package_Directory->InputPath_get()[0]=='/' )
+				sDirectory = pRow_Package_Directory->InputPath_get();
+			else
+				sDirectory += g_sSourcecodePrefix + "/" + pRow_Package_Directory->InputPath_get();
+		}
 		else
-			sDirectory += g_sSourcecodePrefix + "/" + pRow_Package_Directory->Path_get();
-#pragma warning("Need something other than this");
+		{
+			if( pRow_Package_Directory->Path_get()[0]=='/' )
+				sDirectory = pRow_Package_Directory->Path_get();
+			else
+				sDirectory += g_sSourcecodePrefix + "/" + pRow_Package_Directory->Path_get();
+		}
 
 		vector<Row_Package_Directory_File *> vectPackage_Directory_File;
 		pRow_Package_Directory->Package_Directory_File_FK_Package_Directory_getrows(&vectPackage_Directory_File);
 		for(size_t s2=0;s2<vectPackage_Directory_File.size();++s2)
-		{
+{
 			Row_Package_Directory_File *pRow_Package_Directory_File = vectPackage_Directory_File[s2];
-			if( pRow_Package_Directory_File->MakeCommand_get()!="" )
-				continue; // Don't add this to the list of source code.  This is something we make
-
-			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + pRow_Package_Directory_File->File_get(),pRow_Package_Directory->Path_get() + "/" + pRow_Package_Directory_File->File_get(),pRow_Package_Directory_File->FK_Package_Directory_getrow());
-			listFileInfo.push_back(pFileInfo);
-		}
-
-		list<string> listFiles;
-		FileUtils::FindFiles(listFiles,sDirectory,"*.cpp,*.c,Makefile*");
-		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
-		{
-			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,pRow_Package_Directory->Path_get() + "/" + *it,pRow_Package_Directory);
-			listFileInfo.push_back(pFileInfo);
-		}
-
-		listFiles.clear();
-		FileUtils::FindFiles(listFiles,sDirectory,"*.h");
-		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
-		{
-			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,
-				(pRow_Package_Directory_SourceIncludes ? pRow_Package_Directory_SourceIncludes->Path_get() : pRow_Package_Directory->Path_get()) + "/" + *it,
-				pRow_Package_Directory);
-			listFileInfo.push_back(pFileInfo);
+			string File = pRow_Package_Directory_File->File_get();
+			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
+			{
+				list<string> listFiles;
+				FileUtils::FindFiles(listFiles,sDirectory,File,true);
+				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
+				{
+					FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,
+						pRow_Package_Directory->Path_get() + "/" + *it,
+						pRow_Package_Directory);
+					listFileInfo.push_back(pFileInfo);
+				}
+			}
+			else
+			{
+				if( !FileUtils::FileExists(sDirectory + "/" + File) )
+				{
+					cout << "**WARNING** " << sDirectory << "/" << File << " not found" <<  endl;
+					if( !AskYNQuestion("Continue?",false) )
+						return false;
+				}
+				FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + File,
+					pRow_Package_Directory->Path_get() + "/" + File,
+					pRow_Package_Directory);
+				listFileInfo.push_back(pFileInfo);
+			}
 		}
 	}
 	return true;
@@ -530,7 +540,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 		if( (!pRow_Package_Directory->FK_Distro_isNull() && pRow_Package_Directory->FK_Distro_get()!=g_pRow_Distro->PK_Distro_get()) ||
 				(!pRow_Package_Directory->FK_OperatingSystem_isNull() && pRow_Package_Directory->FK_OperatingSystem_get()!=g_pRow_Distro->FK_OperatingSystem_get()) )
 			continue;
-		string sInputPath,sOutputPath;
+		string sInputPath;
 
 		// If there's a compiled output directory, use that
 		if( pRow_Package_Directory_CompiledOutput && 
@@ -575,7 +585,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			string File = pRow_Package_Directory_File->File_get();
 			if( pRow_Package_Directory_File->MakeCommand_get()!="" )
 			{
-				if( g_bInteractive && !AskYNQuestion("About to execute: " + pRow_Package_Directory_File->MakeCommand_get() + " Continue?",false) )
+				if( g_bInteractive && !AskYNQuestion("About to execute non-source make: " + pRow_Package_Directory_File->MakeCommand_get() + " Continue?",false) )
 					return false;
 #ifndef WIN32
 				system(("mkdir -p " + sDirectory).c_str());
@@ -737,11 +747,11 @@ AsksSourceQuests:
 	// What directories contain the source code?
 	vector<Row_Package_Directory *> vectRow_Package_Directory;
 	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
-		"FK_Package=" + StringUtils::itos(pRow_Package->FK_Package_Sourcecode_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Source_Implementation_CONST),
+		"FK_Package=" + StringUtils::itos(pRow_Package->FK_Package_Sourcecode_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Compiled_Output_CONST),
 		&vectRow_Package_Directory);
 	if( vectRow_Package_Directory.size()==0 )
 	{
-		cout << "There is no directory specified for the source code implementation." << endl;
+		cout << "There is no directory specified for the compiled output." << endl;
 		char c = AskMCQuestion("Specify one now? (Yes/No/Abort)","yna");
 		if( c=='a' )
 		{
@@ -751,7 +761,7 @@ AsksSourceQuests:
 		{
 			Row_Package_Directory *pRow_Package_Directory = g_pDatabase_pluto_main->Package_Directory_get()->AddRow();
 			pRow_Package_Directory->FK_Package_set(pRow_Package->FK_Package_Sourcecode_get());
-			pRow_Package_Directory->FK_Directory_set(DIRECTORY_Source_Implementation_CONST);
+			pRow_Package_Directory->FK_Directory_set(DIRECTORY_Compiled_Output_CONST);
 			pRow_Package_Directory->FK_Distro_set(g_iPK_Distro);
 
 			cout << "What is the name?"; 
@@ -762,80 +772,22 @@ AsksSourceQuests:
 		}
 	}
 
-	// What directory contains the compiled output?
-	vector<Row_Package_Directory *> vectRow_Package_Directory_CO;
-	Row_Package_Directory *pRow_Package_Directory_CompiledOutput=NULL;
-	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
-		"FK_Package=" + StringUtils::itos(pRow_Package->FK_Package_Sourcecode_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Compiled_Output_CONST),
-		&vectRow_Package_Directory_CO);
-	if( vectRow_Package_Directory_CO.size()==0 )
-	{
-		cout << "There is no compiled output directory specified for this package." << endl;
-		char c = AskMCQuestion("Specify one now? (Yes/No/Abort)","yna");
-		if( c=='a' )
-		{
-			return false;
-		}
-		else if( c=='n' )
-		{
-			cout << "Continuing without building package." << endl;
-			return true;
-		}
-		else if( c=='y' )
-		{
-			pRow_Package_Directory_CompiledOutput = g_pDatabase_pluto_main->Package_Directory_get()->AddRow();
-			pRow_Package_Directory_CompiledOutput->FK_Package_set(pRow_Package->FK_Package_Sourcecode_get());
-			pRow_Package_Directory_CompiledOutput->FK_Directory_set(DIRECTORY_Compiled_Output_CONST);
-			pRow_Package_Directory_CompiledOutput->FK_Distro_set(g_iPK_Distro);
-
-			cout << "What is the name?";
-			string s = StringUtils::GetStringFromConsole();
-			pRow_Package_Directory_CompiledOutput->Path_set(s);
-			pRow_Package_Directory_CompiledOutput->Table_Package_Directory_get()->Commit();
-		}
-	}
-	else
-		pRow_Package_Directory_CompiledOutput = vectRow_Package_Directory_CO[0];
-
-	string sCompiledOutput;
-	if( pRow_Package_Directory_CompiledOutput->Path_get()[0]=='/' )
-		sCompiledOutput = pRow_Package_Directory_CompiledOutput->Path_get();
-	else
-		sCompiledOutput += g_sSourcecodePrefix + "/" + pRow_Package_Directory_CompiledOutput->Path_get();
 
 	for(size_t s=0;s<vectRow_Package_Directory.size();++s)
 	{
 		Row_Package_Directory *pRow_Package_Directory = vectRow_Package_Directory[s];
-		cout << "\tChecking directory: " << pRow_Package_Directory->Path_get() << endl;
-		cout << "\t------------------------" << endl;
-
-		Row_Package_Directory *pRow_Package_Directory_Binary = NULL;
-
-		// Where are we going to output?
-		vector<Row_Package_Directory *> vectRow_Package_Directory;
-		g_pDatabase_pluto_main->Package_Directory_get()->GetRows(
-				"FK_Package=" + StringUtils::itos(pRow_Package->FK_Package_Sourcecode_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Compiled_Output_CONST),
-				&vectRow_Package_Directory);
-
-		if( vectRow_Package_Directory.size() )
-			pRow_Package_Directory_Binary = vectRow_Package_Directory[0];
+		string sCompiledOutput = pRow_Package_Directory->Path_get();
+		string sSource;
+		if( pRow_Package_Directory->InputPath_get()!="" )
+			sSource=pRow_Package_Directory->InputPath_get();
 		else
 		{
-			cout << "This package has no output directory specified." << endl;
-			string sOutput = StringUtils::GetStringFromConsole();
-			if( sOutput.length()==0 )
-			{
-				cout << "***ABORTING***  You didn't specify an output directory" << endl;
-				return false;
-			}
-
-			pRow_Package_Directory_Binary = g_pDatabase_pluto_main->Package_Directory_get()->AddRow();
-			pRow_Package_Directory_Binary->FK_Package_set(pRow_Package->PK_Package_get());
-			pRow_Package_Directory_Binary->FK_Directory_set(DIRECTORY_Compiled_Output_CONST);
-			pRow_Package_Directory_Binary->FK_Distro_set(g_iPK_Distro);
-			pRow_Package_Directory_Binary->Path_set(sOutput);
-			g_pDatabase_pluto_main->Package_Directory_get()->Commit();
+			cout << "***Warning: *** There is no separate input directory.  Using the output directory.  This isn't normal" << endl;
+			sSource = sCompiledOutput;
 		}
+		
+		cout << "\tChecking directory: " << pRow_Package_Directory->Path_get() << endl;
+		cout << "\t------------------------" << endl;
 
 		// We now the source code is in pRow_Package_Directory and the binary goes in pRow_Package_Directory_Binary
 		if( pRow_Package_Directory->Path_get().length()==0 )
@@ -846,10 +798,10 @@ AsksSourceQuests:
 
 		// If the directory starts with a /, it is considered absolute.  Otherwise it's relative
 		string sSourceDirectory = g_sSourcecodePrefix;
-		if( pRow_Package_Directory->Path_get()[0]=='/' )
-			sSourceDirectory = pRow_Package_Directory->Path_get();
+		if( sSource[0]=='/' )
+			sSourceDirectory = sSource;
 		else
-			sSourceDirectory += "/" + pRow_Package_Directory->Path_get();
+			sSourceDirectory += "/" + sSource;
 
 		if( !FileUtils::DirExists(sSourceDirectory) )
 		{
@@ -930,13 +882,15 @@ AsksSourceQuests:
 		}
 
 		// Replace the <=version=> in all the files
-		list<string> listFiles;
-		FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs");
-		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
+		if( !g_bSimulate )
 		{
-			StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it,"<=version=>",g_pRow_Version->VersionName_get());
+			list<string> listFiles;
+			FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs");
+			for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
+			{
+				StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it,"<=version=>",g_pRow_Version->VersionName_get());
+			}
 		}
-
 		// Now we've got to run the make file
 		for(size_t s=0;s<vectRow_Package_Directory_File.size();++s)
 		{
@@ -944,7 +898,7 @@ AsksSourceQuests:
 
 			if( g_bInteractive )
 			{
-				cout << "About to execute: " << pRow_Package_Directory_File->MakeCommand_get() << endl
+				cout << "About to execute make: " << pRow_Package_Directory_File->MakeCommand_get() << endl
 					<< "In directory: " << sSourceDirectory << endl;
 				if( !AskYNQuestion("Execute command?",false) )
 					return false;
