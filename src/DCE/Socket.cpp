@@ -43,9 +43,7 @@
 #include "PlutoUtils/Other.h"
 
 
-#ifdef LL_DEBUG_FILE
-	pluto_pthread_mutex_t *m_LL_DEBUG_Mutex=NULL;
-#endif
+pluto_pthread_mutex_t *m_LL_DEBUG_Mutex=NULL;
 
 #ifdef PLUTOSERVER
 	const char *Module="PlutoServer";
