@@ -1,5 +1,5 @@
 #!/bin/bash
-version=5
+version=1
 if [ $version -eq 1 ]; then
 	O1="UPDATE Version SET VersionName='$(date +%g%m%d%H)' WHERE PK_Version=$version;"
 	echo $O1 | mysql pluto_main
