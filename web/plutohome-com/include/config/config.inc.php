@@ -54,6 +54,7 @@
 	$GLOBALS['rootDisklessBoot']=9;			// the PK_DeviceData for Diskless Boot from table DeviceData
 	$GLOBALS['DHCPDeviceData']=28;			// PK_DeviceData for DHCP
 	$GLOBALS['kickStartCD']=46;				// Kick Start CD
+	$GLOBALS['Port']=37;					// Port
 	
   	$GLOBALS['HTTPorFTP']=array(2,5,6);  	// the PK_RepositoryType for HTTP FTP and both from table RepositoryType
 	$GLOBALS['CVSorSVN']=array(2,5,6);  	// the PK_RepositoryType for CVS or SVN  from table RepositoryType

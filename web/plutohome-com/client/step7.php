@@ -132,7 +132,7 @@ if($action=='form'){
 
 }elseif($action=='add'){
 	// process form step 6
-	$description=$_POST['Description'];
+	$description=stripslashes($_POST['Description']);
 	$FK_DeviceTemplate=$_POST['newType'];
 
 	$insertDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation) VALUES (?,?,?)';
@@ -147,7 +147,7 @@ if($action=='form'){
 
 }else {
 	foreach($displayedDevicesArray as $value){
-		$description=@$_POST['description_'.$value];
+		$description=stripslashes(@$_POST['description_'.$value]);
 		$FK_DeviceTemplate=@$_POST['deviceTemplate_'.$value];
 		$FK_Distro=@$_POST['platform_'.$value];
 		

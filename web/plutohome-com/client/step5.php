@@ -223,7 +223,7 @@ if($action=='form'){
 	// process form
 	$deviceTemplate=$_POST['computerType'];
 	$distro=$_SESSION['distro'];
-	$coreRoom=cleanString($_POST['coreRoom']);
+	$coreRoom=stripslashes($_POST['coreRoom']);
 
 	$updateInstallation='UPDATE Installation SET FK_RepositoryType_Source=? WHERE PK_Installation=?';
 	$dbADO->Execute($updateInstallation,array((int)$_POST['method'],$installationID));
@@ -258,7 +258,8 @@ if($action=='form'){
 
 		$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 		$dbADO->Execute($insertDeviceDeviceData,array($deviceID,$GLOBALS['rootPK_Distro'],$distro));
-
+		$dbADO->Execute($insertDeviceDeviceData,array($deviceID,$GLOBALS['Port'],''));
+		
 		$_SESSION['deviceID']=$deviceID;
 		$_SESSION['isCoreFirstTime']=1;
 

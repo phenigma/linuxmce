@@ -64,7 +64,7 @@ function myPluto($output,$dbADO,$conn) {
       			<tr bgcolor="#DADDE4">
       				<td align="center" width="33%" class="normaltext"><b>Installations</b></td>
       				<td align="center" width="33%" class="normaltext"><b>Referrals</b></td>
-      				<td align="center" width="34%" class="normaltext"><b>'.(($isDealer==1)?'Dealer’s corner':'Developer\'s corner').'</b></td>
+      				<td align="center" width="34%" class="normaltext"><b>'.((@$isDealer==1)?'Dealer’s corner':'Developer\'s corner').'</b></td>
       			</tr>
       	      	<tr>
       				<td align="left" valign="top" class="normaltext">'.$installationsText.'<br>					
@@ -78,7 +78,7 @@ function myPluto($output,$dbADO,$conn) {
 							</tr>
 						</table>
 					</td>
-      				<td align="left" valign="top" class="normaltext">'.(($isDealer==1)?'<a href="index.php?section=updateProfile"><B>Update profile</B></a><br>
+      				<td align="left" valign="top" class="normaltext">'.((@$isDealer==1)?'<a href="index.php?section=updateProfile"><B>Update profile</B></a><br>
 					<a href="index.php?section=requestInstallationAssistance"><B>Request Installation Assistance</B></a><br>':'Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>
       				We have developed class generators that will build a fully complete, ready-to-compile <a href="support/index.php?section=document&docID=51">DCE Devices</a> in minutes.
 	     			They\'re standard C++, run on both Linux & Windows, ready talk to any other DCE Device on any platform.  See our <a href="http://plutohome.com/support/index.php?section=document&docID=15">Programmer\'s guide</a> for a quick intro.<br><br>').'

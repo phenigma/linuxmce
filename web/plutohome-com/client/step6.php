@@ -192,7 +192,7 @@ if($_SESSION['sollutionType']==3){
 								</tr>
 								<tr class="normaltext">
 									<td>Name</td>
-									<td><input type="text" name="Description" value="'.@$_POST['Description'].'"> "Joe\'s PC", "Aluminum HTPC", etc.</td>
+									<td><input type="text" name="Description" value="'.@stripslashes($_POST['Description']).'"> "Joe\'s PC", "Aluminum HTPC", etc.</td>
 								</tr>
 								<tr class="normaltext">
 									<td>Room</td>
@@ -267,10 +267,10 @@ if($_SESSION['sollutionType']==3){
 	}elseif($action=='add'){
 		// process form step 5
 		if(isset($_POST['continue'])){
-			$description=$_POST['Description'];
+			$description=stripslashes($_POST['Description']);
 			$FK_DeviceTemplate=$_POST['newType'];
 			$FK_Distro=((isset($_SESSION['EnableDHCP']) && $_SESSION['EnableDHCP']==1) || isset($_POST['disklessBoot_']))?1:$_POST['newPlatform'];
-			$mdRoom=cleanString($_POST['mdRoom']);
+			$mdRoom=stripslashes($_POST['mdRoom']);
 
 			$queryRoom='SELECT * FROM Room WHERE Description=? AND FK_Installation=?';
 			$resRoom=$dbADO->Execute($queryRoom,array($mdRoom,$installationID));
@@ -342,7 +342,7 @@ if($_SESSION['sollutionType']==3){
 		
 		
 		foreach($displayedDevicesArray as $value){
-			$description=@$_POST['description_'.$value];
+			$description=stripslashes(@$_POST['description_'.$value]);
 			$FK_DeviceTemplate=@$_POST['deviceTemplate_'.$value];
 			$oldInstallSourceCode=@$_POST['oldInstallSourceCode_'.$value];
 			$oldDisklessBoot=@$_POST['oldDisklessBoot_'.$value];
@@ -350,7 +350,7 @@ if($_SESSION['sollutionType']==3){
 			$macAddress=($diskless!=0)?@$_POST['mdMAC_'.$value]:NULL;
 			$oldRoomID=@$_POST['oldRoomID_'.$value];
 			$oldRoom=@$_POST['oldRoom_'.$value];
-			$mdRoom=@$_POST['room_'.$value];
+			$mdRoom=stripslashes(@$_POST['room_'.$value]);
 	
 			$updateDevice='UPDATE Device SET Description=?, FK_DeviceTemplate=?,MACaddress=? WHERE PK_Device=?';
 			$dbADO->Execute($updateDevice,array($description,$FK_DeviceTemplate,$macAddress,$value));
