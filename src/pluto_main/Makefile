@@ -6,6 +6,9 @@ LDFLAGS = -L$(ROOT)/lib
 LDLIBS =  -lmysqlclient_r
 
 sources = Database_pluto_main.cpp TableRow.cpp \
+Table_Action.cpp \
+Table_ActionHistory.cpp \
+Table_ActionPending.cpp \
 Table_Array.cpp \
 Table_Broadcast.cpp \
 Table_Button.cpp \
@@ -97,6 +100,7 @@ Table_Directory.cpp \
 Table_Distro.cpp \
 Table_Document.cpp \
 Table_Document_Comment.cpp \
+Table_Employee.cpp \
 Table_EntertainArea.cpp \
 Table_Event.cpp \
 Table_EventCategory.cpp \
@@ -124,6 +128,8 @@ Table_Installation.cpp \
 Table_Installation_RepositorySource_URL.cpp \
 Table_Installation_Users.cpp \
 Table_Language.cpp \
+Table_Lead.cpp \
+Table_LeadType.cpp \
 Table_License.cpp \
 Table_Manufacturer.cpp \
 Table_MediaType.cpp \
@@ -161,6 +167,8 @@ Table_Size.cpp \
 Table_Skin.cpp \
 Table_StabilityStatus.cpp \
 Table_StartupScript.cpp \
+Table_Status.cpp \
+Table_StatusType.cpp \
 Table_Style.cpp \
 Table_StyleVariation.cpp \
 Table_System.cpp \
