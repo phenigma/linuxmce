@@ -107,6 +107,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 
 	time_t GetLastScreenChangedTime();
+	string GetCurrentScreenID();
 
 	pluto_pthread_mutex_t m_CallbackMutex; /** < Don't allow 2 threads to operate on the callback map at the same time */
 	pluto_pthread_mutex_t m_MaintThreadMutex;

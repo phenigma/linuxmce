@@ -24,6 +24,7 @@
 #include "pluto_main/Define_DeviceCategory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DataGrid.h"
+#include "SDL_rotozoom.h"
 
 #include <SDL_ttf.h>
 #include <SDL_image.h>
@@ -140,6 +141,24 @@ g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
     SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
 #endif
 
+/*
+	SDL_Rect Destination;
+	Destination.x = 100; Destination.y = 100;
+	Destination.w = 200; Destination.h = 200;
+
+	SDL_Surface *picture = SDL_LoadBMP ("Poza.bmp"); 
+	SDL_BlitSurface(picture, NULL, m_pScreenImage, &Destination);
+
+	SDL_Rect Destination2;
+	Destination2.x = 300; Destination2.y = 300;
+	Destination2.w = 100; Destination2.h = 100;
+
+	SDL_Surface *rotozoom_picture = zoomSurface(picture, 0.5, 0.5, SMOOTHING_ON);
+	SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination2);
+
+	SDL_FreeSurface(picture);
+	SDL_FreeSurface(rotozoom_picture);
+*/
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
@@ -251,11 +270,41 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
     if( !obj_image )
         return;
 
+	//obj_image->h
+	//obj_image->w
+
 	SDL_Rect Destination;
     Destination.x = rectTotal.X; Destination.y = rectTotal.Y;
 	Destination.w = pObj->m_rPosition.Width; Destination.h = pObj->m_rPosition.Height;
-    
-	SDL_BlitSurface(obj_image, NULL, m_pScreenImage, &Destination);
+
+	if(obj_image->w == 0 || obj_image->h == 0) //nothing to render
+		return;
+
+	if(obj_image->w != pObj->m_rPosition.Width || obj_image->h != pObj->m_rPosition.Height) //different size. we'll have to stretch the surface
+	{
+		double ZoomX = 1;
+		double ZoomY = 1;
+
+		SDL_Surface *rotozoom_picture;
+
+		if(pObj->m_bDisableAspectLock) //no aspect ratio kept
+		{
+			ZoomX = pObj->m_rPosition.Width / double(obj_image->w);
+			ZoomY = pObj->m_rPosition.Height / double(obj_image->h);
+		}
+		else //we'll have to keep the aspect
+		{
+			ZoomX = ZoomY = min(pObj->m_rPosition.Width / double(obj_image->w), 
+				pObj->m_rPosition.Height / double(obj_image->h));
+		}
+
+		rotozoom_picture = zoomSurface(obj_image, ZoomX, ZoomY, SMOOTHING_ON);
+
+		SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination);
+		SDL_FreeSurface(rotozoom_picture);
+	}
+	else //same size ... just blit the surface
+		SDL_BlitSurface(obj_image, NULL, m_pScreenImage, &Destination);
 
 	if( bDeleteSurface )
         SDL_FreeSurface(obj_image);

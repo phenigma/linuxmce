@@ -476,8 +476,11 @@ string StringUtils::URLDecode( string sInput )
                 else if ('A' <= *inBuffer && *inBuffer <= 'F')
                     *outBuffer |= (*inBuffer - ('a' - 10));
             }
+#ifndef WINCE
             else
                 cerr << "Invalid string passed (found % followed by something which is not a hex digit) to URLDecode: " << sInput << endl;
+#endif
+
         }
 
         outBuffer++;

@@ -5099,3 +5099,15 @@ time_t Orbiter::GetLastScreenChangedTime()
 { 
 	return NULL != m_pScreenHistory_Current ? m_pScreenHistory_Current->m_tTime : time(NULL); 
 }
+
+string Orbiter::GetCurrentScreenID()
+{ 
+	return 
+		(
+			NULL != m_pScreenHistory_Current				&&  
+			NULL != m_pScreenHistory_Current->m_pObj		
+		)
+		? 
+			m_pScreenHistory_Current->m_pObj->m_ObjectID : 
+			"UNKNOWN";
+}

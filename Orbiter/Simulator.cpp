@@ -41,7 +41,7 @@ Simulator *Simulator::m_pInstance = NULL;
 //-----------------------------------------------------------------------------------------------------
 void *GeneratorThread( void *p)
 {
-//	g_pPlutoLogger->Write(LV_WARNING, "Simulator enabled");
+	g_pPlutoLogger->Write(LV_WARNING, "Simulator enabled");
 	
 	Simulator *pSimulator = (Simulator *)p;
 
@@ -51,7 +51,6 @@ void *GeneratorThread( void *p)
 	sleep(pSimulator->m_dwStartGeneratorThreadDelay / 1000);
 #endif	
 	
-
 	bool bGenerateMouseClicks = pSimulator->m_bGenerateKeyboardEvents;
 	bool bGenerateKeyboardEvents = pSimulator->m_bGenerateMouseClicks;
 	bool bOption1 = pSimulator->m_iKeysSetToGenerate == 0;
@@ -85,14 +84,19 @@ void *GeneratorThread( void *p)
 
 	while(true)
 	{
-		//g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event");
+		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event");
 		
 		if(pSimulator->m_bStopGeneratorThread)
 			return NULL;
 
-		if(clock() - pOrbiter->GetLastScreenChangedTime() > 60 * 60 * 1000) //1h
+		if(time(NULL) - pOrbiter->GetLastScreenChangedTime() > 3600) //1 hour
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "@@@ Got stuck into the screen with id: %s @@@",  
+				pOrbiter->GetCurrentScreenID().c_str());
+
 			if(HomeScreen != "")    
 				pOrbiter->GotoScreen(HomeScreen);	
+		}
 
 		delay = iDelayMin + rand() % (iDelayMax - iDelayMin); 
 		Simulator::SimulateActionDelay(delay);

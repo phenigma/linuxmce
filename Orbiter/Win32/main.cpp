@@ -135,12 +135,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		CmdLineParams.sLocalDirectory	= sLocalDirectory;
 		CmdLineParams.sNestedDisplay    = sNestedDisplay;
 
-#ifdef WINCE
-		Simulator::GetInstance()->LoadConfigurationFile("/InternalStorage/Orbiter.conf");
-#else
-		Simulator::GetInstance()->LoadConfigurationFile("Orbiter.conf");
-#endif
-
 		// Perform application initialization:
 		if (!InitInstance (hInstance, nCmdShow)) 
 		{
@@ -168,6 +162,12 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 		//now it's safe to start orbiter's thread
 		StartOrbiterThread();
+
+#ifdef WINCE
+		Simulator::GetInstance()->LoadConfigurationFile("/InternalStorage/Orbiter.conf");
+#else
+		Simulator::GetInstance()->LoadConfigurationFile("Orbiter.conf");
+#endif
 
 		// Main message loop:
 		while (GetMessage(&msg, NULL, 0, 0)) 
