@@ -536,7 +536,7 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 	{
 	    pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, 
 			( void* )new BD_Orbiter_Plus_DongleHandle(pBD_Orbiter, this, 
-													  pBD_Orbiter->m_pPhoneDevice->m_sMacAddress,
+													  sMac_address,
 													  pBD_Orbiter->m_pPhoneDevice->m_iMacAddress
 		    ) 
 		);
