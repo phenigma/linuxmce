@@ -7,7 +7,7 @@ RunSQL()
 	local Q Pass
 	Q="$*"
 	[ -n "$MySqlPassword" ] && Pass="-p$MySqlPassword"
-	[ -z "$Q" ] || echo "$Q;" | mysql -N pluto_main -h $MySqlHost -u $MySqlUser $Pass | tr '\n\t ' ' ,~'
+	[ -z "$Q" ] || echo "$Q;" | mysql -N pluto_main -h $MySqlHost -u $MySqlUser $Pass | tr '\n\t ' ' ,~' | sed 's/ *$//'
 }
 
 Field()
