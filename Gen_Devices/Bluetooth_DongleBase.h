@@ -26,9 +26,9 @@ public:
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 5,2,5,sMac_Address.c_str(),8,sVersion.c_str()));
 	}
 
-	virtual void Mobile_orbiter_lost(string sMac_Address)
+	virtual void Mobile_orbiter_lost(string sMac_Address,bool bConnectionFailed)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 6,1,5,sMac_Address.c_str()));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 6,2,5,sMac_Address.c_str(),11,(bConnectionFailed ? "1" : "0")));
 	}
 
 };
@@ -82,7 +82,7 @@ public:
 	//Event accessors
 	void EVENT_Mobile_orbiter_detected(string sMac_Address,int iSignal_Strength,string sID) { GetEvents()->Mobile_orbiter_detected(sMac_Address.c_str(),iSignal_Strength,sID.c_str()); }
 	void EVENT_Mobile_orbiter_linked(string sMac_Address,string sVersion) { GetEvents()->Mobile_orbiter_linked(sMac_Address.c_str(),sVersion.c_str()); }
-	void EVENT_Mobile_orbiter_lost(string sMac_Address) { GetEvents()->Mobile_orbiter_lost(sMac_Address.c_str()); }
+	void EVENT_Mobile_orbiter_lost(string sMac_Address,bool bConnectionFailed) { GetEvents()->Mobile_orbiter_lost(sMac_Address.c_str(),bConnectionFailed); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Signal_Strength(string sMac_address,int *iValue_int,string &sCMD_Result,class Message *pMessage) {};

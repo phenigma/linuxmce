@@ -24,12 +24,15 @@ public:
 
 	int m_iLastSignalStrength;
 
+	int m_iFailedToConnectCount;
+
 	OH_Orbiter(class DeviceData_Router *pDeviceData_Router)
 	{
 		m_pDeviceData_Router = pDeviceData_Router;
 		m_iPK_Users = m_iPK_EntertainArea = m_dwPK_Room = 0;
 		m_iLastSignalStrength = 0;
 		m_pDevice_CurrentDetected = NULL;
+		m_iFailedToConnectCount = 0;
 	}
 
 };

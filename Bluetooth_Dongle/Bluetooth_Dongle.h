@@ -104,7 +104,7 @@ public:
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Mobile_orbiter_detected(string sMac_Address,int iSignal_Strength,string sID);
 	void EVENT_Mobile_orbiter_linked(string sMac_Address,string sVersion);
-	void EVENT_Mobile_orbiter_lost(string sMac_Address);
+	void EVENT_Mobile_orbiter_lost(string sMac_Address,bool bConnectionFailed);
 
 			*****COMMANDS***** we need to implement
 	*/

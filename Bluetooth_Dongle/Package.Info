@@ -3,7 +3,7 @@ Package = DCE_Destination_Package
 Dir = 
 desc = DCE Implemenation for #13 Bluetooth Dongle
 Maintainer = aaronName
-Email = 
-Depend = x,libbluetooth1-dev,,bluez-utils,
+Email = 0
+Depend = x
 <-dceag-p-e->
 

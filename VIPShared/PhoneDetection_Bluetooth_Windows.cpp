@@ -66,8 +66,8 @@ bool PhoneDetection_Bluetooth_Windows::ScanningLoop()
 	list<PhoneDevice *>::iterator itLost;
 	for(itLost = listDevicesLost.begin();itLost != listDevicesLost.end();++itLost)
 	{
-		Intern_LostDevice(*itLost);
 		g_pPlutoLogger->Write(LV_STATUS, "Lost connection to %s device", (*itLost)->m_sID.c_str());
+		Intern_LostDevice(*itLost);
 	}
 
 	return true;

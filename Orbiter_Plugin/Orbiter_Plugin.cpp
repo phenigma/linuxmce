@@ -55,7 +55,7 @@ bool Orbiter_Plugin::Register()
 //<-dceag-reg-e->
 {
 	// Check for all orbiters
-	for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
+ 	for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
 	{
 		DeviceData_Router *pDeviceData_Router=(*it).second;
 		if( pDeviceData_Router->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
@@ -215,6 +215,12 @@ int DESIGNOBJ_New_phone_detected_CONST=0;  // TODO -- HACK
 	}
 	else
 	{
+		if(pOH_Orbiter->m_iFailedToConnectCount >= 3) //if we tried to connect to this phone 3 times
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Failed to connect to the phone after 3 retries. We won't try again.");	
+			return true;
+		}
+
 		int SignalStrength = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Signal_Strength_CONST].c_str());
 
 		if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
@@ -285,6 +291,8 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
 	}
 	else
 	{
+		pOH_Orbiter->m_iFailedToConnectCount = 0;//reset tries count
+
 		//pMobileOrbiter->m_pController->m_bReady=true;
 		//pMobileOrbiter->m_pController->SetDefaultFlags();
 		
@@ -376,6 +384,8 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
 	} 
 
 	string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
+	bool bConnectionFailed = "0" != pMessage->m_mapParameters[EVENTPARAMETER_ConnectionFailed_CONST];
+
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Mac_Find(sMacAddress);
 
 	if(!pOH_Orbiter)
@@ -384,6 +394,18 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
 	}
 	else
 	{
+		if(bConnectionFailed)
+		{
+			pOH_Orbiter->m_iFailedToConnectCount++;
+			g_pPlutoLogger->Write(LV_WARNING, 
+				"Failed to connect to app on %s device, loop %d",
+				sMacAddress.c_str(),
+				pOH_Orbiter->m_iFailedToConnectCount
+			);
+		}
+//		else
+//			pOH_Orbiter->m_iFailedToConnectCount = 0; 
+
 		if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
 		{
 			/*
@@ -403,6 +425,7 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
 
 			pOH_Orbiter->m_pDevice_CurrentDetected=NULL; 
 		}
+
 	}
 
 	return true;
