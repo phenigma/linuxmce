@@ -55,8 +55,11 @@ BOOL COrbiterCEInstallerDlg::OnInitDialog()
 	
 	CenterWindow(GetDesktopWindow());	// center to the hpc screen
 
-	// TODO: Add extra initialization here
-	
+	CMenu *pMenu = GetMenu();
+
+	if(pMenu)
+		pMenu->DestroyMenu();
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 

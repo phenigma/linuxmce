@@ -533,7 +533,7 @@ bool CGetMoreInfo::DownloadFileFromSvn(CString sServer, CString sRepository, CSt
 	si.lpReserved = 0;
 
 	string sTempFullPath = sFullURL;
-	StringUtils::Replace(sTempFullPath, "http://svn.", "svn://");
+	//StringUtils::Replace(sTempFullPath, "http://svn.", "svn://");
 	sFullURL = sTempFullPath.c_str();
 
 	CString sSvnCommandLine = "svn co " + sFullURL + " " + sDrive + "/pluto/" + sSourceImplementationPath;
