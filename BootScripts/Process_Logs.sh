@@ -19,6 +19,6 @@ if [ "$1" != "0" ]; then
 fi
 
 tar -czf "$Output/log-$Filename.tar.gz" /var/log/pluto/*.{,new}log
-rm -f /var/log/pluto/*.{,new}log
+rm -f /var/log/pluto/*.log
 
 find "$Output" -mtime +5 -exec rm -f '{}' ';'
