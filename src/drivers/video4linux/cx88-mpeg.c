@@ -211,13 +211,13 @@ void cx8802_buf_queue(struct cx8802_dev *dev, struct cx88_buffer *buf)
 		udelay(100);
 
 	} else {
-		dprintk( 0, "queue is not empty - append to active\n" );
+		dprintk( 1, "queue is not empty - append to active\n" );
 		prev = list_entry(q->active.prev, struct cx88_buffer, vb.queue);
 		list_add_tail(&buf->vb.queue,&q->active);
 		buf->vb.state = STATE_ACTIVE;
 		buf->count    = q->count++;
 		prev->risc.jmp[1] = cpu_to_le32(buf->risc.dma);
-		dprintk(0,"[%p/%d] %s - append to active\n",
+		dprintk( 1, "[%p/%d] %s - append to active\n",
 			buf, buf->vb.i, __FUNCTION__);
 		udelay(100);
 	}
@@ -261,7 +261,7 @@ void cx8802_cancel_buffers(struct cx8802_dev *dev)
 static void cx8802_timeout(unsigned long data)
 {
 	struct cx8802_dev *dev = (struct cx8802_dev*)data;
-	struct cx88_core *core = dev->core;
+	//struct cx88_core *core = dev->core;
 
 	dprintk(0, "%s\n",__FUNCTION__);
 
@@ -281,7 +281,7 @@ static void cx8802_mpeg_irq(struct cx8802_dev *dev)
 	struct cx88_core *core = dev->core;
 	u32 status, mask, count;
 
-	dprintk( 0, "cx8802_mpeg_irq\n" );
+	dprintk( 1, "cx8802_mpeg_irq\n" );
 	status = cx_read(MO_TS_INTSTAT);
 	mask   = cx_read(MO_TS_INTMSK);
 	if (0 == (status & mask))
@@ -343,9 +343,9 @@ static irqreturn_t cx8802_irq(int irq, void *dev_id, struct pt_regs *regs)
 		status = cx_read(MO_PCI_INTSTAT) & (core->pci_irqmask | 0x04);
 		if (0 == status)
 			goto out;
-		dprintk( 0, "cx8802_irq\n" );
-		dprintk( 0, "    loop: %d/%d\n", loop, MAX_IRQ_LOOP );
-		dprintk( 0, "    status: %d\n", status );
+		dprintk( 1, "cx8802_irq\n" );
+		dprintk( 1, "    loop: %d/%d\n", loop, MAX_IRQ_LOOP );
+		dprintk( 1, "    status: %d\n", status );
 		cx_write(MO_PCI_INTSTAT, status);
 		handled = 1;
 

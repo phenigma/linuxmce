@@ -878,8 +878,8 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 #endif
 
 	/* assign stream type */
-	//blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_PROGRAM);
-	blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_TRANSPORT);
+	blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_PROGRAM);
+	//blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_TRANSPORT);
 
 	/* assign output port */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_OUTPUT_PORT, 1, 0, BLACKBIRD_OUTPUT_PORT_STREAMING); /* Host */
@@ -898,7 +898,7 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_VIDEO_BITRATE, 5, 0,
 			 bitrate_mode,         /* mode */
 			 bitrate,              /* bps */
-			 bitrate_peak / 400,   /* peak/400 */
+			 bitrate_peak / BLACKBIRD_PEAK_RATE_DIVISOR,   /* peak/400 */
 			 BLACKBIRD_MUX_RATE_DEFAULT /*, 0x70*/);             /* encoding buffer, ckennedy */
 
 	/* assign gop properties */
@@ -1159,7 +1159,7 @@ static int set_control(struct cx8802_dev *dev, struct v4l2_control *ctl)
 
 	switch (ctl->id) {
 	case V4L2_CID_HUE:
-		dprintk( 1, "HUE: 0x%02x\n", ctl->value );
+		dprintk( 0, "HUE: 0x%02x, min: 0x%02x, max: 0x%02x\n", ctl->value, c->v.minimum, c->v.maximum );
 		ctl->value = 0x0;
 		break;
 	case V4L2_CID_CONTRAST:
