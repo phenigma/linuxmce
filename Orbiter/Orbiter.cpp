@@ -345,7 +345,7 @@ void Orbiter::RealRedraw( void *data )
 		m_vectObjs_NeedRedraw.size(), m_vectTexts_NeedRedraw.size()
 	);
 
-    if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size())
+    if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0)
         return;
 
 	BeginPaint();
