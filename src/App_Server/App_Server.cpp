@@ -448,7 +448,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 			SetStatus("PC_OFF",m_dwPK_Device_MD);
 		else
 			SetStatus("MD_OFF",m_dwPK_Device_MD);
-#ifdef LINUX
+#ifndef WIN32
 		g_pPlutoLogger->Write(LV_STATUS,"Calling halt");
 		system("halt");
 #else
@@ -464,7 +464,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 		else
 			SetStatus("MD_SUSPEND",m_dwPK_Device_MD);
 
-#ifdef LINUX
+#ifndef WIN32
 		g_pPlutoLogger->Write(LV_STATUS,"Calling halt");
 		system("halt");  // Don't know how to do this
 #else
@@ -477,7 +477,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 	case 'V':
 		SetStatus("REBOOTING",m_dwPK_Device_MD);
 
-#ifdef LINUX
+#ifndef WIN32
 		g_pPlutoLogger->Write(LV_STATUS,"Calling reboot");
 		system("reboot");  // Don't know how to do this
 #else
