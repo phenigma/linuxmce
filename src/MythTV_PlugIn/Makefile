@@ -18,7 +18,7 @@ sources = Main.cpp MythTV_PlugIn.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/Libraries
+CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/../libs/Libraries
 INTERNAL_LIBS_NAMES += pluto_main pluto_media
 EXTERNAL_LIBS_NAMES += qt-mt myth-0.16 mythtv-0.16
 
