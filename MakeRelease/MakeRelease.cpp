@@ -1157,6 +1157,8 @@ cout << "Copying Files\n";
 		cmd2 = cmd2.substr(pos+1,length-pos-1);
 		if(cmd2 == "") {
 			cmd2 = FileUtils::FilenameWithoutPath(*iMyList);
+		} else if(cmd2 == "CVS") {
+			cmd2 = "";
 		} else {
 			cmd2 = cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
 		}
@@ -1185,7 +1187,7 @@ cout << "Copying Files\n";
 				cmd = "rm -r -f " + cmd2;
 				system(cmd.c_str());
 				cout << cmd << endl;
-				cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + "remove " + cmd2;
+				cmd = "cvs remove " + cmd2;
 				system(cmd.c_str());
 				cout << cmd << endl;
 		}
