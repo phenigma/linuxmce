@@ -4,7 +4,7 @@
 nobuild=""
 
 # If not version was specified then we will assume the latest specified version from the database 
-if [ "$1" = "x" ]; then
+if [ "$1" = "" ]; then
 	# lock the svn commits only to the authorized personnel
  
 	if [ "x$nobuild" = "x" ]; then
@@ -32,7 +32,7 @@ if [ "x$nobuild" = "x" ]; then
     rm -rf /home/MakeRelease
     mkdir -p /home/MakeRelease
     cd /home/MakeRelease
-    svn co svn://localhost/pluto2/trunk/. | tee /home/MakeRelease/svn.log
+	svn co http://10.0.0.170/pluto/trunk/. | tee /home/MakeRelease/svn.log
     cd /home/MakeRelease/trunk
     svn info > svn.info
 else
@@ -43,6 +43,9 @@ svninfo=$(svn info . |grep ^Revision | cut -d" " -f2)
 O2="UPDATE Version SET SvnRevision=$svninfo WHERE PK_Version=$version;"
 echo $O2 | mysql pluto_main
 echo $O2 > /home/MakeRelease/query2
+
+Q3="select VersionName from Version WHERE PK_Version=$version"
+version_name=$(echo "$Q3;" | mysql -N pluto_main)
 
 DEST="mihai.t@newflavorstudio.com -c igor.s@newflavorstudio.com -c aaron@plutohome.com -c radu.c@newflavorstudio.com -c mtoader@gmail.com"
 
@@ -94,7 +97,7 @@ fi
 
 	cd /home/tmp/pluto-build/
 	./propagate.sh
-	(cd /home/Pluto-D-i; ./go-netinst cache; cp DSP2.iso /var/www/download/cds/pldebsrg.iso)
+	(cd /home/Pluto-D-i; ./go-netinst cache $version_name; cp DSP2.iso /var/www/download/cds/KickStart_$version_name.iso)
 	if [ $version -ne 1 ]; then
 		# SourceForge CVS
 		if ! MakeRelease -a -o 1 -r 12 -m 1 -s /home/MakeRelease/trunk -n / -b -v $version  > /home/MakeRelease/MakeRelease6.log ; then

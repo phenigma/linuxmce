@@ -548,10 +548,9 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
 			{
 				list<string> listFiles;
-				cout << "Scanning: " << sDirectory;
 				FileUtils::FindFiles(listFiles,sDirectory,File,true);
 				if( g_bInteractive )
-					cout << "Found: " << listFiles.size() << " files" << endl;
+					cout << "Found: " << listFiles.size() << " files in " << sDirectory << endl;
 				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 				{
 					//cout<<"\ncreate source sD: "<<sDirectory<<' '<<*it;
@@ -774,7 +773,7 @@ bool CompileSource(Row_Package *pRow_Package)
 	}
 
 	cout << "====================================================" << endl;
-	cout << "Compiling source package: " << pRow_Package->FK_Package_Sourcecode_getrow()->Description_get() << endl;
+	cout << "Compiling source package: " << pRow_Package->FK_Package_Sourcecode_get() << " " << pRow_Package->FK_Package_Sourcecode_getrow()->Description_get() << endl;
 	cout << "====================================================" << endl;
 
 	vector<Row_Package_Source *> vectRow_Package_Source;
@@ -1029,7 +1028,7 @@ AsksSourceQuests:
 			}
 			cout << pRow_Package_Directory_File->MakeCommand_get() << " succeeded" << endl;
 
-			if( !g_bSimulate && !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
+			if( !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
 			{
 				cout << "***ERROR*** The file: " << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " was not created.";
 				if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
