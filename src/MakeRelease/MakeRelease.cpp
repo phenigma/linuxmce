@@ -80,6 +80,7 @@ bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_b
 Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
 Row_Distro *g_pRow_Distro;
+string g_sDefines;
 DCEConfig dceConfig;
 
 // Int is the package ID, bool is true/false if it's been built.  This will be prepopulated with all the packages and 'false'
@@ -136,6 +137,7 @@ int main(int argc, char *argv[])
 
 	int iVersion=-1;
 	bool bError=false;
+	string sDefines;
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
@@ -196,6 +198,9 @@ int main(int argc, char *argv[])
 		case 'v':
 			iVersion = atoi(argv[++optnum]);
 			break;
+		case 'f':
+			sDefines = argv[++optnum];
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -206,7 +211,7 @@ int main(int argc, char *argv[])
 	if ( bError)
 	{
 		cout << "MakeRelease, v." << VERSION << endl
-			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-k Packages] [-m Manufacturers] [-o Distro] [-a]" << endl
+			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-k Packages] [-m Manufacturers] [-o Distro] [-a] [-f Defines]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
@@ -299,7 +304,12 @@ int main(int argc, char *argv[])
 	}
 #pragma warning("had to use tiny text because medium text fails due to char[] in commit with field asSQL");
 	
-	cout << "Building version: " << g_pRow_Version->Description_get() << endl;  
+	if( sDefines.length() )
+		g_sDefines=sDefines;
+	else if( g_pRow_Version->PK_Version_get()==1 )
+		g_sDefines="-DDEBUG -DTHREAD_LOG -DLL_DEBUG_FILE";
+
+	cout << "Building version: " << g_pRow_Version->Description_get() << " with: " << g_sDefines << endl;  
 
 	for(size_t s=0;s<vectPackages_Main.size();++s)
 	{
@@ -1050,7 +1060,7 @@ AsksSourceQuests:
 
 			// Be sure we compile with debug info
 			if( !g_bSimulate && g_pRow_Version->PK_Version_get()==1 )
-				StringUtils::Replace( "Makefile", "Makefile", "-D_DEVEL_DEFINES", "-DDEBUG -DTHREAD_LOG -DLL_DEBUG_FILE" );
+				StringUtils::Replace( "Makefile", "Makefile", "-D_DEVEL_DEFINES", g_sDefines );
 
 			if( FileUtils::FileExists("Main.cpp") )
 				StringUtils::Replace( "Main.cpp", "Main.cpp", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
