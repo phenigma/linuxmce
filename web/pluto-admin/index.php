@@ -1027,7 +1027,13 @@ switch ($section) {
 	    include_once('operations/myDevices/tunerConfig.php');
 	    tunerConfig($output,$dbADO);
 	break;	
-	
+	case 'deleteCriticalDevice';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/deleteCriticalDevice.php');
+	    deleteCriticalDevice($output,$dbADO);
+	break;
+		
 	case '';
 		$output = new Template($dbADO);	
 		

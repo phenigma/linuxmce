@@ -104,7 +104,7 @@ if($action=='form') {
 
 	$out.='
 		<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>	
-		<form action="index.php" method="POST" name="mobileScenarios">
+		<form action="index.php" method="POST" name="mobileScenarios" onSubmit="return validateForm();">
 			<input type="hidden" name="section" value="mobileScenarios">
 			<input type="hidden" name="action" value="add">	
 			<input type="hidden" name="cgID" value="'.$cgID.'">
@@ -196,7 +196,33 @@ if($action=='form') {
 	}
 	$out.='</table>
 		<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">
-	</form>';
+	</form>
+	<script>
+	function validateForm()
+	{
+		devicesNo='.count($displayedDevices).';
+		devicesArray=new Array(devicesNo);';
+		$posStart=0;
+		foreach($displayedDevices as $Device){
+			$out.='devicesArray['.$posStart.']='.$Device.';';
+			$posStart++;
+		}
+	$out.='
+		for(i=0;i<devicesNo;i++){
+			eval("isDim=document.mobileScenarios.command_"+devicesArray[i]+"[3].checked");
+			if(isDim==true){
+				eval("dimVal=parseInt(document.mobileScenarios.dimValue_"+devicesArray[i]+".value)");
+				if(dimVal<0 || dimVal>100 || isNaN(dimVal)){
+					alert("Please enter a value between 0 and 100.");
+					eval("document.mobileScenarios.dimValue_"+devicesArray[i]+".focus()");
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	</script>	
+	';
 }elseif($action=='editClimate'){
 
 	$cgID=$_REQUEST['cgID'];

@@ -11,7 +11,7 @@ function callRouting($output,$dbADO) {
 		$rowExternalLines=$resIsInternational->FetchRow();
 		$internationalLine=str_replace('DIALLINE=','',$rowExternalLines['appdata']);
 	}
-	$resIsIntern=$dbADO->Execute('SELECT * FROM extensions_table WHERE exten=? AND context=? AND appdata=?',array('_9XXX.','outgoing-extern-selectline','DIALLINE=%'));
+	$resIsIntern=$dbADO->Execute('SELECT * FROM extensions_table WHERE exten=? AND context=? AND appdata LIKE ?',array('_9XXX.','outgoing-extern-selectline','DIALLINE=%'));
 	if($resIsIntern->RecordCount()>0){
 		$rowInternLines=$resIsIntern->FetchRow();
 		$internLine=str_replace('DIALLINE=','',$rowInternLines['appdata']);
@@ -45,9 +45,10 @@ function callRouting($output,$dbADO) {
 		while($row=$resLines->FetchRow()){
 			$linesArray[$row['name']]=$row['name'].' [SIP]';
 			$pos++;
-			$lineType='Not assigned';
+			$lineType='';
 			$lineType=($row['name']==@$internationalLine)?'International':$lineType;
-			$lineType=($row['name']==@$internLine)?'National':$lineType;
+			$lineType=($row['name']==@$internLine)?$lineType.' National':$lineType;
+			$lineType=($lineType=='')?'Not Assigned':$lineType;
 			
 			$out.='
 			<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#E5E5E5').'">
@@ -66,9 +67,10 @@ function callRouting($output,$dbADO) {
 		while($row=$resLines->FetchRow()){
 			$linesArray[$row['name']]=$row['name'].' [IAX2]';
 			$pos++;
-			$lineType='Not assigned';
+			$lineType='';
 			$lineType=($row['name']==@$internationalLine)?'International':$lineType;
-			$lineType=($row['name']==@$internLine)?'National':$lineType;
+			$lineType=($row['name']==@$internLine)?$lineType.' National':$lineType;
+			$lineType=($lineType=='')?'Not Assigned':$lineType;
 			
 			$out.='
 			<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#E5E5E5').'">

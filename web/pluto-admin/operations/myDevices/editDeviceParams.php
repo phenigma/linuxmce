@@ -12,12 +12,11 @@ $installationID = (int)@$_SESSION['installationID'];
 		header("Location: index.php?section=login&last=editDeviceParams&deviceID=$deviceID");
 		exit();
 	}
-	$query = "select 
-				FK_DeviceTemplate,FK_Device_ControlledVia,Device.Description,IPaddress,MACaddress,IgnoreOnOff,NeedConfigure,
-				DeviceTemplate.Description as MDL_description,FK_Room, Comments
-					from Device 
-						Inner JOIN DeviceTemplate on FK_DeviceTemplate = PK_DeviceTemplate
-						where PK_Device = ?";
+	$query = "
+		SELECT FK_DeviceTemplate,FK_Device_ControlledVia,Device.Description,IPaddress,MACaddress,IgnoreOnOff,NeedConfigure,DeviceTemplate.Description as MDL_description,FK_Room, Comments,ManufacturerURL,InternalURLSuffix
+		FROM Device 
+		INNER JOIN DeviceTemplate on FK_DeviceTemplate = PK_DeviceTemplate
+		WHERE PK_Device = ?";
 	$res = $dbADO->Execute($query,array($deviceID));
 	
 	
@@ -33,6 +32,8 @@ $installationID = (int)@$_SESSION['installationID'];
 		$deviceNeedConfigure= $row['NeedConfigure'];
 		$deviceRoom=$row['FK_Room'];
 		$dtComments=$row['Comments'];
+		$ManufacturerURL=$row['ManufacturerURL'];
+		$InternalURLSuffix=$row['InternalURLSuffix'];
 	}
 	
 	if ($DeviceTemplate==0) {
@@ -74,6 +75,15 @@ $installationID = (int)@$_SESSION['installationID'];
 		 WHERE FK_Device = $deviceID";
 	$resDeviceData = $dbADO->_Execute($deviceData);
 	$childsNo = getChildsNo($deviceID,$dbADO);
+	
+	if(isCore($deviceID,$dbADO) || isMediaDirector($deviceID,$dbADO)){
+		$deleteLink='<a href="javascript: if (confirm(\'WARNING !!! This is a critical device !!! Are you sure you want to delete it? '.($childsNo>0?'It has '.$childsNo.' child'.($childsNo>1?'s':''):'').'!\')) {document.location.href=\'index.php?section=deleteCriticalDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">Delete Device</a> (NOT RECOMENDED)';
+	}else{
+		$deleteLink='<a href="javascript: if (confirm(\'Are you sure you want to delete this device? '.($childsNo>0?'It has '.$childsNo.' child'.($childsNo>1?'s':''):'').'!\')) {document.location.href=\'index.php?section=deleteMyDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">Delete This Device</a>';
+	}
+	
+	$manufHomeLink=($ManufacturerURL!='')?'<a href="'.$ManufacturerURL.'" target="_blank" title="Manufacturer URL"><img src="include/images/home.png" border="0" align="middle"></a>':'';
+	$internalLink=($ManufacturerURL!='' && $InternalURLSuffix!='')?'<a href="'.$ManufacturerURL.$InternalURLSuffix.'" title="Device URL on manufacturer site" target="_blank"><img src="include/images/file.png" border="0" align="middle"></a>':'';
 	$out.='
 	<script>
 			function windowOpen(locationA,attributes) {
@@ -88,14 +98,14 @@ $installationID = (int)@$_SESSION['installationID'];
 	
 		<a href="index.php?section=addMyDevice&parentID='.$deviceID.'">Create '.($deviceID==0?' Top Level ':'').'Child Device</a> &nbsp; &nbsp; &nbsp;
 
-	<a href="javascript: if (confirm(\'Are you sure you want to delete this device? '.($childsNo>0?'It has '.$childsNo.' child'.($childsNo>1?'s':''):'').'!\')) {document.location.href=\'index.php?section=deleteMyDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">Delete This Device</a>
+	'.$deleteLink.'
 	<form method="post" action="index.php" name="editDeviceParams">
 	<fieldset>
 	<legend>Device Info #'.$deviceID.'</legend>
 	<table>
 	<tr><td>Description</td><td><input type="text" name="DeviceDescription" value="'.$description.'" size="40"></td></tr>
 	<tr>
-		<td>Device Template</td><td><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B> <input value="View" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"></td>
+		<td>Device Template</td><td><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B> <input value="View" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> '.$manufHomeLink.' '.$internalLink.'</td>
 	</tr>
 	<tr>
 		<td>Device Template Comments</td>
@@ -481,7 +491,6 @@ $installationID = (int)@$_SESSION['installationID'];
 	<script>
 		 	var frmvalidator = new formValidator("editDeviceParams");
  			frmvalidator.addValidation("DeviceDescription","req","Please enter a description");
-			frmvalidator.addValidation("DeviceTemplate","dontselect=0","Please select a master device!");			
 		</script>
 	
 	<br />';

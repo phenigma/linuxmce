@@ -36,7 +36,7 @@ $loginFormBig= '
 	    </tr>
 	  </table>
 	</form>
-	<p align="center">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</p>	
+	<p align="center" class="err"><B>'.(isset($_GET['error'])?strip_tags(stripslashes($_GET['error'])):'').'</B></p>	
 	';
 
 
@@ -57,7 +57,7 @@ if (isset($_POST['submitX'])) {
 		if ($passwordForm == '') {
 			$messages.='Please enter your password';
 		} else {
-						
+				$_SESSION['password']=$passwordForm;		
 				$passwordForm = md5($passwordForm);
 				
 				if ($messages==='')	{
@@ -71,17 +71,19 @@ if (isset($_POST['submitX'])) {
 								
 								$row_users = $res_users->FetchRow();
 								
+								$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ?";
+								$res_installations = $dbADO->Execute($query_installation,array((int)$row_users['PK_Users']));
+								if($res_installations->RecordCount()==0){
+									header('Location: index.php?section=login&error=You don\'t have any installation.');
+									exit();
+								}
+
 								$_SESSION['userID'] = (int)$row_users['PK_Users'];
 								$_SESSION['userLoggedIn'] = true;
-								
-								
 								
 								$_SESSION['hh_username'] = $row_users['FirstName'].' '.$row_users['LastName'];
 								$_SESSION['username'] = $usernameForm;
 								
-								
-								$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ?";
-								$res_installations = $dbADO->Execute($query_installation,array($_SESSION['userID']));
 								
 								$installations=array();
 								while (!$res_installations->EOF) {

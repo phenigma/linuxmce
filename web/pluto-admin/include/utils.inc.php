@@ -2004,4 +2004,12 @@ function getMediaDirectorOrbiterChild($MD_PK_Device,$dbADO)
 	return null;
 }
 
+function getDevicesFromCategories($categoriesArray,$dbADO)
+{
+	$devicesFullArray=array();
+	foreach ($categoriesArray AS $categoryID){
+		$devicesFullArray=$devicesFullArray+getDevicesArrayFromCategory($categoryID,$dbADO);
+	}
+	return $devicesFullArray;
+}
 ?>

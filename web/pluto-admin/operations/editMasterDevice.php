@@ -84,8 +84,8 @@ $out='';
 					</td>
 				</tr>
 			<tr>
-					<td>Manufacturer:</td><td>
-						<select name="Manufacturer">
+				<td>Manufacturer:</td><td>
+					<select name="Manufacturer">
 						<option value="0">-please select-</option>
 		';
 				$manufacturersArray=array();
@@ -95,12 +95,16 @@ $out='';
 								$manufacturersArray[$row['PK_Manufacturer']]=$row['Description'];
 								$out.='<option '.($row['PK_Manufacturer']==$manufacturerID?' selected ': ' ').' value="'.$row['PK_Manufacturer'].'">'.stripslashes($row['Description']).'</option>';
 							}
-		$out.='			</select> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addManufacturer&from=editMasterDevice\',\'width=300,height=200,toolbars=true\');">Create Manufacturer</a>
-					</td>
-				</tr>
-				<tr>
-					<td valign="top">Design Objects to use as remotes:</td>
-					<td>
+		$out.='		</select> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addManufacturer&from=editMasterDevice\',\'width=300,height=200,toolbars=true\');">Create Manufacturer</a>
+				</td>
+			</tr>
+			<tr>
+				<td>Manufacturer URL:</td>
+				<td><input type="text" name="manufacturerURL" value="'.$manufacturerURL.'"> Internal URL sufix: <input type="text" name="internalURLsufix" value="'.$internalURLsufix.'"></td>
+			</tr>
+			<tr>
+				<td valign="top">Design Objects to use as remotes:</td>
+				<td>
 		';
 		$selectObjects = 'select PK_DesignObj,Description from DesignObj inner join DeviceTemplate_DesignObj on FK_DesignObj = PK_DesignObj where FK_DeviceTemplate = ? order by Description asc';
 		$rs = $dbADO->Execute($selectObjects,array($deviceID));
@@ -720,6 +724,8 @@ $out='';
 		$newMacFrom=(int)$_POST['mac_from'];
 		$newMacTo=(int)$_POST['mac_to'];
 		$newManufacturer=((int)$_POST['manufacturerPnp']>0)?(int)$_POST['manufacturerPnp']:NULL;
+		$manufacturerURL=($_POST['manufacturerURL']!='')?$_POST['manufacturerURL']:NULL;
+		$internalURLsufix=($_POST['internalURLsufix']!='')?$_POST['internalURLsufix']:NULL;
 		$newCategory=((int)$_POST['categoryPnp']>0)?(int)$_POST['categoryPnp']:NULL;
 		$newComment=$_POST['commentPnp'];
 		$dhcpArray=explode(',',$_POST['dhcpArray']);
@@ -966,7 +972,9 @@ $out='';
 
 		
 		if ($deviceID!=0 && $description!='' && $category!=0 && $manufacturer!=0) {
-		$updateQuery = "UPDATE DeviceTemplate set Description = ?, ImplementsDCE = ?,							
+		$updateQuery = "UPDATE DeviceTemplate SET 
+							Description = ?, 
+							ImplementsDCE = ?,							
 							CommandLine = ?, 
 							FK_DeviceCategory = ?,FK_Manufacturer  = ?,
 							FK_Package=?,
@@ -975,10 +983,12 @@ $out='';
 							InheritsMacFromPC=?,
 							IsIPBased=?,
 							ConfigureScript=?,
-							Comments=?
+							Comments=?,
+							ManufacturerURL=?,
+							InternalURLSuffix=?
 							WHERE PK_DeviceTemplate = ?";
 
-		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$isIPBased,$ConfigureScript,$comments,$deviceID));
+		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$isIPBased,$ConfigureScript,$comments,$manufacturerURL,$internalURLsufix,$deviceID));
 
 		if($isPlugIn==1 && $oldIsPlugIn==0){
 			$insertControlledVia = '
