@@ -369,13 +369,14 @@ void CPlutoMOAppUi::ShowList(
 	unsigned long Height,
 	RPointerArray<string> DatagridStringList,
 	bool bSendSelectedOnMove,
-	bool bTurnOn
+	bool bTurnOn,
+	unsigned long iSelectedItem
 )
 {
 	CreateVMCView();
 
 	CPlutoVMCUtil *pVCMUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
-	pVCMUtil->SetList(x, y, Width, Height, DatagridStringList, bSendSelectedOnMove, bTurnOn);
+	pVCMUtil->SetList(x, y, Width, Height, DatagridStringList, bSendSelectedOnMove, bTurnOn, iSelectedItem);
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::SetCaptureKeyboardCommand(
@@ -530,7 +531,7 @@ void CPlutoMOAppUi::ResetViewer()
 
 	LOG("Reseting list...\n");
 	RPointerArray<string> Dummy;
-	ShowList(0, 0, 0, 0, Dummy, false, false);
+	ShowList(0, 0, 0, 0, Dummy, false, false, 0);
 
 	LOG("Reseting capture keyboard...\n");
 	SetCaptureKeyboardCommand(false, false, true, false, 0, "");

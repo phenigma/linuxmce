@@ -149,7 +149,8 @@ void CPlutoVMCUtil::SetList(
 	unsigned long Height,
 	RPointerArray<string> List,
 	bool bSendSelectedOnMove,
-	bool bTurnOn
+	bool bTurnOn,
+	unsigned long iSelectedItem
 )
 {
 	m_bGridExists = bTurnOn;
@@ -168,9 +169,10 @@ void CPlutoVMCUtil::SetList(
 		{
 			m_GridList.Append(List[i]);
 		}
+
+		m_uGridSelectedItem = iSelectedItem;
 	}
-	else
-		m_uGridSelectedItem = 0;
+
 }
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::SetCaptureKeyboardCommand(
