@@ -40,8 +40,19 @@ OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 			Width, Height, bFullScreen
 		); //the builder method
 	}
+	catch(string s)
+	{
+		WriteStatusOutput(s.c_str());
+		return NULL;
+	}
+	catch(const char *s)
+	{
+		WriteStatusOutput(s);
+		return NULL;
+	}
 	catch(...)
 	{
+		WriteStatusOutput("Unknown exception!!");
 		return NULL;
 	}
 

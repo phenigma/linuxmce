@@ -243,7 +243,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
         {
             g_pPlutoLogger->Write(LV_WARNING,
                 "OrbiterSDLBluetooth: I don't know how to render grids with more then one columns, "
-				"I'll let the base render as a image"
+				"I'll let the base to render as an image"
             );
 
 			OrbiterSDL::RenderDataGrid(pObj);
@@ -259,7 +259,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 
         list<string> listGrid;
 
-        for(int i = 0; i < pObj->m_pDataGridTable->m_RowCount; i++)
+        for(int i = 0; i < pObj->m_pDataGridTable->getTotalRowCount(); i++)
         {
             DataGridCell * pCell = pObj->m_pDataGridTable->GetData(0, i);
 

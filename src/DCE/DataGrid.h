@@ -79,6 +79,8 @@ namespace DCE
 		int m_ColumnCount, m_RowCount;
 		int m_StartingColumn, m_StartingRow;
 		int m_CellCount;
+
+		const int getTotalRowCount() const { return m_TotalRows; };
 	};
 
 	class DataGridTable : public DataGridTableSerializableData

@@ -32,21 +32,31 @@ OrbiterSDL_Win32* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 	if(!bLocalMode)
 		WriteStatusOutput("Connecting to DCERouter...");
 
-//	try
-//	{
+	try //Orbiter might throw an "Cannot get configuration data" exception
+	{
 		OrbiterSDL_Win32::Cleanup();
 		OrbiterSDL_Win32::BuildOrbiterSDL_Win32(
 			PK_Device, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
 			Width, Height, bFullScreen
 		); //the builder method
-/*
+	}
+	catch(string s)
+	{
+		WriteStatusOutput(s.c_str());
+		return NULL;
+	}
+	catch(const char *s)
+	{
+		WriteStatusOutput(s);
+		return NULL;
 	}
 	catch(...)
 	{
+		WriteStatusOutput("Unknown exception!!");
 		return NULL;
 	}
-*/
+
 	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
 
 	if(!bLocalMode)
