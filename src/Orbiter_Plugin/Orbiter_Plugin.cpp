@@ -343,6 +343,8 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_DeviceCategory_get()==DEVICECATEGORY_Bluetooth_Dongles_CONST )
 	{
 	    g_pPlutoLogger->Write(LV_STATUS, "skipping detection of %s.  it's just a dongle",sMacAddress.c_str());
+		DCE::CMD_Ignore_MAC_Address CMD_Ignore_MAC_Address(m_dwPK_Device,pUnknownDeviceInfos->m_iDeviceIDFrom,sMacAddress);
+		SendCommand(CMD_Ignore_MAC_Address);
 		m_bNoUnknownDeviceIsProcessing = false;
 		return;
 	}
@@ -436,8 +438,9 @@ printf("Mobile orbiter detected\n");
         }
         else
         {
-            //if( pOH_Orbiter->m_pDevice_CurrentDetected )
+            if( pOH_Orbiter->m_pDevice_CurrentDetected )
             {
+/* TODO - this isn't working
                 DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(
                     m_dwPK_Device,
 					pDeviceFrom->m_dwPK_Device,
@@ -448,6 +451,7 @@ printf("Mobile orbiter detected\n");
                     pOH_Orbiter->m_iLastSignalStrength = SignalStrength;
                 else
                     pOH_Orbiter->m_iLastSignalStrength = 0;
+*/
             }
 /*
 			if( SignalStrength==0 )  // We don't know the signal strength from the dongle

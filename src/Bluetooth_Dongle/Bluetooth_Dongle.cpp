@@ -674,3 +674,17 @@ void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_addr
 }
 
 //<-dceag-createinst-b->!
+//<-dceag-c332-b->
+
+	/** @brief COMMAND: #332 - Ignore MAC Address */
+	/** Causes the dongle to ignore any detections of this MAC Address. */
+		/** @param #47 Mac address */
+			/** The Mac Address */
+
+void Bluetooth_Dongle::CMD_Ignore_MAC_Address(string sMac_address,string &sCMD_Result,Message *pMessage)
+//<-dceag-c332-e->
+{
+	PhoneDevice p("",sMac_address,0); // Just need a numeric mac
+	m_mapIgnoreMacs[p.m_iMacAddress]=true;
+	g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",sMac_address.c_str());
+}

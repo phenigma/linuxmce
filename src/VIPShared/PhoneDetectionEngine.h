@@ -14,6 +14,7 @@ public:
 	// to this map
 	map<u_int64_t,class PhoneDevice *> m_mapPhoneDevice_Detected;
 	map<u_int64_t,class PhoneDevice *> m_mapDevicesDetectedThisScan;
+	map<u_int64_t,bool> m_mapIgnoreMacs; // Just a map to detect presence.  The bool isn't used
 
 	bool m_bInScanLoop; // True if it's in the scanning loop
 	bool m_bAbortScanLoop;  // True when we are in the process of Aborting the scan

@@ -246,6 +246,15 @@ public:
 	virtual void CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #332 - Ignore MAC Address */
+	/** Causes the dongle to ignore any detections of this MAC Address. */
+		/** @param #47 Mac address */
+			/** The Mac Address */
+
+	virtual void CMD_Ignore_MAC_Address(string sMac_address) { string sCMD_Result; CMD_Ignore_MAC_Address(sMac_address.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Ignore_MAC_Address(string sMac_address,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 	

@@ -5573,5 +5573,21 @@ namespace DCE
 	public:
 		CMD_NOREP_Get_EntAreas_For_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,331,1,2,StringUtils::itos(iPK_Device).c_str()); }
 	};
+	class CMD_Ignore_MAC_Address : public PreformedCommand {
+	public:
+		CMD_Ignore_MAC_Address(long DeviceIDFrom, long DeviceIDTo,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,332,1,47,sMac_address.c_str()); }
+	};
+	class CMD_Ignore_MAC_Address_DL : public PreformedCommand {
+	public:
+		CMD_Ignore_MAC_Address_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,332,1,47,sMac_address.c_str()); }
+	};
+	class CMD_Ignore_MAC_Address_DT : public PreformedCommand {
+	public:
+		CMD_Ignore_MAC_Address_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,332,1,47,sMac_address.c_str()); }
+	};
+	class CMD_Ignore_MAC_Address_Cat : public PreformedCommand {
+	public:
+		CMD_Ignore_MAC_Address_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,332,1,47,sMac_address.c_str()); }
+	};
 }
 #endif

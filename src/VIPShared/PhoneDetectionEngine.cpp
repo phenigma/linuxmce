@@ -211,6 +211,13 @@ void PhoneDetectionEngine::RemoveDeviceFromDetectionList(u_int64_t iMacAddress)
 
 void PhoneDetectionEngine::AddDeviceToDetectionList(class PhoneDevice *pDevice)
 {
+	if( m_mapIgnoreMacs.find(pDevice->m_iMacAddress)!=m_mapIgnoreMacs.end() )
+	{
+g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",pDevice->m_sMacAddress.c_str());
+		delete pDevice;
+		return;
+	}
+
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 	m_mapDevicesDetectedThisScan[pDevice->m_iMacAddress] = pDevice;
 
