@@ -42,7 +42,7 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 	if(FileUtils::FileExists(sPath) == true) {
 		g_pPlutoLogger->Write(LV_STATUS, "File found, modifing...");
 		sPath = "rm -f " + sPath;
-		system(sPath.c_str());
+ 		system(sPath.c_str());
 	} else {
 		g_pPlutoLogger->Write(LV_STATUS, "Camera config file not found, writing new one");
 	}
