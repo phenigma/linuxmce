@@ -564,22 +564,34 @@ struct cx88_board cx88_boards[] = {
 		/* not sure yet about the tuner type */
 		.tuner_type     = 38,
 		.tda9887_conf   = TDA9887_PRESENT,
-		.input          = {/*{
+		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
 			.gpio0  = 0x0000bde4,
+			.gpio1  = 0x00000000,
+			.gpio2  = 0x00000000,
+			.gpio3  = 0x00000000,
 		},{
 			.type   = CX88_VMUX_COMPOSITE1,
 			.vmux   = 1,
 			.gpio0  = 0x0000bde6,
-		},*/{
+			.gpio1  = 0x00000075,
+			.gpio2  = 0x000000dd,
+			.gpio3  = 0x00000000,
+		},{
 			.type   = CX88_VMUX_SVIDEO,
 			.vmux   = 2,
 			.gpio0  = 0x0000bde6,
+			.gpio1  = 0x00000000,
+			.gpio2  = 0x00000001,
+			.gpio3  = 0x00000000,
 		}},
 		.radio = {
 			.type   = CX88_RADIO,
 			.gpio0  = 0x0000bd62,
+			.gpio1  = 0x00000000,
+			.gpio2  = 0x00000000,
+			.gpio3  = 0x00000000,
 		},
 		.blackbird = 1,
 	},
