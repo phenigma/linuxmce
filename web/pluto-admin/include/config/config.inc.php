@@ -94,6 +94,8 @@
 	
 	// PK_Command from Command table
 	
+	$GLOBALS['inputSelectCommand']=91;				// Input select
+	$GLOBALS['DSPModeCommand']=116;					// DSP Mode
 	$GLOBALS['genericONCommand']=192;				// Generic On
 	$GLOBALS['genericOFFCommand']=193;				// Generic OFF
 	$GLOBALS['powerCommand']=194;					// Generic OFF
@@ -106,6 +108,7 @@
 	$GLOBALS['commandGotoScreen']=5;				// Go to screen
 	$GLOBALS['commandMHPlayMedia']=43;				// MH Play Media
 	$GLOBALS['commandPL_Originate']=232;			// PL_Originate
+	$GLOBALS['outputSelectCommand']=244;			// Output select
 	
 	// PK_CommandParameters from table CommandParameters
 	

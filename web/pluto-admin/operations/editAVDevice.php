@@ -245,7 +245,7 @@ $out.='
 		</tr>
 		<tr>
 			<td align="right"><span class="'.(($usesIR>0)?'':'grayout').'">Toggle Power: </span></td>
-			<td><input type="checkbox" name="toggle_power" value="1" '.$checkedTogglePower.' '.$enabledIROptions.' onClick="document.editAVDevice.submit();"></td>
+			<td><input type="checkbox" name="toggle_power" value="1" '.$checkedTogglePower.' '.$enabledIROptions.' onClick="setCheckboxes();document.editAVDevice.submit();"></td>
 		</tr>
 	</table>
 

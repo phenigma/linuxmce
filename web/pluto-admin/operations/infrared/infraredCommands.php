@@ -60,9 +60,10 @@ function infraredCommands($output,$dbADO) {
 	// process area
 		$displayedCommands=explode(',',$_POST['displayedCommands']);
 		$oldCheckedCommands=explode(',',$_POST['oldCheckedCommands']);
-		
+
 		foreach ($displayedCommands AS $commandID){
 			if(isset($_POST['command_'.$commandID])){
+				$GLOBALS['infraredGroup']=($GLOBALS['infraredGroup']==0)?NULL:$GLOBALS['infraredGroup'];
 				if(!in_array($commandID,$oldCheckedCommands))
 					$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users) VALUES (?,?,?,?,?)',array($GLOBALS['infraredGroup'],$commandID, $GLOBALS['deviceID'],$GLOBALS['dtID'],$_SESSION['userID']));
 			}else{
@@ -71,7 +72,12 @@ function infraredCommands($output,$dbADO) {
 			}
 		}
 		
-		header('Location: index.php?section=infraredCommands&infraredGroup='.$GLOBALS['infraredGroup'].'&msg=InfraredGroup - Commands updated');
+		$out.='
+			<script>
+				opener.location.reload();
+				self.close();
+			</script>';
+		//header('Location: index.php?section=infraredCommands&infraredGroup='.$GLOBALS['infraredGroup'].'&msg=InfraredGroup - Commands updated');
 	}
 	
 	$output->setScriptCalendar('null');

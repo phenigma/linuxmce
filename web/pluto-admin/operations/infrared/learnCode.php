@@ -48,7 +48,7 @@ function learnCode($output,$dbADO) {
 				</script>
 			';
 		}else{
-			$resLastCommand=$dbADO->Execute('SELECT MAX(psc_mod) AS lastTime FROM InfraredGroup_Command');
+			$resLastCommand=$dbADO->Execute('SELECT MAX(psc_mod) AS lastTime FROM InfraredGroup_Command WHERE FK_Device=?',$deviceID);
 			$rowLastCommand=$resLastCommand->FetchRow();
 			$_SESSION['LastInfraredGroup_CommandTime']=$rowLastCommand['lastTime'];
 			
