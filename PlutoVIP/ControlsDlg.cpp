@@ -425,11 +425,11 @@ void CControlsDlg::PrepareAppBar()
 		{
 			if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
 			{
-				SetWindowPos(NULL, 0, 0, rc.Height(), dlgrc.Width(), SWP_SHOWWINDOW);
+				SetWindowPos(NULL, 0, 0, 0/*rc.Height()*/, dlgrc.Width(), SWP_SHOWWINDOW);
 			}
 			else
 			{
-				SetWindowPos(NULL, 0, 0, dlgrc.Width(), rc.Height(), SWP_SHOWWINDOW);
+				SetWindowPos(NULL, 0, 0, dlgrc.Width(), 0/*rc.Height()*/, SWP_SHOWWINDOW);
 			}
 		}
 		reg.CloseKey();
@@ -519,7 +519,8 @@ void CControlsDlg::PrepareAppBar()
 
 void CControlsDlg::OnDestroy() 
 {
-	const int iOffset = 8;
+	const int iOffsetX = 8;
+	const int iOffsetY = 26;
 
 	CAppBar::OnDestroy();
 	
@@ -535,9 +536,9 @@ void CControlsDlg::OnDestroy()
 	
 	// Save the AppBar's state variables to the registry.
 	if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
-		reg.SetValueDWORD(RegName, rc.Width() + iOffset);
+		reg.SetValueDWORD(RegName, rc.Width() + iOffsetX);
 	else
-		reg.SetValueDWORD(RegName, rc.Height() + iOffset);
+		reg.SetValueDWORD(RegName, rc.Height() + iOffsetY);
 
 	RegName=m_AppBarName + CString(APPBAR_AUTOHIDE);
 
@@ -1032,8 +1033,7 @@ LRESULT CControlsDlg::OnMouseLeave(WPARAM wparam, LPARAM lparam)
 	m_Mutex.Lock();
 
 	if(NULL != HighlighDlg)
-		if(NULL != HighlighDlg->m_hWnd)
-		{
+		if(NULL != HighlighDlg->m_hWnd)		{
 			TRACE("You're out!\n");
 			HighlighDlg->KillMe(500);
 		}

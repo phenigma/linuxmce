@@ -440,9 +440,6 @@
 				RelativePath=".\VR_RequestSecureTransaction.cpp">
 			</File>
 			<File
-				RelativePath=".\VR_ShowMenu.cpp">
-			</File>
-			<File
 				RelativePath=".\VR_UnknownRequest.cpp">
 			</File>
 			<File
@@ -569,6 +566,9 @@
 			</File>
 			<File
 				RelativePath=".\res\State.bmp">
+			</File>
+			<File
+				RelativePath=".\res\TaskBar.ico">
 			</File>
 		</Filter>
 		<File

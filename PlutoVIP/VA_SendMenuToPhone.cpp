@@ -7,6 +7,7 @@
 #include "BD/PhoneDevice.h"
 #include "VR_IdentifyPhone.h"
 #include "PlutoVIP/Customer.h"
+#include "VIPShared/BD_CP_ShowVmc.h"
 
 #ifdef VIPESTABLISHMENT
 #include "VIPEstablishment/CellPhoneEmulator.h"
@@ -55,10 +56,15 @@ void VA_SendMenuToPhone::ProcessAction(class RA_Request *pRequest,class RA_Proce
 		throw "We can't forward a request to a phone unless the original request was an identify phone";
 
 	VR_IdentifyPhone *pRA_Request_Original = (VR_IdentifyPhone *) pRequest;
+
+	string sFileName("PlutoVIP.vmc");
+
 	BD_CP_ShowVMC *pVMC = new BD_CP_ShowVMC(
-		0, 
-		m_pdbMenu.m_dwSize,
-		m_pdbMenu.m_pBlock
+		1, //store
+		m_pdbMenu.m_dwSize, 
+		m_pdbMenu.m_pBlock,
+		sFileName.size(),
+		const_cast<char *>(sFileName.c_str())
 	);
 
 	BDCommandProcessor *pProcessor = pRA_Request_Original->m_pCustomer->GetCommandProcessor(); // This will create it if it doesn't exist

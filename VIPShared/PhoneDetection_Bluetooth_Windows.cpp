@@ -108,7 +108,7 @@ void PhoneDetection_Bluetooth_Windows::OnDeviceResponded(BD_ADDR bda,
 	}
 
 	mm.Release();
-
+ 
 	if( !pDExisting )
 		Intern_NewDeviceDetected(pDNew);
 	else

@@ -446,8 +446,7 @@ void CPlutoVIPMain::OnHelpAbout()
 
 void CPlutoVIPMain::OnHelpContents() 
 {
-	// TODO: Add your command handler code here
-	
+	ShellExecute(NULL, _T("open"), PLUTOVIP_HELP, NULL, NULL, SW_SHOW);	
 }
 
 void CPlutoVIPMain::OnHelpPlutoVIPFAQ() 

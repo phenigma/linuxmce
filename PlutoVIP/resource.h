@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by TaskBar.rc
+// Used by PlutoVIP.rc
 //
 #define IDM_ABOUTBOX                    0x10
 #define IDD_ABOUTBOX                    17

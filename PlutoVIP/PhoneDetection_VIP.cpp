@@ -117,12 +117,12 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 	if( !rp.SendRequests(g_pPlutoConfig->m_sServerAddress) )
 	{
 		// Log Errors
-		AfxMessageBox(_T("Error recieving information from server."), MB_ICONERROR);
+		AfxMessageBox(_T("Error receiving information from server."), MB_ICONERROR);
 		delete pCustomer;
 	}
 	else
 	{
-		if(ip.m_cProcessOutcome==SUCCESSFULLY_PROCESSED)
+		if(ip.m_cProcessOutcome==SUCCESSFULLY_PROCESSED) 
 		{
 
 			if( ip.m_iUseCache )
@@ -206,7 +206,7 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 					pPlutoCustomer->Time=CTime::GetCurrentTime();	//current time
 					
 					pPlutoCustomer->ImageNumber=-1;			//the customer has no image
-					pPlutoCustomer->ImageType=GRAPHICTYPE_JPG;			//the customer has no image
+					pPlutoCustomer->ImageType=GRAPHICTYPE_JPG;	//the customer has no image
 					mapPlutoImageList[ip.m_iPlutoId]=pPlutoCustomer;
 
 				}
@@ -255,7 +255,7 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 				//check if the customer is exist
 				//if exist, update the record
 				CString szCommand;
-				szCommand.Format(_T("SELECT PlutoId.* FROM [PlutoId] WHERE PlutoId.PKID_PlutoId=%d"), 
+				szCommand.Format(_T("SELECT PlutoId.* FROM [PlutoId] WHERE PlutoId.PKID_PlutoId=%lu"), 
 					pCustomer->m_iPlutoId);
 				
 				int bAlreadyInDatabase=0;
@@ -360,17 +360,28 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 					}
 				}
 
+				CString szMacAddrTable;
+				szMacAddrTable.Format(_T("SELECT MacAddress.* FROM [MacAddress] WHERE MacAddress.PKID_MacAddress=\"%s\""), 
+					MACAddress.GetBuffer(0));
 
-				CString szTable=_T("[MacAddress]");
-				if (record.Open(szTable, CADORecordset::openTable))
+				if (record.Open(szMacAddrTable, CADORecordset::openQuery))
 				{
-					record.AddNew();
-					record.SetFieldValue(_T("PKID_MacAddress"), MACAddress);
-					record.SetFieldValue(_T("FKID_PlutoId"), pCustomer->m_iPlutoId);
-					record.Update();
+					if (record.GetRecordCount())
+						record.Delete();
+
 					record.Close();
-				}				
-				
+
+					CString szTable=_T("[MacAddress]");
+					if (record.Open(szTable, CADORecordset::openTable))
+					{
+						record.AddNew();
+						record.SetFieldValue(_T("PKID_MacAddress"), MACAddress);
+						record.SetFieldValue(_T("FKID_PlutoId"), pCustomer->m_iPlutoId);
+						record.Update();
+						record.Close();
+					}
+				}
+
 				//save image file shared directory
 				FileName=SaveCustomerImage(&ip);
 			}
@@ -567,7 +578,7 @@ void PhoneDetection_VIP::AddCustomerImageToImageList(unsigned long Id, CString F
 		//we use the default bitmap: default.bmp
 		CString FileNameTemp=FindCustomerImageFileFromID(Id, GRAPHICTYPE_BMP);
 
-		CopyFile(_T("Default.bmp"), FileNameTemp, FALSE);
+		CopyFile(_T("Images\\Default.bmp"), FileNameTemp, FALSE);
 
 		mapPlutoImageList[Id]->DefaultBitmap=TRUE;
 		/*
@@ -606,7 +617,13 @@ void PhoneDetection_VIP::AddCustomerImageToImageList(unsigned long Id, CString F
 		return;
 	}
 	
-	mapPlutoImageList[Id]->DefaultBitmap=FALSE;
+	if(NULL == mapPlutoImageList[Id])
+	{
+		PlutoCustomer *pPlutoCustomer = new PlutoCustomer;
+		pPlutoCustomer->DefaultBitmap = FALSE;
+
+		mapPlutoImageList[Id] = pPlutoCustomer;
+	}
 
 	CxImage image;
 	CString ImageFile;

@@ -43,6 +43,8 @@ BDCommandProcessor_Windows_Bluetooth::BDCommandProcessor_Windows_Bluetooth(strin
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to open bluetooth device");
 		m_bExit=m_bDead=true;
 	}
+	else
+		m_bDead = false;
 }
 
 BDCommandProcessor_Windows_Bluetooth::~BDCommandProcessor_Windows_Bluetooth()

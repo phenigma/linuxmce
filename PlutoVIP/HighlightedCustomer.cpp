@@ -170,12 +170,15 @@ void CHighlightedCustomer::CommitChanges()
 
 		email.Format(_T("mailto:%s"), m_pCustomer->m_sEmail.c_str());
 		m_email.SetLinkUrl(email);
+
+		//force CMyHyperLink component to redraw its background
+		m_email.ShowWindow(SW_HIDE);
+		m_email.ShowWindow(SW_SHOW);
 	}
 	else
 	{
 		m_email.ShowWindow(SW_HIDE);
 	}
-	
 	
 	CString szFolder;
 	DWORD dwTerminals;
@@ -315,30 +318,32 @@ void CHighlightedCustomer::OnTaskChargeCustomer()
 
 void CHighlightedCustomer::OnTaskSendImage() 
 {
+	if(!m_pCustomer->GetCommandProcessor()) //not connected
+		return;
+
 	unsigned char ImageType;
 	unsigned long ImageSize;
 	char *pImage;
+
+	char CurrentFolder[1024];
+	::GetCurrentDirectory(1024, CurrentFolder);
 
 	CFileDialog* pDialog = new CFileDialog(true);
 
 	if(IDOK == pDialog->DoModal())
 	{
 		string FilePath = pDialog->GetPathName();
+		
+		size_t s;
+		pImage = FileUtils::ReadFileIntoBuffer(FilePath.c_str(), s);
+		ImageSize = (unsigned long)s;
 
-		CFile *pFile = new CFile(FilePath.c_str(), CFile::modeRead | CFile::shareDenyNone);
-		ImageSize = pFile->GetLength();
-		ImageType = 0; //hack
-
-		pImage = new char[ImageSize];
-
-		pFile->Read(pImage, ImageSize);
-		pFile->Close();
-
-		delete pFile;
-		pFile = NULL;
+		::SetCurrentDirectory(CurrentFolder);
 
 		BD_CP_ShowImage *pCommand = new BD_CP_ShowImage(ImageType, ImageSize, pImage);
-		m_pCustomer->GetCommandProcessor()->AddCommand(pCommand);
+
+		if(NULL != m_pCustomer->GetCommandProcessor()) //not connected
+			m_pCustomer->GetCommandProcessor()->AddCommand(pCommand);
 
 		delete pImage;
 		pImage = NULL;

@@ -39,7 +39,9 @@ void *NewDeviceThread(void *p)
 void *LostDeviceThread(void *p)
 {
 	EnginePlusDevice *ed = (EnginePlusDevice *)p;
-	ed->m_pEngine->LostDevice(ed->m_pDevice);
+
+	if(!ed->m_pEngine->m_bAbortScanLoop)
+		ed->m_pEngine->LostDevice(ed->m_pDevice);
 
 	delete ed->m_pDevice;
 	ed->m_pDevice = NULL;

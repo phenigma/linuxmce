@@ -77,6 +77,7 @@
 #define PLUTOVIP_WEB_PRODUCT_NEWS	_T("http://www.plutovip.com/")
 #define PLUTOVIP_WEB_ONLINE_SUPPORT	_T("http://www.plutovip.com/")
 #define PLUTOVIP_WEB_FREE_STUFF		_T("http://www.plutovip.com/")
+#define PLUTOVIP_HELP				_T("PlutoVIP.pdf")
 
 //registry keys for appbars
 #define APPBAR_CX					_T("Cx")

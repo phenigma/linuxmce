@@ -462,24 +462,9 @@ BEGIN
     POPUP "&Help"
     BEGIN
         MENUITEM "&Contents",                   ID_HELP_CONTENTS
+        MENUITEM "PlutoVIP &Homepage",          ID_HELP_PLUTOVIPONTHEWEB_PLUTOVIPHOMEPAGE
+
         MENUITEM SEPARATOR
-        POPUP "&PlutoVIP on the Web"
-        BEGIN
-            MENUITEM "Free &Stuff",                 ID_HELP_PLUTOVIPONTHEWEB_FREESTUFF
-
-            MENUITEM "&Product News",               ID_HELP_PLUTOVIPONTHEWEB_PRODUCTNEWS
-
-            MENUITEM "&Frequently Asked Question",  ID_HELP_PLUTOVIPONTHEWEB_FREQUENTLYASKEDQUESTION
-
-            MENUITEM "&Online Support",             ID_HELP_PLUTOVIPONTHEWEB_ONLINESUPPORT
-
-            MENUITEM SEPARATOR
-            MENUITEM "PlutoVIP &Homepage",          ID_HELP_PLUTOVIPONTHEWEB_PLUTOVIPHOMEPAGE
-
-        END
-        MENUITEM "&Tip of the Day...",          ID_HELP_TIPOFTHEDAY
-        MENUITEM SEPARATOR
-        MENUITEM "Check for update version",    ID_HELP_CHECK_UPDATE
         MENUITEM "&About...",                   ID_HELP_ABOUT
     END
 END

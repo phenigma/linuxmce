@@ -46,6 +46,7 @@ public:
 		m_iAvailablePurchase=0;
 		m_iTotalVisit=0;
 		m_iTotalPurchase=0;
+		m_iRecordVersion=0;
 	}
 
 	class BDCommandProcessor *GetCommandProcessor();

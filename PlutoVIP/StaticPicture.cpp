@@ -72,6 +72,9 @@ void CStaticPicture::SetPicture(CString szPictureFile)
 	}
 	else
 	{
+		if (m_Picture.m_hObject)
+			m_Picture.Detach();
+
 		m_Picture.LoadBitmap(IDB_DUMMY_BITMAP);
 		
 		SetBitmap((HBITMAP) m_Picture.m_hObject);
