@@ -1183,6 +1183,9 @@ cout << "Copying Files\n";
 			}
 		}
 		if (flag != true) {
+			if(cmd2 == "") {
+				cout << "Ignoring CVS!!!\n";
+			} else {
 				cout << "WE HAVE A TILT!!!!\n";
 				cmd = "rm -r -f " + cmd2;
 				system(cmd.c_str());
@@ -1190,6 +1193,7 @@ cout << "Copying Files\n";
 				cmd = "cvs remove " + cmd2;
 				system(cmd.c_str());
 				cout << cmd << endl;
+			}
 		}
 		flag = false;
 	}
