@@ -3328,6 +3328,9 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 case DEVICETEMPLATE_VirtDev_Lighting_PlugIn_CONST:
                     pCommand->m_PK_Device=m_dwPK_Device_LightingPlugIn;
                     break;
+                case DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST:
+                    pCommand->m_PK_Device=m_dwPK_Device_InfraredPlugIn;
+                    break;
                 case DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST:
                     pCommand->m_PK_Device=m_dwPK_Device_GeneralInfoPlugIn;
                     break;

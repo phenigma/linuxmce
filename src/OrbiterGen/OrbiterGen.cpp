@@ -494,6 +494,9 @@ int OrbiterGenerator::DoIt()
 		case DEVICECATEGORY_General_Info_Plugins_CONST:
 			m_dwPK_Device_GeneralInfoPlugIn = pRow_Device->PK_Device_get();
 			break;
+		case DEVICECATEGORY_Infrared_Plugins_CONST:
+			m_dwPK_Device_InfraredPlugIn = pRow_Device->PK_Device_get();
+			break;
 		case DEVICECATEGORY_Event_Plugins_CONST:
 			m_dwPK_Device_EventPlugIn = pRow_Device->PK_Device_get();
 			break;
