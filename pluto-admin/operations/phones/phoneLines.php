@@ -48,7 +48,7 @@ function phoneLines($output,$dbADO) {
 				<td><input type="text" name="ipaddr_'.$row['uniqueid'].'" value="'.$row['ipaddr'].'"></td>
 				<td align="center"><input type="text" name="port_'.$row['uniqueid'].'" value="'.$row['port'].'"></td>
 				<td align="center"><input type="text" name="rtptimeout_'.$row['uniqueid'].'" value="'.$row['rtptimeout'].'"></td>
-				<td align="center"><input type="radio" name="newDefaultLine" value="'.$row['name'].'" '.(($defaultLineName==$row['name'])?'checked':'').'></td>
+				<td align="center"><input type="radio" name="newDefaultLine" value="'.$row['name'].'" '.((@$defaultLineName==$row['name'])?'checked':'').'></td>
 				<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete this phone line?\'))self.location=\'index.php?section=phoneLines&dID='.$row['uniqueid'].'&name='.urlencode($row['name']).'&action=del\'">Delete</a></td>
 			</tr>
 			';
@@ -181,8 +181,8 @@ function phoneLines($output,$dbADO) {
 				$dbADO->Execute('UPDATE sip_buddies SET username=?, name=?, ipaddr=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$ipaddr,$port,$rtptimeout,$lineID));
 			}
 			$newDefaultLine=$_POST['newDefaultLine'];
-			if($defaultLineName!=$newDefaultLine){
-				$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$newDefaultLine,$defaultLineID));
+			if(@$defaultLineName!=$newDefaultLine){
+				$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.@$newDefaultLine,$defaultLineID));
 			}
 			
 			header('Location: index.php?section=phoneLines&msg=The phone lines was updated.');

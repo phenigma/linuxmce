@@ -32,6 +32,7 @@ $out='';
 		$package = $row['FK_Package'];
 		$isPlugIn = $row['IsPlugIn'];
 		$isEmbedded = $row['IsEmbedded'];
+		$inheritsMacFromPC = $row['InheritsMacFromPC'];
 		$rs->Close();
 		
 		$out='
@@ -191,6 +192,11 @@ $out='';
 					<td valign="top">Is Embedded</td>
 					<td><input type="checkbox" name="isEmbedded" value="1" '.(($isEmbedded==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
 					<input type="hidden" name="oldIsEmbedded" value="'.(($isEmbedded==1)?'1':'0').'"></td>
+				</tr>					
+				<tr>
+					<td valign="top">Inherits MAC From PC</td>
+					<td><input type="checkbox" name="inheritsMacFromPC" value="1" '.(($inheritsMacFromPC==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
+					<input type="hidden" name="oldInheritsMacFromPC" value="'.(($inheritsMacFromPC==1)?'1':'0').'"></td>
 				</tr>					
 				<tr>
 					<td valign="top">Contact</td>
@@ -605,6 +611,8 @@ $out='';
 		$oldIsPlugIn = cleanInteger(@$_POST['oldIsPlugIn']);
 		$isEmbedded = cleanInteger(@$_POST['isEmbedded']);
 		$oldIsEmbedded = cleanInteger(@$_POST['oldIsEmbedded']);
+		$inheritsMacFromPC = cleanInteger(@$_POST['inheritsMacFromPC']);
+		$oldInheritsMacFromPC= cleanInteger(@$_POST['oldInheritsMacFromPC']);
 		
 		$locationGoTo=''; 
 
@@ -807,10 +815,11 @@ $out='';
 							IsAVDevice = ?,
 							FK_Package=?,
 							IsPlugIn =?,
-							IsEmbedded=?
+							IsEmbedded=?,
+							InheritsMacFromPC=?
 							WHERE PK_DeviceTemplate = ?";
 
-		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$isAVDevice,$package,$isPlugIn,$isEmbedded,$deviceID));
+		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$isAVDevice,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$deviceID));
 
 		if($isPlugIn==1 && $oldIsPlugIn==0){
 			$insertControlledVia = '
