@@ -33,25 +33,29 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	int i;
 	FILE *fp;
 	string sLine, sLine2;
+	size_t size;
 	
-    DeviceData_Router *pDeviceData = find_Device(DeviceID);
- 	if(!pDeviceData) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", DeviceID);
-		return;
-	}
+    
+	string sVideoStandard = DATA_Get_Video_Standard();
+	int iNumberOfPorts = DATA_Get_Number_of_ports();
 
-	string sVideoStandard = pDeviceData->mapParameters_Find(DEVICEDATA_Video_Standard_CONST);
-	string sNumberOfPorts = pDeviceData->mapParameters_Find(DEVICEDATA_Number_of_ports_CONST);
-
-	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%s Number_of_Ports=%s",sVideoStandard.c_str(),sNumberOfPorts.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%s Number_of_Ports=%d",sVideoStandard.c_str(),iNumberOfPorts);
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Writing configuration to motion.conf");
 
+	g_pPlutoLogger->Write(LV_STATUS, "Checking Config File");
 	if(FileUtils::FileExists("/etc/motion/motion.conf") == true) {
+		g_pPlutoLogger->Write(LV_STATUS, "Config file found. Deleting");
 		system("rm -f /etc/motion/motion.conf");
 	}
-
-	fp = fopen("/etc/motion/motion.conf","wt");
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Creting new config file");
+	sLine = "/etc/motion";
+	if(FileUtils::DirExists(sLine) == false) {
+		g_pPlutoLogger->Write(LV_STATUS, "Motion package not install. Please install using \"apt-get install motion\"");
+		exit(1);
+	}
+	fp = fopen("/etc/motion/motion.conf","wt+");
 	//main config
 	fprintf(fp,"videodevice /dev/video0\n");
 	fprintf(fp,"input 8\n");
@@ -69,13 +73,14 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	//snapshot config
 	fprintf(fp,"snapshot_interval 3600\n");
 	//Output Directory
+	g_pPlutoLogger->Write(LV_STATUS, "Wrote typical config");
 	sLine = "/home/cameras/" + StringUtils::itos(DeviceID);
 	if(FileUtils::DirExists(sLine) == false) {
 		FileUtils::MakeDir(sLine);
 	}
 	fprintf(fp,"target_dir %s\n",sLine.c_str());
 
-	for(i = 1 ; i < atoi(sNumberOfPorts.c_str())+1 ; i++) {
+	for(i = 1 ; i < iNumberOfPorts+1 ; i++) {
 		fprintf(fp,"#thread /etc/motion/thread%d.conf",i);
 	}
 	sLine = "snapshot_filename %Y/%m/%d/%H/%M_%S";
@@ -83,8 +88,15 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	sLine = "jpeg_filename %Y/%m/%d/%H/%M_%S";
 	fprintf(fp,"%s\n",sLine.c_str());
 	fclose(fp);
+	
+	system("rm -f motion.temp");
 	g_pPlutoLogger->Write(LV_STATUS, "Starting motion server");
-	system("/usr/bin/motion");
+	system("/usr/bin/motion | grep Failed > motion.temp");
+	const char *ptr = FileUtils::ReadFileIntoBuffer("motion.temp",size);
+	if(strstr(ptr,"Failed") != NULL ) {
+		g_pPlutoLogger->Write(LV_STATUS, "Motion Server failed to start, exiting");
+		exit(1);
+	}
 }
 
 //<-dceag-const2-b->
@@ -131,11 +143,10 @@ Generic_Analog_Capture_Card_Command *Create_Generic_Analog_Capture_Card(Command_
 void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	FILE *fp;
-	char pid[10];
+	size_t s;
 	string Command;
 	string FilePath;
-	unsigned long int size, iPID;
+	unsigned long int iPID;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for child.", pMessage->m_dwID);
 	
@@ -162,40 +173,29 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 
 	switch(pMessage->m_dwID) {
 		case COMMAND_Get_Video_Frame_CONST: {
-				DeviceData_Router *pDeviceData = find_Device(pMessage->m_dwPK_Device_To);
- 				if(!pDeviceData) {
-					g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", pMessage->m_dwPK_Device_To);
-					return;
-				}
-				string sPortNumber = pDeviceData->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
-				char *pData = pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
+			DeviceData_Router *pDeviceData = find_Device(pMessage->m_dwPK_Device_To);
+ 			if(!pDeviceData) {
+				g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", pMessage->m_dwPK_Device_To);
+				return;
+			}
+			string sPortNumber = pDeviceData->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
+			char *pData = pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
 
-				g_pPlutoLogger->Write(LV_STATUS, "Geting PID of motion server");
-				Command = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
-				system(Command.c_str());
-				fp = fopen("camera_card.temp","rt");
-				if(fp == NULL) {
-					g_pPlutoLogger->Write(LV_STATUS, "Cannot get PID for the motion server, exiting...");
-					exit(99);
-				}
-				fgets(pid,10,fp);
-				size = strlen(pid);
-				if(pid[size-1] == 10) {
-					pid[size-1] = '\0';
-				}
-				fclose(fp);
+			g_pPlutoLogger->Write(LV_STATUS, "Geting PID of motion server");
+			Command = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
+			system(Command.c_str());
+			const char *ptr = FileUtils::ReadFileIntoBuffer("camera_card.temp",s);
+			
+			g_pPlutoLogger->Write(LV_STATUS, "Taking Snapshot");
 
-				g_pPlutoLogger->Write(LV_STATUS, "Taking Snapshot");
+			iPID = atoi(ptr);
+			Command = "kill -s SIGALRM " + StringUtils::itos(iPID);		
+			system(Command.c_str());
 
-				iPID = atoi(pid);
-				Command = "kill -s SIGALRM " + StringUtils::itos(iPID);		
-				system(Command.c_str());
+			g_pPlutoLogger->Write(LV_STATUS, "Reading and sending snapshot picture");
 
-				g_pPlutoLogger->Write(LV_STATUS, "Reading and sending snapshot picture");
-
-				FilePath = "/var/www/cam" + sPortNumber + "/lastsnap.jpg";
-				size = FileUtils::FileSize(FilePath);
-				pData = FileUtils::ReadFileIntoBuffer(FilePath, (size_t &)size);
+			FilePath = "/var/www/cam" + sPortNumber + "/lastsnap.jpg";
+			pData = FileUtils::ReadFileIntoBuffer(FilePath, s);
 			}
 			break;
 		default:
