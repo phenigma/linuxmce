@@ -46,6 +46,9 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, in
 	int CurrentCellSize;
 	for(int row=RowStart;row<=RowStart+RowCount && row<m_TotalRows;++row)
 	{
+#ifdef DEBUG
+g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
+#endif
 		DataGridCell *pCell = GetData(0,row,&CurrentCellSize);
 		if( !pCell || !pCell->m_pGraphicData ) // We haven't already set a picture for this cell
 		{

@@ -38,11 +38,13 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, DeviceData_
     m_iStreamID = iStreamID;
     m_pMediaHandlerInfo=pMediaHandlerInfo;
     m_iPK_DesignObj_Remote=PK_DesignObj_Remote;
+	m_iPK_DesignObj_RemoteOSD=0;
     m_iPK_Users=PK_Users;
     m_eSourceType=sourceType;
     m_bPlaying=false;
     m_pMediaPosition=NULL;
-    m_pOH_Orbiter=NULL;
+    m_pOH_Orbiter_StartedMedia=NULL;
+    m_pOH_Orbiter_OSD=NULL;
     m_pPictureData=NULL;
     m_iPictureSize=0;
     m_iOrder=0;

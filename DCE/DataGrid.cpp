@@ -338,7 +338,7 @@ g_pPlutoLogger->Write( LV_DATAGRID, "inside todata" );
 	int ActualFirstColumn = m_bKeepColumnHeader ? 1 : 0;
 	register int i;
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_DATAGRID, "rows: %d cols: %s",m_RowCount,m_ColumnCount );
+g_pPlutoLogger->Write( LV_DATAGRID, "rows: %d cols: %d",m_RowCount,m_ColumnCount );
 #endif
 
 	for(i=0;i<m_RowCount;++i)

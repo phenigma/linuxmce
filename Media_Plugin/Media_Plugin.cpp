@@ -367,17 +367,17 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
         return false;
     }
 
-    if ( pMediaStream->m_pOH_Orbiter == NULL )
+    if ( pMediaStream->m_pOH_Orbiter_StartedMedia == NULL )
     {
         g_pPlutoLogger->Write(LV_WARNING, "The stream object mapped to the stream ID %d does not have an associated orbiter object.", iStreamID);
         return false;
     }
 
-    EntertainArea *pEntertainArea = pMediaStream->m_pOH_Orbiter->m_pEntertainArea;
+    EntertainArea *pEntertainArea = pMediaStream->m_pOH_Orbiter_StartedMedia->m_pEntertainArea;
     if ( pEntertainArea == NULL )
     {
         g_pPlutoLogger->Write(LV_WARNING, "The orbiter %d which created this stream %d is not in a valid entertainment area",
-                    pMediaStream->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+                    pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
                     iStreamID );
         return false;
     }
@@ -452,7 +452,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 		}
 
         pEntertainArea->m_pMediaStream=pMediaStream;
-        pMediaStream->m_pOH_Orbiter = pOH_Orbiter;
+        pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
     }
 
@@ -466,8 +466,6 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
     if( PK_DesignObj_Remote && PK_DesignObj_Remote!=-1 )
         pMediaStream->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
 
-    OH_Orbiter *pOH_Orbiter_OSD=NULL;
-
 	// If it's an applicable media type (media that requires displaying on the screen basically)
     if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ||		// either a DVD
 		 pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||	// or the TV display
@@ -477,7 +475,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
              pMediaStream->m_pDeviceData_Router_Source->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
         {
 			// store the orbiter which is directly controlling the target device as the target on-screen display.
-			pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_ControlledVia);
+			pMediaStream->m_pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_ControlledVia);
         }
     }
 
@@ -511,7 +509,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 			    // If there's another user in the entertainment area that is in the middle of something (ie the Orbiter is not at the main menu),
                 // we don't want to forcibly 'take over' and change to the remote screen. So we are only goind to send the orbiters controlling this ent area
 				// to the correct remote iff thery are the main menu EXCEPT for the originating device which will always be send to the remote.
-                if( pOH_Orbiter!=pOH_Orbiter_OSD )
+                if( pOH_Orbiter!=pMediaStream->m_pOH_Orbiter_OSD )
                 {
                     if( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==PK_Device_Orbiter )
                     {
@@ -532,26 +530,25 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
             g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed.");
 
 		// finally send the OnScreenDisplay orbiter (the one that is on the target media director) to the app_desktop screen.
-        if( pOH_Orbiter_OSD )
+        if( pMediaStream->m_pOH_Orbiter_OSD )
         {
-			int PK_DesignObj=0;
 			switch( pMediaStream->m_iPK_MediaType )
 			{
 			case MEDIATYPE_pluto_DVD_CONST:
-				PK_DesignObj = DESIGNOBJ_dvd_full_screen_CONST;
+				pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_dvd_full_screen_CONST;
 				break;
 			case MEDIATYPE_pluto_LiveTV_CONST:
-				PK_DesignObj = DESIGNOBJ_pvr_full_screen_CONST;
+				pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_pvr_full_screen_CONST;
 				break;
 			case MEDIATYPE_pluto_StoredVideo_CONST:
-				PK_DesignObj = DESIGNOBJ_storedvideos_full_screen_CONST;
+				pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_storedvideos_full_screen_CONST;
 				break;
 			default:
-				PK_DesignObj = DESIGNOBJ_generic_full_screen_CONST;
+				pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_generic_full_screen_CONST;
 				break;
 			}
-            DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,0,
-                StringUtils::itos(PK_DesignObj),"","",false);
+            DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,0,
+                StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD),"","",false);
             SendCommand(CMD_Goto_Screen);
         }
 
@@ -772,8 +769,18 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
 
    g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area: (%d) %p %p", pEntertainArea->m_iPK_EntertainArea, pEntertainArea, pEntertainArea->m_pMediaStream);
 
-    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false );
-    SendCommand( CMD_Goto_Screen );
+	if( pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD && 
+		pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device==pMessage->m_dwPK_Device_From &&
+		pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD )
+	{
+	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD ), "", "", false );
+		SendCommand( CMD_Goto_Screen );
+	}
+	else
+	{
+	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false );
+		SendCommand( CMD_Goto_Screen );
+	}
 }
 //<-dceag-c74-b->
 

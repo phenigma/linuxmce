@@ -866,14 +866,15 @@ string MediaAttributes::GetPictureFromAttributeID( int PK_Attribute, int *PK_Pic
     string SQL = "select PK_Picture, Extension FROM Picture_Attribute JOIN Picture ON "\
         "FK_Picture=PK_Picture "\
         "WHERE FK_Attribute=" + StringUtils::itos( PK_Attribute );
-    PlutoSqlResult result;
+    PlutoSqlResult result,result2;
     MYSQL_ROW row;
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
     }
-
+/*
+THIS BLOCK IS CORRECT.  BUT EVEN WITH INDEXING, MYSQL SOMETIMES STARTS TAKING 10SECONDS TO EXECUTE THE QUERY.  IT SEEMS TO BE A CLEARLY BUG IN MYSQL
     // Let's to see if any of the attributes associated with this file have pictures
     SQL = "select DISTINCT FK_Picture, Extension "\
         "FROM File_Attribute AS Source "\
@@ -882,11 +883,12 @@ string MediaAttributes::GetPictureFromAttributeID( int PK_Attribute, int *PK_Pic
         "JOIN Picture ON FK_Picture=PK_Picture "\
         "WHERE Source.FK_Attribute=" + StringUtils::itos( PK_Attribute );
 
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result2.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result2.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
     }
+*/
 
     *PK_Picture=0;
     return "";

@@ -32,7 +32,8 @@ namespace DCE
     public:
         class MediaHandlerInfo *m_pMediaHandlerInfo; /** Which handler has primary responsibility for this media stream */
 
-		class OH_Orbiter *m_pOH_Orbiter;    	   /** Which orbiter started this stream in the first place */
+		class OH_Orbiter *m_pOH_Orbiter_StartedMedia;    	   /** Which orbiter started this stream in the first place */
+		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-sceren display */
 
         map<int, class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
 
@@ -55,6 +56,7 @@ namespace DCE
         size_t 		 m_iPictureSize;
 
         int 	m_iPK_DesignObj_Remote; 		/** What screen to use as the remote control */
+        int 	m_iPK_DesignObj_RemoteOSD; 		/** What screen to use as the remote control for the on-screen orbiter */
 
 		bool 	m_bPlaying;        				/** True if the media is now playing */
 
