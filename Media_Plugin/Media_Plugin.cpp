@@ -323,7 +323,10 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
         MediaPluginInfo *pMediaPluginInfo = *itMPI;
         if( pMediaPluginInfo->m_bUsesRemovableMedia ) // todo - hack --- this should be a list of removable media devices
         {
-            StartMedia( pMediaPluginInfo, 0 /* no orbiter originated this */, pEntertainArea, pDeviceFrom->m_dwPK_Device, 0, MRL ); // We'll let the plug-in figure out the source, and we'll use the default remote
+            // pDeviceFrom->m_dwPK_Device, 0, MRL ); // We'll let the plug-in figure out the source, and we'll use the default remote
+            string result;
+            PlayMediaByMediaType(PK_MediaType, MRL, pDeviceFrom->m_dwPK_Device, 0, pEntertainArea, result);
+//             StartMediaOnPlugin( pMediaPluginInfo, pEntertainArea);
             return true;
         }
     }
@@ -1347,7 +1350,7 @@ bool Media_Plugin::EnsureCorrectMediaStreamForDevice(MediaPluginInfo *pMediaPlug
     pEntertainArea->m_pMediaStream->m_pMediaPluginInfo = pMediaPluginInfo;
     pEntertainArea->m_pMediaStream->m_iPK_MediaType = pMediaPluginInfo->m_PK_MediaType;
     pEntertainArea->m_pMediaStream->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
-	return true;
+    return true;
 }
 
 bool Media_Plugin::StartMediaByPositionInPlaylist(EntertainArea *pEntertainArea, int position, int iPK_Device, int iPK_DesignObj_Remote)
@@ -1561,5 +1564,5 @@ void Media_Plugin::CMD_Load_Playlist(int iPK_EntertainArea,int iEK_Playlist,stri
 class DataGridTable *Media_Plugin::AllCommandsAppliableToEntAreas( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
     g_pPlutoLogger->Write(LV_STATUS, "Media plugin called!");
-	return NULL;
+    return NULL;
 }
