@@ -56,8 +56,7 @@ function contact($output,$conn){
 </table>	
 ';
 
-	$output->setPressedButton(4);
-	$output->setNavigationMenu(array('Support'=>'index.php?section=support'));
+	$output->setNavigationMenu(array('Contact'=>'index.php?section=contact'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();

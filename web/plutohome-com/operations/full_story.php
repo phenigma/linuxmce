@@ -27,7 +27,7 @@ function full_story($output,$conn){
 		</tr>	
 		<tr>
 			<td>&nbsp;</td>
-			<td>'.$row->newsContent.'</td>
+			<td>'.nl2br($row->newsContent).'</td>
 		</tr>
 	</table>
     </td>
