@@ -31,7 +31,6 @@
 #include "../pluto_main/Table_DeviceTemplate_DeviceCategory_ControlledVia.h"
 #include "../pluto_main/Table_Users.h"
 #include "../pluto_main/Table_Package.h"
-#include "../pluto_main/Table_DeviceTemplate_Package.h"
 
 #define DCEGEN_VERSION	"0.99"
 

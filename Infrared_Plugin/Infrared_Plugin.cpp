@@ -131,9 +131,9 @@ void Infrared_Plugin::SomeFunction()
 void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c188-e->
 {
-	cout << "Need to implement command #188 - Get Infrared Codes" << endl;
-	cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
+	//cout << "Command #188 - Get Infrared Codes" << endl;
+	//cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
+	//cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
 
 	vector<Row_Device *> vectpRow_Device;
 
@@ -152,10 +152,8 @@ void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_As
 		for (j = vectpRow_InfraredCode.begin(); j != vectpRow_InfraredCode.end(); j++)
 		{
 //			cout << (*j)->Description_get() << ": " << (*j)->IRData_get() << endl;
-			* sValue_To_Assign += "{" + StringUtils::ltos((*j)->FK_Command_get()) + "\t" + (*j)->IRData_get() + "}\t";
+			* sValue_To_Assign += StringUtils::ltos((*j)->FK_Command_get()) + "\t" + (*j)->IRData_get() + "\t";
 		}
 	}
 	sCMD_Result = "OK";
 }
-
-

@@ -12,6 +12,7 @@
 #define COMMAND_IMPL_H
 
 #include "HandleRequestSocket.h"
+#include "DeviceData_Impl.h"
 
 namespace DCE
 {

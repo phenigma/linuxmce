@@ -91,15 +91,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FakeEPG", "FakeEPG\FakeEPG.
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pluto_main", "pluto_main\pluto_main.vcproj", "{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StdDLL", "WinBluetooth\StdDll\StdDLL.vcproj", "{D7399E52-D787-4C51-9085-C341D579647B}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopNetUtil", "http://localhost/ShopNetUtil/ShopNetUtil.csproj", "{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
@@ -123,18 +121,27 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VIPServer", "VIPServer\VIPS
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "convert_mac", "convert_mac\convert_mac.vcproj", "{FDF36A26-60D2-4A29-AEE0-0494524FFB9C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gc100", "gc100\gc100.vcproj", "{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Infrared_Plugin", "Infrared_Plugin\Infrared_Plugin_DLL.vcproj", "{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pluto_main", "pluto_main\pluto_main.vcproj", "{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IRBase", "IRBase\IRBase.vcproj", "{DB0118A8-9DC0-49D4-810F-2C0C39143C7F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Serial", "Serial\Serial.vcproj", "{6DFB5B29-7311-4F45-BC48-A93BEC812270}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 1
-		SccProjectUniqueName0 = WinBluetooth\\StdDll\\StdDLL.vcproj
-		SccProjectName0 = \u0022$/Bluetooth/Applications/StdDLL/StdDLL\u0022,\u0020CYWBAAAA
-		SccLocalPath0 = WinBluetooth\\StdDll
-		SccProvider0 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
-	EndGlobalSection
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
@@ -232,10 +239,6 @@ Global
 		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Debug.Build.0 = Debug|Win32
 		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Release.ActiveCfg = Release|Win32
 		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Release.Build.0 = Release|Win32
-		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Debug.ActiveCfg = Debug|Win32
-		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Debug.Build.0 = Debug|Win32
-		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Release.ActiveCfg = Release|Win32
-		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Release.Build.0 = Release|Win32
 		{D7399E52-D787-4C51-9085-C341D579647B}.Debug.ActiveCfg = Debug|Win32
 		{D7399E52-D787-4C51-9085-C341D579647B}.Debug.Build.0 = Debug|Win32
 		{D7399E52-D787-4C51-9085-C341D579647B}.Release.ActiveCfg = Release|Win32
@@ -256,10 +259,26 @@ Global
 		{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}.Debug.Build.0 = Debug|Win32
 		{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}.Release.ActiveCfg = Release|Win32
 		{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}.Release.Build.0 = Release|Win32
-		{FDF36A26-60D2-4A29-AEE0-0494524FFB9C}.Debug.ActiveCfg = Debug|Win32
-		{FDF36A26-60D2-4A29-AEE0-0494524FFB9C}.Debug.Build.0 = Debug|Win32
-		{FDF36A26-60D2-4A29-AEE0-0494524FFB9C}.Release.ActiveCfg = Release|Win32
-		{FDF36A26-60D2-4A29-AEE0-0494524FFB9C}.Release.Build.0 = Release|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.ActiveCfg = Debug|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.Build.0 = Debug|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.ActiveCfg = Release|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.Build.0 = Release|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.ActiveCfg = Debug|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.Build.0 = Debug|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.ActiveCfg = Release|Win32
+		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.Build.0 = Release|Win32
+		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Debug.ActiveCfg = Debug|Win32
+		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Debug.Build.0 = Debug|Win32
+		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Release.ActiveCfg = Release|Win32
+		{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}.Release.Build.0 = Release|Win32
+		{DB0118A8-9DC0-49D4-810F-2C0C39143C7F}.Debug.ActiveCfg = Debug|Win32
+		{DB0118A8-9DC0-49D4-810F-2C0C39143C7F}.Debug.Build.0 = Debug|Win32
+		{DB0118A8-9DC0-49D4-810F-2C0C39143C7F}.Release.ActiveCfg = Release|Win32
+		{DB0118A8-9DC0-49D4-810F-2C0C39143C7F}.Release.Build.0 = Release|Win32
+		{6DFB5B29-7311-4F45-BC48-A93BEC812270}.Debug.ActiveCfg = Debug|Win32
+		{6DFB5B29-7311-4F45-BC48-A93BEC812270}.Debug.Build.0 = Debug|Win32
+		{6DFB5B29-7311-4F45-BC48-A93BEC812270}.Release.ActiveCfg = Release|Win32
+		{6DFB5B29-7311-4F45-BC48-A93BEC812270}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
