@@ -104,7 +104,7 @@
 			<script>
 	
 			USETEXTLINKS = 1
-			STARTALLOPEN = 0
+			STARTALLOPEN = 1
 			USEFRAMES = 1
 			USEICONS = 1
 			WRAPTEXT = 1

@@ -122,11 +122,19 @@
 			$rowUM = $resUM->FetchRow();
 			$idUM = $rowUM['FK_Document_UsersManual'];
 			
-			$leftFile='documents/leftMenu';
-			$leftParams='&docID='.$idUM;
-			
-			$rightFile='documents/documentDisplay';
-			$rightParams='&docID='.$idUM;
+			if((int)$idUM!=0){
+				$leftFile='documents/leftMenu';
+				$leftParams='&docID='.$idUM;
+				
+				$rightFile='documents/documentDisplay';
+				$rightParams='&docID='.$idUM;
+			}else{
+				$leftFile='operations/leftHome';
+				$leftParams='';
+				
+				$rightFile='documents/error';
+				$rightParams='&msg=No user manual yet.';
+			}			
 		break;
 		case 'progguide':
 			$queryUM = 'SELECT FK_Document_ProgrammersGuide
@@ -136,11 +144,19 @@
 			$rowUM = $resUM->FetchRow();
 			$idUM = $rowUM['FK_Document_ProgrammersGuide'];
 
-			$leftFile='documents/leftMenu';
-			$leftParams='&docID='.$idUM;
-			
-			$rightFile='documents/documentDisplay';
-			$rightParams='&docID='.$idUM;
+			if((int)$idUM!=0){
+				$leftFile='documents/leftMenu';
+				$leftParams='&docID='.$idUM;
+				
+				$rightFile='documents/documentDisplay';
+				$rightParams='&docID='.$idUM;
+			}else{
+				$leftFile='operations/leftHome';
+				$leftParams='';
+				
+				$rightFile='documents/error';
+				$rightParams='&msg=No programmer\'s guide yet.';
+			}
 		break;
 		case 'down_package':
 			$leftFile='operations/leftHome';
