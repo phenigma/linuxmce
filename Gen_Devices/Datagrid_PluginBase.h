@@ -73,7 +73,7 @@ public:
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_Datagrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -116,10 +116,10 @@ public:
 						string sCMD_Result="OK";
 					string sID=pMessage->m_mapParameters[10];
 					string sDataGrid_ID=pMessage->m_mapParameters[15];
-					int iPK_Datagrid=atoi(pMessage->m_mapParameters[38].c_str());
+					int iPK_DataGrid=atoi(pMessage->m_mapParameters[38].c_str());
 					string sOptions=pMessage->m_mapParameters[39];
 						int iPK_Variable;string sValue_To_Assign;bool bIsSuccessful;
-						CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_Datagrid,sOptions.c_str(),&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,sCMD_Result,pMessage);
+						CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

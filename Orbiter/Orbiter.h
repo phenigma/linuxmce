@@ -8,6 +8,7 @@
  *
  */
 
+#define  VERSION "<=version=>"
  
 //<-dceag-d-b->
 #ifndef Orbiter_h

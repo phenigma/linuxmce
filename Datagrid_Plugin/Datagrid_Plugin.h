@@ -139,15 +139,15 @@ public:
 			/** For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be.  If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope */
 		/** @param #15 DataGrid ID */
 			/** A unique ID for this instance of the grid that will be passed with the Request Datagrid Contents command. */
-		/** @param #38 PK_Datagrid */
+		/** @param #38 PK_DataGrid */
 			/** Which grid should be populated */
 		/** @param #39 Options */
 			/** The options are specific the type of grid (PK_Datagrid).  These are not pre-defined.  The grid generator and orbiter must both pass the options in the correct format for the type of grid. */
 		/** @param #40 IsSuccessful */
 			/** Returns false if the grid could not be populated.  Perhaps there was no registered datagrid generator. */
 
-	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_Datagrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { string sCMD_Result; CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_Datagrid,sOptions.c_str(),iPK_Variable,sValue_To_Assign,bIsSuccessful,sCMD_Result,NULL);};
-	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_Datagrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { string sCMD_Result; CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),iPK_Variable,sValue_To_Assign,bIsSuccessful,sCMD_Result,NULL);};
+	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

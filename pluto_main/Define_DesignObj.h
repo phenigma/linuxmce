@@ -1057,6 +1057,7 @@
 #define DESIGNOBJ_go_to_2_screen_CONST 3216
 #define DESIGNOBJ_setup_myth_2_CONST 3217
 #define DESIGNOBJ_go_to_myth_setup_CONST 3218
+#define DESIGNOBJ_go_to_pvr_full_screen_CONST 3219
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

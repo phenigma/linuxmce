@@ -25,8 +25,6 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
-#define  VERSION "<=version=>"
-
 namespace DCE
 {
 	Logger *g_pPlutoLogger;

@@ -56,7 +56,7 @@ public:
 	Row_RepositorySource_URL *m_pRow_RepositorySource_URL;
 	bool m_bMustBuild;
 
-	string m_sBinaryExecutiblesPathPath, m_sSourceIncludesPath, m_sSourceImplementationPath, m_sBinaryLibraryPath, m_sConfiguration;
+	string m_sBinaryExecutiblesPathPath, m_sSourceIncludesPath, m_sSourceImplementationPath, m_sBinaryLibraryPath, m_sConfiguration, m_sDestinationPath;
 	vector<Row_Package_Directory_File *> m_vectRow_Package_Directory_File_BinaryExecutibles, m_vectRow_Package_Directory_File_SourceIncludes,
 		m_vectRow_Package_Directory_File_SourceImplementation,m_vectRow_Package_Directory_File_BinaryLibrary,
 		m_vectRow_Package_Directory_File_Configuration;
@@ -273,7 +273,11 @@ int main(int argc, char *argv[])
 			}
 			cout << "else" << endl;
 //			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
-			cout << "\techo \"Processing of package '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "' failed\"" << endl;
+			cout << "\techo \"***************************************************\"" << endl;
+			cout << "\techo \"***ERROR*** Processing of package '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "' failed\"" << endl;
+			cout << "\techo \"I tried every known option to find this software.  You will need\"" << endl;
+			cout << "\techo \"to get it manually.  Press any key to continue.\"" << endl;
+			cout << "\techo \"***************************************************\"" << endl;
 			cout << "\tread" << endl;
 			cout << "fi" << endl;
 		}
@@ -662,6 +666,12 @@ PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Comp
 		pRow_Package_Directory->Package_Directory_File_FK_Package_Directory_getrows(&pPackageInfo->m_vectRow_Package_Directory_File_Configuration);
 	}
 
+	pRow_Package_Directory = GetDirectory(pRow_Package,DIRECTORY_Destination_CONST);
+	if( pRow_Package_Directory )
+	{
+		pPackageInfo->m_sDestinationPath = pRow_Package_Directory->Path_get();
+	}
+
 	if( sCommand=="view" || sCommand=="status" )
 	{
 		cout << "\tFrom: " << pRow_RepositorySource->Description_get() << "(" << pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << "\tVersion: " << pRow_Package_Source->Version_get() << endl;
@@ -717,6 +727,7 @@ void InstallPackage(PackageInfo *pPackageInfo, bool bElse)
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Username_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Password_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Parms_get() << "\""
+		<< " \"" << pPackageInfo->m_sDestinationPath << "\""
 		<< "; then"
 		<< endl;
 	cout << "\techo \"Confirmation of package '" << pPackageInfo->m_pRow_Package_Source->Name_get() << "' went ok.\"" << endl;

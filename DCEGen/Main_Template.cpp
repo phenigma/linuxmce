@@ -55,6 +55,9 @@ extern "C" {
 //<-dceag-main-b->
 int main(int argc, char* argv[]) 
 {
+	cout << "DCE_Template, v." << VERSION << endl
+		<< "Visit www.plutohome.com for source code and license information" << endl << endl;
+
 	string sRouter_IP="dce_router";
 	int PK_Device=0;
 	string sLogger="stdout";
@@ -89,8 +92,7 @@ int main(int argc, char* argv[])
 
 	if (bError)
 	{
-		cout << "DCE_Template, v." << VERSION << endl
-			<< "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
+		cout << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
 			<< "Usage: DCE_Template [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl
 			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl

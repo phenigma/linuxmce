@@ -12,6 +12,7 @@
 #define DISTRO_Series_70_CONST 9
 #define DISTRO_Series_80_CONST 10
 #define DISTRO_UIQ_CONST 11
+#define DISTRO_Windows_CE_CONST 12
 
 #define DISTRO_TABLE "Distro"
 #define DISTRO_PK_DISTRO_FIELD "PK_Distro"

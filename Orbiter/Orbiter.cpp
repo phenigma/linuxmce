@@ -2784,10 +2784,10 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 				int iPK_Variable=0;
 				string sValue_To_Assign;
 				DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse,  StringUtils::itos( m_dwIDataGridRequestCounter ), 
-					GridID, atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_Datagrid_CONST].c_str(  ) ), 
+					GridID, atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ), 
 					SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse );
 				if(  !SendCommand( CMD_Populate_Datagrid_MD ) || !bResponse  ) // wait for a response
-					g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid from command: %d failed", atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_Datagrid_CONST].c_str(  ) ) );
+					g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid from command: %d failed", atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ) );
 				else if(  iPK_Variable  )
 					m_mapVariable[iPK_Variable] = sValue_To_Assign;
 

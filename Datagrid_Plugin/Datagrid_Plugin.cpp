@@ -215,14 +215,14 @@ delete[] ( *pData );
 			/** For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be.  If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope */
 		/** @param #15 DataGrid ID */
 			/** A unique ID for this instance of the grid that will be passed with the Request Datagrid Contents command. */
-		/** @param #38 PK_Datagrid */
+		/** @param #38 PK_DataGrid */
 			/** Which grid should be populated */
 		/** @param #39 Options */
 			/** The options are specific the type of grid (PK_Datagrid).  These are not pre-defined.  The grid generator and orbiter must both pass the options in the correct format for the type of grid. */
 		/** @param #40 IsSuccessful */
 			/** Returns false if the grid could not be populated.  Perhaps there was no registered datagrid generator. */
 
-void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_Datagrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage)
+void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage)
 //<-dceag-c35-e->
 {
  *iPK_Variable=0;
@@ -231,7 +231,7 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
  string::size_type pos=0;
 
  DataGridTable *pDataGridTable=NULL;
- map<int, class DataGridGeneratorCallBack *>::iterator itGridCB = m_mapDataGridGeneratorCallBack.find( iPK_Datagrid );
+ map<int, class DataGridGeneratorCallBack *>::iterator itGridCB = m_mapDataGridGeneratorCallBack.find( iPK_DataGrid );
  if( itGridCB != m_mapDataGridGeneratorCallBack.end() )
  {
   DataGridGeneratorCallBack *pCB = ( *itGridCB ).second;
@@ -245,7 +245,7 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
   DataGridCell *pCell;
   pCell = new DataGridCell( "Datagrid: " + sDataGrid_ID, "" );
   pDataGridTable->SetData( 0, 0, pCell );
-  pCell = new DataGridCell( "Type: " + StringUtils::itos( iPK_Datagrid ), "" );
+  pCell = new DataGridCell( "Type: " + StringUtils::itos( iPK_DataGrid ), "" );
   pDataGridTable->SetData( 0, 1, pCell );
   pCell = new DataGridCell( "is invalid", "" );
   pDataGridTable->SetData( 0, 2, pCell );

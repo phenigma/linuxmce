@@ -84,18 +84,20 @@ class DLL_EXPORT Row_Orbiter : public TableRow, public SerializeClass
 		long int m_PK_Orbiter;
 string m_FloorplanInfo;
 string m_Modification_LastGen;
+short int m_Regen;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[8];
+		bool is_null[9];
 	
 	public:
 		long int PK_Orbiter_get();
 string FloorplanInfo_get();
 string Modification_LastGen_get();
+short int Regen_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -106,6 +108,7 @@ string psc_mod_get();
 		void PK_Orbiter_set(long int val);
 void FloorplanInfo_set(string val);
 void Modification_LastGen_set(string val);
+void Regen_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -115,6 +118,7 @@ void psc_mod_set(string val);
 		
 		bool FloorplanInfo_isNull();
 bool Modification_LastGen_isNull();
+bool Regen_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -123,6 +127,7 @@ bool psc_frozen_isNull();
 			
 		void FloorplanInfo_setNull(bool val);
 void Modification_LastGen_setNull(bool val);
+void Regen_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -150,7 +155,7 @@ void Orbiter_Variable_FK_Orbiter_getrows(vector <class Row_Orbiter_Variable*> *r
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Orbiter+ m_FloorplanInfo+ m_Modification_LastGen+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Orbiter+ m_FloorplanInfo+ m_Modification_LastGen+ m_Regen+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -158,6 +163,7 @@ void Orbiter_Variable_FK_Orbiter_getrows(vector <class Row_Orbiter_Variable*> *r
 		string PK_Orbiter_asSQL();
 string FloorplanInfo_asSQL();
 string Modification_LastGen_asSQL();
+string Regen_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

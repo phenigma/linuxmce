@@ -377,7 +377,7 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[4])
 return "NULL";
 
-char *buf = new char[121];
+char *buf = new char[201];
 mysql_real_escape_string(table->database->db_handle, buf, m_Installer.c_str(), (unsigned long) m_Installer.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
@@ -391,7 +391,7 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[5])
 return "NULL";
 
-char *buf = new char[121];
+char *buf = new char[201];
 mysql_real_escape_string(table->database->db_handle, buf, m_KickStartCD.c_str(), (unsigned long) m_KickStartCD.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
@@ -405,7 +405,7 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[6])
 return "NULL";
 
-char *buf = new char[121];
+char *buf = new char[201];
 mysql_real_escape_string(table->database->db_handle, buf, m_Binaries.c_str(), (unsigned long) m_Binaries.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
@@ -419,7 +419,7 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[7])
 return "NULL";
 
-char *buf = new char[121];
+char *buf = new char[201];
 mysql_real_escape_string(table->database->db_handle, buf, m_SourceCode.c_str(), (unsigned long) m_SourceCode.size());
 string s=string()+"\""+buf+"\"";
 delete buf;

@@ -110,7 +110,8 @@ bool ZipFiles(string sArchiveFileName);
 bool PackageIsCompatible(Row_Package *pRow_Package);
 bool CopySourceFile(string sInput,string sOutput)
 {
-	if( StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) )
+	if( StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
+			StringUtils::EndsWith(sInput,".h",true) )
 		return StringUtils::Replace( sInput, sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
 	else
 		return FileUtils::PUCopyFile(sInput,sOutput);
@@ -496,6 +497,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo)
 {
 	// First is there a directory specified for finding the compiled output?
+	// If so, we'll grab the binaries from there, since the build process put them in that directory
 	Row_Package_Directory *pRow_Package_Directory_CompiledOutput=NULL;
 	vector<Row_Package_Directory *> vectRow_Package_Directory;
 	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
@@ -503,6 +505,15 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 		&vectRow_Package_Directory);
 	if( vectRow_Package_Directory.size() )
 		pRow_Package_Directory_CompiledOutput = vectRow_Package_Directory[0];
+
+	// Is there a directory for the destination?  If so, we'll prepend our destination with it
+	Row_Package_Directory *pRow_Package_Directory_Destination=NULL;
+	vectRow_Package_Directory.clear();
+	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
+		"FK_Package=" + StringUtils::itos(pRow_Package->PK_Package_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Destination_CONST),
+		&vectRow_Package_Directory);
+	if( vectRow_Package_Directory.size() )
+		pRow_Package_Directory_Destination = vectRow_Package_Directory[0];
 
 	// What are the files for this?
 	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
@@ -525,11 +536,10 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 		{
 			sDirectory = g_sSourcecodePrefix + pRow_Package_Directory_CompiledOutput->Path_get();
 		}
+		else if( pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Source_Implementation_CONST )
+			sDirectory = g_sSourcecodePrefix + pRow_Package_Directory->Path_get();
 		else
-		{
 			sDirectory = g_sNonSourcecodePrefix + pRow_Package_Directory->Path_get();
-		}
-
 
 		if( sDirectory.length()==0 )
 		{
@@ -550,11 +560,21 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 					(!pRow_Package_Directory_File->FK_OperatingSystem_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_get()!=g_pRow_Distro->FK_OperatingSystem_get()) )
 				continue;
 
-	cout << "Checking file: " << pRow_Package_Directory_File->PK_Package_Directory_File_get() << " " << pRow_Package_Directory_File->File_get() << endl;
-	cout << "Distro: " << g_pRow_Distro->PK_Distro_get() << endl;
-   cout << "x:" << pRow_Package_Directory_File->FK_Distro_get() << " " << pRow_Package_Directory_File->FK_Distro_isNull() << endl;
-
 			string File = pRow_Package_Directory_File->File_get();
+			if( !pRow_Package_Directory_File->MakeCommand_isNull() )
+			{
+				if( g_bInteractive && !AskYNQuestion("About to execute: " + pRow_Package_Directory_File->MakeCommand_get() + " Continue?",false) )
+					return false;
+
+				chdir(sDirectory.c_str());
+				cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sDirectory << endl;
+				if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
+				{
+					cout << pRow_Package_Directory_File->MakeCommand_get() << " ****FAILED****" << endl;
+					cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
+					return false;
+				}
+			}
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
 			{
 				list<string> listFiles;
@@ -569,7 +589,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 				{
 					FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,
-						pRow_Package_Directory->Path_get() + "/" + *it,
+						(pRow_Package_Directory_Destination ? pRow_Package_Directory_Destination->Path_get() + "/" : "") + pRow_Package_Directory->Path_get() + "/" + *it,
 						pRow_Package_Directory);
 					listFileInfo.push_back(pFileInfo);
 				}
@@ -895,7 +915,16 @@ AsksSourceQuests:
 			remove(pRow_Package_Directory_File->File_get().c_str());
 		}
 
-		// The make command succeeded.  Now the binary files should be here
+		// Replace the <=version=> in all the files
+		list<string> listFiles;
+		FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs");
+		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
+		{
+			cout << "Setting version for: " << sSourceDirectory + "/" + *it;
+			StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it,"<=version=>",g_pRow_Version->VersionName_get());
+		}
+
+		// Now we've got to run the make file
 		for(size_t s=0;s<vectRow_Package_Directory_File.size();++s)
 		{
 			Row_Package_Directory_File *pRow_Package_Directory_File = vectRow_Package_Directory_File[s];
