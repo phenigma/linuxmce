@@ -477,7 +477,7 @@ else
 header ('Expires: 0');
 header ('Pragma: no-cache');
 
-if(@$_GET['mode']!='topicreview' && @$_GET['mode']!='smilies')
+if(@$_GET['mode']!='topicreview' && @$_GET['mode']!='smilies' && @$_GET['mode']!='searchuser')
 	include_once($_SERVER['DOCUMENT_ROOT'].'/support/pluto_header.php');
 $template->pparse('overall_header');
 

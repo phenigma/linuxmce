@@ -455,6 +455,25 @@ else
 //
 // Generate the page
 //
+
+// added by Pluto
+$plutoTesterID=5;
+$plutoStaffID=6;
+$qid="SELECT user_id FROM ".USER_GROUP_TABLE." WHERE group_id='".$plutoTesterID."' OR group_id='".$plutoStaffID."'";
+if ( !($result = $db->sql_query($qid)) )
+{
+	message_die(GENERAL_ERROR, 'Could not obtain Pluto personal IDs', '', __LINE__, __FILE__, $sql);
+}
+$pluto_ids = array();
+while( $row = $db->sql_fetchrow($result) )
+{
+	$pluto_ids[] = $row['user_id'];
+}
+$db->sql_freeresult($result);
+if(in_array($userdata['user_id'],$pluto_ids))
+	print '<div align="right"><a href="search.php?search_id=unansweredByPluto">View posts unanswered by Pluto personal</a></div>';
+// end Pluto
+
 $template->pparse('body');
 
 include($phpbb_root_path . 'includes/page_tail.'.$phpEx);

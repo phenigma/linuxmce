@@ -157,7 +157,7 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 	//
 	// Cycle through options ...
 	//
-	if ( $search_id == 'newposts' || $search_id == 'egosearch' || $search_id == 'unanswered' || $search_keywords != '' || $search_author != '' )
+	if ( $search_id == 'newposts' || $search_id == 'egosearch' || $search_id == 'unanswered' || $search_id=='unansweredByPluto' || $search_keywords != '' || $search_author != '')
 	{
 		if ( $search_id == 'newposts' || $search_id == 'egosearch' || ( $search_author != '' && $search_keywords == '' )  )
 		{
@@ -605,6 +605,66 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 			$sort_by = 0;
 			$sort_dir = 'DESC';
 		}
+		else if ( $search_id == 'unansweredByPluto' )
+		{
+			$qid="SELECT user_id FROM ".USER_GROUP_TABLE." WHERE group_id='".$plutoTesterID."' OR group_id='".$plutoStaffID."'";
+			if ( !($result = $db->sql_query($qid)) )
+			{
+				message_die(GENERAL_ERROR, 'Could not obtain Pluto personal IDs', '', __LINE__, __FILE__, $sql);
+			}
+			$pluto_ids = array();
+			while( $row = $db->sql_fetchrow($result) )
+			{
+				$pluto_ids[] = $row['user_id'];
+			}
+			$db->sql_freeresult($result);
+			if(count($pluto_ids)==0)
+				$pluto_ids[]=0;
+			
+			$sql = "SELECT DISTINCT topic_id FROM " . POSTS_TABLE . "
+					WHERE poster_id IN (".join(',',$pluto_ids).")";
+
+			if ( !($result = $db->sql_query($sql)) )
+			{
+				message_die(GENERAL_ERROR, 'Could not obtain Pluto post ids', '', __LINE__, __FILE__, $sql);
+			}
+
+			$excluded_ids = array();
+			while( $row = $db->sql_fetchrow($result) )
+			{
+				$excluded_ids[] = $row['topic_id'];
+			}
+			$db->sql_freeresult($result);
+			if(count($excluded_ids)==0)
+				$excluded_ids[]=0;
+
+				
+			$sql = "SELECT topic_id FROM " .TOPICS_TABLE. "
+					WHERE topic_id NOT IN (".join(',',$excluded_ids).")";
+
+			if ( !($result = $db->sql_query($sql)) )
+			{
+				message_die(GENERAL_ERROR, 'Could not obtain Pluto post ids', '', __LINE__, __FILE__, $sql);
+			}
+
+			$search_ids = array();
+			while( $row = $db->sql_fetchrow($result) )
+			{
+				$search_ids[] = $row['topic_id'];
+			}
+			$db->sql_freeresult($result);
+			
+			
+			$total_match_count = count($search_ids);
+
+			//
+			// Basic requirements
+			//
+			$show_results = 'topics';
+			$sort_by = 0;
+			$sort_dir = 'DESC';
+		}
+		
 		else
 		{
 			message_die(GENERAL_MESSAGE, $lang['No_search_match']);
@@ -809,7 +869,7 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 
 		$highlight_active = '';
 		$highlight_match = array();
-		for($j = 0; $j < count($split_search); $j++ )
+		for($j = 0; $j < count(@$split_search); $j++ )
 		{
 			$split_word = $split_search[$j];
 
@@ -840,11 +900,11 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 		{
 			$forum_url = append_sid("viewforum.$phpEx?" . POST_FORUM_URL . '=' . $searchset[$i]['forum_id']);
 			$topic_url = append_sid("viewtopic.$phpEx?" . POST_TOPIC_URL . '=' . $searchset[$i]['topic_id'] . "&amp;highlight=$highlight_active");
-			$post_url = append_sid("viewtopic.$phpEx?" . POST_POST_URL . '=' . $searchset[$i]['post_id'] . "&amp;highlight=$highlight_active") . '#' . $searchset[$i]['post_id'];
+			$post_url = append_sid("viewtopic.$phpEx?" . POST_POST_URL . '=' . @$searchset[$i]['post_id'] . "&amp;highlight=$highlight_active") . '#' . @$searchset[$i]['post_id'];
 
 			$post_date = create_date($board_config['default_dateformat'], $searchset[$i]['post_time'], $board_config['board_timezone']);
 
-			$message = $searchset[$i]['post_text'];
+			$message = @$searchset[$i]['post_text'];
 			$topic_title = $searchset[$i]['topic_title'];
 
 			$forum_id = $searchset[$i]['forum_id'];
