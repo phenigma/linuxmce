@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;.;&quot;../CrossPlatform-Libs/unzip-101d&quot;"
+				AdditionalIncludeDirectories="..;.;&quot;../../libs/CrossPlatform/unzip-101d&quot;,../../src"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -36,7 +36,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib1-pluto-d.lib pluto-unzip-101-d.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../CrossPlatform-Libs/unzip-101d/VisualC7/Debug&quot;;&quot;../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug&quot;;$(NOINHERIT)"
+				AdditionalLibraryDirectories="&quot;../../libs/CrossPlatform/unzip-101d/VisualC7/Debug&quot;;&quot;../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug&quot;;$(NOINHERIT)"
 				IgnoreDefaultLibraryNames="LIBCD"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
@@ -76,7 +76,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..;.;&quot;../CrossPlatform-Libs/unzip-101d&quot;"
+				AdditionalIncludeDirectories="../../src;..;.;&quot;../../libs/CrossPlatform/unzip-101d&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				MinimalRebuild="FALSE"
 				RuntimeLibrary="2"
@@ -91,7 +91,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib1-pluto-r.lib pluto-unzip-101-r.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;../CrossPlatform-Libs/unzip-101d/VisualC7/Release&quot;;&quot;../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Release&quot;;$(NOINHERIT)"
+				AdditionalLibraryDirectories="&quot;../../libs/CrossPlatform/unzip-101d/VisualC7/Release&quot;;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Release;$(NOINHERIT)"
 				IgnoreDefaultLibraryNames="LIBC"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
@@ -136,7 +136,7 @@
 				RelativePath=".\ErrnoTrick.cpp">
 			</File>
 			<File
-				RelativePath="..\PlutoUtils\FileUtils.cpp">
+				RelativePath="..\..\src\PlutoUtils\FileUtils.cpp">
 			</File>
 			<File
 				RelativePath=".\GetMoreInfo.cpp">
@@ -160,7 +160,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\PlutoUtils\StringUtils.cpp">
+				RelativePath="..\..\src\PlutoUtils\StringUtils.cpp">
 			</File>
 			<File
 				RelativePath=".\WindowsInstaller.cpp">
