@@ -1,3 +1,5 @@
-Import qw ( env ) ;
+Import qw ( env LIB ) ;
 
-Library $env 'libpluto_security', <*.cpp>;
+Install $env $LIB, 'libpluto_main.a';
+
+Library $env 'libpluto_main.a', <*.cpp>;

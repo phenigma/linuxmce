@@ -183,7 +183,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
                     else
                     {
                         g_pPlutoLogger->Write(LV_STATUS, "And again Here with failure");
-                        g_pPlutoLogger->Write( LV_CRITICAL, "Failed to receive response from the disk drive device!. Response was: \"%s\"!", Response.c_str( ) );
+                        g_pPlutoLogger->Write(LV_CRITICAL, "Failed to receive response from the disk drive device!. Response was: \"%s\"!", Response.c_str( ) );
                     }
 
                     g_pPlutoLogger->Write(LV_STATUS, "Got response from the disk drive: %s", mediaURL.c_str() );
@@ -304,6 +304,8 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
             if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
                 bTargetSqueezBox = true;
+
+            pXineMediaStream->m_mapEntertainArea[(*itEntArea)->m_iPK_EntertainArea] = *itEntArea;
         }
     }
 
@@ -319,7 +321,6 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
     }
 
     string squeezeBoxesAddresses = "";
-
 
     if ( bTargetSqueezBox )
     {

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+SLIM_SERVER_HOME=`dirname $0`/../servers/SlimServer;
+
+PARAMS="--audiodir /tmp -cliaddr 127.0.0.1 --cliport $1 --d_cli --d_server";
+exec `which perl` $SLIM_SERVER_HOME/slimserver.pl $PARAMS;
+

@@ -1,6 +1,13 @@
+# Where to put all our shared products.
+$EXPORT = '#export';
+
+$LIB = "$EXPORT/lib";
+$BIN = "$EXPORT/bin";
+
 $env = new cons(
 	'CC' => 'g++',
-	'CPPPATH' => '../trunk:DCE',
+	'CPPPATH' => '.:DCE',
+	'LIBPATH' => $LIB,
 	'CXXFLAGS' => '-Wall -O2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG -DUSE_MYSQL -I/usr/include/mysql',
 	'ENV' => {
 		'PATH' => '/usr/lib/ccache:/bin:/usr/bin',
@@ -12,7 +19,8 @@ use Cwd;
 
 Link 'build' => '.';
 
-Export qw( env );
+
+Export qw( env LIB BIN );
 
 Conscript_chdir 1;
 

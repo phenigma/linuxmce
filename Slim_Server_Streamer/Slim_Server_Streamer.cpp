@@ -23,7 +23,7 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
     // Usually the slim server and the application server that is going to spawn it are going to be on the same machine.
     // This is good because you can also restrinct the control of the server only to connection that are from that machine.
     m_strSlimServerCliAddress = "127.0.0.1"; // hard code it here for now.
-    m_iSlimServerCliPort = 7888;
+    m_iSlimServerCliPort = 7890;
 
     m_iServerSocket = -1;
 }
@@ -176,8 +176,13 @@ void Slim_Server_Streamer::SomeFunction()
 void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,string sStreamingDestinations,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
-    // CMD_Spawn_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess)
+    if ( sStreamingDestinations == "" && m_mapRunningStreamsToMacAddresses.find(iStreamID) != m_mapRunningStreamsToMacAddresses.end() )
+    {
+        string onePlayerMac = m_mapRunningStreamsToMacAddresses[iStreamID].front();
 
+        SendReceiveCommand(onePlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
+        return;
+    }
 
     vector<string> vectMacAddresses;
 
@@ -188,45 +193,22 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
     vector<string>::iterator itMacAddresses = vectMacAddresses.begin();
     while ( itMacAddresses != vectMacAddresses.end() )
     {
-        if ( (*itMacAddresses) != "" )
+        if ( (*itMacAddresses) == "" )
         {
-            macAddress = StringUtils::ToLower(*itMacAddresses);
-            macAddress = StringUtils::Replace(macAddress, ":", "%3A");
-
-            g_pPlutoLogger->Write(LV_STATUS, "Preprocessed player MAC address: %s -> %s", (*itMacAddresses).c_str(), macAddress.c_str());
-
-            SendReceiveCommand(macAddress + " sync -"); // break previous syncronization;
-            SendReceiveCommand(macAddress + " sync " + playerAddress); // break previous syncronization;
-            playerAddress = macAddress;
+            itMacAddresses = vectMacAddresses.erase(itMacAddresses);
+            continue;
         }
 
-        itMacAddresses++;
+        *itMacAddresses = StringUtils::URLEncode(StringUtils::ToLower(*itMacAddresses));
+
+        SendReceiveCommand(*itMacAddresses + " sync -"); // break previous syncronization;
+        SendReceiveCommand(*itMacAddresses + " sync " + playerAddress); // syncronize with the last one.
+        playerAddress = *itMacAddresses++;
     }
 
-/*
-    string serverName = StringUtils::Format("slim-server-%d", iStreamID);
+    m_mapRunningStreamsToMacAddresses[iStreamID] = vectMacAddresses; // add this stream to the list of playing streams.
 
-    string notificationMessage = StringUtils::Format("%d %d %d %d",
-                                                            0,
-                                                            m_dwPK_Device,
-                                                            MESSAGETYPE_COMMAND,
-                                                            COMMAND_Start_Streaming_CONST // this is not proper :-). I think it should send a different message
-                                                            );
-
-    DCE::CMD_Spawn_Application_DT spawnApplication(
-                m_dwPK_Device,                      // send from here
-                DEVICETEMPLATE_App_Server_CONST,    // to an application server
-                BL_SameComputer,                    // on the same computer
-                "/usr/pluto/bin/LaunchSlimServer",  // launch this
-                serverName,                         // reference it with this name
-                "",                                 // no params
-                notificationMessage,                // execute this serialized message on exit with failure
-                notificationMessage);               // execute this serialized message on exit with success
-
-    spawnApplication.m_pMessage->m_bRelativeToSender = true;
-    SendCommand(spawnApplication);
-
-    g_pPlutoLogger->Write(LV_STATUS, "Received a start streaming command with file: %s from master !", sFilename.c_str());*/
+    SendReceiveCommand(playerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
 }
 
 bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
@@ -290,8 +272,35 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
         g_pPlutoLogger->Write(LV_STATUS, "Connection is down. Trying to reconnect.");
         if ( ! ConnectToSlimServerCliCommandChannel() )
         {
-            g_pPlutoLogger->Write(LV_STATUS, "Reconnection failed. Ignoring command");
-            return command;
+            g_pPlutoLogger->Write(LV_STATUS, "Reconnection failed. Sending a start command to the application server.");
+
+//             string notificationMessage = StringUtils::Format("%d %d %d %d",
+//                                                             0,
+//                                                             m_dwPK_Device,
+//                                                             MESSAGETYPE_COMMAND,
+//                                                             COMMAND_Start_Streaming_CONST
+//                                                             );
+
+            DCE::CMD_Spawn_Application_DT spawnApplication(
+                    m_dwPK_Device,                      // send from here
+                    DEVICETEMPLATE_App_Server_CONST,    // to an application server
+                    BL_SameComputer,                    // on the same computer
+                    "/usr/pluto/bin/LaunchSlimServer",  // launch this
+                    "slim-server",                              // reference it with this name
+                    StringUtils::itos(m_iSlimServerCliPort),    // pass it the desired port number for reconnection.
+                    "",                                         // execute this serialized message on exit with failure
+                    "");                                        // execute this serialized message on exit with success
+
+            spawnApplication.m_pMessage->m_bRelativeToSender = true;
+            SendCommand(spawnApplication);
+
+            usleep(3000000);
+
+            if ( ! ConnectToSlimServerCliCommandChannel() ) // try again the connection after the command was sent.
+            {
+                g_pPlutoLogger->Write(LV_WARNING, "I could not connect to the streaming server after i have launched it with the application server.");
+                return "";
+            }
         }
     }
 

@@ -7,22 +7,25 @@
 #include "Gen_Devices/Slim_Server_StreamerBase.h"
 //<-dceag-d-e->
 
+#include <map>
+using namespace std;
+
 //<-dceag-decl-b->
 namespace DCE
 {
     class Slim_Server_Streamer : public Slim_Server_Streamer_Command
     {
 //<-dceag-decl-e->
-        std::map<int, std::list<string> > m_mapStreamsToSqueezeBoxesPlayers;
+        map<int, list<string> > m_mapStreamsToSqueezeBoxesPlayers;
 
-        std::string  m_strSlimServerCliAddress;
+        string  m_strSlimServerCliAddress;
         int m_iSlimServerCliPort;
 
+        map<int, vector<string> > m_mapRunningStreamsToMacAddresses;
         int m_iServerSocket; // the socket used to communicate with the server
         // Private member variables
 
         bool ConnectToSlimServerCliCommandChannel();
-
         string SendReceiveCommand(string command);
 
         // Private methods
