@@ -743,11 +743,20 @@ void DoRender(string font, string output,int width,int height,bool bAspectRatio,
 }
 
 
+
+
+#ifdef OrbiterGen
+#define	FLAG_DISABLE_VIDEO true
+#else
+#define FLAG_DISABLE_VIDEO false
+#endif
+
+/** @todo: Ask radu to fix this .. global font renderer issue */
 // Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
 #ifdef WIN32
-Renderer r("C:/windows/fonts/", "", 800, 600,true);
-#else
-Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600,true);
+Renderer r("C:/windows/fonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
+#else 
+Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
 #endif
 
 
