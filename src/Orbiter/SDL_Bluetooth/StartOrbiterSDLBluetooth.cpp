@@ -20,7 +20,6 @@
 #include "OrbiterSDLBluetooth.h"
 
 using namespace DCE;
-
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	class BDCommandProcessor *pBDCommandProcessor,

@@ -135,27 +135,28 @@ void *HandleBDCommandProcessorThread( void *p )
 
 	while( pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL ) && NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead ); // loop for receiving commands
 
-	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor");//: m_bDead: %d", ( int ) pBD_Orbiter->m_pBDCommandProcessor->m_bDead );
+	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor...");
+	
+	g_pPlutoLogger->Write( LV_STATUS, "Sending 'Mobile_orbiter_lost' to Orbiter_Plugin...");
 	pBluetooth_Dongle->GetEvents()->Mobile_orbiter_lost( pBD_Orbiter->m_pPhoneDevice->m_sMacAddress.c_str(), true );
+	
+	g_pPlutoLogger->Write( LV_STATUS, "Removing phone from the detection list...");
 	pBluetooth_Dongle->RemovePhoneFromList( pBD_Orbiter->m_pPhoneDevice);
 
-	/** cleaning up */
 	
 	if( NULL != pBD_Orbiter->m_pPhoneDevice )
 		pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
-	
-	delete pBD_Orbiter->m_pBDCommandProcessor;
-	pBD_Orbiter->m_pBDCommandProcessor=NULL;
 
-	if( NULL != pBD_Orbiter->m_pOrbiter )
-	{
-		delete pBD_Orbiter->m_pOrbiter;
-		pBD_Orbiter->m_pOrbiter = NULL;
-	}
+	g_pPlutoLogger->Write( LV_STATUS, "Deleting command processor...");
+	PLUTO_SAFE_DELETE(pBD_Orbiter->m_pBDCommandProcessor);
 
-	delete pBD_Orbiter_Plus_DongleHandle;
-	pBD_Orbiter_Plus_DongleHandle = NULL;
+	g_pPlutoLogger->Write( LV_STATUS, "Deleting orbiter...");
+	PLUTO_SAFE_DELETE(pBD_Orbiter->m_pOrbiter);
 
+	g_pPlutoLogger->Write( LV_STATUS, "Deleting parameter...");
+	PLUTO_SAFE_DELETE(pBD_Orbiter_Plus_DongleHandle);
+
+	g_pPlutoLogger->Write( LV_STATUS, "Exiting HandleBDCommandProcessorThread...");
 	return NULL;
 }
 
