@@ -233,6 +233,9 @@ int main( int argc, char *argv[] )
 		case 'v':
 			g_GlobalConfig.m_bVerify = true;
 			break;
+		case 'i':
+			g_GlobalConfig.m_bVerifyID = true;
+			break;
 		case 'a':
 			g_GlobalConfig.m_bAllowUnmetDependencies = true;
 			break;
@@ -257,7 +260,7 @@ int main( int argc, char *argv[] )
 			<< "Usage: sqlCVS [-h MySql hostname] [-u MySql username] " << endl
 			<< "[-p MySql password] [-D MySql database] [-P mysql port] " << endl
 			<< "[-H sqlCVS hostname] [-R sqlCVS port] " << endl
-			<< "[-r Repository( -ies )] [-v verify] [-c comments]" << endl
+			<< "[-r Repository( -ies )] [-v] [-i] [-c comments]" << endl
 			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
 			<< "[-a Allow unmet dependencies] [-e everyone] [-" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
@@ -276,7 +279,8 @@ int main( int argc, char *argv[] )
 			<< "-U user~pass   -- the user(s) who are logged in and will be committing rows" << endl
 			<< "-d username    -- the owner of any unclaimed new records" << endl
 			<< "            Default is the first user checking in records" << endl
-			<< "-v verify      -- Verifies the integrity of the database first" << endl
+			<< "-v verify      -- Verifies the integrity of the database first (foreign keys)" << endl
+			<< "-i verify id   -- Verifies that all records have unique psc_id" << endl
 			<< "-a allow       -- Allows checking in a row with a foreign key" << endl
 			<< "            to a modified/ew row in another table that is not" << endl
 			<< "            being checked in" << endl

@@ -84,7 +84,7 @@ namespace sqlCVS
 
 		map<int, ListChangedRow *> m_mapBatch_ChangedRow;  // Records that couldn't be checked in, by the unauthorized batch number (a negative number)
 
-		bool m_bNewDatabase,m_bVerify,m_bAllowUnmetDependencies,m_bCheckinEveryone,m_bNoPrompts;
+		bool m_bNewDatabase,m_bVerify,m_bVerifyID,m_bAllowUnmetDependencies,m_bCheckinEveryone,m_bNoPrompts;
 
 		/**
 		 * @ brief constructor
@@ -104,7 +104,7 @@ namespace sqlCVS
 			m_pRepository=NULL;
 			m_bNewDatabase=false;
 			m_psc_batch=0;
-			m_bVerify=m_bAllowUnmetDependencies=m_bCheckinEveryone=m_bNoPrompts=false;
+			m_bVerify=m_bVerifyID=m_bAllowUnmetDependencies=m_bCheckinEveryone=m_bNoPrompts=false;
 		}
 
 		/**

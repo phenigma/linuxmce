@@ -137,7 +137,7 @@ void Database::LoadDatabaseStructure()
 		pTable->GetDependencies( );
 		if( pTable->Repository_get( ) )
 		{
-			if( g_GlobalConfig.m_bVerify )
+			if( g_GlobalConfig.m_bVerify || g_GlobalConfig.m_bVerifyID )
 				pTable->VerifyIntegrity();  // Check all the psc_id's to be sure they are assigned & unique
 			pTable->m_psc_id_last_sync = ( pTable->Repository_get( )->psc_id_last_sync_get( pTable ) );
 			pTable->m_psc_batch_last_sync = ( pTable->Repository_get( )->psc_batch_last_sync_get( pTable ) );

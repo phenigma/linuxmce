@@ -1834,124 +1834,132 @@ void Table::VerifyIntegrity()
 	if( m_pRepository && !m_bIsSystemTable )
 	{
 		ostringstream sql;
-		sql << "SELECT psc_id FROM `" << m_sName << "` ORDER BY psc_id";
 		PlutoSqlResult result_set,result_set2,result_set3;
 		MYSQL_ROW row=NULL;
-		int psc_id_last=0;
 
-		if( g_GlobalConfig.m_sCommand!="update-psc" && ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+		sql << "SELECT psc_id FROM `" << m_sName << "` ORDER BY psc_id";
+
+		if( g_GlobalConfig.m_bVerifyID )
 		{
-			while( ( row = mysql_fetch_row( result_set.r ) ) )
+			int psc_id_last=0;
+
+			if( g_GlobalConfig.m_sCommand!="update-psc" && ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
 			{
-				if( !row[0] || !atoi(row[0]) || atoi(row[0])==psc_id_last )
+				while( ( row = mysql_fetch_row( result_set.r ) ) )
 				{
-					cerr << "In table: " << m_sName << " all rows don't have unique psc_id's: " << (row[0] ? row[0] : "blank") << endl; 
-					throw "Database integrity failed";
+					if( !row[0] || !atoi(row[0]) || atoi(row[0])==psc_id_last )
+					{
+						cerr << "In table: " << m_sName << " all rows don't have unique psc_id's: " << (row[0] ? row[0] : "blank") << endl; 
+						throw "Database integrity failed";
+					}
+					psc_id_last = atoi(row[0]);
 				}
-				psc_id_last = atoi(row[0]);
 			}
 		}
 
-		for(MapField::iterator it=m_mapField.begin();it!=m_mapField.end();++it)
+		if( g_GlobalConfig.m_bVerify )
 		{
-			Field *pField = (*it).second;
-			if( pField->m_pField_IReferTo_Directly )
+			for(MapField::iterator it=m_mapField.begin();it!=m_mapField.end();++it)
 			{
-				sql.str("");
-				sql << "SELECT L.`" << pField->Name_get() << "`,R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` FROM " <<
-					"`" << Name_get() << "` As L LEFT JOIN `" << pField->m_pField_IReferTo_Directly->Table_get()->Name_get() << "` As R " <<
-					" ON L.`" << pField->Name_get() << "`=" <<  
-					"R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` WHERE " <<
-					"L.`" << pField->Name_get() << "` IS NOT NULL " <<
-					" AND L.`" << pField->Name_get() << "`!='0' " <<  // Temorary HACK - todo remove this.  It's only here because php keeps inserting 0's instead of null's and breaking the builder.  Vali will fix this and we'll remove it
-					"AND R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` IS NULL";
-
-				if( ( result_set2.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+				Field *pField = (*it).second;
+				if( pField->m_pField_IReferTo_Directly )
 				{
-					string Keys="";
-					while( (row = mysql_fetch_row(result_set2.r)) )
+					sql.str("");
+					sql << "SELECT L.`" << pField->Name_get() << "`,R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` FROM " <<
+						"`" << Name_get() << "` As L LEFT JOIN `" << pField->m_pField_IReferTo_Directly->Table_get()->Name_get() << "` As R " <<
+						" ON L.`" << pField->Name_get() << "`=" <<  
+						"R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` WHERE " <<
+						"L.`" << pField->Name_get() << "` IS NOT NULL " <<
+						" AND L.`" << pField->Name_get() << "`!='0' " <<  // Temorary HACK - todo remove this.  It's only here because php keeps inserting 0's instead of null's and breaking the builder.  Vali will fix this and we'll remove it
+						"AND R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` IS NULL";
+
+					if( ( result_set2.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
 					{
-						cout << "In table: " << m_sName << ":" << pField->Name_get() << ":";
-						cout << (row[0] ? row[0] : "NULL") << " ";
-						cout << pField->m_pField_IReferTo_Directly->Table_get()->Name_get() << ":" << pField->m_pField_IReferTo_Directly->Name_get() << ":" << (row[1] ? row[1] : "NULL") << endl;
+						string Keys="";
+						while( (row = mysql_fetch_row(result_set2.r)) )
+						{
+							cout << "In table: " << m_sName << ":" << pField->Name_get() << ":";
+							cout << (row[0] ? row[0] : "NULL") << " ";
+							cout << pField->m_pField_IReferTo_Directly->Table_get()->Name_get() << ":" << pField->m_pField_IReferTo_Directly->Name_get() << ":" << (row[1] ? row[1] : "NULL") << endl;
+							if( Keys.length() )
+								Keys += ",";
+							Keys += "'" + StringUtils::SQLEscape(row[0]) + "'";
+						}
 						if( Keys.length() )
-							Keys += ",";
-						Keys += "'" + StringUtils::SQLEscape(row[0]) + "'";
+						{
+							if( g_GlobalConfig.m_bNoPrompts )
+							{
+								cerr << "Database integrity check failed" << endl;
+								throw "Database integrity check failed";
+							}
+							else if( AskYNQuestion("Delete the offending records?  (BE CAREFUL!)",false) )
+							{
+								sql.str("");
+								sql << "DELETE FROM " << Name_get() << " WHERE `" << pField->Name_get() << "` IN (" << Keys << ")";
+								m_pDatabase->threaded_mysql_query(sql.str());
+
+							}
+						}
 					}
-					if( Keys.length() )
+					else
 					{
-						if( g_GlobalConfig.m_bNoPrompts )
-						{
-							cerr << "Database integrity check failed" << endl;
-							throw "Database integrity check failed";
-						}
-						else if( AskYNQuestion("Delete the offending records?  (BE CAREFUL!)",false) )
-						{
-							sql.str("");
-							sql << "DELETE FROM " << Name_get() << " WHERE `" << pField->Name_get() << "` IN (" << Keys << ")";
-							m_pDatabase->threaded_mysql_query(sql.str());
-							
-						}
+						cerr << "In table: " << m_sName << " query: " << sql.str() << " failed." << endl;
+						throw "Database error";
 					}
 				}
-				else
+				for( ListField::iterator it=pField->m_listField_IReferTo_Indirectly.begin();it!=pField->m_listField_IReferTo_Indirectly.end();++it )
 				{
-					cerr << "In table: " << m_sName << " query: " << sql.str() << " failed." << endl;
-					throw "Database error";
+					Field *pField_IReferTo_Indirectly = *it;
+					Table *pTable = m_pDatabase->GetTableFromForeignKey( pField );
+
+					sql.str("");
+					sql << "SELECT T1.FK_" << pField->Name_get().substr(3) << ",T1." << pField->Name_get() << " FROM `" << m_sName << "` AS T1 " <<
+						"LEFT JOIN " << pField->Name_get().substr(3) << " As T2 ON T1.FK_" << pField->Name_get().substr(3) << " = T2.PK_" << pField->Name_get().substr(3) <<
+						" LEFT JOIN " << pField_IReferTo_Indirectly->m_pTable->Name_get() << " As T3 ON T1." << pField->Name_get() << "=T3." << pField_IReferTo_Indirectly->Name_get() <<
+						" WHERE T2.Description = \"" << pField_IReferTo_Indirectly->Name_get() << "\" AND T3." << pField_IReferTo_Indirectly->Name_get() <<
+						" IS NULL AND T1." << pField->Name_get() << " IS NOT NULL AND T1." << pField->Name_get() << "<>''" <<
+						" AND T1." << pField->Name_get() << "<>'0'";  // Temorary HACK - todo remove this.  It's only here because php keeps inserting 0's instead of null's and breaking the builder.  Vali will fix this and we'll remove it
+
+					if( ( result_set3.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+					{
+						string Keys="";
+						while( (row = mysql_fetch_row(result_set3.r)) )
+						{
+							if( !row[1] )
+								continue;
+							string sValue = row[1];
+							if( StringUtils::itos( atoi(row[1]) )!=StringUtils::TrimSpaces( sValue ) )
+								continue; // It's not numeric
+							cout << "In table: " << m_sName << ":" << pField->Name_get() << ": ";
+							cout << (row[0] ? row[0] : "NULL") << "-" << row[1];
+							cout << " " << pField_IReferTo_Indirectly->Table_get()->Name_get() << ":" << pField_IReferTo_Indirectly->Name_get() << endl;
+							if( Keys.length() )
+								Keys += " OR ";
+							Keys += "(FK_" + pField->Name_get().substr(3) + "='" + StringUtils::SQLEscape(row[0]) + "' AND " + pField->Name_get() + 
+								"='" + StringUtils::SQLEscape(row[1]) + "')" ;
+						}
+						if( Keys.length() )
+						{
+							if( g_GlobalConfig.m_bNoPrompts )
+							{
+								cerr << "Database integrity check failed" << endl;
+								throw "Database integrity check failed";
+							}
+							else if( AskYNQuestion("Delete the offending records?  (BE CAREFUL!)",false) )
+							{
+								sql.str("");
+								sql << "DELETE FROM `" << m_sName << "` WHERE " << Keys;
+								m_pDatabase->threaded_mysql_query(sql.str());
+							}
+						}
+					}
+					else
+					{
+						cerr << "In table: " << m_sName << " query: " << sql.str() << " failed." << endl;
+						throw "Database error";
+					}
 				}
 			}
-			for( ListField::iterator it=pField->m_listField_IReferTo_Indirectly.begin();it!=pField->m_listField_IReferTo_Indirectly.end();++it )
-			{
-				Field *pField_IReferTo_Indirectly = *it;
-				Table *pTable = m_pDatabase->GetTableFromForeignKey( pField );
-
-				sql.str("");
-				sql << "SELECT T1.FK_" << pField->Name_get().substr(3) << ",T1." << pField->Name_get() << " FROM `" << m_sName << "` AS T1 " <<
-					"LEFT JOIN " << pField->Name_get().substr(3) << " As T2 ON T1.FK_" << pField->Name_get().substr(3) << " = T2.PK_" << pField->Name_get().substr(3) <<
-					" LEFT JOIN " << pField_IReferTo_Indirectly->m_pTable->Name_get() << " As T3 ON T1." << pField->Name_get() << "=T3." << pField_IReferTo_Indirectly->Name_get() <<
-					" WHERE T2.Description = \"" << pField_IReferTo_Indirectly->Name_get() << "\" AND T3." << pField_IReferTo_Indirectly->Name_get() <<
-					" IS NULL AND T1." << pField->Name_get() << " IS NOT NULL AND T1." << pField->Name_get() << "<>''" <<
-					" AND T1." << pField->Name_get() << "<>'0'";  // Temorary HACK - todo remove this.  It's only here because php keeps inserting 0's instead of null's and breaking the builder.  Vali will fix this and we'll remove it
-
-				if( ( result_set3.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
-				{
-					string Keys="";
-					while( (row = mysql_fetch_row(result_set3.r)) )
-					{
-						if( !row[1] )
-							continue;
-						string sValue = row[1];
-						if( StringUtils::itos( atoi(row[1]) )!=StringUtils::TrimSpaces( sValue ) )
-							continue; // It's not numeric
-						cout << "In table: " << m_sName << ":" << pField->Name_get() << ": ";
-						cout << (row[0] ? row[0] : "NULL") << "-" << row[1];
-						cout << " " << pField_IReferTo_Indirectly->Table_get()->Name_get() << ":" << pField_IReferTo_Indirectly->Name_get() << endl;
-						if( Keys.length() )
-							Keys += " OR ";
-						Keys += "(FK_" + pField->Name_get().substr(3) + "='" + StringUtils::SQLEscape(row[0]) + "' AND " + pField->Name_get() + 
-							"='" + StringUtils::SQLEscape(row[1]) + "')" ;
-					}
-					if( Keys.length() )
-					{
-						if( g_GlobalConfig.m_bNoPrompts )
-						{
-							cerr << "Database integrity check failed" << endl;
-							throw "Database integrity check failed";
-						}
-						else if( AskYNQuestion("Delete the offending records?  (BE CAREFUL!)",false) )
-						{
-							sql.str("");
-							sql << "DELETE FROM `" << m_sName << "` WHERE " << Keys;
-							m_pDatabase->threaded_mysql_query(sql.str());
-						}
-					}
-				}
-				else
-				{
-					cerr << "In table: " << m_sName << " query: " << sql.str() << " failed." << endl;
-					throw "Database error";
-				}
-			}
-		}		
+		}
 	}
 }
