@@ -47,7 +47,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 	//printf("Start of scan loop %p\n",g_pPlutoLogger);
 	int num_rsp, length, flags, dev_id = 0;
 
-	length  = 2 * 8;	/* ~10 seconds */
+	length  = 3 * 8;	/* ~30 seconds */
 	num_rsp = 100;
 	flags   = 0;
 	const uint8_t *lap=NULL;
