@@ -227,6 +227,7 @@ int main(int argc, char *argv[])
 	time( &aclock );                 /* Get time in seconds */
 	newtime = localtime( &aclock );  /* Convert time to struct */
 	g_sCompile_Date = asctime( newtime );
+	g_sCompile_Date = g_sCompile_Date.substr( 0, g_sCompile_Date.length()-1 );   // Strip off the trailing \n
 
 	if( g_sPackages.length() )
 		sWhere = "PK_Package IN (" + g_sPackages + ")";
