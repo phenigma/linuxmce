@@ -13,7 +13,8 @@ ConfEval()
 
 ConfSet()
 {
-	local Variable="$1" Value="$2" Line="$Variable = $Value"
+	local Variable="$1" Value="$2"
+	local Line="$Variable = $Value"
 	if ! grep "$Variable.*=" /etc/pluto.conf &>/dev/null; then
 		echo "$Line" >> /etc/pluto.conf
 	else
