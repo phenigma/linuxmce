@@ -33,9 +33,10 @@ public:
     SerialIOPool(bool usemain = false);
     virtual ~SerialIOPool();
 
-protected:
+public:
 	virtual IOConnection* getConnection();
 	
+protected:	
 	/*callback from IOPool*/
 	virtual bool handleIteration();
 

@@ -38,6 +38,8 @@ RubySerialIOManager::addDevice(DeviceData_Impl* pdevdata) {
 	cs_.addCode(pdb_, pdevdata);
 	
 	string port = pdevdata->m_mapParameters[DEVICEDATA_Port_CONST];
+	int bps = 9600;
+	
 	if(port.find("/dev/") == 0) {
 		port.erase(0, strlen("/dev/"));
 	}
@@ -46,12 +48,21 @@ RubySerialIOManager::addDevice(DeviceData_Impl* pdevdata) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Port parameter not specified.");
 		return -1;
 	}
-	
+
+	/*/dev/ttyS0(9600)*/
+	/*parse conn params*/
+	int lpar = port.find("("), rpar = port.find(")", lpar + 1);
+	if(lpar > 0 && rpar > 0) {
+		bps = atoi(port.substr(lpar + 1, rpar - lpar - 1).c_str());
+		port = port.substr(0, lpar);
+		g_pPlutoLogger->Write(LV_STATUS, "Using port %s, at bps: %d.", port.c_str(), bps);
+	}
+
 	RubySerialIOPool*& pserpool = pools_[port];
 	if(pserpool != NULL) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "There is already a device configured for port: %s.", port.c_str());
 		return -1;
-	}
+	} 
 /*	
 	RubyDeviceWrapper devwrap;
 	devwrap.setDevId(pdevdata->m_dwPK_Device);
@@ -64,6 +75,10 @@ RubySerialIOManager::addDevice(DeviceData_Impl* pdevdata) {
 	*/	
 	pserpool = new RubySerialIOPool(&cs_, pdb_, pdevdata);
 	pserpool->setDCEConnector(this);
+	
+	SerialIOConnection* pio = reinterpret_cast<SerialIOConnection*>(pserpool->getConnection());
+	pio->setBPS(bps);
+	pio->setSerialPort(port.c_str());
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Child device %d added.", pdevdata->m_dwPK_Device);
 	return 0;

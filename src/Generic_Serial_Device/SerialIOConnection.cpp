@@ -27,7 +27,7 @@ using namespace DCE;
 namespace DCE {
 
 SerialIOConnection::SerialIOConnection()
-	: psp_(NULL), serport_(DEFAULT_SERIAL_PORT), bps_(4800), bs_(epbsN81), fc_(false)
+	: psp_(NULL), serport_(DEFAULT_SERIAL_PORT), bps_(9600), bs_(epbsN81), fc_(false)
 {
 }
 

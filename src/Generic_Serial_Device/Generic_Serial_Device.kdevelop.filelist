@@ -89,3 +89,5 @@ RubySerialIOManager.cpp
 /RubyCommandWrapper.cpp
 /RubyDCEConnector.h
 /RubyDCEConnector.cpp
+/InterThreadCallMasquerader.h
+/InterThreadCallMasquerader.cpp
