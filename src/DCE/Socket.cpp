@@ -186,7 +186,7 @@ Socket::~Socket()
 bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 {
 	char *pcData = NULL;
-	unsigned long dwSize;
+	unsigned long dwSize = 0;
 	pMessage->ToData( dwSize, pcData, true ); // converts the message to data
 	bool bReturnValue = SendData( dwSize, pcData ); // and sends it
 
