@@ -1,7 +1,7 @@
 #ifndef __SDL_RENDERER_OCG_HELPER_H__
 #define __SDL_RENDERER_OCG_HELPER_H__
 
-#include <sdl.h>
+#include <SDL.h>
 #include <string>
 using namespace std;
 //----------------------------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #include "SDLRendererOCGHelper.h"
-#include "RendererOCG.h"
+#include "../RendererOCG.h"
 #include "PlutoUtils/PlutoDefs.h"
-#include "SDL/PlutoSDLDefs.h"
+#include "PlutoSDLDefs.h"
 //----------------------------------------------------------------------------------------------------------------
 SDL_Surface* SDL_LoadOCG(string sFilename)
 {
