@@ -55,8 +55,9 @@ INSERT INTO `extensions_table` VALUES (26,'outgoing-place-call','_.',5,'Hangup',
 INSERT INTO `extensions_table` VALUES (27,'incoming-local','_.',1,'SetVar','');
 INSERT INTO `extensions_table` VALUES (28,'incoming-local','_.',2,'Goto','incoming-place-call|s|1');
 INSERT INTO `extensions_table` VALUES (29,'incoming-place-call','_.',1,'Dial','${INTERNALCHANNELS}');
-INSERT INTO `extensions_table` VALUES (30,'incoming-place-call','_.',1,'Hangup','${INTERNALCHANNELS}');
+INSERT INTO `extensions_table` VALUES (30,'incoming-place-call','_.',1,'Hangup','');
 INSERT INTO `extensions_table` VALUES (31,'registered-lines','_.',1,'Goto','incoming-local|s|1');
+INSERT INTO `extensions_table` VALUES (32,'default','_.',1,'Goto','incoming-local|s|1');
 --
 -- Table structure for table `sip_buddies`
 --
