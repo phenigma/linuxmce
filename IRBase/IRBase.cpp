@@ -221,7 +221,7 @@ bool IRBase::AddChannelChangeToQueue(long ChannelNumber, long Device)
 	}
 	for(long i=NumDigits;i>0;i--)
 	{
-		unsigned char digit = (ChannelNumber % (long) pow((double) 10, i)) / (long) pow((double) 10, i-1);
+		unsigned char digit = (ChannelNumber % (long) pow((double) 10, (double) i)) / (long) pow((double) 10, (double) (i-1));
 		g_pPlutoLogger->Write(LV_STATUS, "Sending digit %d...",digit);	
 		AddIRToQueue("", "", DigitDelay, Device, digit + 80, 1, m_CurrentChannelSequenceNumber);
 	}

@@ -9,18 +9,18 @@ sources = SerialPort.cpp
 
 all: Serial all-recursive
 
-Serial: Serial.so Serial.a
+Serial: libSerial.so libSerial.a
 
-Serial.so: $(sources:.cpp=.o)
+libSerial.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $+
 #	cp $@ ../lib
 	
-Serial.a: $(sources:.cpp=.o)
+libSerial.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $+
 	cp $@ ../lib
 	
 clean: 
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) Serial.so Serial.a >/dev/null
+	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libSerial.so libSerial.a >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
