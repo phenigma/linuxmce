@@ -3523,7 +3523,7 @@ void *RendererThread(void *p)
 			pthread_mutex_lock(&pOrbiter->m_RendererThreadMutex.mutex);
 
 			timespec abstime;
-			abstime.tv_sec = time(NULL) + 10000; //nothing to process. let's wait 10 sec or to be wake up
+			abstime.tv_sec = CLK_TO_MS(xClock()) + 10000; //nothing to process. let's wait 10 sec or to be wake up
 			abstime.tv_nsec = 0;
 			pthread_cond_timedwait(&pOrbiter->m_RendererThreadCond,&pOrbiter->m_RendererThreadMutex.mutex, &abstime);
 			pthread_mutex_unlock(&pOrbiter->m_RendererThreadMutex.mutex);
@@ -3579,8 +3579,8 @@ void *RendererThread(void *p)
 
 
 				timespec abstime;
-				abstime.tv_sec = time(NULL) + (pCallBackInfo->m_clock - xClock()) / 1000;
-				abstime.tv_nsec = (pCallBackInfo->m_clock - clock()) * 1000000;
+				abstime.tv_sec = CLK_TO_MS(xClock()) + (pCallBackInfo->m_clock - CLK_TO_MS(xClock())) / 1000;
+				abstime.tv_nsec = (pCallBackInfo->m_clock - CLK_TO_MS(xClock())) * 1000000;
 
 				//g_pPlutoLogger->Write( LV_CONTROLLER, "@@@ %d, %d", abstime.tv_sec, abstime.tv_nsec);
 
@@ -3630,7 +3630,7 @@ void Orbiter::CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, voi
 	}
 
     CallBackInfo *pCallBack = new CallBackInfo( &m_CallbackMutex );
-    pCallBack->m_clock = xClock() + c;
+    pCallBack->m_clock = CLK_TO_MS(xClock()) + c;
     pCallBack->m_fnCallBack=fnCallBack;
     pCallBack->m_pData=data;
     pCallBack->m_pOrbiter=this;
