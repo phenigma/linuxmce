@@ -1310,6 +1310,8 @@ void Media_Plugin::PlayMediaByFileName(string sFilename, int iPK_Device, int iPK
     if ( pEntertainArea->m_pMediaStream == NULL )
         pEntertainArea->m_pMediaStream = new MediaStream( NULL, 0, 0, st_Storage, ++m_iStreamID);
 
+    pEntertainArea->m_pMediaStream->m_iPK_MediaType = MEDIATYPE_pluto_StoredAudio_CONST;
+
     // put the orbiter here.
     pEntertainArea->m_pMediaStream->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Device_Orbiter);
 
