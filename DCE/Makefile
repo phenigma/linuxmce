@@ -12,7 +12,7 @@ sources = ../PlutoUtils/minilzo.cpp DataGrid.cpp ClientSocket.cpp Logger.cpp Mes
 	AlarmManager.cpp ../PlutoUtils/md5c.cpp Command_Impl.cpp Event_Impl.cpp \
 	HandleRequestSocket.cpp ../PlutoUtils/CommonIncludes.cpp \
 	DeviceData_Impl.cpp DeviceData_Base.cpp \
-	../PlutoUtils/MultiThreadIncludes.cpp
+	../PlutoUtils/MultiThreadIncludes.cpp DCEConfig.cpp
 
 all: libDCECommon all-recursive
 
