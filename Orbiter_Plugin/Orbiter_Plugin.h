@@ -97,6 +97,11 @@ public:
 //<-dceag-const-e->
     // Private member variables
     Database_pluto_main *m_pDatabase_pluto_main;
+	class Lighting_Plugin *m_pLighting_Plugin;
+	class Climate_Plugin *m_pClimate_Plugin;
+	class Media_Plugin *m_pMedia_Plugin;
+	class Security_Plugin *m_pSecurity_Plugin;
+	class Telecom_Plugin *m_pTelecom_Plugin;
 
     // Private methods
     map<string,UnknownDeviceInfos *> m_mapUnknownDevices; // A temporary map to match Bluetooth Dongle's with devices they detect
@@ -232,11 +237,13 @@ public:
 	/** Gets the current Floorplan status (ie what items are on/off, etc.) for the specified Floorplan type. */
 		/** @param #5 Value To Assign */
 			/** The status of all the devices within the floorplan. */
+		/** @param #10 ID */
+			/** The page number (ie the floorplan ID based). */
 		/** @param #46 PK_FloorplanType */
 			/** The type of floorplan (lights, climate, etc.) */
 
-	virtual void CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Current_Floorplan(iPK_FloorplanType,sValue_To_Assign,sCMD_Result,NULL);};
-	virtual void CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Current_Floorplan(sID.c_str(),iPK_FloorplanType,sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

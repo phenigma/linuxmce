@@ -38,7 +38,10 @@ using namespace DCE;
 #include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DataGrid.h"
-
+#include "pluto_main/Define_DeviceCategory.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_FloorplanObjectType.h"
+#include "pluto_main/Define_FloorplanObjectType_Color.h"
 
 //<-dceag-const-b->
 Lighting_Plugin::Lighting_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -91,6 +94,10 @@ bool Lighting_Plugin::Register()
 		new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Lighting_Plugin::LightingScenariosGrid ) )
 		, DATAGRID_Lighting_Scenarios_CONST );
 
+    m_pRouter->RegisterInterceptor(
+		new MessageInterceptorCallBack( this, ( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ) )
+		, 0, 0, 0, DEVICECATEGORY_Lighting_CONST, MESSAGETYPE_COMMAND, 0 );
+
 	return Connect( ); 
 }
 
@@ -137,6 +144,55 @@ class DataGridTable *Lighting_Plugin::LightingScenariosGrid( string GridID, stri
 	}
 
 	return pDataGrid;
+}
+
+bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo )
+{
+	if( pDeviceTo )
+	{
+		if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
+			pDeviceTo->m_iLastState=100;
+		else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
+			pDeviceTo->m_iLastState=0;
+	}
+	if( pMessage->m_sPK_Device_List_To.length() ) 
+	{
+		int PK_Device;  size_t pos=0;
+		while( true )
+		{
+			PK_Device=atoi(StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos).c_str());
+			DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+			if( pDeviceData_Router )
+			{
+				if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
+					pDeviceData_Router->m_iLastState=100;
+				else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
+					pDeviceData_Router->m_iLastState=0;
+			}
+			if( pos>=pMessage->m_sPK_Device_List_To.length() || pos==string::npos )
+				break;
+		}
+	}
+
+	return true;
+}
+
+void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,string &OSD)
+{
+	switch(iFloorplanObjectType)
+	{
+	case FLOORPLANOBJECTTYPE_LIGHT_CEILING_LIGHT_CONST:
+	case FLOORPLANOBJECTTYPE_LIGHT_TABLE_LAMP_CONST:
+	case FLOORPLANOBJECTTYPE_LIGHT_WALL_SCONCE_CONST:
+	case FLOORPLANOBJECTTYPE_LIGHT_FLOOR_LAMP_CONST:
+	case FLOORPLANOBJECTTYPE_LIGHT_CHANDALIER_CONST:
+	case FLOORPLANOBJECTTYPE_LIGHT_PICTURE_LIGHT_CONST:
+	case FLOORPLANOBJECTTYPE_LIGHT_ACCENT_LIGHT_CONST:
+		if( pDeviceData_Router->m_iLastState==0 )
+			iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_LIGHT_CEILING_LIGHT_OFF_CONST;
+		else
+			iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_LIGHT_CEILING_LIGHT_ON_CONST;
+	};
 }
 
 //<-dceag-sample-b->!

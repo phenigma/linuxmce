@@ -30,14 +30,13 @@ public:
 	// Public virtual methods
 
 	// Drawing routines
-	virtual void DrawRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity = 100);
-	virtual void FillRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity = 100);
+	virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity = 100);
+	virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color);
 	virtual void DrawLine(int x, int y, int width, int height, PlutoColor color, int Opacity = 100) {};
 	virtual void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
 	virtual void FloodFill(int x, int y, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
 	virtual void RenderGraphic(class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio=false);
 	virtual void RenderText(class DesignObjText *Text,class TextStyle *pTextStyle);
-	virtual void XORRectangle(int x, int y, int width, int height);
 	virtual void SaveBackgroundForDeselect(DesignObj_Orbiter *pObj);
 
 	// Rendering

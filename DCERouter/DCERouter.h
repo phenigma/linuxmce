@@ -320,6 +320,21 @@ namespace DCE
 					CheckInterceptor( (*itMessageTo).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
 				}
 			}
+			if( pMessage->m_sPK_Device_List_To.length() )
+			{
+				int PK_Device;  size_t pos=0;
+				while( true )
+				{
+					PK_Device=atoi(StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos).c_str());
+					itMessageTo = pMessageMDLInterceptor->m_mapMessageToInterceptor.find(PK_Device);
+					if( itMessageTo != pMessageMDLInterceptor->m_mapMessageToInterceptor.end() )
+					{
+						CheckInterceptor( (*itMessageTo).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+					}
+					if( pos>=pMessage->m_sPK_Device_List_To.length() || pos==string::npos )
+						break;
+				}
+			}
 		}
 
 		void CheckInterceptor(class MessageToInterceptor *pMessageToInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
@@ -333,12 +348,28 @@ namespace DCE
 					CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
 				}
 			}
-			if( !pDeviceTo || pDeviceTo->m_dwPK_DeviceCategory!=0 )
+			itMessageToCat = pMessageToInterceptor->m_mapMessageToCategoryInterceptor.find(0);
+			if( itMessageToCat != pMessageToInterceptor->m_mapMessageToCategoryInterceptor.end() )
 			{
-				itMessageToCat = pMessageToInterceptor->m_mapMessageToCategoryInterceptor.find(0);
-				if( itMessageToCat != pMessageToInterceptor->m_mapMessageToCategoryInterceptor.end() )
+				CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+			}
+			if( pMessage->m_sPK_Device_List_To.length() )
+			{
+				int PK_Device;  size_t pos=0;
+				while( true )
 				{
-					CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+					PK_Device=atoi(StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos).c_str());
+					DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find(PK_Device);
+					if( pDeviceData_Router )
+					{
+						itMessageToCat = pMessageToInterceptor->m_mapMessageToCategoryInterceptor.find(pDeviceData_Router->m_dwPK_DeviceCategory);
+						if( itMessageToCat != pMessageToInterceptor->m_mapMessageToCategoryInterceptor.end() )
+						{
+							CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+						}
+					}
+					if( pos>=pMessage->m_sPK_Device_List_To.length() || pos==string::npos )
+						break;
 				}
 			}
 		}

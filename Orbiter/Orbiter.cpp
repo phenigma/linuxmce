@@ -369,7 +369,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
     switch( pObj->m_ObjectType )
     {
     case DESIGNOBJTYPE_Rectangle_CONST:
-        // todo 2.0     FillRectangle( rectTotal.X,  rectTotal.Y,  rectTotal.Width,  rectTotal.Height,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Cell_Color_CONST ).c_str(  ) ),  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Transparency_CONST ).c_str(  ) ) );
+        // todo 2.0     SolidRectangle( rectTotal.X,  rectTotal.Y,  rectTotal.Width,  rectTotal.Height,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Cell_Color_CONST ).c_str(  ) ),  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Transparency_CONST ).c_str(  ) ) );
         break;
     case DESIGNOBJTYPE_Datagrid_CONST:
         RenderDataGrid( ( DesignObj_DataGrid * )pObj );
@@ -516,8 +516,9 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
     }
     if( pObj->m_pFloorplanObject && m_mapDevice_Selected.find(pObj->m_pFloorplanObject->PK_Device)!=m_mapDevice_Selected.end() )
     {
-        for(int i=0;i<3;++i)
-            XORRectangle(pObj->m_rBackgroundPosition.X-i, pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i);
+        for(int i=0;i<4;++i)
+            HollowRectangle(pObj->m_rBackgroundPosition.X-i, pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i, 
+			(i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White()));
     }
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -567,18 +568,18 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
     if ( w>4 && h >4 )
     {
         if ( !bTransparentCell )
-            FillRectangle( x,  y,  w,  h,  pTextStyle->m_BackColor );  // PlutoColor( 0, 0, 0, 255 ) ); // HACK __ black grids for now
+            SolidRectangle( x,  y,  w,  h,  pTextStyle->m_BackColor );  // PlutoColor( 0, 0, 0, 255 ) ); // HACK __ black grids for now
 #pragma warning( "test style isn't right" )
         /* todo 2.0
         if ( pObj->BorderColor2.m_Value!=pObj->BorderColor.m_Value )
         {
-        FillRectangle( x+w-pObj->BorderWidth,  y,  pObj->BorderWidth,  h,  pObj->BorderColor2 );
-        FillRectangle( x,  y+h-pObj->BorderWidth,  w,  pObj->BorderWidth,  pObj->BorderColor2 );
-        FillRectangle( x,  y,  w,  pObj->BorderWidth,  pObj->BorderColor );
-        FillRectangle( x,  y,  pObj->BorderWidth,  h,  pObj->BorderColor );
+        SolidRectangle( x+w-pObj->BorderWidth,  y,  pObj->BorderWidth,  h,  pObj->BorderColor2 );
+        SolidRectangle( x,  y+h-pObj->BorderWidth,  w,  pObj->BorderWidth,  pObj->BorderColor2 );
+        SolidRectangle( x,  y,  w,  pObj->BorderWidth,  pObj->BorderColor );
+        SolidRectangle( x,  y,  pObj->BorderWidth,  h,  pObj->BorderColor );
         }
         else
-        DrawRectangle( x,  y,  w,  h,  pObj->BorderColor  );
+        SolidRectangle( x,  y,  w,  h,  pObj->BorderColor  );
         */
         /* todo 2.0
         if ( pCell->m_pGraphicData )
@@ -1433,7 +1434,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
     int w = pObj->m_rBackgroundPosition.Width;
     int h = pObj->m_rBackgroundPosition.Height;
 
-    DrawRectangle( x,  y,  w,  h,  0,  100 );
+    SolidRectangle( x,  y,  w,  h,  0,  100 );
 }
 
 
@@ -2372,7 +2373,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rectTotal )
 {
     g_pPlutoLogger->Write( LV_STATUS, "Render desktop orb" );
-    DrawRectangle( pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 255 ) );
+    SolidRectangle( pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 255 ) );
     return true;
 }
 
@@ -2623,7 +2624,7 @@ bool Orbiter::RegionDown( int x,  int y )
         if(  m_ChangeToScreen!=""  )
         {
         //LACA_B4_0( "fill rectangle" )
-        FillRectangle( pTopMostAnimatedObject->m_rBackgroundPosition.X+XOffset, pTopMostAnimatedObject->m_rBackgroundPosition.Y+YOffset,  pTopMostAnimatedObject->m_rBackgroundPosition.Width,  pTopMostAnimatedObject->m_rBackgroundPosition.Height,  RGB( 255, 255, 255 ),  75 );
+        SolidRectangle( pTopMostAnimatedObject->m_rBackgroundPosition.X+XOffset, pTopMostAnimatedObject->m_rBackgroundPosition.Y+YOffset,  pTopMostAnimatedObject->m_rBackgroundPosition.Width,  pTopMostAnimatedObject->m_rBackgroundPosition.Height,  RGB( 255, 255, 255 ),  75 );
         }
         else
         {
@@ -2911,6 +2912,13 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 pThisMessage->m_dwPK_Device_Template=pCommand->m_PK_DeviceTemplate;
             else if(  pCommand->m_PK_Device==DEVICEID_CATEGORY  )
                 pThisMessage->m_dwPK_Device_Category_To=pCommand->m_PK_DeviceCategory;
+            else if(  pCommand->m_PK_Device==DEVICEID_LIST  )
+			{
+				for(map<int,class DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
+				{
+					pThisMessage->m_sPK_Device_List_To += StringUtils::itos((*it).first) + ",";
+				}
+			}
 
             map<int,  string>::iterator iap;
             for( iap=pCommand->m_ParameterList.begin(  );iap!=pCommand->m_ParameterList.end(  );++iap )
@@ -2919,11 +2927,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 pThisMessage->m_mapParameters[( *iap ).first]=Value;
             }
 
-            /* todo 2.0
-            if( PK_Device==DEVICEID_LIST )
-            pThisMessage->m_sPK_Device_List_To = m_listDevice_Selected;
-            */
-            pThisMessage->m_dwPK_Device_Group_ID_To=pCommand->m_PK_DeviceGroup;
+			pThisMessage->m_dwPK_Device_Group_ID_To=pCommand->m_PK_DeviceGroup;
 
             if(  pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
             {
@@ -3067,6 +3071,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_EntertainArea );
         else if(  Variable=="V" )
             Output += string(VERSION);
+        else if(  Variable=="ND" )
+			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
         else if(  Variable=="R" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
             Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_Room );
         else if(  Variable=="U" && m_pScreenHistory_Current  )
@@ -4444,13 +4450,12 @@ void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Messa
 void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen)
 {
     int Type = atoi(pDesignObj_Orbiter->GetParameterValue(DESIGNOBJPARAMETER_Type_CONST).c_str());
-    int Page = atoi(pDesignObj_Orbiter->GetParameterValue(DESIGNOBJPARAMETER_Page_CONST).c_str());
 
     string sResult;
-    DCE::CMD_Get_Current_Floorplan CMD_Get_Current_Floorplan(m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, Type, &sResult);
+	DCE::CMD_Get_Current_Floorplan CMD_Get_Current_Floorplan(m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(pDesignObj_Orbiter->m_iPage), Type, &sResult);
     SendCommand(CMD_Get_Current_Floorplan);
 
-    FloorplanObjectVectorMap *pFloorplanObjectVectorMap = m_mapFloorplanObjectVector_Find(Page);
+    FloorplanObjectVectorMap *pFloorplanObjectVectorMap = m_mapFloorplanObjectVector_Find(pDesignObj_Orbiter->m_iPage);
     FloorplanObjectVector *fpObjVector = NULL;
 
 //  FloodFill(150,241, RGB(0,0,0), RGB(255,255,0));
@@ -4493,7 +4498,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
     }
 
 	g_pPlutoLogger->Write(LV_STATUS,"Ready to call floorplan redraw in 3 secs");
-    CallMaintenanceInTicks(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL,true);
+//    CallMaintenanceInTicks(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL,true);
 /*
     if( Type==FLOORPLANTYPE_Entertainment_Zone_CONST )
     {

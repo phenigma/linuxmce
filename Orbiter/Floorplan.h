@@ -8,7 +8,10 @@ typedef map<int,class FloorplanItemStatus *> FloorplanItemStatusMap;
 namespace DCE
 {
 	class DeviceData_Router;
+	class DeviceData_Base;
 }
+
+using namespace DCE;
 
 class FloorplanObject
 {
@@ -18,7 +21,11 @@ public:
 	string ObjectTypeDescription;
 	string ObjectID;
 	string Status;
+#ifdef ORBITER
 	DCE::DeviceData_Base *m_pDeviceData_Base;
+#else
+	DCE::DeviceData_Router *m_pDeviceData_Router;
+#endif
 	class DesignObj_Orbiter *pObj; // Only used by the orbiter
 };
 
@@ -27,6 +34,12 @@ class FloorplanItemStatus
 public:
 	string Description;
 	int Color,PKID_C_FloorplanObjectType_Color;
+};
+
+class FloorplanInfoProvider
+{
+public:
+	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,string &OSD)=0;
 };
 
 #endif

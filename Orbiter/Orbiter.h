@@ -421,12 +421,12 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	/**
 	 * @brief draws an rectangle
 	 */
-	virtual void DrawRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor color, int iOpacity = 100 ) = 0;
+	virtual void SolidRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor color, int iOpacity = 100 ) = 0;
 
 	/**
 	 * @brief draws an x-or'd rectangle outline.  Used to highlight something on screen
 	 */
-	virtual void XORRectangle(int X, int Y, int Width, int Height)=0;
+	virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)=0;
 	
 	/**
 	 * @brief draws an line
@@ -443,11 +443,6 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 * A graphic is no longer on screen. Maybe remove it from cache.
 	 */
 	virtual void FloodFill( int iX, int iY, PlutoColor ColorToReplace, PlutoColor ReplacementColor ) = 0;
-	
-	/**
-	 * @brief filles the rectanle specified with a chosen color
-	 */
-	virtual void FillRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor color, int iOpacity = 100 ) = 0;
 	
 	/**
 	 * @brief sets the time to the one specified by the parameter
@@ -470,11 +465,11 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	virtual bool RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay );
 	virtual void RenderGraphic( class DesignObj_Orbiter *pObj,  PlutoRectangle rectTotal,  bool bDisableAspectRatio=false )=0;
 	virtual void RenderText( class DesignObjText *Text, class TextStyle *pTextStyle )=0;
-	virtual void DrawRectangle( int x,  int y,  int width,  int height,  PlutoColor color,  int Opacity = 100 ) = 0;
+	virtual void SolidRectangle( int x,  int y,  int width,  int height,  PlutoColor color,  int Opacity = 100 ) = 0;
 	virtual void DrawLine( int x,  int y,  int width,  int height,  PlutoColor color,  int Opacity = 100 ) = 0;
 	virtual void ReplaceColorInRectangle( int x,  int y,  int width,  int height,  PlutoColor ColorToReplace,  PlutoColor ReplacementColor ) = 0;
 	virtual void FloodFill( int x,  int y,  PlutoColor ColorToReplace,  PlutoColor ReplacementColor ) = 0;
-	virtual void FillRectangle( int x,  int y,  int width,  int height,  PlutoColor color,  int Opacity=100 ) = 0;
+	virtual void SolidRectangle( int x,  int y,  int width,  int height,  PlutoColor color,  int Opacity=100 ) = 0;
 	virtual void SetTime( char *ServerTimeString ) = 0;
 	virtual void SaveBackgroundForDeselect( DesignObj_Orbiter *pObj )=0;  // We're going to be redrawing something on top of this object.  Save it's state,  so that during the next redraw this will be used
 */

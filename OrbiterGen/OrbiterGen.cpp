@@ -932,6 +932,7 @@ void OrbiterGenerator::OutputScreen(DesignObj_Generator *ocDesignObj)
 	for(size_t i=0;i<ocDesignObj->m_alMPArray.size() || i==0;++i)
 	{
 		string ParentScreen = StringUtils::itos(ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_iVersion) + "." + StringUtils::itos((int) i);
+		ocDesignObj->m_iPage=i;
 		OutputDesignObjs(ocDesignObj,(int) i,false,ParentScreen);
 	}
 }
@@ -950,6 +951,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 			size_t FirstDot = ParentScreen.find('.');
 			size_t SecondDot = ParentScreen.find('.',FirstDot+1);
 			string NewParent = ParentScreen.substr(0,SecondDot) + "." + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ".";
+			ocDesignObj->m_iPage=ocDesignObj->m_iFloorplanPage;
 			ocDesignObj->m_ObjectID = NewParent + StringUtils::itos(ocDesignObj->m_pRow_DesignObjVariation->FK_DesignObj_get()) + "." + StringUtils::itos(Counter++);
 		}
 		else

@@ -40,7 +40,9 @@ using namespace DCE;
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_FloorplanType.h"
 #include "pluto_main/Table_FloorplanObjectType.h"
+#include "pluto_main/Table_FloorplanObjectType_Color.h"
 #include "pluto_main/Table_Orbiter.h"
 #include "DCERouter/DCERouter.h"
 
@@ -48,6 +50,12 @@ using namespace DCE;
 #include <algorithm>
 
 #define VERSION "<=version=>"
+
+#include "../Security_Plugin/Security_Plugin.h"
+#include "../Lighting_Plugin/Lighting_Plugin.h"
+#include "../Climate_Plugin/Climate_Plugin.h"
+#include "../Media_Plugin/Media_Plugin.h"
+#include "../Telecom_Plugin/Telecom_Plugin.h"
 
 //<-dceag-const-b->!
 Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -80,6 +88,54 @@ Orbiter_Plugin::~Orbiter_Plugin()
 bool Orbiter_Plugin::Register()
 //<-dceag-reg-e->
 {
+	// Find all the plugins
+	ListCommand_Impl *pListCommand_Impl;
+
+	m_pLighting_Plugin=NULL;
+	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Lighting_Plugin_CONST );
+	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Lighting plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+		return false;
+	}
+	m_pLighting_Plugin=( Lighting_Plugin * ) pListCommand_Impl->front( );
+
+	m_pClimate_Plugin=NULL;
+	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Climate_Plugin_CONST );
+	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Climate plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+		return false;
+	}
+	m_pClimate_Plugin=( Climate_Plugin * ) pListCommand_Impl->front( );
+
+	m_pMedia_Plugin=NULL;
+	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Media_Plugin_CONST );
+	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Media plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+		return false;
+	}
+	m_pMedia_Plugin=( Media_Plugin * ) pListCommand_Impl->front( );
+
+	m_pSecurity_Plugin=NULL;
+	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Security_Plugin_CONST );
+	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Security plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+		return false;
+	}
+	m_pSecurity_Plugin=( Security_Plugin * ) pListCommand_Impl->front( );
+
+	m_pTelecom_Plugin=NULL;
+	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Telecom_Plugin_CONST );
+	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Telecom plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+		return false;
+	}
+	m_pTelecom_Plugin=( Telecom_Plugin * ) pListCommand_Impl->front( );
+
     // Check for all orbiters
     for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
     {
@@ -882,15 +938,78 @@ void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &s
 	/** Gets the current Floorplan status (ie what items are on/off, etc.) for the specified Floorplan type. */
 		/** @param #5 Value To Assign */
 			/** The status of all the devices within the floorplan. */
+		/** @param #10 ID */
+			/** The page number (ie the floorplan ID based). */
 		/** @param #46 PK_FloorplanType */
 			/** The type of floorplan (lights, climate, etc.) */
 
-void Orbiter_Plugin::CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c186-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Get current floorplan");
-}
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	if( !pOH_Orbiter )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find controller for floorplan: %d",pMessage->m_dwPK_Device_From);
+		return;
+	}
+	int Page = atoi(sID.c_str());
 
+	FloorplanInfoProvider *pFloorplanInfoProvider=NULL;
+	switch( iPK_FloorplanType )
+	{
+	case FLOORPLANTYPE_Lighting_Zone_CONST:
+		pFloorplanInfoProvider=m_pLighting_Plugin;
+		break;
+/*
+	case FLOORPLANTYPE_Climate_Zone_CONST:
+		pFloorplanInfoProvider=m_pClimate_Plugin;
+		break;
+	case FLOORPLANTYPE_Entertainment_Zone_CONST:
+		pFloorplanInfoProvider=m_pMedia_Plugin;
+//Populate_CurrentOptions(Page,sValue_To_Assign);
+		break;
+	case FLOORPLANTYPE_Phones_CONST:
+		pFloorplanInfoProvider=m_pTelecom_Plugin;
+		break;
+	case FLOORPLANTYPE_Security_Zone_CONST:
+		pFloorplanInfoProvider=m_pSecurity_Plugin;
+		break;
+*/
+	};
+
+	if( !pFloorplanInfoProvider )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Dont have a provider for floorplan: %d",pMessage->m_dwPK_Device_From);
+		return;
+	}
+
+	FloorplanObjectVectorMap *pFloorplanObjectVectorMap = pOH_Orbiter->m_mapFloorplanObjectVector_Find(Page);
+	FloorplanObjectVector *fpObjVector=NULL;
+	if( pFloorplanObjectVectorMap )
+		fpObjVector = (*pFloorplanObjectVectorMap)[iPK_FloorplanType];
+
+	if( fpObjVector )
+	{
+		for(int i=0;i<(int) fpObjVector->size();++i)
+		{
+			string OSD="";
+			int iPK_FloorplanObjectType_Color;
+
+			FloorplanObject *fpObj = (*fpObjVector)[i];
+			DeviceData_Router *pDeviceData_Router = fpObj->m_pDeviceData_Router;
+
+			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDeviceData_Router,fpObj->Type,iPK_FloorplanObjectType_Color,OSD);
+			Row_FloorplanObjectType_Color *pRow_FloorplanObjectType_Color = m_pDatabase_pluto_main->FloorplanObjectType_Color_get()->GetRow(iPK_FloorplanObjectType_Color);
+			if( pRow_FloorplanObjectType_Color )
+				(*sValue_To_Assign) += StringUtils::itos(pRow_FloorplanObjectType_Color->Color_get()) + "|" + 
+					pRow_FloorplanObjectType_Color->Description_get() + "|" + OSD + "|";
+			else
+				(*sValue_To_Assign) += "0||" + OSD + "|";
+		}
+	}
+	if( (*sValue_To_Assign).length()==0 )
+		(*sValue_To_Assign)="0";
+}
 
 void Orbiter_Plugin::PrepareFloorplanInfo()
 {
@@ -963,7 +1082,7 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
             }
             FloorplanObject *fp = new FloorplanObject();
             fp->PK_Device = PK_Device;
-            fp->m_pDeviceData_Base = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+            fp->m_pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
             fp->Type = FloorplanObjectType;
             fp->Page = Page;
             fp->FillX = FillX;

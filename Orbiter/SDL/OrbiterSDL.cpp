@@ -27,6 +27,7 @@
 
 #include <SDL_ttf.h>
 #include <SDL_image.h>
+#include "sge.h"
 
 #ifdef WINCE
 	#include "wince.h"
@@ -163,40 +164,20 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 #endif //PROFILING
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL::XORRectangle(int x, int y, int width,int height)
+/*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
 {
-	PlutoColor color = PlutoColor::Black();
+	sge_Rect(m_pScreenImage,X,Y,Width + X,Height + Y,color.m_Value);
+}
 
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDL::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity /*= 100*/)
+{
     SDL_Rect Rectangle;
     Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
 
     SDL_FillRect(m_pScreenImage, &Rectangle, color.m_Value);
 }
 
-//-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL::FillRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity /*= 100*/)
-{
-    SDL_Rect Rectangle;
-    Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
-
-    SDL_FillRect(m_pScreenImage, &Rectangle, color.m_Value);
-}
-
-//-----------------------------------------------------------------------------------------------------
-void OrbiterSDL::DrawRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
-{
-    SDL_Rect Rect[4];
-    //TODO.. use color!
-
-    int w = width, h = height;
-
-    Rect[0].x = x; Rect[0].y = 0; Rect[0].w = 10; Rect[0].h = h;
-    Rect[1].x = x + w; Rect[1].y = y; Rect[1].w = 10; Rect[1].h = h;
-    Rect[2].x = x; Rect[2].y = y; Rect[2].w = w; Rect[2].h = h;
-    Rect[3].x = x; Rect[3].y = y + h; Rect[3].w = w; Rect[3].h = 10;
-    for (int i = 0; i < 3; i++)
-        SDL_FillRect(m_pScreenImage, &Rect[i], SDL_MapRGB(m_pScreenImage->format, 255, 0, 0));
-}
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderGraphic(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio)
 {
