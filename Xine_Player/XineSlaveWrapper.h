@@ -286,6 +286,11 @@ public:
      * @brief Find current position for stream.
      */
     int getStreamPlaybackPosition(int iStreamID);
+
+    /**
+     * @brief Enable broadcasting on this stream
+     */
+    int enableBroadcast(int iStreamID);
 };
 
 #endif

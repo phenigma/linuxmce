@@ -357,10 +357,10 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
     }
     else
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Failed to open %s", fileName.c_str()); 
-		xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
-	}
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Failed to open %s", fileName.c_str());
+        xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
+    }
 }
 
 bool XineSlaveWrapper::closeWindow()
@@ -1349,3 +1349,29 @@ int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID)
 
     return iPosTime;
 }
+
+int XineSlaveWrapper::enableBroadcast(int iStreamID)
+{
+    XineStream *pStream = getStreamForId(iStreamID, "Can't broadcast a stream that is not available");
+
+    if ( pStream == NULL )
+        return 0;
+
+    int portNumber = 7866;
+    if( portNumber != xine_get_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT) ) {
+//         if( port && xine_get_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT) )
+            xine_set_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT, portNumber);
+
+    /* try up to ten times from port base. sometimes we have trouble
+     * binding to the same port we just used.
+     */
+    for( int i = 0; i < 10; i++ ) {
+      xine_set_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT, ++portNumber);
+      if( portNumber == xine_get_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT) )
+        return portNumber;
+    }
+  }
+
+  return 0;
+}
+

@@ -204,6 +204,17 @@ public:
 	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #243 - Enable Broadcasting */
+	/** Enable broadcasting from here. */
+		/** @param #41 StreamID */
+			/** The stream to enable broadcast for */
+		/** @param #59 MediaURL */
+			/** The media url from which this stream can be played. */
+
+	virtual void CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL) { string sCMD_Result; CMD_Enable_Broadcasting(iStreamID,sMediaURL,sCMD_Result,NULL);};
+	virtual void CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 	/**
