@@ -551,7 +551,6 @@ g_pPlutoLogger->Write(LV_STATUS,"it's already in the preferred table for %d",pRo
 void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 //<-dceag-c276-e->
 {
-#ifndef WIN32
   string Command;
   char line[45];
   int returned, size;
@@ -559,18 +558,9 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 
   Command = "/usr/pluto/bin/gc100-conf.pl";
   int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
-  pid_t pid = fork();
-  switch (pid)
-  {
-        case 0: //child
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Waiting two seconds (in the forked process).");
-            sleep(2); // sleep so that the signal doesn't get in until later.
+  m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"Finding GC100");
 
-            //now, exec the process
-            g_pPlutoLogger->Write(LV_STATUS, "Spawning");
-
-            returned = system(Command.c_str());
+    returned = system(Command.c_str());
             if ( returned == -1) {
               g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
             } else if( returned == 0) {
@@ -589,13 +579,4 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
               g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
 	      m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 added with success");
             }
-            break;
-        }
-        case -1:
-            g_pPlutoLogger->Write(LV_CRITICAL, "Error starting %s, err: %s", Command.c_str(), strerror(errno));
-            break;
-        default:
-	    break;
-  }
-#endif
 }
