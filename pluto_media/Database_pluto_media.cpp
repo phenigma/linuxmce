@@ -30,6 +30,11 @@ CreateTable_SearchToken_Attribute();
 CreateTable_Type();
 CreateTable_Type_AttributeType();
 CreateTable_Type_Extension();
+CreateTable_psc_media_batdet();
+CreateTable_psc_media_bathdr();
+CreateTable_psc_media_repset();
+CreateTable_psc_media_schema();
+CreateTable_psc_media_tables();
 }
 
 Database_pluto_media::~Database_pluto_media()
@@ -51,6 +56,11 @@ DeleteTable_SearchToken_Attribute();
 DeleteTable_Type();
 DeleteTable_Type_AttributeType();
 DeleteTable_Type_Extension();
+DeleteTable_psc_media_batdet();
+DeleteTable_psc_media_bathdr();
+DeleteTable_psc_media_repset();
+DeleteTable_psc_media_schema();
+DeleteTable_psc_media_tables();
 }
 
 bool Database_pluto_media::Connect(string host, string user, string pass, string sDBName, int port)

@@ -13,7 +13,12 @@
 #include "Define_Type_Extension.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_Type_Extension
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_Type_Extension : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_media *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_Type_Extension::Key &key1, const Table_Type_Extension::Key &key2) const;
 	};	
 
-	map<Table_Type_Extension::Key, class Row_Type_Extension*, Table_Type_Extension::Key_Less> cachedRows;
-	map<Table_Type_Extension::Key, class Row_Type_Extension*, Table_Type_Extension::Key_Less> deleted_cachedRows;
-	vector<class Row_Type_Extension*> addedRows;
-	vector<class Row_Type_Extension*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_Type_Extension* FetchRow(Key &key);
+	class Row_Type_Extension* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -81,25 +83,44 @@ class DLL_EXPORT Row_Type_Extension : public TableRow, public SerializeClass
 		
 		long int m_FK_Type;
 string m_Extension;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[2];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
+		bool is_null[7];
 	
 	public:
 		long int FK_Type_get();
 string Extension_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void FK_Type_set(long int val);
 void Extension_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
-		
+		bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
+
 			
-			
+		void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
+	
 	
 		void Delete();
 		void Reload();		
@@ -118,14 +139,19 @@ void Extension_set(string val);
 		
 
 		// Setup binary serialization
-		void SetupSerialization() {
-			StartSerializeList() + m_FK_Type+ m_Extension;
+		void SetupSerialization(int iSC_Version) {
+			StartSerializeList() + m_FK_Type+ m_Extension+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_Type_asSQL();
 string Extension_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

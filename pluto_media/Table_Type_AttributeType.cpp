@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_media::DeleteTable_Type_AttributeType()
 
 Table_Type_AttributeType::~Table_Type_AttributeType()
 {
-	map<Table_Type_AttributeType::Key, class Row_Type_AttributeType*, Table_Type_AttributeType::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Type_AttributeType *pRow = (Row_Type_AttributeType *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Type_AttributeType *pRow = (Row_Type_AttributeType *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_Type_AttributeType::~Table_Type_AttributeType()
 void Row_Type_AttributeType::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Type_AttributeType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Type_AttributeType*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Type_AttributeType *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_Type_AttributeType::Delete()
 		}
 		else
 		{
-			Table_Type_AttributeType::Key key(this);					
-			map<Table_Type_AttributeType::Key, Row_Type_AttributeType*, Table_Type_AttributeType::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_Type,pRow->m_FK_AttributeType);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_Type_AttributeType::Delete()
 
 void Row_Type_AttributeType::Reload()
 {
+	Row_Type_AttributeType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Type_AttributeType::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_Type,pRow->m_FK_AttributeType);
 		Row_Type_AttributeType *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -117,6 +121,13 @@ m_Identifier = 0;
 is_null[2] = false;
 m_CombineAsOne = 0;
 is_null[3] = false;
+is_null[4] = true;
+is_null[5] = true;
+is_null[6] = true;
+m_psc_frozen = 0;
+is_null[7] = false;
+m_psc_mod = "00000000000000";
+is_null[8] = false;
 
 
 	is_added=false;
@@ -136,6 +147,21 @@ return m_Identifier;}
 short int Row_Type_AttributeType::CombineAsOne_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_CombineAsOne;}
+long int Row_Type_AttributeType::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_id;}
+long int Row_Type_AttributeType::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_batch;}
+long int Row_Type_AttributeType::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_user;}
+short int Row_Type_AttributeType::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_frozen;}
+string Row_Type_AttributeType::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_Type_AttributeType::FK_Type_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -150,16 +176,55 @@ m_Identifier = val; is_modified=true; is_null[2]=false;}
 void Row_Type_AttributeType::CombineAsOne_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_CombineAsOne = val; is_modified=true; is_null[3]=false;}
+void Row_Type_AttributeType::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_id = val; is_modified=true; is_null[4]=false;}
+void Row_Type_AttributeType::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_batch = val; is_modified=true; is_null[5]=false;}
+void Row_Type_AttributeType::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_user = val; is_modified=true; is_null[6]=false;}
+void Row_Type_AttributeType::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_frozen = val; is_modified=true; is_null[7]=false;}
+void Row_Type_AttributeType::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[8]=false;}
 
 		
 bool Row_Type_AttributeType::CombineAsOne_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
+bool Row_Type_AttributeType::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
+bool Row_Type_AttributeType::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[5];}
+bool Row_Type_AttributeType::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
+bool Row_Type_AttributeType::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[7];}
 
 			
 void Row_Type_AttributeType::CombineAsOne_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
+void Row_Type_AttributeType::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
+void Row_Type_AttributeType::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[5]=val;}
+void Row_Type_AttributeType::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
+void Row_Type_AttributeType::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[7]=val;}
 	
 
 string Row_Type_AttributeType::FK_Type_asSQL()
@@ -214,6 +279,72 @@ sprintf(buf, "%hi", m_CombineAsOne);
 return buf;
 }
 
+string Row_Type_AttributeType::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
+}
+
+string Row_Type_AttributeType::psc_batch_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_batch);
+
+return buf;
+}
+
+string Row_Type_AttributeType::psc_user_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_user);
+
+return buf;
+}
+
+string Row_Type_AttributeType::psc_frozen_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_psc_frozen);
+
+return buf;
+}
+
+string Row_Type_AttributeType::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char *buf = new char[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
 
 
 
@@ -251,16 +382,16 @@ void Table_Type_AttributeType::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Type_AttributeType*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Type_AttributeType *pRow = *i;
+		Row_Type_AttributeType *pRow = (Row_Type_AttributeType *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL()+", "+pRow->FK_AttributeType_asSQL()+", "+pRow->Identifier_asSQL()+", "+pRow->CombineAsOne_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL()+", "+pRow->FK_AttributeType_asSQL()+", "+pRow->Identifier_asSQL()+", "+pRow->CombineAsOne_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Type_AttributeType (FK_Type, FK_AttributeType, Identifier, CombineAsOne) values ("+
+		string query = "insert into Type_AttributeType (FK_Type, FK_AttributeType, Identifier, CombineAsOne, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -277,7 +408,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL(
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_Type,pRow->m_FK_AttributeType);	
 			cachedRows[key] = pRow;
 					
 			
@@ -291,17 +422,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL(
 //update modified
 	
 
-	for (map<Key, Row_Type_AttributeType*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Type_AttributeType* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Type_AttributeType* pRow = (Row_Type_AttributeType*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_Type,pRow->m_FK_AttributeType);
 
 		char tmp_FK_Type[32];
-sprintf(tmp_FK_Type, "%li", key.pk_FK_Type);
+sprintf(tmp_FK_Type, "%li", key.pk1);
 
 char tmp_FK_AttributeType[32];
-sprintf(tmp_FK_AttributeType, "%li", key.pk_FK_AttributeType);
+sprintf(tmp_FK_AttributeType, "%li", key.pk2);
 
 
 string condition;
@@ -310,7 +441,7 @@ condition = condition + "FK_Type=" + tmp_FK_Type+" AND "+"FK_AttributeType=" + t
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", FK_AttributeType="+pRow->FK_AttributeType_asSQL()+", Identifier="+pRow->Identifier_asSQL()+", CombineAsOne="+pRow->CombineAsOne_asSQL();
+update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", FK_AttributeType="+pRow->FK_AttributeType_asSQL()+", Identifier="+pRow->Identifier_asSQL()+", CombineAsOne="+pRow->CombineAsOne_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Type_AttributeType set " + update_values_list + " where " + condition;
@@ -327,7 +458,7 @@ update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", FK
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Type_AttributeType*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -337,15 +468,16 @@ update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", FK
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Type_AttributeType*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_Type_AttributeType* pRow = (Row_Type_AttributeType*) (*i).second;	
+
 		char tmp_FK_Type[32];
-sprintf(tmp_FK_Type, "%li", key.pk_FK_Type);
+sprintf(tmp_FK_Type, "%li", key.pk1);
 
 char tmp_FK_AttributeType[32];
-sprintf(tmp_FK_AttributeType, "%li", key.pk_FK_AttributeType);
+sprintf(tmp_FK_AttributeType, "%li", key.pk2);
 
 
 string condition;
@@ -379,7 +511,7 @@ bool Table_Type_AttributeType::GetRows(string where_statement,vector<class Row_T
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query: " << query << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -444,18 +576,73 @@ pRow->is_null[3]=false;
 sscanf(row[3], "%hi", &(pRow->m_CombineAsOne));
 }
 
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_psc_id));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_psc_user));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[8]=false;
+pRow->m_psc_mod = string(row[8],lengths[8]);
+}
+
 
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_Type,pRow->m_FK_AttributeType);
 		
-                map<Table_Type_AttributeType::Key, Row_Type_AttributeType*, Table_Type_AttributeType::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Type_AttributeType *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -484,9 +671,9 @@ Row_Type_AttributeType* Table_Type_AttributeType::GetRow(long int in_FK_Type, lo
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_Type, in_FK_AttributeType);
+	DoubleLongKey row_key(in_FK_Type, in_FK_AttributeType);
 
-	map<Key, Row_Type_AttributeType*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -497,7 +684,7 @@ Row_Type_AttributeType* Table_Type_AttributeType::GetRow(long int in_FK_Type, lo
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Type_AttributeType*) (*i).second;
 	//we have to fetch row
 	Row_Type_AttributeType* pRow = FetchRow(row_key);
 
@@ -508,16 +695,16 @@ Row_Type_AttributeType* Table_Type_AttributeType::GetRow(long int in_FK_Type, lo
 
 
 
-Row_Type_AttributeType* Table_Type_AttributeType::FetchRow(Table_Type_AttributeType::Key &key)
+Row_Type_AttributeType* Table_Type_AttributeType::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Type[32];
-sprintf(tmp_FK_Type, "%li", key.pk_FK_Type);
+sprintf(tmp_FK_Type, "%li", key.pk1);
 
 char tmp_FK_AttributeType[32];
-sprintf(tmp_FK_AttributeType, "%li", key.pk_FK_AttributeType);
+sprintf(tmp_FK_AttributeType, "%li", key.pk2);
 
 
 string condition;
@@ -528,7 +715,7 @@ condition = condition + "FK_Type=" + tmp_FK_Type+" AND "+"FK_AttributeType=" + t
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 
@@ -595,6 +782,61 @@ else
 {
 pRow->is_null[3]=false;
 sscanf(row[3], "%hi", &(pRow->m_CombineAsOne));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_psc_id));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_psc_user));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[8]=false;
+pRow->m_psc_mod = string(row[8],lengths[8]);
 }
 
 

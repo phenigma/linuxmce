@@ -18,6 +18,16 @@
 #define ATTRIBUTETYPE_DESCRIPTION_TABLE_FIELD "AttributeType.Description"
 #define ATTRIBUTETYPE_DEFINE_FIELD "Define"
 #define ATTRIBUTETYPE_DEFINE_TABLE_FIELD "AttributeType.Define"
+#define ATTRIBUTETYPE_PSC_ID_FIELD "psc_id"
+#define ATTRIBUTETYPE_PSC_ID_TABLE_FIELD "AttributeType.psc_id"
+#define ATTRIBUTETYPE_PSC_BATCH_FIELD "psc_batch"
+#define ATTRIBUTETYPE_PSC_BATCH_TABLE_FIELD "AttributeType.psc_batch"
+#define ATTRIBUTETYPE_PSC_USER_FIELD "psc_user"
+#define ATTRIBUTETYPE_PSC_USER_TABLE_FIELD "AttributeType.psc_user"
+#define ATTRIBUTETYPE_PSC_FROZEN_FIELD "psc_frozen"
+#define ATTRIBUTETYPE_PSC_FROZEN_TABLE_FIELD "AttributeType.psc_frozen"
+#define ATTRIBUTETYPE_PSC_MOD_FIELD "psc_mod"
+#define ATTRIBUTETYPE_PSC_MOD_TABLE_FIELD "AttributeType.psc_mod"
 
 
 #endif

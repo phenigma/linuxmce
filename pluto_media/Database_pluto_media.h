@@ -26,6 +26,11 @@ class Table_SearchToken_Attribute* tblSearchToken_Attribute;
 class Table_Type* tblType;
 class Table_Type_AttributeType* tblType_AttributeType;
 class Table_Type_Extension* tblType_Extension;
+class Table_psc_media_batdet* tblpsc_media_batdet;
+class Table_psc_media_bathdr* tblpsc_media_bathdr;
+class Table_psc_media_repset* tblpsc_media_repset;
+class Table_psc_media_schema* tblpsc_media_schema;
+class Table_psc_media_tables* tblpsc_media_tables;
 public:
 class Table_Attribute* Attribute_get() { return tblAttribute; }
 class Table_AttributeType* AttributeType_get() { return tblAttributeType; }
@@ -39,6 +44,11 @@ class Table_SearchToken_Attribute* SearchToken_Attribute_get() { return tblSearc
 class Table_Type* Type_get() { return tblType; }
 class Table_Type_AttributeType* Type_AttributeType_get() { return tblType_AttributeType; }
 class Table_Type_Extension* Type_Extension_get() { return tblType_Extension; }
+class Table_psc_media_batdet* psc_media_batdet_get() { return tblpsc_media_batdet; }
+class Table_psc_media_bathdr* psc_media_bathdr_get() { return tblpsc_media_bathdr; }
+class Table_psc_media_repset* psc_media_repset_get() { return tblpsc_media_repset; }
+class Table_psc_media_schema* psc_media_schema_get() { return tblpsc_media_schema; }
+class Table_psc_media_tables* psc_media_tables_get() { return tblpsc_media_tables; }
 bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
@@ -55,6 +65,11 @@ void CreateTable_SearchToken_Attribute();
 void CreateTable_Type();
 void CreateTable_Type_AttributeType();
 void CreateTable_Type_Extension();
+void CreateTable_psc_media_batdet();
+void CreateTable_psc_media_bathdr();
+void CreateTable_psc_media_repset();
+void CreateTable_psc_media_schema();
+void CreateTable_psc_media_tables();
 void DeleteTable_Attribute();
 void DeleteTable_AttributeType();
 void DeleteTable_File();
@@ -67,5 +82,10 @@ void DeleteTable_SearchToken_Attribute();
 void DeleteTable_Type();
 void DeleteTable_Type_AttributeType();
 void DeleteTable_Type_Extension();
+void DeleteTable_psc_media_batdet();
+void DeleteTable_psc_media_bathdr();
+void DeleteTable_psc_media_repset();
+void DeleteTable_psc_media_schema();
+void DeleteTable_psc_media_tables();
 };
 #endif

@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_media::DeleteTable_Picture_Attribute()
 
 Table_Picture_Attribute::~Table_Picture_Attribute()
 {
-	map<Table_Picture_Attribute::Key, class Row_Picture_Attribute*, Table_Picture_Attribute::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Picture_Attribute *pRow = (Row_Picture_Attribute *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Picture_Attribute *pRow = (Row_Picture_Attribute *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_Picture_Attribute::~Table_Picture_Attribute()
 void Row_Picture_Attribute::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Picture_Attribute *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Picture_Attribute*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Picture_Attribute *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_Picture_Attribute::Delete()
 		}
 		else
 		{
-			Table_Picture_Attribute::Key key(this);					
-			map<Table_Picture_Attribute::Key, Row_Picture_Attribute*, Table_Picture_Attribute::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_Picture,pRow->m_FK_Attribute);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_Picture_Attribute::Delete()
 
 void Row_Picture_Attribute::Reload()
 {
+	Row_Picture_Attribute *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Picture_Attribute::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_Picture,pRow->m_FK_Attribute);
 		Row_Picture_Attribute *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -113,6 +117,13 @@ void Row_Picture_Attribute::SetDefaultValues()
 is_null[0] = false;
 m_FK_Attribute = 0;
 is_null[1] = false;
+is_null[2] = true;
+is_null[3] = true;
+is_null[4] = true;
+m_psc_frozen = 0;
+is_null[5] = false;
+m_psc_mod = "00000000000000";
+is_null[6] = false;
 
 
 	is_added=false;
@@ -126,6 +137,21 @@ return m_FK_Picture;}
 long int Row_Picture_Attribute::FK_Attribute_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Attribute;}
+long int Row_Picture_Attribute::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_id;}
+long int Row_Picture_Attribute::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_batch;}
+long int Row_Picture_Attribute::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_user;}
+short int Row_Picture_Attribute::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_frozen;}
+string Row_Picture_Attribute::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_Picture_Attribute::FK_Picture_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -134,10 +160,49 @@ m_FK_Picture = val; is_modified=true; is_null[0]=false;}
 void Row_Picture_Attribute::FK_Attribute_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Attribute = val; is_modified=true; is_null[1]=false;}
+void Row_Picture_Attribute::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_id = val; is_modified=true; is_null[2]=false;}
+void Row_Picture_Attribute::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_batch = val; is_modified=true; is_null[3]=false;}
+void Row_Picture_Attribute::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_user = val; is_modified=true; is_null[4]=false;}
+void Row_Picture_Attribute::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_frozen = val; is_modified=true; is_null[5]=false;}
+void Row_Picture_Attribute::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[6]=false;}
 
 		
+bool Row_Picture_Attribute::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[2];}
+bool Row_Picture_Attribute::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[3];}
+bool Row_Picture_Attribute::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
+bool Row_Picture_Attribute::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[5];}
 
 			
+void Row_Picture_Attribute::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[2]=val;}
+void Row_Picture_Attribute::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[3]=val;}
+void Row_Picture_Attribute::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
+void Row_Picture_Attribute::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[5]=val;}
 	
 
 string Row_Picture_Attribute::FK_Picture_asSQL()
@@ -164,6 +229,72 @@ char buf[32];
 sprintf(buf, "%li", m_FK_Attribute);
 
 return buf;
+}
+
+string Row_Picture_Attribute::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
+}
+
+string Row_Picture_Attribute::psc_batch_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_batch);
+
+return buf;
+}
+
+string Row_Picture_Attribute::psc_user_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_user);
+
+return buf;
+}
+
+string Row_Picture_Attribute::psc_frozen_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_psc_frozen);
+
+return buf;
+}
+
+string Row_Picture_Attribute::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char *buf = new char[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 
@@ -203,16 +334,16 @@ void Table_Picture_Attribute::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Picture_Attribute*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Picture_Attribute *pRow = *i;
+		Row_Picture_Attribute *pRow = (Row_Picture_Attribute *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Picture_asSQL()+", "+pRow->FK_Attribute_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Picture_asSQL()+", "+pRow->FK_Attribute_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Picture_Attribute (FK_Picture, FK_Attribute) values ("+
+		string query = "insert into Picture_Attribute (FK_Picture, FK_Attribute, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -229,7 +360,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Picture_asS
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_Picture,pRow->m_FK_Attribute);	
 			cachedRows[key] = pRow;
 					
 			
@@ -243,17 +374,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Picture_asS
 //update modified
 	
 
-	for (map<Key, Row_Picture_Attribute*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Picture_Attribute* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Picture_Attribute* pRow = (Row_Picture_Attribute*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_Picture,pRow->m_FK_Attribute);
 
 		char tmp_FK_Picture[32];
-sprintf(tmp_FK_Picture, "%li", key.pk_FK_Picture);
+sprintf(tmp_FK_Picture, "%li", key.pk1);
 
 char tmp_FK_Attribute[32];
-sprintf(tmp_FK_Attribute, "%li", key.pk_FK_Attribute);
+sprintf(tmp_FK_Attribute, "%li", key.pk2);
 
 
 string condition;
@@ -262,7 +393,7 @@ condition = condition + "FK_Picture=" + tmp_FK_Picture+" AND "+"FK_Attribute=" +
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Picture="+pRow->FK_Picture_asSQL()+", FK_Attribute="+pRow->FK_Attribute_asSQL();
+update_values_list = update_values_list + "FK_Picture="+pRow->FK_Picture_asSQL()+", FK_Attribute="+pRow->FK_Attribute_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Picture_Attribute set " + update_values_list + " where " + condition;
@@ -279,7 +410,7 @@ update_values_list = update_values_list + "FK_Picture="+pRow->FK_Picture_asSQL()
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Picture_Attribute*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -289,15 +420,16 @@ update_values_list = update_values_list + "FK_Picture="+pRow->FK_Picture_asSQL()
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Picture_Attribute*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_Picture_Attribute* pRow = (Row_Picture_Attribute*) (*i).second;	
+
 		char tmp_FK_Picture[32];
-sprintf(tmp_FK_Picture, "%li", key.pk_FK_Picture);
+sprintf(tmp_FK_Picture, "%li", key.pk1);
 
 char tmp_FK_Attribute[32];
-sprintf(tmp_FK_Attribute, "%li", key.pk_FK_Attribute);
+sprintf(tmp_FK_Attribute, "%li", key.pk2);
 
 
 string condition;
@@ -331,7 +463,7 @@ bool Table_Picture_Attribute::GetRows(string where_statement,vector<class Row_Pi
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query: " << query << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -374,18 +506,73 @@ pRow->is_null[1]=false;
 sscanf(row[1], "%li", &(pRow->m_FK_Attribute));
 }
 
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[2]=false;
+sscanf(row[2], "%li", &(pRow->m_psc_id));
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_psc_user));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_psc_mod = string(row[6],lengths[6]);
+}
+
 
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_Picture,pRow->m_FK_Attribute);
 		
-                map<Table_Picture_Attribute::Key, Row_Picture_Attribute*, Table_Picture_Attribute::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Picture_Attribute *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -414,9 +601,9 @@ Row_Picture_Attribute* Table_Picture_Attribute::GetRow(long int in_FK_Picture, l
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_Picture, in_FK_Attribute);
+	DoubleLongKey row_key(in_FK_Picture, in_FK_Attribute);
 
-	map<Key, Row_Picture_Attribute*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -427,7 +614,7 @@ Row_Picture_Attribute* Table_Picture_Attribute::GetRow(long int in_FK_Picture, l
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Picture_Attribute*) (*i).second;
 	//we have to fetch row
 	Row_Picture_Attribute* pRow = FetchRow(row_key);
 
@@ -438,16 +625,16 @@ Row_Picture_Attribute* Table_Picture_Attribute::GetRow(long int in_FK_Picture, l
 
 
 
-Row_Picture_Attribute* Table_Picture_Attribute::FetchRow(Table_Picture_Attribute::Key &key)
+Row_Picture_Attribute* Table_Picture_Attribute::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Picture[32];
-sprintf(tmp_FK_Picture, "%li", key.pk_FK_Picture);
+sprintf(tmp_FK_Picture, "%li", key.pk1);
 
 char tmp_FK_Attribute[32];
-sprintf(tmp_FK_Attribute, "%li", key.pk_FK_Attribute);
+sprintf(tmp_FK_Attribute, "%li", key.pk2);
 
 
 string condition;
@@ -458,7 +645,7 @@ condition = condition + "FK_Picture=" + tmp_FK_Picture+" AND "+"FK_Attribute=" +
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 
@@ -503,6 +690,61 @@ else
 {
 pRow->is_null[1]=false;
 sscanf(row[1], "%li", &(pRow->m_FK_Attribute));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[2]=false;
+sscanf(row[2], "%li", &(pRow->m_psc_id));
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_psc_user));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_psc_mod = string(row[6],lengths[6]);
 }
 
 

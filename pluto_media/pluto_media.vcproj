@@ -106,6 +106,9 @@
 				RelativePath=".\Database_pluto_media.cpp">
 			</File>
 			<File
+				RelativePath=".\TableRow.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Attribute.cpp">
 			</File>
 			<File
@@ -140,6 +143,21 @@
 			</File>
 			<File
 				RelativePath=".\Table_Type_Extension.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_media_batdet.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_media_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_media_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_media_schema.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_media_tables.cpp">
 			</File>
 
 		</Filter>

@@ -11,6 +11,16 @@
 #define FILE_PATH_TABLE_FIELD "File.Path"
 #define FILE_MISSING_FIELD "Missing"
 #define FILE_MISSING_TABLE_FIELD "File.Missing"
+#define FILE_PSC_ID_FIELD "psc_id"
+#define FILE_PSC_ID_TABLE_FIELD "File.psc_id"
+#define FILE_PSC_BATCH_FIELD "psc_batch"
+#define FILE_PSC_BATCH_TABLE_FIELD "File.psc_batch"
+#define FILE_PSC_USER_FIELD "psc_user"
+#define FILE_PSC_USER_TABLE_FIELD "File.psc_user"
+#define FILE_PSC_FROZEN_FIELD "psc_frozen"
+#define FILE_PSC_FROZEN_TABLE_FIELD "File.psc_frozen"
+#define FILE_PSC_MOD_FIELD "psc_mod"
+#define FILE_PSC_MOD_TABLE_FIELD "File.psc_mod"
 
 
 #endif
