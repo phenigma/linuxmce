@@ -32,7 +32,7 @@ while [ "$offline" -eq 0 ]; do
 	for Host in $R; do
 #		nc -z "$Host" "$DCERouterPort" && offline=0
 		# TODO: remember which hosts are offline as to not ping them anymore
-		ping -qnc 1 -W 1 "$Host" &>/dev/null && offline=0 && Logging $TYPE $SEVERITY_WARNING 0 "$host still online"
+		ping -qnc 1 -W 1 "$Host" &>/dev/null && offline=0 #&& Logging $TYPE $SEVERITY_WARNING 0 "$host still online"
 	done
 done
 
