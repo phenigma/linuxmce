@@ -75,7 +75,8 @@ private:
     pthread_mutexattr_t m_MutexAttr;
     MapMediaStream m_mapMediaStream; // All active streams
 
-	map<string, int> m_mapRippingJobsToRippingDevices;
+	// mapping from job names to a pair or caller devices and the job running devices.
+	map<string, pair<int, int> > m_mapRippingJobsToRippingDevices;
 
 	Database_pluto_main *m_pDatabase_pluto_main;
     Database_pluto_media *m_pDatabase_pluto_media;

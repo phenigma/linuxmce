@@ -1,18 +1,18 @@
 /*
  FileListGrid
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
 
 #include "File_Grids_Plugin.h"
@@ -63,6 +63,9 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 			enum eGraphicFormat format;
 
 			FileListInfo *flInfo = m_vectFileInfo[row];
+			g_pPlutoLogger->Write(LV_STATUS, "File info pointer: %p", flInfo);
+
+			g_pPlutoLogger->Write(LV_STATUS, "Attr type: %d", flInfo->m_PKID_MED_Attribute);
 			if( flInfo->m_PKID_MED_Attribute )
 			{
 #pragma warning("I commmented out the 3 following pictures because there seems to be a mysql related bug that, at random, intermittently, mysql starts taking 9 seconds to execute each query");
@@ -70,19 +73,25 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 			}
 			else if( !flInfo->m_bIsDirectory )
 			{
+				g_pPlutoLogger->Write(LV_STATUS, "Not a folder: %s : %d", flInfo->m_sPath.c_str(), PKID_MED_Picture);
 				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetPictureFromFilePath(flInfo->m_sPath,&PKID_MED_Picture);
+				g_pPlutoLogger->Write(LV_STATUS, "We are here after the folder: %s : %d... ext: %s", flInfo->m_sPath.c_str(), PKID_MED_Picture, Extension.c_str());
 			}
 			else if( flInfo->m_sPath.length()>0 )
 			{
+				g_pPlutoLogger->Write(LV_STATUS, "We are here: %s : %d", flInfo->m_sPath.c_str(), PKID_MED_Picture);
 				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetAnyPictureUnderDirectory(flInfo->m_sPath,&PKID_MED_Picture,5);
+				g_pPlutoLogger->Write(LV_STATUS, "We are here: %s : %d... ext: %s", flInfo->m_sPath.c_str(), PKID_MED_Picture, Extension.c_str());
 			}
 
 			char *pIconBuffer = NULL;
 			size_t stIconSize;
 
+g_pPlutoLogger->Write(LV_STATUS, "Checking picture attri");
 			if( PKID_MED_Picture )
 			{
 				PictureFile = "/home/mediapics/" + StringUtils::itos(PKID_MED_Picture) + "_tn.jpg";
+g_pPlutoLogger->Write(LV_STATUS, "Loking for file: %s", PictureFile.c_str());
 #ifdef WIN32
 				string::size_type s;
 				while( (s=PictureFile.find('/'))!=string::npos )
@@ -94,6 +103,7 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 
 			if( !pIconBuffer && !flInfo->m_bIsDirectory)
 			{
+				g_pPlutoLogger->Write(LV_STATUS, "Looking for file on disc");
 				PictureFile = flInfo->m_sPath;
 				string::size_type tmpPos=-1;
 				string::size_type posExtension=string::npos;
@@ -102,13 +112,18 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 				{
 					posExtension=tmpPos;
 				}
+
+g_pPlutoLogger->Write(LV_STATUS, "Got extension position for file name \"%s\" to be \"%d\"", PictureFile.c_str(), posExtension);
+
 				if( posExtension!=string::npos )
 				{
 					PictureFile = PictureFile.substr(0,posExtension) + "_tn.jpg";
+g_pPlutoLogger->Write(LV_STATUS, "Loking for file: %s", PictureFile.c_str());
 					pIconBuffer = FileUtils::ReadFileIntoBuffer(PictureFile,stIconSize);
 					if( !pIconBuffer )
 					{
 						PictureFile = PictureFile.substr(0,posExtension) + ".jpg";
+g_pPlutoLogger->Write(LV_STATUS, "Loking for file: %s", PictureFile.c_str());
 						pIconBuffer = FileUtils::ReadFileIntoBuffer(PictureFile,stIconSize);
 					}
 					format = GR_JPG;
@@ -117,17 +132,21 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 
 			if( !pIconBuffer ) // Still no luck.  Use a default picture
 			{
+
 				if( pCell && pCell->m_pMessage )
 				{
 					pIconBuffer = FileUtils::ReadFileIntoBuffer("/home/media/miscicons/folder.png",stIconSize);
+g_pPlutoLogger->Write(LV_STATUS, "Loking for default file: %s", PictureFile.c_str());
 					format = GR_PNG;
 				}
 				else if( m_sIconFile.length()>0 )
 				{
 					pIconBuffer = FileUtils::ReadFileIntoBuffer(m_sIconFile,stIconSize);
+g_pPlutoLogger->Write(LV_STATUS, "Looking for default file: %s", PictureFile.c_str());
 					format = GR_PNG;
 				}
 			}
+
 			if( pIconBuffer )
 			{
 				if( !pCell )
@@ -135,6 +154,10 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 				pCell->SetImage(pIconBuffer,(int) stIconSize,format);
 				SetData(0,row,pCell);
 			}
+else
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Could not find image data for this entry");
+}
 		}
 	}
 #ifdef DEBUG

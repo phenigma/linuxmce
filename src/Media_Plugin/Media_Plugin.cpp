@@ -800,20 +800,26 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 //<-dceag-c44-e->
 {
     int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
+	MediaStream *pTmpMediaStream;
+
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // Only an Orbiter will tell us to play media
     EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, iPK_Device, iPK_EntertainArea );
     if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
         return; // Don't know what area it should be played in, or there's no media playing there
 
-    g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
-    pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
+	pTmpMediaStream = pEntertainArea->m_pMediaStream;
+	mm.Release();
+
+	g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
+    pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
     g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
 	StreamEnded(pEntertainArea->m_pMediaStream);
 }
 
 void Media_Plugin::StreamEnded(MediaStream *pMediaStream)
 {
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	map<int,MediaDevice *> mapMediaDevice_Prior;
     g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices" );
 	pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pMediaStream,&mapMediaDevice_Prior);
@@ -2318,7 +2324,7 @@ void Media_Plugin::CMD_Rip_Disk(string sName,string &sCMD_Result,Message *pMessa
 
 		DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, sName);
 		SendCommand(cmdRipDisk);
-		m_mapRippingJobsToRippingDevices[sName] = pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
+		m_mapRippingJobsToRippingDevices[sName] = make_pair<int, int>(pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMessage->m_dwPK_Device_From);
 		return;
 	}
 

@@ -685,9 +685,11 @@ string MediaAttributes::GetFilePathsFromAttributeID( int PK_Atribute )
 
 int MediaAttributes::GetFileIDFromFilePath( string File )
 {
-#ifdef WIN32
-    PlutoSqlResult result;
+    // moved here since we want to fallback on the windows like functionality when we don't have an attributte for the file.
+	PlutoSqlResult result;
     MYSQL_ROW row;
+
+#ifdef WIN32
     string::size_type s;
     while( ( s=File.find( "Z:/" ) )!=string::npos )
         File.replace( s, 3, "/home/public/data/" );
@@ -699,7 +701,7 @@ int MediaAttributes::GetFileIDFromFilePath( string File )
 	string Path = FileUtils::BasePath(File);
 	if( Path.length() && Path[ Path.length()-1 ]=='/' )
 		Path = Path.substr(0,Path.length()-1);
-	string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) + 
+	string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) +
 		"' AND Filename='" + StringUtils::SQLEscape( FileUtils::FilenameWithoutPath(File) ) + "'";
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         return atoi( row[0] );
@@ -740,7 +742,7 @@ int MediaAttributes::GetFileIDFromFilePath( string File )
 
                     string SQL;
                     SQL += "UPDATE File SET Path='" + StringUtils::SQLEscape( path ) + "', Filename='" + StringUtils::SQLEscape( name ) + "' WHERE PK_File=" + StringUtils::itos(ID);
-                    cout << "Query: " << SQL << endl;
+                    // cout << "Query: " << SQL << endl;
                     m_pDatabase_pluto_media->threaded_mysql_query( SQL );
                 }
             }
@@ -748,7 +750,18 @@ int MediaAttributes::GetFileIDFromFilePath( string File )
         return ID;
     }
     else
-        return 0;
+	{	// if no attributte is set then fall back to the windows functionality.
+		string Path = FileUtils::BasePath(File);
+		if( Path.length() && Path[ Path.length()-1 ]=='/' )
+			Path = Path.substr(0,Path.length()-1);
+
+		string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) +
+			"' AND Filename='" + StringUtils::SQLEscape( FileUtils::FilenameWithoutPath(File) ) + "'";
+		if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+			return atoi( row[0] );
+		else
+			return 0;
+	}
 #endif
 }
 
@@ -834,9 +847,13 @@ return "";
 string MediaAttributes::GetPictureFromFilePath( string File, int *PK_Picture )
 {
     int PK_File = GetFileIDFromFilePath( File );
+
+// g_pPlutoLogger->Write(LV_STATUS, "Got file id: %d", PK_File);
+
     if( PK_File )
         return GetPictureFromFileID( PK_File, PK_Picture );
-    *PK_Picture=0;
+
+	*PK_Picture=0;
     return "";
 }
 
@@ -845,6 +862,8 @@ string MediaAttributes::GetPictureFromFileID( int PK_File, int *PK_Picture )
     string SQL = "select PK_Picture, Extension FROM Picture_File JOIN Picture ON "\
         "FK_Picture=PK_Picture "\
         "WHERE FK_File=" + StringUtils::itos( PK_File );
+
+//	g_pPlutoLogger->Write(LV_STATUS, "MediaAttributes::GetPictureFromFileID() Running query: %s", SQL.c_str());
     PlutoSqlResult result;
     MYSQL_ROW row;
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
@@ -858,6 +877,8 @@ string MediaAttributes::GetPictureFromFileID( int PK_File, int *PK_Picture )
         "JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=File_Attribute.FK_Attribute "\
         "JOIN Picture ON FK_Picture=PK_Picture "\
         "WHERE FK_File=" + StringUtils::itos( PK_File );
+
+//	g_pPlutoLogger->Write(LV_STATUS, "MediaAttributes::GetPictureFromFileID() Running another query: %s", SQL.c_str());
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
