@@ -1,3 +1,20 @@
+/*
+ Main
+ 
+ Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+ 
+ www.plutohome.com		
+ 
+ Phone: +1 (877) 758-8648
+ 
+ This program is distributed according to the terms of the Pluto Public License, available at: 
+ http://plutohome.com/index.php?section=public_license 
+ 
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+ 
+ */
+ 
 /* 
  * $Id: Main.cpp,v 1.3 2004/10/16 12:36:39 aaron Exp $
  */
@@ -10,7 +27,7 @@
 #include "../pluto_main/Table_DeviceData.h"
 #include "../pluto_main/Table_DesignObj.h"
 
-#define ROUTER_VERSION		"2.0 devel"
+#define VERSION		"2.0 devel"
 
 extern pluto_pthread_mutex_t *m_mapLockMutex;
 #ifdef LL_DEBUG_FILE
@@ -41,7 +58,17 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char *argv[])
 {
 #endif
-   	srand((int) time(NULL));
+   		
+		cout<<"	Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
+		    <<"	www.plutohome.com"<<endl
+		    <<"	Phone: +1 (877) 758-8648"<<endl
+		    <<"	This program is distributed according to the terms of the Pluto Public License, available at: "<<endl
+		    <<"	http://plutohome.com/index.php?section=public_license "<<endl
+		    <<"	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
+		    <<"	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
+		    <<"	See the Pluto Public License for more details."<<endl;
+ 
+	srand((int) time(NULL));
 
 	string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_main",BasePath="";
 	int DBPort=3306,ListenPort=3450,Installation=0,PK_Device=0;
@@ -84,28 +111,32 @@ int main(int argc, char *argv[])
             case 'd':
                 PK_Device = atoi(argv[++optnum]);
                 break;
-			case 'f':
-				BasePath = argv[++optnum];
-				break;
-			case 'l':
-				sLogger = argv[++optnum];
-				break;
+	    case 'f':
+		BasePath = argv[++optnum];
+		break;
+	    case 'l':
+		sLogger = argv[++optnum];
+		break;
             default:
-				bError=true;
-				break;
+		bError=true;
+		break;
         };
 	}
 
     if ( bError)
     {
-        cout << "Router, v." << ROUTER_VERSION << endl
-                << "Usage: Router [-i installation] [-d device] [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-t tcp/ip port to listen on] [-f Base Path]" << endl
-                << "hostname  -- address or DNS of database host, default is `dce_router`" << endl
-                << "username  -- username for database connection" << endl
-                << "password  -- password for database connection, default is `` (empty)" << endl
-                << "database  -- database name" << endl
-                << "port      -- port for database connection, default is 3306" << endl
-                << "base path -- device requests for files will be relative to this path" << endl;
+//                123456789012345678901234567890123456789012345678901234567890
+	cout << "Router, v." << VERSION << endl
+                << "Usage: Router [-i installation] [-d device] [-h hostname]"<<endl
+		<< "[-u username] [-p password] [-D database] [-P mysql port]"<<endl
+		<< "[-t tcp/ip port to listen on] [-f Base Path][-l Logger]" << endl
+                << "-h hostname  -- address or DNS of database host, default is `dce_router`" << endl
+                << "-u username  -- username for database connection" << endl
+                << "-p password  -- password for database connection, default is `` (empty)" << endl
+                << "-D database  -- database name" << endl
+                << "-P port      -- port for database connection, default is 3306" << endl
+                << "-f base path -- device requests for files will be relative to this path" << endl
+		<< "-l logger	 -- where to put the log" << endl;
 
         exit(0);
     }
