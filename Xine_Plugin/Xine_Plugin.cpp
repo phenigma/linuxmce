@@ -24,7 +24,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
@@ -77,7 +77,7 @@ bool Xine_Plugin::Register()
 
 bool Xine_Plugin::MenuOnScreen(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     // Confirm this is from one of ours
     if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
         return false; // Some other media player.  We only know xine's menu handling
@@ -129,31 +129,32 @@ g_pPlutoLogger->Write(LV_STATUS,"Mediastream  ea %p %d",pEntertainArea,pEntertai
     {
         if( sOtherOrbiters.size() )
         {
+            // WARN: Commented to allow it to compile.
             // Send all the orbiters to the dvd menu
-            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,sOtherOrbiters,0,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"","",false);
-            DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device,sOtherOrbiters,VARIABLE_PK_Device_CONST,StringUtils::itos(pMessage->m_dwPK_Device_From));
+//             DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,sOtherOrbiters,0,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"","",false);
+//             DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device,sOtherOrbiters,VARIABLE_PK_Device_CONST,StringUtils::itos(pMessage->m_dwPK_Device_From));
 
-            CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );
-            QueueMessage(CMD_Set_Variable_DL.m_pMessage);
+//             CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );
+//             QueueMessage(CMD_Set_Variable_DL.m_pMessage);
         }
         if( sOnScreenOrbiters.size() )
         {
             // If it's an on-screen orbiter, just send it to the full screen menu
-            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,sOnScreenOrbiters,0,StringUtils::itos(DESIGNOBJ_full_screen_CONST),"","",false);
-            SendCommand(CMD_Goto_Screen_DL);
+//             DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,sOnScreenOrbiters,0,StringUtils::itos(DESIGNOBJ_full_screen_CONST),"","",false);
+//             SendCommand(CMD_Goto_Screen_DL);
         }
     }
     else if( sOtherOrbiters.size() )
     {
-        DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device,sOtherOrbiters,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"");
-        SendCommand(CMD_Go_back_DL);
+//         DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device,sOtherOrbiters,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"");
+//         SendCommand(CMD_Go_back_DL);
     }
     return true;
 }
 
 class MediaStream *Xine_Plugin::CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID)
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     MediaStream *pMediaStream = new MediaStream(pMediaPluginInfo, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);  // hack hack hack
 
     if( !PK_Device_Source && pMediaPluginInfo->m_listMediaDevice.size() )
@@ -202,10 +203,10 @@ class MediaStream *Xine_Plugin::CreateMediaStream(class MediaPluginInfo *pMediaP
 }
 bool Xine_Plugin::StartMedia(class MediaStream *pMediaStream)
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Starting media stream playback--sending command, waiting for response");
 
-	g_pPlutoLogger->Write(LV_CRITICAL, "Media type %d %s", pMediaStream->m_iPK_MediaType, pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front().c_str() : "empty files");
+    g_pPlutoLogger->Write(LV_CRITICAL, "Media type %d %s", pMediaStream->m_iPK_MediaType, pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front().c_str() : "empty files");
 
     string mediaURL;
     string Response;
@@ -214,7 +215,7 @@ bool Xine_Plugin::StartMedia(class MediaStream *pMediaStream)
     {
         pMediaStream->m_sMediaDescription = "Media Desc";
 
-		DCE::CMD_Mount_Disk_Image mountCommand(pMediaStream->m_dwPK_Device, 18, pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front() : "", &mediaURL);// HACK: This should be changed to a lookup code
+        DCE::CMD_Mount_Disk_Image mountCommand(pMediaStream->m_dwPK_Device, 18, pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front() : "", &mediaURL);// HACK: This should be changed to a lookup code
 
         if ( !SendCommand(mountCommand, 1, &Response))
         {
@@ -226,7 +227,7 @@ bool Xine_Plugin::StartMedia(class MediaStream *pMediaStream)
     }
     else
     {
-		pMediaStream->m_sMediaDescription = pMediaStream->m_dequeFilename.size() ? FileUtils::FilenameWithoutPath(pMediaStream->m_dequeFilename.front()) : "-unnamed-";  // HACK -- todo get a real description
+        pMediaStream->m_sMediaDescription = pMediaStream->m_dequeFilename.size() ? FileUtils::FilenameWithoutPath(pMediaStream->m_dequeFilename.front()) : "-unnamed-";  // HACK -- todo get a real description
         mediaURL = pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front() : "-no name-";  // HACK -- todo get a real description
     }
 
@@ -253,7 +254,7 @@ bool Xine_Plugin::StartMedia(class MediaStream *pMediaStream)
 
 bool Xine_Plugin::StopMedia(class MediaStream *pMediaStream)
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
 
     DCE::CMD_Stop_Media cmd(m_dwPK_Device,
@@ -274,7 +275,7 @@ bool Xine_Plugin::StopMedia(class MediaStream *pMediaStream)
 
 bool Xine_Plugin::BroadcastMedia(class MediaStream *pMediaStream)
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     return true;
 }
 
@@ -287,116 +288,116 @@ bool Xine_Plugin::BroadcastMedia(class MediaStream *pMediaStream)
 
 
 //<-dceag-c36-b->
-/* 
-	COMMAND: #36 - Create Media
-	COMMENTS: Create a media stream descriptor.
-	PARAMETERS:
-		#13 Filename
-			The filename of the media stream.
-		#41 StreamID
-			The media descriptor which will be associated with the current media.
+/*
+    COMMAND: #36 - Create Media
+    COMMENTS: Create a media stream descriptor.
+    PARAMETERS:
+        #13 Filename
+            The filename of the media stream.
+        #41 StreamID
+            The media descriptor which will be associated with the current media.
 */
 void Xine_Plugin::CMD_Create_Media(string sFilename,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c36-e->
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 }
 
 //<-dceag-c37-b->
-/* 
-	COMMAND: #37 - Play Media
-	COMMENTS: Play a media stream descriptor.
-	PARAMETERS:
-		#13 Filename
-			The file to play.  The format is specific on the media type and the media player.
-		#29 PK_MediaType
-			The type of media
-		#41 StreamID
-			The media that we need to play.
-		#42 MediaPosition
-			The position at which we need to start playing.
+/*
+    COMMAND: #37 - Play Media
+    COMMENTS: Play a media stream descriptor.
+    PARAMETERS:
+        #13 Filename
+            The file to play.  The format is specific on the media type and the media player.
+        #29 PK_MediaType
+            The type of media
+        #41 StreamID
+            The media that we need to play.
+        #42 MediaPosition
+            The position at which we need to start playing.
 */
 void Xine_Plugin::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 }
 
 //<-dceag-c38-b->
-/* 
-	COMMAND: #38 - Stop Media
-	COMMENTS: Stop playing a media stream descriptor.
-	PARAMETERS:
-		#41 StreamID
-			The media needing to be stopped.
+/*
+    COMMAND: #38 - Stop Media
+    COMMENTS: Stop playing a media stream descriptor.
+    PARAMETERS:
+        #41 StreamID
+            The media needing to be stopped.
 */
 void Xine_Plugin::CMD_Stop_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 }
 
 //<-dceag-c39-b->
-/* 
-	COMMAND: #39 - Pause Media
-	COMMENTS: Pause a media playback.
-	PARAMETERS:
-		#41 StreamID
-			The media stream for which we need to pause playback.
+/*
+    COMMAND: #39 - Pause Media
+    COMMENTS: Pause a media playback.
+    PARAMETERS:
+        #41 StreamID
+            The media stream for which we need to pause playback.
 */
 void Xine_Plugin::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     Message *pNewMessage = new Message(pMessage);
     pNewMessage->m_dwPK_Device_To = 6; // hack this in.  need to lookup streams
     QueueMessage(pNewMessage);
 }
 //<-dceag-c40-b->
-/* 
-	COMMAND: #40 - Restart Media
-	COMMENTS: Restart a media playback.
-	PARAMETERS:
-		#41 StreamID
-			The media stream that we need to restart playback for.
+/*
+    COMMAND: #40 - Restart Media
+    COMMENTS: Restart a media playback.
+    PARAMETERS:
+        #41 StreamID
+            The media stream that we need to restart playback for.
 */
 void Xine_Plugin::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 }
 
 //<-dceag-c41-b->
-/* 
-	COMMAND: #41 - Change Playback Speed
-	COMMENTS: Change the playback speed of a media stream.
-	PARAMETERS:
-		#41 StreamID
-			The media needing the playback speed change.
-		#43 MediaPlaybackSpeed
-			The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS
+/*
+    COMMAND: #41 - Change Playback Speed
+    COMMENTS: Change the playback speed of a media stream.
+    PARAMETERS:
+        #41 StreamID
+            The media needing the playback speed change.
+        #43 MediaPlaybackSpeed
+            The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS
 */
 void Xine_Plugin::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     Message *pNewMessage = new Message(pMessage);
     pNewMessage->m_dwPK_Device_To = 6; // hack this in.  need to lookup streams
     QueueMessage(pNewMessage);
 }
 
 //<-dceag-c65-b->
-/* 
-	COMMAND: #65 - Jump Position In Playlist
-	COMMENTS: Jumps to a position within some media, such as songs in a playlist, tracks on a cd, etc.  It will assume the sender is an orbiter, and find the entertainment area and stream associated with it.  The track can be an absolute or relative position.
-	PARAMETERS:
-		#5 Value To Assign
-			The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
+/*
+    COMMAND: #65 - Jump Position In Playlist
+    COMMENTS: Jumps to a position within some media, such as songs in a playlist, tracks on a cd, etc.  It will assume the sender is an orbiter, and find the entertainment area and stream associated with it.  The track can be an absolute or relative position.
+    PARAMETERS:
+        #5 Value To Assign
+            The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
 */
 void Xine_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     Message *pNewMessage = new Message(pMessage);
     pNewMessage->m_dwPK_Device_To = 6; // hack this in.  need to lookup streams
     QueueMessage(pNewMessage);

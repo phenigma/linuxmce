@@ -20,6 +20,9 @@ using namespace DCE;
 #include "../pluto_main/Define_DataGrid.h"
 #include "DataGrid.h"
 
+#include "MythTvEPGWrapper.h"
+
+
 //<-dceag-const-b->
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
     : MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
@@ -69,9 +72,9 @@ bool MythTV_PlugIn::Register()
         new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::CurrentShows))
         ,DATAGRID_EPG_Current_Shows_CONST);
 
-//     m_pDatagrid_Plugin->RegisterDatagridGenerator(
-//         new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::CurrentShows))
-//         ,DATAGRID_EPG_All_Shows_CONST);
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShows))
+        ,DATAGRID_EPG_All_Shows_CONST);
 
     return Connect();
 }
@@ -178,6 +181,22 @@ void MythTvStream::UpdateDescriptions()
     m_sMediaSynopsis=pRow_Listing->Synopsis_get();
 }
 
+class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
+{
+    PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
+    g_pPlutoLogger->Write(LV_STATUS, "A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
+
+    if ( ! m_pAllShowsDataGrid )
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Building a new MythTvEPGWrapper object as the datagrid");
+        m_pAllShowsDataGrid = new MythTvEPGWrapper();
+    }
+
+    QDateTime currentTime = QDateTime::currentDateTime();
+    m_pAllShowsDataGrid->rebuildDataGrid(currentTime, currentTime.addDays(3)); // i want 3 days.)
+    return m_pAllShowsDataGrid;
+}
+
 class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,Message *pMessage)
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
@@ -185,6 +204,7 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
     class MediaStream *pMediaStream = m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
     if( !pMediaStream || pMediaStream->GetType()!=MEDIASTREAM_TYPE_MYTHTV )  // TODO -- probably should have a virtual GetID method to confirm it's the right type to cast
         return NULL;
+
     class MythTvStream *pMythTvStream = (MythTvStream *) pMediaStream;
 
     DataGridTable *pDataGrid = new DataGridTable();

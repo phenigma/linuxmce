@@ -18,13 +18,13 @@ sources = Main.cpp Bluetooth_Dongle.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DBLUETOOTH_DONGLE
 LDFLAGS +=
-LDLIBS += -lVIPCommon -lBDCommon -lVIPCommon -lPlutoUtils -lSerializeClass -lbluetooth -lpluto_main -lSDL -lSDL_ttf -lSDL_image -lSGE
+LDLIBS += -lVIPCommon -lBDCommon -lPlutoUtils -lSerializeClass -lbluetooth -lpluto_main -lSDL -lSDL_ttf -lSDL_image -lSGE
 
 Gen_Dev_Files += $(GENDEV)/OrbiterBase.cpp
 sources += ../Orbiter/SDL_Bluetooth/OrbiterSDLBluetooth.cpp ../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.cpp \
 	../Orbiter/DesignObj_Data.cpp ../Orbiter/DesignObj_Orbiter.cpp ../Orbiter/Orbiter.cpp \
 	../Orbiter/SDL/OrbiterSDL.cpp ../Splitter/TextWrapper.cpp ../Splitter/TextSplitter.cpp \
-	../OrbiterGen/Renderer.cpp
+	../OrbiterGen/Renderer.cpp ../VIPShared/PlutoPhoneCommands.cpp
 
 #<-dceag-mf-b->
 whattodo:
