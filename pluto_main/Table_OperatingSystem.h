@@ -143,6 +143,7 @@ void psc_frozen_setNull(bool val);
 		void DeviceTemplate_FK_OperatingSystem_getrows(vector <class Row_DeviceTemplate*> *rows);
 void Distro_FK_OperatingSystem_getrows(vector <class Row_Distro*> *rows);
 void InstallWizard_Distro_FK_OperatingSystem_getrows(vector <class Row_InstallWizard_Distro*> *rows);
+void Package_Compat_FK_OperatingSystem_getrows(vector <class Row_Package_Compat*> *rows);
 void Package_Directory_FK_OperatingSystem_getrows(vector <class Row_Package_Directory*> *rows);
 void Package_Directory_File_FK_OperatingSystem_getrows(vector <class Row_Package_Directory_File*> *rows);
 void Package_Source_Compat_FK_OperatingSystem_getrows(vector <class Row_Package_Source_Compat*> *rows);

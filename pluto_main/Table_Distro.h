@@ -178,6 +178,7 @@ void psc_frozen_setNull(bool val);
 		// Return the rows in other tables with foreign keys pointing here
 		void DeviceTemplate_FK_Distro_getrows(vector <class Row_DeviceTemplate*> *rows);
 void InstallWizard_Distro_FK_Distro_getrows(vector <class Row_InstallWizard_Distro*> *rows);
+void Package_Compat_FK_Distro_getrows(vector <class Row_Package_Compat*> *rows);
 void Package_Directory_FK_Distro_getrows(vector <class Row_Package_Directory*> *rows);
 void Package_Directory_File_FK_Distro_getrows(vector <class Row_Package_Directory_File*> *rows);
 void Package_Source_Compat_FK_Distro_getrows(vector <class Row_Package_Source_Compat*> *rows);

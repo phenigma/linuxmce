@@ -28,6 +28,7 @@ using namespace std;
 #include "Table_DeviceTemplate.h"
 #include "Table_News.h"
 #include "Table_Package.h"
+#include "Table_Package_Compat.h"
 #include "Table_Package_Directory.h"
 #include "Table_Package_Package.h"
 #include "Table_Package_Package.h"
@@ -1348,6 +1349,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
 pTable->GetRows("FK_Package_Sourcecode=" + StringUtils::itos(m_PK_Package),rows);
+}
+void Row_Package::Package_Compat_FK_Package_getrows(vector <class Row_Package_Compat*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package_Compat *pTable = table->database->Package_Compat_get();
+pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Directory_FK_Package_getrows(vector <class Row_Package_Directory*> *rows)
 {

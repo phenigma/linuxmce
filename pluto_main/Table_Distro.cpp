@@ -21,6 +21,7 @@ using namespace std;
 
 #include "Table_DeviceTemplate.h"
 #include "Table_InstallWizard_Distro.h"
+#include "Table_Package_Compat.h"
 #include "Table_Package_Directory.h"
 #include "Table_Package_Directory_File.h"
 #include "Table_Package_Source_Compat.h"
@@ -1216,6 +1217,13 @@ void Row_Distro::InstallWizard_Distro_FK_Distro_getrows(vector <class Row_Instal
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InstallWizard_Distro *pTable = table->database->InstallWizard_Distro_get();
+pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
+}
+void Row_Distro::Package_Compat_FK_Distro_getrows(vector <class Row_Package_Compat*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package_Compat *pTable = table->database->Package_Compat_get();
 pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
 }
 void Row_Distro::Package_Directory_FK_Distro_getrows(vector <class Row_Package_Directory*> *rows)

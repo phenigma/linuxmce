@@ -198,6 +198,7 @@ class Row_Document* FK_Document_ProgrammersGuide_getrow();
 		void DeviceTemplate_FK_Package_getrows(vector <class Row_DeviceTemplate*> *rows);
 void News_FK_Package_getrows(vector <class Row_News*> *rows);
 void Package_FK_Package_Sourcecode_getrows(vector <class Row_Package*> *rows);
+void Package_Compat_FK_Package_getrows(vector <class Row_Package_Compat*> *rows);
 void Package_Directory_FK_Package_getrows(vector <class Row_Package_Directory*> *rows);
 void Package_Package_FK_Package_getrows(vector <class Row_Package_Package*> *rows);
 void Package_Package_FK_Package_DependsOn_getrows(vector <class Row_Package_Package*> *rows);

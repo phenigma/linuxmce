@@ -135,6 +135,7 @@ Table_Orbiter_Variable.cpp \
 Table_Output.cpp \
 Table_Package.cpp \
 Table_PackageType.cpp \
+Table_Package_Compat.cpp \
 Table_Package_Directory.cpp \
 Table_Package_Directory_File.cpp \
 Table_Package_Package.cpp \
