@@ -12,9 +12,13 @@ if ! cvs -d "$REPOS_SRC" checkout -d "/usr/pluto/src/$SRC_IMPL"; then
 fi
 # TODO: CVS pserver logout
 
-pushd "/usr/pluto/src/$SRC_IMPL" &>/dev/null
+mkdir -p /usr/pluto/install
+
+echo "
+pushd \"/usr/pluto/src/$SRC_IMPL\" &>/dev/null
 if ! make; then
-	echo "Source make failed"
+	echo \"Source make failed\"
 	exit $ERR_MAKE
 fi
 popd &>/dev/null
+" >>/usr/pluto/install/compile.sh

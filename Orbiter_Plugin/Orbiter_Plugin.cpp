@@ -697,8 +697,11 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
 	int iFK_Room = 1; 
 
 	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
-    if( pUnknownDeviceInfos->m_iDeviceIDFrom )
-		iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_PK_Room;
+
+	printf("CMD_New_Mobile_Orbiter\n");
+	//temporary hardcoding
+    //if( pUnknownDeviceInfos->m_iDeviceIDFrom )
+	//	iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_PK_Room;
 
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->AddRow();
     pRow_Device->FK_DeviceTemplate_set(iPK_DeviceTemplate);

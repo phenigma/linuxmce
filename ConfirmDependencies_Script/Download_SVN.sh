@@ -14,9 +14,13 @@ if ! svn checkout $svn_param "$REPOS_SRC/$REPOS/$PKG_NAME" "/usr/pluto/src/$SRC_
 	exit $ERR_DOWNLOAD
 fi
 
-pushd "/usr/pluto/src/$SRC_IMPL" &>/dev/null
+mkdir -p /usr/pluto/install
+
+echo "
+pushd \"/usr/pluto/src/$SRC_IMPL\" &>/dev/null
 if ! make; then
-	echo "Source make failed"
+	echo \"Source make failed\"
 	exit $ERR_MAKE
 fi
 popd &>/dev/null
+" >>/usr/pluto/install/compile.sh
