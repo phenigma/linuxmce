@@ -124,6 +124,11 @@ a:hover {
 	font-weight: bold;
 }
 
+h1 {
+	padding-top: 6pt;
+	font-size: 14pt;
+}
+
 a.package-name {
 	margin-top: 16pt;
 	margin-bottom: 0pt;
@@ -136,7 +141,7 @@ a.package-name {
 	font-family: Arial, Verdana, sans-serif;
 }
 
-p.package-comments {
+p, p.package-comments {
 	font-family: Verdana;
 	margin-top: 0pt;
 	margin-bottom: 5pt;
