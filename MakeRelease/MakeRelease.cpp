@@ -1157,7 +1157,7 @@ cout << "Copying Files\n";
 			
 			cout << cmd.c_str() << "=" << cmd2.c_str() << endl;
 			if(cmd.compare (cmd2) == 0) {
-				flag = true
+				flag = true;
 			}
 		}
 		if (flag != true) {
