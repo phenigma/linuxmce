@@ -847,9 +847,11 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 		return false;
 	}
 
+	cout << "Checking in: " << m_sName << " user: " << psc_user << endl;
 	if( m_mapUsers2ChangedRowList.find( psc_user ) != m_mapUsers2ChangedRowList.end( ) )
 	{
 		ListChangedRow *pListChangedRow = m_mapUsers2ChangedRowList[psc_user];
+		cout << "Checking in: " << m_sName << " user: " << psc_user << " rows: " << (int) pListChangedRow->size() << endl;
 		for( ListChangedRow::iterator itCR=pListChangedRow->begin( );itCR!=pListChangedRow->end( );++itCR )
 		{
 			ChangedRow *pChangedRow = *itCR;
