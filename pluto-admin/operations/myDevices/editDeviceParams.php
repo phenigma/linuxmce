@@ -225,7 +225,7 @@ $installationID = (int)@$_SESSION['installationID'];
 					<td><input name="ipAddress" value="'.$ipAddress.'"></td>
 				</tr>
 				<tr>
-					<td>Parameters:</td>
+					<td>MAC Address:</td>
 					<td><input name="macAddress" value="'.$macAddress.'"></td>
 				</tr>
 				<tr>
@@ -470,9 +470,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			frmvalidator.addValidation("DeviceTemplate","dontselect=0","Please select a master device!");			
 		</script>
 	
-	<br />
-	'.(in_array($deviceID,$validOrbiters)?'<a href="index.php?section=orbiters&deviceID='.$deviceID.'">Go to Orbiters</a>':'').'
-	'.((in_array($deviceID,$validOrbiters)|| in_array($deviceID,$validComputers))?'<a href="index.php?section=configureStartupSequence&deviceID='.$deviceID.'">Configure Startup Sequence</a> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=confirmPackages&deviceID='.$deviceID.'&from=editDeviceParams&DeviceTemplate='.$DeviceTemplate.'\',\'width=800,height=500,toolbars=true,scrollbars=1,resizable=1\');">Confirm packages</a>':'');
+	<br />';
 	
 	
 	} else {

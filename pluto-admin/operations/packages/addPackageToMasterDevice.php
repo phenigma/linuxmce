@@ -91,7 +91,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 				$rowPackage = $rs->FetchRow(); 
 				$out.='<tr>
 								<td align="right">Description: </td>
-								<td><input type="text" name="Description" value="'.$rowPackage['Description'].'"></td>
+								<td><input type="text" name="Description" value="'.$rowPackage['Description'].'"> (#'.$PK_Package.')</td>
 						   </tr>
 						   <tr>
 								<td align="right">This package contain source code.</td>

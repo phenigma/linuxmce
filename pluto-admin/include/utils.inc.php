@@ -405,35 +405,35 @@ function getValidComputersArray($installationID,$dbADO) {
 		return $ComputersFromDevicesArray;
 }
 
-function getValidLightningObjectsArray($installationID,$dbADO) {
-		$lightningID = $GLOBALS['rootLights'];
+function getValidLightingObjectsArray($installationID,$dbADO) {
+		$lightingID = $GLOBALS['rootLights'];
 		$GLOBALS['childsDeviceCategoryArray'] = array();
-		getDeviceCategoryChildsArray($lightningID,$dbADO);
-		$validDeviceCategoryLightning=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-		$validDeviceCategoryLightning[]=$lightningID; //add lightning root id to array
+		getDeviceCategoryChildsArray($lightingID,$dbADO);
+		$validDeviceCategoryLighting=cleanArray($GLOBALS['childsDeviceCategoryArray']);
+		$validDeviceCategoryLighting[]=$lightingID; //add lighting root id to array
 		
-		$getLightningsFromMasterDeviceList = 'SELECT PK_DeviceTemplate FROM DeviceTemplate WHERE FK_DeviceCategory IN ('.join(",",$validDeviceCategoryLightning).')';
-		$resLightningsFromMasterDeviceList = $dbADO->_Execute($getLightningsFromMasterDeviceList);
-		$arrayLightningsFromMasterDeviceList = array();
-		 if ($resLightningsFromMasterDeviceList) {
-		 	while ($rowLightningsFromMasterDeviceList = $resLightningsFromMasterDeviceList->FetchRow()) {
-		 		$arrayLightningsFromMasterDeviceList[]=$rowLightningsFromMasterDeviceList['PK_DeviceTemplate'];
+		$getLightingsFromMasterDeviceList = 'SELECT PK_DeviceTemplate FROM DeviceTemplate WHERE FK_DeviceCategory IN ('.join(",",$validDeviceCategoryLighting).')';
+		$resLightingsFromMasterDeviceList = $dbADO->_Execute($getLightingsFromMasterDeviceList);
+		$arrayLightingsFromMasterDeviceList = array();
+		 if ($resLightingsFromMasterDeviceList) {
+		 	while ($rowLightingsFromMasterDeviceList = $resLightingsFromMasterDeviceList->FetchRow()) {
+		 		$arrayLightingsFromMasterDeviceList[]=$rowLightingsFromMasterDeviceList['PK_DeviceTemplate'];
 		 	}
 		 }
 		
 		 
-		$arrayLightningsFromMasterDeviceList=cleanArray($arrayLightningsFromMasterDeviceList);
-		$queryLightningsFromDevices = 'SELECT PK_Device FROM Device WHERE FK_DeviceTemplate in ('.join(",",$arrayLightningsFromMasterDeviceList).') and FK_Installation = '.$installationID;
-		$resLightningsFromDevices = $dbADO->_Execute($queryLightningsFromDevices);
+		$arrayLightingsFromMasterDeviceList=cleanArray($arrayLightingsFromMasterDeviceList);
+		$queryLightingsFromDevices = 'SELECT PK_Device FROM Device WHERE FK_DeviceTemplate in ('.join(",",$arrayLightingsFromMasterDeviceList).') and FK_Installation = '.$installationID;
+		$resLightingsFromDevices = $dbADO->_Execute($queryLightingsFromDevices);
 		
-		$lightningsFromDevicesArray = array();
-		if ($resLightningsFromDevices) {
-			while ($rowLightningsFromDevices = $resLightningsFromDevices->FetchRow()) {
-				$lightningsFromDevicesArray[] = $rowLightningsFromDevices['PK_Device'];
+		$lightingsFromDevicesArray = array();
+		if ($resLightingsFromDevices) {
+			while ($rowLightingsFromDevices = $resLightingsFromDevices->FetchRow()) {
+				$lightingsFromDevicesArray[] = $rowLightingsFromDevices['PK_Device'];
 			}
 		}
 		
-		return $lightningsFromDevicesArray;
+		return $lightingsFromDevicesArray;
 }
 
 function getValidSecurityObjectsArray($installationID,$dbADO) {
@@ -543,7 +543,6 @@ function calculatePIN()
 }
 
 function getTopMenu($website,$dbADO,$package=0) {
-	$dbADO->debug=false;
 		$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website'";
 		$resSelectMenu = $dbADO->Execute($selectMenu);
 		$menuPages='';	
@@ -579,7 +578,6 @@ function getTopMenu($website,$dbADO,$package=0) {
 			$resSelectSubMenu1->Close();					
 		}
 		$resSelectMenu->Close();
-		$dbADO->debug=false;
 return $menuPages;
 }
 
@@ -678,8 +676,8 @@ function GetDeviceControlledVia($deviceID, $dbADO)
 {
 	$whereClause='';
 	if ($deviceID!=0) {
-		$selectMasterDeviceForParent = 'SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = ?';
-		$resSelectMasterDeviceForParent = $dbADO->Execute($selectMasterDeviceForParent,array($deviceID));
+		$selectMasterDeviceForParent = 'SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = ? AND FK_Installation=?';
+		$resSelectMasterDeviceForParent = $dbADO->Execute($selectMasterDeviceForParent,array($deviceID,$_SESSION['installationID']));
 		if ($resSelectMasterDeviceForParent) {
 			$rowSelectMasterDeviceForParent = $resSelectMasterDeviceForParent->FetchRow();
 			$DeviceTemplateForParent = $rowSelectMasterDeviceForParent['FK_DeviceTemplate'];
@@ -726,7 +724,7 @@ function GetDeviceControlledVia($deviceID, $dbADO)
 	$queryDeviceTemplate = "SELECT DISTINCT Device.Description,Device.PK_Device
 											FROM
 											Device INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
-											WHERE 1=1 $whereClause order by Device.Description asc";
+											WHERE 1=1 $whereClause AND FK_Installation='".$_SESSION['installationID']."' order by Device.Description asc";
 	$resDeviceTemplate = $dbADO->_Execute($queryDeviceTemplate);
 	$DeviceTemplateTxt = '';
 	if($resDeviceTemplate) {
@@ -790,9 +788,166 @@ function deleteCommandGroup($PK_CommandGroup,$dbADO)
 		WHERE FK_CommandGroup=?';
 	$dbADO->Execute($deleteCommandGroup_EntArea,$PK_CommandGroup);
 
+	$deleteCommandGroup_Room='
+		DELETE FROM CommandGroup_Room
+		WHERE FK_CommandGroup=?';
+	$dbADO->Execute($deleteCommandGroup_Room,$PK_CommandGroup);
+	
 	$deleteCommandGroup='
 		DELETE FROM CommandGroup 
 		WHERE PK_CommandGroup=?';
 	$dbADO->Execute($deleteCommandGroup,$PK_CommandGroup);
 }
+
+function grabDirectory ($path, $depth) {
+	if (($d = @opendir ($path)) === false) 
+		return;
+	else {
+		while ($f = readdir ($d)) {
+			if ($f != "." && $f != "..") {
+				if (is_dir ($path . "/" . $f)) {
+					$GLOBALS['physicalPathsArray'][]=$path . "/" . $f;
+					$depth++;
+					grabDirectory ($path . "/" . $f, $depth);
+					$depth--;
+				} 
+			}
+		}
+		closedir ($d);
+	}
+}
+
+
+function grabFiles($path) {
+	$filesArray=array();
+	if (($d = @opendir ($path)) === false) 
+		return $filesArray;
+	else {
+		while ($f = readdir ($d)) {
+			if ($f != "." && $f != "..") {
+				if (is_file ($path . "/" . $f)) {
+					$filesArray[]= $f;
+				} 
+			}
+		}
+		closedir ($d);
+	}
+	return $filesArray;
+}
+
+
+function resizeImage($source, $destination, $new_width, $new_height)
+{
+	if(!file_exists($source))
+		return 1;	// Source file does not exists
+
+	$arr=getimagesize($source);
+	$old_w=$arr[0];
+	$old_h=$arr[1];
+	if($new_height<=0 || $new_width<=0)
+		return 2;	// invalid width or height
+	$aspect_ratio=$new_width/$new_height;
+	if($old_w/$old_h==$aspect_ratio)
+	{
+		$src_x=0;
+		$src_y=0;
+		$src_w=floor($old_w*$aspect_ratio);
+		$src_h=floor($old_h*$aspect_ratio);
+	}
+	elseif($old_w/$old_h>$aspect_ratio)
+	{
+		$src_x=floor(($old_w-$old_h*$aspect_ratio)/2);
+		$src_y=0;
+		$src_w=floor($old_h*$new_width/$new_height);
+		$src_h=floor($old_h);
+	}
+	else
+	{
+		$src_x=0;
+		$src_y=floor(($old_h-$old_w/$aspect_ratio)/2);
+		$src_w=floor($old_w);
+		$src_h=floor($old_w*$new_height/$new_width);
+	}
+	$new_w=$new_width;
+	$new_h=$new_height;	 
+
+	$dst_img=imagecreatetruecolor($new_w,$new_h);
+	$src_img=ImageCreateFromJpeg($source);
+	if(!@imagecopyresized($dst_img,$src_img,0,0,$src_x,$src_y,$new_w,$new_h,$src_w,$src_h))
+		return 3; // resize error
+	if(!@imagejpeg($dst_img, $destination, 100))
+		return 4; // writing thumbnail error
+	else
+		return true;
+}
+
+function multi_page($query, $params,$url, $page_no, $art_pagina,$dbADO)
+{
+	$res=$dbADO->Execute($query,$params);
+	$total=$res->RecordCount();
+	$max_pages = $total/$art_pagina;
+	if( $max_pages - floor($max_pages) >= 0 )
+		$max_pages = floor($max_pages) + 1;
+	else
+		$max_pages = floor( $max_pages );
+
+	if($total!=0){
+		$output= '<div align="center">';
+		for($i=0;$i<$max_pages;$i++){
+			$output.=($page_no==$i)?'<font color="red">'.($i+1).'</font> ':'<a href='.$url.'&page_no='.($i+1).'>[ '.($i+1).' ]</a> ';
+		}
+		$output.='</div>';
+	}
+	if($total==0){
+		$output.='No records';
+	}
+	else{
+		$output.='<table>
+					<tr bgcolor="lightblue">
+						<td align="center"><B>Files</B></td>
+						<td align="center">&nbsp;</td>
+					</tr>';
+		$art_index=0;
+		$start = $page_no * $art_pagina;
+		$res=$dbADO->Execute($query." LIMIT  $start,$art_pagina",$params);
+	    while($row = $res->FetchRow()){
+			$art_index++;
+			if($art_index-1 == $art_pagina)
+		        break;
+			$output.=multi_page_format($row, $art_index+$start,$dbADO);
+		}
+	}
+	$output.='Found: '.$total.'. ';
+	if($total!=0)
+		$output.= 'Page '.($page_no+1).' from '.$max_pages.'.<br>';
+	return $output;
+}
+function multi_page_format($row, $art_index,$mediadbADO)
+{
+	$queryOtherAttributes='
+		SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name,FirstName
+		FROM File_Attribute
+			INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
+			INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
+		WHERE FK_File=? AND FK_AttributeType!=? ORDER BY AttributeType.Description ASC
+		';
+
+	$otherAttributes='';
+	$resOtherAttributes=$mediadbADO->Execute($queryOtherAttributes,array($row['FK_File'],$GLOBALS['attrType']));
+	while($rowOtherAttributes=$resOtherAttributes->FetchRow()){
+		$otherAttributes.='<b>'.$rowOtherAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowOtherAttributes['PK_Attribute'].'&action=properties" target="_self">'.$rowOtherAttributes['Name'].(($rowOtherAttributes['FirstName']!='')?', '.$rowOtherAttributes['FirstName']:'').'</a> ';
+	}
+
+	$out='
+		<tr style="background-color:'.(($art_index%2==0)?'#EEEEEE':'#EBEFF9').';">
+			<td title="'.$row['Path'].'" align="left">'.(($row['Missing']!=0)?'<img src="include/images/missing.gif" align="top"> ':'').'<b>Filename:</b> <a href="index.php?section=mainMediaFilesSync&path='.$row['Path'].'&filename='.urlencode($row['Filename']).'">'.$row['Filename'].'</a><br><B>Path:</B> '.$row['Path'].'</td>
+			<td rowspan="2"><a href="#" onClick="self.location=\'index.php?section=mainMediaBrowser&attributeID='.$GLOBALS['attributeID'].'&action=properties&fileID='.$row['PK_File'].'\';">Delete</a></td>
+		</tr>
+		<tr style="background-color:'.(($art_index%2==0)?'#EEEEEE':'#EBEFF9').';">
+			<td align="left">'.$otherAttributes.'</td>
+		</tr>
+		';
+	return $out;
+}
+
 ?>

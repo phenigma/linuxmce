@@ -89,9 +89,9 @@ function addCommandGroupAsScenario($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td>'.(($arrayID==$GLOBALS['ArrayIDEntertainment'])?'Entertainment area':'Rooms').'</td>
+					<td>'.(($arrayID==$GLOBALS['ArrayIDForMedia'])?'Entertainment area':'Rooms').'</td>
 					<td>';
-					if($arrayID==$GLOBALS['ArrayIDEntertainment']){
+					if($arrayID==$GLOBALS['ArrayIDForMedia']){
 						$queryEntArea='
 							SELECT EntertainArea.* FROM EntertainArea
 								INNER JOIN Room ON FK_Room=PK_Room
@@ -184,7 +184,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 			$res=$dbADO->Execute($insertCommandGroup,array($description,$arrayID,$designObjID,$iconID,$templateID,$installationID));
 			$PK_CommandGroup=$dbADO->Insert_ID();
 			
-			if($arrayID==$GLOBALS['ArrayIDEntertainment']){
+			if($arrayID==$GLOBALS['ArrayIDForMedia']){
 				$displayedEntArea =cleanString($_POST['displayedEntArea']);
 				if($displayedEntArea!=''){
 					$EntAreaArray=explode(',',$displayedEntArea);

@@ -404,6 +404,7 @@ switch ($section) {
 	case 'rooms':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
+		$output->setHelpSrc('/support/index.php?section=document&docID=119');
 	    include_once('operations/rooms/rooms.php');
 	    rooms($output,$dbADO);	    
 	break;	
@@ -429,6 +430,7 @@ switch ($section) {
 	case 'installationSettings':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
+		$output->setHelpSrc('/support/index.php?section=document&docID=116');
 	    include_once('operations/users_settings/installationSettings.php');
 	    installationSettings($output,$dbADO);	    
 	break;
@@ -441,6 +443,7 @@ switch ($section) {
 	case 'users':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
+		$output->setHelpSrc('/support/index.php?section=document&docID=118');
 	    include_once('operations/users_settings/users.php');
 	    users($output,$dbADO);	    
 	break;
@@ -505,6 +508,7 @@ switch ($section) {
 	case 'mediaScenarios':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
+		$output->setHelpSrc('/support/index.php?section=document&docID=124');
 	    include_once('operations/myScenarios/mediaScenarios.php');
 	    mediaScenarios($output,$dbADO);
 	break;
@@ -515,12 +519,20 @@ switch ($section) {
 	    include_once('operations/myScenarios/editCommandGroup.php');
 	    editCommandGroup($output,$dbADO);
 	break;
-	case 'scenarios':
+	case 'lightingScenarios':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-	    include_once('operations/myScenarios/scenarios.php');
-	    scenarios($output,$dbADO);
+		$output->setHelpSrc('/support/index.php?section=document&docID=122');
+	    include_once('operations/myScenarios/lightingScenarios.php');
+	    lightingScenarios($output,$dbADO);
 	break;
+	case 'climateScenarios':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+		$output->setHelpSrc('/support/index.php?section=document&docID=123');
+	    include_once('operations/myScenarios/climateScenarios.php');
+	    climateScenarios($output,$dbADO);
+	break;	
 	case 'wizardScenarios':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
@@ -583,16 +595,93 @@ switch ($section) {
 			default:
 			break;
 		}
-	    
 	break;
-	// test section 
-	case 'orphans':
+	case 'mediaBrowser';
+	    include_once('operations/mediaBrowser/mediaBrowserFrameset.php');
+	    mediaBrowserFrameset();	    
+	break;		
+	case 'mediaBrowserFrameset';
+		$output = new Template($dbADO);	
+		$output->setTemplateFileType('homeWithFrames');
+		$output->setLeftFrameSrc('index.php?section=leftMediaBrowser');
+		$output->setRightFrameSrc('index.php?section=mainMediaBrowser');
+		$output->setBody('');		
+		$output->setScriptCalendar('null');
+		$output->setTitle(APPLICATION_NAME);			
+  		$output->output();  		
+	break;
+	case 'leftMediaBrowser':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/mediaBrowser/leftMediaBrowser.php');
+	    leftMediaBrowser($output,$dbADO);	    
+	break;
+	case 'mainMediaBrowser':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-	    include_once('_trash/orphans.php');
-	    orphans($output,$dbADO);	    
+	    include_once('operations/mediaBrowser/mainMediaBrowser.php');
+	    mainMediaBrowser($output,$mediadbADO);	    
 	break;
-	// end test section
+
+	case 'mediaFilesSync';
+	    include_once('operations/mediaBrowser/mediaFilesSync.php');
+	    mediaFilesSync();	    
+	break;		
+	case 'mediaFilesSyncFrameset';
+		$output = new Template($dbADO);	
+		$output->setTemplateFileType('homeWithFrames');
+		$output->setLeftFrameSrc('index.php?section=leftMediaFilesSync');
+		$output->setRightFrameSrc('index.php?section=mainMediaFilesSync');
+		$output->setBody('');		
+		$output->setScriptCalendar('null');
+		$output->setTitle(APPLICATION_NAME);			
+  		$output->output();  		
+	break;
+	case 'leftMediaFilesSync':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/mediaBrowser/leftMediaFilesSync.php');
+	    leftMediaFilesSync($output,$mediadbADO);	    
+	break;
+	case 'mainMediaFilesSync':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/mainMediaFilesSync.php');
+	    mainMediaFilesSync($output,$mediadbADO);	    
+	break;
+	
+	case 'floorplanWizard':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/floorplan/floorplanWizard.php');
+	    floorplanWizard($output,$dbADO);
+	break;
+	case 'uploadFloorplan':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/floorplan/uploadFloorplan.php');
+	    uploadFloorplan($output,$dbADO);
+	break;
+	case 'eventsHandler':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/events/eventsHandler.php');
+	    eventsHandler($output,$dbADO);
+	break;
+	case 'editEventHandler':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/events/editEventHandler.php');
+	    editEventHandler($output,$dbADO);
+	break;
+
+	case 'securitySettings':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/securitySettings.php');
+	    securitySettings($output,$dbADO);
+	break;
+
 	case '';
 		$output = new Template($dbADO);	
 		

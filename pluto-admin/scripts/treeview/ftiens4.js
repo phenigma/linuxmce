@@ -173,7 +173,7 @@ function drawFolder(insertAtObj)
   else
   {
 	  if (this.prependHTML == "")
-        docW = docW + "<img src=" + ICONPATH + "ftv2blank.gif height=2 width=2>"
+        docW = docW + "<img align=middle src=" + ICONPATH + "ftv2blank.gif height=2 width=2>"
   }
   if (WRAPTEXT)
 	  docW = docW + "</td>"+this.prependHTML+"<td valign=middle width=100%>"
@@ -444,11 +444,11 @@ function drawItem(insertAtObj)
   if (this.level>0) 
     if (this.isLastNode) //the last 'brother' in the children array 
     { 
-      leftSide = leftSide + "<td valign=top><img src='" + ICONPATH + "ftv2lastnode.gif' width=16 height=22></td>"
+      leftSide = leftSide + "<td valign=top><img align=middle src='" + ICONPATH + "ftv2lastnode.gif' width=16 height=22></td>"
     } 
     else 
     { 
-      leftSide = leftSide + "<td valign=top background=" + ICONPATH + "ftv2vertline.gif><img src='" + ICONPATH + "ftv2node.gif' width=16 height=22></td>"
+      leftSide = leftSide + "<td valign=top background=" + ICONPATH + "ftv2vertline.gif><img align=middle src='" + ICONPATH + "ftv2node.gif' width=16 height=22></td>"
     } 
 
   docW = docW + this.blockStartHTML("item")
@@ -458,7 +458,7 @@ function drawItem(insertAtObj)
       docW = docW + "<a " + fullLink  + " id=\"itemIconLink"+this.id+"\">" + "<img id='itemIcon"+this.id+"' " + "src='"+this.iconSrc+"' border=0>" + "</a>"
   else
 	  if (this.prependHTML == "")
-        docW = docW + "<img src=" + ICONPATH + "ftv2blank.gif height=2 width=3>"
+        docW = docW + "<img align=middle src=" + ICONPATH + "ftv2blank.gif height=2 width=3>"
 
   if (WRAPTEXT)
     docW = docW + "</td>"+this.prependHTML+"<td valign=middle width=100%>"
@@ -596,11 +596,11 @@ function leftSideHTML(leftSideCoded) {
 	{
 		if (leftSideCoded.charAt(i) == "1")
 		{
-			retStr = retStr + "<td valign=top background=" + ICONPATH + "ftv2vertline.gif><img src='" + ICONPATH + "ftv2vertline.gif' width=16 height=22></td>"
+			retStr = retStr + "<td valign=top background=" + ICONPATH + "ftv2vertline.gif><img align=middle src='" + ICONPATH + "ftv2vertline.gif' width=16 height=22></td>"
 		}
 		if (leftSideCoded.charAt(i) == "0")
 		{
-			retStr = retStr + "<td valign=top><img src='" + ICONPATH + "ftv2blank.gif' width=16 height=22></td>"
+			retStr = retStr + "<td valign=top><img align=middle src='" + ICONPATH + "ftv2blank.gif' width=16 height=22></td>"
 		}
 	}
 	return retStr

@@ -93,9 +93,9 @@ function editCommandGroup($output,$dbADO) {
 						</select>
 				</td></tr>
 				<tr>
-					<td>'.(($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDEntertainment'])?'Entertainment area':'Rooms').'</td>
+					<td>'.(($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForMedia'])?'Entertainment area':'Rooms').'</td>
 					<td>';
-					if($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDEntertainment']){
+					if($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForMedia']){
 						$queryCheckedEntArea='SELECT * FROM CommandGroup_EntertainArea WHERE FK_CommandGroup=?';
 						$resCheckedEntArea=$dbADO->Execute($queryCheckedEntArea,$commandGroupID);
 						$checkedEntArea=array();
@@ -214,7 +214,6 @@ function editCommandGroup($output,$dbADO) {
 									  WHERE FK_Command = ? AND FK_CommandGroup_Command =?
 									  ORDER BY CommandParameter.Description asc
 								";
-							$dbADO->debug=true;
 							$resSelectParameters = $dbADO->Execute($query,array($rowCommandAssigned['FK_Command'],$rowCommandAssigned['PK_CommandGroup_Command']));
 							$dbADO->debug=false;
 								if ($resSelectParameters) {
@@ -487,7 +486,7 @@ function editCommandGroup($output,$dbADO) {
 				exit();							
 			}
 
-			if($arrayID==$GLOBALS['ArrayIDEntertainment']){
+			if($arrayID==$GLOBALS['ArrayIDForMedia']){
 				
 				$displayedEntArea =cleanString($_POST['displayedEntArea']);
 				$EntAreaOldValues =cleanString($_POST['EntAreaOldValues']);

@@ -28,6 +28,9 @@ function devices($output,$dbADO) {
 		case 'security':
 			$deviceCategory=$GLOBALS['rootSecurity'];
 		break;
+		case 'surveillance_cameras':
+			$deviceCategory=$GLOBALS['rootCameras'];
+		break;
 		default:
 			$deviceCategory=$GLOBALS['rootLightsInterfaces'];
 	}
@@ -170,7 +173,8 @@ function devices($output,$dbADO) {
 							if(in_array($DeviceDataDescriptionToDisplay[$key],$GLOBALS['DeviceDataLinkedToTables']))
 							{
 								$tableName=str_replace('PK_','',$DeviceDataDescriptionToDisplay[$key]);
-								$queryTable="SELECT * FROM $tableName ORDER BY Description ASC";
+								$filterQuery=($tableName=='Device')?" WHERE FK_Installation='".$installationID."'":'';
+								$queryTable="SELECT * FROM $tableName $filterQuery ORDER BY Description ASC";
 								$resTable=$dbADO->Execute($queryTable);
 								$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'">
 										<option value="0"></option>';
@@ -302,3 +306,4 @@ function devices($output,$dbADO) {
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
 }
+?>

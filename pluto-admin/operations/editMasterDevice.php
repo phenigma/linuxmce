@@ -564,7 +564,7 @@ $out='';
 		$manufacturer = cleanInteger($_POST['Manufacturer']);
 		$isAVDevice = cleanInteger(@$_POST['isAVDevice']);
 		$old_isAVDevice = cleanInteger(@$_POST['old_isAVDevice']);
-		$package = cleanInteger(@$_POST['package']);
+		$package = (@$_POST['package']!='0')?cleanInteger(@$_POST['package']):NULL;
 		$isPlugIn = cleanInteger(@$_POST['isPlugIn']);
 		
 		$locationGoTo=''; 

@@ -1,17 +1,19 @@
 <?PHP
 	include_once($_SERVER['DOCUMENT_ROOT'].'/PlutoAdminConfig/config.inc.php');   
       
-   error_reporting(E_ALL);
-  //debuging
-  //$GLOBALS['inDebug']=1;
-  $GLOBALS['sendErrorsTo']='support@plutohome.com';
-
+  	error_reporting(E_ALL);
+    
+  	$GLOBALS['sendErrorsTo']='support@plutohome.com';
+ 	
 	$directory="/pluto-admin/";
 	$domain="http://localhost";
 
 //	$MasterUsersHost="https://plutohome.com/masterusers/";
 	$MasterUsersHost="http://plutohome.com/masterusers/";
   	
+	// path where the media pics are uploaded
+	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/mediapics/';
+	
 	define("VERSION","0.1");
 	define("APPLICATION_NAME","Pluto");
 	
@@ -39,20 +41,30 @@
   $GLOBALS['rootMediaDirectorsID'] = 28; //the PK_DeviceTemplate from DeviceTemplate table for the root Media Directors
   $GLOBALS['rootMediaPlugin']=2;		// the PK_DeviceTemplate for device template "Media Plug-in"
   
-  $GLOBALS['rootLights'] = 71; //the PK_DeviceCategory from DeviceCategory table for the root Lightning devices
+  $GLOBALS['LightingScenariosTemplate']=9;	// PK_Template for Lighting Scenarios
+  $GLOBALS['rootLights'] = 73; //the PK_DeviceCategory from DeviceCategory table for the root Lighting devices
   $GLOBALS['ArrayIDForLight'] = 1;
+  $GLOBALS['genericONCommand']=192;	// PK_Command for "Generic On", "Generic OFF", "Set Level"
+  $GLOBALS['genericOFFCommand']=193;
+  $GLOBALS['genericSetLevelCommand']=184;
+  $GLOBALS['commandParamAbsoluteLevel']=76;	// PK_CommandType for "Absolute Level"
   
-  $GLOBALS['rootClimate'] = 76; //the PK_DeviceCategory from DeviceCategory table for the root Climate devices
+  
+  $GLOBALS['ClimateScenariosTemplate']=10;	// PK_Template for Climate Scenarios
+  $GLOBALS['rootClimate'] = 83; //the PK_DeviceCategory from DeviceCategory table for the root Climate devices
   $GLOBALS['ArrayIDForClimate'] = 2;
-  
-  $GLOBALS['rootSecurity'] = 77; //the PK_DeviceCategory from DeviceCategory table for the root Security devices
+  $GLOBALS['genericHeatCommand']=197;
+  $GLOBALS['genericCoolCommand']=196;
+    
+  $GLOBALS['rootSecurity'] = 80; //the PK_DeviceCategory from DeviceCategory table for the root Security devices
   $GLOBALS['ArrayIDForSecurity'] = 3;
-  $GLOBALS['ArrayIDEntertainment'] = 5;
+  $GLOBALS['ArrayIDForMedia'] = 5;
   
   $GLOBALS['rootLightsInterfaces'] = 75;
   $GLOBALS['rootClimateInterfaces'] = 78;
   $GLOBALS['rootSecurityInterfaces'] = 79;
   
+  $GLOBALS['MediaScenariosTemplate']=1;			// PK_Template for the template "Media Scenarios"
   $GLOBALS['MediaScenariosCommand']=43;			// the PK_Command for the command "MH Play Media" used in Media Scenarios
   $GLOBALS['commandParamPK_Device']=2;			// PK_CommandParameter from CommandParameter table for parameter "PK_Device"
   $GLOBALS['commandParamPK_DesignObj']=3;		// PK_CommandParameter from CommandParameter table for parameter "PK_DesignObj"
@@ -61,15 +73,24 @@
   $GLOBALS['commandParamPK_DeviceTemplate']=44;	// PK_CommandParameter from CommandParameter table for parameter "PK_DeviceTemplate"
   $GLOBALS['commandParamPK_EntertainArea']=45;	// PK_CommandParameter from CommandParameter table for parameter "PK_EntertainArea"
   
-  $GLOBALS['commandSetVar']=27;				// FK_Command for "Set var to path"
-  $GLOBALS['commandGotoScreen']=5;			// FK_Command for "Go to screen"
+  $GLOBALS['commandSetVar']=27;					// FK_Command for "Set var to path"
+  $GLOBALS['commandGotoScreen']=5;				// FK_Command for "Go to screen"
   
   $GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents');
   
   
   $GLOBALS['DeviceDataLinkedToTables']=array('PK_Distro','PK_FloorplanObjectType','PK_Skin','PK_Size','PK_Language','PK_Users');
-  $GLOBALS['deviceTemplateOrbiter']=8;	// the PK_DeviceTemplate for 'Orbiter'
+  $GLOBALS['deviceTemplateOrbiter']=8;		// the PK_DeviceTemplate for 'Orbiter'
 
+  $GLOBALS['FloorplanObjectType']=11;		// PK_DeviceData for FloorplanObjectType from DeviceData
+  $GLOBALS['FloorplanInfo']=10;				// PK_DeviceData for FloorplanInfo (coordinates) from DeviceData
+
+  $GLOBALS['EventCriteriaList']=2;			// PK_CriteriaList for 'Events'
+  $GLOBALS['EventsHandlerArray']=20;		// PK_Array for Events Handler
+  $GLOBALS['EventsHandlerTemplate']=11;		// PK_Template for Events Handler
+  
+  $GLOBALS['rootCameras']=93;				// PK_DeviceCategory for Surveillance Cameras
+  $GLOBALS['securityAlert']=33;				// PK_DeviceData for Alert from DeviceData table
   
   // do not change the following lines 
   $addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
