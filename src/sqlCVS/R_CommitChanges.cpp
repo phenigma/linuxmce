@@ -62,6 +62,11 @@ bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 			return true;
 		}
 
+		// Figure out who is the default user that will receive ownership of any new records that
+		// don't have an owner specified
+		bool bNoPassword,bIsSupervisor; // We're not going to use them.  Only needed to pass them in
+		psqlCVSprocessor->m_ipsc_user_default = ValidateUser(m_sDefaultUser,"nopass",bNoPassword,bIsSupervisor);
+
 		psqlCVSprocessor->m_pRepository = pRepository;
 		m_psc_batch = psqlCVSprocessor->m_psc_bathdr_orig = psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &g_GlobalConfig.m_mapValidatedUsers );
 

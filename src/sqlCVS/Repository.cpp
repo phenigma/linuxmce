@@ -323,6 +323,7 @@ class Table *Repository::CreateBatchHeaderTable( )
 	sql.str( "" );
 	sql	<< "CREATE TABLE `" << Tablename << "`( " << endl
 		<< "`PK_" << Tablename << "` int( 11 ) NOT NULL auto_increment, " << endl
+		<< "`IPAddress` varchar( 16 ), " << endl
 		<< "`date` datetime, " << endl
 		<< "`comments` text, " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
@@ -356,6 +357,7 @@ class Table *Repository::CreateBatchUserTable( )
 		<< "`FK_psc_" + m_sName + "_bathdr` int( 11 ) NOT NULL, " << endl
 		<< "`psc_user` int( 11 ) NOT NULL, " << endl
 		<< "`is_sup` tinyint( 1 ) NOT NULL, " << endl
+		<< "`no_pass` tinyint( 1 ) NOT NULL, " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
 	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
@@ -422,9 +424,10 @@ class Table *Repository::CreateTablesTable( )
 		<< "`PK_" << Tablename << "` int( 11 ) NOT NULL auto_increment, " << endl
 		<< "`Tablename` varchar( 60 ) NOT NULL default '', " << endl
 		<< "`filter` varchar( 255 ), " << endl
-		<< "`frozen` TINYINT( 1 ) DEFAULT '0', " << endl
-		<< "`last_psc_id` INT( 11 ) DEFAULT '0', " << endl
-		<< "`last_psc_batch` INT( 11 ) DEFAULT '0', " << endl
+		<< "`frozen` TINYINT( 1 ) NOT NULL DEFAULT '0', " << endl
+		<< "`anonymous` TINYINT( 1 ) NOT NULL DEFAULT '0', " << endl
+		<< "`last_psc_id` INT( 11 ) NOT NULL DEFAULT '0', " << endl
+		<< "`last_psc_batch` INT( 11 ) NOT NULL DEFAULT '0', " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
 	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
@@ -551,7 +554,7 @@ bool Repository::CheckIn( )
 		if( r_CommitChanges.m_cProcessOutcome==LOGIN_FAILED )
 		{
 			cout << "The username or password was incorrect." << endl;
-			if( AskYNQuestion("Do you want to re-enter the passwords and try again?",false) )
+			if( !g_GlobalConfig.m_bNoPrompts && AskYNQuestion("Do you want to re-enter the passwords and try again?",false) )
 			{
 				for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
 				{
@@ -700,7 +703,7 @@ void Repository::AddTablesToMap( )
 		g_GlobalConfig.m_mapTable[ ( *it ).first ] = ( *it ).second;
 }
 
-int Repository::CreateBatch( map<int,bool> *mapValidatedUsers )
+int Repository::CreateBatch( map<int,ValidatedUser *> *mapValidatedUsers )
 {
 	if( !m_pTable_BatchHeader || !m_pTable_BatchUser || !m_pTable_BatchDetail )
 	{
@@ -716,11 +719,13 @@ int Repository::CreateBatch( map<int,bool> *mapValidatedUsers )
 			cerr << "Failed to create batch: " << sSQL.str( ) << endl;
 		else
 		{
-			for(map<int,bool>::iterator it=mapValidatedUsers->begin();it!=mapValidatedUsers->end();++it)
+			for(map<int,ValidatedUser *>::iterator it=mapValidatedUsers->begin();it!=mapValidatedUsers->end();++it)
 			{
+				ValidatedUser *pValidatedUser = (*it).second;
 				std::ostringstream sSQL;
 				sSQL << "INSERT INTO " << m_pTable_BatchUser->Name_get( ) << "( FK_" 
-					<< m_pTable_BatchHeader->Name_get( ) << ",psc_user,is_sup ) VALUES( " << BatchID << "," << (*it).first << "," << ((*it).second ? "1" : "0") << " )";
+					<< m_pTable_BatchHeader->Name_get( ) << ",psc_user,is_sup,no_pass ) VALUES( " << BatchID << "," << (*it).first << "," << 
+					(pValidatedUser->m_bIsSupervisor ? "1" : "0") << "," << (pValidatedUser->m_bWithoutPassword ? "1" : "0") << " )";
 				int BatchID = m_pDatabase->threaded_mysql_query_withID( sSQL.str( ) );
 
 			}

@@ -19,7 +19,7 @@
 #define NULL_TOKEN	"**( NULL )**"
 
 typedef map<string,string> MapStringString;
-extern int ValidateUser(string Username,string Password,bool &bSupervisor);
+extern int ValidateUser(string Username,string Password,bool &NoPassword,bool &bSupervisor);
 
 namespace sqlCVS
 {
@@ -29,6 +29,12 @@ namespace sqlCVS
 	typedef map<string,Table *> MapTable;
 	typedef map<string,Repository *> MapRepository;
 
+	class ValidatedUser
+	{
+	public:
+		bool m_bWithoutPassword,m_bIsSupervisor;
+		ValidatedUser(bool bWithoutPassword,bool bIsSupervisor) { m_bWithoutPassword=bWithoutPassword; m_bIsSupervisor=bIsSupervisor; }
+	};
 	/**
 	 * @brief  class modelling the global configuration
 	 */
@@ -70,9 +76,9 @@ namespace sqlCVS
 		Database *m_pDatabase;		/**< points to the database */
 		Repository *m_pRepository;	/**< points to the Repository */
 
-		map<int,bool> m_mapValidatedUsers; /**< Map of user id's to bool's if the user is a supervisor */
+		map<int,ValidatedUser *> m_mapValidatedUsers; /**< Map of user id's to bool's if the user is a supervisor */
 
-		bool m_bNewDatabase,m_bVerify;
+		bool m_bNewDatabase,m_bVerify,m_bAllowUnmetDependencies,m_bCheckinEveryone,m_bNoPrompts;
 
 		/**
 		 * @ brief constructor
@@ -92,7 +98,7 @@ namespace sqlCVS
 			m_pRepository=NULL;
 			m_bNewDatabase=false;
 			m_psc_batch=0;
-			m_bVerify=false;
+			m_bVerify=m_bAllowUnmetDependencies=m_bCheckinEveryone=m_bNoPrompts=false;
 		}
 
 		/**
@@ -119,15 +125,15 @@ namespace sqlCVS
 			bool bValidatedUser=false;  // Be sure there is at least 1 user that was validated, and the map isn't empty
 			for(MapStringString::iterator it=pmapUsersPasswords->begin();it!=pmapUsersPasswords->end();++it)
 			{
-				bool bSupervisor;
-				int psc_user = ValidateUser( (*it).first, (*it).second, bSupervisor );
+				bool bNoPassword,bSupervisor;
+				int psc_user = ValidateUser( (*it).first, (*it).second, bNoPassword, bSupervisor );
 				if( !psc_user )
 				{
 					return false;
 				}
 				cout << "Validated user: " << psc_user << " Is sup: " << bSupervisor << endl;
 				bValidatedUser=true;
-				m_mapValidatedUsers[psc_user]=bSupervisor;
+				m_mapValidatedUsers[psc_user]=new ValidatedUser(bNoPassword,bSupervisor);
 				if( bSupervisor )
 					bSupervisor=true;
 			}

@@ -52,7 +52,7 @@ bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
-		cerr << "Problem retrieving rows with query1: " << sSQL << endl;
+		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
 		m_cProcessOutcome=INTERNAL_ERROR;
 	}
 	else
@@ -61,7 +61,7 @@ bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 		{
 			if( !row[0] )
 			{
-				cerr << "Found NULL in query: " << sSQL << endl;
+				cerr << "Found NULL in query: " << sSQL.str() << endl;
 				m_cProcessOutcome=INTERNAL_ERROR;
 				return true; /**<< Request successfully processed */
 			}

@@ -6,7 +6,7 @@
 #include "CommonFunctions.h"
 #include "PlutoUtils/MySQLHelper.h"
 
-int ValidateUser(string Username,string Password,bool &bSupervisor)
+int ValidateUser(string Username,string Password,bool &bNoPassword,bool &bSupervisor)
 {
 	MySqlHelper mySqlHelper("10.0.0.150","root","","MasterUsers");
 	PlutoSqlResult result_set;
@@ -27,7 +27,8 @@ int ValidateUser(string Username,string Password,bool &bSupervisor)
 	}
 	else return 0;
 
-	if( Password==md5 || mySqlHelper.md5(Password)==md5 )
+	bNoPassword = (Password=="nopass" || Password=="0945fc9611f55fd0e183fb8b044f1afe"); // The md5 of nopass
+	if( bNoPassword || Password==md5 || mySqlHelper.md5(Password)==md5 )
 		return psc_user;
 
 	cout << "Username: " << Username << " Password: " << Password << " failed login" << endl;

@@ -32,7 +32,7 @@ public:
 	int m_i_psc_batch;
 	sqlCVS::Repository *m_pRepository; /**< The repository we're currently committing */
 	bool m_bSupervisor;
-	int m_iNew,m_iMod,m_iDel;
+	int m_iNew,m_iMod,m_iDel,m_ipsc_user_default;
 
 	int m_psc_bathdr_orig,m_psc_bathdr_auth,m_psc_bathdr_unauth;
 	
@@ -42,7 +42,7 @@ public:
 	/** @brief constructor assigning null to all the pointers */
 	sqlCVSprocessor( ) : RA_Processor( 0, 1 ), st(g_GlobalConfig.m_pDatabase) { 
 		m_pTable=NULL; m_pvectFields=NULL; m_i_psc_batch=1; m_pRepository=NULL; m_bSupervisor=false; m_iNew=m_iMod=m_iDel=0; 
-		m_psc_bathdr_orig=m_psc_bathdr_auth=m_psc_bathdr_unauth=0;
+		m_psc_bathdr_orig=m_psc_bathdr_auth=m_psc_bathdr_unauth=m_ipsc_user_default=0;
 	}
 	virtual ~sqlCVSprocessor( ) { if( st.m_bIsOpen_get() ) st.Rollback(); }
 

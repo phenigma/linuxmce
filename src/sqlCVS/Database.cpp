@@ -557,12 +557,15 @@ void Database::CheckIn( )
 	}
 
 	bool bDependenciesMet=true;
-	for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
+	if( !g_GlobalConfig.m_bAllowUnmetDependencies )
 	{
-		if( !( *it ).second->ConfirmDependencies( ) )
-			bDependenciesMet=false;
+		for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
+		{
+			if( !( *it ).second->ConfirmDependencies( ) )
+				bDependenciesMet=false;
+		}
 	}
-	
+
 	if( !bDependenciesMet )
 	{
 		cerr << "Aborting checkin due to unmet dependencies" << endl;
@@ -864,6 +867,13 @@ int Database::PromptForSqlCvsFiles( )
 
 int Database::ConfirmUsersToCheckIn( )
 {
+	if( g_GlobalConfig.m_bCheckinEveryone )
+	{
+		for ( map<int, MapTable*>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
+			g_GlobalConfig.m_mapUsersPasswords[StringUtils::itos(( *it ).first)]="";
+		return ( int ) g_GlobalConfig.m_mapUsersPasswords.size( );
+	}
+
 	string sError="";
 	while( true )
 	{

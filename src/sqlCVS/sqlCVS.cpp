@@ -227,6 +227,15 @@ int main( int argc, char *argv[] )
 		case 'v':
 			g_GlobalConfig.m_bVerify = true;
 			break;
+		case 'a':
+			g_GlobalConfig.m_bAllowUnmetDependencies = true;
+			break;
+		case 'e':
+			g_GlobalConfig.m_bCheckinEveryone = true;
+			break;
+		case 'n':
+			g_GlobalConfig.m_bNoPrompts = true;
+			break;
 		default:
 			bError=true;
 			break;
@@ -243,6 +252,7 @@ int main( int argc, char *argv[] )
 			<< "[-H sqlCVS hostname] [-R sqlCVS port] " << endl
 			<< "[-r Repository( -ies )] [-v verify]" << endl
 			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
+			<< "[-a Allow unmet dependencies] [-e everyone] [-" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
 			<< "			default is `dcerouter`" << endl
 			<< "-u username    -- username for database connection" << endl
@@ -259,7 +269,12 @@ int main( int argc, char *argv[] )
 			<< "-U user~pass   -- the user(s) who are logged in and will be committing rows" << endl
 			<< "-d username    -- the owner of any unclaimed new records" << endl
 			<< "            Default is the first user checking in records" << endl
-			<< "-v verify      -- Verifies the integrity of the database first" << endl;
+			<< "-v verify      -- Verifies the integrity of the database first" << endl
+			<< "-a allow       -- Allows checking in a row with a foreign key" << endl
+			<< "            to a modified/ew row in another table that is not" << endl
+			<< "            being checked in" << endl
+			<< "-e everyone    -- Checkin all records from every user" << endl
+			<< "-n no prompts  -- Don't ever prompt, just exit if necessary" << endl;
 
 		exit( 1 );
 	}

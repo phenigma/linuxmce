@@ -708,7 +708,7 @@ bool Table::ConfirmDependency( ChangedRow *pChangedRow, Field *pField_Referring,
 	res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
 	if( !res.r || res.r->row_count!=1 )
 	{
-		cerr << "Problem retrieving row with query2: " << sSQL << endl;
+		cerr << "Problem retrieving row with query2: " << sSQL.str() << endl;
 		return false;
 	}
 	row = mysql_fetch_row( res.r );
@@ -721,7 +721,7 @@ bool Table::ConfirmDependency( ChangedRow *pChangedRow, Field *pField_Referring,
 	res2.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
 	if( !res2.r || res2.r->row_count!=1 )
 	{
-		cerr << "Problem retrieving row with query3: " << sSQL << endl;
+		cerr << "Problem retrieving row with query3: " << sSQL.str() << endl;
 		return false;
 	}
 	row = mysql_fetch_row( res2.r );
@@ -754,7 +754,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	size_t pos=0; // A position in the vector
 	if( !res.r )
 	{
-		cerr << "Problem retrieving rows with query4: " << sSQL << endl;
+		cerr << "Problem retrieving rows with query4: " << sSQL.str() << endl;
 		throw "Database error";
 	}
 	else
@@ -768,7 +768,7 @@ int k2=9;
 		{
 			if( !row[0] )
 			{
-				cerr << "Found NULL in query: " << sSQL << endl;
+				cerr << "Found NULL in query: " << sSQL.str() << endl;
 				throw "Database error";
 			}
 			/** If the value of our local row[] is > than the server's vect, then we deleted some records locally */
@@ -862,7 +862,7 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 				res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
 				if( !res.r || res.r->row_count!=1 )
 				{
-					cerr << "Problem retrieving row with query5: " << sSQL << endl;
+					cerr << "Problem retrieving row with query5: " << sSQL.str() << endl;
 					return false;
 				}
 				row = mysql_fetch_row( res.r );
@@ -1210,7 +1210,16 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
 	}
 
-	sSQL << m_psc_id_next << ", " << psqlCVSprocessor->m_i_psc_batch << ", " << (pR_CommitRow->m_psc_user ? StringUtils::itos(pR_CommitRow->m_psc_user) : "NULL") << " )"; /** @warning batch # todo - hack */
+	sSQL << m_psc_id_next << ", " << psqlCVSprocessor->m_i_psc_batch << ", ";
+	
+	if( pR_CommitRow->m_psc_user )
+		sSQL << pR_CommitRow->m_psc_user;
+	else if( psqlCVSprocessor->m_ipsc_user_default )
+		sSQL << psqlCVSprocessor->m_ipsc_user_default;
+	else
+		sSQL << "NULL";
+	
+	sSQL << " )"; /** @warning batch # todo - hack */
 
 	cout << "Adding new row with id: " << m_psc_id_next << endl;
 
