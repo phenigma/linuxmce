@@ -1,53 +1,5 @@
 #!/bin/bash
 
-. /usr/pluto/bin/SQL_Ops.sh
-
-SlapdConf="/etc/ldap/slapd.conf"
-#SlapdInc="/etc/ldap/pluto.databases"
-
-mkdir -p /usr/share/ldap/data
-
-ConfAppend="
-# Pluto
-
-allow bind_v2
-
-database bdb
-suffix \"dc=plutohome, dc=org\"
-rootdn \"cn=admin, dc=plutohome, dc=org\"
-rootpw secret
-directory /usr/share/ldap/data
-schemacheck on
-lastmod on
-index cn,sn,st eq,pres,sub
-
-
-access to dn=\".*dc=([^,]+),dc=plutohome,dc=org\"
-       by dn=\"uid=\$1,ou=users,dc=plutohome,dc=org\" write
-       by * read
-
-access to *
-       by * read
-
-access to *
-       by dn=\"cn=admin,dc=plutohome,dc=org\" write
-       by dn=\"cn=admin,dc=plutohome,dc=org\" read
-
-"
-
-grep -F "# Pluto" "$SlapdConf" >/dev/null || echo "$ConfAppend" >> "$SlapdConf"
-
-TemplateDB='database bdb
-suffix "dc=$UserName, dc=plutohome, dc=org"
-rootdn "cn=admin, dc=$UserName, dc=plutohome, dc=org"
-rootpw secret
-directory /usr/share/ldap/data
-schemacheck on
-lastmod on
-index cn,sn,st eq,pres,sub
-
-'
-
 TemplateTemp='
 dn: uid=$UserName, ou=users, dc=plutohome, dc=org
 uid: $UserName
@@ -107,4 +59,3 @@ while ! nc -z localhost 389 &>/dev/null && [ "$waited" -lt "$timeout" ]; do
 done
 		
 ldapadd -c -f /tmp/data.ldap -xvc -D "cn=admin,dc=plutohome,dc=org" -w secret &> /dev/null || true
-
