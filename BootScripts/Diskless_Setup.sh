@@ -227,7 +227,7 @@ for Client in $DisklessR; do
 	for Script in ConfirmDependencies_Debian.sh Common.sh Download_CVS.sh Download_Direct.sh Download_SVN.sh Initial_Config_Real.sh; do
 		cp /usr/pluto/install/$Script $DlPath/usr/pluto/install
 	done
-	sed '^Type= s/^.*$/Type="diskless"/' /usr/pluto/install/Initial_Config.sh >$DlPath/usr/pluto/install/Initial_Config.sh
+	sed '/^Type=/ s/^.*$/Type="diskless"/' /usr/pluto/install/Initial_Config.sh >$DlPath/usr/pluto/install/Initial_Config.sh
 
 	echo
 	MoonNumber=$((MoonNumber+1))
