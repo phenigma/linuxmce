@@ -2,7 +2,7 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
-cronEntry="*/10 * * * * root /usr/bin//usr/pluto/bin/SetupRemoteAccess.sh"
+cronEntry="*/10 * * * * root /usr/pluto/bin/SetupRemoteAccess.sh"
 screenName="RemoteAssistance"
 
 RAKey="-i /usr/pluto/keys/id_dsa_remoteassistance"
