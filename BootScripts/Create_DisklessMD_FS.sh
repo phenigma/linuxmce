@@ -15,7 +15,7 @@ echo "Extracting filesystem for diskless client '$IP,$MAC'"
 
 mkdir -p /usr/pluto/diskless/"$IP"
 cd /usr/pluto/diskless/"$IP"
-tar -xjvf /usr/pluto/install/"$FSarchive"
+tar -xjvf /usr/pluto/install/"$FSarchive" >/dev/null
 echo "IP=$IP" >etc/diskless.conf
 echo "MAC=$MAC" >>etc/diskless.conf
 

@@ -8,6 +8,13 @@ function printHelp()
 	Logging "$TYPE" "$SEVERITY_NORMAL" "Invalid paramters: ./Start_LocalDevices.sh [ -d DeviceID [-r RouterAddress ] ]" >&2;
 }
 
+Alternative=/usr/pluto/bin/Start_LocalDevices_Static.sh
+
+if [ -f "$Alternative" -a -x "$Alternative" ]; then
+	"$Alternative"
+	exit $?
+fi
+
 if [ "$1" == "script" ]; then
 	Script="script"; MDIP="$2";
 	shift; shift;
