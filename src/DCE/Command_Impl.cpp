@@ -571,7 +571,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Requesting confirmation 2 for message id: %d fa
 	bool bResult = sResponse=="OK";
 
 g_pPlutoLogger->Write(LV_STATUS,"Requesting confirmation 3 for message id: %d result: %d %s return: %d", pPreformedCommand.m_pMessage->m_dwID,
-		  (int) bResult, (*p_sResponse).c_str(), (int) (bResult && *p_sResponse == "OK") );
+		  (int) bResult, sResponse.c_str(), (int) (bResult && sResponse == "OK") );
 
 	delete pResponse;
 	return bResult;
