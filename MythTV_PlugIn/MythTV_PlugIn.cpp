@@ -133,7 +133,24 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
     m_dwTargetDevice = pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
 
-    DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	if ( WatchTVResult_Tuned == m_pMythWrapper->ProcessWatchTvRequest(	pMythTvMediaStream->m_iNextProgramChannelID,
+				pMythTvMediaStream->m_iNextProgramTimeYear, pMythTvMediaStream->m_iNextProgramTimeMonth, pMythTvMediaStream->m_iNextProgramTimeDay,
+				pMythTvMediaStream->m_iNextProgramTimeHour, pMythTvMediaStream->m_iNextProgramTimeMinute))
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Need to tune to channel: %d", pMythTvMediaStream->m_iNextProgramChannelID);
+	}
+	else
+	{
+		DCE::CMD_Goto_Screen cmdGotoScreen(
+                    m_dwPK_Device, -1,
+                    0, StringUtils::itos(DESIGNOBJ_mnuPVROptions_CONST).c_str(),
+                    "", "", false);
+		SendCommand(cmdGotoScreen);
+
+		g_pPlutoLogger->Write(LV_STATUS, "Requesting confirmation.");
+	}
+
+	DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
 
 //     DCE::CMD_Play_Media cmd(m_dwPK_Device,
 

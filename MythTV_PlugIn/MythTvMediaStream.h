@@ -21,11 +21,18 @@ namespace DCE
 	 */
 	class MythTvMediaStream : public MediaStream
 	{
+	public:
+
+		int m_iNextProgramChannelID;
+		int m_iNextProgramTimeYear;
+		int m_iNextProgramTimeMonth;
+		int m_iNextProgramTimeDay;
+		int m_iNextProgramTimeHour;
+		int m_iNextProgramTimeMinute;
 		//int m_iCurrentShow;
 
 		// class MythTV_PlugIn *m_pMythTV_PlugIn;
 
-	public:
 		MythTvMediaStream(MediaHandlerInfo *pMediaHandlerInfo,
 		 				  DeviceData_Router *pDeviceData_Router,
 						  int PK_DesignObj_Remote, int PK_Users,
@@ -36,7 +43,9 @@ namespace DCE
 
 		virtual int GetType();
 
-		void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
+		virtual void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
+
+		virtual bool ProcessJumpPosition(string sJumpSpecification);
 	};
 };
 
