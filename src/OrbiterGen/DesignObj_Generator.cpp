@@ -1090,8 +1090,9 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
             // We're going to have to figure it out ourselves
 
             // HACK _- todo
-            if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=1 && pDevice->FK_DeviceTemplate_get()==8 )  // normal tablet
-                continue;  // Don't include the audi mmi prototype on the phone
+            if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=1 && (pDevice->FK_DeviceTemplate_get()==8 || 
+				pDevice->FK_DeviceTemplate_get()==62 || pDevice->FK_DeviceTemplate_get()==60 || pDevice->FK_DeviceTemplate_get()==61) )  // normal tablet
+				continue;  // Don't include the audi mmi prototype on the phone
             if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=2 && pDevice->FK_DeviceTemplate_get()==24 )   // phone
                 continue;  // Don't include the phone on a the audi mmi prototype
 
