@@ -141,6 +141,9 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 				line.clear();
 				ImageLine.clear();
 				LAttr.Width = lastX = 0;
+
+				if( (lines.size()+1) * LAttr.Height > H )
+					return lines;
 				
 				// re-render last word because it is going to start a new line
 				WW = WordWidth(* j, RI, pTextStyle, false);

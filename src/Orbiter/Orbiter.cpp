@@ -918,6 +918,8 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
         //pTextStyle->m_ForeColor = PlutoColor( 255, 255, 255, 255 );
         //pTextStyle->m_iPK_VertAlignment=2;
 
+if( Text.m_sText.find("s of our")!=string::npos)
+int k=2;
         RenderText( &Text, pTextStyle );
     }
     else
@@ -3672,17 +3674,17 @@ void Orbiter::GetGridCellDimensions( DesignObj_DataGrid *pDesignObj_DataGrid,  i
         x = pDesignObj_DataGrid->m_rPosition.X+( Column*( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaX;
     y = pDesignObj_DataGrid->m_rPosition.Y+( Row *( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaY;
 
-    if ( Column == 0 && pDesignObj_DataGrid->m_FirstColumnWidth > 0 && Colspan == 1 )
+    if ( Column == 0 && pDesignObj_DataGrid->m_FirstColumnWidth > 0 && ( pDesignObj_DataGrid->m_GridCurCol == 0 || pDesignObj_DataGrid->m_bKeepColHeader ))
     {
-        w = pDesignObj_DataGrid->m_FirstColumnWidth;
+        w = pDesignObj_DataGrid->m_FirstColumnWidth + (Colspan-1) * pDesignObj_DataGrid->m_FixedColumnWidth + ( Colspan-1 );
     }
     else
     {
         w = pDesignObj_DataGrid->m_FixedColumnWidth * Colspan + ( Colspan-1 );
     }
-    if ( Row == 0 && pDesignObj_DataGrid->m_FirstRowHeight > 0 && Rowspan<2 )
+    if ( Row == 0 && pDesignObj_DataGrid->m_FirstRowHeight > 0  && ( pDesignObj_DataGrid->m_GridCurRow == 0 || pDesignObj_DataGrid->m_bKeepRowHeader ) )
     {
-        h = pDesignObj_DataGrid->m_FirstRowHeight;
+        h = pDesignObj_DataGrid->m_FirstRowHeight + (Rowspan-1) * pDesignObj_DataGrid->m_FixedRowHeight + ( Rowspan-1 );
     }
     else
     {
@@ -5116,7 +5118,7 @@ void Orbiter::CalculateGridDown( DesignObj_DataGrid *pObj,  int &CurRow,  int Ce
 {
     PLUTO_SAFETY_LOCK( dg,  m_DatagridMutex );
 
-    if ( pObj->m_dwIDownRow < 0 && CellsToSkip == 0 )
+    if ( !pObj->CanGoDown() && CellsToSkip == 0 )
         return;
 
     if ( CellsToSkip == 0 )
@@ -5144,7 +5146,11 @@ void Orbiter::CalculateGridDown( DesignObj_DataGrid *pObj,  int &CurRow,  int Ce
 void Orbiter::CalculateGridLeft( DesignObj_DataGrid *pObj,  int &CurCol,  int CellsToSkip )
 {
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-    if ( CellsToSkip==0 )
+
+	if ( !pObj->CanGoRight() && CellsToSkip == 0 )
+        return;
+
+	if ( CellsToSkip==0 )
         CellsToSkip = pObj->m_MaxCol-( pObj->m_pDataGridTable->m_bKeepColumnHeader ? 2 : 1 );
     if ( CellsToSkip<=0 )
         CellsToSkip = 1;
