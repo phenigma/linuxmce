@@ -108,6 +108,13 @@ bool ZipFiles(string sArchiveFileName);
 
 // Misc
 bool PackageIsCompatible(Row_Package *pRow_Package);
+bool CopySourceFile(string sInput,string sOutput)
+{
+	if( StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) )
+		return StringUtils::Replace( sInput, sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
+	else
+		return FileUtils::PUCopyFile(sInput,sOutput);
+}
 
 fstream fstr_compile,fstr_make_release;
 
@@ -401,9 +408,7 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 	cout << "\tCreating source: " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << endl;
 	cout << "\t--------------------------" << endl;
 
-	if( pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_FTP_download_CONST ||
-		pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_HTTP_Download_CONST ||
-		pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_FTP_or_HTTP_Download_CONST )
+	if( pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_FTP_or_HTTP_Download_CONST )
 	{
 		CreateSource_FTPHTTP(pRow_Package_Source,listFileInfo);
 	}
@@ -1065,7 +1070,7 @@ string Makefile = "none:\n"
 		
 			cout << "COPY: " << sSource << " --> " + sDestination << endl;
 			if( !g_bSimulate )
-				FileUtils::PUCopyFile(sSource, sDestination);
+				CopySourceFile(sSource, sDestination);
 		}
 	}
 
@@ -1137,7 +1142,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	for(list<FileInfo *>::iterator it=listFileInfo.begin();it!=listFileInfo.end();++it)
 	{
 		FileInfo *pFileInfo = *it;
-		if( !FileUtils::PUCopyFile(pFileInfo->m_sSource,"/home/tmp/" + TempDir + "/" + pFileInfo->m_sDestination) )
+		if( !g_bSimulate && !CopySourceFile(pFileInfo->m_sSource,"/home/tmp/" + TempDir + "/" + pFileInfo->m_sDestination) )
 		{
 			cout << "**Error: Unable to copy file " <<  pFileInfo->m_sSource << " -> " << TempDir << "/" <<  pFileInfo->m_sDestination << endl;
 			return false;
@@ -1146,7 +1151,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	// See what type it is
 	if( pRow_Package_Source->Parms_get()==".tar.gz" )
 	{
-		if( !TarFiles(ArchiveFileName) )
+		if( !g_bSimulate && !TarFiles(ArchiveFileName) )
 		{
 			cout << "**ERROR:** Tar " << ArchiveFileName << endl;
 			return false;
@@ -1154,7 +1159,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	}
 	else if( pRow_Package_Source->Parms_get()==".zip" )
 	{
-		if( !ZipFiles(ArchiveFileName) )
+		if( !g_bSimulate && !ZipFiles(ArchiveFileName) )
 		{
 			cout << "**ERROR:** Zip " << ArchiveFileName << endl;
 			return false;
