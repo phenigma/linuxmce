@@ -158,6 +158,7 @@ public:
 	int m_iBaseObjectID,m_iVersion,m_iPage;  // Version & Page will only be used for top level objects (screens)
 	int m_ObjectType;
 	PlutoRectangle m_rectDontDim, m_rPosition, m_rBackgroundPosition;
+	PlutoDataBlock m_dbHitTest;
 	class PlutoSize m_sOriginalSize;
 	int m_dwIDim;
 
@@ -186,7 +187,7 @@ public:
 		m_ObjectType + m_rectDontDim +  m_rPosition +  m_rBackgroundPosition + 
 		m_PK_DesignObj_Up + m_PK_DesignObj_Down + m_PK_DesignObj_Left + m_PK_DesignObj_Right + m_sPK_DesignObj_TiedTo + m_sVisibleState +
 		m_sOriginalSize + 
-		m_dwIDim;
+		m_dwIDim + m_dbHitTest;
 
 		// These are handled locally, so start with this
 		(*this) + m_Action_LoadList + m_Action_UnloadList + m_Action_TimeoutList + m_Action_StartupList +

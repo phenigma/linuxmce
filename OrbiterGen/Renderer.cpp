@@ -91,7 +91,7 @@ Renderer::~Renderer()
 void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion)
 {
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-    if( pDesignObj_Generator->m_ObjectID.find("1397")!=string::npos )
+    if( pDesignObj_Generator->m_ObjectID.find("1395")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -134,7 +134,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
             sInputFile = pDesignObj_Generator->m_vectOrigAltGraphicFilename[iIteration-1];
 
         // If the visible state is specified, skip this screen if it's not specifically in the list
-        if( pDesignObj_Generator->m_sVisibleState.length()>0 && (
+        if( pDesignObj_Generator->m_sVisibleState.length()>0 && pDesignObj_Generator->m_sVisibleState!="T" && (
                 (iIteration==-2 && pDesignObj_Generator->m_sVisibleState.find("N")==string::npos) ||
                 (iIteration==-1 && pDesignObj_Generator->m_sVisibleState.find("S")==string::npos) ||
                 (iIteration==0 && pDesignObj_Generator->m_sVisibleState.find("H")==string::npos) ||
@@ -205,6 +205,32 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
             {
                 throw "Failed to open " + sInputFile + " abandoning creation of object " + pDesignObj_Generator->m_ObjectID;
             }
+
+			if( pDesignObj_Generator->m_sVisibleState.find('T')!=string::npos )
+			{
+SaveImageToFile(pRenderImage_Child,"test");
+				int X = pDesignObj_Generator->m_rBackgroundPosition.Width;
+				int Y = pDesignObj_Generator->m_rBackgroundPosition.Height;
+				StringUtils::Replace(pDesignObj_Generator->m_sVisibleState,"T","");
+				char *pHitTest = new char[X * Y];
+				pDesignObj_Generator->m_dbHitTest.m_dwSize = X * Y;
+				pDesignObj_Generator->m_dbHitTest.m_pBlock = pHitTest;
+				memset(pHitTest,1,X * Y);
+				
+				for(int x=0;x<X;++x)
+				{
+					for(int y=0;y<Y;++y)
+					{
+						Uint32 Pixel = getpixel(pRenderImage_Child,x,y);
+						unsigned char *pPixel = (unsigned char *) &Pixel;
+						if ( pPixel[3]<128 )
+							pHitTest[ x*y ] = 0;
+						else
+pHitTest[ x*y ] = 1;
+
+					}
+				}
+			}
         }
 
 		int iOnlyVersion_Children=-999;  // By default render all of our children

@@ -741,7 +741,6 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
 
                             pDesignObj_Generator->m_sPK_DesignObj_TiedTo=drOVO->sFK_DesignObj_TiedTo_get();
                             pDesignObj_Generator->m_sVisibleState=StringUtils::ToUpper(drOVO->VisibleStates_get());
-
                             m_alChildDesignObjs.push_back(pDesignObj_Generator);
                         }
                     }

@@ -1699,6 +1699,13 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
             pTopMostAnimatedObject = pObj;
         }
 
+		if( pObj->m_dbHitTest.m_dwSize )
+		{
+			int Offset = (X - pObj->m_rPosition.Left()) * (Y - pObj->m_rPosition.Top());
+			if( Offset>pObj->m_dbHitTest.m_dwSize || pObj->m_dbHitTest.m_pBlock[Offset]==0 )
+				return false;
+		}
+
 		SelectedObject( pObj, X, Y );
         return true;
     }
