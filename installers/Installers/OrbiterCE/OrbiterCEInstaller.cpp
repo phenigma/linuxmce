@@ -11,9 +11,6 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-#include <aygshell.h>                      // Add Pocket PC includes
-#pragma comment( lib, "aygshell" )         // Link Pocket PC library
-
 /////////////////////////////////////////////////////////////////////////////
 // COrbiterCEInstallerApp
 
