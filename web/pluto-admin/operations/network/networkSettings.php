@@ -278,14 +278,15 @@ function networkSettings($output,$dbADO) {
 		if($resNC->RecordCount()>0){
 			$networkInterfaces=$externalInterface;
 			if($_POST['ipFrom']=='DHCP'){
-				$networkInterfaces.=',dhcp';
+				$networkInterfaces.=',dhcp|';
 			}else{
 				$dns1 = getIpFromParts('coreDNS1_');
 				$dns2 = getIpFromParts('coreDNS2_');
 				$dns_string = $dns1 . ($dns2 === "" ? "" : ",$dns2");
-				$networkInterfaces.=','.getIpFromParts('coreIP_').','.getIpFromParts('coreNetMask_').','.getIpFromParts('coreGW_').','.$dns_string;
+				$networkInterfaces.=','.getIpFromParts('coreIP_').','.getIpFromParts('coreNetMask_').','.getIpFromParts('coreGW_').','.$dns_string.'|';
 			}
-			$networkInterfaces.='|'.$internalInterface.','.getIpFromParts('internalCoreIP_').','.getIpFromParts('internalCoreNetMask_');
+			if ($internalInterface !== "")
+				$networkInterfaces.=$internalInterface.','.getIpFromParts('internalCoreIP_').','.getIpFromParts('internalCoreNetMask_');
 			if($networkInterfaces!=$rowNC['IK_DeviceData']){
 				$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 				$dbADO->Execute($updateDDD,array($networkInterfaces,$coreID,$GLOBALS['NetworkInterfaces']));
@@ -305,7 +306,12 @@ function getIpFromParts($partName,$startIndex=1)
 {
 	$ipArray=array();
 	for($i=$startIndex;$i<($startIndex+4);$i++)
-		$ipArray[]=$_POST[$partName.$i];
+	{
+		$part = $_POST[$partName.$i];
+		if ($part === "")
+			return "";
+		$ipArray[] = $part;
+	}
 	return join('.',$ipArray);
 }
 ?>
