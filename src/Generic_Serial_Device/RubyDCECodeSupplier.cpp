@@ -15,6 +15,7 @@
 #include "DCE/Logger.h"
 #include "DCE/DeviceData_Base.h"
 #include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
 #include "pluto_main/Database_pluto_main.h"
 
 using namespace std;
@@ -29,18 +30,21 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, DeviceData_Base* pdeviced
 		rcode_ = "require 'Ruby_Generic_Serial_Device'""\n";
 	}
 
-	sprintf(tmpbuff, "%lu", pdevicedata->m_dwPK_DeviceTemplate);
-	string devtemplid = tmpbuff;
+	unsigned long devtemplid = pdevicedata->m_dwPK_DeviceTemplate;
+	unsigned long devid = pdevicedata->m_dwPK_Device;
 	
-	sprintf(tmpbuff, "%lu", pdevicedata->m_dwPK_Device);
-	string devid = tmpbuff;
+	sprintf(tmpbuff, "%lu", devtemplid);
+	string sdevtemplid = tmpbuff;
 	
-	rcode_ += "class Device_"; rcode_ += devid; rcode_ += " < Ruby_Generic_Serial_Device::RubySerialIOWrapper""\n";
+	sprintf(tmpbuff, "%lu", devid);
+	string sdevid = tmpbuff;
+	
+	rcode_ += "class Device_"; rcode_ += sdevid; rcode_ += " < Ruby_Generic_Serial_Device::RubySerialIOWrapper""\n";
 	
 	string sql = "select FK_Command, IRData "
 					"from InfraredGroup_Command "
 						"inner join InfraredGroup_Command_Preferred on FK_InfraredGroup_Command=PK_InfraredGroup_Command "
- 					"where FK_DeviceTemplate="; sql += devtemplid; sql += " order by FK_Command asc; ";
+ 					"where FK_DeviceTemplate="; sql += sdevtemplid; sql += " order by FK_Command asc; ";
 
 	g_pPlutoLogger->Write(LV_STATUS, "Running query to get Ruby code: \n%s", sql.c_str())	;
 						
@@ -48,29 +52,40 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, DeviceData_Base* pdeviced
 	if((cmds.r = pdb->mysql_query_result(sql.c_str()))) {
 		MYSQL_ROW rowcmd;
 		while((rowcmd = mysql_fetch_row(cmds.r))) {
-			sprintf(tmpbuff, "cmd_%d", atoi(rowcmd[0]));
-			string cmdid = tmpbuff;
+			int cmdid = atoi(rowcmd[0]);
+			sprintf(tmpbuff, "%d", cmdid);
+			string scmdid = tmpbuff;
 			
 			/*for each command*/
-			rcode_ += "def "; rcode_ += cmdid; rcode_ += "(";
+			rcode_ += "def cmd_"; rcode_ += scmdid; rcode_ += "(";
 
-			int nparams = 0;
 			/*add command parameters*/
 			sql = "select PK_CommandParameter, CommandParameter.Description "
 								"from CommandParameter "
 									"inner join Command_CommandParameter on FK_CommandParameter=PK_CommandParameter "
 									"inner join Command on FK_Command=PK_Command "
-								"where PK_Command = "; sql += rowcmd[0]; sql += " order by PK_CommandParameter asc";
-								
+								"where PK_Command = "; sql += scmdid; sql += " order by PK_CommandParameter asc";
+									
+			g_pPlutoLogger->Write(LV_STATUS, "Running query to get params for Command %s: \n%s", scmdid.c_str(), sql.c_str());
+			
+			PARAMLIST& paramlist = cmdparammap_[cmdid];
 			PlutoSqlResult params;
-			if(!(params.r = pdb->mysql_query_result(sql.c_str()))) {
+			if((params.r = pdb->mysql_query_result(sql.c_str()))) {
 				MYSQL_ROW rowparam;
 				while((rowparam = mysql_fetch_row(params.r))) {
-					rcode_ += ", ";
-					rcode_ += FileUtils::ValidCPPName(rowparam[1]);
-					nparams++;
+					if(paramlist.size() > 0) {
+						rcode_ += ", ";
+					}
+					string rbparam = StringUtils::ToLower(FileUtils::ValidCPPName(rowparam[1]).c_str());
+					
+					PARAMPAIR parampair(atoi(rowparam[0]), rbparam);
+					paramlist.push_back(parampair);
+					
+					rcode_ += rbparam;
 				}
 			}
+			
+			g_pPlutoLogger->Write(LV_STATUS, "Added %d parameeters for Command %s: ", paramlist.size(), scmdid.c_str());
 			
 			rcode_ += ")""\n"; // SetLevel(
 			//rcode_ += "conn_ = getConn()""\n";
@@ -84,6 +99,42 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, DeviceData_Base* pdeviced
 	
 	rcode_ += "end""\n"; // class
 }
+
+void 
+RubyDCECodeSupplier::clearCode() {
+	rcode_.clear();
+	cmdparammap_.clear();
+}
+
+
+int 
+RubyDCECodeSupplier::getParamsOrderForCmd(/*in*/int cmd, /*out*/std::list<int>& params) {
+	params.clear();
+	
+	PARAMLIST& paramlist = cmdparammap_[cmd];
+	PARAMLIST::iterator it = paramlist.begin();
+	while(it != paramlist.end()) {
+		params.push_back((*it).first);
+		it++;
+	}
+	
+	return params.size();
+}
+
+int 
+RubyDCECodeSupplier::getParamsNamesForCmd(/*in*/int cmd, /*out*/std::list<string>& params) {
+	params.clear();
+	
+	PARAMLIST& paramlist = cmdparammap_[cmd];
+	PARAMLIST::iterator it = paramlist.begin();
+	while(it != paramlist.end()) {
+		params.push_back((*it).second);
+		it++;
+	}
+	
+	return params.size();
+}
+
 
 RubyDCECodeSupplier::RubyDCECodeSupplier() {
 }

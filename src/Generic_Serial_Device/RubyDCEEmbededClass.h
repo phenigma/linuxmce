@@ -13,6 +13,7 @@
 #define DCERUBYDCEEMBEDEDCLASS_H
 
 #include "RubyEmbededClass.h"
+#include "RubyDCECodeSupplier.h"
 
 namespace DCE {
 
@@ -31,7 +32,7 @@ public:
     ~RubyDCEEmbededClass();
 
 public:
-	void CallCmdHandler(Message *pMessage);
+	void CallCmdHandler(RubyDCECodeSupplier* pcg, Message *pMessage);
 };
 
 };

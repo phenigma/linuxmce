@@ -48,7 +48,14 @@ public:
 	DeviceData_Impl* getDeviceData() {
 		return pdevdata_;
 	}
-		
+
+	void setCodeSupplier(RubyDCECodeSupplier* pcs) {
+		pcs_ = pcs;
+	}
+	RubyDCECodeSupplier* getCodeSupplier() {
+		return pcs_;
+	}
+			
 public:
 	int RouteMessage(Message* pMessage);
 	void PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& devwrap);
@@ -63,7 +70,9 @@ public:
 private:
 	Database_pluto_main* pdb_;
 	DeviceData_Impl* pdevdata_;
-	RubyDCEEmbededClass* pembclass_; // map of Ruby class instances
+	RubyDCECodeSupplier* pcs_;
+	
+	RubyDCEEmbededClass* pembclass_; // Ruby class instance
 };
 
 };

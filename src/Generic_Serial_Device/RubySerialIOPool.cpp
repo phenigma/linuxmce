@@ -124,11 +124,11 @@ RubySerialIOPool::handleTerminate() {
 
 int 
 RubySerialIOPool::RouteMessage(Message* pMessage) {
-	if(!pembclass_) {
+	if(!pembclass_ || !pcs_) {
 		return -1;
 	}
 	
-	pembclass_->CallCmdHandler(pMessage);
+	pembclass_->CallCmdHandler(pcs_, pMessage);
 	return 0;
 }
 

@@ -38,25 +38,12 @@ RubyDCEEmbededClass::~RubyDCEEmbededClass()
 }
 
 void 
-RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
+RubyDCEEmbededClass::CallCmdHandler(RubyDCECodeSupplier* pcg, Message *pMessage) {
 	std::list<int> paramids;
-	std::list<int>::iterator pmit;
-	
-	map<long, string>::const_iterator it = pMessage->m_mapParameters.begin();
-	while(it != pMessage->m_mapParameters.end()) {
-		// sort through insertion, need for correct argumnt passing
-		pmit = paramids.begin();
-		while(pmit != paramids.end() && *pmit < (*it).first) {
-			pmit++;
-		}
-		
-		paramids.insert(pmit, (*it).first);
-		it++;
-	}
+	pcg->getParamsOrderForCmd(pMessage->m_dwID, paramids);
 	
 	std::list<VALUE> params;
-//	params.push_back(StrToValue(""));
-	for(pmit = paramids.begin(); pmit != paramids.end(); pmit++) {
+	for(std::list<int>::iterator pmit = paramids.begin(); pmit != paramids.end(); pmit++) {
 		params.push_back(StrToValue((pMessage->m_mapParameters[*pmit]).c_str()));
 	}
 	

@@ -66,12 +66,14 @@ RubyEmbeder::loadCode(RubyEmbederCodeSupplier *psup) throw(RubyException) {
 	cout << "RCODE:" << endl << code << endl;
 
 	{	/*destroy in before rb_load_file*/
-		RubyStdStreamRedirector in(HF_STDIN);
-		write(in, code.c_str(), code.length());
+		//RubyStdStreamRedirector in(HF_STDIN);
+		//write(in, code.c_str(), code.length());
 	}
+	rb_eval_string(code.c_str());
 	
-	rb_load_file("-");
+/*	rb_load_file("-");
 	ruby_exec();
+	*/
 }
 
 

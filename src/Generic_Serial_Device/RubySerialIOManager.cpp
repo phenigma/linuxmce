@@ -64,6 +64,7 @@ RubySerialIOManager::addDevice(DeviceData_Impl* pdevdata) {
 	pserpool = new RubySerialIOPool();
 	pserpool->setDeviceData(pdevdata);
 	pserpool->setDatabase(pdb_);
+	pserpool->setCodeSupplier(&cs_);
 	g_pPlutoLogger->Write(LV_STATUS, "Child device %d added.", pdevdata->m_dwPK_Device);
 	return 0;
 }

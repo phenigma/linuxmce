@@ -14,6 +14,9 @@
 
 #include "RubyEmbeder.h"
 
+#include <map>
+#include <list>
+
 class Database_pluto_main;
 
 namespace DCE {
@@ -30,11 +33,26 @@ public:
 
 public:
 	void addCode(Database_pluto_main* pdb, DeviceData_Base* pdevicedata);
+	void clearCode();
 	
 public:
 	const char* getRubyCode() {
 		return rcode_.c_str();
 	}
+	
+	int getParamsOrderForCmd(/*in*/int cmd, /*out*/std::list<int>& params);
+	int getParamsNamesForCmd(/*in*/int cmd, /*out*/std::list<std::string>& params);
+	
+private:
+	/*command to param names mapping*/
+	typedef 
+		std::pair<int, std::string> PARAMPAIR; /*list of pairs: param id and ruby param name*/
+	typedef 
+		std::list< std::pair<int, std::string> > PARAMLIST; /*list of pairs: param id and ruby param name*/
+	typedef 
+		std::map<int, PARAMLIST> COMMANDPARAMMAP; /*map between command id and param map*/
+
+	COMMANDPARAMMAP cmdparammap_;
 
 private:
 	std::string rcode_;
