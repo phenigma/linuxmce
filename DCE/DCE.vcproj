@@ -118,6 +118,9 @@
 				RelativePath="DataGrid.cpp">
 			</File>
 			<File
+				RelativePath=".\DCEConfig.cpp">
+			</File>
+			<File
 				RelativePath=".\DeviceData_Base.cpp">
 			</File>
 			<File
