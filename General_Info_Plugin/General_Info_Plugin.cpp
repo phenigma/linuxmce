@@ -145,11 +145,15 @@ void General_Info_Plugin::CMD_Get_Device_Data(int iPK_Device,int iPK_DeviceData,
 void General_Info_Plugin::CMD_Request_File(string sFilename,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c71-e->
 {
-	g_pPlutoLogger->Write(LV_FILEREQUEST, "request missing  file: %s", sFilename.c_str());
 	size_t Length;
 	char *c = FileUtils::ReadFileIntoBuffer(sFilename, Length);
 	if( c==NULL && m_pRouter )
 		c = FileUtils::ReadFileIntoBuffer(m_pRouter->sBasePath_get() + sFilename, Length);
+
+	if( c && Length )
+		g_pPlutoLogger->Write(LV_FILEREQUEST, "sending file: %s size: %d", sFilename.c_str(),(int) Length);
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL, "requested missing file: %s", sFilename.c_str());
 
 	*iData_Size = (int) Length;
 	*pData = c;
