@@ -700,7 +700,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
     UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
 
     if( pUnknownDeviceInfos && pUnknownDeviceInfos->m_iDeviceIDFrom && pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom)
-        iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_PK_Room;
+        iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_dwPK_Room;
 
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->AddRow();
     pRow_Device->FK_DeviceTemplate_set(iPK_DeviceTemplate);
