@@ -296,9 +296,12 @@ void Table::HasFullHistory_set( bool bOn )
 	}
 	else
 	{
-		cout << "Are you sure you want to delete your history for " << m_sName << "?" << endl;
-		if( !AskYNQuestion("The data will be permanently removed unless you made a backup.",false) )
-			return;
+		if( !g_GlobalConfig.m_bNoPrompts )
+		{
+			cout << "Are you sure you want to delete your history for " << m_sName << "?" << endl;
+			if( !AskYNQuestion("The data will be permanently removed unless you made a backup.",false) )
+				return;
+		}
 		m_pDatabase->threaded_mysql_query( "DROP TABLE `" + m_sName + "_pschist`;" );
 		m_pDatabase->m_mapTable_Remove( m_pTable_History->m_sName );
 		delete m_pTable_History;
@@ -817,9 +820,10 @@ cout << "Deleted a server row - pos: " << pos << " size: " << r_GetAll_psc_id.m_
 			return true; /** We finished at the same time, nothing more to do */
 
 		/** There are still more rows in the server's vect. We must have deleted them */
-		
 		for( ;pos<r_GetAll_psc_id.m_vectAll_psc_id.size( );++pos )
 		{
+			if( r_GetAll_psc_id.m_vectAll_psc_id[pos]>m_psc_id_last_sync )
+				continue;
 cout << "Still rows in server's vect - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
 	" comp: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << endl;
 			ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos] );
