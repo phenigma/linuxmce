@@ -124,7 +124,7 @@ public:
 
 		MYSQL_RES *pMYSQL_RES = mysql_store_result(m_pMySQL);
 #ifdef LOG_ALL_QUERIES
-		g_pPlutoLogger->Write(LV_STATUS,"Query returned %d rows: %s",pMYSQL_RES ? pMYSQL_RES->row_count : 0, query.c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Query returned %d rows: %s",(int) (pMYSQL_RES ? pMYSQL_RES->row_count : 0), query.c_str());
 #endif
 		return pMYSQL_RES;
 	}
