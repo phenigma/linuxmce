@@ -816,7 +816,7 @@ void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea)
 	else
 		EVENT_Stopped_Listening_To_Medi(pEntertainArea->m_pRoom->m_dwPK_Room);
 
-g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended", pEntertainArea->m_sDescription.c_str() );
+g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEntertainArea->m_sDescription.c_str(), (int) pEntertainArea->m_mapBoundRemote.size() );
 	pEntertainArea->m_pMediaStream = NULL;
 
 	// Set all the now playing's to nothing
@@ -824,13 +824,17 @@ g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended", pEntertainArea->m_sDe
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
         if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
+		{
+g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
             m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "" );
+		}
     }
 
 	// Send all bound remotes back home
 	for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
     {
         BoundRemote *pBoundRemote = ( *itBR ).second;
+g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s is bound", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
 		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false, false);
 		SendCommand(CMD_Goto_Screen);
     }
@@ -910,7 +914,8 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
 void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage)
 //<-dceag-c74-e->
 {
-    int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
+g_pPlutoLogger->Write(LV_STATUS,"%d bind to remote %s",iPK_Device,sOnOff.c_str());
+	int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // Only an Orbiter will send this
     OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
@@ -949,6 +954,7 @@ void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,
         pBoundRemote->m_iPK_Text_Synopsis = iPK_Text_Synopsis;
         pBoundRemote->m_iPK_Text_Timecode = iPK_Text_Timecode;
         pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream ); // So that it will put the picture back on this remote
+g_pPlutoLogger->Write(LV_STATUS,"EA %d %s bound %d remotes",pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str(),(int) pEntertainArea->m_mapBoundRemote.size());
     }
 }
 
