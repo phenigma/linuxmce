@@ -1770,6 +1770,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 bool Orbiter::SelectedGrid( int DGRow )
 {
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+	pDesignObj_DataGrid->m_GridCurRow = DGRow;
     //used in BD_PC_SelectedFromList
     //
     //this method selects the DGRow-st item from the grid
