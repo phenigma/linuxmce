@@ -222,6 +222,9 @@ for Client in $DisklessR; do
 	GRANT ALL PRIVILEGES ON mythconverg.* TO 'root'@'$IP';"
 	echo "$Q" | /usr/bin/mysql
 
+	echo -n " ConfirmDependencies"
+	cp /usr/pluto/install/ConfirmDependencies_Debian.sh $DlPath/usr/pluto/install
+
 	echo
 	MoonNumber=$((MoonNumber+1))
 done
