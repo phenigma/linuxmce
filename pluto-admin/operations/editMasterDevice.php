@@ -240,7 +240,7 @@ $out='';
 						}
 						while ($row=$resDeviceData->FetchRow()) {
 							$out.="
-												<tr ".((trim($row['Description'])=='')?(' bgColor = "green"'):('')).">
+												<tr ".((trim($row['Description'])=='')?(' bgColor = "lightgreen"'):('')).">
 													<td>#{$row['FK_DeviceData']} {$row['DD_desc']}({$row['PT_Desc']}) 
 													<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editDeviceData&from=editMasterDevice&deviceID=$deviceID&deviceDataID={$row['PK_DeviceData']}','status=0,resizable=1,width=500,height=250,toolbars=true');\">Edit</a></td>
 													<td><input type='text' value='{$row['Description']}' name='Data_Description_{$row['FK_DeviceData']}'></td>
@@ -762,7 +762,10 @@ $out='';
 		if ($newDeviceData!=0 && $deviceID!=0) {
 			$query = "insert into DeviceTemplate_DeviceData( FK_DeviceTemplate , FK_DeviceData) values(?,?)";
 			$dbADO->Execute($query,array($deviceID,$newDeviceData));
+			
+			$dbADO->Execute('INSERT INTO Device_DeviceData (FK_DeviceData, FK_Device) SELECT '.$newDeviceData.',PK_Device FROM Device WHERE FK_DeviceTemplate=?',$deviceID);
 			$locationGoTo = "Data_Description_{$newDeviceData}";
+
 		}
 		
 		if ($isAVDevice!=$old_isAVDevice) {			

@@ -15,6 +15,12 @@ if (@$_SESSION['userLoggedIn']!=true) {
 
 $installationID = cleanInteger($_SESSION['installationID']);
 
+$fotArray=array();
+$resFOT=$dbADO->Execute('SELECT * FROM FloorplanObjectType WHERE FK_FloorplanType=? ORDER BY Description ASC',$GLOBALS['Entertainment Zone']);
+while($rowFOT=$resFOT->FetchRow()){
+	$fotArray[$rowFOT['PK_FloorplanObjectType']]=$rowFOT['Description'];
+}
+
 $out.='<h3>Rooms</h3>';
 
 if ($action=='form') {
@@ -79,7 +85,16 @@ $displayedRooms = array();
 			
 			while($rowEntertain=$resEntertain->FetchRow()){
 				$displayedEntertainArea[]=$rowEntertain['PK_EntertainArea'];
-				$out.='<input type="text" name="entertainArea_'.$rowEntertain['PK_EntertainArea'].'" value="'.$rowEntertain['Description'].'"> <input type="checkbox" name="private_'.$rowEntertain['PK_EntertainArea'].'" '.(($rowEntertain['Private']==1)?'checked':'').' value="1"> Private <a href="index.php?section=rooms&eaid='.$rowEntertain['PK_EntertainArea'].'">Delete area</a> ';
+				$out.='
+				<input type="text" name="entertainArea_'.$rowEntertain['PK_EntertainArea'].'" value="'.$rowEntertain['Description'].'">
+				<select name="fot_'.$rowEntertain['PK_EntertainArea'].'">
+					<option value="0"></option>
+				';
+				foreach($fotArray AS $fotID=>$fotDescription){
+					$out.='<option value="'.$fotID.'" '.(($fotID==$rowEntertain['FK_FloorplanObjectType'])?'selected':'').'>'.$fotDescription.'</option>';
+				}
+				$out.='</select>
+				<input type="checkbox" name="private_'.$rowEntertain['PK_EntertainArea'].'" '.(($rowEntertain['Private']==1)?'checked':'').' value="1"> Private <a href="index.php?section=rooms&eaid='.$rowEntertain['PK_EntertainArea'].'">Delete area</a> ';
 			}
 			$out.='  <input type="submit" name="addEA_'.$rowRoom['PK_Room'].'" value="Add EA"></td>
 					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">Delete Room</a>
@@ -165,8 +180,10 @@ $displayedRooms = array();
 			foreach ($displayedEntertainAreaArray as $key => $value){
 				$entertainAreaDescription=@$_POST['entertainArea_'.$value];
 				$private=isset($_POST['private_'.$value])?$_POST['private_'.$value]:0;
-				$updateEntertainArea='UPDATE EntertainArea SET Description=?, Private=? WHERE PK_EntertainArea=?';
-				$dbADO->Execute($updateEntertainArea,array($entertainAreaDescription,$private,$value));
+				$fot=(isset($_POST['fot_'.$value]) && (int)$_POST['fot_'.$value]>0)?$_POST['fot_'.$value]:NULL;
+				
+				$updateEntertainArea='UPDATE EntertainArea SET Description=?, Private=?, FK_FloorplanObjectType=? WHERE PK_EntertainArea=?';
+				$dbADO->Execute($updateEntertainArea,array($entertainAreaDescription,$private,$fot,$value));
 			}
 		}
 	}

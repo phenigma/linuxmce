@@ -10,6 +10,11 @@ function deleteParameterFromMasterDevice($output,$dbADO) {
 	if ((int)$objID!=0 && $deviceID!=0) {
 			$deleteObjFromDevice = 'delete from DeviceTemplate_DeviceData where FK_DeviceTemplate = ? and FK_DeviceData = ?';
 			$query = $dbADO->Execute($deleteObjFromDevice,array($deviceID,$objID));
+			
+			$resDevices=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=?',$deviceID);
+			while($rowDevice=$resDevices->FetchRow()){
+				$dbADO->Execute('DELETE FROM Device_DeviceData WHERE FK_DeviceData=? AND FK_Device=?',array($objID,$rowDevice['PK_Device']));
+			}
 			$out.="
 			<script>
 				alert('Parameter deleted from master device!');

@@ -832,6 +832,37 @@ switch ($section) {
 	    include_once('operations/users_settings/usersRooms.php');
 	    usersRooms($output,$dbADO);
 	break;
+	case 'dceDeviceData';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/dce/dceDeviceData.php');
+	    dceDeviceData($output,$dbADO);
+	break;
+	case 'dceEvents';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/dce/dceEvents.php');
+	    dceEvents($output,$dbADO);
+	break;
+	case 'dceCommands';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/dce/dceCommands.php');
+	    dceCommands($output,$dbADO);
+	break;
+	case 'addCommandCategory';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/commands/addCommandCategory.php');
+	    addCommandCategory($output,$dbADO);
+	break;
+	case 'editCommandCategory';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/commands/editCommandCategory.php');
+	    editCommandCategory($output,$dbADO);
+	break;
+	
 	
 	case '';
 		$output = new Template($dbADO);	

@@ -86,8 +86,25 @@ function floorplanWizard($output,$dbADO) {
 		$origWidth=384;
 		$origHeight=359;
 	}
-
-	$queryCoords = "
+	if($type==$GLOBALS['Entertainment Zone']){
+		$queryCoords = "
+			SELECT 
+				EntertainArea.PK_EntertainArea as id, 
+				EntertainArea.Description as description, 
+				EntertainArea.FK_FloorplanObjectType as itemtype,	
+				EntertainArea.FloorplanInfo as coordinates,
+				PK_FloorplanObjectType
+			FROM EntertainArea
+				INNER JOIN Room ON FK_Room=PK_Room
+				INNER JOIN FloorplanObjectType ON FK_FloorplanObjectType=PK_FloorplanObjectType
+			WHERE 
+				FK_Installation=?
+				AND FK_FloorplanType=?
+			ORDER BY itemtype
+			";
+	
+	}else
+		$queryCoords = "
 			SELECT 
 				d.PK_Device as id, 
 				d.Description as description, 
@@ -193,41 +210,77 @@ function floorplanWizard($output,$dbADO) {
 		$hidFloorplanData=$_POST['hidFloorplanData'];
 		$intCursor = 1; //the first one should be empty
 		$arIncomingCoords = explode(',',$hidFloorplanData);
-		while (isset($arIncomingCoords[$intCursor])){
-			$deviceID=$arIncomingCoords[$intCursor];
-			$queryExistingCoord='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
-			$res=$dbADO->Execute($queryExistingCoord,array($deviceID,$GLOBALS['FloorplanInfo']));
-			$resFloorplans->MoveFirst();
-			$deviceCoords=array();
-			if($res->RecordCount()==0){
-				while($rowFloorplans=$resFloorplans->FetchRow()){
-					$deviceCoords[]=$rowFloorplans['Page'];
-					$deviceCoords[]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+1]:-1;
-					$deviceCoords[]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+2]:-1;
-				}
-				
-				$insertDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
-				$dbADO->Execute($insertDD,array($deviceID,$GLOBALS['FloorplanInfo'],join(',',$deviceCoords)));
-			}else{
-				$oldCoordsRow=$res->FetchRow();
-				$oldCoordsArray=explode(',',$oldCoordsRow['IK_DeviceData']);
-				$key=0;
-				while($rowFloorplans=$resFloorplans->FetchRow()){
-					$deviceCoords[$key]=$rowFloorplans['Page'];
-					$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?($arIncomingCoords[$intCursor+1]+10):-1;
-					$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?($arIncomingCoords[$intCursor+2]+10):-1;
-					$deviceCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
-					$deviceCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
-					$key+=3;
-				}
+		if($type==$GLOBALS['Entertainment Zone']){
+			// exception: for entertain zone I get data from Entertain area
+			while (isset($arIncomingCoords[$intCursor])){
+				$entAreaID=$arIncomingCoords[$intCursor];
+				$queryExistingCoord='SELECT * FROM EntertainArea WHERE PK_EntertainArea=?';
+				$res=$dbADO->Execute($queryExistingCoord,array($entAreaID));
+				$resFloorplans->MoveFirst();
+				$entAreaCoords=array();
+				if($res->RecordCount()==0){
+					while($rowFloorplans=$resFloorplans->FetchRow()){
+						$entAreaCoords[]=$rowFloorplans['Page'];
+						$entAreaCoords[]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+1]:-1;
+						$entAreaCoords[]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+2]:-1;
+					}
 					
-				$updateDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
-				$dbADO->Execute($updateDD,array(join(',',$deviceCoords),$deviceID,$GLOBALS['FloorplanInfo']));
+					$updateCoords='UPDATE EntertainArea SET FloorplanInfo=? WHERE PK_EntertainArea=?';
+					$dbADO->Execute($updateCoords,array(join(',',$entAreaCoords),$entAreaID));
+				}else{
+					$oldCoordsRow=$res->FetchRow();
+					$oldCoordsArray=explode(',',$oldCoordsRow['FloorplanInfo']);
+					$key=0;
+					while($rowFloorplans=$resFloorplans->FetchRow()){
+						$entAreaCoords[$key]=$rowFloorplans['Page'];
+						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?($arIncomingCoords[$intCursor+1]+10):-1;
+						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?($arIncomingCoords[$intCursor+2]+10):-1;
+						$entAreaCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
+						$entAreaCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
+						$key+=3;
+					}
+					$updateCoords='UPDATE EntertainArea SET FloorplanInfo=? WHERE PK_EntertainArea=?';
+					$dbADO->Execute($updateCoords,array(join(',',$entAreaCoords),$entAreaID));
+				}
+				unset($entAreaCoords);
+				$intCursor+=3;
 			}
-			unset($deviceCoords);
-			$intCursor+=3;
+		}else{
+			while (isset($arIncomingCoords[$intCursor])){
+				$deviceID=$arIncomingCoords[$intCursor];
+				$queryExistingCoord='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+				$res=$dbADO->Execute($queryExistingCoord,array($deviceID,$GLOBALS['FloorplanInfo']));
+				$resFloorplans->MoveFirst();
+				$deviceCoords=array();
+				if($res->RecordCount()==0){
+					while($rowFloorplans=$resFloorplans->FetchRow()){
+						$deviceCoords[]=$rowFloorplans['Page'];
+						$deviceCoords[]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+1]:-1;
+						$deviceCoords[]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+2]:-1;
+					}
+					
+					$insertDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
+					$dbADO->Execute($insertDD,array($deviceID,$GLOBALS['FloorplanInfo'],join(',',$deviceCoords)));
+				}else{
+					$oldCoordsRow=$res->FetchRow();
+					$oldCoordsArray=explode(',',$oldCoordsRow['IK_DeviceData']);
+					$key=0;
+					while($rowFloorplans=$resFloorplans->FetchRow()){
+						$deviceCoords[$key]=$rowFloorplans['Page'];
+						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?($arIncomingCoords[$intCursor+1]+10):-1;
+						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?($arIncomingCoords[$intCursor+2]+10):-1;
+						$deviceCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
+						$deviceCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
+						$key+=3;
+					}
+						
+					$updateDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
+					$dbADO->Execute($updateDD,array(join(',',$deviceCoords),$deviceID,$GLOBALS['FloorplanInfo']));
+				}
+				unset($deviceCoords);
+				$intCursor+=3;
+			}
 		}
-		
 		header("Location: index.php?section=floorplanWizard&page=".$page."&type=".$type);
 	}
 

@@ -6,6 +6,7 @@ function deleteDevicePipeFromDevice($output,$dbADO) {
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';		
 	$deviceFromID = (int)$_REQUEST['deviceFromID'];
 	$deviceToID = (int)$_REQUEST['deviceToID'];
+	$pipe=((int)$_REQUEST['pipe']>0)?(int)$_REQUEST['pipe']:NULL;
 	
 	$installationID = cleanInteger($_SESSION['installationID']);
 	
@@ -16,8 +17,8 @@ function deleteDevicePipeFromDevice($output,$dbADO) {
 		
 			if ((int)$deviceFromID!=0 && $deviceToID!=0) {
 				
-				$deleteObjFromDevice = 'delete from Device_Device_Pipe where FK_Device_From = ? and FK_Device_To = ? ';
-				$query = $dbADO->Execute($deleteObjFromDevice,array($deviceFromID,$deviceToID));
+				$deleteObjFromDevice = 'DELETE FROM Device_Device_Pipe WHERE FK_Device_From = ? and FK_Device_To = ? AND FK_Pipe=? ';
+				$query = $dbADO->Execute($deleteObjFromDevice,array($deviceFromID,$deviceToID,$pipe));
 				
 				$out.="
 				<script>

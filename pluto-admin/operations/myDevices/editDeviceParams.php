@@ -80,7 +80,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	
 	
 		<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
-	
+		<div class="confirm">'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</div>
 	
 	
 		<a href="index.php?section=addMyDevice&parentID='.$deviceID.'">Create '.($deviceID==0?' Top Level ':'').'Child Device</a> &nbsp; &nbsp; &nbsp;
@@ -277,7 +277,7 @@ $installationID = (int)@$_SESSION['installationID'];
 				$selectInputsTxt.= '<option '.($rowSelInputs['PK_Command']==$rowSelectedPipesUsed['FK_Command_Input']?" selected='selected' ":"").' value="'.$rowSelInputs['PK_Command'].'">'.$rowSelInputs['Description'].'</option>';
 			}
 			
-			$out.='<td> Input on '.$rowSelectedPipesUsed['Desc_To'].' <select name="input_'.$rowSelectedPipesUsed['FK_Device_To'].'"><option value="0">-please select-</option>'.$selectInputsTxt.'</select></td>';
+			$out.='<td> Input on '.$rowSelectedPipesUsed['Desc_To'].' <select name="input_'.$rowSelectedPipesUsed['FK_Device_To'].'_'.$rowSelectedPipesUsed['FK_Pipe'].'"><option value="0">-please select-</option>'.$selectInputsTxt.'</select></td>';
 			
 			$resSelectOutputs->MoveFirst();			
 			$selectOutputsTxt='';
@@ -285,17 +285,17 @@ $installationID = (int)@$_SESSION['installationID'];
 				$selectOutputsTxt.= '<option '.($rowSelOutputs['PK_Command']==$rowSelectedPipesUsed['FK_Command_Output']?" selected='selected' ":"").' value="'.$rowSelOutputs['PK_Command'].'">'.$rowSelOutputs['Description'].'</option>';
 			}
 			
-			$out.='<td> Output on '.$rowSelectedPipesUsed['Desc_From'].' <select name="output_'.$rowSelectedPipesUsed['FK_Device_To'].'"><option value="0">-please select-</option>'.$selectOutputsTxt.'</select></td>';
+			$out.='<td> Output on '.$rowSelectedPipesUsed['Desc_From'].' <select name="output_'.$rowSelectedPipesUsed['FK_Device_To'].'_'.$rowSelectedPipesUsed['FK_Pipe'].'"><option value="0">-please select-</option>'.$selectOutputsTxt.'</select></td>';
 			
 
 			$resSelectPipes->MoveFirst();			
 			$selectPipesTxt='';
 			while ($rowSelPipes = $resSelectPipes->FetchRow()) {
-				$selectPipesTxt.= '<option '.($rowSelPipes['PK_Pipe']==$rowSelectedPipesUsed['FK_Pipe']?" selected='selected' ":"").' value="'.$rowSelPipes['PK_Pipe'].'">'.$rowSelPipes['Description'].'</option>';
+				$selectPipesTxt.= ($rowSelPipes['PK_Pipe']==$rowSelectedPipesUsed['FK_Pipe'])?$rowSelPipes['Description']:"";
 			}
 			
-			$out.='<td> Pipe <select name="pipe_'.$rowSelectedPipesUsed['FK_Device_To'].'"><option value="0">-please select-</option>'.$selectPipesTxt.'</select></td>';
-			$out.='<td><input value="Delete" type="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deleteDevicePipeFromDevice&deviceFromID='.$rowSelectedPipesUsed['FK_Device_From'].'&deviceToID='.$rowSelectedPipesUsed['FK_Device_To'].'&from=editDeviceParams\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
+			$out.='<td> Pipe '.$selectPipesTxt.'</td>';
+			$out.='<td><input value="Delete" type="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deleteDevicePipeFromDevice&deviceFromID='.$rowSelectedPipesUsed['FK_Device_From'].'&deviceToID='.$rowSelectedPipesUsed['FK_Device_To'].'&pipe='.$rowSelectedPipesUsed['FK_Pipe'].'&from=editDeviceParams\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
 			
 			$out.='</tr>';
 		}
@@ -318,8 +318,17 @@ $installationID = (int)@$_SESSION['installationID'];
 				 		$out.='<option value="'.$rowSelectDevice['PK_Device'].'">'.$rowSelectDevice['Description'].'</option>'."\n";
 				 	}
 				 }
+			$resSelectPipes->MoveFirst();			
+			$selectPipesTxt='';
+			while ($rowSelPipes = $resSelectPipes->FetchRow()) {
+				$selectPipesTxt.= '<option value="'.$rowSelPipes['PK_Pipe'].'">'.$rowSelPipes['Description'].'</option>';
+			}
+				 
 			$out.='
-				</select> <input type="submit" name="submitX" value="Add">
+				</select>
+				<select name="addPipe">
+					<option value="0">-please select-</option>'.$selectPipesTxt.'</select>
+			<input type="submit" name="submitX" value="Add">
 			</td>
 		</tr>
 	    <tr><td><input type="submit" name="submitX" value="Save"></td></tr>
@@ -592,9 +601,17 @@ $installationID = (int)@$_SESSION['installationID'];
 			
 		//pipes
 		$addDeviceForPiping = cleanInteger(@$_POST['addDeviceForPiping']);
-		if ($addDeviceForPiping!=0) {
-			$insertDevicePipe  = "INSERT INTO Device_Device_Pipe (FK_Device_From,FK_Device_To) VALUES(?,?)";
-			$res=$dbADO->Execute($insertDevicePipe,array($deviceID,$addDeviceForPiping));
+		$addPipe = cleanInteger(@$_POST['addPipe']);
+		
+		if ($addDeviceForPiping!=0 && $addPipe!=0) {
+			$checkDDP=$dbADO->Execute('SELECT * FROM Device_Device_Pipe WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?',array($deviceID,$addDeviceForPiping,$addPipe));
+			if($checkDDP->RecordCount()==0){
+				$insertDevicePipe  = "INSERT INTO Device_Device_Pipe (FK_Device_From,FK_Device_To,FK_Pipe) VALUES(?,?,?)";
+				$res=$dbADO->Execute($insertDevicePipe,array($deviceID,$addDeviceForPiping,$addPipe));
+				$msg='Device Pipe added.';
+			}
+			else
+				$error='Device pipe already exist.';
 		}
 		
 		$selectPipesUsed = 'SELECT Device_Device_Pipe.*,D1.Description as Desc_From,D2.Description as Desc_To
@@ -605,16 +622,21 @@ $installationID = (int)@$_SESSION['installationID'];
 		$resSelectPipesUsed = $dbADO->Execute($selectPipesUsed,array($deviceID));
 		
 		while ($rowSelectedPipesUsed = $resSelectPipesUsed->FetchRow()) {	
-			$input=cleanInteger(@$_POST['input_'.$rowSelectedPipesUsed['FK_Device_To']]);
-			$pipeOutput=cleanInteger(@$_POST['output_'.$rowSelectedPipesUsed['FK_Device_To']]);
-			$pipe=cleanInteger(@$_POST['pipe_'.$rowSelectedPipesUsed['FK_Device_To']]);
+			$inputName='input_'.$rowSelectedPipesUsed['FK_Device_To'].'_'.$rowSelectedPipesUsed['FK_Pipe'];
+			$outputName='output_'.$rowSelectedPipesUsed['FK_Device_To'].'_'.$rowSelectedPipesUsed['FK_Pipe'];
+			
+			$input=((int)@$_POST[$inputName]!=0)?(int)@$_POST[$inputName]:NULL;
+			$pipeOutput=((int)@$_POST[$outputName]!=0)?$_POST[$outputName]:NULL;
+						
 			$deviceTo=$rowSelectedPipesUsed['FK_Device_To'];
-				$updateDevicePipe = 'UPDATE Device_Device_Pipe SET FK_Command_Input=?,FK_Command_Output=?,FK_Pipe=? WHERE FK_Device_From = ? AND FK_Device_To = ? ';
-				$res=$dbADO->Execute($updateDevicePipe,array($input,$pipeOutput,$pipe,$deviceID,$deviceTo));
+			$pipe=$rowSelectedPipesUsed['FK_Pipe'];
+			$updateDevicePipe = 'UPDATE Device_Device_Pipe SET FK_Command_Input=?,FK_Command_Output=? WHERE FK_Device_From = ? AND FK_Device_To = ? AND FK_Pipe=?';
+			$res=$dbADO->Execute($updateDevicePipe,array($input,$pipeOutput,$deviceID,$deviceTo,$pipe));
 		}
+
 		$out.='
 		<script>
-			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.'&data=saved\';
+			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.((isset($error))?'&error='.$error:'&msg='.$msg).'\';
 			top.frames[\'treeframe\'].location=\'index.php?section=leftMenu\';
 		</script>';
 	} else {

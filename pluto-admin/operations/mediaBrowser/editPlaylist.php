@@ -6,23 +6,39 @@ function editPlaylist($output,$mediadbADO) {
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$playlistID=(int)$_REQUEST['plID'];
 	
+	$scriptInHead='
+		<script>
+		function selAllCheckboxes()
+		{
+		   val=(document.editPlaylist.setAll.checked)?true:false;
+		   for (i = 0; i < editPlaylist.elements.length; i++)
+		   {
+		     if (editPlaylist.elements[i].type == "checkbox")
+		     {
+		         editPlaylist.elements[i].checked = val;
+		     }
+		   }
+		}
+		</script>
+	';
 	if($action=='form'){
 		
 		$out.='
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3>Edit Playlist</h3>
+			<h3 align="center">Edit Playlist</h3>
 			<form action="index.php" method="POST" name="editPlaylist">
 			<input type="hidden" name="section" value="editPlaylist">
 			<input type="hidden" name="plID" value="'.$playlistID.'">
 			<input type="hidden" name="action" value="update">
+			<input type="hidden" name="jumpFromTo" value="">
 		
 			<table cellpadding="3" cellspacing="2" align="center">
 				<tr bgcolor="lightblue">
 					<td align="center"><B>#</B></td>
 					<td align="center"><B>Filename</B></td>
 					<td align="center"><B>Path</B></td>
-					<td>&nbsp;</td>
+					<td align="center"><B>Action</B></td>
 				</tr>';
 		
 		$queryPlaylistEntry="
@@ -32,6 +48,13 @@ function editPlaylist($output,$mediadbADO) {
 			WHERE FK_Playlist=?
 			ORDER BY 'Order' ASC";
 		$resPlaylistEntry=$mediadbADO->Execute($queryPlaylistEntry,$playlistID);
+		$oldOrderArray=array();
+		$pos=0;
+		while($rowPlaylistEntry=$resPlaylistEntry->FetchRow()){
+			$pos++;
+			$oldOrderArray[$pos]['entryID']=$rowPlaylistEntry['PK_PlaylistEntry'];
+			$oldOrderArray[$pos]['order']=$rowPlaylistEntry['Order'];
+		}
 		if($resPlaylistEntry->RecordCount()==0){
 			$out.='
 				<tr>
@@ -40,6 +63,7 @@ function editPlaylist($output,$mediadbADO) {
 			';
 		}
 		$pos=0;
+		$resPlaylistEntry->MoveFirst();
 		while($rowPlaylistEntry=$resPlaylistEntry->FetchRow()){
 			$pos++;
 			$out.='
@@ -50,6 +74,7 @@ function editPlaylist($output,$mediadbADO) {
 					<td><a href="index.php?section=editMediaFile&fileID='.$rowPlaylistEntry['FK_File'].'">Edit</a> <a href="#" onClick="if(confirm(\'Are you sure you want to delete this file from playlist?\'))self.location=\'index.php?section=editPlaylist&action=delete&plID='.$playlistID.'&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\'">Delete</a>
 					<input type="button" name="plus" value="+" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&increaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'"> 
 					<input type="button" name="plus" value="-" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&decreaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'">
+					<input type="text" name="jumpTo" value="" size="1" onBlur="document.editPlaylist.jumpFromTo.value=\''.$pos.',\'+this.value;document.editPlaylist.submit();"> <input type="button" name="go" value="Go">
 					</td>
 				</tr>';
 		}
@@ -77,6 +102,9 @@ function editPlaylist($output,$mediadbADO) {
 			}
 			$out.='
 				<tr>
+					<td colspan="4"><input type="checkbox" name="setAll" onClick="selAllCheckboxes()" checked> Select/Unselect all</td>
+				</tr>
+				<tr>
 					<td colspan="4"><input type="submit" name="add" value="Add selected files to playlist">
 						<input type="hidden" name="displayedFilesArray" value="'.join(',',$displayedFilesArray).'">
 					</td>
@@ -85,6 +113,7 @@ function editPlaylist($output,$mediadbADO) {
 		}
 		$out.='			
 			<table>
+			<input type="hidden" name="oldOrderArray" value="'.str_replace('"','\'',serialize($oldOrderArray)).'">
 		</form>';
 	}else{
 	// process area
@@ -133,10 +162,27 @@ function editPlaylist($output,$mediadbADO) {
 
 			header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&msg=The file order in playlist was decreased.');
 		}
-		
 
+		if(isset($_POST['jumpFromTo']) && $_POST['jumpFromTo']!=''){
+			$oldOrderArray=unserialize(stripslashes(str_replace('\'','"',$_POST['oldOrderArray'])));
+			//echo $oldOrderArray;
+//			print_r($oldOrderArray);
+			$tmpArray=explode(',',$_POST['jumpFromTo']);
+			$fromPos=$tmpArray[0];
+			$toPos=$tmpArray[1];
+			if(in_array($toPos,array_keys($oldOrderArray))){
+			
+			}else{
+				// do nothing, the position doesn't exist in the file list
+				// TODO later
+				header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&error=The position you type doesn\'t exist in the list.');
+			}
+		}
+		
+		header('Location: index.php?section=editPlaylist&plID='.$playlistID);
 	}
 	
+	$output->setScriptInHead($scriptInHead);	
 	$output->setNavigationMenu(array("Playlists"=>'index.php?section=playlists'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

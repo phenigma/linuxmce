@@ -235,8 +235,12 @@ $out.='
 	 		}	 			 		
 	 	}
 	 }
-	 
-	 header("Location: index.php?section=manageCategories&categSelected=$categSelected&justAddedNode=$justAddedNode&action=$action");
+	 $out="
+				<script>
+				    opener.location.reload();				
+					self.location='index.php?section=manageCategories&categSelected=$categSelected&justAddedNode=$justAddedNode&action=$action';
+				</script>
+				";	
 }
 
 $output->setNavigationMenu(array("Device Templates"=>'index.php?section=deviceTemplates',$label=>'index.php?section=manageCategories&action='.$action));

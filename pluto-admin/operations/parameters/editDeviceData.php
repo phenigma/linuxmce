@@ -70,7 +70,7 @@ function editDeviceData($output,$dbADO) {
 			$queryInsertParameter = 'update DeviceData set Description=?,FK_ParameterType=? where PK_DeviceData = ?';
 			$dbADO->Execute($queryInsertParameter,array($parameterName,$parameterType,$deviceDataID));
 			
-			
+			if($from=='editMasterDevice'){
 				$out.="
 				<script>
 					alert('Parameter modified!');
@@ -80,7 +80,15 @@ function editDeviceData($output,$dbADO) {
 					self.close();
 				</script>
 				";			
-				
+			}else{
+				$out.="
+				<script>
+					alert('Parameter modified!');
+				    opener.location.reload();
+					self.close();
+				</script>
+				";			
+			}
 		} else {
 			header("Location: index.php?section=editDeviceData&from=$from&deviceID=$deviceID&deviceDataID=$deviceDataID");
 		}

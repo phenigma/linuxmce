@@ -135,13 +135,16 @@
 	$GLOBALS['LightingFoorplanType']=2;		// Lighting Zone
 	$GLOBALS['ClimateFoorplanType']=3;		// Climate Zone
 	$GLOBALS['CameraFoorplanType']=4;		// Camera Zone
-
+	$GLOBALS['Entertainment Zone']=5;		// Entertainment Zone
+	
 	// PK_DesignObj from table DesignObj
 	
 	$GLOBALS['mnuSecurityCamerasDesignObj']=1414;		// Security cameras
 	$GLOBALS['mnuSingleCameraViewOnlyDesignObj']=1405;	// Single Camera View Only
 	$GLOBALS['mnuMediaFileListDesignObj']=2071;			// mnuMediaFileList
 	$GLOBALS['mnuMediaFileList2DesignObj']=3226;		// mnuMediaFileList2
+	$GLOBALS['butViewDesignObj']=3283;					// butView
+	
 	
 	// PK_CriteriaList from table CriteriaList
 	

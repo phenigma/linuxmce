@@ -45,11 +45,11 @@ function editEvent($output,$dbADO) {
 			<table>	
 				<tr>
 					<td>
-						Event List Category:</td><td><select name="EventEventCategory">'.$EventCategoryTxt.'</select>							
+						Event Category:</td><td><select name="EventEventCategory">'.$EventCategoryTxt.'</select>							
 					</td>
 				</tr>		
 				<tr>
-					<td>Event List Name:</td><td><input type="text" maxlength="50" name="EventDescription" value="'.$EventDescription.'"></td>
+					<td>Event Name:</td><td><input type="text" maxlength="50" name="EventDescription" value="'.$EventDescription.'"></td>
 				</tr>		
 				<tr>
 					<td colspan="2">
@@ -107,8 +107,8 @@ function editEvent($output,$dbADO) {
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editEvent");			
- 			frmvalidator.addValidation("EventDescription","req","Please enter a name for this Event List !");
-			frmvalidator.addValidation("EventEventCategory","dontselect=0","Please select a parent event list category!");
+ 			frmvalidator.addValidation("EventDescription","req","Please enter a name for this Event !");
+			frmvalidator.addValidation("EventEventCategory","dontselect=0","Please select a parent event category!");
 		</script>
 		';
 		
@@ -149,16 +149,27 @@ function editEvent($output,$dbADO) {
 			$dbADO->Execute($insertEvent,array($EventDescription,$category,$selectedEvent));
 		} else {				
 			header("Location: index.php?section=editEvent&EventID=$selectedEvent");
-		}		
-		$out.="
-			<script>
-				alert('Event List modified!');
-			    opener.document.forms.{$from}.action.value='form';				
-				opener.document.forms.{$from}.lastAction.value='$lastAction';	
-				opener.document.forms.{$from}.submit();
-				document.location.href='index.php?section=editEvent&from=$from&EventID=$selectedEvent&unique=".uniqid("pluto")."';
-			</script>
-			";	
+		}
+		if($from=='editMasterDevice')		
+			$out.="
+				<script>
+					alert('Event modified!');
+				    opener.document.forms.{$from}.action.value='form';				
+					opener.document.forms.{$from}.lastAction.value='$lastAction';	
+					opener.document.forms.{$from}.submit();
+					document.location.href='index.php?section=editEvent&from=$from&EventID=$selectedEvent&unique=".uniqid("pluto")."';
+				</script>
+				";	
+		else 
+			$out.="
+				<script>
+					alert('Event modified!');
+				    opener.document.forms.{$from}.action.value='form';				
+					opener.document.forms.{$from}.submit();
+					self.close();
+				</script>
+				";	
+		
 	}
 	
 	$onLoad='';
