@@ -100,6 +100,8 @@ protected:
     void PlayMediaByFileName(string sFilename, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
     bool EnsureCorrectMediaStreamForDevice(MediaHandlerInfo *pMediaHandlerInfo, EntertainArea *pEntertainArea, int iPK_Device);
 
+	bool DiskDriveIsRipping(int iPK_Device);
+
     /**
      * Find a media plugin info object that will play the specified file.
      */

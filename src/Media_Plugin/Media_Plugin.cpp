@@ -1624,15 +1624,30 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
     }
     else  // We got nothing -- find a disk drive within the entertainment area and send it a reset
     {
+		bool bDiskIsRipping = false;
+		bool bDiskWasReset  = false;
         for(map<int,class MediaDevice *>::iterator itDevice=pEntertainArea->m_mapMediaDevice.begin();itDevice!=pEntertainArea->m_mapMediaDevice.end();++itDevice)
         {
             class MediaDevice *pMediaDevice = (*itDevice).second;
             if( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
             {
-                DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
-                SendCommand(CMD_Reset_Disk_Drive);
+				if ( ! DiskDriveIsRipping(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device) )
+				{
+					DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
+                	SendCommand(CMD_Reset_Disk_Drive);
+					bDiskWasReset = true;
+				}
+				else
+				{
+					bDiskIsRipping = true;
+				}
             }
         }
+
+		if ( !bDiskWasReset && bDiskIsRipping ) // we weren't able to reset any drives and at least one of them was ripping.
+		{
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "There is a ripping operation in progress at this moment. Can't reset the disk.");
+		}
     }
 }
 
@@ -2389,6 +2404,21 @@ bool Media_Plugin::RippingCompleted( class Socket *pSocket, class Message *pMess
 	m_mapRippingJobsToRippingDevices.erase(sJobName);
 
 	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sourceOrbiter,sMessage);
+
+	return true;
+}
+
+bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
+{
+	map<string, pair<int, int> >::const_iterator itRippingJobs;
+
+	for ( itRippingJobs = m_mapRippingJobsToRippingDevices.begin(); itRippingJobs != m_mapRippingJobsToRippingDevices.end(); itRippingJobs++ )
+	{
+		if ( (*itRippingJobs).second.first == iPK_Device)
+			return true;
+	}
+
+	return false;
 }
 
 bool Media_Plugin::SafeToReload()
