@@ -51,6 +51,7 @@ BackendProxyServer::handleAccept(int sockfd, int peersockfd) {
 	ProxyPeerThread *ppeerthr = 
 			new BackendProxyPeerThread(this, sockfd, peersockfd);
 	ppeerthr->Run(false);
+	addThread(ppeerthr);
 }
 
 

@@ -35,13 +35,13 @@ ProxyPeerThread::ProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destso
 }
 
 ProxyPeerThread::~ProxyPeerThread() {
+	Wait(true);
 }
 
 void ProxyPeerThread::handleTerminate()
 {
-	shutdown(SHUT_RDWR, getSrcSock());
-	shutdown(SHUT_RDWR, getDestSock());
-	delete this;
+	close(getSrcSock());
+	close(getDestSock());
 }
 
 void*

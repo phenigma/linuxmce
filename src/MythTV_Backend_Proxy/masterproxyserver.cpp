@@ -52,6 +52,7 @@ namespace MYTHTV {
 		ProxyPeerThread *ppeerthr =
 				new MasterProxyPeerThread(this, sockfd, peersockfd);
 		ppeerthr->Run(false);
+		addThread(ppeerthr);
 	}
 
 };

@@ -15,13 +15,12 @@
 namespace MYTHTV {
 
 Thread::Thread()
-	: threadid_(0), requeststop_(false)
+	: requeststop_(false), threadid_(0)
 {
 }
 
 
 Thread::~Thread() {
-	Wait(true);
 }
 
 bool

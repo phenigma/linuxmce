@@ -31,8 +31,7 @@ namespace MYTHTV {
 
 /**
 @author igor
-*/
-class ProxyPeerThread : public ProxyPeer, public Thread
+*/class ProxyPeerThread : public ProxyPeer, public Thread
 {
 public:
     ProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destsockfd);

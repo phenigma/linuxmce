@@ -39,7 +39,7 @@ protected:
 	virtual bool handleStartup() {
 		return true;
 	};
-	virtual void handleTerminate() {};
+	virtual void handleTerminate() = 0;
 	
 private:
 	bool requeststop_;

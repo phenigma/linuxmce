@@ -21,13 +21,16 @@
 #define MYTHTVPROXYSERVER_H
 
 #include <string>
+#include <list>
 
 #include "thread.h"
 #include "proxyeventhandler.h"
 
+
 namespace MYTHTV {
 
 class ProxyEventHandler;
+class ProxyPeerThread;
 
 /**
 @author igor
@@ -86,14 +89,23 @@ protected:
 protected:
 	virtual void handleAccept(int sockfd, int peersockfd) = 0;
 
+protected:
+	void addThread(ProxyPeerThread* pthread);
+	void removeThread(ProxyPeerThread* pthread);
+	void checkTerminatedThreads(bool forceterminate = false);
+	
 private:
 	ProxyEventHandler* phandler_;
 
+private:
 	std::string host_;
 	unsigned port_;
 	std::string peerhost_;
 	unsigned peerport_;
 
+private:
+	std::list<ProxyPeerThread*> threads_;
+	
 private:
 	int sockfd_;
 };
