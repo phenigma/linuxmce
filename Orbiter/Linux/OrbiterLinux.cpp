@@ -61,7 +61,7 @@ void OrbiterLinux::reinitGraphics()
     setDesktopVisible(false);
 
     OrbiterCallBack callback = (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe;
-    CallMaintenanceInTicks( 3000, callback, NULL, true );
+    CallMaintenanceInTicks( clock() + 3000, callback, NULL, true );
 }
 
 void OrbiterLinux::setInputFocusToMe(void *)
@@ -69,7 +69,7 @@ void OrbiterLinux::setInputFocusToMe(void *)
     if ( ! m_bYieldInput )
         commandRatPoison(":keystodesktop on");
 
-    CallMaintenanceInTicks( 7000, (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe, NULL, true ); // do this every 7 seconds
+    CallMaintenanceInTicks( clock() + 7000, (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe, NULL, true ); // do this every 7 seconds
 }
 
 void OrbiterLinux::setWindowName(string strWindowName)
@@ -150,12 +150,8 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
                 << m_nDesktopWidth - x - width << " " << m_nDesktopHeight - y - height;
 
     commandRatPoison(commandLine.str());
+    commandRatPoison(":redisplay");
 
-/*
-    commandLine.str("");
-    commandLine << ":redisplay";
-    commandRatPoison(commandLine.str());
-*/
     return true;
 }
 
