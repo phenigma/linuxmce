@@ -2566,6 +2566,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 
       string::size_type pos=0;
     int NumPages = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Get Floorplan layout found %d pages", NumPages);
     for(int PageCount=0;PageCount<NumPages;++PageCount)
     {
         int PageNum = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
@@ -2574,6 +2575,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
         m_mapFloorplanObjectVector[PageNum]=pFloorplanObjectVectorMap ;
 
         int NumTypes = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Page %d had %d types", PageNum, NumTypes);
         for(int TypeCount=0;TypeCount<NumTypes;++TypeCount)
         {
             int TypeNum = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
@@ -2597,6 +2599,9 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
                 fpObj->DeviceDescription=StringUtils::Tokenize(sResult, "|", pos);
                 fpObj->Type=atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
                 fpObj->pObj = FindObject(fpObj->ObjectID);
+
+				g_pPlutoLogger->Write(LV_STATUS,"Adding device %d %s to floorplan", fpObj->PK_Device, fpObj->DeviceDescription.c_str());
+
                 // TODO                 fpObj->ptrDevice = m_mapDevices_Find(fpObj->PK_Device);
 //              if( !fpObj->ptrDevice )
 //              {
@@ -5438,6 +5443,8 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
     if( pFloorplanObjectVectorMap )
         fpObjVector = (*pFloorplanObjectVectorMap)[Type];
 
+	g_pPlutoLogger->Write(LV_STATUS,"Get current floorplan %d page %d returned %s",Type, pDesignObj_Orbiter->m_iPage, sResult.c_str());
+
     if( fpObjVector )
     {
         string::size_type pos = 0;
@@ -5461,6 +5468,10 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 				if( Color )
 				{
 					PlutoColor Magenta(255,102,255);
+
+					g_pPlutoLogger->Write(LV_STATUS,"Replacing obj %s %d,%d-%d,%d with color %d",
+						fpObj->pObj->m_ObjectID.c_str(),fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
+						fpObj->pObj->m_rBackgroundPosition.Height, (int) Color);
 
 					ReplaceColorInRectangle(fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
 						fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color);

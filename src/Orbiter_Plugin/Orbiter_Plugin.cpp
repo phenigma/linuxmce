@@ -1041,7 +1041,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan");
         Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
         if( !pRow_Orbiter )
         {
-            g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Row_Orbiter for: %d",
+            g_pPlutoLogger->Write(LV_STATUS,"Cannot find Row_Orbiter for: %d",
                 pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
             continue;
         }
