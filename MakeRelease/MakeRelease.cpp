@@ -619,7 +619,8 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				{
 					cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
 					cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
-					return false;
+					if( !AskYNQuestion("Continue anyway?",false) )
+						return false;
 				}
 			}
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
@@ -965,14 +966,16 @@ AsksSourceQuests:
 			{
 				cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
 				cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
-				return false;
+				if( !AskYNQuestion("Continue anyway?",false) )
+					return false;
 			}
 			cout << pRow_Package_Directory_File->MakeCommand_get() << " succeeded" << endl;
 
 			if( !g_bSimulate && !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
 			{
 				cout << "***ERROR*** The file: " << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " was not created.";
- 				return false;
+				if( !AskYNQuestion("Continue anyway?",false) )
+					return false;
 			}
 			cout << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " exists" << endl;
 		}
@@ -1006,7 +1009,11 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	cout << "\nCreting temporary directory\n";
 	MyPath = "cvs_temp";
 	//Building Temporary Directory
+#ifdef WIN32
+	mkdir(MyPath.c_str());
+#else
 	mkdir(MyPath.c_str(), 0777);
+#endif
 	//ChDir to Temporary Directory
 	chdir(MyPath.c_str());
 
@@ -1099,7 +1106,11 @@ cout << "Copying Files\n";
 				else {
 					//if we are not in ther root
 					if(FileUtils::DirExists(cmd) != true) {
+#ifdef WIN32
+						mkdir(cmd.c_str());
+#else
 						mkdir(cmd.c_str(), 0777);
+#endif
 						cmd2 = "cvs add " + cmd;
 						system(cmd2.c_str());
 						cmd2 = "cp " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
