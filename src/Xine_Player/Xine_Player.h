@@ -64,7 +64,7 @@ public:
 				AUTO-GENERATED SECTION
 				Do not change the declarations
 	*/
-X
+
 	/*
 			*****DATA***** accessors inherited from base class
 
