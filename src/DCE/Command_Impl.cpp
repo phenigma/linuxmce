@@ -551,8 +551,9 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	string sResponse = pResponse->m_mapParameters[0];
 	if( p_sResponse )
 		*p_sResponse = sResponse;
+	bool bResult = sResponse=="OK";
 	delete pResponse;
-	return sResponse=="OK";
+	return bResult;
 }
 
 void Command_Impl::StartWatchDog( clock_t Timeout )

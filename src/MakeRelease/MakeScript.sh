@@ -14,7 +14,7 @@ BASE_INSTALLATION_CD_FOLDER=/home/installation-cd/
 
 echo "--" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
 echo "--" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
-echo "Called at time `data`" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
+echo "Called at time `date`" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
 echo "--" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
 ps auxfww >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
 echo "--" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
@@ -48,10 +48,35 @@ fi
 echo Using version with id: "$version"
 
 if [ "x$nobuild" = "x" ]; then
+	rm /tmp/main_sqlcvs.dump
     if [ $version -eq 1 ]; then
         O1="UPDATE Version SET VersionName='$(date +%g%m%d%H)' WHERE PK_Version=$version;"
         echo $O1 | mysql pluto_main
+
+		#This is an hourly build, so we're going to dump the pluto_main database and make it our sqlCVS database
+		mysqldump --quote-names --allow-keywords --add-drop-table pluto_main > /tmp/main_sqlcvs.dump
+	else
+		#This is a release build, so we want to get a real sqlCVS 
+		rm /tmp/main_sqlcvs.tar.gz
+		ssh uploads@plutohome.com "rm /tmp/main_sqlcvs.dump /home/uploads/main_sqlcvs.tar.gz; mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump; cd /tmp; tar zcvf /home/uploads/main_sqlcvs.tar.gz main_sqlcvs.dump"
+		scp uploads@plutohome.com:/home/uploads/main_sqlcvs.tar.gz /tmp/
+		cd /tmp
+		tar zxvf main_sqlcvs.tar.gz
     fi
+
+	if [ ! -f /tmp/main_sqlcvs.dump ]; then
+		echo "sqlcvs.dump not found.  aborting"
+		read
+		exit
+	fi
+	
+	mysql main_sqlcvs < /tmp/main_sqlcvs.dump
+    
+	if [ $version -eq 1 ]; then
+		sqlCVS -h localhost -D main_sqlcvs update-psc
+	fi
+	sqlCVS -h localhost -D pluto_security update-psc
+	sqlCVS -h localhost -D pluto_media update-psc
 
     rm -rf /home/MakeRelease
     mkdir -p /home/MakeRelease
@@ -65,7 +90,7 @@ fi
 
 #Do some database maintenance to correct any errors
 # Be sure all debian packages are marked as being compatible with debian distro
-MQ1 = "UPDATE Package_Source_Compat   JOIN Package_Source on FK_Package_Source=PK_Package_Source  SET FK_OperatingSystem=NULL,FK_Distro=1  WHERE FK_RepositorySource=2";
+MQ1="UPDATE Package_Source_Compat   JOIN Package_Source on FK_Package_Source=PK_Package_Source  SET FK_OperatingSystem=NULL,FK_Distro=1  WHERE FK_RepositorySource=2";
 echo $MQ1 | mysql pluto_main
 
 svninfo=$(svn info . |grep ^Revision | cut -d" " -f2)

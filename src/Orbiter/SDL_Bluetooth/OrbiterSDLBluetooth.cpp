@@ -262,10 +262,12 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 		int iSelectedColumn = 0;
 		if(pObj->m_sExtraInfo.find( 'c' ) != string::npos)
 		{
+			g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
+			
 			int iPos = pObj->m_sExtraInfo.find( 'c' ); 
 
 			if(iPos + 1 < pObj->m_sExtraInfo.size())
-				iSelectedColumn = pObj->m_sExtraInfo[iPos + 1];
+				iSelectedColumn = pObj->m_sExtraInfo[iPos + 1] - '0' - 1;
 		}
 
 		bool bSendSelectedOnMove = false; //when use press up/down buttons, PlutoMO will send a SelectedItem command
@@ -274,15 +276,20 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 			bSendSelectedOnMove = true;
 		}
 
+		bool bTurnOn = true;
+		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d",
+				iSelectedColumn, bTurnOn, pObj->m_pDataGridTable->getTotalRowCount());
+		
         for(int i = 0; i < pObj->m_pDataGridTable->getTotalRowCount(); i++)
         {
-            DataGridCell * pCell = pObj->m_pDataGridTable->GetData(iSelectedColumn - 1, i);
+            DataGridCell * pCell = pObj->m_pDataGridTable->GetData(iSelectedColumn, i);
 
-            if(pCell)
-                listGrid.push_back(pCell->GetText());
+			string sItem = pCell != NULL ? pCell->GetText() : "<empty>";
+			g_pPlutoLogger->Write(LV_STATUS, "Item %d : %s", i, sItem.c_str());
+			
+            listGrid.push_back(sItem);
         }
 
-		bool bTurnOn = true;
         BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(x, y, Width, Height, listGrid, 
 			bSendSelectedOnMove, bTurnOn);
 
