@@ -163,6 +163,7 @@ class Row_Package* FK_Package_getrow();
 		// Return the rows in other tables with foreign keys pointing here
 		void DeviceTemplate_PageSetup_FK_PageSetup_getrows(vector <class Row_DeviceTemplate_PageSetup*> *rows);
 void PageSetup_FK_PageSetup_Parent_getrows(vector <class Row_PageSetup*> *rows);
+void SetupStep_FK_PageSetup_getrows(vector <class Row_SetupStep*> *rows);
 
 
 		// Setup binary serialization

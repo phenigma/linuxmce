@@ -17,11 +17,9 @@
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_SetupStep.h"
-#include "Table_SetupStep.h"
-#include "Table_SetupStep.h"
+#include "Table_Installation.h"
+#include "Table_PageSetup.h"
 
-#include "Table_SetupStep.h"
-#include "Table_SetupStep.h"
 
 
 void Database_pluto_main::CreateTable_SetupStep()
@@ -119,21 +117,13 @@ void Row_SetupStep::SetDefaultValues()
 is_null[0] = false;
 is_null[1] = true;
 is_null[2] = true;
-m_Address = "";
-is_null[3] = false;
-m_Name = "";
-is_null[4] = false;
+is_null[3] = true;
+is_null[4] = true;
 is_null[5] = true;
-m_FirstStep = 0;
-is_null[6] = false;
-is_null[7] = true;
-is_null[8] = true;
-is_null[9] = true;
-is_null[10] = true;
 m_psc_frozen = 0;
-is_null[11] = false;
+is_null[6] = false;
 m_psc_mod = "00000000000000";
-is_null[12] = false;
+is_null[7] = false;
 
 
 	is_added=false;
@@ -144,27 +134,12 @@ is_null[12] = false;
 long int Row_SetupStep::PK_SetupStep_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_SetupStep;}
-long int Row_SetupStep::FK_SetupStep_Next_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_SetupStep::FK_Installation_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_SetupStep_Next;}
-long int Row_SetupStep::FK_SetupStep_Parent_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_FK_Installation;}
+long int Row_SetupStep::FK_PageSetup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_SetupStep_Parent;}
-string Row_SetupStep::Address_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_Address;}
-string Row_SetupStep::Name_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_Name;}
-string Row_SetupStep::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_Description;}
-short int Row_SetupStep::FirstStep_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_FirstStep;}
-string Row_SetupStep::Define_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_Define;}
+return m_FK_PageSetup;}
 long int Row_SetupStep::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -185,94 +160,67 @@ return m_psc_mod;}
 void Row_SetupStep::PK_SetupStep_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_SetupStep = val; is_modified=true; is_null[0]=false;}
-void Row_SetupStep::FK_SetupStep_Next_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_SetupStep::FK_Installation_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_SetupStep_Next = val; is_modified=true; is_null[1]=false;}
-void Row_SetupStep::FK_SetupStep_Parent_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_FK_Installation = val; is_modified=true; is_null[1]=false;}
+void Row_SetupStep::FK_PageSetup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_SetupStep_Parent = val; is_modified=true; is_null[2]=false;}
-void Row_SetupStep::Address_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_Address = val; is_modified=true; is_null[3]=false;}
-void Row_SetupStep::Name_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_Name = val; is_modified=true; is_null[4]=false;}
-void Row_SetupStep::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_Description = val; is_modified=true; is_null[5]=false;}
-void Row_SetupStep::FirstStep_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_FirstStep = val; is_modified=true; is_null[6]=false;}
-void Row_SetupStep::Define_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_Define = val; is_modified=true; is_null[7]=false;}
+m_FK_PageSetup = val; is_modified=true; is_null[2]=false;}
 void Row_SetupStep::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[8]=false;}
+m_psc_id = val; is_modified=true; is_null[3]=false;}
 void Row_SetupStep::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[9]=false;}
+m_psc_batch = val; is_modified=true; is_null[4]=false;}
 void Row_SetupStep::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[10]=false;}
+m_psc_user = val; is_modified=true; is_null[5]=false;}
 void Row_SetupStep::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[11]=false;}
+m_psc_frozen = val; is_modified=true; is_null[6]=false;}
 void Row_SetupStep::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[12]=false;}
+m_psc_mod = val; is_modified=true; is_null[7]=false;}
 
 		
-bool Row_SetupStep::FK_SetupStep_Next_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_SetupStep::FK_Installation_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[1];}
-bool Row_SetupStep::FK_SetupStep_Parent_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_SetupStep::FK_PageSetup_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_SetupStep::Description_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[5];}
-bool Row_SetupStep::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[7];}
 bool Row_SetupStep::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[8];}
+return is_null[3];}
 bool Row_SetupStep::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[9];}
+return is_null[4];}
 bool Row_SetupStep::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[10];}
+return is_null[5];}
 bool Row_SetupStep::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[11];}
+return is_null[6];}
 
 			
-void Row_SetupStep::FK_SetupStep_Next_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_SetupStep::FK_Installation_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[1]=val;}
-void Row_SetupStep::FK_SetupStep_Parent_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_SetupStep::FK_PageSetup_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
-void Row_SetupStep::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[5]=val;}
-void Row_SetupStep::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[7]=val;}
 void Row_SetupStep::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[8]=val;}
+is_null[3]=val;}
 void Row_SetupStep::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[9]=val;}
+is_null[4]=val;}
 void Row_SetupStep::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[10]=val;}
+is_null[5]=val;}
 void Row_SetupStep::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[11]=val;}
+is_null[6]=val;}
 	
 
 string Row_SetupStep::PK_SetupStep_asSQL()
@@ -288,7 +236,7 @@ sprintf(buf, "%li", m_PK_SetupStep);
 return buf;
 }
 
-string Row_SetupStep::FK_SetupStep_Next_asSQL()
+string Row_SetupStep::FK_Installation_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -296,12 +244,12 @@ if (is_null[1])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_SetupStep_Next);
+sprintf(buf, "%li", m_FK_Installation);
 
 return buf;
 }
 
-string Row_SetupStep::FK_SetupStep_Parent_asSQL()
+string Row_SetupStep::FK_PageSetup_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -309,85 +257,16 @@ if (is_null[2])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_SetupStep_Parent);
+sprintf(buf, "%li", m_FK_PageSetup);
 
 return buf;
-}
-
-string Row_SetupStep::Address_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[3])
-return "NULL";
-
-char *buf = new char[201];
-mysql_real_escape_string(table->database->db_handle, buf, m_Address.c_str(), (unsigned long) m_Address.size());
-string s=string()+"\""+buf+"\"";
-delete buf;
-return s;
-}
-
-string Row_SetupStep::Name_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[4])
-return "NULL";
-
-char *buf = new char[101];
-mysql_real_escape_string(table->database->db_handle, buf, m_Name.c_str(), (unsigned long) m_Name.size());
-string s=string()+"\""+buf+"\"";
-delete buf;
-return s;
-}
-
-string Row_SetupStep::Description_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[5])
-return "NULL";
-
-char *buf = new char[201];
-mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
-string s=string()+"\""+buf+"\"";
-delete buf;
-return s;
-}
-
-string Row_SetupStep::FirstStep_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[6])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%hi", m_FirstStep);
-
-return buf;
-}
-
-string Row_SetupStep::Define_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[7])
-return "NULL";
-
-char *buf = new char[101];
-mysql_real_escape_string(table->database->db_handle, buf, m_Define.c_str(), (unsigned long) m_Define.size());
-string s=string()+"\""+buf+"\"";
-delete buf;
-return s;
 }
 
 string Row_SetupStep::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[3])
 return "NULL";
 
 char buf[32];
@@ -400,7 +279,7 @@ string Row_SetupStep::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[9])
+if (is_null[4])
 return "NULL";
 
 char buf[32];
@@ -413,7 +292,7 @@ string Row_SetupStep::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[10])
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -426,7 +305,7 @@ string Row_SetupStep::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[11])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -439,7 +318,7 @@ string Row_SetupStep::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[12])
+if (is_null[7])
 return "NULL";
 
 char *buf = new char[29];
@@ -487,10 +366,10 @@ bool Table_SetupStep::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_SetupStep_asSQL()+", "+pRow->FK_SetupStep_Next_asSQL()+", "+pRow->FK_SetupStep_Parent_asSQL()+", "+pRow->Address_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FirstStep_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_SetupStep_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_PageSetup_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into SetupStep (PK_SetupStep, FK_SetupStep_Next, FK_SetupStep_Parent, Address, Name, Description, FirstStep, Define, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into SetupStep (PK_SetupStep, FK_Installation, FK_PageSetup, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -540,7 +419,7 @@ condition = condition + "PK_SetupStep=" + tmp_PK_SetupStep;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_SetupStep="+pRow->PK_SetupStep_asSQL()+", FK_SetupStep_Next="+pRow->FK_SetupStep_Next_asSQL()+", FK_SetupStep_Parent="+pRow->FK_SetupStep_Parent_asSQL()+", Address="+pRow->Address_asSQL()+", Name="+pRow->Name_asSQL()+", Description="+pRow->Description_asSQL()+", FirstStep="+pRow->FirstStep_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_SetupStep="+pRow->PK_SetupStep_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_PageSetup="+pRow->FK_PageSetup_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update SetupStep set " + update_values_list + " where " + condition;
@@ -647,133 +526,78 @@ sscanf(row[0], "%li", &(pRow->m_PK_SetupStep));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_SetupStep_Next = 0;
+pRow->m_FK_Installation = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_SetupStep_Next));
+sscanf(row[1], "%li", &(pRow->m_FK_Installation));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_SetupStep_Parent = 0;
+pRow->m_FK_PageSetup = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_SetupStep_Parent));
+sscanf(row[2], "%li", &(pRow->m_FK_PageSetup));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Address = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Address = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_psc_id));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Name = "";
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Name = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Description = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Description = string(row[5],lengths[5]);
+sscanf(row[5], "%li", &(pRow->m_psc_user));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_FirstStep = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_FirstStep));
+sscanf(row[6], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_Define = "";
-}
-else
-{
-pRow->is_null[7]=false;
-pRow->m_Define = string(row[7],lengths[7]);
-}
-
-if (row[8] == NULL)
-{
-pRow->is_null[8]=true;
-pRow->m_psc_id = 0;
-}
-else
-{
-pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_id));
-}
-
-if (row[9] == NULL)
-{
-pRow->is_null[9]=true;
-pRow->m_psc_batch = 0;
-}
-else
-{
-pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_batch));
-}
-
-if (row[10] == NULL)
-{
-pRow->is_null[10]=true;
-pRow->m_psc_user = 0;
-}
-else
-{
-pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_user));
-}
-
-if (row[11] == NULL)
-{
-pRow->is_null[11]=true;
-pRow->m_psc_frozen = 0;
-}
-else
-{
-pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
-}
-
-if (row[12] == NULL)
-{
-pRow->is_null[12]=true;
 pRow->m_psc_mod = "";
 }
 else
 {
-pRow->is_null[12]=false;
-pRow->m_psc_mod = string(row[12],lengths[12]);
+pRow->is_null[7]=false;
+pRow->m_psc_mod = string(row[7],lengths[7]);
 }
 
 
@@ -896,133 +720,78 @@ sscanf(row[0], "%li", &(pRow->m_PK_SetupStep));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_SetupStep_Next = 0;
+pRow->m_FK_Installation = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_SetupStep_Next));
+sscanf(row[1], "%li", &(pRow->m_FK_Installation));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_SetupStep_Parent = 0;
+pRow->m_FK_PageSetup = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_SetupStep_Parent));
+sscanf(row[2], "%li", &(pRow->m_FK_PageSetup));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Address = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Address = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_psc_id));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Name = "";
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Name = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Description = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Description = string(row[5],lengths[5]);
+sscanf(row[5], "%li", &(pRow->m_psc_user));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_FirstStep = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_FirstStep));
+sscanf(row[6], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_Define = "";
-}
-else
-{
-pRow->is_null[7]=false;
-pRow->m_Define = string(row[7],lengths[7]);
-}
-
-if (row[8] == NULL)
-{
-pRow->is_null[8]=true;
-pRow->m_psc_id = 0;
-}
-else
-{
-pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_id));
-}
-
-if (row[9] == NULL)
-{
-pRow->is_null[9]=true;
-pRow->m_psc_batch = 0;
-}
-else
-{
-pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_batch));
-}
-
-if (row[10] == NULL)
-{
-pRow->is_null[10]=true;
-pRow->m_psc_user = 0;
-}
-else
-{
-pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_user));
-}
-
-if (row[11] == NULL)
-{
-pRow->is_null[11]=true;
-pRow->m_psc_frozen = 0;
-}
-else
-{
-pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
-}
-
-if (row[12] == NULL)
-{
-pRow->is_null[12]=true;
 pRow->m_psc_mod = "";
 }
 else
 {
-pRow->is_null[12]=false;
-pRow->m_psc_mod = string(row[12],lengths[12]);
+pRow->is_null[7]=false;
+pRow->m_psc_mod = string(row[7],lengths[7]);
 }
 
 
@@ -1033,36 +802,22 @@ pRow->m_psc_mod = string(row[12],lengths[12]);
 }
 
 
-class Row_SetupStep* Row_SetupStep::FK_SetupStep_Next_getrow()
+class Row_Installation* Row_SetupStep::FK_Installation_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_SetupStep *pTable = table->database->SetupStep_get();
-return pTable->GetRow(m_FK_SetupStep_Next);
+class Table_Installation *pTable = table->database->Installation_get();
+return pTable->GetRow(m_FK_Installation);
 }
-class Row_SetupStep* Row_SetupStep::FK_SetupStep_Parent_getrow()
+class Row_PageSetup* Row_SetupStep::FK_PageSetup_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_SetupStep *pTable = table->database->SetupStep_get();
-return pTable->GetRow(m_FK_SetupStep_Parent);
+class Table_PageSetup *pTable = table->database->PageSetup_get();
+return pTable->GetRow(m_FK_PageSetup);
 }
 
 
-void Row_SetupStep::SetupStep_FK_SetupStep_Next_getrows(vector <class Row_SetupStep*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_SetupStep *pTable = table->database->SetupStep_get();
-pTable->GetRows("FK_SetupStep_Next=" + StringUtils::itos(m_PK_SetupStep),rows);
-}
-void Row_SetupStep::SetupStep_FK_SetupStep_Parent_getrows(vector <class Row_SetupStep*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_SetupStep *pTable = table->database->SetupStep_get();
-pTable->GetRows("FK_SetupStep_Parent=" + StringUtils::itos(m_PK_SetupStep),rows);
-}
 
 
 

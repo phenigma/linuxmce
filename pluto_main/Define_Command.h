@@ -240,6 +240,8 @@
 #define COMMAND_Back_CONST 240
 #define COMMAND_MH_Move_Media_CONST 241
 #define COMMAND_Set_Now_Playing_CONST 242
+#define COMMAND_Enable_Broadcasting_CONST 243
+#define COMMAND_Output_Select_CONST 244
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

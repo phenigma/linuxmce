@@ -27,6 +27,7 @@ using namespace std;
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceData.h"
 #include "pluto_main/Table_CommandParameter.h"
+#include "pluto_main/Table_Command_Pipe.h"
 #include "pluto_main/Table_Event.h"
 #include "pluto_main/Table_EventParameter.h"
 #include "pluto_main/Table_Device.h"
@@ -39,7 +40,9 @@ using namespace std;
 #include "pluto_main/Table_DeviceCommandGroup_Command.h"
 #include "pluto_main/Table_DeviceTemplate_Input.h"
 #include "pluto_main/Table_DeviceTemplate_DSPMode.h"
+#include "pluto_main/Table_Device_Device_Pipe.h"
 #include "pluto_main/Table_Input.h"
+#include "pluto_main/Table_Output.h"
 #include "pluto_main/Table_DSPMode.h"
 #include "pluto_main/Table_Command.h"
 
@@ -969,6 +972,58 @@ void Router::ProcessQueue()
     }
 }
 
+void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
+{
+	Command *pCommand = mapCommand_Find((*(*pSafetyMessage))->m_dwID);
+
+	if( pCommand && pCommand->m_listPipe.size() )
+	{
+		for(list<int>::iterator it=pCommand->m_listPipe.begin();it!=pCommand->m_listPipe.end();++it)
+		{
+			int PK_Device = (*(*pSafetyMessage))->m_dwPK_Device_To;
+			DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find(PK_Device);
+			Pipe *pPipe;
+			if( pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST )
+				pDeviceData_Router->m_mapPipe_Available.clear();
+			else if( pCommand->m_dwPK_Command==COMMAND_Generic_On_CONST )
+			{
+				if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_Dont_Set_Inputs_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() ||
+					(*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_Dont_Set_Inputs_CONST]=="1") 
+				{
+					if( !pPipe->m_pRow_Device_Device_Pipe->FK_Input_isNull() )
+					{
+						Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+							PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,COMMANDPARAMETER_PK_Input_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Input_get()));
+						ReceivedMessage(NULL,pMessage);
+					}
+					if( !pPipe->m_pRow_Device_Device_Pipe->FK_Output_isNull() )
+					{
+						Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+							PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,1,COMMANDPARAMETER_PK_Output_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Output_get()));
+						ReceivedMessage(NULL,pMessage);
+					}
+				}
+
+				string sPipesDevices;
+				if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
+					sPipesDevices = "," + (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] + ",";
+				for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
+				{
+					if( sPipesDevices.length()==0 || sPipesDevices.find("," + StringUtils::itos((*it).first) + ",")!=string::npos )
+						pDeviceData_Router->m_mapPipe_Available[(*it).first]=(*it).second;
+
+				}
+			}
+			if( pDeviceData_Router && (pPipe=pDeviceData_Router->m_mapPipe_Active_Find(*it))!=NULL )
+			{
+				(*(*pSafetyMessage))->m_dwPK_Device_To = pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get();
+		        RealSendMessage(pSocket,pSafetyMessage);
+			}
+			(*(*pSafetyMessage))->m_dwPK_Device_To = PK_Device;
+		}
+	}
+}
+
 void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 {
     if ( (*(*pSafetyMessage))->m_dwPK_Device_To==DEVICEID_LIST )
@@ -984,6 +1039,8 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
         return;
     }
 
+    if ( (*(*pSafetyMessage))->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+		HandleCommandPipes(pSocket,pSafetyMessage);
 //  g_pPlutoLogger->Write(LV_STATUS,"begin realsendmessage before lock");
     PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
     int RouteToDevice = DEVICEID_NULL;
@@ -1256,9 +1313,9 @@ void Router::Configure()
     GetDatabase()->DeviceCategory_get()->GetRows("1=1",&vectDeviceCategories);  // All rows
     for(size_t s=0;s<vectDeviceCategories.size();++s)
     {
-        Row_DeviceCategory *prDeviceCategory = vectDeviceCategories[s];
-        DeviceCategory *pDeviceCategory = new DeviceCategory(prDeviceCategory->PK_DeviceCategory_get(),
-            prDeviceCategory->FK_DeviceCategory_Parent_get(),prDeviceCategory->Description_get());
+        Row_DeviceCategory *pRow_DeviceCategory = vectDeviceCategories[s];
+        DeviceCategory *pDeviceCategory = new DeviceCategory(pRow_DeviceCategory->PK_DeviceCategory_get(),
+            pRow_DeviceCategory->FK_DeviceCategory_Parent_get(),pRow_DeviceCategory->Description_get());
 
         m_mapDeviceCategory[pDeviceCategory->m_dwPK_DeviceCategory] = pDeviceCategory;
         allDevices.m_mapDeviceCategory[pDeviceCategory->m_dwPK_DeviceCategory] = pDeviceCategory;  // All devices will want this structure too
@@ -1282,18 +1339,26 @@ void Router::Configure()
 
     for(size_t s=0;s<vectDevices.size();++s)
     {
-        Row_Device *prDevice = vectDevices[s];
+        Row_Device *pRow_Device = vectDevices[s];
 
-        string CommandLine=prDevice->FK_DeviceTemplate_getrow()->CommandLine_get();
-        if( CommandLine.size()==0 && prDevice->FK_DeviceTemplate_getrow()->ImplementsDCE_get() )
-            CommandLine = FileUtils::ValidCPPName(prDevice->FK_DeviceTemplate_getrow()->Description_get());
+        string CommandLine=pRow_Device->FK_DeviceTemplate_getrow()->CommandLine_get();
+        if( CommandLine.size()==0 && pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get() )
+            CommandLine = FileUtils::ValidCPPName(pRow_Device->FK_DeviceTemplate_getrow()->Description_get());
 
         DeviceData_Router *pDevice = new DeviceData_Router(
-            prDevice->PK_Device_get(),prDevice->FK_Installation_get(),prDevice->FK_DeviceTemplate_get(),prDevice->FK_Device_ControlledVia_get(),
-            prDevice->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),prDevice->FK_Room_get(),prDevice->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,prDevice->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
-            CommandLine,prDevice->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,prDevice->Description_get(),prDevice->IPaddress_get(),prDevice->MACaddress_get());
+            pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),
+            pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRow_Device->FK_Room_get(),pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
+            CommandLine,pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(),pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get());
 
         m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
+
+		vector<Row_Device_Device_Pipe *> vectRow_Device_Device_Pipe;
+		pRow_Device->Device_Device_Pipe_FK_Device_From_getrows(&vectRow_Device_Device_Pipe);
+		for(size_t sp=0;sp<vectRow_Device_Device_Pipe.size();++sp)
+		{
+			Row_Device_Device_Pipe *pRow_Device_Device_Pipe = vectRow_Device_Device_Pipe[sp];
+			pDevice->m_mapPipe_Available[pRow_Device_Device_Pipe->FK_Pipe_get()] = new Pipe(pRow_Device_Device_Pipe);
+		}
 
         ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceTemplate_Find(pDevice->m_dwPK_DeviceTemplate);
         if( !pListDeviceData_Router )
@@ -1305,14 +1370,14 @@ void Router::Configure()
 
         // We also need a minimal version from the topmost base class that we'll serialize in alldevices and send to each device that registers so they have a complete device tree
         DeviceData_Base *pDevice_Base = new DeviceData_Base(
-            prDevice->PK_Device_get(),prDevice->FK_Installation_get(),prDevice->FK_DeviceTemplate_get(),prDevice->FK_Device_ControlledVia_get(),
-            prDevice->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),prDevice->FK_Room_get(),prDevice->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,prDevice->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
-            prDevice->FK_DeviceTemplate_getrow()->CommandLine_get(),prDevice->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,prDevice->Description_get(), prDevice->IPaddress_get(),prDevice->MACaddress_get());
+            pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),
+            pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRow_Device->FK_Room_get(),pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
+            pRow_Device->FK_DeviceTemplate_getrow()->CommandLine_get(),pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(), pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get());
         allDevices.m_mapDeviceData_Base[pDevice_Base->m_dwPK_Device]=pDevice_Base;
 
         // Get a list of all the commands each device supports
         vector<Row_DeviceTemplate_DeviceCommandGroup *> vectRow_DeviceTemplate_DeviceCommandGroup;
-        prDevice->FK_DeviceTemplate_getrow()->DeviceTemplate_DeviceCommandGroup_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_DeviceCommandGroup);
+        pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_DeviceCommandGroup_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_DeviceCommandGroup);
         for(size_t cmds=0;cmds<vectRow_DeviceTemplate_DeviceCommandGroup.size();++cmds)
         {
             Row_DeviceTemplate_DeviceCommandGroup *pRow_DeviceTemplate_DeviceCommandGroup = vectRow_DeviceTemplate_DeviceCommandGroup[cmds];
@@ -1337,8 +1402,8 @@ void Router::Configure()
 
         for(size_t s2=0;s2<vectDeviceParms.size();++s2)
         {
-            Row_Device_DeviceData *prDeviceParm = vectDeviceParms[s2];
-            pDevice->m_mapParameters[ prDeviceParm->FK_DeviceData_get()] = prDeviceParm->IK_DeviceData_get();
+            Row_Device_DeviceData *pRow_DeviceParm = vectDeviceParms[s2];
+            pDevice->m_mapParameters[ pRow_DeviceParm->FK_DeviceData_get()] = pRow_DeviceParm->IK_DeviceData_get();
         }
 
         vector<Row_DeviceTemplate_Input *> vectDeviceInputs;
@@ -1347,15 +1412,15 @@ void Router::Configure()
 
         for(size_t s2=0;s2<vectDeviceInputs.size();++s2)
         {
-            Row_DeviceTemplate_Input *prDeviceInput = vectDeviceInputs[s2];
-            pDevice->m_mapInputs[prDeviceInput->FK_Input_get()]=prDeviceInput->FK_Input_getrow()->FK_Command_get();
+            Row_DeviceTemplate_Input *pRow_DeviceInput = vectDeviceInputs[s2];
+            pDevice->m_mapInputs[pRow_DeviceInput->FK_Input_get()]=pRow_DeviceInput->FK_Input_getrow()->FK_Command_get();
         }
 /*
         vector<Row_DeviceTemplate_C_Output *> vectDeviceOutputs = GetDatabase()->DeviceTemplate_C_Output_get()->GetRows("WHERE " + DeviceTemplate_C_Output_FK_MASTERDEVICE_CONST + "=" StringUtils::itos(pDevice->m_dwPK_DeviceTemplate));
         for(size_t s2=0;s2<vectDeviceOutputs.size();++s2)
         {
-            Row_DeviceTemplate_C_Output *prDeviceOutput = vectDeviceOutputs[s2];
-            pDevice->m_mapOutputs[prDeviceOutput->FK_C_Output_get()]=prDeviceOutput->FK_C_Output_getrow()->FK_Action_get();
+            Row_DeviceTemplate_C_Output *pRow_DeviceOutput = vectDeviceOutputs[s2];
+            pDevice->m_mapOutputs[pRow_DeviceOutput->FK_C_Output_get()]=pRow_DeviceOutput->FK_C_Output_getrow()->FK_Action_get();
         }
 */
         vector<Row_DeviceTemplate_DSPMode *> vectDeviceDSPModes;
@@ -1363,8 +1428,8 @@ void Router::Configure()
             string(DEVICETEMPLATE_DSPMODE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(pDevice->m_dwPK_DeviceTemplate),&vectDeviceDSPModes);
         for(size_t s2=0;s2<vectDeviceDSPModes.size();++s2)
         {
-            Row_DeviceTemplate_DSPMode *prDeviceDSPMode = vectDeviceDSPModes[s2];
-            pDevice->m_mapDSPModes[prDeviceDSPMode->FK_DSPMode_get()]=prDeviceDSPMode->FK_DSPMode_getrow()->FK_Command_get();
+            Row_DeviceTemplate_DSPMode *pRow_DeviceDSPMode = vectDeviceDSPModes[s2];
+            pDevice->m_mapDSPModes[pRow_DeviceDSPMode->FK_DSPMode_get()]=pRow_DeviceDSPMode->FK_DSPMode_getrow()->FK_Command_get();
         }
     }
 
@@ -1424,7 +1489,15 @@ void Router::Configure()
     for(size_t s=0;s<vectRow_Command.size();++s)
     {
         Row_Command *pRow_Command = vectRow_Command[s];
-        m_mapCommand[pRow_Command->PK_Command_get()]=new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get());
+		Command *pCommand = new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get());
+		vector<Row_Command_Pipe *> vectRow_Command_Pipe;
+		pRow_Command->Command_Pipe_FK_Command_getrows(&vectRow_Command_Pipe);
+		for(size_t sp=0;sp<vectRow_Command_Pipe.size();++sp)
+		{
+			Row_Command_Pipe *pRow_Command_Pipe = vectRow_Command_Pipe[sp];
+			pCommand->m_listPipe.push_back( pRow_Command_Pipe->FK_Pipe_get() );
+		}
+        m_mapCommand[pRow_Command->PK_Command_get()]=pCommand;
     }
 
     vector<Row_Event *> vectRow_Event;

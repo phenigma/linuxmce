@@ -233,6 +233,7 @@ namespace DCE
 		virtual void OnDisconnected(int DeviceID);
 		void AddMessageToQueue(Message *pMessage);
 		void ProcessQueue();
+		void HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage);
 		void RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage);
 		void CreatedDevice(DeviceData_Router *pDevice);
 		void ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceData_Impl *pDevice);

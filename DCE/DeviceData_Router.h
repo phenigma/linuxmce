@@ -3,19 +3,19 @@
 
 #include "DeviceData_Impl.h"
 
+class Row_Device_Device_Pipe;
+
 namespace DCE
 {
 
 	// This indicates connectivity, that something is being sent somewhere else, such as audio/video connections
 	// For example, the Movie Scaler is connected to the TV, using output ID 5 on the Scaler, and Input ID 3 on the TV
 	// There would be 2 pipes, with a destination of the TV.  One an output with ID 5, one an Input with ID 3, both with Kind="Video"
-	enum enum_PipeType { Audio=1, Video };
-
 	class Pipe
 	{
-		class DeviceData_Router *m_pDevice;
-		bool m_bIsOutput;
-		enum_PipeType m_ePipeType;
+	public:
+		Row_Device_Device_Pipe *m_pRow_Device_Device_Pipe;
+		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe) { m_pRow_Device_Device_Pipe=pRow_Device_Device_Pipe; }
 	};
 
 	class Command
@@ -24,7 +24,7 @@ namespace DCE
 		Command(int PK_Command,string sDescription) { m_dwPK_Command=PK_Command; m_sDescription=sDescription; }
 		int m_dwPK_Command;
 		string m_sDescription;
-		list<Pipe *> m_listPipe;
+		list<int> m_listPipe;
 	};
 
 	class CommandParameter
@@ -125,8 +125,9 @@ namespace DCE
 		// controllers which try to continually reconnect and may not realize the server has been restarted
 		bool m_bForceReloadOnFirstConnect;
 
-		list<class Pipe *> m_listPipe_Available; // The available pipes
-		list<class Pipe *> m_listPipe_Active; // The currently activated pipes
+		map<int, class Pipe *> m_mapPipe_Available; // The available pipes
+		map<int, class Pipe *> m_mapPipe_Active; // The currently activated pipes
+		Pipe *m_mapPipe_Active_Find(int PK_Pipe) { map<int,class Pipe *>::iterator it = m_mapPipe_Active.find(PK_Pipe); return it==m_mapPipe_Active.end() ? NULL : (*it).second; }
 
 		// A virtual device that doesn't really exist, but serves as a placeholder will have SlaveTo set
 		// For example, a Television may have several tuners.  Each tuner must be a separate device so the user

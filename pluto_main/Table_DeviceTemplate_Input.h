@@ -18,7 +18,7 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_DeviceTemplate_Input : public TableBase , DoubleLongKeyBase
+class DLL_EXPORT Table_DeviceTemplate_Input : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -41,11 +41,10 @@ private:
 	struct Key
 	{
 		friend class Row_DeviceTemplate_Input;
-		long int pk_FK_DeviceTemplate;
-long int pk_FK_Input;
+		long int pk_PK_DeviceTemplate_Input;
 
 		
-		Key(long int in_FK_DeviceTemplate, long int in_FK_Input);
+		Key(long int in_PK_DeviceTemplate_Input);
 	
 		Key(class Row_DeviceTemplate_Input *pRow);
 	};
@@ -64,13 +63,13 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_DeviceTemplate_Input* GetRow(long int in_FK_DeviceTemplate, long int in_FK_Input);
+	class Row_DeviceTemplate_Input* GetRow(long int in_PK_DeviceTemplate_Input);
 	
 
 private:	
 	
 		
-	class Row_DeviceTemplate_Input* FetchRow(DoubleLongKey &key);
+	class Row_DeviceTemplate_Input* FetchRow(SingleLongKey &key);
 		
 			
 };

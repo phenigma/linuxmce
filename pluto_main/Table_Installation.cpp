@@ -31,6 +31,7 @@ using namespace std;
 #include "Table_Installation_RepositorySource_URL.h"
 #include "Table_Installation_Users.h"
 #include "Table_Room.h"
+#include "Table_SetupStep.h"
 #include "Table_Users.h"
 
 
@@ -1523,6 +1524,13 @@ void Row_Installation::Room_FK_Installation_getrows(vector <class Row_Room*> *ro
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Room *pTable = table->database->Room_get();
+pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+}
+void Row_Installation::SetupStep_FK_Installation_getrows(vector <class Row_SetupStep*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_SetupStep *pTable = table->database->SetupStep_get();
 pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Users_FK_Installation_Main_getrows(vector <class Row_Users*> *rows)

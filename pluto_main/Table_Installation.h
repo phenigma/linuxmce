@@ -214,6 +214,7 @@ void Household_Installation_FK_Installation_getrows(vector <class Row_Household_
 void Installation_RepositorySource_URL_FK_Installation_getrows(vector <class Row_Installation_RepositorySource_URL*> *rows);
 void Installation_Users_FK_Installation_getrows(vector <class Row_Installation_Users*> *rows);
 void Room_FK_Installation_getrows(vector <class Row_Room*> *rows);
+void SetupStep_FK_Installation_getrows(vector <class Row_SetupStep*> *rows);
 void Users_FK_Installation_Main_getrows(vector <class Row_Users*> *rows);
 
 

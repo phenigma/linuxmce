@@ -1082,6 +1082,7 @@
 #define DESIGNOBJ_F2X2_CONST 3248
 #define DESIGNOBJ_R1X2_CONST 3249
 #define DESIGNOBJ_butMythTVSetup_CONST 3250
+#define DESIGNOBJ_screen_app_desktop_2_CONST 3251
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -22,6 +22,7 @@ using namespace std;
 
 #include "Table_DeviceTemplate_PageSetup.h"
 #include "Table_PageSetup.h"
+#include "Table_SetupStep.h"
 
 
 void Database_pluto_main::CreateTable_PageSetup()
@@ -1056,6 +1057,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PageSetup *pTable = table->database->PageSetup_get();
 pTable->GetRows("FK_PageSetup_Parent=" + StringUtils::itos(m_PK_PageSetup),rows);
+}
+void Row_PageSetup::SetupStep_FK_PageSetup_getrows(vector <class Row_SetupStep*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_SetupStep *pTable = table->database->SetupStep_get();
+pTable->GetRows("FK_PageSetup=" + StringUtils::itos(m_PK_PageSetup),rows);
 }
 
 

@@ -35,7 +35,7 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_Input()
 
 Table_DeviceTemplate_Input::~Table_DeviceTemplate_Input()
 {
-	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
 		Row_DeviceTemplate_Input *pRow = (Row_DeviceTemplate_Input *) (*it).second;
@@ -75,8 +75,8 @@ void Row_DeviceTemplate_Input::Delete()
 		}
 		else
 		{
-			DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Input);
-			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_DeviceTemplate_Input);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -94,7 +94,7 @@ void Row_DeviceTemplate_Input::Reload()
 	
 	if (!is_added)
 	{
-		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Input);
+		SingleLongKey key(pRow->m_PK_DeviceTemplate_Input);
 		Row_DeviceTemplate_Input *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -364,10 +364,9 @@ return s;
 
 
 
-Table_DeviceTemplate_Input::Key::Key(long int in_FK_DeviceTemplate, long int in_FK_Input)
+Table_DeviceTemplate_Input::Key::Key(long int in_PK_DeviceTemplate_Input)
 {
-			pk_FK_DeviceTemplate = in_FK_DeviceTemplate;
-pk_FK_Input = in_FK_Input;
+			pk_PK_DeviceTemplate_Input = in_PK_DeviceTemplate_Input;
 	
 }
 
@@ -375,18 +374,14 @@ Table_DeviceTemplate_Input::Key::Key(Row_DeviceTemplate_Input *pRow)
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
-			pk_FK_DeviceTemplate = pRow->m_FK_DeviceTemplate;
-pk_FK_Input = pRow->m_FK_Input;
+			pk_PK_DeviceTemplate_Input = pRow->m_PK_DeviceTemplate_Input;
 	
 }		
 
 bool Table_DeviceTemplate_Input::Key_Less::operator()(const Table_DeviceTemplate_Input::Key &key1, const Table_DeviceTemplate_Input::Key &key2) const
 {
-			if (key1.pk_FK_DeviceTemplate!=key2.pk_FK_DeviceTemplate)
-return key1.pk_FK_DeviceTemplate<key2.pk_FK_DeviceTemplate;
-else
-if (key1.pk_FK_Input!=key2.pk_FK_Input)
-return key1.pk_FK_Input<key2.pk_FK_Input;
+			if (key1.pk_PK_DeviceTemplate_Input!=key2.pk_PK_DeviceTemplate_Input)
+return key1.pk_PK_DeviceTemplate_Input<key2.pk_PK_DeviceTemplate_Input;
 else
 return false;	
 }	
@@ -422,10 +417,12 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTempl
 			
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
-				
+			if (id!=0)
+pRow->m_PK_DeviceTemplate_Input=id;
+	
 			
 			addedRows.erase(i);
-			DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Input);	
+			SingleLongKey key(pRow->m_PK_DeviceTemplate_Input);	
 			cachedRows[key] = pRow;
 					
 			
@@ -439,21 +436,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTempl
 //update modified
 	
 
-	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_DeviceTemplate_Input* pRow = (Row_DeviceTemplate_Input*) (*i).second;	
-		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Input);
+		SingleLongKey key(pRow->m_PK_DeviceTemplate_Input);
 
-		char tmp_FK_DeviceTemplate[32];
-sprintf(tmp_FK_DeviceTemplate, "%li", key.pk1);
-
-char tmp_FK_Input[32];
-sprintf(tmp_FK_Input, "%li", key.pk2);
+		char tmp_PK_DeviceTemplate_Input[32];
+sprintf(tmp_PK_DeviceTemplate_Input, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Input=" + tmp_FK_Input;
+condition = condition + "PK_DeviceTemplate_Input=" + tmp_PK_DeviceTemplate_Input;
 	
 			
 		
@@ -487,20 +481,17 @@ update_values_list = update_values_list + "PK_DeviceTemplate_Input="+pRow->PK_De
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		DoubleLongKey key = (*i).first;
+		SingleLongKey key = (*i).first;
 		Row_DeviceTemplate_Input* pRow = (Row_DeviceTemplate_Input*) (*i).second;	
 
-		char tmp_FK_DeviceTemplate[32];
-sprintf(tmp_FK_DeviceTemplate, "%li", key.pk1);
-
-char tmp_FK_Input[32];
-sprintf(tmp_FK_Input, "%li", key.pk2);
+		char tmp_PK_DeviceTemplate_Input[32];
+sprintf(tmp_PK_DeviceTemplate_Input, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Input=" + tmp_FK_Input;
+condition = condition + "PK_DeviceTemplate_Input=" + tmp_PK_DeviceTemplate_Input;
 
 	
 		string query = "delete from DeviceTemplate_Input where " + condition;
@@ -668,9 +659,9 @@ pRow->m_psc_mod = string(row[9],lengths[9]);
 
 		//checking for duplicates
 
-		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Input);
+		SingleLongKey key(pRow->m_PK_DeviceTemplate_Input);
 		
-		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
@@ -700,13 +691,13 @@ Row_DeviceTemplate_Input* Table_DeviceTemplate_Input::AddRow()
 
 
 
-Row_DeviceTemplate_Input* Table_DeviceTemplate_Input::GetRow(long int in_FK_DeviceTemplate, long int in_FK_Input)
+Row_DeviceTemplate_Input* Table_DeviceTemplate_Input::GetRow(long int in_PK_DeviceTemplate_Input)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	DoubleLongKey row_key(in_FK_DeviceTemplate, in_FK_Input);
+	SingleLongKey row_key(in_PK_DeviceTemplate_Input);
 
-	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -728,20 +719,17 @@ Row_DeviceTemplate_Input* Table_DeviceTemplate_Input::GetRow(long int in_FK_Devi
 
 
 
-Row_DeviceTemplate_Input* Table_DeviceTemplate_Input::FetchRow(DoubleLongKey &key)
+Row_DeviceTemplate_Input* Table_DeviceTemplate_Input::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
-	char tmp_FK_DeviceTemplate[32];
-sprintf(tmp_FK_DeviceTemplate, "%li", key.pk1);
-
-char tmp_FK_Input[32];
-sprintf(tmp_FK_Input, "%li", key.pk2);
+	char tmp_PK_DeviceTemplate_Input[32];
+sprintf(tmp_PK_DeviceTemplate_Input, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Input=" + tmp_FK_Input;
+condition = condition + "PK_DeviceTemplate_Input=" + tmp_PK_DeviceTemplate_Input;
 
 
 	string query = "select * from DeviceTemplate_Input where " + condition;		

@@ -198,6 +198,11 @@ namespace DCE
 		void QueueMessage( Message *pMessage );
 		
 		/**
+		 * @brief sends a message.  This will send the message on the event socket since that is the correct outgoing socket
+		 */
+		void SendMessage( Message *pMessage ) { m_pEvent->SendMessage(pMessage); }
+
+		/**
 		 * @brief sends all the messges in the message queue
 		 * @warning Do not call directly.  For internal use only (called by the queue handler only)
 		 */
