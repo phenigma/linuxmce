@@ -38,7 +38,7 @@ while (1 eq 1) {
   }
   if($tag eq "dhcpd:") {
     if($op eq "DHCPOFFER") {
-
+	log_plugin("We have received a DHCP offer a network device","log");
       system("/usr/pluto/bin/convert_mac $mac_found > dhcpd_temp.file");
       open(FILE, "dhcpd_temp.file");
       @data = <FILE>;
@@ -49,56 +49,68 @@ while (1 eq 1) {
       $db_handle = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUSER;password=$DBPASSWD") or die "Could not connect to MySQL server\n";
 
       $sql = "select PK_Device from Device WHERE MACaddress='$mac_found' AND IPaddress='$ip_sent'";
+	log_plugin("Searching device in the database","log");
       $st = $db_handle->prepare($sql);
       $st->execute();
       if($row = $st->fetchrow_hashref()) {
+	log_plugin("Device allready exists","log");
 	  $found = 0;
       } else {
+	log_plugin("Device not found in the database, checking if it is pnp","log");
           $sql = "select PK_DHCPDevice,FK_DeviceTemplate,ConfigureScript,Package_Source.Name FROM DHCPDevice JOIN DeviceTemplate ON DHCPDevice.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate LEFT JOIN Package ON DeviceTemplate.FK_Package=PK_Package LEFT JOIN Package_Source ON Package_Source.FK_Package=Package.PK_Package WHERE Mac_Range_Low<=$mac_2_nr AND Mac_Range_High>=$mac_2_nr";
 	  $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
           $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
           while($row_ref = $statement->fetchrow_hashref())
 	  {
+	  	log_plugin("Device is pnp. Adding...","log");
     	      $found = 1;
+	      $tmp = "";	      
 	      $dhcpd_device = $row_ref->{PK_DHCPDevice};
               $dev_template = $row_ref->{FK_DeviceTemplate};
               $configure_script = $row_ref->{ConfigureScript};
 	      $package_name = $row_ref->{Name};
-	      $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
-              $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
-	      $tmp = "";
-    	      $row_ref = $statement->fetchrow_hashref();
-              $tmp = $row_ref->{PK_Device};
+              $tmp = $row_ref->{PK_Device};	      
+#	      $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
+#             $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
+#    	      $row_ref = $statement->fetchrow_hashref();
               if($tmp eq "") {
 	        $install = get_install();
+		log_plugin("Creating Device","log");
                 system("/usr/pluto/bin/CreateDevice -i $install -c $dhcpd_device -I $ip_sent -M $mac_found -n > dhcpd_temp.file\n");
 	        open(FILE, "dhcpd_temp.file");
 	        @data = <FILE>;
                 $Device_ID = $data[0];
 	        chomp($Device_ID);
                 close(FILE);
+		log_plugin("We anounce the system that we have found a PnP device","log");
 	        system("/usr/pluto/bin/MessageSend localhost 0 0 2 24 26 $Device_ID");
                 system("rm -f dhcpd_temp.file");
+		log_plugin("Installing the package that the device require","log");
 	        if($package_name ne "") {
                   system("apt-get install $package_name");
 	        }
               } else {
+	      	log_plugin("The device is allready","err");
 	        $Device_ID = $tmp;
               }
 	      chomp($Device_ID);
+	      	log_plugin("Running configuration script","log");
               system("/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
           }
           if($found == 0) {
+		log_plugin("We declare this device as unkown for PnP","log");
 	    $sql = "select PK_UnknownDevices FROM UnknownDevices WHERE MacAddress='$mac_found'";
             $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
             $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
 	    $row_ref = $statement->fetchrow_hashref();
             if($row_ref eq "")
 	    {
+		log_plugin("Is the first time when we found this device. Adding...","log");
               $sql = "insert into UnknownDevices(MacAddress,IPAddress) VALUES('$mac_found','$ip_sent')";
 	      $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
               $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
 	    } else {
+		log_plugin("The device is known allready as unkown. Updating...","log");
               $sql = "update UnknownDevices SET IPAddress='$ip_sent' WHERE MacAddress='$mac_found'";
 	      $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
               $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
@@ -120,7 +132,7 @@ sub get_install {
     @frag = split(/ /,$var);
     $var = $frag[0];
     @frag = split(/ /,$value);
-    $value = $frag[0];
+    $value = $frag[1];
     if($var eq "PK_Installation") {
       $sql = "select FK_Installation from Device WHERE PK_Device='$PKDEV'";
       $st = $db_handle->prepare($sql);
@@ -132,4 +144,16 @@ sub get_install {
       }
     }
   }
+}
+
+sub log_plugin {
+	$data = shift;
+	$type = shift;
+	if($type eq "err") {
+		$type = "01";
+	} elsif($type eq "log") {
+		$type = "00";
+	}
+	$line = $type." ".$data;
+	system("echo \"$line\" >> /var/log/pluto/dhcp_pnp.newlog");
 }

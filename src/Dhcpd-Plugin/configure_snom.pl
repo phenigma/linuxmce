@@ -91,6 +91,7 @@ print FILE "user_mailbox1: $ext\n";
 print FILE "user_name1: $ext\n";
 print FILE "user_realname1: $ext\n";
 print FILE "user_host1: $shost\n";
+print FILE "active_line: 1\n";
 print FILE "</pre>\n<html>\n";
 close(FILE);
 
