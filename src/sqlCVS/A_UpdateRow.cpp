@@ -54,11 +54,5 @@ void A_UpdateRow::ProcessAction(class RA_Request *pRequest,class RA_Processor *p
 
 	cout << "A_UpdateRow - table: " << pTable->Name_get() << " psc id:" << m_psc_id << " batch: " << m_psc_batch << " user: " << m_psc_user << endl;
 
-	if( m_psc_id>pTable->Repository_get()->psc_id_last_sync_get(pTable) )
-		pTable->Repository_get()->psc_id_last_sync_set(pTable,m_psc_id);
-
-	if( m_psc_batch>pTable->Repository_get()->psc_batch_last_sync_get(pTable) )
-		pTable->Repository_get()->psc_batch_last_sync_set(pTable,m_psc_batch);
-
 	pTable->UpdateRow(this,pR_UpdateTable,psqlCVSprocessor);
 }

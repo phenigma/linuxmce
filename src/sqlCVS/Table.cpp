@@ -546,7 +546,7 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 			sSql << (s>0 ? "," : "") << pR_UpdateTable->m_vect_psc_batch[s];
 		sSql << ")";
 	}
-
+	sSql << " ORDER BY psc_batch";
 
 	int i_psc_id_field = ( int ) pR_UpdateTable->m_pvectFields->size( );
 	int i_psc_batch_field = i_psc_id_field+1;
@@ -944,13 +944,6 @@ int k=2;
 					cerr << "SQL failed: " << sSQL.str( );
 					return false;
 				}
-
-/*
-				if( r_CommitRow.m_psc_id_new>m_psc_id_last_sync )
-					m_pRepository->psc_id_last_sync_set( this, r_CommitRow.m_psc_id_new );
-				if( r_CommitRow.m_psc_batch_new>m_psc_batch_last_sync )
-					m_pRepository->psc_batch_last_sync_set( this, r_CommitRow.m_psc_batch_new );
-*/
 			}
 
 			if( r_CommitRow.m_psc_batch_new && r_CommitRow.m_psc_batch_new!=r_CommitRow.m_psc_batch )
@@ -1139,6 +1132,9 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 		cerr << "SQL failed: " << sSQL.str( );
 		throw "cannot reset psc_mod";
 	}
+
+	if( pA_UpdateRow->m_psc_batch>m_psc_batch_last_sync )
+		m_pRepository->psc_batch_last_sync_set(this,pA_UpdateRow->m_psc_batch);
 }
 
 void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user )

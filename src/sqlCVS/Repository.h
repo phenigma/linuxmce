@@ -71,7 +71,16 @@ namespace sqlCVS
 		int psc_id_last_sync_get( Table *pTable );
 		void psc_id_last_sync_set( Table *pTable, int psc_id );
 		int psc_batch_last_sync_get( Table *pTable );
+
+		/* psc_batch_last_sync must be set *ONLY* by an incoming update in response to an 'update' command.
+		We had a logic flaw when we updated psc_batch_last_sync to be the largest number in the table.  
+		Say the last psc_batch I updated is 2.  I never got 3 and 4.  Then I do a checkin
+		and that's batch 5.  If we ask for all changes>5, that means it thought we deleted
+		the rows for batches 3 and 4.  If we say give all changes>2, then we'll get batch 5, which 
+		we already did.  We need to send a list of batches to exclude--those in our local list, >2 which we already
+		checked in ourselves, and only update psc_batch_last_sync during an update */
 		void psc_batch_last_sync_set( Table *pTable, int psc_id );
+
 		bool HasChangedRecords();  /** @brief True if there are changed records in any of the tables */
 
 		/** @brief Rebuilds all the system tables in case something changed */

@@ -800,6 +800,7 @@ int Repository::psc_batch_last_sync_get( Table *pTable )
 	return row[0] ? atoi( row[0] ) : 0;
 }
 
+// See important notes in header
 void Repository::psc_batch_last_sync_set( Table *pTable, int psc_batch )
 {
 	if( pTable->Repository_get( )!=this || !m_pTable_Tables || pTable->bIsSystemTable_get( ) )
@@ -812,6 +813,9 @@ void Repository::psc_batch_last_sync_set( Table *pTable, int psc_batch )
 		cerr << "SQL failed: " << sSQL.str( );
 		throw "Internal error Repository::psc_batch_set #2";
 	}
+	pTable->m_psc_batch_last_sync = psc_batch;
+
+	cout << "Setting psc_batch_last_sync for table: " << pTable->Name_get() << " to: " << psc_batch << endl;
 }
 
 void Repository::Dump( )
