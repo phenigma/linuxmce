@@ -119,6 +119,7 @@ is_null[3] = true;
 m_File = "";
 is_null[4] = false;
 is_null[5] = true;
+is_null[6] = true;
 
 
 	is_added=false;
@@ -144,6 +145,9 @@ return m_File;}
 string Row_Package_Directory_File::Search_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Search;}
+string Row_Package_Directory_File::MakeCommand_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_MakeCommand;}
 
 		
 void Row_Package_Directory_File::PK_Package_Directory_File_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -164,6 +168,9 @@ m_File = val; is_modified=true; is_null[4]=false;}
 void Row_Package_Directory_File::Search_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Search = val; is_modified=true; is_null[5]=false;}
+void Row_Package_Directory_File::MakeCommand_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_MakeCommand = val; is_modified=true; is_null[6]=false;}
 
 		
 bool Row_Package_Directory_File::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -175,6 +182,9 @@ return is_null[3];}
 bool Row_Package_Directory_File::Search_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
+bool Row_Package_Directory_File::MakeCommand_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
 
 			
 void Row_Package_Directory_File::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -186,6 +196,9 @@ is_null[3]=val;}
 void Row_Package_Directory_File::Search_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
+void Row_Package_Directory_File::MakeCommand_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
 	
 
 string Row_Package_Directory_File::PK_Package_Directory_File_asSQL()
@@ -264,6 +277,18 @@ mysql_real_escape_string(table->database->db_handle, buf, m_Search.c_str(), (uns
 return string()+"\""+buf+"\"";
 }
 
+string Row_Package_Directory_File::MakeCommand_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[511];
+mysql_real_escape_string(table->database->db_handle, buf, m_MakeCommand.c_str(), (unsigned long) m_MakeCommand.size());
+return string()+"\""+buf+"\"";
+}
+
 
 
 
@@ -302,10 +327,10 @@ void Table_Package_Directory_File::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Directory_File_asSQL()+", "+pRow->FK_Package_Directory_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->File_asSQL()+", "+pRow->Search_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Directory_File_asSQL()+", "+pRow->FK_Package_Directory_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->File_asSQL()+", "+pRow->Search_asSQL()+", "+pRow->MakeCommand_asSQL();
 
 	
-		string query = "insert into Package_Directory_File (PK_Package_Directory_File, FK_Package_Directory, FK_OperatingSystem, FK_Distro, File, Search) values ("+
+		string query = "insert into Package_Directory_File (PK_Package_Directory_File, FK_Package_Directory, FK_OperatingSystem, FK_Distro, File, Search, MakeCommand) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -354,7 +379,7 @@ condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package_Directory_File="+pRow->PK_Package_Directory_File_asSQL()+", FK_Package_Directory="+pRow->FK_Package_Directory_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", File="+pRow->File_asSQL()+", Search="+pRow->Search_asSQL();
+update_values_list = update_values_list + "PK_Package_Directory_File="+pRow->PK_Package_Directory_File_asSQL()+", FK_Package_Directory="+pRow->FK_Package_Directory_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", File="+pRow->File_asSQL()+", Search="+pRow->Search_asSQL()+", MakeCommand="+pRow->MakeCommand_asSQL();
 
 	
 		string query = "update Package_Directory_File set " + update_values_list + " where " + condition;
@@ -505,6 +530,17 @@ else
 {
 pRow->is_null[5]=false;
 pRow->m_Search = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_MakeCommand = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_MakeCommand = string(row[6],lengths[6]);
 }
 
 
@@ -677,6 +713,17 @@ else
 {
 pRow->is_null[5]=false;
 pRow->m_Search = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_MakeCommand = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_MakeCommand = string(row[6],lengths[6]);
 }
 
 

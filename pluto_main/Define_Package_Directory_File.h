@@ -15,6 +15,8 @@
 #define PACKAGE_DIRECTORY_FILE_FILE_TABLE_FIELD "Package_Directory_File.File"
 #define PACKAGE_DIRECTORY_FILE_SEARCH_FIELD "Search"
 #define PACKAGE_DIRECTORY_FILE_SEARCH_TABLE_FIELD "Package_Directory_File.Search"
+#define PACKAGE_DIRECTORY_FILE_MAKECOMMAND_FIELD "MakeCommand"
+#define PACKAGE_DIRECTORY_FILE_MAKECOMMAND_TABLE_FIELD "Package_Directory_File.MakeCommand"
 
 
 #endif

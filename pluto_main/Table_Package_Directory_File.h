@@ -85,8 +85,9 @@ long int m_FK_OperatingSystem;
 long int m_FK_Distro;
 string m_File;
 string m_Search;
+string m_MakeCommand;
 
-		bool is_null[6];
+		bool is_null[7];
 	
 		bool is_deleted;
 		bool is_added;
@@ -99,6 +100,7 @@ long int FK_OperatingSystem_get();
 long int FK_Distro_get();
 string File_get();
 string Search_get();
+string MakeCommand_get();
 
 		
 		void PK_Package_Directory_File_set(long int val);
@@ -107,16 +109,19 @@ void FK_OperatingSystem_set(long int val);
 void FK_Distro_set(long int val);
 void File_set(string val);
 void Search_set(string val);
+void MakeCommand_set(string val);
 
 		
 		bool FK_OperatingSystem_isNull();
 bool FK_Distro_isNull();
 bool Search_isNull();
+bool MakeCommand_isNull();
 
 			
 		void FK_OperatingSystem_setNull(bool val);
 void FK_Distro_setNull(bool val);
 void Search_setNull(bool val);
+void MakeCommand_setNull(bool val);
 	
 	
 		void Delete();
@@ -139,7 +144,7 @@ class Row_Distro* FK_Distro_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package_Directory_File+ m_FK_Package_Directory+ m_FK_OperatingSystem+ m_FK_Distro+ m_File+ m_Search;
+			StartSerializeList() + m_PK_Package_Directory_File+ m_FK_Package_Directory+ m_FK_OperatingSystem+ m_FK_Distro+ m_File+ m_Search+ m_MakeCommand;
 		}
 	private:
 		void SetDefaultValues();
@@ -150,6 +155,7 @@ string FK_OperatingSystem_asSQL();
 string FK_Distro_asSQL();
 string File_asSQL();
 string Search_asSQL();
+string MakeCommand_asSQL();
 
 	};
 
