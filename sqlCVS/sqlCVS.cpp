@@ -408,7 +408,6 @@ int main( int argc, char *argv[] )
 				database.DumpTables( sRepository, &listCommandParms );
 
 */
-getch();
 return 0;
 		};
 	}
