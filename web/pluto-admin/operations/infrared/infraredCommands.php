@@ -38,12 +38,22 @@ function infraredCommands($output,$dbADO) {
 		';
 		$GLOBALS['displayedCommands']=array();
 		$GLOBALS['oldCheckedCommands']=array();
-		$queryRootCC='
-			SELECT Description,PK_CommandCategory
-			FROM CommandCategory
-			WHERE FK_CommandCategory_Parent =? AND PK_CommandCategory NOT IN ('.join(',',$GLOBALS['excludedCategories']).')
-			ORDER BY CommandCategory.Description ASC';
-		$resRootCC=$dbADO->Execute($queryRootCC,$GLOBALS['AVCommandCategory']);
+		if(!isset($_REQUEST['rootNode'])){
+			$queryRootCC='
+				SELECT Description,PK_CommandCategory
+				FROM CommandCategory
+				WHERE FK_CommandCategory_Parent =? AND PK_CommandCategory NOT IN ('.join(',',$GLOBALS['excludedCategories']).')
+				ORDER BY CommandCategory.Description ASC';
+			$resRootCC=$dbADO->Execute($queryRootCC,$GLOBALS['AVCommandCategory']);
+		}else{
+			$queryRootCC='
+				SELECT Description,PK_CommandCategory
+				FROM CommandCategory
+				WHERE FK_CommandCategory_Parent IS NULL 
+				ORDER BY CommandCategory.Description ASC';
+			$resRootCC=$dbADO->Execute($queryRootCC);
+		
+		}
 		$out.=formatOutput($resRootCC,$dbADO,0);
 		$out.='
 			<tr>
