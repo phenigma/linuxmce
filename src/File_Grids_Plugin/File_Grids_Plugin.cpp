@@ -203,7 +203,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Build grid, actions %s GOT %d entries ", Acti
 	int iRow=0;
 	if( sSubDirectory.length() )
 	{
-		string sParent = FileUtils::BasePath(sSubDirectory);
+		string sParent = FileUtils::BasePath(sSubDirectory) + "/";
 		pCell = new DataGridCell("Go to parent", "");
 		string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0")
 			+ "|" + StringUtils::itos(iDirNumber)+ "|" + sParent;

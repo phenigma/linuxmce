@@ -410,7 +410,7 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
 	}
 	catch(...) 
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Plugin %d threw an exception",pCommand_Impl->m_dwPK_Device);
+		g_pPlutoLogger->Write(LV_CRITICAL,"Plugin %d threw an exception",PK_Device);
 	}
 
 	return pCommand_Impl;
@@ -1637,6 +1637,10 @@ void Router::Configure()
         Row_Device *pRow_Device = vectDevices[s];
 		if( pRow_Device->PK_Device_get()>=m_dwPK_Device_Largest )
 			m_dwPK_Device_Largest=pRow_Device->PK_Device_get();
+if( pRow_Device->PK_Device_get()==3632 || pRow_Device->PK_Device_get()==3633 )
+{
+int k=2;
+}
 
         string CommandLine=pRow_Device->FK_DeviceTemplate_getrow()->CommandLine_get();
         if( CommandLine.size()==0 && pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get() )
@@ -1664,21 +1668,22 @@ void Router::Configure()
             pListDeviceData_Router = new ListDeviceData_Router();
             m_mapDeviceByTemplate[pDevice->m_dwPK_DeviceTemplate] = pListDeviceData_Router;
         }
-        pDevice->m_pDeviceCategory=m_mapDeviceCategory_Find(pDevice->m_dwPK_DeviceCategory);
         pListDeviceData_Router->push_back(pDevice);
 
-        pListDeviceData_Router = m_mapDeviceByCategory_Find(pDevice->m_dwPK_DeviceCategory);
-        if( !pListDeviceData_Router )
-        {
-            pListDeviceData_Router = new ListDeviceData_Router();
-			DeviceCategory *pDeviceCategory = pDevice->m_pDeviceCategory;
-			while( pDeviceCategory )
+        pDevice->m_pDeviceCategory=m_mapDeviceCategory_Find(pDevice->m_dwPK_DeviceCategory);
+
+		DeviceCategory *pDeviceCategory = pDevice->m_pDeviceCategory;
+		while( pDeviceCategory )
+		{
+			pListDeviceData_Router = m_mapDeviceByCategory_Find(pDeviceCategory->m_dwPK_DeviceCategory);
+			if( !pListDeviceData_Router )
 			{
+				pListDeviceData_Router = new ListDeviceData_Router();
 				m_mapDeviceByCategory[pDeviceCategory->m_dwPK_DeviceCategory] = pListDeviceData_Router;
-				pDeviceCategory = pDeviceCategory->m_pDeviceCategory_Parent;
 			}
-        }
-        pListDeviceData_Router->push_back(pDevice);
+			pListDeviceData_Router->push_back(pDevice);
+			pDeviceCategory = pDeviceCategory->m_pDeviceCategory_Parent;
+		}
 
         // We also need a minimal version from the topmost base class that we'll serialize in alldevices and send to each device that registers so they have a complete device tree
         DeviceData_Base *pDevice_Base = new DeviceData_Base(

@@ -83,7 +83,7 @@ bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )
 	}
 	catch( const char *pException )
 	{
-		cerr << "Failed to process CommitRow: " << pException;
+		cerr << "Failed to process CommitRow: " << pException << " message: " << m_sResponseMessage;
 		m_cProcessOutcome=INTERNAL_ERROR;
 	}
 
