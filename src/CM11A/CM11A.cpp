@@ -48,6 +48,12 @@ bool CM11A::Connect(int iPK_DeviceTemplate) {
 		return false;
 	}
 	
+	string sPort = m_pData->mapParameters_Find(DEVICEDATA_Port_CONST);
+	if(sPort.length() > 0) {
+		g_pPlutoLogger->Write(LV_STATUS, "Using serial port: %s.", sPort.c_str());
+		devpoll.setSerialPort(sPort.c_str());
+	}
+	
 	devpoll.Run(false);
 	return true;
 }

@@ -35,6 +35,7 @@ using namespace DCE;
 namespace CM11ADEV {
 
 DevicePoll::DevicePoll() {
+	serport_ = CM11A_PORT;
 }
 
 DevicePoll::~DevicePoll() {
@@ -44,12 +45,12 @@ int
 DevicePoll::SendRequest(const Message* pMesg) {
 	int ret = 0; // ok
 	
-	mq.Lock();
-	if(msgqueue.size() < MAX_QUEUE_SIZE) {
-		msgqueue.push_back(*pMesg);
+	mq_.Lock();
+	if(msgqueue_.size() < MAX_QUEUE_SIZE) {
+		msgqueue_.push_back(*pMesg);
 		ret = -1;
 	}
-	mq.Unlock();
+	mq_.Unlock();
 	return 0;
 }
 
@@ -156,14 +157,14 @@ void* DevicePoll::_Run() {
 
 	while(!isStopRequested()) {// will be changed with thread end request
 		try {
-			CSerialPort serprt(CM11A_PORT, CM11A_BPS, epbsN81);
+			CSerialPort serprt(serport_.c_str(), CM11A_BPS, epbsN81);
 
 			// get the msg from queue
-			mq.Lock();
-			if(msgqueue.size() > 0) {
-				Message msg = msgqueue.front();
-				msgqueue.pop_front();
-				mq.Unlock();
+			mq_.Lock();
+			if(msgqueue_.size() > 0) {
+				Message msg = msgqueue_.front();
+				msgqueue_.pop_front();
+				mq_.Unlock();
 
 				int sendretry = 0;
 				for(; sendretry < CM11A_SEND_RETRY; sendretry++) {
@@ -194,13 +195,13 @@ void* DevicePoll::_Run() {
 					g_pPlutoLogger->Write(LV_CRITICAL, "Failed sending function.");
 				}
 			} else {
-				mq.Unlock();
+				mq_.Unlock();
 				Sleep(CM11A_NOREQUES_SLEEP);
 			}
 		
 		} catch(...) {
-			g_pPlutoLogger->Write(LV_CRITICAL, "Exception occured on CM11A's serial port. Sleeping for %0.1f second.", 
-													1.0 * CM11A_ERROR_SLEEP / 1000);
+			g_pPlutoLogger->Write(LV_CRITICAL, "Exception occured on CM11A's serial port: %s. Sleeping for %0.1f second.", 
+													serport_.c_str(), 1.0 * CM11A_ERROR_SLEEP / 1000);
 			Sleep(CM11A_ERROR_SLEEP);
 		}
 	}

@@ -28,6 +28,13 @@ class DevicePoll : public Thread
 public:
     DevicePoll();
     ~DevicePoll();
+
+	inline void setSerialPort(const char* serport) {
+		serport_ = serport;
+	}
+	inline const char* getSerialPort() {
+		return serport_.c_str();
+	}
 	
 public:
 	int SendRequest(const Message* pMesg);
@@ -42,9 +49,10 @@ protected:
 	virtual int SendAddress(CSerialPort* pport, const Message* pMesg);
 	virtual int SendFunction(CSerialPort* pport, const Message* pMesg);
 
-protected:
-	Mutex mq;
-	std::list<Message> msgqueue;
+private:
+	Mutex mq_;
+	std::list<Message> msgqueue_;
+	std::string serport_;
 };
 
 };
