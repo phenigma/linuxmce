@@ -34,9 +34,6 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	FILE *fp;
 	string sLine, sLine2;
 	size_t size;
-	string sPortNumber, sPath;
-	string FilePath, sData, sRep;
-	unsigned long int isize, iPortNumber, pid;
 	
     
 	int iVideoStandard = DATA_Get_Video_Standard();
@@ -46,7 +43,6 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%d Number_of_Ports=%d Video_Input_Type=%d",iVideoStandard,iNumberOfPorts,iVideoInputType);
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Writing configuration to motion.conf");
-	system("rm -f /etc/motion/*");
 
 	g_pPlutoLogger->Write(LV_STATUS, "Checking Config File");
 	if(FileUtils::FileExists("/etc/motion/motion.conf") == true) {
@@ -62,8 +58,8 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	}
 	fp = fopen("/etc/motion/motion.conf","wt+");
 	//main config
-//	fprintf(fp,"videodevice /dev/video0\n");
-//	fprintf(fp,"input %d\n",iVideoInputType);	//0 for video/tv and 8 for usb cammera
+	fprintf(fp,"videodevice /dev/video0\n");
+	fprintf(fp,"input %d\n",iVideoInputType);	//0 for video/tv and 8 for usb cammera
 	fprintf(fp,"norm %d\n",iVideoStandard);	//pal/secam
 	fprintf(fp,"frequency 0\n");
 	fprintf(fp,"rotate 0\n");
@@ -75,137 +71,25 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	fprintf(fp,"contrast 0\n");
 	fprintf(fp,"saturation 0\n");
 	fprintf(fp,"hue 0\n");
-// filters
-	fprintf(fp,"\ndespeckle EedDl \n");
-	fprintf(fp,"lightswitch 50 \n");
-	fprintf(fp,"minimum_motion_frames 5 \n");
-	fprintf(fp,"night_compensate on \n");
-	fprintf(fp,"smart_mask_speed 5\n");
-// output
-	fprintf(fp,"\nalways_changes on\n");
-	fprintf(fp,"locate on\n");
-	fprintf(fp,"post_capture 5 \n");
-	fprintf(fp,"webcam_quality 50 \n");
-	fprintf(fp,"webcam_maxrate 5\n");
-	fprintf(fp,"text_changes on\n");
-	sLine = "text_right %d-%m-%Y\\n%T";
-	fprintf(fp,"%s\n",sLine.c_str());
-//	fprintf(fp,"mail_address ...\n");
+	//snapshot config
+	fprintf(fp,"snapshot_interval 3600\n");
+	//Output Directory
+	g_pPlutoLogger->Write(LV_STATUS, "Wrote typical config");
+	sLine = "/home/cameras/" + StringUtils::itos(DeviceID);
+	if(FileUtils::DirExists(sLine) == false) {
+		FileUtils::MakeDir(sLine);
+	}
+	fprintf(fp,"target_dir %s\n",sLine.c_str());
 
-
-// movies
-
-	fprintf(fp,"\nffmpeg_cap_new on\n");
-	fprintf(fp,"ffmpeg_timelapse 60\n");
-	fprintf(fp,"ffmpeg_timelapse_mode daily\n");
-	fprintf(fp,"ffmpeg_video_codec mpeg1\n");
-
-
-
-
-//snapshot config
-	fprintf(fp,"\nsnapshot_interval 60\n");
+	for(i = 1 ; i < iNumberOfPorts+1 ; i++) {
+		fprintf(fp,"#thread /etc/motion/thread%d.conf\n",i);
+	}
 	sLine = "snapshot_filename %Y/%m/%d/%H/%M_%S";
 	fprintf(fp,"%s\n",sLine.c_str());
 	sLine = "jpeg_filename %Y/%m/%d/%H/%M_%S";
 	fprintf(fp,"%s\n",sLine.c_str());
-	sLine = "ffmpeg_filename %Y/%m/%d/%H/%M_%S";
-	fprintf(fp,"%s\n",sLine.c_str());
-	sLine = "timelapse_filename %Y/%m/%d-timelapse";
-	fprintf(fp,"%s\n",sLine.c_str());
-
-	fprintf(fp,"\n\n");
-	//Output Directory
-	g_pPlutoLogger->Write(LV_STATUS, "Wrote default config");
-
-	for(i = 0 ; i < iNumberOfPorts+1 ; i++) {
-		fprintf(fp,"#thread /etc/motion/thread%d.conf\n",i);
-	}
-	fprintf(fp,"\n\n");
-
 	fclose(fp);
-//---------------------------------
-	for(size_t i=0;i<m_pData->m_vectDeviceData_Impl_Children.size();++i) {
-                DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[i];
-                int PK_Device = pDeviceData_Impl->m_dwPK_Device;
-                string sPort = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
-                string sMotion = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Motion_Option_CONST);
-       	  string sSensitivity = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Sensitivity_CONST);
-		  string sDevice =  pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Device_CONST);
-		  string sDescription =  pDeviceData_Impl->m_sDescription ;
-                g_pPlutoLogger->Write(LV_STATUS, "Using child device %d from Generic Analog Capture Card ",i);
-		  
-		iPortNumber = i;
-		sPortNumber = StringUtils::itos(iPortNumber);
-		
-		sPath = "/etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
-		FilePath = sPath;
-		g_pPlutoLogger->Write(LV_STATUS, "Looking for camera config file");
-		if(FileUtils::FileExists(sPath) == true) {
-			g_pPlutoLogger->Write(LV_STATUS, "File found, modifing...");
-			sPath = "rm -f " + sPath;
- 			system(sPath.c_str());
-		} else {
-			g_pPlutoLogger->Write(LV_STATUS, "Camera config file not found, writing new one");
-		}
-		fp = fopen(FilePath.c_str(),"wt+");
-		//main config
-		sLine = "videodevice /dev/video" + sDevice+ "\n";  //ADDED device parameter ...
-		fprintf(fp,sLine.c_str());
-		sLine = "input " + sPort + "\n";
-		fprintf(fp,sLine.c_str());
-
-		sLine = "800" + StringUtils::itos(iPortNumber);
-		fprintf(fp,"webcam_port %s\n",sLine.c_str());
-		sData = " ";
-		sRep = "_";
- 		sLine = StringUtils::Replace(sDescription,sData,sRep);
-		fprintf(fp,"text_left %s\\nRoomName\n\n\n",sLine.c_str()); // Real Room Name could be added !!!!!!
-
-		//Output Directory
-		sLine = "/home/cameras/" + StringUtils::itos(PK_Device);
-		g_pPlutoLogger->Write(LV_STATUS, "Looking for camera output directory");
-		if(FileUtils::DirExists(sLine) == false) {
-			g_pPlutoLogger->Write(LV_STATUS, "Camera output directory not found, creating it");
-			FileUtils::MakeDir(sLine);
-		} else {
-			g_pPlutoLogger->Write(LV_STATUS, "Camera output found");
-		}
-		fprintf(fp,"target_dir %s\n",sLine.c_str());
-
-		//snapshot config
-		fprintf(fp,"\nsnapshot_interval 60\n");
-		sLine = "snapshot_filename %Y/%m/%d/%H/%M_%S";
-		fprintf(fp,"%s\n",sLine.c_str());
-		sLine = "jpeg_filename %Y/%m/%d/%H/%M_%S";
-		fprintf(fp,"%s\n",sLine.c_str());
-		sLine = "ffmpeg_filename %Y/%m/%d/%H/%M_%S";
-		fprintf(fp,"%s\n",sLine.c_str());
-		sLine = "timelapse_filename %Y/%m/%d-timelapse";
-		fprintf(fp,"%s\n",sLine.c_str());
-
-		fclose(fp);
-
-		g_pPlutoLogger->Write(LV_STATUS, "Reading Main configuration file of the motion server");
-		sPath = "/etc/motion/motion.conf";
-		isize = FileUtils::FileSize(sPath);
-		char *pData = new char(isize+1);
-		pData[isize] = '\0';
-		pData = FileUtils::ReadFileIntoBuffer(sPath,(size_t &)isize);
-		sLine = "#thread /etc/motion/thread" + sPortNumber + ".conf";
-		sRep = "thread /etc/motion/thread" + sPortNumber + ".conf";
 	
-		std::string std = pData;
-		std = StringUtils::Replace(std,sLine,sRep);
-
-		g_pPlutoLogger->Write(LV_STATUS, "Adding child camera %d to main config file",i);
-		strcpy(pData,std.c_str());
-		FileUtils::WriteBufferIntoFile(sPath,pData,isize-1);
-
-
-
-       }
-//---------------------------------	
 	system("rm -f motion.temp");
 	g_pPlutoLogger->Write(LV_STATUS, "Starting motion server");
 	system("/usr/bin/motion | grep Failed > motion.temp");
@@ -312,7 +196,7 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 
 			g_pPlutoLogger->Write(LV_STATUS, "Reading and sending snapshot picture");
 
-			FilePath = "/home/cameras/" + StringUtils::itos(pMessage->m_dwPK_Device_To) + "/lastsnap.jpg";
+			FilePath = "/var/www/cam" + sPortNumber + "/lastsnap.jpg";
 			pData = FileUtils::ReadFileIntoBuffer(FilePath, s);
 			}
 			break;
