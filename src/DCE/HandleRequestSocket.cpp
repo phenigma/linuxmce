@@ -80,7 +80,7 @@ void HandleRequestSocket::DisconnectAndWait()
 	// This used to be pthread_join, but it crashed without logical explanation on a very intermittent basis.
 	// Try just waiting this way.
 	while( m_bRunning )
-		sleep(10);
+		Sleep(10);
 
 	m_RequestHandlerThread = 0;
 }
