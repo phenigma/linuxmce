@@ -51,7 +51,7 @@ Generic_Serial_Device: $(sources:.cpp=.o)
 
 
 Ruby_$(MYNAME).so: Ruby_$(MYNAME)_wrap.o 
-	ln -s /usr/lib/libtcl8.4.so.0 /usr/lib/libtcl8.4.so
+	ln -s /usr/lib/libtcl8.4.so.0 /usr/lib/libtcl8.4.so | true
 	$(CXX) -shared -o Ruby_$(MYNAME).so $(CPPFLAGS) Ruby_$(MYNAME)_wrap.o RubySerialIOWrapper.o RubyDeviceWrapper.o -ltcl8.4  
 	cp $@ ../bin
 	
