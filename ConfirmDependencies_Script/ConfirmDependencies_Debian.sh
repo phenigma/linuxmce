@@ -53,42 +53,51 @@ case "$URL_TYPE" in
 			SECTIONS="$TMP_SECT"
 			REPOS=$(echo -n "$REPOS" | cut -d' ' -f1)
 		fi
-		echo "Repository test string: '$REPOS_SRC.+$REPOS.+$SECTIONS'"
+#		echo "Repository test string: '$REPOS_SRC.+$REPOS.+$SECTIONS'"
 		results=$(cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep -c "$REPOS_SRC.+$REPOS.+$SECTIONS" 2>/dev/null)
 		if [ "$results" -eq 0 ]; then
 			echo "$REPOS_SRC $REPOS $SECTIONS" >>/etc/apt/sources.list
 			apt-get update
 		fi
-		keep_sending_enters | apt-get -t "$REPOS" -y install "$PKG_NAME" || exit $ERR_APT
+
+		if ! dpkg -l "$PKG_NAME" &>/dev/null; then
+			keep_sending_enters | apt-get -t "$REPOS" -y install "$PKG_NAME" || exit $ERR_APT
+		fi
 	;;
 	
 	direct)
-		mkdir -p /usr/pluto/download
-		/usr/pluto/install/Download_Direct.sh "$@" || exit $ERR_DOWNLOAD
-		
-		# about the finds: should be ran in the extracted package's directory
-		mkdir -p "/usr/pluto/download/${PKG_NAME}_$MIN_VER"
-		pushd "/usr/pluto/download/${PKG_NAME}_$MIN_VER"
-		if [ "$PARAMETER" == ".zip" ]; then
-			echo "Extracting '${PKG_NAME}_$MIN_VER$PARAMETER'"
-			/usr/bin/unzip "../${PKG_NAME}_$MIN_VER$PARAMETER" || exit $ERR_UNPACK
-			find -name 'mkr_preinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
-			find -name 'mkr_postinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
-		elif [ "$PARAMETER" == ".tar.gz" ]; then
-			echo "Extracting '${PKG_NAME}_$MIN_VER$PARAMETER'"
-			/bin/tar -xzvf "../${PKG_NAME}_$MIN_VER$PARAMETER" || exit $ERR_UNPACK
-			find -name 'mkr_preinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
-			find -name 'mkr_postinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
-		else
-			echo "Unknown parameter: '$PARAMETER'"
-		fi
-		popd
-		
-		if [ "$REPOS_TYPE" -eq 1 ]; then
-			keep_sending_enters | dpkg -i /usr/pluto/download/"$PKG_NAME" || exit $ERR_DPKG_INSTALL
-		elif [ "$REPOS_TYPE" -eq 6 ]; then
-			# source code ; how do I know where it unpacked?
+		if [ "$REPOS_TYPE" -eq 1 ] && dpkg -l "${PKG_NAME/_*}" &>/dev/null; then
 			true
+		else
+			mkdir -p /usr/pluto/download
+			/usr/pluto/install/Download_Direct.sh "$@" || exit $ERR_DOWNLOAD
+		
+			if [ "$REPOS_TYPE" -eq 1 ]; then
+				keep_sending_enters | dpkg -i /usr/pluto/download/"$PKG_NAME" || exit $ERR_DPKG_INSTALL
+			else
+				# about the finds: should be ran in the extracted package's directory
+				mkdir -p "/usr/pluto/download/${PKG_NAME}"
+				pushd "/usr/pluto/download/${PKG_NAME}"
+				if [ "$PARAMETER" == ".zip" ]; then
+					echo "Extracting '${PKG_NAME}_$MIN_VER$PARAMETER'"
+					/usr/bin/unzip "../${PKG_NAME}_$MIN_VER$PARAMETER" || exit $ERR_UNPACK
+					find -name 'mkr_preinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
+					find -name 'mkr_postinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
+				elif [ "$PARAMETER" == ".tar.gz" ]; then
+					echo "Extracting '${PKG_NAME}_$MIN_VER$PARAMETER'"
+					/bin/tar -xzvf "../${PKG_NAME}_$MIN_VER$PARAMETER" || exit $ERR_UNPACK
+					find -name 'mkr_preinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
+					find -name 'mkr_postinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
+				else
+					echo "Unknown parameter: '$PARAMETER'"
+				fi
+				popd
+		
+				if [ "$REPOS_TYPE" -eq 6 ]; then
+					# source code ; how do I know where it unpacked?
+					true
+				fi
+			fi
 		fi
 	;;
 

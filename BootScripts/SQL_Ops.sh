@@ -1,10 +1,13 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Config_Ops.sh
+
 RunSQL()
 {
-	local Q
+	local Q Pass
 	Q="$*"
-	[ -z "$Q" ] || echo "$Q;" | mysql -N pluto_main | tr '\n\t ' ' ,~'
+	[ -n "$MySqlPassword" ] && Pass="-p$MySqlPassword"
+	[ -z "$Q" ] || echo "$Q;" | mysql -N pluto_main -h $MySqlHost -u $MySqlUser $Pass | tr '\n\t ' ' ,~'
 }
 
 Field()
