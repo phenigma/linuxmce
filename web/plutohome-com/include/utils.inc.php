@@ -890,7 +890,9 @@ function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orde
 
 function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,$dbADO,$deviceName='')
 {
-	$insertDevice="INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation,FK_Device_ControlledVia) SELECT Description,PK_DeviceTemplate,$FK_Installation,$controlledBy FROM DeviceTemplate WHERE PK_DeviceTemplate='$FK_DeviceTemplate'";
+	$orbiterID=getMediaDirectorOrbiterChild($controlledBy,$dbADO);
+	
+	$insertDevice="INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation,FK_Device_ControlledVia) SELECT Description,PK_DeviceTemplate,$FK_Installation,$orbiterID FROM DeviceTemplate WHERE PK_DeviceTemplate='$FK_DeviceTemplate'";
 	$dbADO->Execute($insertDevice);
 	$insertID=$dbADO->Insert_ID();
 	
