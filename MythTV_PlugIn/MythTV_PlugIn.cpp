@@ -168,7 +168,7 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
     g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
 int i;
     DCE::CMD_Stop_Media cmd(m_dwPK_Device,
-        pMythTvStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+        pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
         pMediaStream->m_iStreamID_get(),&i);
     string Response;
     if( !SendCommand(cmd, &Response) )
@@ -182,7 +182,7 @@ int i;
         return false;
     }
 
-    map<int, int>::iterator it = m_mapDevicesToStreams.find(pMythTvStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
+    map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
     if( it!=m_mapDevicesToStreams.end() )
         m_mapDevicesToStreams.erase(it);
 
