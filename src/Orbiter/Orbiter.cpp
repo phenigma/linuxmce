@@ -1694,7 +1694,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
     // Side-effect on single select interface: the clicked row was redrawn after drawing the new grid
     if ( !pDesignObj_DataGrid->m_iPK_Variable || !pCell->m_bSelectable )
 	{
-		//g_pPlutoLogger->Write(LV_WARNING, "No datagrid variable was updated");
+		g_pPlutoLogger->Write(LV_WARNING, "No datagrid variable was updated");
         return true;
 	}
 	
@@ -1753,8 +1753,8 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
     hack -- need this      }
     */
 
-	//g_pPlutoLogger->Write(LV_WARNING, "Need to update variable %d of the datagrid with value %s", 
-	//	pDesignObj_DataGrid->m_iPK_Variable, NewValue);
+	g_pPlutoLogger->Write(LV_WARNING, "Need to update variable %d of the datagrid with value %s", 
+		pDesignObj_DataGrid->m_iPK_Variable, NewValue.c_str());
 
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
     m_mapVariable[PK_Variable] = NewValue;
