@@ -453,6 +453,8 @@
 #define TEXT_Yes_its_a_phone_CONST 1128
 #define TEXT_choose_room_CONST 1129
 #define TEXT_Orbiters_Regenerated_CONST 1130
+#define TEXT_Checking_drive_CONST 1131
+#define TEXT_Cannot_play_DVD_CONST 1132
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

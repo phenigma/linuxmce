@@ -545,13 +545,13 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
                     if( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==PK_Device_Orbiter )
                     {
                         DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-                            StringUtils::itos(iPK_DesignObj_Remote),"","",false);
+                            StringUtils::itos(iPK_DesignObj_Remote),"","",false, false);
                         SendCommand(CMD_Goto_Screen);
                     }
                     else
                     {
                         DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-                            StringUtils::itos(iPK_DesignObj_Remote),"","-1",false);
+                            StringUtils::itos(iPK_DesignObj_Remote),"","-1",false, false);
                         SendCommand(CMD_Goto_Screen);
                     }
                 }
@@ -579,7 +579,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 				break;
 			}
             DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,0,
-                StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD),"","",false);
+                StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD),"","",false, false);
             SendCommand(CMD_Goto_Screen);
         }
 
@@ -829,7 +829,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended", pEntertainArea->m_sDe
 	for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
     {
         BoundRemote *pBoundRemote = ( *itBR ).second;
-		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false);
+		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false, false);
 		SendCommand(CMD_Goto_Screen);
     }
 }
@@ -851,8 +851,7 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
    if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
     {
         g_pPlutoLogger->Write(LV_WARNING, "NULL entertainment area or NULL stream in the entertainment area for device %d", pMessage->m_dwPK_Device_From);
-        DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( DESIGNOBJ_mnuNoMedia_CONST ), "", "", false );
-        SendCommand( CMD_Goto_Screen );
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_No_Media_CONST) + "%>",false,10,true);
         return; // Don't know what area it should be played in, or there's no media playing there
     }
 
@@ -862,12 +861,12 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
 		pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device == (unsigned long)pMessage->m_dwPK_Device_From &&
 		pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD )
 	{
-	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD ), "", "", false );
+	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD ), "", "", false, false );
 		SendCommand( CMD_Goto_Screen );
 	}
 	else
 	{
-	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false );
+	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false, false );
 		SendCommand( CMD_Goto_Screen );
 	}
 }

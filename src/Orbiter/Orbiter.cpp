@@ -569,7 +569,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 if( pObj->m_pParentObject == pObj_Screen )
 g_pPlutoLogger->Write( LV_STATUS, "Rendering top level child %s", pObj->m_ObjectID.c_str() );
 
-    if(  pObj->m_ObjectID.find( "2265.0.0.2038" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "3351" )!=string::npos  )
         //if(  pObj->m_iBaseObjectID == 2707  )
     {
 g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
@@ -4316,8 +4316,10 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			/** If this is specified, the orbiter will ignore the command unless this is the current screen.  If this is -1, that will match a main menu or screen saver (ie the Orbiter is not in use). */
 		/** @param #22 Store Variables */
 			/** If 1, the Orbiter will store the current variable values, and restore them if a 'go back' causes it to return to this screen */
+		/** @param #114 Cant Go Back */
+			/** If true, then when this screen goes away the user won't be able to return to it -- it will be skipped over, unless Go Back with Force=1 is used.  This prevents layers of popup screens. */
 
-void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage)
 //<-dceag-c5-e->
 {
 	//hack! if the simulator is running, we won't go to pluto admin screen
@@ -4358,7 +4360,7 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
     ScreenHistory *pScreenHistory_New = new ScreenHistory( pObj_New, m_pScreenHistory_Current );
     // See if we're going to control a new device,  or should stick with the one we're now controlling
     pScreenHistory_New->m_sID=sID;
-    pScreenHistory_New->m_bCantGoBack = pObj_New->m_bCantGoBack;
+	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
     vm.Release(  );
 
     // See if we need to store the variables on this screen,  so we restore them in case of a go back

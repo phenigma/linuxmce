@@ -75,6 +75,15 @@ bool Xine_Plugin::Register()
 
 	m_pMedia_Plugin=( Media_Plugin * ) pListCommand_Impl->front( );
 
+    pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Orbiter_Plugin_CONST );
+    if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "Media handler plug in cannot find orbiter handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+        return false;
+    }
+
+    m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl->front( );
+
 	m_pMedia_Plugin->RegisterMediaPlugin( this, this, DEVICETEMPLATE_Xine_Player_CONST, true );
 	m_pMedia_Plugin->RegisterMediaPlugin( this, this, DEVICETEMPLATE_SqueezeBox_Player_CONST, true );
 
@@ -210,6 +219,11 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
 	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
 	{
+		if( pMediaStream->m_pOH_Orbiter_OSD )
+{
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,10,true);
+g_pPlutoLogger->Write(LV_CRITICAL,"Displaying one moment message");
+}
 		pXineMediaStream->m_sMediaDescription = "Media Desc";
 
 		g_pPlutoLogger->Write(LV_STATUS, "Got pluto DVD media type");
@@ -241,6 +255,8 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 						bFound = true;
 						break;
 					}
+					else
+						m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_DVD_CONST) + "%>",false,10,true);
 
 					g_pPlutoLogger->Write(LV_CRITICAL, "Disk drive mount command didn't complete succesfully (response %s). Error message: %s", Response.c_str(), mediaURL.c_str( ) );
 				}
@@ -249,7 +265,10 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 		}
 
 		if ( !bFound ) // we didn;t find a disk drive which was able to mount hte images
+		{
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"Error -- no drive",false,10,true);
 			return false;
+		}
 	}
 	else
 	{
@@ -595,7 +614,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 		{
 			/** Send all the orbiters to the dvd menu */
 			// DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( /*DESIGNOBJ_dvd_menu_CONST HACK -- todo*/1 ), "", "", false );
-			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false );
+			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false, true );
 			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sOtherOrbiters, VARIABLE_PK_Device_CONST, StringUtils::itos( pMessage->m_dwPK_Device_From ) );
 
 			CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );

@@ -42,7 +42,9 @@ public:
 	// Private member variables
 
 	protected:
-			virtual bool StartStreaming(class XineMediaStream *m_pMediaStream);
+		virtual bool StartStreaming(class XineMediaStream *m_pMediaStream);
+
+		class Orbiter_Plugin *m_pOrbiter_Plugin;
 
 	// Private methods
 	public:

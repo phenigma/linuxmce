@@ -68,7 +68,8 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
-    // Private member variables
+
+	// Private member variables
     Database_pluto_main *m_pDatabase_pluto_main;
 	class FollowMe_Plugin *m_pLighting_Followme,*m_pMedia_Followme,*m_pClimate_Followme,*m_pSecurity_Followme,*m_pTelecom_Followme;
 	class FloorplanInfoProvider *m_pLighting_Floorplan,*m_pClimate_Floorplan,*m_pMedia_Floorplan,*m_pSecurity_Floorplan,*m_pTelecom_Floorplan;
@@ -113,7 +114,7 @@ public:
 	bool NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
     void ProcessUnknownDevice();
-	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0)
+	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false)
 	{
 		if ( sMessage == "" )
 			sMessage = "Unable to save playlist";
@@ -121,7 +122,7 @@ public:
 		string sPK_Device = dwPK_Device ? StringUtils::itos(dwPK_Device) : m_sPK_Device_AllOrbiters;
 		DCE::CMD_Set_Text_DL CMD_Set_Text( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), sMessage, TEXT_STATUS_CONST);
 
-		DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, sPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false );
+		DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, sPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false, bCantGoBack );
 		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 		if( bPromptToResetRouter )
 		{

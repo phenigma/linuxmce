@@ -1055,7 +1055,6 @@
 #define DESIGNOBJ_mnuFirstTime_CONST 3221
 #define DESIGNOBJ_butGoToMainMenu_CONST 3222
 #define DESIGNOBJ_grpSeekFileList_CONST 3223
-#define DESIGNOBJ_mnuNoMedia_CONST 3224
 #define DESIGNOBJ_grpPhoneSearchKeyboardlarge_CONST 3225
 #define DESIGNOBJ_mnuPlayList_CONST 3226
 #define DESIGNOBJ_dgFileList2_CONST 3227

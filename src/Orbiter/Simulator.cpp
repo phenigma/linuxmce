@@ -49,11 +49,7 @@ void *GeneratorThread( void *p)
 
 	pSimulator->m_bIsRunning = true;
 
-#ifdef WIN32
 	Sleep(pSimulator->m_dwStartGeneratorThreadDelay);
-#else //LINUX
-	sleep(pSimulator->m_dwStartGeneratorThreadDelay / 1000);
-#endif	
 	
 	bool bGenerateMouseClicks = pSimulator->m_bGenerateKeyboardEvents;
 	bool bGenerateKeyboardEvents = pSimulator->m_bGenerateMouseClicks;
@@ -229,11 +225,7 @@ Simulator::~Simulator()
 //------------------------------------------------------------------------------------------------------
 /*static*/ void Simulator::SimulateActionDelay(long delay)
 {
-#ifdef WIN32	
 	Sleep(delay);
-#else //LINUX:
-	sleep(delay / 1000);
-#endif	
 }
 //------------------------------------------------------------------------------------------------------
 void Simulator::LoadConfigurationFile(string sConfigurationFile)

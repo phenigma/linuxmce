@@ -361,7 +361,7 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 
     DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, sMacAddress);
     DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, Description);
-    DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "", "", true);
+    DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "", "", true, false);
 
     // Send them all 3 in one message for efficiency
     CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
@@ -371,8 +371,6 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 
 bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-printf("Mobile orbiter detected\n");
-
     if (!pDeviceFrom)
     {
         g_pPlutoLogger->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL");
@@ -494,7 +492,6 @@ printf("Mobile orbiter detected\n");
             }
         }
     }
-    printf("finished processing\n");
 
     return true;
 }
@@ -1351,7 +1348,7 @@ bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessag
 		return false;
 	}
 
-	DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(PK_Device), "", true );
+	DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(PK_Device), "", true, false );
 	// The destination devices must match
 	DCE::CMD_Set_Variable_DL CMD_Set_Variable1( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, pRow_Device->Description_get());
 	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);

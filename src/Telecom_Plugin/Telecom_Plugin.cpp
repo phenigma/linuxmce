@@ -371,7 +371,7 @@ Telecom_Plugin::ProcessResult(int iCommandID, int iResult, std::string sMessage)
 				/*switch orbiter screen*/
 				if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST) {
 					CMD_Goto_Screen cmd_CMD_Goto_Screen(m_dwPK_Device, pDeviceData->m_dwPK_Device, 
-										m_dwPK_Device, "1281", pCallData->getID(), "", false);
+										m_dwPK_Device, "1281", pCallData->getID(), "", false, false);
 					SendCommand(cmd_CMD_Goto_Screen);
 				}
 			} else {
