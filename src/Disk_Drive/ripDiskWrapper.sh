@@ -42,14 +42,14 @@ esac
 
 echo $command;
 if [ "$command" == "" ]; then 
-	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceId $mediaPluginDeviceID 2 35 20 $result 35 "$targetFileName";
+	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID $mediaPluginDeviceID 2 35 20 $result 35 "$targetFileName";
 	exit;
 fi
 
 if eval $command; then 
-	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceId $mediaPluginDeviceID 2 35 20 $ERR_SUCCESS 35 "$targetFileName";
+	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID $mediaPluginDeviceID 2 35 20 $ERR_SUCCESS 35 "$targetFileName";
 	mv -f "/home/public/data/movies/$targetFileName.in-progress-dvd" "/home/public/data/movies/$targetFileName.dvd";
 else
-	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceId $mediaPluginDeviceID 2 35 20 $ERR_RESULT_FAILURE 35 "$targetFileName";
+	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID $mediaPluginDeviceID 2 35 20 $ERR_RESULT_FAILURE 35 "$targetFileName";
 	rm "/home/public/data/movies/$targetFileName.in-progress-dvd";
 fi
