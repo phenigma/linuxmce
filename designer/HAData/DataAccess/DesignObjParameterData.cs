@@ -16,20 +16,12 @@ namespace HAData.DataAccess {
 		public const String COMMENTS_FIELD = "Comments";
 		public const String DESCRIPTION_FIELD = "Description";
 		public const String FK_PARAMETERTYPE_FIELD = "FK_ParameterType";
-		public const String MODIFICATION_RECORDINFO_FIELD = "Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_FIELD = "IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_FIELD = "IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_FIELD = "FK_Users_RecordInfo";
 		// table+field constants
 		public const String PK_DESIGNOBJPARAMETER_TABLE_FIELD = "DesignObjParameter.PK_DesignObjParameter";
 		public const String DEFINE_TABLE_FIELD = "DesignObjParameter.Define";
 		public const String COMMENTS_TABLE_FIELD = "DesignObjParameter.Comments";
 		public const String DESCRIPTION_TABLE_FIELD = "DesignObjParameter.Description";
 		public const String FK_PARAMETERTYPE_TABLE_FIELD = "DesignObjParameter.FK_ParameterType";
-		public const String MODIFICATION_RECORDINFO_TABLE_FIELD = "DesignObjParameter.Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_TABLE_FIELD = "DesignObjParameter.IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_TABLE_FIELD = "DesignObjParameter.IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_TABLE_FIELD = "DesignObjParameter.FK_Users_RecordInfo";
 		public const int GRAPHIC_FILENAME_CONST = 1;
 		public const int XPOS_CONST = 2;
 		public const int YPOS_CONST = 3;
@@ -85,10 +77,6 @@ namespace HAData.DataAccess {
 		protected const String COMMENTS_PARM = "@Comments";
 		protected const String DESCRIPTION_PARM = "@Description";
 		protected const String FK_PARAMETERTYPE_PARM = "@FK_ParameterType";
-		protected const String MODIFICATION_RECORDINFO_PARM = "@Modification_RecordInfo";
-		protected const String ISNEW_RECORDINFO_PARM = "@IsNew_RecordInfo";
-		protected const String ISDELETED_RECORDINFO_PARM = "@IsDeleted_RecordInfo";
-		protected const String FK_USERS_RECORDINFO_PARM = "@FK_Users_RecordInfo";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -175,10 +163,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(COMMENTS_PARM, OdbcType.VarChar, 255));
 			Params.Add(new OdbcParameter(DESCRIPTION_PARM, OdbcType.VarChar, 20));
 			Params.Add(new OdbcParameter(FK_PARAMETERTYPE_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(MODIFICATION_RECORDINFO_PARM, OdbcType.DateTime,4));
-			Params.Add(new OdbcParameter(ISNEW_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISDELETED_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_USERS_RECORDINFO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -192,10 +176,6 @@ namespace HAData.DataAccess {
 			Params[COMMENTS_PARM].SourceColumn = DesignObjParameterData.COMMENTS_FIELD;
 			Params[DESCRIPTION_PARM].SourceColumn = DesignObjParameterData.DESCRIPTION_FIELD;
 			Params[FK_PARAMETERTYPE_PARM].SourceColumn = DesignObjParameterData.FK_PARAMETERTYPE_FIELD;
-			Params[MODIFICATION_RECORDINFO_PARM].SourceColumn = DesignObjParameterData.MODIFICATION_RECORDINFO_FIELD;
-			Params[ISNEW_RECORDINFO_PARM].SourceColumn = DesignObjParameterData.ISNEW_RECORDINFO_FIELD;
-			Params[ISDELETED_RECORDINFO_PARM].SourceColumn = DesignObjParameterData.ISDELETED_RECORDINFO_FIELD;
-			Params[FK_USERS_RECORDINFO_PARM].SourceColumn = DesignObjParameterData.FK_USERS_RECORDINFO_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -287,7 +267,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_DesignObjParameter, Define, Comments, Description, FK_ParameterType, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo FROM DesignObjParameter WHERE " + WhereClause;
+			string sSQL = "SELECT PK_DesignObjParameter, Define, Comments, Description, FK_ParameterType FROM DesignObjParameter WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -580,102 +560,6 @@ namespace HAData.DataAccess {
 				return mds.tParameterType[Convert.ToInt32(dr[4])];
 			}
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				return Convert.ToDateTime(dr[5]);
-			}
-			set
-			{
-				dr[5]=value;
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[5]==DBNull.Value;
-			}
-		}
-		public void fModification_RecordInfoSetNull()
-		{
-			dr[5]=DBNull.Value;
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[6]);
-			}
-			set
-			{
-				dr[6]=value;
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[6]==DBNull.Value;
-			}
-		}
-		public void fIsNew_RecordInfoSetNull()
-		{
-			dr[6]=DBNull.Value;
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[7]);
-			}
-			set
-			{
-				dr[7]=value;
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[7]==DBNull.Value;
-			}
-		}
-		public void fIsDeleted_RecordInfoSetNull()
-		{
-			dr[7]=DBNull.Value;
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				return Convert.ToInt32(dr[8]);
-			}
-			set
-			{
-				dr[8]=value;
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[8]==DBNull.Value;
-			}
-		}
-		public void fFK_Users_RecordInfoSetNull()
-		{
-			dr[8]=DBNull.Value;
-		}
-		public UsersDataRow fFK_Users_RecordInfo_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tUsers[Convert.ToInt32(dr[8])];
-			}
-		}
 	} // public class DesignObjParameterDataRow
 	public class DesignObjParameterDataReader
 	{
@@ -758,8 +642,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[9];
-				for(int i=0;i<9;i++)
+				object[] objs = new object[5];
+				for(int i=0;i<5;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -841,86 +725,6 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(((object[]) al[iRecord])[4]);
 				else
 					return Convert.ToInt32(dr[4]);
-			}
-		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToDateTime(((object[]) al[iRecord])[5]);
-				else
-					return Convert.ToDateTime(dr[5]);
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[5]==DBNull.Value;
-				else
-					return dr[5]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[6]);
-				else
-					return Convert.ToBoolean(dr[6]);
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[6]==DBNull.Value;
-				else
-					return dr[6]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[7]);
-				else
-					return Convert.ToBoolean(dr[7]);
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[7]==DBNull.Value;
-				else
-					return dr[7]==DBNull.Value;
-			}
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[8]);
-				else
-					return Convert.ToInt32(dr[8]);
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[8]==DBNull.Value;
-				else
-					return dr[8]==DBNull.Value;
 			}
 		}
 	} // public class DesignObjParameterDataReader
@@ -1008,34 +812,6 @@ namespace HAData.DataAccess {
 			get
 			{
 				return Columns[4];
-			}
-		}
-		public DataColumn cModification_RecordInfo
-		{
-			get
-			{
-				return Columns[5];
-			}
-		}
-		public DataColumn cIsNew_RecordInfo
-		{
-			get
-			{
-				return Columns[6];
-			}
-		}
-		public DataColumn cIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Columns[7];
-			}
-		}
-		public DataColumn cFK_Users_RecordInfo
-		{
-			get
-			{
-				return Columns[8];
 			}
 		}
 	}

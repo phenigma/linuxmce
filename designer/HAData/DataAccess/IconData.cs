@@ -19,10 +19,6 @@ namespace HAData.DataAccess {
 		public const String SELECTEDFILENAME_FIELD = "SelectedFileName";
 		public const String ALTFILENAMES_FIELD = "AltFileNames";
 		public const String BACKGROUNDFILENAME_FIELD = "BackgroundFileName";
-		public const String MODIFICATION_RECORDINFO_FIELD = "Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_FIELD = "IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_FIELD = "IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_FIELD = "FK_Users_RecordInfo";
 		// table+field constants
 		public const String PK_ICON_TABLE_FIELD = "Icon.PK_Icon";
 		public const String DEFINE_TABLE_FIELD = "Icon.Define";
@@ -32,10 +28,6 @@ namespace HAData.DataAccess {
 		public const String SELECTEDFILENAME_TABLE_FIELD = "Icon.SelectedFileName";
 		public const String ALTFILENAMES_TABLE_FIELD = "Icon.AltFileNames";
 		public const String BACKGROUNDFILENAME_TABLE_FIELD = "Icon.BackgroundFileName";
-		public const String MODIFICATION_RECORDINFO_TABLE_FIELD = "Icon.Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_TABLE_FIELD = "Icon.IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_TABLE_FIELD = "Icon.IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_TABLE_FIELD = "Icon.FK_Users_RecordInfo";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
@@ -48,10 +40,6 @@ namespace HAData.DataAccess {
 		protected const String SELECTEDFILENAME_PARM = "@SelectedFileName";
 		protected const String ALTFILENAMES_PARM = "@AltFileNames";
 		protected const String BACKGROUNDFILENAME_PARM = "@BackgroundFileName";
-		protected const String MODIFICATION_RECORDINFO_PARM = "@Modification_RecordInfo";
-		protected const String ISNEW_RECORDINFO_PARM = "@IsNew_RecordInfo";
-		protected const String ISDELETED_RECORDINFO_PARM = "@IsDeleted_RecordInfo";
-		protected const String FK_USERS_RECORDINFO_PARM = "@FK_Users_RecordInfo";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -143,10 +131,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(SELECTEDFILENAME_PARM, OdbcType.VarChar, 50));
 			Params.Add(new OdbcParameter(ALTFILENAMES_PARM, OdbcType.VarChar, 200));
 			Params.Add(new OdbcParameter(BACKGROUNDFILENAME_PARM, OdbcType.VarChar, 50));
-			Params.Add(new OdbcParameter(MODIFICATION_RECORDINFO_PARM, OdbcType.DateTime,4));
-			Params.Add(new OdbcParameter(ISNEW_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISDELETED_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_USERS_RECORDINFO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -163,10 +147,6 @@ namespace HAData.DataAccess {
 			Params[SELECTEDFILENAME_PARM].SourceColumn = IconData.SELECTEDFILENAME_FIELD;
 			Params[ALTFILENAMES_PARM].SourceColumn = IconData.ALTFILENAMES_FIELD;
 			Params[BACKGROUNDFILENAME_PARM].SourceColumn = IconData.BACKGROUNDFILENAME_FIELD;
-			Params[MODIFICATION_RECORDINFO_PARM].SourceColumn = IconData.MODIFICATION_RECORDINFO_FIELD;
-			Params[ISNEW_RECORDINFO_PARM].SourceColumn = IconData.ISNEW_RECORDINFO_FIELD;
-			Params[ISDELETED_RECORDINFO_PARM].SourceColumn = IconData.ISDELETED_RECORDINFO_FIELD;
-			Params[FK_USERS_RECORDINFO_PARM].SourceColumn = IconData.FK_USERS_RECORDINFO_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -258,7 +238,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_Icon, Define, Description, TransparentColor, MainFileName, SelectedFileName, AltFileNames, BackgroundFileName, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo FROM Icon WHERE " + WhereClause;
+			string sSQL = "SELECT PK_Icon, Define, Description, TransparentColor, MainFileName, SelectedFileName, AltFileNames, BackgroundFileName FROM Icon WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -609,102 +589,6 @@ namespace HAData.DataAccess {
 		{
 			dr[7]=DBNull.Value;
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				return Convert.ToDateTime(dr[8]);
-			}
-			set
-			{
-				dr[8]=value;
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[8]==DBNull.Value;
-			}
-		}
-		public void fModification_RecordInfoSetNull()
-		{
-			dr[8]=DBNull.Value;
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[9]);
-			}
-			set
-			{
-				dr[9]=value;
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[9]==DBNull.Value;
-			}
-		}
-		public void fIsNew_RecordInfoSetNull()
-		{
-			dr[9]=DBNull.Value;
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[10]);
-			}
-			set
-			{
-				dr[10]=value;
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[10]==DBNull.Value;
-			}
-		}
-		public void fIsDeleted_RecordInfoSetNull()
-		{
-			dr[10]=DBNull.Value;
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				return Convert.ToInt32(dr[11]);
-			}
-			set
-			{
-				dr[11]=value;
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[11]==DBNull.Value;
-			}
-		}
-		public void fFK_Users_RecordInfoSetNull()
-		{
-			dr[11]=DBNull.Value;
-		}
-		public UsersDataRow fFK_Users_RecordInfo_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tUsers[Convert.ToInt32(dr[11])];
-			}
-		}
 	} // public class IconDataRow
 	public class IconDataReader
 	{
@@ -787,8 +671,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[12];
-				for(int i=0;i<12;i++)
+				object[] objs = new object[8];
+				for(int i=0;i<8;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -932,86 +816,6 @@ namespace HAData.DataAccess {
 					return dr[7]==DBNull.Value;
 			}
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToDateTime(((object[]) al[iRecord])[8]);
-				else
-					return Convert.ToDateTime(dr[8]);
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[8]==DBNull.Value;
-				else
-					return dr[8]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[9]);
-				else
-					return Convert.ToBoolean(dr[9]);
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[9]==DBNull.Value;
-				else
-					return dr[9]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[10]);
-				else
-					return Convert.ToBoolean(dr[10]);
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[10]==DBNull.Value;
-				else
-					return dr[10]==DBNull.Value;
-			}
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[11]);
-				else
-					return Convert.ToInt32(dr[11]);
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[11]==DBNull.Value;
-				else
-					return dr[11]==DBNull.Value;
-			}
-		}
 	} // public class IconDataReader
 	public class IconTable : DataTable
 	{
@@ -1118,34 +922,6 @@ namespace HAData.DataAccess {
 			get
 			{
 				return Columns[7];
-			}
-		}
-		public DataColumn cModification_RecordInfo
-		{
-			get
-			{
-				return Columns[8];
-			}
-		}
-		public DataColumn cIsNew_RecordInfo
-		{
-			get
-			{
-				return Columns[9];
-			}
-		}
-		public DataColumn cIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Columns[10];
-			}
-		}
-		public DataColumn cFK_Users_RecordInfo
-		{
-			get
-			{
-				return Columns[11];
 			}
 		}
 	}

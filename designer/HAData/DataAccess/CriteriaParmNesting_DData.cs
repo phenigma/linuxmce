@@ -15,19 +15,11 @@ namespace HAData.DataAccess {
 		public const String FK_CRITERIAPARMNESTING_D_PARENT_FIELD = "FK_CriteriaParmNesting_D_Parent";
 		public const String ISAND_FIELD = "IsAnd";
 		public const String ISNOT_FIELD = "IsNot";
-		public const String MODIFICATION_RECORDINFO_FIELD = "Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_FIELD = "IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_FIELD = "IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_FIELD = "FK_Users_RecordInfo";
 		// table+field constants
 		public const String PK_CRITERIAPARMNESTING_D_TABLE_FIELD = "CriteriaParmNesting_D.PK_CriteriaParmNesting_D";
 		public const String FK_CRITERIAPARMNESTING_D_PARENT_TABLE_FIELD = "CriteriaParmNesting_D.FK_CriteriaParmNesting_D_Parent";
 		public const String ISAND_TABLE_FIELD = "CriteriaParmNesting_D.IsAnd";
 		public const String ISNOT_TABLE_FIELD = "CriteriaParmNesting_D.IsNot";
-		public const String MODIFICATION_RECORDINFO_TABLE_FIELD = "CriteriaParmNesting_D.Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_TABLE_FIELD = "CriteriaParmNesting_D.IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_TABLE_FIELD = "CriteriaParmNesting_D.IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_TABLE_FIELD = "CriteriaParmNesting_D.FK_Users_RecordInfo";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
@@ -36,10 +28,6 @@ namespace HAData.DataAccess {
 		protected const String FK_CRITERIAPARMNESTING_D_PARENT_PARM = "@FK_CriteriaParmNesting_D_Parent";
 		protected const String ISAND_PARM = "@IsAnd";
 		protected const String ISNOT_PARM = "@IsNot";
-		protected const String MODIFICATION_RECORDINFO_PARM = "@Modification_RecordInfo";
-		protected const String ISNEW_RECORDINFO_PARM = "@IsNew_RecordInfo";
-		protected const String ISDELETED_RECORDINFO_PARM = "@IsDeleted_RecordInfo";
-		protected const String FK_USERS_RECORDINFO_PARM = "@FK_Users_RecordInfo";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -123,10 +111,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(FK_CRITERIAPARMNESTING_D_PARENT_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(ISAND_PARM, OdbcType.Bit,1));
 			Params.Add(new OdbcParameter(ISNOT_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(MODIFICATION_RECORDINFO_PARM, OdbcType.DateTime,4));
-			Params.Add(new OdbcParameter(ISNEW_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISDELETED_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_USERS_RECORDINFO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -139,10 +123,6 @@ namespace HAData.DataAccess {
 			Params[FK_CRITERIAPARMNESTING_D_PARENT_PARM].SourceColumn = CriteriaParmNesting_DData.FK_CRITERIAPARMNESTING_D_PARENT_FIELD;
 			Params[ISAND_PARM].SourceColumn = CriteriaParmNesting_DData.ISAND_FIELD;
 			Params[ISNOT_PARM].SourceColumn = CriteriaParmNesting_DData.ISNOT_FIELD;
-			Params[MODIFICATION_RECORDINFO_PARM].SourceColumn = CriteriaParmNesting_DData.MODIFICATION_RECORDINFO_FIELD;
-			Params[ISNEW_RECORDINFO_PARM].SourceColumn = CriteriaParmNesting_DData.ISNEW_RECORDINFO_FIELD;
-			Params[ISDELETED_RECORDINFO_PARM].SourceColumn = CriteriaParmNesting_DData.ISDELETED_RECORDINFO_FIELD;
-			Params[FK_USERS_RECORDINFO_PARM].SourceColumn = CriteriaParmNesting_DData.FK_USERS_RECORDINFO_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -234,7 +214,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_CriteriaParmNesting_D, FK_CriteriaParmNesting_D_Parent, IsAnd, IsNot, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo FROM CriteriaParmNesting_D WHERE " + WhereClause;
+			string sSQL = "SELECT PK_CriteriaParmNesting_D, FK_CriteriaParmNesting_D_Parent, IsAnd, IsNot FROM CriteriaParmNesting_D WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -516,102 +496,6 @@ namespace HAData.DataAccess {
 				dr[3]=value;
 			}
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				return Convert.ToDateTime(dr[4]);
-			}
-			set
-			{
-				dr[4]=value;
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[4]==DBNull.Value;
-			}
-		}
-		public void fModification_RecordInfoSetNull()
-		{
-			dr[4]=DBNull.Value;
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[5]);
-			}
-			set
-			{
-				dr[5]=value;
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[5]==DBNull.Value;
-			}
-		}
-		public void fIsNew_RecordInfoSetNull()
-		{
-			dr[5]=DBNull.Value;
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[6]);
-			}
-			set
-			{
-				dr[6]=value;
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[6]==DBNull.Value;
-			}
-		}
-		public void fIsDeleted_RecordInfoSetNull()
-		{
-			dr[6]=DBNull.Value;
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				return Convert.ToInt32(dr[7]);
-			}
-			set
-			{
-				dr[7]=value;
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[7]==DBNull.Value;
-			}
-		}
-		public void fFK_Users_RecordInfoSetNull()
-		{
-			dr[7]=DBNull.Value;
-		}
-		public UsersDataRow fFK_Users_RecordInfo_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tUsers[Convert.ToInt32(dr[7])];
-			}
-		}
 	} // public class CriteriaParmNesting_DDataRow
 	public class CriteriaParmNesting_DDataReader
 	{
@@ -694,8 +578,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[8];
-				for(int i=0;i<8;i++)
+				object[] objs = new object[4];
+				for(int i=0;i<4;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -767,86 +651,6 @@ namespace HAData.DataAccess {
 					return Convert.ToBoolean(((object[]) al[iRecord])[3]);
 				else
 					return Convert.ToBoolean(dr[3]);
-			}
-		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToDateTime(((object[]) al[iRecord])[4]);
-				else
-					return Convert.ToDateTime(dr[4]);
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[4]==DBNull.Value;
-				else
-					return dr[4]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[5]);
-				else
-					return Convert.ToBoolean(dr[5]);
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[5]==DBNull.Value;
-				else
-					return dr[5]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[6]);
-				else
-					return Convert.ToBoolean(dr[6]);
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[6]==DBNull.Value;
-				else
-					return dr[6]==DBNull.Value;
-			}
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[7]);
-				else
-					return Convert.ToInt32(dr[7]);
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[7]==DBNull.Value;
-				else
-					return dr[7]==DBNull.Value;
 			}
 		}
 	} // public class CriteriaParmNesting_DDataReader
@@ -927,34 +731,6 @@ namespace HAData.DataAccess {
 			get
 			{
 				return Columns[3];
-			}
-		}
-		public DataColumn cModification_RecordInfo
-		{
-			get
-			{
-				return Columns[4];
-			}
-		}
-		public DataColumn cIsNew_RecordInfo
-		{
-			get
-			{
-				return Columns[5];
-			}
-		}
-		public DataColumn cIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Columns[6];
-			}
-		}
-		public DataColumn cFK_Users_RecordInfo
-		{
-			get
-			{
-				return Columns[7];
 			}
 		}
 	}

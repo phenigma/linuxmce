@@ -134,11 +134,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Common\SerializableDataSet.resx"
-                    DependentUpon = "SerializableDataSet.cs"
-                    BuildAction = "EmbeddedResource"
-                />
-                <File
                     RelPath = "Common\TreeBuilder\ActionTree.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

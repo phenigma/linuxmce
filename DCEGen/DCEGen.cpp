@@ -797,6 +797,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 	string sBuffer((char *) buf);
 
 	string::size_type pos;
+// I don't think we're going to use the package info from here.  It limits our Make to Debian
 	while( (pos=sBuffer.find("DCE_Template"))!=string::npos )
 		sBuffer.replace(pos,12,Classname);
 
@@ -813,20 +814,21 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 		sBuffer.replace(pos,14,pDeviceInfo->m_pRow_DeviceTemplate->FK_Users_Maintainer_getrow()->UserName_get());
 
 	while( (pos=sBuffer.find("DCE_MaintainerEmail"))!=string::npos )
-		sBuffer.replace(pos,19,pDeviceInfo->m_pRow_DeviceTemplate->FK_Users_Maintainer_getrow()->Email_get());
-
+		sBuffer.replace(pos,19,pDeviceInfo->m_pRow_DeviceTemplate->FK_Users_Maintainer_getrow()->ForwardEmail_get());
+/*
 	string sDependencies="x";
 	vector<Row_DeviceTemplate_Package *> m_vectRow_DeviceTemplate_Package;
 	pDeviceInfo->m_pRow_DeviceTemplate->DeviceTemplate_Package_FK_DeviceTemplate_getrows( &m_vectRow_DeviceTemplate_Package );
 	for(size_t s=0;s<m_vectRow_DeviceTemplate_Package.size();++s)
 	{
 		Row_DeviceTemplate_Package *pRow_DeviceTemplate_Package = m_vectRow_DeviceTemplate_Package[s];
-		sDependencies += (sDependencies.length() ? "," : "") + 	pRow_DeviceTemplate_Package->FK_Package_getrow()->PackageName_get() + "," 
+		sDependencies += (sDependencies.length() ? "," : "") + 	pRow_DeviceTemplate_Package->FK_Package_getrow()->Description_get() + "," 
 			+ pRow_DeviceTemplate_Package->FK_Package_getrow()->Version_get();
 	}
 
 	while( (pos=sBuffer.find("DCE_Dependencies"))!=string::npos )
 		sBuffer.replace(pos,16,sDependencies);
+*/
 
 	file = fopen(OutputFile.c_str(),"wb");
 	if( !file )

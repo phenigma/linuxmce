@@ -96,8 +96,8 @@
                 />
                 <Reference
                     Name = "HAData"
-                    Project = "{C5679AE5-F8FF-451F-A97B-EA58F93B04AF}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                    AssemblyName = "HAData"
+                    HintPath = "..\HAData\obj\Debug\HAData.dll"
                 />
             </References>
         </Build>
@@ -156,11 +156,6 @@
                     RelPath = "Form1.cs"
                     SubType = "Form"
                     BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Form1.resx"
-                    DependentUpon = "Form1.cs"
-                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "HAObjectFilter.cs"

@@ -21,13 +21,9 @@ namespace HAData.DataAccess {
 		public const String LASTNAME_FIELD = "LastName";
 		public const String NICKNAME_FIELD = "Nickname";
 		public const String EXTENSIONRINGTIMEOUT_FIELD = "ExtensionRingTimeout";
-		public const String EMAIL_FIELD = "Email";
+		public const String FORWARDEMAIL_FIELD = "ForwardEmail";
 		public const String FK_LANGUAGE_FIELD = "FK_Language";
 		public const String FK_INSTALLATION_MAIN_FIELD = "FK_Installation_Main";
-		public const String MODIFICATION_RECORDINFO_FIELD = "Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_FIELD = "IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_FIELD = "IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_FIELD = "FK_Users_RecordInfo";
 		// table+field constants
 		public const String PK_USERS_TABLE_FIELD = "Users.PK_Users";
 		public const String USERNAME_TABLE_FIELD = "Users.UserName";
@@ -39,13 +35,9 @@ namespace HAData.DataAccess {
 		public const String LASTNAME_TABLE_FIELD = "Users.LastName";
 		public const String NICKNAME_TABLE_FIELD = "Users.Nickname";
 		public const String EXTENSIONRINGTIMEOUT_TABLE_FIELD = "Users.ExtensionRingTimeout";
-		public const String EMAIL_TABLE_FIELD = "Users.Email";
+		public const String FORWARDEMAIL_TABLE_FIELD = "Users.ForwardEmail";
 		public const String FK_LANGUAGE_TABLE_FIELD = "Users.FK_Language";
 		public const String FK_INSTALLATION_MAIN_TABLE_FIELD = "Users.FK_Installation_Main";
-		public const String MODIFICATION_RECORDINFO_TABLE_FIELD = "Users.Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_TABLE_FIELD = "Users.IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_TABLE_FIELD = "Users.IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_TABLE_FIELD = "Users.FK_Users_RecordInfo";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
@@ -60,13 +52,9 @@ namespace HAData.DataAccess {
 		protected const String LASTNAME_PARM = "@LastName";
 		protected const String NICKNAME_PARM = "@Nickname";
 		protected const String EXTENSIONRINGTIMEOUT_PARM = "@ExtensionRingTimeout";
-		protected const String EMAIL_PARM = "@Email";
+		protected const String FORWARDEMAIL_PARM = "@ForwardEmail";
 		protected const String FK_LANGUAGE_PARM = "@FK_Language";
 		protected const String FK_INSTALLATION_MAIN_PARM = "@FK_Installation_Main";
-		protected const String MODIFICATION_RECORDINFO_PARM = "@Modification_RecordInfo";
-		protected const String ISNEW_RECORDINFO_PARM = "@IsNew_RecordInfo";
-		protected const String ISDELETED_RECORDINFO_PARM = "@IsDeleted_RecordInfo";
-		protected const String FK_USERS_RECORDINFO_PARM = "@FK_Users_RecordInfo";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -154,7 +142,7 @@ namespace HAData.DataAccess {
 			Column.AllowDBNull = false;
 			Column.DefaultValue = 0;
 
-			Columns.Add(EMAIL_FIELD, typeof(System.String));
+			Columns.Add(FORWARDEMAIL_FIELD, typeof(System.String));
 			Columns.Add(FK_LANGUAGE_FIELD, typeof(System.Int32));
 			Columns.Add(FK_INSTALLATION_MAIN_FIELD, typeof(System.Int32));
 			Table.PrimaryKey = PKColumns;
@@ -172,13 +160,9 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(LASTNAME_PARM, OdbcType.VarChar, 30));
 			Params.Add(new OdbcParameter(NICKNAME_PARM, OdbcType.VarChar, 15));
 			Params.Add(new OdbcParameter(EXTENSIONRINGTIMEOUT_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(EMAIL_PARM, OdbcType.VarChar, 50));
+			Params.Add(new OdbcParameter(FORWARDEMAIL_PARM, OdbcType.VarChar, 50));
 			Params.Add(new OdbcParameter(FK_LANGUAGE_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_INSTALLATION_MAIN_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(MODIFICATION_RECORDINFO_PARM, OdbcType.DateTime,4));
-			Params.Add(new OdbcParameter(ISNEW_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISDELETED_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_USERS_RECORDINFO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -197,13 +181,9 @@ namespace HAData.DataAccess {
 			Params[LASTNAME_PARM].SourceColumn = UsersData.LASTNAME_FIELD;
 			Params[NICKNAME_PARM].SourceColumn = UsersData.NICKNAME_FIELD;
 			Params[EXTENSIONRINGTIMEOUT_PARM].SourceColumn = UsersData.EXTENSIONRINGTIMEOUT_FIELD;
-			Params[EMAIL_PARM].SourceColumn = UsersData.EMAIL_FIELD;
+			Params[FORWARDEMAIL_PARM].SourceColumn = UsersData.FORWARDEMAIL_FIELD;
 			Params[FK_LANGUAGE_PARM].SourceColumn = UsersData.FK_LANGUAGE_FIELD;
 			Params[FK_INSTALLATION_MAIN_PARM].SourceColumn = UsersData.FK_INSTALLATION_MAIN_FIELD;
-			Params[MODIFICATION_RECORDINFO_PARM].SourceColumn = UsersData.MODIFICATION_RECORDINFO_FIELD;
-			Params[ISNEW_RECORDINFO_PARM].SourceColumn = UsersData.ISNEW_RECORDINFO_FIELD;
-			Params[ISDELETED_RECORDINFO_PARM].SourceColumn = UsersData.ISDELETED_RECORDINFO_FIELD;
-			Params[FK_USERS_RECORDINFO_PARM].SourceColumn = UsersData.FK_USERS_RECORDINFO_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -251,7 +231,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_Users,UserName,Password,HasMailbox,AccessGeneralMailbox,Extension,FirstName,LastName,Nickname,ExtensionRingTimeout,Email,FK_Language,FK_Installation_Main FROM Users", Conn);
+				LoadCommand = new OdbcCommand("SELECT PK_Users,UserName,Password,HasMailbox,AccessGeneralMailbox,Extension,FirstName,LastName,Nickname,ExtensionRingTimeout,ForwardEmail,FK_Language,FK_Installation_Main FROM Users", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(PK_USERS_PARM, OdbcType.Int,4));
@@ -295,7 +275,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_Users, UserName, Password, HasMailbox, AccessGeneralMailbox, Extension, FirstName, LastName, Nickname, ExtensionRingTimeout, Email, FK_Language, FK_Installation_Main, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo FROM Users WHERE " + WhereClause;
+			string sSQL = "SELECT PK_Users, UserName, Password, HasMailbox, AccessGeneralMailbox, Extension, FirstName, LastName, Nickname, ExtensionRingTimeout, ForwardEmail, FK_Language, FK_Installation_Main FROM Users WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -668,7 +648,7 @@ namespace HAData.DataAccess {
 				dr[9]=value;
 			}
 		}
-		public System.String fEmail
+		public System.String fForwardEmail
 		{
 			get
 			{
@@ -679,14 +659,14 @@ namespace HAData.DataAccess {
 				dr[10]=value;
 			}
 		}
-		public bool fEmailIsNull
+		public bool fForwardEmailIsNull
 		{
 			get
 			{
 				return dr[10]==DBNull.Value;
 			}
 		}
-		public void fEmailSetNull()
+		public void fForwardEmailSetNull()
 		{
 			dr[10]=DBNull.Value;
 		}
@@ -748,102 +728,6 @@ namespace HAData.DataAccess {
 			{
 				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
 				return mds.tInstallation[Convert.ToInt32(dr[12])];
-			}
-		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				return Convert.ToDateTime(dr[13]);
-			}
-			set
-			{
-				dr[13]=value;
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[13]==DBNull.Value;
-			}
-		}
-		public void fModification_RecordInfoSetNull()
-		{
-			dr[13]=DBNull.Value;
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[14]);
-			}
-			set
-			{
-				dr[14]=value;
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[14]==DBNull.Value;
-			}
-		}
-		public void fIsNew_RecordInfoSetNull()
-		{
-			dr[14]=DBNull.Value;
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[15]);
-			}
-			set
-			{
-				dr[15]=value;
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[15]==DBNull.Value;
-			}
-		}
-		public void fIsDeleted_RecordInfoSetNull()
-		{
-			dr[15]=DBNull.Value;
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				return Convert.ToInt32(dr[16]);
-			}
-			set
-			{
-				dr[16]=value;
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[16]==DBNull.Value;
-			}
-		}
-		public void fFK_Users_RecordInfoSetNull()
-		{
-			dr[16]=DBNull.Value;
-		}
-		public UsersDataRow fFK_Users_RecordInfo_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tUsers[Convert.ToInt32(dr[16])];
 			}
 		}
 	} // public class UsersDataRow
@@ -928,8 +812,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[17];
-				for(int i=0;i<17;i++)
+				object[] objs = new object[13];
+				for(int i=0;i<13;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -1093,7 +977,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[9]);
 			}
 		}
-		public System.String fEmail
+		public System.String fForwardEmail
 		{
 			get
 			{
@@ -1103,7 +987,7 @@ namespace HAData.DataAccess {
 					return Convert.ToString(dr[10]);
 			}
 		}
-		public bool fEmailIsNull
+		public bool fForwardEmailIsNull
 		{
 			get
 			{
@@ -1153,86 +1037,6 @@ namespace HAData.DataAccess {
 					return dr[12]==DBNull.Value;
 			}
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToDateTime(((object[]) al[iRecord])[13]);
-				else
-					return Convert.ToDateTime(dr[13]);
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[13]==DBNull.Value;
-				else
-					return dr[13]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[14]);
-				else
-					return Convert.ToBoolean(dr[14]);
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[14]==DBNull.Value;
-				else
-					return dr[14]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[15]);
-				else
-					return Convert.ToBoolean(dr[15]);
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[15]==DBNull.Value;
-				else
-					return dr[15]==DBNull.Value;
-			}
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[16]);
-				else
-					return Convert.ToInt32(dr[16]);
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[16]==DBNull.Value;
-				else
-					return dr[16]==DBNull.Value;
-			}
-		}
 	} // public class UsersDataReader
 	public class UsersTable : DataTable
 	{
@@ -1263,7 +1067,7 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_Users,UserName,Password,HasMailbox,AccessGeneralMailbox,Extension,FirstName,LastName,Nickname,ExtensionRingTimeout,Email,FK_Language,FK_Installation_Main FROM Users", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_Users,UserName,Password,HasMailbox,AccessGeneralMailbox,Extension,FirstName,LastName,Nickname,ExtensionRingTimeout,ForwardEmail,FK_Language,FK_Installation_Main FROM Users", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -1355,7 +1159,7 @@ namespace HAData.DataAccess {
 				return Columns[9];
 			}
 		}
-		public DataColumn cEmail
+		public DataColumn cForwardEmail
 		{
 			get
 			{
@@ -1374,34 +1178,6 @@ namespace HAData.DataAccess {
 			get
 			{
 				return Columns[12];
-			}
-		}
-		public DataColumn cModification_RecordInfo
-		{
-			get
-			{
-				return Columns[13];
-			}
-		}
-		public DataColumn cIsNew_RecordInfo
-		{
-			get
-			{
-				return Columns[14];
-			}
-		}
-		public DataColumn cIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Columns[15];
-			}
-		}
-		public DataColumn cFK_Users_RecordInfo
-		{
-			get
-			{
-				return Columns[16];
 			}
 		}
 	}

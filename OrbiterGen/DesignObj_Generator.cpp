@@ -79,7 +79,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 	m_bDontShare=bDontShare;
 	m_bUsingCache=false;
 
-if( m_drDesignObj->PK_DesignObj_get()==3107 )//2821 && bAddToGenerated )
+if( m_drDesignObj->PK_DesignObj_get()==2431 )//2821 && bAddToGenerated )
 {
 	int k=2;
 }
@@ -97,6 +97,7 @@ if( m_drDesignObj->PK_DesignObj_get()==3107 )//2821 && bAddToGenerated )
 
 	if( bAddToGenerated )
 	{
+		cout << "Generating: " << drDesignObj->PK_DesignObj_get() << endl;
 		listDesignObj_Generator *al = m_pOrbiterGenerator->m_htGeneratedScreens[drDesignObj->PK_DesignObj_get()];
 		if( al==NULL )
 		{
@@ -117,7 +118,7 @@ if( m_drDesignObj->PK_DesignObj_get()==3107 )//2821 && bAddToGenerated )
 			if( pdrCachedScreen  )
 			{
 				time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
-				time_t lModDate2 = StringUtils::SQLDateTime(m_drDesignObj->Modification_RecordInfo_get());
+				time_t lModDate2 = StringUtils::SQLDateTime(m_drDesignObj->psc_mod_get());
 				if( lModDate1==lModDate2 )
 				{
 					string Filename = m_pOrbiterGenerator->m_sOutputPath + "screen " + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." + 
@@ -1001,6 +1002,7 @@ void DesignObj_Generator::HandleGoto(int PK_DesignObj_Goto)
 
 
 		m_pOrbiterGenerator->m_iPK_DesignObj_Screen = PK_DesignObj_Goto;
+		cout << "Handling Goto: " << PK_DesignObj_Goto << endl;
 		m_DesignObj_GeneratorGoto = new DesignObj_Generator(m_pOrbiterGenerator,drDesignObj_new,PlutoRectangle(0,0,0,0),NULL,pListScreens->size()==0,false);
 //  I think this is not needed since the if( bAddToGenerated at the top of the constructor does this since pListScreens->size()==0???		pListScreens->push_back(m_DesignObj_GeneratorGoto);
 //		m_pOrbiterGenerator->m_mapVariable = htPriorVariables;
@@ -1040,9 +1042,9 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
 			// We're going to have to figure it out ourselves
 
 			// HACK _- todo
-			if( drOV->FK_Criteria_D_get()==1 && pDevice->FK_DeviceTemplate_get()==24 )
+			if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=1 && pDevice->FK_DeviceTemplate_get()==24 )  // normal tablet
 				continue;  // Don't include the audi mmi prototype on the phone
-			if( drOV->FK_Criteria_D_get()==2 && pDevice->FK_DeviceTemplate_get()==8 )
+			if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=2 && pDevice->FK_DeviceTemplate_get()==8 )   // phone
 				continue;  // Don't include the phone on a the audi mmi prototype
 
 			// hack this in for audi
@@ -1085,7 +1087,13 @@ void DesignObj_Generator::PickStyleVariation(class Row_Style * drStyle,OrbiterGe
 	vector<Row_StyleVariation *> vectrsv;
 	drStyle->StyleVariation_FK_Style_getrows(&vectrsv);
 	if( vectrsv.size()==0 )
-		throw "No variation for style; " + StringUtils::itos(drStyle->PK_Style_get());
+	{
+		cerr << "WARNING! No variation for style: " << StringUtils::itos(drStyle->PK_Style_get()) << " reverting to 1" << endl;
+		drStyle = drStyle->Table_Style_get()->GetRow(1);
+		drStyle->StyleVariation_FK_Style_getrows(&vectrsv);
+		if( vectrsv.size()==0 )
+			throw "No variation for style: " + StringUtils::itos(drStyle->PK_Style_get());
+	}
 
 	// Find the best style for each variation
 	TextStyle *pTextStyle = PickStyleVariation(vectrsv,pGenerator,0);

@@ -43,6 +43,11 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 	m_VariableMap=&m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_mapVariable;
 
 	DesignObj_Generator::PickVariation(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,drDesignObjVariation_DesignObj->FK_DesignObj_Child_getrow(),&m_drDesignObjVariation,&m_drStandardVariation,&m_alDesignObjVariations);
+	if( !m_drDesignObjVariation )
+	{
+		cerr << "Aborting creation of array.  No variation for object: " << drDesignObjVariation_DesignObj->FK_DesignObj_Child_getrow()->PK_DesignObj_get() << endl;
+		return;
+	}
 
 	m_drOVCP_MoreFwd = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drDesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_More_button_fwd_CONST);
 	m_drOVCP_MoreBack = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drDesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_More_button_back_CONST);

@@ -293,7 +293,7 @@ int OrbiterGenerator::DoIt()
 	//	m_htVariables=m_mapVariable;
 	if( !m_bOrbiterChanged )  // It may have already been set to true if -r regen was specified
 	{
-		time_t lModDate = StringUtils::SQLDateTime(m_pRow_Orbiter->Modification_RecordInfo_get());
+		time_t lModDate = StringUtils::SQLDateTime(m_pRow_Orbiter->psc_mod_get());
 		time_t lModDate_LastGen = StringUtils::SQLDateTime(m_pRow_Orbiter->Modification_LastGen_get());
 		m_bOrbiterChanged = (lModDate!=lModDate_LastGen);
 	}
@@ -575,7 +575,7 @@ int OrbiterGenerator::DoIt()
 
 	m_Width = m_pRow_Orbiter->FK_Size_getrow()->Width_get();
 	m_Height = m_pRow_Orbiter->FK_Size_getrow()->Height_get();
-	m_AnimationStyle = m_pRow_Orbiter->FK_Skin_getrow()->FK_AnimationStyle_get();
+	m_AnimationStyle = 1; // TODO -- is this used anymore? m_pRow_Orbiter->FK_Skin_getrow()->FK_AnimationStyle_get();
 
 
 	// temp -- use of styles isn't yet well defined.  just hack in something to get a style variation for each style right now
@@ -590,7 +590,13 @@ int OrbiterGenerator::DoIt()
 		pRow_Style->StyleVariation_FK_Style_getrows(&vectrsv);
 
 		if( vectrsv.size()==0 )
-			throw "No variation for style; " + StringUtils::itos(pRow_Style->PK_Style_get());
+		{
+			cerr << "WARNING! No variation for style: " << StringUtils::itos(pRow_Style->PK_Style_get()) << " reverting to 1" << endl;
+			pRow_Style = pRow_Style->Table_Style_get()->GetRow(1);
+			pRow_Style->StyleVariation_FK_Style_getrows(&vectrsv);
+			if( vectrsv.size()==0 )
+				throw "No variation for style: " + StringUtils::itos(pRow_Style->PK_Style_get());
+		}
 
 		TextStyle *pTextStyle = DesignObj_Generator::PickStyleVariation(vectrsv,this,0);
 		if( pTextStyle )
@@ -637,10 +643,10 @@ int OrbiterGenerator::DoIt()
 					}
 					string Filename = m_sOutputPath + "screen " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get()) + "." + 
 						StringUtils::itos(oco->m_drDesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(oco->m_iVersion) + "." + 
-						StringUtils::itos((int) StringUtils::SQLDateTime(oco->m_drDesignObj->Modification_RecordInfo_get())) + ".cache";
+						StringUtils::itos((int) StringUtils::SQLDateTime(oco->m_drDesignObj->psc_mod_get())) + ".cache";
 
 					oco->SerializeWrite(Filename);
-					pdrCachedScreen->Modification_LastGen_set(oco->m_drDesignObj->Modification_RecordInfo_get());
+					pdrCachedScreen->Modification_LastGen_set(oco->m_drDesignObj->psc_mod_get());
 					mds.CachedScreens_get()->Commit();
 				}
 			}

@@ -7,7 +7,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 #include "PhoneDetection_Bluetooth_Windows.h"
-#include "PhoneDevice.h"
+#include "BD/PhoneDevice.h"
 #include <math.h>
 
 #define INQUIRY_TIMEDOUT 30 //seconds

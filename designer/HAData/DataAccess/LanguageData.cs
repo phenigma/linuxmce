@@ -14,18 +14,10 @@ namespace HAData.DataAccess {
 		public const String PK_LANGUAGE_FIELD = "PK_Language";
 		public const String DESCRIPTION_FIELD = "Description";
 		public const String FK_LANGUAGE_TEXTPLACEMENT_FIELD = "FK_Language_TextPlacement";
-		public const String MODIFICATION_RECORDINFO_FIELD = "Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_FIELD = "IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_FIELD = "IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_FIELD = "FK_Users_RecordInfo";
 		// table+field constants
 		public const String PK_LANGUAGE_TABLE_FIELD = "Language.PK_Language";
 		public const String DESCRIPTION_TABLE_FIELD = "Language.Description";
 		public const String FK_LANGUAGE_TEXTPLACEMENT_TABLE_FIELD = "Language.FK_Language_TextPlacement";
-		public const String MODIFICATION_RECORDINFO_TABLE_FIELD = "Language.Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_TABLE_FIELD = "Language.IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_TABLE_FIELD = "Language.IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_TABLE_FIELD = "Language.FK_Users_RecordInfo";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
@@ -33,10 +25,6 @@ namespace HAData.DataAccess {
 		protected const String PK_LANGUAGE_PARM = "@PK_Language";
 		protected const String DESCRIPTION_PARM = "@Description";
 		protected const String FK_LANGUAGE_TEXTPLACEMENT_PARM = "@FK_Language_TextPlacement";
-		protected const String MODIFICATION_RECORDINFO_PARM = "@Modification_RecordInfo";
-		protected const String ISNEW_RECORDINFO_PARM = "@IsNew_RecordInfo";
-		protected const String ISDELETED_RECORDINFO_PARM = "@IsDeleted_RecordInfo";
-		protected const String FK_USERS_RECORDINFO_PARM = "@FK_Users_RecordInfo";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -114,10 +102,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(PK_LANGUAGE_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(DESCRIPTION_PARM, OdbcType.VarChar, 30));
 			Params.Add(new OdbcParameter(FK_LANGUAGE_TEXTPLACEMENT_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(MODIFICATION_RECORDINFO_PARM, OdbcType.DateTime,4));
-			Params.Add(new OdbcParameter(ISNEW_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISDELETED_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_USERS_RECORDINFO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -129,10 +113,6 @@ namespace HAData.DataAccess {
 
 			Params[DESCRIPTION_PARM].SourceColumn = LanguageData.DESCRIPTION_FIELD;
 			Params[FK_LANGUAGE_TEXTPLACEMENT_PARM].SourceColumn = LanguageData.FK_LANGUAGE_TEXTPLACEMENT_FIELD;
-			Params[MODIFICATION_RECORDINFO_PARM].SourceColumn = LanguageData.MODIFICATION_RECORDINFO_FIELD;
-			Params[ISNEW_RECORDINFO_PARM].SourceColumn = LanguageData.ISNEW_RECORDINFO_FIELD;
-			Params[ISDELETED_RECORDINFO_PARM].SourceColumn = LanguageData.ISDELETED_RECORDINFO_FIELD;
-			Params[FK_USERS_RECORDINFO_PARM].SourceColumn = LanguageData.FK_USERS_RECORDINFO_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -224,7 +204,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_Language, Description, FK_Language_TextPlacement, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo FROM Language WHERE " + WhereClause;
+			string sSQL = "SELECT PK_Language, Description, FK_Language_TextPlacement FROM Language WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -495,102 +475,6 @@ namespace HAData.DataAccess {
 				return mds.tLanguage[Convert.ToInt32(dr[2])];
 			}
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				return Convert.ToDateTime(dr[3]);
-			}
-			set
-			{
-				dr[3]=value;
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[3]==DBNull.Value;
-			}
-		}
-		public void fModification_RecordInfoSetNull()
-		{
-			dr[3]=DBNull.Value;
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[4]);
-			}
-			set
-			{
-				dr[4]=value;
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[4]==DBNull.Value;
-			}
-		}
-		public void fIsNew_RecordInfoSetNull()
-		{
-			dr[4]=DBNull.Value;
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[5]);
-			}
-			set
-			{
-				dr[5]=value;
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[5]==DBNull.Value;
-			}
-		}
-		public void fIsDeleted_RecordInfoSetNull()
-		{
-			dr[5]=DBNull.Value;
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				return Convert.ToInt32(dr[6]);
-			}
-			set
-			{
-				dr[6]=value;
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[6]==DBNull.Value;
-			}
-		}
-		public void fFK_Users_RecordInfoSetNull()
-		{
-			dr[6]=DBNull.Value;
-		}
-		public UsersDataRow fFK_Users_RecordInfo_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tUsers[Convert.ToInt32(dr[6])];
-			}
-		}
 	} // public class LanguageDataRow
 	public class LanguageDataReader
 	{
@@ -673,8 +557,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[7];
-				for(int i=0;i<7;i++)
+				object[] objs = new object[3];
+				for(int i=0;i<3;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -736,86 +620,6 @@ namespace HAData.DataAccess {
 					return ((object[]) al[iRecord])[2]==DBNull.Value;
 				else
 					return dr[2]==DBNull.Value;
-			}
-		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToDateTime(((object[]) al[iRecord])[3]);
-				else
-					return Convert.ToDateTime(dr[3]);
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[3]==DBNull.Value;
-				else
-					return dr[3]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[4]);
-				else
-					return Convert.ToBoolean(dr[4]);
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[4]==DBNull.Value;
-				else
-					return dr[4]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[5]);
-				else
-					return Convert.ToBoolean(dr[5]);
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[5]==DBNull.Value;
-				else
-					return dr[5]==DBNull.Value;
-			}
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[6]);
-				else
-					return Convert.ToInt32(dr[6]);
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[6]==DBNull.Value;
-				else
-					return dr[6]==DBNull.Value;
 			}
 		}
 	} // public class LanguageDataReader
@@ -889,34 +693,6 @@ namespace HAData.DataAccess {
 			get
 			{
 				return Columns[2];
-			}
-		}
-		public DataColumn cModification_RecordInfo
-		{
-			get
-			{
-				return Columns[3];
-			}
-		}
-		public DataColumn cIsNew_RecordInfo
-		{
-			get
-			{
-				return Columns[4];
-			}
-		}
-		public DataColumn cIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Columns[5];
-			}
-		}
-		public DataColumn cFK_Users_RecordInfo
-		{
-			get
-			{
-				return Columns[6];
 			}
 		}
 	}

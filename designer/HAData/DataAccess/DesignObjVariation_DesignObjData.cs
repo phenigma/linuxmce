@@ -15,7 +15,6 @@ namespace HAData.DataAccess {
 		public const String FK_DESIGNOBJVARIATION_PARENT_FIELD = "FK_DesignObjVariation_Parent";
 		public const String FK_DESIGNOBJ_CHILD_FIELD = "FK_DesignObj_Child";
 		public const String DISPLAYORDER_FIELD = "DisplayOrder";
-		public const String FK_DOCKSTATE_FIELD = "FK_DockState";
 		public const String X_FIELD = "X";
 		public const String Y_FIELD = "Y";
 		public const String WIDTH_FIELD = "Width";
@@ -34,16 +33,11 @@ namespace HAData.DataAccess {
 		public const String FK_DESIGNOBJ_RIGHT_FIELD = "FK_DesignObj_Right";
 		public const String SFK_DESIGNOBJ_TIEDTO_FIELD = "sFK_DesignObj_TiedTo";
 		public const String VISIBLESTATES_FIELD = "VisibleStates";
-		public const String MODIFICATION_RECORDINFO_FIELD = "Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_FIELD = "IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_FIELD = "IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_FIELD = "FK_Users_RecordInfo";
 		// table+field constants
 		public const String PK_DESIGNOBJVARIATION_DESIGNOBJ_TABLE_FIELD = "DesignObjVariation_DesignObj.PK_DesignObjVariation_DesignObj";
 		public const String FK_DESIGNOBJVARIATION_PARENT_TABLE_FIELD = "DesignObjVariation_DesignObj.FK_DesignObjVariation_Parent";
 		public const String FK_DESIGNOBJ_CHILD_TABLE_FIELD = "DesignObjVariation_DesignObj.FK_DesignObj_Child";
 		public const String DISPLAYORDER_TABLE_FIELD = "DesignObjVariation_DesignObj.DisplayOrder";
-		public const String FK_DOCKSTATE_TABLE_FIELD = "DesignObjVariation_DesignObj.FK_DockState";
 		public const String X_TABLE_FIELD = "DesignObjVariation_DesignObj.X";
 		public const String Y_TABLE_FIELD = "DesignObjVariation_DesignObj.Y";
 		public const String WIDTH_TABLE_FIELD = "DesignObjVariation_DesignObj.Width";
@@ -62,10 +56,6 @@ namespace HAData.DataAccess {
 		public const String FK_DESIGNOBJ_RIGHT_TABLE_FIELD = "DesignObjVariation_DesignObj.FK_DesignObj_Right";
 		public const String SFK_DESIGNOBJ_TIEDTO_TABLE_FIELD = "DesignObjVariation_DesignObj.sFK_DesignObj_TiedTo";
 		public const String VISIBLESTATES_TABLE_FIELD = "DesignObjVariation_DesignObj.VisibleStates";
-		public const String MODIFICATION_RECORDINFO_TABLE_FIELD = "DesignObjVariation_DesignObj.Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_TABLE_FIELD = "DesignObjVariation_DesignObj.IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_TABLE_FIELD = "DesignObjVariation_DesignObj.IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_TABLE_FIELD = "DesignObjVariation_DesignObj.FK_Users_RecordInfo";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
@@ -74,7 +64,6 @@ namespace HAData.DataAccess {
 		protected const String FK_DESIGNOBJVARIATION_PARENT_PARM = "@FK_DesignObjVariation_Parent";
 		protected const String FK_DESIGNOBJ_CHILD_PARM = "@FK_DesignObj_Child";
 		protected const String DISPLAYORDER_PARM = "@DisplayOrder";
-		protected const String FK_DOCKSTATE_PARM = "@FK_DockState";
 		protected const String X_PARM = "@X";
 		protected const String Y_PARM = "@Y";
 		protected const String WIDTH_PARM = "@Width";
@@ -93,10 +82,6 @@ namespace HAData.DataAccess {
 		protected const String FK_DESIGNOBJ_RIGHT_PARM = "@FK_DesignObj_Right";
 		protected const String SFK_DESIGNOBJ_TIEDTO_PARM = "@sFK_DesignObj_TiedTo";
 		protected const String VISIBLESTATES_PARM = "@VisibleStates";
-		protected const String MODIFICATION_RECORDINFO_PARM = "@Modification_RecordInfo";
-		protected const String ISNEW_RECORDINFO_PARM = "@IsNew_RecordInfo";
-		protected const String ISDELETED_RECORDINFO_PARM = "@IsDeleted_RecordInfo";
-		protected const String FK_USERS_RECORDINFO_PARM = "@FK_Users_RecordInfo";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -168,7 +153,6 @@ namespace HAData.DataAccess {
 			Column.AllowDBNull = false;
 			Column.DefaultValue = 0;
 
-			Columns.Add(FK_DOCKSTATE_FIELD, typeof(System.Int32));
 			Column = Columns.Add(X_FIELD, typeof(System.Int32));
 			Column.AllowDBNull = false;
 			Column.DefaultValue = 0;
@@ -223,7 +207,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(FK_DESIGNOBJVARIATION_PARENT_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_DESIGNOBJ_CHILD_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(DISPLAYORDER_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(FK_DOCKSTATE_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(X_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(Y_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(WIDTH_PARM, OdbcType.Int,4));
@@ -242,10 +225,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(FK_DESIGNOBJ_RIGHT_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(SFK_DESIGNOBJ_TIEDTO_PARM, OdbcType.VarChar, 14));
 			Params.Add(new OdbcParameter(VISIBLESTATES_PARM, OdbcType.VarChar, 10));
-			Params.Add(new OdbcParameter(MODIFICATION_RECORDINFO_PARM, OdbcType.DateTime,4));
-			Params.Add(new OdbcParameter(ISNEW_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISDELETED_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_USERS_RECORDINFO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -258,7 +237,6 @@ namespace HAData.DataAccess {
 			Params[FK_DESIGNOBJVARIATION_PARENT_PARM].SourceColumn = DesignObjVariation_DesignObjData.FK_DESIGNOBJVARIATION_PARENT_FIELD;
 			Params[FK_DESIGNOBJ_CHILD_PARM].SourceColumn = DesignObjVariation_DesignObjData.FK_DESIGNOBJ_CHILD_FIELD;
 			Params[DISPLAYORDER_PARM].SourceColumn = DesignObjVariation_DesignObjData.DISPLAYORDER_FIELD;
-			Params[FK_DOCKSTATE_PARM].SourceColumn = DesignObjVariation_DesignObjData.FK_DOCKSTATE_FIELD;
 			Params[X_PARM].SourceColumn = DesignObjVariation_DesignObjData.X_FIELD;
 			Params[Y_PARM].SourceColumn = DesignObjVariation_DesignObjData.Y_FIELD;
 			Params[WIDTH_PARM].SourceColumn = DesignObjVariation_DesignObjData.WIDTH_FIELD;
@@ -277,10 +255,6 @@ namespace HAData.DataAccess {
 			Params[FK_DESIGNOBJ_RIGHT_PARM].SourceColumn = DesignObjVariation_DesignObjData.FK_DESIGNOBJ_RIGHT_FIELD;
 			Params[SFK_DESIGNOBJ_TIEDTO_PARM].SourceColumn = DesignObjVariation_DesignObjData.SFK_DESIGNOBJ_TIEDTO_FIELD;
 			Params[VISIBLESTATES_PARM].SourceColumn = DesignObjVariation_DesignObjData.VISIBLESTATES_FIELD;
-			Params[MODIFICATION_RECORDINFO_PARM].SourceColumn = DesignObjVariation_DesignObjData.MODIFICATION_RECORDINFO_FIELD;
-			Params[ISNEW_RECORDINFO_PARM].SourceColumn = DesignObjVariation_DesignObjData.ISNEW_RECORDINFO_FIELD;
-			Params[ISDELETED_RECORDINFO_PARM].SourceColumn = DesignObjVariation_DesignObjData.ISDELETED_RECORDINFO_FIELD;
-			Params[FK_USERS_RECORDINFO_PARM].SourceColumn = DesignObjVariation_DesignObjData.FK_USERS_RECORDINFO_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -328,7 +302,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_DesignObjVariation_DesignObj,FK_DesignObjVariation_Parent,FK_DesignObj_Child,DisplayOrder,FK_DockState,X,Y,Width,Height,FK_DesignObj_InsteadOf,CanBeHidden,HideByDefault,RegenerateForEachScreen,DisplayChildrenBeforeText,DisplayChildrenBehindBackground,DontMergeBackground,IsTabStop,FK_DesignObj_Up,FK_DesignObj_Down,FK_DesignObj_Left,FK_DesignObj_Right,sFK_DesignObj_TiedTo,VisibleStates FROM DesignObjVariation_DesignObj", Conn);
+				LoadCommand = new OdbcCommand("SELECT PK_DesignObjVariation_DesignObj,FK_DesignObjVariation_Parent,FK_DesignObj_Child,DisplayOrder,X,Y,Width,Height,FK_DesignObj_InsteadOf,CanBeHidden,HideByDefault,RegenerateForEachScreen,DisplayChildrenBeforeText,DisplayChildrenBehindBackground,DontMergeBackground,IsTabStop,FK_DesignObj_Up,FK_DesignObj_Down,FK_DesignObj_Left,FK_DesignObj_Right,sFK_DesignObj_TiedTo,VisibleStates FROM DesignObjVariation_DesignObj", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(PK_DESIGNOBJVARIATION_DESIGNOBJ_PARM, OdbcType.Int,4));
@@ -372,7 +346,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_DesignObjVariation_DesignObj, FK_DesignObjVariation_Parent, FK_DesignObj_Child, DisplayOrder, FK_DockState, X, Y, Width, Height, FK_DesignObj_InsteadOf, CanBeHidden, HideByDefault, RegenerateForEachScreen, DisplayChildrenBeforeText, DisplayChildrenBehindBackground, DontMergeBackground, IsTabStop, FK_DesignObj_Up, FK_DesignObj_Down, FK_DesignObj_Left, FK_DesignObj_Right, sFK_DesignObj_TiedTo, VisibleStates, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo FROM DesignObjVariation_DesignObj WHERE " + WhereClause;
+			string sSQL = "SELECT PK_DesignObjVariation_DesignObj, FK_DesignObjVariation_Parent, FK_DesignObj_Child, DisplayOrder, X, Y, Width, Height, FK_DesignObj_InsteadOf, CanBeHidden, HideByDefault, RegenerateForEachScreen, DisplayChildrenBeforeText, DisplayChildrenBehindBackground, DontMergeBackground, IsTabStop, FK_DesignObj_Up, FK_DesignObj_Down, FK_DesignObj_Left, FK_DesignObj_Right, sFK_DesignObj_TiedTo, VisibleStates FROM DesignObjVariation_DesignObj WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -673,7 +647,7 @@ namespace HAData.DataAccess {
 				dr[3]=value;
 			}
 		}
-		public System.Int32 fFK_DockState
+		public System.Int32 fX
 		{
 			get
 			{
@@ -684,18 +658,7 @@ namespace HAData.DataAccess {
 				dr[4]=value;
 			}
 		}
-		public bool fFK_DockStateIsNull
-		{
-			get
-			{
-				return dr[4]==DBNull.Value;
-			}
-		}
-		public void fFK_DockStateSetNull()
-		{
-			dr[4]=DBNull.Value;
-		}
-		public System.Int32 fX
+		public System.Int32 fY
 		{
 			get
 			{
@@ -706,7 +669,7 @@ namespace HAData.DataAccess {
 				dr[5]=value;
 			}
 		}
-		public System.Int32 fY
+		public System.Int32 fWidth
 		{
 			get
 			{
@@ -717,7 +680,18 @@ namespace HAData.DataAccess {
 				dr[6]=value;
 			}
 		}
-		public System.Int32 fWidth
+		public bool fWidthIsNull
+		{
+			get
+			{
+				return dr[6]==DBNull.Value;
+			}
+		}
+		public void fWidthSetNull()
+		{
+			dr[6]=DBNull.Value;
+		}
+		public System.Int32 fHeight
 		{
 			get
 			{
@@ -728,18 +702,18 @@ namespace HAData.DataAccess {
 				dr[7]=value;
 			}
 		}
-		public bool fWidthIsNull
+		public bool fHeightIsNull
 		{
 			get
 			{
 				return dr[7]==DBNull.Value;
 			}
 		}
-		public void fWidthSetNull()
+		public void fHeightSetNull()
 		{
 			dr[7]=DBNull.Value;
 		}
-		public System.Int32 fHeight
+		public System.Int32 fFK_DesignObj_InsteadOf
 		{
 			get
 			{
@@ -750,48 +724,37 @@ namespace HAData.DataAccess {
 				dr[8]=value;
 			}
 		}
-		public bool fHeightIsNull
+		public bool fFK_DesignObj_InsteadOfIsNull
 		{
 			get
 			{
 				return dr[8]==DBNull.Value;
 			}
 		}
-		public void fHeightSetNull()
-		{
-			dr[8]=DBNull.Value;
-		}
-		public System.Int32 fFK_DesignObj_InsteadOf
-		{
-			get
-			{
-				return Convert.ToInt32(dr[9]);
-			}
-			set
-			{
-				dr[9]=value;
-			}
-		}
-		public bool fFK_DesignObj_InsteadOfIsNull
-		{
-			get
-			{
-				return dr[9]==DBNull.Value;
-			}
-		}
 		public void fFK_DesignObj_InsteadOfSetNull()
 		{
-			dr[9]=DBNull.Value;
+			dr[8]=DBNull.Value;
 		}
 		public DesignObjDataRow fFK_DesignObj_InsteadOf_DataRow
 		{
 			get
 			{
 				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tDesignObj[Convert.ToInt32(dr[9])];
+				return mds.tDesignObj[Convert.ToInt32(dr[8])];
 			}
 		}
 		public System.Boolean fCanBeHidden
+		{
+			get
+			{
+				return Convert.ToBoolean(dr[9]);
+			}
+			set
+			{
+				dr[9]=value;
+			}
+		}
+		public System.Boolean fHideByDefault
 		{
 			get
 			{
@@ -802,7 +765,7 @@ namespace HAData.DataAccess {
 				dr[10]=value;
 			}
 		}
-		public System.Boolean fHideByDefault
+		public System.Boolean fRegenerateForEachScreen
 		{
 			get
 			{
@@ -813,7 +776,7 @@ namespace HAData.DataAccess {
 				dr[11]=value;
 			}
 		}
-		public System.Boolean fRegenerateForEachScreen
+		public System.Boolean fDisplayChildrenBeforeText
 		{
 			get
 			{
@@ -824,7 +787,7 @@ namespace HAData.DataAccess {
 				dr[12]=value;
 			}
 		}
-		public System.Boolean fDisplayChildrenBeforeText
+		public System.Boolean fDisplayChildrenBehindBackground
 		{
 			get
 			{
@@ -835,7 +798,7 @@ namespace HAData.DataAccess {
 				dr[13]=value;
 			}
 		}
-		public System.Boolean fDisplayChildrenBehindBackground
+		public System.Boolean fDontMergeBackground
 		{
 			get
 			{
@@ -846,7 +809,7 @@ namespace HAData.DataAccess {
 				dr[14]=value;
 			}
 		}
-		public System.Boolean fDontMergeBackground
+		public System.Boolean fIsTabStop
 		{
 			get
 			{
@@ -857,18 +820,37 @@ namespace HAData.DataAccess {
 				dr[15]=value;
 			}
 		}
-		public System.Boolean fIsTabStop
+		public System.Int32 fFK_DesignObj_Up
 		{
 			get
 			{
-				return Convert.ToBoolean(dr[16]);
+				return Convert.ToInt32(dr[16]);
 			}
 			set
 			{
 				dr[16]=value;
 			}
 		}
-		public System.Int32 fFK_DesignObj_Up
+		public bool fFK_DesignObj_UpIsNull
+		{
+			get
+			{
+				return dr[16]==DBNull.Value;
+			}
+		}
+		public void fFK_DesignObj_UpSetNull()
+		{
+			dr[16]=DBNull.Value;
+		}
+		public DesignObjDataRow fFK_DesignObj_Up_DataRow
+		{
+			get
+			{
+				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
+				return mds.tDesignObj[Convert.ToInt32(dr[16])];
+			}
+		}
+		public System.Int32 fFK_DesignObj_Down
 		{
 			get
 			{
@@ -879,18 +861,18 @@ namespace HAData.DataAccess {
 				dr[17]=value;
 			}
 		}
-		public bool fFK_DesignObj_UpIsNull
+		public bool fFK_DesignObj_DownIsNull
 		{
 			get
 			{
 				return dr[17]==DBNull.Value;
 			}
 		}
-		public void fFK_DesignObj_UpSetNull()
+		public void fFK_DesignObj_DownSetNull()
 		{
 			dr[17]=DBNull.Value;
 		}
-		public DesignObjDataRow fFK_DesignObj_Up_DataRow
+		public DesignObjDataRow fFK_DesignObj_Down_DataRow
 		{
 			get
 			{
@@ -898,7 +880,7 @@ namespace HAData.DataAccess {
 				return mds.tDesignObj[Convert.ToInt32(dr[17])];
 			}
 		}
-		public System.Int32 fFK_DesignObj_Down
+		public System.Int32 fFK_DesignObj_Left
 		{
 			get
 			{
@@ -909,18 +891,18 @@ namespace HAData.DataAccess {
 				dr[18]=value;
 			}
 		}
-		public bool fFK_DesignObj_DownIsNull
+		public bool fFK_DesignObj_LeftIsNull
 		{
 			get
 			{
 				return dr[18]==DBNull.Value;
 			}
 		}
-		public void fFK_DesignObj_DownSetNull()
+		public void fFK_DesignObj_LeftSetNull()
 		{
 			dr[18]=DBNull.Value;
 		}
-		public DesignObjDataRow fFK_DesignObj_Down_DataRow
+		public DesignObjDataRow fFK_DesignObj_Left_DataRow
 		{
 			get
 			{
@@ -928,7 +910,7 @@ namespace HAData.DataAccess {
 				return mds.tDesignObj[Convert.ToInt32(dr[18])];
 			}
 		}
-		public System.Int32 fFK_DesignObj_Left
+		public System.Int32 fFK_DesignObj_Right
 		{
 			get
 			{
@@ -939,18 +921,18 @@ namespace HAData.DataAccess {
 				dr[19]=value;
 			}
 		}
-		public bool fFK_DesignObj_LeftIsNull
+		public bool fFK_DesignObj_RightIsNull
 		{
 			get
 			{
 				return dr[19]==DBNull.Value;
 			}
 		}
-		public void fFK_DesignObj_LeftSetNull()
+		public void fFK_DesignObj_RightSetNull()
 		{
 			dr[19]=DBNull.Value;
 		}
-		public DesignObjDataRow fFK_DesignObj_Left_DataRow
+		public DesignObjDataRow fFK_DesignObj_Right_DataRow
 		{
 			get
 			{
@@ -958,37 +940,29 @@ namespace HAData.DataAccess {
 				return mds.tDesignObj[Convert.ToInt32(dr[19])];
 			}
 		}
-		public System.Int32 fFK_DesignObj_Right
+		public System.String fsFK_DesignObj_TiedTo
 		{
 			get
 			{
-				return Convert.ToInt32(dr[20]);
+				return Convert.ToString(dr[20]);
 			}
 			set
 			{
 				dr[20]=value;
 			}
 		}
-		public bool fFK_DesignObj_RightIsNull
+		public bool fsFK_DesignObj_TiedToIsNull
 		{
 			get
 			{
 				return dr[20]==DBNull.Value;
 			}
 		}
-		public void fFK_DesignObj_RightSetNull()
+		public void fsFK_DesignObj_TiedToSetNull()
 		{
 			dr[20]=DBNull.Value;
 		}
-		public DesignObjDataRow fFK_DesignObj_Right_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tDesignObj[Convert.ToInt32(dr[20])];
-			}
-		}
-		public System.String fsFK_DesignObj_TiedTo
+		public System.String fVisibleStates
 		{
 			get
 			{
@@ -999,134 +973,16 @@ namespace HAData.DataAccess {
 				dr[21]=value;
 			}
 		}
-		public bool fsFK_DesignObj_TiedToIsNull
+		public bool fVisibleStatesIsNull
 		{
 			get
 			{
 				return dr[21]==DBNull.Value;
 			}
 		}
-		public void fsFK_DesignObj_TiedToSetNull()
-		{
-			dr[21]=DBNull.Value;
-		}
-		public System.String fVisibleStates
-		{
-			get
-			{
-				return Convert.ToString(dr[22]);
-			}
-			set
-			{
-				dr[22]=value;
-			}
-		}
-		public bool fVisibleStatesIsNull
-		{
-			get
-			{
-				return dr[22]==DBNull.Value;
-			}
-		}
 		public void fVisibleStatesSetNull()
 		{
-			dr[22]=DBNull.Value;
-		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				return Convert.ToDateTime(dr[23]);
-			}
-			set
-			{
-				dr[23]=value;
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[23]==DBNull.Value;
-			}
-		}
-		public void fModification_RecordInfoSetNull()
-		{
-			dr[23]=DBNull.Value;
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[24]);
-			}
-			set
-			{
-				dr[24]=value;
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[24]==DBNull.Value;
-			}
-		}
-		public void fIsNew_RecordInfoSetNull()
-		{
-			dr[24]=DBNull.Value;
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[25]);
-			}
-			set
-			{
-				dr[25]=value;
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[25]==DBNull.Value;
-			}
-		}
-		public void fIsDeleted_RecordInfoSetNull()
-		{
-			dr[25]=DBNull.Value;
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				return Convert.ToInt32(dr[26]);
-			}
-			set
-			{
-				dr[26]=value;
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[26]==DBNull.Value;
-			}
-		}
-		public void fFK_Users_RecordInfoSetNull()
-		{
-			dr[26]=DBNull.Value;
-		}
-		public UsersDataRow fFK_Users_RecordInfo_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tUsers[Convert.ToInt32(dr[26])];
-			}
+			dr[21]=DBNull.Value;
 		}
 	} // public class DesignObjVariation_DesignObjDataRow
 	public class DesignObjVariation_DesignObjDataReader
@@ -1210,8 +1066,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[27];
-				for(int i=0;i<27;i++)
+				object[] objs = new object[22];
+				for(int i=0;i<22;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -1295,7 +1151,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[3]);
 			}
 		}
-		public System.Int32 fFK_DockState
+		public System.Int32 fX
 		{
 			get
 			{
@@ -1305,17 +1161,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[4]);
 			}
 		}
-		public bool fFK_DockStateIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[4]==DBNull.Value;
-				else
-					return dr[4]==DBNull.Value;
-			}
-		}
-		public System.Int32 fX
+		public System.Int32 fY
 		{
 			get
 			{
@@ -1325,7 +1171,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[5]);
 			}
 		}
-		public System.Int32 fY
+		public System.Int32 fWidth
 		{
 			get
 			{
@@ -1335,7 +1181,17 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[6]);
 			}
 		}
-		public System.Int32 fWidth
+		public bool fWidthIsNull
+		{
+			get
+			{
+				if( bCache )
+					return ((object[]) al[iRecord])[6]==DBNull.Value;
+				else
+					return dr[6]==DBNull.Value;
+			}
+		}
+		public System.Int32 fHeight
 		{
 			get
 			{
@@ -1345,7 +1201,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[7]);
 			}
 		}
-		public bool fWidthIsNull
+		public bool fHeightIsNull
 		{
 			get
 			{
@@ -1355,7 +1211,7 @@ namespace HAData.DataAccess {
 					return dr[7]==DBNull.Value;
 			}
 		}
-		public System.Int32 fHeight
+		public System.Int32 fFK_DesignObj_InsteadOf
 		{
 			get
 			{
@@ -1365,7 +1221,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[8]);
 			}
 		}
-		public bool fHeightIsNull
+		public bool fFK_DesignObj_InsteadOfIsNull
 		{
 			get
 			{
@@ -1375,27 +1231,17 @@ namespace HAData.DataAccess {
 					return dr[8]==DBNull.Value;
 			}
 		}
-		public System.Int32 fFK_DesignObj_InsteadOf
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[9]);
-				else
-					return Convert.ToInt32(dr[9]);
-			}
-		}
-		public bool fFK_DesignObj_InsteadOfIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[9]==DBNull.Value;
-				else
-					return dr[9]==DBNull.Value;
-			}
-		}
 		public System.Boolean fCanBeHidden
+		{
+			get
+			{
+				if( bCache )
+					return Convert.ToBoolean(((object[]) al[iRecord])[9]);
+				else
+					return Convert.ToBoolean(dr[9]);
+			}
+		}
+		public System.Boolean fHideByDefault
 		{
 			get
 			{
@@ -1405,7 +1251,7 @@ namespace HAData.DataAccess {
 					return Convert.ToBoolean(dr[10]);
 			}
 		}
-		public System.Boolean fHideByDefault
+		public System.Boolean fRegenerateForEachScreen
 		{
 			get
 			{
@@ -1415,7 +1261,7 @@ namespace HAData.DataAccess {
 					return Convert.ToBoolean(dr[11]);
 			}
 		}
-		public System.Boolean fRegenerateForEachScreen
+		public System.Boolean fDisplayChildrenBeforeText
 		{
 			get
 			{
@@ -1425,7 +1271,7 @@ namespace HAData.DataAccess {
 					return Convert.ToBoolean(dr[12]);
 			}
 		}
-		public System.Boolean fDisplayChildrenBeforeText
+		public System.Boolean fDisplayChildrenBehindBackground
 		{
 			get
 			{
@@ -1435,7 +1281,7 @@ namespace HAData.DataAccess {
 					return Convert.ToBoolean(dr[13]);
 			}
 		}
-		public System.Boolean fDisplayChildrenBehindBackground
+		public System.Boolean fDontMergeBackground
 		{
 			get
 			{
@@ -1445,7 +1291,7 @@ namespace HAData.DataAccess {
 					return Convert.ToBoolean(dr[14]);
 			}
 		}
-		public System.Boolean fDontMergeBackground
+		public System.Boolean fIsTabStop
 		{
 			get
 			{
@@ -1455,17 +1301,27 @@ namespace HAData.DataAccess {
 					return Convert.ToBoolean(dr[15]);
 			}
 		}
-		public System.Boolean fIsTabStop
+		public System.Int32 fFK_DesignObj_Up
 		{
 			get
 			{
 				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[16]);
+					return Convert.ToInt32(((object[]) al[iRecord])[16]);
 				else
-					return Convert.ToBoolean(dr[16]);
+					return Convert.ToInt32(dr[16]);
 			}
 		}
-		public System.Int32 fFK_DesignObj_Up
+		public bool fFK_DesignObj_UpIsNull
+		{
+			get
+			{
+				if( bCache )
+					return ((object[]) al[iRecord])[16]==DBNull.Value;
+				else
+					return dr[16]==DBNull.Value;
+			}
+		}
+		public System.Int32 fFK_DesignObj_Down
 		{
 			get
 			{
@@ -1475,7 +1331,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[17]);
 			}
 		}
-		public bool fFK_DesignObj_UpIsNull
+		public bool fFK_DesignObj_DownIsNull
 		{
 			get
 			{
@@ -1485,7 +1341,7 @@ namespace HAData.DataAccess {
 					return dr[17]==DBNull.Value;
 			}
 		}
-		public System.Int32 fFK_DesignObj_Down
+		public System.Int32 fFK_DesignObj_Left
 		{
 			get
 			{
@@ -1495,7 +1351,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[18]);
 			}
 		}
-		public bool fFK_DesignObj_DownIsNull
+		public bool fFK_DesignObj_LeftIsNull
 		{
 			get
 			{
@@ -1505,7 +1361,7 @@ namespace HAData.DataAccess {
 					return dr[18]==DBNull.Value;
 			}
 		}
-		public System.Int32 fFK_DesignObj_Left
+		public System.Int32 fFK_DesignObj_Right
 		{
 			get
 			{
@@ -1515,7 +1371,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[19]);
 			}
 		}
-		public bool fFK_DesignObj_LeftIsNull
+		public bool fFK_DesignObj_RightIsNull
 		{
 			get
 			{
@@ -1525,17 +1381,17 @@ namespace HAData.DataAccess {
 					return dr[19]==DBNull.Value;
 			}
 		}
-		public System.Int32 fFK_DesignObj_Right
+		public System.String fsFK_DesignObj_TiedTo
 		{
 			get
 			{
 				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[20]);
+					return Convert.ToString(((object[]) al[iRecord])[20]);
 				else
-					return Convert.ToInt32(dr[20]);
+					return Convert.ToString(dr[20]);
 			}
 		}
-		public bool fFK_DesignObj_RightIsNull
+		public bool fsFK_DesignObj_TiedToIsNull
 		{
 			get
 			{
@@ -1545,7 +1401,7 @@ namespace HAData.DataAccess {
 					return dr[20]==DBNull.Value;
 			}
 		}
-		public System.String fsFK_DesignObj_TiedTo
+		public System.String fVisibleStates
 		{
 			get
 			{
@@ -1555,7 +1411,7 @@ namespace HAData.DataAccess {
 					return Convert.ToString(dr[21]);
 			}
 		}
-		public bool fsFK_DesignObj_TiedToIsNull
+		public bool fVisibleStatesIsNull
 		{
 			get
 			{
@@ -1563,106 +1419,6 @@ namespace HAData.DataAccess {
 					return ((object[]) al[iRecord])[21]==DBNull.Value;
 				else
 					return dr[21]==DBNull.Value;
-			}
-		}
-		public System.String fVisibleStates
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToString(((object[]) al[iRecord])[22]);
-				else
-					return Convert.ToString(dr[22]);
-			}
-		}
-		public bool fVisibleStatesIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[22]==DBNull.Value;
-				else
-					return dr[22]==DBNull.Value;
-			}
-		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToDateTime(((object[]) al[iRecord])[23]);
-				else
-					return Convert.ToDateTime(dr[23]);
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[23]==DBNull.Value;
-				else
-					return dr[23]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[24]);
-				else
-					return Convert.ToBoolean(dr[24]);
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[24]==DBNull.Value;
-				else
-					return dr[24]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[25]);
-				else
-					return Convert.ToBoolean(dr[25]);
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[25]==DBNull.Value;
-				else
-					return dr[25]==DBNull.Value;
-			}
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[26]);
-				else
-					return Convert.ToInt32(dr[26]);
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[26]==DBNull.Value;
-				else
-					return dr[26]==DBNull.Value;
 			}
 		}
 	} // public class DesignObjVariation_DesignObjDataReader
@@ -1695,7 +1451,7 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_DesignObjVariation_DesignObj,FK_DesignObjVariation_Parent,FK_DesignObj_Child,DisplayOrder,FK_DockState,X,Y,Width,Height,FK_DesignObj_InsteadOf,CanBeHidden,HideByDefault,RegenerateForEachScreen,DisplayChildrenBeforeText,DisplayChildrenBehindBackground,DontMergeBackground,IsTabStop,FK_DesignObj_Up,FK_DesignObj_Down,FK_DesignObj_Left,FK_DesignObj_Right,sFK_DesignObj_TiedTo,VisibleStates FROM DesignObjVariation_DesignObj", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_DesignObjVariation_DesignObj,FK_DesignObjVariation_Parent,FK_DesignObj_Child,DisplayOrder,X,Y,Width,Height,FK_DesignObj_InsteadOf,CanBeHidden,HideByDefault,RegenerateForEachScreen,DisplayChildrenBeforeText,DisplayChildrenBehindBackground,DontMergeBackground,IsTabStop,FK_DesignObj_Up,FK_DesignObj_Down,FK_DesignObj_Left,FK_DesignObj_Right,sFK_DesignObj_TiedTo,VisibleStates FROM DesignObjVariation_DesignObj", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -1745,165 +1501,130 @@ namespace HAData.DataAccess {
 				return Columns[3];
 			}
 		}
-		public DataColumn cFK_DockState
+		public DataColumn cX
 		{
 			get
 			{
 				return Columns[4];
 			}
 		}
-		public DataColumn cX
+		public DataColumn cY
 		{
 			get
 			{
 				return Columns[5];
 			}
 		}
-		public DataColumn cY
+		public DataColumn cWidth
 		{
 			get
 			{
 				return Columns[6];
 			}
 		}
-		public DataColumn cWidth
+		public DataColumn cHeight
 		{
 			get
 			{
 				return Columns[7];
 			}
 		}
-		public DataColumn cHeight
+		public DataColumn cFK_DesignObj_InsteadOf
 		{
 			get
 			{
 				return Columns[8];
 			}
 		}
-		public DataColumn cFK_DesignObj_InsteadOf
+		public DataColumn cCanBeHidden
 		{
 			get
 			{
 				return Columns[9];
 			}
 		}
-		public DataColumn cCanBeHidden
+		public DataColumn cHideByDefault
 		{
 			get
 			{
 				return Columns[10];
 			}
 		}
-		public DataColumn cHideByDefault
+		public DataColumn cRegenerateForEachScreen
 		{
 			get
 			{
 				return Columns[11];
 			}
 		}
-		public DataColumn cRegenerateForEachScreen
+		public DataColumn cDisplayChildrenBeforeText
 		{
 			get
 			{
 				return Columns[12];
 			}
 		}
-		public DataColumn cDisplayChildrenBeforeText
+		public DataColumn cDisplayChildrenBehindBackground
 		{
 			get
 			{
 				return Columns[13];
 			}
 		}
-		public DataColumn cDisplayChildrenBehindBackground
+		public DataColumn cDontMergeBackground
 		{
 			get
 			{
 				return Columns[14];
 			}
 		}
-		public DataColumn cDontMergeBackground
+		public DataColumn cIsTabStop
 		{
 			get
 			{
 				return Columns[15];
 			}
 		}
-		public DataColumn cIsTabStop
+		public DataColumn cFK_DesignObj_Up
 		{
 			get
 			{
 				return Columns[16];
 			}
 		}
-		public DataColumn cFK_DesignObj_Up
+		public DataColumn cFK_DesignObj_Down
 		{
 			get
 			{
 				return Columns[17];
 			}
 		}
-		public DataColumn cFK_DesignObj_Down
+		public DataColumn cFK_DesignObj_Left
 		{
 			get
 			{
 				return Columns[18];
 			}
 		}
-		public DataColumn cFK_DesignObj_Left
+		public DataColumn cFK_DesignObj_Right
 		{
 			get
 			{
 				return Columns[19];
 			}
 		}
-		public DataColumn cFK_DesignObj_Right
+		public DataColumn csFK_DesignObj_TiedTo
 		{
 			get
 			{
 				return Columns[20];
 			}
 		}
-		public DataColumn csFK_DesignObj_TiedTo
-		{
-			get
-			{
-				return Columns[21];
-			}
-		}
 		public DataColumn cVisibleStates
 		{
 			get
 			{
-				return Columns[22];
-			}
-		}
-		public DataColumn cModification_RecordInfo
-		{
-			get
-			{
-				return Columns[23];
-			}
-		}
-		public DataColumn cIsNew_RecordInfo
-		{
-			get
-			{
-				return Columns[24];
-			}
-		}
-		public DataColumn cIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Columns[25];
-			}
-		}
-		public DataColumn cFK_Users_RecordInfo
-		{
-			get
-			{
-				return Columns[26];
+				return Columns[21];
 			}
 		}
 	}

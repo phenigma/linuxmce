@@ -27,10 +27,6 @@ namespace HAData.DataAccess {
 		public const String FK_STABILITYSTATUS_FIELD = "FK_StabilityStatus";
 		public const String DESTINATIONPACKAGE_FIELD = "DestinationPackage";
 		public const String DESTINATIONDIR_FIELD = "DestinationDir";
-		public const String MODIFICATION_RECORDINFO_FIELD = "Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_FIELD = "IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_FIELD = "IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_FIELD = "FK_Users_RecordInfo";
 		// table+field constants
 		public const String PK_DEVICETEMPLATE_TABLE_FIELD = "DeviceTemplate.PK_DeviceTemplate";
 		public const String DESCRIPTION_TABLE_FIELD = "DeviceTemplate.Description";
@@ -48,10 +44,6 @@ namespace HAData.DataAccess {
 		public const String FK_STABILITYSTATUS_TABLE_FIELD = "DeviceTemplate.FK_StabilityStatus";
 		public const String DESTINATIONPACKAGE_TABLE_FIELD = "DeviceTemplate.DestinationPackage";
 		public const String DESTINATIONDIR_TABLE_FIELD = "DeviceTemplate.DestinationDir";
-		public const String MODIFICATION_RECORDINFO_TABLE_FIELD = "DeviceTemplate.Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_TABLE_FIELD = "DeviceTemplate.IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_TABLE_FIELD = "DeviceTemplate.IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_TABLE_FIELD = "DeviceTemplate.FK_Users_RecordInfo";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
@@ -72,10 +64,6 @@ namespace HAData.DataAccess {
 		protected const String FK_STABILITYSTATUS_PARM = "@FK_StabilityStatus";
 		protected const String DESTINATIONPACKAGE_PARM = "@DestinationPackage";
 		protected const String DESTINATIONDIR_PARM = "@DestinationDir";
-		protected const String MODIFICATION_RECORDINFO_PARM = "@Modification_RecordInfo";
-		protected const String ISNEW_RECORDINFO_PARM = "@IsNew_RecordInfo";
-		protected const String ISDELETED_RECORDINFO_PARM = "@IsDeleted_RecordInfo";
-		protected const String FK_USERS_RECORDINFO_PARM = "@FK_Users_RecordInfo";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -177,10 +165,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(FK_STABILITYSTATUS_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(DESTINATIONPACKAGE_PARM, OdbcType.VarChar, 35));
 			Params.Add(new OdbcParameter(DESTINATIONDIR_PARM, OdbcType.VarChar, 50));
-			Params.Add(new OdbcParameter(MODIFICATION_RECORDINFO_PARM, OdbcType.DateTime,4));
-			Params.Add(new OdbcParameter(ISNEW_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISDELETED_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_USERS_RECORDINFO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -205,10 +189,6 @@ namespace HAData.DataAccess {
 			Params[FK_STABILITYSTATUS_PARM].SourceColumn = DeviceTemplateData.FK_STABILITYSTATUS_FIELD;
 			Params[DESTINATIONPACKAGE_PARM].SourceColumn = DeviceTemplateData.DESTINATIONPACKAGE_FIELD;
 			Params[DESTINATIONDIR_PARM].SourceColumn = DeviceTemplateData.DESTINATIONDIR_FIELD;
-			Params[MODIFICATION_RECORDINFO_PARM].SourceColumn = DeviceTemplateData.MODIFICATION_RECORDINFO_FIELD;
-			Params[ISNEW_RECORDINFO_PARM].SourceColumn = DeviceTemplateData.ISNEW_RECORDINFO_FIELD;
-			Params[ISDELETED_RECORDINFO_PARM].SourceColumn = DeviceTemplateData.ISDELETED_RECORDINFO_FIELD;
-			Params[FK_USERS_RECORDINFO_PARM].SourceColumn = DeviceTemplateData.FK_USERS_RECORDINFO_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -300,7 +280,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_DeviceTemplate, Description, Comments, FK_DeviceCategory, FK_Manufacturer, Define, ImplementsDCE, IsEmbedded, CommandLine, RequiresGUI, IsAVDevice, IsPlugIn, IRFrequency, FK_StabilityStatus, DestinationPackage, DestinationDir, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo FROM DeviceTemplate WHERE " + WhereClause;
+			string sSQL = "SELECT PK_DeviceTemplate, Description, Comments, FK_DeviceCategory, FK_Manufacturer, Define, ImplementsDCE, IsEmbedded, CommandLine, RequiresGUI, IsAVDevice, IsPlugIn, IRFrequency, FK_StabilityStatus, DestinationPackage, DestinationDir FROM DeviceTemplate WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -860,102 +840,6 @@ namespace HAData.DataAccess {
 		{
 			dr[15]=DBNull.Value;
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				return Convert.ToDateTime(dr[16]);
-			}
-			set
-			{
-				dr[16]=value;
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[16]==DBNull.Value;
-			}
-		}
-		public void fModification_RecordInfoSetNull()
-		{
-			dr[16]=DBNull.Value;
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[17]);
-			}
-			set
-			{
-				dr[17]=value;
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[17]==DBNull.Value;
-			}
-		}
-		public void fIsNew_RecordInfoSetNull()
-		{
-			dr[17]=DBNull.Value;
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[18]);
-			}
-			set
-			{
-				dr[18]=value;
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[18]==DBNull.Value;
-			}
-		}
-		public void fIsDeleted_RecordInfoSetNull()
-		{
-			dr[18]=DBNull.Value;
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				return Convert.ToInt32(dr[19]);
-			}
-			set
-			{
-				dr[19]=value;
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[19]==DBNull.Value;
-			}
-		}
-		public void fFK_Users_RecordInfoSetNull()
-		{
-			dr[19]=DBNull.Value;
-		}
-		public UsersDataRow fFK_Users_RecordInfo_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tUsers[Convert.ToInt32(dr[19])];
-			}
-		}
 	} // public class DeviceTemplateDataRow
 	public class DeviceTemplateDataReader
 	{
@@ -1038,8 +922,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[20];
-				for(int i=0;i<20;i++)
+				object[] objs = new object[16];
+				for(int i=0;i<16;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -1373,86 +1257,6 @@ namespace HAData.DataAccess {
 					return dr[15]==DBNull.Value;
 			}
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToDateTime(((object[]) al[iRecord])[16]);
-				else
-					return Convert.ToDateTime(dr[16]);
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[16]==DBNull.Value;
-				else
-					return dr[16]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[17]);
-				else
-					return Convert.ToBoolean(dr[17]);
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[17]==DBNull.Value;
-				else
-					return dr[17]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[18]);
-				else
-					return Convert.ToBoolean(dr[18]);
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[18]==DBNull.Value;
-				else
-					return dr[18]==DBNull.Value;
-			}
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[19]);
-				else
-					return Convert.ToInt32(dr[19]);
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[19]==DBNull.Value;
-				else
-					return dr[19]==DBNull.Value;
-			}
-		}
 	} // public class DeviceTemplateDataReader
 	public class DeviceTemplateTable : DataTable
 	{
@@ -1615,34 +1419,6 @@ namespace HAData.DataAccess {
 			get
 			{
 				return Columns[15];
-			}
-		}
-		public DataColumn cModification_RecordInfo
-		{
-			get
-			{
-				return Columns[16];
-			}
-		}
-		public DataColumn cIsNew_RecordInfo
-		{
-			get
-			{
-				return Columns[17];
-			}
-		}
-		public DataColumn cIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Columns[18];
-			}
-		}
-		public DataColumn cFK_Users_RecordInfo
-		{
-			get
-			{
-				return Columns[19];
 			}
 		}
 	}

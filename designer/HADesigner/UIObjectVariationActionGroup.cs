@@ -263,7 +263,6 @@ namespace HADesigner
 					{
 						//insert this object
 						CommandGroup_DDataRow drCommandGroup = new CommandGroup_DDataRow(this.mds.tCommandGroup_D.NewRow());
-						drCommandGroup.fDescription = "Designer - CommandGroup";
 						this.mds.tCommandGroup_D.Rows.Add(drCommandGroup.dr);
 						this.mds.tCommandGroup_D.Update(1,mds.m_conn,mds.m_trans);
 						this.CommandGroupID = drCommandGroup.fPK_CommandGroup_D;

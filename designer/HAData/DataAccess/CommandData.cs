@@ -16,20 +16,12 @@ namespace HAData.DataAccess {
 		public const String DEFINE_FIELD = "Define";
 		public const String FK_COMMANDCATEGORY_FIELD = "FK_CommandCategory";
 		public const String AVCOMMAND_FIELD = "AVCommand";
-		public const String MODIFICATION_RECORDINFO_FIELD = "Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_FIELD = "IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_FIELD = "IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_FIELD = "FK_Users_RecordInfo";
 		// table+field constants
 		public const String PK_COMMAND_TABLE_FIELD = "Command.PK_Command";
 		public const String DESCRIPTION_TABLE_FIELD = "Command.Description";
 		public const String DEFINE_TABLE_FIELD = "Command.Define";
 		public const String FK_COMMANDCATEGORY_TABLE_FIELD = "Command.FK_CommandCategory";
 		public const String AVCOMMAND_TABLE_FIELD = "Command.AVCommand";
-		public const String MODIFICATION_RECORDINFO_TABLE_FIELD = "Command.Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_TABLE_FIELD = "Command.IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_TABLE_FIELD = "Command.IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_TABLE_FIELD = "Command.FK_Users_RecordInfo";
 		public const int GOTO_SCREEN_CONST = 5;
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
@@ -40,10 +32,6 @@ namespace HAData.DataAccess {
 		protected const String DEFINE_PARM = "@Define";
 		protected const String FK_COMMANDCATEGORY_PARM = "@FK_CommandCategory";
 		protected const String AVCOMMAND_PARM = "@AVCommand";
-		protected const String MODIFICATION_RECORDINFO_PARM = "@Modification_RecordInfo";
-		protected const String ISNEW_RECORDINFO_PARM = "@IsNew_RecordInfo";
-		protected const String ISDELETED_RECORDINFO_PARM = "@IsDeleted_RecordInfo";
-		protected const String FK_USERS_RECORDINFO_PARM = "@FK_Users_RecordInfo";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -131,10 +119,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(DEFINE_PARM, OdbcType.VarChar, 50));
 			Params.Add(new OdbcParameter(FK_COMMANDCATEGORY_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(AVCOMMAND_PARM, OdbcType.SmallInt,2));
-			Params.Add(new OdbcParameter(MODIFICATION_RECORDINFO_PARM, OdbcType.DateTime,4));
-			Params.Add(new OdbcParameter(ISNEW_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISDELETED_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_USERS_RECORDINFO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -148,10 +132,6 @@ namespace HAData.DataAccess {
 			Params[DEFINE_PARM].SourceColumn = CommandData.DEFINE_FIELD;
 			Params[FK_COMMANDCATEGORY_PARM].SourceColumn = CommandData.FK_COMMANDCATEGORY_FIELD;
 			Params[AVCOMMAND_PARM].SourceColumn = CommandData.AVCOMMAND_FIELD;
-			Params[MODIFICATION_RECORDINFO_PARM].SourceColumn = CommandData.MODIFICATION_RECORDINFO_FIELD;
-			Params[ISNEW_RECORDINFO_PARM].SourceColumn = CommandData.ISNEW_RECORDINFO_FIELD;
-			Params[ISDELETED_RECORDINFO_PARM].SourceColumn = CommandData.ISDELETED_RECORDINFO_FIELD;
-			Params[FK_USERS_RECORDINFO_PARM].SourceColumn = CommandData.FK_USERS_RECORDINFO_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -243,7 +223,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_Command, Description, Define, FK_CommandCategory, AVCommand, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo FROM Command WHERE " + WhereClause;
+			string sSQL = "SELECT PK_Command, Description, Define, FK_CommandCategory, AVCommand FROM Command WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -536,102 +516,6 @@ namespace HAData.DataAccess {
 				dr[4]=value;
 			}
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				return Convert.ToDateTime(dr[5]);
-			}
-			set
-			{
-				dr[5]=value;
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[5]==DBNull.Value;
-			}
-		}
-		public void fModification_RecordInfoSetNull()
-		{
-			dr[5]=DBNull.Value;
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[6]);
-			}
-			set
-			{
-				dr[6]=value;
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[6]==DBNull.Value;
-			}
-		}
-		public void fIsNew_RecordInfoSetNull()
-		{
-			dr[6]=DBNull.Value;
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[7]);
-			}
-			set
-			{
-				dr[7]=value;
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[7]==DBNull.Value;
-			}
-		}
-		public void fIsDeleted_RecordInfoSetNull()
-		{
-			dr[7]=DBNull.Value;
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				return Convert.ToInt32(dr[8]);
-			}
-			set
-			{
-				dr[8]=value;
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[8]==DBNull.Value;
-			}
-		}
-		public void fFK_Users_RecordInfoSetNull()
-		{
-			dr[8]=DBNull.Value;
-		}
-		public UsersDataRow fFK_Users_RecordInfo_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tUsers[Convert.ToInt32(dr[8])];
-			}
-		}
 	} // public class CommandDataRow
 	public class CommandDataReader
 	{
@@ -714,8 +598,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[9];
-				for(int i=0;i<9;i++)
+				object[] objs = new object[5];
+				for(int i=0;i<5;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -797,86 +681,6 @@ namespace HAData.DataAccess {
 					return Convert.ToInt16(((object[]) al[iRecord])[4]);
 				else
 					return Convert.ToInt16(dr[4]);
-			}
-		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToDateTime(((object[]) al[iRecord])[5]);
-				else
-					return Convert.ToDateTime(dr[5]);
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[5]==DBNull.Value;
-				else
-					return dr[5]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[6]);
-				else
-					return Convert.ToBoolean(dr[6]);
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[6]==DBNull.Value;
-				else
-					return dr[6]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[7]);
-				else
-					return Convert.ToBoolean(dr[7]);
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[7]==DBNull.Value;
-				else
-					return dr[7]==DBNull.Value;
-			}
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[8]);
-				else
-					return Convert.ToInt32(dr[8]);
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[8]==DBNull.Value;
-				else
-					return dr[8]==DBNull.Value;
 			}
 		}
 	} // public class CommandDataReader
@@ -964,34 +768,6 @@ namespace HAData.DataAccess {
 			get
 			{
 				return Columns[4];
-			}
-		}
-		public DataColumn cModification_RecordInfo
-		{
-			get
-			{
-				return Columns[5];
-			}
-		}
-		public DataColumn cIsNew_RecordInfo
-		{
-			get
-			{
-				return Columns[6];
-			}
-		}
-		public DataColumn cIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Columns[7];
-			}
-		}
-		public DataColumn cFK_Users_RecordInfo
-		{
-			get
-			{
-				return Columns[8];
 			}
 		}
 	}

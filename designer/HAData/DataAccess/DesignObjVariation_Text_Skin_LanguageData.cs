@@ -25,10 +25,6 @@ namespace HAData.DataAccess {
 		public const String FK_VERTALIGNMENT_FIELD = "FK_VertAlignment";
 		public const String FK_STYLE_FIELD = "FK_Style";
 		public const String PLAINBACKGROUNDCOLOR_FIELD = "PlainBackgroundColor";
-		public const String MODIFICATION_RECORDINFO_FIELD = "Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_FIELD = "IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_FIELD = "IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_FIELD = "FK_Users_RecordInfo";
 		// table+field constants
 		public const String PK_DESIGNOBJVARIATION_TEXT_SKIN_LANGUAGE_TABLE_FIELD = "DesignObjVariation_Text_Skin_Language.PK_DesignObjVariation_Text_Skin_Language";
 		public const String FK_DESIGNOBJVARIATION_TEXT_TABLE_FIELD = "DesignObjVariation_Text_Skin_Language.FK_DesignObjVariation_Text";
@@ -44,10 +40,6 @@ namespace HAData.DataAccess {
 		public const String FK_VERTALIGNMENT_TABLE_FIELD = "DesignObjVariation_Text_Skin_Language.FK_VertAlignment";
 		public const String FK_STYLE_TABLE_FIELD = "DesignObjVariation_Text_Skin_Language.FK_Style";
 		public const String PLAINBACKGROUNDCOLOR_TABLE_FIELD = "DesignObjVariation_Text_Skin_Language.PlainBackgroundColor";
-		public const String MODIFICATION_RECORDINFO_TABLE_FIELD = "DesignObjVariation_Text_Skin_Language.Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_TABLE_FIELD = "DesignObjVariation_Text_Skin_Language.IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_TABLE_FIELD = "DesignObjVariation_Text_Skin_Language.IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_TABLE_FIELD = "DesignObjVariation_Text_Skin_Language.FK_Users_RecordInfo";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
@@ -66,10 +58,6 @@ namespace HAData.DataAccess {
 		protected const String FK_VERTALIGNMENT_PARM = "@FK_VertAlignment";
 		protected const String FK_STYLE_PARM = "@FK_Style";
 		protected const String PLAINBACKGROUNDCOLOR_PARM = "@PlainBackgroundColor";
-		protected const String MODIFICATION_RECORDINFO_PARM = "@Modification_RecordInfo";
-		protected const String ISNEW_RECORDINFO_PARM = "@IsNew_RecordInfo";
-		protected const String ISDELETED_RECORDINFO_PARM = "@IsDeleted_RecordInfo";
-		protected const String FK_USERS_RECORDINFO_PARM = "@FK_Users_RecordInfo";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -182,10 +170,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(FK_VERTALIGNMENT_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_STYLE_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(PLAINBACKGROUNDCOLOR_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(MODIFICATION_RECORDINFO_PARM, OdbcType.DateTime,4));
-			Params.Add(new OdbcParameter(ISNEW_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISDELETED_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_USERS_RECORDINFO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -208,10 +192,6 @@ namespace HAData.DataAccess {
 			Params[FK_VERTALIGNMENT_PARM].SourceColumn = DesignObjVariation_Text_Skin_LanguageData.FK_VERTALIGNMENT_FIELD;
 			Params[FK_STYLE_PARM].SourceColumn = DesignObjVariation_Text_Skin_LanguageData.FK_STYLE_FIELD;
 			Params[PLAINBACKGROUNDCOLOR_PARM].SourceColumn = DesignObjVariation_Text_Skin_LanguageData.PLAINBACKGROUNDCOLOR_FIELD;
-			Params[MODIFICATION_RECORDINFO_PARM].SourceColumn = DesignObjVariation_Text_Skin_LanguageData.MODIFICATION_RECORDINFO_FIELD;
-			Params[ISNEW_RECORDINFO_PARM].SourceColumn = DesignObjVariation_Text_Skin_LanguageData.ISNEW_RECORDINFO_FIELD;
-			Params[ISDELETED_RECORDINFO_PARM].SourceColumn = DesignObjVariation_Text_Skin_LanguageData.ISDELETED_RECORDINFO_FIELD;
-			Params[FK_USERS_RECORDINFO_PARM].SourceColumn = DesignObjVariation_Text_Skin_LanguageData.FK_USERS_RECORDINFO_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -303,7 +283,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_DesignObjVariation_Text_Skin_Language, FK_DesignObjVariation_Text, FK_Skin, FK_Language, X, Y, Width, Height, Rotate, Opacity, FK_HorizAlignment, FK_VertAlignment, FK_Style, PlainBackgroundColor, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo FROM DesignObjVariation_Text_Skin_Language WHERE " + WhereClause;
+			string sSQL = "SELECT PK_DesignObjVariation_Text_Skin_Language, FK_DesignObjVariation_Text, FK_Skin, FK_Language, X, Y, Width, Height, Rotate, Opacity, FK_HorizAlignment, FK_VertAlignment, FK_Style, PlainBackgroundColor FROM DesignObjVariation_Text_Skin_Language WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -812,102 +792,6 @@ namespace HAData.DataAccess {
 		{
 			dr[13]=DBNull.Value;
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				return Convert.ToDateTime(dr[14]);
-			}
-			set
-			{
-				dr[14]=value;
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[14]==DBNull.Value;
-			}
-		}
-		public void fModification_RecordInfoSetNull()
-		{
-			dr[14]=DBNull.Value;
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[15]);
-			}
-			set
-			{
-				dr[15]=value;
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[15]==DBNull.Value;
-			}
-		}
-		public void fIsNew_RecordInfoSetNull()
-		{
-			dr[15]=DBNull.Value;
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[16]);
-			}
-			set
-			{
-				dr[16]=value;
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[16]==DBNull.Value;
-			}
-		}
-		public void fIsDeleted_RecordInfoSetNull()
-		{
-			dr[16]=DBNull.Value;
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				return Convert.ToInt32(dr[17]);
-			}
-			set
-			{
-				dr[17]=value;
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[17]==DBNull.Value;
-			}
-		}
-		public void fFK_Users_RecordInfoSetNull()
-		{
-			dr[17]=DBNull.Value;
-		}
-		public UsersDataRow fFK_Users_RecordInfo_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tUsers[Convert.ToInt32(dr[17])];
-			}
-		}
 	} // public class DesignObjVariation_Text_Skin_LanguageDataRow
 	public class DesignObjVariation_Text_Skin_LanguageDataReader
 	{
@@ -990,8 +874,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[18];
-				for(int i=0;i<18;i++)
+				object[] objs = new object[14];
+				for(int i=0;i<14;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -1235,86 +1119,6 @@ namespace HAData.DataAccess {
 					return dr[13]==DBNull.Value;
 			}
 		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToDateTime(((object[]) al[iRecord])[14]);
-				else
-					return Convert.ToDateTime(dr[14]);
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[14]==DBNull.Value;
-				else
-					return dr[14]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[15]);
-				else
-					return Convert.ToBoolean(dr[15]);
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[15]==DBNull.Value;
-				else
-					return dr[15]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[16]);
-				else
-					return Convert.ToBoolean(dr[16]);
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[16]==DBNull.Value;
-				else
-					return dr[16]==DBNull.Value;
-			}
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[17]);
-				else
-					return Convert.ToInt32(dr[17]);
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[17]==DBNull.Value;
-				else
-					return dr[17]==DBNull.Value;
-			}
-		}
 	} // public class DesignObjVariation_Text_Skin_LanguageDataReader
 	public class DesignObjVariation_Text_Skin_LanguageTable : DataTable
 	{
@@ -1463,34 +1267,6 @@ namespace HAData.DataAccess {
 			get
 			{
 				return Columns[13];
-			}
-		}
-		public DataColumn cModification_RecordInfo
-		{
-			get
-			{
-				return Columns[14];
-			}
-		}
-		public DataColumn cIsNew_RecordInfo
-		{
-			get
-			{
-				return Columns[15];
-			}
-		}
-		public DataColumn cIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Columns[16];
-			}
-		}
-		public DataColumn cFK_Users_RecordInfo
-		{
-			get
-			{
-				return Columns[17];
 			}
 		}
 	}

@@ -17,12 +17,7 @@ namespace HAData.DataAccess {
 		public const String FK_STYLE_FIELD = "FK_Style";
 		public const String FK_SKIN_TEXTPLACEMENT_FIELD = "FK_Skin_TextPlacement";
 		public const String DRAWTEXTBEFORECHILDREN_FIELD = "DrawTextBeforeChildren";
-		public const String FK_ANIMATIONSTYLE_FIELD = "FK_AnimationStyle";
 		public const String FK_STABILITYSTATUS_FIELD = "FK_StabilityStatus";
-		public const String MODIFICATION_RECORDINFO_FIELD = "Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_FIELD = "IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_FIELD = "IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_FIELD = "FK_Users_RecordInfo";
 		// table+field constants
 		public const String PK_SKIN_TABLE_FIELD = "Skin.PK_Skin";
 		public const String DESCRIPTION_TABLE_FIELD = "Skin.Description";
@@ -30,12 +25,7 @@ namespace HAData.DataAccess {
 		public const String FK_STYLE_TABLE_FIELD = "Skin.FK_Style";
 		public const String FK_SKIN_TEXTPLACEMENT_TABLE_FIELD = "Skin.FK_Skin_TextPlacement";
 		public const String DRAWTEXTBEFORECHILDREN_TABLE_FIELD = "Skin.DrawTextBeforeChildren";
-		public const String FK_ANIMATIONSTYLE_TABLE_FIELD = "Skin.FK_AnimationStyle";
 		public const String FK_STABILITYSTATUS_TABLE_FIELD = "Skin.FK_StabilityStatus";
-		public const String MODIFICATION_RECORDINFO_TABLE_FIELD = "Skin.Modification_RecordInfo";
-		public const String ISNEW_RECORDINFO_TABLE_FIELD = "Skin.IsNew_RecordInfo";
-		public const String ISDELETED_RECORDINFO_TABLE_FIELD = "Skin.IsDeleted_RecordInfo";
-		public const String FK_USERS_RECORDINFO_TABLE_FIELD = "Skin.FK_Users_RecordInfo";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
@@ -46,12 +36,7 @@ namespace HAData.DataAccess {
 		protected const String FK_STYLE_PARM = "@FK_Style";
 		protected const String FK_SKIN_TEXTPLACEMENT_PARM = "@FK_Skin_TextPlacement";
 		protected const String DRAWTEXTBEFORECHILDREN_PARM = "@DrawTextBeforeChildren";
-		protected const String FK_ANIMATIONSTYLE_PARM = "@FK_AnimationStyle";
 		protected const String FK_STABILITYSTATUS_PARM = "@FK_StabilityStatus";
-		protected const String MODIFICATION_RECORDINFO_PARM = "@Modification_RecordInfo";
-		protected const String ISNEW_RECORDINFO_PARM = "@IsNew_RecordInfo";
-		protected const String ISDELETED_RECORDINFO_PARM = "@IsDeleted_RecordInfo";
-		protected const String FK_USERS_RECORDINFO_PARM = "@FK_Users_RecordInfo";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -127,10 +112,6 @@ namespace HAData.DataAccess {
 			Column.AllowDBNull = false;
 			Column.DefaultValue = 0;
 
-			Column = Columns.Add(FK_ANIMATIONSTYLE_FIELD, typeof(System.Int32));
-			Column.AllowDBNull = false;
-			Column.DefaultValue = 0;
-
 			Column = Columns.Add(FK_STABILITYSTATUS_FIELD, typeof(System.Int32));
 			Column.AllowDBNull = false;
 			Column.DefaultValue = 1;
@@ -146,12 +127,7 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(FK_STYLE_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_SKIN_TEXTPLACEMENT_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(DRAWTEXTBEFORECHILDREN_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_ANIMATIONSTYLE_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_STABILITYSTATUS_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(MODIFICATION_RECORDINFO_PARM, OdbcType.DateTime,4));
-			Params.Add(new OdbcParameter(ISNEW_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISDELETED_RECORDINFO_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(FK_USERS_RECORDINFO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -166,12 +142,7 @@ namespace HAData.DataAccess {
 			Params[FK_STYLE_PARM].SourceColumn = SkinData.FK_STYLE_FIELD;
 			Params[FK_SKIN_TEXTPLACEMENT_PARM].SourceColumn = SkinData.FK_SKIN_TEXTPLACEMENT_FIELD;
 			Params[DRAWTEXTBEFORECHILDREN_PARM].SourceColumn = SkinData.DRAWTEXTBEFORECHILDREN_FIELD;
-			Params[FK_ANIMATIONSTYLE_PARM].SourceColumn = SkinData.FK_ANIMATIONSTYLE_FIELD;
 			Params[FK_STABILITYSTATUS_PARM].SourceColumn = SkinData.FK_STABILITYSTATUS_FIELD;
-			Params[MODIFICATION_RECORDINFO_PARM].SourceColumn = SkinData.MODIFICATION_RECORDINFO_FIELD;
-			Params[ISNEW_RECORDINFO_PARM].SourceColumn = SkinData.ISNEW_RECORDINFO_FIELD;
-			Params[ISDELETED_RECORDINFO_PARM].SourceColumn = SkinData.ISDELETED_RECORDINFO_FIELD;
-			Params[FK_USERS_RECORDINFO_PARM].SourceColumn = SkinData.FK_USERS_RECORDINFO_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -219,7 +190,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_Skin,Description,DataSubdirectory,FK_Style,FK_Skin_TextPlacement,DrawTextBeforeChildren,FK_AnimationStyle,FK_StabilityStatus FROM Skin", Conn);
+				LoadCommand = new OdbcCommand("SELECT PK_Skin,Description,DataSubdirectory,FK_Style,FK_Skin_TextPlacement,DrawTextBeforeChildren,FK_StabilityStatus FROM Skin", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(PK_SKIN_PARM, OdbcType.Int,4));
@@ -263,7 +234,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_Skin, Description, DataSubdirectory, FK_Style, FK_Skin_TextPlacement, DrawTextBeforeChildren, FK_AnimationStyle, FK_StabilityStatus, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo FROM Skin WHERE " + WhereClause;
+			string sSQL = "SELECT PK_Skin, Description, DataSubdirectory, FK_Style, FK_Skin_TextPlacement, DrawTextBeforeChildren, FK_StabilityStatus FROM Skin WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -597,7 +568,7 @@ namespace HAData.DataAccess {
 				dr[5]=value;
 			}
 		}
-		public System.Int32 fFK_AnimationStyle
+		public System.Int32 fFK_StabilityStatus
 		{
 			get
 			{
@@ -606,113 +577,6 @@ namespace HAData.DataAccess {
 			set
 			{
 				dr[6]=value;
-			}
-		}
-		public System.Int32 fFK_StabilityStatus
-		{
-			get
-			{
-				return Convert.ToInt32(dr[7]);
-			}
-			set
-			{
-				dr[7]=value;
-			}
-		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				return Convert.ToDateTime(dr[8]);
-			}
-			set
-			{
-				dr[8]=value;
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[8]==DBNull.Value;
-			}
-		}
-		public void fModification_RecordInfoSetNull()
-		{
-			dr[8]=DBNull.Value;
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[9]);
-			}
-			set
-			{
-				dr[9]=value;
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[9]==DBNull.Value;
-			}
-		}
-		public void fIsNew_RecordInfoSetNull()
-		{
-			dr[9]=DBNull.Value;
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Convert.ToBoolean(dr[10]);
-			}
-			set
-			{
-				dr[10]=value;
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[10]==DBNull.Value;
-			}
-		}
-		public void fIsDeleted_RecordInfoSetNull()
-		{
-			dr[10]=DBNull.Value;
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				return Convert.ToInt32(dr[11]);
-			}
-			set
-			{
-				dr[11]=value;
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				return dr[11]==DBNull.Value;
-			}
-		}
-		public void fFK_Users_RecordInfoSetNull()
-		{
-			dr[11]=DBNull.Value;
-		}
-		public UsersDataRow fFK_Users_RecordInfo_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tUsers[Convert.ToInt32(dr[11])];
 			}
 		}
 	} // public class SkinDataRow
@@ -797,8 +661,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[12];
-				for(int i=0;i<12;i++)
+				object[] objs = new object[7];
+				for(int i=0;i<7;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -912,7 +776,7 @@ namespace HAData.DataAccess {
 					return Convert.ToBoolean(dr[5]);
 			}
 		}
-		public System.Int32 fFK_AnimationStyle
+		public System.Int32 fFK_StabilityStatus
 		{
 			get
 			{
@@ -920,96 +784,6 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(((object[]) al[iRecord])[6]);
 				else
 					return Convert.ToInt32(dr[6]);
-			}
-		}
-		public System.Int32 fFK_StabilityStatus
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[7]);
-				else
-					return Convert.ToInt32(dr[7]);
-			}
-		}
-		public System.DateTime fModification_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToDateTime(((object[]) al[iRecord])[8]);
-				else
-					return Convert.ToDateTime(dr[8]);
-			}
-		}
-		public bool fModification_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[8]==DBNull.Value;
-				else
-					return dr[8]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsNew_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[9]);
-				else
-					return Convert.ToBoolean(dr[9]);
-			}
-		}
-		public bool fIsNew_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[9]==DBNull.Value;
-				else
-					return dr[9]==DBNull.Value;
-			}
-		}
-		public System.Boolean fIsDeleted_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToBoolean(((object[]) al[iRecord])[10]);
-				else
-					return Convert.ToBoolean(dr[10]);
-			}
-		}
-		public bool fIsDeleted_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[10]==DBNull.Value;
-				else
-					return dr[10]==DBNull.Value;
-			}
-		}
-		public System.Int32 fFK_Users_RecordInfo
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[11]);
-				else
-					return Convert.ToInt32(dr[11]);
-			}
-		}
-		public bool fFK_Users_RecordInfoIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[11]==DBNull.Value;
-				else
-					return dr[11]==DBNull.Value;
 			}
 		}
 	} // public class SkinDataReader
@@ -1042,7 +816,7 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_Skin,Description,DataSubdirectory,FK_Style,FK_Skin_TextPlacement,DrawTextBeforeChildren,FK_AnimationStyle,FK_StabilityStatus FROM Skin", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_Skin,Description,DataSubdirectory,FK_Style,FK_Skin_TextPlacement,DrawTextBeforeChildren,FK_StabilityStatus FROM Skin", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -1106,46 +880,11 @@ namespace HAData.DataAccess {
 				return Columns[5];
 			}
 		}
-		public DataColumn cFK_AnimationStyle
-		{
-			get
-			{
-				return Columns[6];
-			}
-		}
 		public DataColumn cFK_StabilityStatus
 		{
 			get
 			{
-				return Columns[7];
-			}
-		}
-		public DataColumn cModification_RecordInfo
-		{
-			get
-			{
-				return Columns[8];
-			}
-		}
-		public DataColumn cIsNew_RecordInfo
-		{
-			get
-			{
-				return Columns[9];
-			}
-		}
-		public DataColumn cIsDeleted_RecordInfo
-		{
-			get
-			{
-				return Columns[10];
-			}
-		}
-		public DataColumn cFK_Users_RecordInfo
-		{
-			get
-			{
-				return Columns[11];
+				return Columns[6];
 			}
 		}
 	}

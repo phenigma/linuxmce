@@ -5,7 +5,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 #include "PhoneDetection_Simulate.h"
-#include "PhoneDevice.h"
+#include "BD/PhoneDevice.h"
 
 bool PhoneDetection_Simulate::ScanningLoop()
 {
