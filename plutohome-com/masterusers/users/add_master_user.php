@@ -48,8 +48,8 @@ function add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMant
 				$random_password=generatePassword();
 				$random_passwordMD5=md5($random_password);
 				// sync with phpBB
-				$insertphpBB=mysql_query("INSERT INTO phpbb_users (user_id,username,user_password,user_email,user_lang)
-													VALUES	('$PK_MasterUsers','$username','$random_passwordMD5','$email','english')",$connphpBB);
+				$insertphpBB=mysql_query("INSERT INTO phpbb_users (user_id,username,user_password,user_email,user_lang,user_regdate)
+													VALUES	('$PK_MasterUsers','$username','$random_passwordMD5','$email','english', UNIX_TIMESTAMP(NOW()))",$connphpBB);
 			
 				$insertExtPassword=mysql_query("INSERT INTO Users(FK_MasterUsers,ExtPassword)
 													VALUES	('$PK_MasterUsers','$random_password')",$connPlutoHome);
