@@ -731,7 +731,16 @@ bool CompileSourceInOrder(Row_Package *pRow_Package)
 	for(size_t s=0;s<vectRow_Package_Package.size();++s)
 	{
 		Row_Package_Package *pRow_Package_Package = vectRow_Package_Package[s];
-		if( !CompileSourceInOrder(pRow_Package_Package->FK_Package_DependsOn_getrow()) )
+		Row_Package *pRow_Package_Package_DependsOn = pRow_Package_Package->FK_Package_DependsOn_getrow();
+		if( !pRow_Package_Package_DependsOn )
+		{
+			cerr << "Package: " << pRow_Package_Package->FK_Package_get() << " depends on non-existant package: " << pRow_Package_Package->FK_Package_DependsOn_get();
+			if( !AskYNQuestion("Continue?",false) )
+				return false;
+			else
+				return true;
+		}
+		if( !CompileSourceInOrder(pRow_Package_Package_DependsOn) )
 			return false;
 	}
 
@@ -1473,7 +1482,7 @@ string Makefile = "none:\n"
 bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
 	string ArchiveFileName,Username,Password;
-	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Archives_CONST )
+	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Debian_Sarge_Archi_CONST )
 	{
 		Username = dceConfig.ReadString("SF_User");
 		Password = dceConfig.ReadString("SF_Pass");
@@ -1527,7 +1536,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 		return false;
 	}
 
-	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Archives_CONST || pRow_Package_Source->FK_RepositorySource_get()==17 || pRow_Package_Source->FK_RepositorySource_get()==18)
+	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Debian_Sarge_Archi_CONST || pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Windows_Archives_CONST || pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Source_Archives_CONST)
 	{
 		// ArchiveFileName will be the name of the archive.  Add code here to actually upload it to sourceforge
 		// Initiate an ftp upload using Username & Password
