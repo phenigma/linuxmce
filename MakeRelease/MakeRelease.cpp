@@ -1023,7 +1023,7 @@ cout << "Making CVS Checkout to temporary\n";
 	system(cmd.c_str());
 
 cout << "Reading files from temporary ";
-	FileUtils::FindFiles(MyList, pRow_Package_Source->Name_get(), "*", true, "");
+	FileUtils::FindFiles(MyList, pRow_Package_Source->Name_get().c_str(), "*", true, "");
 	cout << MyList.size();
 cout << " [Done]\n";
 
@@ -1135,6 +1135,7 @@ cout << "Copying Files\n";
 	}
 ///////////////////////////////////////////////////////////
 ////////---------------- Findinf old files and delete them
+	cout << "Removing older files\n";
 	for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
 	{
 		for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
