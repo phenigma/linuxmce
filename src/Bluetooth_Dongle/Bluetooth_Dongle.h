@@ -17,7 +17,7 @@
 #include "Gen_Devices/Bluetooth_DongleBase.h"
 //<-dceag-d-e->
 
-#ifdef BT_SOCKET
+#ifdef SIMULATE_DETECTION
 	#include "VIPShared/PhoneDetection_Simulate.h"
 #else
 	#ifndef WIN32
@@ -69,7 +69,7 @@ namespace DCE
 	/**
 	 * @brief used to allow comunication between the router and the phone
 	 */
-#ifdef BT_SOCKET
+#ifdef SIMULATE_DETECTION
 	class Bluetooth_Dongle : public Bluetooth_Dongle_Command, public PhoneDetection_Simulate
 #else
 #ifdef WIN32

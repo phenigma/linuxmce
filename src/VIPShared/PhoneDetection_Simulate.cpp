@@ -34,6 +34,14 @@ bool PhoneDetection_Simulate::ScanningLoop()
 #else
 	FILE *file = fopen("/home/Phones.txt","r");
 #endif
+
+	if( m_bAbortScanLoop )
+		return false;
+
+	m_mapDevicesDetectedThisScan.clear();
+
+	g_pPlutoLogger->Write(LV_STATUS,"Inquiry started (simulation)");	
+
 	if( file )
 	{
 		while(true)
@@ -59,25 +67,28 @@ bool PhoneDetection_Simulate::ScanningLoop()
 
 				PhoneDevice *pDNew = new PhoneDevice(BlueToothID,MacAddress,atoi(LinkQuality.c_str()));
 
-				PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDNew->m_iMacAddress);
-				if( pDExisting && abs(pDExisting->m_iLinkQuality-pDNew->m_iLinkQuality)<10 )
-				{
-					// nothing to do
-					delete pDNew;
-					continue;
-				}
-				mm.Release();
+				string sMac = MacAddress;
+				vector<string> bda;
+				StringUtils::Tokenize(sMac, ":", bda);
 
-				if( !pDExisting )
-					Intern_NewDeviceDetected(pDNew);
-				else
-					Intern_SignalStrengthChanged(pDNew);
+				u_int64_t iMacAddress=0;
+				for(int i=0;i<6;++i)
+				{
+					u_int64_t power = (u_int64_t) pow(256., 5-i);
+					int Digit = atoi(bda[i].c_str());
+					iMacAddress += (power * Digit);
+				}
+
+				pDNew->m_iMacAddress = iMacAddress;
+				m_mapDevicesDetectedThisScan[iMacAddress] = pDNew;
 			}
 			else
 				break;
 		}
 		fclose(file);
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"Inquiry finished (simulation)");
 
 	Sleep(1000);  // Don't this run wild
 	return !m_bAbortScanLoop;

@@ -230,7 +230,9 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 					
 					PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 					m_mapDevicesDetectedThisScan[pDNew->m_iMacAddress] = pDNew;
+					mm.Release();
 
+					/*
 					PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDNew->m_iMacAddress);
 					if( pDExisting && abs(pDExisting->m_iLinkQuality-pDNew->m_iLinkQuality)<10 )
 					{
@@ -275,6 +277,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int
 						//printf("Detected change in strength device: %s  %d  from: %d\n",pDNew->m_sMacAddress.c_str(),pDNew->m_iLinkQuality,pDExisting->m_iLinkQuality);
 						Intern_SignalStrengthChanged(pDNew);
 					}
+					*/
 
 //					cur_rsp = add_result(list, cur_rsp, num_rsp, &result);
 				}
@@ -303,7 +306,9 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int
 					
 					PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 					m_mapDevicesDetectedThisScan[pDNew->m_iMacAddress] = pDNew;
+					mm.Release();
 
+					/*
 					PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDNew->m_iMacAddress);
 					if( pDExisting && abs(pDExisting->m_iLinkQuality-pDNew->m_iLinkQuality)<10 )
 					{
@@ -324,6 +329,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int
   					    g_pPlutoLogger->Write(LV_STATUS, "Detected change in strength device: %s  %d  from: %d\n",pDNew->m_sMacAddress.c_str(),pDNew->m_iLinkQuality,pDExisting->m_iLinkQuality);
 						Intern_SignalStrengthChanged(pDNew);
 					}
+					*/
 				}
 				break;
 
@@ -332,6 +338,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int
 					/* The inquiry ended, because of time or number of responses */
 					cancel = 0;
 				
+					/*
 					list<PhoneDevice *> listDevicesLost;
 
 					//Make a list of all the devices that were lost this scan
@@ -377,6 +384,7 @@ g_pPlutoLogger->Write(LV_STATUS,"lost device size is now: %d",(int) listDevicesL
 						g_pPlutoLogger->Write(LV_STATUS, "Lost connection to device: %s", (*itLost)->m_sMacAddress.c_str());
 						Intern_LostDevice(*itLost);
 					}
+					*/
 	
 					g_pPlutoLogger->Write(LV_WARNING, "Inquiry complete\n");
 				}

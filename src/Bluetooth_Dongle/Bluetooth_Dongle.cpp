@@ -249,7 +249,7 @@ bool Bluetooth_Dongle::ScanningLoop()
 		}
 	}
 
-#ifdef BT_SOCKET
+#ifdef SIMULATE_DETECTION
 	return PhoneDetection_Simulate::ScanningLoop();
 #else
 	#ifdef WIN32
@@ -261,13 +261,6 @@ bool Bluetooth_Dongle::ScanningLoop()
 }
 
 //-----------------------------------------------------------------------------------------------------
-
-void Bluetooth_Dongle::NewDeviceDetected( class PhoneDevice *pDevice )
-{
-	// We'll just handle this the same way
-	SignalStrengthChanged( pDevice );
-}
-
 
 // temporary hacks
 /* TODO - FIND A SOLUTION
@@ -283,34 +276,45 @@ void Bluetooth_Dongle::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 	if ( pBD_Orbiter==NULL || pBD_Orbiter->m_pOrbiter==NULL || pBD_Orbiter->m_pBDCommandProcessor==NULL || pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 	{
-g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  we're not connected.  proceeding like normal");
+		g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  We're not connected.  Proceeding like normal.");
 		PhoneDetectionEngine::Intern_NewDeviceDetected(pDevice);
 	}
 	else
 	{
-g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  we're connected.  ignoring it %p",pBD_Orbiter);
-if( pBD_Orbiter )
-g_pPlutoLogger->Write(LV_STATUS,"%p %p %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
+		g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  We're connected.  Ignoring it %p",pBD_Orbiter);
 
-PLUTO_SAFETY_LOCK(mm,m_MapMutex);
-m_mapPhoneDevice_Detected[pDevice->m_iMacAddress]=pDevice;
+		if( pBD_Orbiter )
+			g_pPlutoLogger->Write(LV_STATUS,"Status: %p %p %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
+
+		PLUTO_SAFETY_LOCK(mm,m_MapMutex);
+		m_mapPhoneDevice_Detected[pDevice->m_iMacAddress]=pDevice;
 	}
 }
+
+//-----------------------------------------------------------------------------------------------------
 
 void Bluetooth_Dongle::Intern_LostDevice(class PhoneDevice *pDevice)
 {
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 	if ( pBD_Orbiter==NULL || pBD_Orbiter->m_pOrbiter==NULL || pBD_Orbiter->m_pBDCommandProcessor==NULL || pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 	{
-g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  we're not connected.  proceeding like normal");
+		g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  We're not connected.  Proceeding like normal");
 		PhoneDetectionEngine::Intern_LostDevice(pDevice);
 	}
 	else
 	{
-g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  we are connected.  ignoring it%p",pBD_Orbiter);
-if( pBD_Orbiter )
-g_pPlutoLogger->Write(LV_STATUS,"%p %p %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
+		g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  We are connected.  Ignoring it%p", pBD_Orbiter);
+		if( pBD_Orbiter )
+			g_pPlutoLogger->Write(LV_STATUS,"Status: %p %p %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
 	}
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+void Bluetooth_Dongle::NewDeviceDetected( class PhoneDevice *pDevice )
+{
+	// We'll just handle this the same way
+	SignalStrengthChanged( pDevice );
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -326,33 +330,28 @@ void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 
 	GetEvents()->Mobile_orbiter_lost( pDevice->m_sMacAddress.c_str(), bConnectionFailed );
 
-	if ( NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pOrbiter 
-		&& ( NULL == pBD_Orbiter->m_pBDCommandProcessor 
-			|| ( NULL != pBD_Orbiter->m_pBDCommandProcessor && pBD_Orbiter->m_pBDCommandProcessor->m_bDead ) ) )
+	if ( NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pOrbiter )
 	{
-	/** @test PLUTO_SAFETY_LOCK( bm, m_BTMutex ); */	
-		g_pPlutoLogger->Write( LV_WARNING, "Lost %s device and the BDCommandProcessor is dead!", pDevice->m_sMacAddress.c_str() );
+		g_pPlutoLogger->Write( LV_WARNING, "Lost %s device!", pDevice->m_sMacAddress.c_str() );
 		
 		if( NULL != pBD_Orbiter->m_pPhoneDevice )
 			pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
 
-	 delete pBD_Orbiter->m_pOrbiter;
-	 pBD_Orbiter->m_pOrbiter = NULL;
-		
+		delete pBD_Orbiter->m_pOrbiter;
+		pBD_Orbiter->m_pOrbiter = NULL;
+
 		g_pPlutoLogger->Write( LV_WARNING, "Orbiter deleted for %s device!", pDevice->m_sMacAddress.c_str() );
-				
-		if( NULL == pBD_Orbiter->m_pBDCommandProcessor )
+			
+		if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
 		{
 			delete pBD_Orbiter->m_pBDCommandProcessor;
 			pBD_Orbiter->m_pBDCommandProcessor = NULL;
 
-			g_pPlutoLogger->Write( LV_WARNING, "CommandProcessor deleted for %s device! ( m_bDead == true )", pDevice->m_sMacAddress.c_str() );
+			g_pPlutoLogger->Write( LV_WARNING, "CommandProcessor deleted for %s device!", pDevice->m_sMacAddress.c_str() );
 		}
-		
+
 		return;
 	}
-
-	g_pPlutoLogger->Write( LV_WARNING, "Lost %s device, but BDCommandProcessor is not dead! We'll ignore this event...", pDevice->m_sMacAddress.c_str() );
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -368,7 +367,9 @@ void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 	{
 		//printf( "Detection event, link quality: %d", pDevice->m_iLinkQuality );
 
-		g_pPlutoLogger->Write( LV_WARNING, "Detected mac: %s id: %s", pDevice->m_sMacAddress.c_str(), pDevice->m_sID.c_str() );
+		g_pPlutoLogger->Write( LV_WARNING, "Detected device mac: %s id: %s, link quality: %d", 
+			pDevice->m_sMacAddress.c_str(), pDevice->m_sID.c_str(), pDevice->m_iLinkQuality );
+
 		GetEvents()->Mobile_orbiter_detected( pDevice->m_sMacAddress, pDevice->m_iLinkQuality, pDevice->m_sID );
 	}	
 }

@@ -18,9 +18,6 @@ public:
 	bool m_bInScanLoop; // True if it's in the scanning loop
 	bool m_bAbortScanLoop;  // True when we are in the process of Aborting the scan
 	pthread_t m_ThreadID;
-
-	
-
 	pluto_pthread_mutex_t m_MapMutex,m_StartStopMutex;
 	pthread_mutexattr_t m_MutexAttr;
 
@@ -48,6 +45,13 @@ public:
 		return it==m_mapPhoneDevice_Detected.end() ? NULL : (*it).second;
 	}
 
+	PhoneDevice *m_mapDevicesDetectedThisScan_Find(u_int64_t MacAddress)
+	{
+		PLUTO_SAFETY_LOCK(mm,m_MapMutex);
+		map<u_int64_t,class PhoneDevice *>::iterator it = m_mapDevicesDetectedThisScan.find(MacAddress);
+		return it == m_mapDevicesDetectedThisScan.end() ? NULL : (*it).second;
+	}
+
 	// StartScanning should spawn a new worker thread that starts scanning
 	// and return immediately
 	virtual void StartScanning();
@@ -71,6 +75,9 @@ public:
 	virtual void NewDeviceDetected(class PhoneDevice *pDevice)=0;
 	virtual void LostDevice(class PhoneDevice *pDevice)=0;
 	virtual void SignalStrengthChanged(class PhoneDevice *pDevice)=0;
+
+	//this method should not be overrided in derived classes
+	void DetectionLogic(); 
 
 	// Since the scanning routine can be sensitive, rather than handling everything on the 
 	// same thread, we'll just span a new thread to handle the events.  These Intern_

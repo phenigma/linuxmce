@@ -58,56 +58,6 @@ bool PhoneDetection_Bluetooth_Windows::ScanningLoop()
 	}
 
 	pthread_mutex_unlock(&m_InquiryMutex.mutex);
-	list<PhoneDevice *> listDevicesLost;
-
-	// Make a list of all the devices that were lost this scan
-	PLUTO_SAFETY_LOCK(mm, m_MapMutex);
-
-	map<u_int64_t,class PhoneDevice *>::iterator itDevice;
-	for(itDevice=m_mapPhoneDevice_Detected.begin();itDevice!=m_mapPhoneDevice_Detected.end();)
-	{
-		class PhoneDevice *pD = (*itDevice).second;
-/*
-lost_bluetooth 	connection_on	result
-1				0				1	
-1				1				0*  
-0				1				0	
-0				0				1	
-*/		
-
-#ifndef VIPESTABLISHMENT
-	if(!pD->m_bIsConnected)
-#else
-	map<u_int64_t,class PhoneDevice *>::iterator itDeviceNew = m_mapDevicesDetectedThisScan.find(pD->m_iMacAddress);
-	if( itDeviceNew==m_mapDevicesDetectedThisScan.end())
-#endif
-/*
-		map<u_int64_t,class PhoneDevice *>::iterator itDeviceNew = m_mapDevicesDetectedThisScan.find(pD->m_iMacAddress);
-		if( itDeviceNew==m_mapDevicesDetectedThisScan.end() 
-#ifndef VIPESTABLISHMENT
-			|| !pD->m_bIsConnected 
-#endif
-		)
-*/
-		{
-			listDevicesLost.push_back( (*itDevice).second );
-			m_mapPhoneDevice_Detected.erase(itDevice++);
-PhoneDevice *pPhoneDevice = (*itDevice).second;
-g_pPlutoLogger->Write(LV_STATUS,"Deleting lost device from map: %s size: %d",pPhoneDevice->m_sID.c_str(),(int) m_mapPhoneDevice_Detected.size());
-		}
-		else
-			itDevice++;
-	}
-
-	mm.Release();
-
-	list<PhoneDevice *>::iterator itLost;
-	for(itLost = listDevicesLost.begin();itLost != listDevicesLost.end();++itLost)
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Lost connection to %s device", (*itLost)->m_sID.c_str());
-		Intern_LostDevice(*itLost);
-	}
-
 	return true;
 } 
 
@@ -130,23 +80,9 @@ void PhoneDetection_Bluetooth_Windows::OnDeviceResponded(BD_ADDR bda,
 	g_pPlutoLogger->Write(LV_STATUS,"Device %s responded.", bd_name);
 
 	PhoneDevice *pDNew = new PhoneDevice(name,iMacAddress,255);
+
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 	m_mapDevicesDetectedThisScan[iMacAddress] = pDNew;
-
-	PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDNew->m_iMacAddress);
-	if( pDExisting && abs(pDExisting->m_iLinkQuality-pDNew->m_iLinkQuality)<10 )
-	{
-		// nothing to do
-		delete pDNew;
-		return;
-	}
-
-	mm.Release();
- 
-	if( !pDExisting )
-		Intern_NewDeviceDetected(pDNew);
-	else
-		Intern_SignalStrengthChanged(pDNew);
 }
 
 

@@ -45,8 +45,8 @@ BD_CP_ShowImage::BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize
 {
 	m_iImageType=ImageType;
 	m_ImageSize=ImageSize;
-	m_pImage=(char *)malloc(m_ImageSize);
-	memcpy(m_pImage,pImage,m_ImageSize);
+	m_pImage = new char[m_ImageSize];
+	memcpy(m_pImage, pImage, m_ImageSize);
 }
 
 BD_CP_ShowImage::~BD_CP_ShowImage()
