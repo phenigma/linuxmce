@@ -148,7 +148,7 @@ void DataGridCell::SetMessage(Message* pMessage)
 
 void DataGridCell::ToData(unsigned long &Size, char* &Data)
 {
-	char *MessageData;
+	char *MessageData=NULL;
 	m_MessageLength = 0;
 	if (m_pMessage)
 	{
