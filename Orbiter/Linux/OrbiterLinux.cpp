@@ -309,4 +309,5 @@ void OrbiterLinux::fixNestedDisplayName()
     m_strDesktopDisplayName = strStream.str();
 
     g_pPlutoLogger->Write(LV_STATUS, "Using %s as the DISPLAY var for the nested server!", m_strDesktopDisplayName.c_str());
+*/
 
