@@ -66,16 +66,34 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 	$runsTxt = '';
 	while ($rowRuns = $resRuns->FetchRow()) {
 		if ($rowRuns['FK_Distro']!='') {
-			$runsTxt .= ' '.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'];
+			switch($rowRuns['Distro']==1){
+				case 1:
+					$runsTxt.='<img src="include/images/debian.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
+				break;
+				case 3:
+					$runsTxt.='<img src="include/images/redhat.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
+				break;
+				case 7:
+					$runsTxt.='<img src="include/images/windows.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
+				break;
+				default:
+					$runsTxt .= ' '.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'];				
+				break;
+			}
 		}
 		else if ($rowRuns['FK_OperatingSystem']!='') {
-			$runsTxt .= ' '.$rowRuns['OperatingSystem'].'(all distros)';
+			if($rowRuns['FK_OperatingSystem']==1){
+				$runsTxt.='<img src="include/images/linux.png" title="'.$rowRuns['OperatingSystem'].'(all distros)" align="middle">';
+			}else{
+				$runsTxt.='<img src="include/images/windows.png" title="'.$rowRuns['OperatingSystem'].'" align="middle">';
+			}
+
 		}
 		else {
 			$runsTxt .= ' All Operating Systems';
 		}
 	}
-	$out.='Runs on : '.$runsTxt.'<br><br>';
+	$out.='Runs on: '.$runsTxt.'<br><br>';
 	$selectSources='
 	SELECT 
 		Package_Source.*, RepositoryType.*,
@@ -87,18 +105,18 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 	WHERE FK_Package=? ORDER BY Name ASC';
 
 	$resSources=$dbADO->Execute($selectSources,$PK_Package);
-	$out.='<table cellspacing="0" cellpadding="2">';
+	$out.='<table cellspacing="0" cellpadding="2" border="0">';
 	$sourcesCount=0;
 	while($rowSources=$resSources->FetchRow()){
 		$sourcesCount++;
 		$out.='
-	<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
+	<tr>
 		<td>Type</td>
 		<td> <b>'.$rowSources['Type'].'</b></td>
 		<td>Source:</td>
 		<td colspan="5"> <b>'.$rowSources['RepositoryName'].'</b></td>
 	</tr>
-	<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
+	<tr>
 		<td>Name</td>
 		<td> <b>'.$rowSources['Name'].'</b></td>
 		<td>Repository</td>
@@ -121,10 +139,28 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 		$runsTxt = '';
 		while ($rowRuns = $resRuns->FetchRow()) {
 			if ($rowRuns['FK_Distro']!='') {
-				$runsTxt .= ' '.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'];
+				switch ($rowRuns['FK_Distro']){
+					case 1:
+						$runsTxt.='<img src="include/images/debian.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
+					break;
+					case 3:
+						$runsTxt.='<img src="include/images/redhat.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
+					break;
+					case 7:
+						$runsTxt.='<img src="include/images/windows.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
+					break;
+					default:
+						$runsTxt .= ' '.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'];				
+					break;
+				}				
 			}
 			else if ($rowRuns['FK_OperatingSystem']!='') {
-				$runsTxt .= ' '.$rowRuns['OperatingSystem'].'(all distros)';
+				if($rowRuns['OperatingSystem']==1){
+					$runsTxt.='<img src="include/images/linux.png">';
+				}elseif($rowRuns['OperatingSystem']==2)
+					$runsTxt.='<img src="include/images/windows.png">';
+				else
+					$runsTxt .= ' '.$rowRuns['OperatingSystem'].'(all distros)';
 			}
 			else {
 				$runsTxt .= ' All Operating Systems';
@@ -132,7 +168,7 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 		}
 		$out.='
 	<tr>
-		<td colspan="8" bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">Runs on : '.$runsTxt.'</td>
+		<td colspan="8">Runs on: '.$runsTxt.'</td>
 	</tr>';
 
 		if($rowSources['FK_RepositorySource']==2 || in_array($rowSources['PK_RepositoryType'],$GLOBALS['HTTPorFTP'])){
@@ -146,31 +182,40 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 			$resRepositoryURLs=$dbADO->Execute($queryRepositoryURLs,$rowSources['FK_RepositorySource']);
 			while($rowRepositoryURLs=$resRepositoryURLs->FetchRow()){
 				$out.='
-		<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
+		<tr>
 			<td></td>';
 			if( $rowSources['FK_RepositorySource']==2 )
 			{
-				$out.='<td><a href="http://debsarge.plutohome.com/download/debian/main/binary-i386/'.$rowSources['Name'].'_'.$rowSources['Version'].'_i386.deb">DOWNLOAD</a></td>';
+				$out.='<td><a href="http://debsarge.plutohome.com/download/debian/main/binary-i386/'.$rowSources['Name'].'_'.$rowSources['Version'].'_i386.deb"><B>DOWNLOAD</B></a></td>';
 			}
 			else
 			{
-				$out.='<td><a href="'.$rowRepositoryURLs['URL'].(($rowSources['Repository']!='')?$rowSources['Repository'].'/':'').$rowSources['Name'].'_'.$rowSources['Version'].$rowSources['Parms'].'">DOWNLOAD</a></td>';
+				$out.='<td><a href="'.$rowRepositoryURLs['URL'].(($rowSources['Repository']!='')?$rowSources['Repository'].'/':'').$rowSources['Name'].'_'.$rowSources['Version'].$rowSources['Parms'].'"><B>DOWNLOAD</B></a></td>';
 			}
 			$out.='<td>Location: </td>
-			<td>'.$rowRepositoryURLs['CountryName'].'</td>
-			<td>Username: </td>
-			<td>'.(($rowRepositoryURLs['Username']=='')?'none':$rowRepositoryURLs['Username']).'</td>
-			<td>Password: </td>
-			<td>'.(($rowRepositoryURLs['Password']=='')?'none':$rowRepositoryURLs['Password']).'</td>
-		</tr>';
+			<td>'.$rowRepositoryURLs['CountryName'].'</td>';
+			if($rowRepositoryURLs['Username']!='' || $rowRepositoryURLs['Password']!=''){
+				$out.='
+				<td>Username: </td>
+				<td>'.$rowRepositoryURLs['Username'].'</td>
+				<td>Password: </td>
+				<td>'.$rowRepositoryURLs['Password'].'</td>';
+			}else{
+				$out.='
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>';
+			}
+		$out.='</tr>';
 			}
 		}
 		$out.='
-	<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
+	<tr>
 		<td colspan="8">'.(($rowSources['PathToFile']!='')?'Download link: <a href="'.$rowSources['PathToFile'].'" target="_blank">'.$rowSources['PathToFile'].'</a>':''.nl2br($rowSources['RepositoryInstructions'])).'</td>
 	</tr>
 	<tr>
-		<td colspan="8">&nbsp;</td>
+		<td colspan="8"><hr></td>
 	</tr>';
 	}
 	$out.='</table>';
