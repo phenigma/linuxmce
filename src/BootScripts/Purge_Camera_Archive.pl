@@ -5,6 +5,7 @@ use DBI;
 $db = DBI->connect("dbi:mysql:database=pluto_main;host=localhost;user=root;password=") or die "Couldn't connect to database: $DBI::errstr\n";
 
 $devices = "";
+$datas = "";
 
 $sql = "SELECT PK_DeviceCategory FROM DeviceCategory WHERE Description='Surveillance Cameras'";
 $st = $db->prepare($sql) or die "Error in code";
