@@ -136,7 +136,7 @@ if ($action == 'form') {
 		
 		$out.="<script>
 			top.frames['treeframe'].location='index.php?section=leftMenu';
-			//self.location.href=\"index.php?section=editDeviceParams&deviceID=$insertID&parentID=$parentID\";
+			self.location.href=\"index.php?section=editDeviceParams&deviceID=$insertID&parentID=$parentID\";
 		</script>";
 		
 	} else {
