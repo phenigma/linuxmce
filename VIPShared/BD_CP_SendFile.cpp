@@ -38,7 +38,7 @@ BD_CP_SendFile::BD_CP_SendFile(
 	memcpy(m_pFileName, pFileName, iFileNameSize);
 
 	m_pFileData = (char *)malloc(iFileDataSize);
-	memcpy(m_pFileData, pFileName, iFileDataSize);
+	memcpy(m_pFileData, m_pFileData, iFileDataSize);
 }
 
 BD_CP_SendFile::~BD_CP_SendFile()
@@ -64,11 +64,15 @@ void BD_CP_SendFile::ParseCommand(unsigned long size, const char *data)
 
 #ifdef SYMBIAN
 	unsigned long iFileNameSize = Read_unsigned_long();
-	const char *pFileName = Read_block(iFileNameSize);
+	const char *pFileNameTemp = Read_block(iFileNameSize);
 	unsigned long iFileDataSize = Read_unsigned_long();
 	const char *pFileData = Read_block(iFileDataSize);
 
 	LOG("#	Received 'SendFile' command  #\n");
+
+	char *pFileName = (char *)malloc(iFileNameSize + 1);
+	memcpy(pFileName, pFileNameTemp, iFileNameSize);
+	pFileName[iFileNameSize] = '\0';
 
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->SaveFile(iFileNameSize, pFileName, iFileDataSize, pFileData);
 

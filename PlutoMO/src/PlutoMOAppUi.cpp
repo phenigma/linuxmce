@@ -10,7 +10,7 @@
 #include "PlutoVMCUtil.h"
 #include "PlutoVMCView.h"
 #include "Logger.h"
-
+#include "PlutoDefs.h"
 
 //test
 #include <http\rhttpsession.h>
@@ -242,7 +242,7 @@ void CPlutoMOAppUi::SaveFile(
 	const char *pFileName, 
 	long iFileDataSize, 
 	const char *pFileData
-)
+) 
 {
 	TFileName iFileName;
 	
@@ -250,17 +250,18 @@ void CPlutoMOAppUi::SaveFile(
 	RFs   aFs;
 	aFs.Connect();
 
-	if(KErrNotFound == file.Open(aFs, string(pFileName).Des(), EFileStream | EFileWrite))
-	{
-		file.Create(aFs, string(pFileName).Des(), EFileStream | EFileWrite);
-	}
-	else
-	{
-		int aPos = 0;
-		file.Seek(ESeekEnd, aPos);
-	}
+	aFs.Delete(string(pFileName).Des());
+	file.Create(aFs, string(pFileName).Des(), EFileStream | EFileWrite);
 
-	file.Write(_L8(string(pFileData).c_str()));
+	HBufC8 *base_str = HBufC8::NewL(iFileDataSize);
+	TPtr8 pStr = base_str->Des();
+
+	for (unsigned int i = 0; i < iFileDataSize; i++)
+		pStr.Append(TChar(pFileData[i]));
+
+	file.Write(pStr, iFileDataSize);
+	PLUTO_SAFE_DELETE(base_str);
+
 	file.Close();
 
 	aFs.Close();
