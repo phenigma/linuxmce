@@ -141,8 +141,6 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
 //<-dceag-const-e->
 
 {
-	m_bPartialRendering = false;
-
     m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
     m_iImageHeight=iImageHeight;
@@ -424,8 +422,8 @@ void Orbiter::RealRedraw( void *data )
     if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0)
         return;
 
-	RenderScreen(  );
-/*
+	//RenderScreen(  );
+
 	BeginPaint();
 
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
@@ -449,6 +447,7 @@ void Orbiter::RealRedraw( void *data )
 	}
 
 	//render objects
+
 	for( s = 0; s < m_vectObjs_NeedRedraw.size(); ++s )
     {
 		class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
@@ -459,17 +458,18 @@ void Orbiter::RealRedraw( void *data )
     if(  !m_pObj_Highlighted && m_vectObjs_TabStops.size(  )  )
 	    HighlightFirstObject(  );
 
+	/*
     if( NULL != m_pObj_Highlighted &&  m_pObj_Highlighted->m_pHighlightedGraphic==NULL  )
 		HighlightObject( m_pObj_Highlighted );
+	*/
 
     m_vectObjs_NeedRedraw.clear();
 	m_vectTexts_NeedRedraw.clear();
 
 	EndPaint();
-*/
 
-    m_vectObjs_NeedRedraw.clear();
-	m_vectTexts_NeedRedraw.clear();
+    //m_vectObjs_NeedRedraw.clear();
+	//m_vectTexts_NeedRedraw.clear();
 }
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )

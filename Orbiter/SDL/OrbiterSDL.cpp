@@ -27,9 +27,10 @@
 
 #include <SDL_ttf.h>
 #include <SDL_image.h>
-#include "sge.h"
+#include <sge.h>
+#include <sge_surface.h>
 
-//#define USE_SCREEN_SURFACE
+#define USE_ONLY_SCREEN_SURFACE
 
 #ifdef WINCE
 	#include "wince.h"
@@ -92,7 +93,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 
     g_pPlutoLogger->Write(LV_STATUS, "Set video mode to 800x600 Window.");
 
-#ifdef USE_SCREEN_SURFACE
+#ifdef USE_ONLY_SCREEN_SURFACE
 	m_pScreenImage = Screen;
 #else
     m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_nImageWidth, m_nImageHeight, 32, rmask, gmask, bmask, amask);
@@ -107,7 +108,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDL::~OrbiterSDL()
 {
-#ifdef USE_SCREEN_SURFACE
+#ifdef USE_ONLY_SCREEN_SURFACE
 	SDL_FreeSurface(m_pScreenImage);
 #endif
 
@@ -133,20 +134,19 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 
 g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
 
-#ifndef USE_SCREEN_SURFACE
+#ifndef USE_ONLY_SCREEN_SURFACE
     SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
 #endif
 
-    SDL_Flip(Screen);
+	SDL_UpdateRect(Screen, 0, 0, 0, 0);
 
-g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
+	g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
 {
     PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
     Orbiter::RedrawObjects();
-    //DisplayImageOnScreen(m_pScreenImage);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -168,18 +168,12 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
     string BasePath="/usr/pluto/fonts/";
 #endif //win32
 
-	if(m_bPartialRendering)
-		WrapAndRenderText(Screen, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, pTextStyle);
-	else
-		WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, pTextStyle);
+	WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, pTextStyle);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
 {
-	if(m_bPartialRendering)
-		sge_Rect(Screen,X,Y,Width + X,Height + Y,color.m_Value);
-	else
-		sge_Rect(m_pScreenImage,X,Y,Width + X,Height + Y,color.m_Value);
+	sge_Rect(m_pScreenImage,X,Y,Width + X,Height + Y,color.m_Value);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -188,10 +182,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
     SDL_Rect Rectangle;
     Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
 
-//	if(m_bPartialRendering)
-//        SDL_FillRect(Screen, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
-	//else
-		SDL_FillRect(m_pScreenImage, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
+	SDL_FillRect(m_pScreenImage, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -260,11 +251,9 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 
 	SDL_Rect Destination;
     Destination.x = rectTotal.X; Destination.y = rectTotal.Y;
+	Destination.w = pObj->m_rPosition.Width; Destination.h = pObj->m_rPosition.Height;
     
-	if(m_bPartialRendering)
-		SDL_BlitSurface(obj_image, NULL, Screen, &Destination);
-	else
-		SDL_BlitSurface(obj_image, NULL, m_pScreenImage, &Destination);
+	SDL_BlitSurface(obj_image, NULL, m_pScreenImage, &Destination);
 
 	if( bDeleteSurface )
         SDL_FreeSurface(obj_image);
@@ -272,17 +261,15 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
 {
-    SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_nImageWidth, m_nImageHeight, 32, rmask, gmask, bmask, amask);
 
-	// copy pixel by pixel (this can be optimized to get line by line?)
-    for (int x = 0; x < pObj->m_rPosition.Width; x++)
-    {
-        for (int y = 0; y < pObj->m_rPosition.Height; y++)
-        {
-            // we may need locking on the two pSDL_Surfaces
-            putpixel(pSDL_Surface, x, y, getpixel(m_pScreenImage, x + pObj->m_rPosition.X, y + pObj->m_rPosition.Y));
-        }
-    }
+    SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 
+		pObj->m_rPosition.Width, pObj->m_rPosition.Height, 32, rmask, gmask, bmask, amask);
+
+	SDL_Rect SourceRect;
+	SourceRect.x = pObj->m_rPosition.Left(); SourceRect.y = pObj->m_rPosition.Top();
+	SourceRect.w = pObj->m_rPosition.Width; SourceRect.h = pObj->m_rPosition.Height;
+
+	SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
 
     pObj->m_pGraphicToUndoSelect = new SDLGraphic(pSDL_Surface);
 }
@@ -383,41 +370,20 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 			Pixel = getpixel(m_pScreenImage, i + x, j + y);
 			if (Pixel == PlutoPixelSrc)
 			{
-				if(m_bPartialRendering)				
-					putpixel(Screen, i + x, j + y, PlutoPixelDest);
-				else
-					putpixel(m_pScreenImage, i + x, j + y, PlutoPixelDest);
+				putpixel(m_pScreenImage, i + x, j + y, PlutoPixelDest);
 			}
         }
     }
-//	SDL_Flip(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------	
 /*virtual*/ void OrbiterSDL::BeginPaint()
 {	
-	m_bPartialRendering = true;
-
 	g_pPlutoLogger->Write(LV_STATUS, "Begin paint.");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::EndPaint()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "End paint.");
-/*
-	SolidRectangle( 0,  0, 500,  500,  PlutoColor( 255, 0, 0 ));
-
-	SDL_Surface * obj_image = NULL;
-	obj_image = IMG_Load ("/pluto/orbiter/c578/2211.0.4.2217.479.png");
-
-    SDL_BlitSurface(obj_image, NULL, m_pScreenImage, NULL);
-    SDL_FreeSurface(obj_image);
-*/
-
-	if(m_bPartialRendering)
-		SDL_Flip(Screen);
-	else
-		DisplayImageOnScreen(m_pScreenImage);
-
-	m_bPartialRendering = false;
+	DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------

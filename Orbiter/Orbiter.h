@@ -123,7 +123,6 @@ protected:
 	map<int,class DeviceGroup *> m_mapDeviceGroups;
 
 	/** flags */
-	bool m_bPartialRendering;
 	bool m_bCaptureKeyboard_OnOff; /** < flag for capture keyboard */
 	bool m_bCaptureKeyboard_Reset; /** < flag for capture keyboard */
 	bool m_bCaptureKeyboard_TypePin; /** < flag for capture keyboard */
