@@ -189,7 +189,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
 		DCE::CMD_Mount_Disk_Image mountCommand( pMediaStream->m_dwPK_Device, 18, pMediaStream->m_dequeFilename.size( ) ? pMediaStream->m_dequeFilename.front( ) : "", &mediaURL );// HACK: This should be changed to a lookup code
 
-    if ( !SendCommand( mountCommand, 1, &Response ) )
+    if ( !SendCommand( mountCommand, &Response ) )
     {
       g_pPlutoLogger->Write( LV_CRITICAL, "Failed to receive response from the disk drive device!. Response was: \"%s\"!", Response.c_str( ) );
       return false;
@@ -212,7 +212,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
   m_pMedia_Plugin->MediaInfoChanged( pMediaStream );
 
-  if( !SendCommand( cmd, 1, &Response ) )
+  if( !SendCommand( cmd, &Response ) )
   {
     g_pPlutoLogger->Write( LV_CRITICAL, "Xine player didn't respond to play media command!" );
     // handle failure
@@ -233,7 +233,7 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
         pMediaStream->m_dwPK_Device, 
         pMediaStream->m_iStreamID_get( ) );
   string Response;
-  if( !SendCommand( cmd, 1, &Response ) )
+  if( !SendCommand( cmd, &Response ) )
   {
     g_pPlutoLogger->Write( LV_CRITICAL, "Xine player didn't respond to stop media command!" );
     // handle failure
