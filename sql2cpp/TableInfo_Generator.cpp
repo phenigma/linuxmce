@@ -173,7 +173,7 @@ string TableInfo_Generator::get_getters_definition()
 	string s;
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
-		s = s + (*i)->getCType() + " Row_"+m_sTableName+"::" + (*i)->m_pcFieldName + "_get(){DCESAFETYLOCK(M, table->m_Mutex);\n\nreturn m_" + (*i)->m_pcFieldName + ";}" + "\n";
+		s = s + (*i)->getCType() + " Row_"+m_sTableName+"::" + (*i)->m_pcFieldName + "_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\nreturn m_" + (*i)->m_pcFieldName + ";}" + "\n";
 	
 	return s;
 }
@@ -195,7 +195,7 @@ string TableInfo_Generator::get_setters_definition()
 	int iIndex=0;
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
-		s = s + "void " + "Row_"+m_sTableName+"::"+ (*i)->m_pcFieldName + "_set(" + (*i)->getCType() + " val){DCESAFETYLOCK(M, table->m_Mutex);\n\nm_" + (*i)->m_pcFieldName + " = val; is_modified=true; is_null["+int2string(iIndex)+"]=false;}" + "\n";
+		s = s + "void " + "Row_"+m_sTableName+"::"+ (*i)->m_pcFieldName + "_set(" + (*i)->getCType() + " val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\nm_" + (*i)->m_pcFieldName + " = val; is_modified=true; is_null["+int2string(iIndex)+"]=false;}" + "\n";
 	
 	return s;
 }
@@ -219,7 +219,7 @@ string TableInfo_Generator::get_null_getters_definition()
 	
 	for ( vector<FieldInfo*>::iterator i=m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
 		if (!((*i)->m_iFlags & NOT_NULL_FLAG))
-			s = s + "bool " + "Row_"+m_sTableName+"::" + (*i)->m_pcFieldName + "_isNull() {DCESAFETYLOCK(M, table->m_Mutex);\n\nreturn is_null["+int2string(iIndex)+"];}" + "\n";
+			s = s + "bool " + "Row_"+m_sTableName+"::" + (*i)->m_pcFieldName + "_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\nreturn is_null["+int2string(iIndex)+"];}" + "\n";
 	
 	return s;
 }
@@ -244,7 +244,7 @@ string TableInfo_Generator::get_null_setters_definition()
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
 		if (!((*i)->m_iFlags & NOT_NULL_FLAG))
-			s = s + "void " +  "Row_"+m_sTableName+"::"+(*i)->m_pcFieldName + "_setNull(bool val){DCESAFETYLOCK(M, table->m_Mutex);\n\nis_null["+int2string(iIndex)+"]=val;}" + "\n";
+			s = s + "void " +  "Row_"+m_sTableName+"::"+(*i)->m_pcFieldName + "_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\nis_null["+int2string(iIndex)+"]=val;}" + "\n";
 
 	return s;	
 }
@@ -640,7 +640,7 @@ string TableInfo_Generator::get_fields_sql_getters_definition()
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
 	{
-		sCode = sCode + "string Row_"+m_sTableName+"::"+(*i)->m_pcFieldName+"_asSQL()\n{\nDCESAFETYLOCK(M, table->m_Mutex);\n\n";
+		sCode = sCode + "string Row_"+m_sTableName+"::"+(*i)->m_pcFieldName+"_asSQL()\n{\nPLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\n";
 		sCode = sCode + "if (is_null["+int2string(iIndex)+"])\n";
 		sCode = sCode + "return \"NULL\";\n\n";
 		
@@ -697,7 +697,7 @@ string TableInfo_Generator::rows_getters_definition()
 		string field_name = (*i)->m_pcFieldName;
 							
 		s = s + "class Row_" + sRefTable + "* Row_" + m_sTableName + "::" + (*i)->m_pcFieldName+"_getrow()\n";
-		s = s + "{\nDCESAFETYLOCK(M, table->m_Mutex);\n\n";
+		s = s + "{\nPLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\n";
 		s = s + "class Table_"+sRefTable+" *pTable = table->database->"+sRefTable+"_get();\n";
 		s = s + "return pTable->GetRow(m_" + field_name + ");\n";
 		s = s + "}\n";
@@ -757,7 +757,7 @@ string TableInfo_Generator::fk_rows_getters_definition()
             if( getTableFromForeignKey(field->m_pcFieldName,m_pTables)==get_table_name() )
             {
                 s = s + "void Row_" + get_table_name() + "::"+ info->get_table_name() + "_" + field->m_pcFieldName + "_getrows(vector <class Row_" + info->get_table_name() + "*> *rows)\n";
-				s = s + "{\nDCESAFETYLOCK(M, table->m_Mutex);\n\n";
+				s = s + "{\nPLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\n";
 				s = s + "class Table_"+info->get_table_name()+" *pTable = table->database->"+info->get_table_name()+"_get();\n";
 				s = s + "pTable->GetRows(\""+ field->m_pcFieldName + "=\" + StringUtils::itos(m_PK_" + get_table_name() + "),rows);\n";
                 s = s + "}\n";

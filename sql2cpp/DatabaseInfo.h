@@ -14,6 +14,8 @@
 #include <iostream>
 using namespace std;
 
+#define GENERATOR
+
 #ifdef GENERATOR
 	#include "TableInfo_Generator.h"
 	#define TABLEINFO_TYPE TableInfo_Generator
