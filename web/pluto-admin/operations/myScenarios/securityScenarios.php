@@ -622,7 +622,7 @@ if($action=='form') {
 						
 						$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,1,$GLOBALS['localOrbiter']));
 						$cg_cID=$dbADO->Insert_ID();
-						$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSingleCameraViewOnlyDesignObj']));
+						$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuSingleCameraViewOnlyDesignObj']));
 						
 						$dbADO->Execute($insertCG_Room,array($camerasCGArray[$cameraID],$room,$camerasCGArray[$cameraID]));	
 					}else{
