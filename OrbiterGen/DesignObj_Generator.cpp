@@ -348,33 +348,40 @@ Table_Image *p = m_mds->Image_get();
                         m_rBackgroundPosition.Location(PlutoPoint(X,Y));
                     }
 
-                    // If we have an image, and this is either the primary background, or a non-primary image but there was no primary (width & height=0) set it
+                    // If we have an image, and this is either the standard, or a non-primary image but there was no primary (width & height=0) set it
                     if( drImage && (GraphicType==1 || (m_rBackgroundPosition.Width==0 && m_rBackgroundPosition.Height==0) ) )
                     {
                         m_sOriginalSize = PlutoSize(drImage->Width_get(),drImage->Height_get());
-                        /* 10/6/2004 Aaron - Designer adds wrong width/heights sometimes, particularly with objects with multiple variations.  For now always use the actual w/h
-                        if( m_rPosition.Width>0 )
-                            m_rBackgroundPosition.Width = m_rPosition.Width;
-                        else
-                        {
-                            m_rPosition.Width = drImage->Width_get();
-                            m_rBackgroundPosition.Width = drImage->Width_get();
-                        }
-                        */
-                        m_rPosition.Width = drImage->Width_get();
-                        m_rBackgroundPosition.Width = drImage->Width_get();
+				        
+						// 12/10/2004 Aaron - The code below (10/6) forces all floorplans to be the size of the graphic.  We can't guarantee users will upload floorplans of the right size
+						if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
+						{
+							/* 10/6/2004 Aaron - Designer adds wrong width/heights sometimes, particularly with objects with multiple variations.  For now always use the actual w/h
+							if( m_rPosition.Width>0 )
+								m_rBackgroundPosition.Width = m_rPosition.Width;
+							else
+							{
+								m_rPosition.Width = drImage->Width_get();
+								m_rBackgroundPosition.Width = drImage->Width_get();
+							}
+							*/
+							m_rPosition.Width = drImage->Width_get();
+							m_rBackgroundPosition.Width = drImage->Width_get();
 
-                        /* 10/6/2004 Aaron - Designer adds wrong width/heights sometimes, particularly with objects with multiple variations.  For now always use the actual w/h
-                        if( m_rPosition.Height>0 )
-                            m_rBackgroundPosition.Height = m_rPosition.Height;
-                        else
-                        {
-                            m_rPosition.Height = drImage->Height_get();
-                            m_rBackgroundPosition.Height = drImage->Height_get();
-                        }
-                        */
-                        m_rPosition.Height = drImage->Height_get();
-                        m_rBackgroundPosition.Height = drImage->Height_get();
+							/* 10/6/2004 Aaron - Designer adds wrong width/heights sometimes, particularly with objects with multiple variations.  For now always use the actual w/h
+							if( m_rPosition.Height>0 )
+								m_rBackgroundPosition.Height = m_rPosition.Height;
+							else
+							{
+								m_rPosition.Height = drImage->Height_get();
+								m_rBackgroundPosition.Height = drImage->Height_get();
+							}
+							*/
+							m_rPosition.Height = drImage->Height_get();
+							m_rBackgroundPosition.Height = drImage->Height_get();
+						}
+						else
+							m_rBackgroundPosition = m_rPosition;
                     }
 
                     if( GraphicType==1 )
