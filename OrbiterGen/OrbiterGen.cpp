@@ -322,19 +322,30 @@ int OrbiterGenerator::DoIt()
 			m_mapVariable[drVariable->PK_Variable_get()]="";
 	}
 
+	Row_Users *drUsers_Default = NULL;
 	Row_Device_DeviceData *drD_C_DP_DefaultUser = mds.Device_DeviceData_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),DEVICEDATA_PK_Users_CONST);
 
-	if( !drD_C_DP_DefaultUser )
-		throw "No default user set for orbiter: " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
-
-	Row_Users *drUsers_Default = NULL;
-
-	Row_Installation_Users *pRow_Installation_Users=mds.Installation_Users_get()->GetRow(m_pRow_Device->FK_Installation_get(),atoi(drD_C_DP_DefaultUser->IK_DeviceData_get().c_str()));
-	if( pRow_Installation_Users )
-		drUsers_Default = pRow_Installation_Users->FK_Users_getrow();
-	if( !drUsers_Default)
+	if( drD_C_DP_DefaultUser )
 	{
-		throw "Default user is invalid for orbiter: " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
+		Row_Installation_Users *pRow_Installation_Users=mds.Installation_Users_get()->GetRow(m_pRow_Device->FK_Installation_get(),atoi(drD_C_DP_DefaultUser->IK_DeviceData_get().c_str()));
+		if( pRow_Installation_Users )
+			drUsers_Default = pRow_Installation_Users->FK_Users_getrow();
+	}
+
+	if( !drUsers_Default )
+	{
+		vector<Row_Installation_Users *> vectRow_Installation_Users;
+		mds.Installation_Users_get()->GetRows(INSTALLATION_USERS_FK_INSTALLATION_FIELD + string("=") + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Installation_Users);
+		if( vectRow_Installation_Users.size() )
+		{
+			cout << "***Warning*** No default user specified.  Picking first one" << endl;
+			drUsers_Default = vectRow_Installation_Users[0]->FK_Users_getrow();
+		}
+		else
+		{
+			cout << "***Error*** Cannot find any users for this installation" << endl;
+			throw "No Users";
+		}
 	}
 
 	m_dwPK_Users = drUsers_Default->PK_Users_get();
