@@ -1,10 +1,10 @@
 /**
- * 
+ *
  * @file MythTvWrapper.h
  * @brief header file for the MythTvWrapper class
  *
  */
- 
+
 #ifndef MYTHTVEPGWRAPPER_H
 #define MYTHTVEPGWRAPPER_H
 
@@ -26,7 +26,7 @@ using namespace DCE;
 /**
  * @brief the result of the 'watch tv' request
  */
- 
+
 typedef enum {
     WatchTVResult_Failed,
     WatchTVResult_Ignored,
@@ -38,7 +38,7 @@ typedef enum {
  * @brief the result of the 'schedule record tv'
  * @todo ask
  */
- 
+
 typedef enum {
     ScheduleRecordTVResult_Success,
     ScheduleRecordTVResult_Failed,
@@ -49,14 +49,14 @@ typedef enum {
  * @brief documentation
  * @todo complete documentation
  */
- 
+
 class MythTvWrapper
 {
     QApplication * m_pQApplication;
     Command_Impl * m_pDCEDeviceWrapper;
 
 protected:
-    
+
     bool initMythTVGlobalContext();
 
     class MythTvEpgGrid: public DataGridTable
@@ -75,17 +75,16 @@ protected:
     protected:
         QString getChannelList(int rowStart, int rowCount);
         void readChannelData();
-        void cleanChannelStorage(int channelId);
         void readProgramInfo(int channelId, QString programName, QDateTime startTime, QDateTime endTime);
         void readDataGridBlock(int rowStart, int rowCount, int colStart, int colCount);
         void MakeTimeRow(int ColStart, int ColCount);
-        void MakeChannelRow(int RowStart, int RowCount);
+        void MakeChannelColumn(int RowStart, int RowCount);
 
     public:
-        
-	/** @brief constructor */
-	
-	MythTvEpgGrid();
+
+    /** @brief constructor */
+
+    MythTvEpgGrid();
 
         virtual void setGridBoundaries(QDateTime startTime, QDateTime endTime);
         virtual int GetRows();
@@ -100,11 +99,11 @@ protected:
 public:
 
     /** @brief constructor */
-    
+
     MythTvWrapper(Command_Impl *pCommandImpl);
 
     /** Methods used by the MythTV_PlugIn */
-    
+
     DataGridTable *createShowsDataGrid(string GridID, QDateTime startTime, QDateTime endTime);
     DataGridTable *createShowsForMobiles(string GridID, QDateTime currentTime);
 

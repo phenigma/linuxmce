@@ -23,6 +23,8 @@
 #include <libmythtv/frame.h>
 #include <libmythtv/NuppelVideoPlayer.h>
 
+#include "MythMainWindowResizable.h"
+
 class RatPoisonWrapper;
 
 //<-dceag-decl-b->
@@ -30,19 +32,20 @@ namespace DCE
 {
     class MythTV_Player : public MythTV_Player_Command
     {
-    //<-dceag-decl-e->
+//<-dceag-decl-e->
 
     /** Private member variables */
-    QApplication     *m_pQApplication;
-    MythMainWindow   *m_pMythMainWindow;
-    TV               *m_pMythTV;
-    int               m_iControllingDevice;
-    pthread_t         m_qApplicationThreadId;
-    RatPoisonWrapper *m_pRatWrapper;
+    QApplication                *m_pQApplication;
+    MythMainWindowResizable     *m_pMythMainWindow;
+    TV                          *m_pMythTV;
+    int                          m_iControllingDevice;
+    pthread_t                    m_qApplicationThreadId;
+    RatPoisonWrapper            *m_pRatWrapper;
 
     protected:
     bool InitMythTvGlobalContext();
     bool InitMythTvStuff();
+    void waitToFireMediaChanged();
 
 
     static void *ProcessQApplicationEventThreadFunction(void *);
@@ -53,11 +56,11 @@ namespace DCE
 
     //<-dceag-const-b->
     public:
-            // Constructors/Destructor
-            MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
-            virtual ~MythTV_Player();
-            virtual bool Register();
-    //<-dceag-const-e->
+        // Constructors/Destructor
+        MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+        virtual ~MythTV_Player();
+        virtual bool Register();
+//<-dceag-const-e->
 
     virtual bool Connect();
     //<-dceag-h-b->
@@ -108,6 +111,20 @@ namespace DCE
 
     virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { string sCMD_Result; CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,pData,iData_Size,sFormat,sCMD_Result,NULL);};
     virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage);
+
+
+    /** @brief COMMAND: #129 - PIP - Channel Up */
+    /** Go the next channel */
+
+    virtual void CMD_PIP_Channel_Up() { string sCMD_Result; CMD_PIP_Channel_Up(sCMD_Result,NULL);};
+    virtual void CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage);
+
+
+    /** @brief COMMAND: #130 - PIP - Channel Down */
+    /** Go the previous channel. */
+
+    virtual void CMD_PIP_Channel_Down() { string sCMD_Result; CMD_PIP_Channel_Down(sCMD_Result,NULL);};
+    virtual void CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage);
 
 
     /** @brief COMMAND: #187 - Tune to channel */

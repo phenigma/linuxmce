@@ -1,17 +1,17 @@
 /*
-	MythTV_Player
-	
-	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
-	Phone: +1 (877) 758-8648
-	
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
-	See the GNU General Public License for more details.
+    MythTV_Player
+
+    Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+    www.plutohome.com
+
+    Phone: +1 (877) 758-8648
+
+    This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    See the GNU General Public License for more details.
 */
 
 
@@ -95,40 +95,23 @@ bool MythTV_Player::InitMythTvStuff()
         return false;
     }
 
-    m_pMythMainWindow = new MythMainWindowResizable(NULL, "mythtv-playback-window");
+    m_pMythMainWindow = new MythMainWindowResizable();
 
     m_pMythMainWindow->setCaption("mythtv-playback-window");
     m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(NULL));
-    // make a window regardless of what the myth Tv conf wants.
 
-    //     g_pPlutoLogger->Write(LV_STATUS, "Size policy");
     m_pMythMainWindow->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
-
-//     g_pPlutoLogger->Write(LV_STATUS, "Minimum Size");
     m_pMythMainWindow->setMinimumSize( 0, 0 );
-//     m_pMythMainWindow->setMaximumSize( 300, 300 );
-//     m_pMythMainWindow->setGeometry( QRect( 10, 10, 200, 200) );
-
-//     m_pMythMainWindow->setFixedSize( QSize( 200, 200 ) );
-
-//     m_pMythMainWindow->setFixedSize( QSize( 100, 100 ) );
-
-//      g_pPlutoLogger->Write(LV_STATUS, "Enable size Grid");
-//      m_pMythMainWindow->setSizeGripEnabled( true );
-
-//     m_pMythMainWindow->resize(300, 300);
-    //  m_pMythMainWindow->showFullScreen();
-//     g_pPlutoLogger->Write(LV_STATUS, "Show normal");
-//     m_pMythMainWindow->show();
-
-//     g_pPlutoLogger->Write(LV_STATUS, "Storing main window");
     m_pMythMainWindow->show();
+
     gContext->SetMainWindow( m_pMythMainWindow );
 
     TV::InitKeys();
 
     m_pMythTV = new TV();
     m_pMythTV->Init();
+
+//     m_pMythMainWindow->setEventFilterOnChild(m_pMythTV);
 
     if ( pthread_create(&m_qApplicationThreadId, NULL, ProcessQApplicationEventThreadFunction, this) != 0 )
     {
@@ -215,9 +198,7 @@ void MythTV_Player::SomeFunction()
     // This time we want to wait to be sure the orbiter gets the message, and the thread will block until the orbiter receives the message
     string sResult="";
     bool bResult = SendMessageWithConfirm(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77),sResult);
-    // If bResult is true, the message was receivQSqlDatabase::database(),
-          channelName,
-          startTime );ed ok.  Otherwise it failed, and sResult contains an explanation of the failure
+    // If bResult is true, the message was received ok.  Otherwise it failed, and sResult contains an explanation of the failure
 
     // A request is like a command, except that it has both "in" and "out" parameters, and the
     // thread blocks until the request is completed.  Note that requests are sent on a separate socket, so you can continue to receive commands and send
@@ -232,9 +213,7 @@ void MythTV_Player::SomeFunction()
     // and there were multiple devices "Standard Plug-in" they would all get the message.
     PlutoDate plutoDate;
     char *FileContents;
-    int FileSize;QSqlDatabase::database(),
-          channelName,
-          startTime );
+    int FileSize;
     bool bResult = SendRequest(new DERC::REQ_File_Contents(m_dwPK_Device,DeviceTemplate_Standard_Plug_In_CONST,true,BL_SameHouse,"some_file_name",&FileContents,&FileSize,&plutoDate);
 
     // To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
@@ -253,6 +232,45 @@ void MythTV_Player::SomeFunction()
 */
 //<-dceag-sample-e->
 
+void MythTV_Player::waitToFireMediaChanged()
+{
+    while ( m_pMythTV->GetState() == kState_ChangingState )
+    {
+        usleep(50000); //sleep for 1/2 sec;
+    }
+
+    if ( m_pMythTV->GetState() == kState_WatchingLiveTV )
+    {
+        m_pMythMainWindow->setNuppelPlayerToResize(m_pMythTV->activenvp);
+        QString currentChannelName = m_pMythTV->activerecorder->GetCurrentChannel();
+
+        QDateTime currentDateTime = QDateTime::currentDateTime();
+
+        m_pMythTV->DoInfo();
+
+        g_pPlutoLogger->Write(LV_STATUS, "Channel:\"%s\"", currentChannelName.ascii());
+        if ( currentChannelName != "" )
+        {
+            ProgramInfo *programInfo = ProgramInfo::GetProgramAtDateTime(QSqlDatabase::database(),
+                    currentChannelName,
+                    currentDateTime);
+
+            if ( programInfo != NULL )
+            {
+                m_pRatWrapper->makeActive(m_pMythMainWindow->caption().ascii());
+
+                EVENT_Playback_Info_Changed(programInfo->channame.ascii(), programInfo->title.ascii(), programInfo->description.ascii());
+                delete programInfo;
+            }
+        }
+        else
+        {
+            EVENT_Playback_Info_Changed("Not available", "Not available", "");
+            EVENT_Error_Occured("The current channel is empty. This usually means that the mythtv database is inconsistent. You should try to setup the channel list again!");
+        }
+    }
+}
+
 /*
 
  COMMANDS TO IMPLEMENT
@@ -267,49 +285,27 @@ void MythTV_Player::SomeFunction()
 void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c75-e->
 {
- if ( m_pMythTV )
- {
-  if ( m_pMythTV->GetState() == kState_WatchingLiveTV || m_pMythTV->GetState() == kState_ChangingState )
-  {
-   g_pPlutoLogger->Write( LV_STATUS, "LiveTV is already started or is starting now" );
-   return;
-  }
-
-  g_pPlutoLogger->Write( LV_STATUS, "Starting Live TV Playback!" );
-  if ( m_pMythTV->LiveTV( false ) == 0 )
-  {
-   EVENT_Error_Occured( "We weren't able to start LiveTV." );
-  }
-  else
-  {
-    m_iControllingDevice = pMessage->m_dwPK_Device_From;
-
-    while ( m_pMythTV->GetState() == kState_ChangingState )
+    if ( m_pMythTV )
     {
-        usleep(50000); //sleep for 1/2 sec;
-    }
-
-    if ( m_pMythTV->GetState() == kState_WatchingLiveTV )
-    {
-        QString currentChannelName = m_pMythTV->activerecorder->GetCurrentChannel();
-
-        QDateTime currentDateTime = QDateTime::currentDateTime();
-
-        g_pPlutoLogger->Write(LV_STATUS, "Channel: %s ", currentChannelName.ascii());
-        ProgramInfo *programInfo = ProgramInfo::GetProgramAtDateTime(QSqlDatabase::database(),
-                currentChannelName,
-                currentDateTime);
-
-        if ( programInfo != NULL )
+        if ( m_pMythTV->GetState() == kState_WatchingLiveTV || m_pMythTV->GetState() == kState_ChangingState )
         {
-            m_pRatWrapper->makeActive(m_pMythMainWindow->caption().ascii());
-            EVENT_Playback_Info_Changed(programInfo->channame.ascii(), programInfo->title.ascii(), programInfo->description.ascii());
-            delete programInfo;
+            g_pPlutoLogger->Write( LV_STATUS, "LiveTV is already started or is starting now" );
+            return;
+        }
+
+        g_pPlutoLogger->Write( LV_STATUS, "Starting Live TV Playback!" );
+        if ( m_pMythTV->LiveTV( false ) == 0 )
+        {
+            EVENT_Error_Occured( "We weren't able to start LiveTV." );
+        }
+        else
+        {
+            m_iControllingDevice = pMessage->m_dwPK_Device_From;
+            waitToFireMediaChanged();
         }
     }
-  }
- }
 }
+
 
 //<-dceag-c76-b->
 
@@ -395,7 +391,7 @@ void MythTV_Player::CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Me
         /** @param #60 Width */
             /** The desired width of the video frame.  The sender need not respect this. */
         /** @param #61 Height */
-            /** The desired height of the video frame.  The sender need not resprogramInfo->title.ascii(), pect this. */
+            /** The desired height of the video frame.  The sender need not respect this. */
 
 void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
@@ -440,3 +436,28 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 }
 
 
+//<-dceag-c129-b->
+
+    /** @brief COMMAND: #129 - PIP - Channel Up */
+    /** Go the next channel */
+
+void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
+//<-dceag-c129-e->
+{
+    m_pMythTV->ChannelKey(3);
+
+    waitToFireMediaChanged();
+}
+
+//<-dceag-c130-b->
+
+    /** @brief COMMAND: #130 - PIP - Channel Down */
+    /** Go the previous channel. */
+
+void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
+//<-dceag-c130-e->
+{
+    m_pMythTV->ChannelKey(9);
+
+    waitToFireMediaChanged();
+}

@@ -164,28 +164,6 @@ void MythTvWrapper::MythTvEpgGrid::readProgramInfo(int channelId, QString progra
                 endTime.toString().ascii());
 }
 
-void MythTvWrapper::MythTvEpgGrid::cleanChannelStorage(int channel)
-{
-/** @test
-    if ( m_mapPrograms.find(channel) != m_mapPrograms.end() )
-    {
-        map<int, DataGridCell*>::iterator it_data = m_mapPrograms[channel].begin();
-
-        while (it_data != m_mapPrograms[channel].end() )
-        {
-            delete it_data->second;
-            it_data++;
-        }
-
-        m_mapPrograms[channel].clear();
-    }
-    else
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Making a new inner map for channel %d", channel);
-        m_mapPrograms[channel] = map<int, DataGridCell*>();
-    }*/
-}
-
 QString MythTvWrapper::MythTvEpgGrid::getChannelList(int rowStart, int rowCount)
 {
     QStringList list;
@@ -250,6 +228,12 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
     if ( m_bKeepRowHeader )
         MakeTimeRow(colStart, colCount);
 
+    if ( m_bKeepColumnHeader )
+    {
+        MakeChannelColumn( rowStart, rowCount );
+        colStart++;
+    }
+
 //     g_pPlutoLogger->Write(LV_STATUS, "Quant %d --> Period: %s <--> %s", m_iQuantInSecs, startDataAsString.ascii(), endDateAsString.ascii());
     if ( query.numRowsAffected() > 0 )
     {
@@ -283,15 +267,13 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
                 programStartColumn = 0;
             }
 
-            /** @test
-            g_pPlutoLogger->Write(LV_STATUS, "Program %d->(%d+%d) %d: %s<-->%s (%s)",
-                        channelPos,
-                        programStartColumn, programColumnSpan,
-                        currentChannelId,
-                        dateStart.toString().ascii(),
-                        dateEnd.toString().ascii(),
-                        programName.ascii());
-            */
+//             g_pPlutoLogger->Write(LV_STATUS, "Program %d->(%d+%d) %d: %s<-->%s (%s)",
+//                         channelPos,
+//                         programStartColumn, programColumnSpan,
+//                         currentChannelId,
+//                         dateStart.toString().ascii(),
+//                         dateEnd.toString().ascii(),
+//                         programName.ascii());
 
             DataGridCell *pCell = new DataGridCell(
                     programName.ascii(),
@@ -318,7 +300,7 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
     }
 }
 
-void MythTvWrapper::MythTvEpgGrid::MakeChannelRow(int RowStart, int RowCount)
+void MythTvWrapper::MythTvEpgGrid::MakeChannelColumn(int RowStart, int RowCount)
 {
     while ( RowCount != 0 )
     {
@@ -478,7 +460,27 @@ WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(string showStartTimeEn
                                   iChanId,
                                   tmYear, tmMonth, tmDay,
                                   tmHour, tmMinute))
-        return WatchTVResult_Ignored;
+        if ( showStartTimeEncoded == "+1" )
+        {
+            DCE::CMD_PIP_Channel_Up channelUp(
+                    m_pDCEDeviceWrapper->m_dwPK_Device,
+                    37);
+
+            m_pDCEDeviceWrapper->SendCommand(channelUp);
+            return WatchTVResult_Tuned;
+        }
+        else if (showStartTimeEncoded == "-1" )
+        {
+            DCE::CMD_PIP_Channel_Down channelDown(
+                    m_pDCEDeviceWrapper->m_dwPK_Device,
+                    37);
+
+            m_pDCEDeviceWrapper->SendCommand(channelDown);
+            return WatchTVResult_Tuned;
+        }
+        else
+            return WatchTVResult_Ignored;
+
 
     WatchTVRequestResult result;
     if ( (result = ProcessWatchTvRequest(iChanId, tmYear, tmMonth, tmDay, tmHour, tmMinute)) == WatchTVResult_Tuned )
@@ -518,7 +520,7 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(string showStar
                                   iChanId,
                                   tmYear, tmMonth, tmDay,
                                   tmHour, tmMinute))
-        return ScheduleRecordTVResult_Failed;
+        return ScheduleRecordTVResult_Failed;'2004-11-21 13:00:00', '2004-11-21 14:00:00')
 
     return ProcessAddRecordingRequest(iChanId, tmYear, tmMonth, tmDay, tmHour, tmMinute);
 }
@@ -546,8 +548,6 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, 
 
     if ( conflictsWith->size() != 0 )
     {
-//         m_pDCEDeviceWrapper->EVENT_PVR_Rec_Sched_Conflict();
-
         vector<ProgramInfo*>::iterator itPrograms;
 
         for ( itPrograms = conflictsWith->begin(); itPrograms != conflictsWith->end(); itPrograms++ )

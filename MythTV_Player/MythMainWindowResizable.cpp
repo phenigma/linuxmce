@@ -27,26 +27,91 @@
 using namespace DCE;
 
 MythMainWindowResizable::MythMainWindowResizable(QWidget *parent, const char *name, bool modal)
-    : MythMainWindow(parent, name, modal)
+    : MythMainWindow(parent, name, modal), m_pNuppelVideoPlayer(NULL) //m_pLayout(NULL)
 {
+    m_pLayout = new QGridLayout(this, 1, 1, 1, 1, "Layout");
+
+//     new QFrame(this, "tv playback");
+
     g_pPlutoLogger->Write(LV_STATUS, "constructing");
 }
 
-/*oid MythMainWindowResizable::resizeEvent ( QResizeEvent * event)
+void MythMainWindowResizable::resizeEvent ( QResizeEvent * event)
 {
-    g_pPlutoLogger->Write(LV_STATUS,
-            "Resize event: %dx%d -> %dx%d",
-            event->oldSize().width(),
-            event->oldSize().height(),
-            event->size().width(),
-            event->size().height());
-}*/
+    QWidget::resizeEvent(event);
+
+//     g_pPlutoLogger->Write(LV_STATUS,
+//             "Resize event: %dx%d -> %dx%d",
+//             event->oldSize().width(),
+//             event->oldSize().height(),
+//             event->size().width(),
+//             event->size().height());
+
+    QWidget *playbackWidget = getTvPlaybackWindow();
+
+    if ( playbackWidget )
+    {
+        playbackWidget->resize(event->size());
+
+        if ( m_pNuppelVideoPlayer )
+        {
+            m_pNuppelVideoPlayer->getVideoOutput()->StopEmbedding();
+            m_pNuppelVideoPlayer->getVideoOutput()->EmbedInWidget(playbackWidget->winId(),
+                    playbackWidget->x() + 10, playbackWidget->y() + 10,
+                    event->size().width() - 20, event->size().height() - 20);
+
+/*            g_pPlutoLogger->Write(LV_STATUS, "Called for this %d, %dx%d %dx%d",
+                    playbackWidget->winId(),
+                    playbackWidget->x() + 10, playbackWidget->y() + 10,
+                    event->size().width() - 20, event->size().height() - 20);*/
+        }
+        else
+        {
+//             g_pPlutoLogger->Write(LV_WARNING, "No Nuppel player ~!?");
+        }
+    }
+    else
+    {
+//         g_pPlutoLogger->Write(LV_WARNING, "No playback widget !?");
+    }
+}
 
 bool MythMainWindowResizable::event ( QEvent * e )
 {
     bool result = QWidget::event(e);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Got event of type: %d", e->type());
+//     g_pPlutoLogger->Write(LV_STATUS, "Got event of type: %d", e->type());
+
+    if ( e->type() == QEvent::ChildInserted || e->type() == QEvent::ChildRemoved )
+    {
+        QChildEvent *childEvent = static_cast<QChildEvent*>(e);
+
+        if ( childEvent->child()->inherits( "QWidget" ) )
+        {
+            QWidget *pWidget = static_cast<QWidget*>(childEvent->child());
+
+            if ( childEvent->removed() )
+                m_pLayout->remove(pWidget);
+            else
+            {
+                pWidget->setMinimumSize(0, 0);
+                m_pLayout->addWidget(pWidget, 0, 0);
+            }
+        }
+    }
+
+    QWidget *pInnerWidget = getTvPlaybackWindow();
+
+    if  ( pInnerWidget )
+    {
+/*        g_pPlutoLogger->Write(LV_STATUS, "Inner child (%d), [%dx%d -> %dx%d]", pInnerWidget->winId(),
+            pInnerWidget->x(), pInnerWidget->y(),
+            pInnerWidget->width(), pInnerWidget->height());*/
+    }
+    else
+    {
+//         g_pPlutoLogger->Write(LV_STATUS, "No inner child ?!");
+    }
 
 /*    if ( e->type() == QEvent::Move )
     {
@@ -75,7 +140,7 @@ bool MythMainWindowResizable::x11Event ( XEvent * event)
 {
     bool result = QWidget::x11Event(event);
 
-    switch ( (*event).type )
+/*    switch ( (*event).type )
     {
         case ConfigureRequest:
             g_pPlutoLogger->Write(LV_STATUS, "Configure Request %dx%d -> %dx%d",
@@ -86,9 +151,19 @@ bool MythMainWindowResizable::x11Event ( XEvent * event)
             g_pPlutoLogger->Write(LV_STATUS, "Configure Notify %dx%d -> %dx%d",
                             event->xconfigure.x, event->xconfigure.y,
                             event->xconfigure.width, event->xconfigure.height);
-            break;
+            break;void setEventFilterOnChild(QObject *eventFilter);
     }
-
+*/
     return result;
+}
+
+QWidget *MythMainWindowResizable::getTvPlaybackWindow()
+{
+    return (QWidget*)child("video playback window");
+}
+
+void MythMainWindowResizable::setNuppelPlayerToResize(NuppelVideoPlayer *pNuppelVideoPlayer)
+{
+    m_pNuppelVideoPlayer = pNuppelVideoPlayer;
 }
 
