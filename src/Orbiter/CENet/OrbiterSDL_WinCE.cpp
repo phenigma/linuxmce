@@ -19,6 +19,35 @@ extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
 extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
+// GDI Escapes for ExtEscape()
+#define QUERYESCSUPPORT    8
+ 
+// The following are unique to CE
+#define GETVFRAMEPHYSICAL   6144
+#define GETVFRAMELEN    6145
+#define DBGDRIVERSTAT    6146
+#define SETPOWERMANAGEMENT   6147
+#define GETPOWERMANAGEMENT   6148
+ 
+#define REG_BACKLIGHT L"ControlPanel\\Backlight"
+#define REG_VAL_BATT_TO L"BatteryTimeout"
+#define REG_VAL_AC_TO L"ACTimeout"
+unsigned int OldBattBL=0;
+unsigned int OldACBL=0;
+//------------------------------------------------------------------------------------------------------------
+typedef enum _VIDEO_POWER_STATE {
+    VideoPowerOn = 1,
+    VideoPowerStandBy,
+    VideoPowerSuspend,
+    VideoPowerOff
+} VIDEO_POWER_STATE, *PVIDEO_POWER_STATE;
+//-----------------------------------------------------------------------------------------------------
+typedef struct _VIDEO_POWER_MANAGEMENT {
+    ULONG Length;
+    ULONG DPMSVersion;
+    ULONG PowerState;
+} VIDEO_POWER_MANAGEMENT, *PVIDEO_POWER_MANAGEMENT;
+//-----------------------------------------------------------------------------------------------------
 void DeadlockHandler(PlutoLock *pPlutoLock)
 {
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
@@ -653,10 +682,35 @@ bool OrbiterSDL_WinCE::SelfUpdate()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL_WinCE::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 {
+	HDC gdc;
+	int iESC=SETPOWERMANAGEMENT;
+
+	gdc = ::GetDC(NULL);
+	if (ExtEscape(gdc, QUERYESCSUPPORT, sizeof(int), (LPCSTR)&iESC, 0, NULL)!=0)		
+	{
+		VIDEO_POWER_MANAGEMENT vpm;
+		vpm.Length = sizeof(VIDEO_POWER_MANAGEMENT);
+		vpm.DPMSVersion = 0x0001;
+		vpm.PowerState = VideoPowerOn;
+		ExtEscape(gdc, SETPOWERMANAGEMENT, vpm.Length, (LPCSTR) &vpm, 0, NULL);
+	}
+	::ReleaseDC(NULL, gdc);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL_WinCE::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 {
+	HDC gdc;
+	int iESC=SETPOWERMANAGEMENT;
 
+	gdc = ::GetDC(NULL);
+	if (ExtEscape(gdc, QUERYESCSUPPORT, sizeof(int), (LPCSTR)&iESC, 0, NULL)!=0)		
+	{
+		VIDEO_POWER_MANAGEMENT vpm;
+		vpm.Length = sizeof(VIDEO_POWER_MANAGEMENT);
+		vpm.DPMSVersion = 0x0001;
+		vpm.PowerState = VideoPowerOff;
+		ExtEscape(gdc, SETPOWERMANAGEMENT, vpm.Length, (LPCSTR) &vpm, 0, NULL);
+	}
+	::ReleaseDC(NULL, gdc);
 }
 //-----------------------------------------------------------------------------------------------------
