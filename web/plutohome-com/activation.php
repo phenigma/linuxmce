@@ -11,6 +11,12 @@ header("Content-type: text/plain");
 
 $signup_url = "http://plutohome.com/signup.html";
 
+if (isset($_GET["mac"]))
+{
+	echo "EMPTY";
+	exit(0);
+}
+
 $code = $_GET["code"];
 
 // sanity checks
