@@ -81,7 +81,7 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Compat,bool bMustBuildFromSource);
 void VerifyFiles(PackageInfo *pPackageInfo,vector<Row_Package_Directory_File *> &vectRow_Package_Directory_File,string Path);
 Row_Package_Directory *GetDirectory(Row_Package *pRow_Package,int PK_Directory);
-void InstallPackage(PackageInfo *pPackageInfo);
+void InstallPackage(PackageInfo *pPackageInfo, bool bElse = false);
 Row_Package_Source_Compat *FindPreferredSource(vector<Row_Package_Source_Compat *> vectRow_Package_Source_Compat,Row_Device *pRow_Device);
 void AddAlternateSources(vector<Row_Package_Source_Compat *> &vectRow_Package_Source_Compat,PackageInfo *pPackageInfo);
 
@@ -264,12 +264,12 @@ int main(int argc, char *argv[])
 			for(size_t s=0;s<pPackageInfo->m_vectPackageInfo.size();++s)
 			{
 				PackageInfo *pPackageInfoAlt = pPackageInfo->m_vectPackageInfo[s];
-				cout << "el"; // prefix for InstallPackage's if, creating an elif this way
-				InstallPackage(pPackageInfo);
+				InstallPackage(pPackageInfo, true);
 			}
 			cout << "else" << endl;
 //			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
-			cout << "\techo \"Processing of package '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "' went ok\"" << endl;
+			cout << "\techo \"Processing of package '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "' failed\"" << endl;
+			cout << "\tread" << endl;
 			cout << "fi" << endl;
 		}
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
@@ -511,7 +511,6 @@ Row_Package_Source_Compat *FindPreferredSource(vector<Row_Package_Source_Compat 
 	return vectRow_Package_Source_Compat[0];
 }
 
-
 void AddAlternateSources(vector<Row_Package_Source_Compat *> &vectRow_Package_Source_Compat,PackageInfo *pPackageInfo)
 {
 	// See if we cand find some alternates if the primary fails
@@ -532,7 +531,7 @@ PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Comp
 {
 	if (pRow_Package_Source_Compat == NULL)
 	{
-		cout << "Got NULL" << endl;
+		cout << "# Got NULL" << endl;
 		return NULL;
 	}
 	Database_pluto_main *pDatabase_pluto_main = pRow_Package_Source_Compat->Table_Package_Source_Compat_get()->Database_pluto_main_get();
@@ -661,10 +660,9 @@ Row_Package_Directory *GetDirectory(Row_Package *pRow_Package,int PK_Directory)
 	return pRow_Package_Directory_Empty;  // Will be NULL if there is no directory
 }
 
-
-void InstallPackage(PackageInfo *pPackageInfo)
+void InstallPackage(PackageInfo *pPackageInfo, bool bElse)
 {
-	cout << "if ! /usr/pluto/install/" << pRow_Distro->Installer_get()
+	cout << (bElse ? "el" : "") << "if /usr/pluto/install/" << pRow_Distro->Installer_get()
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Name_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Repository_get() << "\""
@@ -679,6 +677,5 @@ void InstallPackage(PackageInfo *pPackageInfo)
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Password_get() << "\""
 		<< "; then"
 		<< endl;
-	cout << "\techo \"Something went wrong confirming package '" << pPackageInfo->m_pRow_Package_Source->Name_get() << "'\"" << endl;
-	cout << "\tread" << endl;
+	cout << "\techo \"Confirmation of package '" << pPackageInfo->m_pRow_Package_Source->Name_get() << "' went ok.\"" << endl;
 }
