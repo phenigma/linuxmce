@@ -13,4 +13,6 @@ bool SaveMenuCollection(class VIPMenuCollection *pMenuCollection, string sVMCFil
 void PopulateStandardScenariosList(class VIPMenuCollection *pMenuCollection, 
 								   class Database_pluto_main *pDatabase_pluto_main);
 
+void AddResolutionsForSetHouseMode(VIPMenuCollection *pMenuCollection, Database_pluto_main *pDatabase_pluto_main);
+
 #endif //__POPULATE_LIST_IN_VMC_H__
