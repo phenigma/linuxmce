@@ -43,7 +43,6 @@ namespace FileUtils
 	void DelFile(string sFileName);
 	void DelDir(string sDirectory);
 
-	bool LaunchProcessInBackground(string sCommandLine);
 #ifndef WINCE
     string FileWithoutExtension ( string sFileName ); /** < returns the filename without the extension */
     string BasePath( string sFileName ); /** < returns the path one dir up @todo ask */
@@ -52,6 +51,7 @@ namespace FileUtils
     time_t FileDate(string sFileName); /** < returns the date of the last file modification or 0 if error */
 	bool FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""); /** < scan sDirectory, for files matching any of the sFilespec_CVS (ie *.jpg,a*,bcd*.mpg), and store the names in listFiles.  Optionally recurse into sub-directories up to a level (500 by default). If the max depth was hit return true. The prepended path will be prepended to any files that are found.  Normally this is for internal use only while recursing. */
 	bool PUCopyFile(string sSource,string sDestination); /** < Copies a file from sSource to sDestination.  returns false if it fails, true otherwise */
+	bool LaunchProcessInBackground(string sCommandLine);
 #endif
 
 #endif //#ifndef SYMBIAN

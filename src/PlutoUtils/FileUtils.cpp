@@ -622,8 +622,6 @@ bool FileUtils::PUCopyFile(string sSource,string sDestination)
 	return true;
 }
 
-#endif
-
 bool FileUtils::LaunchProcessInBackground(string sCommandLine)
 {
     if (sCommandLine == "")
@@ -699,3 +697,5 @@ bool FileUtils::LaunchProcessInBackground(string sCommandLine)
 	return true;
 #endif
 }
+
+#endif //not WINCE
