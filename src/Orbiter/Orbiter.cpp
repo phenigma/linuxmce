@@ -5540,7 +5540,12 @@ void Orbiter::ContinuousRefresh( void *data )
 				pText->m_sText = StringUtils::itos(	m_tTimeoutTime - time(NULL) ) + " seconds";
 				pText->m_rPosition.X = rand() * m_iImageWidth * .5 / RAND_MAX;
 				pText->m_rPosition.Y = rand() * m_iImageHeight *.9 / RAND_MAX;
-				g_pPlutoLogger->Write(LV_STATUS,"Rand position (RM: %d) x: %d y: %d w: %d h: %d",(int) RAND_MAX,
+				g_pPlutoLogger->Write(LV_STATUS,"Rand (%d %d) position (RM: %d) x: %d y: %d w: %d h: %d",rand(), rand(), (int) RAND_MAX,
+					pText->m_rPosition.X, pText->m_rPosition.Y, m_iImageWidth, m_iImageHeight);
+srand(100);
+				pText->m_rPosition.X = rand() * m_iImageWidth * .5 / RAND_MAX;
+				pText->m_rPosition.Y = rand() * m_iImageHeight *.9 / RAND_MAX;
+				g_pPlutoLogger->Write(LV_STATUS,"Rand2 (%d %d) position (RM: %d) x: %d y: %d w: %d h: %d",rand(), rand(), (int) RAND_MAX,
 					pText->m_rPosition.X, pText->m_rPosition.Y, m_iImageWidth, m_iImageHeight);
 
 			}
