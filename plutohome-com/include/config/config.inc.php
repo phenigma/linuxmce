@@ -58,8 +58,19 @@
 	
 	$GLOBALS['MiscelaneousRoomType']=9;		// PK_RoomType for Miscelaneous
 
-	// Array table
-	$GLOBALS['ArrayIDForMedia'] = 5;		// Media Scenarios
+	// PK_Array from table Array
+	
+	$GLOBALS['ArrayIDForSecurity'] = 3;				// Security scenarios
+	$GLOBALS['ArrayIDCommunicationScenarios']=4; 	// Communication scenarios
+	$GLOBALS['ArrayIDForMedia'] = 5;				// Media Scenarios
+	
+	// PK_Template from table Template
+	
+	$GLOBALS['securityScenariosTemplate']=12;		// Security Scenarios
+	$GLOBALS['SecurityArmDisarmTemplate']=13;		// Security - Arm Disarm
+	$GLOBALS['SecuritySOSTemplate']=14;				// Security - SOS
+	$GLOBALS['TelecomScenariosTemplate']=17;		// Telecom Scenarios
+	
 	
 	// Command table
 	$GLOBALS['commandMHPlayMedia']=43;		// MH Play Media
@@ -71,12 +82,14 @@
 	$GLOBALS['commandParamPK_DesignObj']=3;			// PK_DesignObj
 	$GLOBALS['commandParameterVariableNumber']=4;	// Variable Number (PK_Variable)
 	$GLOBALS['commandParameterValueToAsign']=5;		// Value to assign
+	$GLOBALS['commandParameterObjectScreen']=16;	// Object(Screen)
 	
 	// PK_DesignObj from table DesignObj
 	$GLOBALS['mnuMediaFileList2DesignObj']=3226;	// mnuMediaFileList2
 	$GLOBALS['mnuMediaFileListDesignObj']=2071;		// mnuMediaFileList
 	$GLOBALS['butViewDesignObj']=3283;				// butView
-	
+	$GLOBALS['mnuSecurityCamerasDesignObj']=1414;	// Security cameras
+
 	// PK_Device for Local Orbiter
 	$GLOBALS['localOrbiter']=-300;
 

@@ -531,6 +531,7 @@ function wizard($output,$dbADO) {
 							$insertRoom='INSERT INTO Room (Description,FK_RoomType,FK_Installation) VALUES (?,?,?)';
 							$dbADO->Execute($insertRoom,array($coreRoom,$GLOBALS['MiscelaneousRoomType'],$installationID));
 							$roomID=$dbADO->Insert_ID();
+							addScenariosToRoom($roomID, $installationID, $dbADO);
 							
 						}else{
 							$rowRoom=$resRoom->FetchRow();
@@ -836,7 +837,6 @@ function wizard($output,$dbADO) {
 							}
 							$orbiterMDChild=getMediaDirectorOrbiterChild($rowMediaDirectors['PK_Device'],$dbADO);
 							if($orbiterMDChild){
-								echo "MD: ".$orbiterMDChild;
 								$out.='
 									<tr '.$rowcolor.'>	
 										<td colspan="7">'.getInstallWizardDeviceTemplates($step,$dbADO,$orbiterMDChild,$selectedDistro).'</td>
@@ -940,6 +940,7 @@ function wizard($output,$dbADO) {
 						$insertRoom='INSERT INTO Room (Description,FK_RoomType,FK_Installation) VALUES (?,?,?)';
 						$dbADO->Execute($insertRoom,array($mdRoom,$GLOBALS['MiscelaneousRoomType'],$installationID));
 						$roomID=$dbADO->Insert_ID();
+						addScenariosToRoom($roomID, $installationID, $dbADO);
 							
 					}else{
 						$rowRoom=$resRoom->FetchRow();
