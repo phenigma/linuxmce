@@ -401,7 +401,7 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
             pMessage_Child->ToData( Size, Data, false );
             Write_unsigned_long( Size );
             Write_block( Data, Size );
-            free(Data);
+            delete[] Data;
         }
     }
 

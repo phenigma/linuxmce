@@ -69,8 +69,9 @@ public:
 
 	bool MySQLConnect(bool bReset=false)
 	{
-		if( bReset && m_bConnected )
+		if( bReset && m_pMySQL )
 		{
+			g_pPlutoLogger->Write(LV_WARNING,"Resetting mysql connection");
 			mysql_close(m_pMySQL);
 			m_pMySQL=NULL;
 		}
@@ -80,7 +81,10 @@ public:
 		}
 
 		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Connect failed %s",mysql_error(m_pMySQL));
 			m_bConnected=false;
+		}
 		else
 			m_bConnected=true;
 

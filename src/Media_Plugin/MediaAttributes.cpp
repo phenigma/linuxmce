@@ -981,7 +981,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,
 
     if( !m_pDatabase_pluto_media->PlaylistEntry_get()->Commit() )
     {
-		g_pPlutoLogger->Write(LV_STATUS, "Could not save the playlist error: %s",m_pDatabase_pluto_media->m_sLastMySqlError.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL, "Could not save the playlist error: %s",m_pDatabase_pluto_media->m_sLastMySqlError.c_str());
         return false;
     }
 
