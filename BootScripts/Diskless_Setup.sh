@@ -4,7 +4,7 @@ RunSQL()
 {
 	local Q
 	Q="$*"
-	[ -z "$Q" ] || echo "$Q;" | mysql pluto_main | tail +2 | tr '\n\t ' ', ~'
+	[ -z "$Q" ] || echo "$Q;" | mysql pluto_main | tail +2 | tr '\n\t ' ' ,~'
 }
 
 Field()
@@ -12,7 +12,7 @@ Field()
 	local Row FieldNumber
 	FieldNumber="$1"; shift
 	Row="$*"
-	echo "$F" | cut -d, -f"$FieldNumber" | tr '~' ' '
+	echo "$Row" | cut -d, -f"$FieldNumber" | tr '~' ' '
 }
 
 # vars:
@@ -20,8 +20,6 @@ Field()
 # INTERNAL_SUBNET
 # INTERNAL_SUBNET_MASK
 # MOON_ENTRIES
-# MOON_NAME
-# MOON_PEERS
 ReplaceVars()
 {
 	# TODO
@@ -42,14 +40,14 @@ ReplaceVars()
 # Create Server-side files
 
 # TODO: Core configuration in database; currently we assume we have two network cards, eth1 being the internal one
-ServerConf=$(ifconfig eth1 | awk 'NR==2' | perl -ne 's/^.*inet addr:(\S+)\s+Bcast:(\S+)\s+Mask:(\S+).*$/\1,\2,\3/g; print')
+ServerConf=$(ifconfig eth0 | awk 'NR==2' | perl -ne 's/^.*inet addr:(\S+)\s+Bcast:(\S+)\s+Mask:(\S+).*$/\1,\2,\3/g; print')
 CORE_INTERNAL_ADDRESS=$(Field 1 "$ServerConf")
 INTERNAL_SUBNET_MASK=$(Field 3 "$ServerConf")
 for i in 1 2 3 4; do
 	IPDigit=$(echo $CORE_INTERNAL_ADDRESS | cut -d. -f$i)
 	MaskDigit=$(echo $INTERNAL_SUBNET_MASK | cut -d. -f$i)
 	NetDigit=$(($IPDigit & $MaskDigit))
-	INTERNAL_SUBNET="$Dot$INTERNAL_SUBNET" && Dot="."
+	INTERNAL_SUBNET="$INTERNAL_SUBNET$Dot$NetDigit" && Dot="."
 done
 
 echo "Getting list of Media Directors"
@@ -80,23 +78,25 @@ for Client in $R; do
 done
 ReplaceVars /etc/dhcp3/dhcpd.conf.$$
 mv /etc/dhcp3/dhcpd.conf.$$ /etc/dhcp3/dhcpd.conf
-/etc/init.d/dhcp3 restart
+/etc/init.d/dhcp3-server restart
 
 mkdir -p /tftpboot/pxelinux.cfg
 for Client in $R; do
-	IP=
-	MAC=
+	IP=$(Field 1 "$Client")
+	MAC=$(Field 2 "$Client")
+	DashMAC=${MAC//:/-}
 	HexIP=$(gethostip -x "$IP")
-	echo "Setting up /tftpboot/pxelinux.cfg/01-$MAC"
-	cp /usr/pluto/templates/pxelinux.tmpl /tftpboot/pxelinux.cfg/01-$MAC.$$
-	mv /tftpboot/pxelinux.cfg/01-$MAC.$$ /tftpboot/pxelinux.cfg/01-$MAC
+	echo "Setting up /tftpboot/pxelinux.cfg/01-$DashMAC"
+	cp /usr/pluto/templates/pxelinux.tmpl /tftpboot/pxelinux.cfg/01-$DashMAC.$$
+	ReplaceVars /tftpboot/pxelinux.cfg/01-$DashMAC.$$
+	mv /tftpboot/pxelinux.cfg/01-$DashMAC.$$ /tftpboot/pxelinux.cfg/01-$DashMAC
 done
 
 # Create Client-side files
 for Client in $R; do
-	echo -n "Setting moon '$IP,$MAC':"
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
+	echo -n "Setting moon '$IP,$MAC':"
 	
 	echo -n " /etc/fstab"
 	cp /usr/pluto/templates/fstab.tmpl /usr/pluto/diskless/$IP/etc/fstab.$$
