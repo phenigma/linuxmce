@@ -23,7 +23,7 @@ void *HandleDetectionThread(void *p)
 {
 	PhoneDetectionEngine *pe = (PhoneDetectionEngine *)p;
 	pe->m_bInScanLoop=true;
-	while( pe->ScanningLoop() );
+	while( !pe->m_bAbortScanLoop && pe->ScanningLoop() );
 	pe->m_bInScanLoop=false;
 	return NULL;
 }

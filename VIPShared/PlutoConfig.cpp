@@ -72,6 +72,9 @@ PlutoConfig::PlutoConfig()
 	m_sEmulatorAddress = GetSetting("AddressOfEmulator:",buffer, "localhost");
 	m_iEmulatorPort = atoi(GetSetting("PortForEmulator:",buffer,"3461").c_str());
 
+	delete buffer;
+	buffer = NULL;
+
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
 	char LogFile[200];
@@ -95,7 +98,6 @@ PlutoConfig::PlutoConfig()
 
 	}
 #endif
-
 }
 
 string PlutoConfig::GetSetting(const char *Token,char *Buffer,char *Default)

@@ -400,7 +400,6 @@ void CControlsDlg::PrepareAppBar()
 	CRegistry reg;
 	CString RegName=m_AppBarName + CString(APPBAR_CX);
 
-
 	DWORD dwCx=0;
 	DWORD dwAutoHide=0;
 
@@ -410,16 +409,16 @@ void CControlsDlg::PrepareAppBar()
 		dwCx=reg.GetValueDWORD(RegName);
 		CString RegStr=m_AppBarName + CString(APPBAR_AUTOHIDE);
 		dwAutoHide=reg.GetValueDWORD(RegStr);
-		
+
 		if (dwCx!=0)
 		{
 			if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
 			{
-				SetWindowPos(NULL, 0, 0, dwCx, rc.Height(), SWP_SHOWWINDOW);
+				SetWindowPos(NULL, 0, 0, dwCx, 0/*rc.Height()*/, SWP_SHOWWINDOW);
 			}
 			else
 			{
-				SetWindowPos(NULL, 0, 0, rc.Width(), dwCx, SWP_SHOWWINDOW);
+				SetWindowPos(NULL, 0, 0, 0/*rc.Width()*/, dwCx, SWP_SHOWWINDOW);
 			}
 		}
 		else
@@ -520,6 +519,8 @@ void CControlsDlg::PrepareAppBar()
 
 void CControlsDlg::OnDestroy() 
 {
+	const int iOffset = 8;
+
 	CAppBar::OnDestroy();
 	
 	CRect rc;
@@ -534,9 +535,9 @@ void CControlsDlg::OnDestroy()
 	
 	// Save the AppBar's state variables to the registry.
 	if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
-		reg.SetValueDWORD(RegName, rc.Width());
+		reg.SetValueDWORD(RegName, rc.Width() + iOffset);
 	else
-		reg.SetValueDWORD(RegName, rc.Height());
+		reg.SetValueDWORD(RegName, rc.Height() + iOffset);
 
 	RegName=m_AppBarName + CString(APPBAR_AUTOHIDE);
 
