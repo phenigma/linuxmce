@@ -37,6 +37,8 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "pluto_main/Define_Button.h"
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)

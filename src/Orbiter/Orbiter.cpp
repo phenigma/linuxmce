@@ -563,7 +563,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 {
 g_pPlutoLogger->Write( LV_STATUS, "Rendering: %s visble: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
 
-    if(  pObj->m_ObjectID.find( "3351" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "2607" )!=string::npos  )
         //if(  pObj->m_iBaseObjectID == 2707  )
     {
 g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
@@ -4851,9 +4851,10 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sType,string &sC
 	for(DesignObj_DataList::iterator it=pDesignObj_DataList->begin();it!=pDesignObj_DataList->end();++it)
 	{
 		DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) *it;
+		pObj->m_bDontResetState=true;
 		pObj->m_GraphicToDisplay = iValue;
 		if( pObj->m_bOnScreen )
-			m_vectObjs_NeedRedraw.push_back(pObj);  pObj->m_bDontResetState=t;
+			m_vectObjs_NeedRedraw.push_back(pObj);
 	}
 }
 
