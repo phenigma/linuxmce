@@ -40,6 +40,7 @@ using namespace std;
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Table_FloorplanObjectType.h"
 #include "Table_MediaType.h"
+#include "Table_MediaType_DesignObj.h"
 #include "Table_Skin.h"
 #include "Table_Skin.h"
 #include "Table_Skin.h"
@@ -1428,6 +1429,13 @@ void Row_DesignObj::MediaType_FK_DesignObj_getrows(vector <class Row_MediaType*>
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_MediaType *pTable = table->database->MediaType_get();
+pTable->GetRows("`FK_DesignObj`=" + StringUtils::itos(m_PK_DesignObj),rows);
+}
+void Row_DesignObj::MediaType_DesignObj_FK_DesignObj_getrows(vector <class Row_MediaType_DesignObj*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_MediaType_DesignObj *pTable = table->database->MediaType_DesignObj_get();
 pTable->GetRows("`FK_DesignObj`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::Skin_FK_DesignObj_MainMenu_getrows(vector <class Row_Skin*> *rows)

@@ -22,6 +22,7 @@ using namespace std;
 
 #include "Table_DeviceTemplate_MediaType.h"
 #include "Table_MediaType_Broadcast.h"
+#include "Table_MediaType_DesignObj.h"
 
 
 void Database_pluto_main::CreateTable_MediaType()
@@ -1116,6 +1117,13 @@ void Row_MediaType::MediaType_Broadcast_FK_MediaType_getrows(vector <class Row_M
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_MediaType_Broadcast *pTable = table->database->MediaType_Broadcast_get();
+pTable->GetRows("`FK_MediaType`=" + StringUtils::itos(m_PK_MediaType),rows);
+}
+void Row_MediaType::MediaType_DesignObj_FK_MediaType_getrows(vector <class Row_MediaType_DesignObj*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_MediaType_DesignObj *pTable = table->database->MediaType_DesignObj_get();
 pTable->GetRows("`FK_MediaType`=" + StringUtils::itos(m_PK_MediaType),rows);
 }
 

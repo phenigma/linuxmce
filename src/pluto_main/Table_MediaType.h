@@ -170,6 +170,7 @@ class Row_Pipe* FK_Pipe_getrow();
 		// Return the rows in other tables with foreign keys pointing here
 		void DeviceTemplate_MediaType_FK_MediaType_getrows(vector <class Row_DeviceTemplate_MediaType*> *rows);
 void MediaType_Broadcast_FK_MediaType_getrows(vector <class Row_MediaType_Broadcast*> *rows);
+void MediaType_DesignObj_FK_MediaType_getrows(vector <class Row_MediaType_DesignObj*> *rows);
 
 
 		// Setup binary serialization

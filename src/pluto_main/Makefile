@@ -128,6 +128,7 @@ Table_License.cpp \
 Table_Manufacturer.cpp \
 Table_MediaType.cpp \
 Table_MediaType_Broadcast.cpp \
+Table_MediaType_DesignObj.cpp \
 Table_News.cpp \
 Table_OperatingSystem.cpp \
 Table_Orbiter.cpp \

@@ -137,6 +137,7 @@ class Table_License* tblLicense;
 class Table_Manufacturer* tblManufacturer;
 class Table_MediaType* tblMediaType;
 class Table_MediaType_Broadcast* tblMediaType_Broadcast;
+class Table_MediaType_DesignObj* tblMediaType_DesignObj;
 class Table_News* tblNews;
 class Table_OperatingSystem* tblOperatingSystem;
 class Table_Orbiter* tblOrbiter;
@@ -348,6 +349,7 @@ class Table_License* License_get() { return tblLicense; }
 class Table_Manufacturer* Manufacturer_get() { return tblManufacturer; }
 class Table_MediaType* MediaType_get() { return tblMediaType; }
 class Table_MediaType_Broadcast* MediaType_Broadcast_get() { return tblMediaType_Broadcast; }
+class Table_MediaType_DesignObj* MediaType_DesignObj_get() { return tblMediaType_DesignObj; }
 class Table_News* News_get() { return tblNews; }
 class Table_OperatingSystem* OperatingSystem_get() { return tblOperatingSystem; }
 class Table_Orbiter* Orbiter_get() { return tblOrbiter; }
@@ -563,6 +565,7 @@ void CreateTable_License();
 void CreateTable_Manufacturer();
 void CreateTable_MediaType();
 void CreateTable_MediaType_Broadcast();
+void CreateTable_MediaType_DesignObj();
 void CreateTable_News();
 void CreateTable_OperatingSystem();
 void CreateTable_Orbiter();
@@ -773,6 +776,7 @@ void DeleteTable_License();
 void DeleteTable_Manufacturer();
 void DeleteTable_MediaType();
 void DeleteTable_MediaType_Broadcast();
+void DeleteTable_MediaType_DesignObj();
 void DeleteTable_News();
 void DeleteTable_OperatingSystem();
 void DeleteTable_Orbiter();

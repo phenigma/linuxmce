@@ -318,6 +318,7 @@
 #define COMMAND_Tuner_3_CONST 326
 #define COMMAND_WB_CONST 327
 #define COMMAND_SW_CONST 328
+#define COMMAND_Set_Mouse_Pointer_Over_Object_CONST 330
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -1,0 +1,23 @@
+#ifndef __Define_MediaType_DesignObj_H__
+#define __Define_MediaType_DesignObj_H__
+
+
+#define MEDIATYPE_DESIGNOBJ_TABLE "MediaType_DesignObj"
+#define MEDIATYPE_DESIGNOBJ_FK_MEDIATYPE_FIELD "FK_MediaType"
+#define MEDIATYPE_DESIGNOBJ_FK_MEDIATYPE_TABLE_FIELD "MediaType_DesignObj.FK_MediaType"
+#define MEDIATYPE_DESIGNOBJ_FK_DESIGNOBJ_FIELD "FK_DesignObj"
+#define MEDIATYPE_DESIGNOBJ_FK_DESIGNOBJ_TABLE_FIELD "MediaType_DesignObj.FK_DesignObj"
+#define MEDIATYPE_DESIGNOBJ_PSC_ID_FIELD "psc_id"
+#define MEDIATYPE_DESIGNOBJ_PSC_ID_TABLE_FIELD "MediaType_DesignObj.psc_id"
+#define MEDIATYPE_DESIGNOBJ_PSC_BATCH_FIELD "psc_batch"
+#define MEDIATYPE_DESIGNOBJ_PSC_BATCH_TABLE_FIELD "MediaType_DesignObj.psc_batch"
+#define MEDIATYPE_DESIGNOBJ_PSC_USER_FIELD "psc_user"
+#define MEDIATYPE_DESIGNOBJ_PSC_USER_TABLE_FIELD "MediaType_DesignObj.psc_user"
+#define MEDIATYPE_DESIGNOBJ_PSC_FROZEN_FIELD "psc_frozen"
+#define MEDIATYPE_DESIGNOBJ_PSC_FROZEN_TABLE_FIELD "MediaType_DesignObj.psc_frozen"
+#define MEDIATYPE_DESIGNOBJ_PSC_MOD_FIELD "psc_mod"
+#define MEDIATYPE_DESIGNOBJ_PSC_MOD_TABLE_FIELD "MediaType_DesignObj.psc_mod"
+
+
+#endif
+

@@ -475,6 +475,9 @@
 				RelativePath=".\Table_MediaType_Broadcast.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_MediaType_DesignObj.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_News.cpp">
 			</File>
 			<File
