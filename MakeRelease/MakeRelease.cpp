@@ -444,8 +444,15 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 {
     // Update the version record
 	pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
+
+	// Also update the SVN/CVS record
+	vector<Row_Package_Source *> vectRow_Package_Source;
+	pRow_Package_Source->Table_Package_Source_get()->GetRows("FK_Package=" + StringUtils::itos(pRow_Package_Source->FK_Package_get()) + " AND (FK_RepositorySource=" +
+		StringUtils::itos(REPOSITORYSOURCE_Pluto_CVS_CONST) + " OR FK_RepositorySource=" + StringUtils::itos(REPOSITORYSOURCE_Pluto_SVN_CONST) + ")",&vectRow_Package_Source);
+	for(size_t s=0;s<vectRow_Package_Source.size();++s)
+		vectRow_Package_Source[s]->Version_set(g_pRow_Version->VersionName_get());
 	pRow_Package_Source->Table_Package_Source_get()->Commit();
-         
+
 	cout << "\tCreating source: " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << endl;
 	cout << "\t--------------------------" << endl;
 
