@@ -149,11 +149,10 @@ void Disk_Drive::SomeFunction()
 */
 
 //<-dceag-c45-b->
-/* 
-	COMMAND: #45 - Disk Drive Monitoring ON
-	COMMENTS: Turn ON the disk Monitoring.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #45 - Disk Drive Monitoring ON */
+	/** Turn ON the disk Monitoring. */
+
 void Disk_Drive::CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,Message *pMessage)
 //<-dceag-c45-e->
 {
@@ -163,11 +162,10 @@ void Disk_Drive::CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,Message *pMess
 }
 
 //<-dceag-c46-b->
-/* 
-	COMMAND: #46 - Disk Drive Monitoring OFF
-	COMMENTS: Turn OFF the disk Monitoring.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #46 - Disk Drive Monitoring OFF */
+	/** Turn OFF the disk Monitoring. */
+
 void Disk_Drive::CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,Message *pMessage)
 //<-dceag-c46-e->
 {
@@ -177,11 +175,10 @@ void Disk_Drive::CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,Message *pMes
 }
 
 //<-dceag-c47-b->
-/* 
-	COMMAND: #47 - Reset Disk Drive
-	COMMENTS: Reset the disk drive.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #47 - Reset Disk Drive */
+	/** Reset the disk drive. */
+
 void Disk_Drive::CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage)
 //<-dceag-c47-e->
 {
@@ -192,11 +189,10 @@ void Disk_Drive::CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c48-b->
-/* 
-	COMMAND: #48 - Eject Disk
-	COMMENTS: Eject the disk from the drive.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #48 - Eject Disk */
+	/** Eject the disk from the drive. */
+
 void Disk_Drive::CMD_Eject_Disk(string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
@@ -204,11 +200,10 @@ void Disk_Drive::CMD_Eject_Disk(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c49-b->
-/* 
-	COMMAND: #49 - Start Burn Session
-	COMMENTS: Initiates a new burning session.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #49 - Start Burn Session */
+	/** Initiates a new burning session. */
+
 void Disk_Drive::CMD_Start_Burn_Session(string &sCMD_Result,Message *pMessage)
 //<-dceag-c49-e->
 {
@@ -216,11 +211,10 @@ void Disk_Drive::CMD_Start_Burn_Session(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c50-b->
-/* 
-	COMMAND: #50 - Start Ripping Session
-	COMMENTS: Initiates a new ripping session.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #50 - Start Ripping Session */
+	/** Initiates a new ripping session. */
+
 void Disk_Drive::CMD_Start_Ripping_Session(string &sCMD_Result,Message *pMessage)
 //<-dceag-c50-e->
 {
@@ -228,11 +222,10 @@ void Disk_Drive::CMD_Start_Ripping_Session(string &sCMD_Result,Message *pMessage
 }
 
 //<-dceag-c51-b->
-/* 
-	COMMAND: #51 - Add File To Burning Session
-	COMMENTS: Add a new file to the initiated burning session.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #51 - Add File To Burning Session */
+	/** Add a new file to the initiated burning session. */
+
 void Disk_Drive::CMD_Add_File_To_Burning_Session(string &sCMD_Result,Message *pMessage)
 //<-dceag-c51-e->
 {
@@ -240,11 +233,10 @@ void Disk_Drive::CMD_Add_File_To_Burning_Session(string &sCMD_Result,Message *pM
 }
 
 //<-dceag-c52-b->
-/* 
-	COMMAND: #52 - Start Burning
-	COMMENTS: Starts burning.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #52 - Start Burning */
+	/** Starts burning. */
+
 void Disk_Drive::CMD_Start_Burning(string &sCMD_Result,Message *pMessage)
 //<-dceag-c52-e->
 {
@@ -252,11 +244,10 @@ void Disk_Drive::CMD_Start_Burning(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c53-b->
-/* 
-	COMMAND: #53 - Abort Burning
-	COMMENTS: Aborts the burning session.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #53 - Abort Burning */
+	/** Aborts the burning session. */
+
 void Disk_Drive::CMD_Abort_Burning(string &sCMD_Result,Message *pMessage)
 //<-dceag-c53-e->
 {
@@ -264,15 +255,14 @@ void Disk_Drive::CMD_Abort_Burning(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c54-b->
-/* 
-	COMMAND: #54 - Mount Disk Image
-	COMMENTS: Will mount a disk image as a disk.
-	PARAMETERS:
-		#13 Filename
-			What to mount. If it get's the Device name it will mount the actual disk in the drive.
-		#59 MediaURL
-			The URL which can be used to play the mounted media.
-*/
+
+	/** @brief COMMAND: #54 - Mount Disk Image */
+	/** Will mount a disk image as a disk. */
+		/** @param #13 Filename */
+			/** What to mount. If it get's the Device name it will mount the actual disk in the drive. */
+		/** @param #59 MediaURL */
+			/** The URL which can be used to play the mounted media. */
+
 void Disk_Drive::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c54-e->
 {
@@ -290,11 +280,10 @@ void Disk_Drive::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string 
 }
 
 //<-dceag-c55-b->
-/* 
-	COMMAND: #55 - Start Ripping DVD
-	COMMENTS: Starts ripping a DVD.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #55 - Start Ripping DVD */
+	/** Starts ripping a DVD. */
+
 void Disk_Drive::CMD_Start_Ripping_DVD(string &sCMD_Result,Message *pMessage)
 //<-dceag-c55-e->
 {
@@ -302,11 +291,10 @@ void Disk_Drive::CMD_Start_Ripping_DVD(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c56-b->
-/* 
-	COMMAND: #56 - Format Drive
-	COMMENTS: Formats a disk.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #56 - Format Drive */
+	/** Formats a disk. */
+
 void Disk_Drive::CMD_Format_Drive(string &sCMD_Result,Message *pMessage)
 //<-dceag-c56-e->
 {
@@ -314,11 +302,10 @@ void Disk_Drive::CMD_Format_Drive(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c57-b->
-/* 
-	COMMAND: #57 - Close Tray
-	COMMENTS: Closes the tray.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #57 - Close Tray */
+	/** Closes the tray. */
+
 void Disk_Drive::CMD_Close_Tray(string &sCMD_Result,Message *pMessage)
 //<-dceag-c57-e->
 {

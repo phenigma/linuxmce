@@ -32,7 +32,7 @@
 #include "../pluto_main/Table_Users.h"
 #include "../pluto_main/Table_Package.h"
 
-#define DCEGEN_VERSION	"0.99"
+#define  VERSION "<=version=>"
 
 namespace DCE
 {
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 
 	if (bError)
 	{
-		cout << "DCEGen, v." << DCEGEN_VERSION << endl
+		cout << "DCEGen, v." << VERSION << endl
 			<< "Usage: DCEGen -d Device Template ID [-N] [-o Output Path] [-i Input for Templates] [-t Output for Templates] [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-a] [-s word]" << endl
 			<< "-d -- the Device ID to generate, from the table DeviceTemplate" << endl
 			<< "-N -- don't create templates--only the generated files.  If this is specified, -d is optional, and if omitted, all devices will be generated." << endl

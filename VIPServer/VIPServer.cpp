@@ -26,7 +26,7 @@
 #include "DCE/Logger.h"
 #include "RA/RAServer.h"
 
-#define VIPSERVER_VERSION "0.1"
+#define  VERSION "<=version=>"
 
 using namespace std;
 namespace DCE
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
 	if ( bError)
 	{
-		cout << "VIPServer, v." << VIPSERVER_VERSION << endl
+		cout << "VIPServer, v." << VERSION << endl
 			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-t Table(s)] [-U Users(s)]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl

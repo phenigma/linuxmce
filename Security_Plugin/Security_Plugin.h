@@ -31,9 +31,9 @@ public:
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
-		Security_Plugin( int DeviceID, string ServerAddress, bool bConnectEventHandler=true, bool bLocalMode=false, class Router *pRouter=NULL );
-		virtual ~Security_Plugin( );
-		virtual bool Register( );
+		Security_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+		virtual ~Security_Plugin();
+		virtual bool Register();
 //<-dceag-const-e->
 
 	class Datagrid_Plugin *m_pDatagrid_Plugin;

@@ -8,7 +8,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
-#define  DCE_Template_VERSION "testing"
+#define  VERSION "<=version=>"
 
 namespace DCE
 {
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 
 	if (bError)
 	{
-		cout << "DCE_Template, v." << DCE_Template_VERSION << endl
+		cout << "DCE_Template, v." << VERSION << endl
 			<< "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
 			<< "Usage: DCE_Template [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl

@@ -71,19 +71,18 @@ bool General_Info_Plugin::Register()
 */
 
 //<-dceag-c68-b->
-/* 
-	COMMAND: #68 - Get Device Data
-	COMMENTS: Return the device data for a device.
-	PARAMETERS:
-		#2 PK_Device
-			The device which you want data from
-		#5 Value To Assign
-			The value.
-		#52 PK_DeviceData
-			What parameter to get.
-		#53 UseDefault
-			Report the default value, rather than requesting a live value.
-*/
+
+	/** @brief COMMAND: #68 - Get Device Data */
+	/** Return the device data for a device. */
+		/** @param #2 PK_Device */
+			/** The device which you want data from */
+		/** @param #5 Value To Assign */
+			/** The value. */
+		/** @param #52 PK_DeviceData */
+			/** What parameter to get. */
+		/** @param #53 UseDefault */
+			/** Report the default value, rather than requesting a live value. */
+
 void General_Info_Plugin::CMD_Get_Device_Data(int iPK_Device,int iPK_DeviceData,bool bUseDefault,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c68-e->
 {
@@ -108,15 +107,14 @@ void General_Info_Plugin::CMD_Get_Device_Data(int iPK_Device,int iPK_DeviceData,
 }
 
 //<-dceag-c71-b->
-/* 
-	COMMAND: #71 - Request File
-	COMMENTS: Get the contents of a file from the server
-	PARAMETERS:
-		#13 Filename
-			The file to get
-		#19 Data
-			The file's contents
-*/
+
+	/** @brief COMMAND: #71 - Request File */
+	/** Get the contents of a file from the server */
+		/** @param #13 Filename */
+			/** The file to get */
+		/** @param #19 Data */
+			/** The file's contents */
+
 void General_Info_Plugin::CMD_Request_File(string sFilename,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c71-e->
 {
@@ -131,17 +129,16 @@ void General_Info_Plugin::CMD_Request_File(string sFilename,char **pData,int *iD
 }
 
 //<-dceag-c79-b->
-/* 
-	COMMAND: #79 - Add Unknown Device
-	COMMENTS: Adds an unknown device into the database.  These are devices that are not part of the Pluto system.
-	PARAMETERS:
-		#9 Text
-			A description of the device
-		#10 ID
-			The IP Address
-		#47 Mac address
-			The MAC address of the device
-*/
+
+	/** @brief COMMAND: #79 - Add Unknown Device */
+	/** Adds an unknown device into the database.  These are devices that are not part of the Pluto system. */
+		/** @param #9 Text */
+			/** A description of the device */
+		/** @param #10 ID */
+			/** The IP Address */
+		/** @param #47 Mac address */
+			/** The MAC address of the device */
+
 void General_Info_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c79-e->
 {

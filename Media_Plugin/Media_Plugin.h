@@ -249,75 +249,71 @@ public:
 			*****COMMANDS***** we need to implement
 	*/
 
-/* 
-	COMMAND: #43 - MH Play Media
-	COMMENTS: The Orbiters send the play media command to the actual media handler. rnrnThe Orbiter can send anyone or a combination of parameters. rnrnIt's up to media handler to figure out how to handle it. The media handler must find out if the media is already pla
-	PARAMETERS:
-		#2 PK_Device
-			The ID of the actual device to start playing.
-		#3 PK_DesignObj
-			The Remote Control to use for playing this media.
-		#13 Filename
-			The filename to play or a pipe delimited list of filenames.
-		#29 PK_MediaType
-			The ID of the media type descriptor (if it is TV, movie, audio, etc ..  )
-		#44 PK_DeviceTemplate
-			The DeviceTemplate ID.
-		#45 PK_EntertainArea
-			The desired target area for the playback. If this is missing then the orbiter should decide the target based on his controlled area.
-*/
+
+	/** @brief COMMAND: #43 - MH Play Media */
+	/** The Orbiters send the play media command to the actual media handler. rnrnThe Orbiter can send anyone or a combination of parameters. rnrnIt's up to media handler to figure out how to handle it. The media handler must find out if the media is already pla */
+		/** @param #2 PK_Device */
+			/** The ID of the actual device to start playing. */
+		/** @param #3 PK_DesignObj */
+			/** The Remote Control to use for playing this media. */
+		/** @param #13 Filename */
+			/** The filename to play or a pipe delimited list of filenames. */
+		/** @param #29 PK_MediaType */
+			/** The ID of the media type descriptor (if it is TV, movie, audio, etc ..  ) */
+		/** @param #44 PK_DeviceTemplate */
+			/** The DeviceTemplate ID. */
+		/** @param #45 PK_EntertainArea */
+			/** The desired target area for the playback. If this is missing then the orbiter should decide the target based on his controlled area. */
+
 	virtual void CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,int iPK_EntertainArea) { string sCMD_Result; CMD_MH_Play_Media(iPK_Device,sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,iPK_EntertainArea,sCMD_Result,NULL);};
 	virtual void CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,int iPK_EntertainArea,string &sCMD_Result,Message *pMessage);
 
-/* 
-	COMMAND: #44 - MH Stop Media
-	COMMENTS: Stop media. All parameters are optional. The Media handler must find out what media to stop.
-	PARAMETERS:
-		#2 PK_Device
-			The specific device to stop media on.
-		#29 PK_MediaType
-			The type of media to stop.
-		#44 PK_DeviceTemplate
-			The type of device to stop the media on.
-		#45 PK_EntertainArea
-			This is the location on which we need to stop the media. This is optional. If not specified the orbiter will decide the location based on the controlled area.
-*/
+
+	/** @brief COMMAND: #44 - MH Stop Media */
+	/** Stop media. All parameters are optional. The Media handler must find out what media to stop. */
+		/** @param #2 PK_Device */
+			/** The specific device to stop media on. */
+		/** @param #29 PK_MediaType */
+			/** The type of media to stop. */
+		/** @param #44 PK_DeviceTemplate */
+			/** The type of device to stop the media on. */
+		/** @param #45 PK_EntertainArea */
+			/** This is the location on which we need to stop the media. This is optional. If not specified the orbiter will decide the location based on the controlled area. */
+
 	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,int iPK_EntertainArea) { string sCMD_Result; CMD_MH_Stop_Media(iPK_Device,iPK_MediaType,iPK_DeviceTemplate,iPK_EntertainArea,sCMD_Result,NULL);};
 	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,int iPK_EntertainArea,string &sCMD_Result,Message *pMessage);
 
-/* 
-	COMMAND: #73 - MH Send Me To Remote
-	COMMENTS: An Orbiter sends this command when it wants to go to the active remote control.  This device will send the sender of the command a 'goto' command with the current remote.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #73 - MH Send Me To Remote */
+	/** An Orbiter sends this command when it wants to go to the active remote control.  This device will send the sender of the command a 'goto' command with the current remote. */
+
 	virtual void CMD_MH_Send_Me_To_Remote() { string sCMD_Result; CMD_MH_Send_Me_To_Remote(sCMD_Result,NULL);};
 	virtual void CMD_MH_Send_Me_To_Remote(string &sCMD_Result,Message *pMessage);
 
-/* 
-	COMMAND: #74 - Bind to Media Remote
-	COMMENTS: When an orbiter goes to a media remote control screen, it fires this command so that the media plug-in knows it is sitting at a remote, and needs to be notified when the media changes or the cover art changes.  This should be in the onLoad commands of eve
-	PARAMETERS:
-		#2 PK_Device
-			The device the orbiter is controlling.
-		#3 PK_DesignObj
-			The object where the remote displays the graphical image of the cover art.  It will get update object images when the cover art changes.
-		#8 On/Off
-			If 1, bind (the Orbiter is sitting at the remote screen).  If 0, the orbiter has left the remote screen, and does not need media changed commands.
-		#16 PK_DesignObj_CurrentScreen
-			The current screen.
-		#25 PK_Text
-			The text object that contains the media description.  This will get set whenever the media changes, such as changing discs or channels.
-		#39 Options
-			Miscellaneous options.  These are not pre-defined, but are specific to a remote and the plug-in.  For example, the PVR plug-in needs to know what tuning device is active.
-		#45 PK_EntertainArea
-			The entertainment area the orbiter is controlling.
-		#56 PK_Text_Timecode
-			If the remote wants time code information, the object is stored here.  This can include an optional |n at the end, where n is the number of seconds to update (ie how often to update the counter).
-		#62 PK_Text_SectionDesc
-			The text object for the section description.  The section is tracks on a cd, or shows on a tv channel.
-		#63 PK_Text_Synopsis
-			The text object for the synopsis, a full description.  Examples are a DVD synopsis, or a description of a tv show.
-*/
+
+	/** @brief COMMAND: #74 - Bind to Media Remote */
+	/** When an orbiter goes to a media remote control screen, it fires this command so that the media plug-in knows it is sitting at a remote, and needs to be notified when the media changes or the cover art changes.  This should be in the onLoad commands of eve */
+		/** @param #2 PK_Device */
+			/** The device the orbiter is controlling. */
+		/** @param #3 PK_DesignObj */
+			/** The object where the remote displays the graphical image of the cover art.  It will get update object images when the cover art changes. */
+		/** @param #8 On/Off */
+			/** If 1, bind (the Orbiter is sitting at the remote screen).  If 0, the orbiter has left the remote screen, and does not need media changed commands. */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** The current screen. */
+		/** @param #25 PK_Text */
+			/** The text object that contains the media description.  This will get set whenever the media changes, such as changing discs or channels. */
+		/** @param #39 Options */
+			/** Miscellaneous options.  These are not pre-defined, but are specific to a remote and the plug-in.  For example, the PVR plug-in needs to know what tuning device is active. */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area the orbiter is controlling. */
+		/** @param #56 PK_Text_Timecode */
+			/** If the remote wants time code information, the object is stored here.  This can include an optional |n at the end, where n is the number of seconds to update (ie how often to update the counter). */
+		/** @param #62 PK_Text_SectionDesc */
+			/** The text object for the section description.  The section is tracks on a cd, or shows on a tv channel. */
+		/** @param #63 PK_Text_Synopsis */
+			/** The text object for the synopsis, a full description.  Examples are a DVD synopsis, or a description of a tv show. */
+
 	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,int iPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis) { string sCMD_Result; CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),iPK_Text,sOptions.c_str(),iPK_EntertainArea,iPK_Text_Timecode,iPK_Text_SectionDesc,iPK_Text_Synopsis,sCMD_Result,NULL);};
 	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,int iPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage);
 

@@ -16,9 +16,9 @@ public:
 	Xine_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
-	virtual void Playback_Events()
+	virtual void Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 2,0));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 2,3,15,sMediaDescription.c_str(),16,sSectionDescription.c_str(),17,sSynposisDescription.c_str()));
 	}
 
 };
@@ -70,7 +70,7 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
-	void EVENT_Playback_Events() { GetEvents()->Playback_Events(); }
+	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Create_Media(string sFilename,int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,class Message *pMessage) {};

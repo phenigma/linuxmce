@@ -25,7 +25,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
-#define  VERSION "testing"
+#define  VERSION "<=version=>"
 
 namespace DCE
 {

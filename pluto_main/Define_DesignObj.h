@@ -1052,6 +1052,11 @@
 #define DESIGNOBJ_go_to_dvd_menu_CONST 3210
 #define DESIGNOBJ_go_to_dvd_remote_CONST 3211
 #define DESIGNOBJ_go_to_cd_remote_CONST 3212
+#define DESIGNOBJ_app_desktop_CONST 3214
+#define DESIGNOBJ_setup_myth_CONST 3215
+#define DESIGNOBJ_go_to_2_screen_CONST 3216
+#define DESIGNOBJ_setup_myth_2_CONST 3217
+#define DESIGNOBJ_go_to_myth_setup_CONST 3218
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

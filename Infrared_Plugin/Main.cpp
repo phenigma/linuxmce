@@ -1,3 +1,20 @@
+/*
+ Main
+ 
+ Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+ 
+ www.plutohome.com		
+ 
+ Phone: +1 (877) 758-8648
+ 
+ This program is distributed according to the terms of the Pluto Public License, available at: 
+ http://plutohome.com/index.php?section=public_license 
+ 
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+ 
+ */
+
 //<-dceag-incl-b->
 #include "Infrared_Plugin.h"
 #include "DCE/Logger.h"
@@ -8,7 +25,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
-#define  Infrared_Plugin_VERSION "testing"
+#define  VERSION "<=version=>"
 
 namespace DCE
 {
@@ -89,7 +106,7 @@ int main(int argc, char* argv[])
 
 	if (bError)
 	{
-		cout << "Infrared_Plugin, v." << Infrared_Plugin_VERSION << endl
+		cout << "Infrared_Plugin, v." << VERSION << endl
 			<< "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
 			<< "Usage: Infrared_Plugin [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl

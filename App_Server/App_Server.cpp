@@ -57,15 +57,14 @@ bool App_Server::Register()
 */
 
 //<-dceag-c28-b->
-/* 
-	COMMAND: #28 - Simulate Keypress
-	COMMENTS: Send a keypress event to an application
-	PARAMETERS:
-		#26 PK_Button
-			What key to simulate being pressed
-		#50 Name
-			The application to send the keypress to. If not specified, it goes to the DCE device.
-*/
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a keypress event to an application */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
 void App_Server::CMD_Simulate_Keypress(int iPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
@@ -75,17 +74,16 @@ void App_Server::CMD_Simulate_Keypress(int iPK_Button,string sName,string &sCMD_
 }
 
 //<-dceag-c67-b->
-/* 
-	COMMAND: #67 - Spawn Application
-	COMMENTS: Spawn an application
-	PARAMETERS:
-		#13 Filename
-			The name of the executable file to spawn
-		#50 Name
-			A name that we'll remember the application by for future kill commands
-		#51 Arguments
-			Command arguments
-*/
+
+	/** @brief COMMAND: #67 - Spawn Application */
+	/** Spawn an application */
+		/** @param #13 Filename */
+			/** The name of the executable file to spawn */
+		/** @param #50 Name */
+			/** A name that we'll remember the application by for future kill commands */
+		/** @param #51 Arguments */
+			/** Command arguments */
+
 void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c67-e->
 {
@@ -106,13 +104,12 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 }
 
 //<-dceag-c69-b->
-/* 
-	COMMAND: #69 - Kill Application
-	COMMENTS: Kill an application
-	PARAMETERS:
-		#50 Name
-			Application name given at spawn time
-*/
+
+	/** @brief COMMAND: #69 - Kill Application */
+	/** Kill an application */
+		/** @param #50 Name */
+			/** Application name given at spawn time */
+
 void App_Server::CMD_Kill_Application(string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c69-e->
 {
@@ -138,13 +135,12 @@ void App_Server::CMD_Kill_Application(string sName,string &sCMD_Result,Message *
 }
 
 //<-dceag-c70-b->
-/* 
-	COMMAND: #70 - Hide Application
-	COMMENTS: Hide an application
-	PARAMETERS:
-		#50 Name
-			Application name given at spawn time
-*/
+
+	/** @brief COMMAND: #70 - Hide Application */
+	/** Hide an application */
+		/** @param #50 Name */
+			/** Application name given at spawn time */
+
 void App_Server::CMD_Hide_Application(string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c70-e->
 {

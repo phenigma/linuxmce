@@ -47,7 +47,7 @@ Datagrid_Plugin::~Datagrid_Plugin()
 }
 
 //<-dceag-reg-b->
-// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in. Otherwise Connect() will be called from the main()
+// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool Datagrid_Plugin::Register()
 //<-dceag-reg-e->
 {
@@ -132,32 +132,31 @@ void Datagrid_Plugin::SomeFunction()
 */
 
 //<-dceag-c34-b->
-/* 
-	COMMAND: #34 - Request Datagrid Contents
-	COMMENTS: The orbiters use this to request the contents of a datagrid, so they can display it for the user. Before you can request a grid, the command Populate Datagrid must be called, passing in the information required to populate the grid as well a \"GridID\", 
-	PARAMETERS:
-		#10 ID
-			For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be. If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope
-		#15 DataGrid ID
-			A unique identifier for the grid that was passed to populate grid.
-		#19 Data
-			The binary contents of the grid.
-		#32 Row
-			The starting row
-		#33 Column
-			The starting column
-		#34 Row count
-			How many rows to fetch
-		#35 Column count
-			How many columns to fetch.
-		#36 Keep Row Header
-			True means the first row ( 0 ) is locked and will always be at the top as a header.
-		#37 Keep Column Header
-			True means the first column( 0 ) is locked and will always be at the top as a header.
-		#49 Add Up-Down Arrows
-			If to add up/down arrows to the returned datagrid when datagrid doesn't fully fit.
-*/
-void Datagrid_Plugin::CMD_Request_Datagrid_Contents( string sID, string sDataGrid_ID, int iRow, int iColumn, int iRow_count, int iColumn_count, bool bKeep_Row_Header, bool bKeep_Column_Header, bool bAdd_UpDown_Arrows, char **pData, int *iData_Size, string &sCMD_Result, Message *pMessage )
+
+	/** @brief COMMAND: #34 - Request Datagrid Contents */
+	/** The orbiters use this to request the contents of a datagrid, so they can display it for the user.  Before you can request a grid, the command Populate Datagrid must be called, passing in the information required to populate the grid as well a \"GridID\", */
+		/** @param #10 ID */
+			/** For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be.  If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope */
+		/** @param #15 DataGrid ID */
+			/** A unique identifier for the grid that was passed to populate grid. */
+		/** @param #19 Data */
+			/** The binary contents of the grid. */
+		/** @param #32 Row */
+			/** The starting row */
+		/** @param #33 Column */
+			/** The starting column */
+		/** @param #34 Row count */
+			/** How many rows to fetch */
+		/** @param #35 Column count */
+			/** How many columns to fetch. */
+		/** @param #36 Keep Row Header */
+			/** True means the first row (0) is locked and will always be at the top as a header. */
+		/** @param #37 Keep Column Header */
+			/** True means the first column(0) is locked and will always be at the top as a header. */
+		/** @param #49 Add Up-Down Arrows */
+			/** If to add up/down arrows to the returned datagrid when datagrid doesn't fully fit. */
+
+void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c34-e->
 {
  *iData_Size=0;
@@ -205,26 +204,25 @@ delete[] ( *pData );
 }
 
 //<-dceag-c35-b->
-/* 
-	COMMAND: #35 - Populate Datagrid
-	COMMENTS: Before an orbiter can request the contents of a datagrid, the datagrid plug-in must first populate it. This is how the orbiter tells the plug-in to create and populate a datagrid, referenced by the unique ID passed in with this command.
-	PARAMETERS:
-		#4 PK_Variable
-			The populate grid can optionally return a variable number to assign a value into. For example, the current path in the file grid.
-		#5 Value To Assign
-			The value to assign into the variable.
-		#10 ID
-			For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be. If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope
-		#15 DataGrid ID
-			A unique ID for this instance of the grid that will be passed with the Request Datagrid Contents command.
-		#38 PK_Datagrid
-			Which grid should be populated
-		#39 Options
-			The options are specific the type of grid ( PK_Datagrid ). These are not pre-defined. The grid generator and orbiter must both pass the options in the correct format for the type of grid.
-		#40 IsSuccessful
-			Returns false if the grid could not be populated. Perhaps there was no registered datagrid generator.
-*/
-void Datagrid_Plugin::CMD_Populate_Datagrid( string sID, string sDataGrid_ID, int iPK_Datagrid, string sOptions, int *iPK_Variable, string *sValue_To_Assign, bool *bIsSuccessful, string &sCMD_Result, Message *pMessage )
+
+	/** @brief COMMAND: #35 - Populate Datagrid */
+	/** Before an orbiter can request the contents of a datagrid, the datagrid plug-in must first populate it.  This is how the orbiter tells the plug-in to create and populate a datagrid, referenced by the unique ID passed in with this command. */
+		/** @param #4 PK_Variable */
+			/** The populate grid can optionally return a variable number to assign a value into.  For example, the current path in the file grid. */
+		/** @param #5 Value To Assign */
+			/** The value to assign into the variable. */
+		/** @param #10 ID */
+			/** For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be.  If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope */
+		/** @param #15 DataGrid ID */
+			/** A unique ID for this instance of the grid that will be passed with the Request Datagrid Contents command. */
+		/** @param #38 PK_Datagrid */
+			/** Which grid should be populated */
+		/** @param #39 Options */
+			/** The options are specific the type of grid (PK_Datagrid).  These are not pre-defined.  The grid generator and orbiter must both pass the options in the correct format for the type of grid. */
+		/** @param #40 IsSuccessful */
+			/** Returns false if the grid could not be populated.  Perhaps there was no registered datagrid generator. */
+
+void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_Datagrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage)
 //<-dceag-c35-e->
 {
  *iPK_Variable=0;

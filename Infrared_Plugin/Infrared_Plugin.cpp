@@ -110,16 +110,15 @@ void Infrared_Plugin::SomeFunction()
 */
 
 //<-dceag-c188-b->
-/* 
-	COMMAND: #188 - Get Infrared Codes
-	COMMENTS: Retrieves all the infrared codes for a given device.
-	PARAMETERS:
-		#2 PK_Device
-			The device to retrieve the infrared codes for.
-		#5 Value To Assign
-			A tab delimited list of all the commands and infrared codes for the device.  The format is:
-\t{\tData}
-*/
+
+	/** @brief COMMAND: #188 - Get Infrared Codes */
+	/** Retrieves all the infrared codes for a given device. */
+		/** @param #2 PK_Device */
+			/** The device to retrieve the infrared codes for. */
+		/** @param #5 Value To Assign */
+			/** A tab delimited list of all the commands and infrared codes for the device.  The format is:
+\t{\tData} */
+
 void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c188-e->
 {

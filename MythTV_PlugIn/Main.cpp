@@ -1,3 +1,19 @@
+/*
+	Main
+	
+	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+	
+	www.plutohome.com		
+	
+	Phone: +1 (877) 758-8648
+	
+	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	
+	See the GNU General Public License for more details.
+*/
+
 //<-dceag-incl-b->
 #include "MythTV_PlugIn.h"
 #include "DCE/Logger.h"
@@ -8,7 +24,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
-#define  MythTV_PlugIn_VERSION "testing"
+#define  VERSION "<=version=>"
 
 namespace DCE
 {
@@ -89,7 +105,7 @@ int main(int argc, char* argv[])
 
 	if (bError)
 	{
-		cout << "MythTV_PlugIn, v." << MythTV_PlugIn_VERSION << endl
+		cout << "MythTV_PlugIn, v." << VERSION << endl
 			<< "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
 			<< "Usage: MythTV_PlugIn [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl

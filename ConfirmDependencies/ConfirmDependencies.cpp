@@ -38,7 +38,7 @@
 #include "pluto_main/Table_Package_Directory.h"
 #include "pluto_main/Table_Package_Directory_File.h"
 
-#define ConfirmDependencies_VERSION "0.1"
+#define  VERSION "<=version=>"
 
 using namespace std;
 using namespace DCE;
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 
 	if ( bError)
 	{
-		cout << "ConfirmDependencies, v." << ConfirmDependencies_VERSION << endl
+		cout << "ConfirmDependencies, v." << VERSION << endl
 			<< "Usage: ConfirmDependencies [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-t Table(s)] [-U Users(s)]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl

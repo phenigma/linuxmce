@@ -44,49 +44,45 @@ public:
 			*****COMMANDS***** we need to implement
 	*/
 
-/* 
-	COMMAND: #28 - Simulate Keypress
-	COMMENTS: Send a keypress event to an application
-	PARAMETERS:
-		#26 PK_Button
-			What key to simulate being pressed
-		#50 Name
-			The application to send the keypress to. If not specified, it goes to the DCE device.
-*/
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a keypress event to an application */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
 	virtual void CMD_Simulate_Keypress(int iPK_Button,string sName) { string sCMD_Result; CMD_Simulate_Keypress(iPK_Button,sName.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Simulate_Keypress(int iPK_Button,string sName,string &sCMD_Result,Message *pMessage);
 
-/* 
-	COMMAND: #67 - Spawn Application
-	COMMENTS: Spawn an application
-	PARAMETERS:
-		#13 Filename
-			The name of the executable file to spawn
-		#50 Name
-			A name that we'll remember the application by for future kill commands
-		#51 Arguments
-			Command arguments
-*/
+
+	/** @brief COMMAND: #67 - Spawn Application */
+	/** Spawn an application */
+		/** @param #13 Filename */
+			/** The name of the executable file to spawn */
+		/** @param #50 Name */
+			/** A name that we'll remember the application by for future kill commands */
+		/** @param #51 Arguments */
+			/** Command arguments */
+
 	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string &sCMD_Result,Message *pMessage);
 
-/* 
-	COMMAND: #69 - Kill Application
-	COMMENTS: Kill an application
-	PARAMETERS:
-		#50 Name
-			Application name given at spawn time
-*/
+
+	/** @brief COMMAND: #69 - Kill Application */
+	/** Kill an application */
+		/** @param #50 Name */
+			/** Application name given at spawn time */
+
 	virtual void CMD_Kill_Application(string sName) { string sCMD_Result; CMD_Kill_Application(sName.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Kill_Application(string sName,string &sCMD_Result,Message *pMessage);
 
-/* 
-	COMMAND: #70 - Hide Application
-	COMMENTS: Hide an application
-	PARAMETERS:
-		#50 Name
-			Application name given at spawn time
-*/
+
+	/** @brief COMMAND: #70 - Hide Application */
+	/** Hide an application */
+		/** @param #50 Name */
+			/** Application name given at spawn time */
+
 	virtual void CMD_Hide_Application(string sName) { string sCMD_Result; CMD_Hide_Application(sName.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Hide_Application(string sName,string &sCMD_Result,Message *pMessage);
 

@@ -3207,25 +3207,24 @@ COMMANDS TO IMPLEMENT
 */
 
 //<-dceag-c1-b->
-/* 
-	COMMAND: #1 - Capture Keyboard To Variable
-	COMMENTS: As the user types, using either the keyboard or simulate keypress commands, what he types will be stored in a variable and/or put into a text object.
-	PARAMETERS:
-		#3 PK_DesignObj
-			The Design Object which contains the text Object
-		#4 PK_Variable
-			The variable in which to store the input
-		#8 On/Off
-			If 0, this stops capturing
-		#14 Type
-			1=normal, 2=pin, 3=phone number
-		#24 Reset
-			if true, the next keypress will clear the variable and start new
-		#25 PK_Text
-			The text object in which to store the current input
-		#55 DataGrid
-			If 1, we'll scroll the data grid too when typing keys.
-*/
+
+	/** @brief COMMAND: #1 - Capture Keyboard To Variable */
+	/** As the user types, using either the keyboard or simulate keypress commands, what he types will be stored in a variable and/or put into a text object. */
+		/** @param #3 PK_DesignObj */
+			/** The Design Object which contains the text Object */
+		/** @param #4 PK_Variable */
+			/** The variable in which to store the input */
+		/** @param #8 On/Off */
+			/** If 0, this stops capturing */
+		/** @param #14 Type */
+			/** 1=normal, 2=pin, 3=phone number */
+		/** @param #24 Reset */
+			/** if true, the next keypress will clear the variable and start new */
+		/** @param #25 PK_Text */
+			/** The text object in which to store the current input */
+		/** @param #55 DataGrid */
+			/** If 1, we'll scroll the data grid too when typing keys. */
+
 void Orbiter::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid,string &sCMD_Result,Message *pMessage)
 //<-dceag-c1-e->
 {
@@ -3241,11 +3240,10 @@ void Orbiter::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Vari
 }
 
 //<-dceag-c2-b->
-/* 
-	COMMAND: #2 - Orbiter Beep
-	COMMENTS: Make the orbiter beep
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #2 - Orbiter Beep */
+	/** Make the orbiter beep */
+
 void Orbiter::CMD_Orbiter_Beep(string &sCMD_Result,Message *pMessage)
 //<-dceag-c2-e->
 {
@@ -3253,13 +3251,12 @@ void Orbiter::CMD_Orbiter_Beep(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c3-b->
-/* 
-	COMMAND: #3 - Display On/Off
-	COMMENTS: Turn the display on or off
-	PARAMETERS:
-		#8 On/Off
-			0=Off, 1=On
-*/
+
+	/** @brief COMMAND: #3 - Display On/Off */
+	/** Turn the display on or off */
+		/** @param #8 On/Off */
+			/** 0=Off, 1=On */
+
 void Orbiter::CMD_Display_OnOff(string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c3-e->
 {
@@ -3268,15 +3265,14 @@ void Orbiter::CMD_Display_OnOff(string sOnOff,string &sCMD_Result,Message *pMess
 }
 
 //<-dceag-c4-b->
-/* 
-	COMMAND: #4 - Go back
-	COMMENTS: Make the orbiter go back to the prior screen, like the back button in a web browser
-	PARAMETERS:
-		#16 PK_DesignObj_CurrentScreen
-			If this is specified, the orbiter will ignore the command unless this is the current screen
-		#21 Force
-			Screens can be flagged, "Cant go back", meaning the go back will skip over them.  If Force=1, the Orbiter returns to the prior screen regardless
-*/
+
+	/** @brief COMMAND: #4 - Go back */
+	/** Make the orbiter go back to the prior screen, like the back button in a web browser */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** If this is specified, the orbiter will ignore the command unless this is the current screen */
+		/** @param #21 Force */
+			/** Screens can be flagged, "Cant go back", meaning the go back will skip over them.  If Force=1, the Orbiter returns to the prior screen regardless */
+
 void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c4-e->
 {
@@ -3302,21 +3298,20 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 }
 
 //<-dceag-c5-b->
-/* 
-	COMMAND: #5 - Goto Screen
-	COMMENTS: Goto a specific screen
-	PARAMETERS:
-		#2 PK_Device
-			For this screen only, override the normal "control device" stored in variable #1, and treat this device as the control screen.  When the screen changes, it will be reset
-		#3 PK_DesignObj
-			The screen to go to.  Can be be fully qualified (x.y.z), or just contain the screen #
-		#10 ID
-			Assigns an optional ID to this particular "viewing" of the screen, used with Kill Screen.  There can be lots of instances of the same screen in the history queue (such as call in progress).  This allows a program to pop a particular one out of the queue.
-		#16 PK_DesignObj_CurrentScreen
-			If this is specified, the orbiter will ignore the command unless this is the current screen.  If this is -1, that will match a main menu or screen saver (ie the Orbiter is not in use).
-		#22 Store Variables
-			If 1, the Orbiter will store the current variable values, and restore them if a 'go back' causes it to return to this screen
-*/
+
+	/** @brief COMMAND: #5 - Goto Screen */
+	/** Goto a specific screen */
+		/** @param #2 PK_Device */
+			/** For this screen only, override the normal "control device" stored in variable #1, and treat this device as the control screen.  When the screen changes, it will be reset */
+		/** @param #3 PK_DesignObj */
+			/** The screen to go to.  Can be be fully qualified (x.y.z), or just contain the screen # */
+		/** @param #10 ID */
+			/** Assigns an optional ID to this particular "viewing" of the screen, used with Kill Screen.  There can be lots of instances of the same screen in the history queue (such as call in progress).  This allows a program to pop a particular one out of the queue. */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** If this is specified, the orbiter will ignore the command unless this is the current screen.  If this is -1, that will match a main menu or screen saver (ie the Orbiter is not in use). */
+		/** @param #22 Store Variables */
+			/** If 1, the Orbiter will store the current variable values, and restore them if a 'go back' causes it to return to this screen */
+
 void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,string &sCMD_Result,Message *pMessage)
 //<-dceag-c5-e->
 {
@@ -3370,21 +3365,20 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
 }
 
 //<-dceag-c6-b->
-/* 
-	COMMAND: #6 - Show Object
-	COMMENTS: Change an objects visible state.
-	PARAMETERS:
-		#3 PK_DesignObj
-			The object to show or hide
-		#4 PK_Variable
-			The variable to use in the comparisson.  See Comparisson Value.
-		#6 Comparisson Operator
-			A type of comparisson: =  <  <>  !=  >
-		#7 Comparisson Value
-			If a Variable, Comparisson Type, and Comparisson Value are specified, the command will be ignored if the comparisson is not true
-		#8 On/Off
-			1=show object, 2=hide object
-*/
+
+	/** @brief COMMAND: #6 - Show Object */
+	/** Change an objects visible state. */
+		/** @param #3 PK_DesignObj */
+			/** The object to show or hide */
+		/** @param #4 PK_Variable */
+			/** The variable to use in the comparisson.  See Comparisson Value. */
+		/** @param #6 Comparisson Operator */
+			/** A type of comparisson: =  <  <>  !=  > */
+		/** @param #7 Comparisson Value */
+			/** If a Variable, Comparisson Type, and Comparisson Value are specified, the command will be ignored if the comparisson is not true */
+		/** @param #8 On/Off */
+			/** 1=show object, 2=hide object */
+
 void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c6-e->
 {
@@ -3421,11 +3415,10 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
 }
 
 //<-dceag-c7-b->
-/* 
-	COMMAND: #7 - Terminate Orbiter
-	COMMENTS: Causes the Orbiter application to exit
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #7 - Terminate Orbiter */
+	/** Causes the Orbiter application to exit */
+
 void Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 //<-dceag-c7-e->
 {
@@ -3433,15 +3426,14 @@ void Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c8-b->
-/* 
-	COMMAND: #8 - Remove Screen From History
-	COMMENTS: The orbiter keeps a history of visible screens, allowing the user to go back.  See Go_Back.  This removes screens from the queue that should not available anymore.  An example is when a call comes in, the controllers are sent to an incoming call screen.
-	PARAMETERS:
-		#3 PK_DesignObj
-			The screen to remove
-		#10 ID
-			If specified, only screens that match this ID will be removed
-*/
+
+	/** @brief COMMAND: #8 - Remove Screen From History */
+	/** The orbiter keeps a history of visible screens, allowing the user to go back.  See Go_Back.  This removes screens from the queue that should not available anymore.  An example is when a call comes in, the controllers are sent to an incoming call screen. */
+		/** @param #3 PK_DesignObj */
+			/** The screen to remove */
+		/** @param #10 ID */
+			/** If specified, only screens that match this ID will be removed */
+
 void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c8-e->
 {
@@ -3451,17 +3443,16 @@ void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,str
 }
 
 //<-dceag-c9-b->
-/* 
-	COMMAND: #9 - Scroll Grid
-	COMMENTS: Scroll a datagrid
-	PARAMETERS:
-		#1 Relative Level
-			The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page.
-		#3 PK_DesignObj
-			The grid to scroll.  If not specified, any currently visible grids will scroll
-		#30 PK_Direction
-			The direction to scroll the grid
-*/
+
+	/** @brief COMMAND: #9 - Scroll Grid */
+	/** Scroll a datagrid */
+		/** @param #1 Relative Level */
+			/** The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page. */
+		/** @param #3 PK_DesignObj */
+			/** The grid to scroll.  If not specified, any currently visible grids will scroll */
+		/** @param #30 PK_Direction */
+			/** The direction to scroll the grid */
+
 void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
 //<-dceag-c9-e->
 {
@@ -3529,17 +3520,16 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 }
 
 //<-dceag-c10-b->
-/* 
-	COMMAND: #10 - Move Highlight
-	COMMENTS: Move the current highlight pointer
-	PARAMETERS:
-		#1 Relative Level
-			The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page.
-		#3 PK_DesignObj
-			The grid to scroll.  If not specified, any currently visible grids will scroll
-		#30 PK_Direction
-			The direction to move the highlight
-*/
+
+	/** @brief COMMAND: #10 - Move Highlight */
+	/** Move the current highlight pointer */
+		/** @param #1 Relative Level */
+			/** The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page. */
+		/** @param #3 PK_DesignObj */
+			/** The grid to scroll.  If not specified, any currently visible grids will scroll */
+		/** @param #30 PK_Direction */
+			/** The direction to move the highlight */
+
 void Orbiter::CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
 //<-dceag-c10-e->
 {
@@ -3550,15 +3540,14 @@ void Orbiter::CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int
 }
 
 ///<-dceag-c13-b->
-/* 
-	COMMAND: #13 - Play Sound
-	COMMENTS: Plays a sound file on the orbiter
-	PARAMETERS:
-		#19 Data
-			A pointer to a block of memory representing the sound file to play
-		#20 Format
-			Indicates what type of data is in the memory block.  1=wav, 2=mp3
-*/
+
+	/** @brief COMMAND: #13 - Play Sound */
+	/** Plays a sound file on the orbiter */
+		/** @param #19 Data */
+			/** A pointer to a block of memory representing the sound file to play */
+		/** @param #20 Format */
+			/** Indicates what type of data is in the memory block.  1=wav, 2=mp3 */
+
 void Orbiter::CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c13-e->
 {
@@ -3568,13 +3557,12 @@ void Orbiter::CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &s
 }
 
 //<-dceag-c14-b->
-/* 
-	COMMAND: #14 - Refresh
-	COMMENTS: Invalidates and redraws the current screen, optionally re-requesting data from a datagrid.  The OnLoad commands are not fired.  See Regen Screen.
-	PARAMETERS:
-		#15 DataGrid ID
-			Normally refresh does not cause the orbiter to re-request data.  But if a specific grid ID is specified, that grid will be refreshed.  Specify * to re-request all grids on the current screen
-*/
+
+	/** @brief COMMAND: #14 - Refresh */
+	/** Invalidates and redraws the current screen, optionally re-requesting data from a datagrid.  The OnLoad commands are not fired.  See Regen Screen. */
+		/** @param #15 DataGrid ID */
+			/** Normally refresh does not cause the orbiter to re-request data.  But if a specific grid ID is specified, that grid will be refreshed.  Specify * to re-request all grids on the current screen */
+
 void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c14-e->
 {
@@ -3586,11 +3574,10 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 }
 
 //<-dceag-c15-b->
-/* 
-	COMMAND: #15 - Regen Screen
-	COMMENTS: The screen is reloaded like the user was going to it for the first time.  The OnUnload and OnLoad commands are fired.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #15 - Regen Screen */
+	/** The screen is reloaded like the user was going to it for the first time.  The OnUnload and OnLoad commands are fired. */
+
 void Orbiter::CMD_Regen_Screen(string &sCMD_Result,Message *pMessage)
 //<-dceag-c15-e->
 {
@@ -3598,11 +3585,10 @@ void Orbiter::CMD_Regen_Screen(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c16-b->
-/* 
-	COMMAND: #16 - Requires Special Handling
-	COMMENTS: When a button needs to do something too sophisticated for a normal command, attach this command.  When the controller sees it, it will pass execution to a local handler that must be added to the Orbiter's code.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #16 - Requires Special Handling */
+	/** When a button needs to do something too sophisticated for a normal command, attach this command.  When the controller sees it, it will pass execution to a local handler that must be added to the Orbiter's code. */
+
 void Orbiter::CMD_Requires_Special_Handling(string &sCMD_Result,Message *pMessage)
 //<-dceag-c16-e->
 {
@@ -3610,19 +3596,18 @@ void Orbiter::CMD_Requires_Special_Handling(string &sCMD_Result,Message *pMessag
 }
 
 //<-dceag-c17-b->
-/* 
-	COMMAND: #17 - Seek Data Grid
-	COMMENTS: Causes a datagrid to seek to a particular position.
-	PARAMETERS:
-		#9 Text
-			If specified, the orbiter will jump to the first row which has a cell that starts with this text.  Specify Position X to use a column other than the first one.
-		#11 Position X
-			The column to jump to.  If Text is not blank, the column to search.
-		#12 Position Y
-			The row to jump to.  Ignored if Text is not blank
-		#15 DataGrid ID
-			The datagrid to scroll.  If not specified, the first visible one will be used
-*/
+
+	/** @brief COMMAND: #17 - Seek Data Grid */
+	/** Causes a datagrid to seek to a particular position. */
+		/** @param #9 Text */
+			/** If specified, the orbiter will jump to the first row which has a cell that starts with this text.  Specify Position X to use a column other than the first one. */
+		/** @param #11 Position X */
+			/** The column to jump to.  If Text is not blank, the column to search. */
+		/** @param #12 Position Y */
+			/** The row to jump to.  Ignored if Text is not blank */
+		/** @param #15 DataGrid ID */
+			/** The datagrid to scroll.  If not specified, the first visible one will be used */
+
 void Orbiter::CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,string sDataGrid_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c17-e->
 {
@@ -3634,15 +3619,14 @@ void Orbiter::CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,st
 }
 
 //<-dceag-c18-b->
-/* 
-	COMMAND: #18 - Set Graphic To Display
-	COMMENTS: All objects on screen can be either in "Normal" mode, "Selected mode", "Highlighted mode", or any number of "Alternate modes".  These are like "views".  A Selected mode may appear depressed, for example.  All children of this object will also be set.
-	PARAMETERS:
-		#3 PK_DesignObj
-			The object to set
-		#10 ID
-			0=standard mode, -1=selected -2=highlight a positive number is one of the alternates
-*/
+
+	/** @brief COMMAND: #18 - Set Graphic To Display */
+	/** All objects on screen can be either in "Normal" mode, "Selected mode", "Highlighted mode", or any number of "Alternate modes".  These are like "views".  A Selected mode may appear depressed, for example.  All children of this object will also be set. */
+		/** @param #3 PK_DesignObj */
+			/** The object to set */
+		/** @param #10 ID */
+			/** 0=standard mode, -1=selected -2=highlight a positive number is one of the alternates */
+
 void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c18-e->
 {
@@ -3662,15 +3646,14 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
 }
 
 //<-dceag-c19-b->
-/* 
-	COMMAND: #19 - Set House Mode
-	COMMENTS: change the house's mode
-	PARAMETERS:
-		#5 Value To Assign
-			A value from the HouseMode table
-		#18 Errors
-			not used by the Orbiter.  This is used only when sending the action to the core.
-*/
+
+	/** @brief COMMAND: #19 - Set House Mode */
+	/** change the house's mode */
+		/** @param #5 Value To Assign */
+			/** A value from the HouseMode table */
+		/** @param #18 Errors */
+			/** not used by the Orbiter.  This is used only when sending the action to the core. */
+
 void Orbiter::CMD_Set_House_Mode(string sValue_To_Assign,string sErrors,string &sCMD_Result,Message *pMessage)
 //<-dceag-c19-e->
 {
@@ -3680,17 +3663,16 @@ void Orbiter::CMD_Set_House_Mode(string sValue_To_Assign,string sErrors,string &
 }
 
 //<-dceag-c20-b->
-/* 
-	COMMAND: #20 - Set Object Parameter
-	COMMENTS: changes one of the object's DesignObjParameters
-	PARAMETERS:
-		#3 PK_DesignObj
-			The object to change
-		#5 Value To Assign
-			The value to assign
-		#27 PK_DesignObjParameter
-			The parameter
-*/
+
+	/** @brief COMMAND: #20 - Set Object Parameter */
+	/** changes one of the object's DesignObjParameters */
+		/** @param #3 PK_DesignObj */
+			/** The object to change */
+		/** @param #5 Value To Assign */
+			/** The value to assign */
+		/** @param #27 PK_DesignObjParameter */
+			/** The parameter */
+
 void Orbiter::CMD_Set_Object_Parameter(string sPK_DesignObj,string sValue_To_Assign,int iPK_DesignObjParameter,string &sCMD_Result,Message *pMessage)
 //<-dceag-c20-e->
 {
@@ -3701,17 +3683,16 @@ void Orbiter::CMD_Set_Object_Parameter(string sPK_DesignObj,string sValue_To_Ass
 }
 
 //<-dceag-c21-b->
-/* 
-	COMMAND: #21 - Set Object Position
-	COMMENTS: Change an objects's position on the screen
-	PARAMETERS:
-		#3 PK_DesignObj
-			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
-		#11 Position X
-			
-		#12 Position Y
-			
-*/
+
+	/** @brief COMMAND: #21 - Set Object Position */
+	/** Change an objects's position on the screen */
+		/** @param #3 PK_DesignObj */
+			/** The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen. */
+		/** @param #11 Position X */
+			/**  */
+		/** @param #12 Position Y */
+			/**  */
+
 void Orbiter::CMD_Set_Object_Position(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c21-e->
 {
@@ -3722,17 +3703,16 @@ void Orbiter::CMD_Set_Object_Position(string sPK_DesignObj,int iPosition_X,int i
 }
 
 //<-dceag-c22-b->
-/* 
-	COMMAND: #22 - Set Object Size
-	COMMENTS: Change an object's size
-	PARAMETERS:
-		#3 PK_DesignObj
-			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
-		#11 Position X
-			
-		#12 Position Y
-			
-*/
+
+	/** @brief COMMAND: #22 - Set Object Size */
+	/** Change an object's size */
+		/** @param #3 PK_DesignObj */
+			/** The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen. */
+		/** @param #11 Position X */
+			/**  */
+		/** @param #12 Position Y */
+			/**  */
+
 void Orbiter::CMD_Set_Object_Size(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c22-e->
 {
@@ -3743,17 +3723,16 @@ void Orbiter::CMD_Set_Object_Size(string sPK_DesignObj,int iPosition_X,int iPosi
 }
 
 //<-dceag-c23-b->
-/* 
-	COMMAND: #23 - Set Pos Rel To Parent
-	COMMENTS: Like Set Object Position, but the X and Y coordinates are assumed to be relative to the parent rather than absolute
-	PARAMETERS:
-		#3 PK_DesignObj
-			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
-		#11 Position X
-			
-		#12 Position Y
-			
-*/
+
+	/** @brief COMMAND: #23 - Set Pos Rel To Parent */
+	/** Like Set Object Position, but the X and Y coordinates are assumed to be relative to the parent rather than absolute */
+		/** @param #3 PK_DesignObj */
+			/** The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen. */
+		/** @param #11 Position X */
+			/**  */
+		/** @param #12 Position Y */
+			/**  */
+
 void Orbiter::CMD_Set_Pos_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c23-e->
 {
@@ -3764,17 +3743,16 @@ void Orbiter::CMD_Set_Pos_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int
 }
 
 //<-dceag-c24-b->
-/* 
-	COMMAND: #24 - Set Size Rel To Parent
-	COMMENTS: Change an object's size, relative to it's parent object
-	PARAMETERS:
-		#3 PK_DesignObj
-			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
-		#11 Position X
-			The percentage of the parent object's width.  100=the parent's full width.
-		#12 Position Y
-			The percentage of the parent object's height.  100=the parent's full height.
-*/
+
+	/** @brief COMMAND: #24 - Set Size Rel To Parent */
+	/** Change an object's size, relative to it's parent object */
+		/** @param #3 PK_DesignObj */
+			/** The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen. */
+		/** @param #11 Position X */
+			/** The percentage of the parent object's width.  100=the parent's full width. */
+		/** @param #12 Position Y */
+			/** The percentage of the parent object's height.  100=the parent's full height. */
+
 void Orbiter::CMD_Set_Size_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c24-e->
 {
@@ -3785,17 +3763,16 @@ void Orbiter::CMD_Set_Size_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,in
 }
 
 //<-dceag-c25-b->
-/* 
-	COMMAND: #25 - Set Text
-	COMMENTS: Change the text within a text object on the fly
-	PARAMETERS:
-		#3 PK_DesignObj
-			The Design Object which contains the text object.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
-		#9 Text
-			The text to assign
-		#25 PK_Text
-			The text object in which to store the current input
-*/
+
+	/** @brief COMMAND: #25 - Set Text */
+	/** Change the text within a text object on the fly */
+		/** @param #3 PK_DesignObj */
+			/** The Design Object which contains the text object.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen. */
+		/** @param #9 Text */
+			/** The text to assign */
+		/** @param #25 PK_Text */
+			/** The text object in which to store the current input */
+
 void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string &sCMD_Result,Message *pMessage)
 //<-dceag-c25-e->
 {
@@ -3815,15 +3792,14 @@ void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string
 }
 
 //<-dceag-c26-b->
-/* 
-	COMMAND: #26 - Set User Mode
-	COMMENTS: Changes a user's mode
-	PARAMETERS:
-		#5 Value To Assign
-			A Value from the UserMode table
-		#17 PK_Users
-			The User to change
-*/
+
+	/** @brief COMMAND: #26 - Set User Mode */
+	/** Changes a user's mode */
+		/** @param #5 Value To Assign */
+			/** A Value from the UserMode table */
+		/** @param #17 PK_Users */
+			/** The User to change */
+
 void Orbiter::CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,Message *pMessage)
 //<-dceag-c26-e->
 {
@@ -3833,15 +3809,14 @@ void Orbiter::CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sC
 }
 
 //<-dceag-c27-b->
-/* 
-	COMMAND: #27 - Set Variable
-	COMMENTS: Change the value of a variable
-	PARAMETERS:
-		#4 PK_Variable
-			The variable to change
-		#5 Value To Assign
-			The value to assign
-*/
+
+	/** @brief COMMAND: #27 - Set Variable */
+	/** Change the value of a variable */
+		/** @param #4 PK_Variable */
+			/** The variable to change */
+		/** @param #5 Value To Assign */
+			/** The value to assign */
+
 void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c27-e->
 {
@@ -3849,15 +3824,14 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 }
 
 //<-dceag-c28-b->
-/* 
-	COMMAND: #28 - Simulate Keypress
-	COMMENTS: Simulates that a key has been touched.  Touchable keys on screen can use this command to allow for simultaneous operation with keyboard or mouse.  Also works with the "Capture Keyboard to Variable" command.
-	PARAMETERS:
-		#26 PK_Button
-			What key to simulate being pressed
-		#50 Name
-			The application to send the keypress to. If not specified, it goes to the DCE device.
-*/
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Simulates that a key has been touched.  Touchable keys on screen can use this command to allow for simultaneous operation with keyboard or mouse.  Also works with the "Capture Keyboard to Variable" command. */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
 void Orbiter::CMD_Simulate_Keypress(int iPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
@@ -3865,15 +3839,14 @@ void Orbiter::CMD_Simulate_Keypress(int iPK_Button,string sName,string &sCMD_Res
 }
 
 //<-dceag-c29-b->
-/* 
-	COMMAND: #29 - Simulate Mouse Click
-	COMMENTS: Simulates a mouse click or touch on the indicated x & y coordinates
-	PARAMETERS:
-		#11 Position X
-			
-		#12 Position Y
-			
-*/
+
+	/** @brief COMMAND: #29 - Simulate Mouse Click */
+	/** Simulates a mouse click or touch on the indicated x & y coordinates */
+		/** @param #11 Position X */
+			/**  */
+		/** @param #12 Position Y */
+			/**  */
+
 void Orbiter::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
 {
@@ -3883,11 +3856,10 @@ void Orbiter::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &s
 }
 
 //<-dceag-c30-b->
-/* 
-	COMMAND: #30 - Stop Sound
-	COMMENTS: If a sound file is being played, it will be stopped.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #30 - Stop Sound */
+	/** If a sound file is being played, it will be stopped. */
+
 void Orbiter::CMD_Stop_Sound(string &sCMD_Result,Message *pMessage)
 //<-dceag-c30-e->
 {
@@ -3895,11 +3867,10 @@ void Orbiter::CMD_Stop_Sound(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c31-b->
-/* 
-	COMMAND: #31 - Store Variables
-	COMMENTS: The orbiter will store a snapshot of the variables at this moment, and if the user returns to this screen with a go back, it will restore the variables to this value.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #31 - Store Variables */
+	/** The orbiter will store a snapshot of the variables at this moment, and if the user returns to this screen with a go back, it will restore the variables to this value. */
+
 void Orbiter::CMD_Store_Variables(string &sCMD_Result,Message *pMessage)
 //<-dceag-c31-e->
 {
@@ -3907,19 +3878,18 @@ void Orbiter::CMD_Store_Variables(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c32-b->
-/* 
-	COMMAND: #32 - Update Object Image
-	COMMENTS: Changes the background image within an object
-	PARAMETERS:
-		#3 PK_DesignObj
-			The object in which to put the bitmap
-		#14 Type
-			1=bmp, 2=jpg, 3=png
-		#19 Data
-			The contents of the bitmap, like reading from the file into a memory buffer
-		#23 Disable Aspect Lock
-			If 1, the image will be stretched to fit the object
-*/
+
+	/** @brief COMMAND: #32 - Update Object Image */
+	/** Changes the background image within an object */
+		/** @param #3 PK_DesignObj */
+			/** The object in which to put the bitmap */
+		/** @param #14 Type */
+			/** 1=bmp, 2=jpg, 3=png */
+		/** @param #19 Data */
+			/** The contents of the bitmap, like reading from the file into a memory buffer */
+		/** @param #23 Disable Aspect Lock */
+			/** If 1, the image will be stretched to fit the object */
+
 void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage)
 //<-dceag-c32-e->
 {
@@ -3973,13 +3943,12 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
 
 
 //<-dceag-c66-b->
-/* 
-	COMMAND: #66 - Select Object
-	COMMENTS: The same as clicking on an object.
-	PARAMETERS:
-		#3 PK_DesignObj
-			The object to select.
-*/
+
+	/** @brief COMMAND: #66 - Select Object */
+	/** The same as clicking on an object. */
+		/** @param #3 PK_DesignObj */
+			/** The object to select. */
+
 void Orbiter::CMD_Select_Object(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
 //<-dceag-c66-e->
 {
@@ -3993,15 +3962,14 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string &sCMD_Result,Message
 }
 
 //<-dceag-c72-b->
-/* 
-	COMMAND: #72 - Surrender to OS
-	COMMENTS: Let the O/S take over.  This is useful with the Orbiter running on the media director's desktop as a full screen app, and media is inserted, or the user starts a computer application on the mobile phone.  The orbiter will then let the other application ta
-	PARAMETERS:
-		#8 On/Off
-			1=Hide and let the OS take over.  0=The orbiter comes up again.
-		#54 Fully release keyboard
-			Only applies if on/off is 1.  If this is false, the orbiter will still filter keystrokes, looking for macros to implement, and only pass on keys that it doesn't catch.  If true, it will pass all keys.
-*/
+
+	/** @brief COMMAND: #72 - Surrender to OS */
+	/** Let the O/S take over.  This is useful with the Orbiter running on the media director's desktop as a full screen app, and media is inserted, or the user starts a computer application on the mobile phone.  The orbiter will then let the other application ta */
+		/** @param #8 On/Off */
+			/** 1=Hide and let the OS take over.  0=The orbiter comes up again. */
+		/** @param #54 Fully release keyboard */
+			/** Only applies if on/off is 1.  If this is false, the orbiter will still filter keystrokes, looking for macros to implement, and only pass on keys that it doesn't catch.  If true, it will pass all keys. */
+
 void Orbiter::CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage)
 //<-dceag-c72-e->
 {
@@ -4237,11 +4205,10 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
 
 //<-dceag-sample-b->!
 //<-dceag-c85-b->
-/* 
-	COMMAND: #85 - Rest Highlight
-	COMMENTS: Resets the currently highlighted object.  Do this when you hide or unhide blocks that have tab stops.
-	PARAMETERS:
-*/
+
+	/** @brief COMMAND: #85 - Rest Highlight */
+	/** Resets the currently highlighted object.  Do this when you hide or unhide blocks that have tab stops. */
+
 void Orbiter::CMD_Rest_Highlight(string &sCMD_Result,Message *pMessage)
 //<-dceag-c85-e->
 {
@@ -4269,13 +4236,12 @@ void Orbiter::CaptureKeyboard_UpdateVariableAndText( int iVariable,  string sVar
 }
 
 //<-dceag-c58-b->
-/* 
-	COMMAND: #58 - Set Current User
-	COMMENTS: Sets what user is currently using the orbiter.
-	PARAMETERS:
-		#17 PK_Users
-			The user currently using the orbiter.
-*/
+
+	/** @brief COMMAND: #58 - Set Current User */
+	/** Sets what user is currently using the orbiter. */
+		/** @param #17 PK_Users */
+			/** The user currently using the orbiter. */
+
 void Orbiter::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pMessage)
 //<-dceag-c58-e->
 {
@@ -4285,13 +4251,12 @@ void Orbiter::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pM
 }
 
 //<-dceag-c88-b->
-/* 
-	COMMAND: #88 - Set Current Location
-	COMMENTS: Sets the location the orbiter is in.  The location is a combination of room and entertainment area.
-	PARAMETERS:
-		#65 LocationID
-			The location ID is a sequential number created by OrbiterGen which defines a combination of room and entertainment area.
-*/
+
+	/** @brief COMMAND: #88 - Set Current Location */
+	/** Sets the location the orbiter is in.  The location is a combination of room and entertainment area. */
+		/** @param #65 LocationID */
+			/** The location ID is a sequential number created by OrbiterGen which defines a combination of room and entertainment area. */
+
 void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c88-e->
 {

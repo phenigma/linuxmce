@@ -69,7 +69,7 @@ public:
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
-		Datagrid_Plugin( int DeviceID, string ServerAddress, bool bConnectEventHandler=true, bool bLocalMode=false, class Router *pRouter=NULL );
+		Datagrid_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~Datagrid_Plugin();
 		virtual bool Register();
 //<-dceag-const-e->
@@ -96,60 +96,58 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Touch_or_click( int iX_Position, int iY_Position );
+	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
 
 			*****COMMANDS***** we need to implement
 	*/
 
-/* 
-	COMMAND: #34 - Request Datagrid Contents
-	COMMENTS: The orbiters use this to request the contents of a datagrid, so they can display it for the user. Before you can request a grid, the command Populate Datagrid must be called, passing in the information required to populate the grid as well a \"GridID\", 
-	PARAMETERS:
-		#10 ID
-			For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be. If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope
-		#15 DataGrid ID
-			A unique identifier for the grid that was passed to populate grid.
-		#19 Data
-			The binary contents of the grid.
-		#32 Row
-			The starting row
-		#33 Column
-			The starting column
-		#34 Row count
-			How many rows to fetch
-		#35 Column count
-			How many columns to fetch.
-		#36 Keep Row Header
-			True means the first row ( 0 ) is locked and will always be at the top as a header.
-		#37 Keep Column Header
-			True means the first column( 0 ) is locked and will always be at the top as a header.
-		#49 Add Up-Down Arrows
-			If to add up/down arrows to the returned datagrid when datagrid doesn't fully fit.
-*/
-	virtual void CMD_Request_Datagrid_Contents( string sID, string sDataGrid_ID, int iRow, int iColumn, int iRow_count, int iColumn_count, bool bKeep_Row_Header, bool bKeep_Column_Header, bool bAdd_UpDown_Arrows, char **pData, int *iData_Size ) { string sCMD_Result; CMD_Request_Datagrid_Contents( sID.c_str(), sDataGrid_ID.c_str(), iRow, iColumn, iRow_count, iColumn_count, bKeep_Row_Header, bKeep_Column_Header, bAdd_UpDown_Arrows, pData, iData_Size, sCMD_Result, NULL );};
-	virtual void CMD_Request_Datagrid_Contents( string sID, string sDataGrid_ID, int iRow, int iColumn, int iRow_count, int iColumn_count, bool bKeep_Row_Header, bool bKeep_Column_Header, bool bAdd_UpDown_Arrows, char **pData, int *iData_Size, string &sCMD_Result, Message *pMessage );
 
-/* 
-	COMMAND: #35 - Populate Datagrid
-	COMMENTS: Before an orbiter can request the contents of a datagrid, the datagrid plug-in must first populate it. This is how the orbiter tells the plug-in to create and populate a datagrid, referenced by the unique ID passed in with this command.
-	PARAMETERS:
-		#4 PK_Variable
-			The populate grid can optionally return a variable number to assign a value into. For example, the current path in the file grid.
-		#5 Value To Assign
-			The value to assign into the variable.
-		#10 ID
-			For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be. If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope
-		#15 DataGrid ID
-			A unique ID for this instance of the grid that will be passed with the Request Datagrid Contents command.
-		#38 PK_Datagrid
-			Which grid should be populated
-		#39 Options
-			The options are specific the type of grid ( PK_Datagrid ). These are not pre-defined. The grid generator and orbiter must both pass the options in the correct format for the type of grid.
-		#40 IsSuccessful
-			Returns false if the grid could not be populated. Perhaps there was no registered datagrid generator.
-*/
-	virtual void CMD_Populate_Datagrid( string sID, string sDataGrid_ID, int iPK_Datagrid, string sOptions, int *iPK_Variable, string *sValue_To_Assign, bool *bIsSuccessful ) { string sCMD_Result; CMD_Populate_Datagrid( sID.c_str(), sDataGrid_ID.c_str(), iPK_Datagrid, sOptions.c_str(), iPK_Variable, sValue_To_Assign, bIsSuccessful, sCMD_Result, NULL );};
-	virtual void CMD_Populate_Datagrid( string sID, string sDataGrid_ID, int iPK_Datagrid, string sOptions, int *iPK_Variable, string *sValue_To_Assign, bool *bIsSuccessful, string &sCMD_Result, Message *pMessage );
+	/** @brief COMMAND: #34 - Request Datagrid Contents */
+	/** The orbiters use this to request the contents of a datagrid, so they can display it for the user.  Before you can request a grid, the command Populate Datagrid must be called, passing in the information required to populate the grid as well a \"GridID\", */
+		/** @param #10 ID */
+			/** For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be.  If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope */
+		/** @param #15 DataGrid ID */
+			/** A unique identifier for the grid that was passed to populate grid. */
+		/** @param #19 Data */
+			/** The binary contents of the grid. */
+		/** @param #32 Row */
+			/** The starting row */
+		/** @param #33 Column */
+			/** The starting column */
+		/** @param #34 Row count */
+			/** How many rows to fetch */
+		/** @param #35 Column count */
+			/** How many columns to fetch. */
+		/** @param #36 Keep Row Header */
+			/** True means the first row (0) is locked and will always be at the top as a header. */
+		/** @param #37 Keep Column Header */
+			/** True means the first column(0) is locked and will always be at the top as a header. */
+		/** @param #49 Add Up-Down Arrows */
+			/** If to add up/down arrows to the returned datagrid when datagrid doesn't fully fit. */
+
+	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size) { string sCMD_Result; CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iRow,iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,pData,iData_Size,sCMD_Result,NULL);};
+	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #35 - Populate Datagrid */
+	/** Before an orbiter can request the contents of a datagrid, the datagrid plug-in must first populate it.  This is how the orbiter tells the plug-in to create and populate a datagrid, referenced by the unique ID passed in with this command. */
+		/** @param #4 PK_Variable */
+			/** The populate grid can optionally return a variable number to assign a value into.  For example, the current path in the file grid. */
+		/** @param #5 Value To Assign */
+			/** The value to assign into the variable. */
+		/** @param #10 ID */
+			/** For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be.  If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope */
+		/** @param #15 DataGrid ID */
+			/** A unique ID for this instance of the grid that will be passed with the Request Datagrid Contents command. */
+		/** @param #38 PK_Datagrid */
+			/** Which grid should be populated */
+		/** @param #39 Options */
+			/** The options are specific the type of grid (PK_Datagrid).  These are not pre-defined.  The grid generator and orbiter must both pass the options in the correct format for the type of grid. */
+		/** @param #40 IsSuccessful */
+			/** Returns false if the grid could not be populated.  Perhaps there was no registered datagrid generator. */
+
+	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_Datagrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { string sCMD_Result; CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_Datagrid,sOptions.c_str(),iPK_Variable,sValue_To_Assign,bIsSuccessful,sCMD_Result,NULL);};
+	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_Datagrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

@@ -39,14 +39,14 @@ bin: MythTV_PlugIn
 
 so: MythTV_PlugIn.so
 
-MythTV_PlugIn.so: $(sources:.cpp=.o) Makefile
-	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
+MythTV_PlugIn.so: $(sources:.cpp=.o)
+	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-	
-MythTV_PlugIn: $(sources:.cpp=.o) Makefile
-	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
+		
+MythTV_PlugIn: $(sources:.cpp=.o)
+	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 

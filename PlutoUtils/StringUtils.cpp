@@ -224,6 +224,10 @@ bool StringUtils::Replace( string sInputFile, string sOutputFile, string sSearch
 
     StringUtils::Replace( sInput, sSearch, sReplace );
 
+#ifndef WIN32
+	system(("mkdir -p \"" + FileUtils::BasePath(sDestination) + "\"").c_str());
+#endif
+
     FILE *pFile = fopen( sOutputFile.c_str(), "wb" );
     if( !pFile )
         return false; // file couldn't be written

@@ -48,8 +48,8 @@ using namespace DCE;
 
 
 //<-dceag-const-b->
-Security_Plugin::Security_Plugin( int DeviceID, string ServerAddress, bool bConnectEventHandler, bool bLocalMode, class Router *pRouter )
-	: Security_Plugin_Command( DeviceID, ServerAddress, bConnectEventHandler, bLocalMode, pRouter )
+Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
+	: Security_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 	m_pDatabase_pluto_main = new Database_pluto_main( );
@@ -62,14 +62,14 @@ Security_Plugin::Security_Plugin( int DeviceID, string ServerAddress, bool bConn
 }
 
 //<-dceag-dest-b->
-Security_Plugin::~Security_Plugin( )
+Security_Plugin::~Security_Plugin()
 //<-dceag-dest-e->
 {
 }
 
 //<-dceag-reg-b->
-// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in. Otherwise Connect( ) will be called from the main( )
-bool Security_Plugin::Register( )
+// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
+bool Security_Plugin::Register()
 //<-dceag-reg-e->
 {
 	m_pDatagrid_Plugin=NULL;

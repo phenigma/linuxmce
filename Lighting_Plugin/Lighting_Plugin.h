@@ -25,9 +25,9 @@ public:
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
-		Lighting_Plugin( int DeviceID, string ServerAddress, bool bConnectEventHandler=true, bool bLocalMode=false, class Router *pRouter=NULL );
-		virtual ~Lighting_Plugin( );
-		virtual bool Register( );
+		Lighting_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+		virtual ~Lighting_Plugin();
+		virtual bool Register();
 //<-dceag-const-e->
 
 	

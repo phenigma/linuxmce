@@ -49,7 +49,7 @@
 #include "DatabaseInfo.h"
 #include "CommonFunctions.h"
 
-#define VERSION "0.1"
+#define  VERSION "<=version=>"
 
 using namespace std;
 

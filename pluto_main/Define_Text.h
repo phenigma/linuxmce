@@ -390,6 +390,9 @@
 #define TEXT_Yes_Install_the_software_CONST 1065
 #define TEXT_No_This_device_is_not_a_mobile_phone_CONST 1066
 #define TEXT_new_phone_detected_CONST 1067
+#define TEXT_Next_myth_CONST 1068
+#define TEXT_myth_setup_CONST 1069
+#define TEXT_Setup_Myth_TV_CONST 1070
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

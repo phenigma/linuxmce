@@ -27,7 +27,7 @@
 #include "../pluto_main/Table_DeviceData.h"
 #include "../pluto_main/Table_DesignObj.h"
 
-#define VERSION		"2.0 devel"
+#define  VERSION "<=version=>"
 
 extern pluto_pthread_mutex_t *m_mapLockMutex;
 #ifdef LL_DEBUG_FILE

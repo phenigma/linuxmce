@@ -50,7 +50,7 @@ Bluetooth_Dongle.so: $(sources:.cpp=.o)
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Bluetooth_Dongle: $(sources:.cpp=.o) 
+Bluetooth_Dongle: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@

@@ -166,54 +166,50 @@ public:
 			*****COMMANDS***** we need to implement
 	*/
 
-/* 
-	COMMAND: #60 - Link with mobile orbiter
-	COMMENTS: After the dongle has detected the device, then the orbiter plugin will send this command to tell the dongle to link to the phone.
-	PARAMETERS:
-		#42 MediaPosition
-			On = 1 (link to the orbiter or link to the phone); Off = 0 (unlink)
-		#47 Mac address
-			The mac address of the phone
-*/
+
+	/** @brief COMMAND: #60 - Link with mobile orbiter */
+	/** After the dongle has detected the device, then the orbiter plugin will send this command to tell the dongle to link to the phone. */
+		/** @param #42 MediaPosition */
+			/** On = 1 (link to the orbiter or link to the phone); Off = 0 (unlink) */
+		/** @param #47 Mac address */
+			/** The mac address of the phone */
+
 	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address) { string sCMD_Result; CMD_Link_with_mobile_orbiter(iMediaPosition,sMac_address.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string &sCMD_Result,Message *pMessage);
 
-/* 
-	COMMAND: #61 - Get Signal Strength
-	COMMENTS: Returns the actual signal strength of the phone for this dongle.
-	PARAMETERS:
-		#47 Mac address
-			The mac address of the phone
-		#48 Value
-			The strength of the connection
-(255 is the maximum strength)
-*/
+
+	/** @brief COMMAND: #61 - Get Signal Strength */
+	/** Returns the actual signal strength of the phone for this dongle. */
+		/** @param #47 Mac address */
+			/** The mac address of the phone */
+		/** @param #48 Value */
+			/** The strength of the connection
+(255 is the maximum strength) */
+
 	virtual void CMD_Get_Signal_Strength(string sMac_address,int *iValue) { string sCMD_Result; CMD_Get_Signal_Strength(sMac_address.c_str(),iValue,sCMD_Result,NULL);};
 	virtual void CMD_Get_Signal_Strength(string sMac_address,int *iValue,string &sCMD_Result,Message *pMessage);
 
-/* 
-	COMMAND: #62 - Create Mobile Orbiter
-	COMMENTS: The bluetooth dongle spawns an internal mobile orbiter which communicates with the phone.
-	PARAMETERS:
-		#2 PK_Device
-			The ID of the controller to spawn.
-		#47 Mac address
-			The Mac Address of the phone.
-*/
+
+	/** @brief COMMAND: #62 - Create Mobile Orbiter */
+	/** The bluetooth dongle spawns an internal mobile orbiter which communicates with the phone. */
+		/** @param #2 PK_Device */
+			/** The ID of the controller to spawn. */
+		/** @param #47 Mac address */
+			/** The Mac Address of the phone. */
+
 	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_address) { string sCMD_Result; CMD_Create_Mobile_Orbiter(iPK_Device,sMac_address.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_address,string &sCMD_Result,Message *pMessage);
 
-/* 
-	COMMAND: #80 - Send File To Device
-	COMMENTS: Send a file to a Bluetooth device.
-	PARAMETERS:
-		#13 Filename
-			The file to send
-		#47 Mac address
-			The MAC Address
-		#58 IP Address
-			The IP Address
-*/
+
+	/** @brief COMMAND: #80 - Send File To Device */
+	/** Send a file to a Bluetooth device. */
+		/** @param #13 Filename */
+			/** The file to send */
+		/** @param #47 Mac address */
+			/** The MAC Address */
+		/** @param #58 IP Address */
+			/** The IP Address */
+
 	virtual void CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address) { string sCMD_Result; CMD_Send_File_To_Device(sFilename.c_str(),sMac_address.c_str(),sIP_Address.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address,string &sCMD_Result,Message *pMessage);
 
