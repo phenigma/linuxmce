@@ -85,7 +85,7 @@ function avWizard($output,$dbADO) {
 			}
 	</script>
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
-	<div class="confirm" align="center"><B>'.strip_tags($_GET['msg']).'</B></div>
+	<div class="confirm" align="center"><B>'.strip_tags(@$_GET['msg']).'</B></div>
 	<form action="index.php" method="POST" name="avWizard">
 	<input type="hidden" name="section" value="avWizard">
 	<input type="hidden" name="type" value="'.$type.'">
@@ -700,6 +700,9 @@ function avWizard($output,$dbADO) {
 					}
 				}
 			}
+			
+			$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
+			exec($commandToSend);
 		}
 				
 		if(isset($_REQUEST['add'])){
@@ -708,6 +711,8 @@ function avWizard($output,$dbADO) {
 			if($deviceTemplate!=0){
 				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);	
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
+				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
+				exec($commandToSend);
 			}
 			header("Location: index.php?section=avWizard&type=$type&lastAdded=$deviceTemplate#deviceLink_".$insertID);
 			exit();

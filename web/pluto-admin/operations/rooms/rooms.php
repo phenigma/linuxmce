@@ -187,7 +187,8 @@ $displayedRooms = array();
 		}
 	}
 
-	
+	$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
+	exec($commandToSend);
 	
 	if (strstr($locationGoTo,"#")) {
 		header("Location: index.php?section=rooms&msg=Saved!".$locationGoTo);

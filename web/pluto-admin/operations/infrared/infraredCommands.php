@@ -77,7 +77,7 @@ function infraredCommands($output,$dbADO) {
 						FROM InfraredGroup_Command_Preferred
 						INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
 						WHERE FK_InfraredGroup=?',$GLOBALS['infraredGroup']);
-					$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_InfraredGroup=? AND FK_Command=?',array($GLOBALS['infraredGroup'],$commandID));
+					$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL) AND FK_Command=? AND FK_Users=?',array($GLOBALS['infraredGroup'],$commandID,$_SESSION['userID']));
 				}
 			}
 		}
@@ -125,12 +125,14 @@ function formatOutput($resRootCC,$dbADO,$level)
 			<tr bgcolor="#EEEEEE">
 				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=infraredCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
 			</tr>';
+//		$dbADO->debug=true;
 		$resCommands=$dbADO->Execute('
-			SELECT * 
+			SELECT Command.*,PK_InfraredGroup_Command 
 			FROM Command
-			LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_InfraredGroup=? AND FK_Device=? AND FK_DeviceTemplate=?
+			LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL) AND FK_Device=? AND FK_DeviceTemplate=?
 			WHERE FK_CommandCategory=? AND PK_Command NOT IN ('.join(',',$GLOBALS['excludedCommands']).')
 			ORDER BY Description ASC',array($GLOBALS['infraredGroup'],$GLOBALS['deviceID'],$GLOBALS['dtID'],$rowRootCC['PK_CommandCategory']));
+		$dbADO->debug=false;
 		$cmdPos=0;
 		while($rowCommands=$resCommands->FetchRow()){
 			$cmdPos++;
@@ -138,10 +140,10 @@ function formatOutput($resRootCC,$dbADO,$level)
 				<tr>
 					<td>&nbsp;</td>
 					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=infraredCommands&commandID='.$rowCommands['PK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$rowCommands['Description'].'<a></td>
-					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'" align="center"><input type="checkbox" name="command_'.$rowCommands['PK_Command'].'" value="1" '.(($rowCommands['FK_InfraredGroup']!='')?'checked':'').'></td>
+					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'" align="center"><input type="checkbox" name="command_'.$rowCommands['PK_Command'].'" value="1" '.(($rowCommands['PK_InfraredGroup_Command']!='')?'checked':'').'></td>
 				</tr>';
 			$GLOBALS['displayedCommands'][]=$rowCommands['PK_Command'];
-			if($rowCommands['FK_InfraredGroup']!='')
+			if($rowCommands['PK_InfraredGroup_Command']!='')
 				$GLOBALS['oldCheckedCommands'][]=$rowCommands['PK_Command'];
 		}
 		$out.=getCommandCategoryChilds($rowRootCC['PK_CommandCategory'],$dbADO,$level+1);

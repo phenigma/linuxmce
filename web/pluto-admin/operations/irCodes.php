@@ -15,7 +15,16 @@ function irCodes($output,$dbADO) {
 		header("Location: index.php?section=login");
 	}
 
-	$infraredGroupID=@(int)$_REQUEST['infraredGroupID'];
+	if(!isset($_REQUEST['infraredGroupID'])){
+		$resDefaultIG=$dbADO->Execute('SELECT FK_InfraredGroup FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
+		if($resDefaultIG->RecordCount()>0){
+			$rowDefaultIG=$resDefaultIG->FetchRow();
+			$infraredGroupID=$rowDefaultIG['FK_InfraredGroup'];
+		}else{
+			$infraredGroupID=0;
+		}
+	}else
+		$infraredGroupID=(int)$_REQUEST['infraredGroupID'];
 	$GLOBALS['displayedIRGC']=array();
 	$GLOBALS['preferredIGC']=array();
 	$GLOBALS['igcPrefered']=array();	
@@ -45,7 +54,7 @@ function irCodes($output,$dbADO) {
 				
 			}
 		</script>	
-	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
+	<div class="err"><br>'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>	
 		<form action="index.php" method="POST" name="irCodes">
 			<input type="hidden" name="section" value="irCodes">
@@ -296,9 +305,10 @@ function irCodes($output,$dbADO) {
 			$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
 			$oldIRGroup=(int)$_POST['oldIRGroup'];
 			if($newIRGroup!=$oldIRGroup){
-				//$dbADO->Execute('DELETE FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
-				//$dbADO->Execute('INSERT INTO DeviceTemplate_InfraredGroup (FK_DeviceTemplate, FK_InfraredGroup) VALUES (?,?)',array($dtID,$newIRGroup));
-				$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=?',array($newIRGroup,$dtID));
+				$dbADO->Execute('DELETE FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
+				if(!is_null($newIRGroup))
+					$dbADO->Execute('INSERT INTO DeviceTemplate_InfraredGroup (FK_DeviceTemplate, FK_InfraredGroup) VALUES (?,?)',array($dtID,$newIRGroup));
+				$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND FK_InfraredGroup IS NOT NULL',array($newIRGroup,$dtID));
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.");
 				exit();
 			}
@@ -352,7 +362,7 @@ function irCodes($output,$dbADO) {
 					while($rowC=$res->FetchRow()){
 						if($rowC['PK_InfraredGroup_Command']==''){
 							$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
-							$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users) VALUES (?,?,?,?,?,?)',array($infraredGroupID,$rowC['FK_Command'],$deviceID,$dtID,'',$_SESSION['userID']));
+							$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users) VALUES (?,?,?,?,?,?)',array(NULL,$rowC['FK_Command'],$deviceID,$dtID,'',$_SESSION['userID']));
 						}
 					}
 				$dbADO->Execute('INSERT INTO DeviceTemplate_DeviceCommandGroup (FK_DeviceTemplate, FK_DeviceCommandGroup) VALUES (?,?)',array($dtID,$deviceCG));
@@ -367,7 +377,7 @@ function irCodes($output,$dbADO) {
 
 					while($rowC=$res->FetchRow()){
 						if($rowC['PK_InfraredGroup_Command']!=''){
-							$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$rowC['PK_InfraredGroup_Command']);
+							$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=? AND FK_Users=?',$rowC['PK_InfraredGroup_Command'],$_SESSION['userID']);
 						}
 					}
 					$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceCommandGroup WHERE FK_DeviceTemplate=? AND FK_DeviceCommandGroup=?',array($dtID,$deviceCG));
@@ -407,28 +417,32 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
 				FROM Command 
 				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NULL AND FK_InfraredGroup IS NULL
-				WHERE PK_Command =?';
+				WHERE PK_Command =?
+				ORDER BY Command.Description ASC';
 			$resStandardCode=$dbADO->Execute($queryStandardCode,$commandID);
 			
 			$queryUserCode='
 				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
 				FROM Command 
 				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NOT NULL AND FK_InfraredGroup IS NULL
-				WHERE PK_Command =? AND PK_InfraredGroup_Command IS NOT NULL';
+				WHERE PK_Command =? AND PK_InfraredGroup_Command IS NOT NULL
+				ORDER BY Command.Description ASC';
 			$resUserCode=$dbADO->Execute($queryUserCode,$commandID);
 		}else{
 			$queryStandardCode='
 				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
 				FROM Command 
 				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NULL AND FK_InfraredGroup=?
-				WHERE PK_Command =?';
+				WHERE PK_Command =?
+				ORDER BY Command.Description ASC';
 			$resStandardCode=$dbADO->Execute($queryStandardCode,array($infraredGroupID,$commandID));
 			
 			$queryUserCode='
 				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
 				FROM Command 
-				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NOT NULL AND FK_InfraredGroup=?
-				WHERE PK_Command =? AND PK_InfraredGroup_Command IS NOT NULL';
+				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NOT NULL AND (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL)
+				WHERE PK_Command =? AND PK_InfraredGroup_Command IS NOT NULL
+				ORDER BY Command.Description ASC';
 			$resUserCode=$dbADO->Execute($queryUserCode,array($infraredGroupID,$commandID));
 
 		}
