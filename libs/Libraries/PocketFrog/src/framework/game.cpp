@@ -459,6 +459,14 @@ LRESULT Game::OnPaint( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
     PAINTSTRUCT ps;
 
     BeginPaint( &ps );
+
+	HDC hdc = ::GetDC(m_hWnd);
+	RECT rect;
+	HWND hWndDesktop = ::GetDesktopWindow();
+	::GetWindowRect(hWndDesktop, &rect);
+	::FillRect(hdc, &rect, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+	::ReleaseDC(m_hWnd, hdc);
+
 	TryToUpdate();
     EndPaint( &ps );
 	
