@@ -16,6 +16,8 @@
 #include <vector>
 using namespace ::std;
 
+#include "getch.h"
+
 #else
 
 #include "../PlutoUtils/MyString.h"

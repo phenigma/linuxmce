@@ -104,11 +104,7 @@ string GetCommand()
 		<< "5.	Output a script that will build all packages, even if they were available as source. (buildall)" << endl
 		<< endl << "Q.  Quit" << endl;
 
-#ifdef WIN32
 	char c=(char) getch();
-#else
-	char c = getchar();
-#endif
 
 	switch(c)
 	{
@@ -330,11 +326,7 @@ int main(int argc, char *argv[])
 		}
 	}
 */
-#ifdef WIN32
 	getch();
-#else
-	getchar();
-#endif
 	return 0;
 }
 
