@@ -68,6 +68,7 @@ public:
 		bool m_bRedrawOnlyGrid;
 		bool m_bRedrawOnlyEdit;
 		bool m_bSimulation;
+		bool m_bEdit_BackspacePressed;
 
 		TRect m_ImageRect;
 

@@ -37,7 +37,9 @@
 #include "ImageLoader.h"
 #include "Logger.h"
 
+#ifdef __WINS__
 //#define TEST_DATAGRID
+#endif
 
 //------------------------------------------------------------------------------------------------------------------
 CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aUid, scop)
@@ -66,9 +68,9 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 #ifdef TEST_DATAGRID
 	m_bGridExists = true;
 
-	m_uGridX = 10;
+	m_uGridX = 0;
 	m_uGridY = 50;
-	m_uGridWidth = 120;
+	m_uGridWidth = 176;
 	m_uGridHeight = 120;
 
 	m_GridList.Append(new string("17:30 ProTV\nStirile ProTV"));
@@ -95,13 +97,12 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 	m_CaptureKeyboardParam.sVariableValue = "";
 	m_CaptureKeyboardParam.TextX = 0;
 	m_CaptureKeyboardParam.TextY = 0;
-	m_CaptureKeyboardParam.TextWidth = 174;
+	m_CaptureKeyboardParam.TextWidth = 176;
 	m_CaptureKeyboardParam.TextHeight = 25;
 	m_CaptureKeyboardParam.Reset();	
 #endif
 
-	//test keyboard.
-	//SetCaptureKeyboardCommand(1, 0, 1, 1, 17, string("0,0,176,25"));
+	m_bEdit_BackspacePressed = false;
 }
 //------------------------------------------------------------------------------------------------------------------
 /*virtual*/ CPlutoVMCUtil::~CPlutoVMCUtil()
@@ -363,8 +364,11 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 	TRgb darkGray(85,85,85);
 	TRgb liteGray(140,140,200);//light gray + blue
 	TRgb white(255,255,255); // appears as blank screen gray-green color
-	TRgb blue(50,50,255); // appears as blank screen gray-green color
-	TRgb red(255, 0, 0); //darkRed
+	//TRgb blue(50,50,255); // appears as blank screen gray-green color
+	//TRgb red(255, 0, 0); //darkRed
+
+	TRgb blue(101,123,179); // appears as blank screen gray-green color
+	TRgb blue_lite(205,214,237); // appears as blank screen gray-green color
 
 	int RowHeight = 20;
 	const int SmallOffsetX = 5;
@@ -456,8 +460,8 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 			);
 			m_pGC->DrawRect(ShadowItemRect);
 
-			//selected background color : red
-			m_pGC->SetBrushColor(red);
+			//selected background color : bluelite
+			m_pGC->SetBrushColor(blue_lite);
 			TRect ItemRect(
 				X, 
 				Y + (i - m_uGridTopItem) * RowHeight + iExpandOffset, 
@@ -467,7 +471,7 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 			m_pGC->DrawRect(ItemRect);
 
 			//selected text color : white
-			SetTextProperties(1, "Arial", 255, 255, 255);
+			SetTextProperties(1, "Arial", 0, 0, 0);
 		}
 		else
 		{
@@ -482,7 +486,7 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 			m_pGC->DrawRect(ShadowItemRect);
 
 			//background color : liteGray
-			m_pGC->SetBrushColor(liteGray);
+			m_pGC->SetBrushColor(blue);
 			TRect ItemRect(
 				X, 
 				Y + (i - m_uGridTopItem) * RowHeight + iExpandOffset, 
@@ -782,7 +786,8 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 	TRgb darkGray(85,85,85);
 	TRgb liteGray(170,170,170);
 	TRgb white(255,255,255); // appears as blank screen gray-green color
-	TRgb blue(50,50,255); // appears as blank screen gray-green color
+	TRgb blue(101,123,179); // appears as blank screen gray-green color
+	TRgb blue_lite(205,214,237); // appears as blank screen gray-green color
 
 	int EditX = m_CaptureKeyboardParam.TextX;
 	int EditY = m_CaptureKeyboardParam.TextY;
@@ -792,15 +797,15 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 	m_pGC->SetBrushStyle(CGraphicsContext::ESolidBrush);
 	m_pGC->SetPenStyle(CGraphicsContext::ENullPen);
 
-	m_pGC->SetBrushColor(liteGray);
+	m_pGC->SetBrushColor(black); //(liteGray);
 	TRect ShadowRect(EditX, EditY, EditX + EditWidth, EditY + EditHeight);
 	m_pGC->DrawRect(ShadowRect);
 
-	m_pGC->SetBrushColor(black);
+	m_pGC->SetBrushColor(blue_lite);
 	TRect rect(EditX + 1, EditY + 1, EditX + EditWidth - 1, EditY + EditHeight - 1);
 	m_pGC->DrawRect(rect);
 
-	SetTextProperties(1, "Swiss", 255, 255, 255);
+	SetTextProperties(1, "Swiss", 0, 0, 0);
 	MyRect RowRect(EditY + 15, EditX + 15, EditWidth, EditHeight);
 
 	const char *pStr = m_CaptureKeyboardParam.sVariableValue.c_str();
@@ -809,8 +814,22 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 	{
 		string Temp = "";
 
-		for(int i = 0; i < m_CaptureKeyboardParam.sVariableValue.length(); i++)
+		int len = m_CaptureKeyboardParam.sVariableValue.length();
+		for(int i = 0; i < len - 1; i++)
 			Temp.Append('*');
+
+		if(len > 0)
+		{
+			//uncomment this to have Dan's behavior
+			/*
+			if(!m_bEdit_BackspacePressed)
+				Temp.Append(m_CaptureKeyboardParam.sVariableValue[len - 1]);
+			else
+			*/
+				Temp.Append('*');
+		}
+		
+
 
 		Temp.Append('\0');
 		

@@ -121,9 +121,7 @@ TInt CPlutoVMCContainer::ScrollTimerCallBack(TAny* aContainer)
 //------------------------------------------------------------------------------------------------------------------
 TInt CPlutoVMCContainer::KeyTimerCallBack(TAny* aContainer)
 {
-	const char *KeysMap[] = {".",".","abc","def","ghi","jkl","mno","pqrs","tuv","wxyz"}; 
 	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
-
 	CPlutoVMCContainer *pContainer = (CPlutoVMCContainer *)aContainer;
 
 	pContainer->iKeyTimer->Cancel();
@@ -395,16 +393,24 @@ bool CPlutoVMCContainer::IsNumberKey(const TKeyEvent& aKeyEvent)
 //------------------------------------------------------------------------------------------------------------------
 char CPlutoVMCContainer::GetKeyChar(int KeyCode)
 {
-	const char *KeysMap[] = {".",".","abc","def","ghi","jkl","mno","pqrs","tuv","wxyz"};   
+	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
+
+	const char *KeysMap[] = {".0",".1","abc2","def3","ghi4","jkl5","mno6","pqrs7","tuv8","wxyz9"}; 
+	int KeysMapIndex[]    = {2,   2,   4,     4,     4,      4,    4,     5,      4,      5     }; 
+	
 	const iDiff = 14 * KEY_TIMER_INTERVAL / 200000;
 
 	char KeyChar = 0;
 	int iNow = User::TickCount();
 
 	m_bDeleteLastKey = false;
+	pVMCUtil->m_bEdit_BackspacePressed = false;
 
 	if(IsNumberKey(KeyCode))
 	{
+		if(pVMCUtil->m_CaptureKeyboardParam.bTypePin)
+			return '0' + NumberKeyIndex(KeyCode);
+
 		int KeyIndex = NumberKeyIndex(m_uLastKeyCode);
 
 		if(KeyIndex == 0 || KeyIndex == 1)
@@ -431,30 +437,30 @@ char CPlutoVMCContainer::GetKeyChar(int KeyCode)
 		{
 			if(m_uLastKeyCode != KeyCode || iNow - m_iLastTick > iDiff)
 			{
-				if(KeyIndex != 9 && KeyIndex != 7)
-					m_iRepeatStep %= 3;
+				if(m_uLastKeyCode != KeyCode)
+					m_iRepeatStep = 0;
 				else
-					m_iRepeatStep %= 4;
-
-				m_iRepeatStep = 0;
+					m_iRepeatStep %= KeysMapIndex[NumberKeyIndex(KeyCode)];
 
 				KeyChar = KeysMap[NumberKeyIndex(KeyCode)][m_iRepeatStep];
+
+				iKeyTimer->Cancel();
+				m_iRepeatStep = 0;
+				m_iLastTick = 0;
+				m_uLastKeyCode = 0;
 			}
 			else
 			{
 				m_bDeleteLastKey = true;
-
 				m_iRepeatStep++;
+				m_iRepeatStep %= KeysMapIndex[NumberKeyIndex(KeyCode)];
 
 				const unsigned long iTimerInterval = 2 * KEY_TIMER_INTERVAL;
 
 				if (iKeyTimer->IsActive())
-				{
 					iKeyTimer->Cancel();
-				}
 
 				iKeyTimer->Start(iTimerInterval, iTimerInterval, TCallBack(KeyTimerCallBack, this)); 
-
 				KeyChar = KeysMap[NumberKeyIndex(KeyCode)][m_iRepeatStep];//***
 			}
 		}
@@ -525,6 +531,9 @@ bool CPlutoVMCContainer::HandleCaptureKeyboardKeys(const TKeyEvent& aKeyEvent, T
 		}
 
 	char KeyChar = GetKeyChar(KeyCode);
+
+	if(BUTTON_Phone_C_CONST == KeyCode)
+		pVMCUtil->m_bEdit_BackspacePressed = true;
 
 	if(m_bDeleteLastKey)
 	{
