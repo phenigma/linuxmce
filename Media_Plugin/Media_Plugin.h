@@ -58,6 +58,14 @@ public:
     virtual bool BroadcastMedia(class MediaStream *pMediaStream)=0;
 
     virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream)=0;
+	static virtual MediaDevice *GetMediaDeviceForEntertainArea(EntertainArea *pEntertainArea,int PK_DeviceTemplate)
+	{
+		ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(PK_DeviceTemplate);
+		if( pListMediaDevice && pListMediaDevice->size())
+			return pListMediaDevice->front();
+		else
+			return NULL;
+	}
 };
 
 /** @brief This adds media specific information for a device, extending the DeviceData_Router */

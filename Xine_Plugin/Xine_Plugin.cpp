@@ -126,11 +126,7 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaPluginInfo *pMedia
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	if( (!pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST) && pEntertainArea )
-	{
-		ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_Xine_Player_CONST);
-		if( pListMediaDevice && pListMediaDevice->size())
-			pMediaDevice = pListMediaDevice->front();
-	}
+		pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea,DEVICETEMPLATE_Xine_Player_CONST);
 
 	if( !pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
 	{
