@@ -528,9 +528,9 @@ printf( "$$$ Ready to delete the orbiter...\n" );
 		{
 			Simulator::GetInstance()->m_pOrbiter = (Orbiter *)pOrbiter;	
 #ifdef WIN32			
-			Simulator::GetInstance()->LoadConfigurationFile("Orbiter.conf");
+			Simulator::GetInstance()->LoadConfigurationFile("BluetoothDongle.conf");
 #else //LINUX
-			Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");
+			Simulator::GetInstance()->LoadConfigurationFile("/etc/BluetoothDongle.conf");
 #endif			
 		}	
 

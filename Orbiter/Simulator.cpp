@@ -41,7 +41,7 @@ Simulator *Simulator::m_pInstance = NULL;
 //-----------------------------------------------------------------------------------------------------
 void *GeneratorThread( void *p)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Simulator enabled");
+//	g_pPlutoLogger->Write(LV_WARNING, "Simulator enabled");
 	
 	Simulator *pSimulator = (Simulator *)p;
 
@@ -85,7 +85,7 @@ void *GeneratorThread( void *p)
 
 	while(true)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event");
+		//g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event");
 		
 		if(pSimulator->m_bStopGeneratorThread)
 			return NULL;
