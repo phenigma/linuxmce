@@ -515,10 +515,13 @@ g_pPlutoLogger->Write(LV_STATUS,"In the database as PK_IRG_C %d",pRow_InfraredGr
 
 	if( !pRow_InfraredGroup_Command_Preferred )
 	{
+g_pPlutoLogger->Write(LV_STATUS,"adding the record to the preferred table for %d",pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get());
 		pRow_InfraredGroup_Command_Preferred =  m_pDatabase_pluto_main->InfraredGroup_Command_Preferred_get()->AddRow();
 		pRow_InfraredGroup_Command_Preferred->FK_InfraredGroup_Command_set(pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get());
 		m_pDatabase_pluto_main->InfraredGroup_Command_Preferred_get()->Commit();
 	}
+else
+g_pPlutoLogger->Write(LV_STATUS,"it's already in the preferred table for %d",pRow_InfraredGroup_Command_Preferred->FK_InfraredGroup_Command_get());
 
 	sCMD_Result = "OK";
 }

@@ -251,9 +251,10 @@ g_pPlutoLogger->Write(LV_WARNING, "got %d lines",(int) vectstr.size());
 for(size_t s=0;s<vectstr.size();++s)
 {
 g_pPlutoLogger->Write(LV_WARNING, "comparing %s and %s",vectstr[s].c_str(),pDNew->m_sMacAddress.c_str());
-
-if( vectstr[s]==pDNew->m_sMacAddress.c_str() )
+string sLine = StringUtils::ToUpper(vectstr[s]);
+if( sLine.find(StringUtils::ToUpper(pDNew->m_sMacAddress))!=string::npos )
 {
+g_pPlutoLogger->Write(LV_WARNING, "line %s matched %d",sLine.c_str(),(int) sLine.size());
 size_t s = vectstr[s].length()-15;
 if( s<0 )
 s=0;

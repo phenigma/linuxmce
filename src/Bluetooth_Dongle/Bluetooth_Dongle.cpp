@@ -430,7 +430,7 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 	PhoneDevice *pD = m_mapPhoneDevice_Detected_Find( pdTemp.m_iMacAddress );
 	if( !pD )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot find device anymore to link to" );
+		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot find device %s anymore to link to, map has %d entries", sMac_address.c_str(), (int) m_mapPhoneDevice_Detected.size());
 		return;
 	}
 

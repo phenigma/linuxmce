@@ -107,6 +107,7 @@ void PhoneDetectionEngine::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 	m_mapPhoneDevice_Detected[pDevice->m_iMacAddress]=pDevice;
+g_pPlutoLotter->Write(LV_STATUS,"Adding device to map1: %s size is now: %d",pPhoneDevice->m_sID.c_str(),(int) m_mapPhoneDevice_Detected.size());
 
 	pthread_t t;
 	EnginePlusDevice *pED = new EnginePlusDevice(this,pDevice);

@@ -92,6 +92,8 @@ lost_bluetooth 	connection_on	result
 		{
 			listDevicesLost.push_back( (*itDevice).second );
 			m_mapPhoneDevice_Detected.erase(itDevice++);
+PhoneDevice *pPhoneDevice = (*itDevice).second;
+g_pPlutoLotter->Write(LV_STATUS,"Deleting lost device from map: %s size: %d",pPhoneDevice->m_sID.c_str(),(int) m_mapPhoneDevice_Detected.size());
 		}
 		else
 			itDevice++;

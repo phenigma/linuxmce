@@ -2839,7 +2839,6 @@ g_pPlutoLogger->Write(LV_STATUS,"after for loop");
         {
 g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
             //LACA_B4_0( "Orbitercore::respond to input home" );
-            PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
             GotoScreen( m_sMainMenu );
             bHandled=true;
         }
