@@ -32,25 +32,14 @@ if($row = $st->fetchrow_hashref()) {
 } else {
   $shost = "192.168.1.1";
 }
+$st->finish();
   
-if($ARGV[0] ne "-d") {
+if($ARGV[0] ne "-d" || $ARGV[2] ne "-i" || $ARGV[4] ne "-m") {
   print "<USAGE-1>\n$_[0] -d <Device Template> -i <IP> -m <mac address>\n";
   exit(-1);
 } else {
   $Device_ID = $ARGV[1];
-}
-
-if($ARGV[2] ne "-i") {
-  print "<UASGE-2>\n$_[0] -d <Device Template> -i <IP> -m <mac address>\n";
-  exit(-1);
-} else {
   $ip = $ARGV[3];
-}
-
-if($ARGV[4] ne "-m") {
-  print "<USAGE-3>\n$_[0] -d <Device Template> -i <IP> -m <mac address>\n";
-  exit(-1);
-} else {
   $mac = $ARGV[5];
 }
 
@@ -58,8 +47,7 @@ $db_handle = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUS
 $sql = "select FK_Device from Device_DeviceData where FK_Device=$Device_ID and FK_DeviceData=31 and IK_DeviceData<>''";
 $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
 $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
-while($row_ref = $statement->fetchrow_hashref())
-{
+if($row_ref = $statement->fetchrow_hashref()) {
   exit(0);
 }
 
@@ -70,21 +58,20 @@ $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
 $ext = 0;
 while($row_ref = $statement->fetchrow_hashref())
 {
-  $extention = $row_ref->{IK_DeviceData};
-  if($extention > $ext) {
-    $ext = $extention;
-  }
+	$extention = $row_ref->{IK_DeviceData};
+	if($extention > $ext) {
+		$ext = $extention;
+	}
 }
 if($ext == 0) {
-  $ext = 4310
+	$ext = 4310
 } else {
-  $ext = $ext+1;
+	$ext = $ext+1;
 }
 
 $sql = "update Device_DeviceData SET IK_DeviceData='$ext' WHERE FK_Device='$Device_ID' AND FK_DeviceData='31'";
 $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
 $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
-
 $db_handle->disconnect();
 system("/usr/pluto/bin/SynchronizeAsterisk.sh"); #Run igor sync config
 

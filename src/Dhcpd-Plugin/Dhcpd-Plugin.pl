@@ -23,19 +23,15 @@ while (1 eq 1) {
   $inline = <STDIN>;
   chomp($inline);
   $found = 0;
-
-  @data = split(/ /, $inline);
-  if($data[4] ne "localhost") {
-    $tag = $data[4];
-    $op = $data[5];
-    $mac_found = $data[9];
-    $ip_sent = $data[7];
-  } else {
-    $tag = $data[5];
-    $op = $data[6];
-    $mac_found = $data[10];
-    $ip_sent = $data[8];
-  }
+    
+  $line = "";
+  $line = parse($inline);  
+  print "$line\n";
+  @data = split(/\,/,$line);
+  $tag = $data[5];
+  $op = $data[6];
+  $mac_found = $data[10];
+  $ip_sent = $data[8];
   if($tag eq "dhcpd:") {
     if($op eq "DHCPOFFER") {
 	log_plugin("We have received a DHCP offer a network device","log");
@@ -181,5 +177,18 @@ sub log_plugin {
 		$type = "00";
 	}
 	$line = $type." ".$data;
+	print "$line\n";
 	system("echo \"$line\" >> /var/log/pluto/dhcp_pnp.newlog");
+}
+
+sub parse {
+	$line = shift;
+	@st = split(/ /,$line);
+	$ret = "";
+	foreach $el (@st) {
+		if($el ne "") {
+			$ret = $ret.",".$el;
+		}
+	}
+	return $ret;
 }
