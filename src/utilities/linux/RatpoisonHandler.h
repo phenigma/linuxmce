@@ -12,10 +12,19 @@ using std::string;
 template<class T>
 class RatpoisonHandler
 {
-    private:
-        Atom rp_command;
-        Atom rp_command_request;
-        Atom rp_command_result;
+    typedef enum
+	{
+		RP_COMMAND = 0,
+		RP_COMMAND_REQUEST = 1,
+		RP_COMMAND_RESULT = 2
+	} ATOMS;
+
+	static char *atom_names[3];
+
+
+	private:
+        Atom atoms[3];
+		bool m_bIsRatpoisonAvailable;
 
     public:
 
@@ -25,6 +34,19 @@ class RatpoisonHandler
         }
 
     protected:
+		bool grabMousePointer()
+		{
+			Display *display = static_cast<T>(this)->getDisplay();
+			Windows *window = static_cast<T>(this)->getWindow();
+
+			if (display == NULL )
+				return false;
+
+			XLockDisplay(display);
+			XGrabPointer(display, window, False, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, DefaultRootWindow(display), None, CurrentTime);
+			XUnlockDisplay(display);
+		}
+
         bool commandRatPoison(string command)
         {
             Display *display = static_cast<T*>(this)->getDisplay();
@@ -32,15 +54,13 @@ class RatpoisonHandler
 			if ( display == NULL )
 				return false;
 
-            XLockDisplay(display);
             g_pPlutoLogger->Write(LV_STATUS, "Instructing ratpoison to do this: \"%s\"", command.c_str());
 
-            rp_command          = XInternAtom (display, "RP_COMMAND", True);
-            rp_command_request  = XInternAtom (display, "RP_COMMAND_REQUEST", True);
-            rp_command_result   = XInternAtom (display, "RP_COMMAND_RESULT", True);
 
-            if ( rp_command == None || rp_command_request == None || rp_command_result == None )
-            {
+			XLockDisplay(display);
+			g_pPlutoLogger->Write(LV_STATUS, "Looking up RP_COMMAND atoms");
+			if ( XInternAtoms(display, atom_names, 3, True, atoms) != Success )
+			{
                 g_pPlutoLogger->Write(LV_WARNING, "Ratpoison window manager does not seem to be running on this server!");
                 XUnlockDisplay(display);
                 return false;
@@ -48,17 +68,21 @@ class RatpoisonHandler
 
             Window commandWindow = 0;
 
+g_pPlutoLogger->Write(LV_STATUS, "Creating command window");
             commandWindow = XCreateSimpleWindow (display, DefaultRootWindow (display), 0, 0, 1, 1, 0, 0, 0);
 
+g_pPlutoLogger->Write(LV_STATUS, "Selecting input");
             // wait for propertyChanges here.
             XSelectInput (display, commandWindow, PropertyChangeMask);
 
+g_pPlutoLogger->Write(LV_STATUS, "Changing property");
             XChangeProperty (display, commandWindow,
-                        rp_command, XA_STRING, 8, PropModeReplace,
+                        atoms[RP_COMMAND], XA_STRING, 8, PropModeReplace,
                         (unsigned char *)command.c_str(), command.size() + 2);
 
+g_pPlutoLogger->Write(LV_STATUS, "Changing property again");
             XChangeProperty (display, DefaultRootWindow (display),
-                        rp_command_request, XA_WINDOW, 8, PropModeAppend,
+                        atoms[RP_COMMAND_REQUEST], XA_WINDOW, 8, PropModeAppend,
                         (unsigned char *)&commandWindow, sizeof (Window));
 
             bool done = false;
@@ -73,10 +97,11 @@ class RatpoisonHandler
 
                 gettimeofday(&currentTime, NULL);
 
+g_pPlutoLogger->Write(LV_STATUS, "Chacking for response");
                 timeSpent = (currentTime.tv_sec - startTime.tv_sec) * 1000000 + (currentTime.tv_usec - startTime.tv_usec);
                 if ( XCheckMaskEvent (display, PropertyChangeMask, &ev) )
                 {
-                    if (ev.xproperty.atom == rp_command_result && ev.xproperty.state == PropertyNewValue && ev.xproperty.window == commandWindow)
+                    if (ev.xproperty.atom == atoms[RP_COMMAND_RESULT] && ev.xproperty.state == PropertyNewValue && ev.xproperty.window == commandWindow)
                     {
                         g_pPlutoLogger->Write(LV_STATUS, "Reading command result.");
                         readCommandResult(display, ev.xproperty.window);
@@ -94,6 +119,7 @@ class RatpoisonHandler
                 }
             }
 
+g_pPlutoLogger->Write(LV_STATUS, "Destroying command window");
             // cleanups
             XDestroyWindow (display, commandWindow);
 
@@ -117,7 +143,7 @@ class RatpoisonHandler
 				return;
 
             /* First, find out how big the property is. */
-            status = XGetWindowProperty (display, commandWindow, rp_command_result,
+            status = XGetWindowProperty (display, commandWindow, atoms[RP_COMMAND_RESULT],
                             0, 0, False, XA_STRING,
                             &type_ret, &format_ret, &nitems, &bytes_after,
                             &result);
@@ -134,7 +160,7 @@ class RatpoisonHandler
 
             /* Now that we have the length of the message, we can get the whole message. */
             status = XGetWindowProperty (display, commandWindow,
-                            rp_command_result,
+                            atoms[RP_COMMAND_RESULT],
                             0, (bytes_after / 4) + (bytes_after % 4 ? 1 : 0),
                             True, XA_STRING,
                             &type_ret, &format_ret, &nitems,
@@ -156,6 +182,14 @@ class RatpoisonHandler
         }
 
         typedef RatpoisonHandler<T> RPHandler;
+};
+
+
+template<class T>
+char * RatpoisonHandler<T>::atom_names[3] = {
+	"RP_COMMAND",
+	"RP_COMMAND_REQUEST",
+	"RP_COMMAND_RESULT"
 };
 
 #endif
