@@ -1074,12 +1074,13 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
                     bResult ? 1 : 0,MessageType,ID,pDeviceConnection->m_Socket,&pDeviceConnection->m_ConnectionMutex,(int) (*(*pSafetyMessage))->m_eExpectedResponse);
 #endif
 */
+#ifdef
 g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %d %s on socket %d using lock: %p",
 	(bResult ? 1 : 0),
     (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pDeviceConnection->m_dwPK_Device,
     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
     pDeviceConnection->m_Socket,&pDeviceConnection->m_ConnectionMutex);
-
+#endif
                 if (!bResult)
                 {
                     g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending message to device %d", pDeviceConnection,pDeviceConnection->m_dwPK_Device);
