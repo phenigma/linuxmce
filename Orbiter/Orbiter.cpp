@@ -1836,10 +1836,8 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 	string::size_type posH;
     if(  (posH=pObj->m_sExtraInfo.find( 'H' ))!=string::npos  )
     {
-		if( posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='c' )
-	        pObj->m_iHighlightedRow=0;
-		if( posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='r' )
-	        pObj->m_iHighlightedColumn=0;
+		pObj->m_iHighlightedRow = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='c') ? 0 : -1;
+		pObj->m_iHighlightedColumn = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='r') ? 0 : -1;
     }
     else
     {
