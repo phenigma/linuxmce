@@ -476,6 +476,10 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
                 if( !pOH_Orbiter->m_pEntertainArea || pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end() )
                     continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream
 
+				// We don't want to change to the remote screen on the orbiter that started playing this if it's audio, so that they can build a playlist
+				if( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==PK_Device_Orbiter && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
+					continue; 
+
                 int iPK_DesignObj_Remote = pMediaStream->m_iPK_DesignObj_Remote;
 
                 // Only send the orbiter if it's at the main menu, unless it's the orbiter that started the stream in the first place
