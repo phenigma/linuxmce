@@ -39,6 +39,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_61F59F75CE864CF2B52E3B20BD8ADFFA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_6CDCD5377E7941E6B1D6984B64D6B861"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -219,6 +225,26 @@
             {
             "SourcePath" = "8:Files\\SDL-pluto-r.dll"
             "TargetName" = "8:SDL-pluto-r.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_52DA75647FD84AD19B9BF6050805F909"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_61F59F75CE864CF2B52E3B20BD8ADFFA"
+            {
+            "SourcePath" = "8:Files\\logo.gif"
+            "TargetName" = "8:logo.gif"
             "Tag" = "8:"
             "Folder" = "8:_52DA75647FD84AD19B9BF6050805F909"
             "Condition" = "8:"
