@@ -49,6 +49,7 @@ using namespace DCE;
 #include "../OrbiterGen/Renderer.h"
 
 #include "GraphicBuilder.h"
+#include "Simulator.h"
 
 #define  VERSION "<=version=>"
 
@@ -4140,6 +4141,10 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,string &sCMD_Result,Message *pMessage)
 //<-dceag-c5-e->
 {
+	//hack! if the simulator is running, we won't go to pluto admin screen
+	if(Simulator::GetInstance()->IsRunning() && sPK_DesignObj == "2022.0.0")
+		return;
+
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )

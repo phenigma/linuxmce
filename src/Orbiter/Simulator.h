@@ -40,6 +40,8 @@ public: //data
 	bool m_bStopGeneratorThread;
 	long m_dwStartGeneratorThreadDelay;
 
+	bool m_bIsRunning;
+
 public: //methods
 
 	static Simulator *GetInstance();
@@ -51,6 +53,7 @@ public: //methods
 
 	void StartRandomEventGenerator(long dwDelay = 0);
 	void StopRandomEventGenerator();
+	bool IsRunning() { return m_bIsRunning; }
 
 	static void SimulateActionDelay(long delay);
 };

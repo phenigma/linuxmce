@@ -47,6 +47,8 @@ void *GeneratorThread( void *p)
 	
 	Simulator *pSimulator = (Simulator *)p;
 
+	pSimulator->m_bIsRunning = true;
+
 #ifdef WIN32
 	Sleep(pSimulator->m_dwStartGeneratorThreadDelay);
 #else //LINUX
@@ -91,11 +93,15 @@ void *GeneratorThread( void *p)
 		if(!pOrbiter || pOrbiter->m_bQuit)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter is NULL!");
+			pSimulator->m_bIsRunning = false;
 			return NULL;
 		}
 
 		if(pSimulator->m_bStopGeneratorThread)
+		{
+			pSimulator->m_bIsRunning = false;
 			return NULL;
+		}
 
 		if(time(NULL) - pOrbiter->GetLastScreenChangedTime() > 3600) //1 hour
 		{
@@ -186,6 +192,7 @@ void *GeneratorThread( void *p)
 		}
 	}
 
+	pSimulator->m_bIsRunning = false;
 	return NULL;
 }
 //------------------------------------------------------------------------------------------------------
@@ -203,11 +210,13 @@ Simulator::Simulator()
 
 	m_bStopGeneratorThread = false;
 	m_dwStartGeneratorThreadDelay = 0;
+
+	m_bIsRunning = false;
 }
 //------------------------------------------------------------------------------------------------------
 Simulator::~Simulator()
 {
-
+	m_bIsRunning = false;
 }
 //------------------------------------------------------------------------------------------------------
 /*static*/ Simulator* Simulator::GetInstance()
