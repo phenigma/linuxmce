@@ -85,6 +85,7 @@ void *SignalStrengthThread(void *p)
 
 void PhoneDetectionEngine::StartScanning()
 {
+g_pPlutoLogger->Write(LV_STATUS,"Start scanning size m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 	m_bAbortScanLoop=false;
 	pthread_create(&m_ThreadID, NULL, HandleDetectionThread, (void*)this);
 }
@@ -107,7 +108,7 @@ void PhoneDetectionEngine::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 	m_mapPhoneDevice_Detected[pDevice->m_iMacAddress]=pDevice;
-g_pPlutoLogger->Write(LV_STATUS,"Adding device to map1: %s size is now: %d",pDevice->m_sID.c_str(),(int) m_mapPhoneDevice_Detected.size());
+g_pPlutoLogger->Write(LV_STATUS,"Adding device to map1: %s m_mapPhoneDevice_Detected size is now: %d",pDevice->m_sID.c_str(),(int) m_mapPhoneDevice_Detected.size());
 
 	pthread_t t;
 	EnginePlusDevice *pED = new EnginePlusDevice(this,pDevice);
@@ -116,15 +117,19 @@ g_pPlutoLogger->Write(LV_STATUS,"Adding device to map1: %s size is now: %d",pDev
 
 void PhoneDetectionEngine::Intern_LostDevice(class PhoneDevice *pDevice)
 {
+g_pPlutoLogger->Write(LV_STATUS,"lost dev 1 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 	pthread_t t;
 	EnginePlusDevice *pED = new EnginePlusDevice(this,pDevice);
 	pthread_create(&t, NULL, LostDeviceThread, (void*)pED);
+g_pPlutoLogger->Write(LV_STATUS,"lost dev 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 }
 
 void PhoneDetectionEngine::Intern_SignalStrengthChanged(class PhoneDevice *pDevice)
 {
+g_pPlutoLogger->Write(LV_STATUS,"ssc1 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 	pthread_t t;
 	EnginePlusDevice *pED = new EnginePlusDevice(this,pDevice);
 	pthread_create(&t, NULL, SignalStrengthThread, (void*)pED);
+g_pPlutoLogger->Write(LV_STATUS,"ssc 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 }
 

@@ -60,6 +60,7 @@ PhoneDetection_Bluetooth_Linux::PhoneDetection_Bluetooth_Linux()
 
 bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 {
+g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 	g_pPlutoLogger->Write(LV_STATUS, "Start of scan loop");
 	//printf("Start of scan loop %p\n",g_pPlutoLogger);
 	int num_rsp, length, flags, dev_id = 0;
@@ -255,18 +256,20 @@ string sLine = StringUtils::ToUpper(vectstr[s]);
 if( sLine.find(StringUtils::ToUpper(pDNew->m_sMacAddress))!=string::npos )
 {
 g_pPlutoLogger->Write(LV_WARNING, "line %s matched %d",sLine.c_str(),(int) sLine.size());
-size_t s = vectstr[s].length()-15;
-g_pPlutoLogger->Write(LV_WARNING, "s1 %d",(int) s);
-if( s<0 )
-s=0;
-g_pPlutoLogger->Write(LV_WARNING, "s2 %d",(int) s);
-string sub = vectstr[s].substr(s);
+size_t s2 = vectstr[s].length()-15;
+g_pPlutoLogger->Write(LV_WARNING, "s1 %d",(int) s2);
+if( ((int) s2)<0 )
+s2=0;
+g_pPlutoLogger->Write(LV_WARNING, "s2 %d",(int) s2);
+string sub = vectstr[s].substr(s2);
 g_pPlutoLogger->Write(LV_WARNING, "sub %s",sub.c_str());
 pDNew->m_sID = sub;
-g_pPlutoLogger->Write(LV_WARNING, "set name to %d %s",(int) s,pDNew->m_sID.c_str());
+g_pPlutoLogger->Write(LV_WARNING, "set name to %d %s",(int) s2,pDNew->m_sID.c_str());
 }
 }
+g_pPlutoLogger->Write(LV_STATUS,"loop 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 						Intern_NewDeviceDetected(pDNew);
+g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 					}
 					else
 					{
@@ -348,6 +351,14 @@ g_pPlutoLogger->Write(LV_WARNING, "set name to %d %s",(int) s,pDNew->m_sID.c_str
 						{
 							listDevicesLost.push_back( (*itDevice).second );
 							m_mapPhoneDevice_Detected.erase(itDevice++);
+g_pPlutoLogger->Write(LV_STATUS,"devices detected this scan: %d",(int) m_mapDevicesDetectedThisScan.size());
+PhoneDevice *pD2 = (*itDevice).second;
+if( itDeviceNew==m_mapDevicesDetectedThisScan.end() )
+g_pPlutoLogger->Write(LV_STATUS,"device was found");
+else
+g_pPlutoLogger->Write(LV_STATUS,"device was not found");
+
+g_pPlutoLogger->Write(LV_STATUS,"lost device size is now: %d",(int) m_mapPhoneDevice_Detected.size());
 						}
 						else
 							itDevice++;
@@ -400,6 +411,7 @@ done:
 	sigaction(SIGINT,  &sa_int,  NULL);
 
 	//printf("restored signal handlers\n");
+g_pPlutoLogger->Write(LV_STATUS,"loop 4 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 
 close:
 	/* Close the HCI device */
@@ -418,6 +430,7 @@ close:
 		Sleep(15000); // No fast looping
 		return true;
 	}
+g_pPlutoLogger->Write(LV_STATUS,"loop 5 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 
 	/* Return the result pointer and the number of results */
 	return true;
