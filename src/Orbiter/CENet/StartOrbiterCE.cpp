@@ -181,7 +181,11 @@ bool EventLoop(ORBITER* pOrbiter)
 			SDL_WaitEvent(&Event);
 			g_pPlutoLogger->Write(LV_WARNING, "after SDL_WaitEvent");
 		}
-		catch(...) {}
+		catch(...) 
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "SDL_WaitEvent crashed!!!");
+			break;
+		}
 
 		Orbiter::Event orbiterEvent;
 		orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
