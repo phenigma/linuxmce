@@ -260,7 +260,7 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 	FILE *file = fopen( ("/var/log/pluto/spawned_devices_" + StringUtils::itos( m_dwPK_Device )).c_str(),"ab" );
 	if( file )
 	{
-		fwrite( (sCommand + "\n").c_str(), sCommand.length(), 1, file );
+		fwrite( (sCommand + "\n").c_str(), sCommand.length()+1, 1, file );
 		fclose(file);
 	}
 
