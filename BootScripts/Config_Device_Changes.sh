@@ -61,7 +61,7 @@ NeedConfigure "$PK_Device" || exit 0
 [ -n "$MySqlPassword" ] && Pass="-p$MySqlPassword"
 CUsh="/usr/pluto/install/config_update.sh"
 
-/usr/pluto/bin/ConfirmDependencies -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device install >"$CUsh.$$"
+/usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device install >"$CUsh.$$"
 linecount=$(cat "$CUsh.$$" | wc -l)
 awk "NR<$linecount-8" "$CUsh.$$" >"$CUsh"
 rm "$CUsh.$$"
