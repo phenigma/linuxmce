@@ -1064,7 +1064,8 @@ string Makefile = "none:\n"
 			string sDestination = Dir + "/root/" + thePrefix + (*iFileInfo)->m_sDestination;
 		
 			cout << "COPY: " << sSource << " --> " + sDestination << endl;
-			FileUtils::PUCopyFile(sSource, sDestination);
+			if( !g_bSimulate )
+				FileUtils::PUCopyFile(sSource, sDestination);
 		}
 	}
 
@@ -1093,7 +1094,7 @@ string Makefile = "none:\n"
 
 #ifndef WIN32
 	system(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control").c_str());
-	if( system("dpkg-buildpackage -b -rfakeroot") )
+	if( !g_bSimulate && system("dpkg-buildpackage -b -rfakeroot") )
 	{
 		cout << "dpkg-buildpackage -b failed.  Aborting." << endl;
 		return false;
@@ -1107,7 +1108,8 @@ string Makefile = "none:\n"
 					
 #ifndef WIN32
 	chdir(CurrentDir);
-	system(("rm -rf " + Dir).c_str());
+	if( !g_bSimulate )
+		system(("rm -rf " + Dir).c_str());
 #endif
 	
 	return true;
@@ -1175,6 +1177,8 @@ bool TarFiles(string sArchiveFileName)
 {
 	string SystemCall = "tar -zcvf " + sArchiveFileName + " *";
 	cout << "Executing: " << SystemCall << endl;
+	if( g_bSimulate )
+		return true;
 	return system(SystemCall.c_str())==0;
 }
 
@@ -1182,5 +1186,7 @@ bool ZipFiles(string sArchiveFileName)
 {
 	string SystemCall = "zip -r " + sArchiveFileName + " *";
 	cout << "executing: " << SystemCall << endl;
+	if( g_bSimulate )
+		return true;
 	return system(SystemCall.c_str())==0;
 }
