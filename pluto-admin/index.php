@@ -741,6 +741,13 @@ switch ($section) {
 	    include_once('operations/myDevices/securitySettings.php');
 	    securitySettings($output,$dbADO,$securityADO);
 	break;
+	case 'outsideAccess':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/security/outsideAccess.php');
+	    outsideAccess($output,$dbADO);
+	break;
+	
 	case 'videoLinks':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
@@ -915,6 +922,12 @@ switch ($section) {
 		$output->setTemplateFileType('large');
 	    include_once('operations/others/addSoftware.php');
 	    addSoftware($output,$dbADO);
+	break;	
+	case 'learnCode';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/infrared/learnCode.php');
+	    learnCode($output,$dbADO);
 	break;	
 	
 	case '';

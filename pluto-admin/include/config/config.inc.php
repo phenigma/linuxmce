@@ -131,6 +131,7 @@
 	$GLOBALS['MobileOrbiterNotification']=34;	// Mobile Orbiter Notification
 	$GLOBALS['OtherPhoneNotifications']=35;		// Other Phone Notifications 
 	$GLOBALS['NeighborstoCall']=36;				// Neighbors to Call 
+	$GLOBALS['securityAlertType']=45;			// Alert type 
 	
 	// PK_FloorplanType from table FloorplanType 
 
@@ -167,13 +168,16 @@
 	$GLOBALS['camerasVariableNumbersArray']=array(18,19,20,21);
 	$GLOBALS['cameraVariable']=22;
 	
+	// PK_StartupScript from table StartupScript
+	$GLOBALS['ShareIRCodes']=49;				// Share IR codes
+	
 	// options to display in Media Wizard
 	
 	$GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents');
 	
 	// DeviceData displayed as pulldown menu
 	
-	$GLOBALS['DeviceDataLinkedToTables']=array('PK_Distro','PK_FloorplanObjectType','PK_Skin','PK_Size','PK_Language','PK_Users');
+	$GLOBALS['DeviceDataLinkedToTables']=array('PK_Distro','PK_FloorplanObjectType','PK_Skin','PK_Size','PK_Language','PK_Users','PK_AlertType');
 	
 	// PK_Device for Local Orbiter
 	

@@ -10,11 +10,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 	$deviceCategory=$GLOBALS['rootSecurity'];
 	
 	$queryAlertTypes='SELECT * FROM AlertType';
-	$pullDownArray = array('Do Nothing');
-	$resAlertType=$securitydbADO->Execute($queryAlertTypes);
-	while($rowAlertType=$resAlertType->FetchRow()){
-		$pullDownArray[]=$rowAlertType['Description'];
-	}
+	$pullDownArray = array(0=>'Do Nothing',2=>'Announcement');
 	
 	$properties = array('disarmed', 'armed - away', 'armed - at home', 'sleeping', 'entertaining', 'extended away');
 	
@@ -41,12 +37,12 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 				window.open(locationA,\'\',attributes);
 			}
 	</script>
-	<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<form action="index.php" method="POST" name="securitySettings">
 	<input type="hidden" name="section" value="securitySettings">
 	<input type="hidden" name="action" value="add">	
-	<div align="center"><h3>Security settings</h3></div>
+	<div align="center"><h3>Reaction to sensors</h3></div>
 	<p align="center">For each security sensor, or zone, in the house, indicate what Pluto should do when the sensor is triggered for each security mode.  If \'Monitor Mode\', aka Baby Sitter Mode, is checked, then when the house is is Monitor Mode you will be notified on your phone whenever the sensor is tripped and shown a picture.</p>
 		<table align="center">
 			<tr bgcolor="lightblue">
@@ -71,12 +67,45 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				while($rowD=$resDevice->FetchRow()){
 					$displayedDevices[]=$rowD['PK_Device'];
+					$queryAlertType='
+						SELECT Device_DeviceData.IK_DeviceData, AlertType.Description 
+						FROM Device_DeviceData 
+						INNER JOIN AlertType ON IK_DeviceData=PK_AlertType 
+						WHERE FK_Device=? AND FK_DeviceData=?';
+					$resAlertType=$dbADO->Execute($queryAlertType,array($rowD['PK_Device'],$GLOBALS['securityAlertType']));
+					if($resAlertType->RecordCount()>0){
+						$rowAlertType=$resAlertType->FetchRow();
+						$pullDownArray[1]=$rowAlertType['Description'];
+						$selectedAlertType=$rowAlertType['IK_DeviceData'];
+					}else
+						$selectedAlertType=0;
+					ksort($pullDownArray);
+					reset($pullDownArray);
 					$queryDDD='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 					$resDDD=$dbADO->Execute($queryDDD,array($rowD['PK_Device'],$GLOBALS['securityAlert']));
 					if($resDDD->RecordCount()>0){
 						$rowDDD=$resDDD->FetchRow();
 						$oldProperties=$rowDDD['IK_DeviceData'];
 						$oldPropertiesArray=explode(',',$oldProperties);
+					}else {
+						switch($selectedAlertType){
+							case 1:		// Security Breach
+								$oldPropertiesArray=array(0,0,1,0,0,0,1);
+							break;
+							case 2:		// Fire Alarm
+								$oldPropertiesArray=array(0,1,1,1,1,1,1);
+							break;
+							case 3:		// Air Quality
+								$oldPropertiesArray=array(0,1,1,1,1,1,1);
+							break;
+							case 4:		// Movement
+								$oldPropertiesArray=array(0,0,0,2,0,2,0);
+							break;
+							default:		// no Alert Type
+								$oldPropertiesArray=array(0,0,0,0,0,0,0);
+							break;
+						}
+						unset($oldProperties);
 					}
 					$out.='<input type="hidden" name="oldProperties_'.$rowD['PK_Device'].'" value="'.@$oldProperties.'">';
 					$out.='
@@ -110,7 +139,6 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 			exit(0);
 		}
 		// process and redirect
-		
 		$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
 		foreach($displayedDevicesArray AS $device){
 			$oldProperties=$_POST['oldProperties_'.$device];

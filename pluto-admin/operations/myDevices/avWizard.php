@@ -88,7 +88,27 @@ function avWizard($output,$dbADO) {
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">			
-	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>
+	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>';
+		if($type=='avEquipment'){
+			$queryDevice='
+				SELECT Device.* 
+				FROM Device
+				WHERE FK_DeviceTemplate=? AND Device.FK_Installation=?';
+			$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['rootCoreID'],$installationID));
+			if($resDevice->RecordCount()!=0){
+				$rowDevice=$resDevice->FetchRow();
+				$coreID=$rowDevice['PK_Device'];
+			}
+			if(isset($coreID)){
+				$resDevice_StartupScript=$dbADO->Execute('SELECT * FROM Device_StartupScript WHERE FK_Device=? AND FK_StartupScript=?',array($coreID,$GLOBALS['ShareIRCodes']));
+				$rowShare=$resDevice_StartupScript->FetchRow();
+				$sharedWithOthers=($rowShare['Enabled']==1)?1:0;
+			}
+			$out.='<div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> Share my I/R codes with other Pluto users.</div>';
+			$out.='	<input type="hidden" name="coreID" value="'.$coreID.'">
+					<input type="hidden" name="oldShareIRCodes" value="'.((@$sharedWithOthers>0)?'1':'0').'">';
+		}
+		$out.='
 		<table align="center" border="0" cellpadding="2" cellspacing="0">
 				<tr>
 					<td align="center"><B>Device</B></td>
@@ -419,6 +439,24 @@ function avWizard($output,$dbADO) {
 			header("Location: index.php?section=avWizard&type=$type&error=You are not authorised to change the installation.");
 			exit(0);
 		}
+		
+		
+		$oldShareIRCodes=(int)$_POST['oldShareIRCodes'];
+		$coreID=(int)$_POST['coreID'];
+		$resShare=$dbADO->Execute('SELECT * FROM Device_StartupScript WHERE FK_Device=? AND FK_StartupScript=?',array($coreID,$GLOBALS['ShareIRCodes']));
+		if(isset($_POST['shareIRCodes'])){
+			if($oldShareIRCodes==0 && $coreID!=0){
+				if($resShare->RecordCount()==0)
+					$dbADO->Execute('INSERT INTO Device_StartupScript (FK_Device, FK_StartupScript, Enabled) VALUES (?,?,1)',array($coreID,$GLOBALS['ShareIRCodes']));
+				else
+					$dbADO->Execute('UPDATE Device_StartupScript SET Enabled=1 WHERE FK_Device=? AND FK_StartupScript=?',array($coreID,$GLOBALS['ShareIRCodes']));
+			}
+		}else{
+			if($oldShareIRCodes!=0){
+				$dbADO->Execute('UPDATE Device_StartupScript SET Enabled=0 WHERE FK_Device=? AND FK_StartupScript=?',array($coreID,$GLOBALS['ShareIRCodes']));
+			}
+		}
+
 		$displayedDevicesArray=explode(',',@$_POST['displayedDevices']);
 		foreach($displayedDevicesArray as $value){
 			if(isset($_POST['delete_'.$value])){

@@ -105,7 +105,10 @@ function irCodes($output,$dbADO) {
 		<tr bgcolor="'.(($pos%2==1)?'#EEEEEE':'').'">
 			<td align="center">'.$rowCommands['Description'].(($rowCommands['FK_DeviceTemplate']=='')?'':': Custom code for device').'</td>
 			<td><input type="text" name="irData_'.$rowCommands['PK_InfraredGroup_Command'].'" value="'.$rowCommands['IRData'].'" '.(($rowCommands['FK_DeviceTemplate']=='')?'disabled':'').'></td>
-			<td align="center">'.(($rowCommands['FK_DeviceTemplate']=='')?'<input type="button" class="button" name="addCustomCode" value="Add custom code" onClick="document.irCodes.irgroup_command.value='.$rowCommands['PK_InfraredGroup_Command'].';document.irCodes.submit();">':'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowCommands['PK_InfraredGroup_Command'].';document.irCodes.submit();">').'</td>
+			<td align="center">'.(($rowCommands['FK_DeviceTemplate']=='')?'<input type="button" class="button" name="addCustomCode" value="Add custom code" onClick="document.irCodes.irgroup_command.value='.$rowCommands['PK_InfraredGroup_Command'].';document.irCodes.submit();">':'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowCommands['PK_InfraredGroup_Command'].';document.irCodes.submit();">').' 
+				<input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&deviceID='.$deviceID.'&from=avWizard&action=testCode&irCode='.$rowCommands['IRData'].'\'">
+				<input type="button" class="button" name="learnCode" value="Learn code" onClick="windowOpen(\'index.php?section=learnCode&deviceID='.$deviceID.'&commandID='.$rowCommands['FK_Command'].'\',\'width=300,height=200,toolbars=true,scrollbars=1,resizable=1\');">
+			</td>
 		</tr>';
 	}
 	if(count($customCodesNo)!=0){
@@ -122,7 +125,21 @@ function irCodes($output,$dbADO) {
 		</form>
 	';	
 	} else {
-	// process DT	
+	// process
+	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
+	if (!$canModifyInstallation){
+		header("Location: index.php?section=irCodes&error=You are not authorised to change the installation.");
+		exit();
+	}		
+	
+	if($action=='testCode'){
+		$irCode=$_REQUEST['irCode'];
+		$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 9 '.$irCode;
+		system($commandToTest);
+		header("Location: index.php?section=irCodes&from=$from&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=The command was sent.");
+		exit();
+	}
+	
 	$newIRGroup=(int)$_POST['irGroup'];
 	$oldIRGroup=(int)$_POST['oldIRGroup'];
 	if($newIRGroup!=$oldIRGroup){
