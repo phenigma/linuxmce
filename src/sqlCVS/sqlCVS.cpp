@@ -104,7 +104,7 @@ string GetCommand( )
 		<< "A.	Import a 'dump' file from a server and make a local, working copy ( import )" << endl
 		<< "B.	Check-in changes you've made locally ( checkin )" << endl
 		<< "C.	Update my local copy with changes from the server ( update )" << endl
-		<< "D.	Synchronize my database with the server. Same as checkin+update ( sync )" << endl
+		<< "D.	**disabled** Synchronize my database with the server. Same as checkin+update ( sync )" << endl
 		<< "E.	View my local changes ( diff )" << endl
 		<< "F.	Approve pending batch ( approve )" << endl
 		<< endl
@@ -377,20 +377,6 @@ int main( int argc, char *argv[] )
 					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
 					throw "Bad Arguments";
 				}
-				database.Update( );
-			}
-			else if( g_GlobalConfig.m_sCommand=="sync" )
-			{
-				if( g_GlobalConfig.m_sRepository.length( ) )
-				{  
-					/** If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository */
-					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
-					throw "Bad Arguments";
-				}
-				database.CheckIn( true );
-				// We may have updated some records because we added new records, which caused new primary keys to be 
-				// created and propagated, altering records we had already submitted.  We'll need to resubmit them again.
-				database.CheckIn( false );
 				database.Update( );
 			}
 			else if( g_GlobalConfig.m_sCommand=="listen" )

@@ -508,7 +508,6 @@ bool Repository::DetermineDeletions( )
 	for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
 	{
 		Table *pTable = ( *it ).second;
-		
 		/**
 		 * Since we don't need to connect to the server for anything here, but we don't each table to make it's own connection, 
 		 * Pass in the connection string and the NULL pointer to the socket so a connection will be made the

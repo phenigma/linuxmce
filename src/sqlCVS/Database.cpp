@@ -593,6 +593,8 @@ void Database::CheckIn( bool bFirstLoop )
 	{
 		Table *pTable = ( *it ).second;
 		pTable->m_mapUsers2ChangedRowList.clear(); // Be sure we start clean, since this could be the second loop
+		pTable->m_vectRowsToDelete.clear();
+		pTable->itmp_RowsToDelete=0;
 		pTable->GetChanges( );
 	}
 
@@ -684,14 +686,14 @@ for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig
 Table *pTable = ( *it ).second;
 if( pTable->m_vectRowsToDelete.size() )
 {
-cout << "Table: " << pTable->Name_get() <<  " has " << pTable->m_vectRowsToDelete.size() << " rows to delete" << endl;
+cout << "Table: " << pTable->Name_get() <<  " has " << pTable->m_vectRowsToDelete.size() << " rows to delete from the server" << endl;
 if( !AskYNQuestion("Continue",false) )
 	throw "Checkin aborted";
 }
 
 if( pTable->itmp_RowsToDelete )
 {
-cout << "Table: " << pTable->Name_get() <<  " has " << pTable->itmp_RowsToDelete << " rows deleted" << endl;
+cout << "Table: " << pTable->Name_get() <<  " has " << pTable->itmp_RowsToDelete << " rows deleted locally" << endl;
 if( !AskYNQuestion("Continue",false) )
 	throw "Checkin aborted";
 }
