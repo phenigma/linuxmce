@@ -71,7 +71,7 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 	//snapshot config
 	fprintf(fp,"snapshot_interval 3600\n");
 	//Output Directory
-	sLine = "/var/www/cam" + sPortNumber;
+	sLine = "/home/cameras/" + StringUtils::itos(DeviceID);
 	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera output directory");
 	if(FileUtils::DirExists(sLine) == false) {
 		g_pPlutoLogger->Write(LV_STATUS, "Camera output directory not found, creating it");
@@ -80,7 +80,12 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 		g_pPlutoLogger->Write(LV_STATUS, "Camera output found");
 	}
 	fprintf(fp,"target_dir %s\n",sLine.c_str());
+	sLine = "snapshot_filename %Y/%m/%d/%H/%M_%S";
+	fprintf(fp,"%s\n",sLine.c_str());
+	sLine = "jpeg_filename %Y/%m/%d/%H/%M_%S";
+	fprintf(fp,"%s\n",sLine.c_str());
 	fclose(fp);
+
 	g_pPlutoLogger->Write(LV_STATUS, "Reading Main configuration file of the motion server");
 	sPath = "/etc/motion/motion.conf";
 	size = FileUtils::FileSize(sPath);
