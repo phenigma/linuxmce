@@ -1075,6 +1075,7 @@ cout << "Copying Files\n";
 						cmd2 = "cvs add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					}
 					system(cmd.c_str());
+					system(cmd2.c_str());
 				}
 				flag = true;
 				break;
