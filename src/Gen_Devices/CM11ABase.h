@@ -28,6 +28,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 48; } ;
 	virtual const char *GetDeviceDescription() { return "CM11A"; } ;
+	string Get_Port() { return m_mapParameters[37];}
 };
 
 
@@ -70,6 +71,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Port() { return GetData()->Get_Port(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 
@@ -101,6 +103,7 @@ public:
 					if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 					{
 						Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[0]=sCMD_Result;
 						SendMessage(pMessageOut);
 					}
 					else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
