@@ -10,14 +10,14 @@ mail:x:8:8:mail:/var/mail:/bin/sh
 news:x:9:9:news:/var/spool/news:/bin/sh
 uucp:x:10:10:uucp:/var/spool/uucp:/bin/sh
 proxy:x:13:13:proxy:/bin:/bin/sh
-postgres:x:31:32:postgres:/var/lib/postgres:/bin/sh
 www-data:x:33:33:www-data:/var/www:/bin/sh
 backup:x:34:34:backup:/var/backups:/bin/sh
-operator:x:37:37:Operator:/var:/bin/sh
 list:x:38:38:Mailing List Manager:/var/list:/bin/sh
-irc:x:39:39:ircd:/var:/bin/sh
+irc:x:39:39:ircd:/var/run/ircd:/bin/sh
 gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/bin/sh
 nobody:x:65534:65534:nobody:/nonexistent:/bin/sh
-sshd:x:100:65534::/var/run/sshd:/bin/false
-mysql:x:101:101:MySQL Server:/var/lib/mysql:/bin/false
-postfix:x:102:102::/var/spool/postfix:/bin/false
+Debian-exim:x:102:102::/var/spool/exim4:/bin/false
+x:x:1000:1000:x,,,:/home/x:/bin/bash
+mysql:x:100:103:MySQL Server,,,:/var/lib/mysql:/bin/false
+mythtv:x:104:104::/home/mythtv:/bin/sh
+sshd:x:101:65534::/var/run/sshd:/bin/false
