@@ -1064,10 +1064,9 @@ cout << "Copying Files\n";
 				cmd2 = FileUtils::FilenameWithoutPath(*iMyList);
 			}
 
-			cout << cmd.c_str() << "=" << cmd2.c_str() << endl;
 			if(cmd.compare (cmd2) == 0) {
 				//if the file exist we overwrite it
-				cout << "WE GOT A HIT ------\n";
+				cout << "Older File Detected <-\n";
 				cmd = FileUtils::BasePath(pFileInfo->m_sSource);
 				pos = cmd.rfind("/");
 				length = cmd.length();
@@ -1094,6 +1093,7 @@ cout << "Copying Files\n";
 		}
 		if(flag != true) {
 				//if it is a new file we copy it
+				cout << "New file detected <-\n";
 				cmd=FileUtils::BasePath(pFileInfo->m_sSource);
 				string::size_type pos = cmd.rfind("/");
 				string::size_type marime = cmd.length();
@@ -1183,9 +1183,9 @@ cout << "Copying Files\n";
 		}
 		if (flag != true) {
 			if(cmd2 == "") {
-				cout << "Ignoring CVS!!!\n";
+				cout << "Ignoring CVS files or directory <-\n";
 			} else {
-				cout << "WE HAVE A TILT!!!!\n";
+				cout << "We have a ghost <-\n";
 				cmd = "rm -r -f " + cmd2;
 				system(cmd.c_str());
 				cout << cmd << endl;
@@ -1197,17 +1197,20 @@ cout << "Copying Files\n";
 		flag = false;
 	}
 
-	cout<<"\n Commit\n";
+	cout<<"\n Making commit ";
 	//Updating files from the server to the sourceforge
 	cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + 
 		" commit -m 'Automatic Update'";
 	system(cmd.c_str());
+	cout << "[Done]\n";
 
 	//at the end we delete the temporary directory
+	cout << "Clearing Temporary ";
 	cmd = "../../";
 	chdir(cmd.c_str());
 	cmd = "rm cvs_temp -r";
 	system(cmd.c_str());
+	cout << "[Done]\n";
 	return true;
 }
 
