@@ -31,7 +31,7 @@
 
 #ifndef WIN32
 	#include "dirent.h"
-#else
+//#else
 	#include "unistd.h"
 #endif
 
