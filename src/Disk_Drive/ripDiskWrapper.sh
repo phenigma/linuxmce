@@ -36,7 +36,7 @@ echo "Ripping $sourceDevice to \"$targetFileName\" with a disk of type $diskType
 command="";
 result=$ERR_NONE;
 case $diskType in 
-	2)	command="nice -n 15 dd if=$sourceDevice of=\"/home/public/data/movies/$targetFileName.dvd\" bs=10M";;
+	2)	command="nice -n 15 dd if=$sourceDevice of=\"/home/public/data/movies/$targetFileName.in-progress-dvd\" bs=10M";;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
 esac
 
@@ -48,8 +48,8 @@ fi
 
 if eval $command; then 
 	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceId $mediaPluginDeviceID 2 35 20 $ERR_SUCCESS 35 "$targetFileName";
-	mv -f "/home/public/data/movies/$targetFileName.dvd-in-progress" "/home/public/data/movies/$targetFileName.dvd";
+	mv -f "/home/public/data/movies/$targetFileName.in-progress-dvd" "/home/public/data/movies/$targetFileName.dvd";
 else
 	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceId $mediaPluginDeviceID 2 35 20 $ERR_RESULT_FAILURE 35 "$targetFileName";
-	rm "/home/public/data/movies/$targetFileName.dvd-in-progress";
+	rm "/home/public/data/movies/$targetFileName.in-progress-dvd";
 fi
