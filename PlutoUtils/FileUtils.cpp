@@ -328,3 +328,41 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
     closedir (dirp);
 #endif
 }
+
+// Use a 1 meg buffer
+#define BUFFER_SIZE		1000000
+bool FileUtils::PUCopyFile(string sSource,string sDestination)
+{
+	FILE *fileSource = fopen(sSource.c_str(),"rb");
+	if( !fileSource )
+		return false;
+
+	FILE *fileDest = fopen(sDestination.c_str(),"wb");
+	if( !fileDest )
+	{
+		fclose(fileSource);
+		return false;
+	}
+
+	void *Buffer = malloc(BUFFER_SIZE);
+	size_t BytesRead;
+	while( true )
+	{
+		BytesRead = fread(Buffer,1,BUFFER_SIZE,fileSource);
+		if( BytesRead )
+		{
+			size_t BytesWritten = fwrite(Buffer,1,BytesRead,fileDest);
+			if( BytesWritten!=BytesRead )
+			{
+				fclose(fileSource);
+				fclose(fileDest);
+				return false;
+			}
+			if( BytesRead!=BUFFER_SIZE )
+				break;
+		}
+	}
+	fclose(fileSource);
+	fclose(fileDest);
+	return true;
+}

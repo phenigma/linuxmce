@@ -16,7 +16,9 @@
 #include <vector>
 using namespace ::std;
 
-#include "getch.h"
+#ifndef WIN32
+#include "getch.h"	// Windows already has a getch
+#endif
 
 #else
 

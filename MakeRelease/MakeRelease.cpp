@@ -49,6 +49,22 @@ namespace DCE
 	Logger *g_pPlutoLogger;
 }
 
+// When we need to move files, we will use a list of this structure
+class FileInfo
+{
+public:
+	FileInfo(string sSource,string sDestination,Row_Package_Directory *pRow_Package_Directory)
+	{
+		m_sSource=sSource;
+		m_sDestination=sDestination;
+		m_pRow_Package_Directory=pRow_Package_Directory;
+	}
+
+	string m_sSource;
+	string m_sDestination;
+	Row_Package_Directory *m_pRow_Package_Directory;
+};
+
 string g_sPackages, g_sManufacturer, g_sSourcePath;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0;
@@ -70,15 +86,15 @@ bool CompileSource(Row_Package *pRow_Package);
 
 // This will create the repository sources that we specified on the command line
 bool CreateSources(Row_Package *pRow_Package);
-bool CreateSource(Row_Package_Source *pRow_Package_Source,map<string,string> &mapFilesToMove);
+bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
 
 // These are the specific output functions that need to be implemented and expanded upon
-bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,map<string,string> &mapFilesToMove);
-bool CreateSource_PlutoFTP(Row_Package_Source *pRow_Package_Source,map<string,string> &mapFilesToMove);
+bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
+bool CreateSource_PlutoFTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
 
 // This will figure out what files need to be moved into the output
-bool GetSourceFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFilesToMove);
-bool GetNonSourceFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFilesToMove);
+bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo);
+bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo);
 
 fstream fstr_compile,fstr_make_release;
 
@@ -306,13 +322,13 @@ bool CreateSources(Row_Package *pRow_Package)
 	cout << endl;
 
 	// Now go through and figure out what files we need to move over.  The process is different if this is a source package versus a binary package
-	map<string,string> mapFilesToMove;
-	if( pRow_Package->IsSource_get() && !GetSourceFilesToMove(pRow_Package,mapFilesToMove) )
+	list<FileInfo *> listFileInfo;
+	if( pRow_Package->IsSource_get() && !GetSourceFilesToMove(pRow_Package,listFileInfo) )
 		return false;
-	else if( !GetNonSourceFilesToMove(pRow_Package,mapFilesToMove) )
+	else if( !GetNonSourceFilesToMove(pRow_Package,listFileInfo) )
 		return false;
 
-	if( mapFilesToMove.size()==0 )
+	if( listFileInfo.size()==0 )
 	{
 		cout << "***ERROR*** No files found for this package!" << endl;
 		return false;
@@ -323,8 +339,11 @@ bool CreateSources(Row_Package *pRow_Package)
 	{
 		if( AskYNQuestion("View the list of files?",false) )
 		{
-			for(map<string,string>::iterator it=mapFilesToMove.begin();it!=mapFilesToMove.end();++it)
-				cout << (*it).first << "  -->  " << (*it).second << endl;
+			for(list<FileInfo *>::iterator it=listFileInfo.begin();it!=listFileInfo.end();++it)
+			{
+				FileInfo *pFileInfo = *it;
+				cout << pFileInfo->m_sSource << "  -->  " << pFileInfo->m_sDestination << endl;
+			}
 
 		if( !AskYNQuestion("Continue?",false) )
 			return false;
@@ -334,7 +353,7 @@ bool CreateSources(Row_Package *pRow_Package)
 	for(size_t s=0;s<vectRow_Package_Source_All.size();++s)
 	{
 		Row_Package_Source *pRow_Package_Source = vectRow_Package_Source_All[s];
-		if( !CreateSource(pRow_Package_Source,mapFilesToMove) )
+		if( !CreateSource(pRow_Package_Source,listFileInfo) )
 		{
 			cout << "***ABORTING***" << endl;
 			return false;
@@ -343,7 +362,7 @@ bool CreateSources(Row_Package *pRow_Package)
 	return true;
 }
 
-bool CreateSource(Row_Package_Source *pRow_Package_Source,map<string,string> &mapFilesToMove)
+bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
 	cout << "\tCreating source: " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << endl;
 	cout << "\t--------------------------" << endl;
@@ -351,17 +370,17 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,map<string,string> &ma
 	switch(pRow_Package_Source->FK_RepositorySource_get())
 	{
 	case REPOSITORYSOURCE_Pluto_Debian_CONST:
-		CreateSource_PlutoDebian(pRow_Package_Source,mapFilesToMove);
+		CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
 		break;
 	case REPOSITORYSOURCE_Pluto_FTP_CONST:
-		CreateSource_PlutoFTP(pRow_Package_Source,mapFilesToMove);
+		CreateSource_PlutoFTP(pRow_Package_Source,listFileInfo);
 		break;
 	}
 
 	return true;
 }
 
-bool GetSourceFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFilesToMove)
+bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo)
 {
 	// Start with source code.
 	// First is there a separate directory specified for the source headers?
@@ -392,23 +411,32 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFiles
 		for(size_t s2=0;s2<vectPackage_Directory_File.size();++s2)
 		{
 			Row_Package_Directory_File *pRow_Package_Directory_File = vectPackage_Directory_File[s2];
-			mapFilesToMove[sDirectory + "/" + pRow_Package_Directory_File->File_get()] = pRow_Package_Directory->Path_get();
+			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + pRow_Package_Directory_File->File_get(),pRow_Package_Directory->Path_get() + "/" + pRow_Package_Directory_File->File_get(),pRow_Package_Directory_File->FK_Package_Directory_getrow());
+			listFileInfo.push_back(pFileInfo);
 		}
 
 		list<string> listFiles;
 		FileUtils::FindFiles(listFiles,sDirectory,"*.cpp,*.c,Makefile*");
 		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
-			mapFilesToMove[sDirectory + "/" + *it] = pRow_Package_Directory->Path_get();
+		{
+			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,pRow_Package_Directory->Path_get() + *it,pRow_Package_Directory);
+			listFileInfo.push_back(pFileInfo);
+		}
 
 		listFiles.clear();
 		FileUtils::FindFiles(listFiles,sDirectory,"*.h");
 		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
-			mapFilesToMove[sDirectory + "/" + *it] = pRow_Package_Directory_SourceIncludes ? pRow_Package_Directory_SourceIncludes->Path_get() : pRow_Package_Directory->Path_get();
+		{
+			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,
+				(pRow_Package_Directory_SourceIncludes ? pRow_Package_Directory_SourceIncludes->Path_get() : pRow_Package_Directory->Path_get()) + *it,
+				pRow_Package_Directory);
+			listFileInfo.push_back(pFileInfo);
+		}
 	}
 	return true;
 }
 
-bool GetNonSourceFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFilesToMove)
+bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo)
 {
 	// First is there a directory specified for finding the compiled output?
 	Row_Package_Directory *pRow_Package_Directory_CompiledOutput=NULL;
@@ -451,10 +479,20 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFi
 				list<string> listFiles;
 				FileUtils::FindFiles(listFiles,sDirectory,File,true);
 				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
-					mapFilesToMove[sDirectory + "/" + *it] = pRow_Package_Directory->Path_get() + "/" + *it;
+				{
+					FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,
+						pRow_Package_Directory->Path_get() + "/" + *it,
+						pRow_Package_Directory);
+					listFileInfo.push_back(pFileInfo);
+				}
 			}
 			else
-				mapFilesToMove[sDirectory + "/" + File] = pRow_Package_Directory->Path_get() + "/" + File;
+			{
+				FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + File,
+					pRow_Package_Directory->Path_get() + "/" + File,
+					pRow_Package_Directory);
+				listFileInfo.push_back(pFileInfo);
+			}
 		}
 	}
 	return true;
@@ -835,7 +873,7 @@ AsksSourceQuests:
 // - the .deb file will go in dists/<pluto2 (repository name - var in package source)>/
 //   intended to be run from a directory with this dists directory under it
 // - the target destination will be /usr/pluto/<relative path>
-bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,map<string,string> &mapFilesToMove)
+bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
 	// Get a vector<Row_Package_Package *> and pass it to pRow_Package_Source->FK_Package_getrow()->Package_Package_FK_Package_getrows()
 	// 
@@ -847,7 +885,7 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,map<string
 	return true;
 }
 
-bool CreateSource_PlutoFTP(Row_Package_Source *pRow_Package_Source,map<string,string> &mapFilesToMove)
+bool CreateSource_PlutoFTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
 	cout << "------------PLUTO FTP OUTPUT" << endl;
 	cout << " rep: " << pRow_Package_Source->Repository_get() << " ver: " << pRow_Package_Source->Version_get() << " parm: " << pRow_Package_Source->Parms_get() << endl;
