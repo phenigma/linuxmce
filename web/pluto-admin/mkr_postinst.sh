@@ -84,7 +84,7 @@ echo "$Site" >/etc/apache2/sites-available/pluto
 a2ensite pluto
 /etc/init.d/apache2 reload
 
-sudo="www-data        ALL=(root) NOPASSWD:/usr/pluto/bin/SetupRemoteAcces.sh"
+sudo="www-data        ALL=(root) NOPASSWD:/usr/pluto/bin/SetupRemoteAccess.sh"
 if ! grep -q www-data /etc/sudoers; then
 	echo "$sudo" >>/etc/sudoers
 fi
