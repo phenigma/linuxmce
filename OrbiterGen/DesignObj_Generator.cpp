@@ -1199,7 +1199,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 }
             }
             break;
-        case ARRAY_Entertainment_Scenarios_CONST:
+        case ARRAY_Media_Scenarios_CONST:
             if( m_pOrbiterGenerator->m_pRow_EntertainArea==NULL )
                 break;
             PriorSort=-1;
