@@ -292,11 +292,6 @@ int main(int argc, char *argv[])
 		for(size_t s=0;s<vectPackages_Main.size();++s)
 		{
 			Row_Package *pRow_Package = vectPackages_Main[s];
-			if( !PackageIsCompatible(pRow_Package) )
-			{
-				cout << "Skipping: " << pRow_Package->Description_get() << " because it is not compatible" << endl;
-				continue;
-			}
 			if( !CreateSources(pRow_Package) )
 			{
 				cout << "Aborting!" << endl;
