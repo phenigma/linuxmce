@@ -3,38 +3,67 @@
 use DBI;
 use Socket;
 
+open(CONF,"/etc/pluto.conf");
+@data=<CONF>;
+close(CONF);
 
-$db = DBI->connect("dbi:mysql:database=pluto_main;host=localhost;user=root;password=") or die "Couldn't connect to database: $DBI::errstr\n";
+foreach $line (@data) {
+  ($option, $eq, $value) = split(/ /,$line);
+  if($option eq "MySqlHost") {
+    $DBHOST=$value;
+    $FILEHOST=$value;
+  } elsif ($option eq "MySqlUser") {
+    $DBUSER=$value;
+  } elsif ($option eq "MySqlPassword") {
+    $DBPASSWD=$value;
+  } elsif ($option eq "PK_Device") {
+    $PKDEV=$value;
+  }
+}
+
+$db = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUSER;password=$DBPASSWD") or die "Couldn't connect to database: $DBI::errstr\n";
 $gw = "";
 
 system("rm -f /var/log/pluto/gc100-conf.log >> /dev/null");
 
 if($ARGV[0] eq "") {
-    loggc("Finding GC100 on the network\n");
+    loggc("No params\n\tFinding GC100 on the network\n");
     $flag = allias_up();
     if(find_gc100() == 1) {
         loggc("GC100 Found\n");
 	$mac = get_gc100mac();
-	if($flag == 1) {
-	    allias_down();
-	}
+	loggc("Finding IP ");
 	$ip = find_ip();
+	loggc("[$ip]\n");
+	loggc("Finding Installation ");
 	$install = get_install();
+	loggc("[$install]\n");
+	loggc("Finding Template ");
 	$dev_templ = get_template();
-	
+	loggc("[$dev_templ]\n");
 	@data = sqlexec("select * from Device WHERE FK_DeviceTemplate='$dev_templ'");
 	if($data[0]->{'PK_Device'} ne "") {
 	  loggc("The device allready exist in the database\n");
 	  $db->disconnect();
 	  exit(2);
 	}
-	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -n\n");
+	loggc("Creating Device...");
+	loggc("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -n\n");
+	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -n");
+	loggc("Done\n");
+	loggc("Configuring GC100 via Web...");
+	configure_webgc($ip);
+	loggc("Done\n");
+	if($flag == 1) {
+	    allias_down();
+	}
     } else {
         loggc("Gc100 as default not found\n");
 	exit(1);
     }
 } else {
-    loggc("Finding GC100 on the network\n");
+exit(0);
+    loggc("With params\nFinding GC100 on the network\n");
     if($ARGV[1] eq "") {
         if(find_gc100() == 1) {
             loggc("GC100 found\n");
@@ -49,10 +78,10 @@ if($ARGV[0] eq "") {
     }
     $ip = $ARGV[1];
     $flag = allias_up();
+    configure_webgc($ip);
     if($flag == 1) {
         allias_down();
     }
-    configure_webgc();
 }
 
 
@@ -104,16 +133,20 @@ sub get_install {
   foreach $line (@data) {
     chomp($line);
     ($var,$value) = split(/=/,$line);
-    @fg = split(/ /,$var);
-    $var = $fr[0];
-    @fr = split(/ /,$value);
-    $value = $fg[1];
+    @frag = split(/ /,$var);
+    $var = $frag[0];
+    @frag = split(/ /,$value);
+    $value = $frag[1];
     if($var eq "PK_Installation") {
-      if($value eq "") {
-        exit(3);
+      $sql = "select FK_Installation from Device WHERE PK_Device='$PKDEV'";
+      $st = $db->prepare($sql);
+      $st->execute();
+      if($row = $st->fetchrow_hashref()) {
+        return $row->{'FK_Installation'};
       } else {
-        return $value;
+        return 1;
       }
+      $st->finish();
     }
   }
 }
@@ -125,7 +158,8 @@ sub get_template {
   if($row = $st->fetchrow_hashref()) {
     return $row->{'PK_DeviceTemplate'};
   } else {
-    return 40;
+  	loggc("Invalid Template");
+    exit(4);
   }
 }
 
@@ -171,13 +205,13 @@ sub allias_up {
 	$local_dev = $fst;
 	$local_ip = $frag[1];
     } else {
-	$local_ip = "192.168.1.1";
+	$local_dev = "eth1"
     }
+    $st->finish();
     
-    loggc("Using dev=$local_dev ip=$local_ip\n");
     $gw = $local_ip;
+    loggc("device:$local_dev ip:$local_ip gw:$gw\n");
     @frag = split(/\./,$local_ip);
-    loggc("Fragments [$frag[0]] [$frag[1]] [$frag[2]] [$frag[3]]\n");
     if($frag[0] ne "192" || $frag[1] ne "168" || $frag[2] ne "1") {
         loggc("Making allias\n");
 	system("ifconfig $local_dev:100 192.168.1.1 broadcast 255.255.255.255 netmask 255.255.255.0");
@@ -188,11 +222,13 @@ sub allias_up {
 }
 
 sub allias_down {
+  	loggc("Bringing down the allias...");
   system("ifconfig $local_dev:100 down");
+  	loggc("Down\n");
 }
 
 sub find_gc100 {
-
+	loggc("Finding...\n");
     $host = shift || '192.168.1.70';
     $port = shift || 80;
 
@@ -200,14 +236,18 @@ sub find_gc100 {
 
     $iaddr = inet_aton($host);
     $paddr = sockaddr_in($port, $iaddr); 
-
+	loggc("Creating socket...");
     socket(SOCKET, PF_INET, SOCK_STREAM, $proto) or print "socket: $!";
+    	loggc("Done\n");
     $var = 0;
+	loggc("Trying first ip...");
     connect(SOCKET, $paddr) or $var=1;
     if($var == 0) {
         close SOCKET;
+	loggc("Found on first default ip\n");
 	return 1;
     }
+    loggc("Not found on first ip\n");
     
     $host = shift || '192.168.1.101';
     $port = shift || 80;
@@ -219,11 +259,14 @@ sub find_gc100 {
                         
     socket(SOCKET, PF_INET, SOCK_STREAM, $proto) or print "socket: $!";
     $varr = 0;
+	loggc("Trying second ip...");
     connect(SOCKET, $paddr) or $varr=1;
     if($varr == 0) {
+    	loggc("Found on second ip\n");
       close SOCKET;
       return 1;
     }
+    	loggc("Not found on second ip\n");
     
     if($var == 1 && $varr == 1) {
       return 0;
@@ -286,13 +329,15 @@ sub update_db {
 }
 
 sub configure_webgc {
-    system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.70/commands.cgi?2=$ip&3=255.255.255.0&4=$gw&7=submit\"");
-    system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.101/commands.cgi?2=$ip&3=255.255.255.0&4=$gw&7=submit\"");
+    $local_ip = shift;
+    system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.70/commands.cgi?2=$local_ip&3=255.255.255.0&4=$gw&7=submit\"");
+    system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.101/commands.cgi?2=$local_ip&3=255.255.255.0&4=$gw&7=submit\"");
 }
 
 sub loggc {
     $line = shift;
     open(LOG,">>/var/log/pluto/gc100-conf.log");
     print LOG $line;
+    print $line;
     close(LOG);
 }
