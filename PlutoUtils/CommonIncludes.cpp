@@ -10,7 +10,7 @@
 #include <conio.h>
 #endif
 
-bool AskQuestion(string Question,bool bDefault)
+bool AskYNQuestion(string Question,bool bDefault)
 {
 	while(true)
 	{
@@ -20,6 +20,7 @@ bool AskQuestion(string Question,bool bDefault)
 #else
 		char c = getchar();
 #endif
+		cout << endl;
 		if( c=='y' || c=='Y' )
 			return true;
 		if( c=='n' || c=='N' )
@@ -29,7 +30,7 @@ bool AskQuestion(string Question,bool bDefault)
 	}
 }
 
-char AskQuestion(string Question,string Prompts)
+char AskMCQuestion(string Question,string Prompts)
 {
 	char cDefault=0;
 	while(true)
@@ -54,6 +55,7 @@ char AskQuestion(string Question,string Prompts)
 #endif
 //#pragma warning("need something unbuffered && need to clear the buffer, otherwise it uses old keystrokes")
 //		cin.read( &c[0], 1 );
+		cout << endl;
 		if( c=='\n' && cDefault)
 			return cDefault;
 

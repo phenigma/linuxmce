@@ -219,7 +219,6 @@ class Row_Device* FK_Device_SlaveTo_getrow();
 
 		// Return the rows in other tables with foreign keys pointing here
 		void CommandGroup_Command_FK_Device_getrows(vector <class Row_CommandGroup_Command*> *rows);
-void CommandGroup_EntGroup_FK_Device_getrows(vector <class Row_CommandGroup_EntGroup*> *rows);
 void Device_FK_Device_Audio_getrows(vector <class Row_Device*> *rows);
 void Device_FK_Device_Video_getrows(vector <class Row_Device*> *rows);
 void Device_FK_Device_ControlledVia_getrows(vector <class Row_Device*> *rows);

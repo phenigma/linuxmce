@@ -80,16 +80,21 @@ class DLL_EXPORT Row_Version : public TableRow, public SerializeClass
 		Table_Version *table;
 		
 		long int m_PK_Version;
+string m_VersionName;
+string m_BuildName;
+string m_Date;
 string m_Description;
 string m_Define;
-string m_Models;
+short int m_Repository;
+string m_Comments;
+string m_NextSteps;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[9];
+		bool is_null[14];
 	
 		bool is_deleted;
 		bool is_added;
@@ -97,9 +102,14 @@ string m_psc_mod;
 	
 	public:
 		long int PK_Version_get();
+string VersionName_get();
+string BuildName_get();
+string Date_get();
 string Description_get();
 string Define_get();
-string Models_get();
+short int Repository_get();
+string Comments_get();
+string NextSteps_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -108,9 +118,14 @@ string psc_mod_get();
 
 		
 		void PK_Version_set(long int val);
+void VersionName_set(string val);
+void BuildName_set(string val);
+void Date_set(string val);
 void Description_set(string val);
 void Define_set(string val);
-void Models_set(string val);
+void Repository_set(short int val);
+void Comments_set(string val);
+void NextSteps_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -118,18 +133,24 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool Description_isNull();
+		bool Date_isNull();
+bool Description_isNull();
 bool Define_isNull();
-bool Models_isNull();
+bool Repository_isNull();
+bool Comments_isNull();
+bool NextSteps_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void Description_setNull(bool val);
+		void Date_setNull(bool val);
+void Description_setNull(bool val);
 void Define_setNull(bool val);
-void Models_setNull(bool val);
+void Repository_setNull(bool val);
+void Comments_setNull(bool val);
+void NextSteps_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -151,19 +172,26 @@ void psc_frozen_setNull(bool val);
 		// Return the rows in other tables with foreign keys pointing here
 		void Installation_FK_Version_getrows(vector <class Row_Installation*> *rows);
 void Orbiter_FK_Version_getrows(vector <class Row_Orbiter*> *rows);
+void Package_Version_FK_Version_getrows(vector <class Row_Package_Version*> *rows);
+void Schema_FK_Version_getrows(vector <class Row_Schema*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Version+ m_Description+ m_Define+ m_Models+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Version+ m_VersionName+ m_BuildName+ m_Date+ m_Description+ m_Define+ m_Repository+ m_Comments+ m_NextSteps+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Version_asSQL();
+string VersionName_asSQL();
+string BuildName_asSQL();
+string Date_asSQL();
 string Description_asSQL();
 string Define_asSQL();
-string Models_asSQL();
+string Repository_asSQL();
+string Comments_asSQL();
+string NextSteps_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -71,7 +71,7 @@ static bool LocationComparer(LocationInfo *x, LocationInfo *y)
 }
 
 // For some reason windows won't compile with this in the same file???
-void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj);
+void DoRender(string font, string output,int width,int height,bool bAspectRatio,class DesignObj_Generator *ocDesignObj);
 
 
 #ifdef WIN32
@@ -278,7 +278,7 @@ int OrbiterGenerator::DoIt()
 		throw "Default user is invalid for orbiter: " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
 	}
 
-	m_iPK_Users = drUsers_Default->PK_Users_get();
+	m_dwPK_Users = drUsers_Default->PK_Users_get();
 
 	if( drDevice->FK_Room_isNull() )
 		throw "no room for orbiter: " + StringUtils::itos(drDevice->PK_Device_get());
@@ -477,7 +477,7 @@ int OrbiterGenerator::DoIt()
 		}
 
 		m_drRoom = mds.Room_get()->GetRow(li->PK_Room);
-		m_drDevice_EntGroup = li->PK_EntertainArea>0 ? m_drDevice_EntGroup=mds.Device_get()->GetRow(li->PK_EntertainArea) : NULL;
+		m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
 		m_iLocation = li->iLocation;
 		DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,drDesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
 
@@ -551,6 +551,43 @@ int OrbiterGenerator::DoIt()
 			{}
 		}
 	}
+
+	sql = string("select DeviceTemplate_MediaType_DesignObj.FK_DesignObj,Device.FK_DesignObj") + 
+		" FROM Device " +
+		" INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate " +
+		" INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=PK_DeviceTemplate " + 
+		" INNER JOIN DeviceTemplate_MediaType_DesignObj ON FK_DeviceTemplate_MediaType=PK_DeviceTemplate_MediaType " +
+		" WHERE FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get());
+
+	PlutoSqlResult result_set4;
+	if( (result_set4.r=mysql_query_result(sql)) )
+	{
+		while ((row = mysql_fetch_row(result_set4.r)))
+		{
+			try
+			{
+				if( row[0] )
+				{
+					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[0]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find devicetempate_mediatype_designobj: " << row[0] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+				}
+				if( row[1] )
+				{
+					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[1]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find device.designobj: " << row[1] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+				}
+			}
+			catch(...)
+			{}
+		}
+	}
+
 
 	list<Row_DesignObj *>::iterator itno;
 	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
@@ -633,7 +670,7 @@ int OrbiterGenerator::DoIt()
 				cout << "Rendering screen " << oco->m_ObjectID << endl;
 				try
 				{
-					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco);
+					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,m_pRow_Orbiter->FK_Size_getrow()->PreserveAspectRatio_get()==1,oco);
 				}
 				catch(string s)
 				{
@@ -722,7 +759,8 @@ int OrbiterGenerator::DoIt()
 	}
 */
 	// This will update the _LastGen without changing the Modification field
-	sql = "UPDATE Orbiter SET Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
+	sql = "UPDATE Orbiter SET FloorplanInfo='" + StringUtils::itos(m_iNumFloorplanItems) + m_sFloorPlanData +
+		+ "',Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
 	threaded_mysql_query(sql);
 
 	bool b=SerializeWrite(m_sOutputPath + "C" + StringUtils::itos(m_iPK_Orbiter) + ".info");
@@ -804,7 +842,6 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 
 	int PK_Orbiter = ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get();
 	Row_Orbiter * m_pRow_Orbiter = ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter;
-	string DesignObjID = "";
 
 	if( ocDesignObj->m_bChild )
 	{
@@ -843,7 +880,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 		}
 		PageList += StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ",";
 		htDevicePages[ocDesignObj->m_iFloorplanDevice] = PageList;
-		m_sFloorPlanData += "\t" + StringUtils::itos(PK_Orbiter) + "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + "\t" + DesignObjID + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.X) + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.Y);
+		m_sFloorPlanData += "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + "\t" + ocDesignObj->m_ObjectID + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.X) + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.Y);
 		m_iNumFloorplanItems++;
 	}
 

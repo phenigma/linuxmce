@@ -15,6 +15,9 @@
 #include "pluto_main/Table_DeviceTemplate_MediaType.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
+#include "MediaAttributes.h"
+#include "PlutoUtils/MySQLHelper.h"
+
 class Database_pluto_main;
 
 // A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes
@@ -92,19 +95,21 @@ public:
 
 
 //<-dceag-decl-b->!
-class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn
+class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn, public MySqlHelper
 {
 //<-dceag-decl-e->
     friend class MediaStream;
-//<-dceag-const-b->
+//<-dceag-const-b->!
 public:
 		// Constructors/Destructor
 		Media_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~Media_Plugin();
 		virtual bool Register();
 //<-dceag-const-e->
-    friend class MediaPluginInfo;
-    pluto_pthread_mutex_t m_MediaMutex; // Other classes may need this
+	class MediaAttributes *m_pMediaAttributes;
+
+	friend class MediaPluginInfo;
+	pluto_pthread_mutex_t m_MediaMutex; // Other classes may need this
 
 private:
     // Private member variables
@@ -117,6 +122,10 @@ private:
     class Datagrid_Plugin *m_pDatagrid_Plugin;
     class DataGridTable *CurrentMedia(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
     class DataGridTable *MediaSections(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+	class DataGridTable *MediaAttrXref(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+	class DataGridTable *MediaAttrCollections(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+	class DataGridTable *MediaAttrFiles(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+	class DataGridTable *MediaSearchAutoCompl(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
     // Private methods
 public:

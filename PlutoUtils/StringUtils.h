@@ -166,6 +166,8 @@ namespace StringUtils
     string SQLDateTime( time_t t=0 ); /** < converts a time_t structure into a sql formatted date time */
     string SQLEscape( string sInput ); /** < convert a escape sequence so that it can be understood by sql */
 
+	string GetStringFromConsole(); /** < Let's the user enter a string terminated by a carriage return */
+
 #endif //#ifndef SYMBIAN
 };
 

@@ -26,7 +26,7 @@ using namespace std;
 #include "Table_Icon.h"
 
 #include "Table_CommandGroup_Command.h"
-#include "Table_CommandGroup_EntGroup.h"
+#include "Table_CommandGroup_EntertainArea.h"
 #include "Table_CommandGroup_Room.h"
 #include "Table_Device_CommandGroup.h"
 #include "Table_EventHandler.h"
@@ -1307,11 +1307,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_CommandGroup_Command *pTable = table->database->CommandGroup_Command_get();
 pTable->GetRows("FK_CommandGroup=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
-void Row_CommandGroup::CommandGroup_EntGroup_FK_CommandGroup_getrows(vector <class Row_CommandGroup_EntGroup*> *rows)
+void Row_CommandGroup::CommandGroup_EntertainArea_FK_CommandGroup_getrows(vector <class Row_CommandGroup_EntertainArea*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_CommandGroup_EntGroup *pTable = table->database->CommandGroup_EntGroup_get();
+class Table_CommandGroup_EntertainArea *pTable = table->database->CommandGroup_EntertainArea_get();
 pTable->GetRows("FK_CommandGroup=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::CommandGroup_Room_FK_CommandGroup_getrows(vector <class Row_CommandGroup_Room*> *rows)

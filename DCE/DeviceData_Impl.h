@@ -32,8 +32,6 @@ namespace DCE
 	{
 	
 	public:
-	
-		string m_sDescription; /** < freeform description for the device */
 		Event_Impl *m_pEvent_Impl; /** < pointer to an event implementation assicieted with the current device @todo ask */
 		map<int, string> m_mapParameters; /** < integer-keyed map with the parameters this device has @todo ask - is string=paramvalue? */
 		
@@ -76,10 +74,11 @@ namespace DCE
 			unsigned long m_dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn, string sDescription,
 			string sIPAddress, string sMacAddress )
 			: DeviceData_Base( dwPK_Device, dwPK_Installation, dwPK_Device_Template, dwPK_Device_Controlled_Via, m_dwPK_DeviceCategory, dwPK_Room,
-			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sIPAddress, sMacAddress )
+			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sDescription, sIPAddress, sMacAddress )
 		{
-			m_sDescription=sDescription;
-		}// TODO -- This should be pure virtual as below.  for some reason MS won't link when it's implemented in the auto-generated
+		}
+		
+		// TODO -- This should be pure virtual as below.  for some reason MS won't link when it's implemented in the auto-generated
 		// derived classes.  Got to figure out why.
 		//virtual class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)=0;
 		
@@ -98,11 +97,6 @@ namespace DCE
 		 */
 		virtual const char *GetDeviceDescription() { return NULL; };
 		
-		/**
-		 * @brief should be overriden to return the primary key for this device from the device list
-		 */
-		virtual int GetPK_DeviceList() { return 0; } ; 
-
 		/**
 		 * @brief setups serialization for the class member data
 		 * @warning the m_vectDeviceData_Impl_Children vector is serialized custom

@@ -29,7 +29,6 @@
 #include "pluto_main/Table_RepositorySource_URL.h"
 #include "pluto_main/Table_Installation_RepositorySource_URL.h"
 #include "pluto_main/Table_Package.h"
-#include "pluto_main/Table_Package_Distro.h"
 #include "pluto_main/Table_Distro.h"
 #include "pluto_main/Table_Installation.h"
 #include "pluto_main/Define_DeviceCategory.h"

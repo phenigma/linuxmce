@@ -25,6 +25,7 @@ using namespace std;
 #include "Table_Device_Users.h"
 #include "Table_Installation_Users.h"
 #include "Table_Orbiter_Users_PasswordReq.h"
+#include "Table_Package_Users.h"
 
 
 void Database_pluto_main::CreateTable_Users()
@@ -139,10 +140,11 @@ is_null[13] = false;
 is_null[14] = true;
 is_null[15] = true;
 is_null[16] = true;
+is_null[17] = true;
 m_psc_frozen = 0;
-is_null[17] = false;
-m_psc_mod = "00000000000000";
 is_null[18] = false;
+m_psc_mod = "00000000000000";
+is_null[19] = false;
 
 
 	is_added=false;
@@ -192,6 +194,9 @@ return m_FK_Language;}
 long int Row_Users::FK_Installation_Main_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Installation_Main;}
+short int Row_Users::Staff_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Staff;}
 long int Row_Users::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -251,21 +256,24 @@ m_FK_Language = val; is_modified=true; is_null[12]=false;}
 void Row_Users::FK_Installation_Main_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Installation_Main = val; is_modified=true; is_null[13]=false;}
+void Row_Users::Staff_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Staff = val; is_modified=true; is_null[14]=false;}
 void Row_Users::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[14]=false;}
+m_psc_id = val; is_modified=true; is_null[15]=false;}
 void Row_Users::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[15]=false;}
+m_psc_batch = val; is_modified=true; is_null[16]=false;}
 void Row_Users::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[16]=false;}
+m_psc_user = val; is_modified=true; is_null[17]=false;}
 void Row_Users::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[17]=false;}
+m_psc_frozen = val; is_modified=true; is_null[18]=false;}
 void Row_Users::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[18]=false;}
+m_psc_mod = val; is_modified=true; is_null[19]=false;}
 
 		
 bool Row_Users::Extension_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -286,18 +294,21 @@ return is_null[11];}
 bool Row_Users::FK_Installation_Main_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[13];}
-bool Row_Users::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Users::Staff_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[14];}
-bool Row_Users::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Users::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[15];}
-bool Row_Users::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Users::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[16];}
-bool Row_Users::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Users::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[17];}
+bool Row_Users::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[18];}
 
 			
 void Row_Users::Extension_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -318,18 +329,21 @@ is_null[11]=val;}
 void Row_Users::FK_Installation_Main_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[13]=val;}
-void Row_Users::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Users::Staff_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[14]=val;}
-void Row_Users::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Users::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[15]=val;}
-void Row_Users::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Users::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[16]=val;}
-void Row_Users::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Users::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[17]=val;}
+void Row_Users::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[18]=val;}
 	
 
 string Row_Users::PK_Users_asSQL()
@@ -508,11 +522,24 @@ sprintf(buf, "%li", m_FK_Installation_Main);
 return buf;
 }
 
-string Row_Users::psc_id_asSQL()
+string Row_Users::Staff_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[14])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Staff);
+
+return buf;
+}
+
+string Row_Users::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[15])
 return "NULL";
 
 char buf[32];
@@ -525,7 +552,7 @@ string Row_Users::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[15])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -538,7 +565,7 @@ string Row_Users::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[16])
+if (is_null[17])
 return "NULL";
 
 char buf[32];
@@ -551,7 +578,7 @@ string Row_Users::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[17])
+if (is_null[18])
 return "NULL";
 
 char buf[32];
@@ -564,7 +591,7 @@ string Row_Users::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[18])
+if (is_null[19])
 return "NULL";
 
 char buf[29];
@@ -610,10 +637,10 @@ void Table_Users::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Users_asSQL()+", "+pRow->UserName_asSQL()+", "+pRow->Password_asSQL()+", "+pRow->samePasswordMasterUsers_asSQL()+", "+pRow->HasMailbox_asSQL()+", "+pRow->AccessGeneralMailbox_asSQL()+", "+pRow->Extension_asSQL()+", "+pRow->FirstName_asSQL()+", "+pRow->LastName_asSQL()+", "+pRow->Nickname_asSQL()+", "+pRow->ExtensionRingTimeout_asSQL()+", "+pRow->ForwardEmail_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->FK_Installation_Main_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Users_asSQL()+", "+pRow->UserName_asSQL()+", "+pRow->Password_asSQL()+", "+pRow->samePasswordMasterUsers_asSQL()+", "+pRow->HasMailbox_asSQL()+", "+pRow->AccessGeneralMailbox_asSQL()+", "+pRow->Extension_asSQL()+", "+pRow->FirstName_asSQL()+", "+pRow->LastName_asSQL()+", "+pRow->Nickname_asSQL()+", "+pRow->ExtensionRingTimeout_asSQL()+", "+pRow->ForwardEmail_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->FK_Installation_Main_asSQL()+", "+pRow->Staff_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Users (PK_Users, UserName, Password, samePasswordMasterUsers, HasMailbox, AccessGeneralMailbox, Extension, FirstName, LastName, Nickname, ExtensionRingTimeout, ForwardEmail, FK_Language, FK_Installation_Main, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Users (PK_Users, UserName, Password, samePasswordMasterUsers, HasMailbox, AccessGeneralMailbox, Extension, FirstName, LastName, Nickname, ExtensionRingTimeout, ForwardEmail, FK_Language, FK_Installation_Main, Staff, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -662,7 +689,7 @@ condition = condition + "PK_Users=" + tmp_PK_Users;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Users="+pRow->PK_Users_asSQL()+", UserName="+pRow->UserName_asSQL()+", Password="+pRow->Password_asSQL()+", samePasswordMasterUsers="+pRow->samePasswordMasterUsers_asSQL()+", HasMailbox="+pRow->HasMailbox_asSQL()+", AccessGeneralMailbox="+pRow->AccessGeneralMailbox_asSQL()+", Extension="+pRow->Extension_asSQL()+", FirstName="+pRow->FirstName_asSQL()+", LastName="+pRow->LastName_asSQL()+", Nickname="+pRow->Nickname_asSQL()+", ExtensionRingTimeout="+pRow->ExtensionRingTimeout_asSQL()+", ForwardEmail="+pRow->ForwardEmail_asSQL()+", FK_Language="+pRow->FK_Language_asSQL()+", FK_Installation_Main="+pRow->FK_Installation_Main_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Users="+pRow->PK_Users_asSQL()+", UserName="+pRow->UserName_asSQL()+", Password="+pRow->Password_asSQL()+", samePasswordMasterUsers="+pRow->samePasswordMasterUsers_asSQL()+", HasMailbox="+pRow->HasMailbox_asSQL()+", AccessGeneralMailbox="+pRow->AccessGeneralMailbox_asSQL()+", Extension="+pRow->Extension_asSQL()+", FirstName="+pRow->FirstName_asSQL()+", LastName="+pRow->LastName_asSQL()+", Nickname="+pRow->Nickname_asSQL()+", ExtensionRingTimeout="+pRow->ExtensionRingTimeout_asSQL()+", ForwardEmail="+pRow->ForwardEmail_asSQL()+", FK_Language="+pRow->FK_Language_asSQL()+", FK_Installation_Main="+pRow->FK_Installation_Main_asSQL()+", Staff="+pRow->Staff_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Users set " + update_values_list + " where " + condition;
@@ -906,56 +933,67 @@ sscanf(row[13], "%li", &(pRow->m_FK_Installation_Main));
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_id = 0;
+pRow->m_Staff = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_id));
+sscanf(row[14], "%hi", &(pRow->m_Staff));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_batch));
+sscanf(row[15], "%li", &(pRow->m_psc_id));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_psc_user));
+sscanf(row[16], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[17], "%li", &(pRow->m_psc_user));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-pRow->m_psc_mod = string(row[18],lengths[18]);
+sscanf(row[18], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[19] == NULL)
+{
+pRow->is_null[19]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[19]=false;
+pRow->m_psc_mod = string(row[19],lengths[19]);
 }
 
 
@@ -1221,56 +1259,67 @@ sscanf(row[13], "%li", &(pRow->m_FK_Installation_Main));
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_id = 0;
+pRow->m_Staff = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_id));
+sscanf(row[14], "%hi", &(pRow->m_Staff));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_batch));
+sscanf(row[15], "%li", &(pRow->m_psc_id));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_psc_user));
+sscanf(row[16], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[17], "%li", &(pRow->m_psc_user));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-pRow->m_psc_mod = string(row[18],lengths[18]);
+sscanf(row[18], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[19] == NULL)
+{
+pRow->is_null[19]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[19]=false;
+pRow->m_psc_mod = string(row[19],lengths[19]);
 }
 
 
@@ -1323,6 +1372,13 @@ void Row_Users::Orbiter_Users_PasswordReq_FK_Users_getrows(vector <class Row_Orb
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Orbiter_Users_PasswordReq *pTable = table->database->Orbiter_Users_PasswordReq_get();
+pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
+}
+void Row_Users::Package_Users_FK_Users_getrows(vector <class Row_Package_Users*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package_Users *pTable = table->database->Package_Users_get();
 pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
 }
 

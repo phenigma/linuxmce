@@ -63,7 +63,7 @@ Renderer::~Renderer()
 // This takes an incoming pRenderImage of what's been rendered so far, and will add this new object and it's
 // children to it, or save them separately if set to can hide, or if rendering a selected, highlighted or alt versions
 // If iRenderStandard==1, render the standard version only, if ==0, everything but the standard, if -1, do all
-void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard)
+void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio)
 {
 	//	cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
 	if( pDesignObj_Generator->m_ObjectID.find("3107")!=string::npos || pDesignObj_Generator->m_ObjectID.find("3111")!=string::npos || pDesignObj_Generator->m_ObjectID.find("3109")!=string::npos )
@@ -127,6 +127,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 				bForceOutput=true;
 		}
 
+		bool bIsMenu=false;
 		if( iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage )
 		{
 			// We're going to save this out as a separate file
@@ -135,6 +136,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			{
 				// This is a new screen, start with a clean canvas
 				pRenderImage = CreateBlankCanvas(); // TROUBLE nr 1: this pointer is lost each time the for loop starts
+				bIsMenu=true;
 			}
 			else
 			{
@@ -159,7 +161,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 		RendererImage *pRenderImage_Child=NULL; // The new image to be pasted on top
 		if( sInputFile.length()>0 )
 		{
-			pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size());
+			pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu);
 
 			if( !pRenderImage_Child )
 			{
@@ -174,7 +176,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 		// See if we're supposed to render our children first
 		if( pDesignObj_Generator->m_bChildrenBehind )
 		{
-			RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position);
+			RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
 			if(pRenderImageClone_Child )
 				CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
 			RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
@@ -187,13 +189,13 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			}
 			if( pDesignObj_Generator->m_bChildrenBeforeText )
 			{
-				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position);
+				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
 				RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
 			}
 			else
 			{
 				RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
-				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position);
+				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
 			}
 		}
 
@@ -227,7 +229,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 	//	cout << "Finished Rendering " << pDesignObj_Generator->m_ObjectID << endl;
 }
 
-void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos)
+void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio)
 {   
 	// We don't support layering.  This isn't normally a problem for pre-rendered graphics.  However, for objects that are rendered
 	// seperately, like the selected and highlighted versions, if they have transparency, it's possible that other child objects
@@ -245,7 +247,7 @@ if( pObj->m_ObjectID.find("3107")!=string::npos || pObj->m_ObjectID.find("3111")
 }
 		if( pObj->m_bCanBeHidden || (pObj->m_sVisibleState.length()>0 && pObj->m_sVisibleState.find('N')==string::npos) )
 			continue;
-		RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,1);  // Standard only
+		RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,1,bPreserveAspectRatio);  // Standard only
 		pObj->m_bRendered=true;
 	}
 
@@ -253,7 +255,7 @@ if( pObj->m_ObjectID.find("3107")!=string::npos || pObj->m_ObjectID.find("3111")
 	for(it=pDesignObj_Generator->m_ChildObjects.begin();it!=pDesignObj_Generator->m_ChildObjects.end();++it)
 	{
 		DesignObj_Generator *pObj = (DesignObj_Generator *) *it;
-		RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,pObj->m_bRendered ? 0 : -1);
+		RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,pObj->m_bRendered ? 0 : -1,bPreserveAspectRatio);
 	}
 }
 
@@ -397,7 +399,7 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
 }
 
 // load image from file and possibly scale/stretch it
-RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size)
+RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop)
 {
 	SDL_Surface * SurfaceFromFile=NULL;
 	//	try
@@ -455,11 +457,21 @@ RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size)
 		float scaleX = (float) RIFromFile->m_pSDL_Surface->w / SurfaceFromFile->w;
 		float scaleY = (float) RIFromFile->m_pSDL_Surface->h / SurfaceFromFile->h;
 
+		if( bPreserveAspectRatio && bCrop )
+		{
+			if( scaleY>scaleX )
+				scaleX=scaleY;
+			else 
+				scaleY=scaleX;
+		}
+		else if( bPreserveAspectRatio )
+		{
+			if( scaleY>scaleX )
+				scaleY=scaleX;
+			else 
+				scaleX=scaleY;
+		}
 /*	starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different
-		if( scaleY>scaleX )
-			scaleX=scaleY;
-		else 
-			scaleY=scaleX;
 */
 
 		//sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, scaleX, scaleY, 0, 0, 0, 0, SGE_TSAFE);
@@ -719,10 +731,10 @@ void Renderer::putpixel(RendererImage * RIsurface, int x, int y, Uint32 pixel_co
 	}
 }
 
-void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj)
+void DoRender(string font, string output,int width,int height,bool bAspectRatio,class DesignObj_Generator *ocDesignObj)
 {
 	Renderer r(font,output,width,height);
-	r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1);  // Render everything
+	r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1,bAspectRatio);  // Render everything
 }
 
 // Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo

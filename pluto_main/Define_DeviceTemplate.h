@@ -15,10 +15,10 @@
 #define DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST -102
 #define DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST -101
 #define DEVICETEMPLATE_VirtDev_DCE_Router_CONST -100
-#define DEVICETEMPLATE_DCE_Router_CONST 1
+#define DEVICETEMPLATE_DCERouter_CONST 1
 #define DEVICETEMPLATE_Media_Plugin_CONST 2
-#define DEVICETEMPLATE_Entertain_Unit_CONST 3
-#define DEVICETEMPLATE_DCE_Router_old_CONST 4
+#define DEVICETEMPLATE_not_used_CONST 3
+#define DEVICETEMPLATE_note_used_CONST 4
 #define DEVICETEMPLATE_Xine_Player_CONST 5
 #define DEVICETEMPLATE_Xine_Plugin_CONST 6
 #define DEVICETEMPLATE_Pluto_Core_CONST 7
@@ -28,7 +28,6 @@
 #define DEVICETEMPLATE_Disk_Drive_CONST 11
 #define DEVICETEMPLATE_Orbiter_Plugin_CONST 12
 #define DEVICETEMPLATE_Bluetooth_Dongle_CONST 13
-#define DEVICETEMPLATE_test_CONST 14
 #define DEVICETEMPLATE_Symbian_60_CONST 24
 #define DEVICETEMPLATE_not_usedMedia_Grids_Plug_CONST 25
 #define DEVICETEMPLATE_App_Server_CONST 26

@@ -1006,28 +1006,28 @@ namespace DCE
 		CMD_Link_with_mobile_orbiter_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iMediaPosition,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,60,2,42,StringUtils::itos(iMediaPosition).c_str(),47,sMac_address.c_str()); }
 	};
 	class RESP_Get_Signal_Strength : public PreformedCommandResponse {
-		string *m_sProgramID;
+		int *m_iValue;
 	public:
-		RESP_Get_Signal_Strength(string *sProgramID) { 
-		m_sProgramID=sProgramID; }
+		RESP_Get_Signal_Strength(int *iValue) { 
+		m_iValue=iValue; }
 		void ParseResponse(Message *pMessage) {
-			*m_sProgramID=pMessage->m_mapParameters[48]; };
+			*m_iValue=atoi(pMessage->m_mapParameters[48].c_str()); };
 	};
 	class CMD_Get_Signal_Strength : public PreformedCommand {
 	public:
-		CMD_Get_Signal_Strength(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string *sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,61,1,47,sMac_address.c_str());		m_pcResponse = new RESP_Get_Signal_Strength(sProgramID); }
+		CMD_Get_Signal_Strength(long DeviceIDFrom, long DeviceIDTo,string sMac_address,int *iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,61,1,47,sMac_address.c_str());		m_pcResponse = new RESP_Get_Signal_Strength(iValue); }
 	};
 	class CMD_Get_Signal_Strength_DL : public PreformedCommand {
 	public:
-		CMD_Get_Signal_Strength_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string *sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,61,1,47,sMac_address.c_str());		m_pcResponse = new RESP_Get_Signal_Strength(sProgramID); }
+		CMD_Get_Signal_Strength_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,int *iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,61,1,47,sMac_address.c_str());		m_pcResponse = new RESP_Get_Signal_Strength(iValue); }
 	};
 	class CMD_Get_Signal_Strength_MD : public PreformedCommand {
 	public:
-		CMD_Get_Signal_Strength_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string *sProgramID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,61,1,47,sMac_address.c_str());		m_pcResponse = new RESP_Get_Signal_Strength(sProgramID); }
+		CMD_Get_Signal_Strength_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,int *iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,61,1,47,sMac_address.c_str());		m_pcResponse = new RESP_Get_Signal_Strength(iValue); }
 	};
 	class CMD_Get_Signal_Strength_Cat : public PreformedCommand {
 	public:
-		CMD_Get_Signal_Strength_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string *sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,61,1,47,sMac_address.c_str());		m_pcResponse = new RESP_Get_Signal_Strength(sProgramID); }
+		CMD_Get_Signal_Strength_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,int *iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,61,1,47,sMac_address.c_str());		m_pcResponse = new RESP_Get_Signal_Strength(iValue); }
 	};
 	class CMD_NOREP_Get_Signal_Strength : public PreformedCommand {
 	public:
@@ -3167,19 +3167,19 @@ namespace DCE
 	};
 	class CMD_Tune_to_channel : public PreformedCommand {
 	public:
-		CMD_Tune_to_channel(long DeviceIDFrom, long DeviceIDTo,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,sProgramID.c_str()); }
+		CMD_Tune_to_channel(long DeviceIDFrom, long DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,StringUtils::itos(iValue).c_str()); }
 	};
 	class CMD_Tune_to_channel_DL : public PreformedCommand {
 	public:
-		CMD_Tune_to_channel_DL(long DeviceIDFrom, string DeviceIDTo,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,sProgramID.c_str()); }
+		CMD_Tune_to_channel_DL(long DeviceIDFrom, string DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,StringUtils::itos(iValue).c_str()); }
 	};
 	class CMD_Tune_to_channel_MD : public PreformedCommand {
 	public:
-		CMD_Tune_to_channel_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,sProgramID.c_str()); }
+		CMD_Tune_to_channel_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,StringUtils::itos(iValue).c_str()); }
 	};
 	class CMD_Tune_to_channel_Cat : public PreformedCommand {
 	public:
-		CMD_Tune_to_channel_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,sProgramID.c_str()); }
+		CMD_Tune_to_channel_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,StringUtils::itos(iValue).c_str()); }
 	};
 	class RESP_Get_Infrared_Codes : public PreformedCommandResponse {
 		string *m_sValue_To_Assign;

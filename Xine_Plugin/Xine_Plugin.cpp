@@ -10,9 +10,7 @@
 #include "Xine_Plugin.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -31,21 +29,21 @@ using namespace DCE;
 
 
 //<-dceag-const-b->
-Xine_Plugin::Xine_Plugin( int DeviceID, string ServerAddress, bool bConnectEventHandler, bool bLocalMode, class Router *pRouter )
-	: Xine_Plugin_Command( DeviceID, ServerAddress, bConnectEventHandler, bLocalMode, pRouter )
+Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
+	: Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
 
 //<-dceag-dest-b->
-Xine_Plugin::~Xine_Plugin( )
+Xine_Plugin::~Xine_Plugin()
 //<-dceag-dest-e->
 {
 }
 
 //<-dceag-reg-b->
-/** @brief This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in. Otherwise Connect( ) will be called from the main( ) */
-bool Xine_Plugin::Register( )
+// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
+bool Xine_Plugin::Register()
 //<-dceag-reg-e->
 {
   m_pMedia_Plugin=NULL;
@@ -308,7 +306,7 @@ int DESIGNOBJ_dvd_menu_CONST; /** @todo - hack  */
 		#41 StreamID
 			The media descriptor which will be associated with the current media.
 */
-void Xine_Plugin::CMD_Create_Media( string sFilename, int iStreamID, string &sCMD_Result, Message *pMessage )
+void Xine_Plugin::CMD_Create_Media(string sFilename,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c36-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
@@ -320,7 +318,7 @@ void Xine_Plugin::CMD_Create_Media( string sFilename, int iStreamID, string &sCM
 	COMMENTS: Play a media stream descriptor.
 	PARAMETERS:
 		#13 Filename
-			The file to play. The format is specific on the media type and the media player.
+			The file to play.  The format is specific on the media type and the media player.
 		#29 PK_MediaType
 			The type of media
 		#41 StreamID
@@ -328,7 +326,7 @@ void Xine_Plugin::CMD_Create_Media( string sFilename, int iStreamID, string &sCM
 		#42 MediaPosition
 			The position at which we need to start playing.
 */
-void Xine_Plugin::CMD_Play_Media( string sFilename, int iPK_MediaType, int iStreamID, int iMediaPosition, string &sCMD_Result, Message *pMessage )
+void Xine_Plugin::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
@@ -342,7 +340,7 @@ void Xine_Plugin::CMD_Play_Media( string sFilename, int iPK_MediaType, int iStre
 		#41 StreamID
 			The media needing to be stopped.
 */
-void Xine_Plugin::CMD_Stop_Media( int iStreamID, string &sCMD_Result, Message *pMessage )
+void Xine_Plugin::CMD_Stop_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
@@ -356,7 +354,7 @@ void Xine_Plugin::CMD_Stop_Media( int iStreamID, string &sCMD_Result, Message *p
 		#41 StreamID
 			The media stream for which we need to pause playback.
 */
-void Xine_Plugin::CMD_Pause_Media( int iStreamID, string &sCMD_Result, Message *pMessage )
+void Xine_Plugin::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
@@ -372,7 +370,7 @@ void Xine_Plugin::CMD_Pause_Media( int iStreamID, string &sCMD_Result, Message *
 		#41 StreamID
 			The media stream that we need to restart playback for.
 */
-void Xine_Plugin::CMD_Restart_Media( int iStreamID, string &sCMD_Result, Message *pMessage )
+void Xine_Plugin::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
@@ -386,9 +384,9 @@ void Xine_Plugin::CMD_Restart_Media( int iStreamID, string &sCMD_Result, Message
 		#41 StreamID
 			The media needing the playback speed change.
 		#43 MediaPlaybackSpeed
-			The requested media playback speed. This is a multiplier of the normal speed. ( If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5 ). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS
+			The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS
 */
-void Xine_Plugin::CMD_Change_Playback_Speed( int iStreamID, int iMediaPlaybackSpeed, string &sCMD_Result, Message *pMessage )
+void Xine_Plugin::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
@@ -400,12 +398,12 @@ void Xine_Plugin::CMD_Change_Playback_Speed( int iStreamID, int iMediaPlaybackSp
 //<-dceag-c65-b->
 /* 
 	COMMAND: #65 - Jump Position In Playlist
-	COMMENTS: Jumps to a position within some media, such as songs in a playlist, tracks on a cd, etc. It will assume the sender is an orbiter, and find the entertainment area and stream associated with it. The track can be an absolute or relative position.
+	COMMENTS: Jumps to a position within some media, such as songs in a playlist, tracks on a cd, etc.  It will assume the sender is an orbiter, and find the entertainment area and stream associated with it.  The track can be an absolute or relative position.
 	PARAMETERS:
 		#5 Value To Assign
-			The track to go to. A number is considered an absolute. "+2" means forward 2, "-1" means back 1.
+			The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
 */
-void Xine_Plugin::CMD_Jump_Position_In_Playlist( string sValue_To_Assign, string &sCMD_Result, Message *pMessage )
+void Xine_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );

@@ -44,6 +44,18 @@ bool AllDevices::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dw
 			DeviceData_Base *pDeviceData_Base = (*itDevice).second;
 			pDeviceData_Base->m_pDeviceCategory = m_mapDeviceCategory_Find( pDeviceData_Base->m_dwPK_DeviceCategory );
 		}
+
+		Map_DeviceGroup::iterator itGroup;
+		for( itGroup = m_mapDeviceGroup.begin(); itGroup != m_mapDeviceGroup.end(); ++itGroup )
+		{
+			DeviceGroup *pDeviceGroup = (*itGroup).second;
+			for(size_t s=0;s<pDeviceGroup->m_vectPK_Device.size();++s)
+			{
+				DeviceData_Base *pDeviceData_Base = m_mapDeviceData_Base_Find(pDeviceGroup->m_vectPK_Device[s]);
+				pDeviceGroup->m_vectDeviceData_Base.push_back(pDeviceData_Base);
+				pDeviceData_Base->m_vectDeviceGroup.push_back(pDeviceGroup);
+			}
+		}
 	}
 	
 	return bResult;
@@ -57,7 +69,18 @@ bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *
 	{
 		switch( pItem->m_iSerializeDataType )
 		{
-		
+		case SERIALIZE_DATA_TYPE_MAP_DCEDEVICE_GROUP:
+			{
+				Map_DeviceGroup *pMap = (Map_DeviceGroup *) pItem->m_pItem;
+				Write_unsigned_long((unsigned long) pMap->size());
+				for( Map_DeviceGroup::iterator it = pMap->begin(); it != pMap->end(); ++it )
+				{
+					DeviceGroup *pDeviceGroup = (*it).second; // we know how to serialize this
+					pDeviceGroup->Serialize( bWriting, m_pcDataBlock, m_dwAllocatedSize, m_pcCurrentPosition );
+				}
+				return true; // We handled it
+			}
+			break;
 		case SERIALIZE_DATA_TYPE_MAP_DCEDEVICEDATA_BASE:
 			{
 				Map_DeviceData_Base *pMap = (Map_DeviceData_Base *) pItem->m_pItem;
@@ -70,7 +93,6 @@ bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *
 				return true; // We handled it
 			}
 			break;
-			
 		case SERIALIZE_DATA_TYPE_MAP_DCECATEGORY:
 			{
 				Map_DeviceCategory *pMap = (Map_DeviceCategory *) pItem->m_pItem;
@@ -90,6 +112,19 @@ bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *
 	{
 		switch( pItem->m_iSerializeDataType )
 		{
+		case SERIALIZE_DATA_TYPE_MAP_DCEDEVICE_GROUP:
+			{
+				Map_DeviceGroup *pMap = (Map_DeviceGroup *) pItem->m_pItem;
+				unsigned long count = Read_unsigned_long();
+				for( unsigned long i = 0; i < count; ++i )
+				{
+					DeviceGroup *pDeviceGroup = new DeviceGroup();
+					pDeviceGroup->Serialize( bWriting, m_pcDataBlock, m_dwAllocatedSize, m_pcCurrentPosition );
+					(*pMap)[pDeviceGroup->m_dwPK_DeviceGroup] = pDeviceGroup;
+				}
+				return true;  // We handled it
+			}
+			break;
 		
 		case SERIALIZE_DATA_TYPE_MAP_DCEDEVICEDATA_BASE:
 			{

@@ -119,6 +119,7 @@ is_null[3] = true;
 m_MustBuildFromSource = 0;
 is_null[4] = false;
 is_null[5] = true;
+is_null[6] = true;
 
 
 	is_added=false;
@@ -141,6 +142,9 @@ return m_FK_Distro;}
 short int Row_Package_Source_Compat::MustBuildFromSource_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_MustBuildFromSource;}
+string Row_Package_Source_Compat::MakeCommand_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_MakeCommand;}
 string Row_Package_Source_Compat::Comments_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Comments;}
@@ -161,9 +165,12 @@ m_FK_Distro = val; is_modified=true; is_null[3]=false;}
 void Row_Package_Source_Compat::MustBuildFromSource_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_MustBuildFromSource = val; is_modified=true; is_null[4]=false;}
+void Row_Package_Source_Compat::MakeCommand_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_MakeCommand = val; is_modified=true; is_null[5]=false;}
 void Row_Package_Source_Compat::Comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Comments = val; is_modified=true; is_null[5]=false;}
+m_Comments = val; is_modified=true; is_null[6]=false;}
 
 		
 bool Row_Package_Source_Compat::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -175,9 +182,12 @@ return is_null[3];}
 bool Row_Package_Source_Compat::MustBuildFromSource_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_Package_Source_Compat::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Source_Compat::MakeCommand_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
+bool Row_Package_Source_Compat::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
 
 			
 void Row_Package_Source_Compat::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -189,9 +199,12 @@ is_null[3]=val;}
 void Row_Package_Source_Compat::MustBuildFromSource_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_Package_Source_Compat::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::MakeCommand_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
+void Row_Package_Source_Compat::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
 	
 
 string Row_Package_Source_Compat::PK_Package_Source_Compat_asSQL()
@@ -259,14 +272,26 @@ sprintf(buf, "%hi", m_MustBuildFromSource);
 return buf;
 }
 
-string Row_Package_Source_Compat::Comments_asSQL()
+string Row_Package_Source_Compat::MakeCommand_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[5])
 return "NULL";
 
-char buf[33554431];
+char buf[511];
+mysql_real_escape_string(table->database->db_handle, buf, m_MakeCommand.c_str(), (unsigned long) m_MakeCommand.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Package_Source_Compat::Comments_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[511];
 mysql_real_escape_string(table->database->db_handle, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
 return string()+"\""+buf+"\"";
 }
@@ -309,10 +334,10 @@ void Table_Package_Source_Compat::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Source_Compat_asSQL()+", "+pRow->FK_Package_Source_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->MustBuildFromSource_asSQL()+", "+pRow->Comments_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Source_Compat_asSQL()+", "+pRow->FK_Package_Source_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->MustBuildFromSource_asSQL()+", "+pRow->MakeCommand_asSQL()+", "+pRow->Comments_asSQL();
 
 	
-		string query = "insert into Package_Source_Compat (PK_Package_Source_Compat, FK_Package_Source, FK_OperatingSystem, FK_Distro, MustBuildFromSource, Comments) values ("+
+		string query = "insert into Package_Source_Compat (PK_Package_Source_Compat, FK_Package_Source, FK_OperatingSystem, FK_Distro, MustBuildFromSource, MakeCommand, Comments) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -361,7 +386,7 @@ condition = condition + "PK_Package_Source_Compat=" + tmp_PK_Package_Source_Comp
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package_Source_Compat="+pRow->PK_Package_Source_Compat_asSQL()+", FK_Package_Source="+pRow->FK_Package_Source_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", MustBuildFromSource="+pRow->MustBuildFromSource_asSQL()+", Comments="+pRow->Comments_asSQL();
+update_values_list = update_values_list + "PK_Package_Source_Compat="+pRow->PK_Package_Source_Compat_asSQL()+", FK_Package_Source="+pRow->FK_Package_Source_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", MustBuildFromSource="+pRow->MustBuildFromSource_asSQL()+", MakeCommand="+pRow->MakeCommand_asSQL()+", Comments="+pRow->Comments_asSQL();
 
 	
 		string query = "update Package_Source_Compat set " + update_values_list + " where " + condition;
@@ -506,12 +531,23 @@ sscanf(row[4], "%hi", &(pRow->m_MustBuildFromSource));
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Comments = "";
+pRow->m_MakeCommand = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Comments = string(row[5],lengths[5]);
+pRow->m_MakeCommand = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Comments = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_Comments = string(row[6],lengths[6]);
 }
 
 
@@ -678,12 +714,23 @@ sscanf(row[4], "%hi", &(pRow->m_MustBuildFromSource));
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Comments = "";
+pRow->m_MakeCommand = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Comments = string(row[5],lengths[5]);
+pRow->m_MakeCommand = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Comments = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_Comments = string(row[6],lengths[6]);
 }
 
 

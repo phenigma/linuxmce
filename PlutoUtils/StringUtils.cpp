@@ -26,8 +26,10 @@
     #include <stdarg.h>
     #include <sys/types.h>
     #include <sys/stat.h>
+	#include <iostream>
     #ifdef WIN32
         #include <direct.h>
+		#include <conio.h>
     #else
         #include <dirent.h>
         #define stricmp(x, y) strcasecmp(x, y)
@@ -456,6 +458,24 @@ bool StringUtils::EndsWith( string sFirst, string sSecond, bool bIgnoreCase )
         return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(sFirst.length()-sSecond.length()))==StringUtils::ToLower(sSecond);
     else
         return sFirst.length()>=sSecond.length() && sFirst.substr(sFirst.length()-sSecond.length())==sSecond;
+}
+
+string StringUtils::GetStringFromConsole()
+{
+	string sOutput;
+	while(true)
+	{
+#ifdef WIN32
+		char c = getch();
+#else
+		char c = getchar();
+#endif
+		cout << c;
+		if( c=='\n' || c=='\r' )
+			return sOutput;
+
+		sOutput+=c;
+	}
 }
 
 #endif //#ifndef SYMBIAN

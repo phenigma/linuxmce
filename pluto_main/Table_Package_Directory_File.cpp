@@ -238,7 +238,7 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[4])
 return "NULL";
 
-char buf[33554431];
+char buf[511];
 mysql_real_escape_string(table->database->db_handle, buf, m_Search.c_str(), (unsigned long) m_Search.size());
 return string()+"\""+buf+"\"";
 }

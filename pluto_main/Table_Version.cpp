@@ -21,6 +21,8 @@ using namespace std;
 
 #include "Table_Installation.h"
 #include "Table_Orbiter.h"
+#include "Table_Package_Version.h"
+#include "Table_Schema.h"
 
 
 void Database_pluto_main::CreateTable_Version()
@@ -111,16 +113,24 @@ void Row_Version::SetDefaultValues()
 {
 	m_PK_Version = 0;
 is_null[0] = false;
-is_null[1] = true;
-is_null[2] = true;
+m_VersionName = "";
+is_null[1] = false;
+m_BuildName = "";
+is_null[2] = false;
 is_null[3] = true;
 is_null[4] = true;
 is_null[5] = true;
-is_null[6] = true;
+m_Repository = 0;
+is_null[6] = false;
+is_null[7] = true;
+is_null[8] = true;
+is_null[9] = true;
+is_null[10] = true;
+is_null[11] = true;
 m_psc_frozen = 0;
-is_null[7] = false;
+is_null[12] = false;
 m_psc_mod = "00000000000000";
-is_null[8] = false;
+is_null[13] = false;
 
 
 	is_added=false;
@@ -131,15 +141,30 @@ is_null[8] = false;
 long int Row_Version::PK_Version_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_Version;}
+string Row_Version::VersionName_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_VersionName;}
+string Row_Version::BuildName_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_BuildName;}
+string Row_Version::Date_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Date;}
 string Row_Version::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
 string Row_Version::Define_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Define;}
-string Row_Version::Models_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Version::Repository_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Models;}
+return m_Repository;}
+string Row_Version::Comments_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Comments;}
+string Row_Version::NextSteps_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_NextSteps;}
 long int Row_Version::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -160,76 +185,109 @@ return m_psc_mod;}
 void Row_Version::PK_Version_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_Version = val; is_modified=true; is_null[0]=false;}
+void Row_Version::VersionName_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_VersionName = val; is_modified=true; is_null[1]=false;}
+void Row_Version::BuildName_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_BuildName = val; is_modified=true; is_null[2]=false;}
+void Row_Version::Date_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Date = val; is_modified=true; is_null[3]=false;}
 void Row_Version::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Description = val; is_modified=true; is_null[1]=false;}
+m_Description = val; is_modified=true; is_null[4]=false;}
 void Row_Version::Define_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Define = val; is_modified=true; is_null[2]=false;}
-void Row_Version::Models_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_Define = val; is_modified=true; is_null[5]=false;}
+void Row_Version::Repository_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Models = val; is_modified=true; is_null[3]=false;}
+m_Repository = val; is_modified=true; is_null[6]=false;}
+void Row_Version::Comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Comments = val; is_modified=true; is_null[7]=false;}
+void Row_Version::NextSteps_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_NextSteps = val; is_modified=true; is_null[8]=false;}
 void Row_Version::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[4]=false;}
+m_psc_id = val; is_modified=true; is_null[9]=false;}
 void Row_Version::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[5]=false;}
+m_psc_batch = val; is_modified=true; is_null[10]=false;}
 void Row_Version::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[6]=false;}
+m_psc_user = val; is_modified=true; is_null[11]=false;}
 void Row_Version::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[7]=false;}
+m_psc_frozen = val; is_modified=true; is_null[12]=false;}
 void Row_Version::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[8]=false;}
+m_psc_mod = val; is_modified=true; is_null[13]=false;}
 
 		
-bool Row_Version::Description_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[1];}
-bool Row_Version::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[2];}
-bool Row_Version::Models_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Version::Date_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_Version::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Version::Description_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_Version::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Version::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_Version::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Version::Repository_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_Version::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Version::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
+bool Row_Version::NextSteps_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[8];}
+bool Row_Version::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[9];}
+bool Row_Version::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[10];}
+bool Row_Version::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[11];}
+bool Row_Version::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[12];}
 
 			
-void Row_Version::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[1]=val;}
-void Row_Version::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
-void Row_Version::Models_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Version::Date_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
-void Row_Version::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Version::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_Version::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Version::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
-void Row_Version::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Version::Repository_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
-void Row_Version::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Version::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[7]=val;}
+void Row_Version::NextSteps_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[8]=val;}
+void Row_Version::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[9]=val;}
+void Row_Version::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[10]=val;}
+void Row_Version::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[11]=val;}
+void Row_Version::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[12]=val;}
 	
 
 string Row_Version::PK_Version_asSQL()
@@ -245,11 +303,47 @@ sprintf(buf, "%li", m_PK_Version);
 return buf;
 }
 
-string Row_Version::Description_asSQL()
+string Row_Version::VersionName_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
+return "NULL";
+
+char buf[27];
+mysql_real_escape_string(table->database->db_handle, buf, m_VersionName.c_str(), (unsigned long) m_VersionName.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Version::BuildName_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[27];
+mysql_real_escape_string(table->database->db_handle, buf, m_BuildName.c_str(), (unsigned long) m_BuildName.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Version::Date_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[21];
+mysql_real_escape_string(table->database->db_handle, buf, m_Date.c_str(), (unsigned long) m_Date.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Version::Description_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
 return "NULL";
 
 char buf[61];
@@ -261,7 +355,7 @@ string Row_Version::Define_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[2])
+if (is_null[5])
 return "NULL";
 
 char buf[61];
@@ -269,15 +363,40 @@ mysql_real_escape_string(table->database->db_handle, buf, m_Define.c_str(), (uns
 return string()+"\""+buf+"\"";
 }
 
-string Row_Version::Models_asSQL()
+string Row_Version::Repository_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[3])
+if (is_null[6])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Repository);
+
+return buf;
+}
+
+string Row_Version::Comments_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
 return "NULL";
 
 char buf[33554431];
-mysql_real_escape_string(table->database->db_handle, buf, m_Models.c_str(), (unsigned long) m_Models.size());
+mysql_real_escape_string(table->database->db_handle, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Version::NextSteps_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char buf[33554431];
+mysql_real_escape_string(table->database->db_handle, buf, m_NextSteps.c_str(), (unsigned long) m_NextSteps.size());
 return string()+"\""+buf+"\"";
 }
 
@@ -285,7 +404,7 @@ string Row_Version::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[4])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -298,7 +417,7 @@ string Row_Version::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -311,7 +430,7 @@ string Row_Version::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[6])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -324,7 +443,7 @@ string Row_Version::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -337,7 +456,7 @@ string Row_Version::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[13])
 return "NULL";
 
 char buf[29];
@@ -383,10 +502,10 @@ void Table_Version::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Version_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Models_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Version_asSQL()+", "+pRow->VersionName_asSQL()+", "+pRow->BuildName_asSQL()+", "+pRow->Date_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Repository_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->NextSteps_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Version (PK_Version, Description, Define, Models, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Version (PK_Version, VersionName, BuildName, Date, Description, Define, Repository, Comments, NextSteps, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -435,7 +554,7 @@ condition = condition + "PK_Version=" + tmp_PK_Version;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Version="+pRow->PK_Version_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Models="+pRow->Models_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Version="+pRow->PK_Version_asSQL()+", VersionName="+pRow->VersionName_asSQL()+", BuildName="+pRow->BuildName_asSQL()+", Date="+pRow->Date_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Repository="+pRow->Repository_asSQL()+", Comments="+pRow->Comments_asSQL()+", NextSteps="+pRow->NextSteps_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Version set " + update_values_list + " where " + condition;
@@ -536,89 +655,144 @@ sscanf(row[0], "%li", &(pRow->m_PK_Version));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Description = "";
+pRow->m_VersionName = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Description = string(row[1],lengths[1]);
+pRow->m_VersionName = string(row[1],lengths[1]);
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Define = "";
+pRow->m_BuildName = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Define = string(row[2],lengths[2]);
+pRow->m_BuildName = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Models = "";
+pRow->m_Date = "";
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Models = string(row[3],lengths[3]);
+pRow->m_Date = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_id = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_id));
+pRow->m_Description = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_batch = 0;
+pRow->m_Define = "";
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_batch));
+pRow->m_Define = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_user = 0;
+pRow->m_Repository = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_user));
+sscanf(row[6], "%hi", &(pRow->m_Repository));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_Comments = "";
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+pRow->m_Comments = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_mod = "";
+pRow->m_NextSteps = "";
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_psc_mod = string(row[8],lengths[8]);
+pRow->m_NextSteps = string(row[8],lengths[8]);
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%li", &(pRow->m_psc_id));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%li", &(pRow->m_psc_user));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
 }
 
 
@@ -741,89 +915,144 @@ sscanf(row[0], "%li", &(pRow->m_PK_Version));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Description = "";
+pRow->m_VersionName = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Description = string(row[1],lengths[1]);
+pRow->m_VersionName = string(row[1],lengths[1]);
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Define = "";
+pRow->m_BuildName = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Define = string(row[2],lengths[2]);
+pRow->m_BuildName = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Models = "";
+pRow->m_Date = "";
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Models = string(row[3],lengths[3]);
+pRow->m_Date = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_id = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_id));
+pRow->m_Description = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_batch = 0;
+pRow->m_Define = "";
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_batch));
+pRow->m_Define = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_user = 0;
+pRow->m_Repository = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_user));
+sscanf(row[6], "%hi", &(pRow->m_Repository));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_Comments = "";
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+pRow->m_Comments = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_mod = "";
+pRow->m_NextSteps = "";
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_psc_mod = string(row[8],lengths[8]);
+pRow->m_NextSteps = string(row[8],lengths[8]);
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%li", &(pRow->m_psc_id));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%li", &(pRow->m_psc_user));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
 }
 
 
@@ -848,6 +1077,20 @@ void Row_Version::Orbiter_FK_Version_getrows(vector <class Row_Orbiter*> *rows)
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Orbiter *pTable = table->database->Orbiter_get();
+pTable->GetRows("FK_Version=" + StringUtils::itos(m_PK_Version),rows);
+}
+void Row_Version::Package_Version_FK_Version_getrows(vector <class Row_Package_Version*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package_Version *pTable = table->database->Package_Version_get();
+pTable->GetRows("FK_Version=" + StringUtils::itos(m_PK_Version),rows);
+}
+void Row_Version::Schema_FK_Version_getrows(vector <class Row_Schema*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Schema *pTable = table->database->Schema_get();
 pTable->GetRows("FK_Version=" + StringUtils::itos(m_PK_Version),rows);
 }
 

@@ -40,6 +40,7 @@ namespace FileUtils
     time_t FileDate(string sFileName); /** < returns the date of the last file modification or 0 if error */
     long FileSize(string sFileName); /** < returns the file size or zero if error */
     void MakeDir(string sDirectory); /** < makes a directory, including all necessary parent directories, like mkdir -p in Linux */
+    bool DirExists(string sDirectory); /** < Returns true if the directory exists */
 	void FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV); /** < scan sDirectory, for files matching any of the sFilespec_CVS (ie *.jpg,a*,bcd*.mpg), and store the names in listFiles */
 #endif //#ifndef SYMBIAN
 }

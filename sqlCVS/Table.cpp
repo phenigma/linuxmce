@@ -58,10 +58,10 @@ void Table::GetFields()
 			Field *pField = new Field(this,mysql_fields+i);
 			m_mapField[pField->Name_get()]=pField;
 
-			if( pField->flags & PRI_KEY_FLAG )
+			if( pField->m_iFlags & PRI_KEY_FLAG )
 				m_listField_PrimaryKey.push_back(pField);
 				
-			if( pField->flags & AUTO_INCREMENT_FLAG )
+			if( pField->m_iFlags & AUTO_INCREMENT_FLAG )
 				m_pField_AutoIncrement = pField;
 
 			if( pField->Name_get()=="psc_id" )
@@ -144,7 +144,7 @@ void Table::HasFullHistory_set(bool bOn)
 		{
 			// This shouldn't happen
 			cerr << "There is already a history table for: " << m_sName << endl;
-			if( !AskQuestion("Drop it and make a new one?  You will lose all your history data.",false) )
+			if( !AskYNQuestion("Drop it and make a new one?  You will lose all your history data.",false) )
 				return;
 			m_pDatabase->threaded_mysql_query("DROP TABLE `" + m_sName + "_pschist`;");
 			m_pDatabase->m_mapTable_Remove(m_pTable_History->m_sName);
@@ -182,7 +182,7 @@ void Table::HasFullHistory_set(bool bOn)
 	else
 	{
 		cout << "Are you sure you want to delete your history for " << m_sName << "?" << endl;
-		if( !AskQuestion("The data will be permanently removed unless you made a backup.",false) )
+		if( !AskYNQuestion("The data will be permanently removed unless you made a backup.",false) )
 			return;
 		m_pDatabase->threaded_mysql_query("DROP TABLE `" + m_sName + "_pschist`;");
 		m_pDatabase->m_mapTable_Remove(m_pTable_History->m_sName);

@@ -42,7 +42,7 @@ void Repository::MatchUpTables()
 		cerr << "Could not find all the system tables for Repository: " << m_sName << endl
 			<< "I need _repset, _bathdr, _batdet, _tables" << endl
 			<< "This repository has been corrupted, and will need to be rebuilt in order to continue." << endl;
-		if( AskQuestion("Rebuild repository: " + m_sName,false) )
+		if( AskYNQuestion("Rebuild repository: " + m_sName,false) )
 		{
 			MapTable mapTable; // Don't add any tables, just setup an empty repository
 			Setup();
@@ -68,7 +68,7 @@ void Repository::MatchUpTables()
 					<< "But it no longer exists in the database." << endl
 					<< "I must delete it from the repository's database to continue." << endl;
 
-				if( !AskQuestion("Delete the bad data, and cleanup the repository table?",false) )
+				if( !AskYNQuestion("Delete the bad data, and cleanup the repository table?",false) )
 					throw "Repository corrupt";
 
 				sql.str("");
@@ -82,7 +82,7 @@ void Repository::MatchUpTables()
 					<< "But it already exists in the repository: " << pTable->Repository_get()->Name_get() << endl
 					<< "I must delete it from this repository's database to continue." << endl;
 
-				if( !AskQuestion("Delete the bad data, and cleanup the repository table?",false) )
+				if( !AskYNQuestion("Delete the bad data, and cleanup the repository table?",false) )
 					throw "Repository corrupt";
 
 				sql.str("");

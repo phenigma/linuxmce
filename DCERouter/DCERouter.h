@@ -143,13 +143,14 @@ namespace DCE
 		Command_Impl *m_mapPlugIn_Find(int PK_Device) { map<int,class Command_Impl *>::iterator it = m_mapPlugIn.find(PK_Device); return it==m_mapPlugIn.end() ? NULL : (*it).second; }
 		ListCommand_Impl *m_mapPlugIn_DeviceTemplate_Find(int PK_DeviceTemplate) { map<int,ListCommand_Impl *>::iterator it = m_mapPlugIn_DeviceTemplate.find(PK_DeviceTemplate); return it==m_mapPlugIn_DeviceTemplate.end() ? NULL : (*it).second; }
 		DeviceCategory *m_mapDeviceCategory_Find(int PK_DeviceCategory) { Map_DeviceCategory::iterator it = m_mapDeviceCategory.find(PK_DeviceCategory); return it==m_mapDeviceCategory.end() ? NULL : (*it).second; }
-		DeviceGroup *m_mapDeviceGroup_Find(int PK_Device) {map<int,class DeviceGroup *>::iterator it = m_mapDeviceGroup.find(PK_Device); return it==m_mapDeviceGroup.end() ? NULL : (*it).second; }
+		DeviceGroup *m_mapDeviceGroup_Find(int PK_DeviceGroup) {map<int,class DeviceGroup *>::iterator it = m_mapDeviceGroup.find(PK_DeviceGroup); return it==m_mapDeviceGroup.end() ? NULL : (*it).second; }
 		ListDeviceData_Router *m_mapDeviceTemplate_Find(int PK_DeviceTemplate) { map<int,ListDeviceData_Router *>::iterator it = m_mapDeviceTemplate.find(PK_DeviceTemplate); return it==m_mapDeviceTemplate.end() ? NULL : (*it).second; }
 		DeviceData_Router *m_mapDeviceData_Router_Find(int PK_Device) { map<int,class DeviceData_Router *>::iterator it = m_mapDeviceData_Router.find(PK_Device); return it==m_mapDeviceData_Router.end() ? NULL : (*it).second; }
 		CommandGroup *mapCommandGroup_Find(int PK_CommandGroup) { map<int,class CommandGroup *>::iterator it = m_mapCommandGroup.find(PK_CommandGroup); return it==m_mapCommandGroup.end() ? NULL : (*it).second;}
 		Command *mapCommand_Find(int PK_Command) { map<int,class Command *>::iterator it = m_mapCommand.find(PK_Command); return it==m_mapCommand.end() ? NULL : (*it).second; }
 		DCERoom *m_mapDCERoom_Find(int PK_Room) { map<int,class DCERoom *>::iterator it = m_mapDCERoom.find(PK_Room); return it==m_mapDCERoom.end() ? NULL : (*it).second; }
 		const map<int,class DeviceData_Router *> *m_mapDeviceData_Router_get() { return &m_mapDeviceData_Router; };
+		const map<int,class DeviceGroup *> *m_mapDeviceGroup_get() { return &m_mapDeviceGroup; };
 
 		int iPK_Installation_get() { return m_dwPK_Installation; }
 		string sBasePath_get() { return m_sBasePath; }

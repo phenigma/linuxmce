@@ -19,8 +19,7 @@
 #include "DCE/Logger.h"
 #include "DataGrid.h"
 #include "FileListGrid.h"
-#include "MediaAttributes.h"
-#include "DCEMI_PS_DataGrid.h"
+#include "Media_Plugin/MediaAttributes.h"
 
 void FileListGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount)
 {

@@ -21,6 +21,7 @@ using namespace std;
 
 #include "Table_DeviceTemplate.h"
 #include "Table_InfraredGroup.h"
+#include "Table_Package.h"
 
 
 void Database_pluto_main::CreateTable_Manufacturer()
@@ -797,6 +798,13 @@ void Row_Manufacturer::InfraredGroup_FK_Manufacturer_getrows(vector <class Row_I
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup *pTable = table->database->InfraredGroup_get();
+pTable->GetRows("FK_Manufacturer=" + StringUtils::itos(m_PK_Manufacturer),rows);
+}
+void Row_Manufacturer::Package_FK_Manufacturer_getrows(vector <class Row_Package*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package *pTable = table->database->Package_get();
 pTable->GetRows("FK_Manufacturer=" + StringUtils::itos(m_PK_Manufacturer),rows);
 }
 

@@ -12,6 +12,10 @@
 #define DATAGRID_EPG_Current_Shows_CONST 9
 #define DATAGRID_Current_Media_CONST 10
 #define DATAGRID_EPG_All_Shows_CONST 11
+#define DATAGRID_Media_Search_Auto_Compl_CONST 12
+#define DATAGRID_Media_Attr_Files_CONST 13
+#define DATAGRID_Media_Attr_Collections_CONST 14
+#define DATAGRID_Media_Attr_Xref_CONST 15
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
@@ -20,6 +24,8 @@
 #define DATAGRID_DESCRIPTION_TABLE_FIELD "DataGrid.Description"
 #define DATAGRID_DEFINE_FIELD "Define"
 #define DATAGRID_DEFINE_TABLE_FIELD "DataGrid.Define"
+#define DATAGRID_COMMENTS_FIELD "Comments"
+#define DATAGRID_COMMENTS_TABLE_FIELD "DataGrid.Comments"
 #define DATAGRID_PSC_ID_FIELD "psc_id"
 #define DATAGRID_PSC_ID_TABLE_FIELD "DataGrid.psc_id"
 #define DATAGRID_PSC_BATCH_FIELD "psc_batch"

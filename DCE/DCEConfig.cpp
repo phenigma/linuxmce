@@ -75,19 +75,19 @@ DCEConfig::DCEConfig(string sFilename) : RA_Config()
 			break;
 	}
 
-	m_sDBHost				= ReadString("MySqlHost");
-	m_sDBUser				= ReadString("MySqlUser");
-	m_sDBPassword			= ReadString("MySqlPassword");
-	m_sDBName				= ReadString("MySqlDBName");
-	m_sDCERouter			= ReadString("DCERouter");
-	m_iDBPort				= ReadInteger("MySqlPort");
-	m_iDCERouterPort		= ReadInteger("DCERouterPort");
-	m_iPK_Device_Computer	= ReadInteger("PK_Device");
-	m_iPK_Installation		= ReadInteger("PK_Installation");
-	m_iPK_Distro			= ReadInteger("PK_Distro");
+	m_sDBHost				= ReadString("MySqlHost",m_sDBHost);
+	m_sDBUser				= ReadString("MySqlUser",m_sDBUser);
+	m_sDBPassword			= ReadString("MySqlPassword",m_sDBPassword);
+	m_sDBName				= ReadString("MySqlDBName",m_sDBName);
+	m_sDCERouter			= ReadString("DCERouter",m_sDCERouter);
+	m_iDBPort				= ReadInteger("MySqlPort",m_iDBPort);
+	m_iDCERouterPort		= ReadInteger("DCERouterPort",m_iDCERouterPort);
+	m_iPK_Device_Computer	= ReadInteger("PK_Device",m_iPK_Device_Computer);
+	m_iPK_Installation		= ReadInteger("PK_Installation",m_iPK_Installation);
+	m_iPK_Distro			= ReadInteger("PK_Distro",m_iPK_Distro);
 
-	m_sMenuPath				= ReadString("MenuPath");
-	m_sPicturePath			= ReadString("PicturePath");
+	m_sMenuPath				= ReadString("MenuPath",m_sMenuPath);
+	m_sPicturePath			= ReadString("PicturePath",m_sPicturePath);
 }
 //------------------------------------------------------------------------------------------------------
 /*virtual*/ DCEConfig::~DCEConfig()

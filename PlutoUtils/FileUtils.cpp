@@ -190,6 +190,19 @@ bool FileUtils::FileExists( string sFile )
     return iResult == 0;
 }
 
+bool FileUtils::DirExists( string sFile )
+{
+    struct stat buf;
+    int iResult;
+
+    if( sFile.length() && sFile[sFile.length()-1]=='/' )
+        iResult = stat( sFile.substr(0, sFile.length()-1).c_str(), &buf );
+    else
+        iResult = stat( sFile.c_str(), &buf );
+
+    return iResult == 0;
+}
+
 time_t FileUtils::FileDate(string sFile)
 {
     struct stat buf;

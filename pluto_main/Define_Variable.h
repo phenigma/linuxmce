@@ -14,7 +14,7 @@
 #define VARIABLE_playlist_CONST 11
 #define VARIABLE_Misc_Data_1_CONST 12
 #define VARIABLE_Misc_Data_2_CONST 13
-#define VARIABLE_Media_Type_CONST 14
+#define VARIABLE_PK_MediaType_CONST 14
 #define VARIABLE_URL_from_phone_CONST 15
 #define VARIABLE_Status_CONST 16
 
@@ -25,6 +25,8 @@
 #define VARIABLE_DESCRIPTION_TABLE_FIELD "Variable.Description"
 #define VARIABLE_DEFINE_FIELD "Define"
 #define VARIABLE_DEFINE_TABLE_FIELD "Variable.Define"
+#define VARIABLE_COMMENTS_FIELD "Comments"
+#define VARIABLE_COMMENTS_TABLE_FIELD "Variable.Comments"
 #define VARIABLE_PSC_ID_FIELD "psc_id"
 #define VARIABLE_PSC_ID_TABLE_FIELD "Variable.psc_id"
 #define VARIABLE_PSC_BATCH_FIELD "psc_batch"

@@ -25,6 +25,7 @@ using namespace std;
 #include "Table_Document_Comment.h"
 #include "Table_Package.h"
 #include "Table_Package.h"
+#include "Table_Package.h"
 
 
 void Database_pluto_main::CreateTable_Document()
@@ -715,19 +716,26 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_Document_Comment *pTable = table->database->Document_Comment_get();
 pTable->GetRows("FK_Document=" + StringUtils::itos(m_PK_Document),rows);
 }
-void Row_Document::Package_FK_Document_User_getrows(vector <class Row_Package*> *rows)
+void Row_Document::Package_FK_Document_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("FK_Document_User=" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("FK_Document=" + StringUtils::itos(m_PK_Document),rows);
 }
-void Row_Document::Package_FK_Document_Programmer_getrows(vector <class Row_Package*> *rows)
+void Row_Document::Package_FK_Document_UsersManual_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("FK_Document_Programmer=" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("FK_Document_UsersManual=" + StringUtils::itos(m_PK_Document),rows);
+}
+void Row_Document::Package_FK_Document_ProgrammersGuide_getrows(vector <class Row_Package*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package *pTable = table->database->Package_get();
+pTable->GetRows("FK_Document_ProgrammersGuide=" + StringUtils::itos(m_PK_Document),rows);
 }
 
 

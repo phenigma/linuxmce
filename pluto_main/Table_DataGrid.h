@@ -82,13 +82,14 @@ class DLL_EXPORT Row_DataGrid : public TableRow, public SerializeClass
 		long int m_PK_DataGrid;
 string m_Description;
 string m_Define;
+string m_Comments;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[8];
+		bool is_null[9];
 	
 		bool is_deleted;
 		bool is_added;
@@ -98,6 +99,7 @@ string m_psc_mod;
 		long int PK_DataGrid_get();
 string Description_get();
 string Define_get();
+string Comments_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -108,6 +110,7 @@ string psc_mod_get();
 		void PK_DataGrid_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
+void Comments_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -116,6 +119,7 @@ void psc_mod_set(string val);
 
 		
 		bool Define_isNull();
+bool Comments_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -123,6 +127,7 @@ bool psc_frozen_isNull();
 
 			
 		void Define_setNull(bool val);
+void Comments_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -146,7 +151,7 @@ void psc_frozen_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_DataGrid+ m_Description+ m_Define+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DataGrid+ m_Description+ m_Define+ m_Comments+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -154,6 +159,7 @@ void psc_frozen_setNull(bool val);
 		string PK_DataGrid_asSQL();
 string Description_asSQL();
 string Define_asSQL();
+string Comments_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

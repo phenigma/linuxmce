@@ -2,9 +2,7 @@
 #include "Orbiter.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -27,6 +25,9 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_VertAlignment.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "Floorplan.h"
+#include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_FloorplanType.h"
 
 // For DontRender
 namespace DCE
@@ -63,9 +64,10 @@ m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "d
 	m_bRerenderScreen=false;
 
 	m_pScreenHistory_Current=NULL;
-	m_pObj_Highlighted=NULL;
+	m_pObj_LastSelected=m_pObj_Highlighted=NULL;
 	m_LastActivityTime=time( NULL );
 	m_bKillSpawnedDevicesOnExit=true;
+	m_iLastEntryInDeviceGroup=-1;
 
 	pthread_mutexattr_init( &m_MutexAttr );
 	pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
@@ -93,14 +95,14 @@ m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "d
 }
 
 //<-dceag-dest-b->
-Orbiter::~Orbiter(  )
+Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
 }
 
 //<-dceag-reg-b->
-// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect(  ) will be called from the main(  )
-bool Orbiter::Register(  )
+// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
+bool Orbiter::Register()
 //<-dceag-reg-e->
 {
 	return Connect(  );
@@ -260,21 +262,21 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	if(  !pObj->m_pCurrentGraphic && pObj->m_GraphicToDisplay!=GRAPHIC_NORMAL  )
 		pObj->m_pCurrentGraphic = pObj->m_pGraphic;
 
-	// This is somewhat of a hack,  but we don't have a clean method for setting the graphics on the user & location buttons to 
-	if(  pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentUser_CONST  )
+	// This is somewhat of a hack, but we don't have a clean method for setting the graphics on the user & location buttons to 
+	if( pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentUser_CONST )
 	{
 		CHAGraphic *pGraphic = m_mapUserIcons[m_pScreenHistory_Current->m_dwPK_Users];
-		if(  pGraphic  )
+		if( pGraphic )
 			pObj->m_pCurrentGraphic = pGraphic;
-		if(  pObj->m_pCurrentGraphic  )
-			RenderGraphic( pObj,  rectTotal );
+		if( pObj->m_pCurrentGraphic )
+			RenderGraphic(pObj, rectTotal);
 	}
-	else if(  pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentLocation_CONST  )
+	else if( pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentLocation_CONST )
 	{
-		if(  m_pScreenHistory_Current->m_pLocationInfo->m_pGraphic  )
+		if( m_pScreenHistory_Current->m_pLocationInfo->m_pGraphic )
 			pObj->m_pCurrentGraphic = m_pScreenHistory_Current->m_pLocationInfo->m_pGraphic;
-		if(  pObj->m_pCurrentGraphic  )
-			RenderGraphic( pObj,  rectTotal );
+		if( pObj->m_pCurrentGraphic )
+			RenderGraphic(pObj, rectTotal);
 	}
 	// Maybe we're showing a non stard state
 	else if(  pObj->m_pGraphicToUndoSelect && pObj->m_GraphicToDisplay==GRAPHIC_NORMAL  )
@@ -310,7 +312,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		RenderDataGrid( ( DesignObj_DataGrid * )pObj );
 		break;
 	case DESIGNOBJTYPE_Floorplan_CONST:
-		//      RenderFloorplan( pObj, pObj_Screen );
+		RenderFloorplan(pObj,pObj_Screen);
 		break; // Render the child objects with their text
 	case DESIGNOBJTYPE_Web_Browser_CONST:
 		//      LocalHandleWebWindow( pObj,  rectTotal );
@@ -446,13 +448,11 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		RenderText( pText, pTextStyle );
 		PROFILE_STOP( ctText,  "Text ( obj below )" )
 	}
-	/* todo 2.0
-	if(  pObj->m_pFloorplanObject && m_listDevice_Selected.find( StringUtils::itos( pObj->m_pFloorplanObject->PK_Device ) + "|" )!=string::npos  )
+	if( pObj->m_pFloorplanObject && m_mapDevice_Selected.find(pObj->m_pFloorplanObject->PK_Device)!=m_mapDevice_Selected.end() )
 	{
-	//      for( int i=0;i<3;++i )
-	//          XORRectangle( pObj->m_rBackgroundPosition.X-i,  pObj->m_rBackgroundPosition.Y-i,  pObj->m_rBackgroundPosition.Width+i+i,  pObj->m_rBackgroundPosition.Height+i+i );
+		for(int i=0;i<3;++i)
+			XORRectangle(pObj->m_rBackgroundPosition.X-i, pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i);
 	}
-	*/
 }
 //-----------------------------------------------------------------------------------------------------------
 bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay )
@@ -722,7 +722,7 @@ void Orbiter::ObjectOnScreenWrapper(  )
 	m_vectObjs_NeedRedraw.clear(  );
 	m_vectObjs_Selected.clear(  );
 	m_vectObjs_TabStops.clear(  );
-	m_listDevice_Selected.clear(  );
+	m_mapDevice_Selected.clear(  );
 	m_pObj_Highlighted=NULL;
 	vm.Release(  );
 
@@ -1226,6 +1226,79 @@ bool Orbiter::SelectedGrid( int DGRow )
 	DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( 0,  DGRow );
 
 	return SelectedGrid( pDesignObj_DataGrid,  pCell );
+}
+void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbiter)
+{
+	if( pDesignObj_Orbiter->m_pFloorplanObject )
+		SelectedFloorplan(pDesignObj_Orbiter);
+}
+
+void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
+{
+	m_pScreenHistory_Current->m_dwPK_Device = pDesignObj_Orbiter->m_pFloorplanObject->PK_Device;
+	CMD_Set_Variable(VARIABLE_Array_ID_CONST,pDesignObj_Orbiter->m_pFloorplanObject->ObjectTypeDescription);
+	CMD_Set_Variable(VARIABLE_Array_Desc_CONST,pDesignObj_Orbiter->m_pFloorplanObject->DeviceDescription);
+	CMD_Set_Variable(VARIABLE_Status_CONST,pDesignObj_Orbiter->m_pFloorplanObject->Status);
+
+	// We've selected this object twice, cycle through the vector of device groups
+	if( m_pObj_LastSelected==pDesignObj_Orbiter )
+	{
+		// We went past the end, select nothing
+		if( m_iLastEntryInDeviceGroup>=(int) pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base->m_vectDeviceGroup.size()-1 )
+		{
+			m_mapDevice_Selected.clear();
+			m_pObj_LastSelected=NULL;
+			m_iLastEntryInDeviceGroup=-1;  // Start at the beginning
+		}
+		else 
+		{
+			// Maybe this doesn't belong to any device groups, just toggle on and off
+			if( pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base->m_vectDeviceGroup.size()==0 )
+			{
+				m_mapDevice_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base;
+				m_iLastEntryInDeviceGroup=0;  // If we touch it again, it will trigger the block above
+			}
+			else
+			{
+				// Select all the items in the group
+				++m_iLastEntryInDeviceGroup;
+				DeviceGroup *pDG = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base->m_vectDeviceGroup[m_iLastEntryInDeviceGroup];
+				for(int i=0;i<(int) pDG->m_vectDeviceData_Base.size();++i)
+				{
+					DeviceData_Base *pD = pDG->m_vectDeviceData_Base[i];
+					m_mapDevice_Selected[pD->m_dwPK_Device] = pD;
+				}
+			}
+		}
+
+	}
+	else
+	{
+		m_mapDevice_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base;
+		m_pObj_LastSelected=pDesignObj_Orbiter;
+	}
+/*
+	if( pDesignObj_Orbiter->m_pParentObject->m_iBaseObjectID==OBJECT_FPENTERTAINMENT_CONST )
+	{
+		bool bResponse;
+		int iPK_Variable=0;
+		string sValue_To_Assign;
+		DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD(m_dwPK_Device, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_dwIDataGridRequestCounter),"HAGA_" + StringUtils::itos(m_dwPK_Device),
+			pObj->m_iPK_Datagrid,SubstituteVariables(pObj->m_sOptions,pObj,0,0),&iPK_Variable,&sValue_To_Assign,&bResponse);
+		if( !SendCommand(CMD_Populate_Datagrid_MD) || !bResponse ) // wait for a response
+			g_pPlutoLogger->Write(LV_CRITICAL,"Populate datagrid: %d failed",pObj->m_iPK_Datagrid);
+
+		// We're on the house-at-a-glance floorplan.  These are the activies at the bottom, not the streams
+		m_pRequestSocket->SendOCMessage(new OCMessage(m_DeviceID, DEVICEID_DATAGRID, PRIORITY_NORMAL, 
+			MESSAGETYPE_COMMAND, ACTION_POPULATE_DATAGRID_CONST, 2, 
+			C_ACTIONPARAMETER_DATAGRID_ID_CONST, ("HAGA_" + StringUtils::itos(m_DeviceID)).c_str(),
+			C_ACTIONPARAMETER_TYPE_CONST, (StringUtils::itos(DGTYPE_HAG_ACTIVITIES) + "," + m_sSelectedDevices).c_str()));
+	}
+
+	Invalidate();
+	return;
+*/
+	RedrawObjects();
 }
 //------------------------------------------------------------------------
 bool Orbiter::ClickedButton( DesignObj_Orbiter *pObj, int PK_Button )
@@ -1804,135 +1877,83 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 	if(  m_bLocalMode  )
 		return true;
 
-	/*
+/*
 	// Send through event manager so it updates its value.  Event manager will pick a default user if this doesn't exist
-	Message *pMessage = new Message( m_dwPK_Device, m_dwPK_Device, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Set_Variable_CONST, 2, 
-	COMMAND_Set_Variable_CONST, StringUtils::itos( VARIABLE_PK_USERS_CONST ).c_str(  ), COMMANDPARAMETER_Value_To_Assign_CONST, Data_Get_PK_Users(  ).c_str(  ) );
-	GetEvents(  )->SendMessage( pMessage );
+	Message *pMessage = new Message(m_dwPK_Device,m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Variable_CONST,2,
+	COMMAND_Set_Variable_CONST,StringUtils::itos(VARIABLE_PK_USERS_CONST).c_str(),COMMANDPARAMETER_Value_To_Assign_CONST,Data_Get_PK_Users().c_str());
+	GetEvents()->SendMessage(pMessage);
 
 	m_mapVariable[VARIABLE_MEDIA_CENTRAL_ENTGROUP_CONST]=m_mapVariable[VARIABLE_PK_ENTERTAIN_GROUP_CONST];
 
-	if(  m_mapVariable[VARIABLE_EPG_GUIDE_VIEW_CONST]==""  )
+	if( m_mapVariable[VARIABLE_EPG_GUIDE_VIEW_CONST]=="" )
 	{
-	Message *pMessage = new Message( m_dwPK_Device, m_dwPK_Device, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Set_Variable_CONST, 2, 
-	COMMAND_Set_Variable_CONST, StringUtils::itos( VARIABLE_EPG_GUIDE_VIEW_CONST ).c_str(  ), 
-	COMMANDPARAMETER_Value_To_Assign_CONST, StringUtils::itos( DESIGNOBJ_MNUTVEPG1_CONST ).c_str(  ) );
-	GetEvents(  )->SendMessage( pMessage );
+	Message *pMessage = new Message(m_dwPK_Device,m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Variable_CONST,2,
+	COMMAND_Set_Variable_CONST,StringUtils::itos(VARIABLE_EPG_GUIDE_VIEW_CONST).c_str(),
+	COMMANDPARAMETER_Value_To_Assign_CONST,StringUtils::itos(DESIGNOBJ_MNUTVEPG1_CONST).c_str());
+	GetEvents()->SendMessage(pMessage);
 	}
-
+*/
 	string sResult;
-	string::size_type pos = 0;
+	DCE::CMD_Get_Floorplan_Layout CMD_Get_Floorplan_Layout(m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, &sResult);
+	SendCommand(CMD_Get_Floorplan_Layout);
 
-	pMessage = m_pcRequestSocket->SendReceiveMessage( new Message( m_dwPK_Device,  DEVICEID_DCEROUTER,  PRIORITY_NORMAL, 
-	MESSAGETYPE_DEVICEGROUPS,  0,  0 ) );
+	string::size_type pos=0;
+	int NumPages = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+	for(int PageCount=0;PageCount<NumPages;++PageCount)
+	{
+		int PageNum = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
 
-	if ( pMessage )
-	{
-	sResult = pMessage->m_mapParameters[0];
-	delete pMessage;
-	}
-	else
-	{
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Error getting device groups Receive Message failed." );
-	return false;
-	}
+		FloorplanObjectVectorMap *pFloorplanObjectVectorMap = new FloorplanObjectVectorMap();
+		m_mapFloorplanObjectVector[PageNum]=pFloorplanObjectVectorMap ;
 
-	int i;
-	int NumGroups = atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	for( i=0;i<NumGroups;++i )
-	{
-	int PK_DeviceGroup = atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	DeviceGroup *pDG = new DeviceGroup( PK_DeviceGroup );
-	pDG->m_sDescription = StringUtils::Tokenize( sResult,  "|",  pos );
-	int NumDevices = atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
+		int NumTypes = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+		for(int TypeCount=0;TypeCount<NumTypes;++TypeCount)
+		{
+			int TypeNum = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
 
-	m_mapDeviceGroups[PK_DeviceGroup]=pDG;
-	for( int i2=0;i2<NumDevices;++i2 )
-	{
-	int PK_Device = atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	Device *pD = m_mapDevices[PK_DeviceGroup];
-	if(  !pD  )
-	{
-	pD = new Device( PK_Device );
-	m_mapDevices[PK_Device]=pD;
-	}
-	pD->m_vectDeviceGroups.push_back( pDG );
-	pDG->m_vectDevices.push_back( pD );
-	}
-	}
+			FloorplanObjectVector *fpObjVector = new FloorplanObjectVector();
+			(*pFloorplanObjectVectorMap)[TypeNum] = fpObjVector;
 
-	pMessage = m_pcRequestSocket->SendReceiveMessage( new Message( m_dwPK_Device,  DEVICEID_DCEROUTER,  PRIORITY_NORMAL, 
-	MESSAGETYPE_FLOORPLAN_LAYOUT,  0,  0 ) );
+			int NumObjects = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+			for(int ObjectCount=0;ObjectCount<NumObjects;++ObjectCount)
+			{
+				FloorplanObject *fpObj = new FloorplanObject();
 
-	if ( pMessage )
-	{
-	sResult = pMessage->m_mapParameters[0];
-	delete pMessage;
+				fpObj->ObjectTypeDescription=StringUtils::Tokenize(sResult, "|", pos);
+				fpObj->FillX=atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+				fpObj->FillY=atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+				fpObj->ObjectID=StringUtils::Tokenize(sResult, "|", pos);
+				fpObj->Page=atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+				fpObj->PK_Device=atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+				fpObj->m_pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(fpObj->PK_Device);
+				fpObj->DeviceDescription=fpObj->m_pDeviceData_Base->m_sDescription;
+				fpObj->Type=atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+				fpObj->pObj = FindObject(fpObj->ObjectID);
+				// TODO                 fpObj->ptrDevice = m_mapDevices_Find(fpObj->PK_Device);
+//				if( !fpObj->ptrDevice )
+//				{
+					// TODO                 fpObj->ptrDevice = new Device(fpObj->PK_Device);
+					// TODO                 m_mapDevices[fpObj->PK_Device]=fpObj->ptrDevice;
+//				}
+				fpObjVector->push_back(fpObj);
+				if( fpObj->pObj )
+				{
+					fpObj->pObj->m_pFloorplanObject=fpObj;
+					// Be sure there is a 'requires special handling' action on this object
+					if( fpObj->pObj->m_ZoneList.size()==0 )
+					{
+						DesignObjZone *pDesignObjZone = new DesignObjZone();
+						pDesignObjZone->m_Rect.Width=pDesignObjZone->m_Rect.Height=0;
+						DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
+						pDesignObjCommand->m_PK_Command=COMMAND_Requires_Special_Handling_CONST;
+						pDesignObjCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;
+						pDesignObjZone->m_Commands.push_back(pDesignObjCommand);
+						fpObj->pObj->m_ZoneList.push_back(pDesignObjZone);
+					}
+				}
+			}
+		}
 	}
-	else
-	{
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Error getting security data 2 Receive Message failed.",  sResult.c_str(  ) );
-	return false;
-	}
-
-	pos=0;
-	int NumPages = atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	for( int PageCount=0;PageCount<NumPages;++PageCount )
-	{
-	int PageNum = atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-
-	FloorplanObjectVectorMap *pFloorplanObjectVectorMap = new FloorplanObjectVectorMap(  );
-	m_mapFloorplanObjectVector[PageNum]=pFloorplanObjectVectorMap ;
-
-	int NumTypes = atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	for( int TypeCount=0;TypeCount<NumTypes;++TypeCount )
-	{
-	int TypeNum = atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-
-	FloorplanObjectVector *fpObjVector = new FloorplanObjectVector(  );
-	( *pFloorplanObjectVectorMap )[TypeNum] = fpObjVector;
-
-	int NumObjects = atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	for( int ObjectCount=0;ObjectCount<NumObjects;++ObjectCount )
-	{
-	FloorplanObject *fpObj = new FloorplanObject(  );
-
-	fpObj->DeviceDescription=StringUtils::Tokenize( sResult,  "|",  pos );
-	fpObj->ObjectTypeDescription=StringUtils::Tokenize( sResult,  "|",  pos );
-	fpObj->FillX=atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	fpObj->FillY=atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	fpObj->ObjectID=StringUtils::Tokenize( sResult,  "|",  pos );
-	fpObj->Page=atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	fpObj->PK_Device=atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	fpObj->Type=atoi( StringUtils::Tokenize( sResult,  "|",  pos ).c_str(  ) );
-	fpObj->pObj = FindObject( fpObj->ObjectID );
-	// TODO                 fpObj->ptrDevice = m_mapDevices_Find( fpObj->PK_Device );
-	if(  !fpObj->ptrDevice  )
-	{
-	// TODO                 fpObj->ptrDevice = new Device( fpObj->PK_Device );
-	// TODO                 m_mapDevices[fpObj->PK_Device]=fpObj->ptrDevice;
-	}
-	fpObjVector->push_back( fpObj );
-	if(  fpObj->pObj  )
-	{
-	fpObj->pObj->m_pFloorplanObject=fpObj;
-	// Be sure there is a 'requires special handling' action on this object
-	if(  fpObj->pObj->m_ZoneList.size(  )==0  )
-	{
-	DesignObjZone *zone = new DesignObjZone(  );
-	zone->m_Rect.Width=zone->m_Rect.Height=0;
-	DesignObjCommand *action = new DesignObjCommand(  );
-	action->m_bHandleLocally=true;
-	action->m_PK_Command=COMMAND_REQUIRES_SPECIAL_HANDLING_CONST;
-	action->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;
-	zone->m_Commands.push_back( action );
-	fpObj->pObj->m_ZoneList.push_back( zone );
-	}
-	}
-	}
-	}
-	}
-	*/
 	return true;
 }
 //------------------------------------------------------------------------
@@ -2651,8 +2672,9 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 	//          g_pPlutoLogger->Write( LV_CONTROLLER,  "\x1b[33;1mSelected object: %s zone: %d, %d-%d, %d,  actions in zone: %d,  obj %p zone %p", pObj->m_ObjectID.c_str(  ), 
 	//              ( *iZone )->m_Rect.X, ( *iZone )->m_Rect.Y, ( *iZone )->m_Rect.Width, ( *iZone )->m_Rect.Height, 
 	//              ( *iZone )->m_Commands.size(  ), pObj, ( *iZone ) );
-	DesignObjCommandList::iterator iCommand;
-	for( iCommand=pDesignObjCommandList->begin(  );iCommand!=pDesignObjCommandList->end(  );++iCommand )
+	// The commands are in the list backwards, so use a reverse iterator so that they are executed in the same order they appear within designer
+	DesignObjCommandList::reverse_iterator iCommand;
+	for(iCommand=pDesignObjCommandList->rbegin();iCommand!=pDesignObjCommandList->rend();++iCommand)
 	{
 		DesignObjCommand *pCommand = *iCommand;
 		int PK_Command = pCommand->m_PK_Command;
@@ -2705,7 +2727,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 			{
 				pCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;
 			}
-			else if(  m_listDevice_Selected.size(  )  )
+			else if( m_mapDevice_Selected.size() )
 				pCommand->m_PK_Device = DEVICEID_LIST;
 			else
 			{
@@ -3169,25 +3191,25 @@ COMMANDS TO IMPLEMENT
 
 //<-dceag-c1-b->
 /* 
-COMMAND: #1 - Capture Keyboard To Variable
-COMMENTS: As the user types,  using either the keyboard or simulate keypress commands,  what he types will be stored in a variable and/or put into a text object.
-PARAMETERS:
-#3 PK_DesignObj
-The Design Object which contains the text Object
-#4 PK_Variable
-The variable in which to store the input
-#8 On/Off
-If 0,  this stops capturing
-#14 Type
-1=normal,  2=pin,  3=phone number
-#24 Reset
-if true,  the next keypress will clear the variable and start new
-#25 PK_Text
-The text object in which to store the current input
-#55 DataGrid
-If 1,  we'll scroll the data grid too when typing keys.
+	COMMAND: #1 - Capture Keyboard To Variable
+	COMMENTS: As the user types, using either the keyboard or simulate keypress commands, what he types will be stored in a variable and/or put into a text object.
+	PARAMETERS:
+		#3 PK_DesignObj
+			The Design Object which contains the text Object
+		#4 PK_Variable
+			The variable in which to store the input
+		#8 On/Off
+			If 0, this stops capturing
+		#14 Type
+			1=normal, 2=pin, 3=phone number
+		#24 Reset
+			if true, the next keypress will clear the variable and start new
+		#25 PK_Text
+			The text object in which to store the current input
+		#55 DataGrid
+			If 1, we'll scroll the data grid too when typing keys.
 */
-void Orbiter::CMD_Capture_Keyboard_To_Variable( string sPK_DesignObj, int iPK_Variable, string sOnOff, string sType, string sReset, int iPK_Text, bool bDataGrid, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid,string &sCMD_Result,Message *pMessage)
 //<-dceag-c1-e->
 {
 	BuildCaptureKeyboardParams( 
@@ -3203,11 +3225,11 @@ void Orbiter::CMD_Capture_Keyboard_To_Variable( string sPK_DesignObj, int iPK_Va
 
 //<-dceag-c2-b->
 /* 
-COMMAND: #2 - Orbiter Beep
-COMMENTS: Make the orbiter beep
-PARAMETERS:
+	COMMAND: #2 - Orbiter Beep
+	COMMENTS: Make the orbiter beep
+	PARAMETERS:
 */
-void Orbiter::CMD_Orbiter_Beep( string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Orbiter_Beep(string &sCMD_Result,Message *pMessage)
 //<-dceag-c2-e->
 {
 	cout << "Need to implement command #2 - Orbiter Beep" << endl;
@@ -3215,13 +3237,13 @@ void Orbiter::CMD_Orbiter_Beep( string &sCMD_Result, Message *pMessage )
 
 //<-dceag-c3-b->
 /* 
-COMMAND: #3 - Display On/Off
-COMMENTS: Turn the display on or off
-PARAMETERS:
-#8 On/Off
-0=Off,  1=On
+	COMMAND: #3 - Display On/Off
+	COMMENTS: Turn the display on or off
+	PARAMETERS:
+		#8 On/Off
+			0=Off, 1=On
 */
-void Orbiter::CMD_Display_OnOff( string sOnOff, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Display_OnOff(string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c3-e->
 {
 	cout << "Need to implement command #3 - Display On/Off" << endl;
@@ -3230,15 +3252,15 @@ void Orbiter::CMD_Display_OnOff( string sOnOff, string &sCMD_Result, Message *pM
 
 //<-dceag-c4-b->
 /* 
-COMMAND: #4 - Go back
-COMMENTS: Make the orbiter go back to the prior screen,  like the back button in a web browser
-PARAMETERS:
-#16 PK_DesignObj_CurrentScreen
-If this is specified,  the orbiter will ignore the command unless this is the current screen
-#21 Force
-Screens can be flagged,  "Cant go back",  meaning the go back will skip over them.  If Force=1,  the Orbiter returns to the prior screen regardless
+	COMMAND: #4 - Go back
+	COMMENTS: Make the orbiter go back to the prior screen, like the back button in a web browser
+	PARAMETERS:
+		#16 PK_DesignObj_CurrentScreen
+			If this is specified, the orbiter will ignore the command unless this is the current screen
+		#21 Force
+			Screens can be flagged, "Cant go back", meaning the go back will skip over them.  If Force=1, the Orbiter returns to the prior screen regardless
 */
-void Orbiter::CMD_Go_back( string sPK_DesignObj_CurrentScreen, string sForce, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c4-e->
 {
 	ScreenHistory *pScreenHistory=NULL;
@@ -3249,7 +3271,7 @@ void Orbiter::CMD_Go_back( string sPK_DesignObj_CurrentScreen, string sForce, st
 
 		// We now took the prior screen off teh list
 		m_listScreenHistory.pop_back(  );
-		if(  pScreenHistory->m_iCantGoBack && sForce!="1"  )
+		if(  pScreenHistory->m_bCantGoBack && sForce!="1"  )
 			continue;
 
 		break;   // We got one to go back to
@@ -3264,21 +3286,21 @@ void Orbiter::CMD_Go_back( string sPK_DesignObj_CurrentScreen, string sForce, st
 
 //<-dceag-c5-b->
 /* 
-COMMAND: #5 - Goto Screen
-COMMENTS: Goto a specific screen
-PARAMETERS:
-#2 PK_Device
-For this screen only,  override the normal "control device" stored in variable #1,  and treat this device as the control screen.  When the screen changes,  it will be reset
-#3 PK_DesignObj
-The screen to go to.  Can be be fully qualified ( x.y.z ),  or just contain the screen #
-#10 ID
-Assigns an optional ID to this particular "viewing" of the screen,  used with Kill Screen.  There can be lots of instances of the same screen in the history queue ( such as call in progress ).  This allows a program to pop a particular one out of the queue.
-#16 PK_DesignObj_CurrentScreen
-If this is specified,  the orbiter will ignore the command unless this is the current screen.  If this is -1,  that will match a main menu or screen saver ( ie the Orbiter is not in use ).
-#22 Store Variables
-If 1,  the Orbiter will store the current variable values,  and restore them if a 'go back' causes it to return to this screen
+	COMMAND: #5 - Goto Screen
+	COMMENTS: Goto a specific screen
+	PARAMETERS:
+		#2 PK_Device
+			For this screen only, override the normal "control device" stored in variable #1, and treat this device as the control screen.  When the screen changes, it will be reset
+		#3 PK_DesignObj
+			The screen to go to.  Can be be fully qualified (x.y.z), or just contain the screen #
+		#10 ID
+			Assigns an optional ID to this particular "viewing" of the screen, used with Kill Screen.  There can be lots of instances of the same screen in the history queue (such as call in progress).  This allows a program to pop a particular one out of the queue.
+		#16 PK_DesignObj_CurrentScreen
+			If this is specified, the orbiter will ignore the command unless this is the current screen.  If this is -1, that will match a main menu or screen saver (ie the Orbiter is not in use).
+		#22 Store Variables
+			If 1, the Orbiter will store the current variable values, and restore them if a 'go back' causes it to return to this screen
 */
-void Orbiter::CMD_Goto_Screen( int iPK_Device, string sPK_DesignObj, string sID, string sPK_DesignObj_CurrentScreen, bool bStore_Variables, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,string &sCMD_Result,Message *pMessage)
 //<-dceag-c5-e->
 {
 	PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
@@ -3321,7 +3343,7 @@ void Orbiter::CMD_Goto_Screen( int iPK_Device, string sPK_DesignObj, string sID,
 	ScreenHistory *pScreenHistory_New = new ScreenHistory( pObj_New, m_pScreenHistory_Current );
 	// See if we're going to control a new device,  or should stick with the one we're now controlling
 	pScreenHistory_New->m_sID=sID;
-	pScreenHistory_New->m_iCantGoBack = pObj_New->m_iCantGoBack;
+	pScreenHistory_New->m_bCantGoBack = pObj_New->m_bCantGoBack;
 	vm.Release(  );
 
 	// See if we need to store the variables on this screen,  so we restore them in case of a go back
@@ -3332,21 +3354,21 @@ void Orbiter::CMD_Goto_Screen( int iPK_Device, string sPK_DesignObj, string sID,
 
 //<-dceag-c6-b->
 /* 
-COMMAND: #6 - Show Object
-COMMENTS: Change an objects visible state.
-PARAMETERS:
-#3 PK_DesignObj
-The object to show or hide
-#4 PK_Variable
-The variable to use in the comparisson.  See Comparisson Value.
-#6 Comparisson Operator
-A type of comparisson: =  <  <>  !=  >
-#7 Comparisson Value
-If a Variable,  Comparisson Type,  and Comparisson Value are specified,  the command will be ignored if the comparisson is not true
-#8 On/Off
-1=show object,  2=hide object
+	COMMAND: #6 - Show Object
+	COMMENTS: Change an objects visible state.
+	PARAMETERS:
+		#3 PK_DesignObj
+			The object to show or hide
+		#4 PK_Variable
+			The variable to use in the comparisson.  See Comparisson Value.
+		#6 Comparisson Operator
+			A type of comparisson: =  <  <>  !=  >
+		#7 Comparisson Value
+			If a Variable, Comparisson Type, and Comparisson Value are specified, the command will be ignored if the comparisson is not true
+		#8 On/Off
+			1=show object, 2=hide object
 */
-void Orbiter::CMD_Show_Object( string sPK_DesignObj, int iPK_Variable, string sComparisson_Operator, string sComparisson_Value, string sOnOff, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c6-e->
 {
 	if(  iPK_Variable ||
@@ -3383,11 +3405,11 @@ void Orbiter::CMD_Show_Object( string sPK_DesignObj, int iPK_Variable, string sC
 
 //<-dceag-c7-b->
 /* 
-COMMAND: #7 - Terminate Orbiter
-COMMENTS: Causes the Orbiter application to exit
-PARAMETERS:
+	COMMAND: #7 - Terminate Orbiter
+	COMMENTS: Causes the Orbiter application to exit
+	PARAMETERS:
 */
-void Orbiter::CMD_Terminate_Orbiter( string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 //<-dceag-c7-e->
 {
 	cout << "Need to implement command #7 - Terminate Orbiter" << endl;
@@ -3395,15 +3417,15 @@ void Orbiter::CMD_Terminate_Orbiter( string &sCMD_Result, Message *pMessage )
 
 //<-dceag-c8-b->
 /* 
-COMMAND: #8 - Remove Screen From History
-COMMENTS: The orbiter keeps a history of visible screens,  allowing the user to go back.  See Go_Back.  This removes screens from the queue that should not available anymore.  An example is when a call comes in,  the controllers are sent to an incoming call screen.
-PARAMETERS:
-#3 PK_DesignObj
-The screen to remove
-#10 ID
-If specified,  only screens that match this ID will be removed
+	COMMAND: #8 - Remove Screen From History
+	COMMENTS: The orbiter keeps a history of visible screens, allowing the user to go back.  See Go_Back.  This removes screens from the queue that should not available anymore.  An example is when a call comes in, the controllers are sent to an incoming call screen.
+	PARAMETERS:
+		#3 PK_DesignObj
+			The screen to remove
+		#10 ID
+			If specified, only screens that match this ID will be removed
 */
-void Orbiter::CMD_Remove_Screen_From_History( string sPK_DesignObj, string sID, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c8-e->
 {
 	cout << "Need to implement command #8 - Remove Screen From History" << endl;
@@ -3413,17 +3435,17 @@ void Orbiter::CMD_Remove_Screen_From_History( string sPK_DesignObj, string sID, 
 
 //<-dceag-c9-b->
 /* 
-COMMAND: #9 - Scroll Grid
-COMMENTS: Scroll a datagrid
-PARAMETERS:
-#1 Relative Level
-The grid will scroll this many lines.  If prefaced with a P,  it will scroll this many pages.  If not specified,  it will scroll 1 page.
-#3 PK_DesignObj
-The grid to scroll.  If not specified,  any currently visible grids will scroll
-#30 PK_Direction
-The direction to scroll the grid
+	COMMAND: #9 - Scroll Grid
+	COMMENTS: Scroll a datagrid
+	PARAMETERS:
+		#1 Relative Level
+			The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page.
+		#3 PK_DesignObj
+			The grid to scroll.  If not specified, any currently visible grids will scroll
+		#30 PK_Direction
+			The direction to scroll the grid
 */
-void Orbiter::CMD_Scroll_Grid( string sRelative_Level, string sPK_DesignObj, int iPK_Direction, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
 //<-dceag-c9-e->
 {
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
@@ -3491,17 +3513,17 @@ void Orbiter::CMD_Scroll_Grid( string sRelative_Level, string sPK_DesignObj, int
 
 //<-dceag-c10-b->
 /* 
-COMMAND: #10 - Move Highlight
-COMMENTS: Move the current highlight pointer
-PARAMETERS:
-#1 Relative Level
-The grid will scroll this many lines.  If prefaced with a P,  it will scroll this many pages.  If not specified,  it will scroll 1 page.
-#3 PK_DesignObj
-The grid to scroll.  If not specified,  any currently visible grids will scroll
-#30 PK_Direction
-The direction to move the highlight
+	COMMAND: #10 - Move Highlight
+	COMMENTS: Move the current highlight pointer
+	PARAMETERS:
+		#1 Relative Level
+			The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page.
+		#3 PK_DesignObj
+			The grid to scroll.  If not specified, any currently visible grids will scroll
+		#30 PK_Direction
+			The direction to move the highlight
 */
-void Orbiter::CMD_Move_Highlight( string sRelative_Level, string sPK_DesignObj, int iPK_Direction, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
 //<-dceag-c10-e->
 {
 	cout << "Need to implement command #10 - Move Highlight" << endl;
@@ -3512,15 +3534,15 @@ void Orbiter::CMD_Move_Highlight( string sRelative_Level, string sPK_DesignObj, 
 
 ///<-dceag-c13-b->
 /* 
-COMMAND: #13 - Play Sound
-COMMENTS: Plays a sound file on the orbiter
-PARAMETERS:
-#19 Data
-A pointer to a block of memory representing the sound file to play
-#20 Format
-Indicates what type of data is in the memory block.  1=wav,  2=mp3
+	COMMAND: #13 - Play Sound
+	COMMENTS: Plays a sound file on the orbiter
+	PARAMETERS:
+		#19 Data
+			A pointer to a block of memory representing the sound file to play
+		#20 Format
+			Indicates what type of data is in the memory block.  1=wav, 2=mp3
 */
-void Orbiter::CMD_Play_Sound( char *pData, int iData_Size, string sFormat, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c13-e->
 {
 	cout << "Need to implement command #13 - Play Sound" << endl;
@@ -3530,13 +3552,13 @@ void Orbiter::CMD_Play_Sound( char *pData, int iData_Size, string sFormat, strin
 
 //<-dceag-c14-b->
 /* 
-COMMAND: #14 - Refresh
-COMMENTS: Invalidates and redraws the current screen,  optionally re-requesting data from a datagrid.  The OnLoad commands are not fired.  See Regen Screen.
-PARAMETERS:
-#15 DataGrid ID
-Normally refresh does not cause the orbiter to re-request data.  But if a specific grid ID is specified,  that grid will be refreshed.  Specify * to re-request all grids on the current screen
+	COMMAND: #14 - Refresh
+	COMMENTS: Invalidates and redraws the current screen, optionally re-requesting data from a datagrid.  The OnLoad commands are not fired.  See Regen Screen.
+	PARAMETERS:
+		#15 DataGrid ID
+			Normally refresh does not cause the orbiter to re-request data.  But if a specific grid ID is specified, that grid will be refreshed.  Specify * to re-request all grids on the current screen
 */
-void Orbiter::CMD_Refresh( string sDataGrid_ID, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c14-e->
 {
 	m_bRerenderScreen = true;
@@ -3548,11 +3570,11 @@ void Orbiter::CMD_Refresh( string sDataGrid_ID, string &sCMD_Result, Message *pM
 
 //<-dceag-c15-b->
 /* 
-COMMAND: #15 - Regen Screen
-COMMENTS: The screen is reloaded like the user was going to it for the first time.  The OnUnload and OnLoad commands are fired.
-PARAMETERS:
+	COMMAND: #15 - Regen Screen
+	COMMENTS: The screen is reloaded like the user was going to it for the first time.  The OnUnload and OnLoad commands are fired.
+	PARAMETERS:
 */
-void Orbiter::CMD_Regen_Screen( string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Regen_Screen(string &sCMD_Result,Message *pMessage)
 //<-dceag-c15-e->
 {
 	cout << "Need to implement command #15 - Regen Screen" << endl;
@@ -3560,11 +3582,11 @@ void Orbiter::CMD_Regen_Screen( string &sCMD_Result, Message *pMessage )
 
 //<-dceag-c16-b->
 /* 
-COMMAND: #16 - Requires Special Handling
-COMMENTS: When a button needs to do something too sophisticated for a normal command,  attach this command.  When the controller sees it,  it will pass execution to a local handler that must be added to the Orbiter's code.
-PARAMETERS:
+	COMMAND: #16 - Requires Special Handling
+	COMMENTS: When a button needs to do something too sophisticated for a normal command, attach this command.  When the controller sees it, it will pass execution to a local handler that must be added to the Orbiter's code.
+	PARAMETERS:
 */
-void Orbiter::CMD_Requires_Special_Handling( string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Requires_Special_Handling(string &sCMD_Result,Message *pMessage)
 //<-dceag-c16-e->
 {
 	cout << "Need to implement command #16 - Requires Special Handling" << endl;
@@ -3572,19 +3594,19 @@ void Orbiter::CMD_Requires_Special_Handling( string &sCMD_Result, Message *pMess
 
 //<-dceag-c17-b->
 /* 
-COMMAND: #17 - Seek Data Grid
-COMMENTS: Causes a datagrid to seek to a particular position.
-PARAMETERS:
-#9 Text
-If specified,  the orbiter will jump to the first row which has a cell that starts with this text.  Specify Position X to use a column other than the first one.
-#11 Position X
-The column to jump to.  If Text is not blank,  the column to search.
-#12 Position Y
-The row to jump to.  Ignored if Text is not blank
-#15 DataGrid ID
-The datagrid to scroll.  If not specified,  the first visible one will be used
+	COMMAND: #17 - Seek Data Grid
+	COMMENTS: Causes a datagrid to seek to a particular position.
+	PARAMETERS:
+		#9 Text
+			If specified, the orbiter will jump to the first row which has a cell that starts with this text.  Specify Position X to use a column other than the first one.
+		#11 Position X
+			The column to jump to.  If Text is not blank, the column to search.
+		#12 Position Y
+			The row to jump to.  Ignored if Text is not blank
+		#15 DataGrid ID
+			The datagrid to scroll.  If not specified, the first visible one will be used
 */
-void Orbiter::CMD_Seek_Data_Grid( string sText, int iPosition_X, int iPosition_Y, string sDataGrid_ID, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,string sDataGrid_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c17-e->
 {
 	cout << "Need to implement command #17 - Seek Data Grid" << endl;
@@ -3596,15 +3618,15 @@ void Orbiter::CMD_Seek_Data_Grid( string sText, int iPosition_X, int iPosition_Y
 
 //<-dceag-c18-b->
 /* 
-COMMAND: #18 - Set Graphic To Display
-COMMENTS: All objects on screen can be either in "Normal" mode,  "Selected mode",  "Highlighted mode",  or any number of "Alternate modes".  These are like "views".  A Selected mode may appear depressed,  for example.  All children of this object will also be set.
-PARAMETERS:
-#3 PK_DesignObj
-The object to set
-#10 ID
-0=standard mode,  -1=selected -2=highlight a positive number is one of the alternates
+	COMMAND: #18 - Set Graphic To Display
+	COMMENTS: All objects on screen can be either in "Normal" mode, "Selected mode", "Highlighted mode", or any number of "Alternate modes".  These are like "views".  A Selected mode may appear depressed, for example.  All children of this object will also be set.
+	PARAMETERS:
+		#3 PK_DesignObj
+			The object to set
+		#10 ID
+			0=standard mode, -1=selected -2=highlight a positive number is one of the alternates
 */
-void Orbiter::CMD_Set_Graphic_To_Display( string sPK_DesignObj, string sID, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c18-e->
 {
 	sPK_DesignObj = SubstituteVariables( sPK_DesignObj,  NULL,  0,  0 );
@@ -3624,15 +3646,15 @@ void Orbiter::CMD_Set_Graphic_To_Display( string sPK_DesignObj, string sID, stri
 
 //<-dceag-c19-b->
 /* 
-COMMAND: #19 - Set House Mode
-COMMENTS: change the house's mode
-PARAMETERS:
-#5 Value To Assign
-A value from the HouseMode table
-#18 Errors
-not used by the Orbiter.  This is used only when sending the action to the core.
+	COMMAND: #19 - Set House Mode
+	COMMENTS: change the house's mode
+	PARAMETERS:
+		#5 Value To Assign
+			A value from the HouseMode table
+		#18 Errors
+			not used by the Orbiter.  This is used only when sending the action to the core.
 */
-void Orbiter::CMD_Set_House_Mode( string sValue_To_Assign, string sErrors, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_House_Mode(string sValue_To_Assign,string sErrors,string &sCMD_Result,Message *pMessage)
 //<-dceag-c19-e->
 {
 	cout << "Need to implement command #19 - Set House Mode" << endl;
@@ -3642,17 +3664,17 @@ void Orbiter::CMD_Set_House_Mode( string sValue_To_Assign, string sErrors, strin
 
 //<-dceag-c20-b->
 /* 
-COMMAND: #20 - Set Object Parameter
-COMMENTS: changes one of the object's DesignObjParameters
-PARAMETERS:
-#3 PK_DesignObj
-The object to change
-#5 Value To Assign
-The value to assign
-#27 PK_DesignObjParameter
-The parameter
+	COMMAND: #20 - Set Object Parameter
+	COMMENTS: changes one of the object's DesignObjParameters
+	PARAMETERS:
+		#3 PK_DesignObj
+			The object to change
+		#5 Value To Assign
+			The value to assign
+		#27 PK_DesignObjParameter
+			The parameter
 */
-void Orbiter::CMD_Set_Object_Parameter( string sPK_DesignObj, string sValue_To_Assign, int iPK_DesignObjParameter, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_Object_Parameter(string sPK_DesignObj,string sValue_To_Assign,int iPK_DesignObjParameter,string &sCMD_Result,Message *pMessage)
 //<-dceag-c20-e->
 {
 	cout << "Need to implement command #20 - Set Object Parameter" << endl;
@@ -3663,17 +3685,17 @@ void Orbiter::CMD_Set_Object_Parameter( string sPK_DesignObj, string sValue_To_A
 
 //<-dceag-c21-b->
 /* 
-COMMAND: #21 - Set Object Position
-COMMENTS: Change an objects's position on the screen
-PARAMETERS:
-#3 PK_DesignObj
-The object to move.  Can be a fully qualified object ( x.y.z ),  or just the object ID,  in which case the orbiter will find all such objects currently on screen.
-#11 Position X
-
-#12 Position Y
-
+	COMMAND: #21 - Set Object Position
+	COMMENTS: Change an objects's position on the screen
+	PARAMETERS:
+		#3 PK_DesignObj
+			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
+		#11 Position X
+			
+		#12 Position Y
+			
 */
-void Orbiter::CMD_Set_Object_Position( string sPK_DesignObj, int iPosition_X, int iPosition_Y, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_Object_Position(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c21-e->
 {
 	cout << "Need to implement command #21 - Set Object Position" << endl;
@@ -3684,17 +3706,17 @@ void Orbiter::CMD_Set_Object_Position( string sPK_DesignObj, int iPosition_X, in
 
 //<-dceag-c22-b->
 /* 
-COMMAND: #22 - Set Object Size
-COMMENTS: Change an object's size
-PARAMETERS:
-#3 PK_DesignObj
-The object to move.  Can be a fully qualified object ( x.y.z ),  or just the object ID,  in which case the orbiter will find all such objects currently on screen.
-#11 Position X
-
-#12 Position Y
-
+	COMMAND: #22 - Set Object Size
+	COMMENTS: Change an object's size
+	PARAMETERS:
+		#3 PK_DesignObj
+			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
+		#11 Position X
+			
+		#12 Position Y
+			
 */
-void Orbiter::CMD_Set_Object_Size( string sPK_DesignObj, int iPosition_X, int iPosition_Y, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_Object_Size(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c22-e->
 {
 	cout << "Need to implement command #22 - Set Object Size" << endl;
@@ -3705,17 +3727,17 @@ void Orbiter::CMD_Set_Object_Size( string sPK_DesignObj, int iPosition_X, int iP
 
 //<-dceag-c23-b->
 /* 
-COMMAND: #23 - Set Pos Rel To Parent
-COMMENTS: Like Set Object Position,  but the X and Y coordinates are assumed to be relative to the parent rather than absolute
-PARAMETERS:
-#3 PK_DesignObj
-The object to move.  Can be a fully qualified object ( x.y.z ),  or just the object ID,  in which case the orbiter will find all such objects currently on screen.
-#11 Position X
-
-#12 Position Y
-
+	COMMAND: #23 - Set Pos Rel To Parent
+	COMMENTS: Like Set Object Position, but the X and Y coordinates are assumed to be relative to the parent rather than absolute
+	PARAMETERS:
+		#3 PK_DesignObj
+			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
+		#11 Position X
+			
+		#12 Position Y
+			
 */
-void Orbiter::CMD_Set_Pos_Rel_To_Parent( string sPK_DesignObj, int iPosition_X, int iPosition_Y, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_Pos_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c23-e->
 {
 	cout << "Need to implement command #23 - Set Pos Rel To Parent" << endl;
@@ -3726,17 +3748,17 @@ void Orbiter::CMD_Set_Pos_Rel_To_Parent( string sPK_DesignObj, int iPosition_X, 
 
 //<-dceag-c24-b->
 /* 
-COMMAND: #24 - Set Size Rel To Parent
-COMMENTS: Change an object's size,  relative to it's parent object
-PARAMETERS:
-#3 PK_DesignObj
-The object to move.  Can be a fully qualified object ( x.y.z ),  or just the object ID,  in which case the orbiter will find all such objects currently on screen.
-#11 Position X
-The percentage of the parent object's width.  100=the parent's full width.
-#12 Position Y
-The percentage of the parent object's height.  100=the parent's full height.
+	COMMAND: #24 - Set Size Rel To Parent
+	COMMENTS: Change an object's size, relative to it's parent object
+	PARAMETERS:
+		#3 PK_DesignObj
+			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
+		#11 Position X
+			The percentage of the parent object's width.  100=the parent's full width.
+		#12 Position Y
+			The percentage of the parent object's height.  100=the parent's full height.
 */
-void Orbiter::CMD_Set_Size_Rel_To_Parent( string sPK_DesignObj, int iPosition_X, int iPosition_Y, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_Size_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c24-e->
 {
 	cout << "Need to implement command #24 - Set Size Rel To Parent" << endl;
@@ -3747,17 +3769,17 @@ void Orbiter::CMD_Set_Size_Rel_To_Parent( string sPK_DesignObj, int iPosition_X,
 
 //<-dceag-c25-b->
 /* 
-COMMAND: #25 - Set Text
-COMMENTS: Change the text within a text object on the fly
-PARAMETERS:
-#3 PK_DesignObj
-The Design Object which contains the text object.  Can be a fully qualified object ( x.y.z ),  or just the object ID,  in which case the orbiter will find all such objects currently on screen.
-#9 Text
-The text to assign
-#25 PK_Text
-The text object in which to store the current input
+	COMMAND: #25 - Set Text
+	COMMENTS: Change the text within a text object on the fly
+	PARAMETERS:
+		#3 PK_DesignObj
+			The Design Object which contains the text object.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
+		#9 Text
+			The text to assign
+		#25 PK_Text
+			The text object in which to store the current input
 */
-void Orbiter::CMD_Set_Text( string sPK_DesignObj, string sText, int iPK_Text, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string &sCMD_Result,Message *pMessage)
 //<-dceag-c25-e->
 {
 	DesignObj_Orbiter *pObj=( m_pScreenHistory_Current ? m_pScreenHistory_Current->m_pObj : NULL );
@@ -3777,15 +3799,15 @@ void Orbiter::CMD_Set_Text( string sPK_DesignObj, string sText, int iPK_Text, st
 
 //<-dceag-c26-b->
 /* 
-COMMAND: #26 - Set User Mode
-COMMENTS: Changes a user's mode
-PARAMETERS:
-#5 Value To Assign
-A Value from the UserMode table
-#17 PK_Users
-The User to change
+	COMMAND: #26 - Set User Mode
+	COMMENTS: Changes a user's mode
+	PARAMETERS:
+		#5 Value To Assign
+			A Value from the UserMode table
+		#17 PK_Users
+			The User to change
 */
-void Orbiter::CMD_Set_User_Mode( string sValue_To_Assign, int iPK_Users, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,Message *pMessage)
 //<-dceag-c26-e->
 {
 	cout << "Need to implement command #26 - Set User Mode" << endl;
@@ -3795,15 +3817,15 @@ void Orbiter::CMD_Set_User_Mode( string sValue_To_Assign, int iPK_Users, string 
 
 //<-dceag-c27-b->
 /* 
-COMMAND: #27 - Set Variable
-COMMENTS: Change the value of a variable
-PARAMETERS:
-#4 PK_Variable
-The variable to change
-#5 Value To Assign
-The value to assign
+	COMMAND: #27 - Set Variable
+	COMMENTS: Change the value of a variable
+	PARAMETERS:
+		#4 PK_Variable
+			The variable to change
+		#5 Value To Assign
+			The value to assign
 */
-void Orbiter::CMD_Set_Variable( int iPK_Variable, string sValue_To_Assign, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c27-e->
 {
 	m_mapVariable[iPK_Variable] = sValue_To_Assign;
@@ -3811,15 +3833,15 @@ void Orbiter::CMD_Set_Variable( int iPK_Variable, string sValue_To_Assign, strin
 
 //<-dceag-c28-b->
 /* 
-COMMAND: #28 - Simulate Keypress
-COMMENTS: Simulates that a key has been touched.  Touchable keys on screen can use this command to allow for simultaneous operation with keyboard or mouse.  Also works with the "Capture Keyboard to Variable" command.
-PARAMETERS:
-#26 PK_Button
-What key to simulate being pressed
-#50 Name
-The application to send the keypress to. If not specified,  it goes to the DCE device.
+	COMMAND: #28 - Simulate Keypress
+	COMMENTS: Simulates that a key has been touched.  Touchable keys on screen can use this command to allow for simultaneous operation with keyboard or mouse.  Also works with the "Capture Keyboard to Variable" command.
+	PARAMETERS:
+		#26 PK_Button
+			What key to simulate being pressed
+		#50 Name
+			The application to send the keypress to. If not specified, it goes to the DCE device.
 */
-void Orbiter::CMD_Simulate_Keypress( int iPK_Button, string sName, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Simulate_Keypress(int iPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
 	ButtonDown( iPK_Button );
@@ -3827,15 +3849,15 @@ void Orbiter::CMD_Simulate_Keypress( int iPK_Button, string sName, string &sCMD_
 
 //<-dceag-c29-b->
 /* 
-COMMAND: #29 - Simulate Mouse Click
-COMMENTS: Simulates a mouse click or touch on the indicated x & y coordinates
-PARAMETERS:
-#11 Position X
-
-#12 Position Y
-
+	COMMAND: #29 - Simulate Mouse Click
+	COMMENTS: Simulates a mouse click or touch on the indicated x & y coordinates
+	PARAMETERS:
+		#11 Position X
+			
+		#12 Position Y
+			
 */
-void Orbiter::CMD_Simulate_Mouse_Click( int iPosition_X, int iPosition_Y, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
 {
 	cout << "Need to implement command #29 - Simulate Mouse Click" << endl;
@@ -3845,11 +3867,11 @@ void Orbiter::CMD_Simulate_Mouse_Click( int iPosition_X, int iPosition_Y, string
 
 //<-dceag-c30-b->
 /* 
-COMMAND: #30 - Stop Sound
-COMMENTS: If a sound file is being played,  it will be stopped.
-PARAMETERS:
+	COMMAND: #30 - Stop Sound
+	COMMENTS: If a sound file is being played, it will be stopped.
+	PARAMETERS:
 */
-void Orbiter::CMD_Stop_Sound( string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Stop_Sound(string &sCMD_Result,Message *pMessage)
 //<-dceag-c30-e->
 {
 	cout << "Need to implement command #30 - Stop Sound" << endl;
@@ -3857,11 +3879,11 @@ void Orbiter::CMD_Stop_Sound( string &sCMD_Result, Message *pMessage )
 
 //<-dceag-c31-b->
 /* 
-COMMAND: #31 - Store Variables
-COMMENTS: The orbiter will store a snapshot of the variables at this moment,  and if the user returns to this screen with a go back,  it will restore the variables to this value.
-PARAMETERS:
+	COMMAND: #31 - Store Variables
+	COMMENTS: The orbiter will store a snapshot of the variables at this moment, and if the user returns to this screen with a go back, it will restore the variables to this value.
+	PARAMETERS:
 */
-void Orbiter::CMD_Store_Variables( string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Store_Variables(string &sCMD_Result,Message *pMessage)
 //<-dceag-c31-e->
 {
 	cout << "Need to implement command #31 - Store Variables" << endl;
@@ -3869,19 +3891,19 @@ void Orbiter::CMD_Store_Variables( string &sCMD_Result, Message *pMessage )
 
 //<-dceag-c32-b->
 /* 
-COMMAND: #32 - Update Object Image
-COMMENTS: Changes the background image within an object
-PARAMETERS:
-#3 PK_DesignObj
-The object in which to put the bitmap
-#14 Type
-1=bmp,  2=jpg,  3=png
-#19 Data
-The contents of the bitmap,  like reading from the file into a memory buffer
-#23 Disable Aspect Lock
-If 1,  the image will be stretched to fit the object
+	COMMAND: #32 - Update Object Image
+	COMMENTS: Changes the background image within an object
+	PARAMETERS:
+		#3 PK_DesignObj
+			The object in which to put the bitmap
+		#14 Type
+			1=bmp, 2=jpg, 3=png
+		#19 Data
+			The contents of the bitmap, like reading from the file into a memory buffer
+		#23 Disable Aspect Lock
+			If 1, the image will be stretched to fit the object
 */
-void Orbiter::CMD_Update_Object_Image( string sPK_DesignObj, string sType, char *pData, int iData_Size, string sDisable_Aspect_Lock, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage)
 //<-dceag-c32-e->
 {
 	DesignObj_Orbiter *pObj = FindObject( sPK_DesignObj );
@@ -3935,13 +3957,13 @@ void Orbiter::CMD_Update_Object_Image( string sPK_DesignObj, string sType, char 
 
 //<-dceag-c66-b->
 /* 
-COMMAND: #66 - Select Object
-COMMENTS: The same as clicking on an object.
-PARAMETERS:
-#3 PK_DesignObj
-The object to select.
+	COMMAND: #66 - Select Object
+	COMMENTS: The same as clicking on an object.
+	PARAMETERS:
+		#3 PK_DesignObj
+			The object to select.
 */
-void Orbiter::CMD_Select_Object( string sPK_DesignObj, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Select_Object(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
 //<-dceag-c66-e->
 {
 	DesignObj_Orbiter *pDesignObj_Orbiter = FindObject( sPK_DesignObj );
@@ -3955,15 +3977,15 @@ void Orbiter::CMD_Select_Object( string sPK_DesignObj, string &sCMD_Result, Mess
 
 //<-dceag-c72-b->
 /* 
-COMMAND: #72 - Surrender to OS
-COMMENTS: Let the O/S take over.  This is useful with the Orbiter running on the media director's desktop as a full screen app,  and media is inserted,  or the user starts a computer application on the mobile phone.  The orbiter will then let the other application ta
-PARAMETERS:
-#8 On/Off
-1=Hide and let the OS take over.  0=The orbiter comes up again.
-#54 Fully release keyboard
-Only applies if on/off is 1.  If this is false,  the orbiter will still filter keystrokes,  looking for macros to implement,  and only pass on keys that it doesn't catch.  If true,  it will pass all keys.
+	COMMAND: #72 - Surrender to OS
+	COMMENTS: Let the O/S take over.  This is useful with the Orbiter running on the media director's desktop as a full screen app, and media is inserted, or the user starts a computer application on the mobile phone.  The orbiter will then let the other application ta
+	PARAMETERS:
+		#8 On/Off
+			1=Hide and let the OS take over.  0=The orbiter comes up again.
+		#54 Fully release keyboard
+			Only applies if on/off is 1.  If this is false, the orbiter will still filter keystrokes, looking for macros to implement, and only pass on keys that it doesn't catch.  If true, it will pass all keys.
 */
-void Orbiter::CMD_Surrender_to_OS( string sOnOff, bool bFully_release_keyboard, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage)
 //<-dceag-c72-e->
 {
 	m_bYieldScreen = ( sOnOff=="1" );
@@ -4188,11 +4210,11 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
 //<-dceag-sample-b->!
 //<-dceag-c85-b->
 /* 
-COMMAND: #85 - Rest Highlight
-COMMENTS: Resets the currently highlighted object.  Do this when you hide or unhide blocks that have tab stops.
-PARAMETERS:
+	COMMAND: #85 - Rest Highlight
+	COMMENTS: Resets the currently highlighted object.  Do this when you hide or unhide blocks that have tab stops.
+	PARAMETERS:
 */
-void Orbiter::CMD_Rest_Highlight( string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Rest_Highlight(string &sCMD_Result,Message *pMessage)
 //<-dceag-c85-e->
 {
 	HighlightFirstObject(  );
@@ -4220,13 +4242,13 @@ void Orbiter::CaptureKeyboard_UpdateVariableAndText( int iVariable,  string sVar
 
 //<-dceag-c58-b->
 /* 
-COMMAND: #58 - Set Current User
-COMMENTS: Sets what user is currently using the orbiter.
-PARAMETERS:
-#17 PK_Users
-The user currently using the orbiter.
+	COMMAND: #58 - Set Current User
+	COMMENTS: Sets what user is currently using the orbiter.
+	PARAMETERS:
+		#17 PK_Users
+			The user currently using the orbiter.
 */
-void Orbiter::CMD_Set_Current_User( int iPK_Users, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pMessage)
 //<-dceag-c58-e->
 {
 	m_pScreenHistory_Current->m_dwPK_Users=iPK_Users;
@@ -4236,14 +4258,13 @@ void Orbiter::CMD_Set_Current_User( int iPK_Users, string &sCMD_Result, Message 
 
 //<-dceag-c88-b->
 /* 
-COMMAND: #88 - Set Current Location
-COMMENTS: Sets the location the orbiter is in.  The location is a combination of room and entertainment area.
-PARAMETERS:
-#65 LocationID
-The location ID is a sequential number created by OrbiterGen which defines a combination of room and entertainment area.
+	COMMAND: #88 - Set Current Location
+	COMMENTS: Sets the location the orbiter is in.  The location is a combination of room and entertainment area.
+	PARAMETERS:
+		#65 LocationID
+			The location ID is a sequential number created by OrbiterGen which defines a combination of room and entertainment area.
 */
-
-void Orbiter::CMD_Set_Current_Location( int iLocationID, string &sCMD_Result, Message *pMessage )
+void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c88-e->
 {
 	if(  iLocationID<0 || iLocationID>=( int ) m_dequeLocation.size(  )  )
@@ -4259,4 +4280,72 @@ void Orbiter::CMD_Set_Current_Location( int iLocationID, string &sCMD_Result, Me
 		m_sMainMenu = StringUtils::itos( atoi( m_sMainMenu.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
 		GotoScreen( m_sMainMenu );
 	}
+}
+
+void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen)
+{
+	int Type = atoi(pDesignObj_Orbiter->GetParameterValue(DESIGNOBJPARAMETER_Type_CONST).c_str());
+	int Page = atoi(pDesignObj_Orbiter->GetParameterValue(DESIGNOBJPARAMETER_Page_CONST).c_str());
+
+	string sResult;
+	DCE::CMD_Get_Current_Floorplan CMD_Get_Current_Floorplan(m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, Type, &sResult);
+	SendCommand(CMD_Get_Current_Floorplan);
+
+	FloorplanObjectVectorMap *pFloorplanObjectVectorMap = m_mapFloorplanObjectVector_Find(Page);
+	FloorplanObjectVector *fpObjVector = NULL;
+
+//	FloodFill(150,241, RGB(0,0,0), RGB(255,255,0));
+
+	if( pFloorplanObjectVectorMap )
+		fpObjVector = (*pFloorplanObjectVectorMap)[Type];
+
+	if( fpObjVector )
+	{
+		string::size_type pos = 0;
+		for(int i=0;i<(int) fpObjVector->size();++i)
+		{
+			FloorplanObject *fpObj = (*fpObjVector)[i];
+			int Color = atoi(StringUtils::Tokenize(sResult,"|",pos).c_str());
+			string Description = StringUtils::Tokenize(sResult,"|",pos);
+			string OSD = StringUtils::Tokenize(sResult,"|",pos);
+
+			fpObj->Status=Description;
+			if( fpObj->pObj )
+			{
+				if( fpObj->pObj->m_rBackgroundPosition.X+fpObj->pObj->m_rBackgroundPosition.Width>m_Width || 
+					fpObj->pObj->m_rBackgroundPosition.Y+fpObj->pObj->m_rBackgroundPosition.Height>m_Height )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"Floorplan object %s is out of bounds ",Description.c_str());
+					continue;
+				}
+
+				ReplaceColorInRectangle(fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,fpObj->pObj->m_rBackgroundPosition.Height, RGB(255,255,101), Color);
+
+				if( fpObj->pObj->m_vectDesignObjText.size()==1 && Description!="" )
+				{
+					DesignObjText *pDesignObjText = fpObj->pObj->m_vectDesignObjText[0];
+					pDesignObjText->m_sText = OSD;
+				}
+				//FloodFill(fpObj->pObj->m_rectBackground.X + fpObj->FillX,fpObj->pObj->m_rectBackground.Y + fpObj->FillY, RGB(0,0,0), Color);
+			}
+		}
+	}
+
+	CallMaintenanceInTicks(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL);
+/*
+	if( Type==FLOORPLANTYPE_Entertainment_Zone_CONST )
+	{
+		// Do a complete refresh because we've got a datagrid to update
+		// Because rendergrid is called before renderflooplan, we've already rendered the datagrid with old data
+		// if this is the first time we're repainting, be sure to set autorefresh to happen immediately.  CheckSpecialOnScreen
+		// will set it to -100 to signal to us this is the first rendering
+//        if( m_AutoRefreshTime == -100 )
+//			m_AutoRefreshTime = clock();
+//		else	
+//			m_AutoRefreshTime = clock() + (CLOCKS_PER_SEC * 3);
+			CallMaintenanceInTicks(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL);
+	}
+	else
+        m_AutoInvalidateTime = clock() + (CLOCKS_PER_SEC * 2);
+*/
 }

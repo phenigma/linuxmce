@@ -21,6 +21,7 @@
 #include "DCE/Logger.h"
 #include "OrbiterData.h"
 #include "DesignObj_Orbiter.h"
+#include "Floorplan.h"
 
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 
@@ -40,7 +41,7 @@ public:
 	 */
 	ScreenHistory( class DesignObj_Orbiter *pObj, class ScreenHistory *pScreenHistory_Prior ) 
 	{ 
-		m_pObj=pObj; m_dwPK_Device=m_dwPK_Users=0; m_iCantGoBack=false; m_pLocationInfo=NULL; 
+		m_pObj=pObj; m_dwPK_Device=m_dwPK_Users=0; m_bCantGoBack=false; m_pLocationInfo=NULL; 
 		if(  pScreenHistory_Prior  )
 		{
 			// We'll just copy the standard stuff from the prior screen
@@ -60,7 +61,7 @@ public:
 	int m_dwPK_Device; /** < The device being controlled */
 	int m_dwPK_Users; /** < The current user */
 	class LocationInfo *m_pLocationInfo; /** < The current location */
-	int m_iCantGoBack; /** < If we get a go back, skip over this screen unless "Force" is set to true */
+	bool m_bCantGoBack; /** < If we get a go back, skip over this screen unless "Force" is set to true */
 	class DesignObj_Orbiter *m_pObj; /** < The screen we're viewing */
 	map<int, string> m_mapVariables; /** < Any variables we need to restore when returning to this screen */
 };
@@ -106,6 +107,9 @@ protected:
 	int m_iImageHeight; /** < image height */
 	class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 	class DesignObj_Orbiter *m_pObj_Highlighted; /** < The current object highlighted, changed with the scrolling functions */
+	class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
+	int m_iLastEntryInDeviceGroup; // Used by floorplans to go through a selected device group
+	map<int,class DeviceGroup *> m_mapDeviceGroups;
 
 	/** flags */
 	
@@ -119,6 +123,8 @@ protected:
 	string m_sCaptureKeyboard_InternalBuffer; /** < capture keyboard internal buffer */
 	DesignObjText *m_pCaptureKeyboard_Text; /** < @todo ask */
 	map<int,  CHAGraphic *> m_mapUserIcons; /** < user icons */
+	map<int,FloorplanObjectVectorMap *> m_mapFloorplanObjectVector;
+	FloorplanObjectVectorMap *m_mapFloorplanObjectVector_Find(int Page)	{ map<int,FloorplanObjectVectorMap *>::iterator it = m_mapFloorplanObjectVector.find(Page); return it==m_mapFloorplanObjectVector.end() ? NULL : (*it).second; }
 
 	time_t m_LastActivityTime; /** < The last activity time */
 	bool m_bDisplayOn; /** < False if the screen has blanked for the screen saver */
@@ -138,7 +144,7 @@ protected:
 	DesignObj_OrbiterMap m_mapObj_All; /** < All objects with the object ID in x.y.z.a.b format */
 	map < string, DesignObj_DataList * > m_mapObj_AllNoSuffix; /** < All object with the object ID as a string */
 	list < ScreenHistory * > m_listScreenHistory; /** < A history of the screens we've visited */
-	list < class Device * > m_listDevice_Selected; /** < We can select multiple devices on the floorplan to send messages to, instead of the usual one */
+	map<int,class DeviceData_Base *> m_mapDevice_Selected;  /** < We can select multiple devices on the floorplan to send messages to, instead of the usual one */
 	
 	/**
 	 * @brief stores objects that need to be redrawned
@@ -184,7 +190,13 @@ protected:
 	 * @todo ask
 	 */
 	virtual void RenderObject( DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen );
-	
+
+	/**
+	 * @brief renders a floorplan
+	 * @todo ask
+	 */
+	virtual void RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen);
+
 	/**
 	 * @brief prepares the render datagrid for rendering
 	 * @todo ask
@@ -256,9 +268,15 @@ protected:
 
 	/**
 	 * @brief
-	 * @todo ask
+	 * @todo An object that requires special handling was selected
 	 */
-	virtual void SpecialHandlingObjectSelected( DesignObj_Orbiter *pDesignObj_Orbiter ) {};
+	virtual void SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbiter);
+
+	/**
+	 * @brief
+	 * @todo A floorplan object was selected
+	 */
+	virtual void SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter);
 
 	/** The above methods are called by the orbiter-specific class to indicate input, they will call these following methods: */
 	
@@ -400,6 +418,11 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 * @brief draws an rectangle
 	 */
 	virtual void DrawRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor color, int iOpacity = 100 ) = 0;
+
+	/**
+	 * @brief draws an x-or'd rectangle outline.  Used to highlight something on screen
+	 */
+	virtual void XORRectangle(int X, int Y, int Width, int Height)=0;
 	
 	/**
 	 * @brief draws an line
@@ -624,85 +647,85 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	int DATA_Get_PK_Users(  );
-	string DATA_Get_Current_Screen(  );
-	void DATA_Set_Current_Screen( string Value );
+	int DATA_Get_PK_Users();
+	string DATA_Get_Current_Screen();
+	void DATA_Set_Current_Screen(string Value);
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Touch_or_click( int iX_Position, int iY_Position );
+	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
 
 			*****COMMANDS***** we need to implement
 	*/
 
 /* 
 	COMMAND: #1 - Capture Keyboard To Variable
-	COMMENTS: As the user types,  using either the keyboard or simulate keypress commands,  what he types will be stored in a variable and/or put into a text object.
+	COMMENTS: As the user types, using either the keyboard or simulate keypress commands, what he types will be stored in a variable and/or put into a text object.
 	PARAMETERS:
 		#3 PK_DesignObj
 			The Design Object which contains the text Object
 		#4 PK_Variable
 			The variable in which to store the input
 		#8 On/Off
-			If 0,  this stops capturing
+			If 0, this stops capturing
 		#14 Type
-			1=normal,  2=pin,  3=phone number
+			1=normal, 2=pin, 3=phone number
 		#24 Reset
-			if true,  the next keypress will clear the variable and start new
+			if true, the next keypress will clear the variable and start new
 		#25 PK_Text
 			The text object in which to store the current input
 		#55 DataGrid
-			If 1,  we'll scroll the data grid too when typing keys.
+			If 1, we'll scroll the data grid too when typing keys.
 */
-	virtual void CMD_Capture_Keyboard_To_Variable( string sPK_DesignObj, int iPK_Variable, string sOnOff, string sType, string sReset, int iPK_Text, bool bDataGrid ) { string sCMD_Result; CMD_Capture_Keyboard_To_Variable( sPK_DesignObj.c_str(  ), iPK_Variable, sOnOff.c_str(  ), sType.c_str(  ), sReset.c_str(  ), iPK_Text, bDataGrid, sCMD_Result, NULL );};
-	virtual void CMD_Capture_Keyboard_To_Variable( string sPK_DesignObj, int iPK_Variable, string sOnOff, string sType, string sReset, int iPK_Text, bool bDataGrid, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid) { string sCMD_Result; CMD_Capture_Keyboard_To_Variable(sPK_DesignObj.c_str(),iPK_Variable,sOnOff.c_str(),sType.c_str(),sReset.c_str(),iPK_Text,bDataGrid,sCMD_Result,NULL);};
+	virtual void CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #2 - Orbiter Beep
 	COMMENTS: Make the orbiter beep
 	PARAMETERS:
 */
-	virtual void CMD_Orbiter_Beep(  ) { string sCMD_Result; CMD_Orbiter_Beep( sCMD_Result, NULL );};
-	virtual void CMD_Orbiter_Beep( string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Orbiter_Beep() { string sCMD_Result; CMD_Orbiter_Beep(sCMD_Result,NULL);};
+	virtual void CMD_Orbiter_Beep(string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #3 - Display On/Off
 	COMMENTS: Turn the display on or off
 	PARAMETERS:
 		#8 On/Off
-			0=Off,  1=On
+			0=Off, 1=On
 */
-	virtual void CMD_Display_OnOff( string sOnOff ) { string sCMD_Result; CMD_Display_OnOff( sOnOff.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Display_OnOff( string sOnOff, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Display_OnOff(string sOnOff) { string sCMD_Result; CMD_Display_OnOff(sOnOff.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Display_OnOff(string sOnOff,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #4 - Go back
-	COMMENTS: Make the orbiter go back to the prior screen,  like the back button in a web browser
+	COMMENTS: Make the orbiter go back to the prior screen, like the back button in a web browser
 	PARAMETERS:
 		#16 PK_DesignObj_CurrentScreen
-			If this is specified,  the orbiter will ignore the command unless this is the current screen
+			If this is specified, the orbiter will ignore the command unless this is the current screen
 		#21 Force
-			Screens can be flagged,  "Cant go back",  meaning the go back will skip over them.  If Force=1,  the Orbiter returns to the prior screen regardless
+			Screens can be flagged, "Cant go back", meaning the go back will skip over them.  If Force=1, the Orbiter returns to the prior screen regardless
 */
-	virtual void CMD_Go_back( string sPK_DesignObj_CurrentScreen, string sForce ) { string sCMD_Result; CMD_Go_back( sPK_DesignObj_CurrentScreen.c_str(  ), sForce.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Go_back( string sPK_DesignObj_CurrentScreen, string sForce, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce) { string sCMD_Result; CMD_Go_back(sPK_DesignObj_CurrentScreen.c_str(),sForce.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #5 - Goto Screen
 	COMMENTS: Goto a specific screen
 	PARAMETERS:
 		#2 PK_Device
-			For this screen only,  override the normal "control device" stored in variable #1,  and treat this device as the control screen.  When the screen changes,  it will be reset
+			For this screen only, override the normal "control device" stored in variable #1, and treat this device as the control screen.  When the screen changes, it will be reset
 		#3 PK_DesignObj
-			The screen to go to.  Can be be fully qualified ( x.y.z ),  or just contain the screen #
+			The screen to go to.  Can be be fully qualified (x.y.z), or just contain the screen #
 		#10 ID
-			Assigns an optional ID to this particular "viewing" of the screen,  used with Kill Screen.  There can be lots of instances of the same screen in the history queue ( such as call in progress ).  This allows a program to pop a particular one out of the queue.
+			Assigns an optional ID to this particular "viewing" of the screen, used with Kill Screen.  There can be lots of instances of the same screen in the history queue (such as call in progress).  This allows a program to pop a particular one out of the queue.
 		#16 PK_DesignObj_CurrentScreen
-			If this is specified,  the orbiter will ignore the command unless this is the current screen.  If this is -1,  that will match a main menu or screen saver ( ie the Orbiter is not in use ).
+			If this is specified, the orbiter will ignore the command unless this is the current screen.  If this is -1, that will match a main menu or screen saver (ie the Orbiter is not in use).
 		#22 Store Variables
-			If 1,  the Orbiter will store the current variable values,  and restore them if a 'go back' causes it to return to this screen
+			If 1, the Orbiter will store the current variable values, and restore them if a 'go back' causes it to return to this screen
 */
-	virtual void CMD_Goto_Screen( int iPK_Device, string sPK_DesignObj, string sID, string sPK_DesignObj_CurrentScreen, bool bStore_Variables ) { string sCMD_Result; CMD_Goto_Screen( iPK_Device, sPK_DesignObj.c_str(  ), sID.c_str(  ), sPK_DesignObj_CurrentScreen.c_str(  ), bStore_Variables, sCMD_Result, NULL );};
-	virtual void CMD_Goto_Screen( int iPK_Device, string sPK_DesignObj, string sID, string sPK_DesignObj_CurrentScreen, bool bStore_Variables, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables) { string sCMD_Result; CMD_Goto_Screen(iPK_Device,sPK_DesignObj.c_str(),sID.c_str(),sPK_DesignObj_CurrentScreen.c_str(),bStore_Variables,sCMD_Result,NULL);};
+	virtual void CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #6 - Show Object
@@ -715,60 +738,60 @@ public:
 		#6 Comparisson Operator
 			A type of comparisson: =  <  <>  !=  >
 		#7 Comparisson Value
-			If a Variable,  Comparisson Type,  and Comparisson Value are specified,  the command will be ignored if the comparisson is not true
+			If a Variable, Comparisson Type, and Comparisson Value are specified, the command will be ignored if the comparisson is not true
 		#8 On/Off
-			1=show object,  2=hide object
+			1=show object, 2=hide object
 */
-	virtual void CMD_Show_Object( string sPK_DesignObj, int iPK_Variable, string sComparisson_Operator, string sComparisson_Value, string sOnOff ) { string sCMD_Result; CMD_Show_Object( sPK_DesignObj.c_str(  ), iPK_Variable, sComparisson_Operator.c_str(  ), sComparisson_Value.c_str(  ), sOnOff.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Show_Object( string sPK_DesignObj, int iPK_Variable, string sComparisson_Operator, string sComparisson_Value, string sOnOff, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff) { string sCMD_Result; CMD_Show_Object(sPK_DesignObj.c_str(),iPK_Variable,sComparisson_Operator.c_str(),sComparisson_Value.c_str(),sOnOff.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #7 - Terminate Orbiter
 	COMMENTS: Causes the Orbiter application to exit
 	PARAMETERS:
 */
-	virtual void CMD_Terminate_Orbiter(  ) { string sCMD_Result; CMD_Terminate_Orbiter( sCMD_Result, NULL );};
-	virtual void CMD_Terminate_Orbiter( string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Terminate_Orbiter() { string sCMD_Result; CMD_Terminate_Orbiter(sCMD_Result,NULL);};
+	virtual void CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #8 - Remove Screen From History
-	COMMENTS: The orbiter keeps a history of visible screens,  allowing the user to go back.  See Go_Back.  This removes screens from the queue that should not available anymore.  An example is when a call comes in,  the controllers are sent to an incoming call screen.
+	COMMENTS: The orbiter keeps a history of visible screens, allowing the user to go back.  See Go_Back.  This removes screens from the queue that should not available anymore.  An example is when a call comes in, the controllers are sent to an incoming call screen.
 	PARAMETERS:
 		#3 PK_DesignObj
 			The screen to remove
 		#10 ID
-			If specified,  only screens that match this ID will be removed
+			If specified, only screens that match this ID will be removed
 */
-	virtual void CMD_Remove_Screen_From_History( string sPK_DesignObj, string sID ) { string sCMD_Result; CMD_Remove_Screen_From_History( sPK_DesignObj.c_str(  ), sID.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Remove_Screen_From_History( string sPK_DesignObj, string sID, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID) { string sCMD_Result; CMD_Remove_Screen_From_History(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #9 - Scroll Grid
 	COMMENTS: Scroll a datagrid
 	PARAMETERS:
 		#1 Relative Level
-			The grid will scroll this many lines.  If prefaced with a P,  it will scroll this many pages.  If not specified,  it will scroll 1 page.
+			The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page.
 		#3 PK_DesignObj
-			The grid to scroll.  If not specified,  any currently visible grids will scroll
+			The grid to scroll.  If not specified, any currently visible grids will scroll
 		#30 PK_Direction
 			The direction to scroll the grid
 */
-	virtual void CMD_Scroll_Grid( string sRelative_Level, string sPK_DesignObj, int iPK_Direction ) { string sCMD_Result; CMD_Scroll_Grid( sRelative_Level.c_str(  ), sPK_DesignObj.c_str(  ), iPK_Direction, sCMD_Result, NULL );};
-	virtual void CMD_Scroll_Grid( string sRelative_Level, string sPK_DesignObj, int iPK_Direction, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction) { string sCMD_Result; CMD_Scroll_Grid(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,NULL);};
+	virtual void CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #10 - Move Highlight
 	COMMENTS: Move the current highlight pointer
 	PARAMETERS:
 		#1 Relative Level
-			The grid will scroll this many lines.  If prefaced with a P,  it will scroll this many pages.  If not specified,  it will scroll 1 page.
+			The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page.
 		#3 PK_DesignObj
-			The grid to scroll.  If not specified,  any currently visible grids will scroll
+			The grid to scroll.  If not specified, any currently visible grids will scroll
 		#30 PK_Direction
 			The direction to move the highlight
 */
-	virtual void CMD_Move_Highlight( string sRelative_Level, string sPK_DesignObj, int iPK_Direction ) { string sCMD_Result; CMD_Move_Highlight( sRelative_Level.c_str(  ), sPK_DesignObj.c_str(  ), iPK_Direction, sCMD_Result, NULL );};
-	virtual void CMD_Move_Highlight( string sRelative_Level, string sPK_DesignObj, int iPK_Direction, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int iPK_Direction) { string sCMD_Result; CMD_Move_Highlight(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,NULL);};
+	virtual void CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #13 - Play Sound
@@ -777,64 +800,64 @@ public:
 		#19 Data
 			A pointer to a block of memory representing the sound file to play
 		#20 Format
-			Indicates what type of data is in the memory block.  1=wav,  2=mp3
+			Indicates what type of data is in the memory block.  1=wav, 2=mp3
 */
-	virtual void CMD_Play_Sound( char *pData, int iData_Size, string sFormat ) { string sCMD_Result; CMD_Play_Sound( pData, iData_Size, sFormat.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Play_Sound( char *pData, int iData_Size, string sFormat, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Play_Sound(char *pData,int iData_Size,string sFormat) { string sCMD_Result; CMD_Play_Sound(pData,iData_Size,sFormat.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #14 - Refresh
-	COMMENTS: Invalidates and redraws the current screen,  optionally re-requesting data from a datagrid.  The OnLoad commands are not fired.  See Regen Screen.
+	COMMENTS: Invalidates and redraws the current screen, optionally re-requesting data from a datagrid.  The OnLoad commands are not fired.  See Regen Screen.
 	PARAMETERS:
 		#15 DataGrid ID
-			Normally refresh does not cause the orbiter to re-request data.  But if a specific grid ID is specified,  that grid will be refreshed.  Specify * to re-request all grids on the current screen
+			Normally refresh does not cause the orbiter to re-request data.  But if a specific grid ID is specified, that grid will be refreshed.  Specify * to re-request all grids on the current screen
 */
-	virtual void CMD_Refresh( string sDataGrid_ID ) { string sCMD_Result; CMD_Refresh( sDataGrid_ID.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Refresh( string sDataGrid_ID, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Refresh(string sDataGrid_ID) { string sCMD_Result; CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #15 - Regen Screen
 	COMMENTS: The screen is reloaded like the user was going to it for the first time.  The OnUnload and OnLoad commands are fired.
 	PARAMETERS:
 */
-	virtual void CMD_Regen_Screen(  ) { string sCMD_Result; CMD_Regen_Screen( sCMD_Result, NULL );};
-	virtual void CMD_Regen_Screen( string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Regen_Screen() { string sCMD_Result; CMD_Regen_Screen(sCMD_Result,NULL);};
+	virtual void CMD_Regen_Screen(string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #16 - Requires Special Handling
-	COMMENTS: When a button needs to do something too sophisticated for a normal command,  attach this command.  When the controller sees it,  it will pass execution to a local handler that must be added to the Orbiter's code.
+	COMMENTS: When a button needs to do something too sophisticated for a normal command, attach this command.  When the controller sees it, it will pass execution to a local handler that must be added to the Orbiter's code.
 	PARAMETERS:
 */
-	virtual void CMD_Requires_Special_Handling(  ) { string sCMD_Result; CMD_Requires_Special_Handling( sCMD_Result, NULL );};
-	virtual void CMD_Requires_Special_Handling( string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Requires_Special_Handling() { string sCMD_Result; CMD_Requires_Special_Handling(sCMD_Result,NULL);};
+	virtual void CMD_Requires_Special_Handling(string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #17 - Seek Data Grid
 	COMMENTS: Causes a datagrid to seek to a particular position.
 	PARAMETERS:
 		#9 Text
-			If specified,  the orbiter will jump to the first row which has a cell that starts with this text.  Specify Position X to use a column other than the first one.
+			If specified, the orbiter will jump to the first row which has a cell that starts with this text.  Specify Position X to use a column other than the first one.
 		#11 Position X
-			The column to jump to.  If Text is not blank,  the column to search.
+			The column to jump to.  If Text is not blank, the column to search.
 		#12 Position Y
 			The row to jump to.  Ignored if Text is not blank
 		#15 DataGrid ID
-			The datagrid to scroll.  If not specified,  the first visible one will be used
+			The datagrid to scroll.  If not specified, the first visible one will be used
 */
-	virtual void CMD_Seek_Data_Grid( string sText, int iPosition_X, int iPosition_Y, string sDataGrid_ID ) { string sCMD_Result; CMD_Seek_Data_Grid( sText.c_str(  ), iPosition_X, iPosition_Y, sDataGrid_ID.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Seek_Data_Grid( string sText, int iPosition_X, int iPosition_Y, string sDataGrid_ID, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,string sDataGrid_ID) { string sCMD_Result; CMD_Seek_Data_Grid(sText.c_str(),iPosition_X,iPosition_Y,sDataGrid_ID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,string sDataGrid_ID,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #18 - Set Graphic To Display
-	COMMENTS: All objects on screen can be either in "Normal" mode,  "Selected mode",  "Highlighted mode",  or any number of "Alternate modes".  These are like "views".  A Selected mode may appear depressed,  for example.  All children of this object will also be set.
+	COMMENTS: All objects on screen can be either in "Normal" mode, "Selected mode", "Highlighted mode", or any number of "Alternate modes".  These are like "views".  A Selected mode may appear depressed, for example.  All children of this object will also be set.
 	PARAMETERS:
 		#3 PK_DesignObj
 			The object to set
 		#10 ID
-			0=standard mode,  -1=selected -2=highlight a positive number is one of the alternates
+			0=standard mode, -1=selected -2=highlight a positive number is one of the alternates
 */
-	virtual void CMD_Set_Graphic_To_Display( string sPK_DesignObj, string sID ) { string sCMD_Result; CMD_Set_Graphic_To_Display( sPK_DesignObj.c_str(  ), sID.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Set_Graphic_To_Display( string sPK_DesignObj, string sID, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID) { string sCMD_Result; CMD_Set_Graphic_To_Display(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #19 - Set House Mode
@@ -845,8 +868,8 @@ public:
 		#18 Errors
 			not used by the Orbiter.  This is used only when sending the action to the core.
 */
-	virtual void CMD_Set_House_Mode( string sValue_To_Assign, string sErrors ) { string sCMD_Result; CMD_Set_House_Mode( sValue_To_Assign.c_str(  ), sErrors.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Set_House_Mode( string sValue_To_Assign, string sErrors, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,string sErrors) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),sErrors.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,string sErrors,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #20 - Set Object Parameter
@@ -859,78 +882,78 @@ public:
 		#27 PK_DesignObjParameter
 			The parameter
 */
-	virtual void CMD_Set_Object_Parameter( string sPK_DesignObj, string sValue_To_Assign, int iPK_DesignObjParameter ) { string sCMD_Result; CMD_Set_Object_Parameter( sPK_DesignObj.c_str(  ), sValue_To_Assign.c_str(  ), iPK_DesignObjParameter, sCMD_Result, NULL );};
-	virtual void CMD_Set_Object_Parameter( string sPK_DesignObj, string sValue_To_Assign, int iPK_DesignObjParameter, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_Object_Parameter(string sPK_DesignObj,string sValue_To_Assign,int iPK_DesignObjParameter) { string sCMD_Result; CMD_Set_Object_Parameter(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iPK_DesignObjParameter,sCMD_Result,NULL);};
+	virtual void CMD_Set_Object_Parameter(string sPK_DesignObj,string sValue_To_Assign,int iPK_DesignObjParameter,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #21 - Set Object Position
 	COMMENTS: Change an objects's position on the screen
 	PARAMETERS:
 		#3 PK_DesignObj
-			The object to move.  Can be a fully qualified object ( x.y.z ),  or just the object ID,  in which case the orbiter will find all such objects currently on screen.
+			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
 		#11 Position X
 			
 		#12 Position Y
 			
 */
-	virtual void CMD_Set_Object_Position( string sPK_DesignObj, int iPosition_X, int iPosition_Y ) { string sCMD_Result; CMD_Set_Object_Position( sPK_DesignObj.c_str(  ), iPosition_X, iPosition_Y, sCMD_Result, NULL );};
-	virtual void CMD_Set_Object_Position( string sPK_DesignObj, int iPosition_X, int iPosition_Y, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_Object_Position(string sPK_DesignObj,int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Set_Object_Position(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,NULL);};
+	virtual void CMD_Set_Object_Position(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #22 - Set Object Size
 	COMMENTS: Change an object's size
 	PARAMETERS:
 		#3 PK_DesignObj
-			The object to move.  Can be a fully qualified object ( x.y.z ),  or just the object ID,  in which case the orbiter will find all such objects currently on screen.
+			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
 		#11 Position X
 			
 		#12 Position Y
 			
 */
-	virtual void CMD_Set_Object_Size( string sPK_DesignObj, int iPosition_X, int iPosition_Y ) { string sCMD_Result; CMD_Set_Object_Size( sPK_DesignObj.c_str(  ), iPosition_X, iPosition_Y, sCMD_Result, NULL );};
-	virtual void CMD_Set_Object_Size( string sPK_DesignObj, int iPosition_X, int iPosition_Y, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_Object_Size(string sPK_DesignObj,int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Set_Object_Size(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,NULL);};
+	virtual void CMD_Set_Object_Size(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #23 - Set Pos Rel To Parent
-	COMMENTS: Like Set Object Position,  but the X and Y coordinates are assumed to be relative to the parent rather than absolute
+	COMMENTS: Like Set Object Position, but the X and Y coordinates are assumed to be relative to the parent rather than absolute
 	PARAMETERS:
 		#3 PK_DesignObj
-			The object to move.  Can be a fully qualified object ( x.y.z ),  or just the object ID,  in which case the orbiter will find all such objects currently on screen.
+			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
 		#11 Position X
 			
 		#12 Position Y
 			
 */
-	virtual void CMD_Set_Pos_Rel_To_Parent( string sPK_DesignObj, int iPosition_X, int iPosition_Y ) { string sCMD_Result; CMD_Set_Pos_Rel_To_Parent( sPK_DesignObj.c_str(  ), iPosition_X, iPosition_Y, sCMD_Result, NULL );};
-	virtual void CMD_Set_Pos_Rel_To_Parent( string sPK_DesignObj, int iPosition_X, int iPosition_Y, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_Pos_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Set_Pos_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,NULL);};
+	virtual void CMD_Set_Pos_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #24 - Set Size Rel To Parent
-	COMMENTS: Change an object's size,  relative to it's parent object
+	COMMENTS: Change an object's size, relative to it's parent object
 	PARAMETERS:
 		#3 PK_DesignObj
-			The object to move.  Can be a fully qualified object ( x.y.z ),  or just the object ID,  in which case the orbiter will find all such objects currently on screen.
+			The object to move.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
 		#11 Position X
 			The percentage of the parent object's width.  100=the parent's full width.
 		#12 Position Y
 			The percentage of the parent object's height.  100=the parent's full height.
 */
-	virtual void CMD_Set_Size_Rel_To_Parent( string sPK_DesignObj, int iPosition_X, int iPosition_Y ) { string sCMD_Result; CMD_Set_Size_Rel_To_Parent( sPK_DesignObj.c_str(  ), iPosition_X, iPosition_Y, sCMD_Result, NULL );};
-	virtual void CMD_Set_Size_Rel_To_Parent( string sPK_DesignObj, int iPosition_X, int iPosition_Y, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_Size_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Set_Size_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,NULL);};
+	virtual void CMD_Set_Size_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #25 - Set Text
 	COMMENTS: Change the text within a text object on the fly
 	PARAMETERS:
 		#3 PK_DesignObj
-			The Design Object which contains the text object.  Can be a fully qualified object ( x.y.z ),  or just the object ID,  in which case the orbiter will find all such objects currently on screen.
+			The Design Object which contains the text object.  Can be a fully qualified object (x.y.z), or just the object ID, in which case the orbiter will find all such objects currently on screen.
 		#9 Text
 			The text to assign
 		#25 PK_Text
 			The text object in which to store the current input
 */
-	virtual void CMD_Set_Text( string sPK_DesignObj, string sText, int iPK_Text ) { string sCMD_Result; CMD_Set_Text( sPK_DesignObj.c_str(  ), sText.c_str(  ), iPK_Text, sCMD_Result, NULL );};
-	virtual void CMD_Set_Text( string sPK_DesignObj, string sText, int iPK_Text, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text) { string sCMD_Result; CMD_Set_Text(sPK_DesignObj.c_str(),sText.c_str(),iPK_Text,sCMD_Result,NULL);};
+	virtual void CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #26 - Set User Mode
@@ -941,8 +964,8 @@ public:
 		#17 PK_Users
 			The User to change
 */
-	virtual void CMD_Set_User_Mode( string sValue_To_Assign, int iPK_Users ) { string sCMD_Result; CMD_Set_User_Mode( sValue_To_Assign.c_str(  ), iPK_Users, sCMD_Result, NULL );};
-	virtual void CMD_Set_User_Mode( string sValue_To_Assign, int iPK_Users, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users) { string sCMD_Result; CMD_Set_User_Mode(sValue_To_Assign.c_str(),iPK_Users,sCMD_Result,NULL);};
+	virtual void CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #27 - Set Variable
@@ -953,8 +976,8 @@ public:
 		#5 Value To Assign
 			The value to assign
 */
-	virtual void CMD_Set_Variable( int iPK_Variable, string sValue_To_Assign ) { string sCMD_Result; CMD_Set_Variable( iPK_Variable, sValue_To_Assign.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Set_Variable( int iPK_Variable, string sValue_To_Assign, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign) { string sCMD_Result; CMD_Set_Variable(iPK_Variable,sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #28 - Simulate Keypress
@@ -963,10 +986,10 @@ public:
 		#26 PK_Button
 			What key to simulate being pressed
 		#50 Name
-			The application to send the keypress to. If not specified,  it goes to the DCE device.
+			The application to send the keypress to. If not specified, it goes to the DCE device.
 */
-	virtual void CMD_Simulate_Keypress( int iPK_Button, string sName ) { string sCMD_Result; CMD_Simulate_Keypress( iPK_Button, sName.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Simulate_Keypress( int iPK_Button, string sName, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Simulate_Keypress(int iPK_Button,string sName) { string sCMD_Result; CMD_Simulate_Keypress(iPK_Button,sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Keypress(int iPK_Button,string sName,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #29 - Simulate Mouse Click
@@ -977,24 +1000,24 @@ public:
 		#12 Position Y
 			
 */
-	virtual void CMD_Simulate_Mouse_Click( int iPosition_X, int iPosition_Y ) { string sCMD_Result; CMD_Simulate_Mouse_Click( iPosition_X, iPosition_Y, sCMD_Result, NULL );};
-	virtual void CMD_Simulate_Mouse_Click( int iPosition_X, int iPosition_Y, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #30 - Stop Sound
-	COMMENTS: If a sound file is being played,  it will be stopped.
+	COMMENTS: If a sound file is being played, it will be stopped.
 	PARAMETERS:
 */
-	virtual void CMD_Stop_Sound(  ) { string sCMD_Result; CMD_Stop_Sound( sCMD_Result, NULL );};
-	virtual void CMD_Stop_Sound( string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Stop_Sound() { string sCMD_Result; CMD_Stop_Sound(sCMD_Result,NULL);};
+	virtual void CMD_Stop_Sound(string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #31 - Store Variables
-	COMMENTS: The orbiter will store a snapshot of the variables at this moment,  and if the user returns to this screen with a go back,  it will restore the variables to this value.
+	COMMENTS: The orbiter will store a snapshot of the variables at this moment, and if the user returns to this screen with a go back, it will restore the variables to this value.
 	PARAMETERS:
 */
-	virtual void CMD_Store_Variables(  ) { string sCMD_Result; CMD_Store_Variables( sCMD_Result, NULL );};
-	virtual void CMD_Store_Variables( string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Store_Variables() { string sCMD_Result; CMD_Store_Variables(sCMD_Result,NULL);};
+	virtual void CMD_Store_Variables(string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #32 - Update Object Image
@@ -1003,14 +1026,14 @@ public:
 		#3 PK_DesignObj
 			The object in which to put the bitmap
 		#14 Type
-			1=bmp,  2=jpg,  3=png
+			1=bmp, 2=jpg, 3=png
 		#19 Data
-			The contents of the bitmap,  like reading from the file into a memory buffer
+			The contents of the bitmap, like reading from the file into a memory buffer
 		#23 Disable Aspect Lock
-			If 1,  the image will be stretched to fit the object
+			If 1, the image will be stretched to fit the object
 */
-	virtual void CMD_Update_Object_Image( string sPK_DesignObj, string sType, char *pData, int iData_Size, string sDisable_Aspect_Lock ) { string sCMD_Result; CMD_Update_Object_Image( sPK_DesignObj.c_str(  ), sType.c_str(  ), pData, iData_Size, sDisable_Aspect_Lock.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Update_Object_Image( string sPK_DesignObj, string sType, char *pData, int iData_Size, string sDisable_Aspect_Lock, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock) { string sCMD_Result; CMD_Update_Object_Image(sPK_DesignObj.c_str(),sType.c_str(),pData,iData_Size,sDisable_Aspect_Lock.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #58 - Set Current User
@@ -1019,8 +1042,8 @@ public:
 		#17 PK_Users
 			The user currently using the orbiter.
 */
-	virtual void CMD_Set_Current_User( int iPK_Users ) { string sCMD_Result; CMD_Set_Current_User( iPK_Users, sCMD_Result, NULL );};
-	virtual void CMD_Set_Current_User( int iPK_Users, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_Current_User(int iPK_Users) { string sCMD_Result; CMD_Set_Current_User(iPK_Users,sCMD_Result,NULL);};
+	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #66 - Select Object
@@ -1029,28 +1052,28 @@ public:
 		#3 PK_DesignObj
 			The object to select.
 */
-	virtual void CMD_Select_Object( string sPK_DesignObj ) { string sCMD_Result; CMD_Select_Object( sPK_DesignObj.c_str(  ), sCMD_Result, NULL );};
-	virtual void CMD_Select_Object( string sPK_DesignObj, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Select_Object(string sPK_DesignObj) { string sCMD_Result; CMD_Select_Object(sPK_DesignObj.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Select_Object(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #72 - Surrender to OS
-	COMMENTS: Let the O/S take over.  This is useful with the Orbiter running on the media director's desktop as a full screen app,  and media is inserted,  or the user starts a computer application on the mobile phone.  The orbiter will then let the other application ta
+	COMMENTS: Let the O/S take over.  This is useful with the Orbiter running on the media director's desktop as a full screen app, and media is inserted, or the user starts a computer application on the mobile phone.  The orbiter will then let the other application ta
 	PARAMETERS:
 		#8 On/Off
 			1=Hide and let the OS take over.  0=The orbiter comes up again.
 		#54 Fully release keyboard
-			Only applies if on/off is 1.  If this is false,  the orbiter will still filter keystrokes,  looking for macros to implement,  and only pass on keys that it doesn't catch.  If true,  it will pass all keys.
+			Only applies if on/off is 1.  If this is false, the orbiter will still filter keystrokes, looking for macros to implement, and only pass on keys that it doesn't catch.  If true, it will pass all keys.
 */
-	virtual void CMD_Surrender_to_OS( string sOnOff, bool bFully_release_keyboard ) { string sCMD_Result; CMD_Surrender_to_OS( sOnOff.c_str(  ), bFully_release_keyboard, sCMD_Result, NULL );};
-	virtual void CMD_Surrender_to_OS( string sOnOff, bool bFully_release_keyboard, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard) { string sCMD_Result; CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,NULL);};
+	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #85 - Rest Highlight
 	COMMENTS: Resets the currently highlighted object.  Do this when you hide or unhide blocks that have tab stops.
 	PARAMETERS:
 */
-	virtual void CMD_Rest_Highlight(  ) { string sCMD_Result; CMD_Rest_Highlight( sCMD_Result, NULL );};
-	virtual void CMD_Rest_Highlight( string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Rest_Highlight() { string sCMD_Result; CMD_Rest_Highlight(sCMD_Result,NULL);};
+	virtual void CMD_Rest_Highlight(string &sCMD_Result,Message *pMessage);
 
 /* 
 	COMMAND: #88 - Set Current Location
@@ -1059,8 +1082,8 @@ public:
 		#65 LocationID
 			The location ID is a sequential number created by OrbiterGen which defines a combination of room and entertainment area.
 */
-	virtual void CMD_Set_Current_Location( int iLocationID ) { string sCMD_Result; CMD_Set_Current_Location( iLocationID, sCMD_Result, NULL );};
-	virtual void CMD_Set_Current_Location( int iLocationID, string &sCMD_Result, Message *pMessage );
+	virtual void CMD_Set_Current_Location(int iLocationID) { string sCMD_Result; CMD_Set_Current_Location(iLocationID,sCMD_Result,NULL);};
+	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 

@@ -85,7 +85,7 @@ public:
 	void EVENT_Mobile_orbiter_lost(string sMac_Address,bool bConnectionFailed) { GetEvents()->Mobile_orbiter_lost(sMac_Address.c_str(),bConnectionFailed); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Signal_Strength(string sMac_address,int *iValue_int,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Signal_Strength(string sMac_address,int *iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address,string &sCMD_Result,class Message *pMessage) {};
 
@@ -120,12 +120,12 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sMac_address=pMessage->m_mapParameters[47];
-						int iValue_int;
-						CMD_Get_Signal_Strength(sMac_address.c_str(),&iValue_int,sCMD_Result,pMessage);
+						int iValue;
+						CMD_Get_Signal_Strength(sMac_address.c_str(),&iValue,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapParameters[48]=StringUtils::itos(iValue_int);
+						pMessageOut->m_mapParameters[48]=StringUtils::itos(iValue);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )

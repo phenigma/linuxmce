@@ -54,7 +54,7 @@ public:
 			The device to retrieve the infrared codes for.
 		#5 Value To Assign
 			A tab delimited list of all the commands and infrared codes for the device.  The format is:
-#commands\t{PK_Command\tData}
+\t{\tData}
 */
 	virtual void CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Infrared_Codes(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);

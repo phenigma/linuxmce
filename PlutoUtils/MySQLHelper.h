@@ -49,6 +49,17 @@ public:
 		MySQLConnect();
 	}
 
+	bool MySQLConnect(string host, string user, string pass, string db_name, int port,bool bReset=false)
+	{
+		mysql_init(&m_MySQL);
+		m_sMySQLHost=host;
+		m_sMySQLUser=user;
+		m_sMySQLPass=pass;
+		m_sMySQLDBName=db_name;
+		m_iMySQLPort=port;
+		return MySQLConnect(bReset);
+	}
+
 	bool MySQLConnect(bool bReset=false)
 	{
 		if( bReset && m_bConnected )

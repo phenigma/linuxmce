@@ -25,8 +25,6 @@ namespace HAData.DataAccess {
 		public const String ISPLUGIN_FIELD = "IsPlugIn";
 		public const String IRFREQUENCY_FIELD = "IRFrequency";
 		public const String FK_STABILITYSTATUS_FIELD = "FK_StabilityStatus";
-		public const String DESTINATIONPACKAGE_FIELD = "DestinationPackage";
-		public const String DESTINATIONDIR_FIELD = "DestinationDir";
 		// table+field constants
 		public const String PK_DEVICETEMPLATE_TABLE_FIELD = "DeviceTemplate.PK_DeviceTemplate";
 		public const String DESCRIPTION_TABLE_FIELD = "DeviceTemplate.Description";
@@ -42,8 +40,6 @@ namespace HAData.DataAccess {
 		public const String ISPLUGIN_TABLE_FIELD = "DeviceTemplate.IsPlugIn";
 		public const String IRFREQUENCY_TABLE_FIELD = "DeviceTemplate.IRFrequency";
 		public const String FK_STABILITYSTATUS_TABLE_FIELD = "DeviceTemplate.FK_StabilityStatus";
-		public const String DESTINATIONPACKAGE_TABLE_FIELD = "DeviceTemplate.DestinationPackage";
-		public const String DESTINATIONDIR_TABLE_FIELD = "DeviceTemplate.DestinationDir";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
@@ -62,8 +58,6 @@ namespace HAData.DataAccess {
 		protected const String ISPLUGIN_PARM = "@IsPlugIn";
 		protected const String IRFREQUENCY_PARM = "@IRFrequency";
 		protected const String FK_STABILITYSTATUS_PARM = "@FK_StabilityStatus";
-		protected const String DESTINATIONPACKAGE_PARM = "@DestinationPackage";
-		protected const String DESTINATIONDIR_PARM = "@DestinationDir";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -142,8 +136,6 @@ namespace HAData.DataAccess {
 			Columns.Add(ISPLUGIN_FIELD, typeof(System.Boolean));
 			Columns.Add(IRFREQUENCY_FIELD, typeof(System.Int32));
 			Columns.Add(FK_STABILITYSTATUS_FIELD, typeof(System.Int32));
-			Columns.Add(DESTINATIONPACKAGE_FIELD, typeof(System.String));
-			Columns.Add(DESTINATIONDIR_FIELD, typeof(System.String));
 			Table.PrimaryKey = PKColumns;
 
 			return Table;
@@ -163,8 +155,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(ISPLUGIN_PARM, OdbcType.Bit,1));
 			Params.Add(new OdbcParameter(IRFREQUENCY_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_STABILITYSTATUS_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(DESTINATIONPACKAGE_PARM, OdbcType.VarChar, 35));
-			Params.Add(new OdbcParameter(DESTINATIONDIR_PARM, OdbcType.VarChar, 50));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -187,8 +177,6 @@ namespace HAData.DataAccess {
 			Params[ISPLUGIN_PARM].SourceColumn = DeviceTemplateData.ISPLUGIN_FIELD;
 			Params[IRFREQUENCY_PARM].SourceColumn = DeviceTemplateData.IRFREQUENCY_FIELD;
 			Params[FK_STABILITYSTATUS_PARM].SourceColumn = DeviceTemplateData.FK_STABILITYSTATUS_FIELD;
-			Params[DESTINATIONPACKAGE_PARM].SourceColumn = DeviceTemplateData.DESTINATIONPACKAGE_FIELD;
-			Params[DESTINATIONDIR_PARM].SourceColumn = DeviceTemplateData.DESTINATIONDIR_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -236,7 +224,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_DeviceTemplate,Description,Comments,FK_DeviceCategory,FK_Manufacturer,Define,ImplementsDCE,IsEmbedded,CommandLine,RequiresGUI,IsAVDevice,IsPlugIn,IRFrequency,FK_StabilityStatus,DestinationPackage,DestinationDir FROM DeviceTemplate", Conn);
+				LoadCommand = new OdbcCommand("SELECT PK_DeviceTemplate,Description,Comments,FK_DeviceCategory,FK_Manufacturer,Define,ImplementsDCE,IsEmbedded,CommandLine,RequiresGUI,IsAVDevice,IsPlugIn,IRFrequency,FK_StabilityStatus FROM DeviceTemplate", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(PK_DEVICETEMPLATE_PARM, OdbcType.Int,4));
@@ -280,7 +268,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_DeviceTemplate, Description, Comments, FK_DeviceCategory, FK_Manufacturer, Define, ImplementsDCE, IsEmbedded, CommandLine, RequiresGUI, IsAVDevice, IsPlugIn, IRFrequency, FK_StabilityStatus, DestinationPackage, DestinationDir FROM DeviceTemplate WHERE " + WhereClause;
+			string sSQL = "SELECT PK_DeviceTemplate, Description, Comments, FK_DeviceCategory, FK_Manufacturer, Define, ImplementsDCE, IsEmbedded, CommandLine, RequiresGUI, IsAVDevice, IsPlugIn, IRFrequency, FK_StabilityStatus FROM DeviceTemplate WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -796,50 +784,6 @@ namespace HAData.DataAccess {
 		{
 			dr[13]=DBNull.Value;
 		}
-		public System.String fDestinationPackage
-		{
-			get
-			{
-				return Convert.ToString(dr[14]);
-			}
-			set
-			{
-				dr[14]=value;
-			}
-		}
-		public bool fDestinationPackageIsNull
-		{
-			get
-			{
-				return dr[14]==DBNull.Value;
-			}
-		}
-		public void fDestinationPackageSetNull()
-		{
-			dr[14]=DBNull.Value;
-		}
-		public System.String fDestinationDir
-		{
-			get
-			{
-				return Convert.ToString(dr[15]);
-			}
-			set
-			{
-				dr[15]=value;
-			}
-		}
-		public bool fDestinationDirIsNull
-		{
-			get
-			{
-				return dr[15]==DBNull.Value;
-			}
-		}
-		public void fDestinationDirSetNull()
-		{
-			dr[15]=DBNull.Value;
-		}
 	} // public class DeviceTemplateDataRow
 	public class DeviceTemplateDataReader
 	{
@@ -922,8 +866,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[16];
-				for(int i=0;i<16;i++)
+				object[] objs = new object[14];
+				for(int i=0;i<14;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -1217,46 +1161,6 @@ namespace HAData.DataAccess {
 					return dr[13]==DBNull.Value;
 			}
 		}
-		public System.String fDestinationPackage
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToString(((object[]) al[iRecord])[14]);
-				else
-					return Convert.ToString(dr[14]);
-			}
-		}
-		public bool fDestinationPackageIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[14]==DBNull.Value;
-				else
-					return dr[14]==DBNull.Value;
-			}
-		}
-		public System.String fDestinationDir
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToString(((object[]) al[iRecord])[15]);
-				else
-					return Convert.ToString(dr[15]);
-			}
-		}
-		public bool fDestinationDirIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[15]==DBNull.Value;
-				else
-					return dr[15]==DBNull.Value;
-			}
-		}
 	} // public class DeviceTemplateDataReader
 	public class DeviceTemplateTable : DataTable
 	{
@@ -1287,7 +1191,7 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_DeviceTemplate,Description,Comments,FK_DeviceCategory,FK_Manufacturer,Define,ImplementsDCE,IsEmbedded,CommandLine,RequiresGUI,IsAVDevice,IsPlugIn,IRFrequency,FK_StabilityStatus,DestinationPackage,DestinationDir FROM DeviceTemplate", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_DeviceTemplate,Description,Comments,FK_DeviceCategory,FK_Manufacturer,Define,ImplementsDCE,IsEmbedded,CommandLine,RequiresGUI,IsAVDevice,IsPlugIn,IRFrequency,FK_StabilityStatus FROM DeviceTemplate", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -1405,20 +1309,6 @@ namespace HAData.DataAccess {
 			get
 			{
 				return Columns[13];
-			}
-		}
-		public DataColumn cDestinationPackage
-		{
-			get
-			{
-				return Columns[14];
-			}
-		}
-		public DataColumn cDestinationDir
-		{
-			get
-			{
-				return Columns[15];
 			}
 		}
 	}

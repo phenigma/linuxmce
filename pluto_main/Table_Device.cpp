@@ -30,7 +30,6 @@ using namespace std;
 #include "Table_Device.h"
 
 #include "Table_CommandGroup_Command.h"
-#include "Table_CommandGroup_EntGroup.h"
 #include "Table_Device.h"
 #include "Table_Device.h"
 #include "Table_Device.h"
@@ -1551,13 +1550,6 @@ void Row_Device::CommandGroup_Command_FK_Device_getrows(vector <class Row_Comman
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Command *pTable = table->database->CommandGroup_Command_get();
-pTable->GetRows("FK_Device=" + StringUtils::itos(m_PK_Device),rows);
-}
-void Row_Device::CommandGroup_EntGroup_FK_Device_getrows(vector <class Row_CommandGroup_EntGroup*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_CommandGroup_EntGroup *pTable = table->database->CommandGroup_EntGroup_get();
 pTable->GetRows("FK_Device=" + StringUtils::itos(m_PK_Device),rows);
 }
 void Row_Device::Device_FK_Device_Audio_getrows(vector <class Row_Device*> *rows)

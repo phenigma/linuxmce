@@ -7,6 +7,7 @@
 
 #include <vector>
 using namespace std;
+using namespace DCE;
 
 class FileListInfo
 {

@@ -72,6 +72,8 @@ public:
 	virtual void CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -171,6 +173,39 @@ public:
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 183:
+					{
+						string sCMD_Result="OK";
+						string sValue_To_Assign;
+						CMD_Get_Floorplan_Layout(&sValue_To_Assign,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 186:
+					{
+						string sCMD_Result="OK";
+					int iPK_FloorplanType=atoi(pMessage->m_mapParameters[46].c_str());
+						string sValue_To_Assign;
+						CMD_Get_Current_Floorplan(iPK_FloorplanType,&sValue_To_Assign,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )

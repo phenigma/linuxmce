@@ -1,7 +1,7 @@
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DCE/Logger.h"
 
-#define PHONEKEYS
+//#define PHONEKEYS
 //#define AUDIDEMO
 
 #ifdef WIN32

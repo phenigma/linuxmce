@@ -19,6 +19,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_License.h"
 
+#include "Table_Package.h"
 
 
 void Database_pluto_main::CreateTable_License()
@@ -636,6 +637,13 @@ pRow->m_URL = string(row[4],lengths[4]);
 
 
 
+void Row_License::Package_FK_License_getrows(vector <class Row_Package*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package *pTable = table->database->Package_get();
+pTable->GetRows("FK_License=" + StringUtils::itos(m_PK_License),rows);
+}
 
 
 

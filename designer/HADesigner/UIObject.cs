@@ -1272,7 +1272,7 @@ namespace HADesigner
 		{
 			MyDataSet mds = HADataConfiguration.m_mdsCache;
 			
-			string SQL = "UPDATE DesignObj SET Modification_RecordInfo='" + DateTime.Now.ToString("yyMMddhhmmss") + "' WHERE PK_DesignObj=" + drObject.fPK_DesignObj.ToString();
+			string SQL = "UPDATE DesignObj SET psc_mod='" + DateTime.Now.ToString("yyMMddhhmmss") + "' WHERE PK_DesignObj=" + drObject.fPK_DesignObj.ToString();
 			new Microsoft.Data.Odbc.OdbcCommand(SQL,mds.m_conn,mds.m_trans).ExecuteNonQuery();
 			int PK_DesignObj=0;
 

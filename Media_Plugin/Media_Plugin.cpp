@@ -2,9 +2,7 @@
 #include "Media_Plugin.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -29,9 +27,10 @@ using namespace DCE;
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_EventParameter.h"
 #include "pluto_main/Table_DeviceTemplate.h"
-#include "../Datagrid_Plugin/Datagrid_Plugin.h"
-#include "../pluto_main/Define_DataGrid.h"
+#include "Datagrid_Plugin/Datagrid_Plugin.h"
+#include "pluto_main/Define_DataGrid.h"
 #include "DataGrid.h"
+#include "Datagrid_Plugin/FileListGrid.h"
 
 MediaDevice::MediaDevice(class Router *pRouter,class Row_Device *pRow_Device)
 {
@@ -56,6 +55,15 @@ Media_Plugin::Media_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		m_bQuit=true;
+		return;
+	}
+
+	m_pMediaAttributes = new MediaAttributes(this);
+
+	if( !MySQLConnect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to media database!");
 		m_bQuit=true;
 		return;
 	}
@@ -113,6 +121,7 @@ Media_Plugin::Media_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 Media_Plugin::~Media_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pMediaAttributes;
 }
 
 //<-dceag-reg-b->
@@ -152,6 +161,24 @@ bool Media_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Media_Plugin::MediaSections))
 		,DATAGRID_Media_Tracks_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Media_Plugin::MediaSearchAutoCompl))
+		,DATAGRID_Media_Search_Auto_Compl_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Media_Plugin::MediaAttrFiles))
+		,DATAGRID_Media_Attr_Files_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Media_Plugin::MediaAttrCollections))
+		,DATAGRID_Media_Attr_Collections_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Media_Plugin::MediaAttrXref))
+		,DATAGRID_Media_Attr_Xref_CONST);
+//	m_pMediaAttributes->ScanDirectory("/home/public/data/music/");
+//	m_pMediaAttributes->ScanDirectory("Z:\\");
 
 	return Connect();
 }
@@ -650,11 +677,11 @@ if( atoi(pEGO->Screen.c_str())==OBJECT_MNUPVR_CONST )
 						// show menu, and we don't want to loop right back around again
 						pEntGroup->m_pWatchingStream->m_Object_RemoteScreen=OBJECT_MNUSATELLITECABLEBOX_CONST;
 						AddMessageToQueue(new OCMessage(DEVICEID_SERVER,(*SafetyMessage)->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
-							ACTION_NAV_GOTO_CONST,1,C_ACTIONPARAMETER_PKID_OBJECT_HEADER_CONST,StringUtils::itos(OBJECT_MNUSATELLITECABLEBOX_CONST).c_str()));
+							ACTION_NAV_GOTO_CONST,1,C_ACTIONPARAMETER_PK_OBJECT_HEADER_CONST,StringUtils::itos(OBJECT_MNUSATELLITECABLEBOX_CONST).c_str()));
 					}
 				}
-				pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_REMOTE_1_DEVICE_CONST,StringUtils::itos(pEntGroup->m_PKID_EntGroup));
-				pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_PKID_DEVICE_CONST,StringUtils::itos(pEntGroup->m_PKID_EntGroup));
+				pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_REMOTE_1_DEVICE_CONST,StringUtils::itos(pEntGroup->m_PK_EntGroup));
+				pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_PK_DEVICE_CONST,StringUtils::itos(pEntGroup->m_PK_EntGroup));
 			}
 			else if( atoi(pEGO->Screen.c_str())==OBJECT_MNUSATELLITECABLEBOX_CONST ) // Non-pluto TV
 			{
@@ -667,15 +694,15 @@ if( atoi(pEGO->Screen.c_str())==OBJECT_MNUPVR_CONST )
 				if( pEGO->PVRInfo.length()>1 ) // a tuner specified
 				{
 					// Be sure the right inputs are set
-					int PKID_Device_Tuning = atoi(pEGO->PVRInfo.c_str());
+					int PK_Device_Tuning = atoi(pEGO->PVRInfo.c_str());
 					if( pEntGroup->m_pWatchingStream )
-						pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo=PKID_Device_Tuning;
-					ReceivedOCMessage(NULL,new OCMessage((*SafetyMessage)->m_dwPK_Device_From,PKID_Device_Tuning,
+						pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo=PK_Device_Tuning;
+					ReceivedOCMessage(NULL,new OCMessage((*SafetyMessage)->m_dwPK_Device_From,PK_Device_Tuning,
 						PRIORITY_NORMAL,MESSAGETYPE_COMMAND,ACTION_GEN_ON_CONST,0));
 
 					// Help out the controller 
-					pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_REMOTE_1_DEVICE_CONST,StringUtils::itos(pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo));
-					pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_PKID_DEVICE_CONST,StringUtils::itos(pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo));
+					pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_REMOTE_1_DEVICE_CONST,StringUtils::itos(pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo));
+					pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_PK_DEVICE_CONST,StringUtils::itos(pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo));
 					if( pDeviceFrom->m_ptrController_Iam->m_pMobileOrbiter )
 					{
 						// Help out the mobile orbiter and send it back to it's menu
@@ -687,40 +714,40 @@ if( atoi(pEGO->Screen.c_str())==OBJECT_MNUPVR_CONST )
 				{
 					if( pEntGroup->m_pWatchingStream )
 					{
-						Device *pDevice_Tuning=m_pPlutoEvents->m_mapDevice_Find(pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo);
-						if( pDevice_Tuning && pDevice_Tuning->m_iPKID_MasterDeviceList==MASTERDEVICELIST_ENTERTAIN_UNIT_CONST )
+						Device *pDevice_Tuning=m_pPlutoEvents->m_mapDevice_Find(pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo);
+						if( pDevice_Tuning && pDevice_Tuning->m_iPK_MasterDeviceList==MASTERDEVICELIST_ENTERTAIN_UNIT_CONST )
 						{
-							pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo=0; // This is no good anymore
+							pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo=0; // This is no good anymore
 							// We're coming to here after having been watching pluto tv
 							// Figure out what tuning device to use
 							if( pEntGroup->m_pWatchingStream->pProvider_Station__Schedule &&
-								pEntGroup->m_pWatchingStream->pProvider_Station__Schedule->m_PKID_Provider )
+								pEntGroup->m_pWatchingStream->pProvider_Station__Schedule->m_PK_Provider )
 							{
-								EPGProvider *pProvider = pEntGroup->m_mapProviders[pEntGroup->m_pWatchingStream->pProvider_Station__Schedule->m_PKID_Provider];
+								EPGProvider *pProvider = pEntGroup->m_mapProviders[pEntGroup->m_pWatchingStream->pProvider_Station__Schedule->m_PK_Provider];
 								// The user was watching Pluto TV.  Use that tuning device
 								if( pProvider )
-									pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo = pProvider->m_PKID_Device_TuningLive;
+									pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo = pProvider->m_PK_Device_TuningLive;
 							}
 						}
 					}
-					if( pEntGroup->m_pWatchingStream && !pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo )
+					if( pEntGroup->m_pWatchingStream && !pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo )
 					{
 m_pOCLogger->Write(LV_WARNING,"not watching anything, find a tuning device");
 
 						for(int i=0;i<(int) pEntGroup->m_vectDevice_AV.size();++i)
 						{
 							Device *pDevice = pEntGroup->m_vectDevice_AV[i];
-							if( pDevice->m_iPKID_DeviceCategory==DEVICECATEGORY_SATELLITE_CONST )
+							if( pDevice->m_iPK_DeviceCategory==DEVICECATEGORY_SATELLITE_CONST )
 							{
-								pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo = pDevice->m_iPKID_Device;
+								pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo = pDevice->m_iPK_Device;
 							}
 						}
 					}
-					if( pEntGroup->m_pWatchingStream && pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo )
+					if( pEntGroup->m_pWatchingStream && pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo )
 					{
-m_pOCLogger->Write(LV_WARNING,"setting tuning device to: %d",pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo);
-						pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_REMOTE_1_DEVICE_CONST,StringUtils::itos(pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo));
-						pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_PKID_DEVICE_CONST,StringUtils::itos(pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo));
+m_pOCLogger->Write(LV_WARNING,"setting tuning device to: %d",pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo);
+						pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_REMOTE_1_DEVICE_CONST,StringUtils::itos(pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo));
+						pDeviceFrom->m_ptrController_Iam->SetVariable(VARIABLE_PK_DEVICE_CONST,StringUtils::itos(pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo));
 					}
 				}
 			}
@@ -728,3 +755,235 @@ m_pOCLogger->Write(LV_WARNING,"setting tuning device to: %d",pEntGroup->m_pWatch
 
 //<-dceag-sample-b->!
 
+/*
+	else if( (*SafetyMessage)->m_MessageType==MESSAGETYPE_COMMAND && (*SafetyMessage)->m_ID==ACTION_CREATED_MEDIA_CONST )
+	{
+		listMediaAttribute *listMA = MediaAttributes::AttributesFromString((*SafetyMessage)->m_Parameters[C_ACTIONPARAMETER_TEXT_CONST]);
+		listMediaPicture *listMP = MediaAttributes::PicturesFromString((*SafetyMessage)->m_Parameters[C_ACTIONPARAMETER_GRAPHIC_IMAGE_CONST]);
+		m_pMediaAttributes->CreatedMedia(atoi((*SafetyMessage)->m_Parameters[C_ACTIONPARAMETER_TYPE_CONST].c_str()),
+			(*SafetyMessage)->m_Parameters[C_ACTIONPARAMETER_PATH_CONST],
+			listMA,listMP);
+		delete listMA;
+		delete listMP;
+	}
+*/
+
+/*
+	string sMRL = (*SafetyMessage)->m_Parameters[C_ACTIONPARAMETER_MEDIA_URL_CONST];
+		string sFilename = (*SafetyMessage)->m_Parameters[C_ACTIONPARAMETER_FILE_NAME_CONST];
+		if( sFilename.length()>0 )
+		{
+			if( sFilename[0]=='*' )
+			{
+				bPreview=true;
+				sFilename = sFilename.substr(1);
+			}
+			else if( sFilename[0]=='+' )
+			{
+				bAppend=true;
+				sFilename = sFilename.substr(1);
+			}
+			if( sFilename[0]=='#' )
+			{
+				int ID = atoi(sFilename.substr(2).c_str());
+				if( sFilename[1]=='F' )
+					sFilename = m_pMediaAttributes->GetFilePathFromFileID(ID);
+				else if( sFilename[1]=='A' )
+					sFilename = m_pMediaAttributes->GetFilePathsFromAttributeID(ID);
+			}
+		}
+*/
+
+class DataGridTable *Media_Plugin::MediaSearchAutoCompl(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	FileListGrid *pDataGrid = new FileListGrid(m_pDatagrid_Plugin,this);
+	DataGridCell *pCell;
+
+	string posParms=0;
+	if( Parms.length()==0 )
+		return NULL; // Nothing passed in yet
+    string AC = Parms;
+
+	string SQL = "select PK_Attribute,Name,FirstName,Description FROM Attribute " \
+		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
+		"JOIN Type_AttributeType ON Type_AttributeType.FK_AttributeType=PK_AttributeType "\
+		"WHERE (Name Like '" + AC + "%' OR FirstName Like '" + AC + "%') AND Identifier>0 "\
+		"ORDER BY Name limit 30;";
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int RowCount=0;
+
+	if( (result.r=mysql_query_result(SQL)) )
+	{
+		while( (row=mysql_fetch_row(result.r)) )
+		{
+			string label = /* string("~`S24`") + */ row[1];
+			if( row[2] && *row[2] )
+				label += string(",") + row[2];
+			label += string("\n`S1`") + row[3];
+			pCell = new DataGridCell("",row[0]);
+			pDataGrid->SetData(0,RowCount,pCell);
+
+			pCell = new DataGridCell(label,row[0]);
+			pCell->m_Colspan = 5;
+			pDataGrid->m_vectFileInfo.push_back(new FileListInfo(atoi(row[0])));
+			pDataGrid->SetData(1,RowCount++,pCell);
+		}
+	}
+
+	SQL = "select PK_Attribute,Name,FirstName,Description FROM SearchToken "\
+		"JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "\
+		"JOIN Attribute ON FK_Attribute=PK_Attribute "\
+		"JOIN AttributeType ON FK_AttributeType=PK_AttributeType "\
+		"WHERE Token like '" + AC + "%' "\
+		"limit 30;";
+	if( (result.r=mysql_query_result(SQL)) )
+	{
+		while( (row=mysql_fetch_row(result.r)) )
+		{
+			string label = /*string("~`S24`") + */ row[1];
+			if( row[2] && *row[2]  )
+				label += string(",") + row[2];
+			label += string("\n`S1`") + row[3];
+			pCell = new DataGridCell("",row[0]);
+			pDataGrid->SetData(0,RowCount,pCell);
+
+			pCell = new DataGridCell(label,row[0]);
+			pCell->m_Colspan = 5;
+			pDataGrid->m_vectFileInfo.push_back(new FileListInfo(atoi(row[0])));
+			pDataGrid->SetData(1,RowCount++,pCell);
+		}
+	}
+	return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::MediaAttrFiles(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	string PK_Attribute = Parms;
+	if( PK_Attribute.substr(0,2)=="#A" )
+		PK_Attribute = PK_Attribute.substr(2);
+	else if( PK_Attribute.substr(0,2)=="#F" )
+		PK_Attribute = StringUtils::itos(
+			m_pMediaAttributes->GetAttributeFromFileID(atoi(PK_Attribute.substr(2).c_str()))
+		);
+
+
+	string SQL="select DISTINCT Dest.FK_File,Attribute.Name,Attribute.FirstName,AttributeType.Description "\
+		"FROM File_Attribute As Source "\
+		"JOIN File_Attribute As Dest "\
+		"ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute=" + PK_Attribute +
+		" JOIN File ON Dest.FK_File=PK_File "\
+		"JOIN Attribute ON Dest.FK_Attribute=PK_Attribute "\
+		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
+		"JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\
+		"AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
+		"WHERE Identifier=1 ORDER BY Name limit 200;";
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int RowCount=0;
+
+	if( (result.r=mysql_query_result(SQL)) )
+	{
+		while( (row=mysql_fetch_row(result.r)) )
+		{
+			string label = row[1];
+			if( row[2] && *row[2] )
+				label += string(",") + row[2];
+			label += string("\n`S29`") + row[3];
+			pCell = new DataGridCell(label,row[0]);
+			pDataGrid->SetData(0,RowCount++,pCell);
+		}
+	}
+	return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::MediaAttrCollections(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	string PK_Attribute = Parms;
+	if( PK_Attribute.substr(0,2)=="#A" )
+		PK_Attribute = PK_Attribute.substr(2);
+	else if( PK_Attribute.substr(0,2)=="#F" )
+		PK_Attribute = StringUtils::itos(
+			m_pMediaAttributes->GetAttributeFromFileID(atoi(PK_Attribute.substr(2).c_str()))
+		);
+
+	string SQL="select DISTINCT Dest.FK_Attribute,Attribute.Name,Attribute.FirstName,AttributeType.Description "\
+		"FROM File_Attribute As Source "\
+		"JOIN File_Attribute As Dest "\
+		"ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute=" + PK_Attribute +
+		" JOIN File ON Dest.FK_File=PK_File "\
+		"JOIN Attribute ON Dest.FK_Attribute=PK_Attribute "\
+		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
+		"JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\
+		"AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
+		"WHERE Identifier=2 ORDER BY Name limit 100;";
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int RowCount=0;
+
+	if( (result.r=mysql_query_result(SQL)) )
+	{
+		while( (row=mysql_fetch_row(result.r)) )
+		{
+			string label = row[1];
+			if( row[2] )
+				label += string(",") + row[2];
+			label += string("\n`S29`") + row[3];
+			pCell = new DataGridCell(label,row[0]);
+			pDataGrid->SetData(0,RowCount++,pCell);
+		}
+	}
+	return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::MediaAttrXref(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	string PK_Attribute = Parms;
+	if( PK_Attribute.substr(0,2)=="#A" )
+		PK_Attribute = PK_Attribute.substr(2);
+	else if( PK_Attribute.substr(0,2)=="#F" )
+		PK_Attribute = StringUtils::itos(
+			m_pMediaAttributes->GetAttributeFromFileID(atoi(PK_Attribute.substr(2).c_str()))
+		);
+
+	string SQL="select DISTINCT Dest.FK_Attribute,Attribute.Name,Attribute.FirstName,AttributeType.Description "\
+		"FROM File_Attribute As Source "\
+		"JOIN File_Attribute As Dest "\
+		"ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute=" + PK_Attribute +
+		" JOIN File ON Dest.FK_File=PK_File "\
+		"JOIN Attribute ON Dest.FK_Attribute=PK_Attribute "\
+		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
+		"JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\
+		"AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
+		"WHERE Identifier=3 ORDER BY Name limit 30;";
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int RowCount=0;
+
+	if( (result.r=mysql_query_result(SQL)) )
+	{
+		while( (row=mysql_fetch_row(result.r)) )
+		{
+			string label = row[1];
+			if( row[2] && *row[2] )
+				label += string(",") + row[2];
+			label += string("\n`S29`") + row[3];
+			pCell = new DataGridCell(label,row[0]);
+			pDataGrid->SetData(0,RowCount++,pCell);
+		}
+	}
+	return pDataGrid;
+}

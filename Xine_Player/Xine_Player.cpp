@@ -15,9 +15,7 @@
 #include "Xine_Player.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -60,7 +58,7 @@ Xine_Player::~Xine_Player()
 }
 
 //<-dceag-reg-b->
-/** @brief This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()*/
+// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool Xine_Player::Register()
 //<-dceag-reg-e->
 {

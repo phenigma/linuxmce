@@ -4,7 +4,7 @@
 #include "ClientSocket.h"
 using namespace DCE;
 
-class EstablishmentSocket : public ClientSocket
+class EstablishmentSocket : public DCE::ClientSocket
 {
 public:
 	EstablishmentSocket(long DeviceID, string IPAddress,string Name) :

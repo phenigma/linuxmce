@@ -174,11 +174,16 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
     //vm.Release();
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL::XORRectangle(int x, int y, int width,
-    int height)
+/*virtual*/ void OrbiterSDL::XORRectangle(int x, int y, int width,int height)
 {
+	PlutoColor color = PlutoColor::Black();
 
+    SDL_Rect Rectangle;
+    Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
+
+    SDL_FillRect(m_pScreenImage, &Rectangle, color.m_Value);
 }
+
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::FillRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity /*= 100*/)
 {

@@ -31,6 +31,8 @@
 #define USERS_FK_LANGUAGE_TABLE_FIELD "Users.FK_Language"
 #define USERS_FK_INSTALLATION_MAIN_FIELD "FK_Installation_Main"
 #define USERS_FK_INSTALLATION_MAIN_TABLE_FIELD "Users.FK_Installation_Main"
+#define USERS_STAFF_FIELD "Staff"
+#define USERS_STAFF_TABLE_FIELD "Users.Staff"
 #define USERS_PSC_ID_FIELD "psc_id"
 #define USERS_PSC_ID_TABLE_FIELD "Users.psc_id"
 #define USERS_PSC_BATCH_FIELD "psc_batch"

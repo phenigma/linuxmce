@@ -122,7 +122,7 @@ void Database::CreateRepository()
 		Repository *pRepository = m_mapRepository_Find(vect_sRepository[s]);
 		if( pRepository )
 		{
-			if( !AskQuestion("That repository exists.  Edit the exiting one?",false ) )
+			if( !AskYNQuestion("That repository exists.  Edit the exiting one?",false ) )
 				return;  // Nope, just abort
 		}
 		else

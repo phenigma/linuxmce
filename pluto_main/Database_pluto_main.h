@@ -28,7 +28,7 @@ class Table_CommandGroup_Command_CommandParameter* tblCommandGroup_Command_Comma
 class Table_CommandGroup_D* tblCommandGroup_D;
 class Table_CommandGroup_D_Command* tblCommandGroup_D_Command;
 class Table_CommandGroup_D_Command_CommandParameter* tblCommandGroup_D_Command_CommandParameter;
-class Table_CommandGroup_EntGroup* tblCommandGroup_EntGroup;
+class Table_CommandGroup_EntertainArea* tblCommandGroup_EntertainArea;
 class Table_CommandGroup_Room* tblCommandGroup_Room;
 class Table_CommandParameter* tblCommandParameter;
 class Table_Command_CommandParameter* tblCommand_CommandParameter;
@@ -138,17 +138,21 @@ class Table_Manufacturer* tblManufacturer;
 class Table_MediaType* tblMediaType;
 class Table_MediaType_Broadcast* tblMediaType_Broadcast;
 class Table_MobilePhoneVersion* tblMobilePhoneVersion;
+class Table_News* tblNews;
 class Table_OperatingSystem* tblOperatingSystem;
 class Table_Orbiter* tblOrbiter;
 class Table_Orbiter_Users_PasswordReq* tblOrbiter_Users_PasswordReq;
 class Table_Orbiter_Variable* tblOrbiter_Variable;
 class Table_Output* tblOutput;
 class Table_Package* tblPackage;
+class Table_PackageType* tblPackageType;
 class Table_Package_Directory* tblPackage_Directory;
 class Table_Package_Directory_File* tblPackage_Directory_File;
 class Table_Package_Package* tblPackage_Package;
 class Table_Package_Source* tblPackage_Source;
 class Table_Package_Source_Compat* tblPackage_Source_Compat;
+class Table_Package_Users* tblPackage_Users;
+class Table_Package_Version* tblPackage_Version;
 class Table_PageSetup* tblPageSetup;
 class Table_ParameterType* tblParameterType;
 class Table_PhoneLineType* tblPhoneLineType;
@@ -158,6 +162,7 @@ class Table_RepositorySource_URL* tblRepositorySource_URL;
 class Table_RepositoryType* tblRepositoryType;
 class Table_Room* tblRoom;
 class Table_RoomType* tblRoomType;
+class Table_Schema* tblSchema;
 class Table_SetupStep* tblSetupStep;
 class Table_Size* tblSize;
 class Table_Skin* tblSkin;
@@ -220,7 +225,7 @@ class Table_CommandGroup_Command_CommandParameter* CommandGroup_Command_CommandP
 class Table_CommandGroup_D* CommandGroup_D_get() { return tblCommandGroup_D; }
 class Table_CommandGroup_D_Command* CommandGroup_D_Command_get() { return tblCommandGroup_D_Command; }
 class Table_CommandGroup_D_Command_CommandParameter* CommandGroup_D_Command_CommandParameter_get() { return tblCommandGroup_D_Command_CommandParameter; }
-class Table_CommandGroup_EntGroup* CommandGroup_EntGroup_get() { return tblCommandGroup_EntGroup; }
+class Table_CommandGroup_EntertainArea* CommandGroup_EntertainArea_get() { return tblCommandGroup_EntertainArea; }
 class Table_CommandGroup_Room* CommandGroup_Room_get() { return tblCommandGroup_Room; }
 class Table_CommandParameter* CommandParameter_get() { return tblCommandParameter; }
 class Table_Command_CommandParameter* Command_CommandParameter_get() { return tblCommand_CommandParameter; }
@@ -330,17 +335,21 @@ class Table_Manufacturer* Manufacturer_get() { return tblManufacturer; }
 class Table_MediaType* MediaType_get() { return tblMediaType; }
 class Table_MediaType_Broadcast* MediaType_Broadcast_get() { return tblMediaType_Broadcast; }
 class Table_MobilePhoneVersion* MobilePhoneVersion_get() { return tblMobilePhoneVersion; }
+class Table_News* News_get() { return tblNews; }
 class Table_OperatingSystem* OperatingSystem_get() { return tblOperatingSystem; }
 class Table_Orbiter* Orbiter_get() { return tblOrbiter; }
 class Table_Orbiter_Users_PasswordReq* Orbiter_Users_PasswordReq_get() { return tblOrbiter_Users_PasswordReq; }
 class Table_Orbiter_Variable* Orbiter_Variable_get() { return tblOrbiter_Variable; }
 class Table_Output* Output_get() { return tblOutput; }
 class Table_Package* Package_get() { return tblPackage; }
+class Table_PackageType* PackageType_get() { return tblPackageType; }
 class Table_Package_Directory* Package_Directory_get() { return tblPackage_Directory; }
 class Table_Package_Directory_File* Package_Directory_File_get() { return tblPackage_Directory_File; }
 class Table_Package_Package* Package_Package_get() { return tblPackage_Package; }
 class Table_Package_Source* Package_Source_get() { return tblPackage_Source; }
 class Table_Package_Source_Compat* Package_Source_Compat_get() { return tblPackage_Source_Compat; }
+class Table_Package_Users* Package_Users_get() { return tblPackage_Users; }
+class Table_Package_Version* Package_Version_get() { return tblPackage_Version; }
 class Table_PageSetup* PageSetup_get() { return tblPageSetup; }
 class Table_ParameterType* ParameterType_get() { return tblParameterType; }
 class Table_PhoneLineType* PhoneLineType_get() { return tblPhoneLineType; }
@@ -350,6 +359,7 @@ class Table_RepositorySource_URL* RepositorySource_URL_get() { return tblReposit
 class Table_RepositoryType* RepositoryType_get() { return tblRepositoryType; }
 class Table_Room* Room_get() { return tblRoom; }
 class Table_RoomType* RoomType_get() { return tblRoomType; }
+class Table_Schema* Schema_get() { return tblSchema; }
 class Table_SetupStep* SetupStep_get() { return tblSetupStep; }
 class Table_Size* Size_get() { return tblSize; }
 class Table_Skin* Skin_get() { return tblSkin; }
@@ -415,7 +425,7 @@ void CreateTable_CommandGroup_Command_CommandParameter();
 void CreateTable_CommandGroup_D();
 void CreateTable_CommandGroup_D_Command();
 void CreateTable_CommandGroup_D_Command_CommandParameter();
-void CreateTable_CommandGroup_EntGroup();
+void CreateTable_CommandGroup_EntertainArea();
 void CreateTable_CommandGroup_Room();
 void CreateTable_CommandParameter();
 void CreateTable_Command_CommandParameter();
@@ -525,17 +535,21 @@ void CreateTable_Manufacturer();
 void CreateTable_MediaType();
 void CreateTable_MediaType_Broadcast();
 void CreateTable_MobilePhoneVersion();
+void CreateTable_News();
 void CreateTable_OperatingSystem();
 void CreateTable_Orbiter();
 void CreateTable_Orbiter_Users_PasswordReq();
 void CreateTable_Orbiter_Variable();
 void CreateTable_Output();
 void CreateTable_Package();
+void CreateTable_PackageType();
 void CreateTable_Package_Directory();
 void CreateTable_Package_Directory_File();
 void CreateTable_Package_Package();
 void CreateTable_Package_Source();
 void CreateTable_Package_Source_Compat();
+void CreateTable_Package_Users();
+void CreateTable_Package_Version();
 void CreateTable_PageSetup();
 void CreateTable_ParameterType();
 void CreateTable_PhoneLineType();
@@ -545,6 +559,7 @@ void CreateTable_RepositorySource_URL();
 void CreateTable_RepositoryType();
 void CreateTable_Room();
 void CreateTable_RoomType();
+void CreateTable_Schema();
 void CreateTable_SetupStep();
 void CreateTable_Size();
 void CreateTable_Skin();
@@ -606,7 +621,7 @@ void DeleteTable_CommandGroup_Command_CommandParameter();
 void DeleteTable_CommandGroup_D();
 void DeleteTable_CommandGroup_D_Command();
 void DeleteTable_CommandGroup_D_Command_CommandParameter();
-void DeleteTable_CommandGroup_EntGroup();
+void DeleteTable_CommandGroup_EntertainArea();
 void DeleteTable_CommandGroup_Room();
 void DeleteTable_CommandParameter();
 void DeleteTable_Command_CommandParameter();
@@ -716,17 +731,21 @@ void DeleteTable_Manufacturer();
 void DeleteTable_MediaType();
 void DeleteTable_MediaType_Broadcast();
 void DeleteTable_MobilePhoneVersion();
+void DeleteTable_News();
 void DeleteTable_OperatingSystem();
 void DeleteTable_Orbiter();
 void DeleteTable_Orbiter_Users_PasswordReq();
 void DeleteTable_Orbiter_Variable();
 void DeleteTable_Output();
 void DeleteTable_Package();
+void DeleteTable_PackageType();
 void DeleteTable_Package_Directory();
 void DeleteTable_Package_Directory_File();
 void DeleteTable_Package_Package();
 void DeleteTable_Package_Source();
 void DeleteTable_Package_Source_Compat();
+void DeleteTable_Package_Users();
+void DeleteTable_Package_Version();
 void DeleteTable_PageSetup();
 void DeleteTable_ParameterType();
 void DeleteTable_PhoneLineType();
@@ -736,6 +755,7 @@ void DeleteTable_RepositorySource_URL();
 void DeleteTable_RepositoryType();
 void DeleteTable_Room();
 void DeleteTable_RoomType();
+void DeleteTable_Schema();
 void DeleteTable_SetupStep();
 void DeleteTable_Size();
 void DeleteTable_Skin();

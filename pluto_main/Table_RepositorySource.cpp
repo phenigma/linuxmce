@@ -120,6 +120,7 @@ m_FK_RepositoryType = 1;
 is_null[3] = false;
 m_Description = "";
 is_null[4] = false;
+is_null[5] = true;
 
 
 	is_added=false;
@@ -142,6 +143,9 @@ return m_FK_RepositoryType;}
 string Row_RepositorySource::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
+string Row_RepositorySource::Define_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Define;}
 
 		
 void Row_RepositorySource::PK_RepositorySource_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -159,6 +163,9 @@ m_FK_RepositoryType = val; is_modified=true; is_null[3]=false;}
 void Row_RepositorySource::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Description = val; is_modified=true; is_null[4]=false;}
+void Row_RepositorySource::Define_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Define = val; is_modified=true; is_null[5]=false;}
 
 		
 bool Row_RepositorySource::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -167,6 +174,9 @@ return is_null[1];}
 bool Row_RepositorySource::FK_Distro_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
+bool Row_RepositorySource::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[5];}
 
 			
 void Row_RepositorySource::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -175,6 +185,9 @@ is_null[1]=val;}
 void Row_RepositorySource::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
+void Row_RepositorySource::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[5]=val;}
 	
 
 string Row_RepositorySource::PK_RepositorySource_asSQL()
@@ -241,6 +254,18 @@ mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(),
 return string()+"\""+buf+"\"";
 }
 
+string Row_RepositorySource::Define_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[61];
+mysql_real_escape_string(table->database->db_handle, buf, m_Define.c_str(), (unsigned long) m_Define.size());
+return string()+"\""+buf+"\"";
+}
+
 
 
 
@@ -279,10 +304,10 @@ void Table_RepositorySource::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositorySource_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->FK_RepositoryType_asSQL()+", "+pRow->Description_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositorySource_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->FK_RepositoryType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL();
 
 	
-		string query = "insert into RepositorySource (PK_RepositorySource, FK_OperatingSystem, FK_Distro, FK_RepositoryType, Description) values ("+
+		string query = "insert into RepositorySource (PK_RepositorySource, FK_OperatingSystem, FK_Distro, FK_RepositoryType, Description, Define) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -331,7 +356,7 @@ condition = condition + "PK_RepositorySource=" + tmp_PK_RepositorySource;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_RepositorySource="+pRow->PK_RepositorySource_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", FK_RepositoryType="+pRow->FK_RepositoryType_asSQL()+", Description="+pRow->Description_asSQL();
+update_values_list = update_values_list + "PK_RepositorySource="+pRow->PK_RepositorySource_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", FK_RepositoryType="+pRow->FK_RepositoryType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL();
 
 	
 		string query = "update RepositorySource set " + update_values_list + " where " + condition;
@@ -471,6 +496,17 @@ else
 {
 pRow->is_null[4]=false;
 pRow->m_Description = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Define = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_Define = string(row[5],lengths[5]);
 }
 
 
@@ -632,6 +668,17 @@ else
 {
 pRow->is_null[4]=false;
 pRow->m_Description = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Define = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_Define = string(row[5],lengths[5]);
 }
 
 

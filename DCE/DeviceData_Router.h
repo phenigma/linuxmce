@@ -76,14 +76,6 @@ namespace DCE
 		}
 	};
 
-	class DeviceGroup 
-	{
-	public:
-		int m_PK_DeviceGroup;
-		string m_sDescription;
-		vector<class DeviceData_Router *> m_vectDevices;
-	};
-
 	class DCERoom
 	{
 	public:

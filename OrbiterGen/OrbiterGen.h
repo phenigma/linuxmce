@@ -16,7 +16,7 @@ public:
 	class Row_Orbiter * m_pRow_Orbiter;
 	class Row_Device * m_pRow_Device;
 	class Row_Room * m_drRoom;
-	class Row_Device * m_drDevice_EntGroup;
+	class Row_EntertainArea * m_pRow_EntertainArea;
 	int m_iLocation;
 	map<int,int> m_htUsedStyleVariation;
 	map<int,int> m_mapUsedOrbiterCriteria;

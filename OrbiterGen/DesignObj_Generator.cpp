@@ -28,6 +28,7 @@
 #include "pluto_main/Table_DesignObjVariation_Zone.h"
 #include "pluto_main/Table_DesignObjVariation_DesignObj.h"
 #include "pluto_main/Table_DesignObjVariation_DesignObjParameter.h"
+#include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_Size.h"
 #include "pluto_main/Table_Skin.h"
@@ -43,7 +44,7 @@
 #include "pluto_main/Table_Text_LS_AltVersions.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Table_CommandGroup_Room.h"
-#include "pluto_main/Table_CommandGroup_EntGroup.h"
+#include "pluto_main/Table_CommandGroup_EntertainArea.h"
 #include "pluto_main/Table_CommandGroup_D.h"
 #include "pluto_main/Table_Icon.h"
 #include "pluto_main/Table_Array.h"
@@ -534,7 +535,7 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 	
 	if( m_iPK_CommandGroup_Touch_Extra!=0 )
 	{
-		Row_CommandGroup_D * drAG = m_mds->CommandGroup_D_get()->GetRow(m_iPK_CommandGroup_Touch_Extra);
+		Row_CommandGroup *drAG = m_mds->CommandGroup_get()->GetRow(m_iPK_CommandGroup_Touch_Extra);
 		CGZone *oczone = new CGZone(drAG,this);
 		m_ZoneList.push_back(oczone);
 	}	
@@ -671,7 +672,7 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
 						DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),PlutoRectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get()),this,false,false);
 						if( !pDesignObj_Generator->m_drDesignObjVariation )
 						{
-							cout << "Not adding object: " << drOVO->FK_DesignObj_Child_getrow() << " to object: " << drOVO->FK_DesignObjVariation_Parent_getrow()->FK_DesignObj_get() << " because there are no qualifying variations." << endl;
+							cout << "Not adding object: " << drOVO->FK_DesignObj_Child_get() << " to object: " << drOVO->FK_DesignObjVariation_Parent_getrow()->FK_DesignObj_get() << " because there are no qualifying variations." << endl;
 							delete pDesignObj_Generator; // Abort adding this object as a child, there were no variations 
 						}
 						else
@@ -1195,19 +1196,19 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 			}
 			break;
 		case ARRAY_Entertainment_Scenarios_CONST:
-			if( m_pOrbiterGenerator->m_drDevice_EntGroup==NULL )
+			if( m_pOrbiterGenerator->m_pRow_EntertainArea==NULL )
 				break;
 			PriorSort=-1;
 
 			{
-				vector<class Row_CommandGroup_EntGroup *> vectEGs;
-				string sql = string(COMMANDGROUP_ENTGROUP_FK_DEVICE_FIELD) + "=" + \
-					StringUtils::itos(m_pOrbiterGenerator->m_drDevice_EntGroup->PK_Device_get()) + " ORDER BY " + COMMANDGROUP_ENTGROUP_SORT_FIELD;
-				m_mds->CommandGroup_EntGroup_get()->GetRows(sql,&vectEGs);
+				vector<class Row_CommandGroup_EntertainArea *> vectEGs;
+				string sql = string(COMMANDGROUP_ENTERTAINAREA_FK_ENTERTAINAREA_FIELD) + "=" + \
+					StringUtils::itos(m_pOrbiterGenerator->m_pRow_EntertainArea->PK_EntertainArea_get()) + " ORDER BY " + COMMANDGROUP_ENTERTAINAREA_SORT_FIELD;
+				m_mds->CommandGroup_EntertainArea_get()->GetRows(sql,&vectEGs);
 
 				for(size_t s=0;s<vectEGs.size();++s)
 				{
-					Row_CommandGroup_EntGroup *drAG_E = vectEGs[s];
+					Row_CommandGroup_EntertainArea *drAG_E = vectEGs[s];
 
 					if( drAG_E->FK_CommandGroup_getrow()->FK_Array_get()==PK_Array )
 					{
@@ -1404,6 +1405,10 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 void DesignObj_Generator::ScaleAllValues(int FactorX,int FactorY,class DesignObj_Generator *pTopmostObject)
 {
+if( this->m_drDesignObj->PK_DesignObj_get()==2634 )
+{
+int k=2;
+}
 	if( !m_bValuesScaled )
 	{
 		PlutoPoint p3(m_rBackgroundPosition.Location());

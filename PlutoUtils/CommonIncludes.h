@@ -117,7 +117,7 @@ public:
 	}; 
 #endif
 
-bool AskQuestion(string Question,bool bDefault);
-char AskQuestion(string Question,string Prompts);
+bool AskYNQuestion(string Question,bool bDefault);
+char AskMCQuestion(string Question,string Prompts);
 
 #endif

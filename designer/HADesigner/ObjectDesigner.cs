@@ -293,6 +293,12 @@ namespace HADesigner
 			clearLanguagesSkins();
 			this.loadAvailableStyles();
 
+			if( lbVariations.Items.Count==0 )
+			{
+				MessageBox.Show("Error: This object has no variations!  Database is corrupt.");
+				return;
+			}
+
 			lbVariations.SelectedIndex = 0;
 			
 			foreach(DataRow dr in mds.tLanguage.Rows)

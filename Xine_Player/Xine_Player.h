@@ -32,22 +32,9 @@ class Xine_Player : public Xine_Player_Command, public RatpoisonHandler<Xine_Pla
 //<-dceag-decl-e->
 //<-dceag-const-b->
 public:
-		/** 
-		 * @brief constructor 
-		 */
-		
+		// Constructors/Destructor
 		Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
-		
-		/**
-		 * @brief destructor 
-		 */
-		
 		virtual ~Xine_Player();
-		
-		/**
-		 * @brief destructor 
-		 */
-		
 		virtual bool Register();
 //<-dceag-const-e->
     /** Private member variables */

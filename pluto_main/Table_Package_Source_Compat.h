@@ -84,9 +84,10 @@ long int m_FK_Package_Source;
 long int m_FK_OperatingSystem;
 long int m_FK_Distro;
 short int m_MustBuildFromSource;
+string m_MakeCommand;
 string m_Comments;
 
-		bool is_null[6];
+		bool is_null[7];
 	
 		bool is_deleted;
 		bool is_added;
@@ -98,6 +99,7 @@ long int FK_Package_Source_get();
 long int FK_OperatingSystem_get();
 long int FK_Distro_get();
 short int MustBuildFromSource_get();
+string MakeCommand_get();
 string Comments_get();
 
 		
@@ -106,18 +108,21 @@ void FK_Package_Source_set(long int val);
 void FK_OperatingSystem_set(long int val);
 void FK_Distro_set(long int val);
 void MustBuildFromSource_set(short int val);
+void MakeCommand_set(string val);
 void Comments_set(string val);
 
 		
 		bool FK_OperatingSystem_isNull();
 bool FK_Distro_isNull();
 bool MustBuildFromSource_isNull();
+bool MakeCommand_isNull();
 bool Comments_isNull();
 
 			
 		void FK_OperatingSystem_setNull(bool val);
 void FK_Distro_setNull(bool val);
 void MustBuildFromSource_setNull(bool val);
+void MakeCommand_setNull(bool val);
 void Comments_setNull(bool val);
 	
 	
@@ -141,7 +146,7 @@ class Row_Distro* FK_Distro_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package_Source_Compat+ m_FK_Package_Source+ m_FK_OperatingSystem+ m_FK_Distro+ m_MustBuildFromSource+ m_Comments;
+			StartSerializeList() + m_PK_Package_Source_Compat+ m_FK_Package_Source+ m_FK_OperatingSystem+ m_FK_Distro+ m_MustBuildFromSource+ m_MakeCommand+ m_Comments;
 		}
 	private:
 		void SetDefaultValues();
@@ -151,6 +156,7 @@ string FK_Package_Source_asSQL();
 string FK_OperatingSystem_asSQL();
 string FK_Distro_asSQL();
 string MustBuildFromSource_asSQL();
+string MakeCommand_asSQL();
 string Comments_asSQL();
 
 	};

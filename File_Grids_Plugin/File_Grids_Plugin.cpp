@@ -2,9 +2,7 @@
 #include "File_Grids_Plugin.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -371,10 +369,12 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		*iPK_Variable=VARIABLE_Path_CONST;
 		int PK_MediaType = atoi(TypeOfRequest.substr(2).c_str());
 		Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
-		if( pRow_MediaType )
+		if( !pRow_MediaType )
 		{
-// todo -- just show all files for now			Extensions = pRow_MediaType->Extensions_get();
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Media Type: %d",PK_MediaType);
+			return NULL;
 		}
+// todo -- just show all files for now			Extensions = pRow_MediaType->Extensions_get();
 		string sSubDirectory = pRow_MediaType->Subdirectory_get();
 		if( sSubDirectory.length() )
 			sSubDirectory += "/";

@@ -171,7 +171,7 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
 //-----------------------------------------------------------------------------------------------------
 
 //<-dceag-reg-b->
-/** @brief This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in. Otherwise Connect() will be called from the main() */
+// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool Bluetooth_Dongle::Register()
 //<-dceag-reg-e->
 {
@@ -312,11 +312,11 @@ void Bluetooth_Dongle::CheckConnection( class PhoneDevice *pDevice )
 	COMMENTS: After the dongle has detected the device, then the orbiter plugin will send this command to tell the dongle to link to the phone.
 	PARAMETERS:
 		#42 MediaPosition
-			On = 1 ( link to the orbiter or link to the phone ); Off = 0 ( unlink )
+			On = 1 (link to the orbiter or link to the phone); Off = 0 (unlink)
 		#47 Mac address
 			The mac address of the phone
 */
-void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter( int iMediaPosition, string sMac_address, string &sCMD_Result, Message *pMessage )
+void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c60-e->
 {
 	cout << "Command #60 - Link with mobile orbiter" << endl;
@@ -424,11 +424,11 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter( int iMediaPosition, string 
 	PARAMETERS:
 		#47 Mac address
 			The mac address of the phone
-		#48 Value ( int )
+		#48 Value
 			The strength of the connection
-( 255 is the maximum strength )
+(255 is the maximum strength)
 */
-void Bluetooth_Dongle::CMD_Get_Signal_Strength( string sMac_address, int *iValue_int, string &sCMD_Result, Message *pMessage )
+void Bluetooth_Dongle::CMD_Get_Signal_Strength(string sMac_address,int *iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c61-e->
 {
 	cout << "Need to implement command #61 - Get Signal Strength" << endl;
@@ -453,7 +453,7 @@ void Bluetooth_Dongle::CMD_Get_Signal_Strength( string sMac_address, int *iValue
 		#47 Mac address
 			The Mac Address of the phone.
 */
-void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter( int iPK_Device, string sMac_address, string &sCMD_Result, Message *pMessage )
+void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c62-e->
 {
 	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
@@ -506,7 +506,7 @@ printf( "$$$ CMD_Create_Mobile_Orbiter end for %s device\n", sMac_address.c_str(
 		#58 IP Address
 			The IP Address
 */
-void Bluetooth_Dongle::CMD_Send_File_To_Device( string sFilename, string sMac_address, string sIP_Address, string &sCMD_Result, Message *pMessage )
+void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c80-e->
 {
 	g_pPlutoLogger->Write( LV_STATUS, "Send File: %s to %s", sFilename.c_str(), sMac_address.c_str() );

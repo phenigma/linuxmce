@@ -148,7 +148,7 @@
 				RelativePath=".\Table_CommandGroup_D_Command_CommandParameter.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_CommandGroup_EntGroup.cpp">
+				RelativePath=".\Table_CommandGroup_EntertainArea.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_CommandGroup_Room.cpp">
@@ -478,6 +478,9 @@
 				RelativePath=".\Table_MobilePhoneVersion.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_News.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_OperatingSystem.cpp">
 			</File>
 			<File
@@ -496,6 +499,9 @@
 				RelativePath=".\Table_Package.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_PackageType.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Package_Directory.cpp">
 			</File>
 			<File
@@ -509,6 +515,12 @@
 			</File>
 			<File
 				RelativePath=".\Table_Package_Source_Compat.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Package_Users.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Package_Version.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_PageSetup.cpp">
@@ -536,6 +548,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_RoomType.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Schema.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_SetupStep.cpp">

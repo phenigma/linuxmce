@@ -1141,6 +1141,8 @@ namespace HADesigner
 
 					string strWidth = this.GetParameterValue(DesignObjParameterData.WIDTH_CONST);
 					string strHeight = this.GetParameterValue(DesignObjParameterData.HEIGHT_CONST);
+					try	{ Convert.ToInt32(strWidth); } catch(Exception) { strWidth=""; }
+					try	{ Convert.ToInt32(strHeight); } catch(Exception) { strHeight=""; }
 
 					if (this.Bitmap==null)
 					{

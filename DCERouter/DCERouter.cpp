@@ -31,6 +31,8 @@ using namespace std;
 #include "pluto_main/Table_Event.h"
 #include "pluto_main/Table_EventParameter.h"
 #include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_DeviceGroup.h"
+#include "pluto_main/Table_Device_DeviceGroup.h"
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Table_DeviceTemplate_DeviceCommandGroup.h"
@@ -106,7 +108,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     if( !m_dwPK_Installation && !m_dwPK_Device )
     {
         vector<Row_Device *> vectRow_Device;
-        m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCE_Router_CONST), &vectRow_Device);
+        m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST), &vectRow_Device);
         if( vectRow_Device.size()!=1 )
         {
             g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine my device ID automatically.  # of records in DB: %d",(int) vectRow_Device.size());
@@ -130,7 +132,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     if( !m_pRow_Device_Me )
     {
         vector<Row_Device *> vectRow_Device;
-        m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation) + " AND " + string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCE_Router_CONST),&vectRow_Device);
+        m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation) + " AND " + string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST),&vectRow_Device);
         if( vectRow_Device.size()!=1 )
         {
             g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine my device ID automatically.  # of records in DB: %d",(int) vectRow_Device.size());
@@ -219,7 +221,11 @@ void Router::RegisterAllPlugins()
 
     map<int,class Command_Impl *>::iterator it;
     for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
-        (*it).second->Register();
+	{
+		Command_Impl *pPlugIn = (*it).second;
+		g_pPlutoLogger->Write(LV_STATUS,"Registering plugin: %s",pPlugIn->m_sName.c_str());
+        pPlugIn->Register();
+	}
 }
 
 // sCommandLine = Plugin filename
@@ -1285,7 +1291,7 @@ void Router::Configure()
         DeviceData_Base *pDevice_Base = new DeviceData_Base(
             prDevice->PK_Device_get(),prDevice->FK_Installation_get(),prDevice->FK_DeviceTemplate_get(),prDevice->FK_Device_ControlledVia_get(),
             prDevice->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),prDevice->FK_Room_get(),prDevice->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,prDevice->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
-            prDevice->FK_DeviceTemplate_getrow()->CommandLine_get(),prDevice->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,prDevice->IPaddress_get(),prDevice->MACaddress_get());
+            prDevice->FK_DeviceTemplate_getrow()->CommandLine_get(),prDevice->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,prDevice->Description_get(), prDevice->IPaddress_get(),prDevice->MACaddress_get());
         allDevices.m_mapDeviceData_Base[pDevice_Base->m_dwPK_Device]=pDevice_Base;
 
         // Get a list of all the commands each device supports
@@ -1357,6 +1363,25 @@ void Router::Configure()
             pDevice->m_pDevice_ControlledVia = pDevice_Parent;
             pDevice_Parent->m_vectDeviceData_Impl_Children.push_back(pDevice);
         }
+    }
+
+    // Get the device groups
+    vector<Row_DeviceGroup *> vectDeviceGroup;
+	GetDatabase()->DeviceGroup_get()->GetRows(string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation),&vectDeviceGroup);
+
+    for(size_t s=0;s<vectDeviceGroup.size();++s)
+    {
+        Row_DeviceGroup *pRow_DeviceGroup = vectDeviceGroup[s];
+        DeviceGroup *pDeviceGroup = new DeviceGroup(pRow_DeviceGroup->PK_DeviceGroup_get(),pRow_DeviceGroup->Description_get());
+
+		vector<Row_Device_DeviceGroup *> vectRow_Device_DeviceGroup;
+		pRow_DeviceGroup->Device_DeviceGroup_FK_DeviceGroup_getrows(&vectRow_Device_DeviceGroup);
+		for(size_t s2=0;s2<vectRow_Device_DeviceGroup.size();++s2)
+		{
+			Row_Device_DeviceGroup *pRow_Device_DeviceGroup = vectRow_Device_DeviceGroup[s2];
+			pDeviceGroup->m_vectPK_Device.push_back(pRow_Device_DeviceGroup->FK_Device_get());
+		}
+        allDevices.m_mapDeviceGroup[pDeviceGroup->m_dwPK_DeviceGroup] = pDeviceGroup;
     }
 
     // Serialize everything

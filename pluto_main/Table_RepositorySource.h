@@ -84,8 +84,9 @@ long int m_FK_OperatingSystem;
 long int m_FK_Distro;
 long int m_FK_RepositoryType;
 string m_Description;
+string m_Define;
 
-		bool is_null[5];
+		bool is_null[6];
 	
 		bool is_deleted;
 		bool is_added;
@@ -97,6 +98,7 @@ long int FK_OperatingSystem_get();
 long int FK_Distro_get();
 long int FK_RepositoryType_get();
 string Description_get();
+string Define_get();
 
 		
 		void PK_RepositorySource_set(long int val);
@@ -104,14 +106,17 @@ void FK_OperatingSystem_set(long int val);
 void FK_Distro_set(long int val);
 void FK_RepositoryType_set(long int val);
 void Description_set(string val);
+void Define_set(string val);
 
 		
 		bool FK_OperatingSystem_isNull();
 bool FK_Distro_isNull();
+bool Define_isNull();
 
 			
 		void FK_OperatingSystem_setNull(bool val);
 void FK_Distro_setNull(bool val);
+void Define_setNull(bool val);
 	
 	
 		void Delete();
@@ -136,7 +141,7 @@ void RepositorySource_URL_FK_RepositorySource_getrows(vector <class Row_Reposito
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_RepositorySource+ m_FK_OperatingSystem+ m_FK_Distro+ m_FK_RepositoryType+ m_Description;
+			StartSerializeList() + m_PK_RepositorySource+ m_FK_OperatingSystem+ m_FK_Distro+ m_FK_RepositoryType+ m_Description+ m_Define;
 		}
 	private:
 		void SetDefaultValues();
@@ -146,6 +151,7 @@ string FK_OperatingSystem_asSQL();
 string FK_Distro_asSQL();
 string FK_RepositoryType_asSQL();
 string Description_asSQL();
+string Define_asSQL();
 
 	};
 

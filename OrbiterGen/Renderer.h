@@ -53,15 +53,17 @@ public:
 
 	RendererImage * CreateBlankCanvas(PlutoSize size = PlutoSize(0,0));
 
-	void RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard);
+	void RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio);
 
-	void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos);
+	void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio);
 	void RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iIteration);
 
 	void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile);
 	
 	RendererImage *Subset(RendererImage *pRenderImage,PlutoRectangle rect);
-	RendererImage *CreateFromFile(string sFilename,PlutoSize size=PlutoSize(0,0));
+	// If Crop is true and PreserveAspectRatio is true, then instead of shrinking to fit within the given space, it will
+	// fill the target space, and any excess will be cropped
+	RendererImage *CreateFromFile(string sFilename, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false);
 	void CompositeImage(RendererImage *pRenderImage_Parent,RendererImage *pRenderImage_Child,PlutoPoint pos);
 	void RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator *pDesignObj_Generator, PlutoPoint pos);
 	PlutoSize RealRenderText(RendererImage * pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator * pDesignObj_Generator, PlutoPoint pos);

@@ -2,9 +2,7 @@
 #include "Infrared_Plugin.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -12,12 +10,6 @@ using namespace std;
 using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
-#include "pluto_main/Table_DeviceCategory.h"
-#include "pluto_main/Table_Device.h"
-#include "pluto_main/Table_DeviceTemplate.h"
-#include "pluto_main/Table_InfraredGroup.h"
-#include "pluto_main/Table_InfraredCode.h"
-
 //<-dceag-d-e->
 
 //<-dceag-const-b->
@@ -126,7 +118,7 @@ void Infrared_Plugin::SomeFunction()
 			The device to retrieve the infrared codes for.
 		#5 Value To Assign
 			A tab delimited list of all the commands and infrared codes for the device.  The format is:
-#commands\t{PK_Command\tData}
+\t{\tData}
 */
 void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c188-e->

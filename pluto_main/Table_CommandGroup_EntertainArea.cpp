@@ -17,25 +17,25 @@
 
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
-#include "Table_CommandGroup_EntGroup.h"
+#include "Table_CommandGroup_EntertainArea.h"
 #include "Table_CommandGroup.h"
-#include "Table_Device.h"
+#include "Table_EntertainArea.h"
 
 
 
-void Database_pluto_main::CreateTable_CommandGroup_EntGroup()
+void Database_pluto_main::CreateTable_CommandGroup_EntertainArea()
 {
-	tblCommandGroup_EntGroup = new Table_CommandGroup_EntGroup(this);
+	tblCommandGroup_EntertainArea = new Table_CommandGroup_EntertainArea(this);
 }
 
-void Database_pluto_main::DeleteTable_CommandGroup_EntGroup()
+void Database_pluto_main::DeleteTable_CommandGroup_EntertainArea()
 {
-	delete tblCommandGroup_EntGroup;
+	delete tblCommandGroup_EntertainArea;
 }
 
-Table_CommandGroup_EntGroup::~Table_CommandGroup_EntGroup()
+Table_CommandGroup_EntertainArea::~Table_CommandGroup_EntertainArea()
 {
-	map<Table_CommandGroup_EntGroup::Key, class Row_CommandGroup_EntGroup*, Table_CommandGroup_EntGroup::Key_Less>::iterator it;
+	map<Table_CommandGroup_EntertainArea::Key, class Row_CommandGroup_EntertainArea*, Table_CommandGroup_EntertainArea::Key_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
 		delete (*it).second;
@@ -54,14 +54,14 @@ Table_CommandGroup_EntGroup::~Table_CommandGroup_EntGroup()
 }
 
 
-void Row_CommandGroup_EntGroup::Delete()
+void Row_CommandGroup_EntertainArea::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_CommandGroup_EntGroup*>::iterator i;	
+			vector<Row_CommandGroup_EntertainArea*>::iterator i;	
 			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
 			
 			if (i!=	table->addedRows.end())
@@ -72,8 +72,8 @@ void Row_CommandGroup_EntGroup::Delete()
 		}
 		else
 		{
-			Table_CommandGroup_EntGroup::Key key(this);					
-			map<Table_CommandGroup_EntGroup::Key, Row_CommandGroup_EntGroup*, Table_CommandGroup_EntGroup::Key_Less>::iterator i = table->cachedRows.find(key);
+			Table_CommandGroup_EntertainArea::Key key(this);					
+			map<Table_CommandGroup_EntertainArea::Key, Row_CommandGroup_EntertainArea*, Table_CommandGroup_EntertainArea::Key_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -82,15 +82,15 @@ void Row_CommandGroup_EntGroup::Delete()
 		}	
 }
 
-void Row_CommandGroup_EntGroup::Reload()
+void Row_CommandGroup_EntertainArea::Reload()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_CommandGroup_EntGroup::Key key(this);		
-		Row_CommandGroup_EntGroup *pRow = table->FetchRow(key);
+		Table_CommandGroup_EntertainArea::Key key(this);		
+		Row_CommandGroup_EntertainArea *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
 		{
@@ -102,16 +102,16 @@ void Row_CommandGroup_EntGroup::Reload()
 	
 }
 
-Row_CommandGroup_EntGroup::Row_CommandGroup_EntGroup(Table_CommandGroup_EntGroup *pTable):table(pTable)
+Row_CommandGroup_EntertainArea::Row_CommandGroup_EntertainArea(Table_CommandGroup_EntertainArea *pTable):table(pTable)
 {
 	SetDefaultValues();
 }
 
-void Row_CommandGroup_EntGroup::SetDefaultValues()
+void Row_CommandGroup_EntertainArea::SetDefaultValues()
 {
 	m_FK_CommandGroup = 0;
 is_null[0] = false;
-m_FK_Device = 0;
+m_FK_EntertainArea = 0;
 is_null[1] = false;
 m_Sort = 0;
 is_null[2] = false;
@@ -129,87 +129,87 @@ is_null[7] = false;
 	is_modified=false;
 }
 
-long int Row_CommandGroup_EntGroup::FK_CommandGroup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup_EntertainArea::FK_CommandGroup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_CommandGroup;}
-long int Row_CommandGroup_EntGroup::FK_Device_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup_EntertainArea::FK_EntertainArea_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Device;}
-long int Row_CommandGroup_EntGroup::Sort_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_FK_EntertainArea;}
+long int Row_CommandGroup_EntertainArea::Sort_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Sort;}
-long int Row_CommandGroup_EntGroup::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup_EntertainArea::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
-long int Row_CommandGroup_EntGroup::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup_EntertainArea::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_batch;}
-long int Row_CommandGroup_EntGroup::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup_EntertainArea::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_user;}
-short int Row_CommandGroup_EntGroup::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_CommandGroup_EntertainArea::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_frozen;}
-string Row_CommandGroup_EntGroup::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_CommandGroup_EntertainArea::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_mod;}
 
 		
-void Row_CommandGroup_EntGroup::FK_CommandGroup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::FK_CommandGroup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_CommandGroup = val; is_modified=true; is_null[0]=false;}
-void Row_CommandGroup_EntGroup::FK_Device_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::FK_EntertainArea_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Device = val; is_modified=true; is_null[1]=false;}
-void Row_CommandGroup_EntGroup::Sort_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_FK_EntertainArea = val; is_modified=true; is_null[1]=false;}
+void Row_CommandGroup_EntertainArea::Sort_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Sort = val; is_modified=true; is_null[2]=false;}
-void Row_CommandGroup_EntGroup::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[3]=false;}
-void Row_CommandGroup_EntGroup::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_batch = val; is_modified=true; is_null[4]=false;}
-void Row_CommandGroup_EntGroup::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_user = val; is_modified=true; is_null[5]=false;}
-void Row_CommandGroup_EntGroup::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_frozen = val; is_modified=true; is_null[6]=false;}
-void Row_CommandGroup_EntGroup::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_mod = val; is_modified=true; is_null[7]=false;}
 
 		
-bool Row_CommandGroup_EntGroup::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup_EntertainArea::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_CommandGroup_EntGroup::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup_EntertainArea::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_CommandGroup_EntGroup::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup_EntertainArea::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_CommandGroup_EntGroup::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup_EntertainArea::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
 
 			
-void Row_CommandGroup_EntGroup::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
-void Row_CommandGroup_EntGroup::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_CommandGroup_EntGroup::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
-void Row_CommandGroup_EntGroup::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_EntertainArea::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
 	
 
-string Row_CommandGroup_EntGroup::FK_CommandGroup_asSQL()
+string Row_CommandGroup_EntertainArea::FK_CommandGroup_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -222,7 +222,7 @@ sprintf(buf, "%li", m_FK_CommandGroup);
 return buf;
 }
 
-string Row_CommandGroup_EntGroup::FK_Device_asSQL()
+string Row_CommandGroup_EntertainArea::FK_EntertainArea_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -230,12 +230,12 @@ if (is_null[1])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Device);
+sprintf(buf, "%li", m_FK_EntertainArea);
 
 return buf;
 }
 
-string Row_CommandGroup_EntGroup::Sort_asSQL()
+string Row_CommandGroup_EntertainArea::Sort_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -248,7 +248,7 @@ sprintf(buf, "%li", m_Sort);
 return buf;
 }
 
-string Row_CommandGroup_EntGroup::psc_id_asSQL()
+string Row_CommandGroup_EntertainArea::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -261,7 +261,7 @@ sprintf(buf, "%li", m_psc_id);
 return buf;
 }
 
-string Row_CommandGroup_EntGroup::psc_batch_asSQL()
+string Row_CommandGroup_EntertainArea::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -274,7 +274,7 @@ sprintf(buf, "%li", m_psc_batch);
 return buf;
 }
 
-string Row_CommandGroup_EntGroup::psc_user_asSQL()
+string Row_CommandGroup_EntertainArea::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -287,7 +287,7 @@ sprintf(buf, "%li", m_psc_user);
 return buf;
 }
 
-string Row_CommandGroup_EntGroup::psc_frozen_asSQL()
+string Row_CommandGroup_EntertainArea::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -300,7 +300,7 @@ sprintf(buf, "%hi", m_psc_frozen);
 return buf;
 }
 
-string Row_CommandGroup_EntGroup::psc_mod_asSQL()
+string Row_CommandGroup_EntertainArea::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -315,50 +315,50 @@ return string()+"\""+buf+"\"";
 
 
 
-Table_CommandGroup_EntGroup::Key::Key(long int in_FK_CommandGroup, long int in_FK_Device)
+Table_CommandGroup_EntertainArea::Key::Key(long int in_FK_CommandGroup, long int in_FK_EntertainArea)
 {
 			pk_FK_CommandGroup = in_FK_CommandGroup;
-pk_FK_Device = in_FK_Device;
+pk_FK_EntertainArea = in_FK_EntertainArea;
 	
 }
 
-Table_CommandGroup_EntGroup::Key::Key(Row_CommandGroup_EntGroup *pRow)
+Table_CommandGroup_EntertainArea::Key::Key(Row_CommandGroup_EntertainArea *pRow)
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
 			pk_FK_CommandGroup = pRow->m_FK_CommandGroup;
-pk_FK_Device = pRow->m_FK_Device;
+pk_FK_EntertainArea = pRow->m_FK_EntertainArea;
 	
 }		
 
-bool Table_CommandGroup_EntGroup::Key_Less::operator()(const Table_CommandGroup_EntGroup::Key &key1, const Table_CommandGroup_EntGroup::Key &key2) const
+bool Table_CommandGroup_EntertainArea::Key_Less::operator()(const Table_CommandGroup_EntertainArea::Key &key1, const Table_CommandGroup_EntertainArea::Key &key2) const
 {
 			if (key1.pk_FK_CommandGroup!=key2.pk_FK_CommandGroup)
 return key1.pk_FK_CommandGroup<key2.pk_FK_CommandGroup;
 else
-if (key1.pk_FK_Device!=key2.pk_FK_Device)
-return key1.pk_FK_Device<key2.pk_FK_Device;
+if (key1.pk_FK_EntertainArea!=key2.pk_FK_EntertainArea)
+return key1.pk_FK_EntertainArea<key2.pk_FK_EntertainArea;
 else
 return false;	
 }	
 
-void Table_CommandGroup_EntGroup::Commit()
+void Table_CommandGroup_EntertainArea::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_CommandGroup_EntGroup*>::iterator i = addedRows.begin();
+		vector<Row_CommandGroup_EntertainArea*>::iterator i = addedRows.begin();
 	
-		Row_CommandGroup_EntGroup *pRow = *i;
+		Row_CommandGroup_EntertainArea *pRow = *i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGroup_asSQL()+", "+pRow->FK_Device_asSQL()+", "+pRow->Sort_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGroup_asSQL()+", "+pRow->FK_EntertainArea_asSQL()+", "+pRow->Sort_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into CommandGroup_EntGroup (FK_CommandGroup, FK_Device, Sort, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into CommandGroup_EntertainArea (FK_CommandGroup, FK_EntertainArea, Sort, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -389,29 +389,29 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGrou
 //update modified
 	
 
-	for (map<Key, Row_CommandGroup_EntGroup*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<Key, Row_CommandGroup_EntertainArea*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified)
 	{
-		Row_CommandGroup_EntGroup* pRow = (*i).second;	
+		Row_CommandGroup_EntertainArea* pRow = (*i).second;	
 		Key key(pRow);	
 
 		char tmp_FK_CommandGroup[32];
 sprintf(tmp_FK_CommandGroup, "%li", key.pk_FK_CommandGroup);
 
-char tmp_FK_Device[32];
-sprintf(tmp_FK_Device, "%li", key.pk_FK_Device);
+char tmp_FK_EntertainArea[32];
+sprintf(tmp_FK_EntertainArea, "%li", key.pk_FK_EntertainArea);
 
 
 string condition;
-condition = condition + "FK_CommandGroup=" + tmp_FK_CommandGroup+" AND "+"FK_Device=" + tmp_FK_Device;
+condition = condition + "FK_CommandGroup=" + tmp_FK_CommandGroup+" AND "+"FK_EntertainArea=" + tmp_FK_EntertainArea;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_CommandGroup="+pRow->FK_CommandGroup_asSQL()+", FK_Device="+pRow->FK_Device_asSQL()+", Sort="+pRow->Sort_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_CommandGroup="+pRow->FK_CommandGroup_asSQL()+", FK_EntertainArea="+pRow->FK_EntertainArea_asSQL()+", Sort="+pRow->Sort_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
-		string query = "update CommandGroup_EntGroup set " + update_values_list + " where " + condition;
+		string query = "update CommandGroup_EntertainArea set " + update_values_list + " where " + condition;
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
@@ -425,7 +425,7 @@ update_values_list = update_values_list + "FK_CommandGroup="+pRow->FK_CommandGro
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_CommandGroup_EntGroup*>::iterator i = deleted_addedRows.begin();
+		vector<Row_CommandGroup_EntertainArea*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -435,22 +435,22 @@ update_values_list = update_values_list + "FK_CommandGroup="+pRow->FK_CommandGro
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_CommandGroup_EntGroup*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<Key, Row_CommandGroup_EntertainArea*, Key_Less>::iterator i = deleted_cachedRows.begin();
 	
 		Key key = (*i).first;
 	
 		char tmp_FK_CommandGroup[32];
 sprintf(tmp_FK_CommandGroup, "%li", key.pk_FK_CommandGroup);
 
-char tmp_FK_Device[32];
-sprintf(tmp_FK_Device, "%li", key.pk_FK_Device);
+char tmp_FK_EntertainArea[32];
+sprintf(tmp_FK_EntertainArea, "%li", key.pk_FK_EntertainArea);
 
 
 string condition;
-condition = condition + "FK_CommandGroup=" + tmp_FK_CommandGroup+" AND "+"FK_Device=" + tmp_FK_Device;
+condition = condition + "FK_CommandGroup=" + tmp_FK_CommandGroup+" AND "+"FK_EntertainArea=" + tmp_FK_EntertainArea;
 
 	
-		string query = "delete from CommandGroup_EntGroup where " + condition;
+		string query = "delete from CommandGroup_EntertainArea where " + condition;
 		
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
@@ -463,17 +463,17 @@ condition = condition + "FK_CommandGroup=" + tmp_FK_CommandGroup+" AND "+"FK_Dev
 	
 }
 
-bool Table_CommandGroup_EntGroup::GetRows(string where_statement,vector<class Row_CommandGroup_EntGroup*> *rows)
+bool Table_CommandGroup_EntertainArea::GetRows(string where_statement,vector<class Row_CommandGroup_EntertainArea*> *rows)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from CommandGroup_EntGroup " + where_statement;
+		query = "select * from CommandGroup_EntertainArea " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from CommandGroup_EntGroup where " + where_statement;
+		query = "select * from CommandGroup_EntertainArea where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
@@ -496,7 +496,7 @@ bool Table_CommandGroup_EntGroup::GetRows(string where_statement,vector<class Ro
 	{	
 		unsigned long *lengths = mysql_fetch_lengths(res);
 
-		Row_CommandGroup_EntGroup *pRow = new Row_CommandGroup_EntGroup(this);
+		Row_CommandGroup_EntertainArea *pRow = new Row_CommandGroup_EntertainArea(this);
 		
 		if (row[0] == NULL)
 {
@@ -512,12 +512,12 @@ sscanf(row[0], "%li", &(pRow->m_FK_CommandGroup));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_Device = 0;
+pRow->m_FK_EntertainArea = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_Device));
+sscanf(row[1], "%li", &(pRow->m_FK_EntertainArea));
 }
 
 if (row[2] == NULL)
@@ -592,7 +592,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		Key key(pRow);
 		
-                map<Table_CommandGroup_EntGroup::Key, Row_CommandGroup_EntGroup*, Table_CommandGroup_EntGroup::Key_Less>::iterator i = cachedRows.find(key);
+                map<Table_CommandGroup_EntertainArea::Key, Row_CommandGroup_EntertainArea*, Table_CommandGroup_EntertainArea::Key_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
@@ -610,11 +610,11 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 	return true;					
 }
 
-Row_CommandGroup_EntGroup* Table_CommandGroup_EntGroup::AddRow()
+Row_CommandGroup_EntertainArea* Table_CommandGroup_EntertainArea::AddRow()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Row_CommandGroup_EntGroup *pRow = new Row_CommandGroup_EntGroup(this);
+	Row_CommandGroup_EntertainArea *pRow = new Row_CommandGroup_EntertainArea(this);
 	pRow->is_added=true;
 	addedRows.push_back(pRow);
 	return pRow;		
@@ -622,13 +622,13 @@ Row_CommandGroup_EntGroup* Table_CommandGroup_EntGroup::AddRow()
 
 
 
-Row_CommandGroup_EntGroup* Table_CommandGroup_EntGroup::GetRow(long int in_FK_CommandGroup, long int in_FK_Device)
+Row_CommandGroup_EntertainArea* Table_CommandGroup_EntertainArea::GetRow(long int in_FK_CommandGroup, long int in_FK_EntertainArea)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_CommandGroup, in_FK_Device);
+	Key row_key(in_FK_CommandGroup, in_FK_EntertainArea);
 
-	map<Key, Row_CommandGroup_EntGroup*, Key_Less>::iterator i;
+	map<Key, Row_CommandGroup_EntertainArea*, Key_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -641,7 +641,7 @@ Row_CommandGroup_EntGroup* Table_CommandGroup_EntGroup::GetRow(long int in_FK_Co
 	if (i!=cachedRows.end())
 		return (*i).second;
 	//we have to fetch row
-	Row_CommandGroup_EntGroup* pRow = FetchRow(row_key);
+	Row_CommandGroup_EntertainArea* pRow = FetchRow(row_key);
 
 	if (pRow!=NULL)
 		cachedRows[row_key] = pRow;
@@ -650,7 +650,7 @@ Row_CommandGroup_EntGroup* Table_CommandGroup_EntGroup::GetRow(long int in_FK_Co
 
 
 
-Row_CommandGroup_EntGroup* Table_CommandGroup_EntGroup::FetchRow(Table_CommandGroup_EntGroup::Key &key)
+Row_CommandGroup_EntertainArea* Table_CommandGroup_EntertainArea::FetchRow(Table_CommandGroup_EntertainArea::Key &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -658,15 +658,15 @@ Row_CommandGroup_EntGroup* Table_CommandGroup_EntGroup::FetchRow(Table_CommandGr
 	char tmp_FK_CommandGroup[32];
 sprintf(tmp_FK_CommandGroup, "%li", key.pk_FK_CommandGroup);
 
-char tmp_FK_Device[32];
-sprintf(tmp_FK_Device, "%li", key.pk_FK_Device);
+char tmp_FK_EntertainArea[32];
+sprintf(tmp_FK_EntertainArea, "%li", key.pk_FK_EntertainArea);
 
 
 string condition;
-condition = condition + "FK_CommandGroup=" + tmp_FK_CommandGroup+" AND "+"FK_Device=" + tmp_FK_Device;
+condition = condition + "FK_CommandGroup=" + tmp_FK_CommandGroup+" AND "+"FK_EntertainArea=" + tmp_FK_EntertainArea;
 
 
-	string query = "select * from CommandGroup_EntGroup where " + condition;		
+	string query = "select * from CommandGroup_EntertainArea where " + condition;		
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
@@ -693,7 +693,7 @@ condition = condition + "FK_CommandGroup=" + tmp_FK_CommandGroup+" AND "+"FK_Dev
 						
 	unsigned long *lengths = mysql_fetch_lengths(res);
 
-	Row_CommandGroup_EntGroup *pRow = new Row_CommandGroup_EntGroup(this);
+	Row_CommandGroup_EntertainArea *pRow = new Row_CommandGroup_EntertainArea(this);
 		
 	if (row[0] == NULL)
 {
@@ -709,12 +709,12 @@ sscanf(row[0], "%li", &(pRow->m_FK_CommandGroup));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_Device = 0;
+pRow->m_FK_EntertainArea = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_Device));
+sscanf(row[1], "%li", &(pRow->m_FK_EntertainArea));
 }
 
 if (row[2] == NULL)
@@ -791,19 +791,19 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 }
 
 
-class Row_CommandGroup* Row_CommandGroup_EntGroup::FK_CommandGroup_getrow()
+class Row_CommandGroup* Row_CommandGroup_EntertainArea::FK_CommandGroup_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
 return pTable->GetRow(m_FK_CommandGroup);
 }
-class Row_Device* Row_CommandGroup_EntGroup::FK_Device_getrow()
+class Row_EntertainArea* Row_CommandGroup_EntertainArea::FK_EntertainArea_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_Device *pTable = table->database->Device_get();
-return pTable->GetRow(m_FK_Device);
+class Table_EntertainArea *pTable = table->database->EntertainArea_get();
+return pTable->GetRow(m_FK_EntertainArea);
 }
 
 

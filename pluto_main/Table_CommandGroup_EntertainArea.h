@@ -1,5 +1,5 @@
-#ifndef __Table_CommandGroup_EntGroup_H__
-#define __Table_CommandGroup_EntGroup_H__
+#ifndef __Table_CommandGroup_EntertainArea_H__
+#define __Table_CommandGroup_EntertainArea_H__
 
 #ifdef SQL2CPP_DLLEXPORT
 #define DLL_EXPORT __declspec(dllexport)
@@ -10,10 +10,10 @@
 #include "TableRow.h"
 #include "Database_pluto_main.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_CommandGroup_EntGroup.h"
+#include "Define_CommandGroup_EntertainArea.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_CommandGroup_EntGroup
+class DLL_EXPORT Table_CommandGroup_EntertainArea
 {
 private:
 	Database_pluto_main *database;
@@ -23,65 +23,65 @@ public:
     pluto_pthread_mutex_t m_Mutex;
 	pthread_mutexattr_t m_MutexAttr;
 		
-	Table_CommandGroup_EntGroup(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("CommandGroup_EntGroup")
+	Table_CommandGroup_EntertainArea(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("CommandGroup_EntertainArea")
 	{
 		pthread_mutexattr_init(&m_MutexAttr);
 		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
 		m_Mutex.Init(&m_MutexAttr); 
 	};
-	~Table_CommandGroup_EntGroup();
+	~Table_CommandGroup_EntertainArea();
 
 private:		
-	friend class Row_CommandGroup_EntGroup;
+	friend class Row_CommandGroup_EntertainArea;
 	struct Key
 	{
-		friend class Row_CommandGroup_EntGroup;
+		friend class Row_CommandGroup_EntertainArea;
 		long int pk_FK_CommandGroup;
-long int pk_FK_Device;
+long int pk_FK_EntertainArea;
 
 		
-		Key(long int in_FK_CommandGroup, long int in_FK_Device);
+		Key(long int in_FK_CommandGroup, long int in_FK_EntertainArea);
 	
-		Key(class Row_CommandGroup_EntGroup *pRow);
+		Key(class Row_CommandGroup_EntertainArea *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_CommandGroup_EntGroup::Key &key1, const Table_CommandGroup_EntGroup::Key &key2) const;
+		bool operator()(const Table_CommandGroup_EntertainArea::Key &key1, const Table_CommandGroup_EntertainArea::Key &key2) const;
 	};	
 
-	map<Table_CommandGroup_EntGroup::Key, class Row_CommandGroup_EntGroup*, Table_CommandGroup_EntGroup::Key_Less> cachedRows;
-	map<Table_CommandGroup_EntGroup::Key, class Row_CommandGroup_EntGroup*, Table_CommandGroup_EntGroup::Key_Less> deleted_cachedRows;
-	vector<class Row_CommandGroup_EntGroup*> addedRows;
-	vector<class Row_CommandGroup_EntGroup*> deleted_addedRows;	
+	map<Table_CommandGroup_EntertainArea::Key, class Row_CommandGroup_EntertainArea*, Table_CommandGroup_EntertainArea::Key_Less> cachedRows;
+	map<Table_CommandGroup_EntertainArea::Key, class Row_CommandGroup_EntertainArea*, Table_CommandGroup_EntertainArea::Key_Less> deleted_cachedRows;
+	vector<class Row_CommandGroup_EntertainArea*> addedRows;
+	vector<class Row_CommandGroup_EntertainArea*> deleted_addedRows;	
 		
 
 public:				
 	void Commit();
-	bool GetRows(string where_statement,vector<class Row_CommandGroup_EntGroup*> *rows);
-	class Row_CommandGroup_EntGroup* AddRow();
+	bool GetRows(string where_statement,vector<class Row_CommandGroup_EntertainArea*> *rows);
+	class Row_CommandGroup_EntertainArea* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_CommandGroup_EntGroup* GetRow(long int in_FK_CommandGroup, long int in_FK_Device);
+	class Row_CommandGroup_EntertainArea* GetRow(long int in_FK_CommandGroup, long int in_FK_EntertainArea);
 	
 
 private:	
 	
 		
-	class Row_CommandGroup_EntGroup* FetchRow(Key &key);
+	class Row_CommandGroup_EntertainArea* FetchRow(Key &key);
 		
 			
 };
 
-class DLL_EXPORT Row_CommandGroup_EntGroup : public TableRow, public SerializeClass
+class DLL_EXPORT Row_CommandGroup_EntertainArea : public TableRow, public SerializeClass
 	{
-		friend struct Table_CommandGroup_EntGroup::Key;
-		friend class Table_CommandGroup_EntGroup;
+		friend struct Table_CommandGroup_EntertainArea::Key;
+		friend class Table_CommandGroup_EntertainArea;
 	private:
-		Table_CommandGroup_EntGroup *table;
+		Table_CommandGroup_EntertainArea *table;
 		
 		long int m_FK_CommandGroup;
-long int m_FK_Device;
+long int m_FK_EntertainArea;
 long int m_Sort;
 long int m_psc_id;
 long int m_psc_batch;
@@ -97,7 +97,7 @@ string m_psc_mod;
 	
 	public:
 		long int FK_CommandGroup_get();
-long int FK_Device_get();
+long int FK_EntertainArea_get();
 long int Sort_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -107,7 +107,7 @@ string psc_mod_get();
 
 		
 		void FK_CommandGroup_set(long int val);
-void FK_Device_set(long int val);
+void FK_EntertainArea_set(long int val);
 void Sort_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -131,15 +131,15 @@ void psc_frozen_setNull(bool val);
 		void Delete();
 		void Reload();		
 	
-		Row_CommandGroup_EntGroup(Table_CommandGroup_EntGroup *pTable);
+		Row_CommandGroup_EntertainArea(Table_CommandGroup_EntertainArea *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_CommandGroup_EntGroup *Table_CommandGroup_EntGroup_get() { return table; };
+		class Table_CommandGroup_EntertainArea *Table_CommandGroup_EntertainArea_get() { return table; };
 
 		// Return the rows for foreign keys 
 		class Row_CommandGroup* FK_CommandGroup_getrow();
-class Row_Device* FK_Device_getrow();
+class Row_EntertainArea* FK_EntertainArea_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -147,13 +147,13 @@ class Row_Device* FK_Device_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_FK_CommandGroup+ m_FK_Device+ m_Sort+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_CommandGroup+ m_FK_EntertainArea+ m_Sort+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_CommandGroup_asSQL();
-string FK_Device_asSQL();
+string FK_EntertainArea_asSQL();
 string Sort_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

@@ -1,6 +1,14 @@
 #ifndef __Define_RepositorySource_H__
 #define __Define_RepositorySource_H__
 
+#define REPOSITORYSOURCE_Debian_CONST 1
+#define REPOSITORYSOURCE_Pluto_Debian_CONST 2
+#define REPOSITORYSOURCE_CDDB_direct_link_CONST 3
+#define REPOSITORYSOURCE_Pluto_FTP_CONST 4
+#define REPOSITORYSOURCE_MythTV_CONST 5
+#define REPOSITORYSOURCE_Nerimnet_CONST 6
+#define REPOSITORYSOURCE_Pluto_CVS_CONST 7
+#define REPOSITORYSOURCE_Pluto_SVN_CONST 8
 
 #define REPOSITORYSOURCE_TABLE "RepositorySource"
 #define REPOSITORYSOURCE_PK_REPOSITORYSOURCE_FIELD "PK_RepositorySource"
@@ -13,6 +21,8 @@
 #define REPOSITORYSOURCE_FK_REPOSITORYTYPE_TABLE_FIELD "RepositorySource.FK_RepositoryType"
 #define REPOSITORYSOURCE_DESCRIPTION_FIELD "Description"
 #define REPOSITORYSOURCE_DESCRIPTION_TABLE_FIELD "RepositorySource.Description"
+#define REPOSITORYSOURCE_DEFINE_FIELD "Define"
+#define REPOSITORYSOURCE_DEFINE_TABLE_FIELD "RepositorySource.Define"
 
 
 #endif

@@ -82,6 +82,7 @@ class DLL_EXPORT Row_PageSetup : public TableRow, public SerializeClass
 		long int m_PK_PageSetup;
 long int m_FK_PageSetup_Parent;
 short int m_Website;
+long int m_OrderNum;
 long int m_FK_Package;
 string m_Description;
 string m_pageURL;
@@ -91,7 +92,7 @@ short int m_IsNew_RecordInfo;
 short int m_IsDeleted_RecordInfo;
 long int m_FK_Users_RecordInfo;
 
-		bool is_null[11];
+		bool is_null[12];
 	
 		bool is_deleted;
 		bool is_added;
@@ -101,6 +102,7 @@ long int m_FK_Users_RecordInfo;
 		long int PK_PageSetup_get();
 long int FK_PageSetup_Parent_get();
 short int Website_get();
+long int OrderNum_get();
 long int FK_Package_get();
 string Description_get();
 string pageURL_get();
@@ -114,6 +116,7 @@ long int FK_Users_RecordInfo_get();
 		void PK_PageSetup_set(long int val);
 void FK_PageSetup_Parent_set(long int val);
 void Website_set(short int val);
+void OrderNum_set(long int val);
 void FK_Package_set(long int val);
 void Description_set(string val);
 void pageURL_set(string val);
@@ -125,6 +128,7 @@ void FK_Users_RecordInfo_set(long int val);
 
 		
 		bool FK_PageSetup_Parent_isNull();
+bool OrderNum_isNull();
 bool FK_Package_isNull();
 bool IsNew_RecordInfo_isNull();
 bool IsDeleted_RecordInfo_isNull();
@@ -132,6 +136,7 @@ bool FK_Users_RecordInfo_isNull();
 
 			
 		void FK_PageSetup_Parent_setNull(bool val);
+void OrderNum_setNull(bool val);
 void FK_Package_setNull(bool val);
 void IsNew_RecordInfo_setNull(bool val);
 void IsDeleted_RecordInfo_setNull(bool val);
@@ -159,7 +164,7 @@ void PageSetup_FK_PageSetup_Parent_getrows(vector <class Row_PageSetup*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_PageSetup+ m_FK_PageSetup_Parent+ m_Website+ m_FK_Package+ m_Description+ m_pageURL+ m_showInTopMenu+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_PageSetup+ m_FK_PageSetup_Parent+ m_Website+ m_OrderNum+ m_FK_Package+ m_Description+ m_pageURL+ m_showInTopMenu+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
 		}
 	private:
 		void SetDefaultValues();
@@ -167,6 +172,7 @@ void PageSetup_FK_PageSetup_Parent_getrows(vector <class Row_PageSetup*> *rows);
 		string PK_PageSetup_asSQL();
 string FK_PageSetup_Parent_asSQL();
 string Website_asSQL();
+string OrderNum_asSQL();
 string FK_Package_asSQL();
 string Description_asSQL();
 string pageURL_asSQL();

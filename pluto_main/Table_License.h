@@ -127,7 +127,8 @@ void URL_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		
+		void Package_FK_License_getrows(vector <class Row_Package*> *rows);
+
 
 		// Setup binary serialization
 		void SetupSerialization() {

@@ -14,7 +14,8 @@
 #include "SerializeClass/SerializeClass.h"
 
 #define SERIALIZE_DATA_TYPE_MAP_DCEDEVICEDATA_BASE			2000
-#define SERIALIZE_DATA_TYPE_MAP_DCECATEGORY				2001
+#define SERIALIZE_DATA_TYPE_MAP_DCECATEGORY					2001
+#define SERIALIZE_DATA_TYPE_MAP_DCEDEVICE_GROUP			2002
 
 namespace DCE
 {
@@ -23,6 +24,7 @@ namespace DCE
 	typedef map<int,class Command_Base *> Map_Command_Base;
 	typedef map<int,class DeviceData_Base *> Map_DeviceData_Base;
 	typedef map<int,class DeviceCategory *> Map_DeviceCategory;
+	typedef map<int,class DeviceGroup *> Map_DeviceGroup;
 
 	/**
 	 * @brief this class contains information about a device category
@@ -79,7 +81,8 @@ namespace DCE
 	
 		Map_DeviceData_Base m_mapDeviceData_Base; /** < a map with all the devices */
 		Map_DeviceCategory m_mapDeviceCategory; /** < a map with all the device categories */
-		
+		Map_DeviceGroup m_mapDeviceGroup; /** < a map with all the device groups */
+
 		/**
 		 * @brief finds the DeviceData_Base item associated with the specified device
 		 */
@@ -97,13 +100,21 @@ namespace DCE
 		}
 
 		/**
+		 * @brief finds the DeviceGroup item associated with the specified device Group id
+		 */
+		DeviceGroup *m_mapDeviceGroup_Find( unsigned long dwPK_DeviceGroup ) {
+			Map_DeviceGroup::iterator it = m_mapDeviceGroup.find( dwPK_DeviceGroup );
+			return it == m_mapDeviceGroup.end() ? NULL : (*it).second;
+		}
+
+		/**
 		 * @brief setups serialization for the class member data
 		 * @warning the maps are serialized custom
 		 * @see the overloads for the + operator
 		 */
 		void SetupSerialization()
 		{
-			(*this) + m_mapDeviceData_Base + m_mapDeviceCategory; // this is serialized custom
+			(*this) + m_mapDeviceData_Base + m_mapDeviceCategory + m_mapDeviceGroup; // this is serialized custom
 		}
 		
 		/**
@@ -112,7 +123,8 @@ namespace DCE
 		virtual string SerializeClassClassName() { return "AllDevices"; }
 
 		/** overloding + for our custom serialize types */
-		
+
+
 		/**
 		 * @brief adds a new ItemToSerialize to the m_listItemToSerialize list (the DeviceData_Base map)
 		 */
@@ -122,6 +134,11 @@ namespace DCE
 		 * @brief adds a new ItemToSerialize to the m_listItemToSerialize list (the DeviceCategory map)
 		 */
 		AllDevices &operator+ ( Map_DeviceCategory &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_MAP_DCECATEGORY, (void *) &i ) ); return (*this); }
+
+		/**
+		 * @brief adds a new ItemToSerialize to the m_listItemToSerialize list (the DeviceGroup vector)
+		 */
+		AllDevices &operator+ ( Map_DeviceGroup &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_MAP_DCEDEVICE_GROUP, (void *) &i) ); return (*this); }
 
 		/**
 		 * @brief overrides the SerializeClass::UnknownSerialize method
@@ -135,12 +152,34 @@ namespace DCE
 		 */
 		virtual bool Serialize( bool bWriting,char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL );
 	};
-	
-	
+
+	/**
+	 * @brief Contains a group of devices
+	 * A DeviceGroup is just a user-defined group of devices.  The purpose
+	 * of the group depends on the implementation.  This class does
+	 * nothing but store the devices within the group.
+	 */
+	class DeviceGroup : public SerializeClass
+	{
+	public:
+		int m_dwPK_DeviceGroup;
+		string m_sDescription;
+		vector<int> m_vectPK_Device;
+		vector<class DeviceData_Base *> m_vectDeviceData_Base;
+
+		DeviceGroup(int dwPK_DeviceGroup,string sDescription) { m_sDescription=sDescription; m_dwPK_DeviceGroup=dwPK_DeviceGroup; }
+		DeviceGroup() {}
+
+		void SetupSerialization()
+		{
+			StartSerializeList() + m_dwPK_DeviceGroup + m_sDescription + m_vectPK_Device;
+		}
+	};
+
 	/**
 	 * @brief this is the lowest level base class that contains primitive information about a Device
-	 * Every DCE device will have a map pointing to this basic
-	 * information.  The higher level classes which contain more information needed
+	 * Every DCE device is derived from this base class.
+	 * The higher level classes which contain more information needed
 	 * for the DCE Implementation: DeviceData_Impl and for the router:
 	 * DeviceData_Router are derived from this base class.
 	 */
@@ -169,10 +208,12 @@ namespace DCE
 		string m_sCommandLine; /** < the command line for the device @todo ask */
 		string m_sIPAddress; /** < the IP address for the device */
 		string m_sMacAddress; /** < the MAC address for the device */
+		string m_sDescription; /** < freeform description for the device */
 
 		map<int,string> m_mapCommands; /** < map of commands for the device */
 		AllDevices m_AllDevices;  /** < all the devices in the system */
 		DeviceCategory *m_pDeviceCategory; /** < pointer to a DeviceCategory object to witch this device belongs */
+		vector<DeviceGroup *> m_vectDeviceGroup; /** < the groups we are a member of */
 
 		/**
 		 * @brief pointer to devices controlling this one
@@ -225,7 +266,7 @@ namespace DCE
 		 * Call this contstructor to create it dynamically
 		 */
 		DeviceData_Base( unsigned long dwPK_Device, unsigned long dwPK_Installation, unsigned long dwPK_DeviceTemplate, unsigned long dwPK_Device_ControlledVia,
-				unsigned long dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn, string sIPAddress, string sMacAddress )
+				unsigned long dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn, string sDescription, string sIPAddress, string sMacAddress )
 		{ 
 			m_pDeviceCategory = NULL;
 			m_pDevice_ControlledVia = NULL;
@@ -239,6 +280,7 @@ namespace DCE
 			m_bIsEmbedded = bIsEmbedded;
 			m_sCommandLine = sCommandLine;
 			m_bIsPlugIn = bIsPlugIn;
+			m_sDescription=sDescription;
 			m_sIPAddress = sIPAddress;
 			m_sMacAddress = sMacAddress;
 		}
@@ -249,7 +291,7 @@ namespace DCE
 		void SetupSerialization()
 		{
 			StartSerializeList() + m_bImplementsDCE + m_dwPK_Device + m_dwPK_Installation + m_dwPK_DeviceTemplate + m_dwPK_Device_ControlledVia +
-				m_dwPK_DeviceCategory + m_dwPK_Room + m_bIsPlugIn + m_bIsEmbedded + m_sCommandLine + m_mapCommands + m_sIPAddress + m_sMacAddress;
+				m_dwPK_DeviceCategory + m_dwPK_Room + m_bIsPlugIn + m_bIsEmbedded + m_sCommandLine + m_mapCommands + m_sDescription + m_sIPAddress + m_sMacAddress;
 		}
 
 		/**

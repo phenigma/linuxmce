@@ -1279,6 +1279,7 @@
 #define DESIGNOBJ_no_CONST 3152
 #define DESIGNOBJ_go_to_new_device_CONST 3153
 #define DESIGNOBJ_navmode_CONST 3154
+#define DESIGNOBJ_pvr_CONST 3155
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

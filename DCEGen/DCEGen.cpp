@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 	}
 	if( !PK_DeviceTemplate )
 	{
-		if( bTemplates && !AskQuestion("You didn't specify a device.  Do you want to rebuild all of them?",false) )
+		if( bTemplates && !AskYNQuestion("You didn't specify a device.  Do you want to rebuild all of them?",false) )
 			return 0;
 
 		vector<Row_DeviceTemplate *> vectRow_DeviceTemplate;
@@ -724,7 +724,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 				<< "The normal selection is to merge in automatically.  I will" << endl
 				<< "go through your source files and replace the function declarations" << endl
 				<< "without touching your code.";
-			char c = AskQuestion("What would you like to do?  Merge, Overwrite, Leave in temp directory, Abort",string("Mola"));
+			char c = AskMCQuestion("What would you like to do?  Merge, Overwrite, Leave in temp directory, Abort","Mola");
 			if( c=='m' || c=='l' )
 			{
 				if( c=='m' )
@@ -923,7 +923,8 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 
 			if( bDefinition )
 			{
-				fputs(("void " + Classname + "::CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") + pCommandInfo->m_sParmsWithTypePointers_Out + (pCommandInfo->m_sParmsWithType_In.length() || pCommandInfo->m_sParmsWithTypePointers_Out.length() ? "," : "") + "string &sCMD_Result,Message *pMessage)\n").c_str(),file);
+				fputs(("void " + Classname + "::CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + 
+					(pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") + pCommandInfo->m_sParmsWithTypePointers_Out + (pCommandInfo->m_sParmsWithType_In.length() || pCommandInfo->m_sParmsWithTypePointers_Out.length() ? "," : "") + "string &sCMD_Result,Message *pMessage)\n").c_str(),file);
 				fputs(("//<-dceag-c" + StringUtils::itos(pRow_Command->PK_Command_get()) + "-e->\n").c_str(),file);
 				fputs("{\n",file);
 				fputs(("\tcout << \"Need to implement command #" + StringUtils::itos(pRow_Command->PK_Command_get()) + 
@@ -946,11 +947,11 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 			}
 			else
 			{
-				fputs(("\tvirtual void CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") 
+				fputs(("\tvirtual void CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") 
 					+ pCommandInfo->m_sParmsWithTypePointers_Out + 
 					+ ") { string sCMD_Result; CMD_" + pCommandInfo->CPPName() + "(" + StringUtils::Replace(pCommandInfo->m_sParmsWithNoType_In,"&","")
 					+ (pCommandInfo->m_sParmsWithNoType_In.length() ? "," : "") + "sCMD_Result,NULL);};\n").c_str(),file);
-				fputs(("\tvirtual void CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") + pCommandInfo->m_sParmsWithTypePointers_Out + (pCommandInfo->m_sParmsWithType_In.length() || pCommandInfo->m_sParmsWithTypePointers_Out.length() ? "," : "") + "string &sCMD_Result,Message *pMessage);\n\n").c_str(),file);
+				fputs(("\tvirtual void CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") + pCommandInfo->m_sParmsWithTypePointers_Out + (pCommandInfo->m_sParmsWithType_In.length() || pCommandInfo->m_sParmsWithTypePointers_Out.length() ? "," : "") + "string &sCMD_Result,Message *pMessage);\n\n").c_str(),file);
 			}
 		}
 
