@@ -313,7 +313,8 @@ bool PackageIsCompatible(Row_Package *pRow_Package)
 	vector<Row_Package_Compat *> vectRow_Package_Compat;
 	pRow_Package->Table_Package_get()->Database_pluto_main_get()->Package_Compat_get()->GetRows(
 		"(FK_Distro IS NULL OR FK_Distro=" + StringUtils::itos(g_pRow_Distro->PK_Distro_get()) +") AND " +
-		"(FK_OperatingSystem IS NULL OR FK_OperatingSystem=" + StringUtils::itos(g_pRow_Distro->FK_OperatingSystem_get()),
+		"(FK_OperatingSystem IS NULL OR FK_OperatingSystem=" + StringUtils::itos(g_pRow_Distro->FK_OperatingSystem_get()) + ") AND "+
+		"FK_Package=" + StringUtils::itos(pRow_Package->PK_Package_get()),
 		&vectRow_Package_Compat);
 	return vectRow_Package_Compat.size()!=0;
 	
