@@ -63,6 +63,18 @@ function devices($output,$dbADO) {
 		$roomIDArray[]=$rowRoom['PK_Room'];
 	}
 	
+	
+	if(isset($_REQUEST['lastAdded'])){
+		$rs=$dbADO->Execute('SELECT Comments FROM DeviceTemplate WHERE PK_DeviceTemplate=?',(int)$_REQUEST['lastAdded']);
+		$row=$rs->FetchRow();
+		if($row['Comments']!=''){
+			$out.='<script>
+				alert(\''.addslashes($row['Comments']).'\')
+			</script>';
+		}
+	}
+	
+	
 	if ($action == 'form') {
 		$out.='
 	<script>
@@ -81,7 +93,8 @@ function devices($output,$dbADO) {
 					<td align="center"><B>Type of Device</B></td>
 					<td align="center"><B>Description</B></td>
 					<td align="center"><B>Room</B></td>
-					<td align="center"><B>Controlled by</B></td>';
+					<td align="center"><B>Controlled by</B></td>
+					<td align="center"><B>Device Data</B></td>';
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();
 				$DeviceDataDescriptionToDisplay=array();
@@ -90,9 +103,11 @@ function devices($output,$dbADO) {
 				$joinArray[]=0;
 				$queryDevice='
 					SELECT 
-						Device.*, DeviceTemplate.Description AS TemplateName
+						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased
 					FROM Device 
 						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+						INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
 					WHERE
 						FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
@@ -119,27 +134,42 @@ function devices($output,$dbADO) {
 						$DeviceDataToDisplay[]=$rowDDD['PK_DeviceData'];
 						$DDTypesToDisplay[]=$rowDDD['paramName'];
 						$DeviceDataDescriptionToDisplay[]=$rowDDD['Description'];
-						$out.='<td align="center"><b>'.$rowDDD['Description'].'</b></td>';
+						//$out.='<td align="center"><b>'.$rowDDD['Description'].'</b></td>';
 					}
 				}	
 				
 				$out.='<td align="center">&nbsp;</td>
 				</tr>';				
 			$resDevice->MoveFirst();
+			$pos=0;
 			while($rowD=$resDevice->FetchRow()){
-				
+				$pos++;
 				$out.='
-				<tr>
-					<td align="center">'.$rowD['TemplateName'].'</td>
-					<td align="center"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"></td>
-					<td><select name="room_'.$rowD['PK_Device'].'">
+				<tr bgcolor="'.(($pos%2==1)?'#EEEEEE':'').'">
+					<td align="center" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'"><B>'.$rowD['TemplateName'].'</B>';
+				if($rowD['IsIPBased']==1){
+					$out.='<table>
+						<tr>
+							<td>IP</td>
+							<td><input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"></td>
+						</tr>
+						<tr>
+							<td>MAC</td>
+							<td><input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'"></td>
+						</tr>
+					</table>';
+				}
+				$out.='
+					</td>
+					<td align="center" ><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"></td>
+					<td ><select name="room_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
 				foreach($roomIDArray as $key => $value){
 					$out.='<option value="'.$value.'" '.(($rowD['FK_Room']==$value)?'selected':'').'>'.$roomArray[$key].'</option>';
 				}
 
 			$out.='		</select></td>
-					<td><select name="controlledBy_'.$rowD['PK_Device'].'">
+					<td ><select name="controlledBy_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
 
 			GetDeviceControlledVia($rowD['PK_Device'], $dbADO);
@@ -151,19 +181,16 @@ function devices($output,$dbADO) {
 			
 			$out.='</td>
 					';
+				$out.='<td align="right" >';
 				foreach($DeviceDataToDisplay as $key => $value){
 					$queryDDforDevice='
-						SELECT 
-							DeviceData.Description, 
-							ParameterType.Description AS typeParam,
-							Device_DeviceData.IK_DeviceData
-						FROM DeviceData
-							INNER JOIN ParameterType ON 
-								FK_ParameterType = PK_ParameterType 
-							INNER JOIN Device_DeviceData ON 
-								FK_DeviceData=PK_DeviceData
-						WHERE
-							FK_Device = ? AND FK_DeviceData=?';
+						SELECT DeviceData.Description, ParameterType.Description AS typeParam, Device_DeviceData.IK_DeviceData,ShowInWizard,ShortDescription,AllowedToModify,DeviceTemplate_DeviceData.Description AS Tooltip
+						FROM DeviceData 
+						INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
+						INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
+						INNER JOIN Device ON FK_Device=PK_Device
+						LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
+						WHERE FK_Device = ? AND Device_DeviceData.FK_DeviceData=?';
 
 					$resDDforDevice=$dbADO->Execute($queryDDforDevice,array($rowD['PK_Device'],$value));
 
@@ -171,49 +198,49 @@ function devices($output,$dbADO) {
 						$rowDDforDevice=$resDDforDevice->FetchRow();
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 					}
-					$out.='<td align="center">';
-					switch($DDTypesToDisplay[$key]){
-						case 'int':
-							if(in_array($DeviceDataDescriptionToDisplay[$key],$GLOBALS['DeviceDataLinkedToTables']))
-							{
-								$tableName=str_replace('PK_','',$DeviceDataDescriptionToDisplay[$key]);
-								$filterQuery='';
-								switch($tableName){
-									case 'Device':
-										$filterQuery=" WHERE FK_Installation='".$installationID."'";
-									break;
-									case 'FloorplanObjectType':
-										$filterQuery=" WHERE FK_FloorplanType='".$specificFloorplanType."'";
+					if($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']==''){
+						$out.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> ';
+						switch($DDTypesToDisplay[$key]){
+							case 'int':
+								if(in_array($DeviceDataDescriptionToDisplay[$key],$GLOBALS['DeviceDataLinkedToTables']))
+								{
+									$tableName=str_replace('PK_','',$DeviceDataDescriptionToDisplay[$key]);
+									$filterQuery='';
+									switch($tableName){
+										case 'Device':
+											$filterQuery=" WHERE FK_Installation='".$installationID."'";
+										break;
+										case 'FloorplanObjectType':
+											$filterQuery=" WHERE FK_FloorplanType='".$specificFloorplanType."'";
+									}
+									
+									$queryTable="SELECT * FROM $tableName $filterQuery ORDER BY Description ASC";
+									$resTable=$dbADO->Execute($queryTable);
+									$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>
+											<option value="0">- Please select -</option>';
+									while($rowTable=$resTable->FetchRow()){
+										$out.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').'>'.$rowTable['Description'].'</option>';
+									}
+									$out.='</select>';
 								}
-								
-								$queryTable="SELECT * FROM $tableName $filterQuery ORDER BY Description ASC";
-								$resTable=$dbADO->Execute($queryTable);
-								$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'">
-										<option value="0">- Please select -</option>';
-								while($rowTable=$resTable->FetchRow()){
-									$out.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').'>'.$rowTable['Description'].'</option>';
-								}
-								$out.='</select>';
-							}
-							else 
-								$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'">';
-						break;
-						case 'bool':
-							$out.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').'>';
-						break;
-						default:
-							$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'">';
+								else 
+									$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+							break;
+							case 'bool':
+								$out.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+							break;
+							default:
+								$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+						}
+						
+						
+						$out.=' <img src="include/images/tooltip.gif" title="'.$rowDDforDevice['Tooltip'].'" border="0" align="middle"><br>	
+							<input type="hidden" name="oldDeviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.(($resDDforDevice->RecordCount()>0)?$ddValue:'NULL').'">';					
+						unset($ddValue);
 					}
-					
-					
-					$out.='	</td>
-						<input type="hidden" name="oldDeviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.(($resDDforDevice->RecordCount()>0)?$ddValue:'NULL').'">';					
-					unset($ddValue);
 				}
-			$out.='	
+			$out.='	</td>
 					<td align="center">';
-			if($type=='avEquipment')
-				$out.='<input type="button" class="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=devices&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" class="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> ';
 					$out.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  ></td>
 				</tr>';
 			}
@@ -263,10 +290,15 @@ function devices($output,$dbADO) {
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
 				$description=@$_POST['description_'.$value];
+				if(isset($_POST['ip_'.$value])){
+					$ip=$_POST['ip_'.$value];
+					$mac=$_POST['mac_'.$value];
+					$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
+				}
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 				$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
 				
-				$updateDevice='UPDATE Device SET Description=?, FK_Room=?,FK_Device_ControlledVia =? WHERE PK_Device=?';
+				$updateDevice='UPDATE Device SET Description=?, FK_Room=?,FK_Device_ControlledVia =? '.@$updateMacIp.' WHERE PK_Device=?';
 				$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
@@ -300,6 +332,8 @@ function devices($output,$dbADO) {
 				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);				
 				setDCERouterNeedConfigure($installationID,$dbADO);
 			}
+			header("Location: index.php?section=devices&type=$type&lastAdded=$deviceTemplate");
+			exit();
 		}
 		header("Location: index.php?section=devices&type=$type");		
 	}

@@ -1144,7 +1144,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			$arJsPos=0;
 				while ($row = $rs->FetchRow()) {
 					
-					$selectModels.="<option ".($selectedModel==$row['PK_DeviceTemplate']?" selected ":"")." value='{$row['PK_DeviceTemplate']}'>{$row['Description']}</option>";
+					$selectModels.="<option ".($selectedModel==$row['PK_DeviceTemplate']?" selected ":"")." value='{$row['PK_DeviceTemplate']}' ".(($row['IsPlugAndPlay']==1)?'style="background-color:lightgreen;"':'').">{$row['Description']}</option>";
 					
 					if ($row['PK_DeviceTemplate']>0) {
 					$modelsJsArray.='
@@ -1366,7 +1366,8 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 					
 					$out.='	<b>New:</b>
 							<input type="text" name="DeviceTemplate_Description" size="15"'.$disabledAdd.' />
-							<input type="submit" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  />';
+							<input type="submit" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  />
+							<br>Device templates highlighted are plug and play.';
 				}
 				$out.='
 						</td>				

@@ -43,7 +43,7 @@ function editInfraredGroupFromMasterDevice($output,$dbADO) {
 						<option value="0">-please select-</option>
 						';
 		
-						$queryMasterDeviceCategories_parents = 'select PK_DeviceCategory,Description from DeviceCategory where FK_DeviceCategory_Parent is null order by Description asc';
+						$queryMasterDeviceCategories_parents = 'SELECT PK_DeviceCategory,Description FROM DeviceCategory WHERE FK_DeviceCategory_Parent IS NULL ORDER BY Description ASC';
 						$rs = $dbADO->_Execute($queryMasterDeviceCategories_parents);
 							while ($row = $rs->FetchRow()) {
 								$out.='<option '.($row['PK_DeviceCategory']==$deviceCategoryID?' selected ': ' ').' value="'.$row['PK_DeviceCategory'].'">'.$row['Description'].'</option>';

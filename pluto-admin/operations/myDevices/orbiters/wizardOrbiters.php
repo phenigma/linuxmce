@@ -57,9 +57,11 @@ function wizardOrbiters($output,$dbADO) {
 				$joinArray[]=0;
 				$queryDevice='
 					SELECT 
-						Device.*, DeviceTemplate.Description AS TemplateName 
+						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased
 					FROM Device 
 						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+						INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
 					WHERE
 						FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
@@ -104,11 +106,25 @@ function wizardOrbiters($output,$dbADO) {
 				<table align="center" border="0">
 				<tr>
 					<td align="right"><B>DeviceTemplate</B></td>
-					<td align="left">'.$rowD['TemplateName'].'</td>
+					<td align="left" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">'.$rowD['TemplateName'].'</td>
 				</tr>
+				<tr>
 					<td align="right"><B>Description</B></td>
 					<td align="left"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.stripslashes($rowD['Description']).'"></td>
-				</tr>
+				</tr>';
+				if($rowD['IsIPBased']==1){
+					$out.='
+						<tr>
+							<td>IP</td>
+							<td><input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"></td>
+						</tr>
+						<tr>
+							<td>MAC</td>
+							<td><input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'"></td>
+						</tr>';
+				}				
+			$out.='
+				<tr>
 					<td align="right"><B>Room</B></td>
 					<td><select name="room_'.$rowD['PK_Device'].'">
 										<option value="0"></option>';
@@ -121,7 +137,7 @@ function wizardOrbiters($output,$dbADO) {
 					';
 				foreach($DeviceDataToDisplay as $key => $value){
 					$queryDDforDevice='
-						SELECT DeviceData.Description, ParameterType.Description AS typeParam, Device_DeviceData.IK_DeviceData,ShowInWizard,ShortDescription 
+						SELECT DeviceData.Description, ParameterType.Description AS typeParam, Device_DeviceData.IK_DeviceData,ShowInWizard,ShortDescription,AllowedToModify,DeviceTemplate_DeviceData.Description AS Tooltip 
 						FROM DeviceData 
 						INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
 						INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
@@ -135,7 +151,7 @@ function wizardOrbiters($output,$dbADO) {
 						$rowDDforDevice=$resDDforDevice->FetchRow();
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 					}
-					if($rowDDforDevice['ShowInWizard']==1){
+					if($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']==''){
 						$out.='
 						<tr>
 							<td align="right"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b></td>
@@ -150,7 +166,7 @@ function wizardOrbiters($output,$dbADO) {
 									else
 										$queryTable="SELECT Users.*, Users.Username AS Description FROM Users ORDER BY Description ASC";
 									$resTable=$dbADO->Execute($queryTable);
-									$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'">
+									$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>
 											<option value="0"></option>';
 									while($rowTable=$resTable->FetchRow()){
 										$out.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').'>'.$rowTable['Description'].'</option>';
@@ -158,17 +174,17 @@ function wizardOrbiters($output,$dbADO) {
 									$out.='</select>';
 								}
 								else 
-									$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'">';
+									$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 							break;
 							case 'bool':
-								$out.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').'>';
+								$out.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 							break;
 							default:
-								$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'">';
+								$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 						}
 						
 						
-						$out.='	</td>
+						$out.='	<img src="include/images/tooltip.gif" title="'.$rowDDforDevice['Tooltip'].'" border="0" align="middle"></td>
 							</tr>
 							<input type="hidden" name="oldDeviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.(($resDDforDevice->RecordCount()>0)?$ddValue:'NULL').'">';					
 						unset($ddValue);
@@ -182,7 +198,10 @@ function wizardOrbiters($output,$dbADO) {
 					</td>
 					</tr>
 				</table></td>';
-				$out.=($orbiterCount%2==0)?'</tr>':'';
+				$out.=($orbiterCount%2==0)?'</tr>
+					<tr>
+						<td colspan="2">&nbsp;</td>
+					</tr>':'';
 			}
 			$out.='
 				<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$DeviceDataToDisplay).'">
@@ -242,9 +261,14 @@ function wizardOrbiters($output,$dbADO) {
 			foreach($displayedDevicesArray as $key => $value){
 				$deviceTemplate=(int)@$_POST['deviceTemplate_'.$value];
 				$description=@$_POST['description_'.$value];
+				if(isset($_POST['ip_'.$value])){
+					$ip=$_POST['ip_'.$value];
+					$mac=$_POST['mac_'.$value];
+					$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
+				}
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 				
-				$updateDevice='UPDATE Device SET Description=?, FK_Room=? WHERE PK_Device=?';
+				$updateDevice='UPDATE Device SET Description=?, FK_Room=? '.@$updateMacIp.' WHERE PK_Device=?';
 				$dbADO->Execute($updateDevice,array($description,$room,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){

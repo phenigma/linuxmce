@@ -69,7 +69,8 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						<td>
 							<input type="text" name="userUserName_'.$rowUser['PK_Users'].'" value="'.$rowUser['UserName'].'">							
 							<a href="javascript:void(0);" onClick="if (confirm(\'Are you sure you want to remove user from this installation?\')) { windowOpen(\'index.php?section=removeUserFromInstallation&from=users&userID='.$rowUser['PK_Users'].'\',\'width=500,height=500,toolbars=true,resizable=yes\');}">Remove User From Installation</a><br />
-							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">Change Password</a>
+							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">Change Password</a><br>
+							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbars=true,resizable=yes\');">Change PIN</a>
 						</td>
 						<td><input type="checkbox" name="userHasMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['HasMailbox']?" checked='checked' ":'').'></td>
 						<td><input type="checkbox" name="userAccessGeneralMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['AccessGeneralMailbox']?" checked='checked' ":'').'></td>

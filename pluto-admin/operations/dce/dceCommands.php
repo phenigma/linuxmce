@@ -24,7 +24,7 @@ function dceCommands($output,$dbADO) {
 			<tr bgcolor="lightblue">
 				<td align="center" width="120"><B>Command category</B></td>
 				<td align="center"><B>Command description</b></td>
-				<td align="center"><B>Used by</B></td>
+				<td align="center" colspan="2"><B>Used by</B></td>
 			</tr>
 		';
 		
@@ -80,28 +80,46 @@ function formatOutput($resRootCC,$dbADO,$level)
 
 		$out.='
 			<tr bgcolor="#EEEEEE">
-				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=dceCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
+				<td colspan="2">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=dceCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
+				<td align="center"><B>Device Templates</B></td>
+				<td align="center"><B>Devices</B></td>
 			</tr>';
 		$resCommands=$dbADO->Execute('SELECT * FROM Command WHERE FK_CommandCategory=? ORDER BY Description ASC',$rowRootCC['PK_CommandCategory']);
 		$cmdPos=0;
 		while($rowCommands=$resCommands->FetchRow()){
 			$cmdPos++;
-			$queryCG_C='
-				SELECT Description,PK_CommandGroup 
-				FROM CommandGroup_Command
-				INNER JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup
-				WHERE FK_Command=? AND FK_Installation=?
-				ORDER BY CommandGroup.Description ASC';
-			$resCG_C=$dbADO->Execute($queryCG_C,array($rowCommands['PK_Command'],$installationID));
-			$cgLinksArray=array();
-			while($rowCG_C=$resCG_C->FetchRow()){
-				$cgLinksArray[]='<a href="index.php?section=editCommandGroup&cgID='.$rowCG_C['PK_CommandGroup'].'">'.$rowCG_C['Description'].'</a>';
+			$query='
+				SELECT DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate, DeviceTemplate.Description AS TemplateName,PK_Device,Device.Description AS DeviceName
+				FROM DeviceTemplate_DeviceCommandGroup
+				INNER JOIN DeviceTemplate ON DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate=PK_DeviceTemplate
+				INNER JOIN Device ON DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate=Device.FK_DeviceTemplate
+				INNER JOIN DeviceCommandGroup_Command ON DeviceCommandGroup_Command.FK_DeviceCommandGroup=DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup
+				WHERE FK_Command=? AND Device.FK_Installation=?';
+			$res=$dbADO->Execute($query,array($rowCommands['PK_Command'],$installationID));
+			$deviceTemplates=array();
+			$devices=array();
+			while($row=$res->FetchRow()){
+				if(!in_array($row['TemplateName'],$deviceTemplates))
+					$deviceTemplates[$row['FK_DeviceTemplate']]=$row['TemplateName'];
+				if(!in_array($row['DeviceName'],$devices))
+					$devices[$row['PK_Device']]=$row['DeviceName'];
 			}
+			$dtLinks=array();
+			foreach($deviceTemplates as $dtID=>$description){
+				$dtLinks[]='<a href="index.php?section=editMasterDevice&model='.$dtID.'&from=dceCommands">'.$description.'</a>';
+			}
+			
+			$devicesLinks=array();
+			foreach($devices as $deviceID=>$description){
+				$devicesLinks[]='<a href="index.php?section=editDeviceParams&deviceID='.$deviceID.'">'.$description.'</a>';
+			}
+
 			$out.='
 				<tr>
 					<td>&nbsp;</td>
 					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=dceCommands&commandID='.$rowCommands['PK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$rowCommands['Description'].'<a></td>
-					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.join(', ',$cgLinksArray).'</td>
+					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.join(', ',$dtLinks).'</td>
+					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.join(', ',$devicesLinks).'</td>
 				</tr>';
 		}
 		$out.=getCommandCategoryChilds($rowRootCC['PK_CommandCategory'],$dbADO,$level+1);

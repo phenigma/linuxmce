@@ -432,7 +432,7 @@ $out='';
 									<input type="checkbox" name="InfraredGroup_'.$rowCategIG['PK_InfraredGroup'].'" value="1" '.((in_array($rowCategIG['PK_InfraredGroup'],$checkedIGArray))?'checked':'').' onClick="document.editMasterDevice.submit();">'.stripslashes($rowCategIG['Description']).' #'.$rowCategIG['PK_InfraredGroup'].' (by category and manufacturer)
 								</td>
 								<td>
-									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editInfraredGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&infraredGroupID='.$row['PK_InfraredGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Infrared Commands</a>								
+									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editInfraredGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&infraredGroupID='.$rowCategIG['PK_InfraredGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Infrared Commands</a>								
 								</td>
 							  </tr>';
 						$infraredGroupsDisplayed[]=$rowCategIG['PK_InfraredGroup'];

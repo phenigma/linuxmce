@@ -62,6 +62,13 @@ function mediaScenarios($output,$dbADO) {
 			$out.='
 					</select></td>
 				</tr>';
+			if($resEntAreas->RecordCount()==0){
+				$out.='
+				<tr>
+					<td colspan="2" class="err">No entertain areas available. Please go to <a href="index.php?section=rooms">rooms</a> and add entertain areas.</td>
+				</tr>';
+			}
+			
 			if((int)@$_POST['newEntArea']!=0){
 				$queryDevices='
 					SELECT DISTINCT PK_Device, Device.Description, Device.FK_DeviceTemplate
@@ -82,7 +89,14 @@ function mediaScenarios($output,$dbADO) {
 				$out.='
 						</select></td>
 					</tr>';
+			if($resDevices->RecordCount()==0){
+				$out.='
+				<tr>
+					<td colspan="2" class="err">No media devices in selected entertain area. Please add media devices to this entertain area.</td>
+				</tr>';
+			}
 
+				
 				if(isset($_POST['MSDevice']) && $_POST['MSDevice']!='0'){
 					$deviceArray=explode('-',$_POST['MSDevice']);
 					$out.='
@@ -102,6 +116,12 @@ function mediaScenarios($output,$dbADO) {
 						</select>
 						</td>
 					</tr>';
+					if($resMediaTypes->RecordCount()==0){
+						$out.='
+							<tr>
+								<td colspan="2" class="err">Selected device does not have any media type. Please select another device.</td>
+							</tr>';
+					}						
 					
 					if(isset($_POST['newType']) && $_POST['newType']!='0'){
 						$queryRemotes='				
@@ -124,6 +144,12 @@ function mediaScenarios($output,$dbADO) {
 						$out.='</select>
 						</td>
 					</tr>';
+						if($resRemotes->RecordCount()==0){
+							$out.='
+							<tr>
+								<td colspan="2" class="err">Selected type does not have a remote. Please select another type.</td>
+							</tr>';
+						}						
 					}
 					if(isset($_POST['newRemote']) && $_POST['newRemote']!='0'){
 						$out.='

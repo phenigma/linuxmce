@@ -470,6 +470,13 @@ switch ($section) {
 	    include_once('operations/users_settings/userChangePassword.php');
 	    userChangePassword($output,$dbADO);	    
 	break;
+	case 'userChangePIN':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/users_settings/userChangePIN.php');
+	    userChangePIN($output,$dbADO);	    
+	break;
+	
 	//orbiters
 	case 'orbiters':
 		$output = new Template($dbADO);

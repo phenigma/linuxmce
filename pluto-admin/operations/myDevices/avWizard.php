@@ -13,7 +13,7 @@ function avWizard($output,$dbADO) {
 	switch($type){
 		case 'avEquipment':
 			$deviceCategory=$GLOBALS['rootAVEquipment'];
-			$specificFloorplanType=$GLOBALS['EntertainmentZone'];
+			$specificFloorplanType=$GLOBALS['AVEquipmentFlorplanType'];
 			$title='A/V Equipment';
 		break;
 		case 'media_directors':
@@ -64,18 +64,17 @@ function avWizard($output,$dbADO) {
 		$roomIDArray[]=$rowRoom['PK_Room'];
 	}
 
-	$queryEA='
-		SELECT * 
-			FROM EntertainArea 
-			INNER JOIN Room ON FK_Room=PK_Room
-		WHERE FK_Installation=?
-		ORDER BY EntertainArea.Description ASC';
-	$resEA=$dbADO->Execute($queryEA,$installationID);
-	$eaArray=array();
-	while($rowEA=$resEA->FetchRow()){
-		$eaArray[$rowEA['PK_EntertainArea']]=$rowEA['Description'];
+	if(isset($_REQUEST['lastAdded'])){
+		$rs=$dbADO->Execute('SELECT Comments FROM DeviceTemplate WHERE PK_DeviceTemplate=?',(int)$_REQUEST['lastAdded']);
+		$row=$rs->FetchRow();
+		if($row['Comments']!=''){
+			$out.='<script>
+				alert(\''.addslashes($row['Comments']).'\')
+			</script>';
+		}
 	}
 
+	
 	if ($action == 'form') {
 		$out.='
 	<script>
@@ -94,8 +93,6 @@ function avWizard($output,$dbADO) {
 				<tr>
 					<td align="center"><B>Device</B></td>
 					<td align="center"><B>Room '.(($type!='media_directors')?'/ Controlled by':'').'</B></td>';
-		if($type!='media_directors')
-			$out.='	<td align="center"><B>Entertain area</B></td>';
 		$out.='
 					<td align="center"><B>Output</B></td>
 					<td align="center"><B>Connected to</B></td>
@@ -129,11 +126,12 @@ function avWizard($output,$dbADO) {
 				$joinArray=$DTIDArray;	// used only for query when there are no DT in selected category
 				$queryDevice='
 					SELECT 
-						Device.*, DeviceTemplate.Description AS TemplateName 
+						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased
 					FROM Device 
 						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-					WHERE
-						FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
+						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+						INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
+					WHERE						FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				while($rowD=$resDevice->FetchRow()){
 					$displayedDevices[]=$rowD['PK_Device'];
@@ -176,23 +174,6 @@ function avWizard($output,$dbADO) {
 
 			$out.='	</select>
 					</td>';
-			if($type!='media_directors'){
-				$out.='
-					<td rowspan="2"><select name="deviceEntArea_'.$rowD['PK_Device'].'[]" multiple size="3">';
-					
-				$queryDEA='SELECT * FROM Device_EntertainArea WHERE FK_Device=?';
-				$resDEA=$dbADO->Execute($queryDEA,$rowD['PK_Device']);
-				$checkedEA=array();
-				while($rowDEA=$resDEA->FetchRow()){
-					$checkedEA[]=$rowDEA['FK_EntertainArea'];
-				}
-				foreach($eaArray AS $idEA=>$descriptionEA){
-					$out.='<option value="'.$idEA.'" '.((in_array($idEA,$checkedEA))?'selected':'').'>'.$descriptionEA.'</option>';
-				}
-					$out.='</select>
-					<input type="hidden" name="oldDeviceEA_'.$rowD['PK_Device'].'" value="'.join(',',$checkedEA).'">
-					</td>';
-			}
 			$out.='
 					<td>A: <select name="audioOutput_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
@@ -257,7 +238,7 @@ function avWizard($output,$dbADO) {
 					<td rowspan="2" valign="top" align="right">';
 				foreach($DeviceDataToDisplay as $key => $value){
 					$queryDDforDevice='
-						SELECT DeviceData.Description, ParameterType.Description AS typeParam, Device_DeviceData.IK_DeviceData,ShowInWizard,ShortDescription
+						SELECT DeviceData.Description, ParameterType.Description AS typeParam, Device_DeviceData.IK_DeviceData,ShowInWizard,ShortDescription,AllowedToModify,DeviceTemplate_DeviceData.Description AS Tooltip
 						FROM DeviceData 
 						INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
 						INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
@@ -270,7 +251,7 @@ function avWizard($output,$dbADO) {
 					$rowDDforDevice=$resDDforDevice->FetchRow();
 					$ddValue=$rowDDforDevice['IK_DeviceData'];
 					
-					if($rowDDforDevice['ShowInWizard']==1){
+					if($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']==''){
 						$out.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> ';
 						switch($DDTypesToDisplay[$key]){
 							case 'int':
@@ -288,7 +269,7 @@ function avWizard($output,$dbADO) {
 									
 									$queryTable="SELECT * FROM $tableName $filterQuery ORDER BY Description ASC";
 									$resTable=$dbADO->Execute($queryTable);
-									$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'">
+									$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>
 											<option value="0"></option>';
 									while($rowTable=$resTable->FetchRow()){
 										$out.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').'>'.$rowTable['Description'].'</option>';
@@ -296,21 +277,26 @@ function avWizard($output,$dbADO) {
 									$out.='</select>';
 								}
 								else 
-									$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'">';
+									$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 							break;
 							case 'bool':
-								$out.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').'>';
+								$out.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 							break;
 							default:
-								$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'">';
+								$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 						}
 						
 						
 						$out.='	
 							<input type="hidden" name="oldDeviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.(($resDDforDevice->RecordCount()>0)?$ddValue:'NULL').'">';					
 						unset($ddValue);
-						$out.='<br>';
+						$out.='<img src="include/images/tooltip.gif" title="'.$rowDDforDevice['Tooltip'].'" border="0" align="middle"><br>';
 					}
+				}
+				
+				if($rowD['IsIPBased']==1){
+					$out.='IP <input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"><br>
+							MAC <input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'">';
 				}
 				$out.='</td>';
 				$out.='<td align="center" rowspan="2" valign="top">';
@@ -320,7 +306,7 @@ function avWizard($output,$dbADO) {
 						$out.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  ></td>
 					</tr>
 					<tr bgcolor="'.(($pos%2==0)?'#EFF2F9':'').'">			
-						<td align="center">'.$rowD['TemplateName'].'</td>
+						<td align="center" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">'.$rowD['TemplateName'].'</td>
 						<td>';
 				if($type!='media_directors'){
 					$out.='
@@ -446,10 +432,16 @@ function avWizard($output,$dbADO) {
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
 				$description=@$_POST['description_'.$value];
+				if(isset($_POST['ip_'.$value])){
+					$ip=$_POST['ip_'.$value];
+					$mac=$_POST['mac_'.$value];
+					$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
+				}
+								
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 				$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
 				
-				$updateDevice='UPDATE Device SET Description=?, FK_Room=?,FK_Device_ControlledVia =? WHERE PK_Device=?';
+				$updateDevice='UPDATE Device SET Description=?, FK_Room=?,FK_Device_ControlledVia =? '.@$updateMacIp.' WHERE PK_Device=?';
 				$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
@@ -535,22 +527,6 @@ function avWizard($output,$dbADO) {
 					}
 					$anchor='#VideoPipe_'.$value;
 				}
-				if($type!='media_directors'){		
-					$entAreaArray=@$_POST['deviceEntArea_'.$value];
-					$oldEAArray=explode(',',@$_POST['oldDeviceEA_'.$value]);
-					$toInsert=@array_diff($entAreaArray,$oldEAArray);
-					$toDelete=@array_diff($oldEAArray,$entAreaArray);
-					if(is_array($toInsert))
-						foreach($toInsert as $entArea){
-							$insertDE='INSERT INTO Device_EntertainArea (FK_Device, FK_EntertainArea) VALUES (?,?)';
-							$dbADO->Execute($insertDE,array($value,$entArea));
-						}
-					if(is_array($toDelete))
-						foreach($toDelete as $entArea){
-							$delDE='DELETE FROM Device_EntertainArea WHERE FK_Device=? AND FK_EntertainArea=?';
-							$dbADO->Execute($delDE,array($value,$entArea));
-						}
-				}
 			}
 		}
 		
@@ -561,6 +537,8 @@ function avWizard($output,$dbADO) {
 				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);	
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 			}
+			header("Location: index.php?section=avWizard&type=$type&lastAdded=$deviceTemplate");
+			exit();
 		}
 		
 		
