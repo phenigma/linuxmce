@@ -1113,6 +1113,15 @@ public:
 	virtual void CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #258 - Clear Selected Devices */
+	/** Floorplans, in particular, rely on a vector of selected devices, allowing the user to select more than one.  This command clears that list, removing any selected devices.  It can optionally cause the Object passed in as a parameter to be refreshed. */
+		/** @param #3 PK_DesignObj */
+			/** If specified, the object referenced here will be invalidated and redrawn. */
+
+	virtual void CMD_Clear_Selected_Devices(string sPK_DesignObj) { string sCMD_Result; CMD_Clear_Selected_Devices(sPK_DesignObj.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 /** temporary solution only */

@@ -2357,7 +2357,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     }
 
 
-    if(  pObj->m_ObjectID.find( "3145" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "2218" )!=string::npos  )
         //if(  ocDesignObj->m_drDesignObj->PK_DesignObj_get(  )==2790  )
     {
         int k=2;
@@ -5019,15 +5019,16 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
         // Because rendergrid is called before renderflooplan, we've already rendered the datagrid with old data
         // if this is the first time we're repainting, be sure to set autorefresh to happen immediately.  CheckSpecialOnScreen
         // will set it to -100 to signal to us this is the first rendering
-//        if( m_AutoRefreshTime == -100 )
-//          m_AutoRefreshTime = clock();
-//      else
-//          m_AutoRefreshTime = clock() + (CLOCKS_PER_SEC * 3);
-            CallMaintenanceInMiliseconds(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL);
+        if( m_AutoRefreshTime == -100 )
+          m_AutoRefreshTime = clock();
+      else
+          m_AutoRefreshTime = clock() + (CLOCKS_PER_SEC * 3);
+		CallMaintenanceInMiliseconds(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL);
     }
     else
         m_AutoInvalidateTime = clock() + (CLOCKS_PER_SEC * 2);
 */
+	CallMaintenanceInMiliseconds(CLOCKS_PER_SEC,&Orbiter::RealRedraw,NULL,true);
 }
 
 NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
@@ -5184,4 +5185,18 @@ string Orbiter::GetCurrentScreenID()
 		? 
 			m_pScreenHistory_Current->m_pObj->m_ObjectID : 
 			"UNKNOWN";
+}//<-dceag-c258-b->
+
+	/** @brief COMMAND: #258 - Clear Selected Devices */
+	/** Floorplans, in particular, rely on a vector of selected devices, allowing the user to select more than one.  This command clears that list, removing any selected devices.  It can optionally cause the Object passed in as a parameter to be refreshed. */
+		/** @param #3 PK_DesignObj */
+			/** If specified, the object referenced here will be invalidated and redrawn. */
+
+void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
+//<-dceag-c258-e->
+{
+	m_mapDevice_Selected.clear();
+	DesignObj_Orbiter *pObj=NULL;
+	if( sPK_DesignObj.length() && (pObj=FindObject(sPK_DesignObj))!=NULL )
+		m_vectObjs_NeedRedraw.push_back(pObj);
 }

@@ -4421,5 +4421,37 @@ namespace DCE
 	public:
 		CMD_NOREP_Text_To_Wave_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sText) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,256,1,9,sText.c_str()); }
 	};
+	class CMD_Delay : public PreformedCommand {
+	public:
+		CMD_Delay(long DeviceIDFrom, long DeviceIDTo,string sTime) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,257,1,102,sTime.c_str()); }
+	};
+	class CMD_Delay_DL : public PreformedCommand {
+	public:
+		CMD_Delay_DL(long DeviceIDFrom, string DeviceIDTo,string sTime) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,257,1,102,sTime.c_str()); }
+	};
+	class CMD_Delay_DT : public PreformedCommand {
+	public:
+		CMD_Delay_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sTime) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,257,1,102,sTime.c_str()); }
+	};
+	class CMD_Delay_Cat : public PreformedCommand {
+	public:
+		CMD_Delay_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sTime) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,257,1,102,sTime.c_str()); }
+	};
+	class CMD_Clear_Selected_Devices : public PreformedCommand {
+	public:
+		CMD_Clear_Selected_Devices(long DeviceIDFrom, long DeviceIDTo,string sPK_DesignObj) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,258,1,3,sPK_DesignObj.c_str()); }
+	};
+	class CMD_Clear_Selected_Devices_DL : public PreformedCommand {
+	public:
+		CMD_Clear_Selected_Devices_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_DesignObj) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,258,1,3,sPK_DesignObj.c_str()); }
+	};
+	class CMD_Clear_Selected_Devices_DT : public PreformedCommand {
+	public:
+		CMD_Clear_Selected_Devices_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_DesignObj) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,258,1,3,sPK_DesignObj.c_str()); }
+	};
+	class CMD_Clear_Selected_Devices_Cat : public PreformedCommand {
+	public:
+		CMD_Clear_Selected_Devices_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_DesignObj) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,258,1,3,sPK_DesignObj.c_str()); }
+	};
 }
 #endif
