@@ -46,14 +46,18 @@ while read line; do
 
 	if [ "$enabled" -eq 0 ]; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Skipping '$script' (not enabled)"
+		continue
 	fi
 	
-	if [ -e "$script" ]; then
+	if [ -e "./$script" ]; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '$script' '$Parameter'"
 		"./$script" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
 	elif [ -e "/usr/pluto/bin/$script" ]; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '/usr/pluto/bin/$script' '$Parameter'"
 		"/usr/pluto/bin/$script" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
+	elif [ -e "$script" ]; then
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '/usr/pluto/bin/$script' '$Parameter'"
+		"$script" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
 	else
 		Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Boot Script: Command '$script' not found"
 	fi
