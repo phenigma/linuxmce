@@ -77,12 +77,14 @@ void Speech::SpeechRun(void) {
     FILE *fp;
     char file[1024];
     
-    if ((argc != 3) ||
+/*    if ((argc != 3) ||
 	(sscanf (argv[1], "%d", &sps) != 1) ||
 	(sscanf (argv[2], "%f", &endsil) != 1) || (endsil <= 0.0)) {
 	E_FATAL("Usage: %s <sampling-rate> <utt-end-sil(sec)>\n", argv[0]);
     }
-
+*/
+	sps = 16;
+	endsil = 3;
     /* Convert desired min. inter-utterance silence duration to #samples */
     endsilsamples = (int32) (endsil * sps);
 
