@@ -28,8 +28,9 @@ a:hover {
 }
 
 .maintable {
-   font-family: Arial, Verdana, Helvetica, sans-serif;
-   font-size: 12px;
+   font-family: Verdana, Helvetica, Arial, sans-serif;
+   font-size: 10pt;
+   line-height:14pt;
    color: #36456E;
    padding-top: 20px;
    padding-bottom: 20px;
@@ -122,3 +123,24 @@ a:hover {
 	color: #36456E;
 	font-weight: bold;
 }
+
+a.package-name {
+	margin-top: 16pt;
+	margin-bottom: 0pt;
+
+	color: #009934;
+
+	line-height: 20pt;
+	font-size: 12pt;
+	font-weight: bold; 
+	font-family: Arial, Verdana, sans-serif;
+}
+
+p.package-comments {
+	font-family: Verdana;
+	margin-top: 0pt;
+	margin-bottom: 5pt;
+	padding-bottom: 0px;
+	padding-top: 0px;
+}
+
