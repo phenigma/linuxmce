@@ -171,7 +171,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 					$queryPackagesDependsOn='
 						SELECT * FROM Package
 							INNER JOIN Package_Package ON Package_Package.FK_Package_DependsOn=Package.PK_Package
-						WHERE FK_Package=?';
+						WHERE FK_Package=? ORDER BY Package.Description';
 					$resPackagesDependsOn=$dbADO->Execute($queryPackagesDependsOn,$PK_Package);
 					if($resPackagesDependsOn->RecordCount()==0)
 						$out.='No records.';
