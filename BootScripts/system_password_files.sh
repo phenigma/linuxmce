@@ -62,4 +62,11 @@ for dir in $static_dirs; do
 	mkdir -m 0755 ${dir/~/ }
 done
 
+# Get a list of all Media Directors
+Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=28"
+R=$(RunSql "$Q")
 
+for Device in $R; do
+	MD=$(echo "$R" | cut -d, -f1)
+	mkdir -m 0755 /home/tmp_$MD
+done
