@@ -3231,6 +3231,9 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
                     pCommand->m_PK_Device=m_dwPK_Device_OrbiterPlugIn;
                     break;
+                case DEVICETEMPLATE_VirtDev_Local_AppServer_CONST:
+                    pCommand->m_PK_Device=m_dwPK_Device_LocalAppServer;
+                    break;
                 }
                 if(  pCommand->m_PK_Device==DEVICEID_NULL  )
                 {
