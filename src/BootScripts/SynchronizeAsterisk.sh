@@ -26,6 +26,10 @@ get_phone_categories() {
 	
 }
 
+#delete all phones from asterisk
+Q="delete from sip_buddies where type='friend'";
+R=$(RunSQL "$Q")
+
 #get current installation
 Q="select FK_Installation from Device where PK_Device=${PK_Device}";
 R=$(RunSQL "$Q")
