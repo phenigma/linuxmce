@@ -1,4 +1,4 @@
-body 				{ background-color: #ffffff; color: #000000; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; margin-left: 0px; margin-right: 0px; margin-top: 0px; margin-bottom: 0px; }
+body 				{ background-color: #ffffff; color: #000000; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; margin-left: 4px; margin-right: 4px; margin-top: 6px; margin-bottom: 6px; }
 
 p 					{ font-family: Verdana, Arial, Helvetica, sans-serif; }
 
@@ -32,7 +32,7 @@ table.width75		{ width: 75%;  border: solid 1px #000000; }
 table.width60		{ width: 60%;  border: solid 1px #000000; }
 table.width50		{ width: 50%;  border: solid 1px #000000; }
 
-td 					{ font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; padding: 0px; text-align: left; }
+td 					{ font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; padding: 4px; text-align: left; }
 td.category			{ background-color: #c8c8e8; color: #000000; font-weight: bold; }
 
 td.center			{ text-align: center; }
@@ -84,7 +84,7 @@ td.news-body			{ background-color: #ffffff;         color: #000000; padding: 16p
 img						{}
 img.icon				{ width: 11px; height: 11px; }
 
-div						{ padding: 0px; }
+div						{ padding: 3px; }
 div.menu				{ background-color: #e8e8e8; color: #000000; text-align: center; width: 100%; padding: 1px; }
 
 div.border-center		{ background-color: #ffffff; border: solid 1px #000000; text-align: center; width: 50%; position: relative; margin-right: auto; margin-left: auto; }

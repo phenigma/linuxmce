@@ -1,6 +1,6 @@
 <?php 
 /*
-V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V4.54 5 Nov 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -35,7 +35,7 @@ $gSQLBlockRows=20; // max no of rows per table block
 //	$rs->Close();
 //
 // RETURNS: number of rows displayed
-function rs2html(&$rs,$ztabhtml=false,$zheaderarray=false,$htmlspecialchars=true)
+function rs2html(&$rs,$ztabhtml=false,$zheaderarray=false,$htmlspecialchars=true,$echo = true)
 {
 $s ='';$rows=0;$docnt = false;
 GLOBAL $gSQLMaxRows,$gSQLBlockRows;
@@ -49,7 +49,7 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows;
 	//else $docnt = true;
 	$typearr = array();
 	$ncols = $rs->FieldCount();
-	$hdr = "<TABLE COLS=$ncols $ztabhtml>\n\n";
+	$hdr = "<TABLE COLS=$ncols $ztabhtml><tr>\n\n";
 	for ($i=0; $i < $ncols; $i++) {	
 		$field = $rs->FetchField($i);
 		if ($zheaderarray) $fname = $zheaderarray[$i];
@@ -60,35 +60,60 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows;
 		if (strlen($fname)==0) $fname = '&nbsp;';
 		$hdr .= "<TH>$fname</TH>";
 	}
-
-	print $hdr."\n\n";
-	// smart algorithm - handles ADODB_FETCH_MODE's correctly!
-	$numoffset = isset($rs->fields[0]);
-
+	$hdr .= "\n</tr>";
+	if ($echo) print $hdr."\n\n";
+	else $html = $hdr;
+	
+	// smart algorithm - handles ADODB_FETCH_MODE's correctly by probing...
+	$numoffset = isset($rs->fields[0]) ||isset($rs->fields[1]) || isset($rs->fields[2]);
 	while (!$rs->EOF) {
 		
 		$s .= "<TR valign=top>\n";
 		
-		for ($i=0, $v=($numoffset) ? $rs->fields[0] : reset($rs->fields); 
-			$i < $ncols; 
-			$i++, $v = ($numoffset) ? @$rs->fields[$i] : next($rs->fields)) {
+		for ($i=0; $i < $ncols; $i++) {
+			if ($i===0) $v=($numoffset) ? $rs->fields[0] : reset($rs->fields);
+			else $v = ($numoffset) ? $rs->fields[$i] : next($rs->fields);
 			
 			$type = $typearr[$i];
 			switch($type) {
+			case 'D':
+				if (!strpos($v,':')) {
+					$s .= "	<TD>".$rs->UserDate($v,"D d, M Y") ."&nbsp;</TD>\n";
+					break;
+				}
 			case 'T':
 				$s .= "	<TD>".$rs->UserTimeStamp($v,"D d, M Y, h:i:s") ."&nbsp;</TD>\n";
-			break;
-			case 'D':
-				$s .= "	<TD>".$rs->UserDate($v,"D d, M Y") ."&nbsp;</TD>\n";
 			break;
 			case 'I':
 			case 'N':
 				$s .= "	<TD align=right>".stripslashes((trim($v))) ."&nbsp;</TD>\n";
 			   	
 			break;
+			/*
+			case 'B':
+				if (substr($v,8,2)=="BM" ) $v = substr($v,8);
+				$mtime = substr(str_replace(' ','_',microtime()),2);
+				$tmpname = "tmp/".uniqid($mtime).getmypid();
+				$fd = @fopen($tmpname,'a');
+				@ftruncate($fd,0);
+				@fwrite($fd,$v);
+				@fclose($fd);
+				if (!function_exists ("mime_content_type")) {
+				  function mime_content_type ($file) {
+				    return exec("file -bi ".escapeshellarg($file));
+				  }
+				}
+				$t = mime_content_type($tmpname);
+				$s .= (substr($t,0,5)=="image") ? " <td><img src='$tmpname' alt='$t'></td>\\n" : " <td><a
+				href='$tmpname'>$t</a></td>\\n";
+				break;
+			*/
+
 			default:
-				if ($htmlspecialchars) $v = htmlspecialchars($v);
-				$s .= "	<TD>". str_replace("\n",'<br>',stripslashes((trim($v)))) ."&nbsp;</TD>\n";
+				if ($htmlspecialchars) $v = htmlspecialchars(trim($v));
+				$v = trim($v);
+				if (strlen($v) == 0) $v = '&nbsp;';
+				$s .= "	<TD>". str_replace("\n",'<br>',stripslashes($v)) ."</TD>\n";
 			  
 			}
 		} // for
@@ -106,16 +131,18 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows;
 		if (!$rs->EOF && $rows % $gSQLBlockRows == 0) {
 	
 		//if (connection_aborted()) break;// not needed as PHP aborts script, unlike ASP
-			print $s . "</TABLE>\n\n";
+			if ($echo) print $s . "</TABLE>\n\n";
+			else $html .= $s ."</TABLE>\n\n";
 			$s = $hdr;
 		}
 	} // while
 
-	print $s."</TABLE>\n\n";
-
-	if ($docnt) print "<H2>".$rows." Rows</H2>";
+	if ($echo) print $s."</TABLE>\n\n";
+	else $html .= $s."</TABLE>\n\n";
 	
-	return $rows;
+	if ($docnt) if ($echo) print "<H2>".$rows." Rows</H2>";
+	
+	return ($echo) ? $rows : $html;
  }
  
 // pass in 2 dimensional array
@@ -151,4 +178,4 @@ function arr2html(&$arr,$ztabhtml='',$zheaderarray='')
 	print $s;
 }
 
-
+?>

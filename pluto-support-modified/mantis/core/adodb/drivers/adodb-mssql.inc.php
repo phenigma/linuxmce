@@ -1,18 +1,21 @@
 <?php
 /* 
-V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.54 5 Nov 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
 Set tabs to 4 for best viewing.
   
-  Latest version is available at http://php.weblogs.com/
+  Latest version is available at http://adodb.sourceforge.net
   
   Native mssql driver. Requires mssql client. Works on Windows. 
   To configure for Unix, see 
    	http://phpbuilder.com/columns/alberto20000919.php3
 	
 */
+
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
 
 //----------------------------------------------------------------
 // MSSQL returns dates with the format Oct 13 2002 or 13 Oct 2002
@@ -74,10 +77,16 @@ class ADODB_mssql extends ADOConnection {
 	var $fmtDate = "'Y-m-d'";
 	var $fmtTimeStamp = "'Y-m-d h:i:sA'";
 	var $hasInsertID = true;
+	var $substr = "substring";
+	var $length = 'len';
 	var $hasAffectedRows = true;
 	var $metaDatabasesSQL = "select name from sysdatabases where name <> 'master'";
-	var $metaTablesSQL="select name from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
-	var $metaColumnsSQL = "select c.name,t.name,c.length from syscolumns c join systypes t on t.xusertype=c.xusertype join sysobjects o on o.id=c.id where o.name='%s'";
+	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
+	var $metaColumnsSQL = # xtype==61 is datetime
+"select c.name,t.name,c.length,
+	(case when c.xusertype=61 then 0 else c.xprec end),
+	(case when c.xusertype=61 then 0 else c.xscale end) 
+	from syscolumns c join systypes t on t.xusertype=c.xusertype join sysobjects o on o.id=c.id where o.name='%s'";
 	var $hasTop = 'top';		// support mssql SELECT TOP 10 * FROM TABLE
 	var $hasGenID = true;
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
@@ -92,10 +101,12 @@ class ADODB_mssql extends ADOConnection {
 	var $poorAffectedRows = true;
 	var $identitySQL = 'select @@IDENTITY'; // 'select SCOPE_IDENTITY'; # for mssql 2000
 	var $uniqueOrderBy = true;
+	var $_bindInputArray = true;
+	
 	
 	function ADODB_mssql() 
 	{		
-		$this->_has_mssql_init = (strnatcmp(PHP_VERSION,'4.1.0')>=0);	
+		$this->_has_mssql_init = (strnatcmp(PHP_VERSION,'4.1.0')>=0);
 	}
 
 	function ServerInfo()
@@ -126,6 +137,11 @@ class ADODB_mssql extends ADOConnection {
 		return $arr;
 	}
 	
+	function IfNull( $field, $ifNull ) 
+	{
+		return " ISNULL($field, $ifNull) "; // if MS SQL Server
+	}
+	
 	function _insertid()
 	{
 	// SCOPE_IDENTITY()
@@ -135,12 +151,12 @@ class ADODB_mssql extends ADOConnection {
 	// they are in the same stored procedure, function, or batch.
 			return $this->GetOne($this->identitySQL);
 	}
-	
+
 	function _affectedrows()
 	{
 		return $this->GetOne('select @@rowcount');
 	}
-	
+
 	var $_dropSeqSQL = "drop table %s";
 	
 	function CreateSequence($seq='adodbseq',$start=1)
@@ -155,9 +171,9 @@ class ADODB_mssql extends ADOConnection {
 		$this->Execute('COMMIT TRANSACTION adodbseq'); 
 		return true;
 	}
-	
+
 	function GenID($seq='adodbseq',$start=1)
-	{	
+	{
 		//$this->debug=1;
 		$this->Execute('BEGIN TRANSACTION adodbseq');
 		$ok = $this->Execute("update $seq with (tablock,holdlock) set id = id + 1");
@@ -178,6 +194,20 @@ class ADODB_mssql extends ADOConnection {
 		// in old implementation, pre 1.90, we returned GUID...
 		//return $this->GetOne("SELECT CONVERT(varchar(255), NEWID()) AS 'Char'");
 	}
+	
+
+	function &SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
+	{
+		if ($nrows > 0 && $offset <= 0) {
+			$sql = preg_replace(
+				'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop." $nrows ",$sql);
+			$rs =& $this->Execute($sql,$inputarr);
+		} else
+			$rs =& ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+	
+		return $rs;
+	}
+	
 	
 	// Format date column in sql string given an input format that understands Y M D
 	function SQLDate($fmt, $col=false)
@@ -213,7 +243,7 @@ class ADODB_mssql extends ADOConnection {
 				break;
 			
 			case 'H':
-				$s .= "replace(str(datepart(mi,$col),2),' ','0')";
+				$s .= "replace(str(datepart(hh,$col),2),' ','0')";
 				break;
 				
 			case 'i':
@@ -282,6 +312,86 @@ class ADODB_mssql extends ADOConnection {
 		return $this->GetOne("select top 1 null as ignore from $tables with (ROWLOCK,HOLDLOCK) where $where");
 	}
 	
+	
+	function &MetaIndexes($table,$primary=false)
+	{
+		$table = $this->qstr($table);
+
+		$sql = "SELECT i.name AS ind_name, C.name AS col_name, USER_NAME(O.uid) AS Owner, c.colid, k.Keyno, 
+			CASE WHEN I.indid BETWEEN 1 AND 254 AND (I.status & 2048 = 2048 OR I.Status = 16402 AND O.XType = 'V') THEN 1 ELSE 0 END AS IsPK,
+			CASE WHEN I.status & 2 = 2 THEN 1 ELSE 0 END AS IsUnique
+			FROM dbo.sysobjects o INNER JOIN dbo.sysindexes I ON o.id = i.id 
+			INNER JOIN dbo.sysindexkeys K ON I.id = K.id AND I.Indid = K.Indid 
+			INNER JOIN dbo.syscolumns c ON K.id = C.id AND K.colid = C.Colid
+			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND O.Name LIKE $table
+			ORDER BY O.name, I.Name, K.keyno";
+
+		global $ADODB_FETCH_MODE;
+		$save = $ADODB_FETCH_MODE;
+        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+        if ($this->fetchMode !== FALSE) {
+        	$savem = $this->SetFetchMode(FALSE);
+        }
+        
+        $rs = $this->Execute($sql);
+        if (isset($savem)) {
+        	$this->SetFetchMode($savem);
+        }
+        $ADODB_FETCH_MODE = $save;
+
+        if (!is_object($rs)) {
+        	return FALSE;
+        }
+
+		$indexes = array();
+		while ($row = $rs->FetchRow()) {
+			if (!$primary && $row[5]) continue;
+			
+            $indexes[$row[0]]['unique'] = $row[6];
+            $indexes[$row[0]]['columns'][] = $row[1];
+    	}
+        return $indexes;
+	}
+	
+	function MetaForeignKeys($table, $owner=false, $upper=false)
+	{
+	global $ADODB_FETCH_MODE;
+	
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		$table = $this->qstr(strtoupper($table));
+		
+		$sql = 
+"select object_name(constid) as constraint_name,
+	col_name(fkeyid, fkey) as column_name,
+	object_name(rkeyid) as referenced_table_name,
+   	col_name(rkeyid, rkey) as referenced_column_name
+from sysforeignkeys
+where upper(object_name(fkeyid)) = $table
+order by constraint_name, referenced_table_name, keyno";
+		
+		$constraints =& $this->GetArray($sql);
+		
+		$ADODB_FETCH_MODE = $save;
+		
+		$arr = false;
+		foreach($constraints as $constr) {
+			//print_r($constr);
+			$arr[$constr[0]][$constr[2]][] = $constr[1].'='.$constr[3]; 
+		}
+		if (!$arr) return false;
+		
+		$arr2 = false;
+		
+		foreach($arr as $k => $v) {
+			foreach($v as $a => $b) {
+				if ($upper) $a = strtoupper($a);
+				$arr2[$a] = $b;
+			}
+		}
+		return $arr2;
+	}
+
 	//From: Fernando Moreira <FMoreira@imediata.pt>
 	function MetaDatabases() 
 	{ 
@@ -306,19 +416,44 @@ class ADODB_mssql extends ADOConnection {
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
-	function MetaPrimaryKeys($table)
+	function &MetaPrimaryKeys($table)
 	{
-		$sql = "select k.column_name from information_schema.key_column_usage k,
+	global $ADODB_FETCH_MODE;
+	
+		$schema = '';
+		$this->_findschema($table,$schema);
+		if (!$schema) $schema = $this->database;
+		if ($schema) $schema = "and k.table_catalog like '$schema%'"; 
+
+		$sql = "select distinct k.column_name,ordinal_position from information_schema.key_column_usage k,
 		information_schema.table_constraints tc 
 		where tc.constraint_name = k.constraint_name and tc.constraint_type =
-		'PRIMARY KEY' and k.table_name = '$table'";
+		'PRIMARY KEY' and k.table_name = '$table' $schema order by ordinal_position ";
 		
+		$savem = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$a = $this->GetCol($sql);
+		$ADODB_FETCH_MODE = $savem;
+		
 		if ($a && sizeof($a)>0) return $a;
 		return false;	  
 	}
 
-
+	
+	function &MetaTables($ttype=false,$showSchema=false,$mask=false) 
+	{
+		if ($mask) {
+			$save = $this->metaTablesSQL;
+			$mask = $this->qstr(($mask));
+			$this->metaTablesSQL .= " AND name like $mask";
+		}
+		$ret =& ADOConnection::MetaTables($ttype,$showSchema);
+		
+		if ($mask) {
+			$this->metaTablesSQL = $save;
+		}
+		return $ret;
+	}
  
 	function SelectDB($dbName) 
 	{
@@ -339,6 +474,7 @@ class ADODB_mssql extends ADOConnection {
 	
 	function ErrorNo() 
 	{
+		if ($this->_logsql && $this->_errorCode !== false) return $this->_errorCode;
 		if (empty($this->_errorMsg)) {
 			$this->_errorMsg = mssql_get_last_message();
 		}
@@ -353,6 +489,7 @@ class ADODB_mssql extends ADOConnection {
 	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
+		if (!function_exists('mssql_pconnect')) return null;
 		$this->_connectionID = mssql_connect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
@@ -363,6 +500,7 @@ class ADODB_mssql extends ADOConnection {
 	// returns true or false
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
+		if (!function_exists('mssql_pconnect')) return null;
 		$this->_connectionID = mssql_pconnect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 		
@@ -377,7 +515,13 @@ class ADODB_mssql extends ADOConnection {
 	
 	function Prepare($sql)
 	{
-		return $sql;
+		$sqlarr = explode('?',$sql);
+		if (sizeof($sqlarr) <= 1) return $sql;
+		$sql2 = $sqlarr[0];
+		for ($i = 1, $max = sizeof($sqlarr); $i < $max; $i++) {
+			$sql2 .=  '@P'.($i-1) . $sqlarr[$i];
+		} 
+		return array($sql,$this->qstr($sql2),$max);
 	}
 	
 	function PrepareSP($sql)
@@ -428,9 +572,21 @@ class ADODB_mssql extends ADOConnection {
 			}
 		
 		if  ($this->debug) {
-			ADOConnection::outp( "Parameter(\$stmt, \$php_var='$var', \$name='$name'); (type=$type)");
+			$prefix = ($isOutput) ? 'Out' : 'In';
+			$ztype = (empty($type)) ? 'false' : $type;
+			ADOConnection::outp( "{$prefix}Parameter(\$stmt, \$php_var='$var', \$name='$name', \$maxLen=$maxLen, \$type=$ztype);");
 		}
-		return mssql_bind($stmt[1], '@'.$name, $var, $type, $isOutput, $isNull, $maxLen);
+		/*
+			See http://phplens.com/lens/lensforum/msgs.php?id=7231
+			
+			RETVAL is HARD CODED into php_mssql extension:
+			The return value (a long integer value) is treated like a special OUTPUT parameter, 
+			called "RETVAL" (without the @). See the example at mssql_execute to 
+			see how it works. - type: one of this new supported PHP constants. 
+				SQLTEXT, SQLVARCHAR,SQLCHAR, SQLINT1,SQLINT2, SQLINT4, SQLBIT,SQLFLT8 
+		*/
+		if ($name !== 'RETVAL') $name = '@'.$name;
+		return mssql_bind($stmt[1], $name, $var, $type, $isOutput, $isNull, $maxLen);
 	}
 	
 	/* 
@@ -447,6 +603,11 @@ class ADODB_mssql extends ADOConnection {
 	*/
 	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
+	
+		if (strtoupper($blobtype) == 'CLOB') {
+			$sql = "UPDATE $table SET $column='" . $val . "' WHERE $where";
+			return $this->Execute($sql) != false;
+		}
 		$sql = "UPDATE $table SET $column=0x".bin2hex($val)." WHERE $where";
 		return $this->Execute($sql) != false;
 	}
@@ -454,9 +615,59 @@ class ADODB_mssql extends ADOConnection {
 	// returns query ID if successful, otherwise false
 	function _query($sql,$inputarr)
 	{
-		$this->_errorMsg = false; 
-		if (is_array($sql)) $rez = mssql_execute($sql[1]);
-		else $rez = mssql_query($sql,$this->_connectionID);
+		$this->_errorMsg = false;
+		if (is_array($inputarr)) {
+			
+			# bind input params with sp_executesql: 
+			# see http://www.quest-pipelines.com/newsletter-v3/0402_F.htm
+			# works only with sql server 7 and newer
+			if (!is_array($sql)) $sql = $this->Prepare($sql);
+			$params = '';
+			$decl = '';
+			$i = 0;
+			foreach($inputarr as $v) {
+				if ($decl) {
+					$decl .= ', ';
+					$params .= ', ';
+				}	
+				if (is_string($v)) {
+					$len = strlen($v);
+					if ($len == 0) $len = 1;
+					
+					if ($len > 4000 ) {
+						// NVARCHAR is max 4000 chars. Let's use NTEXT
+						$decl .= "@P$i NTEXT";
+					} else {
+						$decl .= "@P$i NVARCHAR($len)";
+					}
+
+					$params .= "@P$i=N". (strncmp($v,"'",1)==0? $v : $this->qstr($v));
+				} else if (is_integer($v)) {
+					$decl .= "@P$i INT";
+					$params .= "@P$i=".$v;
+				} else if (is_float($v)) {
+					$decl .= "@P$i FLOAT";
+					$params .= "@P$i=".$v;
+				} else if (is_bool($v)) {
+					$decl .= "@P$i INT"; # Used INT just in case BIT in not supported on the user's MSSQL version. It will cast appropriately.
+					$params .= "@P$i=".(($v)?'1':'0'); # True == 1 in MSSQL BIT fields and acceptable for storing logical true in an int field
+				} else {
+					$decl .= "@P$i CHAR"; # Used char because a type is required even when the value is to be NULL.
+					$params .= "@P$i=NULL";
+					}
+				$i += 1;
+			}
+			$decl = $this->qstr($decl);
+			if ($this->debug) ADOConnection::outp("<font size=-1>sp_executesql N{$sql[1]},N$decl,$params</font>");
+			$rez = mssql_query("sp_executesql N{$sql[1]},N$decl,$params");
+			
+		} else if (is_array($sql)) {
+			# PrepareSP()
+			$rez = mssql_execute($sql[1]);
+			
+		} else {
+			$rez = mssql_query($sql,$this->_connectionID);
+		}
 		return $rez;
 	}
 	
@@ -491,7 +702,7 @@ class ADORecordset_mssql extends ADORecordSet {
 	var $canSeek = true;
 	var $hasFetchAssoc; // see http://phplens.com/lens/lensforum/msgs.php?id=6083
 	// _mths works only in non-localised system
-		
+	
 	function ADORecordset_mssql($id,$mode=false)
 	{
 		// freedts check...
@@ -586,7 +797,8 @@ class ADORecordset_mssql extends ADORecordSet {
 							$fassoc[$k] = $v;
 						}
 						$this->fields = $fassoc;
-					}
+					} else
+						$this->fields = false;
 				}
 			}
 			
@@ -624,7 +836,7 @@ class ADORecordset_mssql extends ADORecordSet {
 					$this->fields = @mssql_fetch_assoc($this->_queryID);
 				else {
 					$this->fields = @mssql_fetch_array($this->_queryID);
-					if (is_array($$this->fields)) {
+					if (@is_array($$this->fields)) {
 						$fassoc = array();
 						foreach($$this->fields as $k => $v) {
 							if (is_integer($k)) continue;
@@ -753,5 +965,29 @@ class ADORecordSet_array_mssql extends ADORecordSet_array {
 		return  mktime($rr[4],$rr[5],0,$themth,$theday,$rr[3]);
 	}
 }
+
+/*
+Code Example 1:
+
+select 	object_name(constid) as constraint_name,
+       	object_name(fkeyid) as table_name, 
+        col_name(fkeyid, fkey) as column_name,
+	object_name(rkeyid) as referenced_table_name,
+   	col_name(rkeyid, rkey) as referenced_column_name
+from sysforeignkeys
+where object_name(fkeyid) = x
+order by constraint_name, table_name, referenced_table_name,  keyno
+
+Code Example 2:
+select 	constraint_name,
+	column_name,
+	ordinal_position
+from information_schema.key_column_usage
+where constraint_catalog = db_name()
+and table_name = x
+order by constraint_name, ordinal_position
+
+http://www.databasejournal.com/scripts/article.php/1440551
+*/
 
 ?>

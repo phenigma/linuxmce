@@ -1,7 +1,7 @@
 <?php
 
 /**
-  V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V4.54 5 Nov 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -10,8 +10,39 @@
  
 */
 
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
+
 class ADODB2_mssql extends ADODB_DataDict {
 	var $databaseType = 'mssql';
+	var $dropIndex = 'DROP INDEX %2$s.%1$s';
+	var $renameTable = "EXEC sp_rename '%s','%s'";
+	var $renameColumn = "EXEC sp_rename '%s.%s','%s'";
+	//var $alterCol = ' ALTER COLUMN ';
+	
+	function MetaType($t,$len=-1,$fieldobj=false)
+	{
+		if (is_object($t)) {
+			$fieldobj = $t;
+			$t = $fieldobj->type;
+			$len = $fieldobj->max_length;
+		}
+		
+		$len = -1; // mysql max_length is not accurate
+		switch (strtoupper($t)) {
+
+		case 'INT': 
+		case 'INTEGER': return  'I';
+		case 'BIT':
+		case 'TINYINT': return  'I1';
+		case 'SMALLINT': return 'I2';
+		case 'BIGINT':  return  'I8';
+		
+		case 'REAL':
+		case 'FLOAT': return 'F';
+		default: return parent::MetaType($t,$len,$fieldobj);
+		}
+	}
 	
 	function ActualType($meta)
 	{
@@ -44,22 +75,23 @@ class ADODB2_mssql extends ADODB_DataDict {
 	
 	
 	function AddColumnSQL($tabname, $flds)
-	{	
-		if ($this->schema) $tabname = $this->schema.'.'.$tabname;
+	{
+		$tabname = $this->TableName ($tabname);
 		$f = array();
 		list($lines,$pkey) = $this->_GenFields($flds);
 		$s = "ALTER TABLE $tabname $this->addCol";
 		foreach($lines as $v) {
 			$f[] = "\n $v";
 		}
-		$s .= implode(',',$f);
+		$s .= implode(', ',$f);
 		$sql[] = $s;
 		return $sql;
 	}
 	
+	/*
 	function AlterColumnSQL($tabname, $flds)
 	{
-		if ($this->schema) $tabname = $this->schema.'.'.$tabname;
+		$tabname = $this->TableName ($tabname);
 		$sql = array();
 		list($lines,$pkey) = $this->_GenFields($flds);
 		foreach($lines as $v) {
@@ -68,17 +100,19 @@ class ADODB2_mssql extends ADODB_DataDict {
 
 		return $sql;
 	}
+	*/
 	
 	function DropColumnSQL($tabname, $flds)
 	{
-		if ($this->schema) $tabname = $this->schema.'.'.$tabname;
-		if (!is_array($flds)) $flds = explode(',',$flds);
+		$tabname = $this->TableName ($tabname);
+		if (!is_array($flds))
+			$flds = explode(',',$flds);
 		$f = array();
-		$s = "ALTER TABLE $tabname";
+		$s = 'ALTER TABLE ' . $tabname;
 		foreach($flds as $v) {
-			$f[] = "\n$this->dropCol $v";
+			$f[] = "\n$this->dropCol ".$this->NameQuote($v);
 		}
-		$s .= implode(',',$f);
+		$s .= implode(', ',$f);
 		$sql[] = $s;
 		return $sql;
 	}
@@ -169,18 +203,50 @@ CREATE TABLE
 */
 	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
-		if (isset($idxoptions['REPLACE'])) $sql[] = "DROP INDEX $idxname";
-		if (isset($idxoptions['UNIQUE'])) $unique = ' UNIQUE';
-		else $unique = '';
-		if (is_array($flds)) $flds = implode(', ',$flds);
-		if (isset($idxoptions['CLUSTERED'])) $clustered = ' CLUSTERED';
-		else $clustered = '';
+		$sql = array();
 		
-		$s = "CREATE$unique$clustered INDEX $idxname ON $tabname ($flds)";
-		if (isset($idxoptions[$this->upperName])) $s .= $idxoptions[$this->upperName];
+		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
+			$sql[] = sprintf ($this->dropIndex, $idxname, $tabname);
+			if ( isset($idxoptions['DROP']) )
+				return $sql;
+		}
+		
+		if ( empty ($flds) ) {
+			return $sql;
+		}
+		
+		$unique = isset($idxoptions['UNIQUE']) ? ' UNIQUE' : '';
+		$clustered = isset($idxoptions['CLUSTERED']) ? ' CLUSTERED' : '';
+		
+		if ( is_array($flds) )
+			$flds = implode(', ',$flds);
+		$s = 'CREATE' . $unique . $clustered . ' INDEX ' . $idxname . ' ON ' . $tabname . ' (' . $flds . ')';
+		
+		if ( isset($idxoptions[$this->upperName]) )
+			$s .= $idxoptions[$this->upperName];
+		
+
 		$sql[] = $s;
 		
 		return $sql;
+	}
+	
+	
+	function _GetSize($ftype, $ty, $fsize, $fprec)
+	{
+		switch ($ftype) {
+		case 'INT':
+		case 'SMALLINT':
+		case 'TINYINT':
+		case 'BIGINT':
+			return $ftype;
+		}
+		if (strlen($fsize) && $ty != 'X' && $ty != 'B' && strpos($ftype,'(') === false) {
+			$ftype .= "(".$fsize;
+			if (strlen($fprec)) $ftype .= ",".$fprec;
+			$ftype .= ')';
+		}
+		return $ftype;
 	}
 }
 ?>

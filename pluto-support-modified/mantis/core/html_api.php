@@ -6,7 +6,7 @@
 	# See the README and LICENSE files for details
 
 	# --------------------------------------------------------
-	# $Id: html_api.php,v 1.139 2004/10/25 01:34:28 thraxisp Exp $
+	# $Id: html_api.php,v 1.140 2004/12/05 01:32:53 vboctor Exp $
 	# --------------------------------------------------------
 
 	###########################################################################
@@ -259,6 +259,7 @@
 	# (10) Print a user-defined banner at the top of the page if there is one.
 	function html_top_banner() {
 		$t_page = config_get( 'top_include_page' );
+
 		if ( !is_blank( $t_page ) && file_exists( $t_page ) && !is_dir( $t_page ) ) {
 			include( $t_page );
 		}
@@ -315,12 +316,6 @@
 			PRINT '</td>';
 		PRINT '</tr>';
 		PRINT '</table>';
-		if(isset($_GET['project']))
-			print '<script>
-				document.form_set_project.project_id.value="'.$_GET['project'].'";
-				document.form_set_project.submit();
-			</script>';
-
 	}
 
 	# --------------------
@@ -353,7 +348,11 @@
 			echo "\t", '<span class="timer"><a href="http://www.mantisbt.org/">Mantis ', config_get( 'mantis_version' ), '</a></span>', "\n";
 		}
 		echo "\t", '<address>Copyright &copy; 2000 - 2004 Mantis Group</address>', "\n";
-		echo "\t", '<address><a href="mailto:', config_get( 'webmaster_email' ), '">', config_get( 'webmaster_email' ), '</a></address>', "\n";
+
+		# only display webmaster email is current user is not the anonymous user
+		if ( isset( $_SERVER['PHP_SELF'] ) && ( false === strstr( "login_page.php", $_SERVER['PHP_SELF'] ) ) && !current_user_is_anonymous() ) {
+			echo "\t", '<address><a href="mailto:', config_get( 'webmaster_email' ), '">', config_get( 'webmaster_email' ), '</a></address>', "\n";
+		}
 
 		# print timings
 		if ( ON == config_get( 'show_timer' ) ) {
@@ -730,8 +729,8 @@
 		$t_bug_project_id = bug_get_field( $p_bug_id, 'project_id' );
 		$t_bug_current_state = bug_get_field( $p_bug_id, 'status' );
 		$t_current_access = access_get_project_level( $t_bug_project_id );
-		
-		$t_enum_list = get_status_option_list( $t_current_access, $t_bug_current_state, false, 
+
+		$t_enum_list = get_status_option_list( $t_current_access, $t_bug_current_state, false,
 				( bug_get_field( $p_bug_id, 'reporter_id' ) == auth_get_current_user_id() && ( ON == config_get( 'allow_reporter_close' ) ) ) );
 
 		if ( count( $t_enum_list ) > 0 ) {
@@ -843,7 +842,7 @@
 		$t_status = bug_get_field( $p_bug_id, 'status' );
 		$t_resolved_status = config_get( 'bug_resolved_status_threshold' );
 
-		if ( ( $t_status < $t_resolved_status ) && 
+		if ( ( $t_status < $t_resolved_status ) &&
 				access_has_bug_level( config_get( 'handle_bug_threshold' ), $p_bug_id ) &&
 				bug_check_workflow($t_status, $t_resolved_status ) ) {
 			html_button( 'bug_resolve_page.php',
@@ -885,7 +884,7 @@
 
 		if ( access_has_bug_level( config_get( 'reopen_bug_threshold' ), $p_bug_id ) ||
 				( ( bug_get_field( $p_bug_id, 'reporter_id' ) == auth_get_current_user_id() ) &&
-	 		  	( ON == config_get( 'allow_reporter_reopen' ) ) 
+	 		  	( ON == config_get( 'allow_reporter_reopen' ) )
 				)
 			 ) {
 			html_button( 'bug_change_status_page.php',
@@ -900,8 +899,8 @@
 	function html_button_bug_close( $p_bug_id ) {
 		$t_status = bug_get_field( $p_bug_id, 'status' );
 
-		if ( access_can_close_bug ( $p_bug_id ) && 
-				( $t_status < CLOSED ) && 
+		if ( access_can_close_bug ( $p_bug_id ) &&
+				( $t_status < CLOSED ) &&
 				bug_check_workflow($t_status, CLOSED) ) {
 			html_button( 'bug_close_page.php',
 						 lang_get( 'close_bug_button' ),
@@ -962,7 +961,7 @@
 		echo '<td class="center">';
 		html_button_bug_change_status( $p_bug_id );
 		echo '</td>';
-		
+
 		# MONITOR/UNMONITOR button
 		echo '<td class="center">';
 		if ( !current_user_is_anonymous() ) {
@@ -979,7 +978,7 @@
 			echo '<td class="center">';
 			html_button_bug_create_child( $p_bug_id );
 			echo '</td>';
-		} 
+		}
 
 		if ( $t_resolved <= $t_status ) { # resolved is not the same as readonly
 			PRINT '<td class="center">';

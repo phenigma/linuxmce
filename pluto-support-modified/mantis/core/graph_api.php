@@ -6,7 +6,7 @@
 	# See the README and LICENSE files for details
 
 	# --------------------------------------------------------
-	# $Id: graph_api.php,v 1.21 2004/09/23 18:19:36 bpfennigschmidt Exp $
+	# $Id: graph_api.php,v 1.26 2004/12/11 03:14:47 thraxisp Exp $
 	# --------------------------------------------------------
 
 	if ( ON == config_get( 'use_jpgraph' ) ) {
@@ -809,6 +809,7 @@
 		$t_clo_val = CLOSED;
 		$t_res_val = config_get( 'bug_resolved_status_threshold' );
 		$t_bug_table = config_get( 'mantis_bug_table' );
+		$t_history_table = config_get( 'mantis_bug_history_table' );
 
 		$t_project_id = helper_get_current_project();
 		$t_user_id = auth_get_current_user_id();
@@ -831,7 +832,9 @@
 
 		for ($i=0;$i<$bug_count;$i++) {
 			$row = db_fetch_array( $result );
+			# rationalise the timestamp to a day to reduce the amount of data
  			$t_date = db_unixtimestamp( $row['date_submitted'] );
+			$t_date = (int) ( $t_date / 86400 );
 
 			if ( isset( $metrics[$t_date] ) ){
 				$metrics[$t_date][0]++;
@@ -840,23 +843,47 @@
 			}
 		}
 
-		### Get all the resolved dates
-		$query = "SELECT last_updated
-			FROM $t_bug_table
-			WHERE $specific_where AND
-			status >='$t_res_val'
-			ORDER BY last_updated";
+		### Get all the dates where a transition from not resolved to resolved may have happened
+		#    also, get the last updated date for the bug as this may be all the information we have
+		$query = "SELECT $t_bug_table.id, last_updated, date_modified, new_value, old_value 
+			FROM $t_bug_table LEFT JOIN $t_history_table 
+			ON mantis_bug_table.id = mantis_bug_history_table.bug_id 
+			WHERE $specific_where
+						AND $t_bug_table.status >= '$t_res_val'
+						AND ( ( $t_history_table.new_value >= '$t_res_val' 
+								AND $t_history_table.field_name = 'status' )
+						OR $t_history_table.id is NULL )
+			ORDER BY $t_bug_table.id, date_modified ASC"; 
 		$result = db_query( $query );
 		$bug_count = db_num_rows( $result );
 
+		$t_last_id = 0;
 		for ($i=0;$i<$bug_count;$i++) {
 			$row = db_fetch_array( $result );
-			$t_date = db_unixtimestamp( $row['last_updated'] );
-			if ( isset( $metrics[$t_date] ) ){
-				$metrics[$t_date][1]++;
+			$t_id = $row['id'];
+			# if h_last_updated is NULL, there were no appropriate history records
+			#  (i.e. pre 0.18 data), use last_updated from bug table instead
+			if (NULL == $row['date_modified']) {
+				$t_date = db_unixtimestamp( $row['last_updated'] );
 			} else {
-				$metrics[$t_date] = array( 0, 1, 0 );
+				if ( $t_res_val > $row['old_value'] ) {
+					$t_date = db_unixtimestamp( $row['date_modified'] );
+				}
+			} 
+			if ( $t_id <> $t_last_id ) {
+				if ( 0 <> $t_last_id ) {
+					# rationalise the timestamp to a day to reduce the amount of data
+					$t_date_index = (int) ( $t_last_date / 86400 );
+			
+					if ( isset( $metrics[$t_date_index] ) ){
+						$metrics[$t_date_index][1]++;
+					} else {
+						$metrics[$t_date_index] = array( 0, 1, 0 );
+					}
+				}
+				$t_last_id = $t_id;
 			}
+			$t_last_date = $t_date;
 		}
 
 		ksort($metrics);
@@ -874,7 +901,7 @@
 	}
 
 	function graph_date_format ($p_date) {
-		return strftime( "%D", $p_date );
+		return date( config_get( 'short_date_format' ), $p_date );
 	}
 	
 	# --------------------
@@ -883,12 +910,9 @@
 
 		error_check( count($metrics), lang_get( 'cumulative' ) . ' ' . lang_get( 'by_date' ) );
 		
-		if ( 0 == count($metrics) ) {
-			return;
-		}
 		foreach ($metrics as $i=>$vals) {
 			if ( $i > 0 ) {
-				$plot_date[] = $i;
+				$plot_date[] = $i * 86400;
 				$reported_plot[] = $metrics[$i][0];
 				$resolved_plot[] = $metrics[$i][1];
 				$still_open_plot[] = $metrics[$i][2];
@@ -930,7 +954,7 @@
 		$graph->Add($p2);
 
 		if ( ON == config_get( 'show_queries_count' ) ) {
-			$graph->subtitle->Set( db_count_queries() . ' queries (' . db_count_unique_queries() . ' unique)' );
+			$graph->subtitle->Set( db_count_queries() . ' queries (' . db_count_unique_queries() . ' unique) (' . db_time_queries() . 'sec)');
 		}
 		$graph->Stroke();
 	}

@@ -1,7 +1,7 @@
 <?php
 
 /**
-  V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V4.54 5 Nov 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -10,12 +10,61 @@
  
 */
 
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
+
 class ADODB2_oci8 extends ADODB_DataDict {
 	
 	var $databaseType = 'oci8';
 	var $seqField = false;
 	var $seqPrefix = 'SEQ_';
 	var $dropTable = "DROP TABLE %s CASCADE CONSTRAINTS";
+	var $trigPrefix = 'TRIG_';
+	var $alterCol = ' MODIFY ';
+	
+	function MetaType($t,$len=-1)
+	{
+		if (is_object($t)) {
+			$fieldobj = $t;
+			$t = $fieldobj->type;
+			$len = $fieldobj->max_length;
+		}
+		switch (strtoupper($t)) {
+	 	case 'VARCHAR':
+	 	case 'VARCHAR2':
+		case 'CHAR':
+		case 'VARBINARY':
+		case 'BINARY':
+			if (isset($this) && $len <= $this->blobSize) return 'C';
+			return 'X';
+		
+		case 'NCHAR':
+		case 'NVARCHAR2':
+		case 'NVARCHAR':
+			if (isset($this) && $len <= $this->blobSize) return 'C2';
+			return 'X2';
+			
+		case 'NCLOB':
+		case 'CLOB':
+			return 'XL';
+		
+		case 'LONG RAW':
+		case 'LONG VARBINARY':
+		case 'BLOB':
+			return 'B';
+		
+		case 'DATE': 
+			return 'T';
+		
+		case 'INT': 
+		case 'SMALLINT':
+		case 'INTEGER': 
+			return 'I';
+			
+		default:
+			return 'N';
+		}
+	}
 	
  	function ActualType($meta)
 	{
@@ -31,15 +80,15 @@ class ADODB2_oci8 extends ADODB_DataDict {
 			
 		case 'D': 
 		case 'T': return 'DATE';
-		case 'L': return 'NUMBER(1)';
-		case 'I1': return 'NUMBER(3)';
-		case 'I2': return 'NUMBER(5)';
+		case 'L': return 'DECIMAL(1)';
+		case 'I1': return 'DECIMAL(3)';
+		case 'I2': return 'DECIMAL(5)';
 		case 'I':
-		case 'I4': return 'NUMBER(10)';
+		case 'I4': return 'DECIMAL(10)';
 		
-		case 'I8': return 'NUMBER(20)';
-		case 'F': return 'NUMBER';
-		case 'N': return 'NUMBER';
+		case 'I8': return 'DECIMAL(20)';
+		case 'F': return 'DECIMAL';
+		case 'N': return 'DECIMAL';
 		default:
 			return $meta;
 		}	
@@ -65,7 +114,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 			$f[] = "\n $v";
 		}
 		
-		$s .= implode(',',$f).')';
+		$s .= implode(', ',$f).')';
 		$sql[] = $s;
 		return $sql;
 	}
@@ -78,24 +127,34 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		foreach($lines as $v) {
 			$f[] = "\n $v";
 		}
-		$s .= implode(',',$f).')';
+		$s .= implode(', ',$f).')';
 		$sql[] = $s;
 		return $sql;
 	}
 	
 	function DropColumnSQL($tabname, $flds)
 	{
-		if ($this->debug) ADOConnection::outp("DropColumnSQL not supported for Oracle");
-		return array();
+		if (!is_array($flds)) $flds = explode(',',$flds);
+		foreach ($flds as $k => $v) $flds[$k] = $this->NameQuote($v);
+		
+		$sql = array();
+		$s = "ALTER TABLE $tabname DROP(";
+		$s .= implode(', ',$flds).') CASCADE CONSTRAINTS';
+		$sql[] = $s;
+		return $sql;
 	}
 	
 	function _DropAutoIncrement($t)
 	{
+		if (strpos($t,'.') !== false) {
+			$tarr = explode('.',$t);
+			return "drop sequence ".$tarr[0].".seq_".$tarr[1];
+		}
 		return "drop sequence seq_".$t;
 	}
 	
 	// return string must begin with space
-	function _CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint)
+	function _CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{
 		$suffix = '';
 		
@@ -103,11 +162,10 @@ class ADODB2_oci8 extends ADODB_DataDict {
 			$fnotnull = false;
 			if ($this->debug) ADOConnection::outp("NOT NULL and DEFAULT='' illegal in Oracle");
 		}
-				
+		
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
-		if ($fnotnull) {
-			$suffix .= ' NOT NULL';
-		}
+		if ($fnotnull) $suffix .= ' NOT NULL';
+		
 		if ($fautoinc) $this->seqField = $fname;
 		if ($fconstraint) $suffix .= ' '.$fconstraint;
 		
@@ -131,18 +189,20 @@ end;
 			if ($t !== false) $tab = substr($tabname,$t+1);
 			else $tab = $tabname;
 			$seqname = $this->schema.'.'.$this->seqPrefix.$tab;
-			$trigname = $this->schema.'.TRIG_'.$this->seqPrefix.$tab;
+			$trigname = $this->schema.'.'.$this->trigPrefix.$this->seqPrefix.$tab;
 		} else {
 			$seqname = $this->seqPrefix.$tabname;
-			$trigname = "TRIG_$seqname";
+			$trigname = $this->trigPrefix.$seqname;
 		}
 		if (isset($tableoptions['REPLACE'])) $sql[] = "DROP SEQUENCE $seqname";
-		$sql[] = "CREATE SEQUENCE $seqname";
-		$sql[] = "CREATE OR REPLACE TRIGGER $trigname BEFORE insert ON $tabname 
-		FOR EACH ROW
-		BEGIN
-		  select $seqname.nextval into :new.$this->seqField from dual;
-		END;";
+		$seqCache = '';
+		if (isset($tableoptions['SEQUENCE_CACHE'])){$seqCache = $tableoptions['SEQUENCE_CACHE'];}
+		$seqIncr = '';
+		if (isset($tableoptions['SEQUENCE_INCREMENT'])){$seqIncr = ' INCREMENT BY '.$tableoptions['SEQUENCE_INCREMENT'];}
+		$seqStart = '';
+		if (isset($tableoptions['SEQUENCE_START'])){$seqIncr = ' START WITH '.$tableoptions['SEQUENCE_START'];}
+		$sql[] = "CREATE SEQUENCE $seqname $seqStart $seqIncr $seqCache";
+		$sql[] = "CREATE OR REPLACE TRIGGER $trigname BEFORE insert ON $tabname FOR EACH ROW WHEN (NEW.$this->seqField IS NULL OR NEW.$this->seqField = 0) BEGIN select $seqname.nextval into :new.$this->seqField from dual; END;";
 		
 		$this->seqField = false;
 		return $sql;
@@ -168,18 +228,37 @@ end;
 	
 	function _IndexSQL($idxname, $tabname, $flds,$idxoptions)
 	{
-		if (isset($idxoptions['REPLACE'])) $sql[] = "DROP INDEX $idxname";
+		$sql = array();
+		
+		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
+			$sql[] = sprintf ($this->dropIndex, $idxname, $tabname);
+			if ( isset($idxoptions['DROP']) )
+				return $sql;
+		}
+		
+		if ( empty ($flds) ) {
+			return $sql;
+		}
+		
 		if (isset($idxoptions['BITMAP'])) {
 			$unique = ' BITMAP'; 
-		} else if (isset($idxoptions['UNIQUE'])) 
+		} elseif (isset($idxoptions['UNIQUE'])) {
 			$unique = ' UNIQUE';
-		else 
+		} else {
 			$unique = '';
+		}
 		
-		if (is_array($flds)) $flds = implode(', ',$flds);
-		$s = "CREATE$unique INDEX $idxname ON $tabname ($flds)";
-		if (isset($idxoptions[$this->upperName])) $s .= $idxoptions[$this->upperName];
-		if (isset($idxoptions['oci8'])) $s .= $idxoptions['oci8'];
+		if ( is_array($flds) )
+			$flds = implode(', ',$flds);
+		$s = 'CREATE' . $unique . ' INDEX ' . $idxname . ' ON ' . $tabname . ' (' . $flds . ')';
+		
+		if ( isset($idxoptions[$this->upperName]) )
+			$s .= $idxoptions[$this->upperName];
+		
+		if (isset($idxoptions['oci8']))
+			$s .= $idxoptions['oci8'];
+		
+
 		$sql[] = $s;
 		
 		return $sql;
@@ -195,7 +274,7 @@ end;
 	function SetCommentSQL($table,$col,$cmt)
 	{
 		$cmt = $this->connection->qstr($cmt);
-		return  "COMMENT ON COLUMN $table.$col IS '$cmt'";
+		return  "COMMENT ON COLUMN $table.$col IS $cmt";
 	}
 }
 ?>

@@ -1,6 +1,6 @@
 >> ADODB Library for PHP4
 
-(c) 2000-2002 John Lim (jlim@natsoft.com.my)
+(c) 2000-2004 John Lim (jlim@natsoft.com.my)
 
 Released under both BSD and GNU Lesser GPL library license. 
 This means you can use it in proprietary products.
@@ -14,7 +14,7 @@ different databases (encapsulate the differences) so we can easily
 switch databases.
 
 We currently support MySQL, Interbase, Sybase, PostgreSQL, Oracle, 
-Microsoft SQL server,  Foxpro ODBC, Access ODBC, Informix, DB2 ODBC,
+Microsoft SQL server,  Foxpro ODBC, Access ODBC, Informix, DB2,
 Sybase SQL Anywhere, generic ODBC and Microsoft's ADO. 
 
 We hope more people will contribute drivers to support other databases.
@@ -22,8 +22,9 @@ We hope more people will contribute drivers to support other databases.
 
 >> Documentation and Examples
 
-Refer to readme.htm for full documentation and examples. There is also a 
-tutorial tute.htm that contrasts ADODB code with mysql code.
+Refer to the adodb/docs directory for full documentation and examples. 
+There is also a  tutorial tute.htm that contrasts ADODB code with 
+mysql code.
 
 
 >>> Files
@@ -49,6 +50,8 @@ tute.htm is the tutorial.
 >> More Info
 
 For more information, including installation see readme.htm
+or visit
+           http://adodb.sourceforge.net/
 
 
 >> Feature Requests and Bug Reports

@@ -46,4 +46,8 @@
 	# The default value is ON but you must make sure file uploading is enabled
 	#  in PHP as well.  You may need to add "file_uploads = TRUE" to your php.ini.
 	$g_allow_file_upload	= ON;
+	
+	# Specify where the user should be sent after logging out.
+	$g_logout_redirect_page			= 'plutoLogout.php';
+
 ?>

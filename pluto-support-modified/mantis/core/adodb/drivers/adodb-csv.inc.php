@@ -1,6 +1,6 @@
 <?php
 /*
-V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.54 5 Nov 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -10,6 +10,9 @@ V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights rese
   Native types have been converted to MetaTypes.
   Transactions not supported yet.
 */ 
+
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
 
 if (! defined("_ADODB_CSV_LAYER")) {
  define("_ADODB_CSV_LAYER", 1 );
@@ -30,7 +33,7 @@ class ADODB_csv extends ADOConnection {
 	var $_errorNo = false;
 	
 	function ADODB_csv() 
-	{			
+	{		
 	}
 	
 	function _insertid()
@@ -72,13 +75,13 @@ class ADODB_csv extends ADOConnection {
 		
 		
 	// parameters use PostgreSQL convention, not MySQL
-	function &SelectLimit($sql,$nrows=-1,$offset=-1,$arg3=false)
+	function &SelectLimit($sql,$nrows=-1,$offset=-1)
 	{
 	global $ADODB_FETCH_MODE;
 	
 		$url = $this->_url.'?sql='.urlencode($sql)."&nrows=$nrows&fetch=".
 			(($this->fetchMode !== false)?$this->fetchMode : $ADODB_FETCH_MODE).
-			"&offset=$offset&arg3=".urlencode($arg3);
+			"&offset=$offset";
 		$err = false;
 		$rs = csv2rs($url,$err,false);
 		
@@ -107,7 +110,7 @@ class ADODB_csv extends ADOConnection {
 	}
 	
 	// returns queryID or false
-	function &Execute($sql,$inputarr=false,$arg3=false)
+	function &_Execute($sql,$inputarr=false)
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -118,8 +121,6 @@ class ADODB_csv extends ADOConnection {
 			foreach($inputarr as $v) {
 
 				$sql .= $sqlarr[$i];
-				// from Ron Baldwin <ron.baldwin@sourceprose.com>
-				// Only quote string types	
 				if (gettype($v) == 'string')
 					$sql .= $this->qstr($v);
 				else if ($v === null)
@@ -137,8 +138,8 @@ class ADODB_csv extends ADOConnection {
 		
 		$url =  $this->_url.'?sql='.urlencode($sql)."&fetch=".
 			(($this->fetchMode !== false)?$this->fetchMode : $ADODB_FETCH_MODE);
-		if ($arg3) $url .= "&arg3=".urlencode($arg3);
 		$err = false;
+		
 		
 		$rs = csv2rs($url,$err,false);
 		if ($this->debug) print urldecode($url)."<br><i>$err</i><br>";

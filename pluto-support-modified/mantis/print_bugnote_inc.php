@@ -6,7 +6,7 @@
 	# See the README and LICENSE files for details
 
 	# --------------------------------------------------------
-	# $Id: print_bugnote_inc.php,v 1.27 2004/08/08 11:39:00 jlatour Exp $
+	# $Id: print_bugnote_inc.php,v 1.29 2004/11/30 12:17:03 vboctor Exp $
 	# --------------------------------------------------------
 ?>
 <?php
@@ -15,7 +15,7 @@
 ?>
 <?php
 	$t_core_path = config_get( 'core_path' );
-	
+
 	require_once( $t_core_path.'current_user_api.php' );
 	require_once( $t_core_path.'string_api.php' );
 ?>
@@ -32,13 +32,15 @@
  		$t_restriction = '';
  	}
 
+	$t_bugnote_table		= config_get( 'mantis_bugnote_table' );
+	$t_bugnote_text_table	= config_get( 'mantis_bugnote_text_table' );
 	# get the bugnote data
 	$t_bugnote_order = current_user_get_pref( 'bugnote_order' );
-	
+
 	$query = "SELECT *,date_submitted
-			FROM $g_mantis_bugnote_table
+			FROM $t_bugnote_table
 			WHERE bug_id='$c_bug_id' $t_restriction
-			ORDER BY date_submitted $g_bugnote_order";
+			ORDER BY date_submitted $t_bugnote_order";
 	$result = db_query($query);
 	$num_notes = db_num_rows($result);
 ?>
@@ -70,7 +72,7 @@
 
 		# grab the bugnote text and id and prefix with v3_
 		$query = "SELECT note, id
-				FROM $g_mantis_bugnote_text_table
+				FROM $t_bugnote_text_table
 				WHERE id='$v3_bugnote_text_id'";
 		$result2 = db_query( $query );
 		$v3_note = db_result( $result2, 0, 0 );
@@ -88,7 +90,9 @@
 		<table class="hide" cellspacing="1">
 		<tr>
 			<td class="print">
-				<?php print_user( $v3_reporter_id ) ?>&nbsp;&nbsp;&nbsp;
+				<?php
+				echo print_user( $v3_reporter_id );
+				?>&nbsp;&nbsp;&nbsp;
 			</td>
 		</tr>
 		<tr>
@@ -102,7 +106,20 @@
 		<table class="hide" cellspacing="1">
 		<tr>
 			<td class="print">
-				<?php echo $v3_note ?>
+				<?php
+					switch ( $v3_note_type ) {
+						case REMINDER:
+							echo '<div class="italic">' . lang_get( 'reminder_sent_to' ) . ': ';
+							$v3_note_attr = substr( $v3_note_attr, 1, strlen( $v3_note_attr ) - 2 );
+							$t_to = array();
+							foreach ( explode( '|', $v3_note_attr ) as $t_recipient ) {
+								$t_to[] = user_get_name( $t_recipient );
+							}
+							echo implode( ', ', $t_to ) . '</div><br />';
+						default:
+							echo $v3_note;
+					}
+				?>
 			</td>
 		</tr>
 		</table>

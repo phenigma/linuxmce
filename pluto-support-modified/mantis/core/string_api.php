@@ -6,7 +6,7 @@
 	# See the README and LICENSE files for details
 
 	# --------------------------------------------------------
-	# $Id: string_api.php,v 1.59 2004/09/21 07:35:10 jlatour Exp $
+	# $Id: string_api.php,v 1.62 2004/12/11 03:57:02 thraxisp Exp $
 	# --------------------------------------------------------
 
 	$t_core_dir = dirname( __FILE__ ).DIRECTORY_SEPARATOR;
@@ -176,9 +176,14 @@
 	#  preceeded by a character that is not a letter, a number or an underscore
 	function string_process_bug_link( $p_string, $p_include_anchor=true ) {
 		$t_tag = config_get( 'bug_link_tag' );
+		# bail if the link tag is blank
+		if ( '' == $t_tag ) {
+			return $p_string;
+		}
+		
 		$t_path = config_get( 'path' );
 
-		preg_match_all( '/(^|.+?)(?:(?<=^|\W)' . preg_quote($t_tag) . '(\d+)|$)/s',
+		preg_match_all( '/(^|.+?)(?:(?<=^|\W)' . preg_quote($t_tag, '/') . '(\d+)|$)/s',
 								$p_string, $t_matches, PREG_SET_ORDER );
 		$t_result = '';
 
@@ -228,6 +233,11 @@
 	#  preceeded by a character that is not a letter, a number or an underscore
 	function string_process_bugnote_link( $p_string, $p_include_anchor=true ) {
 		$t_tag = config_get( 'bugnote_link_tag' );
+		# bail if the link tag is blank
+		if ( '' == $t_tag ) {
+			return $p_string;
+		}
+
 		$t_path = config_get( 'path' );
 
 		preg_match_all( '/(^|.+?)(?:(?<=^|\W)' . preg_quote($t_tag) . '(\d+)|$)/s',
@@ -281,11 +291,11 @@
 		if ( !config_get( 'html_make_links' ) ) {
 			return $p_string;
 		}
-		# Find any URL in a string and replace it by a clickable link
-		
-		$t_url = new mantisLink();
-		$p_string = $t_url->match($p_string, "[^]");
-				
+		# Find any URL in a string and replace it by a clickable link		
+		$p_string = preg_replace( '/([http|irc|ftp|https]{2,}:\/\/([a-z0-9_-]|\/|\@|:{0,1}\.{0,1}){1,})/',
+									'<a href="\1">\1</a> [<a href="\1" target="blank">^</a>]',   
+									$p_string);
+
 		# Set up a simple subset of RFC 822 email address parsing
 		#  We don't allow domain literals or quoted strings
 		#  We also don't allow the & character in domains even though the RFC

@@ -6,7 +6,7 @@
 	# See the README and LICENSE files for details
 
 	# --------------------------------------------------------
-	# $Id: database_api.php,v 1.34 2004/09/27 19:33:09 prichards Exp $
+	# $Id: database_api.php,v 1.38 2004/12/09 18:55:06 thraxisp Exp $
 	# --------------------------------------------------------
 
 	### Database ###
@@ -28,10 +28,10 @@
 
 	# --------------------
 	# Make a connection to the database
-	function db_connect( $p_hostname, $p_username, $p_password, $g_database_name ) {
+	function db_connect( $p_hostname, $p_username, $p_password, $p_database_name ) {
 		global $g_db_connected, $g_db;
 
-		$t_result = $g_db->Connect($p_hostname, $p_username, $p_password, $g_database_name );
+		$t_result = $g_db->Connect($p_hostname, $p_username, $p_password, $p_database_name );
 
 		if ( !$t_result ) {
 			db_error();
@@ -46,10 +46,10 @@
 
 	# --------------------
 	# Make a persistent connection to the database
-	function db_pconnect( $p_hostname, $p_username, $p_password, $p_port, $g_database_name ) {
+	function db_pconnect( $p_hostname, $p_username, $p_password, $p_database_name ) {
 		global $g_db_connected, $g_db;
 
-		$t_result = $g_db->PConnect($p_hostname, $p_username, $p_password, $g_database_name );
+		$t_result = $g_db->PConnect($p_hostname, $p_username, $p_password, $p_database_name );
 		if ( !$t_result ) {
 			db_error();
 			trigger_error( ERROR_DB_CONNECT_FAILED, ERROR );
@@ -237,6 +237,7 @@
 	# prepare a string before DB insertion
 	# @@@ should default be return addslashes( $p_string ); or generate an error
 	function db_prepare_string( $p_string ) {
+		global $g_db;
 		$t_db_type = config_get( 'db_type' );
 
 		switch( $t_db_type ) {
@@ -246,6 +247,13 @@
 
 			case 'mysql':
 				return mysql_escape_string( $p_string );
+
+			# For some reason mysqli_escape_string( $p_string ) always returns an empty
+			# string.  This is happening with PHP v5.0.2.
+			# @@@ Consider using ADODB escaping for all databases.
+			case 'mysqli':
+				$t_escaped = $g_db->qstr( $p_string, false );
+				return substr( $t_escaped, 1, strlen( $t_escaped ) - 2 );
 
 			case 'postgres':
 			case 'postgres64':
@@ -320,6 +328,7 @@
 				return "(DATEDIFF(day, $p_date2, $p_date1) ". $p_limitstring . ")";
 
 			case 'mysql':
+			case 'mysqli':
 				return "(TO_DAYS($p_date1) - TO_DAYS($p_date2) ". $p_limitstring . ")";
 
 			case 'postgres':
@@ -357,6 +366,19 @@
 		}
 		return $t_unique_queries;
 		}
+
+	# --------------------
+	# get total time for queries
+	function db_time_queries () {
+		global $g_queries_array;
+		$t_count = count( $g_queries_array );
+		$t_total = 0;
+		for ( $i = 0; $i < $t_count; $i++ ) {
+			$t_total += $g_queries_array[$i][1];
+		}
+		return $t_total;
+	}
+
 		
 	# --------------------
 	if ( !isset( $g_skip_open_db ) ) {

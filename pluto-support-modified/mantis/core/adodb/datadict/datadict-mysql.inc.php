@@ -1,7 +1,7 @@
 <?php
 
 /**
-  V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V4.54 5 Nov 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -10,10 +10,72 @@
  
 */
 
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
+
 class ADODB2_mysql extends ADODB_DataDict {
 	var $databaseType = 'mysql';
 	var $alterCol = ' MODIFY COLUMN';
+	var $alterTableAddIndex = true;
+	var $dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
 	
+	var $dropIndex = 'DROP INDEX %s ON %s';
+	var $renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';	// needs column-definition!
+	
+	function MetaType($t,$len=-1,$fieldobj=false)
+	{
+		if (is_object($t)) {
+			$fieldobj = $t;
+			$t = $fieldobj->type;
+			$len = $fieldobj->max_length;
+		}
+		$is_serial = is_object($fieldobj) && $fieldobj->primary_key && $fieldobj->auto_increment;
+		
+		$len = -1; // mysql max_length is not accurate
+		switch (strtoupper($t)) {
+		case 'STRING': 
+		case 'CHAR':
+		case 'VARCHAR': 
+		case 'TINYBLOB': 
+		case 'TINYTEXT': 
+		case 'ENUM': 
+		case 'SET':
+			if ($len <= $this->blobSize) return 'C';
+			
+		case 'TEXT':
+		case 'LONGTEXT': 
+		case 'MEDIUMTEXT':
+			return 'X';
+			
+		// php_mysql extension always returns 'blob' even if 'text'
+		// so we have to check whether binary...
+		case 'IMAGE':
+		case 'LONGBLOB': 
+		case 'BLOB':
+		case 'MEDIUMBLOB':
+			return !empty($fieldobj->binary) ? 'B' : 'X';
+			
+		case 'YEAR':
+		case 'DATE': return 'D';
+		
+		case 'TIME':
+		case 'DATETIME':
+		case 'TIMESTAMP': return 'T';
+		
+		case 'FLOAT':
+		case 'DOUBLE':
+			return 'F';
+			
+		case 'INT': 
+		case 'INTEGER': return $is_serial ? 'R' : 'I';
+		case 'TINYINT': return $is_serial ? 'R' : 'I1';
+		case 'SMALLINT': return $is_serial ? 'R' : 'I2';
+		case 'MEDIUMINT': return $is_serial ? 'R' : 'I4';
+		case 'BIGINT':  return $is_serial ? 'R' : 'I8';
+		default: return 'N';
+		}
+	}
+
 	function ActualType($meta)
 	{
 		switch(strtoupper($meta)) {
@@ -30,10 +92,11 @@ class ADODB2_mysql extends ADODB_DataDict {
 		case 'T': return 'DATETIME';
 		case 'L': return 'TINYINT';
 		
+		case 'R':
+		case 'I4':
 		case 'I': return 'INTEGER';
 		case 'I1': return 'TINYINT';
 		case 'I2': return 'SMALLINT';
-		case 'I4': return 'MEDIUMINT';
 		case 'I8': return 'BIGINT';
 		
 		case 'F': return 'DOUBLE';
@@ -44,9 +107,10 @@ class ADODB2_mysql extends ADODB_DataDict {
 	}
 	
 	// return string must begin with space
-	function _CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint)
+	function _CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{	
 		$suffix = '';
+		if ($funsigned) $suffix .= ' UNSIGNED';
 		if ($fnotnull) $suffix .= ' NOT NULL';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
 		if ($fautoinc) $suffix .= ' AUTO_INCREMENT';
@@ -77,14 +141,38 @@ class ADODB2_mysql extends ADODB_DataDict {
 	
 	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
-		//if (isset($idxoptions['REPLACE'])) $sql[] = "DROP INDEX IF EXISTS $idxname";
-		if (isset($idxoptions['FULLTEXT'])) $unique = ' FULLTEXT';
-		else if (isset($idxoptions['UNIQUE'])) $unique = ' UNIQUE';
-		else $unique = '';
+		$sql = array();
 		
-		if (is_array($flds)) $flds = implode(', ',$flds);
-		$s = "CREATE$unique INDEX $idxname ON $tabname ($flds)";
-		if (isset($idxoptions[$this->upperName])) $s .= $idxoptions[$this->upperName];
+		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
+			if ($this->alterTableAddIndex) $sql[] = "ALTER TABLE $tabname DROP INDEX $idxname";
+			else $sql[] = sprintf($this->dropIndex, $idxname, $tabname);
+
+			if ( isset($idxoptions['DROP']) )
+				return $sql;
+		}
+		
+		if ( empty ($flds) ) {
+			return $sql;
+		}
+		
+		if (isset($idxoptions['FULLTEXT'])) {
+			$unique = ' FULLTEXT';
+		} elseif (isset($idxoptions['UNIQUE'])) {
+			$unique = ' UNIQUE';
+		} else {
+			$unique = '';
+		}
+		
+		if ( is_array($flds) ) $flds = implode(', ',$flds);
+		
+		if ($this->alterTableAddIndex) $s = "ALTER TABLE $tabname ADD $unique INDEX $idxname ";
+		else $s = 'CREATE' . $unique . ' INDEX ' . $idxname . ' ON ' . $tabname;
+		
+		$s .= ' (' . $flds . ')';
+		
+		if ( isset($idxoptions[$this->upperName]) )
+			$s .= $idxoptions[$this->upperName];
+		
 		$sql[] = $s;
 		
 		return $sql;

@@ -1,9 +1,9 @@
 <?php
 /**
- * @version V3.50 19 May 2003  (c) 2000-2003 John Lim (jlim@natsoft.com.my). All rights reserved.
+ * @version V4.54 5 Nov 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
+ * Whenever there is any discrepancy between the two licenses,
+ * the BSD license will take precedence.
  *
  * Set tabs to 4 for best viewing.
  *
@@ -11,12 +11,13 @@
  *
 */
 
+
 // added Claudio Bustos  clbustos#entelchile.net
 if (!defined('ADODB_ERROR_HANDLER_TYPE')) define('ADODB_ERROR_HANDLER_TYPE',E_USER_ERROR); 
 
-define('ADODB_ERROR_HANDLER','ADODB_Error_Handler');
+if (!defined('ADODB_ERROR_HANDLER')) define('ADODB_ERROR_HANDLER','ADODB_Error_Handler');
 
-  /**
+/**
 * Default Error Handler. This will be called with the following params
 *
 * @param $dbms		the RDBMS you are connecting to
@@ -24,8 +25,9 @@ define('ADODB_ERROR_HANDLER','ADODB_Error_Handler');
 * @param $errno		the native error number from the database
 * @param $errmsg	the native error msg from the database
 * @param $p1		$fn specific parameter - see below
-* @param $P2		$fn specific parameter - see below
-	*/
+* @param $p2		$fn specific parameter - see below
+* @param $thisConn	$current connection object - can be false if no connection object created
+*/
 function ADODB_Error_Handler($dbms, $fn, $errno, $errmsg, $p1, $p2, &$thisConnection)
 {
 	if (error_reporting() == 0) return; // obey @ protocol
