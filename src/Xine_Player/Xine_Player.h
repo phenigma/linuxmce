@@ -132,18 +132,18 @@ public:
 	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #63 - Skip Forward */
+	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
 	/** Chapter/Track Next/Down/Forward */
 
-	virtual void CMD_Skip_Forward() { string sCMD_Result; CMD_Skip_Forward(sCMD_Result,NULL);};
-	virtual void CMD_Skip_Forward(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Skip_Fwd_ChannelTrack_Greater() { string sCMD_Result; CMD_Skip_Fwd_ChannelTrack_Greater(sCMD_Result,NULL);};
+	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #64 - Skip Back */
+	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
 	/** Chapter/Track Back/Up/Prior */
 
-	virtual void CMD_Skip_Back() { string sCMD_Result; CMD_Skip_Back(sCMD_Result,NULL);};
-	virtual void CMD_Skip_Back(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Skip_Back_ChannelTrack_Lower() { string sCMD_Result; CMD_Skip_Back_ChannelTrack_Lower(sCMD_Result,NULL);};
+	virtual void CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #81 - Navigate Next */

@@ -277,10 +277,10 @@ void SqueezeBox_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlayba
 
 //<-dceag-c63-b->
 
-	/** @brief COMMAND: #63 - Skip Forward */
+	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
 	/** Chapter/Track Next/Down/Forward */
 
-void SqueezeBox_Player::CMD_Skip_Forward(string &sCMD_Result,Message *pMessage)
+void SqueezeBox_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
 {
     cout << "Need to implement command #63 - Skip Forward" << endl;
@@ -288,10 +288,10 @@ void SqueezeBox_Player::CMD_Skip_Forward(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c64-b->
 
-	/** @brief COMMAND: #64 - Skip Back */
+	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
 	/** Chapter/Track Back/Up/Prior */
 
-void SqueezeBox_Player::CMD_Skip_Back(string &sCMD_Result,Message *pMessage)
+void SqueezeBox_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
 {
     cout << "Need to implement command #64 - Skip Back" << endl;

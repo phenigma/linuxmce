@@ -40,7 +40,7 @@ using namespace DCE;
 
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
-extern Command_Impl *g_pCommand_Impl;
+Command_Impl *g_pCommand_Impl=NULL;
 
 /**
  * @brief entry point for the MessageQueue thread

@@ -582,10 +582,10 @@ void MythTV_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c240-b->
 
-	/** @brief COMMAND: #240 - Back */
+	/** @brief COMMAND: #240 - Back / Prior Menu */
 	/** Navigate back .. ( Escape ) */
 
-void MythTV_Player::CMD_Back(string &sCMD_Result,Message *pMessage)
+void MythTV_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 //<-dceag-c240-e->
 {
     processKeyBoardInputRequest(XK_Escape);

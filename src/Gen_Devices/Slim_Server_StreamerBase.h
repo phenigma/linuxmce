@@ -83,8 +83,8 @@ public:
 	virtual void CMD_Pause_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Restart_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Skip_Forward(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Skip_Back(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,class Message *pMessage) {};
@@ -192,7 +192,7 @@ public:
 				case 63:
 					{
 						string sCMD_Result="OK";
-						CMD_Skip_Forward(sCMD_Result,pMessage);
+						CMD_Skip_Fwd_ChannelTrack_Greater(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -207,7 +207,7 @@ public:
 				case 64:
 					{
 						string sCMD_Result="OK";
-						CMD_Skip_Back(sCMD_Result,pMessage);
+						CMD_Skip_Back_ChannelTrack_Lower(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

@@ -38,7 +38,7 @@ using namespace DCE;
 // You can override this block if you don't want the app to reload in the event of a problem
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
-Command_Impl *g_pCommand_Impl=NULL;
+extern Command_Impl *g_pCommand_Impl;
 void DeadlockHandler(PlutoLock *pPlutoLock)
 {
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload

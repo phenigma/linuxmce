@@ -17,7 +17,7 @@ const MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
-Command_Impl *g_pCommand_Impl=NULL;
+extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
 void DeadlockHandler(PlutoLock *pPlutoLock)
 {

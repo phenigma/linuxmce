@@ -105,7 +105,7 @@ public:
 	virtual void CMD_7(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_8(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_9(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Back(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Back_Prior_Menu(string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -448,7 +448,7 @@ public:
 				case 240:
 					{
 						string sCMD_Result="OK";
-						CMD_Back(sCMD_Result,pMessage);
+						CMD_Back_Prior_Menu(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

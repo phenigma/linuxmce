@@ -250,11 +250,11 @@ public:
 	virtual void CMD_9(string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #240 - Back */
+	/** @brief COMMAND: #240 - Back / Prior Menu */
 	/** Navigate back .. ( Escape ) */
 
-	virtual void CMD_Back() { string sCMD_Result; CMD_Back(sCMD_Result,NULL);};
-	virtual void CMD_Back(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Back_Prior_Menu() { string sCMD_Result; CMD_Back_Prior_Menu(sCMD_Result,NULL);};
+	virtual void CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
