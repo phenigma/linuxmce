@@ -105,7 +105,7 @@ while [ "$ok" -eq 0 ]; do
 		answer=$(wget -O - "$activation_url?code=$activation_key" 2>/dev/null)
 		if [ "$?" -ne 0 ]; then
 			try_again "Failed to contact activation server over the Internet" && continue
-			echo "$ICS_MSG"
+			echo "$ICS_MSG" | fmt
 #			MessageBox "$ICS_MSG"
 			break
 		fi
@@ -120,7 +120,7 @@ while [ "$ok" -eq 0 ]; do
 		Message1="Failed getting activation data. Server answer was:"
 		Message2="$result"
 		try_again "$Message1" "$Message2" && continue
-		echo "$NOCODE_MSG"
+		echo "$NOCODE_MSG" | fmt
 #		MessageBox "$NOCODE_MSG"
 		break
 	fi
@@ -162,16 +162,16 @@ chmod +x "$DIR"/activation.sh
 if "$DIR"/activation.sh; then
 	echo "Activation went ok"
 else
-	echo "$ACTIV_MSG"
+	echo "$ACTIV_MSG" | fmt
 fi
 
 if [ -z "$no_build" -a -s "$DIR"/build.sh ]; then
 	chmod +x "$DIR"/build.sh
-	echo "$BUILD_MSG"
+	echo "$BUILD_MSG" | fmt
 fi
 if [ -z "$no_build_all" -a -s "$DIR"/build_all.sh ]; then
 	chmod +x "$DIR"/build_all.sh
-	echo "$BUILD_ALL_MSG"
+	echo "$BUILD_ALL_MSG" | fmt
 fi
 
 # At this point these scripts should be available (installation finished, didn't it?)
