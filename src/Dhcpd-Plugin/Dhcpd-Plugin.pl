@@ -71,7 +71,7 @@ while (1 eq 1) {
               $tmp = $row_ref->{PK_Device};
               if($tmp eq "") {
 	        $install = get_install();
-                system("/usr/pluto/bin/CreateDevice -i $install -c $dhcpd_device -I $ip_sent -M $mac_found > dhcpd_temp.file\n");
+                system("/usr/pluto/bin/CreateDevice -i $install -c $dhcpd_device -I $ip_sent -M $mac_found -n > dhcpd_temp.file\n");
 	        open(FILE, "dhcpd_temp.file");
 	        @data = <FILE>;
                 $Device_ID = $data[0];
