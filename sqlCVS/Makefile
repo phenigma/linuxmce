@@ -8,7 +8,7 @@ CXX = g++
 sources = A_UpdateRow.cpp ChangedRow.cpp CommonFunctions.cpp Database.cpp Field.cpp ../sql2cpp/FieldInfo.cpp \
 	R_CommitChanges.cpp R_CommitRow.cpp R_CommitTable.cpp R_GetAll_psc_id.cpp R_UpdateRepository.cpp \
 	R_UpdateTable.cpp sqlCVSrequests.cpp Table.cpp Repository.cpp ValidateUser.cpp sqlCVSprocessor.cpp \
-	R_CloseTransaction.cpp
+	R_CloseTransaction.cpp R_ApproveBatch.cpp
 sqlCVS = $(sources) sqlCVS.cpp
 new_thing = $(sources) TableInfo_SCVS.cpp
 
