@@ -160,6 +160,9 @@
 			<File
 				RelativePath="..\Gen_Devices\Xine_PluginBase.cpp">
 			</File>
+			<File
+				RelativePath=".\XineMediaStream.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

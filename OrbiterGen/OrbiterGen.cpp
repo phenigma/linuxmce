@@ -1411,12 +1411,16 @@ void OrbiterGenerator::OutputText(DesignObj_Generator *ocDesignObj,CGText *p_Des
 //	p_DesignObjText->m_Rotate = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->Rotate_get();
 //	p_DesignObjText->m_Opacity = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->Opacity_get();
 	// If we force a background color, put it in the default style
+
+/* 
+AB 1/17/2005 - text styles are shared -- this was causing it to change backgrounds unintentionally
 	if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->PlainBackgroundColor_isNull() )
 	{
 		PlutoColor cBackground(p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->PlainBackgroundColor_get());
 		TextStyle *pTextStyle = p_DesignObjText->m_mapTextStyle_Find(0);
 		pTextStyle->m_BackColor=cBackground;
 	}
+*/
 
 	if( !bPrerender )
 	{
