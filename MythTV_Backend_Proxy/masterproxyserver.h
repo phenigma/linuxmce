@@ -25,18 +25,18 @@
 
 namespace MYTHTV {
 
-/**
-@author igor
-*/
-class MasterProxyServer : public ProxyServer
-{
-public:
-	MasterProxyServer();
-	~MasterProxyServer();
-	
-protected:
-	virtual void handleAccept(int sockfd, int peersockfd);
-};
+	/**
+	@author igor
+	*/
+	class MasterProxyServer : public ProxyServer
+	{
+	public:
+		MasterProxyServer();
+		~MasterProxyServer();
+
+	protected:
+		virtual void handleAccept(int sockfd, int peersockfd);
+	};
 
 };
 

@@ -37,4 +37,9 @@ namespace DCE
 	{
 		return MEDIASTREAM_TYPE_MYTHTV;
 	}
+
+	void MythTvMediaStream::GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices)
+	{
+		/** @todo: Implement this to keep track of multiple devices. */
+	}
 };

@@ -45,7 +45,7 @@ public:
 	ProxyServer* getServer() {
 		return pserver_;
 	};
-	
+
 public:
 	inline int writeDataToSrc(const std::string& data) {
 		return writeData(getSrcSock(), data);
@@ -65,7 +65,7 @@ protected:
 
 protected:
 	virtual void handleTerminate();
-	
+
 protected:
 	int readData(int sockfd, std::string& data);
 	int writeData(int sockfd, const std::string& data);

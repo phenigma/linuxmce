@@ -36,23 +36,22 @@ using namespace DCE;
 
 namespace MYTHTV {
 
-MasterProxyServer::MasterProxyServer()
-{
-//	cout << "Master proxy Created." << endl;
-	setPeerHost(MASTER_BACKEND_HOST);
-	setPeerPort(MASTER_BACKEND_PORT);
-};
+	MasterProxyServer::MasterProxyServer()
+	{
+		setPeerHost(MASTER_BACKEND_HOST);
+		setPeerPort(MASTER_BACKEND_PORT);
+	};
 
-MasterProxyServer::~MasterProxyServer() {
-//	cout << "Master proxy Destroyed." << endl;
-}
-void 
-MasterProxyServer::handleAccept(int sockfd, int peersockfd) {
-	/*instantiate peer handler*/
-	ProxyPeerThread *ppeerthr = 
-			new MasterProxyPeerThread(this, sockfd, peersockfd);
-	ppeerthr->Run(false);
-}
+	MasterProxyServer::~MasterProxyServer()
+	{
+	}
 
+	void MasterProxyServer::handleAccept(int sockfd, int peersockfd)
+	{
+		/*instantiate peer handler*/
+		ProxyPeerThread *ppeerthr =
+				new MasterProxyPeerThread(this, sockfd, peersockfd);
+		ppeerthr->Run(false);
+	}
 
 };

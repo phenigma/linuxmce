@@ -22,7 +22,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netdb.h>
+// #include <netdb.h>
 
 #include <iostream>
 
@@ -39,29 +39,29 @@ BackendProxyPeerThread::BackendProxyPeerThread(ProxyServer* pserver, int srcsock
 //	cout << "Backend peer thread Created." << endl;
 };
 
-BackendProxyPeerThread::~BackendProxyPeerThread() 
+BackendProxyPeerThread::~BackendProxyPeerThread()
 {
 //	cout << "Backend peer thread Destroyed." << endl;
 }
 
-bool 
+bool
 BackendProxyPeerThread::processData(const char* data, bool fromsrc) {
 	ProxyEventHandler *phandler = getServer()->getHandler();
 	if(phandler == NULL) {
 		return false;
 	}
-	
+
 	Token tok(data);
 	int index = 0;
-	
+
 	if(fromsrc) {
 		if((index = tok.findValue("GET_PROGRAM_INFO")) >= 0) {
 			setState(PEER_STATE_GETPROGRAMINFO);
-		} /*else 
+		} /*else
 		if((index = tok.findValue("CHANGE_CHANNEL")) >= 0 && tok.getValuesNum() > index + 1) {
 			direction_ = atoi(tok.getValue(index + 1).c_str());
 			setState(PEER_STATE_CHANGECHANNEL);
-		} else 
+		} else
 		if((index = tok.findValue("SET_CHANNEL")) >= 0 && tok.getValuesNum() > index + 1) {
 			pendingchannel_ = atoi(tok.getValue(index + 1).c_str());
 			setState(PEER_STATE_SETCHANNEL);
@@ -74,7 +74,7 @@ BackendProxyPeerThread::processData(const char* data, bool fromsrc) {
 			case PEER_STATE_GETPROGRAMINFO: {
 				if(tok.getValuesNum() > 8) {
 					newchannel = atoi(tok.getValue(8).c_str());
-				} 	
+				}
 			} break; /*
 			case PEER_STATE_CHANGECHANNEL: {
 				if(tok.findValue("ok") >= 0) {
@@ -87,29 +87,17 @@ BackendProxyPeerThread::processData(const char* data, bool fromsrc) {
 				}
 			}*/
 		}
-		
+
 		setState(PEER_STATE_NONE);
-		
-		if(newchannel != channel_) {
+
+		if(newchannel != channel_)
+		{
 //			cout << "Channel changed from  " << channel_ << " to " << newchannel << endl;
 			channel_ = newchannel;
-			
-			/*format channel id*/
-			char channelbuf[13];
-			sprintf(channelbuf, "%d", channel_);
-			
-			/*get frontend ip adress*/
-			sockaddr_in peer;
-			socklen_t peerlen = sizeof(peer);
-			char host[NI_MAXHOST];
-			
-			getpeername(getSrcSock(), (struct sockaddr*)&peer, &peerlen);
-			getnameinfo((struct sockaddr*)&peer, peerlen, host, sizeof(host), NULL, 0, NI_NUMERICHOST);
-		
-			phandler->ChannelChanged(host, channelbuf);
+			phandler->ChannelChanged(this->getSourceIP().c_str(), channel_);
 		}
 	}
-	
+
 	return false;
 }
 

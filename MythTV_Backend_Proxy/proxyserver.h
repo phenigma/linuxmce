@@ -54,41 +54,41 @@ public:
 	const char* getHost() {
 		return host_.c_str();
 	}
-	
+
 	void setPort(unsigned port) {
 		port_ = port;
 	}
 	unsigned getPort() {
 		return port_;
 	}
-	
+
 	void setPeerHost(const char* peerhost) {
 		peerhost_ = peerhost;
 	}
 	const char*  getPeerHost() {
 		return peerhost_.c_str();
 	}
-	
+
 	void setPeerPort(unsigned peerport) {
 		peerport_ = peerport;
 	}
 	unsigned getPeerPort() {
 		return peerport_;
 	}
-	
+
 protected:
 	virtual void* _Run();
 
 protected:
 	virtual bool handleStartup();
 	virtual void handleTerminate();
-	
+
 protected:
 	virtual void handleAccept(int sockfd, int peersockfd) = 0;
 
 private:
-	ProxyEventHandler* phandler_;	
-	
+	ProxyEventHandler* phandler_;
+
 	std::string host_;
 	unsigned port_;
 	std::string peerhost_;

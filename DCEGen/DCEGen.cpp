@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 	}
 	if( sSearchDeviceByName.length() )
 	{
-		// todo 
+		// todo
 		exit(1);
 	}
 	if( !PK_DeviceTemplate )
@@ -218,7 +218,7 @@ DCEGen::DCEGen(int PK_DeviceTemplate,string GeneratedOutput,string TemplateInput
 void DCEGen::GenerateDevice(int PK_DeviceTemplate,bool bTemplates)
 {
 	// This function will end up recursively calling itself to generate all it's child devices as well
-	// Because there may be mutual relationships, keep track of what devices we've generated this 
+	// Because there may be mutual relationships, keep track of what devices we've generated this
 	// session and just return if we've already generated this device to avoid an endless loop
 	if( m_mapGeneratedDevices.find(PK_DeviceTemplate)!=m_mapGeneratedDevices.end() )
 		return;
@@ -389,7 +389,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	p_Row_DeviceTemplate->FK_DeviceCategory_getrow()->DeviceCategory_DeviceData_FK_DeviceCategory_getrows(&vectRow_DeviceCategory_DeviceData);
 	for(size_t i3=0;i3<vectRow_DeviceCategory_DeviceData.size();++i3)
 	{
-		Row_DeviceCategory_DeviceData *pRow_DeviceCategory_DeviceData = 
+		Row_DeviceCategory_DeviceData *pRow_DeviceCategory_DeviceData =
 			vectRow_DeviceCategory_DeviceData[i3];
 
 		if( deviceInfo.m_mapDataInfo.find(pRow_DeviceCategory_DeviceData->FK_DeviceData_get())==deviceInfo.m_mapDataInfo.end() )
@@ -413,15 +413,15 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 		string pID = StringUtils::itos(pDataInfo->m_pRow_DeviceData->PK_DeviceData_get());
 		string pDefine = FileUtils::ValidCPPName(pDataInfo->m_pRow_DeviceData->Description_get());
-		fstr_DeviceCommand << "\t" << pDataInfo->m_pRow_DeviceData->FK_ParameterType_getrow()->Description_get()  << " Get_"  <<  
+		fstr_DeviceCommand << "\t" << pDataInfo->m_pRow_DeviceData->FK_ParameterType_getrow()->Description_get()  << " Get_"  <<
 			pDefine  << "() { return ";
 		fstr_DeviceCommand << CastStringToType("m_mapParameters[" + pID + "]",pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) << ";}" << endl;
 		if(pDataInfo->m_bCanSet)
 		{
-			fstr_DeviceCommand << "\tvoid Set_" << pDefine << "(" << pDataInfo->m_pRow_DeviceData->FK_ParameterType_getrow()->Description_get() << 
+			fstr_DeviceCommand << "\tvoid Set_" << pDefine << "(" << pDataInfo->m_pRow_DeviceData->FK_ParameterType_getrow()->Description_get() <<
 				" Value) { SetParm(" << pID << "," << CastTypeToChar("Value",pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) << "); }" << endl;
 		}
-	}		
+	}
 
 	fstr_DeviceCommand << "};" << endl;
 	fstr_DeviceCommand << endl << endl << endl;
@@ -476,7 +476,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		{
 			fstr_DeviceCommand << "\tvoid DATA_Set_" << pDefine << "(" << pDataInfo->m_pRow_DeviceData->FK_ParameterType_getrow()->Description_get() << " Value) { GetData()->Set_" << pDefine << "(Value); }" << endl;
 		}
-	}		
+	}
 	fstr_DeviceCommand << "\t//Event accessors" << endl;
 	map<int,string>::iterator itEventDeclarations;
 	for(itEventDeclarations=deviceInfo.m_mapEventDeclarations.begin();itEventDeclarations!=deviceInfo.m_mapEventDeclarations.end();++itEventDeclarations)
@@ -575,7 +575,7 @@ int k=2;
 				CreateFunctionParms(pRow_Request_RequestParameter_In->FK_RequestParameter_get(),
 					pRow_Request_RequestParameter_In->FK_RequestParameter_getrow()->FK_ParameterType_get(),
 					FileUtils::ValidCPPName(pRow_Request_RequestParameter_In->FK_RequestParameter_getrow()->Description_get()),
-					sParmsWithType,sAssignParmToLocal,sParmsWithNoType,sPassingToMessage,false);  
+					sParmsWithType,sAssignParmToLocal,sParmsWithNoType,sPassingToMessage,false);
 				fstr_DeviceCommand << sAssignParmToLocal;
 			}
 			for(size_t i3=0;i3<vectRow_Request_RequestParameter_Out.size();++i3)
@@ -585,10 +585,11 @@ int k=2;
 				CreateFunctionParms(pRow_Request_RequestParameter_Out->FK_RequestParameter_get(),
 					pRow_Request_RequestParameter_Out->FK_RequestParameter_getrow()->FK_ParameterType_get(),
 					FileUtils::ValidCPPName(pRow_Request_RequestParameter_Out->FK_RequestParameter_getrow()->Description_get()),
-					sParmsWithType,sAssignParmToLocal,sParmsWithNoType,sPassingToMessage,false);  
+					sParmsWithType,sAssignParmToLocal,sParmsWithNoType,sPassingToMessage,false);
 				fstr_DeviceCommand << "\t\t\t\t\t\t" << StringUtils::Replace(sParmsWithType,",",";") << ";" << endl;  // Data parms will come in as a char and int separated with a ,
 			}
-/*
+/ * WARN: Gcc complains about this (comment within a comment)
+
 			fstr_DeviceCommand << mapRNameAssignParmToLocal[(*itStringString).first];
 			if ((mapRNameAssignParmToLocal[(*itStringString).first]).size() > 0)
 				fstr_DeviceCommand << "\t";
@@ -612,7 +613,7 @@ int k=2;
 			fstr_DeviceCommand << "\t\t\t\t\t}" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\telse" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\tSendMessage(new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,MESSAGETYPE_REPLY,PRIORITY_NORMAL,0,0));" << endl;
-						
+
 			if ((mapRNameAssignParmToLocal[(*itStringString).first]).length() > 0)
 			{
 				fstr_DeviceCommand << "\t\t\t\t};" << endl;
@@ -665,7 +666,7 @@ int k=2;
 	fstr_DeviceCommand << "#include \"DeviceData_Impl.h\"" << endl;
 	fstr_DeviceCommand << "#include \"Logger.h\"" << endl << endl;
 	fstr_DeviceCommand << "using namespace DCE;" << endl;
-	
+
 	map<int,class Row_DeviceTemplate *>::iterator itMDL;
 	for(itMDL=p_mapRow_MasterDevice_Children->begin();itMDL!=p_mapRow_MasterDevice_Children->end();++itMDL)
 	{
@@ -753,10 +754,10 @@ int k=2;
 		if( sTemplateOutput=="" )
 			sTemplateOutput="../" + Name + "/";
 
-		if( FileUtils::FileExists(sTemplateOutput + "Main.cpp") || FileUtils::FileExists(sTemplateOutput + Name + ".cpp") || 
+		if( FileUtils::FileExists(sTemplateOutput + "Main.cpp") || FileUtils::FileExists(sTemplateOutput + Name + ".cpp") ||
 			FileUtils::FileExists(sTemplateOutput + Name + ".cpp") || FileUtils::FileExists(sTemplateOutput + Name + ".vcproj") ||
 			FileUtils::FileExists(sTemplateOutput + Name + "_DLL.vcproj") || FileUtils::FileExists(sTemplateOutput + "Makefile") ||
-			FileUtils::FileExists(sTemplateOutput + Name + ".def") )  // We already built, 
+			FileUtils::FileExists(sTemplateOutput + Name + ".def") )  // We already built,
 		{
 			cout << "There is already a project in the directory: " << sTemplateOutput << endl
 				<< "If you have not already started to implement this devices, you" << endl
@@ -803,7 +804,7 @@ int k=2;
 	}
 	else if( m_sTemplateInput.length() )
 	{
-		if( FileUtils::FileExists(sTemplateOutput + Name + ".cpp") )  // We already built, 
+		if( FileUtils::FileExists(sTemplateOutput + Name + ".cpp") )  // We already built,
 		{
 			cout << "The embedded device " << Name << " already exists in " << sTemplateOutput << endl
 				<< "If you have not already started to implement this devices, you" << endl
@@ -901,7 +902,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 	for(size_t s=0;s<m_vectRow_DeviceTemplate_Package.size();++s)
 	{
 		Row_DeviceTemplate_Package *pRow_DeviceTemplate_Package = m_vectRow_DeviceTemplate_Package[s];
-		sDependencies += (sDependencies.length() ? "," : "") + 	pRow_DeviceTemplate_Package->FK_Package_getrow()->Description_get() + "," 
+		sDependencies += (sDependencies.length() ? "," : "") + 	pRow_DeviceTemplate_Package->FK_Package_getrow()->Description_get() + ","
 			+ pRow_DeviceTemplate_Package->FK_Package_getrow()->Version_get();
 	}
 
@@ -958,7 +959,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 				{
 					fputs(("\tvoid DATA_Set_" + pDefine  + "(" + pRow_DeviceData->FK_ParameterType_getrow()->Description_get() + " Value);\n").c_str(),file);
 				}
-			}		
+			}
 
 			fputs("\n\t\t\t*****EVENT***** accessors inherited from base class\n",file);
 			map<int,string>::iterator itEventDeclarations;
@@ -989,7 +990,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 			for(size_t i3=0;i3<vectRow_Command_CommandParameter.size();++i3)
 			{
 				Row_Command_CommandParameter *pRow_Command_CommandParameter = vectRow_Command_CommandParameter[i3];
-				fputs(("\t\t/** @param #" + StringUtils::itos(pRow_Command_CommandParameter->FK_CommandParameter_get()) + " " + 
+				fputs(("\t\t/** @param #" + StringUtils::itos(pRow_Command_CommandParameter->FK_CommandParameter_get()) + " " +
 					pRow_Command_CommandParameter->FK_CommandParameter_getrow()->Description_get() + " */\n").c_str(),file);
 				if( !pRow_Command_CommandParameter->Description_isNull() )
 					fputs(("\t\t\t/** " + pRow_Command_CommandParameter->Description_get() + " */\n").c_str(),file);
@@ -998,16 +999,16 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 
 			if( bDefinition )
 			{
-				fputs(("void " + Classname + "::CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + 
+				fputs(("void " + Classname + "::CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In +
 					(pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") + pCommandInfo->m_sParmsWithTypePointers_Out + (pCommandInfo->m_sParmsWithType_In.length() || pCommandInfo->m_sParmsWithTypePointers_Out.length() ? "," : "") + "string &sCMD_Result,Message *pMessage)\n").c_str(),file);
 				fputs(("//<-dceag-c" + StringUtils::itos(pRow_Command->PK_Command_get()) + "-e->\n").c_str(),file);
 				fputs("{\n",file);
-				fputs(("\tcout << \"Need to implement command #" + StringUtils::itos(pRow_Command->PK_Command_get()) + 
+				fputs(("\tcout << \"Need to implement command #" + StringUtils::itos(pRow_Command->PK_Command_get()) +
 					" - " + pRow_Command->Description_get() + "\" << endl;\n").c_str(),file);
 				for(size_t i3=0;i3<vectRow_Command_CommandParameter.size();++i3)
 				{
 					Row_Command_CommandParameter *pRow_Command_CommandParameter = vectRow_Command_CommandParameter[i3];
-					fputs(("\tcout << \"Parm #" + StringUtils::itos(pRow_Command_CommandParameter->FK_CommandParameter_get()) + " - " + 
+					fputs(("\tcout << \"Parm #" + StringUtils::itos(pRow_Command_CommandParameter->FK_CommandParameter_get()) + " - " +
 						FileUtils::ValidCPPName(pRow_Command_CommandParameter->FK_CommandParameter_getrow()->Description_get())).c_str(),file);
 					string Prefix=GetPrefix(pRow_Command_CommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get());
 					if (pRow_Command_CommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get() != PARAMETERTYPE_Data_CONST)
@@ -1022,8 +1023,8 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 			}
 			else
 			{
-				fputs(("\tvirtual void CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") 
-					+ pCommandInfo->m_sParmsWithTypePointers_Out + 
+				fputs(("\tvirtual void CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "")
+					+ pCommandInfo->m_sParmsWithTypePointers_Out +
 					+ ") { string sCMD_Result; CMD_" + pCommandInfo->CPPName() + "(" + StringUtils::Replace(pCommandInfo->m_sParmsWithNoType_In,"&","")
 					+ (pCommandInfo->m_sParmsWithNoType_In.length() ? "," : "") + "sCMD_Result,NULL);};\n").c_str(),file);
 				fputs(("\tvirtual void CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") + pCommandInfo->m_sParmsWithTypePointers_Out + (pCommandInfo->m_sParmsWithType_In.length() || pCommandInfo->m_sParmsWithTypePointers_Out.length() ? "," : "") + "string &sCMD_Result,Message *pMessage);\n\n").c_str(),file);
@@ -1049,7 +1050,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 			return;
 		}
 		string sGeneratedFile( buffer );
-			
+
 		buffer = FileUtils::ReadFileIntoBuffer(sHandwrittenFilename,pos);
 		if( !buffer )
 		{
@@ -1203,7 +1204,7 @@ void DCEGen::CreateFunctionParms(Row_Event *pRow_Event,int &ParmCount,string &sP
 void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sParameterName,string &sParmsWithType,string &sAssignParmToLocal,string &sParmsWithNoType,string &sPassingToMessage,bool bByReference)
 {
 	string SizePrefix = "i"; // The prefix for the size of parms, like int *iData_Size
-	string Prefix = GetPrefix(iParameterType); 
+	string Prefix = GetPrefix(iParameterType);
 
 	if (iParameterType == PARAMETERTYPE_Data_CONST)
 	{
@@ -1275,7 +1276,7 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 		else
 			sPassingToMessage+="," + StringUtils::itos(iParameterID)+",StringUtils::itos("+ Prefix + sParameterName+".m_value).c_str()";
 	}
-	else 
+	else
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "string " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )

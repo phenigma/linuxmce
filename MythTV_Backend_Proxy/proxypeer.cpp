@@ -19,21 +19,34 @@
  ***************************************************************************/
 #include "proxypeer.h"
 
-namespace MYTHTV {
+#include <netdb.h>
 
-ProxyPeer::ProxyPeer()
-	: srcsockfd_(0), destsockfd_(0)
+namespace MYTHTV
 {
-}
+	using namespace std;
 
-ProxyPeer::ProxyPeer(int srcsockfd, int destsockfd)
-	: srcsockfd_(srcsockfd), destsockfd_(destsockfd) 
-{
-}
+	ProxyPeer::ProxyPeer()
+		: srcsockfd_(0), destsockfd_(0)
+	{
+	}
 
-ProxyPeer::~ProxyPeer()
-{
-}
+	ProxyPeer::ProxyPeer(int srcsockfd, int destsockfd)
+		: srcsockfd_(srcsockfd), destsockfd_(destsockfd)
+	{
+	}
 
+	ProxyPeer::~ProxyPeer()
+	{
+	}
 
+	string ProxyPeer::getSourceIP()
+	{
+		sockaddr_in peer;
+		socklen_t peerlen = sizeof(peer);
+		char host[NI_MAXHOST];
+
+		getpeername(getSrcSock(), (struct sockaddr*)&peer, &peerlen);
+		getnameinfo((struct sockaddr*)&peer, peerlen, host, sizeof(host), NULL, 0, NI_NUMERICHOST);
+		return string(host);
+	}
 };

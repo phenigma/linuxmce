@@ -33,8 +33,6 @@ namespace DCE
 		// to know the rendering devices so it can send on/off's to them.  If the source & dest aren't the same, the plug-in must override this
 		virtual void GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice);
 
-		virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream)=0;
-
 		// it can't virtual and static at the same time.
 		virtual MediaDevice *GetMediaDeviceForEntertainArea(EntertainArea *pEntertainArea, int PK_DeviceTemplate)
 		{

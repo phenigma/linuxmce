@@ -34,14 +34,14 @@ public:
     ~ProxyPeer();
 
 public:
-	
+
 	inline void setSrcSock(int srcsockfd) {
 		srcsockfd_ = srcsockfd;
 	}
 	inline int getSrcSock() {
 		return srcsockfd_;
 	}
-	
+
 	inline void setDestSock(int destsockfd) {
 		destsockfd_ = destsockfd;
 	}
@@ -49,10 +49,12 @@ public:
 		return destsockfd_;
 	}
 
+	std::string getSourceIP();
+
 public:
 	int srcsockfd_;
 	int destsockfd_;
-	
+
 };
 
 };

@@ -16,9 +16,9 @@ public:
 	MythTV_Backend_Proxy_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
-	virtual void MythTV_Channel_Changed(string sFrontEnd_IP_Address,string sChannelID)
+	virtual void MythTV_Channel_Changed(int iPK_Device,int iMythTV_ChannelID)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 23,2,28,sFrontEnd_IP_Address.c_str(),29,sChannelID.c_str()));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 23,2,26,StringUtils::itos(iPK_Device).c_str(),29,StringUtils::itos(iMythTV_ChannelID).c_str()));
 	}
 
 };
@@ -74,8 +74,9 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
-	void EVENT_MythTV_Channel_Changed(string sFrontEnd_IP_Address,string sChannelID) { GetEvents()->MythTV_Channel_Changed(sFrontEnd_IP_Address.c_str(),sChannelID.c_str()); }
+	void EVENT_MythTV_Channel_Changed(int iPK_Device,int iMythTV_ChannelID) { GetEvents()->MythTV_Channel_Changed(iPK_Device,iMythTV_ChannelID); }
 	//Commands - Override these to handle commands from the server
+	virtual void CMD_Track_Frontend_At_IP(int iPK_Device,string sIP_Address,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -86,7 +87,30 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			 if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
+			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
+			{
+				switch(pMessage->m_dwID)
+				{
+				case 264:
+					{
+						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					string sIP_Address=pMessage->m_mapParameters[58];
+						CMD_Track_Frontend_At_IP(iPK_Device,sIP_Address.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				}
+				iHandled += Command_Impl::ReceivedMessage(pMessage);
+			}
+			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
 				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )

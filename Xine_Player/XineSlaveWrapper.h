@@ -69,6 +69,7 @@ class XineSlaveWrapper
     string m_sWindowTitle;
     string m_sConfigFile;
 
+	bool 		m_bExitThread;
     Display     *XServerDisplay;
     Window      windows[2];
     Cursor      cursors[2];

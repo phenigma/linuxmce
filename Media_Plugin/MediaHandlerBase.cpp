@@ -26,8 +26,11 @@
 using namespace std;
 using namespace DCE;
 
-void MediaHandlerBase::GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice)
+void MediaHandlerBase::GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevice)
 {
 	if( pMediaStream && pMediaStream->m_pDeviceData_Router_Source )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, " Setting the device data source: to %d (%s)", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device, pMediaStream->m_pDeviceData_Router_Source->m_sDescription.c_str());
 		(*pmapMediaDevice)[pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device] = m_pMedia_Plugin->m_mapMediaDevice_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	}
 }

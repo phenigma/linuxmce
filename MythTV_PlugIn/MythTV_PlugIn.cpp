@@ -36,7 +36,8 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 	: MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-    m_pMythWrapper = new MythTvWrapper(this);
+    m_pMythBackend_ProxyDevice = NULL;
+	m_pMythWrapper = new MythTvWrapper(this);
 }
 
 //<-dceag-const2-b->!
@@ -86,7 +87,8 @@ bool MythTV_PlugIn::Register()
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShowsForMobiles))
                                                 ,DATAGRID_EPG_All_Shows_Mobile_CONST);
 
-    RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
+	// RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );
 
     return Connect();
 }
@@ -198,23 +200,63 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMed
     if ( pMediaHandlerInfo == NULL )
         return NULL;
 
-
     if( (!pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_MythTV_Player_CONST) && pEntertainArea )
     {
         ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
-        if( pListMediaDevice && pListMediaDevice->size())
-            pMediaDevice = pListMediaDevice->front();
+
+		if( pListMediaDevice && pListMediaDevice->size())
+		{
+			if ( pListMediaDevice->size() > 1 )
+				g_pPlutoLogger->Write(LV_STATUS, "There are multiple Myth Player's (%d devices) in the ent area %d. This is an error picking only the first one!", pListMediaDevice->size(), pEntertainArea->m_iPK_EntertainArea);
+
+		    pMediaDevice = pListMediaDevice->front();
+		}
     }
 
-    if( !pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_MythTV_Player_CONST )
+    if( ! pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate != DEVICETEMPLATE_MythTV_Player_CONST )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Myth plugin being told to play in an entertainment area without a xine player");
+        g_pPlutoLogger->Write(LV_CRITICAL,"Myth plugin being told to play in an entertainment area without a MythTV Player");
         return NULL;
     }
 
+	g_pPlutoLogger->Write(LV_STATUS, "Found playback device to be: %d %s (at IP address: %s)!",
+				pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+				pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str(),
+				pMediaDevice->m_pDeviceData_Router->GetIPAddress().c_str());
+
     MythTvMediaStream *pMediaStream = new MythTvMediaStream(pMediaHandlerInfo, pMediaDevice->m_pDeviceData_Router, pMediaHandlerInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
 
-    pMediaStream->m_sMediaDescription = "Not available";
+	if ( m_pMythBackend_ProxyDevice == NULL )
+	{
+		ListDeviceData_Router *pDevices;
+
+		pDevices = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Backend_Proxy_CONST);
+
+		if ( pDevices == NULL )
+			g_pPlutoLogger->Write(LV_CRITICAL, "There need to be at least one device with template %d in the system if you want to be able to see what shows are playing on various devices", DEVICETEMPLATE_MythTV_Backend_Proxy_CONST);
+		else
+		{
+			if ( pDevices->size() > 1 )
+				g_pPlutoLogger->Write(LV_WARNING, "You only need one device of type %d in the system (it should run where the MythTVMasterBackend it running).", DEVICETEMPLATE_MythTV_Backend_Proxy_CONST);
+
+			m_pMythBackend_ProxyDevice = pDevices->front();
+
+			g_pPlutoLogger->Write(LV_STATUS, "Found %d as the MythTV Backend Proxy device", m_pMythBackend_ProxyDevice->m_dwPK_Device);
+		}
+	}
+
+	if ( m_pMythBackend_ProxyDevice != NULL )
+	{
+		DCE::CMD_Track_Frontend_At_IP enableTracking(
+				m_dwPK_Device,	// from me
+				m_pMythBackend_ProxyDevice->m_dwPK_Device, // to the proxy
+				pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
+				pMediaStream->m_pDeviceData_Router_Source->GetIPAddress());
+
+		SendCommand(enableTracking);
+	}
+
+	pMediaStream->m_sMediaDescription = "Not available";
     pMediaStream->m_sSectionDescription = "Not available";
     pMediaStream->m_sMediaSynopsis = "Not available";
     m_mapDevicesToStreams[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device] = StreamID;
@@ -226,6 +268,19 @@ bool MythTV_PlugIn::MoveMedia(class MediaStream *pMediaStream, list<EntertainAre
 {
     g_pPlutoLogger->Write(LV_STATUS, "This is not implemented yet here");
 	return true;
+}
+
+void MythTV_PlugIn::GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevices)
+{
+	MythTvMediaStream *pMythTvMediaStream;
+
+	if ( (pMythTvMediaStream = ConvertToMythMediaStream(pMediaStream, "MythTV_PlugIn::GetRenderDevices(): ")) == NULL )
+		return;
+
+	/** @todo: implement this with forwarding to the actual media stream */
+	MediaHandlerBase::GetRenderDevices(pMediaStream, pmapMediaDevices);
+
+	// pMythTvMediaStream->GetRenderDevices(pmapMediaDevices);
 }
 
 MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaStream, string callerIdMessage)
@@ -243,11 +298,6 @@ MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaSt
 	}
 
 	return static_cast<MythTvMediaStream*>(pMediaStream);
-}
-
-bool MythTV_PlugIn::isValidStreamForPlugin(class MediaStream *pMediaStream)
-{
-    return pMediaStream->GetType() == MEDIASTREAM_TYPE_MYTHTV;
 }
 
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
@@ -319,17 +369,24 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
 {
     MythTvMediaStream *pMythTvStream;
 
-    if ( pDeviceFrom->m_dwPK_DeviceTemplate == DEVICETEMPLATE_MythTV_Player_CONST )
+    if ( pDeviceFrom->m_dwPK_DeviceTemplate == DEVICETEMPLATE_MythTV_Backend_Proxy_CONST )
     {
-		if ( (pMythTvStream = ConvertToMythMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[pDeviceFrom->m_dwPK_Device]), "MythTV_PlugIn::MediaInfoChanged() ")) == NULL)
+		int playbackDevice = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
+		if ( playbackDevice == 0 )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "MythTV_PlugIn::MediaInfoChanged() called for an event which didn't provided a proper device ID");
+			return false;
+		}
+
+		if ( (pMythTvStream = ConvertToMythMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[playbackDevice]), "MythTV_PlugIn::MediaInfoChanged() ")) == NULL)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Could not detect a valid MythTV media stream based on the device %d", pDeviceFrom->m_dwPK_Device);
 			return false;
 		}
 
-        pMythTvStream->m_sMediaDescription = pMessage->m_mapParameters[EVENTPARAMETER_MediaDescription_CONST];
-        pMythTvStream->m_sSectionDescription = pMessage->m_mapParameters[EVENTPARAMETER_SectionDescription_CONST];
-        pMythTvStream->m_sMediaSynopsis = pMessage->m_mapParameters[EVENTPARAMETER_SynposisDescription_CONST];
+        pMythTvStream->m_sMediaDescription = "Channel: " + pMessage->m_mapParameters[EVENTPARAMETER_ChannelID_CONST];
+        pMythTvStream->m_sSectionDescription = "Not implemented yet";
+        pMythTvStream->m_sMediaSynopsis = "Not implemented yet";
 
         m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
     }

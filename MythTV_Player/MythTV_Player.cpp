@@ -38,6 +38,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
+#include "pluto_main/Define_DesignObj.h"
 
 #include <sstream>
 #include <qsqldatabase.h>
@@ -93,7 +94,12 @@ MythTV_Player::~MythTV_Player()
 
 bool MythTV_Player::LaunchMythFrontend()
 {
-    string commandToFire = StringUtils::Format("0 %d %d %d", m_pData->m_dwPK_Device_ControlledVia, MESSAGETYPE_COMMAND, COMMAND_Go_back_CONST);
+    string commandToFire = StringUtils::Format("0 %d %d %d %d %d",
+				m_pData->m_dwPK_Device_ControlledVia, 					// assume that we are controlled by one Orbiter.
+				MESSAGETYPE_COMMAND, 									// on exit send a command to the Orbiter
+				COMMAND_Go_back_CONST,									// to go back
+				COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST,		// if it is at the
+				DESIGNOBJ_pvr_full_screen_CONST);						// pvr_full_screen.
 
     DCE::CMD_Spawn_Application_DT spawnApplication(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, "/usr/bin/mythfrontend", MYTH_WINDOW_NAME, "", commandToFire, commandToFire);
     spawnApplication.m_pMessage->m_bRelativeToSender = true;
@@ -121,7 +127,11 @@ bool MythTV_Player::Register()
 
 void MythTV_Player::CreateChildren()
 {
-    LaunchMythFrontend();
+    if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
+    {
+		LaunchMythFrontend();
+        locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+    }
 }
 /*
     When you receive commands that are destined to one of your children,

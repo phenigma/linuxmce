@@ -4557,5 +4557,21 @@ namespace DCE
 	public:
 		CMD_Toggle_Event_Handler_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_EventHandler) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,263,1,107,StringUtils::itos(iPK_EventHandler).c_str()); }
 	};
+	class CMD_Track_Frontend_At_IP : public PreformedCommand {
+	public:
+		CMD_Track_Frontend_At_IP(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sIP_Address) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,264,2,2,StringUtils::itos(iPK_Device).c_str(),58,sIP_Address.c_str()); }
+	};
+	class CMD_Track_Frontend_At_IP_DL : public PreformedCommand {
+	public:
+		CMD_Track_Frontend_At_IP_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sIP_Address) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,264,2,2,StringUtils::itos(iPK_Device).c_str(),58,sIP_Address.c_str()); }
+	};
+	class CMD_Track_Frontend_At_IP_DT : public PreformedCommand {
+	public:
+		CMD_Track_Frontend_At_IP_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sIP_Address) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,264,2,2,StringUtils::itos(iPK_Device).c_str(),58,sIP_Address.c_str()); }
+	};
+	class CMD_Track_Frontend_At_IP_Cat : public PreformedCommand {
+	public:
+		CMD_Track_Frontend_At_IP_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sIP_Address) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,264,2,2,StringUtils::itos(iPK_Device).c_str(),58,sIP_Address.c_str()); }
+	};
 }
 #endif

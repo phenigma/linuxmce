@@ -1,7 +1,7 @@
 //
 // C++ Interface: proxyeventhandler
 //
-// Description: 
+// Description:
 //
 //
 // Author: igor <igor@dexx>, (C) 2005
@@ -12,17 +12,26 @@
 #ifndef MYTHTVPROXYEVENTHANDLER_H
 #define MYTHTVPROXYEVENTHANDLER_H
 
-namespace MYTHTV {
+namespace MYTHTV
+{
+	/**
+	@author igor
+	*/
+	class ProxyEventHandler
+	{
+	public:
+		virtual void ChannelChanged(const char *host, int channelid) = 0;
+// 		{
+// 		};
 
-/**
-@author igor
-*/
-class ProxyEventHandler{
-public:
-	virtual void ChannelChanged(const char *host, const char* channelid) 
-	{};
-};
+		virtual void FrontendConnected(const char *host) = 0;
+// 		{
+// 		};
 
+		virtual void FrontendDisconnected(const char *host) = 0;
+/*		{
+		};*/
+	};
 };
 
 #endif

@@ -19,15 +19,12 @@ using namespace DCE;
 MythTV_Backend_Proxy::MythTV_Backend_Proxy(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: MythTV_Backend_Proxy_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_mutexInternalData("internal-data")
 {
-	/*Initialize proxy server*/	
-	cout << "!!![" << m_pData->GetIPAddress().c_str() << "]!!!!" << endl;
-//	cout << "!!![" << m_pData->m_sIPAddress << "]!!!!" << endl;
-//	proxy_.setHost(m_pData->GetIPAddress().c_str());
-	proxy_.setHost("10.0.0.109");
-	proxy_.setPort(PROXY_LISTEN_PORT);
-	
-	proxy_.setHandler(this);
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+
+	m_mutexInternalData.Init( &m_MutexAttr );
 }
 
 //<-dceag-const2-b->
@@ -35,7 +32,12 @@ MythTV_Backend_Proxy::MythTV_Backend_Proxy(int DeviceID, string ServerAddress,bo
 MythTV_Backend_Proxy::MythTV_Backend_Proxy(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
 	: MythTV_Backend_Proxy_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
+	, m_mutexInternalData("internal-data")
 {
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+
+	m_mutexInternalData.Init( &m_MutexAttr );
 }
 
 //<-dceag-dest-b->
@@ -49,15 +51,15 @@ MythTV_Backend_Proxy::~MythTV_Backend_Proxy()
 bool MythTV_Backend_Proxy::Register()
 //<-dceag-reg-e->
 {
-	return Connect(); 
+	return Connect();
 }
 
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class
-	created for the child that will get the message.  If the child does not, then you will 
-	get all	commands for your children in ReceivedCommandForChild, where 
-	pDeviceData_Base is the child device.  If you handle the message, you 
+	created for the child that will get the message.  If the child does not, then you will
+	get all	commands for your children in ReceivedCommandForChild, where
+	pDeviceData_Base is the child device.  If you handle the message, you
 	should change the sCMD_Result to OK
 */
 
@@ -66,9 +68,17 @@ bool MythTV_Backend_Proxy::Connect() {
 		return false;
 	}
 
-	cout << "!!![" << m_pData->m_sIPAddress << "]!!!!" << endl;
-	
-	/*Start proxy server*/	
+	DeviceData_Base *pThisDeviceData = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
+	if ( pThisDeviceData == NULL )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "I could not find myself (%d) in the list of devices that i got from the router!", m_dwPK_Device);
+		return false;
+	}
+
+	proxy_.setHost(pThisDeviceData->GetIPAddress().c_str());
+	proxy_.setPort(PROXY_LISTEN_PORT);
+	proxy_.setHandler(this);
+
 	proxy_.Run(false);
 	return true;
 }
@@ -83,7 +93,7 @@ void MythTV_Backend_Proxy::ReceivedCommandForChild(DeviceData_Base *pDeviceData_
 
 /*
 	When you received a valid command, but it wasn't for one of your children,
-	then ReceivedUnknownCommand gets called.  If you handle the message, you 
+	then ReceivedUnknownCommand gets called.  If you handle the message, you
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
@@ -93,10 +103,31 @@ void MythTV_Backend_Proxy::ReceivedUnknownCommand(string &sCMD_Result,Message *p
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
-void MythTV_Backend_Proxy::ChannelChanged(const char *host, const char* channelid) {
-	EVENT_MythTV_Channel_Changed(host, channelid);
+void MythTV_Backend_Proxy::ChannelChanged(const char *host, int channelid)
+{
+	PLUTO_SAFETY_LOCK( mutexData, m_mutexInternalData );
+
+	g_pPlutoLogger->Write(LV_STATUS, "Client with address %s changed to channel: %d", host, channelid);
+	map<string, pair<int, int> >::const_iterator itAdresses;
+
+	if ( (itAdresses = m_mapAddressToDeviceState.find(host)) == m_mapAddressToDeviceState.end() )
+		m_mapAddressToDeviceState[host] = make_pair(-1, channelid);
+	else
+		m_mapAddressToDeviceState[host].second = channelid;
+
+	if ( m_mapAddressToDeviceState[host].first != -1 )
+		EVENT_MythTV_Channel_Changed(m_mapAddressToDeviceState[host].first, channelid);
 }
 
+void MythTV_Backend_Proxy::FrontendConnected(const char *host)
+{
+	PLUTO_SAFETY_LOCK( mutexData, m_mutexInternalData );
+}
+
+void MythTV_Backend_Proxy::FrontendDisconnected(const char *host)
+{
+	PLUTO_SAFETY_LOCK( mutexData, m_mutexInternalData );
+}
 
 //<-dceag-sample-b->
 /*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
@@ -189,3 +220,22 @@ void MythTV_Backend_Proxy::SomeFunction()
 
 
 
+//<-dceag-c264-b->
+
+	/** @brief COMMAND: #264 - Track Frontend At IP */
+	/** Send this to the Myth Backend to track the source IP provided as the device with IP, */
+		/** @param #2 PK_Device */
+			/** The device to track */
+		/** @param #58 IP Address */
+			/** The IP Address at which that device exists. */
+
+void MythTV_Backend_Proxy::CMD_Track_Frontend_At_IP(int iPK_Device,string sIP_Address,string &sCMD_Result,Message *pMessage)
+//<-dceag-c264-e->
+{
+	PLUTO_SAFETY_LOCK( mutexData, m_mutexInternalData );
+
+	m_mapAddressToDeviceState[sIP_Address].first = iPK_Device;
+
+	if ( m_mapAddressToDeviceState[sIP_Address].second != 0 )
+		EVENT_MythTV_Channel_Changed(iPK_Device, m_mapAddressToDeviceState[sIP_Address].second);
+}

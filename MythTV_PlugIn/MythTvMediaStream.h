@@ -36,6 +36,7 @@ namespace DCE
 
 		virtual int GetType();
 
+		void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
 	};
 };
 

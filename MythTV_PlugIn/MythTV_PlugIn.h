@@ -32,8 +32,10 @@ namespace DCE
     //<-dceag-decl-b->!
     class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaHandlerBase // , public MediaHandlerBase
     {
-        //<-dceag-decl-e->
-       friend class MythTvStream;
+	//<-dceag-decl-e->
+        // friend class MythTvStream;
+
+		DeviceData_Router *m_pMythBackend_ProxyDevice;
 
 		/** Private member variables */
         map<int, int> m_mapDevicesToStreams;
@@ -74,8 +76,6 @@ namespace DCE
 
         virtual bool MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange);
 
-        virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream);
-
 		MythTvMediaStream* ConvertToMythMediaStream(MediaStream *pMediaStream, string callerIdMessage = "");
 
         /** Datagrids */
@@ -89,6 +89,8 @@ namespace DCE
 
         /** The interceptor for the MediaInfoChangedEvent from the playing device */
     	bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
+
+		void GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevices);
         //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

@@ -77,13 +77,8 @@ namespace DCE
 		*          < listChange: the list on which media needs to be changed (if we move the media from one place to another it might be possible that the actual source of the stream to change). >
 		*/
 		virtual bool MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange);
-		/**
-		* @brief Test if a Media Stream is compatible with me.
-		*/
-		virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream);
 
 		virtual MediaDevice *FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea);
-
 		/**
 		* @brief We need to see all media inserted events so we can start the appropriate media devices
 		*/

@@ -31,22 +31,22 @@ Token::Token()
 {
 }
 
-Token::Token(const char* data) 
+Token::Token(const char* data)
 {
 	fillFromData(data);
 }
 
-Token::~Token() 
+Token::~Token()
 {
 }
 
 
-int 
+int
 Token::fillFromData(const char* data) {
 	std::string tokdata(data);
-	
+
 	values_.clear();
-	
+
 	int index = -1, oldindex = 0;
 	while((index = tokdata.find(TOKEN_DELIMITER, oldindex)) >= 0) {
 		values_.push_back(tokdata.substr(oldindex, index - oldindex));
@@ -56,49 +56,49 @@ Token::fillFromData(const char* data) {
 	return values_.size();
 }
 
-int 
+int
 Token::addValue(const char* data) {
 	values_.push_back(data);
 	return values_.size() - 1;
 }
 
-std::string 
+std::string
 Token::getValue(int index) {
 	return values_[index];
 }
 
-int 
+int
 Token::setValue(int index, const char* data) {
 	values_[index] = data;
 	return index;
 }
 
-int 
+int
 Token::removeValue(int index) {
 	return 0;
 }
 
-int 
+int
 Token::findValue(const char* data) {
-	for(int i = 0; i < values_.size(); i++) {
+	for(unsigned int i = 0; i < values_.size(); i++) {
 		if(values_[i] == data) {
 			return i;
 			break;
 		}
 	}
-	
+
 	return -1;
 }
 
-int 
+int
 Token::getValuesNum() {
 	return values_.size();
 }
 
-std::string 
+std::string
 Token::Serialize() {
 	string ret;
-	for(int i = 0; i < values_.size(); i++) {
+	for(unsigned int i = 0; i < values_.size(); i++) {
 		ret += values_[i];
 		if(i < values_.size() - 1) {
 			ret += TOKEN_DELIMITER;

@@ -27,50 +27,50 @@ using namespace std;
 
 namespace MYTHTV {
 
-unsigned 
+unsigned
 MasterProxyPeerThread::s_port_ = FOO_MIN_BACKENDPORT;
 
 MasterProxyPeerThread::MasterProxyPeerThread(ProxyServer* pserver, int srcsockfd, int destsockfd)
 	: ProxyPeerThread(pserver, srcsockfd, destsockfd), backrequested_(false)
 {
-//	cout << "Master peer thread Created." << endl;
 	server_.setHandler(getServer()->getHandler());
 }
 
 
 MasterProxyPeerThread::~MasterProxyPeerThread()
 {
-//	cout << "Master peer thread Destroyed." << endl;
 }
 
-bool 
+bool
 MasterProxyPeerThread::processData(const char* data, bool fromsrc)
 {
 	Token tok(data);
 	if(fromsrc && tok.findValue("GET_NEXT_FREE_RECORDER") >= 0) {
 		backrequested_ = true;
 		return false;
-	} else 
+	} else
 	if(!fromsrc && backrequested_) {
 		backrequested_ = false;
 //		cout << "(!)This must be a reply with adress/port for backend server: " << data << endl;
 		if(tok.getValuesNum() >= 3) {
 			/*open proxy server*/
 			string host = tok.getValue(1);
-			
+
 			if(host == "nohost") {
 //				cout << "No host available. " << endl;
 				sleep(5);
 				return false;
 			} else {
 				unsigned port = atoi(tok.getValue(2).c_str());
-	
+
 				/*close the previous instance*/
 				server_.Wait(true);
-				
+
 				/*reconfigure new instance*/
 				server_.setHost(getServer()->getHost());
-				
+
+				getServer()->getHandler()->FrontendConnected(getSourceIP().c_str());
+
 				mp.Lock();
 				server_.setPort(s_port_);
 				if(s_port_ >= FOO_MAX_BACKENDPORT) {
@@ -78,30 +78,30 @@ MasterProxyPeerThread::processData(const char* data, bool fromsrc)
 				} else {
 					s_port_++;
 				}
-				mp.Unlock(); 
-				
+				mp.Unlock();
+
 				server_.setPort(s_port_);
 				server_.setPeerHost(host.c_str());
 				server_.setPeerPort(port);
-				
+
 				/*run new instance*/
 //				cout << "Starting FOO Backend server for Host: " << host << ", Port: " << port << endl;
-				
+
 				server_.Run(false);
 
-				/*populate token*/				
+				/*populate token*/
 				tok.setValue(1, getServer()->getHost());
-				
+
 				char portbuff[13];
 				sprintf(portbuff, "%d", server_.getPort());
 				tok.setValue(2, portbuff);
-				
+
 				writeData(getSrcSock(), tok.Serialize().c_str());
 				return true;
 			}
 		}
 	}
-	
+
 	return false;
 }
 

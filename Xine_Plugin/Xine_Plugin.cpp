@@ -500,16 +500,6 @@ MediaDevice *Xine_Plugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntert
 
 	return pMediaDevice;
 }
-bool Xine_Plugin::isValidStreamForPlugin(class MediaStream *pMediaStream)
-{
-	if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_XINE )
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "This stream is not a valid Xine stream (%d)", pMediaStream->m_iStreamID_get());
-		return false;
-	}
-
-	return true;
-}
 
 bool Xine_Plugin::BroadcastMedia( class MediaStream *pMediaStream )
 {

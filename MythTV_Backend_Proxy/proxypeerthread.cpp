@@ -30,42 +30,43 @@ using namespace DCE;
 namespace MYTHTV {
 
 ProxyPeerThread::ProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destsockfd)
-	: pserver_(pserver), ProxyPeer(srcsockfd, destsockfd)
+	: ProxyPeer(srcsockfd, destsockfd), pserver_(pserver)
 {
 }
 
 ProxyPeerThread::~ProxyPeerThread() {
 }
 
-void 
-ProxyPeerThread::handleTerminate() {
-	close(getSrcSock()); close(getDestSock());
+void ProxyPeerThread::handleTerminate()
+{
+	shutdown(SHUT_RDWR, getSrcSock());
+	shutdown(SHUT_RDWR, getDestSock());
 	delete this;
 }
 
-void* 
+void*
 ProxyPeerThread::_Run() {
 	fd_set rfds;
-	int maxfd = 
+	int maxfd =
 		((getSrcSock() > getDestSock()) ? getSrcSock() : getDestSock()) + 1;
-	
-	while(1) {	
+
+	while(1) {
 		//sleep(1);
 		// wait for data to be available on sockets
-		FD_ZERO(&rfds); 
+		FD_ZERO(&rfds);
 		FD_SET(getSrcSock(), &rfds); FD_SET(getDestSock(), &rfds);
-		
+
 		struct timeval tv;
 		tv.tv_sec = 5;
 		tv.tv_usec = 0;
-	
+
 		int retval = select(maxfd, &rfds, NULL, NULL, &tv);
-					
+
 		if(retval <= 0) {
 //			cout << "No Traffic on Peers. Waiting..." << endl;
 			continue;
 		}
-		
+
 		if(FD_ISSET(getSrcSock(), &rfds)) {
 //			cout << "Performing Source --> Destination." << endl;
 			if(replData(true) < 0) {
@@ -73,8 +74,8 @@ ProxyPeerThread::_Run() {
 				g_pPlutoLogger->Write(LV_STATUS, "Source disconnected");
 				break;
 			}
-		} 
-		
+		}
+
 		if(FD_ISSET(getDestSock(), &rfds)) {
 //			cout << "Performing Destination --> Source." << endl;
 			if(replData(false) < 0) {
@@ -82,7 +83,7 @@ ProxyPeerThread::_Run() {
 				g_pPlutoLogger->Write(LV_STATUS, "Destination disconnected");
 				break;
 			}
-		} 
+		}
 	}
 	return 0;
 }
@@ -93,16 +94,16 @@ ProxyPeerThread::_Run() {
 int
 ProxyPeerThread::replData(bool fromsrc) {
 	/* read fromsockfd */
-	int 
+	int
 		fromsockfd =  (fromsrc) ? getSrcSock() : getDestSock(),
 		tosockfd =  (fromsrc) ? getDestSock() : getSrcSock();
-	
-	
+
+
 	string datastr;
 	if(readData(fromsockfd, datastr) < 0) {
 		return -1;
 	}
-	
+
 //	cout << "Received data: " << endl << datastr << endl;
 //	g_pPlutoLogger->Write(LV_STATUS, "Received data: %s", datastr.c_str());
 
@@ -119,37 +120,37 @@ ProxyPeerThread::replData(bool fromsrc) {
 			return -1;
 		}
 	}
-	
+
 	return 0;
 }
 
-int 
+int
 ProxyPeerThread::readData(int sockfd, std::string& data) {
 	/* read data size */
 	char sizebuff[SIZEBUFF_SIZE + 1];
-	
+
 	int recvsize = recv(sockfd, sizebuff, SIZEBUFF_SIZE, 0);
 	if(recvsize <= 0) {
 		return -1;
 	}
-	
+
 	string sizestr(sizebuff, recvsize);
 //	cout << "Received size: " << sizestr << endl;
-	
+
 	/*TO DO: place trimming here*/
 	int size = atoi(sizestr.c_str());
 //	cout << "Expecting to read a string of " << size << " bytes" << endl;
 
 	/* read data */
-	
+
 	int read = 0;
     unsigned int zerocnt = 0;
-	
+
 	char databuff[DATABUFF_SIZE];
 	while (size > 0)
     {
         recvsize = recv(sockfd, databuff, (size < DATABUFF_SIZE) ? size : DATABUFF_SIZE, 0);
-        
+
 		read += recvsize;
         size -= recvsize;
         if (recvsize == 0)
@@ -167,25 +168,25 @@ ProxyPeerThread::readData(int sockfd, std::string& data) {
 			data.append(databuff, recvsize);
 		}
     }
-	
+
 	return 0;
 }
 
-int 
+int
 ProxyPeerThread::writeData(int sockfd, const std::string& data) {
 	char tmpbuff[12];
 	sprintf(tmpbuff, "%d", data.length());
-	
+
 	string sizestr = tmpbuff;
 	sizestr.resize(SIZEBUFF_SIZE, '\t');
-	
+
 	string outstr = sizestr + data;
 //	cout << "Sending data: " << outstr << endl;
 	if((send(sockfd, outstr.c_str(), outstr.length(), 0) <= 0)) {
 	//	cout << "Error sending data to destination." << endl;
 		return -1;
 	}
-	
+
 	return 0;
 }
 

@@ -556,8 +556,9 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
     else
         g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed.");
 
-    g_pPlutoLogger->Write(LV_WARNING, "We have called the CreateMediaStream");
-    return true; // hack -- handle errors
+    g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() function call completed with honors!");
+
+	return true;
 }
 
 class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -769,7 +770,7 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
 
    g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area: (%d) %p %p", pEntertainArea->m_iPK_EntertainArea, pEntertainArea, pEntertainArea->m_pMediaStream);
 
-	if( pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD && 
+	if( pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD &&
 		pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device==pMessage->m_dwPK_Device_From &&
 		pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD )
 	{
@@ -1856,6 +1857,12 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Current->begin();it!=pmapMediaDevice_Current->end();++it)
 	{
 		MediaDevice *pMediaDevice = (*it).second;
+
+		if ( pMediaDevice == NULL )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::HandleOnOffs() There is a null device associated with the deviceID: %d. Ignoring device in HandleOnOff", (*it).first);
+			continue;
+		}
 
 		DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,PK_Pipe_Current,"");
 		SendCommand(CMD_On);

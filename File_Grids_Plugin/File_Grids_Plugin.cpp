@@ -1,18 +1,18 @@
 /*
  File_Grids_Plugin
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
 
 //<-dceag-d-b->
@@ -99,15 +99,15 @@ bool File_Grids_Plugin::Register()
 		,DATAGRID_Directory_Listing_CONST);
 
 
-	return Connect(); 
+	return Connect();
 }
 
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class
-	created for the child that will get the message.  If the child does not, then you will 
-	get all	commands for your children in ReceivedCommandForChild, where 
-	pDeviceData_Base is the child device.  If you handle the message, you 
+	created for the child that will get the message.  If the child does not, then you will
+	get all	commands for your children in ReceivedCommandForChild, where
+	pDeviceData_Base is the child device.  If you handle the message, you
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
@@ -119,7 +119,7 @@ void File_Grids_Plugin::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Bas
 
 /*
 	When you received a valid command, but it wasn't for one of your children,
-	then ReceivedUnknownCommand gets called.  If you handle the message, you 
+	then ReceivedUnknownCommand gets called.  If you handle the message, you
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
@@ -150,7 +150,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	// A comma separated list of file extensions.  Blank means all files
 	string Extensions = StringUtils::Tokenize(Parms, "|", pos);
 
-	// Because the orbiter cannot execute different actions for files than directories, it will pass an "Actions" 
+	// Because the orbiter cannot execute different actions for files than directories, it will pass an "Actions"
 	// parameter that will tell the file grid generator what type of command to attach to file entries.
 	// P = "play this file", which is a normal start media command
 	// S = "show the play button", which is a normal start media command
@@ -161,7 +161,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	// This grid is initially called by the orbiter without the iDirNumber and sSubDirectory
 	// When the grid creates cells for sub-directories, it will create an action that re-populates,
 	// like a recursive function, and indicate which of the directories it recursed and what path
-	// here.  When it repopulates itself again, it will this time populate only the contents of the 
+	// here.  When it repopulates itself again, it will this time populate only the contents of the
 	// Path[iDirNumber] + sSubDirectory.  It will also add a 'parent' button that that drops
 	// 1 path off the sSubDirectory and repopulates itself
 	int iDirNumber = atoi(StringUtils::Tokenize(Parms, "|", pos).c_str());
@@ -190,7 +190,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		PathsToScan += "/" + sSubDirectory;
 		(*sValue_To_Assign) = PathsToScan;
 	}
-	else 
+	else
 	{
 		PathsToScan = Paths;
 		(*sValue_To_Assign) = PathsToScan;
@@ -205,7 +205,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Build grid, actions %s GOT %d entries ", Acti
 	{
 		string sParent = FileUtils::BasePath(sSubDirectory);
 		pCell = new DataGridCell("Go to parent", "");
-		string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0") 
+		string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0")
 			+ "|" + StringUtils::itos(iDirNumber)+ "|" + sParent;
 		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 			"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
@@ -227,7 +227,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Build grid, actions %s GOT %d entries ", Acti
 g_pPlutoLogger->Write(LV_WARNING, "Added '%s' to datagrid", pFileDetails->m_sFileName.c_str());
 		if (pFileDetails->m_bIsDir)
 		{
-			string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0") 
+			string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0")
 				+ "|" + StringUtils::itos(iDirNumber)+ "|" + sSubDirectory + pFileDetails->m_sFileName + "/";
 			DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 				"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
@@ -330,7 +330,7 @@ if( PK_Device!=0 )
 				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapInput for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
 			else
 			{
-				if( pIRInformation && pIRInformation->m_listToggleInputs.size()!=0 ) 
+				if( pIRInformation && pIRInformation->m_listToggleInputs.size()!=0 )
 				{
 					bool bToggleInput=false;
 					list<int>::iterator it;
@@ -387,7 +387,7 @@ if( PK_Device!=0 )
 				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapDSPMode for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
 			else
 			{
-				if( pIRInformation && pIRInformation->m_listToggleDSPModes.size()!=0 ) 
+				if( pIRInformation && pIRInformation->m_listToggleDSPModes.size()!=0 )
 				{
 					list<int>::iterator it;
 					for(it=pIRInformation->m_listToggleDSPModes.begin();it!=pIRInformation->m_listToggleDSPModes.end();++it)

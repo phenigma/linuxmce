@@ -88,6 +88,7 @@ XineSlaveWrapper::XineSlaveWrapper()
     delete pConfig;
 
     m_pXineVisualizationPlugin = NULL;
+	m_bExitThread = false;
 }
 
 XineSlaveWrapper::~XineSlaveWrapper()
@@ -400,6 +401,9 @@ bool XineSlaveWrapper::closeWindow()
         XUnlockDisplay(XServerDisplay);
         XCloseDisplay (XServerDisplay);
 
+		m_bExitThread = true;
+		pthread_join(m_pSameStream->eventLoop, NULL);
+
         XServerDisplay = NULL;
     }
 
@@ -636,7 +640,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
     Bool checkResult;
 
     XEvent  event;
-    while ( true )
+    while ( ! pStream->m_pOwner->m_bExitThread )
     {
         if ( ! pStream->m_bIsRendering )
             checkResult = False;
