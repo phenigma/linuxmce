@@ -885,12 +885,12 @@ int MediaAttributes::GetAttributeFromFilePath( string File )
 bool MediaAttributes::isAttributeSpecification(string sFilename)
 {
     // first 2 chars are # and a file (should A or a for Attributte). after that we need a number also
-    return sFilename.length() > 3 && sFilename[0] == '#' && (sFilename[1] == 'A' || sFilename[1] == 'a');
+    return sFilename.length() >= 3 && sFilename[0] == '#' && (sFilename[1] == 'A' || sFilename[1] == 'a');
 }
 
 bool MediaAttributes::isFileSpecification(string sFilename)
 {
-    return sFilename.length() > 3 && sFilename[0] == '#' && (sFilename[1] == 'F' || sFilename[1] =='f' );
+    return sFilename.length() >= 3 && sFilename[0] == '#' && (sFilename[1] == 'F' || sFilename[1] =='f' );
 }
 
 bool MediaAttributes::GetFilesFromAttrBySpec(string sAttrSpecification, vector<string> &vectFilesListToUpdate)
@@ -917,7 +917,12 @@ bool MediaAttributes::GetFilesFromAttrBySpec(string sAttrSpecification, vector<s
     for(size_t s=0;s<vectRow_File_Attribute.size();++s)
     {
         Row_File_Attribute *pRow_File_Attribute = vectRow_File_Attribute[s];
-        vectFilesListToUpdate.push_back(string("#F " + StringUtils::itos(pRow_File_Attribute->FK_File_getrow()->PK_File_get())));
+        if ( pRow_File_Attribute )
+        {
+            Row_File *pFile = pRow_File_Attribute->FK_File_getrow();
+            if ( pFile && pFile->Missing_get() == 0 )
+                vectFilesListToUpdate.push_back(string("#F" + StringUtils::itos(pFile->PK_File_get())));
+        }
     }
 
     return true;

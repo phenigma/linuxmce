@@ -32,7 +32,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
     m_pMythWrapper = new MythTvWrapper(this);
@@ -60,7 +60,7 @@ bool MythTV_PlugIn::Register()
     }
     m_pMedia_Plugin=(Media_Plugin *) pListCommand_Impl->front();
 
-    m_pMedia_Plugin->RegisterMediaPlugin(this,this,DEVICETEMPLATE_MythTV_Player_CONST,true);
+    m_pMedia_Plugin->RegisterMediaPlugin(this, this, DEVICETEMPLATE_MythTV_Player_CONST, true);
 
     /** And the datagrid plug-in */
     m_pDatagrid_Plugin=NULL;
@@ -140,7 +140,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
 //      pMythTvStream->m_dwPK_Device,
 //         "0", // todo -- the real channel
-        //                 pMythTvStream->m_dequeFilename.front(),
+//                 pMythTvStream->m_dequeFilename.front(),
 //         pMythTvStream->m_iPK_MediaType,
 //         pMythTvStream->m_iStreamID_get(),#include "pluto_main/Table_EventParameter.h"
 //         0);
@@ -197,7 +197,14 @@ bool MythTV_PlugIn::BroadcastMedia(class MediaStream *pMediaStream)
 
 class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID)
 {
+    if ( m_pMedia_Plugin == NULL )
+        return NULL;
+
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+
+    if ( pMediaPluginInfo == NULL )
+        return NULL;
+
     MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
 
     pMediaStream->m_sMediaDescription = "Not available";
@@ -342,10 +349,10 @@ COMMANDS TO IMPLEMENT
 //<-dceag-sample-b->!
 //<-dceag-c65-b->
 
-	/** @brief COMMAND: #65 - Jump Position In Playlist */
-	/** Change channels.  +1 and -1 mean up and down 1 channel. */
-		/** @param #5 Value To Assign */
-			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+    /** @brief COMMAND: #65 - Jump Position In Playlist */
+    /** Change channels.  +1 and -1 mean up and down 1 channel. */
+        /** @param #5 Value To Assign */
+            /** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
 
 void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
@@ -387,10 +394,10 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
 //<-dceag-c185-b->
 
-	/** @brief COMMAND: #185 - Schedule Recording */
-	/** This will schedule a recording. */
-		/** @param #68 ProgramID */
-			/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
+    /** @brief COMMAND: #185 - Schedule Recording */
+    /** This will schedule a recording. */
+        /** @param #68 ProgramID */
+            /** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
 
 void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c185-e->

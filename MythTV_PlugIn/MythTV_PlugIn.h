@@ -9,7 +9,7 @@
 #ifndef MythTV_PlugIn_h
 #define MythTV_PlugIn_h
 
-//	DCE Implemenation for #36 MythTV Plug-In
+//  DCE Implemenation for #36 MythTV Plug-In
 
 #include "Gen_Devices/MythTV_PlugInBase.h"
 //<-dceag-d-e->
@@ -35,20 +35,18 @@ namespace DCE
     public:
         class MythTV_PlugIn *m_pMythTV_PlugIn;
 
-        MythTvStream(class MythTV_PlugIn *pMythTV_PlugIn,class MediaPluginInfo *pMediaPluginInfo, int PK_DesignObj_Remote, int PK_Users
-                ,enum SourceType sourceType,int StreamID)
+        MythTvStream(class MythTV_PlugIn *pMythTV_PlugIn,class MediaPluginInfo *pMediaPluginInfo, int PK_DesignObj_Remote, int PK_Users, enum SourceType sourceType, int StreamID)
             : MediaStream(pMediaPluginInfo,PK_DesignObj_Remote,PK_Users,sourceType,StreamID) { m_iCurrentShow=-1; m_pMythTV_PlugIn=pMythTV_PlugIn; }
 
-            /** Temporary hacks, just populate m_vectRow_Listing with all the shows, and make m_iCurrentShow point to the current one */
+        /** Temporary hacks, just populate m_vectRow_Listing with all the shows, and make m_iCurrentShow point to the current one */
+        vector<Row_Listing *> m_vectRow_Listing;
+        int m_iCurrentShow;
 
-            vector<Row_Listing *> m_vectRow_Listing;
-            int m_iCurrentShow;
-
-            virtual int GetType() { return MEDIASTREAM_TYPE_MYTHTV; }
+        virtual int GetType() { return MEDIASTREAM_TYPE_MYTHTV; }
     };
 
     //<-dceag-decl-b->!
-    class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaPluginBase, public DataGridGeneratorPlugIn
+    class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaPluginBase // , public MediaPluginBase
     {
         //<-dceag-decl-e->
         friend class MythTvStream;
@@ -65,13 +63,13 @@ namespace DCE
         int m_dwTargetDevice;
 
         //<-dceag-const-b->
-public:
-		// Constructors/Destructor
-		MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
-		virtual ~MythTV_PlugIn();
-		virtual bool Register();
-		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
-		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
+    public:
+        // Constructors/Destructor
+        MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+        virtual ~MythTV_PlugIn();
+        virtual bool Register();
+        virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
+        virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
     private:
@@ -84,13 +82,13 @@ public:
         /** Mandatory implementations */
         virtual class MediaStream *CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID);
 
-    virtual bool StartMedia(class MediaStream *pMediaStream);
+        virtual bool StartMedia(class MediaStream *pMediaStream);
 
-    virtual bool StopMedia(class MediaStream *pMediaStream);
+        virtual bool StopMedia(class MediaStream *pMediaStream);
 
-    virtual bool BroadcastMedia(class MediaStream *pMediaStream);
+        virtual bool BroadcastMedia(class MediaStream *pMediaStream);
 
-    virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream);
+        virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream);
 
         /** Datagrids */
     class DataGridTable *CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign
@@ -106,38 +104,38 @@ public:
         /** The interceptor for the MediaInfoChangedEvent from the playing device */
     bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
         //<-dceag-h-b->
-	/*
-				AUTO-GENERATED SECTION
-				Do not change the declarations
-	*/
+    /*
+                AUTO-GENERATED SECTION
+                Do not change the declarations
+    */
 
-	/*
-			*****DATA***** accessors inherited from base class
+    /*
+            *****DATA***** accessors inherited from base class
 
-			*****EVENT***** accessors inherited from base class
-	void EVENT_Error_Occured(string sError_Message);
-	void EVENT_PVR_Rec_Sched_Conflict();
+            *****EVENT***** accessors inherited from base class
+    void EVENT_Error_Occured(string sError_Message);
+    void EVENT_PVR_Rec_Sched_Conflict();
 
-			*****COMMANDS***** we need to implement
-	*/
-
-
-	/** @brief COMMAND: #65 - Jump Position In Playlist */
-	/** Change channels.  +1 and -1 mean up and down 1 channel. */
-		/** @param #5 Value To Assign */
-			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
-
-	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+            *****COMMANDS***** we need to implement
+    */
 
 
-	/** @brief COMMAND: #185 - Schedule Recording */
-	/** This will schedule a recording. */
-		/** @param #68 ProgramID */
-			/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
+    /** @brief COMMAND: #65 - Jump Position In Playlist */
+    /** Change channels.  +1 and -1 mean up and down 1 channel. */
+        /** @param #5 Value To Assign */
+            /** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
 
-	virtual void CMD_Schedule_Recording(string sProgramID) { string sCMD_Result; CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage);
+    virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+    virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
+    /** @brief COMMAND: #185 - Schedule Recording */
+    /** This will schedule a recording. */
+        /** @param #68 ProgramID */
+            /** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
+
+    virtual void CMD_Schedule_Recording(string sProgramID) { string sCMD_Result; CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,NULL);};
+    virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

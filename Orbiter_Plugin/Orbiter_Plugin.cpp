@@ -1,18 +1,18 @@
 /*
  Orbiter_Plugin
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
 
 //<-dceag-d-b->
@@ -64,6 +64,8 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
         m_bQuit=true;
         return;
     }
+
+    m_bFloorPlansArePrepared = false;
 }
 
 //<-dceag-dest-b->
@@ -124,30 +126,30 @@ bool Orbiter_Plugin::Register()
 }
 
 /*
-	When you receive commands that are destined to one of your children,
-	then if that child implements DCE then there will already be a separate class
-	created for the child that will get the message.  If the child does not, then you will 
-	get all	commands for your children in ReceivedCommandForChild, where 
-	pDeviceData_Base is the child device.  If you handle the message, you 
-	should change the sCMD_Result to OK
+    When you receive commands that are destined to one of your children,
+    then if that child implements DCE then there will already be a separate class
+    created for the child that will get the message.  If the child does not, then you will
+    get all commands for your children in ReceivedCommandForChild, where
+    pDeviceData_Base is the child device.  If you handle the message, you
+    should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
 void Orbiter_Plugin::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	sCMD_Result = "UNHANDLED CHILD";
+    sCMD_Result = "UNHANDLED CHILD";
 }
 
 /*
-	When you received a valid command, but it wasn't for one of your children,
-	then ReceivedUnknownCommand gets called.  If you handle the message, you 
-	should change the sCMD_Result to OK
+    When you received a valid command, but it wasn't for one of your children,
+    then ReceivedUnknownCommand gets called.  If you handle the message, you
+    should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
 void Orbiter_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-cmduk-e->
 {
-	sCMD_Result = "UNKNOWN DEVICE";
+    sCMD_Result = "UNKNOWN DEVICE";
 }
 
 // Our message interceptor
@@ -302,7 +304,7 @@ printf("Mobile orbiter detected\n");
         vector<Row_Device *> vectRow_Device;
         m_pDatabase_pluto_main->Device_get()->GetRows( DEVICE_MACADDRESS_FIELD + string("='") + sMacAddress + "' ", &vectRow_Device );
 
-		g_pPlutoLogger->Write(LV_STATUS,"Found: %d rows in unknown devices for %s",(int) vectRow_Device.size(),sMacAddress.c_str());
+        g_pPlutoLogger->Write(LV_STATUS,"Found: %d rows in unknown devices for %s",(int) vectRow_Device.size(),sMacAddress.c_str());
 
         // If we have any records, then it's something that is already in our database, and it's not a phone, since it's
         // not in the OH_Orbiter map.  Just ignore it.
@@ -378,7 +380,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to process.  Bit flag is: %d",(int) m_bNoU
             }
         }
     }
-	printf("finished processing\n");
+    printf("finished processing\n");
 
     return true;
 }
@@ -400,29 +402,29 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
     }
     else
     {
-		string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
+        string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
 
-		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-		if( pRow_Device->NeedConfigure_get() == 1 || sVersion != VERSION )
-		{
-			pRow_Device->NeedConfigure_set(0);
-			pRow_Device->Table_Device_get()->Commit();
+        Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+        if( pRow_Device->NeedConfigure_get() == 1 || sVersion != VERSION )
+        {
+            pRow_Device->NeedConfigure_set(0);
+            pRow_Device->Table_Device_get()->Commit();
 
-			Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pRow_Device->FK_DeviceTemplate_get());
-			string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
+            Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pRow_Device->FK_DeviceTemplate_get());
+            string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
 
-			DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
-				m_dwPK_Device, 
-				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
-				PlutoMOInstaller,  
-				sMacAddress, 
-				""
-			);
+            DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
+                m_dwPK_Device,
+                pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+                PlutoMOInstaller,
+                sMacAddress,
+                ""
+            );
 
-			SendCommand(CMD_Send_File_To_Device);
+            SendCommand(CMD_Send_File_To_Device);
 
-			g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMacAddress.c_str());
-		}
+            g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMacAddress.c_str());
+        }
 
         pOH_Orbiter->m_iFailedToConnectCount = 0;//reset tries count
 
@@ -531,7 +533,7 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
         {
             pOH_Orbiter->m_iFailedToConnectCount++;
             g_pPlutoLogger->Write(
-				LV_WARNING,
+                LV_WARNING,
                 "Failed to connect to app on %s device, loop %d",
                 sMacAddress.c_str(),
                 pOH_Orbiter->m_iFailedToConnectCount
@@ -631,12 +633,12 @@ void Orbiter_Plugin::SomeFunction()
 
 //<-dceag-c26-b->
 
-	/** @brief COMMAND: #26 - Set User Mode */
-	/** Change a user's status (at home, sleeping, etc.) */
-		/** @param #5 Value To Assign */
-			/** A Value from the UserMode table */
-		/** @param #17 PK_Users */
-			/** The User to change */
+    /** @brief COMMAND: #26 - Set User Mode */
+    /** Change a user's status (at home, sleeping, etc.) */
+        /** @param #5 Value To Assign */
+            /** A Value from the UserMode table */
+        /** @param #17 PK_Users */
+            /** The User to change */
 
 void Orbiter_Plugin::CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,Message *pMessage)
 //<-dceag-c26-e->
@@ -648,10 +650,10 @@ void Orbiter_Plugin::CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,str
 
 //<-dceag-c58-b->
 
-	/** @brief COMMAND: #58 - Set Current User */
-	/** Set what user is currently using the orbiter.  The 'From' device is assumed to be the orbiter. */
-		/** @param #17 PK_Users */
-			/** The user currently using the orbiter. */
+    /** @brief COMMAND: #58 - Set Current User */
+    /** Set what user is currently using the orbiter.  The 'From' device is assumed to be the orbiter. */
+        /** @param #17 PK_Users */
+            /** The user currently using the orbiter. */
 
 void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pMessage)
 //<-dceag-c58-e->
@@ -668,10 +670,10 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
 
 //<-dceag-c59-b->
 
-	/** @brief COMMAND: #59 - Set Entertainment Area */
-	/** Set what entertainment area the orbiter (the 'from' in the message) is in. */
-		/** @param #45 PK_EntertainArea */
-			/** The current entertainment area where the orbiter is. */
+    /** @brief COMMAND: #59 - Set Entertainment Area */
+    /** Set what entertainment area the orbiter (the 'from' in the message) is in. */
+        /** @param #45 PK_EntertainArea */
+            /** The current entertainment area where the orbiter is. */
 
 void Orbiter_Plugin::CMD_Set_Entertainment_Area(int iPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c59-e->
@@ -690,10 +692,10 @@ void Orbiter_Plugin::CMD_Set_Entertainment_Area(int iPK_EntertainArea,string &sC
 
 //<-dceag-c77-b->
 
-	/** @brief COMMAND: #77 - Set Current Room */
-	/** Set what room the orbiter is in. */
-		/** @param #57 PK_Room */
-			/** The room */
+    /** @brief COMMAND: #77 - Set Current Room */
+    /** Set what room the orbiter is in. */
+        /** @param #57 PK_Room */
+            /** The room */
 
 void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMessage)
 //<-dceag-c77-e->
@@ -709,33 +711,33 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 }
 //<-dceag-c78-b->
 
-	/** @brief COMMAND: #78 - New Mobile Orbiter */
-	/** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that 'yes' the device is a phone and needs the sof */
-		/** @param #44 PK_DeviceTemplate */
-			/** What type of phone it is. */
-		/** @param #47 Mac address */
-			/** The MAC Address of the phone. */
+    /** @brief COMMAND: #78 - New Mobile Orbiter */
+    /** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that 'yes' the device is a phone and needs the sof */
+        /** @param #44 PK_DeviceTemplate */
+            /** What type of phone it is. */
+        /** @param #47 Mac address */
+            /** The MAC Address of the phone. */
 
 void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
-	if( !iPK_DeviceTemplate )
-		iPK_DeviceTemplate = DEVICETEMPLATE_Nokia_36503660_CONST;  // hack - todo fix this
+    if( !iPK_DeviceTemplate )
+        iPK_DeviceTemplate = DEVICETEMPLATE_Nokia_36503660_CONST;  // hack - todo fix this
 
-	printf("CMD_New_Mobile_Orbiter\n");
+    printf("CMD_New_Mobile_Orbiter\n");
 
-	int iFK_Room = 1; 
-	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
+    int iFK_Room = 1;
+    UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
 
     if( pUnknownDeviceInfos && pUnknownDeviceInfos->m_iDeviceIDFrom && pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom)
-		iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_PK_Room;
+        iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_PK_Room;
 
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->AddRow();
     pRow_Device->FK_DeviceTemplate_set(iPK_DeviceTemplate);
     pRow_Device->MACaddress_set(sMac_address);
-	pRow_Device->FK_Installation_set(m_pRouter->iPK_Installation_get()); 
-	pRow_Device->FK_Room_set(iFK_Room);
-	pRow_Device->Description_set("Mobile orbiter");
+    pRow_Device->FK_Installation_set(m_pRouter->iPK_Installation_get());
+    pRow_Device->FK_Room_set(iFK_Room);
+    pRow_Device->Description_set("Mobile orbiter");
     m_pDatabase_pluto_main->Device_get()->Commit();
 
     g_pPlutoLogger->Write(
@@ -750,20 +752,20 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
         g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
     else
     {
-		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pRow_Device->FK_DeviceTemplate_get());
-		string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
+        Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pRow_Device->FK_DeviceTemplate_get());
+        string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
 
         DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
-			m_dwPK_Device, 
-			pUnknownDeviceInfos->m_iDeviceIDFrom, 
-			PlutoMOInstaller,  
-			sMac_address, 
-			""
-		);
+            m_dwPK_Device,
+            pUnknownDeviceInfos->m_iDeviceIDFrom,
+            PlutoMOInstaller,
+            sMac_address,
+            ""
+        );
 
         SendCommand(CMD_Send_File_To_Device);
 
-		g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMac_address.c_str());
+        g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMac_address.c_str());
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
@@ -773,14 +775,14 @@ g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
 }
 //<-dceag-c79-b->
 
-	/** @brief COMMAND: #79 - Add Unknown Device */
-	/** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that the device is a phone and it should be added */
-		/** @param #9 Text */
-			/** A description of the device */
-		/** @param #10 ID */
-			/** The IP Address */
-		/** @param #47 Mac address */
-			/** The MAC address of the device */
+    /** @brief COMMAND: #79 - Add Unknown Device */
+    /** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that the device is a phone and it should be added */
+        /** @param #9 Text */
+            /** A description of the device */
+        /** @param #10 ID */
+            /** The IP Address */
+        /** @param #47 Mac address */
+            /** The MAC address of the device */
 
 void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c79-e->
@@ -805,26 +807,33 @@ void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_
 
 //<-dceag-c183-b->
 
-	/** @brief COMMAND: #183 - Get Floorplan Layout */
-	/** Gets the layout of all floorplans for the orbiter. */
-		/** @param #5 Value To Assign */
-			/** A | delimited list in the format, where {} indicate a repeating value: #pages,{#Types,{#Objects,{DeviceDescription, ObjectDescription, FillX Point, FillY Point, PK_DesignObj, Page, PK_Device, Type}}} */
+    /** @brief COMMAND: #183 - Get Floorplan Layout */
+    /** Gets the layout of all floorplans for the orbiter. */
+        /** @param #5 Value To Assign */
+            /** A | delimited list in the format, where {} indicate a repeating value: #pages,{#Types,{#Objects,{DeviceDescription, ObjectDescription, FillX Point, FillY Point, PK_DesignObj, Page, PK_Device, Type}}} */
 
 void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c183-e->
 {
+    if ( ! m_bFloorPlansArePrepared )
+        PrepareFloorplanInfo();
+
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
     if( !pOH_Orbiter )
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find orbiter for floorplan layout: %d",pMessage->m_dwPK_Device_From);
         return;
     }
+
     (*sValue_To_Assign) = StringUtils::itos((int) pOH_Orbiter->m_mapFloorplanObjectVector.size()) + "|";
 
+    g_pPlutoLogger->Write(LV_STATUS, "Set value of floorplan layout to: %s", (*sValue_To_Assign).c_str());
+
     map<int,FloorplanObjectVectorMap *>::iterator itFloorplanObjectVectorMap;
+
+    g_pPlutoLogger->Write(LV_STATUS, "Size of the map is: %d", pOH_Orbiter->m_mapFloorplanObjectVector.size() );
     for(itFloorplanObjectVectorMap = pOH_Orbiter->m_mapFloorplanObjectVector.begin();itFloorplanObjectVectorMap!=pOH_Orbiter->m_mapFloorplanObjectVector.end();itFloorplanObjectVectorMap++)
     {
-
         int Page = (*itFloorplanObjectVectorMap).first;
         FloorplanObjectVectorMap *pfpObjVectorMap = (*itFloorplanObjectVectorMap).second;
 
@@ -834,8 +843,8 @@ void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &s
             (*sValue_To_Assign) += StringUtils::itos(Page) + "|0|";
             continue;
         }
-        (*sValue_To_Assign) += StringUtils::itos(Page) + "|" +
-            StringUtils::itos((int) pfpObjVectorMap->size()) + "|";
+
+        (*sValue_To_Assign) += StringUtils::itos(Page) + "|" + StringUtils::itos((int) pfpObjVectorMap->size()) + "|";
 
         map<int,FloorplanObjectVector *>::iterator itFloorplanObjectVector;
         for(itFloorplanObjectVector = pfpObjVectorMap->begin();itFloorplanObjectVector!=pfpObjVectorMap->end();itFloorplanObjectVector++)
@@ -858,6 +867,7 @@ void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &s
             for(int i=0;i<(int) pfpObjVector->size();++i)
             {
                 FloorplanObject *fpObj = (*pfpObjVector)[i];
+
                 (*sValue_To_Assign) += fpObj->ObjectTypeDescription + "|" + StringUtils::itos(fpObj->FillX) + "|" + StringUtils::itos(fpObj->FillY) + "|" +
                     fpObj->ObjectID + "|" + StringUtils::itos(fpObj->Page) + "|" + StringUtils::itos(fpObj->PK_Device) + "|" +
                     StringUtils::itos(fpObj->Type) + "|";
@@ -868,16 +878,17 @@ void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &s
 
 //<-dceag-c186-b->
 
-	/** @brief COMMAND: #186 - Get Current Floorplan */
-	/** Gets the current Floorplan status (ie what items are on/off, etc.) for the specified Floorplan type. */
-		/** @param #5 Value To Assign */
-			/** The status of all the devices within the floorplan. */
-		/** @param #46 PK_FloorplanType */
-			/** The type of floorplan (lights, climate, etc.) */
+    /** @brief COMMAND: #186 - Get Current Floorplan */
+    /** Gets the current Floorplan status (ie what items are on/off, etc.) for the specified Floorplan type. */
+        /** @param #5 Value To Assign */
+            /** The status of all the devices within the floorplan. */
+        /** @param #46 PK_FloorplanType */
+            /** The type of floorplan (lights, climate, etc.) */
 
 void Orbiter_Plugin::CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c186-e->
 {
+    g_pPlutoLogger->Write(LV_STATUS, "Get current floorplan");
 }
 
 
@@ -894,14 +905,29 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
                 pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
             continue;
         }
+
         string s = pRow_Orbiter->FloorplanInfo_get();
         string::size_type pos=0;
 
+        g_pPlutoLogger->Write(LV_STATUS, "This is a valid orbiter: %d fpinfo = ", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, s.c_str());
         int NumDevices = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
         for(int iDevice=0;iDevice<NumDevices;++iDevice)
         {
             int PK_Device = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+            g_pPlutoLogger->Write(LV_STATUS, "DeviceID: %d", PK_Device);
             DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+
+            if ( pDeviceData_Router == NULL )
+            {
+                g_pPlutoLogger->Write(LV_CRITICAL, "Device referred by the floorplan %d for orbiter %d does not exist", PK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+                // clean the bogus data
+                StringUtils::Tokenize(s, "\t", pos);
+                StringUtils::Tokenize(s, "\t", pos);
+                StringUtils::Tokenize(s, "\t", pos);
+                StringUtils::Tokenize(s, "\t", pos);
+                continue;
+            }
+
             int FloorplanObjectType = atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str());
             Row_FloorplanObjectType *pRow_FloorplanObjectType = m_pDatabase_pluto_main->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
 
@@ -910,8 +936,17 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
             int FillX = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
             int FillY = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
 
+            g_pPlutoLogger->Write(LV_STATUS, "Got this data for the floorplan %d %d %d, %s", Page, FillX, FillY, ObjectID.c_str());
+            if ( pRow_FloorplanObjectType == NULL )
+            {
+                g_pPlutoLogger->Write(LV_STATUS, "Invalid Floorplan object type: %d", FloorplanObjectType);
+                continue;
+            }
+
             string Description = pRow_FloorplanObjectType->Description_get();
+            g_pPlutoLogger->Write(LV_STATUS, "Got description %s", Description.c_str());
             int FloorplanType = pRow_FloorplanObjectType->FK_FloorplanType_get();
+            g_pPlutoLogger->Write(LV_STATUS, "Got type %d", FloorplanType);
 
             FloorplanObjectVectorMap *pFpObjMap = pOH_Orbiter->m_mapFloorplanObjectVector_Find(Page);
             if( !pFpObjMap )
@@ -938,4 +973,6 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
             fpVect->push_back(fp);
         }
     }
+
+    m_bFloorPlansArePrepared = true;
 }
