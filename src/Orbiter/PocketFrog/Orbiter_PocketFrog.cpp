@@ -167,44 +167,17 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 #ifndef WINCE
 	if(m_bFullScreen)
 	{
-		DEVMODE dmSettings;                          // Device Mode variable - Needed to change modes
-		memset(&dmSettings,0,sizeof(dmSettings));    // Makes Sure Memory's Cleared
-
-		// Get current settings -- This function fills our the settings
-		// This makes sure NT and Win98 machines change correctly
-		if(!EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&dmSettings))
-		{
-			// Display error message if we couldn't get display settings
-			return false;
-		}
-
-		dmSettings.dmPelsWidth = m_iImageWidth;                        // Set the desired Screen Width
-		dmSettings.dmPelsHeight = m_iImageHeight;                      // Set the desired Screen Height
-		dmSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;    // Set the flags saying we're changing the Screen Width and Height
-
-		// This function actually changes the screen to full screen
-		// CDS_FULLSCREEN Gets Rid Of Start Bar.
-		// We always want to get a result from this function to check if we failed
-		int result = ChangeDisplaySettings(&dmSettings,CDS_FULLSCREEN); 
-		// Check if we didn't recieved a good return message From the function
-		if(result != DISP_CHANGE_SUCCESSFUL)
-		{
-			// Display the error message and quit the program
-			PostQuitMessage(0);
-			return false;
-		}
-
-		ModifyStyle(WS_TILEDWINDOW , 0);
-		MoveWindow(0, 0, m_iImageWidth, m_iImageHeight + 30, TRUE);
-		BringWindowToTop();
-		SetForegroundWindow(m_hWnd);
-
+		ModifyStyle(WS_CAPTION, 0);
 		HWND hWnd_TaskBar = ::FindWindow("Shell_TrayWnd", NULL);
 		if(hWnd_TaskBar)
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "### I found the taskbar window! I will send it to back! ###");
 			::SetWindowPos(hWnd_TaskBar, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); 
-		}
+
+		RECT rc;
+		HWND hWndDesktop = ::GetDesktopWindow();
+		::GetWindowRect(hWndDesktop, &rc);
+		MoveWindow(0, 0, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+		BringWindowToTop();
+		SetForegroundWindow(m_hWnd);
 	}
 	else
 	{
@@ -820,6 +793,7 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect)
 {
+	/*
 	//clipping the rectangle 
 	if(rect.X < 0)
 		rect.X = 0;
@@ -832,6 +806,7 @@ clock_t ccc=clock();
 
 	if(rect.Bottom() >= m_Height)
 		rect.Height = m_Height - rect.Y - 1;
+	*/
 
 	//PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
