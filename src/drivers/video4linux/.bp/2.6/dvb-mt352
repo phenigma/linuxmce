@@ -1,0 +1,2 @@
+srcdiff	mt352.h		drivers/media/dvb/frontends/mt352.h
+srcdiff	mt352.c		drivers/media/dvb/frontends/mt352.c

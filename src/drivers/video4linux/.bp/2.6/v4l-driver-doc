@@ -1,0 +1,24 @@
+# bttv
+srcdiff	doc/README.bttv		Documentation/video4linux/bttv/README
+srcdiff	doc/insmod-options	Documentation/video4linux/bttv/Insmod-options
+srcdiff	doc/MAKEDEV		Documentation/video4linux/bttv/MAKEDEV
+srcdiff	doc/Sound-FAQ		Documentation/video4linux/bttv/Sound-FAQ
+srcdiff	doc/Tuners		Documentation/video4linux/bttv/Tuners
+srcdiff	doc/Cards		Documentation/video4linux/bttv/Cards
+
+# other
+srcdiff /dev/null               Documentation/video4linux/bttv/CARDLIST
+srcdiff doc/README.cx88		Documentation/video4linux/README.cx88
+srcdiff doc/README.saa7134	Documentation/video4linux/README.saa7134
+srcdiff doc/README.ir		Documentation/video4linux/README.ir
+
+# cardlists
+srcdiff	doc/CARDLIST.bttv	Documentation/video4linux/CARDLIST.bttv
+srcdiff	doc/CARDLIST.saa7134	Documentation/video4linux/CARDLIST.saa7134
+srcdiff	doc/CARDLIST.tuner	Documentation/video4linux/CARDLIST.tuner
+
+# obsolete / fixme
+#srcdiff	doc/Specs		Documentation/video4linux/bttv/Specs
+#srcdiff	README.freeze		Documentation/video4linux/bttv/README.freeze
+#srcdiff	README.quirks		Documentation/video4linux/bttv/README.quirks
+#srcdiff	Modules.conf		Documentation/video4linux/bttv/Modules.conf

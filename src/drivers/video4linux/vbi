@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# config
+vbi="/dev/vbi1"
+
+# go!
+v4lctl -c "${vbi}" setnorm "pal-bg"
+dd if="${vbi}" of=/dev/null bs=$(( 1024 * 64 )) count=1

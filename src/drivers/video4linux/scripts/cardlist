@@ -1,0 +1,15 @@
+#!/bin/sh
+
+cat bttv-cards.c \
+	| grep "\.name.*=" \
+	| perl -ne '/"([^"]+)"/; printf("card=%d - %s\n",$i++,$1)' \
+	> doc/CARDLIST.bttv
+
+cat tuner.c \
+	| grep "{ \"" \
+	| perl -ne '/"([^"]+)"/; printf("tuner=%d - %s\n",$i++,$1)' \
+	> doc/CARDLIST.tuner
+
+scripts/saa7134.pl saa7134.h saa7134-cards.c \
+	> doc/CARDLIST.saa7134
+
