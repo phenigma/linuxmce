@@ -344,6 +344,8 @@ function irCodes($output,$dbADO) {
 					WHERE PK_InfraredGroup_Command=?',$irg_c);
 				
 				$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
+				$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command=?',$irg_c);
+				
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code deleted.&label=".$GLOBALS['label']);
 				exit();
 			}
@@ -394,6 +396,7 @@ function irCodes($output,$dbADO) {
 					while($rowC=$res->FetchRow()){
 						if($rowC['PK_InfraredGroup_Command']!=''){
 							$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=? AND FK_Users=?',array($rowC['PK_InfraredGroup_Command'],$_SESSION['userID']));
+							$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command=?',array($rowC['PK_InfraredGroup_Command']));
 						}
 					}
 					$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceCommandGroup WHERE FK_DeviceTemplate=? AND FK_DeviceCommandGroup=?',array($dtID,$deviceCG));
@@ -402,7 +405,7 @@ function irCodes($output,$dbADO) {
 			
 			$customCodesNoArray=explode(',',@$_POST['displayedIRGC']);
 			foreach ($customCodesNoArray as $ig_c){
-				$irData=stripslashes(@$_POST['irData_'.$ig_c]);
+				$irData=stripslashes(urldecode(@$_POST['irData_'.$ig_c]));
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$ig_c));
 			}
 
@@ -473,7 +476,7 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 			}else{
 				$textAreaElem='
 					<textarea name="ir" rows="2" cols="100" disabled>'.$rowStandardCode['IRData'].'</textarea>
-					<input type="hidden" name="irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'" value="'.$rowStandardCode['IRData'].'">';
+					<input type="hidden" name="irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'" value="'.urlencode(addslashes($rowStandardCode['IRData'])).'">';
 			}
 			$out.='
 				<tr bgcolor="lightblue">
@@ -497,7 +500,7 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 			}else{
 				$textareaUserCode='
 					<textarea name="ir" rows="2" cols="100" disabled onClick="setPreferred(\'prefered_'.$rowUserCode['FK_Command'].'_'.(($infraredGroupID==0)?'':$infraredGroupID).'\','.$rowUserCode['PK_InfraredGroup_Command'].')">'.$rowUserCode['IRData'].'</textarea>
-					<input type="hidden" name="irData_'.$rowUserCode['PK_InfraredGroup_Command'].'" value="'.$rowUserCode['IRData'].'">';
+					<input type="hidden" name="irData_'.$rowUserCode['PK_InfraredGroup_Command'].'" value="'.urlencode(addslashes($rowUserCode['IRData'])).'">';
 			}
 
 			$RowColor=(($rowUserCode['FK_Users']==$_SESSION['userID'])?'yellow':'lightyellow');
