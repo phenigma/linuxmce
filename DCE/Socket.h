@@ -1,5 +1,15 @@
-#ifndef Socket_H
-#define Socket_H
+/**
+ *
+ * @file Socket.h
+ * @brief header file for the Socket class
+ * @author
+ * @todo notcommented
+ *
+ */
+
+
+#ifndef SOCKET_H
+#define SOCKET_H
 
 #include "PlutoUtils/MultiThreadIncludes.h"
 
@@ -7,48 +17,98 @@
 
 namespace DCE
 {
-	class Message;
+	
+	class Message; /** < to be able to use it in declarations; we include it's header in the cpp file */
 
+	/**
+	 * @brief defines a socket that works under different architectures
+	 * @todo ask !!!
+	 */
 	class Socket
 	{
+		
 	public:
-		pluto_pthread_mutex_t m_SocketMutex;			// AB 1-25-2004 - move these to public since Event_Impl needs to use them
-		pthread_mutexattr_t m_SocketMutexAttr;
+	
+		SOCKET m_Socket; /** < the actual socket @todo ask */
+		
+		string m_sName; /** < a name for the socket */
+		
+		int m_iSocketCounter; /** < counts the sockets actually created */
 
-		char *m_InSockBuffer, *m_pCurInsockBuffer;
-		int m_SockBufBytesLeft, m_ReceiveTimeout;
-		SOCKET m_Socket;
-		string m_sName;
-		int m_SocketCounter;
+		char *m_pcm_pcSockLogFile; /** < name of log file for the socket */
+		char *m_pcm_pcSockLogErrorFile; /** < name of error log file for the socket */	
+		pluto_pthread_mutex_t m_SocketMutex; /** < for synchronisation between threads @todo ask */
+		pthread_mutexattr_t m_SocketMutexAttr;  /** < for synchronisation between threads @todo ask */
 
-		Socket(string Name);
+		char *m_pcInSockBuffer; /** < input buffer for the socket @todo ask */
+		char *m_pcCurInsockBuffer; /** < input buffer current position @todo ask */
+		
+		int m_iSockBufBytesLeft; /** < bytes left in the socket buffer @todo ask */
+		int m_iReceiveTimeout; /** < the interval after witch the sockets stops expecting for an answer in seconds */
+		
+		/**
+		 * @brief creates a new socket objest with the specified name, and it also writes a log
+		 */
+		Socket( string sName );
+		
+		/**
+		 * @brief frees the allocated memory and closes the base socket, and it also writes a log
+		 */
 		virtual ~Socket();
 
-	//	void SocketLock();
-	//	void SocketUnlock();
+		/**
+		 * @brief use to set the member
+		 */
+		void SetReceiveTimeout( int TimeoutSeconds ) { m_iReceiveTimeout = TimeoutSeconds; };
+		
+		/**
+		 * @brief sends the message data imediatlly and deletes the message object if required
+		 * @param bDeleteMessage specifies if the message should be deleted after use
+		 * @return the return of SendData (witch it uses)
+		 * @see SendData
+		 */
+		bool SendMessage( Message *pMessage, bool bDeleteMessage = true );
 
-		// This issues both a MESSAGE <Length> string
-		// and immediately sends the data.  It deletes pMsg when it's done.
-		bool SendMessage(Message *pMsg, bool bDeleteMessage = true);
 
-		void SetReceiveTimeout(int TimeoutSeconds) { m_ReceiveTimeout = TimeoutSeconds; };
+		/**
+		 * @brief it reads the data from the socket then parses it into a new Message
+		 * this gets called in response to a MESSAGE <Length> string
+		 */
+		virtual Message *ReceiveMessage( int iLength );
 
-		// This gets called in response to a MESSAGE <Length> string
-		// It reads the data from the socket then parses it into a new Message.
-		virtual Message *ReceiveMessage(int Length);
+		/**
+		 * @brief just sends raw data to the socket.
+		 */
+		virtual bool SendData( int iSize, const char *pcData );
+		
+		/**
+		 * @brief just reads raw data from the socket
+		 */
+		virtual bool ReceiveData( int iSize, char *pcData );
 
-		// Just sends raw data to the socket.
-		virtual bool SendData(int size, const char *data);
-		virtual bool ReceiveData(int size, char *data);
+		/**
+		 * @brief sends a string to the socket.
+		 * @return false on errors
+		 */
+		virtual bool SendString( string sToSend );
+		
+		/**
+		 * @brief reads a string from the socket.
+		 * @return false on errors
+		 */
+		virtual bool ReceiveString( string &sResult );
 
-		// String functions.
-		virtual bool SendString(string s);
-		virtual bool ReceiveString(string &s);
+		/**
+		 * @brief sends a string to the socket and retrives the answer
+		 * @return false on errors
+		 */
+		virtual string SendReceiveString( string sToSend );
 
-		virtual string SendReceiveString(string s);
-		virtual Message *SendReceiveMessage(Message *pMessage);
-
-		char *SockLogFile,*SockLogErrorFile;
+		/**
+		 * @brief sends a message to the socket and retrives the answer
+		 * @return false on errors
+		 */
+		virtual Message *SendReceiveMessage( Message *pMessage );
 	};
 }
 

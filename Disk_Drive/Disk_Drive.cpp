@@ -1000,9 +1000,9 @@ string Disk_Drive::startServer(string fileName)
         return "";
     }
 
-    if( (host = gethostbyname(m_IPAddress.c_str())) == NULL )
+    if( (host = gethostbyname(m_sIPAddress.c_str())) == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Could not resolve ip address: %s. Returning empty mrl.", m_IPAddress.c_str());
+        g_pPlutoLogger->Write(LV_WARNING, "Could not resolve ip address: %s. Returning empty mrl.", m_sIPAddress.c_str());
         return "";
     }
 
@@ -1021,7 +1021,7 @@ string Disk_Drive::startServer(string fileName)
 
         if ( connect(clientSocket, (struct sockaddr*)&serverSocket, sizeof(serverSocket)) == 0 )
         {
-            g_pPlutoLogger->Write(LV_STATUS, "We have made a succesfull connection to the dvdcss server on %s:%d. Life is good.", m_IPAddress.c_str(), m_serverPort);
+            g_pPlutoLogger->Write(LV_STATUS, "We have made a succesfull connection to the dvdcss server on %s:%d. Life is good.", m_sIPAddress.c_str(), m_serverPort);
             shutdown(clientSocket, SHUT_RDWR);
             close(clientSocket);
             socketNotOpen = false;
@@ -1039,7 +1039,7 @@ string Disk_Drive::startServer(string fileName)
         }
     }
 
-    return string("dvd://" + m_IPAddress + ":" + StringUtils::itos(m_serverPort) + "/");
+    return string("dvd://" + m_sIPAddress + ":" + StringUtils::itos(m_serverPort) + "/");
 }
 
 int Disk_Drive::cdrom_has_dir (int fd, const char *directory)

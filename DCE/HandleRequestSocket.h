@@ -1,28 +1,75 @@
-#ifndef HANDLEREQUEST_SOCKET_H
-#define HANDLEREQUEST_SOCKET_H
+/**
+ *
+ * @file HandleRequestSocket.h
+ * @brief header file for the HandleRequestSocket class
+ * @author
+ * @todo notcommented
+ *
+ */
+
+
+#ifndef HANDLEREQUESTSOCKET_H
+#define HANDLEREQUESTSOCKET_H
 
 #include "ClientSocket.h"
+
 namespace DCE
 {
+	/**
+	 * @brief socket that handles requests
+	 */
 	class HandleRequestSocket : public ClientSocket
 	{
+		
 	public:
-		pthread_t m_RequestHandlerThread;
+		
+		pthread_t m_RequestHandlerThread; /** < he thread that runs the main loop */
 
-		bool m_bRunning, m_bUnexpected, m_bTerminate;
+		bool m_bRunning; /** < the socket is running */
+		bool m_bUnexpected; /** < set if the socket got an unexpected error */
+		bool m_bTerminate; /** < specifies that the socket terminated (the main loop exits) */
 
-		HandleRequestSocket(int DeviceID, string IPAddress, string Name);
+		/**
+		 * @brief calls the base class constructor and assignes 0 to m_RequestHandlerThread
+		 */
+		HandleRequestSocket( int iDeviceID, string sIPAddress, string sName );
+
+		/**
+		 * @brief calls DisconnectAndWait
+		 * @see DisconnectAndWait
+		 */
 		virtual ~HandleRequestSocket();
 
-		virtual void Disconnect(); 
+		/**
+		 * @brief sets the m_bTerminate flag, writes an entry to the logger and calls the base class method
+		 */
+		virtual void Disconnect();
+
+		/**
+		 * @brief waits for the main loop thread to die
+		 */
 		virtual void DisconnectAndWait();
 
-		virtual bool OnConnect(string ExtraInfo="");
-		virtual void OnUnexpectedDisconnect();
+		/**
+		 * @brief creates the main loop thread after it receives the OK
+		 */
+		virtual bool OnConnect( string ExtraInfo="" );
 
-		virtual void ReceivedString(string Line)=0;
-		virtual bool ReceivedMessage(Message *pMessage)=0;
+		/**
+		 * @brief virtual
+		 * @see the definition from the base class
+		 */
+		virtual void ReceivedString( string sLine )=0;
 
+		/**
+		 * @brief virtual
+		 * @see the definition from the base class
+		 */
+		virtual bool ReceivedMessage( Message *pMessage )=0;
+
+		/**
+		 * @brief runs a loop that handles outgoing and incoming messages and strings
+		 */
 		virtual void RunThread();
 	};
 }
