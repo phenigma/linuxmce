@@ -78,8 +78,8 @@ extern const char *g_szCompile_Date;
 // For DontRender
 namespace DCE
 {
-    int g_iDontRender;
-    clock_t g_cLastTime; // debug only
+    int g_iDontRender=0;
+    clock_t g_cLastTime=clock(); // debug only
 }
 
 //------------------------------------------------------------------------
@@ -1078,7 +1078,6 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
     dg.Release(  );
 
     m_bRerenderScreen=true;
-    NeedToRender render( this, "Need to change screens" );
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
     // The framework will call this when it's time to change screens.  This immediately calls RenderScreen.
 
@@ -2258,167 +2257,169 @@ INITIALIZATION
 void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea )
 {
     if ( !m_bQuit )
-    {
-        Message *pMessage=NULL;
-        string Filename = "C" + StringUtils::itos( m_dwPK_Device ) + ".info";
-        bool bFileExists;
-        if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
-        {
-            if(  m_sLocalDirectory.length(  )==0  )
-            {
-#ifdef WIN32
-                m_sLocalDirectory = "/pluto/orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
-#else
-                m_sLocalDirectory = "/usr/pluto/orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
-#endif
-                if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
-                {
-                    m_sLocalDirectory = "orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
-                    if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
-                    {
-                        m_sLocalDirectory = "../orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
-                        if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
-                        {
-                            m_sLocalDirectory = "C" + StringUtils::itos( m_dwPK_Device ) + "/";
-                            bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename );
-                        }
-                    }
-                }
-            }
-        }
-        if(  bFileExists  )
-        {
-            size_t size;
-            char *buffer = FileUtils::ReadFileIntoBuffer( m_sLocalDirectory + "/" + Filename, size );
-            if(  !buffer || !SerializeRead( ( long ) size, buffer, ( void * ) this ) || !ParseConfigurationData( Type )  )
-            {
-                delete buffer;
-                g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to read Orbiter data from file: %s/%s", m_sLocalDirectory.c_str(  ), Filename.c_str(  ) );
-                Sleep( 5000 );
-                m_bReload = true;
-                exit( 1 );
-            }
-            delete [] buffer;
-        }
-        else
-        {
-            if(  m_sLocalDirectory.length(  )  )
-            {
-                g_pPlutoLogger->Write( LV_CRITICAL, "Directory: %s doesn't contain the orbiter's .info file.  Requesting files from the server.", m_sLocalDirectory.c_str(  ) );
-                m_sLocalDirectory="";  // It's not valid
-            }
-
-            // Request our config info
-            char *pConfigFile=NULL;
-            int iSizeConfigFile=0;
-
-            // We can't send it to the General Info virtual device since we won't have that until we get our config data
-            DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, "orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/" + Filename,
-                &pConfigFile, &iSizeConfigFile );
-            SendCommand( CMD_Request_File_Cat );
-
-            if ( !iSizeConfigFile )
-            {
-                g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to get Orbiter data" );
-                Sleep( 5000 );
-                m_bReload = true;
-                return;
-            }
-
-            // The framework needs a pointer to us when it's creating Orbiter objects,  pass in this as a void *
-            if(  !SerializeRead( iSizeConfigFile, pConfigFile, ( void * ) this ) || !ParseConfigurationData( Type )  )
-            {
-                delete pMessage;
-                g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to parse Orbiter data" );
-                Sleep( 5000 );  // Sleep a bit before re-attempting
-                m_bReload = true;
-                return;
-            }
-
-            delete pConfigFile;
-        }
-
-        if(  !m_bLocalMode  )
-        {
-            PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, GetEvents(  )->m_pClientSocket->m_SocketMutex );  // Don't log anything but failures
-            string sResult = GetEvents(  )->SendReceiveString( "TIME" );
-
-            if(  sResult.length(  )>5  )
-            {
-                char *Buffer = new char[sResult.length(  )+1];
-                strcpy( Buffer,  sResult.c_str(  ) );
-                SetTime( Buffer );
-                delete [] Buffer;
-            }
-            sSM.Release(  );
-        }
-
-		if(NULL != m_pCacheImageManager)
-			if(!m_pCacheImageManager->VerifyCache(StringUtils::ltos((long)m_tGenerationTime)))
+	{
+		{
+			NeedToRender render( this, "Initial config" );
+			Message *pMessage=NULL;
+			string Filename = "C" + StringUtils::itos( m_dwPK_Device ) + ".info";
+			bool bFileExists;
+			if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
 			{
-				delete m_pCacheImageManager;
-				m_pCacheImageManager = NULL;
+				if(  m_sLocalDirectory.length(  )==0  )
+				{
+#ifdef WIN32
+					m_sLocalDirectory = "/pluto/orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
+#else
+					m_sLocalDirectory = "/usr/pluto/orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
+#endif
+					if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
+					{
+						m_sLocalDirectory = "orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
+						if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
+						{
+							m_sLocalDirectory = "../orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
+							if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
+							{
+								m_sLocalDirectory = "C" + StringUtils::itos( m_dwPK_Device ) + "/";
+								bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename );
+							}
+						}
+					}
+				}
+			}
+			if(  bFileExists  )
+			{
+				size_t size;
+				char *buffer = FileUtils::ReadFileIntoBuffer( m_sLocalDirectory + "/" + Filename, size );
+				if(  !buffer || !SerializeRead( ( long ) size, buffer, ( void * ) this ) || !ParseConfigurationData( Type )  )
+				{
+					delete buffer;
+					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to read Orbiter data from file: %s/%s", m_sLocalDirectory.c_str(  ), Filename.c_str(  ) );
+					Sleep( 5000 );
+					m_bReload = true;
+					exit( 1 );
+				}
+				delete [] buffer;
+			}
+			else
+			{
+				if(  m_sLocalDirectory.length(  )  )
+				{
+					g_pPlutoLogger->Write( LV_CRITICAL, "Directory: %s doesn't contain the orbiter's .info file.  Requesting files from the server.", m_sLocalDirectory.c_str(  ) );
+					m_sLocalDirectory="";  // It's not valid
+				}
+
+				// Request our config info
+				char *pConfigFile=NULL;
+				int iSizeConfigFile=0;
+
+				// We can't send it to the General Info virtual device since we won't have that until we get our config data
+				DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, "orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/" + Filename,
+					&pConfigFile, &iSizeConfigFile );
+				SendCommand( CMD_Request_File_Cat );
+
+				if ( !iSizeConfigFile )
+				{
+					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to get Orbiter data" );
+					Sleep( 5000 );
+					m_bReload = true;
+					return;
+				}
+
+				// The framework needs a pointer to us when it's creating Orbiter objects,  pass in this as a void *
+				if(  !SerializeRead( iSizeConfigFile, pConfigFile, ( void * ) this ) || !ParseConfigurationData( Type )  )
+				{
+					delete pMessage;
+					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to parse Orbiter data" );
+					Sleep( 5000 );  // Sleep a bit before re-attempting
+					m_bReload = true;
+					return;
+				}
+
+				delete pConfigFile;
 			}
 
-        //      PreloadObjects(  );
+			if(  !m_bLocalMode  )
+			{
+				PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, GetEvents(  )->m_pClientSocket->m_SocketMutex );  // Don't log anything but failures
+				string sResult = GetEvents(  )->SendReceiveString( "TIME" );
 
-        /*
-        if(  !m_bLocalMode  )
-        Event_Orbiter_Started( m_sMainMenu );
-        */
+				if(  sResult.length(  )>5  )
+				{
+					char *Buffer = new char[sResult.length(  )+1];
+					strcpy( Buffer,  sResult.c_str(  ) );
+					SetTime( Buffer );
+					delete [] Buffer;
+				}
+				sSM.Release(  );
+			}
 
-        DesignObj_OrbiterMap::iterator iHao=m_ScreenMap.begin(  );
-        if ( iHao==m_ScreenMap.end(  ) )
-        {
-            g_pPlutoLogger->Write( LV_CRITICAL, "No screens found." );
-            exit( 1 );
-        }
-        else
-        {
-            GotoScreen( m_sMainMenu );
-        }
+			if(NULL != m_pCacheImageManager)
+				if(!m_pCacheImageManager->VerifyCache(StringUtils::ltos((long)m_tGenerationTime)))
+				{
+					delete m_pCacheImageManager;
+					m_pCacheImageManager = NULL;
+				}
 
-        m_pLocationInfo_Initial=NULL;
-        for( DequeLocationInfo::iterator itLocations=m_dequeLocation.begin(  );itLocations!=m_dequeLocation.end(  );++itLocations )
-        {
-            class LocationInfo *pLocationInfo = *itLocations;
-g_pPlutoLogger->Write(LV_STATUS,"Checing room: %d ea %d against %d %d",pLocationInfo->PK_Room,pLocationInfo->PK_EntertainArea,iPK_Room,iPK_EntertainArea);
-			// If a room/ent area is passed in use that location instead of m_iLocation_Initial
-            if( (pLocationInfo->iLocation==m_iLocation_Initial && !m_pLocationInfo_Initial) ||
-				(pLocationInfo->PK_Room==iPK_Room && pLocationInfo->PK_EntertainArea==0) ||
-				(iPK_EntertainArea && pLocationInfo->PK_EntertainArea==iPK_EntertainArea) )
-            {
-g_pPlutoLogger->Write(LV_STATUS,"using location in size: %d",(int) m_dequeLocation.size());
-                m_pLocationInfo_Initial = pLocationInfo;
-            }
-        }
+				//      PreloadObjects(  );
 
-        if(  !m_pLocationInfo_Initial  )
-        {
-            g_pPlutoLogger->Write( LV_CRITICAL, "No initial Location" );
-            exit( 1 );
-        }
+				/*
+				if(  !m_bLocalMode  )
+				Event_Orbiter_Started( m_sMainMenu );
+				*/
 
+				DesignObj_OrbiterMap::iterator iHao=m_ScreenMap.begin(  );
+				if ( iHao==m_ScreenMap.end(  ) )
+				{
+					g_pPlutoLogger->Write( LV_CRITICAL, "No screens found." );
+					exit( 1 );
+				}
+				else
+				{
+					GotoScreen( m_sMainMenu );
+				}
+
+				m_pLocationInfo_Initial=NULL;
+				for( DequeLocationInfo::iterator itLocations=m_dequeLocation.begin(  );itLocations!=m_dequeLocation.end(  );++itLocations )
+				{
+					class LocationInfo *pLocationInfo = *itLocations;
+					g_pPlutoLogger->Write(LV_STATUS,"Checing room: %d ea %d against %d %d",pLocationInfo->PK_Room,pLocationInfo->PK_EntertainArea,iPK_Room,iPK_EntertainArea);
+					// If a room/ent area is passed in use that location instead of m_iLocation_Initial
+					if( (pLocationInfo->iLocation==m_iLocation_Initial && !m_pLocationInfo_Initial) ||
+						(pLocationInfo->PK_Room==iPK_Room && pLocationInfo->PK_EntertainArea==0) ||
+						(iPK_EntertainArea && pLocationInfo->PK_EntertainArea==iPK_EntertainArea) )
+					{
+						g_pPlutoLogger->Write(LV_STATUS,"using location in size: %d",(int) m_dequeLocation.size());
+						m_pLocationInfo_Initial = pLocationInfo;
+					}
+				}
+
+				if(  !m_pLocationInfo_Initial  )
+				{
+					g_pPlutoLogger->Write( LV_CRITICAL, "No initial Location" );
+					exit( 1 );
+				}
+		}
 		if( !m_pScreenHistory_Current )
 		{
-            g_pPlutoLogger->Write( LV_CRITICAL, "No initial screen" );
-            exit( 1 );
+			g_pPlutoLogger->Write( LV_CRITICAL, "No initial screen" );
+			exit( 1 );
 		}
 
-        m_pScreenHistory_Current->m_pLocationInfo = m_pLocationInfo_Initial;
-        m_pScreenHistory_Current->m_dwPK_Users = m_dwPK_Users_Default;
+		m_pScreenHistory_Current->m_pLocationInfo = m_pLocationInfo_Initial;
+		m_pScreenHistory_Current->m_dwPK_Users = m_dwPK_Users_Default;
 
-        DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pScreenHistory_Current->m_dwPK_Users );
-        SendCommand( CMD_Set_Current_User );
+		DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pScreenHistory_Current->m_dwPK_Users );
+		SendCommand( CMD_Set_Current_User );
 		DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(m_pLocationInfo_Initial->PK_EntertainArea) );
-        SendCommand( CMD_Set_Entertainment_Area );
-        DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pLocationInfo_Initial->PK_Room );
-        SendCommand( CMD_Set_Current_Room );
+		SendCommand( CMD_Set_Entertainment_Area );
+		DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pLocationInfo_Initial->PK_Room );
+		SendCommand( CMD_Set_Current_Room );
 		DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1" );
-        SendCommand( CMD_Orbiter_Registered );
+		SendCommand( CMD_Orbiter_Registered );
 
-        CMD_Display_OnOff( "1" );
-    }
+		CMD_Display_OnOff( "1" );
+	}
 }
 
 void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
@@ -4292,7 +4293,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
 		else
 		{
 			pScreenHistory->m_pLocationInfo = m_pScreenHistory_Current->m_pLocationInfo;
-	        NeedToChangeScreens( pScreenHistory, false );
+			NeedToRender::NeedToChangeScreens( pScreenHistory, false );
 		}
 	}
 }
@@ -4344,7 +4345,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
     if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==pObj_New  )
     {
         g_pPlutoLogger->Write( LV_STATUS, "Changing to same screen: %s", pObj_New->m_ObjectID.c_str(  ) );
-	    NeedToChangeScreens( m_pScreenHistory_Current, false );  // Don't add this to the history, just do the change
+	    NeedToRender::NeedToChangeScreens( m_pScreenHistory_Current, false );  // Don't add this to the history, just do the change
         return;
     }
 	*/
@@ -4365,7 +4366,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
     // See if we need to store the variables on this screen,  so we restore them in case of a go back
     if(  bStore_Variables  )
         CMD_Store_Variables(  );
-     NeedToChangeScreens( pScreenHistory_New );
+	NeedToRender::NeedToChangeScreens( pScreenHistory_New );
 }
 
 //<-dceag-c6-b->
@@ -5527,18 +5528,30 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 	CallMaintenanceInMiliseconds(CLOCKS_PER_SEC,&Orbiter::RealRedraw,NULL,true);
 }
 
+ScreenHistory *NeedToRender::m_pScreenHistory=NULL;
+bool NeedToRender::m_bAddToHistory=true;
+
 NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
 {
+/*
     if ( g_cLastTime && ( clock() - g_cLastTime ) > CLOCKS_PER_SEC * 3 && g_iDontRender )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Need to render has blocked!!!" );
         g_iDontRender=0;
     }
+*/
     m_pWhere = pWhere;
     m_pOrbiter = pOrbiter;
     g_cLastTime = clock();
     g_iDontRender++;
 }
+
+void NeedToRender::NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory )
+{
+	m_pScreenHistory = pScreenHistory;
+	m_bAddToHistory = bAddToHistory;
+}
+
 //<-dceag-c242-b->
 
 	/** @brief COMMAND: #242 - Set Now Playing */

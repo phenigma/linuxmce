@@ -1322,7 +1322,8 @@ class NeedToRender
 
 	class Orbiter *m_pOrbiter; /** <  */
 	const char *m_pWhere; /** <  */
-
+	static ScreenHistory *m_pScreenHistory;
+	static bool m_bAddToHistory;
 public:
 
 	/**
@@ -1336,14 +1337,21 @@ public:
 	~NeedToRender(  )
 	{
 		g_iDontRender--;
-		g_pPlutoLogger->Write( LV_STATUS, "Need To Render exit: %s m_dwIDontRender: %d", m_pWhere, g_iDontRender );
 		if ( g_iDontRender == 0 )
 		{
+			if( m_pScreenHistory )
+			{
+				ScreenHistory *pScreenHistory = m_pScreenHistory;
+				m_pScreenHistory=NULL;
+				m_pOrbiter->NeedToChangeScreens( pScreenHistory, m_bAddToHistory );
+			}
 			g_pPlutoLogger->Write( LV_STATUS, "calling redraw" );
 			m_pOrbiter->RedrawObjects();
 		}
 
 	}
+
+	static void NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory = true );
 };
 
 //<-dceag-end-b->
