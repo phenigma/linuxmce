@@ -191,6 +191,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
     WSACleanup();
 
+	delete g_pPlutoLogger;
+
 	return 0;
 }
 

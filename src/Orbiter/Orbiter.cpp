@@ -226,10 +226,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0" );
     SendCommand( CMD_Orbiter_Registered );
 
-
-//string dummy = "1255.0.0.1257.14";
-//DesignObj_Orbiter* pObjDummy = m_mapObj_All[dummy];
-
 	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
 	for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
 	{

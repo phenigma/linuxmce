@@ -136,6 +136,8 @@ int main(int argc, char* argv[])
         exit(0);
     }
 
+	g_pPlutoLogger = NULL;
+
     try
     {
         if( sLogger=="dcerouter" )
@@ -167,6 +169,7 @@ int main(int argc, char* argv[])
         char s[91];
         sprintf(s, "WSAStartup err %d", ec);
         cerr << s << endl;
+		delete g_pPlutoLogger;
         exit(1);
     }
 #endif
@@ -182,12 +185,14 @@ g_pPlutoLogger->Write(LV_STATUS, "StartOrbiter finished with reload: %s",(bReloa
     {
         cerr << "Caught exception: " << s << endl;
         Sleep(2000);
+		delete g_pPlutoLogger;
         exit(1);
     }
     catch(const char *s)
     {
         cerr << "Caught exception: " << s << endl;
         Sleep(2000);
+		delete g_pPlutoLogger;
         exit(1);
     }
 
@@ -195,6 +200,8 @@ g_pPlutoLogger->Write(LV_STATUS, "StartOrbiter finished with reload: %s",(bReloa
     WSACleanup();
 #endif
 g_pPlutoLogger->Write(LV_STATUS, "Orbiter ready to return and die");
+
+	delete g_pPlutoLogger;
 
 	if( bReload )
 		return 2;
