@@ -70,14 +70,16 @@ function wizard($output,$dbADO) {
 			      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 1 of 7: '.((!isset($_SESSION['installationDescription']))?'New Installation':'Update Installation').'</b></td>
 			      			</tr>
 							<tr>
-								<td colspan="2" class="normaltext">Pluto is a whole-house solution.  You can have several computers and other devices all working together as a single, whole-house solution.  We refer to a collection of equipment at a given location as an "Installation".  An installation usually refers to a particular home, or location.  If you have multiple homes, you should create an installation for each home and then "join" them together later.  Please type a name to refer to this installation, or location, you are creating, such as: 123 Main Street, or Beach House, etc.</td>
+								<td colspan="2" class="normaltext">Please pick a name for your new installation, like "123 Main Street" or "Beach House".  If you have multiple homes, you should create an installation for each home and then "join" them together later.</td>
 							</tr>
 			      	      	<tr>
 			      				<td align="right" valign="top" class="normaltext"><B>Name</B></td>
 								<td align="left" valign="top" class="normaltext"><input type="text" name="Description" value="'.@stripslashes($_SESSION['installationDescription']).'"> <input type="submit" name="submitBtn" value="Next"></td>
 			      			</tr>
 							<tr>
-								<td colspan="2" align="left" class="normaltext"><br>Following are the 3 pieces of computer equipment in a Pluto system which need software.  Please decide now what equipment you will use, since this wizard will need some information about your equipment.  The minimum is 1 computer that you can use as both your Core and Media Director.  However, Pluto is easier to use if you have Orbiters too.<br><br>
+								<td colspan="2" align="left" class="normaltext"><br>Pluto is a whole-house solution and, therefore, a bit different than "normal" software.  
+								Be sure to read the <a href="support/index.php?section=document&docID=1" target="_blank">Introduction to Pluto</a> before proceeding to understand your options.  It will explain the following
+								3 pieces of equipment, so you can decide if you want to run everything on 1 pc, or have separate devices.<br><br>
 									<B>1. The Core</B>, or server, which is the main brains of the system.  This is where all the data and configuration for your home are stored.<br><br>
 									<B>2. Any number of media directors</B>.  These are media pc’s hook up to your tv and stereo to provide media in a location.<br><br>
 									NOTE:   You need only 1 computer since the core can also be a media director, which we call a ‘hybrid’.  However, for a big installation with lots of media directors and orbiters, you really should have a dedicated, fail-safe core with lots of storage for the whole house.<br><br>
@@ -188,7 +190,10 @@ function wizard($output,$dbADO) {
 								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 3 of 7: Operating system</B></td>
 							</tr>
 							<tr>
-								<td colspan="2" align="left" class="normaltext">Note: At present Linux is the only supported platform for media playback.<br><br>
+								<td colspan="2" align="left" class="normaltext">The best solution is to use Pluto\'s Kick Start CD to make a dedicated Core, as explained in the <a href="support/index.php?section=document&docID=1" target="_blank">Introduction to Pluto</a>. &nbsp;&nbsp; <a href="support/index.php?section=document&docID=145" target="_blank">What are the benefits?</a><br><br>
+								If you will have a dedicated Core, you can ignore everything on this page since you will not need to install any software.  Also, you will be able to use "Network Boot" 
+								for the Media Directors, so you will not need to install any software on them either.<br><br>
+								If you do not want a dedicate Core, or do not want your Media Directors to do a network boot, please review your options on the chart below.<br><br>Note: At present Linux is the only supported platform for media playback.<br><br>
 								You have chosen the <b>'.@$_SESSION['version'].'</b> version of the software.  Here are the operating systems that this version supports for your Core, Media Directors and Orbiters.  Note which installation options are available for each platform, as described below.
 								On the next page you will be asked to choose what operating system/distro you want to use.  If "Confirmed" is not checked, then it <b>should</b> work with minimal effort, but has not been tested:
 								</td>
@@ -399,9 +404,8 @@ function wizard($output,$dbADO) {
 								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 4 of 7: Pluto Core</B></td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2" align="left">Tell me about the computer you’ll use as the core.  Just choose "Generic PC" if we don’t yet have your specific model listed.  Pluto’s in-house developers and testers use Linux/Debian Sarge.  
-								<b>At the moment, we have only tested with the single computer, hybrid configuration.  We recommend you check the \'Hybrid\' box 
-								and just use the same computer for both the server and media play back for now.</b><br>&nbsp;<br></td>
+								<td colspan="2" align="left">Tell me about the computer you’ll use as the core.  Just choose "Generic PC" if we don’t yet have your specific model listed.<br><br>  
+								If you\'re going to use the Kick-Start CD or use a dedicated Core, choose "Debian Sarge / Linux" for the platform.  Normally you should check the "Enable DHCP" box.&nbsp;&nbsp;  If you will use the same computer as both the Core and Media Director also check the "Hybrid" box.<br><br></td>
 							</tr>
 							<tr class="normaltext">
 								<td width="350">&nbsp;&nbsp;&nbsp;&nbsp;First, what type of computer is it?</td>
@@ -415,7 +419,7 @@ function wizard($output,$dbADO) {
 					$out.='		</td>
 							</tr>
 							<tr class="normaltext">
-								<td>&nbsp;&nbsp;&nbsp;&nbsp;In what room?</td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;In what room will you put it?</td>
 								<td><input type="text" name="coreRoom" value="'.@$roomName.'" onkeypress="check_if_enter();"></td>
 							</tr>									
 							<tr class="normaltext">
@@ -463,12 +467,12 @@ function wizard($output,$dbADO) {
 							</tr>
 							<tr class="normaltext">
 								<td colspan="2"><input type="checkbox" name="enableDHCP" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.((@$_SESSION['EnableDHCP']==1)?'checked':'').' onClick="enableDHCPElements();"><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Enable DHCP.  Base IP Address</b> <input type="text" name="ip_1" size="3" value="'.((isset($ipPartsArray[0]))?$ipPartsArray[0]:'192').'" '.((@$_SESSION['EnableDHCP']!=1)?'disabled':'').'>.<input type="text" name="ip_2" size="3" value="'.((isset($ipPartsArray[1]))?$ipPartsArray[1]:'168').'" '.((@$_SESSION['EnableDHCP']!=1)?'disabled':'').'>.<input type="text" name="ip_3" size="3" value="'.((isset($ipPartsArray[2]))?$ipPartsArray[2]:'1').'" '.((@$_SESSION['EnableDHCP']!=1)?'disabled':'').'>.x</span>  
-								<br><b>Note:</b>  If you want to use diskless media directors (step 5), or if you want Pluto to auto-configure your devices, you will need to check this box to enable DHCP.  Your Pluto Core can co-exist with your existing DHCP server if you leave the next option checked.  <a href="/support/index.php?section=document&docID=138" target="_blank">explain this</a>  All your Pluto devices will be given an IP address that starts with the 3 numbers above.  The Core will end with .1</td>
+								<br><b>Note:</b>  If you want media directors with <a href="support/index.php?section=document&docID=144" target="_blank">Network Boot</a> (step 5), or if you want Pluto to auto-configure your devices, you will need to check this box to enable DHCP.  Your Pluto Core can co-exist with your existing DHCP server if you leave the next option checked.  <a href="/support/index.php?section=document&docID=138" target="_blank">explain this</a>  All your Pluto devices will be given an IP address that starts with the 3 numbers above.  The Core will end with .1</td>
 							</tr>					
 							<tr class="normaltext">
 								<td colspan="2"><input type="checkbox" name="plutoOnlyIP" value="1" '.((!isset($_SESSION['deviceID']) || @$_SESSION['EnableDHCP']!=1)?'disabled':'').' '.((@$_SESSION['plutoOnlyIP']==1)?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Provide IP\'s only to Pluto equipment</b></span>  
 								This means your Pluto Core will only provide IP addresses to the media directors and other Pluto devices with a MAC Address in your Core\'s database.  
-								If you already have a router that is giving out IP addresses (ie a DHCP server), leave this option checked and the Pluto Core will not interfere with it, or any of your existing computer.
+								If this box is checked, you will not be able to use plug-and-play.  Plug-and-play only works when Pluto is able to give out IP addresses to all the devices in your home.  However, if you already have a router that is giving out IP addresses (ie a DHCP server) and do not want to or know how to disable it, leave this option checked and the Pluto Core will not interfere with it.  However, if you have another DHCP server, you will need to tell it NOT to try to give IP addresses to the Pluto Media Directors, or else network boot may be unpredictable.
 								If you want the Pluto Core to be your primary DHCP server, uncheck the box. <a href="/support/index.php?section=document&docID=138" target="_blank">networking issues explained</a></td>
 							</tr>					
 							<tr class="normaltext">
@@ -763,7 +767,9 @@ function wizard($output,$dbADO) {
 								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 5 of 7: Media Directors</B></td>
 							</tr>
 							<tr>
-								<td colspan="2" align="left" class="normaltext">Here are the media directors in this installation that will connect to your Core.  You can add more by filling in the \'Add a Media Director\' section.  Be sure to give them descriptive names like \'Master Bedroom\'.</td>
+								<td colspan="2" align="left" class="normaltext">Here are the media directors in this installation that will connect to your Core.  You can add more by filling in the \'Add a Media Director\' section.  Be sure to give them descriptive names like \'Master Bedroom\'.<br><br>
+								The simplest way to have a Media Director is with Network Boot.  If you use a Network Boot then you won\'t need to install any software on the Media Director.  Just choose the Platform "Debian Sarge / Linux" and check the Network Boot box. 
+								<a href="support/index.php?section=document&docID=144" target="_blank">Explain this</a></td>
 							</tr>
 							<tr>
 								<td colspan="2">
@@ -774,7 +780,7 @@ function wizard($output,$dbADO) {
 										<td><B>Type</B></td>
 										<td><B>Platform</B></td>
 										<td><B>Install source code</B></td>
-										<td><B>Diskless boot</B></td>
+										<td><B>Network boot</B></td>
 										<td>&nbsp;</td>
 									</tr>';
 					$queryMediaDirectors='
@@ -869,11 +875,11 @@ function wizard($output,$dbADO) {
 							</tr>
 							<tr class="normaltext">
 								<td>Name</td>
-								<td><input type="text" name="Description" value="'.@$_POST['Description'].'"></td>
+								<td><input type="text" name="Description" value="'.@$_POST['Description'].'"> "Joe\'s PC", "Aluminum HTPC", etc.</td>
 							</tr>
 							<tr class="normaltext">
 								<td>Room</td>
-								<td><input type="text" name="mdRoom" value="'.@stripslashes($_POST['mdRoom']).'"></td>
+								<td><input type="text" name="mdRoom" value="'.@stripslashes($_POST['mdRoom']).'"> "Master bedroom", "Family room", etc.</td>
 							</tr>					
 							<tr class="normaltext">
 								<td>Type</td>
@@ -882,7 +888,7 @@ function wizard($output,$dbADO) {
 								foreach ($deviceTemplateIdArray as $key => $value){
 									$out.='<option value="'.$value.'" '.(($value==@$_POST['newType'])?'selected':'').'>'.$deviceTemplateDescriptionArray[$key].'</option>';
 								}
-								$out.='	</select></td>
+								$out.='	</select> "Generic PC" if your model isn\'t listed</td>
 							</tr>
 							<tr class="normaltext">
 								<td>Platform</td>
@@ -893,22 +899,20 @@ function wizard($output,$dbADO) {
 										$out.='<option value="'.$value.'" '.(($value==@$_POST['newPlatform'])?'selected':'').'>'.$distroDescriptionArray[$key].'</option>';
 									}
 								}
-								$out.='</select></td>
+								$out.='</select> Normally Debian Sarge / Linux</td>
 							</tr>
 							<tr class="normaltext">
 								<td>Install Source Code</td>
-								<td><input type="checkbox" name="installSourceCode" value="1" '.((@$_POST['installSourceCode']==1)?'checked':'').'></td>
+								<td><input type="checkbox" name="installSourceCode" value="1" '.((@$_POST['installSourceCode']==1)?'checked':'').'> Only needed if you\'re a developer</td>
 							</tr>
 							<tr class="normaltext">
-								<td>Diskless boot</td>
-								<td><input type="checkbox" name="disklessBoot_" value="1" '.((@$_POST['disklessBoot_']==1)?'checked':'').' onClick="showMAC(\'\');"> <span id="MACBox_" name="MACBox_" style="display:'.((@$_POST['disklessBoot_']==1)?'':'none').'">MAC Address: <input type="text" name="mdMAC" value=""></span></td>
+								<td>Network boot</td>
+								<td><input type="checkbox" name="disklessBoot_" value="1" '.((@$_POST['disklessBoot_']==1)?'checked':'').' onClick="showMAC(\'\');"> <span id="MACBox_" name="MACBox_" style="display:'.((@$_POST['disklessBoot_']==1)?'':'none').'">MAC Address <a href="support/index.php?section=document&docID=144" target="_blank">what\'s this?</a>: <input type="text" name="mdMAC" value=""></span>  Requires Debian Sarge / Linux Platform</td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2">Diskless, or network boot, means the media director does not need a hard drive.  It will boot off an image stored on the core.  
-								You can have a hard drive in it anyway and use it to boot another operating system.  
-								Then just press a button on the Pluto Orbiter to switch a media director between a network boot as a Pluto system, 
-								and a normal boot on the hard drive.  <b>Note</b>:  To do a network boot, you must (a) have a computer that supports it, (b) enable network boot in the BIOS settings,
-								 and (c) specify the MAC Address in the box above in the format aa:bb:cc:dd:ee:ff  <a href="/support/index.php?section=document&docID=138" target="_blank">explain this</a></td>
+								<td colspan="2">Network boot, aka diskless boot, means the media director does not need a hard drive.  It will boot off the hard drive on the core.  If it has a local hard drive, 
+								the Pluto Orbiter will let you toggle between booting off the Core as a Media Director, and booting of the harddrive as a normal PC like you do now.
+								<a href="support/index.php?section=document&docID=144" target="_blank">Explain network boot</a>&nbsp;&nbsp;&nbsp;<a href="/support/index.php?section=document&docID=138" target="_blank">explain networking and DHCP</a></td>
 							</tr>';
 					if(isset($_POST['newPlatform']))
 						$out.='<tr class="normaltext">
@@ -1252,7 +1256,7 @@ function wizard($output,$dbADO) {
 							</tr>
 							<tr class="normaltext">
 								<td>Name</td>
-								<td><input type="text" name="Description" value="'.@$_POST['Description'].'"></td>
+								<td><input type="text" name="Description" value="'.@$_POST['Description'].'"> "Susan\'s PDA", "Silver webpad", etc.</td>
 							</tr>
 							<tr class="normaltext">
 								<td>Type</td>
@@ -1261,7 +1265,7 @@ function wizard($output,$dbADO) {
 								foreach ($deviceTemplateIdArray as $key => $value){
 									$out.='<option value="'.$value.'" '.(($value==@$_POST['newType'])?'selected':'').'>'.$deviceTemplateDescriptionArray[$key].'</option>';
 								}
-								$out.='	</select></td>
+								$out.='	</select>"Orbiter" for web pad\'s and PDA\'s, or choose a model of phone</td>
 							</tr>
 							<tr class="normaltext">
 								<td>Platform</td>
@@ -1270,11 +1274,11 @@ function wizard($output,$dbADO) {
 								foreach ($distroIdArray as $key => $value){
 									$out.='<option value="'.$value.'" '.(($value==@$_POST['newPlatform'])?'selected':'').'>'.$distroDescriptionArray[$key].'</option>';
 								}
-								$out.='</select></td>
+								$out.='</select>Most PDA\'s are Windows CE, most phones are Symbian</td>
 							</tr>
 							<tr class="normaltext">
 								<td>Install Source Code</td>
-								<td><input type="checkbox" name="installSourceCode" value="1" '.((@$_POST['installSourceCode']==1)?'checked':'').'></td>
+								<td><input type="checkbox" name="installSourceCode" value="1" '.((@$_POST['installSourceCode']==1)?'checked':'').'> (it will be installed on the Core)</td>
 							</tr>';
 					if(isset($_POST['newPlatform']) && $_POST['newPlatform']!='0')
 						$out.='<tr>
@@ -1303,12 +1307,12 @@ function wizard($output,$dbADO) {
 					$FK_DeviceTemplate=$_POST['newType'];
 					$FK_Distro=$_POST['newPlatform'];
 					$installSourceCode=(isset($_POST['installSourceCode']))?$_POST['installSourceCode']:0;
-					$diskless=(isset($_POST['disklessBoot']))?$_POST['disklessBoot']:0;
 
 					$insertDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation) VALUES (?,?,?)';
 					$dbADO->Execute($insertDevice,array($description,$FK_DeviceTemplate,$_SESSION['installationID']));
 					$insertID=$dbADO->Insert_ID();
 					InheritDeviceData($FK_DeviceTemplate,$insertID,$dbADO);
+					InheritCategoryDeviceData($FK_DeviceTemplate,$insertID,$dbADO);
 					createChildsForControledViaDeviceTemplate($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO,NULL,NULL);
 					createChildsForControledViaDeviceCategory($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO,NULL,NULL);
 
@@ -1326,18 +1330,16 @@ function wizard($output,$dbADO) {
 						}
 					}
 
-					$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device,FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
-					$dbADO->Execute($insertDeviceDeviceData,array($insertID,$GLOBALS['rootPK_Distro'],$FK_Distro));
+					$updateDeviceDeviceData='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
+					$dbADO->Execute($updateDeviceDeviceData,array($FK_Distro,$insertID,$GLOBALS['rootPK_Distro']));
 					
 					if($installSourceCode!=0){
-						$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device,FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
-						$dbADO->Execute($insertDeviceDeviceData,array($insertID,$GLOBALS['rootDevelopment'],1));
+						$updateDeviceDeviceData='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
+						$dbADO->Execute($updateDeviceDeviceData,array(1,$insertID,$GLOBALS['rootDevelopment']));
+					}else{
+						$dbADO->Execute('DELETE FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?',array($insertID,$GLOBALS['rootDevelopment']));
 					}
 
-					if($diskless!=0){
-						$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device,FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
-						$dbADO->Execute($insertDeviceDeviceData,array($insertID,$GLOBALS['rootDisklessBoot'],1));
-					}
 				}
 				header("Location: index.php?section=wizard&step=6");
 
@@ -1477,10 +1479,11 @@ function wizard($output,$dbADO) {
 			      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 7 of 7: Download</b></td>
 			      			</tr>
 							<tr class="normaltext">
-								<td colspan="2" align="left">You finished the wizard!  All the settings you made have been saved into a database so your system can install and configure itself automatically.  You can go back to a prior page to change options and return to this page at any time.<br><br></td>
+								<td colspan="2" align="left">You finished the wizard!  All the settings you made have been saved into a database so your system can install and configure itself automatically.  You can go back to a prior page to change options and return to this page at any time.  
+								Once your system is up and running, you will make all future changes on the Pluto Admin web site that gets installed on your Core.  The settings you chose here are only used when you are installing the software, and have no effect once the software is already installed.<br><br></td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2" align="left"><b>Your activation code is: '.$_SESSION['ActivationCode'].'</b><br>If you install from the kick-start CD you will be asked to enter the activation code and device number of the computer you are installing.  This will be used to lookup at plutohome.com the configuration settings you just made so the CD can configure your system automatically.  You can use the same Kick-start CD on different computers.  Just be sure to correctly specify the device for each computer you use it on.</td>
+								<td colspan="2" align="left"><b>Your activation code is: '.$_SESSION['ActivationCode'].'</b> &nbsp;&nbsp;&nbsp; You will be asked for this during installation.<br><br>During installation you will be asked for the activation code, and the device ID listed below.  This will be used to lookup the configuration at plutohome.com.  You can use the same Kick-start CD on different computers.  Just be sure to correctly specify the device for each computer you use it on.</td>
 							</tr>
 							<tr class="normaltext">
 								<td colspan="2" align="left">&nbsp;</td>
@@ -1489,7 +1492,7 @@ function wizard($output,$dbADO) {
 								<td colspan="2" align="left">
 								<table>
 								<tr class="normaltext" bgcolor="DADDE4">
-									<td>Ignore the following question if you don’t understand it:<br>If you get source code, what is the preferred method that the install script should try first before trying other methods?</td>
+									<td>Ignore the following question if you don’t understand it or don’t need source code:<br>If you get source code, how should the the install program fetch it?  SVN is preferred.</td>
 								</tr>
 								<tr class="normaltext" bgcolor="DADDE4">
 									<td align="center">
@@ -1629,6 +1632,9 @@ function wizard($output,$dbADO) {
 							<tr class="normaltext">
 								<td valign="top"><br><b>Orbiters:</b></td>
 								<td></td>
+							<tr>
+							<tr class="normaltext">
+								<td valign="top" colspan="2">The software for your Orbiters will be put on the Core.  Once your Core is up and running, just open a web browser on the Orbiter and go the Pluto Admin web site, which is hosted on the Core.  There will be links to the software.  You can also get it from the download section of Pluto\'s <a href="support/index.php">support website</a></td>
 							<tr>';
 					$validOrbiters = getValidOrbitersArray($installationID,$dbADO);
 					$queryOrbiters='
@@ -1672,47 +1678,11 @@ function wizard($output,$dbADO) {
 								<td valign="top"><b>Name: '.$rowOrbiters['Description'].' Type: '.$rowOrbiters['Type'].' Platform: '.$rowDDD['Platform'].' '.$rowDDD['OS'].'</b></td>
 								<td>Device #: <b>'.$rowOrbiters['PK_Device'].'</b></td>
 							</tr>';
-						if( $rowDDD['FK_DeviceCategory']==2 )
-						{
-							$out .= '<tr><td>The software for the mobile orbiters is installed automatically.</td></tr>';
-						}
-						else
-						{
-							$out .= '
-							<tr class="normaltext">
-								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowOrbiters['PK_Device'].'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">List of all the software this device will need.</a></td>
-							</tr>
-							<tr class="normaltext">
-								<td valign="top" colspan="2"><table width="75%" align="center">
-									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">- Kick-start CD</span>':'- <a href="'.$rowDDD['KickStartCD'].'" target="_blank">Kick-start CD</a>').'</td>
-										<td>'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">Not available for '.$DistroNameOS.'</span>':'An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS).'</td>
-									</tr>
-									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\''.$InstallerURL.'?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
-										<td>'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">Not available for '.$rowDDD['Platform'].'</span>':'A script for '.$DistroNameOS.' that will install all the software automatically.').'</td>
-									</tr>
-									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">Custom Wrapper for '.$rowMediaDirectors['Description'].'</a></td>
-										<td>For you to write your own install script for '.$DistroNameOS.'.  You can use our 50-line Debian bash script as a template.</td>
-									</tr>
-									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">- <a href="support/index.php?section=mainDownload" target="_blank">Download page</a></td>
-										<td>Just take me to Pluto’s main download page.  I’ll get everything in the list manually.</td>
-									</tr>				
-									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">- <a href="/support/index.php?section=document&docID=101" target="_blank">Source Code</a></td>
-										<td>Tell me how to get the source code.</td>
-									</tr>				
-								</table>
-				 				</td>
-							</tr>
-								';
-						}
 					}
 					$out.='
-							
+						
 						</table>
+						<br><br>
 					</form>
 			      	';
 				

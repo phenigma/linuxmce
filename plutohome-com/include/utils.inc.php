@@ -335,6 +335,34 @@ function InheritDeviceData($masterDeviceID,$insertID,$dbADO)
 	}
 }
 
+function InheritCategoryDeviceData($masterDeviceID,$insertID,$dbADO)
+{
+	$getDeviceCategoryDeviceData='
+	INSERT INTO Device_DeviceData
+		(FK_Device, FK_DeviceData, IK_DeviceData)
+	SELECT 
+		PK_Device, DeviceCategory_DeviceData.FK_DeviceData, DeviceCategory_DeviceData.IK_DeviceData
+	FROM Device
+		INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+		INNER JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=DeviceTemplate.FK_DeviceCategory
+		LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceCategory_DeviceData.FK_DeviceData
+	WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=?';
+	$dbADO->Execute($getDeviceCategoryDeviceData,$insertID);
+
+	$getParentCategoryDeviceData='
+		INSERT INTO Device_DeviceData
+			(FK_Device, FK_DeviceData, IK_DeviceData)
+		SELECT 
+			PK_Device, DeviceCategory_DeviceData.FK_DeviceData, DeviceCategory_DeviceData.IK_DeviceData
+		FROM Device
+			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory
+			INNER JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=DeviceCategory.FK_DeviceCategory_Parent
+			LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceCategory_DeviceData.FK_DeviceData
+		WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=?';
+	$dbADO->Execute($getParentCategoryDeviceData,$insertID);
+}
+
 function createChildsForDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO,$roomID,$entertainAreaID)
 {
 	$queryDeviceTemplate='SELECT Description FROM DeviceTemplate WHERE PK_DeviceTemplate=?';
