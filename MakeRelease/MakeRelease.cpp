@@ -379,6 +379,7 @@ bool CreateSources(Row_Package *pRow_Package)
 	vector<Row_Package_Source *> vectRow_Package_Source_All;
 	string::size_type pos=0;
 	string sPK_RepositorySource;
+cout << g_sPK_RepositorySource << endl;	
 	while( (sPK_RepositorySource=StringUtils::Tokenize(g_sPK_RepositorySource,",",pos)).length() )
 	{
 		vector<Row_Package_Source *> vectRow_Package_Source;
@@ -393,6 +394,7 @@ bool CreateSources(Row_Package *pRow_Package)
 			continue;
 		}
 
+cout << "sources: " << vectRow_Package_Source.size() << endl;	
 		for(size_t s=0;s<vectRow_Package_Source.size();++s)
 		{
 			Row_Package_Source *pRow_Package_Source = vectRow_Package_Source[s];
@@ -416,10 +418,16 @@ bool CreateSources(Row_Package *pRow_Package)
 	if( pRow_Package->IsSource_get() )
 	{
 		if( !GetSourceFilesToMove(pRow_Package,listFileInfo) )
+		{
+			cout << "GetSourceFilesToMove failed" << endl;
 			return false;
+		}
 	}
 	else if( !GetNonSourceFilesToMove(pRow_Package,listFileInfo) )
+	{
+		cout << "GetNonSourceFilesToMove failed" << endl;
 		return false;
+	}
 
 	cout << "Found: " << listFileInfo.size() << " files" << endl;
 
@@ -446,6 +454,8 @@ bool CreateSources(Row_Package *pRow_Package)
 			return false;
 		}
 	}
+
+	cout << "Ready to create: " << vectRow_Package_Source_All.size() << " packages" << endl;
 
 	for(size_t s=0;s<vectRow_Package_Source_All.size();++s)
 	{

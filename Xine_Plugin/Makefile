@@ -29,6 +29,8 @@ sources += \
 	../Media_Plugin/MediaHandlerBase.cpp \
 	../Media_Plugin/Media_Plugin.cpp \
 	../Media_Plugin/MediaAttributes.cpp \
+	../Media_Plugin/MediaStream.cpp \
+	../Media_Plugin/BoundRemote.cpp \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
 	../File_Grids_Plugin/FileListGrid.cpp
 

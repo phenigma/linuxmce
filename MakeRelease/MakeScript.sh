@@ -1,5 +1,7 @@
 #!/bin/bash
-version=1
+Q="select PK_Version from Version ORDER BY date desc,PK_Version limit 1"
+version=$(echo "$Q;" | mysql -N pluto_main)
+
 if [ $version -eq 1 ]; then
 	O1="UPDATE Version SET VersionName='$(date +%g%m%d%H)' WHERE PK_Version=$version;"
 	echo $O1 | mysql pluto_main
@@ -25,7 +27,16 @@ echo MakeRelease -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -R $svninfo
 if ! MakeRelease -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -R $svninfo -v $version > /home/MakeRelease/MakeRelease.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	read
-else
+	exit
+fi
+
+echo MakeRelease -o 7 -n /var/www/WinMakeRelease_output -s /var/www/WinMakeRelease_output/ -r 10 -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,290 > /home/MakeRelease/Command2
+if ! MakeRelease -o 7 -n /var/www/WinMakeRelease_output -s /var/www/WinMakeRelease_output/ -r 10 -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,290 > /home/MakeRelease/MakeRelease2.log ; then
+	echo "MakeRelease Failed.  Press any key"
+	read
+	exit
+fi
+
 	cd /home/tmp/pluto-build/
 	./propagate.sh
 	(cd /home/Pluto-D-i; ./go cache; cp DSP.iso /var/www/download/cds/pldebsrg.iso)
@@ -46,9 +57,9 @@ else
 
 		sh -x /var/www/DumpVersionPackage.sh
 		scp dumpvp.tar.gz problems@69.25.176.44:~/
+		ech "update Version SET Date='20$(date +%g-%m-%d)' WHERE PK_Version=1" | mysql pluto_main
 
 		echo "Sent to server."
 	fi
 	echo "Everything okay.  Press any key"
 	read
-fi
