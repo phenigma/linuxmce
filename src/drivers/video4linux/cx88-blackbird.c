@@ -243,15 +243,7 @@ const int CX8800_CTLS = ARRAY_SIZE(cx8800_ctls);
 #define IVTV_CMD_HW_BLOCKS_RST 0xFFFFFFFF
 
 /*Firmware API commands*/
-#define IVTV_API_STD_TIMEOUT 0x00010000 /*units??*/
-
-#define IVTV_API_ASSIGN_FRAME_DROP_RATE 0x000000d0
-#define IVTV_API_ASSIGN_PLACEHOLDER 0x000000d8
-#define IVTV_API_MUTE_VIDEO 0x000000d9
-#define IVTV_API_MUTE_AUDIO 0x000000da
-#define IVTV_API_INITIALIZE_INPUT 0x000000cd
-#define IVTV_API_REFRESH_INPUT 0x000000d3
-#define IVTV_API_ASSIGN_NUM_VSYNC_LINES 0x000000d6
+#define IVTV_API_STD_TIMEOUT 0x00010000 /*65536, units??*/
 
 #define BLACKBIRD_API_PING               0x80
 #define BLACKBIRD_API_BEGIN_CAPTURE      0x81
@@ -454,6 +446,99 @@ enum blackbird_gop_closure {
 	BLACKBIRD_GOP_CLOSURE_OFF,
 	BLACKBIRD_GOP_CLOSURE_ON,
 };
+#define BLACKBIRD_API_DATA_XFER_STATUS   0xC6
+enum blackbird_data_xfer_status {
+	BLACKBIRD_MORE_BUFFERS_FOLLOW,
+	BLACKBIRD_LAST_BUFFER,
+};
+#define BLACKBIRD_API_PROGRAM_INDEX_INFO 0xC7
+enum blackbird_picture_mask {
+	BLACKBIRD_PICTURE_MASK_NONE,
+	BLACKBIRD_PICTURE_MASK_I_FRAMES,
+	BLACKBIRD_PICTURE_MASK_I_P_FRAMES = 0x3,
+	BLACKBIRD_PICTURE_MASK_ALL_FRAMES = 0x7,
+};
+#define BLACKBIRD_API_SET_VBI_PARAMS     0xC8
+enum blackbird_vbi_mode_bits {
+	BLACKBIRD_VBI_BITS_SLICED,
+	BLACKBIRD_VBI_BITS_RAW,
+};
+enum blackbird_vbi_insertion_bits {
+	BLACKBIRD_VBI_BITS_INSERT_IN_XTENSION_USR_DATA,
+	BLACKBIRD_VBI_BITS_INSERT_IN_PRIVATE_PACKETS = 0x1 << 1,
+	BLACKBIRD_VBI_BITS_SEPARATE_STREAM = 0x2 << 1,
+	BLACKBIRD_VBI_BITS_SEPARATE_STREAM_USR_DATA = 0x4 << 1,
+	BLACKBIRD_VBI_BITS_SEPARATE_STREAM_PRV_DATA = 0x5 << 1,
+};
+#define BLACKBIRD_API_SET_DMA_BLOCK_SIZE 0xC9
+enum blackbird_dma_unit {
+	BLACKBIRD_DMA_BYTES,
+	BLACKBIRD_DMA_FRAMES,
+};
+#define BLACKBIRD_API_DMA_TRANSFER_INFO  0xCA
+#define BLACKBIRD_API_DMA_TRANSFER_STAT  0xCB
+enum blackbird_dma_transfer_status_bits {
+	BLACKBIRD_DMA_TRANSFER_BITS_DONE = 0x01,
+	BLACKBIRD_DMA_TRANSFER_BITS_ERROR = 0x04,
+	BLACKBIRD_DMA_TRANSFER_BITS_LL_ERROR = 0x10,
+};
+#define BLACKBIRD_API_SET_DMA2HOST_ADDR  0xCC
+#define BLACKBIRD_API_INIT_VIDEO_INPUT   0xCD
+#define BLACKBIRD_API_SET_FRAMESKIP      0xD0
+#define BLACKBIRD_API_PAUSE              0xD2
+enum blackbird_pause {
+	BLACKBIRD_PAUSE_ENCODING,
+	BLACKBIRD_RESUME_ENCODING,
+};
+#define BLACKBIRD_API_REFRESH_INPUT      0xD3
+#define BLACKBIRD_API_SET_COPYRIGHT      0xD4
+enum blackbird_copyright {
+	BLACKBIRD_COPYRIGHT_OFF,
+	BLACKBIRD_COPYRIGHT_ON,
+};
+#define BLACKBIRD_API_SET_NOTIFICATION   0xD5
+enum blackbird_notification_type {
+	BLACKBIRD_NOTIFICATION_REFRESH,
+};
+enum blackbird_notification_status {
+	BLACKBIRD_NOTIFICATION_OFF,
+	BLACKBIRD_NOTIFICATION_ON,
+};
+enum blackbird_notification_mailbox {
+	BLACKBIRD_NOTIFICATION_NO_MAILBOX = -1,
+};
+#define BLACKBIRD_API_SET_CAPTURE_LINES  0xD6
+enum blackbird_field1_lines {
+	BLACKBIRD_FIELD1_SAA7114 = 0x00EF, /* 239 */
+	BLACKBIRD_FIELD1_SAA7115 = 0x00F0, /* 240 */
+	BLACKBIRD_FIELD1_MICRONAS = 0x0105, /* 261 */
+};
+enum blackbird_field2_lines {
+	BLACKBIRD_FIELD2_SAA7114 = 0x00EF, /* 239 */
+	BLACKBIRD_FIELD2_SAA7115 = 0x00F0, /* 240 */
+	BLACKBIRD_FIELD2_MICRONAS = 0x0106, /* 262 */
+};
+#define BLACKBIRD_API_SET_CUSTOM_DATA    0xD7
+enum blackbird_custom_data_type {
+	BLACKBIRD_CUSTOM_EXTENSION_USR_DATA,
+	BLACKBIRD_CUSTOM_PRIVATE_PACKET,
+};
+#define BLACKBIRD_API_MUTE_VIDEO         0xD9
+enum blackbird_mute {
+	BLACKBIRD_UNMUTE,
+	BLACKBIRD_MUTE,
+};
+enum blackbird_mute_video_mask {
+	BLACKBIRD_MUTE_VIDEO_V_MASK = 0x0000FF00,
+	BLACKBIRD_MUTE_VIDEO_U_MASK = 0x00FF0000,
+	BLACKBIRD_MUTE_VIDEO_Y_MASK = 0xFF000000,
+};
+enum blackbird_mute_video_shift {
+	BLACKBIRD_MUTE_VIDEO_V_SHIFT = 8,
+	BLACKBIRD_MUTE_VIDEO_U_SHIFT = 16,
+	BLACKBIRD_MUTE_VIDEO_Y_SHIFT = 24,
+};
+#define BLACKBIRD_API_MUTE_AUDIO         0xDA
 
 /* Registers */
 #define IVTV_REG_ENC_SDRAM_REFRESH (0x07F8 /*| IVTV_REG_OFFSET*/)
@@ -911,17 +996,25 @@ static int blackbird_initialize_codec(struct cx8802_dev *dev)
 	msleep(1);
 
 	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0xef, 0xef);
-	blackbird_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0xf0, 0xf0);
+	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0xf0, 0xf0);
 	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0x180, 0x180);
-	blackbird_api_cmd(dev, IVTV_API_ASSIGN_PLACEHOLDER, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	blackbird_api_cmd(dev, BLACKBIRD_API_SET_CAPTURE_LINES, 2, 0,
+			BLACKBIRD_FIELD1_SAA7115,
+			BLACKBIRD_FIELD1_SAA7115
+		);
 
-	blackbird_api_cmd(dev, IVTV_API_INITIALIZE_INPUT, 0, 0); /* initialize the video input */
+	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_PLACEHOLDER, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	blackbird_api_cmd(dev, BLACKBIRD_API_SET_CUSTOM_DATA, 12, 0,
+			BLACKBIRD_CUSTOM_EXTENSION_USR_DATA,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+	blackbird_api_cmd(dev, BLACKBIRD_API_INIT_VIDEO_INPUT, 0, 0); /* initialize the video input */
 
 	msleep(1);
 
-	blackbird_api_cmd(dev, IVTV_API_MUTE_VIDEO, 1, 0, 0);
+	blackbird_api_cmd(dev, BLACKBIRD_API_MUTE_VIDEO, 1, 0, BLACKBIRD_UNMUTE);
 	msleep(1);
-	blackbird_api_cmd(dev, IVTV_API_MUTE_AUDIO, 1, 0, 0);
+	blackbird_api_cmd(dev, BLACKBIRD_API_MUTE_AUDIO, 1, 0, BLACKBIRD_UNMUTE);
 	msleep(1);
 
 	//blackbird_api_cmd(dev, BLACKBIRD_API_BEGIN_CAPTURE, 2, 0, 0, 0x13); /* start capturing to the host interface */
@@ -931,7 +1024,7 @@ static int blackbird_initialize_codec(struct cx8802_dev *dev)
 		); /* start capturing to the host interface */
 	msleep(10);
 
-	blackbird_api_cmd(dev, IVTV_API_REFRESH_INPUT, 0,0);
+	blackbird_api_cmd(dev, BLACKBIRD_API_REFRESH_INPUT, 0,0);
 	return 0;
 }
 
