@@ -247,7 +247,7 @@ void FileUtils::MakeDir(string sDirectory)
 #endif
 }
 
-void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV)
+void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse,string PrependedPath)
 {
     if( !StringUtils::EndsWith(sDirectory,"/") )
         sDirectory += "/";
@@ -271,11 +271,15 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
                     break;
                 if (s == ".*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )
                 {
-                    listFiles.push_back(finddata.name);
+                    listFiles.push_back(PrependedPath + finddata.name);
                     break;
                 }
             }
         }
+        else if (bRecurse && finddata.attrib == _A_SUBDIR && finddata.name[0] != '.')
+		{
+			FindFiles(listFiles,sDirectory + finddata.name,sFileSpec_CSV,true,PrependedPath + finddata.name + "/");
+		}
         if (_findnext(ptrFileList, & finddata) < 0)
             break;
     }
@@ -311,11 +315,15 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
                 if (s == ".*" || StringUtils::EndsWith(entry.d_name, s.c_str(),true) )
                 {
 // g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
-                    listFiles.push_back(entry.d_name);
+                    listFiles.push_back(PrependedPath + entry.d_name);
                     break;
                 }
             }
         }
+        else if (bRecurse && entry.d_type != DT_DIR && entry.d_name[0] != '.')
+		{
+			FindFiles(listFiles,sDirectory + entry.d_name,sFileSpec_CSV,true,PrependedPath + entry.d_name + "/");
+		}
     }
     closedir (dirp);
 #endif

@@ -41,7 +41,7 @@ namespace FileUtils
     long FileSize(string sFileName); /** < returns the file size or zero if error */
     void MakeDir(string sDirectory); /** < makes a directory, including all necessary parent directories, like mkdir -p in Linux */
     bool DirExists(string sDirectory); /** < Returns true if the directory exists */
-	void FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV); /** < scan sDirectory, for files matching any of the sFilespec_CVS (ie *.jpg,a*,bcd*.mpg), and store the names in listFiles */
+	void FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse=false,string PrependedPath=""); /** < scan sDirectory, for files matching any of the sFilespec_CVS (ie *.jpg,a*,bcd*.mpg), and store the names in listFiles.  Optionally recurse into sub-directories.  The prepended path will be prepended to any files that are found.  Normally this is for internal use only while recursing. */
 #endif //#ifndef SYMBIAN
 }
 

@@ -78,7 +78,7 @@ bool CreateSource_PlutoFTP(Row_Package_Source *pRow_Package_Source,map<string,st
 
 // This will figure out what files need to be moved into the output
 bool GetSourceFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFilesToMove);
-bool GetBinaryFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFilesToMove);
+bool GetNonSourceFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFilesToMove);
 
 fstream fstr_compile,fstr_make_release;
 
@@ -309,7 +309,7 @@ bool CreateSources(Row_Package *pRow_Package)
 	map<string,string> mapFilesToMove;
 	if( pRow_Package->IsSource_get() && !GetSourceFilesToMove(pRow_Package,mapFilesToMove) )
 		return false;
-	else if( !GetBinaryFilesToMove(pRow_Package,mapFilesToMove) )
+	else if( !GetNonSourceFilesToMove(pRow_Package,mapFilesToMove) )
 		return false;
 
 	if( mapFilesToMove.size()==0 )
@@ -408,9 +408,8 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFiles
 	return true;
 }
 
-bool GetBinaryFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFilesToMove)
+bool GetNonSourceFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFilesToMove)
 {
-	// Start with source code.
 	// First is there a directory specified for finding the compiled output?
 	Row_Package_Directory *pRow_Package_Directory_CompiledOutput=NULL;
 	vector<Row_Package_Directory *> vectRow_Package_Directory;
@@ -420,11 +419,11 @@ bool GetBinaryFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFiles
 	if( vectRow_Package_Directory.size() )
 		pRow_Package_Directory_CompiledOutput = vectRow_Package_Directory[0];
 
-	// What are the binary files for this?
+	// What are the files for this?
 	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
 		"FK_Package=" + StringUtils::itos(pRow_Package->PK_Package_get()) + " AND (FK_Directory=" + StringUtils::itos(DIRECTORY_Binary_Executibles_CONST) + 
-		" OR FK_Directory=" + StringUtils::itos(DIRECTORY_Binary_Library_CONST) + " OR FK_Directory=" + StringUtils::itos(DIRECTORY_Configuration_CONST) + ")",
-		&vectRow_Package_Directory);
+		" OR FK_Directory=" + StringUtils::itos(DIRECTORY_Binary_Library_CONST) + " OR FK_Directory=" + StringUtils::itos(DIRECTORY_Configuration_CONST) + 
+		" OR FK_Directory=" + StringUtils::itos(DIRECTORY_Miscellaneous_Files_CONST) + ")",&vectRow_Package_Directory);
 
 	for(size_t s=0;s<vectRow_Package_Directory.size();++s)
 	{
@@ -446,7 +445,16 @@ bool GetBinaryFilesToMove(Row_Package *pRow_Package,map<string,string> &mapFiles
 		for(size_t s2=0;s2<vectPackage_Directory_File.size();++s2)
 		{
 			Row_Package_Directory_File *pRow_Package_Directory_File = vectPackage_Directory_File[s2];
-			mapFilesToMove[sDirectory + "/" + pRow_Package_Directory_File->File_get()] = pRow_Package_Directory->Path_get();
+			string File = pRow_Package_Directory_File->File_get();
+			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
+			{
+				list<string> listFiles;
+				FileUtils::FindFiles(listFiles,sDirectory,File,true);
+				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
+					mapFilesToMove[sDirectory + "/" + *it] = pRow_Package_Directory->Path_get() + "/" + *it;
+			}
+			else
+				mapFilesToMove[sDirectory + "/" + File] = pRow_Package_Directory->Path_get() + "/" + File;
 		}
 	}
 	return true;
