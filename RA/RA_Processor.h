@@ -49,6 +49,8 @@ public:
 		m_pRA_Config        = pRA_Config;
     };
 
+	virtual ~RA_Processor() {}
+
     /**
      * @brief adds a request
      * @param pRequest pointer to the request to be added

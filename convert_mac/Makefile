@@ -2,12 +2,12 @@ ROOT = ..
 CXXFLAGS = -Wall -g 
 CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -D_REENTRANT -D_GNU_SOURCE -DDEBUG -DNOBLUETOOTH
 LDFLAGS = -L$(ROOT)/lib 
-LDLIBS = -lDCECommon -lattr
+LDLIBS = -lDCECommon -lattr -lPlutoUtils
 CXX = g++
 
 sources = 	convert_mac.cpp
 
-LDLIBS += -lPlutoUtils
+XTRALDLIBS = 
 
 all: convert_mac
 

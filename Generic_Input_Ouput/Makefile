@@ -19,7 +19,7 @@ sources = Main.cpp Generic_Input_Ouput.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS +=
+XTRALDLIBS =
 
 Gen_Dev_Files +=
 sources +=

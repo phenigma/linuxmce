@@ -1269,42 +1269,53 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
             }
             break;
         }
-        /*
-        case ARRAY_All_Phones_CONST:
-        case ARRAY_Media_Directors_CONST:
+
+		case ARRAY_All_Phones_CONST:
+		case ARRAY_Hard_Phones_CONST:
+		case ARRAY_Soft_Phones_CONST:
+		case ARRAY_Soft_Video_Phones_CONST:
+		case ARRAY_Media_Directors_CONST:
         {
             int PK_DeviceCategory=-1;
             switch(PK_Array)
             {
                 case ARRAY_All_Phones_CONST:
-                    PK_DeviceCategory = ARRAY_All_Phones_CONST;
+                    PK_DeviceCategory = DEVICECATEGORY_Phones_CONST;
+                    break;
+                case ARRAY_Hard_Phones_CONST:
+                    PK_DeviceCategory = DEVICECATEGORY_Hard_Phones_CONST;
+                    break;
+                case ARRAY_Soft_Phones_CONST:
+                    PK_DeviceCategory = DEVICECATEGORY_Soft_Phones_CONST;
+                    break;
+                case ARRAY_Soft_Video_Phones_CONST:
+                    PK_DeviceCategory = DEVICECATEGORY_Video_Soft_Phones_CONST;
                     break;
                 case ARRAY_Media_Directors_CONST:
-                    PK_DeviceCategory = DEVICECATEGORY_HTPC_CONST;
+//                    PK_DeviceCategory = DEVICECATEGORY_HTPC_CONST;
                     break;
             }
 
             {
                 vector<class Row_Device *> vectD;
-                string sql = "SELECT " + string(DEVICE_TABLE) + ".* FROM " + DEVICE_TABLE + " JOIN " +
-                    DeviceTemplate_TABLE + " ON " + DeviceTemplate_PK_DeviceTemplate_TABLE_FIELD + "=" + DEVICE_FK_DeviceTemplate_TABLE_FIELD +
-                    " WHERE " + DEVICE_FK_INSTALLATION_FIELD + "=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) +
-                    " AND " + DeviceTemplate_FK_DEVICECATEGORY_TABLE_FIELD + "=" + StringUtils::itos(PK_DeviceCategory) + " ORDER BY " + DEVICE_DESCRIPTION_TABLE_FIELD;
-                vectD = m_mds->Device_get()->GetRows(sql);
+                string sql = string("SELECT Device.* FROM Device") + 
+					"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate" +
+					"JOIN DeviceCategory ON FK_DeviceCategory=DeviceCategory.PK_DeviceCategory" +
+					"LEFT JOIN DeviceCategory As ParentCategory ON DeviceCategory.FK_DeviceCategory_Parent=ParentCategory.PK_DeviceCategory" +
+					"WHERE DeviceCategory.PK_DeviceCategory="+StringUtils::itos(PK_DeviceCategory)+
+					" OR ParentCategory.PK_DeviceCategory="+StringUtils::itos(PK_DeviceCategory)+" OR ParentCategory.FK_DeviceCategory_Parent="+StringUtils::itos(PK_DeviceCategory)+
+                    " ORDER BY Device.Description";
+                m_mds->Device_get()->GetRows(sql,&vectD);
 
                 for(size_t s=0;s<vectD.size();++s)
                 {
                     Row_Device *drDevice = vectD[s];
-                    if( PK_Array==C_ARRAY_HARD_PHONES_CONST &&
-                        (drDevice->FK_DeviceTemplate_get()==DeviceTemplate_LINPHONE_CONST ||
-                        drDevice->FK_DeviceTemplate_get()==DeviceTemplate_CE_SIP_CONST) )
-                            continue;
                     alArray->push_back(new ArrayValue(StringUtils::itos(drDevice->PK_Device_get()),drDevice->Description_get(),NULL,0,0,0,VARIABLE_PK_Device_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
                 }
             }
             break;
         }
-*/
+
 
         case ARRAY_Phone_Users_CONST:
         case ARRAY_All_Users_CONST:

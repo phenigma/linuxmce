@@ -19,7 +19,7 @@ sources = Main.cpp App_Server.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS += -lPlutoUtils -lSerializeClass
+XTRALDLIBS = 
 
 Gen_Dev_Files +=
 sources +=

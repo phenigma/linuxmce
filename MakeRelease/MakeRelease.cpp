@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 				if( !CompileSourceInOrder(pRow_Package) )
 				{
 					cout << "Aborting!" << endl;
-					return 1;
+					exit(1);
 				}
 			}
 		}

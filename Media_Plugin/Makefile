@@ -19,7 +19,7 @@ sources = Main.cpp Media_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS += -lpluto_main -lpluto_media -lPlutoUtils -lSerializeClass
+XTRALDLIBS = -lpluto_main -lpluto_media
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \

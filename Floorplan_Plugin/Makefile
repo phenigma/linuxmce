@@ -18,7 +18,7 @@ sources = Main.cpp Floorplan_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS +=
+XTRALDLIBS =
 
 Gen_Dev_Files +=
 sources +=

@@ -19,7 +19,7 @@ sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DDEBUG -DxTHREAD_LOG -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen
 LDFLAGS +=
-LDLIBS += -lPlutoUtils -lSerializeClass -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE
+XTRALDLIBS = -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE
 
 Gen_Dev_Files +=
 sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \

@@ -19,7 +19,7 @@ sources = Main.cpp Mozilla_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS += -lPlutoUtils -lSerializeClass
+XTRALDLIBS =
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp

@@ -621,8 +621,7 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 	clock_t clkStart = clock(  );
 #endif
 
-	string DelSelections;
-	PrepareRenderDataGrid( pObj,  DelSelections );
+	PrepareRenderDataGrid( pObj,  delSelections );
 
 	if( !pObj->m_pDataGridTable )
 		return;
@@ -677,7 +676,7 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 				if ( !pObj->m_bDontShowSelection )
 				{
 					int GraphicType = GRAPHIC_NORMAL;
-					if(  DelSelections.length(  ) > 2 && DelSelections.find( "|"+string( pCell->GetValue(  ) )+"|" )!=string::npos  )
+					if(  delSelections.length(  ) > 2 && delSelections.find( "|"+string( pCell->GetValue(  ) )+"|" )!=string::npos  )
 						GraphicType = GRAPHIC_SELECTED;
 					else if(  ( pObj->m_iHighlightedRow!=-1 || pObj->m_iHighlightedColumn!=-1 ) &&
 						( pObj->m_iHighlightedColumn==-1 || pObj->m_iHighlightedColumn==j ) &&
@@ -702,7 +701,7 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 #endif
 }
 //------------------------------------------------------------------------
-void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& DelSelections )
+void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelections )
 {
 	bool bAcquiredGrid = AcquireGrid( pObj,  pObj->m_GridCurCol,  pObj->m_GridCurRow,  pObj->m_pDataGridTable );
 	/* todo 2.0

@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS =  -lpthread -lSerializeClass -lPlutoUtils -lDCECommon -lmysqlclient_r
+LDLIBS = -lpthread -lSerializeClass -lPlutoUtils -lDCECommon -lmysqlclient_r
 
 MYNAME = Bluetooth_Dongle
 VERSION = 2.0.0
@@ -19,7 +19,7 @@ sources = Main.cpp Bluetooth_Dongle.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DBLUETOOTH_DONGLE
 LDFLAGS +=
-LDLIBS += -lVIPCommon -lBDCommon -lPlutoUtils -lSerializeClass -lbluetooth -lpluto_main -lSDL -lSDL_ttf -lSDL_image -lSGE
+XTRALDLIBS = -lVIPCommon -lBDCommon -lbluetooth -lpluto_main -lSDL -lSDL_ttf -lSDL_image -lSGE
 
 Gen_Dev_Files += $(GENDEV)/OrbiterBase.cpp
 sources += \
@@ -35,6 +35,7 @@ sources += \
 	../VIPShared/PlutoPhoneCommands.cpp
 
 #<-dceag-mf-b->
+LDLIBS = $(XTRALDLIBS) $(LDLIBS)
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
 

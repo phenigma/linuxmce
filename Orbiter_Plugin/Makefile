@@ -19,7 +19,7 @@ sources = Main.cpp Orbiter_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS += -lpluto_main -lPlutoUtils -lSerializeClass
+XTRALDLIBS = -lpluto_main
 
 Gen_Dev_Files +=
 sources +=

@@ -19,7 +19,7 @@ sources = Main.cpp Datagrid_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS += -DDEBUG
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS += -lPlutoUtils -lSerializeClass
+XTRALDLIBS = 
 
 Gen_Dev_Files +=
 sources +=
