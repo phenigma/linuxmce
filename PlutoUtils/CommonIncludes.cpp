@@ -80,5 +80,4 @@ char AskMCQuestion(string Question,string Prompts)
 	}
 }
 
-xxxxx
 
