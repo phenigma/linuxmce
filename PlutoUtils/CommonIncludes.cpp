@@ -1,8 +1,6 @@
 #include "PlutoUtils/CommonIncludes.h"	 
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -15,11 +13,7 @@ bool AskYNQuestion(string Question,bool bDefault)
 	while(true)
 	{
 		cout << Question << (bDefault ? " [Y/n] " : " [N/y] ");
-#ifdef WIN32
 		char c = getch();
-#else
-		char c = getchar();
-#endif
 		cout << endl;
 		if( c=='y' || c=='Y' )
 			return true;
@@ -48,11 +42,7 @@ char AskMCQuestion(string Question,string Prompts)
 			bFirst=false;
 		}
 		cout << "] ";
-#ifdef WIN32
 		char c = (char) getch();
-#else
-		char c = getchar();
-#endif
 //#pragma warning("need something unbuffered && need to clear the buffer, otherwise it uses old keystrokes")
 //		cin.read( &c[0], 1 );
 		cout << endl;

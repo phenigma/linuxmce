@@ -472,11 +472,7 @@ string StringUtils::GetStringFromConsole()
 	string sOutput;
 	while(true)
 	{
-#ifdef WIN32
 		char c = getch();
-#else
-		char c = getchar();
-#endif
 		cout << c;
 		if( c=='\n' || c=='\r' )
 			return sOutput;

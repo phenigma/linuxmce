@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
 			break;
 		case 'S':
 			g_bSimulate = true;
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -256,8 +257,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	cout << "Done!  Press any key." << endl;
-	getch();
+	cout << "Done!" << endl;
 }
 
 bool CreateSources(Row_Package *pRow_Package)
@@ -825,7 +825,8 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,map<string
 	cout << "------------DEBIAN PACKAGE OUTPUT" << endl;
 	cout << " rep: " << pRow_Package_Source->Repository_get() << " ver: " << pRow_Package_Source->Version_get() << " parm: " << pRow_Package_Source->Parms_get() << endl;
 	cout << "Press any key to continue..." << endl;
-	getch();
+	char c = getch();
+					
 	return true;
 }
 bool CreateSource_PlutoFTP(Row_Package_Source *pRow_Package_Source,map<string,string> &mapFilesToMove)
@@ -833,6 +834,6 @@ bool CreateSource_PlutoFTP(Row_Package_Source *pRow_Package_Source,map<string,st
 	cout << "------------PLUTO FTP OUTPUT" << endl;
 	cout << " rep: " << pRow_Package_Source->Repository_get() << " ver: " << pRow_Package_Source->Version_get() << " parm: " << pRow_Package_Source->Parms_get() << endl;
 	cout << "Press any key to continue..." << endl;
-	getch();
+	char c = getch();
 	return true;
 }
