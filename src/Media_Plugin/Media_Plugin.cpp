@@ -2025,6 +2025,9 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 		}
 	}
 
+	if( !pmapMediaDevice_Current )
+		return; // Nothing to turn on -- we already turned everything off
+
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Current->begin();it!=pmapMediaDevice_Current->end();++it)
 	{
 		MediaDevice *pMediaDevice = (*it).second;
@@ -2064,7 +2067,7 @@ int Media_Plugin::GetComputerForMediaDevice(DeviceData_Router *pDeviceData_Route
 
 void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current)
 {
-	if( pmapMediaDevice_Current->find( pDeviceData_Router->m_dwPK_Device ) != pmapMediaDevice_Current->end() )
+	if( pmapMediaDevice_Current && pmapMediaDevice_Current->find( pDeviceData_Router->m_dwPK_Device ) != pmapMediaDevice_Current->end() )
 		return;
 
 	DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
