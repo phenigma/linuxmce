@@ -55,8 +55,11 @@ Logging $TYPE $SEVERITY_STAGE "$module" "Entering $module"
 
 echo "$$ Spawn_Device of $Path$cmd_line (by $0)" >>/var/log/pluto/running.pids
 
+Tab=$(printf "\t") # to prevent any smart masses from converting this tab to 4 or 8 spaces
 i=1
 while [ "$i" -le 10 ]; do
+	rm -f /var/log/pluto/spawned_device_$device_id
+
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Appending log..."
 	cat "$new_log" >> "$real_log"
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
@@ -69,7 +72,13 @@ while [ "$i" -le 10 ]; do
 		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log" 
 	fi
 	
-	if [ "$?" -eq 3 ]; then
+	Ret="$?"
+	
+	while read line; do
+		screen -list | grep -F "$line" | cut -d. -f1 | cut -d"$Tab" -f2 | xargs kill -9
+	done < /var/log/pluto/spawned_device_$device_id
+	
+	if [ "$Ret" -eq 3 ]; then
 		# Abort
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Shutting down... $i $device_name"
 		echo $(date) Shutdown >> "$new_log"

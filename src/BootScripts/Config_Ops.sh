@@ -21,7 +21,7 @@ ConfSet()
 	else
 		sed -i "s/^.*$Variable.*=.*$/$Line/g" /etc/pluto.conf
 	fi
-	eval "export $Variable=\"$Value\""
+	eval "export $Variable=\"$Value\"" &>/dev/null
 }
 
 ConfGet()

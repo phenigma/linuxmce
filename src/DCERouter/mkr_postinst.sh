@@ -1,7 +1,8 @@
+#!/bin/bash
 #enable MySQL networking
 sed -i 's/^skip-networking/#skip-networking/' /etc/mysql/my.cnf
-/etc/init.d/mysql restart
 echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
+/etc/init.d/mysql restart
 
 echo "setting up dce router2"
 hasRecords=`echo 'SELECT count(PK_Installation) FROM Installation' | mysql pluto_main | tail -n 1`;
@@ -74,3 +75,12 @@ JOIN Users;"
 /usr/pluto/bin/Update_StartupScrips.sh
 mkdir -p /tftpboot/pxelinux.cfg
 cp /usr/lib/syslinux/pxelinux.0 /tftpboot
+
+. /usr/pluto/bin/Config_Ops.sh
+
+Q="SELECT PK_Installation FROM Installation LIMIT 1"
+R=$(echo "$Q" | /usr/bin/mysql pluto_main -N)
+ConfSet PK_Installation "$R"
+Q="SELECT PK_Users FROM Users LIMIT 1"
+R=$(echo "$Q" | /usr/bin/mysql pluto_main -N)
+ConfSet PK_Users "$R"
