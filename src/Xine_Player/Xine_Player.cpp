@@ -280,6 +280,12 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message 
 void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
 {
+	if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Back_ChannelTrack_Lower() I don't have a slave to use. Ignoring.");
+        return;
+    }
+
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_PREVIOUS);
 }
 
