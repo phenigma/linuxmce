@@ -203,7 +203,7 @@ g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int)
 				sOrbiterList="1"; // HACK!!!
 				DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device,sOrbiterList,VARIABLE_Misc_Data_1_CONST,sMacAddress);
 				DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device,sOrbiterList,VARIABLE_Misc_Data_2_CONST,sID);
-				DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,sOrbiterList,0,StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST),"","",true);
+//				DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,sOrbiterList,0,StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST),"","",true);
 
 				// Send them all 3 in one message for efficiency
 				CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
