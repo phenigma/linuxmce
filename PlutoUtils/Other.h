@@ -10,6 +10,11 @@
 #ifndef OTHERH
 #define OTHERH
 
+long MS_TO_CLK(long miliseconds);
+long CLK_TO_MS(long Clocks);
+
+clock_t xClock();
+
 #ifndef SYMBIAN
 
 #include <string>

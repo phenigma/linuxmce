@@ -3,6 +3,7 @@
 
 #include "DCE/Command_Impl.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
+#include "PlutoUtils/Other.h"
 
 using namespace DCE;
 
@@ -14,20 +15,6 @@ using namespace DCE;
 #else
 #define xCLOCKS_PER_SEC sysconf(_SC_CLK_TCK)
 #endif
-
-long MS_TO_CLK(long miliseconds);
-long CLK_TO_MS(long Clocks);
-
-inline clock_t xClock()
-{
-#ifdef WIN32
-	return clock();
-#else
-	return 0;
-//		struct tms mytms;
-//	return times(&mytms);
-#endif
-}
 
 // IR Queue element
 class IRQueue

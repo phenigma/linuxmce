@@ -23,8 +23,27 @@
  *
  */
 
- 
 #include "Other.h"
+
+clock_t xClock();
+{
+#ifdef WIN32
+	return clock();
+#else
+	struct tms mytms;
+	return times(&mytms);
+#endif
+}
+
+long MS_TO_CLK(long miliseconds)
+{
+	return miliseconds * xCLOCKS_PER_SEC / 1000;
+}
+
+long CLK_TO_MS(long Clocks)
+{
+	return Clocks * 1000 / xCLOCKS_PER_SEC;
+}
 
 #ifndef SYMBIAN
 	#include <stdio.h>

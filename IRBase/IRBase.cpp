@@ -34,16 +34,6 @@
 #include <sys/times.h>
 #endif
 
-long MS_TO_CLK(long miliseconds)
-{
-	return miliseconds * xCLOCKS_PER_SEC / 1000;
-}
-
-long CLK_TO_MS(long Clocks)
-{
-	return Clocks * 1000 / xCLOCKS_PER_SEC;
-}
-
 // MessageQueue processor (the one that does the actual IR sending and relay setting)
 void * StartMessageQueueThread(void * Arg)
 {
