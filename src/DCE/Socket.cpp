@@ -255,7 +255,7 @@ Message *Socket::ReceiveMessage( int iLength )
 				if( !file )
 				{
 					cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-xxx					cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+					cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 				}
 
 				// Don't check -- if this still fails just throw an exception something is very wrong!
@@ -356,7 +356,16 @@ bool Socket::SendData( int iSize, const char *pcData )
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file ) // check
 	{
+		cout << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+		cerr << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
 		file = fopen( m_pcSockLogErrorFile, "a" );
+
+		if( !file )
+		{
+			cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+			cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+		}
+
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );
 		fprintf( file, "%d-%s-%s\tSending Binary (%d bytes): %s\n\n", m_Socket, Module, ac, iSize, pcTmp );
@@ -388,7 +397,16 @@ bool Socket::SendData( int iSize, const char *pcData )
 			FILE *file = fopen( m_pcSockLogFile, "a" );
 			if( !file )
 			{
+				cout << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+				cerr << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
 				file = fopen( m_pcSockLogErrorFile, "a" );
+
+				if( !file )
+				{
+					cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+					cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+				}
+
 				// Don't check -- if this still fails just throw an exception something is very wrong!
 				fprintf( file, "Cannot write to regular sock log\n" );
 				fprintf( file, "Socket became invalid before FD_SET" );
@@ -436,7 +454,16 @@ bool Socket::SendData( int iSize, const char *pcData )
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file ) // check
 	{
+		cout << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+		cerr << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
 		file = fopen( m_pcSockLogErrorFile, "a" );
+
+		if( !file )
+		{
+			cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+			cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+		}
+
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );
 		fprintf( file, "%d-%s-%s\tClosing socket at line 402\n\n", m_Socket, Module, ac );
@@ -585,7 +612,15 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file ) // check
 	{
+		cout << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+		cerr << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
 		file = fopen( m_pcSockLogErrorFile, "a" );
+
+		if( !file )
+		{
+			cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+			cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+		}
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );
 		fprintf( file, "%d-%s\tClosing socket at line 540\n\n", m_Socket, Module);
@@ -639,7 +674,15 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file ) // check
 	{
+		cout << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+		cerr << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
 		file = fopen( m_pcSockLogErrorFile, "a" );
+
+		if( !file )
+		{
+			cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+			cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+		}
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );
 		fprintf( file, "%d-%s\tClosing socket at line 592\n\n", m_Socket, Module );
@@ -689,7 +732,15 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			FILE *file = fopen( m_pcSockLogFile, "a" );
 			if( !file )
 			{
+				cout << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+				cerr << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
 				file = fopen( m_pcSockLogErrorFile, "a" );
+
+				if( !file )
+				{
+					cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+					cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+				}
 				// Don't check -- if this still fails just throw an exception something is very wrong!
 				fprintf( file, "Cannot write to regular sock log\n" );
 				fprintf( file, "%d-%s-%s\tReceiving Binary (%d bytes): %s\n\n", m_Socket,Module, ac, m_iSockBufBytesLeft , pcTmp );
@@ -749,7 +800,15 @@ bool Socket::ReceiveString( string &sRefString )
 		FILE *file = fopen( m_pcSockLogFile, "a" );
 		if( !file )
 		{
+			cout << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+			cerr << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
 			file = fopen( m_pcSockLogErrorFile, "a" );
+
+			if( !file )
+			{
+				cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+				cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+			}
 			// Don't check -- if this still fails just throw an exception something is very wrong!
 			fprintf( file, "Cannot write to regular sock log\n" );
 			fprintf( file, "%d-%s !!!!!! OVERFLOW !!!!!!!!!\n\n", m_Socket, Module );
@@ -789,7 +848,15 @@ bool Socket::ReceiveString( string &sRefString )
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file )
 	{
+		cout << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+		cerr << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
 		file = fopen( m_pcSockLogErrorFile, "a" );
+
+		if( !file )
+		{
+			cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+			cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+		}
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );
 		fprintf( file, "%d-%s-Received Text: %s\n\n", m_Socket, Module, acBuf );
@@ -823,7 +890,15 @@ bool Socket::SendString( string sLine )
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file )
 	{
+		cout << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+		cerr << "cannot open file: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
 		file = fopen( m_pcSockLogErrorFile, "a" );
+
+		if( !file )
+		{
+			cout << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+			cerr << "cannot open file: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+		}
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );
 		fprintf( file, "%d-%s-Send Text: %s\n\n", m_Socket,Module, sLine.c_str() );
