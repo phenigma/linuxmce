@@ -3,10 +3,10 @@
 #include "VIPShared/VIPIncludes.h"
 #include "VIPShared/PlutoConfig.h"
 #include "PlutoUtils/MyStl.h"
-#include "VIPShared/VR_IdentifyPhone.h"
-#include "VIPShared/PhoneDevice.h"
+#include "VR_IdentifyPhone.h"
+#include "BD/PhoneDevice.h"
 #include "RA/RA_Processor.h"
-#include "VIPShared\VIPMenu.h"
+#include "VIPShared/VIPMenu.h"
 #include "DCE/Picture.h"
 #include "PhoneDetection_VIP.h"
 #include "ControlsDlg.h"
@@ -484,7 +484,7 @@ CString PhoneDetection_VIP::SaveCustomerImage(VR_IdentifyPhone* pIP)
 	pPlutoCustomer->Time=CTime::GetCurrentTime();	//current time
 	
 	//if no image transfered!
-	if (pIP->m_iImageSize<=0)
+	if (pIP->m_pdbImage.m_dwSize<=0)
 	{
 		pPlutoCustomer->ImageNumber=-1;			//the customer has no image
 		pPlutoCustomer->ImageType=0;			//the customer has no image
@@ -538,7 +538,7 @@ CString PhoneDetection_VIP::SaveCustomerImage(VR_IdentifyPhone* pIP)
 	
 	if( ImageFile.Open(PlutoImage, CFile::modeWrite | CFile::modeCreate) )
 	{
-		ImageFile.Write(pIP->m_pImage, pIP->m_iImageSize);
+		ImageFile.Write(pIP->m_pdbImage.m_pBlock, pIP->m_pdbImage.m_dwSize);
 		ImageFile.Close();
 	}
 

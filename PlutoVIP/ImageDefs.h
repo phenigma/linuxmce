@@ -8,10 +8,10 @@
 using namespace std;
 
 //linking automatically with CXImage.lib static library
-#pragma comment(lib, "../Libraries/CXImage/bin/cximage.lib")
-#pragma comment(lib, "../Libraries/CXImage/bin/png.lib")
-#pragma comment(lib, "../Libraries/CXImage/bin/jpeg.lib")
-#pragma comment(lib, "../Libraries/CXImage/bin/zlib.lib")
+#pragma comment(lib, "../Libraries/CXImage/CXImage/Debug/cximage.lib")
+#pragma comment(lib, "../Libraries/CXImage/png/Debug/png.lib")
+//#pragma comment(lib, "../Libraries/CXImage/Debug/jpeg.lib")
+#pragma comment(lib, "../Libraries/CXImage/zlib/Debug/zlib.lib")
 
 
 //size of every images in image list

@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 
-#include "VIPIncludes.h"
+#include "VIPShared/VIPIncludes.h"
 
 #include "VIPShared/PlutoConfig.h"
 
@@ -16,13 +16,13 @@
 
 
 
-#include "VIPIncludes.h"
+#include "VIPShared/VIPIncludes.h"
 
 //#include "VIPShared/PlutoConfig.h"
 
 #include "VR_ShowMenu.h"
 
-#include "VIPMenu.h"
+#include "VIPShared/VIPMenu.h"
 
 
 
@@ -43,7 +43,7 @@ VR_ShowMenu::VR_ShowMenu(const char *VMCFile)
 	{
 
 #ifndef SYMBIAN
-		ErrorLog << "Cannot open " << VMCFile; }
+		cerr << "Cannot open " << VMCFile;
 
 #endif
 		return;
@@ -63,7 +63,7 @@ VR_ShowMenu::VR_ShowMenu(const char *VMCFile)
 	{
 
 #ifndef SYMBIAN
-		ErrorLog << "Cannot open " << VMCFile; }
+		cerr << "Cannot open " << VMCFile;
 
 #endif
 		fclose(file);
@@ -100,100 +100,9 @@ VR_ShowMenu::VR_ShowMenu(class VIPMenuCollection *pMenuCollection)
 
 
 
-VR_ShowMenu::VR_ShowMenu(unsigned long size,const char *data) 
-
-	: RA_Request(size,data) 
-
-{
-
-	m_iMenuTermination = DONT_CLOSE;
 
 
-
-	unsigned long CollectionSize = Read_unsigned_long();
-
-	if( CollectionSize==0 )
-
-		m_pMenuCollection = new VIPMenuCollection(0);
-
-	else
-
-		m_pMenuCollection = new VIPMenuCollection(CollectionSize,m_pcCurrentPosition);
-
-	m_pcCurrentPosition+=CollectionSize;
-
-	unsigned short NumberOfVariables = Read_unsigned_short();
-
-	for(unsigned short iV=0;iV<NumberOfVariables;++iV)
-
-	{
-
-		long VariableID = Read_long();
-
-		string sInitialValue;
-
-		Read_string(sInitialValue);
-
-
-
-		VIPVariable *pVariable = new VIPVariable(VariableID,0,sInitialValue,0,0);
-
-		MYSTL_ADDTO_LIST(m_listInputVariables,pVariable);
-
-	}
-
-
-
-	unsigned long NumberOfBasketItems = Read_unsigned_long();
-
-	for(size_t iB=0;iB<NumberOfBasketItems;++iB)
-
-	{
-
-		BasketItem *bi = new BasketItem();
-
-		Read_string(bi->m_sID);
-
-		Read_string(bi->m_sDescription);
-
-		bi->m_iQty = Read_long();
-
-		bi->m_iCost = Read_long();
-
-		unsigned long NumberOfBasketOptions = Read_unsigned_long();
-
-		for(size_t i2=0;i2<NumberOfBasketOptions;++i2)
-
-		{
-
-			BasketOption *bo = new BasketOption();
-
-			Read_string(bo->m_sID);
-
-			Read_string(bo->m_sDescription);
-
-			bo->m_iQty = Read_long();
-
-			bo->m_iCost = Read_long();
-
-			MYSTL_ADDTO_LIST(bi->m_listBasketOptions,bo);
-
-		}
-
-		MYSTL_ADDTO_LIST(m_listBasket,bi);
-
-	}
-
-
-
-	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-
-}
-
-
-
-bool VR_ShowMenu::ProcessRequest()
-
+bool VR_ShowMenu::ProcessRequest(class RA_Processor *pRA_Processor)
 {
 
 #ifdef VIPPHONE
@@ -313,294 +222,78 @@ bool VR_ShowMenu::ProcessRequest()
 }
 
 
-
-void VR_ShowMenu::ConvertRequestToBinary()
-
+bool VR_ShowMenu::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition )
 {
-
-	RA_Request::ConvertRequestToBinary();
-
-
-
-	if( !m_pMenuCollection )
-
+	m_pcDataBlock = pcDataBlock; m_dwAllocatedSize = dwAllocatedSize; m_pcCurrentPosition = pcCurrentPosition;
+	
+	if( bWriting ) // writing
 	{
-
-		Write_unsigned_long(0);  // no menu or variables
-
-		Write_unsigned_short(0);
-
+		switch( pItem->m_iSerializeDataType )
+		{
+		case SERIALIZE_DATA_TYPE_LIST_VAR:
+			{
+				list<VIPVariable *> *p_listVIPVariable = (list<VIPVariable *> *) pItem->m_pItem;
+				Write_unsigned_long( (unsigned long) p_listVIPVariable->size() );
+				for( list<VIPVariable *>::iterator it = p_listVIPVariable->begin(); it != p_listVIPVariable->end(); ++it )
+				{
+					VIPVariable *pVIPVariable = *it;
+					pVIPVariable->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+				}
+				return true; // We handled it
+			}
+			break;
+			
+		case SERIALIZE_DATA_TYPE_LIST_BASKET:
+			{
+				list<BasketItem *> *p_listBasketItem = (list<BasketItem *> *) pItem->m_pItem;
+				Write_unsigned_long( (unsigned long) p_listBasketItem->size() );
+				for( list<BasketItem *>::iterator it = p_listBasketItem->begin(); it != p_listBasketItem->end(); ++it )
+				{
+					BasketItem *pBasketItem = *it;
+					pBasketItem->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+				}
+				return true; // We handled it
+			}
+			break;
+			
+		};
 	}
-
-	else
-
+	else // reading
 	{
-
-		if( !m_pMenuCollection->m_iBinarySize )
-
-			m_pMenuCollection->ConvertToBinary();
-
-
-
-		Write_unsigned_long(m_pMenuCollection->m_iBinarySize);
-
-		Write_block(m_pMenuCollection->m_pBinary,m_pMenuCollection->m_iBinarySize);
-
+		switch( pItem->m_iSerializeDataType )
+		{
 		
-		Write_unsigned_short((unsigned short) MYSTL_SIZEOF_LIST(m_listInputVariables));
-		//Write_unsigned_short((unsigned short) m_listInputVariables.size());
-
-
-
-		MYSTL_ITERATE_LIST(m_listInputVariables,VIPVariable,pVariable,it2)
-
-		{
-
-			Write_long(pVariable->m_iVariableID);
-
-			Write_string(pVariable->m_sInitialValue);
-
-		}
-
+		case SERIALIZE_DATA_TYPE_LIST_VAR:
+			{
+				list<VIPVariable *> *p_listVIPVariable = (list<VIPVariable *> *) pItem->m_pItem;
+				long Count=Read_unsigned_long();
+				for(long c=0;c<Count;++c)
+				{
+					VIPVariable *pVIPVariable = new VIPVariable();
+					pVIPVariable->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+					p_listVIPVariable->push_back(pVIPVariable);
+				}
+				return true; // We handled it
+			}
+			break;
+			
+		case SERIALIZE_DATA_TYPE_LIST_BASKET:
+			{
+				list<BasketItem *> *p_listBasketItem = (list<BasketItem *> *) pItem->m_pItem;
+				long Count=Read_unsigned_long();
+				for(long c=0;c<Count;++c)
+				{
+					BasketItem *pBasketItem = new BasketItem();
+					pBasketItem->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+					p_listBasketItem->push_back(pBasketItem);
+				}
+				return true; // We handled it
+			}
+			break;
+			
+		};
 	}
 
-	
-
-	;
-	Write_unsigned_long((unsigned long) MYSTL_SIZEOF_LIST(m_listBasket));
-//	Write_unsigned_long((unsigned long) m_listBasket.size());
-
-
-
-	MYSTL_ITERATE_LIST(m_listBasket,BasketItem,bi,it3)
-
-	{
-
-		Write_string(bi->m_sID);
-
-		Write_string(bi->m_sDescription);
-
-		Write_long(bi->m_iQty);
-
-		Write_long(bi->m_iCost);
-
-
-
-		Write_unsigned_long((unsigned long) MYSTL_SIZEOF_LIST(bi->m_listBasketOptions));
-//		Write_unsigned_long((unsigned long) bi->m_listBasketOptions.size());
-
-
-
-		MYSTL_ITERATE_LIST(bi->m_listBasketOptions,BasketOption,bo,it4)
-
-		{
-
-			Write_string(bo->m_sID);
-
-			Write_string(bo->m_sDescription);
-
-			Write_long(bo->m_iQty);
-
-			Write_long(bo->m_iCost);
-
-		}
-
-	}
-
-
-
-	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-
-	m_pcRequest = m_pcDataBlock;
-
-}
-
-
-
-void VR_ShowMenu::ConvertResponseToBinary()
-
-{
-
-
-
-	RA_Request::ConvertResponseToBinary();
-
-
-
-	Write_unsigned_char(m_iMenuTermination);
-
-	Write_unsigned_long(m_iMenuCollectionID);
-
-	Write_unsigned_int64(m_iMacAddress);
-
-
-
-	Write_unsigned_short((unsigned short) MYSTL_SIZEOF_LIST(m_listReturnedVariables));
-	//Write_unsigned_short((unsigned short)m_listReturnedVariables.size());
-
-
-
-	MYSTL_ITERATE_LIST(m_listReturnedVariables,VIPVariable,pVariable,it5)
-
-	{
-
-		Write_long(pVariable->m_iVariableID);
-
-		Write_string(pVariable->m_sCurrentValue);
-
-	}
-
-
-
-	Write_unsigned_long((unsigned long) MYSTL_SIZEOF_LIST(m_listBasket));
-//	Write_unsigned_long((unsigned long) m_listBasket.size());
-
-
-
-	MYSTL_ITERATE_LIST(m_listBasket,BasketItem,bi,it6)
-
-	{
-
-		Write_string(bi->m_sID);
-
-		Write_string(bi->m_sDescription);
-
-		Write_long(bi->m_iQty);
-
-		Write_long(bi->m_iCost);
-
-
-
-		Write_unsigned_long((unsigned long) MYSTL_SIZEOF_LIST(bi->m_listBasketOptions));
-		//Write_unsigned_long((unsigned long) bi->m_listBasketOptions.size());
-
-		MYSTL_ITERATE_LIST(bi->m_listBasketOptions,BasketOption,bo,it7)
-
-		{
-
-			Write_string(bo->m_sID);
-
-			Write_string(bo->m_sDescription);
-
-			Write_long(bo->m_iQty);
-
-			Write_long(bo->m_iCost);
-
-		}
-
-	}
-
-	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-
-	m_pcResponse = m_pcDataBlock;
-
-}
-
-
-
-bool VR_ShowMenu::ParseResponse(unsigned long size,const char *data)
-
-{
-
-	RA_Request::ParseResponse(size,data);
-
-
-
-	m_iMenuTermination = Read_unsigned_char();
-
-	m_iMenuCollectionID = Read_unsigned_long();
-
-	m_iMacAddress = Read_unsigned_int64();
-
-	unsigned short NumVariables = Read_unsigned_short();
-
-
-
-	for(unsigned short iV=0;iV<NumVariables;++iV)
-
-	{
-
-		long VariableID = Read_long();
-
-		string sValue;
-
-		Read_string(sValue);
-
-
-
-		VIPVariable *pVariable = new VIPVariable(VariableID,1,sValue,0,0);
-
-		MYSTL_ADDTO_LIST(m_listReturnedVariables,pVariable);
-
-	}
-
-
-
-	// Remove any basket items that may already be in there from the input side
-
-	
-	Write_unsigned_long((unsigned long) MYSTL_SIZEOF_LIST(m_listBasket));
-//	Write_unsigned_long((unsigned long) m_listBasket.size());
-
-
-
-	MYSTL_ITERATE_LIST(m_listBasket,BasketItem,pBI,it8)
-
-	{
-
-		delete pBI;
-
-	}
-
-	MYSTL_CLEAR_LIST(m_listBasket);
-
-
-
-	unsigned long NumberOfBasketItems = Read_unsigned_long();
-
-	for(size_t iB=0;iB<NumberOfBasketItems;++iB)
-
-	{
-
-		BasketItem *bi = new BasketItem();
-
-		Read_string(bi->m_sID);
-
-		Read_string(bi->m_sDescription);
-
-		bi->m_iQty = Read_long();
-
-		bi->m_iCost = Read_long();
-
-		unsigned long NumberOfBasketOptions = Read_unsigned_long();
-
-		for(size_t i2=0;i2<NumberOfBasketOptions;++i2)
-
-		{
-
-			BasketOption *bo = new BasketOption();
-
-			Read_string(bo->m_sID);
-
-			Read_string(bo->m_sDescription);
-
-			bo->m_iQty = Read_long();
-
-			bo->m_iCost = Read_long();
-
-			MYSTL_ADDTO_LIST(bi->m_listBasketOptions,bo);
-
-		}
-
-		MYSTL_ADDTO_LIST(m_listBasket,bi);
-
-	}
-
-	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-
-
-
+	pcDataBlock = m_pcDataBlock; dwAllocatedSize = m_dwAllocatedSize; pcCurrentPosition = m_pcCurrentPosition;
 	return true;
-
 }
-

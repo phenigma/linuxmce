@@ -1,4 +1,4 @@
-#include "VIPIncludes.h"
+#include "VIPShared/VIPIncludes.h"
 #include "VIPShared/PlutoConfig.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/FileUtils.h"
@@ -8,7 +8,7 @@
 #include "VR_PhoneRespondedToRequest.h"
 #include "VA_UpdateTransaction.h"
 #include "VR_ShowMenu.h"
-#include "VIPMenu.h"
+#include "VIPShared/VIPMenu.h"
 #include <iostream>
 #include <sstream>
 
@@ -16,55 +16,17 @@ VR_PhoneRespondedToRequest::VR_PhoneRespondedToRequest(unsigned long RequestID,u
 	: RA_Request()
 {
 	m_iRequestID=RequestID;
-	m_iOriginalRequestSize=RequestSize;
-	m_pOriginalRequest = new char[m_iOriginalRequestSize];
-	memcpy(m_pOriginalRequest,RequestData,m_iOriginalRequestSize);
+	m_pdbOriginalRequest.m_dwSize=RequestSize;
+	m_pdbOriginalRequest.m_pBlock = new char[RequestSize];
+	memcpy(m_pdbOriginalRequest.m_pBlock,RequestData,RequestSize);
 
-	m_iOriginalResponseSize=ResponseSize;
-	m_pOriginalResponse = new char[m_iOriginalResponseSize];
-	memcpy(m_pOriginalResponse,ResponseData,m_iOriginalResponseSize);
+	m_pdbOriginalResponse.m_dwSize=ResponseSize;
+	m_pdbOriginalResponse.m_pBlock = new char[ResponseSize];
+	memcpy(m_pdbOriginalResponse.m_pBlock,ResponseData,ResponseSize);
 
 }
 
-VR_PhoneRespondedToRequest::VR_PhoneRespondedToRequest(unsigned long size,const char *data) 
-	: RA_Request(size,data) 
-{
-	m_iRequestID = Read_unsigned_long();
-	m_iOriginalRequestSize = Read_unsigned_long();
-	m_pOriginalRequest = Read_block(m_iOriginalRequestSize);
-	m_iOriginalResponseSize = Read_unsigned_long();
-	m_pOriginalResponse = Read_block(m_iOriginalResponseSize);
-
-	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-}
-
-void VR_PhoneRespondedToRequest::ConvertRequestToBinary()
-{
-	RA_Request::ConvertRequestToBinary();
-
-	Write_unsigned_long(m_iRequestID);
-	Write_unsigned_long(m_iOriginalRequestSize);
-	Write_block(m_pOriginalRequest,m_iOriginalRequestSize);
-	Write_unsigned_long(m_iOriginalResponseSize);
-	Write_block(m_pOriginalResponse,m_iOriginalResponseSize);
-
-	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-	m_pcRequest = m_pcDataBlock;
-}
-
-void VR_PhoneRespondedToRequest::ConvertResponseToBinary()
-{
-	RA_Request::ConvertResponseToBinary();
-}
-
-
-bool VR_PhoneRespondedToRequest::ParseResponse(unsigned long size,const char *data)
-{
-	RA_Request::ParseResponse(size,data);
-	return true;
-}
-
-bool VR_PhoneRespondedToRequest::ProcessRequest()
+bool VR_PhoneRespondedToRequest::ProcessRequest(class RA_Processor *pRA_Processor)
 {
 #ifdef VIPSERVER
 	RA_Request *pRequest;

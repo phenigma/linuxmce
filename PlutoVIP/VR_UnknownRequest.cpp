@@ -1,2 +1,2 @@
-#include "VIPIncludes.h"
+#include "VIPShared/VIPIncludes.h"
 #include "VR_UnknownRequest.h"

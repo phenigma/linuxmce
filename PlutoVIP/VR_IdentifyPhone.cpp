@@ -1,4 +1,4 @@
-#include "VIPIncludes.h"
+#include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/CommonIncludes.h"	
 #include "VR_IdentifyPhone.h"
 #include "VIPShared/PlutoConfig.h"
@@ -7,9 +7,9 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
-#include "VIPMenu.h"
-#include "VIPShared/VR_ShowMenu.h"
-#include "VIPShared/VA_ForwardRequestToPhone.h"
+#include "VIPShared/VIPMenu.h"
+#include "VR_ShowMenu.h"
+#include "VA_ForwardRequestToPhone.h"
 
 #include <iostream>
 #include <sstream>
@@ -56,143 +56,9 @@ VR_IdentifyPhone::VR_IdentifyPhone(unsigned long EstablishmentID,
 	m_iUseCache=0;
 	m_iRecordVersion=0;
 	m_iPlutoId=0;
-	m_pImage=NULL;
-	m_iImageSize=0;
-
 }
 
-VR_IdentifyPhone::VR_IdentifyPhone(unsigned long size,const char *data) 
-	: RA_Request(size,data) 
-{
-	m_iUseCache=0;
-	m_iRecordVersion=0;
-	m_iPlutoId=0;
-	m_pImage=NULL;
-	m_iImageSize=0;
-	m_pCustomer=NULL;
-
-	m_iEstablishmentID = Read_unsigned_long();
-	Read_string(m_sBluetoothID);
-	m_iMacAddress = Read_int64();
-	m_iCachedRecordVersion = Read_unsigned_long();
-	m_iCachedPlutoId = Read_unsigned_long();
-	m_iIdentifiedPlutoId = Read_unsigned_long();
-	Read_string(m_sIdentifiedPlutoIdPin);
-
-	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-
-//	cout << "Received request to ID Mac " << m_iMacAddress << " ID " << m_iIdentifiedPlutoId << "\n";
-}
-
-void VR_IdentifyPhone::ConvertRequestToBinary()
-{
-	RA_Request::ConvertRequestToBinary();
-
-	Write_unsigned_long(m_iEstablishmentID);
-	Write_string(m_sBluetoothID);
-	Write_int64(m_iMacAddress);
-	Write_unsigned_long(m_iCachedRecordVersion);
-	Write_unsigned_long(m_iCachedPlutoId);
-	Write_unsigned_long(m_iIdentifiedPlutoId);
-	Write_string(m_sIdentifiedPlutoIdPin);
-
-	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-	m_pcRequest = m_pcDataBlock;
-}
-
-void VR_IdentifyPhone::ConvertResponseToBinary()
-{
-	RA_Request::ConvertResponseToBinary();
-
-	Write_unsigned_char(m_iUseCache);
-	Write_unsigned_long(m_iRecordVersion);
-	Write_unsigned_long(m_iPlutoId);
-	Write_unsigned_char(m_iImageType);
-	Write_unsigned_long(m_iImageSize);
-	Write_block(m_pImage,m_iImageSize);
-	Write_string(m_sEmail);
-	Write_string(m_sNickname);
-	Write_string(m_sFirstName);
-	Write_string(m_sLastName);
-	Write_string(m_sAddress);
-	Write_string(m_sCity);
-	Write_string(m_sState);
-	Write_string(m_sZip);
-	Write_string(m_sCountry);
-	Write_string(m_sGender);
-	Write_string(m_sBirthdate);
-	Write_string(m_sComments);
-	Write_string(m_sEstablishmentCustomerId);
-	Write_unsigned_short((unsigned short) MYSTL_SIZEOF_LIST(m_listPhoneNumbers));
-	MYSTL_ITERATE_LIST(m_listPhoneNumbers,VIPPhoneNumber,pPhone,iPN)
-	{
-		Write_unsigned_char(pPhone->m_iPhoneNumberType);
-		Write_string(pPhone->m_sNumber);
-	}
-
-	Write_unsigned_short((unsigned short) MYSTL_SIZEOF_LIST(m_listAttributes));
-	MYSTL_ITERATE_LIST(m_listAttributes,MiscVIPAttribute,pAttr,iVA)
-	{
-		Write_string(pAttr->m_sType);
-		Write_string(pAttr->m_sValue);
-	}
-
-	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-	m_pcResponse = m_pcDataBlock;
-}
-
-
-bool VR_IdentifyPhone::ParseResponse(unsigned long size,const char *data)
-{
-	RA_Request::ParseResponse(size,data);
-
-	m_iUseCache=Read_unsigned_char();
-	m_iRecordVersion=Read_unsigned_long();
-	m_iPlutoId=Read_unsigned_long();
-	m_iImageType=Read_unsigned_char();
-	m_iImageSize=Read_unsigned_long();
-	m_pImage=Read_block(m_iImageSize);
-	Read_string(m_sEmail);
-	Read_string(m_sNickname);
-	Read_string(m_sFirstName);
-	Read_string(m_sLastName);
-	Read_string(m_sAddress);
-	Read_string(m_sCity);
-	Read_string(m_sState);
-	Read_string(m_sZip);
-	Read_string(m_sCountry);
-	Read_string(m_sGender);
-	Read_string(m_sBirthdate);
-	Read_string(m_sComments);
-	Read_string(m_sEstablishmentCustomerId);
-
-	unsigned short NumPhoneNumbers = Read_unsigned_short();
-
-	for(unsigned short iNP=0;iNP<NumPhoneNumbers;++iNP)
-	{
-		VIPPhoneNumber *pPhone = new VIPPhoneNumber();
-		pPhone->m_iPhoneNumberType=Read_unsigned_char();
-		Read_string(pPhone->m_sNumber);
-		MYSTL_ADDTO_LIST(m_listPhoneNumbers,pPhone);
-	}
-
-	unsigned short NumAttributes=Read_unsigned_short();
-	for(unsigned short iNA=0;iNA<NumAttributes;++iNA)
-	{
-		string Type,Value;
-		Read_string(Type);
-		Read_string(Value);
-
-		MiscVIPAttribute *pAttr = new MiscVIPAttribute(Type,Value);
-		MYSTL_ADDTO_LIST(m_listAttributes,pAttr);
-	}
-
-	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-
-	return true;
-}
-
-bool VR_IdentifyPhone::ProcessRequest()
+bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 {
 #ifdef VIPSERVER
 	m_iImageSize=0;
@@ -470,3 +336,85 @@ void VR_IdentifyPhone::LogVisit()
 	g_pPlutoConfig->threaded_mysql_query(sql);
 #endif
 }
+
+bool VR_IdentifyPhone::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition )
+{
+	m_pcDataBlock = pcDataBlock; m_dwAllocatedSize = dwAllocatedSize; m_pcCurrentPosition = pcCurrentPosition;
+	
+	if( bWriting ) // writing
+	{
+		switch( pItem->m_iSerializeDataType )
+		{
+		case SERIALIZE_DATA_TYPE_LIST_PHONE_NUM:
+			{
+				list<VIPPhoneNumber *> *p_listPhoneNumbers = (list<VIPPhoneNumber *> *) pItem->m_pItem;
+				Write_unsigned_long( (unsigned long) p_listPhoneNumbers->size() );
+				for( list<VIPPhoneNumber *>::iterator it = p_listPhoneNumbers->begin(); it != p_listPhoneNumbers->end(); ++it )
+				{
+					VIPPhoneNumber *pVIPPhoneNumber = *it;
+					Write_unsigned_long(pVIPPhoneNumber->m_iPhoneNumberType);
+					Write_string(pVIPPhoneNumber->m_sNumber);
+				}
+				return true; // We handled it
+			}
+			break;
+			
+		case SERIALIZE_DATA_TYPE_LIST_VIP_ATTR:
+			{
+				list<MiscVIPAttribute *> *p_listAttributes = (list<MiscVIPAttribute *> *) pItem->m_pItem;
+				Write_unsigned_long( (unsigned long) p_listAttributes->size() );
+				for( list<MiscVIPAttribute *>::iterator it = p_listAttributes->begin(); it != p_listAttributes->end(); ++it )
+				{
+					MiscVIPAttribute *pMiscVIPAttribute = *it;
+					Write_string(pMiscVIPAttribute->m_sType);
+					Write_string(pMiscVIPAttribute->m_sValue);
+				}
+				return true; // We handled it
+			}
+			break;
+			
+		};
+	}
+	else // reading
+	{
+		switch( pItem->m_iSerializeDataType )
+		{
+		
+		case SERIALIZE_DATA_TYPE_LIST_PHONE_NUM:
+			{
+				list<VIPPhoneNumber *> *p_listPhoneNumbers = (list<VIPPhoneNumber *> *) pItem->m_pItem;
+				long Count=Read_unsigned_long();
+				for(long c=0;c<Count;++c)
+				{
+					VIPPhoneNumber *pVIPPhoneNumber = new VIPPhoneNumber();
+					pVIPPhoneNumber->m_iPhoneNumberType=Read_unsigned_long();
+					Read_string(pVIPPhoneNumber->m_sNumber);
+					p_listPhoneNumbers->push_back(pVIPPhoneNumber);
+				}
+				return true; // We handled it
+			}
+			break;
+			
+		case SERIALIZE_DATA_TYPE_LIST_VIP_ATTR:
+			{
+				list<MiscVIPAttribute *> *p_listAttributes = (list<MiscVIPAttribute *> *) pItem->m_pItem;
+				long Count=Read_unsigned_long();
+				for(long c=0;c<Count;++c)
+				{
+					string sType,sValue;
+					Read_string(sType);
+					Read_string(sValue);
+					MiscVIPAttribute *pMiscVIPAttribute = new MiscVIPAttribute(sType,sValue);
+					p_listAttributes->push_back(pMiscVIPAttribute);
+				}
+				return true; // We handled it
+			}
+			break;
+			
+		};
+	}
+
+	pcDataBlock = m_pcDataBlock; dwAllocatedSize = m_dwAllocatedSize; pcCurrentPosition = m_pcCurrentPosition;
+	return true;
+}
+

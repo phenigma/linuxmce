@@ -1,12 +1,17 @@
 #include "stdafx.h"
-#include "../DCE/CommonIncludes.h"
-#include "../VIPShared/MyStl.h"
+#include "PlutoUtils/CommonIncludes.h"
+#include "PlutoUtils/MyStl.h"
 #include "BD/BDCommandProcessor.h"
-#include "../VIPShared/PhoneDevice.h"
+#include "BD/PhoneDevice.h"
 #include "Customer.h"
-
 #include "Picture.h"
 #include "ImageDefs.h"
+
+#ifdef BT_SOCKET
+#include "BD/BDCommandProcessor_Windows_Socket.h"
+#else
+#include "BD/BDCommandProcessor_Windows_Bluetooth.h"
+#endif
 
 BDCommandProcessor *Customer::GetCommandProcessor()
 {
@@ -25,7 +30,7 @@ BDCommandProcessor *Customer::GetCommandProcessor()
 	}
 	m_pBDCommandProcessor = new BDCommandProcessor_Windows_Socket("Mac",pSocket);
 #else
-	m_pBDCommandProcessor = new BDCommandProcessor_Windows_Bluetooth(m_pPhoneDevice->m_sMacAddress);
+	m_pBDCommandProcessor = new BDCommandProcessor_Windows_Bluetooth(m_pPhoneDevice->m_sMacAddress,"");
 #endif
 
 	return m_pBDCommandProcessor;

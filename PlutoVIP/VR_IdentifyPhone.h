@@ -2,7 +2,12 @@
 #define VR_IdentifyPhone_H
 
 #include "RA/RA_Request.h"
-#include "VIPIncludes.h"
+#include "VIPShared/VIPIncludes.h"
+#include "SerializeClass/SerializeClass.h"
+#include "PlutoVIPrequests.h"
+
+#define SERIALIZE_DATA_TYPE_LIST_PHONE_NUM	4000
+#define SERIALIZE_DATA_TYPE_LIST_VIP_ATTR	4001
 
 class VR_IdentifyPhone : public RA_Request
 {
@@ -14,22 +19,20 @@ public:
 	unsigned long m_iEstablishmentID;
 
 	// Response Variables
-	unsigned char m_iUseCache;
+	char m_iUseCache;
 	unsigned long m_iRecordVersion,m_iPlutoId;
-	unsigned char m_iImageType;
-	unsigned long m_iImageSize;
-	char *m_pImage;
+	char m_iImageType;
+	PlutoDataBlock m_pdbImage;
 	string m_sEmail,m_sNickname,m_sFirstName,m_sLastName;
 	string m_sAddress,m_sCity,m_sState,m_sZip,m_sCountry;
 	string m_sGender,m_sBirthdate;
 	string m_sComments,m_sEstablishmentCustomerId;
-	MYSTL_CREATE_LIST(m_listPhoneNumbers,VIPPhoneNumber);
-	MYSTL_CREATE_LIST(m_listAttributes,MiscVIPAttribute);
+	list<VIPPhoneNumber *> m_listPhoneNumbers;
+	list<MiscVIPAttribute *> m_listAttributes;
 
 	// Other
 	class Customer *m_pCustomer; // Used if we get back actions to send to the customer
 
-	// The establishment will call this constructor, then ConvertRequestToBinary
 	VR_IdentifyPhone(
 		unsigned long EstablishmentID,
 		string sBluetooth,
@@ -40,20 +43,36 @@ public:
 		string IdentiedPlutoIdPin,
 		class Customer *pCustomer
 	);
-
-	// The server will call this constructor, then ProcessRequest
-	VR_IdentifyPhone(unsigned long size,const char *data);
+	VR_IdentifyPhone() {}
 
 	virtual void LogVisit();
 
 	virtual unsigned long ID() { return VRS_IDENFITY_PHONE; }
 
-	virtual bool ProcessRequest();
-	virtual bool ParseResponse(unsigned long size,const char *data);
+	virtual void SetupSerialization_Request()
+	{
+		RA_Request::SetupSerialization_Request();
+		StartSerializeList() + m_sBluetoothID + m_sIdentifiedPlutoIdPin 
+			+ m_iMacAddress + m_iCachedRecordVersion + m_iCachedPlutoId + m_iIdentifiedPlutoId
+			+ m_iEstablishmentID;
+	}
+	virtual void SetupSerialization_Response()
+	{
+		RA_Request::SetupSerialization_Response();
+		StartSerializeList() + m_iUseCache + m_iRecordVersion + m_iPlutoId
+			+ m_iImageType + m_pdbImage
+			+ m_sEmail + m_sNickname + m_sFirstName + m_sLastName
+			+ m_sAddress + m_sCity + m_sState + m_sZip + m_sCountry
+			+ m_sGender + m_sBirthdate
+			+ m_sComments + m_sEstablishmentCustomerId;
+			
+		(*this) + m_listPhoneNumbers + m_listAttributes; // this is serialized custom
+	}
 
-	// These call the base class and then add their output
-	virtual void ConvertRequestToBinary();
-	virtual void ConvertResponseToBinary();
+	VR_IdentifyPhone &operator+ ( list<VIPPhoneNumber *> &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_LIST_PHONE_NUM, (void *) &i) ); return (*this); }
+	VR_IdentifyPhone &operator+ ( list<MiscVIPAttribute *> &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_LIST_VIP_ATTR, (void *) &i) ); return (*this); }
+	virtual bool UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition );
+	virtual bool ProcessRequest(class RA_Processor *pRA_Processor);
 };
 
 

@@ -14,7 +14,7 @@
 #include "ADO2.h"
 
 using namespace std;
-
+using namespace DCE;
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -59,7 +59,10 @@ CTaskBarApp::~CTaskBarApp()
 CTaskBarApp  theApp;
 
 PlutoConfig* g_pPlutoConfig=new PlutoConfig();
-Logger*   g_pPlutoLogger=new FileLogger("C:\\log.txt");
+namespace DCE
+{
+	Logger*   g_pPlutoLogger=new FileLogger("log.txt");
+}
 
 //image list
 //CImageList		PlutoVIPImageList;

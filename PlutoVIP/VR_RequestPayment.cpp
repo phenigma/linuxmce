@@ -1,4 +1,4 @@
-#include "VIPIncludes.h"
+#include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/CommonIncludes.h"	
 #include "VIPShared/PlutoConfig.h"
 #include "PlutoUtils/FileUtils.h"
@@ -10,7 +10,7 @@
 #include "VR_RequestSecureTransaction.h"
 #include "VR_ShowMenu.h"
 #include "VA_ForwardRequestToPhone.h"
-#include "VIPMenu.h"
+#include "VIPShared/VIPMenu.h"
 #include <iostream>
 #include <sstream>
 
@@ -30,86 +30,7 @@ VR_RequestPayment::VR_RequestPayment(u_int64_t iMacAddress,long Amount,string In
 	m_FKID_PlutoId_User=FKID_PlutoId_User;
 }
 
-VR_RequestPayment::VR_RequestPayment(unsigned long size,const char *data) 
-	: RA_Request(size,data) 
-{
-	m_iAmount = Read_long();
-	m_iMacAddress=Read_unsigned_int64();
-	Read_string(m_sInvoiceNumber);
-	Read_string(m_sDescription);
-	Read_string(m_sCashierName);
-	m_FKID_PlutoId_Establishment=Read_unsigned_long();
-	m_FKID_PlutoId_User=Read_unsigned_long();
-	unsigned long NumberOfInvoiceDetails=Read_unsigned_long();
-
-	for(unsigned long i=0;i<NumberOfInvoiceDetails;++i)
-	{
-		InvoiceDetail *pID = new InvoiceDetail();
-
-		Read_string(pID->m_sLineID);
-		Read_string(pID->m_sProductID);
-		Read_string(pID->m_sDescription);
-		pID->m_iAmount=Read_long();
-
-		MYSTL_ADDTO_LIST(m_listInvoiceDetail, pID);
-	}
-
-	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-}
-
-void VR_RequestPayment::ConvertRequestToBinary()
-{
-	RA_Request::ConvertRequestToBinary();
-	Write_unsigned_int64(m_iMacAddress);
-	Write_long(m_iAmount);
-	Write_string(m_sInvoiceNumber);
-	Write_string(m_sDescription);
-	Write_string(m_sCashierName);
-	Write_long(m_FKID_PlutoId_Establishment);
-	Write_long(m_FKID_PlutoId_User);
-	Write_long((unsigned long) MYSTL_SIZEOF_LIST(m_listInvoiceDetail));
-
-	MYSTL_ITERATE_LIST(m_listInvoiceDetail,InvoiceDetail,pID,itListInvoiceDetail)
-	{
-		Write_string(pID->m_sLineID);
-		Write_string(pID->m_sProductID);
-		Write_string(pID->m_sDescription);
-		Write_unsigned_long(pID->m_iAmount);
-	}
-
-	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-	m_pcRequest = m_pcDataBlock;
-}
-
-void VR_RequestPayment::ConvertResponseToBinary()
-{
-	RA_Request::ConvertResponseToBinary();
-
-	Write_short(m_iPaymentResponse);
-	Write_unsigned_long(m_iTransactionNumber);
-	Write_string(m_sApprovalCode);
-	Write_string(m_sCardNumber);
-
-	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-	m_pcResponse = m_pcDataBlock;
-}
-
-
-bool VR_RequestPayment::ParseResponse(unsigned long size,const char *data)
-{
-	RA_Request::ParseResponse(size,data);
-
-	m_iPaymentResponse = Read_short();
-	m_iTransactionNumber = Read_unsigned_long();
-	Read_string(m_sApprovalCode);
-	Read_string(m_sCardNumber);
-
- 	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-
-	return true;
-}
-
-bool VR_RequestPayment::ProcessRequest()
+bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 {
 #ifdef VIPSERVER
 
@@ -284,3 +205,50 @@ bool VR_RequestPayment::ProcessRequest()
 	return true;
 }
 
+
+bool VR_RequestPayment::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition )
+{
+	m_pcDataBlock = pcDataBlock; m_dwAllocatedSize = dwAllocatedSize; m_pcCurrentPosition = pcCurrentPosition;
+	
+	if( bWriting ) // writing
+	{
+		switch( pItem->m_iSerializeDataType )
+		{
+		case SERIALIZE_DATA_TYPE_LIST_INV_DETAIL:
+			{
+				list<InvoiceDetail *> *p_listInvoiceDetail = (list<InvoiceDetail *> *) pItem->m_pItem;
+				Write_unsigned_long( (unsigned long) p_listInvoiceDetail->size() );
+				for( list<InvoiceDetail *>::iterator it = p_listInvoiceDetail->begin(); it != p_listInvoiceDetail->end(); ++it )
+				{
+					InvoiceDetail *pInvoiceDetail = *it;
+					pInvoiceDetail->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+				}
+				return true; // We handled it
+			}
+			break;
+		};
+	}
+	else // reading
+	{
+		switch( pItem->m_iSerializeDataType )
+		{
+		
+		case SERIALIZE_DATA_TYPE_LIST_INV_DETAIL:
+			{
+				list<InvoiceDetail *> *p_listInvoiceDetail = (list<InvoiceDetail *> *) pItem->m_pItem;
+				long Count=Read_unsigned_long();
+				for(long c=0;c<Count;++c)
+				{
+					InvoiceDetail *pInvoiceDetail = new InvoiceDetail();
+					pInvoiceDetail->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+					p_listInvoiceDetail->push_back(pInvoiceDetail);
+				}
+				return true; // We handled it
+			}
+			break;
+		};
+	}
+
+	pcDataBlock = m_pcDataBlock; dwAllocatedSize = m_dwAllocatedSize; pcCurrentPosition = m_pcCurrentPosition;
+	return true;
+}

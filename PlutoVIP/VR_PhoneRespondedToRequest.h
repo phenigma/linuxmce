@@ -2,33 +2,29 @@
 #define VR_PhoneRespondedToRequest_H
 
 #include "RA/RA_Request.h"
+#include "PlutoVIPrequests.h"
 
 class VR_PhoneRespondedToRequest : public RA_Request
 {
 	// Request Variables
 	unsigned long m_iRequestID;
-	int m_iOriginalRequestSize,m_iOriginalResponseSize;
-	char *m_pOriginalRequest,*m_pOriginalResponse;
+	PlutoDataBlock m_pdbOriginalRequest,m_pdbOriginalResponse;
 
 	// Response Variables
 
 public:
 	// The establishment will call this constructor, then ConvertRequestToBinary
 	VR_PhoneRespondedToRequest(unsigned long RequestID,unsigned long RequestSize,const char *RequestData,unsigned long ResponseSize,const char *ResponseData);
-
-	// The server will call this constructor, then ProcessRequest
-	VR_PhoneRespondedToRequest(unsigned long size,const char *data);
-
+	VR_PhoneRespondedToRequest() {}
 
 	virtual unsigned long ID() { return VRS_PHONE_RESPONDED; }
-	
 
-	virtual bool ProcessRequest();
-	virtual bool ParseResponse(unsigned long size,const char *data);
-
-	// These call the base class and then add their output
-	virtual void ConvertRequestToBinary();
-	virtual void ConvertResponseToBinary();
+	virtual void SetupSerialization_Request()
+	{
+		RA_Request::SetupSerialization_Request();
+		StartSerializeList() + m_iRequestID + m_pdbOriginalRequest + m_pdbOriginalResponse;
+	}
+	virtual bool ProcessRequest(class RA_Processor *pRA_Processor);
 };
 
 

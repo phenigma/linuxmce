@@ -3,9 +3,9 @@
 
 #include "VIPShared/PhoneDetection_Bluetooth_Windows.h"
 #include "VIPShared/PhoneDetection_Simulate.h"
-#include "VIPShared/PhoneDevice.h"
+#include "BD/PhoneDevice.h"
 #include "PlutoUtils/CommonIncludes.h"
-#include "VIPShared/VR_IdentifyPhone.h"
+#include "VR_IdentifyPhone.h"
 
 #include "AppBar.h"
 #include "Customer.h"

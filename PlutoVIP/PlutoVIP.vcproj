@@ -42,7 +42,7 @@
 				OutputFile="../Bin/PlutoVIP.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="../Libraries/CXImage/bin/;&quot;../Libraries/pthreads-win32/lib/&quot;;../winbluetooth/stddll/debug/"
+				AdditionalLibraryDirectories="../Libraries/CXImage/CXImage/Debug/;&quot;../Libraries/pthreads-win32/lib/&quot;;../winbluetooth/lib/"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/PlutoVIP.pdb"
 				SubSystem="2"/>
@@ -152,9 +152,6 @@
 				RelativePath=".\ado2.cpp">
 			</File>
 			<File
-				RelativePath="..\DCE\AlarmManager.cpp">
-			</File>
-			<File
 				RelativePath=".\AnimEffect.cpp">
 			</File>
 			<File
@@ -165,57 +162,6 @@
 			</File>
 			<File
 				RelativePath=".\BrowseForFolder.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_CP_Disconnect.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_CP_Have_Nothing.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_CP_SendMeKeystrokes.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_CP_ShowImage.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_CP_ShowVMC.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_CP_UpdateVariables.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_PC_Disconnect.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_PC_KeyWasPressed.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_PC_OrderPlaced.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_PC_ReportingVariables.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_PC_VMCHidden.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_PC_VMCTerminated.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_PC_WhatDoYouHave.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BTCommand.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BTCommandProcessor.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BTCommandProcessor_Windows_Bluetooth.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BTCommandProcessor_Windows_Socket.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\BtFtp.cpp">
@@ -230,37 +176,10 @@
 				RelativePath=".\CeXDib.cpp">
 			</File>
 			<File
-				RelativePath="..\DCE\CommonIncludes.cpp">
-			</File>
-			<File
 				RelativePath=".\ControlsDlg.cpp">
 			</File>
 			<File
 				RelativePath=".\Customer.cpp">
-			</File>
-			<File
-				RelativePath="..\DCE\DCEClientSocket.cpp">
-			</File>
-			<File
-				RelativePath="..\DCE\DCEHandleRequestSocket.cpp">
-			</File>
-			<File
-				RelativePath="..\DCE\DCELogger.cpp">
-			</File>
-			<File
-				RelativePath="..\DCE\DCEMessage.cpp">
-			</File>
-			<File
-				RelativePath="..\DCE\DCEServerSocket.cpp">
-			</File>
-			<File
-				RelativePath="..\DCE\DCESocket.cpp">
-			</File>
-			<File
-				RelativePath="..\DCE\DCESocketListener.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\DetectedPhone.cpp">
 			</File>
 			<File
 				RelativePath=".\DIB.CPP">
@@ -273,12 +192,6 @@
 			</File>
 			<File
 				RelativePath=".\LogMsg.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\MOMenuItem.cpp">
-			</File>
-			<File
-				RelativePath="..\DCE\MultiThreadIncludes.cpp">
 			</File>
 			<File
 				RelativePath=".\MyHyperLink.cpp">
@@ -311,13 +224,19 @@
 				RelativePath="..\VIPShared\PhoneDetectionEngine.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\PhoneDevice.cpp">
+				RelativePath="..\Bd\PhoneDevice.cpp">
 			</File>
 			<File
 				RelativePath="..\DCE\Picture.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\PlutoConfig.cpp">
+			</File>
+			<File
+				RelativePath=".\PlutoVIP.cpp">
+			</File>
+			<File
+				RelativePath=".\PlutoVIP.rc">
 			</File>
 			<File
 				RelativePath=".\PlutoVIPMain.cpp">
@@ -359,9 +278,6 @@
 				RelativePath="..\VIPShared\RenderMenu.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\RequestProcessor.cpp">
-			</File>
-			<File
 				RelativePath=".\SBDestination.cpp">
 			</File>
 			<File
@@ -372,18 +288,6 @@
 			</File>
 			<File
 				RelativePath=".\StdAfx.cpp">
-			</File>
-			<File
-				RelativePath="..\DCE\StringUtils.cpp">
-			</File>
-			<File
-				RelativePath=".\PlutoVIP.cpp">
-			</File>
-			<File
-				RelativePath=".\PlutoVIP.rc">
-			</File>
-			<File
-				RelativePath="..\DCE\TokenStream.cpp">
 			</File>
 			<File
 				RelativePath=".\TrayIcon.cpp">
@@ -398,43 +302,40 @@
 				RelativePath=".\UtilityFunc.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VA_ForwardRequestToPhone.cpp">
+				RelativePath=".\VA_ForwardRequestToPhone.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VA_SendFileToPhone.cpp">
+				RelativePath=".\VA_SendFileToPhone.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VA_UpdateTransaction.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\VIPAction.cpp">
+				RelativePath=".\VA_UpdateTransaction.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\VIPMenu.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VIPRequest.cpp">
+				RelativePath=".\VR_IdentifyPhone.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VR_IdentifyPhone.cpp">
+				RelativePath=".\VR_ManuallyMatchPhone.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VR_ManuallyMatchPhone.cpp">
+				RelativePath=".\VR_PhoneInstalledBinary.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VR_PhoneRespondedToRequest.cpp">
+				RelativePath=".\VR_PhoneRespondedToRequest.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VR_RequestPayment.cpp">
+				RelativePath=".\VR_RequestPayment.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VR_RequestSecureTransaction.cpp">
+				RelativePath=".\VR_RequestSecureTransaction.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VR_ShowMenu.cpp">
+				RelativePath=".\VR_ShowMenu.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\VR_UnknownRequest.cpp">
+				RelativePath=".\VR_UnknownRequest.cpp">
 			</File>
 			<File
 				RelativePath=".\XSBrowseFolder.cpp">
@@ -495,6 +396,9 @@
 				RelativePath=".\PlutoRegistryKeyDef.h">
 			</File>
 			<File
+				RelativePath=".\PlutoVIP.h">
+			</File>
+			<File
 				RelativePath=".\PlutoVIPMain.h">
 			</File>
 			<File
@@ -520,9 +424,6 @@
 			</File>
 			<File
 				RelativePath="..\VIPShared\stdafx.h">
-			</File>
-			<File
-				RelativePath=".\PlutoVIP.h">
 			</File>
 		</Filter>
 		<Filter
@@ -553,13 +454,13 @@
 				RelativePath=".\res\dot1.bmp">
 			</File>
 			<File
-				RelativePath=".\res\State.bmp">
-			</File>
-			<File
 				RelativePath=".\res\PlutoVIP.ico">
 			</File>
 			<File
 				RelativePath=".\res\PlutoVIP.rc2">
+			</File>
+			<File
+				RelativePath=".\res\State.bmp">
 			</File>
 		</Filter>
 		<File

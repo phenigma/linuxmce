@@ -1,8 +1,8 @@
-#include "VIPIncludes.h"
+#include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/CommonIncludes.h"	
 #include "VR_ManuallyMatchPhone.h"
 #include "VIPShared/PlutoConfig.h"
-#include "VIPMenu.h"
+#include "VIPShared/VIPMenu.h"
 #include <sstream>
 #include <iostream>
 
@@ -20,42 +20,7 @@ VR_ManuallyMatchPhone::VR_ManuallyMatchPhone(unsigned long EstablishmentID,
 	m_sIdentifiedPlutoIdPin=IdentiedPlutoIdPin;
 }
 
-VR_ManuallyMatchPhone::VR_ManuallyMatchPhone(unsigned long size,const char *data) 
-	: RA_Request(size,data) 
-{
-	Read_string(m_sBluetoothID);
-	m_iMacAddress = Read_unsigned_int64();
-	m_iIdentifiedPlutoId = Read_unsigned_long();
-	Read_string(m_sIdentifiedPlutoIdPin);
-
-	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-}
-
-void VR_ManuallyMatchPhone::ConvertRequestToBinary()
-{
-	RA_Request::ConvertRequestToBinary();
-	Write_string(m_sBluetoothID);
-	Write_unsigned_int64(m_iMacAddress);
-	Write_unsigned_long(m_iIdentifiedPlutoId);
-	Write_string(m_sIdentifiedPlutoIdPin);
-
-	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-	m_pcRequest = m_pcDataBlock;
-}
-
-void VR_ManuallyMatchPhone::ConvertResponseToBinary()
-{
-	RA_Request::ConvertResponseToBinary();
-}
-
-
-bool VR_ManuallyMatchPhone::ParseResponse(unsigned long size,const char *data)
-{
-	RA_Request::ParseResponse(size,data);
-	return true;
-}
-
-bool VR_ManuallyMatchPhone::ProcessRequest()
+bool VR_ManuallyMatchPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 {
 #ifdef VIPSERVER
 	if( !m_iMacAddress )

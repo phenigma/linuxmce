@@ -2,9 +2,10 @@
 #define VA_SendFileToPhone_H
 
 #include "RA/RA_Action.h"
+#include "PlutoVIPRequests.h"
 
 #if defined(VIPESTABLISHMENT) && !defined(BT_SOCKET)
-#include "../VIPShared/BtSendFile.h"
+#include "VIPShared/BtSendFile.h"
 #endif
 
 class VA_SendFileToPhone : public RA_Action
@@ -13,19 +14,23 @@ class VA_SendFileToPhone : public RA_Action
 #endif
 {
 public:
-	void *m_pFile;
+	PlutoDataBlock m_pdbFile;
 	string m_sFileName;
-	unsigned long m_iFileSize;
 	u_int64_t m_iMacAddress;
 
 	// For an incoming menu
-	VA_SendFileToPhone(unsigned long size,const char *data);
 	VA_SendFileToPhone(string sFileName,u_int64_t MacAddress);
-	~VA_SendFileToPhone();
+	VA_SendFileToPhone() {}
 
 	unsigned long ID() { return ACTION_SENDFILE_TOPHONE; }
-	void ConvertActionToBinary();
-	virtual void ProcessAction();
+	virtual void SetupSerialization()
+	{
+		RA_Action::SetupSerialization();
+		StartSerializeList() + m_pdbFile + m_sFileName
+			+ m_iMacAddress;
+	}
+
+    virtual void ProcessAction(class RA_Request *pRequest,class RA_Processor *pRA_Processor);
 
 #if defined(VIPESTABLISHMENT) && !defined(BT_SOCKET)
 	void OnSendFileEventReceived(  eSendFileCBEvents e_event_code, long param1, long param2);

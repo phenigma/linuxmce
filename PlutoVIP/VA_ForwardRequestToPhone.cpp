@@ -1,11 +1,11 @@
-#include "VIPIncludes.h"
-#include "VIPShared/VA_ForwardRequestToPhone.h"
+#include "VIPShared/VIPIncludes.h"
+#include "VA_ForwardRequestToPhone.h"
 #include "VIPShared/VIPMenu.h"
 #include "RA/RA_Request.h"
 #include "VIPShared/PlutoConfig.h"
-#include "VIPShared/VR_PhoneRespondedToRequest.h"
-#include "VIPShared/PhoneDevice.h"
-#include "VIPShared/VR_IdentifyPhone.h"
+#include "VR_PhoneRespondedToRequest.h"
+#include "BD/PhoneDevice.h"
+#include "VR_IdentifyPhone.h"
 #include "PlutoVIP/Customer.h"
 
 #ifdef VIPESTABLISHMENT
@@ -26,42 +26,19 @@ VA_ForwardRequestToPhone::VA_ForwardRequestToPhone(unsigned char iReturnRequest,
 	m_iReturnRequest = iReturnRequest;
 	m_iMacAddress=MacAddress;
 	pRequest->ConvertRequestToBinary();
-	m_iOriginalRequestSize = pRequest->RequestSize();
-	m_pOriginalRequest = new char[m_iOriginalRequestSize];
-	memcpy(m_pOriginalRequest,pRequest->Request(),m_iOriginalRequestSize);
+	m_pdbOriginalRequest.m_dwSize = pRequest->RequestSize();
+	m_pdbOriginalRequest.m_pBlock = new char[m_pdbOriginalRequest.m_dwSize];
+	memcpy(m_pdbOriginalRequest.m_pBlock,pRequest->Request(),m_pdbOriginalRequest.m_dwSize);
 
-}
-
-VA_ForwardRequestToPhone::VA_ForwardRequestToPhone(unsigned long size,const char *data)
-	: RA_Action(size,data)
-{
-	m_iRequestID = Read_unsigned_long();
-	m_iMacAddress=Read_int64();
-	m_iReturnRequest = Read_unsigned_char();
-	m_iOriginalRequestSize = Read_unsigned_long();
-	m_pOriginalRequest = Read_block(m_iOriginalRequestSize);
-	m_dwActionSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-}
-
-void VA_ForwardRequestToPhone::ConvertActionToBinary()
-{
-	RA_Action::ConvertActionToBinary();
-	Write_unsigned_long(m_iRequestID);
-	Write_int64(m_iMacAddress);
-	Write_unsigned_char(m_iReturnRequest);
-	Write_unsigned_long(m_iOriginalRequestSize);
-	Write_block(m_pOriginalRequest,m_iOriginalRequestSize);
-	m_dwActionSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
-	m_pcAction = m_pcDataBlock;
 }
 
 #ifdef VIPESTABLISHMENT
 
 #include "BD/BDCommandProcessor.h"
 #include "BD/BDCommandProcessor.h"
-#include "BD_CP_SendMeKeystrokes.h"
-#include "BD_CP_ShowVMC.h"
-#include "VIPShared/VR_ShowMenu.h"
+#include "VIPShared/BD_CP_SendMeKeystrokes.h"
+#include "VIPShared/BD_CP_ShowVMC.h"
+#include "VR_ShowMenu.h"
 #include "VIPEstablishment/EstablishmentSocket.h"
 
 void *HandleBDCommandProcessorThread(void *p)
@@ -73,22 +50,23 @@ void *HandleBDCommandProcessorThread(void *p)
 	return NULL;
 }
 
-void VA_ForwardRequestToPhone::ProcessAction()
+void VA_ForwardRequestToPhone::ProcessAction(class RA_Request *pRequest,class RA_Processor *pRA_Processor)
 {
-	if( !m_pcRequest )
+	if( !pRequest )
 		throw "VA_ForwardRequestToPhone needs a pointer to the request that originated the action";
 
-	RA_Request *pRequest = RA_Request::BuildRequestFromData(m_iOriginalRequestSize,m_pOriginalRequest);
-	if( pRequest->ID()==VRP_REQUEST_SHOW_MENU )
+    unsigned long *RequestID = (unsigned long *)m_pdbOriginalRequest.m_pBlock;
+	RA_Request *pRequest_Original = pRA_Processor->BuildRequestFromData(m_pdbOriginalRequest.m_dwSize,m_pdbOriginalRequest.m_pBlock + sizeof(unsigned long),*RequestID);
+	if( pRequest_Original->ID()==VRP_REQUEST_SHOW_MENU )
 	{
 		// We need to get the customer that the request originated from
-		if( m_pcRequest->ID()!=/*VRS_IDENTIFY_PHONE*/ VRS_IDENFITY_PHONE )
+		if( pRequest->ID()!=/*VRS_IDENTIFY_PHONE*/ VRS_IDENFITY_PHONE )
 			throw "We can't forward a request to a phone unless the original request was an identify phone";
 
-		VR_IdentifyPhone *pRA_Request_Original = (VR_IdentifyPhone *) m_pcRequest;
+		VR_IdentifyPhone *pRA_Request_Original = (VR_IdentifyPhone *) pRequest;
 
 		// This is the only request I know how to send now
-		VR_ShowMenu *pMenu = (VR_ShowMenu *) pRequest;
+		VR_ShowMenu *pMenu = (VR_ShowMenu *) pRequest_Original;
 		pMenu->m_pMenuCollection->ConvertToBinary();
 		BD_CP_ShowVMC *pVMC = new BD_CP_ShowVMC(0,pMenu->m_pMenuCollection->m_iBinarySize,pMenu->m_pMenuCollection->m_pBinary);
 
@@ -101,7 +79,7 @@ void VA_ForwardRequestToPhone::ProcessAction()
 	}
 }
 #else
-void VA_ForwardRequestToPhone::ProcessAction()
+void VA_ForwardRequestToPhone::ProcessAction(class RA_Request *pRequest,class RA_Processor *pRA_Processor)
 {
 }
 #endif

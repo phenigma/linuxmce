@@ -2,8 +2,12 @@
 #define VR_RequestPayment_H
 
 #include "RA/RA_Request.h"
+#include "PlutoVIPrequests.h"
 
-class InvoiceDetail
+#define SERIALIZE_DATA_TYPE_LIST_INV_DETAIL		4011
+
+
+class InvoiceDetail : public SerializeClass
 {
 public:
 	string m_sLineID,m_sProductID,m_sDescription;
@@ -13,6 +17,11 @@ public:
 		m_sLineID=LineID; m_sProductID=ProductID; m_sDescription=Description; m_iAmount=Amount; 
 	}
 
+	void SetupSerialization()
+	{
+		SerializeClass::SetupSerialization();
+		StartSerializeList() + m_sLineID + m_sProductID + m_sDescription + m_iAmount;
+	}
 };
 
 class VR_RequestPayment : public RA_Request
@@ -24,7 +33,7 @@ public:
 	unsigned long m_FKID_PlutoId_Establishment,m_FKID_PlutoId_User;
 	u_int64_t m_iMacAddress;  // The phone that this will go to
 	string m_sDescription,m_sCashierName;
-	MYSTL_CREATE_LIST(m_listInvoiceDetail,InvoiceDetail);
+	list<InvoiceDetail *> m_listInvoiceDetail;
 
 	// Response Variables
 	short m_iPaymentResponse;
@@ -35,20 +44,29 @@ public:
 	VR_RequestPayment(u_int64_t iMacAddress,long Amount,string InvoiceNumber,
 		string Description,string CashierName,unsigned long FKID_PlutoId_Establishment,
 		unsigned long FKID_PlutoId_User);
-
-	// The server will call this constructor, then ProcessRequest
-	VR_RequestPayment(unsigned long size,const char *data);
-
+	VR_RequestPayment() {}
 
 	virtual unsigned long ID() { return VRS_REQUEST_PAYMENT; }
-	
 
-	virtual bool ProcessRequest();
-	virtual bool ParseResponse(unsigned long size,const char *data);
+	virtual void SetupSerialization_Request()
+	{
+		RA_Request::SetupSerialization_Request();
+		StartSerializeList() + m_iAmount + m_sInvoiceNumber
+			+ m_FKID_PlutoId_Establishment + m_FKID_PlutoId_User
+			+ m_iMacAddress + m_sDescription + m_sCashierName;
+		(*this) + m_listInvoiceDetail;
+	}
+	virtual void SetupSerialization_Response()
+	{
+		RA_Request::SetupSerialization_Response();
+		StartSerializeList() + m_iPaymentResponse
+			+ m_iTransactionNumber
+			+ m_sApprovalCode + m_sCardNumber;
+	}
+	VR_RequestPayment &operator+ (list<InvoiceDetail *> &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_LIST_INV_DETAIL, (void *) &i) ); return (*this); }
+	virtual bool UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition );
 
-	// These call the base class and then add their output
-	virtual void ConvertRequestToBinary();
-	virtual void ConvertResponseToBinary();
+	virtual bool ProcessRequest(class RA_Processor *pRA_Processor);
 };
 
 

@@ -29,8 +29,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 //hack
-#include "VIPShared/VR_ShowMenu.h"
-#include "VIPShared/VA_ForwardRequestToPhone.h"
+#include "VR_ShowMenu.h"
+#include "VA_ForwardRequestToPhone.h"
 
 
 UINT CheckVersion(LPVOID pParam);

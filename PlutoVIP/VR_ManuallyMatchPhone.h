@@ -2,6 +2,7 @@
 #define VR_ManuallyMatchPhone_H
 
 #include "RA/RA_Request.h"
+#include "PlutoVIPrequests.h"
 
 class VR_ManuallyMatchPhone : public RA_Request
 {
@@ -17,19 +18,17 @@ public:
 	// The establishment will call this constructor, then ConvertRequestToBinary
 	VR_ManuallyMatchPhone(unsigned long EstablishmentID,
 		string sBluetooth,u_int64_t MacAddress,unsigned long IdentifiedPlutoId,string IdentiedPlutoIdPin);
-
-	// The server will call this constructor, then ProcessRequest
-	VR_ManuallyMatchPhone(unsigned long size,const char *data);
+	VR_ManuallyMatchPhone() {}
 
 	virtual unsigned long ID() { return VRS_MANUALLY_MATCH_PHONE; }
-	
 
-	virtual bool ProcessRequest();
-	virtual bool ParseResponse(unsigned long size,const char *data);
-
-	// These call the base class and then add their output
-	virtual void ConvertRequestToBinary();
-	virtual void ConvertResponseToBinary();
+	virtual void SetupSerialization_Request()
+	{
+		RA_Request::SetupSerialization_Request();
+		StartSerializeList() + m_sBluetoothID + m_sIdentifiedPlutoIdPin
+			+ m_iMacAddress + m_iIdentifiedPlutoId + m_iEstablishmentID;
+	}
+	virtual bool ProcessRequest(class RA_Processor *pRA_Processor);
 };
 
 
