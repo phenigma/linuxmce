@@ -204,6 +204,10 @@ bool Media_Plugin::Register()
         , DATAGRID_Stored_Audio_Playlist_CONST );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::AvailablePlaylists) )
+        , DATAGRID_Available_Playlists_CONST );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaSections ) )
         , DATAGRID_Media_Tracks_CONST );
 
@@ -1565,4 +1569,12 @@ class DataGridTable *Media_Plugin::AllCommandsAppliableToEntAreas( string GridID
 {
     g_pPlutoLogger->Write(LV_STATUS, "Media plugin called!");
     return NULL;
+}
+
+class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    if( Parms.length( )==0 )
+        return NULL; // Nothing passed in yet
+
+    string user_ID = Parms;
 }

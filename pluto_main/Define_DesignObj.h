@@ -1065,6 +1065,7 @@
 #define DESIGNOBJ_grpPhoneSearchKeyboardlarge_CONST 3225
 #define DESIGNOBJ_mnuMediaFileList2_CONST 3226
 #define DESIGNOBJ_dgFileList2_CONST 3227
+#define DESIGNOBJ_LoadPlaylist_CONST 3228
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

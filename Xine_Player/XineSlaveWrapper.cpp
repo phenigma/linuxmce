@@ -34,6 +34,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "DCE/DCEConfig.h"
+
 #define INPUT_MOTION (ExposureMask | ButtonPressMask | KeyPressMask | \
                       ButtonMotionMask | StructureNotifyMask | PropertyChangeMask | PointerMotionMask)
 
@@ -73,17 +75,17 @@ enum
 
 XineSlaveWrapper::XineSlaveWrapper()
     : m_sWindowTitle("xine-slave window (controlled by the DCE m_pXine Player device)"),
-      m_sConfigFile("/usr/pluto/conf/xine-slave.conf"),
-
-      // TODO: fix the xine-slave.conf loading and parsing
       XServerDisplay(NULL),
-
       m_pSameStream(NULL)
 {
     m_iCurrentWindow = 0;
 
     m_sXineAudioDriverName = "alsa";
     m_sXineVideoDriverName = "xv";
+
+    DCEConfig * pConfig = new DCEConfig();
+    m_sConfigFile = pConfig->ReadString("XinePlayerConfigurationFile", "/etc/pluto/xine.conf");
+    delete pConfig;
 
     m_pXineVisualizationPlugin = NULL;
 }
@@ -404,9 +406,55 @@ bool XineSlaveWrapper::closeWindow()
 bool XineSlaveWrapper::createXineLibConnection()
 {
     m_pXine = xine_new();
+    g_pPlutoLogger->Write(LV_STATUS, "Loading config from %s", m_sConfigFile.c_str());
     xine_config_load(m_pXine, m_sConfigFile.c_str());
     xine_init(m_pXine);
 
+    xine_cfg_entry_t xineConfigEntry;
+    char **driver_ids;
+    int i;
+    const char *const *driver_names;
+
+    driver_names= xine_list_video_output_plugins(m_pXine);
+    i = 0;
+    while(driver_names[i++]);
+    driver_ids  = (char **) xine_xmalloc(sizeof(char *) * (i + 1));
+    i = 0;
+    driver_ids[i] = strdup("auto");
+    while(driver_names[i]) {
+      driver_ids[i + 1] = strdup(driver_names[i]);
+      i++;
+    }
+
+    driver_ids[i + 1] = NULL;
+    xine_config_register_enum(m_pXine, "video.driver", 0, driver_ids, "video driver to use", "Choose video driver. NOTE: you may restart xine to use the new driver", 0, NULL, NULL);
+    if ( xine_config_lookup_entry (m_pXine, "video.driver", &xineConfigEntry) == 1 )
+        m_sXineVideoDriverName = driver_ids[xineConfigEntry.num_value];
+    else
+        g_pPlutoLogger->Write(LV_STATUS, "Video driver key not defined in the config file using: %s", m_sXineVideoDriverName.c_str());
+
+    free(driver_ids);
+
+    driver_names = xine_list_audio_output_plugins(m_pXine);
+    i = 0;
+    while(driver_names[i++]);
+    driver_ids  = (char **) xine_xmalloc(sizeof(char *) * (i + 1));
+    i = 0;
+    driver_ids[i] = strdup("auto");
+    while(driver_names[i]) {
+      driver_ids[i + 1] = strdup(driver_names[i]);
+      i++;
+    }
+
+    driver_ids[i + 1] = NULL;
+    xine_config_register_enum(m_pXine, "audio.driver", 0, driver_ids, "audio driver to use", "Choose audio driver. NOTE: you may restart xine to use the new driver", 0, NULL, NULL);
+    if ( xine_config_lookup_entry (m_pXine, "audio.driver", &xineConfigEntry) == 1 )
+        m_sXineAudioDriverName = driver_ids[xineConfigEntry.num_value];
+    else
+        g_pPlutoLogger->Write(LV_STATUS, "Audio driver key not defined in the config file using: %s", m_sXineVideoDriverName.c_str());
+    free(driver_ids);
+
+    g_pPlutoLogger->Write(LV_STATUS, "Using Video driver %s and Audio driver %s", m_sXineVideoDriverName.c_str(), m_sXineAudioDriverName.c_str());
     return true;
 }
 
