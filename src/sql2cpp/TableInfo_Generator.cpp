@@ -838,7 +838,8 @@ string TableInfo_Generator::get_fields_sql_getters_definition()
 				iSize=5000000;  // Don't allow runaway fields with big text.  Assume 5MB is the maximum we would need to use
 
 			sCode = sCode + "char *buf = new char[" + int2string(iSize) + "];\n";		
-			sCode = sCode + "mysql_real_escape_string(table->database->m_pMySQL, buf, m_" + (*i)->m_pcFieldName + ".c_str(), (unsigned long) m_" + (*i)->m_pcFieldName + ".size());\n";
+			sCode = sCode + "mysql_real_escape_string(table->database->m_pMySQL, buf, m_" + (*i)->m_pcFieldName + 
+				".c_str(), (unsigned long) min(" + StringUtils::itos((*i)->m_iLength) + ",m_" + (*i)->m_pcFieldName + ".size()));\n";
 
 			sCode = sCode + "string s=string("")+\"\\\"\"+buf+\"\\\"\";\n";
 			sCode = sCode + "delete buf;\n";
