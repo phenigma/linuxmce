@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/COnfig_Ops.sh
 
 P="$1"
 
@@ -24,4 +25,14 @@ R=$(RunSQL "$Q")
 for Host in $R; do
 	ShutDownRemote "$Host"
 done
-sleep 5
+
+offline=0
+while [ "$offline" -eq 0 ]; do
+	offline=1
+	for Host in $R; do
+		nc -z "$Host" "$DCERouterPort" && offline=0
+	done
+done
+
+# wait 10 seconds more, just to be sure
+sleep 10
