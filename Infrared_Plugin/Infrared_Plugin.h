@@ -62,14 +62,16 @@ public:
 
 
 	/** @brief COMMAND: #250 - Store Infrared Code */
-	/** Stores the infrared code into the database */
+	/** Store a learned infrared code for a "Device" + "Command" pair */
 		/** @param #2 PK_Device */
 			/** Device this code was learned for */
 		/** @param #5 Value To Assign */
 			/** IR code in Philips pronto format */
+		/** @param #71 PK_Command_Input */
+			/** Command this code launches */
 
-	virtual void CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign) { string sCMD_Result; CMD_Store_Infrared_Code(iPK_Device,sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,int iPK_Command_Input) { string sCMD_Result; CMD_Store_Infrared_Code(iPK_Device,sValue_To_Assign.c_str(),iPK_Command_Input,sCMD_Result,NULL);};
+	virtual void CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,int iPK_Command_Input,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

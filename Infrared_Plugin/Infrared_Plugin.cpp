@@ -12,11 +12,10 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
-#include "pluto_main/Table_DeviceCategory.h"
-#include "pluto_main/Table_DeviceTemplate.h"
-#include "pluto_main/Table_InfraredGroup.h"
 #include "pluto_main/Table_InfraredGroup_Command.h"
+#include "pluto_main/Table_DeviceTemplate_InfraredGroup.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -77,87 +76,7 @@ void Infrared_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessa
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
-//<-dceag-sample-b->
-/*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
-
-**** IF YOU DON'T WANT DCEGENERATOR TO KEEP PUTTING THIS AUTO-GENERATED SECTION ****
-**** ADD AN ! AFTER THE BEGINNING OF THE AUTO-GENERATE TAG, LIKE //<=dceag-sample-b->! ****
-Without the !, everything between <=dceag-sometag-b-> and <=dceag-sometag-e->
-will be replaced by DCEGenerator each time it is run with the normal merge selection.
-The above blocks are actually <- not <=.  We don't want a substitution here
-
-void Infrared_Plugin::SomeFunction()
-{
-	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
-	// to do all your registration, such as creating message interceptors
-
-	// If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
-	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
-
-	// Examples:
-	
-	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
-	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click);
-
-	// Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
-	// And we want a response, which will be "OK" if the command was successfull
-	string sResponse;
-	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
-	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
-
-	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-	// Note the _Cat for category
-	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
-    SendCommand(CMD_Simulate_Mouse_Click_Cat);
-
-	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-	// Note the _DT.
-	DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click_DT);
-
-	// This command has a normal string parameter, but also an int as an out parameter
-	int iValue;
-	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
-	// This send command will wait for the destination device to respond since there is
-	// an out parameter
-	SendCommand(CMD_Get_Signal_Strength);  
-
-	// This time we don't care about the out parameter.  We just want the command to 
-	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
-	// will not get set
-	SendCommandNoResponse(CMD_Get_Signal_Strength);  
-
-	// This command has an out parameter of a data block.  Any parameter that is a binary
-	// data block is a pair of int and char *
-	// We'll also want to see the response, so we'll pass a string for that too
-
-	int iFileSize;
-	char *pFileContents
-	string sResponse;
-	DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
-	SendCommand(CMD_Request_File);
-
-	// If the device processed the command (in this case retrieved the file),
-	// sResponse will be "OK", and iFileSize will be the size of the file
-	// and pFileContents will be the file contents.  **NOTE**  We are responsible
-	// free deleting pFileContents.
-
-
-	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
-
-	// Get our IP address from our data
-	string sIP = DATA_Get_IP_Address();
-
-	// Set our data "Filename" to "myfile"
-	DATA_Set_Filename("myfile");
-
-	// Fire the "Finished with file" event, which takes no parameters
-	EVENT_Finished_with_file();
-	// Fire the "Touch or click" which takes an X and Y parameter
-	EVENT_Touch_or_click(10,150);
-}
-*/
+//<-dceag-sample-b->!
 //<-dceag-sample-e->
 
 /*
@@ -179,28 +98,45 @@ void Infrared_Plugin::SomeFunction()
 void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c188-e->
 {
-	cout << "Command #188 - Get Infrared Codes" << endl;
-	cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
+	int i;
+	size_t Count = 0;
+	Table_InfraredGroup_Command * pTable_InfraredGroup_Command = m_pDatabase_pluto_main->InfraredGroup_Command_get();
+	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command[3];
 
-	vector<Row_Device *> vectpRow_Device;
-
-	*sValue_To_Assign = "";
-
-	Row_DeviceCategory * pRow_DeviceCategory = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device)->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow();
-	vector<Row_InfraredGroup *> vectpRow_InfraredGroup;
-	m_pDatabase_pluto_main->InfraredGroup_get()->GetRows("FK_DeviceCategory=" + StringUtils::ltos(pRow_DeviceCategory->PK_DeviceCategory_get()), &vectpRow_InfraredGroup);
-	vector<Row_InfraredGroup *>::iterator i;
-	for (i = vectpRow_InfraredGroup.begin(); i != vectpRow_InfraredGroup.end(); i++)
+	long FK_DeviceTemplate = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device)->FK_DeviceTemplate_get();
+	
+	vector<Row_DeviceTemplate_InfraredGroup *> vectRow_DeviceTemplate_InfraredGroup;
+	m_pDatabase_pluto_main->DeviceTemplate_InfraredGroup_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(iPK_Device),
+		&vectRow_DeviceTemplate_InfraredGroup);
+	
+	vector<Row_DeviceTemplate_InfraredGroup *>::iterator it_RDTIG;
+	for (it_RDTIG = vectRow_DeviceTemplate_InfraredGroup.begin(); it_RDTIG != vectRow_DeviceTemplate_InfraredGroup.end(); it_RDTIG++)
 	{
-		vector<Row_InfraredGroup_Command *> vectpRow_InfraredGroup_Command;
-		m_pDatabase_pluto_main->InfraredGroup_Command_get()->GetRows("FK_InfraredGroup=" + StringUtils::ltos((*i)->PK_InfraredGroup_get()) + " LIMIT 1", &vectpRow_InfraredGroup_Command);
-		vector<Row_InfraredGroup_Command *>::iterator j;
-		* sValue_To_Assign = StringUtils::ltos((vectpRow_InfraredGroup_Command.size())) + "\t";
-		for (j = vectpRow_InfraredGroup_Command.begin(); j != vectpRow_InfraredGroup_Command.end(); j++)
+		Row_DeviceTemplate_InfraredGroup * pRow_DeviceTemplate_InfraredGroup = *it_RDTIG;
+		pTable_InfraredGroup_Command->GetRows("FK_InfraredGroup=" + StringUtils::itos(pRow_DeviceTemplate_InfraredGroup->FK_InfraredGroup_get()),
+			&vectRow_InfraredGroup_Command[0]);
+	}
+	pTable_InfraredGroup_Command->GetRows("FK_DeviceTemplate=" + StringUtils::itos(FK_DeviceTemplate),
+		&vectRow_InfraredGroup_Command[1]);
+	pTable_InfraredGroup_Command->GetRows("FK_Device=" + StringUtils::itos(iPK_Device),
+		&vectRow_InfraredGroup_Command[2]);
+
+
+	for (i = 0; i < 3; i++)
+		Count += vectRow_InfraredGroup_Command[i].size();
+	
+	// Format: <Count> \t (<Command ID> \t <IRData> \t){<Count> times}
+	* sValue_To_Assign = StringUtils::ltos(Count) + "\t";
+
+	for (i = 0; i < 3; i++)
+	{
+		vector<Row_InfraredGroup_Command *>::iterator it_vRIGC;
+		for (it_vRIGC = vectRow_InfraredGroup_Command[i].begin(); it_vRIGC != vectRow_InfraredGroup_Command[i].end(); it_vRIGC++)
 		{
+			Row_InfraredGroup_Command * pRow_InfraredGroup_Command = * it_vRIGC;
 //			cout << (*j)->Description_get() << ": " << (*j)->IRData_get() << endl;
-			* sValue_To_Assign += StringUtils::ltos((*j)->FK_Command_get()) + "\t" + (*j)->IRData_get() + "\t";
+			* sValue_To_Assign += StringUtils::ltos(pRow_InfraredGroup_Command->FK_Command_get()) + "\t" +
+				pRow_InfraredGroup_Command->IRData_get() + "\t";
 		}
 	}
 	sCMD_Result = "OK";
@@ -208,13 +144,36 @@ void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_As
 //<-dceag-c250-b->
 
 	/** @brief COMMAND: #250 - Store Infrared Code */
-	/** Stores the infrared code into the database */
+	/** Store a learned infrared code for a "Device" + "Command" pair */
 		/** @param #2 PK_Device */
 			/** Device this code was learned for */
 		/** @param #5 Value To Assign */
 			/** IR code in Philips pronto format */
+		/** @param #71 PK_Command_Input */
+			/** Command this code launches */
 
-void Infrared_Plugin::CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Infrared_Plugin::CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,int iPK_Command_Input,string &sCMD_Result,Message *pMessage)
 //<-dceag-c250-e->
 {
+	Table_InfraredGroup_Command * pTable_InfraredGroup_Command = m_pDatabase_pluto_main->InfraredGroup_Command_get();
+
+	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command;
+	pTable_InfraredGroup_Command->GetRows("FK_Device=" + StringUtils::itos(iPK_Device) +
+		" AND FK_Command=" + StringUtils::itos(iPK_Command_Input), &vectRow_InfraredGroup_Command);
+	if (vectRow_InfraredGroup_Command.size() == 0)
+	{
+		// we found no existing entry for the Command+Device pair; adding a new one
+		Row_InfraredGroup_Command * pRow_InfraredGroup_Command = pTable_InfraredGroup_Command->AddRow();
+		pRow_InfraredGroup_Command->FK_Device_set(iPK_Device);
+		pRow_InfraredGroup_Command->FK_Command_set(iPK_Command_Input);
+		pRow_InfraredGroup_Command->FK_DeviceTemplate_set(pRow_InfraredGroup_Command->FK_Device_getrow()->FK_DeviceTemplate_get());
+		pRow_InfraredGroup_Command->IRData_set(sValue_To_Assign);
+	}
+	else
+	{
+		// we found an entry; updating it
+		vectRow_InfraredGroup_Command[0]->IRData_set(sValue_To_Assign);
+	}
+
+	sCMD_Result = "OK";
 }
