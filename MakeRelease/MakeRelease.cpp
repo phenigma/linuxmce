@@ -1314,6 +1314,7 @@ string Makefile = "none:\n"
 			}
 			fclose(g);
 			fclose(f);
+			FileUtils::PUCopyFile("debian/postinst", "debian/postinst.ex");
 #endif
 		}
 		else if (sSource.find("mkr_preinst") != string::npos) // NOTE: not right; should check at begining of file name
@@ -1342,6 +1343,7 @@ string Makefile = "none:\n"
 			}
 			fclose(g);
 			fclose(f);
+			FileUtils::PUCopyFile("debian/preinst", "debian/preinst.ex");
 #endif
 		}
 		else
