@@ -958,7 +958,7 @@ g_pPlutoLogger->Write(LV_ACTION,"returning mounted dvd");
 	}
 
 g_pPlutoLogger->Write(LV_CRITICAL,"Failed to mount %d %d",iResult,iResult2);
-	string cmd = "ln -sf " + sDrive + " /dev/dvd";
+	cmd = "ln -sf " + sDrive + " /dev/dvd";
 	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
 	system(cmd.c_str());  // Can't do anything if it fails
 
