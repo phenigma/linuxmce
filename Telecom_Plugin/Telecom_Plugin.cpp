@@ -75,7 +75,6 @@ Telecom_Plugin::~Telecom_Plugin()
 bool Telecom_Plugin::Register()
 //<-dceag-reg-e->
 {
-	/*
 	m_pDatagrid_Plugin=NULL;
 	ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 
@@ -102,8 +101,13 @@ bool Telecom_Plugin::Register()
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::TelecomScenariosGrid))
 		,DATAGRID_Telecom_Scenarios_CONST);
 		
-	
-	*/
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::PhoneBookAutoCompl))
+		,DATAGRID_Phone_Book_Auto_Compl_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::PhoneBookListOfNos))
+		,DATAGRID_Phone_Book_List_of_Nos_CONST);
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
@@ -140,12 +144,11 @@ void Telecom_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 
 class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-/*
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
 	vector<Row_CommandGroup *> vectRowCommandGroup;
-	m_pDatabase_pluto_main->CommandGroup_get()->GetRows( COMMANDGROUP_FK_ARRAY_FIELD + string("=") + StringUtils::itos(ARRAY_Communication_Sceneraios_CONST) + " AND " 
+	m_pDatabase_pluto_main->CommandGroup_get()->GetRows( COMMANDGROUP_FK_ARRAY_FIELD + string("=") + StringUtils::itos(ARRAY_Communication_Scenarios_CONST) + " AND " 
 			+ COMMANDGROUP_FK_INSTALLATION_FIELD + "=" + StringUtils::itos(m_pRouter->iPK_Installation_get()),&vectRowCommandGroup );
 	for(size_t s=0;s<vectRowCommandGroup.size();++s)
 	{
@@ -155,10 +158,52 @@ class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string P
 	}
 
 	return pDataGrid;
-	*/
-	return 0;
 }
 
+class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	pCell = new DataGridCell("adam","12");
+	pDataGrid->SetData(0,0,pCell);
+
+	pCell = new DataGridCell("bob","13");
+	pDataGrid->SetData(0,0,pCell);
+
+	pCell = new DataGridCell("chuck","14");
+	pDataGrid->SetData(0,0,pCell);
+
+	return pDataGrid;
+}
+
+class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	if( Parms.length()==0 )
+		return pDataGrid;
+
+	if( Parms=="12" )
+	{
+		pCell = new DataGridCell("chuck's cell","123456");
+//		pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mypic.jpg",pCell->m_GraphicLength);
+		pDataGrid->SetData(0,0,pCell);
+		pCell = new DataGridCell("chuck's home","7890");
+		pDataGrid->SetData(0,0,pCell);
+	}
+	else if( Parms=="13" )
+	{
+		pCell = new DataGridCell("bob's cell","123456");
+		pDataGrid->SetData(0,0,pCell);
+		pCell = new DataGridCell("bob's home","7890");
+		pDataGrid->SetData(0,0,pCell);
+	}
+
+
+	return pDataGrid;
+}
 
 bool 
 Telecom_Plugin::CommandResult( class Socket *pSocket, class Message *pMessage,
