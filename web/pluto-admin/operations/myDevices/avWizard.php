@@ -162,7 +162,7 @@ function avWizard($output,$dbADO) {
 					$displayedAVDevicesDescription[]=$rowD['Description'];
 				}
 				$resDevice->Close();
-				
+
 				$queryConnectedToDevices='
 					SELECT DISTINCT Device.*
 					FROM Device 
@@ -175,7 +175,6 @@ function avWizard($output,$dbADO) {
 					$conD[$rowConD['PK_Device']]=$rowConD['Description'];
 				}
 				$resConnectedToDevices->Close();
-			
 			
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();

@@ -88,7 +88,7 @@ function installationSettings($output,$dbADO) {
 				</tr>
 				<tr>
 					<td><B>Country</B>:</td>
-					<td>'.generatePullDown('country','Country','PK_Country','Description',$rowInstallation['FK_Country'],$dbADO).'</td>
+					<td>'.generatePullDown('countryID','Country','PK_Country','Description',$rowInstallation['FK_Country'],$dbADO).'</td>
 				</tr>		
 				<tr>
 					<td><B>Zip/Postal Code</B>:</td>
@@ -206,15 +206,14 @@ function installationSettings($output,$dbADO) {
 			exit(0);
 		}
 		
-		
-		
+
 		$description = cleanString(@$_POST['Description'],50);
 		$name = cleanString(@$_POST['Name'],50);
 		$address = cleanString(@$_POST['Address'],50);
 		$city = cleanString(@$_POST['City'],50);
 		$state = cleanString(@$_POST['State'],50);
 		$zip = cleanString(@$_POST['Zip'],50);
-		$country=($_POST['country']!='0')?(int)$_POST['country']:NULL;
+		$country=((int)$_POST['countryID']!=0)?(int)$_POST['countryID']:NULL;
 		
 		if ($installationID!=0 && $description!='') {
 			

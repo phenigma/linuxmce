@@ -169,6 +169,8 @@ if ($action == 'form') {
 				WHERE FK_DeviceTemplate=?';
 			$resOutput=$dbADO->Execute($queryOutput,$rowD['FK_DeviceTemplate']);
 			$outHeight=20;
+			$outputsForDevice[]='<div id="out_'.$rowD['PK_Device'].'_cmd_0" style="position:absolute;Z-INDEX: 1000;background-image:url(include/images/none.gif);width:30px;height:20px;left:215;top:'.$outHeight.';" title="No output" onClick="setPipe(\''.$rowD['PK_Device'].'\',\'0\',\'out_\',\'Output on '.$rowD['Description'].'\');"></div>';
+			$outHeight+=25;
 			while($rowOutputs=$resOutput->FetchRow()){
 				$img=($rowOutputs['FK_ConnectorType']=='')?$connectorsArray[0]:$connectorsArray[$rowOutputs['FK_ConnectorType']];
 				$outputsForDevice[]='<div id="out_'.$rowD['PK_Device'].'_cmd_'.$rowOutputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;background-image:url(include/images/'.$img.');width:30px;height:20px;left:215;top:'.$outHeight.';" title="'.$rowOutputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowOutputs['PK_Command'].'\',\'out_\',\''.$rowOutputs['Description'].' ('.str_replace('.gif','',$img).') on '.$rowD['Description'].'\');"></div>';
@@ -189,7 +191,7 @@ if ($action == 'form') {
 	var videoLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_4");
 </script>
 <DIV id="device_'.$rowD['PK_Device'].'" style="BORDER-RIGHT: 2px outset; BORDER-TOP: 2px outset; DISPLAY: ; Z-INDEX: 1; BORDER-LEFT: 2px outset; WIDTH: 250px; BORDER-BOTTOM: 2px outset; POSITION: absolute; '.((isset($oldDevice[$rowD['PK_Device']])?'LEFT: '.$oldDevice[$rowD['PK_Device']]['deviceX'].'; TOP: '.$oldDevice[$rowD['PK_Device']]['deviceY'].';':'LEFT: 100px; TOP: '.$topPos.'px;')).' HEIGHT: '.$height.'px" onclick="bring_to_front(\'device_'.$rowD['PK_Device'].'\')" onmousedown="bring_to_front(\'device_'.$rowD['PK_Device'].'\')">
-  <TABLE height="100%" cellSpacing=0 cellPadding=0 width="100%" bgColor=#EEEEEE border=0>
+  <TABLE height="100%" cellSpacing=0 cellPadding=0 width="100%" bgColor=#EEEEEE border=0 onContextMenu="showInfoToolbar('.$rowD['PK_Device'].');return false;">
       <TBODY>
         <TR onmouseup="end_drag(\'device_'.$rowD['PK_Device'].'\')" onmousedown="start_drag(\'device_'.$rowD['PK_Device'].'\')" id="head_'.$rowD['PK_Device'].'"> 
           <TD align="center" width=196 bgColor=lightblue height="15" valign="middle"><B>'.$rowD['Description'].'</B></TD>
@@ -204,7 +206,15 @@ if ($action == 'form') {
 		</table></TD>
         </TR>
   </TABLE>
-</DIV>';
+</DIV>
+
+<div id="deleteToolbar" style="display:none; position:absolute; top:0px;left:0px;BORDER: 1px outset;background-color:#FFFFFF;z-index:1000;" onMouseOut="if (mouseLeaves(this, event))document.getElementById(\'deleteToolbar\').style.display=\'none\';">
+<input type="checkbox" id="del_audio" value="1" onClick="removePipe(this);"> Audio: <span style="color:red" id="del_audio_text">not set</span> <br>
+<input type="checkbox" id="del_video" value="1" onClick="removePipe(this);">  Video: <span style="color:blue" id="del_video_text">not set</span> <br>
+<input type="checkbox" id="del_audioLive" value="1" onClick="removePipe(this);"> AudioLive: <span style="color:green" id="del_audioLive_text">not set</span> <br>
+<input type="checkbox" id="del_videoLive" value="1" onClick="removePipe(this);">VideoLive: <span style="color:magenta" id="del_videoLive_text">not set</span> <br>
+</div>
+';
 			$topPos+=(15+$height);
 		}
 	}
@@ -223,9 +233,12 @@ if ($action == 'form') {
 		$out.='	
 		</script>';
 	}
+	
+	// ToDO: add rebuild later
 	$out.='<script>
 	'.@$jsDrawPipes.'
 	</script>';
+	
 
 	$output->SetScriptInBody('onmousemove="drag_layer();"');
 } else {
@@ -241,7 +254,6 @@ if ($action == 'form') {
 
 		if($entertainArea!=0){
 			$cookieArray[$oldEntertainArea]=$_REQUEST['devicesCoords'];
-			
 			// update database
 			foreach ($cookieArray AS $entArea=>$params){
 				if($entArea!=0){
@@ -274,7 +286,8 @@ function addDeletePipe($operation,$deviceFrom,$pipe,$dbADO)
 	}else{
 		$arr=explode(':',$operation);
 		$deviceTo=$arr[0];
-		$dbADO->Execute('INSERT IGNORE INTO Device_Device_Pipe (FK_Device_From,FK_Device_To,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES (?,?,?,?,?)',array($deviceFrom,$deviceTo,$pipe,$arr[2],$arr[3]));
+		$commandOut=($arr[3]!=0)?$arr[3]:NULL;
+		$dbADO->Execute('INSERT IGNORE INTO Device_Device_Pipe (FK_Device_From,FK_Device_To,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES (?,?,?,?,?)',array($deviceFrom,$deviceTo,$pipe,$arr[2],$commandOut));
 	}
 }
 

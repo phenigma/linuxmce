@@ -213,6 +213,8 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 					}
 				}
 				$msg='';
+				$commandToSend='/usr/pluto/bin/SetupUsers.sh';
+				system($commandToSend);				
 				header("Location: index.php?section=users&msg=".$msg.$locationGoTo);
 			}
 			
@@ -233,6 +235,9 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				$query=$dbADO->Execute($insertUserToInstallation,array($installationID,$MasterUsersID));
 				unset($_SESSION['masterUserData']);
 				unset($_SESSION['masterUserName']);
+				
+				$commandToSend='/usr/pluto/bin/SetupUsers.sh';
+				system($commandToSend);				
 				header("Location: index.php?section=users&msg=User added.".$locationGoTo);
 			}
 			
