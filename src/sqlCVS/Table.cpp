@@ -1762,7 +1762,9 @@ int k=2;
 					"`" << Name_get() << "` As L LEFT JOIN `" << pField->m_pField_IReferTo_Directly->Table_get()->Name_get() << "` As R " <<
 					" ON L.`" << pField->Name_get() << "`=" <<  
 					"R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` WHERE " <<
-					"L.`" << pField->Name_get() << "` IS NOT NULL AND R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` IS NULL";
+					"L.`" << pField->Name_get() << "` IS NOT NULL " <<
+					" AND L.`" << pField->Name_get() << "`!='0' " <<  // Temorary HACK - todo remove this.  It's only here because php keeps inserting 0's instead of null's and breaking the builder.  Vali will fix this and we'll remove it
+					"AND R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` IS NULL";
 
 				if( ( result_set2.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
 				{
@@ -1808,7 +1810,8 @@ int k=2;
 					"LEFT JOIN " << pField->Name_get().substr(3) << " As T2 ON T1.FK_" << pField->Name_get().substr(3) << " = T2.PK_" << pField->Name_get().substr(3) <<
 					" LEFT JOIN " << pField_IReferTo_Indirectly->m_pTable->Name_get() << " As T3 ON T1." << pField->Name_get() << "=T3." << pField_IReferTo_Indirectly->Name_get() <<
 					" WHERE T2.Description = \"" << pField_IReferTo_Indirectly->Name_get() << "\" AND T3." << pField_IReferTo_Indirectly->Name_get() <<
-					" IS NULL AND T1." << pField->Name_get() << " IS NOT NULL AND T1." << pField->Name_get() << "<>''";
+					" IS NULL AND T1." << pField->Name_get() << " IS NOT NULL AND T1." << pField->Name_get() << "<>''" <<
+					" AND T1." << pField->Name_get() << "<>'0'";  // Temorary HACK - todo remove this.  It's only here because php keeps inserting 0's instead of null's and breaking the builder.  Vali will fix this and we'll remove it
 
 				if( ( result_set3.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
 				{
