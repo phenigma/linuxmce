@@ -85,8 +85,7 @@ public:
 
     pluto_pthread_mutex_t m_UnknownDevicesMutex;
     bool m_bNoUnknownDeviceIsProcessing;
-
-
+	string m_sPK_Device_AllOrbiters;
 
 public:
     // Public member variables

@@ -186,6 +186,7 @@ bool Orbiter_Plugin::Register()
         {
             OH_Orbiter *pOH_Orbiter = new OH_Orbiter(pDeviceData_Router);
             m_mapOH_Orbiter[pDeviceData_Router->m_dwPK_Device] = pOH_Orbiter;
+			m_sPK_Device_AllOrbiters += StringUtils::itos(pDeviceData_Router->m_dwPK_Device) + ",";
             if( pDeviceData_Router->m_sMacAddress.size()==0 )
             {
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter: %d %s doesn't have a mac address.",
@@ -319,7 +320,10 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
     }
 
     if(NULL == pUnknownDeviceInfos)
+	{
+		m_bNoUnknownDeviceIsProcessing = false;
         return; //no new unknown device to process
+	}
 
 	PhoneDevice pd("",sMacAddress,0);
 	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
@@ -333,27 +337,11 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_DeviceCategory_get()==DEVICECATEGORY_Bluetooth_Dongles_CONST )
 	{
 	    g_pPlutoLogger->Write(LV_STATUS, "skipping detection of %s.  it's just a dongle",sMacAddress.c_str());
+		m_bNoUnknownDeviceIsProcessing = false;
 		return;
 	}
 
     g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s", sMacAddress.c_str());
-
-    // A list of all the orbiters we will notify of this device's presence
-    list<int> listOrbiter;
-
-    // We didn't find any Orbiters.  Use them all
-    for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
-    {
-        OH_Orbiter *pOH_Orbiter = (*it).second;
-        listOrbiter.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-    }
-
-    string sOrbiterIDList;
-    list<int>::iterator itOrbiter;
-    for(itOrbiter = listOrbiter.begin(); itOrbiter != listOrbiter.end(); ++itOrbiter)
-        sOrbiterIDList += StringUtils::itos(*itOrbiter) + ",";
-
-    g_pPlutoLogger->Write(LV_STATUS,"Orbiter list: %s", sOrbiterIDList.c_str());
 
 	string Description;
 	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_Manufacturer_get() )
@@ -363,33 +351,14 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 	if( pUnknownDeviceInfos->m_sID.length() )
 		Description += "  Bluetooth ID: " + pUnknownDeviceInfos->m_sID;
 
-	for(itOrbiter = listOrbiter.begin(); itOrbiter != listOrbiter.end(); ++itOrbiter)
-    {
-        int iOrbiterID = *itOrbiter;
-
-		DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device, iOrbiterID, VARIABLE_Misc_Data_1_CONST, sMacAddress);
-        DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device, iOrbiterID, VARIABLE_Misc_Data_2_CONST, Description);
-        DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device, iOrbiterID, 0, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "", "", true);
-
-        // Send them all 3 in one message for efficiency
-        CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable.m_pMessage );
-        CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable2.m_pMessage );
-        QueueMessageToRouter(CMD_Goto_Screen.m_pMessage);
-    }
-
-    //TODO: Find why CMD_Set_Variable_DL is not working
-    //CMD_Set_Variable_DL doesn't work!!!
-    /*
-    DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device, sOrbiterIDList, VARIABLE_Misc_Data_1_CONST, sMacAddress);
-    DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device, sOrbiterIDList, VARIABLE_Misc_Data_2_CONST, sID);
-    DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device, sOrbiterIDList, 0, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "", "", true);
+    DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, sMacAddress);
+    DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, Description);
+    DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "", "", true);
 
     // Send them all 3 in one message for efficiency
     CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
     CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL2.m_pMessage );
-    QueueMessageToRouter(CMD_Goto_Screen_DL.m_pMessage);*/
-
-    listOrbiter.clear();
+    QueueMessageToRouter(CMD_Goto_Screen_DL.m_pMessage);
 }
 
 bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -834,7 +803,10 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
-    m_bNoUnknownDeviceIsProcessing = false;
+	DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "1");
+    SendCommand(CMD_Go_back_DL);
+
+	m_bNoUnknownDeviceIsProcessing = false;
 
     ProcessUnknownDevice();
 }
@@ -865,6 +837,9 @@ void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_
     );
 
     m_bNoUnknownDeviceIsProcessing = false;
+
+	DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "1");
+    SendCommand(CMD_Go_back_DL);
 
     ProcessUnknownDevice();
 }

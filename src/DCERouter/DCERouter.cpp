@@ -1302,6 +1302,9 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
         while( (sPK_Device=StringUtils::Tokenize((*(*pSafetyMessage))->m_sPK_Device_List_To,",",pos)).length() )
         {
             (*(*pSafetyMessage))->m_dwPK_Device_To=atoi(sPK_Device.c_str());
+			for(size_t s=0;s<(*(*pSafetyMessage))->m_vectExtraMessages.size();++s)
+				(*(*pSafetyMessage))->m_vectExtraMessages[s]->m_dwPK_Device_To=atoi(sPK_Device.c_str());
+
             RealSendMessage(pSocket,pSafetyMessage);
         }
         return;
