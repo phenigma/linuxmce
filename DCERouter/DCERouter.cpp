@@ -44,9 +44,6 @@ using namespace std;
 #include "pluto_main/Table_DeviceTemplate_Input.h"
 #include "pluto_main/Table_DeviceTemplate_DSPMode.h"
 #include "pluto_main/Table_Device_Device_Pipe.h"
-#include "pluto_main/Table_Input.h"
-#include "pluto_main/Table_Output.h"
-#include "pluto_main/Table_DSPMode.h"
 #include "pluto_main/Table_Command.h"
 
 #ifndef WIN32

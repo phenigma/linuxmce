@@ -19,9 +19,9 @@ sources = Main.cpp Event_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lpluto_main
 
-Gen_Dev_Files +=
+Gen_Dev_Files += Criteria.cpp  CriteriaParmNesting.cpp  Criteria_EvaluateExpression.cpp
 sources +=
 
 #<-dceag-mf-b->
