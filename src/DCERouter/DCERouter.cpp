@@ -98,7 +98,7 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 }
 
 Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort,int ListenPort) :
-    SocketListener("Router Dev #" + StringUtils::itos(PK_Device)), m_CoreMutex("core"), MySqlHelper(DBHost,DBUser,DBPassword,DBName,DBPort)
+    SocketListener("Router Dev #" + StringUtils::itos(PK_Device)), m_CoreMutex("core"), m_InterceptorMutex("interceptor"), MySqlHelper(DBHost,DBUser,DBPassword,DBName,DBPort)
 {
 	g_pRouter=this;  // For the deadlock handler
 	g_pDeadlockHandler=DeadlockHandler;
@@ -120,6 +120,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 	m_bStopProcessingMessages=false;
 
     m_CoreMutex.Init(NULL);
+    m_InterceptorMutex.Init(NULL);
     pthread_mutex_init(&m_MessageQueueMutex,NULL);
     pthread_cond_init(&m_MessageQueueCond, NULL);
 
@@ -429,7 +430,7 @@ void Router::RegisterAllPlugins()
 // Return: Result from RegisterAsPlugin(...) on success; NULL on error
 Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string sCommandLine)
 {
-    typedef class Command_Impl * (* RAP_FType) (class Router *, int, string);
+    typedef class Command_Impl * (* RAP_FType) (class Router *, int, Logger *);
     RAP_FType RegisterAsPlugin;
     string ErrorMessage;
     char MS_ErrorMessage[1024];
@@ -491,7 +492,7 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
 	Command_Impl *pCommand_Impl=NULL;
 	try
 	{
-		pCommand_Impl = RegisterAsPlugin(this, PK_Device, "dcerouter"); // hack!!!
+		pCommand_Impl = RegisterAsPlugin(this, PK_Device, g_pPlutoLogger);
 	}
 	catch(...)
 	{
@@ -614,8 +615,6 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 
     SafetyMessage SafetyMessage(pMessageWillBeDeleted);
 
-	PLUTO_SAFETY_LOCK(cm,m_CoreMutex);  // Protect the interceptor map
-
 	if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_REGISTER_INTERCEPTOR )
     {
         RegisterMsgInterceptor( (*SafetyMessage) );
@@ -651,6 +650,8 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
     DeviceData_Router *pDeviceFrom = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_From);
     DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_To);
 
+	PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect the interceptor map
+
     list<class MessageInterceptorCallBack *>::iterator itInterceptors;
     for(itInterceptors=m_listMessageInterceptor_Global.begin();
         itInterceptors!=m_listMessageInterceptor_Global.end();++itInterceptors)
@@ -670,6 +671,9 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
         class MessageTypeInterceptor *pMessageTypeInterceptors = (*itMessageType).second;
         CheckInterceptor(pMessageTypeInterceptors,pSocket,pMessageWillBeDeleted,pDeviceFrom,pDeviceTo);
     }
+
+	im.Release();
+
     // Check against all the Interceptors that didn't specify a message type
     itMessageType = m_mapMessageTypeInterceptor.find(0);
     if( itMessageType!=m_mapMessageTypeInterceptor.end() )
@@ -753,7 +757,6 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 			}
 		}
 	}
-	cm.Release();
 
     int tempid = (*SafetyMessage)->m_dwPK_Device_To;
     if(tempid == m_dwPK_Device)

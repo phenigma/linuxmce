@@ -81,25 +81,9 @@ extern "C" {
 
 //<-dceag-plug-b->
 extern "C" {
-	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,string sLogger)
+	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,Logger *pPlutoLogger)
 	{
-		if( sLogger=="dcerouter" )
-		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, Generic_Analog_Capture_Card::PK_DeviceTemplate_get_static(), "localhost");
-			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
-			{
-				sLogger="stdout";
-				cerr << "Failed to create server logger.  Reverting to stdout instead." << endl;
-			}
-		}
-		
-		if( sLogger=="null" )
-			g_pPlutoLogger = new NullLogger();
-		else if( sLogger=="stdout" )
-			g_pPlutoLogger = new FileLogger(stdout);
-		else if( sLogger!="dcerouter" )
-			g_pPlutoLogger = new FileLogger(sLogger.c_str());
-
+		g_pPlutoLogger = pPlutoLogger;
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Generic_Analog_Capture_Card *pGeneric_Analog_Capture_Card = new Generic_Analog_Capture_Card(PK_Device, "localhost",true,false,pRouter);

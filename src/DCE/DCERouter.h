@@ -152,7 +152,7 @@ int k;
 
         // Miscellaneous Data for internal use
         AlarmManager* m_pAlarmManager;
-        pluto_pthread_mutex_t m_CoreMutex;
+        pluto_pthread_mutex_t m_CoreMutex,m_InterceptorMutex;
         pthread_mutex_t m_MessageQueueMutex;
         pthread_cond_t m_MessageQueueCond;
         int m_Port;
@@ -227,7 +227,7 @@ int k;
         // HACK -- We need to do this inline since a lot of plug-ins will be calling this method and we don't have a way for dcerouter to export it's classes and we don't want to add dcerouter.cpp to the plug-ins
         void RegisterMsgInterceptor(class MessageInterceptorCallBack *pCallBack,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID)
         {
-			PLUTO_SAFETY_LOCK(cm,m_CoreMutex);  // Protect the interceptor map
+			PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect the interceptor map
             if( PK_Device_From==0 && PK_Device_To==0 && PK_DeviceTemplate==0 && PK_DeviceCategory==0 && MessageType==0 && MessageID==0 )
             {
                 m_listMessageInterceptor_Global.push_back(pCallBack);

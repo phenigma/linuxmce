@@ -258,3 +258,17 @@ void Linphone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 	manager_.Drop();
 }
 
+//<-dceag-c335-b->
+
+	/** @brief COMMAND: #335 - Phone_Answer */
+	/** Answer a call */
+
+void Linphone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
+//<-dceag-c335-e->
+//<-dceag-c336-b->
+
+	/** @brief COMMAND: #336 - Phone_Drop */
+	/** Drop a call */
+
+void Linphone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
+//<-dceag-c336-e->
