@@ -58,7 +58,7 @@ long int pk_FK_Attribute;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_SearchToken_Attribute*> *rows);
 	class Row_SearchToken_Attribute* AddRow();
 	Database_pluto_media *Database_pluto_media_get() { return database; }

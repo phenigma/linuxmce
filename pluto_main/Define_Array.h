@@ -5,7 +5,7 @@
 #define ARRAY_Climate_Scenarios_CONST 2
 #define ARRAY_Security_Scenarios_CONST 3
 #define ARRAY_Communication_Sceneraios_CONST 4
-#define ARRAY_Entertainment_Scenarios_CONST 5
+#define ARRAY_Media_Scenarios_CONST 5
 #define ARRAY_Entertainment_Areas_CONST 6
 #define ARRAY_Viewable_Cameras_CONST 7
 #define ARRAY_Video_Phones_CONST 8
@@ -17,6 +17,8 @@
 #define ARRAY_Locations_CONST 14
 #define ARRAY_Floorplans_CONST 15
 #define ARRAY_Misc_Scenarios_CONST 16
+#define ARRAY_Soft_Phones_CONST 18
+#define ARRAY_Soft_Video_Phones_CONST 19
 
 #define ARRAY_TABLE "Array"
 #define ARRAY_PK_ARRAY_FIELD "PK_Array"

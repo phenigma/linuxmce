@@ -130,6 +130,12 @@
 				RelativePath=".\Table_Picture_File.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Playlist.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_PlaylistEntry.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_SearchToken.cpp">
 			</File>
 			<File

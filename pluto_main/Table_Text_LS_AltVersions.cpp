@@ -375,7 +375,7 @@ else
 return false;	
 }	
 
-void Table_Text_LS_AltVersions::Commit()
+bool Table_Text_LS_AltVersions::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -397,6 +397,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Text_asSQL(
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -452,6 +453,7 @@ update_values_list = update_values_list + "FK_Text="+pRow->FK_Text_asSQL()+", FK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -462,7 +464,8 @@ update_values_list = update_values_list + "FK_Text="+pRow->FK_Text_asSQL()+", FK
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_Text_LS_AltVersions *pRow = (Row_Text_LS_AltVersions *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -474,7 +477,7 @@ update_values_list = update_values_list + "FK_Text="+pRow->FK_Text_asSQL()+", FK
 		map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		TripleLongKey key = (*i).first;
-		Row_Text_LS_AltVersions* pRow = (Row_Text_LS_AltVersions*) (*i).second;	
+		Row_Text_LS_AltVersions* pRow = (Row_Text_LS_AltVersions*) (*i).second;
 
 		char tmp_FK_Text[32];
 sprintf(tmp_FK_Text, "%li", key.pk1);
@@ -495,12 +498,14 @@ condition = condition + "FK_Text=" + tmp_FK_Text+" AND "+"FK_Language=" + tmp_FK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_Text_LS_AltVersions::GetRows(string where_statement,vector<class Row_Text_LS_AltVersions*> *rows)

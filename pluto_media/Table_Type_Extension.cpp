@@ -322,7 +322,7 @@ else
 return false;	
 }	
 
-void Table_Type_Extension::Commit()
+bool Table_Type_Extension::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -344,6 +344,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL(
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -393,6 +394,7 @@ update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", Ex
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -403,7 +405,8 @@ update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", Ex
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_Type_Extension *pRow = (Row_Type_Extension *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -415,7 +418,7 @@ update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", Ex
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Type_Extension* pRow = (Row_Type_Extension*) (*i).second;	
+		Row_Type_Extension* pRow = (Row_Type_Extension*) (*i).second;
 
 		char tmp_FK_Type[32];
 sprintf(tmp_FK_Type, "%li", key.pk);
@@ -430,12 +433,14 @@ condition = condition + "FK_Type=" + tmp_FK_Type;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_Type_Extension::GetRows(string where_statement,vector<class Row_Type_Extension*> *rows)

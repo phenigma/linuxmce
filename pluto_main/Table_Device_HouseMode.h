@@ -58,7 +58,7 @@ long int pk_FK_HouseMode;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_Device_HouseMode*> *rows);
 	class Row_Device_HouseMode* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

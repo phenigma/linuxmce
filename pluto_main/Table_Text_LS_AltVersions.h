@@ -59,7 +59,7 @@ long int pk_Version;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_Text_LS_AltVersions*> *rows);
 	class Row_Text_LS_AltVersions* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

@@ -322,7 +322,7 @@ else
 return false;	
 }	
 
-void Table_Template::Commit()
+bool Table_Template::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -344,6 +344,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Template_as
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -395,6 +396,7 @@ update_values_list = update_values_list + "PK_Template="+pRow->PK_Template_asSQL
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -405,7 +407,8 @@ update_values_list = update_values_list + "PK_Template="+pRow->PK_Template_asSQL
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_Template *pRow = (Row_Template *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -417,7 +420,7 @@ update_values_list = update_values_list + "PK_Template="+pRow->PK_Template_asSQL
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Template* pRow = (Row_Template*) (*i).second;	
+		Row_Template* pRow = (Row_Template*) (*i).second;
 
 		char tmp_PK_Template[32];
 sprintf(tmp_PK_Template, "%li", key.pk);
@@ -432,12 +435,14 @@ condition = condition + "PK_Template=" + tmp_PK_Template;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_Template::GetRows(string where_statement,vector<class Row_Template*> *rows)

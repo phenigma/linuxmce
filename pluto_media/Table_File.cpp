@@ -21,6 +21,7 @@ using namespace std;
 
 #include "Table_File_Attribute.h"
 #include "Table_Picture_File.h"
+#include "Table_PlaylistEntry.h"
 
 
 void Database_pluto_media::CreateTable_File()
@@ -120,15 +121,17 @@ m_FK_Type = 0;
 is_null[1] = false;
 m_Path = "";
 is_null[2] = false;
-m_Missing = 0;
+m_Filename = "0";
 is_null[3] = false;
-is_null[4] = true;
+m_Missing = 0;
+is_null[4] = false;
 is_null[5] = true;
 is_null[6] = true;
+is_null[7] = true;
 m_psc_frozen = 0;
-is_null[7] = false;
-m_psc_mod = "00000000000000";
 is_null[8] = false;
+m_psc_mod = "00000000000000";
+is_null[9] = false;
 
 
 	is_added=false;
@@ -145,6 +148,9 @@ return m_FK_Type;}
 string Row_File::Path_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Path;}
+string Row_File::Filename_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Filename;}
 long int Row_File::Missing_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Missing;}
@@ -174,52 +180,55 @@ m_FK_Type = val; is_modified=true; is_null[1]=false;}
 void Row_File::Path_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Path = val; is_modified=true; is_null[2]=false;}
+void Row_File::Filename_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Filename = val; is_modified=true; is_null[3]=false;}
 void Row_File::Missing_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Missing = val; is_modified=true; is_null[3]=false;}
+m_Missing = val; is_modified=true; is_null[4]=false;}
 void Row_File::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[4]=false;}
+m_psc_id = val; is_modified=true; is_null[5]=false;}
 void Row_File::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[5]=false;}
+m_psc_batch = val; is_modified=true; is_null[6]=false;}
 void Row_File::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[6]=false;}
+m_psc_user = val; is_modified=true; is_null[7]=false;}
 void Row_File::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[7]=false;}
+m_psc_frozen = val; is_modified=true; is_null[8]=false;}
 void Row_File::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[8]=false;}
+m_psc_mod = val; is_modified=true; is_null[9]=false;}
 
 		
 bool Row_File::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[4];}
+return is_null[5];}
 bool Row_File::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[5];}
+return is_null[6];}
 bool Row_File::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[6];}
+return is_null[7];}
 bool Row_File::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[7];}
+return is_null[8];}
 
 			
 void Row_File::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[4]=val;}
+is_null[5]=val;}
 void Row_File::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[5]=val;}
+is_null[6]=val;}
 void Row_File::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[6]=val;}
+is_null[7]=val;}
 void Row_File::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[7]=val;}
+is_null[8]=val;}
 	
 
 string Row_File::PK_File_asSQL()
@@ -262,11 +271,25 @@ delete buf;
 return s;
 }
 
-string Row_File::Missing_asSQL()
+string Row_File::Filename_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
+return "NULL";
+
+char *buf = new char[201];
+mysql_real_escape_string(table->database->db_handle, buf, m_Filename.c_str(), (unsigned long) m_Filename.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
+string Row_File::Missing_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
 return "NULL";
 
 char buf[32];
@@ -279,7 +302,7 @@ string Row_File::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[4])
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -292,7 +315,7 @@ string Row_File::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -305,7 +328,7 @@ string Row_File::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[6])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -318,7 +341,7 @@ string Row_File::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -331,7 +354,7 @@ string Row_File::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[9])
 return "NULL";
 
 char *buf = new char[29];
@@ -366,7 +389,7 @@ else
 return false;	
 }	
 
-void Table_File::Commit()
+bool Table_File::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -379,15 +402,16 @@ void Table_File::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_File_asSQL()+", "+pRow->FK_Type_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->Missing_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_File_asSQL()+", "+pRow->FK_Type_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->Filename_asSQL()+", "+pRow->Missing_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into File (PK_File, FK_Type, Path, Missing, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into File (PK_File, FK_Type, Path, Filename, Missing, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -431,7 +455,7 @@ condition = condition + "PK_File=" + tmp_PK_File;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_File="+pRow->PK_File_asSQL()+", FK_Type="+pRow->FK_Type_asSQL()+", Path="+pRow->Path_asSQL()+", Missing="+pRow->Missing_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_File="+pRow->PK_File_asSQL()+", FK_Type="+pRow->FK_Type_asSQL()+", Path="+pRow->Path_asSQL()+", Filename="+pRow->Filename_asSQL()+", Missing="+pRow->Missing_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update File set " + update_values_list + " where " + condition;
@@ -439,6 +463,7 @@ update_values_list = update_values_list + "PK_File="+pRow->PK_File_asSQL()+", FK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -449,7 +474,8 @@ update_values_list = update_values_list + "PK_File="+pRow->PK_File_asSQL()+", FK
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_File *pRow = (Row_File *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -461,7 +487,7 @@ update_values_list = update_values_list + "PK_File="+pRow->PK_File_asSQL()+", FK
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_File* pRow = (Row_File*) (*i).second;	
+		Row_File* pRow = (Row_File*) (*i).second;
 
 		char tmp_PK_File[32];
 sprintf(tmp_PK_File, "%li", key.pk);
@@ -476,12 +502,14 @@ condition = condition + "PK_File=" + tmp_PK_File;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_File::GetRows(string where_statement,vector<class Row_File*> *rows)
@@ -555,67 +583,78 @@ pRow->m_Path = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Missing = 0;
+pRow->m_Filename = "";
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_Missing));
+pRow->m_Filename = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_id = 0;
+pRow->m_Missing = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_id));
+sscanf(row[4], "%li", &(pRow->m_Missing));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_batch));
+sscanf(row[5], "%li", &(pRow->m_psc_id));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_user));
+sscanf(row[6], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[7], "%li", &(pRow->m_psc_user));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_psc_mod = string(row[8],lengths[8]);
+sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_psc_mod = string(row[9],lengths[9]);
 }
 
 
@@ -760,67 +799,78 @@ pRow->m_Path = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Missing = 0;
+pRow->m_Filename = "";
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_Missing));
+pRow->m_Filename = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_id = 0;
+pRow->m_Missing = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_id));
+sscanf(row[4], "%li", &(pRow->m_Missing));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_batch));
+sscanf(row[5], "%li", &(pRow->m_psc_id));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_user));
+sscanf(row[6], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[7], "%li", &(pRow->m_psc_user));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_psc_mod = string(row[8],lengths[8]);
+sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_psc_mod = string(row[9],lengths[9]);
 }
 
 
@@ -852,6 +902,13 @@ void Row_File::Picture_File_FK_File_getrows(vector <class Row_Picture_File*> *ro
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Picture_File *pTable = table->database->Picture_File_get();
+pTable->GetRows("FK_File=" + StringUtils::itos(m_PK_File),rows);
+}
+void Row_File::PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_PlaylistEntry *pTable = table->database->PlaylistEntry_get();
 pTable->GetRows("FK_File=" + StringUtils::itos(m_PK_File),rows);
 }
 

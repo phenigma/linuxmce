@@ -58,7 +58,7 @@ long int pk_FK_File;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_Picture_File*> *rows);
 	class Row_Picture_File* AddRow();
 	Database_pluto_media *Database_pluto_media_get() { return database; }

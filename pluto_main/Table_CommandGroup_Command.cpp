@@ -445,7 +445,7 @@ else
 return false;	
 }	
 
-void Table_CommandGroup_Command::Commit()
+bool Table_CommandGroup_Command::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -467,6 +467,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_CommandGrou
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -518,6 +519,7 @@ update_values_list = update_values_list + "PK_CommandGroup_Command="+pRow->PK_Co
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -528,7 +530,8 @@ update_values_list = update_values_list + "PK_CommandGroup_Command="+pRow->PK_Co
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_CommandGroup_Command *pRow = (Row_CommandGroup_Command *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -540,7 +543,7 @@ update_values_list = update_values_list + "PK_CommandGroup_Command="+pRow->PK_Co
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_CommandGroup_Command* pRow = (Row_CommandGroup_Command*) (*i).second;	
+		Row_CommandGroup_Command* pRow = (Row_CommandGroup_Command*) (*i).second;
 
 		char tmp_PK_CommandGroup_Command[32];
 sprintf(tmp_PK_CommandGroup_Command, "%li", key.pk);
@@ -555,12 +558,14 @@ condition = condition + "PK_CommandGroup_Command=" + tmp_PK_CommandGroup_Command
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_CommandGroup_Command::GetRows(string where_statement,vector<class Row_CommandGroup_Command*> *rows)

@@ -49,6 +49,8 @@
 #define DEVICETEMPLATE_Apex_Destiny_6100_CONST 42
 #define DEVICETEMPLATE_Generic_Input_Ouput_CONST 43
 #define DEVICETEMPLATE_GE_Interlogix_CONST 44
+#define DEVICETEMPLATE_Asterisk_Handler_CONST 45
+#define DEVICETEMPLATE_Snom_200_CONST 46
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

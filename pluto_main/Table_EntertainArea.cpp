@@ -366,7 +366,7 @@ else
 return false;	
 }	
 
-void Table_EntertainArea::Commit()
+bool Table_EntertainArea::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -388,6 +388,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_EntertainAr
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -439,6 +440,7 @@ update_values_list = update_values_list + "PK_EntertainArea="+pRow->PK_Entertain
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -449,7 +451,8 @@ update_values_list = update_values_list + "PK_EntertainArea="+pRow->PK_Entertain
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_EntertainArea *pRow = (Row_EntertainArea *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -461,7 +464,7 @@ update_values_list = update_values_list + "PK_EntertainArea="+pRow->PK_Entertain
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_EntertainArea* pRow = (Row_EntertainArea*) (*i).second;	
+		Row_EntertainArea* pRow = (Row_EntertainArea*) (*i).second;
 
 		char tmp_PK_EntertainArea[32];
 sprintf(tmp_PK_EntertainArea, "%li", key.pk);
@@ -476,12 +479,14 @@ condition = condition + "PK_EntertainArea=" + tmp_PK_EntertainArea;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_EntertainArea::GetRows(string where_statement,vector<class Row_EntertainArea*> *rows)

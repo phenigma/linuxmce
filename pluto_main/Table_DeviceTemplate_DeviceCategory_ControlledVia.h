@@ -57,7 +57,7 @@ private:
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_DeviceTemplate_DeviceCategory_ControlledVia*> *rows);
 	class Row_DeviceTemplate_DeviceCategory_ControlledVia* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

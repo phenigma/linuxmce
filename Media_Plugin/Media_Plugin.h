@@ -13,6 +13,8 @@
 #include "Gen_Devices/Media_PluginBase.h"
 //<-dceag-d-e->
 
+#include <deque>
+
 #include "DeviceData_Router.h"
 #include "DCE/Logger.h"
 #include "DCERouter/DCERouter.h"
@@ -49,6 +51,8 @@ public:
     virtual bool StartMedia(class MediaStream *pMediaStream)=0;
     virtual bool StopMedia(class MediaStream *pMediaStream)=0;
     virtual bool BroadcastMedia(class MediaStream *pMediaStream)=0;
+
+    virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream)=0;
 };
 
 /** @brief This adds media specific information for a device, extending the DeviceData_Router */
@@ -79,9 +83,9 @@ public:
 
     int m_iPK_EntertainArea;
 
-    class MediaStream *m_pMediaStream;   /** The current media streams in this entertainment area */
+    class MediaStream  *m_pMediaStream;   /** The current media streams in this entertainment area */
 
-    map<int,class MediaDevice *> m_mapMediaDevice;  /** All the media devices in the area */
+    map<int, class MediaDevice *> m_mapMediaDevice;  /** All the media devices in the area */
 
     MediaDevice *m_mapMediaDevice_Find(int PK_Device)
     {
@@ -93,9 +97,9 @@ public:
 
     BoundRemote *m_mapBoundRemote_Find(int iPK_Orbiter)
     {
-         map<int,class BoundRemote *>::iterator it = m_mapBoundRemote.find(iPK_Orbiter);
-     return it==m_mapBoundRemote.end() ? NULL : (*it).second;
-     }
+        map<int,class BoundRemote *>::iterator it = m_mapBoundRemote.find(iPK_Orbiter);
+        return it==m_mapBoundRemote.end() ? NULL : (*it).second;
+    }
 
     void m_mapBoundRemote_Remove(int iPK_Orbiter)
     {
@@ -172,6 +176,23 @@ private:
     class DataGridTable *MediaSearchAutoCompl(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
     class DataGridTable *MediaItemAttr( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
+
+protected:
+    /**
+     * This will play from the playlist using a specific position.
+     * If the media is not playabale on the current device it will find another device that will play it.
+     */
+    bool StartMediaByPositionInPlaylist(EntertainArea *pEntertainArea, int position, int iPK_Device_Source, int iPK_DesignObj_Remote);
+
+    void PlayMediaByDeviceTemplate(int iPK_DeviceTemplate, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
+    void PlayMediaByMediaType(int iPK_MediaType, string sFilename, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
+    void PlayMediaByFileName(string sFilename, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
+    bool EnsureCorrectMediaStreamForDevice(MediaPluginInfo *pMediaPluginInfo, EntertainArea *pEntertainArea, int iPK_Device);
+
+    /**
+     * Find a media plugin info object that will play the specified file.
+     */
+    MediaPluginInfo *FindMediaPluginInfoForFileName(EntertainArea *pEntertainArea, string sFileToPlay);
     // Private methods
 public:
     // Public member variables
@@ -229,7 +250,17 @@ public:
         return pEntertainArea ? pEntertainArea->m_pMediaStream : NULL;
     }
 
+    int DetermineUserOnOrbiter(int iPK_Device_Orbiter);
+
     bool StartMedia(MediaPluginInfo *pMediaPluginInfo,int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,string Filename);
+
+    /**
+     * @brief More capable StartMedia. Does not need an actual device since it will search for it at the play time.
+     *
+     * It will also take care of moving the playlists when we use another device to play the media. It will also receive and actual device play list and not only
+     *  a filename.
+     */
+    bool StartMediaOnPlugin(MediaPluginInfo *pMediaPluginInfo, EntertainArea *pEntertainArea);
 
     /**
      * @brief Whenever the state of the media changes, the plug-in should call this function so we can update all the orbiter's pictures, descriptions, etc.
@@ -342,6 +373,32 @@ public:
 
     virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,int iPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis) { string sCMD_Result; CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),iPK_Text,sOptions.c_str(),iPK_EntertainArea,iPK_Text_Timecode,iPK_Text_SectionDesc,iPK_Text_Synopsis,sCMD_Result,NULL);};
     virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,int iPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage);
+
+
+    /** @brief COMMAND: #214 - Save playlist */
+    /** This will instruct the device to save the currently playing list */
+        /** @param #17 PK_Users */
+            /** The user that will own the new playlist. Can be missing. It will pick the current user then. */
+        /** @param #45 PK_EntertainArea */
+            /** Which playlist to save. You can direct the command to save a specific entertainment area's playlist or you can leave it blank to pick the current entertainment area's playlist */
+        /** @param #50 Name */
+            /** It will use the this name when saving. If it is not specified it will either use the name of the loaded playlist in the database or it will generate a new one. */
+        /** @param #77 Save as new */
+            /** Save the playlist as a new playlist. This will override the default behaviour. (If this playlist was not loaded from the database it will be saved as new. If it was loaded it will be overridded). This will make it always save it as new. */
+
+    virtual void CMD_Save_playlist(int iPK_Users,int iPK_EntertainArea,string sName,bool bSave_as_new) { string sCMD_Result; CMD_Save_playlist(iPK_Users,iPK_EntertainArea,sName.c_str(),bSave_as_new,sCMD_Result,NULL);};
+    virtual void CMD_Save_playlist(int iPK_Users,int iPK_EntertainArea,string sName,bool bSave_as_new,string &sCMD_Result,Message *pMessage);
+
+
+    /** @brief COMMAND: #231 - Load Playlist */
+    /** This will instruct the device to load the specific playlist. */
+        /** @param #45 PK_EntertainArea */
+            /** The entertainment area in which to load the  playlist. By defualt it will be the entertainment in which the current orbiter is running. */
+        /** @param #78 PK_Playlist */
+            /** The id of the playlist to load */
+
+    virtual void CMD_Load_Playlist(int iPK_EntertainArea,int iPK_Playlist) { string sCMD_Result; CMD_Load_Playlist(iPK_EntertainArea,iPK_Playlist,sCMD_Result,NULL);};
+    virtual void CMD_Load_Playlist(int iPK_EntertainArea,int iPK_Playlist,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

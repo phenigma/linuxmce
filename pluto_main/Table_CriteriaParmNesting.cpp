@@ -371,7 +371,7 @@ else
 return false;	
 }	
 
-void Table_CriteriaParmNesting::Commit()
+bool Table_CriteriaParmNesting::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -393,6 +393,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_CriteriaPar
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -444,6 +445,7 @@ update_values_list = update_values_list + "PK_CriteriaParmNesting="+pRow->PK_Cri
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -454,7 +456,8 @@ update_values_list = update_values_list + "PK_CriteriaParmNesting="+pRow->PK_Cri
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_CriteriaParmNesting *pRow = (Row_CriteriaParmNesting *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -466,7 +469,7 @@ update_values_list = update_values_list + "PK_CriteriaParmNesting="+pRow->PK_Cri
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_CriteriaParmNesting* pRow = (Row_CriteriaParmNesting*) (*i).second;	
+		Row_CriteriaParmNesting* pRow = (Row_CriteriaParmNesting*) (*i).second;
 
 		char tmp_PK_CriteriaParmNesting[32];
 sprintf(tmp_PK_CriteriaParmNesting, "%li", key.pk);
@@ -481,12 +484,14 @@ condition = condition + "PK_CriteriaParmNesting=" + tmp_PK_CriteriaParmNesting;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_CriteriaParmNesting::GetRows(string where_statement,vector<class Row_CriteriaParmNesting*> *rows)

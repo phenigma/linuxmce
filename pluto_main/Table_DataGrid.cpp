@@ -375,7 +375,7 @@ else
 return false;	
 }	
 
-void Table_DataGrid::Commit()
+bool Table_DataGrid::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -397,6 +397,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_DataGrid_as
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -448,6 +449,7 @@ update_values_list = update_values_list + "PK_DataGrid="+pRow->PK_DataGrid_asSQL
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -458,7 +460,8 @@ update_values_list = update_values_list + "PK_DataGrid="+pRow->PK_DataGrid_asSQL
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_DataGrid *pRow = (Row_DataGrid *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -470,7 +473,7 @@ update_values_list = update_values_list + "PK_DataGrid="+pRow->PK_DataGrid_asSQL
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_DataGrid* pRow = (Row_DataGrid*) (*i).second;	
+		Row_DataGrid* pRow = (Row_DataGrid*) (*i).second;
 
 		char tmp_PK_DataGrid[32];
 sprintf(tmp_PK_DataGrid, "%li", key.pk);
@@ -485,12 +488,14 @@ condition = condition + "PK_DataGrid=" + tmp_PK_DataGrid;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_DataGrid::GetRows(string where_statement,vector<class Row_DataGrid*> *rows)

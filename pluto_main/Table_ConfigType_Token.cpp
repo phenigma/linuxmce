@@ -376,7 +376,7 @@ else
 return false;	
 }	
 
-void Table_ConfigType_Token::Commit()
+bool Table_ConfigType_Token::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -398,6 +398,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_ConfigType_
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -453,6 +454,7 @@ update_values_list = update_values_list + "FK_ConfigType_Setting="+pRow->FK_Conf
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -463,7 +465,8 @@ update_values_list = update_values_list + "FK_ConfigType_Setting="+pRow->FK_Conf
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_ConfigType_Token *pRow = (Row_ConfigType_Token *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -475,7 +478,7 @@ update_values_list = update_values_list + "FK_ConfigType_Setting="+pRow->FK_Conf
 		map<Table_ConfigType_Token::Key, class TableRow*, Table_ConfigType_Token::Key_Less>::iterator i = deleted_cachedRows.begin();
 	
 		Table_ConfigType_Token::Key key = (*i).first;
-		Row_ConfigType_Token* pRow = (Row_ConfigType_Token*) (*i).second;	
+		Row_ConfigType_Token* pRow = (Row_ConfigType_Token*) (*i).second;
 
 		char tmp_FK_ConfigType_Setting[32];
 sprintf(tmp_FK_ConfigType_Setting, "%li", key.pk_FK_ConfigType_Setting);
@@ -496,12 +499,14 @@ condition = condition + "FK_ConfigType_Setting=" + tmp_FK_ConfigType_Setting+" A
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_ConfigType_Token::GetRows(string where_statement,vector<class Row_ConfigType_Token*> *rows)

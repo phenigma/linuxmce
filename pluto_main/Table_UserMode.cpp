@@ -343,7 +343,7 @@ else
 return false;	
 }	
 
-void Table_UserMode::Commit()
+bool Table_UserMode::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -365,6 +365,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_UserMode_as
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -416,6 +417,7 @@ update_values_list = update_values_list + "PK_UserMode="+pRow->PK_UserMode_asSQL
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -426,7 +428,8 @@ update_values_list = update_values_list + "PK_UserMode="+pRow->PK_UserMode_asSQL
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_UserMode *pRow = (Row_UserMode *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -438,7 +441,7 @@ update_values_list = update_values_list + "PK_UserMode="+pRow->PK_UserMode_asSQL
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_UserMode* pRow = (Row_UserMode*) (*i).second;	
+		Row_UserMode* pRow = (Row_UserMode*) (*i).second;
 
 		char tmp_PK_UserMode[32];
 sprintf(tmp_PK_UserMode, "%li", key.pk);
@@ -453,12 +456,14 @@ condition = condition + "PK_UserMode=" + tmp_PK_UserMode;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_UserMode::GetRows(string where_statement,vector<class Row_UserMode*> *rows)

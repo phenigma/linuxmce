@@ -15,7 +15,8 @@
 namespace DCE
 {
 
-    enum SourceType {   st_RemovableMedia,  /** The media is coming from a removable disc */
+    enum SourceType {
+        st_RemovableMedia,  /** The media is coming from a removable disc */
         st_Storage,         /** The media is stored on the core */
         st_Broadcast,       /** Transmission from one DCE to another */
         st_Transmission     /** The media is coming from an external transmission, like Radio or Internet Radio */
@@ -41,7 +42,7 @@ namespace DCE
         int m_PK_MediaType;
 
         bool    m_bUsesRemovableMedia,      /** True means it can play from a removable drive.
-                                For example with MediaType DVD, true means it can play a DVD disc. */
+                                                For example with MediaType DVD, true means it can play a DVD disc. */
 
         m_bCanStoreOnServer,        /** True means it can play stored media from the server */
 
@@ -49,7 +50,7 @@ namespace DCE
                                         in the send/receive lists below  */
 
         m_bIsExternalTransmission,      /** True means it is an external transmissions, like Radio.
-                                Not related to internal broadcasting between devices */
+                                            Not related to internal broadcasting between devices */
 
         m_bCanJumpPosition;         /** True means the device can save its position, and return to it, or have another device
                                     continue the stream where this left off  */
@@ -60,8 +61,8 @@ namespace DCE
                                             Then the media handler will give preference to a plug-in that specifically represents a device */
 
         list<class EntertainArea *> m_listEntertainArea;    /** Which entertainment areas it can play this media on.
-                                   Normally    pMediaStream->ChangePositionInPlaylist(1); this would be all the entertainment areas corresponding to m_listMediaDevice.
-                                   But in whole house audio it can be more complex. */
+                                                                Normally this would be all the entertainment areas corresponding to m_listMediaDevice.
+                                                                But in whole house audio it can be more complex. */
 
         list<string> m_listExtensions;  /** What file extensions it can play for this type of media (ie mp3, wav, vob, etc.) */
 
@@ -69,12 +70,12 @@ namespace DCE
 
         list<int> m_PK_Broadcast_Receive;   /** What broadcast formats it supports to receive */
 
-    bool m_bUsesDevices;            /** If the devices it represents are DCE, or 'dumb' devices, like infrared a/v gear */
+        bool m_bUsesDevices;            /** If the devices it represents are DCE, or 'dumb' devices, like infrared a/v gear */
 
-    class MediaPluginBase *m_pMediaPluginBase;  /** The actual handler */
+        class MediaPluginBase *m_pMediaPluginBase;  /** The actual handler */
 
-    class Command_Impl *m_pCommand_Impl;  /** The same handler, but we need the v-table for the Command_Impl so we can pass messages
-                         bool m_bCanChangeQueue; into it's received dcemessage */
+        class Command_Impl *m_pCommand_Impl;  /** The same handler, but we need the v-table for the Command_Impl so we can pass messages
+                                                  into it's received dcemessage */
 
         /** @brief A constructor for a plug-in that wants to specify all this stuff manually */
 
@@ -108,7 +109,6 @@ namespace DCE
      * and ensure that if 1 person changes the stream, they all stay in sync.
      * It is possible to do this even with non-stored media, like Broadcast TV.
     */
-
     class MediaStream
     {
         int m_iStreamID; /** A unique number to identify this stream -- cannot change this */
@@ -124,13 +124,13 @@ namespace DCE
          * As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list.
          * If it's a mounted media, like dvd, that won't happen
          */
-        deque<string> m_dequeFilename;  /** The filenames we're playing */
-        bool          m_bCanChangePlaylist;
+        deque<string>   m_dequeFilenames;        /** The filenames we're playing */
+        int             m_iDequeFilenames_Pos;   /** The play position in the m_dequeFilename deque. */
+        int             m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
+        string          m_sPlaylistName;       /** the name of the playlist which was loaded from the database. */
 
-        deque<int> m_dequePK_MED_File; /** A list of media files from the Media attributes class */
-
-        int m_ivectFilenames_Pos,m_iPK_MED_File_Pos;  /** The current position in either of the 2 above vectors.
-                            One or both must always be -1, since we can't be playing from both lists at the same time */
+        // TOD: check to see if this is still needed.
+        bool            m_bCanChangePlaylist;    /** If the Play/StartMedia should append to this Stream Playlist */
 
         char *m_pPictureData;
         int m_iPictureSize;
@@ -167,9 +167,14 @@ namespace DCE
 
         void SetPicture(char *pPictureData,int iPictureSize) { delete[] m_pPictureData; m_pPictureData=pPictureData; m_iPictureSize=iPictureSize; }
 
-        string GetFilenameToPlay( string defaultFileName = "" );
-        void ChangePositionInPlaylist(int iHowMuch);
         virtual class DataGridTable *SectionList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+
+        virtual string GetFilenameToPlay( string defaultFileName = "" );
+        virtual void SetPlaylistPosition(int position);
+        virtual void ChangePositionInPlaylist(int iHowMuch);
+        virtual void AddFileArrayToPlaylist(vector<string> &vectFileList);
+        virtual void DumpPlaylist();
+        virtual void ClearPlaylist();
     };
 
     typedef map<int,MediaStream *> MapMediaStream;

@@ -173,12 +173,16 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaPluginInfo *pMedia
 
   return pMediaStream;
 }
+
 bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 {
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
     g_pPlutoLogger->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
 
     string sFileToPlay = pMediaStream->GetFilenameToPlay("Empty file name");
+
+    if ( m_pMedia_Plugin->m_pMediaAttributes->isFileSpecification( sFileToPlay ) )
+        sFileToPlay = m_pMedia_Plugin->m_pMediaAttributes->ConvertFileSpecToFilePath(sFileToPlay);
 
     g_pPlutoLogger->Write( LV_CRITICAL, "Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
 
@@ -221,8 +225,9 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
     }
     else
     {
-        pMediaStream->m_sMediaDescription = pMediaStream->m_dequeFilename.size( ) ? FileUtils::FilenameWithoutPath( sFileToPlay ) : "-unnamed-"; // HACK -- todo get a real description
-        mediaURL = pMediaStream->m_dequeFilename.size( ) ? sFileToPlay : "-no name-"; // HACK -- todo get a real description
+        // HACK: -- todo: get real informations.
+        pMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
+        mediaURL = sFileToPlay;
     }
 
     DCE::CMD_Play_Media cmd( m_dwPK_Device,
@@ -266,6 +271,11 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
   }
   g_pPlutoLogger->Write( LV_STATUS, "Xine player responded to stop media command!" );
   return true;
+}
+
+bool Xine_Plugin::isValidStreamForPlugin(class MediaStream *pMediaStream)
+{
+    return pMediaStream->GetType() == MEDIASTREAM_TYPE_GENERIC;
 }
 
 bool Xine_Plugin::BroadcastMedia( class MediaStream *pMediaStream )

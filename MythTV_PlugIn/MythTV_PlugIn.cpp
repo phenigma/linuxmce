@@ -32,7 +32,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
     m_pMythWrapper = new MythTvWrapper(this);
@@ -92,30 +92,30 @@ bool MythTV_PlugIn::Register()
 }
 
 /*
-	When you receive commands that are destined to one of your children,
-	then if that child implements DCE then there will already be a separate class
-	created for the child that will get the message.  If the child does not, then you will 
-	get all	commands for your children in ReceivedCommandForChild, where 
-	pDeviceData_Base is the child device.  If you handle the message, you 
-	should change the sCMD_Result to OK
+    When you receive commands that are destined to one of your children,
+    then if that child implements DCE then there will already be a separate class
+    created for the child that will get the message.  If the child does not, then you will
+    get all commands for your children in ReceivedCommandForChild, where
+    pDeviceData_Base is the child device.  If you handle the message, you
+    should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
 void MythTV_PlugIn::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	sCMD_Result = "UNHANDLED CHILD";
+    sCMD_Result = "UNHANDLED CHILD";
 }
 
 /*
-	When you received a valid command, but it wasn't for one of your children,
-	then ReceivedUnknownCommand gets called.  If you handle the message, you 
-	should change the sCMD_Result to OK
+    When you received a valid command, but it wasn't for one of your children,
+    then ReceivedUnknownCommand gets called.  If you handle the message, you
+    should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
 void MythTV_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-cmduk-e->
 {
-	sCMD_Result = "UNKNOWN DEVICE";
+    sCMD_Result = "UNKNOWN DEVICE";
 }
 
 bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
@@ -128,7 +128,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     MythTvStream *pMythTvStream = (MythTvStream *) pMediaStream;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Media type %d %s", pMythTvStream->m_iPK_MediaType, pMythTvStream->m_dequeFilename.size()                                                      ? pMythTvStream->m_dequeFilename.front().c_str() : "empty files");
+    g_pPlutoLogger->Write(LV_STATUS, "Media type %d %s", pMythTvStream->m_iPK_MediaType, pMediaStream->GetFilenameToPlay("empty files").c_str());
 
     string Response;
 
@@ -228,6 +228,11 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
     return pMediaStream;
 }
 
+bool MythTV_PlugIn::isValidStreamForPlugin(class MediaStream *pMediaStream)
+{
+    return pMediaStream->GetType() == MEDIASTREAM_TYPE_MYTHTV;
+}
+
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
                         , Message *pMessage)
 {
@@ -325,6 +330,8 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
 
         m_pMedia_Plugin->MediaInfoChanged(pMythStream);
     }
+
+    return true;
 }
 /*
 
@@ -335,10 +342,10 @@ COMMANDS TO IMPLEMENT
 //<-dceag-sample-b->!
 //<-dceag-c65-b->
 
-	/** @brief COMMAND: #65 - Jump Position In Playlist */
-	/** Change channels.  +1 and -1 mean up and down 1 channel. */
-		/** @param #5 Value To Assign */
-			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+    /** @brief COMMAND: #65 - Jump Position In Playlist */
+    /** Change channels.  +1 and -1 mean up and down 1 channel. */
+        /** @param #5 Value To Assign */
+            /** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
 
 void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
@@ -380,10 +387,10 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
 //<-dceag-c185-b->
 
-	/** @brief COMMAND: #185 - Schedule Recording */
-	/** This will schedule a recording. */
-		/** @param #68 ProgramID */
-			/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
+    /** @brief COMMAND: #185 - Schedule Recording */
+    /** This will schedule a recording. */
+        /** @param #68 ProgramID */
+            /** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
 
 void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c185-e->

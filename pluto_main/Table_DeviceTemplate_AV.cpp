@@ -447,7 +447,7 @@ else
 return false;	
 }	
 
-void Table_DeviceTemplate_AV::Commit()
+bool Table_DeviceTemplate_AV::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -469,6 +469,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTempl
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -518,6 +519,7 @@ update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTe
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -528,7 +530,8 @@ update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTe
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_DeviceTemplate_AV *pRow = (Row_DeviceTemplate_AV *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -540,7 +543,7 @@ update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTe
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_DeviceTemplate_AV* pRow = (Row_DeviceTemplate_AV*) (*i).second;	
+		Row_DeviceTemplate_AV* pRow = (Row_DeviceTemplate_AV*) (*i).second;
 
 		char tmp_FK_DeviceTemplate[32];
 sprintf(tmp_FK_DeviceTemplate, "%li", key.pk);
@@ -555,12 +558,14 @@ condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_DeviceTemplate_AV::GetRows(string where_statement,vector<class Row_DeviceTemplate_AV*> *rows)

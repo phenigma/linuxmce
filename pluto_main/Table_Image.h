@@ -57,7 +57,7 @@ private:
 	map<Table_Image::Key, class TableRow*, Table_Image::Key_Less> deleted_cachedRows;
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_Image*> *rows);
 	class Row_Image* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

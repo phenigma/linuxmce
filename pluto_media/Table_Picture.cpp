@@ -323,7 +323,7 @@ else
 return false;	
 }	
 
-void Table_Picture::Commit()
+bool Table_Picture::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -345,6 +345,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Picture_asS
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -396,6 +397,7 @@ update_values_list = update_values_list + "PK_Picture="+pRow->PK_Picture_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -406,7 +408,8 @@ update_values_list = update_values_list + "PK_Picture="+pRow->PK_Picture_asSQL()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_Picture *pRow = (Row_Picture *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -418,7 +421,7 @@ update_values_list = update_values_list + "PK_Picture="+pRow->PK_Picture_asSQL()
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Picture* pRow = (Row_Picture*) (*i).second;	
+		Row_Picture* pRow = (Row_Picture*) (*i).second;
 
 		char tmp_PK_Picture[32];
 sprintf(tmp_PK_Picture, "%li", key.pk);
@@ -433,12 +436,14 @@ condition = condition + "PK_Picture=" + tmp_PK_Picture;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_Picture::GetRows(string where_statement,vector<class Row_Picture*> *rows)

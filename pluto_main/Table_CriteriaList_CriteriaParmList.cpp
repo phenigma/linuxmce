@@ -327,7 +327,7 @@ else
 return false;	
 }	
 
-void Table_CriteriaList_CriteriaParmList::Commit()
+bool Table_CriteriaList_CriteriaParmList::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -349,6 +349,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CriteriaLis
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -401,6 +402,7 @@ update_values_list = update_values_list + "FK_CriteriaList="+pRow->FK_CriteriaLi
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -411,7 +413,8 @@ update_values_list = update_values_list + "FK_CriteriaList="+pRow->FK_CriteriaLi
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_CriteriaList_CriteriaParmList *pRow = (Row_CriteriaList_CriteriaParmList *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -423,7 +426,7 @@ update_values_list = update_values_list + "FK_CriteriaList="+pRow->FK_CriteriaLi
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_CriteriaList_CriteriaParmList* pRow = (Row_CriteriaList_CriteriaParmList*) (*i).second;	
+		Row_CriteriaList_CriteriaParmList* pRow = (Row_CriteriaList_CriteriaParmList*) (*i).second;
 
 		char tmp_FK_CriteriaList[32];
 sprintf(tmp_FK_CriteriaList, "%li", key.pk1);
@@ -441,12 +444,14 @@ condition = condition + "FK_CriteriaList=" + tmp_FK_CriteriaList+" AND "+"FK_Cri
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_CriteriaList_CriteriaParmList::GetRows(string where_statement,vector<class Row_CriteriaList_CriteriaParmList*> *rows)

@@ -57,7 +57,7 @@ private:
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_psc_document_schema*> *rows);
 	class Row_psc_document_schema* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

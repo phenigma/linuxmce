@@ -394,6 +394,7 @@
 #define TEXT_myth_setup_CONST 1069
 #define TEXT_Setup_Myth_TV_CONST 1070
 #define TEXT_First_Time_CONST 1071
+#define TEXT_No_Media_CONST 1072
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

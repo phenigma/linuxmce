@@ -59,7 +59,7 @@ string pk_FindStr;
 	map<Table_ConfigType_Token::Key, class TableRow*, Table_ConfigType_Token::Key_Less> deleted_cachedRows;
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_ConfigType_Token*> *rows);
 	class Row_ConfigType_Token* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

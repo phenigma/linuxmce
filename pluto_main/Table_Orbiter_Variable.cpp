@@ -354,7 +354,7 @@ else
 return false;	
 }	
 
-void Table_Orbiter_Variable::Commit()
+bool Table_Orbiter_Variable::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -376,6 +376,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Orbiter_asS
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -428,6 +429,7 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -438,7 +440,8 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_Orbiter_Variable *pRow = (Row_Orbiter_Variable *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -450,7 +453,7 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_Orbiter_Variable* pRow = (Row_Orbiter_Variable*) (*i).second;	
+		Row_Orbiter_Variable* pRow = (Row_Orbiter_Variable*) (*i).second;
 
 		char tmp_FK_Orbiter[32];
 sprintf(tmp_FK_Orbiter, "%li", key.pk1);
@@ -468,12 +471,14 @@ condition = condition + "FK_Orbiter=" + tmp_FK_Orbiter+" AND "+"FK_Variable=" + 
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_Orbiter_Variable::GetRows(string where_statement,vector<class Row_Orbiter_Variable*> *rows)

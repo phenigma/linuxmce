@@ -375,7 +375,7 @@ else
 return false;	
 }	
 
-void Table_ParameterType::Commit()
+bool Table_ParameterType::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -397,6 +397,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_ParameterTy
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -448,6 +449,7 @@ update_values_list = update_values_list + "PK_ParameterType="+pRow->PK_Parameter
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -458,7 +460,8 @@ update_values_list = update_values_list + "PK_ParameterType="+pRow->PK_Parameter
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_ParameterType *pRow = (Row_ParameterType *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -470,7 +473,7 @@ update_values_list = update_values_list + "PK_ParameterType="+pRow->PK_Parameter
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_ParameterType* pRow = (Row_ParameterType*) (*i).second;	
+		Row_ParameterType* pRow = (Row_ParameterType*) (*i).second;
 
 		char tmp_PK_ParameterType[32];
 sprintf(tmp_PK_ParameterType, "%li", key.pk);
@@ -485,12 +488,14 @@ condition = condition + "PK_ParameterType=" + tmp_PK_ParameterType;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_ParameterType::GetRows(string where_statement,vector<class Row_ParameterType*> *rows)

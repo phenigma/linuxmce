@@ -9,6 +9,8 @@
 #define FILE_FK_TYPE_TABLE_FIELD "File.FK_Type"
 #define FILE_PATH_FIELD "Path"
 #define FILE_PATH_TABLE_FIELD "File.Path"
+#define FILE_FILENAME_FIELD "Filename"
+#define FILE_FILENAME_TABLE_FIELD "File.Filename"
 #define FILE_MISSING_FIELD "Missing"
 #define FILE_MISSING_TABLE_FIELD "File.Missing"
 #define FILE_PSC_ID_FIELD "psc_id"

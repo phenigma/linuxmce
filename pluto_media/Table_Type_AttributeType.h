@@ -58,7 +58,7 @@ long int pk_FK_AttributeType;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_Type_AttributeType*> *rows);
 	class Row_Type_AttributeType* AddRow();
 	Database_pluto_media *Database_pluto_media_get() { return database; }

@@ -57,7 +57,7 @@ private:
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_DesignObjVariation_Text_Skin_Language*> *rows);
 	class Row_DesignObjVariation_Text_Skin_Language* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

@@ -58,7 +58,7 @@ long int pk_FK_Room;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_CommandGroup_Room*> *rows);
 	class Row_CommandGroup_Room* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

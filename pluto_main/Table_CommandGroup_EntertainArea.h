@@ -58,7 +58,7 @@ long int pk_FK_EntertainArea;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_CommandGroup_EntertainArea*> *rows);
 	class Row_CommandGroup_EntertainArea* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

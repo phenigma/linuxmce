@@ -13,6 +13,8 @@ Table_File_Attribute.cpp \
 Table_Picture.cpp \
 Table_Picture_Attribute.cpp \
 Table_Picture_File.cpp \
+Table_Playlist.cpp \
+Table_PlaylistEntry.cpp \
 Table_SearchToken.cpp \
 Table_SearchToken_Attribute.cpp \
 Table_Type.cpp \

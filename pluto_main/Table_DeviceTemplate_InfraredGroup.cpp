@@ -327,7 +327,7 @@ else
 return false;	
 }	
 
-void Table_DeviceTemplate_InfraredGroup::Commit()
+bool Table_DeviceTemplate_InfraredGroup::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -349,6 +349,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_InfraredGro
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -401,6 +402,7 @@ update_values_list = update_values_list + "FK_InfraredGroup="+pRow->FK_InfraredG
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -411,7 +413,8 @@ update_values_list = update_values_list + "FK_InfraredGroup="+pRow->FK_InfraredG
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_DeviceTemplate_InfraredGroup *pRow = (Row_DeviceTemplate_InfraredGroup *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -423,7 +426,7 @@ update_values_list = update_values_list + "FK_InfraredGroup="+pRow->FK_InfraredG
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_DeviceTemplate_InfraredGroup* pRow = (Row_DeviceTemplate_InfraredGroup*) (*i).second;	
+		Row_DeviceTemplate_InfraredGroup* pRow = (Row_DeviceTemplate_InfraredGroup*) (*i).second;
 
 		char tmp_FK_InfraredGroup[32];
 sprintf(tmp_FK_InfraredGroup, "%li", key.pk1);
@@ -441,12 +444,14 @@ condition = condition + "FK_InfraredGroup=" + tmp_FK_InfraredGroup+" AND "+"FK_D
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_DeviceTemplate_InfraredGroup::GetRows(string where_statement,vector<class Row_DeviceTemplate_InfraredGroup*> *rows)

@@ -57,7 +57,7 @@ private:
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_StabilityStatus*> *rows);
 	class Row_StabilityStatus* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

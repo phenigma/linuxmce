@@ -58,7 +58,7 @@ long int pk_FK_RepositorySource_URL;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_Installation_RepositorySource_URL*> *rows);
 	class Row_Installation_RepositorySource_URL* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

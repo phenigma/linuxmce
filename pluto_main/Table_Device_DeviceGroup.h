@@ -58,7 +58,7 @@ long int pk_FK_DeviceGroup;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_Device_DeviceGroup*> *rows);
 	class Row_Device_DeviceGroup* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

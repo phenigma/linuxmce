@@ -354,7 +354,7 @@ else
 return false;	
 }	
 
-void Table_DesignObjVariation_DesignObjParameter::Commit()
+bool Table_DesignObjVariation_DesignObjParameter::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -376,6 +376,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DesignObjVa
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -428,6 +429,7 @@ update_values_list = update_values_list + "FK_DesignObjVariation="+pRow->FK_Desi
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -438,7 +440,8 @@ update_values_list = update_values_list + "FK_DesignObjVariation="+pRow->FK_Desi
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_DesignObjVariation_DesignObjParameter *pRow = (Row_DesignObjVariation_DesignObjParameter *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -450,7 +453,7 @@ update_values_list = update_values_list + "FK_DesignObjVariation="+pRow->FK_Desi
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_DesignObjVariation_DesignObjParameter* pRow = (Row_DesignObjVariation_DesignObjParameter*) (*i).second;	
+		Row_DesignObjVariation_DesignObjParameter* pRow = (Row_DesignObjVariation_DesignObjParameter*) (*i).second;
 
 		char tmp_FK_DesignObjVariation[32];
 sprintf(tmp_FK_DesignObjVariation, "%li", key.pk1);
@@ -468,12 +471,14 @@ condition = condition + "FK_DesignObjVariation=" + tmp_FK_DesignObjVariation+" A
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_DesignObjVariation_DesignObjParameter::GetRows(string where_statement,vector<class Row_DesignObjVariation_DesignObjParameter*> *rows)

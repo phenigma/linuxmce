@@ -57,7 +57,7 @@ private:
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_File*> *rows);
 	class Row_File* AddRow();
 	Database_pluto_media *Database_pluto_media_get() { return database; }
@@ -84,6 +84,7 @@ class DLL_EXPORT Row_File : public TableRow, public SerializeClass
 		long int m_PK_File;
 long int m_FK_Type;
 string m_Path;
+string m_Filename;
 long int m_Missing;
 long int m_psc_id;
 long int m_psc_batch;
@@ -91,12 +92,13 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[9];
+		bool is_null[10];
 	
 	public:
 		long int PK_File_get();
 long int FK_Type_get();
 string Path_get();
+string Filename_get();
 long int Missing_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -108,6 +110,7 @@ string psc_mod_get();
 		void PK_File_set(long int val);
 void FK_Type_set(long int val);
 void Path_set(string val);
+void Filename_set(string val);
 void Missing_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -144,11 +147,12 @@ void psc_frozen_setNull(bool val);
 		// Return the rows in other tables with foreign keys pointing here
 		void File_Attribute_FK_File_getrows(vector <class Row_File_Attribute*> *rows);
 void Picture_File_FK_File_getrows(vector <class Row_Picture_File*> *rows);
+void PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_File+ m_FK_Type+ m_Path+ m_Missing+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_File+ m_FK_Type+ m_Path+ m_Filename+ m_Missing+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -156,6 +160,7 @@ void Picture_File_FK_File_getrows(vector <class Row_Picture_File*> *rows);
 		string PK_File_asSQL();
 string FK_Type_asSQL();
 string Path_asSQL();
+string Filename_asSQL();
 string Missing_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

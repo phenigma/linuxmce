@@ -343,7 +343,7 @@ else
 return false;	
 }	
 
-void Table_PhoneLineType::Commit()
+bool Table_PhoneLineType::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -365,6 +365,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_PhoneLineTy
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -416,6 +417,7 @@ update_values_list = update_values_list + "PK_PhoneLineType="+pRow->PK_PhoneLine
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -426,7 +428,8 @@ update_values_list = update_values_list + "PK_PhoneLineType="+pRow->PK_PhoneLine
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_PhoneLineType *pRow = (Row_PhoneLineType *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -438,7 +441,7 @@ update_values_list = update_values_list + "PK_PhoneLineType="+pRow->PK_PhoneLine
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_PhoneLineType* pRow = (Row_PhoneLineType*) (*i).second;	
+		Row_PhoneLineType* pRow = (Row_PhoneLineType*) (*i).second;
 
 		char tmp_PK_PhoneLineType[32];
 sprintf(tmp_PK_PhoneLineType, "%li", key.pk);
@@ -453,12 +456,14 @@ condition = condition + "PK_PhoneLineType=" + tmp_PK_PhoneLineType;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_PhoneLineType::GetRows(string where_statement,vector<class Row_PhoneLineType*> *rows)

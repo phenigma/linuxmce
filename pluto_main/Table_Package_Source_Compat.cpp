@@ -429,7 +429,7 @@ else
 return false;	
 }	
 
-void Table_Package_Source_Compat::Commit()
+bool Table_Package_Source_Compat::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -451,6 +451,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Sou
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -502,6 +503,7 @@ update_values_list = update_values_list + "PK_Package_Source_Compat="+pRow->PK_P
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -512,7 +514,8 @@ update_values_list = update_values_list + "PK_Package_Source_Compat="+pRow->PK_P
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_Package_Source_Compat *pRow = (Row_Package_Source_Compat *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -524,7 +527,7 @@ update_values_list = update_values_list + "PK_Package_Source_Compat="+pRow->PK_P
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Package_Source_Compat* pRow = (Row_Package_Source_Compat*) (*i).second;	
+		Row_Package_Source_Compat* pRow = (Row_Package_Source_Compat*) (*i).second;
 
 		char tmp_PK_Package_Source_Compat[32];
 sprintf(tmp_PK_Package_Source_Compat, "%li", key.pk);
@@ -539,12 +542,14 @@ condition = condition + "PK_Package_Source_Compat=" + tmp_PK_Package_Source_Comp
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_Package_Source_Compat::GetRows(string where_statement,vector<class Row_Package_Source_Compat*> *rows)

@@ -59,7 +59,7 @@ long int pk_FK_Pipe;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_Device_Device_Pipe*> *rows);
 	class Row_Device_Device_Pipe* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

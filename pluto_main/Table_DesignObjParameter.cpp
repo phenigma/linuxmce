@@ -394,7 +394,7 @@ else
 return false;	
 }	
 
-void Table_DesignObjParameter::Commit()
+bool Table_DesignObjParameter::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -416,6 +416,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjPa
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -467,6 +468,7 @@ update_values_list = update_values_list + "PK_DesignObjParameter="+pRow->PK_Desi
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -477,7 +479,8 @@ update_values_list = update_values_list + "PK_DesignObjParameter="+pRow->PK_Desi
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_DesignObjParameter *pRow = (Row_DesignObjParameter *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -489,7 +492,7 @@ update_values_list = update_values_list + "PK_DesignObjParameter="+pRow->PK_Desi
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_DesignObjParameter* pRow = (Row_DesignObjParameter*) (*i).second;	
+		Row_DesignObjParameter* pRow = (Row_DesignObjParameter*) (*i).second;
 
 		char tmp_PK_DesignObjParameter[32];
 sprintf(tmp_PK_DesignObjParameter, "%li", key.pk);
@@ -504,12 +507,14 @@ condition = condition + "PK_DesignObjParameter=" + tmp_PK_DesignObjParameter;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_DesignObjParameter::GetRows(string where_statement,vector<class Row_DesignObjParameter*> *rows)

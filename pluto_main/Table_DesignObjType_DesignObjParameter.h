@@ -58,7 +58,7 @@ long int pk_FK_DesignObjParameter;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_DesignObjType_DesignObjParameter*> *rows);
 	class Row_DesignObjType_DesignObjParameter* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

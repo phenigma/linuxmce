@@ -58,7 +58,7 @@ long int pk_Page;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_Floorplan*> *rows);
 	class Row_Floorplan* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

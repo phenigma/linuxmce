@@ -1061,6 +1061,8 @@
 #define DESIGNOBJ_mnuFirstTime_CONST 3221
 #define DESIGNOBJ_butPlutoAdminSite_CONST 3222
 #define DESIGNOBJ_grpSeekFileList_CONST 3223
+#define DESIGNOBJ_mnuNoMedia_CONST 3224
+#define DESIGNOBJ_grpPhoneSearchKeyboardlarge_CONST 3225
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

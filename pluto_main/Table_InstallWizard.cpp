@@ -397,7 +397,7 @@ else
 return false;	
 }	
 
-void Table_InstallWizard::Commit()
+bool Table_InstallWizard::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -419,6 +419,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_InstallWiza
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -470,6 +471,7 @@ update_values_list = update_values_list + "PK_InstallWizard="+pRow->PK_InstallWi
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -480,7 +482,8 @@ update_values_list = update_values_list + "PK_InstallWizard="+pRow->PK_InstallWi
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_InstallWizard *pRow = (Row_InstallWizard *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -492,7 +495,7 @@ update_values_list = update_values_list + "PK_InstallWizard="+pRow->PK_InstallWi
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_InstallWizard* pRow = (Row_InstallWizard*) (*i).second;	
+		Row_InstallWizard* pRow = (Row_InstallWizard*) (*i).second;
 
 		char tmp_PK_InstallWizard[32];
 sprintf(tmp_PK_InstallWizard, "%li", key.pk);
@@ -507,12 +510,14 @@ condition = condition + "PK_InstallWizard=" + tmp_PK_InstallWizard;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_InstallWizard::GetRows(string where_statement,vector<class Row_InstallWizard*> *rows)

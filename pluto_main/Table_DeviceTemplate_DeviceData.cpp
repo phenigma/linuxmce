@@ -475,7 +475,7 @@ else
 return false;	
 }	
 
-void Table_DeviceTemplate_DeviceData::Commit()
+bool Table_DeviceTemplate_DeviceData::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -497,6 +497,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTempl
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -549,6 +550,7 @@ update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTe
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -559,7 +561,8 @@ update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTe
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_DeviceTemplate_DeviceData *pRow = (Row_DeviceTemplate_DeviceData *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -571,7 +574,7 @@ update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTe
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_DeviceTemplate_DeviceData* pRow = (Row_DeviceTemplate_DeviceData*) (*i).second;	
+		Row_DeviceTemplate_DeviceData* pRow = (Row_DeviceTemplate_DeviceData*) (*i).second;
 
 		char tmp_FK_DeviceTemplate[32];
 sprintf(tmp_FK_DeviceTemplate, "%li", key.pk1);
@@ -589,12 +592,14 @@ condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_DeviceTemplate_DeviceData::GetRows(string where_statement,vector<class Row_DeviceTemplate_DeviceData*> *rows)

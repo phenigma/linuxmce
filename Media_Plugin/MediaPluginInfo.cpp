@@ -135,11 +135,14 @@ class DataGridTable *MediaStream::SectionList( string GridID, string Parms, void
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCell;
 
-g_pPlutoLogger->Write( LV_STATUS, "Populate with section list %d", ( int ) m_dequeFilename.size( ) );
+g_pPlutoLogger->Write( LV_STATUS, "Populate with section list %d", ( int ) m_dequeFilenames.size( ) );
 
-    for( size_t s=0;s<m_dequeFilename.size( );++s )
+    // this is going to fail ( it will only get the #F 123 format it there is such a format ).
+    // I need access to e MediaAtribute object here in order to resolve the names.
+    // TODO: Make this work properly
+    for( size_t s=0;s<m_dequeFilenames.size( );++s )
     {
-        string Filename = FileUtils::FilenameWithoutPath( m_dequeFilename[s] );
+        string Filename = FileUtils::FilenameWithoutPath( m_dequeFilenames[s] );
         pCell = new DataGridCell( Filename, StringUtils::itos( ( int ) s ) );
         DCE::CMD_Jump_Position_In_Playlist_Cat cmd( 0 /* get the orbiter */, DEVICECATEGORY_Media_Plugins_CONST, false, BL_SameHouse, StringUtils::itos( ( int ) s ) );
         pCell->m_pMessage = cmd.m_pMessage;
@@ -159,41 +162,86 @@ MediaStream::MediaStream( class MediaPluginInfo *pMediaPluginInfo, int PK_Design
     m_bPlaying=false;
     m_pMediaPosition=NULL;
     m_pOH_Orbiter=NULL;
-    m_ivectFilenames_Pos=m_iPK_MED_File_Pos=-1;
     m_pPictureData=NULL;
     m_iPictureSize=0;
-    m_pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaStream[m_iStreamID] = this;
-    m_bCanChangePlaylist = true;
+
+    m_iDequeFilenames_Pos=-1;
+    m_iPK_Playlist=0;
+    m_sPlaylistName="";
+
+    if ( m_pMediaPluginInfo ) // If this stream is a "valid stream only"
+        m_pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaStream[m_iStreamID] = this;
 
 g_pPlutoLogger->Write( LV_STATUS, "create Mediastream %p on menu id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
 g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", m_mapEntertainArea.size( ) );
 }
 
+void MediaStream::SetPlaylistPosition(int position)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "Setting position to value: %d", position);
+    m_iDequeFilenames_Pos = position;
+
+    // The animals .... size_t vs int...
+    if ( m_iDequeFilenames_Pos >= (int)m_dequeFilenames.size() )
+        m_iDequeFilenames_Pos = m_dequeFilenames.size() - 1;
+
+    if ( m_iDequeFilenames_Pos < 0 )
+        m_iDequeFilenames_Pos = 0;
+}
+
+
 void MediaStream::ChangePositionInPlaylist(int iHowMuch)
 {
-    m_ivectFilenames_Pos += iHowMuch;
+    g_pPlutoLogger->Write(LV_STATUS, "Increment %d", iHowMuch);
 
-    if ( m_ivectFilenames_Pos >= m_dequeFilename.size() )
-        m_ivectFilenames_Pos = m_dequeFilename.size() - 1;
-
-    if ( m_ivectFilenames_Pos < 0 )
-        m_ivectFilenames_Pos = 0;
+    SetPlaylistPosition(m_iDequeFilenames_Pos + iHowMuch);
 }
 
 string MediaStream::GetFilenameToPlay(string sNoFilesFileName )
 {
-    ChangePositionInPlaylist(0);
-
-    if ( m_dequeFilename.size() == 0 )
+    if ( m_dequeFilenames.size() == 0 )
         return sNoFilesFileName;
 
-    return m_dequeFilename[m_ivectFilenames_Pos];
+    // ensure the playlist position is accurate
+    SetPlaylistPosition(m_iDequeFilenames_Pos);
+
+    return m_dequeFilenames[m_iDequeFilenames_Pos];
+}
+
+void MediaStream::AddFileArrayToPlaylist(vector<string> &vectFileList)
+{
+    vector<string>::iterator itList = vectFileList.begin();
+
+    while ( itList != vectFileList.end() )
+        m_dequeFilenames.push_front(*itList++);
+}
+
+void MediaStream::DumpPlaylist()
+{
+    deque<string>::iterator itPlaylist;
+
+    itPlaylist = m_dequeFilenames.begin();
+    g_pPlutoLogger->Write(LV_STATUS, "Position: %d", m_iDequeFilenames_Pos);
+    while ( itPlaylist != m_dequeFilenames.end() )
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "File%c%d: %s",
+                    (m_iDequeFilenames_Pos == itPlaylist - m_dequeFilenames.begin()) ? '*' : ' ',
+                    itPlaylist - m_dequeFilenames.begin(),
+                    (*itPlaylist).c_str());
+        itPlaylist++;
+    }
+}
+
+void MediaStream::ClearPlaylist()
+{
+    m_iDequeFilenames_Pos = -1;
+    m_dequeFilenames.clear();
 }
 
 MediaStream::~MediaStream( )
 {
-    // Deleting stream
-    m_pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaStream_Remove( m_iStreamID );
+    if ( m_pMediaPluginInfo )
+        m_pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaStream_Remove( m_iStreamID );
 }
 
 void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream )

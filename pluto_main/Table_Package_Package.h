@@ -58,7 +58,7 @@ long int pk_FK_Package_DependsOn;
 	
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_Package_Package*> *rows);
 	class Row_Package_Package* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }

@@ -327,7 +327,7 @@ else
 return false;	
 }	
 
-void Table_MediaType_Broadcast::Commit()
+bool Table_MediaType_Broadcast::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -349,6 +349,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_MediaType_a
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -401,6 +402,7 @@ update_values_list = update_values_list + "FK_MediaType="+pRow->FK_MediaType_asS
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -411,7 +413,8 @@ update_values_list = update_values_list + "FK_MediaType="+pRow->FK_MediaType_asS
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_MediaType_Broadcast *pRow = (Row_MediaType_Broadcast *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -423,7 +426,7 @@ update_values_list = update_values_list + "FK_MediaType="+pRow->FK_MediaType_asS
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_MediaType_Broadcast* pRow = (Row_MediaType_Broadcast*) (*i).second;	
+		Row_MediaType_Broadcast* pRow = (Row_MediaType_Broadcast*) (*i).second;
 
 		char tmp_FK_MediaType[32];
 sprintf(tmp_FK_MediaType, "%li", key.pk1);
@@ -441,12 +444,14 @@ condition = condition + "FK_MediaType=" + tmp_FK_MediaType+" AND "+"FK_Broadcast
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_MediaType_Broadcast::GetRows(string where_statement,vector<class Row_MediaType_Broadcast*> *rows)

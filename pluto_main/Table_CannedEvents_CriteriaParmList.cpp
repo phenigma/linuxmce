@@ -490,7 +490,7 @@ else
 return false;	
 }	
 
-void Table_CannedEvents_CriteriaParmList::Commit()
+bool Table_CannedEvents_CriteriaParmList::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -512,6 +512,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvent
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -563,6 +564,7 @@ update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pR
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -573,7 +575,8 @@ update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pR
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_CannedEvents_CriteriaParmList *pRow = (Row_CannedEvents_CriteriaParmList *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -585,7 +588,7 @@ update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pR
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_CannedEvents_CriteriaParmList* pRow = (Row_CannedEvents_CriteriaParmList*) (*i).second;	
+		Row_CannedEvents_CriteriaParmList* pRow = (Row_CannedEvents_CriteriaParmList*) (*i).second;
 
 		char tmp_PK_CannedEvents_CriteriaParmList[32];
 sprintf(tmp_PK_CannedEvents_CriteriaParmList, "%li", key.pk);
@@ -600,12 +603,14 @@ condition = condition + "PK_CannedEvents_CriteriaParmList=" + tmp_PK_CannedEvent
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	
+	return true;
 }
 
 bool Table_CannedEvents_CriteriaParmList::GetRows(string where_statement,vector<class Row_CannedEvents_CriteriaParmList*> *rows)
