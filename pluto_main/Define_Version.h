@@ -1,10 +1,6 @@
 #ifndef __Define_Version_H__
 #define __Define_Version_H__
 
-#define VERSION_First_Preview_Release_CONST 2
-#define VERSION_Important_Fix_CONST 3
-#define VERSION_Client_Server_Architecture_CONST 4
-#define VERSION_Wizards_Media_&_Floorplans_Fu_CONST 5
 
 #define VERSION_TABLE "Version"
 #define VERSION_PK_VERSION_FIELD "PK_Version"
@@ -17,8 +13,6 @@
 #define VERSION_DATE_TABLE_FIELD "Version.Date"
 #define VERSION_DESCRIPTION_FIELD "Description"
 #define VERSION_DESCRIPTION_TABLE_FIELD "Version.Description"
-#define VERSION_DEFINE_FIELD "Define"
-#define VERSION_DEFINE_TABLE_FIELD "Version.Define"
 #define VERSION_REPOSITORY_FIELD "Repository"
 #define VERSION_REPOSITORY_TABLE_FIELD "Version.Repository"
 #define VERSION_COMMENTS_FIELD "Comments"
