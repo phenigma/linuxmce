@@ -986,7 +986,7 @@ AsksSourceQuests:
 
 bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-		// 1.	Create a temporary directory
+	// 1.	Create a temporary directory
 	// 2.   chdir to the directory and do a cvs co .
 	// 3.   copy the files over one at a time
 	// 4.	Do a cvs add for each sub-directory
@@ -1012,8 +1012,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 
 cout << "Making CVS Checkout to temporary\n";
 	//Checking Version From SourceForge
-	cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ checkout " +
-		pRow_Package_Source->Name_get();
+	cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ checkout " + pRow_Package_Source->Name_get();
 	system(cmd.c_str());
 
 	cmd = pRow_Package_Source->Name_get();
@@ -1086,6 +1085,7 @@ cout << "Copying Files\n";
 				string::size_type pos = cmd.rfind("/");
 				string::size_type marime = cmd.length();
 				cmd = cmd.substr(pos+1,marime-pos-1);
+				cout << cmd << endl;
 				//if we are on the root dir we just copy it as a file
 				if(cmd.compare(pRow_Package_Source->Name_get()) == 0)
 				{
@@ -1115,7 +1115,7 @@ cout << "Copying Files\n";
 		flag = false;
 	}
 ///////////////////////////////////////////////////////////
-////////---------------- Findinf old files and delete them
+////////---------------- Finding old files and delete them
 	flag = false;
 	cout << "Removing older files\n";
 	for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
