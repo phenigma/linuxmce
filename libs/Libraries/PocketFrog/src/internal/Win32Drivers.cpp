@@ -15,6 +15,10 @@
 
 #include "Win32Drivers.h"
 
+//globals
+long g_lWindowWidth = 0;
+long g_lWindowHeight = 0;
+
 namespace Frog {
 namespace Internal {
 
@@ -49,8 +53,9 @@ bool Win32Display::Initialize( HWND hwnd )
     m_hwnd = hwnd;
 
     // Construct rendering buffer
-    Rect r;
-    GetClientRect( hwnd, &r );
+	Rect r;
+	r.Set(0, 0, g_lWindowWidth, g_lWindowHeight);
+    //GetClientRect( hwnd, &r );
 
     m_buffer.reset( new GDIBuffer( r.GetWidth(), r.GetHeight() ) );
 

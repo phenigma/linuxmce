@@ -61,10 +61,11 @@ public:
 
     // Start running the game
     bool Run();
+	virtual bool IsFullScreen() { return false; }
+	virtual int GetWindowWidth() { return 800;  } //by default
+	virtual int GetWindowHeight() { return 600; } //by default
 
 	HWND m_hWnd;
-
-
 protected:
 
     // Access to devices

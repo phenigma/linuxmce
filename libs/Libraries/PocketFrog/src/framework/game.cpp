@@ -17,6 +17,7 @@
 #include "game.h"
 
 #include "../PocketPC.h"
+#include "../internal/Win32Drivers.h"
 
 using namespace Frog;
 using namespace Internal;
@@ -107,7 +108,7 @@ bool Game::Init()
     DWORD style = WS_VISIBLE;
 #else
     Rect r( CW_USEDEFAULT, CW_USEDEFAULT, 0, 0 );
-    DWORD style = WS_SYSMENU;
+	DWORD style = WS_SYSMENU;
 #endif
 
 #if defined(FROG_HPC)
@@ -136,16 +137,21 @@ bool Game::Init()
         std::swap( width, height );
 
 #ifndef WINCE
-	width = 800;
-	height = 600;
+	width = GetWindowWidth();
+	height = GetWindowHeight();
 #endif
 
     ResizeClient( width, height );
 #endif
 
-    // Init display
-		// Added 6/10/2003 by Frank W. Zammetti
-    m_display.reset( PocketPC::CreateDisplay( m_hWnd, m_config.orientation, m_config.desktopZoom ) );
+	// Init display
+
+	// Added by Chris.
+	g_lWindowWidth = GetWindowWidth();
+	g_lWindowHeight = GetWindowHeight();
+
+	// Added 6/10/2003 by Frank W. Zammetti
+	m_display.reset( PocketPC::CreateDisplay( m_hWnd, m_config.orientation, m_config.desktopZoom ) );
     if (!m_display.get())
         return false;
 

@@ -21,12 +21,13 @@
 #include "graphicbuffer.h"
 #include "../input.h"
 
+extern long g_lWindowWidth;
+extern long g_lWindowHeight;
+
 namespace Frog {
 namespace Internal {
 
 using InputDevice::KeyList;
-
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
