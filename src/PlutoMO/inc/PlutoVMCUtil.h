@@ -36,7 +36,9 @@ public:
 			unsigned long y, 
 			unsigned long Width, 
 			unsigned long Height,
-			RPointerArray<string> DatagridStringList
+			RPointerArray<string> DatagridStringList,
+			bool bSendSelectedOnMove,
+			bool bTurnOn
 		);
 		void SetCaptureKeyboardCommand(
 			bool bOnOff, 
@@ -64,10 +66,10 @@ public:
 
 		bool m_bRedrawOnlyGrid;
 		bool m_bRedrawOnlyEdit;
+		bool m_bGridSendSelectedOnMove;
+		bool m_bSimulation;
 
 		TRect m_ImageRect;
-
-		bool m_bSimulation;
 
 protected:
 		// From RenderMenu

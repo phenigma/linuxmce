@@ -7,6 +7,7 @@
 class BD_CP_ShowList : public BDCommand
 {
 	unsigned long m_x, m_y, m_Width, m_Height;
+	bool m_bSendSelectedOnMove, m_bTurnOn;
 
 #ifndef SYMBIAN
 	list<string> m_DataGridList;
@@ -23,7 +24,9 @@ public:
 		unsigned long y, 
 		unsigned long Width, 
 		unsigned long Height,
-		list<string>  &DataGridList
+		list<string>  &DataGridList,
+		bool		  bSendSelectedOnMove,
+		bool		  bTurnOn
 	);
 #endif //SYMBIAN
 

@@ -147,15 +147,16 @@ void CPlutoVMCUtil::SetList(
 	unsigned long y, 
 	unsigned long Width, 
 	unsigned long Height,
-	RPointerArray<string> List
+	RPointerArray<string> List,
+	bool bSendSelectedOnMove,
+	bool bTurnOn
 )
 {
-	if(-1 == x && -1 == y && -1 == Width && -1 == Height)
-		m_bGridExists = false;
-	else
-	{
-		m_bGridExists = true;
+	m_bGridExists = bTurnOn;
+	m_bGridSendSelectedOnMove = bSendSelectedOnMove;
 
+	if(bTurnOn)
+	{
 		m_uGridX		= x;
 		m_uGridY		= y;
 		m_uGridWidth	= Width;
@@ -652,7 +653,10 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 	if(m_uGridSelectedItem > 0)
 	{
 		m_uGridSelectedItem--;
-		SelectCurrentItem(); //temp%%%
+
+		if(m_bGridSendSelectedOnMove)
+			SelectCurrentItem();
+
 		return true;
 	}
 	else
@@ -666,7 +670,10 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 	if(m_uGridSelectedItem < m_GridList.Count() - 1)
 	{
 		m_uGridSelectedItem++;
-		SelectCurrentItem(); //temp%%%
+
+		if(m_bGridSendSelectedOnMove)
+			SelectCurrentItem(); 
+		
 		return true;
 	}
 	else

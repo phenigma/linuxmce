@@ -207,7 +207,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
         listGrid.clear();
 
         //TODO: add an ON/OFF param! [HACK :D]
-        BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(-1, -1, -1, -1, listGrid);
+        BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(0, 0, 0, 0, listGrid, false, false);
         if( m_pBDCommandProcessor )
         {
             m_pBDCommandProcessor->AddCommand(pBD_CP_ShowList);
@@ -259,15 +259,33 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 
         list<string> listGrid;
 
+		int iSelectedColumn = 0;
+		if(pObj->m_sExtraInfo.find( 'c' ) != string::npos)
+		{
+			int iPos = pObj->m_sExtraInfo.find( 'c' ); 
+
+			if(iPos + 1 < pObj->m_sExtraInfo.size())
+				iSelectedColumn = pObj->m_sExtraInfo[iPos + 1];
+		}
+
+		bool bSendSelectedOnMove = false; //when use press up/down buttons, PlutoMO will send a SelectedItem command
+		if(pObj->m_sExtraInfo.find( 'T' ) != string::npos)
+		{
+			bSendSelectedOnMove = true;
+		}
+
         for(int i = 0; i < pObj->m_pDataGridTable->getTotalRowCount(); i++)
         {
-            DataGridCell * pCell = pObj->m_pDataGridTable->GetData(0, i);
+            DataGridCell * pCell = pObj->m_pDataGridTable->GetData(iSelectedColumn - 1, i);
 
             if(pCell)
                 listGrid.push_back(pCell->GetText());
         }
 
-        BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(x, y, Width, Height, listGrid);
+		bool bTurnOn = true;
+        BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(x, y, Width, Height, listGrid, 
+			bSendSelectedOnMove, bTurnOn);
+
         if( m_pBDCommandProcessor )
         {
             m_pBDCommandProcessor->AddCommand(pBD_CP_ShowList);

@@ -81,7 +81,9 @@ public:
 		unsigned long y, 
 		unsigned long Width, 
 		unsigned long Height,
-		RPointerArray<string> DatagridStringList
+		RPointerArray<string> DatagridStringList,
+		bool bSendSelectedOnMove,
+		bool bTurnOn
 	);
 
 	void SetCaptureKeyboardCommand(

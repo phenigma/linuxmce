@@ -37,8 +37,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
     int Width=800,Height=600;
     bool bLocalMode=false; // If true, it will not connect to PlutoServer but will look for it's files in the local directory
 	bool bFullScreen=false;
-    string sLocalDirectory="";
-    string sNestedDisplay = "";
+    string sLocalDirectory="/";
+    string sNestedDisplay = "/";
 
     bool bError=false; // An error parsing the command line
 
