@@ -22,7 +22,7 @@ LDFLAGS +=
 LDLIBS +=
 
 Gen_Dev_Files +=
-sources +=
+sources += token.cpp thread.cpp threadsafeobj.cpp mutex.cpp condition.cpp socket.cpp asteriskmanager.cpp runtimeconfig.cpp tokenpool.cpp logincommand.cpp originatecommand.cpp hangupcommand.cpp ringdetecthandler.cpp utils.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

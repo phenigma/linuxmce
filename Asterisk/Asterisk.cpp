@@ -12,6 +12,9 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "asteriskmanager.h"
+using namespace ASTERISK;
+
 //<-dceag-const-b->
 Asterisk::Asterisk(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Asterisk_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
@@ -32,6 +35,22 @@ bool Asterisk::Register()
 {
 	return Connect(); 
 }
+
+
+bool Asterisk::Connect() {
+	if(!Asterisk_Command::Connect()) {
+		return false;
+	}
+
+	/*
+	 *         instantiate &
+	 *                 initizalize manager
+	 *                     */
+	AsteriskManager *manager = AsteriskManager::getInstance();
+	manager->Initialize(this);
+	return true;
+}
+
 
 /*
 	When you receive commands that are destined to one of your children,
@@ -149,7 +168,6 @@ void Asterisk::SomeFunction()
 
 */
 
-
 //<-dceag-c233-b->
 
 	/** @brief COMMAND: #233 - PBX_Originate */
@@ -162,9 +180,59 @@ void Asterisk::SomeFunction()
 			/** Extention to dial */
 		/** @param #84 PhoneCallerID */
 			/** Caller id */
+		/** @param #85 CommandID */
+			/** CommandID which will be passed back when getting results */
 
-void Asterisk::CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage)
+void Asterisk::CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c233-e->
 {
-}
+    g_pPlutoLogger->Write(LV_STATUS, "Command Originate called with param: "
+									        "Extension: %s "
+									        "PhoneNumber: %s "
+									        "PhoneType: %s "
+									        "PhoneCallerID: %s"
+									        "CommandID: %d"
+									        , sPhoneExtension.c_str(), sPhoneNumber.c_str(), sPhoneType.c_str(), sPhoneCallerID.c_str(), iCommandID);
 
+    AsteriskManager *manager = AsteriskManager::getInstance();
+    manager->Originate(sPhoneExtension,sPhoneNumber,sPhoneType, sPhoneCallerID, iCommandID);
+}//<-dceag-c235-b->
+
+	/** @brief COMMAND: #235 - PBX_Transfer */
+	/** Transfer a call to other phone */
+		/** @param #83 PhoneExtension */
+			/** Phone extension to redirect to */
+		/** @param #85 CommandID */
+			/** CommandID which will be passed back when getting results */
+		/** @param #87 PhoneCallID */
+			/** Call ID which will be transferred */
+
+void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c235-e->
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Command Transfer called with param: "
+	                                            "PhoneExtension: %s "
+                                                "PhoneCallID: %s"
+  			                                    "CommandID: %d"
+			                                    , sPhoneExtension.c_str(), sPhoneCallID.c_str(), iCommandID);
+}
+//<-dceag-c237-b->
+
+	/** @brief COMMAND: #237 - PBX_Hangup */
+	/** Hangs up a call */
+		/** @param #85 CommandID */
+			/** Comman ID wichi will be passed back in result */
+		/** @param #87 PhoneCallID */
+			/** Call ID to be hanged up */
+
+void Asterisk::CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c237-e->
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Command Hangup called with param: "
+                                                "PhoneCallID: %s"
+  			                                    "CommandID: %d"
+			                                    , sPhoneCallID.c_str(), iCommandID);
+													
+    AsteriskManager *manager = AsteriskManager::getInstance();
+    manager->Hangup(sPhoneCallID, iCommandID);
+}

@@ -29,6 +29,8 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+		virtual bool Connect();
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -39,7 +41,8 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Ring(string sPhoneNumber);
+	void EVENT_PBX_CommandResult(int iCommandID,int iResult,string sMessage);
+	void EVENT_PBX_Ring(string sPhoneExtension,string sPhoneCallID,string sPhoneCallerID);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -55,9 +58,35 @@ public:
 			/** Extention to dial */
 		/** @param #84 PhoneCallerID */
 			/** Caller id */
+		/** @param #85 CommandID */
+			/** CommandID which will be passed back when getting results */
 
-	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID) { string sCMD_Result; CMD_PBX_Originate(sPhoneNumber.c_str(),sPhoneType.c_str(),sPhoneExtension.c_str(),sPhoneCallerID.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID) { string sCMD_Result; CMD_PBX_Originate(sPhoneNumber.c_str(),sPhoneType.c_str(),sPhoneExtension.c_str(),sPhoneCallerID.c_str(),iCommandID,sCMD_Result,NULL);};
+	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #235 - PBX_Transfer */
+	/** Transfer a call to other phone */
+		/** @param #83 PhoneExtension */
+			/** Phone extension to redirect to */
+		/** @param #85 CommandID */
+			/** CommandID which will be passed back when getting results */
+		/** @param #87 PhoneCallID */
+			/** Call ID which will be transferred */
+
+	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID) { string sCMD_Result; CMD_PBX_Transfer(sPhoneExtension.c_str(),iCommandID,sPhoneCallID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #237 - PBX_Hangup */
+	/** Hangs up a call */
+		/** @param #85 CommandID */
+			/** Comman ID wichi will be passed back in result */
+		/** @param #87 PhoneCallID */
+			/** Call ID to be hanged up */
+
+	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID) { string sCMD_Result; CMD_PBX_Hangup(iCommandID,sPhoneCallID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
