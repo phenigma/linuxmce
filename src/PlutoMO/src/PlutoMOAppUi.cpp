@@ -47,6 +47,7 @@
 
 #include "PlutoEventView.h"
 #include "PlutoEventContainer.h"
+#include "eikmenub.h"
 
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ConstructL()
@@ -96,11 +97,7 @@ CPlutoMOAppUi::~CPlutoMOAppUi()
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::Cleanup()
 {
-	if(m_iCapturedKeyId)
-	{
-		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);	
-		m_iCapturedKeyId = 0;
-	}
+	CancelCaptureSoftKeys();
 
 	if(NULL != m_pBDCommandProcessor_Symbian_Bluetooth)
 	{
@@ -211,9 +208,17 @@ void CPlutoMOAppUi::SetupIncomingCallNotifier()
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::DynInitMenuPaneL(
-    TInt /*aResourceId*/,CEikMenuPane* /*aMenuPane*/)
-    {
-    }
+    TInt aResourceId,CEikMenuPane* aMenuPane)
+{
+	if(aResourceId == 511950854) //menu resource id
+	{
+		aMenuPane->SetItemDimmed(EAknCmdExit, m_bVMCViewerVisible && m_pVMCView);
+		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest1, m_bVMCViewerVisible && m_pVMCView);
+		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest2, m_bVMCViewerVisible && m_pVMCView);
+		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest3, m_bVMCViewerVisible && m_pVMCView);
+		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest4, m_bVMCViewerVisible && m_pVMCView);
+	}
+}
 //----------------------------------------------------------------------------------------------
 TKeyResponse CPlutoMOAppUi::HandleKeyEventL(
     const TKeyEvent& aKeyEvent,TEventCode aType)
@@ -302,11 +307,9 @@ void CPlutoMOAppUi::MakeViewerVisible(bool Value)
 		m_pVMCView->iContainer->MakeVisible(Value);
 	}
 
-	if(!m_iCapturedKeyId)
-		m_iCapturedKeyId = CEikonEnv::Static()->RootWin().CaptureKeyUpAndDowns(EStdKeyNo, 0, 0);
+	CaptureSoftKeys();
 
 	Show();
-
 	m_bVMCViewerVisible = true;
 }
 //----------------------------------------------------------------------------------------------
@@ -476,12 +479,8 @@ void CPlutoMOAppUi::Hide()
 	m_bVMCViewerVisible = false;
 	//MakeViewerVisible(false);
 
-	if(m_iCapturedKeyId)
-	{
-		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);	
-		m_iCapturedKeyId = 0;
-	}
-
+	CancelCaptureSoftKeys();
+	
 	LOG("Existing hide method\n");
 }
 //----------------------------------------------------------------------------------------------
@@ -493,8 +492,7 @@ void CPlutoMOAppUi::Show()
 
 	m_bVMCViewerVisible = true;
 
-	if(!m_iCapturedKeyId)
-		m_iCapturedKeyId = CEikonEnv::Static()->RootWin().CaptureKeyUpAndDowns(EStdKeyNo, 0, 0);
+	CaptureSoftKeys();
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ResetViewer()
@@ -583,11 +581,7 @@ void CPlutoMOAppUi::CloseVMC()
 	m_pVMCView->iContainer->MakeVisible(false);
 	m_bVMCViewerVisible = false;
 	
-	if(m_iCapturedKeyId)
-	{
-		m_iCapturedKeyId = 0;
-		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);
-	}
+	CancelCaptureSoftKeys();
 
 	Cleanup();
 	Exit();
@@ -736,7 +730,35 @@ void CPlutoMOAppUi::Disconnect()
 	 LOG("Need to disconnect\n");
 	m_pBDCommandProcessor_Symbian_Bluetooth->Disconnect();
 }
-//----------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::CaptureSoftKeys()
+{
+	if(!m_iCapturedKeyIdYes)
+	{
+		m_iCapturedKeyIdYes = CEikonEnv::Static()->RootWin().CaptureKeyUpAndDowns(EStdKeyYes, 0, 0);
+	}
 
+	if(!m_iCapturedKeyIdNo)
+	{
+		m_iCapturedKeyIdNo = CEikonEnv::Static()->RootWin().CaptureKeyUpAndDowns(EStdKeyNo, 0, 0);
+	}
+}
+//---------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::CancelCaptureSoftKeys()
+{
+	if(m_iCapturedKeyIdNo)
+	{
+		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyIdNo);	
+		m_iCapturedKeyIdNo = 0;
+	}
+
+	if(m_iCapturedKeyIdYes)
+	{
+		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyIdYes);	
+		m_iCapturedKeyIdYes = 0;
+	}
+}
+//---------------------------------------------------------------------------------------------
 // End of File  
+
 

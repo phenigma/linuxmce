@@ -161,10 +161,14 @@ private:
 
 	void CreateVMCView();
 
+	void CaptureSoftKeys();
+	void CancelCaptureSoftKeys();
+
     CPlutoMOContainer* iAppContainer; 
 	CPlutoEventView* iPlutoEventView;
 
-	TInt m_iCapturedKeyId;
+	TInt m_iCapturedKeyIdYes;
+	TInt m_iCapturedKeyIdNo;
  };
 //----------------------------------------------------------------------------------------------
 #endif
