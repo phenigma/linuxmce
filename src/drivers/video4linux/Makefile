@@ -77,8 +77,8 @@ else
  export-objs	:= $(filter $(int-m) $(obj-m),$(export-objs))
 endif
 
-#CC += -I$(obj)
-EXTRA_CFLAGS += -I$(obj)
+CC += -I$(obj)
+EXTRA_CFLAGS += -I$(obj) 
 EXTRA_CFLAGS += -g
 
 snapshot := $(wildcard $(obj)/.snapshot)
