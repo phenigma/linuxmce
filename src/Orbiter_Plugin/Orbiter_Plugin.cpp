@@ -84,6 +84,7 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
     }
 
     m_bFloorPlansArePrepared = false;
+	m_iThreshHold = DATA_Get_ThreshHold();
 }
 
 //<-dceag-const2-b->!
@@ -451,11 +452,8 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 				// We know both signal strengths.  Do a comparisson and take the stronger one
 			}
 */
-			//temp
-			const unsigned int uThreshHold = 200;
-
             if( pOH_Orbiter->m_pDevice_CurrentDetected && 
-				pOH_Orbiter->m_iLastSignalStrength > uThreshHold &&
+				pOH_Orbiter->m_iLastSignalStrength > m_iThreshHold &&
 				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength 
 			)
             {

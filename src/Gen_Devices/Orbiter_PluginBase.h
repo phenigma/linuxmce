@@ -53,6 +53,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 12; } ;
 	virtual const char *GetDeviceDescription() { return "Orbiter_Plugin"; } ;
+	int Get_ThreshHold() { return atoi(m_mapParameters[61].c_str());}
 };
 
 
@@ -95,6 +96,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	int DATA_Get_ThreshHold() { return GetData()->Get_ThreshHold(); }
 	//Event accessors
 	void EVENT_Follow_Me_Lighting(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Lighting(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
 	void EVENT_Follow_Me_Climate(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Climate(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
