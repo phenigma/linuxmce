@@ -555,6 +555,15 @@ public:
 
 	void Read_string(string &str)
 	{
+		str.SetLength(0);
+		while ( m_pcCurrentPosition < m_pcDataBlock + m_dwAllocatedSize && *m_pcCurrentPosition) {
+			 str.Append(*m_pcCurrentPosition++);
+		}
+
+		m_pcCurrentPosition++; //also skip '\0'
+
+/*
+
 #ifndef SYMBIAN
 		// Don't bother checking
 		str = m_pcCurrentPosition;
@@ -568,6 +577,9 @@ public:
 
 		m_pcCurrentPosition++; //also skip '\0'
 #endif
+
+*/
+
 #ifdef DEBUG_SERIALIZATION
 		cout << "Reading string " << str << " size: " << (int) CurrentSize() << endl;
 #endif
