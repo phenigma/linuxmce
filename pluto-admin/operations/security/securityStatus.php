@@ -125,7 +125,7 @@ function securityStatus($output,$dbADO) {
 			';
 			$queryDevice='
 				SELECT 
-					Device.Description, State, Status, DeviceTemplate.Description AS Template, IK_DeviceData, FloorplanObjectType.Description AS FloorplanType
+					Device.Description, State, Status, DeviceTemplate.Description AS Template, IK_DeviceData, FloorplanObjectType.Description AS FloorplanType, PK_Device
 				FROM Device 
 					INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 					LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=?
@@ -156,7 +156,7 @@ function securityStatus($output,$dbADO) {
 				</select></td>
 					<td align="center"><select name="bypass_'.$rowD['PK_Device'].'">';
 			foreach ($bypassArray AS $bypass){
-				$out.='<option value="'.$bypass.'" '.(($bypass==$stateParts[1])?'selected':'').'>'.$bypass.'</option>';
+				$out.='<option value="'.$bypass.'" '.(($bypass==@$stateParts[1])?'selected':'').'>'.$bypass.'</option>';
 			}
 			$out.='</select></td>
 					<td align="center"><input type="checkbox" name="delay" '.((@$stateParts[2]!='')?'checked':'').' disabled></td>
