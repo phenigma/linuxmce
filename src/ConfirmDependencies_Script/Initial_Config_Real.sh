@@ -57,7 +57,11 @@ RestoreCoreConf()
 }
 
 if [ "$Type" == "router" ]; then
-	dpkg -i /usr/pluto/install/deb-critical/* || echo "* ERROR * No APT proxy will be available."
+	if dpkg -i /usr/pluto/install/deb-critical/*; then
+		sed -i 's/^BACKEND_FREQ=.*$/BACKEND_FREQ=0/' /etc/apt-proxy/apt-proxy.conf
+	else
+		echo "* ERROR * No APT proxy will be available."
+	fi
 	RestoreCoreConf
 	WhereCode="in pluto.conf backup"
 else
