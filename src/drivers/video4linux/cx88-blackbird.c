@@ -39,7 +39,7 @@ MODULE_AUTHOR("Jelle Foks <jelle@foks.8m.com>");
 MODULE_AUTHOR("Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]");
 MODULE_LICENSE("GPL");
 
-static unsigned int mpegbufs = 8;
+static unsigned int mpegbufs = 16;
 module_param(mpegbufs,int,0644);
 MODULE_PARM_DESC(mpegbufs,"number of mpeg buffers, range 2-32");
 
