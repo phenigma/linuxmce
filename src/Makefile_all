@@ -3,7 +3,7 @@ APPS=DCEGen DCERouter sql2cpp MessageSend DCEGen
 DCEDEVS=App_Server Disk_Drive Slim_Server_Streamer MythTV_Backend_Proxy gc100
 PLUGINS=Datagrid_Plugin File_Grids_Plugin Media_Plugin Orbiter_Plugin Xine_Plugin \
 	General_Info_Plugin Mozilla_Plugin Lighting_Plugin Climate_Plugin Security_Plugin Telecom_Plugin \
-	MythTV_PlugIn Asterisk Event_Plugin
+	MythTV_PlugIn Asterisk Event_Plugin Infrared_Plugin
 CONFLICTING=OrbiterGen Orbiter Bluetooth_Dongle Xine_Player 
 
 all: libs nolibs

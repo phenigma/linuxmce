@@ -16,6 +16,7 @@
 //<-dceag-d-e->
 
 #include "XineSlaveWrapper.h"
+#include "SlimServerClient.h"
 #include "utilities/linux/RatpoisonHandler.h"
 
 //<-dceag-decl-b->! custom
@@ -45,8 +46,11 @@ public:
      * @brief destructor
      */
 
-    XineSlaveWrapper *m_pXineSlaveControl; /**< points to the XineSlaveWrapper object */
+    XineSlaveWrapper *m_pXineSlaveControl; /** < m_pXineSlaveControl points to the XineSlaveWrapper object */
 
+	SlimServerClient *m_pSlimServerClient; /** < m_pSlimServerClient is the wrapper around the slim server protocol */
+
+	string GetMacAddress();
     /**
      * @brief destructor
      */
@@ -195,7 +199,7 @@ public:
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu 
+0 - Root menu
 1 - Title menu
 2 - Media menu */
 

@@ -250,7 +250,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 					g_pPlutoLogger->Write(LV_STATUS, "Got response from the disk drive: %s", mediaURL.c_str() );
 				}
 			}
-			g_pPlutoLogger->Write( LV_CRITICAL, "Media device %d got back URL: %s", pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device, mediaURL.c_str( ) );
+			g_pPlutoLogger->Write( LV_STATUS, "Media device %d got back URL: %s", pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device, mediaURL.c_str( ) );
 		}
 	}
 	else
@@ -441,7 +441,7 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 
 	if ( ! pMediaStream->isStreaming() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Called Xine_Plugin::StartStreaming but with a MediaStream (streamid: %d) )that is non streamable.", pMediaStream->m_iStreamID_get());
+		g_pPlutoLogger->Write(LV_STATUS, "Called Xine_Plugin::StartStreaming but with a MediaStream (streamid: %d) that is non streamable.", pMediaStream->m_iStreamID_get());
 		return false;
 	}
 
@@ -453,9 +453,29 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 
 	GetRenderDevices(pMediaStream, &mapPlaybackDevices);
 
+
+	// virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage);
+
+
 	itPlaybackDevices = mapPlaybackDevices.begin();
 	while ( itPlaybackDevices != mapPlaybackDevices.end() )
 	{
+		MediaDevice *pMediaDevice = (*itPlaybackDevices).second;
+
+		// when we are starting streaming on xine players we need to point them to the slim server device
+		if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Sending slim server connection command to the xine player");
+
+			DCE::CMD_Play_Media playMediaCommand(
+					m_dwPK_Device,
+					pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+					"slim://" + pMediaStream->m_pDeviceData_Router_Source->GetIPAddress() + "/",
+					pMediaStream->m_iPK_MediaType,
+					pMediaStream->m_iStreamID_get(), 0);
+			SendCommand(playMediaCommand);
+		}
+
 		strTargetDevices += StringUtils::itos((*itPlaybackDevices).second->m_pDeviceData_Router->m_dwPK_Device) + ",";
 		itPlaybackDevices++;
 	}

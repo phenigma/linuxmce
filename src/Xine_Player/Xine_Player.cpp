@@ -45,6 +45,9 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 {
     m_pXineSlaveControl = new XineSlaveWrapper();
 
+	m_pSlimServerClient = new SlimServerClient();
+	m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
+
     if ( ! m_pXineSlaveControl->createWindow() )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the xine slave window. This plugin is useless here!");
@@ -137,7 +140,22 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
     }
 
     makeActive(m_pXineSlaveControl->getRenderingWindowName());
-    m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From);
+
+	if ( sFilename.substr(0, strlen("slim://")).compare("slim://") == 0)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Need to behave like a slim server client");
+		m_pXineSlaveControl->stopMedia(iStreamID);
+		m_pSlimServerClient->setMacAddress(GetMacAddress());
+		// To not break more stuff
+		// m_pSlimServerClient->connectToServer(sFilename.substr(strlen("slim://")), iStreamID);
+	}
+	else
+	{
+		if ( m_pSlimServerClient->isConnected(iStreamID) )
+			m_pSlimServerClient->disconnectFromServer(iStreamID);
+
+		m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From);
+	}
 }
 
 //<-dceag-c38-b->
@@ -305,7 +323,7 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu 
+0 - Root menu
 1 - Title menu
 2 - Media menu */
 
@@ -360,5 +378,18 @@ void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,in
 //<-dceag-c259-e->
 {
     m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, *iMediaPosition, *iMedia_Length);
+}
+
+string Xine_Player::GetMacAddress()
+{
+	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
+
+	if ( pDeviceData_Base == NULL )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "I could not find a device data base object for myself %d: this is very very strange.", m_dwPK_Device);
+		return "";
+	}
+
+	return pDeviceData_Base->GetMacAddress();
 }
 //<-dceag-createinst-b->!
