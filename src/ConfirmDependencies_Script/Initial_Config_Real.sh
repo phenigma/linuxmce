@@ -156,7 +156,7 @@ fi
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
-Q="SELECT FK_DeviceCategory FROM DeviceTemplate JOIN Device ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device=1468"
+Q="SELECT FK_DeviceCategory FROM DeviceTemplate JOIN Device ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='$device'"
 R=$(RunSQL "$Q")
 
 case "$R" in
@@ -172,7 +172,7 @@ case "$R" in
 
 	# Other
 	*)
-		Type="Unknown Device Type '$R' :)"
+		Type="Unknown Device Type '$R'"
 	;;
 esac
 
