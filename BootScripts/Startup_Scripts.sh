@@ -56,7 +56,7 @@ fi
 Q="SELECT Command,Enabled
 FROM Device_StartupScript
 JOIN StartupScript ON FK_StartupScript=PK_StartupScript
-WHERE FK_Device='$Device' AND When='$When'
+WHERE FK_Device='$Device' AND StartupScript.When='$When'
 ORDER BY Boot_Order"
 
 if [ ! -e /etc/pluto.startup ]; then
