@@ -59,3 +59,5 @@ WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=$i;"
 (echo "$Q1"; echo "$Q2"; echo "$Q3") | /usr/bin/mysql pluto_main
 done
 
+/usr/pluto/bin/Update_StartupScrips.sh
+
