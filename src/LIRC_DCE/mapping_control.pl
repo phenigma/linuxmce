@@ -34,12 +34,29 @@ while($cmd ne "exit") {
 		dump_database();
 	} elsif($cmd eq "token") {
 		add_token($argvs[1],$argvs[2]);
+	} elsif($cmd eq "message") {
+		change_msg($argv[1]);
 	} else {
 		print_help();
 	}
 }
 
 $db->disconnect();
+
+sub change_msg {
+	$comment = shift;
+	$sql = "SELECT * FROM Mappings WHERE Comment='$comment'";
+	$st = $db->prepare($sql);
+	$st->execute();
+	if($row = $st->fetchrow_hashref()) {
+		print "Insert new message : ";
+		$mesg = <STDIN>;
+		$st->finish();
+		$db->do("UPDATE Mappings SET Message='$mesg' WHERE Comment='$comment'");
+	} else {
+		print "No Comment found as the one u typed in\n";
+	}
+}
 
 sub add_token {
 	$comment = shift;
@@ -110,7 +127,7 @@ sub add_map {
 }
 
 sub print_help {
-	print "Usage:\nlist [comment]- listing all the mapping, or the tokens for the comment\nhelp - for this help\nadd <comment> <message> - adding a new command mapping\ntoken <comment> <token>\n";
+	print "Usage:\nlist [comment]- listing all the mapping, or the tokens for the comment\nhelp - for this help\nadd <comment> <message> - adding a new command mapping\ntoken <comment> <token> - \nmessage <comment> - change the message of a comment\n";
 }
 
 sub list_mappings {
