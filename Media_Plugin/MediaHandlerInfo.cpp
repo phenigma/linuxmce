@@ -50,6 +50,11 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
     if( PK_DeviceTemplate )
     {
         ListDeviceData_Router *pListDeviceData_Router=m_pMediaHandlerBase->m_pMedia_Plugin->m_pRouter->m_mapDeviceByTemplate_Find( PK_DeviceTemplate );
+		if( !pListDeviceData_Router )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Media Handler Info cannot find any devices for template: %d",PK_DeviceTemplate);
+			return;
+		}
         for( ListDeviceData_Router::iterator it=pListDeviceData_Router->begin( );it!=pListDeviceData_Router->end( );++it )
         {
             DeviceData_Router *pDeviceData_Router = *it;
