@@ -217,7 +217,9 @@ void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
             locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
     }
 
-    XGetInputFocus( m_pRatWrapper->getDisplay(), &oldWindow, &oldRevertBehaviour);
+	selectWindow();
+	
+	XGetInputFocus( m_pRatWrapper->getDisplay(), &oldWindow, &oldRevertBehaviour);
     XSetInputFocus( m_pRatWrapper->getDisplay(), (Window)m_iMythFrontendWindowId, RevertToParent, CurrentTime );
     XTestFakeKeyEvent( m_pRatWrapper->getDisplay(), XKeysymToKeycode(m_pRatWrapper->getDisplay(), iXKeySym), True, 0 );
     XTestFakeKeyEvent( m_pRatWrapper->getDisplay(), XKeysymToKeycode(m_pRatWrapper->getDisplay(), iXKeySym), False, 0 );
@@ -226,7 +228,6 @@ void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
 
     XFlush(m_pRatWrapper->getDisplay());
 
-    selectWindow();
 }
 
 bool MythTV_Player::checkWindowName(long unsigned int window, string windowName)
