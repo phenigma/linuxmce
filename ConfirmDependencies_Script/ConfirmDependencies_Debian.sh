@@ -62,7 +62,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 case "$URL_TYPE" in
 	apt)
-		TMP_SECT=$(echo -n "$REPOS" | cut -d' ' -f2-)
+		TMP_SECT=$(echo -n "$REPOS" | cut -d' ' -sf2-)
 		if [ -n "$TMP_SECT" ]; then
 			SECTIONS="$TMP_SECT"
 			REPOS=$(echo -n "$REPOS" | cut -d' ' -f1)
