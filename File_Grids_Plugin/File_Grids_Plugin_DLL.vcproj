@@ -137,10 +137,16 @@
 				RelativePath="..\Gen_Devices\File_Grids_PluginBase.cpp">
 			</File>
 			<File
+				RelativePath=".\FileListGrid.cpp">
+			</File>
+			<File
 				RelativePath=".\FileListOps.cpp">
 			</File>
 			<File
 				RelativePath="Main.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\MediaAttributes.cpp">
 			</File>
 		</Filter>
 		<Filter

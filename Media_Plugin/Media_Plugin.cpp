@@ -30,7 +30,7 @@ using namespace DCE;
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "DataGrid.h"
-#include "Datagrid_Plugin/FileListGrid.h"
+#include "File_Grids_Plugin/FileListGrid.h"
 
 MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 {

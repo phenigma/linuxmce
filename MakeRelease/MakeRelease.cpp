@@ -790,7 +790,17 @@ AsksSourceQuests:
 
 		if( vectRow_Package_Directory_File.size()==0 )
 		{
-			cout << "No file is specified for the output.  What is the file?" << endl;
+			if( !g_bInteractive )
+			{
+				cout << "Nothing to build in this directory" << endl;
+				continue; // We just assume there is nothing to build here
+			}
+
+			cout << "No output file is specified.  You need one to compile this directory." << endl;
+			if( !AskYNQuestion("Specify one?",false) )
+				continue;
+
+			cout << "What is the file?" << endl;
 			string s = StringUtils::GetStringFromConsole();
 			Row_Package_Directory_File *pRow_Package_Directory_File = g_pDatabase_pluto_main->Package_Directory_File_get()->AddRow();
 			pRow_Package_Directory_File->FK_Package_Directory_set(pRow_Package_Directory->PK_Package_Directory_get());

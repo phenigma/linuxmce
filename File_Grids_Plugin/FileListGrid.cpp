@@ -1,6 +1,12 @@
-#ifdef WIN32
-#include <WinSock.h>
-#else
+#include "File_Grids_Plugin.h"
+#include "DCE/Logger.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/Other.h"
+#include "PlutoUtils/CommonIncludes.h"
+
+
+#ifndef WIN32
 #include <dirent.h>
 #endif
 
@@ -10,20 +16,13 @@
 #include <time.h>
 #include <string.h>
 
-#include "PlutoUtils/CommonIncludes.h"	
-#include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
-#include "PlutoUtils/Other.h"
-#include "DCE/Logger.h"
 #include "DataGrid.h"
 #include "FileListGrid.h"
 #include "Media_Plugin/MediaAttributes.h"
+#include "Media_Plugin/Media_Plugin.h"
 
 void FileListGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount)
 {
-	/*
 #ifdef DEBUG
 	clock_t cStart=clock(); // move this to within #debug
 #endif
@@ -34,29 +33,29 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, in
 		if( !pCell || !pCell->m_pGraphicData ) // We haven't already set a picture for this cell
 		{
 			string Extension,PictureFile;
-			int PK_MED_Picture=0;
+			int PKID_MED_Picture=0;
 			enum eGraphicFormat format;
 
 			FileListInfo *flInfo = m_vectFileInfo[row];
-			if( flInfo->m_PK_MED_Attribute )
+			if( flInfo->m_PKID_MED_Attribute )
 			{
-				Extension = m_pDCEMI_PS_VirtualDevices->m_pMediaAttributes->GetPictureFromAttributeID(flInfo->m_PK_MED_Attribute,&PK_MED_Picture);
+				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetPictureFromAttributeID(flInfo->m_PKID_MED_Attribute,&PKID_MED_Picture);
 			}
 			else if( !flInfo->m_bIsDirectory )
 			{
-				Extension = m_pDCEMI_PS_VirtualDevices->m_pMediaAttributes->GetPictureFromFilePath(flInfo->m_sPath,&PK_MED_Picture);
+				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetPictureFromFilePath(flInfo->m_sPath,&PKID_MED_Picture);
 			}
 			else if( flInfo->m_sPath.length()>0 )
 			{
-				Extension = m_pDCEMI_PS_VirtualDevices->m_pMediaAttributes->GetAnyPictureUnderDirectory(flInfo->m_sPath,&PK_MED_Picture,5);
+				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetAnyPictureUnderDirectory(flInfo->m_sPath,&PKID_MED_Picture,5);
 			}
 
 			char *pIconBuffer = NULL;
 			size_t stIconSize;
 
-			if( PK_MED_Picture )
+			if( PKID_MED_Picture )
 			{
-				PictureFile = "/home/mediapics/" + StringUtils::itos(PK_MED_Picture) + "_tn.jpg";
+				PictureFile = "/home/mediapics/" + StringUtils::itos(PKID_MED_Picture) + "_tn.jpg";
 #ifdef WIN32
 				string::size_type s;
 				while( (s=PictureFile.find('/'))!=string::npos )
@@ -123,7 +122,6 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, in
 #endif
 
 	DataGridTable::ToData(GridID,Size,Data,ColStart,RowStart,ColCount,RowCount);
-*/
 }
 
 
