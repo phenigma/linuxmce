@@ -24,6 +24,7 @@ using namespace std;
 #include "Table_DeviceTemplate.h"
 #include "Table_Device_Users.h"
 #include "Table_Document_Comment.h"
+#include "Table_InfraredGroup_Command.h"
 #include "Table_Installation_Users.h"
 #include "Table_Orbiter_Users_PasswordReq.h"
 #include "Table_Package_Users.h"
@@ -1551,6 +1552,13 @@ void Row_Users::Document_Comment_FK_Users_getrows(vector <class Row_Document_Com
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Document_Comment *pTable = table->database->Document_Comment_get();
+pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
+}
+void Row_Users::InfraredGroup_Command_FK_Users_getrows(vector <class Row_InfraredGroup_Command*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
 pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Installation_Users_FK_Users_getrows(vector <class Row_Installation_Users*> *rows)

@@ -15,6 +15,7 @@ Database_pluto_main();
 ~Database_pluto_main();
 void DeleteAllTables();
 private:
+class Table_AlertType* tblAlertType;
 class Table_Array* tblArray;
 class Table_Broadcast* tblBroadcast;
 class Table_Button* tblButton;
@@ -223,6 +224,7 @@ class Table_psc_website_repset* tblpsc_website_repset;
 class Table_psc_website_schema* tblpsc_website_schema;
 class Table_psc_website_tables* tblpsc_website_tables;
 public:
+class Table_AlertType* AlertType_get() { return tblAlertType; }
 class Table_Array* Array_get() { return tblArray; }
 class Table_Broadcast* Broadcast_get() { return tblBroadcast; }
 class Table_Button* Button_get() { return tblButton; }
@@ -434,6 +436,7 @@ bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
 private:
+void CreateTable_AlertType();
 void CreateTable_Array();
 void CreateTable_Broadcast();
 void CreateTable_Button();
@@ -641,6 +644,7 @@ void CreateTable_psc_website_batuser();
 void CreateTable_psc_website_repset();
 void CreateTable_psc_website_schema();
 void CreateTable_psc_website_tables();
+void DeleteTable_AlertType();
 void DeleteTable_Array();
 void DeleteTable_Broadcast();
 void DeleteTable_Button();

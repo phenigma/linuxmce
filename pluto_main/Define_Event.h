@@ -25,6 +25,7 @@
 #define EVENT_Listening_to_Media_CONST 21
 #define EVENT_Stopped_Listening_To_Medi_CONST 22
 #define EVENT_MythTV_Channel_Changed_CONST 23
+#define EVENT_New_PNP_Device_Detected_CONST 24
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"

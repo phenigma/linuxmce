@@ -436,6 +436,8 @@
 #define TEXT_instructions_CONST 1111
 #define TEXT_Alarms_CONST 1112
 #define TEXT_Regen_Orbiter_CONST 1113
+#define TEXT_Delete_entry_CONST 1114
+#define TEXT_Delete_Playlist_CONST 1115
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

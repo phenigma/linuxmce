@@ -21,6 +21,7 @@ using namespace std;
 #include "Table_Command.h"
 #include "Table_DeviceTemplate.h"
 #include "Table_Device.h"
+#include "Table_Users.h"
 
 
 
@@ -124,12 +125,15 @@ is_null[3] = true;
 is_null[4] = true;
 is_null[5] = true;
 is_null[6] = true;
-is_null[7] = true;
+m_UseThisCode = 0;
+is_null[7] = false;
 is_null[8] = true;
+is_null[9] = true;
+is_null[10] = true;
 m_psc_frozen = 0;
-is_null[9] = false;
+is_null[11] = false;
 m_psc_mod = "00000000000000";
-is_null[10] = false;
+is_null[12] = false;
 
 
 	is_added=false;
@@ -155,6 +159,12 @@ return m_FK_Device;}
 string Row_InfraredGroup_Command::IRData_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_IRData;}
+long int Row_InfraredGroup_Command::FK_Users_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Users;}
+short int Row_InfraredGroup_Command::UseThisCode_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_UseThisCode;}
 long int Row_InfraredGroup_Command::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -190,21 +200,27 @@ m_FK_Device = val; is_modified=true; is_null[4]=false;}
 void Row_InfraredGroup_Command::IRData_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_IRData = val; is_modified=true; is_null[5]=false;}
+void Row_InfraredGroup_Command::FK_Users_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Users = val; is_modified=true; is_null[6]=false;}
+void Row_InfraredGroup_Command::UseThisCode_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_UseThisCode = val; is_modified=true; is_null[7]=false;}
 void Row_InfraredGroup_Command::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[6]=false;}
+m_psc_id = val; is_modified=true; is_null[8]=false;}
 void Row_InfraredGroup_Command::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[7]=false;}
+m_psc_batch = val; is_modified=true; is_null[9]=false;}
 void Row_InfraredGroup_Command::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[8]=false;}
+m_psc_user = val; is_modified=true; is_null[10]=false;}
 void Row_InfraredGroup_Command::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[9]=false;}
+m_psc_frozen = val; is_modified=true; is_null[11]=false;}
 void Row_InfraredGroup_Command::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[10]=false;}
+m_psc_mod = val; is_modified=true; is_null[12]=false;}
 
 		
 bool Row_InfraredGroup_Command::FK_InfraredGroup_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -219,18 +235,21 @@ return is_null[4];}
 bool Row_InfraredGroup_Command::IRData_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_InfraredGroup_Command::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_InfraredGroup_Command::FK_Users_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_InfraredGroup_Command::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[7];}
-bool Row_InfraredGroup_Command::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_InfraredGroup_Command::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
-bool Row_InfraredGroup_Command::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_InfraredGroup_Command::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
+bool Row_InfraredGroup_Command::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[10];}
+bool Row_InfraredGroup_Command::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[11];}
 
 			
 void Row_InfraredGroup_Command::FK_InfraredGroup_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -245,18 +264,21 @@ is_null[4]=val;}
 void Row_InfraredGroup_Command::IRData_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
-void Row_InfraredGroup_Command::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_InfraredGroup_Command::FK_Users_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
-void Row_InfraredGroup_Command::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[7]=val;}
-void Row_InfraredGroup_Command::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_InfraredGroup_Command::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[8]=val;}
-void Row_InfraredGroup_Command::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_InfraredGroup_Command::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[9]=val;}
+void Row_InfraredGroup_Command::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[10]=val;}
+void Row_InfraredGroup_Command::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[11]=val;}
 	
 
 string Row_InfraredGroup_Command::PK_InfraredGroup_Command_asSQL()
@@ -338,11 +360,37 @@ delete buf;
 return s;
 }
 
-string Row_InfraredGroup_Command::psc_id_asSQL()
+string Row_InfraredGroup_Command::FK_Users_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Users);
+
+return buf;
+}
+
+string Row_InfraredGroup_Command::UseThisCode_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_UseThisCode);
+
+return buf;
+}
+
+string Row_InfraredGroup_Command::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -355,7 +403,7 @@ string Row_InfraredGroup_Command::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -368,7 +416,7 @@ string Row_InfraredGroup_Command::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -381,7 +429,7 @@ string Row_InfraredGroup_Command::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[9])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -394,7 +442,7 @@ string Row_InfraredGroup_Command::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[10])
+if (is_null[12])
 return "NULL";
 
 char *buf = new char[29];
@@ -442,10 +490,10 @@ bool Table_InfraredGroup_Command::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_InfraredGroup_Command_asSQL()+", "+pRow->FK_InfraredGroup_asSQL()+", "+pRow->FK_Command_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_Device_asSQL()+", "+pRow->IRData_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_InfraredGroup_Command_asSQL()+", "+pRow->FK_InfraredGroup_asSQL()+", "+pRow->FK_Command_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_Device_asSQL()+", "+pRow->IRData_asSQL()+", "+pRow->FK_Users_asSQL()+", "+pRow->UseThisCode_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into InfraredGroup_Command (PK_InfraredGroup_Command, FK_InfraredGroup, FK_Command, FK_DeviceTemplate, FK_Device, IRData, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into InfraredGroup_Command (PK_InfraredGroup_Command, FK_InfraredGroup, FK_Command, FK_DeviceTemplate, FK_Device, IRData, FK_Users, UseThisCode, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -495,7 +543,7 @@ condition = condition + "PK_InfraredGroup_Command=" + tmp_PK_InfraredGroup_Comma
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_InfraredGroup_Command="+pRow->PK_InfraredGroup_Command_asSQL()+", FK_InfraredGroup="+pRow->FK_InfraredGroup_asSQL()+", FK_Command="+pRow->FK_Command_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_Device="+pRow->FK_Device_asSQL()+", IRData="+pRow->IRData_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "PK_InfraredGroup_Command="+pRow->PK_InfraredGroup_Command_asSQL()+", FK_InfraredGroup="+pRow->FK_InfraredGroup_asSQL()+", FK_Command="+pRow->FK_Command_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_Device="+pRow->FK_Device_asSQL()+", IRData="+pRow->IRData_asSQL()+", FK_Users="+pRow->FK_Users_asSQL()+", UseThisCode="+pRow->UseThisCode_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update InfraredGroup_Command set " + update_values_list + " where " + condition;
@@ -657,56 +705,78 @@ pRow->m_IRData = string(row[5],lengths[5]);
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Users = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_id));
+sscanf(row[6], "%li", &(pRow->m_FK_Users));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_batch = 0;
+pRow->m_UseThisCode = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_batch));
+sscanf(row[7], "%hi", &(pRow->m_UseThisCode));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_user));
+sscanf(row[8], "%li", &(pRow->m_psc_id));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[9], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_psc_mod = string(row[10],lengths[10]);
+sscanf(row[10], "%li", &(pRow->m_psc_user));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[12]=false;
+pRow->m_psc_mod = string(row[12],lengths[12]);
 }
 
 
@@ -884,56 +954,78 @@ pRow->m_IRData = string(row[5],lengths[5]);
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Users = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_id));
+sscanf(row[6], "%li", &(pRow->m_FK_Users));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_batch = 0;
+pRow->m_UseThisCode = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_batch));
+sscanf(row[7], "%hi", &(pRow->m_UseThisCode));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_user));
+sscanf(row[8], "%li", &(pRow->m_psc_id));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[9], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_psc_mod = string(row[10],lengths[10]);
+sscanf(row[10], "%li", &(pRow->m_psc_user));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[12]=false;
+pRow->m_psc_mod = string(row[12],lengths[12]);
 }
 
 
@@ -971,6 +1063,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device *pTable = table->database->Device_get();
 return pTable->GetRow(m_FK_Device);
+}
+class Row_Users* Row_InfraredGroup_Command::FK_Users_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Users *pTable = table->database->Users_get();
+return pTable->GetRow(m_FK_Users);
 }
 
 

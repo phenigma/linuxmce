@@ -18,6 +18,7 @@ using namespace std;
 
 Database_pluto_main::Database_pluto_main()
 {
+CreateTable_AlertType();
 CreateTable_Array();
 CreateTable_Broadcast();
 CreateTable_Button();
@@ -234,6 +235,7 @@ Database_pluto_main::~Database_pluto_main()
 
 void Database_pluto_main::DeleteAllTables()
 {
+DeleteTable_AlertType();
 DeleteTable_Array();
 DeleteTable_Broadcast();
 DeleteTable_Button();

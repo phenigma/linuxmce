@@ -22,6 +22,7 @@
 #define ARRAY_Events_Handler_CONST 20
 #define ARRAY_Sleeping_Scenarios_CONST 21
 #define ARRAY_Wakeup_Alarms_CONST 22
+#define ARRAY_Mobile_Orbiter_Scenarios_CONST 23
 
 #define ARRAY_TABLE "Array"
 #define ARRAY_PK_ARRAY_FIELD "PK_Array"

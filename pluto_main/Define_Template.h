@@ -9,7 +9,7 @@
 #define TEMPLATE_Media_Wiz_videos_CONST 6
 #define TEMPLATE_Media_Wiz_pictures_CONST 7
 #define TEMPLATE_Media_Wiz_documents_CONST 8
-#define TEMPLATE_Lightning_Wizard_CONST 9
+#define TEMPLATE_Lighting_Wizard_CONST 9
 #define TEMPLATE_Climate_Wizard_CONST 10
 #define TEMPLATE_Events_Handler_CONST 11
 #define TEMPLATE_Security_Scenarios_CONST 12
