@@ -8,7 +8,7 @@ CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
-MYNAME = LinphoneBase
+MYNAME = Linphone
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 1602mplateID
 
@@ -20,12 +20,11 @@ CXXFLAGS += -I../ -I/usr/pluto/include -I/usr/pluto/include/linphone -I/usr/plut
 CPPFLAGS +=
 LDFLAGS += -L/usr/pluto/lib
 XTRALDLIBS = -llinphone -lraw1394 -ldc1394_control
-#-llinphone -lmediastreamer -lortp -lraw1394 -ldc1394_control
 
 Gen_Dev_Files +=
 sources += LinphoneManager.cpp
 
-#<-dceag-mf-b->!
+#<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -33,17 +32,17 @@ whattodo:
 
 all: bin so
 
-bin: LinphoneBase
+bin: Linphone
 
-so: LinphoneBase.so
+so: Linphone.so
 
-LinphoneBase.so: $(sources:.cpp=.o)
+Linphone.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-LinphoneBase: $(sources:.cpp=.o)
+Linphone: $(sources:.cpp=.o)
 	LD_LIBRARY_PATH=/usr/pluto/lib $(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	cp Linphone ../bin
