@@ -73,6 +73,9 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 				case 3:
 					$runsTxt.='<img src="include/images/redhat.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
 				break;
+				case 5:
+					$runsTxt.='<img src="include/images/mandrake.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
+				break;
 				case 7:
 					$runsTxt.='<img src="include/images/windows.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
 				break;
@@ -145,6 +148,9 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 					break;
 					case 3:
 						$runsTxt.='<img src="include/images/redhat.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
+					break;
+					case 3:
+						$runsTxt.='<img src="include/images/mandrake.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
 					break;
 					case 7:
 						$runsTxt.='<img src="include/images/windows.png" title="'.$rowRuns['OS_Distro'].' / '.$rowRuns['Distro'].' / '.$rowRuns['Distro'].'" align="middle">';
