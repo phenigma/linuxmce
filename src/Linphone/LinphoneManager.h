@@ -62,6 +62,8 @@ public:
 	bool Answer();
 	void Drop();
 	
+	bool SetVideo(double fps, unsigned int resolution);
+	
 public:
     static void Linphone_INVITE_CB(struct _LinphoneCore *lc, char *from);
     static void Linphone_BYE_CB(struct _LinphoneCore *lc, char *from);

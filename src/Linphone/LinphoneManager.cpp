@@ -54,7 +54,6 @@ LinphoneManager::Open() {
 	}
 	
 	try {	
-		char buff[255] = LINPHONE_CONFIG_FILE_PATH;
 		linphone_core_init(linphone_, &LinphoneVTable, (gchar*)conffile.c_str(), (void*)this);
 	} catch (...) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Exception occured during linphone initialization...");
@@ -104,6 +103,11 @@ LinphoneManager::Drop() {
 	linphone_core_terminate_dialog (linphone_, NULL);
 }
 
+bool 
+LinphoneManager::SetVideo(double fps, unsigned int resolution) {
+	linphone_core_set_video(linphone_, fps, resolution);
+	return true;
+}
 
 void 
 LinphoneManager::Linphone_NOOP_CB() {
@@ -130,6 +134,7 @@ LinphoneManager::Linphone_STATUS_CB(LinphoneCore * lc, char *something) {
 	
 	LinphoneManager* pme = (LinphoneManager*)(lc->impl_this_ptr);
 	if (strncmp(something, "Connected.", 10) == 0) {
+		linphone_core_set_video(pme->linphone_, LINPHONE_FPS, LINPHONE_RESOLUTION);  
 		if(pme->pint_ != NULL) {
 			pme->pint_->OnConnected();
 		}	
