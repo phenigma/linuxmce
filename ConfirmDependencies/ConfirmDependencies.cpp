@@ -71,6 +71,10 @@ public:
 		Row_Package_Source *pRow_Package_Source, Row_RepositorySource_URL *pRow_RepositorySource_URL,
 		bool bMustBuild)
 	{
+if( pRow_Package_Source->FK_Package_get()==277 )
+{
+int k=2;
+}
 		m_pRow_Package_Source_Compat=pRow_Package_Source_Compat;
 		m_pRow_Package_Source=pRow_Package_Source;
 		m_pRow_Package_Source=pRow_Package_Source;
@@ -325,12 +329,21 @@ int main(int argc, char *argv[])
 			cout << "ok=0" << endl;
 			cout << "while [ \"$ok\" -eq 0 ]; do" << endl;
 //			cout << endl << "-----------------------------------------------------" << endl;
+if( pPackageInfo->m_pRow_Package_Source->FK_Package_get()==277 )
+{
+int k=2;
+}
 			cout << "\t# PK_Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << endl;
 			cout << "\t# Rep. type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
 			cout << "\t# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
 				<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
+/*
+on package 277, it tried the targz before the DEB
+makerelease isn't building all and isn't updating the versions
+*/
 			InstallPackage(pPackageInfo);
 
+/* AB 1/26/05 - for the moment I'm going to comment this out so we don't keep trying alternate sources.  If one source failes, it really is a failure and we should stop
 			if (pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() != REPOSITORYTYPE_PACKAGE_CONST)
 			{
 				for(size_t s=0;s<pPackageInfo->m_vectPackageInfo.size();++s)
@@ -339,10 +352,11 @@ int main(int argc, char *argv[])
 					cout << "\t# PK_Package: " << pPackageInfoAlt->m_pRow_Package_Source->FK_Package_get() << endl;
 					cout << "\t# Rep. type: " << pPackageInfoAlt->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
 					cout << "\t# Package: " << pPackageInfoAlt->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
-						<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
+						<< " Type: " << pPackageInfoAlt->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
 					InstallPackage(pPackageInfoAlt, true);
 				}
 			}
+*/
 			cout << "\telse" << endl;
 //			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
 
@@ -604,7 +618,7 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 		}
 	}
 
-if( pRow_Package->PK_Package_get()==192 )
+if( pRow_Package->PK_Package_get()==277 )
 {
 int k=2;
 }
@@ -761,6 +775,11 @@ PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Comp
 		cout << "# Got NULL" << endl;
 		return NULL;
 	}
+if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_get()==277 )
+{
+int k=2;
+}
+
 	Database_pluto_main *pDatabase_pluto_main = pRow_Package_Source_Compat->Table_Package_Source_Compat_get()->Database_pluto_main_get();
 	Row_Package *pRow_Package = pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_getrow();
 
@@ -925,6 +944,6 @@ void InstallPackage(PackageInfo *pPackageInfo, bool bElse)
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Parms_get() << "\""
 		<< "; then"
 		<< endl;
-	cout << "\t\techo \"Confirmation of package '" << pPackageInfo->m_pRow_Package_Source->Name_get() << "' went ok.\"" << endl;
+	cout << "\t\techo \"Confirmation of package " << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << " '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "' went ok.\"" << endl;
 	cout << "\t\tok=1" << endl;
 }
