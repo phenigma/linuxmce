@@ -1,21 +1,5 @@
 #!/bin/bash
 
-ConfFile="/var/www/PlutoAdminConfig/config.inc.php"
-
-Conf="<?
-  \$dbUser = 'root';
-  \$dbPass = '';
-  \$dbDatabase = 'pluto_main';
-  \$dbServer = 'localhost';
-  \$dbType = 'mysql';
-
-  \$dbPlutoMediaType = 'MySQL';
-  \$dbPlutoMediaUser = 'plutomedia';
-  \$dbPlutoMediaPass = '';
-  \$dbPlutoMediaServer = 'localhost';
-  \$dbPlutoMediaDatabase = 'pluto_media';
-?>"
-
 mkdir -p $(/usr/bin/dirname "$ConfFile")
 echo "$Conf" >"$ConfFile"
 mkdir -p /usr/pluto/orbiter/floorplans
@@ -30,5 +14,8 @@ for File in $Index; do
 	[ -e "$File" ] && exit 0
 done
 
-Redirect="<?php header('Location: pluto-support/index.php?section=pluto'); ?>"
+Redirect="<?php header('Location: support/index.php?section=pluto'); ?>"
 [ -e /var/www/index.php ] || echo "$Redirect" >/var/www/index.php
+
+mkdir -p -m 0777 /usr/pluto/orbiter/floorplans
+ln -sf /usr/pluto/orbiter/floorplans /var/www/pluto-admin/

@@ -27,7 +27,7 @@ LinuxUserID=10000
 DefaultSambaPassword=609FCABC7B0F9AEAAAD3B435B51404EE:DDFF3B733E17BE6500375694FE258864
 DefaultLinuxPassword=
 
-user_dirs="data data/movies data/pictures data/music data/documents data/home~videos data/play~lists data/tv~shows"
+user_dirs="data data/movies data/pictures data/music data/documents data/videos"
 UserList=
 
 for Users in $R; do
@@ -74,7 +74,7 @@ for Users in $R; do
 	LinuxUserID=$((LinuxUserID+1))
 done
 
-static_dirs="/home/public /home/public/data /home/public/data/movies /home/public/data/pictures /home/public/data/music /home/public/data/documents /home/temp_pvr /home/mydvd /home/cameras /home/public/data/tv~shows /home/public/data/home~videos /home/public/data/play~lists /home/tv_listing"
+static_dirs="/home/public /home/public/data /home/public/data/movies /home/public/data/pictures /home/public/data/music /home/public/data/documents /home/temp_pvr /home/mydvd /home/cameras /home/public/data/videos /home/tv_listing"
 for dir in $static_dirs; do
 	mkdir -p -m 0755 ${dir/~/ }
 done
