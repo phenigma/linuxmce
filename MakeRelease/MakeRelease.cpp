@@ -1065,7 +1065,8 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
 		FileInfo *pFileInfo = (*iFileInfo);
-		fprintf(fp,"%s",FileUtils::BasePath(pFileInfo->m_sSource));
+		cmd = FileUtils::BasePath(pFileInfo->m_sSource);
+		fprintf(fp,"%s",cmd.c_str());
 	}
 	fclose(fp);
 return true;
