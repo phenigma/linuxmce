@@ -248,6 +248,7 @@
 #define COMMAND_Get_Device_Status_CONST 248
 #define COMMAND_Start_Streaming_CONST 249
 #define COMMAND_Store_Infrared_Code_CONST 250
+#define COMMAND_Save_Current_Frame_CONST 251
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

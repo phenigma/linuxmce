@@ -213,3 +213,5 @@ void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_As
 
 void Infrared_Plugin::CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c250-e->
+{
+}

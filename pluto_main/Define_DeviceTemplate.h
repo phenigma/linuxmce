@@ -58,6 +58,9 @@
 #define DEVICETEMPLATE_Test_VCR_CONST 51
 #define DEVICETEMPLATE_Event_Plugin_CONST 52
 #define DEVICETEMPLATE_Slim_Server_Streamer_CONST 53
+#define DEVICETEMPLATE_Motion_Detector_CONST 54
+#define DEVICETEMPLATE_Smoke_Detector_CONST 55
+#define DEVICETEMPLATE_Glass_Break_Sensor_CONST 56
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

@@ -52,13 +52,17 @@ using namespace DCE;
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_Variable.h"
+#include "pluto_main/Define_Text.h"
 
 #include "pluto_security/Table_Alert.h"
 #include "pluto_security/Table_AlertType.h"
 #include "pluto_security/Table_ModeChange.h"
+#include "pluto_security/Table_Picture.h"
 
 // Alarm Types
 #define PROCESS_ALERT		1
+#define PROCESS_COUNTDOWN	2
 
 //<-dceag-const-b->
 Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -218,8 +222,8 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	// The password can either be the password or teh PIN code, and either plain text or md5.  iPK_Users is optional
 	ostringstream sql;
 	sql << "SELECT PK_Users,Username FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
-		<< m_pRouter->iPK_Installation_get() << " AND userCanChangeHouseMode=1 AND (Password=" << sPassword 
-		<< " OR Password=" << m_pRouter->md5(sPassword) << " OR PINCode=" << sPassword << " OR PINCode=" << m_pRouter->md5(sPassword) << ")";
+		<< m_pRouter->iPK_Installation_get() << " AND userCanChangeHouseMode=1 AND (Password='" << sPassword 
+		<< "' OR Password='" << m_pRouter->md5(sPassword) << "' OR PINCode='" << sPassword << "' OR PINCode='" << m_pRouter->md5(sPassword) << "')";
 	if( iPK_Users )
 		sql << " AND PK_Users=" << iPK_Users;
 
@@ -228,8 +232,10 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	if( ( result_set.r=m_pRouter->mysql_query_result( sql.str( ) ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"User: %d failed to set house mode: %d",iPK_Users,PK_HouseMode);
-		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuMain_CONST), "", "", false );
-		SendCommand( CMD_Goto_Screen );
+		DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, "", "***Invalid PIN***", TEXT_PIN_Code_CONST );
+		DCE::CMD_Set_Variable CMD_Set_Variable( 0, pMessage->m_dwPK_Device_From, VARIABLE_PasswordPin_CONST, "" );
+		CMD_Set_Text.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
+		SendCommand( CMD_Set_Text );
 		return;		
 	}
 
@@ -277,7 +283,15 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	}
 	if( bFailed )
 	{
-		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuMain_CONST), "", "", false );
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuSensorsNotReady_CONST), "", "", false );
+		SendCommand( CMD_Goto_Screen );
+	}
+	else
+	{
+		Row_AlertType *pRow_AlertType = m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Security_CONST);
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), "", "", false );
+		DCE::CMD_Select_Object CMD_Select_Object( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST),StringUtils::itos(pRow_AlertType->ExitDelay_get()) );
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Select_Object.m_pMessage);
 		SendCommand( CMD_Goto_Screen );
 	}
 	for(vector<Row_Alert *>::iterator it=m_vectPendingAlerts.begin();it!=m_vectPendingAlerts.end();++it)
@@ -392,7 +406,26 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 		pRow_Alert->ExpirationTime_set(StringUtils::SQLDateTime(time(NULL) + pRow_AlertType ? pRow_AlertType->ExitDelay_get() : 0 ));
 		pRow_Alert->Table_Alert_get()->Commit();
 		m_vectPendingAlerts.push_back(pRow_Alert);
+		m_pAlarmManager->AddRelativeAlarm(0,this,PROCESS_COUNTDOWN,&pRow_Alert);
 		m_pAlarmManager->AddAbsoluteAlarm(StringUtils::SQLDateTime(pRow_Alert->ExpirationTime_get()),this,PROCESS_ALERT,&pRow_Alert);
+		for(map<int,DeviceRelation *>::iterator it=pDevice->m_mapDeviceRelation.begin();it!=pDevice->m_mapDeviceRelation.end();++it)
+		{
+			DeviceRelation *pDeviceRelation = (*it).second;
+			DeviceData_Router *pDevice_Camera = pDeviceRelation->pDevice;
+			if( pDevice_Camera->m_dwPK_DeviceCategory!=DEVICECATEGORY_Surveillance_Cameras_CONST )
+				continue;
+
+			string sFilename;
+			DCE::CMD_Save_Current_Frame CMD_Save_Current_Frame(m_dwPK_Device,pDevice_Camera->m_dwPK_Device,&sFilename);
+			if( SendCommand(CMD_Save_Current_Frame) && sFilename.length() )
+			{
+				Row_Picture *pRow_Picture = m_pDatabase_pluto_security->Picture_get()->AddRow();
+				pRow_Picture->FK_Alert_set(pRow_Alert->PK_Alert_get());
+				pRow_Picture->EK_Device_set(pRow_Alert->EK_Device_get());
+				pRow_Picture->Filename_set(sFilename);
+				pRow_Picture->Table_Picture_get()->Commit();
+			}
+		}
 	}
 
 	return true;

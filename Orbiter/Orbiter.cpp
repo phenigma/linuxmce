@@ -74,6 +74,55 @@ namespace DCE
 }
 
 //------------------------------------------------------------------------
+// Stuff the callback routines need
+int iCallbackCounter=0;
+class CallBackInfo
+{
+public:
+	CallBackInfo(pluto_pthread_mutex_t *pCallbackMutex) { m_iCounter=iCallbackCounter++; m_bStop=false; m_pCallbackMutex=pCallbackMutex; }
+    Orbiter *m_pOrbiter;
+    OrbiterCallBack m_fnCallBack;
+    clock_t m_clock;//absolute time
+    void *m_pData;
+	int m_iCounter; // A unique ID
+	bool m_bStop; // Don't execute after all, we've decided to stop it (probably started another one of same type)
+	pluto_pthread_mutex_t *m_pCallbackMutex; 
+};
+map<int,CallBackInfo *> mapPendingCallbacks;
+
+//------------------------------------------------------------------------
+// Stuff for the delayed select object
+class DelayedSelectObjectInfo 
+{
+public:
+	DesignObj_Orbiter *m_pObj;
+	string m_sPK_DesignObj_CurrentScreen;
+	clock_t m_cTimeout;
+
+	DelayedSelectObjectInfo(DesignObj_Orbiter *pObj,string sPK_DesignObj_CurrentScreen,clock_t cTimeout)
+	{
+		m_pObj=pObj;
+		m_sPK_DesignObj_CurrentScreen=sPK_DesignObj_CurrentScreen;
+		m_cTimeout=cTimeout;
+	}
+};
+
+//------------------------------------------------------------------------
+// Stuff for the continuous refresh
+class ContinuousRefreshInfo 
+{
+public:
+	DesignObj_Orbiter *m_pObj;
+	int m_iInterval;
+
+	ContinuousRefreshInfo(DesignObj_Orbiter *pObj,int Interval)
+	{
+		m_pObj=pObj;
+		m_iInterval=Interval;
+	}
+};
+
+//------------------------------------------------------------------------
 template<class T> inline static T Dist( T x,  T y ) { return x * x + y * y; }
 //------------------------------------------------------------------------
 void *RendererThread(void *p);
@@ -245,7 +294,6 @@ Orbiter::~Orbiter()
 }
 
 //<-dceag-reg-b->
-#include "pluto_main/Define_Event.h"
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool Orbiter::Register()
 //<-dceag-reg-e->
@@ -1082,7 +1130,6 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
         // the other objects to be drawn on top of the selected state.  We'll execute the commands first so that
         // show/hides are executed before setting the selected state
         Message *pMessage_GotoScreen=NULL;
-        ExecuteCommandsInList( &pObj->m_Action_UnloadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
         DesignObjZoneList::iterator iZone;
 
 		for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
@@ -1967,9 +2014,9 @@ void Orbiter::Initialize( GraphicType Type )
         }
 
         m_pScreenHistory_Current->m_pLocationInfo = pLocationInfo_Initial;
-        m_pScreenHistory_Current->m_dwPK_Users = m_dwPK_Users;
+        m_pScreenHistory_Current->m_dwPK_Users = m_dwPK_Users_Default;
 
-        DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
+        DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pScreenHistory_Current->m_dwPK_Users );
         SendCommand( CMD_Set_Current_User );
 		DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(pLocationInfo_Initial->PK_EntertainArea) );
         SendCommand( CMD_Set_Entertainment_Area );
@@ -2529,7 +2576,7 @@ ACCEPT OUTSIDE INPUT
 
 bool Orbiter::ButtonDown( int PK_Button )
 {
-    if( !PK_Button )
+    if( !PK_Button || !m_pScreenHistory_Current )
         return false;
     NeedToRender render( this, "Button Down" );  // Redraw anything that was changed by this command
 
@@ -2989,17 +3036,29 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 case DEVICETEMPLATE_VirtDev_AppServer_CONST:
                     pCommand->m_PK_Device=m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_AppServer;
                     break;
+                case DEVICETEMPLATE_VirtDev_Security_Plugin_CONST:
+                    pCommand->m_PK_Device=m_dwPK_Device_SecurityPlugIn;
+                    break;
+                case DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST:
+                    pCommand->m_PK_Device=m_dwPK_Device_TelecomPlugIn;
+                    break;
                 case DEVICETEMPLATE_VirtDev_Media_Plugin_CONST:
                     pCommand->m_PK_Device=m_dwPK_Device_MediaPlugIn;
                     break;
-                case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_OrbiterPlugIn;
+                case DEVICETEMPLATE_VirtDev_Climate_PlugIn_CONST:
+                    pCommand->m_PK_Device=m_dwPK_Device_ClimatePlugIn;
+                    break;
+                case DEVICETEMPLATE_VirtDev_Lighting_PlugIn_CONST:
+                    pCommand->m_PK_Device=m_dwPK_Device_LightingPlugIn;
                     break;
                 case DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST:
                     pCommand->m_PK_Device=m_dwPK_Device_GeneralInfoPlugIn;
                     break;
-                case DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST:
-                    pCommand->m_PK_Device=m_dwPK_Device_TelecomPlugIn;
+                case DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST:
+                    pCommand->m_PK_Device=m_dwPK_Device_DatagridPlugIn;
+                    break;
+                case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
+                    pCommand->m_PK_Device=m_dwPK_Device_OrbiterPlugIn;
                     break;
                 }
                 if(  pCommand->m_PK_Device==DEVICEID_NULL  )
@@ -3242,6 +3301,24 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += m_sNowPlaying;
         else if(  Variable=="ND" )
 			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
+        else if(  Variable=="CD" )
+		{
+			// Find if there are any selected object timeout's pending
+			PLUTO_SAFETY_LOCK( cm, m_CallbackMutex );
+			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+			{
+				CallBackInfo *pCallBackInfo = (*it).second;
+				if( pCallBackInfo->m_fnCallBack==DelayedSelectObject && !pCallBackInfo->m_bStop )
+				{
+					DelayedSelectObjectInfo *pDelayedSelectObjectInfo = (DelayedSelectObjectInfo *) pCallBackInfo->m_pData;
+					if( TestCurrentScreen(pDelayedSelectObjectInfo->m_sPK_DesignObj_CurrentScreen) )
+					{
+						Output += StringUtils::itos( (pDelayedSelectObjectInfo->m_cTimeout - clock()) / CLOCKS_PER_SEC );
+						break;
+					}
+				}
+			}
+		}
         else if(  Variable=="SD" )
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 				Output += StringUtils::itos((*it).first) + ",";
@@ -3413,23 +3490,6 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &Grid
     }
     return false;
 }
-//------------------------------------------------------------------------
-// Stuff the callback routines need
-int iCallbackCounter=0;
-class CallBackInfo
-{
-public:
-	CallBackInfo(pluto_pthread_mutex_t *pCallbackMutex) { m_iCounter=iCallbackCounter++; m_bStop=false; m_pCallbackMutex=pCallbackMutex; }
-    Orbiter *m_pOrbiter;
-    OrbiterCallBack m_fnCallBack;
-    clock_t m_clock;//absolute time
-    void *m_pData;
-	int m_iCounter; // A unique ID
-	bool m_bStop; // Don't execute after all, we've decided to stop it (probably started another one of same type)
-	pluto_pthread_mutex_t *m_pCallbackMutex; 
-};
-
-map<int,CallBackInfo *> mapPendingCallbacks;
 
 /*
 void *DoCallBack( void *vpCallBackInfo )
@@ -3716,6 +3776,9 @@ void Orbiter::CMD_Display_OnOff(string sOnOff,string &sCMD_Result,Message *pMess
 void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c4-e->
 {
+	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
+		return;
+
     ScreenHistory *pScreenHistory=NULL;
     while(  m_listScreenHistory.size(  )  )
     {
@@ -3757,23 +3820,10 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
 {
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
-    PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
-    if(  sPK_DesignObj_CurrentScreen.length(  ) && ( !m_pScreenHistory_Current || atoi( sPK_DesignObj_CurrentScreen.c_str(  ) )!=m_pScreenHistory_Current->m_pObj->m_iBaseObjectID )  ) // It should be at the beginning
-    {
-        // Be sure it's not a -1 telling us to be at the main menu
-        if(  sPK_DesignObj_CurrentScreen!="-1" || !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj ||
-            ( m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_MainMenu->m_iBaseObjectID &&
-            m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_SleepingMenu->m_iBaseObjectID &&
-            m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_ScreenSaveMenu->m_iBaseObjectID )  )
-        {
-            g_pPlutoLogger->Write( LV_CONTROLLER, "cancel nav goto %s--not on %s", sPK_DesignObj.c_str(  ), sPK_DesignObj_CurrentScreen.c_str(  ) );
-            return;
-        }
-    }
-
-    vm.Release(  );  // Substitute variables needs this
+	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
+		return;
     string sDestScreen = SubstituteVariables( sPK_DesignObj, NULL, 0, 0 );
-    vm.Relock(  );
+    PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
     DesignObj_Orbiter *pObj_New=m_ScreenMap_Find( sDestScreen );
     if(  !pObj_New  )
@@ -4108,13 +4158,21 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
 //<-dceag-c19-b->
 
 	/** @brief COMMAND: #19 - Set House Mode */
-	/** change the house's mode */
+	/** Change the house's mode.  When this message comes to the orbiter, it ignores all the parameters with pin code, and only looks at the new house mode. */
 		/** @param #5 Value To Assign */
 			/** A value from the HouseMode table */
+		/** @param #17 PK_Users */
+			/** The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode. */
 		/** @param #18 Errors */
 			/** not used by the Orbiter.  This is used only when sending the action to the core. */
+		/** @param #99 Password */
+			/** The password or PIN of the user.  This can be plain text or md5. */
+		/** @param #100 PK_DeviceGroup */
+			/** DeviceGroups are treated as zones.  If this device group is specified, only the devices in these zones (groups) will be set. */
+		/** @param #101 Handling Instructions */
+			/** How to handle any sensors that we are trying to arm, but are blocked.  Valid choices are: R-Report, change to a screen on the orbiter reporting this and let the user decide, W-Wait, arm anyway, but wait for the sensors to clear and then arm them, B-Bypass */
 
-void Orbiter::CMD_Set_House_Mode(string sValue_To_Assign,string sErrors,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage)
 //<-dceag-c19-e->
 {
     cout << "Need to implement command #19 - Set House Mode" << endl;
@@ -4401,6 +4459,14 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
     }
 }
 
+void Orbiter::DelayedSelectObject( void *data )
+{
+	DelayedSelectObjectInfo *pDelayedSelectObjectInfo = (DelayedSelectObjectInfo *) data;
+	if( TestCurrentScreen(pDelayedSelectObjectInfo->m_sPK_DesignObj_CurrentScreen) )
+		SelectedObject(pDelayedSelectObjectInfo->m_pObj);
+
+	delete pDelayedSelectObjectInfo;
+}
 
 //<-dceag-c66-b->
 
@@ -4408,8 +4474,12 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
 	/** The same as clicking on an object. */
 		/** @param #3 PK_DesignObj */
 			/** The object to select. */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** Will only happen if this is the current screen. */
+		/** @param #102 Time */
+			/** If specified, rather than happening immediately it will happen in x seconds. */
 
-void Orbiter::CMD_Select_Object(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sTime,string &sCMD_Result,Message *pMessage)
 //<-dceag-c66-e->
 {
     DesignObj_Orbiter *pDesignObj_Orbiter = FindObject( sPK_DesignObj );
@@ -4418,7 +4488,33 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string &sCMD_Result,Message
         g_pPlutoLogger->Write( LV_CRITICAL, "Got select object %s,  but can't find it", sPK_DesignObj.c_str(  ) );
         return;
     }
-    SelectedObject( pDesignObj_Orbiter );
+
+	if( sTime.length()==0 && !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
+		return;
+
+	if( sTime.length()!=0 && atoi(sTime.c_str()) )
+	{
+		clock_t c = clock() + (atoi(sTime.c_str()) * CLOCKS_PER_SEC);
+		// We don't want to purge all select objects.  Only those pending for the same object.  So we'll have to do this by hand
+		DelayedSelectObjectInfo *pDelayedSelectObjectInfo = new DelayedSelectObjectInfo(pDesignObj_Orbiter,sPK_DesignObj_CurrentScreen,c);
+
+	    PLUTO_SAFETY_LOCK( cm, m_CallbackMutex );
+		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+		{
+			CallBackInfo *pCallBackInfo = (*it).second;
+			if( pCallBackInfo->m_fnCallBack==DelayedSelectObject )
+			{
+				DelayedSelectObjectInfo *pDelayedSelectObjectInfo = (DelayedSelectObjectInfo *) pCallBackInfo->m_pData;
+				if( pDelayedSelectObjectInfo->m_pObj==pDesignObj_Orbiter )
+					pCallBackInfo->m_bStop=true;
+			}
+		}
+		cm.Release();
+
+		CallMaintenanceInTicks( c, DelayedSelectObject, pDelayedSelectObjectInfo, false );
+	}
+	else
+	    SelectedObject( pDesignObj_Orbiter );
 }
 
 //<-dceag-c72-b->
@@ -4579,7 +4675,7 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
     //set var
     m_iCaptureKeyboard_PK_Variable = iPK_Variable;
 
-    if( iPK_Variable )
+    if( iPK_Variable && m_bCaptureKeyboard_Reset )
         m_mapVariable[iPK_Variable] = "";
 
     //find the parent object
@@ -4598,7 +4694,7 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
     //find the text object
     m_pCaptureKeyboard_Text = FindText( pObj,  iPK_Text );
 
-    if( iPK_Variable && NULL != m_pCaptureKeyboard_Text)
+    if( iPK_Variable && NULL != m_pCaptureKeyboard_Text && && m_bCaptureKeyboard_Reset )
         m_pCaptureKeyboard_Text->m_sText = m_mapVariable[iPK_Variable];
 
     //build the text string
@@ -4720,7 +4816,7 @@ void Orbiter::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pM
 //<-dceag-c58-e->
 {
     m_pScreenHistory_Current->m_dwPK_Users=iPK_Users;
-    DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
+    DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pScreenHistory_Current->m_dwPK_Users );
     SendCommand( CMD_Set_Current_User );
 }
 
@@ -4849,4 +4945,47 @@ void Orbiter::CMD_Set_Now_Playing(string sValue_To_Assign,string &sCMD_Result,Me
 //<-dceag-c242-e->
 {
 	m_sNowPlaying = sValue_To_Assign;
+}
+
+bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
+{
+    PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
+	if( sPK_DesignObj_CurrentScreen.length(  ) && ( !m_pScreenHistory_Current || atoi( sPK_DesignObj_CurrentScreen.c_str(  ) )!=m_pScreenHistory_Current->m_pObj->m_iBaseObjectID )  ) // It should be at the beginning
+    {
+        // Be sure it's not a -1 telling us to be at the main menu
+        if(  sPK_DesignObj_CurrentScreen!="-1" || !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj ||
+            ( m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_MainMenu->m_iBaseObjectID &&
+            m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_SleepingMenu->m_iBaseObjectID &&
+            m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_ScreenSaveMenu->m_iBaseObjectID )  )
+        {
+            return false;
+        }
+    }
+	return true;
+}
+
+void Orbiter::ContinuousRefresh( void *data )
+{
+	ContinuousRefreshInfo *pContinuousRefreshInfo = (ContinuousRefreshInfo *) data;
+	if( m_pScreenHistory_Current->m_pObj!=pContinuousRefreshInfo->m_pObj )
+		delete pContinuousRefreshInfo;
+	else
+	{
+		CMD_Refresh("");
+		CallMaintenanceInTicks( clock() + (pContinuousRefreshInfo->m_iInterval * CLOCKS_PER_SEC), &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
+	}
+}
+
+//<-dceag-c238-b->
+
+	/** @brief COMMAND: #238 - Continuous Refresh */
+	/**  */
+		/** @param #102 Time */
+			/** The interval time in seconds */
+
+void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *pMessage)
+//<-dceag-c238-e->
+{
+	ContinuousRefreshInfo *pContinuousRefreshInfo = new ContinuousRefreshInfo(m_pScreenHistory_Current->m_pObj,atoi(sTime.c_str()));
+	CallMaintenanceInTicks( clock() + (pContinuousRefreshInfo->m_iInterval * CLOCKS_PER_SEC), &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
 }

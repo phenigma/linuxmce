@@ -1099,6 +1099,8 @@
 #define DESIGNOBJ_go_to_users_CONST 3265
 #define DESIGNOBJ_users_CONST 3266
 #define DESIGNOBJ_user_entry_CONST 3267
+#define DESIGNOBJ_go_to_security_menu_CONST 3270
+#define DESIGNOBJ_House_Modes_CONST 3271
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

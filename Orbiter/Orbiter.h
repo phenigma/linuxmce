@@ -341,6 +341,20 @@ protected:
 	 */
 	virtual void HighlightNextObject( int dwPK_Direction );
 
+	/**
+	 * @brief Returns false if a screen was specified and it's not the current one
+	 */
+	bool TestCurrentScreen(string &sPK_DesignObj_CurrentScreen);
+
+	/**
+	 * @brief A "DoMaint" callback when we need to select an object after a delay
+	 */
+	void DelayedSelectObject( void *data );
+
+	/**
+	 * @brief A "DoMaint" callback to continually refresh the screen
+	 */
+	void ContinuousRefresh( void *data );
 
 /*	virtual void RenderScreen(  );	// Render the screen in m_pScreenHistory_Current
 	virtual void RedrawObjects(  );   // These will redraw any objects in m_vectObjsToRedraw.  Use this to queue objects to redraw,  such as those tht 
@@ -866,14 +880,22 @@ public:
 
 
 	/** @brief COMMAND: #19 - Set House Mode */
-	/** change the house's mode */
+	/** Change the house's mode.  When this message comes to the orbiter, it ignores all the parameters with pin code, and only looks at the new house mode. */
 		/** @param #5 Value To Assign */
 			/** A value from the HouseMode table */
+		/** @param #17 PK_Users */
+			/** The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode. */
 		/** @param #18 Errors */
 			/** not used by the Orbiter.  This is used only when sending the action to the core. */
+		/** @param #99 Password */
+			/** The password or PIN of the user.  This can be plain text or md5. */
+		/** @param #100 PK_DeviceGroup */
+			/** DeviceGroups are treated as zones.  If this device group is specified, only the devices in these zones (groups) will be set. */
+		/** @param #101 Handling Instructions */
+			/** How to handle any sensors that we are trying to arm, but are blocked.  Valid choices are: R-Report, change to a screen on the orbiter reporting this and let the user decide, W-Wait, arm anyway, but wait for the sensors to clear and then arm them, B-Bypass */
 
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,string sErrors) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),sErrors.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,string sErrors,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #20 - Set Object Parameter */
@@ -1040,9 +1062,13 @@ public:
 	/** The same as clicking on an object. */
 		/** @param #3 PK_DesignObj */
 			/** The object to select. */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** Will only happen if this is the current screen. */
+		/** @param #102 Time */
+			/** If specified, rather than happening immediately it will happen in x seconds. */
 
-	virtual void CMD_Select_Object(string sPK_DesignObj) { string sCMD_Result; CMD_Select_Object(sPK_DesignObj.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Select_Object(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sTime) { string sCMD_Result; CMD_Select_Object(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sTime.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sTime,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #72 - Surrender to OS */
@@ -1054,6 +1080,7 @@ public:
 
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard) { string sCMD_Result; CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,NULL);};
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage);
+
 
 	/** @brief COMMAND: #85 - Rest Highlight */
 	/** Resets the currently highlighted object.  Do this when you hide or unhide blocks that have tab stops. */
@@ -1069,6 +1096,15 @@ public:
 
 	virtual void CMD_Set_Current_Location(int iLocationID) { string sCMD_Result; CMD_Set_Current_Location(iLocationID,sCMD_Result,NULL);};
 	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #238 - Continuous Refresh */
+	/**  */
+		/** @param #102 Time */
+			/** The interval time in seconds */
+
+	virtual void CMD_Continuous_Refresh(string sTime) { string sCMD_Result; CMD_Continuous_Refresh(sTime.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #242 - Set Now Playing */

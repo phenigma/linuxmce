@@ -30,7 +30,9 @@ using namespace DCE;
 
 #include <signal.h>
 #include <sys/types.h>
+#ifndef WIN32
 #include <sys/wait.h>
+#endif
 
 App_Server *g_pAppServer = NULL;
 
@@ -39,8 +41,9 @@ void sh(int i) /* signal handler */
     int status;
     pid_t pid;
 
+#ifndef WIN32
     pid = wait(&status);
-
+#endif
     if ( g_pAppServer )
         g_pAppServer->ProcessExited(pid, status);
 }
@@ -51,7 +54,9 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 //<-dceag-const-e->
 {
     g_pAppServer = this;
+#ifndef WIN32
     signal(SIGCHLD, sh); /* install handler */
+#endif
 }
 
 //<-dceag-dest-b->

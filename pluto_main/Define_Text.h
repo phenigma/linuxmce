@@ -404,6 +404,12 @@
 #define TEXT_Voicemail_CONST 1079
 #define TEXT_transfer_call_or_conference_CONST 1080
 #define TEXT_Choose_user_CONST 1081
+#define TEXT_Vol_up_CONST 1082
+#define TEXT_Vol_down_CONST 1083
+#define TEXT_At_home_CONST 1084
+#define TEXT_Away_CONST 1085
+#define TEXT_Disturb_CONST 1086
+#define TEXT_Sleeping_phone_status_CONST 1087
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

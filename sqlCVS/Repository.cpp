@@ -184,7 +184,7 @@ void Repository::Setup( )
 		if( g_GlobalConfig.m_mapTable.find( ( *it ).first ) == g_GlobalConfig.m_mapTable.end( ) )
 		{
 			( *it ).second->TrackChanges_set( false );
-      m_mapTable.erase( it++ ); /**< This isn't in the repository any more */
+			m_mapTable.erase( it++ ); /**< This isn't in the repository any more */
 		}
 		else
 			it++;

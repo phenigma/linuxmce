@@ -18,12 +18,14 @@
 #define VARIABLE_URL_from_phone_CONST 15
 #define VARIABLE_Status_CONST 16
 #define VARIABLE_Seek_Value_CONST 17
-#define VARIABLE_Camera_1_CONST 18
-#define VARIABLE_Camera_2_CONST 19
-#define VARIABLE_Camera_3_CONST 20
-#define VARIABLE_Camera_4_CONST 21
-#define VARIABLE_Camera_CONST 22
+#define VARIABLE_PK_Device_1_CONST 18
+#define VARIABLE_PK_Device_2_CONST 19
+#define VARIABLE_PK_Device_3_CONST 20
+#define VARIABLE_PK_Device_4_CONST 21
+#define VARIABLE_PK_Device_Alt_CONST 22
 #define VARIABLE_Media_Stream_ID_CONST 23
+#define VARIABLE_PasswordPin_CONST 24
+#define VARIABLE_PK_Housemode_CONST 25
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

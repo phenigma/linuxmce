@@ -1089,7 +1089,7 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 
 	// We have to do this here after we've parsed the DEVICEID_LIST
     DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find((*(*pSafetyMessage))->m_dwPK_Device_To);
-	if( pDeviceTo->m_pDevice_RouteTo )
+	if( pDeviceTo && pDeviceTo->m_pDevice_RouteTo )
 		(*(*pSafetyMessage))->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
 
     if ( (*(*pSafetyMessage))->m_dwMessage_Type==MESSAGETYPE_COMMAND )

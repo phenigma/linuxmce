@@ -16,6 +16,9 @@
 #define EVENT_Ring_CONST 13
 #define EVENT_PBX_CommandResult_CONST 14
 #define EVENT_PBX_Ring_CONST 15
+#define EVENT_Security_Breach_CONST 16
+#define EVENT_Fire_Alarm_CONST 17
+#define EVENT_Reset_Alarm_CONST 18
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
