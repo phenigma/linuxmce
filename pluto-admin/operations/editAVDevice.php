@@ -66,15 +66,15 @@ if ($action=='form') {
 	
 	$dspSelected=array();
 	$dspSelected[]=0;
-	$queryDspSelected = "SELECT DeviceTemplate_DSPMode.*,DSPMode.Description as DSP_Desc
+	$queryDspSelected = "SELECT DeviceTemplate_DSPMode.*,Command.Description as DSP_Desc
 							FROM DeviceTemplate_DSPMode 
-								INNER JOIN DSPMode on PK_DSPMode = FK_DSPMode							
+								INNER JOIN Command on PK_Command = FK_Command							
 							WHERE FK_DeviceTemplate='$deviceID' ORDER BY OrderNO ASC";
 	$resDspSelected = $dbADO->_Execute($queryDspSelected);
 		if ($resDspSelected) {
 			while ($row=$resDspSelected->FetchRow()) {				
-				$dspSelectedTxt.='<option value="'.$row['FK_DSPMode'].'">'.$row['DSP_Desc'].'</option>';
-				$dspSelected[]=$row['FK_DSPMode'];
+				$dspSelectedTxt.='<option value="'.$row['FK_Command'].'">'.$row['DSP_Desc'].'</option>';
+				$dspSelected[]=$row['FK_Command'];
 			}
 		}
 	$resDspSelected->close();	
@@ -84,12 +84,12 @@ if ($action=='form') {
 	$dspUnselected=array();
 	$dspUnselected[]=0;
 	
-	$queryDsp="SELECT * FROM DSPMode WHERE PK_DSPMode NOT IN (".join(",",$dspSelected).") ORDER BY Description";
+	$queryDsp="SELECT * FROM Command WHERE FK_CommandCategory=21 AND PK_Command NOT IN (".join(",",$dspSelected).") ORDER BY Description";
 	$resDsp= $dbADO->_Execute($queryDsp);
 		if ($resDsp) {
 			while ($row=$resDsp->FetchRow()) {
-				$dspUnselectedTxt.='<option value="'.$row['PK_DSPMode'].'">'.$row['Description'].'</option>';
-				$dspUnselected[]=$row['PK_DSPMode'];
+				$dspUnselectedTxt.='<option value="'.$row['PK_Command'].'">'.$row['Description'].'</option>';
+				$dspUnselected[]=$row['PK_Command'];
 			}
 		}
 	$resDsp->close();
@@ -101,27 +101,27 @@ if ($action=='form') {
 	$inputSelected=array();
 	$inputSelected[]=0;
 	
-	$queryInputSelected = "SELECT DeviceTemplate_Input.*,Input.Description as Input_Desc
+	$queryInputSelected = "SELECT DeviceTemplate_Input.*,Command.Description as Input_Desc
 								FROM DeviceTemplate_Input 	
-									INNER JOIN Input on PK_Input = FK_Input
+									INNER JOIN Command on PK_Command = FK_Command
 						   WHERE FK_DeviceTemplate='$deviceID' order by OrderNo ASC";
 	
 	$resInputSelected = $dbADO->_Execute($queryInputSelected);
 		if ($resInputSelected) {
 			while ($row=$resInputSelected->FetchRow()) {				
-				$inputSelectedTxt.='<option value="'.$row['FK_Input'].'">'.$row['Input_Desc'].'</option>';
-				$inputSelected[]=$row['FK_Input'];
+				$inputSelectedTxt.='<option value="'.$row['FK_Command'].'">'.$row['Input_Desc'].'</option>';
+				$inputSelected[]=$row['FK_Command'];
 			}
 		}
 	$resInputSelected->close();
 	
 	
-	$queryInput="SELECT * FROM Input WHERE PK_Input NOT IN (".join(",",$inputSelected).") ORDER BY Description ASC";
+	$queryInput="SELECT * FROM Command WHERE FK_CommandCategory=22 AND PK_Command NOT IN (".join(",",$inputSelected).") ORDER BY Description ASC";
 	$resInput= $dbADO->_Execute($queryInput);
 		if ($resInput) {
 			while ($row=$resInput->FetchRow()) {				
-				$inputUnselectedTxt.='<option value="'.$row['PK_Input'].'">'.$row['Description'].'</option>';
-				$inputUnselected[]=$row['PK_Input'];
+				$inputUnselectedTxt.='<option value="'.$row['PK_Command'].'">'.$row['Description'].'</option>';
+				$inputUnselected[]=$row['PK_Command'];
 			}
 		}
 	$resInput->close();
@@ -133,27 +133,27 @@ if ($action=='form') {
 	$outputSelected=array();
 	$outputSelected[]=0;
 	
-	$queryOutputSelected = "SELECT DeviceTemplate_Output.*,Output.Description as Output_Desc
+	$queryOutputSelected = "SELECT DeviceTemplate_Output.*,Command.Description as Output_Desc
 								FROM DeviceTemplate_Output 	
-									INNER JOIN Output on PK_Output = FK_Output
+									INNER JOIN Command on PK_Command = FK_Command
 						   WHERE FK_DeviceTemplate='$deviceID' order by OrderNo ASC";
 	
 	$resOutputSelected = $dbADO->_Execute($queryOutputSelected);
 		if ($resOutputSelected) {
 			while ($row=$resOutputSelected->FetchRow()) {				
-				$outputSelectedTxt.='<option value="'.$row['FK_Output'].'">'.$row['Output_Desc'].'</option>';
-				$outputSelected[]=$row['FK_Output'];
+				$outputSelectedTxt.='<option value="'.$row['FK_Command'].'">'.$row['Output_Desc'].'</option>';
+				$outputSelected[]=$row['FK_Command'];
 			}
 		}
 	$resOutputSelected->close();
 	
 	
-	$queryOutput="SELECT * FROM Output WHERE PK_Output NOT IN (".join(",",$outputSelected).") ORDER BY Description ASC";
+	$queryOutput="SELECT * FROM Command WHERE FK_CommandCategory=27 AND PK_Command NOT IN (".join(",",$outputSelected).") ORDER BY Description ASC";
 	$resOutput= $dbADO->_Execute($queryOutput);
 		if ($resOutput) {
 			while ($row=$resOutput->FetchRow()) {				
-				$outputUnselectedTxt.='<option value="'.$row['PK_Output'].'">'.$row['Description'].'</option>';
-				$outputUnselected[]=$row['PK_Output'];
+				$outputUnselectedTxt.='<option value="'.$row['PK_Command'].'">'.$row['Description'].'</option>';
+				$outputUnselected[]=$row['PK_Command'];
 			}
 		}
 	$resOutput->close();
@@ -480,30 +480,30 @@ $output->setScriptInBody($onLoad);
 	$dspOrderedArrayIDs=array();
 	foreach ($dspOrderedArray as $dspModeElem) {
 		list($order,$name) = explode("-",$dspModeElem);
-		$query = 'SELECT * FROM DSPMode WHERE Description = ?';		
+		$query = 'SELECT * FROM Command WHERE FK_CommandCategory=21 AND Description = ?';		
 		$res=$dbADO->Execute($query,array(cleanString($name)));
 		if ($res && $res->RecordCount()==1) {
 			$row=$res->FetchRow();
-			$dspOrderedArrayIDs[]=$row['PK_DSPMode'];
+			$dspOrderedArrayIDs[]=$row['PK_Command'];
 		}
 	}
 	$dspOrderedArrayIDs[]=0;
 	
 	//delete dsp that are now unselected 
 	$cleanDSPMode = "
-		DELETE FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate = ? AND FK_DSPMode NOT IN (".join(",",$dspOrderedArrayIDs).")";
+		DELETE FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate = ? AND FK_Command NOT IN (".join(",",$dspOrderedArrayIDs).")";
 	$dbADO->Execute($cleanDSPMode,array($deviceID));
 	
 	$pos=1;
 	foreach ($dspOrderedArrayIDs as $dspModeElem) {
-		$checkIfExists='SELECT * FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate = ? AND FK_DSPMode = ?';
+		$checkIfExists='SELECT * FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
 		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($deviceID,$dspModeElem));
 		if ($resCheckIfExists->RecordCount()==1) {
-			$updateOrder = "UPDATE DeviceTemplate_DSPMode SET OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_DSPMode = ? ";
+			$updateOrder = "UPDATE DeviceTemplate_DSPMode SET OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
 			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$deviceID,$dspModeElem));
 		} else {
 			if ($dspModeElem!=0) {
-				$insertRecord = "INSERT INTO DeviceTemplate_DSPMode (FK_DeviceTemplate,FK_DSPMode,OrderNo) values(?,?,?)";
+				$insertRecord = "INSERT INTO DeviceTemplate_DSPMode (FK_DeviceTemplate,FK_Command,OrderNo) values(?,?,?)";
 				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID,$dspModeElem,$pos));
 			}
 		}
@@ -514,11 +514,11 @@ $output->setScriptInBody($onLoad);
 	$inputOrderedArrayIDs=array();
 	foreach ($inputOrderedArray as $inputElem) {
 		list($order,$name) = explode("-",$inputElem);
-		$query = 'SELECT * FROM Input WHERE Description = ?';		
+		$query = 'SELECT * FROM Command WHERE FK_CommandCategory=22 AND Description = ?';		
 		$res=$dbADO->Execute($query,array(cleanString($name)));
 		if ($res && $res->RecordCount()==1) {
 			$row=$res->FetchRow();
-			$inputOrderedArrayIDs[]=$row['PK_Input'];
+			$inputOrderedArrayIDs[]=$row['PK_Command'];
 		}
 	}
 	
@@ -526,21 +526,21 @@ $output->setScriptInBody($onLoad);
 		
 	//delete input that are now unselected 
 	$cleanInput = "
-		DELETE FROM DeviceTemplate_Input WHERE FK_DeviceTemplate = ? AND FK_Input NOT IN (".join(",",$inputOrderedArrayIDs).")
+		DELETE FROM DeviceTemplate_Input WHERE FK_DeviceTemplate = ? AND FK_Command NOT IN (".join(",",$inputOrderedArrayIDs).")
 				
 	";
 	$dbADO->Execute($cleanInput,array($deviceID));
 	
 	$pos=1;
 	foreach ($inputOrderedArrayIDs as $inputElem) {
-		$checkIfExists='SELECT * FROM DeviceTemplate_Input WHERE FK_DeviceTemplate = ? AND FK_Input = ?';
+		$checkIfExists='SELECT * FROM DeviceTemplate_Input WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
 		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($deviceID,$inputElem));
 		if ($resCheckIfExists->RecordCount()==1) {
-			$updateOrder = "UPDATE DeviceTemplate_Input SET OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Input = ? ";
+			$updateOrder = "UPDATE DeviceTemplate_Input SET OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
 			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$deviceID,$inputElem));
 		} else {
 			if ($inputElem!=0) {
-				$insertRecord = "INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Input,OrderNo) values(?,?,?)";
+				$insertRecord = "INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,OrderNo) values(?,?,?)";
 				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID,$inputElem,$pos));
 			}
 		}
@@ -551,32 +551,32 @@ $output->setScriptInBody($onLoad);
 	$outputOrderedArrayIDs=array();
 	foreach ($outputOrderedArray as $outputElem) {
 		list($order,$name) = explode("-",$outputElem);
-		$query = 'SELECT * FROM Output WHERE Description = ?';		
+		$query = 'SELECT * FROM Command WHERE FK_CommandCategory=27 AND Description = ?';		
 		$res=$dbADO->Execute($query,array(cleanString($name)));
 		if ($res && $res->RecordCount()==1) {
 			$row=$res->FetchRow();
-			$outputOrderedArrayIDs[]=$row['PK_Output'];
+			$outputOrderedArrayIDs[]=$row['PK_Command'];
 		}
 	}
 	$outputOrderedArrayIDs[]=0;
 	
 	//delete output that are now unselected 
 	$cleanOutput = "
-		DELETE FROM DeviceTemplate_Output WHERE FK_DeviceTemplate = ? AND FK_Output NOT IN (".join(",",$outputOrderedArrayIDs).")
+		DELETE FROM DeviceTemplate_Output WHERE FK_DeviceTemplate = ? AND FK_Command NOT IN (".join(",",$outputOrderedArrayIDs).")
 			
 	";
 	$dbADO->Execute($cleanOutput,array($deviceID));
 	
 	$pos=1;
 	foreach ($outputOrderedArrayIDs as $outputElem) {
-		$checkIfExists='SELECT * FROM DeviceTemplate_Output WHERE FK_DeviceTemplate = ? AND FK_Output = ?';
+		$checkIfExists='SELECT * FROM DeviceTemplate_Output WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
 		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($deviceID,$outputElem));
 		if ($resCheckIfExists->RecordCount()==1) {
-			$updateOrder = "UPDATE DeviceTemplate_Output SET OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Output = ? ";
+			$updateOrder = "UPDATE DeviceTemplate_Output SET OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
 			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$deviceID,$outputElem));
 		} else {
 			if ($outputElem!=0) {
-				$insertRecord = "INSERT INTO DeviceTemplate_Output (FK_DeviceTemplate,FK_Output,OrderNo) values(?,?,?)";
+				$insertRecord = "INSERT INTO DeviceTemplate_Output (FK_DeviceTemplate,FK_Command,OrderNo) values(?,?,?)";
 				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID,$outputElem,$pos));
 			}
 		}

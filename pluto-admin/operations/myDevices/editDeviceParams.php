@@ -252,10 +252,10 @@ $installationID = (int)@$_SESSION['installationID'];
 				<table>
 					';
 	
-	$selectInputs = 'SELECT * FROM Input Order By Description ASC';
+	$selectInputs = 'SELECT * FROM Command WHERE FK_CommandCategory=22 Order By Description ASC';
 	$resSelectInputs = $dbADO->Execute($selectInputs);
 	
-	$selectOutputs = 'SELECT * FROM Output Order By Description ASC';
+	$selectOutputs = 'SELECT * FROM Command WHERE FK_CommandCategory=27 Order By Description ASC';
 	$resSelectOutputs = $dbADO->Execute($selectOutputs);
 	
 	$selectPipes = 'SELECT * FROM Pipe Order By Description ASC';
@@ -274,7 +274,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			$resSelectInputs->MoveFirst();			
 			$selectInputsTxt='';
 			while ($rowSelInputs = $resSelectInputs->FetchRow()) {
-				$selectInputsTxt.= '<option '.($rowSelInputs['PK_Input']==$rowSelectedPipesUsed['FK_Input']?" selected='selected' ":"").' value="'.$rowSelInputs['PK_Input'].'">'.$rowSelInputs['Description'].'</option>';
+				$selectInputsTxt.= '<option '.($rowSelInputs['PK_Command']==$rowSelectedPipesUsed['FK_Command_Input']?" selected='selected' ":"").' value="'.$rowSelInputs['PK_Command'].'">'.$rowSelInputs['Description'].'</option>';
 			}
 			
 			$out.='<td> Input on '.$rowSelectedPipesUsed['Desc_To'].' <select name="input_'.$rowSelectedPipesUsed['FK_Device_To'].'"><option value="0">-please select-</option>'.$selectInputsTxt.'</select></td>';
@@ -282,7 +282,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			$resSelectOutputs->MoveFirst();			
 			$selectOutputsTxt='';
 			while ($rowSelOutputs = $resSelectOutputs->FetchRow()) {
-				$selectOutputsTxt.= '<option '.($rowSelOutputs['PK_Output']==$rowSelectedPipesUsed['FK_Output']?" selected='selected' ":"").' value="'.$rowSelOutputs['PK_Output'].'">'.$rowSelOutputs['Description'].'</option>';
+				$selectOutputsTxt.= '<option '.($rowSelOutputs['PK_Command']==$rowSelectedPipesUsed['FK_Command_Output']?" selected='selected' ":"").' value="'.$rowSelOutputs['PK_Command'].'">'.$rowSelOutputs['Description'].'</option>';
 			}
 			
 			$out.='<td> Output on '.$rowSelectedPipesUsed['Desc_From'].' <select name="output_'.$rowSelectedPipesUsed['FK_Device_To'].'"><option value="0">-please select-</option>'.$selectOutputsTxt.'</select></td>';
@@ -609,7 +609,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			$pipeOutput=cleanInteger(@$_POST['output_'.$rowSelectedPipesUsed['FK_Device_To']]);
 			$pipe=cleanInteger(@$_POST['pipe_'.$rowSelectedPipesUsed['FK_Device_To']]);
 			$deviceTo=$rowSelectedPipesUsed['FK_Device_To'];
-				$updateDevicePipe = 'UPDATE Device_Device_Pipe SET FK_Input=?,FK_Output=?,FK_Pipe=? WHERE FK_Device_From = ? AND FK_Device_To = ? ';
+				$updateDevicePipe = 'UPDATE Device_Device_Pipe SET FK_Command_Input=?,FK_Command_Output=?,FK_Pipe=? WHERE FK_Device_From = ? AND FK_Device_To = ? ';
 				$res=$dbADO->Execute($updateDevicePipe,array($input,$pipeOutput,$pipe,$deviceID,$deviceTo));
 		}
 		$out.='

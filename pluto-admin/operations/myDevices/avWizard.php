@@ -160,7 +160,7 @@ function avWizard($output,$dbADO) {
 					<td>A: <select name="audioOutput_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
 					$queryDDP='
-						SELECT Device.*,FK_Output,FK_Device_To,FK_Input
+						SELECT Device.*,FK_Command_Output,FK_Device_To,FK_Command_Input
 						FROM Device_Device_Pipe
 						INNER JOIN Device ON FK_Device_To=PK_Device
 						WHERE FK_Device_From=? AND FK_Pipe=?';
@@ -170,8 +170,8 @@ function avWizard($output,$dbADO) {
 						$rowDDP=$resDDP->FetchRow();
 						$toDevice=$rowDDP['FK_Device_To'];
 						$toDeviceTemplate=$rowDDP['FK_DeviceTemplate'];
-						$audioOutput=$rowDDP['FK_Output'];
-						$audioInput=$rowDDP['FK_Input'];
+						$audioOutput=$rowDDP['FK_Command_Output'];
+						$audioInput=$rowDDP['FK_Command_Input'];
 					}else{
 						$toDevice='';
 						$audioOutput='';
@@ -179,13 +179,13 @@ function avWizard($output,$dbADO) {
 					}
 					$resDDP->Close();
 					$queryOutput='
-						SELECT Output.Description,PK_Output
+						SELECT Command.Description,PK_Command
 						FROM DeviceTemplate_Output
-						INNER JOIN Output ON FK_Output=PK_Output
+						INNER JOIN Command ON FK_Command=PK_Command
 						WHERE FK_DeviceTemplate=?';
 					$resOutput=$dbADO->Execute($queryOutput,$rowD['FK_DeviceTemplate']);
 					while($rowOutput=$resOutput->FetchRow()){
-						$out.='<option value="'.$rowOutput['PK_Output'].'" '.(($rowOutput['PK_Output']==@$audioOutput)?'selected':'').'>'.$rowOutput['Description'].'</option>';
+						$out.='<option value="'.$rowOutput['PK_Command'].'" '.(($rowOutput['PK_Command']==@$audioOutput)?'selected':'').'>'.$rowOutput['Description'].'</option>';
 					}
 					$resOutput->Close();
 					$out.='</select>
@@ -202,9 +202,9 @@ function avWizard($output,$dbADO) {
 					<td><select name="audioInput_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
 					$queryInput='
-						SELECT Input.Description,PK_Input
+						SELECT Command.Description,PK_Command
 						FROM DeviceTemplate_Input
-						INNER JOIN Input ON FK_Input=PK_Input
+						INNER JOIN Command ON FK_Command=PK_Command
 						WHERE FK_DeviceTemplate=?';
 					
 					$toDeviceTemplate=(isset($toDeviceTemplate))?$toDeviceTemplate:-1;
@@ -212,7 +212,7 @@ function avWizard($output,$dbADO) {
 					$resInput=$dbADO->Execute($queryInput,$toDeviceTemplate);
 
 					while($rowInput=$resInput->FetchRow()){
-						$out.='<option value="'.$rowInput['PK_Input'].'" '.(($rowInput['PK_Input']==@$audioInput)?'selected':'').'>'.$rowInput['Description'].'</option>';
+						$out.='<option value="'.$rowInput['PK_Command'].'" '.(($rowInput['PK_Command']==@$audioInput)?'selected':'').'>'.$rowInput['Description'].'</option>';
 					}
 					$resInput->Close();
 					$out.='</select>
@@ -308,7 +308,7 @@ function avWizard($output,$dbADO) {
 						<td>V: <select name="videoOutput_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
 					$queryDDP='
-						SELECT Device.*,FK_Output,FK_Device_To,FK_Input
+						SELECT Device.*,FK_Command_Output,FK_Device_To,FK_Command_Input
 						FROM Device_Device_Pipe
 						INNER JOIN Device ON FK_Device_To=PK_Device
 						WHERE FK_Device_From=? AND FK_Pipe=?';
@@ -319,21 +319,21 @@ function avWizard($output,$dbADO) {
 						$rowDDP=$resDDP->FetchRow();
 						$toDevice=$rowDDP['FK_Device_To'];
 						$toDeviceTemplate=$rowDDP['FK_DeviceTemplate'];
-						$videoOutput=$rowDDP['FK_Output'];
-						$videoInput=$rowDDP['FK_Input'];
+						$videoOutput=$rowDDP['FK_Command_Output'];
+						$videoInput=$rowDDP['FK_Command_Input'];
 					}else{
 						$toDevice='';
 						$videoOutput='';
 						$videoInput='';
 					}
 					$queryOutput='
-						SELECT Output.Description,PK_Output
+						SELECT Command.Description,PK_Command
 						FROM DeviceTemplate_Output
-						INNER JOIN Output ON FK_Output=PK_Output
+						INNER JOIN Command ON FK_Command=PK_Command
 						WHERE FK_DeviceTemplate=?';
 					$resOutput=$dbADO->Execute($queryOutput,$rowD['FK_DeviceTemplate']);
 					while($rowOutput=$resOutput->FetchRow()){
-						$out.='<option value="'.$rowOutput['PK_Output'].'" '.(($rowOutput['PK_Output']==@$videoOutput)?'selected':'').'>'.$rowOutput['Description'].'</option>';
+						$out.='<option value="'.$rowOutput['PK_Command'].'" '.(($rowOutput['PK_Command']==@$videoOutput)?'selected':'').'>'.$rowOutput['Description'].'</option>';
 					}
 					$resOutput->Close();
 					$out.='</select>
@@ -350,9 +350,9 @@ function avWizard($output,$dbADO) {
 					<td><select name="videoInput_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
 					$queryInput='
-						SELECT Input.Description,PK_Input
+						SELECT Command.Description,PK_Command
 						FROM DeviceTemplate_Input
-						INNER JOIN Input ON FK_Input=PK_Input
+						INNER JOIN Command ON FK_Command=PK_Command
 						WHERE FK_DeviceTemplate=?';
 					
 					$toDeviceTemplate=(isset($toDeviceTemplate))?$toDeviceTemplate:-1;
@@ -360,7 +360,7 @@ function avWizard($output,$dbADO) {
 					$resInput=$dbADO->Execute($queryInput,$toDeviceTemplate);
 
 					while($rowInput=$resInput->FetchRow()){
-						$out.='<option value="'.$rowInput['PK_Input'].'" '.(($rowInput['PK_Input']==@$videoInput)?'selected':'').'>'.$rowInput['Description'].'</option>';
+						$out.='<option value="'.$rowInput['PK_Command'].'" '.(($rowInput['PK_Command']==@$videoInput)?'selected':'').'>'.$rowInput['Description'].'</option>';
 					}
 					$resInput->Close();
 					$out.='</select>
@@ -454,7 +454,7 @@ function avWizard($output,$dbADO) {
 					if($oldTo=='' || is_null($oldTo)){
 						$insertDDP='
 							INSERT INTO Device_Device_Pipe 
-								(FK_Device_From, FK_Device_To, FK_Input, FK_Output, FK_Pipe)
+								(FK_Device_From, FK_Device_To, FK_Command_Input, FK_Command_Output, FK_Pipe)
 							VALUES
 								(?,?,?,?,?)';
 						if(!is_null($audioConnectTo))
@@ -462,7 +462,7 @@ function avWizard($output,$dbADO) {
 					}else{
 						$updateDDP='
 							UPDATE Device_Device_Pipe 
-							SET FK_Device_To=?, FK_Input=?, FK_Output=? 
+							SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
 							WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
 						$dbADO->Execute($updateDDP,array($audioConnectTo,$audioInput,$audioOutput,$value,$oldTo,$GLOBALS['AudioPipe']));
 					}
@@ -481,7 +481,7 @@ function avWizard($output,$dbADO) {
 					if($oldTo=='' || is_null($oldTo)){
 						$insertDDP='
 							INSERT INTO Device_Device_Pipe 
-								(FK_Device_From, FK_Device_To, FK_Input, FK_Output, FK_Pipe)
+								(FK_Device_From, FK_Device_To, FK_Command_Input, FK_Command_Output, FK_Pipe)
 							VALUES
 								(?,?,?,?,?)';
 						if(!is_null($videoConnectTo))
@@ -489,7 +489,7 @@ function avWizard($output,$dbADO) {
 					}else{
 						$updateDDP='
 							UPDATE Device_Device_Pipe 
-							SET FK_Device_To=?, FK_Input=?, FK_Output=? 
+							SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
 							WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
 						$dbADO->Execute($updateDDP,array($videoConnectTo,$videoInput,$videoOutput,$value,$oldTo,$GLOBALS['VideoPipe']));
 					}

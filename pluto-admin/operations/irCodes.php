@@ -98,12 +98,12 @@ function irCodes($output,$dbADO) {
 							<table border="0">
 								';
 					$queryC = "
-						SELECT PK_Input,PK_Output,PK_DSPMode,InfraredGroup_Command.*, Command.Description as C_Description 
+						SELECT Input.PK_Command As PK_Command_Input,Output.PK_Command AS PK_Command_Output,DSPMode.PK_Command AS PK_Command_DSPMode,InfraredGroup_Command.*, Command.Description as C_Description 
 						FROM InfraredGroup_Command 
 						INNER JOIN Command on InfraredGroup_Command.FK_Command = PK_Command 
-						LEFT JOIN Input ON Input.FK_Command=PK_Command
-						LEFT JOIN Output ON Output.FK_Command=PK_Command
-						LEFT JOIN DSPMode ON DSPMode.FK_Command=PK_Command
+						LEFT JOIN Command AS Input ON Input.PK_Command=Command.PK_Command AND Input.FK_CommandCategory=22
+						LEFT JOIN Command AS Output ON Output.PK_Command=Command.PK_Command AND Output.FK_CommandCategory=27
+						LEFT JOIN Command AS DSPMode ON DSPMode.PK_Command=Command.PK_Command AND DSPMode.FK_CommandCategory=21
 						WHERE FK_InfraredGroup = ? 
 						ORDER BY Command.Description asc
 					";
@@ -117,13 +117,13 @@ function irCodes($output,$dbADO) {
 					$dspModeCommands=array();
 					if ($res) {
 						while ($row=$res->FetchRow()) {
-							if(is_null($row['PK_Input']) && is_null($row['PK_Output']) && is_null($row['PK_DSPMode']))
+							if(is_null($row['PK_Command_Input']) && is_null($row['PK_Command_Output']) && is_null($row['PK_Command_DSPMode']))
 								$simpleCommands[$row['FK_Command']]=$row['Description'];
-							if(!is_null($row['PK_Input']) && $row['PK_Input']!='')
+							if(!is_null($row['PK_Command_Input']) && $row['PK_Command_Input']!='')
 								$inputCommands[$row['FK_Command']]=$row['Description'];
-							if(!is_null($row['PK_Output']) && $row['PK_Output']!='')
+							if(!is_null($row['PK_Command_Output']) && $row['PK_Command_Output']!='')
 								$outputCommands[]=$row['FK_Command'];
-							if(!is_null($row['PK_DSPMode']) && $row['PK_DSPMode']!='')
+							if(!is_null($row['PK_Command_DSPMode']) && $row['PK_Command_DSPMode']!='')
 								$dspModeCommands[$row['FK_Command']]=$row['Description'];
 							$commandsDisplayed[]=$row['FK_Command'];
 						}
@@ -159,11 +159,11 @@ function irCodes($output,$dbADO) {
 						
 					}
 					$queryGetCommands = "
-						SELECT PK_Input,PK_Output,PK_DSPMode,PK_Command,Command.Description 
+						SELECT PK_Command_Input,PK_Command_Output,PK_Command_DSPMode,PK_Command,Command.Description 
 						FROM Command 
-							LEFT JOIN Input ON Input.FK_Command=PK_Command
-							LEFT JOIN Output ON Output.FK_Command=PK_Command
-							LEFT JOIN DSPMode ON DSPMode.FK_Command=PK_Command
+							LEFT JOIN Command AS Input ON Input.PK_Command=Command.PK_Command AND Input.FK_CommandCategory=22
+							LEFT JOIN Command AS Output ON Output.PK_Command=Command.PK_Command AND Input.FK_CommandCategory=27
+							LEFT JOIN Command AS DSPMode ON DSPMode.PK_Command=Command.PK_Command AND Input.FK_CommandCategory=21
 						WHERE PK_Command NOT IN (".join(",",$commandsDisplayed).") ORDER BY Description ASC";
 					$otherCommands = '<option value="0">-please select-</option>';
 					$otherInputCommands = '<option value="0">-please select-</option>';
@@ -175,13 +175,13 @@ function irCodes($output,$dbADO) {
 					}
 					if ($res) {
 						while ($row=$res->FetchRow()) {
-							if(is_null($row['PK_Input']) && is_null($row['PK_Output']) && is_null($row['PK_DSPMode']))
+							if(is_null($row['PK_Command_Input']) && is_null($row['PK_Command_Output']) && is_null($row['PK_Command_DSPMode']))
 								$otherCommands.="<option value='{$row['PK_Command']}'>".stripslashes($row['Description']).'</option>';
-							if(!is_null($row['PK_Input']) && $row['PK_Input']!='')
+							if(!is_null($row['PK_Command_Input']) && $row['PK_Command_Input']!='')
 								$otherInputCommands.="<option value='{$row['PK_Command']}'>".stripslashes($row['Description']).'</option>';
-							if(!is_null($row['PK_Output']) && $row['PK_Output']!='')
+							if(!is_null($row['PK_Command_Output']) && $row['PK_Command_Output']!='')
 								$otherOutputCommands.="<option value='{$row['PK_Command']}'>".stripslashes($row['Description']).'</option>';
-							if(!is_null($row['PK_DSPMode']) && $row['PK_DSPMode']!='')
+							if(!is_null($row['PK_Command_DSPMode']) && $row['PK_Command_DSPMode']!='')
 								$otherDSPModeCommands.="<option value='{$row['PK_Command']}'>".stripslashes($row['Description']).'</option>';
 			
 						}

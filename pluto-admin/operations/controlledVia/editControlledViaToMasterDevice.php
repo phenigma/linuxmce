@@ -99,10 +99,10 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 										<table>
 											';
 							
-							$selectInputs = 'SELECT * FROM Input Order By Description ASC';
+							$selectInputs = 'SELECT * FROM Command WHERE FK_CommandCategory=22 Order By Description ASC';
 							$resSelectInputs = $dbADO->Execute($selectInputs);
 							
-							$selectOutputs = 'SELECT * FROM Output Order By Description ASC';
+							$selectOutputs = 'SELECT * FROM Command WHERE FK_CommandCategory=27 Order By Description ASC';
 							$resSelectOutputs = $dbADO->Execute($selectOutputs);
 							
 							$selectPipes = 'SELECT * FROM Pipe Order By Description ASC';
@@ -127,7 +127,7 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 									$resSelectInputs->MoveFirst();			
 									$selectInputsTxt='';
 									while ($rowSelInputs = $resSelectInputs->FetchRow()) {
-										$selectInputsTxt.= '<option '.($rowSelInputs['PK_Input']==$rowSelectedPipesUsed['FK_Input']?" selected='selected' ":"").' value="'.$rowSelInputs['PK_Input'].'">'.$rowSelInputs['Description'].'</option>';
+										$selectInputsTxt.= '<option '.($rowSelInputs['PK_Command']==$rowSelectedPipesUsed['FK_Command_Input']?" selected='selected' ":"").' value="'.$rowSelInputs['PK_Command'].'">'.$rowSelInputs['Description'].'</option>';
 									}
 									
 									$out.='<td> Input on '.($rowSelectedPipesUsed['ToChild']==0?$rowSelectedPipesUsed['Desc_To']:$rowSelectedPipesUsed['Desc_From']).' <select name="input_'.$rowSelectedPipesUsed['FK_To'].'"><option value="0">-please select-</option>'.$selectInputsTxt.'</select></td>';
@@ -135,7 +135,7 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 									$resSelectOutputs->MoveFirst();			
 									$selectOutputsTxt='';
 									while ($rowSelOutputs = $resSelectOutputs->FetchRow()) {
-										$selectOutputsTxt.= '<option '.($rowSelOutputs['PK_Output']==$rowSelectedPipesUsed['FK_Output']?" selected='selected' ":"").' value="'.$rowSelOutputs['PK_Output'].'">'.$rowSelOutputs['Description'].'</option>';
+										$selectOutputsTxt.= '<option '.($rowSelOutputs['PK_Command']==$rowSelectedPipesUsed['FK_Command_Output']?" selected='selected' ":"").' value="'.$rowSelOutputs['PK_Command'].'">'.$rowSelOutputs['Description'].'</option>';
 									}
 									
 									$out.='<td> Output on '.($rowSelectedPipesUsed['ToChild']==0?$rowSelectedPipesUsed['Desc_From']:$rowSelectedPipesUsed['Desc_To']).' <select name="output_'.$rowSelectedPipesUsed['FK_To'].'"><option value="0">-please select-</option>'.$selectOutputsTxt.'</select></td>';
@@ -243,7 +243,7 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 			$pipe=cleanInteger(@$_POST['pipe_'.$rowSelectedPipesUsed['FK_To']]);
 			$toChild = cleanInteger(@$_POST['toChild_'.$rowSelectedPipesUsed['FK_To']]);
 			$deviceTo=$rowSelectedPipesUsed['FK_To'];
-				$updateDevicePipe = 'UPDATE DeviceTemplate_DeviceTemplate_ControlledVia_Pipe SET FK_Input=?,FK_Output=?,FK_Pipe=?,ToChild=? WHERE FK_DeviceTemplate_DeviceTemplate_ControlledVia = ? ';
+				$updateDevicePipe = 'UPDATE DeviceTemplate_DeviceTemplate_ControlledVia_Pipe SET FK_Command_Input=?,FK_Command_Output=?,FK_Pipe=?,ToChild=? WHERE FK_DeviceTemplate_DeviceTemplate_ControlledVia = ? ';
 				$res=$dbADO->Execute($updateDevicePipe,array($input,$outputs,$pipe,$toChild,$objID));
 				$affectedPipes = $dbADO->Affected_Rows()==1 && $affectedPipes == 'Pipes not updated!'?"Pipes updated!":"Pipes not updated!";
 		}
