@@ -878,7 +878,7 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 			{
 					/** It's going to fall out of scope, so we don't want the processor to retry sending a deleted request */
 				ra_Processor.RemoveRequest( &r_CommitRow );
-				cerr << "Failed to commit row in table: " << m_sName << endl;
+				cerr << "Failed to commit row in table: " << m_sName << endl << r_CommitRow.m_sResponseMessage << endl;
 				return false;
 			}
 
@@ -1124,7 +1124,10 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 			}
 		}
 		else
+		{
+			pR_CommitRow->m_sResponseMessage = "Row not found to delete";
 			throw "Error: row not found to delete";
+		}
 	}
 
 	std::ostringstream sSQL;
@@ -1132,6 +1135,7 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "Failed to delete row: " << sSQL.str( ) << endl;
+		pR_CommitRow->m_sResponseMessage = "Failed to delete row: " + sSQL.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
 		throw "Failed to delete row";
 	}
 	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
@@ -1168,7 +1172,10 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 			}
 		}
 		else
+		{
+			pR_CommitRow->m_sResponseMessage = "Error: row not found";
 			throw "Error: row not found";
+		}
 	}
 
 	std::ostringstream sSQL;
@@ -1186,6 +1193,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "Failed to update row: " << sSQL.str( ) << endl;
+		pR_CommitRow->m_sResponseMessage = "Failed to update row: " + sSQL.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
 		throw "Failed to update row";
 	}
 	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
@@ -1230,7 +1238,8 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	{
 		if( !( pR_CommitRow->m_iNewAutoIncrID=m_pDatabase->threaded_mysql_query_withID( sSQL.str( ) ) ) )
 		{
-			cerr << "Failed to insert row: " << sSQL.str( ) << endl;
+			cerr << "Failed to insert row1: " << sSQL.str( ) << endl;
+			pR_CommitRow->m_sResponseMessage = "Failed to insert row #1: " + sSQL.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
 			throw "Failed to insert row";
 		}
 	}
@@ -1239,6 +1248,7 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 		{
 			cerr << "Failed to insert row: " << sSQL.str( ) << endl;
+			pR_CommitRow->m_sResponseMessage = "Failed to insert row #2: " + sSQL.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
 			throw "Failed to insert row";
 		}
 		pR_CommitRow->m_iNewAutoIncrID=0;
@@ -1328,7 +1338,7 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 	else
 	{
 		cerr << "Unable to find record to retrieve current values for table: " << m_sName << " psc_batch: " << psc_batch << endl;
-		throw "Canot locate record";
+		throw "Cannot locate record";
 	}
 }
 
@@ -1345,7 +1355,8 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 )
 		{
 			cerr << "Failed to insert history delete row: " << sSqlHistory.str( ) << endl;
-			throw "Failed to insert row";
+			pR_CommitRow->m_sResponseMessage = "Failed to iinsert history delete row: " + sSqlHistory.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
+			throw "Failed to insert history delete row";
 		}
 		return;
 	}
@@ -1395,6 +1406,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )!=0 )
 	{
 		cerr << "Failed to insert history row: " << sSqlHistory.str( ) << endl;
+		pR_CommitRow->m_sResponseMessage = "Failed to history row #2: " + sSqlHistory.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
 		throw "Failed to insert row";
 	}
 }

@@ -44,6 +44,8 @@ public:
 	/** @brief Will be non-zero if this person is not authorized to change the row.  This will be the id of the row's owner */
 	int m_psc_user_needs_to_authorize;
 
+	string m_sResponseMessage; /** @brief In the event of a failure, this will contain descriptive information */
+
 	/** @brief The server will call this constructor, then ProcessRequest */
 	R_CommitRow( sqlCVS::ChangedRow *pChangedRow );
 	
@@ -71,7 +73,7 @@ public:
 	virtual void SetupSerialization_Response( )
 	{
 		RA_Request::SetupSerialization_Response( );
-		StartSerializeList( ) + m_iNewAutoIncrID + m_psc_id_new + m_psc_batch_new;
+		StartSerializeList( ) + m_iNewAutoIncrID + m_psc_id_new + m_psc_batch_new + m_sResponseMessage;
 	}
 
 	/**
