@@ -34,19 +34,21 @@ using namespace DCE;
 #include <sys/wait.h>
 #endif
 
+#ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it.. 
 App_Server *g_pAppServer = NULL;
 
 void sh(int i) /* signal handler */
 {
-    int status;
-    pid_t pid;
+    int status = 0;
+    pid_t pid = 0;
 
-#ifndef WIN32
+
     pid = wait(&status);
-#endif
+
     if ( g_pAppServer )
         g_pAppServer->ProcessExited(pid, status);
 }
+#endif
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -54,8 +56,8 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 	: App_Server_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-    g_pAppServer = this;
 #ifndef WIN32
+	g_pAppServer = this;
     signal(SIGCHLD, sh); /* install handler */
 #endif
 }
@@ -278,6 +280,7 @@ bool App_Server::StartApp(string CmdExecutable, string CmdParams, string AppName
     si.cb = sizeof(si);
     ZeroMemory (&pi, sizeof(pi));
     CreateProcess("C:\\WINDOWS\\system32\\cmd.exe", "/c bogus.bat", NULL, NULL, false, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+	return true;
 #endif
 }
 
@@ -325,7 +328,7 @@ void App_Server::SendMessageList(string messageList)
     }
 
     Message *pMessage = new Message(commands[0]);    // empty message (to only caryy the rest with him).
-    for ( int i = 1; i < commands.size(); i++ )
+    for ( unsigned int i = 1; i < commands.size(); i++ )
         pMessage->m_vectExtraMessages.push_back(new Message(commands[i]));
 
     PreformedCommand command;

@@ -128,6 +128,12 @@
 			<File
 				RelativePath="..\Gen_Devices\Slim_Server_StreamerBase.cpp">
 			</File>
+			<File
+				RelativePath=".\SqueezeBox_Player.cpp">
+			</File>
+			<File
+				RelativePath="..\Gen_Devices\SqueezeBox_PlayerBase.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -137,6 +143,12 @@
 			</File>
 			<File
 				RelativePath="Slim_Server_Streamer.h">
+			</File>
+			<File
+				RelativePath=".\SqueezeBox_Player.h">
+			</File>
+			<File
+				RelativePath="..\Gen_Devices\SqueezeBox_PlayerBase.h">
 			</File>
 		</Filter>
 		<Filter

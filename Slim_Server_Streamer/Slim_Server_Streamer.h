@@ -7,10 +7,13 @@
 #include "Gen_Devices/Slim_Server_StreamerBase.h"
 //<-dceag-d-e->
 
+#include "SqueezeBox_Player.h"
+
 #include <map>
+
 using namespace std;
 
-typedef enum {
+typedef enum _StreamState {
     STATE_PLAY,
     STATE_STOP
 } StreamStateType;
@@ -33,18 +36,22 @@ namespace DCE
         //   streamID ->
         //              [
         //                  state { playing, stopped }
-        //                  playersMacAddresses as a vector of strings. ( the addresses are already URL Encoded.)
+        //                  a vector of SqueezeBox_Player objects ( the devices on which this stream is playing ).
         //              ]
-        map<int, pair<StreamStateType, vector<string> > > m_mapRunningStreamsToMacAddresses;
-        int m_iServerSocket; // the socket used to communicate with the server
-        // Private member variables
+		map<int, pair<StreamStateType, vector<SqueezeBox_Player *> > > m_mapRunningStreamsToMacAddresses;
+		
+		// the socket used to communicate with the server
+		SOCKET m_iServerSocket;
 
+		// Private member variables
+
+		// Private methods
         bool ConnectToSlimServerCliCommandChannel();
         string SendReceiveCommand(string command);
-
-        // Private methods
-        static void *checkForPlaybackCompleted(void *pSlim_Server_Streamer);
-    public:
+		
+		static void *checkForPlaybackCompleted(void *pSlim_Server_Streamer);
+    
+	public:
         // Public member variables
 
     //<-dceag-const-b->

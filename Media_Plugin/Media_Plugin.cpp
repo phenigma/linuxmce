@@ -508,7 +508,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
     }
 
     DataGridTable *pDataGrid = new DataGridTable();
-    DataGridCell *pCell;
+    DataGridCell *pCell = NULL;
 
     deque<MediaFile *>::iterator itFiles;
     string sCurrentFile;
@@ -1711,7 +1711,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
     mapRequestedAreas.clear();
 
 
-    EntertainArea *pEntArea;
+//    EntertainArea *pEntArea;
 
     list<EntertainArea *>::iterator itList;
 

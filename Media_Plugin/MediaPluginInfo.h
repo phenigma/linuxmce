@@ -130,10 +130,10 @@ namespace DCE
          * As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list.
          * If it's a mounted media, like dvd, that won't happen
          */
-        deque<MediaFile *>   m_dequeMediaFile;        /** The filenames we're playing */
-        int             m_iDequeMediaFile_Pos;   /** The play position in the m_dequeFilename deque. */
-        int             m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
-        string          m_sPlaylistName;       /** the name of the playlist which was loaded from the database. */
+        deque<MediaFile *>  m_dequeMediaFile;        /** The filenames we're playing */
+        unsigned int		m_iDequeMediaFile_Pos;   /** The play position in the m_dequeFilename deque. */
+        int					m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
+        string				m_sPlaylistName;       /** the name of the playlist which was loaded from the database. */
 
         // TODO: In the future check to see how to manage the file which is playing from which position.
         // For the moment we should just ignore it.

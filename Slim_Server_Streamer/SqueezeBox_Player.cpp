@@ -18,6 +18,7 @@ SqueezeBox_Player::SqueezeBox_Player(int DeviceID, string ServerAddress,bool bCo
 	: SqueezeBox_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	int k = 2;
 }
 
 //<-dceag-const2-b->
@@ -26,6 +27,7 @@ SqueezeBox_Player::SqueezeBox_Player(Command_Impl *pPrimaryDeviceCommand, Device
 	: SqueezeBox_Player_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
+ 	int k = 2;
 }
 
 //<-dceag-dest-b->

@@ -20,9 +20,10 @@ using namespace DCE;
 Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Slim_Server_Streamer_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_mutexDataStructureAccess("internal-data-structure-mutex")
 {
     // Usually the slim server and the application server that is going to spawn it are going to be on the same machine.
-    // This is good because you can also restrinct the control of the server only to connection that are from that machine.
+    // This is good because you can also restrict the control of the server only to connections from that machine.
     m_strSlimServerCliAddress = "127.0.0.1"; // hard code it here for now.
     m_iSlimServerCliPort = 7890;
 
@@ -188,39 +189,58 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
 //<-dceag-c249-e->
 {
     PLUTO_SAFETY_LOCK( pm, m_mutexDataStructureAccess);
-    if ( sStreamingDestinations == "" && m_mapRunningStreamsToMacAddresses.find(iStreamID) != m_mapRunningStreamsToMacAddresses.end() )
+   // if ( sStreamingDestinations == "" && 
+			//m_mapRunningStreamsToMacAddresses.find(iStreamID) != m_mapRunningStreamsToMacAddresses.end() )
+   // {
+   //     string onePlayerMac = m_mapRunningStreamsToMacAddresses[iStreamID].second.front();
+
+   //     SendReceiveCommand(onePlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
+   //     return;
+   // }
+
+    vector<string> vectPlayersIds;
+	vector<SqueezeBox_Player *> vectPlayers;
+
+    StringUtils::Tokenize(sStreamingDestinations, ",", vectPlayersIds);
+
+    string lastPlayerAddress = "-";
+	string currentPlayerAddress = "-";
+
+    vector<string>::iterator itPlayerIds = vectPlayersIds.begin();
+    while ( itPlayerIds != vectPlayersIds.end() )
     {
-        string onePlayerMac = m_mapRunningStreamsToMacAddresses[iStreamID].second.front();
+		int iPlayerId = atoi((*itPlayerIds).c_str());
 
-        SendReceiveCommand(onePlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
-        return;
+		if ( iPlayerId == 0 )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Player id string %s parsed to 0. Ignoring.", (*itPlayerIds).c_str() );
+			continue;
+		}
+
+		map<int, Command_Impl *>::iterator itPlayer = m_mapCommandImpl_Children.find(iPlayerId);
+		if ( itPlayer == m_mapCommandImpl_Children.end() )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Child with id: %d was not found. Ignoring", iPlayerId);
+			continue;
+		}
+
+		// assume all the children are Squeeze boxes. 
+		SqueezeBox_Player *pPlayer = static_cast<SqueezeBox_Player*>((*itPlayer).second);
+
+		vectPlayers.push_back(pPlayer);
+
+		currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pPlayer->m_pData->m_sMacAddress));
+
+        SendReceiveCommand(currentPlayerAddress + " sync -"); // break previous syncronization;
+        SendReceiveCommand(currentPlayerAddress + " sync " + lastPlayerAddress); // synchronize with the last one.
+        lastPlayerAddress = currentPlayerAddress;
+		*itPlayerIds++;
     }
+	
+	// add this stream to the list of playing streams.
+    m_mapRunningStreamsToMacAddresses[iStreamID] = make_pair(STATE_PLAY, vectPlayers); 
 
-    vector<string> vectMacAddresses;
-
-    StringUtils::Tokenize(sStreamingDestinations, ",", vectMacAddresses);
-
-    string macAddress;
-    string playerAddress = "-";
-    vector<string>::iterator itMacAddresses = vectMacAddresses.begin();
-    while ( itMacAddresses != vectMacAddresses.end() )
-    {
-        if ( (*itMacAddresses) == "" )
-        {
-            itMacAddresses = vectMacAddresses.erase(itMacAddresses);
-            continue;
-        }
-
-        *itMacAddresses = StringUtils::URLEncode(StringUtils::ToLower(*itMacAddresses));
-
-        SendReceiveCommand(*itMacAddresses + " sync -"); // break previous syncronization;
-        SendReceiveCommand(*itMacAddresses + " sync " + playerAddress); // syncronize with the last one.
-        playerAddress = *itMacAddresses++;
-    }
-
-    m_mapRunningStreamsToMacAddresses[iStreamID] = make_pair(STATE_PLAY, vectMacAddresses); // add this stream to the list of playing streams.
-
-    SendReceiveCommand(playerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
+    SendReceiveCommand(lastPlayerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
 }
 
 bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
@@ -238,11 +258,11 @@ bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
 
     if( (host = gethostbyname(m_strSlimServerCliAddress.c_str())) == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Could not resolve ip address: %s. Returning empty mrl.", m_strSlimServerCliAddress.c_str());
+        g_pPlutoLogger->Write(LV_WARNING, "Could not resolve IP address: %s. Not connecting.", m_strSlimServerCliAddress.c_str());
         return false;
     }
 
-    g_pPlutoLogger->Write(LV_WARNING, "Trying to connect to slimserver at address: %s:%d", m_strSlimServerCliAddress.c_str(), m_iSlimServerCliPort );
+    g_pPlutoLogger->Write(LV_WARNING, "Trying to connect to SlimServer at address: %s:%d", m_strSlimServerCliAddress.c_str(), m_iSlimServerCliPort );
     serverSocket.sin_family = AF_INET;
     memcpy((char *) &serverSocket.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
     serverSocket.sin_port = htons(m_iSlimServerCliPort);
@@ -258,23 +278,24 @@ bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
 
         if ( connect(m_iServerSocket, (struct sockaddr*)&serverSocket, sizeof(serverSocket)) == 0 )
         {
-            g_pPlutoLogger->Write(LV_STATUS, "We have made a succesfull connection to the slim server on %s:%d. Life is good.", m_strSlimServerCliAddress.c_str(), m_iSlimServerCliPort);
-            socketNotOpen = false;
-            return true;
+            g_pPlutoLogger->Write(LV_STATUS, "We have made a successful connection to the slim server on %s:%d. Life is good.", m_strSlimServerCliAddress.c_str(), m_iSlimServerCliPort);
+            socketNotOpen = false;            
         }
         else
         {
             g_pPlutoLogger->Write(LV_STATUS, "We can't connect yet to the server. Waiting!");
-            usleep(500000); // sleep half a second
+			Sleep(500);
         }
 
-        if ( timeSpent >= 3 * 1000000 ) // wait at most three seconds;
+        if ( socketNotOpen && timeSpent >= 3 * 1000000 ) // wait at most three seconds;
         {
             g_pPlutoLogger->Write(LV_WARNING, "Couldn't contact the slim server for the past 3 seconds..");
             m_iServerSocket = -1;
             return false;
         }
     }
+
+	return true;
 }
 
 string Slim_Server_Streamer::SendReceiveCommand(string command)
@@ -306,8 +327,7 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
             spawnApplication.m_pMessage->m_bRelativeToSender = true;
             SendCommand(spawnApplication);
 
-            usleep(3000000);
-
+			Sleep(3000);
             if ( ! ConnectToSlimServerCliCommandChannel() ) // try again the connection after the command was sent.
             {
                 g_pPlutoLogger->Write(LV_WARNING, "I could not connect to the streaming server after i have launched it with the application server.");
@@ -328,12 +348,12 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
     nBytes = 0;
     while ( nBytes >= 0 && nBytes < (unsigned int)command.length() - 1  )
     {
-        int result = write(m_iServerSocket, sendBuffer + nBytes, command.length() - nBytes);
+        int result = write((int)m_iServerSocket, sendBuffer + nBytes, (unsigned int)command.length() - nBytes);
 
         if ( result == 0 || result == -1 )
         {
             g_pPlutoLogger->Write(LV_WARNING, "Error while sending to socket: %s.", strerror(errno));
-            close(m_iServerSocket);
+            close((int)m_iServerSocket);
             m_iServerSocket = -1;
         }
 
@@ -343,13 +363,13 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
     receiveBuffer = new char[512];
 
     int pos = 0;
-    while ( read(m_iServerSocket, receiveBuffer + pos, 1) == 1 && pos < 511 && receiveBuffer[pos] != '\n' ) pos++;
+    while ( read((int)m_iServerSocket, receiveBuffer + pos, 1) == 1 && pos < 511 && receiveBuffer[pos] != '\n' ) pos++;
 
     receiveBuffer[pos] = '\0';
     if ( pos == 511 )
     {
         g_pPlutoLogger->Write(LV_STATUS, "Invalid read from socket. Closing connection");
-        close(m_iServerSocket);
+        close((int)m_iServerSocket);
         m_iServerSocket = -1;
     }
 
@@ -369,26 +389,29 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
     {
         PLUTO_SAFETY_LOCK( pm, pStreamer->m_mutexDataStructureAccess);
 
-        map<int, pair<StreamStateType, vector<string> > >::iterator itStreamsToMacAddresses;
+        map<int, pair<StreamStateType, vector<SqueezeBox_Player *> > >::iterator itStreamsToPlayers;
 
-        itStreamsToMacAddresses = pStreamer->m_mapRunningStreamsToMacAddresses.begin();
-        while ( itStreamsToMacAddresses != pStreamer->m_mapRunningStreamsToMacAddresses.end() && (*itStreamsToMacAddresses).second.first == STATE_PLAY )
+        itStreamsToPlayers = pStreamer->m_mapRunningStreamsToMacAddresses.begin();
+        while ( itStreamsToPlayers != pStreamer->m_mapRunningStreamsToMacAddresses.end() && 
+				(*itStreamsToPlayers).second.first == STATE_PLAY )
         {
-            string strCommand = (*itStreamsToMacAddresses).second.second[0] + " mode ?";
+			SqueezeBox_Player *pPlayer = (*itStreamsToPlayers).second.second[0];
+
+			string strCommand = StringUtils::URLDecode(pPlayer->m_pData->m_sMacAddress) + " mode ?";
             string strResult = pStreamer->SendReceiveCommand(strCommand);
 
-            if (strResult == (*itStreamsToMacAddresses).second.second[0] + " mode stop")
+			if (strResult == StringUtils::URLDecode(pPlayer->m_pData->m_sMacAddress) + " mode stop")
             {
-                (*itStreamsToMacAddresses).second.first = STATE_STOP;
-                pStreamer->EVENT_Playback_Completed((*itStreamsToMacAddresses).first);
+                (*itStreamsToPlayers).second.first = STATE_STOP;
+                pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first);
             }
 
-            itStreamsToMacAddresses++;
+            itStreamsToPlayers++;
         }
 
         pm.Release();
 
-        usleep(500000);
+        Sleep(500);
     }
 
     return NULL;

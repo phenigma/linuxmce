@@ -250,7 +250,7 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 /**
  * @brief Called by the Media Plugin when we need to move media around in entertainment areas. The media plugin will pass 3 lists:
  *          < listStart: the list on which media needs to be started. >
- *          < listStop: the list on which media needs tobe stopped >
+ *          < listStop: the list on which media needs to be stopped >
  *          < listChange: the list on which media needs to be changed (if we move the media from one place to another it might be possible that the actual source of the stream to change). >
  */
 bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)
@@ -261,8 +261,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
         return false;
 
     XineMediaStream *pXineMediaStream = static_cast<XineMediaStream*>(pMediaStream);
-
-    EntertainArea *pTmpEntertainArea;
+	
     // stop all the media where it needs to be stopped.
     // to stop the media we will actually call our StopMedia function while passing it a "touched" pMediaStream parameter.
     MediaDevice *pCurrentDevice = pMediaStream->m_pMediaDevice;
@@ -277,9 +276,9 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
         StopMedia(pMediaStream);
         pMediaStream->m_mapEntertainArea.erase((*itEntArea)->m_iPK_EntertainArea);
-        (*itEntArea)->m_pMediaStream = NULL; // remove this stream from ent areas on which it was playing
+        (*itEntArea)->m_pMediaStream = NULL; // remove this stream from entertainment areas on which it was playing
     }
-    // we have succesfully stopped the devices; Restore the state.
+    // we have successfully stopped the devices; Restore the state.
     pMediaStream->m_pMediaDevice = pCurrentDevice;
 
     bool bTargetSqueezBox = false;
@@ -323,11 +322,11 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
             pXineMediaStream->setStreamerDeviceID(m_pRouter->FindClosestRelative(DEVICETEMPLATE_Slim_Server_Streamer_CONST, m_dwPK_Device));
 
             if ( pXineMediaStream->getStreamerDeviceID() == 0 )
-                g_pPlutoLogger->Write(LV_STATUS, "I wasn't able to lookup the Streamer device to use for multiple ent areas streaming. Failing!.");
+                g_pPlutoLogger->Write(LV_STATUS, "I wasn't able to lookup the Streamer device to use for multiple entertainment areas streaming. Failing!.");
         }
     }
 
-    string squeezeBoxesAddresses = "";
+    string squeezeBoxIds = "";
 
     if ( bTargetSqueezBox )
     {
@@ -349,7 +348,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
         if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
         {
-            squeezeBoxesAddresses += pCurrentDevice->m_pDeviceData_Router->m_sMacAddress + ",";
+			squeezeBoxIds += StringUtils::itos(pCurrentDevice->m_pDeviceData_Router->m_dwPK_Device) + ",";
             startDevices.erase(itMediaDevice);
         }
 
@@ -369,7 +368,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
         if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
         {
-            squeezeBoxesAddresses += pCurrentDevice->m_pDeviceData_Router->m_sMacAddress + ",";
+			squeezeBoxIds += StringUtils::itos(pCurrentDevice->m_pDeviceData_Router->m_dwPK_Device) + ",";
             changeDevices.erase(itMediaDevice);
         }
 
@@ -379,9 +378,10 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
     // I have the devices. now i need to start the streamer and set the currently playing song on it.
     if ( bTargetSqueezBox )
     {
-        StartStreaming(pXineMediaStream, squeezeBoxesAddresses);
+        StartStreaming(pXineMediaStream, squeezeBoxIds);
     }
 
+	return true;
     // if the target change set is one we just restart the media on it.
 //     if ( (listStart.size() + listChange.size()) == 1 )
 //     {

@@ -397,9 +397,7 @@ void StringUtils::AddressAndPortFromString( string sInput, int iDefaultPort, str
 string StringUtils::URLEncode( string sInput )
 {
     char hexValues[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-
-    string::size_type s;
-
+    
     const char *inBuffer = sInput.c_str();
     char *outBuffer = new char[(sInput.length() * 3) + 1];
     char *baseOutBuffer = outBuffer;
