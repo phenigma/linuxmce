@@ -35,7 +35,7 @@ ORDER BY Boot_Order"
 # susceptibile to "spaces in name" problem
 result=$(RunSQL 0 "$Q" | sed 's/\t/,/')
 
-[ -z $Result ] && echo "No boot scripts were configured for device $Device" && exit;
+[ -z $result ] && echo "No boot scripts were configured for device $Device" && exit;
 
 echo "$result" |
 while read line; do
