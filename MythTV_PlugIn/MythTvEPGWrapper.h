@@ -22,6 +22,8 @@ class MythTvEPGWrapper: public DataGridTable
     int m_iQuantInSecs;
     int m_iColumns;
 
+    map<int, map<int, pair<string, string> > > m_gridBlock;
+
 protected:
     QString getChannelList(int rowStart, int rowCount);
     void readChannelData();
@@ -37,8 +39,8 @@ public:
     virtual int GetRows();  // The total number of rows in the whole grid
     virtual int GetCols();  // The total number of columns in the whole grid
 
+
     virtual void ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount);
-    virtual DataGridCell *GetData(int iColumn, int iRow, int *piSize = NULL);
 };
 
 #endif

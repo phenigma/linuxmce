@@ -77,7 +77,7 @@ class RatpoisonHandler
                         done = 1;
                     }
                 }
-                else if ( timeSpent < 800000 ) // wait for at most 1 sec for the reply
+                else if ( timeSpent < 250000 ) // wait for at most 1 sec for the reply
                 {
                     usleep(25000); // read the result 20 pe second
                 }
@@ -91,7 +91,7 @@ class RatpoisonHandler
             // cleanups
             XDestroyWindow (display, commandWindow);
 
-			g_pPlutoLogger->Write(LV_STATUS, "Exiting rat poison command");
+            g_pPlutoLogger->Write(LV_STATUS, "Exiting rat poison command");
             return true;
         }
 

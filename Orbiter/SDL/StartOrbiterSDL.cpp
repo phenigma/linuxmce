@@ -2,7 +2,7 @@
 #include "DCE/Logger.h"
 
 #define PHONEKEYS
-#define AUDIDEMO
+//#define AUDIDEMO
 
 #ifdef WIN32
 #include "OrbiterSDL.h"

@@ -192,10 +192,10 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
         m_pAllShowsDataGrid = new MythTvEPGWrapper();
     }
 
-    QDateTime currentTime;
+    QDateTime currentTime = QDateTime::currentDateTime();
 
-    currentTime.setDate(QDate(2004, 10, 27));
-    currentTime.setTime(QTime(0, 0));
+//     currentTime.setDate(QDate(2004, 10, 27));
+//     currentTime.setTime(QTime(0, 0));
     m_pAllShowsDataGrid->setGridBoundaries(currentTime, currentTime.addDays(14)); // i want 3 days.)
     return m_pAllShowsDataGrid;
 }
@@ -242,6 +242,9 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 //<-dceag-c65-e->
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+
+    g_pPlutoLogger->Write(LV_STATUS, "Jump to position called %s", sValue_To_Assign.c_str());
+
     class MythTvStream *pMediaStream = (MythTvStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
     if( !pMediaStream )
         return;  // Can't do anything

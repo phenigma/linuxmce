@@ -66,13 +66,11 @@ void MythTvEPGWrapper::setGridBoundaries(QDateTime startTime, QDateTime endTime)
 
 int MythTvEPGWrapper::GetRows()
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Returning %d as the total number of rows!", m_vectChannelIds.size());
     return m_vectChannelIds.size();
 }
 
 int MythTvEPGWrapper::GetCols()
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Returning %d as the total number of columns!", m_iColumns);
     return m_iColumns;
 }
 
@@ -83,7 +81,6 @@ void MythTvEPGWrapper::readChannelData()
     QString startDataAsString, endDateAsString;
 
     strTimeFormat = "yyyy-MM-dd hh:mm:ss";
-
 
     startDataAsString = m_timeStart.toString(strTimeFormat);
     endDateAsString = m_timeEnd.toString(strTimeFormat);
@@ -191,8 +188,15 @@ void MythTvEPGWrapper::cleanChannelStorage(int channel)
 
 QString MythTvEPGWrapper::getChannelList(int rowStart, int rowCount)
 {
-    if ( rowStart + rowCount >= m_vectChannelIds.size())
-        g_pPlutoLogger->Write(LV_WARNING, "You were requesting more that i can serve you.");
+    QStringList list;
+
+    while ( rowStart < m_vectChannelIds.size() && rowCount >= 0 )
+    {
+        list.append(QString::number(m_vectChannelIds[rowStart++]));
+        rowCount--;
+    }
+
+    return list.join(", ");
 }
 
 void MythTvEPGWrapper::readDataGridBlock(int rowStart, int rowCount, int colStart, int colCount)
@@ -203,18 +207,20 @@ void MythTvEPGWrapper::readDataGridBlock(int rowStart, int rowCount, int colStar
 
     strTimeFormat = "yyyy-MM-dd hh:mm:ss";
 
-    startDataAsString = m_timeStart.toString(strTimeFormat);
-    endDateAsString = m_timeEnd.toString(strTimeFormat);
+    QDateTime periodStart = m_timeStart.addSecs(colStart * m_iQuantInSecs);
+    QDateTime periodEnd = periodStart.addSecs(colCount * m_iQuantInSecs);
 
+    startDataAsString = periodStart.toString(strTimeFormat);
+    endDateAsString = periodEnd.toString(strTimeFormat);
 
     strQuery.sprintf("SELECT p.chanid, p.title, p.starttime, p.endtime"
                      " FROM program p"
-//                      " WHERE p.chanid IN (%s) "
+                     " WHERE p.chanid IN (%s) AND "
                            "p.starttime BETWEEN '%s' and '%s' OR "
                            "p.endtime BETWEEN '%s' and '%s' OR "
                            "(p.starttime <= '%s' AND p.endtime >= '%s')"
-                     " ORDER BY p.chanid",
-//                      getChannelList(rowStart, rowCount).ascii(),
+                     " ORDER BY p.chanid, p.starttime",
+                     getChannelList(rowStart, rowCount).ascii(),
                      startDataAsString.ascii(),
                      endDateAsString.ascii(),
                      startDataAsString.ascii(),
@@ -235,63 +241,63 @@ void MythTvEPGWrapper::readDataGridBlock(int rowStart, int rowCount, int colStar
         return;
     }
 
+//     g_pPlutoLogger->Write(LV_STATUS, "Query %s", strQuery.ascii());
+
+    ClearData();
     if ( query.numRowsAffected() > 0 )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "We have %d channels with programs in this time period!", query.numRowsAffected());
+//         g_pPlutoLogger->Write(LV_STATUS, "We have %d programs in this time period!", query.numRowsAffected());
+        int currentChannelId = 0, nextChannelId = 0;
+        int channelPos = -1;
+        int programColumnSpan = 0;
+        int programStartColumn = 0;
 
-//         m_iChannels = query.numRowsAffected();
+        m_gridBlock.clear();
 
-//         int currentChannelId = 0, nextChannelId;
-
-//         m_vectChannelIds.clear();
-        int i = 0;
+        QString programName;
+        QDateTime dateStart, dateEnd;
         while ( query.next() )
         {
-        }
-//         {
-//             m_mapRowChannelId[i++] = query.value(0).toInt();
-//      }
-/*            nextChannelId = query.value(0).toInt();
+            nextChannelId = query.value(0).toInt();
+            programName = query.value(1).toString();
+            dateStart = query.value(2).toDateTime();
+            dateEnd = query.value(3).toDateTime();
+
             if ( currentChannelId != nextChannelId )
             {
-                cleanChannelStorage(nextChannelId);
+                channelPos++;
                 currentChannelId = nextChannelId;
-                g_pPlutoLogger->Write(LV_STATUS, "New channel %d", currentChannelId);
             }
 
-            readProgramInfo(
-                    currentChannelId,
-                    query.value(1).toString(),
-                    query.value(2).toDateTime(),
-                    query.value(3).toDateTime());
-        }*/
+            programColumnSpan = dateStart.secsTo(dateEnd) / m_iQuantInSecs;
+            programStartColumn = periodStart.secsTo(dateStart) / m_iQuantInSecs;
+
+            if ( programStartColumn < 0 )
+            {
+                programColumnSpan += programStartColumn;
+                programStartColumn = 0;
+            }
+
+            DataGridCell *pCell = new DataGridCell(programName.ascii(), QString::number(currentChannelId).append(" ").append(dateStart.toString(strTimeFormat)).ascii());
+            pCell->m_Colspan = programColumnSpan;
+            SetData(programStartColumn  + colStart, channelPos, pCell);
+        }
     }
     else
     {
-        g_pPlutoLogger->Write(LV_STATUS, "There are no programs in this timeframe");
+        g_pPlutoLogger->Write(LV_WARNING, "There are no programs in this timeframe");
     }
 }
 
 void MythTvEPGWrapper::ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Current size: %dx%d", GetRows(), GetCols());
-    g_pPlutoLogger->Write(LV_STATUS, "Need to read a block of datagrid: [%d,%d] [%dx%d]", ColStart, RowStart, ColCount, RowCount);
+//     g_pPlutoLogger->Write(LV_STATUS, "Need to read a block of datagrid: [%d,%d] [%dx%d]", ColStart, RowStart, ColCount, RowCount);
 
     readDataGridBlock(RowStart, RowCount, ColStart, ColCount);
+
+    // This is required because the ToData doesn't honor the Get{Cols, Rows} calls.
+    m_TotalColumns = GetCols();
+    m_TotalRows = GetRows();
+
     DataGridTable::ToData(GridID, Size, Data, ColStart, RowStart, ColCount, RowCount);
-}
-
-DataGridCell *MythTvEPGWrapper::GetData(int iColumn, int iRow, int *piSize)
-{
-//     g_pPlutoLogger->Write(LV_STATUS, "Data was requested for cell: %d,%d", iColumn, iRow);
-/*    if ( m_mapPrograms.find(iRow) == m_mapPrograms.end())
-        m_mapPrograms[iRow] = map<int, DataGridCell*>();
-
-    if ( m_mapPrograms[iRow].find(iColumn) == m_mapPrograms[iRow].end() )
-        m_mapPrograms[iRow][iColumn] = new DCE::DataGridCell(
-                    string("Simple cell"),
-                    string("Cell value"));
-
-    return m_mapPrograms[iRow][iColumn];*/
-    return NULL;
 }

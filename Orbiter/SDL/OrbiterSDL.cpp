@@ -1,4 +1,4 @@
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "DCE/Logger.h"
 #include "OrbiterSDL.h"
@@ -74,104 +74,104 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
     }
 
     Orbiter::RenderScreen();
-	DisplayImageOnScreen(m_pScreenImage); 
+    DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::DisplayImageOnScreen(SDL_Surface *m_pScreenImage)
 {
     PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
-	SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
-	SDL_Flip(Screen);
+    SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
+    SDL_Flip(Screen);
 g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
-} 
+}
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
 {
     PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
     Orbiter::RedrawObjects();
-    //DisplayImageOnScreen(m_pScreenImage); 
+    //DisplayImageOnScreen(m_pScreenImage);
 }
 
 //-----------------------------------------------------------------------------------------------------
 void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
-					   string FontPath, TextStyle *pTextStyle);
+                       string FontPath, TextStyle *pTextStyle);
 
 /*virtual*/ void OrbiterSDL::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 {
     //PLUTO_SAFETY_LOCK_ERRORSONLY(vm,m_VariableMutex)
 
-	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
-	SDL_Rect TextLocation;
-	TextLocation.x = Text->m_rPosition.X;
-	TextLocation.y = Text->m_rPosition.Y;
-	TextLocation.w = Text->m_rPosition.Width;
-	TextLocation.h = Text->m_rPosition.Height;
+    string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
+    SDL_Rect TextLocation;
+    TextLocation.x = Text->m_rPosition.X;
+    TextLocation.y = Text->m_rPosition.Y;
+    TextLocation.w = Text->m_rPosition.Width;
+    TextLocation.h = Text->m_rPosition.Height;
 
 #ifdef WIN32
-	string BasePath="C:\\Windows\\Fonts\\";
+    string BasePath="C:\\Windows\\Fonts\\";
 #else
-	string BasePath="/usr/pluto/fonts/";
+    string BasePath="/usr/pluto/fonts/";
 #endif
 
-	WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, pTextStyle);
-	return;
+    WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, pTextStyle);
+    return;
 
-	if( !pTextStyle->m_pTTF_Font )
-	{
-		try
-		{
-			pTextStyle->m_pTTF_Font = TTF_OpenFont((BasePath+pTextStyle->m_sFont+".ttf").c_str(), pTextStyle->m_iPixelHeight);
-		}
-		catch(...)
-		{
-		}
+    if( !pTextStyle->m_pTTF_Font )
+    {
+        try
+        {
+            pTextStyle->m_pTTF_Font = TTF_OpenFont((BasePath+pTextStyle->m_sFont+".ttf").c_str(), pTextStyle->m_iPixelHeight);
+        }
+        catch(...)
+        {
+        }
 
-		// Sometimes the camel case is converted to all upper or lower in Linux.
-		if( pTextStyle->m_pTTF_Font==NULL )
-		{
-			try
-			{
-				pTextStyle->m_pTTF_Font = TTF_OpenFont((BasePath+StringUtils::ToUpper(pTextStyle->m_sFont)+".TTF").c_str(), pTextStyle->m_iPixelHeight);
-			}
-			catch(...)
-			{
-			}
-		}
+        // Sometimes the camel case is converted to all upper or lower in Linux.
+        if( pTextStyle->m_pTTF_Font==NULL )
+        {
+            try
+            {
+                pTextStyle->m_pTTF_Font = TTF_OpenFont((BasePath+StringUtils::ToUpper(pTextStyle->m_sFont)+".TTF").c_str(), pTextStyle->m_iPixelHeight);
+            }
+            catch(...)
+            {
+            }
+        }
 
-		if( pTextStyle->m_pTTF_Font==NULL )
-		{
-			try
-			{
-				pTextStyle->m_pTTF_Font = TTF_OpenFont((BasePath+StringUtils::ToLower(pTextStyle->m_sFont)+".ttf").c_str(), pTextStyle->m_iPixelHeight);
-			}
-			catch(...)
-			{
-			}
-		}
+        if( pTextStyle->m_pTTF_Font==NULL )
+        {
+            try
+            {
+                pTextStyle->m_pTTF_Font = TTF_OpenFont((BasePath+StringUtils::ToLower(pTextStyle->m_sFont)+".ttf").c_str(), pTextStyle->m_iPixelHeight);
+            }
+            catch(...)
+            {
+            }
+        }
 
-		if( pTextStyle->m_pTTF_Font==NULL )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Failed to open font %s: %s", pTextStyle->m_sFont.c_str(), TTF_GetError());
-			return;
-		}
-	}
+        if( pTextStyle->m_pTTF_Font==NULL )
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL,"Failed to open font %s: %s", pTextStyle->m_sFont.c_str(), TTF_GetError());
+            return;
+        }
+    }
 
-	try
-	{
-		SDL_Color sdl_color;
-		sdl_color.r = sdl_color.g = sdl_color.b = 255;  // get this from the styles -- HACK!!!
+    try
+    {
+        SDL_Color sdl_color;
+        sdl_color.r = sdl_color.g = sdl_color.b = 255;  // get this from the styles -- HACK!!!
 
-		SDL_Surface * RenderedText = TTF_RenderText_Blended((TTF_Font *) pTextStyle->m_pTTF_Font, TextToDisplay.c_str(), sdl_color);
-		SDL_BlitSurface(RenderedText, NULL, m_pScreenImage, &TextLocation);
+        SDL_Surface * RenderedText = TTF_RenderText_Blended((TTF_Font *) pTextStyle->m_pTTF_Font, TextToDisplay.c_str(), sdl_color);
+        SDL_BlitSurface(RenderedText, NULL, m_pScreenImage, &TextLocation);
 
-		SDL_FreeSurface(RenderedText);
-	}
-	catch(...)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to write text with font: %s",pTextStyle->m_sFont.c_str());
-	}
-	//vm.Release();
+        SDL_FreeSurface(RenderedText);
+    }
+    catch(...)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"Failed to write text with font: %s",pTextStyle->m_sFont.c_str());
+    }
+    //vm.Release();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::XORRectangle(int x, int y, int width,
@@ -206,7 +206,7 @@ void OrbiterSDL::DrawRectangle(int x, int y, int width, int height, PlutoColor c
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderGraphic(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio)
 {
-	bool bDeleteSurface=true;  // Will set to false if we're going to cache
+    bool bDeleteSurface=true;  // Will set to false if we're going to cache
     SDL_Surface * obj_image = NULL;
     if( pObj->m_pCurrentGraphic->GraphicType_get()==gtSDLGraphic )
     {
@@ -216,7 +216,7 @@ void OrbiterSDL::DrawRectangle(int x, int y, int width, int height, PlutoColor c
     else if( pObj->m_pCurrentGraphic->GraphicType_get()==gtIMGraphic )
     {
         IMGraphic *pIMGraphic = (IMGraphic *) pObj->m_pCurrentGraphic;
-		obj_image = pIMGraphic->m_pSDL_Surface;
+        obj_image = pIMGraphic->m_pSDL_Surface;
         if( !obj_image && m_sLocalDirectory.length()>0 )
         {
             obj_image = IMG_Load ((m_sLocalDirectory + pIMGraphic->m_Filename).c_str());
@@ -229,12 +229,12 @@ void OrbiterSDL::DrawRectangle(int x, int y, int width, int height, PlutoColor c
         else if( !obj_image )
         {
             // Request our config info
-			char *pGraphicFile=NULL;
-			int iSizeGraphicFile=0;
+            char *pGraphicFile=NULL;
+            int iSizeGraphicFile=0;
 
-			DCE::CMD_Request_File CMD_Request_File(m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,"C" + StringUtils::itos(m_dwPK_Device) + "/" + pIMGraphic->m_Filename,
-				&pGraphicFile,&iSizeGraphicFile);
-			SendCommand(CMD_Request_File);
+            DCE::CMD_Request_File CMD_Request_File(m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,"C" + StringUtils::itos(m_dwPK_Device) + "/" + pIMGraphic->m_Filename,
+                &pGraphicFile,&iSizeGraphicFile);
+            SendCommand(CMD_Request_File);
 
             if (!iSizeGraphicFile)
             {
@@ -242,36 +242,36 @@ void OrbiterSDL::DrawRectangle(int x, int y, int width, int height, PlutoColor c
                 return;
             }
 
-			SDL_RWops * rw = SDL_RWFromMem(pGraphicFile, iSizeGraphicFile);
-			obj_image = IMG_Load_RW(rw, 1); // rw is freed here
-			delete pGraphicFile;
+            SDL_RWops * rw = SDL_RWFromMem(pGraphicFile, iSizeGraphicFile);
+            obj_image = IMG_Load_RW(rw, 1); // rw is freed here
+            delete pGraphicFile;
         }
 #ifdef CACHE_IMAGES
-		pIMGraphic->m_pSDL_Surface = obj_image;  // In case we loaded from cache
-		bDeleteSurface = false;
+        pIMGraphic->m_pSDL_Surface = obj_image;  // In case we loaded from cache
+        bDeleteSurface = false;
 #endif
     }
     else if( pObj->m_pCurrentGraphic->GraphicType_get()==gtWinGraphic )
     {
         WinGraphic *pWinGraphic = (WinGraphic *) pObj->m_pCurrentGraphic;
-		if( pWinGraphic->m_pCompressedImage && pWinGraphic->m_CompressedImageLength )
-		{
-			SDL_RWops * rw = SDL_RWFromMem(pWinGraphic->m_pCompressedImage, pWinGraphic->m_CompressedImageLength);
-			obj_image = IMG_Load_RW(rw, 1); // rw is freed here
-		}
-	}
-	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"SDL Got a type of graphic I don't know how to render");
+        if( pWinGraphic->m_pCompressedImage && pWinGraphic->m_CompressedImageLength )
+        {
+            SDL_RWops * rw = SDL_RWFromMem(pWinGraphic->m_pCompressedImage, pWinGraphic->m_CompressedImageLength);
+            obj_image = IMG_Load_RW(rw, 1); // rw is freed here
+        }
+    }
+    else
+        g_pPlutoLogger->Write(LV_CRITICAL,"SDL Got a type of graphic I don't know how to render");
 
-	if( !obj_image )
-		return;
+    if( !obj_image )
+        return;
 
     SDL_Rect Destination;
     Destination.x = rectTotal.X; Destination.y = rectTotal.Y;
 
     SDL_BlitSurface(obj_image, NULL, m_pScreenImage, &Destination);
-	if( bDeleteSurface )
-	    SDL_FreeSurface(obj_image);
+    if( bDeleteSurface )
+        SDL_FreeSurface(obj_image);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
