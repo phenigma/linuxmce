@@ -124,7 +124,7 @@ read Answer
 
 if [ "$Answer" == "y" -o "$Answer" == "Y" ]; then
 	echo "Storing your option to open port 80 (allowing web access)"
-	Q="INSERT INTO Firewall(Protocol,SourcePort,Type) VALUES('tcp',80,'core_input')"
+	Q="INSERT INTO Firewall(Protocol,SourcePort,RuleType) VALUES('tcp',80,'core_input')"
 	RunSQL "$Q"
 fi
 
@@ -133,6 +133,6 @@ read Answer
 
 if [ "$Answer" == "y" -o "$Answer" == "Y" ]; then
 	echo "Storing your option to open port 22 (allowing SSH access)"
-	Q="INSERT INTO Firewall(Protocol,SourcePort,Type) VALUES('tcp',22,'core_input')"
+	Q="INSERT INTO Firewall(Protocol,SourcePort,RuleType) VALUES('tcp',22,'core_input')"
 	RunSQL "$Q"
 fi
