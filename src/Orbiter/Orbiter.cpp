@@ -2769,9 +2769,18 @@ bool Orbiter::PreprocessEvent(Orbiter::Event &event)
 
 bool Orbiter::ProcessEvent( Orbiter::Event &event )
 {
+
+
 	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(
 	if ( event.type != Orbiter::Event::QUIT && event.type != Orbiter::Event::NOT_PROCESSED )
+	{
 		g_pPlutoLogger->Write(LV_STATUS, "Processing event type: %d", event.type);
+		if ( event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP )
+			g_pPlutoLogger->Write(LV_WARNING, "Button %s: button ID: %d", (event.type == Orbiter::Event::BUTTON_DOWN) ? "down" : "up", event.data.button.m_iPK_Button );
+
+		if ( event.type == Orbiter::Event::REGION_DOWN || event.type == Orbiter::Event::REGION_UP )
+			g_pPlutoLogger->Write(LV_WARNING, "Region %s: position: [%d, %d]", (event.type == Orbiter::Event::REGION_DOWN) ? "down" : "up", event.data.region.m_iX, event.data.region.m_iY);
+	}
 
 	if ( event.type == Orbiter::Event::BUTTON_DOWN )
 		return ButtonDown(event.data.button.m_iPK_Button);

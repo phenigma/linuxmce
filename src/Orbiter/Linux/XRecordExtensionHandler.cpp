@@ -31,6 +31,8 @@ XRecordExtensionHandler::~XRecordExtensionHandler()
 	g_pPlutoLogger->Write(LV_STATUS, "Signaling the condition");
 	pthread_cond_signal(&m_condition); // if it is there it will be put out.
 
+	g_pPlutoLogger->Write(LV_STATUS, "cancelling the thread");
+	pthread_cancel(m_processingThread);
 	g_pPlutoLogger->Write(LV_STATUS, "Joining the theread");
 	pthread_join(m_processingThread, NULL);
 	g_pPlutoLogger->Write(LV_STATUS, "Done");
@@ -41,14 +43,15 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 	int 		iMinorVersion, iMajorVersion;
 	XRecordExtensionHandler 	*pXRecordObject;
 	XRecordRange 				*recordRange;
-	XRecordContext 				recordingContext;
     XRecordClientSpec 			recordClient;
-	Display 					*pDisplay;
+	Display 					*pControlConnection, *pDataConnection;
 
 	pXRecordObject = (XRecordExtensionHandler*)arguments;
 
-	pDisplay = XOpenDisplay(getenv(pXRecordObject->m_strDisplayName.c_str()));
-	if ( ! XRecordQueryVersion(pDisplay, &iMinorVersion, &iMajorVersion) )
+	pControlConnection = XOpenDisplay(getenv(pXRecordObject->m_strDisplayName.c_str()));
+	pDataConnection = XOpenDisplay(getenv(pXRecordObject->m_strDisplayName.c_str()));
+
+	if ( ! XRecordQueryVersion(pControlConnection, &iMinorVersion, &iMajorVersion) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "XRecord extension not available.");
 		return NULL;
@@ -56,92 +59,69 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 
 	g_pPlutoLogger->Write(LV_STATUS, "Available XRecord extension with version %d.%d.", iMajorVersion, iMinorVersion);
 
+	//XSync(pControlConnection, True);
+	//XSync(pDataConnection, True);
 	recordRange = XRecordAllocRange();
 
 	recordClient = XRecordAllClients;
-
 	recordRange->device_events.first = KeyPress;
-    recordRange->device_events.last = ButtonRelease;
+	recordRange->device_events.last = MotionNotify;
 
-    recordRange->core_requests.first = X_NoOperation;
-    recordRange->core_requests.last = X_NoOperation;
+	recordRange->core_requests.first = X_NoOperation;
+	recordRange->core_requests.last = X_NoOperation;
 
-    recordRange->core_replies.first = X_NoOperation;
-    recordRange->core_replies.last = X_NoOperation;
+	recordRange->core_replies.first = X_NoOperation;
+	recordRange->core_replies.last = X_NoOperation;
 
 	recordRange->errors.first = Success;
-    recordRange->errors.last = Success;
+	recordRange->errors.last = Success;
 
-    recordRange->ext_requests.ext_major.first = 0;
+	recordRange->ext_requests.ext_major.first = 0;
 	recordRange->ext_requests.ext_major.last = 0;
 	recordRange->ext_requests.ext_minor.first = 0;
 	recordRange->ext_requests.ext_minor.last = 0;
 
 	recordRange->ext_replies.ext_major.first = 0;
 	recordRange->ext_replies.ext_major.last = 0;
-    recordRange->ext_replies.ext_minor.first = 0;
-    recordRange->ext_replies.ext_minor.last = 0;
+	recordRange->ext_replies.ext_minor.first = 0;
+	recordRange->ext_replies.ext_minor.last = 0;
 
-	recordingContext = XRecordCreateContext(pDisplay, 0, &recordClient, 1, &recordRange, 1);
+	// pXRecordObject->m_recordingContext = XRecordCreateContext(pDataConnection, XRecordFromServerTime | XRecordFromClientTime | XRecordFromClientSequence, &recordClient, 1, &recordRange, 1);
+	pXRecordObject->m_recordingContext = XRecordCreateContext(pDataConnection, 0, &recordClient, 1, &recordRange, 1);
 
-	pXRecordObject->m_pDisplay = pDisplay;
-
-	XLockDisplay(pDisplay);
 	pXRecordObject->m_bIsRecording = false;
+	pXRecordObject->m_pDisplay = pControlConnection;
+
 	while ( true )
 	{
 		if ( pXRecordObject->m_bShouldRecord && ! pXRecordObject->m_bIsRecording )
 		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Enabling recording!!!");
 			pXRecordObject->m_bIsRecording = true;
+			if ( XRecordEnableContext(pDataConnection, pXRecordObject->m_recordingContext, (XRecordInterceptProc)&XRecordExtensionHandler::XRecordingDataCallback, (char*)pXRecordObject) == False)
+				g_pPlutoLogger->Write(LV_WARNING, "Could not enable recording context!");
 
-			g_pPlutoLogger->Write(LV_WARNING, " enabling 1 ");
-			if ( XRecordEnableContextAsync( pDisplay, recordingContext, (XRecordInterceptProc)&XRecordExtensionHandler::XRecordingDataCallback, (char*)pXRecordObject) == false)
-			{
-				g_pPlutoLogger->Write(LV_STATUS, "Could not enable recording context!");
-				pXRecordObject->m_bIsRecording = false;
-			}
-			g_pPlutoLogger->Write(LV_WARNING, " enabled 1 ");
-		}
-
-		if ( pXRecordObject->m_bIsRecording )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Processing replies");
-			XRecordProcessReplies(pDisplay);
-			usleep(50000);
-			g_pPlutoLogger->Write(LV_CRITICAL, "After processing replies");
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Sleeping ... ");
-			pthread_mutex_lock(&pXRecordObject->m_mutexCondition);
-			pthread_cond_wait(&pXRecordObject->m_condition, &pXRecordObject->m_mutexCondition );
-			pthread_mutex_unlock(&pXRecordObject->m_mutexCondition);
-			g_pPlutoLogger->Write(LV_CRITICAL, "Awake... ");
-
-		}
-
-
-		if ( pXRecordObject->m_bShouldQuit )
-		{
-			if ( pXRecordObject->m_bIsRecording )
-			{
-				g_pPlutoLogger->Write(LV_WARNING, " disabling 1 ");
-				XRecordDisableContext( pDisplay, recordingContext );
-				pXRecordObject->m_bIsRecording = false;
-			}
-
-			return NULL;
-		}
-
-		if ( ! pXRecordObject->m_bShouldRecord && pXRecordObject->m_bIsRecording )
-		{
-			g_pPlutoLogger->Write(LV_WARNING, " disabling 2 ");
-			XRecordDisableContext( pDisplay, recordingContext );
+			g_pPlutoLogger->Write(LV_CRITICAL, "Recording completed!!!");
 			pXRecordObject->m_bIsRecording = false;
 		}
+
+		if ( pXRecordObject->m_bShouldQuit )
+			break;
+
+		pthread_mutex_lock(&pXRecordObject->m_mutexCondition);
+		pthread_cond_wait(&pXRecordObject->m_condition, &pXRecordObject->m_mutexCondition );
+		pthread_mutex_unlock(&pXRecordObject->m_mutexCondition);
+
+		if ( pXRecordObject->m_bShouldQuit )
+			break;
 	}
 
-	XUnlockDisplay(pDisplay);
+	XRecordFreeContext( pControlConnection, pXRecordObject->m_recordingContext);
+	XFree(recordRange);
+
+	XCloseDisplay(pControlConnection);
+	XCloseDisplay(pDataConnection);
+
 	return NULL;
 }
 
@@ -151,7 +131,16 @@ bool XRecordExtensionHandler::enableRecording(Orbiter *pRecordingOrbiter, bool b
 
 	m_bShouldRecord = bEnable;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Signalling record thread: %d", m_bShouldRecord);
+	g_pPlutoLogger->Write(LV_STATUS, "Signalling record thread: %d, current state: %d ", m_bShouldRecord, m_bIsRecording);
+	if ( m_bIsRecording  && ! m_bShouldRecord )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Calling XRecord Disable: %d, current state: %d ", m_bShouldRecord, m_bIsRecording);
+		XRecordProcessReplies(m_pDisplay);
+		XSync(m_pDisplay, True);
+		XRecordDisableContext(m_pDisplay, m_recordingContext);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Calling should be Disables: %d, current state: %d ", m_bShouldRecord, m_bIsRecording);
+	}
+
 	pthread_cond_signal(&m_condition);
 
 	return true;
@@ -162,30 +151,41 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 {
 	XRecordExtensionHandler *pRecordingHandler = (XRecordExtensionHandler*)pData;
 
-	g_pPlutoLogger->Write(LV_WARNING, "Got new event 1.");
-
-	if ( pRecordedData->category == XRecordStartOfData )
+	switch ( pRecordedData->category )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Recording context enabled.", pthread_self());
-		XRecordFreeData(pRecordedData);
-		return;
+		case XRecordStartOfData:
+			g_pPlutoLogger->Write(LV_WARNING, "Recording context enabled.", pthread_self());
+			pRecordingHandler->m_iMouseX = pRecordingHandler->m_iMouseY = -1;
+			break;
+
+		case XRecordEndOfData:
+			g_pPlutoLogger->Write(LV_WARNING, "Recording context got end of data.", pthread_self());
+			break;
+
+		default:
+			if ( pRecordingHandler->m_bShouldRecord )
+			{
+				pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent, pRecordingHandler->m_pDisplay);
+				if ( pRecordingHandler->m_pOrbiter )
+				{
+					Orbiter::Event *pEvent = new Orbiter::Event;
+					*pEvent = pRecordingHandler->m_OrbiterEvent;
+					pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, false );
+				}
+			}
 	}
 
-	pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent, pRecordingHandler->m_pDisplay);
 	XRecordFreeData(pRecordedData);
 
-	if ( pRecordingHandler->m_pOrbiter )
+	if ( ! pRecordingHandler->m_bShouldRecord )
 	{
-		Orbiter::Event *pEvent = new Orbiter::Event;
-		*pEvent = pRecordingHandler->m_OrbiterEvent;
-		pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, false );
+		XSync(pRecordingHandler->m_pDisplay, True);
+		XRecordDisableContext(pRecordingHandler->m_pDisplay, pRecordingHandler->m_recordingContext);
 	}
 }
 
 void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent, Display *pDisplay)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Got new event 2.");
-
 	switch (pRecordedData->category )
 	{
 		case XRecordFromServer:
@@ -197,14 +197,28 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 			{
 				case KeyPress: case KeyRelease: // key related events types
 					orbiterEvent->type = pxEvent->u.u.type == KeyPress ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
+					// g_pPlutoLogger->Write(LV_WARNING, "Key %s with keycode %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail);
 					orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
 					// orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
 					break;
 
+				case MotionNotify:
+					orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
+					m_iMouseX = pxEvent->u.keyButtonPointer.rootX;
+					m_iMouseY = pxEvent->u.keyButtonPointer.rootY;
+					// g_pPlutoLogger->Write(LV_WARNING, "Mouse move at position: %d, %d", m_iMouseX, m_iMouseY);
+					break;
+
 				case ButtonPress:  case ButtonRelease: // mouse button related event types
+					// g_pPlutoLogger->Write(LV_WARNING, "Button with id: %d is %s", pxEvent->u.u.detail, pxEvent->u.u.type == ButtonPress ? "down" : "up");
 					orbiterEvent->type = pxEvent->u.u.type == ButtonPress ? Orbiter::Event::REGION_DOWN : Orbiter::Event::REGION_UP;
-					orbiterEvent->data.region.m_iX = pxEvent->u.keyButtonPointer.eventX;
-					orbiterEvent->data.region.m_iY = pxEvent->u.keyButtonPointer.eventY;
+					orbiterEvent->data.region.m_iButton = pxEvent->u.u.detail;
+					orbiterEvent->data.region.m_iX = m_iMouseX;
+					orbiterEvent->data.region.m_iY = m_iMouseY;
+
+					if ( m_iMouseX == -1 && m_iMouseY == -1 )
+					 	orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
+
 					break;
 
 				default:

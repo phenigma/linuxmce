@@ -23,12 +23,15 @@ class XRecordExtensionHandler
 	pthread_cond_t		m_condition;
 
 
+	XRecordContext		m_recordingContext;
 	// XRecordFlags m_RecordFlags;
 
 	Orbiter 			*m_pOrbiter;
 	Orbiter::Event 		m_OrbiterEvent;
 
 	Display 			*m_pDisplay;
+
+	int 				m_iMouseX, m_iMouseY;
 
 private:
 	static void *recordingThreadMainFunction(void *arguments);

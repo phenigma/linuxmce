@@ -549,6 +549,7 @@ public:
 			} button;
 
 			struct {
+				int m_iButton;
 				int m_iX;
 				int m_iY;
 			} region;

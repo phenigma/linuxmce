@@ -97,6 +97,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 			}
 #else
 			orbiterEvent->type = Orbiter::Event::REGION_DOWN;
+			orbiterEvent->data.region.m_iButton = sdlEvent.button.button;
 			orbiterEvent->data.region.m_iX = sdlEvent.button.x;
 			orbiterEvent->data.region.m_iY = sdlEvent.button.y;
 #endif
