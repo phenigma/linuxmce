@@ -39,7 +39,8 @@ int THE_getch(bool echo) // :P
 		new_ts.c_lflag &= !ECHO;
 	ioctl(0, TCSETS, &new_ts);
 
-	do { read(0, &c, 1); } while (c == '\r');
+	size_t bytes;
+	do { bytes = read(0, &c, 1); } while (bytes == 0 || c == '\r');
 //	while ((c = getchar()) == '\r') {}
 //	cin >> c;
 
