@@ -5087,13 +5087,8 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	text.m_sText = "Key code pressed: " + StringUtils::ltos(key);
 	text.m_rPosition = rect;
 	
-	TextStyle textStyle;
-	PlutoColor foreColor(255, 0, 0, 100);
-	textStyle.m_sFont = "Arial";
-	textStyle.m_iPixelHeight = 20;
-	textStyle.m_ForeColor = foreColor;
-
-	RenderText(&text, &textStyle);
+	TextStyle *pTextStyle = m_mapTextStyle_Find( 0 );
+	RenderText(&text, pTextStyle);
 
 	EndPaint();
 
