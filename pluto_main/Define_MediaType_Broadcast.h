@@ -1,0 +1,23 @@
+#ifndef __Define_MediaType_Broadcast_H__
+#define __Define_MediaType_Broadcast_H__
+
+
+#define MEDIATYPE_BROADCAST_TABLE "MediaType_Broadcast"
+#define MEDIATYPE_BROADCAST_FK_MEDIATYPE_FIELD "FK_MediaType"
+#define MEDIATYPE_BROADCAST_FK_MEDIATYPE_TABLE_FIELD "MediaType_Broadcast.FK_MediaType"
+#define MEDIATYPE_BROADCAST_FK_BROADCAST_FIELD "FK_Broadcast"
+#define MEDIATYPE_BROADCAST_FK_BROADCAST_TABLE_FIELD "MediaType_Broadcast.FK_Broadcast"
+#define MEDIATYPE_BROADCAST_PSC_ID_FIELD "psc_id"
+#define MEDIATYPE_BROADCAST_PSC_ID_TABLE_FIELD "MediaType_Broadcast.psc_id"
+#define MEDIATYPE_BROADCAST_PSC_BATCH_FIELD "psc_batch"
+#define MEDIATYPE_BROADCAST_PSC_BATCH_TABLE_FIELD "MediaType_Broadcast.psc_batch"
+#define MEDIATYPE_BROADCAST_PSC_USER_FIELD "psc_user"
+#define MEDIATYPE_BROADCAST_PSC_USER_TABLE_FIELD "MediaType_Broadcast.psc_user"
+#define MEDIATYPE_BROADCAST_PSC_FROZEN_FIELD "psc_frozen"
+#define MEDIATYPE_BROADCAST_PSC_FROZEN_TABLE_FIELD "MediaType_Broadcast.psc_frozen"
+#define MEDIATYPE_BROADCAST_PSC_MOD_FIELD "psc_mod"
+#define MEDIATYPE_BROADCAST_PSC_MOD_TABLE_FIELD "MediaType_Broadcast.psc_mod"
+
+
+#endif
+

@@ -1,0 +1,37 @@
+#ifndef __Define_EventHandler_H__
+#define __Define_EventHandler_H__
+
+
+#define EVENTHANDLER_TABLE "EventHandler"
+#define EVENTHANDLER_PK_EVENTHANDLER_FIELD "PK_EventHandler"
+#define EVENTHANDLER_PK_EVENTHANDLER_TABLE_FIELD "EventHandler.PK_EventHandler"
+#define EVENTHANDLER_FK_EVENT_FIELD "FK_Event"
+#define EVENTHANDLER_FK_EVENT_TABLE_FIELD "EventHandler.FK_Event"
+#define EVENTHANDLER_FK_EVENTTYPE_FIELD "FK_EventType"
+#define EVENTHANDLER_FK_EVENTTYPE_TABLE_FIELD "EventHandler.FK_EventType"
+#define EVENTHANDLER_DESCRIPTION_FIELD "Description"
+#define EVENTHANDLER_DESCRIPTION_TABLE_FIELD "EventHandler.Description"
+#define EVENTHANDLER_FK_CRITERIA_FIELD "FK_Criteria"
+#define EVENTHANDLER_FK_CRITERIA_TABLE_FIELD "EventHandler.FK_Criteria"
+#define EVENTHANDLER_FK_INSTALLATION_FIELD "FK_Installation"
+#define EVENTHANDLER_FK_INSTALLATION_TABLE_FIELD "EventHandler.FK_Installation"
+#define EVENTHANDLER_FK_COMMANDGROUP_FIELD "FK_CommandGroup"
+#define EVENTHANDLER_FK_COMMANDGROUP_TABLE_FIELD "EventHandler.FK_CommandGroup"
+#define EVENTHANDLER_USERCREATED_FIELD "UserCreated"
+#define EVENTHANDLER_USERCREATED_TABLE_FIELD "EventHandler.UserCreated"
+#define EVENTHANDLER_FK_CANNEDEVENTS_FIELD "FK_CannedEvents"
+#define EVENTHANDLER_FK_CANNEDEVENTS_TABLE_FIELD "EventHandler.FK_CannedEvents"
+#define EVENTHANDLER_PSC_ID_FIELD "psc_id"
+#define EVENTHANDLER_PSC_ID_TABLE_FIELD "EventHandler.psc_id"
+#define EVENTHANDLER_PSC_BATCH_FIELD "psc_batch"
+#define EVENTHANDLER_PSC_BATCH_TABLE_FIELD "EventHandler.psc_batch"
+#define EVENTHANDLER_PSC_USER_FIELD "psc_user"
+#define EVENTHANDLER_PSC_USER_TABLE_FIELD "EventHandler.psc_user"
+#define EVENTHANDLER_PSC_FROZEN_FIELD "psc_frozen"
+#define EVENTHANDLER_PSC_FROZEN_TABLE_FIELD "EventHandler.psc_frozen"
+#define EVENTHANDLER_PSC_MOD_FIELD "psc_mod"
+#define EVENTHANDLER_PSC_MOD_TABLE_FIELD "EventHandler.psc_mod"
+
+
+#endif
+

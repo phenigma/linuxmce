@@ -1,0 +1,25 @@
+#ifndef __Define_InfraredGroup_Input_H__
+#define __Define_InfraredGroup_Input_H__
+
+
+#define INFRAREDGROUP_INPUT_TABLE "InfraredGroup_Input"
+#define INFRAREDGROUP_INPUT_FK_INFRAREDGROUP_FIELD "FK_InfraredGroup"
+#define INFRAREDGROUP_INPUT_FK_INFRAREDGROUP_TABLE_FIELD "InfraredGroup_Input.FK_InfraredGroup"
+#define INFRAREDGROUP_INPUT_FK_INPUT_FIELD "FK_Input"
+#define INFRAREDGROUP_INPUT_FK_INPUT_TABLE_FIELD "InfraredGroup_Input.FK_Input"
+#define INFRAREDGROUP_INPUT_DESCRIPTION_FIELD "Description"
+#define INFRAREDGROUP_INPUT_DESCRIPTION_TABLE_FIELD "InfraredGroup_Input.Description"
+#define INFRAREDGROUP_INPUT_PSC_ID_FIELD "psc_id"
+#define INFRAREDGROUP_INPUT_PSC_ID_TABLE_FIELD "InfraredGroup_Input.psc_id"
+#define INFRAREDGROUP_INPUT_PSC_BATCH_FIELD "psc_batch"
+#define INFRAREDGROUP_INPUT_PSC_BATCH_TABLE_FIELD "InfraredGroup_Input.psc_batch"
+#define INFRAREDGROUP_INPUT_PSC_USER_FIELD "psc_user"
+#define INFRAREDGROUP_INPUT_PSC_USER_TABLE_FIELD "InfraredGroup_Input.psc_user"
+#define INFRAREDGROUP_INPUT_PSC_FROZEN_FIELD "psc_frozen"
+#define INFRAREDGROUP_INPUT_PSC_FROZEN_TABLE_FIELD "InfraredGroup_Input.psc_frozen"
+#define INFRAREDGROUP_INPUT_PSC_MOD_FIELD "psc_mod"
+#define INFRAREDGROUP_INPUT_PSC_MOD_TABLE_FIELD "InfraredGroup_Input.psc_mod"
+
+
+#endif
+

@@ -1,0 +1,13 @@
+#ifndef __Define_psc_designer_schema_H__
+#define __Define_psc_designer_schema_H__
+
+
+#define PSC_DESIGNER_SCHEMA_TABLE "psc_designer_schema"
+#define PSC_DESIGNER_SCHEMA_PK_PSC_DESIGNER_SCHEMA_FIELD "PK_psc_designer_schema"
+#define PSC_DESIGNER_SCHEMA_PK_PSC_DESIGNER_SCHEMA_TABLE_FIELD "psc_designer_schema.PK_psc_designer_schema"
+#define PSC_DESIGNER_SCHEMA_VALUE_FIELD "Value"
+#define PSC_DESIGNER_SCHEMA_VALUE_TABLE_FIELD "psc_designer_schema.Value"
+
+
+#endif
+

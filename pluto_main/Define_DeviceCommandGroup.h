@@ -1,0 +1,25 @@
+#ifndef __Define_DeviceCommandGroup_H__
+#define __Define_DeviceCommandGroup_H__
+
+
+#define DEVICECOMMANDGROUP_TABLE "DeviceCommandGroup"
+#define DEVICECOMMANDGROUP_PK_DEVICECOMMANDGROUP_FIELD "PK_DeviceCommandGroup"
+#define DEVICECOMMANDGROUP_PK_DEVICECOMMANDGROUP_TABLE_FIELD "DeviceCommandGroup.PK_DeviceCommandGroup"
+#define DEVICECOMMANDGROUP_FK_DEVICECATEGORY_FIELD "FK_DeviceCategory"
+#define DEVICECOMMANDGROUP_FK_DEVICECATEGORY_TABLE_FIELD "DeviceCommandGroup.FK_DeviceCategory"
+#define DEVICECOMMANDGROUP_DESCRIPTION_FIELD "Description"
+#define DEVICECOMMANDGROUP_DESCRIPTION_TABLE_FIELD "DeviceCommandGroup.Description"
+#define DEVICECOMMANDGROUP_PSC_ID_FIELD "psc_id"
+#define DEVICECOMMANDGROUP_PSC_ID_TABLE_FIELD "DeviceCommandGroup.psc_id"
+#define DEVICECOMMANDGROUP_PSC_BATCH_FIELD "psc_batch"
+#define DEVICECOMMANDGROUP_PSC_BATCH_TABLE_FIELD "DeviceCommandGroup.psc_batch"
+#define DEVICECOMMANDGROUP_PSC_USER_FIELD "psc_user"
+#define DEVICECOMMANDGROUP_PSC_USER_TABLE_FIELD "DeviceCommandGroup.psc_user"
+#define DEVICECOMMANDGROUP_PSC_FROZEN_FIELD "psc_frozen"
+#define DEVICECOMMANDGROUP_PSC_FROZEN_TABLE_FIELD "DeviceCommandGroup.psc_frozen"
+#define DEVICECOMMANDGROUP_PSC_MOD_FIELD "psc_mod"
+#define DEVICECOMMANDGROUP_PSC_MOD_TABLE_FIELD "DeviceCommandGroup.psc_mod"
+
+
+#endif
+

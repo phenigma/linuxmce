@@ -47,14 +47,14 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 int main(int argc, char* argv[])
 {
 
-		cout<<"	Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
-		    <<"	www.plutohome.com"<<endl
-		    <<"	Phone: +1 (877) 758-8648"<<endl
-		    <<"	This program is distributed according to the terms of the Pluto Public License, available at: "<<endl
-		    <<"	http://plutohome.com/index.php?section=public_license "<<endl
-		    <<"	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
-		    <<"	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
-		    <<"	See the Pluto Public License for more details."<<endl;    
+		cout<<"Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
+		    <<"www.plutohome.com"<<endl
+		    <<"Phone: +1 (877) 758-8648"<<endl
+		    <<"This program is distributed according to the terms of the Pluto Public License, available at: "<<endl
+		    <<"http://plutohome.com/index.php?section=public_license "<<endl
+		    <<"This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
+		    <<"without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
+		    <<"See the Pluto Public License for more details."<<endl << "-----" << endl << endl;    
     
     string sRouter_IP="dce_router";
     int PK_Device=0;

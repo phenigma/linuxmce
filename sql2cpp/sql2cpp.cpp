@@ -68,7 +68,7 @@ int main( int argc, char *argv[] )
 		<< " This program is distributed in the hope that it will be useful, " << endl
 		<< " but WITHOUT ANY WARRANTY; without even the implied warranty " <<endl
 		<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
-		<< " See the GNU General Public License for more details. "<< endl;	
+		<< " See the GNU General Public License for more details. "<< endl << "-------" << endl << endl;	
 	
 	// setting some default values.... probablly just temporary
 	string sDBHost="dce_router", sDBUser="root", sDBPassword="", sDBName="pluto_main", sOutputPath="", sInputPath=".";

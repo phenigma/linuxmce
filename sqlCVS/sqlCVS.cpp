@@ -1,19 +1,18 @@
 /*
  sqlCVS
  
- Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
- Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
- */
+	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+	
+	www.plutohome.com		
+	
+	Phone: +1 (877) 758-8648
+	
+	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	
+	See the GNU General Public License for more details.
+*/
 
 
 /**
@@ -146,15 +145,16 @@ string GetCommand( )
 int main( int argc, char *argv[] )
 {
 
-		cout<<"	Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
-		    <<"	www.plutohome.com"<<endl
-		    <<"	Phone: +1 (877) 758-8648"<<endl
-		    <<"	This program is distributed according to the terms of the Pluto Public License, available at: "<<endl
-		    <<"	http://plutohome.com/index.php?section=public_license "<<endl
-		    <<"	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
-		    <<"	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
-		    <<"	See the Pluto Public License for more details."<<endl;	
-	
+	cout << " Copyright (C) 2004 Pluto, Inc., a Florida Corporation " << endl
+	    	<< " www.plutohome.com " << endl
+	    	<< " Phone: +1 (877) 758-8648 " << endl
+	    	<< " This program is free software; you can redistribute it " << endl
+		<< " and/or modify it under the terms of the GNU General Public License. " << endl
+		<< " This program is distributed in the hope that it will be useful, " << endl
+		<< " but WITHOUT ANY WARRANTY; without even the implied warranty " <<endl
+		<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
+		<< " See the GNU General Public License for more details. "<< endl << "-------" << endl << endl;	
+
 	bool bError=false; /** An error parsing the command line */
 
 	string sUsers;
