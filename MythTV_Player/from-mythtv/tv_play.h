@@ -121,6 +121,8 @@ class TV : public QObject
 
     void ToggleChannelFavorite(void);
     void ChangeChannel(int direction, bool force = false);
+
+  public:    
     void ChangeChannelByString(QString &name, bool force = false);
 
     void ChangeVolume(bool up);
@@ -202,6 +204,7 @@ class TV : public QObject
     void UpdateLCD(void);
     void ShowLCDChannelInfo(void);
 
+private:
     int osd_display_time;
 
     bool arrowAccel;
