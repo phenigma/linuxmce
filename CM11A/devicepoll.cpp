@@ -125,7 +125,7 @@ DevicePoll::SendFunction(CSerialPort* pport, const Message* pMesg) {
 void* DevicePoll::_Run() {
 	g_pPlutoLogger->Write(LV_STATUS, "Device Poll thread started.");
 
-	while(true) {// will be changed with thread end request
+	while(!isStopRequested()) {// will be changed with thread end request
 		try {
 			CSerialPort serprt(CM11A_PORT, CM11A_BPS, epbsN81);
 

@@ -9,8 +9,8 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#ifndef CM11THREAD_H
-#define CM11THREAD_H
+#ifndef MYTHTVTHREAD_H
+#define MYTHTVTHREAD_H
 
 #include <pthread.h>
 
@@ -25,19 +25,25 @@ public:
     virtual ~Thread();
 
 	virtual int Run(bool wait = true);
-	void Wait();
+	void Wait(bool requeststop = false);
 	bool isRunning();
 	
 protected:
 	virtual void* _Run();
-
+	
+	bool isStopRequested() {
+		return requeststop_;
+	};
+	
 protected:
-	virtual void handleStartup() {};
+	virtual bool handleStartup() {
+		return true;
+	};
 	virtual void handleTerminate() {};
 	
 private:
-	bool isrunning;
-	pthread_t threadid;
+	bool requeststop_;
+	pthread_t threadid_;
 	static void* _threadproc(void *arg);
 };
 
