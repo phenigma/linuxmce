@@ -13,13 +13,12 @@ using namespace std;
 
 typedef pair<int, int> IntPair;
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class gc100 : public gc100_Command
-//<-dceag-decl-e->
-		, public IRBase
+	class gc100 : public gc100_Command, public IRBase
 	{
+//<-dceag-decl-e->
 		// Private member variables
 
 		// Private methods

@@ -953,7 +953,7 @@ bool gc100::ReceivedMessage(class Message *pMessage)
 {
 	m_pThisMessage = pMessage;
 
-	cout << "123 Message ID: " << pMessage->m_dwID << endl;
+	cout << "Message ID: " << pMessage->m_dwID << endl;
 	cout << "From:" << pMessage->m_dwPK_Device_From << endl;
 	cout << "To: " << pMessage->m_dwPK_Device_To << endl;
 	
@@ -964,9 +964,16 @@ bool gc100::ReceivedMessage(class Message *pMessage)
 	}
 
 	// Let the IR Base classes try to handle the message
-//	if (gc100_Command::ReceivedMessage(pMessage))
-	if (IRBase::ProcessMessage(pMessage))
+	if (gc100_Command::ReceivedMessage(pMessage))
+	{
+		printf("Message processed by base class\n");
 		return true;
+	}
+	if (IRBase::ProcessMessage(pMessage))
+	{
+		printf("Message processed by IRBase class\n");
+		return true;
+	}
 
 	cout << "Processing..." << endl;
 	

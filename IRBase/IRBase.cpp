@@ -29,6 +29,11 @@
 #include <math.h>
 #include <time.h>
 
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/times.h>
+#endif
+
 void IRBase::Init(Command_Impl * pCommand_Impl)
 {
 	m_CurrentChannelSequenceNumber = 1;
@@ -125,7 +130,7 @@ void IRBase::AddIRToQueue(string Port, string IRCode, long Delay, long DeviceNum
 				(*ipQueue)->m_DeviceNum == DeviceNum) && 
 				(*ipQueue)->m_ChannelSequenceNumber != m_ExecutingChannelSequenceNumber[DeviceNum])
 			{
-				printf("Removing redundant channel change digit (action %d, seq %d).\n", (*ipQueue)->m_CommandNum, (*ipQueue)->m_ChannelSequenceNumber);
+				printf("Removing redundant channel change digit (action %ld, seq %ld).\n", (*ipQueue)->m_CommandNum, (*ipQueue)->m_ChannelSequenceNumber);
 				m_IRQueue.erase(ipQueue);
 			}
 		}
@@ -219,7 +224,7 @@ bool IRBase::AddChannelChangeToQueue(long ChannelNumber, long Device)
 	}
 	else
 	{
-		printf("Device id %d has no number digits parameter.  Assuming 3 and no enter.\n", Device);
+		printf("Device id %ld has no number digits parameter.  Assuming 3 and no enter.\n", Device);
 	}
 	long DigitDelay = 0;
 	param = m_pCommand_Impl->m_mapCommandImpl_Children[Device]->m_pData->m_mapParameters.find(DEVICEDATA_Digit_Delay_CONST);
@@ -311,12 +316,12 @@ bool IRBase::ProcessMessage(Message *pMessage)
 
 		if (pMessage->m_dwID == COMMAND_Generic_On_CONST || pMessage->m_dwID == COMMAND_Generic_Off_CONST || pMessage->m_dwID == COMMAND_Power_CONST)
 		{
-			printf("%d: Got power command: ", TargetDevice);
+			printf("%ld: Got power command: ", TargetDevice);
 			param = m_pCommand_Impl->m_mapCommandImpl_Children[TargetDevice]->m_pData->m_mapParameters.find(DEVICEDATA_IR_Power_Delay_CONST);
             if (param != m_pCommand_Impl->m_mapCommandImpl_Children[TargetDevice]->m_pData->m_mapParameters.end())
 		    {
 				Delay = atoi((*param).second.c_str());
-				printf("using delay of %d.\n", Delay);
+				printf("using delay of %ld.\n", Delay);
 			}
 			else
 			{
@@ -344,29 +349,52 @@ bool IRBase::ProcessMessage(Message *pMessage)
 	return false;
 }
 
+#ifdef WIN32
+#define xCLOCKS_PER_SEC CLOCKS_PER_SEC
+#else
+#define xCLOCKS_PER_SEC sysconf(_SC_CLK_TCK)
+#endif
+
 long MS_TO_CLK(long miliseconds)
 {
-	return miliseconds * CLOCKS_PER_SEC / 1000;
+	return miliseconds * xCLOCKS_PER_SEC / 1000;
+}
+
+inline clock_t xClock()
+{
+#ifdef WIN32
+	return clock();
+#else
+	struct tms mytms;
+	return times(&mytms);
+#endif
 }
 
 bool IRBase::ProcessQueue()
 {
 	PLUTO_SAFETY_LOCK(sl, m_IRMutex);
 	list<IRQueue *>::iterator ipQueue;
-	clock_t CurTime = clock();
+	clock_t CurTime = xClock();
 
-	// printf("Clk = %d, CLK_TCK = %d\n", clock(), CLK_TCK);
+	// printf("Clk = %d, CLK_TCK = %d\n", xClock(), CLK_TCK);
 
+//	printf("Queue length: %d\n", m_IRQueue.size());
 	for(ipQueue = m_IRQueue.begin(); ipQueue!= m_IRQueue.end(); ++ipQueue)
 	{
 		// Is the last IR on this port + this pre delay still in the future?  If so continue on to the next queued item
 		
 		if ((*ipQueue)->m_PreDelay && MS_TO_CLK((*ipQueue)->m_PreDelay) + m_PortLastIRSent[(*ipQueue)->m_Port] > CurTime)
+		{
+//			printf("Not ready yet: %d %d %d %d (1)\n", (*ipQueue)->m_PreDelay, MS_TO_CLK((*ipQueue)->m_PreDelay), m_PortLastIRSent[(*ipQueue)->m_Port], CurTime);
 			continue;
+		}
 
 		// Can this device accept IR yet?
 		if ((*ipQueue)->m_DeviceNum > -1 && m_DeviceNextAvailableTime[(*ipQueue)->m_DeviceNum] > CurTime)
+		{
+//			printf("Not ready yet (2)\n");
 			continue;
+		}
 
 		if ((*ipQueue)->m_DeviceNum > -1 && (*ipQueue)->m_ChannelSequenceNumber)
 			m_ExecutingChannelSequenceNumber[(*ipQueue)->m_DeviceNum] = (*ipQueue)->m_ChannelSequenceNumber;
@@ -377,7 +405,7 @@ bool IRBase::ProcessQueue()
 		{ 
 			g_pPlutoLogger->Write(LV_STATUS, "IRQueue: Device %d, Action %d, Step %d", (*ipQueue)->m_DeviceNum, (*ipQueue)->m_CommandNum, (*ipQueue)->m_StepNumber);
 			SendIR((*ipQueue)->m_Port, (*ipQueue)->m_IRCode);
-			CurTime = clock();
+			CurTime = xClock();
 		}
 		else 
 		{
