@@ -68,8 +68,9 @@ namespace DCE
 		 */
 		string SendReceiveString( string s );
 
-		// 
-		// 
+		/** @todo check comment */
+		//string GetParameter(int ToDevice,int ParmType);
+
 		/**
 		 * @brief requests the confiuration from the router
 		 * Event gets tasked with pulling the config, because Event has control

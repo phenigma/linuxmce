@@ -57,7 +57,7 @@ typedef deque<LocationInfo *> DequeLocationInfo;
 class OrbiterData : public SerializeClass
 {
 public:
-	int m_Width, m_Height, m_AnimationStyle, m_iPK_Users, m_iLocation_Initial;
+	int m_Width, m_Height, m_AnimationStyle, m_dwPK_Users, m_iLocation_Initial;
 	string m_sMainMenu,m_sSleepingMenu,m_sScreenSaveMenu;
 	ScreenMap m_ScreenMap;
 
@@ -93,7 +93,7 @@ public:
 
 	void SetupSerialization()
 	{
-		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_iPK_Users + m_iLocation_Initial
+		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users + m_iLocation_Initial
 			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
 			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn;
 

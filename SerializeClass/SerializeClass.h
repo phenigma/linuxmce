@@ -35,6 +35,9 @@
 	#define memcpy Mem::Copy
 #endif
 
+/** @todo check comment */
+// Include this define to get debug information if the serialization is ever off
+//#define DEBUG_SERIALIZATION
 
 
 /**
@@ -502,6 +505,7 @@ public:
 
 		long myval2 = (v4 << 24) + (v3 << 16) + (v2 << 8) + v1;
 
+		/** @todo check comment */
 		//long myval = long(*pl);
 
 #ifdef DEBUG_SERIALIZATION

@@ -58,6 +58,11 @@ ServerSocket::~ServerSocket()
 	PLUTO_SAFETY_LOCK( cm, m_ConnectionMutex );
 	cm.Release();
 
+	/** @todo check comment */
+	//Don't need this since we're deleted from the thread we start
+	//pthread_join(m_ClientThreadID, NULL);
+	//	printf("Join done m_ClientThreadID=%d\n", (int)m_ClientThreadID);
+
 	pthread_mutex_destroy( &m_ConnectionMutex.mutex );
 }
 
@@ -89,6 +94,8 @@ void ServerSocket::Run()
 			SendString( s );
 			continue;
 		}
+		/** @todo check comment */
+		//g_pDCELogger->Write(LV_SOCKET, "TCPIP: Received %s", msg.c_str());
 
 		if (sMessage.substr(0,5) == "HELLO")
 		{
@@ -111,6 +118,9 @@ void ServerSocket::Run()
 				g_pPlutoLogger->Write(LV_WARNING, "Received %s, but current file version is %d.", sMessage.c_str(),FILE_VERSION);
 			}
 */
+			/** @todo check comment */
+			// Don't register event handlers
+			// m_pListener->RegisterAsDevice(this, m_DeviceID, false);
 			continue;
 		}
 		

@@ -277,12 +277,12 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
         )
     {*/
 //  BD_CP_CaptureKeyboard *pBD_CP_CaptureKeyboard = new BD_CP_CaptureKeyboard(
-//          m_CaptureKeyboard_bOnOff,
-//          m_CaptureKeyboard_bReset,
-//          m_CaptureKeyboard_bTypePin,
-//          m_CaptureKeyboard_bDataGrid,
-//          m_CaptureKeyboard_iPK_Variable,
-//          m_CaptureKeyboard_sText
+//          m_bCaptureKeyboard_OnOff,
+//          m_bCaptureKeyboard_Reset,
+//          m_bCaptureKeyboard_TypePin,
+//          m_bCaptureKeyboard_DataGrid,
+//          m_iCaptureKeyboard_PK_Variable,
+//          m_sCaptureKeyboard_Text
 //  );
 
 /*    if( m_pBDCommandProcessor )

@@ -55,6 +55,10 @@ namespace DCE
 		 * @brief frees the allocated memory and closes the base socket, and it also writes a log
 		 */
 		virtual ~Socket();
+		
+		/** @todo check message */
+		//	void DCESocketLock();
+		//	void DCESocketUnlock();
 
 		/**
 		 * @brief use to set the member

@@ -36,6 +36,9 @@ HandleRequestSocket::HandleRequestSocket( int iDeviceID, string sIPAddress, stri
 	ClientSocket( iDeviceID, sIPAddress, sName )
 {
 	m_RequestHandlerThread = 0;
+	
+	/** @todo check comment */
+	//g_pDCELogger->Write(LV_SOCKET,"Created handle request socket %p device: %d ip: %s",this,DeviceID,IPAddress.c_str());
 }
 
 HandleRequestSocket::~HandleRequestSocket()

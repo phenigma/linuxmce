@@ -54,6 +54,10 @@ ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : S
 {
 	m_dwPK_Device = iDeviceID;
 	m_sIPAddress = sIPAddress;
+	
+	/** @todo check comment */
+	//	if( g_pDCELogger ) // This won't be created yet if this is the server logger socket
+	//		g_pDCELogger->Write(LV_SOCKET,"Created client socket %p device: %d ip: %s",this,m_DeviceID,m_IPAddress.c_str());
 }
 
 bool ClientSocket::Connect( string sExtraInfo )
@@ -75,6 +79,10 @@ bool ClientSocket::Connect( string sExtraInfo )
 	}
 
 	m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
+	
+	/** @todo check comment */
+	//int b = 1;
+	//setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (SOCKOPTTYPE) &b, sizeof(b));
 
 	if ( m_Socket != INVALID_SOCKET )
 	{
@@ -148,7 +156,8 @@ bool ClientSocket::Connect( string sExtraInfo )
 			}
 			
 		}
-		
+		/** @todo check comment */
+		//setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(on));
 		if ( !bSuccess)
 		{
 			if( g_pPlutoLogger )

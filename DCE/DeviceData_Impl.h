@@ -38,6 +38,31 @@ namespace DCE
 		map<int, string> m_mapParameters; /** < integer-keyed map with the parameters this device has @todo ask - is string=paramvalue? */
 		
 		VectDeviceData_Impl m_vectDeviceData_Impl_Children; /** < vector containing the child devices  */
+	
+		/** @todo check comment */	
+		/*
+		DCEDeviceData_Impl(char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition,int x)
+			: DCEDeviceData_Base(pDataBlock,AllocatedSize,CurrentPosition,x)
+		{
+			Read_string(m_sDescription);
+	
+			unsigned long NumParms = Read_unsigned_long();
+			for(unsigned long lP=0;lP<NumParms;++lP)
+			{
+				int ParmNum = Read_unsigned_long();
+				string Value;
+				Read_string(Value);
+				SetParm(ParmNum,Value.c_str());
+			}
+	
+			unsigned long NumChildDevice = Read_unsigned_long();
+			for(unsigned long lC=0;lC<NumChildDevice;++lC)
+			{
+				DCEDeviceData_Impl *ChildDevice = CreateData(this,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+				m_vectDCEDeviceData_Impl_Children.push_back(ChildDevice);
+			}
+		}
+		*/
 
 		/**
 		 * @brief default constructor
@@ -113,7 +138,7 @@ namespace DCE
 		 * @warning this must be implemented in a derived class
 		 * @todo ask for more specific
 		 * @todo This should be pure virtual as below.  for some reason MS won't link when it's implemented in the auto-generated derived classes.  Got to figure out why.
-		 * virtual class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)=0;
+		 * virtual class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char CurrentPosition)=0;
 		 */
 		virtual class DeviceData_Impl *CreateData( DeviceData_Impl *pParent, char *pcDataBlock, unsigned long dwAllocatedSize, char *pcCurrentPosition) { return NULL; }
 

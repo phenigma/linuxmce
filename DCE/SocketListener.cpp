@@ -47,6 +47,24 @@ SocketListener::~SocketListener()
 	g_pPlutoLogger->Write( LV_SOCKET, "~SocketListener %d", m_Socket );
 	if ( m_Socket != INVALID_SOCKET )
 	{
+		/** @todo check comment */
+		/* DCESAFETYLOCK(lm,m_ListenerMutex);
+		list<DCESocket *>::iterator i;
+
+		for(i=m_Clients.begin();i!=m_Clients.end();i++)
+		{
+			DCESocket *pSocket = *i;
+			if( !pSocket )
+				g_pDCELogger->Write(LV_CRITICAL,"DCESocketListener::~DCESocketListener socket is NULL");
+			else if( pSocket->m_Socket!=INVALID_SOCKET )
+			{
+				g_pDCELogger->Write(LV_SOCKET,"closing socket %p %d",pSocket,pSocket->m_Socket);
+				closesocket(pSocket->m_Socket);
+				pSocket->m_Socket = INVALID_SOCKET;
+			}
+		}
+		lm.Release(); */
+
 		g_pPlutoLogger->Write( LV_SOCKET, "closing listener socket %d", m_Socket );
 		closesocket( m_Socket ); // closing the socket
 		m_Socket = INVALID_SOCKET; // now it is invalid
@@ -69,6 +87,8 @@ void SocketListener::Run()
 	struct sockaddr_in  addrT;
 
 	m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
+	/** @todo check comment */
+	// setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (SOCKOPTTYPE)&b, sizeof(b));
 
 	if ( m_Socket == INVALID_SOCKET ) // error
 	{
@@ -153,6 +173,8 @@ void SocketListener::Run()
 					dwFlags |= O_NONBLOCK;
 					fcntl( newsock, F_SETFL, dwFlags );
 #endif
+					/** @todo check comment */
+					// setsockopt(newsock, IPPROTO_TCP, TCP_NODELAY, (SOCKOPTTYPE) &b, sizeof(b));
 					Socket *has = CreateSocket( newsock, "Incoming_Conn Socket " + StringUtils::itos(newsock) + " " + inet_ntoa( addr.sin_addr ) );
 					PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
 					m_listClients.push_back( has ); // add a new client to the client list

@@ -30,6 +30,14 @@ Event_Impl::Event_Impl( unsigned long dwDevice, string sServerAddress, bool bCon
 	m_pClientSocket = new ClientSocket( dwDevice, sServerAddress, string( "Event Dev #" ) + StringUtils::itos( dwDevice ) );
 	if( bConnectEventHandler )
 		m_pClientSocket->Connect();
+	
+	/** @todo check comment */	
+	/*
+	#ifdef DEBUG
+		g_pDCELogger->Write(LV_SOCKET,"DeviceEvent constructor %p device ID %d server IP %s socket %p %d",
+			this,m_DeviceID,ServerAddress.c_str(),m_pDCEClientSocket,m_pDCEClientSocket->m_Socket);
+	#endif
+	*/
 }
 
 Event_Impl::Event_Impl( ClientSocket *pClientSocket, unsigned long dwDevice )

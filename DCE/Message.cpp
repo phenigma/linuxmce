@@ -242,6 +242,19 @@ void Message::Clear()
 	m_bIncludeChildren = false;
 
 	m_mapParameters.clear();
+	
+	/** @todo check comment */
+	/*  
+	HACK  HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
+	THERE APPEARS TO BE SOME WEIRD BUT IN WINDOWS DLL MEMORY MANAGMEMENT.  THIS CRASHES AFTER THE DATA PARAMETER IS ALLOCATED WITH TODATA.  SEE REQUEST GRID.
+	TEMORARY CREATE A MEMORY LEAK SO WE CAN KEEP GOING
+	map<long, char *>::iterator i;
+	for(i=m_DataParameters.begin();i!=m_DataParameters.end();++i)
+	{
+		delete[] (*i).second;
+	}
+	*/
+	
 	m_mapData_Parameters.clear();
 	m_mapData_Lengths.clear();
 }

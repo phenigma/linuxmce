@@ -64,6 +64,9 @@ namespace DCE
 		 * @todo ask
 		 */
 		void StartListening( int iPortNumber );
+		
+		/** @todo check comment */
+		// void StopListening();
 
 		/**
 		 * @brief runs the listener by creating the master socket, setting it up and telling it to start listening 

@@ -52,7 +52,11 @@ bool RA_Processor::SendRequests( string sServerAddress, DCE::Socket **ppSocket )
 	// Connecting to the server
 	RAClientSocket *pSocket = new RAClientSocket( 1, sServerAddress, "foo" ); // Freed before the endif or any of the returns
     if( !pSocket->Connect() )
+    {
+    	/** @todo check comment */
+    	//ErrorLog << "Could not connect.\n"; }
         return false; // Connection could not be established
+	}
 
 	bool bResult = SendRequests(pSocket);
 	if( ppSocket )
@@ -237,6 +241,8 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket )
         char *acData = new char[*pdwSize]; // freed at the end of the procedure or before any of the returns
         if( !pSocket->ReceiveData( *pdwSize, acData ) )
         {
+	    /** @todo check comment */
+	    // ErrorLog << "Got bogus data: sc " << SanityCheck << " size " << Size " checksum " << CheckSum << " est " << Establishment; }
             delete[] acData;
             return false;
         }
@@ -244,6 +250,8 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket )
 
         if( !true )
         {
+	    /** @todo check comment */
+	    //ErrorLog << "Checksum does not match: sc " << SanityCheck << " size " << Size << " checksum " << CheckSum << " estab " << Establishment;
             delete[] acData;
             return false;
         }

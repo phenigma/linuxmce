@@ -168,6 +168,8 @@ void Command_Impl::KillSpawnedDevices()
 #ifndef WIN32
 	for( size_t s=0; s < m_vectSpawnedDevices.size(); ++s )
 		system( (string("") + "screen -list | grep " + m_vectSpawnedDevices[s] + " | cut -f 1 -d '.' | cut -f 2 -d '\t' | xargs kill -9" ).c_str() );
+	/** @todo check comments */
+	//g_pDCELogger->Write(LV_WARNING,"Need to kill %s",m_vectSpawnedDevices[s].c_str());
 #endif
 }
 

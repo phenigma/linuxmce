@@ -115,8 +115,10 @@ Socket::~Socket()
 	pthread_mutexattr_destroy( &m_SocketMutexAttr );
 	pthread_mutex_destroy( &m_SocketMutex.mutex );
 #ifdef LL_DEBUG_FILE
-//	Don't do this since other sockets are using the mutex
-//	pthread_mutex_destroy(m_LL_DEBUG_Mutex);
+
+	/** @todo check comment */
+	// Don't do this since other sockets are using the mutex
+	// pthread_mutex_destroy(m_LL_DEBUG_Mutex);
 	FILE *f = fopen( m_pcSockLogFile, "a" );
 	if( f )
 	{
@@ -146,6 +148,9 @@ Message *Socket::SendReceiveMessage( Message *pMessage )
 {
 	pMessage->m_eExpectedResponse=ER_ReplyMessage;
 	PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, m_SocketMutex );  // Don't log anything but failures
+	
+	/** @todo check comment */
+	// HACK Message->m_eExpectedResponse=ER_Message;
 
 	if( !SendMessage( pMessage ) ) // message couldn't be send
 		return NULL;
@@ -228,6 +233,9 @@ bool Socket::SendData( int iSize, const char *pcData )
 		LACA_B4_4( "Sending after lock: (%d) %s %p %s", iSize, pcData, pthread_self(), m_sName.c_str() );
 
 #endif
+	
+	/** @todo check comment */
+	// pthread_mutex_lock(&m_DCESocketMutex);  AB 1-25-2004 - use safety lock instead
 
 #if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
 	char *pcTmp = new char[iSize+1]; // freeing it after writing data to the file
@@ -319,6 +327,8 @@ bool Socket::SendData( int iSize, const char *pcData )
 		{
 			tv.tv_sec = 30;
 			tv.tv_usec = 0;
+			/** @todo check comment */
+			//time_t end, start = time(NULL);
 			iRet = select( (int)(m_Socket+1), NULL, &wrfds, NULL, &tv );
 			// without timeout
 			iRet = select( (int)(m_Socket+1), NULL, &wrfds, NULL, NULL );
@@ -332,11 +342,15 @@ bool Socket::SendData( int iSize, const char *pcData )
 		else
 		{
 			closesocket( m_Socket );
+			/** @todo check comment */
+			// AB 1-25-2004 pthread_mutex_unlock(&m_DCESocketMutex);
 			m_Socket = INVALID_SOCKET;
 			return false;
 		}
 	}
 
+/** @todo check comment */
+// AB 1-25-2004	pthread_mutex_unlock(&m_DCESocketMutex);
 #ifdef LOG_ALL_CONTROLLER_ACTIVITY
 	if( iSize > 200 )
 	{

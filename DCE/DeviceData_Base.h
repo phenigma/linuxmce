@@ -181,6 +181,35 @@ namespace DCE
 		 */
 		class DeviceData_Base *m_pDevice_ControlledVia;
 		
+		/** @todo check comment */
+		/*
+		// When this class is being de-serialized the following constructor will be called
+		DCEDeviceData_Base(char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition,int x)
+		{
+			m_pDCEDeviceCategory=NULL;
+			m_pDevice_ControlledVia=NULL;
+			ResumeReadWrite(pDataBlock,AllocatedSize,CurrentPosition);
+	
+			m_iPK_Device = Read_unsigned_long();
+			m_iPK_Installation = Read_unsigned_long();
+			m_iPK_DeviceTemplate = Read_unsigned_long();
+			m_iPK_Device_ControlledVia = Read_unsigned_long();
+			m_iPK_DeviceCategory=Read_unsigned_long();
+			m_iPK_Room=Read_unsigned_long();
+	
+			m_bImplementsDCE = (Read_unsigned_char()==1);
+			m_iNumberCommands = Read_unsigned_long();
+			if( m_iNumberCommands )
+			{
+				m_piCommands = new unsigned long[m_iNumberCommands];
+				for(unsigned long iCommands=0;iCommands<m_iNumberCommands;++iCommands)
+					m_piCommands[iCommands] = Read_unsigned_long();
+			}
+			else
+				m_piCommands=NULL;
+		}
+		*/
+		
 		/**
 		 * @brief default constructor, assignes default values to the member data
 		 */

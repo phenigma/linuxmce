@@ -86,6 +86,11 @@ void Logger::Write( int iLevel, const char *pcFormat, ... )
 	
  	PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 	
+#ifdef UNDER_CE
+	/** @todo check comment */
+	//LACA_B4_3("logger::before va_list entry clock: %d thread: %p format: %s",clock(),pthread_self(),Format);
+#endif
+	
 	static char s[1024];
 	memset(s, 0, sizeof(s));
 	va_list argList;

@@ -63,6 +63,8 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 {
 	bImmediateCallback = false;
 	
+	/** @todo check comment */
+	// _LOG_("RECEIVE_ACK_STAGE_HEADER");
 	// This also sends the Command, and starts receiving the acknowledge
 	PLUTO_SAFETY_LOCK( cm, m_CommandMutex );
 	if( MYSTL_SIZEOF_LIST( m_listCommands ) == 0 )
@@ -105,6 +107,8 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	else
 		m_pcReceiveAckHeader = ReceiveData(4);
 
+	/** @todo check comment */
+	//_LOG_("RECEIVE_ACK_STAGE_HEADER");
 	if( !m_pcReceiveAckHeader ) // got nothing
 	{
 		delete m_pCommand_Sent;
@@ -197,6 +201,8 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 	}
 	else
 	{
+		/** @todo check comment */
+		//_LOG_("RECEIVE_CMD_STAGE_HEADER");
 		if( NULL != m_pcReceiveCmdHeader )
 		{
 			printf( "delete receive cmd: %p\n", m_pcReceiveCmdData );
@@ -209,6 +215,8 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 
 		printf( "create receive cmd from receive data: %p\n", m_pcReceiveCmdData );
 
+		/** @todo check comment */
+		//_LOG_("RECEIVE_CMD_STAGE_DATA");
 		if( !m_pcReceiveCmdHeader ) // no data received
 			return false;
 
@@ -227,6 +235,8 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 				return false;
 		}
 		
+		/** @todo check comment */
+		//_LOG_("RECEIVE_CMD_STAGE_DATA");
 		long *dwType = (long *) m_pcReceiveCmdHeader;
 		dwSize = (long *)(m_pcReceiveCmdHeader + 4);
 		BDCommand *pCommand = BuildCommandFromData( *dwType );
@@ -256,6 +266,10 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 			LD( f1, pCommand->ID(), pCommand->ID()==BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK", pCommand->Description() );
 		}
 
+		/** @todo check comments */
+		//_LOG_("RECEIVE_CMD_STAGE_SENDING_CMD");
+		// Feed back the send command until it has finished
+		//SendCommand(); 
 		return true;
 	}
 	return false; // never get here
