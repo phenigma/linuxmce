@@ -1548,7 +1548,7 @@ int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime
 
     positionTime = iPosTime;
     totalTime = iLengthTime;
-    return 1;
+    return positionTime;
 }
 
 int XineSlaveWrapper::enableBroadcast(int iStreamID)
