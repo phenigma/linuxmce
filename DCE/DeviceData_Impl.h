@@ -72,9 +72,9 @@ namespace DCE
 		 */
 		DeviceData_Impl( unsigned long dwPK_Device, unsigned long dwPK_Installation, unsigned long dwPK_Device_Template, unsigned long  dwPK_Device_Controlled_Via, 
 			unsigned long m_dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn, string sDescription,
-			string sIPAddress, string sMacAddress )
+			string sIPAddress, string sMacAddress, bool bInheritsMacFromPC )
 			: DeviceData_Base( dwPK_Device, dwPK_Installation, dwPK_Device_Template, dwPK_Device_Controlled_Via, m_dwPK_DeviceCategory, dwPK_Room,
-			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sDescription, sIPAddress, sMacAddress )
+			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sDescription, sIPAddress, sMacAddress, bInheritsMacFromPC )
 		{
 		}
 		

@@ -1588,7 +1588,8 @@ void Router::Configure()
         DeviceData_Base *pDevice_Base = new DeviceData_Base(
             pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),
             pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRow_Device->FK_Room_get(),pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
-            pRow_Device->FK_DeviceTemplate_getrow()->CommandLine_get(),pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(), pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get());
+            pRow_Device->FK_DeviceTemplate_getrow()->CommandLine_get(),pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(), pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get(),
+			pRow_Device->FK_DeviceTemplate_getrow()->InheritsMacFromPC_get()==1);
         allDevices.m_mapDeviceData_Base[pDevice_Base->m_dwPK_Device]=pDevice_Base;
 
         // Get a list of all the commands each device supports

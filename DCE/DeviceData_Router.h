@@ -161,7 +161,7 @@ namespace DCE
 		DeviceData_Router(Row_Device *pRow_Device, Room *pRoom, string sCommandLine)
 			: DeviceData_Impl(pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRoom ? pRoom->m_dwPK_Room : 0,
 			pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,
-			pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,sCommandLine,pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(),pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get())
+			pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,sCommandLine,pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(),pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get(),pRow_Device->FK_DeviceTemplate_getrow()->InheritsMacFromPC_get()==1 )
 		{
 			m_pRow_Device=pRow_Device;
 			m_bForceReloadOnFirstConnect=m_bIsRegistered=m_bIsReady=m_bBusy=m_bAlert=false;
@@ -179,7 +179,7 @@ namespace DCE
 		// Another constructor for dynamically loaded plug-ins
 		DeviceData_Router(int PK_Device,int PK_DeviceTemplate,int PK_Installation, int PK_Device_ControlledVia)
 			: DeviceData_Impl(PK_Device,PK_Installation,PK_DeviceTemplate,PK_Device_ControlledVia,0 /* category */,0 /* room */,true /* implements dce */,false /* is embedded */,
-			"" /* Command line */,true /* Is Plugin */,"" /* Description */,"localhost","" /* Mac Address */)
+			"" /* Command line */,true /* Is Plugin */,"" /* Description */,"localhost","" /* Mac Address */, false)
 		{
 			m_pRow_Device=NULL;
 			m_bForceReloadOnFirstConnect=m_bIsRegistered=m_bIsReady=m_bBusy=m_bAlert=false;
