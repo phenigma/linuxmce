@@ -57,6 +57,8 @@ OrbiterLinux::OrbiterLinux(int DeviceID,
 
 OrbiterLinux::~OrbiterLinux()
 {
+	KillMaintThread();
+
 	delete m_pRecordHandler;
 	closeDisplay();
 }
