@@ -249,8 +249,8 @@ void Game::Shutdown()
     m_input.reset();
     m_display.reset();
 
+	DestroyWindow();
 	PocketPC_Cleanup();
-	exit(1);
 }
 
 
