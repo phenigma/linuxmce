@@ -1,3 +1,10 @@
+/**
+ *
+ * @file MythTV_PlugIn.h
+ * @brief header file for the  MythTvStream, MythTV_PlugIn classes
+ * 
+ */
+ 
 //<-dceag-d-b->
 #ifndef MythTV_PlugIn_h
 #define MythTV_PlugIn_h
@@ -18,15 +25,21 @@ class MythTvWrapper;
 namespace DCE
 {
 
+    /**
+     * @brief 
+     */
+     
     class MythTvStream : public MediaStream
     {
     public:
         class MythTV_PlugIn *m_pMythTV_PlugIn;
 
-        MythTvStream(class MythTV_PlugIn *pMythTV_PlugIn,class MediaPluginInfo *pMediaPluginInfo, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int StreamID)
+        MythTvStream(class MythTV_PlugIn *pMythTV_PlugIn,class MediaPluginInfo *pMediaPluginInfo, int PK_DesignObj_Remote, int PK_Users
+				,enum SourceType sourceType,int StreamID)
             : MediaStream(pMediaPluginInfo,PK_DesignObj_Remote,PK_Users,sourceType,StreamID) { m_iCurrentShow=-1; m_pMythTV_PlugIn=pMythTV_PlugIn; }
 
-            // Temporary hacks, just populate m_vectRow_Listing with all the shows, and make m_iCurrentShow point to the current one
+            /** Temporary hacks, just populate m_vectRow_Listing with all the shows, and make m_iCurrentShow point to the current one */
+	    
             vector<Row_Listing *> m_vectRow_Listing;
             int m_iCurrentShow;
             virtual void UpdateDescriptions();
@@ -39,18 +52,18 @@ namespace DCE
     {
         //<-dceag-decl-e->
         friend class MythTvStream;
-        // Private member variables
+        /** Private member variables */
 
         MythTvWrapper *m_pMythWrapper;
 //         MythTvEPGWrapper *m_pAllShowsDataGrid;
 
-        // Private methods
+        /** Private methods */
     public:
-        // Public member variables
+        /** Public member variables */
 
         //<-dceag-const-b->
 public:
-        // Constructors/Destructor
+        // Constructors/Destructor 
         MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
         virtual ~MythTV_PlugIn();
         virtual bool Register();
@@ -61,19 +74,27 @@ public:
         class Datagrid_Plugin *m_pDatagrid_Plugin;
 
     public:
-        // Mandatory implementations
+        /** Mandatory implementations */
         virtual class MediaStream *CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID);
-        virtual bool StartMedia(class MediaStream *pMediaStream);
-        virtual bool StopMedia(class MediaStream *pMediaStream);
-        virtual bool BroadcastMedia(class MediaStream *pMediaStream);
+        
+	virtual bool StartMedia(class MediaStream *pMediaStream);
+        
+	virtual bool StopMedia(class MediaStream *pMediaStream);
+        
+	virtual bool BroadcastMedia(class MediaStream *pMediaStream);
 
-        // Datagrids
-        class DataGridTable *CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
-        class DataGridTable *AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
+        /** Datagrids */
+        class DataGridTable *CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign
+						,class Message *pMessage);
+        
+	class DataGridTable *AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
+						, Message *pMessage);
 
-        // custom helper methods
-//         void ProcessWatchTvRequest(int channelId, QDateTime showStartTime);
-//         ProgramInfo *getProgramInfo(int channelId, QDateTime insideTime);
+        /** @test
+	 *  custom helper methods
+            void ProcessWatchTvRequest(int channelId, QDateTime showStartTime);
+            ProgramInfo *getProgramInfo(int channelId, QDateTime insideTime); 
+	 */
 
         //<-dceag-h-b->
     /*

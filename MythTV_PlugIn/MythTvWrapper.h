@@ -1,3 +1,10 @@
+/**
+ * 
+ * @file MythTvWrapper.h
+ * @brief header file for the MythTvWrapper class
+ *
+ */
+ 
 #ifndef MYTHTVEPGWRAPPER_H
 #define MYTHTVEPGWRAPPER_H
 
@@ -16,6 +23,10 @@ class QApplication;
 using namespace std;
 using namespace DCE;
 
+/**
+ * @brief the result of the 'watch tv' request
+ */
+ 
 typedef enum {
     WatchTVResult_Failed,
     WatchTVResult_Ignored,
@@ -23,18 +34,29 @@ typedef enum {
     WatchTVResult_InTheFuture
 } WatchTVRequestResult;
 
+/**
+ * @brief the result of the 'schedule record tv'
+ * @todo ask
+ */
+ 
 typedef enum {
     ScheduleRecordTVResult_Success,
     ScheduleRecordTVResult_Failed,
     ScheduleRecordTVResult_WithConflicts,
 } ScheduleRecordTvResult;
 
+/**
+ * @brief documentation
+ * @todo complete documentation
+ */
+ 
 class MythTvWrapper
 {
     QApplication * m_pQApplication;
     Command_Impl * m_pDCEDeviceWrapper;
 
 protected:
+    
     bool initMythTVGlobalContext();
 
     class MythTvEpgGrid: public DataGridTable
@@ -60,7 +82,10 @@ protected:
         void MakeChannelRow(int RowStart, int RowCount);
 
     public:
-        MythTvEpgGrid();
+        
+	/** @brief constructor */
+	
+	MythTvEpgGrid();
 
         virtual void setGridBoundaries(QDateTime startTime, QDateTime endTime);
         virtual int GetRows();
@@ -74,9 +99,12 @@ protected:
     bool decodeProgramStartTime(string sValue, int &nChanId, int &tmYear, int &tmMonth, int &tmDay, int &tmHour, int &tmMinute);
 public:
 
+    /** @brief constructor */
+    
     MythTvWrapper(Command_Impl *pCommandImpl);
 
-    // Methods used by the MythTV_PlugIn
+    /** Methods used by the MythTV_PlugIn */
+    
     DataGridTable *createShowsDataGrid(string GridID, QDateTime startTime, QDateTime endTime);
 
     WatchTVRequestResult ProcessWatchTvRequest(string showStartTimeEncoded);
@@ -88,6 +116,7 @@ public:
     friend class MythTV_PlugIn;
 };
 
+/** @test
 // class MythTvWrapper: public DataGridTable
 // {
 //     QApplication *m_pQApplication;
@@ -117,6 +146,6 @@ public:
 //
 //     virtual void ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount);
 // };
-
+*/
 #endif
 

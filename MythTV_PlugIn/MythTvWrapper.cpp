@@ -1,3 +1,10 @@
+/**
+ *
+ * @file MythTvWrapper.cpp
+ * @brief source file for the MythTvWrapper class
+ *
+ */
+ 
 #include "MythTvWrapper.h"
 
 #include "DCE/Logger.h"
@@ -27,7 +34,7 @@ MythTvWrapper::MythTvWrapper(Command_Impl *pCommandImpl)
 
     g_pPlutoLogger->Write(LV_STATUS, "Passing params: %d", argc);
 
-    m_pQApplication = new QApplication(argc, argv, false); // we don't need to display anything on X.
+    m_pQApplication = new QApplication(argc, argv, false); /** we don't need to display anything on X. */
 
     if ( ! initMythTVGlobalContext() )
     {
@@ -38,7 +45,7 @@ MythTvWrapper::MythTvWrapper(Command_Impl *pCommandImpl)
 
 bool MythTvWrapper::initMythTVGlobalContext()
 {
-    gContext = new MythContext(MYTH_BINARY_VERSION, false); // we don't need X in the plugin
+    gContext = new MythContext(MYTH_BINARY_VERSION, false); /** we don't need X in the plugin */
 
     QSqlDatabase *db = QSqlDatabase::addDatabase("QMYSQL3");
     if (!db)
@@ -159,7 +166,8 @@ void MythTvWrapper::MythTvEpgGrid::readProgramInfo(int channelId, QString progra
 
 void MythTvWrapper::MythTvEpgGrid::cleanChannelStorage(int channel)
 {
-/*    if ( m_mapPrograms.find(channel) != m_mapPrograms.end() )
+/** @test
+    if ( m_mapPrograms.find(channel) != m_mapPrograms.end() )
     {
         map<int, DataGridCell*>::iterator it_data = m_mapPrograms[channel].begin();
 
@@ -275,7 +283,7 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
                 programStartColumn = 0;
             }
 
-            /*
+            /** @test
             g_pPlutoLogger->Write(LV_STATUS, "Program %d->(%d+%d) %d: %s<-->%s (%s)",
                         channelPos,
                         programStartColumn, programColumnSpan,
@@ -345,7 +353,7 @@ void MythTvWrapper::MythTvEpgGrid::ToData(string GridID,int &Size, char* &Data, 
 {
     readDataGridBlock(RowStart, RowCount, ColStart, ColCount);
 
-    // This is required because the ToData doesn't honor the Get{Cols,Rows} calls.
+    /** This is required because the ToData doesn't honor the Get{Cols,Rows} calls. */
     m_TotalColumns = GetCols();
     m_TotalRows = GetRows();
 
