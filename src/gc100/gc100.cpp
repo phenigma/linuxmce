@@ -83,7 +83,7 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 
 	// TODO: learn_device
 	//learn_device = GetData()->Get_SERIAL_PORT();
-	learn_device = "/dev/gcs0"; // DEBUG
+	learn_device = string("/dev/ttyS_") + StringUtils::ltos(m_dwPK_Device) + "0"; // DEBUG
 	gc100_mutex.Init(NULL);
 	m_bQuit = false;
 	m_bLearning = false;
@@ -609,14 +609,40 @@ void gc100::Start_seriald()
 	system(command);
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
-	for (serial_iter=module_map.begin(); serial_iter!=module_map.end(); ++serial_iter) {
+
+	// TODO: sPortConfig from Core's DeviceData parameters, not ours
+	//string sPortConfig = m_pData->m_mapParameters[DEVICEDATA_Port_CONST];
+	//string::size_type begin = 0, end = 0;
+	//vector<pair<string, string> > vect_sPorts, vect_sMyPorts;
+	//while (begin < sPortConfig.length())
+	//{
+	//	end = sPortConfig.find(";", begin);
+	//	string sPortData = sPortConfig.substr(begin, end-begin);
+	//	string::size_type middle;
+	//	middle = sPortData.find("|");
+	//	string sDevice = sPortData.substr(0, middle);
+	//	string sDescription = sPortData.substr(middle + 1, end - middle - 1);
+	//	pair<string, string> pssPort = pair<string, string>(sDevice, sDescription);
+	//	vect_sPorts.insert(vect_sPorts.end(), pssPort);
+	//	if (sDevice.find(string("ttyS_") + StringUtils::ltos(m_dwPK_Device) + "_"))
+	//		vect_sMyPorts.insert(vect_sMyPorts.end(), pssPort);
+	//}
+
+	for (serial_iter=module_map.begin(); serial_iter!=module_map.end(); ++serial_iter)
+	{
 		if (serial_iter->second.type == "SERIAL")
 		{
-			global_slot=serial_iter->second.global_slot;
+			// TODO: add new ports to Core's DeviceData parameters
+			global_slot = serial_iter->second.global_slot;
+
+			string sDevice(string("/dev/ttyS_") + StringUtils::ltos(m_dwPK_Device) + "_" + StringUtils::ltos(global_slot - 1));
 
 //			sprintf(command,"/usr/pluto/bin/gc_seriald %s %d /dev/gcsd%d &",ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, global_slot-1);
-			sprintf(command, "socat TCP4:%s:%d PTY,link=/dev/gcs%d,echo=false,icanon=false,raw &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, global_slot - 1);
-			g_pPlutoLogger->Write(LV_STATUS,"seriald cmd: %s",command);
+//			sprintf(command, "socat TCP4:%s:%d PTY,link=/dev/ttyS_%d_%d,echo=false,icanon=false,raw &",
+//				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, m_dwPK_Device, global_slot - 1);
+			sprintf(command, "socat TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw &",
+				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str());
+			g_pPlutoLogger->Write(LV_STATUS, "seriald cmd: %s", command);
 			system(command);
 		}
 	}
@@ -998,8 +1024,18 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 	}
 }
 
-// Not done
 void gc100::SendIR(string Port, string IRCode)
+{
+	SendIR_Loop(Port, IRCode, 2);
+}
+
+void gc100::SendIR_Loop(string Port, string IRCode, int Times)
+{
+	for (int i = 0; i < Times; i++)
+		SendIR_Real(Port,IRCode);
+}
+
+void gc100::SendIR_Real(string Port, string IRCode)
 {
 	m_bIRComplete = false;
 
@@ -1196,13 +1232,30 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		{
 			retval = read(learn_fd, learn_buffer, 511);
 
+			string ErrorMsg = "";
 			while (retval > 0)
 			{
 				learn_buffer[retval]='\0';
-				if (strstr(learn_buffer, "X")!=NULL)
-				{ // X from GC-IRL indicates error, probably "code too long"
+				if (strstr(learn_buffer, "X") != NULL || strstr(learn_buffer, "Z") != NULL)
+				{
+					// X from GC-IRL indicates error: probably "code too long": "serial buffer overflow" according to GC-IRE docs
+					// Z from GC-IRL indicates error (rarely seen though): "IR signal corruption" according to GC-IRE docs
 					learning_error = true;
-					g_pPlutoLogger->Write(LV_STATUS, "learning error detected");
+					ErrorMsg = "GC100 reported X or Z error.";
+					g_pPlutoLogger->Write(LV_WARNING, ErrorMsg.c_str());
+				}
+				else
+				{
+					// input sanity check
+					for (int i = 0; i < retval; i++)
+					{
+						unsigned char c = learn_buffer[i];
+						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c == ',' || c == '\r')
+							continue;
+						learning_error = true;
+						ErrorMsg = "Garbage data received. Wrong baud rate?";
+						g_pPlutoLogger->Write(LV_WARNING, ErrorMsg.c_str());
+					}
 				}
 
 				g_pPlutoLogger->Write(LV_STATUS, "IR %d Data received: %s", retval, learn_buffer);
@@ -1250,8 +1303,8 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_WARNING, "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned");
-					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned", PK_Text);
+					g_pPlutoLogger->Write(LV_WARNING, "'Learned' event not sent because GC-IRL indicated error");
+					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", string("'Learned' event not sent because GC-IRL indicated error: ") + ErrorMsg, PK_Text);
 					SendCommand(CMD_Set_Text);
 				}
 			}
