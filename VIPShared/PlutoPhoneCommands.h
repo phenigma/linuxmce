@@ -17,6 +17,7 @@
 #define BD_CP_DISCONNECT				105
 #define BD_CP_UPDATE_VARIABLES			106
 #define BD_CP_CAPTURE_KEYBOARD			107
+#define BD_CP_SEND_FILE					108
 
 class BDCommand *BuildCommandFromData( unsigned long dwType );
 

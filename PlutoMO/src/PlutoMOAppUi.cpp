@@ -237,6 +237,35 @@ void CPlutoMOAppUi::SetCaptureKeyboardCommand(
 	pVCMUtil->SetCaptureKeyboardCommand(bOnOff, bDataGrid, bReset, bTypePin, iVariable, sText);
 }
 //----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::SaveFile(
+	long iFileNameSize, 
+	const char *pFileName, 
+	long iFileDataSize, 
+	const char *pFileData
+)
+{
+	TFileName iFileName;
+	
+	RFile file;
+	RFs   aFs;
+	aFs.Connect();
+
+	if(KErrNotFound == file.Open(aFs, string(pFileName).Des(), EFileStream | EFileWrite))
+	{
+		file.Create(aFs, string(pFileName).Des(), EFileStream | EFileWrite);
+	}
+	else
+	{
+		int aPos = 0;
+		file.Seek(ESeekEnd, aPos);
+	}
+
+	file.Write(_L8(string(pFileData).c_str()));
+	file.Close();
+
+	aFs.Close();
+}
+//----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::UpdateScreen(VIPMenuCollection *pVMC)
 {
 	TFileName iDummy;

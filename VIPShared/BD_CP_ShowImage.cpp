@@ -54,11 +54,11 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 	BDCommand::ParseCommand(size,data);
 #ifdef VIPPHONE
 
-#ifdef SYMBIAN
 	unsigned char Type = Read_unsigned_char();
 	unsigned long Size = Read_long();
 	const char *Data = Read_block(Size);
 
+#ifdef SYMBIAN
 	LOG("#	Received 'ShowImage' command  #\n");
 
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenImage(Type, Size, Data);

@@ -62,6 +62,13 @@ public:
 		string sText
 	);
 
+	void SaveFile(
+		long iFileNameSize, 
+		const char *pFileName, 
+		long iFileDataSize, 
+		const char *pFileData
+	);
+
 	void ResetViewer();
 	
 	BDCommandProcessor_Symbian_Bluetooth *m_pBDCommandProcessor;

@@ -14,18 +14,23 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "../DCE/DeviceData_Base.h"
+
 #include "../pluto_main/Define_Command.h"
 #include "../pluto_main/Define_DeviceCategory.h"
 #include "../pluto_main/Define_DeviceData.h"
-#include "BD/PhoneDevice.h"
-#include "../DCE/DeviceData_Base.h"
 
 #include "../Orbiter/Orbiter.h"
 #include "../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.h"
-#include "../VIPShared/BD_CP_SendMeKeystrokes.h"
 
+#include "../VIPShared/BD_CP_SendMeKeystrokes.h"
+#include "../VIPShared/BD_CP_SendFile.h"
 #include "../VIPShared/BDCommandProcessor_BluetoothDongle.h"
+
+#include "BD/PhoneDevice.h"
 #include "BD/BDCommandProcessor.h"
+
+#include "PlutoUtils/PlutoDefs.h"
 
 /*
 #ifdef BT_SOCKET
@@ -62,8 +67,33 @@ void *HandleBDCommandProcessorThread(void *p)
 	if(NULL != pBD_Orbiter->m_pPhoneDevice)
 		pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = true;
 
-	BDCommand *pCommand = new BD_CP_SendMeKeystrokes(1);
-	pBD_Orbiter->m_pBDCommandProcessor->AddCommand(pCommand);
+	BD_CP_SendMeKeystrokes *pBD_CP_SendMeKeystrokes = new BD_CP_SendMeKeystrokes(1);
+	pBD_Orbiter->m_pBDCommandProcessor->AddCommand(pBD_CP_SendMeKeystrokes);
+
+	/******************************************/
+	//testing
+
+	char *pFileName = "C:\\a.gif"; ///HARDCODING WARNING!
+	char *pFileData; 
+	unsigned long iFileNameSize = string(pFileName).size();
+	unsigned long iFileDataSize;
+
+	FILE* file;
+	file = fopen(pFileName, "rb"); 
+	fseek(file, 0, SEEK_END);
+	iFileDataSize = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	pFileData = new char[iFileDataSize];
+	fread(pFileData, 1, iFileDataSize, file);
+	fclose(file); 
+
+	BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(pFileName, pFileData, iFileNameSize, iFileDataSize);
+	pBD_Orbiter->m_pBDCommandProcessor->AddCommand(pBD_CP_SendFile);
+
+	PLUTO_SAFE_DELETE(pFileData);
+
+	/******************************************/
+
 	while( pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand(0,0,NULL) && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead );
 
 	g_pPlutoLogger->Write(LV_STATUS,"Exiting command processor: m_bDead: %d",(int) pBD_Orbiter->m_pBDCommandProcessor->m_bDead);

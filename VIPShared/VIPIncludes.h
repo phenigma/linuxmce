@@ -65,7 +65,9 @@ public:
 	}
 };
 
+#ifndef SYMBIAN
 typedef list<class BasketItem *> ListBasketItem;
+#endif
 
 // Phone Status Codes
 #define C_PHONESTATUS_NORMAL_CONST		1
