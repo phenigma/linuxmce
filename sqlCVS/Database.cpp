@@ -1049,8 +1049,6 @@ void Database::Import( string sRepository, Repository *pRepository )
 	pRepository->ImportTable(sTable,str,pos,NULL);
 
 	int PriorSchema = atoi(mapSettings["schema"].c_str());
-	if( !PriorSchema )
-		PriorSchema = 1;
 
 	int CurrentSchema = atoi(pRepository->GetSetting("schema","1").c_str());
 	if( !CurrentSchema )
@@ -1058,7 +1056,7 @@ void Database::Import( string sRepository, Repository *pRepository )
 
 	if( CurrentSchema<PriorSchema )
 		throw ("Database error: CurrentSchema<PriorSchema for repository: " + pRepository->Name_get()).c_str();
-	else if( CurrentSchema>PriorSchema && !g_GlobalConfig.m_bNewDatabase )
+	else if( CurrentSchema>PriorSchema && PriorSchema && !g_GlobalConfig.m_bNewDatabase )
 	{
 		pRepository->UpdateSchema(PriorSchema);
 		// Get all the fields again since this could have changed things.  Don't worry about matching
