@@ -100,7 +100,7 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 
 	PlutoSqlResult result;
     MYSQL_ROW row;
-	if( mysql_query(m_pDatabase_pluto_security->db_handle,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_security->db_handle)) )
+	if( mysql_query(m_pDatabase_pluto_security->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_security->m_pMySQL)) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
 			m_mapRow_ModeChange_Last[row[1] ? atoi(row[1]) : 0] = m_pDatabase_pluto_security->ModeChange_get()->GetRow( atoi(row[0]) );

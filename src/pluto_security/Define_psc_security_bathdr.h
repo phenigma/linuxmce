@@ -5,6 +5,8 @@
 #define PSC_SECURITY_BATHDR_TABLE "psc_security_bathdr"
 #define PSC_SECURITY_BATHDR_PK_PSC_SECURITY_BATHDR_FIELD "PK_psc_security_bathdr"
 #define PSC_SECURITY_BATHDR_PK_PSC_SECURITY_BATHDR_TABLE_FIELD "psc_security_bathdr.PK_psc_security_bathdr"
+#define PSC_SECURITY_BATHDR_IPADDRESS_FIELD "IPAddress"
+#define PSC_SECURITY_BATHDR_IPADDRESS_TABLE_FIELD "psc_security_bathdr.IPAddress"
 #define PSC_SECURITY_BATHDR_DATE_FIELD "date"
 #define PSC_SECURITY_BATHDR_DATE_TABLE_FIELD "psc_security_bathdr.date"
 #define PSC_SECURITY_BATHDR_COMMENTS_FIELD "comments"

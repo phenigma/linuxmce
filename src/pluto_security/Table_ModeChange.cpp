@@ -27,7 +27,8 @@ void Database_pluto_security::CreateTable_ModeChange()
 
 void Database_pluto_security::DeleteTable_ModeChange()
 {
-	delete tblModeChange;
+	if( tblModeChange )
+		delete tblModeChange;
 }
 
 Table_ModeChange::~Table_ModeChange()
@@ -279,7 +280,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->db_handle, buf, m_ChangeTime.c_str(), (unsigned long) m_ChangeTime.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ChangeTime.c_str(), (unsigned long) min(19,m_ChangeTime.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -358,7 +359,7 @@ if (is_null[9])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -408,18 +409,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_ModeChange_
 		string query = "insert into ModeChange (`PK_ModeChange`, `EK_HouseMode`, `EK_DeviceGroup`, `ChangeTime`, `EK_Users`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_ModeChange=id;
@@ -461,10 +462,10 @@ update_values_list = update_values_list + "`PK_ModeChange`="+pRow->PK_ModeChange
 	
 		string query = "update ModeChange set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
@@ -501,10 +502,10 @@ condition = condition + "`PK_ModeChange`=" + tmp_PK_ModeChange;
 	
 		string query = "delete from ModeChange where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}	
 		
@@ -522,20 +523,20 @@ bool Table_ModeChange::GetRows(string where_statement,vector<class Row_ModeChang
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from ModeChange " + where_statement;
+		query = "select `ModeChange`.* from ModeChange " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from ModeChange where " + where_statement;
+		query = "select `ModeChange`.* from ModeChange where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -742,14 +743,14 @@ condition = condition + "`PK_ModeChange`=" + tmp_PK_ModeChange;
 
 	string query = "select * from ModeChange where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

@@ -27,7 +27,8 @@ void Database_pluto_security::CreateTable_psc_security_schema()
 
 void Database_pluto_security::DeleteTable_psc_security_schema()
 {
-	delete tblpsc_security_schema;
+	if( tblpsc_security_schema )
+		delete tblpsc_security_schema;
 }
 
 Table_psc_security_schema::~Table_psc_security_schema()
@@ -163,7 +164,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->db_handle, buf, m_Value.c_str(), (unsigned long) m_Value.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Value.c_str(), (unsigned long) min(65535,m_Value.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -213,18 +214,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_securit
 		string query = "insert into psc_security_schema (`PK_psc_security_schema`, `Value`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_psc_security_schema=id;
@@ -266,10 +267,10 @@ update_values_list = update_values_list + "`PK_psc_security_schema`="+pRow->PK_p
 	
 		string query = "update psc_security_schema set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
@@ -306,10 +307,10 @@ condition = condition + "`PK_psc_security_schema`=" + tmp_PK_psc_security_schema
 	
 		string query = "delete from psc_security_schema where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}	
 		
@@ -327,20 +328,20 @@ bool Table_psc_security_schema::GetRows(string where_statement,vector<class Row_
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from psc_security_schema " + where_statement;
+		query = "select `psc_security_schema`.* from psc_security_schema " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from psc_security_schema where " + where_statement;
+		query = "select `psc_security_schema`.* from psc_security_schema where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -459,14 +460,14 @@ condition = condition + "`PK_psc_security_schema`=" + tmp_PK_psc_security_schema
 
 	string query = "select * from psc_security_schema where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

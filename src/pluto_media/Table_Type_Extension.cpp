@@ -28,7 +28,8 @@ void Database_pluto_media::CreateTable_Type_Extension()
 
 void Database_pluto_media::DeleteTable_Type_Extension()
 {
-	delete tblType_Extension;
+	if( tblType_Extension )
+		delete tblType_Extension;
 }
 
 Table_Type_Extension::~Table_Type_Extension()
@@ -225,7 +226,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[17];
-mysql_real_escape_string(table->database->db_handle, buf, m_Extension.c_str(), (unsigned long) m_Extension.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Extension.c_str(), (unsigned long) min(8,m_Extension.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -291,7 +292,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -341,18 +342,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL(
 		string query = "insert into Type_Extension (`FK_Type`, `Extension`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 				
 			
@@ -392,10 +393,10 @@ update_values_list = update_values_list + "`FK_Type`="+pRow->FK_Type_asSQL()+", 
 	
 		string query = "update Type_Extension set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
@@ -432,10 +433,10 @@ condition = condition + "`FK_Type`=" + tmp_FK_Type;
 	
 		string query = "delete from Type_Extension where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}	
 		
@@ -453,20 +454,20 @@ bool Table_Type_Extension::GetRows(string where_statement,vector<class Row_Type_
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Type_Extension " + where_statement;
+		query = "select `Type_Extension`.* from Type_Extension " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Type_Extension where " + where_statement;
+		query = "select `Type_Extension`.* from Type_Extension where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -640,14 +641,14 @@ condition = condition + "`FK_Type`=" + tmp_FK_Type;
 
 	string query = "select * from Type_Extension where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

@@ -18,26 +18,26 @@ using namespace std;
 
 Database_pluto_media::Database_pluto_media()
 {
-CreateTable_Attribute();
-CreateTable_AttributeType();
-CreateTable_File();
-CreateTable_File_Attribute();
-CreateTable_Picture();
-CreateTable_Picture_Attribute();
-CreateTable_Picture_File();
-CreateTable_Playlist();
-CreateTable_PlaylistEntry();
-CreateTable_SearchToken();
-CreateTable_SearchToken_Attribute();
-CreateTable_Type();
-CreateTable_Type_AttributeType();
-CreateTable_Type_Extension();
-CreateTable_psc_media_batdet();
-CreateTable_psc_media_bathdr();
-CreateTable_psc_media_batuser();
-CreateTable_psc_media_repset();
-CreateTable_psc_media_schema();
-CreateTable_psc_media_tables();
+tblAttribute=NULL;
+tblAttributeType=NULL;
+tblFile=NULL;
+tblFile_Attribute=NULL;
+tblPicture=NULL;
+tblPicture_Attribute=NULL;
+tblPicture_File=NULL;
+tblPlaylist=NULL;
+tblPlaylistEntry=NULL;
+tblSearchToken=NULL;
+tblSearchToken_Attribute=NULL;
+tblType=NULL;
+tblType_AttributeType=NULL;
+tblType_Extension=NULL;
+tblpsc_media_batdet=NULL;
+tblpsc_media_bathdr=NULL;
+tblpsc_media_batuser=NULL;
+tblpsc_media_repset=NULL;
+tblpsc_media_schema=NULL;
+tblpsc_media_tables=NULL;
 }
 
 Database_pluto_media::~Database_pluto_media()
@@ -71,11 +71,11 @@ DeleteTable_psc_media_tables();
 
 bool Database_pluto_media::Connect(string host, string user, string pass, string sDBName, int port)
 {
-db_handle = mysql_init(NULL);
-if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
+m_pMySQL = mysql_init(NULL);
+if (mysql_real_connect(m_pMySQL, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
 {return false;}
 else
-{SetConnection(db_handle); return true;}
+{SetConnection(m_pMySQL); return true;}
 }
 
 bool Database_pluto_media::Connect(class DCEConfig *pDCEConfig)

@@ -10,7 +10,7 @@
 class DLL_EXPORT Database_pluto_media: public MySqlHelper
 {
 public:
-MYSQL *db_handle;
+MYSQL *m_pMySQL;
 Database_pluto_media();
 ~Database_pluto_media();
 void DeleteAllTables();
@@ -36,26 +36,26 @@ class Table_psc_media_repset* tblpsc_media_repset;
 class Table_psc_media_schema* tblpsc_media_schema;
 class Table_psc_media_tables* tblpsc_media_tables;
 public:
-class Table_Attribute* Attribute_get() { return tblAttribute; }
-class Table_AttributeType* AttributeType_get() { return tblAttributeType; }
-class Table_File* File_get() { return tblFile; }
-class Table_File_Attribute* File_Attribute_get() { return tblFile_Attribute; }
-class Table_Picture* Picture_get() { return tblPicture; }
-class Table_Picture_Attribute* Picture_Attribute_get() { return tblPicture_Attribute; }
-class Table_Picture_File* Picture_File_get() { return tblPicture_File; }
-class Table_Playlist* Playlist_get() { return tblPlaylist; }
-class Table_PlaylistEntry* PlaylistEntry_get() { return tblPlaylistEntry; }
-class Table_SearchToken* SearchToken_get() { return tblSearchToken; }
-class Table_SearchToken_Attribute* SearchToken_Attribute_get() { return tblSearchToken_Attribute; }
-class Table_Type* Type_get() { return tblType; }
-class Table_Type_AttributeType* Type_AttributeType_get() { return tblType_AttributeType; }
-class Table_Type_Extension* Type_Extension_get() { return tblType_Extension; }
-class Table_psc_media_batdet* psc_media_batdet_get() { return tblpsc_media_batdet; }
-class Table_psc_media_bathdr* psc_media_bathdr_get() { return tblpsc_media_bathdr; }
-class Table_psc_media_batuser* psc_media_batuser_get() { return tblpsc_media_batuser; }
-class Table_psc_media_repset* psc_media_repset_get() { return tblpsc_media_repset; }
-class Table_psc_media_schema* psc_media_schema_get() { return tblpsc_media_schema; }
-class Table_psc_media_tables* psc_media_tables_get() { return tblpsc_media_tables; }
+class Table_Attribute* Attribute_get() { if( !tblAttribute ) CreateTable_Attribute(); return tblAttribute; }
+class Table_AttributeType* AttributeType_get() { if( !tblAttributeType ) CreateTable_AttributeType(); return tblAttributeType; }
+class Table_File* File_get() { if( !tblFile ) CreateTable_File(); return tblFile; }
+class Table_File_Attribute* File_Attribute_get() { if( !tblFile_Attribute ) CreateTable_File_Attribute(); return tblFile_Attribute; }
+class Table_Picture* Picture_get() { if( !tblPicture ) CreateTable_Picture(); return tblPicture; }
+class Table_Picture_Attribute* Picture_Attribute_get() { if( !tblPicture_Attribute ) CreateTable_Picture_Attribute(); return tblPicture_Attribute; }
+class Table_Picture_File* Picture_File_get() { if( !tblPicture_File ) CreateTable_Picture_File(); return tblPicture_File; }
+class Table_Playlist* Playlist_get() { if( !tblPlaylist ) CreateTable_Playlist(); return tblPlaylist; }
+class Table_PlaylistEntry* PlaylistEntry_get() { if( !tblPlaylistEntry ) CreateTable_PlaylistEntry(); return tblPlaylistEntry; }
+class Table_SearchToken* SearchToken_get() { if( !tblSearchToken ) CreateTable_SearchToken(); return tblSearchToken; }
+class Table_SearchToken_Attribute* SearchToken_Attribute_get() { if( !tblSearchToken_Attribute ) CreateTable_SearchToken_Attribute(); return tblSearchToken_Attribute; }
+class Table_Type* Type_get() { if( !tblType ) CreateTable_Type(); return tblType; }
+class Table_Type_AttributeType* Type_AttributeType_get() { if( !tblType_AttributeType ) CreateTable_Type_AttributeType(); return tblType_AttributeType; }
+class Table_Type_Extension* Type_Extension_get() { if( !tblType_Extension ) CreateTable_Type_Extension(); return tblType_Extension; }
+class Table_psc_media_batdet* psc_media_batdet_get() { if( !tblpsc_media_batdet ) CreateTable_psc_media_batdet(); return tblpsc_media_batdet; }
+class Table_psc_media_bathdr* psc_media_bathdr_get() { if( !tblpsc_media_bathdr ) CreateTable_psc_media_bathdr(); return tblpsc_media_bathdr; }
+class Table_psc_media_batuser* psc_media_batuser_get() { if( !tblpsc_media_batuser ) CreateTable_psc_media_batuser(); return tblpsc_media_batuser; }
+class Table_psc_media_repset* psc_media_repset_get() { if( !tblpsc_media_repset ) CreateTable_psc_media_repset(); return tblpsc_media_repset; }
+class Table_psc_media_schema* psc_media_schema_get() { if( !tblpsc_media_schema ) CreateTable_psc_media_schema(); return tblpsc_media_schema; }
+class Table_psc_media_tables* psc_media_tables_get() { if( !tblpsc_media_tables ) CreateTable_psc_media_tables(); return tblpsc_media_tables; }
 string m_sLastMySqlError;
 bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);

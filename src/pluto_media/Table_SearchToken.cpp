@@ -28,7 +28,8 @@ void Database_pluto_media::CreateTable_SearchToken()
 
 void Database_pluto_media::DeleteTable_SearchToken()
 {
-	delete tblSearchToken;
+	if( tblSearchToken )
+		delete tblSearchToken;
 }
 
 Table_SearchToken::~Table_SearchToken()
@@ -225,7 +226,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[41];
-mysql_real_escape_string(table->database->db_handle, buf, m_Token.c_str(), (unsigned long) m_Token.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Token.c_str(), (unsigned long) min(20,m_Token.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -291,7 +292,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -341,18 +342,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_SearchToken
 		string query = "insert into SearchToken (`PK_SearchToken`, `Token`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_SearchToken=id;
@@ -394,10 +395,10 @@ update_values_list = update_values_list + "`PK_SearchToken`="+pRow->PK_SearchTok
 	
 		string query = "update SearchToken set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
@@ -434,10 +435,10 @@ condition = condition + "`PK_SearchToken`=" + tmp_PK_SearchToken;
 	
 		string query = "delete from SearchToken where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}	
 		
@@ -455,20 +456,20 @@ bool Table_SearchToken::GetRows(string where_statement,vector<class Row_SearchTo
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from SearchToken " + where_statement;
+		query = "select `SearchToken`.* from SearchToken " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from SearchToken where " + where_statement;
+		query = "select `SearchToken`.* from SearchToken where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -642,14 +643,14 @@ condition = condition + "`PK_SearchToken`=" + tmp_PK_SearchToken;
 
 	string query = "select * from SearchToken where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{

@@ -18,17 +18,17 @@ using namespace std;
 
 Database_pluto_security::Database_pluto_security()
 {
-CreateTable_Alert();
-CreateTable_AlertType();
-CreateTable_ModeChange();
-CreateTable_Notification();
-CreateTable_Picture();
-CreateTable_psc_security_batdet();
-CreateTable_psc_security_bathdr();
-CreateTable_psc_security_batuser();
-CreateTable_psc_security_repset();
-CreateTable_psc_security_schema();
-CreateTable_psc_security_tables();
+tblAlert=NULL;
+tblAlertType=NULL;
+tblModeChange=NULL;
+tblNotification=NULL;
+tblPicture=NULL;
+tblpsc_security_batdet=NULL;
+tblpsc_security_bathdr=NULL;
+tblpsc_security_batuser=NULL;
+tblpsc_security_repset=NULL;
+tblpsc_security_schema=NULL;
+tblpsc_security_tables=NULL;
 }
 
 Database_pluto_security::~Database_pluto_security()
@@ -53,11 +53,11 @@ DeleteTable_psc_security_tables();
 
 bool Database_pluto_security::Connect(string host, string user, string pass, string sDBName, int port)
 {
-db_handle = mysql_init(NULL);
-if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
+m_pMySQL = mysql_init(NULL);
+if (mysql_real_connect(m_pMySQL, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
 {return false;}
 else
-{SetConnection(db_handle); return true;}
+{SetConnection(m_pMySQL); return true;}
 }
 
 bool Database_pluto_security::Connect(class DCEConfig *pDCEConfig)

@@ -82,22 +82,34 @@ class DLL_EXPORT Row_psc_media_bathdr : public TableRow, public SerializeClass
 		Table_psc_media_bathdr *table;
 		
 		long int m_PK_psc_media_bathdr;
-string m_Value;
+string m_IPAddress;
+string m_date;
+string m_comments;
 
-		bool is_null[2];
+		bool is_null[4];
 	
 	public:
 		long int PK_psc_media_bathdr_get();
-string Value_get();
+string IPAddress_get();
+string date_get();
+string comments_get();
 
 		
 		void PK_psc_media_bathdr_set(long int val);
-void Value_set(string val);
+void IPAddress_set(string val);
+void date_set(string val);
+void comments_set(string val);
 
 		
-		
+		bool IPAddress_isNull();
+bool date_isNull();
+bool comments_isNull();
+
 			
-			
+		void IPAddress_setNull(bool val);
+void date_setNull(bool val);
+void comments_setNull(bool val);
+	
 	
 		void Delete();
 		void Reload();		
@@ -112,18 +124,24 @@ void Value_set(string val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void psc_media_batuser_FK_psc_media_bathdr_getrows(vector <class Row_psc_media_batuser*> *rows);
+		void psc_media_batdet_FK_psc_media_bathdr_getrows(vector <class Row_psc_media_batdet*> *rows);
+void psc_media_batdet_FK_psc_media_bathdr_orig_getrows(vector <class Row_psc_media_batdet*> *rows);
+void psc_media_batdet_FK_psc_media_bathdr_auth_getrows(vector <class Row_psc_media_batdet*> *rows);
+void psc_media_batdet_FK_psc_media_bathdr_unauth_getrows(vector <class Row_psc_media_batdet*> *rows);
+void psc_media_batuser_FK_psc_media_bathdr_getrows(vector <class Row_psc_media_batuser*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_psc_media_bathdr+ m_Value;
+			StartSerializeList() + m_PK_psc_media_bathdr+ m_IPAddress+ m_date+ m_comments;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_psc_media_bathdr_asSQL();
-string Value_asSQL();
+string IPAddress_asSQL();
+string date_asSQL();
+string comments_asSQL();
 
 	};
 

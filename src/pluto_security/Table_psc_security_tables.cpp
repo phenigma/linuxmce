@@ -27,7 +27,8 @@ void Database_pluto_security::CreateTable_psc_security_tables()
 
 void Database_pluto_security::DeleteTable_psc_security_tables()
 {
-	delete tblpsc_security_tables;
+	if( tblpsc_security_tables )
+		delete tblpsc_security_tables;
 }
 
 Table_psc_security_tables::~Table_psc_security_tables()
@@ -118,10 +119,12 @@ is_null[1] = false;
 is_null[2] = true;
 m_frozen = 0;
 is_null[3] = false;
-m_last_psc_id = 0;
+m_anonymous = 0;
 is_null[4] = false;
-m_last_psc_batch = 0;
+m_last_psc_id = 0;
 is_null[5] = false;
+m_last_psc_batch = 0;
+is_null[6] = false;
 
 
 	is_added=false;
@@ -141,6 +144,9 @@ return m_filter;}
 short int Row_psc_security_tables::frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_frozen;}
+short int Row_psc_security_tables::anonymous_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_anonymous;}
 long int Row_psc_security_tables::last_psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_last_psc_id;}
@@ -161,40 +167,25 @@ m_filter = val; is_modified=true; is_null[2]=false;}
 void Row_psc_security_tables::frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_frozen = val; is_modified=true; is_null[3]=false;}
+void Row_psc_security_tables::anonymous_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_anonymous = val; is_modified=true; is_null[4]=false;}
 void Row_psc_security_tables::last_psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_last_psc_id = val; is_modified=true; is_null[4]=false;}
+m_last_psc_id = val; is_modified=true; is_null[5]=false;}
 void Row_psc_security_tables::last_psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_last_psc_batch = val; is_modified=true; is_null[5]=false;}
+m_last_psc_batch = val; is_modified=true; is_null[6]=false;}
 
 		
 bool Row_psc_security_tables::filter_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_psc_security_tables::frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[3];}
-bool Row_psc_security_tables::last_psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[4];}
-bool Row_psc_security_tables::last_psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[5];}
 
 			
 void Row_psc_security_tables::filter_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
-void Row_psc_security_tables::frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[3]=val;}
-void Row_psc_security_tables::last_psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
-void Row_psc_security_tables::last_psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[5]=val;}
 	
 
 string Row_psc_security_tables::PK_psc_security_tables_asSQL()
@@ -218,7 +209,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[121];
-mysql_real_escape_string(table->database->db_handle, buf, m_Tablename.c_str(), (unsigned long) m_Tablename.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Tablename.c_str(), (unsigned long) min(60,m_Tablename.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -232,7 +223,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[511];
-mysql_real_escape_string(table->database->db_handle, buf, m_filter.c_str(), (unsigned long) m_filter.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_filter.c_str(), (unsigned long) min(255,m_filter.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -251,11 +242,24 @@ sprintf(buf, "%hi", m_frozen);
 return buf;
 }
 
-string Row_psc_security_tables::last_psc_id_asSQL()
+string Row_psc_security_tables::anonymous_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_anonymous);
+
+return buf;
+}
+
+string Row_psc_security_tables::last_psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -268,7 +272,7 @@ string Row_psc_security_tables::last_psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -315,24 +319,24 @@ bool Table_psc_security_tables::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_security_tables_asSQL()+", "+pRow->Tablename_asSQL()+", "+pRow->filter_asSQL()+", "+pRow->frozen_asSQL()+", "+pRow->last_psc_id_asSQL()+", "+pRow->last_psc_batch_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_security_tables_asSQL()+", "+pRow->Tablename_asSQL()+", "+pRow->filter_asSQL()+", "+pRow->frozen_asSQL()+", "+pRow->anonymous_asSQL()+", "+pRow->last_psc_id_asSQL()+", "+pRow->last_psc_batch_asSQL();
 
 	
-		string query = "insert into psc_security_tables (`PK_psc_security_tables`, `Tablename`, `filter`, `frozen`, `last_psc_id`, `last_psc_batch`) values ("+
+		string query = "insert into psc_security_tables (`PK_psc_security_tables`, `Tablename`, `filter`, `frozen`, `anonymous`, `last_psc_id`, `last_psc_batch`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_psc_security_tables=id;
@@ -369,15 +373,15 @@ condition = condition + "`PK_psc_security_tables`=" + tmp_PK_psc_security_tables
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_psc_security_tables`="+pRow->PK_psc_security_tables_asSQL()+", `Tablename`="+pRow->Tablename_asSQL()+", `filter`="+pRow->filter_asSQL()+", `frozen`="+pRow->frozen_asSQL()+", `last_psc_id`="+pRow->last_psc_id_asSQL()+", `last_psc_batch`="+pRow->last_psc_batch_asSQL();
+update_values_list = update_values_list + "`PK_psc_security_tables`="+pRow->PK_psc_security_tables_asSQL()+", `Tablename`="+pRow->Tablename_asSQL()+", `filter`="+pRow->filter_asSQL()+", `frozen`="+pRow->frozen_asSQL()+", `anonymous`="+pRow->anonymous_asSQL()+", `last_psc_id`="+pRow->last_psc_id_asSQL()+", `last_psc_batch`="+pRow->last_psc_batch_asSQL();
 
 	
 		string query = "update psc_security_tables set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
@@ -414,10 +418,10 @@ condition = condition + "`PK_psc_security_tables`=" + tmp_PK_psc_security_tables
 	
 		string query = "delete from psc_security_tables where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}	
 		
@@ -435,20 +439,20 @@ bool Table_psc_security_tables::GetRows(string where_statement,vector<class Row_
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from psc_security_tables " + where_statement;
+		query = "select `psc_security_tables`.* from psc_security_tables " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from psc_security_tables where " + where_statement;
+		query = "select `psc_security_tables`.* from psc_security_tables where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -513,23 +517,34 @@ sscanf(row[3], "%hi", &(pRow->m_frozen));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_last_psc_id = 0;
+pRow->m_anonymous = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_last_psc_id));
+sscanf(row[4], "%hi", &(pRow->m_anonymous));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_last_psc_batch = 0;
+pRow->m_last_psc_id = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_last_psc_batch));
+sscanf(row[5], "%li", &(pRow->m_last_psc_id));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_last_psc_batch = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_last_psc_batch));
 }
 
 
@@ -611,14 +626,14 @@ condition = condition + "`PK_psc_security_tables`=" + tmp_PK_psc_security_tables
 
 	string query = "select * from psc_security_tables where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -687,23 +702,34 @@ sscanf(row[3], "%hi", &(pRow->m_frozen));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_last_psc_id = 0;
+pRow->m_anonymous = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_last_psc_id));
+sscanf(row[4], "%hi", &(pRow->m_anonymous));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_last_psc_batch = 0;
+pRow->m_last_psc_id = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_last_psc_batch));
+sscanf(row[5], "%li", &(pRow->m_last_psc_id));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_last_psc_batch = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_last_psc_batch));
 }
 
 

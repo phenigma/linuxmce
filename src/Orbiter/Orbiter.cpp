@@ -4853,7 +4853,7 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sType,string &sC
 		DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) *it;
 		pObj->m_GraphicToDisplay = iValue;
 		if( pObj->m_bOnScreen )
-			m_vectObjs_NeedRedraw.push_back(pObj);
+			m_vectObjs_NeedRedraw.push_back(pObj);  pObj->m_bDontResetState=t;
 	}
 }
 

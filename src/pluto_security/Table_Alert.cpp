@@ -30,7 +30,8 @@ void Database_pluto_security::CreateTable_Alert()
 
 void Database_pluto_security::DeleteTable_Alert()
 {
-	delete tblAlert;
+	if( tblAlert )
+		delete tblAlert;
 }
 
 Table_Alert::~Table_Alert()
@@ -339,7 +340,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->db_handle, buf, m_DetectionTime.c_str(), (unsigned long) m_DetectionTime.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_DetectionTime.c_str(), (unsigned long) min(19,m_DetectionTime.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -353,7 +354,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->db_handle, buf, m_ExpirationTime.c_str(), (unsigned long) m_ExpirationTime.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ExpirationTime.c_str(), (unsigned long) min(19,m_ExpirationTime.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -393,7 +394,7 @@ if (is_null[7])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->db_handle, buf, m_ResetTime.c_str(), (unsigned long) m_ResetTime.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ResetTime.c_str(), (unsigned long) min(19,m_ResetTime.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -472,7 +473,7 @@ if (is_null[13])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -522,18 +523,18 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Alert_asSQL
 		string query = "insert into Alert (`PK_Alert`, `FK_AlertType`, `EK_Device`, `DetectionTime`, `ExpirationTime`, `ResetBeforeExpiration`, `Benign`, `ResetTime`, `EK_Users`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_Alert=id;
@@ -575,10 +576,10 @@ update_values_list = update_values_list + "`PK_Alert`="+pRow->PK_Alert_asSQL()+"
 	
 		string query = "update Alert set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
@@ -615,10 +616,10 @@ condition = condition + "`PK_Alert`=" + tmp_PK_Alert;
 	
 		string query = "delete from Alert where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}	
 		
@@ -636,20 +637,20 @@ bool Table_Alert::GetRows(string where_statement,vector<class Row_Alert*> *rows)
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Alert " + where_statement;
+		query = "select `Alert`.* from Alert " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Alert where " + where_statement;
+		query = "select `Alert`.* from Alert where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -900,14 +901,14 @@ condition = condition + "`PK_Alert`=" + tmp_PK_Alert;
 
 	string query = "select * from Alert where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
