@@ -60,6 +60,17 @@ bool EIB::Connect(int iPK_DeviceTemplate) {
 	}
 
 	m_msgPool.regInterceptor(this);
+	
+	string sPort = m_pData->mapParameters_Find(DEVICEDATA_Port_CONST);
+	if(sPort.find("/dev") != 0) {
+		sPort = "/dev" + sPort;
+	}
+	
+	if(sPort.length() > 0) {
+		g_pPlutoLogger->Write(LV_STATUS, "Using serial port: %s.", sPort.c_str());
+		m_msgPool.setSerialPort(sPort.c_str());
+	}
+	
 	m_msgPool.Run(false);
 	
 /*	
