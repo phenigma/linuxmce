@@ -76,7 +76,7 @@ void draw_background(SDL_Surface *screen)
     }
 }
 
-int main(int argc, char *argv[])
+int _tmain(int argc, char* argv[])
 {
 	Uint32 flags;
 	SDL_Surface *screen, *image;
@@ -85,23 +85,23 @@ int main(int argc, char *argv[])
 
 	/* Check command line usage */
 	if ( ! argv[1] ) {
-		fprintf(stderr, "Usage: %s <image_file>\n", argv[0]);
+		//fprintf(stderr, "Usage: %s <image_file>\n", argv[0]);
 		return(1);
 	}
 
 	/* Initialize the SDL library */
 	if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-		fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
+		//fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
 		return(255);
 	}
 
 	flags = SDL_SWSURFACE;
 	for ( i=1; argv[i]; ++i ) {
-		if ( strcmp(argv[i], "-fullscreen") == 0 ) {
+		//if ( strcmp(argv[i], "-fullscreen") == 0 ) {
 			SDL_ShowCursor(0);
 			flags |= SDL_FULLSCREEN;
 			continue;
-		}
+		//}
 		/* Open the image file */
 #ifdef XPM_INCLUDED
 		image = IMG_ReadXPMFromArray(picture_xpm);

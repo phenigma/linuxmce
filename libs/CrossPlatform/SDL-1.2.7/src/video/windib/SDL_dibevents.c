@@ -392,6 +392,6 @@ int DIB_CreateWindow(_THIS)
 void DIB_DestroyWindow(_THIS)
 {
 	if ( SDL_windowid == NULL ) {
-		DestroyWindow(SDL_Window);
+		//DestroyWindow(SDL_Window);
 	}
 }
