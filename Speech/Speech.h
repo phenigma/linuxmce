@@ -5,7 +5,7 @@
 //	DCE Implemenation for #59 Speech
 
 #include "Gen_Devices/SpeechBase.h"
-#ifdef WIN32
+#ifndef WIN32
 	#include "s2types.h"
 	#include "ad.h"
 	#include "cont_ad.h"
