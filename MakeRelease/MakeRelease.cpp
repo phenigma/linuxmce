@@ -427,7 +427,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 		FileUtils::FindFiles(listFiles,sDirectory,"*.cpp,*.c,Makefile*");
 		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 		{
-			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,pRow_Package_Directory->Path_get() + *it,pRow_Package_Directory);
+			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,pRow_Package_Directory->Path_get() + "/" + *it,pRow_Package_Directory);
 			listFileInfo.push_back(pFileInfo);
 		}
 
@@ -436,7 +436,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 		{
 			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,
-				(pRow_Package_Directory_SourceIncludes ? pRow_Package_Directory_SourceIncludes->Path_get() : pRow_Package_Directory->Path_get()) + *it,
+				(pRow_Package_Directory_SourceIncludes ? pRow_Package_Directory_SourceIncludes->Path_get() : pRow_Package_Directory->Path_get()) + "/" + *it,
 				pRow_Package_Directory);
 			listFileInfo.push_back(pFileInfo);
 		}
