@@ -143,3 +143,9 @@ fi
 mkdir -p /tftpboot/pxelinux.cfg
 cp /usr/lib/syslinux/pxelinux.0 /tftpboot
 
+# Changed from 2.0.0.10 to 2.0.0.11: diskless filesystems were moved to /home
+if [ ! -L /usr/pluto/diskless -a -d /usr/pluto/diskless ]; then
+	mv /usr/pluto/diskless /home
+fi
+mkdir -p /home/diskless
+ln -sf /home/diskless /usr/pluto/diskless

@@ -45,7 +45,10 @@ InstallKernel()
 }
 
 mkdir -p "$DlPath"
-cd "$DlPath"
+if ! cd "$DlPath"; then
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Couldn't switch to diskless image directory. Not extracting."
+	exit 1
+fi
 
 if [ ! -d "$DlPath" -o ! -f "$DlPath/etc/diskless.conf" ]; then
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Extracting filesystem for diskless client '$IP , $MAC' ($Device)"
