@@ -91,7 +91,7 @@ Renderer::~Renderer()
 void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion)
 {
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-    if( pDesignObj_Generator->m_ObjectID.find("1399")!=string::npos )
+    if( pDesignObj_Generator->m_ObjectID.find("1397")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -125,13 +125,13 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
         PlutoPoint Position=PositionOriginal;
 
         if( iIteration==-2 )
-            sInputFile = pDesignObj_Generator->m_sBackgroundFile;
+            sInputFile = pDesignObj_Generator->m_sOrigBackgroundFile;
         else if( iIteration==-1 )
-            sInputFile = pDesignObj_Generator->m_sSelectedFile;
+            sInputFile = pDesignObj_Generator->m_sOrigSelectedFile;
         else if( iIteration==0 )
-            sInputFile = pDesignObj_Generator->m_sHighlightGraphicFilename;
+            sInputFile = pDesignObj_Generator->m_sOrigHighlightGraphicFilename;
         else
-            sInputFile = pDesignObj_Generator->m_vectAltGraphicFilename[iIteration-1];
+            sInputFile = pDesignObj_Generator->m_vectOrigAltGraphicFilename[iIteration-1];
 
         // If the visible state is specified, skip this screen if it's not specifically in the list
         if( pDesignObj_Generator->m_sVisibleState.length()>0 && (
@@ -159,7 +159,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 		// If iOnlyVersion is -999, then we've already hit an object with non-standard versions, so we're not 
 		// going to write out children as separate objects anymore
         if( iOnlyVersion==-999 && (iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage || 
-			pDesignObj_Generator->m_vectAltGraphicFilename.size() || pDesignObj_Generator->m_sHighlightGraphicFilename.size() || pDesignObj_Generator->m_sSelectedFile.size()) )
+			pDesignObj_Generator->m_vectOrigAltGraphicFilename.size() || pDesignObj_Generator->m_sOrigHighlightGraphicFilename.size() || pDesignObj_Generator->m_sOrigSelectedFile.size()) )
         {
             // We're going to save this out as a separate file
             sSaveToFile=pDesignObj_Generator->m_ObjectID;
@@ -210,8 +210,8 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 		int iOnlyVersion_Children=-999;  // By default render all of our children
 		if( iOnlyVersion!=-999 )
 			iOnlyVersion_Children = iOnlyVersion;
-		else if( iIteration!=-2 || pDesignObj_Generator->m_sHighlightGraphicFilename.size() || 
-			pDesignObj_Generator->m_sSelectedFile.size() || pDesignObj_Generator->m_vectAltGraphicFilename.size() )
+		else if( iIteration!=-2 || pDesignObj_Generator->m_sOrigHighlightGraphicFilename.size() || 
+			pDesignObj_Generator->m_sOrigSelectedFile.size() || pDesignObj_Generator->m_vectOrigAltGraphicFilename.size() )
 		{
 			iOnlyVersion_Children = iIteration;
 		}
@@ -244,9 +244,11 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			{
 				if(pRenderImageClone_Child )
 				{
-//					SaveImageToFile(pRenderImageClone, "c:/x/compositea");
+//SaveImageToFile(pRenderImage, "ri");
+//SaveImageToFile(pRenderImageClone, "ic b4");
+//SaveImageToFile(pRenderImageClone_Child, "icc b4");
 					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
-//					SaveImageToFile(pRenderImageClone, "c:/x/compositeb");
+//SaveImageToFile(pRenderImageClone, "ic aft");
 				}
 				if( pDesignObj_Generator->m_bChildrenBeforeText )
 				{
@@ -258,6 +260,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 					RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
 					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio,iOnlyVersion_Children);
 				}
+//SaveImageToFile(pRenderImageClone, "ic aft ch");
 			}
 //			SaveImageToFile(pRenderImageClone, "c:/x/compositec");
 			if( pRendererMNG )
@@ -402,6 +405,10 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, b
 
 void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile)
 {
+if( sSaveToFile.find(".1393.")!=string::npos )
+{
+int k=2;
+}
     // we can't just save NULL pointers...
     if (pRendererImage == NULL || pRendererImage->m_pSDL_Surface == NULL)
     {

@@ -16,7 +16,6 @@ class Database_pluto_main;
 
 namespace DCE
 {
-
     // Store an orbiter list within the handler
     class OH_Orbiter
     {

@@ -15,6 +15,11 @@ public:
 	class OrbiterGenerator *m_pOrbiterGenerator;
 	map<int,string> m_VariableMap;
 
+	// These are the input values, the 'real' location on the server that Orbiter Gen uses.  The regular variables without Orig
+	// are the rendered versions.
+	string m_sOrigBackgroundFile, m_sOrigSelectedFile, m_sOrigHighlightGraphicFilename;
+	vector<string> m_vectOrigAltGraphicFilename;
+
 	class Row_DesignObjVariation * m_pRow_DesignObjVariation,*m_pRow_DesignObjVariation_Standard;
 	vector<class Row_DesignObjVariation *> m_alDesignObjVariations;
 //	vector<class CGZone *> m_alZones;

@@ -772,7 +772,7 @@ int OrbiterGenerator::DoIt()
 				cout << "Rendering screen " << oco->m_ObjectID << " in orbiter: " << m_pRow_Device->PK_Device_get() << endl;
 				try
 				{
-if( oco->m_ObjectID.find("1389")!=string::npos )
+//if( oco->m_ObjectID.find("1389")!=string::npos )
 					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,m_pRow_Size->PreserveAspectRatio_get()==1,oco);
 				}
 				catch(string s)
@@ -1010,30 +1010,6 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	ocDesignObj->m_bAnimate = ocDesignObj->m_pRow_DesignObj->Animate_get()==1;
 	ocDesignObj->m_bTabStop = ocDesignObj->m_bTabStop;
 
-	/*
-	if( ocDesignObj->m_sBackgroundFile.length()==0 )
-	fstr_Orbiter << "|";
-	else
-	fstr_Orbiter << ocDesignObj->m_sBackgroundFile << "|";
-
-	if( ocDesignObj->m_sSelectedFile.length()==0 )
-	fstr_Orbiter << "|";
-	else
-	fstr_Orbiter << ocDesignObj->m_sSelectedFile << "|";
-
-	if( ocDesignObj->m_sAltFile.length()==0 )
-	fstr_Orbiter << "|";
-	else
-	fstr_Orbiter << ocDesignObj->m_sAltFile << "|";
-	*/
-
-	/*
-	fstr_Orbiter << ocDesignObj->m_rBackgroundPosition.X << "|" << ocDesignObj->m_rBackgroundPosition.Y << "|" << \
-	ocDesignObj->m_rBackgroundPosition.Width << "|" << ocDesignObj->m_rBackgroundPosition.Height << "|";
-	fstr_Orbiter << ocDesignObj->m_rPosition.X << "|" << ocDesignObj->m_rPosition.Y << "|" << \
-	ocDesignObj->m_rPosition.Width << "|" << ocDesignObj->m_rPosition.Height << "|";
-	fstr_Orbiter << ocDesignObj->m_sOriginalSize.Width << "|" << ocDesignObj->m_sOriginalSize.Height << "|";
-	*/
 	int NumParms=0;
 
 	vector<Row_DesignObjVariation_DesignObjParameter *> vectovp;

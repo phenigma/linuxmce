@@ -168,6 +168,8 @@ namespace StringUtils
 
 	string GetStringFromConsole(); /** < Let's the user enter a string terminated by a carriage return */
 
+	time_t StringToDate(string Value);  /** < Converts a date/time as a string to a time_t */
+
 #endif //#ifndef SYMBIAN
 };
 

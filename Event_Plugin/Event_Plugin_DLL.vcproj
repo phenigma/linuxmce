@@ -142,6 +142,9 @@
 			<File
 				RelativePath="Main.cpp">
 			</File>
+			<File
+				RelativePath=".\TimedEvent.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

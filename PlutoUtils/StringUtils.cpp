@@ -575,6 +575,11 @@ bool StringUtils::EndsWith( string sFirst, string sSecond, bool bIgnoreCase )
         return sFirst.length()>=sSecond.length() && sFirst.substr(sFirst.length()-sSecond.length())==sSecond;
 }
 
+time_t StringUtils::StringToDate(string Value)
+{
+	return 0;
+}
+
 string StringUtils::GetStringFromConsole()
 {
     string sOutput;

@@ -15,7 +15,6 @@ using namespace DCE;
 #include "DCERouter/DCERouter.h"
 #include "Event.h"
 #include "EventInfo.h"
-#include "EventHandler.h"
 #include "EventInstance.h"
 #include "Criteria.h"
 #include "CriteriaParm.h"
@@ -27,6 +26,8 @@ using namespace DCE;
 #include "pluto_main/Table_CriteriaParmNesting.h"
 #include "pluto_main/Table_EventHandler.h"
 
+#define ALARM_TIMED_EVENT	1
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -34,6 +35,8 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 //<-dceag-const-e->
 {
 	m_dwID_EventInstance=0;
+	m_pTimedEvent_Next=NULL;
+
     m_pDatabase_pluto_main = new Database_pluto_main( );
     if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
     {
@@ -65,26 +68,38 @@ int k=2;
 	for(size_t s=0;s<vectRow_EventHandler.size();++s)
 	{
 		Row_EventHandler *pRow_EventHandler = vectRow_EventHandler[s];
+		if( pRow_EventHandler->Disabled_get() )
+			continue;
 
-		EventHandler *pEventHandler = new EventHandler(pRow_EventHandler->PK_EventHandler_get(),
-			pRow_EventHandler->FK_Event_get(),m_pRouter->m_mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get()),
-			m_mapCriteria_Find(pRow_EventHandler->FK_Criteria_get()));
-
-		ListEventHandler *pListEventHandler = m_mapListEventHandler_Find(pRow_EventHandler->FK_Event_get());
-		if( !pListEventHandler )
+		if( pRow_EventHandler->TimedEvent_get() )
 		{
-			pListEventHandler = new ListEventHandler();
-  			m_mapListEventHandler[pRow_EventHandler->FK_Event_get()] = pListEventHandler;
+			TimedEvent *pTimedEvent = new TimedEvent(pRow_EventHandler);
+			m_vectTimedEvent.push_back(pTimedEvent);
 		}
-		pListEventHandler->push_back(pEventHandler);
+		else
+		{
+			EventHandler *pEventHandler = new EventHandler(pRow_EventHandler->PK_EventHandler_get(),
+				pRow_EventHandler->FK_Event_get(),m_pRouter->m_mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get()),
+				m_mapCriteria_Find(pRow_EventHandler->FK_Criteria_get()));
+
+			ListEventHandler *pListEventHandler = m_mapListEventHandler_Find(pRow_EventHandler->FK_Event_get());
+			if( !pListEventHandler )
+			{
+				pListEventHandler = new ListEventHandler();
+  				m_mapListEventHandler[pRow_EventHandler->FK_Event_get()] = pListEventHandler;
+			}
+			pListEventHandler->push_back(pEventHandler);
+		}
 	}
+
+	SetNextTimedEventCallback();
 }
 
 //<-dceag-const2-b->!
 
 CriteriaParmNesting *Event_Plugin::LoadCriteriaParmNesting(CriteriaParmNesting *pCriteriaParmNesting_Parent,Row_CriteriaParmNesting *pRow_CriteriaParmNesting)
 {
-	CriteriaParmNesting *pCriteriaParmNesting = new CriteriaParmNesting(pRow_CriteriaParmNesting->IsNot_get(),pRow_CriteriaParmNesting->IsAnd_get());
+	CriteriaParmNesting *pCriteriaParmNesting = new CriteriaParmNesting(pRow_CriteriaParmNesting->IsNot_get()==1,pRow_CriteriaParmNesting->IsAnd_get()==1);
 	if( pCriteriaParmNesting_Parent )
 		pCriteriaParmNesting_Parent->m_vectCriteriaParmNesting.push_back(pCriteriaParmNesting);
 	vector<Row_CriteriaParmNesting *> vectRow_CriteriaParmNesting;
@@ -205,6 +220,32 @@ void Event_Plugin::ExecuteEvent(EventInstance *pEventInstance)
 {
 	ExecCommandGroup(pEventInstance->m_ptrEventHandler->m_pCommandGroup->m_PK_CommandGroup);
 	delete pEventInstance;  // We will probably need to keep this for a while for some events like security problems
+}
+
+void Event_Plugin::SetNextTimedEventCallback()
+{
+	if( m_vectTimedEvent.size()==0 )
+	{
+		m_pTimedEvent_Next=NULL;
+		return;
+	}
+
+	m_pTimedEvent_Next=m_vectTimedEvent[0];
+	for(size_t s=1;s<m_vectTimedEvent.size();++s)
+	{
+		if( m_vectTimedEvent[s]->m_tTime < m_pTimedEvent_Next->m_tTime )
+			m_pTimedEvent_Next = m_vectTimedEvent[s];
+	}
+}
+
+void Event_Plugin::AlarmCallback(int id, void* param)
+{
+	if( id==ALARM_TIMED_EVENT )
+	{
+		TimedEvent *pTimedEvent = (TimedEvent *) param;
+		ExecCommandGroup(pTimedEvent->m_pCommandGroup->m_PK_CommandGroup);
+		SetNextTimedEventCallback();
+	}
 }
 
 //<-dceag-sample-b->!

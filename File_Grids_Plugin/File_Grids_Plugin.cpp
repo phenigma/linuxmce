@@ -435,15 +435,20 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 
 
 	string PathsToScan;
+	(*iPK_Variable) = VARIABLE_Path_CONST;
 	if( sSubDirectory.length() )
 	{
 		pos=0;
 		for(int i=0;i<=iDirNumber;++i)
 			PathsToScan = StringUtils::Tokenize(Paths, ",", pos);
 		PathsToScan += "/" + sSubDirectory;
+		(*sValue_To_Assign) = PathsToScan;
 	}
 	else 
+	{
 		PathsToScan = Paths;
+		(*sValue_To_Assign) = PathsToScan;
+	}
 
 	list<FileDetails *> listFileDetails;
 	GetDirContents(listFileDetails,PathsToScan,bSortByDate,Extensions);

@@ -8,7 +8,10 @@
 //<-dceag-d-e->
 
 #include "EventHandler.h"
+#include "AlarmManager.h"
+#include "TimedEvent.h"
 #include "pluto_main/Database_pluto_main.h"
+
 class Criteria;
 class CriteriaParmNesting;
 class Row_CriteriaParmNesting;
@@ -16,17 +19,19 @@ class EventInstance;
 
 //<-dceag-decl-b->
 namespace DCE
-{
-	class Event_Plugin : public Event_Plugin_Command
+{	
+	class Event_Plugin : public Event_Plugin_Command, public AlarmEvent
 	{
 //<-dceag-decl-e->
 		// Private member variables
 	    Database_pluto_main *m_pDatabase_pluto_main;
 		map<int,Criteria *> m_mapCriteria;
 		map<int,ListEventHandler *> m_mapListEventHandler;
+		VectTimedEvent m_vectTimedEvent;
 		ListEventHandler *m_mapListEventHandler_Find(int PK_Event) { map<int,ListEventHandler *>::iterator it = m_mapListEventHandler.find(PK_Event); return it==m_mapListEventHandler.end() ? NULL : (*it).second; }
 		Criteria *m_mapCriteria_Find(int PK_Criteria) { map<int,class Criteria *>::iterator it = m_mapCriteria.find(PK_Criteria); return it==m_mapCriteria.end() ? NULL : (*it).second; }
 		int m_dwID_EventInstance;
+		TimedEvent *m_pTimedEvent_Next;
 
 		// Private methods
 public:
@@ -45,6 +50,8 @@ public:
 		bool ProcessEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 		CriteriaParmNesting *LoadCriteriaParmNesting(CriteriaParmNesting *pCriteriaParmNesting_Parent,Row_CriteriaParmNesting *pRow_CriteriaParmNesting);
 		void ExecuteEvent(EventInstance *pEventInstance);
+        void AlarmCallback(int id, void* param);
+		void SetNextTimedEventCallback();
 
 //<-dceag-h-b->
 	/*
