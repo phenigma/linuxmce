@@ -58,9 +58,12 @@ class RatpoisonHandler
 
 
 			XLockDisplay(display);
-			if ( XInternAtoms(display, atom_names, 3, True, atoms) == 0 || atoms[RP_COMMAND] == 0  || atoms[RP_COMMAND_REQUEST] == 0 || atoms[RP_COMMAND_RESULT] == 0)
+			int result;
+			if ( (result = XInternAtoms(display, atom_names, 3, True, atoms)) == 0 || atoms[RP_COMMAND] == 0  || atoms[RP_COMMAND_REQUEST] == 0 || atoms[RP_COMMAND_RESULT] == 0)
 			{
-                g_pPlutoLogger->Write(LV_WARNING, "Ratpoison window manager does not seem to be running on this server");
+                g_pPlutoLogger->Write(LV_WARNING, "Ratpoison window manager does not seem to be running on this server got those results: %d [%d, %d, %d]",
+						result, atoms[RP_COMMAND], atoms[RP_COMMAND_REQUEST], atoms[RP_COMMAND_RESULT]);
+
                 XUnlockDisplay(display);
                 return false;
             }
