@@ -13,7 +13,15 @@
 long MS_TO_CLK(long miliseconds);
 long CLK_TO_MS(long Clocks);
 
-clock_t xClock();
+#ifndef SYMBIAN
+#ifdef WIN32
+#define xCLOCKS_PER_SEC CLOCKS_PER_SEC
+#else
+#define xCLOCKS_PER_SEC sysconf(_SC_CLK_TCK)
+#endif
+
+unsigned long xClock();
+#endif //#ifndef SYMBIAN
 
 #ifndef SYMBIAN
 

@@ -25,7 +25,24 @@
 
 #include "Other.h"
 
-clock_t xClock();
+#ifndef SYMBIAN
+	#include <stdio.h>
+	#include <time.h>
+	#include <cctype>
+	#include <algorithm>
+	#include <stdarg.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#ifdef WIN32
+		#include <direct.h>
+	#else
+		#include <dirent.h>
+		#define stricmp(x, y) strcasecmp(x, y)
+	#endif
+#endif //#ifndef SYMBIAN
+
+#ifndef SYMBIAN
+unsigned long xClock()
 {
 #ifdef WIN32
 	return clock();
@@ -44,24 +61,7 @@ long CLK_TO_MS(long Clocks)
 {
 	return Clocks * 1000 / xCLOCKS_PER_SEC;
 }
-
-#ifndef SYMBIAN
-	#include <stdio.h>
-	#include <time.h>
-	#include <cctype>
-	#include <algorithm>
-	#include <stdarg.h>
-	#include <sys/types.h>
-	#include <sys/stat.h>
-	#ifdef WIN32
-		#include <direct.h>
-	#else
-		#include <dirent.h>
-		#define stricmp(x, y) strcasecmp(x, y)
-	#endif
 #endif //#ifndef SYMBIAN
-
-
 
 int FastParser::GetNextNumParm()
 {
