@@ -974,10 +974,14 @@ void XineSlaveWrapper::stopMedia(int iStreamID)
 //	xine_close(pStream->m_pStream);
 
 	// stop the event thread first
-	g_pPlutoLogger->Write(LV_STATUS, "Stopping event thread.");
-	m_bExitThread = true;
-	pthread_join(pStream->eventLoop, NULL);
-	g_pPlutoLogger->Write(LV_STATUS, "Done.");
+	if ( pStream->eventLoop )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Stopping event thread.");
+		m_bExitThread = true;
+
+		pthread_join(pStream->eventLoop, NULL);
+		g_pPlutoLogger->Write(LV_STATUS, "Done.");
+	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Disposing the event queue");
 	xine_event_dispose_queue(pStream->m_pStreamEventQueue);
