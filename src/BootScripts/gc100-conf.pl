@@ -8,6 +8,7 @@ open(CONF,"/etc/pluto.conf");
 close(CONF);
 
 foreach $line (@data) {
+  chomp($line);
   ($option, $eq, $value) = split(/ /,$line);
   if($option eq "MySqlHost") {
     $DBHOST=$value;
@@ -48,8 +49,9 @@ if($ARGV[0] eq "") {
 	  exit(2);
 	}
 	loggc("Creating Device...");
-	loggc("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -n\n");
-	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -n");
+	loggc("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -C $PKDEV -n\n");
+	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -C $PKDEV -n\n");
+	add_control_via();
 	loggc("Done\n");
 	loggc("Configuring GC100 via Web...");
 	configure_webgc($ip);
@@ -84,6 +86,13 @@ exit(0);
     }
 }
 
+sub add_control_via {
+	$sql = "UPDATE Device SET FK_Device_ControlledVia=\'$PKDEV\' WHERE IPaddress=\'$ip\' AND MACaddress=\'$mac\'";
+	loggc($sql);
+	$st = $db->prepare($sql);
+	$st->execute();
+	$st->finish();
+}
 
 $db->disconnect();
 
@@ -159,7 +168,7 @@ sub get_template {
     return $row->{'PK_DeviceTemplate'};
   } else {
   	loggc("Invalid Template");
-    exit(4);
+    	exit(4);
   }
 }
 
