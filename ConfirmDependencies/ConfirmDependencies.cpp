@@ -1,3 +1,4 @@
+
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -363,24 +364,30 @@ makerelease isn't building all and isn't updating the versions
 
 #define EOL "\n"
 			cout <<
-"\t\techo \"***************************************************\"" EOL
-"\t\techo \"***ERROR*** Processing of package '" + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "' failed\"" EOL
-//"\t\techo \"I tried every known option to find this software. " EOL
-//"\t\tYou will need\"" EOL
-//"\t\techo \"to get it manually.  Press any key to continue.\"" EOL
-"\t\techo \"***************************************************\"" EOL
-"\t\techo -n 'Do you want to try again? [Y/n]: '" EOL;
+			"\t\techo \"***************************************************\"" EOL
+			"\t\techo \"***ERROR*** Processing of package '" + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "' failed\"" EOL
+			//"\t\techo \"I tried every known option to find this software. " EOL
+			//"\t\tYou will need\"" EOL
+			//"\t\techo \"to get it manually.  Press any key to continue.\"" EOL
+			"\t\techo \"***************************************************\"" EOL;
 
-if( bInteractive )
-	cout << "\t\tread answer" EOL;
-else
-	cout << "\t\techo \"01 Error processing package " + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "\" >> /var/log/pluto/ConfirmDependencies.log" EOL;
+			if( bInteractive )
+			{
+				cout << "\t\techo -n 'Do you want to try again? [Y/n]: '" EOL
+					"\t\tread answer" EOL;
+					"\t\tif [ \"$answer\" == n -o \"$answer\" == N ]; then" EOL
+					"\t\t\techo '*** Leaving package uninstalled'" EOL
+					"\t\t\tok=1" EOL
+					"\t\tfi" EOL
+				;
+			}
+			else
+			{
+				cout << "\t\techo \"01 Error processing package " + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "\" >> /var/log/pluto/ConfirmDependencies.log" EOL
+					"\t\t\tok=1" EOL
+				;
+			}
 
-cout << "\t\tif [ \"$answer\" == n -o \"$answer\" == N ]; then" EOL
-"\t\t\techo '*** Leaving package uninstalled'" EOL
-"\t\t\tok=1" EOL
-"\t\tfi" EOL
-;
 			cout << "\tfi" << endl;
 			cout << "done" << endl;
 		}
