@@ -102,7 +102,7 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 	if( mysql_query(m_pDatabase_pluto_security->db_handle,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_security->db_handle)) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
-			m_mapRow_ModeChange_Last[row[0] ? atoi(row[1]) : 0] = m_pDatabase_pluto_security->ModeChange_get()->GetRow( atoi(row[0]) );
+			m_mapRow_ModeChange_Last[row[1] ? atoi(row[1]) : 0] = m_pDatabase_pluto_security->ModeChange_get()->GetRow( atoi(row[0]) );
 	}
 
 	m_pDeviceData_Router_this = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
@@ -273,6 +273,8 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		for(size_t s=0;s<pDeviceGroup->m_vectDeviceData_Base.size();++s)
 		{
 			DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceGroup->m_vectDeviceData_Base[s];  // it's coming from the router, so it's safe to cast it
+			if( pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST )
+				continue;
 			mapResetDevices[pDevice->m_dwPK_Device] = pDevice;
 			if( !SetHouseMode(pDevice,iPK_Users,PK_HouseMode,sHandling_Instructions) )
 			{
@@ -304,61 +306,72 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	{
 		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuSensorsNotReady_CONST), "", "", false );
 		SendCommand( CMD_Goto_Screen );
+		return;
 	}
-	else
-	{
-		m_pDeviceData_Router_this->m_sState_set(GetModeString(PK_HouseMode));
-		Row_AlertType *pRow_AlertType = m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Security_CONST);
-		string sAlerts = AlertsSinceLastChange(iPK_DeviceGroup);
 
-		// Set the house indicators on either all orbiters, or just orbiters in this group if we only changed a zone
-		if( pDeviceGroup )
+	m_pDeviceData_Router_this->m_sState_set(GetModeString(PK_HouseMode));
+	Row_AlertType *pRow_AlertType = m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Security_CONST);
+	string sAlerts = AlertsSinceLastChange(iPK_DeviceGroup);
+
+	// Set the house indicators on either all orbiters, or just orbiters in this group if we only changed a zone
+	if( pDeviceGroup )
+	{
+		// Only set the house mode on the orbiters within this group
+		for(size_t s=0;s<pDeviceGroup->m_vectDeviceData_Base.size();++s)
 		{
-			// Only set the house mode on the orbiters within this group
-			for(size_t s=0;s<pDeviceGroup->m_vectDeviceData_Base.size();++s)
+			DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceGroup->m_vectDeviceData_Base[s];  // it's coming from the router, so it's safe to cast it
+			if( pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_Orbiter_CONST )
 			{
-				DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceGroup->m_vectDeviceData_Base[s];  // it's coming from the router, so it's safe to cast it
-				if( pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_Orbiter_CONST )
-				{
-					DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pDevice->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode");
-					SendCommand(CMD_Set_Bound_Icon);
-				}
-			}
-		}
-		else
-		{
-			for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
-			{
-				OH_Orbiter *pOH_Orbiter = (*it).second;
-				DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode");
+				DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pDevice->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode");
 				SendCommand(CMD_Set_Bound_Icon);
 			}
 		}
-		
-		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), "", "", false );
-
-		DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), pRow_AlertType->ExitDelay_get() ? "<%=CD%> seconds" : "IMMEDIATELY",
-			TEXT_House_Mode_Time_CONST );
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
-
-		if( pRow_AlertType->ExitDelay_get() )
+	}
+	else
+	{
+		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 		{
-			DCE::CMD_Select_Object CMD_Select_Object( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST),StringUtils::itos(pRow_AlertType->ExitDelay_get()) );
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Select_Object.m_pMessage);
+			OH_Orbiter *pOH_Orbiter = (*it).second;
+			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode");
+			SendCommand(CMD_Set_Bound_Icon);
 		}
+	}
+	
+	DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), "", "", false );
 
-		DCE::CMD_Set_Text CMD_Set_TextAlert( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), sAlerts,
-			TEXT_Alerts_Placeholder_CONST );
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_TextAlert.m_pMessage);
+	DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), pRow_AlertType->ExitDelay_get() ? "<%=CD%> seconds" : "IMMEDIATELY",
+		TEXT_House_Mode_Time_CONST );
+	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 
-		SendCommand( CMD_Goto_Screen );
+	if( pRow_AlertType->ExitDelay_get() )
+	{
+		DCE::CMD_Select_Object CMD_Select_Object( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST),StringUtils::itos(pRow_AlertType->ExitDelay_get()) );
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Select_Object.m_pMessage);
+	}
 
-		Row_ModeChange *pRow_ModeChange = m_pDatabase_pluto_security->ModeChange_get()->AddRow();
-		pRow_ModeChange->EK_HouseMode_set(PK_HouseMode);
-		pRow_ModeChange->ChangeTime_set(StringUtils::SQLDateTime(time(NULL)));
-		pRow_ModeChange->EK_Users_set(iPK_Users);
-		pRow_ModeChange->Table_ModeChange_get()->Commit();
-		m_mapRow_ModeChange_Last[pDeviceGroup ? pDeviceGroup->m_dwPK_DeviceGroup : 0]=pRow_ModeChange;
+	DCE::CMD_Set_Text CMD_Set_TextAlert( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), sAlerts,
+		TEXT_Alerts_Placeholder_CONST );
+	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_TextAlert.m_pMessage);
+
+	SendCommand( CMD_Goto_Screen );
+
+	Row_ModeChange *pRow_ModeChange = m_pDatabase_pluto_security->ModeChange_get()->AddRow();
+	pRow_ModeChange->EK_HouseMode_set(PK_HouseMode);
+	pRow_ModeChange->ChangeTime_set(StringUtils::SQLDateTime(time(NULL)));
+	pRow_ModeChange->EK_Users_set(iPK_Users);
+	pRow_ModeChange->Table_ModeChange_get()->Commit();
+	m_mapRow_ModeChange_Last[pDeviceGroup ? pDeviceGroup->m_dwPK_DeviceGroup : 0]=pRow_ModeChange;
+
+	string NewMode = GetModeString(PK_HouseMode);
+	for(map<int,DeviceData_Router *>::iterator it=mapResetDevices.begin();it!=mapResetDevices.end();++it)
+	{
+		DeviceData_Router *pDevice = (*it).second;
+
+		string State = pDevice->m_sState_get();
+		string::size_type pos=0;
+		string Mode = StringUtils::Tokenize(State,",",pos);
+		string Bypass = StringUtils::Tokenize(State,",",pos);
+		pDevice->m_sState_set(NewMode + "," + Bypass + ",DELAY_" + StringUtils::itos(pRow_ModeChange->PK_ModeChange_get()));
 	}
 
 	for(vector<Row_Alert *>::iterator it=m_vectPendingAlerts.begin();it!=m_vectPendingAlerts.end();)
@@ -384,7 +397,8 @@ string Security_Plugin::AlertsSinceLastChange(int PK_DeviceGroup)
 		return "";
 
 	vector<Row_Alert *> vectRow_Alert;
-	
+
+	return "todo";
 }
 
 bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int iPK_Users,int PK_HouseMode,string sHandlingInstructions) 
@@ -417,8 +431,6 @@ bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int iPK_Users,int 
 	else
 		Bypass = "";
 
-	pDevice->m_sState_set(NewMode + "," + Bypass);
-
 	return true;
 }
 
@@ -431,8 +443,6 @@ bool Security_Plugin::SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevic
 	return PK_AlertType>0 && PK_AlertType!=ALERTTYPE_Announcement_CONST;
 }
 
-#include "pluto_main/Define_Command.h"
-#include "pluto_main/Define_CommandParameter.h"
 bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
 	DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceFrom;
@@ -451,6 +461,7 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 	string::size_type pos=0;
 	string Mode = StringUtils::Tokenize(State,",",pos);
 	string Bypass = StringUtils::Tokenize(State,",",pos);
+	string Delay = StringUtils::Tokenize(State,",",pos);
 
 	int PK_HouseMode = GetModeID(m_pDeviceData_Router_this->m_sState_get());
 
@@ -463,10 +474,7 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 	int PK_AlertType = GetAlertType(PK_HouseMode,pDevice);
 	Row_AlertType *pRow_AlertType = m_pDatabase_pluto_security->AlertType_get()->GetRow(PK_AlertType);
 
-#pragma warning("HACK!!!! -- Need to store 'exit delay' as a state on a sensor-by-sensor basis, and clear that flag after delay to accomodate devicegroups");
-int PK_DeviceGroup=0;
-	Row_ModeChange *pRow_ModeChange_Last = m_mapRow_ModeChange_Last_Find(PK_DeviceGroup);
-	if( pRow_ModeChange_Last && pRow_AlertType && StringUtils::SQLDateTime(pRow_ModeChange_Last->ChangeTime_get()) + pRow_AlertType->ExitDelay_get() > time(NULL) )
+	if( Delay.length() )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Still in exit delay");
 		return true;

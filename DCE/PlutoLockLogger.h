@@ -138,15 +138,8 @@ namespace DCE
 	#ifdef DEBUG
 
 				timeval tv;
-	#ifndef WIN32
 				gettimeofday(&tv, NULL);
-	#else
-				SYSTEMTIME lt;
-				::GetLocalTime(&lt);
-				//TODO Need to fill tv
-				tv.tv_sec = (long) time(NULL);
-				tv.tv_usec = lt.wMilliseconds * 1000;
-	#endif
+
 				FILE *file = fopen(LoggerFileName,"ab");
 				if( file )
 				{

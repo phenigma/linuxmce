@@ -106,8 +106,8 @@ public:
 	time_t GetLastScreenChangedTime() { return NULL != m_pScreenHistory_Current ? m_pScreenHistory_Current->m_tTime : time(NULL); }
 
 	pluto_pthread_mutex_t m_CallbackMutex; /** < Don't allow 2 threads to operate on the callback map at the same time */
-	pluto_pthread_mutex_t m_RendererThreadMutex;
-	pthread_cond_t m_RendererThreadCond;	
+	pluto_pthread_mutex_t m_MaintThreadMutex;
+	pthread_cond_t m_MaintThreadCond;	
 
 //<-dceag-const-e->
 
@@ -183,7 +183,7 @@ protected:
 	pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
 	pluto_pthread_mutex_t m_VariableMutex; /** < Short mutex to protect members like strings and maps */
 	pluto_pthread_mutex_t m_DatagridMutex; /** < Don't allow 2 threads to operate on datagrids at the same time */
-	pthread_t m_RendererThreadID;
+	pthread_t m_MaintThreadID;
 
 	/** these methods are general purpose, and will call Orbiter-specific methods to do the work */
 	
@@ -653,11 +653,6 @@ public:
 	 */
 	bool SelectedGrid( int iDGRow );
 
-	/**
-	 * @brief We need the maintenance function to be called at this time
-	 */
-	void CallMaintenanceAtTime( time_t t, OrbiterCallBack fnCallBack, void *iData, bool bPurgeExisting ) { CallMaintenanceInMiliseconds( t - time( NULL ), fnCallBack, iData, bPurgeExisting ); }
-	
 	/**
 	 * @brief We need the maintenance function to be called in this many clock ticks
 	 */

@@ -45,28 +45,6 @@
 #include <sys/times.h>
 #endif
 
-#ifndef SYMBIAN
-unsigned long xClock()
-{
-#ifdef WIN32
-	return clock();
-#else
-	struct tms mytms;
-	return times(&mytms);
-#endif
-}
-
-long MS_TO_CLK(long miliseconds)
-{
-	return miliseconds * xCLOCKS_PER_SEC / 1000;
-}
-
-long CLK_TO_MS(long Clocks)
-{
-	return Clocks * 1000 / xCLOCKS_PER_SEC;
-}
-#endif //#ifndef SYMBIAN
-
 int FastParser::GetNextNumParm()
 {
     if ( !(*m_pcData) || IsAtEnd() )

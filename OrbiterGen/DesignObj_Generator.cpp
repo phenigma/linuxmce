@@ -298,6 +298,11 @@ Table_Image *p = m_mds->Image_get();
                         // Calculate the width and height.  Brute force so we don't have to link another library
                         unsigned char buf[200];
                         FILE *file = fopen(sGraphicFile.c_str(),"rb");
+						if( !file )
+						{
+							cerr << "File: " << sGraphicFile << " exists, but is not readable" << endl;
+							throw "Error reading file";
+						}
                         size_t s_read = fread(buf,1,200,file);
                         size_t i;
                         for(i=0;i<s_read-15;++i)

@@ -4,6 +4,18 @@
 #include <pthread.h>
 #include "PlutoUtils/CommonIncludes.h"	
 
+#ifdef WIN32
+	#define PTW32_TIMESPEC_TO_FILETIME_OFFSET   ( ((LONGLONG) 27111902 << 32) + (LONGLONG) 3577643008 )
+
+	void filetime_to_timespec(const FILETIME *ft, struct timespec *ts);
+	bool operator <(timespec &t1,timespec &t2);
+	bool operator <=(timespec &t1,timespec &t2);
+	void operator +=(timespec &t1,timespec &t2);
+	void timespec_to_timeval(timespec *ts_source,timeval *tv_dest);
+	void timeval_to_timespec(timeval *tv_source,timespec *ts_dest);
+	int gettimeofday(struct timeval *tv, struct timezone *tz);
+#endif
+
 // Four levels of thread debugging with combinations of Debug and Thread_LOG
 // Maximum debugging, DEBUG && THREAD_LOG means all locks and releases are logged
 

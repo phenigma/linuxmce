@@ -526,3 +526,72 @@ void PlutoLock::Release()
 	}
 	m_bReleased=true;
 }
+
+#ifdef WIN32
+	void filetime_to_timespec(const FILETIME *ft, struct timespec *ts)
+		/*
+		* -------------------------------------------------------------------
+		* converts FILETIME (as set by GetSystemTimeAsFileTime), where the time is
+		* expressed in 100 nanoseconds from Jan 1, 1601,
+		* into struct timespec
+		* where the time is expressed in seconds and nanoseconds from Jan 1, 1970.
+		* -------------------------------------------------------------------
+		*/
+	{
+		ts->tv_sec = (int)((*(LONGLONG *)ft - PTW32_TIMESPEC_TO_FILETIME_OFFSET) / 10000000);
+		ts->tv_nsec = (int)((*(LONGLONG *)ft - PTW32_TIMESPEC_TO_FILETIME_OFFSET - ((LONGLONG)ts->tv_sec * (LONGLONG)10000000)) * 100);
+	}
+
+	bool operator <(timespec &t1,timespec &t2)
+	{
+		if( t1.tv_sec!=t2.tv_sec )
+			return t1.tv_sec<t2.tv_sec;
+		return t1.tv_nsec<t2.tv_nsec;
+	}
+
+	bool operator <=(timespec &t1,timespec &t2)
+	{
+		if( t1.tv_sec!=t2.tv_sec )
+			return t1.tv_sec<t2.tv_sec;
+		return t1.tv_nsec<=t2.tv_nsec;
+	}
+/*
+	void operator +=(timespec &t1,timespec &t2)
+	{
+		t1.tv_nsec += t2.tv_nsec;
+		t2.tv_sec += t2.tv_sec;
+
+		pCallBack->m_abstime.tv_sec += milliseconds / 1000;
+	pCallBack->m_abstime.tv_nsec += milliseconds % 1000 * 1000000;
+if( t1.tv_nsec >= 1000000000 )
+		{
+			t1.tv_sec++;
+			t1.tv_nsec = t1.tv_nsec - 1000000000;
+		}
+	}
+	*/
+
+	void timespec_to_timeval(timespec *ts_source,timeval *tv_dest)
+	{
+		tv_dest->tv_sec = ts_source->tv_sec;
+		tv_dest->tv_usec = ts_source->tv_nsec / 1000;
+	}
+	void timeval_to_timespec(timeval *tv_source,timespec *ts_dest)
+	{
+		ts_dest->tv_sec = tv_source->tv_sec;
+		ts_dest->tv_nsec = tv_source->tv_usec * 1000;
+	}
+
+	int gettimeofday(struct timeval *tv, struct timezone *tz)
+	 {
+		FILETIME ft;
+		SYSTEMTIME st;
+        /* Get the current system time */
+		GetSystemTime(&st);
+		SystemTimeToFileTime(&st, &ft);
+		timespec ts;
+		filetime_to_timespec(&ft,&ts);
+		timespec_to_timeval(&ts,tv);
+		return 0;
+	 }
+#endif
