@@ -29,11 +29,6 @@
 #include <math.h>
 #include <time.h>
 
-#ifndef WIN32
-#include <sys/types.h>
-#include <sys/times.h>
-#endif
-
 // MessageQueue processor (the one that does the actual IR sending and relay setting)
 void * StartMessageQueueThread(void * Arg)
 {

@@ -10,12 +10,6 @@ using namespace DCE;
 #define DEFAULT_PREDELAY 100
 #define DEFAULT_POSTDELAY 0
 
-#ifdef WIN32
-#define xCLOCKS_PER_SEC CLOCKS_PER_SEC
-#else
-#define xCLOCKS_PER_SEC sysconf(_SC_CLK_TCK)
-#endif
-
 // IR Queue element
 class IRQueue
 {
