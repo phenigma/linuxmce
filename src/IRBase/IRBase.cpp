@@ -440,7 +440,7 @@ bool IRBase::ProcessQueue()
 
 void IRBase::MessageQueueThread()
 {
-	while (true)
+	while (! m_pCommand_Impl->m_bQuit)
 	{
 		ProcessQueue();
 	}
