@@ -207,6 +207,8 @@ namespace DCE
 		unsigned long m_dwPK_DeviceCategory; /** < the device category */
 		unsigned long m_dwPK_Room; /** < identifies the room where the device resides */
 
+		unsigned long m_dwPK_Device_MD,m_dwPK_Device_Core; /** < the ID of the MD and Core, if there is one */
+
 		/** flags */
 
 		bool m_bImplementsDCE; /** < @todo ask */
@@ -232,7 +234,7 @@ namespace DCE
 		 * @todo ask
 		 * @warning whatever creates this will need to set these pointers
 		 */
-		class DeviceData_Base *m_pDevice_ControlledVia;
+		class DeviceData_Base *m_pDevice_ControlledVia,*m_pDevice_Core,*m_pDevice_MD;
 
 		/** @todo check comment */
 		/*
@@ -269,7 +271,7 @@ namespace DCE
 		DeviceData_Base()
 		{
 			m_pDeviceCategory = NULL;
-			m_pDevice_ControlledVia = NULL;
+			m_pDevice_ControlledVia = m_pDevice_Core = m_pDevice_MD = NULL;
 			m_bIsPlugIn = false;
 		}
 
@@ -284,6 +286,7 @@ namespace DCE
 			m_pDeviceCategory = NULL;
 			m_pDevice_ControlledVia = NULL;
 			m_dwPK_Device = dwPK_Device;
+			m_dwPK_Device_MD = m_dwPK_Device_Core = 0;
 			m_dwPK_Installation = dwPK_Installation;
 			m_dwPK_DeviceTemplate = dwPK_DeviceTemplate;
 			m_dwPK_Device_ControlledVia = dwPK_Device_ControlledVia;
@@ -305,7 +308,8 @@ namespace DCE
 		void SetupSerialization(int iSC_Version)
 		{
 			StartSerializeList() + m_bImplementsDCE + m_dwPK_Device + m_dwPK_Installation + m_dwPK_DeviceTemplate + m_dwPK_Device_ControlledVia +
-				m_dwPK_DeviceCategory + m_dwPK_Room + m_bIsPlugIn + m_bIsEmbedded + m_sCommandLine + m_mapCommands + m_sDescription + m_sIPAddress + m_sMacAddress + m_bInheritsMacFromPC;
+				m_dwPK_DeviceCategory + m_dwPK_Room + m_bIsPlugIn + m_bIsEmbedded + m_sCommandLine + m_mapCommands + m_sDescription + m_sIPAddress + m_sMacAddress + 
+				m_bInheritsMacFromPC + m_dwPK_Device_MD + m_dwPK_Device_Core;
 		}
 
 		/**
@@ -349,6 +353,18 @@ namespace DCE
 				return false;
 
 			return WithinCategory( pCategory, pStarting->m_pDeviceCategory_Parent ); // call it recursivelly for the parent
+		}
+
+		/*
+		 * @brief 
+		 */
+		DeviceData_Base *FindDeviceWithinCategory( unsigned long dwPK_DeviceCategory )
+		{
+			if( WithinCategory(dwPK_DeviceCategory) )
+				return this;
+			if( m_pDevice_ControlledVia )
+				return m_pDevice_ControlledVia->FindDeviceWithinCategory(dwPK_DeviceCategory);
+			return NULL;
 		}
 
 		bool IsChildOf(DeviceData_Base *pDeviceData_Base)

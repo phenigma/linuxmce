@@ -1790,6 +1790,21 @@ int k=2;
             pDevice->m_pDevice_RouteTo = pDevice_RouteTo;
     }
 
+    // Now match up devices with Core's and Media Directors
+    for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
+    {
+        DeviceData_Router *pDevice = (*itDevice).second;
+		pDevice->m_pDevice_Core = pDevice->FindDeviceWithinCategory(DEVICECATEGORY_Core_CONST);
+		pDevice->m_pDevice_MD = pDevice->FindDeviceWithinCategory(DEVICECATEGORY_Media_Director_CONST);
+        DeviceData_Base *pDevice_AL = allDevices.m_mapDeviceData_Base_Find(pDevice->m_dwPK_Device);
+		
+		if( pDevice->m_pDevice_Core )
+			pDevice->m_dwPK_Device_Core = pDevice_AL->m_dwPK_Device_Core = pDevice->m_pDevice_Core->m_dwPK_Device;
+
+		if( pDevice->m_pDevice_MD )
+			pDevice->m_dwPK_Device_MD = pDevice_AL->m_dwPK_Device_MD = pDevice->m_pDevice_MD->m_dwPK_Device;
+    }
+
     // Get the device groups
     vector<Row_DeviceGroup *> vectDeviceGroup;
     GetDatabase()->DeviceGroup_get()->GetRows(string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation),&vectDeviceGroup);

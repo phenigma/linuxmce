@@ -651,12 +651,42 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
         {
             g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d",
 				pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device );
-            // The plug-in doesn't know what to do with it either. Send the message to the actual media device
-            pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
 
 			// TODO "Warning: received dcemessage should take a bool but don't delete in or something so we don't need to copy the message!"
-            Message *pNewMessage = new Message( pMessage );
-            QueueMessageToRouter( pNewMessage );
+
+			// If it's a command, it could be something for the media player (like a Pause), or something for the a/v equipment
+			// that is connected to the media director (like vol up/down going to the receiver)
+			if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
+			{
+			    Command *pCommand = m_pRouter->mapCommand_Find(pMessage->m_dwID);
+				if( !pCommand )
+					g_pPlutoLogger->Write(LV_CRITICAL,"Got a command in media plugin that we can't identify");
+				else
+				{
+				    if( pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_MD &&
+						(pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST || pCommand->m_dwPK_Command==COMMAND_Generic_On_CONST || pCommand->m_listPipe.size()) )
+					{
+						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_MD;
+						Message *pNewMessage = new Message( pMessage );
+						QueueMessageToRouter( pNewMessage );
+					}
+
+					if( pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_mapCommands.find(pMessage->m_dwID) != 
+						pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_mapCommands.end() )
+					{
+						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
+						Message *pNewMessage = new Message( pMessage );
+						QueueMessageToRouter( pNewMessage );
+					}
+				}
+			}
+			else
+			{
+				// Just send it to the media device.  We don't know what it is
+                pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
+	            Message *pNewMessage = new Message( pMessage );
+		        QueueMessageToRouter( pNewMessage );
+			}
         }
 
         g_pPlutoLogger->Write( LV_STATUS, "Media plug in handled message id: %d", pMessage->m_dwID );

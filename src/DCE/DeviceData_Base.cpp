@@ -70,6 +70,10 @@ bool AllDevices::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dw
 			pDeviceData_Base->m_pDeviceCategory = m_mapDeviceCategory_Find( pDeviceData_Base->m_dwPK_DeviceCategory );
 			if( pDeviceData_Base->m_dwPK_Device_ControlledVia )
 				pDeviceData_Base->m_pDevice_ControlledVia = m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
+			if( pDeviceData_Base->m_dwPK_Device_Core )
+				pDeviceData_Base->m_pDevice_Core = m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
+			if( pDeviceData_Base->m_dwPK_Device_MD )
+				pDeviceData_Base->m_pDevice_MD = m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
 		}
 
 		Map_DeviceGroup::iterator itGroup;
