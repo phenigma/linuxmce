@@ -22,8 +22,8 @@ timespec & operator += (timespec & t1, long milliseconds);
 timespec operator + (const timespec & t1, const timespec & t2);
 timespec & operator -= (timespec & t1, const timespec & t2);
 timespec operator - (const timespec & t1, const timespec & t2);
-void timespec_to_timeval(timespec *ts_source,timeval *tv_dest);
-void timeval_to_timespec(timeval *tv_source,timespec *ts_dest);
+void timespec_to_timeval(const timespec *ts_source,timeval *tv_dest);
+void timeval_to_timespec(const timeval *tv_source,timespec *ts_dest);
 timespec ms_to_timespec(unsigned long ts);
 int gettimeofday(struct timespec *ts, struct timezone *tz);
 

@@ -631,13 +631,13 @@ timespec operator + (const timespec & t1, const timespec & t2)
 	return result;
 }
 
-void timespec_to_timeval(timespec *ts_source,timeval *tv_dest)
+void timespec_to_timeval(const timespec *ts_source,timeval *tv_dest)
 {
 	tv_dest->tv_sec = ts_source->tv_sec;
 	tv_dest->tv_usec = ts_source->tv_nsec / 1000;
 }
 
-void timeval_to_timespec(timeval *tv_source,timespec *ts_dest)
+void timeval_to_timespec(const timeval *tv_source,timespec *ts_dest)
 {
 	ts_dest->tv_sec = tv_source->tv_sec;
 	ts_dest->tv_nsec = tv_source->tv_usec * 1000;
