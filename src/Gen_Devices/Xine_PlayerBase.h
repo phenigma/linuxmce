@@ -142,9 +142,7 @@ public:
 						string sCMD_Result="OK";
 					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
 					int iMediaPosition=atoi(pMessage->m_mapParameters[42].c_str());
-g_pPlutoLogger->Write(LV_CRITICAL,"Got Stop Media before with er: %d",(int) pMessage->m_eExpectedResponse);
 						CMD_Stop_Media(iStreamID,&iMediaPosition,sCMD_Result,pMessage);
-g_pPlutoLogger->Write(LV_CRITICAL,"Got Stop Media with er: %d",(int) pMessage->m_eExpectedResponse);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -153,10 +151,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Got Stop Media with er: %d",(int) pMessage->m
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-{
 							SendString(sCMD_Result);
-g_pPlutoLogger->Write(LV_CRITICAL,"Returning string: %s",sCMD_Result.c_str());
-}
 					};
 					iHandled++;
 					continue;
