@@ -14,5 +14,10 @@ clean-recursive:
 	rm -f $@.$$$$
 	@echo " done"
 
-#%.o: %.cpp 
-#	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS)
+#cpath = $(notdir $(1))
+cpath = $(subst /,_,$(1))
+
+%.o: %.cpp
+#	@echo $(call cpath,$@)
+#	@read
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $(call cpath,$@)

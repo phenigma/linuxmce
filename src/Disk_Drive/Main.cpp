@@ -97,7 +97,7 @@ extern "C" {
 				cerr << "Failed to create server logger.  Reverting to stdout instead." << endl;
 			}
 		}
-
+		
 		if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )

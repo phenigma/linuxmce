@@ -77,6 +77,7 @@ private:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Port();
 
 			*****EVENT***** accessors inherited from base class
 

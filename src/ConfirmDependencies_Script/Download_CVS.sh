@@ -14,6 +14,9 @@ fi
 
 mkdir -p /usr/pluto/install
 
+#File=/usr/pluto/install/compile.sh
+File=/dev/null
+
 echo "
 pushd \"/usr/pluto/src/$SRC_IMPL\" &>/dev/null
 if ! make; then
@@ -21,4 +24,4 @@ if ! make; then
 	exit $ERR_MAKE
 fi
 popd &>/dev/null
-" >>/usr/pluto/install/compile.sh
+" >>"$File"

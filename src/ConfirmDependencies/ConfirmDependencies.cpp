@@ -296,7 +296,11 @@ int main(int argc, char *argv[])
 	}
 
 	if (sCommand == "install")
+	{
 		cout << "#!/bin/sh" << endl;
+		cout << "error=0" << endl;
+	}
+		
 	PrintCmd(argc, argv);
 	pRow_Installation = pRow_Device->FK_Installation_getrow();
 
@@ -383,13 +387,15 @@ makerelease isn't building all and isn't updating the versions
 					"\t\tif [ \"$answer\" == n -o \"$answer\" == N ]; then" EOL
 					"\t\t\techo '*** Leaving package uninstalled'" EOL
 					"\t\t\tok=1" EOL
+					"\t\t\terror=1" EOL
 					"\t\tfi" EOL
 				;
 			}
 			else
 			{
 				cout << "\t\techo \"01 Error processing package " + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "\" >> /var/log/pluto/ConfirmDependencies.log" EOL
-					"\t\t\tok=1" EOL
+					"\t\tok=1" EOL
+					"\t\terror=1" EOL
 				;
 			}
 
@@ -405,6 +411,13 @@ makerelease isn't building all and isn't updating the versions
 			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_BinaryLibrary,pPackageInfo->m_sBinaryLibraryPath);
 			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_Configuration,pPackageInfo->m_sConfiguration);
 		}
+		
+		cout <<
+			"if [ \"$error\" -ne 0 ]; then" EOL
+			"\techo \"Note: Some packages failed to install\"" EOL
+			"fi" EOL
+		;
+
 		cout << "rm -f /usr/pluto/install/.notdone" << endl;
 		cout << "echo \"*************************\"" << endl;
 		cout << "echo \"*************************\"" << endl;
@@ -435,7 +448,13 @@ makerelease isn't building all and isn't updating the versions
 				if( pRow_Package_Directory_File->FK_Distro_get()==pRow_Distro->PK_Distro_get() ||
 						pRow_Package_Directory_File->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() ||
 						(pRow_Package_Directory_File->FK_Distro_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_isNull()) )
+				{
 					cout << pRow_Package_Directory_File->MakeCommand_get() << endl;
+					cout << "if [ $? -ne 0 ]; then" << endl;
+					cout << "\techo \"** Failed to build package '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'\"" << endl;
+					cout << "\texit 1" << endl;
+					cout << "fi" << endl;
+				}
 			}
 			cout << "cd -" << endl;
 		}
@@ -985,7 +1004,7 @@ void InstallPackage(PackageInfo *pPackageInfo, bool bElse)
 	{
 		for(size_t s=0;s<pPackageInfo->m_vectAltSourceImplementation.size();++s)
 		{
-			cout << " && if /usr/pluto/install/" << pRow_Distro->Installer_get()
+			cout << " && /usr/pluto/install/" << pRow_Distro->Installer_get()
 				<< " \"" << pPackageInfo->m_pRow_Package_Source->Name_get() << "\""
 				<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "\""
 				<< " \"" << pPackageInfo->m_pRow_Package_Source->Repository_get() << "\""
@@ -993,7 +1012,7 @@ void InstallPackage(PackageInfo *pPackageInfo, bool bElse)
 				<< " \"" << pPackageInfo->m_pRow_Package_Source->Version_get() << "\"" 
 				<< " \"" << pPackageInfo->m_sBinaryExecutiblesPathPath << "\"" 
 				<< " \"" << pPackageInfo->m_sSourceIncludesPath << "\"" 
-				<< " \"" << pPackageInfo->m_vectAltSourceImplementation[s]->FK_Directory_get() << "\"" 
+				<< " \"" << pPackageInfo->m_vectAltSourceImplementation[s]->Path_get() << "\"" 
 				<< " \"" << pPackageInfo->m_sBinaryLibraryPath << "\"" 
 				<< " \"" << pPackageInfo->m_sConfiguration << "\""
 				<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Username_get() << "\""

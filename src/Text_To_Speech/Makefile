@@ -37,18 +37,18 @@ bin: Text_To_Speech
 so: Text_To_Speech.so
 
 Text_To_Speech.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
 Text_To_Speech: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) Text_To_Speech.bin Text_To_Speech.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o)) $(call cpath,$(sources:.cpp=.d)) Text_To_Speech.bin Text_To_Speech.so >/dev/null
 
 package:
 	chmod +x make_package.sh

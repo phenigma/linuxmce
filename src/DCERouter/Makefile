@@ -36,11 +36,11 @@ sources = \
 all: DCERouter
 
 DCERouter: $(sources:.cpp=.o) Makefile
-	$(CXX) -o $@ $(sources:.cpp=.o)  $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS)
 	cp $@ $(ROOT)/bin
 
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) PlutoServer >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) PlutoServer >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)

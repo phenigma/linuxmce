@@ -3,7 +3,7 @@ GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
-CXXFLAGS = -Wall -fPIC -ggdb3 -fmessage-length=0
+CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
@@ -48,18 +48,18 @@ bin: Orbiter
 so: Orbiter.so
 
 Orbiter.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
 Orbiter: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) Orbiter.bin Orbiter.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o)) $(call cpath,$(sources:.cpp=.d)) Orbiter.bin Orbiter.so >/dev/null
 
 package:
 	chmod +x make_package.sh

@@ -27,8 +27,8 @@ ICS_MSG="When you have internet connection, run '$DIR/$ICS' to download your act
 NOCODE_MSG="Whenever you get a code from $PHURL, you can run '$DIR/$ICS' to get back to this script"
 NOACTIV_MSG="There was a problem while downloading the activation script. To reattempt an installation, you can run anytime '$DIR/$ICS' without using the installation CD"
 ACTIV_MSG="There was a problem while retrieving/processing the activation data. You can re-run the script anytime later to try again by typing '$DIR/activation.sh' at your shells prompt"
-BUILD_MSG="We created a file called '$DIR/build.sh' that you can run to make any required packages from source"
-BUILD_ALL_MSG="We created a file called '$DIR/build_all.sh' which will make the entire Pluto system from source"
+#BUILD_MSG="We created a file called '$DIR/build.sh' that you can run to make any required packages from source"
+#BUILD_ALL_MSG="We created a file called '$DIR/build_all.sh' which will make the entire Pluto system from source"
 
 # ask "Try again?" question; return 1 on "Nn", 0 otherwise
 try_again()
@@ -168,8 +168,8 @@ done
 
 [ "$ok" -eq 0 ] && exit 1
 
-wget -O "$DIR"/build.sh "$ACTIV/build.php?code=$activation_key" 2>/dev/null || no_build=1
-wget -O "$DIR"/build_all.sh "$ACTIV/build_all.php?code=$activation_key" 2>/dev/null || no_build_all=1
+#wget -O "$DIR"/build.sh "$ACTIV/build.php?code=$activation_key" 2>/dev/null || no_build=1
+#wget -O "$DIR"/build_all.sh "$ACTIV/build_all.php?code=$activation_key" 2>/dev/null || no_build_all=1
 
 chmod +x "$DIR"/activation.sh
 if "$DIR"/activation.sh; then
@@ -178,14 +178,14 @@ else
 	echo "$ACTIV_MSG" | fmt
 fi
 
-if [ -z "$no_build" -a -s "$DIR"/build.sh ]; then
-	chmod +x "$DIR"/build.sh
-	echo "$BUILD_MSG" | fmt
-fi
-if [ -z "$no_build_all" -a -s "$DIR"/build_all.sh ]; then
-	chmod +x "$DIR"/build_all.sh
-	echo "$BUILD_ALL_MSG" | fmt
-fi
+#if [ -z "$no_build" -a -s "$DIR"/build.sh ]; then
+#	chmod +x "$DIR"/build.sh
+#	echo "$BUILD_MSG" | fmt
+#fi
+#if [ -z "$no_build_all" -a -s "$DIR"/build_all.sh ]; then
+#	chmod +x "$DIR"/build_all.sh
+#	echo "$BUILD_ALL_MSG" | fmt
+#fi
 
 # At this point these scripts should be available (installation finished, didn't it?)
 . /usr/pluto/bin/SQL_Ops.sh
