@@ -12,6 +12,8 @@
 #include "Logger.h"
 
 #include "BD_PC_ReportMyVersion.h"
+
+_LIT(KPlutoMODir,"c:\\system\\Apps\\PlutoMO\\");
 //----------------------------------------------------------------------------------------------
 BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 	(
@@ -350,6 +352,21 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		iListener->Hide();
 
 		//LOG("Waiting for new connections...\n");
+		//TODO: delete "connection.vmc"
+
+		RFile file;
+		RFs   aFs;
+		aFs.Connect();
+		CFileMan* fileMan = CFileMan::NewL(aFs);
+		CleanupStack::PushL(fileMan); 
+		string FilesPath(KPlutoMODir);
+		FilesPath += "!current connection.vmc";
+		fileMan->Delete(FilesPath.Des());
+		CleanupStack::PopAndDestroy();
+		aFs.Close();
+
+
+
 		return;
 	}
 
@@ -388,6 +405,20 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 			AddCommand(new BD_PC_ReportMyVersion(string(VERSION)));
 
 			iState = EIdle;
+
+			//create a dummy vmc file
+			RFile file;
+			RFs   aFs;
+			aFs.Connect();
+			string FilesPath(KPlutoMODir);
+			FilesPath += "!current connection.vmc";
+			if(KErrNotFound == file.Open(aFs, FilesPath.Des(), EFileStream | EFileWrite))
+			{
+				file.Create(aFs, FilesPath.Des(), EFileStream | EFileWrite);
+			}
+			file.Close();
+			aFs.Close();
+
 		}
 		break;
 

@@ -34,11 +34,9 @@ _LIT(KStringSize,"%d\t%S\t%d bytes");
 // Number, name and date modified
 _LIT(KStringDate,"%d\t%S\t%S"); 
 // Directory for Sounds
-_LIT(KDirSounds,"c:\\Nokia\\Sounds\\Digital\\");
-// Directory for Pictures
-_LIT(KDirPictures,"c:\\Nokia\\Images\\");
-// Directory for Videos
-_LIT(KDirVideos,"c:\\Nokia\\Videos\\");
+_LIT(KPlutoMOVMCs,"c:\\system\\Apps\\PlutoMO\\*.vmc");
+_LIT(KPlutoMODir,"c:\\system\\Apps\\PlutoMO\\");
+
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoMOEngine::ConstructL()
     {
@@ -63,17 +61,10 @@ TInt CPlutoMOEngine::StartPlutoMO()
 
     switch (iDirectory)
         {
-        case EPlutoMOSounds:
-            error = iFsSession.GetDir(KDirSounds,KEntryAttNormal,ESortByName,iDirList);
-            break;
         case EPlutoMOPictures:
-            error = iFsSession.GetDir(KDirPictures,KEntryAttNormal,ESortByName,iDirList);
+            error = iFsSession.GetDir(KPlutoMOVMCs,KEntryAttNormal,ESortByName,iDirList);
             break;
-        case EPlutoMOVideos:
-            error = iFsSession.GetDir(KDirVideos,KEntryAttNormal,ESortByName,iDirList);
-            break;
-        default:
-            error = iFsSession.GetDir(KDirSounds,KEntryAttNormal,ESortByName,iDirList);
+         default:
             break;
         }
 
@@ -82,28 +73,47 @@ TInt CPlutoMOEngine::StartPlutoMO()
     }
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoMOEngine::GetPlutoMOItems(CDesCArray* aItems)
+{
+	if(!iDirList)
+		return;
+                   
+	for (TInt i=0;i<iDirList->Count();i++)
     {
-    if(!iDirList)
-        return;
-                       
-    for (TInt i=0;i<iDirList->Count();i++)
-        {
-        TFileName filename = NULL;
-        if(iSizeDate==EPlutoMOSize)
-            {
-            filename.Format(KStringSize,i+1,&(*iDirList)[i].iName,(*iDirList)[i].iSize);
-            }
-        else
-            {
-            TBuf<30> dateString; 
-            _LIT(KDateString,"%D%M%Y%/0%1%/1%2%/2%3%/3 %-B%:0%J%:1%T%:2%S%:3%+B");
-            (*iDirList)[i].iModified.FormatL(dateString,KDateString); 
-            filename.Format(KStringDate,i+1,&(*iDirList)[i].iName,&dateString);
-            }
-        aItems->AppendL(filename);
-        }
-        
+		TFileName filename = NULL;
+		if(iSizeDate==EPlutoMOSize)
+		{
+			filename.Format(KStringSize,i+1,&(*iDirList)[i].iName,(*iDirList)[i].iSize);
+		}
+		else
+		{
+			TBuf<30> dateString; 
+			_LIT(KDateString,"%D%M%Y%/0%1%/1%2%/2%3%/3 %-B%:0%J%:1%T%:2%S%:3%+B");
+			(*iDirList)[i].iModified.FormatL(dateString,KDateString); 
+			filename.Format(KStringDate,i+1,&(*iDirList)[i].iName,&dateString);
+		}
+
+		char* pFilename = new char[256];
+		int index;
+		for(index = 0; index < filename.Length(); index++)
+			pFilename[index] = filename[index];
+		pFilename[index] = '\0';
+		string sFileName(pFilename);
+
+		if(-1 != sFileName.find("!current connection.vmc")) 
+		{
+			char pCurrConnection[] = "1_Orbiter_current connection";
+			pCurrConnection[1] = 9;
+			pCurrConnection[9] = 9;
+			string sCurrConnection(pCurrConnection);
+			aItems->AppendL(sCurrConnection.Des());
+		}
+		else
+			aItems->AppendL(filename);
+
+		delete []pFilename;
     }
+    
+}
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoMOEngine::SetDirectory(TInt aDirectory)
     {
@@ -123,17 +133,10 @@ void CPlutoMOEngine::LaunchCurrent(TInt aPosition)
 
     switch (iDirectory)
         {   
-        case EPlutoMOSounds:
-            descr.Append(KDirSounds);
-            break;
         case EPlutoMOPictures:
-            descr.Append(KDirPictures);
-            break;
-        case EPlutoMOVideos:
-            descr.Append(KDirVideos);
+            descr.Append(KPlutoMODir);
             break;
         default:
-            descr.Append(KDirSounds);
             break;
         }
 
@@ -146,9 +149,21 @@ void CPlutoMOEngine::LaunchCurrent(TInt aPosition)
 	if(p.Ext() != ".vmc" && p.Ext() != ".VMC")
 		handler->OpenFileL(descr, nullType);
 	else
-		//g_pAppUi->OpenVMC(descr);
-		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenVMC(false, descr, NULL);
+	{
+		char* pFilename = new char[256];
+		int index;
+		for(index = 0; index < descr.Length(); index++)
+			pFilename[index] = descr[index];
+		pFilename[index] = '\0';
+		string sFileName(pFilename);
 
+		if(-1 == sFileName.find("!current connection.vmc")) 
+			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenVMC(false, descr, NULL);
+		else
+			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->MakeViewerVisible(true);
+
+		delete []pFilename;
+	}
 
     CleanupStack::PopAndDestroy(); // handler
     };
@@ -166,22 +181,15 @@ void CPlutoMOEngine::RemoveFile(TInt aPosition)
 	
 	switch (iDirectory)
         {   
-        case EPlutoMOSounds:
-            descr.Append(KDirSounds);
-            break;
         case EPlutoMOPictures:
-            descr.Append(KDirPictures);
-            break;
-        case EPlutoMOVideos:
-            descr.Append(KDirVideos);
+            descr.Append(KPlutoMODir);
             break;
         default:
-            descr.Append(KDirPictures);
+            descr.Append(KPlutoMODir);
             break;
         }
     // Add filename to be deleted
     descr.Append((*iDirList)[aPosition].iName);
-	
 	
 	User::LeaveIfError(iFsSession.Connect()); 
 

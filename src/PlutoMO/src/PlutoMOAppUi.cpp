@@ -67,6 +67,7 @@ void CPlutoMOAppUi::ConstructL()
 	m_bSendKeyStrokes = false;
 	m_bMakeVisibleAllowed = false;
 
+//#ifndef __WINS__ 
 	m_pBDCommandProcessor_Symbian_Bluetooth = 
 		new BDCommandProcessor_Symbian_Bluetooth("", this);
 	m_pBDCommandProcessor = m_pBDCommandProcessor_Symbian_Bluetooth;
@@ -74,6 +75,7 @@ void CPlutoMOAppUi::ConstructL()
 	m_pBDCommandProcessor_Symbian_Bluetooth->Listen();
 	m_pBDCommandProcessor_Symbian_Bluetooth->SetupSecurityManager();
 	m_pBDCommandProcessor_Symbian_Bluetooth->AdvertiseThePlutoService();
+//#endif
 
 	m_bPlutoEventVisible = false;
 
@@ -89,6 +91,11 @@ void CPlutoMOAppUi::ConstructL()
 }
 //----------------------------------------------------------------------------------------------
 CPlutoMOAppUi::~CPlutoMOAppUi()
+{
+	Cleanup();
+}
+//----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::Cleanup()
 {
 	if(m_iCapturedKeyId)
 	{
@@ -106,6 +113,7 @@ CPlutoMOAppUi::~CPlutoMOAppUi()
     {
 	    RemoveFromStack( iAppContainer );
 		delete iAppContainer;
+		iAppContainer = NULL;
     }
 
 	if(NULL != iGetCallerId)
@@ -115,6 +123,7 @@ CPlutoMOAppUi::~CPlutoMOAppUi()
 	}
 }
 //----------------------------------------------------------------------------------------------
+
 void CPlutoMOAppUi::ReadConfigurationFile()
 {
 	CAsciiLineReader lr;
@@ -230,7 +239,10 @@ void CPlutoMOAppUi::HandleCommandL(TInt aCommand)
         case EEikCmdExit:
             {
 			if(!m_bVMCViewerVisible)
+			{
+				Cleanup();
 				Exit();
+			}
             break;
             }
 
@@ -292,8 +304,8 @@ void CPlutoMOAppUi::MakeViewerVisible(bool Value)
 		m_pVMCView->iContainer->MakeVisible(true);
 	}
 
-//	if(!m_iCapturedKeyId)
-//		m_iCapturedKeyId = CEikonEnv::Static()->RootWin().CaptureKeyUpAndDowns(EStdKeyNo, 0, 0);
+	if(!m_iCapturedKeyId)
+		m_iCapturedKeyId = CEikonEnv::Static()->RootWin().CaptureKeyUpAndDowns(EStdKeyNo, 0, 0);
 
 	Show();
 
@@ -462,6 +474,7 @@ void CPlutoMOAppUi::Hide()
 	task.SendToBackground();
 
 	m_bVMCViewerVisible = false;
+	MakeViewerVisible(false);
 
 	if(m_iCapturedKeyId)
 	{
@@ -573,6 +586,9 @@ void CPlutoMOAppUi::CloseVMC()
 		m_iCapturedKeyId = 0;
 		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);
 	}
+
+	Cleanup();
+	Exit();
 }
 //----------------------------------------------------------------------------------------------
 TInt CPlutoMOAppUi::DoIdleStatic(TAny *aAppUi)

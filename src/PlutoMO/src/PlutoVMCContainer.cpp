@@ -138,7 +138,7 @@ int CPlutoVMCContainer::GetKeyCode(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
 	int KeyCode = 0;
 
-	if(aType == EEventKeyDown)
+	if(aType == EEventKeyUp)
 	{
 		if(!m_bRepeated)
 			switch(aKeyEvent.iScanCode)
@@ -222,16 +222,13 @@ bool CPlutoVMCContainer::HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode
 	//build keypressed command
 	if(KeyCode != 0) //known or unknown key
 	{
-		/*
-		if(KeyCode==BUTTON_Rept_Phone_C_CONST)
+		if(KeyCode==BUTTON_Rept_Phone_End_CONST)
 		{
-			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->CloseVMC();
-			pVMCUtil->m_bRedrawOnlyGrid = false;
-			pVMCUtil->m_bRedrawOnlyEdit = false;
 
+			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->CloseVMC();
+			
 			return true;
 		}
-		*/
 
 		pVMCUtil->LocalKeyPressed(KeyCode);
 

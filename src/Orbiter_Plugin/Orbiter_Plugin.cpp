@@ -1196,6 +1196,8 @@ void Orbiter_Plugin::CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,
 
 	bool bOnOff = sText[1]=='1';
 
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK_Device,sText.c_str(),iPK_Users);
+
 	switch( sText[0] )
 	{
 	case 'L':

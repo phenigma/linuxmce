@@ -25,6 +25,7 @@
 
 void FollowMe_Plugin::HandleFollowMe(class DeviceData_Router *pDevice_PriorDetector,char Type, class OH_Orbiter *pOH_Orbiter)
 {
+g_pPlutoLogger->Write(LV_WARNING,"Handle follow me type %c orbiter %d",Type,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 	if( !pOH_Orbiter->m_pDevice_CurrentDetected->m_pRoom )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter is in follow-me mode, but detected device %d isn't in a room",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device);

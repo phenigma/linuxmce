@@ -20,7 +20,7 @@
 // In source files stored in archives and packages, these 2 lines will have the release version (build)
 // and the svn revision as a global variable that can be inspected within a core dump
 #define  VERSION "<=version=>"
-const char *g_szCompile_Date="<=compile_date=>";
+//const char *g_szCompile_Date="<=compile_date=>";
 /*SVN_REVISION*/
 
 
@@ -61,6 +61,7 @@ public:
     void ConstructL();
 
     ~CPlutoMOAppUi();
+	void Cleanup();
 
 	CCoeEnv* CoeEnv() { return CEikonEnv::Static();}
 	void UpdateScreen(bool bParsed, const TDes8& aVmc, unsigned int uSize, 
@@ -127,6 +128,7 @@ public:
 	void ReadConfigurationFile();
 	void SetupIncomingCallNotifier();
 	void LaunchBrowser();
+	void MakeViewerVisible(bool Value);
 
 	CGetCallerId *iGetCallerId;
 	CIncomingCallWatcher *iIncomingCallWatcher;
@@ -157,7 +159,6 @@ private:
         const TKeyEvent& aKeyEvent,TEventCode aType);
 
 	void CreateVMCView();
-	void MakeViewerVisible(bool Value);
 
     CPlutoMOContainer* iAppContainer; 
 	CPlutoEventView* iPlutoEventView;

@@ -233,11 +233,13 @@ void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Rout
 
 void Lighting_Plugin::FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current)
 {
+g_pPlutoLogger->Write(LV_WARNING,"Lighting entered room, exec %d",m_mapRoom_CommandGroup[pRoom_Current->m_dwPK_Room].first);
 	ExecCommandGroup(m_mapRoom_CommandGroup[pRoom_Current->m_dwPK_Room].first);
 }
 
 void Lighting_Plugin::FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current)
 {
+g_pPlutoLogger->Write(LV_WARNING,"Lighting left room, exec %d",m_mapRoom_CommandGroup[pRoom_Current->m_dwPK_Room].second);
 	ExecCommandGroup(m_mapRoom_CommandGroup[pRoom_Prior->m_dwPK_Room].second);
 }
 //<-dceag-createinst-b->!

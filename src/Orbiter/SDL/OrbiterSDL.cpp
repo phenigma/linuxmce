@@ -163,6 +163,8 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 //-----------------------------------------------------------------------------------------------------
 void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
                        string FontPath, TextStyle *pTextStyle);
+
+#include "pluto_main/Define_Text.h"
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 {
@@ -172,6 +174,11 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
     TextLocation.y = Text->m_rPosition.Y;
     TextLocation.w = Text->m_rPosition.Width;
     TextLocation.h = Text->m_rPosition.Height;
+
+if( Text->m_PK_Text==TEXT_USR_ENTRY_CONST )
+{
+g_pPlutoLogger->Write(LV_STATUS,"*******rendering timeout at %d,%d - %d,%d",TextLocation.x,TextLocation.y,TextLocation.w,TextLocation.h );
+}
 
 #ifdef WIN32
     string BasePath="C:\\Windows\\Fonts\\";
@@ -396,14 +403,17 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::UpdateRect(PlutoRectangle rect)
 {
+	if( rect.X<0 || rect.Y<0 || rect.Right()>m_Width || rect.Bottom()>m_Height )
+	{
 g_pPlutoLogger->Write(LV_CRITICAL, "Before UpdateRect x: %d y: %d w: %d h: %d", rect.X, rect.Y, rect.Width, rect.Height);
-Sleep(500);
+rect.X=rect.Y=0;
+rect.Width=m_Width;
+rect.Height=m_Height;
+}
 	PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
 #ifdef USE_ONLY_SCREEN_SURFACE
 	SDL_UpdateRect(Screen, rect.Left(), rect.Top(), rect.Width, rect.Height);
 #endif
-g_pPlutoLogger->Write(LV_CRITICAL, "After UpdateRect");
-Sleep(500);
 }
 //-----------------------------------------------------------------------------------------------------
