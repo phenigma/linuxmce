@@ -1,24 +1,24 @@
 /*
-	sql2cpp
-	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
-	Phone: +1 (877) 758-8648
-	
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
-	See the GNU General Public License for more details.
+SVNLog
+Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+www.plutohome.com		
+
+Phone: +1 (877) 758-8648
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+
+See the GNU General Public License for more details.
 */
 
 /**
- *
- * @file sql2cpp.cpp
- * @brief entry point for the sql2cpp project
- * @author Aaron
- */
+*
+* @file SVNLog.cpp
+* @brief entry point for the SVNLog project
+* @author Aaron
+*/
 
 
 #include "PlutoUtils/CommonIncludes.h"
@@ -46,30 +46,49 @@
 
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/FileUtils.h"
-#include "DatabaseInfo.h"
-#include "CommonFunctions.h"
+
+#ifdef WIN32
+#include <direct.h>
+#include <conio.h>
+#define chdir _chdir  // Why, Microsoft, why?
+#define mkdir _mkdir  // Why, Microsoft, why?
+#endif
 
 #define  VERSION "<=version=>"
 
 using namespace std;
 
-vector<string> g_TablesList;
 class DCELogger *g_pDCELogger;
+
+class Commit
+{
+public:
+	string User;
+	int Lines;
+	int Revision;
+	time_t date;
+};
+
+map<int,Commit *> mapCommits;
+map<string,Commit *> mapUser;
+
+typedef struct pair<string,int> PAIR_SI;
+
+map<PAIR_SI,int> mapUsersWeeks;
 
 int main( int argc, char *argv[] )
 {
-	
-//                123456789012345678901234567890123456789012345678901234567890
+	/*	
 	cout << " Copyright (C) 2004 Pluto, Inc., a Florida Corporation " << endl
-	    	<< " www.plutohome.com " << endl
-	    	<< " Phone: +1 (877) 758-8648 " << endl
-	    	<< " This program is free software; you can redistribute it " << endl
-		<< " and/or modify it under the terms of the GNU General Public License. " << endl
-		<< " This program is distributed in the hope that it will be useful, " << endl
-		<< " but WITHOUT ANY WARRANTY; without even the implied warranty " <<endl
-		<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
-		<< " See the GNU General Public License for more details. "<< endl << "-------" << endl << endl;	
-	
+	<< " www.plutohome.com " << endl
+	<< " Phone: +1 (877) 758-8648 " << endl
+	<< " This program is free software; you can redistribute it " << endl
+	<< " and/or modify it under the terms of the GNU General Public License. " << endl
+	<< " This program is distributed in the hope that it will be useful, " << endl
+	<< " but WITHOUT ANY WARRANTY; without even the implied warranty " <<endl
+	<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
+	<< " See the GNU General Public License for more details. "<< endl << "-------" << endl << endl;	
+
 	// setting some default values.... probablly just temporary
 	string sDBHost="dce_router", sDBUser="root", sDBPassword="", sDBName="pluto_main", sOutputPath="", sInputPath=".";
 	int iDBPort=3306;
@@ -80,348 +99,172 @@ int main( int argc, char *argv[] )
 	// parsing the command parameters
 	for( int optnum=1; optnum < argc; ++optnum )
 	{
-		if( argv[optnum][0]!='-' )
-		{
-			cerr << "Unknown option " << argv[optnum] << endl;
-			exit(1);
-		}
+	if( argv[optnum][0]!='-' )
+	{
+	cerr << "Unknown option " << argv[optnum] << endl;
+	exit(1);
+	}
 
-		c = argv[optnum][1];
-		switch (c)
-		{
-		case 'h':
-			sDBHost = argv[++optnum];
-			break;
-		case 'u':
-			sDBUser = argv[++optnum];
-			break;
-		case 'p':
-			sDBPassword = argv[++optnum];
-			break;
-		case 'D':
-			sDBName = argv[++optnum];
-			break;
-		case 'P':
-			iDBPort = atoi(argv[++optnum]);
-			break;
-		case 'o':
-			sOutputPath = argv[++optnum];
-			break;
-		case 'i':
-			sInputPath = argv[++optnum];
-			break;
-		default:
-			bError=true;
-			break;
-		};
+	c = argv[optnum][1];
+	switch (c)
+	{
+	case 'h':
+	sDBHost = argv[++optnum];
+	break;
+	case 'u':
+	sDBUser = argv[++optnum];
+	break;
+	case 'p':
+	sDBPassword = argv[++optnum];
+	break;
+	case 'D':
+	sDBName = argv[++optnum];
+	break;
+	case 'P':
+	iDBPort = atoi(argv[++optnum]);
+	break;
+	case 'o':
+	sOutputPath = argv[++optnum];
+	break;
+	case 'i':
+	sInputPath = argv[++optnum];
+	break;
+	default:
+	bError=true;
+	break;
+	};
 	}
 
 	// checking for errors
 	if ( bError)
 	{
 
-//                123456789012345678901234567890123456789012345678901234567890			
-		cout << "sql2cpp, v." << VERSION << endl
-			<< "Usage: sql2cpp [-h hostname] [-u username] [-p password]" << endl
-			<< "[-D database] [-P mysql port] [-o output path] [-i input path]" << endl
-			<< "-h hostname    -- address or DNS of database host, " <<endl
-			<< "			 default is `dce_router`" << endl
-			<< "-u username    -- username for database connection" << endl
-			<< "-p password    -- password for database connection," << endl
-			<< "			 default is `` (empty)" << endl
-			<< "-D database    -- database name.  default is pluto_main" << endl
-			<< "-P port        -- port for database connection, default is 3306" << endl
-			<< "-o output path -- Where to put the output files. "
-			<< "			 Default is ../[database name]" << endl
-			<< "-i input path  -- Where to find the template files. " << endl
-			<< "			 Default is . then ../sql2cpp" << endl;
+	//                123456789012345678901234567890123456789012345678901234567890			
+	cout << "SVNLog, v." << VERSION << endl
+	<< "Usage: SVNLog [-h hostname] [-u username] [-p password]" << endl
+	<< "[-D database] [-P mysql port] [-o output path] [-i input path]" << endl
+	<< "-h hostname    -- address or DNS of database host, " <<endl
+	<< "			 default is `dce_router`" << endl
+	<< "-u username    -- username for database connection" << endl
+	<< "-p password    -- password for database connection," << endl
+	<< "			 default is `` (empty)" << endl
+	<< "-D database    -- database name.  default is pluto_main" << endl
+	<< "-P port        -- port for database connection, default is 3306" << endl
+	<< "-o output path -- Where to put the output files. "
+	<< "			 Default is ../[database name]" << endl
+	<< "-i input path  -- Where to find the template files. " << endl
+	<< "			 Default is . then ../SVNLog" << endl;
 
-		exit(0); // errors
+	exit(0); // errors
 	}
+	*/
 
-	// default value for sOutputPath
-	if( sOutputPath=="" )
-		sOutputPath = "../" + sDBName;
+	chdir("/home/Work");
+	unlink("output");
+	system("svn log -q | grep '^r' > output");
 
-	sOutputPath = StringUtils::Replace( sOutputPath, "\\", "/" ); // Unix path
+	vector<string> vectLines;
+	size_t size;
+	string Lines = FileUtils::ReadFileIntoBuffer("output",size);
+	cout << "File is: " << Lines.size() << " bytes." << endl;
+	StringUtils::Tokenize(Lines,"\r\n",vectLines);
+	cout << "File is: " << vectLines.size() << " lines" << endl;
 
-	if( sOutputPath[sOutputPath.length()-1]!='/' ) // adding a final /
-		sOutputPath+="/";
+	int LowestWeek=0,HighestWeek=0;
 
-	FileUtils::MakeDir( sOutputPath ); // creating the directory
-
-	if( !FileUtils::FileExists( sInputPath + "/table.cpp.template" ) )
+	for(size_t s=0;s<vectLines.size();++s)
 	{
-		if( sInputPath != "." ) // changed from the default
+		cout << "Line: " << s << " of " << vectLines.size() << endl;
+		string Line = vectLines[s];
+		int Revision = atoi(Line.substr(1).c_str());
+		if( Revision==1 )
+			continue;
+
+		string::size_type start_pipe = Line.find('|');
+		string::size_type stop_pipe = Line.find('|',start_pipe+1);
+		string User = Line.substr(start_pipe+2,stop_pipe-start_pipe-3);
+string x = Line.substr(stop_pipe+2);
+string y = Line.substr(stop_pipe+7);
+string z = Line.substr(stop_pipe+10);
+		int Year = atoi(Line.substr(stop_pipe+2).c_str());
+		int Month = atoi(Line.substr(stop_pipe+7).c_str());
+		int Day = atoi(Line.substr(stop_pipe+10).c_str());
+
+		struct tm tm_time;
+		tm_time.tm_year = Year-1900;
+		tm_time.tm_mon = Month-1;
+		tm_time.tm_mday = Day;
+		tm_time.tm_hour = 0;
+		tm_time.tm_min = 0;
+		tm_time.tm_sec = 0;
+		time_t t = mktime(&tm_time);
+		int Week = tm_time.tm_yday / 7;
+
+		if( Week > HighestWeek )
+			HighestWeek=Week;
+		if( Week < LowestWeek || LowestWeek==0 )
+			LowestWeek=Week;
+
+		string Cmd = "svn diff --revision " + StringUtils::itos(Revision-1) + ":" + StringUtils::itos(Revision) + " | grep '^Index:\\|^\\@\\@' > output";
+		system(Cmd.c_str());
+		vector<string> vectFiles;
+		Lines = FileUtils::ReadFileIntoBuffer("output",size);
+		cout << "File is: " << Lines.size() << " bytes." << endl;
+		StringUtils::Tokenize(Lines,"\r\n",vectFiles);
+		cout << "File is: " << vectFiles.size() << " lines" << endl;
+		int LinesChanged=0;
+		for(size_t s2=0;s2<vectFiles.size();++s2)
 		{
-			cout << "Cannot find the templates in " << sInputPath << endl;
-			exit(1);
+			string File = vectFiles[s2];
+			if( File.substr(0,2)!="@@" )
+				continue;
+
+			string::size_type first = File.find('-');
+			first = File.find(',',first+1);
+			int LinesMinus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
+
+			first = File.find('+',first+1);
+			first = File.find(',',first+1);
+			int LinesPlus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
+
+			File = vectFiles[s2-1].substr(7);
+			if( StringUtils::StartsWith(File,"Libraries") || StringUtils::StartsWith(File,"pluto_main") || StringUtils::StartsWith(File,"Gen_Devices") )
+			{
+				cout << "Skipping: " << File << endl;
+				continue;
+			}
+			cout << "Logging: " << File << " Lines: " << LinesChanged << endl;
+			LinesChanged += LinesMinus + LinesPlus;
 		}
 
-		sInputPath="../sql2cpp/"; // default path for templates
-		if( !FileUtils::FileExists( sInputPath + "table.cpp.template" ) )
+		Commit *pCommit = new Commit();
+		pCommit->date = t;
+		pCommit->Lines = LinesChanged;
+		pCommit->Revision = Revision;
+		pCommit->User = User;
+		mapCommits[Revision] = pCommit;
+		mapUser[User] = pCommit;
+
+		PAIR_SI psi(User,Week);
+		int LinesSoFar = mapUsersWeeks[psi];
+		LinesSoFar += LinesChanged;
+		mapUsersWeeks[psi] = LinesChanged;
+		break;
+	}
+
+	cout << "\t";
+	for(map<string,Commit *>::iterator it=mapUser.begin();it!=mapUser.end();++it)
+		cout << (*it).first << "\t";
+	cout << endl;
+	for(int i=LowestWeek;i<=HighestWeek;++i)
+	{
+		cout << i << "\t";
+		for(map<string,Commit *>::iterator it=mapUser.begin();it!=mapUser.end();++it)
 		{
-			cout << "Cannot find the templates.  Please specify an input path." << endl;
-			exit(1); // error, default files missing
+			PAIR_SI psi( (*it).first,i);
+			int Lines = mapUsersWeeks[psi];
+			cout << Lines << "\t";
 		}
+		cout << endl;
 	}
-
-	if( sInputPath[sInputPath.length()-1] != '/' )
-		sInputPath += "/"; // adding a final /
-
-	DatabaseInfo dbInfo( sDBHost, sDBUser, sDBPassword, sDBName, iDBPort ); // creating the DatabaseInfo object
-
-	dbInfo.getDatabaseTablesList(); // reading tables list	
-	dbInfo.ConvertTablesToStrings( &g_TablesList ); // obtaining their names
-
-	vector<class TableInfo_Generator *> *p_listTableInfo=dbInfo.listTableInfo_get(); // reading tables info
-
-	cout << "Loaded information for " << p_listTableInfo->size() << " tables" << endl; // output stuff
-
-	vector<class TableInfo_Generator *>::iterator it;
-	for ( it=p_listTableInfo->begin(); it<p_listTableInfo->end(); ++it ) // processing tables
-	{
-		TableInfo *pTableInfo = (*it);
-
-		if (pTableInfo->HasPrimaryKeys())
-		{
-			string s;	
-			char buf[1024];
-
-			{
-				string sHeaderName = sOutputPath + "Table_" + pTableInfo->get_table_name() + ".h";
-
-				ifstream fin( ( sInputPath + "table.h.template" ).c_str() );
-				ofstream fout( sHeaderName.c_str() );
-
-				while ( fin )
-				{
-					//replacing all @VAR@ variables
-					fin.getline( buf, 1024 );				
-					s = buf;
-
-					int i1, i2;
-
-					while ((i1 = s.find('@')) != -1)
-					{
-						i2 = s.find('@', i1+1);
-						string sVar = s.substr( i1+1, i2-i1-1 );
-						string sExpVar;
-						if (sVar == "database_name")
-							sExpVar = sDBName;
-						else
-							sExpVar = (*it)->ExpandString(sVar);
-						s.replace(i1, i2-i1+1, sExpVar); 								
-					} 	
-
-					fout << s << endl;
-				}
-			}
-
-			{
-				string cpp_name = sOutputPath + "Table_" + (*it)->get_table_name() + ".cpp";
-
-				ifstream fin( (sInputPath + "table.cpp.template").c_str() );
-				ofstream fout(cpp_name.c_str());
-
-				while (fin)
-				{
-					//replacing all @VAR@ variables
-					fin.getline(buf, 1024);				
-					s = buf;
-
-					int i1, i2;
-
-					while ((i1 = s.find('@')) != -1)
-					{
-						i2 = s.find('@', i1+1);
-						string sVar = s.substr(i1+1, i2-i1-1);
-						string sExpVar;
-						if ( sVar == "database_name" )
-							sExpVar = sDBName;
-						else
-							sExpVar = (*it)->ExpandString( sVar );
-						s.replace(i1, i2-i1+1, sExpVar); 								
-					} 	
-
-					fout << s << endl;
-				}
-			}
-
-			{
-				string sDefineName = sOutputPath + "Define_" + (*it)->get_table_name() + ".h";
-
-				ifstream fin( (sInputPath + "define.h.template").c_str() );
-				ofstream fout(sDefineName.c_str());
-				while (fin)
-				{
-					//replacing all @VAR@ variables
-					fin.getline(buf, 1024);				
-					s = buf;
-
-					int i1, i2;
-
-					while ((i1 = s.find('@')) != -1)
-					{
-						i2 = s.find('@', i1+1);
-						string sVar = s.substr(i1+1, i2-i1-1);
-						string sExpVar;
-						if (sVar == "database_name")
-							sExpVar = sDBName;
-						else
-							sExpVar = (*it)->ExpandString(sVar);
-						s.replace(i1, i2-i1+1, sExpVar); 								
-					} 	
-
-					fout << s << endl;
-				}
-			}
-		}	
-	}
-
-	// Make a vcproject files.
-	string Sources="\t\t\t<File\r\n\t\t\t\tRelativePath=\".\\Database_" + sDBName + ".cpp\">\r\n\t\t\t</File>\r\n";
-	Sources += "\t\t\t<File\r\n\t\t\t\tRelativePath=\".\\TableRow.cpp\">\r\n\t\t\t</File>\r\n";
-
-	for ( it=p_listTableInfo->begin(); it<p_listTableInfo->end(); ++it )
-	{
-		TableInfo *pTableInfo = (*it);
-		Sources += "\t\t\t<File\r\n\t\t\t\tRelativePath=\".\\Table_" + pTableInfo->get_table_name() + ".cpp\">\r\n\t\t\t</File>\r\n";
-	}
-
-	StringUtils::Replace( sInputPath + "database.vcproj.template", sOutputPath + sDBName + ".vcproj", "@sources@", Sources );
-	StringUtils::Replace( sOutputPath + sDBName + ".vcproj", sOutputPath + sDBName + ".vcproj", "*DBName*",sDBName );
-
-	//preparing header
-
-	string db_h = sOutputPath + "Database_" + sDBName + ".h";
-	string makefile = sOutputPath + "Makefile";
-
-	ofstream db_h_out(db_h.c_str());
-	ofstream makefile_out(makefile.c_str());
-
-	makefile_out << "ROOT = .." << endl;
-	makefile_out << "CXXFLAGS = -Wall -O2 -D_GNU_SOURCE" << endl;
-	makefile_out << "CPPFLAGS = -I/usr/include/mysql -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG -DUSE_MYSQL" << endl;
-	makefile_out << "CXX = g++" << endl;
-	makefile_out << "LDFLAGS = -L$(ROOT)/lib" << endl;
-	makefile_out << "LDLIBS =  -lmysqlclient_r" << endl << endl;
-
-	makefile_out << "sources = Database_" << sDBName << ".cpp TableRow.cpp";
-
-	db_h_out << "#ifndef __Database_"<<sDBName<<"_H_" << endl;
-	db_h_out << "#define __Database_"<<sDBName<<"_H_" << endl;
-	db_h_out << "#include <mysql.h>" << endl;
-
-	db_h_out << "#ifdef SQL2CPP_DLLEXPORT" << endl << "#define DLL_EXPORT __declspec(dllexport)" << endl << "#else" << endl << "#define DLL_EXPORT" << endl << "#endif" << endl;
-
-	db_h_out << "class DLL_EXPORT Database_" << sDBName << endl;
-	db_h_out << "{" << endl;
-	db_h_out << "public:" << endl;
-	db_h_out << "MYSQL *db_handle;" <<  endl;
-	db_h_out << "Database_" << sDBName << "();" << endl;
-	db_h_out << "~Database_" << sDBName << "();" << endl;
-	db_h_out << "void DeleteAllTables();" << endl;
-
-
-	db_h_out << "private:" << endl;
-	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
-	{
-		db_h_out << "class Table_" + (*i)->get_table_name() + "* tbl"+(*i)->get_table_name()+";" << endl;
-		makefile_out << " \\" << endl << "Table_" + (*i)->get_table_name() + ".cpp";
-	}
-
-	makefile_out << endl << endl << "all: lib" << sDBName << ".a all-recursive" << endl << endl;
-	makefile_out << "lib" << sDBName << ".a: $(sources:.cpp=.o)" << endl;
-	makefile_out << "\t$(AR) rc $@ $+" << endl;
-	makefile_out << "\tcp $@ ../lib" << endl << endl;
-	makefile_out << "clean: clean-recursive" << endl;
-	makefile_out << "\trm -f *.o *.d lib" << sDBName << ".a >/dev/null" << endl << endl;
-	makefile_out << "include $(ROOT)/PlutoUtils/make.rules" << endl;
-	makefile_out << "-include $(sources:.cpp=.d)" << endl;
-
-	db_h_out << "public:" << endl;
-	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i<dbInfo.listTableInfo_get()->end(); i++)
-	{
-		db_h_out << "class Table_" + (*i)->get_table_name() + "* " + (*i)->get_table_name() + "_get() { return tbl"+(*i)->get_table_name()+"; }" << endl;
-	}
-
-	db_h_out << "bool Connect(string host, string user, string pass, string sDBName, int port);" << endl;
-	db_h_out << "bool Connect(class DCEConfig *pDCEConfig);" << endl;
-	db_h_out << "void Disconnect();" << endl;
-
-	db_h_out << "private:" << endl;
-
-	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i<dbInfo.listTableInfo_get()->end(); i++)
-		db_h_out << "void CreateTable_" + (*i)->get_table_name() + "();" << endl;
-
-	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
-		db_h_out << "void DeleteTable_" + (*i)->get_table_name() + "();" << endl;
-
-	db_h_out << "};" << endl;
-
-	db_h_out << "#endif" << endl;
-
-
-	string db_cpp = sOutputPath + "Database_" + sDBName + ".cpp";
-	ofstream db_cpp_out(db_cpp.c_str());
-
-	db_cpp_out << "#ifdef WIN32" << endl << "\t#include <winsock.h>" << endl << "#endif" << endl;
-
-	db_cpp_out << "#include <iostream>" << endl
-		<< "#include <mysql.h>" << endl
-		<< "#include <stdio.h>" << endl
-		<< "#include <string>" << endl
-		<< endl
-		<< "#include <map>" << endl
-		<< "#include <vector>" <<  endl
-		<< endl
-		<< "using namespace std;" << endl;
-
-	db_cpp_out << endl << "#include \"Database_" + sDBName + ".h\"" << endl << endl;
-	db_cpp_out << endl << "#include \"DCEConfig.h\"" << endl << endl;
-	db_cpp_out << "Database_" << sDBName << "::Database_" << sDBName << "()" << endl;
-	db_cpp_out << "{" << endl;
-
-	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
-		db_cpp_out << "CreateTable_"+(*i)->get_table_name()+"();" << endl;
-
-	db_cpp_out << "}" << endl << endl;
-
-	db_cpp_out << "Database_" << sDBName << "::~Database_" << sDBName << "()" << endl;
-	db_cpp_out << "{" << endl;
-	db_cpp_out << "\tDeleteAllTables();" << endl;
-	db_cpp_out << "}" << endl << endl;
-
-	db_cpp_out << "void Database_" << sDBName << "::DeleteAllTables()" << endl;
-	db_cpp_out << "{" << endl;
-	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
-		db_cpp_out << "DeleteTable_"+(*i)->get_table_name()+"();" << endl;
-	db_cpp_out << "}" << endl << endl;
-
-	db_cpp_out << "bool Database_" << sDBName << "::Connect(string host, string user, string pass, string sDBName, int port)" << endl;
-	db_cpp_out << "{" << endl;
-	db_cpp_out << "db_handle = mysql_init(NULL);" << endl;
-
-	db_cpp_out << "if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)" << endl;
-	db_cpp_out << "{return false;}" << endl;
-	db_cpp_out << "else" << endl;
-	db_cpp_out << "{return true;}" << endl;
-
-	db_cpp_out << "}" << endl << endl;
-
-	db_cpp_out << "bool Database_" << sDBName << "::Connect(class DCEConfig *pDCEConfig)" << endl;
-	db_cpp_out << "{" << endl;
-	db_cpp_out << "\treturn Connect(pDCEConfig->m_sDBHost,pDCEConfig->m_sDBUser,pDCEConfig->m_sDBPassword,pDCEConfig->m_sDBName,pDCEConfig->m_iDBPort);" << endl;
-	db_cpp_out << "}" << endl;
-
-	string tbrow_h = sOutputPath + "TableRow.h";
-	FileUtils::PUCopyFile(sInputPath + "TableRow.h",tbrow_h);
-
-	string tbrow_cpp = sOutputPath + "TableRow.cpp";
-	FileUtils::PUCopyFile(sInputPath + "TableRow.cpp",tbrow_cpp);
-
-	cout << "Classes generated successfully!" << endl;
-
-	return EXIT_SUCCESS;
 }

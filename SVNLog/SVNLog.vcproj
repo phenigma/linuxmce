@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="sql2cpp"
+	Name="SVNLog"
 	ProjectGUID="{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -33,11 +33,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libmySQL.lib DCE.lib"
-				OutputFile="../bin/sql2cpp.exe"
+				OutputFile="../bin/SVNLog.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/sql2cpp.pdb"
+				ProgramDatabaseFile="$(OutDir)/SVNLog.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -85,7 +85,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/sql2cpp.exe"
+				OutputFile="$(OutDir)/SVNLog.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
@@ -121,22 +121,7 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="CommonFunctions.cpp">
-			</File>
-			<File
-				RelativePath="DatabaseInfo.cpp">
-			</File>
-			<File
-				RelativePath="FieldInfo.cpp">
-			</File>
-			<File
-				RelativePath="sql2cpp.cpp">
-			</File>
-			<File
-				RelativePath="TableInfo.cpp">
-			</File>
-			<File
-				RelativePath="TableInfo_Generator.cpp">
+				RelativePath="SVNLog.cpp">
 			</File>
 		</Filter>
 		<Filter

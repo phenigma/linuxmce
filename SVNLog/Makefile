@@ -5,28 +5,20 @@ LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lDCECommon -lPlutoUtils -lpthread -lmysqlclient_r -lattr
 CXX = g++
 
-APPNAME = sql2cpp
+APPNAME = SVNLog
 VERSION = 2.0.0
 
-sources = TableInfo.cpp TableInfo_Generator.cpp DatabaseInfo.cpp CommonFunctions.cpp FieldInfo.cpp
-sql2cpp = $(sources) sql2cpp.cpp
-new_thing = $(sources) TableInfo_SCVS.cpp
+sources = 
+SVNLog = $(sources) SVNLog.cpp
 
-all: sql2cpp
-#all: newthing
+all: SVNLog
 
-sql2cpp: $(sql2cpp:.cpp=.o)
+SVNLog: $(SVNLog:.cpp=.o)
 	$(CXX) -o $@ $+  $(LDFLAGS) $(LDLIBS)
 	cp $@ $(ROOT)/bin
 
-newthing: $(new_thing:.cpp=.o)
-	@echo "*** Something to do here ***"
-
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) sql2cpp >/dev/null
-
-package:
-	./make_package.sh $(APPNAME) $(VERSION)
+	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) SVNLog >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)
