@@ -4184,6 +4184,17 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
 
 	return true;
 }
+
+void Orbiter::GetButtonsInObject( DesignObj_Data *pObj, vector<int> &vectButtons )
+{
+	if( pObj->m_iPK_Button )
+		vectButtons.push_back(pObj->m_iPK_Button);
+
+	DesignObj_DataList::iterator iHao;
+	for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+		GetButtonsInObject(*iHao,vectButtons);
+}
+
 //------------------------------------------------------------------------------------------------------------
 bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
 {

@@ -116,6 +116,9 @@ Display *OrbiterLinux::getDisplay()
 
 bool OrbiterLinux::RenderDesktop(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal)
 {
+	vector<int> vectButtonMaps;
+	GetButtonsInObject(pObj,vectButtonMaps);
+
     g_pPlutoLogger->Write(LV_WARNING, "Need to resize in here [%d, %d, %dx%d]!",
             rectTotal.Top(), rectTotal.Left(),
             rectTotal.Bottom(), rectTotal.Right());

@@ -539,7 +539,12 @@ public:
 	 * @brief sets the capture keyboard parameters
 	 */
 	bool BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable, string sOnOff, string sType, string sReset, int iPK_Text, bool bDataGrid );
-	
+
+	/**
+	 * @brief Get all the buttons that this object and its children will want to trap for
+	 */
+	void GetButtonsInObject( DesignObj_Data *pObj, vector<int> &vectButtons );
+
 	/**
 	 * @brief deletes the last char from the capture keyboard variable (from the variable map)
 	 * @todo ask what's this used for?
