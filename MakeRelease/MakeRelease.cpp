@@ -1052,7 +1052,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	// 7.   Do a cvs ci
 	string MyPath, WorkPath;
 	FILE *fp;
-	string cmd, cmd2;
+	string cmd, cmd2, basepath;
 	bool flag;
 	list<FileInfo *>::iterator iFileInfo;
 	string::size_type pos;
@@ -1066,6 +1066,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	{
 		FileInfo *pFileInfo = (*iFileInfo);
 		cmd = FileUtils::BasePath(pFileInfo->m_sSource);
+		basepath = cmd;
 		cmd2 = FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 		fprintf(fp,"%s/%s\n",cmd.c_str(),cmd2.c_str());
 	}
@@ -1073,8 +1074,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	fp = fopen("npkg.tmp","wt");
 	cmd = pRow_Package_Source->Name_get();
 	fprintf(fp,"%s\n",cmd.c_str());
-	cmd = FileUtils::BasePath(pFileInfo->m_sSource);
-	fprintf(fp,"%s\n",cmd.c_str());
+	fprintf(fp,"%s\n",basepath.c_str());
 	fclose(fp);
 	system("./sync-SF.pl");
 return true;
