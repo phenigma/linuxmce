@@ -77,7 +77,7 @@ bool RA_Request::ParseResponse(unsigned long dwSize, const char *pcData)
 	return true;
 }
 
-void RA_Request::SetupSerialization() 
+void RA_Request::SetupSerialization(int iSC_Version) 
 { 
 	if(m_bSerializingRequest) 
 		SetupSerialization_Request(); 

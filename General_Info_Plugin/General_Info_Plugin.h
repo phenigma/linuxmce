@@ -21,6 +21,8 @@ public:
 		General_Info_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~General_Info_Plugin();
 		virtual bool Register();
+		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
+		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 	// Private member variables
 	Database_pluto_main *m_pDatabase_pluto_main;

@@ -59,7 +59,7 @@ namespace DCE
 		/**
 		 * @brief setups serialization for the class data
 		 */
-		void SetupSerialization()
+		void SetupSerialization(int iSC_Version)
 		{
 			StartSerializeList() + m_dwPK_DeviceCategory + m_dwPK_DeviceCategory_Parent + m_sDescription;
 		}
@@ -112,7 +112,7 @@ namespace DCE
 		 * @warning the maps are serialized custom
 		 * @see the overloads for the + operator
 		 */
-		void SetupSerialization()
+		void SetupSerialization(int iSC_Version)
 		{
 			(*this) + m_mapDeviceData_Base + m_mapDeviceCategory + m_mapDeviceGroup; // this is serialized custom
 		}
@@ -170,7 +170,7 @@ namespace DCE
 		DeviceGroup(int dwPK_DeviceGroup,string sDescription) { m_sDescription=sDescription; m_dwPK_DeviceGroup=dwPK_DeviceGroup; }
 		DeviceGroup() {}
 
-		void SetupSerialization()
+		void SetupSerialization(int iSC_Version)
 		{
 			StartSerializeList() + m_dwPK_DeviceGroup + m_sDescription + m_vectPK_Device;
 		}
@@ -196,7 +196,7 @@ namespace DCE
 		unsigned long m_dwPK_Device_ControlledVia; /** < the specifies how the device is controlled @todo ask */
 		unsigned long m_dwPK_DeviceCategory; /** < the device category */
 		unsigned long m_dwPK_Room; /** < identifies the room where the device resides */
-		
+
 		/** flags */
 		
 		bool m_bImplementsDCE; /** < @todo ask */
@@ -288,7 +288,7 @@ namespace DCE
 		/**
 		 * @brief setups serialization for the class data
 		 */
-		void SetupSerialization()
+		void SetupSerialization(int iSC_Version)
 		{
 			StartSerializeList() + m_bImplementsDCE + m_dwPK_Device + m_dwPK_Installation + m_dwPK_DeviceTemplate + m_dwPK_Device_ControlledVia +
 				m_dwPK_DeviceCategory + m_dwPK_Room + m_bIsPlugIn + m_bIsEmbedded + m_sCommandLine + m_mapCommands + m_sDescription + m_sIPAddress + m_sMacAddress;
@@ -336,6 +336,16 @@ namespace DCE
 				
 			return WithinCategory( pCategory, pStarting->m_pDeviceCategory_Parent ); // call it recursivelly for the parent
 		}
+
+		bool IsChildOf(DeviceData_Base *pDeviceData_Base)
+		{
+			if( pDeviceData_Base->m_dwPK_Device == m_dwPK_Device_ControlledVia )
+				return true;
+			if( !m_pDevice_ControlledVia )
+				return false;
+			return m_pDevice_ControlledVia->IsChildOf(pDeviceData_Base);
+		}				
+
 
 		/**
 		 * @brief checks if the specified command is supported by the device

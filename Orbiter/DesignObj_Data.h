@@ -40,7 +40,7 @@ public:
 		m_PK_DeviceGroup=PK_DeviceGroup;
 	};
 	virtual ~DesignObjCommand() {}
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_PK_Command + m_PK_Device + m_PK_DeviceGroup + 
 			BroadcastLevel + m_PK_DeviceTemplate + m_PK_DeviceCategory +
@@ -69,7 +69,7 @@ public:
 	PlutoRectangle m_Rect;
 	DesignObjCommandList m_Commands;
 
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_Rect;
 		(*this) + m_Commands; // this is serialized custom
@@ -109,7 +109,7 @@ public:
 	}
 	DesignObjText() {}
 	virtual ~DesignObjText() {};
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_sText + m_bPreRender +
 			m_PK_Text + m_mapAltVersions + m_rPosition;
@@ -159,7 +159,7 @@ public:
 		return;
 	}
 
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_bChild + m_bDontResetState + m_bCantGoBack + m_bChildrenBeforeText + m_bProcessActionsAtServer + m_bAnimate + m_bHideByDefault + 
 		m_bTabStop + m_iPK_Button + m_dwTimeoutSeconds + m_Priority + m_iPK_Criteria + 

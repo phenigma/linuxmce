@@ -454,6 +454,9 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t"  << Name  << "_Data *GetData() { return ("  << Name  << "_Data *) m_pData; };" << endl;
 	fstr_DeviceCommand << "\tconst char *GetClassName() { return \""   <<  Name   <<  "_Command\"; };" << endl;
 	fstr_DeviceCommand << "\tint PK_DeviceTemplate_get() { return " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() <<  "; };" << endl;
+	fstr_DeviceCommand << "\tvirtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };" << endl;
+	fstr_DeviceCommand << "\tvirtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };" << endl;
+
 	fstr_DeviceCommand << "\tCommand_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);" << endl;
 	fstr_DeviceCommand << "\t//Data accessors" << endl;
 
@@ -532,7 +535,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 			fstr_DeviceCommand << "\t\t\t\t\tcontinue;" << endl;
 		}
 		fstr_DeviceCommand << "\t\t\t\t}" << endl;
-		fstr_DeviceCommand << "\t\t\t\tiHandled += Command_Impl::ReceivedMessage(pMessage);";
+		fstr_DeviceCommand << "\t\t\t\tiHandled += Command_Impl::ReceivedMessage(pMessage);" << endl;
 		fstr_DeviceCommand << "\t\t\t}" << endl;
 	}
 /*
@@ -606,11 +609,36 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		fstr_DeviceCommand << "\t\t\t}" << endl << "\t\t}" << endl;
 	}
 */
+	fstr_DeviceCommand << "\t\t\t" << (deviceInfo.m_mapCommandInfo.size()>0 ? "else" : "") << " if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )" << endl;
+	fstr_DeviceCommand << "\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\tMapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);" << endl;
+	fstr_DeviceCommand << "\t\t\t\tif( it!=m_mapCommandImpl_Children.end() )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tCommand_Impl *pCommand_Impl = (*it).second;" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tiHandled += pCommand_Impl->ReceivedMessage(pMessage);" << endl;
+	fstr_DeviceCommand << "\t\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t\telse" << endl;
+	fstr_DeviceCommand << "\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\tDeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_To);" << endl;
+	fstr_DeviceCommand << "\t\t\t\tstring sCMD_Result=\"UNHANDLED\";" << endl;
+	fstr_DeviceCommand << "\t\t\t\tif( pDeviceData_Base->IsChildOf(m_pData) )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);" << endl;
+	fstr_DeviceCommand << "\t\t\t\telse" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tReceivedUnknownCommand(sCMD_Result,pMessage);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\tMessage *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\tSendMessage(pMessageOut);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\telse if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\tSendString(sCMD_Result);" << endl;
+
+	fstr_DeviceCommand << "\t\t\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t}" << endl;
 	fstr_DeviceCommand << "\t\treturn iHandled!=0;" << endl;
 	fstr_DeviceCommand << "\t}" << endl;
 	fstr_DeviceCommand << "}; // end class" << endl;
-
 	fstr_DeviceCommand << endl << endl;
 
 	fstr_DeviceCommand << "}" << endl;
@@ -994,6 +1022,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 		pos=0;
 		while( (pos=sGeneratedFile.find("<-dceag-",pos))!=string::npos )
 		{
+string foo = sGeneratedFile.substr(pos,999);
 			string::size_type posTerminateBegin = sGeneratedFile.find("->",pos);
 			if( posTerminateBegin==string::npos || sGeneratedFile[posTerminateBegin-1]!='b' )
 			{
@@ -1299,9 +1328,9 @@ void DCEGen::WriteGlobals()
 		fstr_DeviceCommand << "\t};\n"; // end class
 
 		// Create a constructor with long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB
-		fstr_DeviceCommand << "\tclass CMD_" + Name + "_MD : public PreformedCommand {" << endl;
+		fstr_DeviceCommand << "\tclass CMD_" + Name + "_DT : public PreformedCommand {" << endl;
 		fstr_DeviceCommand << "\tpublic:" << endl;
-		fstr_DeviceCommand << "\t\tCMD_" + Name + "_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB";
+		fstr_DeviceCommand << "\t\tCMD_" + Name + "_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB";
 		if( commandInfo.m_sParmsWithType_In.length()>0 )
 			fstr_DeviceCommand << "," << commandInfo.m_sParmsWithType_In;
 
@@ -1363,9 +1392,9 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "\t};\n"; // end class
 
 			// Create a constructor with long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB
-			fstr_DeviceCommand << "\tclass CMD_NOREP_" + Name + "_MD : public PreformedCommand {" << endl;
+			fstr_DeviceCommand << "\tclass CMD_NOREP_" + Name + "_DT : public PreformedCommand {" << endl;
 			fstr_DeviceCommand << "\tpublic:" << endl;
-			fstr_DeviceCommand << "\t\tCMD_NOREP_" + Name + "_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB";
+			fstr_DeviceCommand << "\t\tCMD_NOREP_" + Name + "_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB";
 			if( commandInfo.m_sParmsWithType_In.length()>0 )
 				fstr_DeviceCommand << "," << commandInfo.m_sParmsWithType_In;
 

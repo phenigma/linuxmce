@@ -114,7 +114,7 @@ public:
 	* track whether we are doing a request or a response with m_bSerializingRequest, and then call
 	* SetupSerialization_Request or SetupSerialization_Response, which the derived class must implement
     */
-	virtual void SetupSerialization();
+	virtual void SetupSerialization(int iSC_Version);
 
 	virtual void SetupSerialization_Request() {};
 	virtual void SetupSerialization_Response() { StartSerializeList() + m_cProcessOutcome; };

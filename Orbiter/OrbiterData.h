@@ -42,7 +42,7 @@ public:
 	class CHAGraphic *m_pGraphic; // Not serialized, just a temporary pointer for the orbiter with the button for this location
 
 	LocationInfo() { m_dwPK_Device_MediaDirector = m_dwPK_Device_DiscDrive = m_dwPK_Device_AppServer = m_dwPK_Device_MediaBurner = m_dwPK_Device_VideoConf = m_dwPK_Device_CamcorderCapt = m_dwPK_Device_Orbiter = m_dwPK_Device_WebBrowser = DEVICEID_NULL; }
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + PK_Room + PK_EntertainArea + iLocation + Description +
 			m_dwPK_Device_MediaDirector + m_dwPK_Device_DiscDrive + m_dwPK_Device_AppServer + m_dwPK_Device_MediaBurner + m_dwPK_Device_VideoConf + 
@@ -91,7 +91,7 @@ public:
 	OrbiterData &operator+ (MapTextStyle &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STYLE_MAP,(void *) &i)); return (*this); }
 	OrbiterData &operator+ (DequeLocationInfo &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LOCATIONS,(void *) &i)); return (*this); }
 
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users + m_iLocation_Initial
 			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn

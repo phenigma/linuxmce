@@ -23,7 +23,7 @@ public:
 	TextStyle(class Row_StyleVariation *pRow_StyleVariation);
 	TextStyle() { m_pTTF_Font=NULL; } // Needed for de-serializing
 
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + 
 			m_iPK_Style + m_iPK_StyleVariation + m_iPK_Style_Selected + m_iPK_Style_Highlighed + m_iPK_Style_Alt + m_iVersion +

@@ -88,6 +88,8 @@ public:
 		Bluetooth_Dongle(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~Bluetooth_Dongle();
 		virtual bool Register();
+		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
+		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 	
 		pluto_pthread_mutex_t m_BTMutex; /**< to control access to the shared memory */

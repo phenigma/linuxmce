@@ -89,7 +89,7 @@ namespace sqlCVS
 		 * @brief Sets up serialization
 		 */
 		
-		void SetupSerialization() {	StartSerializeList() + m_vectString; 	}
+		void SetupSerialization(int iSC_Version) {	StartSerializeList() + m_vectString; 	}
 	};
 
 	extern GlobalConfig g_GlobalConfig;

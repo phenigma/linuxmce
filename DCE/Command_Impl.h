@@ -199,25 +199,29 @@ namespace DCE
 		virtual void ProcessMessageQueue();
 
 		/**
-		 * @brief sends a message and expects for confirmation
-		 * This will send the message and wait for the destination device to receive it and acknowledge with an "OK".  Only
-		 * then will the function return a true value.  Otherwise it returns false, and Response is whatever response
-		 * the destination device or server provided
+		 * @brief
+		 * Send a command.  If the command includes out parameters, the framework
+		 * will wait for a response so it can fill those parameters.  Otherwise, it will
+		 * send without waiting for a reply
 		 */
-		bool SendMessageWithConfirm(Message *pMessage,string &Response);
+
+		bool SendCommand( class PreformedCommand &pPreformedCommand ) { return InternalSendCommand( pPreformedCommand,-1,NULL ); }
 
 		/**
 		 * @brief
-		 * Send a regular command.  If confirmation is 0, it will go in a queue and there will be no response.  The return value is always true.
-		 * If you send a command that has 'out' parametes, they will not be filled in.  If confirmation is 1, the return value is true on 
-		 * success and m_pcResponse, if specified, will equal 'OK'.  On failure, the result will be false, and p_sResponse will be assigned
-		 * a comment, if it was specified.  If iConfirmation is left at -1, the default, the framework will wait for a response if there
-		 * are out parameters (as if iConfirmation==1), and will send without confirmation if there are no out parameters.
+		 * Send a command and wait for the reply, which will be put into p_sReponse.
+		 * If the command is successful, it will be "OK".
 		 */
-		bool SendCommand( class PreformedCommand &pPreformedCommand, int iConfirmation = -1, string *p_sResponse=NULL );
+		bool SendCommand(class  PreformedCommand &pPreformedCommand, string *p_sResponse ) { return InternalSendCommand( pPreformedCommand,1,p_sResponse ); }
 
-		
-		
+		/**
+		 * @brief
+		 * Send a command and don't wait for a reply even if the command has out 
+		 * parameters.  The out parameters will be unmodified
+		 */
+		bool SendCommandNoResponse( class PreformedCommand &pPreformedCommand ) { return InternalSendCommand( pPreformedCommand,0,NULL ); }
+		bool InternalSendCommand( class PreformedCommand &pPreformedCommand, int iConfirmation, string *p_sResponse );
+
 		/** Re-route the primitives through the primary device command. */
 		
 		/** @brief sending a string directly or through the parent device */

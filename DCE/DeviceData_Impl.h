@@ -102,9 +102,9 @@ namespace DCE
 		 * @warning the m_vectDeviceData_Impl_Children vector is serialized custom
 		 * @see the overloads for the + operator
 		 */
-		void SetupSerialization()
+		void SetupSerialization(int iSC_Version)
 		{
-			DeviceData_Base::SetupSerialization();
+			DeviceData_Base::SetupSerialization(iSC_Version);
 			StartSerializeList() + m_mapParameters;
 			(*this) + m_vectDeviceData_Impl_Children; // this is serialized custom
 		}

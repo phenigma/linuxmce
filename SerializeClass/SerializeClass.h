@@ -122,6 +122,7 @@ public:
 	unsigned long m_dwAllocatedSize; /** < how much is allocated for the data */
 	char *m_pcCurrentPosition; /** < current position in the DataBlock */
 	void *m_pExtraSerializationData;  /** < this is only used in the Serialize method to store misc data */
+	unsigned long m_iSC_Version; /** < A schema version.  Set this in your constructor to support multiple schemas. */
 
 	/**
 	 * @brief basic constructor
@@ -129,6 +130,7 @@ public:
 	SerializeClass()
 	{
 		m_pcDataBlock = m_pcCurrentPosition = NULL;
+		m_iSC_Version = 1;
 	}
 
 	/**
@@ -307,7 +309,7 @@ public:
 	/**
 	 * @brief override this with your own list of members to serialize.  Don't forget to call your base class too
 	 */
-	virtual void SetupSerialization() {}; 
+	virtual void SetupSerialization(int iSC_Version) {}; 
 
 	/**
 	 * @brief Used for classes that know how to serialize themselves.  Only available in the base class

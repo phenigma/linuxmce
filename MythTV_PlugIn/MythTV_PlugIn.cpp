@@ -91,6 +91,33 @@ bool MythTV_PlugIn::Register()
     return Connect();
 }
 
+/*
+	When you receive commands that are destined to one of your children,
+	then if that child implements DCE then there will already be a separate class
+	created for the child that will get the message.  If the child does not, then you will 
+	get all	commands for your children in ReceivedCommandForChild, where 
+	pDeviceData_Base is the child device.  If you handle the message, you 
+	should change the sCMD_Result to OK
+*/
+//<-dceag-cmdch-b->
+void MythTV_PlugIn::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+//<-dceag-cmdch-e->
+{
+	sCMD_Result = "UNHANDLED CHILD";
+}
+
+/*
+	When you received a valid command, but it wasn't for one of your children,
+	then ReceivedUnknownCommand gets called.  If you handle the message, you 
+	should change the sCMD_Result to OK
+*/
+//<-dceag-cmduk-b->
+void MythTV_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
+//<-dceag-cmduk-e->
+{
+	sCMD_Result = "UNKNOWN DEVICE";
+}
+
 bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 {
     if( pMediaStream->GetType()!=MEDIASTREAM_TYPE_MYTHTV )

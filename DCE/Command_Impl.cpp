@@ -384,14 +384,7 @@ void Command_Impl::ProcessMessageQueue()
 	}
 }
 
-bool Command_Impl::SendMessageWithConfirm( Message *pMessage,string &Response )
-{
-	pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;
-	bool bResponse = m_pcRequestSocket->SendMessage( pMessage, Response );
-	return bResponse && Response == "OK";
-}
-
-bool Command_Impl::SendCommand( PreformedCommand &pPreformedCommand, int iConfirmation, string *p_sResponse )
+bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int iConfirmation, string *p_sResponse )
 {
 	if( m_bLocalMode )
 		return true; // If it's just a test, local mode without a router

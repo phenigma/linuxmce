@@ -29,7 +29,7 @@ public:
 	void G(unsigned char G) { unsigned char *ucp = (unsigned char *) &m_Value; ucp[1]=G; };
 	void B(unsigned char B) { unsigned char *ucp = (unsigned char *) &m_Value; ucp[0]=B; };
 	virtual string SerializeClassClassName() { return "PlutoColor"; }
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_Value;
 	}
@@ -44,7 +44,7 @@ public:
 	PlutoPoint(int x,int y) {X=x; Y=y;  }
 	PlutoPoint(const PlutoPoint &p) {X=p.X; Y=p.Y;  }
 
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + X + Y;
 	}
@@ -73,7 +73,7 @@ public:
 	}
 	PlutoSize(int W,int H) { Width=W; Height=H;  }
 
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + Width + Height;
 	}
@@ -111,7 +111,7 @@ public:
 	int X2() {return X+Width;};
 	int Y2() {return Y+Height;};
 
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + X + Y + Width + Height;
 	}

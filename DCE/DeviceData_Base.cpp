@@ -53,6 +53,8 @@ bool AllDevices::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dw
 		{
 			DeviceData_Base *pDeviceData_Base = (*itDevice).second;
 			pDeviceData_Base->m_pDeviceCategory = m_mapDeviceCategory_Find( pDeviceData_Base->m_dwPK_DeviceCategory );
+			if( pDeviceData_Base->m_dwPK_Device_ControlledVia )
+				pDeviceData_Base->m_pDevice_ControlledVia = m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
 		}
 
 		Map_DeviceGroup::iterator itGroup;

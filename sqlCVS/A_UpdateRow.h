@@ -43,9 +43,9 @@ public:
 	 * @brief sets up the serialization
 	 */
 
-	virtual void SetupSerialization()
+	virtual void SetupSerialization(int iSC_Version)
 	{
-		RA_Action::SetupSerialization();
+		RA_Action::SetupSerialization(int iSC_Version);
 		StartSerializeList() + m_psc_id + m_psc_batch + m_psc_user +
 			m_vectValues;
 	}

@@ -47,7 +47,16 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 	}
 	MYSTL_CLEAR_LIST(m_listItemToSerialize);
 
-	SetupSerialization();
+	if( bWriting )
+	{
+		Write_unsigned_long(m_iSC_Version);
+		SetupSerialization(m_iSC_Version);
+	}
+	else
+	{
+		unsigned long iSC_Version = Read_unsigned_long();
+		SetupSerialization(iSC_Version);
+	}
 #ifdef DEBUG_SERIALIZATION
 	cout << "Schema for: " << SerializeClassClassName();
 	MYSTL_ITERATE_LIST(m_listItemToSerialize,ItemToSerialize,pItem_cout,it_cout)

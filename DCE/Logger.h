@@ -156,7 +156,7 @@ namespace DCE
 			/**
 			* @brief serializes the class data
 			*/
-			void SetupSerialization()
+			void SetupSerialization(int iSC_Version)
 			{
 				StartSerializeList() +	m_iLevel + m_dwTime + m_dwMicroseconds + m_sName + m_sData + m_dwPK_Device;
 			}

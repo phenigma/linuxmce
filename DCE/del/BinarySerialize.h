@@ -303,7 +303,7 @@ public:
 	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition) { return false; } 
 
 	// override this with your own list of members to serialize.  Don't forget to call your base class too
-	virtual void SetupSerialization() {}; 
+	virtual void SetupSerialization(int iSC_Version) {}; 
 
 	// An easy way to add self-serializing classes 
 	bool SelfSerializing(bool bWriting,ItemToSerialize *pItem); 
@@ -322,7 +322,7 @@ public:
 		}
 		MYSTL_CLEAR_LIST(m_listItemToSerialize);
 
-		SetupSerialization();
+		SetupSerialization(int iSC_Version);
 
 #ifdef DEBUG_SERIALIZATION
 		cout << "Schema for: " << SerializeClassClassName();

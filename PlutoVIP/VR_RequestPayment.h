@@ -17,9 +17,9 @@ public:
 		m_sLineID=LineID; m_sProductID=ProductID; m_sDescription=Description; m_iAmount=Amount; 
 	}
 
-	void SetupSerialization()
+	void SetupSerialization(int iSC_Version)
 	{
-		SerializeClass::SetupSerialization();
+		SerializeClass::SetupSerialization(int iSC_Version);
 		StartSerializeList() + m_sLineID + m_sProductID + m_sDescription + m_iAmount;
 	}
 };

@@ -14,9 +14,9 @@ public:
 	VA_SendMenuToPhone() { m_pdbMenu.m_pBlock = NULL; m_pdbMenu.m_dwSize = 0;}
 
 	unsigned long ID() { return ACTION_SENDMENU_TOPHONE; }
-	virtual void SetupSerialization()
+	virtual void SetupSerialization(int iSC_Version)
 	{
-		RA_Action::SetupSerialization();
+		RA_Action::SetupSerialization(int iSC_Version);
 		StartSerializeList() + m_pdbMenu + m_iMacAddress;
 	}
 

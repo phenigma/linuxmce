@@ -88,7 +88,7 @@ extern "C" {
 int main(int argc, char* argv[]) 
 {
 	cout << "Bluetooth_Dongle, v." << VERSION << endl
-		<< "Visit www.plutohome.com for source code and license information" << endl << endl << endl << endl << endl;
+		<< "Visit www.plutohome.com for source code and license information" << endl << endl;
 
 	string sRouter_IP="dce_router";
 	int PK_Device=0;

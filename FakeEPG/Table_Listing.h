@@ -129,7 +129,7 @@ void Synopsis_set(string val);
 		
 
 		// Setup binary serialization
-		void SetupSerialization() {
+		void SetupSerialization(int iSC_Version) {
 			StartSerializeList() + m_PK_Listing+ m_ShowName+ m_Time+ m_ChannelNum+ m_ChannelName+ m_Synopsis;
 		}
 	private:

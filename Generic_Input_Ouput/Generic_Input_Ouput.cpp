@@ -35,6 +35,33 @@ bool Generic_Input_Ouput::Register()
 	return Connect(); 
 }
 
+/*
+	When you receive commands that are destined to one of your children,
+	then if that child implements DCE then there will already be a separate class
+	created for the child that will get the message.  If the child does not, then you will 
+	get all	commands for your children in ReceivedCommandForChild, where 
+	pDeviceData_Base is the child device.  If you handle the message, you 
+	should change the sCMD_Result to OK
+*/
+//<-dceag-cmdch-b->
+bool DCE_Template::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+//<-dceag-cmdch-e->
+{
+	sCMD_Result = "UNHANDLED CHILD";
+}
+
+/*
+	When you received a valid command, but it wasn't for one of your children,
+	then ReceivedUnknownCommand gets called.  If you handle the message, you 
+	should change the sCMD_Result to OK
+*/
+//<-dceag-cmduk-b->
+bool DCE_Template::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
+//<-dceag-cmduk-e->
+{
+	sCMD_Result = "UNKNOWN DEVICE";
+}
+
 //<-dceag-sample-b->
 /*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
 

@@ -108,7 +108,7 @@ class DLL_EXPORT Row_@table_name@ : public TableRow, public SerializeClass
 		@fk_rows_getters_declaration@
 
 		// Setup binary serialization
-		void SetupSerialization() {
+		void SetupSerialization(int iSC_Version) {
 			StartSerializeList() @member_variable_list@;
 		}
 	private:
