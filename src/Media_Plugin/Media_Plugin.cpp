@@ -371,7 +371,10 @@ int Media_Plugin::FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainAr
 	pRow_CommandGroup->FK_Installation_set( m_pRouter->iPK_Installation_get() );
 	pRow_CommandGroup->FK_Array_set( ARRAY_Media_Scenarios_CONST );
 	m_pDatabase_pluto_main->CommandGroup_get()->Commit();
-g_pPlutoLogger->Write(LV_STATUS,"Added entertainment area %d %s",pRow_CommandGroup->PK_CommandGroup_get(),pRow_CommandGroup->Description_get().c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Added entertainment area %d %s ea: %d %s hint: %s",
+		pRow_CommandGroup->PK_CommandGroup_get(),pRow_CommandGroup->Description_get().c_str(),
+		pRow_EntertainArea->PK_EntertainArea_get(), pRow_EntertainArea->Description_get().c_str(),
+		pRow_CommandGroup->Hint_get().c_str());
 	Row_CommandGroup_EntertainArea *pRow_CommandGroup_EntertainArea = m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->AddRow();
 	pRow_CommandGroup_EntertainArea->FK_CommandGroup_set(pRow_CommandGroup->PK_CommandGroup_get());
 	pRow_CommandGroup_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
