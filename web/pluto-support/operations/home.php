@@ -8,6 +8,8 @@ if($package!=0){
 	$resDocs = $dbADO ->Execute($queryDocs,$package);
 	$rowDocs = $resDocs->FetchRow();                             	
 	
+	$out = '<p><h1>**package**</h1></p>';
+
 	$documentation = "";
 	if ( $rowDocs['Contents'] != "" )
 	{
@@ -19,7 +21,6 @@ if($package!=0){
 			<p>This is the main home page for the software module <b>**package**</b>. 
 			The above menu has links to documentation, downloads, source code, forums, 
 			mailing lists and FAQ\'s specific to <b>**package**</b>.</p>
-
 			<p>Many of Pluto\'s <a href=index.php?section=document&docID=7>plug-ins</a> and 
 			<a href=index.php?section=document&docID=6>DCE devices</a> have their own home pages.  
 			For general help, visit the <a href=index.php?section=home&package=0>general support</a> page.</p>';
@@ -33,28 +34,38 @@ if($package!=0){
 	$found = 0;
 	while ($rowDevices = $resDevices->FetchRow()) 
 	{
+		if ($found == 1) {
+			$out2.=' - ';
+		}
 		$found = 1;
 		$devices .= ' <b>'.$rowDevices['Description'].'</b>';
 	}
 
-	$out = $documentation;
+	$out .= $documentation;
 	if ( $found == 1 )
 	{
 		$out .= '<br>This module includes the following DCE Devices: ' . $devices . '.'; 
 	}
+	if($package!=159){ // Not PlutoVIP
+		$out.='<p><h1>Download the software</h1></p>
+			<p>There are hundreds of modules and many options in a Pluto Home system.  Normally you don\'t download modules separately.  
+			To install a complete Pluto system, we created an Installation Wizard that asks a few questions about your hardware and software environment and builds a custom installer for you.  
+			It even gets the source code, if you wish, and builds a script that will compile all the modules you chose.  
+			Just register or login, go to the "My Pluto" home page and click "New Installation".</p>
+			<p>If you already have Pluto, you can add extra modules modules in the Pluto Admin web site.</p>
+			<p><a href="http://plutohome.com/support/index.php?section=packageDownload&pkid='.$_SESSION['package'].'"><b>Download page for **package**</b></a></p>
+
+			<p>For the brave of heart, you can also visit the main <a href="index.php?section=mainDownload&packge=0">Download Page</a> to download 
+			modules by hand and see all the dependencies and compatibility for each, as well as <a href="index.php?section=document&docID=101">build from source</a>.</p>';
+	}
 }
 else {
-	$out='<p>This is the main support page for Pluto.  Here you will find documentation, downloads, source code, forums, mailing lists and FAQ\'s for Pluto.</p>
-
-	<p>Pluto is a very modular system, and every installation can have its own unique mix of modules, such as <a href=index.php?section=document&docID=7>plug-ins</a> and <a href=index.php?section=document&docID=6>DCE devices</a>.  The documentation contained here
-	is of a general nature and assumes you are using Pluto\'s standard mix of devices.  If you want specific information about a particular software module, you should
-	visit that module\'s own home page.  Each software module has it\'s own support page with documentation, forums, bug reports, etc.  A list of all the software modules
-	and the respective home pages is <a href=index.php?section=modules>here</a>';
+	$out='';
 	$queryDocs = 'SELECT Contents FROM Document
 					where PK_Document=1';
 	$resDocs = $dbADO ->Execute($queryDocs,$package);
 	$rowDocs = $resDocs->FetchRow();
-	$out.='<br><br>Documentation:<br><br>'.$rowDocs['Contents'];
+	$out.=$rowDocs['Contents'];
 }
 
 $output->setBody($out);
