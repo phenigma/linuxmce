@@ -471,10 +471,6 @@ function avWizard($output,$dbADO) {
 							$out.=$tuner;
 						}
 					}
-					$out.='
-					<tr>
-						<td colspan="7"><hr></td>
-					</tr>';
 				}else{
 					$embededRows[$rowD['FK_Device_ControlledVia']][]='
 				<tr>
@@ -507,6 +503,10 @@ function avWizard($output,$dbADO) {
 			$out.='
 				<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$DeviceDataToDisplay).'">
 				<input type="hidden" name="displayedDevices" value="'.join(',',array_keys($displayedDevices)).'">';
+			$out.='
+				<tr>
+					<td colspan="8"><hr></td>
+				</tr>';
 			if($resDevice->RecordCount()!=0){
 				$out.='
 				<tr>
