@@ -254,9 +254,9 @@ protected:
 
 	/**
 	 * @brief
-	 * @todo ask
+	 * @param if X and Y are -1, the object was selected by pushing a keyboard key, rather than touching the screen
 	 */
-	void SelectedObject( DesignObj_Orbiter *pDesignObj_Orbiter, int iX = 0, int iY = 0 );
+	void SelectedObject( DesignObj_Orbiter *pDesignObj_Orbiter, int iX = -1, int iY = -1 );
 	
 	/**
 	 * @brief
@@ -582,7 +582,7 @@ public:
 	 * @brief executes the commands in the command list
 	 * @todo ask
 	 */
-	void ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList, DesignObj_Orbiter *pDesignObj_Orbiter, int iX = 0, int iY = 0 ); // Execute commands
+	void ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList, DesignObj_Orbiter *pDesignObj_Orbiter, int iX = -1, int iY = -1 ); // Execute commands
 	
 	/**
 	 * @brief returns the grid cell dimensions in the parameters

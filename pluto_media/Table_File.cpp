@@ -1,0 +1,615 @@
+// If using the thread logger, these generated classes create lots of activity
+#ifdef NO_SQL_THREAD_LOG
+#undef THREAD_LOG
+#endif
+
+#ifdef WIN32
+#include <winsock.h>
+#endif
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <list>
+
+#include <mysql.h>
+
+using namespace std;
+#include "PlutoUtils/StringUtils.h"
+#include "Table_File.h"
+#include "Table_Type.h"
+
+#include "Table_File_Attribute.h"
+#include "Table_Picture_File.h"
+
+
+void Database_pluto_media::CreateTable_File()
+{
+	tblFile = new Table_File(this);
+}
+
+void Database_pluto_media::DeleteTable_File()
+{
+	delete tblFile;
+}
+
+Table_File::~Table_File()
+{
+	map<Table_File::Key, class Row_File*, Table_File::Key_Less>::iterator it;
+	for(it=cachedRows.begin();it!=cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	size_t i;
+	for(i=0;i<addedRows.size();++i)
+		delete addedRows[i];
+	for(i=0;i<deleted_addedRows.size();++i)
+		delete deleted_addedRows[i];
+}
+
+
+void Row_File::Delete()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	if (!is_deleted)
+		if (is_added)	
+		{	
+			vector<Row_File*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			
+			if (i!=	table->addedRows.end())
+				table->addedRows.erase(i);
+		
+			table->deleted_addedRows.push_back(this);
+			is_deleted = true;	
+		}
+		else
+		{
+			Table_File::Key key(this);					
+			map<Table_File::Key, Row_File*, Table_File::Key_Less>::iterator i = table->cachedRows.find(key);
+			if (i!=table->cachedRows.end())
+				table->cachedRows.erase(i);
+						
+			table->deleted_cachedRows[key] = this;
+			is_deleted = true;	
+		}	
+}
+
+void Row_File::Reload()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	
+	if (!is_added)
+	{
+		Table_File::Key key(this);		
+		Row_File *pRow = table->FetchRow(key);
+		
+		if (pRow!=NULL)
+		{
+			*this = *pRow;	
+			
+			delete pRow;		
+		}	
+	}	
+	
+}
+
+Row_File::Row_File(Table_File *pTable):table(pTable)
+{
+	SetDefaultValues();
+}
+
+void Row_File::SetDefaultValues()
+{
+	m_PK_File = 0;
+is_null[0] = false;
+m_FK_Type = 0;
+is_null[1] = false;
+m_Path = "";
+is_null[2] = false;
+m_Missing = 0;
+is_null[3] = false;
+
+
+	is_added=false;
+	is_deleted=false;
+	is_modified=false;
+}
+
+long int Row_File::PK_File_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_PK_File;}
+long int Row_File::FK_Type_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Type;}
+string Row_File::Path_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Path;}
+long int Row_File::Missing_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Missing;}
+
+		
+void Row_File::PK_File_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_PK_File = val; is_modified=true; is_null[0]=false;}
+void Row_File::FK_Type_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Type = val; is_modified=true; is_null[1]=false;}
+void Row_File::Path_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Path = val; is_modified=true; is_null[2]=false;}
+void Row_File::Missing_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Missing = val; is_modified=true; is_null[3]=false;}
+
+		
+
+			
+	
+
+string Row_File::PK_File_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PK_File);
+
+return buf;
+}
+
+string Row_File::FK_Type_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[1])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Type);
+
+return buf;
+}
+
+string Row_File::Path_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[301];
+mysql_real_escape_string(table->database->db_handle, buf, m_Path.c_str(), (unsigned long) m_Path.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_File::Missing_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_Missing);
+
+return buf;
+}
+
+
+
+
+Table_File::Key::Key(long int in_PK_File)
+{
+			pk_PK_File = in_PK_File;
+	
+}
+
+Table_File::Key::Key(Row_File *pRow)
+{
+			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+
+			pk_PK_File = pRow->m_PK_File;
+	
+}		
+
+bool Table_File::Key_Less::operator()(const Table_File::Key &key1, const Table_File::Key &key2) const
+{
+			if (key1.pk_PK_File!=key2.pk_PK_File)
+return key1.pk_PK_File<key2.pk_PK_File;
+else
+return false;	
+}	
+
+void Table_File::Commit()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+//insert added
+	while (!addedRows.empty())
+	{
+		vector<Row_File*>::iterator i = addedRows.begin();
+	
+		Row_File *pRow = *i;
+	
+		
+string values_list_comma_separated;
+values_list_comma_separated = values_list_comma_separated + pRow->PK_File_asSQL()+", "+pRow->FK_Type_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->Missing_asSQL();
+
+	
+		string query = "insert into File (PK_File, FK_Type, Path, Missing) values ("+
+			values_list_comma_separated+")";
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		if (mysql_affected_rows(database->db_handle)!=0)
+		{
+			
+			
+			long int id	= (long int) mysql_insert_id(database->db_handle);
+		
+			if (id!=0)
+pRow->m_PK_File=id;
+	
+			
+			addedRows.erase(i);
+			Key key(pRow);	
+			cachedRows[key] = pRow;
+					
+			
+			pRow->is_added = false;	
+			pRow->is_modified = false;	
+		}	
+				
+	}	
+
+
+//update modified
+	
+
+	for (map<Key, Row_File*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified)
+	{
+		Row_File* pRow = (*i).second;	
+		Key key(pRow);	
+
+		char tmp_PK_File[32];
+sprintf(tmp_PK_File, "%li", key.pk_PK_File);
+
+
+string condition;
+condition = condition + "PK_File=" + tmp_PK_File;
+	
+			
+		
+string update_values_list;
+update_values_list = update_values_list + "PK_File="+pRow->PK_File_asSQL()+", FK_Type="+pRow->FK_Type_asSQL()+", Path="+pRow->Path_asSQL()+", Missing="+pRow->Missing_asSQL();
+
+	
+		string query = "update File set " + update_values_list + " where " + condition;
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		pRow->is_modified = false;	
+	}	
+	
+
+//delete deleted added
+	while (!deleted_addedRows.empty())
+	{	
+		vector<Row_File*>::iterator i = deleted_addedRows.begin();
+		delete (*i);
+		deleted_addedRows.erase(i);
+	}	
+
+
+//delete deleted cached
+	
+	while (!deleted_cachedRows.empty())
+	{	
+		map<Key, Row_File*, Key_Less>::iterator i = deleted_cachedRows.begin();
+	
+		Key key = (*i).first;
+	
+		char tmp_PK_File[32];
+sprintf(tmp_PK_File, "%li", key.pk_PK_File);
+
+
+string condition;
+condition = condition + "PK_File=" + tmp_PK_File;
+
+	
+		string query = "delete from File where " + condition;
+		
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}	
+		
+		delete (*i).second;
+		deleted_cachedRows.erase(key);
+	}
+	
+}
+
+bool Table_File::GetRows(string where_statement,vector<class Row_File*> *rows)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from File " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from File where " + where_statement;
+		
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query: " << query << endl;
+		return false;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return false;
+	}	
+	
+	MYSQL_ROW row;
+						
+		
+	while ((row = mysql_fetch_row(res)) != NULL)
+	{	
+		unsigned long *lengths = mysql_fetch_lengths(res);
+
+		Row_File *pRow = new Row_File(this);
+		
+		if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_File = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_File));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_FK_Type = 0;
+}
+else
+{
+pRow->is_null[1]=false;
+sscanf(row[1], "%li", &(pRow->m_FK_Type));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Path = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Path = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Missing = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%li", &(pRow->m_Missing));
+}
+
+
+
+		//checking for duplicates
+
+		Key key(pRow);
+		
+                map<Table_File::Key, Row_File*, Table_File::Key_Less>::iterator i = cachedRows.find(key);
+			
+		if (i!=cachedRows.end())
+		{
+			delete pRow;
+			pRow = (*i).second;
+		}
+
+		rows->push_back(pRow);
+		
+		cachedRows[key] = pRow;
+	}
+
+	mysql_free_result(res);			
+		
+	return true;					
+}
+
+Row_File* Table_File::AddRow()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Row_File *pRow = new Row_File(this);
+	pRow->is_added=true;
+	addedRows.push_back(pRow);
+	return pRow;		
+}
+
+
+
+Row_File* Table_File::GetRow(long int in_PK_File)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Key row_key(in_PK_File);
+
+	map<Key, Row_File*, Key_Less>::iterator i;
+	i = deleted_cachedRows.find(row_key);	
+		
+	//row was deleted	
+	if (i!=deleted_cachedRows.end())
+		return NULL;
+	
+	i = cachedRows.find(row_key);
+	
+	//row is cached
+	if (i!=cachedRows.end())
+		return (*i).second;
+	//we have to fetch row
+	Row_File* pRow = FetchRow(row_key);
+
+	if (pRow!=NULL)
+		cachedRows[row_key] = pRow;
+	return pRow;	
+}
+
+
+
+Row_File* Table_File::FetchRow(Table_File::Key &key)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	//defines the string query for the value of key
+	char tmp_PK_File[32];
+sprintf(tmp_PK_File, "%li", key.pk_PK_File);
+
+
+string condition;
+condition = condition + "PK_File=" + tmp_PK_File;
+
+
+	string query = "select * from File where " + condition;		
+
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return NULL;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return NULL;
+	}	
+	
+	MYSQL_ROW row = mysql_fetch_row(res);
+	
+	if (!row)
+	{
+		//dataset is empty
+		mysql_free_result(res);			
+		return NULL;		
+	}	
+						
+	unsigned long *lengths = mysql_fetch_lengths(res);
+
+	Row_File *pRow = new Row_File(this);
+		
+	if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_File = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_File));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_FK_Type = 0;
+}
+else
+{
+pRow->is_null[1]=false;
+sscanf(row[1], "%li", &(pRow->m_FK_Type));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Path = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Path = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Missing = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%li", &(pRow->m_Missing));
+}
+
+
+
+	mysql_free_result(res);			
+	
+	return pRow;						
+}
+
+
+class Row_Type* Row_File::FK_Type_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Type *pTable = table->database->Type_get();
+return pTable->GetRow(m_FK_Type);
+}
+
+
+void Row_File::File_Attribute_FK_File_getrows(vector <class Row_File_Attribute*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_File_Attribute *pTable = table->database->File_Attribute_get();
+pTable->GetRows("FK_File=" + StringUtils::itos(m_PK_File),rows);
+}
+void Row_File::Picture_File_FK_File_getrows(vector <class Row_Picture_File*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Picture_File *pTable = table->database->Picture_File_get();
+pTable->GetRows("FK_File=" + StringUtils::itos(m_PK_File),rows);
+}
+
+
+

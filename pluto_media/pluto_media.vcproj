@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="Media_Plugin"
-	ProjectGUID="{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}"
+	Name="pluto_media"
+	ProjectGUID="{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -12,15 +12,15 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
+			OutputDirectory="../lib"
 			IntermediateDirectory="Debug"
-			ConfigurationType="2"
+			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="../DCE;..;../Libraries/pthreads-win32/include;/mysql/include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -31,16 +31,8 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib pluto_media.lib"
-				OutputFile="../bin/Media_Plugin.dll"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="\mysql\lib\Debug;&quot;../Libraries/pthreads-win32/lib&quot;;../lib"
-				ModuleDefinitionFile="Media_Plugin.def"
-				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/Media_Plugin.pdb"
-				SubSystem="1"
-				TargetMachine="1"/>
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/pluto_media.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -56,8 +48,6 @@
 			<Tool
 				Name="VCXMLDataGeneratorTool"/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
@@ -66,14 +56,14 @@
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
 				EnableFunctionLevelLinking="TRUE"
@@ -84,15 +74,8 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Media_Plugin.dll"
-				LinkIncremental="1"
-				ModuleDefinitionFile="Media_Plugin.def"
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/pluto_media.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -107,8 +90,6 @@
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
 			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool
@@ -122,47 +103,57 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="..\Datagrid_Plugin\Datagrid_Plugin.cpp">
+				RelativePath=".\Database_pluto_media.cpp">
 			</File>
 			<File
-				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
+				RelativePath=".\Table_Attribute.cpp">
 			</File>
 			<File
-				RelativePath="..\File_Grids_Plugin\FileListGrid.cpp">
+				RelativePath=".\Table_AttributeType.cpp">
 			</File>
 			<File
-				RelativePath="Main.cpp">
+				RelativePath=".\Table_File.cpp">
 			</File>
 			<File
-				RelativePath="Media_Plugin.cpp">
+				RelativePath=".\Table_File_Attribute.cpp">
 			</File>
 			<File
-				RelativePath="Media_Plugin.def">
+				RelativePath=".\Table_Picture.cpp">
 			</File>
 			<File
-				RelativePath="..\Gen_Devices\Media_PluginBase.cpp">
+				RelativePath=".\Table_Picture_Attribute.cpp">
 			</File>
 			<File
-				RelativePath=".\MediaAttributes.cpp">
+				RelativePath=".\Table_Picture_File.cpp">
 			</File>
 			<File
-				RelativePath=".\MediaPluginInfo.cpp">
+				RelativePath=".\Table_SearchToken.cpp">
 			</File>
+			<File
+				RelativePath=".\Table_SearchToken_Attribute.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Type.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Type_AttributeType.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Type_Extension.cpp">
+			</File>
+
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
-			<File
-				RelativePath="..\DCE\DCEDeviceData_Impl.h">
-			</File>
-			<File
-				RelativePath="Media_Plugin.h">
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 		</Filter>
+		<File
+			RelativePath="ReadMe.txt">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

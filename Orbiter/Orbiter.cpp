@@ -2331,6 +2331,8 @@ ACCEPT OUTSIDE INPUT
 
 bool Orbiter::ButtonDown( int PK_Button )
 {
+	if( !PK_Button )
+		return false;
 	NeedToRender render( this, "Button Down" );  // Redraw anything that was changed by this command
 
 	class ScreenHistory *pScreenHistory = m_pScreenHistory_Current;
@@ -2733,6 +2735,13 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 			SpecialHandlingObjectSelected( pObj );
 			continue;
 		}
+		// We may attach a simulate keypress action to an onscreen button, like a keyboard key, which simulates pressing
+		// that key if the user touches it.  In this case, we don't want to execute the simulate keypress command
+		// if the button was selected because the user hit the button associated with it (ie x==-1 and y==-1 when input was ButtonDown)
+		// and create an endless loop
+		else if( PK_Command==COMMAND_Simulate_Keypress_CONST && X==-1 && Y==-1 )
+			continue;
+
 		if(  pCommand->m_PK_DeviceTemplate  )
 		{
 			if(  pCommand->m_PK_DeviceTemplate<0  )
@@ -3378,13 +3387,14 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
 		g_pPlutoLogger->Write( LV_CRITICAL, "cannot find screen %s in goto", sPK_DesignObj.c_str(  ) );
 		return;
 	}
-
+/*
 	if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==pObj_New  )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Changing to same screen: %s", pObj_New->m_ObjectID.c_str(  ) );
 		NeedToRender render( this, "goto same screen" );
 		return;
 	}
+*/
 
 	// We're going to change screens,  create the new ScreenHistory object
 	ScreenHistory *pScreenHistory_New = new ScreenHistory( pObj_New, m_pScreenHistory_Current );

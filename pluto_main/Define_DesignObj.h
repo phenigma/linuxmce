@@ -1060,6 +1060,7 @@
 #define DESIGNOBJ_go_to_pvr_full_screen_CONST 3219
 #define DESIGNOBJ_mnuFirstTime_CONST 3221
 #define DESIGNOBJ_butPlutoAdminSite_CONST 3222
+#define DESIGNOBJ_grpSeekFileList_CONST 3223
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -31,7 +31,7 @@ int MediaAttributes::CreatedMedia( int PK_Type, string Path, listMediaAttribute 
     MYSQL_ROW row;
     int PK_File =0;
     string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) + "'";
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         PK_File = atoi( row[0] );
     else
     {
@@ -109,7 +109,7 @@ int MediaAttributes::AddAttribute( int PK_File, int PK_Attribute, int PK_Attribu
             "JOIN Type_AttributeType ON File.FK_Type=Type_AttributeType.FK_Type "\
             "WHERE FK_AttributeType=" + StringUtils::itos( PK_AttributeType ) + " AND PK_File=" + StringUtils::itos( PK_File );
 
-        if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+        if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         {
             if( atoi( row[0] )==1 )
                 bCombineAsOne=true;
@@ -122,7 +122,7 @@ int MediaAttributes::AddAttribute( int PK_File, int PK_Attribute, int PK_Attribu
                 StringUtils::itos( PK_AttributeType ) + " AND Name='" +
                 StringUtils::SQLEscape( Name ) + "' AND FirstName='" + StringUtils::SQLEscape( FirstName ) + "'";
 
-            if(     ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+            if(     ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
             PK_Attribute = atoi( row[0] );
         }
 
@@ -195,7 +195,7 @@ void MediaAttributes::AddPicture( int PK_File, int PK_Attribute, string Path )
             else
                 SQL = "SELECT FK_Picture, Extension FROM Picture_Attribute JOIN Picture ON FK_Picture=PK_Picture WHERE FK_Attribute=" + StringUtils::itos( PK_Attribute );
         }
-        if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) )
+        if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
         {
             while( ( row=mysql_fetch_row( result.r ) ) )
             {
@@ -317,7 +317,7 @@ void MediaAttributes::UpdateSearchTokens( int PK_Attribute )
     PlutoSqlResult result;
     MYSQL_ROW row, row2;
     string SQL = "SELECT Name, FirstName FROM Attribute WHERE PK_Attribute=" + StringUtils::itos( PK_Attribute );
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         SQL = "DELETE FROM SearchToken_Attribute WHERE FK_Attribute=" + StringUtils::itos( PK_Attribute );
         m_pMedia_Plugin->threaded_mysql_query( SQL );
@@ -334,7 +334,7 @@ void MediaAttributes::UpdateSearchTokens( int PK_Attribute )
                 SQL = "SELECT PK_SearchToken FROM SearchToken WHERE Token='" +
                     StringUtils::SQLEscape( Token ) + "'";
                 int PK_SearchToken=0;
-                if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
+                if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
                 {
                     PK_SearchToken = atoi( row2[0] );
                     printf( "Found token ( %d ): %s\n", PK_SearchToken, Token.c_str( ) );
@@ -560,7 +560,7 @@ string MediaAttributes::GetFilePathFromFileID( int PK_File )
     string SQL = "SELECT Path FROM File WHERE PK_File=" + StringUtils::itos( PK_File );
     PlutoSqlResult result;
     MYSQL_ROW row;
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         return row[0];
     return "";
 }
@@ -578,7 +578,7 @@ int MediaAttributes::GetFileIDFromAttributeID( int PK_Attribute )
 
     PlutoSqlResult result;
     MYSQL_ROW row;
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         return atoi( row[0] );
     return 0;
 }
@@ -595,7 +595,7 @@ string MediaAttributes::GetFilePathsFromAttributeID( int PK_Atribute )
 
     PlutoSqlResult result;
     MYSQL_ROW row;
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -619,7 +619,7 @@ int MediaAttributes::GetFileIDFromFilePath( string File )
     while( ( s=File.find( '\\' ) )!=string::npos )
         File.replace( s, 1, "/" );
     string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( File ) + "'";
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         return atoi( row[0] );
 
     return 0; // Can't do this in Windows
@@ -759,7 +759,7 @@ string MediaAttributes::GetPictureFromFileID( int PK_File, int *PK_Picture )
         "WHERE FK_File=" + StringUtils::itos( PK_File );
     PlutoSqlResult result;
     MYSQL_ROW row;
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
@@ -770,7 +770,7 @@ string MediaAttributes::GetPictureFromFileID( int PK_File, int *PK_Picture )
         "JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=File_Attribute.FK_Attribute "\
         "JOIN Picture ON FK_Picture=PK_Picture "\
         "WHERE FK_File=" + StringUtils::itos( PK_File );
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
@@ -787,7 +787,7 @@ string MediaAttributes::GetPictureFromAttributeID( int PK_Attribute, int *PK_Pic
         "WHERE FK_Attribute=" + StringUtils::itos( PK_Attribute );
     PlutoSqlResult result;
     MYSQL_ROW row;
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
@@ -801,7 +801,7 @@ string MediaAttributes::GetPictureFromAttributeID( int PK_Attribute, int *PK_Pic
         "JOIN Picture ON FK_Picture=PK_Picture "\
         "WHERE Source.FK_Attribute=" + StringUtils::itos( PK_Attribute );
 
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
@@ -822,7 +822,7 @@ int MediaAttributes::GetAttributeFromFileID( int PK_File )
     PlutoSqlResult result;
     MYSQL_ROW row;
 
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         return atoi( row[0] );
     return 0;
 }
@@ -838,7 +838,7 @@ int MediaAttributes::GetAttributeFromFilePath( string File )
     PlutoSqlResult result;
     MYSQL_ROW row;
 
-    if( ( result.r=m_pMedia_Plugin->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pMedia_Plugin->m_MySqlHelper_Media.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         return atoi( row[0] );
     return 0;
 }

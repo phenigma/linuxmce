@@ -25,6 +25,7 @@
 #include "PlutoUtils/MySQLHelper.h"
 
 class Database_pluto_main;
+class Database_pluto_media;
 
 /**
  * A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes in a MediaPluginInfo pointer indicating 
@@ -136,6 +137,7 @@ class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn
 {
 //<-dceag-decl-e->
     friend class MediaStream;
+    friend class MediaAttributes;
 //<-dceag-const-b->!
 public:
 		// Constructors/Destructor
@@ -156,8 +158,10 @@ private:
     int m_iStreamID;
     pthread_mutexattr_t m_MutexAttr;
     MapMediaStream m_mapMediaStream; // All active streams
+	MySqlHelper m_MySqlHelper_Media; // A connection for the pluto_media database
 
     Database_pluto_main *m_pDatabase_pluto_main;
+    Database_pluto_media *m_pDatabase_pluto_media;
     class Datagrid_Plugin *m_pDatagrid_Plugin;
     class DataGridTable *CurrentMedia(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
     class DataGridTable *MediaSections(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
@@ -165,6 +169,7 @@ private:
 	class DataGridTable *MediaAttrCollections(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 	class DataGridTable *MediaAttrFiles(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 	class DataGridTable *MediaSearchAutoCompl(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+	class DataGridTable *MediaItemAttr( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
     // Private methods
 public:

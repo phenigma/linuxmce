@@ -1,0 +1,133 @@
+#ifndef __Table_Type_Extension_H__
+#define __Table_Type_Extension_H__
+
+#ifdef SQL2CPP_DLLEXPORT
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT
+#endif
+
+#include "TableRow.h"
+#include "Database_pluto_media.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+#include "Define_Type_Extension.h"
+#include "SerializeClass/SerializeClass.h"
+
+class DLL_EXPORT Table_Type_Extension
+{
+private:
+	Database_pluto_media *database;
+	struct Key;	//forward declaration
+	
+public:
+    pluto_pthread_mutex_t m_Mutex;
+	pthread_mutexattr_t m_MutexAttr;
+		
+	Table_Type_Extension(Database_pluto_media *pDatabase):database(pDatabase), m_Mutex("Type_Extension")
+	{
+		pthread_mutexattr_init(&m_MutexAttr);
+		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+		m_Mutex.Init(&m_MutexAttr); 
+	};
+	~Table_Type_Extension();
+
+private:		
+	friend class Row_Type_Extension;
+	struct Key
+	{
+		friend class Row_Type_Extension;
+		long int pk_FK_Type;
+
+		
+		Key(long int in_FK_Type);
+	
+		Key(class Row_Type_Extension *pRow);
+	};
+	struct Key_Less
+	{			
+		bool operator()(const Table_Type_Extension::Key &key1, const Table_Type_Extension::Key &key2) const;
+	};	
+
+	map<Table_Type_Extension::Key, class Row_Type_Extension*, Table_Type_Extension::Key_Less> cachedRows;
+	map<Table_Type_Extension::Key, class Row_Type_Extension*, Table_Type_Extension::Key_Less> deleted_cachedRows;
+	vector<class Row_Type_Extension*> addedRows;
+	vector<class Row_Type_Extension*> deleted_addedRows;	
+		
+
+public:				
+	void Commit();
+	bool GetRows(string where_statement,vector<class Row_Type_Extension*> *rows);
+	class Row_Type_Extension* AddRow();
+	Database_pluto_media *Database_pluto_media_get() { return database; }
+	
+		
+	class Row_Type_Extension* GetRow(long int in_FK_Type);
+	
+
+private:	
+	
+		
+	class Row_Type_Extension* FetchRow(Key &key);
+		
+			
+};
+
+class DLL_EXPORT Row_Type_Extension : public TableRow, public SerializeClass
+	{
+		friend struct Table_Type_Extension::Key;
+		friend class Table_Type_Extension;
+	private:
+		Table_Type_Extension *table;
+		
+		long int m_FK_Type;
+string m_Extension;
+
+		bool is_null[2];
+	
+		bool is_deleted;
+		bool is_added;
+		bool is_modified;					
+	
+	public:
+		long int FK_Type_get();
+string Extension_get();
+
+		
+		void FK_Type_set(long int val);
+void Extension_set(string val);
+
+		
+		
+			
+			
+	
+		void Delete();
+		void Reload();		
+	
+		Row_Type_Extension(Table_Type_Extension *pTable);
+	
+		bool IsDeleted(){return is_deleted;};
+		bool IsModified(){return is_modified;};			
+		class Table_Type_Extension *Table_Type_Extension_get() { return table; };
+
+		// Return the rows for foreign keys 
+		class Row_Type* FK_Type_getrow();
+
+
+		// Return the rows in other tables with foreign keys pointing here
+		
+
+		// Setup binary serialization
+		void SetupSerialization() {
+			StartSerializeList() + m_FK_Type+ m_Extension;
+		}
+	private:
+		void SetDefaultValues();
+		
+		string FK_Type_asSQL();
+string Extension_asSQL();
+
+	};
+
+#endif
+

@@ -56,15 +56,16 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, in
 			FileListInfo *flInfo = m_vectFileInfo[row];
 			if( flInfo->m_PKID_MED_Attribute )
 			{
-				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetPictureFromAttributeID(flInfo->m_PKID_MED_Attribute,&PKID_MED_Picture);
+#pragma warning("I commmented out the 3 following pictures because there seems to be a mysql related bug that, at random, intermittently, mysql starts taking 9 seconds to execute each query");
+//				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetPictureFromAttributeID(flInfo->m_PKID_MED_Attribute,&PKID_MED_Picture);
 			}
 			else if( !flInfo->m_bIsDirectory )
 			{
-				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetPictureFromFilePath(flInfo->m_sPath,&PKID_MED_Picture);
+//				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetPictureFromFilePath(flInfo->m_sPath,&PKID_MED_Picture);
 			}
 			else if( flInfo->m_sPath.length()>0 )
 			{
-				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetAnyPictureUnderDirectory(flInfo->m_sPath,&PKID_MED_Picture,5);
+//				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetAnyPictureUnderDirectory(flInfo->m_sPath,&PKID_MED_Picture,5);
 			}
 
 			char *pIconBuffer = NULL;

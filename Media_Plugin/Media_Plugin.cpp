@@ -35,6 +35,7 @@ using namespace DCE;
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Define_MediaType.h"
+#include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Table_Event.h"
 #include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_Device.h"
@@ -44,6 +45,11 @@ using namespace DCE;
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_EventParameter.h"
 #include "pluto_main/Table_DeviceTemplate.h"
+#include "pluto_media/Database_pluto_media.h"
+#include "pluto_media/Table_Attribute.h"
+#include "pluto_media/Table_File_Attribute.h"
+#include "pluto_media/Table_File.h"
+
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "DataGrid.h"
@@ -76,15 +82,30 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 		return;
 	}
 
-	m_pMediaAttributes = new MediaAttributes( this );
-
 	if( !MySQLConnect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to main database!" );
+		m_bQuit=true;
+		return;
+	}
+	
+	m_pDatabase_pluto_media = new Database_pluto_media( );
+	if( !m_pDatabase_pluto_media->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) ) )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+		m_bQuit=true;
+		return;
+	}
+
+	if( !m_MySqlHelper_Media.MySQLConnect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) ) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to media database!" );
 		m_bQuit=true;
 		return;
 	}
 	
+	m_pMediaAttributes = new MediaAttributes( this );
+
 	// Get all the entertainment areas and populate them with all the devices in those areas
 	Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get( )->GetRow( m_pRouter->iPK_Installation_get( ) );
 	vector<Row_Room *> vectRow_Room; // Ent Areas are specified by room. Get all the rooms first
@@ -193,8 +214,13 @@ bool Media_Plugin::Register()
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaAttrXref ) )
-        , DATAGRID_Media_Attr_Xref_CONST );
-//  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
+	    , DATAGRID_Media_Attr_Xref_CONST );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaItemAttr ) )
+	    , DATAGRID_Media_Item_Attr_CONST );
+	
+	//  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
 //  m_pMediaAttributes->ScanDirectory( "Z:\\" );
 
     return Connect( );
@@ -516,15 +542,49 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
     }
     else if( sFilename.length( )>0 )
     {
-        string Extension = StringUtils::ToUpper( FileUtils::FindExtension( sFilename ) );
-        List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_Extension_Find( Extension );
-        if( !pList_MediaPluginInfo || pList_MediaPluginInfo->size( )==0 )
-        {
-            g_pPlutoLogger->Write( LV_WARNING, "Play media file %s in entertain area %d but nothing to handle it", sFilename.c_str( ), iPK_EntertainArea );
-            return;
-        }
-        MediaPluginInfo *pMediaPluginInfo = pList_MediaPluginInfo->front( );
-        StartMedia( pMediaPluginInfo, iPK_Device_Orbiter, pEntertainArea, iPK_Device, 0, sFilename ); // We'll let the plug-in figure out the source, and we'll use the default remote
+		// See if it's a media attribute.  These will all have a filename of # + A|F + id, where a=attribute and f=file
+		if( sFilename[0]=='#' && sFilename.length()>3 )
+		{
+            if( sFilename[1]=='A' )
+			{
+				Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow( atoi(sFilename.substr(3).c_str()) );
+				if( !pRow_Attribute )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"Cannot play attribute %s",sFilename.c_str());
+					return;
+				}
+				vector<Row_File_Attribute *> vectRow_File_Attribute;
+				pRow_Attribute->File_Attribute_FK_Attribute_getrows(&vectRow_File_Attribute);
+				for(size_t s=0;s<vectRow_File_Attribute.size();++s)
+				{
+					Row_File_Attribute *pRow_File_Attribute = vectRow_File_Attribute[s];
+					sFilename = pRow_File_Attribute->FK_File_getrow()->Path_get();
+				}
+
+			}
+            else if( sFilename[1]=='f' )
+			{
+				Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow( atoi(sFilename.substr(3).c_str()) );
+				if( !pRow_File )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"Cannot play file %s",sFilename.c_str());
+					return;
+				}
+				sFilename = pRow_File->Path_get();
+			}
+		}
+		else
+		{
+			string Extension = StringUtils::ToUpper( FileUtils::FindExtension( sFilename ) );
+			List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_Extension_Find( Extension );
+			if( !pList_MediaPluginInfo || pList_MediaPluginInfo->size( )==0 )
+			{
+				g_pPlutoLogger->Write( LV_WARNING, "Play media file %s in entertain area %d but nothing to handle it", sFilename.c_str( ), iPK_EntertainArea );
+				return;
+			}
+			MediaPluginInfo *pMediaPluginInfo = pList_MediaPluginInfo->front( );
+			StartMedia( pMediaPluginInfo, iPK_Device_Orbiter, pEntertainArea, iPK_Device, 0, sFilename ); // We'll let the plug-in figure out the source, and we'll use the default remote
+		}
         return;
     }
     else // We got nothing -- find a disk drive within the entertainment area and send it a reset
@@ -839,7 +899,6 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
     FileListGrid *pDataGrid = new FileListGrid( m_pDatagrid_Plugin, this );
     DataGridCell *pCell;
 
-    string posParms=0;
     if( Parms.length( )==0 )
         return NULL; // Nothing passed in yet
   string AC = Parms;
@@ -854,7 +913,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
     MYSQL_ROW row;
     int RowCount=0;
 
-    if( ( result.r=mysql_query_result( SQL ) ) )
+    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -878,7 +937,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         "JOIN AttributeType ON FK_AttributeType=PK_AttributeType "\
         "WHERE Token like '" + AC + "%' "\
         "limit 30;";
-    if( ( result.r=mysql_query_result( SQL ) ) )
+    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -927,7 +986,7 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
     MYSQL_ROW row;
     int RowCount=0;
 
-    if( ( result.r=mysql_query_result( SQL ) ) )
+    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -970,7 +1029,7 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
     MYSQL_ROW row;
     int RowCount=0;
 
-    if( ( result.r=mysql_query_result( SQL ) ) )
+    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -1013,7 +1072,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
     MYSQL_ROW row;
     int RowCount=0;
 
-    if( ( result.r=mysql_query_result( SQL ) ) )
+    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -1026,4 +1085,88 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
         }
     }
     return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	string SQL;
+
+	int PK_File=0;
+	string PK_Attribute = Parms;
+	if( PK_Attribute.length()==0 )
+		return NULL;
+	if( PK_Attribute.substr(0,2)=="#F" )
+		PK_File = atoi(PK_Attribute.substr(2).c_str());
+	else
+	{
+		if( PK_Attribute.substr(0,2)=="#A" )
+			PK_Attribute = PK_Attribute.substr(2);
+
+		PK_File = m_pMediaAttributes->GetFileIDFromAttributeID(atoi(PK_Attribute.c_str()));
+
+		if( !PK_File )
+		{
+			// They chose an attribute other than a file, like an album
+			SQL = "select DISTINCT PK_Attribute,Description,Name,FirstName FROM File_Attribute AS Source "\
+				"JOIN File_Attribute As Dest ON Source.FK_File=Dest.FK_File "\
+				"JOIN Attribute ON Dest.FK_Attribute=PK_Attribute  "\
+				"JOIN C_AttributeType ON Attribute.FK_C_AttributeType=PK_C_AttributeType  "\
+				"JOIN File ON Dest.FK_File=PK_File "\
+				"JOIN C_Type_C_AttributeType ON C_Type_C_AttributeType.FK_C_Type=File.FK_C_Type "\
+				"AND C_Type_C_AttributeType.FK_C_AttributeType=Attribute.FK_C_AttributeType "\
+				"WHERE Identifier>2 AND Source.FK_Attribute=" + PK_Attribute + " ORDER BY Description";
+		}
+	}
+
+	string::size_type pos = 0;
+	StringUtils::Tokenize(GridID, "_", pos);
+	string controller = StringUtils::Tokenize(GridID, "_", pos);
+
+	int PK_Picture;
+	string Extension;
+	if( PK_File )
+		Extension = m_pMediaAttributes->GetPictureFromFileID(PK_File,&PK_Picture);
+	else
+		Extension = m_pMediaAttributes->GetPictureFromAttributeID(atoi(PK_Attribute.c_str()),&PK_Picture);
+
+	size_t length=0;
+	char *buffer=NULL;
+	if( PK_Picture )
+		buffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "." + Extension,length);
+
+	DCE::CMD_Update_Object_Image CMD_Update_Object_Image(m_dwPK_Device, atoi(controller.c_str()), 
+		StringUtils::itos(DESIGNOBJ_objCDCover_CONST),"1",buffer,(int) length,""); 
+	SendCommand(CMD_Update_Object_Image);
+
+	// We may have already built the sql statement
+	if( SQL.length()==0 )
+	{
+		SQL="SELECT PK_Attribute,Description,Name,FirstName FROM File "\
+		"JOIN File_Attribute ON FK_File=PK_File "\
+		"JOIN Attribute ON FK_Attribute=PK_Attribute "\
+		"JOIN C_AttributeType ON FK_C_AttributeType=PK_C_AttributeType "\
+		"WHERE PK_File=" + StringUtils::itos(PK_File) + " ORDER By Description";
+	}
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int RowCount=0;
+
+	if( (result.r=m_MySqlHelper_Media.mysql_query_result(SQL)) )
+	{
+		while( (row=mysql_fetch_row(result.r)) )
+		{
+			string label = row[1];
+			label += ": ";
+			label += row[2];
+			if( row[3] && *row[3] )
+				label += string(",") + row[3];
+			pCell = new DataGridCell(label,row[0]);
+			pDataGrid->SetData(0,RowCount++,pCell);
+		}
+	}
+	return pDataGrid;
 }
