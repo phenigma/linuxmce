@@ -85,7 +85,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
 				OutputFile="../Release/App_Server.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"

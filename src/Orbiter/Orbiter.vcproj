@@ -91,7 +91,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform\SDL-1.2.7\VisualC7\SDL\Release&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Release&quot;;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Release;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Release;../lib/;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Release&quot;;&quot;../../libs\CrossPlatform\SDL-1.2.7\VisualC7\SDLmain\Release&quot;"
 				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames="MSVCRTD.lib"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"

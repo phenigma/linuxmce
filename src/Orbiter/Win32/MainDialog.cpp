@@ -380,7 +380,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		RECT rcMenuBar;
 #endif
 
-		GetWindowRect(hWnd, &rc);
+		HWND hWndDesktop = ::GetDesktopWindow();
+		GetWindowRect(hWndDesktop, &rc);
 
 		int iWidth = rc.right - rc.left;
 		int iHeight = rc.bottom - rc.top;

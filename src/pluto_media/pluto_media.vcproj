@@ -54,7 +54,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
+			OutputDirectory="../lib"
 			IntermediateDirectory="Release"
 			ConfigurationType="4"
 			CharacterSet="2">
@@ -63,9 +63,10 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -75,7 +76,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/pluto_media.lib"/>
+				OutputFile="$(OutDir)/pluto_media-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -106,9 +107,6 @@
 				RelativePath=".\Database_pluto_media.cpp">
 			</File>
 			<File
-				RelativePath=".\TableRow.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_Attribute.cpp">
 			</File>
 			<File
@@ -136,21 +134,6 @@
 				RelativePath=".\Table_PlaylistEntry.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_SearchToken.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_SearchToken_Attribute.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Type.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Type_AttributeType.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Type_Extension.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_psc_media_batdet.cpp">
 			</File>
 			<File
@@ -168,7 +151,24 @@
 			<File
 				RelativePath=".\Table_psc_media_tables.cpp">
 			</File>
-
+			<File
+				RelativePath=".\Table_SearchToken.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_SearchToken_Attribute.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Type.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Type_AttributeType.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Type_Extension.cpp">
+			</File>
+			<File
+				RelativePath=".\TableRow.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

@@ -73,9 +73,10 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -85,8 +86,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Climate_Plugin.dll"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib libmysql.lib pluto_main-r.lib"
+				OutputFile="../Release/Climate_Plugin.dll"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="/mysql/lib/debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"
 				ModuleDefinitionFile="Climate_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"

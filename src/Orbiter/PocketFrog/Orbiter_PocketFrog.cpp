@@ -1,6 +1,7 @@
 #include "Orbiter_PocketFrog.h"
 #include "MainDialog.h"
 #include "Resource.h"
+#include "SelfUpdate.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
@@ -924,5 +925,12 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 		PlutoRectangle rect(300, m_iImageHeight - 50, 200, 3);
 		UpdateRect(rect);
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+bool Orbiter_PocketFrog::SelfUpdate()
+{
+	OrbiterSelfUpdate orbiterSelfUpdate(this);
+
+	return orbiterSelfUpdate.Run();
 }
 //-----------------------------------------------------------------------------------------------------

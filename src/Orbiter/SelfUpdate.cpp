@@ -18,17 +18,9 @@ using namespace std;
 using namespace DCE;
 
 #ifdef WINCE
-	#ifdef POCKETFROG
-		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_PocketFrogCE.dat");
-	#else
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_WinCE.dat");
-	#endif
 #else
-	#ifdef POCKETFROG
-		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_PocketFrog.dat");
-	#else
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
-	#endif
 #endif
 
 #ifdef POCKETFROG
@@ -90,6 +82,9 @@ string OrbiterSelfUpdate::GetOrbiterCheckSum()
 	StringUtils::Replace(sMD5FilePath, ".exe", ".MD5");
 	StringUtils::Replace(sMD5FilePath, ".EXE", ".MD5");
 
+	if(!FileUtils::FileExists(sMD5FilePath))
+		FileUtils::WriteBufferIntoFile(sMD5FilePath, "dummy			", 5);
+
 	//read data from the comm file
 	size_t iMD5Size;
 	char *pMD5Data = FileUtils::ReadFileIntoBuffer(sMD5FilePath, iMD5Size);
@@ -134,13 +129,6 @@ bool OrbiterSelfUpdate::UpdateAvailable()
 	}
 
 	string sActualChecksum = GetOrbiterCheckSum();
-
-	if(sActualChecksum == "")
-	{
-		//no MD5 file found
-		g_pPlutoLogger->Write( LV_CRITICAL,  "The MD5 file is missing." );
-		return false; //we'll continue with this version
-	}
 
 	g_pPlutoLogger->Write( LV_STATUS,  "Current checksum : %s", sActualChecksum.c_str() );	
 	g_pPlutoLogger->Write( LV_STATUS,  "Server orbiter checksum : %s", sChecksum.c_str() );	

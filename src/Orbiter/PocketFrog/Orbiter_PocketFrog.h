@@ -89,6 +89,8 @@ public:
 
 	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
+
+	bool SelfUpdate();
 };
 
 }

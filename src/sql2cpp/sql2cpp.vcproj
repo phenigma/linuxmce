@@ -75,7 +75,7 @@
 				AdditionalIncludeDirectories="/mysql/Include;.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -85,8 +85,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/sql2cpp.exe"
+				AdditionalDependencies="libmySQL.lib DCE-r.lib"
+				OutputFile="../Release/sql2cpp.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
