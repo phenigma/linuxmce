@@ -13,7 +13,7 @@ module=DCERouter
 device_name="$module"
 
 i=1
-while [ "$i" -le 10 ]; do
+while [ "$i" -le 200 ]; do
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Appending log..."
 	cat "$new_log" >> "$real_log"
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
