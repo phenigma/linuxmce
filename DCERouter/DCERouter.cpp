@@ -978,7 +978,11 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 	int PK_Device = (*(*pSafetyMessage))->m_dwPK_Device_To;
 	DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find(PK_Device);
 	if( !pCommand || !pDeviceData_Router )
+	{
+		if( pCommand && pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST && PK_Device==DEVICEID_NULL )
+			m_bQuit=true;
 		return;
+	}
 
 	if( pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST )
 	{
