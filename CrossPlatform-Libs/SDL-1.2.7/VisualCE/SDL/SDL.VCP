@@ -143,35 +143,6 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\..\..\Orbiter\CENet\OrbiterRenderTextWinCE.cpp
-
-!IF  "$(CFG)" == "SDL - Win32 (WCE emulator) Release"
-
-!ELSEIF  "$(CFG)" == "SDL - Win32 (WCE emulator) Debug"
-
-!ELSEIF  "$(CFG)" == "SDL - Win32 (WCE ARMV4) Debug"
-
-DEP_CPP_ORBIT=\
-	"..\..\include\begin_code.h"\
-	"..\..\include\close_code.h"\
-	"..\..\include\SDL_main.h"\
-	"..\..\include\SDL_mouse.h"\
-	"..\..\include\SDL_mutex.h"\
-	"..\..\include\SDL_rwops.h"\
-	"..\..\include\SDL_syswm.h"\
-	"..\..\include\SDL_types.h"\
-	"..\..\include\SDL_version.h"\
-	"..\..\include\SDL_video.h"\
-	"..\..\src\events\SDL_sysevents.h"\
-	"..\..\src\video\SDL_glfuncs.h"\
-	"..\..\src\video\SDL_sysvideo.h"\
-	
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\SDL.c
 
 !IF  "$(CFG)" == "SDL - Win32 (WCE emulator) Release"

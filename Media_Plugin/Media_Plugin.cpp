@@ -1347,6 +1347,7 @@ bool Media_Plugin::EnsureCorrectMediaStreamForDevice(MediaPluginInfo *pMediaPlug
     pEntertainArea->m_pMediaStream->m_pMediaPluginInfo = pMediaPluginInfo;
     pEntertainArea->m_pMediaStream->m_iPK_MediaType = pMediaPluginInfo->m_PK_MediaType;
     pEntertainArea->m_pMediaStream->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
+	return true;
 }
 
 bool Media_Plugin::StartMediaByPositionInPlaylist(EntertainArea *pEntertainArea, int position, int iPK_Device, int iPK_DesignObj_Remote)

@@ -148,12 +148,13 @@ void DataGridCell::SetMessage(Message* pMessage)
 
 void DataGridCell::ToData(unsigned long &Size, char* &Data)
 {
-	char *MessageData=NULL;
+	char *MessageData = NULL;
 	m_MessageLength = 0;
 	if (m_pMessage)
 	{
 		m_pMessage->ToData(m_MessageLength, MessageData);
 	}
+
 	Size = sizeof(DataGridCellSerializableData)+m_TextLength+m_ValueLength+m_GraphicLength+m_MessageLength;
 	Data = new char[Size];
 	char *Datap = Data;
@@ -180,8 +181,11 @@ void DataGridCell::ToData(unsigned long &Size, char* &Data)
 		Datap+=m_MessageLength;
 	}
 
-	delete MessageData;
-	MessageData = NULL;
+	if(NULL != MessageData)
+	{
+		delete MessageData;
+		MessageData = NULL;
+	}
 }
 
 
