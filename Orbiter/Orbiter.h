@@ -163,6 +163,8 @@ protected:
 	 * then call RedrawObjects(), rather than updating the screen over and over if several objects change at once
 	 */
 	vector < class DesignObj_Orbiter * > m_vectObjs_NeedRedraw;
+	vector < class DesignObjText * > m_vectTexts_NeedRedraw;
+
 	vector < class DesignObj_Orbiter * > m_vectObjs_TabStops; /** < All the tab stops */
 	vector < class DesignObj_Orbiter * > m_vectObjs_Selected; /** < All the objects currently selected */
 	vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
@@ -185,6 +187,8 @@ protected:
 	 * @brief Render the screen in m_pScreenHistory_Current
 	 */
 	virtual void RenderScreen();
+	virtual void BeginPaint() {};
+	virtual void EndPaint() {};
 	
 	/**
 	 * @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="VIPEstablishment"
 	ProjectGUID="{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}"
 	Keyword="Win32Proj">

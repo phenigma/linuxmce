@@ -140,7 +140,7 @@ m_CallbackMutex( "callback" ), m_RendererThreadMutex("rendererthread")
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
-	//todo
+	m_vectTexts_NeedRedraw.clear();
 	m_vectObjs_NeedRedraw.clear();
 	m_vectObjs_TabStops.clear();
 	m_vectObjs_Selected.clear();
@@ -324,8 +324,7 @@ void Orbiter::RedrawObjects(  )
     // There appears to be a problem with SDL_Flip sometimes calling _XRead to wait for an event,  causing the thread
     // to block until there's an event,  so that our loop no longer gets back to the SDL_WaitEvent in the main pump
     // So for now just do the redraw's always on a separate thread
-    //CallMaintenanceInTicks( 0, &Orbiter::RealRedraw, NULL, true ); //chris
-	CallMaintenanceInTicks( clock(), &Orbiter::RealRedraw, NULL, true ); 
+	CallMaintenanceInTicks( 0, &Orbiter::RealRedraw, NULL, true ); 
 }
 
 void Orbiter::RealRedraw( void *data )
@@ -334,36 +333,61 @@ void Orbiter::RealRedraw( void *data )
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
     if(  m_bRerenderScreen  )
     {
-        m_vectObjs_NeedRedraw.clear(  );
+        m_vectObjs_NeedRedraw.clear();
+		m_vectTexts_NeedRedraw.clear();
+
         RenderScreen(  );
-		m_bRerenderScreen = false;//added by chris
+		m_bRerenderScreen = false;
         return;
     }
 
-    if(  m_vectObjs_NeedRedraw.size(  )==0  )
+	g_pPlutoLogger->Write( LV_CONTROLLER, "I won't render the whole screen. Objects to be rendered: %d, texts to be rendered: %d", 
+		m_vectObjs_NeedRedraw.size(), m_vectTexts_NeedRedraw.size()
+	);
+
+    if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size())
         return;
-    // TODO -- HACK-- m_vectObjs_NeedRedraw is designed to eliminate redrawing everything everytime.  There are some issues
-    // with tied to where objects are tied to another,  and the other's are redrawn,  but not the tied to's.  I'll have to figure
-    // out whether it's worth it to do partial redraw's.  For now,  just do a whole re-render --- 10/10/2004
-    RenderScreen(  );
-    /*
+
+	BeginPaint();
+
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
-    for( size_t s=0;s<m_vectObjs_NeedRedraw.size(  );++s )
+	size_t s;
+
+	//render texts
+	for( s = 0; s < m_vectTexts_NeedRedraw.size(); ++s )
+	{
+		DesignObjText *pText = m_vectTexts_NeedRedraw[s];
+		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
+		if( pTextStyle /*&& pTextStyle->m_BackColor*/ )
+		{
+			SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(),  
+				pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
+			RenderText( pText, pTextStyle );
+		}
+		else
+		{
+			m_vectObjs_NeedRedraw.push_back( pText->m_pObject);
+		}
+	}
+
+	//render objects
+	for( s = 0; s < m_vectObjs_NeedRedraw.size(); ++s )
     {
-    class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
-    RenderObject( pObj, m_pScreenHistory_Current->m_pObj );
+		class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
+		RenderObject( pObj, m_pScreenHistory_Current->m_pObj );
     }
 
     // See if maybe we just added an object that's a tab stop that wasn't there before
     if(  !m_pObj_Highlighted && m_vectObjs_TabStops.size(  )  )
-    HighlightFirstObject(  );
+	    HighlightFirstObject(  );
 
     if( NULL != m_pObj_Highlighted &&  m_pObj_Highlighted->m_pHighlightedGraphic==NULL  )
-    HighlightObject( m_pObj_Highlighted );
+		HighlightObject( m_pObj_Highlighted );
 
-    m_vectObjs_NeedRedraw.clear(  );
-    */
-    m_vectObjs_NeedRedraw.clear(  );
+    m_vectObjs_NeedRedraw.clear();
+	m_vectTexts_NeedRedraw.clear();
+
+	EndPaint();
 }
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )
@@ -535,8 +559,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
         break;
 #endif
     case DESIGNOBJTYPE_Broadcast_Video_CONST:
-        //CallMaintenanceInTicks( CLOCKS_PER_SEC*6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
-		CallMaintenanceInTicks( clock() + CLOCKS_PER_SEC*6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+		CallMaintenanceInTicks( CLOCKS_PER_SEC * 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
         break;
 
         // Grabbing up to four video frames can take some time.  Draw the rest of the
@@ -734,15 +757,18 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
         vm.Release(  );
     }
 
-#if ( defined( PROFILING ) )
+#if ( defined( PROFILING_GRID ) )
     clock_t clkStart = clock(  );
 #endif
 
     PrepareRenderDataGrid( pObj,  delSelections );
 
-#if ( defined( PROFILING ) )
+#if ( defined( PROFILING_GRID ) )
     clock_t clkAcquired = clock(  );
 #endif
+
+	//clear the background for the grid
+    SolidRectangle( pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
 
     if( !pObj->m_pDataGridTable )
         return;
@@ -817,7 +843,7 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 
     pObj->m_pDataGridTable->m_RowCount = i + ArrRows;
 
-#if ( defined( PROFILING ) )
+#if ( defined( PROFILING_GRID ) )
     clock_t clkFinished = clock(  );
 
     g_pPlutoLogger->Write( LV_CONTROLLER, "Grid: %s took %d ms to acquire and %d ms to render",
@@ -1058,7 +1084,8 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
         Message *pMessage_GotoScreen=NULL;
         ExecuteCommandsInList( &pObj->m_Action_UnloadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
         DesignObjZoneList::iterator iZone;
-        for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
+
+		for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
         {
             DesignObjZone *pDesignObjZone = ( *iZone );
             if(  pDesignObjZone->m_Rect.Width==0 || pDesignObjZone->m_Rect.Height==0 || pDesignObjZone->m_Rect.Contains( X, Y )  )
@@ -1066,6 +1093,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
                 ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, pMessage_GotoScreen, X, Y );
             }
         }
+
         if( pMessage_GotoScreen )
             ReceivedMessage( pMessage_GotoScreen );
 
@@ -1082,7 +1110,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 
             SaveBackgroundForDeselect( pObj );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
             if(  !pObj->m_bDontResetState  )
-				CallMaintenanceInTicks( clock() + CLOCKS_PER_SEC, &Orbiter::DeselectObjects, ( void * ) pObj, true );
+				CallMaintenanceInTicks( CLOCKS_PER_SEC, &Orbiter::DeselectObjects, ( void * ) pObj, true );
 
             // Unless the screen's don't reset state is set,  we'll clear any other selected graphics
             if(  !m_pScreenHistory_Current->m_pObj->m_bDontResetState  )
@@ -1100,6 +1128,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
             }
             m_vectObjs_Selected.push_back( pObj );
         }
+
 #ifdef PRONTO
         if ( pObj->m_ObjectType == DESIGNOBJTYPE_Pronto_File_CONST )
         {
@@ -1260,6 +1289,8 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
                     SelectedGrid( pDesignObj_DataGrid,  pCell );
                     bFinishLoop = true;
                     bFoundSelection = true; // Is this correct????  Hacked in this time
+
+					CMD_Refresh(pDesignObj_DataGrid->m_sGridID);
                 }
 
                 if ( pLastCell != pCell )
@@ -1535,7 +1566,8 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
         {
             pTopMostAnimatedObject = pObj;
         }
-        SelectedObject( pObj, X, Y );
+
+		SelectedObject( pObj, X, Y );
         return true;
     }
     return false;
@@ -2641,6 +2673,12 @@ g_pPlutoLogger->Write(LV_STATUS,"after for loop");
                 int k=2;// TODO: implement this
             else if( PK_Button == BUTTON_caps_lock_CONST )
                 int k=2;// TODO: implement this
+
+			if(bHandled)
+			{
+				if(NULL != m_pCaptureKeyboard_Text->m_pObject)
+					m_vectObjs_NeedRedraw.push_back(m_pCaptureKeyboard_Text->m_pObject);
+			}
         }
 
         if( m_bCaptureKeyboard_DataGrid )
@@ -2730,7 +2768,20 @@ bool Orbiter::RegionDown( int x,  int y )
         DesignObj_Orbiter *pTopMostAnimatedObject=NULL;
 
         //LACA_B4_0( "contains it,  calling clicked region" )
-        bHandled=ClickedRegion( m_pScreenHistory_Current->m_pObj, x, y, pTopMostAnimatedObject );
+#if ( defined( PROFILING ) )
+    clock_t clkStart = clock(  );
+#endif
+
+       bHandled=ClickedRegion( m_pScreenHistory_Current->m_pObj, x, y, pTopMostAnimatedObject );
+
+#if ( defined( PROFILING ) )
+    clock_t clkFinished = clock(  );
+    if(  m_pScreenHistory_Current   )
+    {
+        g_pPlutoLogger->Write( LV_CONTROLLER, "$$$$$$$$$$$$$ SelectedObject took %d ms $$$$$$$$$$$$$$", clkFinished - clkStart );
+    }
+#endif
+
         /*
         if(  pTopMostAnimatedObject  )
         {
@@ -3422,7 +3473,7 @@ void *RendererThread(void *p)
 			int Index = (*mapPendingCallbacks.begin()).second->m_iCounter;
 			int ClockMin = (*mapPendingCallbacks.begin()).second->m_clock;
 
-			g_pPlutoLogger->Write( LV_CONTROLLER, "### The queue size is %d", mapPendingCallbacks.size());
+			//g_pPlutoLogger->Write( LV_CONTROLLER, "### The queue size is %d", mapPendingCallbacks.size());
 
 			//let's choose the one which must be rendered first
 			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
@@ -3439,8 +3490,8 @@ void *RendererThread(void *p)
 			CallBackInfo *pCallBackInfo = mapPendingCallbacks[Index];
 			pm.Release();
 
-			g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, clock = %d", 
-				(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
+			//g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, clock = %d", 
+			//	(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
 
 			if(pCallBackInfo->m_clock <= clock()) 
 			{
@@ -3450,8 +3501,8 @@ void *RendererThread(void *p)
 				PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex ); 
 				mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
 
-				g_pPlutoLogger->Write( LV_CONTROLLER, "### 1. Now is %d. Callback processed id = %d, clock = %d", 
-					(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
+				//g_pPlutoLogger->Write( LV_CONTROLLER, "### 1. Now is %d. Callback processed id = %d, clock = %d", 
+				//	(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
 
 				delete pCallBackInfo;
 				pCallBackInfo = NULL;
@@ -3460,8 +3511,8 @@ void *RendererThread(void *p)
 			}
 			else
 			{
-				g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Waiting to process callback id = %d, clock = %d", 
-					(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
+				//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Waiting to process callback id = %d, clock = %d", 
+				//	(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
 
 				pthread_mutex_lock(&pOrbiter->m_RendererThreadMutex.mutex);
 
@@ -3471,7 +3522,7 @@ void *RendererThread(void *p)
 				abstime.tv_sec = time(NULL) + (pCallBackInfo->m_clock - clock()) / 1000;
 				abstime.tv_nsec = (pCallBackInfo->m_clock - clock()) * 1000000;
 
-				g_pPlutoLogger->Write( LV_CONTROLLER, "@@@ %d, %d", abstime.tv_sec, abstime.tv_nsec);
+				//g_pPlutoLogger->Write( LV_CONTROLLER, "@@@ %d, %d", abstime.tv_sec, abstime.tv_nsec);
 
 				if(ETIMEDOUT == pthread_cond_timedwait(&pOrbiter->m_RendererThreadCond,
 					&pOrbiter->m_RendererThreadMutex.mutex, &abstime)
@@ -3484,17 +3535,17 @@ void *RendererThread(void *p)
 					PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex ); 
 					mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
 
-					g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Callback processed id = %d, clock = %d", 
-						(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
+					//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Callback processed id = %d, clock = %d", 
+					//	(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
 
 					delete pCallBackInfo;
 					pCallBackInfo = NULL;
 
 					pm2.Release();
 				}
-				else
-					g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Something is changed, let's review the map", 
-						(int)clock());
+				//else
+					//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Something is changed, let's review the map", 
+					//	(int)clock());
 
 				pthread_mutex_unlock(&pOrbiter->m_RendererThreadMutex.mutex);
 			}
@@ -3507,12 +3558,7 @@ void *RendererThread(void *p)
 //------------------------------------------------------------------------
 void Orbiter::CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, void *data, bool bPurgeExisting )
 {
-	g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d. Waiting for mutex to be unlocked", (int)clock());
-
     PLUTO_SAFETY_LOCK( cm, m_CallbackMutex );
-
-	g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d.Mutex was unlocked", (int)clock());
-
 	if( bPurgeExisting )
 	{
 		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
@@ -3523,28 +3569,19 @@ void Orbiter::CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, voi
 		}
 	}
 
-//    pthread_t CallBackThread;  // We don't care about this
     CallBackInfo *pCallBack = new CallBackInfo( &m_CallbackMutex );
-    pCallBack->m_clock=c;
+    pCallBack->m_clock = clock() + c;
     pCallBack->m_fnCallBack=fnCallBack;
     pCallBack->m_pData=data;
     pCallBack->m_pOrbiter=this;
 	
 	mapPendingCallbacks[pCallBack->m_iCounter]=pCallBack;
 
-	g_pPlutoLogger->Write( LV_CONTROLLER, "### Added callback id = %d, clock = %d", 
-		pCallBack->m_iCounter, (int)pCallBack->m_clock);
+	//g_pPlutoLogger->Write( LV_CONTROLLER, "### Added callback id = %d, clock = %d", 
+	//	pCallBack->m_iCounter, (int)pCallBack->m_clock);
 
 	cm.Release();
-
 	pthread_cond_broadcast(&m_RendererThreadCond); 
-
-	/*
-	int iResult1=pthread_create( &CallBackThread,  NULL,  DoCallBack,  ( void * ) pCallBack );
-    int iResult2=pthread_detach( CallBackThread );
-    if(  iResult1 || iResult2  )
-        g_pPlutoLogger->Write( LV_CRITICAL, "CallMaint failed: %d %d", iResult1, iResult2 );
-	*/
 }
 
 /*
@@ -3814,7 +3851,8 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
                 m_pObj_Highlighted=NULL;
 
         pObj->m_bHidden = !bShow;
-        m_vectObjs_NeedRedraw.push_back( pObj );  // Redraw even if the object was already in this state,  because maybe we're hiding this and something that
+
+	    m_vectObjs_NeedRedraw.push_back( pObj );  // Redraw even if the object was already in this state,  because maybe we're hiding this and something that
     }
 }
 
@@ -3970,7 +4008,17 @@ void Orbiter::CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &s
 void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c14-e->
 {
-    m_bRerenderScreen = true;
+    //m_bRerenderScreen = true; 
+
+	vector<DesignObj_DataGrid*>::iterator it;
+	for(it = m_vectObjs_GridsOnScreen.begin(); it != m_vectObjs_GridsOnScreen.end(); ++it)
+	{
+		DesignObj_DataGrid* pDesignObj = *it;
+
+		if(pDesignObj->m_sGridID == sDataGrid_ID)
+			m_vectObjs_NeedRedraw.push_back(pDesignObj);
+	}
+
     NeedToRender render( this, "CMD_Refresh" );  // Redraw anything that was changed by this command
 
     // hack -- todo
@@ -4596,7 +4644,10 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
     if( NULL != m_pCaptureKeyboard_Text )
     {
         m_pCaptureKeyboard_Text->m_sText = NewValue;
-        m_vectObjs_NeedRedraw.push_back( m_pCaptureKeyboard_Text->m_pObject );
+
+		if(NULL != m_pCaptureKeyboard_Text->m_pObject)
+			m_vectObjs_NeedRedraw.push_back( m_pCaptureKeyboard_Text->m_pObject );
+
         return true;
     }
 
@@ -4614,8 +4665,11 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
     if( NULL != m_pCaptureKeyboard_Text )
     {
         m_pCaptureKeyboard_Text->m_sText = NewValue;
-        m_vectObjs_NeedRedraw.push_back( m_pCaptureKeyboard_Text->m_pObject );
-        return true;
+
+		if( NULL != m_pCaptureKeyboard_Text )
+			m_vectTexts_NeedRedraw.push_back( m_pCaptureKeyboard_Text );
+		else
+			m_bRerenderScreen = true;
     }
 
     return false;

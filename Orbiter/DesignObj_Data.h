@@ -109,7 +109,7 @@ public:
 	{ 
 		m_pObject=pObj; m_iLastXOffset=m_iLastYOffset=0; 
 	}
-	DesignObjText() {}
+	DesignObjText() { m_pObject = NULL; }
 	
 	virtual ~DesignObjText() 
 	{  

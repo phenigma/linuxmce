@@ -155,13 +155,23 @@ Socket::~Socket()
 
 bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 {
-	char *pcData;
+	char *pcData = NULL;
 	unsigned long dwSize;
 	pMessage->ToData( dwSize, pcData, true ); // converts the message to data
 	bool bReturnValue = SendData( dwSize, pcData ); // and sends it
-	free(pcData); // free heap
+	
+	if(NULL != pcData)
+	{
+		// delete[] pcData; // free heap
+		free(pcData);
+		pcData = NULL;
+	}
 
-	if ( bDeleteMessage ) delete pMessage; // clear pMessage if requested
+	if ( NULL != bDeleteMessage ) 
+	{
+		delete pMessage; // clear pMessage if requested
+		pMessage = NULL;
+	}
 
 	return bReturnValue; // the return of SendData
 }

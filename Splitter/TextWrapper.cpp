@@ -259,40 +259,7 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, int H,
 					   string FontPath, TextStyle *pTextStyle)
 {
-#if ( defined( PROFILING ) )
-	clock_t clkStart = clock(  );
-#endif
-
 	TextLineWrap T;
-
-#if ( defined( PROFILING ) )
-	clock_t clkConstructor = clock(  );
-#endif
-
 	T.Wrap(text, X, Y, W, H, FontPath, pTextStyle);
-
-#if ( defined( PROFILING ) )
-	clock_t clkWarp = clock(  );
-#endif
-
 	T.RenderToSurface(Surface);
-
-#if ( defined( PROFILING ) )
-	clock_t clkFinished = clock(  );
-
-	g_pPlutoLogger->Write( 
-		LV_CONTROLLER, 
-		"WrapAndRenderText: %s took %d ms: \n"
-			"\t- Contructor: %d ms\n"
-			"\t- Wrap: %d ms\n"
-			"\t- RenderToSurface: %d ms",
-		text.c_str(), 
-		clkFinished - clkStart,
-		clkConstructor - clkStart,
-		clkWarp - clkConstructor,
-		clkFinished - clkWarp
-	);
-#endif
-
-
 }

@@ -120,23 +120,23 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="Main.cpp">
-			</File>
-			<File
 				RelativePath="CM11A.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\CM11ABase.cpp">
+			</File>
+			<File
+				RelativePath="Main.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath="..\DCE\DCEDeviceData_Impl.h">
+				RelativePath="CM11A.h">
 			</File>
 			<File
-				RelativePath="CM11A.h">
+				RelativePath="..\DCE\DCEDeviceData_Impl.h">
 			</File>
 		</Filter>
 		<Filter

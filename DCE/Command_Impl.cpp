@@ -26,7 +26,11 @@
 
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DCE/Logger.h"
+
+#ifndef WINCE
 #include "DCERouter/DCERouter.h"
+#endif
+
 #include "DeviceData_Impl.h"
 #include "Command_Impl.h"
 #include "Event_Impl.h"
@@ -509,6 +513,7 @@ void Command_Impl::StopWatchDog()
 
 void Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID)
 {
+#ifndef WINCE
 	if( m_pRouter )
 	{
 		m_pRouter->RegisterMsgInterceptor(
@@ -523,10 +528,12 @@ void Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageIntercept
 		SendMessageToRouter(pMessage);
 		m_dwMessageInterceptorCounter++;
 	}
+#endif
 }
 
 void Command_Impl::InterceptedMessage(Message *pMessage)
 {
+#ifndef WINCE
 	MessageInterceptorFn pMessageInterceptorFn = m_mapMessageInterceptorFn_Find(pMessage->m_dwID);
 	if( !pMessageInterceptorFn || pMessage->m_vectExtraMessages.size()!=1)
 	{
@@ -539,5 +546,6 @@ void Command_Impl::InterceptedMessage(Message *pMessage)
 	CALL_MEMBER_FN(*this,pMessageInterceptorFn) (NULL, pMessageOriginal,
 		m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessageOriginal->m_dwPK_Device_From),
 		m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessageOriginal->m_dwPK_Device_To));
+#endif
 }
 

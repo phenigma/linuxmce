@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="miniunz"
 	ProjectGUID="{C52F9E7B-498A-42BE-8DB4-85A15694382A}"
 	Keyword="Win32Proj">

@@ -6,6 +6,8 @@
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
 
+//#define PROFILING_CE
+
 const MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
 LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -19,10 +21,6 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
     switch(uMsg)
 	{
-		case WM_PAINT:
-			pOrbiter->RenderTextObjectsWinCE(hWnd);
-			break;
-
 		case WM_KEYDOWN:
 		case WM_KEYUP:
 			pOrbiter->HandleKeyEvents(uMsg, wParam, lParam);
@@ -60,8 +58,6 @@ OrbiterSDL_WinCE::OrbiterSDL_WinCE(int DeviceID, string ServerAddress, string sL
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
 {
-	ClearWinCETextObjectsList();
-
 	//restore old sdl windowproc
 	::SetWindowLong(hSDLWindow, GWL_WNDPROC, reinterpret_cast<long>(OldSDLWindowProc));	
 }
@@ -102,15 +98,6 @@ OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterSDL_WinCE::RenderScreen()
-{
-	ClearWinCETextObjectsList();
-
-	OrbiterSDL::RenderScreen();
-	
-	RenderTextObjectsWinCE(hSDLWindow);
-}
-//-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 {
 	RECT rect;
@@ -121,48 +108,63 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 
 	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
 
-	m_listTextWinCEObject.push_back(new TextWinCEObject(TextToDisplay, rect, pTextStyle));
+	TextWinCEObject *pTextWinCEObject = new TextWinCEObject(TextToDisplay, rect, pTextStyle);
+
+#if ( defined( PROFILING_CE ) )
+    clock_t clkStart = clock(  );
+#endif
+	
+	RenderTextWinCE(pTextWinCEObject);
+
+#if ( defined( PROFILING_CE ) )
+    clock_t clkFinished = clock(  );
+    if(  m_pScreenHistory_Current   )
+    {
+        g_pPlutoLogger->Write( LV_CONTROLLER, "RenderTextCE: %s took %d ms",
+            TextToDisplay.c_str(  ), clkFinished-clkStart );
+    }
+#endif
+
+	delete pTextWinCEObject;
+	pTextWinCEObject = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
-/*static*/ void OrbiterSDL_WinCE::RenderTextObjectsWinCE(HWND hWnd)
+/*static*/ void OrbiterSDL_WinCE::RenderTextWinCE(TextWinCEObject *pTextWinCEObject)
 {
-	if(hWnd)
-	{
-		HDC hDC = ::GetDC(hWnd);
+#if ( defined( PROFILING_CE ) )
+    clock_t clkStartx = clock(  );
+#endif
 
-		list<TextWinCEObject *>::iterator it;
-		for(it = m_listTextWinCEObject.begin(); it != m_listTextWinCEObject.end(); it++)
-		{
-			TextWinCEObject* pTextWinCEObject = *it;
-			RenderTextWinCE(hDC, pTextWinCEObject);
-		}
+     GDI_FontInfo                fontInfo;
+     HDC                         hdc;
+     HDC                         m_hdc;
+     LPBITMAPINFO                pbmi;
+     SIZE                        size;
 
-		::ReleaseDC(hWnd, hDC);
-	}
-}
-//-----------------------------------------------------------------------------------------------------
-/*static*/ void OrbiterSDL_WinCE::RenderTextWinCE(HDC hDC, TextWinCEObject *pTextWinCEObject)
-{
-    string TextToDisplay = pTextWinCEObject->m_sText;
-
-	TextStyle *pTextStyle = pTextWinCEObject->m_pTextStyle;
-/*
-	int m_iPK_Style,m_iPK_StyleVariation,m_iPK_Style_Selected,m_iPK_Style_Highlighed,m_iPK_Style_Alt;
-	int m_iVersion; // This is for the selected, alt, or highlighted versions
-	string m_sFont;
-//	PlutoColor m_ForeColor,
-		m_BackColor,m_ShadowColor;
-//	int m_iPixelHeight;
-//	bool m_bBold, m_bItalic, m_bUnderline;
-	int m_iShadowX, m_iShadowY;  // Pixels to offset a drop shadow
-	int m_iBorderStyle;
-	int m_iPK_HorizAlignment,m_iPK_VertAlignment;
-	int m_iRotate;
-	void *m_pTTF_Font;
-*/
+     // Create a memory DC for rendering our text into
+     hdc = GetDC(HWND_DESKTOP);
+     m_hdc = CreateCompatibleDC(hdc);
+     ReleaseDC(NULL, hdc);
+     if (m_hdc == NULL) 
+	 {
+         return;
+     }
 
     LOGFONT lf;
     HFONT hFontNew, hFontOld;
+
+    string TextToDisplay = pTextWinCEObject->m_sText;
+	TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", "\n\r");
+
+	TextStyle *pTextStyle = pTextWinCEObject->m_pTextStyle;
+
+	wchar_t wTextBuffer[MAX_STRING_LEN];
+	mbstowcs(wTextBuffer, TextToDisplay.c_str(), MAX_STRING_LEN);
+
+	SDL_Color color;
+	color.r = pTextStyle->m_ForeColor.R();
+	color.g = pTextStyle->m_ForeColor.G();
+	color.b = pTextStyle->m_ForeColor.B();
 
 	// Clear out the lf structure to use when creating the font.
 	memset(&lf, 0, sizeof(LOGFONT));
@@ -173,16 +175,8 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 	lf.lfItalic		= pTextStyle->m_bItalic;
 	lf.lfUnderline	= pTextStyle->m_bUnderline;
 
-	::SetTextColor(hDC, RGB(pTextStyle->m_ForeColor.R(), pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B()));
-	::SetBkMode(hDC, TRANSPARENT);	
-
     hFontNew = ::CreateFontIndirect(&lf);
-    hFontOld = (HFONT) ::SelectObject(hDC, hFontNew);
-
-	TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", "\n\r");
-
-	wchar_t wTextBuffer[MAX_STRING_LEN];
-	mbstowcs(wTextBuffer, TextToDisplay.c_str(), MAX_STRING_LEN);
+    hFontOld = (HFONT) ::SelectObject(m_hdc, hFontNew);
 
 	int iOldHeight = pTextWinCEObject->m_rectLocation.bottom - 
 		pTextWinCEObject->m_rectLocation.top;
@@ -196,7 +190,7 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 	};
 
 	//calculate rect first
-	::DrawText(hDC, wTextBuffer, TextToDisplay.length(), &(pTextWinCEObject->m_rectLocation), 
+	::DrawText(m_hdc, wTextBuffer, TextToDisplay.length(), &(pTextWinCEObject->m_rectLocation), 
 		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT); 
 
 	int iRealHeight = pTextWinCEObject->m_rectLocation.bottom - 
@@ -208,32 +202,151 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 	pTextWinCEObject->m_rectLocation.left   = rectOld.left;
 	pTextWinCEObject->m_rectLocation.right  = rectOld.right;
 
+	fontInfo.bmpWidth = rectOld.right - rectOld.left + 2;
+    fontInfo.bmpHeight = rectOld.bottom - rectOld.top + 2 ;
+
+	 // Create a dib section for containing the bits
+	 pbmi = (LPBITMAPINFO) LocalAlloc(LPTR, sizeof(BITMAPINFO) +
+			 PALETTE_SIZE * sizeof(RGBQUAD));
+
+	 if (pbmi == NULL)
+	 {
+		 DeleteDC(m_hdc);
+		 return;
+	 }
+
+	 pbmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	 pbmi->bmiHeader.biWidth = fontInfo.bmpWidth;
+	 // negative height = top-down
+	 pbmi->bmiHeader.biHeight = -1 * fontInfo.bmpHeight;
+	 pbmi->bmiHeader.biPlanes = 1;
+	 pbmi->bmiHeader.biBitCount = 8; // 8bpp makes it easy to get data
+
+	 pbmi->bmiHeader.biCompression = BI_RGB;
+	 pbmi->bmiHeader.biXPelsPerMeter = 0;
+	 pbmi->bmiHeader.biYPelsPerMeter = 0;
+	 pbmi->bmiHeader.biClrUsed = PALETTE_SIZE;
+	 pbmi->bmiHeader.biClrImportant = PALETTE_SIZE;
+
+	 pbmi->bmiHeader.biSizeImage = WIDTHBYTES(fontInfo.bmpWidth * 8) *
+			 fontInfo.bmpHeight;
+
+	 // Just a plain monochrome palette
+	 pbmi->bmiColors[0].rgbRed = 0;
+	 pbmi->bmiColors[0].rgbGreen = 0;
+	 pbmi->bmiColors[0].rgbBlue = 0;
+	 pbmi->bmiColors[1].rgbRed = 255;
+	 pbmi->bmiColors[1].rgbGreen = 255;
+	 pbmi->bmiColors[1].rgbBlue = 255;
+
+	 // Create a DIB section that we can use to read the font bits out of
+	 fontInfo.bitmap = CreateDIBSection(m_hdc, pbmi,
+				   DIB_RGB_COLORS, (void **) &fontInfo.bmpBits, NULL, 0);
+	 LocalFree(pbmi);
+	 if (fontInfo.bitmap == NULL)
+	 {
+		 DeleteDC(m_hdc);
+		 return;
+	 }
+
+	 // Set up our memory DC with the font and bitmap
+	 SelectObject(m_hdc, fontInfo.bitmap);
+
+	 //SetBkColor(m_hdc, RGB(0, 0, 0));
+	 //SetTextColor(m_hdc, RGB(255, 0, 255));
+
+	::SetTextColor(m_hdc, RGB(pTextStyle->m_ForeColor.R(), pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B()));
+	::SetBkMode(m_hdc, TRANSPARENT);
+
+	 // Output text to our memory DC (the bits end up in our DIB section)
+	 PatBlt(m_hdc, 0, 0, fontInfo.bmpWidth, fontInfo.bmpHeight, BLACKNESS);
+
+	 RECT rect = { 0, 0, fontInfo.bmpWidth, fontInfo.bmpHeight };
+
 	//real render
-	::DrawText(hDC, wTextBuffer, TextToDisplay.length(), &(pTextWinCEObject->m_rectLocation), 
+	::DrawText(m_hdc, wTextBuffer, TextToDisplay.length(), &rect /*&(pTextWinCEObject->m_rectLocation)*/, 
 		DT_WORDBREAK | DT_CENTER | DT_NOPREFIX); 
 
-    ::SelectObject(hDC, hFontOld);
-    ::DeleteObject(hFontNew);
+	::SelectObject(m_hdc, hFontOld);
+	::DeleteObject(hFontNew);
 
-	//restore initial rect
-	pTextWinCEObject->m_rectLocation.left	= rectOld.left;
-	pTextWinCEObject->m_rectLocation.top	= rectOld.top;
-	pTextWinCEObject->m_rectLocation.right  = rectOld.right;
-	pTextWinCEObject->m_rectLocation.bottom = rectOld.bottom;
-}
-//-----------------------------------------------------------------------------------------------------
-/*static*/ void OrbiterSDL_WinCE::ClearWinCETextObjectsList()
-{
-	list<TextWinCEObject *>::iterator it;
-	for(it = m_listTextWinCEObject.begin(); it != m_listTextWinCEObject.end(); it++)
-	{
-		TextWinCEObject* pTextWinCEObject = *it;
+#if ( defined( PROFILING_CE ) )
+    clock_t clkFinishedx = clock(  );
+    if(  m_pScreenHistory_Current   )
+    {
+        g_pPlutoLogger->Write( LV_CONTROLLER, "in rendertextce ... gdi stuff: %s took %d ms",
+            TextToDisplay.c_str(  ), clkFinishedx-clkStartx );
+    }
+#endif
 
-		delete pTextWinCEObject;
-		pTextWinCEObject = NULL;
+
+#if ( defined( PROFILING_CE ) )
+    clock_t clkStart = clock(  );
+#endif
+	
+	 SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+			   fontInfo.bmpWidth, fontInfo.bmpHeight, 32,
+			   RMASK, GMASK, BMASK, AMASK);
+	 if (SDL_MUSTLOCK(surface)) {
+		 SDL_LockSurface(surface);
+	 }
+	 Uint32 * destPixels = (Uint32 *) surface->pixels;
+
+	 LPSTR lpsrc = fontInfo.bmpBits;
+	 for (int ii = 0; ii < fontInfo.bmpHeight; ii++) {
+		 for (int jj = 0; jj < fontInfo.bmpWidth; jj++) {
+			 // If lpsrc[j] is 0, then it's a black pixel (opaque)
+			 // otherwise it's white (transparent)
+			 if (lpsrc[jj]) {
+				 destPixels[jj] = ::SDL_MapRGBA(surface->format,
+						 color.r, color.g, color.b, 0xff);
+			 } else {
+				 destPixels[jj] = ::SDL_MapRGBA(surface->format,
+												0, 0, 0, 0);
+			 }
+		 }
+		 lpsrc += WIDTHBYTES(fontInfo.bmpWidth * 8);
+		 destPixels += fontInfo.bmpWidth;
+	 }
+
+#if ( defined( PROFILING_CE ) )
+    clock_t clkFinished = clock(  );
+    if(  m_pScreenHistory_Current   )
+    {
+        g_pPlutoLogger->Write( LV_CONTROLLER, "DC -> surface: %s took %d ms",
+            TextToDisplay.c_str(  ), clkFinished-clkStart );
+    }
+#endif
+
+	 if (SDL_MUSTLOCK(surface)) {
+		 SDL_UnlockSurface(surface);
 	}
 
-	m_listTextWinCEObject.clear();
+#if ( defined( PROFILING_CE ) )
+    clock_t clkStartxx = clock(  );
+#endif
+
+    DeleteDC(m_hdc);
+    DeleteObject(fontInfo.bitmap);
+
+    SDL_Rect TextLocation;
+    TextLocation.x = pTextWinCEObject->m_rectLocation.left;
+    TextLocation.y = pTextWinCEObject->m_rectLocation.top;
+    TextLocation.w = pTextWinCEObject->m_rectLocation.right - pTextWinCEObject->m_rectLocation.left;
+    TextLocation.h = pTextWinCEObject->m_rectLocation.bottom - pTextWinCEObject->m_rectLocation.top;
+
+	SDL_BlitSurface(surface, NULL, m_pScreenImage, &TextLocation);
+	SDL_FreeSurface(surface);
+
+#if ( defined( PROFILING_CE ) )
+    clock_t clkFinishedxx = clock(  );
+    if(  m_pScreenHistory_Current   )
+    {
+        g_pPlutoLogger->Write( LV_CONTROLLER, "SDL stuff: %s took %d ms",
+            TextToDisplay.c_str(  ), clkFinishedxx-clkStartxx );
+    }
+#endif
+
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_WinCE::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)

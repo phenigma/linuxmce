@@ -16,6 +16,7 @@ namespace DCE
 
 class OrbiterSDL : public Orbiter
 {
+protected:
 	SDL_Surface * m_pScreenImage;
 	
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
@@ -43,6 +44,9 @@ public:
 	virtual void RenderScreen();
 	virtual void RedrawObjects();
 	virtual void DisplayImageOnScreen(SDL_Surface *m_pScreenImage);
+
+	virtual void BeginPaint();
+	virtual void EndPaint();
 
 	// Other
 	virtual void Initialize(GraphicType Type);

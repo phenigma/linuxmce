@@ -107,6 +107,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderScreen()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$");
     PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
     if (m_pScreenHistory_Current)
     {
@@ -124,8 +125,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
     SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
     SDL_Flip(Screen);
 g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
-
-	
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
@@ -154,16 +153,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
     string BasePath="/usr/pluto/fonts/";
 #endif //win32
 
-#if ( defined( PROFILING ) )
-	clock_t clkStart = clock(  );
-#endif //PROFILING
     WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, pTextStyle);
-#if ( defined( PROFILING ) )
-	clock_t clkFinished = clock(  );
-
-	g_pPlutoLogger->Write( LV_CONTROLLER, "WrapAndRenderText: %s took %d ms", 
-			TextToDisplay.c_str(), clkFinished - clkStart );
-#endif //PROFILING
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
@@ -255,8 +245,8 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
 {
     SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_nImageWidth, m_nImageHeight, 32, rmask, gmask, bmask, amask);
-/*
-    // copy pixel by pixel (this can be optimized to get line by line?)
+
+	// copy pixel by pixel (this can be optimized to get line by line?)
     for (int x = 0; x < pObj->m_rPosition.Width; x++)
     {
         for (int y = 0; y < pObj->m_rPosition.Height; y++)
@@ -265,7 +255,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
             putpixel(pSDL_Surface, x, y, getpixel(m_pScreenImage, x + pObj->m_rPosition.X, y + pObj->m_rPosition.Y));
         }
     }
-*/
+
     pObj->m_pGraphicToUndoSelect = new SDLGraphic(pSDL_Surface);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -371,3 +361,15 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
     }
 //	SDL_Flip(m_pScreenImage);
 }
+//-----------------------------------------------------------------------------------------------------	
+/*virtual*/ void OrbiterSDL::BeginPaint()
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Begin paint.");
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDL::EndPaint()
+{
+	g_pPlutoLogger->Write(LV_STATUS, "End paint.");
+	DisplayImageOnScreen(m_pScreenImage);
+}
+//-----------------------------------------------------------------------------------------------------

@@ -36,6 +36,7 @@
 				OutputFile="../bin/Media_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="\mysql\lib\Debug;&quot;../Libraries/pthreads-win32/lib&quot;;../lib"
+				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="Media_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Media_Plugin.pdb"

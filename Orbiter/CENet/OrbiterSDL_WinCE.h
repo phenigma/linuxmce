@@ -2,6 +2,21 @@
 #define __ORBITER_SDL_WIN_CE_H__
 //-----------------------------------------------------------------------------------------------------
 #include "../SDL/OrbiterSDL.h"
+
+//-----------------------------------------------------------------------------------------------------
+struct GDI_FontInfo {
+     HBITMAP bitmap;
+     int bmpWidth;
+     int bmpHeight;
+     LPSTR bmpBits;
+};
+//-----------------------------------------------------------------------------------------------------
+#define WIDTHBYTES(i)       ((i+31)/32*4)
+#define PALETTE_SIZE        2
+#define RMASK 0xFF000000
+#define GMASK 0x00FF0000
+#define BMASK 0x0000FF00
+#define AMASK 0x000000FF
 //-----------------------------------------------------------------------------------------------------
 struct TextWinCEObject
 {
@@ -29,15 +44,11 @@ private:
 	OrbiterSDL_WinCE(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 
-	void RenderTextWinCE(HDC hDC, TextWinCEObject *pTextWinCEObject);
-	void ClearWinCETextObjectsList();
-
+	void RenderTextWinCE(TextWinCEObject *pTextWinCEObject);
 
 public:
 
 	bool m_bConnectionLost;
-
-	list<TextWinCEObject *> m_listTextWinCEObject;
 
 	WNDPROC OldSDLWindowProc;
 	HWND hSDLWindow;
@@ -46,9 +57,7 @@ public:
 
 	//base public methods
 	void OnQuit();
-	void RenderScreen();
 	void RenderText(DesignObjText *Text,TextStyle *pTextStyle);
-
 	void WriteStatusOutput(const char* pMessage);
 
 	//OrbiterSDL_WinCE public methods
