@@ -470,8 +470,10 @@ while( $row = $db->sql_fetchrow($result) )
 	$pluto_ids[] = $row['user_id'];
 }
 $db->sql_freeresult($result);
-if(in_array($userdata['user_id'],$pluto_ids))
-	print '<div align="right"><a href="search.php?search_id=unansweredByPluto">View posts unanswered by Pluto personal</a></div>';
+if(in_array($userdata['user_id'],$pluto_ids)){
+	print '<div align="right"><a href="search.php?search_id=waitingForReply">View posts waiting for reply</a></div>';
+	print '<div align="right"><a href="search.php?search_id=unansweredByPluto">View topics unanswered by Pluto Staff</a></div>';
+}
 // end Pluto
 
 $template->pparse('body');

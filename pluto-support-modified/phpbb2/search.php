@@ -157,7 +157,7 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 	//
 	// Cycle through options ...
 	//
-	if ( $search_id == 'newposts' || $search_id == 'egosearch' || $search_id == 'unanswered' || $search_id=='unansweredByPluto' || $search_keywords != '' || $search_author != '')
+	if ( $search_id == 'newposts' || $search_id == 'egosearch' || $search_id == 'unanswered' || $search_id=='unansweredByPluto' || $search_id=='waitingForReply' || $search_keywords != '' || $search_author != '')
 	{
 		if ( $search_id == 'newposts' || $search_id == 'egosearch' || ( $search_author != '' && $search_keywords == '' )  )
 		{
@@ -609,7 +609,7 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 		{
 			$plutoTesterID=5;
 			$plutoStaffID=6;
-			$qid="SELECT user_id FROM ".USER_GROUP_TABLE." WHERE group_id='".$plutoTesterID."' OR group_id='".$plutoStaffID."'";
+			$qid="SELECT user_id FROM ".USER_GROUP_TABLE." WHERE group_id='".$plutoStaffID."'";
 			if ( !($result = $db->sql_query($qid)) )
 			{
 				message_die(GENERAL_ERROR, 'Could not obtain Pluto personal IDs', '', __LINE__, __FILE__, $sql);
@@ -643,6 +643,51 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 				
 			$sql = "SELECT topic_id FROM " .TOPICS_TABLE. "
 					WHERE topic_id NOT IN (".join(',',$excluded_ids).")";
+
+			if ( !($result = $db->sql_query($sql)) )
+			{
+				message_die(GENERAL_ERROR, 'Could not obtain Pluto post ids', '', __LINE__, __FILE__, $sql);
+			}
+
+			$search_ids = array();
+			while( $row = $db->sql_fetchrow($result) )
+			{
+				$search_ids[] = $row['topic_id'];
+			}
+			$db->sql_freeresult($result);
+			
+			
+			$total_match_count = count($search_ids);
+
+			//
+			// Basic requirements
+			//
+			$show_results = 'topics';
+			$sort_by = 0;
+			$sort_dir = 'DESC';
+		}
+		else if ( $search_id == 'waitingForReply' )
+		{
+			$plutoTesterID=5;
+			$plutoStaffID=6;
+			$qid="SELECT user_id FROM ".USER_GROUP_TABLE." WHERE group_id='".$plutoTesterID."' OR group_id='".$plutoStaffID."'";
+			if ( !($result = $db->sql_query($qid)) )
+			{
+				message_die(GENERAL_ERROR, 'Could not obtain Pluto personal IDs', '', __LINE__, __FILE__, $sql);
+			}
+			$pluto_ids = array();
+			while( $row = $db->sql_fetchrow($result) )
+			{
+				$pluto_ids[] = $row['user_id'];
+			}
+			$db->sql_freeresult($result);
+			if(count($pluto_ids)==0)
+				$pluto_ids[]=0;
+			
+			// last poster is not from Pluto
+			$sql = "SELECT DISTINCT ".TOPICS_TABLE.".topic_id FROM ".TOPICS_TABLE."
+					INNER JOIN ".POSTS_TABLE." ON ".POSTS_TABLE.".post_id=topic_last_post_id
+					WHERE poster_id NOT IN (".join(',',$pluto_ids).") ORDER BY post_time DESC";
 
 			if ( !($result = $db->sql_query($sql)) )
 			{
