@@ -1,3 +1,12 @@
+/**
+ *
+ * @file ImageDefs.h
+ * @brief header file 
+ * @author
+ * @todo ask
+ *
+ */
+
 #ifndef _IMAGE_DEFS_H_
 #define _IMAGE_DEFS_H_
 
@@ -7,7 +16,8 @@
 
 using namespace std;
 
-//linking automatically with CXImage.lib static library
+/** linking automatically with CXImage.lib static library */
+
 #ifdef _DEBUG
 	#pragma comment(lib, "../Libraries/CXImage/CXImage/Debug/cximage.lib")
 	#pragma comment(lib, "../Libraries/CXImage/png/Debug/png.lib")
@@ -19,7 +29,8 @@ using namespace std;
 #endif
 
 
-//size of every images in image list
+
+/** size of every images in image list */
 #define THUMBNAIL_HEIGHT		45	//45 px
 #define THUMBNAIL_WIDTH			45	//45 px
 
@@ -29,17 +40,17 @@ using namespace std;
 
 #define CUSTOMER_IMAGE_GAP		20	// 20 px
 
-//extern CImageList		PlutoVIPImageList;
+/** @test extern CImageList		PlutoVIPImageList; */
 
 typedef struct tagPlutoCustomer
 {
 	int ImageType;
-	int ImageNumber;				//image number in ImageList
-	BOOL DefaultBitmap;				//TRUE=has no thumbnail, FALSE=has thumbnail
+	int ImageNumber;				/**< image number in ImageList */
+	BOOL DefaultBitmap;				/** TRUE=has no thumbnail, FALSE=has thumbnail */
 	CTime Time;
 } PlutoCustomer;
 
-extern map<unsigned long  /*PlutoID*/, PlutoCustomer*> mapPlutoImageList;
+extern map<unsigned long  /** @test PlutoID*/, PlutoCustomer*> mapPlutoImageList;
 
 CString FindCustomerImageFileFromID(ULONG ID, int ImageType);
 

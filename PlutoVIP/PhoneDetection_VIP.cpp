@@ -1,3 +1,17 @@
+/**
+ *
+ * @file PhoneDetection_VIP.cpp
+ * @brief implementation of the PhoneDetection_VIP class
+ * @author
+ *
+ */
+
+/**
+ *
+ * Copyright Notice goes here
+ *
+ */
+ 
 #include "stdafx.h"
 #include "PlutoUtils/CommonIncludes.h"	
 #include "VIPShared/VIPIncludes.h"
@@ -24,7 +38,7 @@
 
 UINT FireErrorRecord(LPVOID pParam);
 
-//global map for customers
+/** global map for customers */
 map<unsigned long, Customer*> m_mapCustomers;
 CString MACAddress;
 
@@ -37,8 +51,10 @@ PhoneDetection_VIP::PhoneDetection_VIP()
 	m_pNewAB=m_pActiveAB=m_pRecentAB=NULL;
 }
 
-// The derived class must decide how to handle when new devices are detected or lost, or 
-// when the signal strength changes by more than 10 in either direction
+/**
+ * The derived class must decide how to handle when new devices are detected or lost, 
+ * or when the signal strength changes by more than 10 in either direction
+ */
 void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 {
 	PLUTO_SAFETY_LOCK(tm,*m_pThreadMutex);
@@ -48,7 +64,7 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 	unsigned int IdentifiedPlutoId=pDevice->m_PKID_Users;
 	const char *IdentiedPlutoIdPin=pDevice->m_UserVersion.c_str();
 
-	/*	A. Riazi -- add this code 
+	/** @test	A. Riazi -- add this code 
 	SELECT FROM MacAddress where PKID_MacAddress=pDevice->m_sMacAddress;
 	if( found )
 	{
@@ -61,7 +77,7 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 	CADORecordset record;
 	DWORD PlutoID;
 	
-	//CString strConnection = DATABASE_PROVIDER;
+	/** CString strConnection = DATABASE_PROVIDER; */
 	if(DB.Open(DATABASE_PROVIDER))
 	{	
 		record = CADORecordset(&DB);
@@ -100,12 +116,12 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 
 	CString FileName;
 
-	// We need to create the customer record first since the request processor
-	// may return commands that need to be sent to the phone.  If the rp returns
-	// an unsuccessful, this customer record will be deleted.  It is therefore
-	// assumed that the rp will only get actions to send stuff to the phone 
-	// if the request was processed successfully and a valid customer was located.
-	// Otherwise pCustomer will be deleted out from underneath the action
+	/** We need to create the customer record first since the request processor may return commands that need to be sent to the phone.  
+	 * If the rp returns an unsuccessful, this customer record will be deleted.  It is therefore assumed that the rp will only get actions 
+	 * to send stuff to the phone if the request was processed successfully and a valid customer was located.
+	 * Otherwise pCustomer will be deleted out from underneath the action
+	 */
+	 
 	Customer *pCustomer = new Customer(this);
 	pCustomer->m_pPhoneDevice = pDevice;
 	VR_IdentifyPhone ip(g_pPlutoConfig->m_iEstablishmentID,pDevice->m_sID,
@@ -116,8 +132,10 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 	rp.AddRequest(&ip);
 	if( !rp.SendRequests(g_pPlutoConfig->m_sServerAddress) )
 	{
-		// Log Errors
+
+		/** Log Errors */
 		AfxMessageBox(_T("Error receiving information from server."), MB_ICONERROR);
+
 		delete pCustomer;
 	}
 	else
@@ -127,7 +145,8 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 
 			if( ip.m_iUseCache )
 			{
-				/* A. Riazi, fill in these values from teh database
+				/** @todo ask
+				 A. Riazi, fill in these values from teh database
 				// some syntax that means create the customer record from the database
 				Customer *pCustomer = new Customer(this,ip.m_iPlutoId);
 				*/
@@ -184,7 +203,7 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 					record.GetFieldValue(_T("EstablishmentId"), establishmentid);
 					pCustomer->m_sEstablishmentCustomerId=establishmentid;
 					
-					pCustomer->m_cAppBar=IMAGE_TYPE_NEW;	// 0=not detected anymore, 1=new app bar, 2=active, 3=recent
+					pCustomer->m_cAppBar=IMAGE_TYPE_NEW;	/** 0=not detected anymore, 1=new app bar, 2=active, 3=recent */
 					
 					record.GetFieldValue(_T("RecordVersion"), pCustomer->m_iRecordVersion);
 					
@@ -195,23 +214,25 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 					
 					record.Close();
 
-					//use chached version of image file
+					/** use chached version of image file */
 					FileName=FindCustomerImageFileFromID(pCustomer->m_iPlutoId, GRAPHICTYPE_JPG);
 
-					//adding attributes and telephone numbers
+					/** adding attributes and telephone numbers */
 
 
-					//adding customer image to ImageListMap
+					/** adding customer image to ImageListMap */
 					PlutoCustomer* pPlutoCustomer=new PlutoCustomer;
-					pPlutoCustomer->Time=CTime::GetCurrentTime();	//current time
+					pPlutoCustomer->Time=CTime::GetCurrentTime();	/**< current time */
 					
-					pPlutoCustomer->ImageNumber=-1;			//the customer has no image
-					pPlutoCustomer->ImageType=GRAPHICTYPE_JPG;	//the customer has no image
+
+					pPlutoCustomer->ImageNumber=-1;			/**< the customer has no image */
+					pPlutoCustomer->ImageType=GRAPHICTYPE_JPG;	/**< the customer has no image */
+
 					mapPlutoImageList[ip.m_iPlutoId]=pPlutoCustomer;
 
 				}
 			}
-			else	//not use cache
+			else	/** not use cache */
 			{
 				pCustomer->m_iPlutoId=ip.m_iPlutoId;
 				pCustomer->m_sEmail=ip.m_sEmail;
@@ -227,7 +248,7 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 				pCustomer->m_sBirthdate=ip.m_sBirthdate;
 				pCustomer->m_sComments=ip.m_sComments;
 				pCustomer->m_sEstablishmentCustomerId=ip.m_sEstablishmentCustomerId;
-				pCustomer->m_cAppBar=IMAGE_TYPE_NEW;	// 0=not detected anymore, 1=new app bar, 2=active, 3=recent
+				pCustomer->m_cAppBar=IMAGE_TYPE_NEW;	/** 0=not detected anymore, 1=new app bar, 2=active, 3=recent */
 				pCustomer->m_iRecordVersion=ip.m_iRecordVersion;
 
 				TRACE0((LPCTSTR) "\n");TRACE0((LPCTSTR) "\n");
@@ -250,10 +271,12 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 				}
 				
 				
-				// A. Riazi, save this customer to the database
+				/** @todo ask
+				 // A. Riazi, save this customer to the database
 
-				//check if the customer is exist
-				//if exist, update the record
+				 //check if the customer is exist
+				 //if exist, update the record
+				 */
 				CString szCommand;
 				szCommand.Format(_T("SELECT PlutoId.* FROM [PlutoId] WHERE PlutoId.PKID_PlutoId=%lu"), 
 					pCustomer->m_iPlutoId);
@@ -272,8 +295,11 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 
 				if (!bAlreadyInDatabase)
 				{
-					//Add new record
-					//if does not exist, add new record to database
+					/** 
+					 * Add new record
+					 * if does not exist, add new record to database
+					 */
+					 
 					CString szTable;
 					szTable.Format(_T("[PlutoId]"));
 					if (record.Open(szTable, CADORecordset::openTable))
@@ -292,12 +318,12 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 						CString TmpGender=pCustomer->m_sGender.c_str();
 						int gender;
 						if (TmpGender.CompareNoCase(_T("m"))==0)
-							gender=0;		//male
+							gender=0;		/** male */
 						else
-							gender=1;		//female
+							gender=1;		/** female */
 						record.SetFieldValue(_T("Gender"), gender);
 						record.SetFieldValue(_T("Birthdate"), CString(pCustomer->m_sBirthdate.c_str()));
-						//record.SetFieldValue(_T("Comments"), CString(pCustomer->m_sComments.c_str()));
+						/** @test record.SetFieldValue(_T("Comments"), CString(pCustomer->m_sComments.c_str())); */
 						record.SetFieldValue(_T("EstablishmentId"), CString(pCustomer->m_sEstablishmentCustomerId.c_str()));
 						record.SetFieldValue(_T("RecordVersion"), pCustomer->m_iRecordVersion);
 
@@ -316,7 +342,7 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 				}
 				else
 				{
-					//update record
+					/** update record */
 					CString szTable;
 					szTable.Format(_T("SELECT PlutoId.* FROM [PlutoId] WHERE PlutoId.PKID_PlutoId=%d"),
 						pCustomer->m_iPlutoId);
@@ -339,16 +365,18 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 							CString TmpGender=pCustomer->m_sGender.c_str();
 							int gender;
 							if (TmpGender.CompareNoCase(_T("m"))==0)
-								gender=0;		//male
+								gender=0;		/** male */
 							else
-								gender=1;		//female
+								gender=1;		/** female */
 							record.SetFieldValue(_T("Gender"), gender);
 							record.SetFieldValue(_T("Birthdate"), CString(pCustomer->m_sBirthdate.c_str()));
-							//record.SetFieldValue(_T("Comments"), CString(pCustomer->m_sComments.c_str()));
+							/** @test 
+							 * record.SetFieldValue(_T("Comments"), CString(pCustomer->m_sComments.c_str())); 
+							 */
 							record.SetFieldValue(_T("EstablishmentId"), CString(pCustomer->m_sEstablishmentCustomerId.c_str()));
 							record.SetFieldValue(_T("RecordVersion"), pCustomer->m_iRecordVersion);
 
-							//get total/available visit/purchase from customer information
+							/** get total/available visit/purchase from customer information */
 							record.GetFieldValue(_T("TotalVisits"), pCustomer->m_iTotalVisit);
 							record.GetFieldValue(_T("AvailableVisits"), pCustomer->m_iAvailableVisit);
 							record.GetFieldValue(_T("TotalPurchase"), pCustomer->m_iTotalPurchase);
@@ -382,14 +410,15 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 					}
 				}
 
-				//save image file shared directory
+				/** save image file shared directory */
+
 				FileName=SaveCustomerImage(&ip);
 			}
 
-			/// A. Riazi, fill these in
+			/** @todo ask  A. Riazi, fill these in */
 			time_t Now;
 			pCustomer->m_bDetected=true;
-			pCustomer->m_tLastVisit=time(&Now);		// today
+			pCustomer->m_tLastVisit=time(&Now);		/** today */
 
 			CString Today;
 			CTime tToday=CTime::GetCurrentTime();
@@ -405,7 +434,7 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 				record.Close();
 			}
 
-			/*
+			/** @test
 			if (FileName.IsEmpty())
 				pCustomer->m_pPicture=NULL;
 			else
@@ -413,12 +442,12 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 			*/
 			AddCustomer(pCustomer);
 			
-			//Add customer image to global image list
+			/** Add customer image to global image list */
 			AddCustomerImageToImageList(pCustomer->m_iPlutoId, FileName);
 			
 			SetupAppBars();
 			
-			// ARMEN: Invalidate()
+			/** @todo ask ARMEN: Invalidate() */
 		}
 		else if(ip.m_cProcessOutcome==RECORD_NOT_FOUND)
 		{
@@ -430,7 +459,7 @@ void PhoneDetection_VIP::NewDeviceDetected(class PhoneDevice *pDevice)
 			delete pCustomer;
 		}
 
-		//close the database
+		/** close the database */
 		DB.Close();
 	}
 }
@@ -474,7 +503,7 @@ void PhoneDetection_VIP::SetAppBars(CAppBar *pNewAB,
 
 void PhoneDetection_VIP::SetupAppBars()
 {
-	// Protect the map so that the map doesn't get changed in between set ups
+	/**  Protect the map so that the map doesn't get changed in between set ups */
 	PLUTO_SAFETY_LOCK(tm,*m_pThreadMutex);
 
 	
@@ -492,13 +521,13 @@ void PhoneDetection_VIP::SetupAppBars()
 CString PhoneDetection_VIP::SaveCustomerImage(VR_IdentifyPhone* pIP)
 {
 	PlutoCustomer* pPlutoCustomer=new PlutoCustomer;
-	pPlutoCustomer->Time=CTime::GetCurrentTime();	//current time
+	pPlutoCustomer->Time=CTime::GetCurrentTime();	/** current time */
 	
-	//if no image transfered!
+	/** if no image transfered! */
 	if (pIP->m_pdbImage.m_dwSize<=0)
 	{
-		pPlutoCustomer->ImageNumber=-1;			//the customer has no image
-		pPlutoCustomer->ImageType=0;			//the customer has no image
+		pPlutoCustomer->ImageNumber=-1;			/** the customer has no image */
+		pPlutoCustomer->ImageType=0;			/** the customer has no image */
 		pPlutoCustomer->DefaultBitmap=TRUE;
 
 		mapPlutoImageList[pIP->m_iPlutoId]=pPlutoCustomer;
@@ -509,7 +538,7 @@ CString PhoneDetection_VIP::SaveCustomerImage(VR_IdentifyPhone* pIP)
 	registry.OpenKey(HKEY_CURRENT_USER, REGISTRY_KEY_VIPSERVICE_FULL);
 	DWORD dwTerminals=registry.GetValueDWORD(REGISTRY_PAGE_TERMINALS_TERMINALS);
 	CString Folder;
-	if (dwTerminals)	//True -> we used shared terminals
+	if (dwTerminals)	/** True -> we used shared terminals */
 		Folder=registry.GetValueString(REGISTRY_PAGE_TERMINALS_DIRECTORY);
 	else
 		Folder=THUMBNAIL_IMAGE_DIRECTORY;
@@ -568,20 +597,19 @@ void PhoneDetection_VIP::AddCustomerImageToImageList(unsigned long Id, CString F
 	HGDIOBJ		hOldObj = NULL;
 	
 	CDib		dib;
-	//int			nWidth, nHeight;
+	//int			nWidth, nHeight; 
 
-	// no images
+	/** no images */
 
 	if (FileName.IsEmpty())
 	{
-		//if the customer has not thumbnail
-		//we use the default bitmap: default.bmp
+		/** if the customer has not thumbnail we use the default bitmap: default.bmp */
 		CString FileNameTemp=FindCustomerImageFileFromID(Id, GRAPHICTYPE_BMP);
 
 		CopyFile(_T("Images\\Default.bmp"), FileNameTemp, FALSE);
 
 		mapPlutoImageList[Id]->DefaultBitmap=TRUE;
-		/*
+		/** @test
 		FILE* read=_tfopen(_T("default.bmp"), _T("rb"));
 		FILE* write=_tfopen(FileNameTemp, _T("wb"));
 
@@ -600,7 +628,7 @@ void PhoneDetection_VIP::AddCustomerImageToImageList(unsigned long Id, CString F
 		}
 
 		*/
-		/*
+		/** @test
 		//load a default bitmap for customer
 		// attach the thumbnail bitmap handle to an CBitmap object
 		pImage = new CBitmap();		 
@@ -628,7 +656,7 @@ void PhoneDetection_VIP::AddCustomerImageToImageList(unsigned long Id, CString F
 	CxImage image;
 	CString ImageFile;
 
-	/*
+	/** @test
 	map<unsigned long, PlutoCustomer*>::iterator it;
 	for(it=mapPlutoImageList.begin();it!=mapPlutoImageList.end();++it)
 	{
@@ -657,25 +685,24 @@ void PhoneDetection_VIP::AddCustomerImageToImageList(unsigned long Id, CString F
 			break;
 		
 		case GRAPHICTYPE_MNG:
-			//
-			//ImageFile=FindCustomerImageFileFromID(Id, GRAPHICTYPE_MNG);
-			//image.Load(ImageFile, CXIMAGE_FORMAT_MNG);
-			//
+			/** @test
+			 * ImageFile=FindCustomerImageFileFromID(Id, GRAPHICTYPE_MNG);
+			 * image.Load(ImageFile, CXIMAGE_FORMAT_MNG);
+			*/
 			break;
 	}
 
 	if( !bLoadedImage )
 	{
-		//delete pImage;
+		/** @test delete pImage; */
 		return;
 	}
 
-	// draw the thumbnails
-	// borrow our dib header to create our thumbnail bitmap
+	/** draw the thumbnails; borrow our dib header to create our thumbnail bitmap */
 	CString strPath=FindCustomerImageFileFromID(Id, GRAPHICTYPE_BMP);
 	image.Save(strPath, CXIMAGE_FORMAT_BMP);
 
-	/*
+	/** @test
 	CFile ImgFile;
 		
 	if( !ImgFile.Open(strPath, CFile::modeRead) )
@@ -768,9 +795,9 @@ CString FindCustomerImageFileFromID(ULONG ID, int ImageType)
 	CString dir;
 	dwTerminals=registry.GetValueDWORD(REGISTRY_PAGE_TERMINALS_TERMINALS);
 
-	if (dwTerminals)	//if true -> we used multiple terminals
+	if (dwTerminals)	/** if true -> we used multiple terminals */
 		dir=registry.GetValueString(REGISTRY_PAGE_TERMINALS_DIRECTORY);	
-	else				//image directory of plutovip
+	else				/** image directory of plutovip */
 		dir=THUMBNAIL_IMAGE_DIRECTORY;
 	
 	registry.CloseKey();

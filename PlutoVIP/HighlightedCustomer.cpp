@@ -1,5 +1,15 @@
-// HighlightedCustomer.cpp : implementation file
-//
+/**
+ *
+ * @file  HighlightedCustomer.cpp												
+ * @brief source file for the  HighlightedCustomer class											
+ */
+ 
+ /**
+  *
+  * Copyright: copyright information goes here
+  *
+  */
+
 
 #include "stdafx.h"
 #include "PlutoVIP.h"
@@ -29,11 +39,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CHighlightedCustomer dialog
 
-
-CHighlightedCustomer::CHighlightedCustomer(CWnd* pParent /*=NULL*/)
+CHighlightedCustomer::CHighlightedCustomer(CWnd* pParent /** @test =NULL*/)
 	: CDialog(CHighlightedCustomer::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CHighlightedCustomer)
@@ -106,8 +113,8 @@ BEGIN_MESSAGE_MAP(CHighlightedCustomer, CDialog)
 ON_WM_SHOWWINDOW()
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
-// CHighlightedCustomer message handlers
+
+/** CHighlightedCustomer message handlers */
 
 
 
@@ -115,20 +122,20 @@ void CHighlightedCustomer::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
 	
-	//Invalidate(FALSE);	
+	/** @test Invalidate(FALSE);	*/ 
 }
 
 BOOL CHighlightedCustomer::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
 
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
+	return TRUE; /** return TRUE unless you set the focus to a control */
+	       /** @exception OCX Property Pages should return FALSE */
 }
 
 void CHighlightedCustomer::CommitChanges()
 {
-	//show dialog in proper location (depend on selected customer)
+	/** show dialog in proper location (depend on selected customer) */
 	AdjustDialog();
 
 	CFont fontHeader;
@@ -171,9 +178,10 @@ void CHighlightedCustomer::CommitChanges()
 		email.Format(_T("mailto:%s"), m_pCustomer->m_sEmail.c_str());
 		m_email.SetLinkUrl(email);
 
-		//force CMyHyperLink component to redraw its background
+		/** force CMyHyperLink component to redraw its background */
 		m_email.ShowWindow(SW_HIDE);
 		m_email.ShowWindow(SW_SHOW);
+
 	}
 	else
 	{
@@ -185,7 +193,7 @@ void CHighlightedCustomer::CommitChanges()
 	CRegistry registry;
 	registry.OpenKey(HKEY_CURRENT_USER, REGISTRY_KEY_VIPSERVICE_FULL);
 	dwTerminals=registry.GetValueDWORD(REGISTRY_PAGE_TERMINALS_TERMINALS);
-	if (dwTerminals)	//True -> we use multiple terminals
+	if (dwTerminals)	/** True -> we use multiple terminals */
 		szFolder=registry.GetValueString(REGISTRY_PAGE_TERMINALS_DIRECTORY);
 	else
 		szFolder=THUMBNAIL_IMAGE_DIRECTORY;
@@ -195,7 +203,7 @@ void CHighlightedCustomer::CommitChanges()
 	szPicture.Format(_T("%s\\%d.jpg"), szFolder.GetBuffer(0),
 										m_pCustomer->m_iPlutoId);
 
-	//Initialize Visit & Purchase information
+	/** Initialize Visit & Purchase information */
 	CString szVisit;
 	szVisit.Format(_T("Total Visit: <b>%d</b><br>Available Visit: <b>%d</b>"), 
 		m_pCustomer->m_iTotalVisit, m_pCustomer->m_iAvailableVisit);
@@ -206,12 +214,12 @@ void CHighlightedCustomer::CommitChanges()
 		m_pCustomer->m_iTotalPurchase, m_pCustomer->m_iAvailablePurchase);
 	m_Purchase.SetWindowText(szPurchase);
 	
-	//read customer comment from PlutoId table
+	/** read customer comment from PlutoId table */
 	ReadCustomerComment();
 
 	UpdateData(FALSE);
 	
-	//Draw the image
+	/** Draw the image */
 	m_Picture.SetPicture(szPicture);
 }
 
@@ -244,7 +252,7 @@ void CHighlightedCustomer::OnTask()
 {
 	CRect rect;
 	GetDlgItem(IDC_TASK)->GetWindowRect(&rect);
-	//ClientToScreen(&rect);
+	/** @test ClientToScreen(&rect); */
 
 	CMenu menu;
 	if (!menu.LoadMenu(IDR_PLUTO_CONTEXT_MENU)) 
@@ -252,7 +260,7 @@ void CHighlightedCustomer::OnTask()
 		return;
 	}
 	
-	CMenu* pSubMenu = menu.GetSubMenu(2);	//0: _DUMMY_, 1: _STATE_, 2: _TASK_, 3: _ACTION_
+	CMenu* pSubMenu = menu.GetSubMenu(2);	/** 0: _DUMMY_, 1: _STATE_, 2: _TASK_, 3: _ACTION_ */
 	if (pSubMenu == NULL) 
 		return;
 	
@@ -271,7 +279,7 @@ void CHighlightedCustomer::OnChangeState()
 		return;
 	
 	
-	CMenu* pSubMenu = menu.GetSubMenu(1);	//0: _DUMMY_, 1: _STATE_, 2: _TASK_, 3: _ACTION_
+	CMenu* pSubMenu = menu.GetSubMenu(1);	/** 0: _DUMMY_, 1: _STATE_, 2: _TASK_, 3: _ACTION_ */
 	if (pSubMenu == NULL) 
 		return;
 	
@@ -286,7 +294,7 @@ void CHighlightedCustomer::SetCustomer(Customer* pCustomer)
 	m_pCustomer=pCustomer;
 }
 
-// 0=not detected anymore, 1=new app bar, 2=active, 3=recent
+/** 0=not detected anymore, 1=new app bar, 2=active, 3=recent */
 void CHighlightedCustomer::OnCustomerNew() 
 {
 	m_pCustomer->m_cAppBar=APPBAR_NEW;	
@@ -318,7 +326,7 @@ void CHighlightedCustomer::OnTaskChargeCustomer()
 
 void CHighlightedCustomer::OnTaskSendImage() 
 {
-	if(!m_pCustomer->GetCommandProcessor()) //not connected
+	if(!m_pCustomer->GetCommandProcessor()) /** not connected */
 		return;
 
 	unsigned char ImageType = 0;
@@ -342,7 +350,7 @@ void CHighlightedCustomer::OnTaskSendImage()
 
 		BD_CP_ShowImage *pCommand = new BD_CP_ShowImage(ImageType, ImageSize, pImage);
 
-		if(NULL != m_pCustomer->GetCommandProcessor()) //not connected
+		if(NULL != m_pCustomer->GetCommandProcessor()) //** not connected */
 			m_pCustomer->GetCommandProcessor()->AddCommand(pCommand);
 
 		delete pImage;
@@ -404,7 +412,7 @@ void CHighlightedCustomer::AdjustDialog()
 			if (y > (DesktopHeight - DialogHeight - rcTaskBar.Height()))
 				y=DesktopHeight-DialogHeight - rcTaskBar.Height();
 			
-			MoveWindow(Deskrect.Width()/*DesktopWidth*/ - (PositionInfo.WidthHeight.x + rect.Width()),
+			MoveWindow(Deskrect.Width()/** @test DesktopWidth*/ - (PositionInfo.WidthHeight.x + rect.Width()),
 						y, 
 						DialogWidth, 
 						DialogHeight);
@@ -455,8 +463,8 @@ LRESULT CHighlightedCustomer::OnMouseHover(WPARAM wparam, LPARAM lparam)
 
 LRESULT CHighlightedCustomer::OnMouseLeave(WPARAM wparam, LPARAM lparam)
 {
-	//if mouse is in dialog return without doing anything
-	//but if mouse is outside of dialog set timer to kill dialog
+	/** if mouse is in dialog return without doing anything
+	 * but if mouse is outside of dialog set timer to kill dialog */
 	POINT point;
 	GetCursorPos(&point);
 
@@ -469,7 +477,7 @@ LRESULT CHighlightedCustomer::OnMouseLeave(WPARAM wparam, LPARAM lparam)
 		TRACKMOUSEEVENT tme;
 		tme.cbSize = sizeof(tme);
 		tme.hwndTrack = m_hWnd;
-		tme.dwFlags = /*TME_LEAVE|*/TME_HOVER;
+		tme.dwFlags = /**  @test TME_LEAVE|*/TME_HOVER;
 		tme.dwHoverTime = 1;
 		_TrackMouseEvent(&tme);
 		return 0;
@@ -490,7 +498,7 @@ void CHighlightedCustomer::OnAction()
 		return;
 	
 	
-	CMenu* pSubMenu = menu.GetSubMenu(3);	//0: _DUMMY_, 1: _STATE_, 2: _TASK_, 3: _ACTION_
+	CMenu* pSubMenu = menu.GetSubMenu(3);	/** 0: _DUMMY_, 1: _STATE_, 2: _TASK_, 3: _ACTION_ */
 	if (pSubMenu == NULL) 
 		return;
 	
@@ -517,7 +525,7 @@ void CHighlightedCustomer::OnActionAddVisit()
 			record = CADORecordset(&DB);
 			CString szTable;
 								
-			//add new record to LoyaltyVisit Table
+			/** add new record to LoyaltyVisit Table */
 			szTable=(_T("[LoyaltyVisit]"));
 			if (record.Open(szTable, CADORecordset::openTable))
 			{
@@ -530,11 +538,11 @@ void CHighlightedCustomer::OnActionAddVisit()
 				record.Close();
 			}
 			
-			//also update pCustomer	
+			/** also update pCustomer	 */
 			m_pCustomer->m_iAvailableVisit+=Visit;
 			m_pCustomer->m_iTotalVisit+=Visit;
 
-			//update customer data in PlutoId table
+			/** update customer data in PlutoId table */
 			szTable.Format(_T("SELECT PlutoId.* FROM [PlutoId] WHERE PlutoId.PKID_PlutoId=%d"),
 				m_pCustomer->m_iPlutoId);
 			
@@ -574,7 +582,7 @@ void CHighlightedCustomer::OnActionAddPurchase()
 			record = CADORecordset(&DB);
 			CString szTable;
 			
-			//add new record to LoyaltyVisit Table
+			/** add new record to LoyaltyVisit Table */
 			szTable=(_T("[LoyaltyPurchase]"));
 			if (record.Open(szTable, CADORecordset::openTable))
 			{
@@ -587,11 +595,11 @@ void CHighlightedCustomer::OnActionAddPurchase()
 				record.Close();
 			}
 			
-			//also update pCustomer	
+			/** also update pCustomer	*/
 			m_pCustomer->m_iAvailablePurchase+=Purchase;
 			m_pCustomer->m_iTotalPurchase+=Purchase;
 			
-			//update customer data in PlutoId table
+			/** update customer data in PlutoId table */
 			szTable.Format(_T("SELECT PlutoId.* FROM [PlutoId] WHERE PlutoId.PKID_PlutoId=%d"),
 				m_pCustomer->m_iPlutoId);
 			
@@ -633,7 +641,7 @@ void CHighlightedCustomer::OnActionRedeemPurchase()
 			record = CADORecordset(&DB);
 			CString szTable;
 			
-			//add new record to LoyaltyVisit Table
+			/** add new record to LoyaltyVisit Table */
 			szTable=(_T("[LoyaltyPurchase_Redeem]"));
 			if (record.Open(szTable, CADORecordset::openTable))
 			{
@@ -647,10 +655,10 @@ void CHighlightedCustomer::OnActionRedeemPurchase()
 				record.Close();
 			}
 			
-			//also update pCustomer	
+			/** also update pCustomer	 */
 			m_pCustomer->m_iAvailablePurchase-=RedeemPurchase;
 						
-			//update customer data in PlutoId table
+			/** update customer data in PlutoId table */
 			szTable.Format(_T("SELECT PlutoId.* FROM [PlutoId] WHERE PlutoId.PKID_PlutoId=%d"),
 				m_pCustomer->m_iPlutoId);
 			
@@ -692,7 +700,7 @@ void CHighlightedCustomer::OnActionRedeemVisit()
 			record = CADORecordset(&DB);
 			CString szTable;
 			
-			//add new record to LoyaltyVisit Table
+			/** add new record to LoyaltyVisit Table */
 			szTable=(_T("[LoyaltyVisit_Redeem]"));
 			if (record.Open(szTable, CADORecordset::openTable))
 			{
@@ -706,10 +714,10 @@ void CHighlightedCustomer::OnActionRedeemVisit()
 				record.Close();
 			}
 			
-			//also update pCustomer	
+			/** also update pCustomer	 */
 			m_pCustomer->m_iAvailableVisit-=RedeemVisit;
 			
-			//update customer data in PlutoId table
+			/** update customer data in PlutoId table */
 			szTable.Format(_T("SELECT PlutoId.* FROM [PlutoId] WHERE PlutoId.PKID_PlutoId=%d"),
 				m_pCustomer->m_iPlutoId);
 			
@@ -774,19 +782,19 @@ void CHighlightedCustomer::OnDestroy()
 {
 	CDialog::OnDestroy();
 
-	//Save the customer comments in PlutoId table
+	/** Save the customer comments in PlutoId table */
 	if (CommentsIsChanged)
 	{
 		CADODatabase DB;
 		CADORecordset record;
 		
-		//CString strConnection = DATABASE_PROVIDER;
+		/** CString strConnection = DATABASE_PROVIDER; */
 		if(DB.Open(DATABASE_PROVIDER))
 		{	
 			record = CADORecordset(&DB);
 			CString szTable;
 			
-			//update customer comment in PlutoId table
+			/** update customer comment in PlutoId table */
 			szTable.Format(_T("SELECT PlutoId.* FROM [PlutoId] WHERE PlutoId.PKID_PlutoId=%d"),
 				m_pCustomer->m_iPlutoId);
 			

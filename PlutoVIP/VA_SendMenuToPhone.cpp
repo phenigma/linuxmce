@@ -1,3 +1,17 @@
+/**
+ *
+ * @file VA_SendMenuToPhone.cpp
+ * @brief implementation of the VA_SendMenuToPhone class
+ * @author
+ *
+ */
+
+/**
+ *
+ * Copyright Notice goes here
+ *
+ */
+
 #include "VIPShared/VIPIncludes.h"
 #include "VA_SendMenuToPhone.h"
 #include "VIPShared/VIPMenu.h"
@@ -18,7 +32,7 @@
 //#include "PlutoVIP/VIPSocket/VIPUIRequest.h"
 #endif
 
-// todo - is there a cross platform (linux/symbian/windows) way to dynamically allocate a growable memory block?
+/** @todo - is there a cross platform (linux/symbian/windows) way to dynamically allocate a growable memory block? */
 VA_SendMenuToPhone::VA_SendMenuToPhone(string Filename, u_int64_t MacAddress) 
 	: RA_Action()
 { 
@@ -51,8 +65,8 @@ void VA_SendMenuToPhone::ProcessAction(class RA_Request *pRequest,class RA_Proce
 	if( !pRequest )
 		throw "VA_SendMenuToPhone needs a pointer to the request that originated the action";
 
-	// We need to get the customer that the request originated from
-	if( pRequest->ID()!=/*VRS_IDENTIFY_PHONE*/ VRS_IDENFITY_PHONE )
+	/** We need to get the customer that the request originated from */
+	if( pRequest->ID()!=/** @test VRS_IDENTIFY_PHONE*/ VRS_IDENFITY_PHONE )
 		throw "We can't forward a request to a phone unless the original request was an identify phone";
 
 	VR_IdentifyPhone *pRA_Request_Original = (VR_IdentifyPhone *) pRequest;
@@ -60,14 +74,15 @@ void VA_SendMenuToPhone::ProcessAction(class RA_Request *pRequest,class RA_Proce
 	string sFileName("PlutoVIP.vmc");
 
 	BD_CP_ShowVMC *pVMC = new BD_CP_ShowVMC(
-		1, //store
+		1, /** store */
 		m_pdbMenu.m_dwSize, 
 		m_pdbMenu.m_pBlock,
 		sFileName.size(),
 		const_cast<char *>(sFileName.c_str())
+
 	);
 
-	BDCommandProcessor *pProcessor = pRA_Request_Original->m_pCustomer->GetCommandProcessor(); // This will create it if it doesn't exist
+	BDCommandProcessor *pProcessor = pRA_Request_Original->m_pCustomer->GetCommandProcessor(); /** This will create it if it doesn't exist */
 
 	if( !pProcessor && pProcessor->m_bDead )
 	{
@@ -76,7 +91,7 @@ void VA_SendMenuToPhone::ProcessAction(class RA_Request *pRequest,class RA_Proce
 	}
 
 	if( !pProcessor )
-		return; // This could be normal, if the phone went out of range or doesn't support RFCOM
+		return; /** This could be normal, if the phone went out of range or doesn't support RFCOM */
 
 	pProcessor->AddCommand(pVMC);
 	pthread_create(&pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, (void*)pProcessor);

@@ -1,5 +1,15 @@
-// Controls.cpp : implementation file
-//
+/**
+ *
+ * @file  ControlsDlg.cpp												
+ * @brief source file @todo ask
+ */
+ 
+ /**
+  *
+  * Copyright: copyright information goes here
+  *
+  */
+
 
 #include "stdafx.h"
 #include "PlutoUtils/CommonIncludes.h"	
@@ -31,12 +41,12 @@ extern map<unsigned long, Customer*> m_mapCustomers;
 #define DETECT_MOUSE_TIMER	300
 #define POINT_OFFSET		15
 
-/////////////////////////////////////////////////////////////////////////////
-/*extern*/ TaskBarsContainer g_TaskBars;
-/////////////////////////////////////////////////////////////////////////////
-// CControlsDlg dialog
 
-CControlsDlg::CControlsDlg(CWnd* pParent /*=NULL*/)
+/** extern*/ TaskBarsContainer g_TaskBars;
+
+
+
+CControlsDlg::CControlsDlg(CWnd* pParent /** @test =NULL*/)
 	: CAppBar(CControlsDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CControlsDlg)
@@ -46,7 +56,7 @@ CControlsDlg::CControlsDlg(CWnd* pParent /*=NULL*/)
 	m_ImageType=IMAGE_TYPE_UNKNOWN;
 	HighlighDlg=NULL;
 	m_pParent=NULL;
-	//m_Minute=5;
+	/** @test m_Minute=5; */
 }
 
 
@@ -88,9 +98,9 @@ ON_WM_WINDOWPOSCHANGED()
 ON_WM_ACTIVATE()
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
-// CControlsDlg message handlers
-/*
+
+/** CControlsDlg message handlers */
+/** @test
 void CControlsDlg::OnStart() 
 {
     CRect rect;
@@ -107,54 +117,54 @@ BOOL CControlsDlg::OnInitDialog()
 	CRect rc;
 	GetClientRect(&rc);
 
-	//prepare the appbar
+	/** prepare the appbar */
 	PrepareAppBar();
 
-	//Prepare the Image List
+	/** Prepare the Image List */
 	PrepareImageList();
 
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
+	return TRUE; /** return TRUE unless you set the focus to a control */
+	       /**@exception OCX Property Pages should return FALSE */
 }
 
 void CControlsDlg::SetupButtons()
 {	
-	//prepare the image list
+	/** prepare the image list */
 	PrepareImageList();
 	
 	int Position=0;
 	POINT pt;
 
 	map<unsigned long,class Customer *>::iterator itCustomers;
-	for (itCustomers=/*m_pDetection->*/m_mapCustomers.begin();
-		 itCustomers!=/*m_pDetection->*/m_mapCustomers.end();
+	for (itCustomers=/** @test m_pDetection->*/m_mapCustomers.begin();
+		 itCustomers!=/** @test m_pDetection->*/m_mapCustomers.end();
 		 ++itCustomers)
 	{
 		Customer *pCustomer = (*itCustomers).second;
 		if(!pCustomer || pCustomer->m_cAppBar!=m_ImageType) 
-			//do not add this customer
+			/** do not add this customer */
 			continue;
 		
-		int CustomerImage=-1;		//find image of customer
+		int CustomerImage=-1;		/** find image of customer */
 		map<unsigned long, PlutoCustomer*>::iterator it = mapPlutoImageList.find(pCustomer->m_iPlutoId);
 		if( it!=mapPlutoImageList.end() )
 		{
-			//image was found.
+			/** image was found. */
 			CustomerImage=mapPlutoImageList[pCustomer->m_iPlutoId]->ImageNumber;
 		}
 
-		// shift the thumbnail to desired position
+		/** shift the thumbnail to desired position */
 		int ThumbnailSize=GetImageSize();
 
 		if (m_Side==ABE_TOP || m_Side==ABE_BOTTOM)
 		{
-			//pt.x = CUSTOMER_IMAGE_GAP + NewItem * (ThumbnailSize + CUSTOMER_IMAGE_GAP);
-			pt.y = 0;//SPACE_FROM_BORDER;
+			/** pt.x = CUSTOMER_IMAGE_GAP + NewItem * (ThumbnailSize + CUSTOMER_IMAGE_GAP); */
+			pt.y = 0;/** SPACE_FROM_BORDER; */
 		}
 		else	//ABE_LEFT || ABE_RIGHT
 		{
 			pt.x = SPACE_FROM_BORDER;
-			//pt.y = CUSTOMER_IMAGE_GAP + NewItem * (ThumbnailSize + CUSTOMER_IMAGE_GAP);
+			/** pt.y = CUSTOMER_IMAGE_GAP + NewItem * (ThumbnailSize + CUSTOMER_IMAGE_GAP); */
 		}
 	}
 
@@ -197,7 +207,7 @@ void CControlsDlg::OnTimer(UINT nIDEvent)
 
 			PlutoCustomer* pPlutoCustomer=NULL;
 
-			int CustomerImage = -1;		//find image of customer
+			int CustomerImage = -1;		/** find image of customer */
 			map<unsigned long, PlutoCustomer*>::iterator it = mapPlutoImageList.find(pCustomer->m_iPlutoId);
 			if( it != mapPlutoImageList.end() )
 			{
@@ -209,7 +219,7 @@ void CControlsDlg::OnTimer(UINT nIDEvent)
 				
 				if (Diff.GetTotalSeconds() >= m_Minute * 60) 
 				{
-					//change the customer appbar
+					/** change the customer appbar */
 					switch (pCustomer->m_cAppBar) 
 					{
 						case APPBAR_NEW:
@@ -236,7 +246,7 @@ void CControlsDlg::OnTimer(UINT nIDEvent)
 void CControlsDlg::RunTimer(int iMinute)
 {
 	m_Minute=iMinute;
-	SetTimer(RUN_TIMER /*nIDEvent*/, iMinute * 60 * 1000, NULL);
+	SetTimer(RUN_TIMER /** @test nIDEvent*/, iMinute * 60 * 1000, NULL);
 }
 
 void CControlsDlg::SetPhoneDetection(PhoneDetection_VIP *phoneDetection)
@@ -269,20 +279,22 @@ void CControlsDlg::HideFloatAdornments(BOOL fHide) {
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
-// Overridable functions
 
-// Tell our derived class that there is a proposed state change
+/** Overridable functions */
+
+/** Tell our derived class that there is a proposed state change */
 void CControlsDlg::OnAppBarStateChange (BOOL fProposed, UINT uStateProposed) {
 	
-	// Hide the window adorments when docked.
+	/** Hide the window adorments when docked. */
 	HideFloatAdornments((uStateProposed == ABE_FLOAT) ? FALSE : TRUE);
 }
 
 void CControlsDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI) {
 
-   // Get the minimum size of the window assuming it has no client area.
-   // This is the width/height of the window that must always be present
+  /**
+   * Get the minimum size of the window assuming it has no client area.
+   * This is the width/height of the window that must always be present
+   */
    CRect rcBorder(0, 0, 0, 0);
    AdjustWindowRectEx(&rcBorder, GetStyle(), FALSE, GetExStyle());
 
@@ -291,8 +303,7 @@ void CControlsDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI) {
       lpMMI->ptMinTrackSize.y = m_szMinTracking.cy + rcBorder.Height();
    }
 
-   // The appbar can't be more than half the width or height
-   // of the screen when docked or when floating
+  /** The appbar can't be more than half the width or height of the screen when docked or when floating */
    lpMMI->ptMaxTrackSize.x = GetSystemMetrics(SM_CXSCREEN);
    lpMMI->ptMaxTrackSize.y = GetSystemMetrics(SM_CYSCREEN);
    if (!IsEdgeTopOrBottom(GetState()))
@@ -305,7 +316,7 @@ void CControlsDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI) {
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
+
 
 
 void CControlsDlg::OnSize(UINT nType, int cx, int cy) {
@@ -316,13 +327,12 @@ void CControlsDlg::OnSize(UINT nType, int cx, int cy) {
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
+
 
 
 void CControlsDlg::OnContextMenu(CWnd* pWnd, CPoint point) {
 
-   // We cannot use MFC's Command Update Handlers for the menu items because 
-   // they only work when you have a CFrameWnd-derived class.
+  /** We cannot use MFC's Command Update Handlers for the menu items because  they only work when you have a CFrameWnd-derived class. */
    CMenu menu;
 	menu.LoadMenu(MAKEINTRESOURCE(IDR_PLUTO_CONTEXT_MENU));
    menu.CheckMenuItem(ID_APPBAR_ALWAYSONTOP, MF_BYCOMMAND | 
@@ -334,17 +344,19 @@ void CControlsDlg::OnContextMenu(CWnd* pWnd, CPoint point) {
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CAppBar command handlers
+
+/** CAppBar command handlers */
 
 
 void CControlsDlg::OnSysCommand(UINT nID, LPARAM lParam) {
-	// TODO: Add your message handler code here and/or call default
+	/** @todo Add your message handler code here and/or call default */
 
    if (nID == SC_CLOSE) {
-      // We have to manually add this so that the dialog box closes when 
-      // when the user clicks the close button (which appears in the top, right)
-      // corner of the dialog box when it is floating).
+   /**
+    * We have to manually add this so that the dialog box closes when 
+    * when the user clicks the close button ( which appears in the top, right )
+    * corner of the dialog box when it is floating ). 
+    */
       OnCancel();
    }
 	
@@ -352,11 +364,11 @@ void CControlsDlg::OnSysCommand(UINT nID, LPARAM lParam) {
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
+
 
 void CControlsDlg::OnAppbarAutohide() {
 
-   // Get the current state and change the auto-hide setting only.
+   /** Get the current state and change the auto-hide setting only. */
    APPBARSTATE abs;
 	abs.m_cbSize = sizeof(abs);
 	GetState(&abs);
@@ -392,7 +404,7 @@ void CControlsDlg::SetAppBarName(CString szName)
 
 void CControlsDlg::PrepareAppBar()
 {
-	//Set Appbars Name
+	/** Set Appbars Name */
 	SetWindowText(m_AppBarName);
 	
 	CRect rc, dlgrc;
@@ -405,7 +417,7 @@ void CControlsDlg::PrepareAppBar()
 
 	if (reg.OpenKey(HKEY_CURRENT_USER, REGISTRY_KEY_VIPSERVICE_FULL)!=NULL)
 	{
-		// load the AppBar's state variables from the registry.
+		/** load the AppBar's state variables from the registry. */
 		dwCx=reg.GetValueDWORD(RegName);
 		CString RegStr=m_AppBarName + CString(APPBAR_AUTOHIDE);
 		dwAutoHide=reg.GetValueDWORD(RegStr);
@@ -414,28 +426,31 @@ void CControlsDlg::PrepareAppBar()
 		{
 			if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
 			{
-				SetWindowPos(NULL, 0, 0, dwCx, 0/*rc.Height()*/, SWP_SHOWWINDOW);
+				SetWindowPos(NULL, 0, 0, dwCx, 0/** rc.Height()*/, SWP_SHOWWINDOW);
 			}
 			else
 			{
-				SetWindowPos(NULL, 0, 0, 0/*rc.Width()*/, dwCx, SWP_SHOWWINDOW);
+				SetWindowPos(NULL, 0, 0, 0/** rc.Width()*/, dwCx, SWP_SHOWWINDOW);
 			}
 		}
 		else
 		{
 			if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
 			{
-				SetWindowPos(NULL, 0, 0, 0/*rc.Height()*/, dlgrc.Width(), SWP_SHOWWINDOW);
+
+				SetWindowPos(NULL, 0, 0, 0/** rc.Height()*/, dlgrc.Width(), SWP_SHOWWINDOW);
 			}
 			else
 			{
-				SetWindowPos(NULL, 0, 0, dlgrc.Width(), 0/*rc.Height()*/, SWP_SHOWWINDOW);
+
+				SetWindowPos(NULL, 0, 0, dlgrc.Width(), 0/** rc.Height()*/, SWP_SHOWWINDOW);
+
 			}
 		}
 		reg.CloseKey();
 	}
 	
-/*
+/** @test
 	if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
 	{
 		//m_Customer.SetWindowPos(NULL, 0, 0, rc.Height(), dlgrc.Height(), SWP_SHOWWINDOW);
@@ -447,50 +462,49 @@ void CControlsDlg::PrepareAppBar()
 		SetWindowPos(NULL, 0, 0, dlgrc.Width(), rc.Height(), SWP_SHOWWINDOW);
 	}
 */	
-	// Set the CAppBar class's behavior flags
+	/** Set the CAppBar class's behavior flags */
 	m_fdwFlags = ABF_ALLOWANYWHERE | ABF_MIMICTASKBARAUTOHIDE;
 	
 	GetClientRect(&rc);
 	
-	// Width has no limits, height sizes in client-area-height increments
+	/** Width has no limits, height sizes in client-area-height increments */
 	
 	
 	
-	// The appbar has a minimum client-area size that is determined by the 
-	// client area set in the dialog box template.
+	/** The appbar has a minimum client-area size that is determined by the  client area set in the dialog box template. */
+	
     if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
 	{
-		m_szSizeInc.cx = 1;//rc.Width();
+		m_szSizeInc.cx = 1;/** rc.Width(); */
 		m_szSizeInc.cy = 1; 
-		m_szMinTracking.cx = dwCx;//rc.Width();
+		m_szMinTracking.cx = dwCx;/** rc.Width(); */
 		m_szMinTracking.cy = rc.Height();
 	}
 	else
 	{
 		m_szSizeInc.cx = 1;
-		m_szSizeInc.cy = 1;//rc.Height(); 
-		m_szMinTracking.cx = rc.Width();//rc.Height();
-		m_szMinTracking.cy = dwCx;//rc.Width();
+		m_szSizeInc.cy = 1;/** rc.Height(); */
+		m_szMinTracking.cx = rc.Width();/** rc.Height(); */
+		m_szMinTracking.cy = dwCx;/** rc.Width(); */
 	}
 	
-	// Setup default state data for the AppBar
+	/** Setup default state data for the AppBar */
 	APPBARSTATE abs;
 	abs.m_cbSize = sizeof(abs);
-	abs.m_uState = m_Side/*ABE_TOP*/;
-	abs.m_fAutohide = dwAutoHide; //FALSE;
-	abs.m_fAlwaysOnTop = TRUE;// FALSE; //TRUE;
+	abs.m_uState = m_Side/** ABE_TOP*/;
+	abs.m_fAutohide = dwAutoHide; /** FALSE; */
+	abs.m_fAlwaysOnTop = TRUE;/** FALSE; //TRUE; */
 	
-	// Set the default floating location of the appbar
+	/** Set the default floating location of the appbar */
 	GetWindowRect(&abs.m_rcFloat);
 	
-	// Make the default width twice the width set in the dialog editor
+	/** Make the default width twice the width set in the dialog editor */
 	if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
 		abs.m_rcFloat.bottom += abs.m_rcFloat.Height();
 	else
 		abs.m_rcFloat.right += abs.m_rcFloat.Width();		
 	
-	// Temporarily turn off window adornments to determine the dimensions
-	// of the appbar when docked.
+	/** Temporarily turn off window adornments to determine the dimensions of the appbar when docked. */
 	HideFloatAdornments(TRUE);
 	AdjustWindowRectEx(&rc, GetStyle(), FALSE, GetExStyle());
 	HideFloatAdornments(FALSE);
@@ -500,20 +514,19 @@ void CControlsDlg::PrepareAppBar()
 	abs.m_auDimsDock[ABE_RIGHT]  = rc.Width();
 	abs.m_auDimsDock[ABE_BOTTOM] = rc.Height();
 	
-	// Check the registry to see if we have been used before and if so,
-	// reload our persistent settings.
-	/*
+	/** Check the registry to see if we have been used before and if so, reload our persistent settings. */
+	/** @test
 	CRegistry reg;
 
-	if (reg.OpenKey(HKEY_CURRENT_USER, REGISTRY_KEY_VIPSERVICE_FULL)!=NULL)
+	if ( reg.OpenKey( HKEY_CURRENT_USER, REGISTRY_KEY_VIPSERVICE_FULL )!=NULL )
 	{
-		DWORD cbData = sizeof(abs);
-		reg.GetValueBinary(m_AppBarName, (PBYTE) &abs, &cbData);
-		reg.CloseKey();
+		DWORD cbData = sizeof( abs );
+		reg.GetValueBinary( m_AppBarName, ( PBYTE ) &abs, &cbData );
+		reg.CloseKey( );
 	}
 	*/
 
-	// Set the initial state of the appbar.
+	/** Set the initial state of the appbar. */
 	SetState(abs);
 }
 
@@ -527,14 +540,13 @@ void CControlsDlg::OnDestroy()
 	CRect rc;
 	GetClientRect(&rc);
 
-	// Save the current state of the appbar in the registry so that we'll
-	// come up in the same state the next time the user runs us.
+	/** Save the current state of the appbar in the registry so that we'll come up in the same state the next time the user runs us. */
 	CRegistry reg;
 	CString RegName=m_AppBarName + CString(APPBAR_CX);
 
 	reg.OpenKey(HKEY_CURRENT_USER, REGISTRY_KEY_VIPSERVICE_FULL);
 	
-	// Save the AppBar's state variables to the registry.
+	/** Save the AppBar's state variables to the registry.*/
 	if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
 		reg.SetValueDWORD(RegName, rc.Width() + iOffsetX);
 	else
@@ -542,7 +554,7 @@ void CControlsDlg::OnDestroy()
 
 	RegName=m_AppBarName + CString(APPBAR_AUTOHIDE);
 
-	//save the appbar auto hidden feature
+	/** save the appbar auto hidden feature */
 	reg.SetValueDWORD(RegName, IsBarAutohide());
 	
 	reg.CloseKey();
@@ -563,7 +575,7 @@ void CControlsDlg::AddCustomerImageToImageList(ULONG Id, CString FileName, int i
 		
 	if( !ImgFile.Open(FileName, CFile::modeRead) )
 	{
-		//delete pImage; we have not allocated memory for pImage
+		/** delete pImage; we have not allocated memory for pImage */
 		mapPlutoImageList[Id]->ImageNumber=-1;
 		return;
 	}
@@ -571,7 +583,7 @@ void CControlsDlg::AddCustomerImageToImageList(ULONG Id, CString FileName, int i
 	if( dib.Read(ImgFile)==0 )
 	{
 		ImgFile.Close();
-		//delete pImage; we have not allocated memory for pImage
+		/** delete pImage; we have not allocated memory for pImage */
 		mapPlutoImageList[Id]->ImageNumber=-1;
 		return;
 	}
@@ -582,7 +594,7 @@ void CControlsDlg::AddCustomerImageToImageList(ULONG Id, CString FileName, int i
 	dib.m_pBMI->bmiHeader.biWidth = iThumbnailSize;
 	dib.m_pBMI->bmiHeader.biHeight = iThumbnailSize;
 		
-	// create thumbnail bitmap section
+	/** create thumbnail bitmap section */
 	hBitmap = ::CreateDIBSection(NULL, 
 								 dib.m_pBMI, 
 							     DIB_RGB_COLORS, 
@@ -590,25 +602,25 @@ void CControlsDlg::AddCustomerImageToImageList(ULONG Id, CString FileName, int i
 							     NULL, 
 							     0); 
 
-	// restore dib header
+	/** restore dib header */
 	dib.m_pBMI->bmiHeader.biWidth = nWidth;
 	dib.m_pBMI->bmiHeader.biHeight = nHeight;
 
-	// select thumbnail bitmap into screen dc
+	/** select thumbnail bitmap into screen dc */
 	hMemDC = ::CreateCompatibleDC(NULL);	
 	hOldObj = ::SelectObject(hMemDC, hBitmap);
 	  
-	// grayscale image, need palette
+	/** grayscale image, need palette */
 	if(dib.m_pPalette != NULL)
 	{
 		hPal = ::SelectPalette(hMemDC, (HPALETTE)dib.m_pPalette->GetSafeHandle(), FALSE);
 		::RealizePalette(hMemDC);
 	}
 	  
-	// set stretch mode
+	/** set stretch mode */
 	::SetStretchBltMode(hMemDC, COLORONCOLOR);
 
-	// populate the thumbnail bitmap bits
+	/** populate the thumbnail bitmap bits */
 		::StretchDIBits(hMemDC, 0, 0, 
 					iThumbnailSize, iThumbnailSize, 
 					0, 0, 
@@ -619,24 +631,24 @@ void CControlsDlg::AddCustomerImageToImageList(ULONG Id, CString FileName, int i
 					DIB_RGB_COLORS, 
 					SRCCOPY);
 
-	// restore DC object
+	/** restore DC object */
 	::SelectObject(hMemDC, hOldObj);
 	  
-	// restore DC palette
+	/** restore DC palette */
 	if(dib.m_pPalette != NULL)
 		::SelectPalette(hMemDC, (HPALETTE)hPal, FALSE);
 	  
-	// clean up
+	/** clean up */
 	::DeleteObject(hMemDC);
 		
-	// attach the thumbnail bitmap handle to an CBitmap object
+	/** attach the thumbnail bitmap handle to an CBitmap object */
 	pImage = new CBitmap();		 
 	pImage->Attach(hBitmap);
 
-	// add bitmap to our image list
+	/** add bitmap to our image list */
 	int ImageNumber=CustomerImageList.Add(pImage, (CBitmap*) NULL);
 	
-	//save image number in mapPlutoImageList
+	/** save image number in mapPlutoImageList */
 	mapPlutoImageList[Id]->ImageNumber=ImageNumber;
 
 	delete pImage;
@@ -650,28 +662,28 @@ void CControlsDlg::PrepareImageList()
 	{
 		CustomerImageList.Create(iSize, iSize, ILC_COLOR24, 10, 10);
 	}
-	else		// we had image list, delete all items and read new images
+	else		/** we had image list, delete all items and read new images */
 	{
 		CustomerImageList.DeleteImageList();
 		ASSERT(CustomerImageList.GetSafeHandle() == NULL);		
 
-		//create the image list again
+		/** create the image list again */
 		CustomerImageList.Create(iSize, iSize, ILC_COLOR24, 10, 10);
 
 		map<unsigned long, Customer*>::iterator itCustomers;
-		for (itCustomers=/*m_pDetection->*/m_mapCustomers.begin();
-		itCustomers!=/*m_pDetection->*/m_mapCustomers.end();
+		for (itCustomers=/** @test m_pDetection->*/m_mapCustomers.begin();
+		itCustomers!=/** @test m_pDetection->*/m_mapCustomers.end();
 		++itCustomers)
 		{
 			Customer *pCustomer = (*itCustomers).second;
 			if(!pCustomer || pCustomer->m_cAppBar!=m_ImageType) 
-				//do not add this customer
+				/** do not add this customer */
 				continue;
 			
-			//find a customer
+			/** find a customer */
 			ULONG CustomerID=pCustomer->m_iPlutoId;
 
-			//Add customer image to image list
+			/** Add customer image to image list */
 			CString CustomerImageFile=FindCustomerImageFileFromID(CustomerID, GRAPHICTYPE_BMP);
 			AddCustomerImageToImageList(CustomerID, CustomerImageFile, iSize);
 		}
@@ -687,14 +699,14 @@ int CControlsDlg::GetImageSize()
 
 	int VH=0;
 	
-	int Items = 1;//m_Customer.GetItemCount();
+	int Items = 1;/** m_Customer.GetItemCount(); */
 	int iSize=min(rc.Width(), rc.Height());
 	
 	if (m_Side==ABE_LEFT || m_Side==ABE_RIGHT)
 	{
 		if (Items * (iSize + SPACE_FOR_NICKNAME ) > rc.Height())
 		{
-			//we need the scroll bar
+			/** we need the scroll bar */
 			VH=GetSystemMetrics(SM_CXVSCROLL);
 		}
 	}
@@ -702,14 +714,14 @@ int CControlsDlg::GetImageSize()
 	{
 		if (Items * (iSize + 4) > rc.Width())
 		{
-			//we need the scroll bar
+			/** we need the scroll bar */
 			VH=GetSystemMetrics(SM_CYHSCROLL);
 		}
 
 		VH += SPACE_FOR_NICKNAME;
 	}
 	
-	//iSize = iSize - 2 * SPACE_FROM_BORDER - VH;	
+	/** @test iSize = iSize - 2 * SPACE_FROM_BORDER - VH;	 */
 	iSize = iSize - 4 * SPACE_FROM_BORDER;	
 
 	return iSize; 
@@ -733,9 +745,9 @@ void CControlsDlg::FireHighlightedCustomerDialog()
 
 void CControlsDlg::OnPaint()
 {
-	CPaintDC dc(this); // device context for painting
-	// TODO: Add your message handler code here
-	// Do not call CAppBar::OnPaint() for painting messages
+	CPaintDC dc(this); /**< device context for painting */
+	/** @todo Add your message handler code here */
+	/** Do not call CAppBar::OnPaint() for painting messages */
 
 	RefreshTaskBar(&dc);
 }
@@ -763,11 +775,11 @@ void CControlsDlg::RefreshTaskBar(CDC *pDC)
 		if(!pCustomer || pCustomer->m_cAppBar != m_ImageType) 
 			continue;
 		
-		int CustomerImage = -1;		//find image of customer
+		int CustomerImage = -1;		/** find image of customer */
 		map<unsigned long, PlutoCustomer*>::iterator it = mapPlutoImageList.find(pCustomer->m_iPlutoId);
 		if( it != mapPlutoImageList.end() )
 		{
-			//image was found.
+			/** image was found. */
 			CustomerImage = mapPlutoImageList[pCustomer->m_iPlutoId]->ImageNumber;
 
 			DrawItem(pDC, i, CustomerImage, pCustomer->m_sNickname);
@@ -882,11 +894,11 @@ Customer* CControlsDlg::SelectedCustomer(CPoint point)
 		if(!pCustomer || pCustomer->m_cAppBar != m_ImageType) 
 			continue;
 		
-		//int CustomerImage = -1;		//find image of customer
+		/** //int CustomerImage = -1;		//find image of customer */
 		map<unsigned long, PlutoCustomer*>::iterator it = mapPlutoImageList.find(pCustomer->m_iPlutoId);
 		if( it != mapPlutoImageList.end() )
 		{
-			//image was found.
+			/** image was found. */
 			if(i == Index)
 			{
 				pSelectedCustomer = pCustomer;
@@ -968,10 +980,10 @@ void CControlsDlg::OnMouseMove(UINT nFlags, CPoint point)
 		GetClientRect(&rect);
 		
 		Position pos;
-		pos.iDirection = m_Side;		    //side: ABE_LEFT, ABE_TOP, ABE_RIGHT, ABE_BOTTOM
-		pos.pPosition = ItemPoint;			//upper left corner of selected item
-		pos.WidthHeight.x = rect.Width();	//width of CControlDlg
-		pos.WidthHeight.y = rect.Height();	//height of CControlDlg
+		pos.iDirection = m_Side;		/** side: ABE_LEFT, ABE_TOP, ABE_RIGHT, ABE_BOTTOM */
+		pos.pPosition = ItemPoint;		/** upper left corner of selected item */
+		pos.WidthHeight.x = rect.Width();	/** width of CControlDlg */
+		pos.WidthHeight.y = rect.Height();	/** height of CControlDlg */
 		
 		if(NULL == HighlighDlg)
 		{
@@ -1024,7 +1036,7 @@ LRESULT CControlsDlg::OnMouseLeave(WPARAM wparam, LPARAM lparam)
 		TRACKMOUSEEVENT tme;
 		tme.cbSize = sizeof(tme);
 		tme.hwndTrack = m_hWnd;
-		tme.dwFlags = /*TME_LEAVE|*/TME_HOVER;
+		tme.dwFlags = /**  @test TME_LEAVE|*/TME_HOVER;
 		tme.dwHoverTime = 1;
 		_TrackMouseEvent(&tme);
 		return 0;

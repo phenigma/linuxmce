@@ -1,3 +1,17 @@
+/**
+ *
+ * @file VR_IdentifyPhone.cpp
+ * @brief implementation of the VR_IdentifyPhone class
+ * @author
+ *
+ */
+
+/**
+ *
+ * Copyright Notice goes here
+ *
+ */
+ 
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/CommonIncludes.h"	
 #include "VR_IdentifyPhone.h"
@@ -43,8 +57,11 @@ VR_IdentifyPhone::VR_IdentifyPhone(unsigned long EstablishmentID,
 		unsigned long IdentifiedPlutoId,string IdentiedPlutoIdPin,class Customer *pCustomer) 
 	: RA_Request()
 {
-	// Request is of the form:
-	// AAAAIIIIdescription+null+CashierName+null
+	/**
+	 * Request is of the form:
+	 * AAAAIIIIdescription+null+CashierName+null
+	 */
+	 
 	m_iEstablishmentID=EstablishmentID;
 	m_sBluetoothID=sBluetooth;
 	m_iMacAddress=MacAddress;
@@ -82,8 +99,10 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 
 	m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
 
+
 	unsigned long PKID_C_PhoneStatus=0,m_iRecordVersion = 0;
-	string FileName; // File to send to the phone
+	string FileName; /** File to send to the phone */
+
 
 	PlutoSqlResult rsMacAddress,rsPlutoId,rsUsers,rsAddress,rsExtra,rsShare,rsPhone;
 	MYSQL_ROW MacAddressRow=NULL;
@@ -105,11 +124,11 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 		(MacAddressRow = mysql_fetch_row(rsMacAddress.r)) 
 	)
 	{
-		// See if: This phone does take a binary, and NoBinary is not set, and there is revision
+		/** See if: This phone does take a binary, and NoBinary is not set, and there is revision */
 		if( MacAddressRow[2] && (!MacAddressRow[4] || MacAddressRow[4][0]=='0') && MacAddressRow[5] )
 		{
 			if( !MacAddressRow[3] || atoi(MacAddressRow[3])<atoi(MacAddressRow[5]) )
-				FileName = MacAddressRow[6]; // This is going to the phone
+				FileName = MacAddressRow[6]; /** This is going to the phone */
 		}
 		cout << "Found Mac " << m_iMacAddress << " associated with user: " << MacAddressRow[0] << "\n";
 		m_iPlutoId = atoi(MacAddressRow[0]);
@@ -141,9 +160,12 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 		}
 	}
 
-	// The Establishment doensn't have a current cached version.  First let's see if this is the first time
-	// the phone has registered.  This would mean we didn't find the MacAddress in the database, but the 
-	// Establishment did pass in a PlutoId that it derived from the Bluetooth ID.
+	/**
+	 * The Establishment doensn't have a current cached version.  First let's see if this is the first time the phone has registered.  
+	 * This would mean we didn't find the MacAddress in the database, but the Establishment did pass in a PlutoId that it derived 
+	 * from the Bluetooth ID.
+	*/
+	
 	if( !m_iPlutoId && m_iIdentifiedPlutoId )
 	{
 		cout << "Request from " << m_iEstablishmentID << 
@@ -164,22 +186,24 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 			cout << "Adding to database Mac " << m_iMacAddress << " ID " << m_iIdentifiedPlutoId << "\n";
 			cout << "Request from " << m_iEstablishmentID << 
 				" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " adding to database" << endl; 
-			// We found the record
+			/** We found the record */
 			m_iPlutoId = m_iIdentifiedPlutoId;
-			// Add it to the MacAddress table
-//			sprintf(sql,"INSERT INTO MacAddress(PKID_MacAddress,FK_MasterUsers,FKID_C_PhoneStatus) "
-//				"VALUES(%I64d,%d,%d)",m_iMacAddress,(int) m_iPlutoId,(int) C_PHONESTATUS_NEW_PHONE_CONST);
+			/** Add it to the MacAddress table */
+			/** @test
+			sprintf(sql,"INSERT INTO MacAddress(PKID_MacAddress,FK_MasterUsers,FKID_C_PhoneStatus) "
+				"VALUES(%I64d,%d,%d)",m_iMacAddress,(int) m_iPlutoId,(int) C_PHONESTATUS_NEW_PHONE_CONST);
+			*/
 
 
-			// See if there is a model specified, and the the nobinary flag is not set, and there is a binary version
+			/** See if there is a model specified, and the the nobinary flag is not set, and there is a binary version */
 			if( (!PlutoIdRow[3] || PlutoIdRow[3][0]=='0') && PlutoIdRow[2] && PlutoIdRow[4] )
 				FileName = PlutoIdRow[4];
 
 			s.str("");
 			s << "INSERT INTO MacAddress(PKID_MacAddress,FK_MasterUsers,FKID_C_PhoneStatus,NoBinary,FKID_PhoneModel) " <<
 				"VALUES(" << m_iMacAddress << "," << m_iPlutoId << "," << C_PHONESTATUS_NEW_PHONE_CONST << 
-				"," << (PlutoIdRow[3] ? PlutoIdRow[3] : "0") << // No Binary
-				"," << (PlutoIdRow[2] ? PlutoIdRow[2] : "NULL") << // Phone Model
+				"," << (PlutoIdRow[3] ? PlutoIdRow[3] : "0") << /** No Binary */
+				"," << (PlutoIdRow[2] ? PlutoIdRow[2] : "NULL") << /** Phone Model */
 				")";
 
 			cout << "Executing: " << s << "\n";
@@ -202,7 +226,7 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 		UsersRow=mysql_fetch_row(rsUsers.r);
 
 	s.str("");
-	s << "SELECT Address,ZipCode,City.Name as City,C_State.Name As State FROM Address LEFT JOIN City on FKID_City=PKID_City LEFT JOIN C_State ON FKID_C_State=PKID_C_State where FK_MasterUsers=" << m_iPlutoId;
+	s << "SELECT Address,ZipCode,City.Name as City,C_State.Name As State FROM Address LEFT JOIN City on FKID_City=PKID_City LEFT JOIN C_State 	ON FKID_C_State=PKID_C_State where FK_MasterUsers=" << m_iPlutoId;
 	if( (rsAddress.r = pDCEMySqlConfig->MySqlQueryResult(s.str())) )
 		AddressRow=mysql_fetch_row(rsAddress.r);
 
@@ -305,8 +329,9 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
     m_iUseCache=0;
 
 CheckForVMC:
-	// Let's see if we're storing the Establishment's customer ID, or if there's a VMC
-	// that we should automatically send to the phone
+	
+	/** Let's see if we're storing the Establishment's customer ID, or if there's a VMC that we should automatically send to the phone */
+	
 	MYSQL_ROW CustomerDataRow=NULL;
 	s.str("");
 	s << "SELECT Users_Establishment.EstablishmentCustomerID,Users_Establishment.AutoSendVMC,Establishment.AutoSendVMC "
@@ -333,12 +358,12 @@ CheckForVMC:
 			cout << "Sending menu " << AutoSendVMC;
 			cout << "Sending menu " << pDCEMySqlConfig->m_sMenuPath << AutoSendVMC; 
 
-			VA_SendMenuToPhone *pVA_SendMenuToPhone = new VA_SendMenuToPhone(pDCEMySqlConfig->m_sMenuPath + AutoSendVMC, m_iMacAddress);
+			VA_SendMenuToPhone *pVA_SendMenuToPhone = new VA_SendMenuToPhone(pDCEMySqlConfig->m_sMenuPath + AutoSendVMC 			,m_iMacAddress);
 
 			if( !pVA_SendMenuToPhone->m_pdbMenu.m_pBlock )
 			{
 				cout << "Couldn't send menu " << pDCEMySqlConfig->m_sMenuPath << AutoSendVMC; 
-				delete pVA_SendMenuToPhone;   // Menu wasn't found
+				delete pVA_SendMenuToPhone;   /** Menu wasn't found */
 			}
 			else
 			{
@@ -373,7 +398,7 @@ bool VR_IdentifyPhone::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, 
 {
 	m_pcDataBlock = pcDataBlock; m_dwAllocatedSize = dwAllocatedSize; m_pcCurrentPosition = pcCurrentPosition;
 	
-	if( bWriting ) // writing
+	if( bWriting ) /** writing */
 	{
 		switch( pItem->m_iSerializeDataType )
 		{
@@ -387,7 +412,7 @@ bool VR_IdentifyPhone::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, 
 					Write_unsigned_long(pVIPPhoneNumber->m_iPhoneNumberType);
 					Write_string(pVIPPhoneNumber->m_sNumber);
 				}
-				return true; // We handled it
+				return true; /** We handled it */
 			}
 			break;
 			
@@ -401,13 +426,13 @@ bool VR_IdentifyPhone::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, 
 					Write_string(pMiscVIPAttribute->m_sType);
 					Write_string(pMiscVIPAttribute->m_sValue);
 				}
-				return true; // We handled it
+				return true; /** We handled it */
 			}
 			break;
 			
 		};
 	}
-	else // reading
+	else /** reading */
 	{
 		switch( pItem->m_iSerializeDataType )
 		{
@@ -423,7 +448,7 @@ bool VR_IdentifyPhone::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, 
 					Read_string(pVIPPhoneNumber->m_sNumber);
 					p_listPhoneNumbers->push_back(pVIPPhoneNumber);
 				}
-				return true; // We handled it
+				return true; /** We handled it */
 			}
 			break;
 			
@@ -439,7 +464,7 @@ bool VR_IdentifyPhone::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, 
 					MiscVIPAttribute *pMiscVIPAttribute = new MiscVIPAttribute(sType,sValue);
 					p_listAttributes->push_back(pMiscVIPAttribute);
 				}
-				return true; // We handled it
+				return true; /** We handled it */
 			}
 			break;
 			
