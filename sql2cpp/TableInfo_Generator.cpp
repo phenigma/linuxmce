@@ -1,14 +1,11 @@
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "TableInfo_Generator.h"
 
 #include <iostream>
 using namespace std;
 
-#include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
-#include "PlutoUtils/Other.h"
+#include "PlutoUtils/FileUtils.h"
 #include "CommonFunctions.h"
 
 string TableInfo_Generator::ExpandString(string s)
@@ -143,26 +140,666 @@ string TableInfo_Generator::ExpandString(string s)
 		cerr << "Unknown: " << s << endl;
 		return "";
 	}
-	/*	
-	get_ifdef_have_primary_keys	else
-		if (s=="")
-			return ();
-	*/	
+}
 
+string TableInfo_Generator::get_fields_declaration()
+{
+	string s;
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		s = s + (*i)->getCType() + " m_" + (*i)->m_pcFieldName + ";" + "\n";
+	return s;
+}
+
+string TableInfo_Generator::get_member_variable_list()
+{
+	string s;
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		s = s + "+" + " m_" + (*i)->m_pcFieldName;
+	return s;
+}
+
+string TableInfo_Generator::get_getters_declaration()
+{
+	string s;
 	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		s = s + (*i)->getCType() + " " + (*i)->m_pcFieldName + "_get();" + "\n";
+	
+	return s;
+}
+
+string TableInfo_Generator::get_getters_definition()
+{
+	string s;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		s = s + (*i)->getCType() + " Row_"+m_sTableName+"::" + (*i)->m_pcFieldName + "_get(){DCESAFETYLOCK(M, table->m_Mutex);\n\nreturn m_" + (*i)->m_pcFieldName + ";}" + "\n";
+	
+	return s;
+}
+
+string TableInfo_Generator::get_setters_declaration()
+{
+	string s;
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+		s = s + "void " + (*i)->m_pcFieldName + "_set(" + (*i)->getCType() + " val);" + "\n";
+	
+	return s;
+}
+
+string TableInfo_Generator::get_setters_definition()
+{
+	string s;
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+		s = s + "void " + "Row_"+m_sTableName+"::"+ (*i)->m_pcFieldName + "_set(" + (*i)->getCType() + " val){DCESAFETYLOCK(M, table->m_Mutex);\n\nm_" + (*i)->m_pcFieldName + " = val; is_modified=true; is_null["+int2string(iIndex)+"]=false;}" + "\n";
+	
+	return s;
+}
+
+string TableInfo_Generator::get_null_getters_declaration()
+{
+	string s;
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+		if (!((*i)->m_iFlags & NOT_NULL_FLAG))
+			s = s + "bool " + (*i)->m_pcFieldName + "_isNull();" + "\n";
+	
+	return s;
+}
+
+string TableInfo_Generator::get_null_getters_definition()
+{
+	string s;
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i=m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+		if (!((*i)->m_iFlags & NOT_NULL_FLAG))
+			s = s + "bool " + "Row_"+m_sTableName+"::" + (*i)->m_pcFieldName + "_isNull() {DCESAFETYLOCK(M, table->m_Mutex);\n\nreturn is_null["+int2string(iIndex)+"];}" + "\n";
+	
+	return s;
+}
+
+
+string TableInfo_Generator::get_null_setters_declaration()
+{
+	string s;
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i!=m_Fields.end(); i++, iIndex++ )
+		if (!((*i)->m_iFlags & NOT_NULL_FLAG))
+			s = s + "void " + (*i)->m_pcFieldName + "_setNull(bool val);" + "\n";
+
+	return s;	
+}
+
+string TableInfo_Generator::get_null_setters_definition()
+{
+	string s;
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+		if (!((*i)->m_iFlags & NOT_NULL_FLAG))
+			s = s + "void " +  "Row_"+m_sTableName+"::"+(*i)->m_pcFieldName + "_setNull(bool val){DCESAFETYLOCK(M, table->m_Mutex);\n\nis_null["+int2string(iIndex)+"]=val;}" + "\n";
+
+	return s;	
+}
+
+string TableInfo_Generator::get_primary_fields_declaration()
+{
+	string s;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+			s = s + (*i)->getCType() + " pk_" + (*i)->m_pcFieldName + ";" + "\n";
+	
+	return s;
+}
+
+string TableInfo_Generator::get_primary_fields_in_typed_list()
+{
+	string s;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+	{
+		if (s != "") s = s + ", ";
+		s = s + (*i)->getCType() + " in_" + (*i)->m_pcFieldName;
+	}
+	
+	return s;
+}
+
+string TableInfo_Generator::get_primary_fields_in_untyped_list()
+{
+	string s;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+	{
+		if (s != "")
+			s = s + ", ";
+			
+		s = s + "in_" + (*i)->m_pcFieldName;
+	}
+	
+	return s;
+}
+
+string TableInfo_Generator::get_primary_fields_assign_list()
+{
+	string s;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+			s = s + "pk_" + (*i)->m_pcFieldName + " = in_" + (*i)->m_pcFieldName + ";\n";
+	
+	return s;
+}
+
+string TableInfo_Generator::get_primary_autoinc_key_init()
+{
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if (((*i)->m_iFlags & PRI_KEY_FLAG) && ((*i)->m_iFlags & AUTO_INCREMENT_FLAG ))
+			return string( "if (id!=0)\npRow->m_" ) + (*i)->m_pcFieldName + "=id;\n";
+	
+	return "";
+}
+
+string TableInfo_Generator::get_primary_fields_assign_from_row()
+{
+	string s;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+			s = s + "pk_" + (*i)->m_pcFieldName + " = pRow->m_" + (*i)->m_pcFieldName + ";\n";
+	
+	return s;
+}
+
+string TableInfo_Generator::get_key_less_statement()
+{
+	string s;
+
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+			s = s + "if (key1.pk_" + (*i)->m_pcFieldName + "!=key2.pk_" + (*i)->m_pcFieldName + ")"
+					+ "\n" + "return key1.pk_" + (*i)->m_pcFieldName + "<key2.pk_" + (*i)->m_pcFieldName + ";"
+					+ "\n" + "else" + "\n";
+	
+	s = s + "return false;";
+	
+	return s;
+}
+
+string TableInfo_Generator::get_set_default_values()
+{
+	string s;
+	
+	int field_index=0;
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, field_index++ )
+	{
+		if ((*i)->m_pcFieldDefaultValue == NULL)
+			if (!((*i)->m_iFlags & NOT_NULL_FLAG))
+				s = s + "is_null[" + int2string(field_index) + "] = true;\n";
+			else
+				s = s + "is_null[" + int2string(field_index) + "] = false;\n";
+		else
+			if ((*i)->getCType() == "string")
+			{
+				char *to = new char[2*(*i)->m_iLength + 1];
+				mysql_real_escape_string( m_pDB, to, (*i)->m_pcFieldDefaultValue, (unsigned long) strlen((*i)->m_pcFieldDefaultValue) ); 
+				s = s + "m_" + (*i)->m_pcFieldName + " = \"" + to + "\";\n";
+				s = s + "is_null[" + int2string(field_index) + "] = false;\n";
+				delete to;
+			}
+			else
+				if (((*i)->getCType() != "unsupported_type") && ((*i)->getCType() != "MYSQL_DATE")) /** @todo how to handle it? */
+				{
+					s = s + "m_" + (*i)->m_pcFieldName + " = " + (*i)->m_pcFieldDefaultValue + ";\n";
+					s = s + "is_null[" + int2string( field_index ) + "] = false;\n";
+				}
+		
+	}
+	
+	return s;
+}
+	
+string TableInfo_Generator::get_fields_count()
+{
+	return int2string((int) m_Fields.size());
+}
+
+string TableInfo_Generator::get_primary_fields_count()
+{
+	int count=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+			count++;
+
+	return int2string(count);
+}
+
+string TableInfo_Generator::get_primary_fields_where_list()
+{
+	string s="";
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+		{
+			if (s != "")
+				s = s + " AND ";
+			s = s + (*i)->m_pcFieldName + "=?";
+		}
+		
+	return s;
+}
+
+string TableInfo_Generator::get_bind_parameters_to_key()
+{
+	string s="";
+	int iIndex=0;
+	int iPrimaryIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+		{
+			s = s + "is_param_null[" + int2string( iPrimaryIndex) + "]=false;\n";
+			s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer_type=" + (*i)->getMType() + ";\n";
+			
+			if ((*i)->getCType() != "string")
+			{
+				s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer=&(key.pk_" + (*i)->m_pcFieldName + ");\n";
+				s = s + "parameters[" + int2string(iPrimaryIndex) + "].length=0;\n";
+			}
+			else
+			{
+				s = s + "char tmp_" + (*i)->m_pcFieldName + "[" + int2string((*i)->m_iLength+1) + "];\n";
+				s = s + "snprintf(tmp_" + (*i)->m_pcFieldName + ", "+ int2string((*i)->m_iLength+1)+", \"%*s\", key.pk_" + (*i)->m_pcFieldName
+						+ ".length(), key.pk_" + (*i)->m_pcFieldName + ".c_str());\n";
+				s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer=tmp_" + (*i)->m_pcFieldName + ";\n";
+				s = s + "parameters[" + int2string(iPrimaryIndex) + "].length=&param_lengths["  + int2string(iPrimaryIndex) +  "];\n";
+			}
+			
+			s = s + "parameters[" + int2string(iPrimaryIndex) + "].is_null=0;\n";
+
+			s = s + "\n";
+					
+			iPrimaryIndex++;
+		}
+	
+		return s;
+}
+
+string TableInfo_Generator::get_bind_results_to_fields()
+{
+	string s="";
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+	{
+		s = s + "results[" + int2string(iIndex) + "].buffer_type=" + (*i)->getMType() + ";\n";
+			
+		if ((*i)->getCType() != "string")
+		{
+			s = s + "results[" + int2string(iIndex) + "].buffer=&(pRow->m_" + (*i)->m_pcFieldName + ");\n";
+			s = s + "results[" + int2string(iIndex) + "].length=0;\n";
+		}
+		else
+		{
+			s = s + "char rtmp_" + (*i)->m_pcFieldName + "[" + int2string((*i)->m_iLength+1) + "];\n";
+			s = s + "results[" + int2string(iIndex) + "].buffer=rtmp_" + (*i)->m_pcFieldName + ";\n";
+			s = s + "results[" + int2string(iIndex) + "].length=&result_lengths["  + int2string(iIndex) +  "];\n";
+		}
+			
+		s = s + "results[" + int2string(iIndex) + "].is_null=&(pRow->is_null["+int2string(iIndex)+"]);\n";
+		
+		s = s + "\n";
+	}
+	
+	return s;
+}
+
+string TableInfo_Generator::get_init_row_from_temp_string_fields()
+{
+	string s="";
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+	{
+		if ((*i)->getCType() == "string")
+			s = s + "pRow->m_" + (*i)->m_pcFieldName + " = string(rtmp_" + (*i)->m_pcFieldName + ",result_lengths["  + int2string(iIndex) +  "]);\n" ;
+		
+		s = s + "\n";
+	}
+	
+	return s;
+}
+
+string TableInfo_Generator::get_build_query_for_key()
+{
+	string sCode="";
+	string sCondition=""; //default true to keep ..AND stuff happy
+		
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ( (*i)->m_iFlags & PRI_KEY_FLAG )
+		{
+			if (sCondition!="")
+				sCondition = sCondition + "+\" AND \"+";
+			
+			sCondition = sCondition + "\"" + (*i)->m_pcFieldName + "=\"";
+			
+			//temporary buffer			
+			
+			if (((*i)->getCType() != "string") && ((*i)->getCType() != "unsupported_type"))
+			{
+				sCode = sCode + "char tmp_" + (*i)->m_pcFieldName + "[" ;
+				sCode = sCode + "32];\n";
+				sCode = sCode + "sprintf(tmp_" + (*i)->m_pcFieldName+", \"" + (*i)->getPrintFormat() + "\", " + "key.pk_" + (*i)->m_pcFieldName + ");\n\n";
+				sCondition = sCondition + " + tmp_" + (*i)->m_pcFieldName;
+			}
+			else
+				if ((*i)->getCType() == "string")
+				{
+					sCode = sCode + "char tmp_" + (*i)->m_pcFieldName + "[" ;
+					sCode = sCode + int2string(1+2*(*i)->m_iLength) + "];\n";
+					sCode = sCode + "mysql_real_escape_string(database->db_handle,tmp_" + (*i)->m_pcFieldName 
+							+ ", key.pk_" + (*i)->m_pcFieldName + ".c_str(), (unsigned long) key.pk_" + (*i)->m_pcFieldName + ".size());\n\n";
+					sCondition = sCondition + " + \"\\\"\" + tmp_" + (*i)->m_pcFieldName + "+ \"\\\"\"";
+				}
+				else
+					sCondition = sCondition + " + \"\\\"\" + key.pk_" + (*i)->m_pcFieldName + ".c_str()+ \"\\\"\"";
+			
+			
+		}
+		return  sCode + "\n" + "string condition;\n" + "condition = condition + " + sCondition + ";\n";
+}
+
+string TableInfo_Generator::get_generate_insert_query()
+{
+	string sCode="";
+	string sCondition="";
+	int iIndex=0;	
+	
+	string values_list="";
+	
+		
+	for (vector<FieldInfo*>::iterator i=m_Fields.begin(); i!=m_Fields.end(); i++, iIndex++)
+	{
+		if (values_list!="")
+			values_list = values_list + "+\", \"+";
+		
+		values_list = values_list + "pRow->"+(*i)->m_pcFieldName + "_asSQL()";
+	}
+	
+	return  sCode + "\n" + "string values_list_comma_separated;\n" + "values_list_comma_separated = values_list_comma_separated + " + values_list + ";\n";
+}
+
+string TableInfo_Generator::get_generate_update_query()
+{
+	string code="";
+	string condition="";
+	int iIndex=0;	
+	
+	string values_list="";
+	
+		
+	for (vector<FieldInfo*>::iterator i=m_Fields.begin(); i!=m_Fields.end(); i++, iIndex++)
+	{
+		if (values_list!="")
+			values_list = values_list + "+\", " + (*i)->m_pcFieldName + "=\"+";
+		else
+			values_list = values_list + "\""+(*i)->m_pcFieldName + "=\"+";
+		
+		values_list = values_list + "pRow->"+(*i)->m_pcFieldName + "_asSQL()";
+	}
+	
+	return  code + "\n" + "string update_values_list;\n" + "update_values_list = update_values_list + " + values_list + ";\n";
+}
+
+string TableInfo_Generator::get_init_fields_from_row()
+{
+	string s="";
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+	{
+		s = s + "if (row[" + int2string(iIndex) + "] == NULL)\n" +
+				"{\n" + "pRow->is_null["+int2string(iIndex)+"]=true;\n";
+		
+		if (((*i)->getCType() == "string")||((*i)->getCType() == "unsupported_type"))
+			s = s + "pRow->m_" + (*i)->m_pcFieldName + " = \"\";\n" ;
+		else
+			s = s + "pRow->m_" + (*i)->m_pcFieldName + " = 0;\n" ;
+		
+		s = s + "}\nelse\n{\n";
+		s = s + "pRow->is_null["+int2string(iIndex)+"]=false;\n";
+		
+		if (((*i)->getCType() == "string")||((*i)->getCType() == "unsupported_type"))
+			s = s + "pRow->m_" + (*i)->m_pcFieldName + " = string(row[" + int2string(iIndex) + "],lengths["  + int2string(iIndex) +  "]);\n" ;
+		else
+			s = s + "sscanf(row[" + int2string(iIndex) + "], \"" + (*i)->getScanFormat() + "\", &(pRow->m_" + (*i)->m_pcFieldName + "));\n";
+		
+		s = s + "}\n\n";
+	}
+
+	return s;
+}
+
+string TableInfo_Generator::get_ifdef_have_primary_keys()
+{
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ( (*i)->m_iFlags & PRI_KEY_FLAG )
+			return "";
+	return "/*\n";
+}
+
+string TableInfo_Generator::get_endif_have_primary_keys()
+{
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+			return "";
+	return "*/\n";
+}
+
+string TableInfo_Generator::get_fields_list_comma_separated()
+{
+	string s;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+	{
+		if (s != "")
+			s = s + ", ";	
+		s = s + (*i)->m_pcFieldName;
+	}
+	
+	return s;
+}
+
+string TableInfo_Generator::get_fields_sql_getters_declaration()
+{
+	string sCode="";
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+		sCode = sCode + "string "+(*i)->m_pcFieldName+"_asSQL();\n";
+		
+	return sCode;
+}
+
+
+string TableInfo_Generator::get_fields_sql_getters_definition()
+{
+	string sCode="";
+	int iIndex=0;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
+	{
+		sCode = sCode + "string Row_"+m_sTableName+"::"+(*i)->m_pcFieldName+"_asSQL()\n{\nDCESAFETYLOCK(M, table->m_Mutex);\n\n";
+		sCode = sCode + "if (is_null["+int2string(iIndex)+"])\n";
+		sCode = sCode + "return \"NULL\";\n\n";
+		
+		
+		if (((*i)->getCType() != "string") && ((*i)->getCType() != "unsupported_type"))
+		{
+			sCode = sCode + "char buf[32];\n";
+			sCode = sCode + "sprintf(buf, \"" + (*i)->getPrintFormat() + "\", " + "m_" + (*i)->m_pcFieldName + ");\n\n";
+			sCode = sCode + "return buf;\n";
+		}
+		else
+			if ((*i)->getCType() == "string")
+		{
+			sCode = sCode + "char buf[" + int2string(1+2*(*i)->m_iLength) + "];\n";		
+			sCode = sCode + "mysql_real_escape_string(table->database->db_handle, buf, m_" + (*i)->m_pcFieldName + ".c_str(), (unsigned long) m_" + (*i)->m_pcFieldName + ".size());\n";
+			sCode = sCode + "return string("")+\"\\\"\"+buf+\"\\\"\";\n";
+		}
+		else
+			sCode = sCode + "return string("")+\"\\\"\"+m_" + (*i)->m_pcFieldName+"+\"\\\"\";\n";
+		
+		sCode = sCode + "}\n\n";
+	}	
+		
+	return sCode;
+}
+
+string TableInfo_Generator::rows_getters_declaration()
+{
+	string s="";
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+	{
+		string sTableName2 =  getTableFromForeignKey( (*i)->m_pcFieldName, m_pTables );
+		if( sTableName2.length()==0 )
+			continue;
+
+		s = s + "class Row_" + sTableName2 + "* "+(*i)->m_pcFieldName + "_getrow();\n";
+	}
+	
+	return s;
+}
+
+string TableInfo_Generator::rows_getters_definition()
+{
+	string s="";
+	
+	for ( vector<FieldInfo*>::iterator i=m_Fields.begin(); i!=m_Fields.end(); i++ )
+	{
+			
+		string sRefTable =  getTableFromForeignKey((*i)->m_pcFieldName,m_pTables);
+		if( sRefTable.length()==0 )
+			continue;
+
+		string field_name = (*i)->m_pcFieldName;
+							
+		s = s + "class Row_" + sRefTable + "* Row_" + m_sTableName + "::" + (*i)->m_pcFieldName+"_getrow()\n";
+		s = s + "{\nDCESAFETYLOCK(M, table->m_Mutex);\n\n";
+		s = s + "class Table_"+sRefTable+" *pTable = table->database->"+sRefTable+"_get();\n";
+		s = s + "return pTable->GetRow(m_" + field_name + ");\n";
+		s = s + "}\n";
+	}
+	
+	return s;
+}
+
+string TableInfo_Generator::rows_getters_includes()
+{
+	string s="";
+	
+	for ( vector<FieldInfo*>::iterator i=m_Fields.begin(); i != m_Fields.end(); i++ )
+	{
+      	string m_sTableName = getTableFromForeignKey((*i)->m_pcFieldName,m_pTables);
+        if( m_sTableName.length()==0 && m_sTableName!=get_table_name() )
+            continue;
+		s = s + "#include \"Table_"+m_sTableName+".h\"\n";
+
+	}
+	
+	return s;
+}
+
+string TableInfo_Generator::fk_rows_getters_declaration()
+{
+    string s="";
+	
+	map<string,TableInfo_Generator *>::iterator i;
+    for ( i = m_pTables->begin(); i != m_pTables->end(); ++i )
+    {
+		TableInfo_Generator *info = (*i).second;
+		for( size_t i=0; i < info->m_Fields.size(); ++i )
+		{
+			FieldInfo *field = info->m_Fields[i];
+			if( getTableFromForeignKey(field->m_pcFieldName,m_pTables)==get_table_name() )
+			{
+				s = s + "void " + info->get_table_name() + "_" + field->m_pcFieldName + "_getrows(vector <class Row_" + info->get_table_name() + "*> *rows);\n";
+			}
+		}
+    }
+
+    return s;
+}
+
+string TableInfo_Generator::fk_rows_getters_definition()
+{
+    string s="";
+
+    map<string,TableInfo_Generator *>::iterator i;
+    for ( i=m_pTables->begin(); i != m_pTables->end(); ++i )
+    {
+        TableInfo_Generator *info = (*i).second;
+        for( size_t i=0; i < info->m_Fields.size(); ++i )
+        {
+            FieldInfo *field = info->m_Fields[i];
+            if( getTableFromForeignKey(field->m_pcFieldName,m_pTables)==get_table_name() )
+            {
+                s = s + "void Row_" + get_table_name() + "::"+ info->get_table_name() + "_" + field->m_pcFieldName + "_getrows(vector <class Row_" + info->get_table_name() + "*> *rows)\n";
+				s = s + "{\nDCESAFETYLOCK(M, table->m_Mutex);\n\n";
+				s = s + "class Table_"+info->get_table_name()+" *pTable = table->database->"+info->get_table_name()+"_get();\n";
+				s = s + "pTable->GetRows(\""+ field->m_pcFieldName + "=\" + StringUtils::itos(m_PK_" + get_table_name() + "),rows);\n";
+                s = s + "}\n";
+            }
+        }
+    }
+
+    return s;
+}
+
+string TableInfo_Generator::fk_rows_getters_includes()
+{
+    string s="";
+
+   	map<string,TableInfo_Generator *>::iterator i;
+    for ( i=m_pTables->begin(); i != m_pTables->end(); ++i )
+    {
+        TableInfo_Generator *info = (*i).second;
+        for( size_t i=0; i < info->m_Fields.size(); ++i )
+        {
+            FieldInfo *field = info->m_Fields[i];
+            if( getTableFromForeignKey( field->m_pcFieldName, m_pTables ) == get_table_name() )
+            {
+                s = s + "#include \"Table_" + info->get_table_name() + ".h\"\n";
+            }
+        }
+    }
+
+    return s;
 }
 
 string TableInfo_Generator::table_constants_defines()
 {
 	string s="";
 
-	string SQL = "SELECT PK_" + get_table_name() + ",Description,Define FROM " + get_table_name() + " ORDER BY PK_" + get_table_name();
-	int iresult=mysql_query(db,SQL.c_str());
+	string sSQL = "SELECT PK_" + get_table_name() + ",Description,Define FROM " + get_table_name() + " ORDER BY PK_" + get_table_name();
+	int iresult=mysql_query(m_pDB,sSQL.c_str());
 	if( iresult!=0 )
 	{
 		return "";
 	}
-	MYSQL_RES *res = mysql_store_result(db);
+	MYSQL_RES *res = mysql_store_result(m_pDB);
 	MYSQL_ROW row;
 
 	map<string,int> mapDefines; // Be sure there's no dups
@@ -195,686 +832,10 @@ string TableInfo_Generator::table_constants_defines()
 string TableInfo_Generator::table_struct_defines()
 {
 	string s="#define " + StringUtils::ToUpper(get_table_name()) + "_TABLE \"" + get_table_name() + "\"\n";
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
+	for (vector<FieldInfo*>::iterator i=m_Fields.begin(); i!=m_Fields.end(); i++)
 	{
-		s += "#define " + StringUtils::ToUpper(get_table_name()) + "_" + StringUtils::ToUpper((*i)->name) + "_FIELD \"" + (*i)->name + "\"\n";
-		s += "#define " + StringUtils::ToUpper(get_table_name()) + "_" + StringUtils::ToUpper((*i)->name) + "_TABLE_FIELD \"" + get_table_name() + "." + (*i)->name + "\"\n";
+		s += "#define " + StringUtils::ToUpper(get_table_name()) + "_" + StringUtils::ToUpper((*i)->m_pcFieldName) + "_FIELD \"" + (*i)->m_pcFieldName + "\"\n";
+		s += "#define " + StringUtils::ToUpper(get_table_name()) + "_" + StringUtils::ToUpper((*i)->m_pcFieldName) + "_TABLE_FIELD \"" + get_table_name() + "." + (*i)->m_pcFieldName + "\"\n";
 	}
 	return s;
 }
-
-string TableInfo_Generator::rows_getters_includes()
-{
-	string s="";
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-	{
-      	string table_name = getTableFromForeignKey((*i)->name,p_tables);
-        if( table_name.length()==0 && table_name!=get_table_name() )
-            continue;
-		s = s + "#include \"Table_"+table_name+".h\"\n";
-
-	}
-	
-	return s;
-}
-
-
-string TableInfo_Generator::rows_getters_declaration()
-{
-	string s="";
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-	{
-		string table_name2 =  getTableFromForeignKey((*i)->name,p_tables);
-		if( table_name2.length()==0 )
-			continue;
-
-		s = s + "class Row_" + table_name2 + "* "+(*i)->name+"_getrow();\n";
-	}
-	
-	return s;
-}
-
-string TableInfo_Generator::rows_getters_definition()
-{
-	string s="";
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-	{
-			
-		string ref_table =  getTableFromForeignKey((*i)->name,p_tables);
-		if( ref_table.length()==0 )
-			continue;
-
-		string field_name = (*i)->name;
-							
-		s = s + "class Row_" + ref_table + "* Row_" + table_name + "::" + (*i)->name+"_getrow()\n";
-		s = s + "{\nPLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\n";
-		s = s + "class Table_"+ref_table+" *pTable = table->database->"+ref_table+"_get();\n";
-		s = s + "return pTable->GetRow(m_" + field_name + ");\n";
-		/*
-		s = s + "vector <TableRow *> v;\n";
-		s = s + "vector <Row_"+ref_table+" *> d;\n";
-		s = s + "d = table->database->tbl"+ref_table+"->GetRows(\"PK_"+ref_table+"=\"+"+field_name+"_asSQL());\n";
-		s = s + "for (vector <Row_"+ref_table+" *>::iterator i=d.begin(); i!=d.end(); i++)\n v.push_back((*i));\n";
-		s = s + "return v;\n";
-		*/
-		s = s + "}\n";
-	}
-	
-	return s;
-}
-
-string TableInfo_Generator::fk_rows_getters_declaration()
-{
-    string s="";
-	
-	map<string,TableInfo_Generator *>::iterator i;
-    for (i=p_tables->begin(); i!=p_tables->end(); ++i)
-    {
-		TableInfo_Generator *info = (*i).second;
-		for(size_t i=0;i<info->fields.size();++i)
-		{
-			FieldInfo *field = info->fields[i];
-			if( getTableFromForeignKey(field->name,p_tables)==get_table_name() )
-			{
-				s = s + "void " + info->get_table_name() + "_" + field->name + "_getrows(vector <class Row_" + info->get_table_name() + "*> *rows);\n";
-			}
-		}
-    }
-
-    return s;
-}
-
-string TableInfo_Generator::fk_rows_getters_definition()
-{
-    string s="";
-
-    map<string,TableInfo_Generator *>::iterator i;
-    for (i=p_tables->begin(); i!=p_tables->end(); ++i)
-    {
-        TableInfo_Generator *info = (*i).second;
-        for(size_t i=0;i<info->fields.size();++i)
-        {
-            FieldInfo *field = info->fields[i];
-            if( getTableFromForeignKey(field->name,p_tables)==get_table_name() )
-            {
-                s = s + "void Row_" + get_table_name() + "::"+ info->get_table_name() + "_" + field->name + "_getrows(vector <class Row_" + info->get_table_name() + "*> *rows)\n";
-				s = s + "{\nPLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\n";
-				s = s + "class Table_"+info->get_table_name()+" *pTable = table->database->"+info->get_table_name()+"_get();\n";
-				s = s + "pTable->GetRows(\""+ field->name + "=\" + StringUtils::itos(m_PK_" + get_table_name() + "),rows);\n";
-                s = s + "}\n";
-            }
-        }
-    }
-
-    return s;
-}
-
-string TableInfo_Generator::fk_rows_getters_includes()
-{
-    string s="";
-
-   	map<string,TableInfo_Generator *>::iterator i;
-    for (i=p_tables->begin(); i!=p_tables->end(); ++i)
-    {
-        TableInfo_Generator *info = (*i).second;
-        for(size_t i=0;i<info->fields.size();++i)
-        {
-            FieldInfo *field = info->fields[i];
-            if( getTableFromForeignKey(field->name,p_tables)==get_table_name() )
-            {
-                s = s + "#include \"Table_" + info->get_table_name() + ".h\"\n";
-            }
-        }
-    }
-
-
-    return s;
-}
-
-string TableInfo_Generator::get_ifdef_have_primary_keys()
-{
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-			return "";
-	
-	return "/*\n";
-}
-
-string TableInfo_Generator::get_endif_have_primary_keys()
-{
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-			return "";
-	
-	return "*/\n";
-}
-
-string TableInfo_Generator::get_fields_declaration()
-{
-	string s;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		s = s + (*i)->getCType() + " m_" + (*i)->name + ";" + "\n";
-	
-	return s;
-}
-
-string TableInfo_Generator::get_member_variable_list()
-{
-	string s;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		s = s + "+" + " m_" + (*i)->name;
-	
-	return s;
-}
-
-string TableInfo_Generator::get_primary_fields_declaration()
-{
-	string s;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-			s = s + (*i)->getCType() + " pk_" + (*i)->name + ";" + "\n";
-	
-	return s;
-}
-
-string TableInfo_Generator::get_primary_fields_in_typed_list()
-{
-	string s;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-	{
-		if (s != "")
-			s = s + ", ";
-			
-		s = s + (*i)->getCType() + " in_" + (*i)->name;
-	}
-	
-	return s;
-}
-
-string TableInfo_Generator::get_fields_list_comma_separated()
-{
-	string s;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-	{
-		if (s != "")
-			s = s + ", ";
-			
-		s = s + (*i)->name;
-	}
-	
-	return s;
-}
-
-string TableInfo_Generator::get_primary_fields_in_untyped_list()
-{
-	string s;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-	{
-		if (s != "")
-			s = s + ", ";
-			
-		s = s + "in_" + (*i)->name;
-	}
-	
-	return s;
-}
-
-string TableInfo_Generator::get_primary_fields_assign_list()
-{
-	string s;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-			s = s + "pk_" + (*i)->name + " = in_" + (*i)->name + ";\n";
-	
-	return s;
-}
-
-string TableInfo_Generator::get_primary_autoinc_key_init()
-{
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if (((*i)->flags & PRI_KEY_FLAG) && ((*i)->flags & AUTO_INCREMENT_FLAG ))
-			return string("if (id!=0)\npRow->m_") + (*i)->name + "=id;\n";
-	
-	return "";
-}
-
-string TableInfo_Generator::get_primary_fields_assign_from_row()
-{
-	string s;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-			s = s + "pk_" + (*i)->name + " = pRow->m_" + (*i)->name + ";\n";
-	
-	return s;
-}
-
-
-string TableInfo_Generator::get_build_query_for_key()
-{
-	string code="";
-	string condition="";	//default true to keep ..AND stuff happy
-		
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-		{
-			if (condition!="")
-				condition = condition + "+\" AND \"+";
-			
-			condition = condition + "\"" + (*i)->name + "=\"";
-			
-			//temporary buffer			
-			
-			if (((*i)->getCType() != "string") && ((*i)->getCType() != "unsupported_type"))
-			{
-				code = code + "char tmp_" + (*i)->name + "[" ;
-				code = code + "32];\n";
-				code = code + "sprintf(tmp_" + (*i)->name+", \"" + (*i)->getPrintFormat() + "\", " + "key.pk_" + (*i)->name + ");\n\n";
-				condition = condition + " + tmp_" + (*i)->name;
-			}
-			else
-				if ((*i)->getCType() == "string")
-				{
-					code = code + "char tmp_" + (*i)->name + "[" ;
-					code = code + int2string(1+2*(*i)->length) + "];\n";
-					code = code + "mysql_real_escape_string(database->db_handle,tmp_" + (*i)->name 
-							+ ", key.pk_" + (*i)->name + ".c_str(), (unsigned long) key.pk_" + (*i)->name + ".size());\n\n";
-					condition = condition + " + \"\\\"\" + tmp_" + (*i)->name + "+ \"\\\"\"";
-				}
-				else
-					condition = condition + " + \"\\\"\" + key.pk_" + (*i)->name + ".c_str()+ \"\\\"\"";
-			
-			
-		}
-			
-				
-//		return  code + "\n" + "string query;\n" + "query=query+\"select * from "+table_name+" where \" + " +condition+";\n";
-		return  code + "\n" + "string condition;\n" + "condition = condition + " +condition+";\n";
-}
-
-
-
-string TableInfo_Generator::get_generate_insert_query()
-{
-	string code="";
-	string condition="";
-	int index=0;	
-	
-	string values_list="";
-	
-		
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-	{
-		if (values_list!="")
-			values_list = values_list + "+\", \"+";
-		
-		values_list = values_list + "pRow->"+(*i)->name+"_asSQL()";
-	}
-	
-	return  code + "\n" + "string values_list_comma_separated;\n" + "values_list_comma_separated = values_list_comma_separated + " +values_list+";\n";
-}
-
-string TableInfo_Generator::get_generate_update_query()
-{
-	string code="";
-	string condition="";
-	int index=0;	
-	
-	string values_list="";
-	
-		
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-	{
-		if (values_list!="")
-			values_list = values_list + "+\", "+(*i)->name+"=\"+";
-		else
-			values_list = values_list + "\""+(*i)->name+"=\"+";
-		
-		values_list = values_list + "pRow->"+(*i)->name+"_asSQL()";
-	}
-	
-	return  code + "\n" + "string update_values_list;\n" + "update_values_list = update_values_list + " +values_list+";\n";
-}
-
-string TableInfo_Generator::get_fields_sql_getters_declaration()
-{
-	string code="";
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-		code = code + "string "+(*i)->name+"_asSQL();\n";
-		
-	return code;
-}
-
-
-string TableInfo_Generator::get_fields_sql_getters_definition()
-{
-	string code="";
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-	{
-		code = code + "string Row_"+table_name+"::"+(*i)->name+"_asSQL()\n{\nPLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\n";
-		code = code + "if (is_null["+int2string(index)+"])\n";
-		code = code + "return \"NULL\";\n\n";
-		
-		
-		if (((*i)->getCType() != "string") && ((*i)->getCType() != "unsupported_type"))
-		{
-			code = code + "char buf[32];\n";
-			code = code + "sprintf(buf, \"" + (*i)->getPrintFormat() + "\", " + "m_" + (*i)->name + ");\n\n";
-			code = code + "return buf;\n";
-		}
-		else
-			if ((*i)->getCType() == "string")
-		{
-			code = code + "char buf[" + int2string(1+2*(*i)->length) + "];\n";		
-			code = code + "mysql_real_escape_string(table->database->db_handle, buf, m_" + (*i)->name + ".c_str(), (unsigned long) m_" + (*i)->name + ".size());\n";
-			code = code + "return string("")+\"\\\"\"+buf+\"\\\"\";\n";
-		}
-		else
-			code = code + "return string("")+\"\\\"\"+m_" + (*i)->name+"+\"\\\"\";\n";
-		
-		code = code + "}\n\n";
-	}	
-		
-	return code;
-}
-
-
-string TableInfo_Generator::get_getters_declaration()
-{
-	string s;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		s = s + (*i)->getCType() + " " + (*i)->name + "_get();" + "\n";
-	
-	return s;
-}
-
-string TableInfo_Generator::get_getters_definition()
-{
-	string s;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		s = s + (*i)->getCType() + " Row_"+table_name+"::" + (*i)->name + "_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\nreturn m_" + (*i)->name + ";}" + "\n";
-	
-	return s;
-}
-
-string TableInfo_Generator::get_setters_declaration()
-{
-	string s;
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-		s = s + "void " + (*i)->name + "_set(" + (*i)->getCType() + " val);" + "\n";
-	
-	return s;
-}
-
-
-string TableInfo_Generator::get_setters_definition()
-{
-	string s;
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-		s = s + "void " + "Row_"+table_name+"::"+ (*i)->name + "_set(" + (*i)->getCType() + " val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\nm_" + (*i)->name + " = val; is_modified=true; is_null["+int2string(index)+"]=false;}" + "\n";
-	
-	return s;
-}
-
-string TableInfo_Generator::get_null_getters_declaration()
-{
-	string s;
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-		if (!((*i)->flags & NOT_NULL_FLAG))
-			s = s + "bool " + (*i)->name + "_isNull();" + "\n";
-	
-	return s;
-}
-
-string TableInfo_Generator::get_null_getters_definition()
-{
-	string s;
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-		if (!((*i)->flags & NOT_NULL_FLAG))
-			s = s + "bool " + "Row_"+table_name+"::" + (*i)->name + "_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\nreturn is_null["+int2string(index)+"];}" + "\n";
-	
-	return s;
-}
-
-
-string TableInfo_Generator::get_null_setters_declaration()
-{
-	string s;
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-		if (!((*i)->flags & NOT_NULL_FLAG))
-			s = s + "void " + (*i)->name + "_setNull(bool val);" + "\n";
-
-	return s;	
-}
-
-string TableInfo_Generator::get_null_setters_definition()
-{
-	string s;
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-		if (!((*i)->flags & NOT_NULL_FLAG))
-			s = s + "void " +  "Row_"+table_name+"::"+(*i)->name + "_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\nis_null["+int2string(index)+"]=val;}" + "\n";
-
-	return s;	
-}
-
-string TableInfo_Generator::get_key_less_statement()
-{
-	string s;
-
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-			s = s + "if (key1.pk_" + (*i)->name + "!=key2.pk_" + (*i)->name + ")"
-					+ "\n" + "return key1.pk_" + (*i)->name + "<key2.pk_" + (*i)->name + ";"
-					+ "\n" + "else" + "\n";
-	
-	s = s + "return false;";
-	
-	return s;
-}
-
-string TableInfo_Generator::get_set_default_values()
-{
-	string s;
-	
-	int field_index=0;
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, field_index++)
-	{
-		if ((*i)->def == NULL)
-			if (!((*i)->flags & NOT_NULL_FLAG))
-				s = s + "is_null[" + int2string(field_index) + "] = true;\n";
-			else
-				s = s + "is_null[" + int2string(field_index) + "] = false;\n";
-		else
-			if ((*i)->getCType() == "string")
-			{
-				char *to = new char[2*(*i)->length + 1];
-				mysql_real_escape_string(db, to, (*i)->def, (unsigned long) strlen((*i)->def)); 
-				s = s + "m_" + (*i)->name + " = \"" + to + "\";\n";
-				s = s + "is_null[" + int2string(field_index) + "] = false;\n";
-				delete to;
-			}
-			else
-				if (((*i)->getCType() != "unsupported_type") && ((*i)->getCType() != "MYSQL_DATE")) //TODO: how to handle it?
-				{
-					s = s + "m_" + (*i)->name + " = " + (*i)->def + ";\n";
-					s = s + "is_null[" + int2string(field_index) + "] = false;\n";
-				}
-		
-	}
-	
-	return s;
-}
-	
-
-string TableInfo_Generator::get_fields_count()
-{
-	return int2string((int) fields.size());
-}
-
-string TableInfo_Generator::get_primary_fields_count()
-{
-	int count=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-			count++;
-
-	return int2string(count);
-}
-
-string TableInfo_Generator::get_primary_fields_where_list()
-{
-	string s="";
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-		{
-			if (s != "")
-				s = s + " AND ";
-			s = s + (*i)->name + "=?";
-		}
-		
-	return s;
-}
-
-string TableInfo_Generator::get_bind_parameters_to_key()
-{
-	string s="";
-	int index=0;
-	int primary_index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-		{
-			s = s + "is_param_null[" + int2string(primary_index) + "]=false;\n";
-			s = s + "parameters[" + int2string(primary_index) + "].buffer_type=" + (*i)->getMType() + ";\n";
-			
-			if ((*i)->getCType() != "string")
-			{
-				s = s + "parameters[" + int2string(primary_index) + "].buffer=&(key.pk_" + (*i)->name + ");\n";
-				s = s + "parameters[" + int2string(primary_index) + "].length=0;\n";
-			}
-			else
-			{
-				s = s + "char tmp_" + (*i)->name + "[" + int2string((*i)->length+1) + "];\n";
-				s = s + "snprintf(tmp_" + (*i)->name + ", "+ int2string((*i)->length+1)+", \"%*s\", key.pk_" + (*i)->name
-						+ ".length(), key.pk_" + (*i)->name + ".c_str());\n";
-				s = s + "parameters[" + int2string(primary_index) + "].buffer=tmp_" + (*i)->name + ";\n";
-				s = s + "parameters[" + int2string(primary_index) + "].length=&param_lengths["  + int2string(primary_index) +  "];\n";
-			}
-			
-			s = s + "parameters[" + int2string(primary_index) + "].is_null=0;\n";
-
-			s = s + "\n";
-					
-			primary_index++;
-		}
-	
-		return s;
-}
-
-string TableInfo_Generator::get_bind_results_to_fields()
-{
-	string s="";
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-	{
-		s = s + "results[" + int2string(index) + "].buffer_type=" + (*i)->getMType() + ";\n";
-			
-		if ((*i)->getCType() != "string")
-		{
-			s = s + "results[" + int2string(index) + "].buffer=&(pRow->m_" + (*i)->name + ");\n";
-			s = s + "results[" + int2string(index) + "].length=0;\n";
-		}
-		else
-		{
-			s = s + "char rtmp_" + (*i)->name + "[" + int2string((*i)->length+1) + "];\n";
-			s = s + "results[" + int2string(index) + "].buffer=rtmp_" + (*i)->name + ";\n";
-			s = s + "results[" + int2string(index) + "].length=&result_lengths["  + int2string(index) +  "];\n";
-		}
-			
-		s = s + "results[" + int2string(index) + "].is_null=&(pRow->is_null["+int2string(index)+"]);\n";
-		
-		s = s + "\n";
-	}
-	
-	return s;
-}
-
-string TableInfo_Generator::get_init_row_from_temp_string_fields()
-{
-	string s="";
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-	{
-		if ((*i)->getCType() == "string")
-			s = s + "pRow->m_" + (*i)->name + " = string(rtmp_" + (*i)->name + ",result_lengths["  + int2string(index) +  "]);\n" ;
-		
-		s = s + "\n";
-	}
-	
-	return s;
-}
-
-string TableInfo_Generator::get_init_fields_from_row()
-{
-	string s="";
-	int index=0;
-	
-	for (vector<FieldInfo*>::iterator i=fields.begin(); i!=fields.end(); i++, index++)
-	{
-		s = s + "if (row[" + int2string(index) + "] == NULL)\n" +
-				"{\n"+ 
-				"pRow->is_null["+int2string(index)+"]=true;\n";
-		
-		if (((*i)->getCType() == "string")||((*i)->getCType() == "unsupported_type"))
-			s = s + "pRow->m_" + (*i)->name + " = \"\";\n" ;
-		else
-			s = s + "pRow->m_" + (*i)->name + " = 0;\n" ;
-		
-		s = s + "}\nelse\n{\n";
-		s = s + "pRow->is_null["+int2string(index)+"]=false;\n";
-		
-		if (((*i)->getCType() == "string")||((*i)->getCType() == "unsupported_type"))
-			s = s + "pRow->m_" + (*i)->name + " = string(row[" + int2string(index) + "],lengths["  + int2string(index) +  "]);\n" ;
-		else
-			s = s + "sscanf(row[" + int2string(index) + "], \"" + (*i)->getScanFormat() + "\", &(pRow->m_" + (*i)->name + "));\n";
-		
-		s = s + "}\n\n";
-	}
-	
-	return s;
-}
-

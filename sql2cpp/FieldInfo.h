@@ -1,57 +1,65 @@
-/*
- * File: FieldInfo.h
- * Defining: class FieldInfo
- * Purpose: Storing table row field or table column parameters
- * 
- * Members:
- * Name         Type              Description           Extra info
+/**
  *
- * name         char *            Field name
- * def          char *            Default value         Can be NULL
- * type         enum_field_types  Field type            int-compatible-enum
- * length       unsigned int      Field length
- * flags        unsigned int      (not yet known)
- * decimals     unsigned int      Field decimal places
+ * @file FieldInfo.h
+ * @brief defining class FieldInfo
+ *
  */
 
-#ifndef FieldInfo_h
-#define FieldInfo_h
+#ifndef FIELDINFO_H
+#define FIELDINFO_H
 
 #include "mysql.h"
 #include <string>
+
 using namespace std;
 
+/**
+ * @brief class for storing table row field or table column parameters
+ */
 class FieldInfo
 {
 public:
-	char *name;
-	char *def;
-	enum_field_types type;
-	unsigned int length;
-	unsigned int flags;
-	unsigned int decimals;
+	char *m_pcFieldName; /** < field name */
+	char *m_pcFieldDefaultValue; /** < default value, can be NULL */
+	enum_field_types m_iType; /** < field types, int-compatible-enum */
+	unsigned int m_iLength; /** < field length */
+	unsigned int m_iFlags; /** < (not yet known) */
+	unsigned int m_iDecimals;  /** < field decimal places */
 	
-	//constructor
-	FieldInfo(MYSQL_FIELD *info)
+	/**
+	 * @brief constructs a FieldInfo object from MYSQL_FIELD
+	 */
+	FieldInfo( MYSQL_FIELD *info )
 	{
-		name = strdup(info->name);
-		//is it correct? for BLOBs, etc.
-		def = info->def?strdup(info->def):NULL;
-		type = info->type;
-		length = info->length;
-		flags = info->flags;
-		decimals = info->decimals;
+		m_pcFieldName = strdup( info->name  ); //is it correct? for BLOBs, etc.
+		m_pcFieldDefaultValue = info->def ? strdup( info->def ) : NULL;
+		m_iType = info->type;
+		m_iLength = info->length;
+		m_iFlags = info->flags;
+		m_iDecimals = info->decimals;
 	}
-	
-	//returns C type for the field
-	string getCType();
-	string getMType();
-	string getDType();
 
-	string getPrintFormat();
-	string getScanFormat();
+	/** @todo add destructor */
 	
-	//TODO add destructor
+	/**
+	 * @brief returns C type for the field
+	 */
+	string getCType();
+	
+	/**
+	 * @brief returns C type for the field
+	 */
+	string getMType();
+	
+	/**
+	 * @brief returns print format for the field
+	 */
+	string getPrintFormat();
+
+	/**
+	 * @brief returns scan format for the field
+	 */
+	string getScanFormat();
 };
 
 #endif

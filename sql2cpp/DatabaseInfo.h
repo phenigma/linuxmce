@@ -1,7 +1,16 @@
-#ifndef DatabaseInfo_h
-#define DatabaseInfo_h
+/**
+ *
+ * @file DatabaseInfo.h
+ * @brief header file for the request processor class
+ *
+ */
+
+
+#ifndef DATABASEINFO_h
+#define DATABASEINFO_h
 
 #include "mysql.h"
+
 #include <iostream>
 using namespace std;
 
@@ -15,17 +24,19 @@ using namespace std;
 
 class DatabaseInfo
 {
-	vector<class TABLEINFO_TYPE *> m_listTableInfo;
-	MYSQL *db;
-	map<string,TableInfo_Generator *> map_tables_info; // For faster lookups
+
+	vector<class TABLEINFO_TYPE *> m_listTableInfo; /** < table info list */
+	MYSQL *m_pDB; /** < the database */
+	map<string,TableInfo_Generator *> map_tables_info; /** < for faster lookups */
 
 public:
-	DatabaseInfo(string db_host, string db_user, string db_pass, string db_name, int db_port)
+
+	/** @brief constructor */
+	DatabaseInfo( string db_host, string db_user, string db_pass, string db_name, int db_port )
 	{
 		// Establishing database connection			  	
-		db = mysql_init(NULL);
-			  
-		if (mysql_real_connect(db, db_host.c_str(), db_user.c_str(), db_pass.c_str(), db_name.c_str(), db_port, NULL, 0) == NULL)
+		m_pDB = mysql_init(NULL);			  
+		if ( mysql_real_connect( m_pDB, db_host.c_str(), db_user.c_str(), db_pass.c_str(), db_name.c_str(), db_port, NULL, 0 ) == NULL )
 		{
 			cout << "MySQL connection failed" << endl;
 			throw string("MySQL connect failed");
@@ -34,10 +45,15 @@ public:
 			cout << "Connection established!" << endl;
 	}
 
-	~DatabaseInfo() { mysql_close(db); }
+	/** @brief destructor */
+	~DatabaseInfo() { mysql_close(m_pDB); }
 
 	void getDatabaseTablesList();
+
+	/** @brief for acces to private member */
 	vector<class TABLEINFO_TYPE *> *listTableInfo_get() { return &m_listTableInfo; }
+
+	/** @brief puts the table names in the parameter vector */
 	void ConvertTablesToStrings(vector<string> *vect_string);
 };
 

@@ -1,53 +1,56 @@
-#include "PlutoUtils/CommonIncludes.h"	
-#include "PlutoUtils/StringUtils.h"
-#include "DatabaseInfo.h"
+/**
+ *
+ * @file DatabaseInfo.cpp
+ * @brief source file for the DatabaseInfo class
+ *
+ */
 
-using namespace StringUtils;
+ /**
+  *
+  * Copyright Notice goes here
+  *
+  */
+
+#include "PlutoUtils/CommonIncludes.h"
+#include "DatabaseInfo.h"
 
 void DatabaseInfo::getDatabaseTablesList()
 {
-	MYSQL_RES *res = mysql_list_tables(db, NULL);
+	MYSQL_RES *pRes = mysql_list_tables( m_pDB, NULL );
 	
-	if (res != NULL)
+	if ( pRes != NULL )
 	{
-		MYSQL_ROW row;
+		MYSQL_ROW Row;
 		
-		while ((row = mysql_fetch_row(res)))
+		while (( Row = mysql_fetch_row( pRes ) ))
 		{
-			string sTable = row[0];
-			if( StringUtils::EndsWith(sTable,"_pschist") || StringUtils::StartsWith(sTable,"psc_") )
-				continue;
+			// Each table needs a list of all the other tables so that it can find foreign keys pointing to itself
+			TABLEINFO_TYPE *pInfo = new TABLEINFO_TYPE( m_pDB, &map_tables_info );
 
-			// Each table needs a list of all the other tables so that it can find foreign keys pointing
-			// to itself
-			TABLEINFO_TYPE *info = new TABLEINFO_TYPE(db, &map_tables_info);
-
-			if (info->loadFromDB(row[0]))
+			if ( pInfo->loadFromDB( Row[0] ) )
 			{
-				m_listTableInfo.push_back(info);
-				map_tables_info[info->get_table_name()]=info;
+				m_listTableInfo.push_back( pInfo );
+				map_tables_info[pInfo->get_table_name()] = pInfo;
 			}
 			else
 			{
-				delete info;			
-				cout << "Cannot load info for table: " << row[0] << endl;
+				delete pInfo;			
+				cout << "Cannot load info for table: " << Row[0] << endl;
 			}
 		}
-
-		//tables.push_back(row[0]);
 	}
 
-	mysql_free_result(res);
+	mysql_free_result( pRes );
 }
 
 void DatabaseInfo::ConvertTablesToStrings(vector<string> *vect_string)
 {
 	vector<class TABLEINFO_TYPE *>::iterator it;
 
-	for(it=m_listTableInfo.begin();it!=m_listTableInfo.end();++it)
+	for( it = m_listTableInfo.begin(); it != m_listTableInfo.end(); ++it )
 	{
 		TableInfo *pTableInfo = *it;
-		vect_string->push_back(pTableInfo->get_table_name());
+		vect_string->push_back( pTableInfo->get_table_name() );
 	}
 }
 
