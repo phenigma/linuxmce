@@ -52,18 +52,19 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 	m_uGridWidth = 120;
 	m_uGridHeight = 120;
 
-	m_GridList.Append(new string("This"));
-	m_GridList.Append(new string("Is"));
-	m_GridList.Append(new string("ABC"));
-	m_GridList.Append(new string("sIMple"));
-	m_GridList.Append(new string("list"));
-	m_GridList.Append(new string("abcD"));
-	m_GridList.Append(new string("asdf"));
-	m_GridList.Append(new string("asgss"));
-	m_GridList.Append(new string("vbc"));
-	m_GridList.Append(new string("xcvbcvx"));
-	//
+	m_GridList.Append(new string("17:30 ProTV\nStirile ProTV"));
+	m_GridList.Append(new string("17:35 ProTV\nStirile ProTV"));
+	m_GridList.Append(new string("20:00 HBO - Braveheart"));
+	m_GridList.Append(new string("17:40 ProTV\nStirile ProTV"));
+	m_GridList.Append(new string("17:45 ProTV\nStirile ProTV"));
+	m_GridList.Append(new string("17:50 ProTV\nStirile ProTV"));
+	m_GridList.Append(new string("17:55 ProTV\nStirile ProTV"));
+	m_GridList.Append(new string("18:30 ProTV - film"));
+	m_GridList.Append(new string("19:30 ProTV\nStirile ProTV"));
+	m_GridList.Append(new string("19:50 ProTV\nStirile ProTV"));
+	*/
 
+	/*
 	//HACK!! (testing capture keyboard command)
 	m_CaptureKeyboardParam.bOnOff = true;
 	m_CaptureKeyboardParam.bDataGrid = true;
@@ -320,45 +321,88 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 {
 	TRgb black(0,0,0);
 	TRgb darkGray(85,85,85);
-	TRgb liteGray(170,170,170);
+	TRgb liteGray(140,140,200);//light gray + blue
 	TRgb white(255,255,255); // appears as blank screen gray-green color
 	TRgb blue(50,50,255); // appears as blank screen gray-green color
 	TRgb red(255, 0, 0); //darkRed
 
-	const int RowHeight = 20;
-	const int SmallOffsetX = 15;
+	int RowHeight = 20;
+	const int SmallOffsetX = 5;
 	const int SmallOffsetY = 14;
 	const int ShadowLen = 3;
-	const int VisibleItems = Height / RowHeight;
+
+	int VisibleItems = Height / RowHeight;
+	RowHeight = Height / VisibleItems;
 
 	m_pGC->SetBrushStyle(CGraphicsContext::ESolidBrush);
 	m_pGC->SetPenStyle(CGraphicsContext::ENullPen);
 
-	//background border - liteGray
-	m_pGC->SetBrushColor(liteGray);
-	TRect ShadowRect(X, Y, X + Width, Y + Height);
+	//background border - darkGray
+	m_pGC->SetBrushColor(darkGray);
+	TRect ShadowRect(X, Y, X + Width, Y + RowHeight * VisibleItems);
 	m_pGC->DrawRect(ShadowRect);
 
-	//background color - black
-	m_pGC->SetBrushColor(black);
-	TRect rect(X + 1, Y + 1, X + Width - 1, Y + Height - 1);
-	m_pGC->DrawRect(rect);
+	//let's see how many item are visible right now
+	for(int i = m_uGridTopItem; i < m_uGridTopItem + VisibleItems; i++)
+	{
+		if(i >= GridList.Count()) 
+			break;
 
+		string *s = GridList[i];
+		const char *pStr = s->c_str();
+		int iBNpos = s->find('\n');
+
+		if(iBNpos != -1)
+			VisibleItems--;
+	}
+
+	//scroll the grid if need it
 	while(m_uGridTopItem + VisibleItems - 1 < m_uGridSelectedItem)
 		m_uGridTopItem++;
-
 	while(m_uGridTopItem > m_uGridSelectedItem)
 		m_uGridTopItem--;
+
+	//let's see now how many items are visible
+	VisibleItems = Height / RowHeight;
+	for(i = m_uGridTopItem; i < m_uGridTopItem + VisibleItems; i++)
+	{
+		if(i >= GridList.Count()) 
+			break;
+
+		string *s = GridList[i];
+		const char *pStr = s->c_str();
+		int iBNpos = s->find('\n');
+
+		if(iBNpos != -1)
+			VisibleItems--;
+	}
 
 	unsigned long uGridBottomItem = m_uGridTopItem + VisibleItems;
 
 	if(uGridBottomItem > GridList.Count())
 		uGridBottomItem = GridList.Count();
 
-	for(int i = m_uGridTopItem; i < uGridBottomItem; i++)
+	int iExpandOffset = 0;
+
+	for(i = m_uGridTopItem; i < uGridBottomItem; i++)
 	{
 		string *s = GridList[i];
 		const char *pStr = s->c_str();
+
+		int iBNpos = s->find('\n');
+
+		int strLen =  s->length();
+		
+		string s1("");
+		string s2("");
+
+		for(int j = 0; j < iBNpos; j++)
+			s1.Append(s->operator [](j));
+
+		for(j = iBNpos + 1; j < strLen; j++)
+			s2.Append(s->operator [](j));
+
+		int iItemSizeOffset = (iBNpos != -1) * RowHeight;
 
 		if(m_uGridSelectedItem == i)
 		{
@@ -366,9 +410,9 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 			m_pGC->SetBrushColor(darkGray);
 			TRect ShadowItemRect(
 				X + ShadowLen, 
-				Y + (i - m_uGridTopItem) * RowHeight + ShadowLen, 
+				Y + (i - m_uGridTopItem) * RowHeight + iExpandOffset + ShadowLen, 
 				X + Width, 
-				Y + (i - m_uGridTopItem + 1) * RowHeight
+				Y + (i - m_uGridTopItem + 1) * RowHeight + iExpandOffset + iItemSizeOffset
 			);
 			m_pGC->DrawRect(ShadowItemRect);
 
@@ -376,9 +420,9 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 			m_pGC->SetBrushColor(red);
 			TRect ItemRect(
 				X, 
-				Y + (i - m_uGridTopItem) * RowHeight, 
+				Y + (i - m_uGridTopItem) * RowHeight + iExpandOffset, 
 				X + Width - ShadowLen, 
-				Y + (i - m_uGridTopItem + 1) * RowHeight - ShadowLen
+				Y + (i - m_uGridTopItem + 1) * RowHeight + iExpandOffset - ShadowLen + iItemSizeOffset
 			);
 			m_pGC->DrawRect(ItemRect);
 
@@ -387,12 +431,52 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 		}
 		else
 		{
+			//item shadow : darkGray
+			m_pGC->SetBrushColor(darkGray);
+			TRect ShadowItemRect(
+				X + ShadowLen, 
+				Y + (i - m_uGridTopItem) * RowHeight + iExpandOffset + 1, 
+				X + Width, 
+				Y + (i - m_uGridTopItem + 1) * RowHeight + iExpandOffset + iItemSizeOffset
+			);
+			m_pGC->DrawRect(ShadowItemRect);
+
+			//background color : liteGray
+			m_pGC->SetBrushColor(liteGray);
+			TRect ItemRect(
+				X, 
+				Y + (i - m_uGridTopItem) * RowHeight + iExpandOffset, 
+				X + Width - 1, 
+				Y + (i - m_uGridTopItem + 1) * RowHeight + iExpandOffset - 1 + iItemSizeOffset
+			);
+			m_pGC->DrawRect(ItemRect);
+
 			//unselected text color : while
-			SetTextProperties(1, "Arial", 255, 255, 255);
+			SetTextProperties(1, "Arial", 0, 0, 0);
 		}
 
-		MyRect RowRect(X + SmallOffsetX, Y + SmallOffsetY +  (i - m_uGridTopItem) * RowHeight, Width, RowHeight);
-		DrawText(pStr, RowRect);
+		if(iBNpos != -1)
+		{
+			const char *pStr1 = s1.c_str();
+			const char *pStr2 = s2.c_str();
+
+
+			MyRect RowRect1(X + SmallOffsetX, Y + SmallOffsetY +  (i - m_uGridTopItem) * RowHeight + iExpandOffset, Width, RowHeight);
+			DrawText(pStr1, RowRect1);
+			MyRect RowRect2(X + SmallOffsetX, Y + SmallOffsetY +  (i - m_uGridTopItem) * RowHeight + iExpandOffset + iItemSizeOffset, Width, RowHeight);
+			DrawText(pStr2, RowRect2);			
+
+			iExpandOffset += RowHeight;
+
+//			if(!bLastItem)
+//				uGridBottomItem --; //one item less
+		}
+		else
+		{
+			MyRect RowRect(X + SmallOffsetX, Y + SmallOffsetY +  (i - m_uGridTopItem) * RowHeight + iExpandOffset, Width, RowHeight);
+			DrawText(pStr, RowRect);
+		}
+
 	}
 }
 //------------------------------------------------------------------------------------------------------------------

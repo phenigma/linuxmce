@@ -32,7 +32,7 @@ SymbianLogger::~SymbianLogger()
 //----------------------------------------------------------------------------------------------
 void SymbianLogger::Write(int Value, bool bAddTime /*= true*/)
 {
-	string s = string::IntegerToString(Value)
+	string s = string::IntegerToString(Value);
 	Write(s, bAddTime);
 }
 //----------------------------------------------------------------------------------------------
