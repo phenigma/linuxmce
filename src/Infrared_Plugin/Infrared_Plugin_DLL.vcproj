@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib pluto_main.lib libmysql.lib"
-				OutputFile="../bin/Infrared_Plugin.dll"
+				OutputFile="../Debug/Infrared_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;/mysql/lib/debug"
 				ModuleDefinitionFile="Infrared_Plugin.def"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib pluto_main-r.lib libmysql.lib"
-				OutputFile="../Release/Infrared_Plugin.dll"
+				OutputFile="../bin/Infrared_Plugin.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;/mysql/lib/debug"
 				ModuleDefinitionFile="Infrared_Plugin.def"

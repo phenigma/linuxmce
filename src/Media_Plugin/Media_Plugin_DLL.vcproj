@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib pluto_media.lib"
-				OutputFile="../bin/Media_Plugin.dll"
+				OutputFile="../Release/Media_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="\mysql\lib\Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"
 				IgnoreDefaultLibraryNames=""
@@ -88,7 +88,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE-r.lib pluto_main-r.lib pluto_media-r.lib"
-				OutputFile="../Release/Media_Plugin.dll"
+				OutputFile="../bin/Media_Plugin.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="\mysql\lib\Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"
 				ModuleDefinitionFile="Media_Plugin.def"

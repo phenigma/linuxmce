@@ -21,14 +21,7 @@ echo Building pluto(symbian) sources...
 cd "c:\pluto.makerelease\trunk\src"
 call "MakeRelease_WindowsCE.bat"
 
-echo Misc actions...
 cd "c:\pluto.makerelease\trunk\src\bin"
-copy OrbiterCE.exe "c:\pluto.makerelease\trunk\src\release"
-copy OrbiterCE_SDL.exe "c:\pluto.makerelease\trunk\src\release"
-copy UpdateBinaryCE.exe "c:\pluto.makerelease\trunk\src\release"
-copy *.sis "c:\pluto.makerelease\trunk\src\release"
-
-cd "c:\pluto.makerelease\trunk\src\release"
 copy Orbiter.exe Orbiter_Win32.dat
 copy OrbiterCE.exe Orbiter_WinCE.dat
 

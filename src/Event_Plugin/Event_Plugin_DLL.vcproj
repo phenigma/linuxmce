@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib"
-				OutputFile="../bin/Event_Plugin.dll"
+				OutputFile="../Debug/Event_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="Event_Plugin.def"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib libmysql.lib pluto_main-r.lib"
-				OutputFile="../Release/Event_Plugin.dll"
+				OutputFile="../bin/Event_Plugin.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="Event_Plugin.def"

@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib WidcommSdk.lib StdDLL.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib libmySQL.lib dce.lib libpng-pluto-d.lib SDL_rotozoom-pluto-d.lib zlib1-pluto-d.lib"
-				OutputFile="$(OutDir)/Bluetooth_Dongle.exe"
+				OutputFile="../Debug/Bluetooth_Dongle.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../WinBluetooth/lib;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;/mysql/lib/Debug;../lib;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug"
 				IgnoreDefaultLibraryNames="LIBCD"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib WidcommSdk.lib StdDLL.lib SDL-pluto-r.lib SDL_image-pluto-r.lib SDL_ttf-pluto-r.lib SGE-pluto-r.lib libmySQL.lib dce-r.lib libpng-pluto-r.lib SDL_rotozoom-pluto-r.lib zlib1-pluto-r.lib"
-				OutputFile="../Release/Bluetooth_Dongle.exe"
+				OutputFile="../bin/Bluetooth_Dongle.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../WinBluetooth/lib;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Release&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Release&quot;;/mysql/lib/Debug;../lib;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Release;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Release&quot;;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Release"
 				GenerateDebugInformation="TRUE"

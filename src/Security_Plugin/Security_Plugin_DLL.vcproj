@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib pluto_security.lib"
-				OutputFile="../bin/Security_Plugin.dll"
+				OutputFile="../Debug/Security_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;/mysql/lib/debug"
 				ModuleDefinitionFile="Security_Plugin.def"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib libmysql.lib pluto_main-r.lib pluto_security-r.lib"
-				OutputFile="../Release/Security_Plugin.dll"
+				OutputFile="../bin/Security_Plugin.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;/mysql/lib/debug"
 				ModuleDefinitionFile="Security_Plugin.def"

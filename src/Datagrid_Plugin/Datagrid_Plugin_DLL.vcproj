@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
-				OutputFile="../bin/Datagrid_Plugin.dll"
+				OutputFile="../Debug/Datagrid_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="Datagrid_Plugin.def"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
-				OutputFile="../Release/Datagrid_Plugin.dll"
+				OutputFile="../bin/Datagrid_Plugin.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="Datagrid_Plugin.def"

@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libmySQL.lib DCE.lib"
-				OutputFile="../bin/sql2cpp.exe"
+				OutputFile="../Debug/sql2cpp.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib"
 				GenerateDebugInformation="TRUE"
@@ -86,7 +86,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libmySQL.lib DCE-r.lib"
-				OutputFile="../Release/sql2cpp.exe"
+				OutputFile="../bin/sql2cpp.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib"
 				GenerateDebugInformation="TRUE"

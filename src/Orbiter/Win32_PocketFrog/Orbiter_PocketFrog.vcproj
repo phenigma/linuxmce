@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib"
-				OutputFile="../../bin/Orbiter.exe"
+				OutputFile="../../Debug/Orbiter.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../../libs/Libraries/pthreads-win32/lib&quot;;../../lib;../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;../../../libs\Libraries\PocketFrog\lib\x86\Debug;../../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug"
 				IgnoreDefaultLibraryNames="LIBCD"
@@ -88,7 +88,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib dce-r.lib libpng-pluto-r.lib zlib1-pluto-r.lib"
 				ShowProgress="0"
-				OutputFile="../../Release/Orbiter.exe"
+				OutputFile="../../bin/Orbiter.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Release;../../lib/;../../../libs\Libraries\PocketFrog\lib\x86\release;../../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Release;&quot;../../../libs/Libraries/pthreads-win32/lib&quot;"
 				IgnoreAllDefaultLibraries="FALSE"

@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib  libmysql.lib pluto_main.lib pluto_media.lib"
-				OutputFile="../bin/Xine_Plugin.dll"
+				OutputFile="../Debug/Xine_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="Xine_Plugin.def"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmysql.lib DCE-r.lib pluto_main-r.lib pluto_media-r.lib"
-				OutputFile="../Release/Xine_Plugin.dll"
+				OutputFile="../bin/Xine_Plugin.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="Xine_Plugin.def"

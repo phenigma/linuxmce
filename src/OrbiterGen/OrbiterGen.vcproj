@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib libpng-pluto-d.lib zlib1-pluto-d.lib pluto_main.lib dce.lib"
-				OutputFile="../bin/OrbiterGen.exe"
+				OutputFile="../Debug/OrbiterGen.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/debug;../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug"
 				IgnoreDefaultLibraryNames="nafxcwd.lib"
@@ -89,7 +89,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib SDL-pluto-r.lib SDL_image-pluto-r.lib SDL_ttf-pluto-r.lib SGE-pluto-r.lib libpng-pluto-r.lib zlib1-pluto-r.lib pluto_main-r.lib dce-r.lib"
-				OutputFile="../Release/OrbiterGen.exe"
+				OutputFile="../bin/OrbiterGen.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="/mysql/lib/debug;../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Release&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Release&quot;;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Release;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Release"
 				GenerateDebugInformation="TRUE"

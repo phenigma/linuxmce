@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib"
-				OutputFile="../bin/sqlCVS.exe"
+				OutputFile="../Debug/sqlCVS.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib;../../libs/Libraries/pthreads-win32/lib"
 				GenerateDebugInformation="TRUE"
@@ -86,7 +86,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE-r.lib"
-				OutputFile="../Release/sqlCVS.exe"
+				OutputFile="../bin/sqlCVS.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib;../../libs/Libraries/pthreads-win32/lib"
 				GenerateDebugInformation="TRUE"

@@ -35,7 +35,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib pluto_main.lib dce.lib"
-				OutputFile="../bin/DCEGen.exe"
+				OutputFile="../Debug/DCEGen.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;/mysql/lib/debug"
 				IgnoreDefaultLibraryNames=""
@@ -90,7 +90,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib pluto_main-r.lib dce-r.lib"
-				OutputFile="../Release/DCEGen.exe"
+				OutputFile="../bin/DCEGen.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;/mysql/lib/debug"
 				GenerateDebugInformation="TRUE"

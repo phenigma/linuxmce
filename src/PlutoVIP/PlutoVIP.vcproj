@@ -40,7 +40,7 @@
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="stddll.lib cximage.lib tiff.lib jpeg.lib pthreadVC.lib"
 				ShowProgress="0"
-				OutputFile="../Bin/PlutoVIP.exe"
+				OutputFile="../Debug/PlutoVIP.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../../libs/Libraries/CXImage/tiff/Debug;../../libs/Libraries/CXImage/jpeg/Debug/;../../libs/Libraries/CXImage/CXImage/Debug/;&quot;../../libs/Libraries/pthreads-win32/lib/&quot;;../winbluetooth/lib/"
@@ -105,7 +105,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="tiff.lib cximage.lib jpeg.lib pthreadVC.lib stddll.lib"
-				OutputFile="../Release/PlutoVIP.exe"
+				OutputFile="../bin/PlutoVIP.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../../libs/Libraries/CXImage/tiff/Release;../../libs/Libraries/CXImage/jpeg/Release/;../../libs/Libraries/CXImage/CXImage/Release/;&quot;../../libs/Libraries/pthreads-win32/lib/&quot;;../winbluetooth/lib/Release"
@@ -534,10 +534,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 		</Filter>
 		<Filter

@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib"
-				OutputFile="../bin/Climate_Plugin.dll"
+				OutputFile="../Debug/Climate_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"
 				ModuleDefinitionFile="Climate_Plugin.def"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib libmysql.lib pluto_main-r.lib"
-				OutputFile="../Release/Climate_Plugin.dll"
+				OutputFile="../bin/Climate_Plugin.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="/mysql/lib/debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"
 				ModuleDefinitionFile="Climate_Plugin.def"

@@ -12,13 +12,13 @@ ren %INPUT_PATH%\src\pluto.sln pluto.sln.temp
 ren %INPUT_PATH%\src\pluto.sln.temp pluto.sln
 
 echo Updating Orbiter release binary for OrbiterInstaller
-copy C:\pluto.makerelease\trunk\src\release\Orbiter.exe C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Files\
+copy C:\pluto.makerelease\trunk\src\bin\Orbiter.exe C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Files\
 
 cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter
 CALL WinMake.bat
 
-cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Release\
-copy *.msi C:\pluto.makerelease\trunk\src\release
+cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter\bin\
+copy *.msi C:\pluto.makerelease\trunk\src\bin
 
 
 

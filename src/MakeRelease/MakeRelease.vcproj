@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib"
-				OutputFile="../bin/MakeRelease.exe"
+				OutputFile="../Debug/MakeRelease.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib;../../libs/Libraries/pthreads-win32/lib"
 				GenerateDebugInformation="TRUE"
@@ -86,7 +86,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE-r.lib pluto_main-r.lib"
-				OutputFile="../Release/MakeRelease.exe"
+				OutputFile="../bin/MakeRelease.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib;../../libs/Libraries/pthreads-win32/lib"
 				GenerateDebugInformation="TRUE"

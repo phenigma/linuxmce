@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib  libmySQL.lib DCE.lib pluto_main.lib"
-				OutputFile="../bin/Orbiter_Plugin.dll"
+				OutputFile="../Debug/Orbiter_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="\mysql\lib\Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="Orbiter_Plugin.def"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib  libmySQL.lib DCE-r.lib pluto_main-r.lib"
-				OutputFile="../Release/Orbiter_Plugin.dll"
+				OutputFile="../bin/Orbiter_Plugin.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="\mysql\lib\Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="Orbiter_Plugin.def"
