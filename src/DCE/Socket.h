@@ -15,8 +15,7 @@
 
 #define INSOCKBUFFER_SIZE 8192
 
-// Todo: temporarily increase these values for valgrid
-#define SOCKET_TIMEOUT		90		// Normally 30
+#define SOCKET_TIMEOUT		30
 
 namespace DCE
 {
@@ -31,7 +30,12 @@ namespace DCE
 	{
 		
 	public:
-	
+		enum SocketType { st_Unknown, st_ServerCommand, st_ServerEvent, st_ClientCommand, st_ClientEvent } m_eSocketType;
+
+		/** < If true,  the framework will send a ping every 10 seconds or so to be sure the network
+		is ok.  This is useful for poor wireless connections */
+		bool m_bUsePingToKeepAlive;
+
 		SOCKET m_Socket; /** < the actual socket @todo ask */
 		
 		string m_sName,m_sIPAddress; /** < a name for the socket */
@@ -43,13 +47,19 @@ namespace DCE
 		pluto_pthread_mutex_t m_SocketMutex; /** < for synchronisation between threads @todo ask */
 		pthread_mutexattr_t m_SocketMutexAttr;  /** < for synchronisation between threads @todo ask */
 
+		pthread_t m_pthread_pingloop_id; /** < the thread id for the tread that's treating the messages from the message queue */
+		pthread_cond_t m_PingLoopCond; /** < condition for the messages in the queue */
+
 		char *m_pcInSockBuffer; /** < input buffer for the socket @todo ask */
 		char *m_pcCurInsockBuffer; /** < input buffer current position @todo ask */
 		
 		int m_iSockBufBytesLeft; /** < bytes left in the socket buffer @todo ask */
 		int m_iReceiveTimeout; /** < the interval after witch the sockets stops expecting for an answer in seconds */
 		bool m_bQuit; /** < set when the socket should terminate */
-		
+
+		/** < If non null, then any socket failures will be sent to the
+		m_pSocket_PingFailure rather than handled locally */
+		Socket *m_pSocket_PingFailure;
 		/**
 		 * @brief creates a new socket objest with the specified name, and it also writes a log
 		 */
@@ -117,6 +127,21 @@ namespace DCE
 		 * @return false on errors
 		 */
 		virtual Message *SendReceiveMessage( Message *pMessage );
+
+		/**
+		 * @brief Close the socket
+		 */
+		virtual void Close();
+
+		/**
+		 * @brief Start monitoring the socket to be sure it stays alive
+		 */
+		virtual void StartPingLoop();
+
+		/**
+		 * @brief Called when a ping test failed
+		 */
+		virtual void PingFailed();
 	};
 }
 

@@ -83,8 +83,7 @@ ServerSocket::~ServerSocket()
 	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket() Deleting socket @%p. Socket id in destructor: %d.", this, m_Socket );
 #endif
 
-	if( m_Socket != INVALID_SOCKET )
-		closesocket( m_Socket );
+	Close();
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket(): @%p Is it running %d?", this, m_bThreadRunning);
@@ -204,6 +203,8 @@ bool ServerSocket::_Run()
 			if ( m_dwPK_Device == TEST_DISCONNECT )
 				m_pListener->m_pTestDisconnectEvent = this;
  #endif
+
+			m_pListener->RegisterEventHandler( this, m_dwPK_Device );
 			continue;
 		}
 
@@ -280,5 +281,11 @@ bool ServerSocket::_Run()
 
 	m_bThreadRunning=false;
 	return true;
+}
+
+void ServerSocket::PingFailed()
+{
+	Close();
+	m_pListener->PingFailed( this, m_dwPK_Device );
 }
 

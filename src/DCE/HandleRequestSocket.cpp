@@ -148,54 +148,41 @@ void HandleRequestSocket::RunThread()
 				g_pPlutoLogger->Write( LV_STATUS, "Socket flagged as corrupted %p device: %d", this, m_dwPK_Device );
 				m_bTerminate = true;
 			}
-			if ( sMessage.substr(0,4) == "PING" )
-			{
 #ifdef DEBUG
-#ifdef WIN32
-				//LACA_B4_0( "got ping, sending pong %s", m_sName.c_str() );
-				g_pPlutoLogger->Write( LV_STATUS, "got ping, sending pong %p device: %d %s", this, m_dwPK_Device, m_sName.c_str() );
+			g_pPlutoLogger->Write( LV_STATUS, "Received %s %p device: %d", sMessage.c_str(), this, m_dwPK_Device);
 #endif
-#endif
-				SendString( "PONG" );
-			}
-			else
+			if ( sMessage.substr(0,7)  == "MESSAGE" )
 			{
-#ifdef DEBUG
-				g_pPlutoLogger->Write( LV_STATUS, "Received %s %p device: %d", sMessage.c_str(), this, m_dwPK_Device);
-#endif
-				if ( sMessage.substr(0,7)  == "MESSAGE" )
+				Message *pMessage = ReceiveMessage( atoi( sMessage.substr(8).c_str() ) );
+				if ( pMessage )
 				{
-					Message *pMessage = ReceiveMessage( atoi( sMessage.substr(8).c_str() ) );
-					if ( pMessage )
-					{
 #ifdef DEBUG
-						g_pPlutoLogger->Write( LV_STATUS, "Received Message type %d ID %d from %d to %d (device: %d)",
-							pMessage->m_dwMessage_Type, pMessage->m_dwID, pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To, m_dwPK_Device );
+					g_pPlutoLogger->Write( LV_STATUS, "Received Message type %d ID %d from %d to %d (device: %d)",
+						pMessage->m_dwMessage_Type, pMessage->m_dwID, pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To, m_dwPK_Device );
 #endif
-						if ( !ReceivedMessage( pMessage ) )
-						{
-							#ifdef LOG_ALL_CONTROLLER_ACTIVITY
-								LACA_B4_6( "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
-									pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
-									pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device,m_sName.c_str() );
-							#endif
-							g_pPlutoLogger->Write( LV_STATUS, "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
-								pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
-								pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device, m_sName.c_str() );
-						}
-						delete pMessage;
-					}
-					else
+					if ( !ReceivedMessage( pMessage ) )
 					{
 						#ifdef LOG_ALL_CONTROLLER_ACTIVITY
-							LACA_B4_3( "Incomplete message received %p (device: %d) %s", this, m_dwPK_Device, m_sName.c_str() );
+							LACA_B4_6( "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
+								pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
+								pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device,m_sName.c_str() );
 						#endif
-						g_pPlutoLogger->Write( LV_CRITICAL, "Incomplete message received %p (device: %d) %s", this, m_dwPK_Device, m_sName.c_str() );
+						g_pPlutoLogger->Write( LV_STATUS, "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
+							pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
+							pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device, m_sName.c_str() );
 					}
+					delete pMessage;
 				}
 				else
-					ReceivedString( sMessage );
+				{
+					#ifdef LOG_ALL_CONTROLLER_ACTIVITY
+						LACA_B4_3( "Incomplete message received %p (device: %d) %s", this, m_dwPK_Device, m_sName.c_str() );
+					#endif
+					g_pPlutoLogger->Write( LV_CRITICAL, "Incomplete message received %p (device: %d) %s", this, m_dwPK_Device, m_sName.c_str() );
+				}
 			}
+			else
+				ReceivedString( sMessage );
 		}
 	}
 

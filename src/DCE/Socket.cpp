@@ -75,6 +75,33 @@ void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
 	pDest[NumBytes]=0;
 }
 
+/**
+ * @brief entry point for the MessageQueue thread
+ */
+void* PingLoop( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
+{
+	Socket *pSocket = (Socket *) param;
+	timespec ts_NextPing;
+	ts_NextPing.tv_nsec=0;
+
+	while(true)
+	{
+		PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,pSocket->m_SocketMutex);  // lock this first
+		ts_NextPing.tv_sec=time(NULL)+5;
+		pthread_cond_timedwait(&pSocket->m_PingLoopCond, &pSocket->m_SocketMutex.mutex, &ts_NextPing);
+
+		if( !pSocket->m_bUsePingToKeepAlive || pSocket->m_Socket == INVALID_SOCKET )
+		{
+			pSocket->m_bUsePingToKeepAlive=false;
+			return NULL; // Don't try anymore
+		}
+		if( pSocket->SendReceiveString("PING")!="PONG" )
+		{
+			sSM.Release();
+			pSocket->PingFailed();
+		}
+	}
+}
 
 Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + Name)
 {
@@ -88,6 +115,10 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 	m_iSocketCounter = SocketCounter++;
 	m_sName = Name;
 	m_bQuit = false;
+	m_bUsePingToKeepAlive = false;
+	m_pthread_pingloop_id = 0;
+	m_pSocket_PingFailure=NULL;
+	m_eSocketType = st_Unknown;
 
 
 #ifdef LL_DEBUG_FILE
@@ -159,18 +190,19 @@ Socket::~Socket()
 #endif
 #endif
 
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_SOCKET, "Socket::~Socket(): deleting socket @%p %s (socket id in destructor: %d)", this, m_sName.c_str(), m_Socket );
 #endif
 
-	if ( m_Socket != INVALID_SOCKET )
- 	{
-		closesocket( m_Socket );
-#ifndef WINCE
-		close(m_Socket);
-#endif
+	Close();
+
+	if( m_bUsePingToKeepAlive )
+	{
+		pthread_cond_broadcast( &m_PingLoopCond );
+		while( m_bUsePingToKeepAlive )
+			Sleep(10);
 	}
-	m_Socket = INVALID_SOCKET;
 
 	if(NULL != m_pcInSockBuffer)
 	{
@@ -350,7 +382,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 	}
 #endif
 
-//	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 #ifdef LOG_ALL_CONTROLLER_ACTIVITY
 	if( m_sName.substr(0,6) != "Logger" )
 		LACA_B4_4( "Sending after lock: (%d) %s %p %s", iSize, pcData, pthread_self(), m_sName.c_str() );
@@ -485,13 +517,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 			iBytesLeft -= iSendBytes;
 		else
 		{
-			closesocket( m_Socket );
-#ifndef WINCE
-			close(m_Socket);
-#endif
-			/** @todo check comment */
-			// AB 1-25-2004 pthread_mutex_unlock(&m_DCESocketMutex);
-			m_Socket = INVALID_SOCKET;
+			Close();
 #ifdef LL_DEBUG_FILE
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) );
@@ -547,6 +573,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 
 bool Socket::ReceiveData( int iSize, char *pcData )
 {
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 	if( m_Socket == INVALID_SOCKET )
 	{
 		if( m_bQuit )
@@ -656,11 +683,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 
 			if( iRet == 0 || iRet == -1 )
 			{
-				closesocket( m_Socket );
-#ifndef WINCE
-				close( m_Socket);
-#endif
-				m_Socket = INVALID_SOCKET;
+				Close();
 				if( m_bQuit )
 					return false;
 #ifdef DEBUG
@@ -727,11 +750,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #ifdef WIN32
 				g_pPlutoLogger->Write(LV_STATUS,"Socket closure error code: %d",WSAGetLastError());
 #endif
-				closesocket( m_Socket );
-#ifndef WINCE
-				close( m_Socket );
-#endif
-				m_Socket = INVALID_SOCKET;
+				Close();
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
 				m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
@@ -857,6 +876,13 @@ bool Socket::ReceiveString( string &sRefString )
 		}
 		++pcBuf;
 		--iLen;
+		// If it's just a ping, respond with pong
+		if( *(pcBuf-1) == '\n' && pcBuf-acBuf==5 && strncmp(acBuf,"PING",4)==0 )
+		{
+			SendString("PONG");
+			pcBuf = acBuf;
+			iLen = sizeof( acBuf ) - 1;
+		}
 	} while( *(pcBuf-1) != '\n' && *(pcBuf-1) != 0 && iLen ); // while within iLen and not reached the string's end
 
 	if ( !iLen ) // didn't get all that was expected or more @todo ask
@@ -891,7 +917,7 @@ bool Socket::ReceiveString( string &sRefString )
 		ll4.Release();
 #else
 		// Yikes, we received more than sizeof(acBuf) characters.  Must be spewing.  Drop the connection.
-		closesocket( m_Socket );
+		Close();
 #endif
 		sRefString = "Not a string, or excessive length";
 
@@ -996,4 +1022,40 @@ string Socket::SendReceiveString( string sLine )
 	if( ReceiveString( sResponse ) )
 		return sResponse;
 	return "";
+}
+
+void Socket::StartPingLoop()
+{
+	m_bUsePingToKeepAlive=true;
+
+	pthread_cond_init( &m_PingLoopCond, NULL );
+	if(pthread_create( &m_pthread_pingloop_id, NULL, PingLoop, (void*)this) )
+	{
+		m_bUsePingToKeepAlive=false;
+		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create ping loop" );
+	}
+}
+
+void Socket::PingFailed()
+{
+	g_pPlutoLogger->Write( LV_CRITICAL, "Socket::PingFailed %p %s (socket id in destructor: %d %p)", 
+		this, m_sName.c_str(), m_Socket, m_pSocket_PingFailure );
+	if( m_pSocket_PingFailure )
+	{
+		m_pSocket_PingFailure->PingFailed();
+		return;
+	}
+	int k=2;
+}
+
+void Socket::Close()
+{
+	if ( m_Socket != INVALID_SOCKET )
+ 	{
+		closesocket( m_Socket );
+#ifndef WINCE
+		close(m_Socket);
+#endif
+	}
+	m_Socket = INVALID_SOCKET;
 }

@@ -23,12 +23,13 @@ public:
 	map<string, string> m_mapUsersPasswords; /**< All the users who are checking in this session */
 	vector<string> m_vectTables; /**< The tables we will be checking in this session     */
 	string m_sRepository, m_sDefaultUser, m_sComments;
+	int m_iSchemaVersion;
 
 	/** @brief Response Variables */
 	int m_psc_batch;
 
 	/** @brief constructors */
-	R_CommitChanges( string sRepository, string sDefaultUser, string Comments );
+	R_CommitChanges( string sRepository, string sDefaultUser, string Comments, int iSchemaVersion );
 	R_CommitChanges( ) {};
 
 	/**
@@ -42,7 +43,7 @@ public:
 	virtual void SetupSerialization_Request( )
 	{
 		RA_Request::SetupSerialization_Request( );
-		StartSerializeList( ) + m_sRepository + m_sDefaultUser + m_sComments + m_vectTables + m_mapUsersPasswords ;
+		StartSerializeList( ) + m_sRepository + m_sDefaultUser + m_sComments + m_vectTables + m_mapUsersPasswords + m_iSchemaVersion;
 	}
 	virtual void SetupSerialization_Response( )
 	{

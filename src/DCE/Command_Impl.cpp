@@ -379,6 +379,17 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 	if( m_Socket == INVALID_SOCKET )
 		bResult = false;
 
+
+	if( m_pData && m_pData->m_bUsePingToKeepAlive )
+	{
+		// No need to start the ping loop for this socket because the CommandImpl
+		// is an incoming socket, and the server will have already started this
+		m_pEvent->m_pClientSocket->StartPingLoop();
+		m_pcRequestSocket->m_pClientSocket->StartPingLoop();
+		m_pEvent->m_pClientSocket->m_pSocket_PingFailure=this;
+		m_pcRequestSocket->m_pClientSocket->m_pSocket_PingFailure=this;
+	}
+
 	m_bStopWatchdog = false;
 	m_bWatchdogRunning = false;
 

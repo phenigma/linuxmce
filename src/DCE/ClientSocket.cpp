@@ -45,6 +45,7 @@ using namespace DCE;
 	#include "wince.h"
 #endif
 
+
 ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : Socket( sName )
 {
 	m_dwPK_Device = iDeviceID;
@@ -58,7 +59,7 @@ ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : S
 
 ClientSocket::~ClientSocket()
 {
-    Disconnect();
+	Disconnect();
 }
 
 bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
@@ -232,7 +233,6 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 		}
 		else
 			m_dwPK_Device=PK_Device_New;
-
 	}
 
 	return true;
@@ -245,10 +245,7 @@ void ClientSocket::Disconnect()
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "void ClientSocket::Disconnect() on this socket: %p (m_Socket: %d)", this, m_Socket);
 		// this will usually force it out from the select.
-		closesocket( m_Socket );
-// 		close(m_Socket);
-		m_Socket = INVALID_SOCKET;
+		Close();
 	}
 }
-
 

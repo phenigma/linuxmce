@@ -281,7 +281,8 @@ int k;
         // Internal use
 //      void AddRoutingForDevice(OCDeviceData *pParentDevice, OCDeviceData *pDevice);
         bool Run();
-        virtual void RegisteredCommandHandler(int DeviceID);
+		virtual void RegisteredEventHandler(ServerSocket *pSocket, int DeviceID);
+		virtual void RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID);
         virtual bool ReceivedString(Socket *Socket, string Line);
         virtual void ReceivedMessage(Socket *pSocket, Message *pMessage);
         virtual void OnDisconnected(int DeviceID);
@@ -329,6 +330,8 @@ int k;
         Database_pluto_main *GetDatabase() { return m_pDatabase_pluto_main; }
         void StartListening() { SocketListener::StartListening(m_Port); }
         void Quit() { m_bQuit=true; }
+		virtual void PingFailed( ServerSocket *pServerSocket, int dwPK_Device );
+		virtual void RemoveSocket( Socket *Socket );
 
 		virtual int GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress );
 		virtual int ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate );

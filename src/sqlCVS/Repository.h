@@ -15,6 +15,7 @@
 #include "ChangedRow.h"
 
 class R_ApproveBatch;
+class RA_Request;
 
 namespace sqlCVS
 {
@@ -99,6 +100,8 @@ namespace sqlCVS
 		void SetSetting(string Setting,string Value);
 		void ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable);
 		bool UpdateSchema(int PriorSchema);
+		void UpdateClientSchema(RA_Request *pRA_Request,int iSchemaVersion);
+		int GetSchemaVersion() { return atoi(GetSetting("schema","0").c_str()); };
 
 		bool ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *psqlCVSprocessor);
 

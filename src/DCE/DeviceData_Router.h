@@ -154,6 +154,10 @@ namespace DCE
 		class DeviceData_Router *m_pDevice_Audio,*m_pDevice_Video;
 		Row_Device *m_pRow_Device;
 
+		map<int,Socket *> m_mapSocket_Event;
+		Socket *m_pSocket_Command;
+
+
 		DeviceData_Router(Row_Device *pRow_Device, Room *pRoom, string sCommandLine)
 			: DeviceData_Impl(pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRoom ? pRoom->m_dwPK_Room : 0,
 			pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,
@@ -169,6 +173,7 @@ namespace DCE
 			m_pDevice_ControlledVia=m_pDevice_RouteTo=NULL;
 			m_pDevice_Audio=m_pDevice_Video=NULL;
 			m_pMySerializedData=NULL;
+			m_pSocket_Command=NULL;
 			m_iConfigSize=0;
 		}
 
@@ -185,6 +190,7 @@ namespace DCE
 			m_pDevice_ControlledVia=m_pDevice_RouteTo=NULL;
 			m_pDevice_Audio=m_pDevice_Video=NULL;
 			m_pMySerializedData=NULL;
+			m_pSocket_Command=NULL;
 			m_iConfigSize=0;
 		}
 

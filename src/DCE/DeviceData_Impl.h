@@ -36,6 +36,7 @@ namespace DCE
 		map<int, string> m_mapParameters; /** < integer-keyed map with the parameters this device has @todo ask - is string=paramvalue? */
 		
 		VectDeviceData_Impl m_vectDeviceData_Impl_Children; /** < vector containing the child devices  */
+		bool m_bUsePingToKeepAlive;
 	
 		/** @todo check comment */	
 		/*
@@ -65,7 +66,10 @@ namespace DCE
 		/**
 		 * @brief default constructor
 		 */
-		DeviceData_Impl() {}
+		DeviceData_Impl() 
+		{
+			m_bUsePingToKeepAlive=false;
+		}
 		
 		/**
 		 * @brief constructor, it just assigns values to the member data (and calls the base class constructor)
@@ -76,6 +80,7 @@ namespace DCE
 			: DeviceData_Base( dwPK_Device, dwPK_Installation, dwPK_Device_Template, dwPK_Device_Controlled_Via, m_dwPK_DeviceCategory, dwPK_Room,
 			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sDescription, sIPAddress, sMacAddress, bInheritsMacFromPC )
 		{
+			m_bUsePingToKeepAlive=false;
 		}
 
 		virtual ~DeviceData_Impl()
@@ -111,7 +116,7 @@ namespace DCE
 		void SetupSerialization(int iSC_Version)
 		{
 			DeviceData_Base::SetupSerialization(iSC_Version);
-			StartSerializeList() + m_mapParameters;
+			StartSerializeList() + m_mapParameters + m_bUsePingToKeepAlive;
 			(*this) + m_vectDeviceData_Impl_Children; // this is serialized custom
 		}
 		

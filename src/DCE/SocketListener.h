@@ -82,17 +82,29 @@ namespace DCE
 		/**
 		 * @brief removes the socket from the listClients mb data and clears any dependencies
 		 */
-		void RemoveSocket( Socket *Socket );
+		virtual void RemoveSocket( Socket *Socket );
 		
+
+		/**
+		 * @brief Called when an event handler is registered
+		 */
+		void RegisterEventHandler( ServerSocket *Socket, int iDeviceID );
+
 		/**
 		 * @brief binds the specified socket to the specified device in the mapCommandHandlers mb data (after setting it up a little)
 		 */
 		void RegisterCommandHandler( ServerSocket *Socket, int iDeviceID );
 
+
 		/**
 		 * @brief waiting to be overriden
 		 */
-		virtual void RegisteredCommandHandler( int iDeviceID ) = 0;
+		virtual void RegisteredEventHandler( ServerSocket *pSocket, int iDeviceID ) {};
+
+		/**
+		 * @brief waiting to be overriden
+		 */
+		virtual void RegisteredCommandHandler( ServerSocket *pSocket, int iDeviceID ) {};
 		
 		/**
 		 * @brief gets the host IP address
@@ -150,6 +162,9 @@ namespace DCE
 		 * @brief Close any open sockets
 		 */
 		void DropAllSockets();
+
+		// Called when a ping test fails
+		virtual void PingFailed( ServerSocket *pServerSocket, int dwPK_Device ) {};
 	};
 }
 

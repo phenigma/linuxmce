@@ -35,6 +35,7 @@
 #include "R_ApproveBatch.h"
 
 #include "A_UpdateRow.h"
+#include "A_UpdateSchema.h"
 #include "sqlCVSprocessor.h"
 #include "RA/RAServerSocket.h"
 
@@ -87,6 +88,10 @@ RA_Action *RA_Processor::BuildActionFromData( long dwSize, const char *pcData, u
 	{
 	case A_UPDATE_ROW:
 		pRA_Action=new A_UpdateRow( );
+		pRA_Action->CreateAction( dwSize, pcData );
+		return pRA_Action;
+	case A_UPDATE_SCHEMA:
+		pRA_Action=new A_UpdateSchema( );
 		pRA_Action->CreateAction( dwSize, pcData );
 		return pRA_Action;
 	}

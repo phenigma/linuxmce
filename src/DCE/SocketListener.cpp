@@ -253,6 +253,12 @@ void SocketListener::RemoveSocket( Socket *pSocket )
 	}
 }
 
+void SocketListener::RegisterEventHandler( ServerSocket *Socket, int iDeviceID )
+{
+	Socket->m_eSocketType=Socket::st_ServerEvent;
+	RegisteredEventHandler( Socket, iDeviceID );
+}
+
 void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID )
 {
 	PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
@@ -278,7 +284,8 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 			Socket->m_Socket, Socket->m_iSocketCounter,
 			Socket );
 
-	RegisteredCommandHandler( iDeviceID );
+	Socket->m_eSocketType=Socket::st_ServerCommand;
+	RegisteredCommandHandler( Socket, iDeviceID );
 }
 
 
@@ -341,11 +348,7 @@ void SocketListener::DropAllSockets()
 	for(::std::list<Socket *>::iterator it=m_listClients.begin();it!=m_listClients.end();++it)
 	{
 		Socket *pSocket = *it;
-		if( pSocket->m_Socket != INVALID_SOCKET )
-		{
-			closesocket(pSocket->m_Socket);
-			pSocket->m_Socket = INVALID_SOCKET;
-		}
+		pSocket->Close();
 		delete pSocket;
 	}
 	lm.Release();

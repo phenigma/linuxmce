@@ -38,11 +38,12 @@
 
 using namespace sqlCVS;
 
-R_CommitChanges::R_CommitChanges( string sRepository, string sDefaultUser, string sComments )
+R_CommitChanges::R_CommitChanges( string sRepository, string sDefaultUser, string sComments, int iSchemaVersion )
 {
 	m_sRepository=sRepository;
 	m_sDefaultUser=sDefaultUser;
 	m_sComments=sComments;
+	m_iSchemaVersion=iSchemaVersion;
 }
 
 bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
@@ -87,6 +88,9 @@ bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 		psqlCVSprocessor->m_pRepository = pRepository;
 		m_psc_batch = psqlCVSprocessor->m_psc_bathdr_orig = psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( psqlCVSprocessor, &g_GlobalConfig.m_mapValidatedUsers );
 
+		if( m_iSchemaVersion!=pRepository->GetSchemaVersion() )
+			pRepository->UpdateClientSchema(this,m_iSchemaVersion);
+		
 		if( !psqlCVSprocessor->m_i_psc_batch )
 			m_cProcessOutcome=INTERNAL_ERROR;
 		else

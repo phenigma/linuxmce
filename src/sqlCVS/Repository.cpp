@@ -39,6 +39,7 @@
 #include "R_UpdateRepository.h"
 #include "R_CloseTransaction.h"
 #include "R_ApproveBatch.h"
+#include "A_UpdateSchema.h"
 #include "ChangedRow.h"
 #include "sqlCVSprocessor.h"
 
@@ -78,7 +79,11 @@ void Repository::MatchUpTables( )
 		cerr << "Could not find all the system tables for Repository: " << m_sName << endl
 			<< "I need _repset, _bathdr, _batuser, _batdet, _tables" << endl
 			<< "This repository has been corrupted, and will need to be rebuilt in order to continue." << endl;
-		if( AskYNQuestion("Rebuild repository: " + m_sName,false) )
+
+		if( g_GlobalConfig.m_sCommand=="import" )
+			return;
+
+		if( !g_GlobalConfig.m_bNoPrompts && AskYNQuestion("Rebuild repository: " + m_sName,false) )
 			ResetSystemTables();
 		else
 			throw "Repository corrupt";
@@ -540,7 +545,7 @@ bool Repository::CheckIn( )
 	/** An exception will be thrown and a roll back called if this falls out of scope and hasn't been committed or rolled back */
 	SafetyTransaction st( m_pDatabase );
 
-	R_CommitChanges r_CommitChanges( m_sName, g_GlobalConfig.m_sDefaultUser, g_GlobalConfig.m_sComments );
+	R_CommitChanges r_CommitChanges( m_sName, g_GlobalConfig.m_sDefaultUser, g_GlobalConfig.m_sComments, GetSchemaVersion() );
 	for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
 	{
 		// We don't care about user 0, or users who didn't log in
@@ -670,7 +675,7 @@ bool Repository::Update( )
 	/** An exception will be thrown and a roll back called if this falls out of scope and hasn't been committed or rolled back */
 	SafetyTransaction st( m_pDatabase ); 
 
-	R_UpdateRepository r_UpdateRepository( m_sName );
+	R_UpdateRepository r_UpdateRepository( m_sName, GetSchemaVersion() );
 	ra_Processor.AddRequest( &r_UpdateRepository );
 	DCE::Socket *pSocket=NULL;
 	while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
@@ -1398,3 +1403,24 @@ bool Repository::HasChangedRecords()
 	}
 	return false;
 }
+
+void Repository::UpdateClientSchema(RA_Request *pRA_Request,int iSchemaVersion)
+{
+	std::ostringstream sSQL;
+	sSQL << "SELECT PK_psc_" << m_sName << "_schema,Value FROM psc_" << m_sName << "_schema WHERE PK_psc_" << m_sName << "_schema>" << iSchemaVersion << " ORDER BY PK_psc_" << m_sName << "_schema";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
+	{
+		if( result_set.r->row_count==0 )
+			return; // nothing to update
+		 while( ( row = mysql_fetch_row( result_set.r ) ) ) 
+		 {
+			A_UpdateSchema *pA_UpdateSchema = new A_UpdateSchema(m_sName,atoi(row[0]),row[1]);
+			pRA_Request->AddActionsToResponse( pA_UpdateSchema );
+		}
+	 	return; // We updated the schema
+	}
+	throw "Database error"; // Can't get schema info??
+}
+

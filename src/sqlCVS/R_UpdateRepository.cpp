@@ -38,9 +38,10 @@
 
 using namespace sqlCVS;
 
-R_UpdateRepository::R_UpdateRepository( string sRepository )
+R_UpdateRepository::R_UpdateRepository( string sRepository, int iSchemaVersion )
 {
 	m_sRepository=sRepository;
+	m_iSchemaVersion=iSchemaVersion;
 }
 
 bool R_UpdateRepository::ProcessRequest( class RA_Processor *pRA_Processor )
@@ -57,6 +58,10 @@ bool R_UpdateRepository::ProcessRequest( class RA_Processor *pRA_Processor )
 	{
 #pragma warning("validate users, and store in request processor");
 		psqlCVSprocessor->m_pRepository = pRepository;
+
+		if( m_iSchemaVersion!=pRepository->GetSchemaVersion() )
+			pRepository->UpdateClientSchema(this,m_iSchemaVersion);
+
 		m_cProcessOutcome=SUCCESSFULLY_PROCESSED; /** @todo -- process it */
 	}
 	return true;   /** The request was processed successfully */

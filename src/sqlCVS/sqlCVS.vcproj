@@ -126,6 +126,9 @@
 				RelativePath=".\A_UpdateRow.cpp">
 			</File>
 			<File
+				RelativePath=".\A_UpdateSchema.cpp">
+			</File>
+			<File
 				RelativePath=".\ChangedRow.cpp">
 			</File>
 			<File

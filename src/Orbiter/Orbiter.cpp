@@ -3819,6 +3819,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += m_sMainMenu;
         else if(  Variable=="!"  )
             Output += StringUtils::itos( m_dwPK_Device );
+        else if(  Variable=="RIP"  )
+            Output += m_sIPAddress;
         else if(  Variable[0]=='!'  )  // It starts with ! -- that's a not followed by a variable, if the variable is 1 we return 0, anything else we return 1
 		{
 			int PK_Variable = atoi( Variable.substr(1).c_str() );

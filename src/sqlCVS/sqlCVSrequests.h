@@ -23,5 +23,6 @@
 #define R_APPROVE_BATCH			8
 
 #define A_UPDATE_ROW			1
+#define A_UPDATE_SCHEMA			2
 
 #endif

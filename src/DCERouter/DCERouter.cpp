@@ -864,69 +864,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 bool Router::ReceivedString(Socket *pSocket, string Line)
 {
     ServerSocket *pServerSocket = /*dynamic_cast<*/(ServerSocket *)/*>*/(pSocket);
-    if (Line.substr(0,4)=="PING")
-    {
-        pSocket->SendString("PONG");
-        return true;
-    }
-    else if (Line.substr(0,5)=="DPING")
-    {
-#ifdef DEBUG
-        clock_t clk = clock();
-#endif
-        // A DPING request causes the server to turn around
-        // and request a ping from the device itself,
-        // ensuring that both connections are up.   Will
-        // return "FAIL" if the device does not respond
-        // to pings on it's command handler channel correctly.
-#ifdef DEBUG
-        g_pPlutoLogger->Write(LV_STATUS, "%s", Line.c_str());
-#endif
-        PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
-        int DeviceIDTo = atoi(Line.substr(6).c_str());
-        int RouteToDevice = DEVICEID_NULL;
-        map<int,int>::iterator iRoute;
-        iRoute = m_Routing_DeviceToController.find(DeviceIDTo);
-        if (iRoute!=m_Routing_DeviceToController.end())
-        {
-            RouteToDevice = (*iRoute).second;
-        }
-        slCore.Release();
-        string s;
-        if (RouteToDevice > 0)
-        {
-            DeviceClientMap::iterator iDeviceConnection;
-            PLUTO_SAFETY_LOCK(slListener,m_CoreMutex);
-            iDeviceConnection = m_mapCommandHandlers.find(RouteToDevice);
-            slListener.Release();
-            if (iDeviceConnection != m_mapCommandHandlers.end())
-            {
-                ServerSocket *pDeviceConnection = (*iDeviceConnection).second, *pFailedSocket = NULL;
-                if( pDeviceConnection )
-                {
-                    PLUTO_SAFETY_LOCK(slConnMutex,(pDeviceConnection->m_ConnectionMutex))
-#ifdef DEBUG
-                    g_pPlutoLogger->Write(LV_STATUS, "Got DPING at %d, sending PING at %d",(int) clk,(int) clock());
-#endif
-                    if (pDeviceConnection->SendString("PING"))
-                    {
-                        if (pDeviceConnection->ReceiveString(s) && s=="PONG")
-                        {
-                            pSocket->SendString("DPONG");
-#ifdef DEBUG
-                            g_pPlutoLogger->Write(LV_STATUS, "%s sent DPONG at %d", Line.c_str(),(int) clock());
-#endif
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        pSocket->SendString("FAIL");
-        g_pPlutoLogger->Write(LV_CRITICAL, "%s sent FAIL at %d got %s", Line.c_str(),(int) clock(),s.c_str());
-        return true;
-    }
-    else if (Line=="CONFIG")
+    if (Line=="CONFIG")
     {
 		if( pServerSocket->m_dwPK_Device>m_dwPK_Device_Largest )
 		{
@@ -1052,7 +990,20 @@ void Router::OnDisconnected(int DeviceID)
     m_RunningDevices.erase(DeviceID);
 }
 
-void Router::RegisteredCommandHandler(int DeviceID)
+void Router::RegisteredEventHandler(ServerSocket *pSocket, int DeviceID)
+{
+    PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
+    DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(DeviceID);
+    if( !pDevice )
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"Device: %d tried to register event handler but it doesn't exist",DeviceID);
+        return;
+    }
+
+	pDevice->m_mapSocket_Event[pSocket->m_iSocketCounter] = pSocket;
+}
+
+void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 {
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
 
@@ -1078,10 +1029,18 @@ void Router::RegisteredCommandHandler(int DeviceID)
         sl.Release();
         ReceivedMessage(NULL, new Message(0, DeviceID, PRIORITY_NORMAL, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_RELOAD, 0));
     }
+	else if( pDevice->m_bUsePingToKeepAlive )
+	{
+		PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
+		ServerSocket *pSocket = m_mapCommandHandlers[DeviceID];
+		if( pSocket )
+			pSocket->StartPingLoop();
+	}
 
     // This device has registered, so we can always route its messages back to itself
     m_Routing_DeviceToController[DeviceID] = DeviceID;
 
+	pDevice->m_pSocket_Command=pSocket;
     pDevice->m_bIsReady=true;
 }
 
@@ -1864,6 +1823,9 @@ void Router::Configure()
 
         DeviceData_Router *pDevice = new DeviceData_Router(pRow_Device,m_mapRoom_Find(pRow_Device->FK_Room_get()),CommandLine);
 
+if( pDevice->m_dwPK_Device==7900 )
+pDevice->m_bUsePingToKeepAlive=true;
+
         m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
 
 		Room *pRoom = m_mapRoom_Find(pDevice->m_dwPK_Room);
@@ -2257,4 +2219,47 @@ int Router::ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate )
 	if( !pDevice )
 		return 0;
 	return pDevice->m_dwPK_DeviceTemplate == iPK_DeviceTemplate ? 2 : 1;
+}
+
+void Router::PingFailed( ServerSocket *pServerSocket, int dwPK_Device )
+{
+	g_pPlutoLogger->Write( LV_CRITICAL, "Router::PingFailed %p %s (socket id in destructor: %d) %d", 
+		pServerSocket, pServerSocket->m_sName.c_str(), m_Socket, m_pSocket_PingFailure, dwPK_Device );
+
+    PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
+	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( dwPK_Device );
+	if( !pDevice )
+		return;
+
+	if( pDevice->m_pSocket_Command )
+		pDevice->m_pSocket_Command->Close();
+	pDevice->m_pSocket_Command=NULL;
+
+	for(map<int,Socket *>::iterator it=pDevice->m_mapSocket_Event.begin();it!=pDevice->m_mapSocket_Event.end();++it)
+	{
+		Socket *pSocket = (*it).second;
+		pSocket->Close();
+	}
+}
+
+void Router::RemoveSocket( Socket *pSocket )
+{
+	g_pPlutoLogger->Write( LV_WARNING, "Router::RemoveSocket %p", pSocket );
+	ServerSocket *pServerSocket = (ServerSocket *) pSocket;
+    PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
+	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( pServerSocket->m_dwPK_Device );
+	if( !pDevice )
+		return;
+
+	if( pDevice->m_pSocket_Command == pSocket )
+		pDevice->m_pSocket_Command = NULL;
+
+	map<int,Socket *>::iterator it;
+	if( (it=pDevice->m_mapSocket_Event.find( pSocket->m_iSocketCounter )) != pDevice->m_mapSocket_Event.end() )
+	{
+		Socket *pSocket = (*it).second;
+		pDevice->m_mapSocket_Event.erase(it);
+	}
+	sl.Release();
+	SocketListener::RemoveSocket( pSocket );
 }

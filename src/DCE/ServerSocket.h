@@ -51,6 +51,9 @@ namespace DCE
 
 		void Run();
 
+		// Special behavior for the server
+		virtual void PingFailed();
+
 	private:
 		/**
 		 * @brief runs a loop that handles the client

@@ -23,12 +23,13 @@ public:
 	map<string, string> m_mapUsersPasswords; /**< All the users who are checking in this session */
 	vector<string> m_vectTables; /**< The tables we will be checking in this session  */
 	string m_sRepository;
+	int m_iSchemaVersion;
 
 	/** Response Variables */
 
 	/** @brief constructor */
 	
-	R_UpdateRepository( string sRepository );
+	R_UpdateRepository( string sRepository,int iSchemaVersion );
 	
 	/** @brief constructor */
 	
@@ -47,7 +48,7 @@ public:
 	virtual void SetupSerialization_Request( )
 	{
 		RA_Request::SetupSerialization_Request( );
-		StartSerializeList( ) + m_sRepository;
+		StartSerializeList( ) + m_sRepository + m_iSchemaVersion;
 	}
 
 	/**
