@@ -1,0 +1,1 @@
+/usr/bin/tail -f --retry /var/log/syslog | /usr/pluto/bin/Dhcpd-Plugin.pl
