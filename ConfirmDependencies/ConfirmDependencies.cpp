@@ -138,6 +138,11 @@ int main(int argc, char *argv[])
 	bool bError=false,bIncludeDisklessMD=true,bSourceCode=false; // An error parsing the command line
 	int iPK_Device = dceConfig.m_iPK_Device_Computer;
 	char c;
+	cout << "#";
+	for(int optnum=0;optnum<argc;++optnum)
+		cout << " " << argv[optnum];
+	cout << endl;
+
 	for(int optnum=1;optnum<argc;++optnum)
 	{
 		if( argv[optnum][0]!='-' )
