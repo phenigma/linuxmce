@@ -275,6 +275,12 @@ get_wmname (Window w)
       		PRINT_DEBUG (("I can't get the WMName as UTF8_STRING for window: 0x%x\n", (int)w));
       		return NULL;
     	}
+
+		if ( n == 0 )
+		{
+			PRINT_DEBUG (("Reading of the WMName as UTF8_STRING was succesfull but the resulting name was empty\n"));
+      		return NULL;
+		}
     }
 
   PRINT_DEBUG (("WM_NAME: '%s'\n", name));
