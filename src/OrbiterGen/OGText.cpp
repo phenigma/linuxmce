@@ -28,16 +28,8 @@ int k=2;
 
 	Row_DesignObjVariation_Text *pp = drOVTSL->FK_DesignObjVariation_Text_getrow();
 	m_PK_Text=pp->FK_Text_get();
-	m_pdrText_LS=mds->Text_LS_get()->GetRow(drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_Text_get(),Parent->m_pOrbiterGenerator->m_pRow_Language->PK_Language_get());
-	if( m_pdrText_LS==NULL )
-		m_pdrText_LS=mds->Text_LS_get()->GetRow(drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_Text_get(),0);
-	if( m_pdrText_LS==NULL )
-		m_pdrText_LS=mds->Text_LS_get()->GetRow(drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_Text_get(),1);
-	if( m_pdrText_LS==NULL )
-	{
-		cerr << "Warning!  Text Object: " << drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_Text_get() << " in object: " << drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_DesignObjVariation_getrow()->FK_DesignObj_get() << " has no text!" << endl;
+	if( (m_pdrText_LS=GetText_LS(drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_Text_get(),Parent->m_pOrbiterGenerator))==NULL )
 		return;
-	}
 
 	m_sText = m_pdrText_LS->Description_get();
 	m_rPosition.X = m_pRow_DesignObjVariation_Text_Skin_Language->X_get();
@@ -73,4 +65,18 @@ todo c++
 	}
 */
 	m_bPreRender = (!bContainsRunTimeVariables || m_mapAltVersions.size()>0);
+}
+
+Row_Text_LS *CGText::GetText_LS(int PK_Text,OrbiterGenerator *pOrbiterGen)
+{
+	Database_pluto_main *mds = &pOrbiterGen->mds;
+	Row_Text_LS *pRow_Text_LS = mds->Text_LS_get()->GetRow(PK_Text,pOrbiterGen->m_pRow_Language->PK_Language_get());
+	if( pRow_Text_LS==NULL )
+		pRow_Text_LS=mds->Text_LS_get()->GetRow(PK_Text,0);
+	if( pRow_Text_LS==NULL )
+		pRow_Text_LS=mds->Text_LS_get()->GetRow(PK_Text,1);
+	if( pRow_Text_LS==NULL )
+		cerr << "Warning!  Text Object: " << PK_Text << " has no text!" << endl;
+
+	return NULL;
 }

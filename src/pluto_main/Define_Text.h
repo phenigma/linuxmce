@@ -451,6 +451,8 @@
 #define TEXT_DESCRIPTION_TABLE_FIELD "Text.Description"
 #define TEXT_DEFINE_FIELD "Define"
 #define TEXT_DEFINE_TABLE_FIELD "Text.Define"
+#define TEXT_ADDTOORBITER_FIELD "AddToOrbiter"
+#define TEXT_ADDTOORBITER_TABLE_FIELD "Text.AddToOrbiter"
 #define TEXT_PSC_ID_FIELD "psc_id"
 #define TEXT_PSC_ID_TABLE_FIELD "Text.psc_id"
 #define TEXT_PSC_BATCH_FIELD "psc_batch"

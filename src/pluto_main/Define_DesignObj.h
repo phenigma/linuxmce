@@ -1152,6 +1152,8 @@
 #define DESIGNOBJ_arrRooms_CONST 3327
 #define DESIGNOBJ_butRooms_CONST 3328
 #define DESIGNOBJ_butRegenAllOrbiters_CONST 3329
+#define DESIGNOBJ_objExitController2_CONST 3330
+#define DESIGNOBJ_objResetUniverse2_CONST 3331
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -85,19 +85,21 @@ class DLL_EXPORT Row_Text : public TableRow, public SerializeClass
 long int m_FK_TextCategory;
 string m_Description;
 string m_Define;
+short int m_AddToOrbiter;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[9];
+		bool is_null[10];
 	
 	public:
 		long int PK_Text_get();
 long int FK_TextCategory_get();
 string Description_get();
 string Define_get();
+short int AddToOrbiter_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -109,6 +111,7 @@ string psc_mod_get();
 void FK_TextCategory_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
+void AddToOrbiter_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -116,13 +119,15 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool psc_id_isNull();
+		bool AddToOrbiter_isNull();
+bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void psc_id_setNull(bool val);
+		void AddToOrbiter_setNull(bool val);
+void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
@@ -150,7 +155,7 @@ void Text_LS_AltVersions_FK_Text_getrows(vector <class Row_Text_LS_AltVersions*>
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Text+ m_FK_TextCategory+ m_Description+ m_Define+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Text+ m_FK_TextCategory+ m_Description+ m_Define+ m_AddToOrbiter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -159,6 +164,7 @@ void Text_LS_AltVersions_FK_Text_getrows(vector <class Row_Text_LS_AltVersions*>
 string FK_TextCategory_asSQL();
 string Description_asSQL();
 string Define_asSQL();
+string AddToOrbiter_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

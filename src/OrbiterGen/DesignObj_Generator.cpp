@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "OGArray.h"
+#include "OGText.h"
 #include "OGCommand.h"
 #include "DesignObj_Generator.h"
 #include "PlutoUtils/FileUtils.h"
@@ -130,7 +131,8 @@ int k=2;
         {
             // Let's see if we can just use a cached version
             Row_CachedScreens *pdrCachedScreen = m_mds->CachedScreens_get()->GetRow(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),m_pRow_DesignObj->PK_DesignObj_get(),m_iVersion);
-            if( pdrCachedScreen && (!m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen!=m_pRow_DesignObj->PK_DesignObj_get()) )
+            if( pdrCachedScreen && pdrCachedScreen->Schema_get()==ORBITER_SCHEMA &&
+				(!m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen!=m_pRow_DesignObj->PK_DesignObj_get()) )
             {
 				if( pdrCachedScreen->ContainsArrays_get()==0 || m_pOrbiterGenerator->m_bDontAutoRegenArrays || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen )
 				{
@@ -1641,6 +1643,18 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
             }
 
             sValue = drUser->Nickname_isNull() ? drUser->UserName_get() : drUser->Nickname_get();
+        }
+        else if( sVariable[0]=='T' && sVariable.length()>1 )  // <%=T592%> means text object 592
+        {
+            int PK_Text = atoi(sVariable.substr(2).c_str());
+			Row_Text_LS *pRow_Text_LS = CGText::GetText_LS(PK_Text,m_pOrbiterGenerator);
+
+            if( !pRow_Text_LS  )
+            {
+                throw "Text: " + StringUtils::itos(PK_Text) + " is invalid";
+            }
+
+            sValue = pRow_Text_LS->Description_get();
         }
         /* todo
         else if( sVariable.substr(0,2)=="SP" )

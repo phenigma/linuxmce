@@ -3660,6 +3660,11 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += m_pScreenHistory_Current->m_pObj->m_ObjectID;
         else if(  Variable=="O"  )
             Output += pObj->m_ObjectID;
+        else if( Variable.length()>1 && Variable[0]=='T'  )
+		{
+			int PK_Text=atoi(Variable.substr(1).c_str());
+			Output += m_mapTextString[PK_Text];
+		}
         else if( Variable.length()>1 && Variable[0]=='D'  )
 		{
 			int PK_Variable=atoi(Variable.substr(1).c_str());

@@ -1352,9 +1352,23 @@ void DCEGen::WriteGlobals()
 			while( (variable=StringUtils::Tokenize(list,"\n",pos)).length()>0 )
 			{
 				string::size_type space = variable.find(' ');
-				if( variable[space+1]=='*' )
+				bool bIsData = (variable[space+1]=='*');
+				if( bIsData )
 					space++;	// Skip over for passed in data values
 				fstr_DeviceCommand << "*m_" << variable.substr(space+1) << " ";
+				if( bIsData )
+				{
+					// This will be in the format: char *pData=pMessage->m_mapData_Parameters[19];
+					// We don't want the message's destructor to delete the data parameter, so we will
+					// need to remove it from the map like pMessage->m_mapData_Parameters.erase(19);
+					string::size_type eq = variable.find('=');
+					string::size_type leftbrace = variable.find('[');
+					string::size_type rightbrace = variable.find(']');
+					string v = variable.substr(eq+1,leftbrace-eq-1);
+					string id = variable.substr(leftbrace+1,rightbrace-leftbrace-1);
+					fstr_DeviceCommand << v << ".erase(" << id << "); ";
+				}
+
 			}
 			fstr_DeviceCommand << "};\n\t};" << endl;
 		}

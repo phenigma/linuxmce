@@ -88,13 +88,14 @@ long int m_FK_DesignObj;
 long int m_Version;
 string m_Modification_LastGen;
 short int m_ContainsArrays;
+long int m_Schema;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[10];
+		bool is_null[11];
 	
 	public:
 		long int FK_Orbiter_get();
@@ -102,6 +103,7 @@ long int FK_DesignObj_get();
 long int Version_get();
 string Modification_LastGen_get();
 short int ContainsArrays_get();
+long int Schema_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -114,6 +116,7 @@ void FK_DesignObj_set(long int val);
 void Version_set(long int val);
 void Modification_LastGen_set(string val);
 void ContainsArrays_set(short int val);
+void Schema_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -122,6 +125,7 @@ void psc_mod_set(string val);
 
 		
 		bool ContainsArrays_isNull();
+bool Schema_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -129,6 +133,7 @@ bool psc_frozen_isNull();
 
 			
 		void ContainsArrays_setNull(bool val);
+void Schema_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -154,7 +159,7 @@ class Row_DesignObj* FK_DesignObj_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_Orbiter+ m_FK_DesignObj+ m_Version+ m_Modification_LastGen+ m_ContainsArrays+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_Orbiter+ m_FK_DesignObj+ m_Version+ m_Modification_LastGen+ m_ContainsArrays+ m_Schema+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -164,6 +169,7 @@ string FK_DesignObj_asSQL();
 string Version_asSQL();
 string Modification_LastGen_asSQL();
 string ContainsArrays_asSQL();
+string Schema_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

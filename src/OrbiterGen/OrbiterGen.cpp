@@ -30,6 +30,7 @@
 #include "pluto_main/Table_Size.h"
 #include "pluto_main/Table_Skin.h"
 #include "pluto_main/Table_Language.h"
+#include "pluto_main/Table_Text.h"
 #include "pluto_main/Table_Style.h"
 #include "pluto_main/Table_Variable.h"
 #include "pluto_main/Table_StyleVariation.h"
@@ -814,7 +815,6 @@ int OrbiterGenerator::DoIt()
 
 	// temp -- use of styles isn't yet well defined.  just hack in something to get a style variation for each style right now
 	vector<Row_Style *> vectRow_Style;
-
 	mds.Style_get()->GetRows("1=1",&vectRow_Style); // all styles
 	for(size_t style=0;style<vectRow_Style.size();++style)
 	{
@@ -840,7 +840,17 @@ int OrbiterGenerator::DoIt()
 		}
 	}
 
-
+	vector<Row_Text *> vectRow_Text;
+	mds.Text_get()->GetRows("AddToOrbiter=1",&vectRow_Text); // all Texts to pass on to the Orbiter
+	for(size_t Text=0;Text<vectRow_Text.size();++Text)
+	{
+		Row_Text *pRow_Text = vectRow_Text[Text];
+		Row_Text_LS *pRow_Text_LS = CGText::GetText_LS(pRow_Text->PK_Text_get(),this);
+		if( !pRow_Text_LS )
+			cerr << "Text " << pRow_Text->PK_Text_get() << " not found" << endl;
+		else
+			m_mapTextString[pRow_Text->PK_Text_get()] = pRow_Text_LS->Description_get();
+	}
 	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	{
 		listDesignObj_Generator *o = (*itgs).second;
@@ -876,8 +886,8 @@ int k=2;
 					pdrCachedScreen->FK_Orbiter_set(m_pRow_Orbiter->PK_Orbiter_get());
 					pdrCachedScreen->FK_DesignObj_set(oco->m_pRow_DesignObj->PK_DesignObj_get());
 					pdrCachedScreen->Version_set(oco->m_iVersion);
+					pdrCachedScreen->Schema_set(ORBITER_SCHEMA);
 					pdrCachedScreen->ContainsArrays_set(oco->m_bContainsArrays ? 1 : 0);
-
 				}
 				string Filename = m_sOutputPath + "screen " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get()) + "." + 
 					StringUtils::itos(oco->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(oco->m_iVersion) + "." + 
