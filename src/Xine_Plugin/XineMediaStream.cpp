@@ -11,6 +11,8 @@
 //
 #include "XineMediaStream.h"
 
+#include "pluto_main/Define_MediaType.h"
+
 namespace DCE {
 
 	XineMediaStream::XineMediaStream(
@@ -122,4 +124,15 @@ namespace DCE {
 			itRenderingDevices++;
 		}
 	}
+
+	bool XineMediaStream::CanPlayMore()
+	{
+		// do not remove the playlist when we are playing stored audio. (it will just confuse the user)
+		if ( m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
+			return true;
+
+		return MediaStream::CanPlayMore();
+	}
 };
+
+

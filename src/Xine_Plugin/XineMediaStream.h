@@ -48,6 +48,8 @@ namespace DCE
 
 			void GetRenderDevices(map<int, MediaDevice *> *pmapRenderDevices);
 
+			bool CanPlayMore();
+
 			class XineMediaPosition : public MediaPosition
 			{
 				public:

@@ -122,7 +122,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
     for( size_t iRoom=0;iRoom<vectRow_Room.size( );++iRoom )
     {
         Row_Room *pRow_Room=vectRow_Room[iRoom];
-	
+
         vector<Row_EntertainArea *> vectRow_EntertainArea;
         pRow_Room->EntertainArea_FK_Room_getrows( &vectRow_EntertainArea );
         for( size_t s=0;s<vectRow_EntertainArea.size( );++s )
@@ -404,7 +404,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 //         return false;
 //     }
 
-    if ( pMediaStream->HaveMoreInQueue() )
+    if ( pMediaStream->CanPlayMore() )
     {
         pMediaStream->ChangePositionInPlaylist(1);
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream);
@@ -413,7 +413,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     {
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
 		StreamEnded(pMediaStream); // This will delete the stream
-        g_pPlutoLogger->Write(LV_STATUS, "Playback completed. At the end of the queue");
+        g_pPlutoLogger->Write(LV_STATUS, "Playback completed. The stream can't play anything more.");
     }
 
     return true;
@@ -479,9 +479,9 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 		// ContainsVideo needs this too
 	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
 		if( pMediaStream->ContainsVideo() )
-			EVENT_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room); 
+			EVENT_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
 		else
-			EVENT_Listening_to_Media(pEntertainArea->m_pRoom->m_dwPK_Room); 
+			EVENT_Listening_to_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
 
         pEntertainArea->m_pMediaStream=pMediaStream;
         pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
@@ -671,7 +671,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 						QueueMessageToRouter( pNewMessage );
 					}
 
-					if( pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_mapCommands.find(pMessage->m_dwID) != 
+					if( pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_mapCommands.find(pMessage->m_dwID) !=
 						pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_mapCommands.end() )
 					{
 						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
@@ -810,7 +810,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream)
 void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea)
 {
 	if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->ContainsVideo() )
-		EVENT_Stopped_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room); 
+		EVENT_Stopped_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
 	else
 		EVENT_Stopped_Listening_To_Medi(pEntertainArea->m_pRoom->m_dwPK_Room);
 
@@ -861,11 +861,21 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
 		pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device == (unsigned long)pMessage->m_dwPK_Device_From &&
 		pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD )
 	{
+	   g_pPlutoLogger->Write(LV_STATUS, "Stream media type: %d. This (%d) is an OSD Orbiter. Sending him to screen: %d",
+               pMessage->m_dwPK_Device_From,
+               pEntertainArea->m_pMediaStream->m_iPK_MediaType,
+               pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD);
+
 	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD ), "", "", false, false );
 		SendCommand( CMD_Goto_Screen );
 	}
 	else
 	{
+       g_pPlutoLogger->Write(LV_STATUS, "Stream media type: %d. This (%d) is NOT an OSD Orbiter. Sending to screen: %d",
+               pMessage->m_dwPK_Device_From,
+               pEntertainArea->m_pMediaStream->m_iPK_MediaType,
+               pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote);
+
 	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false, false );
 		SendCommand( CMD_Goto_Screen );
 	}
@@ -2158,7 +2168,7 @@ void Media_Plugin::CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,stri
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get ent area for non media device: %d", iPK_Device);
 		return;
 	}
-	
+
 	for(list<class EntertainArea *>::iterator it=pMediaDevice->m_listEntertainArea.begin();it!=pMediaDevice->m_listEntertainArea.end();++it)
 	{
 		EntertainArea *pEntertainArea = *it;

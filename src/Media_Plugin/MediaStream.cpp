@@ -133,10 +133,11 @@ void MediaStream::ClearPlaylist()
     m_dequeMediaFile.clear();
 }
 
-bool MediaStream::HaveMoreInQueue()
+bool MediaStream::CanPlayMore()
 {
     g_pPlutoLogger->Write(LV_WARNING, "HaveMoreInQueue: position %d, size: %d, result %d", m_iDequeMediaFile_Pos, m_dequeMediaFile.size(), m_iDequeMediaFile_Pos < (m_dequeMediaFile.size() - 1));
     DumpPlaylist();
+
     return m_iDequeMediaFile_Pos < (m_dequeMediaFile.size() - 1);
 }
 
