@@ -58,7 +58,6 @@ void sig_int(int sig)
 	
 	if(g_pRouter) {
 		g_pRouter->Quit();
-		delete g_pRouter;
 	}
 }
 
@@ -203,8 +202,6 @@ int main(int argc, char *argv[])
 	WSACleanup();
 #endif
 	g_pPlutoLogger->Write(LV_STATUS, "Ready to delete router");
-	delete g_pRouter;
-	g_pRouter = NULL;
 	if( m_mapLockMutex )
 	{
 		pthread_mutex_destroy(&m_mapLockMutex->mutex);
@@ -219,7 +216,6 @@ int main(int argc, char *argv[])
 #endif
 
 	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bStartRouter);
-	delete g_pPlutoLogger;
 	if( bStartRouter )
 		return 2;
 	else

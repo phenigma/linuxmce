@@ -455,7 +455,6 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
         {
             if( pOH_Orbiter->m_pDevice_CurrentDetected )
             {
-/* TODO - this isn't working
                 DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(
                     m_dwPK_Device,
 					pDeviceFrom->m_dwPK_Device,
@@ -463,23 +462,18 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                     &SignalStrength);
 
                 if( SendCommand(CMD_Get_Signal_Strength) )
+			{
                     pOH_Orbiter->m_iLastSignalStrength = SignalStrength;
+g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s dongle %d reported strength of %d",sMacAddress.c_str(),pDeviceFrom->m_dwPK_Device,SignalStrength);
+			}
                 else
+				{
                     pOH_Orbiter->m_iLastSignalStrength = 0;
-*/
+g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength from dongle %d",sMacAddress.c_str(),pDeviceFrom->m_dwPK_Device);
+				}
             }
-/*
-			if( SignalStrength==0 )  // We don't know the signal strength from the dongle
-			{
-				if( pOH_Orbiter->m_iLastSignalStrength>threshhold )
-					continue; // Do nothing, and don't allow a new connection
-			}
-			else
-			{
-				// We know both signal strengths.  Do a comparisson and take the stronger one
-			}
-*/
-            if( pOH_Orbiter->m_pDevice_CurrentDetected &&
+
+			if( pOH_Orbiter->m_pDevice_CurrentDetected &&
 				pOH_Orbiter->m_iLastSignalStrength > m_iThreshHold &&
 				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength
 			)
@@ -535,7 +529,7 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p",pOH_Orbiter);
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
     if( (pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion) && pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
     {
-g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: %s / %s / %s",(int) pRow_Device->NeedConfigure_get(),sVersion.c_str(),g_sLatestMobilePhoneVersion,pOH_Orbiter->m_sVersion.c_str());
+g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: %s / %s / %s",(int) pRow_Device->NeedConfigure_get(),sVersion.c_str(),g_sLatestMobilePhoneVersion.c_str(),pOH_Orbiter->m_sVersion.c_str());
 		pOH_Orbiter->m_sVersion = g_sLatestMobilePhoneVersion;
         pRow_Device->NeedConfigure_set(0);
         pRow_Device->Table_Device_get()->Commit();

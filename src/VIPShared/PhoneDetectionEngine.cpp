@@ -206,7 +206,14 @@ void PhoneDetectionEngine::RemoveDeviceFromDetectionList(u_int64_t iMacAddress)
 		m_mapDevicesDetectedThisScan.erase(itDevice);
 	}
 	else
-		g_pPlutoLogger->Write(LV_WARNING, "Cannot remove device %d from the detection list", iMacAddress);
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Cannot remove device %d from the detection list of %d", iMacAddress,(int) m_mapDevicesDetectedThisScan.size());
+		for(map<u_int64_t,class PhoneDevice *>::iterator itDevice = m_mapDevicesDetectedThisScan.begin();itDevice != m_mapDevicesDetectedThisScan.end();++it)
+		{
+			class PhoneDevice *pPhoneDevice = (*itDevice).second;
+g_pPlutoLogger->Write(LV_WARNING, "Map contains Cannot remove device %s from the detection list", pPhoneDevice->m_sMacAddress.c_str());
+		}
+	}
 }
 
 void PhoneDetectionEngine::AddDeviceToDetectionList(class PhoneDevice *pDevice)

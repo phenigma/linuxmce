@@ -813,6 +813,8 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 
 void Media_Plugin::StreamEnded(MediaStream *pMediaStream)
 {
+	map<int,MediaDevice *> mapMediaDevice_Prior;
+	pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pMediaStream,&mapMediaDevice_Prior);
 	// This could have been playing in lots of entertainment areas
     g_pPlutoLogger->Write( LV_STATUS, "Stream %s ended with %d ent areas", pMediaStream->m_sMediaDescription.c_str(), (int) pMediaStream->m_mapEntertainArea.size() );
     for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
@@ -820,6 +822,8 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream)
         EntertainArea *pEntertainArea = ( *it ).second;
 		MediaInEAEnded(pEntertainArea);
     }
+
+	HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
 
     delete pMediaStream;
 }
@@ -2000,7 +2004,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current)
 {
 	Row_MediaType *pRow_MediaType_Prior = PK_MediaType_Prior ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Prior) : NULL;
-	Row_MediaType *pRow_MediaType_Current = m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Current);
+	Row_MediaType *pRow_MediaType_Current = PK_MediaType_Current ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Current) : NULL;
 
 	int PK_Pipe_Prior = pRow_MediaType_Prior && pRow_MediaType_Prior->FK_Pipe_isNull()==false ? pRow_MediaType_Prior->FK_Pipe_get() : 0;
 	int PK_Pipe_Current = pRow_MediaType_Current && pRow_MediaType_Current->FK_Pipe_isNull()==false ? pRow_MediaType_Current->FK_Pipe_get() : 0;
@@ -2010,6 +2014,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 	// send the media director an on and let the framework propagate the input selection automatically.  However, we don't
 	// want to just send the DVD player an off because then the framework will turn the tv off too.
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Prior->begin();it!=pmapMediaDevice_Prior->end();++it)
+	{
 		// We need a recursive function to propagate the off's along the pipe, but not turning off any devices
 		// that we're still going to use in the current map
 		if ( (*it).second )  // Obs: I got a crash here while testing mihai.t
@@ -2018,6 +2023,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Found a NULL associated device in the HandleOnOff: %d", (*it).first);
 		}
+	}
 
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Current->begin();it!=pmapMediaDevice_Current->end();++it)
 	{

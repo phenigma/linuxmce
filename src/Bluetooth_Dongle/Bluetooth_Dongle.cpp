@@ -153,7 +153,11 @@ void *HandleBDCommandProcessorThread( void *p )
 	if( NULL != pBD_Orbiter->m_pPhoneDevice )
 	{
 	    PLUTO_SAFETY_LOCK(mm,pBluetooth_Dongle->m_MapMutex);
-	    pBluetooth_Dongle->m_mapPhoneDevice_Detected[iMacAddress]->m_bIsConnected = false;
+		PhoneDevice *pDevice = pBluetooth_Dongle->m_mapPhoneDevice_Detected_Find(iMacAddress);
+		if( !pDevice )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find 05-03-08");
+		else
+		    pBluetooth_Dongle->m_mapPhoneDevice_Detected[iMacAddress]->m_bIsConnected = false;
 		
 		g_pPlutoLogger->Write( LV_STATUS, "Setting PhoneDevice IsConnected flag to false...");
 		//pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
