@@ -117,9 +117,14 @@ while (1 eq 1) {
               }
 	      chomp($Device_ID);
 	      	log_plugin("Running configuration script","log");
-              system("/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
-	      log_plugin("/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
-          }
+              	log_plugin("/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found","log");
+		open SHELL, "/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found 2>&1|";
+		while( <SHELL>) {
+			chomp;
+			log_plugin("CONF: $_", "log");
+		}
+		close (SHELL);
+	       }
           if($found == 0) {
 		log_plugin("We declare this device as unkown for PnP","log");
 	    $sql = "select PK_UnknownDevices FROM UnknownDevices WHERE MacAddress='$mac_found'";
@@ -179,8 +184,7 @@ sub log_plugin {
 	} elsif($type eq "log") {
 		$type = "00";
 	}
-	$line = $type." ".$data;
-	system("echo \"$line\" >> /var/log/pluto/dhcp_pnp.newlog");
+	system("echo \"$type `date` $data\" >> /var/log/pluto/dhcp_pnp.newlog");
 }
 
 sub parse {
