@@ -1,0 +1,161 @@
+PocketFrog - The Game Library for Pocket PC Devices
+Copyright 2002  Thierry Tremblay
+(Currently maintained by Frank W. Zammetti)
+
+Permission to use, copy, modify, distribute and sell this software
+and its documentation for any purpose is hereby granted without fee,
+provided that the above copyright notice appear in all copies and
+that both that copyright notice and this permission notice appear
+in supporting documentation.  Thierry Tremblay makes no representations
+about the suitability of this software for any purpose.
+It is provided "as is" without express or implied warranty.
+
+
+Release 0.7.0
+=============
+
++ Continued building SuperSample.  It's still not done, but it does
+  show a bit more now, including one way to do frame rate limiting.
+  This was supposed to be added to PF, but because of some problems I
+  ran into in implementing it, I'm leaving it out, at least for now.
+  See this example if you want to set a frame rate in your games.
++ Added "desktopZoom" attribute to m_config structure.  This allows you
+  to zoom the window size to any multiple on a desktop PC.  You CAN
+  use this on a PocketPC device as well, it won't bomb or anything,
+  but it's pretty much pointless there, so generally you should 
+  simply not set any value at all, which will zoom to 1x, a 240x320 
+  window as usual in other words.  Setting it to zero or one does the 
+  same thing.  Any other value will simply multiply the width and height 
+  by that amount.  So, if you do m_config.desktopZoom=2; in your Init 
+  method, you will get a window that is 480x640, =3 would give you 
+  720x960, etc.
++ Built lib files are now included with the PF distribution.  I'm not
+  sure if they were prior to 0.6.1, but they weren't in that release,
+  and they probably should be, if for no other reason than convenience.
+  They are separated out in directories for PocketPC, PocketPC 2002
+  and x86 (desktop).
++ Added sample "hekkus" to show how to hook into that sound library
+  without needing to use PocketFrogPlus (PF development can now continue
+  independant of Hekkus!)  You will need to install Hekkus of course and
+  be sure to read the comments in hekkus.cpp to see how to set up paths.
++ Added sample app by Damian Ancukiewicz to show how to use pixel shaders. 
+  Included are three useful shaders: greyscale shader, fade shader and 
+  an 8-bit shader. 
++ Added two methods to Game class: void GameSuspend() and
+  void GameResume().  These are called, as you would expect when the
+  application is suspended (i.e., low battery warning message) and
+  resumed (i.e., message is dismissed) accordingly.  These are needed
+  to properly hook into sound libraries such as Hekkus.  Override them
+  and do whatever you please with them.  See the Hekkus sample for
+  usage example.
++ Added Rasterizer::FillPoly to draw filled polygons.  Pass it
+  (Point[], int pointCount, Pixel).  The method only handles convex 
+  polygons and polygons that are vertically concave, that is, a polygon 
+  cannot have more than two edge points on the same horizontal line.
+  Thanks to Andreas Hedström for optimizing and improving my original 
+  code for this function.  See SuperSample for an example.
++ Added Rasterizer::BlitRotatedStretch to draw surfaces that are both
+  stretched and rotated, at the same time.  Pass it 
+  (int destx, int desty, float angle, const Surface* source, 
+  Surface* stretch_surface, const Rect* src_rect).  The width and
+  height of stretch_surface are taken to be the dinensions to stretch
+  the surface to.  Remember that you must delete the surface when you
+  are done with it.  You can reuse it as many times as you want first.
+  Note that this implementation is nothing more than calls to the
+  BlitStretch and BlitRotated methods, in that order.  As such,
+  performance is no better than calling these two yourself individually.
+  This should only be thought of as a convenience method for now (the plan
+  is to implement it properly as a combined transformation matrix,
+  which should be noticeably better performing).
+  Thanks to Andreas Hedström for the original implementation.
+- Removed all sample projects from the "Make" workspace.
+! Fixed a bug in the VGADrawText function that caused the X location
+  to be ignored in all cases.  You should now be able to position
+  text anywhere on the screen.
+! Fixed some errors that would keep PF from compiling for Win32 (I
+  had never done that in the prior version so I didn't see the errors).
+  Also made similar changes to the samples so they will compile
+  when targeted to Win32, so everything should now compile and
+  run properly on a desktop as well as a PocketPC device.
+
+
+
+Release 0.6.1
+=============
+Note: Frank W. Zammetti took over maintenance and development of
+PocketFrog starting with this release.  For contact info and
+further PocketFrog info, please visit http://www.omnytex.com/pf
+
++ Overloaded Rasterizer::DrawRect so that it accepts
+  (Rect, Pixel) or (int x1, int y1, int x2, int y2, Pixel).
++ Overloaded Rasterizer::FillRect so that it accepts
+  (Rect, Pixel) or (int x1, int y1, int x2, int y2, Pixel).
++ Overloaded Rasterizer::SetPixel so it accepts
+  (Point, Pixel) or (int x, int y, Pixel).
++ Overloaded Rasterizer::DrawCircle so it accepts
+  (Point, int radius, Pixel) or (int x, int y, int radius, Pixel)
++ Overloaded Rasterizer::DrawLine so it accepts
+  (Point, int length, Pixel) or (int x, int y, int length, Pixel)
++ Overloaded Rasterizer::DrawHLine so it accepts
+  (Point, int length, Pixel) or (int x, int y, int length, Pixel)
++ Overloaded Rasterizer::DrawVLine so it accepts
+  (Point, int length, Pixel) or (int x, int y, int length, Pixel)
++ Overloaded Rasterizer::Blit so it accepts
+  (Point, Surface*, Rect*) or (int x, int y, Surface*, Rect*)
++ Added Rasterizer::DrawPoly to draw polygons.  Pass it
+  (Point[], int number_of_points, Pixel).
++ Added Rasterizer::DrawVGAText to draw 8x16 VGA-standard text.
+  Pass it (unsigned char* pFont, TCHAR* string, int align, int locX,
+  int locY, Pixel).
++ Added new sample app: supersample.  This will eventually showcase
+  all PocketFrog functions in some way.  For now it is just using
+  the DrawVGAText function to show some text.
+! Fixed a problem with the VLine algorithm function that was causing
+  any vertical line to be drawn one pixel too short on the bottom.
+  This is why DrawRect and FillRect was always missing the bottom
+  right-hand corner pixel, which is fixed by this as well.
+
+
+
+Release 0.6.0
+=============
+
++ Blit with rotation: Rasterizer::BlitRotated()
++ Blit with stretching: Rasterizer::BlitStretch()
++ By popular request: Surface::GetPixel() method
++ New sample "Rotate" to show off blits with rotation
++ Added EVC 3.0 project files for the existing samples
+
+
+
+Release 0.5.3
+=============
+
++ Support for HPC 2000 devices.
++ Added Plasma sample by "Burning Sheep".
++ Added FPS counter to Blit sample.
+- Screen is not zoomed anymore on desktop PC.
+
+
+
+Release 0.5.2
+=============
+
++ Improved Blit sample to show how to handle stylus input.
++ #pragma used to automatically link the proper PocketFrog library.
++ Support for PocketPC emulators (PPC and PPC2002).
++ Dirty rectangle is now used in method Display::Update().
+! Fixed potential memory leak when accessing the screen DC.
+
+
+
+Release 0.5.1
+=============
+
++ Added missing method CreateRasterizer() to class DisplayDevice.
++ STL not needed anymore to use the library, only to compile it.
++ Removed need for GX.LIB (GX.DLL now linked dynamically).
++ Optimized Blit() / Clear() primitives for normal rasterizer.
++ Faster GAPI emulation (SimpleGAPI.cpp)
++ Emulation now runs zoomed (x2).
++ Emulation now works for on Windows 9x OS.
