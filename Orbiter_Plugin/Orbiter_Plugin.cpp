@@ -35,8 +35,11 @@ using namespace DCE;
 #include "pluto_main/Table_UnknownDevices.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Variable.h"
-#include "pluto_main/Define_DeviceCategory.h"
+#include "pluto_main/Table_DeviceCategory.h"
+#include "pluto_main/Table_DeviceCategory_DeviceData.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Table_DeviceTemplate_DeviceData.h"
+#include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Event.h"
@@ -738,6 +741,27 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
     pRow_Device->FK_Room_set(iFK_Room);
     pRow_Device->Description_set("Mobile orbiter");
     m_pDatabase_pluto_main->Device_get()->Commit();
+
+	// Fill in the defaults
+	map<int,string> mapDefaultParms;
+	vector<Row_DeviceCategory_DeviceData *> vectRow_DeviceCategory_DeviceData;
+	pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->DeviceCategory_DeviceData_FK_DeviceCategory_getrows(&vectRow_DeviceCategory_DeviceData);
+	for(size_t s=0;s<vectRow_DeviceCategory_DeviceData.size();++s)
+		mapDefaultParms[vectRow_DeviceCategory_DeviceData[s]->FK_DeviceData_get()] = vectRow_DeviceCategory_DeviceData[s]->IK_DeviceData_get();
+
+	vector<Row_DeviceTemplate_DeviceData *> vectRow_DeviceTemplate_DeviceData;
+	pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_DeviceData_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_DeviceData);
+	for(size_t s=0;s<vectRow_DeviceTemplate_DeviceData.size();++s)
+		mapDefaultParms[vectRow_DeviceTemplate_DeviceData[s]->FK_DeviceData_get()] = vectRow_DeviceTemplate_DeviceData[s]->IK_DeviceData_get();
+
+	for(map<int,string>::iterator it=mapDefaultParms.begin();it!=mapDefaultParms.end();++it)
+	{
+		Row_Device_DeviceData *pDevice_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+		pDevice_DeviceData->FK_Device_set(pRow_Device->PK_Device_get());
+		pDevice_DeviceData->FK_DeviceData_set((*it).first);
+		pDevice_DeviceData->IK_DeviceData_set((*it).second);
+		m_pDatabase_pluto_main->Device_DeviceData_get()->Commit();
+	}
 
     g_pPlutoLogger->Write(
         LV_STATUS,
