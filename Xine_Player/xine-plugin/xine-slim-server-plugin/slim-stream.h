@@ -1,12 +1,9 @@
 #ifndef SLIM_STREAM_H
 #define SLIM_STREAM_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+#include "local-defines.h"
+
+#include <xine.h>
 
 #define BUFFER_SIZE 262144
 
@@ -23,13 +20,13 @@ struct slim_stream
 	int readPtr;
 	int writePtr;
 
-	unsigned char isEndOfStream;	
+	unsigned char isEndOfStream;
 	unsigned char isStreaming;
 
 	unsigned int isConnecting;
 
 	SOCKET connection;
-	
+
 	struct in_addr hostAddr;
 	unsigned int  hostPort;
 	unsigned char *uri;
@@ -47,8 +44,8 @@ int stream_get_free_space(struct slim_stream *pstream);
 int stream_write(char *pBuffer, int off, int len, struct slim_stream *pStream);
 int stream_read(char *pBuffer, int off, int len, struct slim_stream *pStream);
 
-void stream_open(struct slim_stream *pStream);
-void stream_close(struct slim_stream *pstream);
+void stream_open(struct slim_stream *pStream, xine_t *xine);
+void stream_close(struct slim_stream *pstream, xine_t *xine);
 void stream_flush(struct slim_stream *pstream);
 
 #endif // SLIM_STREAM_H

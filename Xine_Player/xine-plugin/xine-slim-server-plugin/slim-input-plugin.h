@@ -1,13 +1,11 @@
 #ifndef SLIM_INPUT_PLUGIN_H
 #define SLIM_INPUT_PLUGIN_H
 
-#include "local_defines.h"
-
 #include "slim-stream.h"
 
-#include "xine_internal.h"
-#include "xineutils.h"
-#include "input/input_plugin.h"
+#include "xine/xine_internal.h"
+#include "xine/xineutils.h"
+#include "xine/input_plugin.h"
 
 // #include "net_buf_ctrl.h"
 
@@ -29,19 +27,19 @@ struct slim_input_class_s {
 
 typedef struct slim_input_class_s slim_input_class_t;
 
-struct slim_input_plugin_s 
+struct slim_input_plugin_s
 {
-	input_plugin_t input_plugin; // the base plugin data	
+	input_plugin_t input_plugin; // the base plugin data
 
 	// network connection data
 	SOCKET			 comm_socket;
 	char            *mrl;
-	char            *slim_server_specification;	
-	
+	char            *slim_server_specification;
+
 	unsigned char	*hostAddr;
 	unsigned int	hostPort;
 
-	// the stream we are playing 
+	// the stream we are playing
 	xine_stream_t	*stream;
 
 	struct slim_stream source_stream;
@@ -49,7 +47,7 @@ struct slim_input_plugin_s
 	char             preview_buffer[MAX_PREVIEW_SIZE];
 	off_t            preview_size;
 
-	// current position 
+	// current position
 	off_t            current_position;
 };
 

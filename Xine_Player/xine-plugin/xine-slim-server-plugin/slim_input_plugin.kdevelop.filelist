@@ -1,0 +1,15 @@
+# KDevelop Custom Project File List
+local_defines.h
+main.c
+Makefile
+slim-input-plugin.c
+slim-input-plugin.h
+slim-protocol-handler.c
+slim-protocol-handler.h
+slim-stream.c
+slim-stream.h
+slim_input_plugin.kdevelop
+socket-utils.c
+socket-utils.h
+xine-slim-server-plugin.vcproj
+xine_plugin.def

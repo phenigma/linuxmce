@@ -1,55 +1,58 @@
 #ifndef SLIM_PROTOCOL_HANDLER_H
 #define SLIM_PROTOCOL_HANDLER_H
 
-#include "local_defines.h"
+#include "local-defines.h"
 
-#include "xine_internal.h"
+#include "xine/xine_internal.h"
+
+#include <netinet/in.h>
 // #include "xineutils.h"
 
 // sending helo
 
-int slim_protocol_make_helo(char **outBuffer, int *len, unsigned char deviceID, unsigned char deviceRevision, unsigned char mac[6]);
-int slim_protocol_make_ack(char **outBuffer, int *len, 
+int slim_protocol_make_helo(unsigned char **outBuffer, int *len, unsigned char deviceID, unsigned char deviceRevision, unsigned char mac[6]);
+
+int slim_protocol_make_ack(unsigned char **outBuffer, int *len,
 								char code[4],  // the type of the ack to send
 								unsigned char crlf, // ?
-								unsigned char masInit, // ? 
-								unsigned char masMode, // ? 
+								unsigned char masInit, // ?
+								unsigned char masMode, // ?
 								int rptr, int wptr, // ?
-								long bytesRx, int jiffies);
+								long long bytesRx, int jiffies);
 
-typedef enum _CommandType 
+typedef enum _CommandType
 {
 	COMMAND_VERSION		= 0,
 	COMMAND_STREAM		= 1,
 	COMMAND_I2C			= 2,
-	COMMAND_VFDISPLAY	= 3,	
+	COMMAND_VFDISPLAY	= 3,
 	COMMAND_DISPLAY		= 4
 } CommandType;
 
 typedef enum _StreamManagementCommandType
 {
 	STREAM_NO_COMMAND,
-	STREAM_START, 
+	STREAM_START,
 	STREAM_PAUSE,
-	STREAM_UNPAUSE, 
+	STREAM_UNPAUSE,
 	STREAM_QUIT
 } StreamManagementCommandType;
 
 typedef enum _StreamFormatType
 {
 	STREAM_FORMAT_MP3,
-	STREAM_FORMAT_FLAC, 
+	STREAM_FORMAT_FLAC,
 	STREAM_FORMAT_PCM,
-	STREAM_FORMAT_UNKNOWN	
+	STREAM_FORMAT_UNKNOWN
 } StreamFormatType;
 
-struct slimCommand 
+struct slimCommand
 {
 	CommandType type;
 
 	union {
 		struct _versionCommand {
-			char *versionData;			
+			char *versionData;
 			unsigned int versionDataLength;
 		} version;
 
@@ -69,7 +72,7 @@ struct slimCommand
 
 			struct in_addr				hostAddr;
 			unsigned int				hostPort;
-			
+
 			unsigned int				urlSize;
 			unsigned char				*urlAddress;
 		} stream;

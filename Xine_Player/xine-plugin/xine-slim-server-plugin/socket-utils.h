@@ -1,12 +1,10 @@
 #ifndef SOCKET_UTILS_H
 #define SOCKET_UTILS_H
 
-#include "xine_internal.h"
-#include "xineutils.h"
+#include "xine/xine_internal.h"
+#include "xine/xineutils.h"
 
-#include "local_defines.h"
-#include <sys/socket.h>
-#include <netinet/in.h>
+#include "local-defines.h"
 
 SOCKET connect_to_host_with_addr(struct in_addr host, int port, xine_t *xine);
 
