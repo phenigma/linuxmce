@@ -23,6 +23,7 @@ allow bootp;
 subnet %INTERNAL_SUBNET% netmask %INTERNAL_SUBNET_MASK% {
 	default-lease-time 86400;
 	max-lease-time 604800;
+	%DYNAMIC_IP_RANGE%
 }
 
 option space pxelinux;

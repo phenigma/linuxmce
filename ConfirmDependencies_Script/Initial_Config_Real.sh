@@ -156,7 +156,16 @@ if [ -z "$no_build_all" -a -s "$DIR"/build_all.sh ]; then
 fi
 
 wget -O "$DIR/message.txt" "$ACTIV/message.php?code=$CODE" 2>/dev/null && cat "$DIR/message.txt"
-echo "Press enter to continue"
+echo "Congratulations.  Pluto installation has completed."
+echo "The system will now reboot.  The Pluto Core software will"
+echo "be started automatically.  As soon as the computer finishes"
+echo "rebooting you will be able to access the Pluto Admin website"
+echo "to configure it, and you can start plugging in your media"
+echo "directors and other plug-and-play devices.  If you are an"
+echo "advanced Linux user and want to access a terminal before"
+echo "the reboot, press ALT+F2.  Otherwise..."
+echo ""
+echo "Press any key to reboot and startup your new Pluto Core."
 read
 
 if [ "$Type" == "diskless" ]; then

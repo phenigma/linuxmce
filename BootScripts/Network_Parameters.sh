@@ -135,4 +135,5 @@ WHERE FK_DeviceTemplate=7 AND FK_DeviceData=28"
 DHCPsetting=$(RunSQL "$Q")
 if [ "${DHCPsetting#eth*,}" != "$DHCPsetting" ]; then
 	DHCPcard=${DHCPsetting%%,*}
+	DHCPsetting=${DHCPsetting#eth*,}
 fi

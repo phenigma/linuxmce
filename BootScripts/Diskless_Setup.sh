@@ -11,6 +11,7 @@ DlDir="/usr/pluto/diskless"
 # INTERNAL_SUBNET_MASK
 # MOON_ENTRIES
 # MOON_ADDRESS
+# DYNAMIC_IP_RANGE
 ReplaceVars()
 {
 	# TODO
@@ -150,7 +151,6 @@ ReplaceVars /etc/exports.$$
 mv /etc/exports.$$ /etc/exports
 /etc/init.d/nfs-kernel-server restart
 
-# TODO: use dynamic IP range too :)
 echo "Setting up /etc/dhcp3/dhcpd.conf"
 cp /usr/pluto/templates/dhcpd.conf.tmpl /etc/dhcp3/dhcpd.conf.$$
 MoonNumber=1
@@ -160,6 +160,13 @@ for Client in $R; do
 	MOON_ENTRIES=$(printf "%s" "$MOON_ENTRIES\n\thost moon$MoonNumber { hardware ethernet $MAC; fixed-address $IP; }")
 	MoonNumber=$((MoonNumber+1))
 done
+
+if [ "${DHCPsetting%,*}" != "$DHCPsetting" ]; then
+	DHCPRange="${DHCPsetting#*,}"
+	Range1="${DHCPsetting%-*}"
+	Range2="${DHCPsetting#*-}"
+fi
+
 ReplaceVars /etc/dhcp3/dhcpd.conf.$$
 mv /etc/dhcp3/dhcpd.conf.$$ /etc/dhcp3/dhcpd.conf
 /etc/init.d/dhcp3-server restart

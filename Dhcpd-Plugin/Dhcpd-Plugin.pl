@@ -59,6 +59,7 @@ while (1 eq 1) {
             $Device_ID = $data[0];
             chomp($Device_ID);
             close(FILE);
+			MessageSend localhost 0 0 2 24 26 $Device_ID
             system("rm -f dhcpd_temp.file");
             if($package_name ne "") {
               system("apt-get install $package_name");
