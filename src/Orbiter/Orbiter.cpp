@@ -1799,8 +1799,10 @@ bool Orbiter::SelectedGrid( int DGRow )
 
     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
 
-	pDesignObj_DataGrid->m_iHighlightedColumn=iSelectedColumn;
-	pDesignObj_DataGrid->m_iHighlightedRow=DGRow;
+	//pDesignObj_DataGrid->m_iHighlightedColumn=iSelectedColumn;
+	//pDesignObj_DataGrid->m_iHighlightedRow=DGRow;
+	pDesignObj_DataGrid->m_GridCurCol = iSelectedColumn;
+	pDesignObj_DataGrid->m_GridCurRow = DGRow;
 
     return SelectedGrid( pDesignObj_DataGrid,  pCell );
 }
