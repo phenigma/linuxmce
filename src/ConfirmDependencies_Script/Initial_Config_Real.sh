@@ -190,10 +190,6 @@ ff02::3 ip6-allhosts
 	echo "$hosts" >/etc/hosts
 fi
 
-echo "DEBUG: Press enter to start activation"
-echo "DEBUG: Router IP written in /etc/hosts is '$dcerouterIP'"
-read
-
 chmod +x "$DIR"/activation.sh
 if "$DIR"/activation.sh; then
 	echo "Activation went ok"
