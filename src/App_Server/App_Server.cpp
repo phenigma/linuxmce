@@ -81,7 +81,7 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 App_Server::~App_Server()
 //<-dceag-dest-e->
 {
-	
+
 }
 
 //<-dceag-reg-b->
@@ -281,7 +281,10 @@ bool App_Server::StartApp(string CmdExecutable, string CmdParams, string AppName
 		if ( *ptr )
 		{
 			args[++i] = ptr; 			// put the next thing as a parameter
-			while ( *ptr && *ptr != ' ' && *ptr != '\t' ) ptr++;  // skip to the next white space. (this doesn't take into account quoted parameters) )
+			while ( *ptr && *ptr != ' ' && *ptr != '\t' ) {
+				if ( *ptr == '\\' ) ptr++; // skip quoted characters
+				ptr++;  // skip to the next white space. (this doesn't take into account quoted parameters) )
+			}
 		}
     }
 
@@ -289,7 +292,17 @@ bool App_Server::StartApp(string CmdExecutable, string CmdParams, string AppName
     g_pPlutoLogger->Write(LV_STATUS, "Found %d arguments", i);
 
     for (int x = 0 ; x < i; x++)
-        g_pPlutoLogger->Write(LV_STATUS, "Argument %d: %s", x, args[x]);
+	{
+		char *pArgument 		= args[x];
+		char *pUnquotedArgument = args[x];
+		while ( *pArgument )
+		{
+			if ( *pArgument == '\\' ) pArgument++;
+			*pUnquotedArgument++ = *pArgument++;
+		}
+		*pUnquotedArgument = 0;
+		g_pPlutoLogger->Write(LV_STATUS, "Argument %d: %s", x, args[x]);
+	}
 
     pid_t pid = fork();
     switch (pid)
@@ -410,7 +423,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 		Message *pMessageCopy = new Message(pMessage);
 		pMessageCopy->m_dwPK_Device_To=0;
 		pMessageCopy->m_dwPK_Device_Category_To = DEVICECATEGORY_General_Info_Plugins_CONST;
-		
+
 	}
 
 	switch( sForce[0] )
@@ -457,7 +470,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 void App_Server::KillSpawnedDevices()
 {
 #ifndef WIN32
-	signal(SIGCHLD, SIG_IGN); 
+	signal(SIGCHLD, SIG_IGN);
 #endif
 	App_Server_Command::KillSpawnedDevices();
 
