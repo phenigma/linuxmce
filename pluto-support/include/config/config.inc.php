@@ -1,10 +1,13 @@
 <?PHP
-   include_once($_SERVER['DOCUMENT_ROOT'].'/globalconfig/globalconfig.inc.php');
-      
-   error_reporting(E_ALL ^ E_NOTICE);
-
-  //debuging
-  //$GLOBALS['inDebug']=1;
+  	
+  	if($GLOBALS['inDebug']!=0){
+  		// production settings
+  		error_reporting(E_ALL ^ E_NOTICE);
+  		include_once('/var/www/globalconfig/globalconfig.inc.php');
+  	}else{
+  		error_reporting(E_ALL);
+  		include_once('/var/www/test/globalconfig/globalconfig.inc.php');
+  	}
   	
   // PlutoHome website
   	$GLOBALS['sendErrorsTo']='info@plutohome.com';

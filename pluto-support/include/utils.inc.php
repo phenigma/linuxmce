@@ -334,4 +334,45 @@ function forumJump($redirectAddress)
 	else
 		return "phpbb2/$redirectAddress";
 }
+
+function builtTopMenu($website,$dbADO)
+{
+	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website'";
+	$resSelectMenu = $dbADO->Execute($selectMenu);
+	$menuPages='';
+	$pos=0;	
+	while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
+		$menuPages.='menuObject.item'.$pos.' = "'.ReplaceTokens($rowSelectMenu['Description']).'"
+		';
+		if($rowSelectMenu['pageURL']!='')
+			$menuPages.='menuObject.url'.$pos.' = "'.str_replace('\'','\\\\\'',$rowSelectMenu['pageURL']).'"
+		';
+		$menuPages.=getSubmenu($website,$pos.'_',$rowSelectMenu['PK_PageSetup'],$dbADO);
+		$pos++;
+	}
+	return $menuPages;
+}
+
+function getSubmenu($website,$level,$parentID,$dbADO)
+{
+	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent =? AND showInTopMenu = 1 AND Website=?";
+	$resSelectMenu = $dbADO->Execute($selectMenu,array($parentID,$website));
+	$menuPages='';
+	$pos=0;	
+	if($resSelectMenu->RecordCount()>0)
+		$menuPages.='menuObject.menu_items_background_color_roll'.$level.' = "#FFFFFF"
+		';
+	while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
+		$menuPages.='
+			menuObject.item'.$level.$pos.' = "'.ReplaceTokens($rowSelectMenu['Description']).'"
+		';
+		if($rowSelectMenu['pageURL']!='')
+			$menuPages.='menuObject.url'.$level.$pos.' = "'.str_replace('\'','\\\\\'',$rowSelectMenu['pageURL']).'"
+		';
+		$menuPages.=getSubmenu($website,$level.$pos.'_',$rowSelectMenu['PK_PageSetup'],$dbADO);
+		$pos++;
+		
+	}
+	return $menuPages;
+}
 ?>

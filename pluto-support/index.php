@@ -163,6 +163,13 @@
 			$rightFile='operations/modules';
 			$rightParams='';
 		break;
+		case 'pluto':
+			$leftFile='operations/leftHome';
+			$leftParams='';
+
+			$rightFile='home';
+			$rightParams='';
+		break;
 				
 		default:			
 			$out='{Invalid section}'.$section;	
