@@ -288,6 +288,11 @@ void WinOrbiterLogger::WriteEntry( Entry& entry )
     StringUtils::Replace(str, "\x1b[0m", "");
     StringUtils::Replace(str, "\x1b[33;1m", "");
 
+	if(entry.m_iLevel == LV_CRITICAL)
+		str = "CRITICAL : " + str;
+	else if(entry.m_iLevel == LV_WARNING)
+		str = "WARNING : " + str;
+
     //TODO : use entry.m_iLevel to set a color for the output string
     //TODO: add time stamp
 

@@ -1227,10 +1227,10 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
                 int k=2;
             }
 
-			vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
-			if(pObj->m_pvectCurrentGraphic && pObj->m_pvectCurrentGraphic->size())	
+			vector<PlutoGraphic*> *pVectorPlutoGraphic = &(pObj->m_vectSelectedGraphic);
+			if(pObj->m_vectSelectedGraphic.size())	
 			{
-				PlutoGraphic *pPlutoGraphic = pObj->m_pvectCurrentGraphic->operator [](0);
+				PlutoGraphic *pPlutoGraphic = pObj->m_vectSelectedGraphic[0];
 
 				if(pPlutoGraphic->m_GraphicFormat != GR_MNG)
 				{
@@ -5311,13 +5311,11 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
 		return;
 
+	if(pVectorPlutoGraphic->size() <= pObj->m_iCurrentFrame)
+		pObj->m_iCurrentFrame = 0;
+
 	int iCurrentFrame = pObj->m_iCurrentFrame;
-
-	if(pVectorPlutoGraphic->size() <= iCurrentFrame)
-		return;
-
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
-
 	bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
 
 	if(pPlutoGraphic->IsEmpty() && m_sLocalDirectory.length() > 0)
@@ -5485,7 +5483,8 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		for(int i = 0; i < size; i++)
 			(*pVectorPlutoGraphic)[i]->Clear();
 
-		CallMaintenanceInMiliseconds( iDelay, &Orbiter::RenderUnselectedGraphic_CallBack, pObj , false );
+		CallMaintenanceInMiliseconds( iDelay, &Orbiter::DeselectObjects, ( void * ) pObj, true );
+		//CallMaintenanceInMiliseconds( iDelay, &Orbiter::RenderUnselectedGraphic_CallBack, pObj , false );
 	}
     else
 		CallMaintenanceInMiliseconds( iDelay, &Orbiter::PlayMNG_CallBack, pObj , false );
@@ -5493,11 +5492,28 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 /*virtual*/ void Orbiter::RenderUnselectedGraphic_CallBack(void *data)
 {
+	/*
 	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *)data;
+
+	pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
+	pObj->m_GraphicToDisplay = GRAPHIC_NORMAL;
 
 	BeginPaint();
 	RenderGraphic(pObj, pObj->m_rPosition, true);
 	EndPaint();
+
+	// Remove it from the list
+	for( vector<class DesignObj_Orbiter *>::iterator it=m_vectObjs_Selected.begin(  );it!=m_vectObjs_Selected.end(  );++it )
+	{
+		DesignObj_Orbiter *pObj_Sel = *it;
+		if(pObj == pObj_Sel)
+		{
+			m_vectObjs_Selected.erase( it );
+			break;
+		}
+	}
+	*/
+
 }
 
 //<-dceag-c260-b->
