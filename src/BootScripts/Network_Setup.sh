@@ -4,6 +4,11 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
+# vars:
+# CORE_INTERNAL_ADDRESS
+
+Vars="CORE_INTERNAL_ADDRESS"
+
 if [ "$NetIfConf" -eq 0 ]; then
 	echo "Populating network settings from current system config"
 	NCards=$(ip addr | grep -cF 'link/ether')
@@ -105,10 +110,13 @@ Replace != 0 { Replace-- }
 ' /etc/bind/named.conf.options >/etc/bind/named.conf.options.$$
 mv /etc/bind/named.conf.options.$$ /etc/bind/named.conf.options
 
-if ! grep -F 'zone "activate.plutohome.com"' /etc/bind/named.conf.local; then
+if ! grep -qF 'zone "activate.plutohome.com"' /etc/bind/named.conf.local; then
 	cat /usr/pluto/templates/named.zone.pluto.activate.local.conf.tmpl >>/etc/bind/named.conf.local
 fi
 cat /usr/pluto/templates/named.zone.pluto.activate.data.tmpl >"/etc/bind/named.zone.pluto.activate"
+
+CORE_INTERNAL_ADDRESS="$IntIP"
+ReplaceVars /etc/bind/named.zone.pluto.activate
 
 rndc reload
 

@@ -35,7 +35,21 @@ ConfGet()
 	fi
 }
 
-ConfEval
+ReplaceVars()
+{
+	# TODO
+	local File Commands VarValue SedCmd
+	File="$1"
+	
+	for i in $Vars; do
+		eval "VarValue=\"\$$i\""
+		VarValue=${VarValue//\//\\\/}
+		VarValue=$(echo "$VarValue" | sed 's/^ *//g; s/ *$//g')
+		SedCmd="s/%$i%/$VarValue/g"
+		[ -z "$Commands" ] && Commands="$SedCmd" || Commands="$Commands; s/%$i%/$VarValue/g"
+	done
+	sed -i "$Commands" $File
+}
 
 PackageIsInstalled()
 {
@@ -44,6 +58,8 @@ PackageIsInstalled()
 	[ -z "$Pkg" ] && return 1
 	dpkg -s "$Pkg" 2>/dev/null | grep -q 'Status: install ok installed'
 }
+
+ConfEval
 
 VGcmd=""
 if [ -n "$Valgrind" ]; then

@@ -13,6 +13,7 @@ PHURL="http://www.plutohome.com/"
 ACTIV="http://activate.plutohome.com"
 
 activation_url="$ACTIV/activation.php"
+activation_url_alt="$ACTIV/pluto-admin/activation.php"
 
 DIR="/usr/pluto/install"
 CDD="ConfirmDependencies_Debian.sh"
@@ -121,7 +122,13 @@ mac=$(/sbin/ifconfig eth0|grep HWaddr|awk '{ print $5; }'|sed s/://g)
 while [ "$ok" -eq 0 ]; do
 	echo "Getting pre-activation data (if any)"
 	answer=$(wget -O - "$activation_url?mac=$mac" 2>/dev/null)
-	if [ "$?" -ne 0 ]; then
+	RetCode=$?
+	if [ "$RetCode" -ne 0 ]; then
+		answer=$(wget -O - "$activation_url_alt?mac=$mac" 2>/dev/null)
+		RetCode=$?
+		[ "$RetCode" -eq 0 ] && activation_url="$activation_url_alt"
+	fi
+	if [ "$RetCode" -ne 0 ]; then
 		try_again "Failed to contact activation server over the Internet" && continue
 		echo "$ICS_MSG"
 		break

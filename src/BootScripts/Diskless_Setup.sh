@@ -17,24 +17,7 @@ DlDir="/usr/pluto/diskless"
 # MOON_HOSTS
 
 KERNEL_VERSION="$(uname -r)"
-
-ReplaceVars()
-{
-	# TODO
-	local File Commands Vars VarValue SedCmd
-	File="$1"
-	
-	Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP"
-
-	for i in $Vars; do
-		eval "VarValue=\"\$$i\""
-		VarValue=${VarValue//\//\\\/}
-		VarValue=$(echo "$VarValue" | sed 's/^ *//g; s/ *$//g')
-		SedCmd="s/%$i%/$VarValue/g"
-		[ -z "$Commands" ] && Commands="$SedCmd" || Commands="$Commands; s/%$i%/$VarValue/g"
-	done
-	sed -i "$Commands" $File
-}
+Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP"
 
 GetFreeDigit()
 {
