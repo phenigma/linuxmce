@@ -3,7 +3,8 @@
 #include <iostream>
 using namespace std;
 //------------------------------------------------------------------------------------------------------
-DCEMySqlConfig::DCEMySqlConfig() : m_MySqlMutex("MYSQL"), m_iTransNumber(0)
+DCEMySqlConfig::DCEMySqlConfig(string sFilename) : 
+	DCEConfig(sFilename), m_MySqlMutex("MYSQL"), m_iTransNumber(0)
 {
 	m_MySqlMutex.Init(NULL);
 

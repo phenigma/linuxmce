@@ -7,13 +7,8 @@
 class RAServer : public DCE::SocketListener  // Borrow DCE's Socket listener
 {
 public:
-	RAServer() : SocketListener("RAServer")
-	{
-	}
-
-	virtual ~RAServer()
-	{
-	}
+	RAServer();
+	virtual ~RAServer();
 
 	void Initialize();
 	void Run();

@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <list>
 #include <sstream>
-
+#include <assert.h>
 
 #include "PlutoUtils/CommonIncludes.h"	
 #include "PlutoUtils/StringUtils.h"
@@ -14,6 +14,14 @@
 #include "Message.h"
 #include "RAServerSocket.h"
 #include "RAServer.h"
+
+RAServer::RAServer() : SocketListener("RAServer")
+{
+}
+
+RAServer::~RAServer()
+{
+}
 
 DCE::Socket *RAServer::CreateSocket(SOCKET newsock,string Name)
 {

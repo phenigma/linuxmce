@@ -16,7 +16,7 @@ public:
 	int m_iTransNumber; //maybe we should derive  a class from DCEMySqlConfig with VIPServer specifics (?)
 
 public:
-	DCEMySqlConfig();
+	DCEMySqlConfig(string sFilename="/etc/pluto.conf");
 	virtual ~DCEMySqlConfig();
 
 	bool MysqlConnect(bool bReset);
