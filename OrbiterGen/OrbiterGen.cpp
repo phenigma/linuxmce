@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 #endif
 	g_pPlutoLogger=new FileLogger(stdout);
 
-	string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_main";
+	string DBHost="localhost",DBUser="root",DBPassword="",DBName="pluto_main";
 #ifdef WIN32
 	string GraphicsFiles="/pluto/graphics/skins",FontFiles="/windows/fonts",OutputFiles="/pluto";
 #else
@@ -527,21 +527,16 @@ int OrbiterGenerator::DoIt()
 
 	if( m_dequeLocation.size()==0 )
 	{
-		throw "No entertainment areas in this installation";
-		/*
 		cout << "Warning: No entertainment areas and no rooms" << endl;
 	
-		Row_EntertainArea *pRow_EntertainArea = vectRow_EntertainArea[0];
-
 		// We've got an empty house with no rooms and no entertainment areas.  Just add something
 		LocationInfo *li = new LocationInfo();
 		li->iLocation=0;
 		li->Description = "Anywhere";
-		li->PK_EntertainArea = pRow_EntertainArea->PK_EntertainArea_get();
-		li->PK_Room = pRow_EntertainArea->FK_Room_get();
+		li->PK_EntertainArea = 0;
+		li->PK_Room = 0;
 		li->drIcon=NULL;
 		m_dequeLocation.push_back(li);					
-*/
 	}
 
 	m_iLocation_Initial=0;

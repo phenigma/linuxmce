@@ -1173,6 +1173,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 		case ARRAY_Security_Scenarios_CONST:
 		case ARRAY_Communication_Sceneraios_CONST:
 		case ARRAY_Misc_Scenarios_CONST:
+			if( m_pOrbiterGenerator->m_pRow_Room )
 			{
 				int PriorSort=-1;
 				vector<class Row_CommandGroup_Room *> vectAGs;

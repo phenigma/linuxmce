@@ -747,7 +747,7 @@ void DoRender(string font, string output,int width,int height,bool bAspectRatio,
 #ifdef WIN32
 Renderer r("C:/windows/fonts/", "", 800, 600,true);
 #else
-Renderer r("/usr/share/fonts/truetype/msttcorefonts", "", 800, 600,true);
+Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600,true);
 #endif
 
 
