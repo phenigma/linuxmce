@@ -30,6 +30,10 @@ using namespace DCE;
 
 #else //linux stuff
 	#include "Linux/OrbiterLinux.h"
+
+        #ifdef BLUETOOTH_DONGLE
+	        #include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
+	#endif
 #endif //WIN32
 
 //------------------------------------------------------------------------------------------------------

@@ -63,10 +63,9 @@ using namespace DCE;
 
 #include "PlutoUtils/PlutoDefs.h"
 
-#ifdef WIN32 //for now
-#include "Simulator.h"
-#endif
+#include "../Orbiter/Simulator.h"
 
+using namespace DCE;
 
 /** @test
 #ifdef BT_SOCKET
@@ -525,13 +524,15 @@ printf( "$$$ Ready to delete the orbiter...\n" );
 		class OrbiterSDLBluetooth *pOrbiter = 
 			StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, m_sIPAddress, "", false, 176, 300 );
 
-#ifdef WIN32 //for now
 		if(NULL != pOrbiter)
 		{
 			Simulator::GetInstance()->m_pOrbiter = (Orbiter *)pOrbiter;	
+#ifdef WIN32			
 			Simulator::GetInstance()->LoadConfigurationFile("Orbiter.conf");
+#else //LINUX
+			Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");
+#endif			
 		}	
-#endif
 
 		pBD_Orbiter->m_pOrbiter = ( Orbiter * )pOrbiter;
 	}

@@ -308,6 +308,9 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
 /*virtual*/ void OrbiterSDLBluetooth::SimulateMouseClick(int x, int y)
 {
 	//do nothing
+#ifndef WIN32
+	printf("OrbiterSDLBluetooth::SimulateMouseClick. The event will be ignored (we don't have mouse on the phone :P");
+#endif	
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDLBluetooth::SimulateKeyPress(long key)
@@ -316,5 +319,9 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
 
 	if( m_pBDCommandProcessor )
 		m_pBDCommandProcessor->AddCommand(pBD_CP_SimulateEvent);
+
+#ifndef WIN32
+	printf("OrbiterSDLBluetooth::SimulateKeyPress with key code: %d", key);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------

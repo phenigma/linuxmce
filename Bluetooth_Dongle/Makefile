@@ -25,6 +25,7 @@ Gen_Dev_Files += $(GENDEV)/OrbiterBase.cpp
 sources += \
 	../Orbiter/SDL_Bluetooth/OrbiterSDLBluetooth.cpp \
 	../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.cpp \
+	../Orbiter/Simulator.cpp \
 	../Orbiter/DesignObj_Data.cpp \
 	../Orbiter/DesignObj_Orbiter.cpp \
 	../Orbiter/Orbiter.cpp \
