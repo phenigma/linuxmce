@@ -854,8 +854,6 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 					return false;
 				}
 
-we need to know what we did this batch already so the server doesn't try to resend it to us again!!!  But if we update the number, we'll be off sync?!?!?!
-r_close transaction returns action with batch, and on update, it sends all batches>last sync
 /*
 				if( r_CommitRow.m_psc_id_new>m_psc_id_last_sync )
 					m_pRepository->psc_id_last_sync_set( this, r_CommitRow.m_psc_id_new );
@@ -1627,7 +1625,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 
 		sSql << ") VALUES(";
 		bFirst=true;
-		for(it=pChangedRow->m_mapFieldValues.begin();it!=pChangedRow->m_mapFieldValues.end();++it)
+		for(MapStringString::iterator it=pChangedRow->m_mapFieldValues.begin();it!=pChangedRow->m_mapFieldValues.end();++it)
 		{
 			if( bFirst )
 				bFirst=false;
