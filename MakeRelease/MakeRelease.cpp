@@ -734,7 +734,12 @@ AsksSourceQuests:
 		{
 			return false;
 		}
-		if( c=='y' )
+		else if( c=='n' )
+		{
+			cout << "Continuing without building package." << endl;
+			return true;
+		}
+		else if( c=='y' )
 		{
 			pRow_Package_Directory_CompiledOutput = g_pDatabase_pluto_main->Package_Directory_get()->AddRow();
 			pRow_Package_Directory_CompiledOutput->FK_Package_set(pRow_Package->FK_Package_Sourcecode_get());
