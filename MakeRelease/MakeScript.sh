@@ -1,21 +1,47 @@
+#!/bin/bash
 version=3
-O1="UPDATE Version SET VersionName='$(date +%g%m%d%H)' WHERE PK_Version=$version;"
-echo $O1 | mysql pluto_main
+if [ $version -eq 1 ]; then
+	O1="UPDATE Version SET VersionName='$(date +%g%m%d%H)' WHERE PK_Version=$version;"
+	echo $O1 | mysql pluto_main
+fi
+
 rm -rf /home/MakeRelease
 rm -rf /var/www/download/deb_sarge /var/www/download/source /var/www/download/win2000xp
 mkdir -p /home/MakeRelease
 cd /home/MakeRelease
 svn co svn://localhost/pluto2/trunk/. | tee /home/MakeRelease/svn.log
-MakeRelease -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -v 1 | tee /home/MakeRelease/MakeRelease.log
+cd /home/MakeRelease/trunk
+svn info > svn.info
+svninfo=$(svn info . |grep ^Revision | cut -d" " -f2)
+if [ $version -eq 1 ]; then
+    O1="UPDATE Version SET VersionName='$(date +%g%m%d%H)' WHERE PK_Version=$version;"
+    echo $O1 | mysql pluto_main
+fi
+O2="UPDATE Version SET SvnRevision=$svninfo WHERE PK_Version=$version;"
+echo $O2 | mysql pluto_main
 
-#the following is only if it's a real build -- not version 1
-# todo -- check the version
-cd /var/www
-rm debian.tar.gz
-tar zcvf /var/www/debian.tar.gz /var/www/debian/dists/20dev/main/binary-i386/*
-scp debian.tar.gz problems@69.25.176.44:~/
-rm download.tar.gz
-tar zcvf /var/www/download.tar.gz /var/www/download/*
-scp download.tar.gz plutoadmin@69.25.176.44:~/
 read
 
+if ! MakeRelease -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -v $version | tee /home/MakeRelease/MakeRelease.log ; then
+	echo "MakeRelease Failed.  Press any key"
+	read
+else
+	if [ $version -ne 1 ]; then
+		cd /var/www
+	
+		rm debian.tar.gz
+		tar zcvf /var/www/debian.tar.gz /var/www/debian/dists/20dev/main/binary-i386/*
+		scp debian.tar.gz problems@69.25.176.44:~/
+
+		rm download.tar.gz
+		tar zcvf /var/www/download.tar.gz /var/www/download/*
+		scp download.tar.gz problems@69.25.176.44:~/
+
+		sh DumpVersionPackage.sh
+		scp dumpvp.tar.gz problems@69.25.176.44:~/
+
+		echo "Sent to server."
+	fi
+	echo "Everything okay.  Press any key"
+	read
+fi

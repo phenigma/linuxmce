@@ -119,12 +119,6 @@ g_pPlutoLogger->Write(LV_STATUS, "found dir entry %s", entry.d_name);
 g_pPlutoLogger->Write(LV_STATUS, "adding dir");
 					listFileNames.push_back(fi);
 				}
-				else if (entry.d_name == string("..") && bIncludeParent ) 
-				{
-					string ParentDir = FileUtils::BasePath(BasePath);
-					FileDetails *fi = new FileDetails(ParentDir, "", true, time(NULL), "<Go to parent directory>");
-					listFileNames.push_back(fi);
-				}
 			}
 			else if (entry.d_name[0] != '.')
 			{
