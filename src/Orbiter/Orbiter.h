@@ -1346,7 +1346,7 @@ public:
 				m_pScreenHistory=NULL;
 				m_pOrbiter->NeedToChangeScreens( pScreenHistory, m_bAddToHistory );
 			}
-			g_pPlutoLogger->Write( LV_STATUS, "calling redraw" );
+			g_pPlutoLogger->Write( LV_STATUS, "NeedToRender::~NeedToRender() calling redraw for: %s", m_pWhere);
 			m_pOrbiter->RedrawObjects();
 		}
 
