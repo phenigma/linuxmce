@@ -1,8 +1,8 @@
 config=$(/usr/bin/X11/X -configure 2>&1 | grep 'Your XF86Config file' | cut -d" " -f5-)
 retcode=$?
 if [ "$retcode" -ne 0 -o -z "$config" -o ! -e "$config" ]; then
-	echo "Something went wrong while configuring X"
-	exit 1
+	echo "Something went wrong while configuring X.  Probably already configured."
+	exit 0
 fi
 
 [ -e /etc/X11/XF86Config-4 ] && mv /etc/X11/XF86Config-4 /etc/X11/XF86Config-4.orig

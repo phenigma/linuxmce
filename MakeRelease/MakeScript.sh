@@ -1,5 +1,5 @@
 #!/bin/bash
-version=3
+version=1
 if [ $version -eq 1 ]; then
 	O1="UPDATE Version SET VersionName='$(date +%g%m%d%H)' WHERE PK_Version=$version;"
 	echo $O1 | mysql pluto_main
@@ -16,16 +16,18 @@ svninfo=$(svn info . |grep ^Revision | cut -d" " -f2)
 if [ $version -eq 1 ]; then
     O1="UPDATE Version SET VersionName='$(date +%g%m%d%H)' WHERE PK_Version=$version;"
     echo $O1 | mysql pluto_main
+	echo $O1 > /home/MakeRelease/query1
 fi
 O2="UPDATE Version SET SvnRevision=$svninfo WHERE PK_Version=$version;"
 echo $O2 | mysql pluto_main
-
-read
-
+echo $O2 > /home/MakeRelease/query2
+echo MakeRelease -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -v $version > /home/MakeRelease/Command
 if ! MakeRelease -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -v $version | tee /home/MakeRelease/MakeRelease.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	read
 else
+	cd /home/tmp/pluto-build/
+	./propagate.sh
 	if [ $version -ne 1 ]; then
 		cd /var/www
 	
