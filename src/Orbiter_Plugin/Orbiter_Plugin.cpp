@@ -1225,21 +1225,23 @@ void Orbiter_Plugin::CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,
 void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c266-e->
 {
-    OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
-	if( !pOH_Orbiter )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Request to regenerate unknown orbiter");
-		return;
-	}
-	else if( pOH_Orbiter->m_tRegenTime )
-	{
-		int Minutes = (time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
-		DisplayMessageOnOrbiter(iPK_Device,"We already started regenerating the orbiter " + StringUtils::itos(Minutes) +
-			" minutes ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system");
-		return;
-	}
+    for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
+    {
+        OH_Orbiter *pOH_Orbiter = (*it).second;
 
-	pOH_Orbiter->m_tRegenTime = time(NULL);
+		if( iPK_Device==0 || pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==iPK_Device )
+		{
+			if( pOH_Orbiter->m_tRegenTime )
+			{
+				int Minutes = (time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
+				DisplayMessageOnOrbiter(iPK_Device,"We already started regenerating the orbiter " + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + " " + StringUtils::itos(Minutes) +
+					" minutes ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system");
+				return;
+			}
+			else
+				pOH_Orbiter->m_tRegenTime = time(NULL);
+		}
+	}
 
 	// Launch it in the background with &
 	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + sForce + " &";
