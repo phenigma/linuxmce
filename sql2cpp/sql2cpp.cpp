@@ -247,7 +247,7 @@ int main( int argc, char *argv[] )
 	}
 
 	StringUtils::Replace( sInputPath + "database.vcproj.template", sOutputPath + sDBName + ".vcproj", "@sources@", Sources );
-	StringUtils::Replace( sOutputPath + sDBName + ".vcproj", sOutputPath + sDBName + ".vcproj", "*sDBName*",sDBName );
+	StringUtils::Replace( sOutputPath + sDBName + ".vcproj", sOutputPath + sDBName + ".vcproj", "*DBName*",sDBName );
 
 	//preparing header
 
