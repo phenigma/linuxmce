@@ -18,7 +18,7 @@
 
 #include "DeviceData_Router.h"
 #include "DCE/Logger.h"
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #include "MediaHandlerInfo.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType.h"

@@ -48,7 +48,7 @@ using namespace DCE;
 #include "pluto_main/Table_FloorplanObjectType.h"
 #include "pluto_main/Table_FloorplanObjectType_Color.h"
 #include "pluto_main/Table_Orbiter.h"
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #include "CreateDevice/CreateDevice.h"
 
 #include <cctype>

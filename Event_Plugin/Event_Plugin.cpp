@@ -12,7 +12,7 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #include "Event.h"
 #include "EventInfo.h"
 #include "EventInstance.h"

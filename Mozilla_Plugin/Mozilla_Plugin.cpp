@@ -31,7 +31,7 @@ using namespace DCE;
 
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DataGrid.h"
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #include "DCE/DataGrid.h"
 
 //<-dceag-const-b->

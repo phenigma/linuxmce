@@ -259,38 +259,8 @@ int OrbiterGenerator::DoIt()
 	system(("mkdir -p " + m_sOutputPath + " 2>/dev/null").c_str());
 #endif
 
-	m_pRow_DesignObj_MainMenu = NULL;
-	Row_Device_DeviceData *pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_MainMenu_CONST);
-	if( pRow_Device_DeviceData )
-		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
-
-	if( !m_pRow_DesignObj_MainMenu )
-		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuMain_CONST);
-
-	if( !m_pRow_DesignObj_MainMenu )
-	{
-		cerr << "Cannot find Orbiter's Main Menu: " << endl;
-		exit(1);
-	}
-
-	m_pRow_DesignObj_Sleeping = NULL;
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_Sleeping_CONST);
-	if( pRow_Device_DeviceData )
-		m_pRow_DesignObj_Sleeping = mds.DesignObj_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
-
-	if( !m_pRow_DesignObj_Sleeping )
-		m_pRow_DesignObj_Sleeping = m_pRow_DesignObj_MainMenu;
-
-	m_pRow_DesignObj_ScreenSaver = NULL;
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_ScreenSaver_CONST);
-	if( pRow_Device_DeviceData )
-		m_pRow_DesignObj_ScreenSaver = mds.DesignObj_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
-
-	if( !m_pRow_DesignObj_ScreenSaver )
-		m_pRow_DesignObj_ScreenSaver = m_pRow_DesignObj_MainMenu;
-
 	m_pRow_Skin = NULL;
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Skin_CONST);
+	Row_Device_DeviceData *pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Skin_CONST);
 	if( pRow_Device_DeviceData )
 		m_pRow_Skin = mds.Skin_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 
@@ -299,6 +269,25 @@ int OrbiterGenerator::DoIt()
 		cerr << "Cannot find Orbiter's Skin" << endl;
 		exit(1);
 	}
+
+	m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(m_pRow_Skin->FK_DesignObj_MainMenu_get());
+	m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuMain_CONST);
+
+	if( !m_pRow_DesignObj_MainMenu )
+	{
+		cerr << "Cannot find Orbiter's Main Menu: " << endl;
+		exit(1);
+	}
+
+	m_pRow_DesignObj_Sleeping = mds.DesignObj_get()->GetRow(m_pRow_Skin->FK_DesignObj_Sleeping_get());
+
+	if( !m_pRow_DesignObj_Sleeping )
+		m_pRow_DesignObj_Sleeping = m_pRow_DesignObj_MainMenu;
+
+	m_pRow_DesignObj_ScreenSaver = mds.DesignObj_get()->GetRow(m_pRow_Skin->FK_DesignObj_ScreenSaver_get());
+
+	if( !m_pRow_DesignObj_ScreenSaver )
+		m_pRow_DesignObj_ScreenSaver = m_pRow_DesignObj_MainMenu;
 
 	// Get the language
 	m_pRow_Language = NULL;

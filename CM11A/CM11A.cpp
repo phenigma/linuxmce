@@ -12,7 +12,7 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"

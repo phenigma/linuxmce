@@ -8,7 +8,7 @@
 //<-dceag-d-e->
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #include "pluto_main/Database_pluto_main.h"
 
 //<-dceag-decl-b->!

@@ -38,7 +38,7 @@ using namespace DCE;
 
 #include <sstream>
 
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "DCE/DataGrid.h"
 

@@ -33,7 +33,7 @@ using namespace DCE;
 
 #include "MediaHandlerInfo.h"
 #include "MediaHandlerBase.h"
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #include "DeviceData_Router.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "pluto_main/Database_pluto_main.h"

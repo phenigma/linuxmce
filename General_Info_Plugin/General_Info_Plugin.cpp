@@ -31,7 +31,7 @@ using namespace DCE;
 
 #include "../PlutoUtils/md5.h"
 
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #include "DCE/DeviceData_Router.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "../pluto_main/Table_UnknownDevices.h"

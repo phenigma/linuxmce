@@ -33,7 +33,7 @@ using namespace DCE;
 #include "FileListOps.h"
 #include "DeviceData_Router.h"
 #include "DCE/DataGrid.h"
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_DeviceTemplate.h"
