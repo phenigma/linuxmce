@@ -1009,7 +1009,12 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
     NeedToRender render( this, "Need to change screens" );
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
     // The framework will call this when it's time to change screens.  This immediately calls RenderScreen.
-    RegionUp(  );
+
+	// ATTEN: The siganture was changed from RegionUp() -> RegionUp(int x, int y);
+	// TODO: Make sure this is called properly (if the implementation will actually take the params into
+	// account it will probably break somehing). )))
+	RegionUp ( 0, 0);
+
     //  m_listDevice_Selected=""; // Nothing is selected anymore
     //  m_pLastSelectedObject=NULL;
 
@@ -1233,7 +1238,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
             }
 
 			vector<PlutoGraphic*> *pVectorPlutoGraphic = &(pObj->m_vectSelectedGraphic);
-			if(pObj->m_vectSelectedGraphic.size())	
+			if(pObj->m_vectSelectedGraphic.size())
 			{
 				PlutoGraphic *pPlutoGraphic = pObj->m_vectSelectedGraphic[0];
 
@@ -2731,6 +2736,22 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
 ACCEPT OUTSIDE INPUT
 */
 
+bool Orbiter::ProcessEvent( Orbiter::Event event )
+{
+	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(
+	if (event.type == Orbiter::Event::BUTTON_DOWN )
+		return ButtonDown(event.data.button.m_iPK_Button);
+	else if ( event.type == Orbiter::Event::BUTTON_UP )
+		//ButtonUp(event.data.button.m_iPK_Button);
+		return ButtonUp(event.data.button.m_iPK_Button);
+	else if ( event.type == Orbiter::Event::REGION_DOWN )
+		return RegionDown(event.data.region.m_iX, event.data.region.m_iY);
+	else if ( event.type == Orbiter::Event::REGION_UP )
+		return  RegionUp(event.data.region.m_iX, event.data.region.m_iY); // Shouldn't this be like the above?
+
+	return false;
+}
+
 bool Orbiter::ButtonDown( int PK_Button )
 {
     if( !PK_Button || !m_pScreenHistory_Current )
@@ -2930,7 +2951,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
 
     //TODO: seek in data grid
 
-#else if
+#else
     if( m_bCaptureKeyboard_OnOff && m_iCaptureKeyboard_PK_Variable )
     {
         //TODO: if keys = 0,  1,  ... 9,  transform this to abc,  def,  etc.
@@ -2946,8 +2967,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
     return bHandled;
 }
 //------------------------------------------------------------------------
-bool Orbiter::ButtonUp(  )
+bool Orbiter::ButtonUp( int iPK_Button )
 {
+	// TODO: See it we need the button
     NeedToRender render( this, "Button Up" );  // Redraw anything that was changed by this command
 
     return false; // We don't handle buttons
@@ -3487,7 +3509,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
 			time_t t = m_tGenerationTime;
 			struct tm *p_tm = localtime( &t );
-			Output += StringUtils::itos( p_tm->tm_mon+1 ) + "/" + StringUtils::itos( p_tm->tm_mday) + "/" + StringUtils::itos( p_tm->tm_year+1900 ) + " " + 
+			Output += StringUtils::itos( p_tm->tm_mon+1 ) + "/" + StringUtils::itos( p_tm->tm_mday) + "/" + StringUtils::itos( p_tm->tm_year+1900 ) + " " +
 				StringUtils::itos( p_tm->tm_hour ) + ":" + StringUtils::itos( p_tm->tm_min );
 		}
         else if(  Variable=="CD" )
@@ -5308,7 +5330,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 	BeginPaint();
 
-	//render a text with the 
+	//render a text with the
 	PlutoColor color(200, 200, 200, 100);
 	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
@@ -5381,7 +5403,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 	size_t size = (*pVectorPlutoGraphic).size();
 	if(
-		iCurrentFrame == 0 && bIsMNG && 	
+		iCurrentFrame == 0 && bIsMNG &&
 		(pObj->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED || pObj->m_GraphicToDisplay == GRAPHIC_SELECTED) &&
 		size > 1
 	) //clear the images

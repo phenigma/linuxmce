@@ -1,28 +1,32 @@
 #ifndef __CONTROLLERLINUXDESKTOP_H__
 #define __CONTROLLERLINUXDESKTOP_H__
 
+
 #include "../SDL/OrbiterSDL.h"
-#include "utilities/linux/RatpoisonHandler.h"
 
-#include <string>
-
-// X11 related includes (used by the code to find the window on the server)
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
+
+#include "utilities/linux/RatpoisonHandler.h"
+
+#include "XRecordExtensionHandler.h"
+#include <string>
+
+
 
 using namespace std;
 
 class OrbiterLinux : public OrbiterSDL, public RatpoisonHandler<OrbiterLinux>
 {
 private:
+	XRecordExtensionHandler *m_pRecordHandler;
+
     string m_strWindowName;
     string m_strDisplayName;
 
     int desktopInScreen;
 
     Display *XServerDisplay;
-
-//     Atom rp_command, rp_command_request, rp_command_result;
 
     bool findWindowByName();
 
@@ -31,9 +35,6 @@ private:
 
     bool openDisplay();
     bool closeDisplay();
-
-//     void sendCommandToRatpoison(string command);
-//     void readCommandResult(Display* display, Window commandWindow);
 
     int m_nDesktopWidth;
     int m_nDesktopHeight;
@@ -61,6 +62,7 @@ public:
     virtual void reinitGraphics();
     virtual void Initialize(GraphicType Type);
     virtual Display *getDisplay();
+	virtual Window getWindow();
 
 //     virtual void Initialize(GraphicType Type);
 };

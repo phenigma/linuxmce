@@ -22,10 +22,10 @@ class Simulator
 	bool m_mapParameters_Exists(string Token) {	map<string,string>::iterator it = m_mapParameters.find( Token ); return it != m_mapParameters.end(); }
 
 	inline int ReadInteger(string sToken, int iDefaultValue = 0);
-	inline string ReadString(string sToken, string sDefaultValue = ""); 
+	inline string ReadString(string sToken, string sDefaultValue = "");
 
 public: //data
-    
+
 	class Orbiter *m_pOrbiter;
 
 	bool m_bEnableGenerator;

@@ -40,6 +40,8 @@ OrbiterLinux::OrbiterLinux(int DeviceID,
     openDisplay();
 
 	SDL_WM_SetCaption(m_strWindowName.c_str(), "");
+
+	m_pRecordHandler = new XRecordExtensionHandler(getDisplay());
 }
 
 OrbiterLinux::~OrbiterLinux()
@@ -84,16 +86,19 @@ void OrbiterLinux::setDisplayName(string strDisplayName)
 
 bool OrbiterLinux::openDisplay()
 {
-    XServerDisplay = XOpenDisplay(m_strDisplayName.c_str());
+	XInitThreads();
+	XServerDisplay = XOpenDisplay(m_strDisplayName.c_str());
+
     int currentScreen;
 
     if ( XServerDisplay == NULL )
         return false;
 
+	XLockDisplay(XServerDisplay);
     currentScreen = XDefaultScreen(XServerDisplay);
     m_nDesktopWidth = DisplayWidth(XServerDisplay, currentScreen);
     m_nDesktopHeight = DisplayHeight(XServerDisplay, currentScreen);
-
+	XUnlockDisplay(XServerDisplay);
     return true;
 }
 
@@ -116,6 +121,11 @@ Display *OrbiterLinux::getDisplay()
     return XServerDisplay;
 }
 
+Window OrbiterLinux::getWindow()
+{
+	return 0;
+}
+
 bool OrbiterLinux::RenderDesktop(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal)
 {
     vector<int> vectButtonMaps;
@@ -133,14 +143,20 @@ bool OrbiterLinux::RenderDesktop(DesignObj_Orbiter *pObj, PlutoRectangle rectTot
 bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
 {
     if ( ! m_bYieldInput )
+	{
         commandRatPoison(":keystodesktop on");
+		m_pRecordHandler->enableRecording(false);
+	}
     else
     {
         commandRatPoison(":keystodesktop off");
-        // patch the rectangle to match the actual resolution
+
+		// patch the rectangle to match the actual resolution
         width = m_nDesktopWidth;
         height = m_nDesktopHeight;
+		m_pRecordHandler->enableRecording();
     }
+
 
     g_pPlutoLogger->Write(LV_STATUS, "Resizing desktop to (%d, %d) and dimensions [%dx%d]", x, y, width, height);
 

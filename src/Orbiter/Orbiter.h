@@ -38,10 +38,10 @@ public:
 	/**
 	 * @brief constructor
 	 */
-	ScreenHistory( class DesignObj_Orbiter *pObj, class ScreenHistory *pScreenHistory_Prior ) 
-	{ 
+	ScreenHistory( class DesignObj_Orbiter *pObj, class ScreenHistory *pScreenHistory_Prior )
+	{
 		m_tTime = time(NULL);
-		m_pObj=pObj; m_dwPK_Device=m_dwPK_Users=0; m_bCantGoBack=false; m_pLocationInfo=NULL; 
+		m_pObj=pObj; m_dwPK_Device=m_dwPK_Users=0; m_bCantGoBack=false; m_pLocationInfo=NULL;
 		if(  pScreenHistory_Prior  )
 		{
 			// We'll just copy the standard stuff from the prior screen
@@ -53,9 +53,9 @@ public:
 
 	/**
 	 * @brief A unique ID that can be specified in the Goto command
-	 * A unique ID that can be specified in the Goto command, allowing a particular 'instance' 
+	 * A unique ID that can be specified in the Goto command, allowing a particular 'instance'
 	 * of a screen to be removed in 'remove screen from history'
-	 */	
+	 */
 	string m_sID;
 	time_t m_tTime;
 	int m_dwPK_Device; /** < The device being controlled */
@@ -86,23 +86,23 @@ public: //data
 //<-dceag-const-b->!
 
 public:
-	
+
 	/**
 	 * @brief constructor, assignes values to member data
 	 */
 	Orbiter( int DeviceID,  string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight );
-	
+
 	/**
 	 * @brief destructor
 	 */
 	virtual ~Orbiter(  );
 
 	/**
-	 * This function will only be used if this device is loaded into the DCE Router's memory space 
+	 * This function will only be used if this device is loaded into the DCE Router's memory space
 	 * as a plug-in. Otherwise Connect() will be called from the main()
-	 */	
+	 */
 	virtual bool Register(  );
-	
+
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 
@@ -117,7 +117,7 @@ public:
 
 	pluto_pthread_mutex_t m_CallbackMutex; /** < Don't allow 2 threads to operate on the callback map at the same time */
 	pluto_pthread_mutex_t m_MaintThreadMutex;
-	pthread_cond_t m_MaintThreadCond;	
+	pthread_cond_t m_MaintThreadCond;
 
 //<-dceag-const-e->
 
@@ -135,7 +135,7 @@ protected:
 	bool m_bCaptureKeyboard_Reset; /** < flag for capture keyboard */
 	bool m_bCaptureKeyboard_TypePin; /** < flag for capture keyboard */
 	bool m_bCaptureKeyboard_DataGrid; /** < flag for capture keyboard */
-	
+
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
 	string m_sCaptureKeyboard_InternalBuffer; /** < capture keyboard internal buffer */
@@ -150,22 +150,22 @@ protected:
 	bool m_bDisplayOn; /** < False if the screen has blanked for the screen saver */
 	bool m_bYieldScreen; /** < True if the orbiter should make the application desktop full screen ( hide itself ) */
 	bool m_bYieldInput; /** < True if the orbiter should yield all input, like keyboard and mouse. This is useful when running the Orbiter as Linux desktop */
-	
+
 	bool m_bRerenderScreen; /** <  */ // Set to true means ignore the objects to redraw, and just redraw the whole screen
-	
+
 	/**
 	 * This is an internal counter. When we start doing stuff that may include lots of embedded commands which want to update the screen, we can create
 	 * a NeedToRender object on the stack. Each one will increment this counter, and decrement in the destructor. When it's 0, it will call RedrawObjects automatically
 	 * @todo ask if I placed this comment where it should be
 	 */
-	
+
 	int m_dwIDataGridRequestCounter;  // For testing purposes we can log all datagrid requests
-	
+
 	DesignObj_OrbiterMap m_mapObj_All; /** < All objects with the object ID in x.y.z.a.b format */
 	map < string, DesignObj_DataList * > m_mapObj_AllNoSuffix; /** < All object with the object ID as a string */
 	list < ScreenHistory * > m_listScreenHistory; /** < A history of the screens we've visited */
 	map<int,class DeviceData_Base *> m_mapDevice_Selected;  /** < We can select multiple devices on the floorplan to send messages to, instead of the usual one */
-	
+
 	map < string, DesignObj_DataList * > m_mapObj_Bound; /** < All objects bound with the Bind Icon command */
 	DesignObj_DataList *m_mapObj_Bound_Find(string PK_DesignObj) { map<string,DesignObj_DataList *>::iterator it = m_mapObj_Bound.find(PK_DesignObj); return it==m_mapObj_Bound.end() ? NULL : (*it).second; }
 
@@ -182,9 +182,9 @@ protected:
 	vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
 
 	map< string, class DesignObj_DataGrid * > m_mapObjs_AllGrids; /** < All the datagrids */
-	
+
 	/** for threads and shared memory control @todo ask */
-	
+
 	pthread_mutexattr_t m_MutexAttr; /** < @todo ask */
 	pthread_cond_t m_MessageQueueCond; /** < @todo ask */
 	pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
@@ -193,26 +193,26 @@ protected:
 	pthread_t m_MaintThreadID;
 
 	/** these methods are general purpose, and will call Orbiter-specific methods to do the work */
-	
-	
+
+
 	/**
 	 * @brief Render the screen in m_pScreenHistory_Current
 	 */
 	virtual void RenderScreen();
 	virtual void BeginPaint() {};
 	virtual void EndPaint() {};
-	
+
 	/**
-	 * @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht 
+	 * @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht
 	 */
 	virtual void RedrawObjects();
-	
+
 	/**
 	 * @brief temp hack -- see comments
 	 * @todo ask - add comments
 	 */
 	void RealRedraw( void *iData );
-	
+
 	/**
 	 * @brief renders an object on the screen
 	 * @todo ask
@@ -230,46 +230,46 @@ protected:
 	 * @todo ask
 	 */
 	virtual void PrepareRenderDataGrid( DesignObj_DataGrid *pObj, string& sDelSelections );
-	
+
 	/**
 	 * @brief renders the data grid
 	 * @todo ask better comment
 	 */
 	virtual void RenderDataGrid( DesignObj_DataGrid *pObj );
-	 
+
 	/**
 	 * @brief The framework will call this when it's time to change screens
 	 * This immediately calls RenderScreen. Normally we add the current screen to the history list so we can go back again. However,
 	 * if we're changing screens because of a GO BACK command, we won't do that
 	 */
 	virtual void NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory = true );
-	
+
 	/**
 	 * @brief
 	 * @todo ask
 	 */
 	virtual void ObjectOnScreenWrapper();
-	
+
 	/**
 	 * @brief puts the object on screen
 	 * @param pObj pointer to the object to put on screen
 	 * @todo ask (makesure)
 	 */
 	virtual void ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, bool bDontResetState );
-	
+
 	/**
 	 * @brief takes out the specified object from screen
 	 * @param pObj the object to remove from screen
 	 * @todo ask
 	 */
 	virtual void ObjectOffScreen( DesignObj_Orbiter *pObj );
-	
+
 	/**
 	 * @brief checks the special on screen conditions
 	 * @todo ask
 	 */
 	virtual void CheckSpecialOnScreenConditions() {};
-	
+
 	/**
 	 * @brief returnes the video frame from the DesignObj_Orbiter object pointed by iData
 	 * @param iData points to the DesignObj_Orbiter object we want the video frame from
@@ -281,13 +281,13 @@ protected:
 	 * @param if X and Y are -1, the object was selected by pushing a keyboard key, rather than touching the screen
 	 */
 	void SelectedObject( DesignObj_Orbiter *pDesignObj_Orbiter, int iX = -1, int iY = -1 );
-	
+
 	/**
 	 * @brief
 	 * @todo ask
 	 */
 	bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, int iX, int iY );
-	
+
 	/**
 	 * @brief
 	 * @todo ask
@@ -307,14 +307,14 @@ protected:
 	virtual void SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter);
 
 	/** The above methods are called by the orbiter-specific class to indicate input, they will call these following methods: */
-	
+
 	/**
 	 * @brief returns true if the specified button was clicked
 	 * @param dwPK_Button specifies the id for the button
 	 * @todo ask
 	 */
 	bool ClickedButton( DesignObj_Orbiter *pDesignObj_Orbiter, int dwPK_Button );
-	
+
 	/**
 	 * @brief returns true if the specified region was clicked
 	 * @todo ask
@@ -325,27 +325,27 @@ protected:
 	 * Highlighting is used to show the currently 'highlighted' object, particularly with a remote that has up/down/left/right/enter controls
 	 * These functions move between objects that have their 'tab stop' property set to true
 	 */
-	
+
 	/**
 	 * @brief Highlight this object
 	 */
 	virtual void HighlightObject( class DesignObj_Orbiter *pObj );
-	
+
 	/**
 	 * @brief Find the first 'tab stop' object on screen and highlight it
 	 */
 	virtual void HighlightFirstObject();
-	
+
 	/**
 	 * @brief A recursive loop for HighlightFirstObject
 	 */
 	virtual bool HighlightFirstChildObject( DesignObj_Orbiter* pObj );
-	
+
 	/**
 	 * @brief This is used by the following function
 	 */
 	void FindObjectToHighlight( DesignObj_Orbiter **ppNextObjectToRight, DesignObj_Orbiter *pObj, int dwPK_Direction );
-	
+
 	/**
 	 * @brief Given a direction ( UDLR ) find the object
 	 */
@@ -367,7 +367,7 @@ protected:
 	void ContinuousRefresh( void *data );
 
 /*	virtual void RenderScreen(  );	// Render the screen in m_pScreenHistory_Current
-	virtual void RedrawObjects(  );   // These will redraw any objects in m_vectObjsToRedraw.  Use this to queue objects to redraw,  such as those tht 
+	virtual void RedrawObjects(  );   // These will redraw any objects in m_vectObjsToRedraw.  Use this to queue objects to redraw,  such as those tht
 void RealRedraw( void *data );  // temp hack -- see comments
 	virtual void RenderObject( DesignObj_Orbiter *pDesignObj_Orbiter,  DesignObj_Orbiter *pDesignObj_Orbiter_Screen );
 	virtual void PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& DelSelections );
@@ -409,19 +409,19 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 * @todo ask
 	 */
 	virtual void Initialize( GraphicType Type );
-	
+
 	/**
 	 * @brief initializises the specified Grid
 	 * @todo ask
 	 */
 	void InitializeGrid( DesignObj_DataGrid *pObj );
-	
+
 	/**
 	 * @brief parses the configuration data based on the graphic type
 	 * @todo ask
 	 */
-	bool ParseConfigurationData( GraphicType Type ); 
-	
+	bool ParseConfigurationData( GraphicType Type );
+
 	/**
 	 * @brief parses an object
 	 * @todo ask
@@ -431,20 +431,20 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	/**
 	 *	PURE VIRTUALS
 	 */
-	
+
 	/**
 	 * @brief renders desktop
 	 * Not all controllers will be able to do this. Mainly the 'iX' nested
 	 * @todo ask
 	 */
 	virtual bool RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal );
-	
+
 	/**
 	 * @brief renders a cell in the specified cell of the specified table at the specified coordinates
 	 * @todo ask
 	 */
 	virtual bool RenderCell( class DesignObj_DataGrid *pObj, class DataGridTable *pT, class DataGridCell *pCell, int j, int i, int iGraphicToDisplay );
-	
+
 	/**
 	 * @brief renders a graphic object in the specified rectangle
 	 * @todo ask
@@ -461,7 +461,7 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 * @brief renders text with the specified style
 	 */
 	virtual void RenderText( class DesignObjText *Text, class TextStyle *pTextStyle ) = 0;
-	
+
 	/**
 	 * @brief draws an rectangle
 	 */
@@ -471,28 +471,28 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 * @brief draws an x-or'd rectangle outline.  Used to highlight something on screen
 	 */
 	virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)=0;
-	
+
 	/**
 	 * @brief draws an line
 	 */
 	virtual void DrawLine( int iX, int iY, int iWidth, int iHeight, PlutoColor color, int iOpacity = 100 ) = 0;
-	
+
 	/**
 	 * @brief replaces the specified color from within the specified rectangle with another one
 	 */
 	virtual void ReplaceColorInRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor ColorToReplace, PlutoColor ReplacementColor ) = 0;
-	
+
 	/**
-	 * @brief floods the region that containes the specified point, replacing one color 
+	 * @brief floods the region that containes the specified point, replacing one color
 	 * A graphic is no longer on screen. Maybe remove it from cache.
 	 */
 	virtual void FloodFill( int iX, int iY, PlutoColor ColorToReplace, PlutoColor ReplacementColor ) = 0;
-	
+
 	/**
 	 * @brief sets the time to the one specified by the parameter
 	 */
 	virtual void SetTime( char *pcServerTimeString ) = 0;
-	
+
 	/**
 	 * @brief We're going to be redrawing something on top of this object. Save it's state, so that during the next redraw this will be used
 	 */
@@ -501,7 +501,7 @@ void RealRedraw( void *data );  // temp hack -- see comments
 /*
 	virtual void Initialize( GraphicType Type );
 	void InitializeGrid( DesignObj_DataGrid *pObj );
-	bool ParseConfigurationData( GraphicType Type );  
+	bool ParseConfigurationData( GraphicType Type );
 	void ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev );
 
 
@@ -519,9 +519,9 @@ void RealRedraw( void *data );  // temp hack -- see comments
 */
 
 	/**
-	 *	FUNCTIONS A DERIVED ORBITER MAY WANT TO IMPLEMENT 
+	 *	FUNCTIONS A DERIVED ORBITER MAY WANT TO IMPLEMENT
 	 */
-	
+
 	/**
 	 * @brief A graphic is no longer on screen. Maybe remove it from cache
 	 */
@@ -529,34 +529,65 @@ void RealRedraw( void *data );  // temp hack -- see comments
 
 public:
 
+	class Event
+	{
+	public:
+		typedef enum
+		{
+			QUIT,
+			NOT_PROCESSED,
+			BUTTON_DOWN,
+			BUTTON_UP,
+			REGION_DOWN,
+			REGION_UP
+		} EventType;
+
+		EventType type;
+
+		union {
+			struct {
+				int m_iPK_Button;
+			} button;
+
+			struct {
+				int m_iX;
+				int m_iY;
+			} region;
+		} data;
+	};
+
+	virtual bool ProcessEvent( Event event );
+
+protected:
 	/**
 	 *	ACCEPT OUTSIDE INPUT
 	 */
-	
+
 	/**
 	 * @brief the specified button was pressed
 	 */
 	virtual bool ButtonDown( int iPK_C_Button );
-	
+
 	/**
 	 * @brief a button was relesed
 	 * @todo ask
 	 */
-	virtual bool ButtonUp();
-	
+	virtual bool ButtonUp(int iPK_C_Button);
+
 	/**
 	 * @brief the point belongs to a region that was clicked
 	 * @todo ask
 	 */
 	virtual bool RegionDown( int iX, int iY );
-	
+
 	/**
 	 * @brief
 	 * @todo ask
 	 * @warning We don't handle this here
 	 */
-	virtual bool RegionUp() { return false; };
-	
+	virtual bool RegionUp(int iX, int iY) { return false; };
+
+public:
 	/**
 	 * @brief Something happened, like a touch or a button, reset any timeouts or screen saver
 	 */
@@ -569,7 +600,7 @@ public:
 	/**
 	 *	UTILITIES
 	 */
-	
+
 	/**
 	 * @brief the text identified by it's primary key is found in an object
 	 * @return the object containing the text
@@ -597,13 +628,13 @@ public:
 	 * @todo ask what's this used for?
 	 */
 	bool CaptureKeyboard_EditText_DeleteLastChar();
-	
+
 	/**
 	 * @brief adds the char to the capture keyboard variable (from the variable map)
 	 * @todo ask what's this used for?
 	 */
 	bool CaptureKeyboard_EditText_AppendChar( char ch );
-	
+
 	/**
 	 * @brief sets the value of the specified variable in the variable map
 	 */
@@ -614,56 +645,56 @@ public:
 	 * @todo ask
 	 */
 	DesignObj_Orbiter *FindObject( string sPK_DesignObj, class DesignObj_Orbiter *pDesignObj_Orbiter = NULL );
-	
+
 	/**
 	 * @brief finds an object identified by a single numeber by searching in the object hierarchi
 	 * @todo ask
 	 */
 	DesignObj_Orbiter *FindSingleNumberObject( int iPK_ID_Object, DesignObj_Orbiter *pObj );
-	
+
 	/**
 	 * @brief executes the commands in the command list.  If there is a goto screen, we don't want to execute it inline--it should be executed last
-	 * after setting all the variables and such.  So, rather than executing a goto screen, if one is found, it will be set in pMessage_GotoScreen 
-	 * and the caller is expected to pass it to ReceiveMessage after execute commands in list has finished.  We don't just put it at the end of 
+	 * after setting all the variables and such.  So, rather than executing a goto screen, if one is found, it will be set in pMessage_GotoScreen
+	 * and the caller is expected to pass it to ReceiveMessage after execute commands in list has finished.  We don't just put it at the end of
 	 * execute commands, because we could be calling ExecuteCommands more than 1 at a time, such as if multiple objects were selected.
 	 */
 	void ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList, DesignObj_Orbiter *pDesignObj_Orbiter, Message *&pMessage_GotoScreen, int iX = -1, int iY = -1 ); // Execute commands
-	
+
 	/**
 	 * @brief returns the grid cell dimensions in the parameters
 	 * @todo ask
 	 */
 	void GetGridCellDimensions( DesignObj_DataGrid *pObj, int iColSpan, int iRowSpan, int iColumn, int iRow, int &iX, int &iY, int &iWidth, int &iHeight );
-	
+
 	/**
 	 * @brief substitutes some defined markers with values taken from the class data
 	 * @todo ask
 	 */
 	string SubstituteVariables( string Input, DesignObj_Orbiter *pDesignObj_Orbiter, int iX, int iY );
-	
+
 	/**
 	 * @brief A helper function we can call internally rather than the full CMD_GotoScreen
 	 */
 	void GotoScreen( string sScreen, string sID = "" ) { CMD_Goto_Screen( 0, sScreen, sID, "", false ); }
-	
+
 	/**
 	 * @brief does a custom comparation (you ca also specify the operand to use) with the value from the variable identified by the key and the other parmeter
 	 * @param sComparisson specifies the operand to use
 	 */
 	bool DoComparisson( int PK_Variable, string sComparisson, string sValue );
-	
+
 	/**
 	 * @brief
 	 * @todo ask
 	 */
 	void FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj );
-	
+
 	/**
-	 * @brief gets the grid from the DesignObj_DataGrid object into the pDataGridTable parmeter.  This may change the 
+	 * @brief gets the grid from the DesignObj_DataGrid object into the pDataGridTable parmeter.  This may change the
 	 * value of GridCurRow if the pObj->m_sSeek is set to seek to a given position
 	 */
 	bool AcquireGrid( DesignObj_DataGrid *pObj, int GridCurCol, int &GridCurRow, class DataGridTable* &pDataGridTable );
-	
+
 	/**
 	 * @brief returns the selected identifiing it by the row number
 	 * @todo ask
@@ -1157,26 +1188,26 @@ public:
 //<-dceag-h-e->
 
 /** temporary solution only */
-	
-	
+
+
 	/**
 	* @brief calculates the new current row after the specified number of cells have been skiped (upwards)
 	* @todo ask
 	*/
 	void CalculateGridUp( DesignObj_DataGrid *pObj, int &iCurRow, int iCellsToSkip );
-	
+
 	/**
 	* @brief calculates the new current row after the specified number of cells have been skiped (down)
 	* @todo ask
 	*/
 	void CalculateGridDown( DesignObj_DataGrid *pObj, int &iCurRow, int iCellsToSkip );
-	
+
 	/**
 	* @brief calculates the new current column after the specified number of cells have been skiped (left)
 	* @todo ask
 	*/
 	void CalculateGridLeft( DesignObj_DataGrid *pObj, int &iCurCol, int iCellsToSkip );
-	
+
 	/**
 	* @brief calculates the new current column after the specified number of cells have been skiped (right)
 	* @todo ask
@@ -1193,7 +1224,7 @@ class NeedToRender
 
 	class Orbiter *m_pOrbiter; /** <  */
 	const char *m_pWhere; /** <  */
-	
+
 public:
 
 	/**

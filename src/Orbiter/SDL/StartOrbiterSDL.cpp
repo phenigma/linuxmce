@@ -1,21 +1,21 @@
 /*
  StartOrbiterSDL
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
 
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "DCE/Logger.h"
 
 //#define PHONEKEYS
@@ -58,6 +58,198 @@ void SocketCrashHandler(Socket *pSocket)
 	}
 }
 
+struct keyboardState
+{
+	bool bShiftDown;
+	bool bControlDown;
+	bool bAltDown;
+	bool bRepeat;
+	bool bCapsLock;
+	clock_t cKeyDown;
+};
+
+void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbiterEvent, struct keyboardState *kbdState)
+{
+	orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
+
+	switch ( sdlEvent.type )
+	{
+		case SDL_QUIT: orbiterEvent->type = Orbiter::Event::QUIT;	break;
+
+		case SDL_MOUSEBUTTONDOWN:
+#ifdef WIN32
+			RecordMouseAction(sdlEvent.button.x, sdlEvent.button.y);
+#endif
+#ifdef AUDIDEMO
+			orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
+			switch ( sdlEvent.button.button )
+			{
+				case 1:	orbiterEvent->data.button.m_iPK_Button = BUTTON_4_CONST; 			break;
+				case 2: orbiterEvent->data.button.m_iPK_Button = BUTTON_Enter_CONST; 		break;
+				case 3:	orbiterEvent->data.button.m_iPK_Button = BUTTON_5_CONST; 			break;
+				case 4:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; 	break;
+				case 5:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; 	break;
+				case 6:	orbiterEvent->data.button.m_iPK_Button = BUTTON_2_CONST; 			break;
+				case 7:	orbiterEvent->data.button.m_iPK_Button = BUTTON_1_CONST; 			break;
+
+				default:
+					orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
+			}
+#else
+			orbiterEvent->type = Orbiter::Event::REGION_DOWN;
+			orbiterEvent->data.region.m_iX = sdlEvent.button.x;
+			orbiterEvent->data.region.m_iY = sdlEvent.button.y;
+#endif
+			break;
+
+		case SDL_KEYDOWN:
+			// on key up we update the keyboard state
+			switch (sdlEvent.key.keysym.sym)
+			{
+                case SDLK_LSHIFT: case SDLK_RSHIFT:		kbdState->bShiftDown = true; 				break;
+                case SDLK_LCTRL: case SDLK_RCTRL:		kbdState->bControlDown = true;				break;
+                case SDLK_LALT: case SDLK_RALT:			kbdState->bAltDown = true;					break;
+                case SDLK_CAPSLOCK:						kbdState->bCapsLock = !kbdState->bCapsLock;	break;
+                default:
+                    kbdState->cKeyDown=clock();  // We don't care how long the shift, ctrl or alt are held down, but the other keys do matter
+                    break;
+			}
+			break;
+
+		case SDL_KEYUP:
+#ifdef WIN32
+				RecordKeyboardAction(Event.key.keysym.sym);
+#endif
+			kbdState->bRepeat = (kbdState->cKeyDown && (clock() - kbdState->cKeyDown > CLOCKS_PER_SEC / 2) );
+			kbdState->cKeyDown = 0;
+			g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d",
+					(int) sdlEvent.key.keysym.sym,
+					(int) kbdState->bRepeat,
+					(int) kbdState->bShiftDown);
+
+#ifndef PHONEKEYS
+			if ( sdlEvent.key.keysym.sym >= SDLK_a && sdlEvent.key.keysym.sym <= SDLK_z )
+			{
+				orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
+				if( ( ! kbdState->bCapsLock && ! kbdState->bShiftDown ) ||
+					(   kbdState->bCapsLock &&   kbdState->bShiftDown ) )
+					orbiterEvent->data.button.m_iPK_Button = BUTTON_a_CONST + sdlEvent.key.keysym.sym - SDLK_a;
+                else
+					orbiterEvent->data.button.m_iPK_Button = BUTTON_A_CONST + sdlEvent.key.keysym.sym - SDLK_a;
+			}
+			else
+#endif
+			if( sdlEvent.key.keysym.sym==SDLK_LSHIFT || sdlEvent.key.keysym.sym==SDLK_RSHIFT )
+				kbdState->bShiftDown=false;
+			else if( sdlEvent.key.keysym.sym==SDLK_LCTRL || sdlEvent.key.keysym.sym==SDLK_RCTRL )
+				kbdState->bControlDown=false;
+			else if( sdlEvent.key.keysym.sym==SDLK_LALT || sdlEvent.key.keysym.sym==SDLK_RALT )
+				kbdState->bAltDown=false;
+			else if( ! kbdState->bShiftDown && ! kbdState->bControlDown && ! kbdState->bAltDown && ! kbdState->bRepeat )
+			{
+				// No Modifiers were down
+				orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
+				switch (sdlEvent.key.keysym.sym )
+				{
+                    case SDLK_0: case SDLK_KP0: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_0_CONST; break;
+                    case SDLK_1: case SDLK_KP1: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_1_CONST; break;
+                    case SDLK_2: case SDLK_KP2: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_2_CONST; break;
+                    case SDLK_3: case SDLK_KP3: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_3_CONST; break;
+                    case SDLK_4: case SDLK_KP4: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_4_CONST; break;
+                    case SDLK_5: case SDLK_KP5: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_5_CONST; break;
+                    case SDLK_6: case SDLK_KP6: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_6_CONST; break;
+                    case SDLK_7: case SDLK_KP7: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_7_CONST; break;
+                    case SDLK_8: case SDLK_KP8: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_8_CONST; break;
+                    case SDLK_9: case SDLK_KP9: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_9_CONST; break;
+#ifdef PHONEKEYS
+                    case SDLK_c:		orbiterEvent->data.button.m_iPK_Button = BUTTON_C_CONST; break;
+                    case SDLK_p:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Phone_Pencil_CONST; break;
+                    case SDLK_t:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Phone_Talk_CONST; break;
+                    case SDLK_e:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Phone_End_CONST; break;
+                    case SDLK_l:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Phone_Soft_left_CONST; break;
+                    case SDLK_r:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Phone_Soft_right_CONST; break
+					case SDLK_ASTERISK: orbiterEvent->data.button.m_iPK_Button = BUTTON_Asterisk_CONST; break
+                    case SDLK_HASH:     orbiterEvent->data.button.m_iPK_Button = BUTTON_Pound_CONST; break;
+#endif
+                    case SDLK_F1:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F1_CONST; break;
+                    case SDLK_F2:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F2_CONST; break;
+                    case SDLK_F3:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F3_CONST; break;
+                    case SDLK_F4:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F4_CONST; break;
+                    case SDLK_F5:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F5_CONST; break;
+
+                    case SDLK_UP:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; break;
+                    case SDLK_DOWN:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; break;
+                    case SDLK_LEFT:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Left_Arrow_CONST; break;
+                    case SDLK_RIGHT:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Right_Arrow_CONST; break;
+
+					case SDLK_KP_ENTER: case SDLK_RETURN: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Enter_CONST;  break;
+
+					case SDLK_BACKSPACE:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Back_CONST;  break;
+
+					default:
+                        g_pPlutoLogger->Write(LV_STATUS, "Unknown key: %d", (int) sdlEvent.key.keysym.sym);
+				};
+			} // else if( !bShiftDown && !bControlDown && !bAltDown && !bRepeat )
+        	else if ( kbdState->bShiftDown && ! kbdState->bControlDown && ! kbdState->bAltDown && ! kbdState->bRepeat )
+            {
+				// The Shift key was pressed
+				switch (sdlEvent.key.keysym.sym)
+				{
+					case SDLK_UP:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Shift_Up_Arrow_CONST; break;
+					case SDLK_DOWN:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Shift_Down_Arrow_CONST; break;
+					case SDLK_LEFT:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Shift_Left_Arrow_CONST; break;
+					case SDLK_RIGHT:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Shift_Right_Arrow_CONST; break;
+
+//					case SDLK_0:  		orbiterEvent->data.button.m_iPK_Button = BUTTON_0_CONST; break;
+//					case SDLK_1:  		orbiterEvent->data.button.m_iPK_Button = BUTTON_1_CONST; break;
+//					case SDLK_2: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_2_CONST; break;
+					case SDLK_3: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_Pound_CONST; break;
+// 					case SDLK_4: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_4_CONST; break;
+// 					case SDLK_5: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_5_CONST; break;
+// 					case SDLK_6: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_6_CONST; break;
+// 					case SDLK_7: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_7_CONST; break;
+ 					case SDLK_8: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_Asterisk_CONST; break;
+// 					case SDLK_9: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_9_CONST; break;
+
+					default: {}
+				};
+			}
+            else if( kbdState->bRepeat ) // if we need to repeat the key
+            {
+				switch (sdlEvent.key.keysym.sym)
+                {
+                    case SDLK_0: case SDLK_KP0: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_0_CONST; break;
+                    case SDLK_1: case SDLK_KP1: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_1_CONST; break;
+                    case SDLK_2: case SDLK_KP2: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_2_CONST; break;
+                    case SDLK_3: case SDLK_KP3: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_3_CONST; break;
+                    case SDLK_4: case SDLK_KP4: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_4_CONST; break;
+                    case SDLK_5: case SDLK_KP5: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_5_CONST; break;
+                    case SDLK_6: case SDLK_KP6: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_6_CONST; break;
+                    case SDLK_7: case SDLK_KP7: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_7_CONST; break;
+                    case SDLK_8: case SDLK_KP8: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_8_CONST; break;
+                    case SDLK_9: case SDLK_KP9: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_9_CONST; break;
+#ifdef PHONEKEYS
+                    case SDLK_c:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_C_CONST; break;
+                    case SDLK_p:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_Pencil_CONST; break;
+                    case SDLK_t:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_Talk_CONST; break;
+                    case SDLK_e:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_End_CONST; break;
+                    case SDLK_l:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_Soft_left_CONST; break;
+                    case SDLK_r:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_Soft_right_CONST; break
+					case SDLK_ASTERISK: orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Asterisk_CONST; break
+                    case SDLK_HASH:     orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Pound_CONST; break;
+#endif
+					default: {}
+				}
+			}
+			break; // case SDL_KEYUP
+
+		case SDL_MOUSEMOTION: // not handled
+		default:
+			orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
+			break;
+	}
+}
+
 bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 				  int Width, int Height, bool bFullScreen)
 {
@@ -87,355 +279,34 @@ bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
             pCLinux->CreateChildren();
 
         //pCLinux->Initialize_Display();
-	g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
-	Simulator::GetInstance()->m_pOrbiter = pCLinux;
-	Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");
-	 
+		g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
+		Simulator::GetInstance()->m_pOrbiter = pCLinux;
+		Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");
 
         g_pPlutoLogger->Write(LV_STATUS, "Starting processing events");
-        SDL_Event Event;
 
         // temporary hack --
         // have to figure out what should be the default behavior of the arrows, moving the highlighted object, or scrolling a grid
         // For now I'll assume that shift + arrows scrolls a grid
-        bool bShiftDown=false,bControlDown=false,bAltDown=false,bRepeat=false,bCapsLock=false;
-        clock_t cKeyDown=0;
+
+        SDL_Event Event;
+		Orbiter::Event orbiterEvent;
+		struct keyboardState keyboardState; // keep the state of the Ctrl/Shift etc if we need it in the furter calls.
+
         while (!pCLinux->m_bQuit)
         {
 //g_pPlutoLogger->Write(LV_STATUS,"Before wait for event");
             SDL_WaitEvent(&Event);
 //g_pPlutoLogger->Write(LV_STATUS,"wait for event returned %d",Event.type);
 
-            if (Event.type == SDL_QUIT)
-                break;
-#ifdef AUDIDEMO
-            if (Event.type == SDL_MOUSEBUTTONDOWN)
-            {
-#ifdef WIN32				
-				RecordMouseAction(Event.button.x, Event.button.y);	
-#endif
-                g_pPlutoLogger->Write(LV_WARNING, "================================= Mouse button pressed %d", Event.button.button);
-                if( Event.button.button==4 )
-                    pCLinux->ButtonDown(BUTTON_Up_Arrow_CONST);
-                else if( Event.button.button==5 )
-                    pCLinux->ButtonDown(BUTTON_Down_Arrow_CONST);
-                else if( Event.button.button==2 )
-                    pCLinux->ButtonDown(BUTTON_Enter_CONST);
-                else if( Event.button.button==1 )
-                    pCLinux->ButtonDown(BUTTON_4_CONST);
-                else if( Event.button.button==3 )
-                    pCLinux->ButtonDown(BUTTON_5_CONST);
-                else if( Event.button.button==7 )
-                    pCLinux->ButtonDown(BUTTON_1_CONST);
-                else if( Event.button.button==6 )
-                    pCLinux->ButtonDown(BUTTON_2_CONST);
-                else
-                    g_pPlutoLogger->Write(LV_WARNING, "========================================== Mouse button not handled!");
-            }
-#else
-            if (Event.type == SDL_MOUSEBUTTONDOWN)
-			{
-#ifdef WIN32				
-				RecordMouseAction(Event.button.x, Event.button.y);	
-#endif
-                pCLinux->RegionDown(Event.button.x, Event.button.y);
-			}
-#endif
-            else if (Event.type == SDL_MOUSEMOTION)
-                int k=2; //pCLinux->RegionDown(Event.button.x,Event.button.y);
-            else if (Event.type == SDL_KEYDOWN)
-            {
-                g_pPlutoLogger->Write(LV_STATUS, "Key pressed event");
-				switch (Event.key.keysym.sym)
-                {
-                case SDLK_LSHIFT:
-                case SDLK_RSHIFT:
-                    bShiftDown=true;
-                    break;
-                case SDLK_LCTRL:
-                case SDLK_RCTRL:
-                    bControlDown=true;
-                    break;
-                case SDLK_LALT:
-                case SDLK_RALT:
-                    bAltDown=true;
-                    break;
-                case SDLK_CAPSLOCK:
-                    bCapsLock = !bCapsLock;
-                    break;
-                default:
-                    cKeyDown=clock();  // We don't care how long the shift, ctrl or alt are held down, but the other keys do matter
-                    break;
-                }
-            }
-            else if (Event.type == SDL_KEYUP)
-            {
-#ifdef WIN32				
-				RecordKeyboardAction(Event.key.keysym.sym);
-#endif
-                bool bHandled=false;
-                bRepeat = cKeyDown && clock()-cKeyDown > CLOCKS_PER_SEC/2;
-                cKeyDown=0;
+			// convert the SDL into what we know to interpret.
+			translateSDLEventToOrbiterEvent(Event, &orbiterEvent, &keyboardState);
 
-                g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d",(int) Event.key.keysym.sym, (int) bRepeat, (int) bShiftDown);
-#ifndef PHONEKEYS
-                if(Event.key.keysym.sym >= SDLK_a && Event.key.keysym.sym <= SDLK_z)
-                {
-                    if((!bCapsLock && !bShiftDown) || (bCapsLock && bShiftDown))
-                        bHandled = pCLinux->ButtonDown(BUTTON_a_CONST + Event.key.keysym.sym - SDLK_a);
-                    else
-                        bHandled = pCLinux->ButtonDown(BUTTON_A_CONST + Event.key.keysym.sym - SDLK_a);
-                }
-                else
-#endif
-                if( Event.key.keysym.sym==SDLK_LSHIFT || Event.key.keysym.sym==SDLK_RSHIFT )
-                    bShiftDown=false;
+			if ( orbiterEvent.type == Orbiter::Event::QUIT )
+				break;
 
-                else if( Event.key.keysym.sym==SDLK_LCTRL || Event.key.keysym.sym==SDLK_RCTRL )
-                    bControlDown=false;
-                else if( Event.key.keysym.sym==SDLK_LALT || Event.key.keysym.sym==SDLK_RALT )
-                    bAltDown=false;
-                else if( !bShiftDown && !bControlDown && !bAltDown && !bRepeat )
-                {
-                    switch (Event.key.keysym.sym)
-                    {
-                    case SDLK_0:
-                    case SDLK_KP0:
-                        bHandled=pCLinux->ButtonDown(BUTTON_0_CONST);
-                        break;
-                    case SDLK_1:
-                    case SDLK_KP1:
-                        bHandled=pCLinux->ButtonDown(BUTTON_1_CONST);
-                        break;
-                    case SDLK_2:
-                    case SDLK_KP2:
-                        bHandled=pCLinux->ButtonDown(BUTTON_2_CONST);
-                        break;
-                    case SDLK_3:
-                    case SDLK_KP3:
-                        bHandled=pCLinux->ButtonDown(BUTTON_3_CONST);
-                        break;
-                    case SDLK_4:
-                    case SDLK_KP4:
-                        bHandled=pCLinux->ButtonDown(BUTTON_4_CONST);
-                        break;
-                    case SDLK_5:
-                    case SDLK_KP5:
-                        bHandled=pCLinux->ButtonDown(BUTTON_5_CONST);
-                        break;
-                    case SDLK_6:
-                    case SDLK_KP6:
-                        bHandled=pCLinux->ButtonDown(BUTTON_6_CONST);
-                        break;
-                    case SDLK_7:
-                    case SDLK_KP7:
-                        bHandled=pCLinux->ButtonDown(BUTTON_7_CONST);
-                        break;
-                    case SDLK_8:
-                    case SDLK_KP8:
-                        bHandled=pCLinux->ButtonDown(BUTTON_8_CONST);
-                        break;
-                    case SDLK_9:
-                    case SDLK_KP9:
-                        bHandled=pCLinux->ButtonDown(BUTTON_9_CONST);
-                        break;
-
-#ifdef PHONEKEYS
-                    case SDLK_c:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Phone_C_CONST);
-                        break;
-                    case SDLK_p:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Phone_Pencil_CONST);
-                        break;
-                    case SDLK_t:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Phone_Talk_CONST);
-                        break;
-                    case SDLK_e:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Phone_End_CONST);
-                        break;
-                    case SDLK_l:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Phone_Soft_left_CONST);
-                        break;
-                    case SDLK_r:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Phone_Soft_right_CONST);
-                        break;
-                    case SDLK_ASTERISK:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Asterisk_CONST);
-                        break;
-                    case SDLK_HASH:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Pound_CONST);
-                        break;
-#endif
-                    case SDLK_F1:
-                        bHandled=pCLinux->ButtonDown(BUTTON_F1_CONST);
-                        break;
-                    case SDLK_F2:
-                        bHandled=pCLinux->ButtonDown(BUTTON_F2_CONST);
-                        break;
-                    case SDLK_F3:
-                        bHandled=pCLinux->ButtonDown(BUTTON_F3_CONST);
-                        break;
-                    case SDLK_F4:
-                        bHandled=pCLinux->ButtonDown(BUTTON_F4_CONST);
-                        break;
-                    case SDLK_F5:
-                        bHandled=pCLinux->ButtonDown(BUTTON_F5_CONST);
-                        break;
-
-                    case SDLK_UP:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Up_Arrow_CONST);
-                        break;
-                    case SDLK_DOWN:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Down_Arrow_CONST);
-                        break;
-                    case SDLK_LEFT:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Left_Arrow_CONST);
-                        break;
-                    case SDLK_RIGHT:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Right_Arrow_CONST);
-                        break;
-                    case SDLK_KP_ENTER:
-                    case SDLK_RETURN:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Enter_CONST);
-                        break;
-                    case SDLK_BACKSPACE:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Back_CONST);
-                        break;
-                    default:
-                        g_pPlutoLogger->Write(LV_STATUS, "Unknown key: %d", (int) Event.key.keysym.sym);
-                        continue;
-                    };
-                } // else if( !bShiftDown && !bControlDown && !bAltDown && !bRepeat )
-                else if( bShiftDown && !bControlDown && !bAltDown && !bRepeat )
-                {
-                    switch (Event.key.keysym.sym)
-                    {
-                    case SDLK_UP:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Shift_Up_Arrow_CONST);
-                        break;
-                    case SDLK_DOWN:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Shift_Down_Arrow_CONST);
-                        break;
-                    case SDLK_LEFT:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Shift_Left_Arrow_CONST);
-                        break;
-                    case SDLK_RIGHT:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Shift_Right_Arrow_CONST);
-                        break;
-/*
-                    case SDLK_0:
-                        bHandled=pCLinux->ButtonDown(BUTTON_0_CONST);
-                        break;
-                    case SDLK_1:
-                        bHandled=pCLinux->ButtonDown(BUTTON_1_CONST);
-                        break;
-                    case SDLK_2:
-                        bHandled=pCLinux->ButtonDown(BUTTON_2_CONST);
-                        break;
-*/
-                    case SDLK_3:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Pound_CONST);
-                        break;
-/*
-                    case SDLK_4:
-                        bHandled=pCLinux->ButtonDown(BUTTON_4_CONST);
-                        break;
-                    case SDLK_5:
-                        bHandled=pCLinux->ButtonDown(BUTTON_5_CONST);
-                        break;
-                    case SDLK_6:
-                        bHandled=pCLinux->ButtonDown(BUTTON_6_CONST);
-                        break;
-                    case SDLK_7:
-                        bHandled=pCLinux->ButtonDown(BUTTON_7_CONST);
-                        break;
-*/
-                    case SDLK_8:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Asterisk_CONST);
-                        break;
-/*
-                    case SDLK_9:
-                        bHandled=pCLinux->ButtonDown(BUTTON_9_CONST);
-                        break;
-*/
-					default: {}
-                    };
-                }
-                else if( bRepeat )
-                {
-                    switch (Event.key.keysym.sym)
-                    {
-                    case SDLK_0:
-                    case SDLK_KP0:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_0_CONST);
-                        break;
-                    case SDLK_1:
-                    case SDLK_KP1:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_1_CONST);
-                        break;
-                    case SDLK_2:
-                    case SDLK_KP2:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_2_CONST);
-                        break;
-                    case SDLK_3:
-                    case SDLK_KP3:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_3_CONST);
-                        break;
-                    case SDLK_4:
-                    case SDLK_KP4:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_4_CONST);
-                        break;
-                    case SDLK_5:
-                    case SDLK_KP5:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_5_CONST);
-                        break;
-                    case SDLK_6:
-                    case SDLK_KP6:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_6_CONST);
-                        break;
-                    case SDLK_7:
-                    case SDLK_KP7:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_7_CONST);
-                        break;
-                    case SDLK_8:
-                    case SDLK_KP8:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_8_CONST);
-                        break;
-                    case SDLK_9:
-                    case SDLK_KP9:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_9_CONST);
-                        break;
-
-#ifdef PHONEKEYS
-                    case SDLK_c:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_Phone_C_CONST);
-                        break;
-                    case SDLK_p:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_Phone_Pencil_CONST);
-                        break;
-                    case SDLK_t:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_Phone_Talk_CONST);
-                        break;
-                    case SDLK_e:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_Phone_End_CONST);
-                        break;
-                    case SDLK_l:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_Phone_Soft_left_CONST);
-                        break;
-                    case SDLK_r:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_Phone_Soft_right_CONST);
-                        break;
-                    case SDLK_ASTERISK:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_Asterisk_CONST);
-                        break;
-                    case SDLK_HASH:
-                        bHandled=pCLinux->ButtonDown(BUTTON_Rept_Pound_CONST);
-                        break;
-#endif
-					default: {}
-                    }
-                }
-            }
+			// if it meaningless ( not QUIT or not NOT_PROCESSED .. )
+			pCLinux->ProcessEvent(orbiterEvent);
         }  // while
     } // if connect
 	bool bReload = pCLinux->m_bReload;
@@ -444,3 +315,4 @@ g_pPlutoLogger->Write(LV_STATUS, "End of SDL loop with reload: %s",(bReload ? "Y
 g_pPlutoLogger->Write(LV_STATUS, "finished deleting pcLinux");
 	return bReload;
 }
+

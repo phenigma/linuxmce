@@ -71,7 +71,7 @@ size_t MNGHeader::BinaryForm(char * & MemoryZonePointer) const
 
 	MemoryZonePointer = new char[chunk_size];
 	char * Position = MemoryZonePointer;
-	
+
 	unsigned long length = 28;
 	ReverseEndian(length);
 
@@ -230,7 +230,7 @@ void RendererMNG::InsertFrame(size_t number, RendererImage * frame)
 {
 	if (number < 0 || number >= count())
 		return;
-	
+
 	vector<RendererImage>::iterator ivRI;
 	//int i;
 

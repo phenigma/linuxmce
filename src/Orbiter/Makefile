@@ -3,7 +3,7 @@ GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
-CXXFLAGS = -Wall -fPIC -ggdb3
+CXXFLAGS = -Wall -fPIC -ggdb3 -fmessage-length=0
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
@@ -17,14 +17,15 @@ sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DDEBUG -DxTHREAD_LOG -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen
-LDFLAGS +=
-XTRALDLIBS = -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx
+CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DDEBUG -DxTHREAD_LOG -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen -L/usr/X11/lib
+LDFLAGS += -L/usr/X11R6/lib
+XTRALDLIBS = -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst
 
 Gen_Dev_Files +=
 sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			Simulator.cpp \
 			Linux/OrbiterLinux.cpp \
+			Linux/XRecordExtensionHandler.cpp \
 			RendererMNG.cpp \
 			GraphicBuilder.cpp \
 			SDL/SDLGraphic.cpp \
