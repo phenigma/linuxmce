@@ -126,7 +126,7 @@ function menuSettings(menuObject)
 	menuObject.menu_items_border_style = "solid"
 	menuObject.menu_items_border_color = "#000000"
 	menuObject.menu_items_border_width = 0
-	menuObject.menu_items_width = 110
+	menuObject.menu_items_width = 140
 
 	
 /**********************************************************************************************
