@@ -5,16 +5,21 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
-#include "DCERouter.h"
 #include <iostream>
-#ifndef WIN32
-#include <unistd.h>
-#endif
 using namespace std;
 using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
+
+#include "DCERouter.h"
+#ifndef WIN32
+#include <unistd.h>
+#include <string.h>
+#else
+#include <process.h>
+#include <string.h>
+#endif
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -35,12 +40,13 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	/*find phonetype and phonenumber*/
 	string sVideoStandard = pDeviceData->mapParameters_Find(49);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: VideoStandard=%s",sVideoStandard.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%s",sVideoStandard.c_str());
 	
 	//Get Device Data and parse it
 
-	cout << "Configure'ing motion.conf" << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Writing configuration to motion.conf");
 	fp = fopen("/etc/motion/motion.conf","wt");
+	//main config
 	fprintf(fp,"videodevice /dev/video0\n");
 	fprintf(fp,"input 8\n");
 	fprintf(fp,"norm %s\n",sVideoStandard.c_str());	//pal/secam
@@ -54,10 +60,12 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	fprintf(fp,"contrast 0\n");
 	fprintf(fp,"saturation 0\n");
 	fprintf(fp,"hue 0\n");
+	//snapshot config
+	fprintf(fp,"snapshot_interval 3600\n");
 	fclose(fp);
-	cout << "Executing motion server" << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Starting motion server");
 	filename="/usr/bin/motion";
-	execv(filename, NULL);
+	system(filename);
 }
 
 //<-dceag-const2-b->
@@ -214,27 +222,33 @@ void Generic_Analog_Capture_Card::SomeFunction()
 	/** Get's a picture from a specified surveilance camera */
 		/** @param #19 Data */
 			/** The video frame */
-		/** @param #20 Format */
-			/** One of the following: "jpg", "png" */
-		/** @param #23 Disable Aspect Lock */
-			/** If true, don't worry about the aspect ratio.  Try to get the requested width and height. */
-		/** @param #41 StreamID */
-			/** Optional.  For multi stream devices, like media players, this identifies the stream. */
-		/** @param #60 Width */
-			/** The desired width of the video frame.  The sender need not respect this. */
-		/** @param #61 Height */
-			/** The desired height of the video frame.  The sender need not respect this. */
+		/** @param #41 CameraID */
+			/** The ID (nnumber) of the camera from where to take the snapshot. */
 
-void Generic_Analog_Capture_Card::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
+void Generic_Analog_Capture_Card::CMD_Get_Video_Frame(int iCameraID,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
 {
+	FILE *fp;
+	char pid[10];
+	char *Command;
+	int size;
+
 	cout << "Need to implement command #84 - Get Video Frame" << endl;
 	cout << "Parm #19 - Data  (data value)" << endl;
-	cout << "Parm #20 - Format=" << sFormat << endl;
-	cout << "Parm #23 - Disable_Aspect_Lock=" << sDisable_Aspect_Lock << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-	cout << "Parm #60 - Width=" << iWidth << endl;
-	cout << "Parm #61 - Height=" << iHeight << endl;
+	cout << "Parm #41 - CameraID " << iCameraID << endl;
+
+	Command = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
+	system(Command);
+	fp = fopen("camera_card.temp","rt");
+	fgets(pid,10,fp);
+	size = strlen(pid);
+	if(pid[size-1] == 10) {
+		pid[size-1] = '\0';
+	}
+	fclose(fp);
+	Command = "kill -s SIGALRM ";
+	strcat(Command,pid);
+	system(Command);
 }
 
 DeviceData_Router* Generic_Analog_Capture_Card::find_Device(int iPK_Device) {
