@@ -168,8 +168,8 @@ void OnInstall()
 	if(bResult)
 		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/PthreadsCE.dll"), TEXT("PthreadsCE.dll"));
 
-	if(bResult)
-		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/SDL.dll"), TEXT("SDL.dll"));
+//	if(bResult)
+//		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/SDL.dll"), TEXT("SDL.dll"));
 
 	if(bResult)
 		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/Orbiter.MD5"), TEXT("Orbiter.MD5"));
