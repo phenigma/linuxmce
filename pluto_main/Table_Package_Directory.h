@@ -87,6 +87,8 @@ long int m_FK_Directory;
 long int m_FK_OperatingSystem;
 long int m_FK_Distro;
 string m_Path;
+string m_InputPath;
+short int m_FlipSource;
 short int m_GenerateDoxygen;
 long int m_psc_id;
 long int m_psc_batch;
@@ -94,7 +96,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[12];
+		bool is_null[14];
 	
 	public:
 		long int PK_Package_Directory_get();
@@ -103,6 +105,8 @@ long int FK_Directory_get();
 long int FK_OperatingSystem_get();
 long int FK_Distro_get();
 string Path_get();
+string InputPath_get();
+short int FlipSource_get();
 short int GenerateDoxygen_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -117,6 +121,8 @@ void FK_Directory_set(long int val);
 void FK_OperatingSystem_set(long int val);
 void FK_Distro_set(long int val);
 void Path_set(string val);
+void InputPath_set(string val);
+void FlipSource_set(short int val);
 void GenerateDoxygen_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -127,6 +133,8 @@ void psc_mod_set(string val);
 		
 		bool FK_OperatingSystem_isNull();
 bool FK_Distro_isNull();
+bool InputPath_isNull();
+bool FlipSource_isNull();
 bool GenerateDoxygen_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
@@ -136,6 +144,8 @@ bool psc_frozen_isNull();
 			
 		void FK_OperatingSystem_setNull(bool val);
 void FK_Distro_setNull(bool val);
+void InputPath_setNull(bool val);
+void FlipSource_setNull(bool val);
 void GenerateDoxygen_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
@@ -165,7 +175,7 @@ class Row_Distro* FK_Distro_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package_Directory+ m_FK_Package+ m_FK_Directory+ m_FK_OperatingSystem+ m_FK_Distro+ m_Path+ m_GenerateDoxygen+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Package_Directory+ m_FK_Package+ m_FK_Directory+ m_FK_OperatingSystem+ m_FK_Distro+ m_Path+ m_InputPath+ m_FlipSource+ m_GenerateDoxygen+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -176,6 +186,8 @@ string FK_Directory_asSQL();
 string FK_OperatingSystem_asSQL();
 string FK_Distro_asSQL();
 string Path_asSQL();
+string InputPath_asSQL();
+string FlipSource_asSQL();
 string GenerateDoxygen_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

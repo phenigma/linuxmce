@@ -21,7 +21,7 @@
 #define DEVICETEMPLATE_Aprilaire_Thermostat_CONST 4
 #define DEVICETEMPLATE_Xine_Player_CONST 5
 #define DEVICETEMPLATE_Xine_Plugin_CONST 6
-#define DEVICETEMPLATE_Generic_PC_CONST 7
+#define DEVICETEMPLATE_Generic_PC_as_Core_CONST 7
 #define DEVICETEMPLATE_Orbiter_CONST 8
 #define DEVICETEMPLATE_Datagrid_Plugin_CONST 9
 #define DEVICETEMPLATE_File_Grids_Plugin_CONST 10
@@ -33,6 +33,7 @@
 #define DEVICETEMPLATE_Lutron_Radio_RA_CONST 25
 #define DEVICETEMPLATE_App_Server_CONST 26
 #define DEVICETEMPLATE_General_Info_Plugin_CONST 27
+#define DEVICETEMPLATE_Generic_PC_as_MD_CONST 28
 #define DEVICETEMPLATE_Mozilla_Plugin_CONST 30
 #define DEVICETEMPLATE_Climate_Plugin_CONST 31
 #define DEVICETEMPLATE_Lighting_Plugin_CONST 32

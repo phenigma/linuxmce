@@ -126,15 +126,17 @@ is_null[3] = true;
 is_null[4] = true;
 m_Path = "";
 is_null[5] = false;
-m_GenerateDoxygen = 0;
-is_null[6] = false;
+is_null[6] = true;
 is_null[7] = true;
-is_null[8] = true;
+m_GenerateDoxygen = 0;
+is_null[8] = false;
 is_null[9] = true;
+is_null[10] = true;
+is_null[11] = true;
 m_psc_frozen = 0;
-is_null[10] = false;
+is_null[12] = false;
 m_psc_mod = "00000000000000";
-is_null[11] = false;
+is_null[13] = false;
 
 
 	is_added=false;
@@ -160,6 +162,12 @@ return m_FK_Distro;}
 string Row_Package_Directory::Path_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Path;}
+string Row_Package_Directory::InputPath_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_InputPath;}
+short int Row_Package_Directory::FlipSource_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FlipSource;}
 short int Row_Package_Directory::GenerateDoxygen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_GenerateDoxygen;}
@@ -198,24 +206,30 @@ m_FK_Distro = val; is_modified=true; is_null[4]=false;}
 void Row_Package_Directory::Path_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Path = val; is_modified=true; is_null[5]=false;}
+void Row_Package_Directory::InputPath_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_InputPath = val; is_modified=true; is_null[6]=false;}
+void Row_Package_Directory::FlipSource_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FlipSource = val; is_modified=true; is_null[7]=false;}
 void Row_Package_Directory::GenerateDoxygen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_GenerateDoxygen = val; is_modified=true; is_null[6]=false;}
+m_GenerateDoxygen = val; is_modified=true; is_null[8]=false;}
 void Row_Package_Directory::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[7]=false;}
+m_psc_id = val; is_modified=true; is_null[9]=false;}
 void Row_Package_Directory::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[8]=false;}
+m_psc_batch = val; is_modified=true; is_null[10]=false;}
 void Row_Package_Directory::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[9]=false;}
+m_psc_user = val; is_modified=true; is_null[11]=false;}
 void Row_Package_Directory::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[10]=false;}
+m_psc_frozen = val; is_modified=true; is_null[12]=false;}
 void Row_Package_Directory::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[11]=false;}
+m_psc_mod = val; is_modified=true; is_null[13]=false;}
 
 		
 bool Row_Package_Directory::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -224,21 +238,27 @@ return is_null[3];}
 bool Row_Package_Directory::FK_Distro_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_Package_Directory::GenerateDoxygen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory::InputPath_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_Package_Directory::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory::FlipSource_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
-bool Row_Package_Directory::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory::GenerateDoxygen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
-bool Row_Package_Directory::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
-bool Row_Package_Directory::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[10];}
+bool Row_Package_Directory::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[11];}
+bool Row_Package_Directory::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[12];}
 
 			
 void Row_Package_Directory::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -247,21 +267,27 @@ is_null[3]=val;}
 void Row_Package_Directory::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_Package_Directory::GenerateDoxygen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory::InputPath_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
-void Row_Package_Directory::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory::FlipSource_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[7]=val;}
-void Row_Package_Directory::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory::GenerateDoxygen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[8]=val;}
-void Row_Package_Directory::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[9]=val;}
-void Row_Package_Directory::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[10]=val;}
+void Row_Package_Directory::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[11]=val;}
+void Row_Package_Directory::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[12]=val;}
 	
 
 string Row_Package_Directory::PK_Package_Directory_asSQL()
@@ -343,11 +369,38 @@ delete buf;
 return s;
 }
 
-string Row_Package_Directory::GenerateDoxygen_asSQL()
+string Row_Package_Directory::InputPath_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
+return "NULL";
+
+char *buf = new char[81];
+mysql_real_escape_string(table->database->db_handle, buf, m_InputPath.c_str(), (unsigned long) m_InputPath.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
+string Row_Package_Directory::FlipSource_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_FlipSource);
+
+return buf;
+}
+
+string Row_Package_Directory::GenerateDoxygen_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -360,7 +413,7 @@ string Row_Package_Directory::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -373,7 +426,7 @@ string Row_Package_Directory::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -386,7 +439,7 @@ string Row_Package_Directory::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[9])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -399,7 +452,7 @@ string Row_Package_Directory::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[10])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -412,7 +465,7 @@ string Row_Package_Directory::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[11])
+if (is_null[13])
 return "NULL";
 
 char *buf = new char[29];
@@ -460,10 +513,10 @@ void Table_Package_Directory::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Directory_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->FK_Directory_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->GenerateDoxygen_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Directory_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->FK_Directory_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->InputPath_asSQL()+", "+pRow->FlipSource_asSQL()+", "+pRow->GenerateDoxygen_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Package_Directory (PK_Package_Directory, FK_Package, FK_Directory, FK_OperatingSystem, FK_Distro, Path, GenerateDoxygen, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Package_Directory (PK_Package_Directory, FK_Package, FK_Directory, FK_OperatingSystem, FK_Distro, Path, InputPath, FlipSource, GenerateDoxygen, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -512,7 +565,7 @@ condition = condition + "PK_Package_Directory=" + tmp_PK_Package_Directory;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package_Directory="+pRow->PK_Package_Directory_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", FK_Directory="+pRow->FK_Directory_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", Path="+pRow->Path_asSQL()+", GenerateDoxygen="+pRow->GenerateDoxygen_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Package_Directory="+pRow->PK_Package_Directory_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", FK_Directory="+pRow->FK_Directory_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", Path="+pRow->Path_asSQL()+", InputPath="+pRow->InputPath_asSQL()+", FlipSource="+pRow->FlipSource_asSQL()+", GenerateDoxygen="+pRow->GenerateDoxygen_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Package_Directory set " + update_values_list + " where " + condition;
@@ -669,67 +722,89 @@ pRow->m_Path = string(row[5],lengths[5]);
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_GenerateDoxygen = 0;
+pRow->m_InputPath = "";
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_GenerateDoxygen));
+pRow->m_InputPath = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_id = 0;
+pRow->m_FlipSource = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_id));
+sscanf(row[7], "%hi", &(pRow->m_FlipSource));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_batch = 0;
+pRow->m_GenerateDoxygen = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_batch));
+sscanf(row[8], "%hi", &(pRow->m_GenerateDoxygen));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_user));
+sscanf(row[9], "%li", &(pRow->m_psc_id));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-pRow->m_psc_mod = string(row[11],lengths[11]);
+sscanf(row[11], "%li", &(pRow->m_psc_user));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
 }
 
 
@@ -907,67 +982,89 @@ pRow->m_Path = string(row[5],lengths[5]);
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_GenerateDoxygen = 0;
+pRow->m_InputPath = "";
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_GenerateDoxygen));
+pRow->m_InputPath = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_id = 0;
+pRow->m_FlipSource = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_id));
+sscanf(row[7], "%hi", &(pRow->m_FlipSource));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_batch = 0;
+pRow->m_GenerateDoxygen = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_batch));
+sscanf(row[8], "%hi", &(pRow->m_GenerateDoxygen));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_user));
+sscanf(row[9], "%li", &(pRow->m_psc_id));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-pRow->m_psc_mod = string(row[11],lengths[11]);
+sscanf(row[11], "%li", &(pRow->m_psc_user));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
 }
 
 
