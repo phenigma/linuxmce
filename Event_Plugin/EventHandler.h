@@ -1,16 +1,21 @@
 #ifndef EVENTHANDLER_H
 #define EVENTHANDLER_H
 
-typedef vector<class Action *> ActionVector;
+namespace DCE
+{
+	class CommandGroup;
+}
+
+using namespace DCE;
 
 class EventHandler
 {
 public:
-	int m_PK_EventHander,m_PK_Event;
+	unsigned long m_PK_EventHander,m_PK_Event;
 	class Criteria *m_pCriteria;
-	class CommandGroup *m_pCommandGroup;
+	CommandGroup *m_pCommandGroup;
 
-	EventHandler(int PK_EventHander,int PK_Event,class CommandGroup *pCommandGroup,class Criteria *pCriteria)
+	EventHandler(unsigned long PK_EventHander,unsigned long PK_Event,CommandGroup *pCommandGroup,class Criteria *pCriteria)
 	{
 		m_PK_EventHander = PK_EventHander;
 		m_PK_Event = PK_Event;
@@ -18,6 +23,8 @@ public:
 		m_pCommandGroup = pCommandGroup;
 	}
 };
+
+typedef list<EventHandler *> ListEventHandler;
 
 #endif
 

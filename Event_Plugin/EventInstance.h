@@ -1,11 +1,13 @@
 #ifndef EVENTINSTANCE_H
 #define EVENTINSTANCE_H
 
+#include "Message.h"
+
 class EventInstance
 {
 public:
 	class EventHandler *m_ptrEventHandler;
-	class OCMessage *pMessage;
+	Message *pMessage;
 	int m_ID,m_ActionNum,m_PKID_Device_OriginatedThisEvent;
 	clock_t m_tTime;
 //	clock_t m_ctWaitUntil;

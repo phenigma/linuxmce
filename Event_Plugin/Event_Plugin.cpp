@@ -60,15 +60,18 @@ int k=2;
 	for(size_t s=0;s<vectRow_EventHandler.size();++s)
 	{
 		Row_EventHandler *pRow_EventHandler = vectRow_EventHandler[s];
-if( pRow_EventHandler->PK_EventHandler_get()==15 )
-{
-int k=2;
-}
+
 		EventHandler *pEventHandler = new EventHandler(pRow_EventHandler->PK_EventHandler_get(),
 			pRow_EventHandler->FK_Event_get(),m_pRouter->mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get()),
 			m_mapCriteria_Find(pRow_EventHandler->FK_Criteria_get()));
 
-		m_mapEventHandler[pRow_EventHandler->PK_EventHandler_get()] = pEventHandler;
+		ListEventHandler *pListEventHandler = m_mapListEventHandler_Find(pRow_EventHandler->FK_Event_get());
+		if( !pListEventHandler )
+		{
+			pListEventHandler = new ListEventHandler();
+			m_mapListEventHandler[pRow_EventHandler->FK_Event_get()] = pListEventHandler;
+		}
+		pListEventHandler->push_back(pEventHandler);
 	}
 }
 
@@ -148,8 +151,8 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 		return true;
 	}
 
-	Event *pEvent;// = m_mapEvent[pMessage->m_dwID];
-	if( pEvent==NULL ) // No handlers for this type of event
+	ListEventHandler *pListEventHandler = m_mapListEventHandler_Find(pMessage->m_dwID);
+	if( pListEventHandler==NULL ) // No handlers for this type of event
 	{
 		g_pPlutoLogger->Write(LV_EVENT,"Event #%d has no handlers",pMessage->m_dwID);
 		return true;
@@ -160,9 +163,9 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 //	m_listEventInfo.push_back(pEventInfo);
 
 //	g_pPlutoLogger->Write(LV_EVENT,"Event #%d has %d handlers",pEventInfo->m_iPKID_Event,(int)pEvent->m_vectEventHandlers.size());
-	for(int i=0;i<(int)pEvent->m_vectEventHandlers.size();++i)
+	for(ListEventHandler::iterator it=pListEventHandler->begin();it!=pListEventHandler->end();++it)
 	{
-		EventHandler *pEventHandler = pEvent->m_vectEventHandlers[i];
+		EventHandler *pEventHandler = *it;
 //		pEventInfo->m_vectEventHandlers.push_back(pEventHandler);
 //		pEventInfo->pEventHandler = pEventHandler;
 
@@ -174,8 +177,8 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 		{
 			try
 			{
-//				if( !pEventHandler->m_pCriteria->Evaluate(pEventInfo) )
-//					bResult=false;
+				if( !pEventHandler->m_pCriteria->Evaluate(NULL) )
+					bResult=false;
 			}
 			catch(exception e)
 			{

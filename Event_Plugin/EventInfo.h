@@ -3,22 +3,29 @@
 
 #include "EventHandler.h"
 
+namespace DCE
+{
+	class DeviceData_Router;
+	class Message;
+}
+
+using namespace DCE;
+
 class EventInfo
 {
 public:
-	int m_iPKID_EventList;
-	class EventList *pEventList;
+	int m_iPK_EventList;
+	class EventList *m_pEventList;
 	class PlutoEvents *m_pPlutoEvents;
-	class OCMessage *pMessage;
-	class OCLogger *pLogger;
-	class EventHandler *pEventHandler;
-	class Device *pDevice;
-	int PKID_C_Mode_Room,PKID_C_Mode_House;
+	Message *m_pMessage;
+	class EventHandler *m_pEventHandler;
+	DeviceData_Router *m_pDevice;
+	int m_PK_HouseMode;
 	vector<class EventHandler *> m_vectEventHandlers;
 
-	EventInfo(class PlutoEvents *plutoEvents,class EventList *eventlist,class OCMessage *message,class OCLogger *logger,class Device *device,int C_Mode_Room,int C_Mode_House) :
-		pEventList(eventlist), m_pPlutoEvents(plutoEvents), pMessage(message), pLogger(logger), 
-		pEventHandler(NULL), pDevice(device),PKID_C_Mode_Room(C_Mode_Room),PKID_C_Mode_House(C_Mode_House) 
+	EventInfo(class EventList *pEventList,Message *pMessage,DeviceData_Router *pDevice,int PK_HouseMode) :
+		m_pEventList(pEventList), m_pMessage(pMessage), m_pEventHandler(NULL), m_pDevice(pDevice),
+		m_PK_HouseMode(PK_HouseMode)
 	{};
 	~EventInfo()
 	{

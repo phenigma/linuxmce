@@ -18,7 +18,7 @@ public:
 
 	bool Evaluate(class EventInfo *pEventInfo);
 
-	virtual bool EvaluateExpression(class CriteriaParm *CriteriaParm,class EventInfo *pEventInfo) { return true; };
+	virtual bool EvaluateExpression(class CriteriaParm *CriteriaParm,class EventInfo *pEventInfo);
 };
 
 #endif

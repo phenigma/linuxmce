@@ -7,9 +7,9 @@
 #include "Gen_Devices/Event_PluginBase.h"
 //<-dceag-d-e->
 
+#include "EventHandler.h"
 #include "pluto_main/Database_pluto_main.h"
 class Criteria;
-class EventHandler;
 class CriteriaParmNesting;
 class Row_CriteriaParmNesting;
 
@@ -23,7 +23,8 @@ namespace DCE
 		// Private member variables
 	    Database_pluto_main *m_pDatabase_pluto_main;
 		map<int,Criteria *> m_mapCriteria;
-		map<int,EventHandler *> m_mapEventHandler;
+		map<int,ListEventHandler *> m_mapListEventHandler;
+		ListEventHandler *m_mapListEventHandler_Find(int PK_Event) { map<int,ListEventHandler *>::iterator it = m_mapListEventHandler.find(PK_Event); return it==m_mapListEventHandler.end() ? NULL : (*it).second; }
 		Criteria *m_mapCriteria_Find(int PK_Criteria) { map<int,class Criteria *>::iterator it = m_mapCriteria.find(PK_Criteria); return it==m_mapCriteria.end() ? NULL : (*it).second; }
 
 		// Private methods

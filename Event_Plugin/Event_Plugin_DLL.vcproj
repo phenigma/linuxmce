@@ -125,6 +125,9 @@
 				RelativePath=".\Criteria.cpp">
 			</File>
 			<File
+				RelativePath=".\Criteria_EvaluateExpression.cpp">
+			</File>
+			<File
 				RelativePath=".\CriteriaParmNesting.cpp">
 			</File>
 			<File
