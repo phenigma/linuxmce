@@ -280,7 +280,7 @@ function irCodes($output,$dbADO) {
 
 		if($action=='testCode'){
 			$irCode=$_REQUEST['irCode'];
-			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 9 "'.$irCode.'"';
+			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 70 "'.$irCode.'"';
 			system($commandToTest);
 			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=The command was sent.");
 			exit();
