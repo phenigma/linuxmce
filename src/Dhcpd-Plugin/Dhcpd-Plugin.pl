@@ -26,7 +26,6 @@ while (1 eq 1) {
     
   $line = "";
   $line = parse($inline);  
-  print "$line\n";
   @data = split(/\,/,$line);
   $tag = $data[5];
   $op = $data[6];
@@ -177,7 +176,6 @@ sub log_plugin {
 		$type = "00";
 	}
 	$line = $type." ".$data;
-	print "$line\n";
 	system("echo \"$line\" >> /var/log/pluto/dhcp_pnp.newlog");
 }
 
