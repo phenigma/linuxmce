@@ -944,7 +944,8 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
 		{
 			while( (row = mysql_fetch_row( result_set.r ) ) )
-				map_id_mod[atoi(row[0])] = row[1] ? atoi(row[1]) : 0;
+				if( row[0] )  // Ignore records that were added on the local database
+					map_id_mod[atoi(row[0])] = row[1] ? atoi(row[1]) : 0;
 		}
 	}
 

@@ -1720,7 +1720,7 @@ void Table::VerifyIntegrity()
 			{
 				if( !row[0] || !atoi(row[0]) || atoi(row[0])==psc_id_last )
 				{
-					cerr << "In table: " << m_sName << " all rows don't have unique psc_id's" << endl;
+					cerr << "In table: " << m_sName << " all rows don't have unique psc_id's: " << (row[0] ? row[0] : "blank") << endl; 
 					throw "Database integrity failed";
 				}
 				psc_id_last = atoi(row[0]);
