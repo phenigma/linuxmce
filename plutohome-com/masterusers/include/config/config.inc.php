@@ -8,7 +8,8 @@
 
 	$directory="/masterusers/";
 	$domain="http://localhost";
-	$https="https://localhost/masterusers/";
+//	$https="https://localhost/masterusers/";
+	$https="http://localhost/masterusers/";
 	
 	define("VERSION","0.1");
 	define("APPLICATION_NAME","Plutovip.com");

@@ -6,7 +6,8 @@
   	$GLOBALS['inDebug']=1;
   	$GLOBALS['sendErrorsTo']='dragos.grosu@gmail.com';
 
-  	$MasterUsersHost="https://plutohome.com/masterusers/";
+// 	$MasterUsersHost="https://plutohome.com/masterusers/";
+  	$MasterUsersHost="http://plutohome.com/masterusers/";
   	$forumHost="http://plutohome.com/support/phpbb2/";
   	$MantisHost="http://plutohome.com/support/mantis/";
   	

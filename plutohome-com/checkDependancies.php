@@ -1,6 +1,6 @@
 <?
-require('../include/config/config.inc.php');
-require('../include/utils.inc.php');
+require('include/config/config.inc.php');
+require('include/utils.inc.php');
 
 $device=$_GET['device'];
 echo 'Here are all the software required for this device:';

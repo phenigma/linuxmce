@@ -45,7 +45,7 @@ function wizard($output,$dbADO) {
 			      				<td align="right" class="normaltext"><a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a></td>
 			      			</tr>
 			      			<tr>
-			      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 1: '.((!isset($_SESSION['installationDescription']))?'New Installation':'Update Installation').'</b></td>
+			      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 1 of 7: '.((!isset($_SESSION['installationDescription']))?'New Installation':'Update Installation').'</b></td>
 			      			</tr>
 							<tr>
 								<td colspan="2" class="normaltext">Pluto is a whole-house solution.  You can have several computers and other devices all working together as a single, whole-house solution.  We refer to a collection of equipment at a given location as an "Installation".  An installation usually refers to a particular home, or location.  If you have multiple homes, you should create an installation for each home and then "join" them together later.  Please type a name to refer to this installation, or location, you are creating, such as: 123 Main Street, or Beach House, etc.</td>
@@ -114,7 +114,7 @@ function wizard($output,$dbADO) {
 								<td align="right" class="normaltext"><a href="index.php?section=wizard&step=1">&lt;&lt; Previous</a> <a href="index.php?section=wizard&step=3">Next &gt;&gt;</a></td>
 							</tr>
 							<tr>
-			      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 2: Version</b></td>
+			      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 2 of 7: Version</b></td>
 			      			</tr>
 							<tr>
 								<td colspan="2" align="left" class="normaltext"><br>There are 3 versions of the Pluto software:</td>
@@ -160,11 +160,11 @@ function wizard($output,$dbADO) {
 								<td align="right" class="normaltext"><a href="index.php?section=wizard&step=2">&lt;&lt; Previous</a> <a href="index.php?section=wizard&step=4">Next &gt;&gt;</a></td>
 							</tr>
 							<tr>
-								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 3: Operating system</B></td>
+								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 3 of 7: Operating system</B></td>
 							</tr>
 							<tr>
 								<td colspan="2" align="left" class="normaltext">Note: At present Linux is the only supported platform for media playback.<br><br>
-								You have chosen the <b>'.$_SESSION['version'].'</b> version of the software.  Here are the operating systems that this version supports for your Core, Media Directors and Orbiters.  Note which installation options are available for each platform.  
+								You have chosen the <b>'.$_SESSION['version'].'</b> version of the software.  Here are the operating systems that this version supports for your Core, Media Directors and Orbiters.  Note which installation options are available for each platform, as described below.
 								On the next page you will be asked to choose what operating system/distro you want to use.  If "Confirmed" is not checked, then it <b>should</b> work with minimal effort, but has not been tested:
 								</td>
 							</tr>									
@@ -174,18 +174,18 @@ function wizard($output,$dbADO) {
 										<tr class="normaltext">
 											<td>&nbsp;</td>
 											<td colspan="4"><B>Installation options</B></td>
-											<td colspan="3"><B>Can be used as</B></td>
+											<td colspan="3" bgcolor="#DADDE4"><B>Can be used as</B></td>
 											<td rowspan="2"><B>Confirmed</B></td>
 										</tr>
 										<tr class="normaltext">
 											<td>&nbsp;</td>
 											<td><B>Kick-Start</B></td>
 											<td><B>Installer</B></td>
-											<td><B>Pre-compiled Binaries</B></td>
+											<td><B>Download</B></td>
 											<td><B>Source code</B></td>
-											<td><B>Core</B></td>
-											<td><B>Media Director</B></td>
-											<td><B>Orbiter</B></td>
+											<td bgcolor="#DADDE4"><B>Core</B></td>
+											<td bgcolor="#DADDE4"><B>Media Director</B></td>
+											<td bgcolor="#DADDE4"><B>Orbiter</B></td>
 										</tr>';
 					$queryDistroOS='
 						SELECT Distro.*, OperatingSystem.Description AS OS FROM Distro
@@ -194,14 +194,14 @@ function wizard($output,$dbADO) {
 					$resDistroOS=$dbADO->Execute($queryDistroOS);
 					while($row=$resDistroOS->FetchRow()){
 						$out.='		<tr class="normaltext">
-										<td><B>'.$row['Description'].' - '.$row['OS'].'</B></td>
-										<td align="center">'.(($row['KickStartCD']!=0)?'x':'-').'</td>
+										<td><B>'.$row['OS'].' - '.$row['Description'].'</B></td>
+										<td align="center">'.(($row['KickStartCD']!='')?'x':'-').'</td>
 										<td align="center">'.(($row['Installer']!='')?'x':'-').'</td>
-										<td align="center">'.(($row['Binaries']!=0)?'x':'-').'</td>
-										<td align="center">'.(($row['SourceCode']!=0)?'x':'-').'</td>
-										<td align="center">'.(($row['Core']!=0)?'x':'-').'</td>
-										<td align="center">'.(($row['MediaDirector']!=0)?'x':'-').'</td>
-										<td align="center">'.(($row['Orbiter']!=0)?'x':'-').'</td>
+										<td align="center">'.(($row['Binaries']!='')?'x':'-').'</td>
+										<td align="center">'.(($row['SourceCode']!='')?'x':'-').'</td>
+										<td align="center" bgcolor="#DADDE4">'.(($row['Core']!=0)?'x':'-').'</td>
+										<td align="center" bgcolor="#DADDE4">'.(($row['MediaDirector']!=0)?'x':'-').'</td>
+										<td align="center"bgcolor="#DADDE4">'.(($row['Orbiter']!=0)?'x':'-').'</td>
 										<td align="center">'.(($row['Confirmed']!=0)?'x':'-').'</td>
 							  		</tr>';
 					}
@@ -209,10 +209,27 @@ function wizard($output,$dbADO) {
 								</td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2" align="left">&nbsp;&nbsp;&nbsp;&nbsp;The kick-start CD is the easiest way to get Pluto, particularly on a clean computer.  Just put the disk in and boot.  It will give you the option of partitioning and formatting the drive, and auto-install all the software.  If you want to contribute a kick-start CD for a distribution we don’t yet support, we’ll be happy to host us.  <a href="index.php?section=kickStartCD">Learn more</a><br><br>
-									&nbsp;&nbsp;&nbsp;&nbsp;The installer also makes it a snap to install Pluto.  The installer is actually a very simple script that downloads and installs packages and source code automatically.  The script is really simple since all the complicated logic is stored in a central database and works for every platform.  If you want to run Pluto on a platform that doesn’t have an installer and know how to write scripts, like bash or perl or batch files, it will probably be faster to write an install script for your platform than to download all the modules individually.  And then if you share it with us, others can use it too.  <a href="index.php?section=installer">Learn more</a><br><br>
-									&nbsp;&nbsp;&nbsp;&nbsp;If there is no kick-start CD or installer for your choice, you can always use pre-compiled binaries or build everything from source code.<br><br>
-									&nbsp;&nbsp;&nbsp;&nbsp;Click Next to configure your core, media directors and orbiters and choose what platform you want to use on each of them.
+							<td colspan="2" align="left"><b><u>Explanation of the 4 installation options:</b></u></td>
+							</tr>
+							<tr class="normaltext">
+								<td colspan="2" align="left">
+									<b>1.</b>&nbsp;&nbsp;&nbsp;&nbsp;The <b>kick-start CD</b> is the easiest way to get Pluto, particularly on a clean computer.  Just put the disk in and boot.  
+									It will give you the option of partitioning and formatting the drive, and auto-install all the software.  If you want to contribute a kick-start CD for a distribution we don’t yet support, we’ll be happy to host it.<br><br>
+									<b>2.</b>&nbsp;&nbsp;&nbsp;&nbsp;The <b>installer</b> also makes it a snap to install Pluto.  This is a pretty simple script that downloads and installs software and source code automatically.  
+									This wizard will a "Wrapper" which will feed the installer with a list of all the software you will need for this installation.<br><br>
+									<b>2b.</b>&nbsp;&nbsp;&nbsp;&nbsp;If there is no installer for your choice, we can still give you the custom <b>"Wrapper"</b> listing all the
+									software you will need.  If you know how to write scripts, like bash or perl or batch files, it will probably be faster to write an 
+									installer for your platform than to install all the software by hand.  And, if you share it, then everyone else using that platform
+									can use it too.<br><br>
+									<b>3.</b>&nbsp;&nbsp;&nbsp;&nbsp;After you have completed the wizard, we will give you a list of all the software you will need for this
+									installation and links to the places where you can <b>download</b> the software manually.<br><br>
+									<b>4.</b>&nbsp;&nbsp;&nbsp;&nbsp;Worst case you will have to build from <b>source</b>.  All the source code is available in svn, cvs, and as archives.  
+									Our source code comes with both gcc-compatible Makefiles, and Microsoft Visual Studio .NET 2003 project files.  We also have an automated build
+									and propagate program, MakeRelease, that does automated builds of all the software in the right order for both Linux and Windows, and optionally builds
+									packages and archives of the output.  Contact one of our programmers for assistance.<br>
+			
+									
+									<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Click Next to configure your core, media directors and orbiters and choose what platform you want to use on each of them.
 								</td>
 							</tr>
 							<tr>
@@ -313,10 +330,10 @@ function wizard($output,$dbADO) {
 								<td align="right" class="normaltext"><a href="index.php?section=wizard&step=3">&lt;&lt; Previous</a> '.((isset($_SESSION['deviceID']))?'<a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a>':'').'</td>
 							</tr>				
 							<tr>
-								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 4: Pluto Core</B></td>
+								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 4 of 7: Pluto Core</B></td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2" align="left">Tell me about the computer you’ll use as the core.  Just choose "Generic PC" if we don’t yet have your specific model listed.  <b>Don\'t forget to check the \'Hybrid\' box if you will use this to play back media too!</b></td>
+								<td colspan="2" align="left">Tell me about the computer you’ll use as the core.  Just choose "Generic PC" if we don’t yet have your specific model listed.  Pluto’s in-house developers and testers use Linux/Debian Sarge.  <b>Don\'t forget to check the \'Hybrid\' box if you will use this to play back media too!</b><br>&nbsp;<br></td>
 							</tr>
 							<tr class="normaltext">
 								<td>&nbsp;&nbsp;&nbsp;&nbsp;First, what type of computer is it?</td>
@@ -511,7 +528,7 @@ function wizard($output,$dbADO) {
 								<td align="right" class="normaltext"><a href="index.php?section=wizard&step=4">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();">Next &gt;&gt;</a></td>
 							</tr>				
 							<tr>
-								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 5: Media Directors</B></td>
+								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 5 of 7: Media Directors</B></td>
 							</tr>
 							<tr>
 								<td colspan="2" align="left" class="normaltext">Here are the media directors in this installation that will connect to your Core.  You can add more by filling in the \'Add a Media Director\' section.  Be sure to give them descriptive names like \'Master Bedroom\'.</td>
@@ -807,7 +824,7 @@ function wizard($output,$dbADO) {
 								<td align="right" class="normaltext"><a href="index.php?section=wizard&step=5">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();">Next &gt;&gt;</a></td>
 							</tr>				
 							<tr>
-								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 6: Orbiter</B></td>
+								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 6 of 7: Orbiter</B></td>
 							</tr>
 							<tr class="normaltext">
 								<td colspan="2" align="left">Here are your orbiters.  The Media Directors will have an Orbiter on the screen already to control the system.  But you can add more like Web Pads, PDAs, mobile phones, etc.  For the type just choose "Orbiter" unless you see another type that more closely describes your hardware.</td>
@@ -1062,7 +1079,7 @@ function wizard($output,$dbADO) {
 								<td align="right" class="normaltext" width="150"><a href="index.php?section=wizard&step=6">&lt;&lt; Previous</a></td>
 							</tr>
 			      			<tr>
-			      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 7: Download</b></td>
+			      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 7 of 7: Download</b></td>
 			      			</tr>
 							<tr class="normaltext">
 								<td colspan="2" align="left">You finished the wizard!  All the settings you made have been saved into a database so your system can install and configure itself automatically.  You can go back to a prior page to change options and return to this page at any time.<br><br></td>
@@ -1098,31 +1115,29 @@ function wizard($output,$dbADO) {
 								<td>Device #: <b>'.$_SESSION['deviceID'].'</b></td>
 							</tr>
 							<tr class="normaltext">
-								<td valign="top" colspan="2"><a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$_SESSION['deviceID'].'\',\'width=1024,height=768,toolbars=true\');">Click here</a> to list all the software that is required for this computer.</td>
-							</tr>
-							<tr class="normaltext">
-								<td valign="top">&nbsp;</td>
-							</tr>
-							<tr class="normaltext">
-								<td valign="top" colspan="2">Here are the 4 ways you can install the software on this computer.  Choose the one you want to use:</td>
+								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowDevice['PK_Device'].'\',\'width=1024,height=768,toolbars=true\');">List of all the software this computer will need.</a></td>
 							</tr>
 							<tr class="normaltext">
 								<td valign="top" colspan="2"><table width="75%" align="center">
 									<tr class="normaltext">
-										<td width="30%" align="left"><span style="color:'.(($distroKickStartCD=='')?'#CCCCCC':'').'">- '.(($distroKickStartCD!='')?'<a href="'.$domain.$downloadDirectory.$distroKickStartCD.'">':'').'Kick-start CD'.(($distroKickStartCD!='')?'</a>':'').(($distroKickStartCD=='')?'<br>Not available for '.$DistroNameOS:'').'</span></td>
-										<td> An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS.' that will also setup the Pluto software.  You can use the same CD for any computer with '.$DistroNameOS.'</td>
+										<td width="30%" align="left"><span style="color:'.(($distroKickStartCD=='')?'#CCCCCC':'').'">- '.(($distroKickStartCD!='')?'<a href="'.$distroKickStartCD.'" target="_blank">':'').'Kick-start CD'.(($distroKickStartCD!='')?'</a>':'').(($distroKickStartCD=='')?'<br>Not available for '.$DistroNameOS:'').'</span></td>
+										<td> An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS.'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
 										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowDevice['Description']).'\',\'width=640,height=480,toolbars=true\');">Auto install script</a></td>
-										<td></td>
+										<td>A script for '.$DistroNameOS.' that will install all the software automatically.</td>
 									</tr>
 									<tr class="normaltext">
 										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true\');">Custom Wrapper for '.$rowDevice['Description'].'</a></td>
-										<td></td>
+										<td>For you to write your own install script for '.$DistroNameOS.'.  You can use our 50-line Debian bash script as a template.</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">- <a href="support/index.php?section=mainDownload">Download page</a></td>
-										<td>Just take me to the download page.  I’ll get everything manually.</td>
+										<td width="30%" align="left">- <a href="support/index.php?section=mainDownload" target="_blank">Download page</a></td>
+										<td>Just take me to Pluto’s main download page.  I’ll get everything in the list manually.</td>
+									</tr>				
+									<tr class="normaltext" bgcolor="#DADDE4">
+										<td width="30%" align="left">- <a href="/support/index.php?section=document&docID=101" target="_blank">Source Code</a></td>
+										<td>Tell me how to get the source code.</td>
 									</tr>				
 								</table>
 				 				</td>
@@ -1173,31 +1188,29 @@ function wizard($output,$dbADO) {
 								<td>Device #: <b>'.$rowMediaDirectors['PK_Device'].'</b></td>
 							</tr>
 							<tr class="normaltext">
-								<td valign="top" colspan="2"><a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowMediaDirectors['PK_Device'].'\',\'width=1024,height=768,toolbars=true\');">Click here</a> to list to list all the software that is required for this computer.</td>
-							</tr>
-							<tr class="normaltext">
-								<td valign="top">&nbsp;</td>
-							</tr>
-							<tr class="normaltext">
-								<td valign="top" colspan="2">Here are the 4 ways you can install the software on this computer.  Choose the one you want to use:</td>
+								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowMediaDirectors['PK_Device'].'\',\'width=1024,height=768,toolbars=true\');">List of all the software this computer will need.</a></td>
 							</tr>
 							<tr class="normaltext">
 								<td valign="top" colspan="2"><table width="75%" align="center">
 									<tr class="normaltext">
-										<td width="30%" align="left"><span style="color:'.(($rowDDD['distroKickStartCD']=='')?'#CCCCCC':'').'">- '.(($rowDDD['distroKickStartCD']!='')?'<a href="'.$domain.$downloadDirectory.$rowDDD['distroKickStartCD'].'">':'').'Kick-start CD'.(($rowDDD['distroKickStartCD']!='')?'</a>':'').(($rowDDD['distroKickStartCD']=='')?'<br>Autoinstall script: Not available for '.$rowDDD['Platform']:'').'</span></td>
-										<td> An ISO image for you to burn to a CD.</td>
+										<td width="30%" align="left"><span style="color:'.(($rowDDD['distroKickStartCD']=='')?'#CCCCCC':'').'">- '.(($rowDDD['distroKickStartCD']!='')?'<a href="'.$rowDDD['distroKickStartCD'].'" target="_blank">':'').'Kick-start CD'.(($rowDDD['distroKickStartCD']!='')?'</a>':'').(($rowDDD['distroKickStartCD']=='')?'<br>Autoinstall script: Not available for '.$rowDDD['Platform']:'').'</span></td>
+										<td> An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS.'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
 										<td width="30%" align="left">- '.(($rowDDD['Installer']!='')?'<a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true\');">Auto install script</a>':'<span  style="color:#CCCCCC">Not available for '.$rowDDD['Platform'].'</span>').'</td>
-										<td></td>
+										<td>A script for '.$DistroNameOS.' that will install all the software automatically.</td>
 									</tr>
 									<tr class="normaltext">
 										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true\');">Custom Wrapper for '.$rowMediaDirectors['Description'].'</a></td>
 										<td></td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">- <a href="support/index.php?section=mainDownload">Download page</a></td>
-										<td>Just take me to the download page.  I’ll get everything manually.</td>
+										<td width="30%" align="left">- <a href="support/index.php?section=mainDownload" target="_blank">Download page</a></td>
+										<td>Just take me to Pluto’s main download page.  I’ll get everything in the list manually.</td>
+									</tr>				
+									<tr class="normaltext" bgcolor="#DADDE4">
+										<td width="30%" align="left">- <a href="/support/index.php?section=document&docID=101" target="_blank">Source Code</a></td>
+										<td>Tell me how to get the source code.</td>
 									</tr>				
 								</table>
 				 				</td>
@@ -1254,31 +1267,29 @@ function wizard($output,$dbADO) {
 								<td>Device #: <b>'.$rowOrbiters['PK_Device'].'</b></td>
 							</tr>
 							<tr class="normaltext">
-								<td valign="top" colspan="2"><a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowOrbiters['PK_Device'].'\',\'width=1024,height=768,toolbars=true\');">Click here</a> to list all the software that is required for this computer.</td>
-							</tr>
-							<tr class="normaltext">
-								<td valign="top">&nbsp;</td>
-							</tr>
-							<tr class="normaltext">
-								<td valign="top" colspan="2">Here are the 4 ways you can install the software on this computer.  Choose the one you want to use:</td>
+								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowOrbiters['PK_Device'].'\',\'width=1024,height=768,toolbars=true\');">List of all the software this computer will need.</a></td>
 							</tr>
 							<tr class="normaltext">
 								<td valign="top" colspan="2"><table width="75%" align="center">
 									<tr class="normaltext">
-										<td width="30%" align="left"><span style="color:'.(($rowDDD['distroKickStartCD']=='')?'#CCCCCC':'').'">- '.(($rowDDD['distroKickStartCD']!='')?'<a href="'.$domain.$downloadDirectory.$rowDDD['distroKickStartCD'].'">':'').'Kick-start CD'.(($rowDDD['distroKickStartCD']!='')?'</a>':'').(($rowDDD['distroKickStartCD']=='')?'<br>Autoinstall script: Not available for '.$rowDDD['Platform']:'').'</span></td>
-										<td> An ISO image for you to burn to a CD.</td>
+										<td width="30%" align="left"><span style="color:'.(($rowDDD['distroKickStartCD']=='')?'#CCCCCC':'').'">- '.(($rowDDD['distroKickStartCD']!='')?'<a href="'.$rowDDD['distroKickStartCD'].'" target="_blank">':'').'Kick-start CD'.(($rowDDD['distroKickStartCD']!='')?'</a>':'').(($rowDDD['distroKickStartCD']=='')?'<br>Autoinstall script: Not available for '.$rowDDD['Platform']:'').'</span></td>
+										<td> An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS.'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
 										<td width="30%" align="left">- '.(($rowDDD['Installer']!='')?'<a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowOrbiters['Description']).'\',\'width=640,height=480,toolbars=true\');">Auto install script</a>':'<span  style="color:#CCCCCC">Not available for '.$rowDDD['Platform'].'</span>').'</td>
-										<td></td>
+										<td>A script for '.$DistroNameOS.' that will install all the software automatically.</td>
 									</tr>
 									<tr class="normaltext">
 										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true\');">Custom Wrapper for '.$rowOrbiters['Description'].'</a></td>
 										<td></td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">- <a href="support/index.php?section=mainDownload">Download page</a></td>
-										<td>Just take me to the download page.  I’ll get everything manually.</td>
+										<td width="30%" align="left">- <a href="support/index.php?section=mainDownload" target="_blank">Download page</a></td>
+										<td>Just take me to Pluto’s main download page.  I’ll get everything in the list manually.</td>
+									</tr>				
+									<tr class="normaltext" bgcolor="#DADDE4">
+										<td width="30%" align="left">- <a href="/support/index.php?section=document&docID=101" target="_blank">Source Code</a></td>
+										<td>Tell me how to get the source code.</td>
 									</tr>				
 								</table>
 				 				</td>

@@ -324,13 +324,13 @@ function getValidOrbitersArray($installationID,$dbADO) {
 
 function InheritDeviceData($masterDeviceID,$insertID,$dbADO)
 {
-	$selectDeviceDatafromTemplate = 'SELECT FK_DeviceData, DefaultValue FROM DeviceTemplate_DeviceData WHERE FK_DeviceTemplate = ?';
+	$selectDeviceDatafromTemplate = 'SELECT FK_DeviceData, IK_DeviceData FROM DeviceTemplate_DeviceData WHERE FK_DeviceTemplate = ?';
 	$resDeviceDatafromTemplate = $dbADO->Execute($selectDeviceDatafromTemplate,array($masterDeviceID));
 	if ($resDeviceDatafromTemplate) {
 		while($rowSelectDeviceDatafromTemplate = $resDeviceDatafromTemplate->FetchRow()){
-			$queryInsertDevice = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,Value)
+			$queryInsertDevice = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData)
 									VALUES(?,?,?)";
-			$dbADO->Execute($queryInsertDevice,array($insertID,$rowSelectDeviceDatafromTemplate['FK_DeviceData'],$rowSelectDeviceDatafromTemplate['DefaultValue']));
+			$dbADO->Execute($queryInsertDevice,array($insertID,$rowSelectDeviceDatafromTemplate['FK_DeviceData'],$rowSelectDeviceDatafromTemplate['IK_DeviceData']));
 		}
 	}
 }
