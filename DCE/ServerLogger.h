@@ -12,15 +12,15 @@ class ServerLogger : public Logger, public ClientSocket
 {
 public:
 	//ServerLogger();
-	ServerLogger(int DeviceID, ::std::string server);
+	ServerLogger(int DeviceID, int PK_DeviceTemplate, ::std::string server);
 	virtual ~ServerLogger();
 
 	virtual void WriteEntry(class Logger::Entry& entry);
 	
 	virtual void Start();
-	virtual bool OnConnect(string ExtraInfo="") 
+	virtual bool OnConnect( int PK_DeviceTemplate,string sExtraInfo="" )
 	{ 
-		m_bConnected = ClientSocket::OnConnect("servlog"); 
+		m_bConnected = ClientSocket::OnConnect(PK_DeviceTemplate,"servlog"); 
 		return m_bConnected;
 	};
 

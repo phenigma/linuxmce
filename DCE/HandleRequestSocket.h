@@ -53,7 +53,7 @@ namespace DCE
 		/**
 		 * @brief creates the main loop thread after it receives the OK
 		 */
-		virtual bool OnConnect( string ExtraInfo="" );
+		virtual bool OnConnect( int PK_DeviceTemplate,string sExtraInfo="" );
 
 		/**
 		 * @brief virtual

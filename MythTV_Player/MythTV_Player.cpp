@@ -122,7 +122,7 @@ bool MythTV_Player::LaunchMythFrontend()
 bool MythTV_Player::Register()
 //<-dceag-reg-e->
 {
-    return Connect();
+    return Connect(PK_DeviceTemplate_get());
 }
 
 void MythTV_Player::CreateChildren()

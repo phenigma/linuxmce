@@ -209,6 +209,13 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter is exiting");
+	// Be sure we get the maint thread to cleanly exit
+	m_bQuit=true;
+	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
+	pthread_mutex_lock(&m_MaintThreadMutex.mutex);  // Be sure it's not executing anything--it will lock this while it's doing an execute
+g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
+
 	DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0" );
     SendCommand( CMD_Orbiter_Registered );
 
@@ -334,7 +341,7 @@ Orbiter::~Orbiter()
 bool Orbiter::Register()
 //<-dceag-reg-e->
 {
-    return Connect(  );
+    return Connect(PK_DeviceTemplate_get());
 }
 
 /*
@@ -3476,6 +3483,13 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
         else if(  Variable=="GD" )
 			Output += StringUtils::itos(pObj->m_GraphicToDisplay);
+        else if(  Variable=="SG" )
+		{
+			time_t t = m_tGenerationTime;
+			struct tm *p_tm = localtime( &t );
+			Output += StringUtils::itos( p_tm->tm_mon+1 ) + "/" + StringUtils::itos( p_tm->tm_mday) + "/" + StringUtils::itos( p_tm->tm_year+1900 ) + " " + 
+				StringUtils::itos( p_tm->tm_hour ) + ":" + StringUtils::itos( p_tm->tm_min );
+		}
         else if(  Variable=="CD" )
 		{
 			// Find if there are any selected object timeout's pending
@@ -3802,6 +3816,7 @@ void *MaintThread(void *p)
 		}
 	}
 
+g_pPlutoLogger->Write(LV_STATUS,"Maint thread exited");
 	return NULL;
 }
 
@@ -5573,4 +5588,14 @@ void Orbiter::CMD_Set_Main_Menu(string sText,string &sCMD_Result,Message *pMessa
 		else if( sText[0]=='V' )
 			m_sMainMenu = m_pDesignObj_Orbiter_ScreenSaveMenu->m_ObjectID;
 	}
+}
+//<-dceag-c265-b->
+
+	/** @brief COMMAND: #265 - Quit */
+	/** Exits the orbiter application */
+
+void Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
+//<-dceag-c265-e->
+{
+	OnQuit();
 }

@@ -58,7 +58,7 @@ Datagrid_Plugin::~Datagrid_Plugin()
 bool Datagrid_Plugin::Register()
 //<-dceag-reg-e->
 {
- return Connect();
+ return Connect(PK_DeviceTemplate_get());
 }
 
 /*

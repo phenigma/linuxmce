@@ -84,7 +84,7 @@ Disk_Drive::~Disk_Drive()
 bool Disk_Drive::Register()
 //<-dceag-reg-e->
 {
-    return Connect();
+    return Connect(PK_DeviceTemplate_get());
 }
 
 /*

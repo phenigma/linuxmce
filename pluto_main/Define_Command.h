@@ -260,6 +260,10 @@
 #define COMMAND_Set_FollowMe_CONST 261
 #define COMMAND_Stop_Streaming_CONST 262
 #define COMMAND_Toggle_Event_Handler_CONST 263
+#define COMMAND_Track_Frontend_At_IP_CONST 264
+#define COMMAND_Quit_CONST 265
+#define COMMAND_Regen_Orbiter_CONST 266
+#define COMMAND_Regen_Orbiter_Finished_CONST 267
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

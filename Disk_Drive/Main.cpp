@@ -46,7 +46,7 @@ extern "C" {
 	{
 		if( sLogger=="dcerouter" )
 		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
+			g_pPlutoLogger = new ServerLogger(PK_Device, Disk_Drive::PK_DeviceTemplate_get_static(), "localhost");
 			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
 			{
 				sLogger="stdout";

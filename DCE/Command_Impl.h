@@ -138,7 +138,7 @@ namespace DCE
 		 * @brief tries to connect to a client socket
 		 * @return true on success, false otherwise
 		 */		 
-		virtual bool Connect();
+		virtual bool Connect(int iPK_DeviceTemplate );
 		
 		/** events */
 		

@@ -39,7 +39,7 @@ DCE_Template::~DCE_Template()
 bool DCE_Template::Register()
 //<-dceag-reg-e->
 {
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

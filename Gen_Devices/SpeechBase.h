@@ -12,10 +12,10 @@ namespace DCE
 class Speech_Event : public Event_Impl
 {
 public:
-	Speech_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID, ServerAddress, bConnectEventHandler) {};
+	Speech_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,59, ServerAddress, bConnectEventHandler) {};
 	Speech_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
-	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
+	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
 };
 
 
@@ -44,6 +44,8 @@ public:
 			return;
 		m_pData=NULL;
 		m_pEvent = new Speech_Event(DeviceID, ServerAddress);
+		if( m_pEvent->m_dwPK_Device )
+			m_dwPK_Device = m_pEvent->m_dwPK_Device;
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
 			throw "Cannot get configuration data";
@@ -55,14 +57,15 @@ public:
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(DeviceID, ServerAddress);
+		m_pcRequestSocket = new Event_Impl(DeviceID, 59,ServerAddress);
 	};
 	Speech_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~Speech_Command() {};
 	Speech_Event *GetEvents() { return (Speech_Event *) m_pEvent; };
 	Speech_Data *GetData() { return (Speech_Data *) m_pData; };
 	const char *GetClassName() { return "Speech_Command"; };
-	static int PK_DeviceTemplate_get() { return 59; };
+	virtual int PK_DeviceTemplate_get() { return 59; };
+	static int PK_DeviceTemplate_get_static() { return 59; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
@@ -91,7 +94,7 @@ public:
 			{
 				DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
-				if( pDeviceData_Base->IsChildOf(m_pData) )
+				if( pDeviceData_Base && pDeviceData_Base->IsChildOf(m_pData) )
 					ReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);

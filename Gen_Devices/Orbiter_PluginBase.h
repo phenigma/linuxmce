@@ -12,7 +12,7 @@ namespace DCE
 class Orbiter_Plugin_Event : public Event_Impl
 {
 public:
-	Orbiter_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID, ServerAddress, bConnectEventHandler) {};
+	Orbiter_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,12, ServerAddress, bConnectEventHandler) {};
 	Orbiter_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -44,6 +44,8 @@ public:
 			return;
 		m_pData=NULL;
 		m_pEvent = new Orbiter_Plugin_Event(DeviceID, ServerAddress);
+		if( m_pEvent->m_dwPK_Device )
+			m_dwPK_Device = m_pEvent->m_dwPK_Device;
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
 			throw "Cannot get configuration data";
@@ -55,7 +57,7 @@ public:
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(DeviceID, ServerAddress);
+		m_pcRequestSocket = new Event_Impl(DeviceID, 12,ServerAddress);
 	};
 	Orbiter_Plugin_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~Orbiter_Plugin_Command() {};
@@ -79,6 +81,8 @@ public:
 	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Regen_Orbiter(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -227,6 +231,36 @@ public:
 					string sText=pMessage->m_mapParameters[9];
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 						CMD_Set_FollowMe(iPK_Device,sText.c_str(),iPK_Users,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 266:
+					{
+						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+						CMD_Regen_Orbiter(iPK_Device,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 267:
+					{
+						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+						CMD_Regen_Orbiter_Finished(iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

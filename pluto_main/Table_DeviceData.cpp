@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_DeviceData.h"
 #include "Table_ParameterType.h"
 
+#include "Table_DHCPDevice_DeviceData.h"
 #include "Table_DeviceCategory_DeviceData.h"
 #include "Table_DeviceTemplate_DeviceData.h"
 #include "Table_Device_DeviceData.h"
@@ -848,6 +849,13 @@ return pTable->GetRow(m_FK_ParameterType);
 }
 
 
+void Row_DeviceData::DHCPDevice_DeviceData_FK_DeviceData_getrows(vector <class Row_DHCPDevice_DeviceData*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_DHCPDevice_DeviceData *pTable = table->database->DHCPDevice_DeviceData_get();
+pTable->GetRows("FK_DeviceData=" + StringUtils::itos(m_PK_DeviceData),rows);
+}
 void Row_DeviceData::DeviceCategory_DeviceData_FK_DeviceData_getrows(vector <class Row_DeviceCategory_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);

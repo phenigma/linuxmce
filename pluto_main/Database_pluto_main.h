@@ -49,6 +49,8 @@ class Table_CriteriaParmNesting* tblCriteriaParmNesting;
 class Table_CriteriaParmNesting_D* tblCriteriaParmNesting_D;
 class Table_CriteriaParm_D* tblCriteriaParm_D;
 class Table_Criteria_D* tblCriteria_D;
+class Table_DHCPDevice* tblDHCPDevice;
+class Table_DHCPDevice_DeviceData* tblDHCPDevice_DeviceData;
 class Table_DataGrid* tblDataGrid;
 class Table_DesignObj* tblDesignObj;
 class Table_DesignObjCategory* tblDesignObjCategory;
@@ -255,6 +257,8 @@ class Table_CriteriaParmNesting* CriteriaParmNesting_get() { return tblCriteriaP
 class Table_CriteriaParmNesting_D* CriteriaParmNesting_D_get() { return tblCriteriaParmNesting_D; }
 class Table_CriteriaParm_D* CriteriaParm_D_get() { return tblCriteriaParm_D; }
 class Table_Criteria_D* Criteria_D_get() { return tblCriteria_D; }
+class Table_DHCPDevice* DHCPDevice_get() { return tblDHCPDevice; }
+class Table_DHCPDevice_DeviceData* DHCPDevice_DeviceData_get() { return tblDHCPDevice_DeviceData; }
 class Table_DataGrid* DataGrid_get() { return tblDataGrid; }
 class Table_DesignObj* DesignObj_get() { return tblDesignObj; }
 class Table_DesignObjCategory* DesignObjCategory_get() { return tblDesignObjCategory; }
@@ -464,6 +468,8 @@ void CreateTable_CriteriaParmNesting();
 void CreateTable_CriteriaParmNesting_D();
 void CreateTable_CriteriaParm_D();
 void CreateTable_Criteria_D();
+void CreateTable_DHCPDevice();
+void CreateTable_DHCPDevice_DeviceData();
 void CreateTable_DataGrid();
 void CreateTable_DesignObj();
 void CreateTable_DesignObjCategory();
@@ -669,6 +675,8 @@ void DeleteTable_CriteriaParmNesting();
 void DeleteTable_CriteriaParmNesting_D();
 void DeleteTable_CriteriaParm_D();
 void DeleteTable_Criteria_D();
+void DeleteTable_DHCPDevice();
+void DeleteTable_DHCPDevice_DeviceData();
 void DeleteTable_DataGrid();
 void DeleteTable_DesignObj();
 void DeleteTable_DesignObjCategory();

@@ -27,7 +27,7 @@ extern "C" {
 	{
 		if( sLogger=="dcerouter" )
 		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
+			g_pPlutoLogger = new ServerLogger(PK_Device, Slim_Server_Streamer::PK_DeviceTemplate_get_static(), "localhost");
 			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
 			{
 				sLogger="stdout";
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
+			g_pPlutoLogger = new ServerLogger(PK_Device, Slim_Server_Streamer::PK_DeviceTemplate_get_static(), sRouter_IP);
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
@@ -136,12 +136,13 @@ int main(int argc, char* argv[])
 		cerr << "Unable to create logger" << endl;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",PK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
+	bool bReload=false;
 	try
 	{
 		Slim_Server_Streamer *pSlim_Server_Streamer = new Slim_Server_Streamer(PK_Device, sRouter_IP);	
-		if ( pSlim_Server_Streamer->Connect() ) 
+		if ( pSlim_Server_Streamer->Connect(pSlim_Server_Streamer->PK_DeviceTemplate_get()) ) 
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pSlim_Server_Streamer->CreateChildren();
@@ -152,6 +153,9 @@ int main(int argc, char* argv[])
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
+
+		if( pSlim_Server_Streamer->m_bReload )
+			bReload=true;
 
 		delete pSlim_Server_Streamer;
 	}
@@ -167,6 +171,10 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     WSACleanup();
 #endif
-    return 0;
+
+	if( bReload )
+		return 2;
+	else
+		return 0;
 }
 //<-dceag-main-e->

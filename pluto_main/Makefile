@@ -40,6 +40,8 @@ Table_CriteriaParmNesting.cpp \
 Table_CriteriaParmNesting_D.cpp \
 Table_CriteriaParm_D.cpp \
 Table_Criteria_D.cpp \
+Table_DHCPDevice.cpp \
+Table_DHCPDevice_DeviceData.cpp \
 Table_DataGrid.cpp \
 Table_DesignObj.cpp \
 Table_DesignObjCategory.cpp \

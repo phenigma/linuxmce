@@ -230,12 +230,30 @@ public:
 		/** @param #2 PK_Device */
 			/** The Orbiter */
 		/** @param #9 Text */
-			/** Can be 'L', 'M', 'C', 'S', 'T' for Lighting, Media, Climate, Security, Telecom */
+			/** Can be 'L', 'M', 'C', 'S', 'T' for Lighting, Media, Climate, Security, Telecom followed by 0 or 1 for off/on. */
 		/** @param #17 PK_Users */
 			/** The User */
 
 	virtual void CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users) { string sCMD_Result; CMD_Set_FollowMe(iPK_Device,sText.c_str(),iPK_Users,sCMD_Result,NULL);};
 	virtual void CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #266 - Regen Orbiter */
+	/** Regenerates an Orbiter.  When regeneration is complete, the "Regen Orbiter Finished" command will be sent */
+		/** @param #2 PK_Device */
+			/** The Orbiter to regenerate */
+
+	virtual void CMD_Regen_Orbiter(int iPK_Device) { string sCMD_Result; CMD_Regen_Orbiter(iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Regen_Orbiter(int iPK_Device,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #267 - Regen Orbiter Finished */
+	/** Regeneration of the indicated Orbiter has been finished */
+		/** @param #2 PK_Device */
+			/** The Orbiter */
+
+	virtual void CMD_Regen_Orbiter_Finished(int iPK_Device) { string sCMD_Result; CMD_Regen_Orbiter_Finished(iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

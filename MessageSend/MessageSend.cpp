@@ -46,13 +46,12 @@ int main(int argc, char *argv[])
     }
 
     string ServerAddress=argv[1];
-    int DeviceID=10000;
 
     g_pPlutoLogger = new FileLogger(stdout);
     if (g_pPlutoLogger == NULL)
         fprintf(stderr,"Problem creating logger.  Check params.\n");
 
-    Event_Impl *pEvent = new Event_Impl(DeviceID, ServerAddress);
+    Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, ServerAddress);
 
 	int baseMessageSpecPos = 2;
 	int targetType = 0; // Device;

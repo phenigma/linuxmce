@@ -12,7 +12,7 @@ namespace DCE
 class Text_To_Speech_Event : public Event_Impl
 {
 public:
-	Text_To_Speech_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID, ServerAddress, bConnectEventHandler) {};
+	Text_To_Speech_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,57, ServerAddress, bConnectEventHandler) {};
 	Text_To_Speech_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -45,6 +45,8 @@ public:
 			return;
 		m_pData=NULL;
 		m_pEvent = new Text_To_Speech_Event(DeviceID, ServerAddress);
+		if( m_pEvent->m_dwPK_Device )
+			m_dwPK_Device = m_pEvent->m_dwPK_Device;
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
 			throw "Cannot get configuration data";
@@ -56,7 +58,7 @@ public:
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(DeviceID, ServerAddress);
+		m_pcRequestSocket = new Event_Impl(DeviceID, 57,ServerAddress);
 	};
 	Text_To_Speech_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~Text_To_Speech_Command() {};

@@ -39,13 +39,13 @@ void* ServerLoggerThread(void* param)
 }
 
 
-ServerLogger::ServerLogger(int DeviceID, string server) :ClientSocket(DeviceID, server, string("Logger ") + StringUtils::itos(DeviceID))
+ServerLogger::ServerLogger(int DeviceID, int PK_DeviceTemplate, string server) :ClientSocket(DeviceID, server, string("Logger ") + StringUtils::itos(DeviceID))
 {
 	m_Thread = (pthread_t)0;
 	m_bConnected = false;
 	m_bQuit = false;
 	m_Name = "*DEV* " + StringUtils::itos(DeviceID);
-	Connect("serv log" + m_Name);
+	Connect(PK_DeviceTemplate, "serv log" + m_Name);
 
 	// Start a thread that will attempt to reconnect to the server every 5 seconds if the log ever has a problem
 	Start();
@@ -71,7 +71,7 @@ void ServerLogger::RunConnectThread()
 		if(m_Socket == INVALID_SOCKET)
 		{
 			m_bConnected = false;
-			Connect();
+			Connect(0);
 		}
 		Sleep(5000);
 	}

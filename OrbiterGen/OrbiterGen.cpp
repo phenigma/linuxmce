@@ -714,6 +714,29 @@ int OrbiterGenerator::DoIt()
 		}
 	}
 
+	sql = "select DeviceTemplate_DesignObj.FK_DesignObj FROM DeviceTemplate_DesignObj JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate_DesignObj.FK_DeviceTemplate WHERE FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get());
+
+	PlutoSqlResult result_set5;
+	if( (result_set5.r=mysql_query_result(sql)) )
+	{
+		while ((row = mysql_fetch_row(result_set5.r)))
+		{
+			try
+			{
+				if( row[0] )
+				{
+					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[0]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find devicetempate_mediatype_designobj: " << row[0] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+				}
+			}
+			catch(...)
+			{}
+		}
+	}
+
 	if( bNewOrbiter )
 	{
 		cout << "First time generating this orbiter" << endl;
@@ -909,6 +932,7 @@ int k=2;
 		+ "',Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
 	threaded_mysql_query(sql);
 
+	m_tGenerationTime = time(NULL);
 	bool b=SerializeWrite(m_sOutputPath + "C" + StringUtils::itos(m_iPK_Orbiter) + ".info");
 
 	if( b )

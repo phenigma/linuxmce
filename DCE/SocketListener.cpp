@@ -186,7 +186,7 @@ void SocketListener::Run()
 #endif
 					/** @todo check comment */
 					// setsockopt(newsock, IPPROTO_TCP, TCP_NODELAY, (SOCKOPTTYPE) &b, sizeof(b));
-					Socket *has = CreateSocket( newsock, "Incoming_Conn Socket " + StringUtils::itos(newsock) + " " + inet_ntoa( addr.sin_addr ) );
+					Socket *has = CreateSocket( newsock, "Incoming_Conn Socket " + StringUtils::itos(newsock) + " " + inet_ntoa( addr.sin_addr ), inet_ntoa( addr.sin_addr ) );
 					PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
 					m_listClients.push_back( has ); // add a new client to the client list
 					lm.Release();
@@ -208,13 +208,13 @@ void SocketListener::Run()
 
 	m_Socket = INVALID_SOCKET;
 	m_bRunning = false;
-	
+
 	return;
 }
 
-Socket *SocketListener::CreateSocket( SOCKET newsock, string sName )
+Socket *SocketListener::CreateSocket( SOCKET newsock, string sName, string sIPAddress )
 {
-	Socket *pSocket = new ServerSocket( this, newsock, sName );
+	Socket *pSocket = new ServerSocket( this, newsock, sName, sIPAddress );
 	return pSocket;
 }				
 
@@ -323,3 +323,17 @@ bool SocketListener::SendData( int iDeviceID, int iLength, const char *pcData )
 	return true;
 }
 
+void SocketListener::DropAllSockets()
+{
+	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
+	for(::std::list<Socket *>::iterator it=m_listClients.begin();it!=m_listClients.end();++it)
+	{
+		Socket *pSocket = *it;
+		if( pSocket->m_Socket != INVALID_SOCKET )
+		{
+			closesocket(pSocket->m_Socket);
+			pSocket->m_Socket = INVALID_SOCKET;
+		}
+	}
+	lm.Release();
+}

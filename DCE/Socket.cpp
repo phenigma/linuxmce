@@ -75,8 +75,9 @@ void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
 }
 
 
-Socket::Socket(string Name) : m_SocketMutex("socket mutex " + Name)
+Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + Name)
 {
+	m_sIPAddress = sIPAddress;
 	m_iSocketCounter = SocketCounter++;
 	m_sName = Name;
 

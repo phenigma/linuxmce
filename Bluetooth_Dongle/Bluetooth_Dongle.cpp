@@ -197,7 +197,7 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
 bool Bluetooth_Dongle::Register()
 //<-dceag-reg-e->
 {
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

@@ -64,7 +64,7 @@ General_Info_Plugin::~General_Info_Plugin()
 bool General_Info_Plugin::Register()
 //<-dceag-reg-e->
 {
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

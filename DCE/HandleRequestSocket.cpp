@@ -82,7 +82,7 @@ void HandleRequestSocket::DisconnectAndWait()
 	}
 }
 
-bool HandleRequestSocket::OnConnect( string sExtraInfo )
+bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 {
 	SendString( "REQUESTHANDLER " + StringUtils::itos( m_dwPK_Device ) );
 	string sResponse;

@@ -237,7 +237,7 @@ bool Media_Plugin::Register()
     //  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
 //  m_pMediaAttributes->ScanDirectory( "Z:\\" );
 
-    return Connect( );
+    return Connect(PK_DeviceTemplate_get());
 }
 
 /*

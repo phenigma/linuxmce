@@ -140,7 +140,7 @@ bool Telecom_Plugin::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
 
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

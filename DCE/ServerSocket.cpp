@@ -45,8 +45,8 @@ void *BeginWapClientThread( void *SvSock )
 	return NULL;
 }
 
-ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName ) : 
-	m_ConnectionMutex( "connection " + sName ), Socket( sName )
+ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress ) : 
+	m_ConnectionMutex( "connection " + sName ), Socket( sName, sIPAddress )
 {
 	m_dwPK_Device = -1;
 	m_Socket = Sock;
@@ -111,24 +111,41 @@ void ServerSocket::Run()
 
 		if (sMessage.substr(0,5) == "HELLO")
 		{
-			SendString( "OK" );
 			m_dwPK_Device = atoi( sMessage.substr(6).c_str() );
-			m_sName += sMessage;
+			if( m_dwPK_Device==DEVICEID_MESSAGESEND )
+			{
+				SendString("OK");
+				continue;
+			}
+
+			string::size_type pos=sMessage.find("T=");
+			int PK_DeviceTemplate = 0;
+			if( pos!=string::npos )
+				PK_DeviceTemplate = atoi(sMessage.substr(pos+2).c_str());
+
+			pos=sMessage.find("M=");
+			string sMacAddress;
+			if( pos!=string::npos && sMessage.length()>=pos + 19 )
+				sMacAddress = sMessage.substr(pos+2,17);
+
+			// See if the device sent us a device template only
+			if( !m_dwPK_Device && PK_DeviceTemplate )
+				m_dwPK_Device = m_pListener->GetDeviceID(PK_DeviceTemplate,sMacAddress.length() ? sMacAddress : m_sIPAddress);
+
+			if( !m_dwPK_Device )
+				SendString( "BAD DEVICE" );
+			else if( PK_DeviceTemplate && !m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate ) )
+				SendString( "WRONG TYPE" );
+			else
+			{
+				SendString( "OK " + StringUtils::itos(m_dwPK_Device) );
+				m_sName += sMessage;
+			}
 
 #ifdef TEST_DISCONNECT	
 			if ( m_dwPK_Device == TEST_DISCONNECT )
 				m_pListener->m_pTestDisconnectEvent = this;
  #endif
-			size_t VersionPos = sMessage.find( "," );
-/** @todo version control
-			if( VersionPos!=string::npos && atoi(sMessage.substr(VersionPos+1).c_str())!=FILE_VERSION )
-			{
-				g_pPlutoLogger->Write(LV_WARNING, "Received %s, but current file version is %d.", sMessage.c_str(),FILE_VERSION);
-			}
-*/
-			/** @todo check comment */
-			// Don't register event handlers
-			// m_pListener->RegisterAsDevice(this, m_DeviceID, false);
 			continue;
 		}
 		
@@ -197,7 +214,7 @@ void ServerSocket::Run()
 	
 	m_pListener->OnDisconnected( m_dwPK_Device );
 	
-	delete this;
+//	delete this;
 	return;
 }
 

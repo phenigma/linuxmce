@@ -189,6 +189,7 @@ int main(int argc, char *argv[])
 		bStartRouter = g_pRouter->Run();
 		if( bStartRouter )
 		{
+			break; // This reloading thing isn't working.  We're just going to return an exit code of 2 and let the scripts restart us
 			delete g_pRouter;
 			g_pRouter = NULL;
 			Sleep(2000); // Sleep a few just to be sure everything had a chance to disconnect
@@ -211,5 +212,8 @@ int main(int argc, char *argv[])
 		delete m_LL_DEBUG_Mutex;
 	}
 #endif
-	return 0;
+	if( bStartRouter )
+		return 2;
+	else
+		return 0;
 }

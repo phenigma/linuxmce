@@ -51,12 +51,12 @@ namespace DCE
 		 * @brief it establishes the connection to the server and eventually send the ExtraInfo using OnConnect; also writes to the logger
 		 * @see OnConnect
 		 */
-		virtual bool Connect( string ExtraInfo = "" );
+		virtual bool Connect( int PK_DeviceTemplate,string sExtraInfo="" );
 
 		/**
 		 * @brief sends the extra info and expects for an OK signal from the server
 		 */
-		virtual bool OnConnect( string ExtraInfo = "" );
+		virtual bool OnConnect( int PK_DeviceTemplate,string sExtraInfo="" );
 		
 		/**
 		 * @brief closes the socket, used after errors to make sure we have no hanging connections

@@ -99,7 +99,7 @@ bool Climate_Plugin::Register()
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Climate_Plugin::ClimateScenariosGrid))
 		,DATAGRID_Climate_Scenarios_CONST);
 
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

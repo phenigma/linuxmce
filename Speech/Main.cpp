@@ -8,7 +8,10 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
+// In source files stored in archives and packages, these 2 lines will have the release version (build)
+// and the svn revision as a global variable that can be inspected within a core dump
 #define  VERSION "<=version=>"
+/*SVN_REVISION*/
 
 namespace DCE
 {
@@ -37,7 +40,7 @@ extern "C" {
 	{
 		if( sLogger=="dcerouter" )
 		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
+			g_pPlutoLogger = new ServerLogger(PK_Device, Speech::PK_DeviceTemplate_get_static(), "localhost");
 			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
 			{
 				sLogger="stdout";
@@ -133,7 +136,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
+			g_pPlutoLogger = new ServerLogger(PK_Device, Speech::PK_DeviceTemplate_get_static(), sRouter_IP);
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
@@ -146,16 +149,16 @@ int main(int argc, char* argv[])
 		cerr << "Unable to create logger" << endl;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",PK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
+	bool bReload=false;
 	try
 	{
 		Speech *pSpeech = new Speech(PK_Device, sRouter_IP);	
-		if ( pSpeech->Connect() ) 
+		if ( pSpeech->Connect(pSpeech->PK_DeviceTemplate_get()) ) 
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pSpeech->CreateChildren();
-			pSpeech->SpeechRun();
 			pthread_join(pSpeech->m_RequestHandlerThread, NULL);
 
 		} 
@@ -163,6 +166,9 @@ int main(int argc, char* argv[])
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
+
+		if( pSpeech->m_bReload )
+			bReload=true;
 
 		delete pSpeech;
 	}
@@ -178,6 +184,10 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     WSACleanup();
 #endif
-    return 0;
+
+	if( bReload )
+		return 2;
+	else
+		return 0;
 }
 //<-dceag-main-e->

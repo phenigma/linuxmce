@@ -150,7 +150,7 @@ bool Event_Plugin::Register()
         , DATAGRID_Alarms_In_Room_CONST );
 
     RegisterMsgInterceptor((MessageInterceptorFn)(&Event_Plugin::ProcessEvent) ,0,0,0,0,MESSAGETYPE_EVENT,0);
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

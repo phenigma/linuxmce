@@ -12,7 +12,7 @@ namespace DCE
 class Slim_Server_Streamer_Event : public Event_Impl
 {
 public:
-	Slim_Server_Streamer_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID, ServerAddress, bConnectEventHandler) {};
+	Slim_Server_Streamer_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,53, ServerAddress, bConnectEventHandler) {};
 	Slim_Server_Streamer_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -49,6 +49,8 @@ public:
 			return;
 		m_pData=NULL;
 		m_pEvent = new Slim_Server_Streamer_Event(DeviceID, ServerAddress);
+		if( m_pEvent->m_dwPK_Device )
+			m_dwPK_Device = m_pEvent->m_dwPK_Device;
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
 			throw "Cannot get configuration data";
@@ -60,7 +62,7 @@ public:
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(DeviceID, ServerAddress);
+		m_pcRequestSocket = new Event_Impl(DeviceID, 53,ServerAddress);
 	};
 	Slim_Server_Streamer_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~Slim_Server_Streamer_Command() {};

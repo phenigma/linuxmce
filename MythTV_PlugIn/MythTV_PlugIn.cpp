@@ -67,6 +67,24 @@ bool MythTV_PlugIn::Register()
 
     m_pMedia_Plugin->RegisterMediaPlugin(this, this, DEVICETEMPLATE_MythTV_Player_CONST, true);
 
+
+	string SQL = "SELECT FK_Device,IK_DeviceData FROM Device_DeviceData JOIN Device ON PK_Device=FK_Device WHERE FK_Installation="
+		+ StringUtils::itos(m_pRouter->m_Installation_get()) + " AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_MythTV_PVR_Input_CONST);
+
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+	m_pMedia_Plugin->m_pDatabase_pluto_main->threaded_mysql_query(SQL);
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+    {
+        while( ( row=mysql_fetch_row( result.r ) ) )
+        {
+			int PK_Device = atoi(row[0]);
+			int PK_Device = atoi(row[0]);
+
+		}
+	}
+
+
     /** And the datagrid plug-in */
     m_pDatagrid_Plugin=NULL;
 
@@ -91,7 +109,7 @@ bool MythTV_PlugIn::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
 	// RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );
 
-    return Connect();
+    return Connect(PK_DeviceTemplate_get());
 }
 
 /*

@@ -34,7 +34,7 @@
 #include "../pluto_main/Define_Direction.h"
 #include "../Simulator.h"
 
-void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
+bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 				  int Width, int Height, bool bFullScreen)
 {
 #ifdef WIN32
@@ -409,5 +409,7 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
             }
         }  // while
     } // if connect
+	bool bReload = pCLinux->m_bReload;
     delete pCLinux;
+	return bReload;
 }

@@ -31,14 +31,14 @@ namespace DCE
 	{
 	//<-dceag-decl-e->
 	//<-dceag-const-b->
-	public:
-			// Constructors/Destructor
-			Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
-			virtual ~Xine_Plugin();
-			virtual bool Register();
-			virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
-			virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
-	//<-dceag-const-e->
+public:
+		// Constructors/Destructor
+		Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+		virtual ~Xine_Plugin();
+		virtual bool Register();
+		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
+		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
+//<-dceag-const-e->
 	// Private member variables
 
 	protected:
@@ -91,21 +91,22 @@ namespace DCE
 		DeviceData_Router *FindStreamerDevice();
 
 	//<-dceag-h-b->
-		/*
-					AUTO-GENERATED SECTION
-					Do not change the declarations
-		*/
+	/*
+				AUTO-GENERATED SECTION
+				Do not change the declarations
+	*/
 
-		/*
-				*****DATA***** accessors inherited from base class
+	/*
+			*****DATA***** accessors inherited from base class
 
-				*****EVENT***** accessors inherited from base class
-		void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
+			*****EVENT***** accessors inherited from base class
+	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
 
-				*****COMMANDS***** we need to implement
-		*/
+			*****COMMANDS***** we need to implement
+	*/
 
-	//<-dceag-h-e->
+
+//<-dceag-h-e->
 	};
 
 

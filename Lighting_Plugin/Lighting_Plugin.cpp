@@ -123,7 +123,7 @@ bool Lighting_Plugin::Register()
 
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_Device_CONST, MESSAGETYPE_COMMAND, 0 );
 
-	return Connect( ); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

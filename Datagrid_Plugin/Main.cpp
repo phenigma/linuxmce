@@ -62,7 +62,7 @@ extern "C" {
 	{
 		if( sLogger=="dcerouter" )
 		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
+			g_pPlutoLogger = new ServerLogger(PK_Device, Datagrid_Plugin::PK_DeviceTemplate_get_static(), "localhost");
 			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
 			{
 				sLogger="stdout";
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
+			g_pPlutoLogger = new ServerLogger(PK_Device, Datagrid_Plugin::PK_DeviceTemplate_get_static(), sRouter_IP);
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
@@ -173,10 +173,11 @@ int main(int argc, char* argv[])
 
 	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
+	bool bReload=false;
 	try
 	{
 		Datagrid_Plugin *pDatagrid_Plugin = new Datagrid_Plugin(PK_Device, sRouter_IP);	
-		if ( pDatagrid_Plugin->Connect() ) 
+		if ( pDatagrid_Plugin->Connect(pDatagrid_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pDatagrid_Plugin->CreateChildren();
@@ -187,6 +188,9 @@ int main(int argc, char* argv[])
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
+
+		if( pDatagrid_Plugin->m_bReload )
+			bReload=true;
 
 		delete pDatagrid_Plugin;
 	}
@@ -202,6 +206,10 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     WSACleanup();
 #endif
-    return 0;
+
+	if( bReload )
+		return 2;
+	else
+		return 0;
 }
 //<-dceag-main-e->

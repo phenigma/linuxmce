@@ -39,7 +39,7 @@ Speech::~Speech()
 bool Speech::Register()
 //<-dceag-reg-e->
 {
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

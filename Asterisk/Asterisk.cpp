@@ -36,12 +36,12 @@ Asterisk::~Asterisk()
 bool Asterisk::Register()
 //<-dceag-reg-e->
 {
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 
-bool Asterisk::Connect() {
-	if(!Asterisk_Command::Connect()) {
+bool Asterisk::Connect(int iPK_DeviceTemplate) {
+	if(!Asterisk_Command::Connect(iPK_DeviceTemplate)) {
 		return false;
 	}
 

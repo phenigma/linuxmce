@@ -32,7 +32,7 @@ Text_To_Speech::~Text_To_Speech()
 bool Text_To_Speech::Register()
 //<-dceag-reg-e->
 {
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

@@ -39,8 +39,8 @@ bin: File_Grids_Plugin
 
 so: File_Grids_Plugin.so
 
-File_Grids_Plugin.so: $(sources:.cpp=.o) $(ROOT)/lib/libpluto_media.a $(ROOT)/lib/libpluto_main.a $(ROOT)/lib/libSerializeClass.a $(ROOT)/lib/libDCECommon.a
-	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
+File_Grids_Plugin.so: $(sources:.cpp=.o)
+	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@

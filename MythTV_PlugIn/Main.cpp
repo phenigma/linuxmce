@@ -55,7 +55,7 @@ extern "C" {
 	{
 		if( sLogger=="dcerouter" )
 		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
+			g_pPlutoLogger = new ServerLogger(PK_Device, MythTV_PlugIn::PK_DeviceTemplate_get_static(), "localhost");
 			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
 			{
 				sLogger="stdout";
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
+			g_pPlutoLogger = new ServerLogger(PK_Device, MythTV_PlugIn::PK_DeviceTemplate_get_static(), sRouter_IP);
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
@@ -164,12 +164,13 @@ int main(int argc, char* argv[])
 		cerr << "Unable to create logger" << endl;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",PK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
+	bool bReload=false;
 	try
 	{
 		MythTV_PlugIn *pMythTV_PlugIn = new MythTV_PlugIn(PK_Device, sRouter_IP);	
-		if ( pMythTV_PlugIn->Connect() ) 
+		if ( pMythTV_PlugIn->Connect(pMythTV_PlugIn->PK_DeviceTemplate_get()) ) 
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pMythTV_PlugIn->CreateChildren();
@@ -180,6 +181,9 @@ int main(int argc, char* argv[])
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
+
+		if( pMythTV_PlugIn->m_bReload )
+			bReload=true;
 
 		delete pMythTV_PlugIn;
 	}
@@ -195,6 +199,10 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     WSACleanup();
 #endif
-    return 0;
+
+	if( bReload )
+		return 2;
+	else
+		return 0;
 }
 //<-dceag-main-e->

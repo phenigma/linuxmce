@@ -33,12 +33,16 @@
 
 using namespace DCE;
 
-Event_Impl::Event_Impl( unsigned long dwDevice, string sServerAddress, bool bConnectEventHandler )
+Event_Impl::Event_Impl( unsigned long dwDevice, unsigned long dwDeviceTemplate, string sServerAddress, bool bConnectEventHandler )
 {
 	m_dwPK_Device = dwDevice;
 	m_pClientSocket = new ClientSocket( dwDevice, sServerAddress, string( "Event Dev #" ) + StringUtils::itos( dwDevice ) );
 	if( bConnectEventHandler )
-		m_pClientSocket->Connect("Event #" + StringUtils::itos(dwDevice));
+	{
+		m_pClientSocket->Connect(dwDeviceTemplate,"Event #" + StringUtils::itos(dwDevice));
+		if( m_pClientSocket->m_dwPK_Device )
+			m_dwPK_Device = m_pClientSocket->m_dwPK_Device;
+	}
 	
 	/** @todo check comment */	
 	/*

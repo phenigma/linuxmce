@@ -31,7 +31,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-		virtual bool Connect();
+		virtual bool Connect(int iPK_DeviceTemplate);
 
 //<-dceag-h-b->
 	/*

@@ -123,10 +123,13 @@
 				RelativePath="..\PlutoUtils\CommonIncludes.cpp">
 			</File>
 			<File
+				RelativePath="CreateDevice.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoUtils\FileUtils.cpp">
 			</File>
 			<File
-				RelativePath="CreateDevice.cpp">
+				RelativePath=".\Main.cpp">
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\StringUtils.cpp">

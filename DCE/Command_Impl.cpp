@@ -281,7 +281,7 @@ void Command_Impl::ReplaceParams( ::std::string sReplacement ) {
 	}
 }
 
-bool Command_Impl::Connect()
+bool Command_Impl::Connect(int iPK_DeviceTemplate)
 {
 	bool bResult = true;
 
@@ -294,14 +294,14 @@ bool Command_Impl::Connect()
 
 	if (bResult && m_pEvent->m_pClientSocket->m_Socket == INVALID_SOCKET)
 	{
-		m_pEvent->m_pClientSocket->Connect();
+		m_pEvent->m_pClientSocket->Connect(iPK_DeviceTemplate);
 		if (m_pEvent->m_pClientSocket->m_Socket == INVALID_SOCKET)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"No client socket for device ID: %d", this->m_dwPK_Device);
 			bResult = false;
 		}
 	}
-	if (bResult && !ClientSocket::Connect())
+	if (bResult && !ClientSocket::Connect(iPK_DeviceTemplate))
 	{
 #if (!defined(UNDER_CE) || !defined(DEBUG))
 		g_pPlutoLogger->Write(LV_CRITICAL,"DeviceCommand connect failed %p, device ID: %d",this,this->m_dwPK_Device);
@@ -312,6 +312,9 @@ bool Command_Impl::Connect()
 
 		bResult = false;
 	}
+
+	if( m_Socket == INVALID_SOCKET )
+		bResult = false;
 
 	m_bStopWatchdog = false;
 	m_bWatchdogRunning = false;

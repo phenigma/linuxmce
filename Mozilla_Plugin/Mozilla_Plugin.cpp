@@ -69,7 +69,7 @@ bool Mozilla_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&Mozilla_Plugin::BookmarkList)), DATAGRID_Mozilla_Bookmarks_CONST);
 
-	return Connect();
+	return Connect(PK_DeviceTemplate_get());
 }
 
 /*

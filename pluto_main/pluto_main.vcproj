@@ -211,6 +211,12 @@
 				RelativePath=".\Table_Criteria_D.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_DHCPDevice.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_DHCPDevice_DeviceData.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_DataGrid.cpp">
 			</File>
 			<File

@@ -33,7 +33,7 @@ namespace DCE
 		 * @brief If this is the master device's event, create a connection to the server
 		 * @param bConnectEventHandler specifies if we should connect the client socket after creating it
 		 */
-		Event_Impl( unsigned long dwDevice, string sServerAddress, bool bConnectEventHandler=true );
+		Event_Impl( unsigned long dwDevice, unsigned long dwDeviceTemplate, string sServerAddress, bool bConnectEventHandler=true );
 		
 		/**
 		 * @brief If this is a sub-device's event, just use pointer to the connection

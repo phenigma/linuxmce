@@ -434,6 +434,8 @@
 #define TEXT_Go_to_Pluto_Admin_web_site_CONST 1109
 #define TEXT_Display_Off_CONST 1110
 #define TEXT_instructions_CONST 1111
+#define TEXT_Alarms_CONST 1112
+#define TEXT_Regen_Orbiter_CONST 1113
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

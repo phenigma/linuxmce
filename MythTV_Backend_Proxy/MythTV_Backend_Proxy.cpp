@@ -51,7 +51,7 @@ MythTV_Backend_Proxy::~MythTV_Backend_Proxy()
 bool MythTV_Backend_Proxy::Register()
 //<-dceag-reg-e->
 {
-	return Connect();
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

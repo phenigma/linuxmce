@@ -1147,6 +1147,13 @@ public:
 	virtual void CMD_Set_Main_Menu(string sText,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #265 - Quit */
+	/** Exits the orbiter application */
+
+	virtual void CMD_Quit() { string sCMD_Result; CMD_Quit(sCMD_Result,NULL);};
+	virtual void CMD_Quit(string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 /** temporary solution only */

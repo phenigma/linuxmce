@@ -58,6 +58,7 @@ class OrbiterData : public SerializeClass
 {
 public:
 	int m_Width, m_Height, m_AnimationStyle, m_dwPK_Users_Default, m_iLocation_Initial;
+	unsigned long m_tGenerationTime;
 	string m_sMainMenu,m_sSleepingMenu,m_sScreenSaveMenu;
 	ScreenMap m_ScreenMap;
 
@@ -98,7 +99,8 @@ public:
 	{
 		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users_Default + m_iLocation_Initial
 			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_EventPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
-			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn;
+			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn
+			+ m_tGenerationTime;
 
 		(*this) + m_ScreenMap + m_mapTextStyle + m_dequeLocation; // this is serialized custom
 	}

@@ -99,7 +99,7 @@ bool File_Grids_Plugin::Register()
 		,DATAGRID_Directory_Listing_CONST);
 
 
-	return Connect();
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

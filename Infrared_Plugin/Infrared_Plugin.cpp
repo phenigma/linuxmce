@@ -89,7 +89,7 @@ bool Infrared_Plugin::Register()
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::InfraredCodes)),
 		DATAGRID_Infrared_Codes_CONST);
 
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

@@ -5,21 +5,6 @@
 //	DCE Implemenation for #59 Speech
 
 #include "Gen_Devices/SpeechBase.h"
-#ifndef WIN32
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <string.h>
-	#include <assert.h>
-	#include <math.h>
-
-extern "C" {
-	#include <sphinx/s2types.h>
-	#include <sphinx/ad.h>
-	#include <sphinx/cont_ad.h>
-	#include <sphinx/err.h>
-}
-
-#endif
 //<-dceag-d-e->
 
 //<-dceag-decl-b->
@@ -42,7 +27,6 @@ public:
 		virtual bool Register();
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
-		void SpeechRun(void);
 //<-dceag-const-e->
 
 //<-dceag-const2-b->

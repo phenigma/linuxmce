@@ -49,7 +49,7 @@ namespace DCE
         int m_dwTargetDevice;
 
         //<-dceag-const-b->
-	public:
+public:
 		// Constructors/Destructor
 		MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~MythTV_PlugIn();
@@ -92,11 +92,6 @@ namespace DCE
 
 		void GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevices);
         //<-dceag-h-b->
-	/*
-				AUTO-GENERATED SECTION
-				Do not change the declarations
-	*/
-
 	/*
 			*****DATA***** accessors inherited from base class
 

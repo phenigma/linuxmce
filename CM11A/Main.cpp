@@ -26,7 +26,7 @@ extern "C" {
 	{
 		if( sLogger=="dcerouter" )
 		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
+			g_pPlutoLogger = new ServerLogger(PK_Device, CM11A::PK_DeviceTemplate_get_static(), "localhost");
 			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
 			{
 				sLogger="stdout";
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
+			g_pPlutoLogger = new ServerLogger(PK_Device, CM11A::PK_DeviceTemplate_get_static(), sRouter_IP);
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
@@ -135,12 +135,13 @@ int main(int argc, char* argv[])
 		cerr << "Unable to create logger" << endl;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",PK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
+	bool bReload=false;
 	try
 	{
 		CM11A *pCM11A = new CM11A(PK_Device, sRouter_IP);	
-		if ( pCM11A->Connect() ) 
+		if ( pCM11A->Connect(pCM11A->PK_DeviceTemplate_get()) ) 
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pCM11A->CreateChildren();
@@ -151,9 +152,11 @@ int main(int argc, char* argv[])
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
-g_pPlutoLogger->Write(LV_STATUS,"about to delete cm11a");
+
+		if( pCM11A->m_bReload )
+			bReload=true;
+
 		delete pCM11A;
-g_pPlutoLogger->Write(LV_STATUS,"deleted cm11a");
 	}
 	catch(string s)
 	{
@@ -167,6 +170,10 @@ g_pPlutoLogger->Write(LV_STATUS,"deleted cm11a");
 #ifdef WIN32
     WSACleanup();
 #endif
-    return 0;
+
+	if( bReload )
+		return 2;
+	else
+		return 0;
 }
 //<-dceag-main-e->

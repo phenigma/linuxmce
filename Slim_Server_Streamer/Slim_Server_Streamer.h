@@ -61,7 +61,7 @@ namespace DCE
         // Public member variables
 
 //<-dceag-const-b->
-	public:
+public:
 		// Constructors/Destructor
 		Slim_Server_Streamer(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~Slim_Server_Streamer();

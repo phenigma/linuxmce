@@ -77,7 +77,7 @@ namespace DCE
 		 * @brief creates a socket listener based on the parameter data
 		 * @see the class member data
 		 */
-		virtual Socket *CreateSocket( SOCKET newsock, string sName );
+		virtual Socket *CreateSocket( SOCKET newsock, string sName, string sIPAddress="" );
 			
 		/**
 		 * @brief removes the socket from the listClients mb data and clears any dependencies
@@ -134,6 +134,22 @@ namespace DCE
 		 * @todo ask
 		 */
 		virtual void OnDisconnected( int iDeviceID ) {}
+
+		/**
+		 * @brief If a device connects but doesn't know it's ID, this function can be implemented and it will
+		 * look up the device id based on the device template and the IP Address
+		 */
+		virtual int GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress ) { return 0; } // Something else needs to implement this }
+
+		/**
+		 * @brief Returns false if the device isn't of the device template
+		 */
+		virtual bool ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate ) { return true; }  // Something else needs to implement this }
+
+		/**
+		 * @brief Close any open sockets
+		 */
+		void DropAllSockets();
 	};
 }
 

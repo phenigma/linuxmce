@@ -49,6 +49,7 @@ using namespace DCE;
 #include "pluto_main/Table_FloorplanObjectType_Color.h"
 #include "pluto_main/Table_Orbiter.h"
 #include "DCERouter/DCERouter.h"
+#include "CreateDevice/CreateDevice.h"
 
 #include <cctype>
 #include <algorithm>
@@ -196,7 +197,7 @@ bool Orbiter_Plugin::Register()
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Orbiters_in_my_room_CONST,0,0,0,0);
 
-    return Connect();
+    return Connect(PK_DeviceTemplate_get());
 
 }
 
@@ -734,40 +735,14 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
     if( pUnknownDeviceInfos && pUnknownDeviceInfos->m_iDeviceIDFrom && pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom)
         iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_dwPK_Room;
 
-    Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->AddRow();
-    pRow_Device->FK_DeviceTemplate_set(iPK_DeviceTemplate);
-    pRow_Device->MACaddress_set(sMac_address);
-    pRow_Device->FK_Installation_set(m_pRouter->iPK_Installation_get());
-    pRow_Device->FK_Room_set(iFK_Room);
-    pRow_Device->Description_set("Mobile orbiter");
-    m_pDatabase_pluto_main->Device_get()->Commit();
+	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
+	int PK_Device = createDevice.DoIt(0,iPK_DeviceTemplate,"",sMac_address);
 
-	// Fill in the defaults
-	map<int,string> mapDefaultParms;
-	vector<Row_DeviceCategory_DeviceData *> vectRow_DeviceCategory_DeviceData;
-	pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->DeviceCategory_DeviceData_FK_DeviceCategory_getrows(&vectRow_DeviceCategory_DeviceData);
-	for(size_t s=0;s<vectRow_DeviceCategory_DeviceData.size();++s)
-		mapDefaultParms[vectRow_DeviceCategory_DeviceData[s]->FK_DeviceData_get()] = vectRow_DeviceCategory_DeviceData[s]->IK_DeviceData_get();
-
-	vector<Row_DeviceTemplate_DeviceData *> vectRow_DeviceTemplate_DeviceData;
-	pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_DeviceData_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_DeviceData);
-	for(size_t s=0;s<vectRow_DeviceTemplate_DeviceData.size();++s)
-		mapDefaultParms[vectRow_DeviceTemplate_DeviceData[s]->FK_DeviceData_get()] = vectRow_DeviceTemplate_DeviceData[s]->IK_DeviceData_get();
-
-	for(map<int,string>::iterator it=mapDefaultParms.begin();it!=mapDefaultParms.end();++it)
-	{
-		Row_Device_DeviceData *pDevice_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
-		pDevice_DeviceData->FK_Device_set(pRow_Device->PK_Device_get());
-		pDevice_DeviceData->FK_DeviceData_set((*it).first);
-		pDevice_DeviceData->IK_DeviceData_set((*it).second);
-		m_pDatabase_pluto_main->Device_DeviceData_get()->Commit();
-	}
-
-    g_pPlutoLogger->Write(
+	g_pPlutoLogger->Write(
         LV_STATUS,
         "New mobile orbiter, setting: %d to mac: %s",
-        pRow_Device->PK_Device_get(),
-        pRow_Device->MACaddress_get().c_str()
+        PK_Device,
+        sMac_address.c_str()
     );
 
     // todo -- need to restart the dce router automatically
@@ -775,7 +750,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
         g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
     else
     {
-        Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pRow_Device->FK_DeviceTemplate_get());
+        Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
         string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
 
         DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
@@ -956,6 +931,8 @@ void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,
 	if( pFloorplanObjectVectorMap )
 		fpObjVector = (*pFloorplanObjectVectorMap)[iPK_FloorplanType];
 
+g_pPlutoLogger->Write(LV_STATUS, "get floorplan for page %d type %d map %p objs %d", Page, iPK_FloorplanType, pFloorplanObjectVectorMap,(fpObjVector ? (int) fpObjVector->size() : 0));
+
 	if( fpObjVector )
 	{
 		for(int i=0;i<(int) fpObjVector->size();++i)
@@ -986,6 +963,7 @@ void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,
 
 void Orbiter_Plugin::PrepareFloorplanInfo()
 {
+g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan");
     for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
@@ -1003,6 +981,7 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
 
         g_pPlutoLogger->Write(LV_STATUS, "This is a valid orbiter: %d fpinfo = ", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, s.c_str());
         int NumDevices = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
         for(int iDevice=0;iDevice<NumDevices;++iDevice)
         {
 			// The device can be either a device, or an EntertainArea if this is the media floorplan
@@ -1046,7 +1025,7 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
             string Description = pRow_FloorplanObjectType->Description_get();
             g_pPlutoLogger->Write(LV_STATUS, "Got description %s", Description.c_str());
             int FloorplanType = pRow_FloorplanObjectType->FK_FloorplanType_get();
-            g_pPlutoLogger->Write(LV_STATUS, "Got type %d", FloorplanType);
+            g_pPlutoLogger->Write(LV_STATUS, "Got type %d page %d", FloorplanType,Page);
 
             FloorplanObjectVectorMap *pFpObjMap = pOH_Orbiter->m_mapFloorplanObjectVector_Find(Page);
             if( !pFpObjMap )
@@ -1121,7 +1100,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Me
 		/** @param #2 PK_Device */
 			/** The Orbiter */
 		/** @param #9 Text */
-			/** Can be 'L', 'M', 'C', 'S', 'T' for Lighting, Media, Climate, Security, Telecom */
+			/** Can be 'L', 'M', 'C', 'S', 'T' for Lighting, Media, Climate, Security, Telecom followed by 0 or 1 for off/on. */
 		/** @param #17 PK_Users */
 			/** The User */
 
@@ -1185,4 +1164,55 @@ void Orbiter_Plugin::CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,
 		}
 		break;
 	}
+}
+//<-dceag-c266-b->
+
+	/** @brief COMMAND: #266 - Regen Orbiter */
+	/** Regenerates an Orbiter.  When regeneration is complete, the "Regen Orbiter Finished" command will be sent */
+		/** @param #2 PK_Device */
+			/** The Orbiter to regenerate */
+
+void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c266-e->
+{
+    OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
+	if( !pOH_Orbiter )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Request to regenerate unknown orbiter");
+		return;
+	}
+	else if( pOH_Orbiter->m_tRegenTime )
+	{
+		int Minutes = (pOH_Orbiter->m_tRegenTime - time(NULL)) /60;
+		DisplayMessageOnOrbiter(iPK_Device,"We already started regenerating the orbiter " + StringUtils::itos(Minutes) +
+			" ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system");
+		return;
+	}
+
+	pOH_Orbiter->m_tRegenTime = time(NULL);
+	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
+	system(Cmd.c_str());
+}
+
+//<-dceag-c267-b->
+
+	/** @brief COMMAND: #267 - Regen Orbiter Finished */
+	/** Regeneration of the indicated Orbiter has been finished */
+		/** @param #2 PK_Device */
+			/** The Orbiter */
+
+void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c267-e->
+{
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
+	if( !pOH_Orbiter )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Regenerate finished with unknown orbiter");
+		return;
+	}
+	pOH_Orbiter->m_tRegenTime = 0;
+	g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d",iPK_Device);
+	Message *pMessageOut = new Message(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
+	SendMessageToRouter(pMessageOut);
 }

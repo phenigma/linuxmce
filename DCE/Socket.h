@@ -31,7 +31,7 @@ namespace DCE
 	
 		SOCKET m_Socket; /** < the actual socket @todo ask */
 		
-		string m_sName; /** < a name for the socket */
+		string m_sName,m_sIPAddress; /** < a name for the socket */
 		
 		int m_iSocketCounter; /** < counts the sockets actually created */
 
@@ -49,7 +49,7 @@ namespace DCE
 		/**
 		 * @brief creates a new socket objest with the specified name, and it also writes a log
 		 */
-		Socket( string sName );
+		Socket( string sName,string sIPAddress="" );
 		
 		/**
 		 * @brief frees the allocated memory and closes the base socket, and it also writes a log

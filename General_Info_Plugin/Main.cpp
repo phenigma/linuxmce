@@ -56,7 +56,7 @@ extern "C" {
 	{
 		if( sLogger=="dcerouter" )
 		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
+			g_pPlutoLogger = new ServerLogger(PK_Device, General_Info_Plugin::PK_DeviceTemplate_get_static(), "localhost");
 			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
 			{
 				sLogger="stdout";
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
+			g_pPlutoLogger = new ServerLogger(PK_Device, General_Info_Plugin::PK_DeviceTemplate_get_static(), sRouter_IP);
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
@@ -167,10 +167,11 @@ int main(int argc, char* argv[])
 
 	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
+	bool bReload=false;
 	try
 	{
 		General_Info_Plugin *pGeneral_Info_Plugin = new General_Info_Plugin(PK_Device, sRouter_IP);	
-		if ( pGeneral_Info_Plugin->Connect() ) 
+		if ( pGeneral_Info_Plugin->Connect(pGeneral_Info_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pGeneral_Info_Plugin->CreateChildren();
@@ -181,6 +182,9 @@ int main(int argc, char* argv[])
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
+
+		if( pGeneral_Info_Plugin->m_bReload )
+			bReload=true;
 
 		delete pGeneral_Info_Plugin;
 	}
@@ -196,6 +200,10 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     WSACleanup();
 #endif
-    return 0;
+
+	if( bReload )
+		return 2;
+	else
+		return 0;
 }
 //<-dceag-main-e->

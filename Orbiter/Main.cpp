@@ -40,7 +40,7 @@ using namespace DCE;
 // For whatever reason, if I put: #include "OrbiterImageSDL.h" in this file,
 // then Microsoft won't compile, reporting an unresolved symbol _main.  It is something
 // to do with SDL.  Moving those references to another cpp file solves the problems.  See StartOrbiterSDL.cpp
-void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
+bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 				  int Width,int Height, bool bFullScreen);
 
 
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
     try
     {
         if( sLogger=="dcerouter" )
-            g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
+            g_pPlutoLogger = new ServerLogger(PK_Device, Orbiter::PK_DeviceTemplate_get_static(), sRouter_IP);
         else if( sLogger=="null" )
             g_pPlutoLogger = new NullLogger();
         else if( sLogger=="stdout" )
@@ -171,9 +171,10 @@ int main(int argc, char* argv[])
     }
 #endif
 
+	bool bReload=false;
     try
     {
-        StartOrbiter(PK_Device,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
+        bReload = StartOrbiter(PK_Device,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
     }
     catch(string s)
     {
@@ -192,6 +193,9 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
-    return 0;
+	if( bReload )
+		return 2;
+	else
+	    return 0;
 }
 //<-dceag-main-e->

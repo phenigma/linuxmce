@@ -40,11 +40,11 @@ CM11A::~CM11A()
 bool CM11A::Register()
 //<-dceag-reg-e->
 {
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
-bool CM11A::Connect() {
-	if(!CM11A_Command::Connect()) {
+bool CM11A::Connect(int iPK_DeviceTemplate) {
+	if(!CM11A_Command::Connect(iPK_DeviceTemplate)) {
 		return false;
 	}
 	

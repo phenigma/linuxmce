@@ -1145,6 +1145,7 @@
 #define DESIGNOBJ_mnuScreenSaver_CONST 3319
 #define DESIGNOBJ_setDisplayOff_CONST 3320
 #define DESIGNOBJ_Info_CONST 3321
+#define DESIGNOBJ_butRegenOrbiter_CONST 3322
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

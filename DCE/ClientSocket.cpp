@@ -60,7 +60,7 @@ ClientSocket::~ClientSocket()
 {
 }
 
-bool ClientSocket::Connect( string sExtraInfo )
+bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 {
 	bool bSuccess = false;
 	
@@ -194,25 +194,43 @@ bool ClientSocket::Connect( string sExtraInfo )
 		dwFlags |= O_NONBLOCK;
 		fcntl( m_Socket, F_SETFL, dwFlags );
 #endif
-		OnConnect( sExtraInfo );
+		OnConnect( PK_DeviceTemplate, sExtraInfo );
 	}
 	return bSuccess;    
 }
 
-bool ClientSocket::OnConnect( string sExtraInfo )
+bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 {
-	SendString( "HELLO " + StringUtils::itos( m_dwPK_Device ) + "," + sExtraInfo );
+	SendString( "HELLO " + StringUtils::itos( m_dwPK_Device ) + (PK_DeviceTemplate ? " T=" + StringUtils::itos(PK_DeviceTemplate) : string("")) + (sExtraInfo.length() ? " " + sExtraInfo : "") );
 	string sResponse;
 	if ( !ReceiveString( sResponse ) )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Lost connection device: %d", m_dwPK_Device );
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write( LV_CRITICAL, "Lost connection device: %d", m_dwPK_Device );
 	}
-	else if ( sResponse != "OK" )
+	else if ( sResponse.length()<2 || sResponse.substr(0,2) != "OK" )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d", sResponse.c_str(), m_dwPK_Device );
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d", sResponse.c_str(), m_dwPK_Device );
 		SendString( "CORRUPT SOCKET" );
 		Sleep( 500 );
 		Disconnect();
+	}
+
+	int PK_Device_New = 0;
+	if( sResponse.length()>3 )
+		PK_Device_New = atoi(sResponse.substr(3).c_str());
+
+	if( PK_Device_New )
+	{
+		if( m_dwPK_Device && m_dwPK_Device != PK_Device_New )
+		{
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write( LV_CRITICAL, "Server reported we are dev %d but we are device %d", PK_Device_New, m_dwPK_Device );
+		}
+		else
+			m_dwPK_Device=PK_Device_New;
+
 	}
 
 	return true;

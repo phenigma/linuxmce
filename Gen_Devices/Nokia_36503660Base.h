@@ -12,7 +12,7 @@ namespace DCE
 class Nokia_36503660_Event : public Event_Impl
 {
 public:
-	Nokia_36503660_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID, ServerAddress, bConnectEventHandler) {};
+	Nokia_36503660_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,24, ServerAddress, bConnectEventHandler) {};
 	Nokia_36503660_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -47,6 +47,8 @@ public:
 			return;
 		m_pData=NULL;
 		m_pEvent = new Nokia_36503660_Event(DeviceID, ServerAddress);
+		if( m_pEvent->m_dwPK_Device )
+			m_dwPK_Device = m_pEvent->m_dwPK_Device;
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
 			throw "Cannot get configuration data";
@@ -58,7 +60,7 @@ public:
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(DeviceID, ServerAddress);
+		m_pcRequestSocket = new Event_Impl(DeviceID, 24,ServerAddress);
 	};
 	Nokia_36503660_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~Nokia_36503660_Command() {};
@@ -114,6 +116,8 @@ public:
 	virtual void CMD_Set_Now_Playing(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Main_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Quit(string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -732,6 +736,35 @@ public:
 						string sCMD_Result="OK";
 					string sPK_DesignObj=pMessage->m_mapParameters[3];
 						CMD_Clear_Selected_Devices(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 260:
+					{
+						string sCMD_Result="OK";
+					string sText=pMessage->m_mapParameters[9];
+						CMD_Set_Main_Menu(sText.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 265:
+					{
+						string sCMD_Result="OK";
+						CMD_Quit(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

@@ -111,7 +111,7 @@ gc100::~gc100()
 bool gc100::Register()
 //<-dceag-reg-e->
 {
-	return Connect(); 
+	return Connect(PK_DeviceTemplate_get()); 
 }
 
 /*

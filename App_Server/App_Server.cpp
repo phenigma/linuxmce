@@ -75,7 +75,7 @@ App_Server::~App_Server()
 bool App_Server::Register()
 //<-dceag-reg-e->
 {
-    return Connect();
+    return Connect(PK_DeviceTemplate_get());
 }
 
 /*

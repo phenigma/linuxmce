@@ -784,6 +784,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 void Router::OnDisconnected(int DeviceID)
 {
     my_thread_end();
+
 //  mysql_thread_end();
     m_RunningDevices.erase(DeviceID);
 }
@@ -855,22 +856,36 @@ bool Router::Run()
 //      m_pCorpClient->Send_StartupEvent(CORPSERVER_STATUS_OK);
 //      SendPackageVersions();
 //  }
+
+	bool bReload=false;
     // The main loop of this app doesn't do anything!
     while(!m_bQuit && m_bRunning)
     {
         // TODO: Check m_mapCommandHandlers and see if we've lost any
         // command connections.
-
-        if (m_bReload)
-        {
-            DoReload();
-            return true;
-        }
+		if (m_bReload)
+		{
+			DoReload();
+			Sleep(3000); // Wait 3 seconds for all devices to get the message before dropping the sockets
+			bReload=true;
+			break;
+		}
         Sleep(1000);
-
     }
-    g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: All Done!");
-    return false;
+
+//	DropAllSockets();
+	Sleep(1000); // Let the sockets close
+
+/*  this causes a seg fault, as does the delete this in the server socket.  For now just exit clean and let the script restart the router
+	for(map<int,class Command_Impl *>::iterator it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
+	{
+		Command_Impl *pCommand_Impl = (*it).second;
+		delete pCommand_Impl;
+	}
+*/
+
+	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: All Done!");
+    return bReload;
 }
 
 void Router::OutputChildren(DeviceData_Impl *pDevice,string &Response)
@@ -1861,5 +1876,23 @@ void Router::AlarmCallback(int id, void* param)
 		ExecuteCommandGroup(pDelayedCommandInfo->m_PK_CommandGroup,pDelayedCommandInfo->m_iStartingCommand);
 		delete pDelayedCommandInfo;
 	}
+}
+
+int Router::GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress )
+{
+	ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceByTemplate_Find(iPK_DeviceTemplate);
+	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+	{
+		DeviceData_Router *pDevice = *it;
+		if( pDevice->m_sIPAddress==sIPorMacAddress || pDevice->m_sMacAddress==sIPorMacAddress )
+			return pDevice->m_dwPK_Device;
+	}
+	return 0;
+}
+
+bool Router::ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate )
+{
+	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( iPK_Device );
+	return pDevice && pDevice->m_dwPK_DeviceTemplate == iPK_DeviceTemplate;
 }
 

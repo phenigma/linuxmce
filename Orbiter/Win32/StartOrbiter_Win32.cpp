@@ -50,7 +50,7 @@ OrbiterSDL_Win32* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 
 	if(!bLocalMode)
 	{
-		bool bConnected = pOrbiter->Connect();
+		bool bConnected = pOrbiter->Connect(pOrbiter->PK_DeviceTemplate_get());
 
 		if(!bConnected)
 		{
