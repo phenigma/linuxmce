@@ -289,8 +289,8 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 		}
 
 		bool bTurnOn = true;
-		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d, selected item %d",
-				iSelectedColumn, bTurnOn, pObj->m_pDataGridTable->getTotalRowCount(), pObj->m_iHighlightedRow);
+		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d, selected item %d, send 'selected item' %d",
+				iSelectedColumn, bTurnOn, pObj->m_pDataGridTable->getTotalRowCount(), pObj->m_iHighlightedRow, (int)bSendSelectedOnMove);
 		
         for(int i = 0; i < pObj->m_pDataGridTable->getTotalRowCount(); i++)
         {
