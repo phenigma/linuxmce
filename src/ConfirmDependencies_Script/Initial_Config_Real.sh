@@ -186,7 +186,7 @@ echo "directors and other plug-and-play devices.  If you are an"
 echo "advanced Linux user and want to access a terminal before"
 echo "the reboot, press ALT+F2.  Otherwise..."
 echo ""
-echo "Press any key to reboot and startup your new Pluto $Type."
+echo "Press the Enter key to reboot and startup your new Pluto $Type."
 read
 
 if [ "$Type" == "diskless" ]; then
