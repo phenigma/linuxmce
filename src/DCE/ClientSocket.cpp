@@ -238,7 +238,7 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 
 void ClientSocket::Disconnect()
 {
-	g_pPlutoLogger->Write( LV_CRITICAL, "void ClientSocket::Disconnect()");
+	g_pPlutoLogger->Write( LV_WARNING, "void ClientSocket::Disconnect()");
 		
 	if ( m_Socket != INVALID_SOCKET )
 	{

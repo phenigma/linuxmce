@@ -181,7 +181,11 @@ void PlutoLock::CheckLocks()
 	}
 	pthread_mutex_unlock(&m_mapLockMutex->mutex);
 	if( bFoundProblem )
+	{
 		DumpOutstandingLocks();
+		if( g_pDeadlockHandler )
+			(*g_pDeadlockHandler)();
+	}
 }
 
 
@@ -399,9 +403,6 @@ void PlutoLock::DumpOutstandingLocks()
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_WARNING,(*itMessages).c_str());
 	}
-
-	if( g_pDeadlockHandler )
-        (*g_pDeadlockHandler)();
 }
 
 void PlutoLock::Relock()
@@ -491,6 +492,8 @@ void PlutoLock::DoLock()
 				&m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
 #endif
 		DumpOutstandingLocks();
+		if( g_pDeadlockHandler )
+			(*g_pDeadlockHandler)();
 		pthread_mutex_lock(&m_pMyLock->mutex);
 	}
 	m_pMyLock->m_Line=m_Line;

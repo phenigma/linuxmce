@@ -34,6 +34,30 @@
 #include "../pluto_main/Define_Direction.h"
 #include "../Simulator.h"
 
+extern void (*g_pDeadlockHandler)();
+extern void (*g_pSocketCrashHandler)();
+Orbiter *g_pOrbiter=NULL;
+void DeadlockSocketHandler()
+{
+	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+	if( g_pRouter )
+	{
+		int Delay = atoi(g_DCEConfig.ReadString("DelayReloadOnDeadlock").c_str());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock detected.  Orbiter will die and reload in %d seconds",Delay);
+
+		time_t tTimeout = time(NULL) + Delay;
+		if( Delay )
+			while( tTimeout > time(NULL) )
+				Sleep(10);
+
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter to reload and quit");
+		g_pOrbiter->OnReload();
+		g_pOrbiter->OnQuit();
+	}
+}
+
 bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 				  int Width, int Height, bool bFullScreen)
 {
@@ -48,6 +72,10 @@ bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
         PK_Device, sRouter_IP,
         sLocalDirectory, bLocalMode, Width, Height);
 #endif
+
+	// Add a handler to take care of crashes
+	g_pOrbiter = pCLinux;
+	g_pDeadlockHandler=g_pSocketCrashHandler=DeadlockSocketHandler;
 
     if (bLocalMode || pCLinux->Connect(0)) // Don't validate the device template, since the same binary is used for lots of devices
     {

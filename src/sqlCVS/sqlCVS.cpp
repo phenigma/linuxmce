@@ -181,7 +181,10 @@ int main( int argc, char *argv[] )
 		{
 			g_GlobalConfig.m_sCommand = argv[optnum];
 			if( optnum<argc-1 )
+			{
+				cerr << "If " << argv[optnum] << " is the command it must be at the end of the line" << endl;
 				bError=true;	/** The command must be the last thing on the line */
+			}
 			break;
 		}
 
@@ -237,6 +240,7 @@ int main( int argc, char *argv[] )
 			g_GlobalConfig.m_bNoPrompts = true;
 			break;
 		default:
+			cerr << "Unknown option: " << argv[optnum] << endl;
 			bError=true;
 			break;
 		};
