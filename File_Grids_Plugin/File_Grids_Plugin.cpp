@@ -221,7 +221,7 @@ class DataGridTable *File_Grids_Plugin::CommandsGrid(string GridID,string Parms,
 				pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 				pDataGrid->SetData(4,iRow++,pCell);
 			}
-			pCell = new DataGridCell( StringUtils::itos(i),	StringUtils::itos(COMMAND_Send_Generic_EnterGo_CONST) );
+			pCell = new DataGridCell( "Enter",	StringUtils::itos(COMMAND_Send_Generic_EnterGo_CONST) );
 			pCell->m_Colspan = 4;
 			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Send_Generic_EnterGo_CONST,0);
 			pDataGrid->SetData(0,iRow,pCell);
