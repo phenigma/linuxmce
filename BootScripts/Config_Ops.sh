@@ -37,4 +37,6 @@ ConfGet()
 
 ConfEval
 VGcmd=""
-[ -n "$Valgrind" ] && VGcmd="valgrind --tool=memcheck --leak-check=yes " # trailing space is mandatory
+if [ -n "$Valgrind" ]; then
+	VGcmd="valgrind --tool=memcheck --leak-check=yes " # trailing space is mandatory
+fi
