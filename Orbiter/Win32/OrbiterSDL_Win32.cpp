@@ -115,6 +115,15 @@ void OrbiterSDL_Win32::RenderScreen()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	static WPARAM wOldParam = 0;
+	static bool bLastEvent_KeyDown = false;
+
+	if(uMsg == WM_KEYDOWN && bLastEvent_KeyDown && wOldParam == wParam) //this is a repeated key
+		return;
+
+	wOldParam = wParam;
+	bLastEvent_KeyDown = uMsg == WM_KEYDOWN; //false if WM_KEYUP
+
     if (uMsg == WM_KEYDOWN)
     {
 		if ( wParam == 81)

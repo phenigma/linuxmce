@@ -136,7 +136,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 {
     PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
-g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
+//g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
 
 #ifndef USE_ONLY_SCREEN_SURFACE
     SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
@@ -144,7 +144,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
 
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
+//g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
@@ -358,12 +358,12 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 //-----------------------------------------------------------------------------------------------------	
 /*virtual*/ void OrbiterSDL::BeginPaint()
 {	
-	g_pPlutoLogger->Write(LV_STATUS, "Begin paint.");
+	//g_pPlutoLogger->Write(LV_STATUS, "Begin paint.");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::EndPaint()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "End paint.");
+	//g_pPlutoLogger->Write(LV_STATUS, "End paint.");
 	DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------

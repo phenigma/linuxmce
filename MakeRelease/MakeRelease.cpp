@@ -649,6 +649,8 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sInputPath << endl;
 				if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
 				{
+					cout << "Description: " << pRow_Package_Directory_File->FK_Package_Directory_getrow()->FK_Package_getrow()->Description_get() << endl;
+					cout << "Path: " << pRow_Package_Directory_File->FK_Package_Directory_getrow()->Path_get() << endl;
 					cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
 					cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
 					if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )

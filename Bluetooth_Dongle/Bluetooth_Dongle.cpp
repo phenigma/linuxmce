@@ -523,7 +523,7 @@ printf( "$$$ Ready to delete the orbiter...\n" );
 		g_pPlutoLogger->Write( LV_WARNING, "Orbiter created for %s device", sMac_address.c_str() );
 
 		class OrbiterSDLBluetooth *pOrbiter = 
-			StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, m_sIPAddress, "", false, 176, 300 );
+			StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, m_sIPAddress, "", false, 176, 208 );
 
 		if(NULL != pOrbiter)
 		{

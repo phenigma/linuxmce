@@ -1227,7 +1227,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
             }
 
 			vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
-			if(pObj->m_pvectCurrentGraphic->size())
+			if(pObj->m_pvectCurrentGraphic && pObj->m_pvectCurrentGraphic->size())	
 			{
 				PlutoGraphic *pPlutoGraphic = pObj->m_pvectCurrentGraphic->operator [](0);
 
