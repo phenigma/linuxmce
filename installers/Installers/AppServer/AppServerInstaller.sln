@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AppServerInstaller", "AppServerInstaller.vdproj", "{056A648C-DAA6-4681-A934-6172F7128B98}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{056A648C-DAA6-4681-A934-6172F7128B98}.Debug.ActiveCfg = Debug
+		{056A648C-DAA6-4681-A934-6172F7128B98}.Debug.Build.0 = Debug
+		{056A648C-DAA6-4681-A934-6172F7128B98}.Release.ActiveCfg = Release
+		{056A648C-DAA6-4681-A934-6172F7128B98}.Release.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
