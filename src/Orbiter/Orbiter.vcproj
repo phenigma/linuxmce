@@ -73,7 +73,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories=".;..;../DCE;&quot;../Libraries/pthreads-win32/include&quot;;/mysql/include;&quot;../CrossPlatform-Libs/sge030809-w32/src&quot;;&quot;../CrossPlatform-Libs/SDL_ttf-2.0.6&quot;;&quot;../CrossPlatform-Libs/SDL_image-1.2.3&quot;;&quot;../CrossPlatform-Libs/SDL-1.2.7/include&quot;;../Splitter;&quot;../CrossPlatform-Libs/zlib&quot;;&quot;../CrossPlatform-Libs/lpng127&quot;"
+				AdditionalIncludeDirectories=".;..;../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../Splitter;../../libs/CrossPlatform/zlib;../../libs/CrossPlatform/lpng127;../PlutoUtils;Win32;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;ORBITER;THREAD_LOG;CACHE_IMAGES"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -86,14 +86,14 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib SDL-pluto-r.lib SDL_image-pluto-r.lib SDL_ttf-pluto-r.lib SGE-pluto-r.lib dce.lib zlib1-pluto-r.lib libpng-pluto-r.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib SDL-pluto-r.lib SDL_image-pluto-r.lib SDL_ttf-pluto-r.lib SGE-pluto-r.lib dce.lib zlib1-pluto-r.lib libpng-pluto-r.lib SDL_rotozoom-pluto-r.lib"
 				OutputFile="../Release/Orbiter.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="/mysql/lib/Debug;&quot;../Libraries/pthreads-win32/lib&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\SDL-1.2.7\VisualC7\SDL\Release&quot;;&quot;../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Release&quot;;&quot;../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Release&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Release&quot;;../lib;&quot;../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Release&quot;;&quot;../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Release&quot;"
+				AdditionalLibraryDirectories="/mysql/lib/Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform\SDL-1.2.7\VisualC7\SDL\Release&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Release&quot;;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Release;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Release;../lib;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Release&quot;;&quot;../../libs\CrossPlatform\SDL-1.2.7\VisualC7\SDLmain\Release&quot;"
 				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames="MSVCRTD.lib"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"/>

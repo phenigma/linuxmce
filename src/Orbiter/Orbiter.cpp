@@ -3518,6 +3518,9 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                                     DesignObj_Orbiter *pObj, Message *&pMessage_GotoScreen,
                                     int X,  int Y )
 {
+	if(m_bQuit)
+		return;
+
 	pMessage_GotoScreen = NULL;
 	
 	if(  pDesignObjCommandList->size(  )==0  )

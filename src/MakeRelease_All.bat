@@ -7,6 +7,7 @@ echo Checking out pluto sources...
 cd "c:\Program Files\Subversion\bin"
 svn co http://10.0.0.170/pluto/trunk/src /pluto.makerelease/trunk/src
 svn co http://10.0.0.170/pluto/trunk/libs /pluto.makerelease/trunk/libs
+svn co http://10.0.0.170/pluto/trunk/installers/Installers /pluto.makerelease/trunk/installers/Installers
 
 cd "c:\pluto.makerelease\trunk\src"
 
@@ -18,6 +19,12 @@ call "MakeRelease_Windows.bat"
 
 echo Building pluto(symbian) sources...
 call "MakeRelease_WindowsCE.bat"
+
+echo Building pluto(windows) sources, release version... (for now, only Orbiter)
+call "MakeRelease_Windows_Release.bat"
+
+echo Updating Orbiter release binary for OrbiterInstaller
+copy C:\pluto.makerelease\trunk\src\release\Orbiter.exe C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Files\
 
 echo Misc actions...
 cd "c:\pluto.makerelease\trunk\src\bin"
@@ -36,5 +43,9 @@ copy *.sis "\\10.0.0.150\builds\Windows_Output\src\bin"
 echo Copying LIB files...
 cd "c:\pluto.makerelease\trunk\src\lib"
 copy *.lib "\\10.0.0.150\builds\Windows_Output\src\lib"
+
+echo Copying MSI files...
+cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Release\
+scp *.msi "\\10.0.0.150\builds\Windows_Output\src\bin"
 
 
