@@ -927,22 +927,14 @@ string Disk_Drive::dvd_read_name(const int fd)
 
 bool Disk_Drive::mountDVD(string fileName, string &strMediaUrl)
 {
-	// In the future we may want to support running the disk drive on one machine and Xine on another machine
-	// but for now we'll always assume the media directors are running their own copy
-	string m_sIPAddress="localhost";
-
-    if ( fileName.compare(this->DATA_Get_Drive() + ".dvd") == 0 )
-        fileName = DATA_Get_Drive();
-
-	m_serverPort++;
-
-	string commandLine = "/usr/pluto/bin/mountDVDCommand.sh ";
-	commandLine += StringUtils::itos(m_serverPort) + " \"" + fileName + "\"";
+	string commandLine = "/usr/pluto/bin/mountDVDCommand.sh \"" + fileName + "\"";
 	int result;
+g_pPlutoLogger->Write(LV_ACTION,"Executing %s",commandLine.c_str());
 	switch ( (result = system(commandLine.c_str())) )
 	{
 		case 0:
-			strMediaUrl = "dvd://" + m_sIPAddress + ":" + StringUtils::itos(m_serverPort) + "/";
+g_pPlutoLogger->Write(LV_ACTION,"Execution ok %s",commandLine.c_str());
+			strMediaUrl = "dvd:/";
 			return true;
 
 		case -1:
