@@ -530,6 +530,11 @@ void AddAlternateSources(vector<Row_Package_Source_Compat *> &vectRow_Package_So
 
 PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Compat,bool bMustBuildFromSource)
 {
+	if (pRow_Package_Source_Compat == NULL)
+	{
+		cout << "Got NULL" << endl;
+		return NULL;
+	}
 	Database_pluto_main *pDatabase_pluto_main = pRow_Package_Source_Compat->Table_Package_Source_Compat_get()->Database_pluto_main_get();
 	Row_Package *pRow_Package = pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_getrow();
 
