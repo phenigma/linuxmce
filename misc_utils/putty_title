@@ -1,0 +1,4 @@
+#!/bin/bash
+
+unset PROMPT_COMMAND
+echo -n ']2;'"$1"''
