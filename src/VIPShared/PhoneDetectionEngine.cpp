@@ -40,6 +40,11 @@ void *HandleDetectionThread(void *p)
 {
 	PhoneDetectionEngine *pe = (PhoneDetectionEngine *)p;
 	pe->m_bInScanLoop=true;
+
+	//let's wait for Orbiters to load
+	//we don't want to detect a phone and send a message to orbiters if they are not registered yet
+	//because we'll lost that message
+	Sleep(5000);
 	
 	while( !pe->m_bAbortScanLoop && pe->ScanningLoop() )
 		pe->DetectionLogic();
