@@ -235,6 +235,7 @@
 #define COMMAND_PBX_Transfer_CONST 235
 #define COMMAND_PL_Hangup_CONST 236
 #define COMMAND_PBX_Hangup_CONST 237
+#define COMMAND_Light_ON_CONST 238
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
