@@ -13,4 +13,4 @@ awk '
 ' "$config" >/etc/X11/XF86Config-4
 rm -f "$config"
 
-[ -e /dev/mouse ] || ln -s /dev/input/mice /dev/mouse
+[ -e /dev/mouse ] || ln -s /dev/psaux /dev/mouse

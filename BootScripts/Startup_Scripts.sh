@@ -26,5 +26,11 @@ ORDER BY Boot_Order"
 # susceptibile to "spaces in name" problem
 scripts=$(RunSQL 0 "$Q" | tr '\n' ' ')
 for i in $scripts; do
-	"$i" $Parameter
+	if [ -e "$i" ]; then
+		"$i" $Parameter
+	elif [ -e "/usr/pluto/bin/$i" ]; then
+		"/usr/pluto/bin/$i" $Parameter
+	else
+		echo "Boot Script: Command '$i' not found"
+	fi
 done

@@ -6,7 +6,7 @@ PHURL="http://www.plutohome.com/"
 ACTIV="http://activate.plutohome.com"
 
 # !!!HACK!!!
-echo "10.0.0.150 plutohome.com www.plutohome.com activate.plutohome.com dce_router" >>/etc/hosts
+echo "10.0.0.163 plutohome.com www.plutohome.com activate.plutohome.com dce_router" >>/etc/hosts
 
 activation_url="$ACTIV/activation.php"
 

@@ -345,8 +345,18 @@ int OrbiterGenerator::DoIt()
 		}
 		else
 		{
-			cout << "***Error*** Cannot find any users for this installation" << endl;
-			throw "No Users";
+			vector<Row_Users *> vectRow_Users;
+			mds.Users_get()->GetRows("1=1",&vectRow_Users); // Just find any user
+			if( vectRow_Users.size()>0 )
+			{
+				cout << "***Warning*** No users at all in this installation.  Picking one" << endl;
+				drUsers_Default = vectRow_Users[0];
+			}
+			else
+			{
+				cout << "***Error*** The users table is completely empty." << endl;
+				throw "No Users";
+			}
 		}
 	}
 
