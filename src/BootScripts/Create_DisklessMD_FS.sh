@@ -25,8 +25,8 @@ Code=$Code"
 
 echo "$conf" >etc/diskless.conf
 
-[ -e /tftpboot/initrd.img-2.6.8-1-686 ] || cp boot/initrd.img-2.6.8-1-686 /tftpboot
-[ -e /tftpboot/vmlinuz-2.6.8-1-686 ] || cp boot/vmlinuz-2.6.8-1-686 /tftpboot
+[ -e /tftpboot/initrd.img-2.6.8-2-686 ] || cp boot/initrd.img-2.6.8-2-686 /tftpboot
+[ -e /tftpboot/vmlinuz-2.6.8-2-686 ] || cp boot/vmlinuz-2.6.8-2-686 /tftpboot
 
 cd -
 
