@@ -17,7 +17,6 @@
 #include <conio.h>
 #endif
 
-
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_Device_DeviceData.h"
@@ -52,7 +51,7 @@ namespace DCE
 class PackageInfo
 {
 public:
-	Row_Package_Source_Compat *m_pRow_Package_Source_Compat_Match;
+	Row_Package_Source_Compat *m_pRow_Package_Source_Compat;
 	Row_Package_Source *m_pRow_Package_Source;
 	Row_RepositorySource_URL *m_pRow_RepositorySource_URL;
 	bool m_bMustBuild;
@@ -64,11 +63,11 @@ public:
 
 	vector<PackageInfo *> m_vectPackageInfo; // Some alternates in case this one fails
 
-	PackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Compat_Match,
+	PackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Compat,
 		Row_Package_Source *pRow_Package_Source, Row_RepositorySource_URL *pRow_RepositorySource_URL,
 		bool bMustBuild)
 	{
-		m_pRow_Package_Source_Compat_Match=pRow_Package_Source_Compat_Match;
+		m_pRow_Package_Source_Compat=pRow_Package_Source_Compat;
 		m_pRow_Package_Source=pRow_Package_Source;
 		m_pRow_Package_Source=pRow_Package_Source;
 		m_pRow_RepositorySource_URL=pRow_RepositorySource_URL;
@@ -78,11 +77,13 @@ public:
 
 void CheckDevice(Row_Device *pRow_Device,bool bSourceCode);
 void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment);
-void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource);
+void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource);
 PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Compat,bool bMustBuildFromSource);
 void VerifyFiles(PackageInfo *pPackageInfo,vector<Row_Package_Directory_File *> &vectRow_Package_Directory_File,string Path);
 Row_Package_Directory *GetDirectory(Row_Package *pRow_Package,int PK_Directory);
 void InstallPackage(PackageInfo *pPackageInfo);
+Row_Package_Source_Compat *FindPreferredSource(vector<Row_Package_Source_Compat *> vectRow_Package_Source_Compat,Row_Device *pRow_Device);
+void AddAlternateSources(vector<Row_Package_Source_Compat *> &vectRow_Package_Source_Compat,PackageInfo *pPackageInfo);
 
 string sCommand;
 int iPK_Distro=-1;
@@ -360,7 +361,7 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_isNull() )
 		cout << "#No package info for device: " << pRow_Device->Description_get() << " (" << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ")" << endl;
 	else
-		CheckPackage(pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow(),bDevelopment,pRow_Distro,false);
+		CheckPackage(pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow(),pRow_Device,bDevelopment,pRow_Distro,false);
 
 	vector<Row_Device *> vectRow_Device;
 	pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectRow_Device);
@@ -368,7 +369,7 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 		CheckDeviceLoop( vectRow_Device[s],bDevelopment );
 }
 
-void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource)
+void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource)
 {
 	Database_pluto_main *pDatabase_pluto_main = pRow_Distro->Table_Distro_get()->Database_pluto_main_get();
 
@@ -385,12 +386,12 @@ void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_D
 
 		// Development = false because we only assume the first level of packages are intended to be built
 		// from source
-		CheckPackage(pRow_Package_Package->FK_Package_DependsOn_getrow(),bDevelopment,pRow_Distro,false);
+		CheckPackage(pRow_Package_Package->FK_Package_DependsOn_getrow(),pRow_Device,bDevelopment,pRow_Distro,false);
 	}
 
 	if( bDevelopment && !pRow_Package->FK_Package_Sourcecode_isNull() )
 	{
-		CheckPackage(pRow_Package->FK_Package_Sourcecode_getrow(),bDevelopment,pRow_Distro,false);
+		CheckPackage(pRow_Package->FK_Package_Sourcecode_getrow(),pRow_Device,bDevelopment,pRow_Distro,false);
 	}
 
 	// If the command is not 'view' or 'status', we don't need to list each package over and over again within
@@ -409,11 +410,11 @@ void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_D
 
 
 	// If we find a source specific for our distro, that does not require a build from source code,
-	// that will be considered a perfect match, and set here
-	Row_Package_Source_Compat *pRow_Package_Source_Compat_Match=NULL; 
+	// that will be considered a perfect match, and added here.
+	vector<Row_Package_Source_Compat *> vectRow_Package_Source_Compat_Match;
 	// If we find a source that is compatible with our operating system, but not this distro of it,
-	// and doesn't require a build from source, we'll set this variable below
-	Row_Package_Source_Compat *pRow_Package_Source_Compat_OS=NULL; 
+	// and doesn't require a build from source, we'll set add it here
+	vector<Row_Package_Source_Compat *> vectRow_Package_Source_Compat_OS;
 
 	// All sources that are compatible will be put here, so we have some alternates if we can't install from the 
 	// primary
@@ -430,9 +431,9 @@ void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_D
 		{
 			Row_Package_Source_Compat *pRPSC = vectRPSC[t];
 			if( pRPSC->FK_Distro_get()==pRow_Distro->PK_Distro_get() && !pRPSC->MustBuildFromSource_get() )
-				pRow_Package_Source_Compat_Match = pRPSC; // This is considered the perfect match
+				vectRow_Package_Source_Compat_Match.push_back(pRPSC); // This is considered the perfect match
 			else if( pRPSC->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() && !pRPSC->MustBuildFromSource_get() )
-				pRow_Package_Source_Compat_OS = pRPSC; // It matched the OS, so we'll use it if we don't find an exact match for the distro
+				vectRow_Package_Source_Compat_OS.push_back(pRPSC); // It matched the OS, so we'll use it if we don't find an exact match for the distro
 		
 			if( (pRPSC->FK_Distro_isNull() || pRow_Distro->PK_Distro_get()==pRPSC->FK_Distro_get()) && 
 					(pRPSC->FK_OperatingSystem_isNull() || pRow_Distro->FK_OperatingSystem_get()==pRPSC->FK_OperatingSystem_get()) )
@@ -440,65 +441,87 @@ void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_D
 		}
 	}
 
-	// If we didn't find an exact match for the distro, but did for the OS, that's ok.  We'll use it
-	if( !pRow_Package_Source_Compat_Match && pRow_Package_Source_Compat_OS )
-		pRow_Package_Source_Compat_Match=pRow_Package_Source_Compat_OS;
+	// This will be the preferred source
+	Row_Package_Source_Compat *pRow_Package_Source_Compat_Preferred=NULL;
+
+	// The installation table will contain the users preferred repository type for getting this package
+	// The FindPreferredSource function will search through the vect we pass, and if it finds a source that
+	// matches the preferred type, it will return it.  Otherwise it will just return the first
+	// entry in the vector.  We will give preference first to sources that were an exact match on our
+	// distro, then sources that at least match the operating system, and lastly all other compatible
+	// sources, which likely require building from source
+	if( vectRow_Package_Source_Compat_Match.size() )
+		pRow_Package_Source_Compat_Preferred = FindPreferredSource(vectRow_Package_Source_Compat_Match,pRow_Device);
+	else if( vectRow_Package_Source_Compat_OS.size() )
+		pRow_Package_Source_Compat_Preferred = FindPreferredSource(vectRow_Package_Source_Compat_OS,pRow_Device);
+	else if( vectRow_Package_Source_Compat.size() )
+		pRow_Package_Source_Compat_Preferred = FindPreferredSource(vectRow_Package_Source_Compat,pRow_Device);
 
 	if( sCommand=="view" || sCommand=="status" )
 		cout << "PROGRAM: " << pRow_Package->Description_get() << " ";
 
-    if( !pRow_Package_Source_Compat_Match && !vectRow_Package_Source_Compat.size()==0 )
+    if( !pRow_Package_Source_Compat_Preferred && !vectRow_Package_Source_Compat.size()==0 )
 	{
-        cout << "*ERROR* " << pRow_Package->Description_get() << " not available for this distro" << endl;
-		return;
-	}
-
-	// We didn't find a 'perfect' match.  See if there was any match that doesn't
-	// require building from source
-	if( !pRow_Package_Source_Compat_Match )
-	{
-		for(size_t s=0;s<vectRow_Package_Source_Compat.size();++s)
+		if( !pRow_Package->FK_Package_Sourcecode_isNull() )
 		{
-			Row_Package_Source_Compat *pRow_Package_Source_Compat = vectRow_Package_Source_Compat[s];
-			if( pRow_Package_Source_Compat->MustBuildFromSource_get()==0 )
-			{
-				pRow_Package_Source_Compat_Match = vectRow_Package_Source_Compat[s];
-				break;
-			}
+			// We can only build this package from source.  The binaries are not available
+			CheckPackage(pRow_Package->FK_Package_Sourcecode_getrow(),pRow_Device,bDevelopment,pRow_Distro,true);
+			return;
 		}
-		if( !pRow_Package_Source_Compat_Match )
+		else
 		{
-			// We couldn't find any binary match.  We're going to have to use a package to build from source
-			// Confirm we have source code 
-			if( !pRow_Package->FK_Package_Sourcecode_isNull() )
-			{
-				// We can only build this package from source.  The binaries are not available
-				CheckPackage(pRow_Package->FK_Package_Sourcecode_getrow(),bDevelopment,pRow_Distro,true);
-				return;
-			}
-			else 
-			{
-				// If we got here, we failed to find even source code for this package, and will have to abort
-				cout << "#**ERROR** Package: " << pRow_Package->Description_get() << " must be built from source, but it has no source" << endl;
-				return;
-			}
+			cout << "*ERROR* " << pRow_Package->Description_get() << " not available for this distro" << endl;
+			return;
 		}
 	}
 
 	// Get the info for the primary match
-	PackageInfo *pPackageInfo = MakePackageInfo(pRow_Package_Source_Compat_Match,bMustBuildFromSource);
+	PackageInfo *pPackageInfo = MakePackageInfo(pRow_Package_Source_Compat_Preferred,bMustBuildFromSource);
 	if( !pPackageInfo  )
 		return;
 	listPackageInfo.push_back( pPackageInfo );
 
+	// This will add the alternate sources from the given vects to pPackageInfo
+	AddAlternateSources(vectRow_Package_Source_Compat_Match,pPackageInfo);
+	AddAlternateSources(vectRow_Package_Source_Compat_OS,pPackageInfo);
+	AddAlternateSources(vectRow_Package_Source_Compat,pPackageInfo);
+}
+
+Row_Package_Source_Compat *FindPreferredSource(vector<Row_Package_Source_Compat *> vectRow_Package_Source_Compat,Row_Device *pRow_Device)
+{
+	// Try to find a repository source that matches the preferred type for retrieving source/binaries for this installation
+	for(size_t s=0;s<vectRow_Package_Source_Compat.size();++s)
+	{
+		Row_Package_Source_Compat *pRow_Package_Source_Compat=vectRow_Package_Source_Compat[s];
+		if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_getrow()->IsSource_get()==1 )
+		{
+			if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_RepositorySource_getrow()->FK_RepositoryType_get() ==
+					pRow_Device->FK_Installation_getrow()->FK_RepositoryType_Source_get() )
+				return pRow_Package_Source_Compat;
+		}
+		else
+		{
+			if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_RepositorySource_getrow()->FK_RepositoryType_get() ==
+					pRow_Device->FK_Installation_getrow()->FK_RepositoryType_Binaries_get() )
+				return pRow_Package_Source_Compat;
+		}
+	}
+
+	// Otherwise return the first.  We'll be trying all the others anyway if it fails.  The preferred only determines our first choice
+	return vectRow_Package_Source_Compat[0];
+}
+
+
+void AddAlternateSources(vector<Row_Package_Source_Compat *> &vectRow_Package_Source_Compat,PackageInfo *pPackageInfo)
+{
 	// See if we cand find some alternates if the primary fails
 	for(size_t s=0;s<vectRow_Package_Source_Compat.size();++s)
 	{
 		Row_Package_Source_Compat *pRow_Package_Source_Compat = vectRow_Package_Source_Compat[s];
-		if( pRow_Package_Source_Compat!=pRow_Package_Source_Compat_Match )
+		if( pRow_Package_Source_Compat!=pPackageInfo->m_pRow_Package_Source_Compat )
 		{
 			// This isn't our primary, add this to the list of alternates
-			PackageInfo *pPackageInfo = MakePackageInfo(pRow_Package_Source_Compat,bMustBuildFromSource);
+			PackageInfo *pPackageInfo = MakePackageInfo(pRow_Package_Source_Compat,pRow_Package_Source_Compat->MustBuildFromSource_get()==1);
 			if( pPackageInfo  )
 				pPackageInfo->m_vectPackageInfo.push_back( pPackageInfo );
 		}
@@ -561,7 +584,7 @@ PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Comp
 
 	Row_Package_Directory *pRow_Package_Directory;
 	
-	pRow_Package_Directory = GetDirectory(pRow_Package,DIRECTORY_Binary_Executibles_CONST);
+	pRow_Package_Directory = GetDirectory(pRow_Package,DIRECTORY_Binary_Executables_CONST);
 	if( pRow_Package_Directory )
 	{
 		pPackageInfo->m_sBinaryExecutiblesPathPath = pRow_Package_Directory->Path_get();
