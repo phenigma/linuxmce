@@ -382,11 +382,13 @@ bool FileUtils::PUCopyFile(string sSource,string sDestination)
 		{
 			fclose(fileSource);
 			fclose(fileDest);
+			free(Buffer);
 			return false;
 		}
 	}
 	fclose(fileSource);
 	fclose(fileDest);
+	free(Buffer);
 	return true;
 }
 
