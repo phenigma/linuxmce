@@ -47,7 +47,7 @@ function wizardOrbiters($output,$dbADO) {
 	<form action="index.php" method="POST" name="devices">
 	<input type="hidden" name="section" value="wizardOrbiters">
 	<input type="hidden" name="action" value="add">	
-	<div align="center"><h3>Orbiters</h3></div>
+	<h3  align="left">Orbiters</h3>
 		<table border="0">';
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();
@@ -57,7 +57,9 @@ function wizardOrbiters($output,$dbADO) {
 				$joinArray[]=0;
 				$queryDevice='
 					SELECT 
-						Device.* FROM Device 
+						Device.*, DeviceTemplate.Description AS TemplateName 
+					FROM Device 
+						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 					WHERE
 						FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
@@ -102,14 +104,10 @@ function wizardOrbiters($output,$dbADO) {
 				<table align="center" border="0">
 				<tr>
 					<td align="right"><B>DeviceTemplate</B></td>
-					<td align="left"><select name="deviceTemplate_'.$rowD['PK_Device'].'">';
-			foreach($DTIDArray as $key => $value){
-				$out.='<option value="'.$value.'" '.(($rowD['FK_DeviceTemplate']==$value)?'selected':'').'>'.$DTArray[$key].'</option>';
-			}
-			$out.='</select></td>
+					<td align="left">'.$rowD['TemplateName'].'</td>
 				</tr>
 					<td align="right"><B>Description</B></td>
-					<td align="left"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"></td>
+					<td align="left"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.stripslashes($rowD['Description']).'"></td>
 				</tr>
 					<td align="right"><B>Room</B></td>
 					<td><select name="room_'.$rowD['PK_Device'].'">
@@ -248,8 +246,8 @@ function wizardOrbiters($output,$dbADO) {
 				$description=@$_POST['description_'.$value];
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 				
-				$updateDevice='UPDATE Device SET FK_DeviceTemplate=?, Description=?, FK_Room=? WHERE PK_Device=?';
-				$dbADO->Execute($updateDevice,array($deviceTemplate,$description,$room,$value));
+				$updateDevice='UPDATE Device SET Description=?, FK_Room=? WHERE PK_Device=?';
+				$dbADO->Execute($updateDevice,array($description,$room,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
 					$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:'';
