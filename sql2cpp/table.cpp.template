@@ -217,7 +217,8 @@ bool Table_@table_name@::Commit()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		delete (*i);
+		Row_@table_name@ *pRow = (Row_@table_name@ *)(*i);
+		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
 
@@ -229,7 +230,7 @@ bool Table_@table_name@::Commit()
 		map<@table_key@, class TableRow*, @table_key_comparer@>::iterator i = deleted_cachedRows.begin();
 	
 		@table_key@ key = (*i).first;
-		Row_@table_name@* pRow = (Row_@table_name@*) (*i).second;	
+		Row_@table_name@* pRow = (Row_@table_name@*) (*i).second;
 
 		@build_query_for_key@
 	
@@ -241,7 +242,7 @@ bool Table_@table_name@::Commit()
 			return false;
 		}	
 		
-		delete (*i).second;
+		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
 	@endif_have_primary_keys@
