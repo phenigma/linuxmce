@@ -293,6 +293,8 @@ int main(int argc, char *argv[])
 			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_Configuration,pPackageInfo->m_sConfiguration);
 		}
 		cout << "echo \"Installation complete. If there was any source code that needed to be built, we created a file '/usr/pluto/install/compile.sh' which compiles them.\"" << endl;
+		cout << "echo \"Press enter to continue\"" << endl;
+		cout << "read" << endl;
 	}
 	else if( sCommand=="build" || sCommand=="buildall" )
 	{
