@@ -30,7 +30,6 @@
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
-#include <sstream>
 using namespace std;
 using namespace DCE;
 
@@ -163,32 +162,42 @@ class DataGridTable *Security_Plugin::SecurityScenariosGrid( string GridID, stri
 		/** @param #5 Value To Assign */
 			/** A value from the HouseMode table */
 		/** @param #17 PK_Users */
-			/** The user setting the mode */
+			/** The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode. */
 		/** @param #18 Errors */
 			/** not used by the Orbiter.  This is used only when sending the action to the core. */
 		/** @param #99 Password */
-			/** The password, or PIN of the user */
+			/** The password or PIN of the user.  This can be plain text or md5. */
+		/** @param #100 PK_DeviceGroup */
+			/** DeviceGroups are treated as zones.  If this device group is specified, only the devices in these zones (groups) will be set. */
 
-void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,string &sCMD_Result,Message *pMessage)
+void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string &sCMD_Result,Message *pMessage)
 //<-dceag-c19-e->
 {
+	/*
+	int PK_HouseMode = atoi(sValue_To_Assign.c_str());
+	if( PK_HouseMode<HOUSEMODE_Unarmed_at_home_CONST || PK_HouseMode>HOUSEMODE_Armed_Extended_away_CONST )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to set invalid house mode: %d",PK_HouseMode);
+		return;
+	}
+
+	// The password can either be the password or teh PIN code, and either plain text or md5.  iPK_Users is optional
 	ostringstream sql;
 	sql << "SELECT PK_Users,Username FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
-		<< m_pRouter->iPK_Installation_get();
-	/*
-		Description LIKE 'PK_%'";
+		<< m_pRouter->iPK_Installation_get() << " AND userCanChangeHouseMode=1 AND (Password=" << sPassword 
+		<< " OR Password=" << md5(sPassword) << " OR PINCode=" << sPassword << " OR PINCode=" << md5(sPassword) << ")";
+	if( iPK_Users )
+		sql << " AND PK_Users=" << iPK_Users;
+
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
-	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL )
 	{
-		while( ( row = mysql_fetch_row( result_set.r ) ) )
-		{
-			string FieldName = row[0];
-			class Table *pTable = m_pDatabase->GetTableFromForeignKeyString( this, FieldName );
-			Field *pField_PrimaryKey = pTable->m_mapField_Find( "PK_" + pTable->Name_get( ) );
-			pField->m_listField_IReferTo_Indirectly.push_back( pField_PrimaryKey );
-			pField_PrimaryKey->m_listField_ReferringToMe_Indirectly.push_back( pField );
-		}
+		g_pPlutoLogger->Write(LV_WARNING,"User: %d failed to set house mode: %d",iPK_Users,PK_HouseMode);
+		sendtoinvalidscreen();
+		return;		
 	}
+	// Go through all devices.  If the status is TRIPPED, and 
+	m_pRouter->SetDeviceData(m_dwPK_Device,housemode,
 	*/
 }

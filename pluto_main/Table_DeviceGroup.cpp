@@ -125,10 +125,11 @@ is_null[3] = false;
 is_null[4] = true;
 is_null[5] = true;
 is_null[6] = true;
+is_null[7] = true;
 m_psc_frozen = 0;
-is_null[7] = false;
-m_psc_mod = "00000000000000";
 is_null[8] = false;
+m_psc_mod = "00000000000000";
+is_null[9] = false;
 
 
 	is_added=false;
@@ -148,6 +149,9 @@ return m_FK_Installation;}
 string Row_DeviceGroup::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
+long int Row_DeviceGroup::Type_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Type;}
 long int Row_DeviceGroup::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -177,21 +181,24 @@ m_FK_Installation = val; is_modified=true; is_null[2]=false;}
 void Row_DeviceGroup::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Description = val; is_modified=true; is_null[3]=false;}
+void Row_DeviceGroup::Type_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Type = val; is_modified=true; is_null[4]=false;}
 void Row_DeviceGroup::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[4]=false;}
+m_psc_id = val; is_modified=true; is_null[5]=false;}
 void Row_DeviceGroup::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[5]=false;}
+m_psc_batch = val; is_modified=true; is_null[6]=false;}
 void Row_DeviceGroup::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[6]=false;}
+m_psc_user = val; is_modified=true; is_null[7]=false;}
 void Row_DeviceGroup::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[7]=false;}
+m_psc_frozen = val; is_modified=true; is_null[8]=false;}
 void Row_DeviceGroup::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[8]=false;}
+m_psc_mod = val; is_modified=true; is_null[9]=false;}
 
 		
 bool Row_DeviceGroup::FK_DeviceGroup_Parent_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -200,18 +207,21 @@ return is_null[1];}
 bool Row_DeviceGroup::FK_Installation_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_DeviceGroup::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceGroup::Type_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_DeviceGroup::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceGroup::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_DeviceGroup::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceGroup::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_DeviceGroup::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceGroup::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
+bool Row_DeviceGroup::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[8];}
 
 			
 void Row_DeviceGroup::FK_DeviceGroup_Parent_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -220,18 +230,21 @@ is_null[1]=val;}
 void Row_DeviceGroup::FK_Installation_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
-void Row_DeviceGroup::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceGroup::Type_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_DeviceGroup::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceGroup::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
-void Row_DeviceGroup::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceGroup::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
-void Row_DeviceGroup::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceGroup::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[7]=val;}
+void Row_DeviceGroup::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[8]=val;}
 	
 
 string Row_DeviceGroup::PK_DeviceGroup_asSQL()
@@ -287,11 +300,24 @@ delete buf;
 return s;
 }
 
-string Row_DeviceGroup::psc_id_asSQL()
+string Row_DeviceGroup::Type_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_Type);
+
+return buf;
+}
+
+string Row_DeviceGroup::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -304,7 +330,7 @@ string Row_DeviceGroup::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -317,7 +343,7 @@ string Row_DeviceGroup::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[6])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -330,7 +356,7 @@ string Row_DeviceGroup::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -343,7 +369,7 @@ string Row_DeviceGroup::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[9])
 return "NULL";
 
 char *buf = new char[29];
@@ -391,10 +417,10 @@ bool Table_DeviceGroup::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceGroup_asSQL()+", "+pRow->FK_DeviceGroup_Parent_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceGroup_asSQL()+", "+pRow->FK_DeviceGroup_Parent_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Type_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into DeviceGroup (PK_DeviceGroup, FK_DeviceGroup_Parent, FK_Installation, Description, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DeviceGroup (PK_DeviceGroup, FK_DeviceGroup_Parent, FK_Installation, Description, Type, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -444,7 +470,7 @@ condition = condition + "PK_DeviceGroup=" + tmp_PK_DeviceGroup;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DeviceGroup="+pRow->PK_DeviceGroup_asSQL()+", FK_DeviceGroup_Parent="+pRow->FK_DeviceGroup_Parent_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_DeviceGroup="+pRow->PK_DeviceGroup_asSQL()+", FK_DeviceGroup_Parent="+pRow->FK_DeviceGroup_Parent_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Type="+pRow->Type_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update DeviceGroup set " + update_values_list + " where " + condition;
@@ -584,56 +610,67 @@ pRow->m_Description = string(row[3],lengths[3]);
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_id = 0;
+pRow->m_Type = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_id));
+sscanf(row[4], "%li", &(pRow->m_Type));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_batch));
+sscanf(row[5], "%li", &(pRow->m_psc_id));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_user));
+sscanf(row[6], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[7], "%li", &(pRow->m_psc_user));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_psc_mod = string(row[8],lengths[8]);
+sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_psc_mod = string(row[9],lengths[9]);
 }
 
 
@@ -789,56 +826,67 @@ pRow->m_Description = string(row[3],lengths[3]);
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_id = 0;
+pRow->m_Type = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_id));
+sscanf(row[4], "%li", &(pRow->m_Type));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_batch));
+sscanf(row[5], "%li", &(pRow->m_psc_id));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_user));
+sscanf(row[6], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[7], "%li", &(pRow->m_psc_user));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_psc_mod = string(row[8],lengths[8]);
+sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_psc_mod = string(row[9],lengths[9]);
 }
 
 

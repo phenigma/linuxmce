@@ -470,7 +470,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		fstr_DeviceCommand << "\t" << pRow_DeviceData->FK_ParameterType_getrow()->Description_get() << " DATA_Get_"  <<  pDefine  << "() { return GetData()->Get_" << pDefine << "(); }" << endl;
 		if(pDataInfo->m_bCanSet)
 		{
-			fstr_DeviceCommand << "\tvoid DATA_Set_" << pDefine << "(string Value) { GetData()->Set_" << pDefine << "(Value); }" << endl;
+			fstr_DeviceCommand << "\tvoid DATA_Set_" << pDefine << "(" << pDataInfo->m_pRow_DeviceData->FK_ParameterType_getrow()->Description_get() << " Value) { GetData()->Set_" << pDefine << "(Value); }" << endl;
 		}
 	}		
 	fstr_DeviceCommand << "\t//Event accessors" << endl;

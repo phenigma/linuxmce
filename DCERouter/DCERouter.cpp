@@ -1085,6 +1085,11 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
         return;
     }
 
+	// We have to do this here after we've parsed the DEVICEID_LIST
+    DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find((*(*pSafetyMessage))->m_dwPK_Device_To);
+	if( pDeviceTo->m_pDevice_RouteTo )
+		(*(*pSafetyMessage))->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
+
     if ( (*(*pSafetyMessage))->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 		HandleCommandPipes(pSocket,pSafetyMessage);
 //  g_pPlutoLogger->Write(LV_STATUS,"begin realsendmessage before lock");
@@ -1413,15 +1418,23 @@ void Router::Configure()
 			pDevice->m_mapPipe_Available[pRow_Device_Device_Pipe->FK_Pipe_get()] = new Pipe(pRow_Device_Device_Pipe);
 		}
 
-        ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceTemplate_Find(pDevice->m_dwPK_DeviceTemplate);
+		ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceByTemplate_Find(pDevice->m_dwPK_DeviceTemplate);
         if( !pListDeviceData_Router )
         {
             pListDeviceData_Router = new ListDeviceData_Router();
-            m_mapDeviceTemplate[pDevice->m_dwPK_DeviceTemplate] = pListDeviceData_Router;
+            m_mapDeviceByTemplate[pDevice->m_dwPK_DeviceTemplate] = pListDeviceData_Router;
         }
         pListDeviceData_Router->push_back(pDevice);
 
-        // We also need a minimal version from the topmost base class that we'll serialize in alldevices and send to each device that registers so they have a complete device tree
+        pListDeviceData_Router = m_mapDeviceByCategory_Find(pDevice->m_dwPK_DeviceCategory);
+        if( !pListDeviceData_Router )
+        {
+            pListDeviceData_Router = new ListDeviceData_Router();
+            m_mapDeviceByCategory[pDevice->m_dwPK_DeviceCategory] = pListDeviceData_Router;
+        }
+        pListDeviceData_Router->push_back(pDevice);
+
+		// We also need a minimal version from the topmost base class that we'll serialize in alldevices and send to each device that registers so they have a complete device tree
         DeviceData_Base *pDevice_Base = new DeviceData_Base(
             pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),
             pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRow_Device->FK_Room_get(),pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
@@ -1471,6 +1484,15 @@ void Router::Configure()
             pDevice->m_pDevice_ControlledVia = pDevice_Parent;
             pDevice_Parent->m_vectDeviceData_Impl_Children.push_back(pDevice);
         }
+    }
+
+	// Now match up route to's
+    for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
+    {
+        DeviceData_Router *pDevice = (*itDevice).second;
+        DeviceData_Router *pDevice_RouteTo = m_mapDeviceData_Router_Find(pDevice->m_pRow_Device->FK_Device_RouteTo_get());
+        if( pDevice_RouteTo )
+            pDevice->m_pDevice_RouteTo = pDevice_RouteTo;
     }
 
     // Get the device groups

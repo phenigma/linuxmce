@@ -202,9 +202,9 @@ return m_MACaddress;}
 short int Row_Device::IgnoreOnOff_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_IgnoreOnOff;}
-long int Row_Device::FK_Device_SlaveTo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Device::FK_Device_RouteTo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Device_SlaveTo;}
+return m_FK_Device_RouteTo;}
 short int Row_Device::NeedConfigure_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_NeedConfigure;}
@@ -264,9 +264,9 @@ m_MACaddress = val; is_modified=true; is_null[9]=false;}
 void Row_Device::IgnoreOnOff_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_IgnoreOnOff = val; is_modified=true; is_null[10]=false;}
-void Row_Device::FK_Device_SlaveTo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Device::FK_Device_RouteTo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Device_SlaveTo = val; is_modified=true; is_null[11]=false;}
+m_FK_Device_RouteTo = val; is_modified=true; is_null[11]=false;}
 void Row_Device::NeedConfigure_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_NeedConfigure = val; is_modified=true; is_null[12]=false;}
@@ -314,7 +314,7 @@ return is_null[8];}
 bool Row_Device::MACaddress_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
-bool Row_Device::FK_Device_SlaveTo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Device::FK_Device_RouteTo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[11];}
 bool Row_Device::NeedConfigure_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -361,7 +361,7 @@ is_null[8]=val;}
 void Row_Device::MACaddress_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[9]=val;}
-void Row_Device::FK_Device_SlaveTo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Device::FK_Device_RouteTo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[11]=val;}
 void Row_Device::NeedConfigure_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -533,7 +533,7 @@ sprintf(buf, "%hi", m_IgnoreOnOff);
 return buf;
 }
 
-string Row_Device::FK_Device_SlaveTo_asSQL()
+string Row_Device::FK_Device_RouteTo_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -541,7 +541,7 @@ if (is_null[11])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Device_SlaveTo);
+sprintf(buf, "%li", m_FK_Device_RouteTo);
 
 return buf;
 }
@@ -691,10 +691,10 @@ bool Table_Device::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Device_asSQL()+", "+pRow->Disabled_asSQL()+", "+pRow->FK_Room_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_Device_ControlledVia_asSQL()+", "+pRow->IPaddress_asSQL()+", "+pRow->MACaddress_asSQL()+", "+pRow->IgnoreOnOff_asSQL()+", "+pRow->FK_Device_SlaveTo_asSQL()+", "+pRow->NeedConfigure_asSQL()+", "+pRow->State_asSQL()+", "+pRow->Status_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Device_asSQL()+", "+pRow->Disabled_asSQL()+", "+pRow->FK_Room_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_Device_ControlledVia_asSQL()+", "+pRow->IPaddress_asSQL()+", "+pRow->MACaddress_asSQL()+", "+pRow->IgnoreOnOff_asSQL()+", "+pRow->FK_Device_RouteTo_asSQL()+", "+pRow->NeedConfigure_asSQL()+", "+pRow->State_asSQL()+", "+pRow->Status_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Device (PK_Device, Disabled, FK_Room, FK_Installation, FK_DesignObj, Description, FK_DeviceTemplate, FK_Device_ControlledVia, IPaddress, MACaddress, IgnoreOnOff, FK_Device_SlaveTo, NeedConfigure, State, Status, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Device (PK_Device, Disabled, FK_Room, FK_Installation, FK_DesignObj, Description, FK_DeviceTemplate, FK_Device_ControlledVia, IPaddress, MACaddress, IgnoreOnOff, FK_Device_RouteTo, NeedConfigure, State, Status, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -744,7 +744,7 @@ condition = condition + "PK_Device=" + tmp_PK_Device;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Device="+pRow->PK_Device_asSQL()+", Disabled="+pRow->Disabled_asSQL()+", FK_Room="+pRow->FK_Room_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", Description="+pRow->Description_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_Device_ControlledVia="+pRow->FK_Device_ControlledVia_asSQL()+", IPaddress="+pRow->IPaddress_asSQL()+", MACaddress="+pRow->MACaddress_asSQL()+", IgnoreOnOff="+pRow->IgnoreOnOff_asSQL()+", FK_Device_SlaveTo="+pRow->FK_Device_SlaveTo_asSQL()+", NeedConfigure="+pRow->NeedConfigure_asSQL()+", State="+pRow->State_asSQL()+", Status="+pRow->Status_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Device="+pRow->PK_Device_asSQL()+", Disabled="+pRow->Disabled_asSQL()+", FK_Room="+pRow->FK_Room_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", Description="+pRow->Description_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_Device_ControlledVia="+pRow->FK_Device_ControlledVia_asSQL()+", IPaddress="+pRow->IPaddress_asSQL()+", MACaddress="+pRow->MACaddress_asSQL()+", IgnoreOnOff="+pRow->IgnoreOnOff_asSQL()+", FK_Device_RouteTo="+pRow->FK_Device_RouteTo_asSQL()+", NeedConfigure="+pRow->NeedConfigure_asSQL()+", State="+pRow->State_asSQL()+", Status="+pRow->Status_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Device set " + update_values_list + " where " + condition;
@@ -961,12 +961,12 @@ sscanf(row[10], "%hi", &(pRow->m_IgnoreOnOff));
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_FK_Device_SlaveTo = 0;
+pRow->m_FK_Device_RouteTo = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_FK_Device_SlaveTo));
+sscanf(row[11], "%li", &(pRow->m_FK_Device_RouteTo));
 }
 
 if (row[12] == NULL)
@@ -1287,12 +1287,12 @@ sscanf(row[10], "%hi", &(pRow->m_IgnoreOnOff));
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_FK_Device_SlaveTo = 0;
+pRow->m_FK_Device_RouteTo = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_FK_Device_SlaveTo));
+sscanf(row[11], "%li", &(pRow->m_FK_Device_RouteTo));
 }
 
 if (row[12] == NULL)
@@ -1426,12 +1426,12 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_Device *pTable = table->database->Device_get();
 return pTable->GetRow(m_FK_Device_ControlledVia);
 }
-class Row_Device* Row_Device::FK_Device_SlaveTo_getrow()
+class Row_Device* Row_Device::FK_Device_RouteTo_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device *pTable = table->database->Device_get();
-return pTable->GetRow(m_FK_Device_SlaveTo);
+return pTable->GetRow(m_FK_Device_RouteTo);
 }
 
 
@@ -1449,12 +1449,12 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_Device *pTable = table->database->Device_get();
 pTable->GetRows("FK_Device_ControlledVia=" + StringUtils::itos(m_PK_Device),rows);
 }
-void Row_Device::Device_FK_Device_SlaveTo_getrows(vector <class Row_Device*> *rows)
+void Row_Device::Device_FK_Device_RouteTo_getrows(vector <class Row_Device*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device *pTable = table->database->Device_get();
-pTable->GetRows("FK_Device_SlaveTo=" + StringUtils::itos(m_PK_Device),rows);
+pTable->GetRows("FK_Device_RouteTo=" + StringUtils::itos(m_PK_Device),rows);
 }
 void Row_Device::Device_Command_FK_Device_getrows(vector <class Row_Device_Command*> *rows)
 {

@@ -11,6 +11,8 @@
 #define DEVICEGROUP_FK_INSTALLATION_TABLE_FIELD "DeviceGroup.FK_Installation"
 #define DEVICEGROUP_DESCRIPTION_FIELD "Description"
 #define DEVICEGROUP_DESCRIPTION_TABLE_FIELD "DeviceGroup.Description"
+#define DEVICEGROUP_TYPE_FIELD "Type"
+#define DEVICEGROUP_TYPE_TABLE_FIELD "DeviceGroup.Type"
 #define DEVICEGROUP_PSC_ID_FIELD "psc_id"
 #define DEVICEGROUP_PSC_ID_TABLE_FIELD "DeviceGroup.psc_id"
 #define DEVICEGROUP_PSC_BATCH_FIELD "psc_batch"

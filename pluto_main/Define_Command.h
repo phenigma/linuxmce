@@ -243,6 +243,9 @@
 #define COMMAND_Enable_Broadcasting_CONST 243
 #define COMMAND_Output_Select_CONST 244
 #define COMMAND_Learn_IR_CONST 245
+#define COMMAND_Set_Device_Data_CONST 246
+#define COMMAND_Get_Device_State_CONST 247
+#define COMMAND_Get_Device_Status_CONST 248
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -1084,6 +1084,16 @@
 #define DESIGNOBJ_butMythTVSetup_CONST 3250
 #define DESIGNOBJ_screen_app_desktop_2_CONST 3251
 #define DESIGNOBJ_go_to_phone_book_CONST 3252
+#define DESIGNOBJ_go_to_dial_phone_number_CONST 3253
+#define DESIGNOBJ_go_to_dial_pluto_user_CONST 3254
+#define DESIGNOBJ_go_to_speed_dial_CONST 3255
+#define DESIGNOBJ_speed_dial_CONST 3256
+#define DESIGNOBJ_recent_calls_CONST 3257
+#define DESIGNOBJ_go_to_recent_calls_CONST 3258
+#define DESIGNOBJ_go_to_intercom_CONST 3259
+#define DESIGNOBJ_go_to_voicemail_CONST 3260
+#define DESIGNOBJ_go_to_telecom_menu_CONST 3261
+#define DESIGNOBJ_go_to_phone_menu_CONST 3262
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

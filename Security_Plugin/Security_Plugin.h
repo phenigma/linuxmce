@@ -54,6 +54,8 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	int DATA_Get_PK_HouseMode();
+	void DATA_Set_PK_HouseMode(int Value);
 
 			*****EVENT***** accessors inherited from base class
 
@@ -66,14 +68,16 @@ public:
 		/** @param #5 Value To Assign */
 			/** A value from the HouseMode table */
 		/** @param #17 PK_Users */
-			/** The user setting the mode */
+			/** The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode. */
 		/** @param #18 Errors */
 			/** not used by the Orbiter.  This is used only when sending the action to the core. */
 		/** @param #99 Password */
-			/** The password, or PIN of the user */
+			/** The password or PIN of the user.  This can be plain text or md5. */
+		/** @param #100 PK_DeviceGroup */
+			/** DeviceGroups are treated as zones.  If this device group is specified, only the devices in these zones (groups) will be set. */
 
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),iPK_DeviceGroup,sCMD_Result,NULL);};
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

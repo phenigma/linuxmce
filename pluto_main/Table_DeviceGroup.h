@@ -85,19 +85,21 @@ class DLL_EXPORT Row_DeviceGroup : public TableRow, public SerializeClass
 long int m_FK_DeviceGroup_Parent;
 long int m_FK_Installation;
 string m_Description;
+long int m_Type;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[9];
+		bool is_null[10];
 	
 	public:
 		long int PK_DeviceGroup_get();
 long int FK_DeviceGroup_Parent_get();
 long int FK_Installation_get();
 string Description_get();
+long int Type_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -109,6 +111,7 @@ string psc_mod_get();
 void FK_DeviceGroup_Parent_set(long int val);
 void FK_Installation_set(long int val);
 void Description_set(string val);
+void Type_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -118,6 +121,7 @@ void psc_mod_set(string val);
 		
 		bool FK_DeviceGroup_Parent_isNull();
 bool FK_Installation_isNull();
+bool Type_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -126,6 +130,7 @@ bool psc_frozen_isNull();
 			
 		void FK_DeviceGroup_Parent_setNull(bool val);
 void FK_Installation_setNull(bool val);
+void Type_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -154,7 +159,7 @@ void Device_DeviceGroup_FK_DeviceGroup_getrows(vector <class Row_Device_DeviceGr
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DeviceGroup+ m_FK_DeviceGroup_Parent+ m_FK_Installation+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DeviceGroup+ m_FK_DeviceGroup_Parent+ m_FK_Installation+ m_Description+ m_Type+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -163,6 +168,7 @@ void Device_DeviceGroup_FK_DeviceGroup_getrows(vector <class Row_Device_DeviceGr
 string FK_DeviceGroup_Parent_asSQL();
 string FK_Installation_asSQL();
 string Description_asSQL();
+string Type_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -105,7 +105,7 @@ namespace DCE
 
 	public:
 
-		// **** SERIALIZED VALUES FROM THE CONFIGURATION FILE ****
+		// **** SERIALIZED VALUES FROM THE DATABASE ****
 
 		// General ID's for this Device
 		// These are in the base-> int m_dwPK_Device,m_dwPK_Installation,m_dwPK_DeviceTemplate,m_dwPK_DeviceCategory,m_dwPK_Room,;
@@ -125,11 +125,6 @@ namespace DCE
 		map<int, class Pipe *> m_mapPipe_Available; // The available pipes
 		map<int, class Pipe *> m_mapPipe_Active; // The currently activated pipes
 		Pipe *m_mapPipe_Active_Find(int PK_Pipe) { map<int,class Pipe *>::iterator it = m_mapPipe_Active.find(PK_Pipe); return it==m_mapPipe_Active.end() ? NULL : (*it).second; }
-
-		// A virtual device that doesn't really exist, but serves as a placeholder will have SlaveTo set
-		// For example, a Television may have several tuners.  Each tuner must be a separate device so the user
-		// can tune on any one of them.  They are all marked as SlaveTo the television itself.
-		int m_dwPK_Device_SlaveTo;  
 
 		// All the groups, parameters, inputs, etc.
 		map<int,class DeviceRelation *> m_mapDeviceRelation;
@@ -156,7 +151,10 @@ namespace DCE
 		// **** POINTERS CREATED BY THE SERIALIZED ID'S ****
 
 		Room *m_pRoom;
-		class DeviceData_Router *m_pDevice_SlaveTo;
+		// A virtual device that doesn't really exist, but serves as a placeholder will have it's messages routed to another device
+		// For example, a Television may have several tuners.  Each tuner must be a separate device so the user
+		// can tune on any one of them.  They are all marked as RouteTo the television itself.
+		class DeviceData_Router *m_pDevice_RouteTo;
 		class DeviceData_Router *m_pDevice_Audio,*m_pDevice_Video;
 		Row_Device *m_pRow_Device;
 
@@ -166,14 +164,13 @@ namespace DCE
 			pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,sCommandLine,pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(),pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get())
 		{
 			m_pRow_Device=pRow_Device;
-			m_dwPK_Device_SlaveTo=0;
 			m_bForceReloadOnFirstConnect=m_bIsRegistered=m_bIsReady=m_bBusy=m_bAlert=false;
 			m_tLastused=m_tCanReceiveNextCommand=0;
 			m_sState = m_pRow_Device->State_get();
 			m_sStatus = m_pRow_Device->Status_get();
 
 			m_pRoom=pRoom;
-			m_pDevice_ControlledVia=m_pDevice_SlaveTo=NULL;
+			m_pDevice_ControlledVia=m_pDevice_RouteTo=NULL;
 			m_pDevice_Audio=m_pDevice_Video=NULL;
 			m_pMySerializedData=NULL;
 			m_iConfigSize=0;

@@ -92,7 +92,7 @@ long int m_FK_Device_ControlledVia;
 string m_IPaddress;
 string m_MACaddress;
 short int m_IgnoreOnOff;
-long int m_FK_Device_SlaveTo;
+long int m_FK_Device_RouteTo;
 short int m_NeedConfigure;
 string m_State;
 string m_Status;
@@ -116,7 +116,7 @@ long int FK_Device_ControlledVia_get();
 string IPaddress_get();
 string MACaddress_get();
 short int IgnoreOnOff_get();
-long int FK_Device_SlaveTo_get();
+long int FK_Device_RouteTo_get();
 short int NeedConfigure_get();
 string State_get();
 string Status_get();
@@ -138,7 +138,7 @@ void FK_Device_ControlledVia_set(long int val);
 void IPaddress_set(string val);
 void MACaddress_set(string val);
 void IgnoreOnOff_set(short int val);
-void FK_Device_SlaveTo_set(long int val);
+void FK_Device_RouteTo_set(long int val);
 void NeedConfigure_set(short int val);
 void State_set(string val);
 void Status_set(string val);
@@ -156,7 +156,7 @@ bool FK_DeviceTemplate_isNull();
 bool FK_Device_ControlledVia_isNull();
 bool IPaddress_isNull();
 bool MACaddress_isNull();
-bool FK_Device_SlaveTo_isNull();
+bool FK_Device_RouteTo_isNull();
 bool NeedConfigure_isNull();
 bool State_isNull();
 bool Status_isNull();
@@ -173,7 +173,7 @@ void FK_DeviceTemplate_setNull(bool val);
 void FK_Device_ControlledVia_setNull(bool val);
 void IPaddress_setNull(bool val);
 void MACaddress_setNull(bool val);
-void FK_Device_SlaveTo_setNull(bool val);
+void FK_Device_RouteTo_setNull(bool val);
 void NeedConfigure_setNull(bool val);
 void State_setNull(bool val);
 void Status_setNull(bool val);
@@ -198,13 +198,13 @@ class Row_Installation* FK_Installation_getrow();
 class Row_DesignObj* FK_DesignObj_getrow();
 class Row_DeviceTemplate* FK_DeviceTemplate_getrow();
 class Row_Device* FK_Device_ControlledVia_getrow();
-class Row_Device* FK_Device_SlaveTo_getrow();
+class Row_Device* FK_Device_RouteTo_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
 		void CommandGroup_Command_FK_Device_getrows(vector <class Row_CommandGroup_Command*> *rows);
 void Device_FK_Device_ControlledVia_getrows(vector <class Row_Device*> *rows);
-void Device_FK_Device_SlaveTo_getrows(vector <class Row_Device*> *rows);
+void Device_FK_Device_RouteTo_getrows(vector <class Row_Device*> *rows);
 void Device_Command_FK_Device_getrows(vector <class Row_Device_Command*> *rows);
 void Device_CommandGroup_FK_Device_getrows(vector <class Row_Device_CommandGroup*> *rows);
 void Device_DeviceData_FK_Device_getrows(vector <class Row_Device_DeviceData*> *rows);
@@ -223,7 +223,7 @@ void InfraredGroup_Command_FK_Device_getrows(vector <class Row_InfraredGroup_Com
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Device+ m_Disabled+ m_FK_Room+ m_FK_Installation+ m_FK_DesignObj+ m_Description+ m_FK_DeviceTemplate+ m_FK_Device_ControlledVia+ m_IPaddress+ m_MACaddress+ m_IgnoreOnOff+ m_FK_Device_SlaveTo+ m_NeedConfigure+ m_State+ m_Status+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Device+ m_Disabled+ m_FK_Room+ m_FK_Installation+ m_FK_DesignObj+ m_Description+ m_FK_DeviceTemplate+ m_FK_Device_ControlledVia+ m_IPaddress+ m_MACaddress+ m_IgnoreOnOff+ m_FK_Device_RouteTo+ m_NeedConfigure+ m_State+ m_Status+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -239,7 +239,7 @@ string FK_Device_ControlledVia_asSQL();
 string IPaddress_asSQL();
 string MACaddress_asSQL();
 string IgnoreOnOff_asSQL();
-string FK_Device_SlaveTo_asSQL();
+string FK_Device_RouteTo_asSQL();
 string NeedConfigure_asSQL();
 string State_asSQL();
 string Status_asSQL();

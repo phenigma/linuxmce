@@ -399,6 +399,9 @@
 #define TEXT_Load_playlist_CONST 1074
 #define TEXT_Enter_CONST 1075
 #define TEXT_Launch_MythTV_configuration_CONST 1076
+#define TEXT_Dial_number_CONST 1077
+#define TEXT_Dial_user_CONST 1078
+#define TEXT_Voicemail_CONST 1079
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

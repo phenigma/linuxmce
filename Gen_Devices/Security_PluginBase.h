@@ -28,6 +28,8 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 33; } ;
 	virtual const char *GetDeviceDescription() { return "Security_Plugin"; } ;
+	int Get_PK_HouseMode() { return atoi(m_mapParameters[38].c_str());}
+	void Set_PK_HouseMode(int Value) { SetParm(38,StringUtils::itos(Value).c_str()); }
 };
 
 
@@ -66,9 +68,11 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	int DATA_Get_PK_HouseMode() { return GetData()->Get_PK_HouseMode(); }
+	void DATA_Set_PK_HouseMode(int Value) { GetData()->Set_PK_HouseMode(Value); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -93,7 +97,8 @@ public:
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 					string sErrors=pMessage->m_mapParameters[18];
 					string sPassword=pMessage->m_mapParameters[99];
-						CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),sCMD_Result,pMessage);
+					int iPK_DeviceGroup=atoi(pMessage->m_mapParameters[100].c_str());
+						CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),iPK_DeviceGroup,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
