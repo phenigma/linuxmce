@@ -548,15 +548,19 @@ int k=2;
 //			if( pCommandInfo->m_sParmsWithType_Out.length()>0 )
 //				fstr_DeviceCommand << "\t\t\t\t\t\t" << StringUtils::Replace(pCommandInfo->m_sParmsWithType_Out,",",";") << ";" << endl;  // we want int i1;sting s2 not int i1,string s2
 			fstr_DeviceCommand << "\t\t\t\t\t\tCMD_" << pCommandInfo->CPPName() <<  "("  << pCommandInfo->m_sParmsWithNoType_In << (pCommandInfo->m_sParmsWithNoType_In.length() ? "," : "") << "sCMD_Result,pMessage);" << endl;
-			fstr_DeviceCommand << "\t\t\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage )" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t{" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t\tpMessage->m_bRespondedToMessage=true;" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t\tMessage *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);" << endl;
 			fstr_DeviceCommand << pCommandInfo->m_sAssignLocalToParm;
 			fstr_DeviceCommand << "\t\t\t\t\t\t\tpMessageOut->m_mapParameters[0]=sCMD_Result;" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t\tSendMessage(pMessageOut);" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t}" << endl;
-			fstr_DeviceCommand << "\t\t\t\t\t\telse if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\telse if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t{" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t\tpMessage->m_bRespondedToMessage=true;" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t\tSendString(sCMD_Result);" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t}" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t};" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\tiHandled++;" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\tcontinue;" << endl;
@@ -653,14 +657,18 @@ int k=2;
 	fstr_DeviceCommand << "\t\t\t\t\tReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);" << endl;
 	fstr_DeviceCommand << "\t\t\t\telse" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tReceivedUnknownCommand(sCMD_Result,pMessage);" << endl;
-	fstr_DeviceCommand << "\t\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\t\tpMessage->m_bRespondedToMessage=true;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tMessage *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tpMessageOut->m_mapParameters[0]=sCMD_Result;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tSendMessage(pMessageOut);" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t}" << endl;
-	fstr_DeviceCommand << "\t\t\t\t\telse if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\telse if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\t\tpMessage->m_bRespondedToMessage=true;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tSendString(sCMD_Result);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tif( sCMD_Result!=\"UNHANDLED\" )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tiHandled++;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t}" << endl;
@@ -905,10 +913,22 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 		sBuffer.replace(pos,15,sDesription);
 
 	while( (pos=sBuffer.find("DCE_MaintainerName"))!=string::npos )
-		sBuffer.replace(pos,14,pDeviceInfo->m_pRow_DeviceTemplate->FK_Users_Maintainer_getrow()->UserName_get());
+	{
+		Row_Users *pRow_Users = pDeviceInfo->m_pRow_DeviceTemplate->FK_Users_Maintainer_getrow(); 
+		if( pRow_Users )
+			sBuffer.replace(pos,14,pRow_Users->UserName_get());
+		else
+			break;
+	}
 
 	while( (pos=sBuffer.find("DCE_MaintainerEmail"))!=string::npos )
-		sBuffer.replace(pos,19,pDeviceInfo->m_pRow_DeviceTemplate->FK_Users_Maintainer_getrow()->ForwardEmail_get());
+	{
+		Row_Users *pRow_Users = pDeviceInfo->m_pRow_DeviceTemplate->FK_Users_Maintainer_getrow(); 
+		if( pRow_Users )
+		sBuffer.replace(pos,19,pRow_Users->ForwardEmail_get());
+		else
+			break;
+	}
 
 	while ((pos = sBuffer.find("DCE_DevTemplateID")) != string::npos)
 		sBuffer.replace(pos, 9, StringUtils::ltos(pDeviceInfo->m_pRow_DeviceTemplate->PK_DeviceTemplate_get()));
