@@ -82,7 +82,7 @@ void Repository::MatchUpTables( )
 	string Tablename = "psc_" + m_sName + "_tables";
 
 	ostringstream sql;
-	sql << "SELECT Tablename,filter FROM `" << Tablename << "`";
+	sql << "SELECT Tablename,filter,frozen FROM `" << Tablename << "`";
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
@@ -122,6 +122,7 @@ void Repository::MatchUpTables( )
 			m_mapTable[ pTable->Name_get( ) ] = pTable;
 			pTable->SetRepository( this, false );
 			pTable->m_sFilter = row[1] ? row[1] : "";
+			pTable->m_bFrozen = row[2] && row[2][0]=='1';
 		}
 	}
 }

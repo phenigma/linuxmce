@@ -78,6 +78,9 @@ namespace sqlCVS
 		/** If users are not able to retrieve the entire database, this will be a filter <%=U%> will be replaced with the user ID */
 		string m_sFilter; 
 
+		/** If the table is frozen, then no records can be changed */
+		bool m_bFrozen;
+
 		/** For the server: 
 		 *  Because we can't have 2 auto-increment fields, and the primary key may be one already, 
 		 * we'll have to manually keep track of this 

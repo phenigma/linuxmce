@@ -1221,7 +1221,7 @@ void Database::Reset_psc()
 		{
 			string Tablename = "psc_" + pTable->Repository_get()->Name_get() + "_tables"; /**< Our _tables table */
 			ostringstream sql;
-			sql << "INSERT INTO `" << Tablename << "` ( Tablename ) VALUES( '" << pTable->Name_get( ) << "' )";
+			sql << "INSERT INTO `" << Tablename << "` ( Tablename,filter,frozen ) VALUES( '" << pTable->Name_get( ) << "','" << pTable->m_sFilter << "'," << (pTable->m_bFrozen ? "1" : "0") << ")";
 			if( threaded_mysql_query( sql.str( ) )!=0 )
 			{
 				cerr << "SQL failed: " << sql.str( ) << endl;
