@@ -155,4 +155,26 @@ size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
     return (retval < 0 ? 0 : retval);   
 }
 
+bool CSerialPort::IsReadEmpty()
+{
+    struct timeval tv;
+	fd_set rfds;
+		
+	FD_ZERO(&rfds);
+	FD_SET(m_fdSerial, &rfds);
+	int ret;
+					
+	tv.tv_sec = 0 ;
+	tv.tv_usec = 0;
+							
+    ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
+    if (ret == 0 || ret == -1) {
+		return true;
+    } else {
+		return false;
+	}
+}
+
+
+
 #endif
