@@ -23,6 +23,7 @@
 #include <signal.h>
 #include <iostream>
 #include "DCERouter.h"
+#include "DCE/DCEConfig.h"
 #include "DeviceData_Router.h"
 #include "../pluto_main/Table_DeviceData.h"
 #include "../pluto_main/Table_DesignObj.h"

@@ -22,6 +22,7 @@ using namespace std;
 #include "DCERouter.h"
 #include "DeviceData_Router.h"
 #include "AlarmManager.h"
+#include "DCE/DCEConfig.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceData.h"
