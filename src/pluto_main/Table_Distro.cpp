@@ -350,7 +350,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) m_Description.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min(30,m_Description.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -364,7 +364,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[51];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Define.c_str(), (unsigned long) m_Define.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Define.c_str(), (unsigned long) min(25,m_Define.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -391,7 +391,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Installer.c_str(), (unsigned long) m_Installer.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Installer.c_str(), (unsigned long) min(100,m_Installer.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -405,7 +405,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_KickStartCD.c_str(), (unsigned long) m_KickStartCD.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_KickStartCD.c_str(), (unsigned long) min(100,m_KickStartCD.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -419,7 +419,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Binaries.c_str(), (unsigned long) m_Binaries.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Binaries.c_str(), (unsigned long) min(100,m_Binaries.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -433,7 +433,7 @@ if (is_null[7])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_SourceCode.c_str(), (unsigned long) m_SourceCode.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_SourceCode.c_str(), (unsigned long) min(100,m_SourceCode.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -499,7 +499,7 @@ if (is_null[12])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_InstallerURL.c_str(), (unsigned long) m_InstallerURL.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_InstallerURL.c_str(), (unsigned long) min(100,m_InstallerURL.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -565,7 +565,7 @@ if (is_null[17])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;

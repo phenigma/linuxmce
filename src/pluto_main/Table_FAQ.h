@@ -85,30 +85,53 @@ class DLL_EXPORT Row_FAQ : public TableRow, public SerializeClass
 long int m_FK_Package;
 string m_Summary;
 string m_Content;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[4];
+		bool is_null[9];
 	
 	public:
 		long int PK_FAQ_get();
 long int FK_Package_get();
 string Summary_get();
 string Content_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_FAQ_set(long int val);
 void FK_Package_set(long int val);
 void Summary_set(string val);
 void Content_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool FK_Package_isNull();
 bool Summary_isNull();
 bool Content_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void FK_Package_setNull(bool val);
 void Summary_setNull(bool val);
 void Content_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -129,7 +152,7 @@ void Content_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_FAQ+ m_FK_Package+ m_Summary+ m_Content;
+			StartSerializeList() + m_PK_FAQ+ m_FK_Package+ m_Summary+ m_Content+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -138,6 +161,11 @@ void Content_setNull(bool val);
 string FK_Package_asSQL();
 string Summary_asSQL();
 string Content_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

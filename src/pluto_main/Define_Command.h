@@ -137,7 +137,6 @@
 #define COMMAND_Audio_Track_CONST 140
 #define COMMAND_Subtitle_CONST 141
 #define COMMAND_Angle_CONST 142
-#define COMMAND_Root_Menu_CONST 143
 #define COMMAND_Progressive_CONST 144
 #define COMMAND_Back_10_seconds_CONST 145
 #define COMMAND_Multi_Channel_CONST 146

@@ -199,7 +199,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[33];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_IPAddress.c_str(), (unsigned long) m_IPAddress.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_IPAddress.c_str(), (unsigned long) min(16,m_IPAddress.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -213,7 +213,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_date.c_str(), (unsigned long) m_date.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_date.c_str(), (unsigned long) min(19,m_date.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -227,7 +227,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_comments.c_str(), (unsigned long) m_comments.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_comments.c_str(), (unsigned long) min(65535,m_comments.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;

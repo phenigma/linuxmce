@@ -11,6 +11,16 @@
 #define FAQ_SUMMARY_TABLE_FIELD "FAQ.Summary"
 #define FAQ_CONTENT_FIELD "Content"
 #define FAQ_CONTENT_TABLE_FIELD "FAQ.Content"
+#define FAQ_PSC_ID_FIELD "psc_id"
+#define FAQ_PSC_ID_TABLE_FIELD "FAQ.psc_id"
+#define FAQ_PSC_BATCH_FIELD "psc_batch"
+#define FAQ_PSC_BATCH_TABLE_FIELD "FAQ.psc_batch"
+#define FAQ_PSC_USER_FIELD "psc_user"
+#define FAQ_PSC_USER_TABLE_FIELD "FAQ.psc_user"
+#define FAQ_PSC_FROZEN_FIELD "psc_frozen"
+#define FAQ_PSC_FROZEN_TABLE_FIELD "FAQ.psc_frozen"
+#define FAQ_PSC_MOD_FIELD "psc_mod"
+#define FAQ_PSC_MOD_TABLE_FIELD "FAQ.psc_mod"
 
 
 #endif

@@ -163,7 +163,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Value.c_str(), (unsigned long) m_Value.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Value.c_str(), (unsigned long) min(65535,m_Value.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;

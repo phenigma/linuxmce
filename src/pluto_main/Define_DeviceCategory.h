@@ -69,6 +69,8 @@
 #define DEVICECATEGORY_Infrared_Interface_CONST 114
 #define DEVICECATEGORY_Media_Identifiers_CONST 115
 #define DEVICECATEGORY_Infrared_Handlers_CONST 116
+#define DEVICECATEGORY_Remote_Controls_CONST 117
+#define DEVICECATEGORY_LIRC_Remote_Controls_CONST 118
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"
