@@ -156,6 +156,7 @@ int k;
         pthread_cond_t m_MessageQueueCond;
         int m_Port;
         unsigned long m_dwPK_Device_Largest;
+		bool m_bStopProcessingMessages; // We're going to kill ourselves
         string m_sBasePath;
         pthread_t m_pthread_queue_id;
         map<int,string> m_dwPK_Device_To_CommandLine;

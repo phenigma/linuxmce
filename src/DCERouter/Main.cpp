@@ -202,6 +202,9 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
 	WSACleanup();
 #endif
+	g_pPlutoLogger->Write(LV_STATUS, "Ready to delete router");
+	delete g_pRouter;
+	g_pRouter = NULL;
 	if( m_mapLockMutex )
 	{
 		pthread_mutex_destroy(&m_mapLockMutex->mutex);

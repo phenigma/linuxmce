@@ -117,6 +117,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     m_dwIDBPort=DBPort;
     m_bIsLoading=false;
 	m_dwPK_Device_Largest=0;
+	m_bStopProcessingMessages=false;
 
     m_CoreMutex.Init(NULL);
     pthread_mutex_init(&m_MessageQueueMutex,NULL);
@@ -221,14 +222,21 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 
 Router::~Router()
 {
+	m_bStopProcessingMessages=true;
+    map<int,class Command_Impl *>::iterator it;
+    for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
+	{
+		class Command_Impl *pCommand_Impl = (*it).second;
+		delete pCommand_Impl;
+	}
+	m_mapPlugIn.clear();
+	Sleep(5000);
+	m_bTerminate=true;
+	Sleep(5000);
 	cout << "Killing everything in DCERouter" << endl;
     delete m_pDeviceStructure;
 	delete m_pBufferForDeviceCategories;
-
-    map<int,class Command_Impl *>::iterator it;
-    for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
-		delete (*it).second;
-	m_mapPlugIn.clear();
+	DropAllSockets();
 
 	for(map<int, ListCommand_Impl *>::iterator it=m_mapPlugIn_DeviceTemplate.begin();it!=m_mapPlugIn_DeviceTemplate.end();++it)
 		delete (*it).second;
@@ -592,6 +600,9 @@ void Router::SendCommand(CommandGroup_Command *pCommandGroup_Command)
 
 void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 {
+	if( m_bStopProcessingMessages )
+		return;
+
     SafetyMessage SafetyMessage(pMessageWillBeDeleted);
 
     if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_REGISTER_INTERCEPTOR )
@@ -1090,16 +1101,7 @@ bool Router::Run()
         Sleep(1000);
     }
 
-//	DropAllSockets();
 	Sleep(1000); // Let the sockets close
-
-/*  this causes a seg fault, as does the delete this in the server socket.  For now just exit clean and let the script restart the router
-	for(map<int,class Command_Impl *>::iterator it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
-	{
-		Command_Impl *pCommand_Impl = (*it).second;
-		delete pCommand_Impl;
-	}
-*/
 
 	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: All Done!");
     return bReload;
