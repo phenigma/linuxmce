@@ -26,6 +26,17 @@ public:
 class IRBase
 {
 protected:
+	typedef pair<long, long> longPair;
+	map<longPair, string> m_CodeMap;		// maps device,command pair to IR code
+	map<long, string> m_mapsDevicePort;		// map deviceIDs to their full port names
+	map<long, clock_t> m_DeviceNextAvailableTime;
+	map<string, clock_t> m_PortLastIRSent;
+	map<long, clock_t> m_DevicePreDelays;
+	map<long, clock_t> m_DeviceDefaultDelays;
+	map<long, long> m_ExecutingChannelSequenceNumber;
+	list<IRQueue *> m_IRQueue;
+	long m_CurrentChannelSequenceNumber;
+
 	pluto_pthread_mutex_t m_IRMutex;
 
 	virtual void SendIR(string Port, string IRCode) = 0;
@@ -36,17 +47,6 @@ protected:
 	bool ProcessQueue();
 	void ParseDevices();
 	bool ProcessMessage(class Message *pMessage);
-
-	typedef pair<long, long> longPair;
-	map<longPair, string> m_CodeMap;		//maps from pin # to event object
-	map<long, string> m_mapsDevicePort;		// map deviceIDs to their full port names
-	map<long, clock_t> m_DeviceNextAvailableTime;
-	map<string, clock_t> m_PortLastIRSent;
-	map<long, clock_t> m_DevicePreDelays;
-	map<long, clock_t> m_DeviceDefaultDelays;
-	map<long, long> m_ExecutingChannelSequenceNumber;
-	list<IRQueue *> m_IRQueue;
-	long m_CurrentChannelSequenceNumber;
 
 public:
 	Command_Impl * m_pCommand_Impl;
