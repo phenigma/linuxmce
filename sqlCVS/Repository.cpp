@@ -507,7 +507,7 @@ bool Repository::DetermineDeletions( )
 		 * first time and preserved for the other tables
 		 */
 		 
-		if( pTable->Repository_get( )==this && !pTable->DetermineDeletions( ra_Processor, "localhost:3485", &pSocket ) )
+		if( pTable->Repository_get( )==this && !pTable->DetermineDeletions( ra_Processor, g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) )
 			return false;
 	}
 
@@ -540,7 +540,7 @@ bool Repository::CheckIn( )
 
 	ra_Processor.AddRequest( &r_CommitChanges );
 	DCE::Socket *pSocket=NULL;
-	while( ra_Processor.SendRequests( "localhost:3485", &pSocket ) );
+	while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
 
 	if( r_CommitChanges.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 	{
@@ -618,7 +618,7 @@ bool Repository::CheckIn( )
 
 	R_CloseTransaction r_CloseTransaction;
 	ra_Processor.AddRequest(&r_CloseTransaction);
-	while( ra_Processor.SendRequests( "localhost:3485", &pSocket ) );
+	while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
 
 	if( r_CloseTransaction.m_cProcessOutcome==SUCCESSFULLY_PROCESSED )
 	{
@@ -655,7 +655,7 @@ bool Repository::Update( )
 	R_UpdateRepository r_UpdateRepository( m_sName );
 	ra_Processor.AddRequest( &r_UpdateRepository );
 	DCE::Socket *pSocket=NULL;
-	while( ra_Processor.SendRequests( "localhost:3485", &pSocket ) );
+	while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
 
 	if( r_UpdateRepository.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 	{
@@ -676,7 +676,7 @@ bool Repository::Update( )
 
 	R_CloseTransaction r_CloseTransaction;
 	ra_Processor.AddRequest(&r_CloseTransaction);
-	while( ra_Processor.SendRequests( "localhost:3485", &pSocket ) );
+	while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
 
 	if( r_CloseTransaction.m_cProcessOutcome==SUCCESSFULLY_PROCESSED )
 		st.Commit();

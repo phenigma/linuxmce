@@ -48,7 +48,7 @@ namespace sqlCVS
 		string m_sRepository;   /**< Command line  */
 		string m_sTable; 	/**< Command line  */
 		
-		string m_sPSC_Host;	/**< The host name or IP for the sqlCVS listener */
+		string m_sSqlCVSHost;	/**< The host name or IP for the sqlCVS listener */
 		
 		int m_iDBPort;		/**< The port of the database */
 		int m_iSqlCVSPort;	/**< The port of the sqlCVS */
@@ -86,6 +86,7 @@ namespace sqlCVS
 			m_sDBName=dceConfig.ReadString("sqlCVS_MySqlDatabase","pluto_main");
 			m_iDBPort=dceConfig.ReadInteger("sqlCVS_MySqlPort",3306);
 			m_iSqlCVSPort=dceConfig.ReadInteger("sqlCVS_Port",3485);
+			m_sSqlCVSHost=dceConfig.ReadString("sqlCVS_Host","localhost");
 			m_sUsers=dceConfig.ReadString("sqlCVS_Users","");
 			m_pDatabase=NULL;
 			m_pRepository=NULL;

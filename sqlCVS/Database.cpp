@@ -474,7 +474,7 @@ void Database::ShowChanges()
 		if( pTable->Repository_get( ) )
 		{
 			pTable->GetChanges(); // This will get the adds and modifies
-			if( !pTable->DetermineDeletions( ra_Processor, "localhost:3485", &pSocket ) )
+			if( !pTable->DetermineDeletions( ra_Processor, g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) )
 			{
 				cerr << "Unable to contact the server to determine what records were deleted" << endl;
 				throw "database error";

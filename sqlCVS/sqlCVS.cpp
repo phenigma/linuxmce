@@ -203,6 +203,12 @@ int main( int argc, char *argv[] )
 		case 'P':
 			g_GlobalConfig.m_iDBPort = atoi( argv[++optnum] );
 			break;
+		case 'H':
+			g_GlobalConfig.m_sSqlCVSHost = argv[++optnum];
+			break;
+		case 'R':
+			g_GlobalConfig.m_iSqlCVSPort = atoi( argv[++optnum] );
+			break;
 		case 'r':
 			g_GlobalConfig.m_sRepository = argv[++optnum];
 			break;
@@ -232,8 +238,10 @@ int main( int argc, char *argv[] )
 		
 //                123456789012345678901234567890123456789012345678901234567890	
 		cout << "sqlCVS, v." << VERSION << endl
-			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password]" << endl
-			<< "[-D database] [-P mysql port] [-r Repository( -ies )] [-v verify]" << endl
+			<< "Usage: sqlCVS [-h MySql hostname] [-u MySql username] " << endl
+			<< "[-p MySql password] [-D MySql database] [-P mysql port] " << endl
+			<< "[-H sqlCVS hostname] [-R sqlCVS port] " << endl
+			<< "[-r Repository( -ies )] [-v verify]" << endl
 			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
 			<< "			default is `dcerouter`" << endl
@@ -524,6 +532,7 @@ void ChangeLoginUsers()
 			g_GlobalConfig.dceConfig.AddString("sqlCVS_MySqlDatabase",g_GlobalConfig.m_sDBName);
 			g_GlobalConfig.dceConfig.AddInteger("sqlCVS_MySqlPort",g_GlobalConfig.m_iDBPort);
 			g_GlobalConfig.dceConfig.AddInteger("sqlCVS_Port",g_GlobalConfig.m_iSqlCVSPort);
+			g_GlobalConfig.dceConfig.AddString("sqlCVS_Host",g_GlobalConfig.m_sSqlCVSHost);
 			g_GlobalConfig.dceConfig.AddString("sqlCVS_Users",g_GlobalConfig.m_sUsers);
 			g_GlobalConfig.dceConfig.WriteSettings();
 			return;
