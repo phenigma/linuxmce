@@ -558,7 +558,6 @@ clock_t ccc=clock();
 /*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle)
 {
 	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
-	TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", "\n\r");
 
 	//temp
 #ifdef WINCE
@@ -566,6 +565,9 @@ clock_t ccc=clock();
 #if ( defined( PROFILING ) )
     clock_t clkStart = clock(  );
 #endif
+
+	TextToDisplay = StringUtils::Replace(TextToDisplay, "\r", " ");
+	TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", " ");
 
 	int iNumChars = Text->m_rPosition.Width / ciCharWidth;
 	vector<string> vectStrings;
@@ -610,6 +612,8 @@ clock_t ccc=clock();
 
 
 #else //winxp/2000
+
+	TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", "\n\r");
 
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
 	
