@@ -239,6 +239,8 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 
     if(pObj->m_pDataGridTable)
     {
+               g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pObj->m_pDataGridTable->m_ColumnCount);
+               /*
         if(pObj->m_pDataGridTable->m_ColumnCount != 1)
         {
             g_pPlutoLogger->Write(LV_WARNING,
@@ -249,6 +251,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 			OrbiterSDL::RenderDataGrid(pObj);
             return;
         }
+               */
 
 		//now I have a grid with one column.. I know how to render it on the phone
 
@@ -261,7 +264,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 
 		int iSelectedColumn = 0;
 		//if 'c' - column  extraoption is specified, we'll send to phone the specified column
-		if(pObj->m_sExtraInfo.find( 'c' ) != string::npos)
+		if(pObj->m_pDataGridTable->m_ColumnCount > 1 && pObj->m_sExtraInfo.find( 'c' ) != string::npos)
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
 			
@@ -287,7 +290,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
             DataGridCell * pCell = pObj->m_pDataGridTable->GetData(iSelectedColumn, i);
 
 			string sItem = pCell != NULL ? pCell->GetText() : "<empty>";
-			g_pPlutoLogger->Write(LV_STATUS, "Item %d : %s", i, sItem.c_str());
+			g_pPlutoLogger->Write(LV_STATUS, "Item %d : '%s'", i, sItem.c_str());
 			
             listGrid.push_back(sItem);
         }
