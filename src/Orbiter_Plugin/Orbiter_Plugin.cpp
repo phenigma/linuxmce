@@ -1316,8 +1316,6 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 			}
 		}
 		g_pPlutoLogger->Write(LV_STATUS,"after Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
-
-		return;
 	}
 }
 //<-dceag-createinst-b->!
