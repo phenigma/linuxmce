@@ -1092,7 +1092,8 @@ void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, lo
 	else
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Can't learn because no learning port is open");
-		DCE::CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Can't learn because no learning port is open", PK_Text);
+		DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Can't learn because no learning port is open", PK_Text);
+		SendCommand(CMD_Set_Text);
 	}
 }
 
@@ -1142,6 +1143,11 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	long PK_Device = pLearningInfo->m_PK_Device;
 	long PK_Device_Orbiter = pLearningInfo->m_PK_Device_Orbiter;
 	long PK_Text = pLearningInfo->m_PK_Text;
+
+	{
+		DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Waiting for IR code", PK_Text);
+		SendCommand(CMD_Set_Text);
+	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Learning thread started");
 	timeval StartTime;
@@ -1215,19 +1221,22 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 					m_pCommand_Impl->SendCommand(CMD_Store_Infrared_Code_Cat);
 					m_CodeMap[IntPair(m_IRDeviceID, m_IRCommandID)] = pronto_result;
 					bLearnedCode = true;
-					DCE::CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
+					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
+					SendCommand(CMD_Set_Text);
 				}
 				else
 				{
 					g_pPlutoLogger->Write(LV_WARNING, "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned");
-					DCE::CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned", PK_Text);
+					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned", PK_Text);
+					SendCommand(CMD_Set_Text);
 				}
 			}
 		}
 		else
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Timeout");
-			DCE::CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
+			DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
+			SendCommand(CMD_Set_Text);
 		}
 	} // end if is_open_for_learning
 	m_bLearning=false;
