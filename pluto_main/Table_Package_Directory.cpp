@@ -123,6 +123,8 @@ is_null[3] = true;
 is_null[4] = true;
 m_Path = "";
 is_null[5] = false;
+m_GenerateDoxygen = 0;
+is_null[6] = false;
 
 
 	is_added=false;
@@ -148,6 +150,9 @@ return m_FK_Distro;}
 string Row_Package_Directory::Path_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Path;}
+short int Row_Package_Directory::GenerateDoxygen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_GenerateDoxygen;}
 
 		
 void Row_Package_Directory::PK_Package_Directory_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -168,6 +173,9 @@ m_FK_Distro = val; is_modified=true; is_null[4]=false;}
 void Row_Package_Directory::Path_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Path = val; is_modified=true; is_null[5]=false;}
+void Row_Package_Directory::GenerateDoxygen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_GenerateDoxygen = val; is_modified=true; is_null[6]=false;}
 
 		
 bool Row_Package_Directory::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -176,6 +184,9 @@ return is_null[3];}
 bool Row_Package_Directory::FK_Distro_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
+bool Row_Package_Directory::GenerateDoxygen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
 
 			
 void Row_Package_Directory::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -184,6 +195,9 @@ is_null[3]=val;}
 void Row_Package_Directory::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
+void Row_Package_Directory::GenerateDoxygen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
 	
 
 string Row_Package_Directory::PK_Package_Directory_asSQL()
@@ -263,6 +277,19 @@ mysql_real_escape_string(table->database->db_handle, buf, m_Path.c_str(), (unsig
 return string()+"\""+buf+"\"";
 }
 
+string Row_Package_Directory::GenerateDoxygen_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_GenerateDoxygen);
+
+return buf;
+}
+
 
 
 
@@ -301,10 +328,10 @@ void Table_Package_Directory::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Directory_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->FK_Directory_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->Path_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Directory_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->FK_Directory_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->GenerateDoxygen_asSQL();
 
 	
-		string query = "insert into Package_Directory (PK_Package_Directory, FK_Package, FK_Directory, FK_OperatingSystem, FK_Distro, Path) values ("+
+		string query = "insert into Package_Directory (PK_Package_Directory, FK_Package, FK_Directory, FK_OperatingSystem, FK_Distro, Path, GenerateDoxygen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -353,7 +380,7 @@ condition = condition + "PK_Package_Directory=" + tmp_PK_Package_Directory;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package_Directory="+pRow->PK_Package_Directory_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", FK_Directory="+pRow->FK_Directory_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", Path="+pRow->Path_asSQL();
+update_values_list = update_values_list + "PK_Package_Directory="+pRow->PK_Package_Directory_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", FK_Directory="+pRow->FK_Directory_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", Path="+pRow->Path_asSQL()+", GenerateDoxygen="+pRow->GenerateDoxygen_asSQL();
 
 	
 		string query = "update Package_Directory set " + update_values_list + " where " + condition;
@@ -504,6 +531,17 @@ else
 {
 pRow->is_null[5]=false;
 pRow->m_Path = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_GenerateDoxygen = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%hi", &(pRow->m_GenerateDoxygen));
 }
 
 
@@ -676,6 +714,17 @@ else
 {
 pRow->is_null[5]=false;
 pRow->m_Path = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_GenerateDoxygen = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%hi", &(pRow->m_GenerateDoxygen));
 }
 
 

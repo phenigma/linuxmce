@@ -113,6 +113,8 @@ is_null[0] = false;
 m_Description = "";
 is_null[1] = false;
 is_null[2] = true;
+is_null[3] = true;
+is_null[4] = true;
 
 
 	is_added=false;
@@ -129,6 +131,12 @@ return m_Description;}
 string Row_RepositoryType::Define_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Define;}
+string Row_RepositoryType::PathToFile_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_PathToFile;}
+string Row_RepositoryType::Instructions_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Instructions;}
 
 		
 void Row_RepositoryType::PK_RepositoryType_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -140,16 +148,34 @@ m_Description = val; is_modified=true; is_null[1]=false;}
 void Row_RepositoryType::Define_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Define = val; is_modified=true; is_null[2]=false;}
+void Row_RepositoryType::PathToFile_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_PathToFile = val; is_modified=true; is_null[3]=false;}
+void Row_RepositoryType::Instructions_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Instructions = val; is_modified=true; is_null[4]=false;}
 
 		
 bool Row_RepositoryType::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
+bool Row_RepositoryType::PathToFile_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[3];}
+bool Row_RepositoryType::Instructions_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
 
 			
 void Row_RepositoryType::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
+void Row_RepositoryType::PathToFile_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[3]=val;}
+void Row_RepositoryType::Instructions_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
 	
 
 string Row_RepositoryType::PK_RepositoryType_asSQL()
@@ -186,6 +212,30 @@ return "NULL";
 
 char buf[51];
 mysql_real_escape_string(table->database->db_handle, buf, m_Define.c_str(), (unsigned long) m_Define.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_RepositoryType::PathToFile_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[101];
+mysql_real_escape_string(table->database->db_handle, buf, m_PathToFile.c_str(), (unsigned long) m_PathToFile.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_RepositoryType::Instructions_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[511];
+mysql_real_escape_string(table->database->db_handle, buf, m_Instructions.c_str(), (unsigned long) m_Instructions.size());
 return string()+"\""+buf+"\"";
 }
 
@@ -227,10 +277,10 @@ void Table_RepositoryType::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositoryType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositoryType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->PathToFile_asSQL()+", "+pRow->Instructions_asSQL();
 
 	
-		string query = "insert into RepositoryType (PK_RepositoryType, Description, Define) values ("+
+		string query = "insert into RepositoryType (PK_RepositoryType, Description, Define, PathToFile, Instructions) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -279,7 +329,7 @@ condition = condition + "PK_RepositoryType=" + tmp_PK_RepositoryType;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_RepositoryType="+pRow->PK_RepositoryType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL();
+update_values_list = update_values_list + "PK_RepositoryType="+pRow->PK_RepositoryType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", PathToFile="+pRow->PathToFile_asSQL()+", Instructions="+pRow->Instructions_asSQL();
 
 	
 		string query = "update RepositoryType set " + update_values_list + " where " + condition;
@@ -397,6 +447,28 @@ else
 {
 pRow->is_null[2]=false;
 pRow->m_Define = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_PathToFile = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_PathToFile = string(row[3],lengths[3]);
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Instructions = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_Instructions = string(row[4],lengths[4]);
 }
 
 
@@ -536,6 +608,28 @@ else
 {
 pRow->is_null[2]=false;
 pRow->m_Define = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_PathToFile = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_PathToFile = string(row[3],lengths[3]);
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Instructions = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_Instructions = string(row[4],lengths[4]);
 }
 
 

@@ -85,8 +85,9 @@ long int m_FK_Directory;
 long int m_FK_OperatingSystem;
 long int m_FK_Distro;
 string m_Path;
+short int m_GenerateDoxygen;
 
-		bool is_null[6];
+		bool is_null[7];
 	
 		bool is_deleted;
 		bool is_added;
@@ -99,6 +100,7 @@ long int FK_Directory_get();
 long int FK_OperatingSystem_get();
 long int FK_Distro_get();
 string Path_get();
+short int GenerateDoxygen_get();
 
 		
 		void PK_Package_Directory_set(long int val);
@@ -107,14 +109,17 @@ void FK_Directory_set(long int val);
 void FK_OperatingSystem_set(long int val);
 void FK_Distro_set(long int val);
 void Path_set(string val);
+void GenerateDoxygen_set(short int val);
 
 		
 		bool FK_OperatingSystem_isNull();
 bool FK_Distro_isNull();
+bool GenerateDoxygen_isNull();
 
 			
 		void FK_OperatingSystem_setNull(bool val);
 void FK_Distro_setNull(bool val);
+void GenerateDoxygen_setNull(bool val);
 	
 	
 		void Delete();
@@ -140,7 +145,7 @@ void Package_Directory_File_FK_Package_Directory_getrows(vector <class Row_Packa
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package_Directory+ m_FK_Package+ m_FK_Directory+ m_FK_OperatingSystem+ m_FK_Distro+ m_Path;
+			StartSerializeList() + m_PK_Package_Directory+ m_FK_Package+ m_FK_Directory+ m_FK_OperatingSystem+ m_FK_Distro+ m_Path+ m_GenerateDoxygen;
 		}
 	private:
 		void SetDefaultValues();
@@ -151,6 +156,7 @@ string FK_Directory_asSQL();
 string FK_OperatingSystem_asSQL();
 string FK_Distro_asSQL();
 string Path_asSQL();
+string GenerateDoxygen_asSQL();
 
 	};
 

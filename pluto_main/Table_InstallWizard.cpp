@@ -20,6 +20,7 @@ using namespace std;
 #include "Table_InstallWizard.h"
 #include "Table_DeviceTemplate.h"
 
+#include "Table_InstallWizard_Distro.h"
 
 
 void Database_pluto_main::CreateTable_InstallWizard()
@@ -114,6 +115,9 @@ m_FK_DeviceTemplate = 0;
 is_null[1] = false;
 m_Step = 0;
 is_null[2] = false;
+m_Default = 0;
+is_null[3] = false;
+is_null[4] = true;
 
 
 	is_added=false;
@@ -130,6 +134,12 @@ return m_FK_DeviceTemplate;}
 long int Row_InstallWizard::Step_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Step;}
+short int Row_InstallWizard::Default_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Default;}
+string Row_InstallWizard::Comments_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Comments;}
 
 		
 void Row_InstallWizard::PK_InstallWizard_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -141,10 +151,28 @@ m_FK_DeviceTemplate = val; is_modified=true; is_null[1]=false;}
 void Row_InstallWizard::Step_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Step = val; is_modified=true; is_null[2]=false;}
+void Row_InstallWizard::Default_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Default = val; is_modified=true; is_null[3]=false;}
+void Row_InstallWizard::Comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Comments = val; is_modified=true; is_null[4]=false;}
 
 		
+bool Row_InstallWizard::Default_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[3];}
+bool Row_InstallWizard::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
 
 			
+void Row_InstallWizard::Default_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[3]=val;}
+void Row_InstallWizard::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
 	
 
 string Row_InstallWizard::PK_InstallWizard_asSQL()
@@ -186,6 +214,31 @@ sprintf(buf, "%li", m_Step);
 return buf;
 }
 
+string Row_InstallWizard::Default_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Default);
+
+return buf;
+}
+
+string Row_InstallWizard::Comments_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[511];
+mysql_real_escape_string(table->database->db_handle, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
+return string()+"\""+buf+"\"";
+}
+
 
 
 
@@ -224,10 +277,10 @@ void Table_InstallWizard::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_InstallWizard_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->Step_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_InstallWizard_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->Step_asSQL()+", "+pRow->Default_asSQL()+", "+pRow->Comments_asSQL();
 
 	
-		string query = "insert into InstallWizard (PK_InstallWizard, FK_DeviceTemplate, Step) values ("+
+		string query = "insert into InstallWizard (PK_InstallWizard, FK_DeviceTemplate, Step, Default, Comments) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -276,7 +329,7 @@ condition = condition + "PK_InstallWizard=" + tmp_PK_InstallWizard;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_InstallWizard="+pRow->PK_InstallWizard_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", Step="+pRow->Step_asSQL();
+update_values_list = update_values_list + "PK_InstallWizard="+pRow->PK_InstallWizard_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", Step="+pRow->Step_asSQL()+", Default="+pRow->Default_asSQL()+", Comments="+pRow->Comments_asSQL();
 
 	
 		string query = "update InstallWizard set " + update_values_list + " where " + condition;
@@ -394,6 +447,28 @@ else
 {
 pRow->is_null[2]=false;
 sscanf(row[2], "%li", &(pRow->m_Step));
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Default = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%hi", &(pRow->m_Default));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Comments = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_Comments = string(row[4],lengths[4]);
 }
 
 
@@ -535,6 +610,28 @@ pRow->is_null[2]=false;
 sscanf(row[2], "%li", &(pRow->m_Step));
 }
 
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Default = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%hi", &(pRow->m_Default));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Comments = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_Comments = string(row[4],lengths[4]);
+}
+
 
 
 	mysql_free_result(res);			
@@ -552,6 +649,13 @@ return pTable->GetRow(m_FK_DeviceTemplate);
 }
 
 
+void Row_InstallWizard::InstallWizard_Distro_FK_InstallWizard_getrows(vector <class Row_InstallWizard_Distro*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_InstallWizard_Distro *pTable = table->database->InstallWizard_Distro_get();
+pTable->GetRows("FK_InstallWizard=" + StringUtils::itos(m_PK_InstallWizard),rows);
+}
 
 
 

@@ -82,8 +82,10 @@ class DLL_EXPORT Row_InstallWizard : public TableRow, public SerializeClass
 		long int m_PK_InstallWizard;
 long int m_FK_DeviceTemplate;
 long int m_Step;
+short int m_Default;
+string m_Comments;
 
-		bool is_null[3];
+		bool is_null[5];
 	
 		bool is_deleted;
 		bool is_added;
@@ -93,16 +95,24 @@ long int m_Step;
 		long int PK_InstallWizard_get();
 long int FK_DeviceTemplate_get();
 long int Step_get();
+short int Default_get();
+string Comments_get();
 
 		
 		void PK_InstallWizard_set(long int val);
 void FK_DeviceTemplate_set(long int val);
 void Step_set(long int val);
+void Default_set(short int val);
+void Comments_set(string val);
 
 		
-		
+		bool Default_isNull();
+bool Comments_isNull();
+
 			
-			
+		void Default_setNull(bool val);
+void Comments_setNull(bool val);
+	
 	
 		void Delete();
 		void Reload();		
@@ -118,11 +128,12 @@ void Step_set(long int val);
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		
+		void InstallWizard_Distro_FK_InstallWizard_getrows(vector <class Row_InstallWizard_Distro*> *rows);
+
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_InstallWizard+ m_FK_DeviceTemplate+ m_Step;
+			StartSerializeList() + m_PK_InstallWizard+ m_FK_DeviceTemplate+ m_Step+ m_Default+ m_Comments;
 		}
 	private:
 		void SetDefaultValues();
@@ -130,6 +141,8 @@ void Step_set(long int val);
 		string PK_InstallWizard_asSQL();
 string FK_DeviceTemplate_asSQL();
 string Step_asSQL();
+string Default_asSQL();
+string Comments_asSQL();
 
 	};
 

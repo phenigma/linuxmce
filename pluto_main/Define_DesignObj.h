@@ -1280,6 +1280,21 @@
 #define DESIGNOBJ_go_to_new_device_CONST 3153
 #define DESIGNOBJ_navmode_CONST 3154
 #define DESIGNOBJ_pvr_CONST 3155
+#define DESIGNOBJ_pvr_full_screen_CONST 3156
+#define DESIGNOBJ_plutotv_CONST 3157
+#define DESIGNOBJ_nonplutotv_CONST 3158
+#define DESIGNOBJ_go_to_main_menu_CONST 3159
+#define DESIGNOBJ_go_to_pluto_tv_CONST 3160
+#define DESIGNOBJ_go_to_nonplutotv_CONST 3161
+#define DESIGNOBJ_go_to_nav_mode_CONST 3162
+#define DESIGNOBJ_epg_CONST 3163
+#define DESIGNOBJ_go_to_epg_CONST 3164
+#define DESIGNOBJ_go_to_media_menu_CONST 3165
+#define DESIGNOBJ_stop_media_CONST 3167
+#define DESIGNOBJ_up_CONST 3168
+#define DESIGNOBJ_down_CONST 3169
+#define DESIGNOBJ_left_CONST 3170
+#define DESIGNOBJ_right_CONST 3171
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

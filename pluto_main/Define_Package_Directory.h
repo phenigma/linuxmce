@@ -15,6 +15,8 @@
 #define PACKAGE_DIRECTORY_FK_DISTRO_TABLE_FIELD "Package_Directory.FK_Distro"
 #define PACKAGE_DIRECTORY_PATH_FIELD "Path"
 #define PACKAGE_DIRECTORY_PATH_TABLE_FIELD "Package_Directory.Path"
+#define PACKAGE_DIRECTORY_GENERATEDOXYGEN_FIELD "GenerateDoxygen"
+#define PACKAGE_DIRECTORY_GENERATEDOXYGEN_TABLE_FIELD "Package_Directory.GenerateDoxygen"
 
 
 #endif

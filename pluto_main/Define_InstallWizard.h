@@ -9,6 +9,10 @@
 #define INSTALLWIZARD_FK_DEVICETEMPLATE_TABLE_FIELD "InstallWizard.FK_DeviceTemplate"
 #define INSTALLWIZARD_STEP_FIELD "Step"
 #define INSTALLWIZARD_STEP_TABLE_FIELD "InstallWizard.Step"
+#define INSTALLWIZARD_DEFAULT_FIELD "Default"
+#define INSTALLWIZARD_DEFAULT_TABLE_FIELD "InstallWizard.Default"
+#define INSTALLWIZARD_COMMENTS_FIELD "Comments"
+#define INSTALLWIZARD_COMMENTS_TABLE_FIELD "InstallWizard.Comments"
 
 
 #endif

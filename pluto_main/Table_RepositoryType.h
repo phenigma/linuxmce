@@ -82,8 +82,10 @@ class DLL_EXPORT Row_RepositoryType : public TableRow, public SerializeClass
 		long int m_PK_RepositoryType;
 string m_Description;
 string m_Define;
+string m_PathToFile;
+string m_Instructions;
 
-		bool is_null[3];
+		bool is_null[5];
 	
 		bool is_deleted;
 		bool is_added;
@@ -93,17 +95,25 @@ string m_Define;
 		long int PK_RepositoryType_get();
 string Description_get();
 string Define_get();
+string PathToFile_get();
+string Instructions_get();
 
 		
 		void PK_RepositoryType_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
+void PathToFile_set(string val);
+void Instructions_set(string val);
 
 		
 		bool Define_isNull();
+bool PathToFile_isNull();
+bool Instructions_isNull();
 
 			
 		void Define_setNull(bool val);
+void PathToFile_setNull(bool val);
+void Instructions_setNull(bool val);
 	
 	
 		void Delete();
@@ -124,7 +134,7 @@ void Define_set(string val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_RepositoryType+ m_Description+ m_Define;
+			StartSerializeList() + m_PK_RepositoryType+ m_Description+ m_Define+ m_PathToFile+ m_Instructions;
 		}
 	private:
 		void SetDefaultValues();
@@ -132,6 +142,8 @@ void Define_set(string val);
 		string PK_RepositoryType_asSQL();
 string Description_asSQL();
 string Define_asSQL();
+string PathToFile_asSQL();
+string Instructions_asSQL();
 
 	};
 

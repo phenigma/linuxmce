@@ -13,6 +13,8 @@
 #define PACKAGE_FK_PACKAGE_SOURCECODE_TABLE_FIELD "Package.FK_Package_Sourcecode"
 #define PACKAGE_ISSOURCE_FIELD "IsSource"
 #define PACKAGE_ISSOURCE_TABLE_FIELD "Package.IsSource"
+#define PACKAGE_NONEXECUTABLE_FIELD "NonExecutable"
+#define PACKAGE_NONEXECUTABLE_TABLE_FIELD "Package.NonExecutable"
 #define PACKAGE_HOMEPAGE_FIELD "HomePage"
 #define PACKAGE_HOMEPAGE_TABLE_FIELD "Package.HomePage"
 #define PACKAGE_FK_LICENSE_FIELD "FK_License"

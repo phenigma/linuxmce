@@ -84,6 +84,7 @@ string m_Description;
 long int m_FK_PackageType;
 long int m_FK_Package_Sourcecode;
 short int m_IsSource;
+short int m_NonExecutable;
 string m_HomePage;
 long int m_FK_License;
 long int m_FK_Manufacturer;
@@ -96,7 +97,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[16];
+		bool is_null[17];
 	
 		bool is_deleted;
 		bool is_added;
@@ -108,6 +109,7 @@ string Description_get();
 long int FK_PackageType_get();
 long int FK_Package_Sourcecode_get();
 short int IsSource_get();
+short int NonExecutable_get();
 string HomePage_get();
 long int FK_License_get();
 long int FK_Manufacturer_get();
@@ -126,6 +128,7 @@ void Description_set(string val);
 void FK_PackageType_set(long int val);
 void FK_Package_Sourcecode_set(long int val);
 void IsSource_set(short int val);
+void NonExecutable_set(short int val);
 void HomePage_set(string val);
 void FK_License_set(long int val);
 void FK_Manufacturer_set(long int val);
@@ -141,6 +144,7 @@ void psc_mod_set(string val);
 		
 		bool FK_PackageType_isNull();
 bool FK_Package_Sourcecode_isNull();
+bool NonExecutable_isNull();
 bool HomePage_isNull();
 bool FK_License_isNull();
 bool FK_Manufacturer_isNull();
@@ -155,6 +159,7 @@ bool psc_frozen_isNull();
 			
 		void FK_PackageType_setNull(bool val);
 void FK_Package_Sourcecode_setNull(bool val);
+void NonExecutable_setNull(bool val);
 void HomePage_setNull(bool val);
 void FK_License_setNull(bool val);
 void FK_Manufacturer_setNull(bool val);
@@ -201,7 +206,7 @@ void PageSetup_FK_Package_getrows(vector <class Row_PageSetup*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package+ m_Description+ m_FK_PackageType+ m_FK_Package_Sourcecode+ m_IsSource+ m_HomePage+ m_FK_License+ m_FK_Manufacturer+ m_FK_Document+ m_FK_Document_UsersManual+ m_FK_Document_ProgrammersGuide+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Package+ m_Description+ m_FK_PackageType+ m_FK_Package_Sourcecode+ m_IsSource+ m_NonExecutable+ m_HomePage+ m_FK_License+ m_FK_Manufacturer+ m_FK_Document+ m_FK_Document_UsersManual+ m_FK_Document_ProgrammersGuide+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -211,6 +216,7 @@ string Description_asSQL();
 string FK_PackageType_asSQL();
 string FK_Package_Sourcecode_asSQL();
 string IsSource_asSQL();
+string NonExecutable_asSQL();
 string HomePage_asSQL();
 string FK_License_asSQL();
 string FK_Manufacturer_asSQL();

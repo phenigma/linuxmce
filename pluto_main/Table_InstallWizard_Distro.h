@@ -80,11 +80,12 @@ class DLL_EXPORT Row_InstallWizard_Distro : public TableRow, public SerializeCla
 		Table_InstallWizard_Distro *table;
 		
 		long int m_PK_InstallWizard_Distro;
+long int m_FK_InstallWizard;
 long int m_FK_OperatingSystem;
 long int m_FK_Distro;
 string m_Comments;
 
-		bool is_null[4];
+		bool is_null[5];
 	
 		bool is_deleted;
 		bool is_added;
@@ -92,22 +93,26 @@ string m_Comments;
 	
 	public:
 		long int PK_InstallWizard_Distro_get();
+long int FK_InstallWizard_get();
 long int FK_OperatingSystem_get();
 long int FK_Distro_get();
 string Comments_get();
 
 		
 		void PK_InstallWizard_Distro_set(long int val);
+void FK_InstallWizard_set(long int val);
 void FK_OperatingSystem_set(long int val);
 void FK_Distro_set(long int val);
 void Comments_set(string val);
 
 		
-		bool FK_OperatingSystem_isNull();
+		bool FK_InstallWizard_isNull();
+bool FK_OperatingSystem_isNull();
 bool FK_Distro_isNull();
 
 			
-		void FK_OperatingSystem_setNull(bool val);
+		void FK_InstallWizard_setNull(bool val);
+void FK_OperatingSystem_setNull(bool val);
 void FK_Distro_setNull(bool val);
 	
 	
@@ -121,7 +126,8 @@ void FK_Distro_setNull(bool val);
 		class Table_InstallWizard_Distro *Table_InstallWizard_Distro_get() { return table; };
 
 		// Return the rows for foreign keys 
-		class Row_OperatingSystem* FK_OperatingSystem_getrow();
+		class Row_InstallWizard* FK_InstallWizard_getrow();
+class Row_OperatingSystem* FK_OperatingSystem_getrow();
 class Row_Distro* FK_Distro_getrow();
 
 
@@ -130,12 +136,13 @@ class Row_Distro* FK_Distro_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_InstallWizard_Distro+ m_FK_OperatingSystem+ m_FK_Distro+ m_Comments;
+			StartSerializeList() + m_PK_InstallWizard_Distro+ m_FK_InstallWizard+ m_FK_OperatingSystem+ m_FK_Distro+ m_Comments;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_InstallWizard_Distro_asSQL();
+string FK_InstallWizard_asSQL();
 string FK_OperatingSystem_asSQL();
 string FK_Distro_asSQL();
 string Comments_asSQL();
