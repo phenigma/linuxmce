@@ -1,0 +1,1728 @@
+diff -bu linux-2.6.8-rc2/drivers/media/video/cx88/Makefile linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/Makefile
+--- linux-2.6.8-rc2/drivers/media/video/cx88/Makefile	2004-07-18 00:57:47.000000000 -0400
++++ linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/Makefile	2004-07-27 00:42:49.000000000 -0400
+@@ -1,6 +1,9 @@
+ cx88xx-objs	:= cx88-cards.o cx88-core.o
+-cx8800-objs	:= cx88-video.o cx88-tvaudio.o cx88-i2c.o cx88-vbi.o
++cx8800-objs	:= cx88-video.o cx88-tvaudio.o cx88-i2c.o cx88-vbi.o cx88-mpegport.o
+ 
+ obj-$(CONFIG_VIDEO_CX88) += cx88xx.o cx8800.o
+ 
+ EXTRA_CFLAGS = -I$(src)/..
++
++clean:
++	rm -f *.o *.ko *.mod.c *.bak *~
+diff -bu linux-2.6.8-rc2/drivers/media/video/cx88/README.thispatch linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/README.thispatch
+--- linux-2.6.8-rc2/drivers/media/video/cx88/README.thispatch	2004-07-29 03:30:04.000000000 -0400
++++ linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/README.thispatch	2004-07-29 03:27:54.000000000 -0400
+@@ -0,0 +1,82 @@
++-----------------------------------
++mpegport (jelle.cx88 at foks.8m.com)
++	- This is support for the cx23416 mpeg encoder in the blackbird
++	  configuration connected to the mpeg data port of the cx88.
++	- This is an alpha-quality driver patch. 
++	- In fact, it's pre-alpha: Take your precautions and adjust 
++	  your expectations accordingly.
++	- Currently only tested/implemented for the ASUS PVR-416, but
++	  with or without modifications it should be possible to adapt
++	  it for the other blackbird cards out there.
++        - Tested/used on 2.6 kernels only.
++	- All sorts of things are still bad or wrong, but probably 
++	  nothing that can't be fixed.
++	- tested only with "cat /dev/video1 >myfile.mpg" and
++	  "dd if=/dev/video1 of=myfile.mpg" (with various block sizes).
++	- There is sound, but it sounds hollow and has no bass,
++	  it's weird because it changes how a person's voice sounds quite a lot,
++	  and it seems delayed or early compared to the video, with differing
++	  amounts each time.
++	- Trying to stream parallel with the regular video screws things up:
++	  You'll need to unload & reload the driver.
++	- After changing channels (with xawtv for example), 
++	  you need to unload & reload the driver too, otherwise the audio
++	  will be silent and the mpeg video may have corruptions.
++	- Loading/unloading the driver repeatedly sometimes causes an OOPS
++	  in cx8800_reset() (not looked at in detail yet, may have
++	  to do with not completely shutting down the dma or something
++	  like that).
++	- Existance of the mpegport triggers creation of a 
++	  new v4l device that streams the compressed video in 
++	  V4L2_PIX_FMT_MPEG 'pixel' format (v4l fourcc 'MPEG').
++	- A new device is registered, because that may allow for 
++	  parallel streaming of compressed and uncompressed video.
++	  (is there a better way to do that?)
++	  (besides, it does not work now, mainly because of some 
++	   different cx88 configuration parameters/settings.)
++	- VBI is not supported, and even that may be broken.
++	- There is no locking of any kind to serialize configuration
++	  changes to the cx88 needed for talking to the cx23416. This
++	  may cause all sorts of unexpected behaviour when reading from 
++	  both video devices in parallel.
++	- V4l2 does not have a standardized API for compression 
++	  parameter settings. This driver will set some default values
++	  and will later need to have nonstandard ioctl's to allow a 
++	  user application to change the parameters.
++	- No support for multiple cards (or maybe it just works?)
++	- For lower bitrates, should probably add DNR, increasing with
++	  decreasing bitrates (otherwise the noise eats all the bits...)
++	- Also, the 'line size' need to be smaller for lower bitrates,
++	  otherwise the interrupts are too long apart (and latency too high)
++	  But for high bitrates a higher linesize if better, for lower
++	  interrupt/CPU overhead.
++	- Nothing is implemented with regard to boards with a non-
++	  cx23416 peripheral (such as boards for DVB, ATSC, etc.)
++
++-----------------------------------
++How to install the firmware:
++
++AFAIK, any recent enough encoder firmware for the cx23416 chip will work,
++including the firmware used by the ivtv driver
++(http://ivtv.sourceforge.net/)
++
++For information and instructions about the ivtv firmware go here:
++http://ivtv.writeme.ch/tiki-index.php?page=Drivers+and+Firmware
++
++The windows driver for the ASUS PVR-416 can be found on the support page 
++for the HP M400Y Media Center computer:
++
++http://www.tv-cards.com/messageboard/viewtopic.php?t=5589
++->  ftp://ftp.hp.com/pub/softlib/software3/COL6537/pv-20048-1/SP26281.exe
++
++Unpack with cabextract 'cabextract SP26281.exe'. The encoder firmware 
++for the cx23416 is in the file driver/cx88enc.sys at offset 27912:
++
++dd if=cx88enc.sys skip=27912 bs=1 count=262144 of=blackbird-fw-enc.bin
++
++Copy blackbird-fw-enc.bin to /usr/lib/hotplug/firmware, and make sure you
++have hotplugging support enabled in the kernel (CONFIG_HOTPLUG, CONFIG_FW_LOADER), 
++and user space utilities installed, including the firmware.agent. Debian users: 
++"apt-get install hotplug"
++
++-----------------------------------
+diff -bu linux-2.6.8-rc2/drivers/media/video/cx88/cx88-cards.c linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-cards.c
+--- linux-2.6.8-rc2/drivers/media/video/cx88/cx88-cards.c	2004-07-18 00:59:03.000000000 -0400
++++ linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-cards.c	2004-07-29 00:20:51.000000000 -0400
+@@ -374,6 +374,18 @@
+ const unsigned int cx88_idcount = ARRAY_SIZE(cx88_subids);
+ 
+ /* ----------------------------------------------------------------------- */
++/* some asus specific stuff                                                */
++static void __devinit asus_eeprom(struct cx8800_dev *dev, u8 *eeprom_data)
++{
++	/* check for Transport Stream function (see section 2.4.1 of datasheet) */
++	if (eeprom_data[0] & 0x04)
++		dev->has_mpegport = 1;
++	
++	printk(KERN_INFO "%s: asus eeprom: mpegport=%s\n",
++	       dev->name, dev->has_mpegport ? "yes" : "no");
++}
++
++/* ----------------------------------------------------------------------- */
+ /* some leadtek specific stuff                                             */
+ 
+ static void __devinit leadtek_eeprom(struct cx8800_dev *dev, u8 *eeprom_data)
+@@ -561,6 +573,7 @@
+ 		return -1;
+ 	}
+ #if 0
++	int i;
+ 	for (i = 0; i < len; i++) {
+ 		if (0 == (i % 16))
+ 			printk(KERN_INFO "cx88 ee: %02x:",i);
+@@ -620,6 +633,9 @@
+ 		break;
+         case CX88_BOARD_ASUS_PVR_416:
+ 		dev->has_radio = 1;
++		if (0 == dev->i2c_rc)
++			i2c_eeprom(&dev->i2c_client,eeprom,sizeof(eeprom));
++		asus_eeprom(dev,eeprom);
+                 break;
+ 	}
+ }
+diff -bu linux-2.6.8-rc2/drivers/media/video/cx88/cx88-core.c linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-core.c
+--- linux-2.6.8-rc2/drivers/media/video/cx88/cx88-core.c	2004-07-18 00:58:12.000000000 -0400
++++ linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-core.c	2004-07-29 00:20:51.000000000 -0400
+@@ -258,14 +258,17 @@
+  * to be able to deal with insane long pci latencies ...
+  *
+  * FIFO space allocations:
++ *    CMDs/queues/reserverd     -  3.0k
+  *    channel  21    (y video)  - 10.0k
++ *    channel  22    (u video)  -  2.0k
++ *    channel  23    (v video)  -  2.0k
+  *    channel  24    (vbi)      -  4.0k
+  *    channels 25+26 (audio)    -  0.5k
+- *    everything else           -  2.0k
+- *    TOTAL                     = 29.0k
++ *    channel  28    (mpeg)     -  4.0k
++ *    TOTAL                     = 25.5k
+  *
+  * Every channel has 160 bytes control data (64 bytes instruction
+- * queue and 6 CDT entries), which is close to 2k total.
++ * queue and space for 6 CDT entries), which is close to 2k total.
+  * 
+  * Address layout:
+  *    0x0000 - 0x03ff    CMDs / reserved
+@@ -346,6 +349,18 @@
+ 		.cnt1_reg   = MO_DMA26_CNT1,
+ 		.cnt2_reg   = MO_DMA26_CNT2,
+ 	},
++	[SRAM_CH28] = {
++		.name       = "mpegport",
++		.cmds_start = 0x180200,
++		.ctrl_start = 0x1807C0,
++		.cdt        = 0x1807C0 + 64,
++		.fifo_start = 0x185600,
++		.fifo_size  = 0x001000,
++		.ptr1_reg   = MO_DMA28_PTR1,
++		.ptr2_reg   = MO_DMA28_PTR2,
++		.cnt1_reg   = MO_DMA28_CNT1,
++		.cnt2_reg   = MO_DMA28_CNT2,
++	},
+ };
+ 
+ int cx88_sram_channel_setup(struct cx8800_dev *dev,
+@@ -378,7 +393,8 @@
+ 	/* fill registers */
+ 	cx_write(ch->ptr1_reg, ch->fifo_start);
+ 	cx_write(ch->ptr2_reg, cdt);
+-	cx_write(ch->cnt1_reg, bpl >> 3);
++	//cx_write(ch->cnt1_reg, (bpl >> 3));
++	cx_write(ch->cnt1_reg, (bpl >> 3)-1); /* minus one: section 2.4.12 of the datasheet */
+ 	cx_write(ch->cnt2_reg, (lines*16) >> 3);
+ 
+ 	dprintk("sram setup %s: bpl=%d lines=%d\n", ch->name, bpl, lines);
+diff -bu linux-2.6.8-rc2/drivers/media/video/cx88/cx88-mpegport.c linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-mpegport.c
+--- linux-2.6.8-rc2/drivers/media/video/cx88/cx88-mpegport.c	2004-07-29 03:43:51.000000000 -0400
++++ linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-mpegport.c	2004-07-29 03:22:58.000000000 -0400
+@@ -0,0 +1,1220 @@
++/*
++ *  Support for a cx23416 mpeg encoder on the peripheral port.
++ *  
++ *  Includes parts from the ivtv driver( http://ivtv.sourceforge.net/), 
++ *  and parts from elsewhere in the cx88 driver.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include "asm/delay.h"
++#include "cx88.h"
++#include <linux/firmware.h>
++
++#define PACKET_SIZE 512
++// strange: with this value lowered, the interrupt rate doesn't go up: we lose bits of data
++#define PACKETS_PER_BUFFER 1024
++#define MPEGBUFS 8
++
++#define MD_TS_LNGHT_VAL PACKET_SIZE
++
++#define MPEG_PREPARE_WIDTH PACKET_SIZE
++#define MPEG_PREPARE_HEIGHT PACKETS_PER_BUFFER
++
++#define MPEG_PREPARE_SIZE PACKET_SIZE * PACKETS_PER_BUFFER
++#define MPEG_SETUP_SIZE PACKET_SIZE * PACKETS_PER_BUFFER
++
++#define SRAM_SETUP_SIZE PACKET_SIZE
++
++static unsigned int mpegbufs = MPEGBUFS;
++MODULE_PARM(mpegbufs,"i");
++MODULE_PARM_DESC(mpegbufs,"number of mpeg buffers, range 2-32");
++
++static unsigned int mpegport_debug = 0;
++MODULE_PARM(mpegport_debug,"i");
++MODULE_PARM_DESC(video_debug,"enable debug messages [mpegport]");
++
++#define dprintk(level,fmt, arg...)	if (mpegport_debug >= level) \
++	printk(KERN_DEBUG "%s: mpegport " fmt, dev->name , ## arg)
++
++#define BLACKBIRD_FIRM_ENC_FILENAME "blackbird-fw-enc.bin" 
++#define BLACKBIRD_FIRM_IMAGE_SIZE 256*1024
++
++/* defines below are from ivtv-driver.h */
++
++#define IVTV_CMD_HW_BLOCKS_RST 0xFFFFFFFF
++
++/*Firmware API commands*/
++#define IVTV_API_ENC_PING_FW 0x00000080
++#define IVTV_API_ENC_GETVER 0x000000C4
++#define IVTV_API_ENC_HALT_FW 0x000000C3
++#define IVTV_API_STD_TIMEOUT 0x00010000 /*units??*/
++//#define IVTV_API_ASSIGN_PGM_INDEX_INFO 0x000000c7
++#define IVTV_API_ASSIGN_STREAM_TYPE 0x000000b9
++#define IVTV_API_ASSIGN_OUTPUT_PORT 0x000000bb
++#define IVTV_API_ASSIGN_FRAMERATE 0x0000008f
++#define IVTV_API_ASSIGN_FRAME_SIZE 0x00000091
++#define IVTV_API_ASSIGN_ASPECT_RATIO 0x00000099
++#define IVTV_API_ASSIGN_BITRATES 0x00000095
++#define IVTV_API_ASSIGN_GOP_PROPERTIES 0x00000097
++#define IVTV_API_ASSIGN_3_2_PULLDOWN 0x000000b1
++#define IVTV_API_ASSIGN_GOP_CLOSURE 0x000000c5
++#define IVTV_API_ASSIGN_AUDIO_PROPERTIES 0x000000bd
++#define IVTV_API_ASSIGN_DNR_FILTER_MODE 0x0000009b
++#define IVTV_API_ASSIGN_DNR_FILTER_PROPS 0x0000009d
++#define IVTV_API_ASSIGN_CORING_LEVELS 0x0000009f
++#define IVTV_API_ASSIGN_SPATIAL_FILTER_TYPE 0x000000a1
++#define IVTV_API_ASSIGN_FRAME_DROP_RATE 0x000000d0
++#define IVTV_API_ASSIGN_PLACEHOLDER 0x000000d8
++#define IVTV_API_MUTE_VIDEO 0x000000d9
++#define IVTV_API_MUTE_AUDIO 0x000000da
++#define IVTV_API_INITIALIZE_INPUT 0x000000cd
++#define IVTV_API_REFRESH_INPUT 0x000000d3
++#define IVTV_API_ASSIGN_NUM_VSYNC_LINES 0x000000d6
++#define IVTV_API_BEGIN_CAPTURE 0x00000081
++//#define IVTV_API_PAUSE_ENCODER 0x000000d2
++//#define IVTV_API_EVENT_NOTIFICATION 0x000000d5
++#define IVTV_API_END_CAPTURE 0x00000082
++
++/* Registers */
++#define IVTV_REG_ENC_SDRAM_REFRESH (0x07F8 /*| IVTV_REG_OFFSET*/)
++#define IVTV_REG_ENC_SDRAM_PRECHARGE (0x07FC /*| IVTV_REG_OFFSET*/)
++#define IVTV_REG_SPU (0x9050 /*| IVTV_REG_OFFSET*/)
++#define IVTV_REG_HW_BLOCKS (0x9054 /*| IVTV_REG_OFFSET*/)
++#define IVTV_REG_VPU (0x9058 /*| IVTV_REG_OFFSET*/)
++#define IVTV_REG_APU (0xA064 /*| IVTV_REG_OFFSET*/)
++
++static struct cx8800_fmt mpegport_formats[] = {
++	{
++		.name     = "MPEG",
++		.fourcc   = V4L2_PIX_FMT_MPEG,
++		.cxformat = ColorFormatRAW,
++		.depth    = 8,
++		.flags    = FORMAT_FLAGS_PACKED,
++	},
++};
++
++/* initialize the dma for the mpegport, called from cx88-video.c:cx8800_initdev */
++int cx8800_mpegport_init_dma(struct cx8800_dev *dev)
++{
++	dprintk(1,"cx88_mpegport_init_dma\n");
++
++	/* toggle reset of the host */	
++	cx_write(MO_GPHST_SOFT_RST, 1);
++	udelay(100);
++	cx_write(MO_GPHST_SOFT_RST, 0);
++	udelay(100);
++	
++	/* host port setup */
++	cx_write(MO_GPHST_WSC, 0x44444444U);
++	cx_write(MO_GPHST_XFR, 0);
++	cx_write(MO_GPHST_WDTH, 15);
++	cx_write(MO_GPHST_HDSHK, 0);
++	cx_write(MO_GPHST_MUX16, 0x44448888U);
++	cx_write(MO_GPHST_MODE, 0);
++	
++	cx_write(MO_PINMUX_IO, 0x88); /* enable MPEG parallel IO */
++	
++	cx_write(MO_DEV_CNTRL2, 0x20); /* enable the RISC controller */
++	cx_set(MO_PCI_INTMSK, 0x4); /* enable ts_int */
++	
++	cx_write(TS_F2_CMD_STAT_MM, 0x2900106); /* F2_CMD_STAT_MM defaults + master + memory space */
++	cx_write(TS_GEN_CNTRL, 0x46); /* punctured clock TS & posedge driven & software reset */	
++	cx_write(MO_TS_LNGTH, MD_TS_LNGHT_VAL);
++	
++	udelay(100);
++	INIT_LIST_HEAD(&dev->mpegq.active);
++	INIT_LIST_HEAD(&dev->mpegq.queued);
++	dev->mpegq.timeout.function = cx8800_mpegport_timeout;
++	dev->mpegq.timeout.data     = (unsigned long)dev;
++	init_timer(&dev->mpegq.timeout);
++	cx88_risc_stopper(dev->pci,&dev->mpegq.stopper,
++			  MO_TS_DMACNTRL,0x11,0x00);
++	udelay(100);
++	
++	cx_write(MO_TS_INTMSK, 0);
++	cx_set(MO_TS_INTSTAT, 0);
++	cx_write(MO_TS_INTMSK, 0x1f1101); /* all except the irq2 bit */
++	
++	cx_write(MO_TS_GPCNTRL, 3); /* reset gp counter to 0 */
++	cx_write(TS_HW_SOP_CNTRL, 0x408); /* mpeg start byte */
++	//cx_write(TS_HW_SOP_CNTRL, 0x2F0BC0); /* mpeg start byte ts: 0x2F0BC0 ? */
++	cx_write(TS_VALERR_CNTRL, 0x2000);
++	
++	cx_write(TS_GEN_CNTRL, 0x06); /* punctured clock TS & posedge driven */
++	udelay(100);
++	
++	return 0;
++}
++
++
++static struct cx8800_fmt* mpegport_format_by_fourcc(unsigned int fourcc)
++{
++	unsigned int i;
++	
++	for (i = 0; i < ARRAY_SIZE(mpegport_formats); i++)
++		if (mpegport_formats[i].fourcc == fourcc)
++			return mpegport_formats+i;
++	return NULL;
++}
++
++
++static int cx8800_mpegport_try_fmt(struct cx8800_dev *dev, struct cx8800_fh *fh,
++			  struct v4l2_format *f)
++{
++	switch (f->type) {
++	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
++	{
++		struct cx8800_fmt *fmt;
++		unsigned int maxw, maxh;
++
++		fmt = mpegport_format_by_fourcc(f->fmt.pix.pixelformat);
++		if (NULL == fmt)
++			return -EINVAL;
++
++		maxw  = norm_maxw(dev->tvnorm);
++		maxh  = norm_maxh(dev->tvnorm);
++
++		if (f->fmt.pix.height < 32)
++			f->fmt.pix.height = 32;
++		if (f->fmt.pix.height > maxh)
++			f->fmt.pix.height = maxh;
++		if (f->fmt.pix.width < 48)
++			f->fmt.pix.width = 48;
++		if (f->fmt.pix.width > maxw)
++			f->fmt.pix.width = maxw;
++		f->fmt.pix.width &= ~0x03;
++		f->fmt.pix.bytesperline =
++			(f->fmt.pix.width * fmt->depth) >> 3;
++		f->fmt.pix.sizeimage =
++			f->fmt.pix.height * f->fmt.pix.bytesperline;
++		return 0;
++	}
++	default:
++		return -EINVAL;
++	}
++}
++
++static int cx8800_mpegport_s_fmt(struct cx8800_dev *dev, struct cx8800_fh *fh,
++			struct v4l2_format *f)
++{
++	int err;
++	
++	switch (f->type) {
++	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
++		err = cx8800_mpegport_try_fmt(dev,fh,f);
++		if (0 != err)
++			return err;
++
++		fh->fmt        = mpegport_format_by_fourcc(f->fmt.pix.pixelformat);
++		fh->width      = f->fmt.pix.width;
++		fh->height     = f->fmt.pix.height;
++		fh->mpegq.field = f->fmt.pix.field;
++		return 0;
++	default:
++		return -EINVAL;
++	}
++}
++
++int wait_ready_gpio0_bit1_high(struct cx8800_dev *dev)
++{
++	int timeout = 1000;
++	do { timeout--; udelay(1); } while (!(cx_readb(MO_GP0_IO) & 2) && (timeout >= 0));
++	if (timeout < 0) return -1;
++	return 0;
++}
++
++int wait_ready_gpio0_bit1_low(struct cx8800_dev *dev)
++{
++	int timeout = 1000;
++	do { timeout--; udelay(1); } while ((cx_readb(MO_GP0_IO) & 2) && (timeout >= 0));
++	if (timeout < 0) return -1;
++	return 0;
++}
++
++#define P1_MDATA0 0x390000
++#define P1_MDATA1 0x390001
++#define P1_MDATA2 0x390002
++#define P1_MDATA3 0x390003
++#define P1_MADDR2 0x390004
++#define P1_MADDR1 0x390005
++#define P1_MADDR0 0x390006
++#define P1_RDATA0 0x390008
++#define P1_RDATA1 0x390009
++#define P1_RDATA2 0x39000A
++#define P1_RDATA3 0x39000B
++#define P1_RADDR0 0x39000C
++#define P1_RADDR1 0x39000D
++#define P1_RRDWR  0x39000E
++
++/* Warning: address is dword address (4 bytes) */
++static int memory_write(struct cx8800_dev *dev, int address, int value)
++{
++	int retval;
++
++	//retval  = wait_ready_gpio0_bit1_low(dev);
++	
++	cx_writeb(P1_MDATA0, (unsigned int)value);
++	cx_writeb(P1_MDATA1, (unsigned int)(value >> 8));
++	cx_writeb(P1_MDATA2, (unsigned int)(value >> 16));
++	cx_writeb(P1_MDATA3, (unsigned int)(value >> 24));
++	cx_writeb(P1_MADDR2, (unsigned int)(address >> 16) | 0x40);
++	cx_writeb(P1_MADDR1, (unsigned int)(address >> 8));
++	cx_writeb(P1_MADDR0, (unsigned int)address);
++
++	retval  = wait_ready_gpio0_bit1_high(dev);
++	return retval;
++}
++
++/* Warning: address is dword address (4 bytes) */
++static int memory_read(struct cx8800_dev *dev, int address, int *value)
++{
++	int retval;
++
++	cx_writeb(P1_MADDR2, (unsigned int)(address >> 16) & ~0xC0);
++	cx_writeb(P1_MADDR1, (unsigned int)(address >> 8));
++	cx_writeb(P1_MADDR0, (unsigned int)address);
++	
++	retval  = wait_ready_gpio0_bit1_high(dev);
++	
++	int val;
++	cx_writeb(P1_MDATA3, 0);
++	val     = (unsigned char)cx_read(P1_MDATA3) << 24;
++	cx_writeb(P1_MDATA2, 0);
++	val    |= (unsigned char)cx_read(P1_MDATA2) << 16;
++	cx_writeb(P1_MDATA1, 0);
++	val    |= (unsigned char)cx_read(P1_MDATA1) << 8;
++	cx_writeb(P1_MDATA0, 0);
++	val    |= (unsigned char)cx_read(P1_MDATA0);
++	*value  = val;
++	
++	return retval;
++}
++
++
++static int register_write(struct cx8800_dev *dev, int address, int value)
++{
++	int retval;
++	cx_writeb(P1_RDATA0, (unsigned int)value);
++	cx_writeb(P1_RDATA1, (unsigned int)(value >> 8));
++	cx_writeb(P1_RDATA2, (unsigned int)(value >> 16));
++	cx_writeb(P1_RDATA3, (unsigned int)(value >> 24));
++	cx_writeb(P1_RADDR0, (unsigned int)address);
++	cx_writeb(P1_RADDR1, (unsigned int)(address >> 8));
++	cx_writeb(P1_RRDWR, 1);
++
++	retval  = wait_ready_gpio0_bit1_high(dev);
++	udelay(1000); /* without this, things don't go right (subsequent memory_write()'s don't get through */
++	/* ? would this be safe here? set_current_state(TASK_INTERRUPTIBLE); schedule_timeout(1); */
++	return retval;
++}
++
++
++static int register_read(struct cx8800_dev *dev, int address, int *value)
++{
++	int retval;
++	cx_writeb(P1_RADDR0, (unsigned int)address);
++	cx_writeb(P1_RADDR1, (unsigned int)(address >> 8));
++	cx_writeb(P1_RRDWR, 0);
++
++	retval  = wait_ready_gpio0_bit1_high(dev);
++	
++	int val;
++	val     = (unsigned char)cx_read(P1_RDATA0);
++	val    |= (unsigned char)cx_read(P1_RDATA1) << 8;
++	val    |= (unsigned char)cx_read(P1_RDATA2) << 16;
++	val    |= (unsigned char)cx_read(P1_RDATA3) << 24;
++	*value  = val;
++
++	return retval;
++}
++
++/* We don't need to call the API often, so using just one mailbox will probably suffice */
++int mpegport_api_cmd(struct cx8800_dev *dev, u32 command, u32 inputcnt, u32 outputcnt, ...)
++{
++	va_list args;
++	va_start(args, outputcnt);
++	int i;
++	u32 value;
++	
++	dprintk(1,"API Command 0x%X\n", command);
++
++	/* this may not be 100% safe if we can't read any memory location without side effects */
++	memory_read(dev, dev->mpegport_mailbox - 4, &value);
++	if (value != 0x12345678) {
++		dprintk(0, "Firmware and/or mailbox pointer not initialized or corrupted\n");
++		return -1;
++	}
++	
++	u32 flag;
++	memory_read(dev, dev->mpegport_mailbox, &flag);
++	if (flag) {
++		dprintk(0, "ERROR: Mailbox appears to be in use (%x)\n", flag);
++		return -1;
++	}
++
++	flag |= 1; /* tell 'em we're working on it */
++	memory_write(dev, dev->mpegport_mailbox, flag);
++	
++	memory_write(dev, dev->mpegport_mailbox + 1, command); /* command code */
++	memory_write(dev, dev->mpegport_mailbox + 3, IVTV_API_STD_TIMEOUT); /* timeout */
++		
++	/* write input values */
++	for (i = 0; i < inputcnt ; i++) {
++		u32 value = va_arg(args, int);
++		memory_write(dev, dev->mpegport_mailbox + 4 + i, value);
++		dprintk(1, "API Input %d = %d\n", i, value);
++	}
++
++	/* fill with zeroes (ivtv does it, but is this necessary?) */
++	for (; i < 16 ; i++) {
++		u32 value = 0;
++		memory_write(dev, dev->mpegport_mailbox + 4 + i, value);
++	}
++
++	flag |= 3; /* tell 'em we're done writing */
++	memory_write(dev, dev->mpegport_mailbox, flag);
++
++	/* wait for firmware to handle the API command */
++	int timeoutcnt = 500; /* trial and error plus a margin (longest command I've seen is capture start) */
++	do {
++		udelay(10);
++		timeoutcnt--;
++		memory_read(dev, dev->mpegport_mailbox, &flag);
++	} while (timeoutcnt && ((flag & 4)==0));
++	
++	if (!timeoutcnt) {
++		dprintk(0, "ERROR: API Mailbox timeout\n");
++		flag = 0;
++		memory_write(dev, dev->mpegport_mailbox, flag);
++		return -1;
++	}
++	
++	/* read output values */
++	for (i = 0; i < outputcnt ; i++) {
++		u32 *value = va_arg(args, int *);
++		memory_read(dev, dev->mpegport_mailbox + 4 + i, value);
++		dprintk(1, "API Output %d = %d\n", i, *value);
++	}
++
++	va_end(args);
++	
++	u32 retval;
++	memory_read(dev, dev->mpegport_mailbox + 2, &retval);
++	dprintk(1, "API result = %d (timeoutcnt=%d)\n",retval, timeoutcnt);
++	flag = 0;
++	memory_write(dev, dev->mpegport_mailbox, flag);
++	return retval;
++}
++
++
++int mpegport_find_mailbox(struct cx8800_dev *dev)
++{
++	u32 signature[4]={0x12345678, 0x34567812, 0x56781234, 0x78123456};
++	int signaturecnt=0;
++	int i;
++	for (i = 0; (i < BLACKBIRD_FIRM_IMAGE_SIZE) && (signaturecnt < 4) ; i++)
++	{
++		u32 value;
++		memory_read(dev, i, &value);
++		if (value == signature[signaturecnt])
++			signaturecnt++;
++		else
++			signaturecnt = 0;
++	}
++	if (signaturecnt == 4)
++	{
++		dprintk(1, "Mailbox signature found\n");
++		return i;
++	}
++	else
++	{
++		dprintk(0, "Mailbox signature values not found!\n");
++		return -1;
++	}
++}
++	
++int mpegport_load_firmware(struct cx8800_dev *dev)
++{
++	dprintk(1,"Loading firmware\n");
++	int i, retval = 0;
++	u32 value = 0;
++	const struct firmware *blackbird_firmware;
++	
++	retval  = register_write(dev, IVTV_REG_VPU, 0xFFFFFFED);
++	//retval  = register_write(dev, IVTV_REG_VPU, 0xFFFFFFEF);
++        retval |= register_write(dev, IVTV_REG_HW_BLOCKS, IVTV_CMD_HW_BLOCKS_RST);
++        retval |= register_write(dev, IVTV_REG_ENC_SDRAM_REFRESH, 0x80000640);
++        retval |= register_write(dev, IVTV_REG_ENC_SDRAM_PRECHARGE, 0x1A);
++	udelay(500);
++        retval |= register_write(dev, IVTV_REG_APU, 0);
++	
++	if (retval < 0) dprintk(0, "Error with register_write\n");
++	
++	/* without this, the encoder chip is just a dead chip */
++	
++	/* for this to work, 'apt-get install hotplug' and copy the firmware binary to /usr/lib/hotplug/firmware */
++	retval = request_firmware(&blackbird_firmware, BLACKBIRD_FIRM_ENC_FILENAME, &dev->pci->dev);
++	
++	if (retval != 0) {
++		dprintk(0, "ERROR: Hotplug firmware request failed! Fatal for mpegport support!\n");
++		dprintk(0, "********** Perhaps hotplug utilities or the firmware file is not installed?\n");
++		dprintk(0, "********** Or kernel hotplug support of Firmware loading support is not enabled?\n");
++		dprintk(0, "********** - Kernel setup: Your kernel needs the following options:\n");
++		dprintk(0, "**********   1) enable CONFIG_HOTPLUG from \"General Setup\"/\"Support for hot-pluggable devices\"\n");
++		dprintk(0, "**********   2) enable CONFIG_FW_LOADER from \"Device Drivers\"/\"Generic Driver Options\"/\"Hotplug firmware loading support\"\n");
++		dprintk(0, "********** - Hotplug support utilities:\n");
++		dprintk(0, "**********   1) make sure sysfs is mounted on /sys\n");
++		dprintk(0, "**********   2) copy the firmware binary to /usr/lib/hotplug/firmware/" BLACKBIRD_FIRM_ENC_FILENAME "\n");
++		dprintk(0, "**********   3) Debian: 'apt-get install hotplug'\n");
++		dprintk(0, "**********      Others: Unknown (ask your vendor) or go here http://linux-hotplug.sourceforge.net/\n");
++		dprintk(0, "**********              You will also probably want to have a /etc/hotplug/firmware.agent\n");
++		return -1;
++	}
++	
++	if (blackbird_firmware->size != BLACKBIRD_FIRM_IMAGE_SIZE) {
++		dprintk(0, "ERROR: Firmware is %d bytes long, which should be %d bytes.\n", blackbird_firmware->size, BLACKBIRD_FIRM_IMAGE_SIZE);
++		return -1;
++	}
++
++	if ((blackbird_firmware->data[0] != 0xA7) || 
++	    (blackbird_firmware->data[1] != 0x0D) ||
++	    (blackbird_firmware->data[2] != 0x00) || 
++	    (blackbird_firmware->data[3] != 0x00) || 
++	    (blackbird_firmware->data[4] != 0x66) || 
++	    (blackbird_firmware->data[5] != 0xBB) || 
++	    (blackbird_firmware->data[6] != 0x55) || 
++	    (blackbird_firmware->data[7] != 0xAA)) {
++		dprintk(0, "ERROR: Firmware is corrupt or not for an encoder chip\n");
++		return -1;
++	}
++
++	/* transfer to the chip */
++	u32 checksum = 0;
++	u32 *dataptr = (u32 *)blackbird_firmware->data;
++	for (i = 0; i < (blackbird_firmware->size >> 2); i++) {
++		value = *dataptr;
++		checksum += ~value;
++		memory_write(dev, i, value);
++		dataptr++;
++	}
++
++	release_firmware(blackbird_firmware);
++
++	/* this takes a whole second, but it ensures the upload worked (maybe some hw needs other RAM timings, etc) */
++	/* read back to verify with the checksum */
++	for (i--; i >= 0; i--) {
++		memory_read(dev, i, &value);
++		checksum -= ~value;
++	}
++
++	if (checksum) {
++		dprintk(0, "ERROR: Firmware Upload Failed (memory checksums don't match).\n");
++		return -1;
++	}
++	
++	dprintk(0, "Firmware upload successful.\n");
++	
++#if 0
++	for (i = 0; i < 1024; i+=4) {
++		//u32 value;
++		memory_read(dev, (i>>2), &value);
++		if (0 == (i % 16))
++			printk(KERN_INFO "cx88 fw: %02x:",i);
++		printk(" %02x %02x %02x %02x",(value & 0xFF),((value>>8) & 0xFF),((value>>16) & 0xFF),((value>>24) & 0xFF));
++		if (12 == (i % 16))
++			printk("\n");
++	}
++#endif
++
++        retval |= register_write(dev, IVTV_REG_HW_BLOCKS, IVTV_CMD_HW_BLOCKS_RST);
++        retval |= register_read(dev, IVTV_REG_SPU,       &value);
++        retval |= register_write(dev, IVTV_REG_SPU,       value & 0xFFFFFFFE);
++	
++	udelay(1000);
++	
++	retval |= register_read(dev, IVTV_REG_VPU, &value);
++        retval |= register_write(dev, IVTV_REG_VPU, value & 0xFFFFFFE8UL);
++        //retval |= register_write(dev, IVTV_REG_VPU, value & 0xFFFFFFFB);
++	
++	if (retval < 0) dprintk(0, "Error with register_write\n");
++	return 0;
++}
++
++void mpegport_codec_settings(struct cx8800_dev *dev)
++{
++	/* assign stream type */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_STREAM_TYPE, 1, 0, 0); /* program stream */
++        //mpegport_api_cmd(dev, IVTV_API_ASSIGN_STREAM_TYPE, 1, 0, 2); /* MPEG1 stream */
++        //mpegport_api_cmd(dev, IVTV_API_ASSIGN_STREAM_TYPE, 1, 0, 3); /* PES A/V */
++        //mpegport_api_cmd(dev, IVTV_API_ASSIGN_STREAM_TYPE, 1, 0, 10); /* DVD stream */
++
++        /* assign output port */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_OUTPUT_PORT, 1, 0, 1); /* 1 = Host */
++
++        /* assign framerate */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_FRAMERATE, 1, 0, 0);
++
++        /* assign frame size */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_FRAME_SIZE, 2, 0, 480, 720);
++
++        /* assign aspect ratio */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_ASPECT_RATIO, 1, 0, 2);
++
++	int bitrate_mode = 1;
++	int bitrate = 7500000;
++	int bitrate_peak = 7500000;
++        /* assign bitrates */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_BITRATES, 5, 0,
++		bitrate_mode,         /* mode */
++		bitrate,              /* bps */
++		bitrate_peak / 400,   /* peak/400 */
++		0, 0x70);             /* encoding buffer, ckennedy */
++
++        /* assign gop properties */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_GOP_PROPERTIES, 2, 0, 15, 3);
++        //mpegport_api_cmd(dev, IVTV_API_ASSIGN_GOP_PROPERTIES, 2, 0, 2, 1);
++
++        /* assign 3 2 pulldown */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_3_2_PULLDOWN, 1, 0, 0);
++
++        /* note: it's not necessary to set the samplerate, the mpeg encoder seems to autodetect/adjust */
++	mpegport_api_cmd(dev, IVTV_API_ASSIGN_AUDIO_PROPERTIES, 1, 0, (2<<2) | (8<<4));	
++	
++	/* assign gop closure */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_GOP_CLOSURE, 1, 0, 0);
++
++        /* assign audio properties */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_AUDIO_PROPERTIES, 1, 0, 0 | (2 << 2) | (14 << 4));
++
++        /* assign dnr filter mode */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_DNR_FILTER_MODE, 2, 0, 0, 0);
++
++        /* assign dnr filter props*/
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_DNR_FILTER_PROPS, 2, 0, 0, 0);
++
++        /* assign coring levels (luma_h, luma_l, chroma_h, chroma_l) */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_CORING_LEVELS, 4, 0, 0, 255, 0, 255);
++
++	/* assign spatial filter type: luma_t: 1 = horiz_only, chroma_t: 1 = horiz_only */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_SPATIAL_FILTER_TYPE, 2, 0, 1, 1);
++
++        /* assign frame drop rate */
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_FRAME_DROP_RATE, 1, 0, 0);
++}
++
++int mpegport_initialize_codec(struct cx8800_dev *dev)
++{
++	int retval;
++	dprintk(1,"Initialize codec\n");
++	
++	retval = mpegport_api_cmd(dev, IVTV_API_ENC_PING_FW, 0, 0); /* ping */
++	if (retval < 0) {
++		/* ping was not successful, reset and upload firmware */
++	
++		cx_write(MO_SRST_IO, 0); /* SYS_RSTO=0 */
++		udelay(300);
++		cx_write(MO_SRST_IO, 1); /* SYS_RSTO=1 */
++		udelay(100);
++	
++		retval = mpegport_load_firmware(dev);
++		if (retval < 0) { dprintk(0, "Error with firmware load!\n");  return retval; }
++	
++		dev->mpegport_mailbox = mpegport_find_mailbox(dev);
++		if (dev->mpegport_mailbox < 0) { dprintk(0, "Error with mailbox search!\n");  return dev->mpegport_mailbox; }
++			
++		retval = mpegport_api_cmd(dev, IVTV_API_ENC_PING_FW, 0, 0); /* ping */
++		if (retval < 0) {
++			dprintk(0, "ERROR: Firmware ping failed!\n");
++			return -1;
++		}
++	
++		int firmware_version;
++		retval = mpegport_api_cmd(dev, IVTV_API_ENC_GETVER, 0, 1, &firmware_version);
++		if (retval < 0) {
++			dprintk(0, "ERROR: Firmware get encoder version failed!\n");
++			return -1;
++		}
++		dprintk(0, "Encoder revision: 0x%08x\n", firmware_version);
++		
++	}
++	else
++	{
++		dprintk(1, "Firmware already present and responding to ping (not reloading)\n");
++	}
++	
++	udelay(500);
++	
++	cx_write(MO_PINMUX_IO, 0x88); /* 656-8bit IO and enable MPEG parallel IO */
++	cx_clear(MO_INPUT_FORMAT, 0x100); /* chroma subcarrier lock to normal? */
++	cx_write(MO_VBOS_CONTROL, 0x84A00); /* no 656 mode, 8-bit pixels, disable VBI */
++
++	cx_clear(MO_OUTPUT_FORMAT, 0x0008); /* Normal Y-limits to let the mpeg encoder sync */
++
++	/* this seems to be necessary, because otherwise the picture isn't always correct,
++	   even though I think the scaler in the cx23880  should not change the itu656 output. 	
++	   maybe it's a pll or something? */
++	set_scale(dev, 720, 480, V4L2_FIELD_INTERLACED);
++
++	udelay(500);
++
++	mpegport_codec_settings(dev);
++
++	//mpegport_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0xef, 0xef);
++	mpegport_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0xf0, 0xf0);
++	//mpegport_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0x180, 0x180);
++        mpegport_api_cmd(dev, IVTV_API_ASSIGN_PLACEHOLDER, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
++
++	mpegport_api_cmd(dev, IVTV_API_INITIALIZE_INPUT, 0, 0); /* initialize the video input */
++	
++	udelay(500);
++
++        mpegport_api_cmd(dev, IVTV_API_MUTE_VIDEO, 1, 0, 0);
++	udelay(500);
++        mpegport_api_cmd(dev, IVTV_API_MUTE_AUDIO, 1, 0, 0);
++	udelay(500);
++	
++	mpegport_api_cmd(dev, IVTV_API_BEGIN_CAPTURE, 2, 0, 0, 0x13); /* start capturing to the host interface */
++	//mpegport_api_cmd(dev, IVTV_API_BEGIN_CAPTURE, 2, 0, 0, 0); /* start capturing to the host interface */
++	
++	udelay(500);	
++
++	mpegport_api_cmd(dev, IVTV_API_REFRESH_INPUT, 0,0);
++	return retval;
++}
++
++
++/* ------------------------------------------------------------------ */
++
++static int
++mpeg_setup(struct file *file, unsigned int *count, unsigned int *size)
++{
++	*size = MPEG_SETUP_SIZE;
++	if (0 == *count)
++		*count = mpegbufs;
++	if (*count < 2)
++		*count = 2;
++	if (*count > 32)
++		*count = 32;
++	return 0;
++}
++
++
++static int
++mpeg_prepare(struct file *file, struct videobuf_buffer *vb,
++	    enum v4l2_field field)
++{
++	struct cx8800_fh   *fh  = file->private_data;
++	struct cx8800_dev  *dev = fh->dev;
++	struct cx88_buffer *buf = (struct cx88_buffer*)vb;
++	unsigned int size;
++	int rc;
++
++	dprintk(1, "mpeg_prepare()\n");
++
++	size = MPEG_PREPARE_SIZE;
++	if (0 != buf->vb.baddr  &&  buf->vb.bsize < size)
++		return -EINVAL;
++
++	if (STATE_NEEDS_INIT == buf->vb.state) {
++		buf->vb.width  = MPEG_PREPARE_WIDTH;
++		buf->vb.height = MPEG_PREPARE_HEIGHT;
++		buf->vb.size   = size;
++		buf->vb.field  = field;
++
++		if (0 != (rc = videobuf_iolock(dev->pci,&buf->vb,NULL)))
++			goto fail;
++		cx88_risc_buffer(dev->pci, &buf->risc,
++				 buf->vb.dma.sglist,
++				 0, UNSET,
++				 buf->vb.width, 0,
++				 buf->vb.height);
++	}
++	buf->vb.state = STATE_PREPARED;
++	return 0;
++
++ fail:
++	cx88_free_buffer(dev->pci,buf);
++	return rc;
++}
++
++static void
++mpeg_queue(struct file *file, struct videobuf_buffer *vb)
++{
++	struct cx88_buffer    *buf  = (struct cx88_buffer*)vb;
++	struct cx88_buffer    *prev;
++	struct cx8800_fh      *fh   = file->private_data;
++	struct cx8800_dev     *dev  = fh->dev;
++	struct cx88_dmaqueue  *q    = &dev->mpegq;
++
++	/* add jump to stopper */
++	buf->risc.jmp[0] = cpu_to_le32(RISC_JUMP | RISC_IRQ1 | 0x10000);
++	buf->risc.jmp[1] = cpu_to_le32(q->stopper.dma);
++
++	if (list_empty(&q->active)) {
++		list_add_tail(&buf->vb.queue,&q->active);
++		cx8800_start_mpegport_dma(dev, q, buf);
++		buf->vb.state = STATE_ACTIVE;
++		buf->count    = q->count++;
++		mod_timer(&q->timeout, jiffies+BUFFER_TIMEOUT);
++		dprintk(2,"[%p/%d] mpeg_queue - first active\n",
++			buf, buf->vb.i);
++
++	} else {
++		prev = list_entry(q->active.prev, struct cx88_buffer, vb.queue);
++		list_add_tail(&buf->vb.queue,&q->active);
++		buf->vb.state = STATE_ACTIVE;
++		buf->count    = q->count++;
++		prev->risc.jmp[1] = cpu_to_le32(buf->risc.dma);
++		dprintk(2,"[%p/%d] buffer_queue - append to active\n",
++			buf, buf->vb.i);
++	}
++}
++
++static void mpeg_release(struct file *file, struct videobuf_buffer *vb)
++{
++	struct cx88_buffer *buf = (struct cx88_buffer*)vb;
++	struct cx8800_fh   *fh  = file->private_data;
++	struct cx8800_dev     *dev  = fh->dev;
++
++	dprintk(1, "mpeg_release\n");
++
++	mpegport_api_cmd(fh->dev, IVTV_API_END_CAPTURE, 3, 0, 1, 0, 0x13);
++	//mpegport_api_cmd(dev, IVTV_API_ENC_HALT_FW, 0, 0);
++
++	if (buf->vb.state != STATE_NEEDS_INIT)
++	{
++		cx88_free_buffer(fh->dev->pci,buf); /*???This causes a oops-loop when using videobuf_read_stream?*/
++	}
++}
++
++
++
++static int mpegvideo_do_ioctl(struct inode *inode, struct file *file,
++			  unsigned int cmd, void *arg)
++{
++	struct cx8800_fh  *fh  = file->private_data;
++	struct cx8800_dev *dev = fh->dev;
++	int err;
++
++	if (mpegport_debug > 1)
++		cx88_print_ioctl(dev->name,cmd);
++	switch (cmd) {
++
++	/* --- capture ioctls ---------------------------------------- */
++	case VIDIOC_ENUM_FMT:
++	{
++		struct v4l2_fmtdesc *f = arg;
++		enum v4l2_buf_type type;
++		unsigned int index;
++
++		index = f->index;
++		type  = f->type;
++		switch (type) {
++		case V4L2_BUF_TYPE_VIDEO_CAPTURE:
++			if (index >= ARRAY_SIZE(mpegport_formats))
++				return -EINVAL;
++			memset(f,0,sizeof(*f));
++			f->index = index;
++			f->type  = type;
++			strlcpy(f->description,mpegport_formats[index].name,sizeof(f->description));
++			f->pixelformat = mpegport_formats[index].fourcc;
++			break;
++		default:
++			return -EINVAL;
++		}
++		return 0;
++	}
++	case VIDIOC_S_FMT:
++	{
++		struct v4l2_format *f = arg;
++		return cx8800_mpegport_s_fmt(dev,fh,f);
++	}
++	case VIDIOC_TRY_FMT:
++	{
++		struct v4l2_format *f = arg;
++		return cx8800_mpegport_try_fmt(dev,fh,f);
++	}
++
++	/* --- streaming capture ------------------------------------- */
++	case VIDIOCGMBUF:
++	{
++		dprintk(0, "VIDIOCGMBUF UNTESTED!\n");
++		struct video_mbuf *mbuf = arg;
++		struct videobuf_queue *q;
++		struct v4l2_requestbuffers req;
++		unsigned int i;
++
++		q = &fh->mpegq;
++		memset(&req,0,sizeof(req));
++		req.type   = q->type;
++		req.count  = 8;
++		req.memory = V4L2_MEMORY_MMAP;
++		err = videobuf_reqbufs(file,q,&req);
++		if (err < 0)
++			return err;
++		memset(mbuf,0,sizeof(*mbuf));
++		mbuf->frames = req.count;
++		mbuf->size   = 0;
++		for (i = 0; i < mbuf->frames; i++) {
++			mbuf->offsets[i]  = q->bufs[i]->boff;
++			mbuf->size       += q->bufs[i]->bsize;
++		}
++		return 0;
++	}
++	case VIDIOC_REQBUFS:
++		return videobuf_reqbufs(file, &fh->mpegq, arg);
++
++	case VIDIOC_QUERYBUF:
++		return videobuf_querybuf(&fh->mpegq, arg);
++
++	case VIDIOC_QBUF:
++		return videobuf_qbuf(file, &fh->mpegq, arg);
++
++	case VIDIOC_DQBUF:
++		return videobuf_dqbuf(file, &fh->mpegq, arg);
++
++	case VIDIOC_STREAMON:
++	{
++		//int res = get_ressource(fh);
++
++                //if (!res_get(dev,fh,res))
++		//	return -EBUSY;
++		return videobuf_streamon(file, &fh->mpegq);
++	}
++	case VIDIOC_STREAMOFF:
++	{
++		//int res = get_ressource(fh);
++
++		err = videobuf_streamoff(file, &fh->mpegq);
++		if (err < 0)
++			return err;
++		//res_free(dev,fh,res);
++		return 0;
++	}
++
++	case VIDIOC_G_FMT:
++	case VIDIOC_QUERYCAP:
++	case VIDIOC_ENUMSTD:
++	case VIDIOC_G_STD:
++	case VIDIOC_S_STD:
++	case VIDIOC_ENUMINPUT:
++	case VIDIOC_G_INPUT:
++	case VIDIOC_S_INPUT:
++	case VIDIOC_G_FREQUENCY:
++	case VIDIOC_S_FREQUENCY:
++	case VIDIOC_G_TUNER:
++	case VIDIOC_S_TUNER:
++	case VIDIOC_QUERYCTRL:
++	case VIDIOC_G_CTRL:
++	case VIDIOC_S_CTRL:
++	default:
++		return video_do_ioctl(inode, file, cmd, arg);
++	}
++	return 0;
++}
++
++static int mpegvideo_ioctl(struct inode *inode, struct file *file,
++		       unsigned int cmd, unsigned long arg)
++{
++	return video_usercopy(inode, file, cmd, arg, mpegvideo_do_ioctl);
++}
++
++static int mpegvideo_open(struct inode *inode, struct file *file)
++{
++	int minor = iminor(inode);
++	struct cx8800_dev *h,*dev = NULL;
++	struct cx8800_fh *fh;
++	struct list_head *list;
++	enum v4l2_buf_type type = 0;
++	
++	list_for_each(list,&cx8800_devlist) {
++		h = list_entry(list, struct cx8800_dev, devlist);
++		if (h->mpeg_dev->minor == minor) {
++			dev  = h;
++			type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
++		}
++	}
++	if (NULL == dev)
++		return -ENODEV;
++
++	dprintk(1,"open minor=%d type=%s\n",
++		minor,v4l2_type_names[type]);
++
++	if (mpegport_initialize_codec(dev) < 0)
++		return -EINVAL;
++
++	/* allocate + initialize per filehandle data */
++	fh = kmalloc(sizeof(*fh),GFP_KERNEL);
++	if (NULL == fh)
++		return -ENOMEM;
++	memset(fh,0,sizeof(*fh));
++	file->private_data = fh;
++	fh->dev      = dev;
++	fh->radio    = 0;
++	fh->type     = type;
++	fh->width    = 320;
++	fh->height   = 240;
++	fh->fmt      = mpegport_format_by_fourcc(V4L2_PIX_FMT_MPEG);
++
++	videobuf_queue_init(&fh->mpegq, &cx8800_mpeg_qops,
++			    dev->pci, &dev->slock,
++			    V4L2_BUF_TYPE_VIDEO_CAPTURE,
++			    V4L2_FIELD_TOP,
++			    sizeof(struct cx88_buffer));
++	init_MUTEX(&fh->mpegq.lock);
++
++	return 0;
++}
++
++ssize_t
++mpegvideo_read(struct file *file, char *data, size_t count, loff_t *ppos)
++{
++	struct cx8800_fh *fh = file->private_data;
++
++	//return videobuf_read_one(file, &fh->mpegq, data, count, ppos); causes corruption every time the dma chain is restarted
++	return videobuf_read_stream(file, &fh->mpegq, data, count, ppos, 0);
++}
++
++unsigned int
++mpegvideo_poll(struct file *file, struct poll_table_struct *wait)
++{
++	struct cx8800_fh *fh = file->private_data;
++
++	return videobuf_poll_stream(file, &fh->mpegq, wait);
++}
++
++
++int mpegvideo_release(struct inode *inode, struct file *file)
++{
++	struct cx8800_fh  *fh  = file->private_data;
++
++	mpegport_api_cmd(fh->dev, IVTV_API_END_CAPTURE, 3, 0, 1, 0, 0x13);
++
++	/* stop mpeg capture */
++	if (fh->mpegq.streaming)
++		videobuf_streamoff(file,&fh->mpegq);
++	if (fh->mpegq.reading)
++		videobuf_read_stop(file,&fh->mpegq);
++
++	file->private_data = NULL;
++
++	return 0;
++}
++
++int
++mpegvideo_mmap(struct file *file, struct vm_area_struct * vma)
++{
++	struct cx8800_fh *fh = file->private_data;
++
++	return videobuf_mmap_mapper(vma, &fh->mpegq);
++}
++
++static struct file_operations mpegvideo_fops =
++{
++	.owner	       = THIS_MODULE,
++	.open	       = mpegvideo_open,
++	.release       = mpegvideo_release,
++	.read	       = mpegvideo_read,
++	.poll          = mpegvideo_poll,
++	.mmap	       = mpegvideo_mmap,
++	.ioctl	       = mpegvideo_ioctl,
++	.llseek        = no_llseek,
++};
++
++struct video_device cx8800_mpegvideo_template =
++{
++	.name          = "cx8800-mpegvideo",
++	.type          = VID_TYPE_CAPTURE|VID_TYPE_TUNER|VID_TYPE_SCALES|VID_TYPE_MPEG_ENCODER,
++	.hardware      = 0,
++	.fops          = &mpegvideo_fops,
++	.minor         = -1,
++};
++
++
++
++
++/* ----------------------------------------------------------- */
++/* exported stuff                                              */
++
++int cx8800_mpegport_register_v4l_device(struct cx8800_dev *dev, int mpegvideo_nr)
++{
++	int err;
++	/* register v4l devices */
++	dev->mpeg_dev = vdev_init(dev,&cx8800_mpegvideo_template,"video");
++	err = video_register_device(dev->mpeg_dev,VFL_TYPE_GRABBER, mpegvideo_nr);
++	if (err < 0) {
++		printk(KERN_INFO "%s: can't register video device\n",
++			   dev->name);
++		return err;
++	}
++	printk(KERN_INFO "%s: registered device video%d [v4l2]\n",
++		   dev->name,dev->mpeg_dev->minor & 0x1f);
++	return 0;
++}
++
++void cx8800_mpegport_timeout(unsigned long data)
++{
++	struct cx8800_dev *dev = (struct cx8800_dev*)data;
++	struct cx88_dmaqueue *q = &dev->mpegq;
++	struct cx88_buffer *buf;
++	unsigned long flags;
++
++	dprintk(0, "cx8800_mpegport_timeout\n");
++
++	mpegport_api_cmd(dev, IVTV_API_END_CAPTURE, 3, 0, 1, 0, 0x13);
++
++	cx88_sram_channel_dump(dev, &cx88_sram_channels[SRAM_CH28]);
++
++	cx_clear(MO_TS_DMACNTRL, 0x11); /* disable TS RISC and FIFO */
++
++	spin_lock_irqsave(&dev->slock,flags);
++	while (!list_empty(&q->active)) {
++		buf = list_entry(q->active.next, struct cx88_buffer, vb.queue);
++		list_del(&buf->vb.queue);
++		buf->vb.state = STATE_ERROR;
++		wake_up(&buf->vb.done);
++		printk("%s: [%p/%d] timeout - dma=0x%08lx\n", dev->name,
++		       buf, buf->vb.i, (unsigned long)buf->risc.dma);
++	}
++	cx8800_restart_mpegport_queue(dev,q);
++	spin_unlock_irqrestore(&dev->slock,flags);
++}
++
++int cx8800_start_mpegport_dma(struct cx8800_dev    *dev,
++			 struct cx88_dmaqueue *q,
++			 struct cx88_buffer   *buf)
++{
++	dprintk(0, "cx8800_start_mpegport_dma %d\n", buf->vb.width);
++	
++	/* setup fifo + format */
++	cx88_sram_channel_setup(dev, &cx88_sram_channels[SRAM_CH28],
++				SRAM_SETUP_SIZE, buf->risc.dma);
++
++	//cx_set(VID_CAPTURE_CONTROL,0x0); /* should this??? */
++	/* enable capture */
++
++	/* reset counter */
++	cx_write(MO_TS_GPCNTRL,0x3); /* general purpose counter for risc program (?) */
++	q->count = 1;
++	
++	/* enable irqs */
++	cx_set(MO_PCI_INTMSK, 0x4); /* enable ts_int */
++	cx_set(MO_TS_INTMSK, 0x1f1101); /* all except the irq2 bit */
++	
++	/* start dma */
++	cx_set(MO_DEV_CNTRL2, (1<<5)); /* enable the risc controller */
++	cx_set(MO_TS_DMACNTRL, 0x11); /* enable TS RISC and FIFO */
++	
++	return 0;
++}
++
++int cx8800_restart_mpegport_queue(struct cx8800_dev    *dev,
++			     struct cx88_dmaqueue *q)
++{
++	struct cx88_buffer *buf, *prev;
++	struct list_head *item;
++	dprintk(0, "cx8800_restart_mpegport_queue\n");
++	
++	if (!list_empty(&q->active)) {
++	        buf = list_entry(q->active.next, struct cx88_buffer, vb.queue);
++		dprintk(2,"restart_queue [%p/%d]: restart dma\n",
++			buf, buf->vb.i);
++		cx8800_start_mpegport_dma(dev, q, buf);
++		list_for_each(item,&q->active) {
++			buf = list_entry(item, struct cx88_buffer, vb.queue);
++			buf->count    = q->count++;
++		}
++		mod_timer(&q->timeout, jiffies+BUFFER_TIMEOUT);
++		return 0;
++	}
++
++	prev = NULL;
++	for (;;) {
++		if (list_empty(&q->queued))
++			return 0;
++	        buf = list_entry(q->queued.next, struct cx88_buffer, vb.queue);
++		if (NULL == prev) {
++			list_del(&buf->vb.queue);
++			list_add_tail(&buf->vb.queue,&q->active);
++			cx8800_start_mpegport_dma(dev, q, buf);
++			buf->vb.state = STATE_ACTIVE;
++			buf->count    = q->count++;
++			mod_timer(&q->timeout, jiffies+BUFFER_TIMEOUT);
++			dprintk(2,"[%p/%d] restart_queue - first active\n",
++				buf,buf->vb.i);
++
++		} else if (prev->vb.width  == buf->vb.width  &&
++			   prev->vb.height == buf->vb.height &&
++			   prev->fmt       == buf->fmt) {
++			list_del(&buf->vb.queue);
++			list_add_tail(&buf->vb.queue,&q->active);
++			buf->vb.state = STATE_ACTIVE;
++			buf->count    = q->count++;
++			prev->risc.jmp[1] = cpu_to_le32(buf->risc.dma);
++			dprintk(2,"[%p/%d] restart_queue - move to active\n",
++				buf,buf->vb.i);
++		} else {
++			return 0;
++		}
++		prev = buf;
++	}
++}
++
++
++void cx8800_mpegport_irq(struct cx8800_dev *dev)
++{
++	u32 status, mask, count;
++
++	status = cx_read(MO_TS_INTSTAT);
++	mask   = cx_read(MO_TS_INTMSK);
++	if (0 == (status & mask))
++		return;
++	
++	cx_write(MO_TS_INTSTAT, status);
++	//if (irq_debug  ||  (status & mask & ~0xff))
++		cx88_print_irqbits(dev->name, "irq mpegport ",
++				   cx88_vid_irqs, status, mask);
++
++	/* risc op code error */
++	if (status & (1 << 16)) {
++		printk(KERN_WARNING "%s: mpegport risc op code error\n",dev->name);
++		cx_clear(MO_TS_DMACNTRL, 0x11);
++		//cx_clear(VID_CAPTURE_CONTROL, 0x06);
++		cx88_sram_channel_dump(dev, &cx88_sram_channels[SRAM_CH28]);
++	}
++
++	/* risc1 y */
++	if (status & 0x01) {
++		spin_lock(&dev->slock);
++		count = cx_read(MO_TS_GPCNT);
++		cx8800_wakeup(dev, &dev->mpegq, count);
++		spin_unlock(&dev->slock);
++	}
++
++	/* risc2 y */
++	if (status & 0x10) { /* I don't know what this does/when it's needed */
++		spin_lock(&dev->slock);
++		cx8800_restart_mpegport_queue(dev,&dev->mpegq);
++		spin_unlock(&dev->slock);
++	}
++}
++
++struct videobuf_queue_ops cx8800_mpeg_qops = {
++	.buf_setup    = mpeg_setup,
++	.buf_prepare  = mpeg_prepare,
++	.buf_queue    = mpeg_queue,
++	.buf_release  = mpeg_release,
++};
+diff -bu linux-2.6.8-rc2/drivers/media/video/cx88/cx88-reg.h linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-reg.h
+--- linux-2.6.8-rc2/drivers/media/video/cx88/cx88-reg.h	2004-07-18 00:58:21.000000000 -0400
++++ linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-reg.h	2004-07-29 00:20:51.000000000 -0400
+@@ -416,6 +416,8 @@
+ /* ---------------------------------------------------------------------- */
+ /* transport stream registers                                             */
+ 
++#define TS_F2_CMD_STAT_MM   0x2F0204
++
+ #define MO_TS_DMA           0x330000 // {64}RWp Transport stream downstream
+ #define MO_TS_GPCNT         0x33C020 // {16}RO TS general purpose counter
+ #define MO_TS_GPCNTRL       0x33C030 // {2}WO TS general purpose control
+@@ -508,6 +510,7 @@
+ #define MO_GPHSTU_GPCNTRL   0x38C034 // Host up general purpose control
+ #define MO_GPHST_DMACNTRL   0x38C040 // Host DMA control
+ #define MO_GPHST_XFR_STAT   0x38C044 // Host transfer status
++#define MO_GPHST_SOFT_RST   0x38C06C // Host software reset
+ #define MO_GPHSTU_CNTRL     0x380048 // Host upstream control #1
+ #define MO_GPHSTD_CNTRL     0x38004C // Host downstream control #2
+ #define MO_GPHSTD_LNGTH     0x380050 // Host downstream line length
+diff -bu linux-2.6.8-rc2/drivers/media/video/cx88/cx88-tvaudio.c linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-tvaudio.c
+--- linux-2.6.8-rc2/drivers/media/video/cx88/cx88-tvaudio.c	2004-07-18 00:58:21.000000000 -0400
++++ linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-tvaudio.c	2004-07-29 03:34:47.000000000 -0400
+@@ -137,6 +137,11 @@
+ {
+ 	u32 volume;
+ 
++	// 'pass-thru mode': this enables the i2s output to the mpeg encoder (I get silent sound in the mpeg stream)
++	cx_set(AUD_CTL, 0x2000);
++	cx_write(AUD_I2SOUTPUTCNTL, 1); /* has to be sony spec for the cx23416 (otherwise we get a lot of noise) */
++	//cx_write(AUD_APB_IN_RATE_ADJ, 0); // this may be necesssary (unsure, seems to work fine without)
++	
+ 	// finish programming
+ 	cx_write(AUD_SOFT_RESET, 0x0000);
+ 
+@@ -145,6 +150,7 @@
+ 
+ 	// unmute
+ 	volume = cx_sread(SHADOW_AUD_VOL_CTL);
++	volume &= ~0x40; // unmute audio (without this the audio from the mpeg encoder is silent)
+ 	cx_swrite(SHADOW_AUD_VOL_CTL, AUD_VOL_CTL, volume);
+ }
+ 
+@@ -764,7 +770,7 @@
+ 
+ 	if (UNSET != ctl) {
+ 		cx_write(AUD_SOFT_RESET, 0x0001);
+-		cx_andor(AUD_CTL, mask,  ctl);
++		cx_andor(AUD_CTL, mask,  ctl | 0x2000); /* this 'or' doesn't seem to improve anything though */
+ 		cx_write(AUD_SOFT_RESET, 0x0000);
+ 		dprintk("cx88_set_stereo: mask 0x%x, ctl 0x%x "
+ 			"[status=0x%x,ctl=0x%x,vol=0x%x]\n",
+diff -bu linux-2.6.8-rc2/drivers/media/video/cx88/cx88-video.c linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-video.c
+--- linux-2.6.8-rc2/drivers/media/video/cx88/cx88-video.c	2004-07-18 00:58:37.000000000 -0400
++++ linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88-video.c	2004-07-29 03:39:09.000000000 -0400
+@@ -83,8 +83,8 @@
+ 
+ /* ------------------------------------------------------------------ */
+ 
+-static struct list_head  cx8800_devlist;
+-static unsigned int      cx8800_devcount;
++struct list_head  cx8800_devlist;
++unsigned int      cx8800_devcount;
+ 
+ /* ------------------------------------------------------------------- */
+ /* static data                                                         */
+@@ -104,13 +104,13 @@
+ 	return (norm->id & V4L2_STD_625_50) ? 0x24 : 0x18;
+ }
+ 
+-static unsigned int inline norm_maxw(struct cx8800_tvnorm *norm)
++unsigned int inline norm_maxw(struct cx8800_tvnorm *norm)
+ {
+ 	return (norm->id & V4L2_STD_625_50) ? 768 : 640;
+ //	return (norm->id & V4L2_STD_625_50) ? 720 : 640;
+ }
+ 
+-static unsigned int inline norm_maxh(struct cx8800_tvnorm *norm)
++unsigned int inline norm_maxh(struct cx8800_tvnorm *norm)
+ {
+ 	return (norm->id & V4L2_STD_625_50) ? 576 : 480;
+ }
+@@ -619,7 +619,7 @@
+ 	return 0;
+ }
+ 
+-static int set_scale(struct cx8800_dev *dev, unsigned int width, unsigned int height,
++int set_scale(struct cx8800_dev *dev, unsigned int width, unsigned int height,
+ 		     enum v4l2_field field)
+ {
+ 	unsigned int swidth  = norm_swidth(dev->tvnorm);
+@@ -1217,6 +1217,10 @@
+ 	
+ 	list_for_each(list,&cx8800_devlist) {
+ 		h = list_entry(list, struct cx8800_dev, devlist);
++		if (h->mpeg_dev->minor == minor) {
++			dev  = h;
++			type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
++		}
+ 		if (h->video_dev->minor == minor) {
+ 			dev  = h;
+ 			type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+@@ -1558,7 +1562,7 @@
+  * video_generic_ioctl (and maybe others).  userspace
+  * copying is done already, arg is a kernel pointer.
+  */
+-static int video_do_ioctl(struct inode *inode, struct file *file,
++int video_do_ioctl(struct inode *inode, struct file *file,
+ 			  unsigned int cmd, void *arg)
+ {
+ 	struct cx8800_fh  *fh  = file->private_data;
+@@ -2038,7 +2042,7 @@
+ 	spin_unlock_irqrestore(&dev->slock,flags);
+ }
+ 
+-static void cx8800_wakeup(struct cx8800_dev *dev,
++void cx8800_wakeup(struct cx8800_dev *dev,
+ 			  struct cx88_dmaqueue *q, u32 count)
+ {
+ 	struct cx88_buffer *buf;
+@@ -2137,10 +2141,12 @@
+ 
+ 		if (status & 1)
+ 			cx8800_vid_irq(dev);
++		if (status & 4)
++			cx8800_mpegport_irq(dev);
+ 	};
+ 	if (10 == loop) {
+-		printk(KERN_WARNING "%s: irq loop -- clearing mask\n",
+-		       dev->name);
++		printk(KERN_WARNING "%s: irq loop -- clearing mask %08x %08x\n",
++		       dev->name, status, mask);
+ 		cx_write(MO_PCI_INTMSK,0);
+ 	}
+ 	
+@@ -2233,6 +2239,7 @@
+ 	
+ 	/* clear irq status */
+ 	cx_write(MO_VID_INTSTAT, 0xFFFFFFFF); // Clear PIV int
++	cx_write(MO_TS_INTSTAT,  0xFFFFFFFF); // Clear TS int
+ 	cx_write(MO_PCI_INTSTAT, 0xFFFFFFFF); // Clear PCI int
+ 	cx_write(MO_INT1_STAT,   0xFFFFFFFF); // Clear RISC int
+ 
+@@ -2247,6 +2254,7 @@
+ 	cx88_sram_channel_setup(dev, &cx88_sram_channels[SRAM_CH24], 128, 0);
+ 	cx88_sram_channel_setup(dev, &cx88_sram_channels[SRAM_CH25], 128, 0);
+ 	cx88_sram_channel_setup(dev, &cx88_sram_channels[SRAM_CH26], 128, 0);
++	cx88_sram_channel_setup(dev, &cx88_sram_channels[SRAM_CH28], 512, 0);
+ 	
+ 	/* misc init ... */
+ 	cx_write(MO_INPUT_FORMAT, ((1 << 13) |   // agc enable
+@@ -2268,13 +2276,14 @@
+ 	cx_write(MO_AGC_BACK_VBI,  0x00E00555);
+ 	
+ 	cx_write(MO_VID_INTSTAT,   0xFFFFFFFF); // Clear PIV int
++	cx_write(MO_TS_INTSTAT,    0xFFFFFFFF); // Clear TS int
+ 	cx_write(MO_PCI_INTSTAT,   0xFFFFFFFF); // Clear PCI int
+ 	cx_write(MO_INT1_STAT,     0xFFFFFFFF); // Clear RISC int
+ 
+ 	return 0;
+ }
+ 
+-static struct video_device *vdev_init(struct cx8800_dev *dev,
++struct video_device *vdev_init(struct cx8800_dev *dev,
+ 				      struct video_device *template,
+ 				      char *type)
+ {
+@@ -2315,6 +2324,13 @@
+ 			video_device_release(dev->video_dev);
+ 		dev->video_dev = NULL;
+ 	}
++	if (dev->mpeg_dev) {
++		if (-1 != dev->mpeg_dev->minor)
++			video_unregister_device(dev->mpeg_dev);
++		else
++			video_device_release(dev->mpeg_dev);
++		dev->mpeg_dev = NULL;
++	}
+ }
+ 
+ static int __devinit cx8800_initdev(struct pci_dev *pci_dev,
+@@ -2432,6 +2448,10 @@
+ 	cx8800_i2c_init(dev);
+ 	cx88_card_setup(dev);
+ 
++	/* init mpeg_port dma queues */
++	if (dev->has_mpegport)
++		cx8800_mpegport_init_dma(dev);
++	
+ 	/* load and configure helper modules */
+ 	if (TUNER_ABSENT != dev->tuner_type)
+ 		request_module("tuner");
+@@ -2452,6 +2472,13 @@
+ 	printk(KERN_INFO "%s: registered device video%d [v4l2]\n",
+ 	       dev->name,dev->video_dev->minor & 0x1f);
+ 
++	if (dev->has_mpegport)
++	{
++		int mpegvideonr = (video_nr[cx8800_devcount] == UNSET) ? UNSET:video_nr[cx8800_devcount]+1;
++		if (cx8800_mpegport_register_v4l_device(dev,mpegvideonr) < 0)
++			goto fail3;
++	}
++
+ 	dev->vbi_dev = vdev_init(dev,&cx8800_vbi_template,"vbi");
+ 	err = video_register_device(dev->vbi_dev,VFL_TYPE_VBI,
+ 				    vbi_nr[cx8800_devcount]);
+diff -bu linux-2.6.8-rc2/drivers/media/video/cx88/cx88.h linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88.h
+--- linux-2.6.8-rc2/drivers/media/video/cx88/cx88.h	2004-07-18 00:59:29.000000000 -0400
++++ linux-2.6.8-rc2-blackbird/drivers/media/video/cx88/cx88.h	2004-07-29 03:41:57.000000000 -0400
+@@ -94,6 +94,7 @@
+ #define SRAM_CH24 3   /* vbi   */
+ #define SRAM_CH25 4   /* audio */
+ #define SRAM_CH26 5
++#define SRAM_CH28 6   /* mpegport */
+ /* more */
+ 
+ struct sram_channel {
+@@ -213,6 +214,9 @@
+ 
+ 	/* vbi capture */
+ 	struct videobuf_queue      vbiq;
++
++	/* mpegport */
++	struct videobuf_queue      mpegq;
+ };
+ 
+ struct cx8800_suspend_state {
+@@ -229,6 +233,7 @@
+ 	/* various device info */
+ 	unsigned int               resources;
+ 	struct video_device        *video_dev;
++	struct video_device        *mpeg_dev;
+ 	struct video_device        *vbi_dev;
+ 	struct video_device        *radio_dev;
+ 
+@@ -243,6 +248,7 @@
+ 	unsigned int               board;
+ 	unsigned int               tuner_type;
+ 	unsigned int               has_radio;
++	unsigned int               has_mpegport;
+ 
+ 	/* i2c i/o */
+ 	struct i2c_adapter         i2c_adap;
+@@ -257,6 +263,7 @@
+ 	/* capture queues */
+ 	struct cx88_dmaqueue       vidq;
+ 	struct cx88_dmaqueue       vbiq;
++	struct cx88_dmaqueue       mpegq;
+ 
+ 	/* various v4l controls */
+ 	struct cx8800_tvnorm       *tvnorm;
+@@ -270,11 +277,15 @@
+ 	pid_t                       tpid;
+ 	struct completion           texit;
+ 	struct cx8800_suspend_state state;
++		
++	/* mpegport data */
++	u32                         mpegport_mailbox;
+ };
+ 
+ /* ----------------------------------------------------------- */
+ 
+ #define cx_read(reg)             readl(dev->lmmio + ((reg)>>2))
++#define cx_readb(reg)            readb(dev->bmmio + (reg))
+ #define cx_write(reg,value)      writel((value), dev->lmmio + ((reg)>>2));
+ #define cx_writeb(reg,value)     writeb((value), dev->bmmio + (reg));
+ 
+@@ -381,6 +392,43 @@
+ void cx88_set_stereo(struct cx8800_dev *dev, u32 mode);
+ int cx88_audio_thread(void *data);
+ 
++/* ----------------------------------------------------------- */
++/* cx88-mpegport.c                                             */
++
++/* this probably needs some cleaning-up */
++
++extern struct list_head  cx8800_devlist;
++extern unsigned int      cx8800_devcount;
++extern struct videobuf_queue_ops cx8800_mpeg_qops;
++
++int cx8800_mpegport_init_dma(struct cx8800_dev *dev);
++
++void cx8800_mpegport_timeout(unsigned long data);
++int cx8800_restart_mpegport_queue(struct cx8800_dev    *dev,
++			     struct cx88_dmaqueue *q);
++int cx8800_start_mpegport_dma(struct cx8800_dev    *dev,
++			 struct cx88_dmaqueue *q,
++			 struct cx88_buffer   *buf);
++
++int cx8800_mpegport_register_v4l_device(struct cx8800_dev *dev, int mpegvideo_nr);
++
++int video_do_ioctl(struct inode *inode, struct file *file,
++			  unsigned int cmd, void *arg);
++struct video_device *vdev_init(struct cx8800_dev *dev,
++				      struct video_device *template,
++				      char *type);
++
++unsigned int inline norm_maxw(struct cx8800_tvnorm *norm);
++unsigned int inline norm_maxh(struct cx8800_tvnorm *norm);
++
++void cx8800_mpegport_irq(struct cx8800_dev *dev);
++
++void cx8800_wakeup(struct cx8800_dev *dev,
++			  struct cx88_dmaqueue *q, u32 count);
++
++int set_scale(struct cx8800_dev *dev, unsigned int width, unsigned int height,
++		     enum v4l2_field field);
++
+ /*
+  * Local variables:
+  * c-basic-offset: 8

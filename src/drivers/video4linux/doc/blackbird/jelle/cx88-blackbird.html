@@ -1,0 +1,78 @@
+<title>Linux cx88-blackbird.patch</title>
+
+Get the second version of the patch here: <A HREF="http://www.foks.8m.com/cx88-blackbird-patch2.txt">cx88-blackbird-patch2.txt</A>
+
+<pre>
+-----------------------------------
+mpegport (jelle.cx88 at foks.8m.com) 
+	Patch version 2 (still against 2.6.8-rc2)
+	- Only a small update
+	- Parallel streaming of compressed and uncompressed video
+	  begins to work a little. It seems xawtv mutes the audio when it exits,
+	  but sound keeps working with a 'cat' from both devices.
+	  And once I got DMA errors from the cx88 chip while streaming in parallel.
+	  (although that may be caused by an out-of-bounds or something, because of how
+	  I treat set_scale() when streaming in parallel...)
+	- I set the default bitrate a bit lower (from 7.5Mbit to 4Mbit) to make it easier on
+	  my little playback PC for testing runs...
+</pre>
+
+Get the first version of the patch here: <A HREF="http://www.foks.8m.com/cx88-blackbird-patch.txt">cx88-blackbird-patch.txt</A>
+
+<pre>
+-----------------------------------
+mpegport (jelle.cx88 at foks.8m.com)
+	- This is support for the cx23416 mpeg encoder in the blackbird
+	  configuration connected to the mpeg data port of the cx88.
+	- This is an alpha-quality driver patch. 
+	- In fact, it's pre-alpha: Take your precautions and adjust 
+	  your expectations accordingly.
+	- Currently only tested/implemented for the ASUS PVR-416, but
+	  with or without modifications it should be possible to adapt
+	  it for the other blackbird cards out there.
+        - Tested/used on 2.6 kernels only.
+	- All sorts of things are still bad or wrong, but probably 
+	  nothing that can't be fixed.
+	- tested only with "cat /dev/video1 >myfile.mpg" and
+	  "dd if=/dev/video1 of=myfile.mpg" (with various block sizes).
+	- There is sound, but it sounds hollow and has no bass,
+	  it's weird because it changes how a person's voice sounds quite a lot,
+	  and it seems delayed or early compared to the video, with differing
+	  amounts each time.
+	- Trying to stream parallel with the regular video screws things up:
+	  You'll need to unload & reload the driver.
+	- After changing channels (with xawtv for example), 
+	  you need to unload & reload the driver too, otherwise the audio
+	  will be silent and the mpeg video may have corruptions.
+	- Loading/unloading the driver repeatedly sometimes causes an OOPS
+	  in cx8800_reset() (not looked at in detail yet, may have
+	  to do with not completely shutting down the dma or something
+	  like that).
+	- Existance of the mpegport triggers creation of a 
+	  new v4l device that streams the compressed video in 
+	  V4L2_PIX_FMT_MPEG 'pixel' format (v4l fourcc 'MPEG').
+	- A new device is registered, because that may allow for 
+	  parallel streaming of compressed and uncompressed video.
+	  (is there a better way to do that?)
+	  (besides, it does not work now, mainly because of some 
+	   different cx88 configuration parameters/settings.)
+	- VBI is not supported, and even that may be broken.
+	- There is no locking of any kind to serialize configuration
+	  changes to the cx88 needed for talking to the cx23416. This
+	  may cause all sorts of unexpected behaviour when reading from 
+	  both video devices in parallel.
+	- V4l2 does not have a standardized API for compression 
+	  parameter settings. This driver will set some default values
+	  and will later need to have nonstandard ioctl's to allow a 
+	  user application to change the parameters.
+	- No support for multiple cards (or maybe it just works?)
+	- For lower bitrates, should probably add DNR, increasing with
+	  decreasing bitrates (otherwise the noise eats all the bits...)
+	- Also, the 'line size' need to be smaller for lower bitrates,
+	  otherwise the interrupts are too long apart (and latency too high)
+	  But for high bitrates a higher linesize if better, for lower
+	  interrupt/CPU overhead.
+	- Nothing is implemented with regard to boards with a non-
+	  cx23416 peripheral (such as boards for DVB, ATSC, etc.)
+
+</pre>
