@@ -75,6 +75,7 @@
 	// PK_DesignObj from table DesignObj
 	$GLOBALS['mnuMediaFileList2DesignObj']=3226;	// mnuMediaFileList2
 	$GLOBALS['mnuMediaFileListDesignObj']=2071;		// mnuMediaFileList
+	$GLOBALS['butViewDesignObj']=3283;				// butView
 	
 	// PK_Device for Local Orbiter
 	$GLOBALS['localOrbiter']=-300;

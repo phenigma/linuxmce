@@ -665,7 +665,7 @@ function addMediaCommandGroup($optionName,$FK_EntertainArea, $installationID,$db
 		$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));
 		$CG_C_insertID=$dbADO->Insert_ID();
 		$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-		$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuMediaFileList2DesignObj']));
+		$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['butViewDesignObj']));
 
 	}else{
 

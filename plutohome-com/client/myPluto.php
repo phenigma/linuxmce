@@ -9,7 +9,7 @@ function myPluto($output,$dbADO,$conn) {
 
 	if(isset($_SESSION['setAutoCookie']) && $_SESSION['setAutoCookie']==1){
 		$cookieStr='username='.$_SESSION['username'].'&password='.$_SESSION['password'].'&extPassword='.$_SESSION['extPassword'];
-		$cookieIsSet=setcookie("PlutoHomeAutoLogin",base64_encode($cookieStr),time()+3600,"/", ".plutohome.com");
+		$cookieIsSet=setcookie("PlutoHomeAutoLogin",base64_encode($cookieStr),time()+3600*24*365,"/", false);
 		unset($_SESSION['setAutoCookie']);
 		unset($_SESSION['password']);
 	}

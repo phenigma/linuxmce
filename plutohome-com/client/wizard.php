@@ -1376,7 +1376,7 @@ function wizard($output,$dbADO) {
 					}
 					
 					// install options - delete or insert devices
-					$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_'.$value]);
+					$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$value]);
 					foreach($installOptionsArray AS $elem){
 						$oldDevice=@$_POST['oldDevice_'.$value.'_requiredTemplate_'.$elem];
 						$optionalDevice=(isset($_POST['device_'.$value.'_requiredTemplate_'.$elem]))?$_POST['device_'.$value.'_requiredTemplate_'.$elem]:0;
