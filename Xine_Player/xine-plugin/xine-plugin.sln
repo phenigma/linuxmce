@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xine-slim-server-plugin", "xine-slim-server-plugin\xine-slim-server-plugin.vcproj", "{A954C124-05E9-48EA-807F-93D72E9A7F19}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxine", "..\..\..\..\xine\xine-lib\win32\libxine.vcproj", "{C1CFE37B-554D-45A6-987B-514D80E8A925}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xineplug_inp_net", "..\..\..\..\xine\xine-lib\win32\xineplug_inp_net.vcproj", "{8717820B-6FD7-4E6B-B38B-62438521D914}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{A954C124-05E9-48EA-807F-93D72E9A7F19}.Debug.ActiveCfg = Debug|Win32
+		{A954C124-05E9-48EA-807F-93D72E9A7F19}.Debug.Build.0 = Debug|Win32
+		{A954C124-05E9-48EA-807F-93D72E9A7F19}.Release.ActiveCfg = Release|Win32
+		{A954C124-05E9-48EA-807F-93D72E9A7F19}.Release.Build.0 = Release|Win32
+		{C1CFE37B-554D-45A6-987B-514D80E8A925}.Debug.ActiveCfg = Debug|Win32
+		{C1CFE37B-554D-45A6-987B-514D80E8A925}.Release.ActiveCfg = Release|Win32
+		{C1CFE37B-554D-45A6-987B-514D80E8A925}.Release.Build.0 = Release|Win32
+		{8717820B-6FD7-4E6B-B38B-62438521D914}.Debug.ActiveCfg = Debug|Win32
+		{8717820B-6FD7-4E6B-B38B-62438521D914}.Release.ActiveCfg = Release|Win32
+		{8717820B-6FD7-4E6B-B38B-62438521D914}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

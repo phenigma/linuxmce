@@ -1,0 +1,52 @@
+#ifndef SLIM_INPUT_PLUGIN_H
+#define SLIM_INPUT_PLUGIN_H
+
+#define LOG_MODULE "SlimServer 5.4.0+ Input Plugin: "
+#define LOG_VERBOSE 1
+
+#include "xine_internal.h"
+#include "xineutils.h"
+#include "input/input_plugin.h"
+
+// #include "net_buf_ctrl.h"
+
+#define SLIM_SERVER_BS_LEN	2324
+// #define BUFSIZE         1024
+
+#ifndef WIN32
+#ifndef SOCKET
+	#define SOCKET int
+#endif
+#endif
+
+struct slim_input_plugin_s {
+	input_plugin_t input_plugin;
+
+	// network connection data
+	SOCKET			 comm_socket;
+	char            *mrl;
+	char            *slim_server_specification;	
+
+	// the stream we are playing 
+	xine_stream_t	*stream;
+
+	// data preview	buffer
+	char             preview_buffer[MAX_PREVIEW_SIZE];
+	off_t            preview_size;
+
+	// current position 
+	off_t            current_position;
+};
+
+typedef struct slim_input_plugin_s slim_input_plugin_t;
+
+struct slim_input_class_s {
+	input_class_t     input_class;
+
+	xine_t           *xine;
+	config_values_t  *config;
+};
+
+typedef struct slim_input_class_s slim_input_class_t;
+
+#endif // SLIM_INPUT_PLUGIN_H
