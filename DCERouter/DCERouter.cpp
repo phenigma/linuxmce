@@ -82,6 +82,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     m_sDBName=DBName;
     m_dwIDBPort=DBPort;
     m_bIsLoading=false;
+	m_dwPK_Device_Largest=0;
 
     m_CoreMutex.Init(NULL);
     pthread_mutex_init(&m_MessageQueueMutex,NULL);
@@ -200,6 +201,8 @@ Router::~Router()
 
 void Router::RegisterAllPlugins()
 {
+	// We're going to store a map with all the plug-ins we loaded so we can try to dynamically load plug-ins that weren't in the database
+	map<string,int> mapPluginCommands;
     vector<Row_Device *> vectRow_Device;
     m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD) + "=" + StringUtils::itos(m_dwPK_Device), &vectRow_Device);
     for(size_t s=0;s<vectRow_Device.size();++s )
@@ -215,6 +218,8 @@ void Router::RegisterAllPlugins()
         string CommandLine = pRow_Device->FK_DeviceTemplate_getrow()->CommandLine_get();
         if( CommandLine.size()==0 )
             CommandLine = FileUtils::ValidCPPName( pRow_Device->FK_DeviceTemplate_getrow()->Description_get() );
+
+		mapPluginCommands[CommandLine] = pRow_Device->PK_Device_get();
 
 #ifdef AUDIDEMO
         Command_Impl *pPlugIn = CreatePlugInHardCoded(pRow_Device->PK_Device_get(), pRow_Device->FK_DeviceTemplate_get(), CommandLine);
@@ -238,6 +243,58 @@ void Router::RegisterAllPlugins()
             pListCommand_Impl->push_back(pPlugIn);
         }
     }
+
+	// Repeat and see if we can find any plugins to load dynamically
+	list<string> listFiles;
+#ifdef WIN32
+	FileUtils::FindFiles(listFiles,".","*.dll",false,true);
+	FileUtils::FindFiles(listFiles,"/pluto/bin","*.dll",false,true);
+#else
+	FileUtils::FindFiles(listFiles,".","*.so",false,true);
+	FileUtils::FindFiles(listFiles,"/usr/pluto/bin","*.dll",false,true);
+#endif
+
+	int PlugInNumber=0;  // How many plug-ins we're loading dynamically
+
+	for(list<string>::iterator itFile=listFiles.begin();itFile!=listFiles.end();++itFile)
+	{
+		string sFile = *itFile;
+		if( mapPluginCommands.find(FileUtils::FilenameWithoutPath(sFile))==mapPluginCommands.end() && mapPluginCommands.find(FileUtils::FilenameWithoutPath(sFile,false))==mapPluginCommands.end())
+		{
+			int PK_DeviceTemplate = DynamicallyLoadPlugin(sFile);
+			if( !PK_DeviceTemplate )
+				continue;
+
+			PlugInNumber++;
+
+			DeviceData_Router *pDevice = new DeviceData_Router(m_dwPK_Device_Largest + PlugInNumber,PK_DeviceTemplate,m_dwPK_Installation,m_dwPK_Device);
+			m_mapDeviceData_Router[m_dwPK_Device_Largest + PlugInNumber]=pDevice;
+			ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceByTemplate_Find(PK_DeviceTemplate);
+			if( !pListDeviceData_Router )
+			{
+				pListDeviceData_Router = new ListDeviceData_Router();
+				m_mapDeviceByTemplate[PK_DeviceTemplate] = pListDeviceData_Router;
+			}
+			pListDeviceData_Router->push_back(pDevice);
+
+			Command_Impl *pPlugIn = CreatePlugIn(m_dwPK_Device_Largest + PlugInNumber, PK_DeviceTemplate, sFile);
+			if( !pPlugIn )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create plug-in for dynamic device %s",sFile.c_str());
+			}
+			else
+			{
+				m_mapPlugIn[m_dwPK_Device_Largest + PlugInNumber]=pPlugIn;
+				ListCommand_Impl *pListCommand_Impl = m_mapPlugIn_DeviceTemplate[PK_DeviceTemplate];
+				if( !pListCommand_Impl )
+				{
+					pListCommand_Impl = new ListCommand_Impl();
+					m_mapPlugIn_DeviceTemplate[PK_DeviceTemplate]=pListCommand_Impl;
+				}
+				pListCommand_Impl->push_back(pPlugIn);
+			}
+		}
+	}
 
     map<int,class Command_Impl *>::iterator it;
     for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
@@ -313,7 +370,59 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
 
     // HACK ___ when I pass in a string > 16 characters, even a copy like this, it crashes when the string is destroyed as the function exits!!!!  But a constant string works????
 //  return RegisterAsPlugin(this, PK_Device, sz);
-    return RegisterAsPlugin(this, PK_Device, "dce_router"); // hack!!!
+	Command_Impl *pCommand_Impl=NULL;
+	try
+	{
+		pCommand_Impl = RegisterAsPlugin(this, PK_Device, "dce_router"); // hack!!!
+	}
+	catch(...) {}
+
+	return pCommand_Impl;
+}
+
+int Router::DynamicallyLoadPlugin(string sFile)
+{
+    typedef int (* RAP_FType) ();
+    RAP_FType IsRuntimePlugin;
+    string ErrorMessage;
+    char MS_ErrorMessage[1024];
+
+    void * so_handle;
+
+    if (sFile == "")
+        return NULL;
+
+#ifndef WIN32
+    so_handle = dlopen(sFile.c_str(), RTLD_NOW);
+#else
+    so_handle = LoadLibrary(sFile.c_str());
+#endif
+
+    if (so_handle == NULL)
+    {
+#ifndef WIN32
+        ErrorMessage = dlerror();
+#else
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), MS_ErrorMessage, 1024 / sizeof(TCHAR), NULL);
+        ErrorMessage = MS_ErrorMessage;
+#endif
+        g_pPlutoLogger->Write(LV_CRITICAL, "Can't open plug-in file '%s': %s", sFile.c_str(), ErrorMessage.c_str());
+        return NULL;
+    }
+
+#ifndef WIN32
+    IsRuntimePlugin = (RAP_FType) dlsym(so_handle, "IsRuntimePlugin");
+#else
+    IsRuntimePlugin = (RAP_FType) GetProcAddress((HMODULE) so_handle, "IsRuntimePlugin");
+#endif
+
+    if (IsRuntimePlugin == NULL)
+    {
+        return 0;
+    }
+
+    return IsRuntimePlugin();
 }
 
 void Router::RegisterMsgInterceptor(Message *pMessage)
@@ -568,11 +677,16 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 
     if (Line=="CONFIG")
     {
+		if( pServerSocket->m_dwPK_Device>m_dwPK_Device_Largest )
+		{
+			pServerSocket->SendString("CONFIG 0");
+			return true;
+		}
         class DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pServerSocket->m_dwPK_Device);
         if (!pDevice)
         {
-            pSocket->SendString(string("ERROR"));
             g_pPlutoLogger->Write(LV_CRITICAL, "Device ID %d is requesting its configuration, but it does not exist.", pServerSocket->m_dwPK_Device);
+            pSocket->SendString(string("ERROR"));
         }
         else
         {
@@ -1384,6 +1498,8 @@ void Router::Configure()
     for(size_t s=0;s<vectDevices.size();++s)
     {
         Row_Device *pRow_Device = vectDevices[s];
+		if( pRow_Device->PK_Device_get()>=m_dwPK_Device_Largest )
+			m_dwPK_Device_Largest=pRow_Device->PK_Device_get();
 
         string CommandLine=pRow_Device->FK_DeviceTemplate_getrow()->CommandLine_get();
         if( CommandLine.size()==0 && pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get() )

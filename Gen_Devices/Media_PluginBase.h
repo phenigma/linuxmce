@@ -48,7 +48,8 @@ public:
 		if( !pConfig )
 			throw "Cannot get configuration data";
 		m_pData = new Media_Plugin_Data();
-		m_pData->SerializeRead(Size,pConfig);
+		if( Size )
+			m_pData->SerializeRead(Size,pConfig);
 		delete pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -61,7 +62,7 @@ public:
 	Media_Plugin_Event *GetEvents() { return (Media_Plugin_Event *) m_pEvent; };
 	Media_Plugin_Data *GetData() { return (Media_Plugin_Data *) m_pData; };
 	const char *GetClassName() { return "Media_Plugin_Command"; };
-	int PK_DeviceTemplate_get() { return 2; };
+	static int PK_DeviceTemplate_get() { return 2; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

@@ -956,7 +956,7 @@ AsksSourceQuests:
 			{
 				cout << "About to execute make: " << pRow_Package_Directory_File->MakeCommand_get() << endl
 					<< "In directory: " << sSourceDirectory << endl;
-				if( g_bSupressPrompts || !AskYNQuestion("Execute command?",false) )
+				if( !AskYNQuestion("Execute command?",false) )
 					return false;
 			}
 

@@ -152,6 +152,8 @@ void General_Info_Plugin::CMD_Request_File(string sFilename,char **pData,int *iD
 	if( c==NULL && m_pRouter )
 		c = FileUtils::ReadFileIntoBuffer(m_pRouter->sBasePath_get() + sFilename, Length);
 
+g_pPlutoLogger->Write(LV_CRITICAL, "base: %s", m_pRouter->sBasePath_get().c_str());
+
 	if( c && Length )
 		g_pPlutoLogger->Write(LV_FILEREQUEST, "sending file: %s size: %d", sFilename.c_str(),(int) Length);
 	else

@@ -8,8 +8,6 @@
  *
  */
 
-#define  VERSION "04122110"
- 
 //<-dceag-d-b->
 #ifndef Orbiter_h
 #define Orbiter_h

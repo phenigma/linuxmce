@@ -120,6 +120,7 @@ namespace DCE
         pthread_mutex_t m_MessageQueueMutex;
         pthread_cond_t m_MessageQueueCond;
         int m_Port;
+		unsigned long m_dwPK_Device_Largest;
         string m_sBasePath;
         pthread_t m_pthread_queue_id;
         map<int,string> m_dwPK_Device_To_CommandLine;
@@ -260,6 +261,7 @@ namespace DCE
 #endif
 
         class Command_Impl *CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string sCommandLine);  // Load the plug-in on the command line
+		int DynamicallyLoadPlugin(string sFile);
         string GetDevicesByDeviceTemplate(int PK_DeviceTemplate,eBroadcastLevel BroadcastLevel, int sourceDeviceForBroadcastLevel);
         string GetDevicesByCategory(int PK_DeviceCategory,eBroadcastLevel BroadcastLevel);
         void ErrorResponse(Socket *pSocket,Message *pMessage); // Respond with an error condition if the sender is waiting for a response

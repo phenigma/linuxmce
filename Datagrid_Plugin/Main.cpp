@@ -42,6 +42,13 @@ using namespace DCE;
 
 //<-dceag-plug-b->
 extern "C" {
+	int IsRuntimePlugin() 
+	{ 
+		return Datagrid_Plugin::IsRuntimePlugin();
+	}
+}
+
+extern "C" {
 	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,string sLogger)
 	{
 		if( sLogger=="dce_router" )

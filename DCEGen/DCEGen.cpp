@@ -439,7 +439,9 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\tif( !pConfig )" << endl;
 	fstr_DeviceCommand << "\t\t\tthrow \"Cannot get configuration data\";" << endl;
 	fstr_DeviceCommand << "\t\tm_pData = new "  << Name  << "_Data();" << endl;
-	fstr_DeviceCommand << "\t\tm_pData->SerializeRead(Size,pConfig);" << endl;
+	fstr_DeviceCommand << "\t\tif( Size )" << endl;
+	fstr_DeviceCommand << "\t\t\tm_pData->SerializeRead(Size,pConfig);" << endl;
+
 	fstr_DeviceCommand << "\t\tdelete pConfig;" << endl;
 	fstr_DeviceCommand << "\t\tpConfig = m_pEvent->GetDeviceList(Size);" << endl;
 	fstr_DeviceCommand << "\t\tm_pData->m_AllDevices.SerializeRead(Size,pConfig);" << endl;
@@ -453,7 +455,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t"  << Name  << "_Event *GetEvents() { return ("  << Name  << "_Event *) m_pEvent; };" << endl;
 	fstr_DeviceCommand << "\t"  << Name  << "_Data *GetData() { return ("  << Name  << "_Data *) m_pData; };" << endl;
 	fstr_DeviceCommand << "\tconst char *GetClassName() { return \""   <<  Name   <<  "_Command\"; };" << endl;
-	fstr_DeviceCommand << "\tint PK_DeviceTemplate_get() { return " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() <<  "; };" << endl;
+	fstr_DeviceCommand << "\tstatic int PK_DeviceTemplate_get() { return " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() <<  "; };" << endl;
 	fstr_DeviceCommand << "\tvirtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };" << endl;
 	fstr_DeviceCommand << "\tvirtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };" << endl;
 

@@ -176,6 +176,22 @@ namespace DCE
 			m_iConfigSize=0;
 		}
 
+		// Another constructor for dynamically loaded plug-ins
+		DeviceData_Router(int PK_Device,int PK_DeviceTemplate,int PK_Installation, int PK_Device_ControlledVia)
+			: DeviceData_Impl(PK_Device,PK_Installation,PK_DeviceTemplate,PK_Device_ControlledVia,0 /* category */,0 /* room */,true /* implements dce */,false /* is embedded */,
+			"" /* Command line */,true /* Is Plugin */,"" /* Description */,"localhost","" /* Mac Address */)
+		{
+			m_pRow_Device=NULL;
+			m_bForceReloadOnFirstConnect=m_bIsRegistered=m_bIsReady=m_bBusy=m_bAlert=false;
+			m_tLastused=m_tCanReceiveNextCommand=0;
+
+			m_pRoom=NULL;
+			m_pDevice_ControlledVia=m_pDevice_RouteTo=NULL;
+			m_pDevice_Audio=m_pDevice_Video=NULL;
+			m_pMySerializedData=NULL;
+			m_iConfigSize=0;
+		}
+
 		~DeviceData_Router()
 		{
 			map<int,class DeviceRelation *>::iterator itMD;
