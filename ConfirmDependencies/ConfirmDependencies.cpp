@@ -392,7 +392,10 @@ void CheckDevice(Row_Device *pRow_Device,bool bSourceCode)
 void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 {
 	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_isNull() )
-		cout << "#Device: " << pRow_Device->Description_get() << " (#" << pRow_Device->FK_DeviceTemplate_get() << " " << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ") doesn't require any software." << endl;
+	{
+		if( sCommand!="line" )
+			cout << "#Device: " << pRow_Device->Description_get() << " (#" << pRow_Device->FK_DeviceTemplate_get() << " " << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ") doesn't require any software." << endl;
+	}
 	else
 	{
 		string PkgName = pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow()->Description_get();
