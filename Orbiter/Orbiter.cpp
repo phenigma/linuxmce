@@ -424,6 +424,8 @@ void Orbiter::RealRedraw( void *data )
     if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0)
         return;
 
+	RenderScreen(  );
+/*
 	BeginPaint();
 
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
@@ -434,7 +436,7 @@ void Orbiter::RealRedraw( void *data )
 	{
 		DesignObjText *pText = m_vectTexts_NeedRedraw[s];
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
-		if( pTextStyle /*&& pTextStyle->m_BackColor*/ )
+		if( pTextStyle )
 		{
 			SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(),  
 				pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
@@ -464,6 +466,10 @@ void Orbiter::RealRedraw( void *data )
 	m_vectTexts_NeedRedraw.clear();
 
 	EndPaint();
+*/
+
+    m_vectObjs_NeedRedraw.clear();
+	m_vectTexts_NeedRedraw.clear();
 }
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )

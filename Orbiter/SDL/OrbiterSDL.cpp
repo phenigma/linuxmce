@@ -188,9 +188,9 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
     SDL_Rect Rectangle;
     Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
 
-	if(m_bPartialRendering)
-        SDL_FillRect(Screen, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
-	else
+//	if(m_bPartialRendering)
+//        SDL_FillRect(Screen, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
+	//else
 		SDL_FillRect(m_pScreenImage, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
 }
 
