@@ -1,0 +1,1104 @@
+// If using the thread logger, these generated classes create lots of activity
+#ifdef NO_SQL_THREAD_LOG
+#undef THREAD_LOG
+#endif
+
+#ifdef WIN32
+#include <winsock.h>
+#endif
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <list>
+
+#include <mysql.h>
+
+using namespace std;
+#include "PlutoUtils/StringUtils.h"
+#include "Table_StartupScript.h"
+
+#include "Table_Device_StartupScript.h"
+
+
+void Database_pluto_main::CreateTable_StartupScript()
+{
+	tblStartupScript = new Table_StartupScript(this);
+}
+
+void Database_pluto_main::DeleteTable_StartupScript()
+{
+	delete tblStartupScript;
+}
+
+Table_StartupScript::~Table_StartupScript()
+{
+	map<Table_StartupScript::Key, class Row_StartupScript*, Table_StartupScript::Key_Less>::iterator it;
+	for(it=cachedRows.begin();it!=cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	size_t i;
+	for(i=0;i<addedRows.size();++i)
+		delete addedRows[i];
+	for(i=0;i<deleted_addedRows.size();++i)
+		delete deleted_addedRows[i];
+}
+
+
+void Row_StartupScript::Delete()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	if (!is_deleted)
+		if (is_added)	
+		{	
+			vector<Row_StartupScript*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			
+			if (i!=	table->addedRows.end())
+				table->addedRows.erase(i);
+		
+			table->deleted_addedRows.push_back(this);
+			is_deleted = true;	
+		}
+		else
+		{
+			Table_StartupScript::Key key(this);					
+			map<Table_StartupScript::Key, Row_StartupScript*, Table_StartupScript::Key_Less>::iterator i = table->cachedRows.find(key);
+			if (i!=table->cachedRows.end())
+				table->cachedRows.erase(i);
+						
+			table->deleted_cachedRows[key] = this;
+			is_deleted = true;	
+		}	
+}
+
+void Row_StartupScript::Reload()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	
+	if (!is_added)
+	{
+		Table_StartupScript::Key key(this);		
+		Row_StartupScript *pRow = table->FetchRow(key);
+		
+		if (pRow!=NULL)
+		{
+			*this = *pRow;	
+			
+			delete pRow;		
+		}	
+	}	
+	
+}
+
+Row_StartupScript::Row_StartupScript(Table_StartupScript *pTable):table(pTable)
+{
+	SetDefaultValues();
+}
+
+void Row_StartupScript::SetDefaultValues()
+{
+	m_PK_StartupScript = 0;
+is_null[0] = false;
+m_Command = "";
+is_null[1] = false;
+m_Description = "";
+is_null[2] = false;
+m_Parameter_Syntax = "";
+is_null[3] = false;
+m_Core_Boot_Order = 99;
+is_null[4] = false;
+m_Core_Background = 0;
+is_null[5] = false;
+m_Core_Enabled = 1;
+is_null[6] = false;
+m_Core_Parameter = "";
+is_null[7] = false;
+m_MD_Boot_Order = 99;
+is_null[8] = false;
+m_MD_Background = 0;
+is_null[9] = false;
+m_MD_Enabled = 1;
+is_null[10] = false;
+m_MD_Parameter = "";
+is_null[11] = false;
+m_Hybrid_Boot_Order = 99;
+is_null[12] = false;
+m_Hybrid_Background = 0;
+is_null[13] = false;
+m_Hybrid_Enabled = 1;
+is_null[14] = false;
+m_Hybrid_Parameter = "";
+is_null[15] = false;
+
+
+	is_added=false;
+	is_deleted=false;
+	is_modified=false;
+}
+
+long int Row_StartupScript::PK_StartupScript_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_PK_StartupScript;}
+string Row_StartupScript::Command_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Command;}
+string Row_StartupScript::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Description;}
+string Row_StartupScript::Parameter_Syntax_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Parameter_Syntax;}
+long int Row_StartupScript::Core_Boot_Order_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Core_Boot_Order;}
+long int Row_StartupScript::Core_Background_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Core_Background;}
+long int Row_StartupScript::Core_Enabled_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Core_Enabled;}
+string Row_StartupScript::Core_Parameter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Core_Parameter;}
+long int Row_StartupScript::MD_Boot_Order_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_MD_Boot_Order;}
+short int Row_StartupScript::MD_Background_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_MD_Background;}
+short int Row_StartupScript::MD_Enabled_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_MD_Enabled;}
+string Row_StartupScript::MD_Parameter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_MD_Parameter;}
+long int Row_StartupScript::Hybrid_Boot_Order_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Hybrid_Boot_Order;}
+short int Row_StartupScript::Hybrid_Background_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Hybrid_Background;}
+short int Row_StartupScript::Hybrid_Enabled_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Hybrid_Enabled;}
+string Row_StartupScript::Hybrid_Parameter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Hybrid_Parameter;}
+
+		
+void Row_StartupScript::PK_StartupScript_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_PK_StartupScript = val; is_modified=true; is_null[0]=false;}
+void Row_StartupScript::Command_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Command = val; is_modified=true; is_null[1]=false;}
+void Row_StartupScript::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Description = val; is_modified=true; is_null[2]=false;}
+void Row_StartupScript::Parameter_Syntax_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Parameter_Syntax = val; is_modified=true; is_null[3]=false;}
+void Row_StartupScript::Core_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Core_Boot_Order = val; is_modified=true; is_null[4]=false;}
+void Row_StartupScript::Core_Background_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Core_Background = val; is_modified=true; is_null[5]=false;}
+void Row_StartupScript::Core_Enabled_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Core_Enabled = val; is_modified=true; is_null[6]=false;}
+void Row_StartupScript::Core_Parameter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Core_Parameter = val; is_modified=true; is_null[7]=false;}
+void Row_StartupScript::MD_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_MD_Boot_Order = val; is_modified=true; is_null[8]=false;}
+void Row_StartupScript::MD_Background_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_MD_Background = val; is_modified=true; is_null[9]=false;}
+void Row_StartupScript::MD_Enabled_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_MD_Enabled = val; is_modified=true; is_null[10]=false;}
+void Row_StartupScript::MD_Parameter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_MD_Parameter = val; is_modified=true; is_null[11]=false;}
+void Row_StartupScript::Hybrid_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Hybrid_Boot_Order = val; is_modified=true; is_null[12]=false;}
+void Row_StartupScript::Hybrid_Background_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Hybrid_Background = val; is_modified=true; is_null[13]=false;}
+void Row_StartupScript::Hybrid_Enabled_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Hybrid_Enabled = val; is_modified=true; is_null[14]=false;}
+void Row_StartupScript::Hybrid_Parameter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Hybrid_Parameter = val; is_modified=true; is_null[15]=false;}
+
+		
+
+			
+	
+
+string Row_StartupScript::PK_StartupScript_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PK_StartupScript);
+
+return buf;
+}
+
+string Row_StartupScript::Command_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[1])
+return "NULL";
+
+char buf[201];
+mysql_real_escape_string(table->database->db_handle, buf, m_Command.c_str(), (unsigned long) m_Command.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_StartupScript::Description_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[131071];
+mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_StartupScript::Parameter_Syntax_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[131071];
+mysql_real_escape_string(table->database->db_handle, buf, m_Parameter_Syntax.c_str(), (unsigned long) m_Parameter_Syntax.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_StartupScript::Core_Boot_Order_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_Core_Boot_Order);
+
+return buf;
+}
+
+string Row_StartupScript::Core_Background_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_Core_Background);
+
+return buf;
+}
+
+string Row_StartupScript::Core_Enabled_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_Core_Enabled);
+
+return buf;
+}
+
+string Row_StartupScript::Core_Parameter_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[201];
+mysql_real_escape_string(table->database->db_handle, buf, m_Core_Parameter.c_str(), (unsigned long) m_Core_Parameter.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_StartupScript::MD_Boot_Order_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_MD_Boot_Order);
+
+return buf;
+}
+
+string Row_StartupScript::MD_Background_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[9])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_MD_Background);
+
+return buf;
+}
+
+string Row_StartupScript::MD_Enabled_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[10])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_MD_Enabled);
+
+return buf;
+}
+
+string Row_StartupScript::MD_Parameter_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[11])
+return "NULL";
+
+char buf[201];
+mysql_real_escape_string(table->database->db_handle, buf, m_MD_Parameter.c_str(), (unsigned long) m_MD_Parameter.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_StartupScript::Hybrid_Boot_Order_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[12])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_Hybrid_Boot_Order);
+
+return buf;
+}
+
+string Row_StartupScript::Hybrid_Background_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[13])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Hybrid_Background);
+
+return buf;
+}
+
+string Row_StartupScript::Hybrid_Enabled_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[14])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Hybrid_Enabled);
+
+return buf;
+}
+
+string Row_StartupScript::Hybrid_Parameter_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[15])
+return "NULL";
+
+char buf[201];
+mysql_real_escape_string(table->database->db_handle, buf, m_Hybrid_Parameter.c_str(), (unsigned long) m_Hybrid_Parameter.size());
+return string()+"\""+buf+"\"";
+}
+
+
+
+
+Table_StartupScript::Key::Key(long int in_PK_StartupScript)
+{
+			pk_PK_StartupScript = in_PK_StartupScript;
+	
+}
+
+Table_StartupScript::Key::Key(Row_StartupScript *pRow)
+{
+			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+
+			pk_PK_StartupScript = pRow->m_PK_StartupScript;
+	
+}		
+
+bool Table_StartupScript::Key_Less::operator()(const Table_StartupScript::Key &key1, const Table_StartupScript::Key &key2) const
+{
+			if (key1.pk_PK_StartupScript!=key2.pk_PK_StartupScript)
+return key1.pk_PK_StartupScript<key2.pk_PK_StartupScript;
+else
+return false;	
+}	
+
+void Table_StartupScript::Commit()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+//insert added
+	while (!addedRows.empty())
+	{
+		vector<Row_StartupScript*>::iterator i = addedRows.begin();
+	
+		Row_StartupScript *pRow = *i;
+	
+		
+string values_list_comma_separated;
+values_list_comma_separated = values_list_comma_separated + pRow->PK_StartupScript_asSQL()+", "+pRow->Command_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Parameter_Syntax_asSQL()+", "+pRow->Core_Boot_Order_asSQL()+", "+pRow->Core_Background_asSQL()+", "+pRow->Core_Enabled_asSQL()+", "+pRow->Core_Parameter_asSQL()+", "+pRow->MD_Boot_Order_asSQL()+", "+pRow->MD_Background_asSQL()+", "+pRow->MD_Enabled_asSQL()+", "+pRow->MD_Parameter_asSQL()+", "+pRow->Hybrid_Boot_Order_asSQL()+", "+pRow->Hybrid_Background_asSQL()+", "+pRow->Hybrid_Enabled_asSQL()+", "+pRow->Hybrid_Parameter_asSQL();
+
+	
+		string query = "insert into StartupScript (PK_StartupScript, Command, Description, Parameter_Syntax, Core_Boot_Order, Core_Background, Core_Enabled, Core_Parameter, MD_Boot_Order, MD_Background, MD_Enabled, MD_Parameter, Hybrid_Boot_Order, Hybrid_Background, Hybrid_Enabled, Hybrid_Parameter) values ("+
+			values_list_comma_separated+")";
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		if (mysql_affected_rows(database->db_handle)!=0)
+		{
+			
+			
+			long int id	= (long int) mysql_insert_id(database->db_handle);
+		
+			if (id!=0)
+pRow->m_PK_StartupScript=id;
+	
+			
+			addedRows.erase(i);
+			Key key(pRow);	
+			cachedRows[key] = pRow;
+					
+			
+			pRow->is_added = false;	
+			pRow->is_modified = false;	
+		}	
+				
+	}	
+
+
+//update modified
+	
+
+	for (map<Key, Row_StartupScript*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified)
+	{
+		Row_StartupScript* pRow = (*i).second;	
+		Key key(pRow);	
+
+		char tmp_PK_StartupScript[32];
+sprintf(tmp_PK_StartupScript, "%li", key.pk_PK_StartupScript);
+
+
+string condition;
+condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
+	
+			
+		
+string update_values_list;
+update_values_list = update_values_list + "PK_StartupScript="+pRow->PK_StartupScript_asSQL()+", Command="+pRow->Command_asSQL()+", Description="+pRow->Description_asSQL()+", Parameter_Syntax="+pRow->Parameter_Syntax_asSQL()+", Core_Boot_Order="+pRow->Core_Boot_Order_asSQL()+", Core_Background="+pRow->Core_Background_asSQL()+", Core_Enabled="+pRow->Core_Enabled_asSQL()+", Core_Parameter="+pRow->Core_Parameter_asSQL()+", MD_Boot_Order="+pRow->MD_Boot_Order_asSQL()+", MD_Background="+pRow->MD_Background_asSQL()+", MD_Enabled="+pRow->MD_Enabled_asSQL()+", MD_Parameter="+pRow->MD_Parameter_asSQL()+", Hybrid_Boot_Order="+pRow->Hybrid_Boot_Order_asSQL()+", Hybrid_Background="+pRow->Hybrid_Background_asSQL()+", Hybrid_Enabled="+pRow->Hybrid_Enabled_asSQL()+", Hybrid_Parameter="+pRow->Hybrid_Parameter_asSQL();
+
+	
+		string query = "update StartupScript set " + update_values_list + " where " + condition;
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		pRow->is_modified = false;	
+	}	
+	
+
+//delete deleted added
+	while (!deleted_addedRows.empty())
+	{	
+		vector<Row_StartupScript*>::iterator i = deleted_addedRows.begin();
+		delete (*i);
+		deleted_addedRows.erase(i);
+	}	
+
+
+//delete deleted cached
+	
+	while (!deleted_cachedRows.empty())
+	{	
+		map<Key, Row_StartupScript*, Key_Less>::iterator i = deleted_cachedRows.begin();
+	
+		Key key = (*i).first;
+	
+		char tmp_PK_StartupScript[32];
+sprintf(tmp_PK_StartupScript, "%li", key.pk_PK_StartupScript);
+
+
+string condition;
+condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
+
+	
+		string query = "delete from StartupScript where " + condition;
+		
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}	
+		
+		delete (*i).second;
+		deleted_cachedRows.erase(key);
+	}
+	
+}
+
+bool Table_StartupScript::GetRows(string where_statement,vector<class Row_StartupScript*> *rows)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	string query = "select * from StartupScript where " + where_statement;
+		
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return false;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return false;
+	}	
+	
+	MYSQL_ROW row;
+						
+		
+	while ((row = mysql_fetch_row(res)) != NULL)
+	{	
+		unsigned long *lengths = mysql_fetch_lengths(res);
+
+		Row_StartupScript *pRow = new Row_StartupScript(this);
+		
+		if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_StartupScript = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_StartupScript));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_Command = "";
+}
+else
+{
+pRow->is_null[1]=false;
+pRow->m_Command = string(row[1],lengths[1]);
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Description = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Description = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Parameter_Syntax = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_Parameter_Syntax = string(row[3],lengths[3]);
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Core_Boot_Order = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_Core_Boot_Order));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Core_Background = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_Core_Background));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Core_Enabled = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_Core_Enabled));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_Core_Parameter = "";
+}
+else
+{
+pRow->is_null[7]=false;
+pRow->m_Core_Parameter = string(row[7],lengths[7]);
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_MD_Boot_Order = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%li", &(pRow->m_MD_Boot_Order));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_MD_Background = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%hi", &(pRow->m_MD_Background));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_MD_Enabled = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_MD_Enabled));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_MD_Parameter = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_MD_Parameter = string(row[11],lengths[11]);
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_Hybrid_Boot_Order = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%li", &(pRow->m_Hybrid_Boot_Order));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_Hybrid_Background = 0;
+}
+else
+{
+pRow->is_null[13]=false;
+sscanf(row[13], "%hi", &(pRow->m_Hybrid_Background));
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_Hybrid_Enabled = 0;
+}
+else
+{
+pRow->is_null[14]=false;
+sscanf(row[14], "%hi", &(pRow->m_Hybrid_Enabled));
+}
+
+if (row[15] == NULL)
+{
+pRow->is_null[15]=true;
+pRow->m_Hybrid_Parameter = "";
+}
+else
+{
+pRow->is_null[15]=false;
+pRow->m_Hybrid_Parameter = string(row[15],lengths[15]);
+}
+
+
+
+		//checking for duplicates
+
+		Key key(pRow);
+		
+                map<Table_StartupScript::Key, Row_StartupScript*, Table_StartupScript::Key_Less>::iterator i = cachedRows.find(key);
+			
+		if (i!=cachedRows.end())
+		{
+			delete pRow;
+			pRow = (*i).second;
+		}
+
+		rows->push_back(pRow);
+		
+		cachedRows[key] = pRow;
+	}
+
+	mysql_free_result(res);			
+		
+	return true;					
+}
+
+Row_StartupScript* Table_StartupScript::AddRow()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Row_StartupScript *pRow = new Row_StartupScript(this);
+	pRow->is_added=true;
+	addedRows.push_back(pRow);
+	return pRow;		
+}
+
+
+
+Row_StartupScript* Table_StartupScript::GetRow(long int in_PK_StartupScript)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Key row_key(in_PK_StartupScript);
+
+	map<Key, Row_StartupScript*, Key_Less>::iterator i;
+	i = deleted_cachedRows.find(row_key);	
+		
+	//row was deleted	
+	if (i!=deleted_cachedRows.end())
+		return NULL;
+	
+	i = cachedRows.find(row_key);
+	
+	//row is cached
+	if (i!=cachedRows.end())
+		return (*i).second;
+	//we have to fetch row
+	Row_StartupScript* pRow = FetchRow(row_key);
+
+	if (pRow!=NULL)
+		cachedRows[row_key] = pRow;
+	return pRow;	
+}
+
+
+
+Row_StartupScript* Table_StartupScript::FetchRow(Table_StartupScript::Key &key)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	//defines the string query for the value of key
+	char tmp_PK_StartupScript[32];
+sprintf(tmp_PK_StartupScript, "%li", key.pk_PK_StartupScript);
+
+
+string condition;
+condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
+
+
+	string query = "select * from StartupScript where " + condition;		
+
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return NULL;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return NULL;
+	}	
+	
+	MYSQL_ROW row = mysql_fetch_row(res);
+	
+	if (!row)
+	{
+		//dataset is empty
+		mysql_free_result(res);			
+		return NULL;		
+	}	
+						
+	unsigned long *lengths = mysql_fetch_lengths(res);
+
+	Row_StartupScript *pRow = new Row_StartupScript(this);
+		
+	if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_StartupScript = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_StartupScript));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_Command = "";
+}
+else
+{
+pRow->is_null[1]=false;
+pRow->m_Command = string(row[1],lengths[1]);
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Description = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Description = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Parameter_Syntax = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_Parameter_Syntax = string(row[3],lengths[3]);
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Core_Boot_Order = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_Core_Boot_Order));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Core_Background = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_Core_Background));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Core_Enabled = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_Core_Enabled));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_Core_Parameter = "";
+}
+else
+{
+pRow->is_null[7]=false;
+pRow->m_Core_Parameter = string(row[7],lengths[7]);
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_MD_Boot_Order = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%li", &(pRow->m_MD_Boot_Order));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_MD_Background = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%hi", &(pRow->m_MD_Background));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_MD_Enabled = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_MD_Enabled));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_MD_Parameter = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_MD_Parameter = string(row[11],lengths[11]);
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_Hybrid_Boot_Order = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%li", &(pRow->m_Hybrid_Boot_Order));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_Hybrid_Background = 0;
+}
+else
+{
+pRow->is_null[13]=false;
+sscanf(row[13], "%hi", &(pRow->m_Hybrid_Background));
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_Hybrid_Enabled = 0;
+}
+else
+{
+pRow->is_null[14]=false;
+sscanf(row[14], "%hi", &(pRow->m_Hybrid_Enabled));
+}
+
+if (row[15] == NULL)
+{
+pRow->is_null[15]=true;
+pRow->m_Hybrid_Parameter = "";
+}
+else
+{
+pRow->is_null[15]=false;
+pRow->m_Hybrid_Parameter = string(row[15],lengths[15]);
+}
+
+
+
+	mysql_free_result(res);			
+	
+	return pRow;						
+}
+
+
+
+
+void Row_StartupScript::Device_StartupScript_FK_StartupScript_getrows(vector <class Row_Device_StartupScript*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Device_StartupScript *pTable = table->database->Device_StartupScript_get();
+pTable->GetRows("FK_StartupScript=" + StringUtils::itos(m_PK_StartupScript),rows);
+}
+
+
+
