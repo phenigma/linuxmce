@@ -57,7 +57,15 @@ function firewall($output,$dbADO) {
 		</tr>		
 		<tr>
 			<td colspan="6" align="center" bgcolor="#EEEEEE"><B>Add new firewall rule</B></td>
-		</tr>		
+		</tr>
+		<tr bgcolor="#EEEEEE">
+			<td align="center"><B>Protocol</B></td>
+			<td align="center"><B>Source Port</B></td>
+			<td align="center"><B>Destination Port</B></td>
+			<td align="center"><B>Destination IP</B></td>
+			<td align="center"><B>Rule Type</B></td>
+			<td>&nbsp;</td>
+		</tr>				
 		<tr>
 			<td align="center"><select name="protocol">
 				<option value="tcp">tcp</option>
