@@ -60,7 +60,7 @@ int sqlCVSprocessor::UnauthorizedBatch(int psc_user_needs_to_authorize)
 
 void sqlCVSprocessor::RecordChangesToTable()
 {
-	if( !m_pTable || !m_pRepository )
+	if( !m_pTable || !m_pRepository || (m_iNew==0 && m_iDel==0 && m_iMod==0) )
 		return; // Nothing to do
 
 	ostringstream sSql;

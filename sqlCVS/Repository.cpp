@@ -608,6 +608,9 @@ bool Repository::CheckIn( )
 
 bool Repository::Update( )
 {
+	if( !DetermineDeletions( ) )
+		return false; /**< This will throw an exception with the transaction */
+
 	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
 	RA_Processor ra_Processor( ClientID, SoftwareVersion );
 

@@ -76,6 +76,7 @@ bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )
 		{
 			psqlCVSprocessor->m_iDel++;
 			/** The user is deleting an existing record */
+			psqlCVSprocessor->m_pTable->DeleteRow( this, psqlCVSprocessor, m_bFrozen, m_psc_user_needs_to_authorize );
 		}
 	}
 	catch( const char *pException )

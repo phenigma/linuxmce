@@ -30,6 +30,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "RA/RA_Processor.h"
 #include "CommonFunctions.h"
 #include <iomanip>
 #include <sstream>
@@ -444,10 +445,32 @@ class Table *Database::GetTableFromForeignKeyString( Table *pTable, string sFiel
 
 void Database::ShowChanges()
 {
+	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!!  */
+	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+
+	// Don't need to create a transaction since we're not changing anything.
+
+	DCE::Socket *pSocket=NULL;
+
 	for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
 	{
 		Table *pTable = ( *it ).second;
-		pTable->GetChanges( );
+		
+		/**
+		 * Since we don't need to connect to the server for anything here, but we don't each table to make it's own connection, 
+		 * Pass in the connection string and the NULL pointer to the socket so a connection will be made the
+		 * first time and preserved for the other tables
+		 */
+		 
+		if( pTable->Repository_get( ) )
+		{
+			pTable->GetChanges(); // This will get the adds and modifies
+			if( !pTable->DetermineDeletions( ra_Processor, "localhost:3485", &pSocket ) )
+			{
+				cerr << "Unable to contact the server to determine what records were deleted" << endl;
+				throw "database error";
+			}
+		}
 	}
 
 	while(true)
@@ -604,7 +627,11 @@ void Database::CheckIn( )
 		for( MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin( );it!=g_GlobalConfig.m_mapRepository.end( );++it )
 		{
 			Repository *pRepository = ( *it ).second;
-			if( !pRepository->CheckIn( ) )
+			if( pRepository->m_mapUsers2ChangedRow.size()==0 )
+			{
+				cout << "Repository: " << pRepository->Name_get() << " has no changes.  Skipping..." << endl;
+			}
+			else if( !pRepository->CheckIn( ) )
 			{
 				cerr << "Checkin failed" << endl;
 				throw "Checkin failed";

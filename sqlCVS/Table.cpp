@@ -215,6 +215,8 @@ void Table::HasFullHistory_set( bool bOn )
 				sqlHistoryMask << "`" << sField << "` tinyint(1), ";
 		}
 
+		sqlHistory << "psc_del tinyint(1) DEFAULT 0, ";
+
 		sqlHistory << "PRIMARY KEY ( psc_id, psc_batch )" << endl
 			<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
 		sqlHistoryMask << "PRIMARY KEY ( psc_id, psc_batch )" << endl
@@ -475,8 +477,26 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 	if( r_UpdateTable.m_psc_batch_last_sync>m_psc_batch_last_sync )
 		m_pRepository->psc_batch_last_sync_set( this, r_UpdateTable.m_psc_batch_last_sync );
 
+	// Now delete any rows in our vect that we found during the DetermineDeletions phase
+	if( m_vectRowsToDelete.size() )
+	{
+		cout << "Deleting " << m_vectRowsToDelete.size() << " rows from table: " << m_sName << endl;
+		ostringstream sSql;
+		sSql << "DELETE FROM `" << m_sName << "` WHERE psc_id IN (";
+
+		for(size_t s=0;s<m_vectRowsToDelete.size();++s)
+			sSql << (s ? "," : "") << m_vectRowsToDelete[s];
+
+		sSql << ")";
+		if( m_pDatabase->threaded_mysql_query( sSql.str() )!=0 )
+		{
+			cerr << "Unable to delete local rows" << endl;
+			throw "Cannot delete rows";
+		}
+	}
 	return true;
 }
+
 void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 {
 #pragma warning( "take into account filter" )
@@ -651,7 +671,7 @@ bool Table::ConfirmDependency( ChangedRow *pChangedRow, Field *pField_Referring,
 	res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
 	if( !res.r || res.r->row_count!=1 )
 	{
-		cerr << "Problem retrieving row with query: " << sSQL << endl;
+		cerr << "Problem retrieving row with query2: " << sSQL << endl;
 		return false;
 	}
 	row = mysql_fetch_row( res.r );
@@ -664,7 +684,7 @@ bool Table::ConfirmDependency( ChangedRow *pChangedRow, Field *pField_Referring,
 	res2.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
 	if( !res2.r || res2.r->row_count!=1 )
 	{
-		cerr << "Problem retrieving row with query: " << sSQL << endl;
+		cerr << "Problem retrieving row with query3: " << sSQL << endl;
 		return false;
 	}
 	row = mysql_fetch_row( res2.r );
@@ -697,7 +717,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	size_t pos=0; // A position in the vector
 	if( !res.r )
 	{
-		cerr << "Problem retrieving rows with query: " << sSQL << endl;
+		cerr << "Problem retrieving rows with query4: " << sSQL << endl;
 		throw "Database error";
 	}
 	else
@@ -781,31 +801,34 @@ bool Table::CheckIn( RA_Processor &ra_Processor, DCE::Socket *pSocket, enum Type
 				R_CommitRow r_CommitRow( pChangedRow );
 
 				std::ostringstream sSQL;
-				sSQL << "SELECT ";
-
-				for( size_t s=0;s<vectFields.size( );++s )
+				if( pChangedRow->m_eTypeOfChange!=toc_Delete )
 				{
-					if( s>0 )
-						sSQL << ", ";
-					sSQL << "`" << vectFields[s] << "`";
-				}
+					sSQL << "SELECT ";
 
-				sSQL << " FROM " << m_sName;
+					for( size_t s=0;s<vectFields.size( );++s )
+					{
+						if( s>0 )
+							sSQL << ", ";
+						sSQL << "`" << vectFields[s] << "`";
+					}
 
-				sSQL << pChangedRow->GetWhereClause( );
+					sSQL << " FROM " << m_sName;
 
-				PlutoSqlResult res;
-				MYSQL_ROW row=NULL;
-				res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
-				if( !res.r || res.r->row_count!=1 )
-				{
-					cerr << "Problem retrieving row with query: " << sSQL << endl;
-					return false;
-				}
-				row = mysql_fetch_row( res.r );
-				for( size_t s=0;s<vectFields.size( );++s )
-				{
-					r_CommitRow.m_vectValues.push_back( row[s] ? row[s] : NULL_TOKEN );
+					sSQL << pChangedRow->GetWhereClause( );
+
+					PlutoSqlResult res;
+					MYSQL_ROW row=NULL;
+					res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
+					if( !res.r || res.r->row_count!=1 )
+					{
+						cerr << "Problem retrieving row with query5: " << sSQL << endl;
+						return false;
+					}
+					row = mysql_fetch_row( res.r );
+					for( size_t s=0;s<vectFields.size( );++s )
+					{
+						r_CommitRow.m_vectValues.push_back( row[s] ? row[s] : NULL_TOKEN );
+					}
 				}
 
 				ra_Processor.SendRequest( &r_CommitRow, pSocket );
@@ -971,6 +994,50 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 	}
 }
 
+void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user )
+{
+	// If the user is a supervisor, he can do anything, otherwise be sure we're allowed to do this
+	if( !psqlCVSprocessor->m_bSupervisor )
+	{
+		std::ostringstream sSQL;
+		sSQL << "SELECT psc_user,psc_frozen FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+		{
+			if( row[1] && row[1][0]=='1' )
+				bFrozen=true;
+			else
+				bFrozen=false;
+
+			int i = row[0] ? atoi(row[0]) : 0;
+			if( i && psqlCVSprocessor->m_mapValidatedUsers.find(i)==psqlCVSprocessor->m_mapValidatedUsers.end() )
+				psc_user = i;
+			else
+				psc_user = 0;
+
+			if( bFrozen || psc_user )
+			{
+				psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psc_user);
+				AddToHistory( pR_CommitRow, psqlCVSprocessor );
+				return;
+			}
+		}
+		else
+			throw "Error: row not found to delete";
+	}
+
+	std::ostringstream sSQL;
+	sSQL << "DELETE FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	{
+		cerr << "Failed to delete row: " << sSQL.str( ) << endl;
+		throw "Failed to delete row";
+	}
+	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
+	AddToHistory( pR_CommitRow, psqlCVSprocessor );
+}
+
 void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user )
 {
 	// If the user is a supervisor, he can do anything, otherwise be sure we're allowed to do this
@@ -1015,11 +1082,11 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 		else
 			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
 	}
-	sSQL << "psc_batch=" << psqlCVSprocessor->m_i_psc_batch << " WHERE psc_id=" << pR_CommitRow->m_psc_id; /** @todo -- AND NOT FROZEN */
+	sSQL << "psc_batch=" << psqlCVSprocessor->m_i_psc_batch << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
-		cerr << "Failed to insert row: " << sSQL.str( ) << endl;
-		throw "Failed to insert row";
+		cerr << "Failed to update row: " << sSQL.str( ) << endl;
+		throw "Failed to update row";
 	}
 	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
 	AddToHistory( pR_CommitRow, psqlCVSprocessor );
@@ -1076,18 +1143,20 @@ void Table::GetCurrentValues(int psc_id,map<string,string> *mapCurrentValues)
 	sSql << "SELECT * FROM " << m_sName << " WHERE psc_id=" << psc_id;
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
-	if( ( result_set.r=m_pDatabase->mysql_query_result( sSql.str() ) ) )
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSql.str() ) ) && ( row = mysql_fetch_row( result_set.r ) ) )
 	{
-		while( ( row = mysql_fetch_row( result_set.r ) ) )
+		for(int i=0;i<result_set.r->field_count;++i)
 		{
-			for(int i=0;i<result_set.r->field_count;++i)
-			{
-				if( row[i] )
-					(*mapCurrentValues)[result_set.r->fields[i].name] = row[i];
-				else
-					(*mapCurrentValues)[result_set.r->fields[i].name] = NULL_TOKEN;
-			}
+			if( row[i] )
+				(*mapCurrentValues)[result_set.r->fields[i].name] = row[i];
+			else
+				(*mapCurrentValues)[result_set.r->fields[i].name] = NULL_TOKEN;
 		}
+	}
+	else
+	{
+		cerr << "Unable to find record to retrieve current values for table: " << m_sName << " psc_id: " << psc_id << endl;
+		throw "Canot locate record";
 	}
 }
 
@@ -1096,13 +1165,26 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 	if( !m_pTable_History || !m_pTable_History_Mask )
 		return;
 
-	map<string,string> mapCurrentValues;
-	GetCurrentValues(pR_CommitRow->m_psc_id,&mapCurrentValues);
-	int NumChangedFields=0;
+	if( pR_CommitRow->m_eTypeOfChange==( int ) sqlCVS::toc_Delete )
+	{
+		std::ostringstream sSqlHistory;
+		sSqlHistory << "INSERT INTO " << m_pTable_History->Name_get( ) << "(psc_id,psc_batch,psc_del) VALUES ("
+			<< pR_CommitRow->m_psc_id << ", " << psqlCVSprocessor->m_i_psc_batch << ",1)"; 
+		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 )
+		{
+			cerr << "Failed to insert history delete row: " << sSqlHistory.str( ) << endl;
+			throw "Failed to insert row";
+		}
+		return;
+	}
 
 	std::ostringstream sSqlHistory,sSqlMask;
 	sSqlHistory << "INSERT INTO " << m_pTable_History->Name_get( ) << "( ";
 	sSqlMask << "INSERT INTO " << m_pTable_History_Mask->Name_get( ) << "( ";
+
+	map<string,string> mapCurrentValues;
+	GetCurrentValues(pR_CommitRow->m_psc_id,&mapCurrentValues);
+	int NumChangedFields=0;
 
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )
 		sSqlHistory << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`, ";
