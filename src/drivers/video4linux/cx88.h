@@ -398,6 +398,9 @@ struct cx8802_dev {
 
 	/* for switching modulation types */
 	unsigned char              ts_gen_cntrl;
+
+	/* various v4l controls */
+	u32                        freq;
 };
 
 /* ----------------------------------------------------------- */
