@@ -62,7 +62,7 @@ echo "$$ Spawn_Device of $Path$cmd_line (by $0)" >>/var/log/pluto/running.pids
 
 Tab=$(printf "\t") # to prevent any smart masses from converting this tab to 4 or 8 spaces
 i=1
-while [ "$i" -le 10 ]; do
+while [ "$i" -le 500 ]; do
 	rm -f /var/log/pluto/spawned_devices_$device_id
 
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Appending log..."
