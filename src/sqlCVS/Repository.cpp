@@ -915,8 +915,8 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 #pragma warning( "This doesn't really handle types correctly, and may not handle indexes right either" );
 #pragma warning( "need to make an index for psc_id" );
 
-	map<int,int> map_id_mod;
-if( sTableName=="Command_CommandParameter" )
+	map<int,int> map_id_mod,map_id_new;
+if( sTableName=="DeviceTemplate" )
 {
 	int k=2;
 }
@@ -984,6 +984,22 @@ if( sTableName=="Command_CommandParameter" )
 			cerr << "SQL Failed: " << sSQL.str( ) << endl;
 			throw "Database error";
 		}
+
+		// If this has an auto-increment field, it's possible the user added
+		// some records locally with an ID that will conflict with a new import.  If so
+		// we have to relocate those records.  We'll keep a list of all such records
+		if( pTable && pTable->m_pField_AutoIncrement )
+		{
+			sSQL.str( "" );
+			sSQL << "SELECT " << pTable->m_pField_AutoIncrement->Name_get() << " FROM `" << sTableName << "` WHERE `psc_id` IS NULL";
+			PlutoSqlResult result_set;
+			MYSQL_ROW row=NULL;
+			if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
+			{
+				while( (row = mysql_fetch_row( result_set.r ) ) )
+					map_id_new[atoi(row[0])] = 0;
+			}
+		}
 	}
 
 	bool bCheckForUpdate = map_id_mod.size()!=0;  // This is true if we've made local changes and need to check before doing updates/deletes
@@ -997,7 +1013,10 @@ if( sTableName=="Command_CommandParameter" )
 
 		bool bUpdate=false; // Make this an update rather than an insert
 		int i_psc_id= iField_psc_id!=-1 ? atoi(str.m_vectString[pos+iField_psc_id].c_str()) : 0; // The psc_id of the row we're importing
-
+if( i_psc_id==1611 )
+{
+int k=2;
+}
 		// Delete any psc_id's that were since deleted on the server
 		for(int ipsc_id_deleted=i_psc_id_prior+1;ipsc_id_deleted<i_psc_id;ipsc_id_deleted++)
 		{
@@ -1076,10 +1095,33 @@ if( sTableName=="Command_CommandParameter" )
 			else
 				sSQL << ",";
 
+			string Value = str.m_vectString[pos++];
+
 			if( bUpdate )
 				sSQL << " `" << *it << "`=";
+			else if( pTable && pTable->m_pField_AutoIncrement && map_id_new.size() && *it == pTable->m_pField_AutoIncrement->Name_get() && map_id_new.find( atoi(Value.c_str()) )!=map_id_new.end() )
+			{
+				// We're inserting a new row added from the master table, but there's already a row in the local table
+				// with the same auto increment ID.  We're going to have to relocate our local one
+				std::ostringstream sSQL2;
+				sSQL2 << "SELECT max(" << pTable->m_pField_AutoIncrement->Name_get() << ") FROM `" << sTableName << "`";
+				PlutoSqlResult result_set;
+				MYSQL_ROW row=NULL;
+				if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) )
+				{
+					int iNextID = atoi(row[0])+1;
+					pTable->PropagateUpdatedField( pTable->m_pField_AutoIncrement, StringUtils::itos(iNextID), Value, NULL );
+					sSQL2.str("");
+					sSQL2 << "UPDATE `" << sTableName << "` SET `" << pTable->m_pField_AutoIncrement->Name_get() << "`=" << iNextID << 
+						" WHERE `" << pTable->m_pField_AutoIncrement->Name_get() << "`=" << Value;
+					if( m_pDatabase->threaded_mysql_query( sSQL2.str( ) )!=0 )
+					{
+						cerr << "SQL Failed: " << sSQL2.str( ) << endl;
+						throw "Database error";
+					}
+				}
+			}
 
-			string Value = str.m_vectString[pos++];
 			if( Value==NULL_TOKEN )
 				sSQL << "NULL";
 			else
