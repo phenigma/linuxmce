@@ -70,10 +70,15 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	PlutoSqlResult result,result1,result1b,result2,result3;
 	MYSQL_ROW row;
 
+	string ConfigureScript;
 	int iPK_DeviceCategory;
-	string SQL = "SELECT FK_DeviceCategory,Description FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+	{
 		iPK_DeviceCategory = atoi(row[0]);
+		if( row[2] )
+			ConfigureScript = row[2];
+	}
 	else
 	{
 		cerr << "Cannot find DeviceTemplate: " << iPK_DeviceTemplate << endl;
@@ -176,6 +181,10 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	CreateChildrenByCategory(PK_Device,iPK_DeviceCategory);
 	CreateChildrenByTemplate(PK_Device,iPK_DeviceTemplate);
 
+	if( ConfigureScript.length() )
+	{
+		system( (ConfigureScript + " " + StringUtils::itos(PK_Device) + " \"" + sIPAddress + "\" \"" + sMacAddress + "\"").c_str() );
+	}
 	return PK_Device;
 }
 
