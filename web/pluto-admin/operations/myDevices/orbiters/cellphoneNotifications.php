@@ -137,14 +137,18 @@ function cellphoneNotifications($output,$dbADO) {
 		$out.='
 		<input type="hidden" name="oldNtc" value="'.join(',',$ntcArray).'">
 		</table>
-		<div align="center"><input type="submit" class="button" name="submit" value="Update"  ></div>
+		<div align="center"><input type="submit" class="button" name="update" value="Update"  ></div>
 	</form>';
 	$scriptInHead='
 	<script language="javascript" type="text/javascript">
 		function form_change()
 		{
-			document.getElementById(\'span_mon_seconds\').style.display = (document.cellphoneNotifications.mon_sequence.value===\'1\') ? \'\' : \'none\';
-			document.getElementById(\'span_opn_seconds\').style.display = (document.cellphoneNotifications.opn_sequence.value===\'1\') ? \'\' : \'none\';
+			try{
+				document.getElementById(\'span_mon_seconds\').style.display = (document.cellphoneNotifications.mon_sequence.value===\'1\') ? \'\' : \'none\';
+				document.getElementById(\'span_opn_seconds\').style.display = (document.cellphoneNotifications.opn_sequence.value===\'1\') ? \'\' : \'none\';
+			}catch(e){
+				// do nothing
+			}
 		}
 		</script>';
 	
@@ -218,7 +222,8 @@ function cellphoneNotifications($output,$dbADO) {
 			$dbADO->Execute($updateNtcDeviceData,array($NTCDeviceData,$deviceID,$GLOBALS['NeighborstoCall']));
 		}
 		
-		header("Location: index.php?section=cellphoneNotifications&msg=Cellphone notifications was updated");		
+		header("Location: index.php?section=cellphoneNotifications&msg=Cellphone notifications was updated");	
+		exit();	
 	}
 
 	$output->setScriptInHead($scriptInHead);

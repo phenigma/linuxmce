@@ -140,6 +140,7 @@
 	$GLOBALS['commandParameterObjectScreen']=16;	// Object(Screen)
 	
 	// PK_DeviceData from table DeviceData
+	$GLOBALS['rootPK_Distro']=7;				// the PK_Distro
 	$GLOBALS['FloorplanInfo']=10;				// FloorplanInfo (coordinates)
 	$GLOBALS['FloorplanObjectType']=11;			// FloorplanObjectType
 	$GLOBALS['Channel']=12;						// Channel

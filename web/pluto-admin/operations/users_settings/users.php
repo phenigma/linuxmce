@@ -44,15 +44,16 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 		";
 		
 		$usersFormValidation='';
-		$out.='<tr bgcolor="#AAAAAA">
-				<td>Username</td>
-				<td>Voicemail<br>+Email</td>
-				<td>Access general<br>mailbox</td>
-				<td>Extension<br>for intercom</td>
-				<td>Name</td><td>Email</td>
-				<td>Can modify<br>configuration?</td>
-				<td>Language</td>
-				<td>Primary<br>Installation</td>
+		$out.='<tr bgcolor="#CCCCCC">
+				<td align="center"><B>Username</B></td>
+				<td align="center"><B>Voicemail<br>+Email</B></td>
+				<td align="center"><B>Access general<br>mailbox</B></td>
+				<td align="center"><B>Extension<br>for intercom</B></td>
+				<td align="center"><B>Name</b></td>
+				<td align="center"><b>Email</B></td>
+				<td align="center"><B>Can modify<br>configuration?</B></td>
+				<td align="center"><B>Language</B></td>
+				<td align="center"><B>Primary<br>Installation</B></td>
 				</tr>';
 		$displayedUsers=array();
 		$i=0;
@@ -69,7 +70,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 		
 		while ($rowUser = $resUsers->FetchRow()) {
 			$displayedUsers[]=$rowUser['PK_Users'];
-			$color=($i%2==1?"999999":"EEEEEE");
+			$color=($i%2==1?"CCCCCC":"EEEEEE");
 			$out.='<tr valign="top" bgcolor="#'.$color.'">
 						<td>
 							<B>'.$rowUser['UserName'].'</B><br>
@@ -77,8 +78,8 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">Change Password</a><br>
 							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbars=true,resizable=yes\');">Change PIN</a>
 						</td>
-						<td><input type="checkbox" name="userHasMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['HasMailbox']?" checked='checked' ":'').'></td>
-						<td><input type="checkbox" name="userAccessGeneralMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['AccessGeneralMailbox']?" checked='checked' ":'').'></td>
+						<td align="center"><input type="checkbox" name="userHasMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['HasMailbox']?" checked='checked' ":'').'></td>
+						<td align="center"><input type="checkbox" name="userAccessGeneralMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['AccessGeneralMailbox']?" checked='checked' ":'').'></td>
 						<td><input type="text" name="userExtension_'.$rowUser['PK_Users'].'" value="'.$rowUser['Extension'].'"></td>
 						
 						<td>
@@ -88,7 +89,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						</td>
 						
 						<td><input type="text" name="userForwardEmail_'.$rowUser['PK_Users'].'" value="'.$rowUser['ForwardEmail'].'"></td>
-						<td><input type="checkbox" name="userCanModifyInstallation_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['canModifyInstallation']?" checked='checked' ":'').'></td>
+						<td align="center"><input type="checkbox" name="userCanModifyInstallation_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['canModifyInstallation']?" checked='checked' ":'').'></td>
 			';
 			
 			if ($resLanguages) {
@@ -128,7 +129,10 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 		
 		$out.='
 			<tr>
-				<td colspan="5"> ';
+				<td colspan="9"><span class="err">'.stripslashes(@$_REQUEST['error']).'</span></td>
+			</tr>
+			<tr>
+				<td colspan="9"> ';
 				if(!isset($_SESSION['masterUserData'])){
 					$out.='Add an existing plutohome.com user to this installation - username: 
 					<input type="text" name="addUserToInstallation" value="" size="20">
@@ -139,8 +143,8 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						parse_str($_SESSION['masterUserData']);
 						$out.='
 							<input type="hidden" name="addUserToInstallation" value="'.$_SESSION['masterUserName'].'">
-							<span class="confirm"><B>User found in Pluto database. Please type the local password for him:</B></span>
-							<input type="password" name="masterUserPas"> <input type="submit" class="button" name="addtoInst" value="Save"  > <input type="submit" class="button" name="cancel" value="Cancel"  >
+							<span class="confirm"><B>User found in Pluto database. Please type his email <input type="email" name="masterEmail"> and the local password for him:</B></span>
+							<input type="password" name="masterUserPas"> <input type="submit" class="button" name="addtoInst" value="Save"  > <input type="button" class="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=users&action=cancel&cancel=1\'">
 						';
 						$usersFormValidation.='
 							frmvalidator.addValidation("masterUserPas","req","Please enter a password");';
@@ -164,6 +168,13 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 } else {
 	//check if current user canModifyInstallation
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
+	if(isset($_REQUEST['cancel'])){
+		unset($_SESSION['masterUserData']);
+		unset($_SESSION['masterUserName']);
+		header("Location: index.php?section=users");
+		exit();
+	}
+
 	
 	if ($canModifyInstallation) {	
 			//process			
@@ -208,7 +219,11 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			if(isset($_POST['addtoInst'])){
 				$md5Pass=md5($_POST['masterUserPas']);
 				parse_str($_SESSION['masterUserData']);
-								$insertUser = '
+				if($Email!=$_REQUEST['masterEmail']){
+					header("Location: index.php?section=users&error=Email doesn't match");
+					exit();
+				}
+				$insertUser = '
 					INSERT INTO Users (PK_Users,UserName,Password, ForwardEmail) 
 					values(?,?,?,?)';
 				$query = $dbADO->Execute($insertUser,array($MasterUsersID,$_SESSION['masterUserName'],$md5Pass,$Email));
@@ -221,12 +236,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				header("Location: index.php?section=users&msg=User added.".$locationGoTo);
 			}
 			
-			
-			if(isset($_POST['cancel'])){
-				unset($_SESSION['masterUserData']);
-				unset($_SESSION['masterUserName']);
-				header("Location: index.php?section=users");
-			}
 			
 			if (!is_array($displayedUsersArray) || $displayedUsersArray===array()) {
 				$displayedUsersArray=array();

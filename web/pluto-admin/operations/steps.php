@@ -30,7 +30,7 @@ function steps($output,$dbADO) {
 			}
 			else
 				top.basefrm.location=\'index.php?section=installationSettings\';
-			self.location=\'index.php?section=wizard&pageSetup=\'+selfPage+\'&senderID=\'+sender;				
+				self.location=\'index.php?section=wizard&pageSetup=\'+selfPage+\'&senderID=\'+sender;				
 		}
 		</script>
 	';

@@ -1807,4 +1807,186 @@ function getChildsOfWizard($page,$dbADO)
 	}
 	return $GLOBALS['wizardChilds'];
 }
+
+function deviceForScenariosSelector($name,$selectedValue,$dbADO,$allowNoValue=1,$extra='')
+{
+	$out='
+		<select name="'.$name.'" '.$extra.'>';
+	if($allowNoValue==1){
+		$out.='<option value="0">-Please select-</option>';
+	}
+	$out.='
+			<option value="-300" '.(($selectedValue=='-300')?'selected':'').'>[Local Orbiter]</option>';
+							
+	$query = '
+		SELECT Device.*, Room.Description AS RoomName, DeviceTemplate.Description AS Template
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DEviceTemplate=PK_DeviceTemplate
+		LEFT JOIN Room ON FK_Room=PK_Room
+		WHERE Device.FK_Installation = ? AND FK_Device_ControlledVia IS NULL
+		ORDER BY FK_Room ASC,Description ASC';
+	$resTopDevices=$dbADO->Execute($query,array($_SESSION['installationID']));
+							
+	if ($resTopDevices) {
+		while ($rowTopDevice = $resTopDevices->FetchRow()) {
+			$roomName=($rowTopDevice['RoomName']!='')?stripslashes($rowTopDevice['RoomName']):'No Room';
+			$out.='<option '.($rowTopDevice['PK_Device']==$selectedValue?' selected="selected" ':'').' value="'.$rowTopDevice['PK_Device'].'" title="Device template #'.$rowTopDevice['FK_DeviceTemplate'].': '.$rowTopDevice['Template'].'">'.$rowTopDevice['Description'].' ['.$roomName.']</option>';
+			$out.=pulldownChildsDevice($rowTopDevice['PK_Device'],$selectedValue,$dbADO,1);
+		}
+	}
+						
+	$out.='
+		</select>';
+	return $out;
+}
+
+function pulldownChildsDevice($parentDevice,$selectedValue,$dbADO,$depth)
+{
+	$out='';
+	$query = '
+		SELECT Device.*, Room.Description AS RoomName,DeviceTemplate.Description AS Template
+		FROM Device 
+		LEFT JOIN Room ON FK_Room=PK_Room
+		INNER JOIN DeviceTemplate ON FK_DEviceTemplate=PK_DeviceTemplate
+		WHERE Device.FK_Installation = ? AND FK_Device_ControlledVia =?
+		ORDER BY FK_Room ASC,Description ASC';
+	$resDevices=$dbADO->Execute($query,array($_SESSION['installationID'],$parentDevice));
+	while($rowDevice=$resDevices->FetchRow()){
+		$roomName=($rowDevice['RoomName']!='')?stripslashes($rowDevice['RoomName']):'No Room';
+		$prefix='&nbsp;&nbsp;&nbsp;|';
+		for($i=0;$i<$depth;$i++)
+			$prefix.='---';
+		$out.='<option '.($rowDevice['PK_Device']==$selectedValue?' selected="selected" ':'').' value="'.$rowDevice['PK_Device'].'" title="Device template #'.$rowDevice['FK_DeviceTemplate'].': '.$rowDevice['Template'].'">'.$prefix.' '.$rowDevice['Description'].' ['.$roomName.']</option>';
+		$out.=pulldownChildsDevice($rowDevice['PK_Device'],$selectedValue,$dbADO,($depth+1));
+	}
+	return $out;
+}
+
+function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$operatingSystem=0)
+{
+	if($distro!=0){
+		$queryDistro='SELECT * FROM Distro WHERE PK_Distro=?';
+		$resDistro=$dbADO->Execute($queryDistro,$distro);
+		if($resDistro->RecordCount()>0){
+			$rowDistro=$resDistro->FetchRow();
+			$distroName=$rowDistro['Description'];
+			$operatingSystem=$rowDistro['FK_OperatingSystem'];
+		}else
+			$distroName='';
+	}
+	
+	if($operatingSystem!=0){
+		$queryOperatingSystem='SELECT * FROM OperatingSystem WHERE PK_OperatingSystem=?';
+		$resOperatingSystem=$dbADO->Execute($queryOperatingSystem,$operatingSystem);
+		if($resOperatingSystem->RecordCount()>0){
+			$rowOperatingSystem=$resOperatingSystem->FetchRow();
+			$operatingSystemName=$rowOperatingSystem['Description'];
+		}else
+			$operatingSystemName='';
+	}
+			
+	$out='<table>';
+	$queryInstallWizard='
+		SELECT InstallWizard.*,
+			DeviceCategory.Description AS Category,
+			DeviceTemplate.Description AS Template
+		FROM InstallWizard
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+		WHERE step=?';
+	$resInstallWizard=$dbADO->Execute($queryInstallWizard,$step);
+	if($resInstallWizard->RecordCount()==0){
+		$out.='
+			<tr>
+				<td>&nbsp;</td>
+			</tr>';
+	}else{
+		$out.='
+			<tr class="normaltext">
+				<td colspan="5"><b>What software modules do you want on this device?</b> &nbsp; The most common are selected by default.</td>
+			</tr>';
+	}
+	$oldCategory='';
+	$displayedTemplatesRequired=array();
+	while($row=$resInstallWizard->FetchRow()){
+		if($row['Category']!=$oldCategory){
+			$oldCategory=$row['Category'];
+			$displayCategory=$row['Category'];
+		}else 
+			$displayCategory='-';
+		// check if the device actually exist to display actual entries
+		if($device!=''){
+			if($device!=@$_SESSION['CoreDCERouter']){
+				$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
+				$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$device));
+			}else{
+				// if device is DCE Router, check also childs of Core
+				$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND (FK_Device_ControlledVia=? OR FK_Device_ControlledVia=?)';
+				$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$_SESSION['CoreDCERouter'],$_SESSION['deviceID']));
+			}
+			$deviceTemplateChecked=($resDevice->RecordCount()==0)?'':'checked';
+			$rowDevice=$resDevice->FetchRow();
+			$oldDevice=$rowDevice['PK_Device'];
+		}
+
+		if($device==@$_SESSION['CoreDCERouter'] && @$_SESSION['isCoreFirstTime']==1){
+			$isCoreFirstTime=1;
+			unset($_SESSION['isCoreFirstTime']);
+		}
+
+		if($device==@$_SESSION['OrbiterHybridChild'] && @$_SESSION['isHybridFirstTime']==1){
+			$isHybridFirstTime=1;
+			unset($_SESSION['isHybridFirstTime']);
+		}
+
+		
+		$out.='
+			<tr class="normaltext">
+				<td align="center"><b>'.$displayCategory.'</b></td>
+				<td>&nbsp;&nbsp;&nbsp;&nbsp;'.$row['Template'].'</td>';
+		$query='
+			SELECT 
+				InstallWizard_Distro.*,
+				InstallWizard.Default
+			FROM InstallWizard_Distro
+				INNER JOIN InstallWizard ON FK_InstallWizard=PK_InstallWizard
+			WHERE (FK_Distro IS NULL OR FK_Distro=?) AND (FK_OperatingSystem=? OR FK_OperatingSystem IS NULL) AND FK_InstallWizard=?';
+		$res=$dbADO->Execute($query,array($distro,$operatingSystem,$row['PK_InstallWizard']));
+		$rowIWD=$res->FetchRow();
+		$templateIsChecked=((isset($deviceTemplateChecked) && @$isCoreFirstTime!=1)?$deviceTemplateChecked:(($rowIWD['Default']==1)?'checked':''));
+		$out.='<td><input type="checkbox" '.(($res->RecordCount()==0)?'disabled':'').' '.$templateIsChecked.' name="device_'.$device.'_requiredTemplate_'.$row['FK_DeviceTemplate'].'" value="1"> 
+			<input type="hidden" name="templateName_'.$row['FK_DeviceTemplate'].'" value="'.$row['Template'].'">
+			<input type="hidden" name="oldDevice_'.$device.'_requiredTemplate_'.$row['FK_DeviceTemplate'].'" value="'.@$oldDevice.'">
+		';
+		if($res->RecordCount()==0)
+			$out.='Not available for '.(($distro!=0)?$distroName:'').(($operatingSystem!=0)?' / '.$operatingSystemName:'');
+		else{
+			$displayedTemplatesRequired[]=$row['FK_DeviceTemplate'];
+			$out.=$rowIWD['Comments'];
+		}
+		$out.='
+				</td>
+			</tr>
+		';
+	}
+
+	$out.='	<input type="hidden" name="displayedTemplatesRequired_'.$device.'" value="'.(join(',',$displayedTemplatesRequired)).'">
+	</table>';
+	return $out;
+}
+
+function getMediaDirectorOrbiterChild($MD_PK_Device,$dbADO)
+{
+	$DTArray=getDeviceTemplatesFromCategory($GLOBALS['rootOrbiterID'],$dbADO);
+	if(count($DTArray)==0)
+		return null;
+	$getOrbiterChild='SELECT * FROM Device WHERE FK_DeviceTemplate IN ('.join(',',$DTArray).') AND FK_Device_ControlledVia=?';
+	$resOrbiterChild=$dbADO->Execute($getOrbiterChild,array($MD_PK_Device));
+	if($resOrbiterChild->RecordCount()!=0){
+		$rowOrbiterChild=$resOrbiterChild->FetchRow();
+		return $rowOrbiterChild['PK_Device'];
+	}
+	return null;
+}
+
 ?>

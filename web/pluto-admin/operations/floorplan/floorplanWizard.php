@@ -190,9 +190,11 @@ function floorplanWizard($output,$dbADO) {
 				if ($arValues[$intCursor] == $page && $arValues[$intCursor+1]!=-1 && $arValues[$intCursor+2] !=-1)
 				{
 					$item['hascoordinatesthispage'] = true;
-					$item['x'] = floor((round($arValues[$intCursor+1] ))/$scaleFactor-10);
-					$item['y'] = floor((round($arValues[$intCursor+2] ))/$scaleFactor-10);
+					$item['x'] = floor($arValues[$intCursor+1] * $scaleFactor)-10;
+					$item['y'] = floor($arValues[$intCursor+2] * $scaleFactor)-10;
 					
+					if($item['x']>$origWidth || $item['y']>$origHeight)
+						$item['hascoordinatesthispage']=false;
 				}
 				$intCursor += 3;
 			}
@@ -285,8 +287,8 @@ function floorplanWizard($output,$dbADO) {
 				if($res->RecordCount()==0){
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$deviceCoords[]=$rowFloorplans['Page'];
-						$deviceCoords[]=($rowFloorplans['Page']==$page)?floor($scaleFactor*($arIncomingCoords[$intCursor+1])):-1;
-						$deviceCoords[]=($rowFloorplans['Page']==$page)?floor($scaleFactor*($arIncomingCoords[$intCursor+2])):-1;
+						$deviceCoords[]=($rowFloorplans['Page']==$page)?floor(($arIncomingCoords[$intCursor+1])/$scaleFactor):-1;
+						$deviceCoords[]=($rowFloorplans['Page']==$page)?floor(($arIncomingCoords[$intCursor+2])/$scaleFactor):-1;
 					}
 					
 					$insertDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
@@ -297,8 +299,8 @@ function floorplanWizard($output,$dbADO) {
 					$key=0;
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$deviceCoords[$key]=$rowFloorplans['Page'];
-						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?floor($scaleFactor*($arIncomingCoords[$intCursor+1]+10)):-1;
-						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?floor($scaleFactor*($arIncomingCoords[$intCursor+2]+10)):-1;
+						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?floor(($arIncomingCoords[$intCursor+1]+10)/$scaleFactor):-1;
+						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?floor(($arIncomingCoords[$intCursor+2]+10)/$scaleFactor):-1;
 						$deviceCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
 						$deviceCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
 						$key+=3;

@@ -7,7 +7,7 @@ function avWizard($output,$dbADO) {
 	$userID = (int)@$_SESSION['userID'];
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
-	$type = isset($_REQUEST['type'])?cleanString($_REQUEST['type']):'lights';
+	$type = isset($_REQUEST['type'])?cleanString($_REQUEST['type']):'avEquipment';
 	$installationID = (int)@$_SESSION['installationID'];
 
 	switch($type){
@@ -307,7 +307,7 @@ function avWizard($output,$dbADO) {
 							default:
 								$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 						}
-						
+						$mdDistro=($value==$GLOBALS['rootPK_Distro'])?@$ddValue:0;
 						
 						$out.='	
 							<input type="hidden" name="oldDeviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.(($resDDforDevice->RecordCount()>0)?$ddValue:'NULL').'">';					
@@ -407,7 +407,15 @@ function avWizard($output,$dbADO) {
 					$out.='</select>
 					</tr>
 					';
-
+					if($type=='media_directors'){
+						$orbiterMDChild=getMediaDirectorOrbiterChild($rowD['PK_Device'],$dbADO);
+						if($orbiterMDChild){
+							$out.='
+							<tr>
+								<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$mdDistro,1).'</td>
+							</tr>';
+						}
+					}
 			}
 			$out.='
 				<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$DeviceDataToDisplay).'">
@@ -568,6 +576,27 @@ function avWizard($output,$dbADO) {
 							}
 						}
 						$anchor='#VideoPipe_'.$value;
+					}
+
+					if($type=='media_directors'){
+						$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
+						$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$orbiterMDChild]);
+						foreach($installOptionsArray AS $elem){
+							$oldDevice=@$_POST['oldDevice_'.$orbiterMDChild.'_requiredTemplate_'.$elem];
+							$optionalDevice=(isset($_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]))?$_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]:0;
+							if($optionalDevice!=0){
+								$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
+								
+								if($oldDevice==''){
+									$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$orbiterMDChild);
+									$dbADO->Execute('UPDATE Device SET Description=?,FK_Room=? WHERE PK_Device=?',array($OptionalDeviceName,$room,$insertID));
+								}
+							}else{
+								if($oldDevice!=''){
+									deleteDevice($oldDevice,$dbADO);
+								}
+							}
+						}
 					}
 				}
 			}

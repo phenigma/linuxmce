@@ -183,9 +183,10 @@ function editCommandGroup($output,$dbADO) {
 				
 				while ($rowCommandAssigned = $resCommandAssigned->FetchRow()) {
 					$out.='
-						<tr><td valign="top">
+						<tr><td valign="top">'.deviceForScenariosSelector('device_'.$rowCommandAssigned['PK_CommandGroup_Command'],$rowCommandAssigned['FK_Device'],$dbADO,0,'onChange="this.form.submit();"');
+					/*
 							<select name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
-								<option value="-300" '.(($rowCommandAssigned['FK_Device']=='-300')?'selected':'').'>[Local Orbiter</option>
+								<option value="-300" '.(($rowCommandAssigned['FK_Device']=='-300')?'selected':'').'>[Local Orbiter]</option>
 						';
 							
 							$query = 'SELECT * From Device WHERE FK_Installation = ? order by Description ASC';
@@ -198,7 +199,10 @@ function editCommandGroup($output,$dbADO) {
 							}
 						
 						$out.='
-					 		</select></td>
+					 		</select>';
+					 	*/
+					 	$out.='
+					 		</td>
 						<td>
 						';
 					if($rowCommandAssigned['FK_Device']!='-300'){
@@ -294,9 +298,12 @@ function editCommandGroup($output,$dbADO) {
 				
 				$out.='<tr>
 					<td colspan="2">
-					 Device:<select name="addNewDevice" onChange="this.form.submit();">
+					 Device:'.deviceForScenariosSelector('addNewDevice',cleanInteger(@$_REQUEST['newDevice']),$dbADO,1,'onChange="this.form.submit();"');
+				/*
+				$out.='	
+				<select name="addNewDevice" onChange="this.form.submit();">
 						<option value="0">-please select-</option>
-						<option value="-300" '.(cleanInteger(@$_REQUEST['newDevice']=='-300')?' selected="selected" ':'').'>[Local Orbiter</option>
+						<option value="-300" '.(cleanInteger(@$_REQUEST['newDevice']=='-300')?' selected="selected" ':'').'>[Local Orbiter]</option>
 				';
 				
 				if (isset($devicesAllowed) && is_array($devicesAllowed) && count($devicesAllowed)!=0) {
@@ -318,6 +325,7 @@ function editCommandGroup($output,$dbADO) {
 				$out.='
 					 </select>
 				';
+				*/
 				
 				if (isset($_REQUEST['newDevice']) && cleanInteger($_REQUEST['newDevice'])!=0) {
 					if(cleanInteger(@$_REQUEST['newDevice']!='-300')){
