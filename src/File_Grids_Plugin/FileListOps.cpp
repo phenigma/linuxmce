@@ -57,7 +57,6 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, bool bSortBy
         if (BasePath[BasePath.length()-1] != '/')
             BasePath += '/';
 
-        g_pPlutoLogger->Write(LV_STATUS,"Scanning dir: %s",BasePath.c_str());
 #ifdef WIN32
         intptr_t ptrFileList;
         _finddata_t finddata;
@@ -83,7 +82,6 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, bool bSortBy
                         s = s.substr(1);
                     if ( s.length()==0 || s == ".*" || strstr(finddata.name, s.c_str()) != NULL)
                     {
-g_pPlutoLogger->Write(LV_WARNING, "Adding '%s' to datagrid", finddata.name);
                         FileDetails *fi = new FileDetails(BasePath, finddata.name, false, time(NULL));
                         listFileNames.push_back(fi);
                         break;

@@ -166,7 +166,7 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
 		m_pRecordHandler->enableRecording(this);
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Resizing desktop to (%d, %d) and dimensions [%dx%d]", x, y, width, height);
+//    g_pPlutoLogger->Write(LV_STATUS, "Resizing desktop to (%d, %d) and dimensions [%dx%d]", x, y, width, height);
 
     stringstream commandLine;
 

@@ -54,7 +54,7 @@ class RatpoisonHandler
 			if ( display == NULL )
 				return false;
 
-            g_pPlutoLogger->Write(LV_STATUS, "Instructing ratpoison to do this: \"%s\"", command.c_str());
+//            g_pPlutoLogger->Write(LV_STATUS, "Instructing ratpoison to do this: \"%s\"", command.c_str());
 
 
 			XLockDisplay(display);
@@ -119,7 +119,7 @@ class RatpoisonHandler
             XDestroyWindow (display, commandWindow);
             XUnlockDisplay(display);
 
-            g_pPlutoLogger->Write(LV_STATUS, "Exiting rat poison command");
+//            g_pPlutoLogger->Write(LV_STATUS, "Exiting rat poison command");
             return true;
         }
 
@@ -170,7 +170,7 @@ class RatpoisonHandler
 
             /* If result is not the empty string, print it. */
             // if ( strlen ((char*)result) )
-            g_pPlutoLogger->Write(LV_STATUS, "Command result: \"%s\"", result);
+//            g_pPlutoLogger->Write(LV_STATUS, "Command result: \"%s\"", result);
 
             /* Free the result. */
             XFree (result);
