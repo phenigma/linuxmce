@@ -1,5 +1,15 @@
 #!/usr/bin/perl
 
+###############################
+## Description: This is a script with command line that will add Mappings
+## from a 'Named Button' to a 'Message' and add Tokens to The 'Named Button' category
+## the tokens will be interpreted by hex_control.pl that will search every config
+## of lircd file and make a mapping from 'hex value' of a button from a remote, 
+## to the message that it must send to the system
+## Writed by: Dan Harabagiu
+## CopyRight: Pluto
+###############################
+
 use DBI;
 
 $db = DBI->connect("dbi:mysql:database=LIRC_Remote_Controls;host=10.0.0.150;user=root;password=") or die "Couldn't connect to database: $DBI::errstr\n";

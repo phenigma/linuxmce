@@ -1,6 +1,18 @@
 #!/usr/bin/perl
 
+########################
+## Description: This is used for grabing remote config files the lirc
+## sourceforge site and add them to the database. After grabing it will
+## create a device template for every each remote grabbed.
+## Writed by: Dan Harabagiu
+## CopyRight: Pluto
+########################
+
 use DBI;
+
+if($ARGV[0] ne "") {
+	direct($ARGV[0]);
+}
 
 print "Clearing Databses ";
 system("cat first_step.sql | mysql -h 10.0.0.150");
@@ -60,7 +72,7 @@ sub grab_dir {
 				system("rm -f remote_config_file");
 				$line = "wget -nv http://lirc.sourceforge.net/remotes/".$ldir.$file." -O remote_config_file";
 				system($line);
-				add_remote($ldir, $file);
+				add_remote($ldir, $file, 0);
 			}
 		}
 	}
@@ -69,6 +81,7 @@ sub grab_dir {
 sub add_remote {
 	$man = shift;
 	$remote = shift;
+	$direct = shift;
 	@fr = split(/\//,$man);
 	$man = $fr[0];
 	$info = "";
