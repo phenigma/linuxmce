@@ -62,8 +62,10 @@ void OrbiterLinux::reinitGraphics()
     if ( ! XServerDisplay && ! openDisplay() )
         return;
 
+	commandRatPoison(":set winname class");
     commandRatPoison(":desktop off");
-    SDL_WM_SetCaption(m_strWindowName.c_str(), "");
+
+	SDL_WM_SetCaption(m_strWindowName.c_str(), "");
     commandRatPoison(string(":select ") + m_strWindowName);
     commandRatPoison(":desktop on");
     commandRatPoison(":keystodesktop on");

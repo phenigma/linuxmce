@@ -568,6 +568,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
           //          dvd_chapter = 0;
             //    }
             	g_pPlutoLogger->Write(LV_STATUS, "Event ui set title");
+				// xineStream->m_pOwner->
 				g_pPlutoLogger->Write(LV_STATUS, "data: %s", data->str);
 				g_pPlutoLogger->Write(LV_STATUS, "Stream title: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_TITLE));
 				g_pPlutoLogger->Write(LV_STATUS, "Stream comment: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_COMMENT));

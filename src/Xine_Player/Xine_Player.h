@@ -64,7 +64,7 @@ public:
 				AUTO-GENERATED SECTION
 				Do not change the declarations
 	*/
-
+X
 	/*
 			*****DATA***** accessors inherited from base class
 
@@ -199,7 +199,7 @@ public:
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu 
+0 - Root menu
 1 - Title menu
 2 - Media menu */
 
