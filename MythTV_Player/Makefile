@@ -47,7 +47,6 @@ MythTV_Player.so: $(sources:.cpp=.o)
 MythTV_Player: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
-	cp TuneToChannel.sh ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
