@@ -16,7 +16,7 @@ using namespace std;
 #endif
 
 #include "Renderer.h"
-#include "SDLRendererOCGHelper.h"
+#include "../Orbiter/SDL/SDLRendererOCGHelper.h"
 #include "../Orbiter/RendererOCG.h"
 
 #include "sge.h"
