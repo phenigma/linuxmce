@@ -305,7 +305,7 @@ function dbQuery($query,$error='MySQL error')
 
 function userIsAdmin($userID)
 {
-	if(in_array($userID,$GLOBALS['userIsAdmin']))
+	if(count($GLOBALS['userIsAdmin'])==0 || in_array($userID,$GLOBALS['userIsAdmin']))
 		return true;
 	return false;
 }
