@@ -63,6 +63,7 @@ Device=$Device
 Code=$Code"
 	echo "$conf" >etc/diskless.conf
 	[ -d /home/backup -a -f "/home/backup/pluto.conf-$IP" ] && cp "/home/backup/pluto.conf-$IP" "$DlPath/etc"
+	touch usr/pluto/install/.notdone
 fi
 
 # Make sure the right kernel version is installed
