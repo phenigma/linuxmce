@@ -5531,7 +5531,10 @@ void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Messa
 		else
 			m_pDesignObj_Orbiter_MainMenu = pObj;
 
-		string sSleepingMenu = StringUtils::itos( atoi( m_pDesignObj_Orbiter_SleepingMenu->m_ObjectID.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
+		string sSleepingMenu;
+		if(m_pDesignObj_Orbiter_SleepingMenu)
+			sSleepingMenu = StringUtils::itos( atoi( m_pDesignObj_Orbiter_SleepingMenu->m_ObjectID.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
+
 		pObj = FindObject( sSleepingMenu );
 		if( !pObj )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Trying to change to non-existant sleeping menu: %s",sSleepingMenu.c_str());

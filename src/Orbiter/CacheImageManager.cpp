@@ -44,7 +44,7 @@ bool CacheImageManager::VerifyCache(string sTimeStamp)
 
 	if(sTimeStamp != m_sTimeStamp)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "New skins are avaible. We'll purge the cache");
+		g_pPlutoLogger->Write(LV_WARNING, "New skins are available. We'll purge the cache");
 
 		if(!ClearCache())
 			return false;

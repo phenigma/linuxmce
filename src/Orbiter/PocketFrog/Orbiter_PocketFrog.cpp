@@ -195,7 +195,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		}
 
 		ModifyStyle(WS_TILEDWINDOW , 0);
-		MoveWindow(0, 0, m_iImageWidth, m_iImageHeight + 100, FALSE);
+		MoveWindow(0, 0, m_iImageWidth, m_iImageHeight + 30, TRUE);
 		BringWindowToTop();
 		SetForegroundWindow(m_hWnd);
 
@@ -205,6 +205,21 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 			g_pPlutoLogger->Write(LV_CRITICAL, "### I found the taskbar window! I will send it to back! ###");
 			::SetWindowPos(hWnd_TaskBar, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); 
 		}
+	}
+	else
+	{
+		RECT rc;
+		HWND hWndDesktop = ::GetDesktopWindow();
+		::GetWindowRect(hWndDesktop, &rc);
+
+		int iWidth = rc.right - rc.left;
+		int iHeight = rc.bottom - rc.top;
+
+		rc.left = (iWidth - m_iImageWidth) / 2;
+		rc.right = rc.left + m_iImageWidth;
+		rc.top = (iHeight - m_iImageHeight) / 2;
+		rc.bottom = rc.top + m_iImageHeight;
+		MoveWindow(rc.left, rc.top, m_iImageWidth, m_iImageHeight + 25, TRUE);
 	}
 #endif
 

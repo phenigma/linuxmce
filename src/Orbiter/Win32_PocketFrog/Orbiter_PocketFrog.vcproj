@@ -121,9 +121,6 @@
 		</Configuration>
 	</Configurations>
 	<References>
-		<ProjectReference
-			ReferencedProjectIdentifier="{E1D4EBB1-9E34-4187-A12F-DF2D127DAC7E}"
-			Name="PocketFrog"/>
 	</References>
 	<Files>
 		<Filter
