@@ -1102,12 +1102,14 @@ cout << "Copying Files\n";
 #ifdef WIN32
 					cmd = "copy /y " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
-					cmd = "cvs add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
+			pRow_Package_Source->Name_get() + " add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
 #else
 					cmd = "cp -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
-					cmd = "cvs add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
+			pRow_Package_Source->Name_get() + " add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
 #endif
 				}
@@ -1122,7 +1124,8 @@ cout << "Copying Files\n";
 						mkdir(cmd.c_str(), 0777);
 						cmd2 = "cp " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
-						cmd2 = "cvs add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd2 = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
+			pRow_Package_Source->Name_get()+ " add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
 #endif
 					}
@@ -1134,7 +1137,8 @@ cout << "Copying Files\n";
 #else
 						cmd2 = "cp -f " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
-						cmd2 = "cvs add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd2 = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
+			pRow_Package_Source->Name_get()+ " add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
 						cout << cmd2.c_str() << endl;
 #endif
