@@ -37,6 +37,22 @@ namespace DCE
 	Logger *g_pPlutoLogger;
 }
 using namespace DCE;
+
+// You can override this block if you don't want the app to reload in the event of a problem
+extern void (*g_pDeadlockHandler)();
+extern void (*g_pSocketCrashHandler)();
+Command_Impl *g_pCommand_Impl=NULL;
+void DeadlockSocketHandler()
+{
+	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+	if( g_pCommand_Impl )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock/socket problem.  Going to reload and quit");
+		g_pCommand_Impl->OnReload();
+	}
+}
+
 //<-dceag-incl-e->
 
 //<-dceag-plug-b->
@@ -162,10 +178,11 @@ int main(int argc, char* argv[])
 		App_Server *pApp_Server = new App_Server(PK_Device, sRouter_IP);	
 		if ( pApp_Server->Connect(pApp_Server->PK_DeviceTemplate_get()) ) 
 		{
+			g_pDeadlockHandler=g_pSocketCrashHandler=DeadlockSocketHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pApp_Server->CreateChildren();
 			pthread_join(pApp_Server->m_RequestHandlerThread, NULL);
-
+			g_pDeadlockHandler=g_pSocketCrashHandler=NULL;
 		} 
 		else 
 		{
