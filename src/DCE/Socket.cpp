@@ -148,7 +148,7 @@ Socket::~Socket()
 #endif
 
 	if ( m_Socket != INVALID_SOCKET )
- {
+ 	{
 		closesocket( m_Socket );
 #ifndef WINCE
 		close(m_Socket);
@@ -439,23 +439,23 @@ bool Socket::SendData( int iSize, const char *pcData )
     		{
 			FD_ZERO( &wrfds );
 			FD_SET( m_Socket, &wrfds );
-		
+
 			tv.tv_sec = SOCKET_TIMEOUT;
 			tv.tv_usec = 0;
 			/** @todo check comment */
 			//time_t end, start = time(NULL);
-			
+
 			//iRet = select( (int)(m_Socket+1), NULL, &wrfds, NULL, &tv );
-			
+
 			// without timeout
 			iRet = select( (int)(m_Socket+1), NULL, &wrfds, NULL, NULL );
-			
+
 			if(iRet <= 0 || iRet > 1) { // error
 			    break;
 			}
-			
+
 		} while( iRet != -1 && iRet != 1 );
-		
+
 		int iSendBytes = ( iBytesLeft > 16192 ) ? 16192 : iBytesLeft;
 		iSendBytes = send( m_Socket, pcData+( iSize-iBytesLeft ), iSendBytes, 0 );
 
@@ -463,7 +463,6 @@ bool Socket::SendData( int iSize, const char *pcData )
 			iBytesLeft -= iSendBytes;
 		else
 		{
-			
 			closesocket( m_Socket );
 #ifndef WINCE
 			close(m_Socket);
@@ -572,7 +571,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			if ( false )
 #endif
 			{
-			
+
 				tv.tv_sec = m_iReceiveTimeout;
 				tv.tv_usec = 0;
 				start = time(NULL);
@@ -596,7 +595,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
     				{
 					FD_ZERO(&rfds);
 					FD_SET(m_Socket, &rfds);
-				
+
 #ifdef DEBUG
 					clk_select2 = clock();
 #endif
@@ -619,7 +618,11 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 					if( iRet == -1 && errno != EINTR )
 #endif
 						break;
-						
+#ifndef UNDER_CE
+					if ( iRet == -1 && errno == EINTR )
+						continue;
+#endir
+					// iRet is bigger then one when the socket count is bigger than the fd_set size
 					if(iRet <= 0 || iRet > 1) { // error
 #ifndef WINCE
 						g_pPlutoLogger->Write( LV_WARNING, "Error in socket SELECT: %s", strerror(errno));

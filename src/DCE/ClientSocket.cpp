@@ -155,10 +155,10 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 				int ec = errno;
 #endif
 				if( g_pPlutoLogger )
-					g_pPlutoLogger->Write(LV_CRITICAL, "Connect() failed, Error Code %d", ec);
+					g_pPlutoLogger->Write(LV_CRITICAL, "Connect() failed, Error Code %d (%s))", ec, strerror(ec));
 #ifndef WINCE
 				else // no logger
-					cerr << "Connect() failed, Error Code" << ec << endl;
+					cerr << "Connect() failed, Error Code" << ec << strerror(ec) << endl;
 #endif
 			}
 
@@ -239,14 +239,14 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 
 void ClientSocket::Disconnect()
 {
-	g_pPlutoLogger->Write( LV_WARNING, "void ClientSocket::Disconnect() on this socket: %p (m_Socket: %d)", this, m_Socket);
 
 	if ( m_Socket != INVALID_SOCKET )
 	{
+		g_pPlutoLogger->Write( LV_WARNING, "void ClientSocket::Disconnect() on this socket: %p (m_Socket: %d)", this, m_Socket);
 		// this will usually force it out from the select.
 		closesocket( m_Socket );
 // 		close(m_Socket);
-//		m_Socket = INVALID_SOCKET;
+		m_Socket = INVALID_SOCKET;
 	}
 }
 
