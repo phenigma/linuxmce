@@ -128,7 +128,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 			</form>
 			<script>
 		 		var frmvalidator = new formValidator("addCommandGroupAsScenario");
- 				frmvalidator.addValidation("description","req","Please enter a package description");			
+ 				frmvalidator.addValidation("description","req","Please enter a description for scenario");			
 				//frmvalidator.addValidation("designObjID","req","Please enter a design obj number!");			
 	 			//frmvalidator.addValidation("icon","dontselect=0","Please select an Icon!");			
 			</script>

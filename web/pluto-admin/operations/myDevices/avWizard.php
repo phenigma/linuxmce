@@ -15,10 +15,12 @@ function avWizard($output,$dbADO) {
 			$deviceCategory=$GLOBALS['rootAVEquipment'];
 			$specificFloorplanType=$GLOBALS['AVEquipmentFlorplanType'];
 			$title='A/V Equipment';
+			$output->setHelpSrc('/support/index.php?section=document&docID=131');
 		break;
 		case 'media_directors':
 			$deviceCategory=$GLOBALS['rootMediaDirectors'];
 			$specificFloorplanType=$GLOBALS['EntertainmentZone'];
+			$output->setHelpSrc('/support/index.php?section=document&docID=129');
 		break;
 	}
 	// get selected category Device Templates

@@ -13,6 +13,7 @@ function devices($output,$dbADO) {
 	switch($type){
 		case 'interfaces':
 			$deviceCategory=$GLOBALS['rootInterfaces'];
+			$output->setHelpSrc('/support/index.php?section=document&docID=126');
 		break;
 		case 'avEquipment':
 			$deviceCategory=$GLOBALS['rootAVEquipment'];
@@ -21,18 +22,22 @@ function devices($output,$dbADO) {
 		case 'lights':
 			$deviceCategory=$GLOBALS['rootLights'];
 			$specificFloorplanType=$GLOBALS['LightingFoorplanType'];
+			$output->setHelpSrc('/support/index.php?section=document&docID=128');
 		break;
 		case 'climate':
 			$deviceCategory=$GLOBALS['rootClimate'];
 			$specificFloorplanType=$GLOBALS['ClimateFoorplanType'];
+			$output->setHelpSrc('/support/index.php?section=document&docID=130');
 		break;
 		case 'security':
 			$deviceCategory=$GLOBALS['rootSecurity'];
 			$specificFloorplanType=$GLOBALS['SecurityFoorplanType'];
+			$output->setHelpSrc('/support/index.php?section=document&docID=127');
 		break;
 		case 'surveillance_cameras':
 			$deviceCategory=$GLOBALS['rootCameras'];
 			$specificFloorplanType=$GLOBALS['CameraFoorplanType'];
+			$output->setHelpSrc('/support/index.php?section=document&docID=147');
 		break;
 		default:
 			$deviceCategory=$GLOBALS['rootLightsInterfaces'];

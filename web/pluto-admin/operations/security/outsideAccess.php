@@ -98,12 +98,12 @@ function outsideAccess($output,$dbADO) {
 				writeToFile($accessFile, 'Website', @$Website,$port);
 				
 				if(!isset($Website))
-					$dbADO->Execute('INSERT INTO Firewall (Protocol,SourcePort,RuleType) VALUES (?,?,?)',array('tcp',$port,'Website'));
+					$dbADO->Execute('INSERT INTO Firewall (Protocol,SourcePort,RuleType) VALUES (?,?,?)',array('tcp',$port,'core_input'));
 				else 
-					$dbADO->Execute('UPDATE Firewall SET SourcePort=? WHERE RuleType=?',array($port, 'Website'));
+					$dbADO->Execute('UPDATE Firewall SET SourcePort=? WHERE RuleType=? AND SourcePort=?',array($port, 'core_input',$Website));
 			}else {
 				removeFromFile('Website',$accessFile);
-				$dbADO->Execute('DELETE FROM Firewall WHERE RuleType=?','Website');
+				$dbADO->Execute('DELETE FROM Firewall WHERE RuleType=? AND SourcePort=?',array('core_input',$Website));
 			}
 			
 			if(isset($_POST['allowOnPassword'])){
