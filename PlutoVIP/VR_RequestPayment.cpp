@@ -7,7 +7,7 @@
 #include "VR_RequestPayment.h"
 #include "VR_RequestSecureTransaction.h"
 #include "VR_ShowMenu.h"
-#include "VA_ForwardRequestToPhone.h"
+#include "VA_SendMenuToPhone.h"
 #include "VIPShared/VIPMenu.h"
 
 #include "RA/RA_Processor.h"
@@ -123,7 +123,7 @@ bool VR_RequestPayment::ProcessRequest(RA_Processor *pRA_Processor)
 
 	pMenu->m_listInputVariables.push_back(new VIPVariable(VIPVAR_INVOICE_DETAIL,0,sInvoiceDetail.c_str(),0,0));
 
-	VA_ForwardRequestToPhone *pbefore = new VA_ForwardRequestToPhone(0,pMenu,m_iMacAddress);
+	VA_SendMenuToPhone *pbefore = new VA_SendMenuToPhone(0,pMenu,m_iMacAddress);
 	MYSTL_ADDTO_LIST(m_listActions,pbefore);
 	m_cProcessOutcome = SUCCESSFULLY_PROCESSED;
 	return true;
@@ -203,7 +203,7 @@ bool VR_RequestPayment::ProcessRequest(RA_Processor *pRA_Processor)
 	// Make a menu in response
 	VR_ShowMenu *pMenu = new VR_ShowMenu(pMenuCollection);
 	// And stick embed it within an action
-	VA_ForwardRequestToPhone *pbefore = new VA_ForwardRequestToPhone(pMenu);
+	VA_SendMenuToPhone *pbefore = new VA_SendMenuToPhone(pMenu);
 	listActions.push_back(pbefore);
 	m_cProcessOutcome = SUCCESSFULLY_PROCESSED;
 */

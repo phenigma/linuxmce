@@ -30,7 +30,7 @@ static char THIS_FILE[] = __FILE__;
 
 //hack
 #include "VR_ShowMenu.h"
-#include "VA_ForwardRequestToPhone.h"
+#include "VA_SendMenuToPhone.h"
 
 
 UINT CheckVersion(LPVOID pParam);
@@ -98,7 +98,7 @@ CPlutoVIPMain::CPlutoVIPMain(CWnd* pParent /*=NULL*/)
 	VR_ShowMenu req("C:\\test.vmc");
 	// 3660: 413789114352
 	// 3650: 413780833863
-	VA_ForwardRequestToPhone va(0,&req,413789114352);
+	VA_SendMenuToPhone va(0,&req,413789114352);
 	va.ProcessAction();
 */
 	g_TaskBars.Init();

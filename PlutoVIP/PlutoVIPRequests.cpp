@@ -10,7 +10,7 @@
 
 #include "VA_UpdateTransaction.h"
 #include "VA_SendFileToPhone.h"
-#include "VA_ForwardRequestToPhone.h"
+#include "VA_SendMenuToPhone.h"
 
 RA_Request *RA_Processor::BuildRequestFromData(long dwSize, const char *pcData, unsigned long dwRequestID)
 {
@@ -63,8 +63,8 @@ RA_Action *RA_Processor::BuildActionFromData( long dwSize, const char *pcData, u
 		pRA_Action=new VA_SendFileToPhone();
 		pRA_Action->CreateAction(dwSize,pcData);
 		return pRA_Action;
-	case ACTION_FORWARDREQUEST_TOPHONE:
-		pRA_Action=new VA_ForwardRequestToPhone();
+	case ACTION_SENDMENU_TOPHONE:
+		pRA_Action=new VA_SendMenuToPhone();
 		pRA_Action->CreateAction(dwSize,pcData);
 		return pRA_Action;
 	}

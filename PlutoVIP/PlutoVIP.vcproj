@@ -407,10 +407,10 @@
 				RelativePath=".\UtilityFunc.cpp">
 			</File>
 			<File
-				RelativePath=".\VA_ForwardRequestToPhone.cpp">
+				RelativePath=".\VA_SendFileToPhone.cpp">
 			</File>
 			<File
-				RelativePath=".\VA_SendFileToPhone.cpp">
+				RelativePath=".\VA_SendMenuToPhone.cpp">
 			</File>
 			<File
 				RelativePath=".\VA_UpdateTransaction.cpp">
@@ -528,10 +528,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 		</Filter>
 		<Filter

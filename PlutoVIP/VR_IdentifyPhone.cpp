@@ -7,7 +7,7 @@
 #include "PlutoUtils/MySQLHelper.h"
 #include "VIPShared/VIPMenu.h"
 #include "VR_ShowMenu.h"
-#include "VA_ForwardRequestToPhone.h"
+#include "VA_SendMenuToPhone.h"
 
 #include "RA/RA_Processor.h"
 #include "DCE/DCEMySqlConfig.h"
@@ -338,7 +338,7 @@ CheckForVMC:
 			}
 			else
 			{
-				VA_ForwardRequestToPhone *pbefore = new VA_ForwardRequestToPhone(0,pMenu,m_iMacAddress);
+				VA_SendMenuToPhone *pbefore = new VA_SendMenuToPhone(0,pMenu,m_iMacAddress);
 				MYSTL_ADDTO_LIST(m_listActions, pbefore);
 			}
 		}
