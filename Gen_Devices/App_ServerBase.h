@@ -76,6 +76,7 @@ public:
 	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Kill_Application(string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Hide_Application(string sName,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Reboot(string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -145,6 +146,20 @@ public:
 						string sCMD_Result="OK";
 					string sName=pMessage->m_mapParameters[50];
 						CMD_Hide_Application(sName.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 268:
+					{
+						string sCMD_Result="OK";
+						CMD_Reboot(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

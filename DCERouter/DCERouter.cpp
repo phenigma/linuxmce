@@ -1597,13 +1597,19 @@ void Router::Configure()
             pListDeviceData_Router = new ListDeviceData_Router();
             m_mapDeviceByTemplate[pDevice->m_dwPK_DeviceTemplate] = pListDeviceData_Router;
         }
+        pDevice->m_pDeviceCategory=m_mapDeviceCategory_Find(pDevice->m_dwPK_DeviceCategory);
         pListDeviceData_Router->push_back(pDevice);
 
         pListDeviceData_Router = m_mapDeviceByCategory_Find(pDevice->m_dwPK_DeviceCategory);
         if( !pListDeviceData_Router )
         {
             pListDeviceData_Router = new ListDeviceData_Router();
-            m_mapDeviceByCategory[pDevice->m_dwPK_DeviceCategory] = pListDeviceData_Router;
+			DeviceCategory *pDeviceCategory = pDevice->m_pDeviceCategory;
+			while( pDeviceCategory )
+			{
+				m_mapDeviceByCategory[pDeviceCategory->m_dwPK_DeviceCategory] = pListDeviceData_Router;
+				pDeviceCategory = pDeviceCategory->m_pDeviceCategory_Parent;
+			}
         }
         pListDeviceData_Router->push_back(pDevice);
 
@@ -1633,8 +1639,6 @@ void Router::Configure()
             }
 
         }
-
-        pDevice->m_pDeviceCategory=m_mapDeviceCategory_Find(pDevice->m_dwPK_DeviceCategory);
 
         vector<Row_Device_DeviceData *> vectDeviceParms;
         GetDatabase()->Device_DeviceData_get()->GetRows(

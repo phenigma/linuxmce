@@ -4621,5 +4621,21 @@ namespace DCE
 	public:
 		CMD_Regen_Orbiter_Finished_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,267,1,2,StringUtils::itos(iPK_Device).c_str()); }
 	};
+	class CMD_Reboot : public PreformedCommand {
+	public:
+		CMD_Reboot(long DeviceIDFrom, long DeviceIDTo,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,268,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_Reboot_DL : public PreformedCommand {
+	public:
+		CMD_Reboot_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,268,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_Reboot_DT : public PreformedCommand {
+	public:
+		CMD_Reboot_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,268,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_Reboot_Cat : public PreformedCommand {
+	public:
+		CMD_Reboot_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,268,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
 }
 #endif

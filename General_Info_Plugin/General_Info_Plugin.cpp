@@ -285,3 +285,14 @@ void General_Info_Plugin::CMD_Get_Device_Status(string &sCMD_Result,Message *pMe
 //<-dceag-c248-e->
 {
 }
+//<-dceag-c268-b->
+
+	/** @brief COMMAND: #268 - Reboot */
+	/** Reboots the given computer. */
+		/** @param #2 PK_Device */
+			/** The computer to reboot.  This is ignored when AppServer receives the command--it reboots itself.  When General Info Plugin receives it, it reboots the mentioned computer. */
+
+void General_Info_Plugin::CMD_Reboot(int iPK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c268-e->
+{
+}

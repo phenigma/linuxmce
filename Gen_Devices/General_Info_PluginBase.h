@@ -79,6 +79,7 @@ public:
 	virtual void CMD_Set_Device_Data(int iPK_Device,string sValue_To_Assign,int iPK_DeviceData,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Device_State(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Device_Status(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Reboot(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -204,6 +205,21 @@ public:
 					{
 						string sCMD_Result="OK";
 						CMD_Get_Device_Status(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 268:
+					{
+						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+						CMD_Reboot(iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

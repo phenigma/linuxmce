@@ -20,8 +20,8 @@ namespace HAData.DataAccess {
 		public const String IMPLEMENTSDCE_FIELD = "ImplementsDCE";
 		public const String ISEMBEDDED_FIELD = "IsEmbedded";
 		public const String COMMANDLINE_FIELD = "CommandLine";
-		public const String REQUIRESGUI_FIELD = "RequiresGUI";
-		public const String ISAVDEVICE_FIELD = "IsAVDevice";
+		public const String ISPLUGANDPLAY_FIELD = "IsPlugAndPlay";
+		public const String ISIPBASED_FIELD = "IsIPBased";
 		public const String ISPLUGIN_FIELD = "IsPlugIn";
 		public const String IRFREQUENCY_FIELD = "IRFrequency";
 		public const String FK_STABILITYSTATUS_FIELD = "FK_StabilityStatus";
@@ -35,8 +35,8 @@ namespace HAData.DataAccess {
 		public const String IMPLEMENTSDCE_TABLE_FIELD = "DeviceTemplate.ImplementsDCE";
 		public const String ISEMBEDDED_TABLE_FIELD = "DeviceTemplate.IsEmbedded";
 		public const String COMMANDLINE_TABLE_FIELD = "DeviceTemplate.CommandLine";
-		public const String REQUIRESGUI_TABLE_FIELD = "DeviceTemplate.RequiresGUI";
-		public const String ISAVDEVICE_TABLE_FIELD = "DeviceTemplate.IsAVDevice";
+		public const String ISPLUGANDPLAY_TABLE_FIELD = "DeviceTemplate.IsPlugAndPlay";
+		public const String ISIPBASED_TABLE_FIELD = "DeviceTemplate.IsIPBased";
 		public const String ISPLUGIN_TABLE_FIELD = "DeviceTemplate.IsPlugIn";
 		public const String IRFREQUENCY_TABLE_FIELD = "DeviceTemplate.IRFrequency";
 		public const String FK_STABILITYSTATUS_TABLE_FIELD = "DeviceTemplate.FK_StabilityStatus";
@@ -53,8 +53,8 @@ namespace HAData.DataAccess {
 		protected const String IMPLEMENTSDCE_PARM = "@ImplementsDCE";
 		protected const String ISEMBEDDED_PARM = "@IsEmbedded";
 		protected const String COMMANDLINE_PARM = "@CommandLine";
-		protected const String REQUIRESGUI_PARM = "@RequiresGUI";
-		protected const String ISAVDEVICE_PARM = "@IsAVDevice";
+		protected const String ISPLUGANDPLAY_PARM = "@IsPlugAndPlay";
+		protected const String ISIPBASED_PARM = "@IsIPBased";
 		protected const String ISPLUGIN_PARM = "@IsPlugIn";
 		protected const String IRFREQUENCY_PARM = "@IRFrequency";
 		protected const String FK_STABILITYSTATUS_PARM = "@FK_StabilityStatus";
@@ -131,8 +131,8 @@ namespace HAData.DataAccess {
 			Columns.Add(IMPLEMENTSDCE_FIELD, typeof(System.Int16));
 			Columns.Add(ISEMBEDDED_FIELD, typeof(System.Boolean));
 			Columns.Add(COMMANDLINE_FIELD, typeof(System.String));
-			Columns.Add(REQUIRESGUI_FIELD, typeof(System.Boolean));
-			Columns.Add(ISAVDEVICE_FIELD, typeof(System.Boolean));
+			Columns.Add(ISPLUGANDPLAY_FIELD, typeof(System.Boolean));
+			Columns.Add(ISIPBASED_FIELD, typeof(System.Boolean));
 			Columns.Add(ISPLUGIN_FIELD, typeof(System.Boolean));
 			Columns.Add(IRFREQUENCY_FIELD, typeof(System.Int32));
 			Columns.Add(FK_STABILITYSTATUS_FIELD, typeof(System.Int32));
@@ -150,8 +150,8 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(IMPLEMENTSDCE_PARM, OdbcType.SmallInt,2));
 			Params.Add(new OdbcParameter(ISEMBEDDED_PARM, OdbcType.Bit,1));
 			Params.Add(new OdbcParameter(COMMANDLINE_PARM, OdbcType.VarChar, 100));
-			Params.Add(new OdbcParameter(REQUIRESGUI_PARM, OdbcType.Bit,1));
-			Params.Add(new OdbcParameter(ISAVDEVICE_PARM, OdbcType.Bit,1));
+			Params.Add(new OdbcParameter(ISPLUGANDPLAY_PARM, OdbcType.Bit,1));
+			Params.Add(new OdbcParameter(ISIPBASED_PARM, OdbcType.Bit,1));
 			Params.Add(new OdbcParameter(ISPLUGIN_PARM, OdbcType.Bit,1));
 			Params.Add(new OdbcParameter(IRFREQUENCY_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_STABILITYSTATUS_PARM, OdbcType.Int,4));
@@ -172,8 +172,8 @@ namespace HAData.DataAccess {
 			Params[IMPLEMENTSDCE_PARM].SourceColumn = DeviceTemplateData.IMPLEMENTSDCE_FIELD;
 			Params[ISEMBEDDED_PARM].SourceColumn = DeviceTemplateData.ISEMBEDDED_FIELD;
 			Params[COMMANDLINE_PARM].SourceColumn = DeviceTemplateData.COMMANDLINE_FIELD;
-			Params[REQUIRESGUI_PARM].SourceColumn = DeviceTemplateData.REQUIRESGUI_FIELD;
-			Params[ISAVDEVICE_PARM].SourceColumn = DeviceTemplateData.ISAVDEVICE_FIELD;
+			Params[ISPLUGANDPLAY_PARM].SourceColumn = DeviceTemplateData.ISPLUGANDPLAY_FIELD;
+			Params[ISIPBASED_PARM].SourceColumn = DeviceTemplateData.ISIPBASED_FIELD;
 			Params[ISPLUGIN_PARM].SourceColumn = DeviceTemplateData.ISPLUGIN_FIELD;
 			Params[IRFREQUENCY_PARM].SourceColumn = DeviceTemplateData.IRFREQUENCY_FIELD;
 			Params[FK_STABILITYSTATUS_PARM].SourceColumn = DeviceTemplateData.FK_STABILITYSTATUS_FIELD;
@@ -224,7 +224,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_DeviceTemplate,Description,Comments,FK_DeviceCategory,FK_Manufacturer,Define,ImplementsDCE,IsEmbedded,CommandLine,RequiresGUI,IsAVDevice,IsPlugIn,IRFrequency,FK_StabilityStatus FROM DeviceTemplate", Conn);
+				LoadCommand = new OdbcCommand("SELECT PK_DeviceTemplate,Description,Comments,FK_DeviceCategory,FK_Manufacturer,Define,ImplementsDCE,IsEmbedded,CommandLine,IsPlugAndPlay,IsIPBased,IsPlugIn,IRFrequency,FK_StabilityStatus FROM DeviceTemplate", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(PK_DEVICETEMPLATE_PARM, OdbcType.Int,4));
@@ -268,7 +268,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_DeviceTemplate, Description, Comments, FK_DeviceCategory, FK_Manufacturer, Define, ImplementsDCE, IsEmbedded, CommandLine, RequiresGUI, IsAVDevice, IsPlugIn, IRFrequency, FK_StabilityStatus FROM DeviceTemplate WHERE " + WhereClause;
+			string sSQL = "SELECT PK_DeviceTemplate, Description, Comments, FK_DeviceCategory, FK_Manufacturer, Define, ImplementsDCE, IsEmbedded, CommandLine, IsPlugAndPlay, IsIPBased, IsPlugIn, IRFrequency, FK_StabilityStatus FROM DeviceTemplate WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -674,7 +674,7 @@ namespace HAData.DataAccess {
 		{
 			dr[8]=DBNull.Value;
 		}
-		public System.Boolean fRequiresGUI
+		public System.Boolean fIsPlugAndPlay
 		{
 			get
 			{
@@ -685,18 +685,18 @@ namespace HAData.DataAccess {
 				dr[9]=value;
 			}
 		}
-		public bool fRequiresGUIIsNull
+		public bool fIsPlugAndPlayIsNull
 		{
 			get
 			{
 				return dr[9]==DBNull.Value;
 			}
 		}
-		public void fRequiresGUISetNull()
+		public void fIsPlugAndPlaySetNull()
 		{
 			dr[9]=DBNull.Value;
 		}
-		public System.Boolean fIsAVDevice
+		public System.Boolean fIsIPBased
 		{
 			get
 			{
@@ -707,14 +707,14 @@ namespace HAData.DataAccess {
 				dr[10]=value;
 			}
 		}
-		public bool fIsAVDeviceIsNull
+		public bool fIsIPBasedIsNull
 		{
 			get
 			{
 				return dr[10]==DBNull.Value;
 			}
 		}
-		public void fIsAVDeviceSetNull()
+		public void fIsIPBasedSetNull()
 		{
 			dr[10]=DBNull.Value;
 		}
@@ -1061,7 +1061,7 @@ namespace HAData.DataAccess {
 					return dr[8]==DBNull.Value;
 			}
 		}
-		public System.Boolean fRequiresGUI
+		public System.Boolean fIsPlugAndPlay
 		{
 			get
 			{
@@ -1071,7 +1071,7 @@ namespace HAData.DataAccess {
 					return Convert.ToBoolean(dr[9]);
 			}
 		}
-		public bool fRequiresGUIIsNull
+		public bool fIsPlugAndPlayIsNull
 		{
 			get
 			{
@@ -1081,7 +1081,7 @@ namespace HAData.DataAccess {
 					return dr[9]==DBNull.Value;
 			}
 		}
-		public System.Boolean fIsAVDevice
+		public System.Boolean fIsIPBased
 		{
 			get
 			{
@@ -1091,7 +1091,7 @@ namespace HAData.DataAccess {
 					return Convert.ToBoolean(dr[10]);
 			}
 		}
-		public bool fIsAVDeviceIsNull
+		public bool fIsIPBasedIsNull
 		{
 			get
 			{
@@ -1191,7 +1191,7 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_DeviceTemplate,Description,Comments,FK_DeviceCategory,FK_Manufacturer,Define,ImplementsDCE,IsEmbedded,CommandLine,RequiresGUI,IsAVDevice,IsPlugIn,IRFrequency,FK_StabilityStatus FROM DeviceTemplate", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_DeviceTemplate,Description,Comments,FK_DeviceCategory,FK_Manufacturer,Define,ImplementsDCE,IsEmbedded,CommandLine,IsPlugAndPlay,IsIPBased,IsPlugIn,IRFrequency,FK_StabilityStatus FROM DeviceTemplate", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -1276,14 +1276,14 @@ namespace HAData.DataAccess {
 				return Columns[8];
 			}
 		}
-		public DataColumn cRequiresGUI
+		public DataColumn cIsPlugAndPlay
 		{
 			get
 			{
 				return Columns[9];
 			}
 		}
-		public DataColumn cIsAVDevice
+		public DataColumn cIsIPBased
 		{
 			get
 			{

@@ -37,6 +37,7 @@ using namespace DCE;
 #include "DeviceData_Router.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "pluto_main/Database_pluto_main.h"
+#include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_MediaType.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
@@ -115,6 +116,8 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 
     m_pMediaAttributes = new MediaAttributes( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) );
 
+	bool bChangedEAs=false;  // If we change anything, we're going to need to regenerate all the Orbiters
+
     // Get all the entertainment areas and populate them with all the devices in those areas
     Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get( )->GetRow( m_pRouter->iPK_Installation_get( ) );
     vector<Row_Room *> vectRow_Room; // Ent Areas are specified by room. Get all the rooms first
@@ -126,17 +129,29 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 		{
 			// We'll want to configure this room's entertainment area automatically.  See if there's a media director in the room
 			ListDeviceData_Router *pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Media_Director_CONST);
-			bool bContainsMD = pListMediaDirectors->size()!=0;
+			bool bContainsMD = false;
+			if( pListMediaDirectors )
+				for(ListDeviceData_Router::iterator it=pListMediaDirectors->begin();it!=pListMediaDirectors->end();++it)
+					if( (*it)->m_dwPK_Room == pRow_Room->PK_Room_get() )
+						bContainsMD = true;
+
+
 			bool bContainsOtherVideo=false,bContainsAudio=false;
 			if( !bContainsMD )
 			{
 				// See if there is some other video device
 				pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_TVs_CONST);
-				bContainsOtherVideo = pListMediaDirectors->size()!=0;
+				if( pListMediaDirectors )
+					for(ListDeviceData_Router::iterator it=pListMediaDirectors->begin();it!=pListMediaDirectors->end();++it)
+						if( (*it)->m_dwPK_Room == pRow_Room->PK_Room_get() )
+							bContainsOtherVideo = true;
 				if( !bContainsOtherVideo )
 				{
 					pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_AV_CONST);
-					bContainsAudio = pListMediaDirectors->size()!=0;
+					if( pListMediaDirectors )
+						for(ListDeviceData_Router::iterator it=pListMediaDirectors->begin();it!=pListMediaDirectors->end();++it)
+							if( (*it)->m_dwPK_Room == pRow_Room->PK_Room_get() )
+								bContainsAudio = true;
 				}
 			}
 
@@ -145,6 +160,8 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 			if( !bContainsMD && !bContainsOtherVideo && !bContainsAudio )
 			{
 				// There's no media in here.  Be sure there is no record in the EntArea database
+				if( vectEntertainArea.size() )
+					bChangedEAs=true;
 				for(size_t s=0;s<vectEntertainArea.size();++s)
 					DeleteEntertainArea(vectEntertainArea[s]);
 			}
@@ -152,14 +169,20 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 			{
 				// There is media in this room.  Add an entertainment area and any a/v equipment to it
 				// First, see if there are already too many ent areas (maybe the user changed from advanced to manual)
+				if( vectEntertainArea.size()>1 )
+					bChangedEAs=true;
+
 				for(size_t s=1;s<vectEntertainArea.size();++s)
 					DeleteEntertainArea(vectEntertainArea[s]);
 
 				Row_EntertainArea *pRow_EntertainArea = vectEntertainArea.size() ? vectEntertainArea[0] : NULL;
 				if( !pRow_EntertainArea )
 				{
+					bChangedEAs=true;
+
 					pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->AddRow();
 					pRow_EntertainArea->FK_Room_set(pRow_Room->PK_Room_get());
+					m_pDatabase_pluto_main->EntertainArea_get()->Commit();
 					AddDefaultCommandsToEntArea(pRow_EntertainArea);
 				}
 
@@ -172,7 +195,19 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
                     pRow_EntertainArea->FK_FloorplanObjectType_set(FLOORPLANOBJECTTYPE_ENTERTAINMENT_AUDIO_ZONE_CONST);
 
 				AddDevicesToEntArea(pRow_EntertainArea);
+				m_pDatabase_pluto_main->EntertainArea_get()->Commit();
 			}
+		}
+
+		if( bChangedEAs )
+		{
+			ListDeviceData_Router *pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Orbiter_CONST);
+			for(ListDeviceData_Router::iterator it=pListMediaDirectors->begin();it!=pListMediaDirectors->end();++it)
+			{
+				DeviceData_Router *pDeviceData_Router = *it;
+				pDeviceData_Router->m_pRow_Device->NeedConfigure_set(1);
+			}
+			m_pDatabase_pluto_main->Device_get()->Commit();
 		}
         
         vector<Row_EntertainArea *> vectRow_EntertainArea;
@@ -287,8 +322,11 @@ int Media_Plugin::FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainAr
 		return 0;
 
 	Row_CommandGroup *pRow_CommandGroup = m_pDatabase_pluto_main->CommandGroup_get()->AddRow();
+	pRow_CommandGroup->Hint_set( pRow_EntertainArea->Description_get() );
 	pRow_CommandGroup->FK_Template_set(PK_Template);
 	pRow_CommandGroup->Description_set(sDescription);
+	pRow_CommandGroup->FK_Installation_set( m_pRouter->iPK_Installation_get() );
+	pRow_CommandGroup->FK_Array_set( ARRAY_Media_Scenarios_CONST );
 	m_pDatabase_pluto_main->CommandGroup_get()->Commit();
 
 	Row_CommandGroup_EntertainArea *pRow_CommandGroup_EntertainArea = m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->AddRow();
@@ -322,19 +360,68 @@ void Media_Plugin::AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,i
 
 void Media_Plugin::AddDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 {
-	ListDeviceData_Router *pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_AV_CONST);
-	for(ListDeviceData_Router::iterator it=pListMediaDirectors->begin();it!=pListMediaDirectors->end();++it)
+	ListDeviceData_Router *pListDevices = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_AV_CONST);
+	if( pListDevices )
 	{
-		DeviceData_Router *pDeviceData_Router = *it;
-		if( pDeviceData_Router->m_dwPK_Room == pRow_EntertainArea->FK_Room_get() )
+		for(ListDeviceData_Router::iterator it=pListDevices->begin();it!=pListDevices->end();++it)
 		{
-			Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pDeviceData_Router->m_dwPK_Device,pRow_EntertainArea->PK_EntertainArea_get());
-			if( !pRow_Device_EntertainArea )
+			DeviceData_Router *pDeviceData_Router = *it;
+			if( pDeviceData_Router->m_dwPK_Room == pRow_EntertainArea->FK_Room_get() )
 			{
-				pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
-				pRow_Device_EntertainArea->FK_Device_set(pDeviceData_Router->m_dwPK_Device);
-				pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
-				m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+				Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pDeviceData_Router->m_dwPK_Device,pRow_EntertainArea->PK_EntertainArea_get());
+				if( !pRow_Device_EntertainArea )
+				{
+					pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
+					pRow_Device_EntertainArea->FK_Device_set(pDeviceData_Router->m_dwPK_Device);
+					pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
+					m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+				}
+			}
+		}
+	}
+
+	pListDevices = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Media_Director_CONST);
+	if( pListDevices )
+	{
+		// Add the media director and 2 levels of children
+		for(ListDeviceData_Router::iterator it=pListDevices->begin();it!=pListDevices->end();++it)
+		{
+			DeviceData_Router *pDeviceData_Router = *it;
+			if( pDeviceData_Router->m_dwPK_Room == pRow_EntertainArea->FK_Room_get() )
+			{
+				Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pDeviceData_Router->m_dwPK_Device,pRow_EntertainArea->PK_EntertainArea_get());
+				if( !pRow_Device_EntertainArea )
+				{
+					pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
+					pRow_Device_EntertainArea->FK_Device_set(pDeviceData_Router->m_dwPK_Device);
+					pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
+					m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+				}
+
+				for(size_t s=0;s<pDeviceData_Router->m_vectDeviceData_Impl_Children.size();++s)
+				{
+					DeviceData_Router *pDeviceData_Router_Child = (DeviceData_Router *) pDeviceData_Router->m_vectDeviceData_Impl_Children[s];
+					Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pDeviceData_Router_Child->m_dwPK_Device,pRow_EntertainArea->PK_EntertainArea_get());
+					if( !pRow_Device_EntertainArea )
+					{
+						pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
+						pRow_Device_EntertainArea->FK_Device_set(pDeviceData_Router_Child->m_dwPK_Device);
+						pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
+						m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+					}
+					for(size_t s2=0;s2<pDeviceData_Router_Child->m_vectDeviceData_Impl_Children.size();++s2)
+					{
+						DeviceData_Router *pDeviceData_Router_GrandChild = (DeviceData_Router *) pDeviceData_Router_Child->m_vectDeviceData_Impl_Children[s2];
+						Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pDeviceData_Router_GrandChild->m_dwPK_Device,pRow_EntertainArea->PK_EntertainArea_get());
+						if( !pRow_Device_EntertainArea )
+						{
+							pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
+							pRow_Device_EntertainArea->FK_Device_set(pDeviceData_Router_GrandChild->m_dwPK_Device);
+							pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
+							m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+						}
+					}
+				}
 			}
 		}
 	}

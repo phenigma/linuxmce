@@ -97,6 +97,13 @@ public:
 	virtual void CMD_Hide_Application(string sName,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #268 - Reboot */
+	/** Reboots the computers this is running on. */
+
+	virtual void CMD_Reboot() { string sCMD_Result; CMD_Reboot(sCMD_Result,NULL);};
+	virtual void CMD_Reboot(string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 
