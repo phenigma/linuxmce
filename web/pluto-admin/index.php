@@ -989,6 +989,13 @@ switch ($section) {
 	    include_once('operations/infrared/infraredCommands.php');
 	    infraredCommands($output,$dbADO);
 	break;	
+	case 'eibDevices';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+		include($GLOBALS['globalConfigPath'].'eibDB.inc.php');
+	    include_once('operations/myDevices/eibDevices.php');
+	    eibDevices($output,$dbADO,$eibADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

@@ -17,12 +17,32 @@ function irCodes($output,$dbADO) {
 
 	$infraredGroupID=(int)@$_REQUEST['infraredGroupID'];
 	$GLOBALS['displayedIRGC']=array();
-	
+	$GLOBALS['preferredIGC']=array();
+	$GLOBALS['igcPrefered']=array();	
+
+	$resIGCPrefered=$dbADO->Execute('
+		SELECT InfraredGroup_Command_Preferred.*, InfraredGroup_Command.FK_Command
+		FROM InfraredGroup_Command_Preferred 
+		INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
+		WHERE InfraredGroup_Command_Preferred.FK_Installation=?',$installationID);
+	while($rowIGC=$resIGCPrefered->FetchRow()){
+		$GLOBALS['igcPrefered'][$rowIGC['FK_Command']]=$rowIGC['FK_InfraredGroup_Command'];
+	}
+
 	if ($action=='form') {
 		$out.='
 		<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,\'\',attributes);
+			}
+		
+			function setPreferred(radioGroup,value)
+			{
+				eval("len=document.irCodes."+radioGroup+".length");
+				for(i=0;i<len;i++){
+					eval("if(document.irCodes."+radioGroup+"["+i+"].value=="+value+") document.irCodes."+radioGroup+"["+i+"].checked=true;");
+				}
+				
 			}
 		</script>	
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
@@ -55,12 +75,6 @@ function irCodes($output,$dbADO) {
 			while($rowDT_IG=$resDT_IG->FetchRow()){
 				$selectedIRGrops[]=$rowDT_IG['FK_InfraredGroup'];
 			}
-		}
-
-		$commandsArray=array();
-		$resAllCommands=$dbADO->Execute('SELECT * FROM Command ORDER BY Description ASC');
-		while($rowAllCommands=$resAllCommands->FetchRow()){
-			$commandsArray[$rowAllCommands['PK_Command']]=$rowAllCommands['Description'];
 		}
 
 		$excludedCommandsArray=array($GLOBALS['powerCommand'],$GLOBALS['genericONCommand'],$GLOBALS['genericOFFCommand'],$GLOBALS['DSPModeCommand'],$GLOBALS['inputSelectCommand'],$GLOBALS['outputSelectCommand']);
@@ -167,15 +181,15 @@ function irCodes($output,$dbADO) {
 		</tr>';
 
 		$queryCommands='
-			SELECT Command.Description, FK_Command,IRData,PK_InfraredGroup_Command,FK_DeviceTemplate, FK_InfraredGroup ,FK_Device 
+			SELECT DISTINCT FK_Command
 			FROM InfraredGroup_Command
-			INNER JOIN Command ON FK_Command=PK_Command
-			WHERE (FK_InfraredGroup =? OR (FK_InfraredGroup IS NULL AND FK_Device=?)) AND FK_Command NOT IN ('.join(',',$excludedCommandsArray).')
-			ORDER BY Description ASC';
+			WHERE (FK_InfraredGroup =? OR (FK_InfraredGroup IS NULL AND FK_Device=?)) AND FK_Command NOT IN ('.join(',',$excludedCommandsArray).')';
 		$resCommand=$dbADO->Execute($queryCommands,array($infraredGroupID,$deviceID));
 		$commandsToShow=array();
+		$commandsDisplayed=$excludedCommandsArray;
 		while($rowCommands=$resCommand->FetchRow()){
 			$commandsToShow[]=$rowCommands['FK_Command'];
+			$commandsDisplayed[]=$rowCommands['FK_Command'];
 		}
 		if(count($commandsToShow)>0)
 			$otherCommands='
@@ -187,13 +201,26 @@ function irCodes($output,$dbADO) {
 		
 		$out.='		
 			<tr>
-				<td colspan="3" align="center"><input type="button" class="button" name="button" value="Add/Remove commands" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+				<td colspan="3" align="center"><input type="button" class="button" name="button" value="Add/Remove commands" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update"></td>
 			</tr>';
 		$out.='
 			<tr>
 				<td colspan="3" align="center"><fieldset><legend><B>Power codes</B></legend>'.@$toglePowerCommands.'</fieldset></td>
 			</tr>
 			'.@$dspModesCommands.@$inputCommands.@$outputCommands.@$otherCommands.'
+			<tr>
+				<td colspan="3" align="center"><table>
+					<tr>
+						<td><B>Legend:</B> </td>
+						<td width="20" bgcolor="lightblue">&nbsp;</td>
+						<td>Standard codes</td>
+						<td width="20" bgcolor="yellow">&nbsp;</td>
+						<td>My custom codes</td>
+						<td width="20" bgcolor="lightyellow">&nbsp;</td>
+						<td>Other users custom codes</td>
+					</tr>
+				</table></td>
+			</tr>
 			<tr>
 				<td colspan="3" align="center"><input type="submit" class="button" name="update" value="Update"></td>
 			</tr>
@@ -202,6 +229,7 @@ function irCodes($output,$dbADO) {
 		$out.='
 		</table>
 			<input type="hidden" name="displayedIRGC" value="'.join(',',$GLOBALS['displayedIRGC']).'">
+			<input type="hidden" name="commandsDisplayed" value="'.join(',',$commandsDisplayed).'">
 		</form>
 	';	
 	} else {
@@ -220,11 +248,11 @@ function irCodes($output,$dbADO) {
 			exit();
 		}
 
-		$newIRGroup=(int)$_POST['irGroup'];
+		$newIRGroup=((int)$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
 		$oldIRGroup=(int)$_POST['oldIRGroup'];
 		if($newIRGroup!=$oldIRGroup){
-			$dbADO->Execute('DELETE FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
-			$dbADO->Execute('INSERT INTO DeviceTemplate_InfraredGroup (FK_DeviceTemplate, FK_InfraredGroup) VALUES (?,?)',array($dtID,$newIRGroup));
+			//$dbADO->Execute('DELETE FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
+			//$dbADO->Execute('INSERT INTO DeviceTemplate_InfraredGroup (FK_DeviceTemplate, FK_InfraredGroup) VALUES (?,?)',array($dtID,$newIRGroup));
 			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=?',array($newIRGroup,$dtID));
 			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.");
 			exit();
@@ -238,12 +266,31 @@ function irCodes($output,$dbADO) {
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code added.");
 				exit();
 			}else{
+				$dbADO->Execute('
+					DELETE InfraredGroup_Command_Preferred 
+					FROM InfraredGroup_Command_Preferred
+					INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
+					WHERE PK_InfraredGroup_Command=?',$irg_c);
+				
 				$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code deleted.");
 				exit();
 			}
 		}
-
+		
+		$commandsDisplayed=explode(',',$_POST['commandsDisplayed']);
+		foreach ($commandsDisplayed AS $commandID){
+			$sufix=($infraredGroupID>0)?$infraredGroupID:'';
+			$preferredCommand=(int)@$_POST['prefered_'.$commandID.'_'.$sufix];
+			if($preferredCommand>0){
+				if(isset($GLOBALS['igcPrefered'][$commandID]) && $GLOBALS['igcPrefered'][$commandID]!=$preferredCommand){
+					$dbADO->Execute('UPDATE InfraredGroup_Command_Preferred SET FK_InfraredGroup_Command=? WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($preferredCommand,$GLOBALS['igcPrefered'][$commandID],$installationID));
+				}elseif(!isset($GLOBALS['igcPrefered'][$commandID])){
+					$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));
+				}
+			}
+		}
+		
 		if(isset($_POST['update'])){
 			$customCodesNoArray=explode(',',@$_POST['displayedIRGC']);
 			foreach ($customCodesNoArray as $ig_c){
@@ -251,11 +298,6 @@ function irCodes($output,$dbADO) {
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$ig_c));
 			}
 
-			if(isset($_POST['preferedIGC']) && (int)$_POST['preferedIGC']!=0){
-				$preferedIGC=(int)$_POST['preferedIGC'];
-				$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_Installation=?',$installationID);
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred  (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferedIGC,$installationID));
-			}
 			header("Location: index.php?section=irCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=IR codes updated.");
 			exit();
 		}
@@ -271,60 +313,82 @@ function irCodes($output,$dbADO) {
 
 function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 {
-	$dbADO->debug=true;
+//	$dbADO->debug=true;
 	$installationID=(int)$_SESSION['installationID'];
 	$out='';
 	if(count($commandsToShow)==0)
 		return $out;
-	if($infraredGroupID==0){
-		$queryCommands='
-			SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command,FK_Users,PK_Command 
-			FROM  Command
-			LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command 
-			WHERE PK_Command IN ('.join(',',$commandsToShow).') AND FK_InfraredGroup is NULL
-			ORDER BY Description ASC';
-		$resCommand=$dbADO->Execute($queryCommands,$infraredGroupID);
-	}else{
-		$queryCommands='
-			SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command,FK_Users,PK_Command 
-			FROM  Command
-			LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND (FK_InfraredGroup =? OR FK_InfraredGroup is NULL)
-			WHERE PK_Command IN ('.join(',',$commandsToShow).')
-			ORDER BY Description ASC';
-		$resCommand=$dbADO->Execute($queryCommands,$infraredGroupID);
-	}
 
-	$resIGCPrefered=$dbADO->Execute('SELECT * FROM InfraredGroup_Command_Preferred WHERE FK_Installation=?',$installationID);
-	$rowIGC=$resIGCPrefered->FetchRow();
-
-	$pos=0;
-	$customCodesNo=array();
-	$out.='<table width="100%">';
-	while($rowCommands=$resCommand->FetchRow()){
-		if(!is_null($rowCommands['PK_InfraredGroup_Command']))
-			$GLOBALS['displayedIRGC'][]=$rowCommands['PK_InfraredGroup_Command'];
+	foreach ($commandsToShow AS $commandID){
+		if($infraredGroupID==0){
+			$queryStandardCode='
+				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
+				FROM Command 
+				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NULL AND FK_InfraredGroup IS NULL
+				WHERE PK_Command =?';
+			$resStandardCode=$dbADO->Execute($queryStandardCode,$commandID);
 			
-		if($rowCommands['FK_DeviceTemplate'])
-		$customCodesNo[]=$rowCommands['PK_InfraredGroup_Command'];
-		$pos++;
-		$RowColor=(($pos%2==1)?'#EEEEEE':'');
-		if($rowCommands['FK_InfraredGroup']=='' || !is_null($rowCommands['FK_DeviceTemplate']))
-			$RowColor='yellow';
-		if(is_null($rowCommands['PK_InfraredGroup_Command']))
-			$RowColor='lightblue';
-		$out.='
-			<tr bgcolor="'.$RowColor.'">
-				<td align="center" width="100"><B>'.$rowCommands['Description'].'</B>'.((($rowCommands['FK_InfraredGroup']!='' && $rowCommands['FK_DeviceTemplate']=='') || $rowCommands['PK_InfraredGroup_Command']=='')?'<br><input type="button" class="button" name="learnCode" value="Learn code" onClick="windowOpen(\'index.php?section=learnCode&deviceID='.$deviceID.'&commandID='.$rowCommands['PK_Command'].'&action=sendCommand\',\'width=400,height=250,toolbars=true,scrollbars=1,resizable=1\');">':'<br> User: '.$rowCommands['FK_Users']).'</td>
-				<td>'.((!is_null($rowCommands['PK_InfraredGroup_Command']))?'<input type="radio" name="preferedIGC" value="'.$rowCommands['PK_InfraredGroup_Command'].'" '.(($rowIGC['FK_InfraredGroup_Command']==$rowCommands['PK_InfraredGroup_Command'])?'checked':'').'>':'&nbsp;').'</td>
-				<td>'.((is_null($rowCommands['PK_InfraredGroup_Command']))?'<B> Not in database</B>':'<textarea name="irData_'.$rowCommands['PK_InfraredGroup_Command'].'" rows="2" cols="100" '.(($rowCommands['FK_DeviceTemplate']=='')?'disabled':'').'>'.$rowCommands['IRData'].'</textarea>').'</td>
-				<td align="center">';
-				if(!is_null($rowCommands['PK_InfraredGroup_Command']))
-					$out.=(($rowCommands['FK_DeviceTemplate']=='')?'<input type="button" class="button" name="addCustomCode" value="Add custom code" onClick="document.irCodes.irgroup_command.value='.$rowCommands['PK_InfraredGroup_Command'].';document.irCodes.submit();">':'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowCommands['PK_InfraredGroup_Command'].';document.irCodes.submit();}">').' 
-					'.((!is_null($rowCommands['PK_InfraredGroup_Command']))?'<br><input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&from=avWizard&action=testCode&irCode='.$rowCommands['IRData'].'\'">':'').'
-				</td>
-			</tr>';
+			$queryUserCode='
+				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
+				FROM Command 
+				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NOT NULL AND FK_InfraredGroup IS NULL
+				WHERE PK_Command =? AND PK_InfraredGroup_Command IS NOT NULL';
+			$resUserCode=$dbADO->Execute($queryUserCode,$commandID);
+		}else{
+			$queryStandardCode='
+				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
+				FROM Command 
+				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NULL AND FK_InfraredGroup=?
+				WHERE PK_Command =?';
+			$resStandardCode=$dbADO->Execute($queryStandardCode,array($infraredGroupID,$commandID));
+			
+			$queryUserCode='
+				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
+				FROM Command 
+				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NOT NULL AND FK_InfraredGroup=?
+				WHERE PK_Command =? AND PK_InfraredGroup_Command IS NOT NULL';
+			$resUserCode=$dbADO->Execute($queryUserCode,array($infraredGroupID,$commandID));
+
+		}
+		$out.='<table width="100%">';
+		$existingCodes=$resStandardCode->RecordCount()+$resUserCode->RecordCount();
+		while($rowStandardCode=$resStandardCode->FetchRow()){
+			$out.='
+				<tr bgcolor="lightblue">
+					<td align="center" width="100"><B>'.$rowStandardCode['Description'].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=learnCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$rowStandardCode['PK_Command'].'&action=sendCommand\',\'width=600,height=250,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td>'.((!is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<input type="radio" name="prefered_'.$rowStandardCode['FK_Command'].'_'.$rowStandardCode['FK_InfraredGroup'].'" value="'.$rowStandardCode['PK_InfraredGroup_Command'].'" '.(($existingCodes==1 || in_array($rowStandardCode['PK_InfraredGroup_Command'],$GLOBALS['igcPrefered']))?'checked':'').'>':'&nbsp;').'</td>
+					<td>'.((is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<B> Not in database</B>':'<textarea name="irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'" rows="2" cols="100" disabled>'.stripslashes($rowStandardCode['IRData']).'</textarea>').'</td>
+					<td align="center">';
+					if(!is_null($rowStandardCode['PK_InfraredGroup_Command']))
+						$out.=((!is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&from=avWizard&action=testCode&irCode='.$rowStandardCode['IRData'].'\'">':'').'
+					</td>
+				</tr>';
+		}
+
+		$customCodesNo=array();
+		while($rowUserCode=$resUserCode->FetchRow()){
+			$GLOBALS['displayedIRGC'][]=$rowUserCode['PK_InfraredGroup_Command'];
+			$customCodesNo[]=$rowUserCode['PK_InfraredGroup_Command'];
+			
+			$RowColor=(($rowUserCode['FK_Users']==$_SESSION['userID'])?'yellow':'lightyellow');
+			$out.='
+				<tr bgcolor="'.$RowColor.'">
+					<td align="center" width="100"><B>'.$rowUserCode['Description'].'</B><br> User: '.$rowUserCode['FK_Users'].'</td>
+					<td><input type="radio" name="prefered_'.$rowUserCode['FK_Command'].'_'.$rowUserCode['FK_InfraredGroup'].'" value="'.$rowUserCode['PK_InfraredGroup_Command'].'" '.((in_array($rowUserCode['PK_InfraredGroup_Command'],$GLOBALS['igcPrefered']))?'checked':'').'></td>
+					<td><textarea name="irData_'.$rowUserCode['PK_InfraredGroup_Command'].'" rows="2" cols="100" '.(($rowUserCode['FK_Users']!=$_SESSION['userID'])?'disabled':'').' onClick="setPreferred(\'prefered_'.$rowUserCode['FK_Command'].'_'.(($infraredGroupID==0)?'':$infraredGroupID).'\','.$rowUserCode['PK_InfraredGroup_Command'].')">'.stripslashes($rowUserCode['IRData']).'</textarea></td>
+					<td align="center">';
+					if($rowUserCode['FK_Users']==$_SESSION['userID']){
+						$out.='<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowUserCode['PK_InfraredGroup_Command'].';document.irCodes.submit();}"> <br>';
+					}
+					$out.='
+						<input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&from=avWizard&action=testCode&irCode='.$rowUserCode['IRData'].'\'">
+					</td>
+				</tr>';
+		}
+		
+		$out.='</table>';	
 	}
-	$out.='</table>';
+
 	return $out;
 }
 ?>

@@ -64,11 +64,21 @@ function infraredCommands($output,$dbADO) {
 		foreach ($displayedCommands AS $commandID){
 			if(isset($_POST['command_'.$commandID])){
 				$GLOBALS['infraredGroup']=($GLOBALS['infraredGroup']==0)?NULL:$GLOBALS['infraredGroup'];
-				if(!in_array($commandID,$oldCheckedCommands))
+				if(!in_array($commandID,$oldCheckedCommands)){
 					$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users) VALUES (?,?,?,?,?)',array($GLOBALS['infraredGroup'],$commandID, $GLOBALS['deviceID'],$GLOBALS['dtID'],$_SESSION['userID']));
+					
+					$igcID=$dbADO->Insert_ID();
+					$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($igcID,$_SESSION['installationID']));
+				}
 			}else{
-				if(in_array($commandID,$oldCheckedCommands))
+				if(in_array($commandID,$oldCheckedCommands)){
+					$dbADO->Execute('
+						DELETE InfraredGroup_Command_Preferred 
+						FROM InfraredGroup_Command_Preferred
+						INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
+						WHERE FK_InfraredGroup=?',$GLOBALS['infraredGroup']);
 					$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_InfraredGroup=? AND FK_Command=?',array($GLOBALS['infraredGroup'],$commandID));
+				}
 			}
 		}
 		

@@ -48,6 +48,9 @@
 	$GLOBALS['rootOrbiterID'] = 5; 				// Orbiter
 	$GLOBALS['rootComputerID'] = 6; 			// Computers
 	$GLOBALS['rootMediaDirectors'] = 8; 		// Media Directors
+	$GLOBALS['LightSwitchOnOff']=37;			// Light Switch (on/off)
+	$GLOBALS['LightSwitchDimmable']=38;			// Light Switch (dimmable)
+	$GLOBALS['EIB']=48;							// EIB
 	$GLOBALS['rootInterfaces'] = 71; 			// Interfaces
 	$GLOBALS['rootLights'] = 73; 				// Lighting devices
 	$GLOBALS['rootAVEquipment'] = 76; 			// AV Equipment
@@ -104,7 +107,7 @@
 	$GLOBALS['genericHeatCommand']=197;				// Generic Heat
 	$GLOBALS['genericCoolCommand']=196;				// Generic Cool
 	$GLOBALS['MediaScenariosCommand']=43;			// MH Play Media
-	$GLOBALS['commandSetUserMode']=58;					// Set User Mode	
+	$GLOBALS['commandSetUserMode']=58;				// Set User Mode	
 	$GLOBALS['commandSetVar']=27;					// Set Variable
 	$GLOBALS['commandGotoScreen']=5;				// Go to screen
 	$GLOBALS['commandMHPlayMedia']=43;				// MH Play Media
@@ -133,6 +136,7 @@
 	// PK_DeviceData from table DeviceData
 	$GLOBALS['FloorplanInfo']=10;				// FloorplanInfo (coordinates)
 	$GLOBALS['FloorplanObjectType']=11;			// FloorplanObjectType
+	$GLOBALS['Channel']=12;						// Channel
 	$GLOBALS['DHCPDeviceData']=28;				// DHCP
 	$GLOBALS['PhoneNumber']=31;					// Phone Number
 	$GLOBALS['NetworkInterfaces']=32;			// Network Interfaces
