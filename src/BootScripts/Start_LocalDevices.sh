@@ -2,7 +2,6 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func 
-. /usr/pluto/bin/LockUtils.sh
 
 function printHelp()
 {
@@ -23,13 +22,6 @@ if [ "$1" == "script" ]; then
 	
 	echo ". /usr/pluto/bin/Config_Ops.sh"
 	echo ". /usr/pluto/bin/pluto.func"
-fi
-
-if [ "$1" == "skiplock" ]; then
-	SkipLock="skiplock"
-	shift
-else
-	TryLock "Start_LocalDevices" || exit 0
 fi
 
 [ $# -ne 4 -a $# -ne 2 -a $# -ne 0 ] && printHelp && exit;
@@ -94,22 +86,17 @@ for command in $CommandList; do
 	elif [ `basename $0` = `basename $ChildCommand` ]; then
 		pushd /usr/pluto/bin
 		if [ -z "$Script" ]; then
-			/usr/pluto/bin/$ChildCommand skiplock -d $ChildDeviceID -r $DCERouter;
+			/usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter;
 		else
 			/usr/pluto/bin/$ChildCommand script "$MDIP" -d $ChildDeviceID -r $DCERouter;
 		fi
 		popd
 	else
 		if [ -z "$Script" ]; then
-			if grep -qF "$ChildDeviceID" "$AlreadyRunning" 2>/dev/null; then
-				Logging "$TYPE" "$SEVERITY_NORMAL" "Device $ChildDeviceID was marked as 'running'. Not starting again"
-			else
-				Logging "$TYPE" "$SEVERITY_NORMAL" "Launching device $ChildDeviceID in screen session ($ChildDescription)";
-				pushd /usr/pluto/bin
-				screen -d -m -S "$ChildDescription-$ChildDeviceID" /usr/pluto/bin/Spawn_Device.sh $ChildDeviceID $DCERouter $ChildCommand
-				popd
-				echo "$ChildDeviceID" >>"$AlreadyRunning"
-			fi
+			Logging "$TYPE" "$SEVERITY_NORMAL" "Launching device $ChildDeviceID in screen session ($ChildDescription)";
+			pushd /usr/pluto/bin
+			screen -d -m -S "$ChildDescription-$ChildDeviceID" /usr/pluto/bin/Spawn_Device.sh $ChildDeviceID $DCERouter $ChildCommand
+			popd
 		else
 			echo 'Logging "$TYPE" "$SEVERITY_NORMAL" "Launching device '"$ChildDeviceID"' in screen session ('"$ChildDescription"')";
 			pushd /usr/pluto/bin
@@ -118,5 +105,3 @@ for command in $CommandList; do
 		fi
 	fi;
 done
-
-[ -z "$SkipLock" ] && Unlock "Start_LocalDevices"

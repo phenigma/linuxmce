@@ -18,7 +18,7 @@ Unlock()
 	local Lock="$1"
 
 	[ -z "$Lock" ] && return 1
-	rm "$Dir/$1" 2>/dev/null
+	rm -f "$Dir/$1" 2>/dev/null
 }
 
 TryLock()

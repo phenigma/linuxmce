@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/LockUtils.sh
 
 mkdir -p /var/log/pluto
 echo "$(date) Spawn_Device $*" >> /var/log/pluto/Spawn_Device.log
@@ -16,10 +17,14 @@ module="$device_name" #$(basename $0)
 cmd_line="$3"
 
 AlreadyRunning="/tmp/pluto_spawned_local_devices.txt"
-if grep -qF "$ChildDeviceID" "$AlreadyRunning" 2>/dev/null; then
+WaitLock "Spawn_Device"
+if grep -q "^$device_id$" "$AlreadyRunning" 2>/dev/null; then
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "Device $ChildDeviceID was marked as 'running'. Not starting"
+	Unlock "Spawn_Device"
 	exit
 fi
+echo "$device_id" >>"$AlreadyRunning"
+Unlock "Spawn_Device"
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "device: $device_id ip: $ip_of_router cmd_line: $cmd_line"
 
@@ -84,12 +89,12 @@ while [ "$i" -le 500 ]; do
 	Ret="$?"
 	rm -f /tmp/pluto_exitcode_$device_id
 	
-	if [ -f /var/log/pluto/spawned_devices_$device_id ]; then
-		while read line; do
-			screen -list | grep -F "$line" | cut -d. -f1 | cut -d"$Tab" -f2 | xargs kill -9
-		done < /var/log/pluto/spawned_devices_$device_id
-	fi
-	screen -wipe &>/dev/null
+#	if [ -f /var/log/pluto/spawned_devices_$device_id ]; then
+#		while read line; do
+#			screen -list | grep -F "$line" | cut -d. -f1 | cut -d"$Tab" -f2 | xargs kill -9
+#		done < /var/log/pluto/spawned_devices_$device_id
+#	fi
+#	screen -wipe &>/dev/null
 	
 	echo "Return code: $Ret" >>"$new_log"
 	if [ "$Ret" -eq 3 ]; then

@@ -8,6 +8,8 @@ LogFile="/var/log/pluto/KillScreens.log"
 date >>"$LogFile"
 exec 2>>"$LogFile"
 
+killall -CHLD screen 2>/dev/null
+
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Killing these processes: $*"
 
 Tab="$(echo -e "\t")"
@@ -24,4 +26,5 @@ for Pid in $Pids; do
 done
 
 screen -wipe &>/dev/null
+killall -CHLD screen 2>/dev/null
 Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Killing finished"

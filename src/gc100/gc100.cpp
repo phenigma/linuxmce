@@ -827,8 +827,12 @@ std::string gc100::read_from_gc100()
 	return_value = "";
 
 //	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
-	while (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0) > 0)
+	while (1)
 	{
+		pthread_testcancel();
+		if (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0) <= 0)
+			break;
+		pthread_testcancel();
 		if (recv_buffer[recv_pos] == '\r')
 		{
 			recv_buffer[recv_pos] = '\0';
