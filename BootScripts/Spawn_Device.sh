@@ -50,6 +50,8 @@ fi
 
 Logging $TYPE $SEVERITY_STAGE "$module" "Entering $module"
 
+echo "$$ Spawn_Device of $Path$cmd_line (by $0)" >>/var/log/pluto/running.pids
+
 for i in $(seq 1 10); do
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Appending log..."
 	cat "$new_log" >> "$real_log"
