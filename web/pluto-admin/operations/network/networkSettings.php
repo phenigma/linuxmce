@@ -143,8 +143,8 @@ function networkSettings($output,$dbADO) {
 			<td colspan="3" align="center" bgcolor="#EEEEEE"><b>Network Settings</b></td>
 		</tr>
 		<tr>
-			<td colspan="3"><p>Your core has the following network adapters:<br><B>1. External network card '.@$externalInterfaceArray[0].'</B> </td>
-		<tr>
+			<td colspan="3">DHCP server on Core:</td>
+		</tr>
 		<tr>
 			<td width="20"><input type="checkbox" name="enableDHCP" value="1" '.(($enableDHCP==1)?'checked':'').' onclick="setIPRange();"></td>
 			<td align="left" colspan="2">Enable DHCP server</td>
@@ -162,7 +162,10 @@ function networkSettings($output,$dbADO) {
 			<td colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="nonPluto" style="color:'.(($enableDHCP!=1)?'#CCCCCC':'').'">Range of IP addresses for non-Pluto devices: </span><input type="text" maxlength="3" name="nonPlutoIP_1" size="3" value="'.@$nonPlutoIPArray[0].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_2" size="3" value="'.@$nonPlutoIPArray[1].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_3" size="3" value="'.@$nonPlutoIPArray[2].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_4" size="3" value="'.@$nonPlutoIPArray[3].'" '.(($enableDHCP==1)?'':'disabled').'> - <input type="text" maxlength="3" name="nonPlutoIP_5" size="3" value="'.@$nonPlutoIPArray[4].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_6" size="3" value="'.@$nonPlutoIPArray[5].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_7" size="3" value="'.@$nonPlutoIPArray[6].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_8" size="3" value="'.@$nonPlutoIPArray[7].'" '.(($enableDHCP==1)?'':'disabled').'></td>
 		</tr>
 		<tr>
-			<td colspan="3"><input type="radio" name="ipFrom" value="DHCP" onclick="setStaticIP(true);"'.(($ipFromDHCP==1)?'checked':'').' '.((@$nonPlutoIP==1)?'disabled':'').'> Obtain an IP address from DHCP</td>
+			<td colspan="3"><p>Your core has the following network adapters:<br><B>1. External network card '.@$externalInterfaceArray[0].'</B> </td>
+		</tr>
+		<tr>
+			<td colspan="3"><input type="radio" name="ipFrom" value="DHCP" onclick="setStaticIP(true);"'.(($ipFromDHCP==1)?'checked':'').'> Obtain an IP address from DHCP</td>
 		</tr>
 		<tr>
 			<td colspan="3"><input type="radio" name="ipFrom" value="static" onclick="setStaticIP(false);" '.(($ipFromDHCP==0)?'checked':'').'> Use a static IP address</td>
