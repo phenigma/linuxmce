@@ -28,6 +28,6 @@ for i in $(seq 1 $MaxIt); do
 	for HostMAC in $R; do
 		echo "Sending WOL magic packet (iteration $i of $MaxIt) to $HostMAC"
 		/usr/sbin/etherwake -b -i "$IntIf" "$HostMAC"
-		sleep 1
 	done
+	sleep 1
 done

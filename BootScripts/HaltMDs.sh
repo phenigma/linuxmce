@@ -24,3 +24,4 @@ R=$(RunSQL "$Q")
 for Host in $R; do
 	ShutDownRemote "$Host"
 done
+sleep 5
