@@ -7,6 +7,7 @@ Critical="/var/log/pluto/critical"
 Output="/var/log/pluto/archive"
 
 mkdir -p "$Output"
+mkdir -p "$Critical"
 
 for i in /var/log/pluto/*.{,new}log; do
 	grep "^01" "$i" >"$Critical/$(basename $i)"
@@ -17,6 +18,8 @@ tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump
 if [ "$1" != "0" ]; then
 	ftp-upload --ignore-quit-failure -h plutohome.com --passive -b -d upload "$Output/$Filename.critical.tar.gz" &
 fi
+
+rm -rf "$Critical"
 
 tar -czf "$Output/log-$Filename.tar.gz" /var/log/pluto/*.{,new}log
 rm -f /var/log/pluto/*.log
