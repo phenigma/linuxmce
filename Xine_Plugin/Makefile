@@ -23,11 +23,13 @@ XTRALDLIBS = -lpluto_main -lpluto_media
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \
+	XineMediaStream.cpp \
+	../Orbiter_Plugin/FollowMe_Plugin.cpp \
 	../Media_Plugin/MediaHandlerInfo.cpp \
 	../Media_Plugin/Media_Plugin.cpp \
 	../Media_Plugin/MediaAttributes.cpp \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
-	../File_Grids_Plugin/FileListGrid.cpp 
+	../File_Grids_Plugin/FileListGrid.cpp
 
 #<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -46,7 +48,7 @@ Xine_Plugin.so: $(sources:.cpp=.o) $(ROOT)/lib/libSerializeClass.a $(ROOT)/lib/l
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
 Xine_Plugin: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
