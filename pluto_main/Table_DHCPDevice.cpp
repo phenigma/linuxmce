@@ -141,10 +141,10 @@ return m_PK_DHCPDevice;}
 long int Row_DHCPDevice::FK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_DeviceTemplate;}
-__int64 Row_DHCPDevice::Mac_Range_Low_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+u_int64_t Row_DHCPDevice::Mac_Range_Low_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Mac_Range_Low;}
-__int64 Row_DHCPDevice::Mac_Range_High_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+u_int64_t Row_DHCPDevice::Mac_Range_High_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Mac_Range_High;}
 long int Row_DHCPDevice::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -170,10 +170,10 @@ m_PK_DHCPDevice = val; is_modified=true; is_null[0]=false;}
 void Row_DHCPDevice::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_DeviceTemplate = val; is_modified=true; is_null[1]=false;}
-void Row_DHCPDevice::Mac_Range_Low_set(__int64 val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DHCPDevice::Mac_Range_Low_set(u_int64_t val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Mac_Range_Low = val; is_modified=true; is_null[2]=false;}
-void Row_DHCPDevice::Mac_Range_High_set(__int64 val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DHCPDevice::Mac_Range_High_set(u_int64_t val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Mac_Range_High = val; is_modified=true; is_null[3]=false;}
 void Row_DHCPDevice::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);

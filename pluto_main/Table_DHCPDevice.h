@@ -83,8 +83,8 @@ class DLL_EXPORT Row_DHCPDevice : public TableRow, public SerializeClass
 		
 		long int m_PK_DHCPDevice;
 long int m_FK_DeviceTemplate;
-__int64 m_Mac_Range_Low;
-__int64 m_Mac_Range_High;
+u_int64_t m_Mac_Range_Low;
+u_int64_t m_Mac_Range_High;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -96,8 +96,8 @@ string m_psc_mod;
 	public:
 		long int PK_DHCPDevice_get();
 long int FK_DeviceTemplate_get();
-__int64 Mac_Range_Low_get();
-__int64 Mac_Range_High_get();
+u_int64_t Mac_Range_Low_get();
+u_int64_t Mac_Range_High_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -107,8 +107,8 @@ string psc_mod_get();
 		
 		void PK_DHCPDevice_set(long int val);
 void FK_DeviceTemplate_set(long int val);
-void Mac_Range_Low_set(__int64 val);
-void Mac_Range_High_set(__int64 val);
+void Mac_Range_Low_set(u_int64_t val);
+void Mac_Range_High_set(u_int64_t val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
