@@ -19,8 +19,9 @@ else
 	[ -e /etc/X11/XF86Config-4 ] && mv /etc/X11/XF86Config-4 /etc/X11/XF86Config-4.orig
 	awk '
 { print }
-/Monitor.*Monitor0/ { print("\tDefaultDepth\t16") }
-/Depth.*16/ { print("\t\tModes\t\"800x600\"") }
+/Monitor.*Monitor0/ { print("\tDefaultDepth\t24") }
+/Depth.*24/ { print("\t\tModes\t\"800x600\"") }
+/Driver.*i810/ { print("\tOption\t\"NoAccel\"\t\"True\"") }
 ' "$config" >/etc/X11/XF86Config-4.new
 	echo 'Section "ServerFlags"
 	Option "AllowMouseOpenFail" "true"
