@@ -7,7 +7,7 @@
 
 #include "DCERouter.h"
 #include <iostream>
-#include <process.h>
+#include <process>
 using namespace std;
 using namespace DCE;
 
