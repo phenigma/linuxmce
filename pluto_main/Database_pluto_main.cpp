@@ -13,6 +13,8 @@ using namespace std;
 
 #include "Database_pluto_main.h"
 
+#include "DCEConfig.h"
+
 Database_pluto_main::Database_pluto_main()
 {
 CreateTable_Array();
@@ -151,6 +153,7 @@ CreateTable_PhoneLineType();
 CreateTable_Pipe();
 CreateTable_RepositorySource();
 CreateTable_RepositorySource_URL();
+CreateTable_RepositoryType();
 CreateTable_Room();
 CreateTable_RoomType();
 CreateTable_SetupStep();
@@ -316,6 +319,7 @@ DeleteTable_PhoneLineType();
 DeleteTable_Pipe();
 DeleteTable_RepositorySource();
 DeleteTable_RepositorySource_URL();
+DeleteTable_RepositoryType();
 DeleteTable_Room();
 DeleteTable_RoomType();
 DeleteTable_SetupStep();
@@ -347,3 +351,7 @@ else
 {return true;}
 }
 
+bool Database_pluto_main::Connect(class DCEConfig *pDCEConfig)
+{
+	return Connect(pDCEConfig->m_sDBHost,pDCEConfig->m_sDBUser,pDCEConfig->m_sDBPassword,pDCEConfig->m_sDBName,pDCEConfig->m_iDBPort);
+}

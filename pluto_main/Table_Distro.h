@@ -83,8 +83,9 @@ class DLL_EXPORT Row_Distro : public TableRow, public SerializeClass
 string m_Description;
 string m_Define;
 long int m_FK_OperatingSystem;
+string m_ConfirmDependencyProgram;
 
-		bool is_null[4];
+		bool is_null[5];
 	
 		bool is_deleted;
 		bool is_added;
@@ -95,18 +96,22 @@ long int m_FK_OperatingSystem;
 string Description_get();
 string Define_get();
 long int FK_OperatingSystem_get();
+string ConfirmDependencyProgram_get();
 
 		
 		void PK_Distro_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
 void FK_OperatingSystem_set(long int val);
+void ConfirmDependencyProgram_set(string val);
 
 		
 		bool Define_isNull();
+bool ConfirmDependencyProgram_isNull();
 
 			
 		void Define_setNull(bool val);
+void ConfirmDependencyProgram_setNull(bool val);
 	
 	
 		void Delete();
@@ -130,7 +135,7 @@ void RepositorySource_FK_Distro_getrows(vector <class Row_RepositorySource*> *ro
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Distro+ m_Description+ m_Define+ m_FK_OperatingSystem;
+			StartSerializeList() + m_PK_Distro+ m_Description+ m_Define+ m_FK_OperatingSystem+ m_ConfirmDependencyProgram;
 		}
 	private:
 		void SetDefaultValues();
@@ -139,6 +144,7 @@ void RepositorySource_FK_Distro_getrows(vector <class Row_RepositorySource*> *ro
 string Description_asSQL();
 string Define_asSQL();
 string FK_OperatingSystem_asSQL();
+string ConfirmDependencyProgram_asSQL();
 
 	};
 

@@ -5,6 +5,7 @@
 #define DIRECTORY_Source_Includes_CONST 2
 #define DIRECTORY_Source_Implementation_CONST 3
 #define DIRECTORY_Binary_Library_CONST 4
+#define DIRECTORY_Configuration_CONST 5
 
 #define DIRECTORY_TABLE "Directory"
 #define DIRECTORY_PK_DIRECTORY_FIELD "PK_Directory"

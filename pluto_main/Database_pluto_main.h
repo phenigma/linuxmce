@@ -150,6 +150,7 @@ class Table_PhoneLineType* tblPhoneLineType;
 class Table_Pipe* tblPipe;
 class Table_RepositorySource* tblRepositorySource;
 class Table_RepositorySource_URL* tblRepositorySource_URL;
+class Table_RepositoryType* tblRepositoryType;
 class Table_Room* tblRoom;
 class Table_RoomType* tblRoomType;
 class Table_SetupStep* tblSetupStep;
@@ -307,6 +308,7 @@ class Table_PhoneLineType* PhoneLineType_get() { return tblPhoneLineType; }
 class Table_Pipe* Pipe_get() { return tblPipe; }
 class Table_RepositorySource* RepositorySource_get() { return tblRepositorySource; }
 class Table_RepositorySource_URL* RepositorySource_URL_get() { return tblRepositorySource_URL; }
+class Table_RepositoryType* RepositoryType_get() { return tblRepositoryType; }
 class Table_Room* Room_get() { return tblRoom; }
 class Table_RoomType* RoomType_get() { return tblRoomType; }
 class Table_SetupStep* SetupStep_get() { return tblSetupStep; }
@@ -328,6 +330,7 @@ class Table_Variable* Variable_get() { return tblVariable; }
 class Table_Version* Version_get() { return tblVersion; }
 class Table_VertAlignment* VertAlignment_get() { return tblVertAlignment; }
 bool Connect(string host, string user, string pass, string DBName, int port);
+bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
 private:
 void CreateTable_Array();
@@ -466,6 +469,7 @@ void CreateTable_PhoneLineType();
 void CreateTable_Pipe();
 void CreateTable_RepositorySource();
 void CreateTable_RepositorySource_URL();
+void CreateTable_RepositoryType();
 void CreateTable_Room();
 void CreateTable_RoomType();
 void CreateTable_SetupStep();
@@ -622,6 +626,7 @@ void DeleteTable_PhoneLineType();
 void DeleteTable_Pipe();
 void DeleteTable_RepositorySource();
 void DeleteTable_RepositorySource_URL();
+void DeleteTable_RepositoryType();
 void DeleteTable_Room();
 void DeleteTable_RoomType();
 void DeleteTable_SetupStep();

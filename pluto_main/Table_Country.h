@@ -117,7 +117,8 @@ void Define_set(string val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void RepositorySource_URL_FK_Country_getrows(vector <class Row_RepositorySource_URL*> *rows);
+		void Installation_FK_Country_getrows(vector <class Row_Installation*> *rows);
+void RepositorySource_URL_FK_Country_getrows(vector <class Row_RepositorySource_URL*> *rows);
 
 
 		// Setup binary serialization

@@ -118,6 +118,7 @@ is_null[1] = false;
 is_null[2] = true;
 m_FK_OperatingSystem = 0;
 is_null[3] = false;
+is_null[4] = true;
 
 
 	is_added=false;
@@ -137,6 +138,9 @@ return m_Define;}
 long int Row_Distro::FK_OperatingSystem_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_OperatingSystem;}
+string Row_Distro::ConfirmDependencyProgram_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_ConfirmDependencyProgram;}
 
 		
 void Row_Distro::PK_Distro_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -151,16 +155,25 @@ m_Define = val; is_modified=true; is_null[2]=false;}
 void Row_Distro::FK_OperatingSystem_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_OperatingSystem = val; is_modified=true; is_null[3]=false;}
+void Row_Distro::ConfirmDependencyProgram_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_ConfirmDependencyProgram = val; is_modified=true; is_null[4]=false;}
 
 		
 bool Row_Distro::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
+bool Row_Distro::ConfirmDependencyProgram_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
 
 			
 void Row_Distro::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
+void Row_Distro::ConfirmDependencyProgram_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
 	
 
 string Row_Distro::PK_Distro_asSQL()
@@ -213,6 +226,18 @@ sprintf(buf, "%li", m_FK_OperatingSystem);
 return buf;
 }
 
+string Row_Distro::ConfirmDependencyProgram_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[81];
+mysql_real_escape_string(table->database->db_handle, buf, m_ConfirmDependencyProgram.c_str(), (unsigned long) m_ConfirmDependencyProgram.size());
+return string()+"\""+buf+"\"";
+}
+
 
 
 
@@ -251,10 +276,10 @@ void Table_Distro::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->ConfirmDependencyProgram_asSQL();
 
 	
-		string query = "insert into Distro (PK_Distro, Description, Define, FK_OperatingSystem) values ("+
+		string query = "insert into Distro (PK_Distro, Description, Define, FK_OperatingSystem, ConfirmDependencyProgram) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -303,7 +328,7 @@ condition = condition + "PK_Distro=" + tmp_PK_Distro;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL();
+update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", ConfirmDependencyProgram="+pRow->ConfirmDependencyProgram_asSQL();
 
 	
 		string query = "update Distro set " + update_values_list + " where " + condition;
@@ -426,6 +451,17 @@ else
 {
 pRow->is_null[3]=false;
 sscanf(row[3], "%li", &(pRow->m_FK_OperatingSystem));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_ConfirmDependencyProgram = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_ConfirmDependencyProgram = string(row[4],lengths[4]);
 }
 
 
@@ -576,6 +612,17 @@ else
 {
 pRow->is_null[3]=false;
 sscanf(row[3], "%li", &(pRow->m_FK_OperatingSystem));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_ConfirmDependencyProgram = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_ConfirmDependencyProgram = string(row[4],lengths[4]);
 }
 
 

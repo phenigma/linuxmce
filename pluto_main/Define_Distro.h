@@ -12,6 +12,8 @@
 #define DISTRO_DEFINE_TABLE_FIELD "Distro.Define"
 #define DISTRO_FK_OPERATINGSYSTEM_FIELD "FK_OperatingSystem"
 #define DISTRO_FK_OPERATINGSYSTEM_TABLE_FIELD "Distro.FK_OperatingSystem"
+#define DISTRO_CONFIRMDEPENDENCYPROGRAM_FIELD "ConfirmDependencyProgram"
+#define DISTRO_CONFIRMDEPENDENCYPROGRAM_TABLE_FIELD "Distro.ConfirmDependencyProgram"
 
 
 #endif

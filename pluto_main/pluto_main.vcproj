@@ -514,6 +514,9 @@
 				RelativePath=".\Table_RepositorySource_URL.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_RepositoryType.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Room.cpp">
 			</File>
 			<File

@@ -86,6 +86,7 @@ string m_Address;
 string m_City;
 string m_State;
 string m_Zip;
+long int m_FK_Country;
 string m_ActivationCode;
 string m_LastStatus;
 string m_LastAlive;
@@ -98,7 +99,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[18];
+		bool is_null[19];
 	
 		bool is_deleted;
 		bool is_added;
@@ -112,6 +113,7 @@ string Address_get();
 string City_get();
 string State_get();
 string Zip_get();
+long int FK_Country_get();
 string ActivationCode_get();
 string LastStatus_get();
 string LastAlive_get();
@@ -132,6 +134,7 @@ void Address_set(string val);
 void City_set(string val);
 void State_set(string val);
 void Zip_set(string val);
+void FK_Country_set(long int val);
 void ActivationCode_set(string val);
 void LastStatus_set(string val);
 void LastAlive_set(string val);
@@ -187,7 +190,8 @@ void psc_frozen_setNull(bool val);
 		class Table_Installation *Table_Installation_get() { return table; };
 
 		// Return the rows for foreign keys 
-		class Row_Version* FK_Version_getrow();
+		class Row_Country* FK_Country_getrow();
+class Row_Version* FK_Version_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -205,7 +209,7 @@ void Users_FK_Installation_Main_getrows(vector <class Row_Users*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Installation+ m_Description+ m_Name+ m_Address+ m_City+ m_State+ m_Zip+ m_ActivationCode+ m_LastStatus+ m_LastAlive+ m_isActive+ m_FK_Version+ m_isMonitored+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Installation+ m_Description+ m_Name+ m_Address+ m_City+ m_State+ m_Zip+ m_FK_Country+ m_ActivationCode+ m_LastStatus+ m_LastAlive+ m_isActive+ m_FK_Version+ m_isMonitored+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -217,6 +221,7 @@ string Address_asSQL();
 string City_asSQL();
 string State_asSQL();
 string Zip_asSQL();
+string FK_Country_asSQL();
 string ActivationCode_asSQL();
 string LastStatus_asSQL();
 string LastAlive_asSQL();

@@ -21,6 +21,7 @@ using namespace std;
 #include "Table_Package.h"
 #include "Table_Distro.h"
 #include "Table_RepositorySource.h"
+#include "Table_RepositoryType.h"
 
 
 
@@ -118,6 +119,7 @@ is_null[2] = true;
 is_null[3] = true;
 is_null[4] = true;
 is_null[5] = true;
+is_null[6] = true;
 
 
 	is_added=false;
@@ -137,6 +139,9 @@ return m_Name;}
 long int Row_Package_Distro::FK_RepositorySource_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_RepositorySource;}
+long int Row_Package_Distro::FK_RepositoryType_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_RepositoryType;}
 string Row_Package_Distro::Repository_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Repository;}
@@ -157,12 +162,15 @@ m_Name = val; is_modified=true; is_null[2]=false;}
 void Row_Package_Distro::FK_RepositorySource_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_RepositorySource = val; is_modified=true; is_null[3]=false;}
+void Row_Package_Distro::FK_RepositoryType_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_RepositoryType = val; is_modified=true; is_null[4]=false;}
 void Row_Package_Distro::Repository_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Repository = val; is_modified=true; is_null[4]=false;}
+m_Repository = val; is_modified=true; is_null[5]=false;}
 void Row_Package_Distro::Version_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Version = val; is_modified=true; is_null[5]=false;}
+m_Version = val; is_modified=true; is_null[6]=false;}
 
 		
 bool Row_Package_Distro::Name_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -171,12 +179,15 @@ return is_null[2];}
 bool Row_Package_Distro::FK_RepositorySource_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_Package_Distro::Repository_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Distro::FK_RepositoryType_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_Package_Distro::Version_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Distro::Repository_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
+bool Row_Package_Distro::Version_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
 
 			
 void Row_Package_Distro::Name_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -185,12 +196,15 @@ is_null[2]=val;}
 void Row_Package_Distro::FK_RepositorySource_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
-void Row_Package_Distro::Repository_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Distro::FK_RepositoryType_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_Package_Distro::Version_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Distro::Repository_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
+void Row_Package_Distro::Version_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
 	
 
 string Row_Package_Distro::FK_Package_asSQL()
@@ -244,11 +258,24 @@ sprintf(buf, "%li", m_FK_RepositorySource);
 return buf;
 }
 
-string Row_Package_Distro::Repository_asSQL()
+string Row_Package_Distro::FK_RepositoryType_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_RepositoryType);
+
+return buf;
+}
+
+string Row_Package_Distro::Repository_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
 return "NULL";
 
 char buf[61];
@@ -260,7 +287,7 @@ string Row_Package_Distro::Version_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char buf[61];
@@ -311,10 +338,10 @@ void Table_Package_Distro::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->Repository_asSQL()+", "+pRow->Version_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->FK_RepositoryType_asSQL()+", "+pRow->Repository_asSQL()+", "+pRow->Version_asSQL();
 
 	
-		string query = "insert into Package_Distro (FK_Package, FK_Distro, Name, FK_RepositorySource, Repository, Version) values ("+
+		string query = "insert into Package_Distro (FK_Package, FK_Distro, Name, FK_RepositorySource, FK_RepositoryType, Repository, Version) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -364,7 +391,7 @@ condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Distro=" + tm
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", Name="+pRow->Name_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", Repository="+pRow->Repository_asSQL()+", Version="+pRow->Version_asSQL();
+update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", Name="+pRow->Name_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", FK_RepositoryType="+pRow->FK_RepositoryType_asSQL()+", Repository="+pRow->Repository_asSQL()+", Version="+pRow->Version_asSQL();
 
 	
 		string query = "update Package_Distro set " + update_values_list + " where " + condition;
@@ -495,23 +522,34 @@ sscanf(row[3], "%li", &(pRow->m_FK_RepositorySource));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Repository = "";
+pRow->m_FK_RepositoryType = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Repository = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_FK_RepositoryType));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Version = "";
+pRow->m_Repository = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Version = string(row[5],lengths[5]);
+pRow->m_Repository = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Version = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_Version = string(row[6],lengths[6]);
 }
 
 
@@ -670,23 +708,34 @@ sscanf(row[3], "%li", &(pRow->m_FK_RepositorySource));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Repository = "";
+pRow->m_FK_RepositoryType = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Repository = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_FK_RepositoryType));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Version = "";
+pRow->m_Repository = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Version = string(row[5],lengths[5]);
+pRow->m_Repository = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Version = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_Version = string(row[6],lengths[6]);
 }
 
 
@@ -717,6 +766,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_RepositorySource *pTable = table->database->RepositorySource_get();
 return pTable->GetRow(m_FK_RepositorySource);
+}
+class Row_RepositoryType* Row_Package_Distro::FK_RepositoryType_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_RepositoryType *pTable = table->database->RepositoryType_get();
+return pTable->GetRow(m_FK_RepositoryType);
 }
 
 

@@ -144,6 +144,7 @@ Table_PhoneLineType.cpp \
 Table_Pipe.cpp \
 Table_RepositorySource.cpp \
 Table_RepositorySource_URL.cpp \
+Table_RepositoryType.cpp \
 Table_Room.cpp \
 Table_RoomType.cpp \
 Table_SetupStep.cpp \
