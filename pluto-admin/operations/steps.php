@@ -1,21 +1,43 @@
 <?
 function steps($output,$dbADO) {
+	/* @var $dbADO ADOConnection */
+
 	$out='';
 	$currentSection = @cleanString($_REQUEST['rightSection']);
 	$installationID = (int)@$_SESSION['installationID'];
 	$currentItem=(isset($_REQUEST['pageSetup']) && (int)$_REQUEST['pageSetup']>0)?(int)$_REQUEST['pageSetup']:$GLOBALS['InstallationPage'];
 	$rightFile='index.php?section=installationSettings';
 
+	if(isset($_REQUEST['senderID']) && (int)$_REQUEST['senderID']>0){
+		$senderStep=(int)$_REQUEST['senderID'];
+		$querySS='SELECT * FROM SetupStep WHERE FK_Installation=? AND FK_PageSetup=?';
+		$resSS=$dbADO->Execute($querySS,array($installationID,$senderStep));
+		if($resSS->RecordCount()==0){
+			$insertSS='INSERT INTO SetupStep (FK_Installation, FK_PageSetup) VALUES (?,?)';
+			$dbADO->Execute($insertSS,array($installationID,$senderStep));
+		}
+	}
+	
+	$scriptInHead ='
+		<script>
+		function setMenuItem(mainUrl,selfPage,sender)
+		{
+			top.basefrm.location=mainUrl;
+			self.location=\'index.php?section=wizard&pageSetup=\'+selfPage+\'&senderID=\'+sender;				
+		}
+		</script>
+	';
+	
 	$selectMenu = "
 		SELECT * FROM PageSetup 
-		LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup
-		WHERE (FK_Installation IS NULL OR FK_Installation=?) AND FK_PageSetup_Parent = 1 AND showInTopMenu = 1 AND Website=1
+		LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (FK_Installation IS NULL OR FK_Installation=?)
+		WHERE FK_PageSetup_Parent = 1 AND showInTopMenu = 1 AND Website=1
 		";
 	$resSelectMenu = $dbADO->Execute($selectMenu,$installationID);
 	$out.='<table border="0" cellpading="2" cellspacing="0" width="100%">
 			<tr>
 				<td colspan="3" align="center">
-					<img src="include/images/logo_pluto.jpg">
+					<a href="index.php"><img src="include/images/logo_pluto.jpg" border="0"></a>
 				</td>
 			</tr>
 			<tr>
@@ -31,8 +53,8 @@ function steps($output,$dbADO) {
 	while ($rootNodes = $resrootNodes->FetchRow()) {
 		$selectLevel1 = "
 			SELECT * FROM PageSetup 
-			LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup
-			WHERE (FK_Installation IS NULL OR FK_Installation=?) AND FK_PageSetup_Parent = {$rootNodes['PK_PageSetup']} AND showInTopMenu = 1";
+			LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (FK_Installation IS NULL OR FK_Installation=?)
+			WHERE FK_PageSetup_Parent = {$rootNodes['PK_PageSetup']} AND showInTopMenu = 1";
 		$resSelectLevel1 = $dbADO->Execute($selectLevel1,$installationID);
 		while ($rowSelectLevel1 = $resSelectLevel1->FetchRow()) {
 			if($rowSelectLevel1['pageURL']!='')
@@ -42,8 +64,8 @@ function steps($output,$dbADO) {
 			
 			$selectLevel2 = "
 				SELECT * FROM PageSetup
-				LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup
-				WHERE (FK_Installation IS NULL OR FK_Installation=?) AND FK_PageSetup_Parent = {$rowSelectLevel1['PK_PageSetup']} AND showInTopMenu = 1";
+				LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (FK_Installation IS NULL OR FK_Installation=?)
+				WHERE FK_PageSetup_Parent = {$rowSelectLevel1['PK_PageSetup']} AND showInTopMenu = 1";
 			$resSelectLevel2 = $dbADO->Execute($selectLevel2,$installationID);
 			while ($rowSelectLevel2 = $resSelectLevel2->FetchRow()) {
 				if($rowSelectLevel2['pageURL']!='')
@@ -65,38 +87,38 @@ function steps($output,$dbADO) {
 		$out.='
 			<tr>
 				<td></td>
-				<td>'.$wizardLink.'</td>
+				<td height="22">'.$wizardLink.'</td>
 				<td align="right">&nbsp;</td>
 			</tr>
 			';
 		//get childs (ne-recursive method)
 		$selectLevel1 = "
 			SELECT * FROM PageSetup 
-			LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup
-			WHERE (FK_Installation IS NULL OR FK_Installation=?) AND FK_PageSetup_Parent = {$rowSelectMenu['PK_PageSetup']} AND showInTopMenu = 1";
+			LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (FK_Installation IS NULL OR FK_Installation=?)
+			WHERE FK_PageSetup_Parent = {$rowSelectMenu['PK_PageSetup']} AND showInTopMenu = 1";
 
 		$resSelectSubMenu1 = $dbADO->Execute($selectLevel1,$installationID);
 		while ($rowSelectSubMenu1 = $resSelectSubMenu1->FetchRow()) {
 
 			//get level 2 childs (ne-recursive method)
-			$wizardLink=($rowSelectSubMenu1['pageURL']!='')?'<a href="'.$rowSelectSubMenu1['pageURL'].'"  target="basefrm">'.$rowSelectSubMenu1['Description'].'</a>':'<b>'.$rowSelectSubMenu1['Description'].'</b>';
+			$wizardLink=($rowSelectSubMenu1['pageURL']!='')?'<a href="#" onClick="setMenuItem(\''.$rowSelectSubMenu1['pageURL'].'\',\''.@$rowSelectSubMenu1['PK_PageSetup'].'\',\''.@$rowSelectSubMenu1['PK_PageSetup'].'\')">'.$rowSelectSubMenu1['Description'].'</a>':'<b>'.$rowSelectSubMenu1['Description'].'</b>';
 			if($rowSelectSubMenu1['FK_Installation']!='')
 				$wizardLink.='<img src="include/images/sync.gif" align="middle">';
 			$out.='
 			<tr>
 				<td></td>
 				<td bgcolor="'.(($currentItem==$rowSelectSubMenu1['PK_PageSetup'])?'#CCCCCC':'').'">&nbsp;&nbsp;&nbsp;&nbsp;'.$wizardLink.'</td>
-				<td align="right" bgcolor="'.(($currentItem==$rowSelectSubMenu1['PK_PageSetup'])?'#CCCCCC':'').'"><a href="index.php?section=wizard&pageSetup='.@$nextItem[$rowSelectSubMenu1['PK_PageSetup']].'" target="_self">Next'.'</a></td>
+				<td align="right" bgcolor="'.(($currentItem==$rowSelectSubMenu1['PK_PageSetup'])?'#CCCCCC':'').'"><a href="#" onClick="setMenuItem(\''.$rightFile.'\',\''.@$nextItem[$rowSelectSubMenu1['PK_PageSetup']].'\',\''.$rowSelectSubMenu1['PK_PageSetup'].'\')">Next'.'</a></td>
 			</tr>';
 			$selectLevel2 = "
 				SELECT * FROM PageSetup
-				LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup
-				WHERE (FK_Installation IS NULL OR FK_Installation=?) AND FK_PageSetup_Parent = {$rowSelectSubMenu1['PK_PageSetup']} AND showInTopMenu = 1";
+				LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (FK_Installation IS NULL OR FK_Installation=?)
+				WHERE FK_PageSetup_Parent = {$rowSelectSubMenu1['PK_PageSetup']} AND showInTopMenu = 1";
 
 			$resSelectSubMenu2 = $dbADO->Execute($selectLevel2,$installationID);
 
 			while ($rowSelectSubMenu2 = $resSelectSubMenu2->FetchRow()) {
-				$wizardLink=($rowSelectSubMenu2['pageURL']!='')?'<a href="'.$rowSelectSubMenu2['pageURL'].'"  target="basefrm">'.$rowSelectSubMenu2['Description'].'</a>':'<b>'.$rowSelectSubMenu2['Description'].'</b>';
+				$wizardLink=($rowSelectSubMenu2['pageURL']!='')?'<a href="#" onClick="setMenuItem(\''.$rowSelectSubMenu2['pageURL'].'\',\''.@$rowSelectSubMenu2['PK_PageSetup'].'\',\''.@$rowSelectSubMenu2['PK_PageSetup'].'\')">'.$rowSelectSubMenu2['Description'].'</a>':'<b>'.$rowSelectSubMenu2['Description'].'</b>';
 				if($rowSelectSubMenu2['FK_Installation']!='')
 					$wizardLink.='<img src="include/images/sync.gif" align="middle">';
 
@@ -104,7 +126,7 @@ function steps($output,$dbADO) {
 			<tr>
 				<td></td>
 				<td bgcolor="'.(($currentItem==$rowSelectSubMenu2['PK_PageSetup'])?'#CCCCCC':'').'">&nbsp;&nbsp;&nbsp;&nbsp;'.$wizardLink.'</td>
-				<td align="right" bgcolor="'.(($currentItem==$rowSelectSubMenu2['PK_PageSetup'])?'#CCCCCC':'').'"><a href="index.php?section=wizard&pageSetup='.@$nextItem[$rowSelectSubMenu2['PK_PageSetup']].'" target="_self">Next</a></td>
+				<td align="right" bgcolor="'.(($currentItem==$rowSelectSubMenu2['PK_PageSetup'])?'#CCCCCC':'').'"><a href="#" onClick="setMenuItem(\''.$rightFile.'\',\''.@$nextItem[$rowSelectSubMenu1['PK_PageSetup']].'\',\''.$rowSelectSubMenu1['PK_PageSetup'].'\')">Next</a></td>
 			</tr>';
 			}
 			$resSelectSubMenu2->Close();
@@ -114,7 +136,8 @@ function steps($output,$dbADO) {
 	$resSelectMenu->Close();
 	$out.='</table>';
 	
-	$output->setScriptInBody('bgColor="#F0F3F8" onLoad="top.basefrm.location=\''.$rightFile.'\'"');
+	$output->setScriptInHead($scriptInHead);
+	$output->setScriptInBody('bgColor="#F0F3F8"');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();  

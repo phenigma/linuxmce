@@ -59,7 +59,7 @@ function eventsHandler($output,$dbADO) {
 			SELECT EventHandler.*, CannedEvents.Description AS CannedEvent
 			FROM EventHandler
 				INNER JOIN CannedEvents ON FK_CannedEvents=PK_CannedEvents
-			WHERE FK_Installation=?
+			WHERE EventHandler.FK_Installation=?
 		';
 		$resEvents=$dbADO->Execute($queryEvents,$installationID);
 		if($resEvents->RecordCount()==0){
@@ -124,8 +124,8 @@ function eventsHandler($output,$dbADO) {
 		$dbADO->Execute($insertCriteriaParmNesting);
 		$insertID=$dbADO->Insert_ID();
 		
-		$insertCriteria='INSERT INTO Criteria(FK_CriteriaParmNesting,FK_CriteriaList,Description) VALUES (?,?,?)';
-		$dbADO->Execute($insertCriteria,array($insertID,$GLOBALS['EventCriteriaList'],'event'));
+		$insertCriteria='INSERT INTO Criteria(FK_CriteriaParmNesting,FK_CriteriaList,Description,FK_Installation) VALUES (?,?,?,?)';
+		$dbADO->Execute($insertCriteria,array($insertID,$GLOBALS['EventCriteriaList'],'event',$installationID));
 		$criteriaID=$dbADO->Insert_ID();
 		
 		$insertCommandGroup='

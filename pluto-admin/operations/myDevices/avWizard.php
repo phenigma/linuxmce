@@ -446,7 +446,6 @@ function avWizard($output,$dbADO) {
 				$oldTo=$oldAudioPipeArray[0];
 				$oldInput=$oldAudioPipeArray[1];
 				$oldOutput=$oldAudioPipeArray[2];
-				
 				$audioOutput=(isset($_POST['audioOutput_'.$value]) && $_POST['audioOutput_'.$value]!='0')?cleanInteger($_POST['audioOutput_'.$value]):NULL;
 				$audioInput=(isset($_POST['audioInput_'.$value]) && $_POST['audioInput_'.$value]!='0')?cleanInteger($_POST['audioInput_'.$value]):NULL;
 				$audioConnectTo=(isset($_POST['audioConnectTo_'.$value]) && $_POST['audioConnectTo_'.$value]!='0')?cleanInteger($_POST['audioConnectTo_'.$value]):NULL;
@@ -460,11 +459,16 @@ function avWizard($output,$dbADO) {
 						if(!is_null($audioConnectTo))
 							$dbADO->Execute($insertDDP,array($value,$audioConnectTo,$audioInput,$audioOutput,$GLOBALS['AudioPipe']));
 					}else{
-						$updateDDP='
-							UPDATE Device_Device_Pipe 
-							SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
-							WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
-						$dbADO->Execute($updateDDP,array($audioConnectTo,$audioInput,$audioOutput,$value,$oldTo,$GLOBALS['AudioPipe']));
+						if(is_null($audioConnectTo)){
+							$deleteDDP='DELETE FROM Device_Device_Pipe WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
+							$dbADO->Execute($deleteDDP,array($value,$oldTo,$GLOBALS['AudioPipe']));
+						}else{
+							$updateDDP='
+								UPDATE Device_Device_Pipe 
+								SET FK_Device_To=?, FK_Input=?, FK_Output=? 
+								WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
+							$dbADO->Execute($updateDDP,array($audioConnectTo,$audioInput,$audioOutput,$value,$oldTo,$GLOBALS['AudioPipe']));
+						}
 					}
 					$anchor=($cmd==1)?'#AudioPipe_'.$value.'':'';
 				}
@@ -487,11 +491,16 @@ function avWizard($output,$dbADO) {
 						if(!is_null($videoConnectTo))
 							$dbADO->Execute($insertDDP,array($value,$videoConnectTo,$videoInput,$videoOutput,$GLOBALS['VideoPipe']));
 					}else{
-						$updateDDP='
-							UPDATE Device_Device_Pipe 
-							SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
-							WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
-						$dbADO->Execute($updateDDP,array($videoConnectTo,$videoInput,$videoOutput,$value,$oldTo,$GLOBALS['VideoPipe']));
+						if(is_null($videoConnectTo)){
+							$deleteDDP='DELETE FROM Device_Device_Pipe WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
+							$dbADO->Execute($deleteDDP,array($value,$oldTo,$GLOBALS['VideoPipe']));
+						}else{
+							$updateDDP='
+								UPDATE Device_Device_Pipe 
+								SET FK_Device_To=?, FK_Input=?, FK_Output=? 
+								WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
+							$dbADO->Execute($updateDDP,array($videoConnectTo,$videoInput,$videoOutput,$value,$oldTo,$GLOBALS['VideoPipe']));
+						}
 					}
 					$anchor='#VideoPipe_'.$value;
 				}

@@ -12,7 +12,7 @@ function editEventHandler($output,$dbADO) {
 		FROM EventHandler
 			INNER JOIN CannedEvents ON FK_CannedEvents=PK_CannedEvents
 			INNER JOIN Criteria ON FK_Criteria=PK_Criteria
-		WHERE FK_Installation=? AND PK_EventHandler=?
+		WHERE EventHandler.FK_Installation=? AND PK_EventHandler=?
 	';
 	$resEH=$dbADO->Execute($queryEventHandler,array($installationID,$eventHandlerID));
 	$rowEH=$resEH->FetchRow();

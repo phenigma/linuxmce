@@ -13,50 +13,43 @@ $parentID = isset($_REQUEST['parentID'])?cleanInteger($_REQUEST['parentID']):0;
 $whereClause='';
 
 if ($parentID!=0) {
-$selectMasterDeviceForParent = 'SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = ?';
-$resSelectMasterDeviceForParent = $dbADO->Execute($selectMasterDeviceForParent,array($parentID));
- if ($resSelectMasterDeviceForParent) {
- 	$rowSelectMasterDeviceForParent = $resSelectMasterDeviceForParent->FetchRow();
- 	$DeviceTemplateForParent = $rowSelectMasterDeviceForParent['FK_DeviceTemplate']; 	
- 	
- 	$querySelectControlledViaCategory ='SELECT FK_DeviceCategory FROM DeviceTemplate_DeviceCategory_ControlledVia where FK_DeviceTemplate = ?';
-	$resSelectControlledViaCategory = $dbADO->Execute($querySelectControlledViaCategory,array($DeviceTemplateForParent));
+	$selectMasterDeviceForParent = '
+		SELECT Device.FK_DeviceTemplate,FK_DeviceCategory,FK_DeviceCategory_Parent 
+		FROM Device 
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+		WHERE PK_Device = ?';
+	$resSelectMasterDeviceForParent = $dbADO->Execute($selectMasterDeviceForParent,array($parentID));
+	if ($resSelectMasterDeviceForParent) {
+		$rowSelectMasterDeviceForParent = $resSelectMasterDeviceForParent->FetchRow();
+		$DeviceTemplateForParent = $rowSelectMasterDeviceForParent['FK_DeviceTemplate'];
+		$DeviceCategoryForParent = $rowSelectMasterDeviceForParent['FK_DeviceCategory'];
+		$ParentDeviceCategoryForParent = $rowSelectMasterDeviceForParent['FK_DeviceCategory_Parent'];
 
-	$GLOBALS['childsDeviceCategoryArray'] = array();
-		if ($resSelectControlledViaCategory) {
-			while ($rowSelectControlledVia = $resSelectControlledViaCategory->FetchRow()) {
-				$GLOBALS['childsDeviceCategoryArray'][]=$rowSelectControlledVia['FK_DeviceCategory'];
-				getDeviceCategoryChildsArray($rowSelectControlledVia['FK_DeviceCategory'],$dbADO);			
+		$queryDTControlledByCategory ='SELECT FK_DeviceTemplate FROM DeviceTemplate_DeviceCategory_ControlledVia WHERE FK_DeviceCategory = ? OR FK_DeviceCategory = ?';
+		$resDTControlledByCategory = $dbADO->Execute($queryDTControlledByCategory,array($DeviceCategoryForParent,$ParentDeviceCategoryForParent));
+
+		$childsDeviceTemplateArray = array();
+		if ($resDTControlledByCategory) {
+			while ($rowDTControlledByCategory= $resDTControlledByCategory->FetchRow()) {
+				$childsDeviceTemplateArray[]=$rowDTControlledByCategory['FK_DeviceTemplate'];
 			}
 		}
-	$controlledViaCategoryArray = cleanArray($GLOBALS['childsDeviceCategoryArray']);
-	
-	$querySelectControlledViaDeviceTemplate ='SELECT  FK_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE FK_DeviceTemplate = ?';
-	$resSelectControlledViaDeviceTemplate= $dbADO->Execute($querySelectControlledViaDeviceTemplate,array($DeviceTemplateForParent));
 
-	$childsDeviceTemplateArray = array();
+		$querySelectControlledViaDeviceTemplate ='SELECT FK_DeviceTemplate FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE FK_DeviceTemplate_ControlledVia = ?';
+		$resSelectControlledViaDeviceTemplate= $dbADO->Execute($querySelectControlledViaDeviceTemplate,array($DeviceTemplateForParent));
+
+		
 		if ($resSelectControlledViaDeviceTemplate) {
 			while ($rowSelectControlledVia = $resSelectControlledViaDeviceTemplate->FetchRow()) {
-				$childsDeviceTemplateArray[]=$rowSelectControlledVia['FK_DeviceTemplate_ControlledVia'];				
+				$childsDeviceTemplateArray[]=$rowSelectControlledVia['FK_DeviceTemplate'];
 			}
 		}
-	
-	
-	
-	if (count($controlledViaCategoryArray)>0) {
-		$whereClause.=' and (FK_DeviceCategory in ('.join(",",$controlledViaCategoryArray).')';
-		if (count($childsDeviceTemplateArray)) {
-			$whereClause.=' OR PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
-		}
-		$whereClause.=')';
-	} else {
+
 		if (count($childsDeviceTemplateArray)) {
 			$whereClause.=' AND PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
 		}
 	}
-	
- }
- 
 }
 
 

@@ -37,6 +37,7 @@ function createEventCategory($output,$dbADO) {
 		<script>
 		 	var frmvalidator = new formValidator("createEventCategory");			
  			frmvalidator.addValidation("EventCategoryDescription","req","Please enter a name for this Event List Category!");
+			frmvalidator.addValidation("EventCategoryParent","dontselect=0","Please select a parent category!");
 		</script>
 		';
 		
@@ -47,12 +48,12 @@ function createEventCategory($output,$dbADO) {
 		if ($category == 0) {
 			$insertEvent = 'insert into EventCategory(Description) values(?)';
 		} else {
-			$insertEvent = 'insert into EventCategory(Description, FK_EventCategory_Parent) values(?,'.$category.')';
+			$insertEvent = 'insert into EventCategory(Description, FK_EventCategory_Parent) values(?,?)';
 		}
 		
 		if ($EventCategoryDescription!='') {
 			
-			$query = $dbADO->_Execute($insertEvent,array($EventCategoryDescription));
+			$query = $dbADO->Execute($insertEvent,array($EventCategoryDescription,$category));
 			$out.="
 			<script>
 				alert('Event List Category added!');

@@ -37,6 +37,7 @@ function createEventCategory($output,$dbADO) {
 		<script>
 		 	var frmvalidator = new formValidator("createEventCategory");			
  			frmvalidator.addValidation("EventCategoryDescription","req","Please enter a name for this Event List Category!");
+			frmvalidator.addValidation("EventCategoryParent","dontselect=0","Please select a parent category!");
 		</script>
 		';
 		

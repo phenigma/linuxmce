@@ -183,7 +183,8 @@ $out='';
 				</tr>
 				<tr>
 					<td valign="top">Is PlugIg</td>
-					<td><input type="checkbox" name="isPlugIn" value="1" '.(($isPlugIn==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'></td>
+					<td><input type="checkbox" name="isPlugIn" value="1" '.(($isPlugIn==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
+					<input type="hidden" name="oldIsPlugIn" value="'.(($isPlugIn==1)?'1':'0').'"></td>
 				</tr>					
 				<tr>
 					<td valign="top">Contact</td>
@@ -566,6 +567,7 @@ $out='';
 		$old_isAVDevice = cleanInteger(@$_POST['old_isAVDevice']);
 		$package = (@$_POST['package']!='0')?cleanInteger(@$_POST['package']):NULL;
 		$isPlugIn = cleanInteger(@$_POST['isPlugIn']);
+		$oldIsPlugIn = cleanInteger(@$_POST['oldIsPlugIn']);
 		
 		$locationGoTo=''; 
 
@@ -769,7 +771,7 @@ $out='';
 
 		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$isAVDevice,$package,$isPlugIn,$deviceID));
 
-		if($isPlugIn==1){
+		if($isPlugIn==1 && $oldIsPlugIn==0){
 			$insertControlledVia = '
 				INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia
 					(FK_DeviceTemplate, FK_DeviceTemplate_ControlledVia) 
