@@ -409,8 +409,8 @@ printf("Mobile orbiter detected\n");
             if( pOH_Orbiter->m_pDevice_CurrentDetected )
             {
                 DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(
-                    pDeviceFrom->m_dwPK_Device,
-                    -1, //pDeviceTo->m_dwPK_Device,
+                    m_dwPK_Device,
+					pDeviceFrom->m_dwPK_Device,
                     sMacAddress,
                     &SignalStrength);
 
@@ -1171,8 +1171,10 @@ void Orbiter_Plugin::CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,
 	/** Regenerates an Orbiter.  When regeneration is complete, the "Regen Orbiter Finished" command will be sent */
 		/** @param #2 PK_Device */
 			/** The Orbiter to regenerate */
+		/** @param #21 Force */
+			/** If this =1 it will force a full regen. */
 
-void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c266-e->
 {
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
@@ -1190,7 +1192,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string &sCMD_Result,Messag
 	}
 
 	pOH_Orbiter->m_tRegenTime = time(NULL);
-	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device);
+	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + sForce;
 	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
 	system(Cmd.c_str());
 }

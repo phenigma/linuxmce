@@ -281,16 +281,17 @@ THE FOUND DEVICE IF WE'RE ALREADY CONNECTED.  WE'LL JUST PUT IT IN THE MAP AND D
 void Bluetooth_Dongle::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 {
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
-	if ( NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pOrbiter 
-		&& ( NULL == pBD_Orbiter->m_pBDCommandProcessor 
-			|| ( NULL != pBD_Orbiter->m_pBDCommandProcessor && pBD_Orbiter->m_pBDCommandProcessor->m_bDead ) ) )
+	if ( pBD_Orbiter==NULL || pBD_Orbiter->m_pOrbiter==NULL || pBD_Orbiter->m_pBDCommandProcessor==NULL || pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 	{
 g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  we're not connected.  proceeding like normal");
 		PhoneDetectionEngine::Intern_NewDeviceDetected(pDevice);
 	}
 	else
 	{
-g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  we're connected.  ignoring it");
+g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  we're connected.  ignoring it %p",pBD_Orbiter);
+if( pBD_Orbiter )
+g_pPlutoLogger->Write(LV_STATUS,"%p %p %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
+
 PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 m_mapPhoneDevice_Detected[pDevice->m_iMacAddress]=pDevice;
 	}
@@ -299,15 +300,17 @@ m_mapPhoneDevice_Detected[pDevice->m_iMacAddress]=pDevice;
 void Bluetooth_Dongle::Intern_LostDevice(class PhoneDevice *pDevice)
 {
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
-	if ( NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pOrbiter 
-		&& ( NULL == pBD_Orbiter->m_pBDCommandProcessor 
-			|| ( NULL != pBD_Orbiter->m_pBDCommandProcessor && pBD_Orbiter->m_pBDCommandProcessor->m_bDead ) ) )
+	if ( pBD_Orbiter==NULL || pBD_Orbiter->m_pOrbiter==NULL || pBD_Orbiter->m_pBDCommandProcessor==NULL || pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 	{
 g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  we're not connected.  proceeding like normal");
 		PhoneDetectionEngine::Intern_LostDevice(pDevice);
 	}
 	else
-g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  we are connected.  ignoring it.");
+	{
+g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  we are connected.  ignoring it%p",pBD_Orbiter);
+if( pBD_Orbiter )
+g_pPlutoLogger->Write(LV_STATUS,"%p %p %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
+	}
 }
 
 //-----------------------------------------------------------------------------------------------------

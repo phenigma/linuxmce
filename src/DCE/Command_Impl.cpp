@@ -363,6 +363,7 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 	
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_RELOAD )
 	{
+		g_pPlutoLogger->Write(LV_WARNING,"Got a reload command");
 		SendString("BYE");
 		Sleep(250);
 		OnReload();

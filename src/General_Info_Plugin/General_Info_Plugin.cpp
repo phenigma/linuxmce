@@ -297,3 +297,14 @@ void General_Info_Plugin::CMD_Reboot(int iPK_Device,string &sCMD_Result,Message 
 {
 }
 //<-dceag-createinst-b->!
+//<-dceag-c272-b->
+
+	/** @brief COMMAND: #272 - Restart DCERouter */
+	/** Causes DCERouter to exit and restart. */
+
+void General_Info_Plugin::CMD_Restart_DCERouter(string &sCMD_Result,Message *pMessage)
+//<-dceag-c272-e->
+{
+	Message *pMessageOut = new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
+	SendMessageToRouter(pMessageOut);
+}

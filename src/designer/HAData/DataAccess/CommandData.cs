@@ -15,13 +15,13 @@ namespace HAData.DataAccess {
 		public const String DESCRIPTION_FIELD = "Description";
 		public const String DEFINE_FIELD = "Define";
 		public const String FK_COMMANDCATEGORY_FIELD = "FK_CommandCategory";
-		public const String AVCOMMAND_FIELD = "AVCommand";
+		public const String COMMENTS_FIELD = "Comments";
 		// table+field constants
 		public const String PK_COMMAND_TABLE_FIELD = "Command.PK_Command";
 		public const String DESCRIPTION_TABLE_FIELD = "Command.Description";
 		public const String DEFINE_TABLE_FIELD = "Command.Define";
 		public const String FK_COMMANDCATEGORY_TABLE_FIELD = "Command.FK_CommandCategory";
-		public const String AVCOMMAND_TABLE_FIELD = "Command.AVCommand";
+		public const String COMMENTS_TABLE_FIELD = "Command.Comments";
 		public const int GOTO_SCREEN_CONST = 5;
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
@@ -31,7 +31,7 @@ namespace HAData.DataAccess {
 		protected const String DESCRIPTION_PARM = "@Description";
 		protected const String DEFINE_PARM = "@Define";
 		protected const String FK_COMMANDCATEGORY_PARM = "@FK_CommandCategory";
-		protected const String AVCOMMAND_PARM = "@AVCommand";
+		protected const String COMMENTS_PARM = "@Comments";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -105,10 +105,6 @@ namespace HAData.DataAccess {
 			Column.AllowDBNull = false;
 			Column.DefaultValue = 0;
 
-			Column = Columns.Add(AVCOMMAND_FIELD, typeof(System.Int16));
-			Column.AllowDBNull = false;
-			Column.DefaultValue = 0;
-
 			Table.PrimaryKey = PKColumns;
 
 			return Table;
@@ -118,7 +114,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(DESCRIPTION_PARM, OdbcType.VarChar, 50));
 			Params.Add(new OdbcParameter(DEFINE_PARM, OdbcType.VarChar, 50));
 			Params.Add(new OdbcParameter(FK_COMMANDCATEGORY_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(AVCOMMAND_PARM, OdbcType.SmallInt,2));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -131,7 +126,6 @@ namespace HAData.DataAccess {
 			Params[DESCRIPTION_PARM].SourceColumn = CommandData.DESCRIPTION_FIELD;
 			Params[DEFINE_PARM].SourceColumn = CommandData.DEFINE_FIELD;
 			Params[FK_COMMANDCATEGORY_PARM].SourceColumn = CommandData.FK_COMMANDCATEGORY_FIELD;
-			Params[AVCOMMAND_PARM].SourceColumn = CommandData.AVCOMMAND_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -179,7 +173,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_Command,Description,Define,FK_CommandCategory,AVCommand FROM Command", Conn);
+				LoadCommand = new OdbcCommand("SELECT PK_Command,Description,Define,FK_CommandCategory FROM Command", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(PK_COMMAND_PARM, OdbcType.Int,4));
@@ -223,7 +217,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_Command, Description, Define, FK_CommandCategory, AVCommand FROM Command WHERE " + WhereClause;
+			string sSQL = "SELECT PK_Command, Description, Define, FK_CommandCategory FROM Command WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -505,7 +499,7 @@ namespace HAData.DataAccess {
 				return mds.tCommandCategory[Convert.ToInt32(dr[3])];
 			}
 		}
-		public System.Int16 fAVCommand
+		public System.Int16 fComments
 		{
 			get
 			{
@@ -673,7 +667,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[3]);
 			}
 		}
-		public System.Int16 fAVCommand
+		public System.Int16 fComments
 		{
 			get
 			{
@@ -713,7 +707,7 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_Command,Description,Define,FK_CommandCategory,AVCommand FROM Command", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_Command,Description,Define,FK_CommandCategory FROM Command", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -763,7 +757,7 @@ namespace HAData.DataAccess {
 				return Columns[3];
 			}
 		}
-		public DataColumn cAVCommand
+		public DataColumn cComments
 		{
 			get
 			{

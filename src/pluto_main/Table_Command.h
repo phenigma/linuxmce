@@ -86,13 +86,14 @@ string m_Description;
 string m_Define;
 long int m_FK_CommandCategory;
 short int m_AVCommand;
+string m_Comments;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[10];
+		bool is_null[11];
 	
 	public:
 		long int PK_Command_get();
@@ -100,6 +101,7 @@ string Description_get();
 string Define_get();
 long int FK_CommandCategory_get();
 short int AVCommand_get();
+string Comments_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -112,6 +114,7 @@ void Description_set(string val);
 void Define_set(string val);
 void FK_CommandCategory_set(long int val);
 void AVCommand_set(short int val);
+void Comments_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -120,6 +123,7 @@ void psc_mod_set(string val);
 
 		
 		bool Define_isNull();
+bool Comments_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -127,6 +131,7 @@ bool psc_frozen_isNull();
 
 			
 		void Define_setNull(bool val);
+void Comments_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -167,7 +172,7 @@ void InfraredGroup_Command_FK_Command_getrows(vector <class Row_InfraredGroup_Co
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Command+ m_Description+ m_Define+ m_FK_CommandCategory+ m_AVCommand+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Command+ m_Description+ m_Define+ m_FK_CommandCategory+ m_AVCommand+ m_Comments+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -177,6 +182,7 @@ string Description_asSQL();
 string Define_asSQL();
 string FK_CommandCategory_asSQL();
 string AVCommand_asSQL();
+string Comments_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

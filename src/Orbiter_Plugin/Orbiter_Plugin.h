@@ -242,9 +242,11 @@ public:
 	/** Regenerates an Orbiter.  When regeneration is complete, the "Regen Orbiter Finished" command will be sent */
 		/** @param #2 PK_Device */
 			/** The Orbiter to regenerate */
+		/** @param #21 Force */
+			/** If this =1 it will force a full regen. */
 
-	virtual void CMD_Regen_Orbiter(int iPK_Device) { string sCMD_Result; CMD_Regen_Orbiter(iPK_Device,sCMD_Result,NULL);};
-	virtual void CMD_Regen_Orbiter(int iPK_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce) { string sCMD_Result; CMD_Regen_Orbiter(iPK_Device,sForce.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #267 - Regen Orbiter Finished */

@@ -81,7 +81,7 @@ public:
 	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Regen_Orbiter(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -245,7 +245,8 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-						CMD_Regen_Orbiter(iPK_Device,sCMD_Result,pMessage);
+					string sForce=pMessage->m_mapParameters[21];
+						CMD_Regen_Orbiter(iPK_Device,sForce.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

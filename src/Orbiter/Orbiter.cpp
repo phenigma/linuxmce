@@ -385,6 +385,11 @@ GENERAL PURPOSE METHODS
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderScreen(  )
 {
+if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
+{
+    g_pPlutoLogger->Write( LV_CRITICAL, "Got attempt to render null screen: %s", m_pScreenHistory_Current );
+	return;
+}
     g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
 
 #if ( defined( PROFILING ) )

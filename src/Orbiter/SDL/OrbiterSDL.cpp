@@ -121,7 +121,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderScreen()
 {
-	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$");
+	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str() : " NO SCREEN"));
     PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
     if (m_pScreenHistory_Current)
@@ -370,6 +370,7 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::OnQuit()
 {
+	g_pPlutoLogger->Write(LV_WARNING,"Got an on quit.  Pushing an event into SDL");
 	m_bQuit = true;
 	SDL_Event *pEvent = new SDL_Event;
 	pEvent->type = SDL_QUIT;

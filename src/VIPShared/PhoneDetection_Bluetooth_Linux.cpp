@@ -242,7 +242,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 
 					if( !pDExisting )
 					{
-						g_pPlutoLogger->Write(LV_STATUS, "Detected new device: %s  %d", pDNew->m_sMacAddress.c_str(), pDNew->m_iLinkQuality);						
+						g_pPlutoLogger->Write(LV_STATUS, "Detected new device1: %s  %d", pDNew->m_sMacAddress.c_str(), pDNew->m_iLinkQuality);						
 // TODO - HACK !!!  SEE ABOVE.  HACK IN A NASTY FIX UNTIL WE FIGURE OUT WHY BLUEZ IS LOCKING UP
 g_pPlutoLogger->Write(LV_WARNING, "Executing /tmp/hciscan hack");
 system("hcitool scan > /tmp/hciscan");
@@ -315,7 +315,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int
 
 					if( !pDExisting )
 					{
-						g_pPlutoLogger->Write(LV_STATUS, "Detected new device: %s  %d\n", pDNew->m_sMacAddress.c_str(), pDNew->m_iLinkQuality);
+						g_pPlutoLogger->Write(LV_STATUS, "Detected new device2: %s  %d\n", pDNew->m_sMacAddress.c_str(), pDNew->m_iLinkQuality);
 						//printf("Detected new device: %s  %d\n",pDNew->m_sMacAddress.c_str(),pDNew->m_iLinkQuality);
 						Intern_NewDeviceDetected(pDNew);
 					}

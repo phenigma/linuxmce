@@ -268,6 +268,7 @@
 #define COMMAND_Move_Playlist_entry_Up_CONST 269
 #define COMMAND_Move_Playlist_entry_Down_CONST 270
 #define COMMAND_Remove_playlist_entry_CONST 271
+#define COMMAND_Restart_DCERouter_CONST 272
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
@@ -280,6 +281,8 @@
 #define COMMAND_FK_COMMANDCATEGORY_TABLE_FIELD "Command.FK_CommandCategory"
 #define COMMAND_AVCOMMAND_FIELD "AVCommand"
 #define COMMAND_AVCOMMAND_TABLE_FIELD "Command.AVCommand"
+#define COMMAND_COMMENTS_FIELD "Comments"
+#define COMMAND_COMMENTS_TABLE_FIELD "Command.Comments"
 #define COMMAND_PSC_ID_FIELD "psc_id"
 #define COMMAND_PSC_ID_TABLE_FIELD "Command.psc_id"
 #define COMMAND_PSC_BATCH_FIELD "psc_batch"

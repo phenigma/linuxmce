@@ -136,6 +136,13 @@ public:
 	virtual void CMD_Reboot(int iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #272 - Restart DCERouter */
+	/** Causes DCERouter to exit and restart. */
+
+	virtual void CMD_Restart_DCERouter() { string sCMD_Result; CMD_Restart_DCERouter(sCMD_Result,NULL);};
+	virtual void CMD_Restart_DCERouter(string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 
