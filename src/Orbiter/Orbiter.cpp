@@ -3313,13 +3313,12 @@ bool Orbiter::ButtonUp( int iPK_Button )
 //------------------------------------------------------------------------
 bool Orbiter::RegionDown( int x,  int y )
 {
+	NeedToRender render( this, "Region Down" );  // Redraw anything that was changed by this command
     if( !GotActivity(  ) )
 	{
 g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
 		return true;
 	}
-
-	NeedToRender render( this, "Region Down" );  // Redraw anything that was changed by this command
 
     class ScreenHistory *pScreenHistory = m_pScreenHistory_Current;
 
@@ -3387,9 +3386,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
 bool Orbiter::GotActivity(  )
 {
     m_LastActivityTime=time( NULL );
-    if(  !m_bDisplayOn  )
+
+	if( !m_bDisplayOn || 
+		(m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_ScreenSaveMenu && 
+			m_pDesignObj_Orbiter_MainMenu!=m_pDesignObj_Orbiter_ScreenSaveMenu) )
     {
-        CMD_Display_OnOff( "1" );
+		if( m_bDisplayOn ) 
+	        CMD_Display_OnOff( "1" );
 		if( m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
 			CMD_Set_Main_Menu("N");
