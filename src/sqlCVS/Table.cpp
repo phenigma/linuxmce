@@ -1589,7 +1589,7 @@ bool Table::Dump( SerializeableStrings &str )
 		}
 
 		string sIndex;
-		if( row[1] && row[1][0]=='1' )
+		if( row[1] && row[1][0]!='1' )
 			sIndex = "add unique ";
 		else
 			sIndex = "add index ";
@@ -1604,7 +1604,7 @@ bool Table::Dump( SerializeableStrings &str )
 				break;
 
 			// It's another field in the same index
-			sIndex += string(",`") + row[2] + "`";
+			sIndex += string(",`") + row[4] + "`";
 		}
 
 		sIndex += ")";
