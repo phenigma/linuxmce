@@ -214,8 +214,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_bBypassScreenSaver = false;
 
 	string::size_type pos=0;
-	m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(DATA_Get_Timeout(),",",pos).c_str());
-	m_iTimeoutBlank = atoi(StringUtils::Tokenize(DATA_Get_Timeout(),",",pos).c_str());
+	string sTimeout = DATA_Get_Timeout();
+	m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
+	m_iTimeoutBlank = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
 
 	pthread_cond_init(&m_MaintThreadCond, NULL);
 	m_MaintThreadMutex.Init(NULL);
