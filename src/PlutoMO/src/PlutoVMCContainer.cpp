@@ -642,8 +642,11 @@ void CPlutoVMCContainer::HandleControlEventL(
 int CPlutoVMCContainer::GetSymbianKeyEventFromKeyCode(TKeyEvent& aKeyEvent, TEventCode& aType, long key)
 {
 	aKeyEvent.iRepeats = 0;
-	aType = EEventKeyDown;
+	m_bDataKeys = false;
+	aType = EEventKeyUp;
 	
+	//TODO: also simulate long keys
+
 	switch(key)
 	{
 		case BUTTON_Up_Arrow_CONST:			aKeyEvent.iScanCode=EStdKeyUpArrow;		break;
