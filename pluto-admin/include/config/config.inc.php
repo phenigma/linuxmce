@@ -56,13 +56,14 @@
   $GLOBALS['genericHeatCommand']=197;
   $GLOBALS['genericCoolCommand']=196;
     
-  $GLOBALS['rootSecurity'] = 80; //the PK_DeviceCategory from DeviceCategory table for the root Security devices
+  $GLOBALS['rootSecurity'] = 84; //the PK_DeviceCategory from DeviceCategory table for the root Security devices
   $GLOBALS['ArrayIDForSecurity'] = 3;
   $GLOBALS['ArrayIDForMedia'] = 5;
+  $GLOBALS['securityScenariosTemplate']=12;
   
   $GLOBALS['rootLightsInterfaces'] = 75;
   $GLOBALS['rootClimateInterfaces'] = 78;
-  $GLOBALS['rootSecurityInterfaces'] = 79;
+  $GLOBALS['rootSecurityInterfaces'] = 80;
   
   $GLOBALS['MediaScenariosTemplate']=1;			// PK_Template for the template "Media Scenarios"
   $GLOBALS['MediaScenariosCommand']=43;			// the PK_Command for the command "MH Play Media" used in Media Scenarios
@@ -73,8 +74,9 @@
   $GLOBALS['commandParamPK_DeviceTemplate']=44;	// PK_CommandParameter from CommandParameter table for parameter "PK_DeviceTemplate"
   $GLOBALS['commandParamPK_EntertainArea']=45;	// PK_CommandParameter from CommandParameter table for parameter "PK_EntertainArea"
   
-  $GLOBALS['commandSetVar']=27;					// FK_Command for "Set var to path"
-  $GLOBALS['commandGotoScreen']=5;				// FK_Command for "Go to screen"
+  $GLOBALS['commandSetVar']=27;					// PK_Command for "Set var to path"
+  $GLOBALS['commandGotoScreen']=5;				// PK_Command for "Go to screen"
+  $GLOBALS['commandVariableNumber']=86;			// PK_Command for Variable Number
   
   $GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents');
   
@@ -91,6 +93,16 @@
   
   $GLOBALS['rootCameras']=93;				// PK_DeviceCategory for Surveillance Cameras
   $GLOBALS['securityAlert']=33;				// PK_DeviceData for Alert from DeviceData table
+  $GLOBALS['IntercomCategory']=94;			// PK_DeviceCategory for Intercom from DeviceCategory table
+  
+  $GLOBALS['MobileOrbiterNotification']=34;	// PK_DeviceData for Mobile Orbiter Notification from DeviceData table
+  $GLOBALS['OtherPhoneNotifications']=35;	// PK_DeviceData for Other Phone Notifications from DeviceData table
+  $GLOBALS['NeighborstoCall']=36;			// PK_DeviceData for Neighbors to Call from DeviceData table
+  
+  $GLOBALS['camerasVariableNumbersArray']=array(18,19,20,21);
+  $GLOBALS['commandParameterValueToAsign']=5;
+  $GLOBALS['commandParameterObjectScreen']=87;
+  $GLOBALS['mnuSecurityCamerasDesignObj']=1414;	// PK_DesignObj for Security cameras
   
   // do not change the following lines 
   $addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";

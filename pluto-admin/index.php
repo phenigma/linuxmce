@@ -681,7 +681,26 @@ switch ($section) {
 	    include_once('operations/myDevices/securitySettings.php');
 	    securitySettings($output,$dbADO);
 	break;
+	case 'videoLinks':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/videoLinks.php');
+	    videoLinks($output,$dbADO);
+	break;
+	case 'cellphoneNotifications':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/orbiters/cellphoneNotifications.php');
+	    cellphoneNotifications($output,$dbADO);
+	break;
+	case 'securityScenarios':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myScenarios/securityScenarios.php');
+	    securityScenarios($output,$dbADO);
+	break;
 
+	
 	case '';
 		$output = new Template($dbADO);	
 		

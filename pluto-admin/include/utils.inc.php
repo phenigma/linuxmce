@@ -1,4 +1,5 @@
 <?php 
+/* @var $dbADO ADOConnection */
 
 function eval_buffer($string) {
    ob_start();
@@ -950,4 +951,38 @@ function multi_page_format($row, $art_index,$mediadbADO)
 	return $out;
 }
 
+function getDevicesArrayFromCategory($categoryID,$dbADO)
+{
+	getDeviceCategoryChildsArray($categoryID,$dbADO);
+	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
+	$GLOBALS['childsDeviceCategoryArray'][]=$categoryID;
+	
+	$queryDeviceTemplate='
+		SELECT * FROM DeviceTemplate 
+			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
+		ORDER BY Description ASC';
+	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
+	$DTArray=array();
+	$DTIDArray=array();
+	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
+		$DTArray[]=$rowDeviceCategory['Description'];
+		$DTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
+	}
+
+	$devicesList=array();
+	$joinArray=$DTIDArray;	// used only for query when there are no DT in selected category
+	$joinArray[]=0;
+	$queryDevice='
+		SELECT 
+			Device.* FROM Device 
+		WHERE
+			FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
+	$resDevice=$dbADO->Execute($queryDevice,(int)$_SESSION['installationID']);
+	while($rowD=$resDevice->FetchRow()){
+		$devicesList[$rowD['PK_Device']]=$rowD['Description'];
+	}
+	unset($GLOBALS['childsDeviceCategoryArray']);
+	$GLOBALS['childsDeviceCategoryArray']=array();
+	return $devicesList;
+}
 ?>

@@ -153,7 +153,7 @@ function wizardScenarios($output,$dbADO) {
 			</form>
 			<script>
 		 		var frmvalidator = new formValidator("wizardScenarios");
- 				frmvalidator.addValidation("description","req","Please enter a package description");			
+ 				frmvalidator.addValidation("description","req","Please enter a description");			
 			</script>
 			';
 		}

@@ -122,6 +122,7 @@ function securitySettings($output,$dbADO) {
 		header("Location: index.php?section=securitySettings");		
 	}
 
+	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
