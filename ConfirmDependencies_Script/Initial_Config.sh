@@ -7,7 +7,7 @@ ACTIV="http://activate.plutohome.com"
 
 # !!!HACK!!!
 #echo "10.0.0.163 plutohome.com www.plutohome.com activate.plutohome.com dce_router" >>/etc/hosts
-echo "127.0.0.1 dce_router" >>/etc/hosts # I have to do something smarter than this for the moons, or they won't work
+echo "127.0.0.1 dcerouter" >>/etc/hosts # I have to do something smarter than this for the moons, or they won't work
 
 activation_url="$ACTIV/activation.php"
 
