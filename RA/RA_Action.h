@@ -27,8 +27,6 @@ protected:
 
 public:
 
-    class RA_Request *m_pcRequest; /** <the action that triggered the request */
-
     /**
      * @brief basic constructor
      * the one initiating the action calls this constructor, and will call ConvertActionToBinary and Send it
@@ -36,20 +34,20 @@ public:
     RA_Action();
 
     /**
-     * @brief constructor
+     * @brief virual destructor
+     */
+	virtual ~RA_Action() {};
+
+    /**
+     * @brief Create an action class from a binary block of data
      * the one receiving the action calls this one
      * received a binary action, call ProcessAction
      * @param dwSize the size of the binary data
      * @param pcData the data
      */
-    RA_Action( unsigned long dwSize,const char *pcData); // Received a binary action, call ProcessAction
+    void CreateAction( unsigned long dwSize,const char *pcData); // Received a binary action, call ProcessAction
 
-    /**
-     * @brief virual destructor
-     */
-    virtual ~RA_Action()=0;
-
-    /**
+	/**
      * @brief virtual convertor to binary
      */
     virtual void ConvertActionToBinary();
@@ -57,7 +55,7 @@ public:
     /**
      * @brief pure virtual that, in the inheriting classes, will process the action
      */
-    virtual void ProcessAction()=0;
+    virtual void ProcessAction(class RA_Request *pRequest,class RA_Processor *pRA_Processor)=0;
 
     /**
      * @return private member

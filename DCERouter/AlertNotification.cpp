@@ -215,7 +215,7 @@ void AlertNotification::AlarmCallback(int id, void* param)
 			if( pData->iTypeOfBreach==WAP_EVENT_INTERCOM )
 			{
 				m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER, m_pCore->m_pPlutoEvents->m_TelecomServer, PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_XFER_OR_CONF_CONST,
-					5,C_COMMANDPARAMETER_CALL_ID_CONST,"123" /* ??? TODO what was this?? ptrEventInstance->pMessage->m_Parameters[C_EVENTPARAMETER_CALL_ID_CONST].c_str()*/,
+					5,C_COMMANDPARAMETER_CALL_ID_CONST,"123" /* ??? TODO what was this?? ptrEventInstance->pMessage->m_mapParameters[C_EVENTPARAMETER_CALL_ID_CONST].c_str()*/,
 					C_COMMANDPARAMETER_BOOLEAN_CONST,"0",
 					C_COMMANDPARAMETER_PHONE_NUM_CONST,pn->PhoneNumber.c_str(),C_COMMANDPARAMETER_CALLER_ID_CONST,CallerID,
 					COMMANDPARAMETER_Text_CONST,"Pluto"));

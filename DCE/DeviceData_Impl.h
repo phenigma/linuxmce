@@ -16,11 +16,11 @@ namespace DCE
 	{
 	public:
 		Event_Impl *m_pEvent_Impl;
-		map<int, string> m_Parameters;
+		map<int, string> m_mapParameters;
 		string mapParameters_Find(int PK_DeviceData)
 		{
-			map<int,string>::iterator it = m_Parameters.find(PK_DeviceData);
-			return it==m_Parameters.end() ? "" : (*it).second;
+			map<int,string>::iterator it = m_mapParameters.find(PK_DeviceData);
+			return it==m_mapParameters.end() ? "" : (*it).second;
 		}
 
 		string m_sDescription;
@@ -33,7 +33,7 @@ namespace DCE
 		void SetupSerialization()
 		{
 			DeviceData_Base::SetupSerialization();
-			StartSerializeList() + m_Parameters;
+			StartSerializeList() + m_mapParameters;
 			(*this) + m_vectDeviceData_Impl_Children; // this is serialized custom
 		}
 		virtual string SerializeClassClassName() { return "DeviceData_Impl"; }
@@ -93,9 +93,9 @@ namespace DCE
 
 		Write_string(m_sDescription);
 
-		Write_unsigned_long((unsigned long) m_Parameters.size());
+		Write_unsigned_long((unsigned long) m_mapParameters.size());
 		map<long, string>::iterator itParms;
-		for(itParms = m_Parameters.begin();itParms != m_Parameters.end();++itParms)
+		for(itParms = m_mapParameters.begin();itParms != m_mapParameters.end();++itParms)
 		{
 		Write_unsigned_long( (*itParms).first );
 		Write_string( (*itParms).second );
@@ -118,7 +118,7 @@ namespace DCE
 
 		virtual void SetParm(int ParmNum, const char *szParm) 
 		{
-			m_Parameters[ParmNum]=szParm;
+			m_mapParameters[ParmNum]=szParm;
 		}
 	};
 }

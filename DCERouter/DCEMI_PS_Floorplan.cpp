@@ -39,14 +39,14 @@ bool DCEMI_PS_Floorplan::FloorplanStatus(class Socket *pSocket,class Message *pM
 	if( !pDeviceFrom )
 		return true;
 
-	PlutoOrbiter *pController = m_pDCEMI_PS_Orbiter->m_mapPlutoOrbiter_Find(pMessage->m_DeviceIDFrom);
+	PlutoOrbiter *pController = m_pDCEMI_PS_Orbiter->m_mapPlutoOrbiter_Find(pMessage->m_dwPK_Device_From);
 	if( !pController )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find controller for floorplan: %d",pMessage->m_DeviceIDFrom);
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find controller for floorplan: %d",pMessage->m_dwPK_Device_From);
 		return true;
 	}
-	int Type = atoi(pMessage->m_Parameters[COMMANDPARAMETER_Type_CONST].c_str());
-	int Page = pMessage->m_ID;
+	int Type = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST].c_str());
+	int Page = pMessage->m_dwID;
 	string ReturnValue;
 
 //		g_pPlutoLogger->Write(LV_STATUS,"Getting floorplan status for type: %d Page: %d",Type,Page);
@@ -261,7 +261,7 @@ bool DCEMI_PS_Floorplan::FloorplanStatus(class Socket *pSocket,class Message *pM
 	}
 	if( ReturnValue.length()==0 )
 		ReturnValue="0";
-	pSocket->SendMessage(new Message(0, pMessage->m_DeviceIDFrom, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, 0, ReturnValue.c_str()));
+	pSocket->SendMessage(new Message(0, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, 0, ReturnValue.c_str()));
 	pMessage->m_bRespondedToMessage=true;
 	return false;
 }
@@ -276,10 +276,10 @@ bool DCEMI_PS_Floorplan::FloorplanLayout(class Socket *pSocket,class Message *pM
 		int k=2;
 	}
 
-	PlutoOrbiter *pController = m_pDCEMI_PS_Orbiter->m_mapPlutoOrbiter_Find(pMessage->m_DeviceIDFrom);
+	PlutoOrbiter *pController = m_pDCEMI_PS_Orbiter->m_mapPlutoOrbiter_Find(pMessage->m_dwPK_Device_From);
 	if( !pController )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find controller for floorplan layout: %d",pMessage->m_DeviceIDFrom);
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find controller for floorplan layout: %d",pMessage->m_dwPK_Device_From);
 		return true;
 	}
 	string ReturnValue = StringUtils::itos((int) pController->m_mapFloorplanObjectVector.size()) + "|";
@@ -328,7 +328,7 @@ bool DCEMI_PS_Floorplan::FloorplanLayout(class Socket *pSocket,class Message *pM
 			}
 		}
 	}
-	pSocket->SendMessage(new Message(0, pMessage->m_DeviceIDFrom, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, 0, ReturnValue.c_str()));
+	pSocket->SendMessage(new Message(0, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, 0, ReturnValue.c_str()));
 	pMessage->m_bRespondedToMessage=true;
 	return false;
 }

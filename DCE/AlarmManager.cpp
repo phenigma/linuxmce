@@ -118,7 +118,7 @@ void AlarmManager::Run()
 				m_SortedAlarms.erase(entry->it);
 
 				// and from the id map
-				m_AlarmIDMap.erase(entry->alarm_id);
+				m_AlarmIDMap.erase(entry->alarm_dwID);
 
 				delete entry;
 			}
@@ -133,7 +133,7 @@ void AlarmManager::Run()
 					m_SortedAlarms.erase(entry->it);
 
 					// and from the id map
-					m_AlarmIDMap.erase(entry->alarm_id);
+					m_AlarmIDMap.erase(entry->alarm_dwID);
 					delete entry;
 				}
 				else
@@ -155,7 +155,7 @@ int AlarmManager::AddAbsoluteAlarm(time_t when, AlarmEvent* callback, int type, 
 	PLUTO_SAFETY_LOCK(mm,m_Mutex);
 	
 	// fille the struct
-	entry->alarm_id = m_LastID++;
+	entry->alarm_dwID = m_LastID++;
 	entry->when = when;
 	entry->callback = callback;
 	entry->id = type;
@@ -167,12 +167,12 @@ int AlarmManager::AddAbsoluteAlarm(time_t when, AlarmEvent* callback, int type, 
 
 	iterator = m_SortedAlarms.insert(SortedAlarmMap::value_type(when, entry));
 	entry->it = iterator;
-	m_AlarmIDMap.insert(AlarmIDMap::value_type(entry->alarm_id, entry));
+	m_AlarmIDMap.insert(AlarmIDMap::value_type(entry->alarm_dwID, entry));
 
 	//TODO: only release threads that end up being affected.
 	pthread_cond_broadcast(&m_Cond);
 
-	return entry->alarm_id;
+	return entry->alarm_dwID;
 }
 
 /** Fire an alarm after 'delay' seconds
@@ -197,7 +197,7 @@ int AlarmManager::FindAlarmByType(int type)
 	{
 		if(i->second->id == type)
 		{
-			id = i->second->alarm_id;
+			id = i->second->alarm_dwID;
 			break;
 		}
 	}

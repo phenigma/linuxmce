@@ -2,7 +2,6 @@
 #define ChangedRow_h
 
 #include "mysql.h"
-#include "Field.h"
 #include <iostream>
 
 namespace sqlCVS
@@ -48,7 +47,7 @@ namespace sqlCVS
 
 	enum TypeOfChange { toc_New, toc_Delete, toc_Modify };
 
-	// This is a row that has been changed
+	// This is a row that has been changed on the client
 	class ChangedRow
 	{
 	public:
@@ -56,18 +55,29 @@ namespace sqlCVS
 		int m_iOriginalAutoIncrID,m_iNewAutoIncrID;
 		bool m_bCommitted;
 		class Table *m_pTable;
-		list<string> m_listPrimaryKey;
+		vector<string> m_vectPrimaryKey;
 		TypeOfChange m_eTypeOfChange;
 
-		ChangedRow(class Table *pTable, TypeOfChange eTypeOfChange, int psc_id, int psc_batch, int psc_user, list<string> &listPrimaryKey)
+		ChangedRow(class Table *pTable, TypeOfChange eTypeOfChange, int psc_id, int psc_batch, int psc_user, int iOriginalAutoIncrID, vector<string> &vectPrimaryKey)
 		{
 			m_pTable=pTable;
-			m_listPrimaryKey = listPrimaryKey;
+			m_vectPrimaryKey = vectPrimaryKey;
 			m_eTypeOfChange = eTypeOfChange;
 			m_psc_id=psc_id; m_psc_batch=psc_batch; m_psc_user=psc_user;
-			m_iOriginalAutoIncrID=m_iNewAutoIncrID=-1;
+			m_iOriginalAutoIncrID=iOriginalAutoIncrID;
+			m_iNewAutoIncrID=-1;
 			m_bCommitted=false;
 		}
+		// This constructor is used ONLY for rows that were deleted on the client side
+		ChangedRow(class Table *pTable, int psc_id)
+		{
+			m_pTable=pTable;
+			m_eTypeOfChange = toc_Delete;
+			m_psc_id=psc_id;
+			m_bCommitted=false;
+		}
+
+		string GetWhereClause();
 	};
 	typedef list<ChangedRow *> ListChangedRow;
 }

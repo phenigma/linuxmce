@@ -171,7 +171,7 @@ namespace DCE
 		RESP_Request_Datagrid_Contents(char **pData,int *iData_Size) { 
 		m_pData=pData; m_iData_Size=iData_Size; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_DataParameters[19]; *m_iData_Size=pMessage->m_DataLengths[19]; };
+			*m_pData=pMessage->m_mapData_Parameters[19]; *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
 	};
 	class CMD_Request_Datagrid_Contents : public PreformedCommand {
 	public:
@@ -547,7 +547,7 @@ namespace DCE
 		RESP_Populate_Datagrid(int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { 
 		m_iPK_Variable=iPK_Variable; m_sValue_To_Assign=sValue_To_Assign; m_bIsSuccessful=bIsSuccessful; }
 		void ParseResponse(Message *pMessage) {
-			*m_iPK_Variable=atoi(pMessage->m_Parameters[4].c_str()); *m_sValue_To_Assign=pMessage->m_Parameters[5]; *m_bIsSuccessful=(pMessage->m_Parameters[40]=="1" ? true : false); };
+			*m_iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str()); *m_sValue_To_Assign=pMessage->m_mapParameters[5]; *m_bIsSuccessful=(pMessage->m_mapParameters[40]=="1" ? true : false); };
 	};
 	class CMD_Populate_Datagrid : public PreformedCommand {
 	public:
@@ -875,7 +875,7 @@ namespace DCE
 		RESP_Mount_Disk_Image(string *sMediaURL) { 
 		m_sMediaURL=sMediaURL; }
 		void ParseResponse(Message *pMessage) {
-			*m_sMediaURL=pMessage->m_Parameters[59]; };
+			*m_sMediaURL=pMessage->m_mapParameters[59]; };
 	};
 	class CMD_Mount_Disk_Image : public PreformedCommand {
 	public:
@@ -1011,7 +1011,7 @@ namespace DCE
 		RESP_Get_Signal_Strength(int *iValue_int) { 
 		m_iValue_int=iValue_int; }
 		void ParseResponse(Message *pMessage) {
-			*m_iValue_int=atoi(pMessage->m_Parameters[48].c_str()); };
+			*m_iValue_int=atoi(pMessage->m_mapParameters[48].c_str()); };
 	};
 	class CMD_Get_Signal_Strength : public PreformedCommand {
 	public:
@@ -1147,7 +1147,7 @@ namespace DCE
 		RESP_Get_Device_Data(string *sValue_To_Assign) { 
 		m_sValue_To_Assign=sValue_To_Assign; }
 		void ParseResponse(Message *pMessage) {
-			*m_sValue_To_Assign=pMessage->m_Parameters[5]; };
+			*m_sValue_To_Assign=pMessage->m_mapParameters[5]; };
 	};
 	class CMD_Get_Device_Data : public PreformedCommand {
 	public:
@@ -1219,7 +1219,7 @@ namespace DCE
 		RESP_Request_File(char **pData,int *iData_Size) { 
 		m_pData=pData; m_iData_Size=iData_Size; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_DataParameters[19]; *m_iData_Size=pMessage->m_DataLengths[19]; };
+			*m_pData=pMessage->m_mapData_Parameters[19]; *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
 	};
 	class CMD_Request_File : public PreformedCommand {
 	public:
@@ -1451,7 +1451,7 @@ namespace DCE
 		RESP_Get_Video_Frame(char **pData,int *iData_Size,string *sFormat) { 
 		m_pData=pData; m_iData_Size=iData_Size; m_sFormat=sFormat; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_DataParameters[19]; *m_iData_Size=pMessage->m_DataLengths[19]; *m_sFormat=pMessage->m_Parameters[20]; };
+			*m_pData=pMessage->m_mapData_Parameters[19]; *m_iData_Size=pMessage->m_mapData_Lengths[19]; *m_sFormat=pMessage->m_mapParameters[20]; };
 	};
 	class CMD_Get_Video_Frame : public PreformedCommand {
 	public:

@@ -35,7 +35,7 @@ bool DCEMI_PS_DataGrid::PopulateDataGrid(class Socket *pSocket,class Message *pM
 {
 	PLUTO_SAFETY_LOCK(s,m_DataGridMutex);
 	string::size_type pos=0;
-	string Parms = pMessage->m_Parameters[COMMANDPARAMETER_Type_CONST];
+	string Parms = pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
 	int DataGridType = atoi( StringUtils::Tokenize(Parms,",",pos).c_str() );
 
 	map<int,class DataGridGeneratorCallBack *>::iterator itGridCB = m_mapDataGridGeneratorCallBack.find(DataGridType);
@@ -43,7 +43,7 @@ bool DCEMI_PS_DataGrid::PopulateDataGrid(class Socket *pSocket,class Message *pM
 	{
 		DataGridGeneratorCallBack *pCB = (*itGridCB).second;
 
-		string GridID = pMessage->m_Parameters[COMMANDPARAMETER_DataGrid_ID_CONST];
+		string GridID = pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST];
 		DataGridTable *pDataGridTable = CALL_MEMBER_FN(*pCB->m_pDataGridGeneratorPlugIn,pCB->m_pDCEDataGridGeneratorFn) (GridID,Parms.substr(pos),NULL);
 
 		if( pDataGridTable )
@@ -66,20 +66,20 @@ bool DCEMI_PS_DataGrid::RequestDataGrid(class Socket *pSocket,class Message *pMe
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_DATAGRID, "Got a request for datagrid %s (# %s).", 
-		pMessage->m_Parameters[PARM_DGR_GRIDID].c_str(),pMessage->m_Parameters[PARM_DGR_SERIALNUM].c_str());
+		pMessage->m_mapParameters[PARM_DGR_GRIDID].c_str(),pMessage->m_mapParameters[PARM_DGR_SERIALNUM].c_str());
 #endif
-	if (RequestGridData(pMessage->m_Parameters[PARM_DGR_GRIDID].c_str(),
-		atoi(pMessage->m_Parameters[PARM_DGR_STARTINGCOLUMN].c_str()),
-		atoi(pMessage->m_Parameters[PARM_DGR_STARTINGROW].c_str()),
-		atoi(pMessage->m_Parameters[PARM_DGR_COLUMNCOUNT].c_str()), 
-		atoi(pMessage->m_Parameters[PARM_DGR_ROWCOUNT].c_str()),
-		atoi(pMessage->m_Parameters[PARM_DGR_KEEPCOLUMNHEADER].c_str())==1,
-		atoi(pMessage->m_Parameters[PARM_DGR_KEEPROWHEADER].c_str())==1,
+	if (RequestGridData(pMessage->m_mapParameters[PARM_DGR_GRIDID].c_str(),
+		atoi(pMessage->m_mapParameters[PARM_DGR_STARTINGCOLUMN].c_str()),
+		atoi(pMessage->m_mapParameters[PARM_DGR_STARTINGROW].c_str()),
+		atoi(pMessage->m_mapParameters[PARM_DGR_COLUMNCOUNT].c_str()), 
+		atoi(pMessage->m_mapParameters[PARM_DGR_ROWCOUNT].c_str()),
+		atoi(pMessage->m_mapParameters[PARM_DGR_KEEPCOLUMNHEADER].c_str())==1,
+		atoi(pMessage->m_mapParameters[PARM_DGR_KEEPROWHEADER].c_str())==1,
 		TableDataLength, TableData))
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_DATAGRID, "Sending grid %s (# %s)", 
-			pMessage->m_Parameters[PARM_DGR_GRIDID].c_str(),pMessage->m_Parameters[PARM_DGR_SERIALNUM].c_str());
+			pMessage->m_mapParameters[PARM_DGR_GRIDID].c_str(),pMessage->m_mapParameters[PARM_DGR_SERIALNUM].c_str());
 #endif
 	    pSocket->SendMessage(new Message(0, 0, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 
 			REQUESTTYPE_DATAGRID, 1, -C_COMMANDPARAMETER_DATAGRID_TABLE_CONST, TableData, TableDataLength)); 
@@ -142,9 +142,9 @@ bool DCEMI_PS_DataGrid::RequestGridData(string GridID, int ColStart, int RowStar
 
 bool DCEMI_PS_DataGrid::RequestDataGridPosition(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
 {
-	string DataGrid_ID = pMessage->m_Parameters[COMMANDPARAMETER_DataGrid_ID_CONST];
-	string Text = pMessage->m_Parameters[COMMANDPARAMETER_Text_CONST];
-	int Column = atoi(pMessage->m_Parameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+	string DataGrid_ID = pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST];
+	string Text = pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+	int Column = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
 	DataGridTable *dgTable = NULL;//m_pDataGridDevice->GetGrid(DataGrid_ID);
 	int dgrow=0;
 	if(dgTable)
@@ -176,7 +176,7 @@ bool DCEMI_PS_DataGrid::RequestDataGridPosition(class Socket *pSocket,class Mess
 		--dgrow; // We're always the cell 1 after
 	
 	// Send back the reply
-	Message *pResponse = new Message(DEVICEID_DCEROUTER, pMessage->m_DeviceIDFrom, PRIORITY_NORMAL, 
+	Message *pResponse = new Message(DEVICEID_DCEROUTER, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, 
 		MESSAGETYPE_REPLY, dgrow,0);
 	pSocket->SendMessage(pResponse);
 	pMessage->m_bRespondedToMessage=true;

@@ -151,17 +151,17 @@ printf("checking for hrow %s\n",Key_string);
 printf("found hrow %s %d\n",Key_string,pActiveData->m_MenuType);
 						if( pActiveData->m_MenuType==MENUITEM_FILELIST )
 						{
-							pMsg->m_ID=COMMAND_NAV_GOTO_CONST;
-							pMsg->m_DeviceIDTo=pCmd->m_DeviceID;
-							pMsg->m_Parameters[C_COMMANDPARAMETER_PKID_OBJECT_HEADER_CONST]="-1";
-							pMsg->m_Parameters[C_COMMANDPARAMETER_PATH_CONST]=mi->m_sValue;
+							pMsg->m_dwID=COMMAND_NAV_GOTO_CONST;
+							pMsg->m_dwPK_Device_To=pCmd->m_DeviceID;
+							pMsg->m_mapParameters[C_COMMANDPARAMETER_PKID_OBJECT_HEADER_CONST]="-1";
+							pMsg->m_mapParameters[C_COMMANDPARAMETER_PATH_CONST]=mi->m_sValue;
 							bAbortLoop=true;
 							break;
 						}
 						value.replace(pos2,5,mi->m_sValue);
 					}
 printf("no hrow\n");
-					pMsg->m_Parameters[atoi(tok.c_str())] = value; 
+					pMsg->m_mapParameters[atoi(tok.c_str())] = value; 
 				}
 				if( msgTo==pCmd->m_DeviceID )
 				{
@@ -173,7 +173,7 @@ printf("it's for us %d\n",msgID);
 printf("execute 1: %d current line: %d size: %d\n",pActiveData->m_iFirstMenuLine,pActiveData->m_iCurrentMenuLine,(int) pActiveData->m_pvectMenuItem->size());
 						{
 							// See if we were passed in the row directly
-							string sRowID = pMsg->m_Parameters[C_COMMANDPARAMETER_DG_ROW_ID_CONST];
+							string sRowID = pMsg->m_mapParameters[C_COMMANDPARAMETER_DG_ROW_ID_CONST];
 							if( sRowID.length()>0 )
 								pActiveData->m_iCurrentMenuLine = atoi(sRowID.c_str()) + pActiveData->m_iFirstMenuLine;
 						}
@@ -185,16 +185,16 @@ printf("execute 2: %d current line: %d size: %d\n",pActiveData->m_iFirstMenuLine
 								return true; // Nothing to do??
 
 							// See if there's special handling required
-							int ID = atoi(pMsg->m_Parameters[C_COMMANDPARAMETER_ID_CONST].c_str());
+							int ID = atoi(pMsg->m_mapParameters[C_COMMANDPARAMETER_ID_CONST].c_str());
 							if( ID==1 )
 							{
 								// It's an 'add to the queue' button
-								mi->m_pMessage->m_Parameters[C_COMMANDPARAMETER_FILE_NAME_CONST] = "+" + mi->m_pMessage->m_Parameters[C_COMMANDPARAMETER_FILE_NAME_CONST];
+								mi->m_pMessage->m_mapParameters[C_COMMANDPARAMETER_FILE_NAME_CONST] = "+" + mi->m_pMessage->m_mapParameters[C_COMMANDPARAMETER_FILE_NAME_CONST];
 							}
 							else if( ID==2 )
 							{
 								// It's a 'preview' button
-								mi->m_pMessage->m_Parameters[C_COMMANDPARAMETER_FILE_NAME_CONST] = "*" + mi->m_pMessage->m_Parameters[C_COMMANDPARAMETER_FILE_NAME_CONST];
+								mi->m_pMessage->m_mapParameters[C_COMMANDPARAMETER_FILE_NAME_CONST] = "*" + mi->m_pMessage->m_mapParameters[C_COMMANDPARAMETER_FILE_NAME_CONST];
 							}
 
 							Message *pSendMessage = new Message(mi->m_pMessage);
@@ -203,7 +203,7 @@ printf("execute 2: %d current line: %d size: %d\n",pActiveData->m_iFirstMenuLine
 						break;
 					case COMMAND_SEEK_DATA_GRID_CONST:
 printf("before seek: %d current line: %d size: %d\n",pActiveData->m_iFirstMenuLine,pActiveData->m_iCurrentMenuLine,(int) pActiveData->m_pvectMenuItem->size());
-						pCmd->HandleScrollSeek(pActiveData,atoi(pMsg->m_Parameters[C_COMMANDPARAMETER_TEXT_CONST].c_str()));
+						pCmd->HandleScrollSeek(pActiveData,atoi(pMsg->m_mapParameters[C_COMMANDPARAMETER_TEXT_CONST].c_str()));
 printf("after seek: %d current line: %d size: %d\n",pActiveData->m_iFirstMenuLine,pActiveData->m_iCurrentMenuLine,(int) pActiveData->m_pvectMenuItem->size());
 						if( pActiveData->m_pvectMenuItem->size()>0 )
 							pActiveData->m_iCurrentMenuLine = 0;

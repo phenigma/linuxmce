@@ -46,6 +46,9 @@
 
 bool RA_Processor::SendRequests( string sServerAddress, DCE::Socket **ppSocket )
 {
+	if( *ppSocket )
+		return SendRequests(*ppSocket);  // We were already passed in a socket
+
 	// Connecting to the server
 	RAClientSocket *pSocket = new RAClientSocket( 1, sServerAddress, "foo" ); // Freed before the endif or any of the returns
     if( !pSocket->Connect() )
@@ -90,14 +93,16 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
         pRequest->ConvertRequestToBinary();
 
         // Building the request header
-        char acRequestHeader[9] = HEADER;
+        char acRequestHeader[13] = HEADER;
         ui = (unsigned long *)(acRequestHeader);
         *ui = pRequest->RequestSize();
         ui = (unsigned long *)(acRequestHeader+4);
         *ui = pRequest->RequestChecksum();
+        ui = (unsigned long *)(acRequestHeader+8);
+        *ui = pRequest->ID();
 
         // Sending the header data
-        pSocket->SendData( 8, acRequestHeader );
+        pSocket->SendData( 12, acRequestHeader );
         pSocket->SendData( pRequest->RequestSize(),(const char *)pRequest->Request() );
 
         // Get the response
@@ -153,8 +158,8 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
         unsigned short *iNumActions = (unsigned short *) caNumActions;
         for( long lActionCount=0; lActionCount < *iNumActions; ++lActionCount )
         {
-            char acActionHeader[9] = HEADER;
-            if ( !pSocket->ReceiveData( 8, acActionHeader ) )  // Not a valid message
+            char acActionHeader[13] = HEADER;
+            if ( !pSocket->ReceiveData( 12, acActionHeader ) )  // Not a valid message
             {
                 delete pSocket;
                 delete[] pcData;
@@ -164,6 +169,7 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
 
             unsigned long *plActionSize = (unsigned long *)acActionHeader;
             unsigned long *plActionChecksum = (unsigned long *)(acActionHeader + 4);
+            unsigned long *plActionID = (unsigned long *)(acActionHeader + 8);
 
             char *pcActionData = new char[*plActionSize];
             if( !pSocket->ReceiveData( *plActionSize, pcActionData ) )
@@ -175,9 +181,8 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
                 return false;
             }
 
-            RA_Action *pAction = BuildActionFromData( *plActionSize, pcActionData );
-            pAction->m_pcRequest = pRequest;
-            pAction->ProcessAction();
+            RA_Action *pAction = BuildActionFromData( *plActionSize, pcActionData, *plActionID );
+            pAction->ProcessAction(pRequest,this);
             MYSTL_ADDTO_LIST( m_listActions, pAction );
             delete[] pcActionData;
         }
@@ -185,6 +190,7 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
     }
 
     m_listRequests.clear();
+	return true;
 }
 
 bool RA_Processor::SendRequest(RA_Request *pRequest,DCE::Socket *pSocket)
@@ -196,8 +202,6 @@ bool RA_Processor::SendRequest(RA_Request *pRequest,DCE::Socket *pSocket)
 
 bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket )
 {
-    cout << "New Connection\n";
-
     char acRequestHeader[13] = HEADER;
 
     if (!pSocket->ReceiveData( 12, acRequestHeader ) )  // Not a valid message
@@ -220,11 +224,12 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket )
 
     for( unsigned short iCount=0; iCount < *piNumberOfRequests; ++iCount)
     {
-        char acRequestItem[9] = HEADER;
-        if ( !pSocket->ReceiveData( 8, acRequestItem ) )  // Not a valid message
+        char acRequestItem[13] = HEADER;
+        if ( !pSocket->ReceiveData( 12, acRequestItem ) )  // Not a valid message
             return false;
 
         unsigned long *pdwSize = (unsigned long *)(acRequestItem);
+        unsigned long *RequestID = (unsigned long *)(acRequestItem+8);
 
         if( *pdwSize > TENMEGA )  // Can't be more than 10MB
             return false;
@@ -243,11 +248,16 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket )
             return false;
         }
 
-        RA_Request *pRA_Request = BuildRequestFromData( *pdwSize, acData );
+        RA_Request *pRA_Request = BuildRequestFromData( *pdwSize, acData, *RequestID );
 
+		if( !pRA_Request )
+		{
+			cerr << "Cannot build incoming request" << endl;
+			return false;
+		}
         cout << "Built request ID " << pRA_Request->ID() << "\n";
 
-        pRA_Request->ProcessRequest();
+        pRA_Request->ProcessRequest(this);
         pRA_Request->ConvertResponseToBinary();
 
         char acResponse[15] = RESPONSE;
@@ -271,12 +281,14 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket )
         MYSTL_ITERATE_LIST( pRA_Request->m_listActions, RA_Action, pAction, itList)
         {
             pAction->ConvertActionToBinary();
-            char acResponse[9] = HEADER;
+            char acResponse[13] = HEADER;
             unsigned long *dwUi = (unsigned long *) (acResponse);
             *dwUi = pAction->ActionSize();
             dwUi = (unsigned long *) (acResponse+4);
             *dwUi = pAction->ActionChecksum();
-            pSocket->SendData(8,acResponse);
+            dwUi = (unsigned long *) (acResponse+8);
+            *dwUi = pAction->ID();
+            pSocket->SendData(12,acResponse);
             pSocket->SendData(pAction->ActionSize(),(const char *)pAction->Action());
         }
 
@@ -286,3 +298,21 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket )
 
     return true;
 }
+
+void RA_Processor::RemoveRequest(RA_Request *pRequest_Del)
+{
+    MYSTL_ITERATE_LIST( m_listNewRequests, RA_Request, pNewRequest, itNewList )
+    {
+        if( pNewRequest==pRequest_Del )
+			m_listNewRequests.erase( itNewList );
+		break;
+    }
+
+    MYSTL_ITERATE_LIST( m_listRequests, RA_Request, pRequest, itList )
+    {
+        if( pRequest==pRequest_Del )
+			m_listNewRequests.erase( itList );
+		break;
+    }
+}
+

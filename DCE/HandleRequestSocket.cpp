@@ -138,18 +138,18 @@ void HandleRequestSocket::RunThread()
 					{
 #ifdef DEBUG
 						g_pPlutoLogger->Write(LV_STATUS, "Received Message type %d ID %d from %d to %d (device: %d)",
-							pMessage->m_MessageType,pMessage->m_ID,pMessage->m_DeviceIDFrom,pMessage->m_DeviceIDTo,m_DeviceID);
+							pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,m_DeviceID);
 #endif
 						if (!ReceivedMessage(pMessage))
 						{
 							#ifdef LOG_ALL_CONTROLLER_ACTIVITY
 								LACA_B4_6("Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
-									pMessage->m_DeviceIDFrom,pMessage->m_DeviceIDTo,
-									pMessage->m_MessageType,pMessage->m_ID,m_DeviceID,m_sName.c_str());
+									pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,
+									pMessage->m_dwMessage_Type,pMessage->m_dwID,m_DeviceID,m_sName.c_str());
 							#endif
 							g_pPlutoLogger->Write(LV_STATUS,"Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
-								pMessage->m_DeviceIDFrom,pMessage->m_DeviceIDTo,
-								pMessage->m_MessageType,pMessage->m_ID,m_DeviceID,m_sName.c_str());
+								pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,
+								pMessage->m_dwMessage_Type,pMessage->m_dwID,m_DeviceID,m_sName.c_str());
 							SendString("UNHANDLED");
 						}					
 						delete pMessage;

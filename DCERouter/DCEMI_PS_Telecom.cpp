@@ -25,9 +25,9 @@ bool DCEMI_PS_Telecom::Register()
 bool DCEMI_PS_Telecom::NewNumMessages(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
 	/*
-	int User = atoi(pMessage->m_Parameters[C_EVENTPARAMETER_PK_USERS_CONST].c_str());
+	int User = atoi(pMessage->m_mapParameters[C_EVENTPARAMETER_PK_USERS_CONST].c_str());
 	
-	string sNumMessages = pMessage->m_Parameters[C_EVENTPARAMETER_NUM_MESSAGES_CONST];
+	string sNumMessages = pMessage->m_mapParameters[C_EVENTPARAMETER_NUM_MESSAGES_CONST];
 	int NumMessages;
 
 	if( sNumMessages.length()>=3 && sNumMessages.substr(0,2)=="c=" )

@@ -100,7 +100,7 @@ string FileUtils::FilenameWithoutPath( string sFullPath, bool bIncludeExtension 
     if( sFullPath.length()<3 ) // cannot be anything but the file name
         return sFullPath;
 
-    string::size_type iPos=0, iLastSlash=0; // this way +1 will be 0
+    string::size_type iPos=0, iLastSlash=-1; // this way +1 will be 0.  Last slash will be -1, so if there is none, all the +1's below will start with the first character
 
 #ifdef WIN32
     string::size_type s;
@@ -129,7 +129,7 @@ string FileUtils::FilenameWithoutPath( string sFullPath, bool bIncludeExtension 
     while( ( iPos = sFullPath.find( ".", iPos+1 )) != string::npos && iPos < sFullPath.length()-1 )
         iLastSlash = iPos;
 
-    if( iLastSlash != string::npos && iLastSlash>0 && iLastSlash >= sFullPath.length()-5 )
+    if( iLastSlash != string::npos && iLastSlash>0 ) // 10/30/04 aaron -- what was this for??? ->  it means a long extension and short filename don't work && iLastSlash >= sFullPath.length()-5 )
         return sFullPath.substr( 0, iLastSlash );
     else
         return sFullPath;

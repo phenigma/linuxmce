@@ -33,7 +33,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 11; } ;
 	virtual const char *GetDeviceDescription() { return "Disk_Drive"; } ;
-	string Get_Drive() { return m_Parameters[6];}
+	string Get_Drive() { return m_mapParameters[6];}
 	void Set_Drive(string Value) { SetParm(6,Value.c_str()); }
 };
 
@@ -97,9 +97,9 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_DeviceIDTo==m_DeviceID && pMessage->m_MessageType == MESSAGETYPE_COMMAND)
+			if (pMessage->m_dwPK_Device_To==m_DeviceID && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
-				switch(pMessage->m_ID)
+				switch(pMessage->m_dwID)
 				{
 				case 45:
 					{
@@ -107,7 +107,7 @@ public:
 						CMD_Disk_Drive_Monitoring_ON(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -121,7 +121,7 @@ public:
 						CMD_Disk_Drive_Monitoring_OFF(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -135,7 +135,7 @@ public:
 						CMD_Reset_Disk_Drive(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -149,7 +149,7 @@ public:
 						CMD_Eject_Disk(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -163,7 +163,7 @@ public:
 						CMD_Start_Burn_Session(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -177,7 +177,7 @@ public:
 						CMD_Start_Ripping_Session(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -191,7 +191,7 @@ public:
 						CMD_Add_File_To_Burning_Session(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -205,7 +205,7 @@ public:
 						CMD_Start_Burning(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -219,7 +219,7 @@ public:
 						CMD_Abort_Burning(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -230,13 +230,13 @@ public:
 				case 54:
 					{
 						string sCMD_Result="OK";
-					string sFilename=pMessage->m_Parameters[13];
+					string sFilename=pMessage->m_mapParameters[13];
 						string sMediaURL;
 						CMD_Mount_Disk_Image(sFilename.c_str(),&sMediaURL,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_Parameters[59]=sMediaURL;
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[59]=sMediaURL;
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -250,7 +250,7 @@ public:
 						CMD_Start_Ripping_DVD(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -264,7 +264,7 @@ public:
 						CMD_Format_Drive(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -278,7 +278,7 @@ public:
 						CMD_Close_Tray(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )

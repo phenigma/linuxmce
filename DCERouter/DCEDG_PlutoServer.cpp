@@ -940,8 +940,8 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithMediaItemAttr(string G
 
 		if( buffer )
 		{
-			pImageMessage->m_DataParameters[COMMANDPARAMETER_Data_CONST]=buffer;
-			pImageMessage->m_DataLengths[COMMANDPARAMETER_Data_CONST]=(int) length;
+			pImageMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST]=buffer;
+			pImageMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST]=(int) length;
 		}
 	}
 	m_pCore->ReceivedMessage(NULL,pImageMessage);
@@ -1267,7 +1267,7 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithResetAV(string GridID,
 
 			string Description="";
 			Message *pMessage=m_pCore->GetCommandForInput(pResetAV->pDevice->m_iPK_Device,pResetAV->PK_Input);
-			pMessage->m_Parameters[C_COMMANDPARAMETER_RESEND_IR_CONST]="1";
+			pMessage->m_mapParameters[C_COMMANDPARAMETER_RESEND_IR_CONST]="1";
 
 			if( PK_Command!=0 )
 			{

@@ -155,7 +155,7 @@ void ServerSocket::Run()
 						for(size_t s=0; s<pMessage->m_vectExtraMessages.size(); ++s)
 						{
 							Message *pMessage_Child = pMessage->m_vectExtraMessages[s];
-							if( pMessage_Child->m_DeviceIDTo!=pMessage->m_DeviceIDTo )
+							if( pMessage_Child->m_dwPK_Device_To!=pMessage->m_dwPK_Device_To )
 							{
 								// This embedded message has a different destination.  We need to send it separately
 								m_pListener->ReceivedMessage(this, pMessage_Child);

@@ -90,6 +90,7 @@ Table_Device_Device_Related.cpp \
 Table_Device_EntertainArea.cpp \
 Table_Device_HouseMode.cpp \
 Table_Device_Orbiter.cpp \
+Table_Device_StartupScript.cpp \
 Table_Device_Users.cpp \
 Table_Direction.cpp \
 Table_EntertainArea.cpp \
@@ -137,7 +138,7 @@ Table_SetupStep.cpp \
 Table_Size.cpp \
 Table_Skin.cpp \
 Table_StabilityStatus.cpp \
-Table_Startup_Scripts.cpp \
+Table_StartupScript.cpp \
 Table_Style.cpp \
 Table_StyleVariation.cpp \
 Table_System.cpp \

@@ -64,10 +64,14 @@ string GetCommand()
 		<< "2.	Edit an existing repository (edit)" << endl
 		<< "3.	Start listening for incoming connections from clients (listen)" << endl
 		<< "4.	Permanently roll-back checkins (rollback)" << endl
+		<< "5.	Create a 'dump' file with the tables in the current repository (dump)" << endl
 		<< "------Client-side functions------" << endl
-		<< "A.	Create a working, local copy of the data, either current or a past snapshot (copy)" << endl
+		<< "A.	Import a 'dump' file from a server and make a local, working copy (import)" << endl
 		<< "B.	Check-in changes you've made locally (checkin)" << endl
-		<< "C.	View my local changes (diff)" << endl;
+		<< "C.	Update my local copy with changes from the server (update)" << endl
+		<< "D.	Synchronize my database with the server.  Same as checkin+update (sync)" << endl
+		<< "E.	View my local changes (diff)" << endl
+		<< endl << "Q.  Quit" << endl;
 
 	char c=(char) getch();
 
@@ -81,16 +85,27 @@ string GetCommand()
 		return "listen";
 	case '4':
 		return "rollback";
+	case '5':
+		return "dump";
 
 	case 'A':
 	case 'a':
-		return "copy";
+		return "import";
 	case 'B':
 	case 'b':
 		return "checkin";
 	case 'C':
 	case 'c':
+		return "update";
+	case 'D':
+	case 'd':
+		return "sync";
+	case 'E':
+	case 'e':
 		return "diff";
+	case 'Q':
+	case 'q':
+		exit(1);
 	}
 	return "";
 }
@@ -99,13 +114,15 @@ int main(int argc, char *argv[])
 {
 	bool bError=false; // An error parsing the command line
 
+	string sUsers;
+
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
 		if( argv[optnum][0]!='-' )
 		{
-			g_GlobalConfig.m_sCommand = argv[++optnum];
-			if( optnum<argc )
+			g_GlobalConfig.m_sCommand = argv[optnum];
+			if( optnum<argc-1 )
 				bError=true;	// The command must be the last thing on the line
 			break;
 		}
@@ -134,6 +151,9 @@ int main(int argc, char *argv[])
 		case 't':
 			g_GlobalConfig.m_sTable = argv[++optnum];
 			break;
+		case 'U':
+			sUsers = argv[++optnum];
+			break;
 		default:
 			bError=true;
 			break;
@@ -143,7 +163,7 @@ int main(int argc, char *argv[])
 	if ( bError)
 	{
 		cout << "sqlCVS, v." << sqlCVS_VERSION << endl
-			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-i Table(s)]" << endl
+			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-t Table(s)] [-U Users(s)]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
@@ -157,7 +177,7 @@ int main(int argc, char *argv[])
 
 	try
 	{
-		g_pPlutoLogger = new DCE::FileLogger("sqlCVS.log");
+		g_pPlutoLogger = new DCE::FileLogger(stdout);
 		if(g_pPlutoLogger == NULL)
 		{
 			cerr << "Problem creating logger.  Check params." << endl;
@@ -170,9 +190,18 @@ int main(int argc, char *argv[])
 		err = WSAStartup(MAKEWORD( 1, 1 ),(LPWSADATA)  &wsaData);
 #endif
 		Database database(g_GlobalConfig.m_sDBHost, g_GlobalConfig.m_sDBUser, g_GlobalConfig.m_sDBPassword, g_GlobalConfig.m_sDBName, g_GlobalConfig.m_iDBPort);
+		g_GlobalConfig.m_pDatabase=&database;
 
 		// Fill the lists with any repositories or tables that were passed in on the command line
 		database.GetRepositoriesTables();
+
+		string::size_type pos=0;
+		string Token;
+		while( (Token=StringUtils::Tokenize(sUsers,",",pos)).length() )
+		{
+			string Password = StringUtils::Tokenize(sUsers,",",pos);
+			g_GlobalConfig.m_mapUsersPasswords[atoi(Token.c_str())]=Password;
+		}
 
 		while( true ) // An endless loop processing commands
 		{
@@ -180,6 +209,12 @@ int main(int argc, char *argv[])
 			{
 				g_GlobalConfig.m_sCommand=GetCommand();
 				database.m_bInteractiveMode=true;
+			}
+			if( database.bIsInvalid() && g_GlobalConfig.m_sCommand!="import" )
+			{
+				g_GlobalConfig.m_sCommand="";
+				cerr << "Database is invalid.  Import is the only available option" << endl;
+				continue;
 			}
 			if( g_GlobalConfig.m_sCommand=="create" )
 				database.CreateRepository();
@@ -193,6 +228,16 @@ int main(int argc, char *argv[])
 				}
 				database.CheckIn();
 			}
+			else if( g_GlobalConfig.m_sCommand=="update" )
+			{
+				if( g_GlobalConfig.m_sRepository.length() )
+				{   
+					// If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository
+					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
+					throw "Bad Arguments";
+				}
+				database.Update();
+			}
 			else if( g_GlobalConfig.m_sCommand=="listen" )
 			{
 				RAServer *pServer = new RAServer();
@@ -200,6 +245,20 @@ int main(int argc, char *argv[])
 				pServer->StartListening(g_GlobalConfig.m_iSqlCVSPort);
 				pServer->Run();
 				delete pServer;
+			}
+			else if( g_GlobalConfig.m_sCommand=="dump" )
+			{
+				if( g_GlobalConfig.m_sRepository.length() )
+				{   
+					// If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository
+					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
+					throw "Bad Arguments";
+				}
+				database.Dump();
+			}
+			else if( g_GlobalConfig.m_sCommand=="import" )
+			{
+				database.Import();
 			}
 /*
 			else if( Command=="add-tables" )

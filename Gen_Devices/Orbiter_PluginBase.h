@@ -79,19 +79,19 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_DeviceIDTo==m_DeviceID && pMessage->m_MessageType == MESSAGETYPE_COMMAND)
+			if (pMessage->m_dwPK_Device_To==m_DeviceID && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
-				switch(pMessage->m_ID)
+				switch(pMessage->m_dwID)
 				{
 				case 26:
 					{
 						string sCMD_Result="OK";
-					string sValue_To_Assign=pMessage->m_Parameters[5];
-					int iPK_Users=atoi(pMessage->m_Parameters[17].c_str());
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
+					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 						CMD_Set_User_Mode(sValue_To_Assign.c_str(),iPK_Users,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -102,11 +102,11 @@ public:
 				case 58:
 					{
 						string sCMD_Result="OK";
-					int iPK_Users=atoi(pMessage->m_Parameters[17].c_str());
+					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 						CMD_Set_Current_User(iPK_Users,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -117,11 +117,11 @@ public:
 				case 59:
 					{
 						string sCMD_Result="OK";
-					int iPK_EntertainArea=atoi(pMessage->m_Parameters[45].c_str());
+					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
 						CMD_Set_Entertainment_Area(iPK_EntertainArea,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -132,11 +132,11 @@ public:
 				case 77:
 					{
 						string sCMD_Result="OK";
-					int iPK_Room=atoi(pMessage->m_Parameters[57].c_str());
+					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
 						CMD_Set_Current_Room(iPK_Room,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -147,12 +147,12 @@ public:
 				case 78:
 					{
 						string sCMD_Result="OK";
-					int iPK_DeviceTemplate=atoi(pMessage->m_Parameters[44].c_str());
-					string sMac_address=pMessage->m_Parameters[47];
+					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
+					string sMac_address=pMessage->m_mapParameters[47];
 						CMD_New_Mobile_Orbiter(iPK_DeviceTemplate,sMac_address.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )

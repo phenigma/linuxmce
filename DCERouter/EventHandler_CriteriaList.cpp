@@ -92,7 +92,7 @@ bool EventHandler_CriteriaList::EvaluateExpression(class CriteriaParm *CriteriaP
 		break;
 	case CRITERIAPARMLIST_PK_EVENT_CONST:
 		{
-			int ID = pEventInfo->pMessage->m_ID;
+			int ID = pEventInfo->pMessage->m_dwID;
 			iLValue = &ID;
 		}
 		break;
@@ -102,7 +102,7 @@ bool EventHandler_CriteriaList::EvaluateExpression(class CriteriaParm *CriteriaP
 	case CRITERIAPARMLIST_EVENT_PARM_CONST:
 		PK_EventParameter = atoi( StringUtils::Tokenize(sRValue, "~", pos).c_str());;
 		sRValue = StringUtils::Tokenize(sRValue, "~", pos);
-		temp = pEventInfo->pMessage->m_Parameters[PK_EventParameter];
+		temp = pEventInfo->pMessage->m_mapParameters[PK_EventParameter];
 		sLValue = &temp;
 		break;
 	default:

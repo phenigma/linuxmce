@@ -23,23 +23,19 @@
 RA_Action::RA_Action()
 {
     // common-sense initial values
-    m_pcRequest = NULL;
     m_dwActionSize = m_dwActionChecksum = 0;
     m_pcAction = NULL;
 }
 
-RA_Action::RA_Action( unsigned long dwSize, const char *pcData )
+
+void RA_Action::CreateAction(unsigned long dwSize, const char *pcData)
 {
-    m_pcRequest=NULL;
-    StartReading( dwSize,(char *)pcData);
-    m_dwActionSize=m_dwActionChecksum=0;
-    m_pcAction=NULL;
+	SerializeRead(dwSize,(char *) pcData);
 }
 
 void RA_Action::ConvertActionToBinary()
 {
-    StartWriting();
-    Write_unsigned_long( ID() );
+	SerializeWrite();
     m_dwActionSize = (unsigned long) ( m_pcCurrentPosition - m_pcDataBlock );
     m_pcAction = m_pcDataBlock;
 }

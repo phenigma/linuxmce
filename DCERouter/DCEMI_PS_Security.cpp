@@ -29,7 +29,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Got security reset command");
 		delete pSecurityEvent;
 	}
 	m_pPlutoEvents->m_vectSecurityEvent.clear();
-	int PK_Device_From = pMessage->m_DeviceIDFrom;
+	int PK_Device_From = pMessage->m_dwPK_Device_From;
 	if( !PK_Device_From )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Security reset from no device");

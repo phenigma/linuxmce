@@ -94,6 +94,19 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 					}
 				}
 				break;
+			case SERIALIZE_DATA_TYPE_VECT_INT:
+				{
+					vector<int> *pVect = (vector<int> *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pVect->size());
+#ifdef DEBUG_SERIALIZATION
+					cout << "Writing " << (unsigned long) pVect->size() << " vector strings" << endl;
+#endif
+					for(size_t s=0; s < pVect->size(); ++s)
+					{
+						Write_unsigned_long( (*pVect)[s] );
+					}
+				}
+				break;
 			case SERIALIZE_DATA_TYPE_INT_STRING:
 				{
 					map<int,string> *pMap = (map<int,string> *) pItem->m_pItem;
@@ -172,6 +185,19 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 						string value;
 						Read_string(value);
 						pVect->push_back(value);
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_VECT_INT:
+				{
+					vector<int> *pVect = (vector<int> *) pItem->m_pItem;
+					unsigned long count = Read_unsigned_long();
+#ifdef DEBUG_SERIALIZATION
+					cout << "Reading " << count << " vector strings" << endl;
+#endif
+					for(size_t s=0;s<count;++s)
+					{
+						pVect->push_back(Read_unsigned_long());
 					}
 				}
 				break;

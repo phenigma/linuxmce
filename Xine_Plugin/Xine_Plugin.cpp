@@ -82,8 +82,8 @@ bool Xine_Plugin::MenuOnScreen(class Socket *pSocket,class Message *pMessage,cla
     if( !pDeviceFrom || pDeviceFrom->m_iPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
         return false; // Some other media player.  We only know xine's menu handling
 
-    int StreamID = atoi(pMessage->m_Parameters[EVENTPARAMETER_Stream_ID_CONST].c_str());
-    bool bOnOff = pMessage->m_Parameters[EVENTPARAMETER_OnOff_CONST]=="1";
+    int StreamID = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str());
+    bool bOnOff = pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST]=="1";
 
     // Find the stream
     MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(StreamID);
@@ -131,7 +131,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Mediastream  ea %p %d",pEntertainArea,pEntertai
         {
             // Send all the orbiters to the dvd menu
             DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_DeviceID,sOtherOrbiters,0,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"","",false);
-            DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_DeviceID,sOtherOrbiters,VARIABLE_PK_Device_CONST,StringUtils::itos(pMessage->m_DeviceIDFrom));
+            DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_DeviceID,sOtherOrbiters,VARIABLE_PK_Device_CONST,StringUtils::itos(pMessage->m_dwPK_Device_From));
 
             CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );
             QueueMessage(CMD_Set_Variable_DL.m_pMessage);
@@ -349,7 +349,7 @@ void Xine_Plugin::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     Message *pNewMessage = new Message(pMessage);
-    pNewMessage->m_DeviceIDTo = 6; // hack this in.  need to lookup streams
+    pNewMessage->m_dwPK_Device_To = 6; // hack this in.  need to lookup streams
     QueueMessage(pNewMessage);
 }
 //<-dceag-c40-b->
@@ -381,7 +381,7 @@ void Xine_Plugin::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     Message *pNewMessage = new Message(pMessage);
-    pNewMessage->m_DeviceIDTo = 6; // hack this in.  need to lookup streams
+    pNewMessage->m_dwPK_Device_To = 6; // hack this in.  need to lookup streams
     QueueMessage(pNewMessage);
 }
 
@@ -398,7 +398,7 @@ void Xine_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     Message *pNewMessage = new Message(pMessage);
-    pNewMessage->m_DeviceIDTo = 6; // hack this in.  need to lookup streams
+    pNewMessage->m_dwPK_Device_To = 6; // hack this in.  need to lookup streams
     QueueMessage(pNewMessage);
 }
 

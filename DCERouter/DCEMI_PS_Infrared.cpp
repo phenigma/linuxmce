@@ -60,12 +60,12 @@ bool DCEMI_PS_Infrared::LearnIRCancel(class Socket *pSocket,class Message *pMess
 bool DCEMI_PS_Infrared::LearnedCode(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
 	/*
-	int PK_PlutoOrbiter = atoi(pMessage->m_Parameters[C_EVENTPARAMETER_PK_CONTROLLER_CONST].c_str());
-	string Pronto = pMessage->m_Parameters[C_EVENTPARAMETER_TEXT_CONST];
-	string PlutoIR = pMessage->m_Parameters[C_EVENTPARAMETER_TOKEN_CONST];
-	int PK_Command = atoi(pMessage->m_Parameters[C_EVENTPARAMETER_ID_CONST].c_str());
+	int PK_PlutoOrbiter = atoi(pMessage->m_mapParameters[C_EVENTPARAMETER_PK_CONTROLLER_CONST].c_str());
+	string Pronto = pMessage->m_mapParameters[C_EVENTPARAMETER_TEXT_CONST];
+	string PlutoIR = pMessage->m_mapParameters[C_EVENTPARAMETER_TOKEN_CONST];
+	int PK_Command = atoi(pMessage->m_mapParameters[C_EVENTPARAMETER_ID_CONST].c_str());
 
-	DeviceData_Router *pDevice = m_pPlutoEvents->m_mapDevice_Find(pMessage->m_DeviceIDFrom);
+	DeviceData_Router *pDevice = m_pPlutoEvents->m_mapDevice_Find(pMessage->m_dwPK_Device_From);
 	if( !pDevice || !PK_Command || (Pronto=="" && PlutoIR=="") )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to learn code");
@@ -93,10 +93,10 @@ bool DCEMI_PS_Infrared::LearnedCode(class Socket *pSocket,class Message *pMessag
 	}
 	else
 	{
-        	PlutoOrbiter *pController = m_mapPlutoOrbiter_Find(pMessage->m_DeviceIDFrom);
+        	PlutoOrbiter *pController = m_mapPlutoOrbiter_Find(pMessage->m_dwPK_Device_From);
 	        if( !pController )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find controller for floorplan layout: %d",pMessage->m_DeviceIDFrom);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find controller for floorplan layout: %d",pMessage->m_dwPK_Device_From);
 	                return true;
 	        }
 		

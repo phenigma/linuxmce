@@ -23,11 +23,6 @@
 #include <set>
 #include <queue>
 
-#include "TokenStream.h"
-#include "SerializeClass/SerializeClass.h"
-
-#include "PlutoLockLogger.h"
-
 #define LV_CRITICAL 		1
 #define LV_WARNING 		5
 #define LV_EVENTHANDLER 	6
@@ -60,20 +55,19 @@
 #define LV_EPG_UPDATE	33
 #define LV_MEDIA		34
 
-typedef map<string, Logger*> NameLoggerMap;
-typedef map<string, string> StringStringMap;
-
-/**
- * While global variables aren't recommended, every object within the same memory space
- * will be using the same logger anyway.  This is cleaner than passing a pointer to a
- * the logger around.  Each program that uses this will have to create the actual
- * instance of g_pDCELogger, using whatever derived class is appropriate
- */ 
-extern class Logger *g_pDCELogger;
-
+#include "SerializeClass/SerializeClass.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+#include "PlutoLockLogger.h"
 
 namespace DCE 
 {
+	/**
+	* While global variables aren't recommended, every object within the same memory space
+	* will be using the same logger anyway.  This is cleaner than passing a pointer to a
+	* the logger around.  Each program that uses this will have to create the actual
+	* instance of g_pDCELogger, using whatever derived class is appropriate
+	*/ 
+	extern class Logger *g_pPlutoLogger;
 
 	/**
 	* @brief logger for the data command and events
@@ -85,7 +79,7 @@ namespace DCE
 	
 		std::string m_Name; /** < name of the logger */
 		int m_iPK_Installation; /** < the installation */
-		my_pthread_mutex_t m_Lock; /** < @todo ask */
+		pluto_pthread_mutex_t m_Lock; /** < @todo ask */
 		pthread_mutexattr_t m_MutexAttr; /** < @todo ask */
 	
 	public:
@@ -151,7 +145,7 @@ namespace DCE
 			Entry() {} /** < default (empty) constructor */
 			
 			/**
-			* @brief constructor that assignes values to the data members */
+			* @brief constructor that assignes values to the data members
 			*/
 			Entry( int Level, int Time, int Microseconds, string sName, string sData, int iPK_Device )
 			{
@@ -230,7 +224,7 @@ namespace DCE
 		* @brief returnes a new FileLogger to the file specified in the ts parameter
 		* @param ts the file name should be specified like this: {filename}
 		*/
-		static FileLogger* Parse( TokenStream& ts, StringStringMap& vars );
+//		static FileLogger* Parse( TokenStream& ts, StringStringMap& vars );
 		
 		/**
 		* @brief used to the console foreground and background color and bold attribute if in Windows
@@ -249,6 +243,8 @@ namespace DCE
 		virtual void WriteEntry( class Logger::Entry& entry );
 		
 	};
+	typedef map<string, Logger*> NameLoggerMap;
+	typedef map<string, string> StringStringMap;
 }
 
 #endif

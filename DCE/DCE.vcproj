@@ -136,13 +136,13 @@
 				RelativePath=".\Logger.cpp">
 			</File>
 			<File
-				RelativePath="md5c.cpp">
+				RelativePath="..\PlutoUtils\md5c.cpp">
 			</File>
 			<File
 				RelativePath=".\Message.cpp">
 			</File>
 			<File
-				RelativePath="minilzo.cpp">
+				RelativePath="..\PlutoUtils\minilzo.cpp">
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\MultiThreadIncludes.cpp">

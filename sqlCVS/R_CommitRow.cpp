@@ -4,6 +4,8 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "ChangedRow.h"
+#include "sqlCVSprocessor.h"
+#include "Table.h"
 
 #include <iostream>
 #include <sstream>
@@ -17,9 +19,39 @@ R_CommitRow::R_CommitRow(sqlCVS::ChangedRow *pChangedRow)
 	m_eTypeOfChange = pChangedRow->m_eTypeOfChange;
 }
 
-bool R_CommitRow::ProcessRequest()
+bool R_CommitRow::ProcessRequest(class RA_Processor *pRA_Processor)
 {
+	sqlCVSprocessor *psqlCVSprocessor = (sqlCVSprocessor *) pRA_Processor;
+	if( !psqlCVSprocessor->m_pTable || !psqlCVSprocessor->m_pTable->TrackChanges_get() )
+	{
+		cerr << "No table set to process and I'm getting a row" << endl;
+		m_cProcessOutcome=INTERNAL_ERROR;
+	}
+
+	m_iNewAutoIncrID=0;
 	m_cProcessOutcome=SUCCESSFULLY_PROCESSED; // Todo -- process it
+	try
+	{
+		if( m_eTypeOfChange==(int) sqlCVS::toc_New )
+		{
+			// This is a new record
+			psqlCVSprocessor->m_pTable->AddRow(this,psqlCVSprocessor);
+		}
+		else if( m_eTypeOfChange==(int) sqlCVS::toc_Modify )
+		{
+			// The user is updating an existing record
+			psqlCVSprocessor->m_pTable->UpdateRow(this,psqlCVSprocessor);
+		}
+		else if( m_eTypeOfChange==(int) sqlCVS::toc_Delete )
+		{
+			// The user is updating an existing record
+		}
+	}
+	catch(const char *pException)
+	{
+		cerr << "Failed to process CommitRow: " << pException;
+		m_cProcessOutcome=INTERNAL_ERROR;
+	}
 
 	return true;
 }

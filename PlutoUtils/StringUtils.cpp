@@ -142,6 +142,9 @@ void StringUtils::Tokenize(string &Input, string Tokens, deque<string> &deque_st
 
 string StringUtils::RepeatChar(char c,int count)
 {
+	if( count<1 )
+		return "";
+
 	char *cBuffer = new char[count+1];
 	for(int i=0;i<count;++i)
 		cBuffer[i]=c;
@@ -444,6 +447,16 @@ string StringUtils::SQLEscape( string sInput )
         pcPtr++;
     }
     return sOutput;
+}
+
+bool StringUtils::StartsWith( string sFirst, string sSecond )
+{
+	return sFirst.length()>=sSecond.length() && sFirst.substr(0,sSecond.length())==sSecond;
+}
+
+bool StringUtils::EndsWith( string sFirst, string sSecond )
+{
+	return sFirst.length()>=sSecond.length() && sFirst.substr(sFirst.length()-sSecond.length())==sSecond;
 }
 
 #endif //#ifndef SYMBIAN

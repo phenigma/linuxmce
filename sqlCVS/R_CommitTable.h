@@ -19,7 +19,7 @@ public:
 	R_CommitTable(string sTableName,vector<string> *pvectFields);
 
 	// The server will call this constructor, then ProcessRequest
-	R_CommitTable(unsigned long size,const char *data);
+	R_CommitTable();
 
 	~R_CommitTable();
 
@@ -27,13 +27,11 @@ public:
 
 	void SetupSerialization_Request()
 	{
+		RA_Request::SetupSerialization_Request();
 		StartSerializeList() + m_sTableName + *m_pvectFields;
 	}
 
-	void SetupSerialization_Response()
-	{
-	}
-	virtual bool ProcessRequest();
+	virtual bool ProcessRequest(class RA_Processor *pRA_Processor);
 };
 
 

@@ -674,8 +674,8 @@ void MobileOrbiter::CreateMediaFilesMenu(string &sText,string &sTokens,string &s
 	DCEMI_PS_VirtualDevices::listDCEFileInfo *listFileNames = new DCEMI_PS_VirtualDevices::listDCEFileInfo();
 	string::size_type pos=0;
 
-	string ID = pMessage->m_Parameters[COMMANDPARAMETER_ID_CONST];
-	string Path = pMessage->m_Parameters[C_COMMANDPARAMETER_PATH_CONST];
+	string ID = pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
+	string Path = pMessage->m_mapParameters[C_COMMANDPARAMETER_PATH_CONST];
 
 	if( Path.length()>0 )
 		sTokens+="PATH|" + FileUtils::FilenameWithoutPath(Path) + "|";
@@ -1044,10 +1044,10 @@ void MobileOrbiter::CreateRemoteMediaAdvancedOptions(string &sText,string &sToke
 	{
 		ExtraCommand *pEA = *itList;
 		sMenuList += /*value not important*/   /*"\t" + pEA->m_sDescription + "\t" +
-			StringUtils::itos(pEA->m_pMessage->m_DeviceIDFrom) + " " + StringUtils::itos(pEA->m_pMessage->m_DeviceIDTo) +
-			" 1 " + StringUtils::itos(pEA->m_pMessage->m_ID) ;
+			StringUtils::itos(pEA->m_pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(pEA->m_pMessage->m_dwPK_Device_To) +
+			" 1 " + StringUtils::itos(pEA->m_pMessage->m_dwID) ;
 		map<int, string>::iterator itParms;
-		for(itParms=pEA->m_pMessage->m_Parameters.begin();itParms!=pEA->m_pMessage->m_Parameters.end();++itParms)
+		for(itParms=pEA->m_pMessage->m_mapParameters.begin();itParms!=pEA->m_pMessage->m_mapParameters.end();++itParms)
 		{
 			sMenuList += " " + StringUtils::itos((*itParms).first) + " \"" + (*itParms).second + "\"";
 		}
@@ -1088,10 +1088,10 @@ void MobileOrbiter::CreateRemoteMediaResendIR(string &sText,string &sTokens,stri
 	{
 		ExtraCommand *pEA = *itList;
 		sMenuList += /*value not important*/   /*"\t" + pEA->m_sDescription + "\t" +
-			StringUtils::itos(pEA->m_pMessage->m_DeviceIDFrom) + " " + StringUtils::itos(pEA->m_pMessage->m_DeviceIDTo) +
-			" 1 " + StringUtils::itos(pEA->m_pMessage->m_ID) ;
+			StringUtils::itos(pEA->m_pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(pEA->m_pMessage->m_dwPK_Device_To) +
+			" 1 " + StringUtils::itos(pEA->m_pMessage->m_dwID) ;
 		map<int, string>::iterator itParms;
-		for(itParms=pEA->m_pMessage->m_Parameters.begin();itParms!=pEA->m_pMessage->m_Parameters.end();++itParms)
+		for(itParms=pEA->m_pMessage->m_mapParameters.begin();itParms!=pEA->m_pMessage->m_mapParameters.end();++itParms)
 		{
 			sMenuList += " " + StringUtils::itos((*itParms).first) + " \"" + (*itParms).second + "\"";
 		}
@@ -1105,7 +1105,7 @@ void MobileOrbiter::CreateCameraViewMenu(string &sText,string &sTokens,Message *
 {
 	/*
 	sText += CameraMenu;
-	int PK_Device = atoi(pMessage->m_Parameters[COMMANDPARAMETER_ID_CONST].c_str());
+	int PK_Device = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST].c_str());
 	DeviceData_Router *pDevice = m_pCore->m_pPlutoEvents->m_mapDevice_Find(PK_Device);
 	if( !pDevice )
 		return;
@@ -1397,9 +1397,9 @@ void MobileOrbiter::CreateJoesInvoiceMenu(string &sText,string &sTokens,Message 
 	if( pMessage )
 	{
 		m_sLastAmount="";
-		if( pMessage->m_Parameters[COMMANDPARAMETER_ID_CONST].length()>0 )
-			m_sLastBasketID = pMessage->m_Parameters[COMMANDPARAMETER_ID_CONST];
-		m_iLastPage = atoi(pMessage->m_Parameters[C_COMMANDPARAMETER_ABS_LEVEL_CONST].c_str());
+		if( pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST].length()>0 )
+			m_sLastBasketID = pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
+		m_iLastPage = atoi(pMessage->m_mapParameters[C_COMMANDPARAMETER_ABS_LEVEL_CONST].c_str());
 	}
 	FILE *f = fopen(("/mnt/hlcs2025s/inv" + m_sLastBasketID).c_str(),"rb");
 	if( f )

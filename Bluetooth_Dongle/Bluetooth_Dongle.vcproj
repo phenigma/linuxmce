@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib WidcommSdk.lib StdDLL.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib libmySQL.lib dce.lib libpng-pluto-d.lib"
 				OutputFile="$(OutDir)/Bluetooth_Dongle.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../Libraries/pthreads-win32/lib&quot;;/pluto/WinBluetooth/lib;&quot;/pluto/CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;/pluto/CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;/pluto/CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;/pluto/CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;/mysql/lib/Debug;../lib;&quot;../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug&quot;"
+				AdditionalLibraryDirectories="&quot;../Libraries/pthreads-win32/lib&quot;;../WinBluetooth/lib;&quot;../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;/mysql/lib/Debug;../lib;&quot;../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Bluetooth_Dongle.pdb"
 				SubSystem="1"

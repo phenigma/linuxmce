@@ -83,7 +83,7 @@ protected:
 	// a NeedToRender object on the stack.  Each one will increment this counter, and decrement in the destructor.  When it's 0, it will call RedrawObjects automatically
 	bool m_bRerenderScreen;  // Set to true means ignore the objects to redraw, and just redraw the whole screen
 
-	int m_iDataGridRequestCounter;  // For testing purposes we can log all datagrid requests
+	int m_dwIDataGridRequestCounter;  // For testing purposes we can log all datagrid requests
 	DesignObj_OrbiterMap m_mapObj_All;	// All objects with the object ID in x.y.z.a.b format
 	map<string,DesignObj_DataList *> m_mapObj_AllNoSuffix;  // All object with the object ID as a string
 	list<ScreenHistory *> m_listScreenHistory; // A history of the screens we've visited
@@ -678,7 +678,7 @@ public:
 	~NeedToRender()
 	{
 		g_iDontRender--;
-		g_pPlutoLogger->Write(LV_STATUS,"Need To Render exit: %s m_iDontRender: %d",m_pWhere,g_iDontRender);
+		g_pPlutoLogger->Write(LV_STATUS,"Need To Render exit: %s m_dwIDontRender: %d",m_pWhere,g_iDontRender);
 		if( g_iDontRender==0 )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"calling redraw");

@@ -120,6 +120,12 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath=".\A_UpdateRow.cpp">
+			</File>
+			<File
+				RelativePath=".\ChangedRow.cpp">
+			</File>
+			<File
 				RelativePath="CommonFunctions.cpp">
 			</File>
 			<File
@@ -139,6 +145,15 @@
 			</File>
 			<File
 				RelativePath=".\R_CommitTable.cpp">
+			</File>
+			<File
+				RelativePath=".\R_GetAll_psc_id.cpp">
+			</File>
+			<File
+				RelativePath=".\R_UpdateRepository.cpp">
+			</File>
+			<File
+				RelativePath=".\R_UpdateTable.cpp">
 			</File>
 			<File
 				RelativePath="..\Ra\RA_Action.cpp">

@@ -52,7 +52,7 @@ Message::Message( Message *pMessage_Clone )
 	m_bRespondedToMessage = pMessage_Clone->m_bRespondedToMessage;
 	m_eBroadcastLevel = pMessage_Clone->m_eBroadcastLevel;
 	m_eExpectedResponse = pMessage_Clone->m_eExpectedResponse;
-	m_dwPK_Device_List_To = pMessage_Clone->m_dwPK_Device_List_To;
+	m_sPK_Device_List_To = pMessage_Clone->m_sPK_Device_List_To;
 
 	map<long, string>::iterator itParms;
 	for(itParms=pMessage_Clone->m_mapParameters.begin();itParms!=pMessage_Clone->m_mapParameters.end();++itParms)
@@ -125,7 +125,7 @@ Message::Message( long dwDeviceIDFrom, string dwDeviceIDTo, long dwPriority, lon
 	
 	m_dwPK_Device_From = dwDeviceIDFrom;
 	m_dwPK_Device_To = DEVICEID_LIST;
-	m_dwPK_Device_List_To = dwDeviceIDTo;
+	m_sPK_Device_List_To = dwDeviceIDTo;
 	m_dwID = dwID;
 	m_dwMessage_Type = dwMessageType;
 	m_dwPriority = dwPriority;
@@ -212,7 +212,7 @@ Message::Message(long dwDeviceIDFrom, long dwMasterDevice, eBroadcastLevel eBL, 
 			char *pcData = va_arg( marker, char* );
 			unsigned long dwSize = va_arg( marker, unsigned long );
 			m_mapData_Lengths[-Key] = dwSize;
-			char *pcInData = new char[Size];
+			char *pcInData = new char[dwSize];
 			memcpy( pcInData, pcData, dwSize );
 			m_mapData_Parameters[-Key] = pcInData;
 		}
@@ -278,7 +278,7 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
 	Write_long( m_eBroadcastLevel );
 	Write_unsigned_char( m_bRelativeToSender );
 	Write_long( m_eExpectedResponse );
-	Write_string( m_dwPK_Device_List_To );
+	Write_string( m_sPK_Device_List_To );
 
 	Write_unsigned_long( (unsigned long) m_mapParameters.size() );
 	map<long, string>::iterator itParms;
@@ -375,7 +375,7 @@ void Message::FromData( unsigned long dwSize, char *pcData )
 	m_eBroadcastLevel=(eBroadcastLevel) Read_long();
 	m_bRelativeToSender = Read_unsigned_char()==1;
 	m_eExpectedResponse=(eExpectedResponse) Read_long();
-	Read_string( m_dwPK_Device_List_To );
+	Read_string( m_sPK_Device_List_To );
 
 	unsigned long dwNumParms = Read_unsigned_long();
 	for( unsigned long dwNP = 0; dwNP < dwNumParms; ++dwNP )
@@ -383,11 +383,11 @@ void Message::FromData( unsigned long dwSize, char *pcData )
 		unsigned long dwID = Read_unsigned_long();
 		string sValue;
 		Read_string( sValue );
-		m_mapParameters[dwID] = dwValue;
+		m_mapParameters[dwID] = sValue;
 	}
 
 	unsigned long dwNumData = Read_unsigned_long();
-	for( unsigned long dwND = 0; iND < dwNumData; ++dwND )
+	for( unsigned long dwND = 0; dwND < dwNumData; ++dwND )
 	{
 		unsigned long dwID = Read_unsigned_long();
 		unsigned long Size = Read_unsigned_long();

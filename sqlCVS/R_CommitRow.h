@@ -21,27 +21,28 @@ public:
 	vector<string> m_vectValues;
 
 	// Response Variables
-	int m_iNewAutoIncrID;
+	int m_iNewAutoIncrID,m_psc_id_new,m_psc_batch_new;
 
 	// The server will call this constructor, then ProcessRequest
 	R_CommitRow(sqlCVS::ChangedRow *pChangedRow);
-	R_CommitRow(unsigned long size,const char *data) : RA_Request(size,data) {}
+	R_CommitRow() {};
 
 	virtual unsigned long ID() { return R_COMMIT_ROW; }
 
-	void SetupSerialization_Request()
+	virtual void SetupSerialization_Request()
 	{
+		RA_Request::SetupSerialization_Request();
 		StartSerializeList() + m_psc_id + m_psc_batch + m_psc_user +
 			m_iOriginalAutoIncrID + m_vectValues + m_eTypeOfChange;
 	}
 
-	void SetupSerialization_Response()
+	virtual void SetupSerialization_Response()
 	{
-		StartSerializeList() + m_iNewAutoIncrID;
+		RA_Request::SetupSerialization_Response();
+		StartSerializeList() + m_iNewAutoIncrID + m_psc_id_new + m_psc_batch_new;
 	}
 
-	virtual bool ParseResponse(unsigned long size,const char *data) { return true;};
-	virtual bool ProcessRequest();
+	virtual bool ProcessRequest(class RA_Processor *pRA_Processor);
 };
 
 

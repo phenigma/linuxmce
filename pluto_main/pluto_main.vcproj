@@ -352,6 +352,9 @@
 				RelativePath=".\Table_Device_Orbiter.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Device_StartupScript.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Device_Users.cpp">
 			</File>
 			<File
@@ -493,7 +496,7 @@
 				RelativePath=".\Table_StabilityStatus.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_Startup_Scripts.cpp">
+				RelativePath=".\Table_StartupScript.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Style.cpp">

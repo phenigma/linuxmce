@@ -78,23 +78,23 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_DeviceIDTo==m_DeviceID && pMessage->m_MessageType == MESSAGETYPE_COMMAND)
+			if (pMessage->m_dwPK_Device_To==m_DeviceID && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
-				switch(pMessage->m_ID)
+				switch(pMessage->m_dwID)
 				{
 				case 43:
 					{
 						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_Parameters[2].c_str());
-					string sPK_DesignObj=pMessage->m_Parameters[3];
-					string sFilename=pMessage->m_Parameters[13];
-					int iPK_MediaType=atoi(pMessage->m_Parameters[29].c_str());
-					int iPK_DeviceTemplate=atoi(pMessage->m_Parameters[44].c_str());
-					int iPK_EntertainArea=atoi(pMessage->m_Parameters[45].c_str());
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					string sPK_DesignObj=pMessage->m_mapParameters[3];
+					string sFilename=pMessage->m_mapParameters[13];
+					int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
+					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
+					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
 						CMD_MH_Play_Media(iPK_Device,sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,iPK_EntertainArea,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -105,14 +105,14 @@ public:
 				case 44:
 					{
 						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_Parameters[2].c_str());
-					int iPK_MediaType=atoi(pMessage->m_Parameters[29].c_str());
-					int iPK_DeviceTemplate=atoi(pMessage->m_Parameters[44].c_str());
-					int iPK_EntertainArea=atoi(pMessage->m_Parameters[45].c_str());
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
+					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
+					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
 						CMD_MH_Stop_Media(iPK_Device,iPK_MediaType,iPK_DeviceTemplate,iPK_EntertainArea,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -126,7 +126,7 @@ public:
 						CMD_MH_Send_Me_To_Remote(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -137,20 +137,20 @@ public:
 				case 74:
 					{
 						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_Parameters[2].c_str());
-					string sPK_DesignObj=pMessage->m_Parameters[3];
-					string sOnOff=pMessage->m_Parameters[8];
-					string sPK_DesignObj_CurrentScreen=pMessage->m_Parameters[16];
-					int iPK_Text=atoi(pMessage->m_Parameters[25].c_str());
-					string sOptions=pMessage->m_Parameters[39];
-					int iPK_EntertainArea=atoi(pMessage->m_Parameters[45].c_str());
-					int iPK_Text_Timecode=atoi(pMessage->m_Parameters[56].c_str());
-					int iPK_Text_SectionDesc=atoi(pMessage->m_Parameters[62].c_str());
-					int iPK_Text_Synopsis=atoi(pMessage->m_Parameters[63].c_str());
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					string sPK_DesignObj=pMessage->m_mapParameters[3];
+					string sOnOff=pMessage->m_mapParameters[8];
+					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+					int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
+					string sOptions=pMessage->m_mapParameters[39];
+					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
+					int iPK_Text_Timecode=atoi(pMessage->m_mapParameters[56].c_str());
+					int iPK_Text_SectionDesc=atoi(pMessage->m_mapParameters[62].c_str());
+					int iPK_Text_Synopsis=atoi(pMessage->m_mapParameters[63].c_str());
 						CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),iPK_Text,sOptions.c_str(),iPK_EntertainArea,iPK_Text_Timecode,iPK_Text_SectionDesc,iPK_Text_Synopsis,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )

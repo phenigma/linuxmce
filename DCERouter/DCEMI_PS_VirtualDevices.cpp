@@ -71,7 +71,7 @@ void DCEMI_PS_VirtualDevices::CheckForSpecialDevices()
 
 		if( pDevice->m_iPK_DeviceCategory==DEVICECATEGORY_ORBITER_CELL_CONST )
 		{
-			string MacAddress = pDevice->m_Parameters[C_DEVICEDATA_ID_CONST];
+			string MacAddress = pDevice->m_mapParameters[C_DEVICEDATA_ID_CONST];
 			if( MacAddress.length()>0 )
 			{
 				PlutoOrbiter *po = new PlutoOrbiter(this);

@@ -2,28 +2,44 @@
 #include "RA/RA_Processor.h"
 #include "R_CommitChanges.h"
 #include "R_CommitTable.h"
+#include "R_CommitRow.h"
+#include "R_GetAll_psc_id.h"
+#include "R_UpdateRepository.h"
+#include "R_UpdateTable.h"
+
+#include "A_UpdateRow.h"
+
 #include "sqlCVSProcessor.h"
 
 RA_Request *RA_Processor::BuildRequestFromData(long dwSize, const char *pcData, unsigned long dwRequestID)
 {
-	// Todo - put this in a common class
-	int iRemainingSize = 0;
-	const char *pcPosition = NULL;
-	if( dwSize > 0 )
-	{
-		pcPosition = pcData;
-		dwRequestID = *((unsigned long *)pcPosition);
-		pcPosition += sizeof(unsigned long);
-		iRemainingSize = dwSize-4;
-	}
-
 	RA_Request *pRequest=NULL;
 	switch( dwRequestID )
 	{
 	case R_COMMIT_CHANGES:
-		return new R_CommitChanges(iRemainingSize,pcPosition);
+		pRequest=new R_CommitChanges();
+		pRequest->CreateRequest(dwSize,pcData);
+		return pRequest;
 	case R_COMMIT_TABLE:
-		return new R_CommitTable(iRemainingSize,pcPosition);
+		pRequest=new R_CommitTable();
+		pRequest->CreateRequest(dwSize,pcData);
+		return pRequest;
+	case R_COMMIT_ROW:
+		pRequest=new R_CommitRow();
+		pRequest->CreateRequest(dwSize,pcData);
+		return pRequest;
+	case R_GET_ALL_PSC_ID:
+		pRequest=new R_GetAll_psc_id();
+		pRequest->CreateRequest(dwSize,pcData);
+		return pRequest;
+	case R_UPDATE_REPOSITORY:
+		pRequest=new R_UpdateRepository();
+		pRequest->CreateRequest(dwSize,pcData);
+		return pRequest;
+	case R_UPDATE_TABLE:
+		pRequest=new R_UpdateTable();
+		pRequest->CreateRequest(dwSize,pcData);
+		return pRequest;
 	};
 
 	return pRequest;
@@ -31,7 +47,15 @@ RA_Request *RA_Processor::BuildRequestFromData(long dwSize, const char *pcData, 
 
 RA_Action *RA_Processor::BuildActionFromData( long dwSize, const char *pcData, unsigned long dwActionID)
 {
-	return NULL;
+	RA_Action *pRA_Action=NULL;
+	switch( dwActionID )
+	{
+	case A_UPDATE_ROW:
+		pRA_Action=new A_UpdateRow();
+		pRA_Action->CreateAction(dwSize,pcData);
+		return pRA_Action;
+	}
+	return pRA_Action;
 }
 
 RA_Processor *RA_Processor::CreateRA_Processor()

@@ -20,14 +20,13 @@
 #include <sys/time.h>
 #endif
 
-#include "CommonIncludes.h"
 #include "Logger.h"
-#include "StringUtils/StringUtils.h"
-#include "DCEMessage.h"
-#include "TokenStream.h"
+#include "PlutoUtils/CommonIncludes.h"
+#include "PlutoUtils/StringUtils.h"
+#include "Message.h"
 
 #if (defined WIN32) && !defined(UNDER_CE) && !defined(UNICODE)
-#include "Win32/ConsoleColor.h"
+#include "PlutoUtils/ConsoleColor.h"
 #endif
 
 // some environment specific stuff
@@ -48,7 +47,7 @@ Logger::Logger( const char* pcName ) : m_Lock( "logger" )
 {
 	if( pcName ) m_Name = pcName;
 
-	m_iPK_Installation = atoi( StringUtils::get_pluto_parameter( "INSTALLATION" ).c_str() );
+//	m_iPK_Installation = atoi( StringUtils::get_pluto_parameter( "INSTALLATION" ).c_str() );
 
 	pthread_mutexattr_init( &m_MutexAttr );
 	pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
@@ -85,7 +84,7 @@ void Logger::Write( int iLevel, const char *pcFormat, ... )
 	gettimeofday( &tv, NULL );
 #endif
 	
- 	DCESAFETYLOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
+ 	PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 	
 	static char s[1024];
 	memset(s, 0, sizeof(s));
@@ -148,36 +147,6 @@ FileLogger::~FileLogger()
 	if( m_bNeedToClose ) fclose( m_LogFile );
 }
 
-FileLogger* FileLogger::Parse( TokenStream& ts, StringStringMap& vars )
-{
-	string sToken;
-	
-	sToken = ts.NextToken();
-	if( sToken != "{" )
-	{
-		fprintf( stderr, "Parse Error: file sections need to start with a '{'\n" );
-		return NULL;
-	}
-	
-	string sName;	
-	while( 1 )
-	{
-		sToken = ts.NextToken();
-		if( sToken == "}" )
-			break;
-			
-		if( sToken == "name" )
-			sName = ts.NextToken();
-		else
-		{
-			fprintf( stderr, "Parse Error: Unknown parameter '%s'\n", sToken.c_str() );
-			return NULL;
-		}
-	}
-
-	return new FileLogger( sName.c_str() );
-}
-
 void FileLogger::SetColor( int iColor )
 {
 	// This takes an ANSI color value (the number before the m)
@@ -217,11 +186,11 @@ void FileLogger::ClearConsole()
 
 void FileLogger::WriteEntry( Entry& Entry )
 {
-	DCESAFETYLOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
+	PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 	
-	struct tm *t = localtime((time_t *)&Entry.m_iTime);
+	struct tm *t = localtime((time_t *)&Entry.m_dwTime);
 	char acBuff[50];
-	double dwSec = (double)(Entry.m_iMicroseconds/1E6) + t->tm_sec;
+	double dwSec = (double)(Entry.m_dwMicroseconds/1E6) + t->tm_sec;
 	snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dwSec );
 	
 #ifdef LOG_MOUSE_CLICKS

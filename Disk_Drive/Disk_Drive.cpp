@@ -598,7 +598,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
                         m_discid = disc->discid;
 
                         Query query = m_mysql.create_Query();
-                        query << "select item_id from DCL_item_attribute where s_attribute_type = 'FREEDB_ID' and attribute_val = '";
+                        query << "select item_dwID from DCL_item_attribute where s_attribute_type = 'FREEDB_ID' and attribute_val = '";
                         query << disc->discid << "'";
                         printf("executing query 1\n");
                         pthread_mutex_lock (&sqlLock);
@@ -613,7 +613,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
                             str << "";
                             Query query = m_mysql.create_Query();
                             query << "select attribute_val FROM DCL_item_attribute";
-                            query << " where item_id = " << itemID; //rows[0][0];
+                            query << " where item_dwID = " << itemID; //rows[0][0];
                             query << " and s_attribute_type = 'CDTRACK'";
                             query << " order by order_no";
                             pthread_mutex_lock (&sqlLock);
@@ -630,7 +630,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
                             printf("ready to execute query looking for genre\n");
                             query.str("");
                             query << "select attribute_val FROM DCL_item_attribute";
-                            query << " where item_id = " << itemID;
+                            query << " where item_dwID = " << itemID;
                             query << " and s_attribute_type = 'CDDBGENRE'";
 
                             pthread_mutex_lock (&sqlLock);
@@ -664,7 +664,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
         fflush(stdout);
                                 result = queryResult.get_insert_id();
                                 query.str("");
-                                query << "insert into DCL_item_instance (item_id, instance_no, owner_id, s_status_type) values (";
+                                query << "insert into DCL_item_instance (item_dwID, instance_no, owner_id, s_status_type) values (";
                                 query << result << ", 1, '1control', 'A')";
         printf("query 1 - a\n");
         fflush(stdout);
@@ -677,7 +677,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
                                 pthread_mutex_unlock (&sqlLock);
 
                                 query.str("");
-                                query << "insert into DCL_item_attribute (item_id, s_attribute_type, order_no, attribute_val) values (";
+                                query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
                                 query << result << ", 'FREEDB_ID', 0, '" << disc->discid << "')";
         printf("query 2 - a\n");
         fflush(stdout);
@@ -689,7 +689,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
 
                                 string artist(disc->artist);
                                 query.str("");
-                                query << "insert into DCL_item_attribute (item_id, s_attribute_type, order_no, attribute_val) values (";
+                                query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
                                 query << result << ", 'ARTIST', 10, '";
                                 query << StringUtils::Replace(artist, string("'"), string("''")).c_str() << "')";
         printf("query 3 - a\n");
@@ -705,7 +705,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
                                 printf("setting disc genre to %s",genre.c_str());
                                 string s (disc->genre);
                                 str_to_lwr (s);
-                                query << "insert into DCL_item_attribute (item_id, s_attribute_type, order_no, attribute_val) values (";
+                                query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
                                 query << result << ", 'CDDBGENRE', 30, '" << s << "')";
         printf("query 4 - a\n");
         fflush(stdout);
@@ -718,7 +718,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
                                 query.str("");
                                 int mins = disc->length / 60;
                                 int secs = disc->length % 60;
-                                query << "insert into DCL_item_attribute (item_id, s_attribute_type, order_no, attribute_val) values (";
+                                query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
                                 query << result << ", 'CDTIME', 31, '" << mins << ":" << secs << "')";
         printf("query 5 - a\n");
         fflush(stdout);
@@ -737,7 +737,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
 
                                     string title(track->title);
                                     query.str("");
-                                    query << "insert into DCL_item_attribute (item_id, s_attribute_type, order_no, attribute_val) values (";
+                                    query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
                                     query << result << ", 'CDTRACK', " << seq++ <<", '";
                                     query << StringUtils::Replace(title, string("'"), string("''")).c_str() << "')";
         printf("query 6 track: %s\n",track->title);
@@ -891,7 +891,7 @@ string Disk_Drive::dvd_read_name(const int fd)
 
           // Update the mysql media library
 /*          Query query = m_mysql.create_Query();
-          query << "select item_id from DCL_item_attribute where s_attribute_type = 'FREEDB_ID' and attribute_val = '";
+          query << "select item_dwID from DCL_item_attribute where s_attribute_type = 'FREEDB_ID' and attribute_val = '";
           query << id.str() << "'";
           pthread_mutex_lock (&sqlLock);
           Result_Store rows = query.store();
@@ -911,14 +911,14 @@ string Disk_Drive::dvd_read_name(const int fd)
                   result = queryResult.get_insert_id();
                   m_what_is_ripping=result; // Set this now so it will be correct if we decide to rip it
                   query.str("");
-                  query << "insert into DCL_item_instance (item_id, instance_no, owner_id, s_status_type) values (";
+                  query << "insert into DCL_item_instance (item_dwID, instance_no, owner_id, s_status_type) values (";
                   query << result << ", 1, '1control', 'A')";
                   pthread_mutex_lock (&sqlLock);
                   query.execute();
                   pthread_mutex_unlock (&sqlLock);
 
                   query.str("");
-                  query << "insert into DCL_item_attribute (item_id, s_attribute_type, order_no, attribute_val) values (";
+                  query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
                   query << result << ", 'FREEDB_ID', 0, '" << id.str() << "')";
                   pthread_mutex_lock (&sqlLock);
                   query.execute();

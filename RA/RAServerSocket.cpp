@@ -31,7 +31,7 @@ RAServerSocket::~RAServerSocket()
 void RAServerSocket::Run()
 {
 	RA_Processor *pRA_Processor = RA_Processor::CreateRA_Processor();
-	bool bResult = pRA_Processor->ReceiveRequests(this);
+	while( pRA_Processor->ReceiveRequests(this) );
 
 	if (!SOCKFAIL(m_Socket))
 	{

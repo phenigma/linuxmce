@@ -3,9 +3,14 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "CommonFunctions.h"
+#include "sqlCVSprocessor.h"
+#include "Database.h"
 
 #include <iostream>
 #include <sstream>
+
+using namespace sqlCVS;
 
 R_CommitTable::R_CommitTable(string sTableName,vector<string> *pvectFields)
 {
@@ -13,11 +18,11 @@ R_CommitTable::R_CommitTable(string sTableName,vector<string> *pvectFields)
 	m_pvectFields=pvectFields;
 	m_bDeleteVectFields=false;
 }
-
 // The server will call this constructor, then ProcessRequest
-R_CommitTable::R_CommitTable(unsigned long size,const char *data)
-	: m_pvectFields(new vector<string>), m_bDeleteVectFields(true), RA_Request(size,data) 
+R_CommitTable::R_CommitTable()
 {
+	m_pvectFields = new vector<string>;
+	m_bDeleteVectFields=true;
 }
 
 R_CommitTable::~R_CommitTable()
@@ -26,8 +31,23 @@ R_CommitTable::~R_CommitTable()
 		delete m_pvectFields;
 }
 
-bool R_CommitTable::ProcessRequest()
+bool R_CommitTable::ProcessRequest(class RA_Processor *pRA_Processor)
 {
+	sqlCVSprocessor *psqlCVSprocessor = (sqlCVSprocessor *) pRA_Processor;
+
+	psqlCVSprocessor->m_pTable = g_GlobalConfig.m_pDatabase->m_mapTable_Find(m_sTableName);
+
+	if( !psqlCVSprocessor->m_pTable->Repository_get() )
+	{
+		cerr << "Trying to check in table: " << psqlCVSprocessor->m_pTable->Name_get() << " but it's not part of a repository" << endl;
+		m_cProcessOutcome=INTERNAL_ERROR;
+		return true;
+	}
+
+	delete psqlCVSprocessor->m_pvectFields; // In case there already was one
+	psqlCVSprocessor->m_pvectFields = m_pvectFields;
+	m_bDeleteVectFields=false;
+
 	m_cProcessOutcome=SUCCESSFULLY_PROCESSED; // Todo -- process it
 
 	return true;

@@ -46,10 +46,10 @@ bool DCEMI_PS_Media::Register()
 
 bool DCEMI_PS_Media::CreatedMedia(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
-	listMediaAttribute *listMA = MediaAttributes::AttributesFromString(pMessage->m_Parameters[COMMANDPARAMETER_Text_CONST]);
-	listMediaPicture *listMP = MediaAttributes::PicturesFromString(pMessage->m_Parameters[C_COMMANDPARAMETER_GRAPHIC_IMAGE_CONST]);
-	m_pMediaAttributes->CreatedMedia(atoi(pMessage->m_Parameters[COMMANDPARAMETER_Type_CONST].c_str()),
-		pMessage->m_Parameters[C_COMMANDPARAMETER_PATH_CONST],
+	listMediaAttribute *listMA = MediaAttributes::AttributesFromString(pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST]);
+	listMediaPicture *listMP = MediaAttributes::PicturesFromString(pMessage->m_mapParameters[C_COMMANDPARAMETER_GRAPHIC_IMAGE_CONST]);
+	m_pMediaAttributes->CreatedMedia(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST].c_str()),
+		pMessage->m_mapParameters[C_COMMANDPARAMETER_PATH_CONST],
 		listMA,listMP);
 	delete listMA;
 	delete listMP;
@@ -65,7 +65,7 @@ bool DCEMI_PS_Media::StartMedia(class Socket *pSocket,class Message *pMessage,cl
 	int MediaType=0,PK_Device=0;
 	string FileName="";
 	map<long, string>::iterator it;
-	for(it=pMessage->m_Parameters.begin();it!=pMessage->m_Parameters.end();++it)
+	for(it=pMessage->m_mapParameters.begin();it!=pMessage->m_mapParameters.end();++it)
 	{
 		if( (*it).first==COMMANDPARAMETER_Type_CONST )
 			MediaType = atoi((*it).second.c_str());

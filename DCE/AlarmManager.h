@@ -73,7 +73,7 @@ namespace DCE
 
 		struct AlarmEntry
 		{
-			int alarm_id;
+			int alarm_dwID;
 			time_t when;
 			AlarmEvent* callback;
 			int id;

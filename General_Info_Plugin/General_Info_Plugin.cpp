@@ -137,10 +137,10 @@ void General_Info_Plugin::CMD_Get_Device_Data(int iPK_Device,int iPK_DeviceData,
 			*sValue_To_Assign="BAD DEVICE";
 		else
 		{
-			if( pDeviceData_Router->m_Parameters.find(iPK_DeviceData)==pDeviceData_Router->m_Parameters.end() )
+			if( pDeviceData_Router->m_mapParameters.find(iPK_DeviceData)==pDeviceData_Router->m_mapParameters.end() )
 				*sValue_To_Assign="BAD PARAMETER";
 			else
-				*sValue_To_Assign=pDeviceData_Router->m_Parameters[iPK_DeviceData];
+				*sValue_To_Assign=pDeviceData_Router->m_mapParameters[iPK_DeviceData];
 		}
 		return;
 	}

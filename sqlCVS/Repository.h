@@ -29,7 +29,15 @@ namespace sqlCVS
 		void Setup();
 		void Remove();
 		bool CheckIn();
+		bool Update();
+		void Dump();
+		bool DetermineDeletions();
 		void AddTablesToMap();
+		int CreateBatch();
+		int psc_id_last_sync_get(Table *pTable);
+		void psc_id_last_sync_set(Table *pTable,int psc_id);
+		int psc_batch_last_sync_get(Table *pTable);
+		void psc_batch_last_sync_set(Table *pTable,int psc_id);
 
 		class Table *CreateSettingTable();
 		class Table *CreateBatchHeaderTable();

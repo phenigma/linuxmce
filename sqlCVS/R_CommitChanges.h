@@ -10,16 +10,22 @@ public:
 	// Request Variables
 	map<int,string> m_mapUsersPasswords;  // All the users who are checking in this session
 	vector<string> m_vectTables; // The tables we will be checking in this session
+	string m_sRepository;
 
 	// Response Variables
 
-	// The call will call this constructor, then ConvertRequestToBinary
-	R_CommitChanges();
-	R_CommitChanges(unsigned long size,const char *data) : RA_Request(size,data) {}
+	R_CommitChanges(string sRepository);
+	R_CommitChanges() {};
 
 	virtual unsigned long ID() { return R_COMMIT_CHANGES; }
 
-	virtual bool ProcessRequest();
+	virtual void SetupSerialization_Request()
+	{
+		RA_Request::SetupSerialization_Request();
+		StartSerializeList() + m_sRepository;
+	}
+
+	virtual bool ProcessRequest(class RA_Processor *pRA_Processor);
 };
 
 

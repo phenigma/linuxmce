@@ -72,7 +72,7 @@ Orbiter::Orbiter(int DeviceID, string ServerAddress, string sLocalDirectory, boo
 	m_ScreenMutex.Init(&m_MutexAttr);
 	m_DatagridMutex.Init(&m_MutexAttr);
 
-	m_iDataGridRequestCounter=0;
+	m_dwIDataGridRequestCounter=0;
 
 	if( !m_bLocalMode )
 	{
@@ -332,12 +332,12 @@ int k=2;
                 string sResult="";
                 if (pMessage)
                 {
-                    if (pMessage->m_ID==FILERESULT_SUCCESS)
+                    if (pMessage->m_dwID==FILERESULT_SUCCESS)
                     {
 
-                        pObj->m_pCCF = new ProntoCCF(this, pMessage->m_DataParameters[1], pMessage->m_DataLengths[1], pObj, IRDevice);
+                        pObj->m_pCCF = new ProntoCCF(this, pMessage->m_mapData_Parameters[1], pMessage->m_mapData_Lengths[1], pObj, IRDevice);
                         // Clear the data parameters so the Message's destructor doesn't delete the data.
-                        pMessage->m_DataParameters.clear();
+                        pMessage->m_mapData_Parameters.clear();
                     }
                     delete pMessage;
                 }
@@ -591,9 +591,9 @@ void Orbiter::RenderDataGrid(DesignObj_DataGrid *pObj)
 
         if (pObj->CanGoDown())
         {
-            pObj->m_iDownRow = pObj->m_pDataGridTable->m_RowCount - 1;
+            pObj->m_dwIDownRow = pObj->m_pDataGridTable->m_RowCount - 1;
             DataGridCell * pCell = new DataGridCell("<Scroll down>");
-            RenderCell(pObj, pT, pCell, 0, pObj->m_iDownRow, GRAPHIC_NORMAL);
+            RenderCell(pObj, pT, pCell, 0, pObj->m_dwIDownRow, GRAPHIC_NORMAL);
             delete pCell;
 			bAddedDownButton=true;
         }
@@ -669,7 +669,7 @@ void Orbiter::PrepareRenderDataGrid(DesignObj_DataGrid *pObj, string& DelSelecti
             CMD_Show_Object(pObj->m_pObjRight->m_ObjectID,0,"","", pObj->CanGoRight() ? "1" : "0");
 
         // number of the row that has the respective scroll arrows
-        pObj->m_iDownRow = -1;
+        pObj->m_dwIDownRow = -1;
         pObj->m_iUpRow = -1;
     }
 }
@@ -1006,9 +1006,9 @@ bool Orbiter::SelectedGrid(DesignObj_DataGrid *pDesignObj_DataGrid, int X, int Y
 		for(j=pT->m_ColumnCount-1;j>=0 && !bFinishLoop;j--)
 		{
 			int x,y,w,h;
-			if( i==pDesignObj_DataGrid->m_iUpRow  || i==pDesignObj_DataGrid->m_iDownRow )
+			if( i==pDesignObj_DataGrid->m_iUpRow  || i==pDesignObj_DataGrid->m_dwIDownRow )
 			{
-				if( pDesignObj_DataGrid->m_iUpRow!=-1 && i!=pDesignObj_DataGrid->m_iDownRow && i!=pDesignObj_DataGrid->m_iUpRow )
+				if( pDesignObj_DataGrid->m_iUpRow!=-1 && i!=pDesignObj_DataGrid->m_dwIDownRow && i!=pDesignObj_DataGrid->m_iUpRow )
 					GetGridCellDimensions(pDesignObj_DataGrid, 1, 1, j, i+1, x, y, w, h);
 				else
 					GetGridCellDimensions(pDesignObj_DataGrid, 1, 1, j, i, x, y, w, h);
@@ -1018,7 +1018,7 @@ bool Orbiter::SelectedGrid(DesignObj_DataGrid *pDesignObj_DataGrid, int X, int Y
 				vm.Release();
 				if (PlutoRectangle(x, y, w, h).Contains(ContainsX, ContainsY))
 				{
-					if( i==pDesignObj_DataGrid->m_iDownRow )
+					if( i==pDesignObj_DataGrid->m_dwIDownRow )
 					{
 						CMD_Scroll_Grid("", "", DIRECTION_Down_CONST);
 						return false;  // No more processing
@@ -1084,15 +1084,15 @@ bool Orbiter::SelectedGrid(DesignObj_DataGrid *pDesignObj_DataGrid, DataGridCell
     {
 		Message *pMessage = new Message(pCell->m_pMessage);
 	    // See if we are re-rendering this grid.  If so
-        if( pMessage->m_MessageType==MESSAGETYPE_COMMAND &&
-            pMessage->m_ID==COMMAND_Populate_Datagrid_CONST &&
-            pMessage->m_Parameters[COMMANDPARAMETER_DataGrid_ID_CONST]==pDesignObj_DataGrid->m_sGridID )
+        if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND &&
+            pMessage->m_dwID==COMMAND_Populate_Datagrid_CONST &&
+            pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST]==pDesignObj_DataGrid->m_sGridID )
         {
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_CONTROLLER,"re-rendering grid: (%s",pDesignObj_DataGrid->GetParameterValue(DESIGNOBJPARAMETER_Data_grid_ID_CONST).c_str());
 #endif
 			bool bRefreshGrids=false;
-			string GridID = pMessage->m_Parameters[COMMANDPARAMETER_DataGrid_ID_CONST];
+			string GridID = pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST];
 			DesignObj_DataGrid *pDesignObj_DataGrid_OnScreen=NULL;
 			// See if this grid is onscreen
 			for(size_t s=0;s<m_vectObjs_GridsOnScreen.size();++s)
@@ -1113,9 +1113,9 @@ g_pPlutoLogger->Write(LV_CONTROLLER,"re-rendering grid: (%s",pDesignObj_DataGrid
             Message *pMessage_Out = m_pcRequestSocket->SendReceiveMessage(pMessage);
             if( pMessage_Out )
             {
-                int iPK_Variable = atoi(pMessage_Out->m_Parameters[COMMANDPARAMETER_PK_Variable_CONST].c_str());
+                int iPK_Variable = atoi(pMessage_Out->m_mapParameters[COMMANDPARAMETER_PK_Variable_CONST].c_str());
                 if( iPK_Variable )
-                    m_mapVariable[iPK_Variable] = pMessage_Out->m_Parameters[COMMANDPARAMETER_Value_To_Assign_CONST];
+                    m_mapVariable[iPK_Variable] = pMessage_Out->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
                 delete pMessage_Out;
             }
             pDesignObj_DataGrid->m_GridCurCol=pDesignObj_DataGrid->m_GridCurRow=0;
@@ -1704,9 +1704,9 @@ void Orbiter::InitializeGrid(DesignObj_DataGrid *pObj)
         pObj->m_GridCurRow = pObj->m_iInitialRowNum;
     }
 
-    ++m_iDataGridRequestCounter;
+    ++m_dwIDataGridRequestCounter;
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_CONTROLLER,"Initializing grid: %d (%s) options: %s (# %d)",m_DeviceID,pObj->m_sGridID.c_str(),pObj->m_sOptions.c_str(),m_iDataGridRequestCounter);
+    g_pPlutoLogger->Write(LV_CONTROLLER,"Initializing grid: %d (%s) options: %s (# %d)",m_DeviceID,pObj->m_sGridID.c_str(),pObj->m_sOptions.c_str(),m_dwIDataGridRequestCounter);
 #endif
 
     // Don't populate if we're not passing in anything at this point
@@ -1716,7 +1716,7 @@ void Orbiter::InitializeGrid(DesignObj_DataGrid *pObj)
         bool bResponse;
         int iPK_Variable=0;
         string sValue_To_Assign;
-        DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD(m_DeviceID, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_iDataGridRequestCounter),pObj->m_sGridID,
+        DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD(m_DeviceID, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_dwIDataGridRequestCounter),pObj->m_sGridID,
             pObj->m_iPK_Datagrid,SubstituteVariables(pObj->m_sOptions,pObj,0,0),&iPK_Variable,&sValue_To_Assign,&bResponse);
         if( !SendCommand(CMD_Populate_Datagrid_MD) || !bResponse ) // wait for a response
             g_pPlutoLogger->Write(LV_CRITICAL,"Populate datagrid: %d failed",pObj->m_iPK_Datagrid);
@@ -1828,7 +1828,7 @@ bool Orbiter::ParseConfigurationData(GraphicType Type)
 
     if (pMessage)
     {
-        sResult = pMessage->m_Parameters[0];
+        sResult = pMessage->m_mapParameters[0];
         delete pMessage;
     }
     else
@@ -1866,7 +1866,7 @@ bool Orbiter::ParseConfigurationData(GraphicType Type)
 
     if (pMessage)
     {
-        sResult = pMessage->m_Parameters[0];
+        sResult = pMessage->m_mapParameters[0];
         delete pMessage;
     }
     else
@@ -2756,7 +2756,7 @@ void Orbiter::ExecuteCommandsInList(DesignObjCommandList *pDesignObjCommandList,
                 bool bResponse;
                 int iPK_Variable=0;
                 string sValue_To_Assign;
-                DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD(m_DeviceID, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_iDataGridRequestCounter),
+                DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD(m_DeviceID, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_dwIDataGridRequestCounter),
                     GridID,atoi(pCommand->m_ParameterList[COMMANDPARAMETER_PK_Datagrid_CONST].c_str()),
                     SubstituteVariables(pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST],pObj,0,0),&iPK_Variable,&sValue_To_Assign,&bResponse);
                 if( !SendCommand(CMD_Populate_Datagrid_MD) || !bResponse ) // wait for a response
@@ -2769,28 +2769,28 @@ void Orbiter::ExecuteCommandsInList(DesignObjCommandList *pDesignObjCommandList,
 
             Message *pThisMessage = new Message(m_DeviceID,pCommand->m_PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,PK_Command,0);
             if( pCommand->m_PK_Device==DEVICEID_MASTERDEVICE )
-                pThisMessage->m_MasterDevice=pCommand->m_PK_DeviceTemplate;
+                pThisMessage->m_dwPK_Device_Template=pCommand->m_PK_DeviceTemplate;
             else if( pCommand->m_PK_Device==DEVICEID_CATEGORY )
-                pThisMessage->m_DeviceCategoryTo=pCommand->m_PK_DeviceCategory;
+                pThisMessage->m_dwPK_Device_Category_To=pCommand->m_PK_DeviceCategory;
 
             map<int, string>::iterator iap;
             for(iap=pCommand->m_ParameterList.begin();iap!=pCommand->m_ParameterList.end();++iap)
             {
                 string Value = SubstituteVariables((*iap).second,pObj,X,Y);
-                pThisMessage->m_Parameters[(*iap).first]=Value;
+                pThisMessage->m_mapParameters[(*iap).first]=Value;
             }
 
 /* todo 2.0
             if(PK_Device==DEVICEID_LIST)
-                pThisMessage->m_DeviceListTo = m_listDevice_Selected;
+                pThisMessage->m_sPK_Device_List_To = m_listDevice_Selected;
 */
-            pThisMessage->m_DeviceGroupIDTo=pCommand->m_PK_DeviceGroup;
+            pThisMessage->m_dwPK_Device_Group_ID_To=pCommand->m_PK_DeviceGroup;
 
             if( pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY )
             {
-                pThisMessage->m_DeviceIDTo = m_DeviceID; // So the handler will loop back to ourselves
+                pThisMessage->m_dwPK_Device_To = m_DeviceID; // So the handler will loop back to ourselves
                 ReceivedMessage(pThisMessage);
-                pThisMessage->m_DeviceIDTo = DEVICEID_HANDLED_INTERNALLY;
+                pThisMessage->m_dwPK_Device_To = DEVICEID_HANDLED_INTERNALLY;
 
                 // Don't bother sending grid movements either
                 if( PK_Command==COMMAND_Simulate_Keypress_CONST ||
@@ -3048,17 +3048,17 @@ bool Orbiter::AcquireGrid(DesignObj_DataGrid *pObj, int GridCurCol, int GridCurR
             pDataGridTable = NULL;
         }
 
-        ++m_iDataGridRequestCounter;
+        ++m_dwIDataGridRequestCounter;
 
 #ifdef DEBUG
-        g_pPlutoLogger->Write(LV_STATUS, "requesting grid (# %d), %s.", m_iDataGridRequestCounter,
+        g_pPlutoLogger->Write(LV_STATUS, "requesting grid (# %d), %s.", m_dwIDataGridRequestCounter,
             pObj->m_sGridID.c_str());
 #endif
         int size = 0;
         char *data = NULL;
 
         DCE::CMD_Request_Datagrid_Contents_MD CMD_Request_Datagrid_Contents_MD(m_DeviceID, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
-                StringUtils::itos(m_iDataGridRequestCounter),pObj->m_sGridID,GridCurRow,GridCurCol,
+                StringUtils::itos(m_dwIDataGridRequestCounter),pObj->m_sGridID,GridCurRow,GridCurCol,
                 pObj->m_MaxRow,pObj->m_MaxCol,pObj->m_bKeepRowHeader,pObj->m_bKeepColHeader,true,&data,&size);
 
         if( !SendCommand(CMD_Request_Datagrid_Contents_MD) )
@@ -3078,7 +3078,7 @@ bool Orbiter::AcquireGrid(DesignObj_DataGrid *pObj, int GridCurCol, int GridCurR
             }
             else
             {
-                g_pPlutoLogger->Write(LV_WARNING, "Error loading grid ID: %d", m_iDataGridRequestCounter);
+                g_pPlutoLogger->Write(LV_WARNING, "Error loading grid ID: %d", m_dwIDataGridRequestCounter);
             }
         }
     }
@@ -3937,7 +3937,7 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
         {
             g_pPlutoLogger->Write(LV_CRITICAL,"Load Graphic(3), length is %d %s", pWinGraphic->m_CompressedImageLength, pWinGraphic->m_Filename.c_str());
         }
-// what was this for???  Doesn't the framework delete this?  It makes it impossible to call from within Orbiter -- todo        m_pThisMessage->m_DataParameters.clear();
+// what was this for???  Doesn't the framework delete this?  It makes it impossible to call from within Orbiter -- todo        m_pThisMessage->m_mapData_Parameters.clear();
         pWinGraphic->m_GraphicFormat = (eGraphicFormat)atoi(sType.c_str());
         pWinGraphic->m_GraphicManagement = GR_DYNAMIC;
         if ( sDisable_Aspect_Lock.length() )
@@ -3999,7 +3999,7 @@ void Orbiter::CalculateGridUp(DesignObj_DataGrid *pObj, int &CurRow, int CellsTo
     if (CellsToSkip == 0)
         CellsToSkip = pObj->m_MaxRow - (pObj->m_pDataGridTable->m_bKeepRowHeader ? 1 : 0);
 
-    bool bCanGoDown = pObj->m_iDownRow >= 0;
+    bool bCanGoDown = pObj->m_dwIDownRow >= 0;
     bool bCanGoUp = pObj->m_iUpRow >= 0;
     CellsToSkip -= bCanGoDown + (bCanGoUp && bCanGoDown);
 
@@ -4015,13 +4015,13 @@ void Orbiter::CalculateGridDown(DesignObj_DataGrid *pObj, int &CurRow, int Cells
 {
     PLUTO_SAFETY_LOCK(dg, m_DatagridMutex);
 
-    if (pObj->m_iDownRow < 0 && CellsToSkip == 0 && pObj->m_sExtraInfo.find('C')==string::npos )
+    if (pObj->m_dwIDownRow < 0 && CellsToSkip == 0 && pObj->m_sExtraInfo.find('C')==string::npos )
         return;
 
     if (CellsToSkip == 0)
         CellsToSkip = pObj->m_MaxRow - (pObj->m_pDataGridTable->m_bKeepRowHeader ? 1 : 0);
 
-    bool bCanGoDown = pObj->m_iDownRow >= 0;
+    bool bCanGoDown = pObj->m_dwIDownRow >= 0;
     bool bCanGoUp = pObj->m_iUpRow >= 0;
     CellsToSkip -= (bCanGoDown + bCanGoUp);
 

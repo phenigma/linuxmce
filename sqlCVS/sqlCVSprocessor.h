@@ -12,17 +12,24 @@
 
 #include "RA/RA_Processor.h"
 
+namespace sqlCVS
+{
+	class Table;
+	class Repository;
+}
+
 /**
  * @brief request action processor class
  */
 class sqlCVSprocessor : public RA_Processor
 {
 public:
-	map<int,int> m_mapVerifiedUsers; // The confirmed users who are committing the changes
-	class Table *m_pTable; // The table we are currently committing
-	vector<string> m_vectFields;  // The fields we are currently committing
+	sqlCVS::Table *m_pTable; // The table we are currently committing
+	vector<string> *m_pvectFields;
+	int m_i_psc_batch;
+	sqlCVS::Repository *m_pRepository;  // The repository we're currently committing
 
-	sqlCVSprocessor() : RA_Processor(0,1) { m_pTable=NULL; }
+	sqlCVSprocessor() : RA_Processor(0,1) { m_pTable=NULL; m_pvectFields=NULL; m_i_psc_batch=1; m_pRepository=NULL; }
 
 };
 

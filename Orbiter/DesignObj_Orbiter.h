@@ -214,11 +214,11 @@ public:
 
 		m_pObjLeft=m_pObjRight=m_pObjUp=m_pObjDown=NULL;
 		bReAcquire=false;
-		m_iDownRow=m_iUpRow=-1;
+		m_dwIDownRow=m_iUpRow=-1;
 	}
 	virtual ~DesignObj_DataGrid(); 
 
-	int m_iDownRow,m_iUpRow;  // These are the rows which have up/down arrows.  If up==-1, there is no up arrow, same for down.  Otherwise it's 0 based
+	int m_dwIDownRow,m_iUpRow;  // These are the rows which have up/down arrows.  If up==-1, there is no up arrow, same for down.  Otherwise it's 0 based
 	int m_iHighlightedRow,m_iHighlightedColumn;
 	bool bReAcquire;
 	class DataGridTable *m_pDataGridTableCache[CACHE_SIZE];

@@ -8,5 +8,10 @@
 #define R_COMMIT_CHANGES		1
 #define R_COMMIT_TABLE			2
 #define R_COMMIT_ROW			3
+#define R_GET_ALL_PSC_ID		4
+#define R_UPDATE_REPOSITORY		5
+#define R_UPDATE_TABLE			6
+
+#define A_UPDATE_ROW			1
 
 #endif

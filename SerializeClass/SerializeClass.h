@@ -48,10 +48,12 @@ class PlutoRectangle;
 #define SERIALIZE_DATA_TYPE_STRING			6
 #define SERIALIZE_DATA_TYPE_VECT_STRING		7
 #define SERIALIZE_DATA_TYPE_INT_STRING		8
-#define SERIALIZE_DATA_TYPE_COLOR			9
-#define SERIALIZE_DATA_TYPE_POINT			10
-#define SERIALIZE_DATA_TYPE_SIZE			11
-#define SERIALIZE_DATA_TYPE_RECTANGLE		12
+#define SERIALIZE_DATA_TYPE_VECT_INT		9
+
+#define SERIALIZE_DATA_TYPE_COLOR			50
+#define SERIALIZE_DATA_TYPE_POINT			51
+#define SERIALIZE_DATA_TYPE_SIZE			52
+#define SERIALIZE_DATA_TYPE_RECTANGLE		53
 
 /**
  * @brief class containing info about the item to serialize
@@ -189,6 +191,7 @@ public:
 #ifndef SYMBIAN
 	SerializeClass &operator+ (vector<string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a vector of strings */
 	SerializeClass &operator+ (map<int,string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
+	SerializeClass &operator+ (vector<int> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
 #endif
 
 	SerializeClass &operator+ (PlutoColor &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_COLOR,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoColor object */

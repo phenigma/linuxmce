@@ -78,19 +78,19 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_DeviceIDTo==m_DeviceID && pMessage->m_MessageType == MESSAGETYPE_COMMAND)
+			if (pMessage->m_dwPK_Device_To==m_DeviceID && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
-				switch(pMessage->m_ID)
+				switch(pMessage->m_dwID)
 				{
 				case 28:
 					{
 						string sCMD_Result="OK";
-					int iPK_Button=atoi(pMessage->m_Parameters[26].c_str());
-					string sName=pMessage->m_Parameters[50];
+					int iPK_Button=atoi(pMessage->m_mapParameters[26].c_str());
+					string sName=pMessage->m_mapParameters[50];
 						CMD_Simulate_Keypress(iPK_Button,sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -101,13 +101,13 @@ public:
 				case 67:
 					{
 						string sCMD_Result="OK";
-					string sFilename=pMessage->m_Parameters[13];
-					string sName=pMessage->m_Parameters[50];
-					string sArguments=pMessage->m_Parameters[51];
+					string sFilename=pMessage->m_mapParameters[13];
+					string sName=pMessage->m_mapParameters[50];
+					string sArguments=pMessage->m_mapParameters[51];
 						CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -118,11 +118,11 @@ public:
 				case 69:
 					{
 						string sCMD_Result="OK";
-					string sName=pMessage->m_Parameters[50];
+					string sName=pMessage->m_mapParameters[50];
 						CMD_Kill_Application(sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -133,11 +133,11 @@ public:
 				case 70:
 					{
 						string sCMD_Result="OK";
-					string sName=pMessage->m_Parameters[50];
+					string sName=pMessage->m_mapParameters[50];
 						CMD_Hide_Application(sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )

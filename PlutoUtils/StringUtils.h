@@ -80,8 +80,17 @@ namespace StringUtils
      */
     int CompareNoCase( string sFirst, string sSecond );
 
+	/**
+     * @brief returns true if sFirst starts with sSecond
+     */
+    bool StartsWith( string sFirst, string sSecond );
 
-    /**
+	/**
+     * @brief returns true if sFirst ends with sSecond
+     */
+    bool EndsWith( string sFirst, string sSecond );
+
+	/**
      * @brief replaces the sSearch string with the sReplace string in the sInput string
      */
     string Replace( string &sInput, string sSearch, string sReplace );

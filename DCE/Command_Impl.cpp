@@ -192,8 +192,8 @@ void Command_Impl::ReplaceParams( ::std::string sReplacement ) {
 		
 			if (( sParam1 != "" ) && ( sParam2 != "" ) && ( iParam_value != 0 ))
 			{
-				m_pData->m_Parameters.erase( iParam_value ); // erase the old value
-				m_pData->m_Parameters.insert( pair<int, string>( iParam_value, sParam2 ) ); // insert a new one
+				m_pData->m_mapParameters.erase( iParam_value ); // erase the old value
+				m_pData->m_mapParameters.insert( pair<int, string>( iParam_value, sParam2 ) ); // insert a new one
 			}
 			else bDone = true;
 	
@@ -247,7 +247,7 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 	// If it can't it will pass it to this function.
 	map<long, string>::iterator p;
 
-	if ( pMessage->m_MessageType == MESSAGETYPE_SYSCOMMAND && pMessage->m_ID == SYSCOMMAND_QUIT )
+	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_QUIT )
 	{
 		SendString("BYE");
 		Sleep(250);
@@ -260,7 +260,7 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 		return true;
 	}
 	
-	if ( pMessage->m_MessageType == MESSAGETYPE_SYSCOMMAND && pMessage->m_ID == SYSCOMMAND_RELOAD )
+	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_RELOAD )
 	{
 		SendString("BYE");
 		Sleep(250);
@@ -268,42 +268,42 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 		return true;
 	}
 	
-	if ( m_bHandleChildren && pMessage->m_DeviceIDTo != m_DeviceID )
+	if ( m_bHandleChildren && pMessage->m_dwPK_Device_To != m_DeviceID )
 	{
 		// This is slightly inelegant because we don't want to change
 		// the base class implementation in order to do this.  If the target device ID is not this device
 		// and we're handling children, set the target device ID to the child, change the target,
 		// and run it back through ReceivedMessage so the higher level class processes it as
 		// it's own.
-		m_iTargetDeviceID  = pMessage->m_DeviceIDTo;
-		pMessage->m_DeviceIDTo = m_DeviceID;
+		m_iTargetDeviceID  = pMessage->m_dwPK_Device_To;
+		pMessage->m_dwPK_Device_To = m_DeviceID;
 		return ReceivedMessage( pMessage );
 	}
 	
-	if ( pMessage->m_MessageType == MESSAGETYPE_DATAPARM_REQUEST && pMessage->m_DeviceIDTo == m_DeviceID )
+	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST && pMessage->m_dwPK_Device_To == m_DeviceID )
 	{
 			/** @todo:
-			p = m_pData->m_Parameters.find(pMessage->m_ID);
-			if (p==m_pData->m_Parameters.end())
+			p = m_pData->m_mapParameters.find(pMessage->m_dwID);
+			if (p==m_pData->m_mapParameters.end())
 			{
 				SendString("ERR Parameter not found");
 			}
 			else
 			{
-				RequestingParameter(pMessage->m_ID);
-				SendMessage(new Message(m_DeviceID, pMessage->m_DeviceIDFrom, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_ID, (*p).second.c_str()));
+				RequestingParameter(pMessage->m_dwID);
+				SendMessage(new Message(m_DeviceID, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, (*p).second.c_str()));
 			}
 			*/
 		return true;
 	}
 	else 
-		if ( pMessage->m_MessageType == MESSAGETYPE_DATAPARM_CHANGE && pMessage->m_DeviceIDTo == m_DeviceID )
+		if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE && pMessage->m_dwPK_Device_To == m_DeviceID )
 		{
-			p = pMessage->m_Parameters.begin();
-			if ( p != pMessage->m_Parameters.end() )
+			p = pMessage->m_mapParameters.begin();
+			if ( p != pMessage->m_mapParameters.end() )
 			{
-				string ValueOld = m_pData->m_Parameters[(*p).first];
-				m_pData->m_Parameters[(*p).first] = (*p).second;
+				string ValueOld = m_pData->m_mapParameters[(*p).first];
+				m_pData->m_mapParameters[(*p).first] = (*p).second;
 				g_pPlutoLogger->Write( LV_STATUS, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_DeviceID );
 				SendString( "OK" );
 				OnDataChange( (*p).first, ValueOld, (*p).second );
@@ -405,7 +405,7 @@ bool Command_Impl::SendCommand( PreformedCommand &pPreformedCommand, int iConfir
 	// There are out parameters, we need to get a message back in return
 	pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
-	if( !pResponse || pResponse->m_ID != 0 )
+	if( !pResponse || pResponse->m_dwID != 0 )
 		return false;
 	pPreformedCommand.ParseResponse( pResponse );
 	return true;

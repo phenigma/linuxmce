@@ -77,18 +77,18 @@ void ServerLogger::WriteEntry(Logger::Entry& entry)
 	Message* msg = new Message(m_DeviceID, DEVICEID_LOGGER,PRIORITY_NORMAL, MESSAGETYPE_LOG, 0, 0);
 	entry.SerializeWrite();
 /*
-	m_iDeviceStructure_Size=(unsigned long) allDevices.CurrentSize();
-	m_pDeviceStructure=new char[m_iDeviceStructure_Size];
-	memcpy(m_pDeviceStructure,allDevices.m_pcDataBlock,m_iDeviceStructure_Size);
+	m_dwIDeviceStructure_Size=(unsigned long) allDevices.CurrentSize();
+	m_pDeviceStructure=new char[m_dwIDeviceStructure_Size];
+	memcpy(m_pDeviceStructure,allDevices.m_pcDataBlock,m_dwIDeviceStructure_Size);
 */
-	msg->m_DataParameters[0] = entry.m_pcDataBlock;
-	msg->m_DataLengths[0] = entry.CurrentSize();
+	msg->m_mapData_Parameters[0] = entry.m_pcDataBlock;
+	msg->m_mapData_Lengths[0] = entry.CurrentSize();
 /*
-	m_Parameters[LOG_PARAM_TIMESTAMP] = string(c);
-	msg->m_Parameters[LOG_PARAM_NAME] = entry.Name;
-	msg->m_Parameters[LOG_PARAM_DEVICE] = StringUtils::itos(entry.DeviceID);
-	msg->m_Parameters[LOG_PARAM_DATA] = entry.m_sData;
-	msg->m_Parameters[LOG_PARAM_LEVEL] = StringUtils::itos(entry.Level);
+	m_mapParameters[LOG_PARAM_TIMESTAMP] = string(c);
+	msg->m_mapParameters[LOG_PARAM_NAME] = entry.Name;
+	msg->m_mapParameters[LOG_PARAM_DEVICE] = StringUtils::itos(entry.DeviceID);
+	msg->m_mapParameters[LOG_PARAM_DATA] = entry.m_sData;
+	msg->m_mapParameters[LOG_PARAM_LEVEL] = StringUtils::itos(entry.Level);
 */
 	SendMessage(msg);
 }

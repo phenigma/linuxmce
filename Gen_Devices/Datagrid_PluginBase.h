@@ -82,28 +82,28 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_DeviceIDTo==m_DeviceID && pMessage->m_MessageType == MESSAGETYPE_COMMAND)
+			if (pMessage->m_dwPK_Device_To==m_DeviceID && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
-				switch(pMessage->m_ID)
+				switch(pMessage->m_dwID)
 				{
 				case 34:
 					{
 						string sCMD_Result="OK";
-					string sID=pMessage->m_Parameters[10];
-					string sDataGrid_ID=pMessage->m_Parameters[15];
-					int iRow=atoi(pMessage->m_Parameters[32].c_str());
-					int iColumn=atoi(pMessage->m_Parameters[33].c_str());
-					int iRow_count=atoi(pMessage->m_Parameters[34].c_str());
-					int iColumn_count=atoi(pMessage->m_Parameters[35].c_str());
-					bool bKeep_Row_Header=(pMessage->m_Parameters[36]=="1" ? true : false);
-					bool bKeep_Column_Header=(pMessage->m_Parameters[37]=="1" ? true : false);
-					bool bAdd_UpDown_Arrows=(pMessage->m_Parameters[49]=="1" ? true : false);
+					string sID=pMessage->m_mapParameters[10];
+					string sDataGrid_ID=pMessage->m_mapParameters[15];
+					int iRow=atoi(pMessage->m_mapParameters[32].c_str());
+					int iColumn=atoi(pMessage->m_mapParameters[33].c_str());
+					int iRow_count=atoi(pMessage->m_mapParameters[34].c_str());
+					int iColumn_count=atoi(pMessage->m_mapParameters[35].c_str());
+					bool bKeep_Row_Header=(pMessage->m_mapParameters[36]=="1" ? true : false);
+					bool bKeep_Column_Header=(pMessage->m_mapParameters[37]=="1" ? true : false);
+					bool bAdd_UpDown_Arrows=(pMessage->m_mapParameters[49]=="1" ? true : false);
 						char *pData;int iData_Size;
 						CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iRow,iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,&pData,&iData_Size,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_DataParameters[19]=pData; pMessageOut->m_DataLengths[19]=iData_Size;
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -114,18 +114,18 @@ public:
 				case 35:
 					{
 						string sCMD_Result="OK";
-					string sID=pMessage->m_Parameters[10];
-					string sDataGrid_ID=pMessage->m_Parameters[15];
-					int iPK_Datagrid=atoi(pMessage->m_Parameters[38].c_str());
-					string sOptions=pMessage->m_Parameters[39];
+					string sID=pMessage->m_mapParameters[10];
+					string sDataGrid_ID=pMessage->m_mapParameters[15];
+					int iPK_Datagrid=atoi(pMessage->m_mapParameters[38].c_str());
+					string sOptions=pMessage->m_mapParameters[39];
 						int iPK_Variable;string sValue_To_Assign;bool bIsSuccessful;
 						CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_Datagrid,sOptions.c_str(),&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_Parameters[4]=StringUtils::itos(iPK_Variable);
-						pMessageOut->m_Parameters[5]=sValue_To_Assign;
-						pMessageOut->m_Parameters[40]=(bIsSuccessful ? "1" : "0");
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[4]=StringUtils::itos(iPK_Variable);
+						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+						pMessageOut->m_mapParameters[40]=(bIsSuccessful ? "1" : "0");
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )

@@ -185,7 +185,7 @@ Message *Socket::ReceiveMessage(int Length)
 				delete[] buffer;
 			#ifdef LOG_ALL_CONTROLLER_ACTIVITY
 				LACA_B4_5("Received Message from: %d to: %d type: %d id: %d %s",
-					pMessage->m_DeviceIDFrom,pMessage->m_DeviceIDTo,pMessage->m_MessageType,pMessage->m_ID,m_sName.c_str());
+					pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,m_sName.c_str());
 			#endif
 				return pMessage;
 			}

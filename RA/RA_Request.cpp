@@ -43,7 +43,7 @@ void RA_Request::ResetValues()
 	m_dwRequestChecksum = m_dwRequestSize = 0;
 }
 
-RA_Request::RA_Request(unsigned long dwSize, const char *pcData)
+void RA_Request::CreateRequest(unsigned long dwSize, const char *pcData)
 {
 	m_bSerializingRequest=true;
 	ResetValues();
@@ -75,4 +75,12 @@ bool RA_Request::ParseResponse(unsigned long dwSize, const char *pcData)
 	SerializeRead(dwSize, (char *)pcData);
 	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
 	return true;
+}
+
+void RA_Request::SetupSerialization() 
+{ 
+	if(m_bSerializingRequest) 
+		SetupSerialization_Request(); 
+	else 
+		SetupSerialization_Response(); 
 }

@@ -142,7 +142,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
     }
 
     makeActive(m_pXineSlaveControl->getRenderingWindowName());
-    m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_DeviceIDFrom);
+    m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From);
 }
 
 //<-dceag-c38-b->

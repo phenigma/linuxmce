@@ -178,8 +178,8 @@ void Media_Plugin::AddDeviceToEntertainArea(EntertainArea *pEntertainArea,Row_De
 bool Media_Plugin::MediaInserted(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-	int PK_MediaType = atoi( pMessage->m_Parameters[EVENTPARAMETER_FK_MediaType_CONST].c_str() );
-	string MRL = pMessage->m_Parameters[EVENTPARAMETER_MRL_CONST];
+	int PK_MediaType = atoi( pMessage->m_mapParameters[EVENTPARAMETER_FK_MediaType_CONST].c_str() );
+	string MRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
 
 	// First figure out what entertainment area this corresponds to.  We are expecting that whatever media player is running on this pc will have
 	// added the disc drive to it's entertainment area when it registered
@@ -306,7 +306,7 @@ bool Media_Plugin::StartMedia(MediaPluginInfo *pMediaPluginInfo,int PK_Device_Or
 class DataGridTable *Media_Plugin::CurrentMedia(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-	class MediaStream *pMediaStream = DetermineStreamOnOrbiter(pMessage->m_DeviceIDFrom,false);
+	class MediaStream *pMediaStream = DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From,false);
 
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
@@ -316,7 +316,7 @@ class DataGridTable *Media_Plugin::CurrentMedia(string GridID,string Parms,void 
 	{
 		pMediaStream->UpdateDescriptions();
 		pCell = new DataGridCell("Now playing: " + pMediaStream->m_sMediaDescription,"");
-		DCE::CMD_MH_Send_Me_To_Remote CMD_MH_Send_Me_To_Remote(pMessage->m_DeviceIDFrom,m_DeviceID);
+		DCE::CMD_MH_Send_Me_To_Remote CMD_MH_Send_Me_To_Remote(pMessage->m_dwPK_Device_From,m_DeviceID);
 		pCell->m_pMessage = CMD_MH_Send_Me_To_Remote.m_pMessage;
 		pDataGrid->SetData(0,Row++,pCell);
 	}
@@ -333,7 +333,7 @@ class DataGridTable *Media_Plugin::CurrentMedia(string GridID,string Parms,void 
 class DataGridTable *Media_Plugin::MediaSections(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-	class MediaStream *pMediaStream = DetermineStreamOnOrbiter(pMessage->m_DeviceIDFrom,true);
+	class MediaStream *pMediaStream = DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From,true);
 g_pPlutoLogger->Write(LV_STATUS,"Populate media tracks with: %p",pMediaStream);
 	if( !pMediaStream )
 		return NULL;
@@ -344,37 +344,37 @@ g_pPlutoLogger->Write(LV_STATUS,"Populate media tracks with: %p",pMediaStream);
 bool Media_Plugin::ReceivedMessage(class Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-	g_pPlutoLogger->Write(LV_STATUS,"Media plug in received message id: %d",pMessage->m_ID);
+	g_pPlutoLogger->Write(LV_STATUS,"Media plug in received message id: %d",pMessage->m_dwID);
 	// Give it to our base class to see if we have a handler
 	if( !Media_Plugin_Command::ReceivedMessage(pMessage) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Media plug base class didn't handle message id: %d",pMessage->m_ID);
+		g_pPlutoLogger->Write(LV_STATUS,"Media plug base class didn't handle message id: %d",pMessage->m_dwID);
 		// We didn't handle it.  Give it to the appropriate plug-in.  Assume it's coming from an orbiter
 		class EntertainArea *pEntertainArea;
-		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_DeviceIDFrom);
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 		if( !pOH_Orbiter || 
 				(pEntertainArea=m_mapEntertainAreas_Find(pOH_Orbiter->m_iPK_EntertainArea))==NULL ||
 				!pEntertainArea->m_pMediaStream	)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area",pMessage->m_MessageType,pMessage->m_ID);
+			g_pPlutoLogger->Write(LV_CRITICAL,"An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area",pMessage->m_dwMessage_Type,pMessage->m_dwID);
 			return false;
 		}
 
 		// We know it's derived from CommandImpl
 		class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pCommand_Impl;
-		pMessage->m_DeviceIDTo=pPlugIn->m_DeviceID;
+		pMessage->m_dwPK_Device_To=pPlugIn->m_DeviceID;
 		if( !pPlugIn->ReceivedMessage(pMessage) )
 		{
-g_pPlutoLogger->Write(LV_STATUS,"Media plug in did not handled message id: %d forwarding to %d",pMessage->m_ID,pEntertainArea->m_pMediaStream->m_iPK_Device);
+g_pPlutoLogger->Write(LV_STATUS,"Media plug in did not handled message id: %d forwarding to %d",pMessage->m_dwID,pEntertainArea->m_pMediaStream->m_iPK_Device);
 			// The plug-in doesn't know what to do with it either.  Send the message to the actual media device
-			pMessage->m_DeviceIDTo = pEntertainArea->m_pMediaStream->m_iPK_Device;
+			pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_iPK_Device;
 #pragma warning("received dcemessage should take a bool bdon't delete in or something so we don't need to copy he message");
 Message *pNewMessage = new Message(pMessage);
 			QueueMessage(pNewMessage);
 		}
-g_pPlutoLogger->Write(LV_STATUS,"Media plug in handled message id: %d",pMessage->m_ID);
+g_pPlutoLogger->Write(LV_STATUS,"Media plug in handled message id: %d",pMessage->m_dwID);
 	}
-g_pPlutoLogger->Write(LV_STATUS,"Media plug base handled message id: %d",pMessage->m_ID);
+g_pPlutoLogger->Write(LV_STATUS,"Media plug base handled message id: %d",pMessage->m_dwID);
 	return true;
 }
 
@@ -420,7 +420,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 //<-dceag-c43-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-	int iPK_Device_Orbiter = pMessage->m_DeviceIDFrom;
+	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
 	// Only an Orbiter will tell us to play media
 	EntertainArea *pEntertainArea = DetermineEntArea(iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea);
 	if( !pEntertainArea )
@@ -492,7 +492,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 {
 	PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 	// Only an Orbiter will tell us to play media
-	EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_DeviceIDFrom,iPK_Device,iPK_EntertainArea);
+	EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_dwPK_Device_From,iPK_Device,iPK_EntertainArea);
 	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
 		return;  // Don't know what area it should be played in, or there's no media playing there
 
@@ -554,11 +554,11 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(string &sCMD_Result,Message *pMessag
 {
 	PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 	// Only an Orbiter will send this
-	EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_DeviceIDFrom,0,0);
+	EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_dwPK_Device_From,0,0);
 	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
 		return;  // Don't know what area it should be played in, or there's no media playing there
 
-	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_DeviceID,pMessage->m_DeviceIDFrom,0,StringUtils::itos(pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote),"","",false);
+	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_DeviceID,pMessage->m_dwPK_Device_From,0,StringUtils::itos(pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote),"","",false);
 	SendCommand(CMD_Goto_Screen,0);
 }
 //<-dceag-c74-b->
@@ -592,8 +592,8 @@ void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,
 {
 	PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 	// Only an Orbiter will send this
-	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_DeviceIDFrom );
-	EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_DeviceIDFrom,iPK_Device,iPK_EntertainArea);
+	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
+	EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_dwPK_Device_From,iPK_Device,iPK_EntertainArea);
 	if( !pEntertainArea || !pOH_Orbiter )
 	{
 		sCMD_Result="Can't find ent area/orbiter";
@@ -649,7 +649,7 @@ if( atoi(pEGO->Screen.c_str())==OBJECT_MNUPVR_CONST )
 						// Do this within the queue because this can be called from within a mobile orbiter
 						// show menu, and we don't want to loop right back around again
 						pEntGroup->m_pWatchingStream->m_Object_RemoteScreen=OBJECT_MNUSATELLITECABLEBOX_CONST;
-						AddMessageToQueue(new OCMessage(DEVICEID_SERVER,(*SafetyMessage)->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
+						AddMessageToQueue(new OCMessage(DEVICEID_SERVER,(*SafetyMessage)->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
 							ACTION_NAV_GOTO_CONST,1,C_ACTIONPARAMETER_PKID_OBJECT_HEADER_CONST,StringUtils::itos(OBJECT_MNUSATELLITECABLEBOX_CONST).c_str()));
 					}
 				}
@@ -662,7 +662,7 @@ if( atoi(pEGO->Screen.c_str())==OBJECT_MNUPVR_CONST )
 					pEntGroup->m_pWatchingStream->m_Object_RemoteScreen=OBJECT_MNUSATELLITECABLEBOX_CONST;
 
 				pEntGroup->m_bPlutoTV=false;
-				pEGO->PVRInfo=(*SafetyMessage)->m_Parameters[C_ACTIONPARAMETER_ID_PVR_SESSION_CONST];
+				pEGO->PVRInfo=(*SafetyMessage)->m_mapParameters[C_ACTIONPARAMETER_ID_PVR_SESSION_CONST];
 				m_pOCLogger->Write(LV_WARNING,"Switching to pvr with %s",pEGO->PVRInfo.c_str());
 				if( pEGO->PVRInfo.length()>1 ) // a tuner specified
 				{
@@ -670,7 +670,7 @@ if( atoi(pEGO->Screen.c_str())==OBJECT_MNUPVR_CONST )
 					int PKID_Device_Tuning = atoi(pEGO->PVRInfo.c_str());
 					if( pEntGroup->m_pWatchingStream )
 						pEntGroup->m_pWatchingStream->m_PKID_DeviceToSendTo=PKID_Device_Tuning;
-					ReceivedOCMessage(NULL,new OCMessage((*SafetyMessage)->m_DeviceIDFrom,PKID_Device_Tuning,
+					ReceivedOCMessage(NULL,new OCMessage((*SafetyMessage)->m_dwPK_Device_From,PKID_Device_Tuning,
 						PRIORITY_NORMAL,MESSAGETYPE_COMMAND,ACTION_GEN_ON_CONST,0));
 
 					// Help out the controller 

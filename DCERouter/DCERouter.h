@@ -96,7 +96,7 @@ namespace DCE
 		// more data.  m_DeviceStructure contains the minimal information, _Base, which is sent to
 		// all devices when they register
 		char *m_pDeviceStructure;
-		unsigned long m_iDeviceStructure_Size;
+		unsigned long m_dwIDeviceStructure_Size;
 
 		// The Plug-in's and interceptors
 		map<int,class Command_Impl *> m_mapPlugIn;
@@ -120,7 +120,7 @@ namespace DCE
 		bool m_bStartup, m_bIsMaster, m_bReload, m_bQuit, m_bIsLoading;
 		int m_iPK_Device,m_iFileVersion,m_iPK_Installation;
 		string m_sDBHost,m_sDBUser,m_sDBPassword,m_sDBName;
-		int m_iDBPort;
+		int m_dwIDBPort;
 		Row_Device *m_pRow_Device_Me;
 		set<int> m_RunningDevices;
 		list<Message *> m_MessageQueue;
@@ -158,7 +158,7 @@ namespace DCE
 		string sDBUser_get() { return m_sDBUser; }
 		string sDBPassword_get() { return m_sDBPassword; }
 		string sDBName_get() { return m_sDBName; }
-		int iDBPort_get() { return m_iDBPort; }
+		int iDBPort_get() { return m_dwIDBPort; }
 
 		/*
 		METHODS
@@ -267,12 +267,12 @@ namespace DCE
 		// Helper functions for message interceptors, declared inline for performance
 		void CheckInterceptor(class MessageTypeInterceptor *pMessageTypeInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
 		{
-			map<int,class MessageIDInterceptor *>::iterator itMessageID = pMessageTypeInterceptor->m_mapMessageIDInterceptor.find(pMessage->m_ID);
+			map<int,class MessageIDInterceptor *>::iterator itMessageID = pMessageTypeInterceptor->m_mapMessageIDInterceptor.find(pMessage->m_dwID);
 			if( itMessageID != pMessageTypeInterceptor->m_mapMessageIDInterceptor.end() )
 			{
 				CheckInterceptor( (*itMessageID).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
 			}
-			if( pMessage->m_ID )
+			if( pMessage->m_dwID )
 			{
 				itMessageID = pMessageTypeInterceptor->m_mapMessageIDInterceptor.find(0);
 				if( itMessageID != pMessageTypeInterceptor->m_mapMessageIDInterceptor.end() )
@@ -305,13 +305,13 @@ namespace DCE
 
 		void CheckInterceptor(class MessageMDLInterceptor *pMessageMDLInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
 		{
-			map<int,class MessageToInterceptor *>::iterator itMessageTo = pMessageMDLInterceptor->m_mapMessageToInterceptor.find(pMessage->m_DeviceIDTo);
+			map<int,class MessageToInterceptor *>::iterator itMessageTo = pMessageMDLInterceptor->m_mapMessageToInterceptor.find(pMessage->m_dwPK_Device_To);
 			if( itMessageTo != pMessageMDLInterceptor->m_mapMessageToInterceptor.end() )
 			{
 				CheckInterceptor( (*itMessageTo).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
 			}
 			// If we didn't already check for 0, check now
-			if( pMessage->m_DeviceIDTo )
+			if( pMessage->m_dwPK_Device_To )
 			{
 				itMessageTo = pMessageMDLInterceptor->m_mapMessageToInterceptor.find(0);
 				if( itMessageTo != pMessageMDLInterceptor->m_mapMessageToInterceptor.end() )
@@ -344,12 +344,12 @@ namespace DCE
 
 		void CheckInterceptor(class MessageToCategoryInterceptor *pMessageToCategoryInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
 		{
-			map<int,class MessageFromInterceptor *>::iterator itMessageFrom = pMessageToCategoryInterceptor->m_mapMessageFromInterceptor.find(pMessage->m_DeviceIDFrom);
+			map<int,class MessageFromInterceptor *>::iterator itMessageFrom = pMessageToCategoryInterceptor->m_mapMessageFromInterceptor.find(pMessage->m_dwPK_Device_From);
 			if( itMessageFrom != pMessageToCategoryInterceptor->m_mapMessageFromInterceptor.end() )
 			{
 				CheckInterceptor( (*itMessageFrom).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
 			}
-			if( pMessage->m_DeviceIDFrom )
+			if( pMessage->m_dwPK_Device_From )
 			{
 				itMessageFrom = pMessageToCategoryInterceptor->m_mapMessageFromInterceptor.find(0);
 				if( itMessageFrom != pMessageToCategoryInterceptor->m_mapMessageFromInterceptor.end() )

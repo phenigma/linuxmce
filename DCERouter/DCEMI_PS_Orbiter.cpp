@@ -66,21 +66,21 @@ bool DCEMI_PS_Orbiter::Register()
 
 bool DCEMI_PS_Orbiter::UpdateDesignObjImage(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
-	PlutoOrbiter *ptrPlutoOrbiter = m_mapPlutoOrbiter_Find(pMessage->m_DeviceIDTo);
+	PlutoOrbiter *ptrPlutoOrbiter = m_mapPlutoOrbiter_Find(pMessage->m_dwPK_Device_To);
 	if( ptrPlutoOrbiter && ptrPlutoOrbiter->m_pMobileOrbiter && ptrPlutoOrbiter->m_pMobileOrbiter->m_pDevice_CurrentDetected )
 	{
-		pMessage->m_DeviceIDTo = ptrPlutoOrbiter->m_pMobileOrbiter->m_pDevice_CurrentDetected->m_iPK_Device;
-		pMessage->m_Parameters[COMMANDPARAMETER_PK_DesignObj_CONST] = ptrPlutoOrbiter->m_pMobileOrbiter->m_sID + "|" + pMessage->m_Parameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+		pMessage->m_dwPK_Device_To = ptrPlutoOrbiter->m_pMobileOrbiter->m_pDevice_CurrentDetected->m_iPK_Device;
+		pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST] = ptrPlutoOrbiter->m_pMobileOrbiter->m_sID + "|" + pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
 	}
 	return true;
 }
 
 bool DCEMI_PS_Orbiter::NavGoto(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
-	PlutoOrbiter *ptrPlutoOrbiter = m_mapPlutoOrbiter_Find(pMessage->m_DeviceIDTo);
+	PlutoOrbiter *ptrPlutoOrbiter = m_mapPlutoOrbiter_Find(pMessage->m_dwPK_Device_To);
 	if( ptrPlutoOrbiter )
 	{
-		ptrPlutoOrbiter->m_sCurrentScreen = pMessage->m_Parameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+		ptrPlutoOrbiter->m_sCurrentScreen = pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
 
 		if( ptrPlutoOrbiter->m_pMobileOrbiter )
 		{
@@ -104,8 +104,8 @@ bool DCEMI_PS_Orbiter::NavGoto(class Socket *pSocket,class Message *pMessage,cla
 					Message *pImageMessage = new Message(0, ptrPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Update_Object_Image_CONST, 
 						2, COMMANDPARAMETER_PK_DesignObj_CONST, (ptrPlutoOrbiter->m_sCurrentScreen + "." + StringUtils::itos(DESIGNOBJ_ICOINCOMINGCALLPHOTO_CONST)).c_str(),
 							COMMANDPARAMETER_Type_CONST,"1"); 
-					pImageMessage->m_DataParameters[COMMANDPARAMETER_Data_CONST]=c;
-					pImageMessage->m_DataLengths[COMMANDPARAMETER_Data_CONST]=(int) Length;
+					pImageMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST]=c;
+					pImageMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST]=(int) Length;
 					m_pRouter->DispatchMessage(pImageMessage);
 				}
 			}
@@ -125,7 +125,7 @@ bool DCEMI_PS_Orbiter::SimulateKeypress(class Socket *pSocket,class Message *pMe
 	}
 	else
 	{
-		string Key = pMessage->m_Parameters[COMMANDPARAMETER_ID_CONST];
+		string Key = pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
 		pMobileOrbiter->Keypress(Key);
 	}
 	return true;
@@ -134,10 +134,10 @@ bool DCEMI_PS_Orbiter::SimulateKeypress(class Socket *pSocket,class Message *pMe
 bool DCEMI_PS_Orbiter::VerifyPin(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
 	string Response="0";
-	string query = "SELECT * FROM Users WHERE Pincode='" + pMessage->m_Parameters[1] + "'";
+	string query = "SELECT * FROM Users WHERE Pincode='" + pMessage->m_mapParameters[1] + "'";
 
-	if( pMessage->m_ID )
-		query += " AND FK_S_Users=" + StringUtils::itos(pMessage->m_ID);
+	if( pMessage->m_dwID )
+		query += " AND FK_S_Users=" + StringUtils::itos(pMessage->m_dwID);
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -162,8 +162,8 @@ bool DCEMI_PS_Orbiter::VerifyPin(class Socket *pSocket,class Message *pMessage,c
 bool DCEMI_PS_Orbiter::SetUserMode(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
 	/*
-	int PK_User = atoi(pMessage->m_Parameters[C_COMMANDPARAMETER_USER_CONST].c_str());
-	int Value = atoi(pMessage->m_Parameters[COMMANDPARAMETER_Value_To_Assign_CONST].c_str());
+	int PK_User = atoi(pMessage->m_mapParameters[C_COMMANDPARAMETER_USER_CONST].c_str());
+	int Value = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST].c_str());
 	m_pPlutoEvents->SetUserMode(PK_User,Value,NULL);  // If this was coming from a controller, it will be handled in the ExecuteEvent code
 	*/
 	return true;
@@ -172,10 +172,10 @@ bool DCEMI_PS_Orbiter::SetUserMode(class Socket *pSocket,class Message *pMessage
 bool DCEMI_PS_Orbiter::BindToDevice(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
 	/*
-	int PK_Device=atoi(pMessage->m_Parameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
-	string DesignObj=pMessage->m_Parameters[COMMANDPARAMETER_PK_DesignObj_CONST];
-	int PK_PlutoOrbiter=atoi(pMessage->m_Parameters[C_COMMANDPARAMETER_CONTROLLER_ID_CONST].c_str());
-	int ID = atoi(pMessage->m_Parameters[COMMANDPARAMETER_ID_CONST].c_str());
+	int PK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+	string DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+	int PK_PlutoOrbiter=atoi(pMessage->m_mapParameters[C_COMMANDPARAMETER_CONTROLLER_ID_CONST].c_str());
+	int ID = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST].c_str());
 
 	DeviceData_Router *pDevice = m_pPlutoEvents->m_mapDevice_Find(PK_Device);
 	if( !pDevice )
@@ -197,7 +197,7 @@ bool DCEMI_PS_Orbiter::BindToHouse(class Socket *pSocket,class Message *pMessage
 	/*
 	// This isn't coming from a controller, otherwise it would go through execute event
 	HouseStatusIndicatorBindingList *pHouse = new HouseStatusIndicatorBindingList();
-	pHouse->m_PK_Controller=pMessage->m_DeviceIDFrom;
+	pHouse->m_PK_Controller=pMessage->m_dwPK_Device_From;
 
 	m_pPlutoEvents->m_vectHouseStatusIndicator.push_back(pHouse);
 	*/
@@ -207,7 +207,7 @@ bool DCEMI_PS_Orbiter::BindToHouse(class Socket *pSocket,class Message *pMessage
 bool DCEMI_PS_Orbiter::PinRequired(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
 	string Response="0";
-	string query = "SELECT * FROM Users_Device_PinCode WHERE FK_Users=" + StringUtils::itos(pMessage->m_ID) + " AND FK_Device=" + StringUtils::itos(pMessage->m_DeviceIDFrom);
+	string query = "SELECT * FROM Users_Device_PinCode WHERE FK_Users=" + StringUtils::itos(pMessage->m_dwID) + " AND FK_Device=" + StringUtils::itos(pMessage->m_dwPK_Device_From);
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -251,7 +251,7 @@ bool DCEMI_PS_Orbiter::CurrentController(class Socket *pSocket,class Message *pM
 			return false;
 		}
 		else
-			pMessage->m_DeviceIDTo=ptrPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device;
+			pMessage->m_dwPK_Device_To=ptrPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device;
 	}
 	*/
 	return true;

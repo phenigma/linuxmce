@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
 				char *pData = new char[length+1];
 				fread(pData, length, 1, f);
 				fclose(f);
-				pMsg->m_DataLengths[ParamNum]=(int)length;
-				pMsg->m_DataParameters[ParamNum]=pData;
+				pMsg->m_mapData_Lengths[ParamNum]=(int)length;
+				pMsg->m_mapData_Parameters[ParamNum]=pData;
 			}
 			else
 			{
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			pMsg->m_Parameters[ParamNum] = string(pParam);
+			pMsg->m_mapParameters[ParamNum] = string(pParam);
 		}
 	}
 	pEvent->SendMessage(pMsg);

@@ -121,8 +121,8 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
 		OH_Orbiter *pOH_Orbiter = (*it).second;
 		if( pOH_Orbiter->m_iPK_Room != iPK_Room || pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device==pDeviceFrom->m_iPK_Device )
 			continue; // Don't send to the sender
-		if( (pMessage->m_DeviceIDTo==DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST && pOH_Orbiter->m_pDeviceData_Router->m_iPK_DeviceCategory!=DEVICECATEGORY_Mobile_Orbiter_CONST) ||
-				(pMessage->m_DeviceIDTo==DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST && pOH_Orbiter->m_pDeviceData_Router->m_iPK_DeviceCategory!=DEVICECATEGORY_Standard_Orbiter_CONST) )
+		if( (pMessage->m_dwPK_Device_To==DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST && pOH_Orbiter->m_pDeviceData_Router->m_iPK_DeviceCategory!=DEVICECATEGORY_Mobile_Orbiter_CONST) ||
+				(pMessage->m_dwPK_Device_To==DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST && pOH_Orbiter->m_pDeviceData_Router->m_iPK_DeviceCategory!=DEVICECATEGORY_Standard_Orbiter_CONST) )
 			continue;
 		if( sDeviceList.length() )
 			sDeviceList += ",";
@@ -130,8 +130,8 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
 	}
 	if( sDeviceList.length() )
 	{
-		pMessage->m_DeviceIDTo = DEVICEID_LIST;
-		pMessage->m_DeviceListTo = sDeviceList;
+		pMessage->m_dwPK_Device_To = DEVICEID_LIST;
+		pMessage->m_sPK_Device_List_To = sDeviceList;
 	}
 	return false;  // Continue to process it
 }
@@ -146,15 +146,15 @@ printf("Mobile orbiter detected\n");
 		return false;
 	} 
 
-	string sMacAddress = pMessage->m_Parameters[EVENTPARAMETER_Mac_Address_CONST];
-	string sID = pMessage->m_Parameters[EVENTPARAMETER_ID_CONST];
+	string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
+	string sID = pMessage->m_mapParameters[EVENTPARAMETER_ID_CONST];
 	sMacAddress=StringUtils::ToUpper(sMacAddress);
 
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Mac_Find(sMacAddress);
 
 	if(!pOH_Orbiter)
 	{
-		m_mapUnknownDevices[sMacAddress] = pMessage->m_DeviceIDFrom;  // We need to remember who detected this device
+		m_mapUnknownDevices[sMacAddress] = pMessage->m_dwPK_Device_From;  // We need to remember who detected this device
 
 		// We don't know what this is.  Let's see if it's a known phone, or anything else we recognize
 		vector<Row_Device *> vectRow_Device;
@@ -173,7 +173,7 @@ g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int)
 			// we need to ask the user if it's a phone that he wants to use on the system.
 			if( !vectRow_Device.size() )
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s",pMessage->m_Parameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
+				g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
 
 				// A list of all the orbiters we will notify of this device's presence
 				string sOrbiterList = "";
@@ -214,7 +214,7 @@ g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int)
 	}
 	else
 	{
-		int SignalStrength = atoi(pMessage->m_Parameters[EVENTPARAMETER_Signal_Strength_CONST].c_str());
+		int SignalStrength = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Signal_Strength_CONST].c_str());
 
 		if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
 		{
@@ -275,12 +275,12 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
 		return false;
 	} 
 
-	string sMacAddress = pMessage->m_Parameters[EVENTPARAMETER_Mac_Address_CONST];
+	string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Mac_Find(sMacAddress);
 
 	if(!pOH_Orbiter)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s",pMessage->m_Parameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
+		g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
 	}
 	else
 	{
@@ -374,12 +374,12 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
 		return false;
 	} 
 
-	string sMacAddress = pMessage->m_Parameters[EVENTPARAMETER_Mac_Address_CONST];
+	string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Mac_Find(sMacAddress);
 
 	if(!pOH_Orbiter)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s",pMessage->m_Parameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
+		g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
 	}
 	else
 	{
@@ -502,10 +502,10 @@ void Orbiter_Plugin::CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,str
 void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pMessage)
 //<-dceag-c58-e->
 {
-	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_DeviceIDFrom);
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	if( !pOH_Orbiter )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_DeviceIDFrom);
+		g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
 		return;
 	}
 
@@ -523,10 +523,10 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
 void Orbiter_Plugin::CMD_Set_Entertainment_Area(int iPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c59-e->
 {
-	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_DeviceIDFrom);
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	if( !pOH_Orbiter )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_DeviceIDFrom);
+		g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
 		return;
 	}
 
@@ -546,10 +546,10 @@ void Orbiter_Plugin::CMD_Set_Entertainment_Area(int iPK_EntertainArea,string &sC
 void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMessage)
 //<-dceag-c77-e->
 {
-	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_DeviceIDFrom);
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	if( !pOH_Orbiter )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_DeviceIDFrom);
+		g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
 		return;
 	}
 

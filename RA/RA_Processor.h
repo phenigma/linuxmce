@@ -76,6 +76,8 @@ public:
      */
 	bool ReceiveRequests(DCE::Socket *pSocket );
 
+	void RemoveRequest(RA_Request *pRequest_Del);
+
 private:
 
     /**
@@ -102,7 +104,7 @@ public:
      * @param pcData the data to build the request from
 	 * @param dwRequestID the request's ID
 	 */
-	static RA_Request *BuildRequestFromData( long dwSize, const char *pcData, unsigned long dwRequestID=0 );
+	static RA_Request *BuildRequestFromData( long dwSize, const char *pcData, unsigned long dwRequestID );
 
 	/**
 	 * @brief Builds an application from data.  The application that uses this must provide the implementatation for this method.
@@ -111,7 +113,7 @@ public:
      * @param pcData the data to build the action from
 	 * @param dwActionID the action's ID
 	 */
-	static RA_Action *BuildActionFromData( long dwSize, const char *pcData, unsigned long dwActionID=0 );
+	static RA_Action *BuildActionFromData( long dwSize, const char *pcData, unsigned long dwActionID );
 
 	/**
 	 * @brief Returns a pointer to the request processor.  The implementation can just return a pointer to an instance of this class unless it needs special data, like session tracking

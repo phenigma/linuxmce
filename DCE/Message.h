@@ -77,7 +77,7 @@ namespace DCE
 		long m_dwPK_Device_Group_ID_To; /** < the id of the group of devices to witch the message is going */
 		long m_dwPK_Device_Category_To; /** < the device category to send the message to (all devices in that category will receive it) */
 		long m_dwPK_Device_Template; /** < the master device for the current message */
-		string m_dwPK_Device_List_To; /** < the message will be sent to all the devices build using this template */
+		string m_sPK_Device_List_To; /** < the message will be sent to all the devices build using this template */
 		
 		/** fields describing the message */
 		

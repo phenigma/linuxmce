@@ -29,14 +29,14 @@ bool DCEMI_PS_Lighting::Register()
 
 bool DCEMI_PS_Lighting::Dimming_RelativeOrAbsolute(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
-	map<long, string>::iterator it = pMessage->m_Parameters.find(C_COMMANDPARAMETER_ABS_LEVEL_CONST);
-	if( it!=pMessage->m_Parameters.end() )
+	map<long, string>::iterator it = pMessage->m_mapParameters.find(C_COMMANDPARAMETER_ABS_LEVEL_CONST);
+	if( it!=pMessage->m_mapParameters.end() )
 	{
 		string s = (*it).second;
 		pDeviceTo->m_iLastState=atoi(s.c_str());
 	}
-	it = pMessage->m_Parameters.find(C_COMMANDPARAMETER_REL_LEVEL_CONST);
-	if( it!=pMessage->m_Parameters.end() )
+	it = pMessage->m_mapParameters.find(C_COMMANDPARAMETER_REL_LEVEL_CONST);
+	if( it!=pMessage->m_mapParameters.end() )
 	{
 		string s = (*it).second;
 		pDeviceTo->m_iLastState += atoi(s.c_str());
@@ -50,7 +50,7 @@ bool DCEMI_PS_Lighting::AdjustLights(class Socket *pSocket,class Message *pMessa
 	if( !pDeviceFrom )
 		return true;
 	// 0=ALL OFF, 1=ALL ON, 2=TOGGLE, -X reduce by X, +X = increase by X
-	int PK_Room = atoi(pMessage->m_Parameters[C_COMMANDPARAMETER_ROOM_CONST].c_str());
+	int PK_Room = atoi(pMessage->m_mapParameters[C_COMMANDPARAMETER_ROOM_CONST].c_str());
 	class DCERoom *pRoom=NULL;
 	if( PK_Room )
 		pRoom = m_pRouter->m_mapRoom[PK_Room];
@@ -58,7 +58,7 @@ bool DCEMI_PS_Lighting::AdjustLights(class Socket *pSocket,class Message *pMessa
 		pRoom = pDeviceFrom->m_pRoom;
 	if( pRoom )
 	{
-		string ID = pMessage->m_Parameters[COMMANDPARAMETER_ID_CONST];
+		string ID = pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
 
 		if( ID=="0" )
 			pRoom->m_bLightsLastOn=false;
@@ -80,12 +80,12 @@ bool DCEMI_PS_Lighting::AdjustLights(class Socket *pSocket,class Message *pMessa
 			Message *pMessage=NULL;
 			if( ID=="0" )
 			{
-				pMessage = new Message(pMessage->m_DeviceIDFrom,pDevice->m_iPK_Device,PRIORITY_NORMAL,
+				pMessage = new Message(pMessage->m_dwPK_Device_From,pDevice->m_iPK_Device,PRIORITY_NORMAL,
 					MESSAGETYPE_COMMAND,COMMAND_GEN_OFF_CONST,0);
 			}
 			else if( ID=="1" )
 			{
-				pMessage = new Message(pMessage->m_DeviceIDFrom,pDevice->m_iPK_Device,PRIORITY_NORMAL,
+				pMessage = new Message(pMessage->m_dwPK_Device_From,pDevice->m_iPK_Device,PRIORITY_NORMAL,
 					MESSAGETYPE_COMMAND,COMMAND_GEN_ON_CONST,0);
 			}
 			else if( ID.substr(0)=="+" )
@@ -94,7 +94,7 @@ bool DCEMI_PS_Lighting::AdjustLights(class Socket *pSocket,class Message *pMessa
 					pDevice->m_pLightingInformation->m_iLastState + atoi(ID.substr(1).c_str());
 				if( Level>100 )
 					Level=100;
-				pMessage = new Message(pMessage->m_DeviceIDFrom,pDevice->m_iPK_Device,PRIORITY_NORMAL,
+				pMessage = new Message(pMessage->m_dwPK_Device_From,pDevice->m_iPK_Device,PRIORITY_NORMAL,
 					MESSAGETYPE_COMMAND,COMMAND_LIT_DIM_CONST,1,C_COMMANDPARAMETER_ABS_LEVEL_CONST,StringUtils::itos(Level).c_str());
 			}
 			else if( ID.substr(0)=="-" )
@@ -103,7 +103,7 @@ bool DCEMI_PS_Lighting::AdjustLights(class Socket *pSocket,class Message *pMessa
 					pDevice->m_pLightingInformation->m_iLastState - atoi(ID.substr(1).c_str());
 				if( Level<0 )
 					Level=0;
-				pMessage = new Message(pMessage->m_DeviceIDFrom,0,PRIORITY_NORMAL,
+				pMessage = new Message(pMessage->m_dwPK_Device_From,0,PRIORITY_NORMAL,
 					MESSAGETYPE_COMMAND,COMMAND_LIT_DIM_CONST,1,C_COMMANDPARAMETER_ABS_LEVEL_CONST,StringUtils::itos(Level).c_str());
 			}
 			if( pMessage )

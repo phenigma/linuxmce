@@ -56,7 +56,7 @@ public:
 	void WriteGlobals(); 
 
 	// sParmsWithType: int Parm1, string Parm2, etc.
-	// sAssignParmsToLocal: int Parm1=pMessage->m_Parameters[3]; \n string Parm2= ..., etc.
+	// sAssignParmsToLocal: int Parm1=pMessage->m_mapParameters[3]; \n string Parm2= ..., etc.
 	// sParmsWithNoType: Parm1, Parm2, etc.
 	void CreateFunctionParms(Row_Command *pRow_Command,CommandInfo *pCommandInfo);
 	void CreateFunctionParms(class Row_Event *pRow_Event,int &ParmCount,string &sParmsWithType,string &sAssignParmToLocal,string &sParmsWithNoType,string &sPassingToMessage);

@@ -96,6 +96,7 @@ class Table_Device_Device_Related* tblDevice_Device_Related;
 class Table_Device_EntertainArea* tblDevice_EntertainArea;
 class Table_Device_HouseMode* tblDevice_HouseMode;
 class Table_Device_Orbiter* tblDevice_Orbiter;
+class Table_Device_StartupScript* tblDevice_StartupScript;
 class Table_Device_Users* tblDevice_Users;
 class Table_Direction* tblDirection;
 class Table_EntertainArea* tblEntertainArea;
@@ -143,7 +144,7 @@ class Table_SetupStep* tblSetupStep;
 class Table_Size* tblSize;
 class Table_Skin* tblSkin;
 class Table_StabilityStatus* tblStabilityStatus;
-class Table_Startup_Scripts* tblStartup_Scripts;
+class Table_StartupScript* tblStartupScript;
 class Table_Style* tblStyle;
 class Table_StyleVariation* tblStyleVariation;
 class Table_System* tblSystem;
@@ -240,6 +241,7 @@ class Table_Device_Device_Related* Device_Device_Related_get() { return tblDevic
 class Table_Device_EntertainArea* Device_EntertainArea_get() { return tblDevice_EntertainArea; }
 class Table_Device_HouseMode* Device_HouseMode_get() { return tblDevice_HouseMode; }
 class Table_Device_Orbiter* Device_Orbiter_get() { return tblDevice_Orbiter; }
+class Table_Device_StartupScript* Device_StartupScript_get() { return tblDevice_StartupScript; }
 class Table_Device_Users* Device_Users_get() { return tblDevice_Users; }
 class Table_Direction* Direction_get() { return tblDirection; }
 class Table_EntertainArea* EntertainArea_get() { return tblEntertainArea; }
@@ -287,7 +289,7 @@ class Table_SetupStep* SetupStep_get() { return tblSetupStep; }
 class Table_Size* Size_get() { return tblSize; }
 class Table_Skin* Skin_get() { return tblSkin; }
 class Table_StabilityStatus* StabilityStatus_get() { return tblStabilityStatus; }
-class Table_Startup_Scripts* Startup_Scripts_get() { return tblStartup_Scripts; }
+class Table_StartupScript* StartupScript_get() { return tblStartupScript; }
 class Table_Style* Style_get() { return tblStyle; }
 class Table_StyleVariation* StyleVariation_get() { return tblStyleVariation; }
 class Table_System* System_get() { return tblSystem; }
@@ -386,6 +388,7 @@ void CreateTable_Device_Device_Related();
 void CreateTable_Device_EntertainArea();
 void CreateTable_Device_HouseMode();
 void CreateTable_Device_Orbiter();
+void CreateTable_Device_StartupScript();
 void CreateTable_Device_Users();
 void CreateTable_Direction();
 void CreateTable_EntertainArea();
@@ -433,7 +436,7 @@ void CreateTable_SetupStep();
 void CreateTable_Size();
 void CreateTable_Skin();
 void CreateTable_StabilityStatus();
-void CreateTable_Startup_Scripts();
+void CreateTable_StartupScript();
 void CreateTable_Style();
 void CreateTable_StyleVariation();
 void CreateTable_System();
@@ -529,6 +532,7 @@ void DeleteTable_Device_Device_Related();
 void DeleteTable_Device_EntertainArea();
 void DeleteTable_Device_HouseMode();
 void DeleteTable_Device_Orbiter();
+void DeleteTable_Device_StartupScript();
 void DeleteTable_Device_Users();
 void DeleteTable_Direction();
 void DeleteTable_EntertainArea();
@@ -576,7 +580,7 @@ void DeleteTable_SetupStep();
 void DeleteTable_Size();
 void DeleteTable_Skin();
 void DeleteTable_StabilityStatus();
-void DeleteTable_Startup_Scripts();
+void DeleteTable_StartupScript();
 void DeleteTable_Style();
 void DeleteTable_StyleVariation();
 void DeleteTable_System();

@@ -143,7 +143,7 @@ public:
 	int m_ObjectType;
 	PlutoRectangle m_rectDontDim, m_rPosition, m_rBackgroundPosition;
 	class PlutoSize m_sOriginalSize;
-	int m_iDim;
+	int m_dwIDim;
 
 	DesignObjCommandList m_Action_LoadList,m_Action_UnloadList,m_Action_TimeoutList,m_Action_StartupList;
 	DesignObjZoneList m_ZoneList;
@@ -170,7 +170,7 @@ public:
 		m_ObjectType + m_rectDontDim +  m_rPosition +  m_rBackgroundPosition + 
 		m_PK_DesignObj_Up + m_PK_DesignObj_Down + m_PK_DesignObj_Left + m_PK_DesignObj_Right + m_sPK_DesignObj_TiedTo + m_sVisibleState +
 		m_sOriginalSize + 
-		m_iDim;
+		m_dwIDim;
 
 		// These are handled locally, so start with this
 		(*this) + m_Action_LoadList + m_Action_UnloadList + m_Action_TimeoutList + m_Action_StartupList +

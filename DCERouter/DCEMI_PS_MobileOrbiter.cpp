@@ -65,7 +65,7 @@ bool DCEMI_PS_MobileOrbiter::ToggleFollowMe(class Socket *pSocket,class Message 
 	if( ptrController )
 	{
 		MobileOrbiter *pMobileOrbiter = ptrController->m_pMobileOrbiter;
-		switch(atoi(pMessage->m_Parameters[COMMANDPARAMETER_ID_CONST].c_str()))
+		switch(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST].c_str()))
 		{
 		case MENUTYPE_LIGHTING:
 			pMobileOrbiter->m_bFollowMeLights = !pMobileOrbiter->m_bFollowMeLights;
@@ -96,12 +96,12 @@ bool DCEMI_PS_MobileOrbiter::MobileOrbiterLinked(class Socket *pSocket,class Mes
 		g_pPlutoLogger->Write(LV_CRITICAL, "Got orbiter detected, but pDeviceFrom is NULL");
 		return true;
 	}
-	string ID = pMessage->m_Parameters[C_EVENTPARAMETER_ID_CONST];
+	string ID = pMessage->m_mapParameters[C_EVENTPARAMETER_ID_CONST];
 
 	MobileOrbiter *pMobileOrbiter = m_mapMobileOrbiter_Mac_Find(ID);
 	if( !pMobileOrbiter )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Linked unknown bluetooth device %s",pMessage->m_Parameters[C_EVENTPARAMETER_ID_CONST].c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Linked unknown bluetooth device %s",pMessage->m_mapParameters[C_EVENTPARAMETER_ID_CONST].c_str());
 	}
 	else
 	{
@@ -162,16 +162,16 @@ g_pPlutoLogger->Write(LV_WARNING, "Mobile orbiter detected");
 		g_pPlutoLogger->Write(LV_CRITICAL, "Got orbiter detected, but pDeviceFrom is NULL");
 		return true;
 	}
-	MobileOrbiter *pMobileOrbiter = m_mapMobileOrbiter_Mac_Find(pMessage->m_Parameters[C_EVENTPARAMETER_ID_CONST]);
+	MobileOrbiter *pMobileOrbiter = m_mapMobileOrbiter_Mac_Find(pMessage->m_mapParameters[C_EVENTPARAMETER_ID_CONST]);
 
 	if( !pMobileOrbiter )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Detected unknown bluetooth device %s",pMessage->m_Parameters[C_EVENTPARAMETER_ID_CONST].c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Detected unknown bluetooth device %s",pMessage->m_mapParameters[C_EVENTPARAMETER_ID_CONST].c_str());
 	}
 	else
 	{
-		pMessage->m_Parameters[C_EVENTPARAMETER_PK_DEVICE_CONST] = StringUtils::itos(pMobileOrbiter->m_pDevice_This->m_iPK_Device);
-		int SignalStrength = atoi(pMessage->m_Parameters[C_EVENTPARAMETER_STRENGTH_CONST].c_str());
+		pMessage->m_mapParameters[C_EVENTPARAMETER_PK_DEVICE_CONST] = StringUtils::itos(pMobileOrbiter->m_pDevice_This->m_iPK_Device);
+		int SignalStrength = atoi(pMessage->m_mapParameters[C_EVENTPARAMETER_STRENGTH_CONST].c_str());
 
 		if( pMobileOrbiter->m_pDevice_CurrentDetected==pDeviceFrom )
 		{
@@ -224,7 +224,7 @@ COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(Controller).c_str()));
 						Message *pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
 						if (pMessage)
 						{
-							pMobileOrbiter->m_iLastSignalStrength = pMessage->m_ID;
+							pMobileOrbiter->m_iLastSignalStrength = pMessage->m_dwID;
 							delete pMessage;
 						}
 					}
@@ -274,17 +274,17 @@ bool DCEMI_PS_MobileOrbiter::MobileOrbiterLost(class Socket *pSocket,class Messa
 		return true;
 	/*
 	MobileOrbiter *pMobileOrbiter = NULL;
-	string ID = pMessage->m_Parameters[C_EVENTPARAMETER_ID_CONST];
+	string ID = pMessage->m_mapParameters[C_EVENTPARAMETER_ID_CONST];
 	DeviceData_Router *pD = m_pPlutoEvents->m_mapMobileOrbiters_Find(ID);
 	if( pD )
 	{
 		pMobileOrbiter = pD->m_pMobileOrbiter;
-		pMessage->m_Parameters[C_EVENTPARAMETER_PK_DEVICE_CONST] = StringUtils::itos(pD->m_iPK_Device);
+		pMessage->m_mapParameters[C_EVENTPARAMETER_PK_DEVICE_CONST] = StringUtils::itos(pD->m_iPK_Device);
 	}
 
 	if( !pMobileOrbiter )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Lost unknown bluetooth device %s",pMessage->m_Parameters[C_EVENTPARAMETER_ID_CONST].c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL,"Lost unknown bluetooth device %s",pMessage->m_mapParameters[C_EVENTPARAMETER_ID_CONST].c_str());
 	}
 	else if( pMobileOrbiter->m_pDevice_CurrentDetected==pDeviceFrom )
 	{
@@ -315,8 +315,8 @@ bool DCEMI_PS_MobileOrbiter::LockOntoLocation(class Socket *pSocket,class Messag
 		return true;
 
 	MobileOrbiter *pMO = ptrController->m_pMobileOrbiter;
-	int PK_Room=atoi(pMessage->m_Parameters[C_COMMANDPARAMETER_ROOM_CONST].c_str());
-	int PK_EntGroup=atoi(pMessage->m_Parameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+	int PK_Room=atoi(pMessage->m_mapParameters[C_COMMANDPARAMETER_ROOM_CONST].c_str());
+	int PK_EntGroup=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
 
 	if( PK_Room )
 	{
@@ -346,8 +346,8 @@ bool DCEMI_PS_MobileOrbiter::LinkMediaRemote(class Socket *pSocket,class Message
 	if( !ptrController )
 		return true;
 /*
-	int PK_EntGroup = atoi(pMessage->m_Parameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
-	int On_Off = atoi(pMessage->m_Parameters[COMMANDPARAMETER_OnOff_CONST].c_str());
+	int PK_EntGroup = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+	int On_Off = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str());
 	class EntGroup *pEntGroup = m_pRouter->m_pDataGridDevice->m_mapEntGroup_Find(PK_EntGroup);
 	if( !pEntGroup )
 	{
@@ -393,12 +393,12 @@ bool DCEMI_PS_MobileOrbiter::LinkMediaRemote(class Socket *pSocket,class Message
 			pEGO = new EntGroup_Orbitter_Remote();
 			pEGO->m_pDevice_Controller = pDeviceFrom;
 			pEGO->m_pEntGroup = pEntGroup;
-			pEGO->PVRInfo = pMessage->m_Parameters[C_COMMANDPARAMETER_ID_PVR_SESSION_CONST];
-			pEGO->Text = pMessage->m_Parameters[COMMANDPARAMETER_Text_CONST];
-			pEGO->GraphicImage = pMessage->m_Parameters[C_COMMANDPARAMETER_GRAPHIC_IMAGE_CONST];
+			pEGO->PVRInfo = pMessage->m_mapParameters[C_COMMANDPARAMETER_ID_PVR_SESSION_CONST];
+			pEGO->Text = pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+			pEGO->GraphicImage = pMessage->m_mapParameters[C_COMMANDPARAMETER_GRAPHIC_IMAGE_CONST];
 			pEntGroup->m_listEntGroup_Orbitter_Remote.push_back(pEGO);
 		}
-		pEGO->Screen = pMessage->m_Parameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+		pEGO->Screen = pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
 		vm.Release();
 */
 		/*
@@ -422,7 +422,7 @@ bool DCEMI_PS_MobileOrbiter::LinkMediaRemote(class Socket *pSocket,class Message
 					// Do this within the queue because this can be called from within a mobile orbiter
 					// show menu, and we don't want to loop right back around again
 					pEntGroup->m_pWatchingStream->m_DesignObj_RemoteScreen=DESIGNOBJ_MNUSATELLITECABLEBOX_CONST;
-					AddMessageToQueue(new Message(DEVICEID_DCEROUTER,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
+					AddMessageToQueue(new Message(DEVICEID_DCEROUTER,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
 						COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_MNUSATELLITECABLEBOX_CONST).c_str()));
 				}
 			}
@@ -435,7 +435,7 @@ bool DCEMI_PS_MobileOrbiter::LinkMediaRemote(class Socket *pSocket,class Message
 				pEntGroup->m_pWatchingStream->m_DesignObj_RemoteScreen=DESIGNOBJ_MNUSATELLITECABLEBOX_CONST;
 
 			pEntGroup->m_bPlutoTV=false;
-			pEGO->PVRInfo=pMessage->m_Parameters[C_COMMANDPARAMETER_ID_PVR_SESSION_CONST];
+			pEGO->PVRInfo=pMessage->m_mapParameters[C_COMMANDPARAMETER_ID_PVR_SESSION_CONST];
 			g_pPlutoLogger->Write(LV_WARNING,"Switching to pvr with %s",pEGO->PVRInfo.c_str());
 			if( pEGO->PVRInfo.length()>1 ) // a tuner specified
 			{
@@ -443,7 +443,7 @@ bool DCEMI_PS_MobileOrbiter::LinkMediaRemote(class Socket *pSocket,class Message
 				int PK_Device_Tuning = atoi(pEGO->PVRInfo.c_str());
 				if( pEntGroup->m_pWatchingStream )
 					pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo=PK_Device_Tuning;
-				m_pRouter->DispatchMessage(new Message(pMessage->m_DeviceIDFrom,PK_Device_Tuning,
+				m_pRouter->DispatchMessage(new Message(pMessage->m_dwPK_Device_From,PK_Device_Tuning,
 					PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_GEN_ON_CONST,0));
 
 				// Help out the controller 

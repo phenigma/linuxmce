@@ -74,7 +74,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     m_sDBUser=DBUser;
     m_sDBPassword=DBPassword;
     m_sDBName=DBName;
-    m_iDBPort=DBPort;
+    m_dwIDBPort=DBPort;
     m_bIsLoading=false;
 
     m_CoreMutex.Init(NULL);
@@ -97,7 +97,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 
     m_pDatabase_pluto_main = new Database_pluto_main();
 
-    if(!m_pDatabase_pluto_main->Connect(m_sDBHost,m_sDBUser,m_sDBPassword,m_sDBName,m_iDBPort) )
+    if(!m_pDatabase_pluto_main->Connect(m_sDBHost,m_sDBUser,m_sDBPassword,m_sDBName,m_dwIDBPort) )
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
     }
@@ -294,29 +294,29 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 {
     SafetyMessage SafetyMessage(pMessageWillBeDeleted);
 
-    if( (*SafetyMessage)->m_DeviceIDTo==DEVICEID_MASTERDEVICE || (*SafetyMessage)->m_DeviceIDTo==DEVICEID_CATEGORY || (*SafetyMessage)->m_DeviceIDTo==DEVICEID_GROUP )
+    if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_MASTERDEVICE || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_CATEGORY || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_GROUP )
     {
         // We're going to have to come up with the list of matching devices
-        if( (*SafetyMessage)->m_DeviceIDTo==DEVICEID_MASTERDEVICE )
-            (*SafetyMessage)->m_DeviceListTo=GetDevicesByDeviceTemplate((*SafetyMessage)->m_MasterDevice,(*SafetyMessage)->m_eBroadcastLevel);
-        else if( (*SafetyMessage)->m_DeviceIDTo==DEVICEID_CATEGORY )
-            (*SafetyMessage)->m_DeviceListTo=GetDevicesByCategory((*SafetyMessage)->m_DeviceCategoryTo,(*SafetyMessage)->m_eBroadcastLevel);
-//      else if( (*SafetyMessage)->m_DeviceIDTo==DEVICEID_GROUP )  TODO
+        if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_MASTERDEVICE )
+            (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByDeviceTemplate((*SafetyMessage)->m_dwPK_Device_Template,(*SafetyMessage)->m_eBroadcastLevel);
+        else if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_CATEGORY )
+            (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByCategory((*SafetyMessage)->m_dwPK_Device_Category_To,(*SafetyMessage)->m_eBroadcastLevel);
+//      else if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_GROUP )  TODO
 //          (*SafetyMessage)->m_sDeviceIDTo=GetDevicesByDeviceTemplate((*SafetyMessage)->m_PK_DeviceTemplate,(*SafetyMessage)->m_eBroadcastLevel);
 
-        (*SafetyMessage)->m_DeviceIDTo=DEVICEID_LIST;
+        (*SafetyMessage)->m_dwPK_Device_To=DEVICEID_LIST;
     }
 
-    if( (*SafetyMessage)->m_DeviceIDTo==DEVICEID_LIST && (*SafetyMessage)->m_DeviceListTo.length()==0 )
+    if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_LIST && (*SafetyMessage)->m_sPK_Device_List_To.length()==0 )
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"Received message type: %d id: %d from: %d going to an empty device list md: %d cat: %d",
-            (*SafetyMessage)->m_MessageType,(*SafetyMessage)->m_ID,(*SafetyMessage)->m_DeviceIDFrom,(*SafetyMessage)->m_MasterDevice,(*SafetyMessage)->m_DeviceCategoryTo);
+            (*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID,(*SafetyMessage)->m_dwPK_Device_From,(*SafetyMessage)->m_dwPK_Device_Template,(*SafetyMessage)->m_dwPK_Device_Category_To);
         ErrorResponse(pSocket,(*SafetyMessage));
         return;
     }
 
-    DeviceData_Router *pDeviceFrom = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_DeviceIDFrom);
-    DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_DeviceIDTo);
+    DeviceData_Router *pDeviceFrom = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_From);
+    DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_To);
 
     list<class MessageInterceptorCallBack *>::iterator itInterceptors;
     for(itInterceptors=m_listMessageInterceptor_Global.begin();
@@ -331,7 +331,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
     }
 
     // See if we have a handler for this type of message
-    map<int,class MessageTypeInterceptor *>::iterator itMessageType = m_mapMessageTypeInterceptor.find(pMessageWillBeDeleted->m_MessageType);
+    map<int,class MessageTypeInterceptor *>::iterator itMessageType = m_mapMessageTypeInterceptor.find(pMessageWillBeDeleted->m_dwMessage_Type);
     if( itMessageType!=m_mapMessageTypeInterceptor.end() )
     {
         class MessageTypeInterceptor *pMessageTypeInterceptors = (*itMessageType).second;
@@ -348,27 +348,27 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
     string Desc="",sCommand="";
     Command *pCommand=NULL;
 
-    if( (*SafetyMessage)->m_MessageType==MESSAGETYPE_COMMAND )
+    if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND )
     {
-        Command *pCommand = mapCommand_Find((*SafetyMessage)->m_ID);
+        Command *pCommand = mapCommand_Find((*SafetyMessage)->m_dwID);
         if( pCommand )
         {
             sCommand = pCommand->m_sDescription;
             Desc = "Command:\x1b[35;1m" + sCommand + "\x1b[0m";
         }
     }
-    else if( (*SafetyMessage)->m_MessageType==MESSAGETYPE_EVENT )
-        Desc = "Event:\x1b[32;1m" + m_mapEventNames[(*SafetyMessage)->m_ID] + "\x1b[0m";
+    else if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EVENT )
+        Desc = "Event:\x1b[32;1m" + m_mapEventNames[(*SafetyMessage)->m_dwID] + "\x1b[0m";
 
-    int LogType = (*SafetyMessage)->m_MessageType==MESSAGETYPE_EVENT ? LV_EVENT : ((*SafetyMessage)->m_MessageType==MESSAGETYPE_COMMAND ? LV_ACTION : LV_STATUS);
-    if( (*SafetyMessage)->m_MessageType==MESSAGETYPE_EVENT || (*SafetyMessage)->m_MessageType==MESSAGETYPE_COMMAND ) {
-        if ((*SafetyMessage)->m_DeviceIDTo == DEVICEID_LIST)
+    int LogType = (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EVENT ? LV_EVENT : ((*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND ? LV_ACTION : LV_STATUS);
+    if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EVENT || (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND ) {
+        if ((*SafetyMessage)->m_dwPK_Device_To == DEVICEID_LIST)
         {
             string DeviceList;
             string::size_type pos=0;
             while(true)
             {
-                string Device = StringUtils::Tokenize((*SafetyMessage)->m_DeviceListTo,",",pos);
+                string Device = StringUtils::Tokenize((*SafetyMessage)->m_sPK_Device_List_To,",",pos);
                 if( !Device.size() )
                     break;
                 DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router[ atoi(Device.c_str()) ];
@@ -379,44 +379,44 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
             }
 
             g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %s type %d id %d %s, parameters:",
-                (*SafetyMessage)->m_DeviceIDFrom,
+                (*SafetyMessage)->m_dwPK_Device_From,
                 (pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
                 DeviceList.c_str(),
-                (*SafetyMessage)->m_MessageType, (*SafetyMessage)->m_ID,Desc.c_str());
+                (*SafetyMessage)->m_dwMessage_Type, (*SafetyMessage)->m_dwID,Desc.c_str());
         }
-        else if ((*SafetyMessage)->m_DeviceIDTo != DEVICEID_LOGGER)
+        else if ((*SafetyMessage)->m_dwPK_Device_To != DEVICEID_LOGGER)
             g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d %s, parameters:",
-                (*SafetyMessage)->m_DeviceIDFrom,
-                (pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),(*SafetyMessage)->m_DeviceIDTo,
+                (*SafetyMessage)->m_dwPK_Device_From,
+                (pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),(*SafetyMessage)->m_dwPK_Device_To,
                 (pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
-                (*SafetyMessage)->m_MessageType, (*SafetyMessage)->m_ID,Desc.c_str());
+                (*SafetyMessage)->m_dwMessage_Type, (*SafetyMessage)->m_dwID,Desc.c_str());
     }
 
-    if ((*SafetyMessage)->m_DeviceIDTo != DEVICEID_LOGGER)
+    if ((*SafetyMessage)->m_dwPK_Device_To != DEVICEID_LOGGER)
     {
         map<long,string>::iterator i;
-        for(i=(*SafetyMessage)->m_Parameters.begin();i!=(*SafetyMessage)->m_Parameters.end();++i)
+        for(i=(*SafetyMessage)->m_mapParameters.begin();i!=(*SafetyMessage)->m_mapParameters.end();++i)
         {
             Desc="";
-            if( (*SafetyMessage)->m_MessageType==MESSAGETYPE_COMMAND )
+            if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND )
                 Desc = m_mapCommandParmNames[(*i).first];
-            else if( (*SafetyMessage)->m_MessageType==MESSAGETYPE_EVENT )
+            else if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EVENT )
                 Desc = m_mapEventParmNames[(*i).first];
-            if( (*SafetyMessage)->m_MessageType==MESSAGETYPE_EVENT || (*SafetyMessage)->m_MessageType==MESSAGETYPE_COMMAND )
+            if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EVENT || (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND )
                 g_pPlutoLogger->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
         }
     }
 
-    int tempid = (*SafetyMessage)->m_DeviceIDTo;
+    int tempid = (*SafetyMessage)->m_dwPK_Device_To;
     if(tempid == m_iPK_Device)
         tempid = DEVICEID_DCEROUTER;
     switch(tempid)
     {
     case DEVICEID_LOGGER:
     case DEVICEID_DCEROUTER:
-        if ((*SafetyMessage)->m_MessageType == MESSAGETYPE_SYSCOMMAND)
+        if ((*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND)
         {
-            switch((*SafetyMessage)->m_ID)
+            switch((*SafetyMessage)->m_dwID)
             {
             case SYSCOMMAND_QUIT:
                 m_bQuit=true;
@@ -427,17 +427,17 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
             }
             return;
         }
-        else if( (*SafetyMessage)->m_MessageType == MESSAGETYPE_LOG )
+        else if( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_LOG )
         {
             Logger::Entry e;
-            e.SerializeRead( (*SafetyMessage)->m_DataLengths[0], (*SafetyMessage)->m_DataParameters[0] );
+            e.SerializeRead( (*SafetyMessage)->m_mapData_Lengths[0], (*SafetyMessage)->m_mapData_Parameters[0] );
             g_pPlutoLogger->WriteEntry(e);
         }
 
         break;
 
     default:
-        if( (*SafetyMessage)->m_MessageType==MESSAGETYPE_COMMAND && (*SafetyMessage)->m_eExpectedResponse==ER_None )
+        if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND && (*SafetyMessage)->m_eExpectedResponse==ER_None )
         {
             // Do this on a separate thread.  Sometimes devices will send a message requesting a response, holding a blocked mutex
             // while the device they're waiting for a response from sends them a command.  It's safer to send messages on separate
@@ -544,8 +544,8 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
     }
     if( Line=="DEVICELIST" )
     {
-        pServerSocket->SendString(string("DEVICELIST ")+StringUtils::itos(m_iDeviceStructure_Size));
-        pServerSocket->SendData(m_iDeviceStructure_Size, m_pDeviceStructure);
+        pServerSocket->SendString(string("DEVICELIST ")+StringUtils::itos(m_dwIDeviceStructure_Size));
+        pServerSocket->SendData(m_dwIDeviceStructure_Size, m_pDeviceStructure);
 
         return true;
     }
@@ -717,9 +717,9 @@ bool Router::GetVideoFrame(int CameraDevice, void* &ImageData, int &ImageLength)
                         Message *pResponse = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(8).c_str()));
                         if (pResponse)
                         {
-                            ImageLength = pResponse->m_DataLengths[C_EVENTPARAMETER_GRAPHIC_IMAGE_CONST];
-                            ImageData = pResponse->m_DataParameters[C_EVENTPARAMETER_GRAPHIC_IMAGE_CONST];
-                            pResponse->m_DataParameters.clear();
+                            ImageLength = pResponse->m_mapData_Lengths[C_EVENTPARAMETER_GRAPHIC_IMAGE_CONST];
+                            ImageData = pResponse->m_mapData_Parameters[C_EVENTPARAMETER_GRAPHIC_IMAGE_CONST];
+                            pResponse->m_mapData_Parameters.clear();
                             delete pResponse;
                             return true;
                         }
@@ -774,7 +774,7 @@ bool Router::GetParameter(int ToDevice,int ParmType, string &sResult)
             Message *pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
             if (pMessage)
             {
-                sResult = pMessage->m_Parameters[ParmType];
+                sResult = pMessage->m_mapParameters[ParmType];
                 delete pMessage;
                 return true;
             }
@@ -788,10 +788,10 @@ bool Router::GetParameterWithDefinedMessage(Message *sendMessage, string &sResul
   int messageID;
   PLUTO_SAFETY_LOCK(slock,m_CoreMutex);
 
-    g_pPlutoLogger->Write(LV_CRITICAL, "GetParameterWithDefinedMessage %s", StringUtils::itos(sendMessage->m_ID).c_str());
-  messageID = sendMessage->m_ID;
+    g_pPlutoLogger->Write(LV_CRITICAL, "GetParameterWithDefinedMessage %s", StringUtils::itos(sendMessage->m_dwID).c_str());
+  messageID = sendMessage->m_dwID;
 
-    map<int,int>::iterator iRoute = m_Routing_DeviceToController.find(sendMessage->m_DeviceIDTo);
+    map<int,int>::iterator iRoute = m_Routing_DeviceToController.find(sendMessage->m_dwPK_Device_To);
     if (iRoute!=m_Routing_DeviceToController.end())
     {
         PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
@@ -802,7 +802,7 @@ bool Router::GetParameterWithDefinedMessage(Message *sendMessage, string &sResul
             PLUTO_SAFETY_LOCK(slConn,((*iDeviceConnection).second->m_ConnectionMutex));
             if (!pSocket->SendMessage(sendMessage)) //This evidentally overwrite sendMessage, do not use sendMessage after here
             {
-                g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending dataparm request to device %d", (*iDeviceConnection).second, sendMessage->m_DeviceIDTo);
+                g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending dataparm request to device %d", (*iDeviceConnection).second, sendMessage->m_dwPK_Device_To);
 
                 // TODO :  The socket failed, core needs to remove client socket
 
@@ -812,7 +812,7 @@ bool Router::GetParameterWithDefinedMessage(Message *sendMessage, string &sResul
                 Message *pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
                 if (pMessage)
                 {
-                    sResult = pMessage->m_Parameters[messageID];
+                    sResult = pMessage->m_mapParameters[messageID];
                     delete pMessage;
                     return true;
                 }
@@ -915,7 +915,7 @@ void Router::AddMessageToQueue(Message *pMessage)
     /*
 #ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS,"adding message from %d to %d type %d id %d to queue size was: %d",
-        pMessage->m_DeviceIDFrom,pMessage->m_DeviceIDTo,pMessage->m_MessageType,pMessage->m_ID,(int) m_MessageQueue.size());
+        pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
 #endif
     */
     pthread_mutex_lock(&m_MessageQueueMutex);
@@ -938,7 +938,7 @@ void Router::ProcessQueue()
         Message *pMessage = m_MessageQueue.front();
         m_MessageQueue.pop_front();
         g_pPlutoLogger->Write(LV_STATUS,"sending message from %d to %d type %d id %d to queue now size: %d",
-            pMessage->m_DeviceIDFrom,pMessage->m_DeviceIDTo,pMessage->m_MessageType,pMessage->m_ID,(int) m_MessageQueue.size());
+            pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
         pthread_mutex_unlock(&m_MessageQueueMutex);
 
         SafetyMessage pSafetyMessage(pMessage);
@@ -951,14 +951,14 @@ void Router::ProcessQueue()
 
 void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 {
-    if ( (*(*pSafetyMessage))->m_DeviceIDTo==DEVICEID_LIST )
+    if ( (*(*pSafetyMessage))->m_dwPK_Device_To==DEVICEID_LIST )
     {
         // Loop back and call ourselves for each message
         string::size_type pos=0;
         string sPK_Device;
-        while( (sPK_Device=StringUtils::Tokenize((*(*pSafetyMessage))->m_DeviceListTo,",",pos)).length() )
+        while( (sPK_Device=StringUtils::Tokenize((*(*pSafetyMessage))->m_sPK_Device_List_To,",",pos)).length() )
         {
-            (*(*pSafetyMessage))->m_DeviceIDTo=atoi(sPK_Device.c_str());
+            (*(*pSafetyMessage))->m_dwPK_Device_To=atoi(sPK_Device.c_str());
             RealSendMessage(pSocket,pSafetyMessage);
         }
         return;
@@ -969,13 +969,13 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
     int RouteToDevice = DEVICEID_NULL;
 
 //  g_pPlutoLogger->Write(LV_STATUS,"realsendmessage from %d to %d type %d id %d ",
-//      (*(*pSafetyMessage))->m_DeviceIDFrom,(*(*pSafetyMessage))->m_DeviceIDTo,(*(*pSafetyMessage))->m_MessageType,(*(*pSafetyMessage))->m_ID);
+//      (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 
     map<int,int>::iterator iRoute;
     /* NOT needed for 2.0  -- a video plug-in will handle this
-    if ( (*(*pSafetyMessage))->m_MessageType == MESSAGETYPE_REQUEST && (*(*pSafetyMessage))->m_ID == REQUESTTYPE_VIDEO_FRAME)
+    if ( (*(*pSafetyMessage))->m_dwMessage_Type == MESSAGETYPE_REQUEST && (*(*pSafetyMessage))->m_dwID == REQUESTTYPE_VIDEO_FRAME)
     {
-        iRoute = m_Routing_VideoDeviceToController.find((*(*pSafetyMessage))->m_DeviceIDTo);
+        iRoute = m_Routing_VideoDeviceToController.find((*(*pSafetyMessage))->m_dwPK_Device_To);
         if (iRoute!=m_Routing_VideoDeviceToController.end())
         {
             RouteToDevice = (*iRoute).second;
@@ -984,7 +984,7 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
     */
     if(RouteToDevice == DEVICEID_NULL)
     {
-        iRoute = m_Routing_DeviceToController.find((*(*pSafetyMessage))->m_DeviceIDTo);
+        iRoute = m_Routing_DeviceToController.find((*(*pSafetyMessage))->m_dwPK_Device_To);
         if (iRoute!=m_Routing_DeviceToController.end())
         {
             RouteToDevice = (*iRoute).second;
@@ -992,7 +992,7 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
     }
     slCore.Release();
 //g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after core release from %d to %d type %d id %d ",
-//  (*(*pSafetyMessage))->m_DeviceIDFrom,(*(*pSafetyMessage))->m_DeviceIDTo,(*(*pSafetyMessage))->m_MessageType,(*(*pSafetyMessage))->m_ID);
+//  (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 
     if (RouteToDevice > 0)
     {
@@ -1007,14 +1007,14 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
             if( !pDeviceConnection )
             {
                 g_pPlutoLogger->Write(LV_CRITICAL,"pDeviceconnection is null in Router::receivedocmessage from: %d, to: %d, type: %d",
-                    (*(*pSafetyMessage))->m_DeviceIDFrom,(*(*pSafetyMessage))->m_DeviceIDTo,(*(*pSafetyMessage))->m_MessageType);
+                    (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type);
                 ErrorResponse(pSocket,(*(*pSafetyMessage)));
                 return;
             }
 
             {
 //g_pPlutoLogger->Write(LV_STATUS,"realsendmessage before device conn mutex from %d to %d type %d id %d ",
-//  (*(*pSafetyMessage))->m_DeviceIDFrom,(*(*pSafetyMessage))->m_DeviceIDTo,(*(*pSafetyMessage))->m_MessageType,(*(*pSafetyMessage))->m_ID);
+//  (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 
 #ifdef DEBUG
                 DeviceData_Router *pDest = m_mapDeviceData_Router_Find(pDeviceConnection->m_DeviceID);
@@ -1023,7 +1023,7 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
                     g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find destination device: %d",pDeviceConnection->m_DeviceID);
                 }
                 g_pPlutoLogger->Write(LV_SOCKET, "Ready to send message type %d id %d to %d %s on socket %d using lock: %p",
-                    (*(*pSafetyMessage))->m_MessageType,(*(*pSafetyMessage))->m_ID,pDeviceConnection->m_DeviceID,
+                    (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pDeviceConnection->m_DeviceID,
                     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
                     pDeviceConnection->m_Socket,&pDeviceConnection->m_ConnectionMutex);
 
@@ -1034,7 +1034,7 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 #endif
 
 //g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after device conn mutex from %d to %d type %d id %d ",
-//  (*(*pSafetyMessage))->m_DeviceIDFrom,(*(*pSafetyMessage))->m_DeviceIDTo,(*(*pSafetyMessage))->m_MessageType,(*(*pSafetyMessage))->m_ID);
+//  (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 
 #ifdef DEBUG
                 // Let's see how long it takes to send
@@ -1043,8 +1043,8 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
     #ifdef LL_DEBUG
                 g_pPlutoLogger->Write(LV_SOCKET, "%d Sending....", pDeviceConnection->m_DeviceID);
     #endif
-                int MessageType = (*(*pSafetyMessage))->m_MessageType;
-                int ID = (*(*pSafetyMessage))->m_ID;
+                int MessageType = (*(*pSafetyMessage))->m_dwMessage_Type;
+                int ID = (*(*pSafetyMessage))->m_dwID;
                 /* AB 8/5, changed this since we still use the message later
                 bool bResult = pDeviceConnection->SendMessage(pSafetyMessage->Detach()); */
                 bool bResult = pDeviceConnection->SendMessage(pSafetyMessage->m_pMessage,false);
@@ -1105,11 +1105,11 @@ if ( ID == 54 )
 								DCE::Message *pMessage = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(8).c_str()));
 if ( ID == 54 )
 {
-    g_pPlutoLogger->Write(LV_WARNING, "Response message was read (%d) with %d params: %s %s", pMessage->m_ID,
-        pMessage->m_Parameters.size(),
-        pMessage->m_Parameters[13].c_str(),
-        pMessage->m_Parameters[59].c_str());
-//      pMessage->m_Parameters);
+    g_pPlutoLogger->Write(LV_WARNING, "Response message was read (%d) with %d params: %s %s", pMessage->m_dwID,
+        pMessage->m_mapParameters.size(),
+        pMessage->m_mapParameters[13].c_str(),
+        pMessage->m_mapParameters[59].c_str());
+//      pMessage->m_mapParameters);
 }
 
 if ( pSocket->SendMessage(pMessage) == false && ID == 54)
@@ -1160,7 +1160,7 @@ if ( pSocket->SendMessage(pMessage) == false && ID == 54)
         }
         else
         {
-            g_pPlutoLogger->Write(LV_WARNING, "The target device %d has not registered.",(*(*pSafetyMessage))->m_DeviceIDTo);
+            g_pPlutoLogger->Write(LV_WARNING, "The target device %d has not registered.",(*(*pSafetyMessage))->m_dwPK_Device_To);
             // If this is a request we have to let the sender know so it doesn't wait in vain.
             // also, send responses back to corpserver
         }
@@ -1177,20 +1177,20 @@ void Router::ErrorResponse(Socket *pSocket,Message *pMessage)
     if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
     {
         pMessage->m_bRespondedToMessage=true;
-        g_pPlutoLogger->Write(LV_CRITICAL,"Sender: %d sent message type: %d ID: %d and expected a message reply",pMessage->m_DeviceIDFrom,pMessage->m_MessageType,pMessage->m_ID);
-        Message *pMessageOut=new Message(0,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,-1,0);
+        g_pPlutoLogger->Write(LV_CRITICAL,"Sender: %d sent message type: %d ID: %d and expected a message reply",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID);
+        Message *pMessageOut=new Message(0,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,-1,0);
         pSocket->SendMessage(pMessageOut);
     }
     if( pMessage->m_eExpectedResponse==ER_ReplyString )
     {
         pMessage->m_bRespondedToMessage=true;
-        g_pPlutoLogger->Write(LV_CRITICAL,"Sender: %d sent message type: %d ID: %d and expected a reply string",pMessage->m_DeviceIDFrom,pMessage->m_MessageType,pMessage->m_ID);
+        g_pPlutoLogger->Write(LV_CRITICAL,"Sender: %d sent message type: %d ID: %d and expected a reply string",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID);
         pSocket->SendString("No Response");
     }
     if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation )
     {
         pMessage->m_bRespondedToMessage=true;
-        g_pPlutoLogger->Write(LV_CRITICAL,"Sender: %d sent message type: %d ID: %d and expected a confirmation",pMessage->m_DeviceIDFrom,pMessage->m_MessageType,pMessage->m_ID);
+        g_pPlutoLogger->Write(LV_CRITICAL,"Sender: %d sent message type: %d ID: %d and expected a confirmation",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID);
         pSocket->SendString("Delivery failed");
     }
 }
@@ -1316,7 +1316,7 @@ void Router::Configure()
         for(size_t s2=0;s2<vectDeviceParms.size();++s2)
         {
             Row_Device_DeviceData *prDeviceParm = vectDeviceParms[s2];
-            pDevice->m_Parameters[ prDeviceParm->FK_DeviceData_get()] = prDeviceParm->Value_get();
+            pDevice->m_mapParameters[ prDeviceParm->FK_DeviceData_get()] = prDeviceParm->Value_get();
         }
 
         vector<Row_DeviceTemplate_Input *> vectDeviceInputs;
@@ -1361,9 +1361,9 @@ void Router::Configure()
 
     // Serialize everything
     allDevices.SerializeWrite();
-    m_iDeviceStructure_Size=(unsigned long) allDevices.CurrentSize();
-    m_pDeviceStructure=new char[m_iDeviceStructure_Size];
-    memcpy(m_pDeviceStructure,allDevices.m_pcDataBlock,m_iDeviceStructure_Size);
+    m_dwIDeviceStructure_Size=(unsigned long) allDevices.CurrentSize();
+    m_pDeviceStructure=new char[m_dwIDeviceStructure_Size];
+    memcpy(m_pDeviceStructure,allDevices.m_pcDataBlock,m_dwIDeviceStructure_Size);
 
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
     {

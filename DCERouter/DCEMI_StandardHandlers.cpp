@@ -96,7 +96,7 @@ bool DCEMI_StandardHandlers::DeviceGroups(class Socket *pSocket,class Message *p
 			ReturnValue += StringUtils::itos(pD->m_iPKID_Device) + "|";
 		}
 	}
-	pSocket->SendMessage(new Message(0, pMessage->m_DeviceIDFrom, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, 0, ReturnValue.c_str()));
+	pSocket->SendMessage(new Message(0, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, 0, ReturnValue.c_str()));
 	pMessage->m_bRespondedToMessage=true;
 	return false; // No further processing necessary
 }
@@ -107,23 +107,23 @@ bool DCEMI_StandardHandlers::InitialParmValue(class Socket *pSocket,class Messag
 	{
 		string Parm;
 
-		if (pMessage->m_ID == DATAPARM_DESCRIPTION)
+		if (pMessage->m_dwID == DATAPARM_DESCRIPTION)
 			Parm = pDeviceTo->m_sDescription;
 		else
-			Parm = pDeviceTo->mapParameters_Find(pMessage->m_ID);
-		pSocket->SendMessage(new Message(0, pMessage->m_DeviceIDFrom, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_ID, Parm.c_str()));
+			Parm = pDeviceTo->mapParameters_Find(pMessage->m_dwID);
+		pSocket->SendMessage(new Message(0, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, Parm.c_str()));
 	}
 	else
-		pSocket->SendMessage(new Message(0, pMessage->m_DeviceIDFrom, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_ID, "Invalid device"));
+		pSocket->SendMessage(new Message(0, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, "Invalid device"));
 	pMessage->m_bRespondedToMessage=true;
 	return false; // No further processing necessary
 }
 
 bool DCEMI_StandardHandlers::ClosestRelative(class Socket *pSocket,class Message *pMessage,class Device_Router *pDeviceFrom,class Device_Router *pDeviceTo) 
 {
-	string sStartingDevice = pMessage->m_Parameters[NEAREST_SIBLING_STARTINGDEVICE];
-	int DeviceID =  (sStartingDevice.length() > 0) ? atoi(sStartingDevice.c_str()) : pMessage->m_DeviceIDFrom;
-	int MasterDeviceType = atoi(pMessage->m_Parameters[NEAREST_SIBLING_MASTERTYPE].c_str());
+	string sStartingDevice = pMessage->m_mapParameters[NEAREST_SIBLING_STARTINGDEVICE];
+	int DeviceID =  (sStartingDevice.length() > 0) ? atoi(sStartingDevice.c_str()) : pMessage->m_dwPK_Device_From;
+	int MasterDeviceType = atoi(pMessage->m_mapParameters[NEAREST_SIBLING_MASTERTYPE].c_str());
 	pSocket->SendMessage(new Message(0,0,0,0,0,1,1,StringUtils::itos(m_pRouter->FindClosestRelative(MasterDeviceType, DeviceID)).c_str()));
 	pMessage->m_bRespondedToMessage=true;
 	return false; // No further processing necessary
@@ -131,7 +131,7 @@ bool DCEMI_StandardHandlers::ClosestRelative(class Socket *pSocket,class Message
 
 bool DCEMI_StandardHandlers::Family(class Socket *pSocket,class Message *pMessage,class Device_Router *pDeviceFrom,class Device_Router *pDeviceTo) 
 {
-	int DeviceID = pMessage->m_ID;
+	int DeviceID = pMessage->m_dwID;
 	Device_Router *pDevice = m_pRouter->m_mapDevice_Router_Find(DeviceID);
 	if( pDevice )
 	{
@@ -154,7 +154,7 @@ bool DCEMI_StandardHandlers::Family(class Socket *pSocket,class Message *pMessag
 
 bool DCEMI_StandardHandlers::AssociatedDevices(class Socket *pSocket,class Message *pMessage,class Device_Router *pDeviceFrom,class Device_Router *pDeviceTo) 
 {
-	int DeviceID = pMessage->m_ID;
+	int DeviceID = pMessage->m_dwID;
 	Device_Router *pDevice = m_pRouter->m_mapDevice_Router_Find(DeviceID);
 	string Response="";
 	if( pDevice )
@@ -174,7 +174,7 @@ bool DCEMI_StandardHandlers::AssociatedDevices(class Socket *pSocket,class Messa
 
 bool DCEMI_StandardHandlers::Children(class Socket *pSocket,class Message *pMessage,class Device_Router *pDeviceFrom,class Device_Router *pDeviceTo) 
 {
-	int DeviceID = pMessage->m_ID;
+	int DeviceID = pMessage->m_dwID;
 	Device_Router *pDevice = m_pRouter->m_mapDevice_Router_Find(DeviceID);
 	string Response="";
 	if( pDevice )
@@ -193,7 +193,7 @@ bool DCEMI_StandardHandlers::MySqlQuery(class Socket *pSocket,class Message *pMe
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	string ReturnValue;
-	string query = pMessage->m_Parameters[C_COMMANDPARAMETER_TEXT_CONST];
+	string query = pMessage->m_mapParameters[C_COMMANDPARAMETER_TEXT_CONST];
 	if( (result_set.r=m_pRouter->mysql_query_result(query)) )
 	{
 		while ((row = mysql_fetch_row(result_set.r)))
@@ -207,7 +207,7 @@ bool DCEMI_StandardHandlers::MySqlQuery(class Socket *pSocket,class Message *pMe
 			ReturnValue += "\n";
 		}
 	}
-	pSocket->SendMessage(new Message(0, pMessage->m_DeviceIDFrom, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, 0, ReturnValue.c_str()));
+	pSocket->SendMessage(new Message(0, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, 0, ReturnValue.c_str()));
 	pMessage->m_bRespondedToMessage=true;
 	return false; // No further processing necessary
 }
@@ -217,7 +217,7 @@ bool DCEMI_StandardHandlers::MySqlQuery(class Socket *pSocket,class Message *pMe
 bool DCEMI_StandardHandlers::SetBoot(class Socket *pSocket,class Message *pMessage,class Device_Router *pDeviceFrom,class Device_Router *pDeviceTo) 
 {
 	Device_Router *pDevice=NULL;
-	int PKID_Device=atoi(pMessage->m_Parameters[C_COMMANDPARAMETER_PKID_DEVICE_CONST].c_str());
+	int PKID_Device=atoi(pMessage->m_mapParameters[C_COMMANDPARAMETER_PKID_DEVICE_CONST].c_str());
 	if( PKID_Device )
 		pDevice = m_pRouter->m_mapDevice_Router_Find(PKID_Device);
 
@@ -227,7 +227,7 @@ bool DCEMI_StandardHandlers::SetBoot(class Socket *pSocket,class Message *pMessa
 	if( !pDevice || pDevice->m_IPAddr=="" )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got set boot to device: %d with no IP",
-			pMessage->m_DeviceIDTo);
+			pMessage->m_dwPK_Device_To);
 	}
 	else
 	{
@@ -251,7 +251,7 @@ bool DCEMI_StandardHandlers::SetBoot(class Socket *pSocket,class Message *pMessa
 
 		char *data_block=NULL;
 		int total_size=0;
-		int Windows = atoi(pMessage->m_Parameters[C_COMMANDPARAMETER_ID_CONST].c_str());
+		int Windows = atoi(pMessage->m_mapParameters[C_COMMANDPARAMETER_ID_CONST].c_str());
 		FILE *file = fopen(("/usr/local/tftpd/pxelinux.cfg/" + sHex).c_str(),"rb");
 
 		if( file )
@@ -313,7 +313,7 @@ bool DCEMI_StandardHandlers::SetBoot(class Socket *pSocket,class Message *pMessa
 bool DCEMI_StandardHandlers::Reboot(class Socket *pSocket,class Message *pMessage,class Device_Router *pDeviceFrom,class Device_Router *pDeviceTo) 
 {
 	string IP="";
-	if( pMessage->m_DeviceIDTo==DEVICEID_DCEROUTER )
+	if( pMessage->m_dwPK_Device_To==DEVICEID_DCEROUTER )
 	{
 		string FileName = "/usr/local/pluto/bootpluto/shutdown_" + StringUtils::itos(m_pRouter->m_ServerDeviceID);
 		FILE *file = fopen(FileName.c_str(),"wb");
@@ -327,7 +327,7 @@ bool DCEMI_StandardHandlers::Reboot(class Socket *pSocket,class Message *pMessag
 	}
 	else if( pDeviceTo )
 	{
-		IP=pDeviceTo->m_Parameters[C_DEVICEPARAMETER_IP_ADDR_CONST];
+		IP=pDeviceTo->m_mapParameters[C_DEVICEPARAMETER_IP_ADDR_CONST];
 		if( IP!="" )
 		{
 			string FileName = "/usr/local/pluto/bootpluto/shutdown_" + StringUtils::itos(pDeviceTo->m_iPKID_Device);
@@ -336,7 +336,7 @@ bool DCEMI_StandardHandlers::Reboot(class Socket *pSocket,class Message *pMessag
 			fclose(file);
 
 			// If called while rebooting into Windows, Reset will be 0
-			string Reset=pMessage->m_Parameters[C_COMMANDPARAMETER_RESET_CONST];
+			string Reset=pMessage->m_mapParameters[C_COMMANDPARAMETER_RESET_CONST];
 			if( Reset!="0" )
 			{
 				g_pPlutoLogger->Write(LV_WARNING,"setting back to linux");
@@ -362,7 +362,7 @@ bool DCEMI_StandardHandlers::SetReadyStatus(class Socket *pSocket,class Message 
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got a ready event from an unknown device");
 	else
 	{
-		pDeviceFrom->m_bIsReady = (pMessage->m_Parameters[C_EVENTPARAMETER_ID_CONST]=="1");
+		pDeviceFrom->m_bIsReady = (pMessage->m_mapParameters[C_EVENTPARAMETER_ID_CONST]=="1");
 		g_pPlutoLogger->Write(LV_STATUS,"Device: %d %s ready: %s",pDeviceFrom->m_iPKID_Device,pDeviceFrom->m_sDescription.c_str(),
 			(pDeviceFrom->m_bIsReady ? "Y" : "N"));
 	}
@@ -372,20 +372,20 @@ bool DCEMI_StandardHandlers::SetReadyStatus(class Socket *pSocket,class Message 
 
 bool DCEMI_StandardHandlers::RequestPublicIP(class Socket *pSocket,class Message *pMessage,class Device_Router *pDeviceFrom,class Device_Router *pDeviceTo) 
 {
-	pSocket->SendMessage(new Message(DEVICEID_DCEROUTER, pMessage->m_DeviceIDFrom, PRIORITY_NORMAL, MESSAGETYPE_REPLY, REQUESTTYPE_PUBLIC_IP, 1, C_DEVICEPARAMETER_IP_ADDR_CONST, m_pRouter->GetPublicIP().c_str()));
+	pSocket->SendMessage(new Message(DEVICEID_DCEROUTER, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, REQUESTTYPE_PUBLIC_IP, 1, C_DEVICEPARAMETER_IP_ADDR_CONST, m_pRouter->GetPublicIP().c_str()));
 	pMessage->m_bRespondedToMessage=true;
 	return false;
 }
 
 bool DCEMI_StandardHandlers::RequestCommandGroupDescription(class Socket *pSocket,class Message *pMessage,class Device_Router *pDeviceFrom,class Device_Router *pDeviceTo) 
 {
-	int id = atoi(pMessage->m_Parameters[C_COMMANDPARAMETER_PKID_ACTIONGROUP_CONST].c_str());
+	int id = atoi(pMessage->m_mapParameters[C_COMMANDPARAMETER_PKID_ACTIONGROUP_CONST].c_str());
 	map<int,CommandGroup *>::iterator iag = m_pRouter->m_mapCommandGroup.find(id);
 	string agDesc;
 	if (iag!=m_pRouter->m_mapCommandGroup.end())
 		agDesc = (*iag).second->m_Description;
 	
-	Message *pResponse = new Message(DEVICEID_DCEROUTER, pMessage->m_DeviceIDFrom, PRIORITY_NORMAL, MESSAGETYPE_REPLY, REQUESTTYPE_COMMAND_GROUP_DESCRIPTION, 1, C_COMMANDPARAMETER_TEXT_CONST, agDesc.c_str());
+	Message *pResponse = new Message(DEVICEID_DCEROUTER, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, REQUESTTYPE_COMMAND_GROUP_DESCRIPTION, 1, C_COMMANDPARAMETER_TEXT_CONST, agDesc.c_str());
 	pSocket->SendMessage(pResponse);
 	pMessage->m_bRespondedToMessage=true;
 	return false;

@@ -93,7 +93,7 @@ void CorpClient::ReceivedString(string Line)
 
 bool CorpClient::ReceivedMessage(Message *pMessage)
 { 
-	if(pMessage->m_MessageType != MESSAGETYPE_SERVERCOMMAND)
+	if(pMessage->m_dwMessage_Type != MESSAGETYPE_SERVERCOMMAND)
 	{
 		unsigned long Size;
 		char *Data;
@@ -105,7 +105,7 @@ bool CorpClient::ReceivedMessage(Message *pMessage)
 	}
 		
 		
-	switch(pMessage->m_ID)
+	switch(pMessage->m_dwID)
 	{
 	case CORPSERVER_COMMAND_UPDATE_EPG:
 		return Do_UpdateEPG(pMessage);

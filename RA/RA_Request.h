@@ -53,7 +53,7 @@ public:
 	/**
      * @brief adds a action to the response
      */
-	void AddActionsToResponse();
+	void AddActionsToResponse(class RA_Action *pRA_Action) { MYSTL_ADDTO_LIST(m_listActions, pRA_Action); }
 
 public:
 
@@ -63,7 +63,7 @@ public:
 	 * the request processor will call ConvertRequestToBinary and send
 	 * it will call ProcessResponse when it receives a response
      */
-	RA_Request();  
+	RA_Request();
 
 	/**
 	 * @brief more elaborate constructor
@@ -73,7 +73,7 @@ public:
 	 * @param dwSize size of data to build request from
 	 * @param pcData pointer to the actual data
 	 */
-	RA_Request(unsigned long dwSize,const char *pcData);
+	void CreateRequest(unsigned long dwSize,const char *pcData);
 
 	/**
 	 * virtual destructor
@@ -105,14 +105,14 @@ public:
 
 	// *** PURE VIRTUAL FUNCTIONS
 	virtual unsigned long ID()=0; /** < should return the ID of the request */
-	virtual bool ProcessRequest()=0; /* < process the request */
+	virtual bool ProcessRequest(class RA_Processor *pRA_Processor)=0; /* < process the request */
 
 	/**
     * @brief These classes have 2 sets of members, 1 for the request, and 1 for the response.  So we
 	* track whether we are doing a request or a response with m_bSerializingRequest, and then call
 	* SetupSerialization_Request or SetupSerialization_Response, which the derived class must implement
     */
-	virtual void SetupSerialization() { if(m_bSerializingRequest) SetupSerialization_Request(); else SetupSerialization_Response(); };
+	virtual void SetupSerialization();
 
 	virtual void SetupSerialization_Request() {};
 	virtual void SetupSerialization_Response() { StartSerializeList() + m_cProcessOutcome; };
