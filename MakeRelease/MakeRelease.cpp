@@ -452,7 +452,7 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 			CreateSource_SourceForgeCVS(pRow_Package_Source,listFileInfo);
 			break;
 		default:
-			cout << "***ERROR*** Don't know how to create this source." << endl;
+			cout << "***ERROR*** Don't know how to create this source. " ;
 			return false;
 		}
 	}
@@ -484,7 +484,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			if( pRow_Package_Directory->Path_get()[0]=='/' )
 				sDirectory = pRow_Package_Directory->Path_get();
 			else
-				sDirectory += g_sSourcecodePrefix + pRow_Package_Directory->Path_get();
+				sDirectory += g_sSourcecodePrefix + "/" + pRow_Package_Directory->Path_get();
 		}
 
 		vector<Row_Package_Directory_File *> vectPackage_Directory_File;
@@ -989,13 +989,22 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 		<<pRow_Package_Source->FK_Package_getrow()->Description_get();
 	cout<<"\n Nr of files : "<<listFileInfo.size();
 	list<FileInfo *>::iterator iFileInfo; int i;
-	for (iFileInfo = listFileInfo.begin(),i=0;iFileInfo != listFileInfo.end(); iFileInfo++,i++)
+	
+	string cmd;
+	for (iFileInfo = listFileInfo.begin(),i=1;iFileInfo != listFileInfo.end(); iFileInfo++,i++)
 	{
-		cout<<endl<<i<<"\n\t"<<(*iFileInfo)->m_pRow_Package_Directory->Path_get();
-		cout<<endl<<"\t"<<(*iFileInfo)->m_sDestination;
-		cout<<endl<<"\t"<<(*iFileInfo)->m_sSource;
+		//cout<<"\n"<<i<<" Ading : "<<FileUtils::FilenameWithoutPath((*iFileInfo)->m_sSource);
+		chdir(FileUtils::BasePath((*iFileInfo)->m_sSource).c_str());
+		cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
+				(*iFileInfo)->m_pRow_Package_Directory->Path_get()+
+				" add "+FileUtils::FilenameWithoutPath((*iFileInfo)->m_sSource);
+		system(cmd.c_str());
 	}
-	//system();
+	iFileInfo = listFileInfo.begin();
+	//cout<<"\n Commit";
+	cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+(*iFileInfo)->m_pRow_Package_Directory->Path_get()
+		        +" commit ";
+	system(cmd.c_str());
 	cout<<endl;
 	return true;
 }
