@@ -6,6 +6,8 @@
 #include "TextStyle.h"
 #include "Message.h"
 
+#include <deque>
+
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
 #endif
@@ -37,6 +39,7 @@ public:
 	int m_dwPK_Device_MediaDirector,m_dwPK_Device_DiscDrive,m_dwPK_Device_AppServer,m_dwPK_Device_MediaBurner,m_dwPK_Device_VideoConf,m_dwPK_Device_CamcorderCapt,m_dwPK_Device_Orbiter,m_dwPK_Device_WebBrowser; 
 	string Description;
 	class Row_Icon *drIcon; // Not serialized, just a temporary pointer for the generator
+	class CHAGraphic *m_pGraphic; // Not serialized, just a temporary pointer for the orbiter with the button for this location
 
 	LocationInfo() { m_dwPK_Device_MediaDirector = m_dwPK_Device_DiscDrive = m_dwPK_Device_AppServer = m_dwPK_Device_MediaBurner = m_dwPK_Device_VideoConf = m_dwPK_Device_CamcorderCapt = m_dwPK_Device_Orbiter = m_dwPK_Device_WebBrowser = DEVICEID_NULL; }
 	void SetupSerialization()
@@ -48,7 +51,7 @@ public:
 	virtual string SerializeClassClassName() { return "LocationInfo"; }
 };
 
-typedef list<LocationInfo *> ListLocationInfo;
+typedef deque<LocationInfo *> DequeLocationInfo;
 
 
 class OrbiterData : public SerializeClass
@@ -75,7 +78,7 @@ public:
 	}
 #endif
 
-	list<class LocationInfo *> m_alLocations;
+	deque<class LocationInfo *> m_dequeLocation;
 	VariableMap m_mapVariable;  // our current variables
 	MapTextStyle m_mapTextStyle;
 	TextStyle *m_mapTextStyle_Find(int PK_Style)
@@ -86,7 +89,7 @@ public:
 
 	OrbiterData &operator+ (ScreenMap &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_SCREEN_MAP,(void *) &i)); return (*this); }
 	OrbiterData &operator+ (MapTextStyle &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STYLE_MAP,(void *) &i)); return (*this); }
-	OrbiterData &operator+ (ListLocationInfo &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LOCATIONS,(void *) &i)); return (*this); }
+	OrbiterData &operator+ (DequeLocationInfo &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LOCATIONS,(void *) &i)); return (*this); }
 
 	void SetupSerialization()
 	{
@@ -94,7 +97,7 @@ public:
 			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
 			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn;
 
-		(*this) + m_ScreenMap + m_mapTextStyle + m_alLocations; // this is serialized custom
+		(*this) + m_ScreenMap + m_mapTextStyle + m_dequeLocation; // this is serialized custom
 	}
 	virtual string SerializeClassClassName() { return "OrbiterData"; }
 	// For our custom serialize types.
@@ -134,9 +137,9 @@ public:
 				break;
 			case SERIALIZE_DATA_TYPE_LOCATIONS:
 				{
-					Write_unsigned_long((unsigned long) m_alLocations.size());
-					ListLocationInfo::iterator it;
-					for(it=m_alLocations.begin();it!=m_alLocations.end();++it)
+					Write_unsigned_long((unsigned long) m_dequeLocation.size());
+					DequeLocationInfo::iterator it;
+					for(it=m_dequeLocation.begin();it!=m_dequeLocation.end();++it)
 					{
 						if( !(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition) )
 							return false;
@@ -194,7 +197,7 @@ public:
 						LocationInfo *pLocationInfo = new LocationInfo();
 						if( !pLocationInfo->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition) )
 							return false;
-						m_alLocations.push_back(pLocationInfo);
+						m_dequeLocation.push_back(pLocationInfo);
 					}
 					return true;
 				}
