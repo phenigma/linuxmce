@@ -544,12 +544,11 @@ void Bluetooth_Dongle::CMD_Get_Signal_Strength(string sMac_address,int *iValue,s
 	//cout << "Parm #48 - Value_int_=" << *iValue << endl;
 
 	//BDCommandProcessor *pBDCommandProcessor = m_mapOrbiterSockets_Find( sMac_address );
-	int bubu = GetLinkQuality(sMac_address.c_str());
+	int iLinkQuality = GetLinkQuality(sMac_address.c_str());
 
-	//g_pPlutoLogger->Write( LV_WARNING, "$$$ CMD_Create_Mobile_Orbiter received for %s device $$$", sMac_address.c_str() );
+	g_pPlutoLogger->Write( LV_WARNING, "Link quality for %s device is %d", sMac_address.c_str(), iLinkQuality );
 
-	//TO BE IMPLEMENTED!!
-	//*iValue = 255;
+	*iValue = iLinkQuality;
 } 
 
 //-----------------------------------------------------------------------------------------------------
