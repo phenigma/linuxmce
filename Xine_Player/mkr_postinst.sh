@@ -7,5 +7,8 @@ NoSound()
 	return 0
 }
 
+# I can't think of another way to load the sound card drivers
+/etc/init.d/hotplug start
+
 amixer sset Master 74% unmute || NoSound
 amixer sset PCM 74% unmute || NoSound 0
