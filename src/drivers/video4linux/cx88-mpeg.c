@@ -55,7 +55,7 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 {
 	struct cx88_core *core = dev->core;
 
-	dprintk(0, "cx8802_start_mpegport_dma %d\n", buf->vb.width);
+	dprintk(1, "cx8802_start_dma %d\n", buf->vb.width);
 
 	/* setup fifo + format */
 	cx88_sram_channel_setup(core, &cx88_sram_channels[SRAM_CH28],
@@ -113,7 +113,7 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 static int cx8802_stop_dma(struct cx8802_dev *dev)
 {
 	struct cx88_core *core = dev->core;
-	dprintk( 0, "cx8802_stop_dma\n" );
+	dprintk( 1, "cx8802_stop_dma\n" );
 
 	/* stop dma */
 	cx_clear(MO_TS_DMACNTRL, 0x11);
@@ -133,10 +133,10 @@ static int cx8802_restart_queue(struct cx8802_dev    *dev,
 	struct cx88_buffer *buf;
 	struct list_head *item;
 
-	dprintk( 0, "cx8802_restart_queue\n" );
+	dprintk( 1, "cx8802_restart_queue\n" );
 	if (list_empty(&q->active))
 	{
-		dprintk( 0, "queue is empty\n" );
+		dprintk( 0, "cx8802_restart_queue: queue is empty\n" );
 		return 0;
 	}
 
@@ -188,32 +188,30 @@ void cx8802_buf_queue(struct cx8802_dev *dev, struct cx88_buffer *buf)
 	struct cx88_buffer    *prev;
 	struct cx88_dmaqueue  *q    = &dev->mpegq;
 
-	dprintk( 0, "cx8802_buf_queue\n" );
+	dprintk( 1, "cx8802_buf_queue\n" );
 	/* add jump to stopper */
 	buf->risc.jmp[0] = cpu_to_le32(RISC_JUMP | RISC_IRQ1 | RISC_CNT_INC);
 	buf->risc.jmp[1] = cpu_to_le32(q->stopper.dma);
 
 	if (list_empty(&q->active)) {
-		dprintk( 0, "queue is empty - first active\n" );
+		dprintk( 1, "queue is empty - first active\n" );
 		list_add_tail(&buf->vb.queue,&q->active);
-		//cx8802_stop_dma(dev);
-		//cx8802_restart_queue(dev,q);
 		cx8802_start_dma(dev, q, buf);
 		buf->vb.state = STATE_ACTIVE;
 		buf->count    = q->count++;
 		mod_timer(&q->timeout, jiffies+BUFFER_TIMEOUT);
-		dprintk(0,"[%p/%d] %s - first active\n",
+		dprintk(1,"[%p/%d] %s - first active\n",
 			buf, buf->vb.i, __FUNCTION__);
 		udelay(10);
 
 	} else {
-		dprintk( 0, "queue is not empty - append to active\n" );
+		dprintk( 1, "queue is not empty - append to active\n" );
 		prev = list_entry(q->active.prev, struct cx88_buffer, vb.queue);
 		list_add_tail(&buf->vb.queue,&q->active);
 		buf->vb.state = STATE_ACTIVE;
 		buf->count    = q->count++;
 		prev->risc.jmp[1] = cpu_to_le32(buf->risc.dma);
-		dprintk(0,"[%p/%d] %s - append to active\n",
+		dprintk(1,"[%p/%d] %s - append to active\n",
 			buf, buf->vb.i, __FUNCTION__);
 		udelay(10);
 	}
@@ -259,7 +257,7 @@ static void cx8802_timeout(unsigned long data)
 	struct cx8802_dev *dev = (struct cx8802_dev*)data;
 
 	dprintk(0, "timeout\n" );
-	dprintk(1, "%s\n",__FUNCTION__);
+	dprintk(0, "%s\n",__FUNCTION__);
 
 	if (debug)
 		cx88_sram_channel_dump(dev->core, &cx88_sram_channels[SRAM_CH28]);
@@ -272,14 +270,15 @@ static void cx8802_mpeg_irq(struct cx8802_dev *dev)
 	struct cx88_core *core = dev->core;
 	u32 status, mask, count;
 
-	dprintk( 0, "cx8802_mpeg_irq()\n" );
+	dprintk( 1, "cx8802_mpeg_irq()\n" );
 	status = cx_read(MO_TS_INTSTAT);
 	mask   = cx_read(MO_TS_INTMSK);
 	if (0 == (status & mask))
 		return;
 
 	cx_write(MO_TS_INTSTAT, status);
-	cx88_print_irqbits(core->name, "irq mpeg ",
+	if( debug )
+		cx88_print_irqbits(core->name, "irq mpeg ",
 				cx88_mpeg_irqs, status, mask);
 	if (debug || (status & mask & ~0xff))
 		cx88_print_irqbits(core->name, "irq mpeg ",
@@ -294,7 +293,7 @@ static void cx8802_mpeg_irq(struct cx8802_dev *dev)
 
 	/* risc1 y */
 	if (status & 0x01) {
-		dprintk( 0, "wake up\n" );
+		dprintk( 1, "wake up\n" );
 		spin_lock(&dev->slock);
 		count = cx_read(MO_TS_GPCNT);
 		cx88_wakeup(dev->core, &dev->mpegq, count);
@@ -310,7 +309,7 @@ static void cx8802_mpeg_irq(struct cx8802_dev *dev)
 
         /* other general errors */
         if (status & 0x1f0100) {
-		dprintk( 0, "general errors: 0x%08x\n", status & 0x1f0100 );
+		dprintk( 1, "general errors: 0x%08x\n", status & 0x1f0100 );
                 spin_lock(&dev->slock);
 		cx8802_stop_dma(dev);
                 cx8802_restart_queue(dev,&dev->mpegq);
@@ -328,13 +327,13 @@ static irqreturn_t cx8802_irq(int irq, void *dev_id, struct pt_regs *regs)
 	u32 status;
 	int loop, handled = 0;
 
-	//dprintk( 0, "cx8802_irq\n" );
+	dprintk( 2, "cx8802_irq\n" );
 	for (loop = 0; loop < MAX_IRQ_LOOP; loop++) {
 		status = cx_read(MO_PCI_INTSTAT) & (core->pci_irqmask | 0x04);
 		if (0 == status)
 			goto out;
-		//dprintk( 0, "loop: %d/%d\n", loop, MAX_IRQ_LOOP );
-		//dprintk( 0, "status: %d\n", status );
+		dprintk( 2, "loop: %d/%d\n", loop, MAX_IRQ_LOOP );
+		dprintk( 2, "status: %d\n", status );
 		handled = 1;
 		cx_write(MO_PCI_INTSTAT, status);
 
@@ -344,7 +343,7 @@ static irqreturn_t cx8802_irq(int irq, void *dev_id, struct pt_regs *regs)
 			cx8802_mpeg_irq(dev);
 	};
 	if (MAX_IRQ_LOOP == loop) {
-		dprintk( 0, "clearing mask\n" );
+		dprintk( 1, "clearing mask\n" );
 		printk(KERN_WARNING "%s/0: irq loop -- clearing mask\n",
 		       core->name);
 		cx_write(MO_PCI_INTMSK,0);
@@ -408,7 +407,7 @@ int cx8802_init_common(struct cx8802_dev *dev)
 
 void cx8802_fini_common(struct cx8802_dev *dev)
 {
-	dprintk( 0, "cx8802_fini_common\n" );
+	dprintk( 2, "cx8802_fini_common\n" );
 	cx8802_stop_dma(dev);
 	pci_disable_device(dev->pci);
 
@@ -430,7 +429,7 @@ int cx8802_suspend_common(struct pci_dev *pci_dev, pm_message_t state)
 	/* stop mpeg dma */
 	spin_lock(&dev->slock);
 	if (!list_empty(&dev->mpegq.active)) {
-		dprintk( 0, "suspend\n" );
+		dprintk( 2, "suspend\n" );
 		printk("%s: suspend mpeg\n", core->name);
 		cx8802_stop_dma(dev);
 		del_timer(&dev->mpegq.timeout);

@@ -872,12 +872,9 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 	int bitrate = 7500000;
 	int bitrate_peak = 7500000;
 #if 1
-	bitrate_mode = BLACKBIRD_VIDEO_VBR;
+	bitrate_mode = BLACKBIRD_VIDEO_CBR;
 	bitrate = 4000*1024;
 	bitrate_peak = 4000*1024;
-	bitrate_mode = BLACKBIRD_VIDEO_CBR;
-	bitrate = 10000000;
-	bitrate_peak = 10000000;
 #endif
 
 	/* assign stream type */
@@ -1161,14 +1158,14 @@ static int set_control(struct cx8802_dev *dev, struct v4l2_control *ctl)
 
 	switch (ctl->id) {
 	case V4L2_CID_HUE:
-		dprintk( 0, "HUE: 0x%02x\n", ctl->value );
+		dprintk( 1, "HUE: 0x%02x\n", ctl->value );
 		ctl->value = 0x0;
 		break;
 	case V4L2_CID_CONTRAST:
-		dprintk( 0, "CONTRAST: 0x%02x\n", ctl->value );
+		dprintk( 1, "CONTRAST: 0x%02x\n", ctl->value );
 		break;
 	case V4L2_CID_BRIGHTNESS:
-		dprintk( 0, "BRIGHTNESS: 0x%02x\n", ctl->value );
+		dprintk( 1, "BRIGHTNESS: 0x%02x\n", ctl->value );
 		break;
 	}
 
@@ -1296,7 +1293,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 #if 1
 	cx88_print_ioctl(dev->core->name,cmd);
 	printk( KERN_INFO "IOCTL: 0x%x\n", cmd );
-	dprintk( 0, "IOCTL: 0x%x\n", cmd );
+	dprintk( 1, "IOCTL: 0x%x\n", cmd );
 #endif
 
 	switch (cmd) {
