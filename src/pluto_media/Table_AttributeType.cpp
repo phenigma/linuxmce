@@ -363,15 +363,16 @@ bool Table_AttributeType::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_AttributeType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_AttributeType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into AttributeType (PK_AttributeType, Description, Define, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into AttributeType (PK_AttributeType, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -414,7 +415,7 @@ condition = condition + "PK_AttributeType=" + tmp_PK_AttributeType;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_AttributeType="+pRow->PK_AttributeType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_AttributeType="+pRow->PK_AttributeType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update AttributeType set " + update_values_list + " where " + condition;
@@ -422,6 +423,7 @@ update_values_list = update_values_list + "PK_AttributeType="+pRow->PK_Attribute
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -461,6 +463,7 @@ condition = condition + "PK_AttributeType=" + tmp_PK_AttributeType;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -487,6 +490,7 @@ bool Table_AttributeType::GetRows(string where_statement,vector<class Row_Attrib
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -495,6 +499,7 @@ bool Table_AttributeType::GetRows(string where_statement,vector<class Row_Attrib
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -677,6 +682,7 @@ condition = condition + "PK_AttributeType=" + tmp_PK_AttributeType;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -685,6 +691,7 @@ condition = condition + "PK_AttributeType=" + tmp_PK_AttributeType;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

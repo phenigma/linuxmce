@@ -231,7 +231,7 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char *buf = new char[511];
+char *buf = new char[201];
 mysql_real_escape_string(table->database->db_handle, buf, m_filter.c_str(), (unsigned long) m_filter.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
@@ -324,6 +324,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_media_t
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -376,6 +377,7 @@ update_values_list = update_values_list + "PK_psc_media_tables="+pRow->PK_psc_me
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -415,6 +417,7 @@ condition = condition + "PK_psc_media_tables=" + tmp_PK_psc_media_tables;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -441,6 +444,7 @@ bool Table_psc_media_tables::GetRows(string where_statement,vector<class Row_psc
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -449,6 +453,7 @@ bool Table_psc_media_tables::GetRows(string where_statement,vector<class Row_psc
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -609,6 +614,7 @@ condition = condition + "PK_psc_media_tables=" + tmp_PK_psc_media_tables;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -617,6 +623,7 @@ condition = condition + "PK_psc_media_tables=" + tmp_PK_psc_media_tables;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -165,6 +165,7 @@ bool Table_@table_name@::Commit()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -206,6 +207,7 @@ bool Table_@table_name@::Commit()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -239,6 +241,7 @@ bool Table_@table_name@::Commit()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -265,6 +268,7 @@ bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -273,6 +277,7 @@ bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -361,6 +366,7 @@ Row_@table_name@* Table_@table_name@::FetchRow(@table_key@ &key)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -369,6 +375,7 @@ Row_@table_name@* Table_@table_name@::FetchRow(@table_key@ &key)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -340,15 +340,16 @@ bool Table_Picture_Attribute::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Picture_asSQL()+", "+pRow->FK_Attribute_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Picture_asSQL()+", "+pRow->FK_Attribute_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Picture_Attribute (FK_Picture, FK_Attribute, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Picture_Attribute (FK_Picture, FK_Attribute, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -394,7 +395,7 @@ condition = condition + "FK_Picture=" + tmp_FK_Picture+" AND "+"FK_Attribute=" +
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Picture="+pRow->FK_Picture_asSQL()+", FK_Attribute="+pRow->FK_Attribute_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_Picture="+pRow->FK_Picture_asSQL()+", FK_Attribute="+pRow->FK_Attribute_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Picture_Attribute set " + update_values_list + " where " + condition;
@@ -402,6 +403,7 @@ update_values_list = update_values_list + "FK_Picture="+pRow->FK_Picture_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -444,6 +446,7 @@ condition = condition + "FK_Picture=" + tmp_FK_Picture+" AND "+"FK_Attribute=" +
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -470,6 +473,7 @@ bool Table_Picture_Attribute::GetRows(string where_statement,vector<class Row_Pi
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -478,6 +482,7 @@ bool Table_Picture_Attribute::GetRows(string where_statement,vector<class Row_Pi
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -652,6 +657,7 @@ condition = condition + "FK_Picture=" + tmp_FK_Picture+" AND "+"FK_Attribute=" +
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -660,6 +666,7 @@ condition = condition + "FK_Picture=" + tmp_FK_Picture+" AND "+"FK_Attribute=" +
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

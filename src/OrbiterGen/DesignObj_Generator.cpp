@@ -88,7 +88,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3290 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==2195 )//2821 && bAddToGenerated )
 {
     int k=2;
 }
@@ -126,13 +126,13 @@ int k=2;
         {
             m_iVersion = m_pOrbiterGenerator->m_iLocation;
         }
-        if( m_pOrbiterGenerator->m_bOrbiterChanged==false )
+        if( m_pOrbiterGenerator->m_bOrbiterChanged==false || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen )
         {
             // Let's see if we can just use a cached version
             Row_CachedScreens *pdrCachedScreen = m_mds->CachedScreens_get()->GetRow(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),m_pRow_DesignObj->PK_DesignObj_get(),m_iVersion);
-            if( pdrCachedScreen  )
+            if( pdrCachedScreen && (!m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen!=m_pRow_DesignObj->PK_DesignObj_get()) )
             {
-				if( pdrCachedScreen->ContainsArrays_get()==0 || m_pOrbiterGenerator->m_bDontAutoRegenArrays )
+				if( pdrCachedScreen->ContainsArrays_get()==0 || m_pOrbiterGenerator->m_bDontAutoRegenArrays || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen )
 				{
 					time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
 					time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());

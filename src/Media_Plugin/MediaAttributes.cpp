@@ -945,7 +945,8 @@ bool MediaAttributes::SavePlaylist(deque<MediaFile *> &dequeMediaFile, int iPK_U
 
     if ( !pRow_Playlist->Table_Playlist_get()->Commit() )
     {
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot save/create playlist with ID %d",iPK_Playlist);
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot save/create playlist with ID %d error: %s",iPK_Playlist,
+			pRow_Playlist->Table_Playlist_get()->Database_pluto_media_get()->m_sLastMySqlError.c_str());
 		return false;
     }
 
@@ -975,7 +976,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,
 
     if( !m_pDatabase_pluto_media->PlaylistEntry_get()->Commit() )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Could not save the playlist");
+		g_pPlutoLogger->Write(LV_STATUS, "Could not save the playlist error: %s",m_pDatabase_pluto_media->m_sLastMySqlError.c_str());
         return false;
     }
 

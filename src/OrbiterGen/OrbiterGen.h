@@ -35,6 +35,7 @@ public:
 	int m_iPK_DesignObj_Screen;
 	int m_iPK_CommandGroup; // If this is an array and we are supposed to execute an action group, this will be non-zero.  Arrays are always customer created command groups
 	int m_iFloorplanPage;
+	int m_iPK_DesignObj_SoleScreenToGen; // Only re-generate this one screen
 	bool m_bDontAutoRegenArrays;
 	string m_sDesc_Array;
 	class Row_Icon * m_pRow_Icon;

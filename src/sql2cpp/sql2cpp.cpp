@@ -351,7 +351,7 @@ int main( int argc, char *argv[] )
 	{
 		db_h_out << "class Table_" + (*i)->get_table_name() + "* " + (*i)->get_table_name() + "_get() { return tbl"+(*i)->get_table_name()+"; }" << endl;
 	}
-
+	db_h_out << "string m_sLastMySqlError;" << endl;
 	db_h_out << "bool Connect(string host, string user, string pass, string sDBName, int port);" << endl;
 	db_h_out << "bool Connect(class DCEConfig *pDCEConfig);" << endl;
 	db_h_out << "void Disconnect();" << endl;

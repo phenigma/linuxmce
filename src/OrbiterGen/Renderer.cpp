@@ -92,7 +92,7 @@ Renderer::~Renderer()
 void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion)
 {
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("2211.0.1")!=string::npos )
+	if( pDesignObj_Generator->m_ObjectID.find("1785")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -200,7 +200,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			else
 			{
 				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu);
-//SaveImageToFile(pRenderImage_Child, "first");
+SaveImageToFile(pRenderImage_Child, "first");
 			}
 
             if( !pRenderImage_Child && !pRendererMNG )
@@ -273,11 +273,11 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			{
 				if(pRenderImageClone_Child )
 				{
-//SaveImageToFile(pRenderImage, "ri");
-//SaveImageToFile(pRenderImageClone, "ic b4");
-//SaveImageToFile(pRenderImageClone_Child, "icc b4");
+SaveImageToFile(pRenderImage, "ri");
+SaveImageToFile(pRenderImageClone, "ic b4");
+SaveImageToFile(pRenderImageClone_Child, "icc b4");
 					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
-//SaveImageToFile(pRenderImageClone, "ic aft");
+SaveImageToFile(pRenderImageClone, "ic aft");
 				}
 				if( pDesignObj_Generator->m_bChildrenBeforeText )
 				{
@@ -289,9 +289,9 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 					RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
 					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio,iOnlyVersion_Children);
 				}
-//SaveImageToFile(pRenderImageClone, "ic aft ch");
+SaveImageToFile(pRenderImageClone, "ic aft ch");
 			}
-//			SaveImageToFile(pRenderImageClone, "c:/x/compositec");
+SaveImageToFile(pRenderImageClone, "compositec");
 			if( pRendererMNG )
 				pRendererMNG->ReplaceFrame(iFrame, pRenderImageClone);
 		}

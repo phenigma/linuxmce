@@ -56,6 +56,7 @@ class Table_psc_media_batuser* psc_media_batuser_get() { return tblpsc_media_bat
 class Table_psc_media_repset* psc_media_repset_get() { return tblpsc_media_repset; }
 class Table_psc_media_schema* psc_media_schema_get() { return tblpsc_media_schema; }
 class Table_psc_media_tables* psc_media_tables_get() { return tblpsc_media_tables; }
+string m_sLastMySqlError;
 bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();

@@ -335,15 +335,16 @@ bool Table_Type_Extension::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL()+", "+pRow->Extension_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL()+", "+pRow->Extension_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Type_Extension (FK_Type, Extension, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Type_Extension (FK_Type, Extension, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -386,7 +387,7 @@ condition = condition + "FK_Type=" + tmp_FK_Type;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", Extension="+pRow->Extension_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", Extension="+pRow->Extension_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Type_Extension set " + update_values_list + " where " + condition;
@@ -394,6 +395,7 @@ update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", Ex
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -433,6 +435,7 @@ condition = condition + "FK_Type=" + tmp_FK_Type;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -459,6 +462,7 @@ bool Table_Type_Extension::GetRows(string where_statement,vector<class Row_Type_
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -467,6 +471,7 @@ bool Table_Type_Extension::GetRows(string where_statement,vector<class Row_Type_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -638,6 +643,7 @@ condition = condition + "FK_Type=" + tmp_FK_Type;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -646,6 +652,7 @@ condition = condition + "FK_Type=" + tmp_FK_Type;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

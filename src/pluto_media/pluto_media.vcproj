@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../DCE;..;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -106,6 +106,9 @@
 				RelativePath=".\Database_pluto_media.cpp">
 			</File>
 			<File
+				RelativePath=".\TableRow.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Attribute.cpp">
 			</File>
 			<File
@@ -133,6 +136,21 @@
 				RelativePath=".\Table_PlaylistEntry.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_SearchToken.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_SearchToken_Attribute.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Type.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Type_AttributeType.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Type_Extension.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_media_batdet.cpp">
 			</File>
 			<File
@@ -150,24 +168,7 @@
 			<File
 				RelativePath=".\Table_psc_media_tables.cpp">
 			</File>
-			<File
-				RelativePath=".\Table_SearchToken.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_SearchToken_Attribute.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Type.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Type_AttributeType.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Type_Extension.cpp">
-			</File>
-			<File
-				RelativePath=".\TableRow.cpp">
-			</File>
+
 		</Filter>
 		<Filter
 			Name="Header Files"

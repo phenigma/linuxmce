@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 #else
 	string GraphicsFiles="/usr/pluto/orbiter/skins",FontFiles="/usr/share/fonts/truetype/msttcorefonts",OutputFiles="/usr/pluto/orbiter";
 #endif
-	int DBPort=3306,PK_Orbiter=0,iDontAutoRegenArrays=0;
+	int DBPort=3306,PK_Orbiter=0,iDontAutoRegenArrays=0,iPK_DesignObj_SoleScreenToGen=0;
 	bool bRegen=false;
 	bool bError=false; // An error parsing the command line
 	char c;
@@ -128,6 +128,9 @@ int main(int argc, char *argv[])
 		case 'd':
 			PK_Orbiter = atoi(argv[++optnum]);
 			break;
+		case 's':
+			iPK_DesignObj_SoleScreenToGen = atoi(argv[++optnum]);
+			break;
 		case 'g':
 			GraphicsFiles = argv[++optnum];
 			break;
@@ -154,7 +157,7 @@ int main(int argc, char *argv[])
 		cout << "OrbiterGen, v." << VERSION << endl
 			<< "Usage: OrbiterGen -d Orbiter [-r] [-a] [-g graphics files] [-f font files]" << endl
 				<< "[-o output path] [-h hostname] [-u username] [-p password] [-D database]" << endl
-				<< "[-P mysql port]" << endl
+				<< "[-P mysql port] [-s screen to regen]" << endl
 			<< "-d orbiter   -- the ID of the orbiter to generate" << endl
 			<< "-r           -- Regenerate all screens--ignore cache" << endl
 			<< "-a           -- Don't auto regenerate screens with arrays" << endl
@@ -165,7 +168,8 @@ int main(int argc, char *argv[])
 			<< "-u username  -- username for database connection" << endl
 			<< "-p password  -- password for database connection, default is `` (empty)" << endl
 			<< "-D database  -- database name" << endl
-			<< "-P port      -- port for database connection, default is 3306" << endl;
+			<< "-P port      -- port for database connection, default is 3306" << endl
+			<< "-s screen    -- only regenerate this one screen" << endl;
 		exit(0);
 	}
 
@@ -199,6 +203,7 @@ int main(int argc, char *argv[])
 		if( bRegen )
 			cg.m_bOrbiterChanged=true;
 		cg.m_bDontAutoRegenArrays= iDontAutoRegenArrays==1;
+		cg.m_iPK_DesignObj_SoleScreenToGen = iPK_DesignObj_SoleScreenToGen;
 
 		iResult = cg.DoIt();
 	}
