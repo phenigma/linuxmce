@@ -2397,9 +2397,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Checing room: %d ea %d against %d %d",pLocation
 				(pLocationInfo->PK_Room==iPK_Room && pLocationInfo->PK_EntertainArea==0) ||
 				(iPK_EntertainArea && pLocationInfo->PK_EntertainArea==iPK_EntertainArea) )
             {
-g_pPlutoLogger->Write(LV_STATUS,"using location");
+g_pPlutoLogger->Write(LV_STATUS,"using location in size: %d",(int) m_dequeLocation.size());
                 m_pLocationInfo_Initial = pLocationInfo;
-                break;
             }
         }
 
