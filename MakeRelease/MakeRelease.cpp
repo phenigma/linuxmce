@@ -50,6 +50,8 @@
 using namespace std;
 using namespace DCE;
 
+map<string,bool> g_DebianPackages;
+
 namespace DCE
 {
 	Logger *g_pPlutoLogger;
@@ -336,6 +338,17 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	map<string,bool>::iterator it;
+	string sDebPkg = "";
+	for (it = g_DebianPackages.begin(); it != g_DebianPackages.begin(); it++)
+	{
+		sDebPkg += it->first;
+	}
+	
+	FILE * f = fopen("/home/tmp/pluto-build/debian-packages.list", "wb");
+	fprintf(f, "%s\n", sDebPkg.c_str());
+	fclose(f);
+	
 	cout << "Done!" << endl;
 }
 
@@ -1372,7 +1385,8 @@ string Makefile = "none:\n"
 	// Get a list of all the other packages which we depend on, and which have Debian sources.  We are going to add them to the .deb as dependencies
 	vector<Row_Package_Source *> vect_pRow_Package_Source_Dependencies;
 	pRow_Package_Source->Table_Package_Source_get()->GetRows("JOIN Package_Package ON Package_Package.FK_Package_DependsOn=Package_Source.FK_Package AND Package_Package.FK_Package=" + 
-		StringUtils::itos(pRow_Package_Source->FK_Package_get()) + " WHERE FK_RepositorySource=" + StringUtils::itos(REPOSITORYSOURCE_Pluto_Debian_CONST),
+		StringUtils::itos(pRow_Package_Source->FK_Package_get()) + " WHERE FK_RepositorySource=" + StringUtils::itos(REPOSITORYSOURCE_Pluto_Debian_CONST)
+		+ " OR FK_RepositorySource=" + StringUtils::itos(REPOSITORYSOURCE_Debian_CONST),
 		&vect_pRow_Package_Source_Dependencies);
 
 	string sDepends;
@@ -1380,7 +1394,9 @@ string Makefile = "none:\n"
 	for (size_t s=0;s<vect_pRow_Package_Source_Dependencies.size();++s)
 	{
 		Row_Package_Source *pRow_Package_Source_Dependency = vect_pRow_Package_Source_Dependencies[s];
-		sDepends += ", " + pRow_Package_Source_Dependency->Name_get();
+		string sPkgName = pRow_Package_Source_Dependency->Name_get();
+		sDepends += ", " + sPkgName;
+		g_DebianPackages[sPkgName] = true;
 	}
 	cout << "Depends list: " << sDepends << endl;
 
