@@ -42,6 +42,9 @@
 #include "A_UpdateRow.h"
 #include "sqlCVSprocessor.h"
 
+#include <iomanip>
+#include <sstream>
+
 using namespace sqlCVS;
 
 Table::Table( class Database *pDatabase, string sName )
@@ -50,7 +53,7 @@ Table::Table( class Database *pDatabase, string sName )
 	m_sName=sName;
 	m_pRepository=NULL;
 	m_pField_id=m_pField_batch=m_pField_user=m_pField_frozen=m_pField_mod=NULL;
-	m_pTable_History=m_pTable_WeAreHistoryFor=NULL;
+	m_pTable_History=m_pTable_History_Mask=m_pTable_WeAreHistoryFor=m_pTable_WeAreHistoryMaskFor=NULL;
 	m_pField_AutoIncrement=NULL;
 	GetFields( );
 	m_psc_id_next=1;
@@ -59,7 +62,7 @@ Table::Table( class Database *pDatabase, string sName )
 	{
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
-		if( ( result_set.r=m_pDatabase->mysql_query_result( ( "SELECT max( psc_id ) FROM " + m_sName ).c_str( ) ) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+		if( ( result_set.r=m_pDatabase->mysql_query_result("SELECT max( psc_id ) FROM " + m_sName) ) && ( row = mysql_fetch_row( result_set.r ) ) )
 			m_psc_id_next = row[0] ? atoi( row[0] )+1 : 1;
 	}
 }
@@ -166,21 +169,34 @@ void Table::TrackChanges_set( bool bOn )
 
 void Table::HasFullHistory_set( bool bOn )
 {
+	if( m_bIsSystemTable )
+		return; // We don't track these
+
 	if( bOn )
 	{
-		if( m_pTable_History )
+		if( m_pTable_History || m_pTable_History_Mask)
 		{
 			/** This shouldn't happen */
 			cerr << "There is already a history table for: " << m_sName << endl;
 			if( !AskYNQuestion("Drop it and make a new one?  You will lose all your history data.",false) )
 				return;
-			m_pDatabase->threaded_mysql_query( "DROP TABLE `" + m_sName + "_pschist`;" );
-			m_pDatabase->m_mapTable_Remove( m_pTable_History->m_sName );
-			delete m_pTable_History;
+			if( m_pTable_History )
+			{
+				m_pDatabase->threaded_mysql_query( "DROP TABLE `" + m_sName + "_pschist`;" );
+				m_pDatabase->m_mapTable_Remove( m_pTable_History->m_sName );
+				delete m_pTable_History;
+			}
+			if( m_pTable_History_Mask )
+			{
+				m_pDatabase->threaded_mysql_query( "DROP TABLE `" + m_sName + "_pschist`;" );
+				m_pDatabase->m_mapTable_Remove( m_pTable_History_Mask->m_sName );
+				delete m_pTable_History_Mask;
+			}
 		}
 		TrackChanges_set( true ); /** This must be on */
-		ostringstream sql;
-		sql	<< "CREATE TABLE `" << m_sName << "_pschist`( " << endl;
+		ostringstream sqlHistory,sqlHistoryMask;
+		sqlHistory	<< "CREATE TABLE `" << m_sName << "_pschist`( " << endl;
+		sqlHistoryMask	<< "CREATE TABLE `" << m_sName << "_pschmask`( " << endl;
 
 		PlutoSqlResult result_set2;
 		MYSQL_ROW row=NULL;
@@ -192,20 +208,89 @@ void Table::HasFullHistory_set( bool bOn )
 			string sField = row[0];
 			string sType = row[1];
 
-			sql << "`" << sField << "` " << sType << ", ";
+			sqlHistory << "`" << sField << "` " << sType << ", ";
+			if( sField=="psc_batch" || sField=="psc_id" )
+				sqlHistoryMask << "`" << sField << "` int(11), ";
+			else
+				sqlHistoryMask << "`" << sField << "` tinyint(1), ";
 		}
 
-		sql << "PRIMARY KEY ( psc_id, psc_batch )" << endl
+		sqlHistory << "PRIMARY KEY ( psc_id, psc_batch )" << endl
 			<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
-		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		sqlHistoryMask << "PRIMARY KEY ( psc_id, psc_batch )" << endl
+			<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
+
+		if( m_pDatabase->threaded_mysql_query( sqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sqlHistoryMask.str( ) )!=0 )
 		{
-			cerr << "SQL Failed: " << sql.str( ) << endl;
+			cerr << "sqlHistory Failed: " << sqlHistory.str( ) << endl;
 			throw "Database error";
 		}
 
 		m_pTable_History = new Table( m_pDatabase, m_sName + "_pschist" );
 		m_pTable_History->m_pTable_WeAreHistoryFor=this;
 		m_pDatabase->m_mapTable_Add( m_pTable_History->m_sName, m_pTable_History );
+
+		m_pTable_History_Mask = new Table( m_pDatabase, m_sName + "_pschmask" );
+		m_pTable_History_Mask->m_pTable_WeAreHistoryMaskFor=this;
+		m_pDatabase->m_mapTable_Add( m_pTable_History_Mask->m_sName, m_pTable_History_Mask );
+
+		// Now populate it with the initial values
+		PlutoSqlResult result_set3;
+		if( !( result_set3.r=m_pDatabase->mysql_query_result( ("SELECT * FROM `" + m_sName + "`").c_str( ) ) ) )
+			throw "Error getting table history";
+
+		while( ( row = mysql_fetch_row( result_set3.r ) ) )
+		{
+			ostringstream sSql,sSqlMask;
+			sSql << "INSERT INTO `" << m_sName << "_pschist` (";
+			sSqlMask << "INSERT INTO `" << m_sName << "_pschmask` (";
+			for(int i=0;i<result_set3.r->field_count;++i)
+			{
+				if( i!=0 )
+				{
+					sSql << ",";
+					sSqlMask << ",";
+				}
+				sSql << "`" << result_set3.r->fields[i].name << "`";
+				sSqlMask << "`" << result_set3.r->fields[i].name << "`";
+			}
+			sSql << ") VALUES (";
+			sSqlMask << ") VALUES (";
+			for(int i=0;i<result_set3.r->field_count;++i)
+			{
+				if( i!=0 )
+				{
+					sSql << ",";
+					sSqlMask << ",";
+				}
+				if( strcmp(result_set3.r->fields[i].name,"psc_id")==0 || strcmp(result_set3.r->fields[i].name,"psc_batch")==0 )
+				{
+					if( row[i] )
+						sSqlMask << row[i];
+					else
+						sSqlMask << "0";
+				}
+				else
+					sSqlMask << "1";
+
+				if( row[i] )
+					sSql << "'" << StringUtils::SQLEscape(row[i]) << "'";
+				else
+				{
+					if( strcmp(result_set3.r->fields[i].name,"psc_id")==0 || strcmp(result_set3.r->fields[i].name,"psc_batch")==0 )
+						sSql << "0";
+					else
+						sSql << "NULL";
+				}
+			}
+			sSql << ")";
+			sSqlMask << ")";
+			if( m_pDatabase->threaded_mysql_query(sSql.str())!=0 || m_pDatabase->threaded_mysql_query(sSqlMask.str())!=0 )
+			{
+				cerr << "Unable to add current values to history table" << endl;
+				throw "Database error";
+			}
+		}
 	}
 	else
 	{
@@ -216,6 +301,11 @@ void Table::HasFullHistory_set( bool bOn )
 		m_pDatabase->m_mapTable_Remove( m_pTable_History->m_sName );
 		delete m_pTable_History;
 		m_pTable_History=NULL;
+
+		m_pDatabase->threaded_mysql_query( "DROP TABLE `" + m_sName + "_pschmask`;" );
+		m_pDatabase->m_mapTable_Remove( m_pTable_History_Mask->m_sName );
+		delete m_pTable_History_Mask;
+		m_pTable_History_Mask=NULL;
 	}
 }
 
@@ -233,6 +323,64 @@ void Table::MatchUpHistory( )
 
 		pMainTable->m_pTable_History = this;
 		m_pTable_WeAreHistoryFor = pMainTable;
+		m_bIsSystemTable = true;
+	}
+	if( GetTrailingString( )=="pschmask" )
+	{
+		string BaseName = m_sName.substr( 0, m_sName.length( )-9 );
+		Table *pMainTable = m_pDatabase->m_mapTable_Find( BaseName );
+		if( !pMainTable )
+		{
+			cerr << "Found a history mask table: " << m_sName << " with no corresponding data table." << endl;
+			throw "Database corrupt";
+		}
+
+		pMainTable->m_pTable_History_Mask = this;
+		m_pTable_WeAreHistoryMaskFor = pMainTable;
+		m_bIsSystemTable = true;
+	}
+
+	if( m_pTable_WeAreHistoryFor || m_pTable_WeAreHistoryMaskFor )
+	{
+		// Go through all the columns in the other table and be sure we have columns for them in this one too
+		Table *pTable = m_pTable_WeAreHistoryFor ? m_pTable_WeAreHistoryFor : m_pTable_WeAreHistoryMaskFor;
+		for(MapField::iterator it=pTable->m_mapField.begin();it!=pTable->m_mapField.end();++it)
+		{
+			Field *pField = (*it).second;
+			if( !m_mapField_Find(pField->Name_get()) )
+			{
+				// We need to add this field to our table
+				ostringstream sql;
+				if( m_pTable_WeAreHistoryMaskFor )
+					sql << "ALTER TABLE `" + m_sName + "` ADD `" << pField->Name_get() << "`" << "tinyint(1)";
+				else
+				{
+					// This is a bit round-about way of getting the field type for the add, but the
+					// advantage of using DESCRIBE is that if MySql adds field types we don't need
+					// to worry about keeping our own map to go from FieldInfo to a valid descriptor.
+					PlutoSqlResult result_set;
+					MYSQL_ROW row=NULL;
+					if( !( result_set.r=m_pDatabase->mysql_query_result( ( "DESCRIBE " +pTable->Name_get() ).c_str( ) ) ) )
+						throw "Error getting table info";
+
+					while( ( row = mysql_fetch_row( result_set.r ) ) )
+					{
+						string sField = row[0];
+						string sType = row[1];
+						if( sField == pField->Name_get() )
+						{
+							sql << "ALTER TABLE `" + m_sName + "` ADD `" << sField << "` " << sType;
+							break;
+						}
+					}
+				}
+				if( m_pDatabase->threaded_mysql_query( sql.str() )!=0 )
+				{
+					cerr << "Could not synchronize history table schema";
+					throw "Database error";
+				}
+			}
+		}
 	}
 }
 
@@ -364,13 +512,16 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 		A_UpdateRow *pa_UpdateRow = new A_UpdateRow( psc_id, psc_batch, psc_user );
 
 		for( size_t s=0;s<pR_UpdateTable->m_pvectFields->size( );++s )
-			pa_UpdateRow->m_vectValues.push_back( row[s] ? row[s] : "**( NULL )**" );
+			pa_UpdateRow->m_vectValues.push_back( row[s] ? row[s] : NULL_TOKEN );
 		pR_UpdateTable->AddActionsToResponse( pa_UpdateRow );
 	}
 }
 
 void Table::GetChanges( )
 {
+	if( m_bIsSystemTable )
+		return;
+
 	int iAutoIncrField=-1; /** If there is an auto increment field in the key, we will point to it's "slot" here */
 	ostringstream sql;
 	sql << "SELECT psc_id, psc_batch, psc_user";
@@ -654,7 +805,7 @@ bool Table::CheckIn( RA_Processor &ra_Processor, DCE::Socket *pSocket, enum Type
 				row = mysql_fetch_row( res.r );
 				for( size_t s=0;s<vectFields.size( );++s )
 				{
-					r_CommitRow.m_vectValues.push_back( row[s] ? row[s] : "**( NULL )**" );
+					r_CommitRow.m_vectValues.push_back( row[s] ? row[s] : NULL_TOKEN );
 				}
 
 				ra_Processor.SendRequest( &r_CommitRow, pSocket );
@@ -785,7 +936,7 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 
 		for( size_t s=0;s<pA_UpdateRow->m_vectValues.size( );++s )
 		{
-			if( pA_UpdateRow->m_vectValues[s]=="**( NULL )**" )
+			if( pA_UpdateRow->m_vectValues[s]==NULL_TOKEN )
 				sSQL << "NULL, ";
 			else
 				sSQL << "'" << StringUtils::SQLEscape( pA_UpdateRow->m_vectValues[s] ) << "', ";
@@ -806,7 +957,7 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 		for( size_t s=0;s<pR_UpdateTable->m_pvectFields->size( );++s )
 		{
 			sSQL << "`" << ( *pR_UpdateTable->m_pvectFields )[s] << "`="; 
-			if( pA_UpdateRow->m_vectValues[s]=="**( NULL )**" )
+			if( pA_UpdateRow->m_vectValues[s]==NULL_TOKEN )
 				sSQL << "NULL, ";
 			else
 				sSQL << "'" << StringUtils::SQLEscape( pA_UpdateRow->m_vectValues[s] ) << "', ";
@@ -820,16 +971,46 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 	}
 }
 
-void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor )
+void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user )
 {
-#pragma warning( "take into account 'record frozen' and return error" )
+	// If the user is a supervisor, he can do anything, otherwise be sure we're allowed to do this
+	if( !psqlCVSprocessor->m_bSupervisor )
+	{
+		std::ostringstream sSQL;
+		sSQL << "SELECT psc_user,psc_frozen FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+		{
+			if( row[1] && row[1][0]=='1' )
+				bFrozen=true;
+			else
+				bFrozen=false;
+
+			int i = row[0] ? atoi(row[0]) : 0;
+			if( i && psqlCVSprocessor->m_mapValidatedUsers.find(i)==psqlCVSprocessor->m_mapValidatedUsers.end() )
+				psc_user = i;
+			else
+				psc_user = 0;
+
+			if( bFrozen || psc_user )
+			{
+				pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psc_user);
+				AddToHistory( pR_CommitRow, psqlCVSprocessor );
+				return;
+			}
+		}
+		else
+			throw "Error: row not found";
+	}
+
 	std::ostringstream sSQL;
 	sSQL << "UPDATE " << m_sName << " SET ";
 
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )
 	{
 		sSQL << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`="; 
-		if( pR_CommitRow->m_vectValues[s]=="**( NULL )**" )
+		if( pR_CommitRow->m_vectValues[s]==NULL_TOKEN )
 			sSQL << "NULL, ";
 		else
 			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
@@ -856,7 +1037,7 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 
 	for( size_t s=0;s<pR_CommitRow->m_vectValues.size( );++s )
 	{
-		if( pR_CommitRow->m_vectValues[s]=="**( NULL )**" )
+		if( pR_CommitRow->m_vectValues[s]==NULL_TOKEN )
 			sSQL << "NULL, ";
 		else
 			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
@@ -889,39 +1070,76 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	m_psc_id_next++;
 }
 
+void Table::GetCurrentValues(int psc_id,map<string,string> *mapCurrentValues)
+{
+	std::ostringstream sSql;
+	sSql << "SELECT * FROM " << m_sName << " WHERE psc_id=" << psc_id;
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSql.str() ) ) )
+	{
+		while( ( row = mysql_fetch_row( result_set.r ) ) )
+		{
+			for(int i=0;i<result_set.r->field_count;++i)
+			{
+				if( row[i] )
+					(*mapCurrentValues)[result_set.r->fields[i].name] = row[i];
+				else
+					(*mapCurrentValues)[result_set.r->fields[i].name] = NULL_TOKEN;
+			}
+		}
+	}
+}
+
 void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor )
 {
-	if( !m_pTable_History )
+	if( !m_pTable_History || !m_pTable_History_Mask )
 		return;
 
-	std::ostringstream sSQL;
-	sSQL << "INSERT INTO " << m_pTable_History->Name_get( ) << "( ";
+	map<string,string> mapCurrentValues;
+	GetCurrentValues(pR_CommitRow->m_psc_id,&mapCurrentValues);
+	int NumChangedFields=0;
+
+	std::ostringstream sSqlHistory,sSqlMask;
+	sSqlHistory << "INSERT INTO " << m_pTable_History->Name_get( ) << "( ";
+	sSqlMask << "INSERT INTO " << m_pTable_History_Mask->Name_get( ) << "( ";
 
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )
-		sSQL << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`, ";
+		sSqlHistory << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`, ";
 
 	/** If this isn't a new row, any auto-increment fields are passed like normal  */
 	
 	if( m_pField_AutoIncrement && pR_CommitRow->m_eTypeOfChange==toc_New )
-		sSQL << m_pField_AutoIncrement->Name_get( ) << ", ";
+		sSqlHistory << m_pField_AutoIncrement->Name_get( ) << ", ";
 
-	sSQL << "psc_id, psc_batch ) VALUES( ";
+	sSqlHistory << "psc_id, psc_batch ) VALUES( ";
 
 	for( size_t s=0;s<pR_CommitRow->m_vectValues.size( );++s )
 	{
-		if( pR_CommitRow->m_vectValues[s]=="**( NULL )**" )
-			sSQL << "NULL, ";
+		if( pR_CommitRow->m_vectValues[s]==NULL_TOKEN )
+			sSqlHistory << "NULL, ";
 		else
-			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
+			sSqlHistory << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
+
+		if( mapCurrentValues[( *psqlCVSprocessor->m_pvectFields )[s]] != pR_CommitRow->m_vectValues[s] )
+		{
+			sSqlMask << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`, ";
+			NumChangedFields++;
+		}
 	}
 
-	if( m_pField_AutoIncrement && pR_CommitRow->m_eTypeOfChange==toc_New )
-		sSQL << pR_CommitRow->m_iNewAutoIncrID << ", ";
+	sSqlMask << "psc_id, psc_batch ) VALUES( ";
+	for(int i=0;i<NumChangedFields;++i)
+		sSqlMask << "1,";
 
-	sSQL << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << psqlCVSprocessor->m_i_psc_batch << " )"; // batch # todo - hack
-	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	if( m_pField_AutoIncrement && pR_CommitRow->m_eTypeOfChange==toc_New )
+		sSqlHistory << pR_CommitRow->m_iNewAutoIncrID << ", ";
+
+	sSqlHistory << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << psqlCVSprocessor->m_i_psc_batch << " )"; // batch # todo - hack
+	sSqlMask << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << psqlCVSprocessor->m_i_psc_batch << " )"; // batch # todo - hack
+	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )!=0 )
 	{
-		cerr << "Failed to insert history row: " << sSQL.str( ) << endl;
+		cerr << "Failed to insert history row: " << sSqlHistory.str( ) << endl;
 		throw "Failed to insert row";
 	}
 
@@ -949,7 +1167,7 @@ bool Table::Dump( SerializeableStrings &str )
 
 		sFieldList += string( "`" ) + row[0] + "`";
 		for( size_t s=0;s<6;++s )
-			str.m_vectString.push_back( row[s] ? row[s] : "**( NULL )**" );
+			str.m_vectString.push_back( row[s] ? row[s] : NULL_TOKEN );
 	}
 
 	sSQL.str( "" );
@@ -964,8 +1182,126 @@ bool Table::Dump( SerializeableStrings &str )
 	while( ( row = mysql_fetch_row( result_set.r ) ) )
 	{
 		for( size_t s=0;s<m_mapField.size( );++s )
-			str.m_vectString.push_back( row[s] ? row[s] : "**( NULL )**" );
+			str.m_vectString.push_back( row[s] ? row[s] : NULL_TOKEN );
 	}
 
 	return true;
+}
+
+bool Table::ShowChanges()
+{
+	while(true)
+	{
+		cout << "Changes for table: " << m_sName << endl;
+		cout << "    User     New   Mod   Del" << endl;
+
+		for(map<int, ListChangedRow *>::iterator itCR=m_mapUsers2ChangedRowList.begin();itCR!=m_mapUsers2ChangedRowList.end();++itCR)
+		{
+			int iUser = (*itCR).first;
+			ListChangedRow *pListChangedRow = (*itCR).second;
+
+			cout << setw( 7 ) << iUser << " ";
+
+			int iNew=0,iMod=0,iDel=0;
+			for(ListChangedRow::iterator itLCR=pListChangedRow->begin();itLCR!=pListChangedRow->end();++itLCR)
+			{
+				ChangedRow *pChangedRow = *itLCR;
+				if( pChangedRow->m_eTypeOfChange==toc_New )
+					iNew++;
+				else if( pChangedRow->m_eTypeOfChange==toc_Modify )
+					iMod++;
+				else if( pChangedRow->m_eTypeOfChange==toc_Delete )
+					iDel++;
+			}
+			cout << setw( 6 ) << iNew << setw( 6 ) << iMod << setw( 6 ) << iDel << endl;
+		}
+
+		cout << "What user do you want more detail on?  Enter 'b' to go back, 'q' to quit" << endl;
+		string sUser;
+		cin >> sUser;
+		if( sUser=="b" || sUser=="B" )
+			return true;
+		if( sUser=="q" || sUser=="Q" )
+			return false;
+
+		if( !ShowChanges( atoi(sUser.c_str()) ) )
+			return false;
+	}
+}
+
+bool Table::ShowChanges(int psc_user)
+{
+	ListChangedRow *pListChangedRow = m_mapUsers2ChangedRowList_Find(psc_user);
+	while(true)
+	{
+		cout << "Changes to table: " << m_sName << " by user: " << psc_user << endl;
+		int iNumFields=4,iColumnWidth=18;
+
+		ostringstream sql;
+		sql << "SELECT psc_id,";
+		int iFieldCount=0;
+		for(MapField::iterator it = m_mapField.begin();it != m_mapField.end();++it)
+		{
+			Field *pField = (*it).second;
+			if( iFieldCount )
+				sql << ",";
+			sql << "`" << pField->Name_get() << "`";
+			if( ++iFieldCount>=iNumFields )
+				break;
+		}
+
+		sql << " FROM " << m_sName << " WHERE psc_id IN (";
+		bool bFirst=true;
+		for(ListChangedRow::iterator it = pListChangedRow->begin();it != pListChangedRow->end();++it)
+		{
+			if( bFirst )
+				bFirst=false;
+			else
+				sql << ",";
+			ChangedRow *pChangedRow = *it;
+			sql << pChangedRow->m_psc_id;
+		}
+		sql << ")";
+
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+		{
+			cout << "psc_id  ";
+			for(int i=1;i<result_set.r->field_count;++i)
+			{
+				string sField = result_set.r->fields[i].name;
+				if( sField.length()>iColumnWidth )
+					cout << sField.substr(0,iColumnWidth);
+				else
+					cout << sField << StringUtils::RepeatChar( ' ', iColumnWidth - sField.length( ) );
+			}
+			cout << endl;
+
+			while( ( row = mysql_fetch_row( result_set.r ) ) )
+			{
+				cout << setw(8) << row[0];
+				for(int i=1;i<result_set.r->field_count;++i)
+				{
+					string sValue = row[i] ? row[i] : NULL_TOKEN;
+					if( sValue.length()>iColumnWidth )
+						cout << sValue.substr(0,iColumnWidth);
+					else
+						cout << sValue << StringUtils::RepeatChar( ' ', iColumnWidth - sValue.length( ) );
+				}
+				cout << endl;
+			}
+		}
+
+		cout << "What row do you want more detail on?  Enter 'b' to go back, 'q' to quit" << endl;
+		string sRow;
+		cin >> sRow;
+		if( sRow=="b" || sRow=="B" )
+			return true;
+		if( sRow=="q" || sRow=="Q" )
+			return false;
+
+		if( !ShowChanges( atoi(sRow.c_str()) ) )
+			return false;
+	}
 }

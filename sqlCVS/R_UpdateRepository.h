@@ -20,7 +20,7 @@ class R_UpdateRepository : public RA_Request
 {
 public:
 	/** @brief Request Variables */
-	map<int, string> m_mapUsersPasswords; /**< All the users who are checking in this session */
+	map<string, string> m_mapUsersPasswords; /**< All the users who are checking in this session */
 	vector<string> m_vectTables; /**< The tables we will be checking in this session  */
 	string m_sRepository;
 

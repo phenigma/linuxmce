@@ -39,6 +39,9 @@
 #include "R_UpdateRepository.h"
 #include "ChangedRow.h"
 
+#include <iomanip>
+#include <sstream>
+
 using namespace sqlCVS;
 
 void Repository::AddDefinitionTable( class Table *pTable )
@@ -47,6 +50,8 @@ void Repository::AddDefinitionTable( class Table *pTable )
 		m_pTable_Setting = pTable;
 	else if( pTable->GetTrailingString( )=="bathdr" )
 		m_pTable_BatchHeader = pTable;
+	else if( pTable->GetTrailingString( )=="batuser" )
+		m_pTable_BatchUser = pTable;
 	else if( pTable->GetTrailingString( )=="batdet" )
 		m_pTable_BatchDetail = pTable;
 	else if( pTable->GetTrailingString( )=="tables" )
@@ -65,16 +70,13 @@ void Repository::AddDefinitionTable( class Table *pTable )
 
 void Repository::MatchUpTables( )
 {
-	if( m_pTable_Setting==NULL || m_pTable_BatchHeader==NULL || m_pTable_BatchDetail==NULL || m_pTable_Tables==NULL )
+	if( m_pTable_Setting==NULL || m_pTable_BatchHeader==NULL || m_pTable_BatchUser==NULL || m_pTable_BatchDetail==NULL || m_pTable_Tables==NULL )
 	{
 		cerr << "Could not find all the system tables for Repository: " << m_sName << endl
-			<< "I need _repset, _bathdr, _batdet, _tables" << endl
+			<< "I need _repset, _bathdr, _batuser, _batdet, _tables" << endl
 			<< "This repository has been corrupted, and will need to be rebuilt in order to continue." << endl;
 		if( AskYNQuestion("Rebuild repository: " + m_sName,false) )
-		{
-		 	MapTable mapTable; /** Don't add any tables, just setup an empty repository */
-			Setup( );
-		}
+			ResetSystemTables();
 		else
 			throw "Repository corrupt";
 	}
@@ -133,6 +135,8 @@ void Repository::Setup( )
 		m_pTable_Setting = CreateSettingTable( );
 	if( !m_pTable_BatchHeader )
 		m_pTable_BatchHeader = CreateBatchHeaderTable( );
+	if( !m_pTable_BatchUser )
+		m_pTable_BatchUser = CreateBatchUserTable( );
 	if( !m_pTable_BatchDetail )
 		m_pTable_BatchDetail = CreateBatchDetailTable( );
 	if( !m_pTable_Tables )
@@ -316,7 +320,38 @@ class Table *Repository::CreateBatchHeaderTable( )
 	sql.str( "" );
 	sql	<< "CREATE TABLE `" << Tablename << "`( " << endl
 		<< "`PK_" << Tablename << "` int( 11 ) NOT NULL auto_increment, " << endl
-		<< "`Value` varchar( 30 ) NOT NULL default '', " << endl
+		<< "`date` datetime, " << endl
+		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
+		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	{
+		cerr << "SQL Failed: " << sql.str( ) << endl;
+		throw "Database error";
+	}
+
+	Table *pTable = new Table( m_pDatabase, Tablename );
+	pTable->SetRepository(this,true);
+	return pTable;
+}
+
+class Table *Repository::CreateBatchUserTable( )
+{
+	string Tablename = "psc_" + m_sName + "_batuser";
+	ostringstream sql;
+
+	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	{
+		cerr << "SQL Failed: " << sql.str( ) << endl;
+		throw "Database error";
+	}
+
+	sql.str( "" );
+	sql	<< "CREATE TABLE `" << Tablename << "`( " << endl
+		<< "`PK_" << Tablename << "` int( 11 ) NOT NULL auto_increment, " << endl
+		<< "`FK_psc_" + m_sName + "_bathdr` int( 11 ) NOT NULL, " << endl
+		<< "`psc_user` int( 11 ) NOT NULL, " << endl
+		<< "`is_sup` tinyint( 1 ) NOT NULL, " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
 	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
@@ -345,7 +380,13 @@ class Table *Repository::CreateBatchDetailTable( )
 	sql.str( "" );
 	sql	<< "CREATE TABLE `" << Tablename << "`( " << endl
 		<< "`PK_" << Tablename << "` int( 11 ) NOT NULL auto_increment, " << endl
-		<< "`Value` varchar( 30 ) NOT NULL default '', " << endl
+		<< "`FK_psc_" + m_sName + "_bathdr` int( 11 ) NOT NULL, " << endl
+		<< "`New` int( 11 ) NOT NULL, " << endl
+		<< "`Deleted` int( 11 ) NOT NULL, " << endl
+		<< "`Modified` int( 11 ) NOT NULL, " << endl
+		<< "`FK_psc_" + m_sName + "_bathdr_orig` int( 11 ) NOT NULL, " << endl
+		<< "`FK_psc_" + m_sName + "_bathdr_auth` int( 11 ) NOT NULL, " << endl
+		<< "`FK_psc_" + m_sName + "_bathdr_unauth` int( 11 ) NOT NULL, " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
 	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
@@ -412,6 +453,15 @@ void Repository::Remove( )
 		throw "Database error";
 	}
 
+	Tablename = "psc_" + m_sName + "_batuser";
+	sql.str( "" );
+	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	{
+		cerr << "SQL Failed: " << sql.str( ) << endl;
+		throw "Database error";
+	}
+
 	Tablename = "psc_" + m_sName + "_batdet";
 	sql.str( "" );
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
@@ -460,10 +510,21 @@ bool Repository::DetermineDeletions( )
 
 bool Repository::CheckIn( )
 {
-int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
+	if( g_GlobalConfig.m_mapUsersPasswords.size()==0 )
+		throw "No users"; // Shouldn't happen
+
+	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
 	RA_Processor ra_Processor( ClientID, SoftwareVersion );
 
-	R_CommitChanges r_CommitChanges( m_sName );
+	R_CommitChanges r_CommitChanges( m_sName, g_GlobalConfig.m_sDefaultUser );
+	for(map<string,string>::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
+	{
+		// We don't care about user 0
+		if( (*it).first=="0" )
+			continue;
+		r_CommitChanges.m_mapUsersPasswords[(*it).first]=(*it).second;
+	}
+
 	ra_Processor.AddRequest( &r_CommitChanges );
 	DCE::Socket *pSocket=NULL;
 	while( ra_Processor.SendRequests( "localhost:3485", &pSocket ) );
@@ -474,6 +535,16 @@ int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
 		
 		cerr << "Unable to commit repository to server" << endl;
 		delete pSocket;
+		if( r_CommitChanges.m_cProcessOutcome==LOGIN_FAILED )
+		{
+			cout << "The username or password was incorrect." << endl;
+			if( AskYNQuestion("Do you want to re-enter the passwords and try again?",false) )
+			{
+				for(map<string,string>::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
+					g_GlobalConfig.m_mapUsersPasswords[(*it).first]="";
+				return CheckIn();
+			}
+		}
 		return false;
 	}
 
@@ -543,9 +614,9 @@ void Repository::AddTablesToMap( )
 		g_GlobalConfig.m_mapTable[ ( *it ).first ] = ( *it ).second;
 }
 
-int Repository::CreateBatch( )
+int Repository::CreateBatch( map<int,bool> *mapValidatedUsers )
 {
-	if( !m_pTable_BatchHeader || !m_pTable_BatchDetail )
+	if( !m_pTable_BatchHeader || !m_pTable_BatchUser || !m_pTable_BatchDetail )
 	{
 		cerr << "Cannot create batch for repository " << m_sName << endl;
 		throw "Invalid repository";
@@ -553,10 +624,20 @@ int Repository::CreateBatch( )
 	else
 	{
 		std::ostringstream sSQL;
-		sSQL << "INSERT INTO " << m_pTable_BatchHeader->Name_get( ) << "( Value ) VALUES( 'test' )";
+		sSQL << "INSERT INTO " << m_pTable_BatchHeader->Name_get( ) << "( date ) VALUES( NOW() )";
 		int BatchID = m_pDatabase->threaded_mysql_query_withID( sSQL.str( ) );
 		if( !BatchID )
 			cerr << "Failed to create batch: " << sSQL.str( ) << endl;
+		else
+		{
+			for(map<int,bool>::iterator it=mapValidatedUsers->begin();it!=mapValidatedUsers->end();++it)
+			{
+				std::ostringstream sSQL;
+				sSQL << "INSERT INTO " << m_pTable_BatchUser->Name_get( ) << "( psc_user,is_sup ) VALUES( " << (*it).first << "," << ((*it).second ? "1" : "0") << " )";
+				int BatchID = m_pDatabase->threaded_mysql_query_withID( sSQL.str( ) );
+
+			}
+		}
 		return BatchID;
 	}
 	return 0;
@@ -629,6 +710,7 @@ void Repository::Dump( )
 	SerializeableStrings str;
 	if( (m_pTable_Setting && !m_pTable_Setting->Dump( str )) ||
 		(m_pTable_BatchHeader && !m_pTable_BatchHeader->Dump( str )) ||
+		(m_pTable_BatchUser && !m_pTable_BatchUser->Dump( str )) ||
 		(m_pTable_BatchDetail && !m_pTable_BatchDetail->Dump( str )) ||
 		(m_pTable_Tables && !m_pTable_Tables->Dump( str )) ||
 		(m_pTable_Schema && !m_pTable_Schema->Dump( str )) )
@@ -716,11 +798,11 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		if( j!=0 )
 			sSQL << ", ";
 		if( sIndex=="PRI" )
-			sPrimaryKey += ( sPrimaryKey.length( ) ? ", " : "" ) + string( "`" ) + sField + "`";
+			sPrimaryKey += ( sPrimaryKey.length( ) ? "," : "" ) + string( "`" ) + sField + "`";
 		sSQL << "`" << sField << "` " << sType
 			<< ( sNULL!="YES" ? " NOT NULL " : "" );
 		if( sDefault.length( ) )
-			sSQL << " default " << ( sDefault=="**( NULL )**" ? "NULL" : "'" + sDefault + "'" );
+			sSQL << " default " << ( sDefault==NULL_TOKEN ? "NULL" : "'" + sDefault + "'" );
 		sSQL << " " << sExtra;
 	}
 	if( sPrimaryKey.length( ) )
@@ -796,10 +878,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 				}
 			}
 		}
-if( i_psc_id==72 )
-{
-int k=2;
-}
+
 		sSQL.str( "" );
 		if( bUpdate )
 			sSQL << "UPDATE " << sTableName << " SET ";
@@ -811,13 +890,13 @@ int k=2;
 			if( bFirst )
 				bFirst = false;
 			else
-				sSQL << ", ";
+				sSQL << ",";
 
 			if( bUpdate )
 				sSQL << " `" << *it << "`=";
 
 			string Value = str.m_vectString[pos++];
-			if( Value=="**( NULL )**" )
+			if( Value==NULL_TOKEN )
 				sSQL << "NULL";
 			else
 				sSQL << "'" << StringUtils::SQLEscape( Value ) << "'";
@@ -834,18 +913,20 @@ int k=2;
 	}
 }
 
-void Repository::UpdateSchema(int PriorSchema)
+bool Repository::UpdateSchema(int PriorSchema)
 {
 	std::ostringstream sSQL;
-	sSQL << "SELECT Value FROM psc_" << m_sName << "_schema WHERE PK_psc_" << m_sName << "_schema>" << PriorSchema << " ORDER BY PK_psc_" << m_sName << "_schema";
+	sSQL << "SELECT PK_psc_" << m_sName << "_schema,Value FROM psc_" << m_sName << "_schema WHERE PK_psc_" << m_sName << "_schema>" << PriorSchema << " ORDER BY PK_psc_" << m_sName << "_schema";
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
 	{
+		if( result_set.r->row_count==0 )
+			return false; // nothing to update
 		 while( ( row = mysql_fetch_row( result_set.r ) ) ) 
 		 {
 			 vector<string> vectCommands;
-			 string Input=row[0];
+			 string Input=row[1];
 			 string Tokens="\r\n";
 			 StringUtils::Tokenize(Input,Tokens,vectCommands);
 			 for(size_t s=0;s<vectCommands.size();++s)
@@ -859,7 +940,125 @@ void Repository::UpdateSchema(int PriorSchema)
 						<< "because the schema update failed!" << endl;
 					throw "Schema update failed";
 				}
-			 }
-		 }
+			}
+			SetSetting("schema",row[0]);
+		}
+	 	return true; // We updated the schema
+	}
+	throw "Database error"; // Can't get schema info??
+}
+
+bool Repository::ShowChanges()
+{
+	while(true)
+	{
+		cout << "    Table                                      New   Mod   Del" << endl;
+
+		vector<Table *> vectTable; // So we can allow the user to pick a table by number
+		for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
+		{
+			Table *pTable = ( *it ).second;
+			vectTable.push_back(pTable);
+			cout << setw( 3 ) << vectTable.size() << " ";
+			if( pTable->Name_get().length() > 40 )
+				cout << pTable->Name_get().substr(0,40);
+			else
+			{
+				cout << pTable->Name_get() 
+					<< StringUtils::RepeatChar( ' ', 40  - ( int )pTable->Name_get( ).length( ) );
+			}
+
+			int iNew=0,iMod=0,iDel=0;
+			for(map<int, ListChangedRow *>::iterator itCR=pTable->m_mapUsers2ChangedRowList.begin();itCR!=pTable->m_mapUsers2ChangedRowList.end();++itCR)
+			{
+				ListChangedRow *pListChangedRow = (*itCR).second;
+				for(ListChangedRow::iterator itLCR=pListChangedRow->begin();itLCR!=pListChangedRow->end();++itLCR)
+				{
+					ChangedRow *pChangedRow = *itLCR;
+					if( pChangedRow->m_eTypeOfChange==toc_New )
+						iNew++;
+					else if( pChangedRow->m_eTypeOfChange==toc_Modify )
+						iMod++;
+					else if( pChangedRow->m_eTypeOfChange==toc_Delete )
+						iDel++;
+				}
+			}
+			cout << setw( 6 ) << iNew << setw( 6 ) << iMod << setw( 6 ) << iDel << endl;
+		}
+
+		cout << "What table do you want more detail on?  Enter 'b' to go back, 'q' to quit" << endl;
+		string sTable;
+		cin >> sTable;
+		if( sTable=="b" || sTable=="B" )
+			return true;
+		if( sTable=="q" || sTable=="Q" )
+			return false;
+
+		int iTable = atoi(sTable.c_str());
+		if( iTable < 1 || iTable > vectTable.size() )
+			cout << "That is not a valid selection" << endl;
+		else
+		{
+			Table *pTable = vectTable[ iTable-1 ];
+			if( !pTable->ShowChanges() )
+				return false;
+		}
+	}
+}
+
+void Repository::ResetSystemTables()
+{
+	// First save the settings in this map
+	map<string,string> mapSettings;
+	string Tablename = "psc_" + m_sName + "_repset";
+	ostringstream sql;
+
+	sql	<< "SELECT Setting,Value FROM `" << Tablename << "`";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+	{
+		while ( row = mysql_fetch_row( result_set.r ) )
+		{
+			mapSettings[row[0]]=row[1];
+		}
+	}
+
+	list<string> listTables;
+	sql.str("");
+	Tablename = "psc_" + m_sName + "_tables";
+	sql	<< "SELECT Tablename FROM `" << Tablename << "`";
+	PlutoSqlResult result_set2;
+	if( ( result_set2.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+	{
+		while ( row = mysql_fetch_row( result_set2.r ) )
+			listTables.push_back(row[0]);
+	}
+
+	CreateSettingTable( );
+	CreateBatchHeaderTable( );
+	CreateBatchUserTable( );
+	CreateBatchDetailTable( );
+	CreateTablesTable( );
+	CreateSchemaTable( );
+
+	for(map<string,string>::iterator it=mapSettings.begin();it!=mapSettings.end();++it)
+		SetSetting((*it).first,(*it).second);  
+
+	GetSetting("schema","1");  // Be sure we at least have a default schema of 1
+
+	// We reset all the psc_rep_tables, so put back any tables in there
+	for(list<string>::iterator it=listTables.begin();it!=listTables.end();++it)
+	{
+		Table *pTable = m_mapTable_Find(*it);
+		string Tablename = "psc_" + m_sName + "_tables"; /**< Our _tables table */
+		ostringstream sql;
+		sql << "INSERT INTO `" << Tablename << "` ( Tablename,filter,frozen ) VALUES( '" << *it << "','" << (pTable ? pTable->m_sFilter : "") 
+			<< "'," << (pTable && pTable->m_bFrozen ? "1" : "0") << ")";
+		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		{
+			cerr << "SQL failed: " << sql.str( ) << endl;
+			throw "Database Error";
+		}
 	}
 }

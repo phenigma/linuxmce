@@ -29,6 +29,7 @@ namespace sqlCVS
 		/** @brief All our system tables */		
 		class Table *m_pTable_Setting;
 		class Table *m_pTable_BatchHeader;
+		class Table *m_pTable_BatchUser;
 		class Table *m_pTable_BatchDetail;
 		class Table *m_pTable_Tables;
 		class Table *m_pTable_Schema;
@@ -43,13 +44,16 @@ namespace sqlCVS
 		{
 			m_pDatabase=pDatabase;
 			m_sName=sName;
-			m_pTable_Setting=m_pTable_BatchHeader=m_pTable_BatchDetail=m_pTable_Tables=NULL;
+			m_pTable_Setting=m_pTable_BatchHeader=m_pTable_BatchUser=m_pTable_BatchDetail=m_pTable_Tables=NULL;
 		}
 		
 		/**
 		 *  @brief This lists all the tables and what repositories they belong to
 		 */
 		void ListTables( );
+
+		/** @brief Displays a summary of all the rows changed in the repository.  Called by the 'diff' command.  returns false means the user wants to quit */
+		bool ShowChanges();
 
 		string Name_get( ) { return m_sName; }
 		void AddDefinitionTable( class Table *pTable );
@@ -61,14 +65,18 @@ namespace sqlCVS
 		void Dump( );
 		bool DetermineDeletions( );
 		void AddTablesToMap( );
-		int CreateBatch( );
+		int CreateBatch( map<int,bool> *mapValidatedUsers );
 		int psc_id_last_sync_get( Table *pTable );
 		void psc_id_last_sync_set( Table *pTable, int psc_id );
 		int psc_batch_last_sync_get( Table *pTable );
 		void psc_batch_last_sync_set( Table *pTable, int psc_id );
 
+		/** @brief Rebuilds all the system tables in case something changed */
+		void ResetSystemTables();
+
 		class Table *CreateSettingTable( );
 		class Table *CreateBatchHeaderTable( );
+		class Table *CreateBatchUserTable( );
 		class Table *CreateBatchDetailTable( );
 		class Table *CreateTablesTable( );
 		class Table *CreateSchemaTable( );
@@ -76,7 +84,7 @@ namespace sqlCVS
 		string GetSetting(string Setting,string Default);
 		void SetSetting(string Setting,string Value);
 		void ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable);
-		void UpdateSchema(int PriorSchema);
+		bool UpdateSchema(int PriorSchema);
 
 		class Table *m_mapTable_Find( string sTable ) { MapTable::iterator it = m_mapTable.find( sTable ); return it==m_mapTable.end( ) ? NULL : ( *it ).second; }
 	};

@@ -43,9 +43,15 @@ namespace sqlCVS
 		
 		Database( string db_host, string db_user, string db_pass, string db_name, int db_port );
 
+		/** @brief Called by the constructor, this fills in all the maps for repositories and tables */
+		void LoadDatabaseStructure();
+
 		/** @brief This will take a string of repositories and tables, and add the actual names to the lists */
 		void GetRepositoriesTables( );
 		
+		/** @brief Displays a summary of all the rows changed in the database.  Called by the 'diff' command */
+		void ShowChanges();
+
 		/** 
 		 * @ brief This will create the repository 
 		 */
@@ -136,6 +142,11 @@ namespace sqlCVS
 		 *  @brief Reset all the tables, updating the psc_id, clearing out the 'mod', recreating the system tables, etc.
 		 */
 		void Reset_all();
+
+		/**
+		 *  @brief Reset all the system tables
+		 */
+		void Reset_sys();
 
 		/**
 		 *  @brief Update the psc_id fields for any records that are new

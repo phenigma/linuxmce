@@ -52,6 +52,7 @@ namespace sqlCVS
 		MapAutoIncrChanges m_mapAutoIncrChanges;
 
 		map<int, ListChangedRow *> m_mapUsers2ChangedRowList;
+		ListChangedRow *m_mapUsers2ChangedRowList_Find( int psc_user ) { map<int, ListChangedRow *>::iterator it = m_mapUsers2ChangedRowList.find( psc_user ); return it==m_mapUsers2ChangedRowList.end( ) ? NULL : ( *it ).second; }
 		
 		/**
 		 * When we determine the deletions we made locally, we also determine the rows deleted on the server side. 
@@ -73,7 +74,9 @@ namespace sqlCVS
 		class Field  *m_pField_AutoIncrement;
 		
 		class Table *m_pTable_History;		/**< A pointer to our history table, if we have one,   */
+		class Table *m_pTable_History_Mask;		/**< A pointer to our history mask table, if we have one.  This stores what fields were changed in each commit in the history table   */
 		class Table *m_pTable_WeAreHistoryFor; 	/**<  or the table we are logging history for if we're a history table */
+		class Table *m_pTable_WeAreHistoryMaskFor; 	/**<  or the table we are the history mask for if we're a history mask table */
 		ListField m_listField_PrimaryKey;
 		
 		/** If users are not able to retrieve the entire database, this will be a filter <%=U%> will be replaced with the user ID */
@@ -101,8 +104,12 @@ namespace sqlCVS
 		/** @brief destructor */
 		~Table( );
 
+		/** @brief Displays a summary of all the rows changed in the table.  Called by the 'diff' command.  returns false means the user wants to quit */
+		bool ShowChanges();
+		/** @brief Displays a summary of all the rows changed in the table by the given user.  Called by the 'diff' command.  returns false means the user wants to quit */
+		bool ShowChanges(int psc_user);
+
 		/** If the table is in the format some_text_something it returns 'something'--the text following the final _ */
-		
 		string GetTrailingString( string sName="" ); 
 		
 		 /** @brief 
@@ -143,7 +150,7 @@ namespace sqlCVS
 		bool CheckIn( RA_Processor &ra_Processor, DCE::Socket *pSocket, enum TypeOfChange toc );
 		bool DetermineDeletions( RA_Processor &ra_Processor, string Connection, DCE::Socket **ppSocket );
 		void AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor );
-		void UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor ); /**< Server side update */
+		void UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user ); /**< Server side update */
 		
 		void UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable, sqlCVSprocessor *psqlCVSprocessor ); /**< Client side update */
 		void AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor );
@@ -158,6 +165,8 @@ namespace sqlCVS
 		void psc_batch_last_sync_set( int psc_batch_last_sync ) { m_psc_batch_last_sync=psc_batch_last_sync; }
 		bool bIsSystemTable_get( ) { return m_bIsSystemTable; }
 
+		/** Give the psc_id, this will fill a map where the first string is the field name, and the second is the value of the field*/
+		void GetCurrentValues(int psc_id,map<string,string> *mapCurrentValues);
 
 		/** @brief Accessors */
 		string Name_get( ) { return m_sName; }

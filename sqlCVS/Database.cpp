@@ -41,24 +41,18 @@ Database::Database( string db_host, string db_user, string db_pass, string db_na
 {
 	if( !m_bConnected )
 	{
-		// If we didn't connect, maybe the connection is valid but the database doesn't exist.  If so, try creating it if the command is import
-		if( g_GlobalConfig.m_sCommand=="import" )
-		{
-			// Try connecting without a database
-			m_sMySQLDBName = "";
-			MySQLConnect();
-			if( !m_bConnected )
-				return;  // Nope, the connection is no good
+		// Try connecting without a database
+		m_sMySQLDBName = "";
+		MySQLConnect();
+		if( !m_bConnected )
+			return;  // Nope, the connection is no good
 
-			g_GlobalConfig.m_bNewDatabase=true;
-			// Try creating the dabase
-			threaded_mysql_query("CREATE DATABASE " + db_name);
-			m_sMySQLDBName = db_name; // Set it back and try again
-			MySQLConnect();
-			if( !m_bConnected )
-				return;
-		}
-		else
+		g_GlobalConfig.m_bNewDatabase=true;
+		// Try creating the dabase
+		threaded_mysql_query("CREATE DATABASE " + db_name);
+		m_sMySQLDBName = db_name; // Set it back and try again
+		MySQLConnect();
+		if( !m_bConnected )
 			return;
 	}
 
@@ -68,42 +62,35 @@ Database::Database( string db_host, string db_user, string db_pass, string db_na
 		/** Establishing database connection	*/
 		m_bInteractiveMode=false;
 
-		/** And build our list of tables and repositories	*/
-		PlutoSqlResult res;
-		MYSQL_ROW row=NULL;
-		if( res.r=mysql_list_tables( &m_MySQL, NULL ) )
+		LoadDatabaseStructure();
+		bool bSchemaChanged = false;
+
+		// See if the schema has changed for any of the repositories
+		for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
 		{
-			while ( ( row = mysql_fetch_row( res.r ) ) )
-			{
-				Table *pTable = new Table( this, row[0] );
-				m_mapTable[row[0]] = pTable;
-				/** Does this table help define a repository ( ie table is psc_repositoryname_[x] */
-				string sRepository = pTable->DefinesRepository( );
-				if( sRepository.size( ) )
-				{
-					Repository *pRepository = m_mapRepository[sRepository];
-					if( !pRepository )
-					{
-						pRepository = new Repository( this, sRepository );
-						m_mapRepository[sRepository] = pRepository;
-					}
-					pRepository->AddDefinitionTable( pTable );
-				}
-			}
+			Repository *pRepository = ( *it ).second;
+			int PriorSchema = atoi(pRepository->GetSetting("schema","1").c_str());
+
+			if( pRepository->UpdateSchema(PriorSchema) )
+				bSchemaChanged = true;
 		}
 
-		for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
-			( *it ).second->MatchUpTables( );
-		for( MapTable::iterator itT=m_mapTable.begin( );itT!=m_mapTable.end( );++itT )
+		if( bSchemaChanged )
 		{
-			Table *pTable = ( *itT ).second;
-			pTable->MatchUpHistory( );
-			pTable->GetDependencies( );
-			if( pTable->Repository_get( ) )
+			cout << "Schema changed.  Reloading database structure." << endl;
+			for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
 			{
-				pTable->psc_id_last_sync_set( pTable->Repository_get( )->psc_id_last_sync_get( pTable ) );
-				pTable->psc_batch_last_sync_set( pTable->Repository_get( )->psc_batch_last_sync_get( pTable ) );
+				Repository *pRepository = ( *it ).second;
+				delete pRepository;
 			}
+			m_mapRepository.clear();
+			for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
+			{
+				Table *pTable = ( *it ).second;
+				delete pTable;
+			}
+			m_mapTable.clear();
+			LoadDatabaseStructure();
 		}
 	}
 	catch( const char *pException )
@@ -113,23 +100,64 @@ Database::Database( string db_host, string db_user, string db_pass, string db_na
 	}
 }
 
+void Database::LoadDatabaseStructure()
+{
+	/** And build our list of tables and repositories	*/
+	PlutoSqlResult res;
+	MYSQL_ROW row=NULL;
+	if( res.r=mysql_list_tables( &m_MySQL, NULL ) )
+	{
+		while ( ( row = mysql_fetch_row( res.r ) ) )
+		{
+			Table *pTable = new Table( this, row[0] );
+			m_mapTable[row[0]] = pTable;
+			/** Does this table help define a repository ( ie table is psc_repositoryname_[x] */
+			string sRepository = pTable->DefinesRepository( );
+			if( sRepository.size( ) )
+			{
+				Repository *pRepository = m_mapRepository[sRepository];
+				if( !pRepository )
+				{
+					pRepository = new Repository( this, sRepository );
+					m_mapRepository[sRepository] = pRepository;
+				}
+				pRepository->AddDefinitionTable( pTable );
+			}
+		}
+	}
+
+	for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
+		( *it ).second->MatchUpTables( );
+	for( MapTable::iterator itT=m_mapTable.begin( );itT!=m_mapTable.end( );++itT )
+	{
+		Table *pTable = ( *itT ).second;
+		pTable->MatchUpHistory( );
+		pTable->GetDependencies( );
+		if( pTable->Repository_get( ) )
+		{
+			pTable->psc_id_last_sync_set( pTable->Repository_get( )->psc_id_last_sync_get( pTable ) );
+			pTable->psc_batch_last_sync_set( pTable->Repository_get( )->psc_batch_last_sync_get( pTable ) );
+		}
+	}
+}
+
 void Database::GetRepositoriesTables( )
 {
 	string s, sUnknownRepository;
 	string::size_type pos=0;
 
-	while( ( s=StringUtils::Tokenize( g_GlobalConfig.m_sRepository, ", ", pos ) ).length( ) )
+	while( ( s=StringUtils::Tokenize( g_GlobalConfig.m_sRepository, ",", pos ) ).length( ) )
 	{
 		Repository *pRepository = m_mapRepository_Find( s );
 		if( !pRepository )
-			sUnknownRepository += ( sUnknownRepository.length( ) ? ", " : "" ) + s;
+			sUnknownRepository += ( sUnknownRepository.length( ) ? "," : "" ) + s;
 		else
 			g_GlobalConfig.m_mapRepository[s]=pRepository;
 	}
 	g_GlobalConfig.m_sRepository=sUnknownRepository;
 
 	pos=0;
-	while( ( s=StringUtils::Tokenize( g_GlobalConfig.m_sTable, ", ", pos ) ).length( ) )
+	while( ( s=StringUtils::Tokenize( g_GlobalConfig.m_sTable, ",", pos ) ).length( ) )
 	{
 		Table *pTable = m_mapTable[s];
 		if( !pTable )
@@ -144,7 +172,7 @@ void Database::GetRepositoriesTables( )
 void Database::CreateRepository( )
 {
 	vector<string> vect_sRepository;
-	StringUtils::Tokenize( g_GlobalConfig.m_sRepository, ", ", vect_sRepository );
+	StringUtils::Tokenize( g_GlobalConfig.m_sRepository, ",", vect_sRepository );
 
 	if( vect_sRepository.size( )>1 && g_GlobalConfig.m_mapTable.size( )>0 )
 	{
@@ -210,6 +238,13 @@ int Database::PromptForTablesInRepository( Repository *pRepository, MapTable &ma
 	int iColumnWidth = SCREEN_WIDTH/iNumColumns;
 
 	/**
+	 * We'll use this map to keep track of what tables the user wants history tracking for
+	 * This will be pre-populated with the current settings, and then modified as the user
+	 * makes changes.  We'll write out the changes when the user is done.
+	 */
+	map<string,bool> mapTableHistory;
+
+	/**
 	 * Since the user may have called this with an existing repository, do a quick run 
 	 * first to be sure we add any tables that are already in the repository to the map
 	 * The user can always remove them in the main loop
@@ -218,7 +253,7 @@ int Database::PromptForTablesInRepository( Repository *pRepository, MapTable &ma
 	for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
 	{
 		Table *pTable = ( *it ).second;
-		if( StringUtils::StartsWith( pTable->Name_get( ), "psc_" ) || StringUtils::EndsWith( pTable->Name_get( ), "_pschist" ) )
+		if( pTable->bIsSystemTable_get() )
 			continue; /**< It's a system table */
 
 		/**
@@ -253,6 +288,8 @@ int Database::PromptForTablesInRepository( Repository *pRepository, MapTable &ma
 			else if( mapTable.find( pTable->Name_get( ) )==mapTable.end( ) && pTable->Repository_get( )==pRepository )
 				mapTable[ pTable->Name_get( ) ] = pTable;
 		}
+
+		mapTableHistory[pTable->Name_get()]=pTable->HasFullHistory_get();
 	}
 
 	string sError="";
@@ -278,7 +315,7 @@ int Database::PromptForTablesInRepository( Repository *pRepository, MapTable &ma
 				cout << setw( 3 ) << ( int ) vectTable.size( );
 			}
 
-			cout << ( bTableAlreadyInList ? " *" : " " ) << ( pTable->HasFullHistory_get( ) ? "H " : " " );
+			cout << ( bTableAlreadyInList ? " *" : " " ) << ( mapTableHistory[pTable->Name_get()] ? "H " : " " );
 			if( ( int ) pTable->Name_get( ).length( )>iColumnWidth )
 				cout << pTable->Name_get( ).substr( 0, iColumnWidth );
 			else
@@ -309,14 +346,23 @@ int Database::PromptForTablesInRepository( Repository *pRepository, MapTable &ma
 		string sAction;
 		cin >> sAction;
 		if( sAction=="D" || sAction=="d" )
+		{
+			// Write out any changes to the history settings
+			for(map<string,bool>::iterator it=mapTableHistory.begin();it!=mapTableHistory.end();++it)
+			{
+				Table *pTable = m_mapTable[(*it).first];
+				if( pTable && !pTable->bIsSystemTable_get() && pTable->HasFullHistory_get()!=(*it).second )
+					pTable->HasFullHistory_set((*it).second);
+			}
 			return ( int ) mapTable.size( );
+		}
 		if( sAction=="Q" || sAction=="q" )
 			return -1; /**< means abort  */
 		if( sAction[0]=='W' || sAction[0]=='w' )
 		{
 			string::size_type pos=1; /**< Skip the w */
-			string sNumColumns = StringUtils::Tokenize( sAction, ", ", pos );
-			string sWidth = StringUtils::Tokenize( sAction, ", ", pos );
+			string sNumColumns = StringUtils::Tokenize( sAction, ",", pos );
+			string sWidth = StringUtils::Tokenize( sAction, ",", pos );
 			if( atoi( sNumColumns.c_str( ) ) )
 				iNumColumns = atoi( sNumColumns.c_str( ) );
 			if( atoi( sWidth.c_str( ) ) )
@@ -326,7 +372,7 @@ int Database::PromptForTablesInRepository( Repository *pRepository, MapTable &ma
 		bool bHistory = sAction[0]=='h' || sAction[0]=='H';
 		string::size_type pos = bHistory ? 1 : 0;
 		string sNumber;
-		while( ( sNumber=StringUtils::Tokenize( sAction, ", ", pos ) ).length( ) )
+		while( ( sNumber=StringUtils::Tokenize( sAction, ",", pos ) ).length( ) )
 		{
 			int iNumber=atoi( sNumber.c_str( ) )-1; /**< Our vector is 0 based, subtract 1 */
 			if( iNumber<0 || iNumber>( int ) vectTable.size( )-1 )
@@ -336,7 +382,7 @@ int Database::PromptForTablesInRepository( Repository *pRepository, MapTable &ma
 			}
 			Table *pTable = vectTable[iNumber];
 			if( bHistory )
-				pTable->HasFullHistory_set( !pTable->HasFullHistory_get( ) );
+				mapTableHistory[pTable->Name_get()]=!mapTableHistory[pTable->Name_get()];
 			else if( mapTable.find( pTable->Name_get( ) )!=mapTable.end( ) )
 				mapTable.erase( pTable->Name_get( ) );
 			else
@@ -396,6 +442,72 @@ class Table *Database::GetTableFromForeignKeyString( Table *pTable, string sFiel
 	throw "Bad Schema";
 }
 
+void Database::ShowChanges()
+{
+	for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
+	{
+		Table *pTable = ( *it ).second;
+		pTable->GetChanges( );
+	}
+
+	while(true)
+	{
+		cout << "    Repository                                 New   Mod   Del" << endl;
+
+		vector<Repository *> vectRepository; // So we can allow the user to pick a repository by number
+		for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
+		{
+			Repository *pRepository = ( *it ).second;
+			vectRepository.push_back(pRepository);
+			cout << setw( 3 ) << vectRepository.size() << " ";
+			if( pRepository->Name_get().length() > 40 )
+				cout << pRepository->Name_get().substr(0,40);
+			else
+			{
+				cout << pRepository->Name_get() 
+					<< StringUtils::RepeatChar( ' ', 40  - ( int )pRepository->Name_get( ).length( ) );
+			}
+
+			int iNew=0,iMod=0,iDel=0;
+			for(MapTable::iterator itT = pRepository->m_mapTable.begin();itT != pRepository->m_mapTable.end();itT++)
+			{
+				Table *pTable = (*itT).second;
+				for(map<int, ListChangedRow *>::iterator itCR=pTable->m_mapUsers2ChangedRowList.begin();itCR!=pTable->m_mapUsers2ChangedRowList.end();++itCR)
+				{
+					ListChangedRow *pListChangedRow = (*itCR).second;
+					for(ListChangedRow::iterator itLCR=pListChangedRow->begin();itLCR!=pListChangedRow->end();++itLCR)
+					{
+						ChangedRow *pChangedRow = *itLCR;
+						if( pChangedRow->m_eTypeOfChange==toc_New )
+							iNew++;
+						else if( pChangedRow->m_eTypeOfChange==toc_Modify )
+							iMod++;
+						else if( pChangedRow->m_eTypeOfChange==toc_Delete )
+							iDel++;
+					}
+				}
+			}
+			cout << setw( 6 ) << iNew << setw( 6 ) << iMod << setw( 6 ) << iDel << endl;
+		}
+
+		cout << "What repository do you want more detail on?  Enter 'q' to quit" << endl;
+		string sRepository;
+		cin >> sRepository;
+		if( sRepository=="q" || sRepository=="Q" )
+			return;
+
+		int iRepository = atoi(sRepository.c_str());
+		if( iRepository < 1 || iRepository > vectRepository.size() )
+			cout << "That is not a valid selection" << endl;
+		else
+		{
+			Repository *pRepository = vectRepository[ iRepository-1 ];
+			if( !pRepository->ShowChanges() )
+				return;
+		}
+	}
+}
+
 void Database::CheckIn( )
 {
 	GetTablesToCheckIn( );
@@ -434,13 +546,53 @@ void Database::CheckIn( )
 			return; /**< This will throw an exception with the transaction */
 	}
 
-#pragma warning( "Allow users to be on the command line so this can be non-interactive" )
-
 	/** Now mapTable has all the tables we need to check in. Confirm the users if none were passed in on the command line   */
 	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToCheckIn( )<1 )
 		return;
 
-	/** If any of the records to be checked in refer to a record with an auto-increement field that is new and is not being checked in,
+	// If the only user in the map is the 0 user (ie new, unclaimed records), then at least 1 real user must be logged in
+	if( (*(g_GlobalConfig.m_mapUsersPasswords.begin())).first=="0" && g_GlobalConfig.m_mapUsersPasswords.size()==1 )
+	{
+		while( g_GlobalConfig.m_mapUsersPasswords.size()==1 )
+		{
+			cout << "Type in user names, or id's who will be doing the checkin." << endl
+				<< "You can separate multiple ones with a comma." << endl
+				<< "Enter 'q' to quit." << endl;
+			
+			string sUsers;
+			cin >> sUsers;
+
+			if( sUsers=="q" || sUsers=="Q" )
+				return;
+			string::size_type pos=0;
+			string Token;
+			while( (Token=StringUtils::Tokenize(sUsers,",",pos)).length() )
+				g_GlobalConfig.m_mapUsersPasswords[Token]="";  // Add the user with no password.  We will prompt for the password below
+		}
+	}
+
+	// If no default user is specified, we will pick one.  This will be the user that is assigned ownership of any new, unclaimed records
+	if( g_GlobalConfig.m_sDefaultUser.size()==0 )
+		g_GlobalConfig.m_sDefaultUser = (*(g_GlobalConfig.m_mapUsersPasswords.begin())).first;
+
+	for(map<string,string>::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
+	{
+		if( (*it).first=="0" )
+			continue; // We don't care about the '0' user.  This is for unclaimed new records
+
+		string md5;
+		string Password = (*it).second;
+		while( Password.length()==0 )
+		{
+			cout << "Enter the password for user " << (*it).first << ": ";
+			cin >> Password;
+		}
+
+		// It requires the this->????  Guess there's another md5 function
+		g_GlobalConfig.m_mapUsersPasswords[(*it).first]=this->md5(Password);
+	}
+
+	/** If any of the records to be checked in refer to a record with an auto-increment field that is new and is not being checked in,
 	 * this will fail
 	 */
 	if( !ConfirmRecordsToCheckIn( ) )
@@ -458,6 +610,7 @@ void Database::CheckIn( )
 			{
 				cerr << "Checkin failed" << endl;
 				st.Rollback( );
+				throw "Checkin failed";
 				return;
 			}
 		}
@@ -638,7 +791,7 @@ void Database::GetTablesToCheckIn( )
 			string::size_type pos = 0;
 			string sNumber;
 	
-			while( ( sNumber=StringUtils::Tokenize( sAction, ", ", pos ) ).length( ) )
+			while( ( sNumber=StringUtils::Tokenize( sAction, ",", pos ) ).length( ) )
 			{
 				int iNumber=atoi( sNumber.c_str( ) )-1; /**< Our vector is 0 based, subtract 1 */
 				if( iNumber<0 || iNumber>( int ) vectTable.size( )-1 )
@@ -673,7 +826,7 @@ void Database::GetTablesToCheckIn( )
 							i++;
 						}
 						else{
-							query_string = query_string + ", " + row[0];
+							query_string = query_string + "," + row[0];
 							i++;
 						}
 				}
@@ -684,9 +837,9 @@ void Database::GetTablesToCheckIn( )
 				while ( row = mysql_fetch_row( result_set.r ) ){					
 					for ( int j = 0;j < i; j++ )
 						if ( row[j] )
-							cout << row[j] << "  ";
+							cout << row[j] << " ";
 						else
-							cout << "NULL" << "  ";
+							cout << "NULL" << " ";
 					cout << endl;
 				}
 	 
@@ -752,7 +905,7 @@ int Database::PromptForRepositories( )
 
 		string::size_type pos=0;
 		string sNumber;
-		while( ( sNumber=StringUtils::Tokenize( sAction, ", ", pos ) ).length( ) )
+		while( ( sNumber=StringUtils::Tokenize( sAction, ",", pos ) ).length( ) )
 		{
 			int iNumber=atoi( sNumber.c_str( ) )-1; /**< Our vector is 0 based, subtract 1 */
 			if( iNumber<0 || iNumber>( int ) vectRepository.size( )-1 )
@@ -804,7 +957,7 @@ int Database::PromptForSqlCvsFiles( )
 			string sRepository = FileUtils::FilenameWithoutPath( vectFiles[s], false );
 			Repository *pRepository = ( g_GlobalConfig.m_mapRepository.find( sRepository )!=g_GlobalConfig.m_mapRepository.end( ) ? g_GlobalConfig.m_mapRepository[sRepository] : NULL );
 			Repository *pRepository_Valid = m_mapRepository_Find( sRepository );
-			bool bFound = g_GlobalConfig.m_sRepository.find( ", " + sRepository + ", " )!=string::npos;
+			bool bFound = g_GlobalConfig.m_sRepository.find( "," + sRepository + "," )!=string::npos;
 			cout << setw( 3 ) << ( int ) s+1;
 			cout << ( pRepository || bFound ? " *" : " " )
 				<< ( pRepository_Valid ? "!" : " " )
@@ -831,7 +984,7 @@ int Database::PromptForSqlCvsFiles( )
 
 		string::size_type pos=0;
 		string sNumber;
-		while( ( sNumber=StringUtils::Tokenize( sAction, ", ", pos ) ).length( ) )
+		while( ( sNumber=StringUtils::Tokenize( sAction, ",", pos ) ).length( ) )
 		{
 			int iNumber=atoi( sNumber.c_str( ) )-1; /**< Our vector is 0 based, subtract 1 */
 			if( iNumber<0 || iNumber>( int ) vectFiles.size( )-1 )
@@ -852,13 +1005,13 @@ int Database::PromptForSqlCvsFiles( )
 			else
 			{
 				/** The file is not an existing repository */
-				if( g_GlobalConfig.m_sRepository.find( ", " + sRepository + ", " )!=string::npos )
-					StringUtils::Replace( g_GlobalConfig.m_sRepository, ", " + sRepository + ", ", "" );
+				if( g_GlobalConfig.m_sRepository.find( "," + sRepository + "," )!=string::npos )
+					StringUtils::Replace( g_GlobalConfig.m_sRepository, "," + sRepository + ",","" );
 				else
 				{
 					if( g_GlobalConfig.m_sRepository.length( )==0 )
-						g_GlobalConfig.m_sRepository = ", ";
-					g_GlobalConfig.m_sRepository += sRepository + ", ";
+						g_GlobalConfig.m_sRepository = ",";
+					g_GlobalConfig.m_sRepository += sRepository + ",";
 				}
 			}
 		}
@@ -874,7 +1027,7 @@ int Database::ConfirmUsersToCheckIn( )
 		for( map<int, MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
 		{
 			MapTable *pMapTable = ( *it ).second;
-			cout << ( g_GlobalConfig.m_mapUsersPasswords.find( ( *it ).first )!=g_GlobalConfig.m_mapUsersPasswords.end( ) ? "* " : " " )
+			cout << ( g_GlobalConfig.m_mapUsersPasswords.find( StringUtils::itos(( *it ).first) )!=g_GlobalConfig.m_mapUsersPasswords.end( ) ? "* " : " " )
 				<< "User ID: " << ( *it ).first << " modified the following tables: " << endl
 				<< "\t\t\t";
 			int ColumnPosition=0;
@@ -921,13 +1074,13 @@ int Database::ConfirmUsersToCheckIn( )
 		else 
 			if ( sAction == "+" )
 				for ( map<int, MapTable*>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
-					g_GlobalConfig.m_mapUsersPasswords[( *it ).first]="";
+					g_GlobalConfig.m_mapUsersPasswords[StringUtils::itos(( *it ).first)]="";
 
 			else
 			{
 				string::size_type pos=0;
 				string sNumber;
-				while( ( sNumber=StringUtils::Tokenize( sAction, ", ", pos ) ).length( ) )
+				while( ( sNumber=StringUtils::Tokenize( sAction, ",", pos ) ).length( ) )
 				{
 					int iNumber=atoi( sNumber.c_str( ) );
 					if( g_GlobalConfig.m_mapUsersTables.find( iNumber )==g_GlobalConfig.m_mapUsersTables.end( ) )
@@ -935,10 +1088,10 @@ int Database::ConfirmUsersToCheckIn( )
 						sError ="Invalid User ID";
 						break;
 					}
-					if( g_GlobalConfig.m_mapUsersPasswords.find( iNumber )!=g_GlobalConfig.m_mapUsersPasswords.end( ) )
-						g_GlobalConfig.m_mapUsersPasswords.erase( iNumber );
+					if( g_GlobalConfig.m_mapUsersPasswords.find( StringUtils::itos(iNumber) )!=g_GlobalConfig.m_mapUsersPasswords.end( ) )
+						g_GlobalConfig.m_mapUsersPasswords.erase( StringUtils::itos(iNumber) );
 					else
-						g_GlobalConfig.m_mapUsersPasswords[iNumber] = "";
+						g_GlobalConfig.m_mapUsersPasswords[StringUtils::itos(iNumber)] = "";
 				}
 			}
 	}
@@ -979,7 +1132,7 @@ void Database::Import( )
 	string sRepository;
 	while( true )
 	{
-		sRepository=StringUtils::Tokenize( g_GlobalConfig.m_sRepository, ", ", pos );
+		sRepository=StringUtils::Tokenize( g_GlobalConfig.m_sRepository, ",", pos );
 		if( sRepository.length( ) )
 		{
 			Repository *pRepository = new Repository(this,sRepository);
@@ -1030,6 +1183,11 @@ void Database::Import( string sRepository, Repository *pRepository )
 
 	sTable = str.m_vectString[pos++];
 	if( sTable != "psc_" + pRepository->Name_get() + "_bathdr" )
+		throw "Import schema error";
+	pRepository->ImportTable(sTable,str,pos,NULL);
+
+	sTable = str.m_vectString[pos++];
+	if( sTable != "psc_" + pRepository->Name_get() + "_batuser" )
 		throw "Import schema error";
 	pRepository->ImportTable(sTable,str,pos,NULL);
 
@@ -1113,7 +1271,7 @@ void Database::HasFullHistory_set_all( bool bOn )
 	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)
 	{
 		Table *pTable = (*it).second;
-		if( pTable->Repository_get() )
+		if( pTable->Repository_get() && pTable->HasFullHistory_get()!=bOn )
 			pTable->HasFullHistory_set( bOn );
 	}
 }
@@ -1186,57 +1344,17 @@ void Database::Reset_all()
 			pTable->TrackChanges_set(false);
 	}
 
+	Reset_sys();
+}
+
+void Database::Reset_sys()
+{
 	for(MapRepository::iterator it=m_mapRepository.begin();it!=m_mapRepository.end();++it)
 	{
 		Repository *pRepository = (*it).second;
-		// First save the settings in this map
-		map<string,string> mapSettings;
-		string Tablename = "psc_" + pRepository->Name_get() + "_repset";
-		ostringstream sql;
-
-		sql	<< "SELECT Setting,Value FROM `" << Tablename << "`";
-		PlutoSqlResult result_set;
-		MYSQL_ROW row=NULL;
-		if( ( result_set.r=mysql_query_result( sql.str( ) ) ) )
-		{
-			while ( row = mysql_fetch_row( result_set.r ) )
-			{
-				mapSettings[row[0]]=row[1];
-			}
-		}
-
-		pRepository->CreateSettingTable( );
-		pRepository->CreateBatchHeaderTable( );
-		pRepository->CreateBatchDetailTable( );
-		pRepository->CreateTablesTable( );
-		pRepository->CreateSchemaTable( );
-
-		for(map<string,string>::iterator it=mapSettings.begin();it!=mapSettings.end();++it)
-		{
-			pRepository->SetSetting((*it).first,(*it).second);  
-		}
-
-		pRepository->GetSetting("schema","1");  // Be sure we at least have a default schema of 1
-	}
-
-	// We reset all the psc_rep_tables, so put back any tables in there
-	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)
-	{
-		Table *pTable = (*it).second;
-		if( pTable->Repository_get() && !pTable->m_bIsSystemTable )
-		{
-			string Tablename = "psc_" + pTable->Repository_get()->Name_get() + "_tables"; /**< Our _tables table */
-			ostringstream sql;
-			sql << "INSERT INTO `" << Tablename << "` ( Tablename,filter,frozen ) VALUES( '" << pTable->Name_get( ) << "','" << pTable->m_sFilter << "'," << (pTable->m_bFrozen ? "1" : "0") << ")";
-			if( threaded_mysql_query( sql.str( ) )!=0 )
-			{
-				cerr << "SQL failed: " << sql.str( ) << endl;
-				throw "Database Error";
-			}
-		}
+		pRepository->ResetSystemTables();
 	}
 }
-
 void Database::Update_psc()
 {
 	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)

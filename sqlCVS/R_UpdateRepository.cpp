@@ -56,7 +56,7 @@ bool R_UpdateRepository::ProcessRequest( class RA_Processor *pRA_Processor )
 	{
 		/** @todo - validate users, and store in request processors */
 		psqlCVSprocessor->m_pRepository = pRepository;
-		psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( );
+		psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &psqlCVSprocessor->m_mapValidatedUsers );
 		m_cProcessOutcome=SUCCESSFULLY_PROCESSED; /** @todo -- process it */
 	}
 	return true;   /** The request was processed successfully */

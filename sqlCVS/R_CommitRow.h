@@ -39,12 +39,16 @@ public:
 	int m_iNewAutoIncrID;
 	int m_psc_id_new;
 	int m_psc_batch_new;
+	/** @brief Will be true if the row was frozen */
+	bool m_bFrozen;
+	/** @brief Will be non-zero if this person is not authorized to change the row.  This will be the id of the row's owner */
+	int m_psc_user_needs_to_authorize;
 
 	/** @brief The server will call this constructor, then ProcessRequest */
 	R_CommitRow( sqlCVS::ChangedRow *pChangedRow );
 	
 	/** @brief constructor */
-	R_CommitRow( ) {};
+	R_CommitRow( ) { m_bFrozen=false; m_psc_user_needs_to_authorize=0; };
 
 	/**
 	 * @brief  Returns the id of the request

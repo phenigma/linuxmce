@@ -15,6 +15,8 @@
 #include <string>
 #include "SerializeClass/SerializeClass.h"
 
+#define NULL_TOKEN	"**( NULL )**"
+
 namespace sqlCVS
 {
 	class Table;
@@ -53,7 +55,8 @@ namespace sqlCVS
 		map<int,MapTable *> m_mapUsersTables; 	/**< This will have all the users who have made changes,
 							 * pointing to a list of the tables they modified
 							 */
-		map<int,string> m_mapUsersPasswords;	/**< This will have all the users and their passwords */
+		map<string,string> m_mapUsersPasswords;	/**< This will have all the users and their passwords */
+		string m_sDefaultUser; /**< If checking in for multiple users, this will be the one who is assigned ownership of all unclaimed new records */
 
 		Database *m_pDatabase;		/**< points to the database */
 		Repository *m_pRepository;	/**< points to the Repository */

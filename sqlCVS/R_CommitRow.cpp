@@ -43,6 +43,8 @@ R_CommitRow::R_CommitRow( sqlCVS::ChangedRow *pChangedRow )
 	m_psc_user = pChangedRow->m_psc_user;
 	m_iOriginalAutoIncrID = pChangedRow->m_iOriginalAutoIncrID;
 	m_eTypeOfChange = pChangedRow->m_eTypeOfChange;
+	m_bFrozen=false;
+	m_psc_user_needs_to_authorize=0;
 }
 
 bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )
@@ -66,11 +68,11 @@ bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )
 		else if( m_eTypeOfChange==( int ) sqlCVS::toc_Modify )
 		{
 			/** The user is updating an existing record */
-			psqlCVSprocessor->m_pTable->UpdateRow( this, psqlCVSprocessor );
+			psqlCVSprocessor->m_pTable->UpdateRow( this, psqlCVSprocessor, m_bFrozen, m_psc_user_needs_to_authorize );
 		}
 		else if( m_eTypeOfChange==( int ) sqlCVS::toc_Delete )
 		{
-			/** The user is updating an existing record */
+			/** The user is deleting an existing record */
 		}
 	}
 	catch( const char *pException )

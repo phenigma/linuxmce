@@ -96,7 +96,8 @@ string GetCommand( )
 		<< "9.	History on no tables ( history-none )" << endl
 		<< "---The following are not normally used---" << endl
 		<< "20.	Reset entire database--sqlCVS clients will be out of sync ( reset-all )" << endl
-		<< "21.	Update psc_id's ( update-psc )" << endl
+		<< "21.	Reset the system tables ( reset-sys )" << endl
+		<< "22.	Update psc_id's ( update-psc )" << endl
 		<< "------Client-side functions------" << endl
 		<< "A.	Import a 'dump' file from a server and make a local, working copy ( import )" << endl
 		<< "B.	Check-in changes you've made locally ( checkin )" << endl
@@ -129,6 +130,8 @@ string GetCommand( )
 	else if( s=="20" )
 		return "reset-all";
 	else if( s=="21" )
+		return "reset-sys";
+	else if( s=="22" )
 		return "update-psc";
 	else if( s=="a" || s=="A" )
 		return "import";
@@ -162,7 +165,8 @@ int main( int argc, char *argv[] )
 	bool bError=false; /** An error parsing the command line */
 
 	string sUsers;
-
+g_GlobalConfig.m_sDBHost="10.0.0.150";
+g_GlobalConfig.m_sDBName="pluto_server"; // so I don't accidentally overwrite pluto_main
 	char c;
 	for( int optnum=1;optnum<argc;++optnum )
 	{
@@ -198,6 +202,9 @@ int main( int argc, char *argv[] )
 		case 't':
 			g_GlobalConfig.m_sTable = argv[++optnum];
 			break;
+		case 'd':
+			g_GlobalConfig.m_sDefaultUser = argv[++optnum];
+			break;
 		case 'U':
 			sUsers = argv[++optnum];
 			break;
@@ -214,7 +221,7 @@ int main( int argc, char *argv[] )
 		cout << "sqlCVS, v." << VERSION << endl
 			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password]" << endl
 			<< "[-D database] [-P mysql port] [-r Repository( -ies )]" << endl
-			<< "[-t Table( s )] [-U Users( s )]" << endl
+			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
 			<< "			default is `dce_router`" << endl
 			<< "-u username    -- username for database connection" << endl
@@ -227,7 +234,9 @@ int main( int argc, char *argv[] )
 			<< "			Default is ../[database name]" << endl
 			<< "-t input path  -- Where to find the template files. " << endl
 			<< "			Default is . then ../sqlCVS" << endl
-			<< "-U users	   -- the users who are logged in " << endl;
+			<< "-U user~pass   -- the user(s) who are logged in and will be committing rows" << endl
+			<< "-d username    -- the owner of any unclaimed new records" << endl
+			<< "            Default is the first user checking in records" << endl;
 
 		exit( 0 );
 	}
@@ -247,6 +256,11 @@ int main( int argc, char *argv[] )
 		err = WSAStartup( MAKEWORD( 1, 1 ), ( LPWSADATA ) &wsaData );
 #endif
 		Database database( g_GlobalConfig.m_sDBHost, g_GlobalConfig.m_sDBUser, g_GlobalConfig.m_sDBPassword, g_GlobalConfig.m_sDBName, g_GlobalConfig.m_iDBPort );
+		if( !database.m_bConnected )
+		{
+			cerr << "Cannot connect to database" << endl;
+			exit(1);
+		}
 		g_GlobalConfig.m_pDatabase=&database;
 
 		/** Fill the lists with any repositories or tables that were passed in on the command line */
@@ -254,10 +268,12 @@ int main( int argc, char *argv[] )
 
 		string::size_type pos=0;
 		string Token;
-		while( ( Token=StringUtils::Tokenize( sUsers, ", ", pos ) ).length( ) )
+		while( ( Token=StringUtils::Tokenize( sUsers, ",", pos ) ).length( ) )
 		{
-			string Password = StringUtils::Tokenize( sUsers, ", ", pos );
-			g_GlobalConfig.m_mapUsersPasswords[atoi( Token.c_str( ) )]=Password;
+			string::size_type pos2=0;
+			string Username = StringUtils::Tokenize( Token, "~", pos2 );
+			string Password = StringUtils::Tokenize( Token, "~", pos2 );
+			g_GlobalConfig.m_mapUsersPasswords[Username]=Password;
 		}
 
 		while( true ) /** An endless loop processing commands */
@@ -329,6 +345,10 @@ int main( int argc, char *argv[] )
 			{
 				database.Reset_all();
 			}
+			else if( g_GlobalConfig.m_sCommand=="reset-sys" )
+			{
+				database.Reset_sys();
+			}
 			else if( g_GlobalConfig.m_sCommand=="update-psc" )
 			{
 				database.Update_psc();
@@ -341,7 +361,32 @@ int main( int argc, char *argv[] )
 			{
 				database.HasFullHistory_set_all(false);
 			}
+			else if( g_GlobalConfig.m_sCommand=="diff" )
+			{
+				database.ShowChanges();
+			}
 		
+			if( database.m_bInteractiveMode )
+			{
+				cout << "To do this non-interactively, use the following command:" << endl;
+				cout << "sqlCVS -h \"" << g_GlobalConfig.m_sDBHost << "\" -u \"" << g_GlobalConfig.m_sDBUser 
+					<< "\" -p \"" << g_GlobalConfig.m_sDBPassword << "\" -D \"" << g_GlobalConfig.m_sDBName 
+					<< "\" -P \"" << g_GlobalConfig.m_iDBPort << "\" -r \"" << g_GlobalConfig.m_sRepository ;
+				if( g_GlobalConfig.m_mapRepository.size() )
+				{
+					for(MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin();it!=g_GlobalConfig.m_mapRepository.end();++it)
+						cout << (g_GlobalConfig.m_sRepository.size() || it!=g_GlobalConfig.m_mapRepository.begin() ? "," : "") << (*it).first;
+				}
+				cout << "\" -t \"" << g_GlobalConfig.m_sTable;
+				if( g_GlobalConfig.m_mapTable.size()  )
+				{
+					for(MapTable::iterator it=g_GlobalConfig.m_mapTable.begin();it!=g_GlobalConfig.m_mapTable.end();++it)
+						cout << (g_GlobalConfig.m_sTable.size() || it!=g_GlobalConfig.m_mapTable.begin() ? "," : "") << (*it).first;
+				}
+				
+				cout << "\" -U \"" << sUsers
+					<< "\" " << g_GlobalConfig.m_sCommand << endl;
+			}
 /** @test
 			else if( Command=="add-tables" )
 				database.AddTablesToRepository( sRepository, &listCommandParms );
@@ -353,19 +398,29 @@ int main( int argc, char *argv[] )
 				database.DumpTables( sRepository, &listCommandParms );
 
 */
+getch();
 return 0;
 		};
 	}
 	catch( char *pException )
 	{
 		cerr << "Caught exception: " << pException << endl;
+getch();
+		return 1;
+	}
+	catch( const char *pException )
+	{
+		cerr << "Caught exception: " << pException << endl;
+getch();
 		return 1;
 	}
 	catch( string sException )
 	{
 		cerr << "Caught exception: " << sException << endl;
+getch();
 		return 1;
 	}
+getch();
 
 	delete g_pPlutoLogger;
 #ifdef _WIN32

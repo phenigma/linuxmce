@@ -188,6 +188,9 @@
 			<File
 				RelativePath=".\Table.cpp">
 			</File>
+			<File
+				RelativePath=".\ValidateUser.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
