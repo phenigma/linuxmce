@@ -339,16 +339,6 @@ void FileUtils::DelDir(string sDirectory)
 #endif
 }
 
-#ifndef WINCE
-
-string FileUtils::FileWithoutExtension ( string sFileName )
-{
-	string sExtension = FindExtension(sFileName);
-	if( sExtension.length() )
-		return sFileName.substr(0, sFileName.length()-sExtension.length()-1);
-	return sFileName;
-}
-
 string FileUtils::BasePath( string sInput )
 {
 #ifdef WIN32
@@ -367,6 +357,16 @@ string FileUtils::BasePath( string sInput )
         sInput = sInput.substr(0, pos);
 
     return sInput;
+}
+
+#ifndef WINCE
+
+string FileUtils::FileWithoutExtension ( string sFileName )
+{
+	string sExtension = FindExtension(sFileName);
+	if( sExtension.length() )
+		return sFileName.substr(0, sFileName.length()-sExtension.length()-1);
+	return sFileName;
 }
 
 string FileUtils::FilenameWithoutPath( string sFullPath, bool bIncludeExtension )
