@@ -219,9 +219,9 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 
 					char name[248];
 					memset(name, 0, sizeof(name));
-// For some reason when I do this, I can only scan once and all future scans fail
+
+// TODO - HACK !!!  SEE BELOW For some reason when I do this, I can only scan once and all future scans fail
 //                  if (hci_read_remote_name(dd, &(info+i)->bdaddr, sizeof(name), name, 100000) < 0)
-                        strcpy(name, "see notes in code");
 
 					PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
 					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
@@ -242,7 +242,25 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 					if( !pDExisting )
 					{
 						g_pPlutoLogger->Write(LV_STATUS, "Detected new device: %s  %d", pDNew->m_sMacAddress.c_str(), pDNew->m_iLinkQuality);						
-						//printf("Detected new device: %s  %d\n",pDNew->m_sMacAddress.c_str(),pDNew->m_iLinkQuality);
+// TODO - HACK !!!  SEE ABOVE.  HACK IN A NASTY FIX UNTIL WE FIGURE OUT WHY BLUEZ IS LOCKING UP
+g_pPlutoLogger->Write(LV_WARNING, "Executing /tmp/hciscan hack");
+system("hcitool scan > /tmp/hciscan");
+vector<string> vectstr;
+FileUtils::ReadFileIntoVector( "/tmp/hciscan", &vectstr );
+g_pPlutoLogger->Write(LV_WARNING, "got %d lines",(int) vectstr.size());
+for(size_t s=0;s<vectstr.size();++s)
+{
+g_pPlutoLogger->Write(LV_WARNING, "comparing %s and %s",vectstr[s].c_str(),pDNew->m_sMacAddress.c_str());
+
+if( vectstr[s]==pDNew->m_sMacAddress.c_str() )
+{
+size_t s = vectstr[s].length()-15;
+if( s<0 )
+s=0;
+pDNew->m_sID = vectstr[s].substr(s);
+g_pPlutoLogger->Write(LV_WARNING, "set name to %d %s",(int) s,pDNew->m_sID.c_str());
+}
+}
 						Intern_NewDeviceDetected(pDNew);
 					}
 					else
