@@ -296,6 +296,11 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
     return false;  // Continue to process it
 }
 
+bool Orbiter_Plugin::SafeToReload()
+{
+	return !m_listRegenCommands.size();
+}
+
 void Orbiter_Plugin::ProcessUnknownDevice()
 {
 g_pPlutoLogger->Write(LV_STATUS,"in process");
@@ -802,6 +807,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
 
 	// Same thing like in regen orbiter
 	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(PK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " &";
+	m_listRegenCommands.push_back(PK_Device);
 	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
 	system(Cmd.c_str());
 	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
@@ -1266,6 +1272,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD
 
 	// Launch it in the background with &
 	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + sForce + " &";
+	m_listRegenCommands.push_back(iPK_Device);
 	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
 	system(Cmd.c_str());
 	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
@@ -1302,8 +1309,26 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 	}
 	pOH_Orbiter->m_tRegenTime = 0;
 	g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d",iPK_Device);
-	Message *pMessageOut = new Message(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
-	SendMessageToRouter(pMessageOut);
+
+	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
+	{
+        if(*it == iPK_Device)
+		{
+			m_listRegenCommands.erase(it);
+			break;
+		}
+	}
+
+	if(SafeToReload())
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Ready to reload the router...");
+		Message *pMessageOut = new Message(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
+		SendMessageToRouter(pMessageOut);
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Cannot reload the router yet. There are important tasks running now.");
+	}
 }
 //<-dceag-createinst-b->!
 

@@ -83,7 +83,11 @@ public:
         return it == m_mapUnknownDevices.end() ? NULL : (*it).second;
     }
 
-    pluto_pthread_mutex_t m_UnknownDevicesMutex;
+	//from command_impl class
+	virtual bool SafeToReload();
+	list<int> m_listRegenCommands;
+
+	pluto_pthread_mutex_t m_UnknownDevicesMutex;
     bool m_bNoUnknownDeviceIsProcessing;
 	string m_sPK_Device_AllOrbiters;
 
@@ -137,7 +141,6 @@ public:
 		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, sNowPlaying );
 		SendCommand( CMD_Set_Now_Playing );
 	}
-
 
 	//<-dceag-h-b->
 	/*

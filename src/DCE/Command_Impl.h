@@ -162,6 +162,12 @@ namespace DCE
 		virtual void OnReload() { m_bReload = true; m_bQuit = true; m_bTerminate=true; }
 		
 		/**
+		* @brief For now will only be used by plugins, but later this member function could
+		* be implemented in all devices; should be overriden
+		*/
+		virtual bool SafeToReload() { return true; };
+
+		/**
 		 * @brief just calls OnQuit()
 		 * @see m_bQuit
 		 */

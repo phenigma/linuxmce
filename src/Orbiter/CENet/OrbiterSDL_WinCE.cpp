@@ -651,3 +651,12 @@ bool OrbiterSDL_WinCE::SelfUpdate()
 	return orbiterSelfUpdate.Run();
 }
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDL_WinCE::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
+{
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDL_WinCE::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
+{
+
+}
+//-----------------------------------------------------------------------------------------------------
