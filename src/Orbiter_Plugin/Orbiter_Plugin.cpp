@@ -1303,22 +1303,22 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 			"It takes about 20 seconds.  Phone calls will not be affected, but your media will.  "
 			"Otherwise press the 'back' arrow and you can do it another time by choosing the option "
 			"on the 'advanced' menu.",true,60);
-
-		g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
-
-		for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
-		{
-			if(*it == iPK_Device)
-			{
-				m_listRegenCommands.erase(it);
-				break;
-			}
-		}
-		g_pPlutoLogger->Write(LV_STATUS,"after Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
-
-		return;
 	}
-	pOH_Orbiter->m_tRegenTime = 0;
+
+	g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
+
+	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
+	{
+		if(*it == iPK_Device)
+		{
+			m_listRegenCommands.erase(it);
+			break;
+		}
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"after Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
+
+	if( pOH_Orbiter )
+		pOH_Orbiter->m_tRegenTime = 0;
 }
 
 //<-dceag-createinst-b->!
