@@ -23,6 +23,8 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 {
 	switch( dwType )
 	{
+	case BD_PC_WHAT_DO_YOU_HAVE:
+		return new BD_WhatDoYouHave();
 	case BD_PC_DISCONNECT:
 		return new BD_PC_Disconnect(); 
 	case BD_PC_KEY_WAS_PRESSED:
@@ -38,6 +40,9 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 	case BD_PC_SET_VARIABLE:
 		return new BD_PC_SetVariable();
 
+
+	case BD_CP_HAVE_NOTHING:
+		return new BD_HaveNothing();
 	case BD_CP_SEND_ME_KEYSTROKES:
 		return new BD_CP_SendMeKeystrokes();
 	case BD_CP_SHOW_IMAGE:
