@@ -6397,3 +6397,14 @@ void Orbiter::CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCM
 	int Y = pObj->m_rPosition.Y + pObj->m_rPosition.Height/2;
 	SetMousePointer(X,Y);
 }
+//<-dceag-c352-b->
+
+	/** @brief COMMAND: #352 - Show Mouse Pointer */
+	/** Shows or hides the mouse pointer. */
+		/** @param #8 On/Off */
+			/** 1=show it, 0=hide it. */
+
+void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
+//<-dceag-c352-e->
+{
+}

@@ -382,3 +382,11 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 
 	g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final event type %d", keysym, event.type);
 }
+
+void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
+{
+	bool bShow = sOnOff=="1";
+
+	// Code goes here to hide/show the the pointer.  bShow==true, means show it.
+}
+

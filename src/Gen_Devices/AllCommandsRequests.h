@@ -5701,5 +5701,21 @@ namespace DCE
 	public:
 		CMD_Process_IDLE_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,351,0); }
 	};
+	class CMD_Show_Mouse_Pointer : public PreformedCommand {
+	public:
+		CMD_Show_Mouse_Pointer(long DeviceIDFrom, long DeviceIDTo,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,352,1,8,sOnOff.c_str()); }
+	};
+	class CMD_Show_Mouse_Pointer_DL : public PreformedCommand {
+	public:
+		CMD_Show_Mouse_Pointer_DL(long DeviceIDFrom, string DeviceIDTo,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,352,1,8,sOnOff.c_str()); }
+	};
+	class CMD_Show_Mouse_Pointer_DT : public PreformedCommand {
+	public:
+		CMD_Show_Mouse_Pointer_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,352,1,8,sOnOff.c_str()); }
+	};
+	class CMD_Show_Mouse_Pointer_Cat : public PreformedCommand {
+	public:
+		CMD_Show_Mouse_Pointer_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,352,1,8,sOnOff.c_str()); }
+	};
 }
 #endif

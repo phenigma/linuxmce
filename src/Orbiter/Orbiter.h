@@ -1286,6 +1286,15 @@ public:
 	virtual void CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #352 - Show Mouse Pointer */
+	/** Shows or hides the mouse pointer. */
+		/** @param #8 On/Off */
+			/** 1=show it, 0=hide it. */
+
+	virtual void CMD_Show_Mouse_Pointer(string sOnOff) { string sCMD_Result; CMD_Show_Mouse_Pointer(sOnOff.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 /** temporary solution only */
