@@ -260,7 +260,10 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 						break;
 					}
 					else
+					{
 						m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_DVD_CONST) + "%>",false,10,true);
+						return false;
+					}
 
 					g_pPlutoLogger->Write(LV_CRITICAL, "Disk drive mount command didn't complete succesfully (response %s). Error message: %s", Response.c_str(), mediaURL.c_str( ) );
 				}
@@ -270,7 +273,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
 		if ( !bFound ) // we didn;t find a disk drive which was able to mount hte images
 		{
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"Error -- no drive",false,10,true);
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"Error -- no drive",false,30,true);
 			return false;
 		}
 	}

@@ -1073,6 +1073,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 //-----------------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter::NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory )
 {
+g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s",pScreenHistory->m_pObj->m_ObjectID.c_str());
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     m_vectObjs_GridsOnScreen.clear(  );
     dg.Release(  );
@@ -4289,13 +4290,18 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
 
 		//hack! :(
 		if( pScreenHistory->m_pObj->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
+		{
+g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
 			GotoScreen( m_sMainMenu );
+		}
 		else
 		{
 			pScreenHistory->m_pLocationInfo = m_pScreenHistory_Current->m_pLocationInfo;
 			NeedToRender::NeedToChangeScreens( pScreenHistory, false );
 		}
 	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"Got a go back, but no screen to return to");
 }
 
 //<-dceag-c5-b->
@@ -5548,6 +5554,7 @@ NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
 
 void NeedToRender::NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory )
 {
+g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHistory->m_pObj->m_ObjectID.c_str());
 	m_pScreenHistory = pScreenHistory;
 	m_bAddToHistory = bAddToHistory;
 }
