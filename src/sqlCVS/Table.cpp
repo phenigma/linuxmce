@@ -546,7 +546,7 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 			sSql << (s>0 ? "," : "") << pR_UpdateTable->m_vect_psc_batch[s];
 		sSql << ")";
 	}
-	sSql << " ORDER BY psc_batch";
+	sSql << " ORDER BY psc_batch,psc_id";
 
 	int i_psc_id_field = ( int ) pR_UpdateTable->m_pvectFields->size( );
 	int i_psc_batch_field = i_psc_id_field+1;
@@ -1135,6 +1135,8 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 
 	if( pA_UpdateRow->m_psc_batch>m_psc_batch_last_sync )
 		m_pRepository->psc_batch_last_sync_set(this,pA_UpdateRow->m_psc_batch);
+	if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync )
+		m_pRepository->psc_id_last_sync_set(this,pA_UpdateRow->m_psc_id);
 }
 
 void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user )
