@@ -18,6 +18,8 @@
 
 #define NULL_TOKEN	"**( NULL )**"
 
+typedef map<string,string> MapStringString;
+
 namespace sqlCVS
 {
 	class Table;
@@ -50,6 +52,8 @@ namespace sqlCVS
 		int m_iDBPort;		/**< The port of the database */
 		int m_iSqlCVSPort;	/**< The port of the sqlCVS */
 
+		int m_psc_batch;    /**< The batch number the user passed on the command line */
+
 		MapRepository m_mapRepository;  /**< The repositories we're currently operating on */
 		
 		MapTable m_mapTable;  /**< The tables we're currently operating on */
@@ -59,7 +63,7 @@ namespace sqlCVS
 		map<int,MapTable *> m_mapUsersTables; 	/**< This will have all the users who have made changes,
 							 * pointing to a list of the tables they modified
 							 */
-		map<string,string> m_mapUsersPasswords;	/**< This will have all the users and their passwords */
+		MapStringString m_mapUsersPasswords;	/**< This will have all the users and their passwords */
 		string m_sDefaultUser; /**< If checking in for multiple users, this will be the one who is assigned ownership of all unclaimed new records */
 
 		Database *m_pDatabase;		/**< points to the database */
@@ -83,6 +87,7 @@ namespace sqlCVS
 			m_pDatabase=NULL;
 			m_pRepository=NULL;
 			m_bNewDatabase=false;
+			m_psc_batch=0;
 		}
 	};
 

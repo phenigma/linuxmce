@@ -12,6 +12,7 @@
 
 #include "mysql.h"
 #include <iostream>
+#include "CommonFunctions.h"
 
 namespace sqlCVS
 {
@@ -69,10 +70,6 @@ namespace sqlCVS
 	
 	typedef list<DependentRow *> ListDependentRow;
 
-	typedef pair<ChangedRow *, ListDependentRow *> AutoIncrChanges;
-	typedef map<int,AutoIncrChanges> MapAutoIncrChanges;
-	typedef pair<Field *,char *> FieldValues;
-
 	enum TypeOfChange { toc_New, toc_Delete, toc_Modify };
 
 	/**
@@ -89,7 +86,12 @@ namespace sqlCVS
 		int m_iNewAutoIncrID;
 		bool m_bCommitted;     /**< whether or not the change was committed */
 		class Table *m_pTable; /**< points to a Table */
+
+		/**< This class has different uses.  Sometimes it's used to just to keep pointers to changed rows, in which case m_vectPrimaryKey
+			is used.  Other times it stores all the information for modified fields in m_mapFieldValues */
 		vector<string> m_vectPrimaryKey;
+		MapStringString m_mapFieldValues;
+
 		TypeOfChange m_eTypeOfChange;	/**< the type of the change committed */
 
 		/**
@@ -117,6 +119,19 @@ namespace sqlCVS
 			m_eTypeOfChange = toc_Delete;
 			m_psc_id=psc_id;
 			m_bCommitted=false;
+		}
+
+		/**
+		 * @brief This constructor is used for keeping track of changes in a batch
+		 */
+
+		ChangedRow( class Table *pTable, TypeOfChange eTypeOfChange, int psc_id, int psc_batch )
+		{
+			m_pTable=pTable;
+			m_eTypeOfChange = eTypeOfChange;
+			m_psc_id=psc_id;
+			m_psc_batch=psc_batch;
+			m_bCommitted=true;  // This is storing info on a batch.  It's already been committed
 		}
 
 		/** 

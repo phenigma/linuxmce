@@ -52,7 +52,20 @@ string ChangedRow::GetWhereClause()
 			else
 				sWhere << " WHERE ";
 
-			sWhere << " `" << pField->Name_get() << "`=" << m_vectPrimaryKey[Count++];
+			sWhere << " `" << pField->Name_get() << "`=";
+
+			// The ChangedRows are built at the beginning of a check-in.  During the check-in the auto-increment
+			// values may have changed, and this primary key may include a foreign key to one of those fields.
+			// If so, be sure to get the new value, because the PropagateUpdates will have already altered this one.
+			if( pField->m_pField_IReferTo_Directly && 
+				pField->m_pField_IReferTo_Directly->m_pTable->m_pField_AutoIncrement &&
+				pField->m_pField_IReferTo_Directly->m_pTable->m_mapUncommittedAutoIncrChanges.find( atoi(m_vectPrimaryKey[Count].c_str()) ) != pField->m_pField_IReferTo_Directly->m_pTable->m_mapUncommittedAutoIncrChanges.end() )
+			{
+				sWhere << pField->m_pField_IReferTo_Directly->m_pTable->m_mapUncommittedAutoIncrChanges[ atoi(m_vectPrimaryKey[Count].c_str())];
+				Count++;
+			}
+			else
+				sWhere << "'" << StringUtils::SQLEscape(m_vectPrimaryKey[Count++]) << "'";
 		}
 	}
 	return sWhere.str();

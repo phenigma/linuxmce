@@ -227,6 +227,7 @@ void Database::CreateRepository( )
 		pRepository->Setup( ); /**< Sets up the repository */
 		m_mapRepository[ pRepository->Name_get( ) ] = pRepository;
 	}
+	Update_psc();
 }
 
 
@@ -596,7 +597,7 @@ void Database::CheckIn( )
 	if( g_GlobalConfig.m_sDefaultUser.size()==0 )
 		g_GlobalConfig.m_sDefaultUser = (*(g_GlobalConfig.m_mapUsersPasswords.begin())).first;
 
-	for(map<string,string>::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
+	for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
 	{
 		if( (*it).first=="0" )
 			continue; // We don't care about the '0' user.  This is for unclaimed new records
@@ -627,7 +628,7 @@ void Database::CheckIn( )
 		for( MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin( );it!=g_GlobalConfig.m_mapRepository.end( );++it )
 		{
 			Repository *pRepository = ( *it ).second;
-			if( pRepository->m_mapUsers2ChangedRow.size()==0 )
+			if( !pRepository->HasChangedRecords() )
 			{
 				cout << "Repository: " << pRepository->Name_get() << " has no changes.  Skipping..." << endl;
 			}
@@ -707,180 +708,6 @@ void Database::GetTablesToCheckIn( )
 	}
 
 	return;
-// following is Cristelu's code -- not used I guess	
-	int iMaxLenofTableName = 0;
-
-	PlutoSqlResult result_set, result_set2;
-	MYSQL_ROW row;
-	string query_string;
-
-	for( MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin( );it!=g_GlobalConfig.m_mapRepository.end( );++it )
-	{
-		Repository *pRepository = ( *it ).second;
-		
-		query_string = "SELECT Tablename FROM psc_" + pRepository->Name_get( ) + "_tables ";
-		result_set.r = mysql_query_result( query_string );
-    
-		while ( row = mysql_fetch_row( result_set.r ) ){
-			string sTable = row[0];	
-			
-			Table *pTable;
-			
-			if ( pTable = m_mapTable_Find( sTable ) )			
-				g_GlobalConfig.m_mapTable[ sTable ] = pTable;
-			
-			if ( iMaxLenofTableName < ( int ) pTable->Name_get( ).length( ) )
-				iMaxLenofTableName = ( int ) pTable->Name_get( ).length( );
-		}
-	}
-
-	if ( g_GlobalConfig.m_mapTable.size( ) != 0 )
-		while ( true )
-		{
-			NewSection( );
-			
-			vector<Table *> vectTable;
-			int i;
-			
-			for ( i = 0; i< iMaxLenofTableName; i++ )
-        cout << " " ; 
-			cout << "\t\t\tNew\tMod\tDel" << endl;
-		
-			PlutoSqlResult result_set;
-			MYSQL_ROW row;
-			string query_string;
-			i = 1;
-
-			for ( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( ); it!=g_GlobalConfig.m_mapTable.end( ); ++it )
-			{
-				Table *pTable = ( *it ).second;
-				vectTable.push_back( pTable );
-				
-				cout << "  " << i++ << "\t" << pTable->Name_get( ) << "\t";
-
-				for ( int j = ( int ) pTable->Name_get( ).length( );j < iMaxLenofTableName; j++ )
-					cout << " ";
-
-				cout << "\t";
-				
-				/** number of new rows   */
-				query_string = "SELECT COUNT( * ) FROM " + pTable->Name_get( ) + " WHERE psc_new>0";
-				result_set.r = mysql_query_result( query_string );
-				row = mysql_fetch_row( result_set.r );
-				cout << row[0] << "\t"; 
-
-				/** number of deleted rows */
-				query_string = "SELECT COUNT( * ) FROM " + pTable->Name_get( ) + " WHERE psc_del > 0";
-				result_set.r = mysql_query_result( query_string );
-				row = mysql_fetch_row( result_set.r );
-				cout << row[0] << "\t"; 
-
-				/** number of modified rows */
-				query_string = "SELECT COUNT( * ) FROM " + pTable->Name_get( ) + " WHERE psc_mod > 0";
-				result_set.r = mysql_query_result( query_string );
-				row = mysql_fetch_row( result_set.r );
-				cout << row[0] << "\t" << endl;
-			}
-		
-			cout << "To view specific changes for the tables listed above" 
-				<< " enter the table numbers, " << endl << " separated by commas" << endl
-				<< "Enter D when you have finished, Q to quit." << endl;
-	
-			string sError;
-
-			if( sError.length( ) )
-			{
-				cout << "***" + sError + "***" << endl;
-				sError="";
-			}
-
-			string sAction;
-			cin >> sAction;
-			
-			if( sAction=="D" || sAction=="d" )
-				break;
-			if( sAction=="Q" || sAction=="q" )
-				return; /**< abort */
-
-			string::size_type pos = 0;
-			string sNumber;
-	
-			while( ( sNumber=StringUtils::Tokenize( sAction, ",", pos ) ).length( ) )
-			{
-				int iNumber=atoi( sNumber.c_str( ) )-1; /**< Our vector is 0 based, subtract 1 */
-				if( iNumber<0 || iNumber>( int ) vectTable.size( )-1 )
-				{
-					sError ="Invalid table number";
-					break;
-				}
-				
-				flag = 1;
-
-				Table *pTable = vectTable[iNumber];
-				
-				NewSection( );
-
-				cout << pTable->Name_get( ) << endl;
-				
-				/** showing the modified rows  */
-				query_string = "DESCRIBE " + pTable->Name_get( );
-				result_set.r = mysql_query_result( query_string );
-				query_string = "";
-				i = 0;
-				int flagbreak = 0; 
-        while ( ( row = mysql_fetch_row( result_set.r ) ) && ( flagbreak == 0 ) )
-				{
-					string s = "Modification_RecordInfo";
-					if ( row[0] == s ){
-            flagbreak = 1;
-					}
-					else
-						if ( query_string == "" ){
-							query_string = row[0];
-							i++;
-						}
-						else{
-							query_string = query_string + "," + row[0];
-							i++;
-						}
-				}
-
-				query_string = "SELECT " + query_string + " FROM " + pTable->Name_get( ) + " WHERE ( ( psc_new>0 ) || ( ( psc_del>0 ) || ( psc_mod>0 ) ) )";
-				result_set.r = mysql_query_result( query_string );
-
-				while ( row = mysql_fetch_row( result_set.r ) ){					
-					for ( int j = 0;j < i; j++ )
-						if ( row[j] )
-							cout << row[j] << " ";
-						else
-							cout << "NULL" << " ";
-					cout << endl;
-				}
-	 
-				cout << endl << "If you want to check in changes press S." << endl
-					<< "If you don't want to check in changes press Q." << endl;
-
-				string sAnsw;
-				cin >> sAnsw;
-				
-				if ( sAnsw == "S" || sAnsw == "s" ){
-					itToChkIn = g_GlobalConfig.m_mapTable.find( pTable->Name_get( ) );
-					mapTableToCheckIn.insert( *itToChkIn );
-
-					g_GlobalConfig.m_mapTable.erase( pTable->Name_get( ) );
-				}
-
-				if ( sAnsw == "Q" || sAnsw == "q" )
-					g_GlobalConfig.m_mapTable.erase( pTable->Name_get( ) );
-			}
-		}
-
-	if ( flag == 1 ) {
-		g_GlobalConfig.m_mapTable.clear( );
-		for( MapTable::iterator it=mapTableToCheckIn.begin( );it!=mapTableToCheckIn.end( );++it )
-			g_GlobalConfig.m_mapTable[ ( *it ).first ] = ( *it ).second;
-	}
-
 }
 
 int Database::PromptForRepositories( )
@@ -1168,7 +995,7 @@ public:
 void Database::Import( string sRepository, Repository *pRepository )
 {
 	// First save the settings in this map
-	map<string,string> mapSettings;
+	MapStringString mapSettings;
 	if( pRepository->m_pTable_Setting )
 	{
 		string Tablename = "psc_" + pRepository->Name_get() + "_repset";
@@ -1250,7 +1077,7 @@ void Database::Import( string sRepository, Repository *pRepository )
 	}
 
 	str.FreeSerializeMemory( );
-	map<string,string>::iterator it;
+	MapStringString::iterator it;
 	for(it=mapSettings.begin();it!=mapSettings.end();++it)
 	{
 		pRepository->SetSetting((*it).first,(*it).second);
@@ -1466,4 +1293,21 @@ void Database::Rollback( )
 		cerr << "Could not rollback transaction" << endl;
 		throw "Database error";
 	}
+}
+
+void Database::Approve( )
+{
+	while( !g_GlobalConfig.m_psc_batch )
+	{
+		cout << "What is the batch number (enter q to quit)? ";
+		string sBatch;
+		cin >> sBatch;
+		if( sBatch=="q" || sBatch=="Q" )
+			exit(1);
+		g_GlobalConfig.m_psc_batch = atoi(sBatch.c_str());
+	}
+
+	/** Now mapTable has all the tables we need to check in. Confirm the users if none were passed in on the command line   */
+	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToCheckIn( )<1 )
+		return;
 }

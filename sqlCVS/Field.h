@@ -27,7 +27,7 @@ namespace sqlCVS
 	 
 	class Field : public ::FieldInfo
 	{
-		friend class Table;
+	public:
 		class Table *m_pTable; /**< points to the table the field belongs to 
 					* @todo ask
 					*/
@@ -42,7 +42,6 @@ namespace sqlCVS
 
 		bool m_bIsAutoIncrement;
 
-	public:
 		/**
 		 * @brief constructor
 		 */
@@ -50,7 +49,6 @@ namespace sqlCVS
 
 		~Field()
 		{
-int k=2;
 		}
 
 		/**

@@ -154,6 +154,11 @@ namespace sqlCVS
 		void Update_psc();
 
 		/**
+		 *  @brief Approve an existing unauthorized batch
+		 */
+		void Approve( );
+
+		/**
 		 *  @brief MySql's transaction handling.  This only works with the InnoDB engine
 		 */
 		void StartTransaction( );

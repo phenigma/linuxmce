@@ -141,6 +141,9 @@
 				RelativePath="..\sql2cpp\FieldInfo.cpp">
 			</File>
 			<File
+				RelativePath=".\R_ApproveBatch.cpp">
+			</File>
+			<File
 				RelativePath=".\R_CloseTransaction.cpp">
 			</File>
 			<File

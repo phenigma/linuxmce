@@ -32,6 +32,7 @@
 #include "R_UpdateRepository.h"
 #include "R_UpdateTable.h"
 #include "R_CloseTransaction.h"
+#include "R_ApproveBatch.h"
 
 #include "A_UpdateRow.h"
 
@@ -69,6 +70,10 @@ RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData,
 		return pRequest;
 	case R_CLOSE_TRANSACTION:
 		pRequest=new R_CloseTransaction( );
+		pRequest->CreateRequest( dwSize, pcData );
+		return pRequest;
+	case R_APPROVE_BATCH:
+		pRequest=new R_ApproveBatch( );
 		pRequest->CreateRequest( dwSize, pcData );
 		return pRequest;
 	};

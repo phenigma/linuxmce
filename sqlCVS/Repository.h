@@ -14,6 +14,8 @@
 #include "Table.h"
 #include "ChangedRow.h"
 
+class R_ApproveBatch;
+
 namespace sqlCVS
 {
 	/**
@@ -33,7 +35,6 @@ namespace sqlCVS
 		class Table *m_pTable_Tables;
 		class Table *m_pTable_Schema;
 		
-		map<int, class ChangedRow *> m_mapUsers2ChangedRow;
 		string m_sName;
 		MapTable m_mapTable; 
 
@@ -45,7 +46,7 @@ namespace sqlCVS
 		{
 			m_pDatabase=pDatabase;
 			m_sName=sName;
-			m_pTable_Setting=m_pTable_BatchHeader=m_pTable_BatchUser=m_pTable_BatchDetail=m_pTable_Tables=NULL;
+			m_pTable_Setting=m_pTable_BatchHeader=m_pTable_BatchUser=m_pTable_BatchDetail=m_pTable_Tables=m_pTable_Schema=NULL;
 		}
 		
 		/**
@@ -71,6 +72,7 @@ namespace sqlCVS
 		void psc_id_last_sync_set( Table *pTable, int psc_id );
 		int psc_batch_last_sync_get( Table *pTable );
 		void psc_batch_last_sync_set( Table *pTable, int psc_id );
+		bool HasChangedRecords();  /** @brief True if there are changed records in any of the tables */
 
 		/** @brief Rebuilds all the system tables in case something changed */
 		void ResetSystemTables();
@@ -86,6 +88,8 @@ namespace sqlCVS
 		void SetSetting(string Setting,string Value);
 		void ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable);
 		bool UpdateSchema(int PriorSchema);
+
+		bool ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *psqlCVSprocessor);
 
 		class Table *m_mapTable_Find( string sTable ) { MapTable::iterator it = m_mapTable.find( sTable ); return it==m_mapTable.end( ) ? NULL : ( *it ).second; }
 	};

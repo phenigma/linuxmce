@@ -106,6 +106,7 @@ string GetCommand( )
 		<< "C.	Update my local copy with changes from the server ( update )" << endl
 		<< "D.	Synchronize my database with the server. Same as checkin+update ( sync )" << endl
 		<< "E.	View my local changes ( diff )" << endl
+		<< "F.	Approve pending batch ( approve )" << endl
 		<< endl
 		<< "Z.	Change login or users" << endl
 		<< endl 
@@ -148,6 +149,8 @@ string GetCommand( )
 		return "sync";
 	else if( s=="e" || s=="E" )
 		return "diff";
+	else if( s=="f" || s=="F" )
+		return "approve";
 	else if( s=="z" || s=="Z" )
 		ChangeLoginUsers();  // This will loop back to the same menu
 	else if( s=="q" || s=="Q" )
@@ -212,6 +215,9 @@ int main( int argc, char *argv[] )
 		case 'U':
 			g_GlobalConfig.m_sUsers = argv[++optnum];
 			break;
+		case 'b':
+			g_GlobalConfig.m_psc_batch = atoi( argv[++optnum] );
+			break;
 		default:
 			bError=true;
 			break;
@@ -238,6 +244,7 @@ int main( int argc, char *argv[] )
 			<< "			Default is ../[database name]" << endl
 			<< "-t input path  -- Where to find the template files. " << endl
 			<< "			Default is . then ../sqlCVS" << endl
+			<< "-b batch       -- the batch number you want to approve" << endl
 			<< "-U user~pass   -- the user(s) who are logged in and will be committing rows" << endl
 			<< "-d username    -- the owner of any unclaimed new records" << endl
 			<< "            Default is the first user checking in records" << endl;
@@ -374,6 +381,10 @@ int main( int argc, char *argv[] )
 			else if( g_GlobalConfig.m_sCommand=="diff" )
 			{
 				database.ShowChanges();
+			}
+			else if( g_GlobalConfig.m_sCommand=="approve" )
+			{
+				database.Approve();
 			}
 		
 			if( database.m_bInteractiveMode )

@@ -1,5 +1,5 @@
 /*
- R_CommitChanges
+ R_ApproveBatch
  
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
  
@@ -18,12 +18,12 @@
 
 /**
  *
- * @file R_CommitChanges.cpp
- * @brief source file for the R_CommitChanges class
+ * @file R_ApproveBatch.cpp
+ * @brief source file for the R_ApproveBatch class
  *
  */
  
-#include "R_CommitChanges.h"
+#include "R_ApproveBatch.h"
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
@@ -40,15 +40,15 @@ using namespace sqlCVS;
 
 extern int ValidateUser(string Username,string Password,bool &bSupervisor);
 
-R_CommitChanges::R_CommitChanges( string sRepository, string sDefaultUser )
+R_ApproveBatch::R_ApproveBatch( string sRepository, int psc_batch )
 {
 	m_sRepository=sRepository;
-	m_sDefaultUser=sDefaultUser;
+	m_psc_batch=psc_batch;
 }
 
-bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
+bool R_ApproveBatch::ProcessRequest( class RA_Processor *pRA_Processor )
 {
-	cout << "Received Commit changes for repository: " << m_sRepository << endl;
+	cout << "Received approve batch: " << m_psc_batch << " for repository: " << m_sRepository << endl;
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 	Repository *pRepository = g_GlobalConfig.m_pDatabase->m_mapRepository_Find( m_sRepository );
 	if( !pRepository )
@@ -81,9 +81,10 @@ bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 
 		psqlCVSprocessor->m_pRepository = pRepository;
-		psqlCVSprocessor->m_psc_bathdr_orig = psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &psqlCVSprocessor->m_mapValidatedUsers );
+		psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &psqlCVSprocessor->m_mapValidatedUsers );
+		psqlCVSprocessor->m_psc_bathdr_unauth = m_psc_batch;
 
-		if( !psqlCVSprocessor->m_i_psc_batch )
+		if( !psqlCVSprocessor->m_i_psc_batch || !pRepository->ApproveBatch(this,psqlCVSprocessor) )
 			m_cProcessOutcome=INTERNAL_ERROR;
 		else
 			m_cProcessOutcome=SUCCESSFULLY_PROCESSED; /** @todo -- process it */

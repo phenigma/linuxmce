@@ -38,7 +38,9 @@
 #include "R_CommitChanges.h"
 #include "R_UpdateRepository.h"
 #include "R_CloseTransaction.h"
+#include "R_ApproveBatch.h"
 #include "ChangedRow.h"
+#include "sqlCVSprocessor.h"
 
 #include <iomanip>
 #include <sstream>
@@ -71,7 +73,7 @@ void Repository::AddDefinitionTable( class Table *pTable )
 
 void Repository::MatchUpTables( )
 {
-	if( m_pTable_Setting==NULL || m_pTable_BatchHeader==NULL || m_pTable_BatchUser==NULL || m_pTable_BatchDetail==NULL || m_pTable_Tables==NULL )
+	if( m_pTable_Setting==NULL || m_pTable_BatchHeader==NULL || m_pTable_BatchUser==NULL || m_pTable_BatchDetail==NULL || m_pTable_Tables==NULL || m_pTable_Schema==NULL )
 	{
 		cerr << "Could not find all the system tables for Repository: " << m_sName << endl
 			<< "I need _repset, _bathdr, _batuser, _batdet, _tables" << endl
@@ -143,7 +145,7 @@ void Repository::Setup( )
 	if( !m_pTable_Tables )
 		m_pTable_Tables = CreateTablesTable( );
 	if( !m_pTable_Schema )
-		m_pTable_Tables = CreateSchemaTable( );
+		m_pTable_Schema = CreateSchemaTable( );
 
 	string Tablename = "psc_" + m_sName + "_tables"; /**< Our _tables table */
 
@@ -482,7 +484,7 @@ void Repository::Remove( )
 		throw "Database error";
 	}
 
-	m_pTable_Setting=m_pTable_BatchHeader=m_pTable_BatchDetail=m_pTable_Tables=NULL;
+	m_pTable_Setting=m_pTable_BatchHeader=m_pTable_BatchDetail=m_pTable_Tables=m_pTable_Schema=NULL;
 }
 
 bool Repository::DetermineDeletions( )
@@ -527,7 +529,7 @@ bool Repository::CheckIn( )
 	SafetyTransaction st( m_pDatabase );
 
 	R_CommitChanges r_CommitChanges( m_sName, g_GlobalConfig.m_sDefaultUser );
-	for(map<string,string>::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
+	for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
 	{
 		// We don't care about user 0, or users who didn't log in
 		if( (*it).first=="0" || (*it).second=="" )
@@ -550,7 +552,7 @@ bool Repository::CheckIn( )
 			cout << "The username or password was incorrect." << endl;
 			if( AskYNQuestion("Do you want to re-enter the passwords and try again?",false) )
 			{
-				for(map<string,string>::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
+				for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
 					g_GlobalConfig.m_mapUsersPasswords[(*it).first]="";
 				return CheckIn();
 			}
@@ -561,40 +563,58 @@ bool Repository::CheckIn( )
 	/** First add all records */
 	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
 	{
+		int psc_user = (*it).first;
 		MapTable *pMapTable = ( *it ).second;
 		for( MapTable::iterator itT=pMapTable->begin( );itT!=pMapTable->end( );++itT )
 		{
 			Table *pTable = ( *itT ).second;
-			if( pTable->Repository_get( )==this && !pTable->CheckIn( ra_Processor, pSocket, toc_New ) )
+			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_New ) )
 				return false;
 		}
 	}
 	
 	/** Now scan for updates */
-	
 	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
 	{
+		int psc_user = ( *it ).first;
 		MapTable *pMapTable = ( *it ).second;
 		for( MapTable::iterator itT=pMapTable->begin( );itT!=pMapTable->end( );++itT )
 		{
 			Table *pTable = ( *itT ).second;
-			if( pTable->Repository_get( )==this && !pTable->CheckIn( ra_Processor, pSocket, toc_Modify ) )
+			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Modify ) )
 				return false;
 		}
 	}
 	
 	/** Finally handle deletions */
-	
 	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
 	{
+		int psc_user = ( *it ).first;
 		MapTable *pMapTable = ( *it ).second;
 		for( MapTable::iterator itT=pMapTable->begin( );itT!=pMapTable->end( );++itT )
 		{
 			Table *pTable = ( *itT ).second;
-			if( pTable->Repository_get( )==this && !pTable->CheckIn( ra_Processor, pSocket, toc_Delete ) )
+			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Delete ) )
 				return false;
 		}
 	}
+
+	// We may have updated some records because we added new records, which caused new primary keys to be 
+	// created and propagated, altering records we had already submitted.  We'll need to resubmit them again.
+	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
+	{
+		int psc_user = ( *it ).first;
+		MapTable *pMapTable = ( *it ).second;
+		for( MapTable::iterator itT=pMapTable->begin( );itT!=pMapTable->end( );++itT )
+		{
+			Table *pTable = ( *itT ).second;
+			pTable->m_mapUsers2ChangedRowList.clear(); // Clear it out
+			pTable->GetChanges( ); // Get the changes again, and resend any of them
+			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Modify ) )
+				return false;
+		}
+	}
+
 	R_CloseTransaction r_CloseTransaction;
 	ra_Processor.AddRequest(&r_CloseTransaction);
 	while( ra_Processor.SendRequests( "localhost:3485", &pSocket ) );
@@ -1054,7 +1074,7 @@ bool Repository::ShowChanges()
 void Repository::ResetSystemTables()
 {
 	// First save the settings in this map
-	map<string,string> mapSettings;
+	MapStringString mapSettings;
 	string Tablename = "psc_" + m_sName + "_repset";
 	ostringstream sql;
 
@@ -1087,7 +1107,7 @@ void Repository::ResetSystemTables()
 	CreateTablesTable( );
 	CreateSchemaTable( );
 
-	for(map<string,string>::iterator it=mapSettings.begin();it!=mapSettings.end();++it)
+	for(MapStringString::iterator it=mapSettings.begin();it!=mapSettings.end();++it)
 		SetSetting((*it).first,(*it).second);  
 
 	GetSetting("schema","1");  // Be sure we at least have a default schema of 1
@@ -1106,4 +1126,74 @@ void Repository::ResetSystemTables()
 			throw "Database Error";
 		}
 	}
+}
+
+bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *psqlCVSprocessor)
+{
+	ostringstream sql;
+	sql << "SELECT Tablename FROM psc_" << m_sName << "_batdet WHERE FK_psc_" << m_sName << "_bathdr=" << pR_ApproveBatch->m_psc_batch;
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+	{
+		while ( row = mysql_fetch_row( result_set.r ) )
+		{
+			Table *pTable = m_mapTable_Find(row[0]);
+			if( !pTable )
+			{
+				cerr << "Cannot find table: " << row[0] << endl;
+				return false;
+			}
+	
+			map<int,ChangedRow *> mapChangedRow;
+			pTable->GetBatchContents(pR_ApproveBatch->m_psc_batch,mapChangedRow);
+			for(map<int,ChangedRow *>::iterator it=mapChangedRow.begin();it!=mapChangedRow.end();++it)
+			{
+				int psc_id = (*it).first;
+				ChangedRow *pChangedRow = (*it).second;
+
+				// If the user is a supervisor, he can do anything, otherwise be sure we're allowed to do this
+				if( !psqlCVSprocessor->m_bSupervisor )
+				{
+					std::ostringstream sSQL;
+					sSQL << "SELECT psc_user,psc_frozen FROM " << m_sName << " WHERE psc_id=" << psc_id;
+					PlutoSqlResult result_set;
+					MYSQL_ROW row=NULL;
+					if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+					{
+						if( row[1] && row[1][0]=='1' )
+						{
+							cout << "Row is frozen" << endl;
+							pR_ApproveBatch->m_sMessage = "Not authorized to commit this batch--row is frozen";
+							return false;
+						}
+
+						int i = row[0] ? atoi(row[0]) : 0;
+						if( i && psqlCVSprocessor->m_mapValidatedUsers.find(i)==psqlCVSprocessor->m_mapValidatedUsers.end() )
+						{
+							pR_ApproveBatch->m_sMessage = "Not authorized to commit this batch";
+							return false;
+						}
+					}
+					else
+						throw "Error: row not found";
+				}
+
+				pTable->ApplyChangedRow(pChangedRow);
+				pTable->AddToHistory(pChangedRow);
+			}
+		}
+	}
+	return true;
+}
+
+bool Repository::HasChangedRecords()
+{
+	for( MapTable::iterator itT=m_mapTable.begin( );itT!=m_mapTable.end( );++itT )
+	{
+		Table *pTable = ( *itT ).second;
+		if( pTable->m_mapUsers2ChangedRowList.size() )
+			return true;
+	}
+	return false;
 }

@@ -20,6 +20,7 @@
 #define R_UPDATE_REPOSITORY		5
 #define R_UPDATE_TABLE			6
 #define R_CLOSE_TRANSACTION		7
+#define R_APPROVE_BATCH			8
 
 #define A_UPDATE_ROW			1
 

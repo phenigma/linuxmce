@@ -41,19 +41,17 @@ namespace sqlCVS
 
 		class Database *m_pDatabase;  /**< m_pDatabase points to the database the table belongs to */
 
-		/**
-		 * 
-		 * We will put a list of all new rows here and all the rows dependent on this one, stored by the ID. 
-		 * After we have added all the rows, and merged in all the modifications, then we will go through the map of dependencies 
-		 * ( m_mapDependentRows ) and see what has changed. 
-		 * If we find a list of changes and it refers to a changed row that has not been committed, that is a fatal error.
-		*/
-		
-		MapAutoIncrChanges m_mapAutoIncrChanges;
-
 		map<int, ListChangedRow *> m_mapUsers2ChangedRowList;
 		ListChangedRow *m_mapUsers2ChangedRowList_Find( int psc_user ) { map<int, ListChangedRow *>::iterator it = m_mapUsers2ChangedRowList.find( psc_user ); return it==m_mapUsers2ChangedRowList.end( ) ? NULL : ( *it ).second; }
 		
+		/**
+		 * While doing a checkin, we may change the primary keys for the auto incr fields.  Yet the changed rows
+		 * for tables that reference this one are already built, using the old primary key.  This map will allow
+		 * the ChangedRow's WHERE clause builder to use the new ID, not the original one
+		 */
+
+		map<int,int> m_mapUncommittedAutoIncrChanges;
+
 		/**
 		 * When we determine the deletions we made locally, we also determine the rows deleted on the server side. 
 		 * Store them here so we don't need to request them twice in the event of an update + sync.
@@ -147,14 +145,16 @@ namespace sqlCVS
 		bool Dump( SerializeableStrings &str );
 
 		void AddChangedRow( ChangedRow *pChangedRow );
-		bool CheckIn( RA_Processor &ra_Processor, DCE::Socket *pSocket, enum TypeOfChange toc );
+		bool CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSocket, enum TypeOfChange toc );
 		bool DetermineDeletions( RA_Processor &ra_Processor, string Connection, DCE::Socket **ppSocket );
 		void AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor );
 		void DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user ); /**< Server side delete */
 		void UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user ); /**< Server side update */
+		void ApplyChangedRow(ChangedRow *pChangedRow); /**< Applies a changed row.  Used when authorizing a previously unauthorized batch */
 		
 		void UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable, sqlCVSprocessor *psqlCVSprocessor ); /**< Client side update */
 		void AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor );
+		void AddToHistory( ChangedRow *pChangedRow );
 
 		void PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow );
 		void PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow, Field *pField_FK );
@@ -167,7 +167,8 @@ namespace sqlCVS
 		bool bIsSystemTable_get( ) { return m_bIsSystemTable; }
 
 		/** Give the psc_id, this will fill a map where the first string is the field name, and the second is the value of the field*/
-		void GetCurrentValues(int psc_id,map<string,string> *mapCurrentValues);
+		void GetCurrentValues(int psc_id,MapStringString *mapCurrentValues);
+		void GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow);
 
 		/** @brief Accessors */
 		string Name_get( ) { return m_sName; }
