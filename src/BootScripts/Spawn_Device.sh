@@ -77,6 +77,7 @@ while [ "$i" -le 10 ]; do
 	while read line; do
 		screen -list | grep -F "$line" | cut -d. -f1 | cut -d"$Tab" -f2 | xargs kill -9
 	done < /var/log/pluto/spawned_devices_$device_id
+	screen -wipe &>/dev/null
 	
 	if [ "$Ret" -eq 3 ]; then
 		# Abort
