@@ -5,26 +5,22 @@ echo 'CREATE DATABASE IF NOT EXISTS `asterisk`;' | mysql
 mysql asterisk </usr/pluto/install/asterisk.sql
 
 
-# update res_mysql.conf
-: >/etc/asterisk/res_mysql.conf
+# update res_odbc.conf
+: >/etc/asterisk/res_odbc.conf
 
-TemplateMysqlConf='[general]
-dbhost = localhost
-dbname = asterisk
-dbuser = root
-dbpass = 
-dbport = 3306
-dbsock = /var/run/mysqld/mysqld.sock
-'
-
-eval "echo \"$TemplateMysqlConf\"" >> /etc/asterisk/res_mysql.conf
+echo "[asterisk]
+dsn => MySQL-asterisk
+username => root
+password =>
+pre-connect => yes" >> /etc/asterisk/res_odbc.conf
 
 # update extconfig.conf
 : >/etc/asterisk/extconfig.conf
 
 echo "[settings]
-sipfriends => mysql,asterisk,sip_buddies
-realtime_ext => mysql,asterisk,extensions_table" >> /etc/asterisk/extconfig.conf
+sipfriends => odbc,asterisk,sip_buddies
+realtime_ext => odbc,asterisk,extensions_table
+sip.conf => odbc,asterisk,ast_config" >> /etc/asterisk/extconfig.conf
 
 # update extensions
 
@@ -53,6 +49,25 @@ bindaddr = 0.0.0.0
 secret = adminsecret
 read = system,call,log,verbose,command,agent,user
 write = system,call,log,verbose,command,agent,user" >> /etc/asterisk/manager.conf
+
+# update odbcinst.ini
+grep -F "[MySQL]" /etc/odbcinst.ini >/dev/null || echo "[MySQL]
+Description = MySQL
+Driver = /usr/lib/odbc/libmyodbc.so
+FileUsage  = 1" >> /etc/odbcinst.ini
+
+# update odbc.ini
+grep -F "[MySQL-asterisk]" /etc/odbc.ini >/dev/null || echo "[MySQL-asterisk]
+Description     = MySQL ODBC Driver Testing
+Driver          = MySQL
+Socket          = /var/run/mysqld/mysqld.sock
+Server          = localhost
+User            = root
+Password        =
+Database        = asterisk
+Option          = 3
+" >> /etc/odbc.ini
+
 
 
 # restart asterisk
