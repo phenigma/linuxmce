@@ -21,7 +21,7 @@ protected:
 	
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	int m_nImageWidth, m_nImageHeight;
-	int m_bFullScreen;
+	bool m_bFullScreen;
 
 public:
 	OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 

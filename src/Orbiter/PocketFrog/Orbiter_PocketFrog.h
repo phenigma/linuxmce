@@ -20,10 +20,7 @@ protected:
     bool m_bShiftDown, m_bControlDown, m_bAltDown, m_bRepeat, m_bCapsLock;
     clock_t m_cKeyDown;
 	bool m_bUpdating;
-
-protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
-	int m_nImageWidth, m_nImageHeight;
-	int m_bFullScreen;
+	bool m_bFullScreen;
 
 	unsigned char* VGAROMFont;
 

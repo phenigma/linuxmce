@@ -915,8 +915,8 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
 		if ( pCell->m_pGraphicData )
 		{
 			PlutoGraphic *pPlutoGraphic = CreateGraphic();
-			pPlutoGraphic->LoadGraphic(pCell->m_pGraphicData,  pCell->m_GraphicLength);
 			pPlutoGraphic->m_GraphicFormat = pCell->m_GraphicFormat;
+			pPlutoGraphic->LoadGraphic(pCell->m_pGraphicData,  pCell->m_GraphicLength);
 			RenderGraphic(pPlutoGraphic, PlutoRectangle(x,  y,  w,  h), pObj->m_bDisableAspectLock );
 			delete pPlutoGraphic;
 		}
@@ -5112,8 +5112,8 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
         //pWinGraphic->m_GraphicManagement = GR_DYNAMIC;
 
 		PlutoGraphic *pPlutoGraphic = CreateGraphic();
+		pPlutoGraphic->m_GraphicFormat = GR_PNG; //as default
 		pPlutoGraphic->LoadGraphic(pData, iData_Size);
-		//pPlutoGraphic->m_GraphicFormat = pObj->m_GraphicFormat;
 		pObj->m_vectGraphic.push_back(pPlutoGraphic);
 		pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
@@ -6001,10 +6001,11 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 						if(iFrameSize)
 						{
 							PlutoGraphic *pGraphic = CreateGraphic();
-							pGraphic->LoadGraphic(pFrameData, iFrameSize);
-							pGraphic->m_GraphicFormat = eGF;
 							pGraphic->m_GraphicManagement = eGM;
 							pGraphic->m_Filename = sMNGFileName;
+							pGraphic->m_GraphicFormat = GR_PNG; //this is an mng with multiple png frames
+							pGraphic->LoadGraphic(pFrameData, iFrameSize);
+							pGraphic->m_GraphicFormat = GR_MNG;
 							(*pVectorPlutoGraphic).push_back(pGraphic);
 						}
 

@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..;../Win32;../SDL;../..;../../DCE;&quot;../../../libs/Libraries/pthreads-snap-2002-11-04&quot;;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../Splitter;../../../libs/CrossPlatform/zlib;../../../libs/CrossPlatform/lpng127;../../PlutoUtils;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../../OrbiterGen;../PocketFrog;../../../libs/Libraries/PocketFrog"
+				AdditionalIncludeDirectories=".;..;../Win32;../SDL;../..;../../DCE;&quot;../../../libs/Libraries/pthreads-snap-2002-11-04&quot;;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../Splitter;../../../libs/CrossPlatform/zlib;../../../libs/CrossPlatform/lpng127;../../PlutoUtils;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../../OrbiterGen;../PocketFrog;../../../libs/Libraries/PocketFrog;../../../libs/CrossPlatform/lpng127/contrib/visupng"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;DEBUG;PHONEKEYSX;PROFILINGX;POCKETFROG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib zlib1-pluto-d.lib PocketFrog_x86_Debug.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib zlib1-pluto-d.lib PocketFrog_x86_Debug.lib libpng-pluto-d.lib"
 				OutputFile="../../bin/Orbiter_PocketFrog.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../../libs/Libraries/pthreads-win32/lib&quot;;../../lib;../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;../../../libs\Libraries\PocketFrog\lib"
+				AdditionalLibraryDirectories="&quot;../../../libs/Libraries/pthreads-win32/lib&quot;;../../lib;../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;../../../libs\Libraries\PocketFrog\lib;../../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug"
 				IgnoreDefaultLibraryNames="LIBCD"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Orbiter.pdb"
@@ -157,6 +157,9 @@
 			</File>
 			<File
 				RelativePath="..\PocketFrog\PFGHelper.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\PNGWrapper.cpp">
 			</File>
 			<File
 				RelativePath="..\PocketFrog\PocketFrogGraphic.cpp">

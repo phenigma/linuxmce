@@ -100,6 +100,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     m_config.orientation      = ORIENTATION_WEST;
     m_config.splashScreenTime = 0;	
 	m_bUpdating = false;
+	m_bFullScreen=bFullScreen;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
@@ -639,7 +640,23 @@ clock_t ccc=clock();
 
 	PocketFrogGraphic *pPocketFrogGraphic = (PocketFrogGraphic *) pPlutoGraphic;
 	Surface *pSurface = pPocketFrogGraphic->m_pSurface;
-	GetDisplay()->Blit( rectTotal.X, rectTotal.Y, pSurface );
+
+	if(pSurface->GetWidth() == 0 || pSurface->GetHeight() == 0)
+		return;
+	else
+		if(pSurface->GetWidth() != rectTotal.Width || pSurface->GetHeight() != rectTotal.Height)
+		{
+			Rect dest;	
+			dest.Set(rectTotal.Left(), rectTotal.Top(), rectTotal.Right(), rectTotal.Bottom());
+			GetDisplay()->BlitStretch(dest, pSurface);
+
+			g_pPlutoLogger->Write(LV_STATUS, "Need to stretch picture: %d, %d, %d, %d", 
+				rectTotal.Left(), rectTotal.Top(), rectTotal.Right(), rectTotal.Bottom());
+		}
+		else
+		{
+			GetDisplay()->Blit( rectTotal.X, rectTotal.Y, pSurface );
+		}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::BeginPaint()
@@ -681,8 +698,11 @@ clock_t ccc=clock();
 	g_pPlutoLogger->Write(LV_STATUS, "Orbiter_PocketFrog: need to cleanup orbiter...");
 	if(NULL != m_pInstance)
 	{
-		delete m_pInstance;
+		Orbiter_PocketFrog *pCopy = m_pInstance;
 		m_pInstance = NULL;
+
+		delete pCopy;
+		pCopy = NULL;
 
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter_PocketFrog: orbiter deleted.");
 	}

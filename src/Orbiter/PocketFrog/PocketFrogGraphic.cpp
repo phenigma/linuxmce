@@ -1,6 +1,10 @@
 #include "PocketFrogGraphic.h"
 #include "Logger.h"
 #include "PFGHelper.h"
+
+#ifndef WINCE
+#include "PocketFrog/PNGWrapper.h"
+#endif
 //-------------------------------------------------------------------------------------------------------
 PocketFrogGraphic::PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement,
 					   Orbiter *pOrbiter)
@@ -43,6 +47,14 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize)
 		m_pSurface = LoadImage(Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay(), (uint8_t*)pData, 
 			(uint8_t*)(pData + iSize));
 	}
+
+#ifndef WINCE
+	if( !m_pSurface ) //maybe it's a png ?
+	{
+		FileUtils::WriteBufferIntoFile("/tmp", pData, iSize); //hack :(
+		m_pSurface = PocketFrog_LoadPNG(Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay(), "/tmp");
+	}
+#endif
 
 	if( !m_pSurface )
 	{
