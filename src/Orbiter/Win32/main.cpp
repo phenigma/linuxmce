@@ -205,9 +205,13 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 
+		g_pPlutoLogger->Write(LV_STATUS, "Exited process messages loop. We are shutting down....");
+
 #ifdef WINCE
 		Simulator::GetInstance()->SaveConfigurationFile("/Storage Card/Orbiter.conf");
 		Simulator::Cleanup();
+
+		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup orbiter.");
 
 		#ifdef POCKETFROG
 				Orbiter_PocketFrog::Cleanup();
@@ -223,6 +227,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		OrbiterSDL_Win32::Cleanup();
 #endif
 
+		g_pPlutoLogger->Write(LV_STATUS, "About to delete logger. Logger out.");
 		delete g_pPlutoLogger;
 
 		return int(msg.wParam);
@@ -230,8 +235,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 
     WSACleanup();
-
-	delete g_pPlutoLogger;
 
 	return 0;
 }

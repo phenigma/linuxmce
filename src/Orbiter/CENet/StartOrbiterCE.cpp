@@ -32,6 +32,40 @@ using namespace std;
 
 #include "MainDialog.h"
 //-----------------------------------------------------------------------------------------------------
+
+bool CheckMemory()
+{
+	bool bResult = true;
+	const int iAmountKB = 512;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Checking memory...");
+	g_pPlutoLogger->Write(LV_STATUS, "Trying to allocate %d KB of memory", iAmountKB);
+
+	char* pDummy = NULL;
+
+	try
+	{
+		pDummy = new char[512 * 1024];
+	}
+	catch(...)
+	{
+		bResult = false;
+	}
+
+	if(!pDummy)
+		bResult = false;
+
+	if(pDummy)
+		delete [] pDummy;
+
+	if(!bResult)
+		g_pPlutoLogger->Write(LV_STATUS, "Failed to allocate %d KB of memory", iAmountKB);
+	else
+		g_pPlutoLogger->Write(LV_STATUS, "Successfully allocated and then deallocated %d KB of memory ", iAmountKB);
+
+	return bResult;
+}
+//-----------------------------------------------------------------------------------------------------
 enum OrbiterStages
 {
 	osConnect,
@@ -51,8 +85,12 @@ ORBITER *Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLo
 	try
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup Orbiter");
+
+		CheckMemory();
 		
 		ORBITER::Cleanup();
+
+		CheckMemory();
 	
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter cleanup finished");
 
@@ -62,6 +100,8 @@ ORBITER *Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLo
 			Width, Height, bFullScreen
 		); //the builder method
 		g_pPlutoLogger->Write(LV_STATUS, "New orbiter created!");
+
+		CheckMemory();
 	}
 	catch(string s)
 	{
@@ -145,7 +185,10 @@ bool EventLoop(ORBITER* pOrbiter)
 		orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
 
         if (Event.type == SDL_QUIT)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
             break;
+		}
 
 #ifdef AUDIDEMO
         if (Event.type == SDL_MOUSEBUTTONDOWN)
@@ -184,6 +227,9 @@ bool EventLoop(ORBITER* pOrbiter)
     }  // while
 
 #endif //POCKETFROG vs. SDL
+
+	g_pPlutoLogger->Write(LV_STATUS, "About to quit EventLoop. Reload %d, ConnectionLost %d, Quit %d", 
+		pOrbiter->m_bReload, pOrbiter->m_bConnectionLost, pOrbiter->m_bQuit);
 
 	return !pOrbiter->m_bConnectionLost;
 }

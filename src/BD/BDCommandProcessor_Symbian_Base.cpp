@@ -408,6 +408,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 	LOGN(iState);
 	LOGN(",");
 
+	if(m_iTimedOut)
+	{
+		LOG("Reseting timeout... state :");
+		m_iTimedOut = 0; //no timed-out
+		m_bStatusOk = true;
+	}
+
 	switch (iState)
 	{
 	case EAccepting:
@@ -453,6 +460,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ESendingCommand:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("ESendingCommand\n");
 			m_bImmediateCallback = false;
 
@@ -480,6 +494,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ESendingCommandId:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("ESendingCommandId\n");
 			SendLong(m_pCommand_Sent->GetCommandOrAckSize());
 			iState = ESendingCommandOrAckSize;
@@ -489,6 +510,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ESendingCommandOrAckSize:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("ESendingCommandOrAckSize\n");
 			SendData(m_pCommand_Sent->GetCommandOrAckSize(),m_pCommand_Sent->GetCommandOrAckData());
 			iState = ESendingCommandOrAckData;
@@ -498,6 +526,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ESendingCommandOrAckData:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("ESendingCommandOrAckData\n");
 			int AckHeaderSize;
 			if( m_pCommand_Sent->ID() == BD_PC_WHAT_DO_YOU_HAVE )
@@ -525,6 +560,12 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingAckHeader:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
 			//LOG("EReceivingAckHeader\n");
 
 			PLUTO_SAFE_DELETE_ARRAY(m_ReceiveAckHeader);
@@ -562,6 +603,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingAckData_Loop:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("EReceivingAckData_Loop\n");
 			if(m_bStartRecv)
 			{
@@ -598,6 +646,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingAckData:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("EReceivingAckData\n");
 			if( m_pCommand_Sent->ID() == BD_PC_WHAT_DO_YOU_HAVE )
 			{
@@ -620,6 +675,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingCommand:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("EReceivingCommand\n");
 			// The Ack will be a command that's parsed directly
 			long *lType = (long *) m_ReceiveAckHeader;
@@ -656,6 +718,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_ReadyToSendAck:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("ERecvCommand_ReadyToSendAck\n");
 			SendLong(m_pCommand->GetCommandOrAckSize());
 			iState = ERecvCommand_SendingCommandOrAckSize;
@@ -665,6 +734,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_SendingCommandOrAckSize:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("ERecvCommand_SendingCommandOrAckSize\n");
 			SendData(m_pCommand->GetCommandOrAckSize(),m_pCommand->GetCommandOrAckData());
 			iState = ERecvCommand_SendingCommandOrAckData;
@@ -674,6 +750,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_SendingCommandOrAckData:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("ERecvCommand_SendingCommandOrAckData\n");
 			m_pCommand->FreeSerializeMemory();
 			PLUTO_SAFE_DELETE(m_pCommand);
@@ -685,14 +768,14 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_End:
 		{
-			LOG("<<<ERecvCommand_End>>>\n");
-
 			if(m_iTimedOut)
 			{
 				LOG("Reseting timeout... state :");
 				m_iTimedOut = 0; //no timed-out
 				m_bStatusOk = true;
 			}
+
+			LOG("<<<ERecvCommand_End>>>\n");
 
 			long *lType = (long *) m_ReceiveAckHeader;
 
@@ -708,6 +791,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingCmdHeader:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("EReceivingCmdHeader\n");
 
 			PLUTO_SAFE_DELETE_ARRAY(m_ReceiveCmdHeader);
@@ -746,6 +836,12 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingCmdData:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
 			//LOG("EReceivingCmdData\n");
 
 			PLUTO_SAFE_DELETE_ARRAY(m_ReceiveCmdData);
@@ -764,6 +860,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingCommand_BuildCommand:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("EReceivingCommand_BuildCommand\n");
 			long *lType = (long *) m_ReceiveCmdHeader;
 			long *lSize = (long *) (m_ReceiveCmdHeader+4);
@@ -788,6 +891,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_SendingCommandOrAckSize_Step2:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("ERecvCommand_SendingCommandOrAckSize_Step2\n");
 			SendData(m_pCommand->GetCommandOrAckSize(), m_pCommand->GetCommandOrAckData());
 			iState = ERecvCommand_SendingCommandOrAckData_Step2;
@@ -797,6 +907,13 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_SendingCommandOrAckData_Step2:
 		{
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			//LOG("ERecvCommand_SendingCommandOrAckData_Step2\n");
 			m_pCommand->FreeSerializeMemory();
 

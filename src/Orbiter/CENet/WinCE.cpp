@@ -173,3 +173,4 @@ time_t wince_mktime(tm *)
 	//TODO be implemented!!!
 	return 0;
 }
+
