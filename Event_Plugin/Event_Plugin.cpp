@@ -66,7 +66,7 @@ int k=2;
 		Row_EventHandler *pRow_EventHandler = vectRow_EventHandler[s];
 
 		EventHandler *pEventHandler = new EventHandler(pRow_EventHandler->PK_EventHandler_get(),
-			pRow_EventHandler->FK_Event_get(),m_pRouter->mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get()),
+			pRow_EventHandler->FK_Event_get(),m_pRouter->m_mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get()),
 			m_mapCriteria_Find(pRow_EventHandler->FK_Criteria_get()));
 
 		ListEventHandler *pListEventHandler = m_mapListEventHandler_Find(pRow_EventHandler->FK_Event_get());
@@ -190,16 +190,18 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 			EventInstance *pEventInstance = new EventInstance(m_dwID_EventInstance++,pEventHandler);
 			pEventInstance->pMessage = new Message(pMessage);
 			pEventInstance->m_PKID_Device_OriginatedThisEvent = pMessage->m_dwPK_Device_From;
-//s.Release();
 			ExecuteEvent(pEventInstance);
 		}
 	}
+
+	delete pEventInfo;
 	return true;
 }
 
 void Event_Plugin::ExecuteEvent(EventInstance *pEventInstance)
 {
 	ExecCommandGroup(pEventInstance->m_ptrEventHandler->m_pCommandGroup->m_PK_CommandGroup);
+	delete pEventInstance;  // We will probably need to keep this for a while for some events like security problems
 }
 
 //<-dceag-sample-b->!

@@ -66,6 +66,13 @@ void* MessageQueueThread_DCER(void* param) // renamed to cancel link-time name c
     return NULL;
 }
 
+#define ALARM_DELAYED_COMMAND_EXECUTION		1
+
+class DelayedCommandInfo { 
+	public: 
+		int m_PK_CommandGroup,m_iStartingCommand;
+};
+
 Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort,int ListenPort) :
     SocketListener("Router Dev #" + StringUtils::itos(PK_Device)), m_CoreMutex("core"), MySqlHelper(DBHost,DBUser,DBPassword,DBName,DBPort)
 {
@@ -439,6 +446,41 @@ void Router::RegisterMsgInterceptor(Message *pMessage)
             PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID );
 }
 
+void Router::ExecuteCommandGroup(int PK_CommandGroup,size_t sStartingCommand)
+{
+	CommandGroup *pCommandGroup = m_mapCommandGroup_Find( PK_CommandGroup );
+	if( !pCommandGroup )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot execute command group: %d",PK_CommandGroup);
+		return;
+	}
+
+	for(size_t s=sStartingCommand;s<pCommandGroup->m_vectCommandGroup_Command.size();++s)
+	{
+		CommandGroup_Command *pCommandGroup_Command = pCommandGroup->m_vectCommandGroup_Command[s];
+		if( pCommandGroup_Command->m_pCommand->m_dwPK_Command==COMMAND_Delay_CONST )
+		{
+			int Milliseconds = atoi(pCommandGroup_Command->m_mapParameter[COMMANDPARAMETER_Time_CONST].c_str());
+
+			DelayedCommandInfo *pDelayedCommandInfo = new DelayedCommandInfo;
+			pDelayedCommandInfo->m_PK_CommandGroup=PK_CommandGroup;
+			pDelayedCommandInfo->m_iStartingCommand=s+1;
+			m_pAlarmManager->AddRelativeAlarm(Milliseconds/1000,this,ALARM_DELAYED_COMMAND_EXECUTION,pDelayedCommandInfo);
+			return;
+		}
+		SendCommand(pCommandGroup_Command);
+	}
+}
+
+void Router::SendCommand(CommandGroup_Command *pCommandGroup_Command)
+{
+	Message *pMessage = new Message(0,pCommandGroup_Command->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommandGroup_Command->m_pCommand->m_dwPK_Command,0);
+	for(map<int,string>::iterator it=pCommandGroup_Command->m_mapParameter.begin();it!=pCommandGroup_Command->m_mapParameter.end();++it)
+		pMessage->m_mapParameters[(*it).first]=(*it).second;
+
+	ReceivedMessage(NULL,pMessage);
+}
+
 void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 {
     SafetyMessage SafetyMessage(pMessageWillBeDeleted);
@@ -446,6 +488,11 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
     if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_REGISTER_INTERCEPTOR )
     {
         RegisterMsgInterceptor( (*SafetyMessage) );
+        return;
+    }
+    else if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EXEC_COMMAND_GROUP )
+    {
+		ExecuteCommandGroup((*SafetyMessage)->m_dwID);
         return;
     }
 
@@ -1794,5 +1841,15 @@ continue;
 void Router::ExecuteCommandGroup(CommandGroup *pCommandGroup)
 {
 
+}
+
+void Router::AlarmCallback(int id, void* param)
+{
+	if( id==ALARM_DELAYED_COMMAND_EXECUTION )
+	{
+		DelayedCommandInfo *pDelayedCommandInfo = (DelayedCommandInfo *) param;
+		ExecuteCommandGroup(pDelayedCommandInfo->m_PK_CommandGroup,pDelayedCommandInfo->m_iStartingCommand);
+		delete pDelayedCommandInfo;
+	}
 }
 
