@@ -221,8 +221,14 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 
 Router::~Router()
 {
+	cout << "Killing everything in DCERouter" << endl;
     delete m_pDeviceStructure;
 	delete m_pBufferForDeviceCategories;
+
+    map<int,class Command_Impl *>::iterator it;
+    for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
+		delete (*it).second;
+	m_mapPlugIn.clear();
 
 	for(map<int, ListCommand_Impl *>::iterator it=m_mapPlugIn_DeviceTemplate.begin();it!=m_mapPlugIn_DeviceTemplate.end();++it)
 		delete (*it).second;

@@ -37,10 +37,19 @@ public:
 	int Get_PK_Users() { return atoi(m_mapParameters[3].c_str());}
 	string Get_Current_Screen() { return m_mapParameters[4];}
 	void Set_Current_Screen(string Value) { SetParm(4,Value.c_str()); }
+	int Get_PK_Distro() { return atoi(m_mapParameters[7].c_str());}
+	bool Get_Development() { return (m_mapParameters[8]=="1" ? true : false);}
+	bool Get_No_Effects() { return (m_mapParameters[20]=="1" ? true : false);}
+	int Get_PK_Skin() { return atoi(m_mapParameters[24].c_str());}
+	int Get_PK_Size() { return atoi(m_mapParameters[25].c_str());}
+	int Get_PK_Language() { return atoi(m_mapParameters[26].c_str());}
+	string Get_FK_EntertainArea() { return m_mapParameters[27];}
 	string Get_Update_Name() { return m_mapParameters[41];}
 	string Get_Communication_file() { return m_mapParameters[43];}
+	string Get_Timeout() { return m_mapParameters[56];}
 	string Get_CacheFolder() { return m_mapParameters[57];}
 	int Get_CacheSize() { return atoi(m_mapParameters[58].c_str());}
+	bool Get_Use_OCG_Format() { return (m_mapParameters[64]=="1" ? true : false);}
 };
 
 
@@ -87,10 +96,19 @@ public:
 	int DATA_Get_PK_Users() { return GetData()->Get_PK_Users(); }
 	string DATA_Get_Current_Screen() { return GetData()->Get_Current_Screen(); }
 	void DATA_Set_Current_Screen(string Value) { GetData()->Set_Current_Screen(Value); }
+	int DATA_Get_PK_Distro() { return GetData()->Get_PK_Distro(); }
+	bool DATA_Get_Development() { return GetData()->Get_Development(); }
+	bool DATA_Get_No_Effects() { return GetData()->Get_No_Effects(); }
+	int DATA_Get_PK_Skin() { return GetData()->Get_PK_Skin(); }
+	int DATA_Get_PK_Size() { return GetData()->Get_PK_Size(); }
+	int DATA_Get_PK_Language() { return GetData()->Get_PK_Language(); }
+	string DATA_Get_FK_EntertainArea() { return GetData()->Get_FK_EntertainArea(); }
 	string DATA_Get_Update_Name() { return GetData()->Get_Update_Name(); }
 	string DATA_Get_Communication_file() { return GetData()->Get_Communication_file(); }
+	string DATA_Get_Timeout() { return GetData()->Get_Timeout(); }
 	string DATA_Get_CacheFolder() { return GetData()->Get_CacheFolder(); }
 	int DATA_Get_CacheSize() { return GetData()->Get_CacheSize(); }
+	bool DATA_Get_Use_OCG_Format() { return GetData()->Get_Use_OCG_Format(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server

@@ -7,6 +7,8 @@
 #include "Gen_Devices/General_Info_PluginBase.h"
 //<-dceag-d-e->
 
+#include "DeviceData_Router.h"
+
 class Database_pluto_main;
 //<-dceag-decl-b->
 namespace DCE

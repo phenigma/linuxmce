@@ -65,6 +65,7 @@ private:
 public:
     /** @brief constructor */
     MediaAttributes(string host, string user, string pass, string db_name, int port);
+    ~MediaAttributes();
     int CreatedMedia(int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
     void UpdatedMedia(int PK_File,int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
     int AddAttribute(int PK_File,int PK_Attribute,int PK_AttributeType,string Name,string FirstName);

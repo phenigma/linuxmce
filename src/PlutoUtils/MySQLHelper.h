@@ -42,6 +42,7 @@ public:
 	{
 		m_MySqlMutex.Init(NULL);
 		m_pMySQL = mysql_init(NULL);
+printf("MYSQL const %p created %p",this,m_pMySQL);
 		m_sMySQLHost=host;
 		m_sMySQLUser=user;
 		m_sMySQLPass=pass;
@@ -52,6 +53,7 @@ public:
 
 	virtual ~MySqlHelper()
 	{
+printf("MYSQL helper dest %p deleting %p",this,m_pMySQL);
 		if( m_pMySQL )
 			mysql_close(m_pMySQL);
 		m_pMySQL=NULL;
@@ -59,7 +61,6 @@ public:
 
 	bool MySQLConnect(string host, string user, string pass, string db_name, int port=3306,bool bReset=false)
 	{
-		m_pMySQL = mysql_init(NULL);
 		m_sMySQLHost=host;
 		m_sMySQLUser=user;
 		m_sMySQLPass=pass;
@@ -72,8 +73,14 @@ public:
 	{
 		if( bReset && m_bConnected )
 		{
+printf("MYSQL helper connect %p deleting %p",this,m_pMySQL);
 			mysql_close(m_pMySQL);
+			m_pMySQL=NULL;
+		}
+		if( !m_pMySQL )
+		{
 			m_pMySQL = mysql_init(NULL);
+printf("MYSQL connect1 %p created %p",this,m_pMySQL);
 		}
 
 		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)

@@ -58,6 +58,10 @@ namespace DCE
     {
     public:
         list<class MessageInterceptorCallBack *> m_listMessageInterceptor;
+MessageFromInterceptor()
+{
+int k;
+}
 		~MessageFromInterceptor()
 		{
 			for(list<class MessageInterceptorCallBack *>::iterator it=m_listMessageInterceptor.begin();it!=m_listMessageInterceptor.end();++it)

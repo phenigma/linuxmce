@@ -51,6 +51,8 @@ Datagrid_Plugin::Datagrid_Plugin( int DeviceID, string ServerAddress, bool bConn
 Datagrid_Plugin::~Datagrid_Plugin()
 //<-dceag-dest-e->
 {
+	for(map<int, class DataGridGeneratorCallBack *>::iterator it = m_mapDataGridGeneratorCallBack.begin();it != m_mapDataGridGeneratorCallBack.end();++it)
+		delete (*it).second;
 }
 
 //<-dceag-reg-b->
@@ -90,13 +92,13 @@ void Datagrid_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessa
 
 void Datagrid_Plugin::RegisterDatagridGenerator( class DataGridGeneratorCallBack *pCallBack, int PK_DataGrid )
 {
- map<int, class DataGridGeneratorCallBack *>::iterator it = m_mapDataGridGeneratorCallBack.find( PK_DataGrid );
- if( it!=m_mapDataGridGeneratorCallBack.end() )
- {
-  g_pPlutoLogger->Write( LV_CRITICAL, "Two plug-ins tried to register for DataGrid %d", PK_DataGrid );
-  return;
- }
- m_mapDataGridGeneratorCallBack[PK_DataGrid]=pCallBack;
+	map<int, class DataGridGeneratorCallBack *>::iterator it = m_mapDataGridGeneratorCallBack.find( PK_DataGrid );
+	if( it!=m_mapDataGridGeneratorCallBack.end() )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Two plug-ins tried to register for DataGrid %d", PK_DataGrid );
+		return;
+	}
+	m_mapDataGridGeneratorCallBack[PK_DataGrid]=pCallBack;
 }
 
 

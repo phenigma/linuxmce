@@ -769,10 +769,19 @@ public:
 	int DATA_Get_PK_Users();
 	string DATA_Get_Current_Screen();
 	void DATA_Set_Current_Screen(string Value);
+	int DATA_Get_PK_Distro();
+	bool DATA_Get_Development();
+	bool DATA_Get_No_Effects();
+	int DATA_Get_PK_Skin();
+	int DATA_Get_PK_Size();
+	int DATA_Get_PK_Language();
+	string DATA_Get_FK_EntertainArea();
 	string DATA_Get_Update_Name();
 	string DATA_Get_Communication_file();
+	string DATA_Get_Timeout();
 	string DATA_Get_CacheFolder();
 	int DATA_Get_CacheSize();
+	bool DATA_Get_Use_OCG_Format();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

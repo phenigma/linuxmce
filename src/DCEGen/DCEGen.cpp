@@ -385,8 +385,18 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 			deviceInfo.m_mapDataInfo[pRow_DeviceTemplate_DeviceData->FK_DeviceData_get()] = pDataInfo;
 		}
 	}
+
+	string sCategories="";
+	Row_DeviceCategory *pRow_DeviceCategory = p_Row_DeviceTemplate->FK_DeviceCategory_getrow();
+	while(pRow_DeviceCategory)
+	{
+		if( sCategories.length() )
+			sCategories += ",";
+		sCategories += StringUtils::itos(pRow_DeviceCategory->PK_DeviceCategory_get());
+		pRow_DeviceCategory = pRow_DeviceCategory->FK_DeviceCategory_Parent_getrow();
+	}
 	vector<Row_DeviceCategory_DeviceData *> vectRow_DeviceCategory_DeviceData;
-	p_Row_DeviceTemplate->FK_DeviceCategory_getrow()->DeviceCategory_DeviceData_FK_DeviceCategory_getrows(&vectRow_DeviceCategory_DeviceData);
+	m_dce.DeviceCategory_DeviceData_get()->GetRows("FK_DeviceCategory IN (" + sCategories + ")",&vectRow_DeviceCategory_DeviceData);
 	for(size_t i3=0;i3<vectRow_DeviceCategory_DeviceData.size();++i3)
 	{
 		Row_DeviceCategory_DeviceData *pRow_DeviceCategory_DeviceData =
@@ -397,6 +407,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 			DataInfo *pDataInfo = new DataInfo();
 			pDataInfo->m_pRow_DeviceData = pRow_DeviceCategory_DeviceData->FK_DeviceData_getrow();
 			pDataInfo->m_bCanSet = pRow_DeviceCategory_DeviceData->SetByDevice_get()==1;
+			deviceInfo.m_mapDataInfo[pRow_DeviceCategory_DeviceData->FK_DeviceData_get()] = pDataInfo;
 		}
 	}
 	fstr_DeviceCommand << "class "  <<  Name  <<  "_Data : public DeviceData_Impl" << endl << "{" << endl;

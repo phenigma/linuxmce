@@ -1831,6 +1831,10 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 
 void Table::VerifyIntegrity()
 {
+if( m_sName=="DeviceCategory_DeviceData" )
+{
+int k=2;
+}
 	if( m_pRepository && !m_bIsSystemTable )
 	{
 		ostringstream sql;
@@ -1870,7 +1874,6 @@ void Table::VerifyIntegrity()
 						" ON L.`" << pField->Name_get() << "`=" <<  
 						"R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` WHERE " <<
 						"L.`" << pField->Name_get() << "` IS NOT NULL " <<
-						" AND L.`" << pField->Name_get() << "`!='0' " <<  // Temorary HACK - todo remove this.  It's only here because php keeps inserting 0's instead of null's and breaking the builder.  Vali will fix this and we'll remove it
 						"AND R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` IS NULL";
 
 					if( ( result_set2.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )

@@ -43,6 +43,11 @@ MediaAttributes::MediaAttributes(string host, string user, string pass, string d
     }
 }
 
+MediaAttributes::~MediaAttributes()
+{
+	delete m_pDatabase_pluto_media;
+}
+
 void MediaAttributes::TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeFilenames)
 {
 	if( sFilename.length()==0 )

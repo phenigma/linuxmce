@@ -682,3 +682,15 @@ bool Command_Impl::SetStatus( string sStatus, int dwPK_Device )
 
 	return m_pcRequestSocket->m_pClientSocket->SendString("SET_STATUS " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) + " " + sStatus );
 }
+
+extern pluto_pthread_mutex_t *m_LL_DEBUG_Mutex;
+extern pluto_pthread_mutex_t *m_mapLockMutex;
+void Command_Impl::DeleteGlobalAllocs()
+{
+	delete m_LL_DEBUG_Mutex;
+	m_LL_DEBUG_Mutex=NULL;
+
+	delete m_mapLockMutex;
+	m_mapLockMutex=NULL;
+
+}

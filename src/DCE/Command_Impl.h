@@ -330,6 +330,14 @@ namespace DCE
 		 * @brief stops the watchdog tread
 		 */
 		void StopWatchDog();
+
+
+		/**
+		 * @brief For internal use only.  There are a couple global pointers allocated and if a 
+		 * device wants to run a memory leak tool it can call this to delete them as it's exiting
+		 */
+		void DeleteGlobalAllocs();
+
 	};
 }
 
