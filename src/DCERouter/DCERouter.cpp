@@ -230,9 +230,7 @@ Router::~Router()
 		delete pCommand_Impl;
 	}
 	m_mapPlugIn.clear();
-	Sleep(5000);
 	m_bTerminate=true;
-	Sleep(5000);
 	cout << "Killing everything in DCERouter" << endl;
     delete m_pDeviceStructure;
 	delete m_pBufferForDeviceCategories;
