@@ -73,9 +73,10 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;../PlutoUtils"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -85,8 +86,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/General_Info_Plugin.dll"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE-r.lib pluto_main-r.lib"
+				OutputFile="../Release/General_Info_Plugin.dll"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="\mysql\lib\Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="General_Info_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"

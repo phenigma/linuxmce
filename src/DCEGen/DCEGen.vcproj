@@ -76,11 +76,12 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="&quot;../../libs/Libraries/pthreads-win32/include&quot;;../DCE;../;/mysql/include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;MULTI_THREADED"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -88,8 +89,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/DCEGen.exe"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib pluto_main-r.lib dce-r.lib"
+				OutputFile="../Release/DCEGen.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;/mysql/lib/debug"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

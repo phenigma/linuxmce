@@ -37,7 +37,7 @@
 #include "ImageLoader.h"
 #include "Logger.h"
 
-//#define TEST_DATAGRID
+#define TEST_DATAGRID
 
 //------------------------------------------------------------------------------------------------------------------
 CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aUid, scop)
@@ -62,6 +62,7 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 	m_GridList.Reset();
 
 	//TEST! (testing showlist command)
+	/*
 #ifdef TEST_DATAGRID
 	m_bGridExists = true;
 
@@ -83,14 +84,12 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 
 	m_bGridSendSelectedOnMove = 0;;
 	m_uGridSelectedItem = 2;
-#endif
 
-	/*
 	//TEST!! (testing capture keyboard command)
 	m_CaptureKeyboardParam.bOnOff = true;
 	m_CaptureKeyboardParam.bDataGrid = true;
 	m_CaptureKeyboardParam.bReset = true;
-	m_CaptureKeyboardParam.bTypePin = false;
+	m_CaptureKeyboardParam.bTypePin = true;
 	m_CaptureKeyboardParam.bTextBox = true;
 	m_CaptureKeyboardParam.iVariable = 1;
 	m_CaptureKeyboardParam.sVariableValue = "abc";
@@ -99,6 +98,7 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 	m_CaptureKeyboardParam.TextWidth = 120;
 	m_CaptureKeyboardParam.TextHeight = 20;
 	m_CaptureKeyboardParam.Reset();	
+#endif
 	*/
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -197,7 +197,7 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 	{
 		m_CaptureKeyboardParam.bDataGrid = bDataGrid;
 		m_CaptureKeyboardParam.bReset = bReset;
-		m_CaptureKeyboardParam.bTypePin = false; //hack!! should be bTypePin;
+		m_CaptureKeyboardParam.bTypePin = bTypePin; 
 
 		m_CaptureKeyboardParam.iVariable = iVariable;
 
@@ -218,6 +218,12 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 
 		if((token = StringUtils::Tokenize(tokens, ",", msgpos)) != "") 	
 			m_CaptureKeyboardParam.TextHeight = atoi(token.c_str());
+
+		if(m_CaptureKeyboardParam.TextHeight == 0)
+			m_CaptureKeyboardParam.TextHeight == 20;
+
+		if(m_CaptureKeyboardParam.TextWidth == 0)
+			m_CaptureKeyboardParam.TextWidth == 120;
 	}
 	else
 	{

@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/IRBase.lib"/>
+				OutputFile="../lib/IRBase.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -60,6 +60,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="0"
@@ -70,7 +71,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/IRBase.lib"/>
+				OutputFile="../lib/IRBase-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
