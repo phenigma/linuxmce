@@ -151,10 +151,11 @@ int main(int argc, char* argv[])
 
 	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
+	bool bReload=false;
 	try
 	{
 		MythTV_Backend_Proxy *pMythTV_Backend_Proxy = new MythTV_Backend_Proxy(PK_Device, sRouter_IP);	
-		if ( pMythTV_Backend_Proxy->Connect(pEvent_Plugin->PK_DeviceTemplate_get()) ) 
+		if ( pMythTV_Backend_Proxy->Connect(pMythTV_Backend_Proxy->PK_DeviceTemplate_get()) ) 
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pMythTV_Backend_Proxy->CreateChildren();
@@ -165,6 +166,9 @@ int main(int argc, char* argv[])
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
+
+		if( pMythTV_Backend_Proxy->m_bReload )
+			bReload=true;
 
 		delete pMythTV_Backend_Proxy;
 	}
@@ -180,6 +184,10 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     WSACleanup();
 #endif
-    return 0;
+
+	if( bReload )
+		return 2;
+	else
+		return 0;
 }
 //<-dceag-main-e->

@@ -14,15 +14,14 @@
 #include <map>
 #include <string>
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class MythTV_Backend_Proxy : public MythTV_Backend_Proxy_Command
+	class MythTV_Backend_Proxy : public MythTV_Backend_Proxy_Command, public MYTHTV::ProxyEventHandler
 	{
 //<-dceag-decl-e->
-		, public MYTHTV::ProxyEventHandler
 	{
-
+//<-dceag-decl-e->
 		// Private member variables
 	private:
 		pthread_mutexattr_t m_MutexAttr;
