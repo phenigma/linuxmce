@@ -1833,10 +1833,13 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
     bool bEPG = ( GridID.substr( 0, 3 )=="EPG" || GridID.substr( 0, 5 )=="CURSH" );
     */
     // Initially the first row and column will be highlighted
-    if(  pObj->m_sExtraInfo.find( 'H' )!=string::npos  )
+	string::size_type posH;
+    if(  (posH=pObj->m_sExtraInfo.find( 'H' ))!=string::npos  )
     {
-        pObj->m_iHighlightedRow=0;
-        pObj->m_iHighlightedColumn=0;
+		if( posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='c' )
+	        pObj->m_iHighlightedRow=0;
+		if( posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='r' )
+	        pObj->m_iHighlightedColumn=0;
     }
     else
     {
