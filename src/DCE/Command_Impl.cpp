@@ -38,18 +38,6 @@
 
 using namespace DCE;
 
-// An interceptor for crash signals that will kill all spawned children.  This is needed 
-// since the framework will restart our device, which will restart our children
-void sig_intercept(int sig)
-{
-	g_pPlutoLogger->Write( LV_CRITICAL, "Received a signal %d -- killing devices",sig );
-	if( Command_Impl::m_bKillSpawnedDevicesOnExit )
-	{
-		g_pPlutoLogger->Write( LV_STATUS, "About to call kill spawned devices" );
-		Command_Impl::KillSpawnedDevices();
-	}
-}
-
 /**
  * @brief entry point for the MessageQueue thread
  */
@@ -61,8 +49,6 @@ void* MessageQueueThread_DCECI( void* param ) // renamed to cancel link-time nam
 	p->m_bMessageQueueThreadRunning=false;
 	return NULL;
 }
-vector<string> Command_Impl::m_vectSpawnedDevices;
-bool Command_Impl::m_bKillSpawnedDevicesOnExit=true;
 
 void *WatchDogThread( void *pData )
 {
@@ -114,11 +100,7 @@ void *WatchDogThread( void *pData )
 Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode, class Router *pRouter )
 	: HandleRequestSocket( DeviceID, ServerAddress, "Command_Impl1 Dev #" + StringUtils::itos(DeviceID) ), m_listMessageQueueMutex( "MessageQueue" )
 {
-#ifndef WIN32
-	signal(SIGFPE, sig_intercept);
-	signal(SIGILL, sig_intercept);
-	signal(SIGSEGV, sig_intercept);
-#endif
+	m_bKillSpawnedDevicesOnExit=true;
 	m_pRouter = pRouter;
 	m_pcRequestSocket = NULL;
 	m_bLocalMode = bLocalMode;
@@ -146,6 +128,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, class Router *pRouter )
 	: HandleRequestSocket( pData->m_dwPK_Device, "", "Command_Impl2 Dev #" ), m_listMessageQueueMutex( "MessageQueue" )
 {
+	m_bKillSpawnedDevicesOnExit=true;
 	m_pRouter = pRouter;
 	m_pcRequestSocket = NULL;
 	m_bReload = false;
