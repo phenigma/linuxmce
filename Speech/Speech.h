@@ -27,6 +27,7 @@ public:
 		virtual bool Register();
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
+		void InitSpeech(void);
 //<-dceag-const-e->
 
 //<-dceag-const2-b->
