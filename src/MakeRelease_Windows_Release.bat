@@ -17,6 +17,10 @@ copy C:\pluto.makerelease\trunk\src\release\Orbiter.exe C:\pluto.makerelease\tru
 cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter
 CALL WinMake.bat
 
+cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Release\
+copy *.msi C:\pluto.makerelease\trunk\src\bin
+
+
 
 
 
