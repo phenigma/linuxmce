@@ -455,7 +455,7 @@ time_t FileUtils::FileDate(string sFile)
 #include <iostream>
 using namespace std;
 
-bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFileSpec_CSV, bool bRecurse, bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath)
+bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFileSpec_CSV, bool bRecurse, bool bFull+yQualifiedPath, int iMaxFileCount, string PrependedPath)
 {
     if( !StringUtils::EndsWith(sDirectory,"/") )
         sDirectory += "/";
@@ -523,7 +523,7 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 			char *pLinkContents = new char[s.st_size + 1];
 			if ( -1 == readlink((sDirectory + entry.d_name).c_str(),  pLinkContents, s.st_size) )
 			{
-				printf("Error reading link contents for symlink %s (%s).", (sDirectory + entry.d_name).c_str(), strerror(errno));
+				printf("Error reading link contents for symlink %s (%s).\n", (sDirectory + entry.d_name).c_str(), strerror(errno));
 				delete[] pLinkContents;
 				continue;
 			}
