@@ -13,9 +13,9 @@ RunSQL()
 $TemplateDir=/usr/pluto/templates
 
 # Extract non-pluto entries
-awk '/^pluto_/' /etc/group >/etc/group.$$
-awk '/^pluto_/' /etc/passwd >/etc/passwd.$$
-awk '/^pluto_/' /etc/shadow >/etc/shadow.$$
+awk '!/^pluto_/' /etc/group >/etc/group.$$
+awk '!/^pluto_/' /etc/passwd >/etc/passwd.$$
+awk '!/^pluto_/' /etc/shadow >/etc/shadow.$$
 
 cp $TemplateDir/smb.conf.tmpl /etc/samba/smb.conf.$$
 cp $TemplateDir/smbpasswd.tmpl /etc/samba/smbpasswd.$$
