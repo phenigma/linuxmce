@@ -211,8 +211,8 @@ int CPlutoVMCContainer::GetKeyCode(const TKeyEvent& aKeyEvent, TEventCode aType)
 				case 0x39:				 KeyCode=BUTTON_Rept_9_CONST;				break;
 
 				case 0x01:				 KeyCode=BUTTON_Rept_Phone_C_CONST;			break;
-				case 0xA4:				 KeyCode=BUTTON_Rept_Phone_Soft_left_CONST;  break;
-				case 0xA5:				 KeyCode=BUTTON_Rept_Phone_Soft_right_CONST; break;
+				case 0xA4:				 KeyCode=BUTTON_Phone_Soft_left_CONST;  break; //hack
+				case 0xA5:				 KeyCode=BUTTON_Phone_Soft_right_CONST; break; //hack
 			}
 	}
 
