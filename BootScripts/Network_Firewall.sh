@@ -24,7 +24,7 @@ iptables -A INPUT -s "$IntNet/$IntBitmask" -j ACCEPT
 iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -j MASQUERADE
 
 echo "Setting up forwarded ports"
-Q="SELECT Protocol,SourcePort,SourcePortEnd,DestinationPort,DestinationIP FROM Firewall WHERE RuleType='port_forward' ORDER BY PK_PortForward"
+Q="SELECT Protocol,SourcePort,SourcePortEnd,DestinationPort,DestinationIP FROM Firewall WHERE RuleType='port_forward' ORDER BY PK_Firewall"
 R=$(RunSQL "$Q")
 
 ForwardPort()
@@ -59,4 +59,29 @@ for Port in $R; do
 			: $((++DPort))
 		done
 	fi
+done
+
+echo "Opening specified ports"
+Q="SELECT Protocol,SourcePort,SourcePortEnd FROM Firewall WHERE RuleType='core_input' ORDER BY PK_Firewall"
+R=$(RunSQL "$Q")
+
+OpenPort()
+{
+	local Protocol Port
+	Protocol="$1"
+	Port="$2"
+
+	echo "  Port: $Port/$Protocol"
+	iptables -A INPUT -p "$Protocol" --dport "$Port" -j ACCEPT
+}
+
+for Port in $R; do
+	Protocol=$(Field 1 "$Port")
+	Port1=$(Field 2 "$Port")
+	Port2=$(Field 3 "$Port")
+
+	[ "$Port2" -eq 0 ] && Port2="$Port1"
+	for FPort in $(seq $Port1 $Port2); do
+		OpenPort "$Protocol" "$FPort"
+	done
 done

@@ -99,3 +99,40 @@ Replace != 0 { Replace-- }
 mv /etc/bind/named.conf.options.$$ /etc/bind/named.conf.options
 rndc reload
 
+clear
+
+AskPort80="
+Right now your Pluto Core will only allow you to access from within the local
+network in your home. (Technical: All incoming ports are blocked).  
+
+Do you want to access the Pluto web sites from a web browser outside the home
+(ie open port 80)?  Note that if you answer 'yes' we recommend you get an SSL
+certificate to encrypt the connection, otherwise it would be possible for
+someone to get your username and password and gain access to the system. If in
+doubt, just answer 'no'.
+
+Allow web access? [y/N] "
+
+AskPort22="
+Do you want to allow incoming SSH connections by opening port 22?  This is a
+secure way of accessing the system, but is only for techies and Linux users.
+
+Allow SSH connections? [y/N]?"
+
+echo -n "$AskPort80"
+read Answer
+
+if [ "$Answer" == "y" -o "$Answer" == "Y" ]; then
+	echo "Storing your option to open port 80 (allowing web access)"
+	Q="INSERT INTO Firewall(Protocol,SourcePort,Type) VALUES('tcp',80,'core_input')"
+	RunSQL "$Q"
+fi
+
+echo -n "$AskPort22"
+read Answer
+
+if [ "$Answer" == "y" -o "$Answer" == "Y" ]; then
+	echo "Storing your option to open port 22 (allowing SSH access)"
+	Q="INSERT INTO Firewall(Protocol,SourcePort,Type) VALUES('tcp',22,'core_input')"
+	RunSQL "$Q"
+fi

@@ -2,6 +2,8 @@
 
 . /usr/pluto/bin/Network_Parameters.sh
 
+DlDir="/usr/pluto/diskless"
+
 # vars:
 # CORE_INTERNAL_ADDRESS
 # INTERNAL_SUBNET
@@ -113,6 +115,7 @@ echo "Setting diskless MD filesystems"
 for Client in $R; do
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
+	DlPath="$DlDir/$IP"
 	
 	Q="SELECT *
 	FROM Device_DeviceData
@@ -126,7 +129,7 @@ for Client in $R; do
 		continue
 	fi
 
-	if ! [ -d $DlPath -a -e $DlPath/etc/diskless.conf ]; then
+	if ! [ -d $DlPath -a -f $DlPath/etc/diskless.conf ]; then
 		echo "Creating initial filesystem for moon '$IP,$MAC'"
 		/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC"
 	fi
@@ -138,6 +141,7 @@ cp /usr/pluto/templates/exports.tmpl /etc/exports.$$
 for Client in $R; do
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
+	DlPath="$DlDir/$IP"
 	echo "$DlPath $IP/255.255.255.255(rw,no_root_squash,no_all_squash,sync)" >>/etc/exports.$$
 done
 ReplaceVars /etc/exports.$$
@@ -178,7 +182,7 @@ for Client in $DisklessR; do
 	MAC=$(Field 2 "$Client")
 	echo -n "Setting moon '$IP,$MAC':"
 	
-	DlPath="/usr/pluto/diskless/$IP"
+	DlPath="$DlDir/$IP"
 	
 	echo -n " fstab"
 	cp /usr/pluto/templates/fstab.tmpl $DlPath/etc/fstab.$$
@@ -215,9 +219,6 @@ for Client in $DisklessR; do
 	Q="GRANT ALL PRIVILEGES ON pluto_main.* TO 'root'@'$IP';
 	GRANT ALL PRIVILEGES ON mythconverg.* TO 'root'@'$IP';"
 	echo "$Q" | /usr/bin/mysql
-
-#	echo -n " SSH"
-#	mkdir -p $DlPath/root/.ssh
 
 	echo
 	MoonNumber=$((MoonNumber+1))
