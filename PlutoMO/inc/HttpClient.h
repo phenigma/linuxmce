@@ -19,6 +19,9 @@ public:
 	//
 	virtual void MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent& aEvent) 
 	{
+	LOG("MHFRunL\n");
+	LOG(aEvent.iStatus);
+
 	switch (aEvent.iStatus)
 		{
 		case THTTPEvent::EGotResponseHeaders:
@@ -46,11 +49,13 @@ public:
 			} break;
 		case THTTPEvent::ESucceeded:
 			{
+			LOG("THTTPEvent::ESucceeded");
 			aTransaction.Close();
 			CActiveScheduler::Stop();
 			} break;
 		case THTTPEvent::EFailed:
 			{
+			LOG("THTTPEvent::EFailed");
 				int a = 0 ;
 			//aTransaction.Close();
 			//CActiveScheduler::Stop();
@@ -65,6 +70,7 @@ public:
 			} break;
 		default:
 			{
+				LOG("THTTPEvent::Unknown:((((");
 				int a = 0 ;
 			} break;
 		}
@@ -84,6 +90,7 @@ public:
 	PlutoHttpClient()
 	{
 		iSess = new RHTTPSession();
+		LOG("iSess = new RHTTPSession();\n");
 
 		// create an active scheduler to use
 //		CActiveScheduler* scheduler = new(ELeave) CActiveScheduler();
@@ -106,17 +113,21 @@ public:
 		RStringF aMethod;
 		aMethod = strP.StringF(HTTP::EGET,RHTTPSession::GetTable());
 
+		LOG("aMethod\n");
+
+		
 		CHttpEventHandler* iTransObs = new CHttpEventHandler();
 		RHTTPTransaction iTrans = iSess->OpenTransactionL(uri, *iTransObs, aMethod);
 		RHTTPHeaders hdr = iTrans.Request().GetHeaderCollection();
 
 		// submit the transaction
 		iTrans.SubmitL(); 
+		LOG("iTrans.SubmitL();\n");
 
 		// Start the scheduler, once the transaction completes or is cancelled on an error the scheduler will be
 		// stopped in the event handler
 		CActiveScheduler::Start();
-
+		LOG("CActiveScheduler::Start();\n");
 	}
 };
 

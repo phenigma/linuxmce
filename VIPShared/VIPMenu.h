@@ -216,6 +216,7 @@ public:
 	string m_sTerminatingKey;
 	long m_iCriteriaVariableID;
 	string m_sCriteriaVariableValue;
+	string m_sProgramName;
 
 	// Action
 	unsigned char m_iHideApp,m_iCloseRequest,m_iReportToServer;
@@ -230,12 +231,12 @@ public:
 	// Note that if m_sActionVariableValue=="!T" that means toggle.  If the variable is 0, assign 1, otherwise assign 0
 	// If an object's visibility is tied to this variable, that object needs to be updated when the variable changes
 
-	VIPMenuResolution(string TerminatingKey,long CriteriaVariable, string CrtieriaVariableValue,
+	VIPMenuResolution(string TerminatingKey,long CriteriaVariable, string CriteriaVariableValue,string ProgramName,
 		unsigned char HideApp,unsigned char CloseRequest,unsigned char ReportToServer,
 		long MenuNumberGoto,long ActionVariableID,string ActionVariableValue)
 	{
 
-		m_sTerminatingKey=TerminatingKey; m_iCriteriaVariableID=CriteriaVariable; m_sCriteriaVariableValue=CrtieriaVariableValue;
+		m_sTerminatingKey=TerminatingKey; m_iCriteriaVariableID=CriteriaVariable; m_sCriteriaVariableValue=CriteriaVariableValue; m_sProgramName=ProgramName;
 		m_iHideApp=HideApp; m_iCloseRequest=CloseRequest; m_iReportToServer=ReportToServer;
 		m_iMenuNumber_Goto=MenuNumberGoto; m_iActionVariableID=ActionVariableID; m_sActionVariableValue=ActionVariableValue;
 		m_pMenu=NULL;

@@ -96,6 +96,8 @@ VIPMenuCollection::VIPMenuCollection(long size, const char *data)
 			long CriteriaVariable = Read_long();
 			string CriteriaVariableValue;
 			Read_string(CriteriaVariableValue);
+			string ProgramName;
+			Read_string(ProgramName);
 			unsigned char HideApp = Read_unsigned_char();
 			unsigned char CloseRequest = Read_unsigned_char();
 			unsigned char ReportToServer = Read_unsigned_char();
@@ -105,7 +107,7 @@ VIPMenuCollection::VIPMenuCollection(long size, const char *data)
 			Read_string(ActionVariableValue);
 
 			VIPMenuResolution *pV = new VIPMenuResolution(TerminatingKeys,CriteriaVariable,CriteriaVariableValue,
-				HideApp,CloseRequest,ReportToServer,
+				ProgramName,HideApp,CloseRequest,ReportToServer,
 				MenuNumber,ActionVariableID,ActionVariableValue);
 
 			pV->m_iBasketToggle=Read_unsigned_char();
@@ -249,6 +251,7 @@ bool VIPMenuCollection::ConvertToBinary()
 			Write_string(pRes->m_sTerminatingKey);
 			Write_long(pRes->m_iCriteriaVariableID);
 			Write_string(pRes->m_sCriteriaVariableValue);
+			Write_string(pRes->m_sProgramName);
 			Write_unsigned_char(pRes->m_iHideApp);
 			Write_unsigned_char(pRes->m_iCloseRequest);
 			Write_unsigned_char(pRes->m_iReportToServer);

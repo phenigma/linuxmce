@@ -55,6 +55,9 @@ SOURCE  PlutoVMCUtil.cpp
 SOURCE  PlutoVMCView.cpp
 SOURCE  Logger.cpp
 SOURCE  ImageLoader.cpp
+SOURCE  GetCallerID.cpp
+SOURCE  LineReader.cpp
+SOURCE  NotifyIncomingCall.cpp
 
 RESOURCE ..\data\PlutoMO.rss
 RESOURCE ..\data\PlutoMO_caption.rss
@@ -91,6 +94,10 @@ LIBRARY mediaclientimage.lib
 LIBRARY fbscli.lib
 LIBRARY ws32.lib
 LIBRARY bitgdi.lib
+LIBRARY etel.lib
+LIBRARY logcli.lib
+LIBRARY aknnotify.lib
+
 
 LIBRARY http.lib
 LIBRARY InetProtUtil.lib 

@@ -55,4 +55,5 @@ public:
 	CString m_Basket_Cost;
 	CComboBox m_cbCloseRequest;
 	BOOL m_C;
+	CString m_sProgramName;
 };

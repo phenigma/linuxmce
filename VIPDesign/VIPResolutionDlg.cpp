@@ -43,6 +43,7 @@ CVIPResolutionDlg::CVIPResolutionDlg(class VIPMenuResolution *pResolution)
 	, m_Basket_Description(_T(""))
 	, m_Basket_Cost(_T(""))
 	, m_C(FALSE)
+	, m_sProgramName(_T(""))
 {
 	m_pResolution=pResolution;
 }
@@ -86,6 +87,7 @@ void CVIPResolutionDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_RES_BASKET_COST, m_Basket_Cost);
 	DDX_Control(pDX, IDC_RES_CLOSE_REQUEST, m_cbCloseRequest);
 	DDX_Check(pDX, IDC_RES_CLEAR, m_C);
+	DDX_Text(pDX, IDC_RES_LAUNCH_PROGRAM, m_sProgramName);
 }
 
 
@@ -117,12 +119,12 @@ BOOL CVIPResolutionDlg::OnInitDialog()
 	m_8=m_pResolution->m_sTerminatingKey.find("8")!=string::npos;
 	m_9=m_pResolution->m_sTerminatingKey.find("9")!=string::npos;
 
-	m_CriteriaValue=m_pResolution->m_sCriteriaVariableValue.c_str();
 	m_HideApp=m_pResolution->m_iHideApp;
 	m_ReportVariables=m_pResolution->m_iReportToServer;
 	m_ActionValue=m_pResolution->m_sActionVariableValue.c_str();
 	m_CriteriaValue=m_pResolution->m_sCriteriaVariableValue.c_str();
 
+	m_sProgramName = m_pResolution->m_sProgramName.c_str();
 
 	m_cbCloseRequest.AddString("Don't close request");
 	m_cbCloseRequest.AddString("Close with Cancel");
@@ -264,12 +266,12 @@ void CVIPResolutionDlg::OnBnClickedOk()
 		m_pResolution->m_sTerminatingKey+=char(BUTTON_9_CONST);
 
 
-
 	m_pResolution->m_sCriteriaVariableValue = m_CriteriaValue;
 	m_pResolution->m_iHideApp=m_HideApp;
 	m_pResolution->m_iCloseRequest=m_cbCloseRequest.GetCurSel();
 	m_pResolution->m_iReportToServer=m_ReportVariables;
 	m_pResolution->m_sActionVariableValue=m_ActionValue;
+	m_pResolution->m_sProgramName = m_sProgramName;
 
 	m_pResolution->m_iCriteriaVariableID=m_cbCriteriaVariable.GetItemData(m_cbCriteriaVariable.GetCurSel());
 	m_pResolution->m_iActionVariableID=m_cbActionVariable.GetItemData(m_cbActionVariable.GetCurSel());

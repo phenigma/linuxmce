@@ -976,6 +976,18 @@ void RenderMenu::KeyPressed(int KeyCode)
 
 			}
 
+			//
+			//TODO: program name
+
+
+			if( pRes->m_sProgramName != "")
+			{
+				OpenProgram(pRes->m_sProgramName);
+				bRedrawScreen = true;
+			}
+
+
+
 			// OK this res is a match
 
 			if( pRes->m_iActionVariableID>0 )

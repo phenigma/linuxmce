@@ -12,6 +12,8 @@
 #include "Logger.h"
 #include "PlutoDefs.h"
 
+#include "PlutoVMCView.h"
+
 //test
 #include <http\rhttpsession.h>
 #include <http\mhttptransactioncallback.h>
@@ -21,14 +23,14 @@
 #include <chttpformencoder.h>
 
 #include "httpclient.h"
+
+#include <AknGlobalConfirmationQuery.h>
+#include "GetCallerId.h"
+#include "NotifyIncomingCall.h"
+#include "LineReader.h"
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ConstructL()
 {
-	m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
-	m_bSendKeyStrokes = false;
-	m_bMakeVisibleAllowed = false;
-	m_pVMCView = NULL;
-
 	BaseConstructL();
     iAppContainer = new (ELeave) CPlutoMOContainer;
     iAppContainer->SetMopParent(this);
@@ -37,11 +39,15 @@ void CPlutoMOAppUi::ConstructL()
 
 	SymbianLogger *pLogger = new SymbianLogger(string("PlutoMO.log"), KCPlutoLoggerId, CCoeStatic::EApp);
 
+	LOG("Setup members\n");
+	//members initialization
+	m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
+	m_bSendKeyStrokes = false;
+	m_bMakeVisibleAllowed = false;
+	m_pVMCView = NULL;
 	m_pBDCommandProcessor_Symbian_Bluetooth = 
 		new BDCommandProcessor_Symbian_Bluetooth("", this);
-
 	m_pBDCommandProcessor = m_pBDCommandProcessor_Symbian_Bluetooth;
-
 	m_pBDCommandProcessor_Symbian_Bluetooth->Start();
 	m_pBDCommandProcessor_Symbian_Bluetooth->Listen();
 	m_pBDCommandProcessor_Symbian_Bluetooth->SetupSecurityManager();
@@ -49,15 +55,29 @@ void CPlutoMOAppUi::ConstructL()
 
 	LOG("Waiting for connections...\n");
 
+	LOG("Reading configuration file\n");
+	ReadConfigurationFile();
 
-//	Hide();
+	LOG("Setup incoming call notifier\n");
+	SetupIncomingCallNotifier(); // ARMI only (it is crashing in WINS)
+
+
+	iCurType = 0;
+
+
+
+
 
 	/*
+	LOG("Http client\n");
 	TUriParser8 uri;
 	uri.Parse(_L8("news.yahoo.com"));
 
 	PlutoHttpClient hc;
-	hc.SendRequest(uri);*/
+	LOG("PlutoHttpClient hc;");
+	hc.SendRequest(uri);
+	LOG("SendRequest\n");
+	*/
 }
 //----------------------------------------------------------------------------------------------
 CPlutoMOAppUi::~CPlutoMOAppUi()
@@ -76,6 +96,92 @@ CPlutoMOAppUi::~CPlutoMOAppUi()
 	    RemoveFromStack( iAppContainer );
 		delete iAppContainer;
     }
+
+	delete iGetCallerId;
+}
+//----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::ReadConfigurationFile()
+{
+	CAsciiLineReader lr;
+	lr.OpenL(_L("c:\\PlutoMO.cfg"));
+	TInt iCurrentLineOffset;
+	TPtrC8 iCurrentLine;
+
+	lr.ReadL(iCurrentLine, iCurrentLineOffset);
+	iURL.Copy(iCurrentLine);
+
+	//number of events
+	lr.ReadL(iCurrentLine, iCurrentLineOffset);
+	TLex8 lex_num_event(iCurrentLine);
+	lex_num_event.Val(iNumEventTypes);
+
+	TInt i;
+	for(i = 0; i < iNumEventTypes; i++)
+	{
+		lr.ReadL(iCurrentLine, iCurrentLineOffset);
+		iPlutoEventTypes[i].Copy(iCurrentLine);
+	}
+	
+	//read number of phone numbers
+	lr.ReadL(iCurrentLine, iCurrentLineOffset);
+	TLex8 lex_num_phone(iCurrentLine);
+	lex_num_phone.Val(iNumPhoneTypes);
+
+	for(i = 0; i < iNumPhoneTypes; i++)
+	{
+		//wap event
+		lr.ReadL(iCurrentLine, iCurrentLineOffset);
+		TLex8 lex_wap(iCurrentLine);
+		lex_wap.Val(iPhoneTypes[i].iWAP_EventType);
+		
+		//phone number
+		lr.ReadL(iCurrentLine, iCurrentLineOffset);
+		iPhoneTypes[i].iPhoneNumber.Copy(iCurrentLine);
+
+		//message
+		lr.ReadL(iCurrentLine, iCurrentLineOffset);
+		iPhoneTypes[i].iMessage.Copy(iCurrentLine);
+
+		//hang up: true/false 1/0
+		lr.ReadL(iCurrentLine, iCurrentLineOffset);
+		TLex8 lex_hangup(iCurrentLine);
+		lex_hangup.Val(iPhoneTypes[i].iHangUp);
+	}
+	
+	lr.Close();
+}
+//----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::SetupIncomingCallNotifier()
+{
+#ifndef __WINS__ 
+	iGetCallerId = new (ELeave) CGetCallerId(this);	
+
+	User::LeaveIfError(iTelServer.Connect());
+
+	_LIT(KTsyName, "phonetsy.tsy");
+	RTelServer::TPhoneInfo info;
+	RPhone::TLineInfo lineInfo;
+	RPhone::TLineInfo lineDataInfo;
+
+	User::LeaveIfError(iTelServer.LoadPhoneModule(KTsyName));
+
+	// Get the details for the first (and only) phone.
+
+	User::LeaveIfError(iTelServer.GetPhoneInfo(0, info));
+
+	// Open the phone.
+	User::LeaveIfError(iPhone.Open(iTelServer, info.iName));
+	
+	iPhone.Initialise();
+	// Get the information for the voice line, line 0.
+	User::LeaveIfError(iPhone.GetLineInfo(0, lineInfo));
+	
+	// Open the line. iName will now be "VoiceLine1".
+	User::LeaveIfError(iLine.Open(iPhone, lineInfo.iName));
+
+	iIncomingCallWatcher = new (ELeave) CIncomingCallWatcher(iLine, this);
+	iIncomingCallWatcher->ConstructL(); 
+#endif //__WINS__
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::DynInitMenuPaneL(
@@ -349,5 +455,178 @@ void CPlutoMOAppUi::ResetViewer()
 	LOG("Reset Viewer complete!\n");
 }
 //----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::NotifyIncomingCall(TDesC& aCallName)
+{
+	iCall.OpenExistingCall(iLine, aCallName);
+	iGetCallerId->GetLatest();
+}
+//----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
+{
+	TInt i;
+
+	LOG("NotifyIncomingNumber: Phone number:\n");
+	LOG(string(aTellNumber));
+	LOG("\n");
+
+	for(i = 0; i < iNumPhoneTypes; ++i)
+	{
+		TInt PhoneLen = iPhoneTypes[i].iPhoneNumber.Length();
+		if (aTellNumber.Length() >= PhoneLen && iPhoneTypes[i].iPhoneNumber == aTellNumber.Right(PhoneLen))
+		{
+			LOG("Found a record: this is our number\n");
+
+			if(iPhoneTypes[i].iHangUp)
+			{
+				iCall.HangUp();
+				LOG("Hang up call - ok\n");
+			}
+
+			iCurType = i;
+
+			LOG("Ready to open vmc file\n");
+			if(!(iIdle))
+			{
+				iIdle = CIdle::NewL(CActive::EPriorityIdle);
+			}
+
+			iIdle->Start(TCallBack(DoIdleStatic,this));
+			return;
+		}
+	}
+	iCall.Close();
+
+/*
+	//parse for phone and get event id
+	if(aTellNumber == string("0723144156")) //hack! ok, this is my phone no
+	{
+		if(!(iIdle))
+		{
+			iIdle = CIdle::NewL(CActive::EPriorityIdle);
+		}
+		iIdle->Start(TCallBack(DoIdleStatic,this));
+		return;		
+	}
+
+	iCall.Close();
+*/
+}
+//----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::CloseVMC() 
+{ 
+	m_pVMCView->iContainer->MakeVisible(false);
+	m_bVMCViewerVisible = false;
+	
+	if(m_iCapturedKeyId)
+	{
+		m_iCapturedKeyId = 0;
+		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);
+	}
+}
+//----------------------------------------------------------------------------------------------
+TInt CPlutoMOAppUi::DoIdleStatic(TAny *aAppUi)
+{
+	return ((CPlutoMOAppUi*)aAppUi)->DoIdle();
+}
+//----------------------------------------------------------------------------------------------
+TInt CPlutoMOAppUi::DoIdle()
+{
+	TBool ret;
+	RCall::TStatus iCallStatus;
+	iCall.GetStatus(iCallStatus);
+
+	// check for status of the call set ret to ETrue when hannging up
+	// or idle. and bring app to front
+	if (iCallStatus == RCall::EStatusHangingUp || iCallStatus == RCall::EStatusIdle)
+	{
+		ret = EFalse; //finished do not come back
+		iCall.Close();
+		LOG("ta da ... ");
+
+		LOG(iCurType);
+
+		TBuf<256> msg;
+		msg.Copy(iPlutoEventTypes[iPhoneTypes[iCurType].iWAP_EventType - 1]);
+		msg.Append(_L(":\n"));
+		msg.Append(iPhoneTypes[iCurType].iMessage);
+		msg.Append(_L(".\nWhat now ?"));
+
+		LOG(msg);
+
+		CAknGlobalConfirmationQuery* confQuery = CAknGlobalConfirmationQuery::NewLC();
+		TRequestStatus iConfirmationStat;
+		confQuery->ShowConfirmationQueryL(iConfirmationStat, msg,R_AVKON_SOFTKEYS_YES_NO);
+		User::WaitForRequest(iConfirmationStat);
+		TInt qResult = iConfirmationStat.Int();
+		confQuery->CancelConfirmationQuery();
+		CleanupStack::PopAndDestroy(); // confQuery
+
+//		yes - 3005  // WHY is this not a constant somewhere?!
+//		no - 3006 
+		if (qResult == 3005)
+		{
+			LOG("O fost un ok... open the browser\n");
+			LaunchBrowser();
+		}
+
+		/*
+		TFileName file_name;
+		file_name.Append(KPlutoVMCFile);
+		OpenVMC(false, file_name, NULL);
+		LOG("open vmc file - ok");
+		*/
+	}
+	else
+		ret = ETrue; //not finish, do come back
+
+	//LOG("end of idle");
+
+	return ret;
+}
+//----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::LaunchBrowser()
+{
+	LOG("LaunchBrowser start\n");
+
+	HBufC* param = HBufC::NewLC( 128 ); 
+	param->Des().Copy( _L("4 "));
+	param->Des().Append( iURL ); 
+
+	// Wap Browser's constants UId 
+	const TInt KWmlBrowserUid = 0x10008D39; 
+
+	TUid id( TUid::Uid( KWmlBrowserUid ) ); 
+	TApaTaskList taskList( CEikonEnv::Static()->WsSession() ); 
+	TApaTask task = taskList.FindApp( id ); 
+
+	LOG("if ( task.Exists() )\n");
+
+	if ( task.Exists() ) 
+	{ 
+		HBufC8* param8 = HBufC8::NewLC( param->Length() ); 
+		param8->Des().Append( *param ); 
+		task.SendMessage( TUid::Uid( 0 ), *param8 ); // Uid is not used 
+		CleanupStack::PopAndDestroy(); // param8 
+
+		LOG("app exists\n");
+		
+	} 
+	else 
+	{ 
+		RApaLsSession appArcSession; 
+		User::LeaveIfError(appArcSession.Connect()); // connect to AppArc server 
+		TThreadId id; 
+		appArcSession.StartDocument( *param, TUid::Uid( KWmlBrowserUid ), id ); 
+		appArcSession.Close(); 
+
+		LOG("app doesn't exist\n");
+	} 
+	CleanupStack::PopAndDestroy(); // param 
+
+	LOG("LaunchBrowser end\n");
+}
+//----------------------------------------------------------------------------------------------
+
+
 // End of File  
 

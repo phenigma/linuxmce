@@ -130,6 +130,8 @@
 #define IDC_RES_BASKET_ID               1088
 #define IDC_RES_BASKET_DESCRIPTION      1089
 #define IDC_RES_BASKET_TOGGLE           1090
+#define IDC_RES_BASKET_DESCRIPTION2     1091
+#define IDC_RES_LAUNCH_PROGRAM          1091
 #define IDC_GRAPHIC_VARIABLE            1092
 #define IDC_TEXT_VARIABLE               1093
 #define IDC_LIST_BASKETOPTION           1094

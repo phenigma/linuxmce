@@ -80,6 +80,9 @@ protected:
 			RPointerArray<string> GridList);	
 		virtual bool DrawEdit();
 
+		virtual void OpenProgram(string ProgramName);
+		
+
 private:
 		CWindowGc* m_pGC;
 

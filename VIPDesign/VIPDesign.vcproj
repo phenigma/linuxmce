@@ -290,5 +290,8 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="VIPDesign.rc"/>
 	</Globals>
 </VisualStudioProject>

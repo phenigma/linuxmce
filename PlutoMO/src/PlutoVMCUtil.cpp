@@ -712,3 +712,15 @@ void CPlutoVMCUtil::LocalKeyPressed(int KeyCode)
 	pBDCommandProcessor_Symbian_Base->ProcessCommands();
 }
 //------------------------------------------------------------------------------------------------------------------
+void CPlutoVMCUtil::OpenProgram(string ProgramName)
+{
+	/*
+	MyRect RowRect(30, 30, 300, 300);
+	const char* Msg = "Connecting to server...";
+	DrawText(Msg, RowRect);
+	*/
+
+	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote;
+	informationNote->ExecuteLD(_L("Connecting to server..."));
+}
+//------------------------------------------------------------------------------------------------------------------

@@ -106,6 +106,8 @@ protected:
 	virtual void SetTextProperties(int Size,const char *Font,int R, int G, int B)=0;
 	virtual void SwitchToMenu(VIPMenu *pMenu)=0;
 
+	virtual void OpenProgram(string ProgramName) {};
+
 
 public:
 	// The capture keyboard parameters

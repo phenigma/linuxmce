@@ -208,7 +208,7 @@ void CVIPDesignDoc::OnAddInput()
 
 void CVIPDesignDoc::OnAddResolution()
 {
-	VIPMenuResolution *pResolution = new VIPMenuResolution("",0,"",0,0,0,0,0,"");
+	VIPMenuResolution *pResolution = new VIPMenuResolution("",0,"","", 0,0,0,0,0,"");
 	pResolution->m_pMenu = m_pMenu;
 	CVIPResolutionDlg vipResolutionDlg(pResolution);
 	if( vipResolutionDlg.DoModal()==1 )
