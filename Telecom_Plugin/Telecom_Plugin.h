@@ -81,7 +81,25 @@ public:
 
 
 //<-dceag-h-e->
-};
+
+private:
+	 bool CommandResult( class Socket *pSocket, class Message *pMessage, 
+					 			class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
+	 void ProcessResult(int iCommandID, int iResult, std::string sMessage);
+	 
+	 bool Ring( class Socket *pSocket, class Message *pMessage, 
+					 			class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
+	 void ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID);
+
+private:
+    DeviceData_Router* find_AsteriskDevice();
+    DeviceData_Router* find_Device(int iPK_Device);
+
+private:
+	int iCmdCounter;
+	int generate_NewCommandID();
+		
+};	
 
 //<-dceag-end-b->
 }

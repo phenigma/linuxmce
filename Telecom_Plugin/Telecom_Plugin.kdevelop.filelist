@@ -1,0 +1,9 @@
+# KDevelop Custom Project File List
+Telecom_Plugin.cpp
+Telecom_Plugin.h
+/telecomstatemachine.h
+/telecomstatemachine.cpp
+/originatestatemachine.h
+/originatestatemachine.cpp
+callmanager.h
+callmanager.cpp

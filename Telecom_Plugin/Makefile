@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS = -lpluto_main
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
-sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp
+sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp callmanager.cpp calldata.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
