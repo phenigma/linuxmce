@@ -53,7 +53,8 @@ while (1 eq 1) {
           $row_ref = $statement->fetchrow_hashref();
           $tmp = $row_ref->{PK_Device};
           if($tmp eq "") {
-            system("/usr/pluto/bin/CreateDevice -i 1 -c $dhcpd_device -I $ip_sent -M $mac_found > dhcpd_temp.file\n");
+            $install = get_install();
+            system("/usr/pluto/bin/CreateDevice -i $install -c $dhcpd_device -I $ip_sent -M $mac_found > dhcpd_temp.file\n");
             open(FILE, "dhcpd_temp.file");
             @data = <FILE>;
             $Device_ID = $data[0];
@@ -89,6 +90,27 @@ while (1 eq 1) {
         }
       }
       $db_handle->disconnect();
+    }
+  }
+}
+
+sub get_install {
+  open(FILE,"/etc/pluto.conf");
+  @data=<FILE>;
+  close(FILE);
+  foreach $line (@data) {
+    chomp($line);
+    ($var,$value) = split(/=/,$line);
+    @frag = split(/ /,$var);
+    $var = $frag[0];
+    @frag = split(/ /,$value);
+    $value = $frag[0];
+    if($var eq "PK_Installation") {
+      if($value eq "") {
+        return 1;
+      } else {
+        return $value;
+      }
     }
   }
 }
