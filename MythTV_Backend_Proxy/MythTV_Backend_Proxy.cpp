@@ -63,8 +63,8 @@ bool MythTV_Backend_Proxy::Register()
 	should change the sCMD_Result to OK
 */
 
-bool MythTV_Backend_Proxy::Connect() {
-	if(!MythTV_Backend_Proxy_Command::Connect()) {
+bool MythTV_Backend_Proxy::Connect(int iPK_DeviceTemplate ) {
+	if(!MythTV_Backend_Proxy_Command::Connect(iPK_DeviceTemplate)) {
 		return false;
 	}
 

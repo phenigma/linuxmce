@@ -20,8 +20,6 @@ namespace DCE
 	class MythTV_Backend_Proxy : public MythTV_Backend_Proxy_Command, public MYTHTV::ProxyEventHandler
 	{
 //<-dceag-decl-e->
-	{
-//<-dceag-decl-e->
 		// Private member variables
 	private:
 		pthread_mutexattr_t m_MutexAttr;
@@ -43,7 +41,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-		virtual bool Connect();
+		virtual bool Connect(int iPK_DeviceTemplate);
 
 
 //<-dceag-const2-b->
