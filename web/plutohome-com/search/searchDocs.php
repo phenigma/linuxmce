@@ -1,5 +1,5 @@
 <?
-function search($output,$dbADO,$conn){
+function searchDocs($output,$dbADO,$conn){
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 
@@ -28,49 +28,9 @@ function search($output,$dbADO,$conn){
 		$pos++;
 		$out.='<B>'.highlight($searchString,$rowDocs['Title']).'</B><br>'.getPartialContent($searchString,$rowDocs['Contents']).'<br>';
 		$out.='<div align="right" style="background:#EEEEEE;"><a href="support/index.php?section=document&docID='.$rowDocs['PK_Document'].'">Link</a></div>';
-		if($pos==5)
-			break;
 	}		
 	$out.='		</td>
-	  		</tr>';
-	if($docsFound>5){
-		$out.='
-		<tr>
-			<td colspan="2"><div align="center" style="background:#CCCCCC;"><a href="index.php?section=searchDocs&searchString='.$searchString.'"><B>More results...</B></a></div>
-			</td>
-		</tr>';
-	}
-
-	// search in Web pages content
-	$sql="SELECT PageContentID,PageContenttext,PageName FROM PageContent WHERE PageContenttext LIKE '%".$searchString."%'";
-  	$resPages=mysql_query($sql,$conn) or die("Can not grab from database"  .mysql_error());
-  	
-  	$webFound=mysql_num_rows($resPages);
-	
-	$out.='
-			<tr>
-				<td colspan="2"><h4>Results found in WEBSITE: '.$webFound.'</h4></td>
-			</tr>	
-			<tr>
-				<td width="20"></td>
-				<td class="insidetable">';
-	$pos=0;
-  	while($rowWeb=mysql_fetch_assoc($resPages)){
-  		$pos++;
-  		$out.='...'.getPartialContent($searchString,$rowWeb['PageContenttext']).' ...';
-  		$out.='<div align="right" style="background:#EEEEEE;"><a href="index.php?section='.substr($rowWeb['PageName'],0,-4).'">Link</a></div>';
-  		if($pos==5)
-  			break;
-  	}
-	$out.='		</td>
-			</tr>';
-	if($webFound>5){
-		$out.='
-		<tr>
-			<td colspan="2"><div align="center" style="background:#CCCCCC;"><a href="index.php?section=searchWeb&searchString='.$searchString.'"><B>More Results...</B></a></div></td>
-		</tr>';
-	}
-	$out.='
+	  		</tr>
 	  	</table>
 		</td>
 	</tr>

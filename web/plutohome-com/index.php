@@ -49,7 +49,7 @@ switch ($section) {
        	$output=new Template();
        	$output->setTemplateFileType('home');
        	include_once('search/searchDocs.php');
-	    searchDocs($output,$conn);
+	    searchDocs($output,$dbADO,$conn);
 	break;
    
    case 'clientLoginForm':
@@ -460,6 +460,12 @@ switch ($section) {
 		$output->setTemplateFileType('home');
 	    include_once('dealer/updateProfile.php');
 	    updateProfile($output,$conn,$dbADO);
+    break;
+    case 'requestInstallationAssistance':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('dealer/requestInstallationAssistance.php');
+	    requestInstallationAssistance($output,$conn,$dbADO);
     break;
     
     case 'programGuidelines':

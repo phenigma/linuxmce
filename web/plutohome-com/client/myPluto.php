@@ -19,6 +19,7 @@ function myPluto($output,$dbADO,$conn) {
 	$queryInstallations='
 			SELECT * FROM Installation_Users
 				INNER JOIN Installation ON FK_Installation=PK_Installation
+				INNER JOIN Users ON FK_Users=PK_Users
 			WHERE Installation_Users.FK_Users=?';
 	$res=$dbADO->Execute($queryInstallations,$FK_Users);
 	if($res->RecordCount()==0)
@@ -26,7 +27,10 @@ function myPluto($output,$dbADO,$conn) {
 		<b>To get Pluto</b>, choose <a href="index.php?section=wizard&step=1&instid=0">Start wizard</a>.';
 	else {
 		$installationsText='You have the following installations:<br>';
+		$isDealer=0;
 		while($rowInstallations=$res->FetchRow()){
+			if($rowInstallations['FK_Dealer']!='')
+				$isDealer=1;
 			$installationsText.='
 				Installation no. <b>'.$rowInstallations['PK_Installation'].'</b><br>
 				Description: <a href="index.php?section=wizard&step=8&instid='.$rowInstallations['PK_Installation'].'"><b>'.stripslashes($rowInstallations['Description']).'</b></a><br>';
@@ -47,6 +51,8 @@ function myPluto($output,$dbADO,$conn) {
 			</script>";
 		}
 	}
+
+
 		
 	$out = '<br>
       		<table width="100%">
@@ -58,7 +64,7 @@ function myPluto($output,$dbADO,$conn) {
       			<tr bgcolor="#DADDE4">
       				<td align="center" width="33%" class="normaltext"><b>Installations</b></td>
       				<td align="center" width="33%" class="normaltext"><b>Referrals</b></td>
-      				<td align="center" width="34%" class="normaltext"><b>Dealer’s corner</b></td>
+      				<td align="center" width="34%" class="normaltext"><b>'.(($isDealer==1)?'Dealer’s corner':'Developer\'s corner').'</b></td>
       			</tr>
       	      	<tr>
       				<td align="left" valign="top" class="normaltext">'.$installationsText.'<br>					
@@ -72,9 +78,11 @@ function myPluto($output,$dbADO,$conn) {
 							</tr>
 						</table>
 					</td>
-      				<td align="left" valign="top" class="normaltext">
-					<a href="index.php?section=updateProfile"><B>Update profile</B></a><br>
-					<a href="index.php?section=requestInstallationAssistance"><B>Request Installation Assistance</B></a><br>
+      				<td align="left" valign="top" class="normaltext">'.(($isDealer==1)?'<a href="index.php?section=updateProfile"><B>Update profile</B></a><br>
+					<a href="index.php?section=requestInstallationAssistance"><B>Request Installation Assistance</B></a><br>':'Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>
+      				We have developed class generators that will build a fully complete, ready-to-compile <a href="support/index.php?section=document&docID=51">DCE Devices</a> in minutes.
+	     			They\'re standard C++, run on both Linux & Windows, ready talk to any other DCE Device on any platform.  See our <a href="http://plutohome.com/support/index.php?section=document&docID=15">Programmer\'s guide</a> for a quick intro.<br><br>').'
+					
       				</td>
       			</tr>
 	      		<tr>

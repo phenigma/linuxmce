@@ -1,9 +1,6 @@
 <?
 function updateProfile($output,$conn,$dbADO) {
 	/* @var $dbADO ADOConnection */
-	$businessArray=array(1=>'New-Startup',2=>'Security', 3=>'Audio and Video', 4=>'Satellite', 5=>'Electrical', 6=>'Consumer Electronics',7=>'Home Networking', 8=>'Home Automation', 9=>'Other');
-	$marketFocusArray=array(1=>'New Construction', 2=>'Residential Retrofit', 3=>'Small Business', 4=>'High-End Custom Homes',5=>'Other');
-	$estimatedRevenueArray=array(1=>'$0-$50K', 2=>'$50K-$250K', 3=>'$250K-$500K', 4=>'$500K-$750K', 5=>'$750K-$1M', 6=>'1M+');		
 	
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';	
 	
@@ -230,7 +227,7 @@ if($action=='form'){
 		$headers .= "cc: \n"; 
 		$headers .= "bcc: "; 
 	
-		$subject = 'New dealer application';
+		$subject = 'Dealer profile updated';
 	
 		@mail($GLOBALS['sendNotificationsTo'],$subject,$emailBody,$headers);
 	}
