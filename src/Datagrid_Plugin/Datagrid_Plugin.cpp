@@ -185,7 +185,12 @@ g_pPlutoLogger->Write( LV_DATAGRID, "it has a seek value grid: %s rows: %d", sDa
 					break;
 				}
 				string::size_type posStart=0,posEnd=0;
-				string CellText = bValue ? StringUtils::ToUpper(pCell->m_Value) : StringUtils::ToUpper(pCell->m_Text);
+				string CellText = bValue ? StringUtils::ToUpper(pCell->m_Value ? pCell->m_Value : "") : StringUtils::ToUpper(pCell->m_Text ? pCell->m_Text : "");
+				if( CellText.length()==0 )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"Request grid, we're seeking on a column that has empty cells ioffset: %d seek: %s id: %s",iOffset,sSeek.c_str(),sDataGrid_ID.c_str());
+					continue;
+				}
 				if( CellText[0]=='~' )
 					posStart++;
 				if( CellText[posStart]=='`' )
