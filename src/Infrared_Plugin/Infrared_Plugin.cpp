@@ -30,8 +30,6 @@ using namespace DCE;
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Variable.h"
 
-#include "Orbiter_Plugin.h"
-
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Infrared_Plugin::Infrared_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
