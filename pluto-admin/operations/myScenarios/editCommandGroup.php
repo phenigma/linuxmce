@@ -402,9 +402,10 @@ function editCommandGroup($output,$dbADO) {
 						Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
 					WHERE 
 						(Device.FK_Installation = ? OR Device.PK_Device IS NULL)
+				AND CommandGroup_Command.FK_CommandGroup = ?
 				";								
 
-			$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($installationID));
+			$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($installationID,$commandGroupID));
 			
 			$parametersUpdatedAlert = 'Parameters not updated!';
 			
@@ -413,7 +414,7 @@ function editCommandGroup($output,$dbADO) {
 					
 					$deviceSelected = isset($_POST['device_'.$rowCommandAssigned['PK_CommandGroup_Command']])?$_POST['device_'.$rowCommandAssigned['PK_CommandGroup_Command']]:$x;
 					$commandSelected = isset($_POST['deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command']])?$_POST['deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command']]:$y;
-					
+
 					$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Device = ? WHERE PK_CommandGroup_Command = ? ';
 					$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($deviceSelected,$rowCommandAssigned['PK_CommandGroup_Command']));
 					
