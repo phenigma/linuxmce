@@ -1121,6 +1121,17 @@
 #define DESIGNOBJ_grpSeekPlaylist_CONST 3293
 #define DESIGNOBJ_dgCommands_CONST 3294
 #define DESIGNOBJ_temp_CONST 3295
+#define DESIGNOBJ_Follow_Me_Media_CONST 3296
+#define DESIGNOBJ_butTryOtherCodes_CONST 3298
+#define DESIGNOBJ_mnuTryCodes_CONST 3299
+#define DESIGNOBJ_dgManufacturers_CONST 3300
+#define DESIGNOBJ_dgInfraredGroups_CONST 3301
+#define DESIGNOBJ_Follow_Me_Lighting_CONST 3302
+#define DESIGNOBJ_Follow_Me_Climate_CONST 3303
+#define DESIGNOBJ_Follow_Me_Telecom_CONST 3304
+#define DESIGNOBJ_Follow_Me_Security_CONST 3305
+#define DESIGNOBJ_dgIRTypes_CONST 3306
+#define DESIGNOBJ_dgIRCodes_CONST 3307
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -26,6 +26,12 @@
 #define VARIABLE_Media_Stream_ID_CONST 23
 #define VARIABLE_PasswordPin_CONST 24
 #define VARIABLE_PK_Housemode_CONST 25
+#define VARIABLE_Followme_Lights_CONST 26
+#define VARIABLE_Followme_Media_CONST 27
+#define VARIABLE_Followme_Climate_CONST 28
+#define VARIABLE_Followme_Telecom_CONST 29
+#define VARIABLE_Followme_Security_CONST 30
+#define VARIABLE_Misc_Data_3_CONST 31
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

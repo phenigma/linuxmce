@@ -256,6 +256,9 @@
 #define COMMAND_Delay_CONST 257
 #define COMMAND_Clear_Selected_Devices_CONST 258
 #define COMMAND_Report_Playback_Position_CONST 259
+#define COMMAND_Set_Main_Menu_CONST 260
+#define COMMAND_Set_FollowMe_CONST 261
+#define COMMAND_Stop_Streaming_CONST 262
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

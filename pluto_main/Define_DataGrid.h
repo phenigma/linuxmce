@@ -25,6 +25,9 @@
 #define DATAGRID_Phone_Book_List_of_Nos_CONST 22
 #define DATAGRID_Devices_by_Room_CONST 23
 #define DATAGRID_Commmands_By_Device_CONST 24
+#define DATAGRID_Manufacturers_CONST 25
+#define DATAGRID_Infrared_Groups_CONST 26
+#define DATAGRID_Infrared_Group_Categories_CONST 27
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

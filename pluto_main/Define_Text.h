@@ -418,6 +418,8 @@
 #define TEXT_Alerts_Placeholder_CONST 1093
 #define TEXT_Manage_Playlist_CONST 1094
 #define TEXT_Version_CONST 1095
+#define TEXT_Try_other_codes_CONST 1096
+#define TEXT_Device_Info_CONST 1097
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
