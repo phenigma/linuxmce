@@ -130,9 +130,7 @@ g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
 g_pPlutoLogger->Write(LV_STATUS, "comparing extension %s", s.c_str());
 					if (s.substr(0,1) == "*")
 						s = s.substr(1);
-					if (s == "")
-						break;
-					if (s == ".*" || strstr(entry.d_name, s.c_str()) != NULL)
+					if (s == ".*" || s.length()==0 || strstr(entry.d_name, s.c_str()) != NULL)
 					{
 						FileDetails *fi = new FileDetails(BasePath, entry.d_name, false, time(NULL));
 g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);

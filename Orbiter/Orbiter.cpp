@@ -2467,7 +2467,11 @@ bool Orbiter::ButtonDown( int PK_Button )
 	{
 		if( m_iCaptureKeyboard_PK_Variable )
 		{
-			if( 
+			if( PK_Button == BUTTON_space_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( ' ' );
+			else if( PK_Button == BUTTON_comma_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( ',' );
+			else if( 
 				( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
 				( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
 				( PK_Button >= BUTTON_1_CONST && PK_Button <= BUTTON_0_CONST )
@@ -2494,6 +2498,10 @@ bool Orbiter::ButtonDown( int PK_Button )
 				//CaptureKeyboard_UpdateVariableAndText( m_iCaptureKeyboard_PK_Variable,  
 				//	m_sCaptureKeyboard_InternalBuffer );
 			}
+			else if( PK_Button == BUTTON_left_shift_CONST || PK_Button == BUTTON_right_shift_CONST  )
+				int k=2;// TODO: implement this
+			else if( PK_Button == BUTTON_caps_lock_CONST )
+				int k=2;// TODO: implement this
 		}
 
 		if( m_bCaptureKeyboard_DataGrid )
@@ -3930,7 +3938,7 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 void Orbiter::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
-	ButtonDown( iPK_Button );
+	ButtonDown( atoi(sPK_Button.c_str()) ); // TODO: Handle shift and send second digit if shit is down
 }
 
 //<-dceag-c29-b->

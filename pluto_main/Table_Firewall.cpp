@@ -72,7 +72,7 @@ void Row_Firewall::Delete()
 		}
 		else
 		{
-			SingleLongKey key(pRow->m_PK_PortForward);
+			SingleLongKey key(pRow->m_PK_Firewall);
 			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
@@ -91,7 +91,7 @@ void Row_Firewall::Reload()
 	
 	if (!is_added)
 	{
-		SingleLongKey key(pRow->m_PK_PortForward);
+		SingleLongKey key(pRow->m_PK_Firewall);
 		Row_Firewall *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -111,7 +111,7 @@ Row_Firewall::Row_Firewall(Table_Firewall *pTable):table(pTable)
 
 void Row_Firewall::SetDefaultValues()
 {
-	m_PK_PortForward = 0;
+	m_PK_Firewall = 0;
 is_null[0] = false;
 m_Protocol = "tcp";
 is_null[1] = false;
@@ -139,9 +139,9 @@ is_null[11] = false;
 	is_modified=false;
 }
 
-long int Row_Firewall::PK_PortForward_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Firewall::PK_Firewall_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_PK_PortForward;}
+return m_PK_Firewall;}
 string Row_Firewall::Protocol_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Protocol;}
@@ -177,9 +177,9 @@ string Row_Firewall::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 return m_psc_mod;}
 
 		
-void Row_Firewall::PK_PortForward_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Firewall::PK_Firewall_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_PK_PortForward = val; is_modified=true; is_null[0]=false;}
+m_PK_Firewall = val; is_modified=true; is_null[0]=false;}
 void Row_Firewall::Protocol_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Protocol = val; is_modified=true; is_null[1]=false;}
@@ -243,7 +243,7 @@ void Row_Firewall::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mu
 is_null[10]=val;}
 	
 
-string Row_Firewall::PK_PortForward_asSQL()
+string Row_Firewall::PK_Firewall_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -251,7 +251,7 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_PK_PortForward);
+sprintf(buf, "%li", m_PK_Firewall);
 
 return buf;
 }
@@ -406,9 +406,9 @@ return s;
 
 
 
-Table_Firewall::Key::Key(long int in_PK_PortForward)
+Table_Firewall::Key::Key(long int in_PK_Firewall)
 {
-			pk_PK_PortForward = in_PK_PortForward;
+			pk_PK_Firewall = in_PK_Firewall;
 	
 }
 
@@ -416,14 +416,14 @@ Table_Firewall::Key::Key(Row_Firewall *pRow)
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
-			pk_PK_PortForward = pRow->m_PK_PortForward;
+			pk_PK_Firewall = pRow->m_PK_Firewall;
 	
 }		
 
 bool Table_Firewall::Key_Less::operator()(const Table_Firewall::Key &key1, const Table_Firewall::Key &key2) const
 {
-			if (key1.pk_PK_PortForward!=key2.pk_PK_PortForward)
-return key1.pk_PK_PortForward<key2.pk_PK_PortForward;
+			if (key1.pk_PK_Firewall!=key2.pk_PK_Firewall)
+return key1.pk_PK_Firewall<key2.pk_PK_Firewall;
 else
 return false;	
 }	
@@ -441,10 +441,10 @@ bool Table_Firewall::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_PortForward_asSQL()+", "+pRow->Protocol_asSQL()+", "+pRow->SourcePort_asSQL()+", "+pRow->SourcePortEnd_asSQL()+", "+pRow->DestinationPort_asSQL()+", "+pRow->DestinationIP_asSQL()+", "+pRow->RuleType_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Firewall_asSQL()+", "+pRow->Protocol_asSQL()+", "+pRow->SourcePort_asSQL()+", "+pRow->SourcePortEnd_asSQL()+", "+pRow->DestinationPort_asSQL()+", "+pRow->DestinationIP_asSQL()+", "+pRow->RuleType_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Firewall (PK_PortForward, Protocol, SourcePort, SourcePortEnd, DestinationPort, DestinationIP, RuleType, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Firewall (PK_Firewall, Protocol, SourcePort, SourcePortEnd, DestinationPort, DestinationIP, RuleType, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -460,11 +460,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_PortForward
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
 			if (id!=0)
-pRow->m_PK_PortForward=id;
+pRow->m_PK_Firewall=id;
 	
 			
 			addedRows.erase(i);
-			SingleLongKey key(pRow->m_PK_PortForward);	
+			SingleLongKey key(pRow->m_PK_Firewall);	
 			cachedRows[key] = pRow;
 					
 			
@@ -482,19 +482,19 @@ pRow->m_PK_PortForward=id;
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_Firewall* pRow = (Row_Firewall*) (*i).second;	
-		SingleLongKey key(pRow->m_PK_PortForward);
+		SingleLongKey key(pRow->m_PK_Firewall);
 
-		char tmp_PK_PortForward[32];
-sprintf(tmp_PK_PortForward, "%li", key.pk);
+		char tmp_PK_Firewall[32];
+sprintf(tmp_PK_Firewall, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_PortForward=" + tmp_PK_PortForward;
+condition = condition + "PK_Firewall=" + tmp_PK_Firewall;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_PortForward="+pRow->PK_PortForward_asSQL()+", Protocol="+pRow->Protocol_asSQL()+", SourcePort="+pRow->SourcePort_asSQL()+", SourcePortEnd="+pRow->SourcePortEnd_asSQL()+", DestinationPort="+pRow->DestinationPort_asSQL()+", DestinationIP="+pRow->DestinationIP_asSQL()+", RuleType="+pRow->RuleType_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Firewall="+pRow->PK_Firewall_asSQL()+", Protocol="+pRow->Protocol_asSQL()+", SourcePort="+pRow->SourcePort_asSQL()+", SourcePortEnd="+pRow->SourcePortEnd_asSQL()+", DestinationPort="+pRow->DestinationPort_asSQL()+", DestinationIP="+pRow->DestinationIP_asSQL()+", RuleType="+pRow->RuleType_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Firewall set " + update_values_list + " where " + condition;
@@ -528,12 +528,12 @@ update_values_list = update_values_list + "PK_PortForward="+pRow->PK_PortForward
 		SingleLongKey key = (*i).first;
 		Row_Firewall* pRow = (Row_Firewall*) (*i).second;	
 
-		char tmp_PK_PortForward[32];
-sprintf(tmp_PK_PortForward, "%li", key.pk);
+		char tmp_PK_Firewall[32];
+sprintf(tmp_PK_Firewall, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_PortForward=" + tmp_PK_PortForward;
+condition = condition + "PK_Firewall=" + tmp_PK_Firewall;
 
 	
 		string query = "delete from Firewall where " + condition;
@@ -590,12 +590,12 @@ bool Table_Firewall::GetRows(string where_statement,vector<class Row_Firewall*> 
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_PortForward = 0;
+pRow->m_PK_Firewall = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_PortForward));
+sscanf(row[0], "%li", &(pRow->m_PK_Firewall));
 }
 
 if (row[1] == NULL)
@@ -723,7 +723,7 @@ pRow->m_psc_mod = string(row[11],lengths[11]);
 
 		//checking for duplicates
 
-		SingleLongKey key(pRow->m_PK_PortForward);
+		SingleLongKey key(pRow->m_PK_Firewall);
 		
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
@@ -755,11 +755,11 @@ Row_Firewall* Table_Firewall::AddRow()
 
 
 
-Row_Firewall* Table_Firewall::GetRow(long int in_PK_PortForward)
+Row_Firewall* Table_Firewall::GetRow(long int in_PK_Firewall)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	SingleLongKey row_key(in_PK_PortForward);
+	SingleLongKey row_key(in_PK_Firewall);
 
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -788,12 +788,12 @@ Row_Firewall* Table_Firewall::FetchRow(SingleLongKey &key)
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
-	char tmp_PK_PortForward[32];
-sprintf(tmp_PK_PortForward, "%li", key.pk);
+	char tmp_PK_Firewall[32];
+sprintf(tmp_PK_Firewall, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_PortForward=" + tmp_PK_PortForward;
+condition = condition + "PK_Firewall=" + tmp_PK_Firewall;
 
 
 	string query = "select * from Firewall where " + condition;		
@@ -828,12 +828,12 @@ condition = condition + "PK_PortForward=" + tmp_PK_PortForward;
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_PortForward = 0;
+pRow->m_PK_Firewall = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_PortForward));
+sscanf(row[0], "%li", &(pRow->m_PK_Firewall));
 }
 
 if (row[1] == NULL)

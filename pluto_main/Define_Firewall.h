@@ -3,8 +3,8 @@
 
 
 #define FIREWALL_TABLE "Firewall"
-#define FIREWALL_PK_PORTFORWARD_FIELD "PK_PortForward"
-#define FIREWALL_PK_PORTFORWARD_TABLE_FIELD "Firewall.PK_PortForward"
+#define FIREWALL_PK_FIREWALL_FIELD "PK_Firewall"
+#define FIREWALL_PK_FIREWALL_TABLE_FIELD "Firewall.PK_Firewall"
 #define FIREWALL_PROTOCOL_FIELD "Protocol"
 #define FIREWALL_PROTOCOL_TABLE_FIELD "Firewall.Protocol"
 #define FIREWALL_SOURCEPORT_FIELD "SourcePort"

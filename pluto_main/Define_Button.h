@@ -109,6 +109,12 @@
 #define BUTTON_X_CONST 162
 #define BUTTON_Y_CONST 163
 #define BUTTON_Z_CONST 164
+#define BUTTON_space_CONST 165
+#define BUTTON_comma_CONST 166
+#define BUTTON_period_CONST 167
+#define BUTTON_left_shift_CONST 168
+#define BUTTON_right_shift_CONST 169
+#define BUTTON_caps_lock_CONST 170
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"

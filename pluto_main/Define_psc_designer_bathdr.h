@@ -7,6 +7,8 @@
 #define PSC_DESIGNER_BATHDR_PK_PSC_DESIGNER_BATHDR_TABLE_FIELD "psc_designer_bathdr.PK_psc_designer_bathdr"
 #define PSC_DESIGNER_BATHDR_DATE_FIELD "date"
 #define PSC_DESIGNER_BATHDR_DATE_TABLE_FIELD "psc_designer_bathdr.date"
+#define PSC_DESIGNER_BATHDR_COMMENTS_FIELD "comments"
+#define PSC_DESIGNER_BATHDR_COMMENTS_TABLE_FIELD "psc_designer_bathdr.comments"
 
 
 #endif

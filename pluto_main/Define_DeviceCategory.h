@@ -47,6 +47,7 @@
 #define DEVICECATEGORY_Video_Soft_Phones_CONST 92
 #define DEVICECATEGORY_Surveillance_Cameras_CONST 93
 #define DEVICECATEGORY_Intercom_CONST 94
+#define DEVICECATEGORY_Audio_Zone_CONST 95
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

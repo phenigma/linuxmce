@@ -82,6 +82,7 @@ class DLL_EXPORT Row_StartupScript : public TableRow, public SerializeClass
 		Table_StartupScript *table;
 		
 		long int m_PK_StartupScript;
+string m_When;
 string m_Command;
 string m_Description;
 short int m_ConfigureOnly;
@@ -104,10 +105,11 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[22];
+		bool is_null[23];
 	
 	public:
 		long int PK_StartupScript_get();
+string When_get();
 string Command_get();
 string Description_get();
 short int ConfigureOnly_get();
@@ -132,6 +134,7 @@ string psc_mod_get();
 
 		
 		void PK_StartupScript_set(long int val);
+void When_set(string val);
 void Command_set(string val);
 void Description_set(string val);
 void ConfigureOnly_set(short int val);
@@ -155,13 +158,15 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool psc_id_isNull();
+		bool When_isNull();
+bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void psc_id_setNull(bool val);
+		void When_setNull(bool val);
+void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
@@ -185,12 +190,13 @@ void psc_frozen_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_StartupScript+ m_Command+ m_Description+ m_ConfigureOnly+ m_Parameter_Syntax+ m_Core_Boot_Order+ m_Core_Background+ m_Core_Enabled+ m_Core_Parameter+ m_MD_Boot_Order+ m_MD_Background+ m_MD_Enabled+ m_MD_Parameter+ m_Hybrid_Boot_Order+ m_Hybrid_Background+ m_Hybrid_Enabled+ m_Hybrid_Parameter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_StartupScript+ m_When+ m_Command+ m_Description+ m_ConfigureOnly+ m_Parameter_Syntax+ m_Core_Boot_Order+ m_Core_Background+ m_Core_Enabled+ m_Core_Parameter+ m_MD_Boot_Order+ m_MD_Background+ m_MD_Enabled+ m_MD_Parameter+ m_Hybrid_Boot_Order+ m_Hybrid_Background+ m_Hybrid_Enabled+ m_Hybrid_Parameter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_StartupScript_asSQL();
+string When_asSQL();
 string Command_asSQL();
 string Description_asSQL();
 string ConfigureOnly_asSQL();

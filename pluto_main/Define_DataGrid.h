@@ -19,6 +19,7 @@
 #define DATAGRID_EPG_All_Shows_Mobile_CONST 16
 #define DATAGRID_Media_Item_Attr_CONST 17
 #define DATAGRID_Stored_Audio_Playlist_CONST 18
+#define DATAGRID_Appliable_commands_CONST 19
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

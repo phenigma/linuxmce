@@ -1089,7 +1089,7 @@ MediaPluginInfo *Media_Plugin::FindMediaPluginInfoForFileName(EntertainArea *pEn
     sExt = StringUtils::ToUpper( FileUtils::FindExtension( sFileToPlay ) );
     g_pPlutoLogger->Write( LV_STATUS, "Find plugin able to play: %s. Extesion is: %s", sFileToPlay.c_str(), sExt.c_str());
 
-    List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_Extension_Find( sExt );
+	List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_Extension_Find( sExt );
     if( ! pList_MediaPluginInfo || pList_MediaPluginInfo->size( ) ==0 )
     {
         g_pPlutoLogger->Write( LV_WARNING, "No media plugin knows how to handle extension: %s in ent area %d (file was: %s)",

@@ -83,22 +83,27 @@ class DLL_EXPORT Row_psc_dce_bathdr : public TableRow, public SerializeClass
 		
 		long int m_PK_psc_dce_bathdr;
 string m_date;
+string m_comments;
 
-		bool is_null[2];
+		bool is_null[3];
 	
 	public:
 		long int PK_psc_dce_bathdr_get();
 string date_get();
+string comments_get();
 
 		
 		void PK_psc_dce_bathdr_set(long int val);
 void date_set(string val);
+void comments_set(string val);
 
 		
 		bool date_isNull();
+bool comments_isNull();
 
 			
 		void date_setNull(bool val);
+void comments_setNull(bool val);
 	
 	
 		void Delete();
@@ -123,13 +128,14 @@ void psc_dce_batuser_FK_psc_dce_bathdr_getrows(vector <class Row_psc_dce_batuser
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_psc_dce_bathdr+ m_date;
+			StartSerializeList() + m_PK_psc_dce_bathdr+ m_date+ m_comments;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_psc_dce_bathdr_asSQL();
 string date_asSQL();
+string comments_asSQL();
 
 	};
 

@@ -476,7 +476,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Build grid, actions %s GOT %d entries ", Acti
 		string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0") 
 			+ "|" + StringUtils::itos(iDirNumber)+ "|" + sParent;
 		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
-			"DataGrid ID (Debug info only) goes here", GridID, DATAGRID_Directory_Listing_CONST, newParams);
+			"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
 		pCell->m_pMessage = CMDPDG.m_pMessage;
 		pDataGrid->SetData(0, iRow++, pCell);
 	}
@@ -491,7 +491,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Added dir '%s' to datagrid", pFileDetails->m_
 			string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0") 
 				+ "|" + StringUtils::itos(iDirNumber)+ "|" + sSubDirectory + pFileDetails->m_sFileName + "/";
 			DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
-				"DataGrid ID (Debug info only) goes here", GridID, DATAGRID_Directory_Listing_CONST, newParams);
+				"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
 			pCell->m_pMessage = CMDPDG.m_pMessage;
 		}
 		else if( Actions.length() )

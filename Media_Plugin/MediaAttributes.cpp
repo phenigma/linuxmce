@@ -898,7 +898,7 @@ bool MediaAttributes::GetFilesFromAttrBySpec(string sAttrSpecification, vector<s
     Row_Attribute *pRow_Attribute;
     int iAttrId;
 
-    if ( (iAttrId = atoi(sAttrSpecification.substr(3).c_str())) == 0 )
+    if ( (iAttrId = atoi(sAttrSpecification.substr(2).c_str())) == 0 )
     {
         g_pPlutoLogger->Write(LV_WARNING, "MediaAttributtes::GetFilesFromAttrBySpec had invalid input ( the attr id was resolved to the 0 value ). Original input: %s", sAttrSpecification.c_str());
         return false;
@@ -930,7 +930,7 @@ int MediaAttributes::ConvertFileSpecToFileID(string sFileSpecification)
     if ( ! isFileSpecification(sFileSpecification) )
         return 0;
 
-    if ( (iFileID = atoi(sFileSpecification.substr(3).c_str())) == 0 )
+    if ( (iFileID = atoi(sFileSpecification.substr(2).c_str())) == 0 )
     {
         g_pPlutoLogger->Write(LV_WARNING, "MediaAttributtes::ConvertFileSpecToFilePath had invalid input ( the file id was resolved to the 0 value ). Original input: %s", sFileSpecification.c_str());
         return 0;

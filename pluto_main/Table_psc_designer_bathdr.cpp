@@ -119,6 +119,7 @@ void Row_psc_designer_bathdr::SetDefaultValues()
 	m_PK_psc_designer_bathdr = 0;
 is_null[0] = false;
 is_null[1] = true;
+is_null[2] = true;
 
 
 	is_added=false;
@@ -132,6 +133,9 @@ return m_PK_psc_designer_bathdr;}
 string Row_psc_designer_bathdr::date_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_date;}
+string Row_psc_designer_bathdr::comments_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_comments;}
 
 		
 void Row_psc_designer_bathdr::PK_psc_designer_bathdr_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -140,16 +144,25 @@ m_PK_psc_designer_bathdr = val; is_modified=true; is_null[0]=false;}
 void Row_psc_designer_bathdr::date_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_date = val; is_modified=true; is_null[1]=false;}
+void Row_psc_designer_bathdr::comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_comments = val; is_modified=true; is_null[2]=false;}
 
 		
 bool Row_psc_designer_bathdr::date_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[1];}
+bool Row_psc_designer_bathdr::comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[2];}
 
 			
 void Row_psc_designer_bathdr::date_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[1]=val;}
+void Row_psc_designer_bathdr::comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[2]=val;}
 	
 
 string Row_psc_designer_bathdr::PK_psc_designer_bathdr_asSQL()
@@ -174,6 +187,20 @@ return "NULL";
 
 char *buf = new char[39];
 mysql_real_escape_string(table->database->db_handle, buf, m_date.c_str(), (unsigned long) m_date.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
+string Row_psc_designer_bathdr::comments_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char *buf = new char[131071];
+mysql_real_escape_string(table->database->db_handle, buf, m_comments.c_str(), (unsigned long) m_comments.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -217,10 +244,10 @@ bool Table_psc_designer_bathdr::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_designer_bathdr_asSQL()+", "+pRow->date_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_designer_bathdr_asSQL()+", "+pRow->date_asSQL()+", "+pRow->comments_asSQL();
 
 	
-		string query = "insert into psc_designer_bathdr (PK_psc_designer_bathdr, date) values ("+
+		string query = "insert into psc_designer_bathdr (PK_psc_designer_bathdr, date, comments) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -270,7 +297,7 @@ condition = condition + "PK_psc_designer_bathdr=" + tmp_PK_psc_designer_bathdr;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_designer_bathdr="+pRow->PK_psc_designer_bathdr_asSQL()+", date="+pRow->date_asSQL();
+update_values_list = update_values_list + "PK_psc_designer_bathdr="+pRow->PK_psc_designer_bathdr_asSQL()+", date="+pRow->date_asSQL()+", comments="+pRow->comments_asSQL();
 
 	
 		string query = "update psc_designer_bathdr set " + update_values_list + " where " + condition;
@@ -383,6 +410,17 @@ else
 {
 pRow->is_null[1]=false;
 pRow->m_date = string(row[1],lengths[1]);
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_comments = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_comments = string(row[2],lengths[2]);
 }
 
 
@@ -511,6 +549,17 @@ else
 {
 pRow->is_null[1]=false;
 pRow->m_date = string(row[1],lengths[1]);
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_comments = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_comments = string(row[2],lengths[2]);
 }
 
 

@@ -114,45 +114,47 @@ void Row_StartupScript::SetDefaultValues()
 {
 	m_PK_StartupScript = 0;
 is_null[0] = false;
-m_Command = "";
+m_When = "S";
 is_null[1] = false;
-m_Description = "";
+m_Command = "";
 is_null[2] = false;
-m_ConfigureOnly = 0;
+m_Description = "";
 is_null[3] = false;
-m_Parameter_Syntax = "";
+m_ConfigureOnly = 0;
 is_null[4] = false;
-m_Core_Boot_Order = 99;
+m_Parameter_Syntax = "";
 is_null[5] = false;
-m_Core_Background = 0;
+m_Core_Boot_Order = 99;
 is_null[6] = false;
-m_Core_Enabled = 1;
+m_Core_Background = 0;
 is_null[7] = false;
-m_Core_Parameter = "";
+m_Core_Enabled = 1;
 is_null[8] = false;
-m_MD_Boot_Order = 99;
+m_Core_Parameter = "";
 is_null[9] = false;
-m_MD_Background = 0;
+m_MD_Boot_Order = 99;
 is_null[10] = false;
-m_MD_Enabled = 1;
+m_MD_Background = 0;
 is_null[11] = false;
-m_MD_Parameter = "";
+m_MD_Enabled = 1;
 is_null[12] = false;
-m_Hybrid_Boot_Order = 99;
+m_MD_Parameter = "";
 is_null[13] = false;
-m_Hybrid_Background = 0;
+m_Hybrid_Boot_Order = 99;
 is_null[14] = false;
-m_Hybrid_Enabled = 1;
+m_Hybrid_Background = 0;
 is_null[15] = false;
-m_Hybrid_Parameter = "";
+m_Hybrid_Enabled = 1;
 is_null[16] = false;
-is_null[17] = true;
+m_Hybrid_Parameter = "";
+is_null[17] = false;
 is_null[18] = true;
 is_null[19] = true;
+is_null[20] = true;
 m_psc_frozen = 0;
-is_null[20] = false;
-m_psc_mod = "00000000000000";
 is_null[21] = false;
+m_psc_mod = "00000000000000";
+is_null[22] = false;
 
 
 	is_added=false;
@@ -163,6 +165,9 @@ is_null[21] = false;
 long int Row_StartupScript::PK_StartupScript_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_StartupScript;}
+string Row_StartupScript::When_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_When;}
 string Row_StartupScript::Command_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Command;}
@@ -231,97 +236,106 @@ return m_psc_mod;}
 void Row_StartupScript::PK_StartupScript_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_StartupScript = val; is_modified=true; is_null[0]=false;}
+void Row_StartupScript::When_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_When = val; is_modified=true; is_null[1]=false;}
 void Row_StartupScript::Command_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Command = val; is_modified=true; is_null[1]=false;}
+m_Command = val; is_modified=true; is_null[2]=false;}
 void Row_StartupScript::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Description = val; is_modified=true; is_null[2]=false;}
+m_Description = val; is_modified=true; is_null[3]=false;}
 void Row_StartupScript::ConfigureOnly_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_ConfigureOnly = val; is_modified=true; is_null[3]=false;}
+m_ConfigureOnly = val; is_modified=true; is_null[4]=false;}
 void Row_StartupScript::Parameter_Syntax_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Parameter_Syntax = val; is_modified=true; is_null[4]=false;}
+m_Parameter_Syntax = val; is_modified=true; is_null[5]=false;}
 void Row_StartupScript::Core_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Core_Boot_Order = val; is_modified=true; is_null[5]=false;}
+m_Core_Boot_Order = val; is_modified=true; is_null[6]=false;}
 void Row_StartupScript::Core_Background_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Core_Background = val; is_modified=true; is_null[6]=false;}
+m_Core_Background = val; is_modified=true; is_null[7]=false;}
 void Row_StartupScript::Core_Enabled_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Core_Enabled = val; is_modified=true; is_null[7]=false;}
+m_Core_Enabled = val; is_modified=true; is_null[8]=false;}
 void Row_StartupScript::Core_Parameter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Core_Parameter = val; is_modified=true; is_null[8]=false;}
+m_Core_Parameter = val; is_modified=true; is_null[9]=false;}
 void Row_StartupScript::MD_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_MD_Boot_Order = val; is_modified=true; is_null[9]=false;}
+m_MD_Boot_Order = val; is_modified=true; is_null[10]=false;}
 void Row_StartupScript::MD_Background_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_MD_Background = val; is_modified=true; is_null[10]=false;}
+m_MD_Background = val; is_modified=true; is_null[11]=false;}
 void Row_StartupScript::MD_Enabled_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_MD_Enabled = val; is_modified=true; is_null[11]=false;}
+m_MD_Enabled = val; is_modified=true; is_null[12]=false;}
 void Row_StartupScript::MD_Parameter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_MD_Parameter = val; is_modified=true; is_null[12]=false;}
+m_MD_Parameter = val; is_modified=true; is_null[13]=false;}
 void Row_StartupScript::Hybrid_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Hybrid_Boot_Order = val; is_modified=true; is_null[13]=false;}
+m_Hybrid_Boot_Order = val; is_modified=true; is_null[14]=false;}
 void Row_StartupScript::Hybrid_Background_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Hybrid_Background = val; is_modified=true; is_null[14]=false;}
+m_Hybrid_Background = val; is_modified=true; is_null[15]=false;}
 void Row_StartupScript::Hybrid_Enabled_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Hybrid_Enabled = val; is_modified=true; is_null[15]=false;}
+m_Hybrid_Enabled = val; is_modified=true; is_null[16]=false;}
 void Row_StartupScript::Hybrid_Parameter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Hybrid_Parameter = val; is_modified=true; is_null[16]=false;}
+m_Hybrid_Parameter = val; is_modified=true; is_null[17]=false;}
 void Row_StartupScript::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[17]=false;}
+m_psc_id = val; is_modified=true; is_null[18]=false;}
 void Row_StartupScript::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[18]=false;}
+m_psc_batch = val; is_modified=true; is_null[19]=false;}
 void Row_StartupScript::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[19]=false;}
+m_psc_user = val; is_modified=true; is_null[20]=false;}
 void Row_StartupScript::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[20]=false;}
+m_psc_frozen = val; is_modified=true; is_null[21]=false;}
 void Row_StartupScript::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[21]=false;}
+m_psc_mod = val; is_modified=true; is_null[22]=false;}
 
 		
+bool Row_StartupScript::When_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[1];}
 bool Row_StartupScript::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[17];}
+return is_null[18];}
 bool Row_StartupScript::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[18];}
+return is_null[19];}
 bool Row_StartupScript::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[19];}
+return is_null[20];}
 bool Row_StartupScript::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[20];}
+return is_null[21];}
 
 			
+void Row_StartupScript::When_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[1]=val;}
 void Row_StartupScript::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[17]=val;}
+is_null[18]=val;}
 void Row_StartupScript::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[18]=val;}
+is_null[19]=val;}
 void Row_StartupScript::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[19]=val;}
+is_null[20]=val;}
 void Row_StartupScript::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[20]=val;}
+is_null[21]=val;}
 	
 
 string Row_StartupScript::PK_StartupScript_asSQL()
@@ -337,11 +351,25 @@ sprintf(buf, "%li", m_PK_StartupScript);
 return buf;
 }
 
-string Row_StartupScript::Command_asSQL()
+string Row_StartupScript::When_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
+return "NULL";
+
+char *buf = new char[3];
+mysql_real_escape_string(table->database->db_handle, buf, m_When.c_str(), (unsigned long) m_When.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
+string Row_StartupScript::Command_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
 return "NULL";
 
 char *buf = new char[201];
@@ -355,7 +383,7 @@ string Row_StartupScript::Description_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[2])
+if (is_null[3])
 return "NULL";
 
 char *buf = new char[131071];
@@ -369,7 +397,7 @@ string Row_StartupScript::ConfigureOnly_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[3])
+if (is_null[4])
 return "NULL";
 
 char buf[32];
@@ -382,7 +410,7 @@ string Row_StartupScript::Parameter_Syntax_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[4])
+if (is_null[5])
 return "NULL";
 
 char *buf = new char[131071];
@@ -396,7 +424,7 @@ string Row_StartupScript::Core_Boot_Order_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -409,7 +437,7 @@ string Row_StartupScript::Core_Background_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[6])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -422,7 +450,7 @@ string Row_StartupScript::Core_Enabled_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -435,7 +463,7 @@ string Row_StartupScript::Core_Parameter_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[9])
 return "NULL";
 
 char *buf = new char[201];
@@ -449,7 +477,7 @@ string Row_StartupScript::MD_Boot_Order_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[9])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -462,7 +490,7 @@ string Row_StartupScript::MD_Background_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[10])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -475,7 +503,7 @@ string Row_StartupScript::MD_Enabled_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[11])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -488,7 +516,7 @@ string Row_StartupScript::MD_Parameter_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[12])
+if (is_null[13])
 return "NULL";
 
 char *buf = new char[201];
@@ -502,7 +530,7 @@ string Row_StartupScript::Hybrid_Boot_Order_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[13])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -515,7 +543,7 @@ string Row_StartupScript::Hybrid_Background_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[14])
+if (is_null[15])
 return "NULL";
 
 char buf[32];
@@ -528,7 +556,7 @@ string Row_StartupScript::Hybrid_Enabled_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[15])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -541,7 +569,7 @@ string Row_StartupScript::Hybrid_Parameter_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[16])
+if (is_null[17])
 return "NULL";
 
 char *buf = new char[201];
@@ -555,7 +583,7 @@ string Row_StartupScript::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[17])
+if (is_null[18])
 return "NULL";
 
 char buf[32];
@@ -568,7 +596,7 @@ string Row_StartupScript::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[18])
+if (is_null[19])
 return "NULL";
 
 char buf[32];
@@ -581,7 +609,7 @@ string Row_StartupScript::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[19])
+if (is_null[20])
 return "NULL";
 
 char buf[32];
@@ -594,7 +622,7 @@ string Row_StartupScript::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[20])
+if (is_null[21])
 return "NULL";
 
 char buf[32];
@@ -607,7 +635,7 @@ string Row_StartupScript::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[21])
+if (is_null[22])
 return "NULL";
 
 char *buf = new char[29];
@@ -655,10 +683,10 @@ bool Table_StartupScript::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_StartupScript_asSQL()+", "+pRow->Command_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->ConfigureOnly_asSQL()+", "+pRow->Parameter_Syntax_asSQL()+", "+pRow->Core_Boot_Order_asSQL()+", "+pRow->Core_Background_asSQL()+", "+pRow->Core_Enabled_asSQL()+", "+pRow->Core_Parameter_asSQL()+", "+pRow->MD_Boot_Order_asSQL()+", "+pRow->MD_Background_asSQL()+", "+pRow->MD_Enabled_asSQL()+", "+pRow->MD_Parameter_asSQL()+", "+pRow->Hybrid_Boot_Order_asSQL()+", "+pRow->Hybrid_Background_asSQL()+", "+pRow->Hybrid_Enabled_asSQL()+", "+pRow->Hybrid_Parameter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_StartupScript_asSQL()+", "+pRow->When_asSQL()+", "+pRow->Command_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->ConfigureOnly_asSQL()+", "+pRow->Parameter_Syntax_asSQL()+", "+pRow->Core_Boot_Order_asSQL()+", "+pRow->Core_Background_asSQL()+", "+pRow->Core_Enabled_asSQL()+", "+pRow->Core_Parameter_asSQL()+", "+pRow->MD_Boot_Order_asSQL()+", "+pRow->MD_Background_asSQL()+", "+pRow->MD_Enabled_asSQL()+", "+pRow->MD_Parameter_asSQL()+", "+pRow->Hybrid_Boot_Order_asSQL()+", "+pRow->Hybrid_Background_asSQL()+", "+pRow->Hybrid_Enabled_asSQL()+", "+pRow->Hybrid_Parameter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into StartupScript (PK_StartupScript, Command, Description, ConfigureOnly, Parameter_Syntax, Core_Boot_Order, Core_Background, Core_Enabled, Core_Parameter, MD_Boot_Order, MD_Background, MD_Enabled, MD_Parameter, Hybrid_Boot_Order, Hybrid_Background, Hybrid_Enabled, Hybrid_Parameter, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into StartupScript (PK_StartupScript, When, Command, Description, ConfigureOnly, Parameter_Syntax, Core_Boot_Order, Core_Background, Core_Enabled, Core_Parameter, MD_Boot_Order, MD_Background, MD_Enabled, MD_Parameter, Hybrid_Boot_Order, Hybrid_Background, Hybrid_Enabled, Hybrid_Parameter, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -708,7 +736,7 @@ condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_StartupScript="+pRow->PK_StartupScript_asSQL()+", Command="+pRow->Command_asSQL()+", Description="+pRow->Description_asSQL()+", ConfigureOnly="+pRow->ConfigureOnly_asSQL()+", Parameter_Syntax="+pRow->Parameter_Syntax_asSQL()+", Core_Boot_Order="+pRow->Core_Boot_Order_asSQL()+", Core_Background="+pRow->Core_Background_asSQL()+", Core_Enabled="+pRow->Core_Enabled_asSQL()+", Core_Parameter="+pRow->Core_Parameter_asSQL()+", MD_Boot_Order="+pRow->MD_Boot_Order_asSQL()+", MD_Background="+pRow->MD_Background_asSQL()+", MD_Enabled="+pRow->MD_Enabled_asSQL()+", MD_Parameter="+pRow->MD_Parameter_asSQL()+", Hybrid_Boot_Order="+pRow->Hybrid_Boot_Order_asSQL()+", Hybrid_Background="+pRow->Hybrid_Background_asSQL()+", Hybrid_Enabled="+pRow->Hybrid_Enabled_asSQL()+", Hybrid_Parameter="+pRow->Hybrid_Parameter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_StartupScript="+pRow->PK_StartupScript_asSQL()+", When="+pRow->When_asSQL()+", Command="+pRow->Command_asSQL()+", Description="+pRow->Description_asSQL()+", ConfigureOnly="+pRow->ConfigureOnly_asSQL()+", Parameter_Syntax="+pRow->Parameter_Syntax_asSQL()+", Core_Boot_Order="+pRow->Core_Boot_Order_asSQL()+", Core_Background="+pRow->Core_Background_asSQL()+", Core_Enabled="+pRow->Core_Enabled_asSQL()+", Core_Parameter="+pRow->Core_Parameter_asSQL()+", MD_Boot_Order="+pRow->MD_Boot_Order_asSQL()+", MD_Background="+pRow->MD_Background_asSQL()+", MD_Enabled="+pRow->MD_Enabled_asSQL()+", MD_Parameter="+pRow->MD_Parameter_asSQL()+", Hybrid_Boot_Order="+pRow->Hybrid_Boot_Order_asSQL()+", Hybrid_Background="+pRow->Hybrid_Background_asSQL()+", Hybrid_Enabled="+pRow->Hybrid_Enabled_asSQL()+", Hybrid_Parameter="+pRow->Hybrid_Parameter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update StartupScript set " + update_values_list + " where " + condition;
@@ -815,232 +843,243 @@ sscanf(row[0], "%li", &(pRow->m_PK_StartupScript));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Command = "";
+pRow->m_When = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Command = string(row[1],lengths[1]);
+pRow->m_When = string(row[1],lengths[1]);
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Description = "";
+pRow->m_Command = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Description = string(row[2],lengths[2]);
+pRow->m_Command = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_ConfigureOnly = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%hi", &(pRow->m_ConfigureOnly));
+pRow->m_Description = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Parameter_Syntax = "";
+pRow->m_ConfigureOnly = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Parameter_Syntax = string(row[4],lengths[4]);
+sscanf(row[4], "%hi", &(pRow->m_ConfigureOnly));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Core_Boot_Order = 0;
+pRow->m_Parameter_Syntax = "";
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_Core_Boot_Order));
+pRow->m_Parameter_Syntax = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_Core_Background = 0;
+pRow->m_Core_Boot_Order = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_Core_Background));
+sscanf(row[6], "%li", &(pRow->m_Core_Boot_Order));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_Core_Enabled = 0;
+pRow->m_Core_Background = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_Core_Enabled));
+sscanf(row[7], "%li", &(pRow->m_Core_Background));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_Core_Parameter = "";
+pRow->m_Core_Enabled = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_Core_Parameter = string(row[8],lengths[8]);
+sscanf(row[8], "%li", &(pRow->m_Core_Enabled));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_MD_Boot_Order = 0;
+pRow->m_Core_Parameter = "";
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_MD_Boot_Order));
+pRow->m_Core_Parameter = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_MD_Background = 0;
+pRow->m_MD_Boot_Order = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%hi", &(pRow->m_MD_Background));
+sscanf(row[10], "%li", &(pRow->m_MD_Boot_Order));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_MD_Enabled = 0;
+pRow->m_MD_Background = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_MD_Enabled));
+sscanf(row[11], "%hi", &(pRow->m_MD_Background));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_MD_Parameter = "";
+pRow->m_MD_Enabled = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-pRow->m_MD_Parameter = string(row[12],lengths[12]);
+sscanf(row[12], "%hi", &(pRow->m_MD_Enabled));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Hybrid_Boot_Order = 0;
+pRow->m_MD_Parameter = "";
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_Hybrid_Boot_Order));
+pRow->m_MD_Parameter = string(row[13],lengths[13]);
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_Hybrid_Background = 0;
+pRow->m_Hybrid_Boot_Order = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_Hybrid_Background));
+sscanf(row[14], "%li", &(pRow->m_Hybrid_Boot_Order));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_Hybrid_Enabled = 0;
+pRow->m_Hybrid_Background = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_Hybrid_Enabled));
+sscanf(row[15], "%hi", &(pRow->m_Hybrid_Background));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_Hybrid_Parameter = "";
+pRow->m_Hybrid_Enabled = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_Hybrid_Parameter = string(row[16],lengths[16]);
+sscanf(row[16], "%hi", &(pRow->m_Hybrid_Enabled));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_id = 0;
+pRow->m_Hybrid_Parameter = "";
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%li", &(pRow->m_psc_id));
+pRow->m_Hybrid_Parameter = string(row[17],lengths[17]);
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%li", &(pRow->m_psc_batch));
+sscanf(row[18], "%li", &(pRow->m_psc_id));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%li", &(pRow->m_psc_user));
+sscanf(row[19], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[20], "%li", &(pRow->m_psc_user));
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[21]=false;
-pRow->m_psc_mod = string(row[21],lengths[21]);
+sscanf(row[21], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[22] == NULL)
+{
+pRow->is_null[22]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[22]=false;
+pRow->m_psc_mod = string(row[22],lengths[22]);
 }
 
 
@@ -1163,232 +1202,243 @@ sscanf(row[0], "%li", &(pRow->m_PK_StartupScript));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Command = "";
+pRow->m_When = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Command = string(row[1],lengths[1]);
+pRow->m_When = string(row[1],lengths[1]);
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Description = "";
+pRow->m_Command = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Description = string(row[2],lengths[2]);
+pRow->m_Command = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_ConfigureOnly = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%hi", &(pRow->m_ConfigureOnly));
+pRow->m_Description = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Parameter_Syntax = "";
+pRow->m_ConfigureOnly = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Parameter_Syntax = string(row[4],lengths[4]);
+sscanf(row[4], "%hi", &(pRow->m_ConfigureOnly));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Core_Boot_Order = 0;
+pRow->m_Parameter_Syntax = "";
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_Core_Boot_Order));
+pRow->m_Parameter_Syntax = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_Core_Background = 0;
+pRow->m_Core_Boot_Order = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_Core_Background));
+sscanf(row[6], "%li", &(pRow->m_Core_Boot_Order));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_Core_Enabled = 0;
+pRow->m_Core_Background = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_Core_Enabled));
+sscanf(row[7], "%li", &(pRow->m_Core_Background));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_Core_Parameter = "";
+pRow->m_Core_Enabled = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_Core_Parameter = string(row[8],lengths[8]);
+sscanf(row[8], "%li", &(pRow->m_Core_Enabled));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_MD_Boot_Order = 0;
+pRow->m_Core_Parameter = "";
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_MD_Boot_Order));
+pRow->m_Core_Parameter = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_MD_Background = 0;
+pRow->m_MD_Boot_Order = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%hi", &(pRow->m_MD_Background));
+sscanf(row[10], "%li", &(pRow->m_MD_Boot_Order));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_MD_Enabled = 0;
+pRow->m_MD_Background = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_MD_Enabled));
+sscanf(row[11], "%hi", &(pRow->m_MD_Background));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_MD_Parameter = "";
+pRow->m_MD_Enabled = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-pRow->m_MD_Parameter = string(row[12],lengths[12]);
+sscanf(row[12], "%hi", &(pRow->m_MD_Enabled));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Hybrid_Boot_Order = 0;
+pRow->m_MD_Parameter = "";
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_Hybrid_Boot_Order));
+pRow->m_MD_Parameter = string(row[13],lengths[13]);
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_Hybrid_Background = 0;
+pRow->m_Hybrid_Boot_Order = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_Hybrid_Background));
+sscanf(row[14], "%li", &(pRow->m_Hybrid_Boot_Order));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_Hybrid_Enabled = 0;
+pRow->m_Hybrid_Background = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_Hybrid_Enabled));
+sscanf(row[15], "%hi", &(pRow->m_Hybrid_Background));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_Hybrid_Parameter = "";
+pRow->m_Hybrid_Enabled = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_Hybrid_Parameter = string(row[16],lengths[16]);
+sscanf(row[16], "%hi", &(pRow->m_Hybrid_Enabled));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_id = 0;
+pRow->m_Hybrid_Parameter = "";
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%li", &(pRow->m_psc_id));
+pRow->m_Hybrid_Parameter = string(row[17],lengths[17]);
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%li", &(pRow->m_psc_batch));
+sscanf(row[18], "%li", &(pRow->m_psc_id));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%li", &(pRow->m_psc_user));
+sscanf(row[19], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[20], "%li", &(pRow->m_psc_user));
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[21]=false;
-pRow->m_psc_mod = string(row[21],lengths[21]);
+sscanf(row[21], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[22] == NULL)
+{
+pRow->is_null[22]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[22]=false;
+pRow->m_psc_mod = string(row[22],lengths[22]);
 }
 
 

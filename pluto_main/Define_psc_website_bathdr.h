@@ -7,6 +7,8 @@
 #define PSC_WEBSITE_BATHDR_PK_PSC_WEBSITE_BATHDR_TABLE_FIELD "psc_website_bathdr.PK_psc_website_bathdr"
 #define PSC_WEBSITE_BATHDR_DATE_FIELD "date"
 #define PSC_WEBSITE_BATHDR_DATE_TABLE_FIELD "psc_website_bathdr.date"
+#define PSC_WEBSITE_BATHDR_COMMENTS_FIELD "comments"
+#define PSC_WEBSITE_BATHDR_COMMENTS_TABLE_FIELD "psc_website_bathdr.comments"
 
 
 #endif

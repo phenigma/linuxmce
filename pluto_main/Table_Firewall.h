@@ -41,10 +41,10 @@ private:
 	struct Key
 	{
 		friend class Row_Firewall;
-		long int pk_PK_PortForward;
+		long int pk_PK_Firewall;
 
 		
-		Key(long int in_PK_PortForward);
+		Key(long int in_PK_Firewall);
 	
 		Key(class Row_Firewall *pRow);
 	};
@@ -63,7 +63,7 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_Firewall* GetRow(long int in_PK_PortForward);
+	class Row_Firewall* GetRow(long int in_PK_Firewall);
 	
 
 private:	
@@ -81,7 +81,7 @@ class DLL_EXPORT Row_Firewall : public TableRow, public SerializeClass
 	private:
 		Table_Firewall *table;
 		
-		long int m_PK_PortForward;
+		long int m_PK_Firewall;
 string m_Protocol;
 long int m_SourcePort;
 long int m_SourcePortEnd;
@@ -97,7 +97,7 @@ string m_psc_mod;
 		bool is_null[12];
 	
 	public:
-		long int PK_PortForward_get();
+		long int PK_Firewall_get();
 string Protocol_get();
 long int SourcePort_get();
 long int SourcePortEnd_get();
@@ -111,7 +111,7 @@ short int psc_frozen_get();
 string psc_mod_get();
 
 		
-		void PK_PortForward_set(long int val);
+		void PK_Firewall_set(long int val);
 void Protocol_set(string val);
 void SourcePort_set(long int val);
 void SourcePortEnd_set(long int val);
@@ -154,12 +154,12 @@ void psc_frozen_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_PortForward+ m_Protocol+ m_SourcePort+ m_SourcePortEnd+ m_DestinationPort+ m_DestinationIP+ m_RuleType+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Firewall+ m_Protocol+ m_SourcePort+ m_SourcePortEnd+ m_DestinationPort+ m_DestinationIP+ m_RuleType+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_PortForward_asSQL();
+		string PK_Firewall_asSQL();
 string Protocol_asSQL();
 string SourcePort_asSQL();
 string SourcePortEnd_asSQL();
