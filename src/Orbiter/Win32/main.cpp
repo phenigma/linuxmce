@@ -54,6 +54,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 	bool bDeviceIDSpecified = false;
 	bool bRouterIPSpecified = false;
+	bool bFullScreenSpecified = false;
 
     bool bError=false; // An error parsing the command line
 
@@ -116,6 +117,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					Height = atoi(StringUtils::Tokenize(command_line, " ", pos).c_str());
 					break;
 				case 'F':
+					bFullScreenSpecified = true;
 					bFullScreen = true;
 					break;
 				default:
@@ -216,7 +218,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			if(!(Simulator::GetInstance()->m_bTryToDetermineAutomatically))
 				CmdLineParams.sRouter_IP = Simulator::GetInstance()->m_sRouterIP;
 
-		CmdLineParams.bFullScreen = Simulator::GetInstance()->m_bFullScreen;
+		if(!bFullScreenSpecified)
+			CmdLineParams.bFullScreen = Simulator::GetInstance()->m_bFullScreen;
 
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",CmdLineParams.PK_Device,
 			CmdLineParams.sRouter_IP.c_str());

@@ -126,6 +126,13 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Orbiter_PocketFrog::GameInit()
 {
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
+	Rect r;
+	::GetClientRect( m_hWnd, &r );
+	g_pPlutoLogger->Write(LV_CRITICAL, "Before fullscreen GetClientRect reports: %d, %d, %d, %d",
+		r.left, r.top, r.right, r.bottom);
+
 	Surface* pLogoSurface = NULL;
 
 #ifdef WINCE
@@ -134,15 +141,18 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	pLogoSurface = LoadImage( GetDisplay(), TEXT("logo.gif")); 
 #endif
 
-	if(pLogoSurface)
+	if(pLogoSurface && pLogoSurface->m_height == m_iImageHeight && pLogoSurface->m_width == m_iImageWidth)
 	{
 		GetDisplay()->Blit( 0, 0, pLogoSurface );
-		delete pLogoSurface;
 	}
 	else
 	{
 		GetDisplay()->FillRect(0, 0, m_iImageWidth, m_iImageHeight, 0x00);
 	}
+
+	if(pLogoSurface)
+		delete pLogoSurface;
+
 	GetDisplay()->Update();
 
 	Initialize(gtPocketFrogGraphic);
@@ -156,7 +166,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	if (!m_bLocalMode)
 		CreateChildren();
 
-#ifdef WINCE//todo: winx86
+	//loading font resources for wince
+#ifdef WINCE
 	HRSRC hResInfo	  = NULL;
 	HGLOBAL hResource = NULL;
 	hResInfo = FindResource(_Module.GetModuleInstance(), MAKEINTRESOURCE(IDR_VGAROM), TEXT("FONTS"));
@@ -167,7 +178,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 #ifndef WINCE
 	if(m_bFullScreen)
 	{
+		//set window style to fullscreen
 		ModifyStyle(WS_CAPTION, 0);
+
 		HWND hWnd_TaskBar = ::FindWindow("Shell_TrayWnd", NULL);
 		if(hWnd_TaskBar)
 			::SetWindowPos(hWnd_TaskBar, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); 
@@ -176,8 +189,14 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		HWND hWndDesktop = ::GetDesktopWindow();
 		::GetWindowRect(hWndDesktop, &rc);
 		MoveWindow(0, 0, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+
 		BringWindowToTop();
 		SetForegroundWindow(m_hWnd);
+
+		Rect r;
+		::GetClientRect( m_hWnd, &r );
+		g_pPlutoLogger->Write(LV_CRITICAL, "After fullscreen GetClientRect reports: %d, %d, %d, %d",
+			r.left, r.top, r.right, r.bottom);
 	}
 	else
 	{
@@ -311,23 +330,14 @@ clock_t ccc=clock();
 		{
 			ShowMainDialog();
 		}
-/*
 		else if( wParam == VK_P && m_bControlDown)
 		{
-			SolidRectangle(0, 500, 800, 100, PlutoColor(255, 0, 0));
-			TryToUpdate();
-		}
-		else if( wParam == VK_L && m_bControlDown)
-		{
-			HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+			static int Count = 0;
 
-			RECT rect = {0, 500, 800, 600};
-			::FillRect(hdc, &rect, (HBRUSH)GetStockObject(GRAY_BRUSH));
-
-			GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
-			TryToUpdate();
+#ifndef WIN32
+			SaveImage(GetDisplay()->GetBackBuffer(), (string("/backbuffer") + StringUtils::ltos(Count++)).c_str());
+#endif
 		}
-*/
         else if( !m_bShiftDown && !m_bControlDown && !m_bAltDown && !m_bRepeat )
         {
             switch (wParam)
@@ -540,17 +550,20 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
 {
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	GetDisplay()->FillRect(x, y, x + width, y + height, GetColor16(color));
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::HollowRectangle(int x, int y, int width, int height, PlutoColor color)
 {
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	GetDisplay()->DrawRect(x, y, x + width, y + height, GetColor16(color));
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::ReplaceColorInRectangle(int x, int y, int width, int height, 
 	PlutoColor ColorToReplace, PlutoColor ReplacementColor)
 {
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	Pixel pixelSrc = GetColor16(ColorToReplace);
 	Pixel pixelDest = GetColor16(ReplacementColor);
 	Pixel pixelCurrent;
@@ -577,6 +590,7 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle)
 {
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
 
 	//temp
@@ -718,15 +732,13 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
 {
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	Rect srcRect;
 	srcRect.Set(pObj->m_rPosition.Left(), pObj->m_rPosition.Top(), pObj->m_rPosition.Right(), pObj->m_rPosition.Bottom());
 
 	Surface *pSurface = GetDisplay()->CreateSurface(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
 	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(pSurface);
 	pRasterizer->Blit(0, 0, GetDisplay()->GetBackBuffer(), &srcRect);
-
-	//pRasterizer->Clear(
-	//delete pRasterizer;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ PlutoGraphic *Orbiter_PocketFrog::CreateGraphic()
@@ -755,6 +767,8 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio)
 {
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
 	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtPocketFrogGraphic)
 		return;//nothing to render or not an pocket frog graphic
 
@@ -793,7 +807,8 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect)
 {
-	/*
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
 	//clipping the rectangle 
 	if(rect.X < 0)
 		rect.X = 0;
@@ -806,21 +821,21 @@ clock_t ccc=clock();
 
 	if(rect.Bottom() >= m_Height)
 		rect.Height = m_Height - rect.Y - 1;
-	*/
 
-	//PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
-
+	/*
 	while(m_bUpdating)
 		Sleep(30);
 
 	if(!m_bUpdating)
 	{
 		m_bUpdating = true;
-		Rect rectUpdate;
-		rectUpdate.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
-		GetDisplay()->Update(&rectUpdate);
 		m_bUpdating = false;
 	}
+	*/
+
+	Rect rectUpdate;
+	rectUpdate.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
+	GetDisplay()->Update(&rectUpdate);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::OnQuit()
@@ -923,15 +938,22 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 	if(m_bQuit)
 		return;
 
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
+
+	/*
 	while(m_bUpdating)
 		Sleep(30);
 
 	if(!m_bUpdating)
 	{
 		m_bUpdating = true;
-		GetDisplay()->Update();
+		
 		m_bUpdating = false;
 	}
+	*/
+
+	GetDisplay()->Update();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::ShowProgress()
@@ -942,11 +964,15 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 
 	Counter++;
 
+	int iProgressWidth = m_iImageWidth < 300 ? m_iImageWidth - 50 : 300;
+	int iStart = (m_iImageWidth - iProgressWidth) / 2;
+	int iStep = iProgressWidth / 45;
+
 	if(!(Counter % 50))
 	{
-		SolidRectangle(300, m_iImageHeight - 50, 200, 3, white);
-		SolidRectangle(300, m_iImageHeight - 50, Counter / 9, 3, green);
-		PlutoRectangle rect(300, m_iImageHeight - 50, 200, 3);
+		SolidRectangle(iStart, m_iImageHeight - 50, iProgressWidth, 3, white);
+		SolidRectangle(iStart, m_iImageHeight - 50, Counter / iStep, 3, green);
+		PlutoRectangle rect(iStart, m_iImageHeight - 50, iProgressWidth, 3);
 		UpdateRect(rect);
 	}
 }
@@ -967,4 +993,13 @@ void Orbiter_PocketFrog::GameResume()
 {
 	Game::GameResume();
 }
+//-----------------------------------------------------------------------------------------------------
+bool Orbiter_PocketFrog::IsFullScreen() 
+{ 
+	return m_bFullScreen; 
+}
+//-----------------------------------------------------------------------------------------------------
+int Orbiter_PocketFrog::GetWindowWidth() { return m_iImageWidth;  } 
+//-----------------------------------------------------------------------------------------------------
+int Orbiter_PocketFrog::GetWindowHeight() { return m_iImageHeight; } 
 //-----------------------------------------------------------------------------------------------------

@@ -36,6 +36,10 @@ public:
 	virtual void GameSuspend(); 
 	virtual void GameResume(); 
 
+	virtual bool IsFullScreen();
+	virtual int GetWindowWidth();
+	virtual int GetWindowHeight();
+
     virtual bool GameInit();
     virtual void GameEnd();
     virtual void GameLoop();
