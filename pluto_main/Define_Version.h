@@ -2,6 +2,7 @@
 #define __Define_Version_H__
 
 #define VERSION_First_Preview_Release_CONST 2
+#define VERSION_Important_Fix_CONST 3
 
 #define VERSION_TABLE "Version"
 #define VERSION_PK_VERSION_FIELD "PK_Version"

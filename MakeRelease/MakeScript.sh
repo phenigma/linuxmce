@@ -6,7 +6,7 @@ rm -rf /var/www/download/deb_sarge /var/www/download/source /var/www/download/wi
 mkdir -p /home/MakeRelease
 cd /home/MakeRelease
 svn co svn://localhost/pluto2/trunk/. | tee /home/MakeRelease/svn.log
-MakeRelease -o 1 -r 2,9,10,11 -m 1 -s /home/MakeRelease/trunk -n / -v 1 | tee /home/MakeRelease/MakeRelease.log
+MakeRelease -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -v 1 | tee /home/MakeRelease/MakeRelease.log
 
 #the following is only if it's a real build -- not version 1
 # todo -- check the version
@@ -17,3 +17,5 @@ scp debian.tar.gz problems@69.25.176.44:~/
 rm download.tar.gz
 tar zcvf /var/www/download.tar.gz /var/www/download/*
 scp download.tar.gz plutoadmin@69.25.176.44:~/
+read
+

@@ -2,7 +2,7 @@
 Package = DCE_Destination_Package
 Dir = 
 desc = DCE Implemenation for #30 Mozilla Plug-in
-Maintainer = aaronName
+Maintainer = AdministratorName
 Email = 
 Depend = DCE_Dependencies
 <-dceag-p-e->
