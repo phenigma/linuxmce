@@ -26,49 +26,52 @@ function connectionWizard($output,$dbADO) {
 			$positionsArray=explode(';',substr($cookieArray[$entertainArea],1));
 			$oldDevice=array();
 			$jsDrawPipes='';
-			for($i=0;$i<count($positionsArray);$i=$i+7){
-				$oldDevice[$positionsArray[$i]]['deviceX']=$positionsArray[$i+1];
-				$oldDevice[$positionsArray[$i]]['deviceY']=$positionsArray[$i+2];
-				if($positionsArray[$i+3]!='none'){
-					$parts=explode(':',$positionsArray[$i+3]);
-					$jsDrawPipes.='
-						audioPipe['.$positionsArray[$i].']=new Array();
-						audioPipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
-						audioPipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
-						drawPipe(\''.$positionsArray[$i].'\',\'audio\','.$parts[1].');
-					';
+			
+			if($positionsArray[0]!=''){
+				for($i=0;$i<count($positionsArray);$i=$i+7){
+					$oldDevice[$positionsArray[$i]]['deviceX']=$positionsArray[$i+1];
+					$oldDevice[$positionsArray[$i]]['deviceY']=$positionsArray[$i+2];
+					if($positionsArray[$i+3]!='none'){
+						$parts=explode(':',$positionsArray[$i+3]);
+						$jsDrawPipes.='
+							audioPipe['.$positionsArray[$i].']=new Array();
+							audioPipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+							audioPipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+							drawPipe(\''.$positionsArray[$i].'\',\'audio\','.$parts[1].');
+						';
+					}
+					if($positionsArray[$i+4]!='none'){
+						$parts=explode(':',$positionsArray[$i+4]);
+						$jsDrawPipes.='
+							videoPipe['.$positionsArray[$i].']=new Array();
+							videoPipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+							videoPipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+							drawPipe(\''.$positionsArray[$i].'\',\'video\','.$parts[1].');
+						';
+					}
+					
+					if($positionsArray[$i+5]!='none'){
+						$parts=explode(':',$positionsArray[$i+5]);
+						$jsDrawPipes.='
+							audioLivePipe['.$positionsArray[$i].']=new Array();
+							audioLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+							audioLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+							drawPipe(\''.$positionsArray[$i].'\',\'audioLive\','.$parts[1].');
+						';
+					}
+					if($positionsArray[$i+6]!='none'){
+						$parts=explode(':',$positionsArray[$i+6]);
+						$jsDrawPipes.='
+							videoLivePipe['.$positionsArray[$i].']=new Array();
+							videoLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+							videoLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+							drawPipe(\''.$positionsArray[$i].'\',\'videoLive\','.$parts[1].');
+						';
+					}
+					
+					// TODO: check if pipes from database match those from cookie
+					
 				}
-				if($positionsArray[$i+4]!='none'){
-					$parts=explode(':',$positionsArray[$i+4]);
-					$jsDrawPipes.='
-						videoPipe['.$positionsArray[$i].']=new Array();
-						videoPipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
-						videoPipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
-						drawPipe(\''.$positionsArray[$i].'\',\'video\','.$parts[1].');
-					';
-				}
-				
-				if($positionsArray[$i+5]!='none'){
-					$parts=explode(':',$positionsArray[$i+5]);
-					$jsDrawPipes.='
-						audioLivePipe['.$positionsArray[$i].']=new Array();
-						audioLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
-						audioLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
-						drawPipe(\''.$positionsArray[$i].'\',\'audioLive\','.$parts[1].');
-					';
-				}
-				if($positionsArray[$i+6]!='none'){
-					$parts=explode(':',$positionsArray[$i+6]);
-					$jsDrawPipes.='
-						videoLivePipe['.$positionsArray[$i].']=new Array();
-						videoLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
-						videoLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
-						drawPipe(\''.$positionsArray[$i].'\',\'videoLive\','.$parts[1].');
-					';
-				}
-				
-				// TODO: check if pipes from database match those from cookie
-				
 			}
 		}
 	}
@@ -238,6 +241,20 @@ if ($action == 'form') {
 
 		if($entertainArea!=0){
 			$cookieArray[$oldEntertainArea]=$_REQUEST['devicesCoords'];
+			
+			// update database
+			foreach ($cookieArray AS $entArea=>$params){
+				if($entArea!=0){
+					$positionsArray=explode(';',substr($cookieArray[$entArea],1));
+					for($i=0;$i<count($positionsArray);$i=$i+7){
+						addDeletePipe($positionsArray[$i+3],$positionsArray[$i],1,$dbADO);
+						addDeletePipe($positionsArray[$i+4],$positionsArray[$i],2,$dbADO);
+						addDeletePipe($positionsArray[$i+5],$positionsArray[$i],3,$dbADO);
+						addDeletePipe($positionsArray[$i+6],$positionsArray[$i],4,$dbADO);
+					}
+				}
+			}
+			
 			$cookieData=serialize($cookieArray);
 			setcookie("PlutoAdminConnectionWizard_".$_SESSION['installationID'],$cookieData,time()+31536000,'/',false);
 		}
@@ -249,4 +266,16 @@ if ($action == 'form') {
 	$output->setTitle(APPLICATION_NAME.' :: A/V devices connection wizard');
 	$output->output();
 }
+
+function addDeletePipe($operation,$deviceFrom,$pipe,$dbADO)
+{
+	if($operation=='none'){
+		$dbADO->Execute('DELETE FROM Device_Device_Pipe WHERE FK_Device_From=? AND FK_Pipe=?',array($deviceFrom,$pipe));
+	}else{
+		$arr=explode(':',$operation);
+		$deviceTo=$arr[0];
+		$dbADO->Execute('INSERT IGNORE INTO Device_Device_Pipe (FK_Device_From,FK_Device_To,FK_Pipe) VALUES (?,?,?)',array($deviceFrom,$deviceTo,$pipe));
+	}
+}
+
 ?>

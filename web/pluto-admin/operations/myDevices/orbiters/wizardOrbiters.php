@@ -49,6 +49,7 @@ function wizardOrbiters($output,$dbADO) {
 	<input type="hidden" name="section" value="wizardOrbiters">
 	<input type="hidden" name="action" value="add">	
 	<h3  align="left">Orbiters</h3>
+	Download <a href="index.php?section=orbitersWin">Orbiter Win Installer</a>
 		<table border="0">';
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();

@@ -84,9 +84,16 @@ function userChangePassword($output,$dbADO) {
 			
 			if ($userPassword!='' && (($queryUserInst && $queryUserInst->RecordCount()==1) || $_SESSION['userID']==$userID)) {
 				//(only the creator and the owner can change the password
+
+                $SambaPass = @exec("/usr/pluto/bin/smbpass.pl $userPassword", $outputSamba, $retcode);
+                if ($retcode != 0)
+                    $SambaPass=''; // we can't issue an error here, can we?
+                $LinuxSalt = '$1$Pluto$'; // should we generate this? :)
+                $LinuxPass = crypt($userPassword, $LinuxSalt);
+
 				$insertUser = '
-						UPDATE Users set Password = ? WHERE PK_Users = ?';
-				$query = $dbADO->Execute($insertUser,array(md5($userPassword),$userID));
+						UPDATE Users set Password = ?,Password_Unix=?,Password_Samba=? WHERE PK_Users = ?';
+				$query = $dbADO->Execute($insertUser,array(md5($userPassword),$LinuxPass,$SambaPass,$userID));
 				
 				$out.="
 				<script>
@@ -99,9 +106,11 @@ function userChangePassword($output,$dbADO) {
 				";			
 			} else {				
 				header("Location: index.php?section=userChangePassword&userID=$userID&from=$from");
+				exit();
 			}		
 		} else {
 			header("Location: index.php?section=userChangePassword&userID=$userID&from=$from&error=You are not authorised to change the installation.");
+			exit();
 		}
 	}
 	
