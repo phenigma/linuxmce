@@ -636,7 +636,12 @@ void Orbiter_Plugin::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string 
         g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
         return;
     }
-
+	if( !pEntertainArea )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Could not find entertainment area object for : %s", sPK_EntertainArea.c_str());
+		return;
+	}
+	
     pOH_Orbiter->m_pEntertainArea=pEntertainArea;
 	SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaStream ? pEntertainArea->m_pMediaStream->m_sMediaDescription : "" );
 }
