@@ -73,20 +73,20 @@ function setTemplateFileType($type) {
 		switch ($type) {
 			case "home":
             if(@$_SESSION['userIsLogged']!="yes")
-				$this->content = implode('',file(APPROOT."include/templates/template.home.tpl.html")); 
-            else $this->content = implode('',file(APPROOT."include/templates/template.user1.tpl.php"));
+				$this->content = implode('',file("include/templates/template.home.tpl.html")); 
+            else $this->content = implode('',file("include/templates/template.user1.tpl.php"));
             break;
 			case "user":
-			   $this->content = implode('',file(APPROOT."include/templates/template.user.tpl.php")); 
+			   $this->content = implode('',file("include/templates/template.user.tpl.php")); 
 				break;	
          case "business":
-			   $this->content = implode('',file(APPROOT."include/templates/template.user_b.tpl.php")); 
+			   $this->content = implode('',file("include/templates/template.user_b.tpl.php")); 
 				break;	
         case "business1":
-			   $this->content = implode('',file(APPROOT."include/templates/template.user1_b.tpl.php")); 
+			   $this->content = implode('',file("include/templates/template.user1_b.tpl.php")); 
 				break;	
 			case "admin":
-				$this->content = implode('',file(APPROOT."include/templates/template.admin.tpl.html")); 
+				$this->content = implode('',file("include/templates/template.admin.tpl.html")); 
 				break;
 			default:
 				$this->templateType = 'public';

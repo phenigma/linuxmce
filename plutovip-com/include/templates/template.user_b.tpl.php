@@ -41,7 +41,7 @@ body {
         <td width="100"><a href="index.php?section=settings_b" ><img src="{settingsIMG}" width="100" name="MyImage" height="30" border="0"></a></td>
         <td width="105"><a href="index.php?section=binstructions"><img src="{instructionsIMG}" width="105" height="30" border="0"></a></td>
         <td width="105"><a href="index.php?section=visits"><img src="{visitorsIMG}" width="73" height="30" border="0"></a></td>
-        <td width="105"><a href="http://store.plutovip.com/" target=_blank><img src="images/home%20page%20img/a_buy_dongle_off.gif" width="92" height="30" border="0"></a></td>
+        <td width="105"><a href="index.php?section=settings"><img src="images/home%20page%20img/a_individual_area_off.gif" border="0"></a></td>
         <td>&nbsp;</td>
         <td width="61"><a href="index.php?section=userLogout"><img src="images/home%20page%20img/a_logout.gif" width="61" height="30" border="0"></a></td>
         <td width="85"><a href="index.php?section=news1"><img src="images/home%20page%20img/a_home.gif" width="85" height="30" border="0"></a></td>

@@ -269,7 +269,8 @@ $share="select * from ShareWithEstablishment where FK_MasterUsers='".$_SESSION['
 			<tr bgcolor="#EEEEEE">
 				<th align="right">Country, State, City, Zip</th>
 				<td>
-<select name="country" onchange="this.form.action.value=\'update\';this.form.submit();">';
+<select name="country" onchange="this.form.action.value=\'update\';this.form.submit();">
+				<option value="0">(select)</option>';
             $sql_country="select * from Country order by Name asc";
             $r_country=mysql_query($sql_country);
             while($row_country=mysql_fetch_object($r_country))

@@ -100,7 +100,7 @@ body {
         <td width="105"><a href="index.php?section=contact_vip"><img src="{contactIMG}" width="105" height="30" border="0"></a></td>
         <td width="128"><a href="index.php?section=refer_a_business"><img src="{referIMG}" width="128" height="30" border="0"></a></td>
         <td width="105"><a href="index.php?section=instructions"><img src="{instructionsIMG}" width="105" height="30" border="0"></a></td>
-        <td>&nbsp;</td>
+        <td><a href="index.php?section=settings_b"><img src="images/home%20page%20img/a_bussines_area_off.gif" border="0"></a></td>
         <td width="61"><a href="index.php?section=userLogout"><img src="images/home%20page%20img/a_logout.gif" width="61" height="30" border="0"></a></td>
         <td width="85"><a href="index.php?section=news1"><img src="images/home%20page%20img/a_home.gif" width="85" height="30" border="0"></a></td>
       </tr>
