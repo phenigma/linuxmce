@@ -116,16 +116,16 @@ sub get_install {
     }
   }
 }
-sub get_install {
-  $sql = "select FK_Installation from Device WHERE PK_Device='$PKDEV'";
-  $st = $db->prepare($sql);
-  $st->execute();
-  if($row = $st->fetchrow_hashref()) {
-    return $row->{'FK_Installation'};
-  } else {
-    return 1;
-  }
-}
+#sub get_install {
+#  $sql = "select FK_Installation from Device WHERE PK_Device='$PKDEV'";
+#  $st = $db->prepare($sql);
+#  $st->execute();
+#  if($row = $st->fetchrow_hashref()) {
+#    return $row->{'FK_Installation'};
+#  } else {
+#    return 1;
+#  }
+#}
 sub get_template {
   $sql = "select PK_DeviceTemplate from DeviceTemplate WHERE Description='gc100'";
   $st = $db->prepare($sql);
@@ -273,7 +273,7 @@ for($ii=$sstart;$ii<=$send;$ii=$ii+1) {
     }
   }
   if($flag == 0) {
-    $main_ip = $ii;
+    $main_ip = $ii + 1;
     $ii = $send + 1;
   }
 }
