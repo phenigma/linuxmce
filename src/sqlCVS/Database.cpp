@@ -693,7 +693,8 @@ if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Continue",false) )
 			Repository *pRepository = ( *it ).second;
 			if( !pRepository->HasChangedRecords() )
 			{
-				cout << "Repository: " << pRepository->Name_get() << " has no changes.  Skipping..." << endl;
+				if( bFirstLoop )
+					cout << "Repository: " << pRepository->Name_get() << " has no changes.  Skipping..." << endl;
 			}
 			else if( !pRepository->CheckIn( ) )
 			{
@@ -794,7 +795,7 @@ void Database::GetTablesToCheckIn( )
 	return;
 }
 
-int Database::PromptForRepositories( )
+int Database::PromptForRepositories( bool bOneOnly )
 {
 	m_bInteractiveMode=true;
 
@@ -811,9 +812,12 @@ int Database::PromptForRepositories( )
 			cout << ( g_GlobalConfig.m_mapRepository.find( pRepository->Name_get( ) )!=g_GlobalConfig.m_mapRepository.end( ) ? " *" : " " ) << pRepository->Name_get( ) << endl;
 		}
 
-		cout << "Repositories marked with * are to be included." << endl
-			<< "Enter the Repository numbers, separated by commas, to toggle the * flag." << endl
-			<< "Enter D when you have finished, Q to quit." << endl;
+		if( bOneOnly )
+			cout << "Enter the Repository number or Q to quit:" << endl;
+		else
+			cout << "Repositories marked with * are to be included." << endl
+				<< "Enter the Repository numbers, separated by commas, to toggle the * flag." << endl
+				<< "Enter D when you have finished, Q to quit." << endl;
 
 		if( sError.length( ) )
 		{
@@ -843,6 +847,9 @@ int Database::PromptForRepositories( )
 				g_GlobalConfig.m_mapRepository.erase( pRepository->Name_get( ) );
 			else
 				g_GlobalConfig.m_mapRepository[pRepository->Name_get( )] = pRepository;
+
+			if( bOneOnly )
+				return ( int ) g_GlobalConfig.m_mapRepository.size( );
 		}
 	}
 }
@@ -1399,6 +1406,9 @@ void Database::Rollback( )
 
 void Database::Approve( )
 {
+	if( g_GlobalConfig.m_mapRepository.size()==0 && PromptForRepositories(true)!=1 )
+		return;  // User must have chosen quit
+
 	while( !g_GlobalConfig.m_psc_batch )
 	{
 		cout << "What is the batch number (enter q to quit)? ";
@@ -1408,9 +1418,9 @@ void Database::Approve( )
 			exit(1);
 		g_GlobalConfig.m_psc_batch = atoi(sBatch.c_str());
 	}
-
+size_t sss=g_GlobalConfig.m_mapUsersPasswords.size( );
 	/** Now mapTable has all the tables we need to check in. Confirm the users if none were passed in on the command line   */
-	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToCheckIn( )<1 )
+	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToUpdate()==0 )
 		return;
 
 	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
@@ -1464,3 +1474,34 @@ int Database::ConfirmUsersToUpdate()
 		}
 	}
 }
+
+void Database::ListUnauthorizedBatches()
+{
+	for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
+	{
+		Repository *pRepository = ( *it ).second;
+		if( g_GlobalConfig.m_mapRepository.size()==0 || 
+			g_GlobalConfig.m_mapRepository.find( pRepository->Name_get( ) )!=g_GlobalConfig.m_mapRepository.end( ) )
+		{
+			cout << "Repository: " << pRepository->Name_get() << endl;
+			std::ostringstream sSQL;
+			sSQL << "SELECT FK_psc_" << pRepository->Name_get() << "_bathdr,Tablename,New,Deleted,Modified FROM " <<
+				pRepository->m_pTable_BatchDetail->Name_get() << " WHERE FK_psc_" << pRepository->Name_get() << "_bathdr_unauth<1" <<
+				" AND FK_psc_" << pRepository->Name_get() << "_bathdr_unauth=FK_psc_" << pRepository->Name_get() << "_bathdr " <<
+				" AND FK_psc_" << pRepository->Name_get() << "_bathdr_auth=0";
+
+			PlutoSqlResult result_set;
+			MYSQL_ROW row=NULL;
+			if( ( result_set.r=mysql_query_result( sSQL.str( ) ) ) )
+			{
+				if( result_set.r->row_count==0 )
+					cout << "** None **" << endl;
+				while ( ( row = mysql_fetch_row( result_set.r ) ) )
+				{
+					cout << "Batch: " << row[0] << " New: " << row[2] << " Del: " << row[3] << " Mod: " << row[4] << " " << row[1] << endl;
+				}
+			}
+		}
+	}
+}
+

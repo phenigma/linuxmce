@@ -96,6 +96,7 @@ string GetCommand( )
 		<< "7.	List all the repositories and what tables they have ( list-repositories )" << endl
 		<< "8.	History on all tables ( history-all )" << endl
 		<< "9.	History on no tables ( history-none )" << endl
+		<< "10.	List unauthorized batches ( batches )" << endl
 		<< "---The following are not normally used---" << endl
 		<< "20.	Reset entire database--sqlCVS clients will be out of sync ( reset-all )" << endl
 		<< "21.	Reset the system tables ( reset-sys )" << endl
@@ -133,6 +134,8 @@ string GetCommand( )
 		return "history-all";
 	else if( s=="9" )
 		return "history-none";
+	else if( s=="10" )
+		return "batches";
 	else if( s=="20" )
 		return "reset-all";
 	else if( s=="21" )
@@ -433,6 +436,10 @@ int main( int argc, char *argv[] )
 			else if( g_GlobalConfig.m_sCommand=="history-none" )
 			{
 				database.HasFullHistory_set_all(false);
+			}
+			else if( g_GlobalConfig.m_sCommand=="batches" )
+			{
+				database.ListUnauthorizedBatches();
 			}
 			else if( g_GlobalConfig.m_sCommand=="diff" )
 			{

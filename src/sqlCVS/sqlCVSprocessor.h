@@ -54,6 +54,9 @@ public:
 	{ 
 		if( st.m_bIsOpen_get() ) 
 			st.Rollback(); 
+		else
+			RecordChangesToTable();
+
 		if( g_psqlCVSprocessor==this )
 		{
 			g_psqlCVSprocessor=NULL; 

@@ -167,12 +167,17 @@ namespace sqlCVS
 		void Dump( );
 		void Import( );
 		void Import( string sRepository, Repository *pRepository );
-		int PromptForRepositories( );
+		int PromptForRepositories( bool bOneOnly=false );
 		int PromptForSqlCvsFiles( );
 		void GetTablesToCheckIn( );
 		int ConfirmUsersToCheckIn( );
 		int ConfirmUsersToUpdate( );
 		bool ConfirmRecordsToCheckIn( );
+
+		 /**
+		  * @brief  List all unauthorized batches
+		  */
+		 void ListUnauthorizedBatches();
 
 		string Name_get( ) { return m_sMySQLDBName; }
 		bool bIsInvalid( ) { return m_bInvalid; }

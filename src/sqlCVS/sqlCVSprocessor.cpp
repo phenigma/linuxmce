@@ -36,11 +36,11 @@ sqlCVSprocessor *g_psqlCVSprocessor = NULL;  // There can only be 1 running at a
 
 int sqlCVSprocessor::UnauthorizedBatch(int psc_user_needs_to_authorize)
 {
-	RecordChangesToTable();
-
 	// See if we started an unauthorized batch and it's still the same user.  If so, we'll just re-use it
 	if( m_psc_bathdr_unauth && psc_user_needs_to_authorize==m_psc_user_needs_to_authorize )
 		return m_psc_bathdr_unauth;
+
+	RecordChangesToTable();
 
 	std::ostringstream sSQL;
 
