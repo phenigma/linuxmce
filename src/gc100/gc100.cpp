@@ -1168,9 +1168,26 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		FD_ZERO(&fdset);
 		FD_SET(learn_fd, &fdset);
 
-		struct timeval timeout;
+		struct timeval timeout, timeout_tmp;
 		timespec_to_timeval(&LEARNING_TIMEOUT, &timeout);
-		if (select(learn_fd + 1, &fdset, NULL, NULL, &timeout) > 0)
+		if (timeout.tv_usec != 0)
+		{
+			timeout.tv_usec = 0;
+			timeout.tv_sec++;
+		}
+
+		struct timeval tv1s;
+		tv1s.tv_sec = 1;
+		tv1s.tv_usec = 0;
+
+		timeout_tmp = tv1s;
+		while (! m_bQuit && ! m_bStopLearning && timeout.tv_sec > 0 && select(learn_fd + 1, &fdset, NULL, NULL, &timeout_tmp) == 0)
+		{
+			timeout.tv_sec--;
+			timeout_tmp = tv1s;
+		}
+
+		if (! m_bQuit && ! m_bStopLearning && select(learn_fd + 1, &fdset, NULL, NULL, &tv1s) > 0)
 		{
 			retval = read(learn_fd, learn_buffer, 511);
 
@@ -1191,7 +1208,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 				timeout.tv_usec = 100000;
 				FD_ZERO(&fdset);
 				FD_SET(learn_fd, &fdset);
-				
+
 				retval = select(learn_fd + 1, &fdset, NULL, NULL, &timeout);
 				if (retval > 0)
 					retval = read(learn_fd, learn_buffer, 511);
@@ -1281,7 +1298,7 @@ void gc100::CreateChildren()
 
 void gc100::EventThread()
 {
-	while (true)
+	while (! m_bQuit)
 	{
 		read_from_gc100();
 	}
