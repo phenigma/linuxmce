@@ -86,7 +86,6 @@ while (1 eq 1) {
 	        $Device_ID = $tmp;
               }
 	      chomp($Device_ID);
-	      print "/usr/pluto/bin/$configure_script\n";
               system("/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
           }
           if($found == 0) {
