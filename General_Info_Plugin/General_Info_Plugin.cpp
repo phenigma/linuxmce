@@ -193,3 +193,5 @@ g_pPlutoLogger->Write(LV_STATUS,"uknown device, setting: %d to mac: %s",pRow_Unk
 
 void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **pData,int *iData_Size,string *sChecksum,bool *bChecksum_Only,string &sCMD_Result,Message *pMessage)
 //<-dceag-c239-e->
+{
+}
