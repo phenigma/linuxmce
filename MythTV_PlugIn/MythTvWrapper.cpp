@@ -520,7 +520,7 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(string showStar
                                   iChanId,
                                   tmYear, tmMonth, tmDay,
                                   tmHour, tmMinute))
-        return ScheduleRecordTVResult_Failed;'2004-11-21 13:00:00', '2004-11-21 14:00:00')
+        return ScheduleRecordTVResult_Failed;
 
     return ProcessAddRecordingRequest(iChanId, tmYear, tmMonth, tmDay, tmHour, tmMinute);
 }

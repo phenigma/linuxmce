@@ -10,8 +10,16 @@ LDLIBS = -ldl -lpluto_main -lDCECommon -lPlutoUtils -lSerializeClass -lSDL -lSGE
 APPNAME = OrbiterGen
 VERSION = 2.0.0
 
-sources = OrbiterGen.cpp OGCommand.cpp OGArray.cpp DesignObj_Generator.cpp OGText.cpp Renderer.cpp \
-	$(TS)/TextSplitter.cpp $(TS)/TextWrapper.cpp $(ORB)/DesignObj_Data.cpp $(ORB)/TextStyle.cpp
+sources = \
+	OrbiterGen.cpp \
+	OGCommand.cpp \
+	OGArray.cpp \
+	DesignObj_Generator.cpp \
+	OGText.cpp Renderer.cpp \
+	$(TS)/TextSplitter.cpp \
+	$(TS)/TextWrapper.cpp \
+	$(ORB)/DesignObj_Data.cpp \
+	$(ORB)/TextStyle.cpp
 
 all: $(sources:.cpp=.o)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(APPNAME) $+ $(LDFLAGS) $(LDLIBS)

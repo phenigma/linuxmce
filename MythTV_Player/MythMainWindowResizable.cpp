@@ -1,17 +1,17 @@
 /*
-	MythMainWindowResizable
-	
-	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
-	Phone: +1 (877) 758-8648
-	
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
-	See the GNU General Public License for more details.
+    MythMainWindowResizable
+
+    Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+    www.plutohome.com
+
+    Phone: +1 (877) 758-8648
+
+    This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    See the GNU General Public License for more details.
 */
 
 
@@ -29,7 +29,7 @@ using namespace DCE;
 MythMainWindowResizable::MythMainWindowResizable(QWidget *parent, const char *name, bool modal)
     : MythMainWindow(parent, name, modal), m_pNuppelVideoPlayer(NULL) //m_pLayout(NULL)
 {
-    m_pLayout = new QGridLayout(this, 1, 1, 1, 1, "Layout");
+    m_pLayout = new QGridLayout(this, 1, 1, 0, 0, "Layout");
 
 //     new QFrame(this, "tv playback");
 
@@ -57,8 +57,8 @@ void MythMainWindowResizable::resizeEvent ( QResizeEvent * event)
         {
             m_pNuppelVideoPlayer->getVideoOutput()->StopEmbedding();
             m_pNuppelVideoPlayer->getVideoOutput()->EmbedInWidget(playbackWidget->winId(),
-                    playbackWidget->x() + 10, playbackWidget->y() + 10,
-                    event->size().width() - 20, event->size().height() - 20);
+                    playbackWidget->x(), playbackWidget->y(),
+                    event->size().width(), event->size().height());
 
 /*            g_pPlutoLogger->Write(LV_STATUS, "Called for this %d, %dx%d %dx%d",
                     playbackWidget->winId(),

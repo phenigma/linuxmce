@@ -29,6 +29,7 @@ class RatpoisonHandler
         {
             Display *display = static_cast<T*>(this)->getDisplay();
 
+            XLockDisplay(display);
             g_pPlutoLogger->Write(LV_STATUS, "Instructing ratpoison to do this: \"%s\"", command.c_str());
 
             rp_command          = XInternAtom (display, "RP_COMMAND", True);
@@ -92,6 +93,7 @@ class RatpoisonHandler
             // cleanups
             XDestroyWindow (display, commandWindow);
 
+            XUnlockDisplay(display);
             g_pPlutoLogger->Write(LV_STATUS, "Exiting rat poison command");
             return true;
         }
