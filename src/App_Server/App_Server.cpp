@@ -44,6 +44,21 @@ using namespace DCE;
 #include <sys/wait.h>
 #endif
 
+#ifdef WIN32
+void EnablePrivileges()
+{
+	HANDLE hToken; // handle to process token 
+	TOKEN_PRIVILEGES tkp; // pointer to token structure
+	OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES | 
+					TOKEN_QUERY, &hToken); // Get the LUID for shutdown privilege.              
+	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid); 
+	tkp.PrivilegeCount = 1; // one privilege to set
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;   
+	// Get shutdown privilege for this process. 
+	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES) NULL, 0);
+}
+#endif
+
 #ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it..
 App_Server *g_pAppServer = NULL;
 
@@ -436,6 +451,9 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 #ifdef LINUX
 		g_pPlutoLogger->Write(LV_STATUS,"Calling halt");
 		system("halt");
+#else
+		EnablePrivileges();
+		::ExitWindowsEx(EWX_POWEROFF | EWX_FORCE, 0);
 #endif
 
 		// TODO: Power off this system
@@ -449,9 +467,10 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 #ifdef LINUX
 		g_pPlutoLogger->Write(LV_STATUS,"Calling halt");
 		system("halt");  // Don't know how to do this
+#else
+		EnablePrivileges();
+		::ExitWindowsEx(EWX_POWEROFF | EWX_FORCE, 0);
 #endif
-
-		// TODO: Power off this system
 		break;
 	case 'R':
 	case 'N':
@@ -461,8 +480,10 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 #ifdef LINUX
 		g_pPlutoLogger->Write(LV_STATUS,"Calling reboot");
 		system("reboot");  // Don't know how to do this
+#else
+		EnablePrivileges();
+		::ExitWindowsEx(EWX_REBOOT | EWX_FORCE, 0);
 #endif
-		// TODO: Reboot this system
 		break;
 	}
 }
