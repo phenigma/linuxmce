@@ -192,8 +192,11 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
         m_pAllShowsDataGrid = new MythTvEPGWrapper();
     }
 
-    QDateTime currentTime = QDateTime::currentDateTime();
-    m_pAllShowsDataGrid->rebuildDataGrid(currentTime, currentTime.addDays(3)); // i want 3 days.)
+    QDateTime currentTime;
+
+    currentTime.setDate(QDate(2004, 10, 27));
+    currentTime.setTime(QTime(0, 0));
+    m_pAllShowsDataGrid->setGridBoundaries(currentTime, currentTime.addDays(14)); // i want 3 days.)
     return m_pAllShowsDataGrid;
 }
 
