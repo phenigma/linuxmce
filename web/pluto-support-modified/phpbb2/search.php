@@ -69,7 +69,7 @@ else
 
 $search_id = ( isset($HTTP_GET_VARS['search_id']) ) ? $HTTP_GET_VARS['search_id'] : '';
 
-$show_results = ( isset($HTTP_POST_VARS['show_results']) ) ? $HTTP_POST_VARS['show_results'] : 'posts';
+$show_results = ( isset($_REQUEST['show_results']) ) ? $_REQUEST['show_results'] : 'posts';
 $show_results = ($show_results == 'topics') ? 'topics' : 'posts';
 
 if ( isset($HTTP_POST_VARS['search_terms']) )
@@ -81,9 +81,9 @@ else
 	$search_terms = 0;
 }
 
-if ( isset($HTTP_POST_VARS['search_fields']) )
+if ( isset($_REQUEST['search_fields']) )
 {
-	$search_fields = ( $HTTP_POST_VARS['search_fields'] == 'all' ) ? 1 : 0;
+	$search_fields = ( $_REQUEST['search_fields'] == 'all' ) ? 1 : 0;
 }
 else
 {
