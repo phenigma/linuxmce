@@ -5,6 +5,8 @@
 #define PSC_DESIGNER_REPSET_TABLE "psc_designer_repset"
 #define PSC_DESIGNER_REPSET_PK_PSC_DESIGNER_REPSET_FIELD "PK_psc_designer_repset"
 #define PSC_DESIGNER_REPSET_PK_PSC_DESIGNER_REPSET_TABLE_FIELD "psc_designer_repset.PK_psc_designer_repset"
+#define PSC_DESIGNER_REPSET_SETTING_FIELD "Setting"
+#define PSC_DESIGNER_REPSET_SETTING_TABLE_FIELD "psc_designer_repset.Setting"
 #define PSC_DESIGNER_REPSET_VALUE_FIELD "Value"
 #define PSC_DESIGNER_REPSET_VALUE_TABLE_FIELD "psc_designer_repset.Value"
 

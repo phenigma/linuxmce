@@ -113,8 +113,9 @@ void Row_psc_local_repset::SetDefaultValues()
 {
 	m_PK_psc_local_repset = 0;
 is_null[0] = false;
-m_Value = "";
+m_Setting = "";
 is_null[1] = false;
+is_null[2] = true;
 
 
 	is_added=false;
@@ -125,6 +126,9 @@ is_null[1] = false;
 long int Row_psc_local_repset::PK_psc_local_repset_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_psc_local_repset;}
+string Row_psc_local_repset::Setting_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Setting;}
 string Row_psc_local_repset::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Value;}
@@ -133,13 +137,22 @@ return m_Value;}
 void Row_psc_local_repset::PK_psc_local_repset_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_psc_local_repset = val; is_modified=true; is_null[0]=false;}
+void Row_psc_local_repset::Setting_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Setting = val; is_modified=true; is_null[1]=false;}
 void Row_psc_local_repset::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Value = val; is_modified=true; is_null[1]=false;}
+m_Value = val; is_modified=true; is_null[2]=false;}
 
 		
+bool Row_psc_local_repset::Value_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[2];}
 
 			
+void Row_psc_local_repset::Value_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[2]=val;}
 	
 
 string Row_psc_local_repset::PK_psc_local_repset_asSQL()
@@ -155,7 +168,7 @@ sprintf(buf, "%li", m_PK_psc_local_repset);
 return buf;
 }
 
-string Row_psc_local_repset::Value_asSQL()
+string Row_psc_local_repset::Setting_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -163,6 +176,18 @@ if (is_null[1])
 return "NULL";
 
 char buf[61];
+mysql_real_escape_string(table->database->db_handle, buf, m_Setting.c_str(), (unsigned long) m_Setting.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_psc_local_repset::Value_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[131071];
 mysql_real_escape_string(table->database->db_handle, buf, m_Value.c_str(), (unsigned long) m_Value.size());
 return string()+"\""+buf+"\"";
 }
@@ -205,10 +230,10 @@ void Table_psc_local_repset::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_local_repset_asSQL()+", "+pRow->Value_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_local_repset_asSQL()+", "+pRow->Setting_asSQL()+", "+pRow->Value_asSQL();
 
 	
-		string query = "insert into psc_local_repset (PK_psc_local_repset, Value) values ("+
+		string query = "insert into psc_local_repset (PK_psc_local_repset, Setting, Value) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -257,7 +282,7 @@ condition = condition + "PK_psc_local_repset=" + tmp_PK_psc_local_repset;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_local_repset="+pRow->PK_psc_local_repset_asSQL()+", Value="+pRow->Value_asSQL();
+update_values_list = update_values_list + "PK_psc_local_repset="+pRow->PK_psc_local_repset_asSQL()+", Setting="+pRow->Setting_asSQL()+", Value="+pRow->Value_asSQL();
 
 	
 		string query = "update psc_local_repset set " + update_values_list + " where " + condition;
@@ -359,12 +384,23 @@ sscanf(row[0], "%li", &(pRow->m_PK_psc_local_repset));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Value = "";
+pRow->m_Setting = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Value = string(row[1],lengths[1]);
+pRow->m_Setting = string(row[1],lengths[1]);
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Value = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Value = string(row[2],lengths[2]);
 }
 
 
@@ -487,12 +523,23 @@ sscanf(row[0], "%li", &(pRow->m_PK_psc_local_repset));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Value = "";
+pRow->m_Setting = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Value = string(row[1],lengths[1]);
+pRow->m_Setting = string(row[1],lengths[1]);
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Value = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Value = string(row[2],lengths[2]);
 }
 
 

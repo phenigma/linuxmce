@@ -616,6 +616,9 @@
 				RelativePath=".\Table_psc_constants_repset.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_psc_constants_schema.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_constants_tables.cpp">
 			</File>
 			<File
@@ -626,6 +629,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_psc_dce_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_dce_schema.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_psc_dce_tables.cpp">
@@ -640,6 +646,9 @@
 				RelativePath=".\Table_psc_designer_repset.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_psc_designer_schema.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_designer_tables.cpp">
 			</File>
 			<File
@@ -650,6 +659,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_psc_document_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_document_schema.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_psc_document_tables.cpp">
@@ -664,6 +676,9 @@
 				RelativePath=".\Table_psc_ir_repset.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_psc_ir_schema.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_ir_tables.cpp">
 			</File>
 			<File
@@ -676,6 +691,9 @@
 				RelativePath=".\Table_psc_local_repset.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_psc_local_schema.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_local_tables.cpp">
 			</File>
 			<File
@@ -686,6 +704,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_psc_website_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_website_schema.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_psc_website_tables.cpp">

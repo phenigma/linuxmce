@@ -16,32 +16,32 @@
 
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
-#include "Table_psc_ir_repset.h"
+#include "Table_psc_website_schema.h"
 
 
 
-void Database_pluto_main::CreateTable_psc_ir_repset()
+void Database_pluto_main::CreateTable_psc_website_schema()
 {
-	tblpsc_ir_repset = new Table_psc_ir_repset(this);
+	tblpsc_website_schema = new Table_psc_website_schema(this);
 }
 
-void Database_pluto_main::DeleteTable_psc_ir_repset()
+void Database_pluto_main::DeleteTable_psc_website_schema()
 {
-	delete tblpsc_ir_repset;
+	delete tblpsc_website_schema;
 }
 
-Table_psc_ir_repset::~Table_psc_ir_repset()
+Table_psc_website_schema::~Table_psc_website_schema()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		Row_psc_ir_repset *pRow = (Row_psc_ir_repset *) (*it).second;
+		Row_psc_website_schema *pRow = (Row_psc_website_schema *) (*it).second;
 		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		Row_psc_ir_repset *pRow = (Row_psc_ir_repset *) (*it).second;
+		Row_psc_website_schema *pRow = (Row_psc_website_schema *) (*it).second;
 		delete pRow;
 	}
 
@@ -53,16 +53,16 @@ Table_psc_ir_repset::~Table_psc_ir_repset()
 }
 
 
-void Row_psc_ir_repset::Delete()
+void Row_psc_website_schema::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-	Row_psc_ir_repset *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_psc_website_schema *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
 			vector<TableRow*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_psc_ir_repset *) *i != this); i++);
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_psc_website_schema *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,7 +72,7 @@ void Row_psc_ir_repset::Delete()
 		}
 		else
 		{
-			SingleLongKey key(pRow->m_PK_psc_ir_repset);
+			SingleLongKey key(pRow->m_PK_psc_website_schema);
 			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
@@ -82,17 +82,17 @@ void Row_psc_ir_repset::Delete()
 		}	
 }
 
-void Row_psc_ir_repset::Reload()
+void Row_psc_website_schema::Reload()
 {
-	Row_psc_ir_repset *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_psc_website_schema *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		SingleLongKey key(pRow->m_PK_psc_ir_repset);
-		Row_psc_ir_repset *pRow = table->FetchRow(key);
+		SingleLongKey key(pRow->m_PK_psc_website_schema);
+		Row_psc_website_schema *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
 		{
@@ -104,18 +104,17 @@ void Row_psc_ir_repset::Reload()
 	
 }
 
-Row_psc_ir_repset::Row_psc_ir_repset(Table_psc_ir_repset *pTable):table(pTable)
+Row_psc_website_schema::Row_psc_website_schema(Table_psc_website_schema *pTable):table(pTable)
 {
 	SetDefaultValues();
 }
 
-void Row_psc_ir_repset::SetDefaultValues()
+void Row_psc_website_schema::SetDefaultValues()
 {
-	m_PK_psc_ir_repset = 0;
+	m_PK_psc_website_schema = 0;
 is_null[0] = false;
-m_Setting = "";
+m_Value = "";
 is_null[1] = false;
-is_null[2] = true;
 
 
 	is_added=false;
@@ -123,39 +122,27 @@ is_null[2] = true;
 	is_modified=false;
 }
 
-long int Row_psc_ir_repset::PK_psc_ir_repset_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_website_schema::PK_psc_website_schema_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_PK_psc_ir_repset;}
-string Row_psc_ir_repset::Setting_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_Setting;}
-string Row_psc_ir_repset::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_PK_psc_website_schema;}
+string Row_psc_website_schema::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Value;}
 
 		
-void Row_psc_ir_repset::PK_psc_ir_repset_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_website_schema::PK_psc_website_schema_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_PK_psc_ir_repset = val; is_modified=true; is_null[0]=false;}
-void Row_psc_ir_repset::Setting_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_PK_psc_website_schema = val; is_modified=true; is_null[0]=false;}
+void Row_psc_website_schema::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Setting = val; is_modified=true; is_null[1]=false;}
-void Row_psc_ir_repset::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_Value = val; is_modified=true; is_null[2]=false;}
+m_Value = val; is_modified=true; is_null[1]=false;}
 
 		
-bool Row_psc_ir_repset::Value_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[2];}
 
 			
-void Row_psc_ir_repset::Value_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
 	
 
-string Row_psc_ir_repset::PK_psc_ir_repset_asSQL()
+string Row_psc_website_schema::PK_psc_website_schema_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -163,28 +150,16 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_PK_psc_ir_repset);
+sprintf(buf, "%li", m_PK_psc_website_schema);
 
 return buf;
 }
 
-string Row_psc_ir_repset::Setting_asSQL()
+string Row_psc_website_schema::Value_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
-return "NULL";
-
-char buf[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Setting.c_str(), (unsigned long) m_Setting.size());
-return string()+"\""+buf+"\"";
-}
-
-string Row_psc_ir_repset::Value_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[2])
 return "NULL";
 
 char buf[131071];
@@ -195,29 +170,29 @@ return string()+"\""+buf+"\"";
 
 
 
-Table_psc_ir_repset::Key::Key(long int in_PK_psc_ir_repset)
+Table_psc_website_schema::Key::Key(long int in_PK_psc_website_schema)
 {
-			pk_PK_psc_ir_repset = in_PK_psc_ir_repset;
+			pk_PK_psc_website_schema = in_PK_psc_website_schema;
 	
 }
 
-Table_psc_ir_repset::Key::Key(Row_psc_ir_repset *pRow)
+Table_psc_website_schema::Key::Key(Row_psc_website_schema *pRow)
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
-			pk_PK_psc_ir_repset = pRow->m_PK_psc_ir_repset;
+			pk_PK_psc_website_schema = pRow->m_PK_psc_website_schema;
 	
 }		
 
-bool Table_psc_ir_repset::Key_Less::operator()(const Table_psc_ir_repset::Key &key1, const Table_psc_ir_repset::Key &key2) const
+bool Table_psc_website_schema::Key_Less::operator()(const Table_psc_website_schema::Key &key1, const Table_psc_website_schema::Key &key2) const
 {
-			if (key1.pk_PK_psc_ir_repset!=key2.pk_PK_psc_ir_repset)
-return key1.pk_PK_psc_ir_repset<key2.pk_PK_psc_ir_repset;
+			if (key1.pk_PK_psc_website_schema!=key2.pk_PK_psc_website_schema)
+return key1.pk_PK_psc_website_schema<key2.pk_PK_psc_website_schema;
 else
 return false;	
 }	
 
-void Table_psc_ir_repset::Commit()
+void Table_psc_website_schema::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -226,14 +201,14 @@ void Table_psc_ir_repset::Commit()
 	{
 		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_psc_ir_repset *pRow = (Row_psc_ir_repset *)*i;
+		Row_psc_website_schema *pRow = (Row_psc_website_schema *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_ir_repset_asSQL()+", "+pRow->Setting_asSQL()+", "+pRow->Value_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_website_schema_asSQL()+", "+pRow->Value_asSQL();
 
 	
-		string query = "insert into psc_ir_repset (PK_psc_ir_repset, Setting, Value) values ("+
+		string query = "insert into psc_website_schema (PK_psc_website_schema, Value) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -248,11 +223,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_ir_reps
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
 			if (id!=0)
-pRow->m_PK_psc_ir_repset=id;
+pRow->m_PK_psc_website_schema=id;
 	
 			
 			addedRows.erase(i);
-			SingleLongKey key(pRow->m_PK_psc_ir_repset);	
+			SingleLongKey key(pRow->m_PK_psc_website_schema);	
 			cachedRows[key] = pRow;
 					
 			
@@ -269,23 +244,23 @@ pRow->m_PK_psc_ir_repset=id;
 	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
-		Row_psc_ir_repset* pRow = (Row_psc_ir_repset*) (*i).second;	
-		SingleLongKey key(pRow->m_PK_psc_ir_repset);
+		Row_psc_website_schema* pRow = (Row_psc_website_schema*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_psc_website_schema);
 
-		char tmp_PK_psc_ir_repset[32];
-sprintf(tmp_PK_psc_ir_repset, "%li", key.pk);
+		char tmp_PK_psc_website_schema[32];
+sprintf(tmp_PK_psc_website_schema, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_ir_repset=" + tmp_PK_psc_ir_repset;
+condition = condition + "PK_psc_website_schema=" + tmp_PK_psc_website_schema;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_ir_repset="+pRow->PK_psc_ir_repset_asSQL()+", Setting="+pRow->Setting_asSQL()+", Value="+pRow->Value_asSQL();
+update_values_list = update_values_list + "PK_psc_website_schema="+pRow->PK_psc_website_schema_asSQL()+", Value="+pRow->Value_asSQL();
 
 	
-		string query = "update psc_ir_repset set " + update_values_list + " where " + condition;
+		string query = "update psc_website_schema set " + update_values_list + " where " + condition;
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
@@ -312,17 +287,17 @@ update_values_list = update_values_list + "PK_psc_ir_repset="+pRow->PK_psc_ir_re
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_psc_ir_repset* pRow = (Row_psc_ir_repset*) (*i).second;	
+		Row_psc_website_schema* pRow = (Row_psc_website_schema*) (*i).second;	
 
-		char tmp_PK_psc_ir_repset[32];
-sprintf(tmp_PK_psc_ir_repset, "%li", key.pk);
+		char tmp_PK_psc_website_schema[32];
+sprintf(tmp_PK_psc_website_schema, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_ir_repset=" + tmp_PK_psc_ir_repset;
+condition = condition + "PK_psc_website_schema=" + tmp_PK_psc_website_schema;
 
 	
-		string query = "delete from psc_ir_repset where " + condition;
+		string query = "delete from psc_website_schema where " + condition;
 		
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
@@ -335,17 +310,17 @@ condition = condition + "PK_psc_ir_repset=" + tmp_PK_psc_ir_repset;
 	
 }
 
-bool Table_psc_ir_repset::GetRows(string where_statement,vector<class Row_psc_ir_repset*> *rows)
+bool Table_psc_website_schema::GetRows(string where_statement,vector<class Row_psc_website_schema*> *rows)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from psc_ir_repset " + where_statement;
+		query = "select * from psc_website_schema " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from psc_ir_repset where " + where_statement;
+		query = "select * from psc_website_schema where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
@@ -368,53 +343,42 @@ bool Table_psc_ir_repset::GetRows(string where_statement,vector<class Row_psc_ir
 	{	
 		unsigned long *lengths = mysql_fetch_lengths(res);
 
-		Row_psc_ir_repset *pRow = new Row_psc_ir_repset(this);
+		Row_psc_website_schema *pRow = new Row_psc_website_schema(this);
 		
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_psc_ir_repset = 0;
+pRow->m_PK_psc_website_schema = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_psc_ir_repset));
+sscanf(row[0], "%li", &(pRow->m_PK_psc_website_schema));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Setting = "";
-}
-else
-{
-pRow->is_null[1]=false;
-pRow->m_Setting = string(row[1],lengths[1]);
-}
-
-if (row[2] == NULL)
-{
-pRow->is_null[2]=true;
 pRow->m_Value = "";
 }
 else
 {
-pRow->is_null[2]=false;
-pRow->m_Value = string(row[2],lengths[2]);
+pRow->is_null[1]=false;
+pRow->m_Value = string(row[1],lengths[1]);
 }
 
 
 
 		//checking for duplicates
 
-		SingleLongKey key(pRow->m_PK_psc_ir_repset);
+		SingleLongKey key(pRow->m_PK_psc_website_schema);
 		
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (Row_psc_ir_repset *)(*i).second;
+			pRow = (Row_psc_website_schema *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -427,11 +391,11 @@ pRow->m_Value = string(row[2],lengths[2]);
 	return true;					
 }
 
-Row_psc_ir_repset* Table_psc_ir_repset::AddRow()
+Row_psc_website_schema* Table_psc_website_schema::AddRow()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Row_psc_ir_repset *pRow = new Row_psc_ir_repset(this);
+	Row_psc_website_schema *pRow = new Row_psc_website_schema(this);
 	pRow->is_added=true;
 	addedRows.push_back(pRow);
 	return pRow;		
@@ -439,11 +403,11 @@ Row_psc_ir_repset* Table_psc_ir_repset::AddRow()
 
 
 
-Row_psc_ir_repset* Table_psc_ir_repset::GetRow(long int in_PK_psc_ir_repset)
+Row_psc_website_schema* Table_psc_website_schema::GetRow(long int in_PK_psc_website_schema)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	SingleLongKey row_key(in_PK_psc_ir_repset);
+	SingleLongKey row_key(in_PK_psc_website_schema);
 
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -456,9 +420,9 @@ Row_psc_ir_repset* Table_psc_ir_repset::GetRow(long int in_PK_psc_ir_repset)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (Row_psc_ir_repset*) (*i).second;
+		return (Row_psc_website_schema*) (*i).second;
 	//we have to fetch row
-	Row_psc_ir_repset* pRow = FetchRow(row_key);
+	Row_psc_website_schema* pRow = FetchRow(row_key);
 
 	if (pRow!=NULL)
 		cachedRows[row_key] = pRow;
@@ -467,20 +431,20 @@ Row_psc_ir_repset* Table_psc_ir_repset::GetRow(long int in_PK_psc_ir_repset)
 
 
 
-Row_psc_ir_repset* Table_psc_ir_repset::FetchRow(SingleLongKey &key)
+Row_psc_website_schema* Table_psc_website_schema::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
-	char tmp_PK_psc_ir_repset[32];
-sprintf(tmp_PK_psc_ir_repset, "%li", key.pk);
+	char tmp_PK_psc_website_schema[32];
+sprintf(tmp_PK_psc_website_schema, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_ir_repset=" + tmp_PK_psc_ir_repset;
+condition = condition + "PK_psc_website_schema=" + tmp_PK_psc_website_schema;
 
 
-	string query = "select * from psc_ir_repset where " + condition;		
+	string query = "select * from psc_website_schema where " + condition;		
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
@@ -507,39 +471,28 @@ condition = condition + "PK_psc_ir_repset=" + tmp_PK_psc_ir_repset;
 						
 	unsigned long *lengths = mysql_fetch_lengths(res);
 
-	Row_psc_ir_repset *pRow = new Row_psc_ir_repset(this);
+	Row_psc_website_schema *pRow = new Row_psc_website_schema(this);
 		
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_psc_ir_repset = 0;
+pRow->m_PK_psc_website_schema = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_psc_ir_repset));
+sscanf(row[0], "%li", &(pRow->m_PK_psc_website_schema));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Setting = "";
-}
-else
-{
-pRow->is_null[1]=false;
-pRow->m_Setting = string(row[1],lengths[1]);
-}
-
-if (row[2] == NULL)
-{
-pRow->is_null[2]=true;
 pRow->m_Value = "";
 }
 else
 {
-pRow->is_null[2]=false;
-pRow->m_Value = string(row[2],lengths[2]);
+pRow->is_null[1]=false;
+pRow->m_Value = string(row[1],lengths[1]);
 }
 
 

@@ -183,30 +183,37 @@ class Table_VertAlignment* tblVertAlignment;
 class Table_psc_constants_batdet* tblpsc_constants_batdet;
 class Table_psc_constants_bathdr* tblpsc_constants_bathdr;
 class Table_psc_constants_repset* tblpsc_constants_repset;
+class Table_psc_constants_schema* tblpsc_constants_schema;
 class Table_psc_constants_tables* tblpsc_constants_tables;
 class Table_psc_dce_batdet* tblpsc_dce_batdet;
 class Table_psc_dce_bathdr* tblpsc_dce_bathdr;
 class Table_psc_dce_repset* tblpsc_dce_repset;
+class Table_psc_dce_schema* tblpsc_dce_schema;
 class Table_psc_dce_tables* tblpsc_dce_tables;
 class Table_psc_designer_batdet* tblpsc_designer_batdet;
 class Table_psc_designer_bathdr* tblpsc_designer_bathdr;
 class Table_psc_designer_repset* tblpsc_designer_repset;
+class Table_psc_designer_schema* tblpsc_designer_schema;
 class Table_psc_designer_tables* tblpsc_designer_tables;
 class Table_psc_document_batdet* tblpsc_document_batdet;
 class Table_psc_document_bathdr* tblpsc_document_bathdr;
 class Table_psc_document_repset* tblpsc_document_repset;
+class Table_psc_document_schema* tblpsc_document_schema;
 class Table_psc_document_tables* tblpsc_document_tables;
 class Table_psc_ir_batdet* tblpsc_ir_batdet;
 class Table_psc_ir_bathdr* tblpsc_ir_bathdr;
 class Table_psc_ir_repset* tblpsc_ir_repset;
+class Table_psc_ir_schema* tblpsc_ir_schema;
 class Table_psc_ir_tables* tblpsc_ir_tables;
 class Table_psc_local_batdet* tblpsc_local_batdet;
 class Table_psc_local_bathdr* tblpsc_local_bathdr;
 class Table_psc_local_repset* tblpsc_local_repset;
+class Table_psc_local_schema* tblpsc_local_schema;
 class Table_psc_local_tables* tblpsc_local_tables;
 class Table_psc_website_batdet* tblpsc_website_batdet;
 class Table_psc_website_bathdr* tblpsc_website_bathdr;
 class Table_psc_website_repset* tblpsc_website_repset;
+class Table_psc_website_schema* tblpsc_website_schema;
 class Table_psc_website_tables* tblpsc_website_tables;
 public:
 class Table_Array* Array_get() { return tblArray; }
@@ -378,30 +385,37 @@ class Table_VertAlignment* VertAlignment_get() { return tblVertAlignment; }
 class Table_psc_constants_batdet* psc_constants_batdet_get() { return tblpsc_constants_batdet; }
 class Table_psc_constants_bathdr* psc_constants_bathdr_get() { return tblpsc_constants_bathdr; }
 class Table_psc_constants_repset* psc_constants_repset_get() { return tblpsc_constants_repset; }
+class Table_psc_constants_schema* psc_constants_schema_get() { return tblpsc_constants_schema; }
 class Table_psc_constants_tables* psc_constants_tables_get() { return tblpsc_constants_tables; }
 class Table_psc_dce_batdet* psc_dce_batdet_get() { return tblpsc_dce_batdet; }
 class Table_psc_dce_bathdr* psc_dce_bathdr_get() { return tblpsc_dce_bathdr; }
 class Table_psc_dce_repset* psc_dce_repset_get() { return tblpsc_dce_repset; }
+class Table_psc_dce_schema* psc_dce_schema_get() { return tblpsc_dce_schema; }
 class Table_psc_dce_tables* psc_dce_tables_get() { return tblpsc_dce_tables; }
 class Table_psc_designer_batdet* psc_designer_batdet_get() { return tblpsc_designer_batdet; }
 class Table_psc_designer_bathdr* psc_designer_bathdr_get() { return tblpsc_designer_bathdr; }
 class Table_psc_designer_repset* psc_designer_repset_get() { return tblpsc_designer_repset; }
+class Table_psc_designer_schema* psc_designer_schema_get() { return tblpsc_designer_schema; }
 class Table_psc_designer_tables* psc_designer_tables_get() { return tblpsc_designer_tables; }
 class Table_psc_document_batdet* psc_document_batdet_get() { return tblpsc_document_batdet; }
 class Table_psc_document_bathdr* psc_document_bathdr_get() { return tblpsc_document_bathdr; }
 class Table_psc_document_repset* psc_document_repset_get() { return tblpsc_document_repset; }
+class Table_psc_document_schema* psc_document_schema_get() { return tblpsc_document_schema; }
 class Table_psc_document_tables* psc_document_tables_get() { return tblpsc_document_tables; }
 class Table_psc_ir_batdet* psc_ir_batdet_get() { return tblpsc_ir_batdet; }
 class Table_psc_ir_bathdr* psc_ir_bathdr_get() { return tblpsc_ir_bathdr; }
 class Table_psc_ir_repset* psc_ir_repset_get() { return tblpsc_ir_repset; }
+class Table_psc_ir_schema* psc_ir_schema_get() { return tblpsc_ir_schema; }
 class Table_psc_ir_tables* psc_ir_tables_get() { return tblpsc_ir_tables; }
 class Table_psc_local_batdet* psc_local_batdet_get() { return tblpsc_local_batdet; }
 class Table_psc_local_bathdr* psc_local_bathdr_get() { return tblpsc_local_bathdr; }
 class Table_psc_local_repset* psc_local_repset_get() { return tblpsc_local_repset; }
+class Table_psc_local_schema* psc_local_schema_get() { return tblpsc_local_schema; }
 class Table_psc_local_tables* psc_local_tables_get() { return tblpsc_local_tables; }
 class Table_psc_website_batdet* psc_website_batdet_get() { return tblpsc_website_batdet; }
 class Table_psc_website_bathdr* psc_website_bathdr_get() { return tblpsc_website_bathdr; }
 class Table_psc_website_repset* psc_website_repset_get() { return tblpsc_website_repset; }
+class Table_psc_website_schema* psc_website_schema_get() { return tblpsc_website_schema; }
 class Table_psc_website_tables* psc_website_tables_get() { return tblpsc_website_tables; }
 bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
@@ -576,30 +590,37 @@ void CreateTable_VertAlignment();
 void CreateTable_psc_constants_batdet();
 void CreateTable_psc_constants_bathdr();
 void CreateTable_psc_constants_repset();
+void CreateTable_psc_constants_schema();
 void CreateTable_psc_constants_tables();
 void CreateTable_psc_dce_batdet();
 void CreateTable_psc_dce_bathdr();
 void CreateTable_psc_dce_repset();
+void CreateTable_psc_dce_schema();
 void CreateTable_psc_dce_tables();
 void CreateTable_psc_designer_batdet();
 void CreateTable_psc_designer_bathdr();
 void CreateTable_psc_designer_repset();
+void CreateTable_psc_designer_schema();
 void CreateTable_psc_designer_tables();
 void CreateTable_psc_document_batdet();
 void CreateTable_psc_document_bathdr();
 void CreateTable_psc_document_repset();
+void CreateTable_psc_document_schema();
 void CreateTable_psc_document_tables();
 void CreateTable_psc_ir_batdet();
 void CreateTable_psc_ir_bathdr();
 void CreateTable_psc_ir_repset();
+void CreateTable_psc_ir_schema();
 void CreateTable_psc_ir_tables();
 void CreateTable_psc_local_batdet();
 void CreateTable_psc_local_bathdr();
 void CreateTable_psc_local_repset();
+void CreateTable_psc_local_schema();
 void CreateTable_psc_local_tables();
 void CreateTable_psc_website_batdet();
 void CreateTable_psc_website_bathdr();
 void CreateTable_psc_website_repset();
+void CreateTable_psc_website_schema();
 void CreateTable_psc_website_tables();
 void DeleteTable_Array();
 void DeleteTable_Broadcast();
@@ -770,30 +791,37 @@ void DeleteTable_VertAlignment();
 void DeleteTable_psc_constants_batdet();
 void DeleteTable_psc_constants_bathdr();
 void DeleteTable_psc_constants_repset();
+void DeleteTable_psc_constants_schema();
 void DeleteTable_psc_constants_tables();
 void DeleteTable_psc_dce_batdet();
 void DeleteTable_psc_dce_bathdr();
 void DeleteTable_psc_dce_repset();
+void DeleteTable_psc_dce_schema();
 void DeleteTable_psc_dce_tables();
 void DeleteTable_psc_designer_batdet();
 void DeleteTable_psc_designer_bathdr();
 void DeleteTable_psc_designer_repset();
+void DeleteTable_psc_designer_schema();
 void DeleteTable_psc_designer_tables();
 void DeleteTable_psc_document_batdet();
 void DeleteTable_psc_document_bathdr();
 void DeleteTable_psc_document_repset();
+void DeleteTable_psc_document_schema();
 void DeleteTable_psc_document_tables();
 void DeleteTable_psc_ir_batdet();
 void DeleteTable_psc_ir_bathdr();
 void DeleteTable_psc_ir_repset();
+void DeleteTable_psc_ir_schema();
 void DeleteTable_psc_ir_tables();
 void DeleteTable_psc_local_batdet();
 void DeleteTable_psc_local_bathdr();
 void DeleteTable_psc_local_repset();
+void DeleteTable_psc_local_schema();
 void DeleteTable_psc_local_tables();
 void DeleteTable_psc_website_batdet();
 void DeleteTable_psc_website_bathdr();
 void DeleteTable_psc_website_repset();
+void DeleteTable_psc_website_schema();
 void DeleteTable_psc_website_tables();
 };
 #endif

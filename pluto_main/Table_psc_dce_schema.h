@@ -1,5 +1,5 @@
-#ifndef __Table_psc_ir_repset_H__
-#define __Table_psc_ir_repset_H__
+#ifndef __Table_psc_dce_schema_H__
+#define __Table_psc_dce_schema_H__
 
 #ifdef SQL2CPP_DLLEXPORT
 #define DLL_EXPORT __declspec(dllexport)
@@ -10,7 +10,7 @@
 #include "TableRow.h"
 #include "Database_pluto_main.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_psc_ir_repset.h"
+#include "Define_psc_dce_schema.h"
 #include "SerializeClass/SerializeClass.h"
 
 // If we declare the maps locally, the compiler will create multiple copies of them
@@ -18,7 +18,7 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_psc_ir_repset : public TableBase , SingleLongKeyBase
+class DLL_EXPORT Table_psc_dce_schema : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -28,29 +28,29 @@ public:
     pluto_pthread_mutex_t m_Mutex;
 	pthread_mutexattr_t m_MutexAttr;
 		
-	Table_psc_ir_repset(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("psc_ir_repset")
+	Table_psc_dce_schema(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("psc_dce_schema")
 	{
 		pthread_mutexattr_init(&m_MutexAttr);
 		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
 		m_Mutex.Init(&m_MutexAttr); 
 	};
-	~Table_psc_ir_repset();
+	~Table_psc_dce_schema();
 
 private:		
-	friend class Row_psc_ir_repset;
+	friend class Row_psc_dce_schema;
 	struct Key
 	{
-		friend class Row_psc_ir_repset;
-		long int pk_PK_psc_ir_repset;
+		friend class Row_psc_dce_schema;
+		long int pk_PK_psc_dce_schema;
 
 		
-		Key(long int in_PK_psc_ir_repset);
+		Key(long int in_PK_psc_dce_schema);
 	
-		Key(class Row_psc_ir_repset *pRow);
+		Key(class Row_psc_dce_schema *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_psc_ir_repset::Key &key1, const Table_psc_ir_repset::Key &key2) const;
+		bool operator()(const Table_psc_dce_schema::Key &key1, const Table_psc_dce_schema::Key &key2) const;
 	};	
 
 	
@@ -58,60 +58,55 @@ private:
 
 public:				
 	void Commit();
-	bool GetRows(string where_statement,vector<class Row_psc_ir_repset*> *rows);
-	class Row_psc_ir_repset* AddRow();
+	bool GetRows(string where_statement,vector<class Row_psc_dce_schema*> *rows);
+	class Row_psc_dce_schema* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_psc_ir_repset* GetRow(long int in_PK_psc_ir_repset);
+	class Row_psc_dce_schema* GetRow(long int in_PK_psc_dce_schema);
 	
 
 private:	
 	
 		
-	class Row_psc_ir_repset* FetchRow(SingleLongKey &key);
+	class Row_psc_dce_schema* FetchRow(SingleLongKey &key);
 		
 			
 };
 
-class DLL_EXPORT Row_psc_ir_repset : public TableRow, public SerializeClass
+class DLL_EXPORT Row_psc_dce_schema : public TableRow, public SerializeClass
 	{
-		friend struct Table_psc_ir_repset::Key;
-		friend class Table_psc_ir_repset;
+		friend struct Table_psc_dce_schema::Key;
+		friend class Table_psc_dce_schema;
 	private:
-		Table_psc_ir_repset *table;
+		Table_psc_dce_schema *table;
 		
-		long int m_PK_psc_ir_repset;
-string m_Setting;
+		long int m_PK_psc_dce_schema;
 string m_Value;
 
-		bool is_null[3];
+		bool is_null[2];
 	
 	public:
-		long int PK_psc_ir_repset_get();
-string Setting_get();
+		long int PK_psc_dce_schema_get();
 string Value_get();
 
 		
-		void PK_psc_ir_repset_set(long int val);
-void Setting_set(string val);
+		void PK_psc_dce_schema_set(long int val);
 void Value_set(string val);
 
 		
-		bool Value_isNull();
-
+		
 			
-		void Value_setNull(bool val);
-	
+			
 	
 		void Delete();
 		void Reload();		
 	
-		Row_psc_ir_repset(Table_psc_ir_repset *pTable);
+		Row_psc_dce_schema(Table_psc_dce_schema *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_psc_ir_repset *Table_psc_ir_repset_get() { return table; };
+		class Table_psc_dce_schema *Table_psc_dce_schema_get() { return table; };
 
 		// Return the rows for foreign keys 
 		
@@ -121,13 +116,12 @@ void Value_set(string val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_psc_ir_repset+ m_Setting+ m_Value;
+			StartSerializeList() + m_PK_psc_dce_schema+ m_Value;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_psc_ir_repset_asSQL();
-string Setting_asSQL();
+		string PK_psc_dce_schema_asSQL();
 string Value_asSQL();
 
 	};

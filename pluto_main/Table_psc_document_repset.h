@@ -82,22 +82,27 @@ class DLL_EXPORT Row_psc_document_repset : public TableRow, public SerializeClas
 		Table_psc_document_repset *table;
 		
 		long int m_PK_psc_document_repset;
+string m_Setting;
 string m_Value;
 
-		bool is_null[2];
+		bool is_null[3];
 	
 	public:
 		long int PK_psc_document_repset_get();
+string Setting_get();
 string Value_get();
 
 		
 		void PK_psc_document_repset_set(long int val);
+void Setting_set(string val);
 void Value_set(string val);
 
 		
-		
+		bool Value_isNull();
+
 			
-			
+		void Value_setNull(bool val);
+	
 	
 		void Delete();
 		void Reload();		
@@ -116,12 +121,13 @@ void Value_set(string val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_psc_document_repset+ m_Value;
+			StartSerializeList() + m_PK_psc_document_repset+ m_Setting+ m_Value;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_psc_document_repset_asSQL();
+string Setting_asSQL();
 string Value_asSQL();
 
 	};

@@ -477,7 +477,14 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 		{
 			sDirectory = pRow_Package_Directory->Path_get();
 		}
-		if( sDirectory[0]!='/' && sDirectory.substr(1,2) != ":\\" && sDirectory.substr(1,2) != ":/")
+		if( sDirectory.length()==0 )
+		{
+			if( !AskYNQuestion("**WARNING** Directory is empty.  Continue?",false) )
+				return false;
+
+			sDirectory = g_sSourcePath;
+		}
+		else if( sDirectory[0]!='/' && sDirectory.substr(1,2) != ":\\" && sDirectory.substr(1,2) != ":/")
 			sDirectory = g_sSourcePath + sDirectory;
 	
 		vector<Row_Package_Directory_File *> vectPackage_Directory_File;
@@ -485,6 +492,10 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 		for(size_t s2=0;s2<vectPackage_Directory_File.size();++s2)
 		{
 			Row_Package_Directory_File *pRow_Package_Directory_File = vectPackage_Directory_File[s2];
+			if( (!pRow_Package_Directory_File->FK_Distro_isNull() && pRow_Package_Directory_File->FK_Distro_get()!=g_pRow_Distro->PK_Distro_get()) ||
+					(!pRow_Package_Directory_File->FK_OperatingSystem_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_get()!=g_pRow_Distro->FK_OperatingSystem_get()) )
+				continue;
+
 			string File = pRow_Package_Directory_File->File_get();
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
 			{
@@ -750,7 +761,8 @@ AsksSourceQuests:
 		vector<Row_Package_Source_Compat *> vectRow_Package_Source_Compat;
 		g_pDatabase_pluto_main->Package_Source_Compat_get()->GetRows(
 				"FK_Package_Source=" + StringUtils::itos(pRow_Package_Source_SVN->PK_Package_Source_get()) + 
-				" AND FK_Distro=" + StringUtils::itos(g_pRow_Distro->PK_Distro_get()),&vectRow_Package_Source_Compat);
+				" AND (FK_Distro IS NULL OR FK_Distro=" + StringUtils::itos(g_pRow_Distro->PK_Distro_get()) + ")" +
+				"AND (FK_OperatingSystem IS NULL OR FK_OperatingSystem=" + StringUtils::itos(g_pRow_Distro->FK_OperatingSystem_get()) + ")",&vectRow_Package_Source_Compat);
 		if( vectRow_Package_Source_Compat.size()==0 )
 		{
 			if( !g_bInteractive )
@@ -758,24 +770,16 @@ AsksSourceQuests:
 				cout << "***Source code is not compatible with this distro***" << endl;
 				return true; // It's okay
 			}
-			// Now on the OS
-			g_pDatabase_pluto_main->Package_Source_Compat_get()->GetRows(
-				"FK_Package_Source=" + StringUtils::itos(pRow_Package_Source_SVN->PK_Package_Source_get()) + 
-				" AND FK_OperatingSystem=" + StringUtils::itos(g_pRow_Distro->FK_OperatingSystem_get()),&vectRow_Package_Source_Compat);
-			if( vectRow_Package_Source_Compat.size()==0 )
-			{
-				cout << "I can't find a corresponding row in Package_Source_Compat." << endl
-					<< "This is normal if this package cannot be built with this distro." << endl;
-					
-				if( !AskYNQuestion("Add a record Package_Source_Compat and try to build it?",false) )
-					return true;
-				pRow_Package_Source_Compat = g_pDatabase_pluto_main->Package_Source_Compat_get()->AddRow();
-				pRow_Package_Source_Compat->FK_Package_Source_set(pRow_Package_Source_SVN->PK_Package_Source_get());
-				pRow_Package_Source_Compat->FK_Distro_set( g_pRow_Distro->PK_Distro_get() );
-				g_pDatabase_pluto_main->Package_Source_Compat_get()->Commit();
-			}
-			else
-				pRow_Package_Source_Compat = vectRow_Package_Source_Compat[0];
+
+			cout << "I can't find a corresponding row in Package_Source_Compat." << endl
+				<< "This is normal if this package cannot be built with this distro." << endl;
+				
+			if( !AskYNQuestion("Add a record Package_Source_Compat and try to build it?",false) )
+				return true;
+			pRow_Package_Source_Compat = g_pDatabase_pluto_main->Package_Source_Compat_get()->AddRow();
+			pRow_Package_Source_Compat->FK_Package_Source_set(pRow_Package_Source_SVN->PK_Package_Source_get());
+			pRow_Package_Source_Compat->FK_Distro_set( g_pRow_Distro->PK_Distro_get() );
+			g_pDatabase_pluto_main->Package_Source_Compat_get()->Commit();
 		}
 		else
 			pRow_Package_Source_Compat = vectRow_Package_Source_Compat[0];
