@@ -35,7 +35,6 @@ class Xine_Player;  /**< to be able to use it in declarations */
 }
 /**
 * @brief This class will handle all the low level work related to the xine-lib control.
-* @author mtoader@gmail.com
 */
 class XineSlaveWrapper
 {
@@ -95,31 +94,31 @@ class XineSlaveWrapper
     double  m_dPixelAspect; /** <  Image related data for a stream */
 
     /**
-     * @brief destructor
+     * @brief Hepler function that will preprocess events from XServer.
      */
 
     static void *eventProcessingLoop(void *arguments);
 
     /**
-     * @brief destructor
+     * @brief Will convert a point to coordinates relative to the playback window.
      */
 
     int translate_point(int gui_x, int gui_y, int *video_x, int *video_y);
 
     /**
-     * @brief destructor
+     * @brief This will close the playback window.
      */
 
     bool closeWindow();
 
     /**
-     * @brief destructor
+     * @brief This will resume playback. Not used at this moment.
      */
 
     void resume();
 
     /**
-     * @brief destructor
+     * @brief callbacks required by the xine engine for video playback.
      */
 
     static void destinationSizeCallback(void *data,
@@ -129,7 +128,7 @@ class XineSlaveWrapper
                                         double *dest_pixel_aspect);
 
     /**
-     * @brief destructor
+     * @see destinationSizeCallback
      */
 
     static void frameOutputCallback(void *data,
@@ -141,38 +140,38 @@ class XineSlaveWrapper
                                     int *win_x, int *win_y);
 
     /**
-     * @brief destructor
+     * @brief memeber function that will do the actual XServer event processing.
      */
 
     int XServerEventProcessor(XineStream *stream, XEvent &event);
 
     /**
-     * @brief destructor
+     * @brief find a stream by ID. Currently this will ignore the ID and always return the current stream.
      */
 
     XineStream *getStreamForId(int iStreamID, string strMessageInvalid);
 
     /**
-     * @brief destructor
+     * @brief conversion function used in the screen shot feature.
      */
 
     void     yuy2toyv12 (uint8_t *y, uint8_t *u, uint8_t *v, uint8_t *input, int width, int height);
 
     /**
-     * @brief destructor
+     * @see yuy2toyv12
      */
 
     uint8_t *yv12torgb (uint8_t *src_y, uint8_t *src_u, uint8_t *src_v, int width, int height);
 
     /**
-     * @brief This should be complted:
+     * @brief Take a screenshot of the currenly playing stream.
      */
 
     void make_snapshot(xine_stream_t *stream, string sFormat, int iWidth, int iHeight, bool bKeepAspect, char*&pData, int &iDataSize);
 
 public:
     /**
-     * @brief destructor
+     * @brief constructor
      */
     XineSlaveWrapper();
 
@@ -183,97 +182,97 @@ public:
     ~XineSlaveWrapper();
 
     /**
-     * @brief destructor
+     * @brief create the playback window
      */
 
     bool createWindow();
 
     /**
-     * @brief destructor
+     * @brief create xine lib objects.
      */
 
     bool createXineLibConnection();
 
     /**
-     * @brief destructor
+     * @brief set debugging level.
      */
 
     bool setXineStreamDebugging(int streamID, bool newValue);
 
     /**
-     * @brief destructor
+     * @brief play the stream represented by the fileName.
      */
 
     void playStream(string fileName, int streamID, int mediaPosition, int requestingObject);
 
     /**
-     * @brief destructor
+     * @brief callback function to listen for events from the xine lib.
      */
 
     static void xineEventListener(void *streamObject, const xine_event_t *event);
 
     /**
-     * @brief destructor
+     * @brief change the stream playback speed.
      */
 
     void changePlaybackSpeed(int iStreamID, int iMediaPlaybackSpeed);
 
     /**
-     * @brief destructor
+     * @brief stop the stream playback.
      */
 
     void stopMedia(int iStreamID);
 
     /**
-     * @brief destructor
+     * @brief restart the stream playback.
      */
 
     void restartMediaStream(int iStreamID);
 
     /**
-     * @brief destructor
+     * @brief pause stream playback.
      */
 
     void pauseMediaStream(int iStreamID);
 
     /**
-     * @brief destructor
+     * @brief move the button down in a DVD menu.
      */
 
     void selectNextButton(int iStreamID);
 
     /**
-     * @brief destructor
+     * @brief move the button up in a DVD menu.
      */
 
     void selectPrevButton(int iStreamID);
 
     /**
-     * @brief destructor
+     * @brief select the currently selected button in a DVD menu.
      */
 
     void pushCurrentButton(int iStreamID);
 
     /**
-     * @brief destructor
+     * @brief the playback window name (the X property WM_NAME).
      */
 
     string getRenderingWindowName();
 
     /**
-     * @brief destructor
+     * @brief set the owner object of this object.
      */
 
     void setXinePlayerObject(Xine_Player *object);
 
     /**
-     * @brief destructor
+     * @brief public interface to allow taking of a screenshot of the current image.
      */
 
     void getScreenShot(int iStreamID, int iWidth, int iHeight, char *&pData, int &iDataSize, string &sFormat, string &sCMD_Result);
 
     /**
-     * @brief destructor
+     * @brief in a DVD playback this will go to the respective menu (RootMenu, etc.)
      */
 
     void selectMenu(int iStreamID, int iMenuType);
