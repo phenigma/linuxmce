@@ -87,18 +87,18 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 	WHERE FK_Package=? ORDER BY Name ASC';
 
 	$resSources=$dbADO->Execute($selectSources,$PK_Package);
-	$out.='<table>';
+	$out.='<table cellspacing="0" cellpadding="0">';
 	$sourcesCount=0;
 	while($rowSources=$resSources->FetchRow()){
 		$sourcesCount++;
 		$out.='
-	<tr bgcolor="'.(($sourcesCount%2==0)?'#F0F3F8':'#FFFFFF').'">
+	<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
 		<td>Type</td>
 		<td> <b>'.$rowSources['Type'].'</b></td>
 		<td>Source:</td>
 		<td colspan="5"> <b>'.$rowSources['RepositoryName'].'</b></td>
 	</tr>
-	<tr bgcolor="'.(($sourcesCount%2==0)?'#F0F3F8':'#FFFFFF').'">
+	<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
 		<td>Name</td>
 		<td> <b>'.$rowSources['Name'].'</b></td>
 		<td>Repository</td>
@@ -132,12 +132,12 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 		}
 		$out.='
 	<tr>
-		<td colspan="8">Runs on : '.$runsTxt.'</td>
+		<td colspan="8" bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">Runs on : '.$runsTxt.'</td>
 	</tr>';
 
-		if(in_array($rowSources['PK_RepositoryType'],$GLOBALS['HTTPorFTP'])){
+		if($rowSources['FK_RepositorySource']==2 || in_array($rowSources['PK_RepositoryType'],$GLOBALS['HTTPorFTP'])){
 			$out.='
-		<tr bgcolor="'.(($sourcesCount%2==0)?'#F0F3F8':'#FFFFFF').'">
+		<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
 			<td colspan="8"><B>Links:</B></td>
 		</tr>';
 			$queryRepositoryURLs='
@@ -150,7 +150,7 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 			$resRepositoryURLs=$dbADO->Execute($queryRepositoryURLs,$rowSources['FK_RepositorySource']);
 			while($rowRepositoryURLs=$resRepositoryURLs->FetchRow()){
 				$out.='
-		<tr bgcolor="'.(($sourcesCount%2==0)?'#F0F3F8':'#FFFFFF').'">
+		<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
 			<td></td>
 			<td><a href="'.$rowRepositoryURLs['URL'].(($rowSources['Repository']!='')?$rowSources['Repository'].'/':'').$rowSources['Name'].'_'.$rowSources['Version'].$rowSources['Parms'].'">DOWNLOAD</a></td>
 			<td>Location: </td>
@@ -163,7 +163,7 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 			}
 		}
 		$out.='
-	<tr bgcolor="'.(($sourcesCount%2==0)?'#F0F3F8':'#FFFFFF').'">
+	<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
 		<td colspan="8">'.(($rowSources['PathToFile']!='')?'Download link: <a href="'.$rowSources['PathToFile'].'" target="_blank">'.$rowSources['PathToFile'].'</a>':''.nl2br($rowSources['RepositoryInstructions'])).'</td>
 	</tr>
 	<tr>
