@@ -1048,7 +1048,7 @@ string Makefile = "none:\n"
 			while (fgets(buffer, 1024, f))
 			{
 				fprintf(g, "%s", buffer);
-				if (strstr(buffer, "configure)") != NULL)
+				if (strstr(buffer, "configure)") != NULL && strstr(buffer, "deconfigure)") == NULL)
 				{
 					fprintf(g, "%s", ("# " + sSource + "\n").c_str());
 					FILE * g2 = fopen(sSource.c_str(), "r");
@@ -1202,6 +1202,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 		cout << "**ERROR:** Unknown archive type: " << pRow_Package_Source->Parms_get() << endl;
 		return false;
 	}
+	system(("ls -l " + ArchiveFileName + " >> ../dirlist").c_str());
 	chdir("/");
 #ifndef WIN32
 	system(("rm -rf /home/tmp/" + TempDir).c_str());
@@ -1213,6 +1214,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 bool TarFiles(string sArchiveFileName)
 {
 	string SystemCall = "tar -zcvf " + sArchiveFileName + " *";
+	system("ls -lR >> ../dirlist");
 	cout << "Executing: " << SystemCall << endl;
 	if( g_bSimulate )
 		return true;
@@ -1222,6 +1224,7 @@ bool TarFiles(string sArchiveFileName)
 bool ZipFiles(string sArchiveFileName)
 {
 	string SystemCall = "zip -r " + sArchiveFileName + " *";
+	system("ls -lR >> ../dirlist");
 	cout << "executing: " << SystemCall << endl;
 	if( g_bSimulate )
 		return true;
