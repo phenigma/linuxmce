@@ -359,10 +359,12 @@ return 0;
 	catch( char *pException )
 	{
 		cerr << "Caught exception: " << pException;
+		return 1;
 	}
 	catch( string sException )
 	{
 		cerr << "Caught exception: " << sException;
+		return 1;
 	}
 
 	delete g_pPlutoLogger;
