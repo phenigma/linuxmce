@@ -1,9 +1,18 @@
+. /usr/pluto/bin/Config_Ops.sh
+
+if [ ! -z "$X_Was_Set" ]; then
+	echo "Configuration file says this is an upgrade. Not setting up X twice"
+	exit 0
+fi
+
+echo "Configuring X"
 config=$(/usr/bin/X11/X -configure 2>&1 | grep 'Your XF86Config file' | cut -d" " -f5-)
 retcode=$?
 if [ "$retcode" -ne 0 -o -z "$config" -o ! -e "$config" ]; then
-	echo "Something went wrong while configuring X.  Probably already configured."
-	exit 0
+	echo "Something went wrong while configuring X."
+	exit 1
 fi
+ConfSet X_Was_Set true
 
 [ -e /etc/X11/XF86Config-4 ] && mv /etc/X11/XF86Config-4 /etc/X11/XF86Config-4.orig
 awk '
