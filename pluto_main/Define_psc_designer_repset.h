@@ -1,0 +1,13 @@
+#ifndef __Define_psc_designer_repset_H__
+#define __Define_psc_designer_repset_H__
+
+
+#define PSC_DESIGNER_REPSET_TABLE "psc_designer_repset"
+#define PSC_DESIGNER_REPSET_PK_PSC_DESIGNER_REPSET_FIELD "PK_psc_designer_repset"
+#define PSC_DESIGNER_REPSET_PK_PSC_DESIGNER_REPSET_TABLE_FIELD "psc_designer_repset.PK_psc_designer_repset"
+#define PSC_DESIGNER_REPSET_VALUE_FIELD "Value"
+#define PSC_DESIGNER_REPSET_VALUE_TABLE_FIELD "psc_designer_repset.Value"
+
+
+#endif
+

@@ -1,0 +1,13 @@
+#ifndef __Define_psc_constants_repset_H__
+#define __Define_psc_constants_repset_H__
+
+
+#define PSC_CONSTANTS_REPSET_TABLE "psc_constants_repset"
+#define PSC_CONSTANTS_REPSET_PK_PSC_CONSTANTS_REPSET_FIELD "PK_psc_constants_repset"
+#define PSC_CONSTANTS_REPSET_PK_PSC_CONSTANTS_REPSET_TABLE_FIELD "psc_constants_repset.PK_psc_constants_repset"
+#define PSC_CONSTANTS_REPSET_VALUE_FIELD "Value"
+#define PSC_CONSTANTS_REPSET_VALUE_TABLE_FIELD "psc_constants_repset.Value"
+
+
+#endif
+
