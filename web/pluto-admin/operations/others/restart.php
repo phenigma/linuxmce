@@ -19,7 +19,7 @@ function restart($output,$dbADO) {
 		}
 
 		$MDArray=getDevicesArrayFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
-		$out.='
+		$out.=setLeftMenu($dbADO).'
 		<script>
 		function confirmAction()
 		{

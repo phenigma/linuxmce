@@ -379,7 +379,9 @@ function avWizard($output,$dbADO) {
 					$controlledByPulldown='
 						<select name="controlledBy_'.$rowD['PK_Device'].'">
 							<option value="0">- Select device -</option>';
-					$devicesAllowedToControll=($rowD['UsesIR']==1)?$infraredAndSpecialisedDevices:$specialisedAndComputerDevices;	
+					$tmpArray=array();
+					$tmpArray[$rowD['PK_Device']]=$rowD['Description'];
+					$devicesAllowedToControll=($rowD['UsesIR']==1)?array_diff($infraredAndSpecialisedDevices,$tmpArray):array_diff($specialisedAndComputerDevices,$tmpArray);	
 					
 					foreach($devicesAllowedToControll as $key => $value){
 						$controlledByPulldown.='<option value="'.$key.'" '.(($rowD['FK_Device_ControlledVia']==$key)?'selected':'').'>'.$value.'</option>';

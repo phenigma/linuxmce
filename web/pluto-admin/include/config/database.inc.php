@@ -4,6 +4,7 @@
  require('include/adodb/adodb.inc.php');
  include('include/adodb/tohtml.inc.php');
  
+ 
   $ADODB_COUNTRECS=true; //for speed up, set it to false, but it will return -1 for RecordCount()
   
 

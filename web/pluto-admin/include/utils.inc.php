@@ -980,7 +980,7 @@ function getDevicesArrayFromCategory($categoryID,$dbADO)
 	getDeviceCategoryChildsArray($categoryID,$dbADO);
 	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
 	$GLOBALS['childsDeviceCategoryArray'][]=$categoryID;
-	
+
 	$queryDeviceTemplate='
 		SELECT * FROM DeviceTemplate 
 			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
@@ -2037,6 +2037,9 @@ function getMediaDirectorOrbiterChild($MD_PK_Device,$dbADO)
 
 function getDevicesFromCategories($categoriesArray,$dbADO)
 {
+	unset($GLOBALS['childsDeviceCategoryArray']);
+	$GLOBALS['childsDeviceCategoryArray']=array();
+
 	$devicesFullArray=array();
 	foreach ($categoriesArray AS $categoryID){
 		$devicesFullArray=$devicesFullArray+getDevicesArrayFromCategory($categoryID,$dbADO);
@@ -2408,10 +2411,10 @@ function processLightingScenario($cgID,$dbADO)
 {
 	$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
 	foreach($displayedDevicesArray AS $elem){
-		$deviceCommand=(int)$_POST['command_'.$elem];
-		$dimValue=$_POST['dimValue_'.$elem];
-		$oldCommand=$_POST['oldCommand_'.$elem];
-		$oldDimValue=$_POST['oldDimValue_'.$elem];
+		$deviceCommand=(int)@$_POST['command_'.$elem];
+		$dimValue=@$_POST['dimValue_'.$elem];
+		$oldCommand=@$_POST['oldCommand_'.$elem];
+		$oldDimValue=@$_POST['oldDimValue_'.$elem];
 		$deleteCommand='DELETE FROM CommandGroup_Command WHERE FK_CommandGroup=? AND FK_Device=? AND FK_Command=?';
 		$deleteParameters='
 			DELETE CommandGroup_Command_CommandParameter
@@ -2772,5 +2775,106 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 	
 	$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation);
 	$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=?,FK_Room=? WHERE PK_Device=?',array($orbiterID,$roomID,$insertID));
+}
+
+function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$controlledVia,$dbADO,$zeroOption='0,- Please Select -',$jsEvent='')
+{
+	$zeroValues=explode(',',$zeroOption);
+	$installationID=(int)$_SESSION['installationID'];
+	
+	$whereClause='';
+	if ($deviceID!=0) {
+		$selectMasterDeviceForParent = 'SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = ? AND FK_Installation=?';
+		$resSelectMasterDeviceForParent = $dbADO->Execute($selectMasterDeviceForParent,array($deviceID,$installationID));
+		if ($resSelectMasterDeviceForParent) {
+			$rowSelectMasterDeviceForParent = $resSelectMasterDeviceForParent->FetchRow();
+			$DeviceTemplateForParent = $rowSelectMasterDeviceForParent['FK_DeviceTemplate'];
+
+			$querySelectControlledViaCategory ='SELECT FK_DeviceCategory FROM DeviceTemplate_DeviceCategory_ControlledVia where FK_DeviceTemplate = ?';
+			$resSelectControlledViaCategory = $dbADO->Execute($querySelectControlledViaCategory,array($DeviceTemplateForParent));
+
+			$GLOBALS['childsDeviceCategoryArray'] = array();
+			if ($resSelectControlledViaCategory) {
+				while ($rowSelectControlledVia = $resSelectControlledViaCategory->FetchRow()) {
+					$GLOBALS['childsDeviceCategoryArray'][]=$rowSelectControlledVia['FK_DeviceCategory'];
+					getDeviceCategoryChildsArray($rowSelectControlledVia['FK_DeviceCategory'],$dbADO);
+				}
+			}
+			$controlledViaCategoryArray = cleanArray($GLOBALS['childsDeviceCategoryArray']);
+
+			$querySelectControlledViaDeviceTemplate ='SELECT  FK_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE FK_DeviceTemplate = ?';
+			$resSelectControlledViaDeviceTemplate= $dbADO->Execute($querySelectControlledViaDeviceTemplate,array($DeviceTemplateForParent));
+
+			$childsDeviceTemplateArray = array();
+			if ($resSelectControlledViaDeviceTemplate) {
+				while ($rowSelectControlledVia = $resSelectControlledViaDeviceTemplate->FetchRow()) {
+					$childsDeviceTemplateArray[]=$rowSelectControlledVia['FK_DeviceTemplate_ControlledVia'];
+				}
+			}
+
+
+
+			if (count($controlledViaCategoryArray)>0) {
+				$whereClause.=' and (FK_DeviceCategory in ('.join(",",$controlledViaCategoryArray).')';
+				if (count($childsDeviceTemplateArray)) {
+					$whereClause.=' OR PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
+				}
+				$whereClause.=')';
+			} else {
+				if (count($childsDeviceTemplateArray)) {
+					$whereClause.=' AND PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
+				}
+			}
+
+		}
+	}
+	$whereClause.=" AND PK_Device!='$deviceID'";
+	$queryDeviceTemplate = "
+		SELECT DISTINCT Device.Description,Device.PK_Device
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
+		WHERE FK_Installation=? $whereClause order by Device.Description asc";
+	$resDeviceTemplate = $dbADO->Execute($queryDeviceTemplate,$installationID);
+	$selectOptions = '';
+	if($resDeviceTemplate) {
+		while ($row=$resDeviceTemplate->FetchRow()) {
+			$selectOptions.='<option value="'.$row['PK_Device'].'" '.($row['PK_Device']==$controlledVia?' selected="selected" ':'').'>'.$row['Description'].'</option>';
+		}
+	}
+
+	// if device is AV with UsesIR=1, override default controlled_via based on category and device template
+	$infraredAndSpecialisedDevices=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
+	$specialisedAndComputerDevices=getDevicesFromCategories(array($GLOBALS['rootComputerID'],$GLOBALS['specialized']),$dbADO);
+	
+	// get selected category Device Templates
+	$avArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
+	if(in_array($dtID,$avArray)){
+		$selectOptions='';
+		$queryDevice='
+			SELECT 
+				Device.*, DeviceTemplate_AV.UsesIR
+			FROM Device 
+				INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+				LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate
+			WHERE PK_Device=?';	
+		$resDevice=$dbADO->Execute($queryDevice,$deviceID);
+		$rowD=$resDevice->FetchRow();
+
+		$tmpArray=array();
+		$tmpArray[$deviceID]=$rowD['Description'];
+		$devicesAllowedToControll=($rowD['UsesIR']==1)?array_diff($infraredAndSpecialisedDevices,$tmpArray):array_diff($specialisedAndComputerDevices,$tmpArray);
+
+		foreach($devicesAllowedToControll as $key => $value){
+			$selectOptions.='<option value="'.$key.'" '.(($rowD['FK_Device_ControlledVia']==$key)?'selected':'').'>'.$value.'</option>';
+		}
+	}
+	
+	$out='
+	<select name="'.$pulldownName.'">
+		<option value="'.@$zeroValues[0].'">'.$zeroValues[1].'</option>
+		'.$selectOptions.'
+	</select>';
+	
+	return $out;
 }
 ?>

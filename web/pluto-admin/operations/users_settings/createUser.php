@@ -221,16 +221,22 @@ function createUser($output,$dbADO) {
 			parse_str($userAddedtoMasterUsers[1]);
 			$FK_MasterUsers=$MasterUsersID;
 			
+			$SambaPass = @exec("/usr/pluto/bin/smbpass.pl $userPassword", $outputSamba, $retcode);
+            if ($retcode != 0)
+            	$SambaPass=''; // we can't issue an error here, can we?
+			$LinuxSalt = '$1$Pluto$'; // should we generate this? :)
+            $LinuxPass = crypt($userPassword, $LinuxSalt);
+                
 			$insertUser = '
 					INSERT INTO Users (PK_Users,UserName,Password, HasMailbox,
 					AccessGeneralMailbox,FirstName,
 					LastName,Nickname,Extension,ForwardEmail,
-					FK_Language,FK_Installation_Main,PINCode) 
-					values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
+					FK_Language,FK_Installation_Main,PINCode,Password_Unix,Password_Samba) 
+					values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			$query = $dbADO->Execute($insertUser,array($FK_MasterUsers,
 					$username,$passMd5,$hasMailbox,$userAccessGeneralMailbox,$userFirstName,
 					$userLastName,$userNickname,$userExtension,$userForwardEmail,
-					$userLanguage,$userMainInstallation,$pinCodeMd5
+					$userLanguage,$userMainInstallation,$pinCodeMd5,$LinuxPass,$SambaPass
 					));
 			$insertID = $dbADO->Insert_ID();
 			
@@ -243,7 +249,7 @@ function createUser($output,$dbADO) {
 			$query=$dbADO->Execute($insertUserToInstallation,array($installationID,$insertID,$userCanModifyInstallation));
 
 			$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
-			system($commandToSend);
+			exec($commandToSend);
 			
 			$out.="
 			<script>

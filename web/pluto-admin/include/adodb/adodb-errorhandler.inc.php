@@ -44,7 +44,7 @@ function ADODB_Error_Handler($dbms, $fn, $errno, $errmsg, $p1, $p2, &$thisConnec
 		$host = $p1;
 		$database = $p2;
 
-		$s = "$dbms error: [$errno: $errmsg] in $fn($host, '****', '****', $database)\n";
+		$s = ($database=='eib' && ($errno==0 || $errno==1044 || $errno==1049))?'EIB database not found or EIB user does not exist. Please install EIB package.':"$dbms error: [$errno: $errmsg] in $fn($host, '****', '****', $database)\n";
 		break;
 	default:
 		$s = "$dbms error: [$errno: $errmsg] in $fn($p1, $p2)\n";

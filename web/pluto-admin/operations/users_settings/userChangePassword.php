@@ -94,6 +94,9 @@ function userChangePassword($output,$dbADO) {
 				$insertUser = '
 						UPDATE Users set Password = ?,Password_Unix=?,Password_Samba=? WHERE PK_Users = ?';
 				$query = $dbADO->Execute($insertUser,array(md5($userPassword),$LinuxPass,$SambaPass,$userID));
+				$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
+				exec($commandToSend);
+
 				
 				$out.="
 				<script>

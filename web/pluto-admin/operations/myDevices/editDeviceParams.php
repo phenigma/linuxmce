@@ -13,7 +13,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		exit();
 	}
 	$query = "
-		SELECT FK_DeviceTemplate,FK_Device_ControlledVia,Device.Description,IPaddress,MACaddress,IgnoreOnOff,NeedConfigure,DeviceTemplate.Description as MDL_description,FK_Room, Comments,ManufacturerURL,InternalURLSuffix
+		SELECT FK_DeviceTemplate,FK_Device_ControlledVia,Device.Description,IPaddress,MACaddress,IgnoreOnOff,NeedConfigure,DeviceTemplate.Description as MDL_description,FK_Room, Comments,ManufacturerURL,InternalURLSuffix,FK_DeviceCategory
 		FROM Device 
 		INNER JOIN DeviceTemplate on FK_DeviceTemplate = PK_DeviceTemplate
 		WHERE PK_Device = ?";
@@ -34,6 +34,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$dtComments=$row['Comments'];
 		$ManufacturerURL=$row['ManufacturerURL'];
 		$InternalURLSuffix=$row['InternalURLSuffix'];
+		$DeviceCategory= $row['FK_DeviceCategory'];	
 	}
 	
 	if ($DeviceTemplate==0) {
@@ -98,7 +99,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	
 		<a href="index.php?section=addMyDevice&parentID='.$deviceID.'">Create '.($deviceID==0?' Top Level ':'').'Child Device</a> &nbsp; &nbsp; &nbsp;
 
-	'.$deleteLink.'
+	'.$deleteLink.' <a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=600,height=400,scrollbars=1,resizable=1\');">Send command to device</a>
 	<form method="post" action="index.php" name="editDeviceParams">
 	<fieldset>
 	<legend>Device Info #'.$deviceID.'</legend>
@@ -116,68 +117,7 @@ $installationID = (int)@$_SESSION['installationID'];
 					<td valign="top">This device is controlled via:</td>
 					<td>
 					';
-					$whereClause='';
-					if ($deviceID!=0) {
-						$selectMasterDeviceForParent = 'SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = ? AND FK_Installation=?';
-						$resSelectMasterDeviceForParent = $dbADO->Execute($selectMasterDeviceForParent,array($deviceID,$installationID));
-						 if ($resSelectMasterDeviceForParent) {
-						 	$rowSelectMasterDeviceForParent = $resSelectMasterDeviceForParent->FetchRow();
-						 	$DeviceTemplateForParent = $rowSelectMasterDeviceForParent['FK_DeviceTemplate']; 	
-						 	
-						 	$querySelectControlledViaCategory ='SELECT FK_DeviceCategory FROM DeviceTemplate_DeviceCategory_ControlledVia where FK_DeviceTemplate = ?';
-							$resSelectControlledViaCategory = $dbADO->Execute($querySelectControlledViaCategory,array($DeviceTemplateForParent));
-						
-							$GLOBALS['childsDeviceCategoryArray'] = array();
-								if ($resSelectControlledViaCategory) {
-									while ($rowSelectControlledVia = $resSelectControlledViaCategory->FetchRow()) {
-										$GLOBALS['childsDeviceCategoryArray'][]=$rowSelectControlledVia['FK_DeviceCategory'];
-										getDeviceCategoryChildsArray($rowSelectControlledVia['FK_DeviceCategory'],$dbADO);			
-									}
-								}
-							$controlledViaCategoryArray = cleanArray($GLOBALS['childsDeviceCategoryArray']);
-							
-							$querySelectControlledViaDeviceTemplate ='SELECT  FK_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE FK_DeviceTemplate = ?';
-							$resSelectControlledViaDeviceTemplate= $dbADO->Execute($querySelectControlledViaDeviceTemplate,array($DeviceTemplateForParent));
-						
-							$childsDeviceTemplateArray = array();
-								if ($resSelectControlledViaDeviceTemplate) {
-									while ($rowSelectControlledVia = $resSelectControlledViaDeviceTemplate->FetchRow()) {
-										$childsDeviceTemplateArray[]=$rowSelectControlledVia['FK_DeviceTemplate_ControlledVia'];				
-									}
-								}
-							
-							
-							
-							if (count($controlledViaCategoryArray)>0) {
-								$whereClause.=' and (FK_DeviceCategory in ('.join(",",$controlledViaCategoryArray).')';
-								if (count($childsDeviceTemplateArray)) {
-									$whereClause.=' OR PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
-								}
-								$whereClause.=')';
-							} else {
-								if (count($childsDeviceTemplateArray)) {
-									$whereClause.=' AND PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
-								}
-							}
-							
-						 }						 
-					}
-					$whereClause.=" AND PK_Device!='$deviceID'";
-					$queryDeviceTemplate = "
-						SELECT DISTINCT Device.Description,Device.PK_Device
-							FROM Device 
-						INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
-							WHERE FK_Installation=? $whereClause order by Device.Description asc";
-					$resDeviceTemplate = $dbADO->Execute($queryDeviceTemplate,$installationID);
-					$DeviceTemplateTxt = '';
-					if($resDeviceTemplate) {
-						while ($row=$resDeviceTemplate->FetchRow()) {
-							$DeviceTemplateTxt.='<option value="'.$row['PK_Device'].'" '.($row['PK_Device']==$controlledVia?' selected="selected" ':'').'>'.$row['Description'].'</option>';
-						}
-					}
-
-					$out.='<select name="controlledVia">
-					<option value="0"></option>'.$DeviceTemplateTxt.'</select>';
+					$out.=controlledViaPullDown('controlledVia',$deviceID,$DeviceTemplate,$DeviceCategory,$controlledVia,$dbADO);
 					
 					$out.='		
 					</td>
