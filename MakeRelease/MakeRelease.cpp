@@ -800,16 +800,6 @@ AsksSourceQuests:
 		else
 			pRow_Package_Source_Compat = vectRow_Package_Source_Compat[0];
 
-		if( pRow_Package_Source_Compat->MakeCommand_get().length()==0 )
-		{
-			cout << "No make command is specified.  Please type it here:" << endl;
-			string s = StringUtils::GetStringFromConsole();
-			if( s.length()==0 )
-				return false;
-			pRow_Package_Source_Compat->MakeCommand_set(s);
-			pRow_Package_Source_Compat->Table_Package_Source_Compat_get()->Commit();
-		}
-
 		// See what files this should be outputing
 		vector<Row_Package_Directory_File *> vectRow_Package_Directory_File;
 		g_pDatabase_pluto_main->Package_Directory_File_get()->GetRows(
@@ -837,27 +827,27 @@ AsksSourceQuests:
 			remove(pRow_Package_Directory_File->File_get().c_str());
 		}
 
-		if( g_bInteractive )
-		{
-			cout << "About to execute: " << pRow_Package_Source_Compat->MakeCommand_get() << endl
-				<< "In directory: " << sSourceDirectory << endl;
-			if( !AskYNQuestion("Execute command?",false) )
-				return false;
-		}
-
-		fstr_compile << pRow_Package_Source_Compat->MakeCommand_get() << endl;
-		if( !g_bSimulate && system(pRow_Package_Source_Compat->MakeCommand_get().c_str()) )
-		{
-			cout << pRow_Package_Source_Compat->MakeCommand_get() << " ****FAILED****" << endl;
-			cout << "Error: " << pRow_Package_Source_Compat->MakeCommand_get() << " failed!" << endl;
-			return false;
-		}
-		cout << pRow_Package_Source_Compat->MakeCommand_get() << " succeeded" << endl;
-
 		// The make command succeeded.  Now the binary files should be here
 		for(size_t s=0;s<vectRow_Package_Directory_File.size();++s)
 		{
 			Row_Package_Directory_File *pRow_Package_Directory_File = vectRow_Package_Directory_File[s];
+
+			if( g_bInteractive )
+			{
+				cout << "About to execute: " << pRow_Package_Directory_File->MakeCommand_get() << endl
+					<< "In directory: " << sSourceDirectory << endl;
+				if( !AskYNQuestion("Execute command?",false) )
+					return false;
+			}
+			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
+			if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
+			{
+				cout << pRow_Package_Directory_File->MakeCommand_get() << " ****FAILED****" << endl;
+				cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
+				return false;
+			}
+			cout << pRow_Package_Directory_File->MakeCommand_get() << " succeeded" << endl;
+
 			if( !g_bSimulate && !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
 			{
 				cout << "**ERROR** The file: " << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " was not created.";
