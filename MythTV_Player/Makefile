@@ -58,3 +58,21 @@ include $(ROOT)/DCE/make.rules
 -include $(sources:.cpp=.d)
 #<-dceag-mf-e->
 
+//<-dceag-mh-b->
+GENDEV=../Gen_Devices
+
+ROOT = ..
+CXX = g++
+CXXFLAGS = -Wall -fPIC -ggdb3
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
+LDFLAGS = -L$(ROOT)/lib
+LDLIBS =  -lpthread -lSerializeClass -lPlutoUtils -lDCECommon -lmysqlclient_r
+
+MYNAME = MythTV_Player
+VERSION = 2.0.0
+MYDEVTEMPLATEID = 35mplateID
+
+Gen_Dev_Files = $(GENDEV)/MythTV_PlayerBase.cpp
+sources = Main.cpp MythTV_Player.cpp $(Gen_Dev_Files)
+#<-dceag-mh-e->
+
