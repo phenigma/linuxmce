@@ -46,6 +46,23 @@ public:
 	*/
 
 
+	/** @brief COMMAND: #67 - Spawn Application */
+	/** Spawns on application */
+		/** @param #13 Filename */
+			/** The name of the executable file to spawn */
+		/** @param #50 Name */
+			/** A name that we'll remember the application by for future kill commands */
+		/** @param #51 Arguments */
+			/** Command arguments */
+		/** @param #94 SendOnFailure */
+			/** Send this messages if the process exited with failure error code. */
+		/** @param #95 SendOnSuccess */
+			/** Send this messages if the process exited with success error code. */
+
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #68 - Get Device Data */
 	/** Return the device data for a device. */
 		/** @param #2 PK_Device */
