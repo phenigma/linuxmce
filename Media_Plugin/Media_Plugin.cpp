@@ -686,20 +686,16 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
     // Only an Orbiter will send this
     EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, 0, 0 );
 
-	if(NULL == pEntertainArea)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "EntertainArea is null for %d device!", pMessage->m_dwPK_Device_From);
-		return;
-	}
-
-    g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area: (%d) %p %p", pEntertainArea->m_iPK_EntertainArea, pEntertainArea, pEntertainArea->m_pMediaStream);
-    if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
+   if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
     {
-        DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( DESIGNOBJ_mnuNoMedia_CONST ), "", "", false );
+        g_pPlutoLogger->Write(LV_WARNING, "NULL entertainment area or NULL stream in the entertainment area for device %d", pMessage->m_dwPK_Device_From);
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( DESIGNOBJ_mnuNoMedia_CONST ), "", "", false );
         SendCommand( CMD_Goto_Screen );
         return; // Don't know what area it should be played in, or there's no media playing there
     }
-
+	
+   g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area: (%d) %p %p", pEntertainArea->m_iPK_EntertainArea, pEntertainArea, pEntertainArea->m_pMediaStream);
+   
     DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false );
     SendCommand( CMD_Goto_Screen );
 }
