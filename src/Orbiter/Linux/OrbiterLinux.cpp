@@ -39,19 +39,7 @@ OrbiterLinux::OrbiterLinux(int DeviceID,
 {
     openDisplay();
 
-<<<<<<< .working
-	if(iconstring) {
-		printf("Got icon string: %s\n", iconstring);
-	}
-// 	SDL_WM_SetCaption(m_strWindowName.c_str(), "");
-// 	SDL_WM_SetIcon(m_strWindowName.c_str(), "");
-
-	openDisplay();
-
-    // reinitGraphics();
-=======
-    //reinitGraphics();
->>>>>>> .merge-right.r1508
+	SDL_WM_SetCaption(m_strWindowName.c_str(), "");
 }
 
 OrbiterLinux::~OrbiterLinux()
@@ -263,11 +251,6 @@ void OrbiterLinux::RenderObject(
     ControllerImageSDL::RenderObject(pObj, pObjAttr, XOffset, YOffset);
 }
 */
-// void OrbiterLinux::Initialize(GraphicType Type)
-// {
-//     OrbiterSDL::Initialize(Type);
-// }
-
 
 
 /*!
