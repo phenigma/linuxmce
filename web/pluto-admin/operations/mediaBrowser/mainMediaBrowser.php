@@ -170,7 +170,7 @@ function mainMediaBrowser($output,$mediadbADO) {
 				$fileTypeSelect.='<option value="'.$rowFileType['PK_Type'].'">'.$rowFileType['Description'].'</option>';
 			}
 			$fileTypeSelect.='</select>';
-			$out.='</table></td>
+			$out.='<table></td>
 				</tr>
 				<tr>
 					<td><B>Add file</B></td>
@@ -294,7 +294,7 @@ function mainMediaBrowser($output,$mediadbADO) {
 			
 			$error='';
 			// mihai.t: We need the file types to be png actually since this is the format that the tablet software will understand
-			if(($_FILES['newPic']['type']!="image/png") ) { // && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
+			if(($_FILES['newPic']['type']!="image/png") && $_FILES['newPic']['type']!="image/x-png") { // && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
 				$error='The file is not a png file';
 			}
 			elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
