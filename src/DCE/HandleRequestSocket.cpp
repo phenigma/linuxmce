@@ -76,11 +76,13 @@ void HandleRequestSocket::DisconnectAndWait()
 	g_pPlutoLogger->Write( LV_SOCKET, "~HandleRequestSocket %p device: %d ip: %s", this, m_dwPK_Device, m_sIPAddress.c_str() );
 #endif
 	Disconnect();
-	if ( m_RequestHandlerThread )
-	{
-		pthread_join( m_RequestHandlerThread, NULL );
-		m_RequestHandlerThread = 0;
-	}
+
+	// This used to be pthread_join, but it crashed without logical explanation on a very intermittent basis.
+	// Try just waiting this way.
+	while( m_bRunning )
+		sleep(10);
+
+	m_RequestHandlerThread = 0;
 }
 
 bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
@@ -103,7 +105,6 @@ bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 		return false;
 	}
 	
-	m_bRunning = true;
 	m_bTerminate = false;
     pthread_create( &m_RequestHandlerThread, NULL, BeginHandleRequestThread, (void *)this );
 
@@ -112,6 +113,7 @@ bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 
 void HandleRequestSocket::RunThread()
 {
+	m_bRunning = true;
 
 #ifdef UNDER_CE
 	__try
@@ -120,10 +122,12 @@ void HandleRequestSocket::RunThread()
 
 	string sMessage = "";
 
-	while( !m_bTerminate )
+	while( !m_bTerminate && !m_bQuit )
 	{
 		if ( !ReceiveString( sMessage ) )
 		{
+			if( m_bQuit )
+				break;
 			g_pPlutoLogger->Write( LV_CRITICAL, "Receive string failed in HandleRequestSocket %d:%s %s", sMessage.size(), sMessage.c_str(), m_sName.c_str() );
 			if (m_bTerminate==false)
 			{
@@ -134,6 +138,9 @@ void HandleRequestSocket::RunThread()
 		}
 		else
 		{
+			if( m_bQuit )
+				break;
+
 			g_pPlutoLogger->Write(LV_STATUS, "Receive string: %s", sMessage.c_str());
 
 			if ( sMessage == "CORRUPT SOCKET" )
@@ -191,7 +198,6 @@ void HandleRequestSocket::RunThread()
 			}
 		}
 	}
-	m_bRunning = false;
 
 //HACK this is crashing! :(	
 g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
@@ -219,6 +225,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 #endif
 
 	g_pPlutoLogger->Write(LV_CRITICAL, "Ready to quit HandleRequestSocket::RunThread()");
+	m_bRunning = false;
 	return;
 }
 
