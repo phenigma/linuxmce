@@ -243,8 +243,8 @@ int Database::PromptForTablesInRepository( Repository *pRepository, MapTable &ma
 {
 	m_bInteractiveMode=true;
 
-	int iNumColumns = SCREEN_WIDTH / ( ( int )MaxTablenameLength( )+8 );
-	int iColumnWidth = SCREEN_WIDTH/iNumColumns;
+	int iNumColumns = g_GlobalConfig.m_iScreenWidth / ( ( int )MaxTablenameLength( )+8 );
+	int iColumnWidth = g_GlobalConfig.m_iScreenWidth/iNumColumns;
 
 	/**
 	 * We'll use this map to keep track of what tables the user wants history tracking for
@@ -310,7 +310,7 @@ int Database::PromptForTablesInRepository( Repository *pRepository, MapTable &ma
 		for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
 		{
 			Table *pTable = ( *it ).second;
-			if( StringUtils::StartsWith( pTable->Name_get( ), "psc_" ) || StringUtils::EndsWith( pTable->Name_get( ), "_pschist" ) )
+			if( StringUtils::StartsWith( pTable->Name_get( ), "psc_" ) || pTable->bIsSystemTable_get() )
 				continue; /**< It's a system table */
 
 			bool bTableAlreadyInList = mapTable.find( pTable->Name_get( ) )!=mapTable.end( );
@@ -915,7 +915,7 @@ int Database::ConfirmUsersToCheckIn( )
 			for( MapTable::iterator it=pMapTable->begin( );it!=pMapTable->end( );++it )
 			{
 				Table *pTable = ( *it ).second;
-				if( ColumnPosition && ColumnPosition + pTable->Name_get( ).length( ) > SCREEN_WIDTH )
+				if( ColumnPosition && ColumnPosition + pTable->Name_get( ).length( ) > g_GlobalConfig.m_iScreenWidth )
 				{
 					cout << endl;
 					ColumnPosition=0;

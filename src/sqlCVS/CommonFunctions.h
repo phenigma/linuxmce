@@ -9,7 +9,6 @@
 #ifndef CommonFunctions_h
 #define CommonFunctions_h
 
-#define SCREEN_WIDTH	120
 #include <iostream>
 #include <map>
 #include <string>
@@ -64,6 +63,7 @@ namespace sqlCVS
 		int m_iSqlCVSPort;	/**< The port of the sqlCVS */
 
 		int m_psc_batch;    /**< The batch number the user passed on the command line */
+		int m_iScreenWidth;  /**< The width of the screen */
 
 		MapRepository m_mapRepository;  /**< The repositories we're currently operating on */
 		
@@ -105,6 +105,7 @@ namespace sqlCVS
 			m_bNewDatabase=false;
 			m_psc_batch=0;
 			m_bVerify=m_bVerifyID=m_bAllowUnmetDependencies=m_bCheckinEveryone=m_bNoPrompts=false;
+			m_iScreenWidth=dceConfig.ReadInteger("ScreenWidth",120);
 		}
 
 		/**

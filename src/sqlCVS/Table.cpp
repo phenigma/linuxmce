@@ -1695,19 +1695,17 @@ bool Table::ShowChanges(int psc_user)
 	while(true)
 	{
 		cout << "Changes to table: " << m_sName << " by user: " << psc_user << endl;
-		int iNumFields=4,iColumnWidth=18;
+		int iColumnWidth=18;
 
 		ostringstream sql;
 		sql << "SELECT psc_id,";
 		int iFieldCount=0;
-		for(MapField::iterator it = m_mapField.begin();it != m_mapField.end();++it)
+		for(ListField::iterator it = m_listField_PrimaryKey.begin();it != m_listField_PrimaryKey.end();++it)
 		{
-			Field *pField = (*it).second;
+			Field *pField = *it;
 			if( iFieldCount )
 				sql << ",";
 			sql << "`" << pField->Name_get() << "`";
-			if( ++iFieldCount>=iNumFields )
-				break;
 		}
 
 		sql << " FROM " << m_sName << " WHERE psc_id IN (";
@@ -1753,16 +1751,12 @@ bool Table::ShowChanges(int psc_user)
 			}
 		}
 
-		cout << "What row do you want more detail on?  Enter 'b' to go back, 'q' to quit" << endl;
+		cout << "Enter 'b' to go back, 'q' to quit" << endl;
 		string sRow;
 		cin >> sRow;
 		if( sRow=="b" || sRow=="B" )
 			return true;
-		if( sRow=="q" || sRow=="Q" )
-			return false;
-
-		if( !ShowChanges( atoi(sRow.c_str()) ) )
-			return false;
+		return false;
 	}
 }
 

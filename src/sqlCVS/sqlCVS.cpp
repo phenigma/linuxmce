@@ -230,6 +230,11 @@ int main( int argc, char *argv[] )
 		case 'b':
 			g_GlobalConfig.m_psc_batch = atoi( argv[++optnum] );
 			break;
+		case 'w':
+			g_GlobalConfig.m_iScreenWidth = atoi( argv[++optnum] );
+			g_GlobalConfig.dceConfig.AddInteger("ScreenWidth",g_GlobalConfig.m_iScreenWidth);
+			g_GlobalConfig.dceConfig.WriteSettings();
+			break;
 		case 'v':
 			g_GlobalConfig.m_bVerify = true;
 			break;
@@ -262,7 +267,7 @@ int main( int argc, char *argv[] )
 			<< "[-H sqlCVS hostname] [-R sqlCVS port] " << endl
 			<< "[-r Repository( -ies )] [-v] [-i] [-c comments]" << endl
 			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
-			<< "[-a Allow unmet dependencies] [-e everyone] [-" << endl
+			<< "[-a Allow unmet dependencies] [-e everyone] [-w width]" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
 			<< "			default is `dcerouter`" << endl
 			<< "-u username    -- username for database connection" << endl
@@ -286,7 +291,8 @@ int main( int argc, char *argv[] )
 			<< "            being checked in" << endl
 			<< "-e everyone    -- Checkin all records from every user" << endl
 			<< "-n no prompts  -- Don't ever prompt, just exit if necessary" << endl
-			<< "-c comments    -- Optional comments to be included with a checkin" << endl;
+			<< "-c comments    -- Optional comments to be included with a checkin" << endl
+			<< "-w screen width-- This value will 'stick' because it's stored in the config" << endl;
 
 		exit( 1 );
 	}
