@@ -1633,7 +1633,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell )
 {
-	pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+	//pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
 
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     if(  pCell->m_pMessage  )
@@ -2025,6 +2025,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 {
     DesignObj_DataList::iterator iter;
 
+	int iUnused = pObj->m_ChildObjects.size();
     for( iter = pObj->m_ChildObjects.begin(  ); iter != pObj->m_ChildObjects.end(  ); iter++ )
     {
         DesignObj_Data *p = ( *iter );
@@ -3094,8 +3095,8 @@ bool Orbiter::ButtonDown( int PK_Button )
                 {
                     // We've got a datagrid that allows the user to highlight cells without selecting them.  Now that enter was pressed it needs to select the cell
                     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
-						pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : 0,
-						pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
+						pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_iInitialColNum,
+						pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : pDesignObj_DataGrid->m_iInitialRowNum);
                     if(  pCell  )
                     {
                         // First select the cell,  then select the grid object,  passing in -1 values so it won't reselect the cell

@@ -442,7 +442,7 @@ void OrbiterSDL_Win32::OnQuit()
 	::ShowWindow(hSDLWindow, SW_HIDE);
 
 	SDL_Event event;
-	event.type = SDL_USEREVENT;
+	event.type = SDL_MOUSEMOTION;
 	SDL_PushEvent(&event); 
 }
 //-----------------------------------------------------------------------------------------------------
