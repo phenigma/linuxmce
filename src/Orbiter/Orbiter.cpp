@@ -3836,7 +3836,7 @@ void *MaintThread(void *p)
 				PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex );
 
 				//let's be sure that meantime nobody clear the map
-				if(mapPendingCallbacks.size())
+				if(mapPendingCallbacks.size() && mapPendingCallbacks.end() != mapPendingCallbacks.find(pCallBackInfo->m_iCounter))
 				{
 					mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
 					delete pCallBackInfo;
@@ -3865,7 +3865,7 @@ void *MaintThread(void *p)
 					PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex );
 
 					//let's be sure that meantime nobody clear the map
-					if(mapPendingCallbacks.size())
+					if(mapPendingCallbacks.size() && mapPendingCallbacks.end() != mapPendingCallbacks.find(pCallBackInfo->m_iCounter))
 					{
 						mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
 						delete pCallBackInfo;
