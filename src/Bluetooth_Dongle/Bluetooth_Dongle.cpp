@@ -707,6 +707,9 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 	// Lookup the mobile orbiter entry
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( sMac_address );
 	
-	BD_PC_Disconnect *pBD_CP_Disconnect = new BD_PC_Disconnect( );
-	pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_Disconnect );
+	if(NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pBDCommandProcessor)
+	{
+		BD_PC_Disconnect *pBD_CP_Disconnect = new BD_PC_Disconnect( );
+		pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_Disconnect );
+	}
 }
