@@ -60,32 +60,23 @@ BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 //----------------------------------------------------------------------------------------------
 BDCommandProcessor_Symbian_Base::~BDCommandProcessor_Symbian_Base()
 {
-	LOG("Canceling timer...\n");
-
 	if (iCommandTimer)
 		iCommandTimer->Cancel();
 
-	LOG("Deleting timer...\n");
 	delete iCommandTimer;
 	iCommandTimer = NULL;
 
-	LOG("Canceling active object request...\n");
-	Cancel();
-
-	LOG("Canceling socket requests...\n");
 	iSocket.CancelAll();
 
 	iState = EIdle;
 	iConnected = EFalse;
 
-	LOG("Closing sdp stuffs...\n");
 	iSdpDatabase.Close();
     iSdpSession.Close();
 
-	LOG("Closing socket server...\n");
 	iSocketServ.Close();
 
-	LOG("Ok all... exiting destruction... \n");
+	Cancel();
 }
 //----------------------------------------------------------------------------------------------
 bool  BDCommandProcessor_Symbian_Base::SendData(int size, const char *data) 

@@ -98,15 +98,9 @@ string StringUtils::itos( int iNum )
     sprintf( acS, "%d", iNum);
     return string( acS );
 #else
-    return SymbianItoa( iNum );
+    return string::IntegerToString( iNum );
 #endif
 }
-
-#ifdef SYMBIAN
-#pragma warning("SYMBIAN defined!!")
-#else
-#pragma warning("SYMBIAN not defined!!")
-#endif
 
 #ifndef SYMBIAN
 

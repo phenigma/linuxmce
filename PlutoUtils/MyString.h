@@ -106,9 +106,11 @@ inline int SymbianAtoi(const char *Str, int DefaultValue = 0)
 	return string::ToInteger(string(Str), DefaultValue);
 }
 //-----------------------------------------------------------------------------------------
+/*
 inline string SymbianItoa(int Value)
 {
 	return string::IntegerToString(Value);
 }
 //-----------------------------------------------------------------------------------------
+*/
 #endif

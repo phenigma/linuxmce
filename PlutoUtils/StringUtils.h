@@ -20,14 +20,13 @@
 using namespace ::std;
 
 #else
-
-#include "../PlutoUtils/MyString.h"
-
+//#include "../PlutoUtils/MyString.h"
+/*
 #define abs(x) Abs(x)
 #define atoi(x) SymbianAtoi(x, 0)
-#define itos(x) SymbianItoa(x)
+#define itos(x) string::IntegerToString(x)
 #define strchr(x, y) (x)
-
+*/
 #endif
 
 namespace StringUtils
