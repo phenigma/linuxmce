@@ -1,0 +1,26 @@
+# KDevelop Custom Project File List
+CM11A
+CM11A.cpp
+CM11A.d
+CM11A.def
+CM11A.h
+cm11a.kdevelop
+CM11A.kdevelop
+CM11A.o
+CM11A.vcproj
+CM11A_DLL.vcproj
+Main.cpp
+Main.d
+Main.o
+make_package.sh
+Makefile
+Package.Info
+post_make.sh
+/devicepoll.h
+/devicepoll.cpp
+thread.cpp
+thread.h
+cm11aconsts.h
+/message.h
+/message.cpp
+mutex.cpp

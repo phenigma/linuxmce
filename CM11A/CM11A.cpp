@@ -8,9 +8,16 @@
 #include <iostream>
 using namespace std;
 using namespace DCE;
+using namespace CM11ADEV;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
+
+#include "DCERouter/DCERouter.h"
+#include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
+#include "cm11aconsts.h"
 
 //<-dceag-const-b->
 CM11A::CM11A(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -33,6 +40,15 @@ bool CM11A::Register()
 	return Connect(); 
 }
 
+bool CM11A::Connect() {
+	if(!CM11A_Command::Connect()) {
+		return false;
+	}
+	
+	devpoll.Run(false);
+	return true;
+}
+
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class
@@ -45,8 +61,61 @@ bool CM11A::Register()
 void CM11A::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	sCMD_Result = "UNHANDLED CHILD";
-	g_pPlutoLogger->Write(LV_STATUS, "Command received for child.");
+	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for child.", pMessage->m_dwID);
+	
+	
+	// find child device
+	DeviceData_Impl* pDeviceData_Impl = NULL;
+	
+	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
+	for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
+		if(vDeviceData[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To) {
+			pDeviceData_Impl = vDeviceData[i];
+			break;
+		}
+	}
+	
+	if(!pDeviceData_Impl) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Child device %d not found.", pMessage->m_dwPK_Device_To);
+		return;
+	}
+	
+	string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
+	g_pPlutoLogger->Write(LV_STATUS, "Child device %d has channel %s.", pMessage->m_dwPK_Device_To, sChannel.c_str());
+	
+	switch(pMessage->m_dwID) {
+		case COMMAND_Generic_On_CONST: {
+				CM11ADEV::Message msg;
+				msg.setAddress(sChannel);
+				msg.setFunctionCode(CM11A_FUNC_0N);
+				devpoll.SendRequest(&msg);
+			}
+			break;
+		case COMMAND_Generic_Off_CONST: {
+				CM11ADEV::Message msg;
+				msg.setAddress(sChannel);
+				msg.setFunctionCode(CM11A_FUNC_0FF);
+				devpoll.SendRequest(&msg);
+			}
+			break;
+		case COMMAND_Set_Level_CONST: {
+				CM11ADEV::Message msg;
+				msg.setAddress(sChannel);
+				msg.setFunctionCode(CM11A_FUNC_DIMM);
+				
+				string sDimmLevel = pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST];
+				msg.setDimmLevel(atoi(sDimmLevel.c_str()));
+				
+				devpoll.SendRequest(&msg);
+			}
+			break;
+		default:
+			g_pPlutoLogger->Write(LV_CRITICAL, "Unknown command %d received.", pMessage->m_dwID);
+	}
+		
+//	string sSrcPhone = pDeviceData_Base->mapParameters_Find(1);
+	
+	sCMD_Result = "OK";
 }
 
 /*
@@ -90,7 +159,8 @@ void CM11A::SomeFunction()
 	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
 	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
 
-	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
+	// Send the message to all orbiters within the house, which is all devic
+	es with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
 	// Note the _Cat for category
 	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
     SendCommand(CMD_Simulate_Mouse_Click_Cat);

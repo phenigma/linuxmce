@@ -19,10 +19,10 @@ sources = Main.cpp CM11A.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lSerial
 
 Gen_Dev_Files +=
-sources +=
+sources += thread.cpp mutex.cpp message.cpp devicepoll.cpp 
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

@@ -7,6 +7,8 @@
 #include "Gen_Devices/CM11ABase.h"
 //<-dceag-d-e->
 
+#include "devicepoll.h"
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -29,6 +31,8 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+		virtual bool Connect();
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -45,6 +49,9 @@ public:
 
 
 //<-dceag-h-e->
+
+private:
+		CM11ADEV::DevicePoll devpoll;
 	};
 
 //<-dceag-end-b->
