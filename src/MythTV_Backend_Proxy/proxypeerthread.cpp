@@ -51,15 +51,15 @@ ProxyPeerThread::_Run() {
 	int maxfd =
 		((getSrcSock() > getDestSock()) ? getSrcSock() : getDestSock()) + 1;
 
-	while(1) {
+	while( ! isStopRequested() ) {
 		//sleep(1);
 		// wait for data to be available on sockets
 		FD_ZERO(&rfds);
 		FD_SET(getSrcSock(), &rfds); FD_SET(getDestSock(), &rfds);
 
 		struct timeval tv;
-		tv.tv_sec = 5;
-		tv.tv_usec = 0;
+		tv.tv_sec = 0;
+		tv.tv_usec = 500000;
 
 		int retval = select(maxfd, &rfds, NULL, NULL, &tv);
 
