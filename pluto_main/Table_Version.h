@@ -86,7 +86,6 @@ string m_VersionName;
 string m_BuildName;
 string m_Date;
 string m_Description;
-string m_Define;
 short int m_Repository;
 string m_Comments;
 string m_NextSteps;
@@ -98,7 +97,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[16];
+		bool is_null[15];
 	
 	public:
 		long int PK_Version_get();
@@ -106,7 +105,6 @@ string VersionName_get();
 string BuildName_get();
 string Date_get();
 string Description_get();
-string Define_get();
 short int Repository_get();
 string Comments_get();
 string NextSteps_get();
@@ -124,7 +122,6 @@ void VersionName_set(string val);
 void BuildName_set(string val);
 void Date_set(string val);
 void Description_set(string val);
-void Define_set(string val);
 void Repository_set(short int val);
 void Comments_set(string val);
 void NextSteps_set(string val);
@@ -139,7 +136,6 @@ void psc_mod_set(string val);
 		
 		bool Date_isNull();
 bool Description_isNull();
-bool Define_isNull();
 bool Repository_isNull();
 bool Comments_isNull();
 bool NextSteps_isNull();
@@ -153,7 +149,6 @@ bool psc_frozen_isNull();
 			
 		void Date_setNull(bool val);
 void Description_setNull(bool val);
-void Define_setNull(bool val);
 void Repository_setNull(bool val);
 void Comments_setNull(bool val);
 void NextSteps_setNull(bool val);
@@ -185,7 +180,7 @@ void Schema_FK_Version_getrows(vector <class Row_Schema*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Version+ m_VersionName+ m_BuildName+ m_Date+ m_Description+ m_Define+ m_Repository+ m_Comments+ m_NextSteps+ m_SvnRevision+ m_SvnBranch+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Version+ m_VersionName+ m_BuildName+ m_Date+ m_Description+ m_Repository+ m_Comments+ m_NextSteps+ m_SvnRevision+ m_SvnBranch+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -195,7 +190,6 @@ string VersionName_asSQL();
 string BuildName_asSQL();
 string Date_asSQL();
 string Description_asSQL();
-string Define_asSQL();
 string Repository_asSQL();
 string Comments_asSQL();
 string NextSteps_asSQL();
