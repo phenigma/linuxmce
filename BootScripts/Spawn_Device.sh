@@ -52,7 +52,8 @@ Logging $TYPE $SEVERITY_STAGE "$module" "Entering $module"
 
 echo "$$ Spawn_Device of $Path$cmd_line (by $0)" >>/var/log/pluto/running.pids
 
-for i in $(seq 1 10); do
+i=1
+while [ "$i" -le 10 ]; do
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Appending log..."
 	cat "$new_log" >> "$real_log"
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
@@ -65,17 +66,21 @@ for i in $(seq 1 10); do
 		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log" 
 	fi
 	
-	if [ -f /var/pluto/bootpluto/shutdown_$device_id -o -f /var/tmp/shutdown_$device_id ];
-	then
+	if [ "$?" -eq 3 ]; then
+		# Abort
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Shutting down... $i $device_name"
 		echo $(date) Shutdown >> "$new_log"
 		exit
+	elif [ "$?" -eq 2 ]; then
+		Logging $TYPE $SEVERITY_NORMAL "$module" "Device requests restart... $i $device_name"
+		echo $(date) Shutdown >> "$new_log"
 	else
 		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... $i $device_name"
 		echo $(date) died >> "$new_log"
 		echo $(date) $device_name died >> /var/log/pluto/deaths
-		echo $(date) died >> /var/log/pluto/core/died_${device_id}_$device_name
+		echo $(date) died >> /var/log/pluto/died_${device_id}_$device_name
 		sleep 5
+		i=$((i+1))
 	fi
 	echo out
 done

@@ -48,7 +48,7 @@ fi
 [ -f /tmp/pluto.gdb ] || echo "run" >/tmp/pluto.gdb
 if [ -n "$GDB" ]; then
 	if which gdb &>/dev/null; then
-		VGcmd="gdb --args --command=/tmp/pluto.gdb "
+		VGcmd="gdb --command=/tmp/pluto.gdb --args "
 	elif [ -z "$VGcmd" ]; then
 		echo "*** WARNING *** GDB not installed. Running programs the normal way ***"
 	fi

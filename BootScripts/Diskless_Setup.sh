@@ -230,6 +230,9 @@ for Client in $DisklessR; do
 	sed '/^Type=/ s/^.*$/Type="diskless"/' /usr/pluto/install/Initial_Config.sh >$DlPath/usr/pluto/install/Initial_Config.sh
 	chmod +x $DlPath/usr/pluto/install/Initial_Config.sh
 
+	echo -n " Timezone"
+	cp /etc/timezone $DlPath/etc
+
 	echo
 	MoonNumber=$((MoonNumber+1))
 done
