@@ -61,7 +61,8 @@ if [ "x$nobuild" = "x" ]; then
 		#This is an hourly build, so we're going to dump the pluto_main database and make it our sqlCVS database
 		mysqldump --quote-names --allow-keywords --add-drop-table pluto_main > /tmp/main_sqlcvs.dump
 	else
-		#This is a release build, so we want to get a real sqlCVS 
+		#This is a release build, so we want to get a real sqlCVS
+		sh -x /home/database-dumps/sync-sqlcvs.sh
 		rm /tmp/main_sqlcvs.tar.gz
 		ssh uploads@plutohome.com "rm /tmp/main_sqlcvs.dump /home/uploads/main_sqlcvs.tar.gz; mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump; cd /tmp; tar zcvf /home/uploads/main_sqlcvs.tar.gz main_sqlcvs.dump"
 		scp uploads@plutohome.com:/home/uploads/main_sqlcvs.tar.gz /tmp/
@@ -89,6 +90,11 @@ if [ "x$nobuild" = "x" ]; then
 	svn co http://10.0.0.170/pluto/trunk/. | tee /home/MakeRelease/svn.log
 	mkdir -p /home/MakeRelease/trunk/src/bin
 	cp /home/builds/Windows_Output/src/bin/* /home/MakeRelease/trunk/src/bin
+	cd /home/MakeRelease/trunk/src/bin
+	rm ../pluto_main/*
+	sql2cpp -D pluto_main -h localhost
+	cd ../pluto_main
+	svn -m "Automatic Regen" --username aaron --password aaron --non-interactive commit
     cd /home/MakeRelease/trunk
     svn info > svn.info
 else
@@ -184,6 +190,8 @@ if ! MakeRelease -a -o 8 -n / -s /home/samba/builds/Windows_Output/ -r 16 -v $ve
 	exit
 fi
 
+cp -r /home/samba/builds/Windows_Output/winlib $BASE_OUT_FOLDER/$version_name
+cp -r /home/samba/builds/Windows_Output/winnetdlls $BASE_OUT_FOLDER/$version_name
 #Moved up ..
 #dcd /home/tmp/pluto-build/
 #./propagate.sh
