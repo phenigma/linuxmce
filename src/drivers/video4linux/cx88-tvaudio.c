@@ -149,6 +149,7 @@ static void set_audio_finish(struct cx88_core *core)
 		// 'pass-thru mode': this enables the i2s output to the mpeg encoder
 		cx_set(AUD_CTL, EN_I2SOUT_ENABLE);
 		cx_write(AUD_I2SOUTPUTCNTL, 1);
+		cx_write(AUD_I2SCNTL, 0);
 		//cx_write(AUD_APB_IN_RATE_ADJ, 0);
 	}
 

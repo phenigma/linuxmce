@@ -247,7 +247,7 @@ struct cx88_board cx88_boards[] = {
                 .input          = {{
                         .type   = CX88_VMUX_TELEVISION,
                         .vmux   = 0,
-                        .gpio0  = 0x0000bde6,
+                        .gpio0  = 0x0000bde2,
                 },{
                         .type   = CX88_VMUX_COMPOSITE1,
                         .vmux   = 1,
@@ -567,7 +567,7 @@ struct cx88_board cx88_boards[] = {
 		.input          = {/*{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
-			.gpio0  = 0x0000bde6,
+			.gpio0  = 0x0000bde4,
 		},{
 			.type   = CX88_VMUX_COMPOSITE1,
 			.vmux   = 1,
