@@ -45,7 +45,7 @@ typedef enum _StreamFormatType
 
 struct slimCommand 
 {
-	CommandType commandType;
+	CommandType type;
 
 	union {
 		struct _versionCommand {
@@ -66,6 +66,12 @@ struct slimCommand
 		 	StreamManagementCommandType command;
 			StreamFormatType			format;
 			char						autoStart;
+
+			unsigned char				hostAddr[4];
+			unsigned int				hostPort;
+			
+			unsigned int				urlSize;
+			unsigned char				*urlAddress;
 		} stream;
 
 		struct _i2cCommand {
@@ -76,7 +82,7 @@ struct slimCommand
 			char code;
 		} grafic;
 
-	} commandData;
+	} data;
 };
 
 int slim_protocol_decode(unsigned char *buffer, unsigned int bufferLength, xine_t *xine_session, struct slimCommand *decodedCommand);

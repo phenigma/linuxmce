@@ -11,6 +11,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xineplug_inp_net", "..\..\.
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xineplug_inp_http", "..\..\..\..\xine\xine-lib\win32\xineplug_inp_http.vcproj", "{5095D829-6127-4CA3-A5CC-846F6A7B3942}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -27,6 +31,10 @@ Global
 		{8717820B-6FD7-4E6B-B38B-62438521D914}.Debug.ActiveCfg = Debug|Win32
 		{8717820B-6FD7-4E6B-B38B-62438521D914}.Release.ActiveCfg = Release|Win32
 		{8717820B-6FD7-4E6B-B38B-62438521D914}.Release.Build.0 = Release|Win32
+		{5095D829-6127-4CA3-A5CC-846F6A7B3942}.Debug.ActiveCfg = Debug|Win32
+		{5095D829-6127-4CA3-A5CC-846F6A7B3942}.Debug.Build.0 = Debug|Win32
+		{5095D829-6127-4CA3-A5CC-846F6A7B3942}.Release.ActiveCfg = Release|Win32
+		{5095D829-6127-4CA3-A5CC-846F6A7B3942}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

@@ -81,16 +81,16 @@ static int read_slim_server_command(SOCKET *socket, unsigned char *buffer, unsig
 		return 0;
 	}
 
+	*len = frameLength;
 	return 1;
 }
 
 static int read_and_decode_command(slim_input_plugin_t *plugin, xine_t *xine_handler, struct slimCommand *parsedCommand)
 {			
 	static char			buffer[MAX_READ_BUFFER_SIZE];
-	static unsigned int bufferLen = MAX_READ_BUFFER_SIZE;
+	static unsigned int bufferLen = 0;
 
-	// unsigned int readResult;
-
+	bufferLen = MAX_READ_BUFFER_SIZE;
 	if ( read_slim_server_command(&plugin->comm_socket, buffer, &bufferLen, xine_handler) == 0 )
 		return 0;
 
@@ -100,25 +100,43 @@ static int read_and_decode_command(slim_input_plugin_t *plugin, xine_t *xine_han
 	return 1;
 }
 
+int process_command_stream(slim_input_plugin_t *plugin, slim_input_class_t *plugin_class, struct slimCommand *command)
+{
+	plugin->source_stream.hostAddr = command->data.stream.hostAddr;
+	plugin->source_stream.hostPort = command->data.stream.hostPort;
+	plugin->source_stream.uri = (unsigned char*)xine_xmalloc(command->data.stream.urlSize + 1);
+
+	strncpy(plugin->source_stream.uri, command->data.stream.urlAddress, command->data.stream.urlSize);
+	plugin->source_stream.uri[command->data.stream.urlSize] = 0;
+
+	switch(command->data.stream.command )
+	{
+	case STREAM_QUIT:		
+		stream_close(&plugin->source_stream);
+		break;
+	case STREAM_START:				
+		stream_open(&plugin->source_stream);
+		break;
+	case STREAM_PAUSE:
+	case STREAM_UNPAUSE:			
+	case STREAM_NO_COMMAND: default: break; 				
+		// ignore this command
+	}
+	
+	return 1;
+}
+
 int process_command_from_server(slim_input_plugin_t *plugin, slim_input_class_t *plugin_class, struct slimCommand *command)
 {	
-	if ( command->commandType == COMMAND_STREAM ) // it is a related command stream
+	switch ( command->type )	
 	{
-		switch(command->commandData.stream.command )
-		{
-			case STREAM_QUIT:
-				stream_close(&plugin->source_stream);
-				break;
-			case STREAM_START:				
-				stream_open(&plugin->source_stream);
-				break;
-			case STREAM_PAUSE:
-			case STREAM_UNPAUSE:			
-			case STREAM_NO_COMMAND: default: break; 				
-				// ignore this command
-		}
+	case COMMAND_STREAM:
+		return process_command_stream(plugin, plugin_class, command);
+
+	default:
+		xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE " Unknown command from server %d unprocessed!"), command->type);
+		return 0;
 	}
-	return 1;
 }
 
 int fill_preview_buffer(slim_input_plugin_t *plugin, slim_input_class_t *plugin_class)
@@ -143,7 +161,7 @@ int fill_preview_buffer(slim_input_plugin_t *plugin, slim_input_class_t *plugin_
 			continue;			
 		}
 
-		slim_protocol_make_ack(&outBuffer, &outBufferLength, commandNames[command.commandType], 0, /* */ 0, 1, 262144, 0, 0, 1000);
+		slim_protocol_make_ack(&outBuffer, &outBufferLength, commandNames[command.type], 0, /* */ 0, 1, 262144, 0, 0, 1000);
 		send_command(plugin, plugin_class->xine, outBuffer, outBufferLength);
 	}
 	return 1;
@@ -291,7 +309,7 @@ static int slim_plugin_open (input_plugin_t *this_plugin_generic )
 	free(buffer);
 
 	if ( read_and_decode_command(this_plugin, this_plugin_class->xine, &command) == 0 ||
-		 command.commandType != COMMAND_VERSION )
+		 command.type != COMMAND_VERSION )
 	{
 		xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "The server didn't reply to HELO or the replay was invalid (not a version)! Closing connection!\n"));
 		close((int)this_plugin->comm_socket);
@@ -299,7 +317,7 @@ static int slim_plugin_open (input_plugin_t *this_plugin_generic )
 		return 0;
 	}
 
-	xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Server replayed with version: %s\n"), command.commandData.version.versionData);
+	xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Server replayed with version: %s\n"), command.data.version.versionData);
 	return 1;
 }
 

@@ -101,138 +101,219 @@ int slim_protocol_make_helo(char **outBuffer, int *len, unsigned char deviceID, 
 
 int slim_protocol_decode_strm_command(unsigned char *buffer, unsigned int bufferLength, xine_t *xine_session, struct slimCommand *decodedCommand)
 {	
-	decodedCommand->commandType = COMMAND_STREAM;
+	decodedCommand->type = COMMAND_STREAM;
 
 	// get the primary command;
 	if ( buffer[0] == 's' )
-		decodedCommand->commandData.stream.command = STREAM_START; 
+		decodedCommand->data.stream.command = STREAM_START; 
 	else if ( buffer[0] == 'u' )
-		decodedCommand->commandData.stream.command = STREAM_UNPAUSE; 
+		decodedCommand->data.stream.command = STREAM_UNPAUSE; 
 	else if ( buffer[0] == 'p' )
-		decodedCommand->commandData.stream.command = STREAM_PAUSE; 
+		decodedCommand->data.stream.command = STREAM_PAUSE; 
 	else if ( buffer[0] == 'q' )
-		decodedCommand->commandData.stream.command = STREAM_QUIT; 
+		decodedCommand->data.stream.command = STREAM_QUIT; 
 	else
 	{
 		xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Invalid stream control command %c. Ignoring!\n"), buffer[0]);
-		decodedCommand->commandData.stream.command = STREAM_NO_COMMAND; 
+		decodedCommand->data.stream.command = STREAM_NO_COMMAND; 
 		return 0;
 	}
 	
 	if ( buffer[2] == 'm' )
-		decodedCommand->commandData.stream.format = STREAM_FORMAT_MP3;
+		decodedCommand->data.stream.format = STREAM_FORMAT_MP3;
 	else if ( buffer[2] == 'f' )
-		decodedCommand->commandData.stream.format = STREAM_FORMAT_FLAC;
+		decodedCommand->data.stream.format = STREAM_FORMAT_FLAC;
 	else if ( buffer[2] == 'p' )
-		decodedCommand->commandData.stream.format = STREAM_FORMAT_PCM;
+		decodedCommand->data.stream.format = STREAM_FORMAT_PCM;
 	else
 	{
-		decodedCommand->commandData.stream.format = STREAM_FORMAT_UNKNOWN;
+		decodedCommand->data.stream.format = STREAM_FORMAT_UNKNOWN;
 		xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Unknown streaming format: %c. Ignoring!\n"), buffer[2]);
 		return 0;
 	}
 
-	decodedCommand->commandData.stream.autoStart = buffer[1];
-	decodedCommand->commandData.stream.
+	decodedCommand->data.stream.autoStart = buffer[1];
+	decodedCommand->data.stream.hostPort = (buffer[18] << 0x08) | buffer[19];
+	
+	decodedCommand->data.stream.hostIpAddr[0] = buffer[20];
+	decodedCommand->data.stream.hostIpAddr[1] = buffer[21];
+	decodedCommand->data.stream.hostIpAddr[2] = buffer[22];
+	decodedCommand->data.stream.hostIpAddr[3] = buffer[23];
+
+	decodedCommand->data.stream.urlAddress = buffer + 24;	
+	decodedCommand->data.stream.urlSize = 0;
+
+	// the buffer + 24 is a classical GET format 
+	// GET /url HTTP/1.0\n\n
+	// skip the GET part without crossing the buffer margins.
+	while ( (decodedCommand->data.stream.urlAddress - buffer) < (int)bufferLength && 
+			*decodedCommand->data.stream.urlAddress != ' ' )
+		decodedCommand->data.stream.urlAddress++;
+
+	// skip whitespace after GET without crossing buffer margins.
+	while ( (decodedCommand->data.stream.urlAddress - buffer) < (int)bufferLength && 
+			*decodedCommand->data.stream.urlAddress == ' ' )
+		decodedCommand->data.stream.urlAddress++;
+
+	// if we crossed the buffer this is an error.
+	if ( (decodedCommand->data.stream.urlAddress - buffer) == bufferLength )	
+		return 0;
+			
+	// walk the complete URL until the next space (an url can't have spaces in it.
+	while ( (decodedCommand->data.stream.urlAddress - buffer + decodedCommand->data.stream.urlSize) < bufferLength && 		
+		   *(decodedCommand->data.stream.urlAddress + decodedCommand->data.stream.urlSize) != ' ')
+		   decodedCommand->data.stream.urlSize++;
+
+	// if we crossed the buffer this is an error.
+	if ( ((decodedCommand->data.stream.urlAddress - buffer) +  decodedCommand->data.stream.urlSize) == (int)bufferLength )
+		return 0;
+
+	return 1;
+}
+
+int slim_protocol_decode_vfdc_command(unsigned char *buffer, unsigned int bufferLength, xine_t *xine_session, struct slimCommand *decodedCommand)
+{
+	char *internalBuffer;
+	unsigned int internalBufferPos, i;
+	
+	decodedCommand->type = COMMAND_VFDISPLAY;		
+	internalBuffer = (unsigned char *)xine_xmalloc(bufferLength);
+	internalBufferPos = 0;
+	
+	for ( i = 0; i < bufferLength; i += 2 ) 
+	{
+		switch ( buffer[i] )
+		{
+		case 0x00:
+			//	xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "VFD packet type 0x00 not implemented!\n"));
+			break;
+		case 0x02:					
+			if ( (buffer[i + 1] & 0x80) == 0x80 ) 
+			{
+				decodedCommand->data.vfDisplay.ddramAddr = buffer[i + 1] & 0x7F;
+				decodedCommand->data.vfDisplay.setDdram = 1;
+				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "DDRAM addr set to %d\n"), buffer[i + 1] & 0x7F);
+			}
+			else if ( (buffer[i + 1] & 0x40) == 0x40 )
+			{
+				decodedCommand->data.vfDisplay.ddramAddr = 0;
+				decodedCommand->data.vfDisplay.cgramAddr = buffer[i + 1] & 0x3F;
+				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "CGRAM addr set to %d\n"), buffer[i + 1] & 0x3F);
+			}
+			else if ( (buffer[i + 1] & 0x20) == 0x20 )
+			{
+				decodedCommand->data.vfDisplay.brightness = 32 - buffer[i + 7] * 4;
+				i += 6;
+				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Brightness set to: %d\n"), 32 - buffer[i + 7] * 4);
+			}
+			else if ( (buffer[i + 1] & 0x10) == 0x10 )
+			{
+				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "VFD packet type 0x02 \"Cursor or display shift not implemented\"!\n"));
+			}
+			else if ( (buffer[i + 1] & 0x08) == 0x08 )
+			{
+				decodedCommand->data.vfDisplay.displayOn = (( buffer[i + 1] & 0x04 ) == 0x04);
+				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Display set to: %d\n"), decodedCommand->data.vfDisplay.displayOn);
+			}
+			else if ( (buffer[i + 1] & 0x04) == 0x04 )
+			{
+				decodedCommand->data.vfDisplay.entryMode = (( buffer[i + 1] & 0x03 ) == 0x03);
+				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Entry mode set to: %d\n"), decodedCommand->data.vfDisplay.entryMode);
+			}
+			else if ((buffer[i + 1 ] & 0x02) == 0x02) 
+			{ 
+				decodedCommand->data.vfDisplay.ddramAddr = 0;
+				decodedCommand->data.vfDisplay.setDdram = 1;
+				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Resetting cursor\n"));
+			}
+			else if ((buffer[i + 1] & 0x01) == 0x01) 
+			{ 
+				// TODO: See if that data is usable
+				//for (int j = framebufLive; j < framebufMask; j++) 
+				// framebuf[j] = 0x00;
+				decodedCommand->data.vfDisplay.ddramAddr = 0;
+				decodedCommand->data.vfDisplay.entryMode = 0x02;
+				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Clearing display\n"));
+			}
+			break;
+		case 0x03:
+			// if ( decodedCommand->data.vfDisplay.setDdram )
+			internalBuffer[internalBufferPos++] = buffer[i+1];
+			break;
+		default: 
+			xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Unknown VFD packet code: 0x%x\n"), buffer[i]);						
+		}
+	}
+	
+	return 1;
+}
+
+int slim_protocol_decode_i2cc_command(unsigned char *buffer, unsigned int bufferLength, xine_t *xine_session, struct slimCommand *decodedCommand)
+{
+	unsigned int i;
+
+	decodedCommand->type = COMMAND_I2C;
+
+	i = 0;
+	while ( i < bufferLength )
+	{
+		switch(buffer[i++]) 
+		{
+		case 's':			
+			if ( buffer[i] != 0x3e )
+				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Unknown i2cc 's' command address 0x%x"), buffer[i++]);				
+			else
+			{
+				i++;
+				if  ( buffer[i] == 'w' && buffer[i + 1] == 0x68 )
+				{
+					// TODO: Make the actual sound volume to work
+					i += 22;
+				}
+				else if ( buffer[i] == 'w' && buffer[i + 1] == 0x6C ) 
+				{
+					i += 10;
+				}
+			}			
+			break;
+		default:
+			xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Unknown i2cc command %c"), buffer[i++]);
+			while ( i < bufferLength && buffer[i++] != 's');
+		}
+	}
 
 	return 1;
 }
 
 int slim_protocol_decode(unsigned char *buffer, unsigned int bufferLength, xine_t *xine_session, struct slimCommand *decodedCommand)
 {	
-	unsigned int i;
-	unsigned char *pBuffer;
-	unsigned int pBufferPos;
+	if ( strncmp(buffer, "vers", 4) == 0 )
+	{
+		decodedCommand->type = COMMAND_VERSION;		
+		decodedCommand->data.version.versionData = buffer + 4;				
+		decodedCommand->data.version.versionDataLength = (unsigned int)strlen(decodedCommand->data.version.versionData);
+		return 1;
+	}
 
 	if ( strncmp(buffer, "strm", 4) == 0 )
 		return slim_protocol_decode_strm_command(buffer + 4, bufferLength - 4, xine_session, decodedCommand);
 
+	if ( strncmp(buffer, "vfdc", 4) == 0 )
+		return slim_protocol_decode_vfdc_command(buffer + 4, bufferLength - 4, xine_session, decodedCommand);
+
+	if ( strncmp(buffer, "i2cc", 4) == 0 )
+		return slim_protocol_decode_i2cc_command(buffer + 4, bufferLength - 4, xine_session, decodedCommand);
+
 	if ( strncmp(buffer, "grfd", 4) == 0 )
 	{
-		decodedCommand->commandType = COMMAND_DISPLAY;
+		decodedCommand->type = COMMAND_DISPLAY;
 		xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Grfd command received!\n"));
 	}	
-	else if ( strncmp(buffer, "vfdc", 4) == 0 )
-	{
-		decodedCommand->commandType = COMMAND_VFDISPLAY;		
-		pBuffer = (unsigned char *)xine_xmalloc(bufferLength);
-		pBufferPos = 0;
-		for ( i = 4; i < bufferLength; i += 2 ) 
-		{
-			switch ( buffer[i] )
-			{
-				case 0x00:
-					//	xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "VFD packet type 0x00 not implemented!\n"));
-					break;
-				case 0x02:					
-					if ( (buffer[i + 1] & 0x80) == 0x80 ) 
-					{
-						decodedCommand->commandData.vfDisplay.ddramAddr = buffer[i + 1] & 0x7F;
-						decodedCommand->commandData.vfDisplay.setDdram = 1;
-						xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "DDRAM addr set to %d\n"), buffer[i + 1] & 0x7F);
-					}
-					else if ( (buffer[i + 1] & 0x40) == 0x40 )
-					{
-						decodedCommand->commandData.vfDisplay.ddramAddr = 0;
-						decodedCommand->commandData.vfDisplay.cgramAddr = buffer[i + 1] & 0x3F;
-						xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "CGRAM addr set to %d\n"), buffer[i + 1] & 0x3F);
-					}
-					else if ( (buffer[i + 1] & 0x20) == 0x20 )
-					{
-						decodedCommand->commandData.vfDisplay.brightness = 32 - buffer[i + 7] * 4;
-						i += 6;
-						xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Brightness set to: %d\n"), 32 - buffer[i + 7] * 4);
-					}
-					else if ( (buffer[i + 1] & 0x10) == 0x10 )
-					{
-						xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "VFD packet type 0x02 \"Cursor or display shift not implemented\"!\n"));
-					}
-					else if ( (buffer[i + 1] & 0x08) == 0x08 )
-					{
-						decodedCommand->commandData.vfDisplay.displayOn = (( buffer[i + 1] & 0x04 ) == 0x04);
-						xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Display set to: %d\n"), decodedCommand->commandData.vfDisplay.displayOn);
-					}
-					else if ( (buffer[i + 1] & 0x04) == 0x04 )
-					{
-						decodedCommand->commandData.vfDisplay.entryMode = (( buffer[i + 1] & 0x03 ) == 0x03);
-						xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Entry mode set to: %d\n"), decodedCommand->commandData.vfDisplay.entryMode);
-					}
-					else if ((buffer[i + 1 ] & 0x02) == 0x02) 
-					{ 
-						decodedCommand->commandData.vfDisplay.ddramAddr = 0;
-						decodedCommand->commandData.vfDisplay.setDdram = 1;
-						xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Resetting cursor\n"));
-					}
-					else if ((buffer[i + 1] & 0x01) == 0x01) 
-					{ 
-						// TODO: See if that data is usable
-						//for (int j = framebufLive; j < framebufMask; j++)
-						//	framebuf[j] = 0x00;
-						decodedCommand->commandData.vfDisplay.ddramAddr = 0;
-						decodedCommand->commandData.vfDisplay.entryMode = 0x02;
-						xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Clearing display\n"));
-					}
-					break;
-				case 0x03:
-					// if ( decodedCommand->commandData.vfDisplay.setDdram )
-					pBuffer[pBufferPos++] = buffer[i+1];
-					break;
-				default: 
-					xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Unknown VFD packet code: 0x%x\n"), buffer[i]);
-			}
-		}
-	}
-	else if ( strncmp(buffer, "i2cc", 4) == 0 )
-	{
-		xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "i2cc command received!\n"));	
-		decodedCommand->commandType = COMMAND_I2C;
-	}
-	else if ( strncmp(buffer, "vers", 4) == 0 )
-	{
-		decodedCommand->commandType = COMMAND_VERSION;		
-		decodedCommand->commandData.version.versionData = buffer + 4;				
-		decodedCommand->commandData.version.versionDataLength = (unsigned int)strlen(decodedCommand->commandData.version.versionData);
-	}
+	//else if ( strncmp(buffer, "i2cc", 4) == 0 )
+	//{
+	//	xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "i2cc command received!\n"));	
+	//	decodedCommand->type = COMMAND_I2C;
+	//}
 	else
 	{
 		xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Protocol decode error: Could not interpret command: %4s"), buffer);
