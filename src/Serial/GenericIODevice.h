@@ -129,7 +129,7 @@ public:
 	string m_sEvent;
 	int iPK_Event;
 	clock_t tExpiration;
-}
+};
 
 class GenericIODevice : public SerializeClass
 {
