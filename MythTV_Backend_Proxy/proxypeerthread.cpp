@@ -1,0 +1,210 @@
+/***************************************************************************
+ *   Copyright (C) 2005 by igor                                            *
+ *   igor@dexx                                                             *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+#include "proxypeerthread.h"
+
+#include <iostream>
+#include <sys/socket.h>
+
+using namespace std;
+
+namespace MYTHTV {
+
+ProxyPeerThread::ProxyPeerThread(const char* proxyhost, int srcsockfd, int destsockfd)
+	: ProxyPeer(proxyhost, srcsockfd, destsockfd)
+{
+}
+
+
+ProxyPeerThread::~ProxyPeerThread() {
+}
+
+void 
+ProxyPeerThread::handleTerminate() {
+	close(getSrcSock()); close(getDestSock());
+	delete this;
+}
+
+void 
+ProxyPeerThread::registerInterceptor(ProxyPeerInterceptor* pintor) {
+	interceptors_.push_back(pintor);
+}
+
+void 
+ProxyPeerThread::unregisterInterceptor(ProxyPeerInterceptor* pintor) {
+	PEERINTERCEPTORLIST::iterator it = interceptors_.begin();
+	while(it != interceptors_.end()) {
+		if(*it == pintor) {
+			interceptors_.erase(it);
+			break;
+		}
+	}
+}
+
+void* 
+ProxyPeerThread::_Run() {
+	fd_set rfds;
+	int maxfd = 
+		((getSrcSock() > getDestSock()) ? getSrcSock() : getDestSock()) + 1;
+	
+	while(1) {	
+		//sleep(1);
+		// wait for data to be available on sockets
+		FD_ZERO(&rfds); 
+		FD_SET(getSrcSock(), &rfds); FD_SET(getDestSock(), &rfds);
+		
+		struct timeval tv;
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+	
+		int retval = select(maxfd, &rfds, NULL, NULL, &tv);
+					
+		if(retval <= 0) {
+			cout << "No Traffic on Peers. Waiting..." << endl;
+			continue;
+		}
+		
+		if(FD_ISSET(getSrcSock(), &rfds)) {
+			cout << "Performing Source --> Destination." << endl;
+			if(replData(true) < 0) {
+				cout << "Source disconnected" << endl;
+				break;
+			}
+		} 
+		
+		if(FD_ISSET(getDestSock(), &rfds)) {
+			cout << "Performing Destination --> Source." << endl;
+			if(replData(false) < 0) {
+				cout << "Destination disconnected" << endl;
+				break;
+			}
+		} 
+	}
+	return 0;
+}
+
+#define SIZEBUFF_SIZE	8
+#define DATABUFF_SIZE	1024
+
+int
+ProxyPeerThread::replData(bool fromsrc) {
+	/* read fromsockfd */
+	int 
+		fromsockfd =  (fromsrc) ? getSrcSock() : getDestSock(),
+		tosockfd =  (fromsrc) ? getDestSock() : getSrcSock();
+	
+	
+	string datastr;
+	if(readData(fromsockfd, datastr) < 0) {
+		return -1;
+	}
+	
+	cout << "Received data: " << endl << datastr << endl;
+
+	/*process data with interceptors*/
+	bool processed = false;
+	
+	PEERINTERCEPTORLIST::iterator it = interceptors_.begin();
+	while(it != interceptors_.end()) {
+		if((*it)->processData(this, datastr.c_str(), fromsrc)) {
+			processed = true;
+		}
+		it++;
+	}
+
+	if(!processed) {
+		/* sending data */
+		cout << "Redirecting." << endl ;
+		
+		if(writeData(tosockfd, datastr) < 0) {
+			return -1;
+		}
+	}
+	
+	return 0;
+}
+
+int 
+ProxyPeerThread::readData(int sockfd, std::string& data) {
+	/* read data size */
+	char sizebuff[SIZEBUFF_SIZE + 1];
+	
+	int recvsize = recv(sockfd, sizebuff, SIZEBUFF_SIZE, 0);
+	if(recvsize <= 0) {
+		return -1;
+	}
+	
+	string sizestr(sizebuff, recvsize);
+	cout << "Received size: " << sizestr << endl;
+	
+	/*TO DO: place trimming here*/
+	int size = atoi(sizestr.c_str());
+	cout << "Expecting to read a string of " << size << " bytes" << endl;
+
+	/* read data */
+	
+	int read = 0;
+    unsigned int zerocnt = 0;
+	
+	char databuff[DATABUFF_SIZE];
+	while (size > 0)
+    {
+        recvsize = recv(sockfd, databuff, (size < DATABUFF_SIZE) ? size : DATABUFF_SIZE, 0);
+        
+		read += recvsize;
+        size -= recvsize;
+        if (recvsize == 0)
+        {
+            if (++zerocnt >= 100) {
+				cout << "Abandon waiting data." << endl;
+                break;
+            }
+            usleep(50);
+
+            if (zerocnt == 5) {
+				cout << "Waiting for data: " << read << " " << size << endl;
+            }
+        } else {
+			data.append(databuff, recvsize);
+		}
+    }
+	
+	return 0;
+}
+
+int 
+ProxyPeerThread::writeData(int sockfd, const std::string& data) {
+	char tmpbuff[12];
+	sprintf(tmpbuff, "%d", data.length());
+	
+	string sizestr = tmpbuff;
+	sizestr.resize(SIZEBUFF_SIZE, '\t');
+	
+	string outstr = sizestr + data;
+	cout << "Sending data: " << outstr << endl;
+	if((send(sockfd, outstr.c_str(), outstr.length(), 0) <= 0)) {
+		cout << "Error sending data to destination." << endl;
+		return -1;
+	}
+	
+	return 0;
+}
+
+
+};

@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=
+sources += proxypeer.cpp proxypeerthread.cpp thread.cpp proxyserver.cpp proxypeerinterceptor.cpp masterproxypeerthread.cpp token.cpp masterproxyserver.cpp backendproxyserver.cpp backendproxypeerthread.cpp mutex.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
