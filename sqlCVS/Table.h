@@ -36,6 +36,9 @@ namespace sqlCVS
 	class Table
 	{
 		friend class ChangedRow;
+		friend class Repository;
+		friend class Database;
+
 		class Database *m_pDatabase;  /**< m_pDatabase points to the database the table belongs to */
 
 		/**

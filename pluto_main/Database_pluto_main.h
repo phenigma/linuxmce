@@ -98,7 +98,6 @@ class Table_Device_Device_Related* tblDevice_Device_Related;
 class Table_Device_EntertainArea* tblDevice_EntertainArea;
 class Table_Device_HouseMode* tblDevice_HouseMode;
 class Table_Device_Orbiter* tblDevice_Orbiter;
-class Table_Device_Package_Directory* tblDevice_Package_Directory;
 class Table_Device_StartupScript* tblDevice_StartupScript;
 class Table_Device_Users* tblDevice_Users;
 class Table_Direction* tblDirection;
@@ -137,7 +136,6 @@ class Table_License* tblLicense;
 class Table_Manufacturer* tblManufacturer;
 class Table_MediaType* tblMediaType;
 class Table_MediaType_Broadcast* tblMediaType_Broadcast;
-class Table_MobilePhoneVersion* tblMobilePhoneVersion;
 class Table_News* tblNews;
 class Table_OperatingSystem* tblOperatingSystem;
 class Table_Orbiter* tblOrbiter;
@@ -194,6 +192,10 @@ class Table_psc_designer_batdet* tblpsc_designer_batdet;
 class Table_psc_designer_bathdr* tblpsc_designer_bathdr;
 class Table_psc_designer_repset* tblpsc_designer_repset;
 class Table_psc_designer_tables* tblpsc_designer_tables;
+class Table_psc_document_batdet* tblpsc_document_batdet;
+class Table_psc_document_bathdr* tblpsc_document_bathdr;
+class Table_psc_document_repset* tblpsc_document_repset;
+class Table_psc_document_tables* tblpsc_document_tables;
 class Table_psc_ir_batdet* tblpsc_ir_batdet;
 class Table_psc_ir_bathdr* tblpsc_ir_bathdr;
 class Table_psc_ir_repset* tblpsc_ir_repset;
@@ -202,14 +204,10 @@ class Table_psc_local_batdet* tblpsc_local_batdet;
 class Table_psc_local_bathdr* tblpsc_local_bathdr;
 class Table_psc_local_repset* tblpsc_local_repset;
 class Table_psc_local_tables* tblpsc_local_tables;
-class Table_psc_shared_batdet* tblpsc_shared_batdet;
-class Table_psc_shared_bathdr* tblpsc_shared_bathdr;
-class Table_psc_shared_repset* tblpsc_shared_repset;
-class Table_psc_shared_tables* tblpsc_shared_tables;
-class Table_psc_user_batdet* tblpsc_user_batdet;
-class Table_psc_user_bathdr* tblpsc_user_bathdr;
-class Table_psc_user_repset* tblpsc_user_repset;
-class Table_psc_user_tables* tblpsc_user_tables;
+class Table_psc_website_batdet* tblpsc_website_batdet;
+class Table_psc_website_bathdr* tblpsc_website_bathdr;
+class Table_psc_website_repset* tblpsc_website_repset;
+class Table_psc_website_tables* tblpsc_website_tables;
 public:
 class Table_Array* Array_get() { return tblArray; }
 class Table_Broadcast* Broadcast_get() { return tblBroadcast; }
@@ -295,7 +293,6 @@ class Table_Device_Device_Related* Device_Device_Related_get() { return tblDevic
 class Table_Device_EntertainArea* Device_EntertainArea_get() { return tblDevice_EntertainArea; }
 class Table_Device_HouseMode* Device_HouseMode_get() { return tblDevice_HouseMode; }
 class Table_Device_Orbiter* Device_Orbiter_get() { return tblDevice_Orbiter; }
-class Table_Device_Package_Directory* Device_Package_Directory_get() { return tblDevice_Package_Directory; }
 class Table_Device_StartupScript* Device_StartupScript_get() { return tblDevice_StartupScript; }
 class Table_Device_Users* Device_Users_get() { return tblDevice_Users; }
 class Table_Direction* Direction_get() { return tblDirection; }
@@ -334,7 +331,6 @@ class Table_License* License_get() { return tblLicense; }
 class Table_Manufacturer* Manufacturer_get() { return tblManufacturer; }
 class Table_MediaType* MediaType_get() { return tblMediaType; }
 class Table_MediaType_Broadcast* MediaType_Broadcast_get() { return tblMediaType_Broadcast; }
-class Table_MobilePhoneVersion* MobilePhoneVersion_get() { return tblMobilePhoneVersion; }
 class Table_News* News_get() { return tblNews; }
 class Table_OperatingSystem* OperatingSystem_get() { return tblOperatingSystem; }
 class Table_Orbiter* Orbiter_get() { return tblOrbiter; }
@@ -391,6 +387,10 @@ class Table_psc_designer_batdet* psc_designer_batdet_get() { return tblpsc_desig
 class Table_psc_designer_bathdr* psc_designer_bathdr_get() { return tblpsc_designer_bathdr; }
 class Table_psc_designer_repset* psc_designer_repset_get() { return tblpsc_designer_repset; }
 class Table_psc_designer_tables* psc_designer_tables_get() { return tblpsc_designer_tables; }
+class Table_psc_document_batdet* psc_document_batdet_get() { return tblpsc_document_batdet; }
+class Table_psc_document_bathdr* psc_document_bathdr_get() { return tblpsc_document_bathdr; }
+class Table_psc_document_repset* psc_document_repset_get() { return tblpsc_document_repset; }
+class Table_psc_document_tables* psc_document_tables_get() { return tblpsc_document_tables; }
 class Table_psc_ir_batdet* psc_ir_batdet_get() { return tblpsc_ir_batdet; }
 class Table_psc_ir_bathdr* psc_ir_bathdr_get() { return tblpsc_ir_bathdr; }
 class Table_psc_ir_repset* psc_ir_repset_get() { return tblpsc_ir_repset; }
@@ -399,14 +399,10 @@ class Table_psc_local_batdet* psc_local_batdet_get() { return tblpsc_local_batde
 class Table_psc_local_bathdr* psc_local_bathdr_get() { return tblpsc_local_bathdr; }
 class Table_psc_local_repset* psc_local_repset_get() { return tblpsc_local_repset; }
 class Table_psc_local_tables* psc_local_tables_get() { return tblpsc_local_tables; }
-class Table_psc_shared_batdet* psc_shared_batdet_get() { return tblpsc_shared_batdet; }
-class Table_psc_shared_bathdr* psc_shared_bathdr_get() { return tblpsc_shared_bathdr; }
-class Table_psc_shared_repset* psc_shared_repset_get() { return tblpsc_shared_repset; }
-class Table_psc_shared_tables* psc_shared_tables_get() { return tblpsc_shared_tables; }
-class Table_psc_user_batdet* psc_user_batdet_get() { return tblpsc_user_batdet; }
-class Table_psc_user_bathdr* psc_user_bathdr_get() { return tblpsc_user_bathdr; }
-class Table_psc_user_repset* psc_user_repset_get() { return tblpsc_user_repset; }
-class Table_psc_user_tables* psc_user_tables_get() { return tblpsc_user_tables; }
+class Table_psc_website_batdet* psc_website_batdet_get() { return tblpsc_website_batdet; }
+class Table_psc_website_bathdr* psc_website_bathdr_get() { return tblpsc_website_bathdr; }
+class Table_psc_website_repset* psc_website_repset_get() { return tblpsc_website_repset; }
+class Table_psc_website_tables* psc_website_tables_get() { return tblpsc_website_tables; }
 bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
@@ -495,7 +491,6 @@ void CreateTable_Device_Device_Related();
 void CreateTable_Device_EntertainArea();
 void CreateTable_Device_HouseMode();
 void CreateTable_Device_Orbiter();
-void CreateTable_Device_Package_Directory();
 void CreateTable_Device_StartupScript();
 void CreateTable_Device_Users();
 void CreateTable_Direction();
@@ -534,7 +529,6 @@ void CreateTable_License();
 void CreateTable_Manufacturer();
 void CreateTable_MediaType();
 void CreateTable_MediaType_Broadcast();
-void CreateTable_MobilePhoneVersion();
 void CreateTable_News();
 void CreateTable_OperatingSystem();
 void CreateTable_Orbiter();
@@ -591,6 +585,10 @@ void CreateTable_psc_designer_batdet();
 void CreateTable_psc_designer_bathdr();
 void CreateTable_psc_designer_repset();
 void CreateTable_psc_designer_tables();
+void CreateTable_psc_document_batdet();
+void CreateTable_psc_document_bathdr();
+void CreateTable_psc_document_repset();
+void CreateTable_psc_document_tables();
 void CreateTable_psc_ir_batdet();
 void CreateTable_psc_ir_bathdr();
 void CreateTable_psc_ir_repset();
@@ -599,14 +597,10 @@ void CreateTable_psc_local_batdet();
 void CreateTable_psc_local_bathdr();
 void CreateTable_psc_local_repset();
 void CreateTable_psc_local_tables();
-void CreateTable_psc_shared_batdet();
-void CreateTable_psc_shared_bathdr();
-void CreateTable_psc_shared_repset();
-void CreateTable_psc_shared_tables();
-void CreateTable_psc_user_batdet();
-void CreateTable_psc_user_bathdr();
-void CreateTable_psc_user_repset();
-void CreateTable_psc_user_tables();
+void CreateTable_psc_website_batdet();
+void CreateTable_psc_website_bathdr();
+void CreateTable_psc_website_repset();
+void CreateTable_psc_website_tables();
 void DeleteTable_Array();
 void DeleteTable_Broadcast();
 void DeleteTable_Button();
@@ -691,7 +685,6 @@ void DeleteTable_Device_Device_Related();
 void DeleteTable_Device_EntertainArea();
 void DeleteTable_Device_HouseMode();
 void DeleteTable_Device_Orbiter();
-void DeleteTable_Device_Package_Directory();
 void DeleteTable_Device_StartupScript();
 void DeleteTable_Device_Users();
 void DeleteTable_Direction();
@@ -730,7 +723,6 @@ void DeleteTable_License();
 void DeleteTable_Manufacturer();
 void DeleteTable_MediaType();
 void DeleteTable_MediaType_Broadcast();
-void DeleteTable_MobilePhoneVersion();
 void DeleteTable_News();
 void DeleteTable_OperatingSystem();
 void DeleteTable_Orbiter();
@@ -787,6 +779,10 @@ void DeleteTable_psc_designer_batdet();
 void DeleteTable_psc_designer_bathdr();
 void DeleteTable_psc_designer_repset();
 void DeleteTable_psc_designer_tables();
+void DeleteTable_psc_document_batdet();
+void DeleteTable_psc_document_bathdr();
+void DeleteTable_psc_document_repset();
+void DeleteTable_psc_document_tables();
 void DeleteTable_psc_ir_batdet();
 void DeleteTable_psc_ir_bathdr();
 void DeleteTable_psc_ir_repset();
@@ -795,13 +791,9 @@ void DeleteTable_psc_local_batdet();
 void DeleteTable_psc_local_bathdr();
 void DeleteTable_psc_local_repset();
 void DeleteTable_psc_local_tables();
-void DeleteTable_psc_shared_batdet();
-void DeleteTable_psc_shared_bathdr();
-void DeleteTable_psc_shared_repset();
-void DeleteTable_psc_shared_tables();
-void DeleteTable_psc_user_batdet();
-void DeleteTable_psc_user_bathdr();
-void DeleteTable_psc_user_repset();
-void DeleteTable_psc_user_tables();
+void DeleteTable_psc_website_batdet();
+void DeleteTable_psc_website_bathdr();
+void DeleteTable_psc_website_repset();
+void DeleteTable_psc_website_tables();
 };
 #endif

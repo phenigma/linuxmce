@@ -23,6 +23,16 @@
 #define REPOSITORYSOURCE_DESCRIPTION_TABLE_FIELD "RepositorySource.Description"
 #define REPOSITORYSOURCE_DEFINE_FIELD "Define"
 #define REPOSITORYSOURCE_DEFINE_TABLE_FIELD "RepositorySource.Define"
+#define REPOSITORYSOURCE_PSC_ID_FIELD "psc_id"
+#define REPOSITORYSOURCE_PSC_ID_TABLE_FIELD "RepositorySource.psc_id"
+#define REPOSITORYSOURCE_PSC_BATCH_FIELD "psc_batch"
+#define REPOSITORYSOURCE_PSC_BATCH_TABLE_FIELD "RepositorySource.psc_batch"
+#define REPOSITORYSOURCE_PSC_USER_FIELD "psc_user"
+#define REPOSITORYSOURCE_PSC_USER_TABLE_FIELD "RepositorySource.psc_user"
+#define REPOSITORYSOURCE_PSC_FROZEN_FIELD "psc_frozen"
+#define REPOSITORYSOURCE_PSC_FROZEN_TABLE_FIELD "RepositorySource.psc_frozen"
+#define REPOSITORYSOURCE_PSC_MOD_FIELD "psc_mod"
+#define REPOSITORYSOURCE_PSC_MOD_TABLE_FIELD "RepositorySource.psc_mod"
 
 
 #endif

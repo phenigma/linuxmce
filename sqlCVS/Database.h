@@ -117,6 +117,26 @@ namespace sqlCVS
 		 		
 		class Table *GetTableFromForeignKeyString( Table *pTable, string sField );
 
+		/**
+		 *  @brief This lists all the tables and what repositories they belong to
+		 */
+		void ListTables( );
+
+		/**
+		 *  @brief List all the repositories and what tables they have
+		 */
+		void ListRepositories( );
+
+		/**
+		 *  @brief Turn on/off history tracking for all tables
+		 */
+		void HasFullHistory_set_all( bool bOn );
+
+		/**
+		 *  @brief Reset the psc_ fields on all tables
+		 */
+		void Reset_psc();
+
 		/** Implement all these */
 		void Lock( ) {}
 		void Unlock( ) {}

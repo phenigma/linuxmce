@@ -13,6 +13,16 @@
 #define CRITERIA_DESCRIPTION_TABLE_FIELD "Criteria.Description"
 #define CRITERIA_DEFINE_FIELD "Define"
 #define CRITERIA_DEFINE_TABLE_FIELD "Criteria.Define"
+#define CRITERIA_PSC_ID_FIELD "psc_id"
+#define CRITERIA_PSC_ID_TABLE_FIELD "Criteria.psc_id"
+#define CRITERIA_PSC_BATCH_FIELD "psc_batch"
+#define CRITERIA_PSC_BATCH_TABLE_FIELD "Criteria.psc_batch"
+#define CRITERIA_PSC_USER_FIELD "psc_user"
+#define CRITERIA_PSC_USER_TABLE_FIELD "Criteria.psc_user"
+#define CRITERIA_PSC_FROZEN_FIELD "psc_frozen"
+#define CRITERIA_PSC_FROZEN_TABLE_FIELD "Criteria.psc_frozen"
+#define CRITERIA_PSC_MOD_FIELD "psc_mod"
+#define CRITERIA_PSC_MOD_TABLE_FIELD "Criteria.psc_mod"
 
 
 #endif

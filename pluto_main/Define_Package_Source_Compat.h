@@ -15,6 +15,16 @@
 #define PACKAGE_SOURCE_COMPAT_MUSTBUILDFROMSOURCE_TABLE_FIELD "Package_Source_Compat.MustBuildFromSource"
 #define PACKAGE_SOURCE_COMPAT_COMMENTS_FIELD "Comments"
 #define PACKAGE_SOURCE_COMPAT_COMMENTS_TABLE_FIELD "Package_Source_Compat.Comments"
+#define PACKAGE_SOURCE_COMPAT_PSC_ID_FIELD "psc_id"
+#define PACKAGE_SOURCE_COMPAT_PSC_ID_TABLE_FIELD "Package_Source_Compat.psc_id"
+#define PACKAGE_SOURCE_COMPAT_PSC_BATCH_FIELD "psc_batch"
+#define PACKAGE_SOURCE_COMPAT_PSC_BATCH_TABLE_FIELD "Package_Source_Compat.psc_batch"
+#define PACKAGE_SOURCE_COMPAT_PSC_USER_FIELD "psc_user"
+#define PACKAGE_SOURCE_COMPAT_PSC_USER_TABLE_FIELD "Package_Source_Compat.psc_user"
+#define PACKAGE_SOURCE_COMPAT_PSC_FROZEN_FIELD "psc_frozen"
+#define PACKAGE_SOURCE_COMPAT_PSC_FROZEN_TABLE_FIELD "Package_Source_Compat.psc_frozen"
+#define PACKAGE_SOURCE_COMPAT_PSC_MOD_FIELD "psc_mod"
+#define PACKAGE_SOURCE_COMPAT_PSC_MOD_TABLE_FIELD "Package_Source_Compat.psc_mod"
 
 
 #endif

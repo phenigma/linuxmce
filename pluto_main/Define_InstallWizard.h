@@ -13,6 +13,16 @@
 #define INSTALLWIZARD_DEFAULT_TABLE_FIELD "InstallWizard.Default"
 #define INSTALLWIZARD_COMMENTS_FIELD "Comments"
 #define INSTALLWIZARD_COMMENTS_TABLE_FIELD "InstallWizard.Comments"
+#define INSTALLWIZARD_PSC_ID_FIELD "psc_id"
+#define INSTALLWIZARD_PSC_ID_TABLE_FIELD "InstallWizard.psc_id"
+#define INSTALLWIZARD_PSC_BATCH_FIELD "psc_batch"
+#define INSTALLWIZARD_PSC_BATCH_TABLE_FIELD "InstallWizard.psc_batch"
+#define INSTALLWIZARD_PSC_USER_FIELD "psc_user"
+#define INSTALLWIZARD_PSC_USER_TABLE_FIELD "InstallWizard.psc_user"
+#define INSTALLWIZARD_PSC_FROZEN_FIELD "psc_frozen"
+#define INSTALLWIZARD_PSC_FROZEN_TABLE_FIELD "InstallWizard.psc_frozen"
+#define INSTALLWIZARD_PSC_MOD_FIELD "psc_mod"
+#define INSTALLWIZARD_PSC_MOD_TABLE_FIELD "InstallWizard.psc_mod"
 
 
 #endif

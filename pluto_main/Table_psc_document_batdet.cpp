@@ -16,32 +16,32 @@
 
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
-#include "Table_psc_shared_batdet.h"
+#include "Table_psc_document_batdet.h"
 
 
 
-void Database_pluto_main::CreateTable_psc_shared_batdet()
+void Database_pluto_main::CreateTable_psc_document_batdet()
 {
-	tblpsc_shared_batdet = new Table_psc_shared_batdet(this);
+	tblpsc_document_batdet = new Table_psc_document_batdet(this);
 }
 
-void Database_pluto_main::DeleteTable_psc_shared_batdet()
+void Database_pluto_main::DeleteTable_psc_document_batdet()
 {
-	delete tblpsc_shared_batdet;
+	delete tblpsc_document_batdet;
 }
 
-Table_psc_shared_batdet::~Table_psc_shared_batdet()
+Table_psc_document_batdet::~Table_psc_document_batdet()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		Row_psc_shared_batdet *pRow = (Row_psc_shared_batdet *) (*it).second;
+		Row_psc_document_batdet *pRow = (Row_psc_document_batdet *) (*it).second;
 		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		Row_psc_shared_batdet *pRow = (Row_psc_shared_batdet *) (*it).second;
+		Row_psc_document_batdet *pRow = (Row_psc_document_batdet *) (*it).second;
 		delete pRow;
 	}
 
@@ -53,16 +53,16 @@ Table_psc_shared_batdet::~Table_psc_shared_batdet()
 }
 
 
-void Row_psc_shared_batdet::Delete()
+void Row_psc_document_batdet::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-	Row_psc_shared_batdet *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_psc_document_batdet *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
 			vector<TableRow*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_psc_shared_batdet *) *i != this); i++);
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_psc_document_batdet *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,7 +72,7 @@ void Row_psc_shared_batdet::Delete()
 		}
 		else
 		{
-			SingleLongKey key(pRow->m_PK_psc_shared_batdet);
+			SingleLongKey key(pRow->m_PK_psc_document_batdet);
 			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
@@ -82,17 +82,17 @@ void Row_psc_shared_batdet::Delete()
 		}	
 }
 
-void Row_psc_shared_batdet::Reload()
+void Row_psc_document_batdet::Reload()
 {
-	Row_psc_shared_batdet *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_psc_document_batdet *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		SingleLongKey key(pRow->m_PK_psc_shared_batdet);
-		Row_psc_shared_batdet *pRow = table->FetchRow(key);
+		SingleLongKey key(pRow->m_PK_psc_document_batdet);
+		Row_psc_document_batdet *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
 		{
@@ -104,14 +104,14 @@ void Row_psc_shared_batdet::Reload()
 	
 }
 
-Row_psc_shared_batdet::Row_psc_shared_batdet(Table_psc_shared_batdet *pTable):table(pTable)
+Row_psc_document_batdet::Row_psc_document_batdet(Table_psc_document_batdet *pTable):table(pTable)
 {
 	SetDefaultValues();
 }
 
-void Row_psc_shared_batdet::SetDefaultValues()
+void Row_psc_document_batdet::SetDefaultValues()
 {
-	m_PK_psc_shared_batdet = 0;
+	m_PK_psc_document_batdet = 0;
 is_null[0] = false;
 m_Value = "";
 is_null[1] = false;
@@ -122,18 +122,18 @@ is_null[1] = false;
 	is_modified=false;
 }
 
-long int Row_psc_shared_batdet::PK_psc_shared_batdet_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_document_batdet::PK_psc_document_batdet_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_PK_psc_shared_batdet;}
-string Row_psc_shared_batdet::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_PK_psc_document_batdet;}
+string Row_psc_document_batdet::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Value;}
 
 		
-void Row_psc_shared_batdet::PK_psc_shared_batdet_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_batdet::PK_psc_document_batdet_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_PK_psc_shared_batdet = val; is_modified=true; is_null[0]=false;}
-void Row_psc_shared_batdet::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_PK_psc_document_batdet = val; is_modified=true; is_null[0]=false;}
+void Row_psc_document_batdet::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Value = val; is_modified=true; is_null[1]=false;}
 
@@ -142,7 +142,7 @@ m_Value = val; is_modified=true; is_null[1]=false;}
 			
 	
 
-string Row_psc_shared_batdet::PK_psc_shared_batdet_asSQL()
+string Row_psc_document_batdet::PK_psc_document_batdet_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -150,12 +150,12 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_PK_psc_shared_batdet);
+sprintf(buf, "%li", m_PK_psc_document_batdet);
 
 return buf;
 }
 
-string Row_psc_shared_batdet::Value_asSQL()
+string Row_psc_document_batdet::Value_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -170,29 +170,29 @@ return string()+"\""+buf+"\"";
 
 
 
-Table_psc_shared_batdet::Key::Key(long int in_PK_psc_shared_batdet)
+Table_psc_document_batdet::Key::Key(long int in_PK_psc_document_batdet)
 {
-			pk_PK_psc_shared_batdet = in_PK_psc_shared_batdet;
+			pk_PK_psc_document_batdet = in_PK_psc_document_batdet;
 	
 }
 
-Table_psc_shared_batdet::Key::Key(Row_psc_shared_batdet *pRow)
+Table_psc_document_batdet::Key::Key(Row_psc_document_batdet *pRow)
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
-			pk_PK_psc_shared_batdet = pRow->m_PK_psc_shared_batdet;
+			pk_PK_psc_document_batdet = pRow->m_PK_psc_document_batdet;
 	
 }		
 
-bool Table_psc_shared_batdet::Key_Less::operator()(const Table_psc_shared_batdet::Key &key1, const Table_psc_shared_batdet::Key &key2) const
+bool Table_psc_document_batdet::Key_Less::operator()(const Table_psc_document_batdet::Key &key1, const Table_psc_document_batdet::Key &key2) const
 {
-			if (key1.pk_PK_psc_shared_batdet!=key2.pk_PK_psc_shared_batdet)
-return key1.pk_PK_psc_shared_batdet<key2.pk_PK_psc_shared_batdet;
+			if (key1.pk_PK_psc_document_batdet!=key2.pk_PK_psc_document_batdet)
+return key1.pk_PK_psc_document_batdet<key2.pk_PK_psc_document_batdet;
 else
 return false;	
 }	
 
-void Table_psc_shared_batdet::Commit()
+void Table_psc_document_batdet::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -201,14 +201,14 @@ void Table_psc_shared_batdet::Commit()
 	{
 		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_psc_shared_batdet *pRow = (Row_psc_shared_batdet *)*i;
+		Row_psc_document_batdet *pRow = (Row_psc_document_batdet *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_shared_batdet_asSQL()+", "+pRow->Value_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_document_batdet_asSQL()+", "+pRow->Value_asSQL();
 
 	
-		string query = "insert into psc_shared_batdet (PK_psc_shared_batdet, Value) values ("+
+		string query = "insert into psc_document_batdet (PK_psc_document_batdet, Value) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -223,11 +223,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_shared_
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
 			if (id!=0)
-pRow->m_PK_psc_shared_batdet=id;
+pRow->m_PK_psc_document_batdet=id;
 	
 			
 			addedRows.erase(i);
-			SingleLongKey key(pRow->m_PK_psc_shared_batdet);	
+			SingleLongKey key(pRow->m_PK_psc_document_batdet);	
 			cachedRows[key] = pRow;
 					
 			
@@ -244,23 +244,23 @@ pRow->m_PK_psc_shared_batdet=id;
 	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
-		Row_psc_shared_batdet* pRow = (Row_psc_shared_batdet*) (*i).second;	
-		SingleLongKey key(pRow->m_PK_psc_shared_batdet);
+		Row_psc_document_batdet* pRow = (Row_psc_document_batdet*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_psc_document_batdet);
 
-		char tmp_PK_psc_shared_batdet[32];
-sprintf(tmp_PK_psc_shared_batdet, "%li", key.pk);
+		char tmp_PK_psc_document_batdet[32];
+sprintf(tmp_PK_psc_document_batdet, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_shared_batdet=" + tmp_PK_psc_shared_batdet;
+condition = condition + "PK_psc_document_batdet=" + tmp_PK_psc_document_batdet;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_shared_batdet="+pRow->PK_psc_shared_batdet_asSQL()+", Value="+pRow->Value_asSQL();
+update_values_list = update_values_list + "PK_psc_document_batdet="+pRow->PK_psc_document_batdet_asSQL()+", Value="+pRow->Value_asSQL();
 
 	
-		string query = "update psc_shared_batdet set " + update_values_list + " where " + condition;
+		string query = "update psc_document_batdet set " + update_values_list + " where " + condition;
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
@@ -287,17 +287,17 @@ update_values_list = update_values_list + "PK_psc_shared_batdet="+pRow->PK_psc_s
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_psc_shared_batdet* pRow = (Row_psc_shared_batdet*) (*i).second;	
+		Row_psc_document_batdet* pRow = (Row_psc_document_batdet*) (*i).second;	
 
-		char tmp_PK_psc_shared_batdet[32];
-sprintf(tmp_PK_psc_shared_batdet, "%li", key.pk);
+		char tmp_PK_psc_document_batdet[32];
+sprintf(tmp_PK_psc_document_batdet, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_shared_batdet=" + tmp_PK_psc_shared_batdet;
+condition = condition + "PK_psc_document_batdet=" + tmp_PK_psc_document_batdet;
 
 	
-		string query = "delete from psc_shared_batdet where " + condition;
+		string query = "delete from psc_document_batdet where " + condition;
 		
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
@@ -310,17 +310,17 @@ condition = condition + "PK_psc_shared_batdet=" + tmp_PK_psc_shared_batdet;
 	
 }
 
-bool Table_psc_shared_batdet::GetRows(string where_statement,vector<class Row_psc_shared_batdet*> *rows)
+bool Table_psc_document_batdet::GetRows(string where_statement,vector<class Row_psc_document_batdet*> *rows)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from psc_shared_batdet " + where_statement;
+		query = "select * from psc_document_batdet " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from psc_shared_batdet where " + where_statement;
+		query = "select * from psc_document_batdet where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
@@ -343,17 +343,17 @@ bool Table_psc_shared_batdet::GetRows(string where_statement,vector<class Row_ps
 	{	
 		unsigned long *lengths = mysql_fetch_lengths(res);
 
-		Row_psc_shared_batdet *pRow = new Row_psc_shared_batdet(this);
+		Row_psc_document_batdet *pRow = new Row_psc_document_batdet(this);
 		
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_psc_shared_batdet = 0;
+pRow->m_PK_psc_document_batdet = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_psc_shared_batdet));
+sscanf(row[0], "%li", &(pRow->m_PK_psc_document_batdet));
 }
 
 if (row[1] == NULL)
@@ -371,14 +371,14 @@ pRow->m_Value = string(row[1],lengths[1]);
 
 		//checking for duplicates
 
-		SingleLongKey key(pRow->m_PK_psc_shared_batdet);
+		SingleLongKey key(pRow->m_PK_psc_document_batdet);
 		
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (Row_psc_shared_batdet *)(*i).second;
+			pRow = (Row_psc_document_batdet *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -391,11 +391,11 @@ pRow->m_Value = string(row[1],lengths[1]);
 	return true;					
 }
 
-Row_psc_shared_batdet* Table_psc_shared_batdet::AddRow()
+Row_psc_document_batdet* Table_psc_document_batdet::AddRow()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Row_psc_shared_batdet *pRow = new Row_psc_shared_batdet(this);
+	Row_psc_document_batdet *pRow = new Row_psc_document_batdet(this);
 	pRow->is_added=true;
 	addedRows.push_back(pRow);
 	return pRow;		
@@ -403,11 +403,11 @@ Row_psc_shared_batdet* Table_psc_shared_batdet::AddRow()
 
 
 
-Row_psc_shared_batdet* Table_psc_shared_batdet::GetRow(long int in_PK_psc_shared_batdet)
+Row_psc_document_batdet* Table_psc_document_batdet::GetRow(long int in_PK_psc_document_batdet)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	SingleLongKey row_key(in_PK_psc_shared_batdet);
+	SingleLongKey row_key(in_PK_psc_document_batdet);
 
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -420,9 +420,9 @@ Row_psc_shared_batdet* Table_psc_shared_batdet::GetRow(long int in_PK_psc_shared
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (Row_psc_shared_batdet*) (*i).second;
+		return (Row_psc_document_batdet*) (*i).second;
 	//we have to fetch row
-	Row_psc_shared_batdet* pRow = FetchRow(row_key);
+	Row_psc_document_batdet* pRow = FetchRow(row_key);
 
 	if (pRow!=NULL)
 		cachedRows[row_key] = pRow;
@@ -431,20 +431,20 @@ Row_psc_shared_batdet* Table_psc_shared_batdet::GetRow(long int in_PK_psc_shared
 
 
 
-Row_psc_shared_batdet* Table_psc_shared_batdet::FetchRow(SingleLongKey &key)
+Row_psc_document_batdet* Table_psc_document_batdet::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
-	char tmp_PK_psc_shared_batdet[32];
-sprintf(tmp_PK_psc_shared_batdet, "%li", key.pk);
+	char tmp_PK_psc_document_batdet[32];
+sprintf(tmp_PK_psc_document_batdet, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_shared_batdet=" + tmp_PK_psc_shared_batdet;
+condition = condition + "PK_psc_document_batdet=" + tmp_PK_psc_document_batdet;
 
 
-	string query = "select * from psc_shared_batdet where " + condition;		
+	string query = "select * from psc_document_batdet where " + condition;		
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
@@ -471,17 +471,17 @@ condition = condition + "PK_psc_shared_batdet=" + tmp_PK_psc_shared_batdet;
 						
 	unsigned long *lengths = mysql_fetch_lengths(res);
 
-	Row_psc_shared_batdet *pRow = new Row_psc_shared_batdet(this);
+	Row_psc_document_batdet *pRow = new Row_psc_document_batdet(this);
 		
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_psc_shared_batdet = 0;
+pRow->m_PK_psc_document_batdet = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_psc_shared_batdet));
+sscanf(row[0], "%li", &(pRow->m_PK_psc_document_batdet));
 }
 
 if (row[1] == NULL)

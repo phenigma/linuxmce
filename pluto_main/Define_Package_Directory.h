@@ -17,6 +17,16 @@
 #define PACKAGE_DIRECTORY_PATH_TABLE_FIELD "Package_Directory.Path"
 #define PACKAGE_DIRECTORY_GENERATEDOXYGEN_FIELD "GenerateDoxygen"
 #define PACKAGE_DIRECTORY_GENERATEDOXYGEN_TABLE_FIELD "Package_Directory.GenerateDoxygen"
+#define PACKAGE_DIRECTORY_PSC_ID_FIELD "psc_id"
+#define PACKAGE_DIRECTORY_PSC_ID_TABLE_FIELD "Package_Directory.psc_id"
+#define PACKAGE_DIRECTORY_PSC_BATCH_FIELD "psc_batch"
+#define PACKAGE_DIRECTORY_PSC_BATCH_TABLE_FIELD "Package_Directory.psc_batch"
+#define PACKAGE_DIRECTORY_PSC_USER_FIELD "psc_user"
+#define PACKAGE_DIRECTORY_PSC_USER_TABLE_FIELD "Package_Directory.psc_user"
+#define PACKAGE_DIRECTORY_PSC_FROZEN_FIELD "psc_frozen"
+#define PACKAGE_DIRECTORY_PSC_FROZEN_TABLE_FIELD "Package_Directory.psc_frozen"
+#define PACKAGE_DIRECTORY_PSC_MOD_FIELD "psc_mod"
+#define PACKAGE_DIRECTORY_PSC_MOD_TABLE_FIELD "Package_Directory.psc_mod"
 
 
 #endif

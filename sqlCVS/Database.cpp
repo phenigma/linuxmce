@@ -14,9 +14,7 @@
 #include "PlutoUtils/CommonIncludes.h"	
 #include "Database.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 #include "CommonFunctions.h"
 #include <iomanip>
@@ -27,6 +25,28 @@ using namespace sqlCVS;
 Database::Database( string db_host, string db_user, string db_pass, string db_name, int db_port )
 	: MySqlHelper( db_host, db_user, db_pass, db_name, db_port )
 {
+	if( !m_bConnected )
+	{
+		// If we didn't connect, maybe the connection is valid but the database doesn't exist.  If so, try creating it if the command is import
+		if( g_GlobalConfig.m_sCommand=="import" )
+		{
+			// Try connecting without a database
+			m_sMySQLDBName = "";
+			MySQLConnect();
+			if( !m_bConnected )
+				return;  // Nope, the connection is no good
+
+			// Try creating the dabase
+			threaded_mysql_query("CREATE DATABASE " + db_name);
+			m_sMySQLDBName = db_name; // Set it back and try again
+			MySQLConnect();
+			if( !m_bConnected )
+				return;
+		}
+		else
+			return;
+	}
+
 	m_bInvalid=false;
 	try
 	{
@@ -136,7 +156,7 @@ void Database::CreateRepository( )
 		if( pRepository )
 		{
 
-			if( !AskQuestion( "That repository exists. Edit the exiting one?", false ) )
+			if( !AskYNQuestion( "That repository exists. Edit the exiting one?", false ) )
 				return; /**< Nope, just abort */
 		}
 		else
@@ -1043,4 +1063,102 @@ void Database::Import( string sRepository, Repository *pRepository )
 	}
 
 	str.FreeSerializeMemory( );
+}
+
+void Database::ListTables( )
+{
+	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)
+	{
+		Table *pTable = (*it).second;
+		cout << "Table: " << pTable->Name_get();
+		if( pTable->Repository_get() )
+			cout << "\t\tRepository: " << pTable->Repository_get()->Name_get();
+		else
+			cout << "\t\t**no repository**";
+		cout << endl;
+	}
+}
+
+void Database::ListRepositories( )
+{
+	for(MapRepository::iterator it=m_mapRepository.begin();it!=m_mapRepository.end();++it)
+	{
+		Repository *pRepository = (*it).second;
+		pRepository->ListTables();
+	}
+}
+
+void Database::HasFullHistory_set_all( bool bOn )
+{
+	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)
+	{
+		Table *pTable = (*it).second;
+		if( pTable->Repository_get() )
+			pTable->HasFullHistory_set( bOn );
+	}
+}
+
+void Database::Reset_psc()
+{
+	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)
+	{
+		Table *pTable = (*it).second;
+		if( pTable->Repository_get() )
+		{
+			pTable->TrackChanges_set(false);
+			pTable->TrackChanges_set(true);
+		}
+		else
+			pTable->TrackChanges_set(false);
+	}
+
+	for(MapRepository::iterator it=m_mapRepository.begin();it!=m_mapRepository.end();++it)
+	{
+		Repository *pRepository = (*it).second;
+		// First save the settings in this map
+		map<string,string> mapSettings;
+		string Tablename = "psc_" + pRepository->Name_get() + "_repset";
+		ostringstream sql;
+
+		sql	<< "SELECT Setting,Value FROM `" << Tablename << "`";
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( ( result_set.r=mysql_query_result( sql.str( ) ) ) )
+		{
+			while ( row = mysql_fetch_row( result_set.r ) )
+			{
+				mapSettings[row[0]]=row[1];
+			}
+		}
+
+		pRepository->CreateSettingTable( );
+		pRepository->CreateBatchHeaderTable( );
+		pRepository->CreateBatchDetailTable( );
+		pRepository->CreateTablesTable( );
+		pRepository->CreateSchemaTable( );
+
+		for(map<string,string>::iterator it=mapSettings.begin();it!=mapSettings.end();++it)
+		{
+			pRepository->SetSetting((*it).first,(*it).second);  
+		}
+
+		pRepository->GetSetting("schema","1");  // Be sure we at least have a default schema of 1
+	}
+
+	// We reset all the psc_rep_tables, so put back any tables in there
+	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)
+	{
+		Table *pTable = (*it).second;
+		if( pTable->Repository_get() && !pTable->m_bIsSystemTable )
+		{
+			string Tablename = "psc_" + pTable->Repository_get()->Name_get() + "_tables"; /**< Our _tables table */
+			ostringstream sql;
+			sql << "INSERT INTO `" << Tablename << "` ( Tablename ) VALUES( '" << pTable->Name_get( ) << "' )";
+			if( threaded_mysql_query( sql.str( ) )!=0 )
+			{
+				cerr << "SQL failed: " << sql.str( ) << endl;
+				throw "Database Error";
+			}
+		}
+	}
 }

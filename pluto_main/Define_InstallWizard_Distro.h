@@ -13,6 +13,16 @@
 #define INSTALLWIZARD_DISTRO_FK_DISTRO_TABLE_FIELD "InstallWizard_Distro.FK_Distro"
 #define INSTALLWIZARD_DISTRO_COMMENTS_FIELD "Comments"
 #define INSTALLWIZARD_DISTRO_COMMENTS_TABLE_FIELD "InstallWizard_Distro.Comments"
+#define INSTALLWIZARD_DISTRO_PSC_ID_FIELD "psc_id"
+#define INSTALLWIZARD_DISTRO_PSC_ID_TABLE_FIELD "InstallWizard_Distro.psc_id"
+#define INSTALLWIZARD_DISTRO_PSC_BATCH_FIELD "psc_batch"
+#define INSTALLWIZARD_DISTRO_PSC_BATCH_TABLE_FIELD "InstallWizard_Distro.psc_batch"
+#define INSTALLWIZARD_DISTRO_PSC_USER_FIELD "psc_user"
+#define INSTALLWIZARD_DISTRO_PSC_USER_TABLE_FIELD "InstallWizard_Distro.psc_user"
+#define INSTALLWIZARD_DISTRO_PSC_FROZEN_FIELD "psc_frozen"
+#define INSTALLWIZARD_DISTRO_PSC_FROZEN_TABLE_FIELD "InstallWizard_Distro.psc_frozen"
+#define INSTALLWIZARD_DISTRO_PSC_MOD_FIELD "psc_mod"
+#define INSTALLWIZARD_DISTRO_PSC_MOD_TABLE_FIELD "InstallWizard_Distro.psc_mod"
 
 
 #endif

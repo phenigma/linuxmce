@@ -132,6 +132,9 @@
 				RelativePath=".\Database.cpp">
 			</File>
 			<File
+				RelativePath="..\Dce\DCEMySqlConfig.cpp">
+			</File>
+			<File
 				RelativePath=".\Field.cpp">
 			</File>
 			<File

@@ -84,26 +84,49 @@ class DLL_EXPORT Row_Schema : public TableRow, public SerializeClass
 		long int m_PK_Schema;
 long int m_FK_Version;
 string m_SQLCommands;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[3];
+		bool is_null[8];
 	
 	public:
 		long int PK_Schema_get();
 long int FK_Version_get();
 string SQLCommands_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_Schema_set(long int val);
 void FK_Version_set(long int val);
 void SQLCommands_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool FK_Version_isNull();
 bool SQLCommands_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void FK_Version_setNull(bool val);
 void SQLCommands_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -124,7 +147,7 @@ void SQLCommands_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Schema+ m_FK_Version+ m_SQLCommands;
+			StartSerializeList() + m_PK_Schema+ m_FK_Version+ m_SQLCommands+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -132,6 +155,11 @@ void SQLCommands_setNull(bool val);
 		string PK_Schema_asSQL();
 string FK_Version_asSQL();
 string SQLCommands_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

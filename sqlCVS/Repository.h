@@ -29,7 +29,8 @@ namespace sqlCVS
 		class Table *m_pTable_Setting;
 		class Table *m_pTable_BatchHeader;
 		class Table *m_pTable_BatchDetail;
-		class Table *m_pTable_Tables; 
+		class Table *m_pTable_Tables;
+		class Table *m_pTable_Schema;
 		
 		map<int, class ChangedRow *> m_mapUsers2ChangedRow;
 		string m_sName;
@@ -44,6 +45,11 @@ namespace sqlCVS
 			m_pTable_Setting=m_pTable_BatchHeader=m_pTable_BatchDetail=m_pTable_Tables=NULL;
 		}
 		
+		/**
+		 *  @brief This lists all the tables and what repositories they belong to
+		 */
+		void ListTables( );
+
 		string Name_get( ) { return m_sName; }
 		void AddDefinitionTable( class Table *pTable );
 		void MatchUpTables( );
@@ -64,7 +70,10 @@ namespace sqlCVS
 		class Table *CreateBatchHeaderTable( );
 		class Table *CreateBatchDetailTable( );
 		class Table *CreateTablesTable( );
-
+		class Table *CreateSchemaTable( );
+	
+		string GetSetting(string Setting,string Default);
+		void SetSetting(string Setting,string Value);
 	};
 	
 	typedef map<string, Repository *> MapRepository;

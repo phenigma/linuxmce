@@ -124,6 +124,13 @@ is_null[3] = false;
 is_null[4] = true;
 is_null[5] = true;
 is_null[6] = true;
+is_null[7] = true;
+is_null[8] = true;
+is_null[9] = true;
+m_psc_frozen = 0;
+is_null[10] = false;
+m_psc_mod = "00000000000000";
+is_null[11] = false;
 
 
 	is_added=false;
@@ -152,6 +159,21 @@ return m_Version;}
 string Row_Package_Source::Parms_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Parms;}
+long int Row_Package_Source::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_id;}
+long int Row_Package_Source::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_batch;}
+long int Row_Package_Source::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_user;}
+short int Row_Package_Source::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_frozen;}
+string Row_Package_Source::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_Package_Source::PK_Package_Source_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -175,6 +197,21 @@ m_Version = val; is_modified=true; is_null[5]=false;}
 void Row_Package_Source::Parms_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Parms = val; is_modified=true; is_null[6]=false;}
+void Row_Package_Source::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_id = val; is_modified=true; is_null[7]=false;}
+void Row_Package_Source::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_batch = val; is_modified=true; is_null[8]=false;}
+void Row_Package_Source::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_user = val; is_modified=true; is_null[9]=false;}
+void Row_Package_Source::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_frozen = val; is_modified=true; is_null[10]=false;}
+void Row_Package_Source::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[11]=false;}
 
 		
 bool Row_Package_Source::Name_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -189,6 +226,18 @@ return is_null[5];}
 bool Row_Package_Source::Parms_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
+bool Row_Package_Source::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[7];}
+bool Row_Package_Source::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[8];}
+bool Row_Package_Source::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[9];}
+bool Row_Package_Source::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[10];}
 
 			
 void Row_Package_Source::Name_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -203,6 +252,18 @@ is_null[5]=val;}
 void Row_Package_Source::Parms_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
+void Row_Package_Source::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[7]=val;}
+void Row_Package_Source::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[8]=val;}
+void Row_Package_Source::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[9]=val;}
+void Row_Package_Source::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[10]=val;}
 	
 
 string Row_Package_Source::PK_Package_Source_asSQL()
@@ -292,6 +353,70 @@ mysql_real_escape_string(table->database->db_handle, buf, m_Parms.c_str(), (unsi
 return string()+"\""+buf+"\"";
 }
 
+string Row_Package_Source::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
+}
+
+string Row_Package_Source::psc_batch_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_batch);
+
+return buf;
+}
+
+string Row_Package_Source::psc_user_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[9])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_user);
+
+return buf;
+}
+
+string Row_Package_Source::psc_frozen_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[10])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_psc_frozen);
+
+return buf;
+}
+
+string Row_Package_Source::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[11])
+return "NULL";
+
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+return string()+"\""+buf+"\"";
+}
+
 
 
 
@@ -330,10 +455,10 @@ void Table_Package_Source::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Source_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->Repository_asSQL()+", "+pRow->Version_asSQL()+", "+pRow->Parms_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Source_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->Repository_asSQL()+", "+pRow->Version_asSQL()+", "+pRow->Parms_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Package_Source (PK_Package_Source, FK_Package, Name, FK_RepositorySource, Repository, Version, Parms) values ("+
+		string query = "insert into Package_Source (PK_Package_Source, FK_Package, Name, FK_RepositorySource, Repository, Version, Parms, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -382,7 +507,7 @@ condition = condition + "PK_Package_Source=" + tmp_PK_Package_Source;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package_Source="+pRow->PK_Package_Source_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", Name="+pRow->Name_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", Repository="+pRow->Repository_asSQL()+", Version="+pRow->Version_asSQL()+", Parms="+pRow->Parms_asSQL();
+update_values_list = update_values_list + "PK_Package_Source="+pRow->PK_Package_Source_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", Name="+pRow->Name_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", Repository="+pRow->Repository_asSQL()+", Version="+pRow->Version_asSQL()+", Parms="+pRow->Parms_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Package_Source set " + update_values_list + " where " + condition;
@@ -545,6 +670,61 @@ else
 {
 pRow->is_null[6]=false;
 pRow->m_Parms = string(row[6],lengths[6]);
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%li", &(pRow->m_psc_id));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%li", &(pRow->m_psc_user));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_psc_mod = string(row[11],lengths[11]);
 }
 
 
@@ -728,6 +908,61 @@ else
 {
 pRow->is_null[6]=false;
 pRow->m_Parms = string(row[6],lengths[6]);
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%li", &(pRow->m_psc_id));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%li", &(pRow->m_psc_user));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_psc_mod = string(row[11],lengths[11]);
 }
 
 

@@ -12,6 +12,16 @@
 #define OPERATINGSYSTEM_DESCRIPTION_TABLE_FIELD "OperatingSystem.Description"
 #define OPERATINGSYSTEM_DEFINE_FIELD "Define"
 #define OPERATINGSYSTEM_DEFINE_TABLE_FIELD "OperatingSystem.Define"
+#define OPERATINGSYSTEM_PSC_ID_FIELD "psc_id"
+#define OPERATINGSYSTEM_PSC_ID_TABLE_FIELD "OperatingSystem.psc_id"
+#define OPERATINGSYSTEM_PSC_BATCH_FIELD "psc_batch"
+#define OPERATINGSYSTEM_PSC_BATCH_TABLE_FIELD "OperatingSystem.psc_batch"
+#define OPERATINGSYSTEM_PSC_USER_FIELD "psc_user"
+#define OPERATINGSYSTEM_PSC_USER_TABLE_FIELD "OperatingSystem.psc_user"
+#define OPERATINGSYSTEM_PSC_FROZEN_FIELD "psc_frozen"
+#define OPERATINGSYSTEM_PSC_FROZEN_TABLE_FIELD "OperatingSystem.psc_frozen"
+#define OPERATINGSYSTEM_PSC_MOD_FIELD "psc_mod"
+#define OPERATINGSYSTEM_PSC_MOD_TABLE_FIELD "OperatingSystem.psc_mod"
 
 
 #endif

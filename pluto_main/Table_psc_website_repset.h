@@ -1,5 +1,5 @@
-#ifndef __Table_psc_shared_bathdr_H__
-#define __Table_psc_shared_bathdr_H__
+#ifndef __Table_psc_website_repset_H__
+#define __Table_psc_website_repset_H__
 
 #ifdef SQL2CPP_DLLEXPORT
 #define DLL_EXPORT __declspec(dllexport)
@@ -10,7 +10,7 @@
 #include "TableRow.h"
 #include "Database_pluto_main.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_psc_shared_bathdr.h"
+#include "Define_psc_website_repset.h"
 #include "SerializeClass/SerializeClass.h"
 
 // If we declare the maps locally, the compiler will create multiple copies of them
@@ -18,7 +18,7 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_psc_shared_bathdr : public TableBase , SingleLongKeyBase
+class DLL_EXPORT Table_psc_website_repset : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -28,29 +28,29 @@ public:
     pluto_pthread_mutex_t m_Mutex;
 	pthread_mutexattr_t m_MutexAttr;
 		
-	Table_psc_shared_bathdr(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("psc_shared_bathdr")
+	Table_psc_website_repset(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("psc_website_repset")
 	{
 		pthread_mutexattr_init(&m_MutexAttr);
 		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
 		m_Mutex.Init(&m_MutexAttr); 
 	};
-	~Table_psc_shared_bathdr();
+	~Table_psc_website_repset();
 
 private:		
-	friend class Row_psc_shared_bathdr;
+	friend class Row_psc_website_repset;
 	struct Key
 	{
-		friend class Row_psc_shared_bathdr;
-		long int pk_PK_psc_shared_bathdr;
+		friend class Row_psc_website_repset;
+		long int pk_PK_psc_website_repset;
 
 		
-		Key(long int in_PK_psc_shared_bathdr);
+		Key(long int in_PK_psc_website_repset);
 	
-		Key(class Row_psc_shared_bathdr *pRow);
+		Key(class Row_psc_website_repset *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_psc_shared_bathdr::Key &key1, const Table_psc_shared_bathdr::Key &key2) const;
+		bool operator()(const Table_psc_website_repset::Key &key1, const Table_psc_website_repset::Key &key2) const;
 	};	
 
 	
@@ -58,40 +58,40 @@ private:
 
 public:				
 	void Commit();
-	bool GetRows(string where_statement,vector<class Row_psc_shared_bathdr*> *rows);
-	class Row_psc_shared_bathdr* AddRow();
+	bool GetRows(string where_statement,vector<class Row_psc_website_repset*> *rows);
+	class Row_psc_website_repset* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_psc_shared_bathdr* GetRow(long int in_PK_psc_shared_bathdr);
+	class Row_psc_website_repset* GetRow(long int in_PK_psc_website_repset);
 	
 
 private:	
 	
 		
-	class Row_psc_shared_bathdr* FetchRow(SingleLongKey &key);
+	class Row_psc_website_repset* FetchRow(SingleLongKey &key);
 		
 			
 };
 
-class DLL_EXPORT Row_psc_shared_bathdr : public TableRow, public SerializeClass
+class DLL_EXPORT Row_psc_website_repset : public TableRow, public SerializeClass
 	{
-		friend struct Table_psc_shared_bathdr::Key;
-		friend class Table_psc_shared_bathdr;
+		friend struct Table_psc_website_repset::Key;
+		friend class Table_psc_website_repset;
 	private:
-		Table_psc_shared_bathdr *table;
+		Table_psc_website_repset *table;
 		
-		long int m_PK_psc_shared_bathdr;
+		long int m_PK_psc_website_repset;
 string m_Value;
 
 		bool is_null[2];
 	
 	public:
-		long int PK_psc_shared_bathdr_get();
+		long int PK_psc_website_repset_get();
 string Value_get();
 
 		
-		void PK_psc_shared_bathdr_set(long int val);
+		void PK_psc_website_repset_set(long int val);
 void Value_set(string val);
 
 		
@@ -102,11 +102,11 @@ void Value_set(string val);
 		void Delete();
 		void Reload();		
 	
-		Row_psc_shared_bathdr(Table_psc_shared_bathdr *pTable);
+		Row_psc_website_repset(Table_psc_website_repset *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_psc_shared_bathdr *Table_psc_shared_bathdr_get() { return table; };
+		class Table_psc_website_repset *Table_psc_website_repset_get() { return table; };
 
 		// Return the rows for foreign keys 
 		
@@ -116,12 +116,12 @@ void Value_set(string val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_psc_shared_bathdr+ m_Value;
+			StartSerializeList() + m_PK_psc_website_repset+ m_Value;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_psc_shared_bathdr_asSQL();
+		string PK_psc_website_repset_asSQL();
 string Value_asSQL();
 
 	};

@@ -83,30 +83,53 @@ class DLL_EXPORT Row_Document_Comment : public TableRow, public SerializeClass
 		
 		long int m_PK_Document_Comment;
 long int m_FK_Document;
-long int m_FK_MasterUsers;
+long int m_FK_Users;
 string m_Comment;
 string m_Date;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[5];
+		bool is_null[10];
 	
 	public:
 		long int PK_Document_Comment_get();
 long int FK_Document_get();
-long int FK_MasterUsers_get();
+long int FK_Users_get();
 string Comment_get();
 string Date_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_Document_Comment_set(long int val);
 void FK_Document_set(long int val);
-void FK_MasterUsers_set(long int val);
+void FK_Users_set(long int val);
 void Comment_set(string val);
 void Date_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
-		
+		bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
+
 			
-			
+		void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
+	
 	
 		void Delete();
 		void Reload();		
@@ -119,6 +142,7 @@ void Date_set(string val);
 
 		// Return the rows for foreign keys 
 		class Row_Document* FK_Document_getrow();
+class Row_Users* FK_Users_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -126,16 +150,21 @@ void Date_set(string val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Document_Comment+ m_FK_Document+ m_FK_MasterUsers+ m_Comment+ m_Date;
+			StartSerializeList() + m_PK_Document_Comment+ m_FK_Document+ m_FK_Users+ m_Comment+ m_Date+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Document_Comment_asSQL();
 string FK_Document_asSQL();
-string FK_MasterUsers_asSQL();
+string FK_Users_asSQL();
 string Comment_asSQL();
 string Date_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

@@ -254,7 +254,7 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char buf[131071];
+char buf[61];
 mysql_real_escape_string(table->database->db_handle, buf, m_FindStr.c_str(), (unsigned long) m_FindStr.size());
 return string()+"\""+buf+"\"";
 }
@@ -429,7 +429,7 @@ sprintf(tmp_FK_ConfigType_Setting, "%li", key.pk_FK_ConfigType_Setting);
 char tmp_FK_ConfigType_File[32];
 sprintf(tmp_FK_ConfigType_File, "%li", key.pk_FK_ConfigType_File);
 
-char tmp_FindStr[131071];
+char tmp_FindStr[61];
 mysql_real_escape_string(database->db_handle,tmp_FindStr, key.pk_FindStr.c_str(), (unsigned long) key.pk_FindStr.size());
 
 
@@ -477,7 +477,7 @@ sprintf(tmp_FK_ConfigType_Setting, "%li", key.pk_FK_ConfigType_Setting);
 char tmp_FK_ConfigType_File[32];
 sprintf(tmp_FK_ConfigType_File, "%li", key.pk_FK_ConfigType_File);
 
-char tmp_FindStr[131071];
+char tmp_FindStr[61];
 mysql_real_escape_string(database->db_handle,tmp_FindStr, key.pk_FindStr.c_str(), (unsigned long) key.pk_FindStr.size());
 
 
@@ -707,7 +707,7 @@ sprintf(tmp_FK_ConfigType_Setting, "%li", key.pk_FK_ConfigType_Setting);
 char tmp_FK_ConfigType_File[32];
 sprintf(tmp_FK_ConfigType_File, "%li", key.pk_FK_ConfigType_File);
 
-char tmp_FindStr[131071];
+char tmp_FindStr[61];
 mysql_real_escape_string(database->db_handle,tmp_FindStr, key.pk_FindStr.c_str(), (unsigned long) key.pk_FindStr.size());
 
 

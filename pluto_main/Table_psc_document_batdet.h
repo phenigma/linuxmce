@@ -1,5 +1,5 @@
-#ifndef __Table_psc_user_batdet_H__
-#define __Table_psc_user_batdet_H__
+#ifndef __Table_psc_document_batdet_H__
+#define __Table_psc_document_batdet_H__
 
 #ifdef SQL2CPP_DLLEXPORT
 #define DLL_EXPORT __declspec(dllexport)
@@ -10,7 +10,7 @@
 #include "TableRow.h"
 #include "Database_pluto_main.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_psc_user_batdet.h"
+#include "Define_psc_document_batdet.h"
 #include "SerializeClass/SerializeClass.h"
 
 // If we declare the maps locally, the compiler will create multiple copies of them
@@ -18,7 +18,7 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_psc_user_batdet : public TableBase , SingleLongKeyBase
+class DLL_EXPORT Table_psc_document_batdet : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -28,29 +28,29 @@ public:
     pluto_pthread_mutex_t m_Mutex;
 	pthread_mutexattr_t m_MutexAttr;
 		
-	Table_psc_user_batdet(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("psc_user_batdet")
+	Table_psc_document_batdet(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("psc_document_batdet")
 	{
 		pthread_mutexattr_init(&m_MutexAttr);
 		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
 		m_Mutex.Init(&m_MutexAttr); 
 	};
-	~Table_psc_user_batdet();
+	~Table_psc_document_batdet();
 
 private:		
-	friend class Row_psc_user_batdet;
+	friend class Row_psc_document_batdet;
 	struct Key
 	{
-		friend class Row_psc_user_batdet;
-		long int pk_PK_psc_user_batdet;
+		friend class Row_psc_document_batdet;
+		long int pk_PK_psc_document_batdet;
 
 		
-		Key(long int in_PK_psc_user_batdet);
+		Key(long int in_PK_psc_document_batdet);
 	
-		Key(class Row_psc_user_batdet *pRow);
+		Key(class Row_psc_document_batdet *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_psc_user_batdet::Key &key1, const Table_psc_user_batdet::Key &key2) const;
+		bool operator()(const Table_psc_document_batdet::Key &key1, const Table_psc_document_batdet::Key &key2) const;
 	};	
 
 	
@@ -58,40 +58,40 @@ private:
 
 public:				
 	void Commit();
-	bool GetRows(string where_statement,vector<class Row_psc_user_batdet*> *rows);
-	class Row_psc_user_batdet* AddRow();
+	bool GetRows(string where_statement,vector<class Row_psc_document_batdet*> *rows);
+	class Row_psc_document_batdet* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_psc_user_batdet* GetRow(long int in_PK_psc_user_batdet);
+	class Row_psc_document_batdet* GetRow(long int in_PK_psc_document_batdet);
 	
 
 private:	
 	
 		
-	class Row_psc_user_batdet* FetchRow(SingleLongKey &key);
+	class Row_psc_document_batdet* FetchRow(SingleLongKey &key);
 		
 			
 };
 
-class DLL_EXPORT Row_psc_user_batdet : public TableRow, public SerializeClass
+class DLL_EXPORT Row_psc_document_batdet : public TableRow, public SerializeClass
 	{
-		friend struct Table_psc_user_batdet::Key;
-		friend class Table_psc_user_batdet;
+		friend struct Table_psc_document_batdet::Key;
+		friend class Table_psc_document_batdet;
 	private:
-		Table_psc_user_batdet *table;
+		Table_psc_document_batdet *table;
 		
-		long int m_PK_psc_user_batdet;
+		long int m_PK_psc_document_batdet;
 string m_Value;
 
 		bool is_null[2];
 	
 	public:
-		long int PK_psc_user_batdet_get();
+		long int PK_psc_document_batdet_get();
 string Value_get();
 
 		
-		void PK_psc_user_batdet_set(long int val);
+		void PK_psc_document_batdet_set(long int val);
 void Value_set(string val);
 
 		
@@ -102,11 +102,11 @@ void Value_set(string val);
 		void Delete();
 		void Reload();		
 	
-		Row_psc_user_batdet(Table_psc_user_batdet *pTable);
+		Row_psc_document_batdet(Table_psc_document_batdet *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_psc_user_batdet *Table_psc_user_batdet_get() { return table; };
+		class Table_psc_document_batdet *Table_psc_document_batdet_get() { return table; };
 
 		// Return the rows for foreign keys 
 		
@@ -116,12 +116,12 @@ void Value_set(string val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_psc_user_batdet+ m_Value;
+			StartSerializeList() + m_PK_psc_document_batdet+ m_Value;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_psc_user_batdet_asSQL();
+		string PK_psc_document_batdet_asSQL();
 string Value_asSQL();
 
 	};

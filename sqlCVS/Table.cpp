@@ -54,6 +54,8 @@ Table::Table( class Database *pDatabase, string sName )
 
 void Table::GetFields( )
 {
+	m_pField_id=m_pField_batch=m_pField_user=m_pField_frozen=m_pField_mod=NULL;
+
 	for( MapField::iterator it=m_mapField.begin( );it!=m_mapField.end( );++it )
 		delete ( *it ).second;
 	m_mapField.clear( );
@@ -195,11 +197,7 @@ void Table::HasFullHistory_set( bool bOn )
 	else
 	{
 		cout << "Are you sure you want to delete your history for " << m_sName << "?" << endl;
-<<<<<<< .mine
-		if( !AskQuestion( "The data will be permanently removed unless you made a backup.", false ) )
-=======
 		if( !AskYNQuestion("The data will be permanently removed unless you made a backup.",false) )
->>>>>>> .r168
 			return;
 		m_pDatabase->threaded_mysql_query( "DROP TABLE `" + m_sName + "_pschist`;" );
 		m_pDatabase->m_mapTable_Remove( m_pTable_History->m_sName );
@@ -697,7 +695,7 @@ bool Table::CheckIn( RA_Processor &ra_Processor, DCE::Socket *pSocket, enum Type
 						throw ( "Internal error: Trying to set a non existant auto increment in table: " + m_sName ).c_str( );
 
 					sSQL.str( "" );
-					sSQL << "UPDATE " << m_sName << " SET " << m_pField_AutoIncrement->m_sName << "=" << r_CommitRow.m_iNewAutoIncrID << pChangedRow->GetWhereClause( );
+					sSQL << "UPDATE " << m_sName << " SET " << m_pField_AutoIncrement->Name_get() << "=" << r_CommitRow.m_iNewAutoIncrID << pChangedRow->GetWhereClause( );
 					if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 					{
 						cerr << "SQL failed: " << sSQL.str( );
@@ -946,6 +944,8 @@ bool Table::Dump( SerializeableStrings &str )
 	PlutoSqlResult result_set;
 	if( !( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
 		return false;
+
+	cout << "Table: " << m_sName << "\t\tDumping " << result_set.r->row_count << " rows" << endl;
 
 	str.m_vectString.push_back( StringUtils::itos( ( int ) result_set.r->row_count ) );
 	while( ( row = mysql_fetch_row( result_set.r ) ) )

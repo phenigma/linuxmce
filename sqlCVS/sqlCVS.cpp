@@ -77,6 +77,11 @@ string GetCommand( )
 		<< "3.	Start listening for incoming connections from clients ( listen )" << endl
 		<< "4.	Permanently roll-back checkins ( rollback )" << endl
 		<< "5.	Create a 'dump' file with the tables in the current repository ( dump )" << endl
+		<< "6.	List all the tables and what repositories they are in ( list-tables )" << endl
+		<< "7.	List all the repositories and what tables they have ( list-repositories )" << endl
+		<< "8.	Reset psc_ fields in all tables ( reset-psc )" << endl
+		<< "9.	History on all tables ( history-all )" << endl
+		<< "10.	History on no tables ( history-none )" << endl
 		<< "------Client-side functions------" << endl
 		<< "A.	Import a 'dump' file from a server and make a local, working copy ( import )" << endl
 		<< "B.	Check-in changes you've made locally ( checkin )" << endl
@@ -85,40 +90,42 @@ string GetCommand( )
 		<< "E.	View my local changes ( diff )" << endl
 		<< endl << "Q. Quit" << endl;
 
-	char c=( char ) getch( );
+	string s;
+	cin >> s;
 
-	switch( c )
-	{
-	case '1':
+	if( s=="1" )
 		return "create";
-	case '2':
+	else if( s=="2" )
 		return "edit";
-	case '3':
+	else if( s=="3" )
 		return "listen";
-	case '4':
+	else if( s=="4" )
 		return "rollback";
-	case '5':
+	else if( s=="5" )
 		return "dump";
-
-	case 'A':
-	case 'a':
+	else if( s=="6" )
+		return "list-tables";
+	else if( s=="7" )
+		return "list-repositories";
+	else if( s=="8" )
+		return "reset-psc";
+	else if( s=="9" )
+		return "history-all";
+	else if( s=="10" )
+		return "history-none";
+	else if( s=="a" || s=="A" )
 		return "import";
-	case 'B':
-	case 'b':
+	else if( s=="b" || s=="B" )
 		return "checkin";
-	case 'C':
-	case 'c':
+	else if( s=="c" || s=="C" )
 		return "update";
-	case 'D':
-	case 'd':
+	else if( s=="d" || s=="D" )
 		return "sync";
-	case 'E':
-	case 'e':
+	else if( s=="e" || s=="E" )
 		return "diff";
-	case 'Q':
-	case 'q':
+	else if( s=="q" || s=="Q" )
 		exit( 1 );
-	}
+
 	return "";
 }
 
@@ -272,6 +279,27 @@ int main( int argc, char *argv[] )
 			{
 				database.Import( );
 			}
+			else if( g_GlobalConfig.m_sCommand=="list-tables" )
+			{
+				database.ListTables( );
+			}
+			else if( g_GlobalConfig.m_sCommand=="list-repositories" )
+			{
+				database.ListRepositories( );
+			}
+			else if( g_GlobalConfig.m_sCommand=="reset-psc" )
+			{
+				database.Reset_psc();
+			}
+			else if( g_GlobalConfig.m_sCommand=="history-all" )
+			{
+				database.HasFullHistory_set_all(true);
+			}
+			else if( g_GlobalConfig.m_sCommand=="history-none" )
+			{
+				database.HasFullHistory_set_all(false);
+			}
+		
 /** @test
 			else if( Command=="add-tables" )
 				database.AddTablesToRepository( sRepository, &listCommandParms );

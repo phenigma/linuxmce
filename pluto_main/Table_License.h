@@ -86,8 +86,13 @@ string m_Description;
 string m_Define;
 string m_Summary;
 string m_URL;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[5];
+		bool is_null[10];
 	
 	public:
 		long int PK_License_get();
@@ -95,6 +100,11 @@ string Description_get();
 string Define_get();
 string Summary_get();
 string URL_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_License_set(long int val);
@@ -102,14 +112,27 @@ void Description_set(string val);
 void Define_set(string val);
 void Summary_set(string val);
 void URL_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool Summary_isNull();
 bool URL_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void Summary_setNull(bool val);
 void URL_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -130,7 +153,7 @@ void URL_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_License+ m_Description+ m_Define+ m_Summary+ m_URL;
+			StartSerializeList() + m_PK_License+ m_Description+ m_Define+ m_Summary+ m_URL+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -140,6 +163,11 @@ string Description_asSQL();
 string Define_asSQL();
 string Summary_asSQL();
 string URL_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

@@ -44,7 +44,6 @@ using namespace std;
 #include "Table_Device_EntertainArea.h"
 #include "Table_Device_HouseMode.h"
 #include "Table_Device_Orbiter.h"
-#include "Table_Device_Package_Directory.h"
 #include "Table_Device_StartupScript.h"
 #include "Table_Device_Users.h"
 #include "Table_InfraredCode.h"
@@ -1660,13 +1659,6 @@ void Row_Device::Device_Orbiter_FK_Device_getrows(vector <class Row_Device_Orbit
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_Orbiter *pTable = table->database->Device_Orbiter_get();
-pTable->GetRows("FK_Device=" + StringUtils::itos(m_PK_Device),rows);
-}
-void Row_Device::Device_Package_Directory_FK_Device_getrows(vector <class Row_Device_Package_Directory*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Device_Package_Directory *pTable = table->database->Device_Package_Directory_get();
 pTable->GetRows("FK_Device=" + StringUtils::itos(m_PK_Device),rows);
 }
 void Row_Device::Device_StartupScript_FK_Device_getrows(vector <class Row_Device_StartupScript*> *rows)

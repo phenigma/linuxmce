@@ -10,6 +10,16 @@
 #define CRITERIALIST_DESCRIPTION_TABLE_FIELD "CriteriaList.Description"
 #define CRITERIALIST_DEFINE_FIELD "Define"
 #define CRITERIALIST_DEFINE_TABLE_FIELD "CriteriaList.Define"
+#define CRITERIALIST_PSC_ID_FIELD "psc_id"
+#define CRITERIALIST_PSC_ID_TABLE_FIELD "CriteriaList.psc_id"
+#define CRITERIALIST_PSC_BATCH_FIELD "psc_batch"
+#define CRITERIALIST_PSC_BATCH_TABLE_FIELD "CriteriaList.psc_batch"
+#define CRITERIALIST_PSC_USER_FIELD "psc_user"
+#define CRITERIALIST_PSC_USER_TABLE_FIELD "CriteriaList.psc_user"
+#define CRITERIALIST_PSC_FROZEN_FIELD "psc_frozen"
+#define CRITERIALIST_PSC_FROZEN_TABLE_FIELD "CriteriaList.psc_frozen"
+#define CRITERIALIST_PSC_MOD_FIELD "psc_mod"
+#define CRITERIALIST_PSC_MOD_TABLE_FIELD "CriteriaList.psc_mod"
 
 
 #endif

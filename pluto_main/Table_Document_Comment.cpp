@@ -18,6 +18,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Document_Comment.h"
 #include "Table_Document.h"
+#include "Table_Users.h"
 
 
 
@@ -116,12 +117,19 @@ void Row_Document_Comment::SetDefaultValues()
 is_null[0] = false;
 m_FK_Document = 0;
 is_null[1] = false;
-m_FK_MasterUsers = 0;
+m_FK_Users = 0;
 is_null[2] = false;
 m_Comment = "";
 is_null[3] = false;
 m_Date = "000000000000";
 is_null[4] = false;
+is_null[5] = true;
+is_null[6] = true;
+is_null[7] = true;
+m_psc_frozen = 0;
+is_null[8] = false;
+m_psc_mod = "00000000000000";
+is_null[9] = false;
 
 
 	is_added=false;
@@ -135,15 +143,30 @@ return m_PK_Document_Comment;}
 long int Row_Document_Comment::FK_Document_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Document;}
-long int Row_Document_Comment::FK_MasterUsers_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Document_Comment::FK_Users_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_MasterUsers;}
+return m_FK_Users;}
 string Row_Document_Comment::Comment_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Comment;}
 string Row_Document_Comment::Date_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Date;}
+long int Row_Document_Comment::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_id;}
+long int Row_Document_Comment::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_batch;}
+long int Row_Document_Comment::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_user;}
+short int Row_Document_Comment::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_frozen;}
+string Row_Document_Comment::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_Document_Comment::PK_Document_Comment_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -152,19 +175,58 @@ m_PK_Document_Comment = val; is_modified=true; is_null[0]=false;}
 void Row_Document_Comment::FK_Document_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Document = val; is_modified=true; is_null[1]=false;}
-void Row_Document_Comment::FK_MasterUsers_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document_Comment::FK_Users_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_MasterUsers = val; is_modified=true; is_null[2]=false;}
+m_FK_Users = val; is_modified=true; is_null[2]=false;}
 void Row_Document_Comment::Comment_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Comment = val; is_modified=true; is_null[3]=false;}
 void Row_Document_Comment::Date_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Date = val; is_modified=true; is_null[4]=false;}
+void Row_Document_Comment::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_id = val; is_modified=true; is_null[5]=false;}
+void Row_Document_Comment::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_batch = val; is_modified=true; is_null[6]=false;}
+void Row_Document_Comment::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_user = val; is_modified=true; is_null[7]=false;}
+void Row_Document_Comment::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_frozen = val; is_modified=true; is_null[8]=false;}
+void Row_Document_Comment::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[9]=false;}
 
 		
+bool Row_Document_Comment::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[5];}
+bool Row_Document_Comment::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
+bool Row_Document_Comment::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[7];}
+bool Row_Document_Comment::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[8];}
 
 			
+void Row_Document_Comment::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[5]=val;}
+void Row_Document_Comment::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
+void Row_Document_Comment::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[7]=val;}
+void Row_Document_Comment::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[8]=val;}
 	
 
 string Row_Document_Comment::PK_Document_Comment_asSQL()
@@ -193,7 +255,7 @@ sprintf(buf, "%li", m_FK_Document);
 return buf;
 }
 
-string Row_Document_Comment::FK_MasterUsers_asSQL()
+string Row_Document_Comment::FK_Users_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -201,7 +263,7 @@ if (is_null[2])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_MasterUsers);
+sprintf(buf, "%li", m_FK_Users);
 
 return buf;
 }
@@ -227,6 +289,70 @@ return "NULL";
 
 char buf[25];
 mysql_real_escape_string(table->database->db_handle, buf, m_Date.c_str(), (unsigned long) m_Date.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Document_Comment::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
+}
+
+string Row_Document_Comment::psc_batch_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_batch);
+
+return buf;
+}
+
+string Row_Document_Comment::psc_user_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_user);
+
+return buf;
+}
+
+string Row_Document_Comment::psc_frozen_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_psc_frozen);
+
+return buf;
+}
+
+string Row_Document_Comment::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[9])
+return "NULL";
+
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 return string()+"\""+buf+"\"";
 }
 
@@ -268,10 +394,10 @@ void Table_Document_Comment::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Document_Comment_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->FK_MasterUsers_asSQL()+", "+pRow->Comment_asSQL()+", "+pRow->Date_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Document_Comment_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->FK_Users_asSQL()+", "+pRow->Comment_asSQL()+", "+pRow->Date_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Document_Comment (PK_Document_Comment, FK_Document, FK_MasterUsers, Comment, Date) values ("+
+		string query = "insert into Document_Comment (PK_Document_Comment, FK_Document, FK_Users, Comment, Date, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -318,7 +444,7 @@ condition = condition + "PK_Document_Comment=" + tmp_PK_Document_Comment;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Document_Comment="+pRow->PK_Document_Comment_asSQL()+", FK_Document="+pRow->FK_Document_asSQL()+", FK_MasterUsers="+pRow->FK_MasterUsers_asSQL()+", Comment="+pRow->Comment_asSQL()+", Date="+pRow->Date_asSQL();
+update_values_list = update_values_list + "PK_Document_Comment="+pRow->PK_Document_Comment_asSQL()+", FK_Document="+pRow->FK_Document_asSQL()+", FK_Users="+pRow->FK_Users_asSQL()+", Comment="+pRow->Comment_asSQL()+", Date="+pRow->Date_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Document_Comment set " + update_values_list + " where " + condition;
@@ -431,12 +557,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_Document));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_MasterUsers = 0;
+pRow->m_FK_Users = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_MasterUsers));
+sscanf(row[2], "%li", &(pRow->m_FK_Users));
 }
 
 if (row[3] == NULL)
@@ -459,6 +585,61 @@ else
 {
 pRow->is_null[4]=false;
 pRow->m_Date = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_psc_id));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%li", &(pRow->m_psc_user));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_psc_mod = string(row[9],lengths[9]);
 }
 
 
@@ -592,12 +773,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_Document));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_MasterUsers = 0;
+pRow->m_FK_Users = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_MasterUsers));
+sscanf(row[2], "%li", &(pRow->m_FK_Users));
 }
 
 if (row[3] == NULL)
@@ -622,6 +803,61 @@ pRow->is_null[4]=false;
 pRow->m_Date = string(row[4],lengths[4]);
 }
 
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_psc_id));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%li", &(pRow->m_psc_user));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_psc_mod = string(row[9],lengths[9]);
+}
+
 
 
 	mysql_free_result(res);			
@@ -636,6 +872,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Document *pTable = table->database->Document_get();
 return pTable->GetRow(m_FK_Document);
+}
+class Row_Users* Row_Document_Comment::FK_Users_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Users *pTable = table->database->Users_get();
+return pTable->GetRow(m_FK_Users);
 }
 
 

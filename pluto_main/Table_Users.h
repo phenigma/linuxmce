@@ -192,6 +192,7 @@ class Row_Installation* FK_Installation_Main_getrow();
 		// Return the rows in other tables with foreign keys pointing here
 		void DeviceTemplate_FK_Users_Maintainer_getrows(vector <class Row_DeviceTemplate*> *rows);
 void Device_Users_FK_Users_getrows(vector <class Row_Device_Users*> *rows);
+void Document_Comment_FK_Users_getrows(vector <class Row_Document_Comment*> *rows);
 void Installation_Users_FK_Users_getrows(vector <class Row_Installation_Users*> *rows);
 void Orbiter_Users_PasswordReq_FK_Users_getrows(vector <class Row_Orbiter_Users_PasswordReq*> *rows);
 void Package_Users_FK_Users_getrows(vector <class Row_Package_Users*> *rows);

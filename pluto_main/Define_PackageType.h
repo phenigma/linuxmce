@@ -18,6 +18,16 @@
 #define PACKAGETYPE_DESCRIPTION_TABLE_FIELD "PackageType.Description"
 #define PACKAGETYPE_DEFINE_FIELD "Define"
 #define PACKAGETYPE_DEFINE_TABLE_FIELD "PackageType.Define"
+#define PACKAGETYPE_PSC_ID_FIELD "psc_id"
+#define PACKAGETYPE_PSC_ID_TABLE_FIELD "PackageType.psc_id"
+#define PACKAGETYPE_PSC_BATCH_FIELD "psc_batch"
+#define PACKAGETYPE_PSC_BATCH_TABLE_FIELD "PackageType.psc_batch"
+#define PACKAGETYPE_PSC_USER_FIELD "psc_user"
+#define PACKAGETYPE_PSC_USER_TABLE_FIELD "PackageType.psc_user"
+#define PACKAGETYPE_PSC_FROZEN_FIELD "psc_frozen"
+#define PACKAGETYPE_PSC_FROZEN_TABLE_FIELD "PackageType.psc_frozen"
+#define PACKAGETYPE_PSC_MOD_FIELD "psc_mod"
+#define PACKAGETYPE_PSC_MOD_TABLE_FIELD "PackageType.psc_mod"
 
 
 #endif

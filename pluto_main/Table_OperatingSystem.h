@@ -84,24 +84,47 @@ class DLL_EXPORT Row_OperatingSystem : public TableRow, public SerializeClass
 		long int m_PK_OperatingSystem;
 string m_Description;
 string m_Define;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[3];
+		bool is_null[8];
 	
 	public:
 		long int PK_OperatingSystem_get();
 string Description_get();
 string Define_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_OperatingSystem_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool Define_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void Define_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -117,7 +140,8 @@ void Define_set(string val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Distro_FK_OperatingSystem_getrows(vector <class Row_Distro*> *rows);
+		void DeviceTemplate_FK_OperatingSystem_getrows(vector <class Row_DeviceTemplate*> *rows);
+void Distro_FK_OperatingSystem_getrows(vector <class Row_Distro*> *rows);
 void InstallWizard_Distro_FK_OperatingSystem_getrows(vector <class Row_InstallWizard_Distro*> *rows);
 void Package_Directory_FK_OperatingSystem_getrows(vector <class Row_Package_Directory*> *rows);
 void Package_Directory_File_FK_OperatingSystem_getrows(vector <class Row_Package_Directory_File*> *rows);
@@ -127,7 +151,7 @@ void RepositorySource_FK_OperatingSystem_getrows(vector <class Row_RepositorySou
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_OperatingSystem+ m_Description+ m_Define;
+			StartSerializeList() + m_PK_OperatingSystem+ m_Description+ m_Define+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -135,6 +159,11 @@ void RepositorySource_FK_OperatingSystem_getrows(vector <class Row_RepositorySou
 		string PK_OperatingSystem_asSQL();
 string Description_asSQL();
 string Define_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

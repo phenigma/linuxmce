@@ -39,7 +39,7 @@ namespace sqlCVS
 		
 		string m_sCommand;      /**< Command line */
 		string m_sRepository;   /**< Command line  */
-		strin m_sTable; 	/**< Command line  */
+		string m_sTable; 	/**< Command line  */
 		
 		string m_sPSC_Host;	/**< The host name or IP for the sqlCVS listener */
 		

@@ -150,6 +150,7 @@ string FileUtils::ValidCPPName(string sInput)
     StringUtils::Replace(sInput," ","_");
     StringUtils::Replace(sInput,":","_");
     StringUtils::Replace(sInput,"=","_");
+    StringUtils::Replace(sInput,",","_");
     StringUtils::Replace(sInput,"-","");
     StringUtils::Replace(sInput,"/","");
     StringUtils::Replace(sInput,"#","Num");

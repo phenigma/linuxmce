@@ -15,6 +15,16 @@
 #define DOCUMENT_TITLE_TABLE_FIELD "Document.Title"
 #define DOCUMENT_CONTENTS_FIELD "Contents"
 #define DOCUMENT_CONTENTS_TABLE_FIELD "Document.Contents"
+#define DOCUMENT_PSC_ID_FIELD "psc_id"
+#define DOCUMENT_PSC_ID_TABLE_FIELD "Document.psc_id"
+#define DOCUMENT_PSC_BATCH_FIELD "psc_batch"
+#define DOCUMENT_PSC_BATCH_TABLE_FIELD "Document.psc_batch"
+#define DOCUMENT_PSC_USER_FIELD "psc_user"
+#define DOCUMENT_PSC_USER_TABLE_FIELD "Document.psc_user"
+#define DOCUMENT_PSC_FROZEN_FIELD "psc_frozen"
+#define DOCUMENT_PSC_FROZEN_TABLE_FIELD "Document.psc_frozen"
+#define DOCUMENT_PSC_MOD_FIELD "psc_mod"
+#define DOCUMENT_PSC_MOD_TABLE_FIELD "Document.psc_mod"
 
 
 #endif

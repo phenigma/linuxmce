@@ -90,7 +90,6 @@ Table_Device_Device_Related.cpp \
 Table_Device_EntertainArea.cpp \
 Table_Device_HouseMode.cpp \
 Table_Device_Orbiter.cpp \
-Table_Device_Package_Directory.cpp \
 Table_Device_StartupScript.cpp \
 Table_Device_Users.cpp \
 Table_Direction.cpp \
@@ -129,7 +128,6 @@ Table_License.cpp \
 Table_Manufacturer.cpp \
 Table_MediaType.cpp \
 Table_MediaType_Broadcast.cpp \
-Table_MobilePhoneVersion.cpp \
 Table_News.cpp \
 Table_OperatingSystem.cpp \
 Table_Orbiter.cpp \
@@ -186,6 +184,10 @@ Table_psc_designer_batdet.cpp \
 Table_psc_designer_bathdr.cpp \
 Table_psc_designer_repset.cpp \
 Table_psc_designer_tables.cpp \
+Table_psc_document_batdet.cpp \
+Table_psc_document_bathdr.cpp \
+Table_psc_document_repset.cpp \
+Table_psc_document_tables.cpp \
 Table_psc_ir_batdet.cpp \
 Table_psc_ir_bathdr.cpp \
 Table_psc_ir_repset.cpp \
@@ -194,14 +196,10 @@ Table_psc_local_batdet.cpp \
 Table_psc_local_bathdr.cpp \
 Table_psc_local_repset.cpp \
 Table_psc_local_tables.cpp \
-Table_psc_shared_batdet.cpp \
-Table_psc_shared_bathdr.cpp \
-Table_psc_shared_repset.cpp \
-Table_psc_shared_tables.cpp \
-Table_psc_user_batdet.cpp \
-Table_psc_user_bathdr.cpp \
-Table_psc_user_repset.cpp \
-Table_psc_user_tables.cpp
+Table_psc_website_batdet.cpp \
+Table_psc_website_bathdr.cpp \
+Table_psc_website_repset.cpp \
+Table_psc_website_tables.cpp
 
 all: libpluto_main.a all-recursive
 

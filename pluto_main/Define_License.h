@@ -15,6 +15,16 @@
 #define LICENSE_SUMMARY_TABLE_FIELD "License.Summary"
 #define LICENSE_URL_FIELD "URL"
 #define LICENSE_URL_TABLE_FIELD "License.URL"
+#define LICENSE_PSC_ID_FIELD "psc_id"
+#define LICENSE_PSC_ID_TABLE_FIELD "License.psc_id"
+#define LICENSE_PSC_BATCH_FIELD "psc_batch"
+#define LICENSE_PSC_BATCH_TABLE_FIELD "License.psc_batch"
+#define LICENSE_PSC_USER_FIELD "psc_user"
+#define LICENSE_PSC_USER_TABLE_FIELD "License.psc_user"
+#define LICENSE_PSC_FROZEN_FIELD "psc_frozen"
+#define LICENSE_PSC_FROZEN_TABLE_FIELD "License.psc_frozen"
+#define LICENSE_PSC_MOD_FIELD "psc_mod"
+#define LICENSE_PSC_MOD_TABLE_FIELD "License.psc_mod"
 
 
 #endif

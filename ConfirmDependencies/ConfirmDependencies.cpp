@@ -433,6 +433,7 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 		Row_Package_Source *pRow_Package_Source = vectRow_Package_Source[s];
 		vector<Row_Package_Source_Compat *> vectRPSC;
 		pRow_Package_Source->Package_Source_Compat_FK_Package_Source_getrows(&vectRPSC);
+
 		for(size_t t=0;t<vectRPSC.size();++t)
 		{
 			Row_Package_Source_Compat *pRPSC = vectRPSC[t];
@@ -466,7 +467,7 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 	if( sCommand=="view" || sCommand=="status" )
 		cout << "PROGRAM: " << pRow_Package->Description_get() << " ";
 
-    if( !pRow_Package_Source_Compat_Preferred && !vectRow_Package_Source_Compat.size()==0 )
+    if( !pRow_Package_Source_Compat_Preferred )
 	{
 		if( !pRow_Package->FK_Package_Sourcecode_isNull() )
 		{

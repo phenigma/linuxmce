@@ -93,8 +93,13 @@ short int m_Confirmed;
 short int m_Core;
 short int m_MediaDirector;
 short int m_Orbiter;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[12];
+		bool is_null[17];
 	
 	public:
 		long int PK_Distro_get();
@@ -109,6 +114,11 @@ short int Confirmed_get();
 short int Core_get();
 short int MediaDirector_get();
 short int Orbiter_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_Distro_set(long int val);
@@ -123,6 +133,11 @@ void Confirmed_set(short int val);
 void Core_set(short int val);
 void MediaDirector_set(short int val);
 void Orbiter_set(short int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool Define_isNull();
@@ -130,6 +145,10 @@ bool Installer_isNull();
 bool KickStartCD_isNull();
 bool Binaries_isNull();
 bool SourceCode_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void Define_setNull(bool val);
@@ -137,6 +156,10 @@ void Installer_setNull(bool val);
 void KickStartCD_setNull(bool val);
 void Binaries_setNull(bool val);
 void SourceCode_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -153,7 +176,8 @@ void SourceCode_setNull(bool val);
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void InstallWizard_Distro_FK_Distro_getrows(vector <class Row_InstallWizard_Distro*> *rows);
+		void DeviceTemplate_FK_Distro_getrows(vector <class Row_DeviceTemplate*> *rows);
+void InstallWizard_Distro_FK_Distro_getrows(vector <class Row_InstallWizard_Distro*> *rows);
 void Package_Directory_FK_Distro_getrows(vector <class Row_Package_Directory*> *rows);
 void Package_Directory_File_FK_Distro_getrows(vector <class Row_Package_Directory_File*> *rows);
 void Package_Source_Compat_FK_Distro_getrows(vector <class Row_Package_Source_Compat*> *rows);
@@ -162,7 +186,7 @@ void RepositorySource_FK_Distro_getrows(vector <class Row_RepositorySource*> *ro
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Distro+ m_Description+ m_Define+ m_FK_OperatingSystem+ m_Installer+ m_KickStartCD+ m_Binaries+ m_SourceCode+ m_Confirmed+ m_Core+ m_MediaDirector+ m_Orbiter;
+			StartSerializeList() + m_PK_Distro+ m_Description+ m_Define+ m_FK_OperatingSystem+ m_Installer+ m_KickStartCD+ m_Binaries+ m_SourceCode+ m_Confirmed+ m_Core+ m_MediaDirector+ m_Orbiter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -179,6 +203,11 @@ string Confirmed_asSQL();
 string Core_asSQL();
 string MediaDirector_asSQL();
 string Orbiter_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

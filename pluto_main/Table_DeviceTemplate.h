@@ -98,13 +98,15 @@ long int m_FK_StabilityStatus;
 long int m_FK_Package;
 string m_DestinationDir;
 long int m_FK_Users_Maintainer;
+long int m_FK_OperatingSystem;
+long int m_FK_Distro;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[22];
+		bool is_null[24];
 	
 	public:
 		long int PK_DeviceTemplate_get();
@@ -124,6 +126,8 @@ long int FK_StabilityStatus_get();
 long int FK_Package_get();
 string DestinationDir_get();
 long int FK_Users_Maintainer_get();
+long int FK_OperatingSystem_get();
+long int FK_Distro_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -148,6 +152,8 @@ void FK_StabilityStatus_set(long int val);
 void FK_Package_set(long int val);
 void DestinationDir_set(string val);
 void FK_Users_Maintainer_set(long int val);
+void FK_OperatingSystem_set(long int val);
+void FK_Distro_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -164,6 +170,8 @@ bool IRFrequency_isNull();
 bool FK_StabilityStatus_isNull();
 bool FK_Package_isNull();
 bool DestinationDir_isNull();
+bool FK_OperatingSystem_isNull();
+bool FK_Distro_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -179,6 +187,8 @@ void IRFrequency_setNull(bool val);
 void FK_StabilityStatus_setNull(bool val);
 void FK_Package_setNull(bool val);
 void DestinationDir_setNull(bool val);
+void FK_OperatingSystem_setNull(bool val);
+void FK_Distro_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -200,6 +210,8 @@ class Row_Manufacturer* FK_Manufacturer_getrow();
 class Row_StabilityStatus* FK_StabilityStatus_getrow();
 class Row_Package* FK_Package_getrow();
 class Row_Users* FK_Users_Maintainer_getrow();
+class Row_OperatingSystem* FK_OperatingSystem_getrow();
+class Row_Distro* FK_Distro_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -228,7 +240,7 @@ void InstallWizard_FK_DeviceTemplate_getrows(vector <class Row_InstallWizard*> *
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_DeviceTemplate+ m_Description+ m_Comments+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Define+ m_ImplementsDCE+ m_IsEmbedded+ m_CommandLine+ m_RequiresGUI+ m_IsAVDevice+ m_IsPlugIn+ m_IRFrequency+ m_FK_StabilityStatus+ m_FK_Package+ m_DestinationDir+ m_FK_Users_Maintainer+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DeviceTemplate+ m_Description+ m_Comments+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Define+ m_ImplementsDCE+ m_IsEmbedded+ m_CommandLine+ m_RequiresGUI+ m_IsAVDevice+ m_IsPlugIn+ m_IRFrequency+ m_FK_StabilityStatus+ m_FK_Package+ m_DestinationDir+ m_FK_Users_Maintainer+ m_FK_OperatingSystem+ m_FK_Distro+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -250,6 +262,8 @@ string FK_StabilityStatus_asSQL();
 string FK_Package_asSQL();
 string DestinationDir_asSQL();
 string FK_Users_Maintainer_asSQL();
+string FK_OperatingSystem_asSQL();
+string FK_Distro_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

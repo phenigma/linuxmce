@@ -17,6 +17,16 @@
 #define PACKAGE_SOURCE_VERSION_TABLE_FIELD "Package_Source.Version"
 #define PACKAGE_SOURCE_PARMS_FIELD "Parms"
 #define PACKAGE_SOURCE_PARMS_TABLE_FIELD "Package_Source.Parms"
+#define PACKAGE_SOURCE_PSC_ID_FIELD "psc_id"
+#define PACKAGE_SOURCE_PSC_ID_TABLE_FIELD "Package_Source.psc_id"
+#define PACKAGE_SOURCE_PSC_BATCH_FIELD "psc_batch"
+#define PACKAGE_SOURCE_PSC_BATCH_TABLE_FIELD "Package_Source.psc_batch"
+#define PACKAGE_SOURCE_PSC_USER_FIELD "psc_user"
+#define PACKAGE_SOURCE_PSC_USER_TABLE_FIELD "Package_Source.psc_user"
+#define PACKAGE_SOURCE_PSC_FROZEN_FIELD "psc_frozen"
+#define PACKAGE_SOURCE_PSC_FROZEN_TABLE_FIELD "Package_Source.psc_frozen"
+#define PACKAGE_SOURCE_PSC_MOD_FIELD "psc_mod"
+#define PACKAGE_SOURCE_PSC_MOD_TABLE_FIELD "Package_Source.psc_mod"
 
 
 #endif

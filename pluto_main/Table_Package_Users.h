@@ -86,28 +86,51 @@ class DLL_EXPORT Row_Package_Users : public TableRow, public SerializeClass
 long int m_FK_Users;
 short int m_Administrator;
 string m_Comments;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[4];
+		bool is_null[9];
 	
 	public:
 		long int FK_Package_get();
 long int FK_Users_get();
 short int Administrator_get();
 string Comments_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void FK_Package_set(long int val);
 void FK_Users_set(long int val);
 void Administrator_set(short int val);
 void Comments_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool Administrator_isNull();
 bool Comments_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void Administrator_setNull(bool val);
 void Comments_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -129,7 +152,7 @@ class Row_Users* FK_Users_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_FK_Package+ m_FK_Users+ m_Administrator+ m_Comments;
+			StartSerializeList() + m_FK_Package+ m_FK_Users+ m_Administrator+ m_Comments+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -138,6 +161,11 @@ class Row_Users* FK_Users_getrow();
 string FK_Users_asSQL();
 string Administrator_asSQL();
 string Comments_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

@@ -16,6 +16,16 @@
 #define DIRECTORY_DESCRIPTION_TABLE_FIELD "Directory.Description"
 #define DIRECTORY_DEFINE_FIELD "Define"
 #define DIRECTORY_DEFINE_TABLE_FIELD "Directory.Define"
+#define DIRECTORY_PSC_ID_FIELD "psc_id"
+#define DIRECTORY_PSC_ID_TABLE_FIELD "Directory.psc_id"
+#define DIRECTORY_PSC_BATCH_FIELD "psc_batch"
+#define DIRECTORY_PSC_BATCH_TABLE_FIELD "Directory.psc_batch"
+#define DIRECTORY_PSC_USER_FIELD "psc_user"
+#define DIRECTORY_PSC_USER_TABLE_FIELD "Directory.psc_user"
+#define DIRECTORY_PSC_FROZEN_FIELD "psc_frozen"
+#define DIRECTORY_PSC_FROZEN_TABLE_FIELD "Directory.psc_frozen"
+#define DIRECTORY_PSC_MOD_FIELD "psc_mod"
+#define DIRECTORY_PSC_MOD_TABLE_FIELD "Directory.psc_mod"
 
 
 #endif

@@ -88,8 +88,13 @@ long int m_FK_RepositorySource;
 string m_Repository;
 string m_Version;
 string m_Parms;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[7];
+		bool is_null[12];
 	
 	public:
 		long int PK_Package_Source_get();
@@ -99,6 +104,11 @@ long int FK_RepositorySource_get();
 string Repository_get();
 string Version_get();
 string Parms_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_Package_Source_set(long int val);
@@ -108,18 +118,31 @@ void FK_RepositorySource_set(long int val);
 void Repository_set(string val);
 void Version_set(string val);
 void Parms_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool Name_isNull();
 bool Repository_isNull();
 bool Version_isNull();
 bool Parms_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void Name_setNull(bool val);
 void Repository_setNull(bool val);
 void Version_setNull(bool val);
 void Parms_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -142,7 +165,7 @@ class Row_RepositorySource* FK_RepositorySource_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package_Source+ m_FK_Package+ m_Name+ m_FK_RepositorySource+ m_Repository+ m_Version+ m_Parms;
+			StartSerializeList() + m_PK_Package_Source+ m_FK_Package+ m_Name+ m_FK_RepositorySource+ m_Repository+ m_Version+ m_Parms+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -154,6 +177,11 @@ string FK_RepositorySource_asSQL();
 string Repository_asSQL();
 string Version_asSQL();
 string Parms_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

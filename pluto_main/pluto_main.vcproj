@@ -361,9 +361,6 @@
 				RelativePath=".\Table_Device_Orbiter.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_Device_Package_Directory.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_Device_StartupScript.cpp">
 			</File>
 			<File
@@ -476,9 +473,6 @@
 			</File>
 			<File
 				RelativePath=".\Table_MediaType_Broadcast.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_MobilePhoneVersion.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_News.cpp">
@@ -649,6 +643,18 @@
 				RelativePath=".\Table_psc_designer_tables.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_psc_document_batdet.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_document_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_document_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_document_tables.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_ir_batdet.cpp">
 			</File>
 			<File
@@ -673,28 +679,16 @@
 				RelativePath=".\Table_psc_local_tables.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_psc_shared_batdet.cpp">
+				RelativePath=".\Table_psc_website_batdet.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_psc_shared_bathdr.cpp">
+				RelativePath=".\Table_psc_website_bathdr.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_psc_shared_repset.cpp">
+				RelativePath=".\Table_psc_website_repset.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_psc_shared_tables.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_psc_user_batdet.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_psc_user_bathdr.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_psc_user_repset.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_psc_user_tables.cpp">
+				RelativePath=".\Table_psc_website_tables.cpp">
 			</File>
 
 		</Filter>

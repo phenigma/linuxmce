@@ -16,32 +16,32 @@
 
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
-#include "Table_psc_shared_tables.h"
+#include "Table_psc_document_tables.h"
 
 
 
-void Database_pluto_main::CreateTable_psc_shared_tables()
+void Database_pluto_main::CreateTable_psc_document_tables()
 {
-	tblpsc_shared_tables = new Table_psc_shared_tables(this);
+	tblpsc_document_tables = new Table_psc_document_tables(this);
 }
 
-void Database_pluto_main::DeleteTable_psc_shared_tables()
+void Database_pluto_main::DeleteTable_psc_document_tables()
 {
-	delete tblpsc_shared_tables;
+	delete tblpsc_document_tables;
 }
 
-Table_psc_shared_tables::~Table_psc_shared_tables()
+Table_psc_document_tables::~Table_psc_document_tables()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		Row_psc_shared_tables *pRow = (Row_psc_shared_tables *) (*it).second;
+		Row_psc_document_tables *pRow = (Row_psc_document_tables *) (*it).second;
 		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		Row_psc_shared_tables *pRow = (Row_psc_shared_tables *) (*it).second;
+		Row_psc_document_tables *pRow = (Row_psc_document_tables *) (*it).second;
 		delete pRow;
 	}
 
@@ -53,16 +53,16 @@ Table_psc_shared_tables::~Table_psc_shared_tables()
 }
 
 
-void Row_psc_shared_tables::Delete()
+void Row_psc_document_tables::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-	Row_psc_shared_tables *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_psc_document_tables *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
 			vector<TableRow*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_psc_shared_tables *) *i != this); i++);
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_psc_document_tables *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,7 +72,7 @@ void Row_psc_shared_tables::Delete()
 		}
 		else
 		{
-			SingleLongKey key(pRow->m_PK_psc_shared_tables);
+			SingleLongKey key(pRow->m_PK_psc_document_tables);
 			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
@@ -82,17 +82,17 @@ void Row_psc_shared_tables::Delete()
 		}	
 }
 
-void Row_psc_shared_tables::Reload()
+void Row_psc_document_tables::Reload()
 {
-	Row_psc_shared_tables *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_psc_document_tables *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		SingleLongKey key(pRow->m_PK_psc_shared_tables);
-		Row_psc_shared_tables *pRow = table->FetchRow(key);
+		SingleLongKey key(pRow->m_PK_psc_document_tables);
+		Row_psc_document_tables *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
 		{
@@ -104,14 +104,14 @@ void Row_psc_shared_tables::Reload()
 	
 }
 
-Row_psc_shared_tables::Row_psc_shared_tables(Table_psc_shared_tables *pTable):table(pTable)
+Row_psc_document_tables::Row_psc_document_tables(Table_psc_document_tables *pTable):table(pTable)
 {
 	SetDefaultValues();
 }
 
-void Row_psc_shared_tables::SetDefaultValues()
+void Row_psc_document_tables::SetDefaultValues()
 {
-	m_PK_psc_shared_tables = 0;
+	m_PK_psc_document_tables = 0;
 is_null[0] = false;
 m_Tablename = "";
 is_null[1] = false;
@@ -129,75 +129,75 @@ is_null[5] = false;
 	is_modified=false;
 }
 
-long int Row_psc_shared_tables::PK_psc_shared_tables_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_document_tables::PK_psc_document_tables_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_PK_psc_shared_tables;}
-string Row_psc_shared_tables::Tablename_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_PK_psc_document_tables;}
+string Row_psc_document_tables::Tablename_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Tablename;}
-string Row_psc_shared_tables::filter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_psc_document_tables::filter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_filter;}
-short int Row_psc_shared_tables::frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_psc_document_tables::frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_frozen;}
-long int Row_psc_shared_tables::last_psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_document_tables::last_psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_last_psc_id;}
-long int Row_psc_shared_tables::last_psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_document_tables::last_psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_last_psc_batch;}
 
 		
-void Row_psc_shared_tables::PK_psc_shared_tables_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_tables::PK_psc_document_tables_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_PK_psc_shared_tables = val; is_modified=true; is_null[0]=false;}
-void Row_psc_shared_tables::Tablename_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_PK_psc_document_tables = val; is_modified=true; is_null[0]=false;}
+void Row_psc_document_tables::Tablename_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Tablename = val; is_modified=true; is_null[1]=false;}
-void Row_psc_shared_tables::filter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_tables::filter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_filter = val; is_modified=true; is_null[2]=false;}
-void Row_psc_shared_tables::frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_tables::frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_frozen = val; is_modified=true; is_null[3]=false;}
-void Row_psc_shared_tables::last_psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_tables::last_psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_last_psc_id = val; is_modified=true; is_null[4]=false;}
-void Row_psc_shared_tables::last_psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_tables::last_psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_last_psc_batch = val; is_modified=true; is_null[5]=false;}
 
 		
-bool Row_psc_shared_tables::filter_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_psc_document_tables::filter_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_psc_shared_tables::frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_psc_document_tables::frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_psc_shared_tables::last_psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_psc_document_tables::last_psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_psc_shared_tables::last_psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_psc_document_tables::last_psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
 
 			
-void Row_psc_shared_tables::filter_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_tables::filter_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
-void Row_psc_shared_tables::frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_tables::frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
-void Row_psc_shared_tables::last_psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_tables::last_psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_psc_shared_tables::last_psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_tables::last_psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
 	
 
-string Row_psc_shared_tables::PK_psc_shared_tables_asSQL()
+string Row_psc_document_tables::PK_psc_document_tables_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -205,12 +205,12 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_PK_psc_shared_tables);
+sprintf(buf, "%li", m_PK_psc_document_tables);
 
 return buf;
 }
 
-string Row_psc_shared_tables::Tablename_asSQL()
+string Row_psc_document_tables::Tablename_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -222,7 +222,7 @@ mysql_real_escape_string(table->database->db_handle, buf, m_Tablename.c_str(), (
 return string()+"\""+buf+"\"";
 }
 
-string Row_psc_shared_tables::filter_asSQL()
+string Row_psc_document_tables::filter_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -234,7 +234,7 @@ mysql_real_escape_string(table->database->db_handle, buf, m_filter.c_str(), (uns
 return string()+"\""+buf+"\"";
 }
 
-string Row_psc_shared_tables::frozen_asSQL()
+string Row_psc_document_tables::frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -247,7 +247,7 @@ sprintf(buf, "%hi", m_frozen);
 return buf;
 }
 
-string Row_psc_shared_tables::last_psc_id_asSQL()
+string Row_psc_document_tables::last_psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -260,7 +260,7 @@ sprintf(buf, "%li", m_last_psc_id);
 return buf;
 }
 
-string Row_psc_shared_tables::last_psc_batch_asSQL()
+string Row_psc_document_tables::last_psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -276,29 +276,29 @@ return buf;
 
 
 
-Table_psc_shared_tables::Key::Key(long int in_PK_psc_shared_tables)
+Table_psc_document_tables::Key::Key(long int in_PK_psc_document_tables)
 {
-			pk_PK_psc_shared_tables = in_PK_psc_shared_tables;
+			pk_PK_psc_document_tables = in_PK_psc_document_tables;
 	
 }
 
-Table_psc_shared_tables::Key::Key(Row_psc_shared_tables *pRow)
+Table_psc_document_tables::Key::Key(Row_psc_document_tables *pRow)
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
-			pk_PK_psc_shared_tables = pRow->m_PK_psc_shared_tables;
+			pk_PK_psc_document_tables = pRow->m_PK_psc_document_tables;
 	
 }		
 
-bool Table_psc_shared_tables::Key_Less::operator()(const Table_psc_shared_tables::Key &key1, const Table_psc_shared_tables::Key &key2) const
+bool Table_psc_document_tables::Key_Less::operator()(const Table_psc_document_tables::Key &key1, const Table_psc_document_tables::Key &key2) const
 {
-			if (key1.pk_PK_psc_shared_tables!=key2.pk_PK_psc_shared_tables)
-return key1.pk_PK_psc_shared_tables<key2.pk_PK_psc_shared_tables;
+			if (key1.pk_PK_psc_document_tables!=key2.pk_PK_psc_document_tables)
+return key1.pk_PK_psc_document_tables<key2.pk_PK_psc_document_tables;
 else
 return false;	
 }	
 
-void Table_psc_shared_tables::Commit()
+void Table_psc_document_tables::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -307,14 +307,14 @@ void Table_psc_shared_tables::Commit()
 	{
 		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_psc_shared_tables *pRow = (Row_psc_shared_tables *)*i;
+		Row_psc_document_tables *pRow = (Row_psc_document_tables *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_shared_tables_asSQL()+", "+pRow->Tablename_asSQL()+", "+pRow->filter_asSQL()+", "+pRow->frozen_asSQL()+", "+pRow->last_psc_id_asSQL()+", "+pRow->last_psc_batch_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_document_tables_asSQL()+", "+pRow->Tablename_asSQL()+", "+pRow->filter_asSQL()+", "+pRow->frozen_asSQL()+", "+pRow->last_psc_id_asSQL()+", "+pRow->last_psc_batch_asSQL();
 
 	
-		string query = "insert into psc_shared_tables (PK_psc_shared_tables, Tablename, filter, frozen, last_psc_id, last_psc_batch) values ("+
+		string query = "insert into psc_document_tables (PK_psc_document_tables, Tablename, filter, frozen, last_psc_id, last_psc_batch) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -329,11 +329,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_shared_
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
 			if (id!=0)
-pRow->m_PK_psc_shared_tables=id;
+pRow->m_PK_psc_document_tables=id;
 	
 			
 			addedRows.erase(i);
-			SingleLongKey key(pRow->m_PK_psc_shared_tables);	
+			SingleLongKey key(pRow->m_PK_psc_document_tables);	
 			cachedRows[key] = pRow;
 					
 			
@@ -350,23 +350,23 @@ pRow->m_PK_psc_shared_tables=id;
 	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
-		Row_psc_shared_tables* pRow = (Row_psc_shared_tables*) (*i).second;	
-		SingleLongKey key(pRow->m_PK_psc_shared_tables);
+		Row_psc_document_tables* pRow = (Row_psc_document_tables*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_psc_document_tables);
 
-		char tmp_PK_psc_shared_tables[32];
-sprintf(tmp_PK_psc_shared_tables, "%li", key.pk);
+		char tmp_PK_psc_document_tables[32];
+sprintf(tmp_PK_psc_document_tables, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_shared_tables=" + tmp_PK_psc_shared_tables;
+condition = condition + "PK_psc_document_tables=" + tmp_PK_psc_document_tables;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_shared_tables="+pRow->PK_psc_shared_tables_asSQL()+", Tablename="+pRow->Tablename_asSQL()+", filter="+pRow->filter_asSQL()+", frozen="+pRow->frozen_asSQL()+", last_psc_id="+pRow->last_psc_id_asSQL()+", last_psc_batch="+pRow->last_psc_batch_asSQL();
+update_values_list = update_values_list + "PK_psc_document_tables="+pRow->PK_psc_document_tables_asSQL()+", Tablename="+pRow->Tablename_asSQL()+", filter="+pRow->filter_asSQL()+", frozen="+pRow->frozen_asSQL()+", last_psc_id="+pRow->last_psc_id_asSQL()+", last_psc_batch="+pRow->last_psc_batch_asSQL();
 
 	
-		string query = "update psc_shared_tables set " + update_values_list + " where " + condition;
+		string query = "update psc_document_tables set " + update_values_list + " where " + condition;
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
@@ -393,17 +393,17 @@ update_values_list = update_values_list + "PK_psc_shared_tables="+pRow->PK_psc_s
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_psc_shared_tables* pRow = (Row_psc_shared_tables*) (*i).second;	
+		Row_psc_document_tables* pRow = (Row_psc_document_tables*) (*i).second;	
 
-		char tmp_PK_psc_shared_tables[32];
-sprintf(tmp_PK_psc_shared_tables, "%li", key.pk);
+		char tmp_PK_psc_document_tables[32];
+sprintf(tmp_PK_psc_document_tables, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_shared_tables=" + tmp_PK_psc_shared_tables;
+condition = condition + "PK_psc_document_tables=" + tmp_PK_psc_document_tables;
 
 	
-		string query = "delete from psc_shared_tables where " + condition;
+		string query = "delete from psc_document_tables where " + condition;
 		
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
@@ -416,17 +416,17 @@ condition = condition + "PK_psc_shared_tables=" + tmp_PK_psc_shared_tables;
 	
 }
 
-bool Table_psc_shared_tables::GetRows(string where_statement,vector<class Row_psc_shared_tables*> *rows)
+bool Table_psc_document_tables::GetRows(string where_statement,vector<class Row_psc_document_tables*> *rows)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from psc_shared_tables " + where_statement;
+		query = "select * from psc_document_tables " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from psc_shared_tables where " + where_statement;
+		query = "select * from psc_document_tables where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
@@ -449,17 +449,17 @@ bool Table_psc_shared_tables::GetRows(string where_statement,vector<class Row_ps
 	{	
 		unsigned long *lengths = mysql_fetch_lengths(res);
 
-		Row_psc_shared_tables *pRow = new Row_psc_shared_tables(this);
+		Row_psc_document_tables *pRow = new Row_psc_document_tables(this);
 		
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_psc_shared_tables = 0;
+pRow->m_PK_psc_document_tables = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_psc_shared_tables));
+sscanf(row[0], "%li", &(pRow->m_PK_psc_document_tables));
 }
 
 if (row[1] == NULL)
@@ -521,14 +521,14 @@ sscanf(row[5], "%li", &(pRow->m_last_psc_batch));
 
 		//checking for duplicates
 
-		SingleLongKey key(pRow->m_PK_psc_shared_tables);
+		SingleLongKey key(pRow->m_PK_psc_document_tables);
 		
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (Row_psc_shared_tables *)(*i).second;
+			pRow = (Row_psc_document_tables *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -541,11 +541,11 @@ sscanf(row[5], "%li", &(pRow->m_last_psc_batch));
 	return true;					
 }
 
-Row_psc_shared_tables* Table_psc_shared_tables::AddRow()
+Row_psc_document_tables* Table_psc_document_tables::AddRow()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Row_psc_shared_tables *pRow = new Row_psc_shared_tables(this);
+	Row_psc_document_tables *pRow = new Row_psc_document_tables(this);
 	pRow->is_added=true;
 	addedRows.push_back(pRow);
 	return pRow;		
@@ -553,11 +553,11 @@ Row_psc_shared_tables* Table_psc_shared_tables::AddRow()
 
 
 
-Row_psc_shared_tables* Table_psc_shared_tables::GetRow(long int in_PK_psc_shared_tables)
+Row_psc_document_tables* Table_psc_document_tables::GetRow(long int in_PK_psc_document_tables)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	SingleLongKey row_key(in_PK_psc_shared_tables);
+	SingleLongKey row_key(in_PK_psc_document_tables);
 
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -570,9 +570,9 @@ Row_psc_shared_tables* Table_psc_shared_tables::GetRow(long int in_PK_psc_shared
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (Row_psc_shared_tables*) (*i).second;
+		return (Row_psc_document_tables*) (*i).second;
 	//we have to fetch row
-	Row_psc_shared_tables* pRow = FetchRow(row_key);
+	Row_psc_document_tables* pRow = FetchRow(row_key);
 
 	if (pRow!=NULL)
 		cachedRows[row_key] = pRow;
@@ -581,20 +581,20 @@ Row_psc_shared_tables* Table_psc_shared_tables::GetRow(long int in_PK_psc_shared
 
 
 
-Row_psc_shared_tables* Table_psc_shared_tables::FetchRow(SingleLongKey &key)
+Row_psc_document_tables* Table_psc_document_tables::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
-	char tmp_PK_psc_shared_tables[32];
-sprintf(tmp_PK_psc_shared_tables, "%li", key.pk);
+	char tmp_PK_psc_document_tables[32];
+sprintf(tmp_PK_psc_document_tables, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_shared_tables=" + tmp_PK_psc_shared_tables;
+condition = condition + "PK_psc_document_tables=" + tmp_PK_psc_document_tables;
 
 
-	string query = "select * from psc_shared_tables where " + condition;		
+	string query = "select * from psc_document_tables where " + condition;		
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
@@ -621,17 +621,17 @@ condition = condition + "PK_psc_shared_tables=" + tmp_PK_psc_shared_tables;
 						
 	unsigned long *lengths = mysql_fetch_lengths(res);
 
-	Row_psc_shared_tables *pRow = new Row_psc_shared_tables(this);
+	Row_psc_document_tables *pRow = new Row_psc_document_tables(this);
 		
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_psc_shared_tables = 0;
+pRow->m_PK_psc_document_tables = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_psc_shared_tables));
+sscanf(row[0], "%li", &(pRow->m_PK_psc_document_tables));
 }
 
 if (row[1] == NULL)

@@ -40,8 +40,6 @@ namespace sqlCVS
 
 		Field *m_pField_IndirectSpecifier;
 
-		string m_sName;
-
 		bool m_bIsAutoIncrement;
 
 	public:
@@ -54,7 +52,7 @@ namespace sqlCVS
 		 * @brief Accessors 
 		 */
 		 
-		string Name_get( ) { return m_sName; }
+		string Name_get( ) { return m_pcFieldName; }
 		class Table *Table_get( ) { return m_pTable; }
 	};
 }

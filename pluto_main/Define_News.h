@@ -15,6 +15,16 @@
 #define NEWS_SHORTSUMMARY_TABLE_FIELD "News.ShortSummary"
 #define NEWS_FULLTEXT_FIELD "FullText"
 #define NEWS_FULLTEXT_TABLE_FIELD "News.FullText"
+#define NEWS_PSC_ID_FIELD "psc_id"
+#define NEWS_PSC_ID_TABLE_FIELD "News.psc_id"
+#define NEWS_PSC_BATCH_FIELD "psc_batch"
+#define NEWS_PSC_BATCH_TABLE_FIELD "News.psc_batch"
+#define NEWS_PSC_USER_FIELD "psc_user"
+#define NEWS_PSC_USER_TABLE_FIELD "News.psc_user"
+#define NEWS_PSC_FROZEN_FIELD "psc_frozen"
+#define NEWS_PSC_FROZEN_TABLE_FIELD "News.psc_frozen"
+#define NEWS_PSC_MOD_FIELD "psc_mod"
+#define NEWS_PSC_MOD_TABLE_FIELD "News.psc_mod"
 
 
 #endif

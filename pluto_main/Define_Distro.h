@@ -38,6 +38,16 @@
 #define DISTRO_MEDIADIRECTOR_TABLE_FIELD "Distro.MediaDirector"
 #define DISTRO_ORBITER_FIELD "Orbiter"
 #define DISTRO_ORBITER_TABLE_FIELD "Distro.Orbiter"
+#define DISTRO_PSC_ID_FIELD "psc_id"
+#define DISTRO_PSC_ID_TABLE_FIELD "Distro.psc_id"
+#define DISTRO_PSC_BATCH_FIELD "psc_batch"
+#define DISTRO_PSC_BATCH_TABLE_FIELD "Distro.psc_batch"
+#define DISTRO_PSC_USER_FIELD "psc_user"
+#define DISTRO_PSC_USER_TABLE_FIELD "Distro.psc_user"
+#define DISTRO_PSC_FROZEN_FIELD "psc_frozen"
+#define DISTRO_PSC_FROZEN_TABLE_FIELD "Distro.psc_frozen"
+#define DISTRO_PSC_MOD_FIELD "psc_mod"
+#define DISTRO_PSC_MOD_TABLE_FIELD "Distro.psc_mod"
 
 
 #endif

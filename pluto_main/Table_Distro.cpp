@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_Distro.h"
 #include "Table_OperatingSystem.h"
 
+#include "Table_DeviceTemplate.h"
 #include "Table_InstallWizard_Distro.h"
 #include "Table_Package_Directory.h"
 #include "Table_Package_Directory_File.h"
@@ -136,6 +137,13 @@ m_MediaDirector = 0;
 is_null[10] = false;
 m_Orbiter = 0;
 is_null[11] = false;
+is_null[12] = true;
+is_null[13] = true;
+is_null[14] = true;
+m_psc_frozen = 0;
+is_null[15] = false;
+m_psc_mod = "00000000000000";
+is_null[16] = false;
 
 
 	is_added=false;
@@ -179,6 +187,21 @@ return m_MediaDirector;}
 short int Row_Distro::Orbiter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Orbiter;}
+long int Row_Distro::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_id;}
+long int Row_Distro::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_batch;}
+long int Row_Distro::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_user;}
+short int Row_Distro::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_frozen;}
+string Row_Distro::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_Distro::PK_Distro_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -217,6 +240,21 @@ m_MediaDirector = val; is_modified=true; is_null[10]=false;}
 void Row_Distro::Orbiter_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Orbiter = val; is_modified=true; is_null[11]=false;}
+void Row_Distro::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_id = val; is_modified=true; is_null[12]=false;}
+void Row_Distro::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_batch = val; is_modified=true; is_null[13]=false;}
+void Row_Distro::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_user = val; is_modified=true; is_null[14]=false;}
+void Row_Distro::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_frozen = val; is_modified=true; is_null[15]=false;}
+void Row_Distro::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[16]=false;}
 
 		
 bool Row_Distro::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -234,6 +272,18 @@ return is_null[6];}
 bool Row_Distro::SourceCode_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
+bool Row_Distro::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[12];}
+bool Row_Distro::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[13];}
+bool Row_Distro::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[14];}
+bool Row_Distro::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[15];}
 
 			
 void Row_Distro::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -251,6 +301,18 @@ is_null[6]=val;}
 void Row_Distro::SourceCode_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[7]=val;}
+void Row_Distro::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[12]=val;}
+void Row_Distro::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[13]=val;}
+void Row_Distro::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[14]=val;}
+void Row_Distro::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[15]=val;}
 	
 
 string Row_Distro::PK_Distro_asSQL()
@@ -403,6 +465,70 @@ sprintf(buf, "%hi", m_Orbiter);
 return buf;
 }
 
+string Row_Distro::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[12])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
+}
+
+string Row_Distro::psc_batch_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[13])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_batch);
+
+return buf;
+}
+
+string Row_Distro::psc_user_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[14])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_user);
+
+return buf;
+}
+
+string Row_Distro::psc_frozen_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[15])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_psc_frozen);
+
+return buf;
+}
+
+string Row_Distro::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[16])
+return "NULL";
+
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+return string()+"\""+buf+"\"";
+}
+
 
 
 
@@ -441,10 +567,10 @@ void Table_Distro::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->Installer_asSQL()+", "+pRow->KickStartCD_asSQL()+", "+pRow->Binaries_asSQL()+", "+pRow->SourceCode_asSQL()+", "+pRow->Confirmed_asSQL()+", "+pRow->Core_asSQL()+", "+pRow->MediaDirector_asSQL()+", "+pRow->Orbiter_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->Installer_asSQL()+", "+pRow->KickStartCD_asSQL()+", "+pRow->Binaries_asSQL()+", "+pRow->SourceCode_asSQL()+", "+pRow->Confirmed_asSQL()+", "+pRow->Core_asSQL()+", "+pRow->MediaDirector_asSQL()+", "+pRow->Orbiter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Distro (PK_Distro, Description, Define, FK_OperatingSystem, Installer, KickStartCD, Binaries, SourceCode, Confirmed, Core, MediaDirector, Orbiter) values ("+
+		string query = "insert into Distro (PK_Distro, Description, Define, FK_OperatingSystem, Installer, KickStartCD, Binaries, SourceCode, Confirmed, Core, MediaDirector, Orbiter, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -493,7 +619,7 @@ condition = condition + "PK_Distro=" + tmp_PK_Distro;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", Installer="+pRow->Installer_asSQL()+", KickStartCD="+pRow->KickStartCD_asSQL()+", Binaries="+pRow->Binaries_asSQL()+", SourceCode="+pRow->SourceCode_asSQL()+", Confirmed="+pRow->Confirmed_asSQL()+", Core="+pRow->Core_asSQL()+", MediaDirector="+pRow->MediaDirector_asSQL()+", Orbiter="+pRow->Orbiter_asSQL();
+update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", Installer="+pRow->Installer_asSQL()+", KickStartCD="+pRow->KickStartCD_asSQL()+", Binaries="+pRow->Binaries_asSQL()+", SourceCode="+pRow->SourceCode_asSQL()+", Confirmed="+pRow->Confirmed_asSQL()+", Core="+pRow->Core_asSQL()+", MediaDirector="+pRow->MediaDirector_asSQL()+", Orbiter="+pRow->Orbiter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Distro set " + update_values_list + " where " + condition;
@@ -711,6 +837,61 @@ else
 {
 pRow->is_null[11]=false;
 sscanf(row[11], "%hi", &(pRow->m_Orbiter));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%li", &(pRow->m_psc_id));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[13]=false;
+sscanf(row[13], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[14]=false;
+sscanf(row[14], "%li", &(pRow->m_psc_user));
+}
+
+if (row[15] == NULL)
+{
+pRow->is_null[15]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[15]=false;
+sscanf(row[15], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[16] == NULL)
+{
+pRow->is_null[16]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[16]=false;
+pRow->m_psc_mod = string(row[16],lengths[16]);
 }
 
 
@@ -951,6 +1132,61 @@ pRow->is_null[11]=false;
 sscanf(row[11], "%hi", &(pRow->m_Orbiter));
 }
 
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_id = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%li", &(pRow->m_psc_id));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_batch = 0;
+}
+else
+{
+pRow->is_null[13]=false;
+sscanf(row[13], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[14]=false;
+sscanf(row[14], "%li", &(pRow->m_psc_user));
+}
+
+if (row[15] == NULL)
+{
+pRow->is_null[15]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[15]=false;
+sscanf(row[15], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[16] == NULL)
+{
+pRow->is_null[16]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[16]=false;
+pRow->m_psc_mod = string(row[16],lengths[16]);
+}
+
 
 
 	mysql_free_result(res);			
@@ -968,6 +1204,13 @@ return pTable->GetRow(m_FK_OperatingSystem);
 }
 
 
+void Row_Distro::DeviceTemplate_FK_Distro_getrows(vector <class Row_DeviceTemplate*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
+pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
+}
 void Row_Distro::InstallWizard_Distro_FK_Distro_getrows(vector <class Row_InstallWizard_Distro*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);

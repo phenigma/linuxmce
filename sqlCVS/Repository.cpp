@@ -38,6 +38,8 @@ void Repository::AddDefinitionTable( class Table *pTable )
 		m_pTable_BatchDetail = pTable;
 	else if( pTable->GetTrailingString( )=="tables" )
 		m_pTable_Tables = pTable;
+	else if( pTable->GetTrailingString( )=="schema" )
+		m_pTable_Schema = pTable;
 	else
 	{
 		cerr << "Cannot figure out what table: " << pTable->Name_get( ) << " is.";
@@ -67,7 +69,7 @@ void Repository::MatchUpTables( )
 	string Tablename = "psc_" + m_sName + "_tables";
 
 	ostringstream sql;
-	sql << "SELECT Tablename FROM `" << Tablename << "`";
+	sql << "SELECT Tablename,filter FROM `" << Tablename << "`";
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
@@ -106,6 +108,7 @@ void Repository::MatchUpTables( )
 			/** Go ahead and add the table */
 			m_mapTable[ pTable->Name_get( ) ] = pTable;
 			pTable->SetRepository( this, false );
+			pTable->m_sFilter = row[1] ? row[1] : "";
 		}
 	}
 }
@@ -120,6 +123,8 @@ void Repository::Setup( )
 		m_pTable_BatchDetail = CreateBatchDetailTable( );
 	if( !m_pTable_Tables )
 		m_pTable_Tables = CreateTablesTable( );
+	if( !m_pTable_Schema )
+		m_pTable_Tables = CreateSchemaTable( );
 
 	string Tablename = "psc_" + m_sName + "_tables"; /**< Our _tables table */
 
@@ -184,6 +189,46 @@ void Repository::Setup( )
 	}
 }
 
+string Repository::GetSetting(string Setting,string Default)
+{
+	string Tablename = "psc_" + m_sName + "_repset";
+	ostringstream sql;
+
+	sql	<< "SELECT Value FROM `" << Tablename << "` WHERE Setting='" + StringUtils::SQLEscape(Setting) + "'";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+		return row[0];
+
+	if( Default.length() )
+	{
+		sql.str("");
+		sql	<< "INSERT INTO `" << Tablename << "` (Setting,Value) VALUES('" + StringUtils::SQLEscape(Setting) + "','"  + StringUtils::SQLEscape(Default) + "')";
+		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		{
+			cerr << "SQL Failed: " << sql.str( ) << endl;
+			throw "Database error";
+		}
+	}
+
+	return Default;
+}
+
+void Repository::SetSetting(string Setting,string Value)
+{
+	GetSetting(Setting,Value); // This will add the record if it's not already there
+
+	string Tablename = "psc_" + m_sName + "_repset";
+	ostringstream sql;
+
+	sql	<< "UPDATE `" << Tablename << "` SET Setting='" + StringUtils::SQLEscape(Setting) + "',Value='"  + StringUtils::SQLEscape(Value) + "' WHERE Setting='" + StringUtils::SQLEscape(Setting) + "'";
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	{
+		cerr << "SQL Failed: " << sql.str( ) << endl;
+		throw "Database error";
+	}
+}
+
 Table *Repository::CreateSettingTable( )
 {
 	string Tablename = "psc_" + m_sName + "_repset";
@@ -199,7 +244,8 @@ Table *Repository::CreateSettingTable( )
 	sql.str( "" );
 	sql	<< "CREATE TABLE `" << Tablename << "`( " << endl
 		<< "`PK_" << Tablename << "` int( 11 ) NOT NULL auto_increment, " << endl
-		<< "`Value` varchar( 30 ) NOT NULL default '', " << endl
+		<< "`Setting` varchar( 30 ) NOT NULL default '', " << endl
+		<< "`Value` text default '', " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
 	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
@@ -208,9 +254,39 @@ Table *Repository::CreateSettingTable( )
 		throw "Database error";
 	}
 
-	return new Table( m_pDatabase, Tablename );
+	Table *pTable = new Table( m_pDatabase, Tablename );
+	pTable->SetRepository(this,true);
+	return pTable;
 }
 
+Table *Repository::CreateSchemaTable( )
+{
+	string Tablename = "psc_" + m_sName + "_schema";
+	ostringstream sql;
+
+	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	{
+		cerr << "SQL Failed: " << sql.str( ) << endl;
+		throw "Database error";
+	}
+
+	sql.str( "" );
+	sql	<< "CREATE TABLE `" << Tablename << "`( " << endl
+		<< "`PK_" << Tablename << "` int( 11 ) NOT NULL auto_increment, " << endl
+		<< "`Value` text NOT NULL default '', " << endl
+		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
+		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	{
+		cerr << "SQL Failed: " << sql.str( ) << endl;
+		throw "Database error";
+	}
+
+	Table *pTable = new Table( m_pDatabase, Tablename );
+	pTable->SetRepository(this,true);
+	return pTable;
+}
 class Table *Repository::CreateBatchHeaderTable( )
 {
 	string Tablename = "psc_" + m_sName + "_bathdr";
@@ -235,7 +311,9 @@ class Table *Repository::CreateBatchHeaderTable( )
 		throw "Database error";
 	}
 
-	return new Table( m_pDatabase, Tablename );
+	Table *pTable = new Table( m_pDatabase, Tablename );
+	pTable->SetRepository(this,true);
+	return pTable;
 }
 
 class Table *Repository::CreateBatchDetailTable( )
@@ -262,7 +340,9 @@ class Table *Repository::CreateBatchDetailTable( )
 		throw "Database error";
 	}
 
-	return new Table( m_pDatabase, Tablename );
+	Table *pTable = new Table( m_pDatabase, Tablename );
+	pTable->SetRepository(this,true);
+	return pTable;
 }
 
 class Table *Repository::CreateTablesTable( )
@@ -293,7 +373,9 @@ class Table *Repository::CreateTablesTable( )
 		throw "Database error";
 	}
 
-	return new Table( m_pDatabase, Tablename );
+	Table *pTable = new Table( m_pDatabase, Tablename );
+	pTable->SetRepository(this,true);
+	return pTable;
 }
 
 void Repository::Remove( )
@@ -542,6 +624,16 @@ void Repository::Dump( )
 		}
 	}
 
+	if( (m_pTable_Setting && !m_pTable_Setting->Dump( str )) ||
+		(m_pTable_BatchHeader && !m_pTable_BatchHeader->Dump( str )) ||
+		(m_pTable_BatchDetail && !m_pTable_BatchDetail->Dump( str )) ||
+		(m_pTable_Tables && !m_pTable_Tables->Dump( str )) ||
+		(m_pTable_Schema && !m_pTable_Schema->Dump( str )) )
+	{
+		cerr << "Failed to output table data!" << endl;
+		return; /**< Just return without doing anything */
+	}
+
 	str.SerializeWrite( );
 	FILE *file = fopen( ( m_sName + ".sqlcvs" ).c_str( ), "wb" );
 	if( !file )
@@ -555,3 +647,14 @@ void Repository::Dump( )
 		throw "Out of disk space";
 	return; /**< Just return without doing anything */
 }
+
+void Repository::ListTables( )
+{
+	cout << m_sName << endl;
+	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)
+	{
+		Table *pTable = (*it).second;
+		cout << "\t" << pTable->Name_get() << endl;
+	}
+}
+

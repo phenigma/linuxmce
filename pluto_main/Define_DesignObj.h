@@ -1281,8 +1281,6 @@
 #define DESIGNOBJ_navmode_CONST 3154
 #define DESIGNOBJ_pvr_CONST 3155
 #define DESIGNOBJ_pvr_full_screen_CONST 3156
-#define DESIGNOBJ_plutotv_CONST 3157
-#define DESIGNOBJ_nonplutotv_CONST 3158
 #define DESIGNOBJ_go_to_main_menu_CONST 3159
 #define DESIGNOBJ_go_to_pluto_tv_CONST 3160
 #define DESIGNOBJ_go_to_nonplutotv_CONST 3161

@@ -20,6 +20,16 @@
 #define REPOSITORYTYPE_PATHTOFILE_TABLE_FIELD "RepositoryType.PathToFile"
 #define REPOSITORYTYPE_INSTRUCTIONS_FIELD "Instructions"
 #define REPOSITORYTYPE_INSTRUCTIONS_TABLE_FIELD "RepositoryType.Instructions"
+#define REPOSITORYTYPE_PSC_ID_FIELD "psc_id"
+#define REPOSITORYTYPE_PSC_ID_TABLE_FIELD "RepositoryType.psc_id"
+#define REPOSITORYTYPE_PSC_BATCH_FIELD "psc_batch"
+#define REPOSITORYTYPE_PSC_BATCH_TABLE_FIELD "RepositoryType.psc_batch"
+#define REPOSITORYTYPE_PSC_USER_FIELD "psc_user"
+#define REPOSITORYTYPE_PSC_USER_TABLE_FIELD "RepositoryType.psc_user"
+#define REPOSITORYTYPE_PSC_FROZEN_FIELD "psc_frozen"
+#define REPOSITORYTYPE_PSC_FROZEN_TABLE_FIELD "RepositoryType.psc_frozen"
+#define REPOSITORYTYPE_PSC_MOD_FIELD "psc_mod"
+#define REPOSITORYTYPE_PSC_MOD_TABLE_FIELD "RepositoryType.psc_mod"
 
 
 #endif
