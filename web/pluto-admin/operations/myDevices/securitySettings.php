@@ -151,13 +151,8 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 			foreach($properties AS $itemNo=> $itemValue){
 				$newProperties.=','.$_POST[str_replace(' ','',$itemValue).'_'.$device];
 			}
-			if($oldProperties==''){
-				$insertDDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
-				$dbADO->Execute($insertDDD,array($device,$GLOBALS['securityAlert'],$newProperties));
-			}elseif($newProperties!=$oldProperties){
-				$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_DeviceData=? AND FK_Device=?';
-				$dbADO->Execute($updateDDD,array($newProperties,$GLOBALS['securityAlert'],$device));
-			}
+			$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_DeviceData=? AND FK_Device=?';
+			$dbADO->Execute($updateDDD,array($newProperties,$GLOBALS['securityAlert'],$device));
 		}		
 		
 		header("Location: index.php?section=securitySettings&msg=Security settings updated.");		

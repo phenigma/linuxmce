@@ -1002,6 +1002,12 @@ switch ($section) {
 	    include_once('operations/others/basicInfo.php');
 	    basicInfo($output,$dbADO);
 	break;	
+	case 'softwareVersions';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/softwareVersions.php');
+	    softwareVersions($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

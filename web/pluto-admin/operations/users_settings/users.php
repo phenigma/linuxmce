@@ -43,11 +43,15 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 		";
 		
 		$usersFormValidation='';
-		$out.='<tr bgcolor="#AAAAAA"><td>Username</td><td>Voicemail<br>+Email</td><td>Access general<br>mailbox</td><td>Extension<br>for intercom</td>
-					<td>Name</td><td>Email</td>
-					<td>Can modify<br>configuration?</td>
-					<td>Language</td>
-					<td>Primary<br>Installation</td>
+		$out.='<tr bgcolor="#AAAAAA">
+				<td>Username</td>
+				<td>Voicemail<br>+Email</td>
+				<td>Access general<br>mailbox</td>
+				<td>Extension<br>for intercom</td>
+				<td>Name</td><td>Email</td>
+				<td>Can modify<br>configuration?</td>
+				<td>Language</td>
+				<td>Primary<br>Installation</td>
 				</tr>';
 		$displayedUsers=array();
 		$i=0;
@@ -67,7 +71,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			$color=($i%2==1?"999999":"EEEEEE");
 			$out.='<tr valign="top" bgcolor="#'.$color.'">
 						<td>
-							<input type="text" name="userUserName_'.$rowUser['PK_Users'].'" value="'.$rowUser['UserName'].'">							
+							<B>'.$rowUser['UserName'].'</B><br>
 							<a href="javascript:void(0);" onClick="if (confirm(\'Are you sure you want to remove user from this installation?\')) { windowOpen(\'index.php?section=removeUserFromInstallation&from=users&userID='.$rowUser['PK_Users'].'\',\'width=500,height=500,toolbars=true,resizable=yes\');}">Remove User From Installation</a><br />
 							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">Change Password</a><br>
 							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbars=true,resizable=yes\');">Change PIN</a>
@@ -116,9 +120,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			';
 			
 			$out.='</tr>';
-			$usersFormValidation.='
-				frmvalidator.addValidation("userUserName_'.$rowUser['PK_Users'].'","req","Please enter a description");
-			';
 			$i++;
 		}
 		
@@ -137,7 +138,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						parse_str($_SESSION['masterUserData']);
 						$out.='
 							<input type="hidden" name="addUserToInstallation" value="'.$_SESSION['masterUserName'].'">
-							User found in Pluto database. Please type the local password for him:
+							<span class="confirm"><B>User found in Pluto database. Please type the local password for him:</B></span>
 							<input type="password" name="masterUserPas"> <input type="submit" class="button" name="addtoInst" value="Save"  > <input type="submit" class="button" name="cancel" value="Cancel"  >
 						';
 						$usersFormValidation.='
@@ -233,8 +234,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			foreach ($displayedUsersArray as $user) {
 				
 				
-				$username = cleanString($_POST['userUserName_'.$user]);
-
 				$hasMailbox =   cleanInteger(@$_POST['userHasMailbox_'.$user]);
 				$userAccessGeneralMailbox = cleanInteger(@$_POST['userAccessGeneralMailbox_'.$user]);
 
@@ -252,7 +251,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 
 				$userMainInstallation = ((int)($_POST['userMainInstallation_'.$user])==0?NULL:cleanInteger($_POST['userMainInstallation_'.$user]));
 				$query = 'UPDATE Users set
-									UserName = ?,
 									HasMailbox =?,
 									AccessGeneralMailbox =?,
 									Extension=?,
@@ -263,7 +261,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 									FK_Language=?,
 									FK_Installation_Main=?
 							WHERE PK_Users = ?';
-				$resUpdUser = $dbADO->Execute($query,array($username,$hasMailbox,$userAccessGeneralMailbox,
+				$resUpdUser = $dbADO->Execute($query,array($hasMailbox,$userAccessGeneralMailbox,
 				$userExtension,$userFirstName,$userLastName,$userNickname,
 				$userForwardEmail,$userLanguage,$userMainInstallation,$user));
 

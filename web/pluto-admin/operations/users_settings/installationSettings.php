@@ -27,29 +27,36 @@ function installationSettings($output,$dbADO) {
 		<input type="hidden" name="action" value="add">		
 		<input type="hidden" name="lastAction" value="">
 		<input type="hidden" name="from" value="'.$from.'">
-			<table>			
+			<table width="300">			
 				<tr>
-					<td>Description:</td>
+					<td width="100"><B>Description</B>:</td>
 					<td><input type="text" size="30" name="Description" value="'.$rowInstallation['Description'].'"></td>
 				</tr>
 				<tr>
-					<td>Name:</td>
+					<td><B>Name</B>:</td>
 					<td><input type="text" size="30" name="Name" value="'.$rowInstallation['Name'].'"></td>
 				</tr>
 				<tr>
-					<td>Address:</td>
+					<td><B>Address</B>:</td>
 					<td><input type="text" size="30" name="Address" value="'.$rowInstallation['Address'].'"></td>
 				</tr>
 				<tr>
-					<td>City:</td>
+					<td colspan="2">This information is optional and presently not used. In the future some plug-ins, like security monitoring, may require address information.</td>
+				</tr>
+				<tr>
+					<td><B>Country</B>:</td>
+					<td>'.generatePullDown('country','Country','PK_Country','Description',$rowInstallation['FK_Country'],$dbADO).'</td>
+				</tr>		
+				<tr>
+					<td><B>City</B>:</td>
 					<td><input type="text" size="30" name="City" value="'.$rowInstallation['City'].'"></td>
 				</tr>
 				<tr>
-					<td>State:</td>
+					<td><B>State</B>:</td>
 					<td><input type="text" size="30" name="State" value="'.$rowInstallation['State'].'"></td>
 				</tr>
 				<tr>
-					<td>Zip/Postal Code:</td>
+					<td><B>Zip/Postal Code</B>:</td>
 					<td><input type="text" size="30" name="Zip" value="'.$rowInstallation['Zip'].'"></td>
 				</tr>
 				<tr>
@@ -81,12 +88,13 @@ function installationSettings($output,$dbADO) {
 		$city = cleanString(@$_POST['City'],50);
 		$state = cleanString(@$_POST['State'],50);
 		$zip = cleanString(@$_POST['Zip'],50);
+		$country=($_POST['country']!='0')?(int)$_POST['country']:NULL;
 		
 		if ($installationID!=0 && $description!='' && $name!='') {
 			
-			$queryUpdate = 'UPDATE Installation Set Description=?,Name=?,Address=?,City=?,State=?,Zip=? 
+			$queryUpdate = 'UPDATE Installation Set Description=?,Name=?,Address=?,City=?,State=?,Zip=?,FK_Country=? 
 							WHERE PK_Installation = ?';
-			$dbADO->Execute($queryUpdate,array($description,$name,$address,$city,$state,$zip,$installationID));
+			$dbADO->Execute($queryUpdate,array($description,$name,$address,$city,$state,$zip,$country,$installationID));
 			
 			$out.="
 				<script>

@@ -68,10 +68,6 @@ function createUser($output,$dbADO) {
 						</td>
 					</tr>			
 					<tr valign="top">
-						<td><B>Type</B></td>
-						<td><input type="radio" value="Users" name="typeUser" checked>Individual<input type="radio" value="Establishment" name="typeUser">Business</td>
-					</tr>			
-					<tr valign="top">
 						<td><B>Create a voicemail box and an email account for the user?</B><br>This allows the user to check his messages/email on the Orbiters.</td>
 						<td><input type="checkbox" name="userHasMailbox" value="1" '.@($_SESSION['createUser']['userHasMailbox']==1?" checked='checked'":'').'></td>
 					</tr>
@@ -215,7 +211,7 @@ function createUser($output,$dbADO) {
 		}
 
 		if ($username!='' && $userPassword!='') {
-			$userAddedtoMasterUsers=addtoMasterUsers($_POST['typeUser'],$userForwardEmail,$username,$_SESSION['userID'],$userMasterPassword,$addMasterUserUrl);
+			$userAddedtoMasterUsers=addtoMasterUsers('Users',$userForwardEmail,$username,$_SESSION['userID'],$userMasterPassword,$addMasterUserUrl);
 			if(!$userAddedtoMasterUsers[0]){
 				header("Location: index.php?section=createUser&error=".$userAddedtoMasterUsers[1]."&from=$from");
 				exit(0);
@@ -260,7 +256,7 @@ function createUser($output,$dbADO) {
 		}		
 		
 	} else {
-			$out = 'You are not allowed to do that!';
+			header("Location: index.php?section=createUser&error=You are not allowed to modify installation.");
 	}
 	
 }
