@@ -257,17 +257,17 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	g_pPlutoLogger->Write( LV_CRITICAL,  "Orbiter path: %s", sOrbiterPath.c_str() );
 	g_pPlutoLogger->Write( LV_CRITICAL,  "Orbiter cmd line: %s", sCmdLine.c_str() );
 
-#ifdef WINCE
 	wchar_t CommFileW[256];
 	mbstowcs(CommFileW, sCommFile.c_str(), 256);
-#define COMM_FILE CommFileW	
+	#define COMM_FILE CommFileW	
 #else
-#define COMM_FILE const_cast<char *>(sCommFile.c_str())
+	#define COMM_FILE const_cast<char *>(sCommFile.c_str())
 #endif		
 
 	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to delete the communcation file");
 	::DeleteFile(COMM_FILE);
 
+#ifdef WINCE
 	if(!::CreateProcess(OrbiterPathW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
 #else
 	if(!::CreateProcess(NULL, const_cast<char *>(sOrbiterCommandLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))

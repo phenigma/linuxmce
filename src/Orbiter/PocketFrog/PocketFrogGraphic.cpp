@@ -67,7 +67,7 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize)
 //-------------------------------------------------------------------------------------------------------
 void PocketFrogGraphic::Clear()
 {
-	if (m_pSurface)
+	if(NULL != m_pSurface && NULL != m_pSurface->m_buffer.get())
 	{
 		delete m_pSurface;
 		m_pSurface = NULL;

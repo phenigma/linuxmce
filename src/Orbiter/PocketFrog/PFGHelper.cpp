@@ -20,6 +20,9 @@ Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 
 	if(pRendererOCG->GetSurface(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize, iWidth, iHeigth))
 	{
+		//int iRealWidth = iWidth % 2 ? iWidth + 1 : iWidth;    //no odd surfaces
+		//int iRealHeigth = iHeigth % 2 ? iHeigth + 1 : iHeigth;
+
 		pSurface = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay()->CreateSurface(iWidth, iHeigth);
 
 		delete pSurface->m_buffer->GetPixels();

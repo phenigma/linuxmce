@@ -216,6 +216,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			if(!(Simulator::GetInstance()->m_bTryToDetermineAutomatically))
 				CmdLineParams.sRouter_IP = Simulator::GetInstance()->m_sRouterIP;
 
+		CmdLineParams.bFullScreen = Simulator::GetInstance()->m_bFullScreen;
+
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",CmdLineParams.PK_Device,
 			CmdLineParams.sRouter_IP.c_str());
 
@@ -253,6 +255,14 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	#else
 			OrbiterSDL_Win32::Cleanup();
 	#endif
+#endif
+
+#ifdef WINCE
+			HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
+			::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
+#else
+			HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
+			::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
 #endif
 
 		g_pPlutoLogger->Write(LV_STATUS, "About to delete logger. Logger out.");

@@ -203,7 +203,7 @@ bool EventLoop(ORBITER* pOrbiter)
 	g_pPlutoLogger->Write(LV_STATUS, "About to quit EventLoop. Reload %d, ConnectionLost %d, Quit %d", 
 		pOrbiter->m_bReload, pOrbiter->m_bConnectionLost, pOrbiter->m_bQuit);
 
-	return !(pOrbiter->m_bConnectionLost && pOrbiter->m_bReload);
+	return !pOrbiter->m_bReload;
 }
 //-----------------------------------------------------------------------------------------------------
 void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,

@@ -111,6 +111,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	m_bRepeat = false;
 	m_bCapsLock = false;
 	m_bQuit = false;
+
+	m_bConnectionLost = false;
+	m_bReload = false;
+	m_bQuit = false;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
@@ -188,6 +192,15 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 			return false;
 		}
 
+		HWND hWnd_TaskBar = ::FindWindow("Shell_TrayWnd", NULL);
+
+		if(hWnd_TaskBar)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "### I found the taskbar window! I will hide it! ###");
+			::ShowWindow(hWnd_TaskBar, SW_HIDE);
+		}
+
+		BringWindowToTop();
 		ModifyStyle(WS_TILEDWINDOW , 0);
 		SetWindowPos(HWND_TOPMOST, 0, 0, m_iImageWidth, m_iImageHeight, SWP_SHOWWINDOW);
 		SetForegroundWindow(m_hWnd);

@@ -36,7 +36,7 @@
 
 #define MAX_LOADSTRING 100
 #define WIN_WIDTH	   800
-#define WIN_HEIGHT	   570
+#define WIN_HEIGHT	   500
 
 #define SDL_WIDTH	   800
 #define SDL_HEIGHT	   600
@@ -72,6 +72,7 @@ HWND				g_hWndPage2;
 HWND				g_hWndPage3;
 //-----------------------------------------------------------------------------------------------------
 HWND				g_hWnd_TryAutomCheckBox;
+HWND				g_hWnd_FullScreenCheckBox;
 HWND				g_hWnd_DeviceIDEdit;
 HWND				g_hWnd_RouterIPEdit;
 HWND				g_hWnd_ApplyButton;
@@ -472,9 +473,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				s_sai.cbSize = sizeof (s_sai);
 #endif //WINCE
 
+				//make sure the that task bar is visible
+				HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
+				::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
+
 				//configuration info
 				g_hWnd_TryAutomCheckBox = CreateCheckBox(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Try to determine automatically the device id", 330);
 				::SendMessage(g_hWnd_TryAutomCheckBox, BM_SETCHECK, BST_CHECKED, 1);
+
+				g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, WIN_HEIGHT - 50, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Full screen", 330);
+				::SendMessage(g_hWnd_FullScreenCheckBox, BM_SETCHECK, BST_CHECKED, 1);
 	
 				CreateLabel(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 80, "Device ID: ");	
 				g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 50, "", true, true);
@@ -906,6 +914,9 @@ void ShowMainDialog() //actually, hides the sdl window
 #ifdef WINCE
 	HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
 	::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
+#else
+	HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
+	::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1244,7 +1255,8 @@ void OnApply()
 
 	if(!Simulator::GetInstance()->m_bTryToDetermineAutomatically)
 	{
-		sCmdLine = "-d " + Simulator::GetInstance()->m_sDeviceID + " -r " + Simulator::GetInstance()->m_sRouterIP;
+		sCmdLine = "-d " + Simulator::GetInstance()->m_sDeviceID + " -r " + Simulator::GetInstance()->m_sRouterIP + 
+			" -l " + "\"" + CmdLineParams.sLogger + "\"";
 	}
 
 #ifdef WINCE
@@ -1356,6 +1368,8 @@ void SaveUI_To_ConfigurationData()
 	string RouterIP;
 	GetEditText(g_hWnd_RouterIPEdit, RouterIP);
 
+	bool bFullScreen = BST_CHECKED == ::SendMessage(g_hWnd_FullScreenCheckBox, BM_GETCHECK, 0, 0);
+
 	Simulator::GetInstance()->m_dwDelayMin = atoi(DelayMin.c_str());
 	Simulator::GetInstance()->m_dwDelayMax = atoi(DelayMax.c_str());
 	Simulator::GetInstance()->m_iNumberOfButtonsPerClick = atoi(ButtonsPerClick.c_str());
@@ -1366,6 +1380,7 @@ void SaveUI_To_ConfigurationData()
 	Simulator::GetInstance()->m_bTryToDetermineAutomatically = bAutomDetection;
 	Simulator::GetInstance()->m_sDeviceID = DeviceID;
 	Simulator::GetInstance()->m_sRouterIP = RouterIP;
+	Simulator::GetInstance()->m_bFullScreen = bFullScreen;
 
 	if(Simulator::GetInstance()->m_sConfigurationFile != "")
 		Simulator::GetInstance()->SaveConfigurationFile(Simulator::GetInstance()->m_sConfigurationFile);
@@ -1377,6 +1392,8 @@ void SyncConfigurationData()
 	Simulator::GetInstance()->m_sRouterIP = CmdLineParams.sRouter_IP;
 	Simulator::GetInstance()->m_bTryToDetermineAutomatically = 
 		CmdLineParams.PK_Device == 0 && CmdLineParams.sRouter_IP == "dcerouter";
+	Simulator::GetInstance()->m_bFullScreen = CmdLineParams.bFullScreen;
+
 }
 //-----------------------------------------------------------------------------------------------------
 void LoadUI_From_ConfigurationData()
@@ -1429,6 +1446,8 @@ void LoadUI_From_ConfigurationData()
 
 	::SendMessage(g_hWnd_TryAutomCheckBox, BM_SETCHECK, 
 		Simulator::GetInstance()->m_bTryToDetermineAutomatically ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(g_hWnd_FullScreenCheckBox, BM_SETCHECK, 
+		Simulator::GetInstance()->m_bFullScreen ? BST_CHECKED : BST_UNCHECKED, 0);
 }
 //-----------------------------------------------------------------------------------------------------
 #pragma warning( default : 4311 4312)

@@ -44,6 +44,8 @@ public: //data
 	bool m_bStopGeneratorThread;
 	long m_dwStartGeneratorThreadDelay;
 
+	bool m_bFullScreen;
+
 	bool m_bIsRunning;
 
 	string m_sConfigurationFile;

@@ -73,9 +73,10 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -85,8 +86,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Lighting_Plugin.dll"
+				OutputFile="../Release/Lighting_Plugin.dll"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="/mysql/lib/debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"
 				ModuleDefinitionFile="Lighting_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"

@@ -165,7 +165,7 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 		return false; //we'll continue with this version
 	}
 
-	string sUpdateBinaryPath = sStoragePath + sUpdateName;
+	string sUpdateBinaryPath = sStoragePath + "/" + sUpdateName;
 
 #ifdef WINCE
 	wchar_t UpdateFileNameW[256];
@@ -222,7 +222,7 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	string sUpdateName = m_pOrbiter->DATA_Get_Update_Name();
 	string sStoragePath = m_pOrbiter->DATA_Get_Path();
 	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
-	string sUpdateBinaryFilePath = sStoragePath + sUpdateName;
+	string sUpdateBinaryFilePath = sStoragePath + "/" + sUpdateName;
 
 	string sCmdLine = "";
 

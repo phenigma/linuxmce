@@ -73,9 +73,10 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -85,8 +86,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Infrared_Plugin.dll"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib pluto_main-r.lib libmysql.lib"
+				OutputFile="../Release/Infrared_Plugin.dll"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;/mysql/lib/debug"
 				ModuleDefinitionFile="Infrared_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
