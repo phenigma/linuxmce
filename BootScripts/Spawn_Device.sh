@@ -62,7 +62,7 @@ for i in $(seq 1 10); do
 	if [ "${cmd_line/Spawn_Device}" == "$cmd_line" ] && [ "${Valgrind/$cmd_line}" != "$Valgrind" ]; then
 		/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log"
 	else
-		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log" &
+		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log" 
 	fi
 	
 	if [ -f /var/pluto/bootpluto/shutdown_$device_id -o -f /var/tmp/shutdown_$device_id ];
