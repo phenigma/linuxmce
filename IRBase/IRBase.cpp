@@ -331,7 +331,7 @@ bool IRBase::ProcessMessage(Message *pMessage)
 				printf("no delay found.\n");
 			}
 		}
-		else if (pMessage->m_mapParameters.count(COMMANDPARAMETER_PK_Input_CONST)>0)
+		else if (pMessage->m_mapParameters.count(COMMANDPARAMETER_PK_Command_Input_CONST)>0)
 		{
 			param = m_pCommand_Impl->m_mapCommandImpl_Children[TargetDevice]->m_pData->m_mapParameters.find(DEVICEDATA_IR_Mode_Delay_CONST);
             if (param != m_pCommand_Impl->m_mapCommandImpl_Children[TargetDevice]->m_pData->m_mapParameters.end())
