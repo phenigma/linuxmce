@@ -976,7 +976,7 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
     if ( PK_Attribute == "" )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Got a null attributte from string: %s", Parms.c_str());
-        return NULL;
+        return new DataGridTable();;
     }
 
     string SQL="select DISTINCT Dest.FK_File, Attribute.Name, Attribute.FirstName, AttributeType.Description "\
@@ -1022,11 +1022,17 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
             m_pMediaAttributes->GetAttributeFromFileID( atoi( PK_Attribute.substr( 2 ).c_str( ) ) )
          );
 
+    if ( PK_Attribute == "" )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Got a null attributte from string: %s", Parms.c_str());
+        return new DataGridTable();
+    }
+
     string SQL="select DISTINCT Dest.FK_Attribute, Attribute.Name, Attribute.FirstName, AttributeType.Description "\
         "FROM File_Attribute As Source "\
         "JOIN File_Attribute As Dest "\
-        "ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute=" + PK_Attribute +
-        " JOIN File ON Dest.FK_File=PK_File "\
+        "ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute='" + PK_Attribute +
+        "' JOIN File ON Dest.FK_File=PK_File "\
         "JOIN Attribute ON Dest.FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
         "JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\

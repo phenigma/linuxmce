@@ -1,12 +1,7 @@
 #include "StartOrbiter_Win32.h"
 
 #include "PlutoUtils/CommonIncludes.h"	
-
-#ifdef WINCE
-	#include "OrbiterSDL_Win32.h"
-#else
-	#include "OrbiterSDL_Win32.h"
-#endif
+#include "OrbiterSDL_Win32.h"
 
 using namespace DCE;
 using namespace std;

@@ -42,7 +42,7 @@ public:
 	 */
 	ScreenHistory( class DesignObj_Orbiter *pObj, class ScreenHistory *pScreenHistory_Prior ) 
 	{ 
-		m_tTime = time(NULL);
+		m_tTime = clock();
 		m_pObj=pObj; m_dwPK_Device=m_dwPK_Users=0; m_bCantGoBack=false; m_pLocationInfo=NULL; 
 		if(  pScreenHistory_Prior  )
 		{
@@ -102,6 +102,8 @@ public:
 	
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
+
+	time_t GetLastScreenChangedTime() { return NULL != m_pScreenHistory_Current ? m_pScreenHistory_Current->m_tTime : time(NULL); }
 
 	pluto_pthread_mutex_t m_CallbackMutex; /** < Don't allow 2 threads to operate on the callback map at the same time */
 	pluto_pthread_mutex_t m_RendererThreadMutex;

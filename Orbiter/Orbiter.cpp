@@ -4598,7 +4598,7 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
     //find the text object
     m_pCaptureKeyboard_Text = FindText( pObj,  iPK_Text );
 
-    if( iPK_Variable )
+    if( iPK_Variable && NULL != m_pCaptureKeyboard_Text)
         m_pCaptureKeyboard_Text->m_sText = m_mapVariable[iPK_Variable];
 
     //build the text string
@@ -4645,8 +4645,10 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
     {
         m_pCaptureKeyboard_Text->m_sText = NewValue;
 
-		if(NULL != m_pCaptureKeyboard_Text->m_pObject)
-			m_vectObjs_NeedRedraw.push_back( m_pCaptureKeyboard_Text->m_pObject );
+		if( NULL != m_pCaptureKeyboard_Text )
+			m_vectTexts_NeedRedraw.push_back( m_pCaptureKeyboard_Text );
+		else
+			m_bRerenderScreen = true;
 
         return true;
     }

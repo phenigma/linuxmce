@@ -7,6 +7,9 @@
 
 #ifndef WINCE
 	#include "Commctrl.h"
+	#include "OrbiterSDL_Win32.h"
+#else
+	#include "OrbiterSDL_WinCE.h"
 #endif
 
 #pragma warning(disable : 4311 4312)
@@ -83,6 +86,8 @@ HWND				g_hWndRandom_KeyboardCheckBox;
 HWND				g_hWndRandom_KeyOption1RadioBox;
 HWND				g_hWndRandom_KeyOption2RadioBox;
 HWND				g_hWndRandom_KeyOption3RadioBox;
+
+HWND				g_hWndRandom_HomeEdit;
 
 HWND				g_hWndRandom_GenerateButton;
 HWND				g_hWndRandom_StopButton;
@@ -250,6 +255,9 @@ DWORD WINAPI GeneratorThread( LPVOID lpParameter)
 	string ButtonsPerClick;
 	GetEditText(g_hWndRandom_ButtonsPerClick, ButtonsPerClick);
 
+	string HomeScreen;
+	GetEditText(g_hWndRandom_HomeEdit, HomeScreen);
+
 	int iDelayMin = atoi(DelayMin.c_str());
 	int iDelayMax = atoi(DelayMax.c_str());
 	int iButtonsPerClick = atoi(ButtonsPerClick.c_str());
@@ -264,6 +272,16 @@ DWORD WINAPI GeneratorThread( LPVOID lpParameter)
 	{
 		if(g_bStopGeneratorThread)
 			return 0L;
+
+#ifdef WINCE
+	OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+#else
+	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
+#endif
+	
+		if(clock() - pOrbiter->GetLastScreenChangedTime() > 60 * 60 * 1000) //1h
+			if(HomeScreen != "")    
+				pOrbiter->GotoScreen(HomeScreen);	
 
 		HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
 		
@@ -558,8 +576,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWndRandom_KeyOption3RadioBox = CreateRadioBox(g_hWndPage3, 10, 160, "Phone keys: 0 - 9, *, #, C, n", 250);
 				::SendMessage(g_hWndRandom_KeyOption2RadioBox, BM_SETCHECK, BST_CHECKED, 0);
 
-				g_hWndRandom_GenerateButton = CreateButton(g_hWndPage3, 10, 200, "&Generate", 100);
-				g_hWndRandom_StopButton = CreateButton(g_hWndPage3, 120, 200, "&Stop");
+				CreateLabel(g_hWndPage3, 10, 200, 200, "Home screen: ");	
+				g_hWndRandom_HomeEdit = CreateEdit(g_hWndPage3, 225, 200, 50, "1255", true, true);
+
+				g_hWndRandom_GenerateButton = CreateButton(g_hWndPage3, 10, 250, "&Generate", 100);
+				g_hWndRandom_StopButton = CreateButton(g_hWndPage3, 120, 250, "&Stop");
 
 				::SetWindowLong(g_hWndPage3, GWL_WNDPROC, reinterpret_cast<long>(PagesWndProc));
 
