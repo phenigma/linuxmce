@@ -17,7 +17,6 @@ namespace DCE
 using namespace DCE;
 //<-dceag-incl-e->
 
-
 //<-dceag-plug-b->
 extern "C" {
 	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,string sLogger)

@@ -34,6 +34,18 @@ namespace DCE
 using namespace DCE;
 //<-dceag-incl-e->
 
+extern "C" {
+	int IsRuntimePlugin() 
+	{ 
+		// If you want this plug-in to be able to register and be used even if it is not in the Device table, set this to true.
+		// Then the Router will scan for all .so or .dll files, and if found they will be registered with a temporary device number
+		bool bIsRuntimePlugin=false;
+		if( bIsRuntimePlugin )
+			return Lighting_Plugin::PK_DeviceTemplate_get();
+		else
+			return 0;
+	}
+}
 
 //<-dceag-plug-b->
 extern "C" {

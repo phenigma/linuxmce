@@ -39,7 +39,7 @@ extern "C" {
 	{ 
 		// If you want this plug-in to be able to register and be used even if it is not in the Device table, set this to true.
 		// Then the Router will scan for all .so or .dll files, and if found they will be registered with a temporary device number
-		bool bIsRuntimePlugin=true;
+		bool bIsRuntimePlugin=false;
 		if( bIsRuntimePlugin )
 			return Media_Plugin::PK_DeviceTemplate_get();
 		else
