@@ -1,4 +1,3 @@
-
 #ifndef File_Grids_PluginBase_h
 #define File_Grids_PluginBase_h
 #include "DeviceData_Impl.h"
@@ -73,11 +72,8 @@ public:
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
-		if( pMessageOriginal->m_dwMessage_Type == MESSAGETYPE_MESSAGE_INTERCEPTED )
-		{
-			InterceptedMessage(pMessageOriginal);
+		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
 			return true;
-		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{

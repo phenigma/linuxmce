@@ -61,11 +61,12 @@ public:
 	bool SetHouseMode(DeviceData_Router *pDevice,int iPK_Users,int PK_HouseMode,string sHandlingInstructions);
 	void HandleSetModeFailure(Message *pMessage);
 	bool SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevice);
-	string GetModeString(int PK_HouseMode) {return "foo";};
-	int GetModeID(string Mode) {return 0;}
+	string GetModeString(int PK_HouseMode);
+	int GetModeID(string Mode);
 	int GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice);
 	void SecurityBreach(DeviceData_Router *pDevice);
 	void FireAlarm(DeviceData_Router *pDevice);
+	string GetErrorsSinceLastReset();
 
 	/** Interceptors */
     bool SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);

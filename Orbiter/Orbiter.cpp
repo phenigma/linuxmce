@@ -377,6 +377,9 @@ void Orbiter::RedrawObjects(  )
 
 void Orbiter::RealRedraw( void *data )
 {
+	if( m_bQuit )
+		return;
+
     g_pPlutoLogger->Write( LV_STATUS, "In Redraw Objects" );
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
     if(  m_bRerenderScreen  )
@@ -4989,3 +4992,5 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 	ContinuousRefreshInfo *pContinuousRefreshInfo = new ContinuousRefreshInfo(m_pScreenHistory_Current->m_pObj,atoi(sTime.c_str()));
 	CallMaintenanceInTicks( clock() + (pContinuousRefreshInfo->m_iInterval * CLOCKS_PER_SEC), &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
 }
+
+//timingofsetnowplaying

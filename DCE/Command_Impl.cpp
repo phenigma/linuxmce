@@ -330,6 +330,12 @@ void Command_Impl::ReceivedString( string sLine )
 
 bool Command_Impl::ReceivedMessage( Message *pMessage )
 {
+	if( pMessage->m_dwMessage_Type == MESSAGETYPE_MESSAGE_INTERCEPTED )
+	{
+		InterceptedMessage(pMessage);
+		return true;
+	}
+
 	// The class that overrides this will try to handle it
 	// If it can't it will pass it to this function.
 	map<long, string>::iterator p;

@@ -42,6 +42,8 @@ using namespace DCE;
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "DCE/DataGrid.h"
 
+#include "Orbiter_Plugin/Orbiter_Plugin.h"
+
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Define_Array.h"
@@ -261,6 +263,20 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 				break;
 			}
 		}
+		if( !bFailed )
+		{
+			string sErrors = GetErrorsSinceLastReset();
+			// Only set the house mode on the orbiters within this group
+			for(size_t s=0;s<pDeviceGroup->m_vectDeviceData_Base.size();++s)
+			{
+				DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceGroup->m_vectDeviceData_Base[s];  // it's coming from the router, so it's safe to cast it
+				if( pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_Orbiter_CONST )
+				{
+					DCE::CMD_Set_House_Mode CMD_Set_House_Mode(m_dwPK_Device, pDevice->m_dwPK_Device, StringUtils::itos(PK_HouseMode),0,sErrors,"",0,"");
+					SendCommand( CMD_Set_House_Mode );
+				}
+			}
+		}
 	}
 	else
 	{
@@ -280,6 +296,16 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 				}
 			}
 		}
+		if( !bFailed )
+		{
+			string sErrors = GetErrorsSinceLastReset();
+			for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+			{
+				OH_Orbiter *pOH_Orbiter = (*it).second;
+				DCE::CMD_Set_House_Mode CMD_Set_House_Mode(m_dwPK_Device, pMessage->m_dwPK_Device_From, StringUtils::itos(PK_HouseMode),0,sErrors,"",0,"");
+				SendCommand( CMD_Set_House_Mode );
+			}
+		}
 	}
 	if( bFailed )
 	{
@@ -293,6 +319,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		DCE::CMD_Select_Object CMD_Select_Object( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST),StringUtils::itos(pRow_AlertType->ExitDelay_get()) );
 		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Select_Object.m_pMessage);
 		SendCommand( CMD_Goto_Screen );
+		m_pDeviceData_Router_this->m_sState_set(GetModeString(PK_HouseMode));
 	}
 	for(vector<Row_Alert *>::iterator it=m_vectPendingAlerts.begin();it!=m_vectPendingAlerts.end();++it)
 	{
@@ -340,8 +367,6 @@ bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int iPK_Users,int 
 
 	pDevice->m_sState_set(NewMode + "," + Bypass);
 
-	m_pDeviceData_Router_this->m_sState_set("NewMode");
-
 	Row_ModeChange *pRow_ModeChange = m_pDatabase_pluto_security->ModeChange_get()->AddRow();
 	pRow_ModeChange->EK_HouseMode_set(PK_HouseMode);
 	pRow_ModeChange->ChangeTime_set(StringUtils::SQLDateTime(time(NULL)));
@@ -354,7 +379,7 @@ bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int iPK_Users,int 
 
 bool Security_Plugin::SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevice)
 {
-	if( pDevice->m_sState_get()!="TRIPPED" )
+	if( pDevice->m_sStatus_get()!="TRIPPED" )
 		return false;
 
 	int PK_AlertType = GetAlertType(PK_HouseMode,pDevice);
@@ -374,7 +399,7 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 	}
 
 	bool m_bTripped = pMessage->m_mapParameters[EVENTPARAMETER_Tripped_CONST]=="1";
-	pDevice->m_sStatus_set(m_bTripped ? "NORMAL" : "TRIPPED");
+	pDevice->m_sStatus_set(m_bTripped ? "TRIPPED" : "NORMAL");
 
 	string State = pDevice->m_sState_get();
 	string::size_type pos=0;
@@ -450,3 +475,42 @@ void Security_Plugin::AlarmCallback(int id, void* param)
 {
 }
 
+string Security_Plugin::GetErrorsSinceLastReset()
+{
+	return "";
+}
+
+string Security_Plugin::GetModeString(int PK_HouseMode)
+{
+	switch(PK_HouseMode)
+	{
+	case HOUSEMODE_Armed_away_CONST:
+		return "ARMED";
+	case HOUSEMODE_Armed_at_home_CONST:
+		return "AT HOME SECURE";
+	case HOUSEMODE_Sleeping_CONST:
+		return "SLEEPING";
+	case HOUSEMODE_Entertaining_CONST:
+		return "ENTERTAINING";
+	case HOUSEMODE_Armed_Extended_away_CONST:
+		return "EXTENDED AWAY";
+	case HOUSEMODE_Unarmed_at_home_CONST:
+	default:
+		return "UNARMED";
+	}
+}
+int Security_Plugin::GetModeID(string Mode)
+{
+	if( Mode=="ARMED" )
+		return HOUSEMODE_Armed_away_CONST;
+	else if( Mode=="AT HOME SECURE" )
+		return HOUSEMODE_Armed_at_home_CONST;
+	else if( Mode=="SLEEPING" )
+		return HOUSEMODE_Sleeping_CONST;
+	else if( Mode=="ENTERTAINING" )
+		return HOUSEMODE_Entertaining_CONST;
+	else if( Mode=="EXTENDED AWAY" )
+		return HOUSEMODE_Armed_Extended_away_CONST;
+	else
+		return HOUSEMODE_Unarmed_at_home_CONST;
+}
