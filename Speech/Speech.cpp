@@ -68,6 +68,9 @@ void Speech::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 {
 	sCMD_Result = "UNKNOWN DEVICE";
 }
+void Speech::InitSpeech(void) {
+	cout << "Test" << endl;
+}
 
 //<-dceag-sample-b->
 /*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
@@ -157,6 +160,3 @@ void Speech::SomeFunction()
 	COMMANDS TO IMPLEMENT
 
 */
-
-
-
