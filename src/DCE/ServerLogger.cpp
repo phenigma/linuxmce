@@ -104,5 +104,4 @@ void ServerLogger::WriteEntry(Logger::Entry& entry)
 	msg->m_mapParameters[LOG_PARAM_LEVEL] = StringUtils::itos(entry.Level);
 */
 	SendMessage(msg);
-	free(entry.m_pcDataBlock);
 }

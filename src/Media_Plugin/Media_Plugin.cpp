@@ -1655,6 +1655,7 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
 
 EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, int iPK_EntertainArea )
 {
+    g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea1");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // If we don't have an entertainment area, but we do have a device that is a media device we can find it there
     if( !iPK_EntertainArea && iPK_Device )
@@ -1667,6 +1668,7 @@ EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_D
         }
     }
 
+    g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea2");
     // See if we need to figure out the entertainment area on our own. If so, the only way to do this is if the message came from an orbiter
     if( !iPK_EntertainArea )
     {
@@ -1676,6 +1678,8 @@ EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_D
             g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media with no entertainment area from a non-orbiter %d %d %d",iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea );
             return NULL; // Don't know what area it should be played in
         }
+
+		g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea3");
 
         iPK_EntertainArea = pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0;
         if( !iPK_EntertainArea )
@@ -1691,6 +1695,7 @@ EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_D
 				}
 			}
 
+			g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea4");
 			if( !iPK_EntertainArea )
 			{
 				g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter with no entertainment area %d %d %d",iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea );
