@@ -108,11 +108,13 @@ g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
             continue;
         }
 
-        int x;
-        struct stat dirEntryStat;
+        // int x;
+		// LSB-generic Large file support standard for accessing large files
+        struct stat64 dirEntryStat;
         while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
         {
-            if ( stat( (BasePath + "/" + entry.d_name).c_str(), &dirEntryStat) != 0 )
+			// LSB-generic Large file support standard for accessing large files
+            if ( stat64((BasePath + "/" + entry.d_name).c_str(), &dirEntryStat) != 0 )
             {
                 g_pPlutoLogger->Write(LV_STATUS, "Could not stat directory entry: %s (%s)", entry.d_name, strerror(errno));
                 continue;
