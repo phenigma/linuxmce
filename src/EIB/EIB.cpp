@@ -305,3 +305,5 @@ void EIB::CMD_EIB_Write(string sAddress,string sData,int iDataType,string &sCMD_
 
 void EIB::CMD_EIB_Read(string sAddress,string &sCMD_Result,Message *pMessage)
 //<-dceag-c275-e->
+{
+}
