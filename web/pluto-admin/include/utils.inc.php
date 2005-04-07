@@ -26,6 +26,14 @@ function showSectionContentWithPhp($string) {
    return stripslashes($string);                                 	
 } 
 
+// display array nicely formated - used for debug only
+function print_array($arr)
+{
+	print '<pre>';
+	print_r($arr);
+	print '</pre>';
+}
+
 //---------------------------------------------------------------------------------------
 //customized data format
 //---------------------------------------------------------------------------------------

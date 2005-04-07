@@ -78,28 +78,14 @@ function start_drag(val)
 	object_to_drag=val;
 	devID=val.substring(7);
 	
-	eval("audio_"+devID+".clear()");
-	for(dev in audioPipe){
-		if(audioPipe[dev] && audioPipe[dev]['to']==devID){
-			eval("audio_"+dev+".clear()");
-		}
-	}
-	eval("video_"+devID+".clear()");
-	for(dev in videoPipe){
-		if(videoPipe[dev] && videoPipe[dev]['to']==devID){
-			eval("video_"+dev+".clear()");
-		}
-	}
-	eval("audioLive_"+devID+".clear()");
-	for(dev in audioLivePipe){
-		if(audioLivePipe[dev] && audioLivePipe[dev]['to']==devID){
-			eval("audioLive_"+dev+".clear()");
-		}
-	}
-	eval("videoLive_"+devID+".clear()");
-	for(dev in videoLivePipe){
-		if(videoLivePipe[dev] && videoLivePipe[dev]['to']==devID){
-			eval("videoLive_"+dev+".clear()");
+	for(i=0;i<pipesArray.length;i++){
+		pipe=pipesArray[i];
+		eval(pipe+"_"+devID+".clear()");
+		eval("tmpArray="+pipe+"Pipe");
+		for(dev in tmpArray){
+			if(tmpArray[dev] && tmpArray[dev]['to']==devID){
+				eval(pipe+"_"+dev+".clear()");
+			}
 		}
 	}
 }
@@ -120,6 +106,7 @@ function end_drag(val)
 	redrawPipes(val);
 }
 
+// draw pipes for device and coords from parameters
 function drawPipe(device,connectionType,fromX,fromY,toX,toY)
 {
 	pipeName=connectionType+'_'+device;
@@ -147,6 +134,38 @@ function clearPipe(pipeName)
 	eval(pipeName+".clear()");
 }
 
+// rebuild pipes who doesn't exist in the cookie
+// the calls are generated from PHP for missing pipes
+function generatePipe(deviceFrom,commandOut,deviceTo,commandIn,connectionType,description)
+{
+	eval("xContainer=parseInt(document.getElementById('device_"+deviceFrom+"').style.left)");
+	eval("yContainer=parseInt(document.getElementById('device_"+deviceFrom+"').style.top)");
+	eval("xContainerTo=parseInt(document.getElementById('device_"+deviceTo+"').style.left)");
+	eval("yContainerTo=parseInt(document.getElementById('device_"+deviceTo+"').style.top)");
+
+	
+	eval("fromX=parseInt(document.getElementById('out_"+deviceFrom+"_cmd_"+commandOut+"').style.left)");
+	eval("fromY=parseInt(document.getElementById('out_"+deviceFrom+"_cmd_"+commandOut+"').style.top)");
+	eval("toX=parseInt(document.getElementById('in_"+deviceTo+"_cmd_"+commandIn+"').style.left)");
+	eval("toY=parseInt(document.getElementById('in_"+deviceTo+"_cmd_"+commandIn+"').style.top)");
+	
+	coordXFrom=xContainer+fromX+30;
+	coordYFrom=yContainer+fromY+10;
+	coordXTo=xContainerTo+toX;
+	coordYTo=yContainerTo+toY+10;
+	
+	eval(connectionType+"Pipe["+deviceFrom+"]=new Array();");
+	eval(connectionType+"Pipe["+deviceFrom+"]['to']="+deviceTo+";");
+	eval(connectionType+"Pipe["+deviceFrom+"]['input']="+commandIn+";");
+	eval(connectionType+"Pipe["+deviceFrom+"]['output']="+commandOut+";");
+	eval(connectionType+"Pipe["+deviceFrom+"]['coords']='"+coordXFrom+","+coordYFrom+","+coordXTo+","+coordYTo+"';");
+	eval(connectionType+"Pipe["+deviceFrom+"]['description']='"+description+"'");
+	
+	drawPipe(deviceFrom,connectionType,coordXFrom,coordYFrom,coordXTo,coordYTo);
+	
+	
+}
+
 function bring_to_front(val)
 {
 	last_z_index++;
@@ -158,42 +177,31 @@ function bring_to_front(val)
 
 function setPipeVariables()
 {
+	eval(globalPipe+"Pipe["+globalFromDevice+"]=new Array();");
+	eval(globalPipe+"Pipe["+globalFromDevice+"]['to']="+globalToDevice+";");
+	eval(globalPipe+"Pipe["+globalFromDevice+"]['input']="+globalInput+";");
+	eval(globalPipe+"Pipe["+globalFromDevice+"]['output']="+globalOutput+";");
+	eval(globalPipe+"Pipe["+globalFromDevice+"]['coords']='"+globalXFrom+","+globalYFrom+","+globalXTo+","+globalYTo+"';");
+	eval(globalPipe+"Pipe["+globalFromDevice+"]['description']='From "+document.getElementById('fromMessage').innerHTML+" to "+document.getElementById('toMessage').innerHTML+"';");
 	switch(globalPipe){
 		case 'audio':
-			audioPipe[globalFromDevice]=new Array();
-			audioPipe[globalFromDevice]['to']=globalToDevice;
-			audioPipe[globalFromDevice]['input']=globalInput;
-			audioPipe[globalFromDevice]['output']=globalOutput;
-			audioPipe[globalFromDevice]['coords']=globalXFrom+','+globalYFrom+','+globalXTo+','+globalYTo;
 			setMessage('Audio Pipe set',0);
 		break;
 		case 'video':
-			videoPipe[globalFromDevice]=new Array();
-			videoPipe[globalFromDevice]['to']=globalToDevice;
-			videoPipe[globalFromDevice]['input']=globalInput;
-			videoPipe[globalFromDevice]['output']=globalOutput;
-			videoPipe[globalFromDevice]['coords']=globalXFrom+','+globalYFrom+','+globalXTo+','+globalYTo;
 			setMessage('Video Pipe set',0);
 		break;
 		case 'audioLive':
-			audioLivePipe[globalFromDevice]=new Array();
-			audioLivePipe[globalFromDevice]['to']=globalToDevice;
-			audioLivePipe[globalFromDevice]['input']=globalInput;
-			audioLivePipe[globalFromDevice]['output']=globalOutput;
-			audioLivePipe[globalFromDevice]['coords']=globalXFrom+','+globalYFrom+','+globalXTo+','+globalYTo;
 			setMessage('Audio Live Pipe set',0);
 		break;
 		case 'videoLive':
-			videoLivePipe[globalFromDevice]=new Array();
-			videoLivePipe[globalFromDevice]['to']=globalToDevice;
-			videoLivePipe[globalFromDevice]['input']=globalInput;
-			videoLivePipe[globalFromDevice]['output']=globalOutput;
-			videoLivePipe[globalFromDevice]['coords']=globalXFrom+','+globalYFrom+','+globalXTo+','+globalYTo;
 			setMessage('Video Live Pipe set',0);
 		break;
 	}
+	clearNotifications();
 }
 
+// grab input and outputs for devices and
+// create a graphical pipe and display it if it's a valid one
 function setPipe(device,command,prefix,itemName)
 {
 	eval("xContainer=parseInt(document.getElementById('device_"+device+"').style.left)");
@@ -246,6 +254,14 @@ function setPipe(device,command,prefix,itemName)
 	}
 }
 
+// remove the notification from top right box
+function clearNotifications()
+{
+	document.getElementById('toMessage').innerHTML='';
+	document.getElementById('fromMessage').innerHTML='';
+}
+
+// call redraw connectors for every pipe type
 function redrawPipes(val)
 {
 	deviceID=val.substring(7);
@@ -255,11 +271,11 @@ function redrawPipes(val)
 	redrawConnectors('videoLive',videoLivePipe,deviceID);
 }
 
+// redraw all graphical pipes based on the arrays with data for a specific pipe type and device
 function redrawConnectors(connectorType,pipeArray,deviceID)
 {
-	try{
 		for(dev in pipeArray){
-			if(dev==deviceID){
+			if(pipeArray[dev] && dev==deviceID){
 				// there are audio pipes who start from this device
 				oldCoords = pipeArray[dev]['coords'].split(','); 
 				newX=parseInt(oldCoords[0])+parseInt(xMousePos)-parseInt(startX);
@@ -267,7 +283,7 @@ function redrawConnectors(connectorType,pipeArray,deviceID)
 				drawPipe(deviceID,connectorType,newX,newY,oldCoords[2],oldCoords[3]);
 				pipeArray[deviceID]['coords']=newX+','+newY+','+oldCoords[2]+','+oldCoords[3];
 			}
-			if( pipeArray[dev]['to']==deviceID){
+			if(pipeArray[dev] && pipeArray[dev]['to']==deviceID){
 				// redraw the pipes who end in this device
 				oldCoords = pipeArray[dev]['coords'].split(','); 
 				newX=parseInt(oldCoords[2])+parseInt(xMousePos)-parseInt(startX);
@@ -276,12 +292,9 @@ function redrawConnectors(connectorType,pipeArray,deviceID)
 				pipeArray[dev]['coords']=oldCoords[0]+','+oldCoords[1]+','+newX+','+newY;
 			}
 		}
-	}catch(e){
-		// do nothing
-	}
 }
 
-// category 0 is normal message, 1 mean error
+// category 0 is normal message, 1 mean error and is displayed in red
 function setMessage(message,category)
 {
 	if(category==1){
@@ -309,10 +322,10 @@ function savePositions()
 	for(key in layersArray){
 		eval("xCoord=document.getElementById('device_"+layersArray[key]+"').style.left");
 		eval("yCoord=document.getElementById('device_"+layersArray[key]+"').style.top");
-		audioCoords=(audioPipe[layersArray[key]])?audioPipe[layersArray[key]]['to']+':'+audioPipe[layersArray[key]]['coords']+':'+audioPipe[layersArray[key]]['input']+':'+audioPipe[layersArray[key]]['output']:'none';
-		videoCoords=(videoPipe[layersArray[key]])?videoPipe[layersArray[key]]['to']+':'+videoPipe[layersArray[key]]['coords']+':'+videoPipe[layersArray[key]]['input']+':'+videoPipe[layersArray[key]]['output']:'none';
-		audioLiveCoords=(audioLivePipe[layersArray[key]])?audioLivePipe[layersArray[key]]['to']+':'+audioLivePipe[layersArray[key]]['coords']+':'+audioLivePipe[layersArray[key]]['input']+':'+audioLivePipe[layersArray[key]]['output']:'none';
-		videoLiveCoords=(videoLivePipe[layersArray[key]])?videoLivePipe[layersArray[key]]['to']+':'+videoLivePipe[layersArray[key]]['coords']+':'+videoLivePipe[layersArray[key]]['input']+':'+videoLivePipe[layersArray[key]]['output']:'none';
+		audioCoords=(audioPipe[layersArray[key]])?audioPipe[layersArray[key]]['to']+':'+audioPipe[layersArray[key]]['coords']+':'+audioPipe[layersArray[key]]['input']+':'+audioPipe[layersArray[key]]['output']+':'+audioPipe[layersArray[key]]['description']:'none';
+		videoCoords=(videoPipe[layersArray[key]])?videoPipe[layersArray[key]]['to']+':'+videoPipe[layersArray[key]]['coords']+':'+videoPipe[layersArray[key]]['input']+':'+videoPipe[layersArray[key]]['output']+':'+videoPipe[layersArray[key]]['description']:'none';
+		audioLiveCoords=(audioLivePipe[layersArray[key]])?audioLivePipe[layersArray[key]]['to']+':'+audioLivePipe[layersArray[key]]['coords']+':'+audioLivePipe[layersArray[key]]['input']+':'+audioLivePipe[layersArray[key]]['output']+':'+audioLivePipe[layersArray[key]]['description']:'none';
+		videoLiveCoords=(videoLivePipe[layersArray[key]])?videoLivePipe[layersArray[key]]['to']+':'+videoLivePipe[layersArray[key]]['coords']+':'+videoLivePipe[layersArray[key]]['input']+':'+videoLivePipe[layersArray[key]]['output']+':'+videoLivePipe[layersArray[key]]['description']:'none';
 		toSave+=';'+layersArray[key]+';'+xCoord+';'+yCoord+';'+audioCoords+';'+videoCoords+';'+audioLiveCoords+';'+videoLiveCoords;
 	}
 	document.forms[0].devicesCoords.value=toSave;
@@ -331,7 +344,8 @@ function showInfoToolbar(device)
 			eval("toDevice="+pipesArray[i]+"Pipe["+device+"]['to']");
 			eval("deviceInput="+pipesArray[i]+"Pipe["+device+"]['input']");
 			eval("deviceOutput="+pipesArray[i]+"Pipe["+device+"]['output']");
-			eval("document.getElementById('del_"+pipesArray[i]+"_text').innerHTML=\'from "+deviceOutput+" to "+deviceInput+" on "+toDevice+"\'");
+			//eval("document.getElementById('del_"+pipesArray[i]+"_text').innerHTML=\'from "+deviceOutput+" to "+deviceInput+" on "+toDevice+"\'");
+			eval("document.getElementById('del_"+pipesArray[i]+"_text').innerHTML="+pipesArray[i]+"Pipe["+device+"]['description'];");
 			eval("document.getElementById('del_"+pipesArray[i]+"').checked=true;");
 			eval("document.getElementById('del_"+pipesArray[i]+"').value="+device);
 		}else{
@@ -343,6 +357,7 @@ function showInfoToolbar(device)
 	document.getElementById('deleteToolbar').style.display='';	
 }
 
+// delete the graphical pipe (not the arrays used for rebuild)
 function removePipe(val)
 {
 	if(val.value!=1){
