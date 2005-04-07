@@ -86,7 +86,10 @@ void HandleRequestSocket::DisconnectAndWait()
 	// This used to be pthread_join, but it crashed without logical explanation on a very intermittent basis.
 	// Try just waiting this way.
 	while( m_bRunning )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Requesthandler %p (device: %d) waiting for runThread", this, m_dwPK_Device );
 		Sleep(10);
+	}
 
 	m_RequestHandlerThread = 0;
 }
@@ -119,6 +122,8 @@ bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 
 void HandleRequestSocket::RunThread()
 {
+	g_pPlutoLogger->Write( LV_STATUS, "Requesthandler %p (device: %d) runThread now running", 
+		this, m_dwPK_Device );
 	m_bRunning = true;
 
 	string sMessage = "";
@@ -185,9 +190,9 @@ void HandleRequestSocket::RunThread()
 				ReceivedString( sMessage );
 		}
 	}
+	g_pPlutoLogger->Write( LV_STATUS, "Requesthandler %p (device: %d) Closing request handler connection", 
+		this, m_dwPK_Device );
 
-//HACK this is crashing! :(
-g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 //	g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n",
 //		m_dwPK_Device, (int) m_bUnexpected, sMessage.c_str(), (int) m_bTerminate, m_sName.c_str() );
 
