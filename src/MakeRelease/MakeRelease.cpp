@@ -1495,7 +1495,11 @@ string Makefile = "none:\n"
 	{
 		Row_Package_Source *pRow_Package_Source_Dependency = vect_pRow_Package_Source_Dependencies[s];
 		string sPkgName = pRow_Package_Source_Dependency->Name_get();
+		string sPkgVersion = pRow_Package_Source_Dependency->Version_get();
+		int iPkgManufacturer = pRow_Package_Source_Dependency->FK_Package_getrow()->FK_Manufacturer_get();
 		sDepends += ", " + sPkgName;
+		if (sPkgVersion != "" && iPkgManufacturer == 1) /* HARDCODED: 1 = Pluto */
+			sDepends += string("")+ " (= " + sPkgVersion + ")";
 		g_DebianPackages[sPkgName] = true;
 	}
 	g_DebianPackages[Package_Name] = true;
