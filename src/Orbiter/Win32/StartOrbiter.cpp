@@ -41,6 +41,7 @@ using namespace std;
 #include "PlutoUtils/Other.h"
 
 #include "MainDialog.h"
+#include "PopupMessage.h"
 //-----------------------------------------------------------------------------------------------------
 enum OrbiterStages
 {
@@ -237,6 +238,7 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 				break;
 
 			case osRun:
+				ClosePopup();
 				g_pPlutoLogger->Write(LV_STATUS, "Stage run");
 				if(Run(pOrbiter, bLocalMode))
 					stage = osQuit; 
@@ -245,6 +247,8 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 				break;
 
 			case osErrorReconnect:
+				ShowPopup("Pluto Orbiter", "Failed to connect to DCERouter. Trying to reconnect...");
+
 				WriteStatusOutput("Failed to connect to DCERouter. I'll try again in 2 seconds...");
 				Sleep(2000);
 				stage = osConnect;

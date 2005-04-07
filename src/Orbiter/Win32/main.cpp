@@ -44,7 +44,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 	string sRouter_IP="dcerouter";
     int PK_Device=0;
-	string sLogger="orbiter";
+	string sLogger="orbiter.log";
 
     int Width=800,Height=600;
     bool bLocalMode=false; // If true, it will not connect to PlutoServer but will look for it's files in the local directory

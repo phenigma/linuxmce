@@ -166,6 +166,9 @@
 				RelativePath="..\PocketFrog\PocketFrogWrapper.cpp">
 			</File>
 			<File
+				RelativePath="..\Win32\PopupMessage.cpp">
+			</File>
+			<File
 				RelativePath="..\RendererMNG.cpp">
 			</File>
 			<File
@@ -204,6 +207,9 @@
 			</File>
 			<File
 				RelativePath=".\Sdl\PlutoSDLDefs.h">
+			</File>
+			<File
+				RelativePath="..\Win32\PopupMessage.h">
 			</File>
 			<File
 				RelativePath="..\OrbiterGen\Renderer.h">

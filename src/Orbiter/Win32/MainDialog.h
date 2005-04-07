@@ -13,6 +13,8 @@
 	#include <string>
 	using namespace std;
 #endif
+
+extern HINSTANCE	g_hInst; // The current instance
 //-----------------------------------------------------------------------------------------------------
 WORD				MyRegisterClass	(HINSTANCE, LPTSTR);
 BOOL				InitInstance	(HINSTANCE, int);

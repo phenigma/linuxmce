@@ -580,7 +580,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif
 			{
 #ifdef POCKETFROG
-				Orbiter_PocketFrog::GetInstance()->OnQuit();
+				if(Orbiter_PocketFrog::GetInstance())
+					Orbiter_PocketFrog::GetInstance()->OnQuit();
 				Sleep(500);
 #else
 				HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
