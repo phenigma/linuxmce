@@ -792,8 +792,25 @@ g_pPlutoLogger->Write(LV_STATUS, "^RenderGraphic start: Surface %p has %p pixels
 			Rect dest;	
 			dest.Set(rectTotal.Left(), rectTotal.Top(), rectTotal.Right(), rectTotal.Bottom());
 
-			g_pPlutoLogger->Write(LV_STATUS, "Need to stretch picture: %d, %d, %d, %d", 
-				rectTotal.Left(), rectTotal.Top(), rectTotal.Right(), rectTotal.Bottom());
+			double ZoomX = 1;
+			double ZoomY = 1;
+
+			if(bDisableAspectRatio) //no aspect ratio kept
+			{
+				ZoomX = rectTotal.Width / double(pSurface->GetWidth());
+				ZoomY = rectTotal.Height / double(pSurface->GetHeight());
+			}
+			else //we'll have to keep the aspect
+			{
+				ZoomX = ZoomY = min(rectTotal.Width / double(pSurface->GetWidth()),
+					rectTotal.Height / double(pSurface->GetHeight()));
+			}
+
+			dest.right = dest.left + int(pSurface->GetWidth() * ZoomX);
+			dest.bottom = dest.top + int(pSurface->GetHeight() * ZoomY);
+
+			g_pPlutoLogger->Write(LV_STATUS, "Need to stretch picture: %d, %d, %d, %d, keep aspect %d", 
+				dest.left, dest.top, dest.right, dest.bottom, !bDisableAspectRatio);
 
 #ifdef DEBUG_SURFACES
 g_pPlutoLogger->Write(LV_STATUS, "^before blitstretch: Surface %p has %p pixels", pSurface, pSurface->m_buffer->GetPixels());
