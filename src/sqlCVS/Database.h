@@ -179,6 +179,11 @@ namespace sqlCVS
 		  */
 		 void ListUnauthorizedBatches();
 
+		 /**
+		  * @brief  List the contents of a batch
+		  */
+		void ListBatchContents();
+
 		string Name_get( ) { return m_sMySQLDBName; }
 		bool bIsInvalid( ) { return m_bInvalid; }
 	};

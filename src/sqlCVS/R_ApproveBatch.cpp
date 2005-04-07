@@ -69,7 +69,10 @@ bool R_ApproveBatch::ProcessRequest( class RA_Processor *pRA_Processor )
 		if( !psqlCVSprocessor->m_i_psc_batch || !pRepository->ApproveBatch(this,psqlCVSprocessor) )
 			m_cProcessOutcome=INTERNAL_ERROR;
 		else
+		{
+			psqlCVSprocessor->st.Commit();
 			m_cProcessOutcome=SUCCESSFULLY_PROCESSED; /** @todo -- process it */
+		}
 	}
 	return true;
 }

@@ -1418,8 +1418,9 @@ void Database::Approve( )
 			exit(1);
 		g_GlobalConfig.m_psc_batch = atoi(sBatch.c_str());
 	}
-size_t sss=g_GlobalConfig.m_mapUsersPasswords.size( );
-	/** Now mapTable has all the tables we need to check in. Confirm the users if none were passed in on the command line   */
+
+	/** Now mapTable has all the tables we need to check in. 
+	  Confirm the users if none were passed in on the command line or put in the .conf file  */
 	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToUpdate()==0 )
 		return;
 
@@ -1499,6 +1500,50 @@ void Database::ListUnauthorizedBatches()
 				while ( ( row = mysql_fetch_row( result_set.r ) ) )
 				{
 					cout << "Batch: " << row[0] << " New: " << row[2] << " Del: " << row[3] << " Mod: " << row[4] << " " << row[1] << endl;
+				}
+			}
+		}
+	}
+}
+
+void Database::ListBatchContents()
+{
+	if( g_GlobalConfig.m_mapRepository.size()==0 && PromptForRepositories(true)!=1 )
+		return;  // User must have chosen quit
+
+	if( g_GlobalConfig.m_psc_batch==0 )
+	{
+		cout << "What batch number? (0 to quit) ";
+		cin >> g_GlobalConfig.m_psc_batch;
+		if( g_GlobalConfig.m_psc_batch==0 )
+			return; /**< Do nothing */
+	}
+
+	Repository *pRepository = (*g_GlobalConfig.m_mapRepository.begin()).second;
+
+	std::ostringstream sSQL;
+	sSQL << "SELECT DISTINCT Tablename FROM psc_" << pRepository->Name_get() << "_batdet WHERE FK_psc_" << pRepository->Name_get() << "_bathdr=" << g_GlobalConfig.m_psc_batch;
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=mysql_query_result( sSQL.str( ) ) ) )
+	{
+		while ( row = mysql_fetch_row( result_set.r ) )
+		{
+			string sTable = row[0];
+			std::ostringstream sSQL2;
+			sSQL2 << "SELECT * FROM " << sTable << "_pschist WHERE psc_batch=" << g_GlobalConfig.m_psc_batch;
+			PlutoSqlResult result_set2;
+			MYSQL_ROW row2=NULL;
+			cout << endl << "Table: " << sTable << endl;
+			if( ( result_set2.r=mysql_query_result( sSQL2.str( ) ) ) )
+			{
+				while ( row2 = mysql_fetch_row( result_set2.r ) )
+				{
+					for(int iField=0;iField<result_set2.r->field_count;iField++)
+					{
+						cout << result_set2.r->fields[iField].name << ":" << (row2[iField] ?  row2[iField] : "(NULL)") << " ";
+					}
+					cout << endl;
 				}
 			}
 		}

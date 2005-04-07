@@ -1336,8 +1336,11 @@ void Repository::ResetSystemTables()
 
 bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *psqlCVSprocessor)
 {
+	psqlCVSprocessor->m_pRepository=this;
+
 	ostringstream sql;
-	sql << "SELECT Tablename FROM psc_" << m_sName << "_batdet WHERE FK_psc_" << m_sName << "_bathdr=" << pR_ApproveBatch->m_psc_batch;
+	sql << "SELECT DISTINCT Tablename FROM psc_" << m_sName << "_batdet WHERE FK_psc_" 
+		<< m_sName << "_bathdr=" << pR_ApproveBatch->m_psc_batch << " AND FK_psc_" << m_sName << "_bathdr_auth=0";
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
@@ -1351,6 +1354,8 @@ bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *p
 				return false;
 			}
 	
+			psqlCVSprocessor->m_pTable=pTable;
+
 			map<int,ChangedRow *> mapChangedRow;
 			pTable->GetBatchContents(pR_ApproveBatch->m_psc_batch,mapChangedRow);
 			for(map<int,ChangedRow *>::iterator it=mapChangedRow.begin();it!=mapChangedRow.end();++it)
@@ -1362,9 +1367,11 @@ bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *p
 				if( !psqlCVSprocessor->m_bSupervisor )
 				{
 					std::ostringstream sSQL;
-					sSQL << "SELECT psc_user,psc_frozen FROM " << m_sName << " WHERE psc_id=" << psc_id;
+					sSQL << "SELECT psc_user,psc_frozen FROM " << pChangedRow->m_pTable->Name_get() << " WHERE psc_id=" << psc_id;
 					PlutoSqlResult result_set;
 					MYSQL_ROW row=NULL;
+
+					// If the row isn't here, that's ok.  It means it's a new row
 					if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
 					{
 						if( row[1] && row[1][0]=='1' )
@@ -1381,12 +1388,41 @@ bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *p
 							return false;
 						}
 					}
-					else
-						throw "Error: row not found";
 				}
+
+				if( pChangedRow->m_eTypeOfChange==toc_New )
+					psqlCVSprocessor->m_iNew++;
+				if( pChangedRow->m_eTypeOfChange==toc_Delete )
+					psqlCVSprocessor->m_iDel++;
+				if( pChangedRow->m_eTypeOfChange==toc_Modify )
+					psqlCVSprocessor->m_iMod++;
+
+				pChangedRow->m_psc_batch = psqlCVSprocessor->m_i_psc_batch;
 
 				pTable->ApplyChangedRow(pChangedRow);
 				pTable->AddToHistory(pChangedRow);
+			}
+
+			psqlCVSprocessor->RecordChangesToTable();
+
+			sql.str("");
+			sql << "UPDATE psc_" << m_sName << "_batdet SET FK_psc_" << m_sName << "_bathdr_auth="
+				<< psqlCVSprocessor->m_i_psc_batch << " WHERE FK_psc_" << m_sName << "_bathdr=" << pR_ApproveBatch->m_psc_batch;
+
+			if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+			{
+				cerr << "SQL failed: " << sql.str( ) << endl;
+				throw "Database Error";
+			}
+
+			sql.str("");
+			sql << "UPDATE psc_" << m_sName << "_batdet SET FK_psc_" << m_sName << "_bathdr_unauth="
+				<< pR_ApproveBatch->m_psc_batch << " WHERE FK_psc_" << m_sName << "_bathdr=" << psqlCVSprocessor->m_i_psc_batch;
+
+			if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+			{
+				cerr << "SQL failed: " << sql.str( ) << endl;
+				throw "Database Error";
 			}
 		}
 	}

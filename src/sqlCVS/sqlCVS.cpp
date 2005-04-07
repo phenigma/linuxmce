@@ -97,6 +97,7 @@ string GetCommand( )
 		<< "8.	History on all tables ( history-all )" << endl
 		<< "9.	History on no tables ( history-none )" << endl
 		<< "10.	List unauthorized batches ( batches )" << endl
+		<< "11.	List contents of batch ( batch-contents )" << endl
 		<< "---The following are not normally used---" << endl
 		<< "20.	Reset entire database--sqlCVS clients will be out of sync ( reset-all )" << endl
 		<< "21.	Reset the system tables ( reset-sys )" << endl
@@ -136,6 +137,8 @@ string GetCommand( )
 		return "history-none";
 	else if( s=="10" )
 		return "batches";
+	else if( s=="11" )
+		return "batch-contents";
 	else if( s=="20" )
 		return "reset-all";
 	else if( s=="21" )
@@ -274,7 +277,7 @@ int main( int argc, char *argv[] )
 			<< "[-r Repository( -ies )] [-v] [-i] [-c comments]" << endl
 			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
 			<< "[-a Allow unmet dependencies] [-e everyone] [-w width]" << endl
-			<< "[-s Skip Verification of fields]" << endl
+			<< "[-s Skip Verification of fields] [-b batch]" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
 			<< "			default is `dcerouter`" << endl
 			<< "-u username    -- username for database connection" << endl
@@ -440,6 +443,10 @@ int main( int argc, char *argv[] )
 			else if( g_GlobalConfig.m_sCommand=="batches" )
 			{
 				database.ListUnauthorizedBatches();
+			}
+			else if( g_GlobalConfig.m_sCommand=="batch-contents" )
+			{
+				database.ListBatchContents();
 			}
 			else if( g_GlobalConfig.m_sCommand=="diff" )
 			{

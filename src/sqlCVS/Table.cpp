@@ -1365,7 +1365,7 @@ void Table::GetCurrentValues(int psc_id,MapStringString *mapCurrentValues,int ps
 void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 {
 	std::ostringstream sSql;
-	sSql << "SELECT psc_id,psc_toc,* FROM " << m_sName << "_hist WHERE psc_batch=" << psc_batch;
+	sSql << "SELECT psc_id,psc_toc,`" << m_sName << "_pschist`.* FROM " << m_sName << "_pschist WHERE psc_batch=" << psc_batch;
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sSql.str() ) ) )
@@ -1388,22 +1388,33 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 
 			// Now we have to see what fields were changed
 			sSql.str("");	
-			sSql << "SELECT * FROM " << m_sName << "_hmask WHERE psc_batch=" << psc_batch;
+			sSql << "SELECT * FROM " << m_sName << "_pschmask WHERE psc_batch=" << psc_batch;
 			PlutoSqlResult result_set2;
 			MYSQL_ROW row2=NULL;
 			if( ( result_set.r=m_pDatabase->mysql_query_result( sSql.str() ) )==NULL || ( row2 = mysql_fetch_row( result_set.r ) )==NULL )
 			{
-				cerr << "Cannot find value in history mask table" << endl;
-				throw "History mask outdated";
-			}
-			for(int i=0;i<(int) result_set2.r->field_count;++i)
-			{
-				string Field = result_set2.r->fields[i].name;
-				if( Field=="psc_id" || Field=="psc_batch" || Field=="psc_toc" || !row2[i] || !atoi(row2[i]) )
-					continue;
-				mapChangedFields[Field]=true;
-			}
+				/* This shouldn't happen, but since it did, just add all fields */
+				cerr << "***ERROR*** Cannot find value in history mask table:" << sSql.str() << endl;
+				
 
+				for(MapField::iterator it=m_mapField.begin();it!=m_mapField.end();++it)
+				{
+					string Field = (*it).first;
+					if( Field=="psc_id" || Field=="psc_batch" || Field=="psc_toc" )
+						continue;
+					mapChangedFields[Field]=true;
+				}
+			}
+			else
+			{
+				for(int i=0;i<(int) result_set2.r->field_count;++i)
+				{
+					string Field = result_set2.r->fields[i].name;
+					if( Field=="psc_id" || Field=="psc_batch" || Field=="psc_toc" || !row2[i] || !atoi(row2[i]) )
+						continue;
+					mapChangedFields[Field]=true;
+				}
+			}
 			for(int i=0;i<(int) result_set.r->field_count;++i)
 			{
 				string Field = result_set.r->fields[i].name;
@@ -1516,16 +1527,25 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 
 	int NumChangedFields=0;
 
+	bool b_psc_user_passedin=false;
 	
 	for( MapStringString::iterator it=pChangedRow->m_mapFieldValues.begin();it!=pChangedRow->m_mapFieldValues.end();++it )
+	{
 		sSqlHistory << "`" << (*it).first << "`, ";
+		if( (*it).first=="psc_user" )
+			b_psc_user_passedin=true;
+	}
 
 	/** If this isn't a new row, any auto-increment fields are passed like normal  */
 	
 	if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New )
 		sSqlHistory << m_pField_AutoIncrement->Name_get( ) << ", ";
 
-	sSqlHistory << "psc_toc, psc_id, psc_batch, psc_user ) VALUES( ";
+	sSqlHistory << "psc_toc, psc_id, psc_batch ";
+	if( !b_psc_user_passedin )
+		sSqlHistory << ", psc_user ";
+
+	sSqlHistory << ") VALUES( ";
 
 	for( MapStringString::iterator it=pChangedRow->m_mapFieldValues.begin();it!=pChangedRow->m_mapFieldValues.end();++it )
 	{
@@ -1548,8 +1568,11 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 	if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New )
 		sSqlHistory << pChangedRow->m_iNewAutoIncrID << ", ";
 
-	sSqlHistory << pChangedRow->m_eTypeOfChange << "," << pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch << ", " 
-		<< (pChangedRow->m_psc_user ? StringUtils::itos(pChangedRow->m_psc_user) : "NULL") << " )"; // batch # todo - hack
+	sSqlHistory << pChangedRow->m_eTypeOfChange << "," << pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch;
+		
+	if( !b_psc_user_passedin )
+		sSqlHistory << ", " << (pChangedRow->m_psc_user ? StringUtils::itos(pChangedRow->m_psc_user) : "NULL");
+	sSqlHistory << " )"; // batch # todo - hack
 	sSqlMask << pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch << " )"; // batch # todo - hack
 	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )!=0 )
 	{
@@ -1789,9 +1812,6 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 	if( pChangedRow->m_eTypeOfChange==toc_Delete )
 	{
 		sSql << "DELETE FROM `" << m_sName << "` WHERE psc_id=" << pChangedRow->m_psc_id;
-cout << sSql.str() << endl;
-if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Proceed with delete?",false) )
-throw "problem with delete";
 	}
 	else if( pChangedRow->m_eTypeOfChange==toc_Modify )
 	{
@@ -1830,6 +1850,7 @@ throw "problem with delete";
 				sSql << ",";
 			sSql << "'" << StringUtils::SQLEscape((*it).second) << "'"; 
 		}
+		sSql << ")";
 	}
 
 	if( pChangedRow->m_eTypeOfChange==toc_Modify && m_pField_AutoIncrement )
