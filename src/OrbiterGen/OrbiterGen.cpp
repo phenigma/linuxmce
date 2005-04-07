@@ -335,6 +335,17 @@ int OrbiterGenerator::DoIt()
 	else
 		m_bUseOCG = false;
 
+	if( m_bUseOCG )
+	{
+		if( m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST ||
+			m_pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
+		{
+			cerr << "There's a phone or onscreen orbiter with OCG.  Resetting it" << endl;
+			pRow_Device_DeviceData->IK_DeviceData_set("0");
+			pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+		}
+	}
+
 	// See if there's a default entertainment area for this orbiter
 	Row_EntertainArea *pRow_EntertainArea_Default = NULL;
 	vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;
