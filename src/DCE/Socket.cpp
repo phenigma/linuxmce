@@ -95,7 +95,12 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 			pSocket->m_bUsePingToKeepAlive=false;
 			return NULL; // Don't try anymore
 		}
-		if( pSocket->SendReceiveString("PING")!="PONG" )
+			
+		string sResponse=pSocket->SendReceiveString("PING");
+		
+		g_pPlutoLogger->Write( LV_STATUS, "Sent PING on %p and got %s",pSocket,sResponse.c_str());
+
+		if( sResponse!="PONG" )
 		{
 			sSM.Release();
 			pSocket->PingFailed();
@@ -295,7 +300,7 @@ Message *Socket::ReceiveMessage( int iLength )
 		{
 			if( m_bQuit )
 				return NULL;
-			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage - failed to allocate buffer - socket: %d %s", m_Socket, m_sName.c_str() );
+			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed to allocate buffer - socket: %d %s", this, m_Socket, m_sName.c_str() );
 			if( g_pSocketCrashHandler )
 				(*g_pSocketCrashHandler)(this);
 		}
@@ -343,7 +348,7 @@ Message *Socket::ReceiveMessage( int iLength )
 			delete[] pcBuffer;
 			if( m_bQuit )
 				return NULL;
-			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage - failed ReceiveData - socket: %d %s", m_Socket, m_sName.c_str() );
+			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed ReceiveData - socket: %d %s", this, m_Socket, m_sName.c_str() );
 			PlutoLock::DumpOutstandingLocks();
 			if( g_pSocketCrashHandler )
 				(*g_pSocketCrashHandler)(this);
@@ -357,7 +362,7 @@ Message *Socket::ReceiveMessage( int iLength )
 	{
 		if( m_bQuit )
 			return NULL;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage - out of memory? socket: %d %s", m_Socket, m_sName.c_str() );
+		g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - out of memory? socket: %d %s", this, m_Socket, m_sName.c_str() );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);
@@ -578,7 +583,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 	{
 		if( m_bQuit )
 			return false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData failed, m_socket %d (%p) %s", m_Socket, this, m_sName.c_str() );
+		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, m_socket %d (%p) %s", this, m_Socket, this, m_sName.c_str() );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);
@@ -674,7 +679,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 					// iRet is bigger then one when the socket count is bigger than the fd_set size
 					if(iRet <= 0 || iRet > 1) { // error
 #ifndef WINCE
-						g_pPlutoLogger->Write( LV_WARNING, "Error in socket SELECT: %s", strerror(errno));
+						g_pPlutoLogger->Write( LV_WARNING, "Error in socket SELECT: %p %s", this, strerror(errno));
 #endif
 					    break;
 					}
@@ -687,8 +692,8 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 				if( m_bQuit )
 					return false;
 #ifdef DEBUG
-				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData failed, ret %d start: %d 1: %d 1b: %d 2: %d 2b: %d, %d %s",
-				iRet, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
+				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d start: %d 1: %d 1b: %d 2: %d 2b: %d, %d %s",
+				this, iRet, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
 				PlutoLock::DumpOutstandingLocks();
 
 
@@ -724,7 +729,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #endif
 
 #else
-				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData failed, ret %d socket %d %s", iRet, m_Socket, m_sName.c_str() );
+				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d socket %d %s", this, iRet, m_Socket, m_sName.c_str() );
 				PlutoLock::DumpOutstandingLocks();
 #endif
 				if( g_pSocketCrashHandler )
@@ -752,8 +757,8 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #endif
 				Close();
 #ifdef DEBUG
-				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
-				m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
+				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveData %p failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
+				this, m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
 
 	#ifdef LL_DEBUG_FILE
 				PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) );
@@ -856,7 +861,7 @@ bool Socket::ReceiveString( string &sRefString )
 		if( m_bQuit )
 			return false;
 		{
-			g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString failed, m_socket %d buf %p %s", m_Socket, acBuf, m_sName.c_str() );
+			g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString %p failed, m_socket %d buf %p %s", this, m_Socket, acBuf, m_sName.c_str() );
 			PlutoLock::DumpOutstandingLocks();
 			if( g_pSocketCrashHandler )
 				(*g_pSocketCrashHandler)(this);
@@ -921,7 +926,7 @@ bool Socket::ReceiveString( string &sRefString )
 #endif
 		sRefString = "Not a string, or excessive length";
 
-		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString failed len: %d socket: %d %s", iLen, m_Socket, m_sName.c_str() );
+		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString %p failed len: %d socket: %d %s", this, iLen, m_Socket, m_sName.c_str() );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);
@@ -1032,7 +1037,7 @@ void Socket::StartPingLoop()
 	if(pthread_create( &m_pthread_pingloop_id, NULL, PingLoop, (void*)this) )
 	{
 		m_bUsePingToKeepAlive=false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create ping loop" );
+		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create ping loop %p", this );
 	}
 }
 
