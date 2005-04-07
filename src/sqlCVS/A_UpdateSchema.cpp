@@ -65,5 +65,17 @@ void A_UpdateSchema::ProcessAction(class RA_Request *pRequest,class RA_Processor
 			throw "Schema update failed";
 		}
 	}
+
+	ostringstream sSql;
+	sSql << "INSERT INTO `psc_" << m_sRepository << "_schema` (`PK_psc_" << m_sRepository << "_schema`,`Value`) "
+		<< "VALUES(" << m_iSchemaVersion << ",'" << StringUtils::SQLEscape(m_sUpdateString) << "');";
+	if( pRepository->m_pDatabase->threaded_mysql_query( sSql.str() )!=0 )
+	{
+		cout << "SQL failed: " << sSql << endl;
+		cerr << "The database is now corrupted, and the schema is out of sync" << endl
+			<< "because the schema update failed!" << endl;
+		throw "Schema update failed";
+	}
+
 	pRepository->SetSetting("schema",StringUtils::itos(m_iSchemaVersion));
 }

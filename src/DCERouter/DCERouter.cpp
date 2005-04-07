@@ -1823,10 +1823,10 @@ void Router::Configure()
 
         DeviceData_Router *pDevice = new DeviceData_Router(pRow_Device,m_mapRoom_Find(pRow_Device->FK_Room_get()),CommandLine);
 
-if( pDevice->m_dwPK_Device==7900 )
-pDevice->m_bUsePingToKeepAlive=true;
+		if( pRow_Device->PingTest_get() )
+			pDevice->m_bUsePingToKeepAlive=true;
 
-        m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
+		m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
 
 		Room *pRoom = m_mapRoom_Find(pDevice->m_dwPK_Room);
 		if( pRoom )
