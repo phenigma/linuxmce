@@ -1019,3 +1019,13 @@ int Orbiter_PocketFrog::GetWindowWidth() { return m_iImageWidth;  }
 //-----------------------------------------------------------------------------------------------------
 int Orbiter_PocketFrog::GetWindowHeight() { return m_iImageHeight; } 
 //-----------------------------------------------------------------------------------------------------
+void Orbiter_PocketFrog::PingFailed()
+{
+	g_pPlutoLogger->Write(LV_CRITICAL, "Ping Failed! About to reload .. ");
+
+	ShowMainDialog();
+
+	m_bReload = true;
+	OnQuit();
+}
+//-----------------------------------------------------------------------------------------------------

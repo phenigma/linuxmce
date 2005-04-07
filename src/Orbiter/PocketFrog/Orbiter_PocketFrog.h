@@ -32,6 +32,9 @@ public:
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	virtual ~Orbiter_PocketFrog();
 
+	//from socket class
+	virtual void PingFailed();
+
 	// Public virtual methods (from Game)
 	virtual void GameSuspend(); 
 	virtual void GameResume(); 
