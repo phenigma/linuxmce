@@ -166,8 +166,9 @@ void *HandleBDCommandProcessorThread( void *p )
 	g_pPlutoLogger->Write( LV_STATUS, "Deleting command processor...");
 	PLUTO_SAFE_DELETE(pBD_Orbiter->m_pBDCommandProcessor);
 
-	g_pPlutoLogger->Write( LV_STATUS, "Deleting orbiter...");
+	g_pPlutoLogger->Write( LV_STATUS, "Deleting orbiter... %p", pBD_Orbiter->m_pOrbiter);
 	PLUTO_SAFE_DELETE(pBD_Orbiter->m_pOrbiter);
+	g_pPlutoLogger->Write( LV_STATUS, "Orbiter deleted. %p", pBD_Orbiter->m_pOrbiter);
 
 	g_pPlutoLogger->Write( LV_STATUS, "Deleting parameter...");
 	PLUTO_SAFE_DELETE(pBD_Orbiter_Plus_DongleHandle);
@@ -549,8 +550,6 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 			);
 
 	    pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, ( void* )pBD_Orbiter_Plus_DongleHandle );
-
-		//GetEvents()->Mobile_orbiter_linked( sMac_address, "version" ); /** @todo: Chris add this */
 	}
 }
 
@@ -606,7 +605,7 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 	
 	if( NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 	{
-printf( "$$$ Ready to delete the orbiter...\n" );
+		g_pPlutoLogger->Write( LV_STATUS, "Ready to cleanup orbiter. %p", pBD_Orbiter->m_pOrbiter);
 		
 		if( NULL != pBD_Orbiter->m_pOrbiter )
 		{
@@ -649,8 +648,6 @@ printf( "$$$ Ready to delete the orbiter...\n" );
 		else
 			g_pPlutoLogger->Write( LV_WARNING, "Cannot create orbiter for %s device: the CommandProcessor is dead!", sMac_address.c_str() );
 	}
-
-printf( "$$$ CMD_Create_Mobile_Orbiter end for %s device\n", sMac_address.c_str() );
 }
 
 //-----------------------------------------------------------------------------------------------------
