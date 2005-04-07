@@ -588,7 +588,7 @@ struct cx88_board cx88_boards[] = {
 		}},
 		.radio = {
 			.type   = CX88_RADIO,
-			.gpio0  = 0x0000bd62,
+			.gpio0  = 0x0000bde6,
 			.gpio1  = 0x00000000,
 			.gpio2  = 0x00000000,
 			.gpio3  = 0x00000000,

@@ -678,7 +678,8 @@ static void set_audio_standard_A2(struct cx88_core *core)
 		{ /* end of list */ },
 	};
 
-	set_audio_start(core, 0x0004, EN_DMTRX_SUMDIFF | EN_A2_AUTO_STEREO);
+	dprintk( "%s\n", __FUNCTION__ );
+	set_audio_start(core, 0x0004, EN_DMTRX_SUMDIFF | EN_A2_AUTO_STEREO | EN_I2SOUT_ENABLE);
 	set_audio_registers(core, a2_common);
 	switch (core->tvaudio) {
 	case WW_A2_BG:
