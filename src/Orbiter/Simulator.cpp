@@ -65,8 +65,16 @@ void *GeneratorThread( void *p)
 	bool bOption2 = pSimulator->m_iKeysSetToGenerate == 1;
 	bool bOption3 = pSimulator->m_iKeysSetToGenerate == 2;
 
-	int iDelayMin = max(pSimulator->m_dwDelayMin, 1000);//if the interval is smaller then this, TTF_RenderText_Blended will crash
-	int iDelayMax = max(pSimulator->m_dwDelayMax, 1500);
+	int iDelayMin = pSimulator->m_dwDelayMin;
+	int iDelayMax = pSimulator->m_dwDelayMax;
+
+#ifndef WIN32
+	iDelayMin = max(pSimulator->m_dwDelayMin, 1000);//if the interval is smaller then this, TTF_RenderText_Blended will crash
+	iDelayMax = max(pSimulator->m_dwDelayMax, 1000);
+#endif
+
+	if(iDelayMin == iDelayMax)
+		iDelayMax++;
 
 	int iButtonsPerClick = pSimulator->m_iNumberOfButtonsPerClick;
 

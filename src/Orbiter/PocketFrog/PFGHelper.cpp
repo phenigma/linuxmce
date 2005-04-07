@@ -20,15 +20,17 @@ Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 
 	if(pRendererOCG->GetSurface(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize, iWidth, iHeigth))
 	{
-		//int iRealWidth = iWidth % 2 ? iWidth + 1 : iWidth;    //no odd surfaces
-		//int iRealHeigth = iHeigth % 2 ? iHeigth + 1 : iHeigth;
+		if(iPixelsDataSize)
+		{
+			pSurface = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay()->CreateSurface(iWidth, iHeigth);
 
-		pSurface = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay()->CreateSurface(iWidth, iHeigth);
+			delete pSurface->m_buffer->GetPixels();
+			Pixel * pPixels = pSurface->m_buffer->GetPixels();
+			pPixels = (Pixel *)new char[iPixelsDataSize];
+			memcpy((char *)pPixels, pPixelsData, iPixelsDataSize);
 
-		delete pSurface->m_buffer->GetPixels();
-		Pixel * pPixels = pSurface->m_buffer->GetPixels();
-		pPixels = (Pixel *)new char[iPixelsDataSize];
-		memcpy((char *)pPixels, pPixelsData, iPixelsDataSize);
+g_pPlutoLogger->Write(LV_STATUS, "^Replaced pixels with %p for surface: %p, size %d", pPixels, pSurface, iPixelsDataSize);
+		}
 	}
 
 	PLUTO_SAFE_DELETE(pRendererOCG);

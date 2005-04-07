@@ -14,6 +14,9 @@
 using namespace Frog;
 using namespace Frog::Internal;
 
+#include "src/internal/graphicbuffer.h" //temp ... for debugging
+//#define DEBUG_SURFACES
+
 #include <src/rasterizer.h>
 //-----------------------------------------------------------------------------------------------------
 #define VK_A 0x41
@@ -654,14 +657,6 @@ clock_t ccc=clock();
 	LOGFONT lf;
 	HFONT hFontNew, hFontOld;
 
-//	wchar_t wTextBuffer[MAX_STRING_LEN];
-//	mbstowcs(wTextBuffer, TextToDisplay.c_str(), MAX_STRING_LEN);
-
-	//SDL_Color color;
-	//color.r = pTextStyle->m_ForeColor.R();
-	//color.g = pTextStyle->m_ForeColor.G();
-	//color.b = pTextStyle->m_ForeColor.B();
-
 	// Clear out the lf structure to use when creating the font.
 	memset(&lf, 0, sizeof(LOGFONT));
 
@@ -671,9 +666,6 @@ clock_t ccc=clock();
 	lf.lfItalic		= pTextStyle->m_bItalic;
 	lf.lfUnderline	= pTextStyle->m_bUnderline;
 
-	//wchar_t wFontName[MAX_STRING_LEN];
-	//mbstowcs(wFontName, pTextStyle->m_sFont.c_str(), MAX_STRING_LEN);
-	//lstrcpy(lf.lfFaceName, wFontName);   
 	strcpy(lf.lfFaceName, pTextStyle->m_sFont.c_str());
 
 	hFontNew = ::CreateFontIndirect(&lf);
@@ -739,6 +731,15 @@ clock_t ccc=clock();
 	Surface *pSurface = GetDisplay()->CreateSurface(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
 	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(pSurface);
 	pRasterizer->Blit(0, 0, GetDisplay()->GetBackBuffer(), &srcRect);
+
+	if(pObj->m_pGraphicToUndoSelect)
+		pObj->m_pGraphicToUndoSelect->Clear();
+
+#ifdef DEBUG_SURFACES
+g_pPlutoLogger->Write(LV_STATUS, "^SaveBackgroundForDeselect: Surface %p has %p pixels", pSurface, pSurface->m_buffer->GetPixels());
+#endif
+
+	pObj->m_pGraphicToUndoSelect = new PocketFrogGraphic(pSurface);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ PlutoGraphic *Orbiter_PocketFrog::CreateGraphic()
@@ -778,6 +779,11 @@ clock_t ccc=clock();
 	PocketFrogGraphic *pPocketFrogGraphic = (PocketFrogGraphic *) pPlutoGraphic;
 	Surface *pSurface = pPocketFrogGraphic->m_pSurface;
 
+#ifdef DEBUG_SURFACES
+g_pPlutoLogger->Write(LV_STATUS, "^RenderGraphic start: Surface %p has %p pixels", pSurface, pSurface->m_buffer->GetPixels());
+#endif
+
+
 	if(pSurface->GetWidth() == 0 || pSurface->GetHeight() == 0)
 		return;
 	else
@@ -785,13 +791,23 @@ clock_t ccc=clock();
 		{
 			Rect dest;	
 			dest.Set(rectTotal.Left(), rectTotal.Top(), rectTotal.Right(), rectTotal.Bottom());
-			GetDisplay()->BlitStretch(dest, pSurface);
 
 			g_pPlutoLogger->Write(LV_STATUS, "Need to stretch picture: %d, %d, %d, %d", 
 				rectTotal.Left(), rectTotal.Top(), rectTotal.Right(), rectTotal.Bottom());
+
+#ifdef DEBUG_SURFACES
+g_pPlutoLogger->Write(LV_STATUS, "^before blitstretch: Surface %p has %p pixels", pSurface, pSurface->m_buffer->GetPixels());
+#endif
+
+			GetDisplay()->BlitStretch(dest, pSurface);
 		}
 		else
 		{
+
+#ifdef DEBUG_SURFACES
+g_pPlutoLogger->Write(LV_STATUS, "^before blit: Surface %p has %p pixels", pSurface, pSurface->m_buffer->GetPixels());
+#endif
+
 			GetDisplay()->Blit( rectTotal.X, rectTotal.Y, pSurface );
 		}
 }
