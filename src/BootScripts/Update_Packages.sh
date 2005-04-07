@@ -1,5 +1,8 @@
 #!/bin/bash
 
+mv /var/log/pluto/upgrade.newlog /var/log/pluto/upgrade.log 2>/dev/null
+exec &> >(tee /var/log/pluto/upgrade.newlog)
+
 echo "Performing system update"
 apt-get update
 apt-get -y dist-upgrade

@@ -18,7 +18,7 @@ if [ -n "$remote" ]; then
 	if ! grep -q remote /etc/passwd; then
 		# add user "remote" w/ the password specified (var value)
 		Pass=$(mkpasswd -H md5 "$remote" 'RAPlutoP')
-		useradd -u 0 -o -d /root -c "Pluto Remote Assistance Account" -p "$Pass" remote || Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Failed to add user 'remote' with exit code '$?'"
+		useradd -u 0 -g 0 -o -d /root -c "Pluto Remote Assistance Account" -p "$Pass" remote || Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Failed to add user 'remote' with exit code '$?'"
 		SCRvar="export SCREENDIR=/var/run/screen/S-root"
 		grep -qF "$SCRvar" /root/.bashrc || echo "$SCRvar" >>/root/.bashrc
 	else
