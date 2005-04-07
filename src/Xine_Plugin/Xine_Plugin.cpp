@@ -706,7 +706,11 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	for( map<int, OH_Orbiter *>::iterator itOH=mapOH_Orbiter.begin( );itOH!=mapOH_Orbiter.end( );++itOH )
 	{
 		OH_Orbiter *pOH_Orbiter = ( *itOH ).second;
-		if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
+
+		// the old code assumed that the on screen orbiters were all the oribters controlled by a MediaDirector device. We will make the condition harder. See below
+		// If the orbiter is the source device parent (since we know that hte source device is a Xine Player) we can assume that this is the only OnScreen Orbiter.
+		if ( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST
+			&& pDeviceFrom->m_pDevice_ControlledVia && pDeviceFrom->m_pDevice_ControlledVia->m_dwPK_Device == pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device )
 			sOnScreenOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
 		else
 			sOtherOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
