@@ -1125,7 +1125,7 @@ void Database::Import( string sRepository, Repository *pRepository )
 
 	if( sTable != "psc_" + pRepository->Name_get() + "_repset" )
 		throw "Import schema error";
-	pRepository->ImportTable(sTable,str,pos,NULL);
+	pRepository->ImportTable(sTable,str,pos,NULL,0,0);
 
 	MapStringString::iterator it;
 	for(it=mapSettings.begin();it!=mapSettings.end();++it)
@@ -1137,17 +1137,17 @@ void Database::Import( string sRepository, Repository *pRepository )
 	sTable = str.m_vectString[pos++];
 	if( sTable != "psc_" + pRepository->Name_get() + "_bathdr" )
 		throw "Import schema error";
-	pRepository->ImportTable(sTable,str,pos,NULL);
+	pRepository->ImportTable(sTable,str,pos,NULL,0,0);
 
 	sTable = str.m_vectString[pos++];
 	if( sTable != "psc_" + pRepository->Name_get() + "_batuser" )
 		throw "Import schema error";
-	pRepository->ImportTable(sTable,str,pos,NULL);
+	pRepository->ImportTable(sTable,str,pos,NULL,0,0);
 
 	sTable = str.m_vectString[pos++];
 	if( sTable != "psc_" + pRepository->Name_get() + "_batdet" )
 		throw "Import schema error";
-	pRepository->ImportTable(sTable,str,pos,NULL);
+	pRepository->ImportTable(sTable,str,pos,NULL,0,0);
 
 	/*  IMPORT THE NEW REPOSITORY TABLES -- SAVE OUR LOCAL SETTINGS FIRST */
 	map< string,pair<int,int> > mapLast_psc;   // pair<last_psc_id,last_psc_batch>
@@ -1165,7 +1165,27 @@ void Database::Import( string sRepository, Repository *pRepository )
 	sTable = str.m_vectString[pos++];
 	if( sTable != "psc_" + pRepository->Name_get() + "_tables" )
 		throw "Import schema error";
-	pRepository->ImportTable(sTable,str,pos,NULL);
+	pRepository->ImportTable(sTable,str,pos,NULL,0,0);
+
+	/*  Before we restore our local settings back, the table will now have the 
+	values the server had when it did the dump.  We need these so that when we do 
+	an import on the table, we know which records we can delete.  It's possible that
+	a record in the local database is either still pending, or might be newer than
+	what's in the import file.  If so, we should keep the local one.  Also when
+	doing an update, only update if the batch locally is not > than the one in the file */
+	map< string,pair<int,int> > mapLast_psc_FromServer;   // pair<last_psc_id,last_psc_batch>
+	if( pRepository->m_pTable_Tables )
+	{
+		ostringstream sql;
+		sql	<< "SELECT Tablename,last_psc_id,last_psc_batch FROM `" << pRepository->m_pTable_Tables->Name_get() << "`";
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( ( result_set.r=mysql_query_result( sql.str( ) ) ) )
+			while ( row = mysql_fetch_row( result_set.r ) )
+				mapLast_psc_FromServer[row[0]]=pair<int,int>(atoi(row[1]),atoi(row[2]));
+	}
+
+
 	for(map< string,pair<int,int> >::iterator it=mapLast_psc.begin();it!=mapLast_psc.end();++it)
 	{
 		string sTable = (*it).first;
@@ -1186,7 +1206,7 @@ void Database::Import( string sRepository, Repository *pRepository )
 	sTable = str.m_vectString[pos++];
 	if( sTable != "psc_" + pRepository->Name_get() + "_schema" )
 		throw "Import schema error";
-	pRepository->ImportTable(sTable,str,pos,NULL);
+	pRepository->ImportTable(sTable,str,pos,NULL,0,0);
 
 	int PriorSchema = atoi(mapSettings["schema"].c_str());
 
@@ -1214,7 +1234,10 @@ void Database::Import( string sRepository, Repository *pRepository )
 		std::ostringstream sSQL;
 		string sTable = str.m_vectString[pos++];
 		Table *pTable = m_mapTable_Find(sTable);
-		pRepository->ImportTable(sTable,str,pos,pTable);
+
+		// pair<last_psc_id,last_psc_batch>
+		pair<int,int> psc_last = mapLast_psc_FromServer[sTable];
+		pRepository->ImportTable(sTable,str,pos,pTable,psc_last.first,psc_last.second);
 	}
 
 	str.FreeSerializeMemory( );

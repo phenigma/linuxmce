@@ -872,7 +872,7 @@ void Repository::ListTables( )
 	}
 }
 
-void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable)
+void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable,int ipsc_id_last,int ipsc_batch_last)
 {
 	int NumFields = atoi( str.m_vectString[pos++].c_str( ) );
 
@@ -884,7 +884,10 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 			throw "Database error";
 		}
 	}
-
+if( sTableName=="DeviceData" )
+{
+int k=2;
+}
 	map<string,int> mapFields;
 	list<string> listFields;
 	int iField_psc_id = -1, iField_psc_batch = -1;
@@ -1003,18 +1006,18 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		if( pTable && pTable->m_pField_AutoIncrement )
 		{
 			sSQL.str( "" );
-			sSQL << "SELECT " << pTable->m_pField_AutoIncrement->Name_get() << " FROM `" << sTableName << "` WHERE `psc_id` IS NULL";
+			sSQL << "SELECT " << pTable->m_pField_AutoIncrement->Name_get() << ",psc_id FROM `" << sTableName << "` WHERE `psc_id` IS NULL OR `psc_batch`<0";
 			PlutoSqlResult result_set;
 			MYSQL_ROW row=NULL;
 			if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
 			{
 				while( (row = mysql_fetch_row( result_set.r ) ) )
-					map_id_new[atoi(row[0])] = 0;
+					map_id_new[atoi(row[0])] = atoi(row[1]);
 			}
 		}
 	}
 
-	bool bCheckForUpdate = map_id_mod.size()!=0;  // This is true if we've made local changes and need to check before doing updates/deletes
+	bool bCheckForUpdate = map_id_mod.size()!=0;  // This is true if already have records in the database with psc_id's
 	int i_psc_id_prior=0; // Keep track of the prior psc_id so we can see if any records were deleted on the server
 	int NumRows = atoi( str.m_vectString[pos++].c_str( ) );
 	cout << "Importing table: " << sTableName << " (" << m_sName << ") " << NumRows << " rows" << endl;
@@ -1025,6 +1028,10 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 
 		bool bUpdate=false; // Make this an update rather than an insert
 		int i_psc_id = iField_psc_id!=-1 ? atoi(str.m_vectString[pos+iField_psc_id].c_str()) : 0; // The psc_id of the row we're importing
+if( sTableName=="DeviceData" && (i_psc_id==64 || i_psc_id==62) )
+{
+int k=2;
+}
 		int i_psc_batch = iField_psc_batch!=-1 ? atoi(str.m_vectString[pos+iField_psc_batch].c_str()) : 0; // The psc_batch of the row we're importing
 		if( i_psc_id>psc_id_last )
 			psc_id_last=i_psc_id;
@@ -1037,34 +1044,46 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 			// The user modified a row that we need to delete
 			if( bCheckForUpdate && map_id_mod.find(ipsc_id_deleted)!=map_id_mod.end() && map_id_mod[ipsc_id_deleted] )
 			{
-				cout << endl << "***Warning*** While importing into table: " << sTableName << " pscid: " << ipsc_id_deleted << endl;
-				cout << "You modified the row that was deleted on the server." << endl;
-				if( g_GlobalConfig.m_bNoPrompts )
+				// First see if this is an unauthorized batch.  If so, don't bother asking
+				sSQL.str( "" );
+				sSQL << "SELECT psc_id FROM `" << sTableName << "` WHERE psc_id=" << ipsc_id_deleted 
+					<< " AND psc_batch<0";
+				PlutoSqlResult result_set;
+				if( !( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) || result_set.r->row_count==0 )
 				{
-					cerr << "No prompts specified.  Not delete changes" << endl;
-					g_pPlutoLogger->Write(LV_CRITICAL,"While importing into table: %s pscid: %d was deleted.  Skipping",sTableName.c_str(),i_psc_id);
-					pos += listFields.size();
-					i_psc_id_prior = i_psc_id;
-					continue;
-				}
-				if( !AskYNQuestion("Delete anyway and lose your changes?",false) )
-				{
-					cerr << "Local database modified deleted rows on server" << endl;
-					pos += listFields.size();
-					i_psc_id_prior = i_psc_id;
-					continue;
+					cout << endl << "***Warning*** While importing into table: " << sTableName << " pscid: " << ipsc_id_deleted << endl;
+					cout << "You modified the row that was deleted on the server." << endl;
+					if( g_GlobalConfig.m_bNoPrompts )
+					{
+						cerr << "No prompts specified.  Not delete changes" << endl;
+						g_pPlutoLogger->Write(LV_CRITICAL,"While importing into table: %s pscid: %d was deleted.  Skipping",sTableName.c_str(),i_psc_id);
+						pos += listFields.size();
+						i_psc_id_prior = i_psc_id;
+						continue;
+					}
+					if( !AskYNQuestion("Delete anyway and lose your changes?",false) )
+					{
+						cerr << "Local database modified deleted rows on server" << endl;
+						pos += listFields.size();
+						i_psc_id_prior = i_psc_id;
+						continue;
+					}
 				}
 			}
 
-			cout << "Deleting row from import " << ipsc_id_deleted << " prior: " << i_psc_id_prior << " ipsc_id:" << i_psc_id << endl;
-
+			// Only if psc_batch is null (ie an original record) or >0 and <=last_batch from table
+			// Don't want to delete stuff that's newer locally
 			sSQL.str( "" );
-			sSQL << "DELETE FROM `" << sTableName << "` WHERE psc_id=" << ipsc_id_deleted;
+			sSQL << "DELETE FROM `" << sTableName << "` WHERE psc_id=" << ipsc_id_deleted 
+				<< " AND (psc_batch is NULL OR psc_batch=0 OR (psc_batch>0 AND psc_batch<=" << ipsc_batch_last << "))";
 			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 			{
 				cerr << "SQL Failed: " << sSQL.str( ) << endl;
 				throw "Database error";
 			}
+			int iRows = mysql_affected_rows(m_pDatabase->m_pMySQL);
+			if( iRows )
+				cout << "Deleting row from import " << ipsc_id_deleted << " prior: " << i_psc_id_prior << " ipsc_id:" << i_psc_id << " last batch: " << ipsc_batch_last << endl;
 		}
 
 		if( bCheckForUpdate )
@@ -1118,9 +1137,11 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 				sSQL << " `" << *it << "`=";
 			else if( pTable && pTable->m_pField_AutoIncrement && map_id_new.size() && *it == pTable->m_pField_AutoIncrement->Name_get() && map_id_new.find( atoi(Value.c_str()) )!=map_id_new.end() )
 			{
+				int psc_id_local = map_id_new[atoi(Value.c_str())]; //i_psc_id
 				// We're inserting a new row added from the master table, but there's already a row in the local table
 				// with the same auto increment ID.  We're going to have to relocate our local one
-				pTable->ReassignAutoIncrValue(atoi(Value.c_str()));
+				int PK_New = pTable->ReassignAutoIncrValue(atoi(Value.c_str()));
+				map_id_new[PK_New] = psc_id_local;  // May need to move it again
 			}
 
 			if( Value==NULL_TOKEN )
@@ -1129,7 +1150,12 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 				sSQL << "'" << StringUtils::SQLEscape( Value ) << "'";
 		}
 		if( bUpdate )
-			sSQL << " WHERE psc_id=" << i_psc_id;
+		{
+			// Only if psc_batch is null (ie an original record) or >0 and <=last_batch from table
+			// Don't want to update stuff that's newer locally
+			sSQL << " WHERE psc_id=" << i_psc_id
+				<< " AND (psc_batch is NULL OR psc_batch=0 OR (psc_batch>0 AND psc_batch<=" << ipsc_batch_last << "))";
+		}
 		else
 			sSQL << " )";
 		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )

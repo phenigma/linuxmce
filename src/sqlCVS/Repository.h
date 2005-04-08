@@ -98,7 +98,7 @@ namespace sqlCVS
 
 		string GetSetting(string Setting,string Default);
 		void SetSetting(string Setting,string Value);
-		void ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable);
+		void ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable,int ipsc_id_last,int ipsc_batch_last);
 		bool UpdateSchema(int PriorSchema);
 		void UpdateClientSchema(RA_Request *pRA_Request,int iSchemaVersion);
 		int GetSchemaVersion() { return atoi(GetSetting("schema","0").c_str()); };
