@@ -184,6 +184,7 @@
 	$GLOBALS['CameraFoorplanType']=4;		// Camera Zone
 	$GLOBALS['EntertainmentZone']=5;		// Entertainment Zone
 	$GLOBALS['AVEquipmentFlorplanType']=6;	// AV Equipment
+	$GLOBALS['PhonesFoorplanType']=7;		// Phones
 	
 	// PK_DesignObj from table DesignObj
 	

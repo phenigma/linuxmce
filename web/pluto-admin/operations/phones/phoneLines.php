@@ -119,7 +119,7 @@ function phoneLines($output,$astADO,$dbADO) {
 			</tr>		
 			<tr>
 				<td><B>Type</B></td>
-				<td><select name="lineType">
+				<td><select name="lineType" onchange="setPort();">
 					<option value="SIP">SIP</option>
 					<option value="IAX2">IAX2</option>
 				</select>
@@ -159,6 +159,12 @@ function phoneLines($output,$astADO,$dbADO) {
 		</table>
 		</form>
 		<script>
+		function setPort()
+		{
+			tmpVal=document.addPhoneLines.lineType[document.addPhoneLines.lineType.selectedIndex].value;
+			document.addPhoneLines.port.value=(tmpVal==\'SIP\')?5060:4569;
+		}
+		
 		 	var frmvalidator = new formValidator("addPhoneLines");
  			frmvalidator.addValidation("username","req","Please enter an authentification ID.");
 			frmvalidator.addValidation("secret","req","Please type the password.");
@@ -181,6 +187,7 @@ function phoneLines($output,$astADO,$dbADO) {
 			$type=$_POST['lineType'];
 			
 			$phoneTable=(($type=='SIP')?'sip_buddies':'iax_buddies');
+			$confFile=(($type=='SIP')?'sip.conf':'iax.conf');
 			
 			$resNameExist=$astADO->Execute('SELECT * FROM '.$phoneTable.' WHERE name=?',$name);
 			if($resNameExist->RecordCount()>0){
@@ -190,7 +197,7 @@ function phoneLines($output,$astADO,$dbADO) {
 			
 			$insertPhoneLine='INSERT INTO '.$phoneTable.' (username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
 			$insertAstConfig='INSERT INTO ast_config (filename,var_name,var_val,category) VALUES (?,?,?,?)';
-			$astADO->Execute($insertAstConfig,array('sip.conf', 'register', $username.':'.$secret.'@'.$host.'/'.$phoneNumber,'general'));
+			$astADO->Execute($insertAstConfig,array($confFile, 'register', $username.':'.$secret.'@'.$host.'/'.$phoneNumber,'general'));
 			$astADO->Execute($insertPhoneLine,array($username,$secret,$name,$host,$port,$rtptimeout,'peer','registered-lines',$phoneNumber,$host,'Y',$phoneNumber));
 			
 			if(!isset($defaultLineID)){

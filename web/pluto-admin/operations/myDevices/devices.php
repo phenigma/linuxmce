@@ -39,6 +39,10 @@ function devices($output,$dbADO) {
 			$specificFloorplanType=$GLOBALS['CameraFoorplanType'];
 			$output->setHelpSrc('/support/index.php?section=document&docID=147');
 		break;
+		case 'phones':
+			$deviceCategory=$GLOBALS['rootPhones'];
+			$specificFloorplanType=$GLOBALS['PhonesFoorplanType'];
+		break;		
 		default:
 			$deviceCategory=$GLOBALS['rootLightsInterfaces'];
 	}

@@ -277,16 +277,20 @@ if ($action == 'form') {
 ';
 			$topPos+=(15+$height);
 		}
+
+		// if they are pipes who are not displayed, call for javascript function who will serch for coordinates and display them
+		$jsMissingPipes='';
+		if(count($existingPipes)!=0){
+			foreach ($existingPipes as $devicePipe){
+				if($devicePipe['isDisplayed']==0){
+					$jsMissingPipes.='generatePipe('.$devicePipe['from'].','.(int)$devicePipe['output'].','.$devicePipe['to'].','.(int)$devicePipe['input'].',\''.$pipeTypesArray[$devicePipe['pipe']].'\',\''.$devicePipe['description'].'\');';	
+				}
+			}
+		}
+		
 	}
 
-	// if they are pipes who are not displayed, call for javascript function who will serch for coordinates and display them
-	$jsMissingPipes='';
-	foreach ($existingPipes as $devicePipe){
-		if($devicePipe['isDisplayed']==0){
-			$jsMissingPipes.='generatePipe('.$devicePipe['from'].','.(int)$devicePipe['output'].','.$devicePipe['to'].','.(int)$devicePipe['input'].',\''.$pipeTypesArray[$devicePipe['pipe']].'\',\''.$devicePipe['description'].'\');';	
-		}
-	}
-	
+		
 	$out.='	
 	</form>';
 	if(count(@$devicesList)>1){
@@ -304,7 +308,7 @@ if ($action == 'form') {
 	
 	// ToDO: add rebuild later
 	$out.='<script>
-	'.$jsMissingPipes.'
+	'.@$jsMissingPipes.'
 	'.@$jsDrawPipes.'
 	</script>';
 	
@@ -320,7 +324,7 @@ if ($action == 'form') {
 		$entertainArea=(int)$_REQUEST['entertainArea'];
 		$oldEntertainArea=(int)$_REQUEST['oldEntertainArea'];
 
-		if($entertainArea!=0){
+		if($entertainArea!=0 && isset($cookieArray)){
 			$cookieArray[$oldEntertainArea]=$_REQUEST['devicesCoords'];
 			// update database
 			foreach ($cookieArray AS $entArea=>$params){

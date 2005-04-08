@@ -13,7 +13,20 @@ $installationID = (int)@$_SESSION['installationID'];
 		exit();
 	}
 	$query = "
-		SELECT FK_DeviceTemplate,FK_Device_ControlledVia,Device.Description,IPaddress,MACaddress,IgnoreOnOff,NeedConfigure,DeviceTemplate.Description as MDL_description,FK_Room, Comments,ManufacturerURL,InternalURLSuffix,FK_DeviceCategory
+		SELECT 
+			FK_DeviceTemplate,
+			FK_Device_ControlledVia,
+			Device.Description,
+			IPaddress,
+			MACaddress,
+			IgnoreOnOff,
+			NeedConfigure,
+			DeviceTemplate.Description as MDL_description,
+			FK_Room, Comments,
+			ManufacturerURL,
+			InternalURLSuffix,
+			FK_DeviceCategory,
+			PingTest
 		FROM Device 
 		INNER JOIN DeviceTemplate on FK_DeviceTemplate = PK_DeviceTemplate
 		WHERE PK_Device = ?";
@@ -35,6 +48,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$ManufacturerURL=$row['ManufacturerURL'];
 		$InternalURLSuffix=$row['InternalURLSuffix'];
 		$DeviceCategory= $row['FK_DeviceCategory'];	
+		$PingTest=$row['PingTest'];
 	}
 	
 	if ($DeviceTemplate==0) {
@@ -45,11 +59,11 @@ $installationID = (int)@$_SESSION['installationID'];
 
 	if ($action == 'form') {
 	$deviceDataFromMasterDevice = "
-	SELECT 						
-						DeviceTemplate_DeviceData.FK_DeviceData
-						 FROM 
-						DeviceTemplate_DeviceData
-							WHERE (FK_DeviceTemplate='$DeviceTemplate')
+		SELECT 						
+			DeviceTemplate_DeviceData.FK_DeviceData
+		 FROM 
+			DeviceTemplate_DeviceData
+		WHERE (FK_DeviceTemplate='$DeviceTemplate')
 	";	
 	
 	$resDatafromMasterDevice = $dbADO->Execute($deviceDataFromMasterDevice);
@@ -179,6 +193,10 @@ $installationID = (int)@$_SESSION['installationID'];
 				<tr>
 					<td><input type="checkbox" name="needConfigure" value="1" '.(($deviceNeedConfigure==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
 					<td>Reconfigure device</td>
+				</tr>
+				<tr>
+					<td><input type="checkbox" name="PingTest" value="1" '.(($PingTest==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
+					<td>Ping Test</td>
 				</tr>
 					
 				<tr>
@@ -449,6 +467,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$ignoreOnOff = cleanInteger($_POST['IgnoreOnOff']);
 		$controlledVia = (@$_POST['controlledVia']!='0')?cleanInteger(@$_POST['controlledVia']):NULL;
 		$needConfigure = (isset($_POST['needConfigure']))?cleanInteger($_POST['needConfigure']):0;
+		$PingTest=(isset($_POST['PingTest']))?1:0;
 		
 		$addNewDeviceRelated = (int)$_POST['addNewDeviceRelated'];
 		if ($addNewDeviceRelated!=0) {
@@ -519,8 +538,8 @@ $installationID = (int)@$_SESSION['installationID'];
 				}
 			
 			$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
-			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=? WHERE PK_Device = ?";
-			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$controlledVia,$needConfigure,$room,$deviceID));
+			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=?,PingTest=? WHERE PK_Device = ?";
+			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$controlledVia,$needConfigure,$room,$PingTest,$deviceID));
 			setDCERouterNeedConfigure($installationID,$dbADO);
 			$EntAreasArray=explode(',',$_POST['displayedEntAreas']);
 			$OldEntAreasArray=explode(',',$_POST['oldEntAreas']);
