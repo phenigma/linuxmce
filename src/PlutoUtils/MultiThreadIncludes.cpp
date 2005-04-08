@@ -265,6 +265,7 @@ void PlutoLock::DumpOutstandingLocks()
 				printf("^01\tDamn you.  Threw it again!!\n");
 				fflush(stdout);
 			}
+			++itMapLock;
 			continue;
 		}
 		// AB 4/8/2004 - end of temporary code

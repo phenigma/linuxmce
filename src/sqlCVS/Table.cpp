@@ -334,7 +334,11 @@ void Table::MatchUpHistory( )
 		// It's possible that we added some new rows that have not yet been authorized, we'll need to 
 		// be sure we don't re-use those id's
 		if( m_psc_id_next > m_pTable_WeAreHistoryFor->m_psc_id_next )
+		{
 			m_pTable_WeAreHistoryFor->m_psc_id_next = m_psc_id_next;
+			cout << "Larger psc_id in history table for: " << m_pTable_WeAreHistoryFor->Name_get() 
+				<< " setting it to: " << m_psc_id_next << endl;
+		}
 	}
 	if( GetTrailingString( )=="pschmask" )
 	{
@@ -759,7 +763,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	}
 	std::ostringstream sSQL;
 
-	sSQL << "SELECT psc_id FROM " << m_sName << " WHERE psc_id IS NOT NULL AND psc_id>0 ORDER BY psc_id";
+	sSQL << "SELECT psc_id,psc_batch FROM " << m_sName << " WHERE psc_id IS NOT NULL AND psc_id>0 ORDER BY psc_id";
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
 	res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
@@ -801,8 +805,13 @@ itmp_RowsToDelete++;
 			if( pos>=r_GetAll_psc_id.m_vectAll_psc_id.size( ) || r_GetAll_psc_id.m_vectAll_psc_id[pos]>atoi( row[0] ) )
 			{
 cout << "Deleted a server row - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-	" atoi: " << atoi( row[0] ) << endl;
-				m_vectRowsToDelete.push_back( atoi( row[0] ) );
+	" server: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << " atoi: " << atoi( row[0] ) << endl;
+				// It's possible that this row was added as an unauthorized batch and hasn't
+				// been deleted, it just hasn't been approved yet.  Skip this if it's an unauth batch
+				if( !row[1] || atoi(row[1])>=0 )
+					m_vectRowsToDelete.push_back( atoi( row[0] ) );
+				else
+					cout << "RE: Above, never mind.  It's an unauthorized row" << endl;
 				continue; 
 			}
 			if( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )==r_GetAll_psc_id.m_vectAll_psc_id[pos] )
@@ -1081,10 +1090,17 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 	/** See if this is a new row, or an updated one */
 	if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync )
 	{
+		// It's possible that an incoming row is going to use the same primary key as one 
+		// we added locally but haven't checked in yet, or isn't approved
+		int iAutoIncrementKeyValue=0;
 		sSQL << "INSERT INTO `" << m_sName << "` ( ";
 
 		for( size_t s=0;s<pR_UpdateTable->m_pvectFields->size( );++s )
+		{
 			sSQL << "`" << ( *pR_UpdateTable->m_pvectFields )[s] << "`, "; 
+			if( m_pField_AutoIncrement && m_pField_AutoIncrement->Name_get()==( *pR_UpdateTable->m_pvectFields )[s] )
+				iAutoIncrementKeyValue = atoi(pA_UpdateRow->m_vectValues[s].c_str());
+		}
 
 		sSQL << "psc_id, psc_batch, psc_user ) VALUES( ";
 
@@ -1097,6 +1113,23 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 		}
 
 		sSQL << pA_UpdateRow->m_psc_id << ", " << pA_UpdateRow->m_psc_batch << ", " << (pA_UpdateRow->m_psc_user ? StringUtils::itos(pA_UpdateRow->m_psc_user) : "NULL") << " )";
+
+		// First do a quick check to be sure there's no other record using this primary key
+		if( iAutoIncrementKeyValue )
+		{
+			std::ostringstream sSQL2;
+			sSQL2 << "SELECT `" << m_pField_AutoIncrement->Name_get() << "` FROM `" << m_sName 
+				<< "` WHERE `" << m_pField_AutoIncrement->Name_get() << "`=" << iAutoIncrementKeyValue;
+
+			PlutoSqlResult result_set;
+			MYSQL_ROW row=NULL;
+			if( (result_set.r=m_pDatabase->mysql_query_result(sSQL2.str())) && 
+				(row = mysql_fetch_row(result_set.r)) )
+			{
+				// We've got a conflict
+				ReassignAutoIncrValue(iAutoIncrementKeyValue);
+			}
+		}
 
 		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 		{
@@ -2012,4 +2045,28 @@ int k=2;
 			}
 		}
 	}
+}
+
+int Table::ReassignAutoIncrValue(int iPrimaryKey)
+{
+	std::ostringstream sSQL2;
+	sSQL2 << "SELECT max(" << m_pField_AutoIncrement->Name_get() << ") FROM `" << m_sName << "`";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) )
+	{
+		int iNextID = atoi(row[0])+1;
+		PropagateUpdatedField( m_pField_AutoIncrement, StringUtils::itos(iNextID), StringUtils::itos(iPrimaryKey), NULL );
+		sSQL2.str("");
+		sSQL2 << "UPDATE `" << m_sName << "` SET `" << m_pField_AutoIncrement->Name_get() << "`=" << iNextID << 
+			" WHERE `" << m_pField_AutoIncrement->Name_get() << "`=" << iPrimaryKey;
+		if( m_pDatabase->threaded_mysql_query( sSQL2.str( ) )!=0 )
+		{
+			cerr << "SQL Failed: " << sSQL2.str( ) << endl;
+			throw "Database error";
+		}
+		return iNextID;
+	}
+	cerr << "ReassignAutoIncrValue cannot get new value";
+	throw "Database error";
 }

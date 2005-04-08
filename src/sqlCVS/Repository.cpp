@@ -887,7 +887,8 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 
 	map<string,int> mapFields;
 	list<string> listFields;
-	int iField_psc_id = -1;
+	int iField_psc_id = -1, iField_psc_batch = -1;
+	int psc_id_last=0,psc_batch_last=0;
 
 	// We will go through the create table process even if
 	// bCleanImport is false and we're not going to use it because we need
@@ -910,6 +911,8 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 
 		if( sField=="psc_id" )
 			iField_psc_id = j;
+		if( sField=="psc_batch" )
+			iField_psc_batch = j;
 		mapFields[sField]=j;
 		listFields.push_back(sField);  // We need both a map and a list
 
@@ -928,18 +931,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 
 	sSQL << " ) TYPE=InnoDB";
 
-#pragma warning( "had to remove this and relocate id's since innodb doesn't support this" );
-//	if( bContainsAutoIncrement )
-//		sSQL << " AUTO_INCREMENT=1000000000";
-
-#pragma warning( "This doesn't really handle types correctly, and may not handle indexes right either" );
-#pragma warning( "need to make an index for psc_id" );
-
 	map<int,int> map_id_mod,map_id_new;
-if( sTableName=="DeviceTemplate" )
-{
-	int k=2;
-}
 	if( !pTable )
 	{
 		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
@@ -1032,7 +1024,12 @@ if( sTableName=="DeviceTemplate" )
 			cout << "Completed " << j << " rows out of " << NumRows << endl;
 
 		bool bUpdate=false; // Make this an update rather than an insert
-		int i_psc_id= iField_psc_id!=-1 ? atoi(str.m_vectString[pos+iField_psc_id].c_str()) : 0; // The psc_id of the row we're importing
+		int i_psc_id = iField_psc_id!=-1 ? atoi(str.m_vectString[pos+iField_psc_id].c_str()) : 0; // The psc_id of the row we're importing
+		int i_psc_batch = iField_psc_batch!=-1 ? atoi(str.m_vectString[pos+iField_psc_batch].c_str()) : 0; // The psc_batch of the row we're importing
+		if( i_psc_id>psc_id_last )
+			psc_id_last=i_psc_id;
+		if( i_psc_batch>psc_batch_last )
+			psc_batch_last=i_psc_batch;
 
 		// Delete any psc_id's that were since deleted on the server
 		for(int ipsc_id_deleted=i_psc_id_prior+1;ipsc_id_deleted<i_psc_id;ipsc_id_deleted++)
@@ -1123,23 +1120,7 @@ if( sTableName=="DeviceTemplate" )
 			{
 				// We're inserting a new row added from the master table, but there's already a row in the local table
 				// with the same auto increment ID.  We're going to have to relocate our local one
-				std::ostringstream sSQL2;
-				sSQL2 << "SELECT max(" << pTable->m_pField_AutoIncrement->Name_get() << ") FROM `" << sTableName << "`";
-				PlutoSqlResult result_set;
-				MYSQL_ROW row=NULL;
-				if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) )
-				{
-					int iNextID = atoi(row[0])+1;
-					pTable->PropagateUpdatedField( pTable->m_pField_AutoIncrement, StringUtils::itos(iNextID), Value, NULL );
-					sSQL2.str("");
-					sSQL2 << "UPDATE `" << sTableName << "` SET `" << pTable->m_pField_AutoIncrement->Name_get() << "`=" << iNextID << 
-						" WHERE `" << pTable->m_pField_AutoIncrement->Name_get() << "`=" << Value;
-					if( m_pDatabase->threaded_mysql_query( sSQL2.str( ) )!=0 )
-					{
-						cerr << "SQL Failed: " << sSQL2.str( ) << endl;
-						throw "Database error";
-					}
-				}
+				pTable->ReassignAutoIncrValue(atoi(Value.c_str()));
 			}
 
 			if( Value==NULL_TOKEN )
@@ -1158,6 +1139,12 @@ if( sTableName=="DeviceTemplate" )
 		}
 		i_psc_id_prior = i_psc_id;
 	}
+
+	if( pTable && psc_batch_last>psc_batch_last_sync_get(pTable) )
+		psc_batch_last_sync_set(pTable,psc_batch_last);
+	if( pTable && psc_id_last>psc_id_last_sync_get(pTable) )
+		psc_id_last_sync_set(pTable,psc_id_last);
+
 }
 
 bool Repository::UpdateSchema(int PriorSchema)

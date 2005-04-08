@@ -1098,6 +1098,16 @@ public:
 
 void Database::Import( string sRepository, Repository *pRepository )
 {
+	SerializeableStrings str;
+	if( !str.SerializeRead( sRepository + ".sqlcvs" ) )
+		throw "Cannot read file";
+
+	size_t pos=0;
+
+	// Pass in NULL for all the tables since we will just rebuild them anyway
+	string sTable = str.m_vectString[pos++];
+
+	/*  IMPORT THE NEW REPOSITORY SETTINGS -- SAVE OUR LOCAL SETTINGS FIRST */
 	// First save the settings in this map
 	MapStringString mapSettings;
 	if( pRepository->m_pTable_Setting )
@@ -1113,18 +1123,16 @@ void Database::Import( string sRepository, Repository *pRepository )
 				mapSettings[row[0]]=row[1];
 	}
 
-	SerializeableStrings str;
-	if( !str.SerializeRead( sRepository + ".sqlcvs" ) )
-		throw "Cannot read file";
-
-	size_t pos=0;
-
-	// Pass in NULL for all the tables since we will just rebuild them anyway
-	string sTable = str.m_vectString[pos++];
-
 	if( sTable != "psc_" + pRepository->Name_get() + "_repset" )
 		throw "Import schema error";
 	pRepository->ImportTable(sTable,str,pos,NULL);
+
+	MapStringString::iterator it;
+	for(it=mapSettings.begin();it!=mapSettings.end();++it)
+	{
+		if( (*it).first!="schema" )  // Don't import this setting.  We just updated the schema
+			pRepository->SetSetting((*it).first,(*it).second);
+	}
 
 	sTable = str.m_vectString[pos++];
 	if( sTable != "psc_" + pRepository->Name_get() + "_bathdr" )
@@ -1141,10 +1149,39 @@ void Database::Import( string sRepository, Repository *pRepository )
 		throw "Import schema error";
 	pRepository->ImportTable(sTable,str,pos,NULL);
 
+	/*  IMPORT THE NEW REPOSITORY TABLES -- SAVE OUR LOCAL SETTINGS FIRST */
+	map< string,pair<int,int> > mapLast_psc;   // pair<last_psc_id,last_psc_batch>
+	if( pRepository->m_pTable_Tables )
+	{
+		ostringstream sql;
+		sql	<< "SELECT Tablename,last_psc_id,last_psc_batch FROM `" << pRepository->m_pTable_Tables->Name_get() << "`";
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( ( result_set.r=mysql_query_result( sql.str( ) ) ) )
+			while ( row = mysql_fetch_row( result_set.r ) )
+				mapLast_psc[row[0]]=pair<int,int>(atoi(row[1]),atoi(row[2]));
+	}
+
 	sTable = str.m_vectString[pos++];
 	if( sTable != "psc_" + pRepository->Name_get() + "_tables" )
 		throw "Import schema error";
 	pRepository->ImportTable(sTable,str,pos,NULL);
+	for(map< string,pair<int,int> >::iterator it=mapLast_psc.begin();it!=mapLast_psc.end();++it)
+	{
+		string sTable = (*it).first;
+		int last_psc_id = (*it).second.first;
+		int last_psc_batch = (*it).second.second;
+
+		ostringstream sql;
+		std::ostringstream sSQL;
+		sSQL << "UPDATE `" << pRepository->m_pTable_Tables->Name_get( ) << "` SET last_psc_batch='" << 
+			last_psc_batch << "',last_psc_ID='" << last_psc_id << "' WHERE Tablename='" << sTable << "'";
+		if( threaded_mysql_query( sSQL.str( ) )!=0 )
+		{
+			cerr << "SQL failed: " << sSQL.str( );
+			throw "Internal error Repository::psc_last_id,last_batch set";
+		}
+	}
 
 	sTable = str.m_vectString[pos++];
 	if( sTable != "psc_" + pRepository->Name_get() + "_schema" )
@@ -1181,12 +1218,6 @@ void Database::Import( string sRepository, Repository *pRepository )
 	}
 
 	str.FreeSerializeMemory( );
-	MapStringString::iterator it;
-	for(it=mapSettings.begin();it!=mapSettings.end();++it)
-	{
-		if( (*it).first!="schema" )  // Don't import this setting.  We just updated the schema
-			pRepository->SetSetting((*it).first,(*it).second);
-	}
 }
 
 void Database::ListTables( )

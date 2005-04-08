@@ -155,6 +155,7 @@ int itmp_RowsToDelete;
 		void DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user ); /**< Server side delete */
 		void UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user ); /**< Server side update */
 		void ApplyChangedRow(ChangedRow *pChangedRow); /**< Applies a changed row.  Used when authorizing a previously unauthorized batch */
+		int ReassignAutoIncrValue(int iPrimaryKey);  /**< Gives the row with the past primary key a new auto-increment value, and returns that value */
 		
 		void UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable, sqlCVSprocessor *psqlCVSprocessor ); /**< Client side update */
 		void AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor,int psc_batch_in_history=0 );

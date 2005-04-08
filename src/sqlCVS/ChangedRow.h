@@ -70,7 +70,7 @@ namespace sqlCVS
 	
 	typedef list<DependentRow *> ListDependentRow;
 
-	enum TypeOfChange { toc_New, toc_Delete, toc_Modify };
+	enum TypeOfChange { toc_New=0, toc_Delete=1, toc_Modify=2 };
 
 	/**
 	 * @brief This is a row that has been changed on the client
