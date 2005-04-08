@@ -140,7 +140,8 @@ for line in $result; do
 done
 
 # Someone said this fixed his NFS problems; I'm putting it here for both Core and MDs
-echo 1 >/proc/sys/net/ipv4/ip_no_pmtu_disc
+# Canceled because of PPPoE MTU issues
+#echo 1 >/proc/sys/net/ipv4/ip_no_pmtu_disc
 
 # apt-proxy was replaced in 2.0.0.12 with the polipo+frox combination
 # translating all apt-proxy references in sources.list
