@@ -144,8 +144,8 @@ static void set_audio_finish(struct cx88_core *core)
 
 	if (cx88_boards[core->board].blackbird) {
 		// sets sound input from external adc
-		//cx_set(AUD_CTL, EN_I2SIN_ENABLE);
-		//cx_write(AUD_I2SINPUTCNTL, 0);
+		cx_set(AUD_CTL, EN_I2SIN_ENABLE);
+		cx_write(AUD_I2SINPUTCNTL, 0);
 		//cx_write(AUD_I2SINPUTCNTL, 4);
 		//cx_write(AUD_BAUDRATE, 1);
 		// 'pass-thru mode': this enables the i2s output to the mpeg encoder
@@ -681,7 +681,7 @@ static void set_audio_standard_A2(struct cx88_core *core)
 	};
 
 	dprintk( "%s\n", __FUNCTION__ );
-	set_audio_start(core, 0x0004, EN_DMTRX_SUMDIFF | EN_A2_AUTO_STEREO | EN_I2SOUT_ENABLE);
+	set_audio_start(core, 0x0004, EN_DMTRX_SUMDIFF | EN_A2_AUTO_STEREO);
 	set_audio_registers(core, a2_common);
 	switch (core->tvaudio) {
 	case WW_A2_BG:
@@ -771,7 +771,7 @@ void cx88_set_tvaudio(struct cx88_core *core)
 		set_audio_standard_BTSC(core,0);
 		break;
 	case WW_NICAM_BGDKL:
-		set_audio_standard_NICAM_L(core,0);
+		set_audio_standard_NICAM_L(core,1);
 		break;
 	case WW_NICAM_I:
 		set_audio_standard_PAL_I(core,0);
