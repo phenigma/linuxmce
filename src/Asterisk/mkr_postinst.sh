@@ -21,8 +21,10 @@ pre-connect => yes" >> /etc/asterisk/res_odbc.conf
 : >/etc/asterisk/extconfig.conf
 
 echo "[settings]
-sipfriends => odbc,asterisk,sip_buddies
-iaxfriends => odbc,asterisk,iax_buddies
+sipusers => odbc,asterisk,sip_buddies
+sippeers => odbc,asterisk,sip_buddies
+iaxusers => odbc,asterisk,iax_buddies
+iaxpeers => odbc,asterisk,iax_buddies
 realtime_ext => odbc,asterisk,extensions_table
 sip.conf => odbc,asterisk,ast_config
 iax.conf => odbc,asterisk,ast_config" >> /etc/asterisk/extconfig.conf
