@@ -15,7 +15,7 @@ using namespace Frog;
 using namespace Frog::Internal;
 
 #include "src/internal/graphicbuffer.h" //temp ... for debugging
-#define DEBUG_SURFACES
+//#define DEBUG_SURFACES
 
 #include <src/rasterizer.h>
 //-----------------------------------------------------------------------------------------------------
