@@ -252,7 +252,7 @@ function wizardOrbiters($output,$dbADO) {
 				$updateOrbiters=true;
 				
 				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"';
-				exec($commandToSend);
+				exec($commandToSend,$tmp);
 			}
 			if(isset($_POST['fullRegen_'.$value])){
 				$updateOrbiter='UPDATE Orbiter SET Modification_LastGen=0 WHERE PK_Orbiter=?';
