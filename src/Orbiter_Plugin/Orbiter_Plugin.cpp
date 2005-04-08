@@ -1246,7 +1246,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD
         OH_Orbiter *pOH_Orbiter = (*it).second;
 
 		if( iPK_Device==0 ) //we'll regen all of them
-			m_listRegenCommands.push_back(iPK_Device);
+			m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 
 		if( iPK_Device==0 || pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==iPK_Device )
 		{
