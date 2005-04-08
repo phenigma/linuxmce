@@ -15,7 +15,7 @@ using namespace Frog;
 using namespace Frog::Internal;
 
 #include "src/internal/graphicbuffer.h" //temp ... for debugging
-//#define DEBUG_SURFACES
+#define DEBUG_SURFACES
 
 #include <src/rasterizer.h>
 //-----------------------------------------------------------------------------------------------------
@@ -282,6 +282,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 				m_bShiftDown=true;
 				break;
 			case VK_CONTROL:
+				g_pPlutoLogger->Write(LV_STATUS, "Control key pressed");
 				m_bControlDown=true;
 				break;
 			case VK_MENU:
@@ -318,7 +319,10 @@ clock_t ccc=clock();
         if( wParam == VK_SHIFT)
             m_bShiftDown=false;
         else if( wParam == VK_CONTROL)
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Control key released");
             m_bControlDown=false;
+		}
         else if( wParam == VK_MENU )
             m_bAltDown=false;
 		else if( wParam == VK_F12) 
@@ -332,13 +336,21 @@ clock_t ccc=clock();
 #endif
 		{
 			ShowMainDialog();
+			m_bControlDown=false;
 		}
 		else if( wParam == VK_P && m_bControlDown)
 		{
 			static int Count = 0;
+			m_bControlDown=false;
 
-#ifndef WIN32
-			SaveImage(GetDisplay()->GetBackBuffer(), (string("/backbuffer") + StringUtils::ltos(Count++)).c_str());
+#ifdef WINCE
+			wchar_t wPath[4096];
+
+			string sPath = string("/backbuffer") + StringUtils::ltos(Count++);
+			mbstowcs(wPath, sPath.c_str(), 4096);	
+			SaveImage(GetDisplay()->GetBackBuffer(), wPath);
+#else
+			SaveImage(GetDisplay()->GetBackBuffer(), (string("backbuffer") + StringUtils::ltos(Count++)).c_str());
 #endif
 		}
         else if( !m_bShiftDown && !m_bControlDown && !m_bAltDown && !m_bRepeat )
@@ -783,6 +795,13 @@ g_pPlutoLogger->Write(LV_STATUS, "^SaveBackgroundForDeselect: Surface %p has %p 
 g_pPlutoLogger->Write(LV_STATUS, "^RenderGraphic start: Surface %p has %p pixels", pSurface, pSurface->m_buffer->GetPixels());
 #endif
 
+	if(::IsBadReadPtr(pSurface->m_buffer->GetPixels(), pSurface->GetWidth() * pSurface->GetHeight() * 2))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "The surface has a bad pointer for pixels array (Surface: %p, pixels: %p)",
+			pSurface, pSurface->m_buffer->GetPixels());
+		return;
+	}
+
 
 	if(pSurface->GetWidth() == 0 || pSurface->GetHeight() == 0)
 		return;
@@ -1042,6 +1061,7 @@ void Orbiter_PocketFrog::PingFailed()
 
 	ShowMainDialog();
 
+	m_bQuit = true;
 	m_bReload = true;
 	OnQuit();
 }
