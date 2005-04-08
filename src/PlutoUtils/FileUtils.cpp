@@ -476,7 +476,7 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
     ptrFileList = _findfirst((sDirectory + "*.*").c_str(), & finddata);
     while (ptrFileList != -1)
     {
-        if (finddata.attrib != _A_SUBDIR && finddata.name[0] != '.')
+        if (!(finddata.attrib & _A_SUBDIR) && finddata.name[0] != '.')
         {
             string::size_type pos = 0;
             for (;;)
@@ -499,7 +499,7 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
 				return true; // max depth hit
         }
-        else if (bRecurse && finddata.attrib == _A_SUBDIR && finddata.name[0] != '.')
+        else if (bRecurse && (finddata.attrib & _A_SUBDIR) && finddata.name[0] != '.')
 		{
 			if ( FindFiles(listFiles, sDirectory + finddata.name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
 				return true; // if one recursive call hit the maximum depth then return now.
