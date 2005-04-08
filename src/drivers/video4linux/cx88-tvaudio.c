@@ -144,10 +144,10 @@ static void set_audio_finish(struct cx88_core *core)
 
 	if (cx88_boards[core->board].blackbird) {
 		// sets sound input from external adc
-		cx_set(AUD_CTL, EN_I2SIN_ENABLE);
+		//cx_set(AUD_CTL, EN_I2SIN_ENABLE);
 		//cx_write(AUD_I2SINPUTCNTL, 0);
-		cx_write(AUD_I2SINPUTCNTL, 4);
-		cx_write(AUD_BAUDRATE, 1);
+		//cx_write(AUD_I2SINPUTCNTL, 4);
+		//cx_write(AUD_BAUDRATE, 1);
 		// 'pass-thru mode': this enables the i2s output to the mpeg encoder
 		cx_set(AUD_CTL, EN_I2SOUT_ENABLE);
 		cx_write(AUD_I2SOUTPUTCNTL, 1);
