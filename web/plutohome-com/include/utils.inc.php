@@ -844,25 +844,6 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 	}
 	$dbADO->Execute($insertCG_Room,array($armDisarmCG,$roomID,$armDisarmCG));
 	
-	$selectSOS='SELECT * FROM CommandGroup WHERE FK_Template=? AND FK_Installation=?';
-	$resSOS=$dbADO->Execute($selectSOS,array($GLOBALS['SecuritySOSTemplate'], $installationID));
-	if($resSOS->RecordCount()){
-		$rowSOS=$resSOS->FetchRow();
-		$sosCG=$rowSOS['PK_CommandGroup'];
-	}else{
-		$insertCommandGroup='
-				INSERT INTO CommandGroup 
-					(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
-				VALUES
-					(?,?,?,?,?,?,?)';
-		$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'*SOS*',0,0,0,$GLOBALS['SecuritySOSTemplate']));
-		$sosCG=$dbADO->Insert_ID();
-
-		$dbADO->Execute($insertCG_C,array($sosCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
-		$cg_cID=$dbADO->Insert_ID();
-		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuSecurityCamerasDesignObj']));
-	}
-	$dbADO->Execute($insertCG_Room,array($sosCG,$roomID,$sosCG));
 }
 
 function htmlPulldown($contentArray,$name,$selectedValue='None',$unselectedLabel)

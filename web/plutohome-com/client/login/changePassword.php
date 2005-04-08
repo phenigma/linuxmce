@@ -17,15 +17,15 @@ function changePassword($output)
         </tr>
 			<tr>
 				<td align="left" width="150"><B>Current Password</B></td>
-				<td><input type="password" name="current" class="textfield"/> <a href="index.php?section=forgotPassword">Forgot password</a>?<br></td>
+				<td><input type="password" name="current" class="textfield" TABINDEX="1"/> <a href="index.php?section=forgotPassword">Forgot password</a>?<br></td>
 			</tr>
 			<tr>
 				<td align="left"><B>New Password</B></td>
-				<td><input type="password" name="password" class="textfield"/><br></td>
+				<td><input type="password" name="password" class="textfield" TABINDEX="2"/><br></td>
 			</tr>
 			<tr>
 				<td align="left"><B>Confirm New Password</B></td>
-				<td><input type="password" name="confirm" class="textfield"/><br></td>
+				<td><input type="password" name="confirm" class="textfield" TABINDEX="3"/><br></td>
 			</tr>
 			<tr><td colspan="2" align="left"><input type="submit" name="changePasswordword" value="Change Password" /></td></tr>
 		</table>

@@ -59,7 +59,7 @@ $out.='
      $date=substr($row->newsDate,0,10);
      //$str=strip_tags($str);
      $title=strip_tags($row->newsTitle);
-     $out.='<tr><td class="news"><a href="index.php?section=full_story&id='.$row->newsID.'" class="newstitle">'.$date[5].$date[6].'.'.$date[8].$date[9].'.'.$date[0].$date[1].$date[2].$date[3].' - <b>'.$title.'</a><b></td></tr><tr><td class="news">'.$str.'...<br></td></tr>';
+     $out.='<tr><td class="news"><a href="index.php?section=full_story&id='.$row->newsID.'" class="newstitle">'.$date[8].$date[9].'.'.$date[5].$date[6].'.'.$date[0].$date[1].$date[2].$date[3].' - <b>'.$title.'</a><b></td></tr><tr><td class="news">'.$str.'...<br></td></tr>';
   }
 
     $out.=<<<LOL

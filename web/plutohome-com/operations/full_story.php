@@ -19,7 +19,7 @@ function full_story($output,$conn){
     <td valign="top" class="insidetable2"><table>
 		<tr>
 			<td width="15"><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /></td>
-			<td class="title2"><b>'.date('d.m.Y',$row->timestamp).'<br>'.$row->newsTitle.'</b><br /></td>
+			<td class="title2"><b>'.date('m.d.Y',$row->timestamp).'<br>'.$row->newsTitle.'</b><br /></td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>

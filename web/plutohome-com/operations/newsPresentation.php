@@ -8,7 +8,7 @@ function newsPresentation($output,$conn) {
 	$text=array();
 	while($row=mysql_fetch_object($r)){
 		$id[]=$row->newsID;
-		$title[]=date('d.m.Y',$row->timestamp).'<br>'.$row->newsTitle;
+		$title[]=date('m.d.Y',$row->timestamp).'<br>'.$row->newsTitle;
 		$text[]=$row->newsContent;
 	}
 	$from=(isset($_GET['page']))?((int)$_GET['page']-1):0;
