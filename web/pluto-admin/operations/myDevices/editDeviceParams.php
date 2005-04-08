@@ -196,7 +196,7 @@ $installationID = (int)@$_SESSION['installationID'];
 				</tr>
 				<tr>
 					<td><input type="checkbox" name="PingTest" value="1" '.(($PingTest==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
-					<td>Ping Test</td>
+					<td>This device has a wi-fi network connection</td>
 				</tr>
 					
 				<tr>

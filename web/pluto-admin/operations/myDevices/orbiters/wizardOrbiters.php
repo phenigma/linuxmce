@@ -44,7 +44,7 @@ function wizardOrbiters($output,$dbADO) {
 			}
 	</script>
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
-	<div class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
+	<div class="confirm"><B>'.@stripslashes($_GET['msg']).'</B></div>
 	<form action="index.php" method="POST" name="devices">
 	<input type="hidden" name="section" value="wizardOrbiters">
 	<input type="hidden" name="action" value="add">	
@@ -261,7 +261,7 @@ function wizardOrbiters($output,$dbADO) {
 				$updateOrbiters=true;
 				
 				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"';
-				system($commandToSend);
+				exec($commandToSend);
 			}
 		}
 		
@@ -310,7 +310,8 @@ function wizardOrbiters($output,$dbADO) {
 				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);				
 			}
 		}
-		header("Location: index.php?section=wizardOrbiters&msg=Orbiters updated.");		
+		$commandMessage=(isset($commandToSend))?'<br>Command sent: '.$commandToSend:'';
+		header("Location: index.php?section=wizardOrbiters&msg=Orbiters updated.".$commandMessage);		
 	}
 
 	$output->setScriptCalendar('null');

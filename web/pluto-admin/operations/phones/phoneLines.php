@@ -197,7 +197,7 @@ function phoneLines($output,$astADO,$dbADO) {
 			
 			$insertPhoneLine='INSERT INTO '.$phoneTable.' (username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
 			$insertAstConfig='INSERT INTO ast_config (filename,var_name,var_val,category) VALUES (?,?,?,?)';
-			$astADO->Execute($insertAstConfig,array($confFile, 'register', $username.':'.$secret.'@'.$host.'/'.$phoneNumber,'general'));
+			$astADO->Execute($insertAstConfig,array($confFile, 'register', $username.':'.$secret.'@'.$host,'general'));
 			$astADO->Execute($insertPhoneLine,array($username,$secret,$name,$host,$port,$rtptimeout,'peer','registered-lines',$phoneNumber,$host,'Y',$phoneNumber));
 			
 			if(!isset($defaultLineID)){

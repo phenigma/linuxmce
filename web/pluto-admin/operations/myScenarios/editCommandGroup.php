@@ -538,7 +538,7 @@ function editCommandGroup($output,$dbADO) {
 			$description = cleanString($_POST['description']);
 			$hint = cleanString($_POST['hint']);
 			$arrayID = cleanInteger($_POST['arrayType']);
-			$designObjID = $_SESSION['editCommandGroup']['designObjID'];
+			$designObjID = ($_SESSION['editCommandGroup']['designObjID']>0)?$_SESSION['editCommandGroup']['designObjID']:null;
 			$iconID = cleanInteger((isset($_POST['icon'])?$_POST['icon']:0));
 			$templateID = (isset($_POST['template']) && $_POST['template']!=0)?cleanInteger($_POST['template']):NULL;
 			
