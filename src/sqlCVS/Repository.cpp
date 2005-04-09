@@ -1012,7 +1012,7 @@ int k=2;
 			if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
 			{
 				while( (row = mysql_fetch_row( result_set.r ) ) )
-					map_id_new[atoi(row[0])] = atoi(row[1]);
+					map_id_new[atoi(row[0])] = row[1] ? atoi(row[1]) : 0;
 			}
 		}
 	}
