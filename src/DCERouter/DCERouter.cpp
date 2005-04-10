@@ -737,7 +737,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 					string Device = StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos);
 					if( !Device.size() )
 						break;
-					DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router[ atoi(Device.c_str()) ];
+					DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find( atoi(Device.c_str()) );
 					if( pDeviceData_Router )
 						DeviceList += pDeviceData_Router->m_sDescription + "(" + Device + "),";
 					else
@@ -776,6 +776,17 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 					Desc = m_mapEventParmNames[(*i).first];
 				if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 					g_pPlutoLogger->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
+			}
+			map<long,unsigned long>::iterator il;
+			for(il=pMessage->m_mapData_Lengths.begin();il!=pMessage->m_mapData_Lengths.end();++il)
+			{
+				Desc="";
+				if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+					Desc = m_mapCommandParmNames[(*il).first];
+				else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
+					Desc = m_mapEventParmNames[(*il).first];
+				if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+					g_pPlutoLogger->Write(LogType, "  Data Parm %d(%s): %d bytes", (*il).first, Desc.c_str(), (*il).second);
 			}
 		}
 	}

@@ -68,6 +68,7 @@ public:
 };
 
 typedef void ( Orbiter::*OrbiterCallBack )( void *data );
+enum ePurgeExisting { pe_NO=0, pe_ALL, pe_Match_Data };
 
 //<-dceag-decl-b->! custom
 /**
@@ -186,6 +187,8 @@ protected:
 	vector < class DesignObj_Orbiter * > m_vectObjs_TabStops; /** < All the tab stops */
 	vector < class DesignObj_Orbiter * > m_vectObjs_Selected; /** < All the objects currently selected */
 	vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
+	vector < class DesignObj_Orbiter * > m_vectObjs_VideoOnScreen; /** < All the video on screen */
+	bool m_bAlreadyQueuedVideo; // We only put 1 GetVideFrame in the queue
 
 	map< string, class DesignObj_DataGrid * > m_mapObjs_AllGrids; /** < All the datagrids */
 
@@ -290,7 +293,7 @@ public: // temp - remove this
 	 */
 	virtual void GetVideoFrame( void *iData );
 
-	virtual int GetVideoFrameInterval() { return 6000; } //default value. override this to speed up things.
+	virtual int GetVideoFrameInterval() { return 2000; } //default value. override this to speed up things.
 
 	/**
 	 * @brief
@@ -739,7 +742,7 @@ public:
 	/**
 	 * @brief We need the maintenance function to be called in this many clock ticks
 	 */
-	void CallMaintenanceInMiliseconds( time_t miliseconds, OrbiterCallBack fnCallBack, void *iData, bool bPurgeExisting, bool bPurgeTaskWhenScreenIsChanged = true );
+	void CallMaintenanceInMiliseconds( time_t miliseconds, OrbiterCallBack fnCallBack, void *iData, ePurgeExisting e_PurgeExisting, bool bPurgeTaskWhenScreenIsChanged = true );
 
 	/**
 	 *	MAINTENANCE CALL BACKS

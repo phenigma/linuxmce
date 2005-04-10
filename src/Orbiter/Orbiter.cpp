@@ -445,7 +445,7 @@ void Orbiter::RedrawObjects(  )
     // There appears to be a problem with SDL_Flip sometimes calling _XRead to wait for an event,  causing the thread
     // to block until there's an event,  so that our loop no longer gets back to the SDL_WaitEvent in the main pump
     // So for now just do the redraw's always on a separate thread
-	CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, true );
+	CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, pe_ALL );
 }
 
 void Orbiter::ScreenSaver( void *data )
@@ -745,10 +745,17 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
         break;
 #endif
     case DESIGNOBJTYPE_Broadcast_Video_CONST:
-		if ( pObj->m_bOnScreen )
+		if ( pObj->m_bOnScreen && !m_bAlreadyQueuedVideo )
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Scheduling object @%p: %s", pObj, pObj->m_ObjectID.c_str());
-			CallMaintenanceInMiliseconds( GetVideoFrameInterval(), &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+			
+			// If we've got no current graphic, such as during the first redraw since ObjectOnScreen
+			// deletes it, then request a video frame right away, otherwise we're redrawing
+			// and should wait the correct interval
+
+			// Don't purge existing callbacks since there can be multiple frames on the screen
+			CallMaintenanceInMiliseconds( pObj->m_vectGraphic.size()==0 ? 0 : GetVideoFrameInterval(), &Orbiter::GetVideoFrame, NULL, pe_ALL ); 
+			m_bAlreadyQueuedVideo=true;  // Only schedule once -- that will redraw all video frames
 		}
 		else
 		{
@@ -1093,6 +1100,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s",pScreenHistory->m_pObj->m_ObjectID.c_str());
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     m_vectObjs_GridsOnScreen.clear(  );
+	m_vectObjs_VideoOnScreen.clear(  );
     dg.Release(  );
 
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
@@ -1155,18 +1163,18 @@ g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
 
 g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for display off with timeout: %d ms", m_iTimeoutBlank * 1000);
 
-		CallMaintenanceInMiliseconds( m_iTimeoutBlank * 1000, &Orbiter::ScreenSaver, NULL, true );
+		CallMaintenanceInMiliseconds( m_iTimeoutBlank * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 	}
 	else if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && pScreenHistory->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
 	{
 g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for screen saver with timeout: %d ms", m_iTimeoutScreenSaver * 1000);
-		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, true );
+		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 	}
 
     m_pScreenHistory_Current=pScreenHistory;
     m_pScreenHistory_Current->m_pObj->m_bActive=true;
 	if( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds )
-		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, true );
+		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, pe_ALL );
 
     g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
     ObjectOnScreenWrapper(  );
@@ -1260,6 +1268,7 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
     if(  pObj->m_bTabStop  )
         m_vectObjs_TabStops.push_back( pObj );
 
+
     if(  pObj->m_bDontResetState || pObj->m_bOneTimeDontReset  )
     {
         pObj->m_bOneTimeDontReset=false;
@@ -1270,6 +1279,19 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
         pObj->m_GraphicToDisplay=GRAPHIC_NORMAL;
         pObj->m_bHidden=pObj->m_bHideByDefault;
     }
+
+	if( pObj->m_ObjectType==DESIGNOBJTYPE_Broadcast_Video_CONST )
+	{
+        pObj->m_pvectCurrentGraphic = NULL;
+		for(size_t i = 0; i < pObj->m_vectGraphic.size(); i++)
+		{
+			delete pObj->m_vectGraphic[i];
+		}
+		pObj->m_vectGraphic.clear();
+		pObj->m_iCurrentFrame = 0;
+		m_vectObjs_VideoOnScreen.push_back(pObj);
+		m_bAlreadyQueuedVideo=false;
+	}
 
     if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED  )
         m_vectObjs_Selected.push_back( pObj );
@@ -1411,7 +1433,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 				{
 					SaveBackgroundForDeselect( pObj );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 					if(  !pObj->m_bDontResetState  )
-						CallMaintenanceInMiliseconds( 500, &Orbiter::DeselectObjects, ( void * ) pObj, false );
+						CallMaintenanceInMiliseconds( 500, &Orbiter::DeselectObjects, ( void * ) pObj, pe_NO );
 				}
 			}
 
@@ -3406,12 +3428,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click because screen saver was active"
     }
 
 	if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds  )
-		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, true );
+		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, pe_ALL );
 
 	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && m_pScreenHistory_Current->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
 	{
 g_pPlutoLogger->Write(LV_STATUS,"Got activity - calling ScreenSaver in %d ",m_iTimeoutScreenSaver);
-		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, true );
+		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 	}
 	return true;
 }
@@ -4157,18 +4179,19 @@ void *MaintThread(void *p)
 
 //------------------------------------------------------------------------
 void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBack fnCallBack,
-										   void *data, bool bPurgeExisting,
+										   void *data, ePurgeExisting e_PurgeExisting,
 										   bool bPurgeTaskWhenScreenIsChanged/*= true*/
 										   )
 {
     PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
 
-	if( bPurgeExisting )
+	if( e_PurgeExisting!=pe_NO )
 	{
 		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
 		{
 			CallBackInfo *pCallBackInfo = (*it).second;
-			if( pCallBackInfo->m_fnCallBack==fnCallBack )
+			if( pCallBackInfo->m_fnCallBack==fnCallBack && 
+					(e_PurgeExisting==pe_ALL || pCallBackInfo->m_pData==data) )
 				pCallBackInfo->m_bStop=true;
 		}
 	}
@@ -4230,31 +4253,41 @@ void Orbiter::DeselectObjects( void *data )
 
 void Orbiter::GetVideoFrame( void *data )
 {
-    NeedToRender render( this, "GetVideoFrame" );
     PLUTO_SAFETY_LOCK( vm, m_ScreenMutex )
-	DesignObj_Orbiter *pObj = ( DesignObj_Orbiter * ) data;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GetVideoFrame() The target object is: %s", pObj->m_ObjectID.c_str());
+	vector < class DesignObj_Orbiter * > vectObjs_VideoOnScreen; /** < All the video on screen */
+	// Since this may take a while and we don't want to block the mutex the whole time, make a local copy
+    for(size_t s=0;s<m_vectObjs_VideoOnScreen.size();++s)
+		vectObjs_VideoOnScreen.push_back(m_vectObjs_VideoOnScreen[s]);
 
-	if( !pObj->m_bOnScreen )
+	vm.Release();
+    for(size_t s=0;s<vectObjs_VideoOnScreen.size();++s)
 	{
-        g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GetVideoFrame() The target object si not on screen: %s", pObj->m_ObjectID.c_str());
-		return; // The object isn't on screen anymore
-	}
+		DesignObj_Orbiter *pObj = vectObjs_VideoOnScreen[s];
+		g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GetVideoFrame() The target object is: %s", pObj->m_ObjectID.c_str());
 
-    // If it's hidden,  keep the timer going in case it becomes visible again
-    if(  !pObj->IsHidden(  )  )
-    {
-        char *pBuffer=NULL; int Size=0;  string sFormat;
-        DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Source_CONST ).c_str(  ) ), "0",  0 /* stream */, pObj->m_rBackgroundPosition.Width, pObj->m_rBackgroundPosition.Height, &pBuffer, &Size, &sFormat );
-        if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
-        {
-            CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "" );
-            return; // This will call RenderObject,  which will reset the timer
-        }
-    }
+		if( !pObj->m_bOnScreen )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GetVideoFrame() The target object si not on screen: %s", pObj->m_ObjectID.c_str());
+			return; // The object isn't on screen anymore
+		}
+
+		// If it's hidden,  keep the timer going in case it becomes visible again
+		if(  !pObj->IsHidden(  )  )
+		{
+			char *pBuffer=NULL; int Size=0;  string sFormat;
+			DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Source_CONST ).c_str(  ) ), "0",  0 /* stream */, pObj->m_rBackgroundPosition.Width, pObj->m_rBackgroundPosition.Height, &pBuffer, &Size, &sFormat );
+			if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
+			{
+				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "" );
+			}
+		}
+	}
+	m_bAlreadyQueuedVideo=false;
+    NeedToRender render( this, "GetVideoFrame" );  // Block this at the end so other renderings may occur in the meantime
+
 	//GetVideoFrame will be called again in RenderObj via CMD_Update_Object_Img -> RealRedraw
-    //CallMaintenanceInMiliseconds( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+    //CallMaintenanceInMiliseconds( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, pe_Match );
 }
 
 /*
@@ -5071,58 +5104,58 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
 
     // todo -- need a command mutex here too??  PLUTO_SAFETY_LOCK( cm, m_CommandMutex );
 
-    if ( pObj )
+    if ( !pObj )
+		return;
+
+    int PriorWidth=0, PriorHeight=0;
+    if(  pObj->m_pvectCurrentGraphic  )
+        pObj->m_pvectCurrentGraphic = NULL;
+    if ( pObj->m_vectGraphic.size() )
     {
-        int PriorWidth=0, PriorHeight=0;
-        if(  pObj->m_pvectCurrentGraphic  )
-            pObj->m_pvectCurrentGraphic = NULL;
-        if ( pObj->m_vectGraphic.size() )
-        {
-            PriorWidth = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width;
-            PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height;
-        }
-
-		for(size_t i = 0; i < pObj->m_vectGraphic.size(); i++)
-		{
-			delete pObj->m_vectGraphic[i];
-		}
-		pObj->m_vectGraphic.clear();
-		pObj->m_iCurrentFrame = 0;
-
-        if(  iData_Size==0  )
-        {
-            //pObj->m_pGraphic=NULL;
-            return;
-        }
-
-        //WinGraphic *pWinGraphic = new WinGraphic( this );
-        //pObj->m_pGraphic = pWinGraphic;
-        //pWinGraphic->m_pCompressedImage = pData;
-        //pWinGraphic->m_CompressedImageLength = iData_Size;
-
-        //// We won't know the real size until after the graphic is rendered.  If this a DVD menu
-        //// that is being touched,  the touch will fail if it happens in between,  so assume the
-        //// new image is the same size as the old until we render it.
-        //pWinGraphic->Width = PriorWidth;
-        //pWinGraphic->Height = PriorHeight;
-        //if(  pWinGraphic->m_CompressedImageLength > 500000  )
-        //{
-        //    g_pPlutoLogger->Write( LV_CRITICAL, "Load Graphic( 3 ),  length is %d %s",  pWinGraphic->m_CompressedImageLength,  pWinGraphic->m_Filename.c_str(  ) );
-        //}
-        //// what was this for???  Doesn't the framework delete this?  It makes it impossible to call from within Orbiter -- todo        m_pThisMessage->m_mapData_Parameters.clear(  );
-        //pWinGraphic->m_GraphicFormat = ( eGraphicFormat )atoi( sType.c_str(  ) );
-        //pWinGraphic->m_GraphicManagement = GR_DYNAMIC;
-
-		PlutoGraphic *pPlutoGraphic = CreateGraphic();
-		pPlutoGraphic->m_GraphicFormat = GR_PNG; //as default
-		pPlutoGraphic->LoadGraphic(pData, iData_Size);
-		pObj->m_vectGraphic.push_back(pPlutoGraphic);
-		pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
-
-        if (  sDisable_Aspect_Lock.length(  )  )
-            pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
-        m_vectObjs_NeedRedraw.push_back( pObj );
+        PriorWidth = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width;
+        PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height;
     }
+
+	for(size_t i = 0; i < pObj->m_vectGraphic.size(); i++)
+	{
+		delete pObj->m_vectGraphic[i];
+	}
+	pObj->m_vectGraphic.clear();
+	pObj->m_iCurrentFrame = 0;
+
+    if(  iData_Size==0  )
+    {
+        //pObj->m_pGraphic=NULL;
+        return;
+    }
+
+    //WinGraphic *pWinGraphic = new WinGraphic( this );
+    //pObj->m_pGraphic = pWinGraphic;
+    //pWinGraphic->m_pCompressedImage = pData;
+    //pWinGraphic->m_CompressedImageLength = iData_Size;
+
+    //// We won't know the real size until after the graphic is rendered.  If this a DVD menu
+    //// that is being touched,  the touch will fail if it happens in between,  so assume the
+    //// new image is the same size as the old until we render it.
+    //pWinGraphic->Width = PriorWidth;
+    //pWinGraphic->Height = PriorHeight;
+    //if(  pWinGraphic->m_CompressedImageLength > 500000  )
+    //{
+    //    g_pPlutoLogger->Write( LV_CRITICAL, "Load Graphic( 3 ),  length is %d %s",  pWinGraphic->m_CompressedImageLength,  pWinGraphic->m_Filename.c_str(  ) );
+    //}
+    //// what was this for???  Doesn't the framework delete this?  It makes it impossible to call from within Orbiter -- todo        m_pThisMessage->m_mapData_Parameters.clear(  );
+    //pWinGraphic->m_GraphicFormat = ( eGraphicFormat )atoi( sType.c_str(  ) );
+    //pWinGraphic->m_GraphicManagement = GR_DYNAMIC;
+
+	PlutoGraphic *pPlutoGraphic = CreateGraphic();
+	pPlutoGraphic->m_GraphicFormat = GR_PNG; //as default
+	pPlutoGraphic->LoadGraphic(pData, iData_Size);
+	pObj->m_vectGraphic.push_back(pPlutoGraphic);
+	pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
+
+    if (  sDisable_Aspect_Lock.length(  )  )
+        pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
+    m_vectObjs_NeedRedraw.push_back( pObj );
 }
 
 void Orbiter::DelayedSelectObject( void *data )
@@ -5180,7 +5213,7 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 		}
 		cm.Release();
 
-		CallMaintenanceInMiliseconds( TimeInMS, &Orbiter::DelayedSelectObject, pDelayedSelectObjectInfo, false );
+		CallMaintenanceInMiliseconds( TimeInMS, &Orbiter::DelayedSelectObject, pDelayedSelectObjectInfo, pe_NO );
 	}
 	else
 	    SelectedObject( pDesignObj_Orbiter );
@@ -5627,7 +5660,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
     else
         m_AutoInvalidateTime = clock() + (CLOCKS_PER_SEC * 2);
 */
-	CallMaintenanceInMiliseconds(CLOCKS_PER_SEC,&Orbiter::RealRedraw,NULL,true);
+	CallMaintenanceInMiliseconds(CLOCKS_PER_SEC,&Orbiter::RealRedraw,NULL,pe_ALL);
 }
 
 ScreenHistory *NeedToRender::m_pScreenHistory=NULL;
@@ -5717,7 +5750,7 @@ void Orbiter::ContinuousRefresh( void *data )
 		}
 
 		CMD_Refresh("");
-		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true );
+		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, pe_ALL );
 	}
 }
 
@@ -5732,7 +5765,7 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 //<-dceag-c238-e->
 {
 	ContinuousRefreshInfo *pContinuousRefreshInfo = new ContinuousRefreshInfo(m_pScreenHistory_Current->m_pObj,atoi(sTime.c_str()));
-	CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true );
+	CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, pe_ALL );
 }
 
 //timingofsetnowplaying
@@ -6051,7 +6084,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 					//schedule next frame for animation
 					pObj->m_pvectCurrentPlayingGraphic = pObj->m_pvectCurrentGraphic;
 					pObj->m_GraphicToPlay = pObj->m_GraphicToDisplay;
-					CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , false );
+					CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , pe_NO );
 				}
 				break;
 
@@ -6139,11 +6172,11 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		g_pPlutoLogger->Write(LV_STATUS, "MNG playing was completed for object with id %s",
 			pObj->m_ObjectID.c_str());
 
-		CallMaintenanceInMiliseconds( iDelay, &Orbiter::DeselectObjects, ( void * ) pObj, false );
+		CallMaintenanceInMiliseconds( iDelay, &Orbiter::DeselectObjects, ( void * ) pObj, pe_NO );
 	}
     else
 	{
-		CallMaintenanceInMiliseconds( iDelay, &Orbiter::PlayMNG_CallBack, pObj , false );
+		CallMaintenanceInMiliseconds( iDelay, &Orbiter::PlayMNG_CallBack, pObj , pe_NO );
 	}
 }
 
@@ -6304,7 +6337,7 @@ void Orbiter::CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Res
 
 g_pPlutoLogger->Write( LV_STATUS, "set timeout on %s to %d  %p = %p",pObj->m_ObjectID.c_str(),pObj->m_dwTimeoutSeconds,pObj,m_pScreenHistory_Current->m_pObj );
 	if( pObj==m_pScreenHistory_Current->m_pObj && pObj->m_dwTimeoutSeconds )
-		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, true, true );
+		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, pe_ALL, true );
 }
 //<-dceag-c325-b->
 

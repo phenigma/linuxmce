@@ -202,7 +202,7 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 				{
 					Orbiter::Event *pEvent = new Orbiter::Event;
 					*pEvent = pRecordingHandler->m_OrbiterEvent;
-					pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, false );
+					pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO );
 				}
 			//}
 	}
