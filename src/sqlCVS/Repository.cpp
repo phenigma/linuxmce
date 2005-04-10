@@ -1057,15 +1057,11 @@ int k=2;
 					{
 						cerr << "No prompts specified.  Not delete changes" << endl;
 						g_pPlutoLogger->Write(LV_CRITICAL,"While importing into table: %s pscid: %d was deleted.  Skipping",sTableName.c_str(),i_psc_id);
-						pos += listFields.size();
-						i_psc_id_prior = i_psc_id;
 						continue;
 					}
 					if( !AskYNQuestion("Delete anyway and lose your changes?",false) )
 					{
 						cerr << "Local database modified deleted rows on server" << endl;
-						pos += listFields.size();
-						i_psc_id_prior = i_psc_id;
 						continue;
 					}
 				}
