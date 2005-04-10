@@ -679,11 +679,6 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 		return false; /** Maybe somebody else knows what to do with it */
 	}
 
-	// clear the picture data since in some cases it will confuse the on the orbiter.
-	delete pMediaStream->m_pPictureData;
-	pMediaStream->m_pPictureData = NULL;
-	pMediaStream->m_iPictureSize = 0;
-
 	string sOnScreenOrbiters="", sOtherOrbiters="";
 	map<int, OH_Orbiter *> mapOH_Orbiter; 				/** Use a map so we don't have duplicates */
 
