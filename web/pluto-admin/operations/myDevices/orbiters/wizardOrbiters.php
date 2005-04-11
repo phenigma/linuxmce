@@ -136,6 +136,10 @@ function wizardOrbiters($output,$dbADO) {
 
 			$out.='		</select></td>
 				</tr>
+				<tr>
+					<td><B>This device uses a Wi-Fi connection</B></td>
+					<td><input type="checkbox" name="PingTest_'.$rowD['PK_Device'].'" value="1" '.(($rowD['PingTest']==1)?'checked':'').'></td>
+				</tr>
 					';
 				foreach($DeviceDataToDisplay as $key => $value){
 					$queryDDforDevice='
@@ -276,9 +280,10 @@ function wizardOrbiters($output,$dbADO) {
 					$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
 				}
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
+				$pingTest=(int)@$_POST['PingTest_'.$value];
 				
-				$updateDevice='UPDATE Device SET Description=?, FK_Room=? '.@$updateMacIp.' WHERE PK_Device=?';
-				$dbADO->Execute($updateDevice,array($description,$room,$value));
+				$updateDevice='UPDATE Device SET Description=?, FK_Room=?, PingTest=? '.@$updateMacIp.' WHERE PK_Device=?';
+				$dbADO->Execute($updateDevice,array($description,$room,$pingTest,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
 					$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:'';

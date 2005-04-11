@@ -330,7 +330,7 @@ function checkOwner($userIDField,$pkField,$pkValue,$table,$dbADO,$fkField='',$fk
 		}
 		
 		$resSelOwner = $dbADO->_Execute($querySelOwner);
-		//echo $resSelOwner->sql;
+
 		if ($resSelOwner && $resSelOwner->RecordCount()==1) {
 			return true;
 		}
@@ -1091,7 +1091,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 	$selectedDevice= (int)@$_REQUEST['deviceSelected'];
 	$selectedModel= (int)@$_REQUEST['model'];
 	$justAddedNode = (int)@$_GET['justAddedNode'];
-		
+
 	$actionX = (isset($_REQUEST['actionX']) && cleanString($_REQUEST['actionX'])!='null')?cleanString($_REQUEST['actionX']):'form';
 	
 	$selectManufacturersTxt = '';
@@ -1167,7 +1167,6 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							FROM DeviceTemplate INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 								  				  INNER JOIN Manufacturer ON PK_Manufacturer=FK_Manufacturer
 							WHERE 1=1 $where ORDER BY Description";	
-
 			$rs = $dbADO->_Execute($queryModels);
 			
 			$arJsPos=0;
@@ -1452,7 +1451,6 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			 if (strstr($addDeviceTemplate,'Add')) {
 			 	
 			 	if ($DeviceTemplate_Desc!='') {
-				 		
 			 		if ($deviceSelected!=0 && $manufacturerSelected!=0) {	 			
 			 			$queryInsertMasterDevice = 'INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer) values(?,?,?)';
 			 			$res = $dbADO->Execute($queryInsertMasterDevice,array($DeviceTemplate_Desc,$deviceSelected,$manufacturerSelected));	 			
