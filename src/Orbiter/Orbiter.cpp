@@ -563,19 +563,6 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )
 {
-g_pPlutoLogger->Write( LV_STATUS, "Rendering: %s hidden: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
-
-    if(  pObj->m_ObjectID.find( "2038.1261" )!=string::npos  )
-        //if(  pObj->m_iBaseObjectID == 2707  )
-    {
-g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
-        int k=2;
-    }
-
-    if(  pObj->m_ObjectID.find( "3138" )!=string::npos  )
-    {
-        int k=2;
-    }
     if(  pObj->m_pDesignObj_Orbiter_TiedTo  )
     {
         pObj->m_bHidden = pObj->m_pDesignObj_Orbiter_TiedTo->IsHidden(  );

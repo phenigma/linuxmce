@@ -509,6 +509,9 @@ bool Socket::SendData( int iSize, const char *pcData )
 			// without timeout
 			iRet = select( (int)(m_Socket+1), NULL, &wrfds, NULL, NULL );
 
+			if( m_Socket == INVALID_SOCKET || m_bQuit )
+				return false;
+
 			if(iRet <= 0 || iRet > 1) { // error
 			    break;
 			}
@@ -641,6 +644,8 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #ifdef DEBUG
 					clk_select1b = clock();
 #endif
+					if( m_Socket == INVALID_SOCKET || m_bQuit )
+						return false;
 				}while( iRet!=-1 && iRet!=1 && (end-start) < m_iReceiveTimeout );
 			}
 			else
@@ -661,6 +666,9 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 					iRet = select( (int)(m_Socket+1), &rfds, NULL, NULL, &tout );*/
 
 					iRet = select( (int)(m_Socket+1), &rfds, NULL, NULL, NULL );
+
+					if( m_Socket == INVALID_SOCKET || m_bQuit )
+						return false;
 #ifdef DEBUG
 					clk_select2b = clock();
 #endif
