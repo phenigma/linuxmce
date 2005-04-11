@@ -118,11 +118,22 @@ RubyIOPool::RouteMessage(Message* pMessage) {
 }
 
 bool 
+RubyIOPool::handleStartup() {
+	ppool_->handleStartup();
+	return IOPool::handleStartup();	
+}
+
+bool 
 RubyIOPool::handleIteration() {
 	ppool_->handleIteration();
 	return IOPool::handleIteration();
 }
 
+void 
+RubyIOPool::handleTerminate() {
+	ppool_->handleTerminate();
+	return IOPool::handleTerminate();
+}
 
 void 
 RubyIOPool::RubyIOState::handleRead(IOConnection* pconn) {
@@ -133,11 +144,27 @@ RubyIOPool::RubyIOState::handleRead(IOConnection* pconn) {
 }
 
 void 
+RubyIOPool::RubyIOState::handleStart() {
+	static Message 	
+				startmsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Initialize_CONST, 0);
+	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
+	psm->RouteMessage(&startmsg);
+}
+
+void 
 RubyIOPool::RubyIOState::handleIdle() {
 	static Message 	
 				idlemsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_IDLE_CONST, 0);
 	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
 	psm->RouteMessage(&idlemsg);
+}
+
+void 
+RubyIOPool::RubyIOState::handleStop() {
+	static Message 	
+				stopmsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Release_CONST, 0);
+	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
+	psm->RouteMessage(&stopmsg);
 }
 
 /*

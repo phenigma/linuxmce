@@ -96,7 +96,9 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, DeviceData_Base* pdeviced
 			
 			rcode_ += ")""\n"; // SetLevel(
 			//rcode_ += "conn_ = getConn()""\n";
-			rcode_ += TranslateCommandToRuby(rowcmd[1]);
+			if(rowcmd[1] != NULL) {
+				rcode_ += TranslateCommandToRuby(rowcmd[1]);
+			}
 		
 			/*insert ruby code for the method*/
 			rcode_ += "\n""end""\n"; // def

@@ -53,13 +53,18 @@ protected:
 	IOConnection* getConnection() {
 		return ppool_->getConnection();
 	}
+	bool handleStartup();
 	bool handleIteration();
+	void handleTerminate();
 	
+protected:
 	class RubyIOState : public IOPoolState {
 		friend class RubyIOPool;
 	protected:
 		RubyIOState(RubyIOPool* psm) 
 			: IOPoolState(psm) {};
+		virtual void handleStart();
+		virtual void handleStop();
 		virtual void handleIdle();
 		virtual void handleRead(IOConnection* pconn);
 	} defstate_;

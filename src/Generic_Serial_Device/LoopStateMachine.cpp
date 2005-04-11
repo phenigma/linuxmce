@@ -39,6 +39,10 @@ LoopStateMachine::~LoopStateMachine()
 
 bool 
 LoopStateMachine::handleStartup() {
+	LoopState* pstate = reinterpret_cast<LoopState*>(getState());
+	if(pstate != NULL) {
+		pstate->handleStart();
+	}
 	return true;
 }
 
@@ -60,6 +64,10 @@ LoopStateMachine::handleIteration() {
 
 void 
 LoopStateMachine::handleTerminate() {
+	LoopState* pstate = reinterpret_cast<LoopState*>(getState());
+	if(pstate != NULL) {
+		pstate->handleStop();
+	}
 }
 
 /*

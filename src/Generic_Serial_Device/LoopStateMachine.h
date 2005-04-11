@@ -44,7 +44,7 @@ public:
 	}
 	
 		
-protected:
+public:
 	virtual bool handleStartup();
 	virtual bool handleIteration();
 	virtual void handleTerminate();
@@ -67,7 +67,11 @@ protected:
 	protected:
 		LoopState(LoopStateMachine* psm) 
 			: State(psm) {};
+		virtual void handleStart()
+		{};
 		virtual void handleIdle()
+		{};
+		virtual void handleStop()
 		{};
 	};
 };

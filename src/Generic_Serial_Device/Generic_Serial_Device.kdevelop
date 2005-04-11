@@ -9,7 +9,7 @@
     <ignoreparts/>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description></description>
+    <description/>
     <secondaryLanguages/>
   </general>
   <kdevcustomproject>
@@ -17,14 +17,14 @@
       <mainprogram>Generic_Serial_Device</mainprogram>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
-      <programargs></programargs>
+      <programargs/>
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
     </run>
     <build>
       <buildtool>make</buildtool>
-      <builddir></builddir>
+      <builddir/>
     </build>
     <make>
       <abortonerror>false</abortonerror>
@@ -32,7 +32,7 @@
       <prio>0</prio>
       <dontact>false</dontact>
       <makebin>make bin</makebin>
-      <makeoptions></makeoptions>
+      <makeoptions/>
       <selectedenvironment>default</selectedenvironment>
       <environments>
         <default/>
@@ -41,12 +41,12 @@
   </kdevcustomproject>
   <kdevdebugger>
     <general>
-      <dbgshell></dbgshell>
-      <programargs></programargs>
-      <gdbpath></gdbpath>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <dbgshell/>
+      <programargs/>
+      <gdbpath/>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>

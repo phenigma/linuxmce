@@ -2,11 +2,11 @@
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
  <DocsAndViews NumberOfDocuments="2" >
-  <Doc0 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/InterThreadCallMasquerader.h" >
-   <View0 line="35" Type="Source" />
+  <Doc0 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/NetworkIOConnection.h" >
+   <View0 line="0" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubySerialIOManager.h" >
-   <View0 line="59" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/NetworkIOConnection.cpp" >
+   <View0 line="33" Type="Source" />
   </Doc1>
  </DocsAndViews>
  <pluginList>

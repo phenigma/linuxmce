@@ -61,7 +61,7 @@ NetworkIOConnection::Open() {
 		return false;
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Connected to %s on port %d", host_.c_str(), port_);
+	g_pPlutoLogger->Write(LV_STATUS, "Connected to %s on port %d, socket %d", host_.c_str(), port_, sockfd_);
 	return true;
 }
 
