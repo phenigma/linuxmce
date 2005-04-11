@@ -1087,8 +1087,12 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 
 	cout << "Updating row id " << pA_UpdateRow->m_psc_id << " last sync: " << m_psc_id_last_sync << endl;
 
-	/** See if this is a new row, or an updated one */
-	if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync )
+	// See if this is a new row, or an updated one
+	// It's possible that we created the row originally, checked it in, then someone else modified it
+	// In that case, m_psc_id_last_sync will be < since we haven't yet pulled updates.  When we pull
+	// an update now, we will get the row and pA_UpdateRow->m_psc_id>m_psc_id_last_sync will be true
+	// So we need to also double check that we don't already have it !psc_id_exists(pA_UpdateRow->m_psc_id)
+	if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync && !psc_id_exists(pA_UpdateRow->m_psc_id) )
 	{
 		// It's possible that an incoming row is going to use the same primary key as one 
 		// we added locally but haven't checked in yet, or isn't approved
@@ -2069,4 +2073,16 @@ int Table::ReassignAutoIncrValue(int iPrimaryKey)
 	}
 	cerr << "ReassignAutoIncrValue cannot get new value";
 	throw "Database error";
+}
+
+bool Table::psc_id_exists(int psc_id)
+{
+	std::ostringstream sSQL2;
+	sSQL2 << "SELECT psc_id FROM `" << m_sName << "` WHERE psc_id=" << psc_id;
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) )
+		return true;
+	else
+		return false;
 }

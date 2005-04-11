@@ -143,6 +143,8 @@ int itmp_RowsToDelete;
 		
 		void GetChanges( );
 
+		bool psc_id_exists(int psc_id); // Returns true if the psc_id is already in the database
+
 		/** Called by the client side to update itself with the server's changes */
 		bool Update( RA_Processor &ra_Processor, DCE::Socket *pSocket );
 
