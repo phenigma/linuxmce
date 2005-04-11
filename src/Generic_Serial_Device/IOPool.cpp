@@ -41,7 +41,8 @@ IOPool::handleIteration() {
 	IOPoolState* pstate = reinterpret_cast<IOPoolState*>(getState());
 	if(pstate != NULL) {
 		if(!pconn->isOpened()) {
-			if(!pconn->Open()) {
+			if(!pconn->Open()) {	
+				usleep(FAIL_SLEEP_TIME * 1000);
 				return true;
 			} else {
 				if(pstate != NULL) {

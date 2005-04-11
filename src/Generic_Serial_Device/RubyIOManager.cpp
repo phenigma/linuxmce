@@ -115,8 +115,13 @@ RubyIOManager::addDevice(DeviceData_Impl* pdevdata) {
 				netport = atoi(sport.c_str());
 				netaddr = pdevdata->GetIPAddress();
 			}
-			
-			g_pPlutoLogger->Write(LV_STATUS, "Using network device with address <%s>, at port: <%d>.", netaddr.c_str(), netport);
+						
+			if(!netaddr.empty()) {
+				g_pPlutoLogger->Write(LV_STATUS, "Using network device with address <%s>, at port: <%d>.", netaddr.c_str(), netport);
+			} else {
+				g_pPlutoLogger->Write(LV_CRITICAL, "Could not determine network address for device %d.", pdevdata->m_dwPK_Device);
+				return -1;
+			}
 			
 			pnewpool = new NetworkIOPool();
 			NetworkIOConnection* pio = reinterpret_cast<NetworkIOConnection*>(pnewpool->getConnection());
