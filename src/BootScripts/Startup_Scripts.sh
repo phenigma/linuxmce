@@ -42,10 +42,7 @@ elif [ "$Parameter" == "stop" ]; then
 	When="P"
 fi
 
-Parameter="$1"
-[ -z "$Parameter" ] && unset Parameter
-
-[ -z "$Script" ] && Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Processing startup scripts for device $Device; parameter: $Parameter"
+[ -z "$Script" ] && Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Processing startup scripts for device $Device"
 if [ -e /usr/pluto/install/.notdone ]; then
 	[ -z "$Script" ] && Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It appears the installation was not successful. Pluto's startup scripts are disabled. To enable them, complete the installation process, or manually remove the file /usr/pluto/install/.notdone"
 	exit 1
@@ -59,7 +56,7 @@ LIMIT 1"
 	Device=$(RunSQL 0 "$Q")
 fi
 
-Q="SELECT Command,Enabled,Background,FK_DeviceTemplate
+Q="SELECT Command,Enabled,Background,FK_DeviceTemplate,Parameter
 FROM Device_StartupScript
 JOIN StartupScript ON FK_StartupScript=PK_StartupScript
 WHERE FK_Device='$Device' AND StartupScript.When='$When'
@@ -108,6 +105,7 @@ for line in $result; do
 	enabled="$(Field 2 $line)"
 	Background="$(Field 3 "$line")"
 	FK_DeviceTemplate="$(Field 4 $line)"
+	Parameter="$(Field 5 $line)"
 
 	if [ "$enabled" -eq 0 ]; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Skipping '$script' (not enabled)"

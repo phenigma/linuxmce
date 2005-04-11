@@ -14,6 +14,7 @@ UploadLogs()
 		ftp-upload -v --ignore-quit-failure -h plutohome.com --passive -b -d incoming "$Output/$Filename.critical.tar.gz" >>/var/log/pluto/ftp-upload.log 2>>/var/log/pluto/ftp-upload-err.log
 		if [ "$?" -eq 0 ]; then
 			echo "$(date) Done" >>/var/log/pluto/ftp-upload.log
+			ok=1
 		else
 			echo "$(date) Failed. Retrying" >>/var/log/pluto/ftp-upload.log
 			sleep 3600
@@ -23,7 +24,7 @@ UploadLogs()
 
 ArchiveCoreDumps()
 {
-	tar -czf "$Output/$Filename.tar.gz" "$Critical" /usr/pluto/coredump.archive 2>/dev/null
+	tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump.archive 2>/dev/null
 	rm -rf /usr/pluto/coredump.archive
 	rm -rf "$Critical"
 
