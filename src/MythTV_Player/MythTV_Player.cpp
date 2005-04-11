@@ -27,7 +27,7 @@
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/ProcessUtils.h"
+
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -40,6 +40,8 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_DesignObj.h"
+
+#include "PlutoUtils/ProcessUtils.h"
 
 #include <sstream>
 // #include <qsqldatabase.h>
@@ -344,10 +346,12 @@ void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #187 - Tune to channel */
 	/** This will make the device to tune to a specific channel. */
+		/** @param #39 Options */
+			/** Extra data to allow the receiver to properly identify the channel ( this is the xmltvid value inside the mythtv database). */
 		/** @param #68 ProgramID */
 			/** The Program ID that we need to tune to. */
 
-void MythTV_Player::CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Message *pMessage)
+void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c187-e->
 {
 	if ( ! checkXServerConnection())

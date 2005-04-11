@@ -89,7 +89,7 @@ public:
 	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PIP_Channel_Up(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PIP_Channel_Down(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Tune_to_channel(string sOptions,string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_EnterGo(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Move_Up(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Move_Down(string &sCMD_Result,class Message *pMessage) {};
@@ -227,8 +227,9 @@ public:
 				case 187:
 					{
 						string sCMD_Result="OK";
+					string sOptions=pMessage->m_mapParameters[39];
 					string sProgramID=pMessage->m_mapParameters[68];
-						CMD_Tune_to_channel(sProgramID.c_str(),sCMD_Result,pMessage);
+						CMD_Tune_to_channel(sOptions.c_str(),sProgramID.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;

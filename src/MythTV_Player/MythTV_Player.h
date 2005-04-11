@@ -65,7 +65,7 @@ namespace DCE
 
 //<-dceag-const-b->
 public:
-	// Constructors/Destructor
+		// Constructors/Destructor
 		MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~MythTV_Player();
 		virtual bool Register();
@@ -140,11 +140,13 @@ public:
 
 	/** @brief COMMAND: #187 - Tune to channel */
 	/** This will make the device to tune to a specific channel. */
+		/** @param #39 Options */
+			/** Extra data to allow the receiver to properly identify the channel ( this is the xmltvid value inside the mythtv database). */
 		/** @param #68 ProgramID */
 			/** The Program ID that we need to tune to. */
 
-	virtual void CMD_Tune_to_channel(string sProgramID) { string sCMD_Result; CMD_Tune_to_channel(sProgramID.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Tune_to_channel(string sOptions,string sProgramID) { string sCMD_Result; CMD_Tune_to_channel(sOptions.c_str(),sProgramID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Tune_to_channel(string sOptions,string sProgramID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #190 - Enter/Go */
