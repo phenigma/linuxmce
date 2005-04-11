@@ -132,7 +132,7 @@ else{
 		$contents=stripslashes($_POST['Contents']);
 		$title=cleanString($_POST['Title']);
 		$docID=cleanInteger($_POST['docID']);
-		$parentID=cleanInteger($_POST['parentID']);
+		$parentID=($_POST['parentID']!='')?cleanInteger($_POST['parentID']):NULL;
 		$docOrder=cleanInteger($_POST['docOrder']);
 
 		$getOldValues='SELECT * FROM Document WHERE PK_document=?';

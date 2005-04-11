@@ -211,7 +211,13 @@
 			$rightFile='home';
 			$rightParams='';
 		break;
-				
+		case 'publicAdmin':
+			$leftFile='operations/leftHome';
+			$leftParams='';
+
+			$rightFile='operations/publicAdmin';
+			$rightParams='';
+		break;				
 		default:			
 			$out='{Invalid section}'.$section;	
 		break;
