@@ -4257,11 +4257,13 @@ void Orbiter::GetVideoFrame( void *data )
 
 	vector < class DesignObj_Orbiter * > vectObjs_VideoOnScreen; /** < All the video on screen */
 	// Since this may take a while and we don't want to block the mutex the whole time, make a local copy
-    for(size_t s=0;s<m_vectObjs_VideoOnScreen.size();++s)
+
+	size_t s;
+    for(s=0;s<m_vectObjs_VideoOnScreen.size();++s)
 		vectObjs_VideoOnScreen.push_back(m_vectObjs_VideoOnScreen[s]);
 
 	vm.Release();
-    for(size_t s=0;s<vectObjs_VideoOnScreen.size();++s)
+    for(s=0;s<vectObjs_VideoOnScreen.size();++s)
 	{
 		DesignObj_Orbiter *pObj = vectObjs_VideoOnScreen[s];
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GetVideoFrame() The target object is: %s", pObj->m_ObjectID.c_str());
