@@ -21,7 +21,7 @@ switch ($_REQUEST['img']){
 		$title='';
 	break;
 	default:
-		$image='imagine-mare.jpg';
+		$image=$_REQUEST['img'];
 	break;
 }
 $links=(!isset($_REQUEST['alt']))?'1 | <a href="image.php?img='.$_REQUEST['img'].'&alt=1">2</a>':'<a href="image.php?img='.$_REQUEST['img'].'">1</a> | 2';

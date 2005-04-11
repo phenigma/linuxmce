@@ -43,6 +43,17 @@ if (isset($_POST['username']) && $_POST['username']!='') {
 			$_SESSION['userIsLogged']="yes";
 			$_SESSION['categ']=$FirstAccount;
 			$_SESSION['Email']=$Email;
+			$_SESSION['userLoggedIn'] = true;
+			
+			$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ?";
+			$res_installations = $dbADO->Execute($query_installation,$MasterUsersID);
+			$installations=array();
+			while ($row=$res_installations->FetchRow()) {
+				$installations[]=$row['FK_Installation'];
+			}
+
+			$_SESSION['installationIDs'] = $installations;
+			$_SESSION['installationID'] = $installations[0];
 			
 			$res=mysql_query("SELECT * FROM Users WHERE FK_MasterUsers='$MasterUsersID'",$conn);
 			if(mysql_num_rows($res)!=0){
