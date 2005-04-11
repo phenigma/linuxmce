@@ -13,7 +13,7 @@ Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 
 	char *pPixelsData;
 	size_t iPixelsDataSize;
-	char *pPixelFormatData;
+	char *pPixelFormatData;	
 	size_t iPixelFormatDataSize;
 	int iWidth;
 	int iHeigth;
@@ -24,12 +24,12 @@ Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 		{
 			pSurface = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay()->CreateSurface(iWidth, iHeigth);
 
-			delete pSurface->m_buffer->GetPixels();
+			//delete pSurface->m_buffer->GetPixels();
 			Pixel * pPixels = pSurface->m_buffer->GetPixels();
-			pPixels = (Pixel *)new char[iPixelsDataSize];
+			//pPixels = (Pixel *)new char[iPixelsDataSize];
 			memcpy((char *)pPixels, pPixelsData, iPixelsDataSize);
 
-g_pPlutoLogger->Write(LV_STATUS, "^Replaced pixels with %p for surface: %p, size %d", pPixels, pSurface, iPixelsDataSize);
+g_pPlutoLogger->Write(LV_STATUS, "^Created surface %p with pixels %p, size %d", pSurface, pPixels, iPixelsDataSize);
 		}
 	}
 
