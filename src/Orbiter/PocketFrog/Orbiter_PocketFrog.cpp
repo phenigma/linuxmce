@@ -799,6 +799,7 @@ g_pPlutoLogger->Write(LV_STATUS, "^RenderGraphic start: Surface %p has %p pixels
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "The surface has a bad pointer for pixels array (Surface: %p, pixels: %p)",
 			pSurface, pSurface->m_buffer->GetPixels());
+		pPlutoGraphic->Clear(); //force reload ocg
 		return;
 	}
 

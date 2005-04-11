@@ -77,11 +77,12 @@ void PocketFrogGraphic::Clear()
 		)
 		{
 			delete m_pSurface;
-			m_pSurface = NULL;
 		}
 		else
 			g_pPlutoLogger->Write(LV_CRITICAL, "The surface has a bad pointer for pixels array (Surface: %p, pixels: %p)",
 				m_pSurface, m_pSurface->m_buffer->GetPixels());
 	}
+
+	m_pSurface = NULL;
 }
 //-------------------------------------------------------------------------------------------------------

@@ -5118,26 +5118,17 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
         return;
     }
 
-    //WinGraphic *pWinGraphic = new WinGraphic( this );
-    //pObj->m_pGraphic = pWinGraphic;
-    //pWinGraphic->m_pCompressedImage = pData;
-    //pWinGraphic->m_CompressedImageLength = iData_Size;
-
-    //// We won't know the real size until after the graphic is rendered.  If this a DVD menu
-    //// that is being touched,  the touch will fail if it happens in between,  so assume the
-    //// new image is the same size as the old until we render it.
-    //pWinGraphic->Width = PriorWidth;
-    //pWinGraphic->Height = PriorHeight;
-    //if(  pWinGraphic->m_CompressedImageLength > 500000  )
-    //{
-    //    g_pPlutoLogger->Write( LV_CRITICAL, "Load Graphic( 3 ),  length is %d %s",  pWinGraphic->m_CompressedImageLength,  pWinGraphic->m_Filename.c_str(  ) );
-    //}
-    //// what was this for???  Doesn't the framework delete this?  It makes it impossible to call from within Orbiter -- todo        m_pThisMessage->m_mapData_Parameters.clear(  );
-    //pWinGraphic->m_GraphicFormat = ( eGraphicFormat )atoi( sType.c_str(  ) );
-    //pWinGraphic->m_GraphicManagement = GR_DYNAMIC;
-
 	PlutoGraphic *pPlutoGraphic = CreateGraphic();
-	pPlutoGraphic->m_GraphicFormat = GR_PNG; //as default
+
+	if(sType == "bmp")
+		pPlutoGraphic->m_GraphicFormat = GR_BMP;
+	else if(sType == "jpg")
+		pPlutoGraphic->m_GraphicFormat = GR_JPG;
+	else if(sType == "png")
+		pPlutoGraphic->m_GraphicFormat = GR_PNG;
+	else
+		pPlutoGraphic->m_GraphicFormat = GR_UNKNOWN;
+
 	pPlutoGraphic->LoadGraphic(pData, iData_Size);
 	pObj->m_vectGraphic.push_back(pPlutoGraphic);
 	pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
