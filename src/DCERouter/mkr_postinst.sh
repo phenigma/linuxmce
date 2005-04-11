@@ -10,16 +10,17 @@ echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-echo "Converting all tables except mysql to InnoDB (this may take a while)"
-DBs=$(RunSQL 'SHOW DATABASES')
-for DB in $DBs; do
-	[[ "$DB" == mysql ]] && continue
-	Tables=$(RunSQL "SHOW TABLES FROM $DB")
-	for Table in $Tables; do
-		RunSQL "ALTER TABLE \`$DB\`.\`$Table\` TYPE=$DefTableType"
-	done
-done
-echo "Finished converting tables to InnoDB"
+# 2005-04-11 * Disabled. Considered not needed anymore
+#echo "Converting all tables except 'mysql' to InnoDB (this may take a while)"
+#DBs=$(RunSQL 'SHOW DATABASES')
+#for DB in $DBs; do
+#	[[ "$DB" == mysql ]] && continue
+#	Tables=$(RunSQL "SHOW TABLES FROM $DB")
+#	for Table in $Tables; do
+#		RunSQL "ALTER TABLE \`$DB\`.\`$Table\` TYPE=$DefTableType"
+#	done
+#done
+#echo "Finished converting tables to InnoDB"
 
 device="$PK_Device"
 code="$Activation_Code"
