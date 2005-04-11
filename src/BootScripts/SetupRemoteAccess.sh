@@ -7,6 +7,7 @@ cronEntry="*/10 * * * * root /usr/pluto/bin/SetupRemoteAccess.sh"
 screenName="RemoteAssistance"
 
 RAKey="-i /usr/pluto/keys/id_dsa_remoteassistance"
+[ -f "$RAKey" ] && chmod 700 "$RAKey" || exit
 
 shopt -s nullglob
 
