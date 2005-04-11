@@ -138,6 +138,8 @@ void Xine_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called.");
+
     if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() I don't have a slave to make it play. The slave probably failed to initialize properly.");
@@ -156,9 +158,6 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	}
 	else
 	{
-		//if ( m_pSlimServerClient->isConnected(iStreamID) )
-		//	m_pSlimServerClient->disconnectFromServer(iStreamID);
-
 		if ( ! m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From) )
 		{
 			EVENT_Playback_Completed(iStreamID);

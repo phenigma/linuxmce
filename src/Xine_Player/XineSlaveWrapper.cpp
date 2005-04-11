@@ -28,8 +28,6 @@
 
 #include <math.h>
 
-#include <png.h>
-
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -37,6 +35,8 @@
 #include "DCE/DCEConfig.h"
 
 #include "pluto_main/Define_Button.h"
+
+#include "JpegEncoderDecoder.h"
 
 #define INPUT_MOTION (ExposureMask | ButtonPressMask | KeyPressMask | \
                       ButtonMotionMask | StructureNotifyMask | PropertyChangeMask | PointerMotionMask)
@@ -1243,7 +1243,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *pStream, string sFormat, int
 		g_pPlutoLogger->Write(LV_WARNING, "XineSlaveWrapper::make_snapshot(): Error getting frame info. Returning!");
 		return;
 	}
-    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Got %d %d %d %d", imageWidth, imageHeight, imageRatio, imageFormat);
+    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat);
 
     imageData = (uint8_t*)malloc ((imageWidth+8) * (imageHeight+1) * 2);
     g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Getting frame data");
@@ -1252,7 +1252,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *pStream, string sFormat, int
 		g_pPlutoLogger->Write(LV_WARNING, "XineSlaveWrapper::make_snapshot(): Error getting frame data. Returning!");
 		return;
 	}
-    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Got %d %d %d %d", imageWidth, imageHeight, imageRatio, imageFormat);
+    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat);
 
     // we should have the image in YV12 format aici
     // if not then we try to convert it.
@@ -1283,10 +1283,8 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *pStream, string sFormat, int
     g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Converted to RGB!");
     free(yv12Data);
 
-
     double outputRatio;
     // double currentRatio;
-
 
     g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Temp data was freed here!");
     switch (imageRatio)
@@ -1332,62 +1330,21 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *pStream, string sFormat, int
     t_width /= 2;
     t_height /= 2;
 
-    FILE * file;
-    file = fopen("/tmp/file.png", "wb");
-g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): temporary image filep %p", file);
+	g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Making jpeg from RGB");
+	JpegEncoderDecoder jpegEncoder;
 
-    int BitsPerColor;
-    png_bytepp image_rows;
+	jpegEncoder.encodeIntoBuffer((char *)imageData, imageWidth, imageHeight, 3, pData, iDataSize);
 
-    image_rows = new png_bytep[imageHeight];
-    for (int i = 0; i < imageHeight; i++)
-        image_rows[i] = (unsigned char *) imageData + i * imageWidth * 3;
+	g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): final image size: %d", iDataSize);
 
-    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    png_infop png_info = png_create_info_struct(png_ptr);
+	FILE * file;
+    file = fopen("/tmp/file.jpg", "wb");
+	g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): temporary image filep %p", file);
 
-    png_init_io(png_ptr, file);
-
-    png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
-    png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
-
-    BitsPerColor = 8;
-
-    png_set_IHDR(
-            png_ptr,
-            png_info,
-        imageWidth, imageHeight, 8,
-        PNG_COLOR_TYPE_RGB,
-        PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): before png write");
-    png_write_info(png_ptr, png_info);
-    png_write_image(png_ptr, image_rows);
-    png_write_end(png_ptr, png_info);
-
-g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): before delete");
-    delete [] image_rows;
-    png_destroy_write_struct(&png_ptr, &png_info);
+	fwrite(pData, iDataSize, 1, file);
     fclose(file);
 
-    int fileDescriptor = open("/tmp/file.png", O_RDONLY);
-
-    if ( fileDescriptor == -1 )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "XineSlaveWrapper::make_snapshot(): Couldn't open the temp file /tmp/file.png. The error was: %s", strerror(errno));
-        return;
-    }
-
-    struct stat fileStat;
-    fstat(fileDescriptor, &fileStat);
-
-    pData = new char[fileStat.st_size];
-    iDataSize = fileStat.st_size;
-
-    read(fileDescriptor, pData, fileStat.st_size);
-    close(fileDescriptor);
-g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): At the end. Returning");
-
+	g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): At the end. Returning");
     return;
 }
 
@@ -1530,7 +1487,7 @@ XineSlaveWrapper::XineStream *XineSlaveWrapper::getStreamForId(int iStreamID, st
 //         m_pSameStream = new XineStream();;
 
     if ( m_pSameStream == NULL )
-        g_pPlutoLogger->Write(LV_STATUS, strMessageInvalid.c_str());
+        g_pPlutoLogger->Write(LV_STATUS, strMessageInvalid.c_str(), iStreamID);
 
     return m_pSameStream;
 }

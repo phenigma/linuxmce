@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-EXTERNAL_LIBS_NAMES = mysqlclient_r pthread
+EXTERNAL_LIBS_NAMES = mysqlclient_r pthread jpeg 
 INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 MYNAME = Xine_Player
@@ -26,7 +26,7 @@ EXTERNAL_LIBS_NAMES += xine z nsl rt png X11 m Xext Xxf86vm Xtst
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=  XineSlaveWrapper.cpp
+sources +=  XineSlaveWrapper.cpp JpegEncoderDecoder.cpp
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
