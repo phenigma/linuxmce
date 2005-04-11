@@ -517,6 +517,7 @@ WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(string showStartTimeEn
         DCE::CMD_Tune_to_channel tuneToChannel(
                 m_pDCEDeviceWrapper->m_dwPK_Device,
                 ((MythTV_PlugIn*)m_pDCEDeviceWrapper)->m_dwTargetDevice,
+				"",
                 showStartTimeEncoded);
 
         m_pDCEDeviceWrapper->SendCommand(tuneToChannel);

@@ -214,9 +214,12 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 					pMythTvMediaStream->m_iNextProgramTimeYear, pMythTvMediaStream->m_iNextProgramTimeMonth, pMythTvMediaStream->m_iNextProgramTimeDay,
 					pMythTvMediaStream->m_iNextProgramTimeHour, pMythTvMediaStream->m_iNextProgramTimeMinute))
 		{
+
+			// The player knows how to actually tune to the proper channel. There is no need to hit the database for the proper xmltv id here.
 			DCE::CMD_Tune_to_channel tuneCommand(
 					m_dwPK_Device,
 					pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
+					"",
 					StringUtils::itos(pMythTvMediaStream->m_iNextProgramChannelID));
 
 			SendCommand(tuneCommand);
@@ -556,7 +559,8 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 		return;
 	}
 
-	DCE::CMD_Tune_to_channel tuneCommand(m_dwPK_Device, m_mapMythInputsToDevices[connectionID], StringUtils::itos(targetChannelID));
+	// the player knows the internal mythtv mappings. There is no need to hit the database here for the xmltv id.
+	DCE::CMD_Tune_to_channel tuneCommand(m_dwPK_Device, m_mapMythInputsToDevices[connectionID], "", StringUtils::itos(targetChannelID));
 	SendCommand(tuneCommand);
 }
 
