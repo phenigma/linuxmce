@@ -45,6 +45,7 @@ public:
 	int getParamsNamesForCmd(/*in*/int cmd, /*out*/std::list<std::string>& params);
 	
 private:
+	void FillClassMembersFromDevice(Database_pluto_main* pdb, long id, bool isDevTemplate);
 	std::string TranslateCommandToRuby(const std::string& cmdtxt);
 
 private:

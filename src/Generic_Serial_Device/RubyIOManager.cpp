@@ -145,7 +145,6 @@ int
 RubyIOManager::removeDevice(DeviceData_Impl* pdevdata) {
 	return -1;
 }
-
 bool 
 RubyIOManager::hasDevice(DeviceData_Base* pdevdata) {
 	POOLMAP::iterator it = pools_.begin();
@@ -258,6 +257,7 @@ RubyIOManager::handleStartup() {
 		if((*it).second != NULL) {
 			(*it).second->Init(&cs_, pdb_);
 			(*it).second->handleStartup();
+ 			(*it).second->handleIteration(); // added one iteration processing in order for idle to be called first
 		}
 		it++;
 	}
