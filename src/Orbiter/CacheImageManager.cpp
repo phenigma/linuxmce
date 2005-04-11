@@ -121,6 +121,9 @@ bool CacheImageManager::ClearCache()
 	if(FileUtils::DirExists(m_sCacheFolder))
 		FileUtils::DelDir(m_sCacheFolder);
 
+	if(FileUtils::DirExists(m_sCacheFolder))
+		g_pPlutoLogger->Write(LV_CRITICAL, "Unable to purge %s cache folder!", m_sCacheFolder.c_str());
+
 	FileUtils::MakeDir(m_sCacheFolder);
 	if(!FileUtils::DirExists(m_sCacheFolder))
 	{

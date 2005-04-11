@@ -303,34 +303,40 @@ void FileUtils::DelDir(string sDirectory)
 		#ifdef WINCE
 			wchar_t pDirectoryW[256];
 			mbstowcs(pDirectoryW, sDir.c_str(), 256);
-			HANDLE findFileHandle = FindFirstFile(pDirectoryW, &findData);//ignore "."
+			HANDLE findFileHandle = FindFirstFile(pDirectoryW, &findData);
 		#else
-			HANDLE findFileHandle = FindFirstFile(sDir.c_str(), &findData);//ignore "."
+			HANDLE findFileHandle = FindFirstFile(sDir.c_str(), &findData);
 		#endif
 
-		FindNextFile(findFileHandle, &findData); //ignore ".."
-
-		while(FindNextFile(findFileHandle, &findData))
+		do
 		{
-
 			string sPath = sDirectory + "/";
+			string sCurrentItem;
 		#ifdef WINCE
 			char pPath[256];
 			wcstombs(pPath, findData.cFileName, 256);
 			sPath += pPath;
+
+			sCurrentItem = string(pPath);
 		#else
 			sPath += findData.cFileName;
+			sCurrentItem = findData.cFileName;			
 		#endif
+
+			if(sCurrentItem == "." || sCurrentItem == "..")
+				continue;
 
 			if(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				FileUtils::DelDir(sPath);
 			else
 				FileUtils::DelFile(sPath);
 		}
+		while(FindNextFile(findFileHandle, &findData));
 
 		FindClose(findFileHandle);
 
 		#ifdef WINCE
+			mbstowcs(pDirectoryW, sDirectory.c_str(), 256);
 			::RemoveDirectory(pDirectoryW);
 		#else
 			::RemoveDirectory(sDirectory.c_str());
