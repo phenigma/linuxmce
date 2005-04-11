@@ -11,7 +11,7 @@
   //define('ADODB_ERROR_LOG_TYPE',3);
   //define('ADODB_ERROR_LOG_DEST','C:/mysql_errors.log');
 
-  $dsn = $dbPlutoMainType.'://'.urlencode($dbPlutoMainUser).':'.urlencode($dbPlutoMainPass).'@'.$dbPlutoMainServer.'/'.urlencode($dbPlutoMainDatabase); 
+  $dsn = $dbPlutoAdminType.'://'.urlencode($dbPlutoAdminUser).':'.urlencode($dbPlutoAdminPass).'@'.$dbPlutoAdminServer.'/'.urlencode($dbPlutoAdminDatabase); 
   $dbADO = &ADONewConnection($dsn);
 
   $mediaDSN = $dbPlutoMediaType.'://'.urlencode($dbPlutoMediaUser).':'.urlencode($dbPlutoMediaPass).'@'.$dbPlutoMediaServer.'/'.urlencode($dbPlutoMediaDatabase); 
