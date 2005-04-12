@@ -91,14 +91,14 @@ int k=2;
 			psqlCVSprocessor->m_pTable->DeleteRow( this, psqlCVSprocessor, m_bFrozen, m_psc_user_needs_to_authorize );
 			psqlCVSprocessor->m_iDel++;
 		}
-		if( m_i_psc_batch>psqlCVSprocessor->m_pTable->m_psc_batch_last_sync )
-			psqlCVSprocessor->m_pTable->m_pRepository->psc_batch_last_sync_set(this,m_i_psc_batch);
+		if( m_psc_batch>psqlCVSprocessor->m_pTable->m_psc_batch_last_sync )
+			psqlCVSprocessor->m_pTable->Repository_get()->psc_batch_last_sync_set(psqlCVSprocessor->m_pTable,m_psc_batch);
 		if( m_psc_batch_new>psqlCVSprocessor->m_pTable->m_psc_batch_last_sync )
-			psqlCVSprocessor->m_pTable->m_pRepository->psc_batch_last_sync_set(this,m_psc_batch_new);
+			psqlCVSprocessor->m_pTable->Repository_get()->psc_batch_last_sync_set(psqlCVSprocessor->m_pTable,m_psc_batch_new);
 		if( m_psc_id>psqlCVSprocessor->m_pTable->m_psc_id_last_sync )
-			psqlCVSprocessor->m_pTable->m_pRepository->psc_id_last_sync_set(this,m_psc_id);
+			psqlCVSprocessor->m_pTable->Repository_get()->psc_id_last_sync_set(psqlCVSprocessor->m_pTable,m_psc_id);
 		if( m_psc_id_new>psqlCVSprocessor->m_pTable->m_psc_id_last_sync )
-			psqlCVSprocessor->m_pTable->m_pRepository->psc_id_last_sync_set(this,m_psc_id_new);
+			psqlCVSprocessor->m_pTable->Repository_get()->psc_id_last_sync_set(psqlCVSprocessor->m_pTable,m_psc_id_new);
 	}
 	catch( const char *pException )
 	{
