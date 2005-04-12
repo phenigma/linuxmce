@@ -4447,6 +4447,12 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
     if(  !pObj_New  )
 		pObj_New=m_ScreenMap_Find( StringUtils::itos(atoi(sDestScreen.c_str())) + ".0.0" );
 
+	if( pObj_New->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
+	{
+g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
+		pObj_New=m_ScreenMap_Find( m_sMainMenu );
+	}
+
 	if(  !pObj_New  )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "cannot find screen %s in goto", sPK_DesignObj.c_str(  ) );
