@@ -5,7 +5,7 @@ MySQL="mysql -u root $Pass pluto_website -N"
 
 Q="SELECT Description,EmailField FROM MailingList"
 R=$(echo "$Q;" | $MySQL | tr ' \n\t' '~ ,')
-L=$(./maillists.sh view lists | tr ' \n' '~ ')
+L=$(/usr/pluto/bin/maillists.sh view lists | tr ' \n' '~ ')
 
 for ListSource in $R; do
 	SrcDescription=$(echo $ListSource | tr '~' ' ' | cut -d, -f1)

@@ -2,7 +2,7 @@
 
 if [[ "$#" -lt 2 ]]; then
 	echo "Syntax: $(basename $0) <command> <parameter>"
-	echo "Commands: find <e-mail>, new <list> [Description], delete <list>, view lists, view members <list> subscribe <list> <e-mail list>, unsubscribe <list> <e-mail list>"
+	echo "Commands: find <e-mail>, new <list> [Description], delete <list>, view lists, view members <list>, subscribe <list> <e-mail list>, unsubscribe <list> <e-mail list>"
 	exit
 fi
 
