@@ -6,6 +6,7 @@
 Parameter="$1"; shift
 Device="$PK_Device"
 
+/usr/pluto/bin/Report_Machine_Status.sh
 # TODO: script parameter is obsolete (already); remove
 
 rm /var/log/pluto/running.pids
