@@ -10,10 +10,10 @@ $Uptime = $esc($_REQUEST['Uptime']);
 $Orbiter = $esc($_REQUEST['Orbiter']);
 $Router = $esc($_REQUEST['Router']);
 
-$db = mysql_connect($dbServer, $dbUser, $dbPass);
-mysql_select_db("pluto_tracking");
+$db = mysql_connect($dbServer, $dbUser, $dbPass, true);
+$isSel=mysql_select_db("pluto_tracking",$db);
 
-$q = "INSERT INTO Status(EK_Installation,EK_Device,EK_DeviceTemplate,Uptime,Version_Orbiter,Version_Router,Date)
+$q = "INSERT INTO Status(EK_Installation,EK_Device,EK_DeviceTemplate,Uptime,Version_Orbiter,Version_DCERouter,Date)
 	VALUES('$EK_Installation','$EK_Device','$EK_Device','$Uptime','$Orbiter','$Router',NOW())";
-mysql_query($q);
+mysql_query($q) or die('Err: '.mysql_error());
 ?>
