@@ -253,6 +253,7 @@ Simulator::Simulator()
 	m_sHomeScreen = "1255";
 	m_bTryToDetermineAutomatically = true;
 	m_bFullScreen = false;
+	m_bLogToServer = false;
 
 	m_bStopGeneratorThread = false;
 	m_dwStartGeneratorThreadDelay = 0;
@@ -318,6 +319,7 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 
 	m_bTryToDetermineAutomatically = ReadInteger("TryToDetermineAutomatically", (int)m_bTryToDetermineAutomatically) != 0;
 	m_bFullScreen = ReadInteger("FullScreen", (int)m_bFullScreen) != 0;
+	m_bLogToServer = ReadInteger("LogToServer", (int)m_bLogToServer) != 0;
 	m_sDeviceID = ReadString("DeviceID", m_sDeviceID);
 	m_sRouterIP = ReadString("RouterIP", m_sRouterIP);
 
@@ -356,6 +358,8 @@ void Simulator::SaveConfigurationFile(string sConfigurationFile)
 
 	m_mapParameters["TryToDetermineAutomatically"] = StringUtils::ltos(m_bTryToDetermineAutomatically);
 	m_mapParameters["FullScreen"] = StringUtils::ltos(m_bFullScreen);
+	m_mapParameters["LogToServer"] = StringUtils::ltos(m_bLogToServer);
+
 	m_mapParameters["DeviceID"] = m_sDeviceID;
 	m_mapParameters["RouterIP"] = m_sRouterIP;
 

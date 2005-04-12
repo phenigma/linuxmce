@@ -14,8 +14,7 @@
 using namespace Frog;
 using namespace Frog::Internal;
 
-#include "src/internal/graphicbuffer.h" //temp ... for debugging
-//#define DEBUG_SURFACES
+#include "src/internal/graphicbuffer.h" 
 
 #include <src/rasterizer.h>
 //-----------------------------------------------------------------------------------------------------
@@ -747,10 +746,6 @@ clock_t ccc=clock();
 	if(pObj->m_pGraphicToUndoSelect)
 		pObj->m_pGraphicToUndoSelect->Clear();
 
-#ifdef DEBUG_SURFACES
-g_pPlutoLogger->Write(LV_STATUS, "^SaveBackgroundForDeselect: Surface %p has %p pixels", pSurface, pSurface->m_buffer->GetPixels());
-#endif
-
 	pObj->m_pGraphicToUndoSelect = new PocketFrogGraphic(pSurface);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -791,10 +786,6 @@ g_pPlutoLogger->Write(LV_STATUS, "^SaveBackgroundForDeselect: Surface %p has %p 
 	PocketFrogGraphic *pPocketFrogGraphic = (PocketFrogGraphic *) pPlutoGraphic;
 	Surface *pSurface = pPocketFrogGraphic->m_pSurface;
 
-#ifdef DEBUG_SURFACES
-g_pPlutoLogger->Write(LV_STATUS, "^RenderGraphic start: Surface %p has %p pixels", pSurface, pSurface->m_buffer->GetPixels());
-#endif
-
 	if(::IsBadReadPtr(pSurface->m_buffer->GetPixels(), pSurface->GetWidth() * pSurface->GetHeight() * 2))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "The surface has a bad pointer for pixels array (Surface: %p, pixels: %p)",
@@ -802,7 +793,6 @@ g_pPlutoLogger->Write(LV_STATUS, "^RenderGraphic start: Surface %p has %p pixels
 		pPlutoGraphic->Clear(); //force reload ocg
 		return;
 	}
-
 
 	if(pSurface->GetWidth() == 0 || pSurface->GetHeight() == 0)
 		return;
@@ -832,19 +822,10 @@ g_pPlutoLogger->Write(LV_STATUS, "^RenderGraphic start: Surface %p has %p pixels
 			g_pPlutoLogger->Write(LV_STATUS, "Need to stretch picture: %d, %d, %d, %d, keep aspect %d", 
 				dest.left, dest.top, dest.right, dest.bottom, !bDisableAspectRatio);
 
-#ifdef DEBUG_SURFACES
-g_pPlutoLogger->Write(LV_STATUS, "^before blitstretch: Surface %p has %p pixels", pSurface, pSurface->m_buffer->GetPixels());
-#endif
-
 			GetDisplay()->BlitStretch(dest, pSurface);
 		}
 		else
 		{
-
-#ifdef DEBUG_SURFACES
-g_pPlutoLogger->Write(LV_STATUS, "^before blit: Surface %p has %p pixels", pSurface, pSurface->m_buffer->GetPixels());
-#endif
-
 			GetDisplay()->Blit( rectTotal.X, rectTotal.Y, pSurface );
 		}
 }

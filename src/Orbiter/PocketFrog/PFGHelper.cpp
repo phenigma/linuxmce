@@ -24,12 +24,8 @@ Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 		{
 			pSurface = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay()->CreateSurface(iWidth, iHeigth);
 
-			//delete pSurface->m_buffer->GetPixels();
 			Pixel * pPixels = pSurface->m_buffer->GetPixels();
-			//pPixels = (Pixel *)new char[iPixelsDataSize];
 			memcpy((char *)pPixels, pPixelsData, iPixelsDataSize);
-
-g_pPlutoLogger->Write(LV_STATUS, "^Created surface %p with pixels %p, size %d", pSurface, pPixels, iPixelsDataSize);
 		}
 	}
 

@@ -45,6 +45,7 @@ public: //data
 	long m_dwStartGeneratorThreadDelay;
 
 	bool m_bFullScreen;
+	bool m_bLogToServer;
 
 	bool m_bIsRunning;
 

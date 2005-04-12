@@ -73,6 +73,7 @@ HWND				g_hWndPage3;
 //-----------------------------------------------------------------------------------------------------
 HWND				g_hWnd_TryAutomCheckBox;
 HWND				g_hWnd_FullScreenCheckBox;
+HWND				g_hWnd_LogToServerCheckBox;
 HWND				g_hWnd_DeviceIDEdit;
 HWND				g_hWnd_RouterIPEdit;
 HWND				g_hWnd_ApplyButton;
@@ -471,20 +472,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				// Initialize the shell activate info structure
 				memset (&s_sai, 0, sizeof (s_sai));
 				s_sai.cbSize = sizeof (s_sai);
-#else
-				//make sure the that task bar is visible
-				//HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
-				//::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
-
 #endif //WINCE
 
 
 				//configuration info
 				g_hWnd_TryAutomCheckBox = CreateCheckBox(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Try to determine automatically the device id", 330);
-				::SendMessage(g_hWnd_TryAutomCheckBox, BM_SETCHECK, BST_CHECKED, 1);
-
-				g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, WIN_HEIGHT - 50, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Full screen", 330);
-				::SendMessage(g_hWnd_FullScreenCheckBox, BM_SETCHECK, BST_CHECKED, 1);
+				g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 350, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Full screen", 120);
+				g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 500, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Log to server for debugging", 200);
 	
 				CreateLabel(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 80, "Device ID: ");	
 				g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 50, "", true, true);
@@ -918,9 +912,6 @@ void ShowMainDialog() //actually, hides the sdl window
 #ifdef WINCE
 	HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
 	::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
-//#else
-	//HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
-	//::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1373,6 +1364,7 @@ void SaveUI_To_ConfigurationData()
 	GetEditText(g_hWnd_RouterIPEdit, RouterIP);
 
 	bool bFullScreen = BST_CHECKED == ::SendMessage(g_hWnd_FullScreenCheckBox, BM_GETCHECK, 0, 0);
+	bool bLogToServer = BST_CHECKED == ::SendMessage(g_hWnd_LogToServerCheckBox, BM_GETCHECK, 0, 0);
 
 	Simulator::GetInstance()->m_dwDelayMin = atoi(DelayMin.c_str());
 	Simulator::GetInstance()->m_dwDelayMax = atoi(DelayMax.c_str());
@@ -1385,6 +1377,7 @@ void SaveUI_To_ConfigurationData()
 	Simulator::GetInstance()->m_sDeviceID = DeviceID;
 	Simulator::GetInstance()->m_sRouterIP = RouterIP;
 	Simulator::GetInstance()->m_bFullScreen = bFullScreen;
+	Simulator::GetInstance()->m_bLogToServer = bLogToServer;
 
 	if(Simulator::GetInstance()->m_sConfigurationFile != "")
 		Simulator::GetInstance()->SaveConfigurationFile(Simulator::GetInstance()->m_sConfigurationFile);
@@ -1452,6 +1445,8 @@ void LoadUI_From_ConfigurationData()
 		Simulator::GetInstance()->m_bTryToDetermineAutomatically ? BST_CHECKED : BST_UNCHECKED, 0);
 	::SendMessage(g_hWnd_FullScreenCheckBox, BM_SETCHECK, 
 		Simulator::GetInstance()->m_bFullScreen ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(g_hWnd_LogToServerCheckBox, BM_SETCHECK, 
+		Simulator::GetInstance()->m_bLogToServer ? BST_CHECKED : BST_UNCHECKED, 0);
 }
 //-----------------------------------------------------------------------------------------------------
 #pragma warning( default : 4311 4312)

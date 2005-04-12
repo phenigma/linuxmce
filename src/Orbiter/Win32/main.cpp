@@ -8,7 +8,10 @@
 
 #include "main.h"
 #include "MainDialog.h"
+
 #include "DCE/Logger.h"
+#include "DCE/ServerLogger.h"
+
 #include "Simulator.h"
 
 #define  VERSION "<=version=>"
@@ -180,21 +183,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			return FALSE;
 		}
 
-		try
-		{
-			if( sLogger=="null" )
-				g_pPlutoLogger = new NullLogger();
-			else 
-				if( sLogger == "orbiter" )
-					g_pPlutoLogger = new WinOrbiterLogger(g_hWndList);
-				else
-					g_pPlutoLogger = new FileLogger(sLogger.c_str());
-		}
-		catch(...)
-		{
-			printf("Unable to create logger\n");
-			return -1;
-		}
+		//NOTE: the logger is not created yet. Do not try to use the logger at this moment!
 
 #ifdef WINCE
 		Simulator::GetInstance()->LoadConfigurationFile("/Storage Card/Orbiter.conf");
@@ -221,10 +210,33 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		if(!bFullScreenSpecified)
 			CmdLineParams.bFullScreen = Simulator::GetInstance()->m_bFullScreen;
 
+		//Creating the logger
+		if(Simulator::GetInstance()->m_bLogToServer)
+			g_pPlutoLogger = new ServerLogger(CmdLineParams.PK_Device, 0, CmdLineParams.sRouter_IP.c_str());
+		else
+		{
+			try
+			{
+				if( sLogger=="null" )
+					g_pPlutoLogger = new NullLogger();
+				else 
+					if( sLogger == "orbiter" )
+						g_pPlutoLogger = new WinOrbiterLogger(g_hWndList);
+					else
+						g_pPlutoLogger = new FileLogger(sLogger.c_str());
+			}
+			catch(...)
+			{
+				printf("Unable to create logger\n");
+				return -1;
+			}
+		}
+
+		//It's safe now to use the logger
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",CmdLineParams.PK_Device,
 			CmdLineParams.sRouter_IP.c_str());
 
-		//now it's safe to start orbiter's thread
+		//Starting orbiter's thread
 		StartOrbiterThread();
 
 		SyncConfigurationData();
@@ -262,9 +274,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 #ifdef WINCE
 			HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
-			::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
-#else
-			HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
 			::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
 #endif
 
