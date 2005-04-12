@@ -5,7 +5,7 @@
 
 PH="plutohome.com"
 
-cronEntry="0 * * * * root /usr/pluto/bin/Report_Machine_Status.sh"
+cronEntry="0 2 * * * root /usr/pluto/bin/Report_Machine_Status.sh"
 if ! grep -qF "$cronEntry" /etc/crontab; then
 	echo "$cronEntry" >>/etc/crontab
 	/etc/init.d/cron reload
