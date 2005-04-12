@@ -14,10 +14,10 @@ function learn_how_to_use_it($output,$conn){
 	$phoneScreenshots='<table border="0" align="center"><tr>'.join('',$imgArray).'</tr></table>';
 
 	$tabletArray=array();
-	$tabletThumbsArray=array('t-main-menu.jpg'=>'Main menu','t-media-map.jpg'=>'Media map','t-music-remote.jpg'=>'Music remote','t-save-playlist.jpg'=>'Save playlist','t-tv.jpg'=>'TV remote','t-dvd-remote.jpg'=>'DVD remote','t-quad-view.jpg'=>'Quad view');
+	$tabletThumbsArray=array('t-main-menu.jpg'=>'Main menu','t-media-map.jpg'=>'Media map','t-call-in-progress.jpg'=>'Call in progress','t-music-remote.jpg'=>'Music remote','t-save-playlist.jpg'=>'Save playlist','t-tv.jpg'=>'TV remote','t-dvd-remote.jpg'=>'DVD remote','t-quad-view.jpg'=>'Quad view');
 	$pos=0;
 	foreach ($tabletThumbsArray as $thumb=>$text){
-		if($pos==4){
+		if($pos==5){
 			$tabletArray[]='</tr><table><table align="center"><tr>';
 		}
 		$tabletArray[]='<td align="center"><a href="javascript:open_popup(\'operations/image.php?img=screenshots/'.$thumb.'&single=1\',\'width=820,height=620,scrollbars=0,toolbar=0,resizable=0\');"><img src="images/screenshots/thumbs/'.$thumb.'" border="1" alt="Click to see larger image" style="border: 1px outset #B9D1FD;"></a><br>'.$text.'</td>';
