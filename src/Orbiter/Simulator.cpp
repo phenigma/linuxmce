@@ -51,6 +51,9 @@ Simulator *Simulator::m_pInstance = NULL;
 //-----------------------------------------------------------------------------------------------------
 void *GeneratorThread( void *p)
 {
+	while(!g_pPlutoLogger)
+		Sleep(2000);
+	
 	g_pPlutoLogger->Write(LV_WARNING, "Simulator enabled");
 
 	Simulator *pSimulator = (Simulator *)p;

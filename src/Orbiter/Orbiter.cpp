@@ -566,8 +566,6 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )
 {
-g_pPlutoLogger->Write(LV_STATUS, "Rendering %s object", pObj->m_ObjectID.c_str());
-
     if(  pObj->m_pDesignObj_Orbiter_TiedTo  )
     {
         pObj->m_bHidden = pObj->m_pDesignObj_Orbiter_TiedTo->IsHidden(  );

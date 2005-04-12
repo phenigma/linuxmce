@@ -293,7 +293,7 @@ public: // temp - remove this
 	 */
 	virtual void GetVideoFrame( void *iData );
 
-	virtual int GetVideoFrameInterval() { return 2000; } //default value. override this to speed up things.
+	virtual int GetVideoFrameInterval() { return 6000; } //default value. override this to speed up things.
 
 	/**
 	 * @brief

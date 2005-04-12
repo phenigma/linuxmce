@@ -68,7 +68,10 @@ bool SDL_SaveOCG(SDL_Surface *pSurface, string sFilename, bool bPocket)
 	char *pPixelFormatData = new char[iPixelFormatDataSize];
 	memcpy(pPixelFormatData, pSurface->format, iPixelFormatDataSize);
 
-	int iPixelsDataSize = pSurface->h * pSurface->w * pSurface->format->BytesPerPixel;
+	//we need even surfaces 
+	int iWidth = pSurface->w % 2 ? pSurface->w - 1 : pSurface->w;
+	int iHeight = pSurface->h % 2 ? pSurface->h - 1 : pSurface->h;
+	int iPixelsDataSize = iHeight * iWidth * pSurface->format->BytesPerPixel;
 
 	if(bpp == 4 && bPocket)
 		iPixelsDataSize /= 2;
@@ -82,9 +85,9 @@ bool SDL_SaveOCG(SDL_Surface *pSurface, string sFilename, bool bPocket)
 	{
 		char *pPixelsDataTemp = pPixelsData;
 		SDL_PixelFormat * PF = pSurface->format;
-
-		for(int y = 0; y < pSurface->h; y++)
-			for(int x = 0; x < pSurface->w; x++)
+		
+		for(int y = 0; y < iHeight; y++)
+			for(int x = 0; x < iWidth; x++)
 			{
 				Uint8 * pixel = (Uint8 *) pSurface->pixels + y * pSurface->pitch + x * bpp;
 				Uint32 color;
@@ -114,7 +117,7 @@ bool SDL_SaveOCG(SDL_Surface *pSurface, string sFilename, bool bPocket)
 	}
 
 	RendererOCG *pRendererOCG = new RendererOCG(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize, 
-		pSurface->w, pSurface->h);
+		iWidth, iHeight);
 
 	bool bResult = pRendererOCG->SaveOCG(sFilename);
 	PLUTO_SAFE_DELETE(pRendererOCG);	

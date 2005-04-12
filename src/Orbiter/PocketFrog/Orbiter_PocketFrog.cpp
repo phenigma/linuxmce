@@ -15,8 +15,8 @@ using namespace Frog;
 using namespace Frog::Internal;
 
 #include "src/internal/graphicbuffer.h" 
-
 #include <src/rasterizer.h>
+
 //-----------------------------------------------------------------------------------------------------
 #define VK_A 0x41
 #define VK_C 0x43
@@ -156,7 +156,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		delete pLogoSurface;
 
 	GetDisplay()->Update();
-
 	Initialize(gtPocketFrogGraphic);
 
 	if(m_bQuit)
