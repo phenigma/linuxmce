@@ -786,6 +786,7 @@ void Repository::psc_id_last_sync_set( Table *pTable, int psc_id )
 		cerr << "SQL failed: " << sSQL.str( );
 		throw "Internal error Repository::psc_id_set #2";
 	}
+	pTable->m_psc_id_last_sync=psc_id;
 }
 
 int Repository::psc_batch_last_sync_get( Table *pTable )
@@ -884,10 +885,6 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 			throw "Database error";
 		}
 	}
-if( sTableName=="DeviceData" )
-{
-int k=2;
-}
 	map<string,int> mapFields;
 	list<string> listFields;
 	int iField_psc_id = -1, iField_psc_batch = -1;
@@ -1028,7 +1025,7 @@ int k=2;
 
 		bool bUpdate=false; // Make this an update rather than an insert
 		int i_psc_id = iField_psc_id!=-1 ? atoi(str.m_vectString[pos+iField_psc_id].c_str()) : 0; // The psc_id of the row we're importing
-if( sTableName=="DeviceData" && (i_psc_id==64 || i_psc_id==62) )
+if( sTableName=="DeviceTemplate" && (i_psc_id==54) )
 {
 int k=2;
 }
