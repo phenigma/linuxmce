@@ -24,6 +24,7 @@ digest_footer = \"\"\"--
 Go to http://plutohome.com/ for more info\"\"\"
 bounce_matching_headers = ''
 description = '''${Parameters[*]}'''
+generic_nonmember_action = 2
 "
 
 case "$Cmd" in
