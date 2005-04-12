@@ -14,6 +14,6 @@ $db = mysql_connect($dbServer, $dbUser, $dbPass, true);
 $isSel=mysql_select_db("pluto_tracking",$db);
 
 $q = "INSERT INTO Status(EK_Installation,EK_Device,EK_DeviceTemplate,Uptime,Version_Orbiter,Version_DCERouter,Date)
-	VALUES('$EK_Installation','$EK_Device','$EK_Device','$Uptime','$Orbiter','$Router',NOW())";
+	VALUES('$EK_Installation','$EK_Device','$EK_DeviceTemplate','$Uptime','$Orbiter','$Router',NOW())";
 mysql_query($q) or die('Err: '.mysql_error());
 ?>
