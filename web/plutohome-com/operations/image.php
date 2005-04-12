@@ -41,7 +41,7 @@ $links=(isset($_REQUEST['single']))?'':$links;
     <td align="center" valign="middle" colspan="2"><a href="javascript:self.close();"><img src="../images/<?=$image?>" border="0" alt="Click to close popup."></a></td>
   </tr>
   <tr>
-  	<td align="left" valign="middle" class="insidetable2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<SPAN class="title"><?=$title?></SPAN></td>
+  	<td align="left" valign="middle" class="insidetable2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<SPAN class="title"><?=@$title?></SPAN></td>
     <td align="right" valign="middle" class="insidetable2"><?=$links?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
   </tr>  
 </table>
