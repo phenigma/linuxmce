@@ -163,8 +163,8 @@ static void set_audio_finish(struct cx88_core *core)
 
 	// unmute
 	volume = cx_sread(SHADOW_AUD_VOL_CTL);
-	//cx_swrite(SHADOW_AUD_VOL_CTL, AUD_VOL_CTL, volume & 0x3f );
-	cx_swrite(SHADOW_AUD_VOL_CTL, AUD_VOL_CTL, 0 );
+	cx_swrite(SHADOW_AUD_VOL_CTL, AUD_VOL_CTL, volume & 0x3f );
+	//cx_swrite(SHADOW_AUD_VOL_CTL, AUD_VOL_CTL, 0 );
 }
 
 /* ----------------------------------------------------------- */
