@@ -42,13 +42,12 @@ public:
 	ScreenHistory( class DesignObj_Orbiter *pObj, class ScreenHistory *pScreenHistory_Prior )
 	{
 		m_tTime = time(NULL);
-		m_pObj=pObj; m_dwPK_Device=m_dwPK_Users=0; m_bCantGoBack=false; m_pLocationInfo=NULL;
+		m_pObj=pObj; 
+		m_dwPK_Device=0;
+		m_bCantGoBack=false; 
 		if(  pScreenHistory_Prior  )
 		{
-			// We'll just copy the standard stuff from the prior screen
 			m_dwPK_Device = pScreenHistory_Prior->m_dwPK_Device;
-			m_dwPK_Users = pScreenHistory_Prior->m_dwPK_Users;
-			m_pLocationInfo = pScreenHistory_Prior->m_pLocationInfo;
 		}
 	}
 
@@ -60,8 +59,6 @@ public:
 	string m_sID;
 	time_t m_tTime;
 	int m_dwPK_Device; /** < The device being controlled */
-	int m_dwPK_Users; /** < The current user */
-	class LocationInfo *m_pLocationInfo; /** < The current location */
 	bool m_bCantGoBack; /** < If we get a go back, skip over this screen unless "Force" is set to true */
 	class DesignObj_Orbiter *m_pObj; /** < The screen we're viewing */
 	map<int, string> m_mapVariable; /** < Any variables we need to restore when returning to this screen */
@@ -123,6 +120,9 @@ public:
 //<-dceag-const-e->
 
 protected:
+
+	int m_dwPK_Users; /** < The current user */
+	class LocationInfo *m_pLocationInfo; /** < The current location */
 
 	string m_sLocalDirectory; /** < A directory to get files from */
 	ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */

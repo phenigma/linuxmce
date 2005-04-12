@@ -175,6 +175,9 @@ m_MaintThreadMutex("MaintThread")
 {
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 
+	m_pLocationInfo = NULL;
+	m_dwPK_Users = 0;
+
 	m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
     m_iImageHeight=iImageHeight;
@@ -563,6 +566,8 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )
 {
+g_pPlutoLogger->Write(LV_STATUS, "Rendering %s object", pObj->m_ObjectID.c_str());
+
     if(  pObj->m_pDesignObj_Orbiter_TiedTo  )
     {
         pObj->m_bHidden = pObj->m_pDesignObj_Orbiter_TiedTo->IsHidden(  );
@@ -627,7 +632,7 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
     // This is somewhat of a hack, but we don't have a clean method for setting the graphics on the user & location buttons to
     if( pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentUser_CONST )
     {
-        vector<PlutoGraphic*> *pvectGraphic = m_mapUserIcons[m_pScreenHistory_Current->m_dwPK_Users];
+        vector<PlutoGraphic*> *pvectGraphic = m_mapUserIcons[m_dwPK_Users];
 		//vector<PlutoGraphic*> *p = pvectGraphic;
 
         if( pvectGraphic )
@@ -637,8 +642,8 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
     }
     else if( pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentLocation_CONST )
     {
-        if( m_pScreenHistory_Current->m_pLocationInfo && m_pScreenHistory_Current->m_pLocationInfo->m_pvectGraphic )
-            pObj->m_pvectCurrentGraphic = m_pScreenHistory_Current->m_pLocationInfo->m_pvectGraphic;
+        if( m_pLocationInfo && m_pLocationInfo->m_pvectGraphic )
+            pObj->m_pvectCurrentGraphic = m_pLocationInfo->m_pvectGraphic;
         if( pObj->m_pvectCurrentGraphic )
             RenderGraphic(pObj, rectTotal);
     }
@@ -1838,7 +1843,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 
 	if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST)
 	{
-		if( !m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector || m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector==DEVICEID_NULL )
+		if( !m_pLocationInfo->m_dwPK_Device_MediaDirector || m_pLocationInfo->m_dwPK_Device_MediaDirector==DEVICEID_NULL )
 		{
 			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
 			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
@@ -1850,8 +1855,8 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 		else
 		{
 			// We know we've got an m/d and it's not us.  Find out the state and status
-			string sState = GetState(m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector);
-			string sStatus = GetStatus(m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector);
+			string sState = GetState(m_pLocationInfo->m_dwPK_Device_MediaDirector);
+			string sStatus = GetStatus(m_pLocationInfo->m_dwPK_Device_MediaDirector);
 
 			if( sStatus.length()>1 && sStatus.substr(0,2)=="MD" )
 			{
@@ -2472,10 +2477,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			exit( 1 );
 		}
 
-		m_pScreenHistory_Current->m_pLocationInfo = m_pLocationInfo_Initial;
-		m_pScreenHistory_Current->m_dwPK_Users = m_dwPK_Users_Default;
+		m_pLocationInfo = m_pLocationInfo_Initial;
+		m_dwPK_Users = m_dwPK_Users_Default;
 
-		DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pScreenHistory_Current->m_dwPK_Users );
+		DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
 		SendCommand( CMD_Set_Current_User );
 		DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(m_pLocationInfo_Initial->PK_EntertainArea) );
 		SendCommand( CMD_Set_Entertainment_Area );
@@ -3836,14 +3841,14 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 			Output+= (m_mapVariable[PK_Variable]!="1" ? "1" : "0");
 		}
-        else if(  Variable=="E" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
-            Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_EntertainArea );
-        else if(  Variable=="MD" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
-            Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector );
+        else if(  Variable=="E" && m_pLocationInfo  )
+            Output += StringUtils::itos( m_pLocationInfo->PK_EntertainArea );
+        else if(  Variable=="MD" && m_pLocationInfo  )
+            Output += StringUtils::itos( m_pLocationInfo->m_dwPK_Device_MediaDirector );
         else if(  Variable=="MDH"  )
             Output += StringUtils::itos( m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector );
-        else if(  Variable=="LD" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
-            Output += m_pScreenHistory_Current->m_pLocationInfo->Description;
+        else if(  Variable=="LD" && m_pLocationInfo  )
+            Output += m_pLocationInfo->Description;
         else if(  Variable=="V" )
 			Output += string(VERSION) + "(" + g_szCompile_Date + ")";
         else if(  Variable=="NP" )
@@ -3896,10 +3901,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         else if(  Variable=="SD" )
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 				Output += StringUtils::itos((*it).first) + ",";
-        else if(  Variable=="R" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
-            Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_Room );
-        else if(  Variable=="U" && m_pScreenHistory_Current  )
-            Output += StringUtils::itos( m_pScreenHistory_Current->m_dwPK_Users );
+        else if(  Variable=="R" && m_pLocationInfo  )
+            Output += StringUtils::itos( m_pLocationInfo->PK_Room );
+        else if(  Variable=="U" )
+            Output += StringUtils::itos( m_dwPK_Users );
         else if(  Variable=="X"  )
             Output += StringUtils::itos( X );
         else if(  Variable=="Y"  )
@@ -4402,10 +4407,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
 			GotoScreen( m_sMainMenu );
 		}
 		else
-		{
-			pScreenHistory->m_pLocationInfo = m_pScreenHistory_Current->m_pLocationInfo;
 			NeedToRender::NeedToChangeScreens( pScreenHistory, false );
-		}
+
 	}
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got a go back, but no screen to return to");
@@ -5512,8 +5515,8 @@ void Orbiter::CaptureKeyboard_UpdateVariableAndText( int iVariable,  string sVar
 void Orbiter::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pMessage)
 //<-dceag-c58-e->
 {
-    m_pScreenHistory_Current->m_dwPK_Users=iPK_Users;
-    DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pScreenHistory_Current->m_dwPK_Users );
+    m_dwPK_Users=iPK_Users;
+    DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
     SendCommand( CMD_Set_Current_User );
 }
 
@@ -5532,7 +5535,7 @@ void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Messa
     else
     {
         LocationInfo *pLocationInfo = m_dequeLocation[iLocationID];
-        m_pScreenHistory_Current->m_pLocationInfo = pLocationInfo;
+        m_pLocationInfo = pLocationInfo;
 		DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(pLocationInfo->PK_EntertainArea) );
         SendCommand( CMD_Set_Entertainment_Area );
         DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, pLocationInfo->PK_Room );
@@ -6182,13 +6185,13 @@ int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
 	switch(  PK_DeviceTemplate )
 	{
 	case DEVICETEMPLATE_VirtDev_AppServer_CONST:
-		return m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_AppServer;
+		return m_pLocationInfo->m_dwPK_Device_AppServer;
 
 	case DEVICETEMPLATE_VirtDev_Orbiter_Onscreen_CONST:
-		return m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_Orbiter;
+		return m_pLocationInfo->m_dwPK_Device_Orbiter;
 
 	case DEVICETEMPLATE_VirtDev_Media_Director_CONST:
-		return m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector;
+		return m_pLocationInfo->m_dwPK_Device_MediaDirector;
 
 	case DEVICETEMPLATE_VirtDev_Local_Media_Director_CONST:
 		return m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector;
