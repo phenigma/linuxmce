@@ -16,7 +16,7 @@ Files=test.cpp
 
 [Project Dir]
 Dirs=doc/test
-Files=cx88-alsa.c/cx88-blackbird.c/cx88-cards.c/cx88-core.c/cx88-dvb.c/cx88.h/cx88-i2c.c/cx88-input.c/cx88-mpeg.c/cx88-reg.h/cx88-tvaudio.c/cx88-vbi.c/cx88-video.c/update-blackbird.sh/videodev2.h/videodev.h/v4l1-compat.c/.kateconfig
+Files=cx88-alsa.c/cx88-blackbird.c/cx88-cards.c/cx88-core.c/cx88-dvb.c/cx88.h/cx88-i2c.c/cx88-input.c/cx88-mpeg.c/cx88-reg.h/cx88-tvaudio.c/cx88-vbi.c/cx88-video.c/update-blackbird.sh/videodev2.h/videodev.h/v4l1-compat.c/.kateconfig/tda9887.c/tda9887.h/tuner-core.c/tuner.h/tuner-simple.c
 
 [Project File]
 Name=video4linux
