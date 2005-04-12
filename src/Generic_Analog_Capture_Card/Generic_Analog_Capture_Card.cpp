@@ -201,9 +201,6 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 		g_pPlutoLogger->Write(LV_STATUS, "Adding child camera %d to main config file",i);
 		strcpy(pData,std.c_str());
 		FileUtils::WriteBufferIntoFile(sPath,pData,isize-1);
-
-
-
        }
 //---------------------------------	
 	system("rm -f motion.temp");

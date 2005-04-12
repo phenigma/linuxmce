@@ -1694,7 +1694,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
         }
         else
         {
-            g_pPlutoLogger->Write(LV_WARNING, "The target device %d has not registered.",(*(*pSafetyMessage))->m_dwPK_Device_To);
+            g_pPlutoLogger->Write(LV_WARNING, "The target device %d (routed to %d) has not registered.",(*(*pSafetyMessage))->m_dwPK_Device_To,RouteToDevice);
             // If this is a request we have to let the sender know so it doesn't wait in vain.
             // also, send responses back to corpserver
         }
