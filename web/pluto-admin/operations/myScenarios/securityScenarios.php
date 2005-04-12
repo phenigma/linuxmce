@@ -17,14 +17,6 @@ if($action=='form') {
 	$resArray = $dbADO->Execute($queryArray,$arrayID);
 	$rowArray=$resArray->FetchRow();
 
-	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
-		$cgToDelete=(int)$_GET['cgDelID'];
-		deleteCommandGroup($cgToDelete,$dbADO);
-		setOrbitersNeedConfigure($installationID,$dbADO);
-		header("Location: index.php?section=securityScenarios&msg=The security scenario was deleted.");
-	}
-
-	
 	$out.=setLeftMenu($dbADO).'<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 	<h2 align="center">'.$rowArray['Description'].'</h2>';
 
@@ -136,14 +128,37 @@ if($action=='form') {
 		}
 		while($rowCG=$resCommandGroups->FetchRow()){
 			$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
-			$out.='
-			<tr bgcolor="#DDDDDD">
-				<td><input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"></td>
-				<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=editScenario">Edit (simple mode)</a></td>
-				<td align="center"><a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=securityScenarios">Edit (wizard mode)</a></td>
-				<td align="center"><a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
-			</tr>
-			';
+			
+			$queryCheckValidity='
+				SELECT 
+					FK_CommandParameter,
+					CommandGroup_Command_CommandParameter.IK_CommandParameter
+				FROM CommandGroup_Command_CommandParameter
+				INNER JOIN CommandGroup_Command ON FK_CommandGroup_Command=PK_CommandGroup_Command
+				INNER JOIN CommandGroup ON CommandGroup_Command.FK_CommandGroup=PK_CommandGroup
+				INNER JOIN CommandGroup_Room ON CommandGroup_Room.FK_CommandGroup=PK_CommandGroup 
+				LEFT JOIN Device ON PK_Device=IK_CommandParameter
+				WHERE (PK_Device IS NULL AND IK_CommandParameter!=0) AND CommandGroup_Room.FK_Room=? AND CommandGroup.FK_Installation=? AND FK_Template=? AND FK_CommandParameter=5 AND PK_CommandGroup=?';
+			$resCV=$dbADO->Execute($queryCheckValidity,array($rowRooms['PK_Room'],$installationID,$GLOBALS['securityScenariosTemplate'],$rowCG['PK_CommandGroup']));
+			if($resCV->RecordCount()==0){
+				$out.='
+				<tr bgcolor="#DDDDDD">
+					<td><input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"></td>
+					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=editScenario">Edit (simple mode)</a></td>
+					<td align="center"><a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=securityScenarios">Edit (wizard mode)</a></td>
+					<td align="center"><a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'&action=del\';">Delete</a></td>
+				</tr>
+				';
+			}else{
+				$out.='
+				<tr bgcolor="#FF9F9F">
+					<td><input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"></td>
+					<td align="center" colspan="2">Invalid scenario, one or more device(s) no longer exists.</td>
+					<td align="center"><a href="#" onClick="javascript:if(confirm(\'Are you sure you want to keep this scenario? It will no longer appear on Security Scenarios since it had invalid parameters.\'))self.location=\'index.php?section=securityScenarios&cgKeepID='.$rowCG['PK_CommandGroup'].'&action=keep\';">Keep</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'&action=del\';">Delete</a></td>
+				</tr>
+				';
+			
+			}
 		}
 		$out.='</table><input type="button" class="button" name="newScenario" value="New quad camera security scenario" onClick="self.location=\'index.php?section=securityScenarios&roomID='.$rowRooms['PK_Room'].'&RoomName='.urlencode($rowRooms['RoomName']).'&action=addScenario\'">';
 	}
@@ -326,6 +341,21 @@ if($action=='form') {
 		header("Location: index.php?section=securityScenarios&error=You are not authorised to change the installation.");
 		exit(0);
 	}
+	
+	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
+		$cgToDelete=(int)$_GET['cgDelID'];
+		deleteCommandGroup($cgToDelete,$dbADO);
+		setOrbitersNeedConfigure($installationID,$dbADO);
+		header("Location: index.php?section=securityScenarios&msg=The security scenario was deleted.");
+	}
+
+	if(isset($_GET['cgKeepID']) && (int)$_GET['cgKeepID']!=0){
+		$cgToKeep=(int)$_GET['cgKeepID'];
+		$dbADO->Execute('UPDATE CommandGroup SET FK_Template = NULL WHERE PK_CommandGroup=?',$cgToKeep);
+		setOrbitersNeedConfigure($installationID,$dbADO);
+		header("Location: index.php?section=securityScenarios&msg=The security scenario was keeped as custom scenario.");
+	}
+
 	if(isset($_POST['addScenario'])){
 		$roomID=(int)$_REQUEST['roomID'];
 		$roomName=stripslashes($_REQUEST['RoomName']);

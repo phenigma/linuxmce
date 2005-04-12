@@ -50,6 +50,7 @@ function newRubyCode($output,$dbADO) {
 		</form>';
 	
 	} else {
+		$dbADO->debug=true;
 		if(isset($_POST['add'])){
 			$irData=stripslashes($_POST['irData']);
 			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
@@ -78,7 +79,7 @@ function newRubyCode($output,$dbADO) {
 			}
 			$out.='<script>
 					opener.location.reload();
-					self.close();
+					//self.close();
 				</script>
 			';
 		}	

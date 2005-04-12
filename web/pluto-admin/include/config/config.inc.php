@@ -224,7 +224,7 @@
 	$GLOBALS['DSPModeCommandCategory']=21;		// DSP Modes
 	$GLOBALS['InputsCommandCategory']=22;		// Inputs
 	$GLOBALS['OutputsCommandCategory']=27;		// Outputs
-	$GLOBALS['GeneralInternal']=46;				// General/Internal
+	$GLOBALS['GeneralInternal']=55;				// General/Internal
 	
 	// options to display in Media Wizard
 	
