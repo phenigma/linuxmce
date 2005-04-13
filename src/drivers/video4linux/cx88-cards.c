@@ -567,28 +567,28 @@ struct cx88_board cx88_boards[] = {
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
-			.gpio0  = 0x00009c80, //0x0000bde6 9c80
+			.gpio0  = 0x00008480, //0x0000bde6 9c80
 			//.gpio1  = 0x0000002a,
 			//.gpio2  = 0x0000009d,
 			//.gpio3  = 0x00000000,
 		},{
 			.type   = CX88_VMUX_COMPOSITE1,
 			.vmux   = 1,
-			.gpio0  = 0x00009c04,
+			.gpio0  = 0x00008404,
 			//.gpio1  = 0x00000075,
 			//.gpio2  = 0x000000dd,
 			//.gpio3  = 0x00000000,
 		},{
 			.type   = CX88_VMUX_SVIDEO,
 			.vmux   = 2,
-			.gpio0  = 0x00009c04,
+			.gpio0  = 0x00008404,
 			//.gpio1  = 0x00000000,
 			//.gpio2  = 0x00000001,
 			//.gpio3  = 0x00000000,
 		}},
 		.radio = {
 			.type   = CX88_RADIO,
-			.gpio0  = 0x00009c00,
+			.gpio0  = 0x00008400,
 			//.gpio1  = 0x00000000,
 			//.gpio2  = 0x00000000,
 			//.gpio3  = 0x00000000,
