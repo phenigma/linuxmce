@@ -38,6 +38,12 @@ function restart($output,$dbADO) {
 		<input type="hidden" name="action" value="update">
 		
 		<table cellpadding="3" align="center">
+			<tr>
+				<td colspan="6" align="center"><input type="submit" class="button" name="quick_reload" value="Quick Reload Router"></td>
+			</tr>
+			<tr>
+				<td colspan="6" align="center">&nbsp;</td>
+			</tr>		
 			<tr bgcolor="#EEEEEE">
 				<td colspan="3"><B>Core (reset everything)</B></td>
 				<td><input type="submit" class="button" name="halt_core" value="Halt"></td>
@@ -118,8 +124,12 @@ function restart($output,$dbADO) {
 			$command='/usr/pluto/bin/MessageSend -targetType template 0 27 1 268 21 '.$action.' 2 '.$device;
 			exec($command);
 		}
-		
-		
+
+		if(isset($_POST['quick_reload'])){
+			$command='/usr/pluto/bin/MessageSend localhost 0 -1000 7 1';
+			exec($command);
+		}
+
 		header('Location: index.php?section=restart&msg=The command '.$command.' was sent');
 	}
 	
