@@ -31,6 +31,13 @@
 	$dbPlutoMainServer = 'localhost';
 	$dbPlutoMainType = 'mysql';
 	
+	// pluto admin database settings
+	$dbPlutoAdminUser = 'root';
+	$dbPlutoAdminPass = '';
+	$dbPlutoAdminDatabase = 'pluto_main';
+	$dbPlutoAdminServer = 'localhost';
+	$dbPlutoAdminType = 'mysql';
+	
 	// pluto media
 	$dbPlutoMediaType = "MySQL";
 	$dbPlutoMediaUser = "plutomedia";

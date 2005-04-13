@@ -344,15 +344,15 @@ if($_SESSION['sollutionType']==3){
 			// insert devices from PVR, Audio and video categories
 			$pvrDT=(int)$_POST['PVRCaptureCard'];
 			if($pvrDT!=0){
-				createDevice($pvrDT,$installationID,$insertID,$roomID,$dbADO);
+				createDevice($pvrDT,$installationID,$insertID,$roomID,$dbADO,1);
 			}
 			$soundDT=(int)$_POST['SoundCard'];
 			if($soundDT!=0){
-				createDevice($soundDT,$installationID,$insertID,$roomID,$dbADO);
+				createDevice($soundDT,$installationID,$insertID,$roomID,$dbADO,1);
 			}
 			$videoDT=(int)$_POST['VideoCard'];
 			if($videoDT!=0){
-				createDevice($videoDT,$installationID,$insertID,$roomID,$dbADO);
+				createDevice($videoDT,$installationID,$insertID,$roomID,$dbADO,1);
 			}
 
 		}
@@ -434,24 +434,22 @@ function updateMediaDirectors($displayedDevicesArray,$dbADO)
 		}
 		
 		// add/delete PVR Capture Card, sound card and video card
-		$pvrDT=$_POST['PVRCaptureCard_'.$value];
+		$pvrDT=@$_POST['PVRCaptureCard_'.$value];
 		recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$oldRoomID,$dbADO);
-		$soundDT=$_POST['SoundCard_'.$value];
+		$soundDT=@$_POST['SoundCard_'.$value];
 		recreateDevice($value,$GLOBALS['SoundCards'],$soundDT,$_SESSION['installationID'],$oldRoomID,$dbADO);
-		$videoDT=$_POST['VideoCard_'.$value];
+		$videoDT=@$_POST['VideoCard_'.$value];
 		recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$oldRoomID,$dbADO);
 	}
 }
 
 function getSubDT($mdID,$categoryID,$dbADO)
 {
-	$orbiterID=getMediaDirectorOrbiterChild($mdID,$dbADO);
-	
 	$res=$dbADO->Execute('
 		SELECT FK_DeviceTemplate
 		FROM Device 
 		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$orbiterID));
+		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$mdID));
 	if($res->RecordCount()>0){
 		$row=$res->FetchRow();
 		return $row['FK_DeviceTemplate'];
@@ -462,13 +460,11 @@ function getSubDT($mdID,$categoryID,$dbADO)
 
 function getSubDevice($mdID,$categoryID,$dbADO)
 {
-	$orbiterID=getMediaDirectorOrbiterChild($mdID,$dbADO);
-	
 	$res=$dbADO->Execute('
 		SELECT PK_Device
 		FROM Device 
 		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$orbiterID));
+		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$mdID));
 	if($res->RecordCount()>0){
 		$row=$res->FetchRow();
 		return $row['PK_Device'];
@@ -484,7 +480,7 @@ function recreateDevice($mdID,$categoryID,$dtID,$installationID,$roomID,$dbADO)
 		deleteDevice($deviceID,$dbADO);
 	}
 	if($dtID!=0){
-		createDevice($dtID,$installationID,$mdID,$roomID,$dbADO);
+		createDevice($dtID,$installationID,$mdID,$roomID,$dbADO,1);
 	}
 }
 ?>
