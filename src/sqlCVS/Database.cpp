@@ -1585,16 +1585,48 @@ void Database::ListBatchContents()
 		{
 			string sTable = row[0];
 			std::ostringstream sSQL2;
-			sSQL2 << "SELECT * FROM " << sTable << "_pschist WHERE psc_batch=" << g_GlobalConfig.m_psc_batch;
+			sSQL2 << "SELECT psc_id,psc_toc,`" << sTable << "_pschist`.* FROM `" << sTable << "_pschist` WHERE psc_batch=" << g_GlobalConfig.m_psc_batch;
 			PlutoSqlResult result_set2;
 			MYSQL_ROW row2=NULL;
-			cout << endl << "Table: " << sTable << endl;
+			cout << endl << "Table: " << sTable << endl << "=========================" << endl;
 			if( ( result_set2.r=mysql_query_result( sSQL2.str( ) ) ) )
 			{
 				while ( row2 = mysql_fetch_row( result_set2.r ) )
 				{
-					for(int iField=0;iField<result_set2.r->field_count;iField++)
+					std::ostringstream sSQL3;
+					PlutoSqlResult result_set3;
+					MYSQL_ROW row3=NULL;
+					if( atoi(row2[1])==toc_Modify )
 					{
+						sSQL3 << "SELECT * FROM `" << sTable << "_pschmask` WHERE psc_batch=" << g_GlobalConfig.m_psc_batch << " AND psc_id=" << row2[0];
+						result_set3.r=mysql_query_result(sSQL3.str());
+						row3=mysql_fetch_row( result_set3.r );
+						if( !row3 )
+						{
+							cout << "Cannot find record in hmask table: " << sSQL3 << endl;
+							cerr << "Cannot find record in hmask table: " << sSQL3 << endl;
+							throw "Database error";
+						}
+					}
+
+					if( atoi(row2[1])==toc_New )
+						cout << "NEW- ";
+					else if( atoi(row2[1])==toc_Modify )
+						cout << "MODIFY- ";
+					else if( atoi(row2[1])==toc_Delete )
+						cout << "DELETE- ";
+
+					for(int iField=2;iField<result_set2.r->field_count;iField++)
+					{
+						if( atoi(row2[1])==toc_Modify && (!row3[iField-2] || row3[iField-2][0]=='0') )
+							continue;
+						if( atoi(row2[1])==toc_Delete && strcmp(result_set2.r->fields[iField].name,"psc_id")!=0 )
+							continue;
+						if( strcmp(result_set2.r->fields[iField].name,"psc_batch")==0 ||
+								strcmp(result_set2.r->fields[iField].name,"psc_mod")==0 ||
+								strcmp(result_set2.r->fields[iField].name,"psc_toc")==0 )
+							continue;
+
 						cout << result_set2.r->fields[iField].name << ":" << (row2[iField] ?  row2[iField] : "(NULL)") << " ";
 					}
 					cout << endl;
@@ -1602,5 +1634,6 @@ void Database::ListBatchContents()
 			}
 		}
 	}
+	cout << endl;
 }
 

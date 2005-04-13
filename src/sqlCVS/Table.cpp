@@ -1214,9 +1214,7 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 
 	std::ostringstream sSQL;
 	sSQL << "DELETE FROM `" << m_sName << "` WHERE psc_id=" << pR_CommitRow->m_psc_id;
-cout << sSQL.str() << endl;
-if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Proceed with delete?",false) )
-throw "problem with delete";
+
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "Failed to delete row: " << sSQL.str( ) << endl;
@@ -1289,14 +1287,17 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
 	}
 	sSQL << "psc_batch=" << psqlCVSprocessor->m_i_psc_batch << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+
+	// Add the history before we commit the change.  That way we can compare what the old values were
+	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
+	AddToHistory( pR_CommitRow, psqlCVSprocessor );
+
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "Failed to update row: " << sSQL.str( ) << endl;
 		pR_CommitRow->m_sResponseMessage = "Failed to update row: " + sSQL.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
 		throw "Failed to update row";
 	}
-	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
-	AddToHistory( pR_CommitRow, psqlCVSprocessor );
 }
 
 void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen )
