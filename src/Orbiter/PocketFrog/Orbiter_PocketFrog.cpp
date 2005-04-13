@@ -619,13 +619,36 @@ clock_t ccc=clock();
     clock_t clkStart = clock(  );
 #endif
 
-	TextToDisplay = StringUtils::Replace(TextToDisplay, "\r", " ");
-	TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", " ");
-
 	int iNumChars = Text->m_rPosition.Width / ciCharWidth;
+	int i, iPos;
+
+	vector<string> vectStringsInterm;
+	while(string::npos != (iPos = TextToDisplay.find("\n")))
+	{
+		string FirstString = TextToDisplay.substr(0, iPos - 1);
+		string SecondString = TextToDisplay.substr(iPos + 1, TextToDisplay.length() - 1);
+
+		StringUtils::Replace(FirstString, FirstString, "\n", "");
+		StringUtils::Replace(FirstString, FirstString, "\r", "");
+
+		vectStringsInterm.push_back(FirstString);
+		TextToDisplay = SecondString;
+	}
+
+	StringUtils::Replace(TextToDisplay, TextToDisplay, "\n", "");
+	StringUtils::Replace(TextToDisplay, TextToDisplay, "\r", "");
+	vectStringsInterm.push_back(TextToDisplay);
+
 	vector<string> vectStrings;
-	
-	StringUtils::BreakIntoLines( TextToDisplay, &vectStrings, iNumChars );
+	for(i = 0; i < vectStringsInterm.size(); i++)
+	{
+		vector<string> vectStringsTemp;
+		StringUtils::BreakIntoLines( vectStringsInterm[i], &vectStringsTemp, iNumChars );
+
+		for(int j = 0; j < vectStringsTemp.size(); j++)
+			vectStrings.push_back(vectStringsTemp[j]);
+	}
+	vectStringsInterm.clear();
 
 	int Y = Text->m_rPosition.Y;
 	int iTextRectHeight = vectStrings.size() * ciCharHeight + (vectStrings.size() - 1) * ciSpaceHeight;
@@ -650,10 +673,26 @@ clock_t ccc=clock();
 	if(color == Color(0, 0, 0)) //it's black
 		color = Color(7, 7, 7); //almost black :)
 
-	for(int i = 0; i < vectStrings.size(); i++)
+	for(i = 0; i < vectStrings.size(); i++)
 	{
 		mbstowcs(TextW, vectStrings[i].c_str(), 4096);	
-		GetDisplay()->DrawVGAText(VGAROMFont, TextW, DVT_NONE, Text->m_rPosition.X, Y + i * (ciCharHeight + ciSpaceHeight), color);
+
+		int X = Text->m_rPosition.X;
+		int iTextRectWidth = ciCharWidth * vectStrings[i].length();
+
+		switch(pTextStyle->m_iPK_HorizAlignment)
+		{
+			case HORIZALIGNMENT_Left_CONST:
+				break;
+			case HORIZALIGNMENT_Center_CONST:
+				X += (Text->m_rPosition.Width - iTextRectWidth) / 2;
+				break;
+			case HORIZALIGNMENT_Right_CONST:
+				X += Text->m_rPosition.Width - iTextRectWidth;
+				break;
+		}
+
+		GetDisplay()->DrawVGAText(VGAROMFont, TextW, DVT_NONE, X, Y + i * (ciCharHeight + ciSpaceHeight), color);
 	}
 	vectStrings.clear();
 
