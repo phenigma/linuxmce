@@ -25,7 +25,6 @@ echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
 device="$PK_Device"
 code="$Activation_Code"
 
-chmod 700 /usr/pluto/keys/id_dsa_remoteassistance
 echo "setting up dce router2"
 hasRecords=$(RunSQL "SELECT count(PK_Installation) FROM Installation")
 if [ $hasRecords -ne 0 ]; then

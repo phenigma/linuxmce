@@ -6,15 +6,17 @@
 cronEntry="*/10 * * * * root /usr/pluto/bin/SetupRemoteAccess.sh"
 screenName="RemoteAssistance"
 
-RAKey="-i /usr/pluto/keys/id_dsa_remoteassistance"
+RAKey="/usr/pluto/keys/id_dsa_remoteassistance"
 [ -f "$RAKey" ] && chmod 700 "$RAKey" || exit
 
 shopt -s nullglob
 
 screen -wipe &>/dev/null
-SSHTunnel=$(echo /var/run/screen/S-root/*${screenName}_SSH*)
-WebTunnel=$(echo /var/run/screen/S-root/*${screenName}_Web*)
-if [ -n "$remote" ]; then
+CreateTunnel()
+{
+	SSHTunnel=$(echo /var/run/screen/S-root/*${screenName}_SSH*)
+	WebTunnel=$(echo /var/run/screen/S-root/*${screenName}_Web*)
+
 	# if user doesn't exist
 	if ! grep -q remote /etc/passwd; then
 		# add user "remote" w/ the password specified (var value)
@@ -40,7 +42,7 @@ if [ -n "$remote" ]; then
 	if [ -z "$SSHTunnel" ]; then
 		# create the ssh tunnel (port 22) w/ port=PK_Installation*2+10000
 		RemotePort=$((PK_Installation*2+10000))
-		screen -d -m -S "${screenName}_SSH" ssh $RAKey -R$RemotePort:localhost:22 remoteassistance@pf.plutohome.com
+		screen -d -m -S "${screenName}_SSH" /usr/pluto/bin/RemoteAccess_Tunnel.sh $RemotePort 22 "$RAKey"
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "SSH tunnel enabled."
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "SSH tunnel already present. Not enabling."
@@ -49,12 +51,18 @@ if [ -n "$remote" ]; then
 	if [ -z "$WebTunnel" ]; then
 		# create the http tunnel (port 80) w/ port=PK_Installation*2+10001
 		RemotePort=$((PK_Installation*2+10001))
-		screen -d -m -S "${screenName}_Web" ssh $RAKey -R$RemotePort:localhost:80 remoteassistance@pf.plutohome.com
+		screen -d -m -S "${screenName}_Web" /usr/pluto/bin/RemoteAccess_Tunnel.sh $RemotePort 80 "$RAKey"
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "HTTP tunnel enabled."
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "HTTP tunnel already present. Not enabling."
 	fi
-else
+}
+
+RemoveTunnel()
+{
+	SSHTunnel=$(echo /var/run/screen/S-root/*${screenName}_SSH*)
+	WebTunnel=$(echo /var/run/screen/S-root/*${screenName}_Web*)
+
 	if grep -q remote /etc/passwd; then
 		# delete user "remote" if it exists
 		userdel remote || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to remove user 'remote' with exit code '$?'"
@@ -90,4 +98,11 @@ else
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "HTTP tunnel not found. Not closing."
 	fi
+}
+
+if [ -n "$remote" ]; then
+	[ "$1" == "restart" ] && RemoveTunnel
+	CreateTunnel
+else
+	RemoveTunnel
 fi
