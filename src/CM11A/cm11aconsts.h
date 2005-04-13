@@ -4,6 +4,8 @@
 // genral consts
 #define CM11A_ACK				0x00
 #define CM11A_INTERFACE_READY	0x55
+#define CM11A_COMPUTER_READY	0xC3
+#define CM11A_INTERFACE_CQ		0x5A
 #define CM11A_CLOCK_REQ			0xA5
 
 

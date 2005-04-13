@@ -64,7 +64,7 @@ DevicePoll::SendPacket(CSerialPort* pport,
 	unsigned char sendbuff[2] =  { highByte, lowByte };
 	
 	unsigned char chksum = (sendbuff[0] + sendbuff[1]) & 0xff, 
-					resp = -1;
+					resp = (unsigned char)-1;
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Sending header with Checksum: %x.", chksum);
 	pport->Write((char*)sendbuff, sizeof(sendbuff) / sizeof(unsigned char));
@@ -77,6 +77,30 @@ DevicePoll::SendPacket(CSerialPort* pport,
 		if(resp == CM11A_CLOCK_REQ) {
 			g_pPlutoLogger->Write(LV_STATUS, "CM11A requested clock SET UP", resp);
 			SendClock(pport);
+			return -1;
+		} else
+		if(resp == CM11A_INTERFACE_CQ) {
+			g_pPlutoLogger->Write(LV_STATUS, "CM11A wants to notify us of Something...");
+			resp = CM11A_COMPUTER_READY;
+			pport->Write((char*)&resp, 1);
+			int nread = 0;
+			do {
+				nread = pport->Read((char*)&resp, 1, CM11A_READ_TIMEOUT);
+			} while (nread > 0 && resp == CM11A_INTERFACE_CQ);
+			if(nread > 0) {
+				if(resp > 0 && resp < 128) {
+					g_pPlutoLogger->Write(LV_STATUS, "Reading %d bytes of DATA...");
+					
+					char *buff = new char[resp];
+					pport->Read(buff, resp, CM11A_READ_TIMEOUT);
+					delete buff;
+					g_pPlutoLogger->Write(LV_STATUS, "Data read successfully...");
+				} else {
+					g_pPlutoLogger->Write(LV_STATUS, "No data to read...");
+				}
+			} else {
+				g_pPlutoLogger->Write(LV_STATUS, "Fake Alarm!");
+			}
 			return -1;
 		} else
 		if(resp != chksum) {
@@ -141,7 +165,7 @@ DevicePoll::SendFunction(CSerialPort* pport, const Message* pMesg) {
 	g_pPlutoLogger->Write(LV_STATUS, "Sending function with Code: %d.", 
 												pMesg->getFunctionCode());
 
-	unsigned char dim = pMesg->getDimmLevel() * CM11A_MAX_DIM_LEVEL * 1.0 / 100;
+	unsigned char dim = (unsigned char)(pMesg->getDimmLevel() * CM11A_MAX_DIM_LEVEL * 1.0 / 100);
 	if(dim > 0) {
 		g_pPlutoLogger->Write(LV_STATUS, "Using Dim Level: %d.", dim);
 	}
