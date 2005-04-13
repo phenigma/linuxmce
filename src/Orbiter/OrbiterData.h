@@ -8,7 +8,7 @@
 
 #include <deque>
 
-#define ORBITER_SCHEMA		3	// Used to determine if cached screens can be used or if the schema has changed
+#define ORBITER_SCHEMA		4	// Used to determine if cached screens can be used or if the schema has changed
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"

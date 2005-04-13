@@ -1553,7 +1553,9 @@ EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_D
 			g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea4");
 			if( !iPK_EntertainArea )
 			{
-				g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter with no entertainment area %d %d %d",iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea );
+				g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter %p %d with no entertainment area (%p) %d %d %d",
+					pOH_Orbiter,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pEntertainArea,
+					iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea );
 				return NULL; // Don't know what area it should be played in
 			}
         }

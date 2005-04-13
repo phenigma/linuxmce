@@ -3604,15 +3604,18 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
             if(  pCommand->m_PK_DeviceTemplate<0  )
             {
                 pCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;  // Set this to a temporary value,  so we'll know if it's changes at teh end of the if
-				pCommand->m_PK_Device = TranslateVirtualDevice(pCommand->m_PK_DeviceTemplate);
-                if(  pCommand->m_PK_Device==DEVICEID_NULL  )
-                {
-                    // We recognized it as one of the known cases in the switch block,  but apparently this option isn't sent
-                    g_pPlutoLogger->Write( LV_CRITICAL, "Sending command to unidentified virtual device: %d", pCommand->m_PK_DeviceTemplate );
-                    pCommand->m_PK_Device = pCommand->m_PK_DeviceTemplate; // Maybe there's some interceptor that will know what to do with it
-                }
-                else if(  pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
-                    pCommand->m_PK_Device = pCommand->m_PK_DeviceTemplate; // It's not a virtual device we know how to handle.  Let the interceptors have it
+				if( pCommand->m_PK_DeviceTemplate!=DEVICEID_HANDLED_INTERNALLY )  // Just leave it there
+				{
+					pCommand->m_PK_Device = TranslateVirtualDevice(pCommand->m_PK_DeviceTemplate);
+					if(  pCommand->m_PK_Device==DEVICEID_NULL  )
+					{
+						// We recognized it as one of the known cases in the switch block,  but apparently this option isn't sent
+						g_pPlutoLogger->Write( LV_CRITICAL, "Sending command to unidentified virtual device: %d", pCommand->m_PK_DeviceTemplate );
+						pCommand->m_PK_Device = pCommand->m_PK_DeviceTemplate; // Maybe there's some interceptor that will know what to do with it
+					}
+					else if(  pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
+						pCommand->m_PK_Device = pCommand->m_PK_DeviceTemplate; // It's not a virtual device we know how to handle.  Let the interceptors have it
+				}
             }
             else
                 pCommand->m_PK_Device=DEVICEID_MASTERDEVICE;
@@ -3623,7 +3626,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
         if(  pCommand->m_PK_Device==0 && pCommand->m_PK_DeviceGroup==0  )
         {
             // See if it's one we handle locally
-            if(  m_bLocalMode || GetData(  )->m_mapCommands.find( PK_Command )!=GetData(  )->m_mapCommands.end(  )  )
+            if(  m_bLocalMode )
             {
                 pCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;
             }

@@ -711,6 +711,12 @@ void Orbiter_Plugin::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string 
     }
 	EntertainArea *pEntertainArea_Last = pOH_Orbiter->m_pEntertainArea;
     pOH_Orbiter->m_pEntertainArea=pEntertainArea;
+
+// Somehow it happened that an orbiter was set to an ent area, but when it did a play media, it says it wasn't
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p %d now in ea %p %d",pOH_Orbiter,
+					  pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pEntertainArea,
+					  (pEntertainArea ? pEntertainArea->m_iPK_EntertainArea : 0));
+
 	SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea && pEntertainArea->m_pMediaStream ? pEntertainArea->m_pMediaStream->m_sMediaDescription : "" );
 
 	FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->PK_Users_get(),
