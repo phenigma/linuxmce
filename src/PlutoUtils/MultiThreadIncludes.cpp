@@ -197,18 +197,25 @@ void PlutoLock::DumpOutstandingLocks()
 	return;
 #endif
 
+	if( !m_mapLockMutex )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "m_mapLockMutex is NULL!");
+		return;
+	}
+
 	if( g_pPlutoLogger )
 		g_pPlutoLogger->Write(LV_LOCKING,"Dumping locks %p mutex %p\n",&mapLocks,&m_mapLockMutex); // This way it'll get in the log without doing any locks
+
+	pthread_mutex_lock(&m_mapLockMutex->mutex);
+
+	//the mutex is locked, it's ok to access the size() method of mapLocks.
 	if( g_pPlutoLogger )
 		g_pPlutoLogger->Write(LV_LOCKING,"Size of locks: %d\n",mapLocks.size());
 
-	if( !m_mapLockMutex )
-		return;
 	// We cannot use a logger in here because the logger will need to get at the map mutex if logging is over a socket
 	map<int,PlutoLock *>::iterator itMapLock;
 	list<string> listMessages;
 	list<pthread_t> listKilledPthreads;
-	pthread_mutex_lock(&m_mapLockMutex->mutex);
 
 	// We can't use the logger from here on because if it's a socket logger it will need the mapLocks.  Store
 	// all messages in listMessages and log after we remove the mutex lock
