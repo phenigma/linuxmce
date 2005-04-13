@@ -738,13 +738,13 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
 		if ( pObj->m_bOnScreen && !m_bAlreadyQueuedVideo )
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Scheduling object @%p: %s", pObj, pObj->m_ObjectID.c_str());
-			
+
 			// If we've got no current graphic, such as during the first redraw since ObjectOnScreen
 			// deletes it, then request a video frame right away, otherwise we're redrawing
 			// and should wait the correct interval
 
 			// Don't purge existing callbacks since there can be multiple frames on the screen
-			CallMaintenanceInMiliseconds( pObj->m_vectGraphic.size()==0 ? 0 : GetVideoFrameInterval(), &Orbiter::GetVideoFrame, NULL, pe_ALL ); 
+			CallMaintenanceInMiliseconds( pObj->m_vectGraphic.size()==0 ? 0 : GetVideoFrameInterval(), &Orbiter::GetVideoFrame, NULL, pe_ALL );
 			m_bAlreadyQueuedVideo=true;  // Only schedule once -- that will redraw all video frames
 		}
 		else
@@ -3402,11 +3402,11 @@ bool Orbiter::GotActivity(  )
 {
     m_LastActivityTime=time( NULL );
 
-	if( !m_bDisplayOn || 
-		(m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_ScreenSaveMenu && 
+	if( !m_bDisplayOn ||
+		(m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_ScreenSaveMenu &&
 			m_pDesignObj_Orbiter_MainMenu!=m_pDesignObj_Orbiter_ScreenSaveMenu) )
     {
-		if( !m_bDisplayOn ) 
+		if( !m_bDisplayOn )
 	        CMD_Display_OnOff( "1" );
 		if( m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
@@ -4180,7 +4180,7 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
 		{
 			CallBackInfo *pCallBackInfo = (*it).second;
-			if( pCallBackInfo->m_fnCallBack==fnCallBack && 
+			if( pCallBackInfo->m_fnCallBack==fnCallBack &&
 					(e_PurgeExisting==pe_ALL || pCallBackInfo->m_pData==data) )
 				pCallBackInfo->m_bStop=true;
 		}
@@ -4444,6 +4444,12 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
     DesignObj_Orbiter *pObj_New=m_ScreenMap_Find( sDestScreen );
     if(  !pObj_New  )
 		pObj_New=m_ScreenMap_Find( StringUtils::itos(atoi(sDestScreen.c_str())) + ".0.0" );
+
+	if ( !pObj_New )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Could not find design object matching this specification: %s", sDestScreen.c_str());
+		return;
+	}
 
 	if( pObj_New->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
 	{
