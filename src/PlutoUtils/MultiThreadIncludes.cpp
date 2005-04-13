@@ -457,7 +457,18 @@ void PlutoLock::DoLock()
 #else
 	while( t+TRYLOCK_TIMEOUT_WARNING>time(NULL) && !m_bGotLock)
 	{
-		m_bGotLock = (pthread_mutex_trylock(&m_pMyLock->mutex)!=EBUSY);
+		 int iResult = pthread_mutex_trylock(&m_pMyLock->mutex);
+		 if( iResult==0 )
+			 m_bGotLock=true;
+		 else if( iResult!= EBUSY )
+		 {
+			 // Some other error condition
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL, "pthread_mutex_trylock returned %d  (%p) (>%d) %s: %s:%d %s", iResult,
+					&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+			Sleep(1000);  // Something went terribly wrong.  Pause a second so we don't log these errors a zillion times in 5 seconds
+		 }
+
 		if( m_bGotLock )
 			break;
 		Sleep(10);
