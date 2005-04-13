@@ -2773,14 +2773,15 @@ function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orde
 	return $retArray;
 }
 
-function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,$dbADO,$deviceName='')
+function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,$dbADO,$childOfMD=0)
 {
 	global $dbPlutoMainDatabase;
 	
 	$orbiterID=getMediaDirectorOrbiterChild($controlledBy,$dbADO);
 	
+	$parentID=($childOfMD==0)?$orbiterID:$controlledBy;
 	$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation);
-	$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=?,FK_Room=? WHERE PK_Device=?',array($orbiterID,$roomID,$insertID));
+	$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=?,FK_Room=? WHERE PK_Device=?',array($parentID,$roomID,$insertID));
 }
 
 function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$controlledVia,$dbADO,$zeroOption='0,- Please Select -',$jsEvent='')
@@ -2841,13 +2842,14 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 		INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
 		WHERE FK_Installation=? $whereClause order by Device.Description asc";
 	$resDeviceTemplate = $dbADO->Execute($queryDeviceTemplate,$installationID);
-	$selectOptions = '';
+	$optionsArray=array();
 	if($resDeviceTemplate) {
 		while ($row=$resDeviceTemplate->FetchRow()) {
-			$selectOptions.='<option value="'.$row['PK_Device'].'" '.($row['PK_Device']==$controlledVia?' selected="selected" ':'').'>'.$row['Description'].'</option>';
+			$optionsArray[$row['PK_Device']]=$row['Description'];
+			//$selectOptions.='<option value="'.$row['PK_Device'].'" '.($row['PK_Device']==$controlledVia?' selected="selected" ':'').'>'.$row['Description'].'</option>';
 		}
 	}
-
+	
 	// if device is AV with UsesIR=1, override default controlled_via based on category and device template
 	$infraredAndSpecialisedDevices=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
 	$specialisedAndComputerDevices=getDevicesFromCategories(array($GLOBALS['rootComputerID'],$GLOBALS['specialized']),$dbADO);
@@ -2855,7 +2857,6 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 	// get selected category Device Templates
 	$avArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
 	if(in_array($dtID,$avArray)){
-		$selectOptions='';
 		$queryDevice='
 			SELECT 
 				Device.*, DeviceTemplate_AV.UsesIR
@@ -2871,8 +2872,14 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 		$devicesAllowedToControll=($rowD['UsesIR']==1)?array_diff($infraredAndSpecialisedDevices,$tmpArray):array_diff($specialisedAndComputerDevices,$tmpArray);
 
 		foreach($devicesAllowedToControll as $key => $value){
-			$selectOptions.='<option value="'.$key.'" '.(($rowD['FK_Device_ControlledVia']==$key)?'selected':'').'>'.$value.'</option>';
+			$optionsArray[$key]=$value;
+			//$selectOptions.='<option value="'.$key.'" '.(($rowD['FK_Device_ControlledVia']==$key)?'selected':'').'>'.$value.'</option>';
 		}
+	}
+	asort ($optionsArray, SORT_STRING);
+	$selectOptions='';
+	foreach ($optionsArray AS $key=>$value){
+		$selectOptions.='<option value="'.$key.'" '.(($key==$controlledVia)?'selected':'').'>'.$value.'</option>';
 	}
 	
 	$out='

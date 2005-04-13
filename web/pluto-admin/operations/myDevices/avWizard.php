@@ -183,7 +183,7 @@ function avWizard($output,$dbADO) {
 				$orderFilter=($type!='media_directors')?'ORDER BY FK_Device_ControlledVia DESC, Device.Description ASC':'';
 				$queryDevice='
 					SELECT 
-						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased,DeviceTemplate_AV.UsesIR
+						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased,DeviceTemplate_AV.UsesIR,FK_DeviceCategory
 					FROM Device 
 						INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
 						LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate
@@ -375,6 +375,8 @@ function avWizard($output,$dbADO) {
 					
 					
 					if($type!='media_directors'){
+						$controlledByPulldown=controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO);
+					/*	
 					$controlledByPulldown='
 						<select name="controlledBy_'.$rowD['PK_Device'].'">
 							<option value="0">- Select device -</option>';
@@ -387,6 +389,7 @@ function avWizard($output,$dbADO) {
 					}
 					
 					$controlledByPulldown.='</select>';
+					*/
 					unset($GLOBALS['DeviceIDControlledVia']);
 					unset($GLOBALS['DeviceControlledVia']);
 				}else {
@@ -768,13 +771,11 @@ function avWizard($output,$dbADO) {
 
 function getSubDT($mdID,$categoryID,$dbADO)
 {
-	$orbiterID=getMediaDirectorOrbiterChild($mdID,$dbADO);
-	
 	$res=$dbADO->Execute('
 		SELECT FK_DeviceTemplate
 		FROM Device 
 		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$orbiterID));
+		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$mdID));
 	if($res->RecordCount()>0){
 		$row=$res->FetchRow();
 		return $row['FK_DeviceTemplate'];
@@ -785,13 +786,11 @@ function getSubDT($mdID,$categoryID,$dbADO)
 
 function getSubDevice($mdID,$categoryID,$dbADO)
 {
-	$orbiterID=getMediaDirectorOrbiterChild($mdID,$dbADO);
-	
 	$res=$dbADO->Execute('
 		SELECT PK_Device
 		FROM Device 
 		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$orbiterID));
+		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$mdID));
 	if($res->RecordCount()>0){
 		$row=$res->FetchRow();
 		return $row['PK_Device'];
@@ -807,7 +806,7 @@ function recreateDevice($mdID,$categoryID,$dtID,$installationID,$roomID,$dbADO)
 		deleteDevice($deviceID,$dbADO);
 	}
 	if($dtID!=0){
-		createDevice($dtID,$installationID,$mdID,$roomID,$dbADO);
+		createDevice($dtID,$installationID,$mdID,$roomID,$dbADO,1);
 	}
 }
 ?>

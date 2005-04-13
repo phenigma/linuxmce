@@ -511,7 +511,6 @@ $installationID = (int)@$_SESSION['installationID'];
 
 		foreach ($selectedDateArray as $elem) {
 			$value = cleanString(@$_POST['deviceData_'.$elem]);
-			if ($value!='') {
 				$checkIfExists = "select IK_DeviceData from Device_DeviceData where FK_Device = ? and FK_DeviceData = ?";
 				$res = $dbADO->Execute($checkIfExists,array($deviceID,$elem));
 				if ($res && $res->RecordCount()==1) {
@@ -525,7 +524,6 @@ $installationID = (int)@$_SESSION['installationID'];
 						
 					}
 				}				
-			}
 		}		
 		if (trim($description)!='') {		
 			$selectOldValues = 'SELECT * FROM Device where PK_Device = ?';	
