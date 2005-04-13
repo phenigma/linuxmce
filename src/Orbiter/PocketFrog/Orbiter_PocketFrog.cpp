@@ -73,6 +73,8 @@ typedef struct _VIDEO_POWER_MANAGEMENT {
     ULONG PowerState;
 } VIDEO_POWER_MANAGEMENT, *PVIDEO_POWER_MANAGEMENT;
 //-----------------------------------------------------------------------------------------------------
+#define CHECK_STATUS() { if(m_bQuit) return; }
+//-----------------------------------------------------------------------------------------------------
 void DeadlockHandler(PlutoLock *pPlutoLock)
 {
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
@@ -563,12 +565,14 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
 {
+	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	GetDisplay()->FillRect(x, y, x + width, y + height, GetColor16(color));
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::HollowRectangle(int x, int y, int width, int height, PlutoColor color)
 {
+	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	GetDisplay()->DrawRect(x, y, x + width, y + height, GetColor16(color));
 }
@@ -576,6 +580,7 @@ clock_t ccc=clock();
 /*virtual*/ void Orbiter_PocketFrog::ReplaceColorInRectangle(int x, int y, int width, int height, 
 	PlutoColor ColorToReplace, PlutoColor ReplacementColor)
 {
+	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	Pixel pixelSrc = GetColor16(ColorToReplace);
 	Pixel pixelDest = GetColor16(ReplacementColor);
@@ -603,6 +608,7 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle)
 {
+	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
 
@@ -734,6 +740,7 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
 {
+	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	Rect srcRect;
 	srcRect.Set(pObj->m_rPosition.Left(), pObj->m_rPosition.Top(), pObj->m_rPosition.Right(), pObj->m_rPosition.Bottom());
@@ -755,8 +762,9 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderScreen()
 {
+	CHECK_STATUS();
 	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str() : " NO SCREEN"));
-
+	
     if (m_pScreenHistory_Current)
     {
         PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
@@ -774,6 +782,7 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio)
 {
+	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
 	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtPocketFrogGraphic)
@@ -840,6 +849,7 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect)
 {
+	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
 	//clipping the rectangle 
@@ -855,17 +865,6 @@ clock_t ccc=clock();
 	if(rect.Bottom() >= m_Height)
 		rect.Height = m_Height - rect.Y - 1;
 
-	/*
-	while(m_bUpdating)
-		Sleep(30);
-
-	if(!m_bUpdating)
-	{
-		m_bUpdating = true;
-		m_bUpdating = false;
-	}
-	*/
-
 	Rect rectUpdate;
 	rectUpdate.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
 	GetDisplay()->Update(&rectUpdate);
@@ -873,12 +872,13 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::OnQuit()
 {
+	m_bQuit = true;
 	PostMessage( WM_CLOSE, 0, 0 );
-	//Shutdown(); //just in case
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
+	CHECK_STATUS();
 	Orbiter::Initialize(Type, iPK_Room, iPK_EntertainArea);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -934,6 +934,8 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 {
+	CHECK_STATUS();
+
 	HDC gdc;
 	int iESC=SETPOWERMANAGEMENT;
 
@@ -951,6 +953,8 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 {
+	CHECK_STATUS();
+
 	HDC gdc;
 	int iESC=SETPOWERMANAGEMENT;
 
@@ -968,29 +972,16 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::TryToUpdate()
 {
-	if(m_bQuit)
-		return;
+	CHECK_STATUS();
 
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-
-
-	/*
-	while(m_bUpdating)
-		Sleep(30);
-
-	if(!m_bUpdating)
-	{
-		m_bUpdating = true;
-		
-		m_bUpdating = false;
-	}
-	*/
-
 	GetDisplay()->Update();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::ShowProgress()
 {
+	CHECK_STATUS();
+
 	static int Counter = 0;
 	static PlutoColor green(0, 200, 0);
 	static PlutoColor white(255, 255, 255);
@@ -1013,7 +1004,6 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 bool Orbiter_PocketFrog::SelfUpdate()
 {
 	OrbiterSelfUpdate orbiterSelfUpdate(this);
-
 	return orbiterSelfUpdate.Run();
 }
 //-----------------------------------------------------------------------------------------------------

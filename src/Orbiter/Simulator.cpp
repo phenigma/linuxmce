@@ -309,8 +309,6 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 		m_mapParameters[Token]=StringUtils::TrimSpaces(Value);
 	}
 
-	string bubu = m_mapParameters["EnableGenerator"];
-
 	m_bEnableGenerator = ReadInteger("EnableGenerator", m_bEnableGenerator) != 0;
 	m_dwDelayMin = ReadInteger("DelayMin", m_dwDelayMin);
 	m_dwDelayMax = ReadInteger("DelayMax", m_dwDelayMin);
@@ -327,7 +325,7 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	m_sRouterIP = ReadString("RouterIP", m_sRouterIP);
 
 	if(m_dwDelayMax <= m_dwDelayMin)
-		m_dwDelayMax = m_dwDelayMin + 500;
+		m_dwDelayMax = m_dwDelayMin + 1;
 
 #ifndef BLUETOOTH_DONGLE
 	#ifdef WIN32
@@ -338,7 +336,7 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	if(m_bEnableGenerator)
 	{
 		#ifdef WINCE
-			StartRandomEventGenerator(40000);
+			StartRandomEventGenerator(20000);
 		#else
 			StartRandomEventGenerator(5000);
 		#endif

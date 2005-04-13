@@ -4106,9 +4106,9 @@ void *MaintThread(void *p)
 	bMaintThreadIsRunning = true;
 	Orbiter* pOrbiter = (Orbiter *)p;
 
-	pthread_mutex_lock(&pOrbiter->m_MaintThreadMutex.mutex);  // Keep this locked to protect the map
-	while(!pOrbiter->m_bQuit) //
+	while(!pOrbiter->m_bQuit) 
 	{
+		PLUTO_SAFETY_LOCK(cm, pOrbiter->m_MaintThreadMutex);// Keep this locked to protect the map
 		if(mapPendingCallbacks.size() == 0)
 		{
 			//nothing to process. let's sleep...
@@ -4121,13 +4121,12 @@ void *MaintThread(void *p)
 			timespec ts_NextCallBack,ts_now;
 			ts_NextCallBack.tv_sec=0;
 			gettimeofday(&ts_now,NULL);
-//g_pPlutoLogger->Write(LV_STATUS,"Awoke with %d pending",(int) mapPendingCallbacks.size());
+
 			//let's choose the one which must be processed first
 			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();)
 			{
 				CallBackInfo *pCallBackInfo = (*it).second;
-//if( pCallBackInfo->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
-//g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - stop: %d  sec: %d now: %d",(int) pCallBackInfo->m_bStop,(int) pCallBackInfo->m_abstime.tv_sec,(int) ts_now.tv_sec );
+
 				if( pCallBackInfo->m_bStop )
 				{
 					mapPendingCallbacks.erase( it++ );  // This is dead anyway
@@ -4136,8 +4135,6 @@ void *MaintThread(void *p)
 				}
 				else if(pCallBackInfo->m_abstime <= ts_now)
 				{
-//if( pCallBackInfo->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
-//g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - good to go");
 					mapPendingCallbacks.erase( it );
 					pCallBackInfoGood = pCallBackInfo;
 					break;  // We got one to execute now
@@ -4149,20 +4146,17 @@ void *MaintThread(void *p)
 
 			if( pCallBackInfoGood )
 			{
-//if( pCallBackInfoGood->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
-//g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - executing");
-
-				pthread_mutex_unlock(&pOrbiter->m_MaintThreadMutex.mutex);  // Don't keep the mutex locked while executing
+				cm.Release(); // Don't keep the mutex locked while executing
 				CALL_MEMBER_FN(*(pCallBackInfoGood->m_pOrbiter), pCallBackInfoGood->m_fnCallBack)(pCallBackInfoGood->m_pData);
-//                              CALL_MEMBER_FN(*pOrbiterGood, fnCallBackGood)(pDataGood);^M
 				delete pCallBackInfoGood;
 			}
 			else if( ts_NextCallBack.tv_sec!=0 ) // Should be the case
+			{
 				pthread_cond_timedwait(&pOrbiter->m_MaintThreadCond, &pOrbiter->m_MaintThreadMutex.mutex, &ts_NextCallBack);
+			}
 		}
 	}
 
-	pthread_mutex_unlock(&pOrbiter->m_MaintThreadMutex.mutex);  // We're not coming back
 	bMaintThreadIsRunning = false;
 	return NULL;
 }
@@ -5807,6 +5801,16 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	PlutoColor color(255, 0, 0, 100);
 	SolidRectangle(x - 5, y - 5, 10, 10, color, 50);
 	UpdateRect(PlutoRectangle(x - 5, y - 5, 10, 10));
+
+	//render current screen id
+	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color, 50);
+	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
+	DesignObjText text2(m_pScreenHistory_Current->m_pObj);
+	text2.m_sText = "Current screen: " + this->GetCurrentScreenID();
+	text2.m_rPosition = rect2;
+	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
+	RenderText(&text2, pTextStyle);
+	UpdateRect(PlutoRectangle(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25));
 	EndPaint();
 
 	RegionDown(x, y);
@@ -5829,15 +5833,14 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	RenderText(&text, pTextStyle);
 
 	//render current screen id
-	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color, 50);
+	PlutoColor color2(255, 0, 0, 100);
+	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color2, 50);
 	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
 	DesignObjText text2(m_pScreenHistory_Current->m_pObj);
 	text2.m_sText = "Current screen: " + this->GetCurrentScreenID();
 	text2.m_rPosition = rect2;
 	RenderText(&text2, pTextStyle);
-
 	UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25));
-
 	EndPaint();
 
 	ButtonDown(key);
