@@ -244,6 +244,7 @@ void ClientSocket::Disconnect()
 	if ( m_Socket != INVALID_SOCKET )
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "void ClientSocket::Disconnect() on this socket: %p (m_Socket: %d)", this, m_Socket);
+
 		// this will usually force it out from the select.
 		Close();
 	}

@@ -1065,6 +1065,8 @@ void Socket::Close()
 {
 	if ( m_Socket != INVALID_SOCKET )
  	{
+		shutdown(m_Socket, 0x02 /*SD_BOTH*/); //no recv or send 
+
 		closesocket( m_Socket );
 #ifndef WINCE
 		close(m_Socket);
