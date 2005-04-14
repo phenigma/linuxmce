@@ -26,7 +26,7 @@
 	define("VERSION","0.1");
 	define("APPLICATION_NAME","Pluto support");
 	
-	define("APPROOT",$_SERVER['DOCUMENT_ROOT']."".$directory."/"); 
+	define("APPROOT",$_SERVER['DOCUMENT_ROOT']."".$directory); 
 	define("APPURL",$domain.$directory);
 	define("APPDOMAIN",$domain);
 	
