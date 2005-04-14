@@ -2166,6 +2166,7 @@ void Orbiter::FindObjectToHighlight(
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightNextObject( int PK_Direction )
 {
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 	vector<DesignObj_DataGrid *> vectObj_SelectedGrids;
 	size_t s;
@@ -2265,7 +2266,6 @@ int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
 					vectObj_SelectedGrids.push_back(pDesignObj_DataGrid);
 				}
             }
-			PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
             m_vectObjs_NeedRedraw.push_back( pDesignObj_DataGrid );
         }
     }
@@ -2324,7 +2324,6 @@ int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
 
     m_pObj_Highlighted = pNextObject;
 
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
     m_vectObjs_NeedRedraw.push_back( m_pObj_Highlighted );
     if(  pDesignObj_Orbiter_OriginallyHighlight  )
         m_vectObjs_NeedRedraw.push_back( pDesignObj_Orbiter_OriginallyHighlight );
@@ -4570,7 +4569,7 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
                 bShow=false;
         }
 
-        PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+        //PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
         if(  m_pObj_Highlighted==pObj && !bShow  )
 			m_pObj_Highlighted=NULL;
 

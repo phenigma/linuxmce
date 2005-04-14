@@ -705,7 +705,7 @@ clock_t ccc=clock();
 
 #else //winxp/2000
 
-	TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", "\n\r");
+	//TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", "\n\r");
 
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
 	
