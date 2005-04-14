@@ -33,7 +33,7 @@
 #define DEVICEDATA_Mobile_Orbiter_Notification_CONST 34
 #define DEVICEDATA_Other_Phone_Notifications_CONST 35
 #define DEVICEDATA_Neighbors_to_Call_CONST 36
-#define DEVICEDATA_Port_CONST 37
+#define DEVICEDATA_COM_Port_CONST 37
 #define DEVICEDATA_PK_HouseMode_CONST 38
 #define DEVICEDATA_Delay_CONST 39
 #define DEVICEDATA_Name_CONST 40

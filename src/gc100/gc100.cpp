@@ -725,7 +725,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 			int InOrOut = atoi(child->m_pData->m_mapParameters[DEVICEDATA_InputOrOutput_CONST].c_str());
 			if (InOrOut >= 0 && InOrOut <= 2)
 				io_direction = directions[InOrOut];
-			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_Port_CONST];
+			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_Port_Number_CONST];
 			g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: testing %s", child->m_sName.c_str());
 
 			//g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
@@ -948,7 +948,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 			int InOrOut = atoi(child->m_pData->m_mapParameters[DEVICEDATA_InputOrOutput_CONST].c_str());
 			if (InOrOut >= 0 && InOrOut <= 2)
 				io_direction = directions[InOrOut];
-			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_Port_CONST];
+			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_Port_Number_CONST];
 
 			if (strcasecmp(io_direction.c_str(),"OUT")==0)
 			{

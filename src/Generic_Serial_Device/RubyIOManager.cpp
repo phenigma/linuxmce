@@ -54,7 +54,7 @@ RubyIOManager::addDevice(DeviceData_Impl* pdevdata) {
 	g_pPlutoLogger->Write(LV_STATUS, "Adding child device: %d.", pdevdata->m_dwPK_Device);
 	cs_.addCode(pdb_, pdevdata);
 	
-	string sport = pdevdata->m_mapParameters[DEVICEDATA_Port_CONST],
+	string sport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_CONST],
 			sporttype = pdevdata->m_mapParameters[DEVICEDATA_Port_Type_CONST];
 	
 	if(sport.empty() || sporttype.empty()) {
