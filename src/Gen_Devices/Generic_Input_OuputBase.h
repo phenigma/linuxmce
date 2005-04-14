@@ -36,7 +36,7 @@ public:
 	virtual const char *GetDeviceDescription() { return "Generic_Input_Ouput"; } ;
 	int Get_InputOrOutput() { return atoi(m_mapParameters[18].c_str());}
 	int Get_Default_State() { return atoi(m_mapParameters[19].c_str());}
-	string Get_Port() { return m_mapParameters[37];}
+	string Get_COM_Port() { return m_mapParameters[37];}
 };
 
 
@@ -80,7 +80,7 @@ public:
 	//Data accessors
 	int DATA_Get_InputOrOutput() { return GetData()->Get_InputOrOutput(); }
 	int DATA_Get_Default_State() { return GetData()->Get_Default_State(); }
-	string DATA_Get_Port() { return GetData()->Get_Port(); }
+	string DATA_Get_COM_Port() { return GetData()->Get_COM_Port(); }
 	//Event accessors
 	void EVENT_Pin_Changed(bool bOnOff) {
 		GetEvents()->Pin_Changed(bOnOff);

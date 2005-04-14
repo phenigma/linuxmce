@@ -29,7 +29,7 @@ public:
 	virtual int GetPK_DeviceList() { return 58; } ;
 	virtual const char *GetDeviceDescription() { return "SqueezeBox_Player"; } ;
 	int Get_PK_FloorplanObjectType() { return atoi(m_mapParameters[11].c_str());}
-	string Get_Port() { return m_mapParameters[37];}
+	string Get_COM_Port() { return m_mapParameters[37];}
 };
 
 
@@ -73,7 +73,7 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	int DATA_Get_PK_FloorplanObjectType() { return GetData()->Get_PK_FloorplanObjectType(); }
-	string DATA_Get_Port() { return GetData()->Get_Port(); }
+	string DATA_Get_COM_Port() { return GetData()->Get_COM_Port(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,class Message *pMessage) {};
