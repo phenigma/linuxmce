@@ -213,3 +213,17 @@ echo -n "$frox_conf" >/etc/frox.conf
 echo "RUN_DAEMON=yes" >/etc/default/frox
 /etc/init.d/frox restart
 /etc/init.d/polipo restart
+
+bash_flag="# Pluto - bash root prompt"
+bash_prompt="$bash_flag
+if [ -f /usr/pluto/bin/Config_Ops.sh ]; then
+	. /usr/pluto/bin/Config_Ops.sh
+fi
+
+export PS1='\h_'\$PK_Installation':\w\$ '"
+
+if ! grep -qF "$bash_flag" /root/.bashrc; then
+	awk '/PS1=/ {next} {print}' /root/.bashrc >/root/.bashrc.$$
+	echo "$bash_prompt" >>/root/.bashrc.$$
+	mv -f /root/.bashrc.$$ /root/.bashrc
+fi
