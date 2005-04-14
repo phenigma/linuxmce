@@ -559,17 +559,15 @@ struct cx88_board cx88_boards[] = {
 		.blackbird = 1,
 	},
 	[CX88_BOARD_DIGITALLOGIC_MEC] = {
-		/* params copied over from Leadtek PVR 2000 */
 		.name           = "Digital-Logic MICROSPACE Entertainment Center (MEC)",
-		/* not sure yet about the tuner type */
 		.tuner_type     = 38,
-		.tda9887_conf   = TDA9887_PRESENT,
+		.tda9887_conf   = TDA9887_PRESENT | TDA9887_QSS,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
 			.gpio0  = 0x0000bde2, //0x0000bde6 9c80 8480
 			.gpio0  = 0x0000bde2,
-			.gpio1  = 0x0000002a,	
+			.gpio1  = 0x0000002a,
 			.gpio2  = 0x0000009d,
 		},{
 			.type   = CX88_VMUX_COMPOSITE1,
