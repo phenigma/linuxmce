@@ -67,11 +67,11 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 
 	map<int,string> mapParametersAdded; // Keep track of what DeviceData we have added as we go through
 	
-	PlutoSqlResult result,result1,result1b,result2,result3;
+	PlutoSqlResult result,result1,result1b,result2,result3,resultPackage;
 	MYSQL_ROW row;
 
 	int iPK_DeviceCategory;
-	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript,IsPlugAndPlay FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript,IsPlugAndPlay,FK_Package FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
 	{
 		iPK_DeviceCategory = atoi(row[0]);
@@ -83,6 +83,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		cerr << "Cannot find DeviceTemplate: " << iPK_DeviceTemplate << endl;
 		exit(1);
 	}
+
+	int iPK_Package = row[4] ? atoi(row[4]) : 0;
 
 	SQL = "INSERT INTO Device(Description,FK_DeviceTemplate,FK_Installation,IPAddress,MACaddress";
 	if( PK_Device_ControlledVia )
@@ -99,7 +101,24 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		exit(1);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d",PK_Device);
+	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d Package: %d",PK_Device,iPK_Package);
+
+	if( iPK_Package )
+	{
+
+#ifndef WIN32
+		// Try to load the package
+		SQL = "SELECT Name from Package_Source JOIN RepositorySource on FK_RepositorySource=PK_RepositorySource WHERE FK_Package="
+			+ StringUtils::itos(iPK_Package) + " AND FK_RepositoryType=1"
+			
+		if( ( resultPackage.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( resultPackage.r ) ) && row[0] )
+		{
+			string sCommand = "apt-get install " + row[0];
+			g_pPlutoLogger->Write(LV_STATUS,"Running %s",sCommand.c_str());
+			system(sCommand.c_str());
+		}
+#endif
+	}
 
 	// Loop through all the categories
 	int iPK_DeviceCategory_Loop = iPK_DeviceCategory;
