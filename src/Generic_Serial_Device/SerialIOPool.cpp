@@ -51,7 +51,7 @@ SerialIOPool::SerialIOState::handleOpen(IOConnection* pconn) {
 
 void 
 SerialIOPool::SerialIOState::handleRead(IOConnection* pconn) {
-    g_pPlutoLogger->Write(LV_STATUS, "Ready to read from Serial Port.");
+//    g_pPlutoLogger->Write(LV_STATUS, "Ready to read from Serial Port.");
 }
 
 void 

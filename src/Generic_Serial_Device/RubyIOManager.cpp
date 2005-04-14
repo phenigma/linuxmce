@@ -54,17 +54,21 @@ RubyIOManager::addDevice(DeviceData_Impl* pdevdata) {
 	g_pPlutoLogger->Write(LV_STATUS, "Adding child device: %d.", pdevdata->m_dwPK_Device);
 	cs_.addCode(pdb_, pdevdata);
 	
-	string sport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_CONST],
-			sporttype = pdevdata->m_mapParameters[DEVICEDATA_Port_Type_CONST];
-	
-	if(sport.empty() || sporttype.empty()) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Port and Port Type parameters must both be specified.");
-		return -1;
+	string sport = pdevdata->m_mapParameters[DEVICEDATA_Serial_Port_CONST];
+	PORTTYPE porttype = PORTTYPE_UNKNOWN;
+	if(!sport.empty()) {
+		porttype = PORTTYPE_SERIAL;
+	} else {
+		sport = pdevdata->m_mapParameters[DEVICEDATA_TCP_Port_CONST];
+		if(!sport.empty()) {
+			porttype = PORTTYPE_NETWORK;
+		} else {
+			g_pPlutoLogger->Write(LV_CRITICAL, "GSP Port is not specified. Please supply one of the supported port types.");
+			return -1;
+		}
 	}
-
-	/*check the kind of device we instantiate, based on port string*/
-	int porttype = atoi(sporttype.c_str());
 	
+	/*check the kind of device we instantiate, based on port string*/
 	RubyIOPool*& ppool = pools_[sport];
 	if(ppool != NULL) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "There is already a device configured for port: %s.", sport.c_str());
