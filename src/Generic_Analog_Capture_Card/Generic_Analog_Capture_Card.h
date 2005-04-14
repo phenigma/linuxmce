@@ -6,6 +6,13 @@
 
 #include "Gen_Devices/Generic_Analog_Capture_CardBase.h"
 //<-dceag-d-e->
+
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#include <iostream>
+
 #include "DCE/DeviceData_Router.h"
 class Database_pluto_main;
 
@@ -30,6 +37,8 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+
+		virtual bool Connect(int iPK_DeviceTemplate);
 
 //<-dceag-const2-b->
 		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
@@ -56,28 +65,15 @@ public:
 	*/
 
 
-	/** @brief COMMAND: #84 - Get Video Frame */
-	/** Get's a picture from a specified surveilance camera */
-		/** @param #19 Data */
-			/** The video frame */
-		/** @param #20 Format */
-			/** Format of the frame */
-		/** @param #23 Disable Aspect Lock */
-			/** Disable Aspect Ratio */
-		/** @param #41 StreamID */
-			/** The ID of the stream */
-		/** @param #60 Width */
-			/** Frame width */
-		/** @param #61 Height */
-			/** Frame height */
-
-	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { string sCMD_Result; CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,pData,iData_Size,sFormat,sCMD_Result,NULL);};
-	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage);
-
-
 //<-dceag-h-e->
 	private:
-		    DeviceData_Router* find_Device(int iPK_Device);
+		bool AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData);
+		
+	private:
+		DeviceData_Router* find_Device(int iPK_Device);
+			
+	private:
+		pid_t motionpid_;
 	};
 
 //<-dceag-end-b->

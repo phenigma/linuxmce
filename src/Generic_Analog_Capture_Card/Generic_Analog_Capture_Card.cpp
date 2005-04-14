@@ -16,13 +16,11 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
-#ifndef WIN32
-#include <unistd.h>
-#include <string.h>
-#else
-#include <process.h>
-#include <string.h>
-#endif
+
+#define MOTION_CONF_PATH	"/etc/motion/"
+#define MOTION_CONF_FILE	"motion.conf"
+
+#define SNAPSHOT_SLEEP_TIME	100
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -30,7 +28,7 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	: Generic_Analog_Capture_Card_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-	int i;
+/*	int i;
 	FILE *fp;
 	string sLine, sLine2;
 	size_t size;
@@ -43,23 +41,14 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	int iNumberOfPorts = DATA_Get_Number_of_ports();
 	int iVideoInputType = DATA_Get_Video_Input_Type();
 
-	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%d Number_of_Ports=%d Video_Input_Type=%d",iVideoStandard,iNumberOfPorts,iVideoInputType);
+	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%d Number_of_Ports=%d Video_Input_Type=%d",
+				iVideoStandard,iNumberOfPorts,iVideoInputType);
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Writing configuration to motion.conf");
-	system("rm -f /etc/motion/*");
-
-	g_pPlutoLogger->Write(LV_STATUS, "Checking Config File");
-	if(FileUtils::FileExists("/etc/motion/motion.conf") == true) {
-		g_pPlutoLogger->Write(LV_STATUS, "Config file found. Deleting");
-		system("rm -f /etc/motion/motion.conf");
-	}
-	
-	g_pPlutoLogger->Write(LV_STATUS, "Creting new config file");
-	sLine = "/etc/motion";
-	if(FileUtils::DirExists(sLine) == false) {
-		g_pPlutoLogger->Write(LV_STATUS, "Motion package not install. Please install using \"apt-get install motion\"");
+	if(!FileUtils::FileExists(MOTION_CONF_FILE) == true) {
+		g_pPlutoLogger->Write(LV_STATUS, "Motion package not installed. Please install...");
 		exit(1);
 	}
+	
 	fp = fopen("/etc/motion/motion.conf","wt+");
 	//main config
 //	fprintf(fp,"videodevice /dev/video0\n");
@@ -211,6 +200,7 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 		g_pPlutoLogger->Write(LV_STATUS, "Motion Server failed to start, exiting");
 		exit(1);
 	}
+*/	
 }
 
 //<-dceag-const2-b->
@@ -225,8 +215,116 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(Command_Impl *pPrimaryD
 Generic_Analog_Capture_Card::~Generic_Analog_Capture_Card()
 //<-dceag-dest-e->
 {
-	
+	if(motionpid_) {
+		g_pPlutoLogger->Write(LV_STATUS, "Killing motion process: %d...", motionpid_);
+		kill(motionpid_, SIGKILL);
+		g_pPlutoLogger->Write(LV_STATUS, "Waiting for motion process to finish: %d...", motionpid_);
+		wait(NULL);
+		g_pPlutoLogger->Write(LV_STATUS, "Done.");
+	}
 }
+
+bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
+	g_pPlutoLogger->Write(LV_STATUS, "Generating Motion configuration...");
+	
+	string sPath = MOTION_CONF_PATH MOTION_CONF_FILE;
+	if(!FileUtils::FileExists(sPath.c_str()) == true) {
+		g_pPlutoLogger->Write(LV_STATUS, "Motion package not installed. Please install...");
+		return false;
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Writing configuration to: %s", MOTION_CONF_FILE);
+	
+	std::ofstream mconffile;
+	mconffile.exceptions ( ifstream::eofbit | ifstream::failbit | ifstream::badbit );	
+	try {	
+		mconffile.open(sPath.c_str(), fstream::out | fstream::trunc);
+		string sVideoStandard = m_pData->mapParameters_Find(DEVICEDATA_Video_Standard_CONST);
+		
+		mconffile 	<< "norm " << sVideoStandard << endl 
+					<< "frequency 0" <<  endl
+					<< "rotate 0" <<  endl
+					<< "width 320" <<  endl
+					<< "height 240" <<  endl
+					<< "framerate 2" <<  endl
+					<< "auto_brightness off" <<  endl
+//					<< "brightness 0" <<  endl
+//					<< "contrast 0" <<  endl
+//					<< "saturation 0" <<  endl
+//					<< "hue 0" <<  endl
+					/* filters*/ << endl
+					<< "despeckle EedDl" << endl
+					<< "lightswitch 50" << endl
+					<< "minimum_motion_frames 5" << endl
+					<< "night_compensate on" << endl
+					<< "noise_tune on" << endl
+//					<< "smart_mask_speed 5" << endl
+					/* output */ << endl
+					<< "always_changes on" << endl
+					<< "locate on" << endl
+					<< "post_capture 5" << endl
+					<< "webcam_quality 50" << endl
+					<< "webcam_maxrate 5" << endl
+					<< "text_changes on" << endl
+					<< "text_right %d-%m-%Y\\n%T" << endl
+					/* movies */ << endl
+//					<< "ffmpeg_cap_new on" << endl
+//					<< "ffmpeg_timelapse 60" << endl
+//					<< "ffmpeg_timelapse_mode daily" << endl
+//					<< "ffmpeg_video_codec mpeg1" << endl
+					/* snapshot config */ << endl
+					<< "snapshot_interval 60" << endl
+					<< "snapshot_filename %Y/%m/%d/%H/%M_%S" << endl
+					<< "jpeg_filename %Y/%m/%d/%H/%M_%S" << endl
+//					<< "ffmpeg_filename %Y/%m/%d/%H/%M_%S" << endl
+//					<< "timelapse_filename %Y/%m/%d-timelapse" << endl
+					<< endl << endl;
+	} catch(ifstream::failure e) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot open %s for writing...", sPath.c_str());
+		return false;
+	}
+				
+	bool bFirstAdded = false;
+	for(size_t i = 0; i < m_pData->m_vectDeviceData_Impl_Children.size(); ++i) {
+        DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[i];
+		if(!bFirstAdded) {
+			if(AddChildDeviceToConfigFile(mconffile, pDeviceData_Impl)) {
+				bFirstAdded = true;
+			}
+			mconffile << endl << endl;
+		} else {
+			char cthread = '0' + i;
+			sPath = string(MOTION_CONF_PATH "thread") + string(1, cthread) + ".conf";
+			ofstream tconffile;
+			tconffile.exceptions ( ifstream::eofbit | ifstream::failbit | ifstream::badbit );	
+			try {
+				tconffile.open(sPath.c_str(), fstream::out | fstream::trunc);
+				if(AddChildDeviceToConfigFile(tconffile, pDeviceData_Impl)) {
+					mconffile << "thread " << sPath << endl;
+				}
+			} catch(ifstream::failure e) {
+				g_pPlutoLogger->Write(LV_CRITICAL, "Cannot open %s for writing...", sPath.c_str());
+				continue;
+			}
+		}
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Forking to launch motion process...");
+	motionpid_ = fork();
+	if(motionpid_) {
+		g_pPlutoLogger->Write(LV_STATUS, "In parent process.");
+	} else {
+		g_pPlutoLogger->Write(LV_STATUS, "In child process.");
+		g_pPlutoLogger->Write(LV_STATUS, "Launching motion...");
+		if(execl("/usr/bin/motion", NULL, NULL)) {
+			g_pPlutoLogger->Write(LV_CRITICAL, "Could not launch motion motion!");
+			exit(1);
+		}
+	}
+							
+	return Generic_Analog_Capture_Card_Command::Connect(iPK_DeviceTemplate);
+}
+
 
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
@@ -258,11 +356,8 @@ Generic_Analog_Capture_Card_Command *Create_Generic_Analog_Capture_Card(Command_
 void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	size_t s;
-	string Command;
-	string FilePath;
-	unsigned long int iPID;
-
+	sCMD_Result = "OK";
+	
 	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for child.", pMessage->m_dwID);
 	
 	
@@ -288,36 +383,89 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 
 	switch(pMessage->m_dwID) {
 		case COMMAND_Get_Video_Frame_CONST: {
-			DeviceData_Router *pDeviceData = find_Device(pMessage->m_dwPK_Device_To);
- 			if(!pDeviceData) {
-				g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", pMessage->m_dwPK_Device_To);
-				return;
-			}
-			string sPortNumber = pDeviceData->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
-			char *pData = pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
-
-			g_pPlutoLogger->Write(LV_STATUS, "Geting PID of motion server");
-			Command = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
-			system(Command.c_str());
-			const char *ptr = FileUtils::ReadFileIntoBuffer("camera_card.temp",s);
-			
-			g_pPlutoLogger->Write(LV_STATUS, "Taking Snapshot");
-
-			iPID = atoi(ptr);
-			Command = "kill -s SIGALRM " + StringUtils::itos(iPID);		
-			system(Command.c_str());
-
-			g_pPlutoLogger->Write(LV_STATUS, "Reading and sending snapshot picture");
-
-			FilePath = "/home/cameras/" + StringUtils::itos(pMessage->m_dwPK_Device_To) + "/lastsnap.jpg";
-			pData = FileUtils::ReadFileIntoBuffer(FilePath, s);
-			}
-			break;
+				string sPortNumber = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
+				
+				g_pPlutoLogger->Write(LV_STATUS, "Taking Snapshot...");
+				if(kill(motionpid_, SIGALRM)) {
+					g_pPlutoLogger->Write(LV_WARNING, "Could not take snapshot, fail sending SIGALRM signal...");
+				} else {
+					usleep(SNAPSHOT_SLEEP_TIME * 1000);
+					g_pPlutoLogger->Write(LV_STATUS, "Checking file existance...");
+					string FilePath = "/home/cameras/" + StringUtils::itos(pMessage->m_dwPK_Device_To) + "/lastsnap.jpg";
+					if(FileUtils::FileExists(FilePath)) {
+						g_pPlutoLogger->Write(LV_STATUS, "File exists. Reading and sending snapshot picture...");
+						size_t nDataLength;
+						char *pFileData = FileUtils::ReadFileIntoBuffer(FilePath, nDataLength);
+						
+						g_pPlutoLogger->Write(LV_STATUS, "Sending Reply message to sender.");
+						
+							Message *pMessageOut=new Message(pMessage->m_dwPK_Device_To, pMessage->m_dwPK_Device_From,
+																	PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 0);
+							pMessageOut->m_mapData_Parameters[19]=pFileData; 
+							pMessageOut->m_mapData_Lengths[19]=nDataLength;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						
+						g_pPlutoLogger->Write(LV_STATUS, "Sent %d bytes to command sender.", nDataLength);
+					} else {
+						g_pPlutoLogger->Write(LV_WARNING, "Missing snapshot file: %s.", FilePath.c_str());
+					}
+				}
+			}break;
 		default:
 			g_pPlutoLogger->Write(LV_CRITICAL, "Unknown command %d received.", pMessage->m_dwID);
 	}
-	sCMD_Result = "OK";
 }
+
+
+bool 
+Generic_Analog_Capture_Card::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData) {
+	int PK_Device = pDeviceData->m_dwPK_Device;
+	g_pPlutoLogger->Write(LV_STATUS, "Using child device %d from Generic Analog Capture Card ", PK_Device);
+	
+	string sMotion = pDeviceData->mapParameters_Find(DEVICEDATA_Motion_Option_CONST);
+			
+	//video device
+	string sPort = pDeviceData->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
+	if(!sPort.empty()) {
+		conffile 	<< "videodevice /dev/video" << sPort << endl;
+	} else {
+		g_pPlutoLogger->Write(LV_WARNING, "Port not specified for device: %d.", PK_Device);
+		return false;
+	}
+
+	
+	//video device
+	string sInputType = m_pData->mapParameters_Find(DEVICEDATA_Video_Input_Type_CONST);
+	if(!sInputType.empty()) {
+		conffile	<< "input " << sInputType << endl;
+	}
+
+	string sNoiseLevel = pDeviceData->mapParameters_Find(DEVICEDATA_Noise_CONST);
+	if(!sNoiseLevel.empty()) {
+		conffile	<< "noise_level " << sNoiseLevel << endl;
+	}
+	conffile	<< "webcam_port " << "800" << sPort << endl;
+	
+	string sDescription =  pDeviceData->m_sDescription ;
+	if(!sNoiseLevel.empty()) {
+		conffile	<< "text_left " << StringUtils::Replace(sDescription, " ", "_") << "\\nRoomName" << endl << endl << endl;
+	}
+					
+	//Check Output Directory
+	string sPath = "/home/cameras/" + StringUtils::itos(PK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera output directory: %s...", sPath.c_str());
+	if(FileUtils::DirExists(sPath) == false) {
+		g_pPlutoLogger->Write(LV_STATUS, "Camera output directory not found, creating it");
+		FileUtils::MakeDir(sPath);
+	} else {
+		g_pPlutoLogger->Write(LV_STATUS, "Camera output found");
+	}
+		
+	conffile 	<< "target_dir " << sPath << endl;
+	return true;
+}
+
 
 /*
 	When you received a valid command, but it wasn't for one of your children,
@@ -423,25 +571,4 @@ void Generic_Analog_Capture_Card::SomeFunction()
 DeviceData_Router* Generic_Analog_Capture_Card::find_Device(int iPK_Device) {
     /*search device by id*/
 	return m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
-}
-//<-dceag-c84-b->
-
-	/** @brief COMMAND: #84 - Get Video Frame */
-	/** Get's a picture from a specified surveilance camera */
-		/** @param #19 Data */
-			/** The video frame */
-		/** @param #20 Format */
-			/** Format of the frame */
-		/** @param #23 Disable Aspect Lock */
-			/** Disable Aspect Ratio */
-		/** @param #41 StreamID */
-			/** The ID of the stream */
-		/** @param #60 Width */
-			/** Frame width */
-		/** @param #61 Height */
-			/** Frame height */
-
-void Generic_Analog_Capture_Card::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
-//<-dceag-c84-e->
-{
 }
