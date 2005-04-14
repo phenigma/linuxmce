@@ -560,7 +560,7 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 
 	Command = "/usr/pluto/bin/gc100-conf.pl";
 	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
-	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"Finding GC100",false,30);
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"Finding GC100",false,30,true);
 
 	returned = system(Command.c_str());
 
