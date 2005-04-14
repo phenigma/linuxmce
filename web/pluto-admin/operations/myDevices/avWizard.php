@@ -310,7 +310,7 @@ function avWizard($output,$dbADO) {
 						$rowDDforDevice=$resDDforDevice->FetchRow();
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 						
-						if($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']==''){
+						if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='') && @$resDDforDevice->RecordCount()>0){
 							$deviceDataBox.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle"> ':'');
 							switch($DDTypesToDisplay[$key]){
 								case 'int':
@@ -342,13 +342,8 @@ function avWizard($output,$dbADO) {
 									$deviceDataBox.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 								break;
 								default:
-									if($DeviceDataDescriptionToDisplay[$key]=='Port'){
-										$deviceDataBox.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'">
-											<option value="">- Please select -</option>';
-										foreach ($portsArray AS $portValue=>$portLabel){
-											$deviceDataBox.='<option value="'.$portValue.'" '.((@$ddValue==$portValue)?'selected':'').'>'.$portLabel.'</option>';
-										}
-										'</select>';
+									if($value==$GLOBALS['Port']){
+										$deviceDataBox.=serialPortsPulldown('deviceData_'.$rowD['PK_Device'].'_'.$value,@$ddValue,$rowDDforDevice['AllowedToModify']);
 									}else{
 										$deviceDataBox.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 									}
@@ -470,7 +465,7 @@ function avWizard($output,$dbADO) {
 					<td align="center" rowspan="2" valign="top">'.$buttons.'</td>
 				</tr>
 				<tr>			
-					<td align="center" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
+					<td align="center" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'<br><input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Advanced"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"></td>
 					<td align="right">'.$controlledByPulldown.'</td>
 					<td>V: '.$videoOutputPulldown.'</td>
 					<td>'.$videoConnectToPulldown.'</td>
@@ -753,6 +748,10 @@ function avWizard($output,$dbADO) {
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 				exec($commandToSend);
+				
+				if(isInfrared($deviceTemplate,$dbADO)){
+					$dbADO->Execute('INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData) VALUES (?,?)',array($insertID,$GLOBALS['InfraredPort']));
+				}
 			}
 			header("Location: index.php?section=avWizard&type=$type&lastAdded=$deviceTemplate#deviceLink_".@$insertID);
 			exit();

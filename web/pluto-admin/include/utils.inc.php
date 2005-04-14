@@ -1831,8 +1831,8 @@ function getMediaPluginID($installationID,$dbADO)
 
 function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='')
 {
-	if(count($valuesArray)==0)
-		return null;
+//	if(count($valuesArray)==0)
+//		return null;
 	$out='<select name="'.$name.'" "'.$extra.'">
 			<option value="0">- Please select -</option>';
 	foreach ($valuesArray AS $key=>$value){
@@ -2889,5 +2889,64 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 	</select>';
 	
 	return $out;
+}
+
+function PortForHumans($device,$deviceNames)
+{
+	$devname = substr(strrchr($device, '/'), 1);
+
+	if (strstr($devname, "ttyS") === $devname)
+	{
+		$devid = substr($devname, 4);
+		if ($devid{0} === "_")
+		{
+			# it's a virtual serial port
+			list($PK_Device, $number) = split("_", substr($devid, 1));
+			$number++;
+			# TODO: translate $PK_Device to actual device name
+			return "Port $number on 'device ".@$deviceNames[$PK_Device]."'";
+		}
+		else
+		{
+			# it's a hardware serial port on the Core
+			$number = $devid + 1;
+			return "$devname | COM$number";
+		}
+	}
+	
+	return "Unknown: $devname";
+}
+
+function serialPortsPulldown($name,$selectedPort,$allowedToModify)
+{
+	$serial_ports=array();
+	exec('sudo -u root /usr/pluto/bin/ListSerialPorts.sh', $serial_ports);
+
+	$extra=((isset($allowedToModify) && $allowedToModify==0)?'disabled':'');
+	$out=pulldownFromArray($serial_ports,$name,$selectedPort,$extra);
+	
+	return $out;
+}
+
+// return the deviceID of the orbiter plugin from current installation
+function getInfraredPlugin($installationID,$dbADO)
+{
+	$res=$dbADO->Execute('SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($GLOBALS['InfraredPlugIn'],$installationID));
+	if($res->RecordCount()==0){
+		return null;
+	}else{
+		$row=$res->Fetchrow();
+		return $row['PK_Device'];
+	}
+}
+
+function isInfrared($deviceTemplate,$dbADO)
+{
+	$res=$dbADO->Execute('SELECT * FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=? AND UsesIR=1',$deviceTemplate);
+	if($res->RecordCount()>0){
+		return 1;
+	}else{
+		return 0;
+	}
 }
 ?>

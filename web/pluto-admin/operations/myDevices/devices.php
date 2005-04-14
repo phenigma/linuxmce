@@ -93,6 +93,7 @@ function devices($output,$dbADO) {
 			}
 	</script>
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
+	<div class="confirm" align="center"><B>'.@$_GET['msg'].'</B></div>
 	<form action="index.php" method="POST" name="devices">
 	<input type="hidden" name="section" value="devices">
 	<input type="hidden" name="type" value="'.$type.'">
@@ -242,24 +243,13 @@ function devices($output,$dbADO) {
 								$out.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 							break;
 							default:
-								if ($rowDDforDevice['Description'] != "Port")
+								if ($value!=$GLOBALS['Port'])
 								{
 									$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 								}
 								else
 								{
-									$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
-									$out .= '<option value="">-- Empty --';
-									$serial_ports=array();
-									exec('sudo -u root /usr/pluto/bin/ListSerialPorts.sh', $serial_ports);
-									foreach ($serial_ports as $serial_port)
-									{
-										if ($serial_port === "")
-											continue;
-										$selected = $ddValue === $serial_port ? " selected" : "";
-										$out .= "<option value=\"$serial_port\"$selected>".PortForHumans($serial_port,$deviceNames);
-									}
-									$out.='</select>';
+									$out.=serialPortsPulldown('deviceData_'.$rowD['PK_Device'].'_'.$value,$ddValue,$rowDDforDevice['AllowedToModify']);
 								}
 						}
 						
@@ -271,7 +261,7 @@ function devices($output,$dbADO) {
 				}
 			$out.='	</td>
 					<td align="center">';
-					$out.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onClick="if(!confirm(\'Are you sure you want to delete this device?\'))return false;"></td>
+					$out.='<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Adv"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"> <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onClick="if(!confirm(\'Are you sure you want to delete this device?\'))return false;"></td>
 				</tr>';
 			}
 			$out.='
@@ -283,12 +273,15 @@ function devices($output,$dbADO) {
 					<td colspan="5" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
 				</tr>';
 			}
+			
+			$addGC100Btn=($type=='interfaces')?' <input type="submit" class="button" name="addGC100" value="Add gc100">':'';
+			
 			$out.='
 				<tr>
 					<td colspan="5">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="5" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.devices.action.value=\'externalSubmit\';document.devices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="5" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.devices.action.value=\'externalSubmit\';document.devices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">'.$addGC100Btn.'</td>
 				</tr>
 			</table>
 		</form>
@@ -314,7 +307,16 @@ function devices($output,$dbADO) {
 			}
 		}
 		
-		if(isset($_POST['update']) || $action=='externalSubmit'){
+		$msg='';
+		if(isset($_POST['update']) || $action=='externalSubmit' || isset($_POST['addGC100'])){
+			if(isset($_POST['addGC100'])){
+				$infraredPlugIn=getInfraredPlugin($installationID,$dbADO);
+				
+				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$infraredPlugIn.' 1 276';
+				exec($commandToSend);
+				$msg='Command to detect gc100 was sent: '.$commandToSend;
+			}
+			
 			setDCERouterNeedConfigure($installationID,$dbADO);
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
@@ -352,6 +354,7 @@ function devices($output,$dbADO) {
 					}
 				}
 			}
+			$msg.='<br>Devices updated.';
 		}
 		
 		if(isset($_REQUEST['add'])){
@@ -364,7 +367,7 @@ function devices($output,$dbADO) {
 			header("Location: index.php?section=devices&type=$type&lastAdded=$deviceTemplate");
 			exit();
 		}
-		header("Location: index.php?section=devices&type=$type");		
+		header("Location: index.php?section=devices&type=$type&msg=".urlencode($msg));
 	}
 
 	$output->setScriptCalendar('null');
@@ -372,31 +375,5 @@ function devices($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
-}
-
-function PortForHumans($device,$deviceNames)
-{
-	$devname = substr(strrchr($device, '/'), 1);
-
-	if (strstr($devname, "ttyS") === $devname)
-	{
-		$devid = substr($devname, 4);
-		if ($devid{0} === "_")
-		{
-			# it's a virtual serial port
-			list($PK_Device, $number) = split("_", substr($devid, 1));
-			$number++;
-			# TODO: translate $PK_Device to actual device name
-			return "Port $number on 'device ".@$deviceNames[$PK_Device]."'";
-		}
-		else
-		{
-			# it's a hardware serial port on the Core
-			$number = $devid + 1;
-			return "$devname | COM$number";
-		}
-	}
-	
-	return "Unknown: $devname";
 }
 ?>
