@@ -109,11 +109,11 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 #ifndef WIN32
 		// Try to load the package
 		SQL = "SELECT Name from Package_Source JOIN RepositorySource on FK_RepositorySource=PK_RepositorySource WHERE FK_Package="
-			+ StringUtils::itos(iPK_Package) + " AND FK_RepositoryType=1"
+			+ StringUtils::itos(iPK_Package) + " AND FK_RepositoryType=1";
 			
 		if( ( resultPackage.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( resultPackage.r ) ) && row[0] )
 		{
-			string sCommand = "apt-get install " + row[0];
+			string sCommand = "apt-get install " + string(row[0]);
 			g_pPlutoLogger->Write(LV_STATUS,"Running %s",sCommand.c_str());
 			system(sCommand.c_str());
 		}
