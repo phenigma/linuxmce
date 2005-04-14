@@ -1657,6 +1657,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 {
 	pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
 
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex ); //this will protect m_vectObjs_NeedRedraw and will prevent a deadlock (datagridmutex and screenmutex)
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     if(  pCell->m_pMessage  )
     {
@@ -1704,7 +1705,6 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
             pDesignObj_DataGrid->bReAcquire=true;
             if(  bRefreshGrids  )
 			{
-				PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
                 m_vectObjs_NeedRedraw.push_back( pDesignObj_DataGrid );
 			}
         }
