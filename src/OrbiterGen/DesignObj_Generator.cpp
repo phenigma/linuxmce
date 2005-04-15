@@ -1663,7 +1663,7 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
         }
         else if( sVariable[0]=='T' && sVariable.length()>1 )  // <%=T592%> means text object 592
         {
-            int PK_Text = atoi(sVariable.substr(2).c_str());
+            int PK_Text = atoi(sVariable.substr(1).c_str());
 			Row_Text_LS *pRow_Text_LS = CGText::GetText_LS(PK_Text,m_pOrbiterGenerator);
 
             if( !pRow_Text_LS  )
