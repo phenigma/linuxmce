@@ -561,25 +561,27 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_DIGITALLOGIC_MEC] = {
 		.name           = "Digital-Logic MICROSPACE Entertainment Center (MEC)",
 		.tuner_type     = 38,
-		.tda9887_conf   = TDA9887_PRESENT | TDA9887_QSS,
+		.tda9887_conf   = TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
-			.gpio0  = 0x0000bde2, //0x0000bde6 9c80 8480
-			.gpio1  = 0x0000002a,
-			.gpio2  = 0x0000009d,
+			// .gpio0  = 0x0000bde2, //0x0000bde6 9c80 8480
+			// .gpio0   = 0x00009d82, // This works
+			.gpio0	= 0x00008580,
+			// .gpio1  = 0x0000002a,
+			// .gpio2  = 0x0000009d,
 		},{
 			.type   = CX88_VMUX_COMPOSITE1,
 			.vmux   = 1,
-			.gpio0  = 0x0000bd66, // 04
-			.gpio1  = 0x00000075,
-			.gpio2  = 0x000000dd,
+			.gpio0  = 0x00009d80, // 04
+			// .gpio1  = 0x00000075,
+			// .gpio2  = 0x000000dd,
 		},{
 			.type   = CX88_VMUX_SVIDEO,
 			.vmux   = 2,
-			.gpio0  = 0x0000bd66, // 04
-			.gpio1  = 0x00000000,
-			.gpio2  = 0x00000001,
+			.gpio0  = 0x00009c80, // 04
+			// .gpio1  = 0x00000000,
+			// .gpio2  = 0x00000001,
 		}},
 		.radio = {
 			.type   = CX88_RADIO,
