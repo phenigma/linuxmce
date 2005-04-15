@@ -1322,6 +1322,10 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 
 	if( pOH_Orbiter )
 		pOH_Orbiter->m_tRegenTime = 0;
+
+	g_pPlutoLogger->Write(LV_STATUS,"Ready to reload the orbiter with id %d", iPK_Device);
+	Message *pMessageOut = new Message(m_dwPK_Device, iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
+	SendMessageToRouter(pMessageOut);
 }
 
 //<-dceag-createinst-b->!

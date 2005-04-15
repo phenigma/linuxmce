@@ -1083,7 +1083,9 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 	if(m_bQuit)
 		return;
 
+if(pScreenHistory)
 g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s",pScreenHistory->m_pObj->m_ObjectID.c_str());
+
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     m_vectObjs_GridsOnScreen.clear(  );
 	m_vectObjs_VideoOnScreen.clear(  );
