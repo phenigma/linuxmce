@@ -20,7 +20,7 @@ using namespace DCE;
 #define MOTION_CONF_PATH	"/etc/motion/"
 #define MOTION_CONF_FILE	"motion.conf"
 
-#define SNAPSHOT_SLEEP_TIME	100
+#define SNAPSHOT_SLEEP_TIME	500
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -268,7 +268,7 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 					<< "text_changes on" << endl
 					<< "text_right %d-%m-%Y\\n%T" << endl
 					/* movies */ << endl
-//					<< "ffmpeg_cap_new on" << endl
+					<< "ffmpeg_cap_new off" << endl
 //					<< "ffmpeg_timelapse 60" << endl
 //					<< "ffmpeg_timelapse_mode daily" << endl
 //					<< "ffmpeg_video_codec mpeg1" << endl
@@ -278,6 +278,7 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 					<< "jpeg_filename %Y/%m/%d/%H/%M_%S" << endl
 //					<< "ffmpeg_filename %Y/%m/%d/%H/%M_%S" << endl
 //					<< "timelapse_filename %Y/%m/%d-timelapse" << endl
+					<< "quiet on" << endl
 					<< endl << endl;
 	} catch(ifstream::failure e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot open %s for writing...", sPath.c_str());
