@@ -168,6 +168,11 @@ namespace StringUtils
 
 	string GetStringFromConsole(); /** < Let's the user enter a string terminated by a carriage return */
 
+	/** < Convert space delimited string to arguments, like on a command line.  Use " to include spaces 
+		  There's a hardcoded limit of 500 arguments */
+	char **ConvertStringToArgs(string sInput,int &iNumArgs); 
+	void FreeArgs(char **pArgs,int iNumArgs);
+
 	time_t StringToDate(string Value);  /** < Converts a date/time as a string to a time_t */
 
 	string GetDow( int iDow, bool bFull=false );  /** < Returns the name of the day of the week based on the integer.  If bFull, it is not abbreviated */

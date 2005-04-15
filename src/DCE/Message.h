@@ -188,6 +188,11 @@ namespace DCE
         Message( string sMessageInStringFormat );
 
         /**
+         * @brief this allows for a message coming in from command line arguments
+         */
+		Message( int iNumArgs, char *cArguments[], int targetType, int dwPK_DeviceFrom=0 );
+
+        /**
          * @brief just calls the Clear method
          * @see the Message::Clear() method
          */

@@ -102,43 +102,102 @@ Message::Message( Message *pMessage_Clone )
     }
 }
 
+Message::Message( int iNumArgs, char *cArguments[], int targetType, int dwPK_DeviceFrom )
+{
+    Clear();
+
+	m_dwPK_Device_From = dwPK_DeviceFrom ? dwPK_DeviceFrom : atoi(cArguments[0]);
+	string sDeviceTo=cArguments[1];
+	m_dwMessage_Type=atoi(cArguments[2]);
+	m_dwID=atoi(cArguments[3]);
+	m_dwPriority = PRIORITY_NORMAL;
+	m_bIncludeChildren = true;
+	m_eBroadcastLevel = BL_SameHouse;
+
+	if( targetType==1 )
+	{
+	    m_dwPK_Device_To = DEVICEID_CATEGORY;
+	    m_dwPK_Device_Category_To = atoi(sDeviceTo.c_str());
+	}
+	else if( targetType==2)
+	{
+	    m_dwPK_Device_To = DEVICEID_MASTERDEVICE;
+		m_dwPK_Device_Template = atoi(sDeviceTo.c_str());
+	}
+	else if( sDeviceTo.find(",")!=string::npos )
+	{
+		m_dwPK_Device_To = DEVICEID_LIST;
+		m_sPK_Device_List_To = sDeviceTo;
+	}
+	else
+	    m_dwPK_Device_To = atoi(sDeviceTo.c_str());
+
+    for(int i=4; i<iNumArgs; i+=2)
+    {
+		enum { ptNormal, ptData, ptBinary, ptText, ptOut } eType = ptNormal;
+
+        char *pParamID = cArguments[i];
+		if( pParamID[0]=='D' )
+		{
+			pParamID++;
+			eType=ptData;
+		}
+		else if( pParamID[0]=='B' )
+		{
+			pParamID++;
+			eType=ptBinary;
+		}
+		else if( pParamID[0]=='T' )
+		{
+			pParamID++;
+			eType=ptText;
+		}
+		int ParamNum = atoi(pParamID);
+
+		size_t tSizeParmValue = 0;
+		char *pParmValue = cArguments[i+1];
+		if( eType==ptBinary || eType==ptText )
+		{
+			char *pFileName = pParmValue;
+			pParmValue = FileUtils::ReadFileIntoBuffer( pFileName, tSizeParmValue );
+			if( !pParmValue )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Message Parm cannot read file: %s",pFileName);
+				continue;
+			}
+		}
+		else
+		{
+			// This is assumed to not be deleted here
+			pParmValue = strdup(pParmValue);
+			if( eType==ptData )
+				tSizeParmValue = strlen( pParmValue );
+		}
+
+		if( !pParmValue )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Bad value for parameter ID: %d",ParamNum);
+			return;
+		}
+		if( eType==ptData || eType==ptBinary )
+		{
+			m_mapData_Parameters[ParamNum] = pParmValue;
+			m_mapData_Lengths[ParamNum] = tSizeParmValue;
+		}
+		else
+			m_mapParameters[ParamNum] = pParmValue;
+    }
+	
+	m_pcDataBlock = NULL; // Be sure the SerializeClass destructor doesn't also try to delete this
+}
+
 Message::Message( string sMessageInStringFormat )
 {
-    vector<string> vectTokens;
+    Clear();
+	int iNumArgs;
+	char **pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat,iNumArgs);
 
-    StringUtils::Tokenize(sMessageInStringFormat, " ", vectTokens);
-    if ( vectTokens.size() < 4 )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Too few tokens found %d while parsing the message \"%s\". I need at least 4: From, To, Type, ID. Leaving message emtpy!", vectTokens.size());
-        return;
-    }
-
-
-    m_dwPK_Device_From = atoi(vectTokens[0].c_str()); // From
-    m_dwPK_Device_To = atoi(vectTokens[1].c_str()); // To
-    m_dwMessage_Type = atoi(vectTokens[2].c_str()); // Type
-    m_dwID =  atoi(vectTokens[3].c_str()); // ID
-
-    if ( (vectTokens.size() % 2) == 1 )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "The message: \"%s\" can't be coverted to a string reliably (invalid number of parameters). Ignoring the last one.", sMessageInStringFormat.c_str());
-    }
-
-    int nPos = 4;
-    while ( nPos < vectTokens.size() )
-    {
-        int paramNum = atoi(vectTokens[nPos].c_str());
-
-        if ( paramNum < 0 )
-            paramNum = -paramNum;
-
-        if ( paramNum == 0 )
-            g_pPlutoLogger->Write(LV_CRITICAL, "Parameter ID: \"%s\" was converted to 0", vectTokens[nPos].c_str() );
-
-        m_mapParameters[paramNum] = vectTokens[nPos + 1];
-
-        nPos += 2;
-    }
+	// TODO; call the args constructor
 }
 
 Message::Message( long dwDeviceIDFrom, long dwDeviceIDTo, long dwPriority, long dwMessageType, long dwID, unsigned long dwParameterCount, ... )
@@ -304,7 +363,8 @@ void Message::Clear()
 	map<long, char *>::iterator i;
 	for(i=m_mapData_Parameters.begin();i!=m_mapData_Parameters.end();++i)
 	{
-		delete [] (*i).second; 
+		if( (*i).second )
+			delete [] (*i).second;
 	}
 
 	m_mapData_Parameters.clear();

@@ -666,6 +666,53 @@ string StringUtils::GetDow( int iDow, bool bFull )
 	return "";
 }
 
+char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs)
+{
+	iNumArgs=0;
+	char **pArgs = new char*[500];
+	const char *pc_str = sInput.c_str();
+
+	string::size_type pos_start=0,pos_end;
+
+	while(pos_start<sInput.size())
+	{
+		// trim spaces
+		while(sInput[pos_start]==' ' && pos_start<sInput.size())
+			pos_start++;
+
+		pos_end=sInput.find(' ',pos_start);
+
+		// Starting some new "
+		int TerminatingQuote=0;
+		if( sInput[pos_start]=='"' && pos_end!=string::npos )
+		{
+			TerminatingQuote=1;
+			pos_start++;
+			while( sInput[pos_end-1]!='"' && pos_end!=string::npos && pos_end<sInput.size() )
+				pos_end=sInput.find(' ',pos_end+1);
+		}
+
+		if( pos_end==string::npos )
+			pos_end = sInput.size();
+
+		char *pString = new char[pos_end-pos_start+1-TerminatingQuote];
+		strncpy(pString,&pc_str[pos_start],pos_end-pos_start-TerminatingQuote);
+		pString[pos_end-pos_start-TerminatingQuote]=0;
+		pArgs[iNumArgs++]=pString;
+		pos_start=pos_end+1;  // This will either be a final " or a space.  We skip leading spaces anyway
+	}
+
+	return pArgs;
+}
+
+void StringUtils::FreeArgs(char **pArgs,int iNumArgs)
+{
+	for(int i=0;i<iNumArgs;++i)
+		delete[] pArgs[i];
+
+	delete[] pArgs;
+}
+
 #endif //#ifndef SYMBIAN
 
 

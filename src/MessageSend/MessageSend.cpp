@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 	bool bResponseRequired=false,bOutParams=false;
 	while( argv[baseMessageSpecPos][0]=='-' )
 	{
-		if ( strcmp(argv[baseMessageSpecPos], "-targetType") == 0 )
+		if ( stricmp(argv[baseMessageSpecPos], "-targetType") == 0 )
 		{
 			if ( strcmp(argv[baseMessageSpecPos+1], "category") == 0 )
 				targetType = 1;
@@ -73,85 +73,16 @@ int main(int argc, char *argv[])
 			bOutParams=true;
 			baseMessageSpecPos++;
 		}
-	}
-
-    string ServerAddress=argv[baseMessageSpecPos + 0];
-    int msgFrom=atoi(argv[baseMessageSpecPos + 1]);
-	int msgTo=atoi(argv[baseMessageSpecPos + 2]);
-	int msgType=atoi(argv[baseMessageSpecPos + 3]);
-	int msgID=atoi(argv[baseMessageSpecPos + 4]);
-
-	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, ServerAddress);
-    Message *pMsg;
-
-	switch ( targetType )
-	{
-		case 0: // the destination is not an actual device.
-			pMsg = new Message(msgFrom, msgTo, PRIORITY_NORMAL, msgType, msgID, 0);
-			break;
-		case 1: // the target is a category
-			pMsg = new Message(msgFrom, msgTo, true, BL_SameHouse,  PRIORITY_NORMAL, msgType, msgID, 0);
-			break;
-		case 2:
-			pMsg = new Message(msgFrom, msgTo, BL_SameHouse,  PRIORITY_NORMAL, msgType, msgID, 0);
-			break;
-	}
-
-	if ( pMsg == NULL )
-	{
-		cout << "Could not parse command line params. Exiting!" << endl;
-		exit(100);
-	}
-
-    for(int i=baseMessageSpecPos + 5; i<argc; i+=2)
-    {
-		enum { ptNormal, ptData, ptBinary, ptText, ptOut } eType = ptNormal;
-
-        char *pParamID = argv[i];
-		if( pParamID[0]=='D' )
-		{
-			pParamID++;
-			eType=ptData;
-		}
-		else if( pParamID[0]=='B' )
-		{
-			pParamID++;
-			eType=ptBinary;
-		}
-		else if( pParamID[0]=='T' )
-		{
-			pParamID++;
-			eType=ptText;
-		}
-		int ParamNum = atoi(pParamID);
-
-		size_t tSizeParmValue = 0;
-		char *pParmValue = argv[i+1];
-		if( eType==ptBinary || eType==ptText )
-		{
-			pParmValue = FileUtils::ReadFileIntoBuffer( pParmValue, tSizeParmValue );
-			if( !pParmValue )
-			{
-				cerr << "Cannot read file: " << pParmValue << endl;
-				exit(1);
-			}
-		}
-		else if( eType==ptData )
-			tSizeParmValue = strlen( pParmValue );
-
-		if( !pParmValue )
-		{
-			cerr << "Bad value for parameter ID: " << ParamNum << endl;
-			return -1;
-		}
-		if( eType==ptData || eType==ptBinary )
-		{
-			pMsg->m_mapData_Parameters[ParamNum] = pParmValue;
-			pMsg->m_mapData_Lengths[ParamNum] = tSizeParmValue;
-		}
 		else
-			pMsg->m_mapParameters[ParamNum] = pParmValue;
-    }
+		{
+			cerr << "Unknown argument: " << argv[baseMessageSpecPos] << endl;
+		}
+	}
+
+    string ServerAddress=argv[baseMessageSpecPos++];
+	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, ServerAddress);
+
+    Message *pMsg=new Message(argc-baseMessageSpecPos,&argv[baseMessageSpecPos],targetType);
 
 	// We need a response.  It will be a string if there are no out parameters
 	if( !bOutParams )
@@ -203,6 +134,7 @@ int main(int argc, char *argv[])
 			fclose(file);
 		}
 	}
+
 
     Sleep(50);
 #ifdef _WIN32
