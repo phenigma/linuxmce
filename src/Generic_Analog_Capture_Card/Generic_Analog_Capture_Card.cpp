@@ -268,7 +268,7 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 					<< "text_changes on" << endl
 					<< "text_right %d-%m-%Y\\n%T" << endl
 					/* movies */ << endl
-					<< "ffmpeg_cap_new off" << endl
+//					<< "ffmpeg_cap_new off" << endl
 //					<< "ffmpeg_timelapse 60" << endl
 //					<< "ffmpeg_timelapse_mode daily" << endl
 //					<< "ffmpeg_video_codec mpeg1" << endl
