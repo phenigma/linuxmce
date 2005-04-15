@@ -169,7 +169,7 @@ Constructors/Destructor
 Orbiter::Orbiter( int DeviceID,  string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight )
 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
 m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
-m_MaintThreadMutex("MaintThread")
+m_MaintThreadMutex("MaintThread"), m_NeedRedrawVarMutex( "need redraw variables" )
 //<-dceag-const-e->
 
 {
@@ -196,6 +196,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_VariableMutex.Init( &m_MutexAttr );
     m_ScreenMutex.Init( &m_MutexAttr );
     m_DatagridMutex.Init( &m_MutexAttr );
+	m_NeedRedrawVarMutex.Init( &m_MutexAttr );
 
     m_dwIDataGridRequestCounter=0;
 
@@ -264,10 +265,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	}
 	m_mapObj_All.clear();
 
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	m_vectTexts_NeedRedraw.clear();
 	m_vectObjs_NeedRedraw.clear();
-	cm.Release();
+	nd.Release();
 
 	m_vectObjs_TabStops.clear();
 	m_vectObjs_Selected.clear();
@@ -363,6 +364,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	pthread_mutex_destroy(&m_VariableMutex.mutex);
 	pthread_mutex_destroy(&m_DatagridMutex.mutex);
 	pthread_mutex_destroy(&m_MaintThreadMutex.mutex);
+	pthread_mutex_destroy(&m_NeedRedrawVarMutex.mutex);
 }
 
 //<-dceag-reg-b->
@@ -502,9 +504,10 @@ void Orbiter::RealRedraw( void *data )
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
     if(  m_bRerenderScreen  )
     {
+		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
         m_vectObjs_NeedRedraw.clear();
 		m_vectTexts_NeedRedraw.clear();
-		//m_vectObjs_Selected.clear();
+		nd.Release();
 
         RenderScreen(  );
 		m_bRerenderScreen = false;
@@ -512,6 +515,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
         return;
     }
 
+	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	g_pPlutoLogger->Write( LV_CONTROLLER, "I won't render the whole screen. Objects to be rendered: %d, texts to be rendered: %d",	m_vectObjs_NeedRedraw.size(), m_vectTexts_NeedRedraw.size()	);
 
     if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0)
@@ -1175,7 +1179,11 @@ void Orbiter::ObjectOnScreenWrapper(  )
     // ObjectOnSCreen will reset the hidden flags,  and CheckSpecial may set an object to hidden,  so do them in this order
     VectDesignObj_Orbiter vectDesignObj_Orbiter_OnScreen;
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
+
+	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
     m_vectObjs_NeedRedraw.clear(  );
+	nd.Release();
+
     m_vectObjs_Selected.clear(  );
     m_vectObjs_TabStops.clear(  );
     m_mapDevice_Selected.clear(  );
@@ -1404,7 +1412,11 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
         if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
         {
             pObj->m_GraphicToDisplay=GRAPHIC_SELECTED;
+
+			PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
             m_vectObjs_NeedRedraw.push_back( pObj );
+			nd.Release();
+
             if(  pObj->m_ObjectID.find( "2715" )!=string::npos  )
                 //if(  pObj->m_iBaseObjectID == 2707  )
             {
@@ -1454,7 +1466,9 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 						g_pPlutoLogger->Write(LV_STATUS, "State reseted for object with id %s",
 							pObj_Sel->m_ObjectID.c_str());
 
+						PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
                         m_vectObjs_NeedRedraw.push_back( pObj_Sel );
+						nd.Release();
                     }
                 }
                 m_vectObjs_Selected.clear(  );
@@ -1477,7 +1491,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
             // There's a problem when you select the video button.  The music button was already selected,  and saved a snapshop in the 'savebackgroundfordeselect'.
             // The new video objects are drawn,  then the deselected music object,  which includes a snapshot of the music datagrid.  If I put refresh in the video object
             // it has no effect,  since the commands are executed before the deselect state.  Until we find a solution,  hack in a redraw after resetting the video state
-            PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+            PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 			m_vectObjs_NeedRedraw.push_back( m_pScreenHistory_Current->m_pObj );
         }
         /*
@@ -1623,7 +1637,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
                     {
                         if ( RenderCell( ( DesignObj_DataGrid * )pDesignObj_DataGrid,  pT,  pCell,  j,  i ,  GRAPHIC_NORMAL ) )
 						{
-							PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+							PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
                             m_vectObjs_NeedRedraw.push_back( pDesignObj_DataGrid );
 						}
                         bFinishLoop = true;
@@ -1659,7 +1673,6 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 {
 	pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
 
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex ); //this will protect m_vectObjs_NeedRedraw and will prevent a deadlock (datagridmutex and screenmutex)
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     if(  pCell->m_pMessage  )
     {
@@ -1707,6 +1720,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
             pDesignObj_DataGrid->bReAcquire=true;
             if(  bRefreshGrids  )
 			{
+				PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
                 m_vectObjs_NeedRedraw.push_back( pDesignObj_DataGrid );
 			}
         }
@@ -1915,8 +1929,10 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
         if( !pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base ||
 			m_iLastEntryInDeviceGroup>=(int) pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base->m_vectDeviceGroup.size()-1 )
         {
-			PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+			PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 			m_vectObjs_NeedRedraw.push_back((DesignObj_Orbiter *) pDesignObj_Orbiter->m_pParentObject);
+			nd.Release();
+
             m_mapDevice_Selected.clear();
             m_pObj_LastSelected=NULL;
             m_iLastEntryInDeviceGroup=-1;  // Start at the beginning
@@ -1973,7 +1989,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
     Invalidate();
     return;
 */
-	PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
+	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	m_vectObjs_NeedRedraw.push_back(pDesignObj_Orbiter);
 
     RedrawObjects();
@@ -2268,7 +2284,9 @@ int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
 					vectObj_SelectedGrids.push_back(pDesignObj_DataGrid);
 				}
             }
+			PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
             m_vectObjs_NeedRedraw.push_back( pDesignObj_DataGrid );
+			nd.Release();
         }
     }
     dg.Release(  );
@@ -2326,9 +2344,11 @@ int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
 
     m_pObj_Highlighted = pNextObject;
 
+	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
     m_vectObjs_NeedRedraw.push_back( m_pObj_Highlighted );
     if(  pDesignObj_Orbiter_OriginallyHighlight  )
         m_vectObjs_NeedRedraw.push_back( pDesignObj_Orbiter_OriginallyHighlight );
+	nd.Release();
 }
 
 
@@ -3271,9 +3291,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
 
 			if(bHandled)
 			{
-				if(NULL != m_pCaptureKeyboard_Text->m_pObject)
+				if(NULL != m_pCaptureKeyboard_Text && NULL != m_pCaptureKeyboard_Text->m_pObject)
 				{
-					PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+					PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 					m_vectObjs_NeedRedraw.push_back(m_pCaptureKeyboard_Text->m_pObject);
 				}
 			}
@@ -3306,8 +3326,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
                         if( 0 == Text.find( m_sCaptureKeyboard_InternalBuffer ) ) //we have a match,  Text starts with m_sCaptureKeyboard_InternalBuffer
                         {
                             pDataGrid->m_iHighlightedRow = i;
-							PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+							
+							PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
                             m_vectObjs_NeedRedraw.push_back( pDataGrid );
+							nd.Release();
 
                             //selected
                             bHandled = true;
@@ -3763,7 +3785,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Parm %d = %s",( *iap ).first,Value.c_str());
             pDesignObj_DataGrid->bReAcquire=true;
         }
 
-		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
         m_vectObjs_NeedRedraw.push_back( m_pScreenHistory_Current->m_pObj );
     }
 }
@@ -4245,7 +4267,10 @@ void Orbiter::DeselectObjects( void *data )
     if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED  )
     {
         pObj->m_GraphicToDisplay=GRAPHIC_NORMAL;
+
+		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
         m_vectObjs_NeedRedraw.push_back( pObj );
+		nd.Release();
 
         // Remove it from the list
         for( vector<class DesignObj_Orbiter *>::iterator it=m_vectObjs_Selected.begin(  );it!=m_vectObjs_Selected.end(  );++it )
@@ -4571,10 +4596,12 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
         pObj->m_bHidden = !bShow;
 g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
 
-		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	    m_vectObjs_NeedRedraw.push_back( pObj );  // Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 		if( pObj->m_bHidden && pObj->m_pParentObject )
 			m_vectObjs_NeedRedraw.push_back( (DesignObj_Orbiter *) pObj->m_pParentObject  );
+		nd.Release();
+
     }
 	else
 g_pPlutoLogger->Write( LV_STATUS, "Ignoring show object for %s",sPK_DesignObj.c_str() );
@@ -4667,7 +4694,10 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 
         if ( pObj_Datagrid && pObj_Datagrid->m_pDataGridTable )
         {
+			PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
             m_vectObjs_NeedRedraw.push_back( pObj_Datagrid );
+			nd.Release();
+
             if(  sRelative_Level=="-1"  )
             {
                 if(  iPK_Direction == DIRECTION_Up_CONST  )
@@ -4777,7 +4807,10 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 		if(pDesignObj->m_sGridID == sDataGrid_ID)
 		{
 			pDesignObj->bReAcquire=true;
+
+			PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 			m_vectObjs_NeedRedraw.push_back(pDesignObj);
+			nd.Release();
 		}
 	}
 
@@ -4865,7 +4898,9 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
         m_vectObjs_Selected.push_back( pObj );
     }
 
+	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	m_vectObjs_NeedRedraw.push_back(pObj);
+	nd.Release();
 }
 
 //<-dceag-c20-b->
@@ -5000,7 +5035,7 @@ void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string
 
     if(  pObj->m_bOnScreen  )
 	{
-		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
         m_vectObjs_NeedRedraw.push_back( pObj );
 	}
 }
@@ -5032,7 +5067,10 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sType,string &sC
 		pObj->m_bDontResetState=true;
 		pObj->m_GraphicToDisplay = iValue;
 		if( pObj->m_bOnScreen )
+		{
+			PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 			m_vectObjs_NeedRedraw.push_back(pObj);
+		}
 	}
 }
 
@@ -5177,6 +5215,8 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
 
     if (  sDisable_Aspect_Lock.length(  )  )
         pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
+
+	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
     m_vectObjs_NeedRedraw.push_back( pObj );
 }
 
@@ -5484,7 +5524,10 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
         m_pCaptureKeyboard_Text->m_sText = NewValue;
 
 		if( NULL != m_pCaptureKeyboard_Text )
+		{
+			PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 			m_vectTexts_NeedRedraw.push_back( m_pCaptureKeyboard_Text );
+		}
 		else
 			m_bRerenderScreen = true;
 
@@ -5508,7 +5551,10 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
         m_pCaptureKeyboard_Text->m_sText = NewValue;
 
 		if( NULL != m_pCaptureKeyboard_Text )
+		{
+			PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 			m_vectTexts_NeedRedraw.push_back( m_pCaptureKeyboard_Text );
+		}
 		else
 			m_bRerenderScreen = true;
     }
@@ -5907,11 +5953,13 @@ string Orbiter::GetCurrentScreenID()
 void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
 //<-dceag-c258-e->
 {
-    PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 	m_mapDevice_Selected.clear();
 	DesignObj_Orbiter *pObj=NULL;
 	if( sPK_DesignObj.length() && (pObj=FindObject(sPK_DesignObj))!=NULL )
+	{
+		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 		m_vectObjs_NeedRedraw.push_back(pObj);
+	}
 }
 
 /*virtual*/ void Orbiter::RenderGraphic(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio)

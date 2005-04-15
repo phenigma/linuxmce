@@ -114,6 +114,7 @@ public:
 	*/
 	virtual bool SelfUpdate() { return false; };
 
+	pluto_pthread_mutex_t m_NeedRedrawVarMutex; //this will protect needredraw vectors
 	pluto_pthread_mutex_t m_MaintThreadMutex;  // This will also protect the callback map
 	pthread_cond_t m_MaintThreadCond;
 
