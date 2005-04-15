@@ -27,7 +27,7 @@ if($userID!=0){
 	}
 	$mlNames=array();
 	while($row=$resML->FetchRow()){
-		$mlNames[$row['PK_MailingList']]=$row['Description'];
+		$mlNames[$row['PK_MailingList']]=substr($row['EmailField'],0,strpos($row['EmailField'],'@'));
 		
 		// ask ML for emails assigned and compare with DB; 
 		// database corrections if necessary 
@@ -49,6 +49,7 @@ if($userID!=0){
 		}
 		$out.='<input type="checkbox" name="ml_'.$row['PK_MailingList'].'" value="1" '.(($row['FK_MasterUsers']!='')?'checked':'').'> '.$row['Description'].' ('.$row['EmailField'].')<br>';
 	}
+	
 	if(count($packageML)>0){
 		$out.='<input type="submit" name="subscribe" value="Subscribe">
 		<input type="hidden" name="mlNames" value="'.urlencode(serialize($mlNames)).'">
