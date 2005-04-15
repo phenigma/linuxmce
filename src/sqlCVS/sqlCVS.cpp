@@ -496,6 +496,8 @@ int main( int argc, char *argv[] )
 return 0;
 		};
 	}
+	catch( int *pException ) {}
+	/*
 	catch( char *pException )
 	{
 		cerr << "Caught exception: " << pException << endl;
@@ -517,7 +519,7 @@ return 0;
 		cerr << "Caught unknown exception" << endl;
 		exit(1);
 	}
-
+*/
 	delete g_pPlutoLogger;
 #ifdef _WIN32
 		WSACleanup( );

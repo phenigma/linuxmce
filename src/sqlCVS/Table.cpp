@@ -624,6 +624,12 @@ void Table::GetChanges( )
 
 			int iAutoIncrValue = iAutoIncrField>=0 ? atoi( row[iAutoIncrField] ) : 0;
 
+			if( row[1] && atoi(row[1])<1 )
+			{
+				cout << "Not checking in changes to table: " << m_sName << " psc_id: " << row[0] << " because it's batch: " << row[1] << " is still unauthorized" << endl;
+				continue;
+			}
+
 			ChangedRow *pChangedRow = new ChangedRow( this, eTypeOfChange, row[0] ? atoi( row[0] ) : 0, row[1] ? atoi( row[1] ) : 0, row[2] ? atoi( row[2] ) : 0, iAutoIncrValue, vectPrimaryKeys );
 			AddChangedRow( pChangedRow );
 		}
@@ -987,6 +993,8 @@ int k=2;
 				if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
 				{
 					// We're going to have to move the key.  This doesn't happen too often, so we'll just find the conflicting row the 'brute force' way
+					// It's possible the row that's conflicting is either a ChangedRow that we're checking in now,
+					// or an un-authorized one we checked in already.  This loop will see if it's one we're checking in
 					ChangedRow *pChangedRowToMove = NULL;
 					int iHighestUsedID=0; // We have to find the highest id so we can move the row outside
 					for(map<int, ListChangedRow *>::iterator it1=m_mapUsers2ChangedRowList.begin();it1!=m_mapUsers2ChangedRowList.end();++it1)
@@ -1001,21 +1009,27 @@ int k=2;
 							pChangedRowToMove=pChangedRow;  // We're going to keep going because we need to determine iHighestUsedID
 						}
 					}
-					// We found it -- quick sanity check
-					if( !pChangedRowToMove || pChangedRowToMove->m_bCommitted || pChangedRowToMove->m_eTypeOfChange!=toc_New || pChangedRowToMove->m_vectPrimaryKey.size()!=1 )
+					// We found it -- quick sanity check.  If it's one we're checking in, it must be a new record that we haven't committed yet,
+					// with 1 single auto increment primary key
+					if( pChangedRowToMove && 
+						(pChangedRowToMove->m_bCommitted || pChangedRowToMove->m_eTypeOfChange!=toc_New || pChangedRowToMove->m_vectPrimaryKey.size()!=1) )
 					{
 						cerr << "Something is wrong with re-allocating an auto incr primary key: " << r_CommitRow.m_iNewAutoIncrID << "-" << r_CommitRow.m_iOriginalAutoIncrID << endl;
 						throw "Internal error--data unexpected";
 					}
 					sSQL.str("");
-					sSQL << "UPDATE `" << m_sName << "` SET PK_" << m_sName << "=" << iHighestUsedID+1 << " WHERE PK_" << m_sName << "=" << pChangedRowToMove->m_iOriginalAutoIncrID;
+					sSQL << "UPDATE `" << m_sName << "` SET PK_" << m_sName << "=" << iHighestUsedID+1 << " WHERE PK_" << m_sName << "=" << r_CommitRow.m_iNewAutoIncrID;
 					if( m_pDatabase->threaded_mysql_query( sSQL.str() )!=0 )
 						throw "Internal error--query failed moving auto incr key";
 
-					m_mapUncommittedAutoIncrChanges[pChangedRowToMove->m_iOriginalAutoIncrID] = iHighestUsedID+1;
-					PropagateUpdatedField( m_pField_AutoIncrement, StringUtils::itos( iHighestUsedID+1 ), StringUtils::itos( pChangedRowToMove->m_iOriginalAutoIncrID ), pChangedRowToMove );
-					pChangedRowToMove->m_iOriginalAutoIncrID = iHighestUsedID+1;
-					pChangedRowToMove->m_vectPrimaryKey[0] = StringUtils::itos(iHighestUsedID+1);
+					PropagateUpdatedField( m_pField_AutoIncrement, StringUtils::itos( iHighestUsedID+1 ), StringUtils::itos( r_CommitRow.m_iNewAutoIncrID ), pChangedRowToMove );
+					if( pChangedRowToMove )
+					{
+						// These only apply if it's another row we're checking in
+						m_mapUncommittedAutoIncrChanges[pChangedRowToMove->m_iOriginalAutoIncrID] = iHighestUsedID+1;
+						pChangedRowToMove->m_iOriginalAutoIncrID = iHighestUsedID+1;
+						pChangedRowToMove->m_vectPrimaryKey[0] = StringUtils::itos(iHighestUsedID+1);
+					}
 				}
 
 				sSQL.str( "" );
