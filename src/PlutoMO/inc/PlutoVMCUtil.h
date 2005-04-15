@@ -60,8 +60,10 @@ public:
 		virtual bool ScrollListUp();
 		virtual bool ScrollListDown();
 		virtual bool ScrollListPartialMatch();
-		virtual bool ClearEdit();
 
+		virtual bool ClearEdit();
+		virtual bool ClearAllEdit();
+		
 		virtual bool SetVariable();
 		virtual bool SelectCurrentItem();
 

@@ -495,35 +495,39 @@ bool CPlutoVMCContainer::HandleCaptureKeyboardKeys(const TKeyEvent& aKeyEvent, T
 
 	//verify is there is an 'interesting' key
 	if(
-		!IsNumberKey(aKeyEvent)				&&
-		//BUTTON_Enter_CONST != KeyCode		&&
-		BUTTON_Phone_C_CONST != KeyCode		&&
-		BUTTON_Up_Arrow_CONST != KeyCode	&&
+		!IsNumberKey(aKeyEvent)					&&
+		BUTTON_Rept_Phone_C_CONST != KeyCode	&&
+		BUTTON_Phone_C_CONST != KeyCode			&&
+		BUTTON_Up_Arrow_CONST != KeyCode		&&
 		BUTTON_Down_Arrow_CONST != KeyCode
 	)
 	{
 		m_uLastKeyCode = 0;
-
 		pVMCUtil->SetVariable();
-
 		return false;  
 	}
 
 	//if user pressed 'Cancel' button and the text buffer is empty
 	if(
-		BUTTON_Phone_C_CONST == KeyCode									&&
+		(BUTTON_Phone_C_CONST == KeyCode || BUTTON_Rept_Phone_C_CONST == KeyCode)	&&
 		pVMCUtil->m_CaptureKeyboardParam.sVariableValue.length() == 0
 	)
 	{
 		m_uLastKeyCode = 0;
-
 		pVMCUtil->SetVariable();
-
 		return false; 
 	}
 
 	if(BUTTON_Phone_C_CONST == KeyCode)
 		if(pVMCUtil->ClearEdit())
+		{
+			pVMCUtil->m_bRedrawOnlyEdit = true;
+			pVMCUtil->m_bRedrawOnlyGrid = true;
+			m_bNeedRefresh = true;			
+		}
+
+	if(BUTTON_Rept_Phone_C_CONST == KeyCode)
+		if(pVMCUtil->ClearAllEdit())
 		{
 			pVMCUtil->m_bRedrawOnlyEdit = true;
 			pVMCUtil->m_bRedrawOnlyGrid = true;

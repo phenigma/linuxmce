@@ -3600,14 +3600,10 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
         else if( PK_Command==COMMAND_Simulate_Keypress_CONST && X==-1 && Y==-1 )
             continue;
 
-g_pPlutoLogger->Write(LV_STATUS, "~~~ pCommand->m_PK_DeviceTemplate = %d", pCommand->m_PK_DeviceTemplate);
-
         if(  pCommand->m_PK_DeviceTemplate  )
         {
             if(  pCommand->m_PK_DeviceTemplate<0  )
             {
-g_pPlutoLogger->Write(LV_STATUS, "~~~ handled internally");
-				
 				pCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;  // Set this to a temporary value,  so we'll know if it's changes at teh end of the if
 				pCommand->m_PK_Device = TranslateVirtualDevice(pCommand->m_PK_DeviceTemplate);
                 if(  pCommand->m_PK_Device==DEVICEID_NULL  )
@@ -3618,13 +3614,11 @@ g_pPlutoLogger->Write(LV_STATUS, "~~~ handled internally");
                 }
                 else if(  pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
 				{
-g_pPlutoLogger->Write(LV_STATUS, "~~~ It's not a virtual device we know how to handle.  Let the interceptors have it");
                     pCommand->m_PK_Device = pCommand->m_PK_DeviceTemplate; // It's not a virtual device we know how to handle.  Let the interceptors have it
 				}
             }
             else
 			{
-g_pPlutoLogger->Write(LV_STATUS, "~~~ deviceid : master device");
 				pCommand->m_PK_Device=DEVICEID_MASTERDEVICE;
 			}
         }
@@ -3636,7 +3630,6 @@ g_pPlutoLogger->Write(LV_STATUS, "~~~ deviceid : master device");
             // See if it's one we handle locally
             if(  m_bLocalMode || GetData(  )->m_mapCommands.find( PK_Command )!=GetData(  )->m_mapCommands.end(  )  )
             {
-g_pPlutoLogger->Write(LV_STATUS, "~~~ pCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;");
                 pCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;
             }
             else if( m_mapDevice_Selected.size() )

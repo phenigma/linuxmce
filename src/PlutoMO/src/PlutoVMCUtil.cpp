@@ -38,7 +38,7 @@
 #include "Logger.h"
 
 #ifdef __WINS__
-//#define TEST_DATAGRID
+#define TEST_DATAGRID
 #endif
 
 //------------------------------------------------------------------------------------------------------------------
@@ -853,6 +853,17 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 	for(int i = 0; i < s.length() - 1; i++)
 		m_CaptureKeyboardParam.sVariableValue += s[i];
 
+	ScrollListPartialMatch();
+
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ bool CPlutoVMCUtil::ClearAllEdit()
+{
+	if(m_CaptureKeyboardParam.sVariableValue.length() == 0)
+		return false;
+
+	m_CaptureKeyboardParam.sVariableValue = "";
 	ScrollListPartialMatch();
 
 	return true;
