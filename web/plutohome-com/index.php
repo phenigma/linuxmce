@@ -24,6 +24,7 @@ if (@$_SESSION['userIsLogged']!="yes"){
 			$_SESSION['categ']=$FirstAccount;
 			$_SESSION['Email']=$Email;
 			$_SESSION['extPassword']=$extPassword;
+			$_SESSION['userLoggedIn'] = true;
 		}
 	}
 }
