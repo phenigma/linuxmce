@@ -1,6 +1,6 @@
 <?php
 	session_start('Pluto');
-	
+
 	require('include/config/config.inc.php');
 	require('include/utils.inc.php');
 	require('include/masterusers.inc.php');

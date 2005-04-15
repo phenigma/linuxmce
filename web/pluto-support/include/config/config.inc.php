@@ -41,6 +41,8 @@
   	//database 
   	require_once("database.inc.php");
     
+  	// hard coded values
+	require_once("hardCoded.php");
   
   // do not change the following lines
    	$plutoHomeRegister=$PlutoHomeHost.'index.php?section=register';

@@ -27,6 +27,7 @@
 				$_SESSION['categ']=$FirstAccount;
 				$_SESSION['Email']=$Email;
 				$_SESSION['extPassword']=trim($extPassword);
+				$_SESSION['userLoggedIn'] = true;
 			}
 		}
 	}
@@ -211,6 +212,8 @@
 			$rightFile='home';
 			$rightParams='';
 		break;
+		
+		// pluto admin pages
 		case 'publicAdmin':
 			$leftFile='operations/leftHome';
 			$leftParams='';
@@ -218,15 +221,19 @@
 			$rightFile='operations/publicAdmin';
 			$rightParams='';
 		break;				
-		default:			
-			$out='{Invalid section}'.$section;	
+		default:
+			if(@file_exists('admin/'.$section.'.php')){
+				$out='no frames';
+				$popup='admin/'.$section.'.php';
+			}else
+				$out='{Invalid section}'.$section;	
 		break;
 	}
 	
 	
 	
 	// display frameset if no errors
-	if($out=='')
+	if($out==''){
 	$out='
 	<HTML>
 		<HEAD>
@@ -250,4 +257,15 @@
 	';
 	
 	print $out;
+	}else{
+		require_once('include/plutoAdminUtils.inc.php');
+			
+		$section=$_REQUEST['section'];
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('popup');
+		$publicADO = &ADONewConnection('mysql'); 
+  		$publicADO->NConnect($dbPlutoAdminServer,urlencode($dbPlutoAdminUser),urlencode($dbPlutoAdminPass),urlencode($dbPlutoAdminDatabase));
+  		
+		include_once($popup);
+	}
 ?>

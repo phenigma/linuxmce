@@ -1,7 +1,14 @@
 <?
+include_once('include/plutoAdminUtils.inc.php');
+
+  $publicADO = &ADONewConnection('mysql'); 
+  $publicADO->NConnect($dbPlutoAdminServer,urlencode($dbPlutoAdminUser),urlencode($dbPlutoAdminPass),urlencode($dbPlutoAdminDatabase));
+
+  
 /* @var $dbADO ADOConnection */
 global $PlutoHomeHost;
 $userID=(int)@$_SESSION['userID'];
+
 
 if($userID==0){
 	$out='
@@ -10,10 +17,9 @@ if($userID==0){
 	<p>This system allows the database to grow dynamically, and lets everyone build upon what others have done, but still provides a control mechanism so that other users cannot mess up what you have done.<br><br>
 	<p>If you do not want to be notified when other users change your device, you can freeze it (meaning no changes are allowed), or make it anonymous (meaning anyone can change it).';
 }else{
-	$out='
-	<script>
-		top.location="plutoadmin/index.php";
-	</script>';
+	$firstColLinks='';
+	
+	$out='<base target="_self">'.pickDeviceTemplate(NULL,1,1,1,0,0,$section,$firstColLinks,$publicADO,1);
 }
 
 $output->setBody($out);
