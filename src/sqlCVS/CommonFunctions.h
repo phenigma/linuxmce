@@ -35,7 +35,8 @@ namespace sqlCVS
 	{
 	public:
 		bool m_bWithoutPassword,m_bIsSupervisor;
-		ValidatedUser(bool bWithoutPassword,bool bIsSupervisor) { m_bWithoutPassword=bWithoutPassword; m_bIsSupervisor=bIsSupervisor; }
+		int m_psc_user;
+		ValidatedUser(int psc_user,bool bWithoutPassword,bool bIsSupervisor) { m_psc_user=psc_user; m_bWithoutPassword=bWithoutPassword; m_bIsSupervisor=bIsSupervisor; }
 	};
 	/**
 	 * @brief  class modelling the global configuration
@@ -149,7 +150,7 @@ cout << "validate user:" << psc_user << endl;
 				}
 				cout << "Validated user: " << psc_user << " Is sup: " << bSupervisor << endl;
 				bValidatedUser=true;
-				m_mapValidatedUsers[psc_user]=new ValidatedUser(bNoPassword,bSupervisor);
+				m_mapValidatedUsers[psc_user]=new ValidatedUser(psc_user,bNoPassword,bSupervisor);
 				if( bSupervisor )
 					bSupervisor=true;
 			}

@@ -562,7 +562,7 @@ bool Repository::CheckIn( )
 	{
 		ra_Processor.RemoveRequest( &r_CommitChanges ); /**< It's going to fall out of scope, so we don't want the processor to retry */
 		
-		cerr << "Unable to commit repository to server" << endl;
+		cerr << "Unable to commit repository to server:" << (int) r_CommitChanges.m_cProcessOutcome << endl;
 		delete pSocket;
 		pSocket=NULL;
 		if( r_CommitChanges.m_cProcessOutcome==LOGIN_FAILED )
@@ -683,7 +683,7 @@ bool Repository::Update( )
 	if( r_UpdateRepository.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 	{
 		ra_Processor.RemoveRequest( &r_UpdateRepository ); /**< It's going to fall out of scope, so we don't want the processor to retry */
-		cerr << "Unable to update repository" << endl;
+		cerr << "Unable to update repository: " << (int) r_UpdateRepository.m_cProcessOutcome << endl;
 		delete pSocket;
 		pSocket=NULL;
 		return false;

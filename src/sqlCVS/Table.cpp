@@ -493,7 +493,7 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 		 * It's going to fall out of scope, so we don't want the processor to retry sending a deleted request
 		 */
 		ra_Processor.RemoveRequest( &r_UpdateTable ); 
-		cerr << "Failed to update table: " << m_sName << endl;
+		cerr << "Failed to update table: " << m_sName << ":" << (int) r_UpdateTable.m_cProcessOutcome << endl;
 		return false;
 	}
 
@@ -764,7 +764,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 
 	if( r_GetAll_psc_id.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 	{
-		cerr << "Cannot get list of records from server" << endl;
+		cerr << "Cannot get list of records from server:" << (int) r_GetAll_psc_id.m_cProcessOutcome << endl;
 		throw "Communication error";
 	}
 	std::ostringstream sSQL;
@@ -868,7 +868,7 @@ int k=2;
 	if( r_CommitTable.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 	{
 		ra_Processor.RemoveRequest( &r_CommitTable ); /** It's going to fall out of scope, so we don't the processor to retry */
-		cerr << "Failed to commit table: " << m_sName << endl;
+		cerr << "Failed to commit table: " << m_sName << ":" << (int) r_CommitTable.m_cProcessOutcome << endl;
 		return false;
 	}
 
@@ -924,7 +924,7 @@ int k=2;
 			{
 					/** It's going to fall out of scope, so we don't want the processor to retry sending a deleted request */
 				ra_Processor.RemoveRequest( &r_CommitRow );
-				cerr << "Failed to commit row in table: " << m_sName << endl << r_CommitRow.m_sResponseMessage << endl;
+				cerr << "Failed to commit row in table: " << m_sName  << ":" << (int) r_CommitRow.m_cProcessOutcome << endl << r_CommitRow.m_sResponseMessage << endl;
 				return false;
 			}
 
@@ -972,6 +972,17 @@ int k=2;
 				}
 			}
 
+			if( r_CommitRow.m_psc_user_new && r_CommitRow.m_psc_user_new!=r_CommitRow.m_psc_user )
+			{
+				sSQL.str( "" );
+				sSQL << "UPDATE `" << m_sName << "` SET psc_user=" << r_CommitRow.m_psc_user_new << pChangedRow->GetWhereClause( );
+				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+				{
+					cerr << "SQL failed: " << sSQL.str( );
+					return false;
+				}
+			}
+
 			/** Do this last since the 2 above may be relying on the old primary key */
 			
 			if( r_CommitRow.m_iNewAutoIncrID && r_CommitRow.m_iNewAutoIncrID!=r_CommitRow.m_iOriginalAutoIncrID )
@@ -996,7 +1007,15 @@ int k=2;
 					// It's possible the row that's conflicting is either a ChangedRow that we're checking in now,
 					// or an un-authorized one we checked in already.  This loop will see if it's one we're checking in
 					ChangedRow *pChangedRowToMove = NULL;
+
 					int iHighestUsedID=0; // We have to find the highest id so we can move the row outside
+					std::ostringstream sSQL2;
+					sSQL2 << "SELECT max(" << m_pField_AutoIncrement->Name_get() << ") FROM `" << m_sName << "`";
+					PlutoSqlResult result_set_hi;
+					MYSQL_ROW row_hi=NULL;
+					if( ( result_set_hi.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row_hi = mysql_fetch_row(result_set_hi.r) ) )
+						iHighestUsedID = atoi(row[0]);
+
 					for(map<int, ListChangedRow *>::iterator it1=m_mapUsers2ChangedRowList.begin();it1!=m_mapUsers2ChangedRowList.end();++it1)
 					{
 						ListChangedRow *pListChangedRow = (*it1).second;
@@ -1097,6 +1116,9 @@ void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, strin
 
 void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable, sqlCVSprocessor *psqlCVSprocessor )
 {
+	// This will be true if we skip updating this row, likely because we already modified it locally and haven't checked in
+	bool bSkippingUpdate=false;
+
 	std::ostringstream sSQL;
 
 	cout << "Updating row id " << pA_UpdateRow->m_psc_id << " last sync: " << m_psc_id_last_sync << endl;
@@ -1158,16 +1180,51 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 	else
 	{
 		sSQL << "UPDATE `" << m_sName << "` SET ";
+		if( ModifiedRow(pA_UpdateRow->m_psc_id) &&
+				(!g_GlobalConfig.m_bNoPrompts || !AskYNQuestion("In Table " + m_sName + " psc_id: " + StringUtils::itos(pA_UpdateRow->m_psc_id)
+				+ " was modified on the server and locally.\nDelete your local changes?",false)) )
+			bSkippingUpdate=true;
 
+		// It's possible that an incoming row is going to use the same primary key as one 
+		// we added locally but haven't checked in yet, or isn't approved
+		int iAutoIncrementKeyValue=0;
+
+		// If SkippingUpdate is true, then we've modified local rows.  We will need to change only the psc_batch and psc_user
+		// and any auto increment primary key, since those are maintained by the server side
 		for( size_t s=0;s<pR_UpdateTable->m_pvectFields->size( );++s )
 		{
+			if( m_pField_AutoIncrement && (*pR_UpdateTable->m_pvectFields)[s]==m_pField_AutoIncrement->Name_get() )
+				iAutoIncrementKeyValue = atoi(pA_UpdateRow->m_vectValues[s].c_str());
+			else if( bSkippingUpdate )
+				continue;
+
 			sSQL << "`" << ( *pR_UpdateTable->m_pvectFields )[s] << "`="; 
 			if( pA_UpdateRow->m_vectValues[s]==NULL_TOKEN )
 				sSQL << "NULL, ";
 			else
 				sSQL << "'" << StringUtils::SQLEscape( pA_UpdateRow->m_vectValues[s] ) << "', ";
 		}
+
 		sSQL << "psc_batch=" << pA_UpdateRow->m_psc_batch << ", psc_user=" << (pA_UpdateRow->m_psc_user ? StringUtils::itos(pA_UpdateRow->m_psc_user) : "NULL") << " WHERE psc_id=" << pA_UpdateRow->m_psc_id;
+
+		// First do a quick check to be sure there's no other record using this primary key
+		if( iAutoIncrementKeyValue )
+		{
+			std::ostringstream sSQL2;
+			sSQL2 << "SELECT `" << m_pField_AutoIncrement->Name_get() << "` FROM `" << m_sName 
+				<< "` WHERE `" << m_pField_AutoIncrement->Name_get() << "`=" << iAutoIncrementKeyValue;
+
+			PlutoSqlResult result_set;
+			MYSQL_ROW row=NULL;
+			if( (result_set.r=m_pDatabase->mysql_query_result(sSQL2.str())) && 
+				(row = mysql_fetch_row(result_set.r)) )
+			{
+				// We've got a conflict
+				ReassignAutoIncrValue(iAutoIncrementKeyValue);
+			}
+		}
+
+
 		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 		{
 			cerr << "Failed to update row: " << sSQL.str( ) << endl;
@@ -1175,13 +1232,16 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 		}
 	}
 
-	// Reset the mod flag
-	sSQL.str( "" );
-	sSQL << "UPDATE `" << m_sName << "` SET psc_mod=0 WHERE psc_id=" << pA_UpdateRow->m_psc_id;
-	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	if( !bSkippingUpdate )
 	{
-		cerr << "SQL failed: " << sSQL.str( );
-		throw "cannot reset psc_mod";
+		// Reset the mod flag
+		sSQL.str( "" );
+		sSQL << "UPDATE `" << m_sName << "` SET psc_mod=0 WHERE psc_id=" << pA_UpdateRow->m_psc_id;
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		{
+			cerr << "SQL failed: " << sSQL.str( );
+			throw "cannot reset psc_mod";
+		}
 	}
 
 	if( pA_UpdateRow->m_psc_batch>m_psc_batch_last_sync )
@@ -1351,7 +1411,10 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	if( pR_CommitRow->m_psc_user )
 		sSQL << pR_CommitRow->m_psc_user;
 	else if( psqlCVSprocessor->m_ipsc_user_default )
+	{
 		sSQL << psqlCVSprocessor->m_ipsc_user_default;
+		pR_CommitRow->m_psc_user_new = psqlCVSprocessor->m_ipsc_user_default;
+	}
 	else
 		sSQL << "NULL";
 	
@@ -1443,7 +1506,7 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 			sSql << "SELECT * FROM " << m_sName << "_pschmask WHERE psc_batch=" << psc_batch;
 			PlutoSqlResult result_set2;
 			MYSQL_ROW row2=NULL;
-			if( ( result_set.r=m_pDatabase->mysql_query_result( sSql.str() ) )==NULL || ( row2 = mysql_fetch_row( result_set.r ) )==NULL )
+			if( ( result_set2.r=m_pDatabase->mysql_query_result( sSql.str() ) )==NULL || ( row2 = mysql_fetch_row( result_set2.r ) )==NULL )
 			{
 				/* This shouldn't happen, but since it did, just add all fields */
 				cerr << "***ERROR*** Cannot find value in history mask table:" << sSql.str() << endl;
@@ -1583,6 +1646,11 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 	
 	for( MapStringString::iterator it=pChangedRow->m_mapFieldValues.begin();it!=pChangedRow->m_mapFieldValues.end();++it )
 	{
+		// When we're approving a batch, GetBatchContents will have retrieved the auto increment key.  However, 
+		// we don't want to use it, since it will be NULL.  We're going to use the NewAutoIncrValue
+		if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New && (*it).first==m_pField_AutoIncrement->Name_get() )
+			continue;
+
 		sSqlHistory << "`" << (*it).first << "`, ";
 		if( (*it).first=="psc_user" )
 			b_psc_user_passedin=true;
@@ -1601,6 +1669,11 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 
 	for( MapStringString::iterator it=pChangedRow->m_mapFieldValues.begin();it!=pChangedRow->m_mapFieldValues.end();++it )
 	{
+		// When we're approving a batch, GetBatchContents will have retrieved the auto increment key.  However, 
+		// we don't want to use it, since it will be NULL.  We're going to use the NewAutoIncrValue
+		if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New && (*it).first==m_pField_AutoIncrement->Name_get() )
+			continue;
+
 		if( (*it).second==NULL_TOKEN )
 			sSqlHistory << "NULL, ";
 		else
@@ -1883,6 +1956,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 	{
 		sSql << "INSERT INTO `" << m_sName << "` (";
 		bool bFirst=true;
+		bool bFound_psc_id=false,bFound_psc_batch=false;
 		for(MapStringString::iterator it=pChangedRow->m_mapFieldValues.begin();it!=pChangedRow->m_mapFieldValues.end();++it)
 		{
 			if( bFirst )
@@ -1890,7 +1964,16 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 			else
 				sSql << ",";
 			sSql << "`" << (*it).first << "`"; 
+			if( (*it).first=="psc_id" )
+				bFound_psc_id=true;
+			else if( (*it).first=="psc_batch" )
+				bFound_psc_batch=true;
 		}
+
+		if( !bFound_psc_id )
+			sSql << ",psc_id";
+		if( !bFound_psc_batch )
+			sSql << ",psc_batch";
 
 		sSql << ") VALUES(";
 		bFirst=true;
@@ -1902,10 +1985,14 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 				sSql << ",";
 			sSql << "'" << StringUtils::SQLEscape((*it).second) << "'"; 
 		}
+		if( !bFound_psc_id )
+			sSql << "," << pChangedRow->m_psc_id;
+		if( !bFound_psc_batch )
+			sSql << "," << pChangedRow->m_psc_batch;
 		sSql << ")";
 	}
 
-	if( pChangedRow->m_eTypeOfChange==toc_Modify && m_pField_AutoIncrement )
+	if( pChangedRow->m_eTypeOfChange==toc_New && m_pField_AutoIncrement )
 	{
 		if( !( pChangedRow->m_iNewAutoIncrID=m_pDatabase->threaded_mysql_query_withID( sSql.str( ) ) ) )
 		{
@@ -2098,6 +2185,18 @@ bool Table::psc_id_exists(int psc_id)
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) )
 		return true;
+	else
+		return false;
+}
+
+bool Table::ModifiedRow(int psc_id)
+{
+	std::ostringstream sSQL2;
+	sSQL2 << "SELECT psc_mod FROM `" << m_sName << "` WHERE psc_id=" << psc_id;
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) && row[0] )
+		return atoi(row[0])!=0;
 	else
 		return false;
 }

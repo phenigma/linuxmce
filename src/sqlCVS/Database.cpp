@@ -708,7 +708,6 @@ if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Continue",false) )
 	{
 		cerr << "Checkin threw exception: " << pException << endl;
 		throw "Checkin failed";
-		return;
 	}
 
 	if( !bFirstLoop && g_GlobalConfig.m_mapBatch_ChangedRow.size() )
@@ -1485,6 +1484,14 @@ void Database::Approve( )
 	{
 		Repository *pRepository = (*it).second;
 		R_ApproveBatch r_ApproveBatch( pRepository->Name_get(), g_GlobalConfig.m_psc_batch );
+		for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
+		{
+			// We don't care about user 0, or users who didn't log in
+			if( (*it).first=="0" || (*it).second=="" )
+				continue;
+			r_ApproveBatch.m_mapUsersPasswords[(*it).first]=(*it).second;
+		}
+
 		ra_Processor.AddRequest( &r_ApproveBatch );
 		DCE::Socket *pSocket=NULL;
 		while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
@@ -1492,7 +1499,10 @@ void Database::Approve( )
 		if( r_ApproveBatch.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 		{
 			ra_Processor.RemoveRequest( &r_ApproveBatch ); /**< It's going to fall out of scope, so we don't want the processor to retry */
-			cerr << "Unable to approve batch" << endl;
+			cerr << "Unable to approve batch:" << (int) r_ApproveBatch.m_cProcessOutcome << endl;
+			if( r_ApproveBatch.m_cProcessOutcome==LOGIN_FAILED )
+				cerr << "Login failed" << endl;
+
 			return;
 		}
 		cout << "Approved batch in repository: " << pRepository->Name_get() << endl;
@@ -1540,8 +1550,10 @@ void Database::ListUnauthorizedBatches()
 		{
 			cout << "Repository: " << pRepository->Name_get() << endl;
 			std::ostringstream sSQL;
-			sSQL << "SELECT FK_psc_" << pRepository->Name_get() << "_bathdr,Tablename,New,Deleted,Modified FROM " <<
-				pRepository->m_pTable_BatchDetail->Name_get() << " WHERE FK_psc_" << pRepository->Name_get() << "_bathdr_unauth<1" <<
+			sSQL << "SELECT FK_psc_" << pRepository->Name_get() << "_bathdr,Tablename,New,Deleted,Modified,IPAddress,`date` FROM " <<
+				pRepository->m_pTable_BatchDetail->Name_get() << " JOIN " << pRepository->m_pTable_BatchHeader->Name_get() <<
+				" ON FK_psc_"  << pRepository->Name_get() << "_bathdr=PK_psc_"  << pRepository->Name_get() << "_bathdr " <<
+				" WHERE FK_psc_" << pRepository->Name_get() << "_bathdr_unauth<1" <<
 				" AND FK_psc_" << pRepository->Name_get() << "_bathdr_unauth=FK_psc_" << pRepository->Name_get() << "_bathdr " <<
 				" AND FK_psc_" << pRepository->Name_get() << "_bathdr_auth=0";
 
@@ -1553,7 +1565,7 @@ void Database::ListUnauthorizedBatches()
 					cout << "** None **" << endl;
 				while ( ( row = mysql_fetch_row( result_set.r ) ) )
 				{
-					cout << "Batch: " << row[0] << " New: " << row[2] << " Del: " << row[3] << " Mod: " << row[4] << " " << row[1] << endl;
+					cout << "Batch: " << row[0] << " New: " << row[2] << " Del: " << row[3] << " Mod: " << row[4] << " " << row[5] << " " << row[6] << " " << row[1] << endl;
 				}
 			}
 		}
@@ -1627,7 +1639,18 @@ void Database::ListBatchContents()
 								strcmp(result_set2.r->fields[iField].name,"psc_toc")==0 )
 							continue;
 
-						cout << result_set2.r->fields[iField].name << ":" << (row2[iField] ?  row2[iField] : "(NULL)") << " ";
+						cout << result_set2.r->fields[iField].name << ":";
+						if( !row2[iField] )
+							cout << "(NULL) ";
+						else
+						{
+							if( strlen(row2[iField])>30 )
+								row2[iField][30]=0;
+							char *pCRLF = strchr(row2[iField],'\n');
+							if( pCRLF )
+								*pCRLF = 0;
+							cout << row2[iField] << " ";
+						}
 					}
 					cout << endl;
 				}

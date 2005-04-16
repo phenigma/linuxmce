@@ -51,7 +51,7 @@ R_CommitRow::R_CommitRow( sqlCVS::ChangedRow *pChangedRow )
 int k=2;
 }
 	m_bFrozen=false;
-	m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=0;
+	m_iNewAutoIncrID=m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=m_psc_user_new=0;
 }
 
 bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )

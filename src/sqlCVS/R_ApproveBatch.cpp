@@ -56,12 +56,32 @@ bool R_ApproveBatch::ProcessRequest( class RA_Processor *pRA_Processor )
 	}
 	else
 	{
-		if( !g_GlobalConfig.ValidateUsers(psqlCVSprocessor->m_bSupervisor) )
+		if( !g_GlobalConfig.ValidateUsers(psqlCVSprocessor->m_bSupervisor,true,&m_mapUsersPasswords) )
 		{
 			m_cProcessOutcome=LOGIN_FAILED;
 			return true;
 		}
 
+		ValidatedUser *pValidatedUser_FirstOneWithPassword=NULL;
+		for(map<int,ValidatedUser *>::iterator it=g_GlobalConfig.m_mapValidatedUsers.begin();
+			it!=g_GlobalConfig.m_mapValidatedUsers.end();++it)
+		{
+			ValidatedUser *pValidatedUser = (*it).second;
+			if( !pValidatedUser->m_bWithoutPassword )
+			{
+				pValidatedUser_FirstOneWithPassword = pValidatedUser;
+				break;
+			}
+                
+		}
+
+		if( !pValidatedUser_FirstOneWithPassword )
+		{
+			cout << "Cannot approve batch since nobody logged in" << endl;
+			m_cProcessOutcome=LOGIN_FAILED;
+			return true;
+		}
+		
 		psqlCVSprocessor->m_pRepository = pRepository;
 		psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( psqlCVSprocessor, &g_GlobalConfig.m_mapValidatedUsers );
 		psqlCVSprocessor->m_psc_bathdr_unauth = m_psc_batch;
