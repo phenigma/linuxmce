@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     if (argc<6)
     {
 		cout << "Usage: MessageSendTest server [-targetType [device|category|template]] [-r | -o] DeviceFrom DeviceTo MsgType(1=Command, 2=Event) MsgID [parm1id param1value] [parm2id parm2value] ..." << endl
+			<< "\tthe server is the name/ip of the router, such as localhost" << endl
 			<< "\tthe default target type is the device." << endl
 			<< "\t-r means the message will be sent with a response request" << endl
 			<< "\t-o means the message will expect out parameters" << endl
@@ -50,54 +51,24 @@ int main(int argc, char *argv[])
     if (g_pPlutoLogger == NULL)
         fprintf(stderr,"Problem creating logger.  Check params.\n");
 
-	int baseMessageSpecPos = 1;
-	int targetType = 0; // Device;
-	bool bResponseRequired=false,bOutParams=false;
-	while( argv[baseMessageSpecPos][0]=='-' )
-	{
-		if ( stricmp(argv[baseMessageSpecPos], "-targetType") == 0 )
-		{
-			if ( strcmp(argv[baseMessageSpecPos+1], "category") == 0 )
-				targetType = 1;
-			else if ( strcmp(argv[baseMessageSpecPos+1], "template") == 0 )
-				targetType = 2;
-			baseMessageSpecPos += 2;
-		}
-		else if ( strcmp(argv[baseMessageSpecPos], "-r") == 0 )
-		{
-			bResponseRequired=true;
-			baseMessageSpecPos++;
-		}
-		else if ( strcmp(argv[baseMessageSpecPos], "-o") == 0 )
-		{
-			bOutParams=true;
-			baseMessageSpecPos++;
-		}
-		else
-		{
-			cerr << "Unknown argument: " << argv[baseMessageSpecPos] << endl;
-		}
-	}
 
-    string ServerAddress=argv[baseMessageSpecPos++];
+    string ServerAddress=argv[1];
 	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, ServerAddress);
 
-    Message *pMsg=new Message(argc-baseMessageSpecPos,&argv[baseMessageSpecPos],targetType);
+    Message *pMsg=new Message(argc-2,&argv[2]);
 
 	// We need a response.  It will be a string if there are no out parameters
-	if( !bOutParams )
+	if( pMsg->m_eExpectedResponse != ER_ReplyMessage ) // No out parameters
 	{
-		if( bResponseRequired )
-			pMsg->m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
 		string sResponse; // We'll use this only if a response wasn't passed in
 		bool bResult;
 		
-		if( bResponseRequired )
+		if( pMsg->m_eExpectedResponse == ER_DeliveryConfirmation )
 			bResult = pEvent->SendMessage( pMsg, sResponse );
 		else
 			bResult = pEvent->SendMessage( pMsg );
 
-		if( !bResponseRequired )
+		if( pMsg->m_eExpectedResponse != ER_DeliveryConfirmation )
 		{
 			if( !bResult )
 				cerr << "Failed to send" << endl;
@@ -108,7 +79,6 @@ int main(int argc, char *argv[])
 	}
 
 	// There are out parameters, we need to get a message back in return
-	pMsg->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = pEvent->SendReceiveMessage( pMsg );
 	if( !pResponse || pResponse->m_dwID != 0 )
 	{

@@ -102,14 +102,46 @@ Message::Message( Message *pMessage_Clone )
     }
 }
 
-Message::Message( int iNumArgs, char *cArguments[], int targetType, int dwPK_DeviceFrom )
+Message::Message( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom )
 {
     Clear();
 
-	m_dwPK_Device_From = dwPK_DeviceFrom ? dwPK_DeviceFrom : atoi(cArguments[0]);
-	string sDeviceTo=cArguments[1];
-	m_dwMessage_Type=atoi(cArguments[2]);
-	m_dwID=atoi(cArguments[3]);
+	int baseMessageSpecPos = 0;
+	int targetType = 0; // Device;
+	bool bResponseRequired=false,bOutParams=false;
+	while( cArguments[baseMessageSpecPos][0]=='-' )
+	{
+		if ( stricmp(cArguments[baseMessageSpecPos], "-targetType") == 0 )
+		{
+			if ( strcmp(cArguments[baseMessageSpecPos+1], "category") == 0 )
+				targetType = 1;
+			else if ( strcmp(cArguments[baseMessageSpecPos+1], "template") == 0 )
+				targetType = 2;
+			baseMessageSpecPos += 2;
+		}
+		else if ( strcmp(cArguments[baseMessageSpecPos], "-r") == 0 )
+		{
+			bResponseRequired=true;
+			baseMessageSpecPos++;
+		}
+		else if ( strcmp(cArguments[baseMessageSpecPos], "-o") == 0 )
+		{
+			bOutParams=true;
+			baseMessageSpecPos++;
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"Create message Unknown argument: %s",cArguments[baseMessageSpecPos]);
+	}
+
+	if( bResponseRequired )
+		m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
+	if( bOutParams )
+		m_eExpectedResponse = ER_ReplyMessage;
+
+	m_dwPK_Device_From = dwPK_DeviceFrom ? dwPK_DeviceFrom : atoi(cArguments[baseMessageSpecPos]);
+	string sDeviceTo=cArguments[baseMessageSpecPos + 1];
+	m_dwMessage_Type=atoi(cArguments[baseMessageSpecPos + 2]);
+	m_dwID=atoi(cArguments[baseMessageSpecPos + 3]);
 	m_dwPriority = PRIORITY_NORMAL;
 	m_bIncludeChildren = true;
 	m_eBroadcastLevel = BL_SameHouse;
@@ -132,7 +164,7 @@ Message::Message( int iNumArgs, char *cArguments[], int targetType, int dwPK_Dev
 	else
 	    m_dwPK_Device_To = atoi(sDeviceTo.c_str());
 
-    for(int i=4; i<iNumArgs; i+=2)
+    for(int i=baseMessageSpecPos + 4; i<iNumArgs; i+=2)
     {
 		enum { ptNormal, ptData, ptBinary, ptText, ptOut } eType = ptNormal;
 

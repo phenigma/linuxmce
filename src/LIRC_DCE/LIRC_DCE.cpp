@@ -23,6 +23,61 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	: LIRC_DCE_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_Virtual_Device_Translator(m_pData)
 //<-dceag-const-e->
 {
+	vector<string> vectMapping,vectConfiguration;
+	StringUtils::Tokenize(DATA_Get_Mapping(),"\r\n",vectMapping);
+	StringUtils::Tokenize(DATA_Get_Configuration(),"\r\n",vectConfiguration);
+
+	bool bCodesBegan=false;
+	for(size_t s=0;s<vectConfiguration.size();++s)
+	{
+		if( vectConfiguration[s].size()==0 || vectConfiguration[s][0]=='#' )
+			continue;
+		if( !bCodesBegan )
+		{
+			bCodesBegan = StringUtils::ToUpper(vectConfiguration[s]).find("BEGIN CODES")!=string::npos;
+			continue;
+		}
+		if( StringUtils::ToUpper(vectConfiguration[s]).find("END CODES")!=string::npos )
+			break;
+
+		// We've got a valid code.  Trim it, and find the first white space
+		StringUtils::TrimSpaces(vectConfiguration[s]);
+
+		string::size_type pos_firstspace=vectConfiguration[s].find(' ');
+		string::size_type pos_tab=vectConfiguration[s].find('\t');
+		if( pos_tab!=string::npos && (pos_firstspace==string::npos || pos_tab<pos_firstspace) )
+			pos_firstspace = pos_tab;  // This is now the white space
+
+		m_mapMessages[StringUtils::ToUpper(vectConfiguration[s].substr(0,pos_firstspace))]=NULL;
+	}
+
+	// Now find messages for those tokens
+	map<string,Message *>::iterator it;
+	for(size_t s=0;s<vectMapping.size();++s)
+	{
+		string::size_type pos=0;
+		while(pos<vectMapping[s].size() && pos!=string::npos)
+		{
+			string sToken = StringUtils::Tokenize(vectMapping[s],";|",pos);
+			if( sToken.size()>0 && (it=m_mapMessages.find(StringUtils::ToUpper(sToken)))!=m_mapMessages.end() )
+			{
+				// We got ourselves a valid one
+				pos=vectMapping[s].find('|');
+				if( pos!=string::npos )  // Should always be true unless data is malformed
+				{
+					int iNumberOfArguments;
+					char **pArgs = StringUtils::ConvertStringToArgs(vectMapping[s].substr(pos+1),iNumberOfArguments);
+					if( iNumberOfArguments )  // Should always be true
+					{
+						Message *pMessage = new Message(iNumberOfArguments,pArgs,m_dwPK_Device);
+// TODO: Dan, if you want hex codes rather than strings, we can do the conversion here
+						m_mapMessages[ (*it).first ] = pMessage;
+					}
+				}
+			}
+		}
+	}
+
 	FILE *fp;
 	string sCOM1 = "1";
 	string sCOM2 = "2";
@@ -91,6 +146,8 @@ LIRC_DCE::LIRC_DCE(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, 
 LIRC_DCE::~LIRC_DCE()
 //<-dceag-dest-e->
 {
+	for(map<string,Message *>::iterator it=m_mapMessages.begin();it!=m_mapMessages.end();++it)
+		delete (*it).second;
 }
 
 //<-dceag-reg-b->
