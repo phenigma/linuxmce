@@ -678,7 +678,8 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
         class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl;
         g_pPlutoLogger->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
-        if( !pPlugIn->ReceivedMessage( pMessage ) )
+		// Don't forward to the generic handler--it's just ourself
+        if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo || !pPlugIn->ReceivedMessage( pMessage ) )
         {
             g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d",
 				pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device );
@@ -686,8 +687,8 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 			// TODO "Warning: received dcemessage should take a bool but don't delete in or something so we don't need to copy the message!"
 
 			// If it's a command, it could be something for the media player (like a Pause), or something for the a/v equipment
-			// that is connected to the media director (like vol up/down going to the receiver)
-			if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
+			// that is connected to the media director (like vol up/down going to the receiver).  Don't bother with generic media
+			if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND && pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo!=m_pGenericMediaHandlerInfo )
 			{
 			    Command *pCommand = m_pRouter->mapCommand_Find(pMessage->m_dwID);
 				if( !pCommand )
