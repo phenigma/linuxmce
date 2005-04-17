@@ -1016,15 +1016,23 @@ int k=2;
 					if( ( result_set_hi.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row_hi = mysql_fetch_row(result_set_hi.r) ) )
 						iHighestUsedID = atoi(row[0]);
 
+					cout << "Checking:Reassigning Auto Incr Value for table: " << m_sName << " determined highest used value is: " << row[0] << " m_psc_id_next: " << m_psc_id_next << endl;
+
 					for(map<int, ListChangedRow *>::iterator it1=m_mapUsers2ChangedRowList.begin();it1!=m_mapUsers2ChangedRowList.end();++it1)
 					{
 						ListChangedRow *pListChangedRow = (*it1).second;
 						for( ListChangedRow::iterator itCR=pListChangedRow->begin( );itCR!=pListChangedRow->end( );++itCR )
 						{
 							ChangedRow *pChangedRow = *itCR;
-							iHighestUsedID = max(iHighestUsedID,pChangedRow->m_iOriginalAutoIncrID);
+
+							if( pChangedRow->m_iNewAutoIncrID>iHighestUsedID )
+							{
+								iHighestUsedID = pChangedRow->m_iNewAutoIncrID;
+cout << "Found higher value: " << pChangedRow->m_iNewAutoIncrID << " orig: " << pChangedRow->m_iOriginalAutoIncrID << " psc_id: " << pChangedRow->m_psc_id << endl;
+							}
 							if( pChangedRow->m_iOriginalAutoIncrID!=r_CommitRow.m_iNewAutoIncrID )
 								continue;
+
 							pChangedRowToMove=pChangedRow;  // We're going to keep going because we need to determine iHighestUsedID
 						}
 					}
@@ -1036,8 +1044,18 @@ int k=2;
 						cerr << "Something is wrong with re-allocating an auto incr primary key: " << r_CommitRow.m_iNewAutoIncrID << "-" << r_CommitRow.m_iOriginalAutoIncrID << endl;
 						throw "Internal error--data unexpected";
 					}
+
+					cout << "Checking:Reassigning Auto Incr Value for table (2): " << m_sName << " determined highest used value is: " << row[0] << " m_psc_id_next: " << m_psc_id_next << " pChangedRow " 
+						<< (pChangedRowToMove==NULL ? " is null" : " is not null") << endl;
+
+					iHighestUsedID++;
+					if( m_psc_id_next>iHighestUsedID )
+						iHighestUsedID = m_psc_id_next;
+
+					m_psc_id_next=iHighestUsedID+1;
+
 					sSQL.str("");
-					sSQL << "UPDATE `" << m_sName << "` SET PK_" << m_sName << "=" << iHighestUsedID+1 << " WHERE PK_" << m_sName << "=" << r_CommitRow.m_iNewAutoIncrID;
+					sSQL << "UPDATE `" << m_sName << "` SET PK_" << m_sName << "=" << iHighestUsedID << " WHERE PK_" << m_sName << "=" << r_CommitRow.m_iNewAutoIncrID;
 					if( m_pDatabase->threaded_mysql_query( sSQL.str() )!=0 )
 						throw "Internal error--query failed moving auto incr key";
 
