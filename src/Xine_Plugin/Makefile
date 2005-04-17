@@ -34,6 +34,7 @@ sources += \
 	../Media_Plugin/MediaAttributes.cpp \
 	../Media_Plugin/MediaStream.cpp \
 	../Media_Plugin/BoundRemote.cpp \
+	../Media_Plugin/Generic_NonPluto_Media.cpp \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
 	../File_Grids_Plugin/FileListGrid.cpp
 
