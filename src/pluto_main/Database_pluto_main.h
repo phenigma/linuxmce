@@ -145,7 +145,6 @@ class Table_Orbiter_Variable* tblOrbiter_Variable;
 class Table_Package* tblPackage;
 class Table_PackageType* tblPackageType;
 class Table_Package_Compat* tblPackage_Compat;
-class Table_Package_Device* tblPackage_Device;
 class Table_Package_Directory* tblPackage_Directory;
 class Table_Package_Directory_File* tblPackage_Directory_File;
 class Table_Package_Package* tblPackage_Package;
@@ -358,7 +357,6 @@ class Table_Orbiter_Variable* Orbiter_Variable_get() { if( !tblOrbiter_Variable 
 class Table_Package* Package_get() { if( !tblPackage ) CreateTable_Package(); return tblPackage; }
 class Table_PackageType* PackageType_get() { if( !tblPackageType ) CreateTable_PackageType(); return tblPackageType; }
 class Table_Package_Compat* Package_Compat_get() { if( !tblPackage_Compat ) CreateTable_Package_Compat(); return tblPackage_Compat; }
-class Table_Package_Device* Package_Device_get() { if( !tblPackage_Device ) CreateTable_Package_Device(); return tblPackage_Device; }
 class Table_Package_Directory* Package_Directory_get() { if( !tblPackage_Directory ) CreateTable_Package_Directory(); return tblPackage_Directory; }
 class Table_Package_Directory_File* Package_Directory_File_get() { if( !tblPackage_Directory_File ) CreateTable_Package_Directory_File(); return tblPackage_Directory_File; }
 class Table_Package_Package* Package_Package_get() { if( !tblPackage_Package ) CreateTable_Package_Package(); return tblPackage_Package; }
@@ -575,7 +573,6 @@ void CreateTable_Orbiter_Variable();
 void CreateTable_Package();
 void CreateTable_PackageType();
 void CreateTable_Package_Compat();
-void CreateTable_Package_Device();
 void CreateTable_Package_Directory();
 void CreateTable_Package_Directory_File();
 void CreateTable_Package_Package();
@@ -787,7 +784,6 @@ void DeleteTable_Orbiter_Variable();
 void DeleteTable_Package();
 void DeleteTable_PackageType();
 void DeleteTable_Package_Compat();
-void DeleteTable_Package_Device();
 void DeleteTable_Package_Directory();
 void DeleteTable_Package_Directory_File();
 void DeleteTable_Package_Package();

@@ -41,7 +41,6 @@ using namespace std;
 #include "Table_Device_StartupScript.h"
 #include "Table_Device_Users.h"
 #include "Table_InfraredGroup_Command.h"
-#include "Table_Package_Device.h"
 
 
 void Database_pluto_main::CreateTable_Device()
@@ -1625,13 +1624,6 @@ void Row_Device::InfraredGroup_Command_FK_Device_getrows(vector <class Row_Infra
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
-pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
-}
-void Row_Device::Package_Device_FK_Device_getrows(vector <class Row_Package_Device*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Package_Device *pTable = table->database->Package_Device_get();
 pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
 }
 
