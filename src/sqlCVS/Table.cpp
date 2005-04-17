@@ -2167,6 +2167,7 @@ int Table::ReassignAutoIncrValue(int iPrimaryKey)
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) )
 	{
 		int iNextID = atoi(row[0])+1;
+		cout << "ReassignAutoIncrValue for table: " << m_sName << " determined highest used value is: " << row[0] << " m_psc_id_next: " << m_psc_id_next << endl;
 		if( m_psc_id_next>iNextID )
 			iNextID = m_psc_id_next;
 
