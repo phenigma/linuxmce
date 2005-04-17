@@ -36,7 +36,8 @@ sources += \
 	../Media_Plugin/BoundRemote.cpp \
 	../Media_Plugin/Generic_NonPluto_Media.cpp \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
-	../File_Grids_Plugin/FileListGrid.cpp
+	../File_Grids_Plugin/FileListGrid.cpp \
+	../Media_Plugin/MediaHandlerBase.cpp
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)

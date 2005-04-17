@@ -31,7 +31,8 @@ sources += \
 	MediaAttributes.cpp \
 	MediaStream.cpp \
 	BoundRemote.cpp \
-	Generic_NonPluto_Media.cpp
+	Generic_NonPluto_Media.cpp \
+	MediaHandlerBase.cpp
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
