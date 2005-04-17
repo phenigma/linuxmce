@@ -1120,9 +1120,10 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 	bool bSkippingUpdate=false;
 
 	std::ostringstream sSQL;
-
-	cout << "Updating row id " << pA_UpdateRow->m_psc_id << " last sync: " << m_psc_id_last_sync << endl;
-
+if( pA_UpdateRow->m_psc_id==1617 )
+{
+int k=2;
+}
 	// See if this is a new row, or an updated one
 	// It's possible that we created the row originally, checked it in, then someone else modified it
 	// In that case, m_psc_id_last_sync will be < since we haven't yet pulled updates.  When we pull
@@ -1130,6 +1131,8 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 	// So we need to also double check that we don't already have it !psc_id_exists(pA_UpdateRow->m_psc_id)
 	if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync && !psc_id_exists(pA_UpdateRow->m_psc_id) )
 	{
+		cout << "Updating (insert) row id " << pA_UpdateRow->m_psc_id << " last sync: " << m_psc_id_last_sync << endl;
+
 		// It's possible that an incoming row is going to use the same primary key as one 
 		// we added locally but haven't checked in yet, or isn't approved
 		int iAutoIncrementKeyValue=0;
@@ -1179,6 +1182,8 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 	}
 	else
 	{
+		cout << "Updating (update) row id " << pA_UpdateRow->m_psc_id << " last sync: " << m_psc_id_last_sync << endl;
+
 		sSQL << "UPDATE `" << m_sName << "` SET ";
 		if( ModifiedRow(pA_UpdateRow->m_psc_id) &&
 				(!g_GlobalConfig.m_bNoPrompts || !AskYNQuestion("In Table " + m_sName + " psc_id: " + StringUtils::itos(pA_UpdateRow->m_psc_id)
@@ -1217,7 +1222,7 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 			PlutoSqlResult result_set;
 			MYSQL_ROW row=NULL;
 			if( (result_set.r=m_pDatabase->mysql_query_result(sSQL2.str())) && 
-				(row = mysql_fetch_row(result_set.r)) )
+				(row = mysql_fetch_row(result_set.r)) && atoi(row[0])!=iAutoIncrementKeyValue )
 			{
 				// We've got a conflict
 				ReassignAutoIncrValue(iAutoIncrementKeyValue);
@@ -2162,6 +2167,11 @@ int Table::ReassignAutoIncrValue(int iPrimaryKey)
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) )
 	{
 		int iNextID = atoi(row[0])+1;
+		if( m_psc_id_next>iNextID )
+			iNextID = m_psc_id_next;
+
+		m_psc_id_next=iNextID+1;
+
 		PropagateUpdatedField( m_pField_AutoIncrement, StringUtils::itos(iNextID), StringUtils::itos(iPrimaryKey), NULL );
 		sSQL2.str("");
 		sSQL2 << "UPDATE `" << m_sName << "` SET `" << m_pField_AutoIncrement->Name_get() << "`=" << iNextID << 
@@ -2171,6 +2181,7 @@ int Table::ReassignAutoIncrValue(int iPrimaryKey)
 			cerr << "SQL Failed: " << sSQL2.str( ) << endl;
 			throw "Database error";
 		}
+
 		return iNextID;
 	}
 	cerr << "ReassignAutoIncrValue cannot get new value";
