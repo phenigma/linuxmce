@@ -503,6 +503,9 @@
 				RelativePath=".\Table_Package_Compat.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Package_Device.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Package_Directory.cpp">
 			</File>
 			<File

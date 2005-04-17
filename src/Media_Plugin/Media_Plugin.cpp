@@ -33,6 +33,7 @@ using namespace DCE;
 
 #include "MediaHandlerInfo.h"
 #include "MediaHandlerBase.h"
+#include "Generic_NonPluto_Media.h"
 #include "DCERouter.h"
 #include "DeviceData_Router.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
@@ -172,6 +173,9 @@ continue;
             pMediaDevice->m_listEntertainArea.push_back( pEntertainArea );
         }
     }
+
+	m_pGeneric_NonPluto_Media = new Generic_NonPluto_Media(this);
+    m_pGenericMediaHandlerInfo = new MediaHandlerInfo(m_pGeneric_NonPluto_Media,this,0,0,false,false);
 }
 
 
@@ -196,6 +200,8 @@ Media_Plugin::~Media_Plugin()
 		delete pMediaHandlerInfo;
 	}
 
+    delete m_pGenericMediaHandlerInfo;
+	delete m_pGeneric_NonPluto_Media;
 }
 
 //<-dceag-reg-b->
@@ -1655,24 +1661,57 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 			m_pMediaAttributes->TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any #a, #f, etc.
  	}
 
-    // What is the media?  It must be a master device, or a media type, or filename
-    if( iPK_DeviceTemplate )
+    // What is the media?  It must be a Device, DeviceTemplate, or a media type, or filename
+    if( !iPK_MediaType && (iPK_Device || iPK_DeviceTemplate) )
     {
-        // todo
+		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
+		Row_DeviceTemplate *pRow_DeviceTemplate=NULL;
+		if( iPK_Device )
+		{
+			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+			if( pRow_Device )
+				pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
+		}
+
+		if( !pRow_DeviceTemplate && iPK_DeviceTemplate )
+			pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
+
+		if( pRow_DeviceTemplate )
+			pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
+
+		if( vectRow_DeviceTemplate_MediaType.size()!=1 )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot decisively determine media type for %d/%d, rows: %d",
+				iPK_Device,iPK_DeviceTemplate,(int) vectRow_DeviceTemplate_MediaType.size());
+
+		if( vectRow_DeviceTemplate_MediaType.size() )
+		{
+			Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = vectRow_DeviceTemplate_MediaType[0];
+			iPK_MediaType = pRow_DeviceTemplate_MediaType->FK_MediaType_get();
+		}
     }
-    else if( iPK_MediaType )
+
+	if( iPK_MediaType )
     {
+		MediaHandlerInfo *pMediaHandlerInfo = NULL; // The handler
+
         // See if there's a media handler for this type of media in this area
         List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find(iPK_MediaType);
         if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
         {
-            g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
+			Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(iPK_MediaType);
+			if( pRow_MediaType && pRow_MediaType->DCEAware_get()==0 )
+			{
+	            g_pPlutoLogger->Write( LV_STATUS, "Play media type %d in entertain area %d with generic handler", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
+				pMediaHandlerInfo = m_pGenericMediaHandlerInfo;
+			}
+			else
+	            g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
         }
         else
-        {
-            MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+            pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+
+		if( pMediaHandlerInfo )
             StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
-        }
     }
     else if( dequeMediaFile.size() )
     {

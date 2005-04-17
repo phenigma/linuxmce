@@ -141,6 +141,9 @@
 				RelativePath="..\Orbiter_Plugin\FollowMe_Device.cpp">
 			</File>
 			<File
+				RelativePath=".\Generic_NonPluto_Media.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File

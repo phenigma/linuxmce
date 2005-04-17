@@ -64,6 +64,8 @@ public:
         virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
     class MediaAttributes *m_pMediaAttributes;
+	class Generic_NonPluto_Media *m_pGeneric_NonPluto_Media;
+    class MediaHandlerInfo *m_pGenericMediaHandlerInfo;
 
     friend class MediaHandlerInfo;
     pluto_pthread_mutex_t m_MediaMutex; // Other classes may need this

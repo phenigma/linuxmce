@@ -330,6 +330,9 @@
 #define COMMAND_Show_Mouse_Pointer_CONST 354
 #define COMMAND_Process_Initialize_CONST 355
 #define COMMAND_Process_Release_CONST 356
+#define COMMAND_HDMI_CONST 357
+#define COMMAND_D4_CONST 358
+#define COMMAND_Back_Clear_Entry_CONST 359
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
