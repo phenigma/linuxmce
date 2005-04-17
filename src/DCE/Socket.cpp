@@ -84,9 +84,10 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 	timespec ts_NextPing;
 	ts_NextPing.tv_nsec=0;
 
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,pSocket->m_SocketMutex);  // lock this first
+
 	while(true)
 	{
-		PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,pSocket->m_SocketMutex);  // lock this first
 		ts_NextPing.tv_sec=time(NULL)+5;
 		pthread_cond_timedwait(&pSocket->m_PingLoopCond, &pSocket->m_SocketMutex.mutex, &ts_NextPing);
 

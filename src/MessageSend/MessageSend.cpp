@@ -72,6 +72,7 @@ int main(int argc, char *argv[])
 		{
 			if( !bResult )
 				cerr << "Failed to send" << endl;
+		    Sleep(50);  // Wait a moment so we don't close the socket before this is sent
 			return bResult ? 0 : -1;
 		}
 		cout << "RESP: " << sResponse << endl;

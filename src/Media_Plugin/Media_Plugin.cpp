@@ -1703,6 +1703,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 			{
 	            g_pPlutoLogger->Write( LV_STATUS, "Play media type %d in entertain area %d with generic handler", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
 				pMediaHandlerInfo = m_pGenericMediaHandlerInfo;
+				pMediaHandlerInfo->m_PK_MediaType = iPK_MediaType; // Just temporary for start media.  We're in a mutex
 			}
 			else
 	            g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
@@ -1711,7 +1712,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
             pMediaHandlerInfo = pList_MediaHandlerInfo->front();
 
 		if( pMediaHandlerInfo )
-            StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
     }
     else if( dequeMediaFile.size() )
     {
@@ -2129,12 +2130,17 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 }
 
 void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current)
-{
+{// Is a specific pipe used?  If this is an audio stream only, the media type will have the pipe set to 1
 	Row_MediaType *pRow_MediaType_Prior = PK_MediaType_Prior ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Prior) : NULL;
 	Row_MediaType *pRow_MediaType_Current = PK_MediaType_Current ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Current) : NULL;
 
 	int PK_Pipe_Prior = pRow_MediaType_Prior && pRow_MediaType_Prior->FK_Pipe_isNull()==false ? pRow_MediaType_Prior->FK_Pipe_get() : 0;
 	int PK_Pipe_Current = pRow_MediaType_Current && pRow_MediaType_Current->FK_Pipe_isNull()==false ? pRow_MediaType_Current->FK_Pipe_get() : 0;
+
+	// We don't want just the top-level devices, we want all the devices in the 'prior' map so we don't
+	// turn off something we're going to turn on again
+	if( pmapMediaDevice_Prior )
+		AddOtherDevicesInPipesToRenderDevices(pmapMediaDevice_Prior);
 
 	// If we watching a DVD, and the pipe was from the dvd player to a video scaler to the tv, and we are now watching
 	// TV with the path from the media director to the tv, we want to turn off the scaler, but not the tv.  We will just
@@ -2540,3 +2546,23 @@ bool Media_Plugin::SafeToReload()
 	return m_mapRippingJobsToRippingDevices.size() == 0;
 }
 
+void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(map<int,MediaDevice *> *pmapMediaDevice)
+{
+	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice->begin();it!=pmapMediaDevice->end();++it)
+		AddOtherDevicesInPipes_Loop((*it).second,pmapMediaDevice);
+}
+
+void Media_Plugin::AddOtherDevicesInPipes_Loop(MediaDevice *pMediaDevice,map<int,MediaDevice *> *pmapMediaDevice)
+{
+	for(map<int, class Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Active.begin();
+		it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Active.end();++it)
+	{
+		Pipe *pPipe = (*it).second;
+		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		if( pMediaDevice )
+		{
+			(*pmapMediaDevice)[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device] = pMediaDevice;
+			AddOtherDevicesInPipes_Loop(pMediaDevice,pmapMediaDevice);
+		}
+	}
+}

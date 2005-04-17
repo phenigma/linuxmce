@@ -277,6 +277,14 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
 	 */
 	bool RippingCompleted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
+
+	// Sometimes when MediaHanderBase::GetRenderDevices is called, only the top-level render devices (ie the media source)
+	// is desired.  However, HandleOnOffs wants everything in the pipe, and the following function
+	// can be used to add the other devices into the map
+	void AddOtherDevicesInPipesToRenderDevices(map<int,MediaDevice *> *pmapMediaDevice);
+	void AddOtherDevicesInPipes_Loop(MediaDevice *pMediaDevice,map<int,MediaDevice *> *pmapMediaDevice);
+
+
 	// Follow-me
 	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
 	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);

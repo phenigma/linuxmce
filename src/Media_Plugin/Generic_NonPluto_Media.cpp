@@ -87,11 +87,6 @@ bool Generic_NonPluto_Media::StartMedia( class MediaStream *pMediaStream )
 
 	g_pPlutoLogger->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
 
-	DCE::CMD_On CMD_On(m_pMedia_Plugin->m_dwPK_Device,
-					pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,0,"");
-
-	m_pMedia_Plugin->SendCommand(CMD_On);
-
 	m_pMedia_Plugin->MediaInfoChanged( pMediaStream );
 	return true;
 }
@@ -101,11 +96,6 @@ bool Generic_NonPluto_Media::StopMedia( class MediaStream *pMediaStream )
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
 	g_pPlutoLogger->Write(LV_STATUS, "Stopping media in Generic_NonPluto_Media!");
-
-	DCE::CMD_Off CMD_Off(m_pMedia_Plugin->m_dwPK_Device,
-					pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,0);
-
-	m_pMedia_Plugin->SendCommand(CMD_Off);
 
 	return true;
 }

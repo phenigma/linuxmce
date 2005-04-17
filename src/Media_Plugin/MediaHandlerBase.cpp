@@ -35,3 +35,5 @@ void MediaHandlerBase::GetRenderDevices(MediaStream *pMediaStream, map<int,Media
 		(*pmapMediaDevice)[pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device] = m_pMedia_Plugin->m_mapMediaDevice_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
 	}
 }
+
+
