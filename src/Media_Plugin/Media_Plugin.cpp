@@ -2137,10 +2137,15 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 	int PK_Pipe_Prior = pRow_MediaType_Prior && pRow_MediaType_Prior->FK_Pipe_isNull()==false ? pRow_MediaType_Prior->FK_Pipe_get() : 0;
 	int PK_Pipe_Current = pRow_MediaType_Current && pRow_MediaType_Current->FK_Pipe_isNull()==false ? pRow_MediaType_Current->FK_Pipe_get() : 0;
 
-	// We don't want just the top-level devices, we want all the devices in the 'prior' map so we don't
-	// turn off something we're going to turn on again
-	if( pmapMediaDevice_Prior )
-		AddOtherDevicesInPipesToRenderDevices(pmapMediaDevice_Prior);
+	map<int,MediaDevice *> mapMediaDevice_Current;
+	// We don't want just the top-level devices, we want all the devices in the 'current' map so we don't
+	// turn off something we're going to turn on again.  But we don't want to add them to pmapMediaDevice_Current
+	// and then have to handle the pipes ourselves.  But this only matters if there are prior devices to turn off
+	if( pmapMediaDevice_Prior && pmapMediaDevice_Prior->size() && pmapMediaDevice_Current && pmapMediaDevice_Current->size() )
+	{
+		mapMediaDevice_Current = *pmapMediaDevice_Current;
+		AddOtherDevicesInPipesToRenderDevices(&mapMediaDevice_Current);
+	}
 
 	// If we watching a DVD, and the pipe was from the dvd player to a video scaler to the tv, and we are now watching
 	// TV with the path from the media director to the tv, we want to turn off the scaler, but not the tv.  We will just
@@ -2151,14 +2156,14 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 		// We need a recursive function to propagate the off's along the pipe, but not turning off any devices
 		// that we're still going to use in the current map
 		if ( (*it).second )  // Obs: I got a crash here while testing mihai.t
-			TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,pmapMediaDevice_Current);
+			TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,&mapMediaDevice_Current);
 		else
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Found a NULL associated device in the HandleOnOff: %d", (*it).first);
 		}
 	}
 
-	if( !pmapMediaDevice_Current )
+	if( !pmapMediaDevice_Current || !pmapMediaDevice_Current->size() )
 		return; // Nothing to turn on -- we already turned everything off
 
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Current->begin();it!=pmapMediaDevice_Current->end();++it)
@@ -2209,8 +2214,8 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 	int PK_Device = GetComputerForMediaDevice(pDeviceData_Router);
 	if( PK_Device )
 	{
-		DCE::CMD_Off CMD_Off(m_dwPK_Device,PK_Device,PK_Pipe);
-		SendCommand(CMD_Off);
+		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+		TurnDeviceOff(PK_Pipe,pDevice,pmapMediaDevice_Current);
 	}
 
     for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
@@ -2549,20 +2554,30 @@ bool Media_Plugin::SafeToReload()
 void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(map<int,MediaDevice *> *pmapMediaDevice)
 {
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice->begin();it!=pmapMediaDevice->end();++it)
-		AddOtherDevicesInPipes_Loop((*it).second,pmapMediaDevice);
+		AddOtherDevicesInPipes_Loop((*it).second->m_pDeviceData_Router,pmapMediaDevice);
 }
 
-void Media_Plugin::AddOtherDevicesInPipes_Loop(MediaDevice *pMediaDevice,map<int,MediaDevice *> *pmapMediaDevice)
+void Media_Plugin::AddOtherDevicesInPipes_Loop(DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice)
 {
-	for(map<int, class Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Active.begin();
-		it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Active.end();++it)
+	if( !pDevice )
+		return;
+	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();
+		it!=pDevice->m_mapPipe_Available.end();++it)
 	{
 		Pipe *pPipe = (*it).second;
-		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
-		if( pMediaDevice )
+		DeviceData_Router *pDevice_Pipe = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		if( pDevice_Pipe )
 		{
-			(*pmapMediaDevice)[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device] = pMediaDevice;
-			AddOtherDevicesInPipes_Loop(pMediaDevice,pmapMediaDevice);
+			MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice_Pipe->m_dwPK_Device);
+			if( pMediaDevice )
+				(*pmapMediaDevice)[pDevice_Pipe->m_dwPK_Device] = pMediaDevice;
+			AddOtherDevicesInPipes_Loop(pDevice_Pipe,pmapMediaDevice);
 		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
 	}
+
+	int PK_Device = GetComputerForMediaDevice(pDevice);
+	if( PK_Device )
+		AddOtherDevicesInPipes_Loop( m_pRouter->m_mapDeviceData_Router_Find(PK_Device), pmapMediaDevice );
 }

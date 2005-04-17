@@ -53,12 +53,8 @@ Generic_NonPluto_Media::~Generic_NonPluto_Media()
 
 class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
-	MediaStream *pMediaStream;
-	MediaDevice *pMediaDevice_PassedIn;
-
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	pMediaDevice_PassedIn = NULL;
 	if ( pEntertainArea == NULL && pMediaDevice == NULL )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
@@ -73,11 +69,13 @@ class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandler
 */
 	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d) as playback device!", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 
-	pMediaStream = new MediaStream( pMediaHandlerInfo,
+	MediaStream *pMediaStream
+		= new MediaStream( pMediaHandlerInfo,
 							pMediaDevice->m_pDeviceData_Router,
 							pMediaHandlerInfo->m_iPK_DesignObj,
 							iPK_Users, st_RemovableMedia, StreamID );
 
+	pMediaStream->m_sMediaDescription = pMediaDevice->m_pDeviceData_Router->m_sDescription;
 	return pMediaStream;
 }
 

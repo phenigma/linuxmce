@@ -1398,6 +1398,14 @@ void Router::ProcessQueue()
 
 void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 {
+
+	// RE: COMMANDPARAMETER_PK_Pipe_CONST - Normally when a device is turned on all the inputs and 
+	// outputs are selected automatically.  If this parameter is specified, only the settings along 
+	//this pipe will be set.
+
+	// RE: COMMANDPARAMETER_PK_Device_Pipes_CONST - Normally when a device is turned on the corresponding
+	// "pipes" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will 
+	// be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic
     Command *pCommand = mapCommand_Find((*(*pSafetyMessage))->m_dwID);
     int PK_Device = (*(*pSafetyMessage))->m_dwPK_Device_To;
     DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find(PK_Device);
@@ -1410,10 +1418,17 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 
     if( pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST )
     {
-        for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
+		int PK_Pipe=0;
+        if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Pipe_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
+			PK_Pipe = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
+
+		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
         {
             Pipe *pPipe = (*it).second;
-            Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+			if( PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get() )
+				continue;
+
+			Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
                 PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
             ReceivedMessage(NULL,pMessage);
         }

@@ -282,7 +282,7 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
 	// is desired.  However, HandleOnOffs wants everything in the pipe, and the following function
 	// can be used to add the other devices into the map
 	void AddOtherDevicesInPipesToRenderDevices(map<int,MediaDevice *> *pmapMediaDevice);
-	void AddOtherDevicesInPipes_Loop(MediaDevice *pMediaDevice,map<int,MediaDevice *> *pmapMediaDevice);
+	void AddOtherDevicesInPipes_Loop(DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice);
 
 
 	// Follow-me
