@@ -256,7 +256,6 @@
 #define COMMAND_Quit_CONST 265
 #define COMMAND_Regen_Orbiter_CONST 266
 #define COMMAND_Regen_Orbiter_Finished_CONST 267
-#define COMMAND_Reboot_CONST 268
 #define COMMAND_Move_Playlist_entry_Up_CONST 269
 #define COMMAND_Move_Playlist_entry_Down_CONST 270
 #define COMMAND_Remove_playlist_entry_CONST 271

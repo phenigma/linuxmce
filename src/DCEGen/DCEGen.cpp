@@ -1369,6 +1369,9 @@ void DCEGen::WriteGlobals()
 		CreateFunctionParms(pRow_Command,&commandInfo);
 		string Name = commandInfo.CPPName();
 
+		if( Name.size()==0 )
+			continue;
+
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
 			fstr_DeviceCommand << "\tclass RESP_" << Name << " : public PreformedCommandResponse {" << endl;

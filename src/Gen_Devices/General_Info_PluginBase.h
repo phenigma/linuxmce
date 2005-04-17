@@ -80,7 +80,6 @@ public:
 	virtual void CMD_Set_Device_Data(int iPK_Device,string sValue_To_Assign,int iPK_DeviceData,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Device_State(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Device_Status(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Reboot(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Restart_DCERouter(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Wake_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,class Message *pMessage) {};
@@ -263,26 +262,6 @@ public:
 					{
 						string sCMD_Result="OK";
 						CMD_Get_Device_Status(sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-					};
-					iHandled++;
-					continue;
-				case 268:
-					{
-						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-						CMD_Reboot(iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
