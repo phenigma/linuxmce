@@ -54,7 +54,7 @@ RubyIOManager::addDevice(DeviceData_Impl* pdevdata) {
 	g_pPlutoLogger->Write(LV_STATUS, "Adding child device: %d.", pdevdata->m_dwPK_Device);
 	cs_.addCode(pdb_, pdevdata);
 	
-	string sport = pdevdata->m_mapParameters[DEVICEDATA_Serial_Port_CONST];
+	string sport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST];
 	PORTTYPE porttype = PORTTYPE_UNKNOWN;
 	if(!sport.empty()) {
 		porttype = PORTTYPE_SERIAL;

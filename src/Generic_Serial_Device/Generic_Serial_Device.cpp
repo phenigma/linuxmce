@@ -189,7 +189,7 @@ void Generic_Serial_Device::Transmit(const char *pData,int iSize)
 }
 
 void Generic_Serial_Device::DispatchMessage(Message* pmsg) {
-	g_pPlutoLogger->Write(LV_STATUS, "Dispatching Message %d...", pmsg->m_dwID);
+	g_pPlutoLogger->Write(LV_STATUS, "Dispatching Message %d to %d...", pmsg->m_dwID, pmsg->m_dwPK_Device_To);
 
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
 	
