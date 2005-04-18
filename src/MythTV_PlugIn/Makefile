@@ -32,6 +32,7 @@ sources += \
 	../Media_Plugin/MediaStream.cpp \
 	../Media_Plugin/BoundRemote.cpp \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
+    ../Media_Plugin/Generic_NonPluto_Media.cpp \
 	../File_Grids_Plugin/FileListGrid.cpp \
 	MythTvMediaStream.cpp \
 	MythTvWrapper.cpp
