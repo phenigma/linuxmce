@@ -230,55 +230,6 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 					g_pPlutoLogger->Write(LV_STATUS, "Device %s responded.", pDNew->m_sMacAddress.c_str());
 
 					AddDeviceToDetectionList(pDNew);
-
-					/*
-					PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDNew->m_iMacAddress);
-					if( pDExisting && abs(pDExisting->m_iLinkQuality-pDNew->m_iLinkQuality)<10 )
-					{
-						// nothing to do
-						delete pDNew;
-						continue;
-					}
-					mm.Release();
-
-					if( !pDExisting )
-					{
-						g_pPlutoLogger->Write(LV_STATUS, "Detected new device1: %s  %d", pDNew->m_sMacAddress.c_str(), pDNew->m_iLinkQuality);						
-// TODO - HACK !!!  SEE ABOVE.  HACK IN A NASTY FIX UNTIL WE FIGURE OUT WHY BLUEZ IS LOCKING UP
-g_pPlutoLogger->Write(LV_WARNING, "Executing /tmp/hciscan hack");
-system("hcitool scan > /tmp/hciscan");
-vector<string> vectstr;
-FileUtils::ReadFileIntoVector( "/tmp/hciscan", vectstr );
-for(size_t s=0;s<vectstr.size();++s)
-{
-string sLine = StringUtils::ToUpper(vectstr[s]);
-if( sLine.find(StringUtils::ToUpper(pDNew->m_sMacAddress))!=string::npos )
-{
-size_t s2 = vectstr[s].find('\t',10);
-g_pPlutoLogger->Write(LV_WARNING, "s1 %d",(int) s2);
-if( ((int) s2)<0 || s2==string::npos || s2+2 > vectstr[s].length() )
-s2=0;
-else
-s2+=1;
-g_pPlutoLogger->Write(LV_WARNING, "s2 %d",(int) s2);
-
-pDNew->m_sID = vectstr[s].substr(s2);
-g_pPlutoLogger->Write(LV_WARNING, "set name to %d %s",(int) s2,pDNew->m_sID.c_str());
-}
-}
-g_pPlutoLogger->Write(LV_STATUS,"loop 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
-						Intern_NewDeviceDetected(pDNew);
-g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
-					}
-					else
-					{
-						g_pPlutoLogger->Write(LV_STATUS, "Detected change in strength device: %s  %d  from: %d",pDNew->m_sMacAddress.c_str(),pDNew->m_iLinkQuality);
-						//printf("Detected change in strength device: %s  %d  from: %d\n",pDNew->m_sMacAddress.c_str(),pDNew->m_iLinkQuality,pDExisting->m_iLinkQuality);
-						Intern_SignalStrengthChanged(pDNew);
-					}
-					*/
-
-//					cur_rsp = add_result(list, cur_rsp, num_rsp, &result);
 				}
 				break;
 
@@ -296,37 +247,16 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int
 
 					char name[248];
 					memset(name, 0, sizeof(name));
-// For some reason when I do this, I can only scan once and all future scans fail
+					
+					// For some reason when I do this, I can only scan once and all future scans fail
 	                //if (hci_read_remote_name(dd, &(info+i)->bdaddr, sizeof(name), name, 100000) < 0)
-                    strcpy(name, "n/a");
+                    
+					strcpy(name, "n/a");
 
 					PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
 					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 					
 					AddDeviceToDetectionList(pDNew);
-
-					/*
-					PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDNew->m_iMacAddress);
-					if( pDExisting && abs(pDExisting->m_iLinkQuality-pDNew->m_iLinkQuality)<10 )
-					{
-						// nothing to do
-						delete pDNew;
-						continue;
-					}
-					mm.Release();
-
-					if( !pDExisting )
-					{
-						g_pPlutoLogger->Write(LV_STATUS, "Detected new device2: %s  %d\n", pDNew->m_sMacAddress.c_str(), pDNew->m_iLinkQuality);
-						//printf("Detected new device: %s  %d\n",pDNew->m_sMacAddress.c_str(),pDNew->m_iLinkQuality);
-						Intern_NewDeviceDetected(pDNew);
-					}
-					else
-					{
-  					    g_pPlutoLogger->Write(LV_STATUS, "Detected change in strength device: %s  %d  from: %d\n",pDNew->m_sMacAddress.c_str(),pDNew->m_iLinkQuality,pDExisting->m_iLinkQuality);
-						Intern_SignalStrengthChanged(pDNew);
-					}
-					*/
 				}
 				break;
 
@@ -334,55 +264,6 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int
 				{
 					/* The inquiry ended, because of time or number of responses */
 					cancel = 0;
-				
-					/*
-					list<PhoneDevice *> listDevicesLost;
-
-					//Make a list of all the devices that were lost this scan
-					PLUTO_SAFETY_LOCK(mm, m_MapMutex);
-
-					printf("# Devices detected last scan: %d\n", m_mapPhoneDevice_Detected.size());
-					printf("# Devices detected this scan: %d\n", m_mapDevicesDetectedThisScan.size());
-
-					map<u_int64_t,class PhoneDevice *>::iterator itDevice;
-					for(itDevice=m_mapPhoneDevice_Detected.begin();itDevice!=m_mapPhoneDevice_Detected.end();)
-					{
-						class PhoneDevice *pD = (*itDevice).second;
-						map<u_int64_t,class PhoneDevice *>::iterator itDeviceNew = m_mapDevicesDetectedThisScan.find(pD->m_iMacAddress);
-if( itDeviceNew==m_mapDevicesDetectedThisScan.end() )
-{
-g_pPlutoLogger->Write(LV_STATUS,"we think we lost: %lf %s",(double) (*itDevice).first,(pD->m_sID.c_str()));
-for(map<u_int64_t,class PhoneDevice *>::iterator i2 = m_mapDevicesDetectedThisScan.begin();i2 != m_mapDevicesDetectedThisScan.end();++i2)
-{
-PhoneDevice *ppp = (*i2).second;
-g_pPlutoLogger->Write(LV_STATUS,"we found: %ls %s",(double) (*i2).first,ppp->m_sID.c_str());
-}
-}
-
-						if( itDeviceNew==m_mapDevicesDetectedThisScan.end() )
-						{
-							listDevicesLost.push_back( (*itDevice).second );
-							m_mapPhoneDevice_Detected.erase(itDevice++);
-g_pPlutoLogger->Write(LV_STATUS,"devices detected this scan: %d",(int) m_mapDevicesDetectedThisScan.size());
-g_pPlutoLogger->Write(LV_STATUS,"lost device size is now: %d",(int) listDevicesLost.size());
-						}
-						else
-							itDevice++;
-					}
-
-					mm.Release();
-
-					printf("# Devices lost this scan: %d\n", listDevicesLost.size());
-
-					
-					list<PhoneDevice *>::iterator itLost;
-					for(itLost = listDevicesLost.begin();itLost != listDevicesLost.end();++itLost)
-					{
-						g_pPlutoLogger->Write(LV_STATUS, "Lost connection to device: %s", (*itLost)->m_sMacAddress.c_str());
-						Intern_LostDevice(*itLost);
-					}
-					*/
-	
 					g_pPlutoLogger->Write(LV_WARNING, "Inquiry complete\n");
 				}
 				break;
