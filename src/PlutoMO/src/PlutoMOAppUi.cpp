@@ -15,45 +15,90 @@
  
  */
 
+//----------------------------------------------------------------------------------------------
+#include <avkon.hrh>
+#include <uri8.h>
+#include <e32base.h>
+#include <http.h>
+#include <chttpformencoder.h>
+#include <http\rhttpsession.h>
+#include <http\mhttptransactioncallback.h>
+#include "eikmenub.h"
+#include <aknnotewrappers.h> 
+#include <AknGlobalConfirmationQuery.h>
+//----------------------------------------------------------------------------------------------
+#include "PlutoMO.hrh"
+//----------------------------------------------------------------------------------------------
 #include "PlutoMOAppUi.h"
 #include "PlutoMOContainer.h" 
-//#include <PlutoMO.rsg>
-#include "PlutoMO.hrh"
-
-#include <avkon.hrh>
-
 #include "PlutoVMCContainer.h"
 #include "PlutoVMCUtil.h"
 #include "PlutoVMCView.h"
 #include "Logger.h"
 #include "PlutoDefs.h"
-
 #include "PlutoVMCView.h"
-
-//test
-#include <http\rhttpsession.h>
-#include <http\mhttptransactioncallback.h>
-#include <uri8.h>
-#include <e32base.h>
-#include <http.h>
-#include <chttpformencoder.h>
-
-#include "httpclient.h"
-
-#include <AknGlobalConfirmationQuery.h>
 #include "GetCallerId.h"
 #include "NotifyIncomingCall.h"
 #include "LineReader.h"
-
 #include "PlutoEventView.h"
 #include "PlutoEventContainer.h"
-#include "eikmenub.h"
-#include <aknnotewrappers.h> 
+//----------------------------------------------------------------------------------------------
+//test - not used
+#include "httpclient.h"
+//----------------------------------------------------------------------------------------------
+char CPlutoMOAppUi::GetCurrentDrive()
+{
+	bool bRes = false;
+	char cDrive;
 
-_LIT(KPlutoMODirCurrConnection,"c:\\system\\Apps\\PlutoMO\\0000.vmc");
+	TUint attr;
+	RFs iFsSession;
+
+	User::LeaveIfError(iFsSession.Connect()); 
+	string sCurrentFolder = "x:\\system\\Apps\\PlutoMO";
+
+	//search for app folder
+	for(cDrive = 'c'; cDrive <= 'z'; cDrive++)
+	{
+		sCurrentFolder.SetAt(cDrive, 0);
+
+		iFsSession.Att(sCurrentFolder.Des(), attr);
+		if(attr & KEntryAttDir)
+			break;
+	}
+
+	iFsSession.Close();
+
+	return cDrive;
+}
+//----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::SetupPaths()
+{
+	//initializing default paths
+	m_sAppFolder		= "x:\\System\\Apps\\PlutoMO";
+	m_sLoggerFileName	= "x:\\System\\apps\\PlutoMO\\PlutoMO.log";
+	m_sVMCFolderFilter	= "x:\\System\\Apps\\PlutoMO\\*.vmc";
+	m_sPlutoVMC			= "x:\\System\\Apps\\PlutoMO\\PlutoMO.vmc";
+	m_sPlutoConfig		= "x:\\System\\Apps\\PlutoMO\\PlutoMO.cfg";
+	m_sPlutoEventPng    = "x:\\System\\Apps\\PlutoMO\\PlutoEvent.png";
+
+	//current drive
+	char cDrive = GetCurrentDrive();
+	
+	//adjusting drive
+	m_sAppFolder.SetAt(cDrive, 0); //*
+	m_sLoggerFileName.SetAt(cDrive, 0); //*
+	m_sVMCFolderFilter.SetAt(cDrive, 0);
+	m_sPlutoVMC.SetAt(cDrive, 0);
+	m_sPlutoConfig.SetAt(cDrive, 0);
+	m_sPlutoEventPng.SetAt(cDrive, 0);
+}
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ConstructL()
 {
+	//find the real paths to app's misc files
+	SetupPaths();
+
 	BaseConstructL();
     iAppContainer = new (ELeave) CPlutoMOContainer;
     iAppContainer->SetMopParent(this);
@@ -63,7 +108,7 @@ void CPlutoMOAppUi::ConstructL()
 	iPlutoEventView = NULL;
 	m_pVMCView = NULL;
 
-	SymbianLogger *pLogger = new SymbianLogger(string("C:\\system\\apps\\PlutoMO\\PlutoMO.log"), KCPlutoLoggerId, CCoeStatic::EApp);
+	SymbianLogger *pLogger = new SymbianLogger(m_sLoggerFileName, KCPlutoLoggerId, CCoeStatic::EApp);
 
 	LOG("Setup members\n");
 	//members initialization
@@ -129,7 +174,7 @@ void CPlutoMOAppUi::Cleanup()
 void CPlutoMOAppUi::ReadConfigurationFile()
 {
 	CAsciiLineReader lr;
-	lr.OpenL(_L("C:\\system\\apps\\PlutoMO\\PlutoMO.cfg"));
+	lr.OpenL(m_sPlutoConfig.Des());
 	TInt iCurrentLineOffset;
 	TPtrC8 iCurrentLine;
 
@@ -312,11 +357,6 @@ void CPlutoMOAppUi::MakeViewerVisible(bool Value)
 		CAknInformationNote* informationNote;
 		informationNote = new (ELeave) CAknInformationNote;
     	informationNote->ExecuteLD(_L("PlutoMO is currently disconnected"));
-
-		RFs iFsSession;
-		User::LeaveIfError(iFsSession.Connect()); 
-		User::LeaveIfError(iFsSession.Delete(KPlutoMODirCurrConnection));
-		iFsSession.Close();
 
 		iAppContainer->SetPlutoMO(EPlutoMOPictures, EPlutoMODate);
 

@@ -35,10 +35,12 @@ TInt CPlutoEventContainer::CountComponentControls() const
 
 void CPlutoEventContainer::Draw(const TRect& aRect) const
 {    
+	CPlutoMOAppUi* pApp = (CPlutoMOAppUi*)(CCoeEnv::Static()->AppUi());
 	CWindowGc& gc = SystemGc();
 
 	TRect rect(0, 0, -1, -1);
-	CFbsBitmap *pBitmap = CImageLoader::LoadBitmap(string("C:\\system\\apps\\PlutoMO\\PlutoEvent.png").Des());
+	CFbsBitmap *pBitmap = CImageLoader::LoadBitmap(pApp->m_sPlutoEventPng.Des());
+
 	gc.BitBlt(rect.iTl, pBitmap);
 
 	CGraphicsDevice* screenDevice = CCoeEnv::Static()->ScreenDevice();
@@ -50,8 +52,6 @@ void CPlutoEventContainer::Draw(const TRect& aRect) const
 	TRgb color(0, 0, 0);
 	gc.SetPenColor(color);
 	gc.UseFont(pCurrentFont);
-
-	CPlutoMOAppUi* pApp = (CPlutoMOAppUi*)(CCoeEnv::Static()->AppUi());
 
 	TPoint point(30, 40);
     gc.DrawText(pApp->iPlutoEventTypes[pApp->iPhoneTypes[pApp->iCurType].iWAP_EventType - 1], point);
@@ -78,7 +78,7 @@ TKeyResponse CPlutoEventContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEv
 	{
 		switch(aKeyEvent.iScanCode)		
 		{
-			case 0x31:	
+			case 0x31:	 //go to pluto control panel (the browser)
 			{
 				pApp->LaunchBrowser();
 				pApp->m_bPlutoEventVisible = false;
@@ -86,17 +86,17 @@ TKeyResponse CPlutoEventContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEv
 				break;
 			}
 			
-			case 0x32:	
+			case 0x32:  //view info about event
 			{
 				TFileName file_name;
-				file_name.Append(KPlutoVMCFile);
+				file_name.Append(pApp->m_sPlutoVMC.Des());
 				pApp->OpenVMC(false, file_name, NULL);
 				pApp->m_bPlutoEventVisible = false;
 				MakeVisible(false);
 				break;
 			}
 
-			case 0x33:
+			case 0x33:  //ignore
 			{
 				MakeVisible(false);
 				pApp->m_bPlutoEventVisible = false;

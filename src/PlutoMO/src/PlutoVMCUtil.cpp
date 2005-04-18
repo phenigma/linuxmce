@@ -38,7 +38,7 @@
 #include "Logger.h"
 
 #ifdef __WINS__
-#define TEST_DATAGRID
+//#define TEST_DATAGRID
 #endif
 
 //------------------------------------------------------------------------------------------------------------------

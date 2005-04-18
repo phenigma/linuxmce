@@ -16,16 +16,10 @@
 #include <eikappui.h>
 #include <eikapp.h>
 #include <eikdoc.h>
-
-// In source files stored in archives and packages, these 2 lines will have the release version (build)
-// and the svn revision as a global variable that can be inspected within a core dump
-#define  VERSION "2005.04.11"
-//const char *g_szCompile_Date="<=compile_date=>";
-/*SVN_REVISION*/
-
-
-_LIT(KPlutoVMCFile,"C:\\system\\apps\\PlutoMO\\PlutoMO.vmc");
-
+//----------------------------------------------------------------------------------------------
+//this version is must be synchronized with the one from Orbiter_Plugin.cpp
+#define  VERSION "2005.04.18"
+//----------------------------------------------------------------------------------------------
 #include "BD/BDCommandProcessor_Symbian_Bluetooth.h"
 //----------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS
@@ -56,6 +50,14 @@ public:
 //----------------------------------------------------------------------------------------------
 class CPlutoMOAppUi : public CAknViewAppUi, public MBluetoothListener
 {
+public:
+	string m_sLoggerFileName;
+	string m_sVMCFolderFilter;
+	string m_sAppFolder;
+	string m_sPlutoVMC;
+	string m_sPlutoConfig;
+	string m_sPlutoEventPng;
+
 public: 
 
     void ConstructL();
@@ -161,9 +163,11 @@ private:
         const TKeyEvent& aKeyEvent,TEventCode aType);
 
 	void CreateVMCView();
-
 	void CaptureSoftKeys();
 	void CancelCaptureSoftKeys();
+
+	void SetupPaths();
+	char GetCurrentDrive();
 
     CPlutoMOContainer* iAppContainer; 
 	CPlutoEventView* iPlutoEventView;

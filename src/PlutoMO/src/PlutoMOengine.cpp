@@ -33,10 +33,6 @@
 _LIT(KStringSize,"%d\t%S\t%d bytes");
 // Number, name and date modified
 _LIT(KStringDate,"%d\t%S\t%S"); 
-// Directory for Sounds
-_LIT(KPlutoMOVMCs,"c:\\system\\Apps\\PlutoMO\\*.vmc");
-_LIT(KPlutoMODir,"c:\\system\\Apps\\PlutoMO\\");
-
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoMOEngine::ConstructL()
     {
@@ -48,34 +44,36 @@ CPlutoMOEngine::~CPlutoMOEngine()
     }
 //------------------------------------------------------------------------------------------------------------------
 TInt CPlutoMOEngine::StartPlutoMO()
-    {
-    if (iDirList)
-        {        
-        delete iDirList;
-        iDirList = 0;
-        }    
-        
-    TInt error = KErrNone;
+{
+	CPlutoMOAppUi* pApp = (CPlutoMOAppUi*)(CCoeEnv::Static()->AppUi());
 
-    User::LeaveIfError(iFsSession.Connect()); 
+	if (iDirList)
+	{        
+		delete iDirList;
+		iDirList = 0;
+	}    
+    
+	TInt error = KErrNone;
+	User::LeaveIfError(iFsSession.Connect()); 
 
-    switch (iDirectory)
-        {
-        case EPlutoMOPictures:
-            error = iFsSession.GetDir(KPlutoMOVMCs,KEntryAttNormal,ESortByName,iDirList);
-            break;
-         default:
-            break;
-        }
+	switch (iDirectory)
+	{
+		case EPlutoMOPictures:
+			error = iFsSession.GetDir(pApp->m_sVMCFolderFilter.Des(),KEntryAttNormal,ESortByName,iDirList);
+			break;
+		 default:
+			break;
+	}
 
-    return error;
-
-    }
+	return error;
+}
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoMOEngine::GetPlutoMOItems(CDesCArray* aItems)
 {
 	if(!iDirList)
 		return;
+
+	CPlutoMOAppUi* pApp = (CPlutoMOAppUi*)(CCoeEnv::Static()->AppUi());
                    
 	for (TInt i=0;i<iDirList->Count();i++)
     {
@@ -122,24 +120,18 @@ void CPlutoMOEngine::SetDirectory(TInt aDirectory)
     }
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoMOEngine::LaunchCurrent(TInt aPosition)
-    {
-
+{
     if(!iDirList)
         return;
- 
+
+	CPlutoMOAppUi* pApp = (CPlutoMOAppUi*)(CCoeEnv::Static()->AppUi());
+
     CDocumentHandler* handler = CDocumentHandler::NewL(NULL);
     CleanupStack::PushL(handler);
     TFileName descr;
 
-    switch (iDirectory)
-        {   
-        case EPlutoMOPictures:
-            descr.Append(KPlutoMODir);
-            break;
-        default:
-            break;
-        }
-
+    descr.Append(pApp->m_sAppFolder.Des());
+	descr.Append(_L("\\"));
     descr.Append((*iDirList)[aPosition].iName);
     TDataType nullType;
 
@@ -170,39 +162,27 @@ void CPlutoMOEngine::LaunchCurrent(TInt aPosition)
 //------------------------------------------------------------------------------------------------------------------
 // Remove Files
 void CPlutoMOEngine::RemoveFile(TInt aPosition)
-    {
-
+{
     if(!iDirList)
         return;
-     //Remove current item in the list
+
+	CPlutoMOAppUi* pApp = (CPlutoMOAppUi*)(CCoeEnv::Static()->AppUi());
 
     TFileName descr;
-    
-	
-	switch (iDirectory)
-        {   
-        case EPlutoMOPictures:
-            descr.Append(KPlutoMODir);
-            break;
-        default:
-            descr.Append(KPlutoMODir);
-            break;
-        }
+    descr.Append(pApp->m_sAppFolder.Des());
+
     // Add filename to be deleted
     descr.Append((*iDirList)[aPosition].iName);
-	
 	User::LeaveIfError(iFsSession.Connect()); 
 
+     //Remove current item in the list
 	User::LeaveIfError(iFsSession.Delete(descr));
-    
 	iFsSession.Close();
     
-
 	// Display an information note
 	informationNote = new (ELeave) CAknInformationNote;
-    
 	informationNote->ExecuteLD(_L("File Deleted"));
-};
+}
 //------------------------------------------------------------------------------------------------------------------
 // Find number of files in current folder
 void CPlutoMOEngine::FindFiles()

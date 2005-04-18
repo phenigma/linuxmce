@@ -82,6 +82,11 @@ class string:public CBase
 			return (char)(base_str->Des()[n]);
 		}
 
+		void SetAt(char Char, size_type pos) 
+		{
+			base_str->Des()[pos] = Char;
+		}
+
 		void SetLength(size_type Size);
 		void Append(char Char);
 
