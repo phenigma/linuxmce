@@ -1185,6 +1185,7 @@
 #define DESIGNOBJ_save_playlist_CONST 3374
 #define DESIGNOBJ_objMenu2_CONST 3376
 #define DESIGNOBJ_go_to_security_menu_with_red_CONST 3377
+#define DESIGNOBJ_mnuNpDvdRemote_CONST 3378
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
