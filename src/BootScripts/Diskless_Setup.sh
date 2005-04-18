@@ -196,6 +196,9 @@ for Client in $R; do
 			echo "$SysLogCfg2" >>$DlPath/etc/syslog.conf
 		fi
 
+		echo -n " apt"
+		cp -f /etc/apt/apt.conf.d/30pluto $DlPath/etc/apt/apt.conf.d
+
 		echo
 		
 		echo "* Adding root to exports"
