@@ -46,8 +46,9 @@ const timespec LEARNING_TIMEOUT = {40, 0}; // 40 s
 //const timespec READY_TIMEOUT = {0, 800000000}; // 800 ms
 const timespec READY_TIMEOUT = {3, 0};
 
-#define LEARN_PREFIX "GC-IRL"
-#define GC100_COMMAND_PORT 4998
+const string LEARN_PREFIX_IRL = "GC-IRL";
+const string LEARN_PREFIX_IRE = "GC-IRE";
+const int GC100_COMMAND_PORT = 4998;
 
 /** pthread wrapper functions for the in-object thread functions */
 // Learning thread
@@ -362,6 +363,69 @@ bool gc100::ConvertPronto(string ProntoCode, string &gc_code)
 	return return_value;
 }
 
+string gc100::IRL_uncompress(string IRL_string)
+{
+	bool done = false;
+	string sPair[4];
+	unsigned int iPairs = 0, i, pair_num = 0;
+	string::size_type pos = 0;
+	string sResult = "";
+
+	string token1, token2, digits2, comp2;
+
+	// take prefix and frequency verbatim
+	sResult += StringUtils::Tokenize(IRL_string, ",", pos) + ",";
+	sResult += StringUtils::Tokenize(IRL_string, ",", pos);
+
+	while (! done)
+	{
+		if ((pos >= IRL_string.length()) || (++pair_num > 5000))
+		{
+			//g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: no more pairs; we're done");
+			done = true;
+		}
+		else
+		{
+			token1 = StringUtils::Tokenize(IRL_string, ",", pos); // ON value
+			token2 = StringUtils::Tokenize(IRL_string, ",", pos); // OFF value
+
+			if (token1 == "X" || token2 == "X" || token1 == "Z" || token2 == "Z")
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: end-of sequence X or Z character detected");
+				done = true;
+			}
+			else
+			{
+				digits2 = token2;
+				comp2 = "";
+				
+				for (i = 0; i < token2.length(); i++)
+				{
+					if (token2[i] >= 'A' && token2[i] <= 'D')
+					{
+						digits2 = token2.substr(0, i);
+						comp2 = token2.substr(i);
+					}
+				}
+
+				if (iPairs < 4)
+				{
+					sPair[iPairs] = string("") + "," + token1 + "," + digits2;
+					iPairs++;
+				}
+
+				sResult += string("") + "," + token1 + "," + digits2;
+				for (i = 0; i < comp2.length(); i++)
+				{
+					sResult += sPair[comp2[i] - 'A'];
+				}
+			}
+		}
+	}
+
+	return sResult;
+}
+
 std::string gc100::IRL_to_pronto(string raw_learned_string)
 {
 	std::string result,token,token2,pronto_pairs;
@@ -391,16 +455,20 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 
 	//  trunc_prefix=(int) &last - (int) &string_search[0];
 
-	trunc_prefix=raw_learned_string.rfind(LEARN_PREFIX);
-	if (trunc_prefix <0)
+	trunc_prefix = raw_learned_string.rfind(LEARN_PREFIX_IRL);
+	if (trunc_prefix < 0)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "IRL_to_pronto: trunc_prefix was %d",trunc_prefix);
-		trunc_prefix=0;
+		trunc_prefix = raw_learned_string.rfind(LEARN_PREFIX_IRE);
+		if (trunc_prefix < 0)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "IRL_to_pronto: trunc_prefix was %d", trunc_prefix);
+			trunc_prefix = 0;
+		}
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: trunc_prefix is %d",trunc_prefix);
 
-	learned_string=raw_learned_string.substr(trunc_prefix);
+	learned_string = IRL_uncompress(raw_learned_string.substr(trunc_prefix));
 	pos=0;
 
 	// Output: 0000 format
@@ -439,17 +507,17 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 		else
 		{
 			token=StringUtils::Tokenize(learned_string,",",pos); // ON value
-			sscanf(token.c_str(),"%d",&v1);
-
 			token2=StringUtils::Tokenize(learned_string,",",pos); // OFF value
+			
+			sscanf(token.c_str(),"%d",&v1);
 			sscanf(token2.c_str(),"%d",&v2);
 
 			//g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: data pair #%d: %d/%d",pair_num,v1,v2);
 			// Do any necessary correcting of values here
 
-			if ((token=="X")||(token2=="X"))
+			if (token == "X" || token2 == "X" || token == "Z" || token2 == "Z")
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: end-of sequence X character detected");
+				g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: end-of sequence X or Z character detected");
 				done=true;
 			}
 			else

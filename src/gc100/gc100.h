@@ -134,6 +134,7 @@ public:
 		std::string read_from_gc100();
 		bool ConvertPronto(string ProntoCode, string &gc_code);
 		std::string IRL_to_pronto(string learned_string);
+		string gc100::IRL_uncompress(string IRL_string);
 	
 		void relay_power(class Message *pMessage, bool power_on);
 
