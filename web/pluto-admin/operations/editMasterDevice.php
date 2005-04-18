@@ -201,7 +201,7 @@ $out='';
 					</td>
 				</tr>
 				<tr>
-					<td valign="top">Is PlugIg</td>
+					<td valign="top">Is PlugIn</td>
 					<td><input type="checkbox" name="isPlugIn" value="1" '.(($isPlugIn==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
 					<input type="hidden" name="oldIsPlugIn" value="'.(($isPlugIn==1)?'1':'0').'"></td>
 				</tr>					
