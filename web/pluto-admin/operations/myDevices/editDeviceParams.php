@@ -529,7 +529,7 @@ $installationID = (int)@$_SESSION['installationID'];
 						
 					}
 				}				
-		}		
+		}	
 		if (trim($description)!='') {		
 			$selectOldValues = 'SELECT * FROM Device where PK_Device = ?';	
 			$resOldValues = $dbADO->Execute($selectOldValues,array($deviceID));

@@ -952,7 +952,7 @@ $out='';
 			$query = "insert into DeviceTemplate_DeviceData( FK_DeviceTemplate , FK_DeviceData) values(?,?)";
 			$dbADO->Execute($query,array($deviceID,$newDeviceData));
 			
-			$dbADO->Execute('INSERT INTO Device_DeviceData (FK_DeviceData, FK_Device) SELECT '.$newDeviceData.',PK_Device FROM Device WHERE FK_DeviceTemplate=?',$deviceID);
+			$dbADO->Execute('INSERT IGNORE INTO Device_DeviceData (FK_DeviceData, FK_Device) SELECT '.$newDeviceData.',PK_Device FROM Device WHERE FK_DeviceTemplate=?',$deviceID);
 			$locationGoTo = "Data_Description_{$newDeviceData}";
 
 		}

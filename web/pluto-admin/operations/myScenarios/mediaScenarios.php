@@ -21,6 +21,12 @@ function mediaScenarios($output,$dbADO) {
 		WHERE FK_Installation=?
 		ORDER BY RoomName ASC, Description ASC';
 	$resEntAreas=$dbADO->Execute($queryEntAreas,$installationID);
+	$eaDescriptions=array();
+	while($rowEA=$resEntAreas->FetchRow()){
+		$eaDescriptions[$rowEA['PK_EntertainArea']]=$rowEA['Description'];
+	}
+	
+	$resEntAreas->MoveFirst();
 	$displayedMediaScenarios=array();
 
 	$out='Each Media Scenario will be a button on the Orbiter.  To use Media from a Pluto Media Director, just check the box for the type of media you want.  To use Media from
@@ -40,7 +46,7 @@ function mediaScenarios($output,$dbADO) {
 				<input type="hidden" name="optionEntArea" value="">	
 				<input type="hidden" name="optionName" value="">	
 				<input type="hidden" name="actionType" value="">
-				<input type="hidden" name="EntAreaDescription" value="'.@$_POST['newEntArea'].'">
+				<input type="hidden" name="EntAreaDescription" value="'.@$eaDescriptions[$_POST['newEntArea']].'">
 				<input type="hidden" name="GoTo" value="">	
 			<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 			<div align="center"><h2>Media scenarios</h2></div>
@@ -89,14 +95,14 @@ function mediaScenarios($output,$dbADO) {
 				$out.='
 					<tr>
 						<td>Device</td>
-						<td><select name="MSDevice" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()" '.((substr($_POST['MSDevice'],-1)=='-')?'style="background:red;"':'').'>
+						<td><select name="MSDevice" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()" '.((substr(@$_POST['MSDevice'],-1)=='-')?'style="background:red;"':'').'>
 							<option value="0" style="background:white;">Please select</option>';
 
 				foreach ($devicesMediaType AS $deviceID=>$description){
 					$out.='<option value="'.$deviceID.'-'.@$deviceTemplatesArray[$deviceID].'" '.((@$_POST['MSDevice']==$deviceID.'-'.@$deviceTemplatesArray[$deviceID])?'selected':'').' '.((!isset($deviceTemplatesArray[$deviceID]))?'style="background:red;"':'style="background:white;"').'>'.$description.'</option>';
 				}
 				$out.='
-						</select>'.((count($devicesMediaType)!=count($deviceTemplatesArray))?' <font color=red>The devices highlighted doen\'t have specified a media type.</font>':'').'</td>
+						</select>'.((count($devicesMediaType)!=count($deviceTemplatesArray))?' Devices in red do not have any media types set on the A/V Properties page.  Go to the <a href="index.php?section=avWizard">A/V Equipment</a> page and choose A/V Properties to set them.':'').'</td>
 					</tr>';
 			if($resDevices->RecordCount()==0){
 				$out.='
@@ -117,6 +123,7 @@ function mediaScenarios($output,$dbADO) {
 						SELECT * FROM MediaType 
 							INNER JOIN DeviceTemplate_MediaType ON FK_MediaType=PK_MediaType
 						WHERE FK_DeviceTemplate=? ORDER BY Description ASC';
+					
 					$resMediaTypes=$dbADO->Execute($getMediaTypes,$deviceArray[1]);
 					while($rowMediaTypes=$resMediaTypes->FetchRow()){
 						$out.='<option value="'.$rowMediaTypes['PK_DeviceTemplate_MediaType'].'" '.((@$_POST['newType']==$rowMediaTypes['PK_DeviceTemplate_MediaType'])?'selected':'').'>'.$rowMediaTypes['Description'].'</option>';
@@ -149,13 +156,14 @@ function mediaScenarios($output,$dbADO) {
 							$selectedMediatype=$rowRemotes['FK_MediaType'];
 						}
 						
-						if(isset($selectedMediatype)){
+						if(isset($_POST['newType'])){
 							$queryOtherRemotes='
 								SELECT DesignObj.Description,PK_DesignObj
 								FROM DesignObj
 								INNER JOIN MediaType_DesignObj ON FK_DesignObj=PK_DesignObj
-								WHERE FK_MediaType=?';
-							$resOtherRemotes=$dbADO->Execute($queryOtherRemotes,$selectedMediatype);
+								INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_MediaType=MediaType_DesignObj.FK_MediaType
+								WHERE PK_DeviceTemplate_MediaType=?';
+							$resOtherRemotes=$dbADO->Execute($queryOtherRemotes,$_POST['newType']);
 							while($rowOtherRemotes=$resOtherRemotes->FetchRow()){
 								$remotesArray[$rowOtherRemotes['PK_DesignObj']]=$rowOtherRemotes['Description'];
 							}
@@ -172,7 +180,7 @@ function mediaScenarios($output,$dbADO) {
 						$out.='</select>
 						</td>
 					</tr>';
-						if($resRemotes->RecordCount()==0){
+						if(count($remotesArray)==0){
 							$out.='
 							<tr>
 								<td colspan="2" class="err">Selected type does not have a remote. Please select another type.</td>

@@ -1829,14 +1829,15 @@ function getMediaPluginID($installationID,$dbADO)
 	return $row['PK_Device'];
 }
 
-function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='')
+function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey='key')
 {
 //	if(count($valuesArray)==0)
 //		return null;
 	$out='<select name="'.$name.'" "'.$extra.'">
 			<option value="0">- Please select -</option>';
 	foreach ($valuesArray AS $key=>$value){
-		$out.='<option value="'.$key.'" '.(($key==$selectedValue)?'selected':'').'>'.$value.'</option>';
+		$optionValue=($valueKey=='key')?$key:$value;
+		$out.='<option value="'.$optionValue.'" '.(($optionValue==$selectedValue)?'selected':'').'>'.$value.'</option>';
 	}
 	$out.='</select>';
 	return $out;
@@ -2851,8 +2852,8 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 	}
 	
 	// if device is AV with UsesIR=1, override default controlled_via based on category and device template
-	$infraredAndSpecialisedDevices=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
-	$specialisedAndComputerDevices=getDevicesFromCategories(array($GLOBALS['rootComputerID'],$GLOBALS['specialized']),$dbADO);
+	$controlledByIfIR=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
+	$controlledByIfNotIR=getDevicesFromCategories(array($GLOBALS['rootComputerID']),$dbADO);
 	
 	// get selected category Device Templates
 	$avArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
@@ -2869,7 +2870,7 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 
 		$tmpArray=array();
 		$tmpArray[$deviceID]=$rowD['Description'];
-		$devicesAllowedToControll=($rowD['UsesIR']==1)?array_diff($infraredAndSpecialisedDevices,$tmpArray):array_diff($specialisedAndComputerDevices,$tmpArray);
+		$devicesAllowedToControll=($rowD['UsesIR']==1)?array_diff($controlledByIfIR,$tmpArray):array_diff($controlledByIfNotIR,$tmpArray);
 
 		foreach($devicesAllowedToControll as $key => $value){
 			$optionsArray[$key]=$value;
@@ -2921,9 +2922,10 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify)
 {
 	$serial_ports=array();
 	exec('sudo -u root /usr/pluto/bin/ListSerialPorts.sh', $serial_ports);
+	$serial_ports[]='/ttt/xxx';
 
 	$extra=((isset($allowedToModify) && $allowedToModify==0)?'disabled':'');
-	$out=pulldownFromArray($serial_ports,$name,$selectedPort,$extra);
+	$out=pulldownFromArray($serial_ports,$name,$selectedPort,$extra,'value');
 	
 	return $out;
 }

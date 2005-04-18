@@ -111,20 +111,6 @@ function avWizard($output,$dbADO) {
 				$resDevice_StartupScript=$dbADO->Execute('SELECT * FROM Device_StartupScript WHERE FK_Device=? AND FK_StartupScript=?',array($coreID,$GLOBALS['ShareIRCodes']));
 				$rowShare=$resDevice_StartupScript->FetchRow();
 				$sharedWithOthers=($rowShare['Enabled']==1)?1:0;
-				
-				$portsArray=array();
-				$resPorts=$dbADO->Execute('SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?',array($coreID,$GLOBALS['Port']));
-				if($resPorts->RecordCount()>0){
-					$rowPorts=$resPorts->FetchRow();
-					$partsArray=explode(';',$rowPorts['IK_DeviceData']);
-					foreach($partsArray AS $part){
-						$secondParts=explode('|',$part);
-						if(count($secondParts)==2)
-							$portsArray[$secondParts[0]]=$secondParts[1];
-						else
-							$portsArray[$part]=$part;
-					}
-				}
 			}
 			
 			$out.='<div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> Share my I/R codes with other Pluto users.</div>';
@@ -371,20 +357,7 @@ function avWizard($output,$dbADO) {
 					
 					if($type!='media_directors'){
 						$controlledByPulldown=controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO);
-					/*	
-					$controlledByPulldown='
-						<select name="controlledBy_'.$rowD['PK_Device'].'">
-							<option value="0">- Select device -</option>';
-					$tmpArray=array();
-					$tmpArray[$rowD['PK_Device']]=$rowD['Description'];
-					$devicesAllowedToControll=($rowD['UsesIR']==1)?array_diff($infraredAndSpecialisedDevices,$tmpArray):array_diff($specialisedAndComputerDevices,$tmpArray);	
-					
-					foreach($devicesAllowedToControll as $key => $value){
-						$controlledByPulldown.='<option value="'.$key.'" '.(($rowD['FK_Device_ControlledVia']==$key)?'selected':'').'>'.$value.'</option>';
-					}
-					
-					$controlledByPulldown.='</select>';
-					*/
+
 					unset($GLOBALS['DeviceIDControlledVia']);
 					unset($GLOBALS['DeviceControlledVia']);
 				}else {
@@ -744,7 +717,7 @@ function avWizard($output,$dbADO) {
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);	
+				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);	
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 				exec($commandToSend);
