@@ -31,6 +31,10 @@
 #include "Message.h"
 #include "DCE/Logger.h"
 
+#ifdef WINCE
+	#define stricmp _stricmp
+#endif
+
 using namespace DCE;
 
 #if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
