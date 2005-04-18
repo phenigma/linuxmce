@@ -26,6 +26,7 @@ using namespace std;
 using namespace EMBRUBY;
 
 #define DEFAULT_POOL_TIME		500
+#define DEFAULT_DELAY_TIME		2000
 
 namespace DCE {
 
@@ -140,6 +141,9 @@ RubyIOManager::addDevice(DeviceData_Impl* pdevdata) {
 	}
 	
 	int delay = atoi(pdevdata->m_mapParameters[DEVICEDATA_Idle_Delay_CONST].c_str());
+	if(delay == 0) {
+		delay = DEFAULT_DELAY_TIME;
+	}
 	g_pPlutoLogger->Write(LV_STATUS, "Using Idle Delay: %d.", delay);
 
 	ppool = new RubyIOPool(pnewpool);
