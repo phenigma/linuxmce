@@ -217,19 +217,38 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 					result.clock_offset = info->clock_offset;
 					result.rssi = 0;
 
-					char name[248];
-					memset(name, 0, sizeof(name));
-					//if(hci_read_remote_name(dd, &(info+i)->bdaddr, sizeof(name), name, 100000) < 0)
-					strcpy(name, "n/a");
-
+                    //get the mac address
                     char addr[18];
-					ba2str(&(info+i)->bdaddr, addr);
-					
-					PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
-					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
-					g_pPlutoLogger->Write(LV_STATUS, "Device %s responded.", pDNew->m_sMacAddress.c_str());
+                    ba2str(&(info+i)->bdaddr, addr);
+                    string sMacAddress;
 
-					AddDeviceToDetectionList(pDNew);
+                    //initial name is 'n/a'
+                    char name[248];
+                    memset(name, 0, sizeof(name));
+                    strcpy(name, "N/A");
+
+                    //create the new device
+                    PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
+                    bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
+
+                    //use 'hcitool name' to quickly get the name of the device
+                    printf("getting the device name\n");
+                    string sOutputFile("/tmp/hci_remote_name");
+                    system(string("hcitool name " + pDNew->m_sMacAddress + " > " + sOutputFile).c_str());
+
+                    size_t iSize;
+                    char *pData = FileUtils::ReadFileIntoBuffer(sOutputFile, iSize);
+                    if(pData && iSize > 0)
+                        strcpy(name, pData);
+                    delete pData;
+
+                    printf("device name: %s\n", name);
+                    pDNew->m_sID = name;
+
+                    g_pPlutoLogger->Write(LV_STATUS, "Device %s, %s responded.", pDNew->m_sMacAddress.c_str(), pDNew->m_sID.c_str());
+
+                    AddDeviceToDetectionList(pDNew);
+
 				}
 				break;
 
