@@ -93,6 +93,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 
 		if( !pSocket->m_bUsePingToKeepAlive || pSocket->m_Socket == INVALID_SOCKET )
 		{
+			sSM.Release();
 			pSocket->m_bUsePingToKeepAlive=false;
 			return NULL; // Don't try anymore
 		}

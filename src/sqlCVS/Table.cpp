@@ -564,7 +564,7 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 		throw "Database error";
 	}
 
-	cout << "Sending changes to " << result_set.r->row_count << " rows." << endl;
+	cout << "Sending changes to " << m_sName << " " << result_set.r->row_count << " rows." << endl;
 
 	while( ( row = mysql_fetch_row( result_set.r ) ) )
 	{
@@ -575,6 +575,9 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 			pR_UpdateTable->m_psc_id_last_sync = psc_id;
 		if( psc_batch>pR_UpdateTable->m_psc_batch_last_sync )
 			pR_UpdateTable->m_psc_batch_last_sync = psc_batch;
+
+		cout << "Sending psc_id: " << psc_id << " psc_batch: " << psc_batch << " psc_id_last_sync: " <<
+			pR_UpdateTable->m_psc_id_last_sync << " m_psc_batch_last_sync: " << pR_UpdateTable->m_psc_batch_last_sync << endl;
 
 		A_UpdateRow *pa_UpdateRow = new A_UpdateRow( psc_id, psc_batch, psc_user );
 

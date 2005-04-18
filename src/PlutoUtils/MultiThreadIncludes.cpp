@@ -114,12 +114,17 @@ PlutoLock::~PlutoLock()
 			pthread_mutex_unlock(&m_mapLockMutex->mutex);
 			
 			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find self in maplock!");
+				g_pPlutoLogger->Write(LV_CRITICAL, "Cannot find self in maplock! (%p) (>%d) %s: %s:%d %s", 
+					&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 			DumpOutstandingLocks();
 		}
 		else
 		{
+int size1 = mapLocks.size();
 			mapLocks.erase(itMapLock);	
+int size2 = mapLocks.size();
+if( g_pPlutoLogger )
+g_pPlutoLogger->Write(LV_LOCKING, "removed from map (%p) #%d (>%d) %s: %s:%d %s was: %d size, now %d Rel: %s Got: %s", m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str(),size1,size2,m_thread,(m_bReleased ? "Y" : "N"),(m_bGotLock ? "Y" : "N"));
 			pthread_mutex_unlock(&m_mapLockMutex->mutex);
 		}
 	}
