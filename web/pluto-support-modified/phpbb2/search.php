@@ -6,7 +6,7 @@
  *   copyright            : (C) 2001 The phpBB Group
  *   email                : support@phpbb.com
  *
- *   $Id: search.php,v 1.72.2.14 2004/07/17 13:48:32 acydburn Exp $
+ *   $Id: search.php,v 1.72.2.16 2005/03/15 18:34:34 acydburn Exp $
  *
  *
  ***************************************************************************/
@@ -60,7 +60,7 @@ else
 if ( isset($HTTP_POST_VARS['search_author']) || isset($HTTP_GET_VARS['search_author']))
 {
 	$search_author = ( isset($HTTP_POST_VARS['search_author']) ) ? $HTTP_POST_VARS['search_author'] : $HTTP_GET_VARS['search_author'];
-	$search_author = htmlspecialchars($search_author);
+	$search_author = phpbb_clean_username($search_author);
 }
 else
 {
@@ -69,7 +69,7 @@ else
 
 $search_id = ( isset($HTTP_GET_VARS['search_id']) ) ? $HTTP_GET_VARS['search_id'] : '';
 
-$show_results = ( isset($_REQUEST['show_results']) ) ? $_REQUEST['show_results'] : 'posts';
+$show_results = ( isset($HTTP_POST_VARS['show_results']) ) ? $HTTP_POST_VARS['show_results'] : 'posts';
 $show_results = ($show_results == 'topics') ? 'topics' : 'posts';
 
 if ( isset($HTTP_POST_VARS['search_terms']) )
@@ -81,9 +81,9 @@ else
 	$search_terms = 0;
 }
 
-if ( isset($_REQUEST['search_fields']) )
+if ( isset($HTTP_POST_VARS['search_fields']) )
 {
-	$search_fields = ( $_REQUEST['search_fields'] == 'all' ) ? 1 : 0;
+	$search_fields = ( $HTTP_POST_VARS['search_fields'] == 'all' ) ? 1 : 0;
 }
 else
 {
@@ -197,6 +197,11 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 			}
 			else
 			{
+				if (preg_match('#^[\*%]+$#', trim($search_author)) || preg_match('#^[^\*]{1,2}$#', str_replace(array('*', '%'), '', trim($search_author))))
+				{
+					$search_author = '';
+				}
+
 				$search_author = str_replace('*', '%', trim($search_author));
 				
 				$sql = "SELECT user_id
@@ -264,6 +269,12 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 
 			for($i = 0; $i < count($split_search); $i++)
 			{
+				if (preg_match('#^[\*%]+$#', trim($split_search[$i])) || preg_match('#^[^\*]{1,2}$#', str_replace(array('*', '%'), '', trim($split_search[$i]))))
+				{
+					$split_search[$i] = '';
+					continue;
+				}
+
 				switch ( $split_search[$i] )
 				{
 					case 'and':
@@ -407,6 +418,11 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 		//
 		if ( $search_author != '' )
 		{
+			if (preg_match('#^[\*%]+$#', trim($search_author)) || preg_match('#^[^\*]{1,2}$#', str_replace(array('*', '%'), '', trim($search_author))))
+			{
+				$search_author = '';
+			}
+
 			$search_author = str_replace('*', '%', trim(str_replace("\'", "''", $search_author)));
 		}
 

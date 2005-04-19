@@ -6,7 +6,7 @@
  *   copyright            : (C) 2001 The phpBB Group
  *   email                : support@phpbb.com
  *
- *   $Id: admin_board.php,v 1.51.2.8 2004/07/15 18:02:44 acydburn Exp $
+ *   $Id: admin_board.php,v 1.51.2.9 2004/11/18 17:49:33 acydburn Exp $
  *
  *
  ***************************************************************************/
@@ -42,7 +42,7 @@ else
 	while( $row = $db->sql_fetchrow($result) )
 	{
 		$config_name = $row['config_name'];
-		$config_value = $global_config[$config_name];
+		$config_value = $row['config_value'];
 		$default_config[$config_name] = isset($HTTP_POST_VARS['submit']) ? str_replace("'", "\'", $config_value) : $config_value;
 		
 		$new[$config_name] = ( isset($HTTP_POST_VARS[$config_name]) ) ? $HTTP_POST_VARS[$config_name] : $default_config[$config_name];
@@ -96,6 +96,9 @@ $bbcode_no = ( !$new['allow_bbcode'] ) ? "checked=\"checked\"" : "";
 $activation_none = ( $new['require_activation'] == USER_ACTIVATION_NONE ) ? "checked=\"checked\"" : "";
 $activation_user = ( $new['require_activation'] == USER_ACTIVATION_SELF ) ? "checked=\"checked\"" : "";
 $activation_admin = ( $new['require_activation'] == USER_ACTIVATION_ADMIN ) ? "checked=\"checked\"" : "";
+
+$confirm_yes = ($new['enable_confirm']) ? 'checked="checked"' : '';
+$confirm_no = (!$new['enable_confirm']) ? 'checked="checked"' : '';
 
 $board_email_form_yes = ( $new['board_email_form'] ) ? "checked=\"checked\"" : "";
 $board_email_form_no = ( !$new['board_email_form'] ) ? "checked=\"checked\"" : "";
@@ -160,6 +163,8 @@ $template->assign_vars(array(
 	"L_NONE" => $lang['Acc_None'], 
 	"L_USER" => $lang['Acc_User'], 
 	"L_ADMIN" => $lang['Acc_Admin'], 
+	"L_VISUAL_CONFIRM" => $lang['Visual_confirm'], 
+	"L_VISUAL_CONFIRM_EXPLAIN" => $lang['Visual_confirm_explain'], 
 	"L_COOKIE_SETTINGS" => $lang['Cookie_settings'], 
 	"L_COOKIE_SETTINGS_EXPLAIN" => $lang['Cookie_settings_explain'], 
 	"L_COOKIE_DOMAIN" => $lang['Cookie_domain'],

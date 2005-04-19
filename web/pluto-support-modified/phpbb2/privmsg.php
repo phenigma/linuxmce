@@ -6,7 +6,7 @@
  *   copyright            : (C) 2001 The phpBB Group
  *   email                : support@phpbb.com
  *
- *   $Id: privmsg.php,v 1.96.2.36 2004/07/11 16:46:16 acydburn Exp $
+ *   $Id: privmsg.php,v 1.96.2.38 2005/03/15 18:09:23 acydburn Exp $
  *
  *
  ***************************************************************************/
@@ -563,9 +563,9 @@ else if ( $mode == 'read' )
 	// If the board has HTML off but the post has HTML
 	// on then we process it, else leave it alone
 	//
-	if ( !$board_config['allow_html'] )
+	if ( !$board_config['allow_html'] || !$userdata['user_allowhtml'])
 	{
-		if ( $user_sig != '' && $privmsg['privmsgs_enable_sig'] && $userdata['user_allowhtml'] )
+		if ( $user_sig != '')
 		{
 			$user_sig = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", $user_sig);
 		}
@@ -1132,7 +1132,7 @@ else if ( $submit || $refresh || $mode != '' )
 	{
 		if ( !empty($HTTP_POST_VARS['username']) )
 		{
-			$to_username = $HTTP_POST_VARS['username'];
+			$to_username = phpbb_clean_username($HTTP_POST_VARS['username']);
 
 			$sql = "SELECT user_id, user_notify_pm, user_email, user_lang, user_active 
 				FROM " . USERS_TABLE . "
@@ -1337,7 +1337,8 @@ else if ( $submit || $refresh || $mode != '' )
 		// passed to the script, process it a little, do some checks
 		// where neccessary, etc.
 		//
-		$to_username = ( isset($HTTP_POST_VARS['username']) ) ? trim(strip_tags(stripslashes($HTTP_POST_VARS['username']))) : '';
+		$to_username = (isset($HTTP_POST_VARS['username']) ) ? trim(htmlspecialchars(stripslashes($HTTP_POST_VARS['username']))) : '';
+
 		$privmsg_subject = ( isset($HTTP_POST_VARS['subject']) ) ? trim(strip_tags(stripslashes($HTTP_POST_VARS['subject']))) : '';
 		$privmsg_message = ( isset($HTTP_POST_VARS['message']) ) ? trim($HTTP_POST_VARS['message']) : '';
 		$privmsg_message = preg_replace('#<textarea>#si', '&lt;textarea&gt;', $privmsg_message);
@@ -1527,9 +1528,9 @@ else if ( $submit || $refresh || $mode != '' )
 		//
 		// Finalise processing as per viewtopic
 		//
-		if ( !$html_on )
+		if ( !$html_on || !$board_config['allow_html'] || !$userdata['user_allowhtml'] )
 		{
-			if ( $user_sig != '' || !$userdata['user_allowhtml'] )
+			if ( $user_sig != '' )
 			{
 				$user_sig = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", $user_sig);
 			}
@@ -1707,7 +1708,7 @@ else if ( $submit || $refresh || $mode != '' )
 
 	$template->assign_vars(array(
 		'SUBJECT' => $privmsg_subject, 
-		'USERNAME' => preg_replace($html_entities_match, $html_entities_replace, $to_username),
+		'USERNAME' => $to_username,
 		'MESSAGE' => $privmsg_message,
 		'HTML_STATUS' => $html_status, 
 		'SMILIES_STATUS' => $smilies_status, 

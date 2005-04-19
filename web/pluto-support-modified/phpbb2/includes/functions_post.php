@@ -6,7 +6,7 @@
  *   copyright            : (C) 2001 The phpBB Group
  *   email                : support@phpbb.com
  *
- *   $Id: functions_post.php,v 1.9.2.36 2004/07/11 16:46:19 acydburn Exp $
+ *   $Id: functions_post.php,v 1.9.2.37 2004/11/18 17:49:44 acydburn Exp $
  *
  *
  ***************************************************************************/
@@ -128,7 +128,7 @@ function prepare_post(&$mode, &$post_data, &$bbcode_on, &$html_on, &$smilies_on,
 	// Check username
 	if (!empty($username))
 	{
-		$username = trim(strip_tags($username));
+		$username = phpbb_clean_username($username);
 
 		if (!$userdata['session_logged_in'] || ($userdata['session_logged_in'] && $username != $userdata['username']))
 		{
@@ -265,7 +265,6 @@ function submit_post($mode, &$post_data, &$message, &$meta, &$forum_id, &$topic_
 	}
 
 	$edited_sql = ($mode == 'editpost' && !$post_data['last_post'] && $post_data['poster_post']) ? ", post_edit_time = $current_time, post_edit_count = post_edit_count + 1 " : "";
-	$userdata['user_id']=($userdata['user_id']=='')?(-1):$userdata['user_id'];
 	$sql = ($mode != "editpost") ? "INSERT INTO " . POSTS_TABLE . " (topic_id, forum_id, poster_id, post_username, post_time, poster_ip, enable_bbcode, enable_html, enable_smilies, enable_sig) VALUES ($topic_id, $forum_id, " . $userdata['user_id'] . ", '$post_username', $current_time, '$user_ip', $bbcode_on, $html_on, $smilies_on, $attach_sig)" : "UPDATE " . POSTS_TABLE . " SET post_username = '$post_username', enable_bbcode = $bbcode_on, enable_html = $html_on, enable_smilies = $smilies_on, enable_sig = $attach_sig" . $edited_sql . " WHERE post_id = $post_id";
 	if (!$db->sql_query($sql, BEGIN_TRANSACTION))
 	{

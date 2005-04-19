@@ -6,7 +6,7 @@
  *   copyright            : (C) 2001 The phpBB Group
  *   email                : support@phpbb.com
  *
- *   $Id: groupcp.php,v 1.58.2.21 2004/07/11 22:18:27 acydburn Exp $
+ *   $Id: groupcp.php,v 1.58.2.22 2004/11/18 17:49:34 acydburn Exp $
  *
  *
  ***************************************************************************/
@@ -36,7 +36,7 @@ function generate_user_info(&$row, $date_format, $group_mod, &$from, &$posts, &$
 	$posts = ( $row['user_posts'] ) ? $row['user_posts'] : 0;
 
 	$poster_avatar = '';
-	if ( @$row['user_avatar_type'] && $row['user_id'] != ANONYMOUS && $row['user_allowavatar'] )
+	if ( $row['user_avatar_type'] && $row['user_id'] != ANONYMOUS && $row['user_allowavatar'] )
 	{
 		switch( $row['user_avatar_type'] )
 		{
@@ -99,7 +99,7 @@ function generate_user_info(&$row, $date_format, $group_mod, &$from, &$posts, &$
 	$yim_img = ( $row['user_yim'] ) ? '<a href="http://edit.yahoo.com/config/send_webmesg?.target=' . $row['user_yim'] . '&amp;.src=pg"><img src="' . $images['icon_yim'] . '" alt="' . $lang['YIM'] . '" title="' . $lang['YIM'] . '" border="0" /></a>' : '';
 	$yim = ( $row['user_yim'] ) ? '<a href="http://edit.yahoo.com/config/send_webmesg?.target=' . $row['user_yim'] . '&amp;.src=pg">' . $lang['YIM'] . '</a>' : '';
 
-	$temp_url = append_sid("search.$phpEx?search_author=" . urlencode(@$username) . "&amp;showresults=posts");
+	$temp_url = append_sid("search.$phpEx?search_author=" . urlencode($username) . "&amp;showresults=posts");
 	$search_img = '<a href="' . $temp_url . '"><img src="' . $images['icon_search'] . '" alt="' . $lang['Search_user_posts'] . '" title="' . $lang['Search_user_posts'] . '" border="0" /></a>';
 	$search = '<a href="' . $temp_url . '">' . $lang['Search_user_posts'] . '</a>';
 
@@ -472,7 +472,7 @@ else if ( $group_id )
 
 			if ( isset($HTTP_POST_VARS['add']) )
 			{
-				$username = ( isset($HTTP_POST_VARS['username']) ) ? htmlspecialchars($HTTP_POST_VARS['username']) : '';
+				$username = ( isset($HTTP_POST_VARS['username']) ) ? phpbb_clean_username($HTTP_POST_VARS['username']) : '';
 				
 				$sql = "SELECT user_id, user_email, user_lang, user_level  
 					FROM " . USERS_TABLE . " 
@@ -974,8 +974,8 @@ else if ( $group_id )
 		'S_GROUP_CLOSED_CHECKED' => ( $group_info['group_type'] == GROUP_CLOSED ) ? ' checked="checked"' : '',
 		'S_GROUP_HIDDEN_CHECKED' => ( $group_info['group_type'] == GROUP_HIDDEN ) ? ' checked="checked"' : '',
 		'S_HIDDEN_FIELDS' => $s_hidden_fields, 
-		'S_MODE_SELECT' => @$select_sort_mode,
-		'S_ORDER_SELECT' => @$select_sort_order,
+		'S_MODE_SELECT' => $select_sort_mode,
+		'S_ORDER_SELECT' => $select_sort_order,
 		'S_GROUPCP_ACTION' => append_sid("groupcp.$phpEx?" . POST_GROUPS_URL . "=$group_id"))
 	);
 

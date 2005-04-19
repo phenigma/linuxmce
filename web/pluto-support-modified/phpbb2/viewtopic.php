@@ -6,7 +6,7 @@
  *   copyright            : (C) 2001 The phpBB Group
  *   email                : support@phpbb.com
  *
- *   $Id: viewtopic.php,v 1.186.2.36 2004/07/11 16:46:18 acydburn Exp $
+ *   $Id: viewtopic.php,v 1.186.2.40 2005/03/15 18:09:23 acydburn Exp $
  *
  *
  ***************************************************************************/
@@ -79,7 +79,6 @@ if ( isset($HTTP_GET_VARS['view']) && empty($HTTP_GET_VARS[POST_POST_URL]) )
 						AND p.post_time >= u.user_lastvisit
 					ORDER BY p.post_time ASC
 					LIMIT 1";
-
 				if ( !($result = $db->sql_query($sql)) )
 				{
 					message_die(GENERAL_ERROR, 'Could not obtain newer/older topic information', '', __LINE__, __FILE__, $sql);
@@ -118,7 +117,6 @@ if ( isset($HTTP_GET_VARS['view']) && empty($HTTP_GET_VARS[POST_POST_URL]) )
 				AND t.topic_last_post_id $sql_condition t2.topic_last_post_id
 			ORDER BY t.topic_last_post_id $sql_ordering
 			LIMIT 1";
-
 		if ( !($result = $db->sql_query($sql)) )
 		{
 			message_die(GENERAL_ERROR, "Could not obtain newer/older topic information", '', __LINE__, __FILE__, $sql);
@@ -485,7 +483,7 @@ $highlight_match = $highlight = '';
 if (isset($HTTP_GET_VARS['highlight']))
 {
 	// Split words and phrases
-	$words = explode(' ', trim(htmlspecialchars(urldecode($HTTP_GET_VARS['highlight']))));
+	$words = explode(' ', trim(htmlspecialchars($HTTP_GET_VARS['highlight'])));
 
 	for($i = 0; $i < sizeof($words); $i++)
 	{
@@ -497,6 +495,7 @@ if (isset($HTTP_GET_VARS['highlight']))
 	unset($words);
 
 	$highlight = urlencode($HTTP_GET_VARS['highlight']);
+	$highlight_match = phpbb_rtrim($highlight_match, "\\");
 }
 
 //
@@ -1050,9 +1049,9 @@ for($i = 0; $i < $total_posts; $i++)
 	// If the board has HTML off but the post has HTML
 	// on then we process it, else leave it alone
 	//
-	if ( !$board_config['allow_html'] )
+	if ( !$board_config['allow_html'] || !$userdata['user_allowhtml'])
 	{
-		if ( $user_sig != '' && $userdata['user_allowhtml'] )
+		if ( $user_sig != '' )
 		{
 			$user_sig = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", $user_sig);
 		}
@@ -1108,7 +1107,7 @@ for($i = 0; $i < $total_posts; $i++)
 	{
 		// This was shamelessly 'borrowed' from volker at multiartstudio dot de
 		// via php.net's annotated manual
-		$message = str_replace('\"', '"', substr(preg_replace('#(\>(((?>([^><]+|(?R)))*)\<))#se', "preg_replace('#\b(" . $highlight_match . ")\b#i', '<span style=\"color:#" . $theme['fontcolor3'] . "\"><b>\\\\1</b></span>', '\\0')", '>' . $message . '<'), 1, -1));
+		$message = str_replace('\"', '"', substr(@preg_replace('#(\>(((?>([^><]+|(?R)))*)\<))#se', "@preg_replace('#\b(" . $highlight_match . ")\b#i', '<span style=\"color:#" . $theme['fontcolor3'] . "\"><b>\\\\1</b></span>', '\\0')", '>' . $message . '<'), 1, -1));
 	}
 
 	//
@@ -1120,10 +1119,10 @@ for($i = 0; $i < $total_posts; $i++)
 
 		if ($user_sig != '')
 		{
-			$user_sig = str_replace('\"', '"', substr(preg_replace('#(\>(((?>([^><]+|(?R)))*)\<))#se', "preg_replace(\$orig_word, \$replacement_word, '\\0')", '>' . $user_sig . '<'), 1, -1));
+			$user_sig = str_replace('\"', '"', substr(@preg_replace('#(\>(((?>([^><]+|(?R)))*)\<))#se', "@preg_replace(\$orig_word, \$replacement_word, '\\0')", '>' . $user_sig . '<'), 1, -1));
 		}
 
-		$message = str_replace('\"', '"', substr(preg_replace('#(\>(((?>([^><]+|(?R)))*)\<))#se', "preg_replace(\$orig_word, \$replacement_word, '\\0')", '>' . $message . '<'), 1, -1));
+		$message = str_replace('\"', '"', substr(@preg_replace('#(\>(((?>([^><]+|(?R)))*)\<))#se', "@preg_replace(\$orig_word, \$replacement_word, '\\0')", '>' . $message . '<'), 1, -1));
 	}
 
 	//

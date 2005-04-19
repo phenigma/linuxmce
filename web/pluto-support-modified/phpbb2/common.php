@@ -6,7 +6,7 @@
  *   copyright            : (C) 2001 The phpBB Group
  *   email                : support@phpbb.com
  *
- *   $Id: common.php,v 1.74.2.13 2004/07/15 18:00:34 acydburn Exp $
+ *   $Id: common.php,v 1.74.2.17 2005/02/21 19:29:30 acydburn Exp $
  *
  ***************************************************************************/
 
@@ -24,59 +24,11 @@ if ( !defined('IN_PHPBB') )
 	die("Hacking attempt");
 }
 
-define('PHPBB_VERSION', '2.0.10-2 (Debian)');
-
-//
-function unset_vars(&$var)
-{
-	while (list($var_name, $null) = @each($var))
-	{
-		unset($GLOBALS[$var_name]);
-	}
-	return;
-}
-
 //
 error_reporting  (E_ERROR | E_WARNING | E_PARSE); // This will NOT report uninitialized variables
 set_magic_quotes_runtime(0); // Disable magic_quotes_runtime
 
-$ini_val = (@phpversion() >= '4.0.0') ? 'ini_get' : 'get_cfg_var';
-
-// Unset globally registered vars - PHP5 ... hhmmm
-if (@$ini_val('register_globals') == '1' || strtolower(@$ini_val('register_globals')) == 'on')
-{
-	$var_prefix = 'HTTP';
-	$var_suffix = '_VARS';
-	
-	$test = array('_GET', '_POST', '_SERVER', '_COOKIE', '_ENV');
-
-	foreach ($test as $var)
-	{
-		if (is_array(${$var_prefix . $var . $var_suffix}))
-		{
-			unset_vars(${$var_prefix . $var . $var_suffix});
-			@reset(${$var_prefix . $var . $var_suffix});
-		}
-
-		if (is_array(${$var}))
-		{
-			unset_vars(${$var});
-			@reset(${$var});
-		}
-	}
-
-	if (is_array(${'_FILES'}))
-	{
-		unset_vars(${'_FILES'});
-		@reset(${'_FILES'});
-	}
-
-	if (is_array(${'HTTP_POST_FILES'}))
-	{
-		unset_vars(${'HTTP_POST_FILES'});
-		@reset(${'HTTP_POST_FILES'});
-	}
-}
+// The following code (unsetting globals) was contributed by Matt Kavanagh
 
 // PHP5 with register_long_arrays off?
 if (!isset($HTTP_POST_VARS) && isset($_POST))
@@ -87,6 +39,65 @@ if (!isset($HTTP_POST_VARS) && isset($_POST))
 	$HTTP_COOKIE_VARS = $_COOKIE;
 	$HTTP_ENV_VARS = $_ENV;
 	$HTTP_POST_FILES = $_FILES;
+
+	// _SESSION is the only superglobal which is conditionally set
+	if (isset($_SESSION))
+	{
+		$HTTP_SESSION_VARS = $_SESSION;
+	}
+}
+
+if (@phpversion() < '4.0.0')
+{
+	// PHP3 path; in PHP3, globals are _always_ registered
+	
+	// We 'flip' the array of variables to test like this so that
+	// we can validate later with isset($test[$var]) (no in_array())
+	$test = array('HTTP_GET_VARS' => NULL, 'HTTP_POST_VARS' => NULL, 'HTTP_COOKIE_VARS' => NULL, 'HTTP_SERVER_VARS' => NULL, 'HTTP_ENV_VARS' => NULL, 'HTTP_POST_FILES' => NULL, 'phpEx' => NULL, 'phpbb_root_path' => NULL);
+
+	// Loop through each input array
+	@reset($test);
+	while (list($input,) = @each($test))
+	{
+		while (list($var,) = @each($$input))
+		{
+			// Validate the variable to be unset
+			if (!isset($test[$var]) && $var != 'test' && $var != 'input')
+			{
+				unset($$var);
+			}
+		}
+	}
+}
+else if (@ini_get('register_globals') == '1' || strtolower(@ini_get('register_globals')) == 'on')
+{
+	// PHP4+ path
+	$not_unset = array('HTTP_GET_VARS', 'HTTP_POST_VARS', 'HTTP_COOKIE_VARS', 'HTTP_SERVER_VARS', 'HTTP_SESSION_VARS', 'HTTP_ENV_VARS', 'HTTP_POST_FILES', 'phpEx', 'phpbb_root_path');
+
+	// Not only will array_merge give a warning if a parameter
+	// is not an array, it will actually fail. So we check if
+	// HTTP_SESSION_VARS has been initialised.
+	if (!isset($HTTP_SESSION_VARS))
+	{
+		$HTTP_SESSION_VARS = array();
+	}
+
+	// Merge all into one extremely huge array; unset
+	// this later
+	$input = array_merge($HTTP_GET_VARS, $HTTP_POST_VARS, $HTTP_COOKIE_VARS, $HTTP_SERVER_VARS, $HTTP_SESSION_VARS, $HTTP_ENV_VARS, $HTTP_POST_FILES);
+
+	unset($input['input']);
+	unset($input['not_unset']);
+
+	while (list($var,) = @each($input))
+	{
+		if (!in_array($var, $not_unset))
+		{
+			unset($$var);
+		}
+	}
+   
+	unset($input);
 }
 
 //
@@ -162,7 +173,6 @@ if( !get_magic_quotes_gpc() )
 // malicious rewriting of language and otherarray values via
 // URI params
 //
-$global_config = array(); // <-- this is the real, global, configuration
 $board_config = array();
 $userdata = array();
 $theme = array();
@@ -194,7 +204,7 @@ include($phpbb_root_path . 'includes/db.'.$phpEx);
 // even bother complaining ... go scream and shout at the idiots out there who feel
 // "clever" is doing harm rather than good ... karma is a great thing ... :)
 //
-$client_ip = ( !empty($HTTP_SERVER_VARS['REMOTE_ADDR']) ) ? $HTTP_SERVER_VARS['REMOTE_ADDR'] : ( ( !empty($HTTP_ENV_VARS['REMOTE_ADDR']) ) ? $HTTP_ENV_VARS['REMOTE_ADDR'] : $REMOTE_ADDR );
+$client_ip = ( !empty($HTTP_SERVER_VARS['REMOTE_ADDR']) ) ? $HTTP_SERVER_VARS['REMOTE_ADDR'] : ( ( !empty($HTTP_ENV_VARS['REMOTE_ADDR']) ) ? $HTTP_ENV_VARS['REMOTE_ADDR'] : getenv('REMOTE_ADDR') );
 $user_ip = encode_ip($client_ip);
 
 //
@@ -211,37 +221,8 @@ if( !($result = $db->sql_query($sql)) )
 
 while ( $row = $db->sql_fetchrow($result) )
 {
-	$global_config[$row['config_name']] = $row['config_value'];
+	$board_config[$row['config_name']] = $row['config_value'];
 }
-
-// some auto-detection added by Jeroen, autodetection is better than
-// known-false values
-if (!$global_config['server_name']) {
-	$global_config['server_name'] = $_SERVER['SERVER_ADDR'];
-	if (@$_SERVER['SERVER_NAME']) {
-		$global_config['server_name'] = $_SERVER['SERVER_NAME'];
-	}
-	if (@$_SERVER['HTTP_HOST']) {
-		$global_config['server_name'] = $_SERVER['HTTP_HOST'];
-	}
-	$global_config['server_name'] = ereg_replace(':.*', '',
-		$global_config['server_name']);
-}
-if (!$global_config['server_port']) {
-	$global_config['server_port'] = $_SERVER['SERVER_PORT'];
-}
-if (!$global_config['script_path']) {
-	$global_config['script_path'] = ereg_replace('/admin/$', '/',
-		ereg_replace('/[^/]+$', '/', $_SERVER['PHP_SELF']));
-}
-if (!$global_config['board_email']) {
-	$global_config['board_email'] = "webmaster@$global_config[server_name]";
-	if (@$_SERVER['SERVER_ADMIN']) {
-		$global_config['board_email'] = $_SERVER['SERVER_ADMIN'];
-	}
-}
-// board_config is changed in includes/functions based on the logged-in user
-$board_config = $global_config;
 
 if (file_exists('install') || file_exists('contrib'))
 {

@@ -229,7 +229,6 @@ input.liteoption {
 
 /* Import the fancy styles for IE only (NS4.x doesn't use the @import function) */
 @import url("templates/subSilver/formIE.css"); 
-
 -->
 </style>
 </head>
