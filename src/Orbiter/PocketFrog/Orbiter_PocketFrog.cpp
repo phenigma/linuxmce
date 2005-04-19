@@ -665,6 +665,9 @@ clock_t ccc=clock();
 			break;
 	}
 
+	if(Y < Text->m_rPosition.Y)
+		Y = Text->m_rPosition.Y;
+
 	wchar_t TextW[4096];
 
 	Pixel color = GetColor16(pTextStyle->m_ForeColor);
@@ -692,6 +695,9 @@ clock_t ccc=clock();
 				break;
 		}
 
+		if(Y + i * (ciCharHeight + ciSpaceHeight) + ciCharHeight >= Text->m_rPosition.Y + Text->m_rPosition.Height) 
+			break;
+
 		GetDisplay()->DrawVGAText(VGAROMFont, TextW, DVT_NONE, X, Y + i * (ciCharHeight + ciSpaceHeight), color);
 	}
 	vectStrings.clear();
@@ -704,8 +710,6 @@ clock_t ccc=clock();
 
 
 #else //winxp/2000
-
-	//TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", "\n\r");
 
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
 	
@@ -744,7 +748,7 @@ clock_t ccc=clock();
 
 	//calculate rect first
 	::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
-		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT); 
+		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS ); 
 
 	int iRealHeight = rectLocation.bottom - rectLocation.top;
 
@@ -760,12 +764,12 @@ clock_t ccc=clock();
 	{
 		case HORIZALIGNMENT_Center_CONST: 
 			::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
-				DT_WORDBREAK | DT_CENTER | DT_NOPREFIX); 
+				DT_WORDBREAK | DT_CENTER | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
 		break;
 		
 		case HORIZALIGNMENT_Left_CONST: 
 			::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
-				DT_WORDBREAK | DT_NOPREFIX); 
+				DT_WORDBREAK | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
 		break;
 	}
 

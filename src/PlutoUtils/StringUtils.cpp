@@ -349,15 +349,20 @@ void StringUtils::BreakIntoLines( string sInput, vector<string> *vectStrings, in
 	int iCurrentIndex = 0;
     for( int i=0; i< (int)sInput.length() + 1; ++i )
     {
-        if( iNumCharsSoFar++ >= iNumChars && ( ( (int)sInput.length() ) == i || sInput[i]==' ' ) )
+        if( iNumCharsSoFar++ >= iNumChars && ( ((int)sInput.length()) == i || sInput[i] == ' ') )
         {
-            if( lastSpace != string::npos )
+            if( lastSpace != string::npos)
             {
-                vectStrings->push_back( sInput.substr( i + 1 - iNumCharsSoFar, lastSpace - ( i + 1 - iNumCharsSoFar ) ) );
+				if(lastSpace - ( i + 1 - iNumCharsSoFar ) > iNumChars)
+				{
+					lastSpace = iNumChars + i + 1 - iNumCharsSoFar;
+				}
+
+				vectStrings->push_back( sInput.substr( i + 1 - iNumCharsSoFar, lastSpace - ( i + 1 - iNumCharsSoFar ) ) );
 				iCurrentIndex = lastSpace;
-                iNumCharsSoFar = (int)( i - lastSpace );
-                while( iNumCharsSoFar > 0 && sInput[ i + 1 - iNumCharsSoFar ] == ' ' )
-                    --iNumCharsSoFar;
+				iNumCharsSoFar = (int)( i - lastSpace );
+				while( iNumCharsSoFar > 0 && sInput[ i + 1 - iNumCharsSoFar ] == ' ' )
+					--iNumCharsSoFar;
             }
             lastSpace=i;
         }
