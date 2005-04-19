@@ -24,8 +24,9 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 //<-dceag-const-e->
 {
 	vector<string> vectMapping,vectConfiguration;
-	StringUtils::Tokenize(DATA_Get_Mapping(),"\r\n",vectMapping);
-	StringUtils::Tokenize(DATA_Get_Configuration(),"\r\n",vectConfiguration);
+	string sMapping = DATA_Get_Mapping(), sConfiguration = DATA_Get_Configuration();	StringUtils::Tokenize(sMapping,"\r\n",vectMapping);	StringUtils::Tokenize(sConfiguration,"\r\n",vectConfiguration);
+//	StringUtils::Tokenize(DATA_Get_Mapping(),"\r\n",vectMapping);
+//	StringUtils::Tokenize(DATA_Get_Configuration(),"\r\n",vectConfiguration);
 
 	bool bCodesBegan=false;
 	for(size_t s=0;s<vectConfiguration.size();++s)
@@ -120,11 +121,11 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	fprintf(fp,"MODULES=\"UNCONFIGURED\"\n");
 	fclose(fp);
 	g_pPlutoLogger->Write(LV_STATUS, "Making Software config");
-	string sConfiguration = DATA_Get_Configuration();
+/*	string sConfiguration = DATA_Get_Configuration();
 	if(sConfiguration == "") {
 		g_pPlutoLogger->Write(LV_STATUS, "No valid configuration found into the database");
 		return;
-	}
+	}*/
 	system("rm -f /etc/lirc/lircd.conf");
 	fp = fopen("/etc/lirc/lircd.conf","wt");
 	fprintf(fp,"%s",sConfiguration.c_str());
