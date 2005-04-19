@@ -85,7 +85,8 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 
 	// TODO: learn_device
 	//learn_device = GetData()->Get_SERIAL_PORT();
-	learn_device = string("/dev/ttyS_") + StringUtils::ltos(m_dwPK_Device) + "_0"; // DEBUG
+	//learn_device = string("/dev/ttyS_") + StringUtils::ltos(m_dwPK_Device) + "_0"; // DEBUG
+	learn_device = DATA_Get_Port();
 	gc100_mutex.Init(NULL);
 	m_bQuit = false;
 	m_bLearning = false;
