@@ -784,7 +784,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	}
 	else
 	{
-cout << "Got: ";
+cout << "Got " << (int) r_GetAll_psc_id.m_vectAll_psc_id.size() << ":" ;
 for(size_t s=0;s<r_GetAll_psc_id.m_vectAll_psc_id.size();++s)
 {
 int k=r_GetAll_psc_id.m_vectAll_psc_id[s];
@@ -813,8 +813,9 @@ itmp_RowsToDelete++;
 			/** If the value in the server's vect is > than our local row[], then the server deleted this row */
 			if( pos>=r_GetAll_psc_id.m_vectAll_psc_id.size( ) || r_GetAll_psc_id.m_vectAll_psc_id[pos]>atoi( row[0] ) )
 			{
+cout << "tmp - next line is crashing!?" << endl;
 cout << "Deleted a server row - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-	" server: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << " atoi: " << atoi( row[0] ) << endl;
+" server: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << " atoi: " << (row[0] ? row[0] : "NULL") << endl;
 				// It's possible that this row was added as an unauthorized batch and hasn't
 				// been deleted, it just hasn't been approved yet.  Skip this if it's an unauth batch
 				if( !row[1] || atoi(row[1])>=0 )
