@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\libs\Libraries\pthreads-win32\include&quot;;..;/mysql/include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LL_DEBUG_FILE;DEBUG;LOG_ALL_QUERIES"
+				AdditionalIncludeDirectories="&quot;..\..\libs\Libraries\pthreads-win32\include&quot;;..;/mysql/include;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LL_DEBUG_FILE;DEBUG;LOG_ALL_QUERIES;THREAD_LOG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -172,6 +172,9 @@
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\StringUtils.cpp">
+			</File>
+			<File
+				RelativePath=".\Virtual_Device_Translator.cpp">
 			</File>
 		</Filter>
 		<Filter
