@@ -43,7 +43,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 5; } ;
 	virtual const char *GetDeviceDescription() { return "Xine_Player"; } ;
-	bool Get_Enable_AC3_PassThru() { return (m_mapParameters[71]=="1" ? true : false);}
+	string Get_Output_Speaker_arrangement() { return m_mapParameters[71];}
 };
 
 
@@ -86,7 +86,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
-	bool DATA_Get_Enable_AC3_PassThru() { return GetData()->Get_Enable_AC3_PassThru(); }
+	string DATA_Get_Output_Speaker_arrangement() { return GetData()->Get_Output_Speaker_arrangement(); }
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }

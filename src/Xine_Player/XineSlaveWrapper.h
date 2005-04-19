@@ -204,6 +204,7 @@ class XineSlaveWrapper
 	 */
 	 KeySym translatePlutoKeySymToXKeySym(int plutoButton);
 
+	 bool XineSlaveWrapper::loadXineConfiguration();
 public:
     /**
      * @brief constructor
@@ -345,6 +346,11 @@ public:
      * @brief Enable broadcasting on this stream
      */
     int enableBroadcast(int iStreamID);
+
+	/**
+	 * @brief Enable Sound data passthru for this player.
+	 */
+	void setOutputSpeakerArrangement(string strOutputSpeakerArrangement);
 };
 
 #endif

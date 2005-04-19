@@ -50,6 +50,8 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 	//m_pSlimServerClient = new SlimServerClient();
 //	m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
 
+	m_pXineSlaveControl->setXinePlayerObject(this);
+
     if ( ! m_pXineSlaveControl->createWindow() )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the xine slave window. This plugin is useless here!");
@@ -67,7 +69,7 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 	   return;
     }
 
-    m_pXineSlaveControl->setXinePlayerObject(this);
+
 }
 
 //<-dceag-const2-b->!
@@ -88,6 +90,14 @@ bool Xine_Player::Register()
     return Connect(PK_DeviceTemplate_get());
 }
 
+bool Xine_Player::Connect(int iPK_DeviceTemplate )
+{
+	if ( ! Command_Impl::Connect(iPK_DeviceTemplate) )
+		return false;
+
+	m_pXineSlaveControl->setOutputSpeakerArrangement(DATA_Get_Output_Speaker_arrangement());
+	return true;
+}
 /*
     When you receive commands that are destined to one of your children,
     then if that child implements DCE then there will already be a separate class

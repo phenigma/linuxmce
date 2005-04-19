@@ -410,27 +410,51 @@ bool XineSlaveWrapper::closeWindow()
     return true;
 }
 
-bool XineSlaveWrapper::createXineLibConnection()
+static char *experience_labels[] = {
+ 	"Beginner",
+	"Advanced",
+	"Expert",
+	"Master of the known universe",
+	NULL
+};
+
+bool XineSlaveWrapper::loadXineConfiguration()
 {
     m_pXine = xine_new();
     g_pPlutoLogger->Write(LV_STATUS, "Loading config from %s", m_sConfigFile.c_str());
     xine_config_load(m_pXine, m_sConfigFile.c_str());
-    xine_init(m_pXine);
+	xine_init(m_pXine);
 
-    xine_cfg_entry_t xineConfigEntry;
+	xine_config_register_enum(m_pXine,
+		"gui.experience_level", 0,
+		experience_labels,
+		"display of configuration settings",
+		"Controls whether more advanced configuration settings are shown.",
+     	0, NULL, (void*)1);
+}
+
+bool XineSlaveWrapper::createXineLibConnection()
+{
+	if (!loadXineConfiguration())
+		return false;
+
+	xine_cfg_entry_t xineConfigEntry;
     char **driver_ids;
     int i;
     const char *const *driver_names;
 
     driver_names= xine_list_video_output_plugins(m_pXine);
-    i = 0;
+
+	i = 0;
     while(driver_names[i++]);
     driver_ids  = (char **) xine_xmalloc(sizeof(char *) * (i + 1));
     i = 0;
     driver_ids[i] = strdup("auto");
-    while(driver_names[i]) {
-      driver_ids[i + 1] = strdup(driver_names[i]);
-      i++;
+
+    while( driver_names[i] )
+	{
+		driver_ids[i + 1] = strdup(driver_names[i]);
+		i++;
     }
 
     driver_ids[i + 1] = NULL;
@@ -462,7 +486,8 @@ bool XineSlaveWrapper::createXineLibConnection()
     free(driver_ids);
 
     g_pPlutoLogger->Write(LV_STATUS, "Using Video driver %s and Audio driver %s", m_sXineVideoDriverName.c_str(), m_sXineAudioDriverName.c_str());
-    return true;
+
+	return true;
 }
 
 
@@ -1597,8 +1622,6 @@ void XineSlaveWrapper::simulateMouseClick(int X, int Y)
 	xine_input_data_t xineInputData;
 	xine_event_t xineEvent;
 
-	x11_rectangle_t   rect;
-
 	if ( (pStream = getStreamForId(1, "XineSlaveWrapper::simulateMouseClick() getting one stream")) == NULL )
 		return;
 
@@ -1651,4 +1674,65 @@ KeySym XineSlaveWrapper::translatePlutoKeySymToXKeySym(int plutoButton)
 			g_pPlutoLogger->Write(LV_WARNING, "Translating of the %d pluto key is not handled yet.", plutoButton);
 			return 0;
 	}
+}
+
+static const char *audio_out_types_strs[] = {
+	"Mono 1.0",
+	"Stereo 2.0",
+	"Headphones 2.0",
+	"Stereo 2.1",
+	"Surround 3.0",
+	"Surround 4.0",
+	"Surround 4.1",
+	"Surround 5.0",
+	"Surround 5.1",
+	"Surround 6.0",
+	"Surround 6.1",
+	"Surround 7.1",
+	"Pass Through",
+	NULL
+};
+
+void XineSlaveWrapper::setOutputSpeakerArrangement(string strOutputSpeakerArrangement)
+{
+	xine_cfg_entry_t xineConfigEntry;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Setting the audio output speaker arrangement.");
+
+	xine_config_register_enum (m_pXine,	"audio.output.speaker_arrangement", 1, (char **) audio_out_types_strs,
+			"Speaker arrangement",
+			NULL, 0, NULL, NULL);
+
+	if ( xine_config_lookup_entry(m_pXine, "audio.output.speaker_arrangement", &xineConfigEntry) == 0 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Could not lookup the current Speaker Arrangement Value");
+		return;
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Current value: %s", audio_out_types_strs[xineConfigEntry.num_value]);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Trying to set the value to: %s", strOutputSpeakerArrangement.c_str());
+	int i = 0;
+	while ( audio_out_types_strs[i] != NULL )
+	{
+
+		if ( strncmp(strOutputSpeakerArrangement.c_str(	), audio_out_types_strs[i], strOutputSpeakerArrangement.size()) == 0 )
+		{
+			xineConfigEntry.num_value = i;
+			xine_config_update_entry(m_pXine, &xineConfigEntry);
+
+			if ( xine_config_lookup_entry(m_pXine, "audio.output.speaker_arrangement", &xineConfigEntry) == 0 )
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Could not lookup the current Speaker Arrangement Value after update.");
+				return;
+			}
+
+			g_pPlutoLogger->Write(LV_STATUS, "Value changed to: %s", audio_out_types_strs[xineConfigEntry.num_value]);
+			return;
+		}
+
+		i++;
+	}
+
+	return;
 }

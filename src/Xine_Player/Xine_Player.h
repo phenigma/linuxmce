@@ -50,6 +50,8 @@ public:
 
 	class SlimServerClient *m_pSlimServerClient; /** < m_pSlimServerClient is the wrapper around the slim server protocol */
 
+	bool Connect(int iPK_DeviceTemplate );
+
 	string GetMacAddress();
     /**
      * @brief destructor
@@ -67,7 +69,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	bool DATA_Get_Enable_AC3_PassThru();
+	string DATA_Get_Output_Speaker_arrangement();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
