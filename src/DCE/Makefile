@@ -13,7 +13,8 @@ sources = DataGrid.cpp ClientSocket.cpp Logger.cpp Message.cpp \
 	AlarmManager.cpp Command_Impl.cpp Event_Impl.cpp \
 	HandleRequestSocket.cpp \
 	DeviceData_Impl.cpp DeviceData_Base.cpp \
-	DCEConfig.cpp DCEMySqlConfig.cpp
+	DCEConfig.cpp DCEMySqlConfig.cpp \
+	Virtual_Device_Translator.cpp
 
 all: libDCECommon all-recursive
 
