@@ -31,7 +31,7 @@ if($userID!=0){
 		
 		// ask ML for emails assigned and compare with DB; 
 		// database corrections if necessary 
-		$emailsML=getEmailsFromML($row['Description']);
+		$emailsML=getEmailsFromML(substr($row['EmailField'],0,strpos($row['EmailField'],'@')));
 		$emailsDB=getEmailsFromDatabase($row['Description'],$webADO);
 		$emailsToDelete=array_diff($emailsDB,$emailsML);
 		$dbADO->debug=true;
