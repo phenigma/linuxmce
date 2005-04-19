@@ -590,3 +590,144 @@ void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_RIGHT);
 //	m_pXineSlaveControl->simulateKeystroke(BUTTON_Right_Arrow_CONST);
 }
+//<-dceag-c89-b->
+
+	/** @brief COMMAND: #89 - Vol Up */
+	/** Make the sound go up. */
+
+void Xine_Player::CMD_Vol_Up(string &sCMD_Result,Message *pMessage)
+//<-dceag-c89-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Vol_Up() Not implemented!");
+}
+//<-dceag-c90-b->
+
+	/** @brief COMMAND: #90 - Vol Down */
+	/** Make the sound go down. */
+
+void Xine_Player::CMD_Vol_Down(string &sCMD_Result,Message *pMessage)
+//<-dceag-c90-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Vol_Down() Not implemented!");
+}
+//<-dceag-c97-b->
+
+	/** @brief COMMAND: #97 - Mute */
+	/** Mute the sound. */
+
+void Xine_Player::CMD_Mute(string &sCMD_Result,Message *pMessage)
+//<-dceag-c97-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Mute() Not implemented!");
+}
+//<-dceag-c204-b->
+
+	/** @brief COMMAND: #204 - 0 */
+	/** 0 */
+
+void Xine_Player::CMD_0(string &sCMD_Result,Message *pMessage)
+//<-dceag-c204-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_0() Not implemented!");
+}
+//<-dceag-c205-b->
+
+	/** @brief COMMAND: #205 - 1 */
+	/** 1 */
+
+void Xine_Player::CMD_1(string &sCMD_Result,Message *pMessage)
+//<-dceag-c205-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_2() Not implemented!");
+}
+//<-dceag-c206-b->
+
+	/** @brief COMMAND: #206 - 2 */
+	/** 2 */
+
+void Xine_Player::CMD_2(string &sCMD_Result,Message *pMessage)
+//<-dceag-c206-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_2() Not implemented!");
+}
+//<-dceag-c207-b->
+
+	/** @brief COMMAND: #207 - 3 */
+	/** 3 */
+
+void Xine_Player::CMD_3(string &sCMD_Result,Message *pMessage)
+//<-dceag-c207-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_3() Not implemented!");
+}
+
+//<-dceag-c208-b->
+
+	/** @brief COMMAND: #208 - 4 */
+	/** 4 */
+
+void Xine_Player::CMD_4(string &sCMD_Result,Message *pMessage)
+//<-dceag-c208-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_4() Not implemented!");
+}
+//<-dceag-c209-b->
+
+	/** @brief COMMAND: #209 - 5 */
+	/** 5 */
+
+void Xine_Player::CMD_5(string &sCMD_Result,Message *pMessage)
+//<-dceag-c209-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_5() Not implemented!");
+}
+//<-dceag-c210-b->
+
+	/** @brief COMMAND: #210 - 6 */
+	/** 6 */
+
+void Xine_Player::CMD_6(string &sCMD_Result,Message *pMessage)
+//<-dceag-c210-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_6() Not implemented!");
+}
+//<-dceag-c211-b->
+
+	/** @brief COMMAND: #211 - 7 */
+	/** 7 */
+
+void Xine_Player::CMD_7(string &sCMD_Result,Message *pMessage)
+//<-dceag-c211-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_7() Not implemented!");
+}
+//<-dceag-c212-b->
+
+	/** @brief COMMAND: #212 - 8 */
+	/** 8 */
+
+void Xine_Player::CMD_8(string &sCMD_Result,Message *pMessage)
+//<-dceag-c212-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_8() Not implemented!");
+}
+//<-dceag-c213-b->
+
+	/** @brief COMMAND: #213 - 9 */
+	/** 9 */
+
+void Xine_Player::CMD_9(string &sCMD_Result,Message *pMessage)
+//<-dceag-c213-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_9() Not implemented!");
+}
+//<-dceag-c240-b->
+
+	/** @brief COMMAND: #240 - Back / Prior Menu */
+	/** Navigate back .. ( Escape ) */
+
+void Xine_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
+//<-dceag-c240-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Back_Prior_Menu() Not implemented!");
+}
