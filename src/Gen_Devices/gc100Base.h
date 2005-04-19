@@ -28,6 +28,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 40; } ;
 	virtual const char *GetDeviceDescription() { return "gc100"; } ;
+	string Get_Port() { return m_mapParameters[37];}
 };
 
 
@@ -70,6 +71,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Port() { return GetData()->Get_Port(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 
