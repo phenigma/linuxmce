@@ -1075,6 +1075,13 @@ switch ($section) {
 	    include_once('operations/myDevices/sendCommand.php');
 	    sendCommand($output,$dbADO);
 	break;	
+	case 'sortScenarios';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myScenarios/sortScenarios.php');
+	    sortScenarios($output,$dbADO);
+	break;	
+
 	
 	case '';
 		$output = new Template($dbADO);	

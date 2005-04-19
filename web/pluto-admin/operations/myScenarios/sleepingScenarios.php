@@ -84,8 +84,8 @@ if($action=='form') {
 			$pos++;
 			$out.='
 			<tr bgcolor="'.(($rowCG['PK_CommandGroup']==@$_REQUEST['lastAdded'])?'lightgreen':'').'">
-				<td><input type="button" class="button" name="posDown" value="-" onClick="self.location=\'index.php?section=sleepingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
-					<input type="button" class="button" name="posUp" value="+" onClick="self.location=\'index.php?section=sleepingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
+				<td><input type="button" class="button" name="posDown" value="U" onClick="self.location=\'index.php?section=sleepingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
+					<input type="button" class="button" name="posUp" value="D" onClick="self.location=\'index.php?section=sleepingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
 				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>

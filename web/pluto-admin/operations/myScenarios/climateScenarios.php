@@ -81,8 +81,8 @@ if($action=='form') {
 			$pos++;
 			$out.='
 			<tr bgcolor="'.(($rowCG['PK_CommandGroup']==@$_REQUEST['lastAdded'])?'lightgreen':'').'">
-				<td><input type="button" class="button" name="posDown" value="-" onClick="self.location=\'index.php?section=climateScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
-					<input type="button" class="button" name="posUp" value="+" onClick="self.location=\'index.php?section=climateScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
+				<td><input type="button" class="button" name="posDown" value="U" onClick="self.location=\'index.php?section=climateScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
+					<input type="button" class="button" name="posUp" value="D" onClick="self.location=\'index.php?section=climateScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
 			 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
 				<td><a href="#" onclick="document.climateScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.climateScenarios.roomID.value='.$rowRooms['PK_Room'].';document.climateScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=climateScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>

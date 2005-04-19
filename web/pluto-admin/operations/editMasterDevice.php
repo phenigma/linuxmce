@@ -374,7 +374,6 @@ $out='';
 						$deviceParent=$row['a'];												
 					}
 				}
-				
 				$deviceParent=(int)$deviceParent;
 				$deviceCG = array();
 				$query = "select DeviceCommandGroup.* FROM

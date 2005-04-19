@@ -254,8 +254,8 @@ function wizardOrbiters($output,$dbADO) {
 				$dbADO->Execute($updateOrbiter,$value); 
 				$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
 				$updateOrbiters=true;
-				
-				$commandToSend='/usr/pluto/bin/MessageSend -targetType template localhost '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"';
+
+				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"';
 				exec($commandToSend,$tmp);
 			}
 			if(isset($_POST['fullRegen_'.$value])){
@@ -264,7 +264,7 @@ function wizardOrbiters($output,$dbADO) {
 				$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
 				$updateOrbiters=true;
 				
-				$commandToSend='/usr/pluto/bin/MessageSend -targetType template localhost '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"';
+				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"';
 				exec($commandToSend);
 			}
 		}

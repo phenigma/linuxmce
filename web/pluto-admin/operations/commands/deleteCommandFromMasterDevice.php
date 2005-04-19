@@ -14,7 +14,7 @@ function deleteCommandFromMasterDevice($output,$dbADO) {
 			$out.="
 			<script>
 				alert('Parameter deleted from this command!');
-			    opener.document.forms.{$from}.action.value='form';
+			    opener.document.forms.{$from}.action.value='update';
 				opener.document.forms.{$from}.submit();
 				self.close();
 			</script>

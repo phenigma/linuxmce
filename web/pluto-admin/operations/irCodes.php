@@ -208,16 +208,13 @@ function irCodes($output,$dbADO) {
 				<td valign="top" width="250">Implement Command Groups </td>
 				<td><table border="0" width="100%">';
 
-		$resDCG=$dbADO->Execute('
-			SELECT * 
-			FROM DeviceCommandGroup
-			LEFT JOIN DeviceTemplate_DeviceCommandGroup ON FK_DeviceCommandGroup=PK_DeviceCommandGroup AND FK_DeviceTemplate=?
-			WHERE FK_DeviceCategory=?',array($dtID,$deviceCategoryID));
+		$cgArray=getCheckedDeviceCommandGroup($dtID,$deviceCategoryID,$dbADO);
+
 		$oldCheckedDCG=array();
 		$deviceCG=array();
-		while($rowDCG=$resDCG->FetchRow()){
+		foreach ($cgArray AS $key=>$arrayValues){
 			// insert command in InfraredGroup_Command
-			if($rowDCG['FK_DeviceTemplate']!=''){
+			if($arrayValues['checked']==1){
 				$dbADO->Execute('
 					INSERT INTO InfraredGroup_Command 
 						(FK_InfraredGroup,FK_Command,FK_DeviceTemplate,IRData,FK_Users) 
@@ -225,28 +222,29 @@ function irCodes($output,$dbADO) {
 						NULL,DeviceCommandGroup_Command.FK_Command,'.$dtID.',\'\','.$_SESSION['userID'].'
 					FROM DeviceCommandGroup_Command
 					LEFT JOIN InfraredGroup_Command ON InfraredGroup_Command.FK_Command=DeviceCommandGroup_Command.FK_Command AND FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL AND (FK_Device IS NULL OR FK_Device=?) AND FK_Users=?
-					WHERE FK_DeviceCommandGroup=? AND PK_InfraredGroup_Command IS NULL',array($dtID,$deviceID,$_SESSION['userID'],$rowDCG['PK_DeviceCommandGroup']));
+					WHERE FK_DeviceCommandGroup=? AND PK_InfraredGroup_Command IS NULL',array($dtID,$deviceID,$_SESSION['userID'],$key));
+				$oldCheckedDCG[]=$key;
 			}
-				
-			$deviceCG[]=$rowDCG['PK_DeviceCommandGroup'];
-			if($rowDCG['FK_DeviceTemplate']!='')
-				$oldCheckedDCG[]=$rowDCG['PK_DeviceCommandGroup'];
+
+			$deviceCG[]=$key;
+			// get commands from DeviceCommandGroup
 			$res=$dbADO->Execute('
 				SELECT Command.Description 
 				FROM DeviceCommandGroup_Command 
 				INNER JOIN Command ON FK_Command=PK_Command
 				WHERE FK_DeviceCommandGroup=?
-				ORDER BY Description ASC',$rowDCG['PK_DeviceCommandGroup']);
+				ORDER BY Description ASC',$key);
 			$commandsInGroup=array();
 			while($rowC=$res->FetchRow()){
 				$commandsInGroup[]=$rowC['Description'];
 			}
 			$out.='
 			<tr>
-				<td><input type="checkbox" name="dcg_'.$rowDCG['PK_DeviceCommandGroup'].'" value="1" '.(($rowDCG['FK_DeviceTemplate']!='')?'checked':'').'></td>
-				<td title="'.join(', ',$commandsInGroup).'">'.$rowDCG['PK_DeviceCommandGroup'].$rowDCG['Description'].'</td>
+				<td><input type="checkbox" name="dcg_'.$key.'" value="1" '.(($arrayValues['checked']==1)?'checked':'').'></td>
+				<td title="'.join(', ',$commandsInGroup).'">'.$arrayValues['Description'].'</td>
 			</tr>';
 		}
+		
 		$out.='	
 			<input type="hidden" name="deviceCG" value="'.join(',',$deviceCG).'">
 			<input type="hidden" name="oldCheckedDCG" value="'.join(',',$oldCheckedDCG).'">
