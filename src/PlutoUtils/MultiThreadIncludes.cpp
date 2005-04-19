@@ -123,10 +123,11 @@ PlutoLock::~PlutoLock()
 int size1 = mapLocks.size();
 			mapLocks.erase(itMapLock);	
 int size2 = mapLocks.size();
-if( g_pPlutoLogger )
+if( g_pPlutoLogger && !m_bLogErrorsOnly )
 g_pPlutoLogger->Write(LV_LOCKING, "removed from map (%p) #%d (>%d) %s: %s:%d %s was: %d size, now %d Rel: %s Got: %s", 
 &m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),
 m_Line,m_sMessage.c_str(),size1,size2,(m_bReleased ? "Y" : "N"),(m_bGotLock ? "Y" : "N"));
+
 			pthread_mutex_unlock(&m_mapLockMutex->mutex);
 		}
 	}
@@ -262,15 +263,9 @@ void PlutoLock::DumpOutstandingLocks()
 			try
 			{
 				char Message[1024];
-#ifndef WIN32
-				sprintf(Message,"^01\t (>%d) %s l:%d time: (%d s) thread: %ld Rel: %s Got: %s",
-						pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
-						pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
-#else
 				sprintf(Message,"^01\t (>%d) %s l:%d time: (%d s) thread: %p Rel: %s Got: %s",
 						pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
 						pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
-#endif
 				listMessages.push_back(Message);
 
 			}
@@ -298,15 +293,9 @@ void PlutoLock::DumpOutstandingLocks()
 
 		char Message[400];
 
-#ifdef WIN32
 		sprintf(Message,"OL: (%p) (>%d) %s %s l:%d time: %s (%d s) thread: %p Rel: %s Got: %s",
-			pSafetyLock->m_pMyLock->mutex,pSafetyLock->m_LockNum,pSafetyLock->m_pMyLock->m_sName.c_str(),pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,sTime.c_str(),((int) time(NULL)-pSafetyLock->m_tTime),
-			pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
-#else
-		sprintf(Message,"OL: (%p) (>%d) %s %s l:%d time: %s (%d s) thread: %ld Rel: %s Got: %s",
 			&pSafetyLock->m_pMyLock->mutex,pSafetyLock->m_LockNum,pSafetyLock->m_pMyLock->m_sName.c_str(),pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,sTime.c_str(),(int) (time(NULL)-pSafetyLock->m_tTime),
 			pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
-#endif
 
 		if( ((int) time(NULL)-pSafetyLock->m_tTime)>=KILL_THREAD_TIMEOUT && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased )
 		{
@@ -405,26 +394,18 @@ void PlutoLock::Relock()
 {
 	if( !m_bReleased )
 	{
-#ifdef WIN32
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL, "failure relocking(%p): %s:%d %s",m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
-#else
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_CRITICAL, "failure relocking(%p): %s:%d %s",&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
-#endif
+
 		return; // We don't have a lock
 	}
 
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly )
 	{
-	#ifdef WIN32
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_LOCKING, "relocking (%p) %s", m_pMyLock->mutex,m_sMessage.c_str());
-	#else
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_LOCKING, "relocking (%p) %s", &m_pMyLock->mutex,m_sMessage.c_str());
-	#endif
+
 		DoLock();
 	}
 	else
@@ -453,13 +434,8 @@ void PlutoLock::DoLock()
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly )
 	{
-	#ifdef WIN32
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_LOCKING, "lock(%p) (>%d) %s: %s:%d %s",m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
-	#else
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_LOCKING, "lock(%p) (>%d) %s: %s:%d %s",&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
-	#endif
 	}
 #endif
 	time_t t = time(NULL);
@@ -491,13 +467,8 @@ void PlutoLock::DoLock()
 	if( !m_bGotLock )
 	{
 		if( g_pPlutoLogger )
-#ifdef WIN32
-			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get lock(%p) %s: %s:%d last used %s:%d thread: %p (>%d) %s",
-				m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
-#else
 			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get lock(%p) %s: %s:%d last used %s:%d thread: %d (>%d) %s",
 				&m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
-#endif
 		DumpOutstandingLocks();
 		if( g_pDeadlockHandler )
 			(*g_pDeadlockHandler)(this);
@@ -511,13 +482,8 @@ void PlutoLock::DoLock()
 	if( !m_bLogErrorsOnly )
 	{
 		if( g_pPlutoLogger )
-	#ifdef WIN32
-			g_pPlutoLogger->Write(LV_LOCKING, "acquired(%p) #%d (>%d) %s %s:%d %s", 
-				m_pMyLock->mutex,m_pMyLock->m_NumLocks,m_LockNum,m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
-	#else
 			g_pPlutoLogger->Write(LV_LOCKING, "acquired(%p) #%d (>%d) %s %s:%d %s", 
 				&m_pMyLock->mutex,m_pMyLock->m_NumLocks,m_LockNum,m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
-	#endif
 	}
 #endif
 }
@@ -532,11 +498,7 @@ void PlutoLock::Release()
 		if( !m_bLogErrorsOnly )
 		{
 			if( g_pPlutoLogger )
-	#ifdef WIN32
-				g_pPlutoLogger->Write(LV_LOCKING, "unlock(%p) #%d (>%d) %s: %s:%d %s", m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
-	#else
 				g_pPlutoLogger->Write(LV_LOCKING, "unlock(%p) #%d (>%d) %s: %s:%d %s", &m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
-	#endif
 		}
 #endif
 	}

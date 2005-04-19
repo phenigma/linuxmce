@@ -264,11 +264,7 @@ void FileLogger::WriteEntry( Entry& Entry )
     fwrite( pcLp, strlen( pcLp ), 1, m_LogFile );
 #ifdef DEBUG
 
-#ifdef WIN32
     fprintf( m_LogFile, " <%p>\n", pthread_self() );
-#else
-    fprintf( m_LogFile, " <%d>\n", (int)pthread_self() );
-#endif
 
 #else
     fwrite( "\n", 1, 1, m_LogFile );
