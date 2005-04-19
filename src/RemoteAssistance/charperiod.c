@@ -13,6 +13,8 @@ int main()
 	FD_SET(0, &fd);
 	while (select(1, &fd, 0, 0, &tv) > 0)
 	{
+		if (! FD_ISSET(0, &fd))
+			break;
 		read(0, buf, 1024);
 		FD_ZERO(&fd);
 		FD_SET(0, &fd);
