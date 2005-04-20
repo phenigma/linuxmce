@@ -698,6 +698,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 				    if( pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_MD &&
 						(pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST || pCommand->m_dwPK_Command==COMMAND_Generic_On_CONST || pCommand->m_listPipe.size()) )
 					{
+g_pPlutoLogger->Write(LV_STATUS,"It's an on/off");
 						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_MD;
 						Message *pNewMessage = new Message( pMessage );
 						QueueMessageToRouter( pNewMessage );
@@ -706,6 +707,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 					if( pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_mapCommands.find(pMessage->m_dwID) !=
 						pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_mapCommands.end() )
 					{
+g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
 						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
 						Message *pNewMessage = new Message( pMessage );
 						QueueMessageToRouter( pNewMessage );
@@ -714,6 +716,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 			}
 			else
 			{
+g_pPlutoLogger->Write(LV_STATUS,"Just send it to the media device");
 				// Just send it to the media device.  We don't know what it is
                 pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
 	            Message *pNewMessage = new Message( pMessage );
@@ -721,10 +724,10 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 			}
         }
 
-        g_pPlutoLogger->Write( LV_STATUS, "Media plug in handled message id: %d", pMessage->m_dwID );
+        g_pPlutoLogger->Write( LV_STATUS, "Media plug in done with message id: %d", pMessage->m_dwID );
     }
 
-    g_pPlutoLogger->Write( LV_STATUS, "Media plug base handled message id: %d", pMessage->m_dwID );
+    g_pPlutoLogger->Write( LV_STATUS, "Media plug base done with id: %d", pMessage->m_dwID );
 
     return true;
 }

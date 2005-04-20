@@ -306,10 +306,61 @@ bool IRBase::ProcessMessage(Message *pMessage)
 				pMessage->m_mapParameters[COMMANDPARAMETER_Tokens_CONST], 0, DeviceNum, CommandNum);
 		return true;
 	}
-	if( pMessage->m_dwID == COMMAND_Tune_to_channel_CONST)
+	else if( pMessage->m_dwID == COMMAND_Tune_to_channel_CONST)
 	{
 		//AddChannelChangeToQueue(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Absolute_Channel_CONST].c_str()), TargetDevice);
 		AddChannelChangeToQueue(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST].c_str()), TargetDevice);
+		return true;
+	}
+	else if( pMessage->m_dwID == COMMAND_Jump_Position_In_Playlist_CONST)
+	{
+		string sValue = pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
+		int iValue=1;
+		if( sValue.size() )
+		{
+
+			if( sValue[0]=='+' )
+				iValue = atoi(sValue.substr(1).c_str());
+			else if( sValue[0]=='-' )
+				iValue = atoi(sValue.substr(1).c_str()) * -1;
+			else
+				iValue = atoi(sValue.c_str());
+		}
+		g_pPlutoLogger->Write(LV_STATUS,"Translate jump into skip value: %d", iValue);
+		AddIRToQueue("", "", 0, TargetDevice, 
+			(iValue>0 ? COMMAND_Skip_Fwd_ChannelTrack_Greater_CONST : COMMAND_Skip_Back_ChannelTrack_Lower_CONST), 
+			abs(iValue));
+		return true;
+	}
+	else if( pMessage->m_dwID == COMMAND_Change_Playback_Speed_CONST)
+	{
+		string sValue = pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST];
+		int iValue=1;
+		if( sValue.size() )
+		{
+			if( sValue[0]=='+' )
+				iValue = atoi(sValue.substr(1).c_str());
+			else if( sValue[0]=='-' )
+				iValue = atoi(sValue.substr(1).c_str()) * -1;
+			else
+				iValue = atoi(sValue.c_str());
+		}
+		g_pPlutoLogger->Write(LV_STATUS,"Translate playback speed into scan value: %d", iValue);
+		AddIRToQueue("", "", 0, TargetDevice, 
+			(iValue>0 ? COMMAND_Scan_FwdFast_Fwd_CONST : COMMAND_Scan_BackRewind_CONST), 
+			1);
+		return true;
+	}
+	else if( pMessage->m_dwID == COMMAND_Pause_Media_CONST)
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Translate pause media->pause");
+		AddIRToQueue("", "", 0, TargetDevice, COMMAND_Pause_CONST, 1);
+		return true;
+	}
+	else if( pMessage->m_dwID == COMMAND_Play_Media_CONST)
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Translate play media->play");
+		AddIRToQueue("", "", 0, TargetDevice, COMMAND_Play_CONST, 1);
 		return true;
 	}
 
