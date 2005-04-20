@@ -744,7 +744,7 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
 			// and should wait the correct interval
 
 			// Don't purge existing callbacks since there can be multiple frames on the screen
-			CallMaintenanceInMiliseconds( pObj->m_vectGraphic.size()==0 ? 0 : GetVideoFrameInterval(), &Orbiter::GetVideoFrame, NULL, pe_ALL );
+			CallMaintenanceInMiliseconds( pObj->m_vectGraphic.size()==0 ? 0 : DATA_Get_VideoFrameInterval(), &Orbiter::GetVideoFrame, NULL, pe_ALL );
 			m_bAlreadyQueuedVideo=true;  // Only schedule once -- that will redraw all video frames
 		}
 		else
@@ -6458,3 +6458,4 @@ void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *
 //<-dceag-c352-e->
 {
 }
+

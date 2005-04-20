@@ -34,8 +34,6 @@ public:
 	//OrbiterSDL_Win32 public methods
 	void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	int GetVideoFrameInterval() { return 1000; } 
-
 	static void Cleanup();
 	static void BuildOrbiter(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);

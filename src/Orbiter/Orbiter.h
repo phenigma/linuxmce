@@ -294,8 +294,6 @@ public: // temp - remove this
 	 */
 	virtual void GetVideoFrame( void *iData );
 
-	virtual int GetVideoFrameInterval() { return 6000; } //default value. override this to speed up things.
-
 	/**
 	 * @brief
 	 * @param if X and Y are -1, the object was selected by pushing a keyboard key, rather than touching the screen
@@ -785,6 +783,7 @@ public:
 	string DATA_Get_CacheFolder();
 	int DATA_Get_CacheSize();
 	bool DATA_Get_Use_OCG_Format();
+	int DATA_Get_VideoFrameInterval();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
@@ -1286,7 +1285,7 @@ public:
 	virtual void CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #352 - Show Mouse Pointer */
+	/** @brief COMMAND: #354 - Show Mouse Pointer */
 	/** Shows or hides the mouse pointer. */
 		/** @param #8 On/Off */
 			/** 1=show it, 0=hide it. */

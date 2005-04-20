@@ -50,6 +50,7 @@ public:
 	string Get_CacheFolder() { return m_mapParameters[57];}
 	int Get_CacheSize() { return atoi(m_mapParameters[58].c_str());}
 	bool Get_Use_OCG_Format() { return (m_mapParameters[64]=="1" ? true : false);}
+	int Get_VideoFrameInterval() { return atoi(m_mapParameters[72].c_str());}
 };
 
 
@@ -109,6 +110,7 @@ public:
 	string DATA_Get_CacheFolder() { return GetData()->Get_CacheFolder(); }
 	int DATA_Get_CacheSize() { return GetData()->Get_CacheSize(); }
 	bool DATA_Get_Use_OCG_Format() { return GetData()->Get_Use_OCG_Format(); }
+	int DATA_Get_VideoFrameInterval() { return GetData()->Get_VideoFrameInterval(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
@@ -1118,7 +1120,7 @@ public:
 					};
 					iHandled++;
 					continue;
-				case 352:
+				case 354:
 					{
 						string sCMD_Result="OK";
 					string sOnOff=pMessage->m_mapParameters[8];
