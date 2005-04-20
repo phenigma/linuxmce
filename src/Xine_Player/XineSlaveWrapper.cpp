@@ -1715,8 +1715,7 @@ void XineSlaveWrapper::setOutputSpeakerArrangement(string strOutputSpeakerArrang
 	int i = 0;
 	while ( audio_out_types_strs[i] != NULL )
 	{
-
-		if ( strncmp(strOutputSpeakerArrangement.c_str(	), audio_out_types_strs[i], strOutputSpeakerArrangement.size()) == 0 )
+		if ( strncmp(strOutputSpeakerArrangement.c_str(	), audio_out_types_strs[i], strlen(audio_out_types_strs[i])) == 0 )
 		{
 			xineConfigEntry.num_value = i;
 			xine_config_update_entry(m_pXine, &xineConfigEntry);
