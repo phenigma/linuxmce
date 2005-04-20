@@ -83,8 +83,6 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	ir_cmd_id = 1;
 	m_bStopLearning = false;
 
-	// TODO: learn_device
-	//learn_device = GetData()->Get_SERIAL_PORT();
 	//learn_device = string("/dev/ttyS_") + StringUtils::ltos(m_dwPK_Device) + "_0"; // DEBUG
 	learn_device = DATA_Get_Port();
 	gc100_mutex.Init(NULL);
@@ -712,8 +710,8 @@ void gc100::Start_seriald()
 //			sprintf(command,"/usr/pluto/bin/gc_seriald %s %d /dev/gcsd%d &",ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, global_slot-1);
 //			sprintf(command, "socat TCP4:%s:%d PTY,link=/dev/ttyS_%d_%d,echo=false,icanon=false,raw &",
 //				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, m_dwPK_Device, global_slot - 1);
-			sprintf(command, "socat TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw &",
-				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str());
+			sprintf(command, "socat -v TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw >>/var/log/pluto/%s.newlog 2>&1 &",
+				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str(), sDevice.c_str());
 			g_pPlutoLogger->Write(LV_STATUS, "seriald cmd: %s", command);
 			system(command);
 		}
