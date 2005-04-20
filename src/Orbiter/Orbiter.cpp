@@ -829,7 +829,6 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
         RenderObject( pDesignObj_Orbiter,  pObj_Screen );
     }
 
-
     VectorDesignObjText::iterator iText;
     for( iText=pObj->m_vectDesignObjText.begin(  ); iText != pObj->m_vectDesignObjText.end(  ); ++iText )
     {
@@ -1321,7 +1320,6 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
         int k=2;
     }
 
-    pObj->m_pvectCurrentGraphic = NULL;
     pObj->m_bOnScreen=false;
     if(  pObj->m_pGraphicToUndoSelect  )
     {
@@ -1329,19 +1327,9 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
         pObj->m_pGraphicToUndoSelect=NULL;
     }
 
-    if(pObj->m_vectGraphic.size())
-        GraphicOffScreen( &(pObj->m_vectGraphic) );
-
-    if(pObj->m_vectSelectedGraphic.size())
-        GraphicOffScreen( &(pObj->m_vectSelectedGraphic) );
-    /* todo 2
-    if ( pObj->m_pWebWindow )
-    {
-    delete pObj->m_pWebWindow;
-    pObj->m_pWebWindow = NULL;
-    m_pCurWebWindow = NULL;
-    }
-    */
+    GraphicOffScreen( &(pObj->m_vectGraphic) );
+    GraphicOffScreen( &(pObj->m_vectSelectedGraphic) );
+	GraphicOffScreen( &(pObj->m_vectHighlightedGraphic) );
 
     size_t i;
     for(i = 0; i < pObj->m_vectAltGraphics.size(); ++i)
@@ -1451,16 +1439,6 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 						//if it is playing, cancel this
 						pObj_Sel->m_pvectCurrentPlayingGraphic = NULL;
 						pObj_Sel->m_iCurrentFrame = 0;
-
-						vector<PlutoGraphic*> *pVectorPlutoGraphic = &(pObj_Sel->m_vectSelectedGraphic);
-						if(pObj_Sel->m_vectSelectedGraphic.size())
-						{
-							size_t size = (*pVectorPlutoGraphic).size();
-							for(size_t i = 0; i < size; i++)
-								(*pVectorPlutoGraphic)[i]->Clear();
-						}
-
-						//reset the state
                         pObj_Sel->m_GraphicToDisplay = GRAPHIC_NORMAL;
 
 						g_pPlutoLogger->Write(LV_STATUS, "State reseted for object with id %s",
@@ -5963,31 +5941,20 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 /*virtual*/ void Orbiter::RenderGraphic(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio)
 {
-	bool bIsMNG = false;
-    bool bDeleteSurface=true;  // Will set to false if we're going to cache
-
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 	vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
-	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
+
+	//we have nothing to render
+	if(pVectorPlutoGraphic->size() == 0) 
 		return;
 
+	//just in case
 	if(int(pVectorPlutoGraphic->size()) <= pObj->m_iCurrentFrame)
 		pObj->m_iCurrentFrame = 0;
 
 	int iCurrentFrame = pObj->m_iCurrentFrame;
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
-
-	bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
-
-	size_t size = (*pVectorPlutoGraphic).size();
-	if(
-		iCurrentFrame == 0 && bIsMNG &&
-		(pObj->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED || pObj->m_GraphicToDisplay == GRAPHIC_SELECTED) &&
-		size > 1
-	) //clear the images
-	{
-		for(size_t i = 0; i < size; i++)
-			(*pVectorPlutoGraphic)[i]->Clear();
-	}
+	bool bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
 
 	string sFileName = "";
 	if(pPlutoGraphic->IsEmpty() && NULL != m_pCacheImageManager &&
@@ -6104,45 +6071,48 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 						delete [] pFrameData;
 					}
 
-					pPlutoGraphic = (*pVectorPlutoGraphic)[0];
-
-					int iTime = 0; //hardcoding warning! don't know from where to get the framerate yet (ask Radu, libMNG)
-#ifndef WINCE
-					iTime = 15;
-#endif
-
-					bool bLoop = false; //hardcoding warning!  (ask Radu, libMNG)
-
-					switch(pObj->m_GraphicToDisplay)
-					{
-						case GRAPHIC_HIGHLIGHTED:
-							pObj->m_iTime_Highlighted = iTime;
-							pObj->m_bLoop_Highlighted = bLoop;
-							break;
-						case GRAPHIC_SELECTED:
-							pObj->m_iTime_Selected = iTime;
-							pObj->m_bLoop_Selected = bLoop;
-							break;
-						case GRAPHIC_NORMAL:
-							pObj->m_iTime_Background = iTime;
-							pObj->m_bLoop_Background = bLoop;
-							break;
-							//todo alternate graphics ?
-					}
-
-					pObj->m_iCurrentFrame = 1;
-
 					delete pInMemoryMNG;
 					pInMemoryMNG = NULL;
-
-					//schedule next frame for animation
-					pObj->m_pvectCurrentPlayingGraphic = pObj->m_pvectCurrentGraphic;
-					pObj->m_GraphicToPlay = pObj->m_GraphicToDisplay;
-					CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , pe_NO );
 				}
 				break;
 
 		}
+	}
+
+	if(bIsMNG && pObj->m_pvectCurrentPlayingGraphic == NULL)
+	{
+		pPlutoGraphic = (*pVectorPlutoGraphic)[0];
+
+		int iTime = 0; //hardcoding warning! don't know from where to get the framerate yet (ask Radu, libMNG)
+#ifndef WINCE
+		iTime = 15;
+#endif
+
+		bool bLoop = false; //hardcoding warning!  (ask Radu, libMNG)
+
+		switch(pObj->m_GraphicToDisplay)
+		{
+		case GRAPHIC_HIGHLIGHTED:
+			pObj->m_iTime_Highlighted = iTime;
+			pObj->m_bLoop_Highlighted = bLoop;
+			break;
+		case GRAPHIC_SELECTED:
+			pObj->m_iTime_Selected = iTime;
+			pObj->m_bLoop_Selected = bLoop;
+			break;
+		case GRAPHIC_NORMAL:
+			pObj->m_iTime_Background = iTime;
+			pObj->m_bLoop_Background = bLoop;
+			break;
+			//todo alternate graphics ?
+		}
+
+		pObj->m_iCurrentFrame = 1;
+
+		//schedule next frame for animation
+		pObj->m_pvectCurrentPlayingGraphic = pObj->m_pvectCurrentGraphic;
+		pObj->m_GraphicToPlay = pObj->m_GraphicToDisplay;
+		CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , pe_NO );
 	}
 
 	if(!pPlutoGraphic->IsEmpty())
@@ -6189,12 +6159,6 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	if(pObj->m_iCurrentFrame >= iFrameNum) //this is the last one
 	{
 		pObj->m_iCurrentFrame = 0;
-
-		//let's clear these data on GraphicOffScreen()
-		size_t size = (*pVectorPlutoGraphic).size();
-		for(size_t i = 0; i < size; i++)
-			(*pVectorPlutoGraphic)[i]->Clear();
-
 		pObj->m_pvectCurrentPlayingGraphic = NULL;
 		g_pPlutoLogger->Write(LV_STATUS, "MNG playing was completed for object with id %s",
 			pObj->m_ObjectID.c_str());

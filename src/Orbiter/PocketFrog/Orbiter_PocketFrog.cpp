@@ -760,6 +760,12 @@ clock_t ccc=clock();
 	::SetTextColor(hdc, RGB(pTextStyle->m_ForeColor.R(), pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B()));
 	::SetBkMode(hdc, TRANSPARENT);
 
+	if(rectLocation.top < Text->m_rPosition.Y)
+		rectLocation.top = Text->m_rPosition.Y;
+
+	if(rectLocation.bottom > rectLocation.top + Text->m_rPosition.Width)
+		rectLocation.bottom = rectLocation.top + Text->m_rPosition.Width;
+
 	switch (pTextStyle->m_iPK_HorizAlignment)
 	{
 		case HORIZALIGNMENT_Center_CONST: 
