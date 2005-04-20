@@ -129,11 +129,25 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 					vector<int> *pVect = (vector<int> *) pItem->m_pItem;
 					Write_unsigned_long((unsigned long) pVect->size());
 #ifdef DEBUG_SERIALIZATION
-					cout << "Writing " << (unsigned long) pVect->size() << " vector strings" << endl;
+					cout << "Writing " << (unsigned long) pVect->size() << " vector ints" << endl;
 #endif
 					for(size_t s=0; s < pVect->size(); ++s)
 					{
 						Write_unsigned_long( (*pVect)[s] );
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_VECT_PAIR_INT:
+				{
+					vector< pair<int,int> > *pVect = (vector< pair<int,int> > *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pVect->size());
+#ifdef DEBUG_SERIALIZATION
+					cout << "Writing " << (unsigned long) pVect->size() << " vector pair ints" << endl;
+#endif
+					for(size_t s=0; s < pVect->size(); ++s)
+					{
+						Write_unsigned_long( (*pVect)[s].first );
+						Write_unsigned_long( (*pVect)[s].second );
 					}
 				}
 				break;
@@ -241,11 +255,26 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 					vector<int> *pVect = (vector<int> *) pItem->m_pItem;
 					unsigned long count = Read_unsigned_long();
 #ifdef DEBUG_SERIALIZATION
-					cout << "Reading " << count << " vector strings" << endl;
+					cout << "Reading " << count << " vector ints" << endl;
 #endif
 					for(size_t s=0;s<count;++s)
 					{
 						pVect->push_back(Read_unsigned_long());
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_VECT_PAIR_INT:
+				{
+					vector< pair<int,int> > *pVect = (vector< pair<int,int> > *) pItem->m_pItem;
+					unsigned long count = Read_unsigned_long();
+#ifdef DEBUG_SERIALIZATION
+					cout << "Reading " << count << " vector pair ints" << endl;
+#endif
+					for(size_t s=0;s<count;++s)
+					{
+						long l1 = Read_unsigned_long();
+						long l2 = Read_unsigned_long();
+						pVect->push_back( pair<int,int> (l1,l2) );
 					}
 				}
 				break;

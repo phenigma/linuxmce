@@ -38,7 +38,7 @@
 
 using namespace sqlCVS;
 
-R_GetAll_psc_id::R_GetAll_psc_id( string sTable, int psc_id )
+R_GetAll_psc_id::R_GetAll_psc_id( string sTable )
 {
 	m_sTable=sTable;
 }
@@ -47,7 +47,9 @@ bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 {
 	cout << "R_GetAll_psc_id" << endl;
 	std::ostringstream sSQL;
-	sSQL << "SELECT psc_id FROM " << m_sTable << " ORDER BY psc_id";
+	// See notes in Table::DetermineDeletions
+	sSQL << "SELECT psc_id,psc_batch FROM " << m_sTable << " ORDER BY psc_id";
+
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
 	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
@@ -66,7 +68,7 @@ bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 				m_cProcessOutcome=INTERNAL_ERROR;
 				return true; /**<< Request successfully processed */
 			}
-			m_vectAll_psc_id.push_back( atoi( row[0] ) );
+			m_vectAll_psc_id.push_back( pair<int,int>(atoi( row[0] ),(row[1] ? atoi(row[1]) : 0)) );
 		}
 		m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
 	}

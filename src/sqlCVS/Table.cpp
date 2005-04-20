@@ -758,10 +758,19 @@ bool Table::ConfirmDependency( ChangedRow *pChangedRow, Field *pField_Referring,
 
 bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, DCE::Socket **ppSocket )
 {
-	cout << "DetermineDeletions for table: " << m_sName << " from psc_id: " << m_psc_id_last_sync << endl;
+	cout << "DetermineDeletions for table: " << m_sName << " from psc_id: " << m_psc_id_last_sync << " batch: " << m_psc_batch_last_sync << endl;
 	if( m_psc_id_last_sync<1 )
 		return true; /** We haven't synced any records with the server anyway */
-	R_GetAll_psc_id r_GetAll_psc_id( m_sName, m_psc_id_last_sync );
+
+	// Suppose a user checked in an unauthorized row, psc_id=5.  We've already synced up to 10.
+	// That row, psc_id=5 is approved and merged into the main table.  But we haven't done an update yet
+	// When we do a determine deletions it will appear that we deleted it locally if we don't
+	// pass in the last batch.  So, we pass in m_psc_batch_last_sync, and the server will filter 
+	// rows that are <=.  This does mean that suppose psc_id=5 was checked in and I did sync locally.
+	// I deleted it locally, but before checking in my deletion, another user updated it and I haven't
+	// yet updated.  Therefore, the batch will be > m_psc_id_last_sync and will not show up
+
+	R_GetAll_psc_id r_GetAll_psc_id( m_sName );
 	ra_Processor.AddRequest( &r_GetAll_psc_id );
 	while( ra_Processor.SendRequests( Connection, ppSocket ) );
 
@@ -787,9 +796,9 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 cout << "Got " << (int) r_GetAll_psc_id.m_vectAll_psc_id.size() << ":" ;
 for(size_t s=0;s<r_GetAll_psc_id.m_vectAll_psc_id.size();++s)
 {
-int k=r_GetAll_psc_id.m_vectAll_psc_id[s];
-int k2=9;
-cout << k << ",";
+int id=r_GetAll_psc_id.m_vectAll_psc_id[s].first;
+int batch=r_GetAll_psc_id.m_vectAll_psc_id[s].second;
+cout << id << "(" << batch << ")" << ",";
 }
 cout << endl;
 
@@ -801,21 +810,29 @@ cout << endl;
 				throw "Database error";
 			}
 			/** If the value of our local row[] is > than the server's vect (and not > than what we've already synced), then we deleted some records locally */
-			while( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )>r_GetAll_psc_id.m_vectAll_psc_id[pos] && atoi(row[0])<=m_psc_id_last_sync )
+			while( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )>r_GetAll_psc_id.m_vectAll_psc_id[pos].first && atoi(row[0])<=m_psc_id_last_sync )
 			{
-cout << "Deleted a local row - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-	" atoi: " << atoi( row[0] ) << " comp: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << endl;
+cout << "We deleted a row locally - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
+" local db psc_id: " << atoi( row[0] ) << " server psc_id deleted: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " batch: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].second << endl;
+if( r_GetAll_psc_id.m_vectAll_psc_id[pos].second>m_psc_batch_last_sync )
+cout << "Never mind, it's newer than what we've synced" << endl;
+
 itmp_RowsToDelete++;
-				ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos] );
+				ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos].first );
 				AddChangedRow( pChangedRow );
 				pos++;
 			} 
 			/** If the value in the server's vect is > than our local row[], then the server deleted this row */
-			if( pos>=r_GetAll_psc_id.m_vectAll_psc_id.size( ) || r_GetAll_psc_id.m_vectAll_psc_id[pos]>atoi( row[0] ) )
+
+			if( pos/size are both 0! && (pos>=r_GetAll_psc_id.m_vectAll_psc_id.size( ) || r_GetAll_psc_id.m_vectAll_psc_id[pos].first>atoi(row[0])) )
 			{
+Rethink this logic!
 cout << "tmp - next line is crashing!?" << endl;
-cout << "Deleted a server row - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-" server: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << " atoi: " << (row[0] ? row[0] : "NULL") << endl;
+cout << "tmp 1" << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( );
+cout << " tmp2 server: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " local row deleted on server: " << (row[0] ? row[0] : "NULL") << endl;
+
+cout << "row deleted on server - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
+" server: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " local row deleted on server: " << (row[0] ? row[0] : "NULL") << endl;
 				// It's possible that this row was added as an unauthorized batch and hasn't
 				// been deleted, it just hasn't been approved yet.  Skip this if it's an unauth batch
 				if( !row[1] || atoi(row[1])>=0 )
@@ -824,7 +841,7 @@ cout << "Deleted a server row - pos: " << pos << " size: " << r_GetAll_psc_id.m_
 					cout << "RE: Above, never mind.  It's an unauthorized row" << endl;
 				continue; 
 			}
-			if( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )==r_GetAll_psc_id.m_vectAll_psc_id[pos] )
+			if( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )==r_GetAll_psc_id.m_vectAll_psc_id[pos].first )
 			{
 				/** So far so good, keep going */
 				pos++;
@@ -837,12 +854,16 @@ cout << "Deleted a server row - pos: " << pos << " size: " << r_GetAll_psc_id.m_
 		/** There are still more rows in the server's vect. We must have deleted them */
 		for( ;pos<r_GetAll_psc_id.m_vectAll_psc_id.size( );++pos )
 		{
-			if( r_GetAll_psc_id.m_vectAll_psc_id[pos]>m_psc_id_last_sync )
+			if( r_GetAll_psc_id.m_vectAll_psc_id[pos].first>m_psc_id_last_sync )
 				continue;
 cout << "Still rows in server's vect - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-	" comp: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << endl;
+" psc_id: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " batch: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].second << endl;
+
+if( r_GetAll_psc_id.m_vectAll_psc_id[pos].second>m_psc_batch_last_sync )
+cout << "Never mind, it's newer than what we've synced" << endl;
+
 itmp_RowsToDelete++;
-			ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos] );
+			ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos].first );
 			AddChangedRow( pChangedRow );
 		}
 	}

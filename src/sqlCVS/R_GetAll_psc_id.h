@@ -22,12 +22,13 @@ class R_GetAll_psc_id : public RA_Request
 public:
 	/** @brief Request Variables */
 	string m_sTable;
+	int m_psc_id,m_psc_batch;
 
 	/** @brief Response Variables */
-	vector<int> m_vectAll_psc_id;
+	vector< pair<int,int> > m_vectAll_psc_id;  // psc_id + batch
 
 	/** @brief constructor */
-	R_GetAll_psc_id( string sTable, int psc_id );
+	R_GetAll_psc_id( string sTable );
 	
 	/** @brief constructor */
 	R_GetAll_psc_id( ) {};

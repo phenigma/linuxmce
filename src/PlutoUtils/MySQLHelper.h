@@ -182,7 +182,7 @@ public:
 		}
 	#endif
 #ifdef LOG_ALL_QUERIES
-		g_pPlutoLogger->Write(LV_STATUS,"Executed query %s", query.c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Executed query %s (%d rows)", query.c_str(), (int) mysql_affected_rows(m_pMySQL));
 #endif
 		return iresult;
 	}
