@@ -1185,8 +1185,8 @@ void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, lo
 
 	learn_input_string=""; // Clear out the IR to learn the next sequence clean
 
-	if (is_open_for_learning)
-	{
+//	if (is_open_for_learning)
+//	{
 		if (! m_bLearning)
 		{
 			LearningInfo * pLI = new LearningInfo(PK_Device, PK_Command, PK_Device_Orbiter, PK_Text, this);
@@ -1203,13 +1203,13 @@ void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, lo
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Learning thread already running");
 		}
-	}
-	else
-	{
-		g_pPlutoLogger->Write(LV_WARNING,"Can't learn because no learning port is open");
-		DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Can't learn because no learning port is open", PK_Text);
-		SendCommand(CMD_Set_Text);
-	}
+//	}
+//	else
+//	{
+//		g_pPlutoLogger->Write(LV_WARNING,"Can't learn because no learning port is open");
+//		DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Can't learn because no learning port is open", PK_Text);
+//		SendCommand(CMD_Set_Text);
+//	}
 }
 
 bool gc100::open_for_learning()
@@ -1275,7 +1275,9 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	m_bLearning = true;
-	if (is_open_for_learning)
+
+//	if (is_open_for_learning)
+	if (open_for_learning())
 	{
 		fd_set fdset;
 
@@ -1395,6 +1397,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 				SendCommand(CMD_Set_Text);
 			}
 		}
+		close(learn_fd);
 	} // end if is_open_for_learning
 	m_bLearning = false;
 	m_bStopLearning = false;
@@ -1425,7 +1428,7 @@ void gc100::CreateChildren()
 	} while (device_data != "endlistdevices");
 	Start_seriald(); // Start gc_seriald processes according to serial port inventory
 	Sleep(1000);
-	is_open_for_learning = open_for_learning();
+//	is_open_for_learning = open_for_learning();
 
 	if (pthread_create(&m_EventThread, NULL, StartEventThread, (void *) this))
 	{

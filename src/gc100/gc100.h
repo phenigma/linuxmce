@@ -77,7 +77,7 @@ private:
 	int gc100_socket;				// OK
 	std::string ip_addr;				// OK
 	bool receiving_data;				// OK
-	bool is_open_for_learning;			// OK
+//	bool is_open_for_learning;			// OK
 	int learn_fd;					// OK
 	char recv_buffer[4096]; // Replies from the GC100 go here // OK
 	int recv_pos;					// OK
