@@ -38,13 +38,13 @@ if ($action == 'form') {
 	<input type="hidden" name="oldEntertainArea" value="'.$entertainArea.'">
 	
 	<div style="position:absolute;top:25px;Z-INDEX:2;"><br><br><a href="index.php?section=avWizard">Advanced mode</a>
-	<br>	<a href="javascript:savePositions();">Save</a></div>
+	<br></div>
 	<div align="center"><h3>A/V equipment connection wizard</h3></div>
 	Edit devices in:'.generatePullDown('entertainArea','EntertainArea','PK_EntertainArea','Description',$_SESSION['AVentertainArea'],$dbADO,' INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.(int)$_SESSION['installationID'],'onChange="savePositions();"').'<br>';
 	$devicesList=array();
 	if($entertainArea!=0){		
 		$out.='
-			<input type="button" class="button" name="button" value="Add device" onClick="document.connectionWizard.action.value=\'externalSubmit\';document.connectionWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=connectionWizard&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">
+			<input type="button" class="button" name="button" value="Add device" onClick="document.connectionWizard.action.value=\'externalSubmit\';document.connectionWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=connectionWizard&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" class="button" value="Update" onClick="savePositions();">
 			<div style="position:absolute;top:25px;">
 			<div style="position:relative; top:0px; width:360px;background:#DDDDDD;float:right;Z-INDEX:1;">
 			<table align="right">
@@ -95,6 +95,7 @@ if ($action == 'form') {
 		$existingPipes=array();
 		if(count($devicesInEA)==0)	// fix for no devices in EA
 			$devicesInEA[]=0;
+
 		$resPipes=$dbADO->Execute('
 			SELECT 
 				Device_Device_Pipe.*, 
@@ -111,12 +112,11 @@ if ($action == 'form') {
 			LEFT JOIN DeviceTemplate_Output ON DeviceTemplate_Output.FK_Command=FK_Command_Output AND DeviceTemplate_Output.FK_DeviceTemplate=Dfrom.FK_DeviceTemplate
 			WHERE FK_Device_From IN ('.join(',',$devicesInEA).')');
 		while($row=$resPipes->FetchRow()){
-			$existingPipes[$row['FK_Device_From']]['from']=$row['FK_Device_From'];
-			$existingPipes[$row['FK_Device_From']]['to']=$row['FK_Device_To'];
-			$existingPipes[$row['FK_Device_From']]['pipe']=$row['FK_Pipe'];
-			$existingPipes[$row['FK_Device_From']]['input']=$row['FK_Command_Input'];
-			$existingPipes[$row['FK_Device_From']]['output']=$row['FK_Command_Output'];
-			$existingPipes[$row['FK_Device_From']]['isDisplayed']=0;
+			$existingPipes[$row['FK_Device_From']][$row['FK_Pipe']]['from']=$row['FK_Device_From'];
+			$existingPipes[$row['FK_Device_From']][$row['FK_Pipe']]['to']=$row['FK_Device_To'];
+			$existingPipes[$row['FK_Device_From']][$row['FK_Pipe']]['input']=$row['FK_Command_Input'];
+			$existingPipes[$row['FK_Device_From']][$row['FK_Pipe']]['output']=$row['FK_Command_Output'];
+			$existingPipes[$row['FK_Device_From']][$row['FK_Pipe']]['isDisplayed']=0;
 
 			$fromDeviceName=$devicesInEA_Names[array_search($row['FK_Device_From'],$devicesInEA)];
 			$toDeviceName=$devicesInEA_Names[array_search($row['FK_Device_To'],$devicesInEA)];
@@ -124,10 +124,10 @@ if ($action == 'form') {
 			$outName.=($row['connectorOut']!='')?' ('.$connectorsArray[$row['connectorOut']].')':'';
 			$inName=($row['nameInput']=='')?'Input':$row['nameInput'];
 			$inName.=($row['connectorIn']!='')?' ('.$connectorsArray[$row['connectorIn']].')':'';
-			$existingPipes[$row['FK_Device_From']]['description']='From '.$outName.' on '.$fromDeviceName.' to '.$inName.' on '.$toDeviceName;
+			$existingPipes[$row['FK_Device_From']][$row['FK_Pipe']]['description']='From '.$outName.' on '.$fromDeviceName.' to '.$inName.' on '.$toDeviceName;
 
 		}
-		
+
 		// read existing coordinates from cookie 
 		if(isset($_COOKIE['PlutoAdminConnectionWizard_'.$_SESSION['installationID']])){
 			$cookieArray=unserialize(stripslashes($_COOKIE['PlutoAdminConnectionWizard_'.$_SESSION['installationID']]));
@@ -138,7 +138,7 @@ if ($action == 'form') {
 				$positionsArray=explode(';',substr($cookieArray[$entertainArea],1));
 				$oldDevice=array();
 				$jsDrawPipes='';
-				
+
 				if($positionsArray[0]!=''){
 					for($i=0;$i<count($positionsArray);$i=$i+7){
 						if(in_array($positionsArray[$i],$devicesInEA)){
@@ -148,7 +148,7 @@ if ($action == 'form') {
 								$parts=explode(':',$positionsArray[$i+3]);
 								if(in_array($parts[0],$devicesInEA)){
 									// check if cookie pipe match with database
-									if(isset($existingPipes[$positionsArray[$i]]) && $existingPipes[$positionsArray[$i]]['to']==$parts[0]){
+									if(isset($existingPipes[$positionsArray[$i]]) && $existingPipes[$positionsArray[$i]][1]['to']==$parts[0]){
 										$jsDrawPipes.='
 											audioPipe['.$positionsArray[$i].']=new Array();
 											audioPipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
@@ -163,38 +163,44 @@ if ($action == 'form') {
 							if($positionsArray[$i+4]!='none'){
 								$parts=explode(':',$positionsArray[$i+4]);
 								if(in_array($parts[0],$devicesInEA)){
-									$jsDrawPipes.='
-										videoPipe['.$positionsArray[$i].']=new Array();
-										videoPipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
-										videoPipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
-										videoPipe['.$positionsArray[$i].'][\'description\']=\''.$parts[4].'\';
-										drawPipe(\''.$positionsArray[$i].'\',\'video\','.$parts[1].');
-									';
+									if(isset($existingPipes[$positionsArray[$i]]) && $existingPipes[$positionsArray[$i]][2]['to']==$parts[0]){
+										$jsDrawPipes.='
+											videoPipe['.$positionsArray[$i].']=new Array();
+											videoPipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+											videoPipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+											videoPipe['.$positionsArray[$i].'][\'description\']=\''.$parts[4].'\';
+											drawPipe(\''.$positionsArray[$i].'\',\'video\','.$parts[1].');
+										';
+									}
 								}
 							}
 							
 							if($positionsArray[$i+5]!='none'){
 								$parts=explode(':',$positionsArray[$i+5]);
 								if(in_array($parts[0],$devicesInEA)){
-									$jsDrawPipes.='
-										audioLivePipe['.$positionsArray[$i].']=new Array();
-										audioLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
-										audioLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
-										audioLivePipe['.$positionsArray[$i].'][\'description\']=\''.$parts[4].'\';
-										drawPipe(\''.$positionsArray[$i].'\',\'audioLive\','.$parts[1].');
-									';
+									if(isset($existingPipes[$positionsArray[$i]]) && $existingPipes[$positionsArray[$i]][3]['to']==$parts[0]){
+										$jsDrawPipes.='
+											audioLivePipe['.$positionsArray[$i].']=new Array();
+											audioLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+											audioLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+											audioLivePipe['.$positionsArray[$i].'][\'description\']=\''.$parts[4].'\';
+											drawPipe(\''.$positionsArray[$i].'\',\'audioLive\','.$parts[1].');
+										';
+									}
 								}
 							}
 							if($positionsArray[$i+6]!='none'){
 								$parts=explode(':',$positionsArray[$i+6]);
 								if(in_array($parts[0],$devicesInEA)){
-									$jsDrawPipes.='
-										videoLivePipe['.$positionsArray[$i].']=new Array();
-										videoLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
-										videoLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
-										videoLivePipe['.$positionsArray[$i].'][\'description\']=\''.$parts[4].'\';
-										drawPipe(\''.$positionsArray[$i].'\',\'videoLive\','.$parts[1].');
-									';
+									if(isset($existingPipes[$positionsArray[$i]]) && $existingPipes[$positionsArray[$i]][4]['to']==$parts[0]){
+										$jsDrawPipes.='
+											videoLivePipe['.$positionsArray[$i].']=new Array();
+											videoLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+											videoLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+											videoLivePipe['.$positionsArray[$i].'][\'description\']=\''.$parts[4].'\';
+											drawPipe(\''.$positionsArray[$i].'\',\'videoLive\','.$parts[1].');
+										';
+									}
 								}
 							}
 						}						
@@ -217,7 +223,7 @@ if ($action == 'form') {
 			$inputHeight=20;
 			while($rowInputs=$resInputs->FetchRow()){
 				$img=($rowInputs['FK_ConnectorType']=='')?$connectorsArray[0]:$connectorsArray[$rowInputs['FK_ConnectorType']];
-				$inputsForDevice[]='<div id="in_'.$rowD['PK_Device'].'_cmd_'.$rowInputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;background-image:url(include/images/'.$img.');width:30px;height:20px;left:5;top:'.$inputHeight.';" title="'.$rowInputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowInputs['PK_Command'].'\',\'in_\',\''.$rowInputs['Description'].' ('.str_replace('.gif','',$img).') on '.$rowD['Description'].'\');"></div>';
+				$inputsForDevice[]='<div align="left" id="in_'.$rowD['PK_Device'].'_cmd_'.$rowInputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:5;top:'.$inputHeight.';border: 1px solid black;align:left;valign:middle;background-color:white;" title="'.$rowInputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowInputs['PK_Command'].'\',\'in_\',\''.$rowInputs['Description'].' ('.str_replace('.gif','',$img).') on '.$rowD['Description'].'\');"><img src="include/images/'.$img.'" align="middle"> '.$rowInputs['Description'].'</div>';
 				$inputHeight+=25;
 			}
 			
@@ -229,15 +235,18 @@ if ($action == 'form') {
 				WHERE FK_DeviceTemplate=?';
 			$resOutput=$dbADO->Execute($queryOutput,$rowD['FK_DeviceTemplate']);
 			$outHeight=20;
-			$outputsForDevice[]='<div id="out_'.$rowD['PK_Device'].'_cmd_0" style="position:absolute;Z-INDEX: 1000;background-image:url(include/images/none.gif);width:30px;height:20px;left:215;top:'.$outHeight.';" title="No output" onClick="setPipe(\''.$rowD['PK_Device'].'\',\'0\',\'out_\',\'Output on '.$rowD['Description'].'\');"></div>';
+			$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_0" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="No output" onClick="setPipe(\''.$rowD['PK_Device'].'\',\'0\',\'out_\',\'Output on '.$rowD['Description'].'\');">No output <img src="include/images/none.gif" align="middle"></div>';
 			$outHeight+=25;
 			while($rowOutputs=$resOutput->FetchRow()){
 				$img=($rowOutputs['FK_ConnectorType']=='')?$connectorsArray[0]:$connectorsArray[$rowOutputs['FK_ConnectorType']];
-				$outputsForDevice[]='<div id="out_'.$rowD['PK_Device'].'_cmd_'.$rowOutputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;background-image:url(include/images/'.$img.');width:30px;height:20px;left:215;top:'.$outHeight.';" title="'.$rowOutputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowOutputs['PK_Command'].'\',\'out_\',\''.$rowOutputs['Description'].' ('.str_replace('.gif','',$img).') on '.$rowD['Description'].'\');"></div>';
+				$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_'.$rowOutputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="'.$rowOutputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowOutputs['PK_Command'].'\',\'out_\',\''.$rowOutputs['Description'].' ('.str_replace('.gif','',$img).') on '.$rowD['Description'].'\');">'.$rowOutputs['Description'].' <img src="include/images/'.$img.'" align="middle"></div>';
 				$outHeight+=25;
 			}
 			$height=($inputHeight>$outHeight)?$inputHeight:$outHeight;
 			$height=(($height>150)?$height:150);
+			
+			$deviceInfo=getDeviceInformation($rowD['PK_Device'],$dbADO);
+			$deviceInfoText='<br>DT: <B>'.$deviceInfo['DeviceTemplate'].'</B><br>Category: <B>'.$deviceInfo['Category'].'</B><br>Manufacturer: <B>'.$deviceInfo['Manufacturer'].'</B>';
 			
 			$out.='
 <div id="device_'.$rowD['PK_Device'].'_pipe_1" style="position:absolute;Z-INDEX: 100;left:0;top:0;"></div>
@@ -250,17 +259,19 @@ if ($action == 'form') {
 	var audioLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_3");
 	var videoLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_4");
 </script>
-<DIV id="device_'.$rowD['PK_Device'].'" style="BORDER-RIGHT: 2px outset; BORDER-TOP: 2px outset; DISPLAY: ; Z-INDEX: 1; BORDER-LEFT: 2px outset; WIDTH: 250px; BORDER-BOTTOM: 2px outset; POSITION: absolute; '.((isset($oldDevice[$rowD['PK_Device']])?'LEFT: '.$oldDevice[$rowD['PK_Device']]['deviceX'].'; TOP: '.$oldDevice[$rowD['PK_Device']]['deviceY'].';':'LEFT: 100px; TOP: '.$topPos.'px;')).' HEIGHT: '.$height.'px" onclick="bring_to_front(\'device_'.$rowD['PK_Device'].'\')" onmousedown="bring_to_front(\'device_'.$rowD['PK_Device'].'\')">
+<DIV id="device_'.$rowD['PK_Device'].'" style="BORDER-RIGHT: 2px outset; BORDER-TOP: 2px outset; DISPLAY: ; Z-INDEX: 1; BORDER-LEFT: 2px outset; WIDTH: 350px; BORDER-BOTTOM: 2px outset; POSITION: absolute; '.((isset($oldDevice[$rowD['PK_Device']])?'LEFT: '.$oldDevice[$rowD['PK_Device']]['deviceX'].'; TOP: '.$oldDevice[$rowD['PK_Device']]['deviceY'].';':'LEFT: 100px; TOP: '.$topPos.'px;')).' HEIGHT: '.$height.'px" onclick="bring_to_front(\'device_'.$rowD['PK_Device'].'\')" onmousedown="bring_to_front(\'device_'.$rowD['PK_Device'].'\')">
   <TABLE height="100%" cellSpacing=0 cellPadding=0 width="100%" bgColor=#EEEEEE border=0 onContextMenu="showInfoToolbar('.$rowD['PK_Device'].');return false;">
       <TBODY>
         <TR onmouseup="end_drag(\'device_'.$rowD['PK_Device'].'\')" onmousedown="start_drag(\'device_'.$rowD['PK_Device'].'\')" id="head_'.$rowD['PK_Device'].'"> 
-          <TD align="center" width=196 bgColor=lightblue height="15" valign="middle"><B>'.$rowD['Description'].'</B></TD>
+			<TD align="center" bgColor="#DFFFFE" height="15" width=120 valign="middle"><B>Inputs</B></TD>
+          	<TD align="center" bgColor=lightblue height="15" valign="middle"><B>'.$rowD['Description'].'</B></TD>
+			<TD align="center" bgColor="#DFFFFE" height="15" width="110" valign="middle"><B>Outputs</B></TD>
         </TR>
         <TR> 
-          <TD align=middle><table width="100%" border="0">
+          <TD align=middle colspan="3"><table width="100%" border="0">
 			<tr>
 				<td align="center" width="40"><div position:relative;>'.join('',$inputsForDevice).'</div></td>
-				<td align="center" width="100%">Device <br>'.$rowD['PK_Device'].'</td>
+				<td align="center" width="100%"><div align="center" style="width:100px;">Device # <B>'.$rowD['PK_Device'].'</B>'.$deviceInfoText.'</div></td>
 				<td align="center" width="40"><div position:relative;>'.join('',$outputsForDevice).'</div></td>
 			</tr>	
 		</table></TD>
@@ -282,8 +293,10 @@ if ($action == 'form') {
 		$jsMissingPipes='';
 		if(count($existingPipes)!=0){
 			foreach ($existingPipes as $devicePipe){
-				if($devicePipe['isDisplayed']==0){
-					$jsMissingPipes.='generatePipe('.$devicePipe['from'].','.(int)$devicePipe['output'].','.$devicePipe['to'].','.(int)$devicePipe['input'].',\''.$pipeTypesArray[$devicePipe['pipe']].'\',\''.$devicePipe['description'].'\');';	
+				foreach($pipeTypesArray as $pipeType=>$pipeTypeDescription){
+					if(isset($devicePipe[$pipeType]) && $devicePipe[$pipeType]['isDisplayed']==0){
+						$jsMissingPipes.='generatePipe('.$devicePipe[$pipeType]['from'].','.(int)$devicePipe[$pipeType]['output'].','.$devicePipe[$pipeType]['to'].','.(int)$devicePipe[$pipeType]['input'].',\''.$pipeTypeDescription.'\',\''.$devicePipe[$pipeType]['description'].'\');';	
+					}
 				}
 			}
 		}
@@ -321,10 +334,28 @@ if ($action == 'form') {
 			header("Location: index.php?section=connectionWizard&error=You are not authorised to change the installation.");
 			exit();
 		}
-		$entertainArea=(int)$_REQUEST['entertainArea'];
+		
+		if(isset($_REQUEST['add'])){
+			unset($_SESSION['from']);
+			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
+			if($deviceTemplate!=0){
+				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);	
+				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
+				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
+				exec($commandToSend);
+				
+				if(isInfrared($deviceTemplate,$dbADO)){
+					$dbADO->Execute('INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData) VALUES (?,?)',array($insertID,$GLOBALS['InfraredPort']));
+				}
+			}
+			header("Location: index.php?section=connectionWizard&msg=Device added.");
+			exit();
+		}
+		
+		$entertainArea=@(int)$_REQUEST['entertainArea'];
 		$oldEntertainArea=(int)$_REQUEST['oldEntertainArea'];
 
-		if($entertainArea!=0 && isset($cookieArray)){
+		if($entertainArea!=0 && $_REQUEST['devicesCoords']!=''){
 			$cookieArray[$oldEntertainArea]=$_REQUEST['devicesCoords'];
 			// update database
 			foreach ($cookieArray AS $entArea=>$params){
@@ -340,7 +371,7 @@ if ($action == 'form') {
 			}
 			
 			$cookieData=serialize($cookieArray);
-			setcookie("PlutoAdminConnectionWizard_".$_SESSION['installationID'],$cookieData,time()+31536000,'/',false);
+			setcookie("PlutoAdminConnectionWizard_".$_SESSION['installationID'],$cookieData,(time()+31536000),'/',false);
 		}
 				
 		header("Location: index.php?section=connectionWizard&msg=The devices was updated&entertainArea=$entertainArea");		

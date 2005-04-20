@@ -3005,4 +3005,26 @@ function getCheckedDeviceCommandGroup($deviceTemplate,$deviceCategory,$dbADO)
 	
 	return $groups;
 }
+
+function getDeviceInformation($deviceID,$dbADO)
+{
+	$sql='
+		SELECT 
+			Device.*,
+			DeviceTemplate.Description AS DeviceTemplate,
+			DeviceCategory.Description AS Category,
+			Manufacturer.Description AS Manufacturer
+		FROM Device
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+		INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
+		WHERE PK_Device=?
+		';
+	$res=$dbADO->Execute($sql,$deviceID);
+	$row=array();
+	if($res){
+		$row=$res->FetchRow();
+	}
+	return $row;
+}
 ?>

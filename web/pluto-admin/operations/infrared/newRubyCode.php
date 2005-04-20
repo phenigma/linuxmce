@@ -75,7 +75,7 @@ function newRubyCode($output,$dbADO) {
 			$igcID=$dbADO->Insert_ID();
 			
 			if($isSingleCode->RecordCount()==0){
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($igcID,$_SESSION['installationID']));
+				$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($igcID,$_SESSION['installationID']));
 			}
 			$out.='<script>
 					opener.location.reload();

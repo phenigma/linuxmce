@@ -149,7 +149,7 @@ function generatePipe(deviceFrom,commandOut,deviceTo,commandIn,connectionType,de
 	eval("toX=parseInt(document.getElementById('in_"+deviceTo+"_cmd_"+commandIn+"').style.left)");
 	eval("toY=parseInt(document.getElementById('in_"+deviceTo+"_cmd_"+commandIn+"').style.top)");
 	
-	coordXFrom=xContainer+fromX+30;
+	coordXFrom=xContainer+fromX+110;
 	coordYFrom=yContainer+fromY+10;
 	coordXTo=xContainerTo+toX;
 	coordYTo=yContainerTo+toY+10;
@@ -221,7 +221,7 @@ function setPipe(device,command,prefix,itemName)
 		document.getElementById('toMessage').innerHTML=itemName;
 		
 	}else{
-		globalXFrom=xContainer+xOffsetItem+30;
+		globalXFrom=xContainer+xOffsetItem+110;
 		globalYFrom=yContainer+yOffsetItem+10;
 		if(globalFromDevice!=-1){
 			setMessage('Invalid pipe from output to output',1);

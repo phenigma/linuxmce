@@ -50,6 +50,7 @@ function mediaScenarios($output,$dbADO) {
 				<input type="hidden" name="GoTo" value="">	
 			<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 			<div align="center"><h2>Media scenarios</h2></div>
+		<a href="index.php?section=sortScenarios&sortBy=EntertainArea">Sort scenarios</a>
 			<table>
 				<tr>
 					<td colspan="2"><B>Add Media Scenario</B><a name="addMS"></a></td>

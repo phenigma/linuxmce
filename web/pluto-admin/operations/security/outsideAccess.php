@@ -54,6 +54,12 @@ function outsideAccess($output,$dbADO) {
 			document.outsideAccess.port.focus();
 			return false;
 		}
+		
+		if(document.outsideAccess.allowOnPassword.checked && document.outsideAccess.password.value!=document.outsideAccess.password1.value){
+			alert("Please type the same password.");
+			document.outsideAccess.password.focus();
+			return false;
+		}
 		return true;
 	}
 	</script>	
@@ -62,7 +68,7 @@ function outsideAccess($output,$dbADO) {
 	<form action="index.php" method="post" name="outsideAccess" onSubmit="return validateInput();">
 	<input type="hidden" name="section" value="outsideAccess">
 	<input type="hidden" name="action" value="add">
-	<table width="500">
+	<table width="600">
 		<tr>
 			<td><input type="checkbox" name="allow80" value="1" '.(($allowAccessOn80==1)?'checked':'').'></td>
 			<td>Allow outside to the website on port 80</td>
@@ -78,6 +84,12 @@ function outsideAccess($output,$dbADO) {
 			<td>Allow Pluto tech support temporary access using this password</td>
 			<td><input type="password" name="password" value="'.(isset($remote)?$remote:'').'"></td>
 		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>Confirm password</td>
+			<td><input type="password" name="password1" value="'.(isset($remote)?$remote:'').'"></td>
+		</tr>
+		
 		<tr>
 			<td colspan="3">You will need to provide your support rep the password and the following installation number: <b>'.$_SESSION['installationID'].'</b></td>
 		</tr>

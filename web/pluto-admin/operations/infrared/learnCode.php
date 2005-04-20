@@ -26,7 +26,7 @@ function learnCode($output,$dbADO) {
 					INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
 					WHERE FK_Command=? AND FK_InfraredGroup IS NULL',$commandID);
 			if($isSingleCode->RecordCount()==0){
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($row['PK_InfraredGroup_Command'],$_SESSION['installationID']));
+				$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($row['PK_InfraredGroup_Command'],$_SESSION['installationID']));
 			}
 			$out='
 			<script>
@@ -141,7 +141,7 @@ function learnCode($output,$dbADO) {
 			$igcID=$dbADO->Insert_ID();
 			
 			if($isSingleCode->RecordCount()==0){
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($igcID,$_SESSION['installationID']));
+				$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($igcID,$_SESSION['installationID']));
 			}
 			$out.='<script>
 					opener.location.reload();
