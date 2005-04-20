@@ -946,7 +946,16 @@ int k=2;
 #pragma warning( "take into account return value of 'record frozen'" )
 			if( r_CommitRow.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 			{
-					/** It's going to fall out of scope, so we don't want the processor to retry sending a deleted request */
+				if( r_CommitRow.m_cProcessOutcome==SKIPPING_ROW_DELETED )
+				{
+					cout << "Changes to table: " << m_sName << " psc_id: " << pChangedRow->m_psc_id 
+						<< " were rejected because the row has been deleted by another user " << endl;
+					if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Continue?",false) )
+						return false;
+					continue;
+				}
+				
+				/** It's going to fall out of scope, so we don't want the processor to retry sending a deleted request */
 				ra_Processor.RemoveRequest( &r_CommitRow );
 				cerr << "Failed to commit row in table: " << m_sName  << ":" << (int) r_CommitRow.m_cProcessOutcome << endl << r_CommitRow.m_sResponseMessage << endl;
 				return false;
@@ -1390,9 +1399,10 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 					return;
 				}
 			}
-			cerr << "Error row not found " << sSQL.str() << endl;
-			pR_CommitRow->m_sResponseMessage = "Error: row not found to update";
-			throw "Error: row not found to update";
+			cout << "Row not found " << sSQL.str() << endl;
+			cout << "Skipping update -- row was deleted on the server" << endl;
+			pR_CommitRow->m_cProcessOutcome=SKIPPING_ROW_DELETED;
+			return;
 		}
 	}
 
