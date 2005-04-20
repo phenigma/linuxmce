@@ -11,7 +11,7 @@ Lock="/usr/pluto/locks/gc100-serial-$DevName"
 
 if [[ -f "$Lock" ]]; then
 	PID="$(cat "$Lock")"
-	[[ -d "/proc/$PID" ]] && 2>/dev/null grep -a "$(basename $0)" "/proc/$PID/cmdline" | grep -qaF "$DevName" && exit
+	[[ -d "/proc/$PID" ]] && 2>/dev/null grep -aF "$(basename $0)" "/proc/$PID/cmdline" | grep -qaF "$DevName" && exit
 fi
 
 echo $$ >"$Lock"
