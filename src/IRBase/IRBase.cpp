@@ -289,6 +289,23 @@ bool IRBase::ProcessMessage(Message *pMessage)
 {
 	long TargetDevice = pMessage->m_dwPK_Device_To;
 
+	// If we get a pause, set the flag to true.  If the next command for this device is also 
+	// a pause, translate it to a play.
+	// TODO: Make a paramter in DeviceTemplate_AV: Translate double pause's to play
+	if( pMessage->m_dwID == COMMAND_Pause_Media_CONST || pMessage->m_dwID == COMMAND_Pause_CONST )
+	{
+		if( m_LastCommandWasPause[TargetDevice] )
+		{
+			m_LastCommandWasPause[TargetDevice]=false;
+			pMessage->m_dwID = (pMessage->m_dwID == COMMAND_Pause_Media_CONST ? COMMAND_Play_Media_CONST : COMMAND_Play_CONST);
+		}
+		else
+			m_LastCommandWasPause[TargetDevice]=true;
+	}
+	else
+		m_LastCommandWasPause[TargetDevice]=false;
+
+
 	if (pMessage->m_dwID == COMMAND_Send_Code_CONST)
 	{
 		long CommandNum = -1, DeviceNum = -1;

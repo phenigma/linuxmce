@@ -47,6 +47,7 @@ protected:
 	map<long, timespec> m_DeviceDefaultDelays;
 	map<long, long> m_ExecutingChannelSequenceNumber;
 	list<IRQueue *> m_IRQueue;
+	map<int,bool> m_LastCommandWasPause; // So if we get 2 pauses in a row, we convert the 2nd one to a play
 	long m_CurrentChannelSequenceNumber;
 
 	pthread_t m_MessageQueueThread;

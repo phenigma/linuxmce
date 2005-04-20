@@ -1786,6 +1786,15 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
         return;
     }
 
+	if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo )
+	{
+        g_pPlutoLogger->Write(LV_STATUS, "It's a generic stream--just forward it to the device");
+        pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
+	    Message *pNewMessage = new Message( pMessage );
+		QueueMessageToRouter( pNewMessage );
+		return;
+	}
+
 	// update the orbiter object to be the one that commanded this.
 	pEntertainArea->m_pMediaStream->m_pOH_Orbiter_StartedMedia = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( iPK_Device_Orbiter );
 
