@@ -822,17 +822,16 @@ itmp_RowsToDelete++;
 				AddChangedRow( pChangedRow );
 				pos++;
 			} 
+
 			/** If the value in the server's vect is > than our local row[], then the server deleted this row */
-
-			if( pos/size are both 0! && (pos>=r_GetAll_psc_id.m_vectAll_psc_id.size( ) || r_GetAll_psc_id.m_vectAll_psc_id[pos].first>atoi(row[0])) )
+			if( pos>=r_GetAll_psc_id.m_vectAll_psc_id.size( ) // We've still got rows, but the server doesn't--it deleted them
+				|| r_GetAll_psc_id.m_vectAll_psc_id[pos].first>atoi(row[0]) // The server still has rows, greater than ours 
+				)
 			{
-Rethink this logic!
-cout << "tmp - next line is crashing!?" << endl;
-cout << "tmp 1" << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( );
-cout << " tmp2 server: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " local row deleted on server: " << (row[0] ? row[0] : "NULL") << endl;
 
-cout << "row deleted on server - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-" server: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " local row deleted on server: " << (row[0] ? row[0] : "NULL") << endl;
+	cout << "row deleted on server - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
+		" server: " << (pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) ? r_GetAll_psc_id.m_vectAll_psc_id[pos].first : -999) << 
+		" local row deleted on server: " << row[0] << endl;
 				// It's possible that this row was added as an unauthorized batch and hasn't
 				// been deleted, it just hasn't been approved yet.  Skip this if it's an unauth batch
 				if( !row[1] || atoi(row[1])>=0 )
