@@ -66,6 +66,7 @@
 #define DEVICEDATA_TCP_Port_CONST 69
 #define DEVICEDATA_Idle_Delay_CONST 70
 #define DEVICEDATA_Output_Speaker_arrangement_CONST 71
+#define DEVICEDATA_VideoFrameInterval_CONST 72
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
