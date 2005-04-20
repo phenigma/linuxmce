@@ -675,8 +675,8 @@ void gc100::Start_seriald()
 	int global_slot;
 	char command[512];
 
-	sprintf(command,"killall socat");
-	system(command);
+	//sprintf(command,"killall socat");
+	//system(command);
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 
@@ -705,13 +705,12 @@ void gc100::Start_seriald()
 			// TODO: add new ports to Core's DeviceData parameters
 			global_slot = serial_iter->second.global_slot;
 
-			string sDevice(string("/dev/ttyS_") + StringUtils::ltos(m_dwPK_Device) + "_" + StringUtils::ltos(global_slot - 1));
+			string sDevName(string("ttyS_") + StringUtils::ltos(m_dwPK_Device) + "_" + StringUtils::ltos(global_slot - 1));
+			string sDevice(string("/dev/") + sDevName);
 
-//			sprintf(command,"/usr/pluto/bin/gc_seriald %s %d /dev/gcsd%d &",ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, global_slot-1);
-//			sprintf(command, "socat TCP4:%s:%d PTY,link=/dev/ttyS_%d_%d,echo=false,icanon=false,raw &",
-//				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, m_dwPK_Device, global_slot - 1);
-			sprintf(command, "socat -v TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw >>/var/log/pluto/%s.newlog 2>&1 &",
-				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str(), sDevice.c_str());
+//			sprintf(command, "socat -v TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw >>/var/log/pluto/%s.newlog 2>&1 &",
+//				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str(), sDevName.c_str());
+			sprintf(command, "/usr/pluto/bin/gc100-serial-bridge.sh %s %d %s &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str());
 			g_pPlutoLogger->Write(LV_STATUS, "seriald cmd: %s", command);
 			system(command);
 		}
