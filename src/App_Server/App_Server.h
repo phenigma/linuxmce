@@ -13,7 +13,6 @@ namespace DCE
 	class App_Server : public App_Server_Command
 	{
 //<-dceag-decl-e->
-
 protected:
 		virtual void EnsureLogoIsDisplayed();
 

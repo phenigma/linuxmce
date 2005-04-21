@@ -39,6 +39,8 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "utilities/linux/RatpoisonHandler.h"
+
 #include <signal.h>
 #include <sys/types.h>
 #ifndef WIN32
@@ -79,7 +81,7 @@ void sh(int i) /* signal handler */
 }
 #endif
 
-#define LOGO_APPLICATION_NAME "logo-application"
+#define LOGO_APPLICATION_NAME "gimageview"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -139,6 +141,8 @@ bool App_Server::Connect(int iPK_DeviceTemplate )
 	else
 		SetStatus("MD_ON",m_dwPK_Device_MD);
 
+	// spawn the application
+	EnsureLogoIsDisplayed();
 	return bResult;
 }
 
@@ -213,9 +217,7 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 //<-dceag-c67-e->
 {
 	if ( bShow_logo )
-	{
 		EnsureLogoIsDisplayed();
-	}
 
 	if (! ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnSuccess, sSendOnFailure)) )
     {
@@ -272,13 +274,17 @@ void App_Server::CMD_Hide_Application(string sName,string &sCMD_Result,Message *
 /* Private */
 void App_Server::EnsureLogoIsDisplayed()
 {
-	if ( m_mapAppPids.find(LOGO_APPLICATION_NAME) == m_mapAppPids.end() )
+	if ( ! ProcessUtils::ApplicationIsLaunchedByMe(LOGO_APPLICATION_NAME) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "The application is not running! Need to launch it!");
-		ProcessUtils::SpawnApplication("gimv", "/tmp/ana.png", LOGO_APPLICATION_NAME, NULL);
+		ProcessUtils::SpawnApplication("gimv", "/usr/pluto/share/wait-screen.gif", LOGO_APPLICATION_NAME, NULL);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "The application is running!. Should select the logo!");
+	g_pPlutoLogger->Write(LV_STATUS, "The application is running!. Telling the orbiter to select the application!");
+
+	// DCE::CMD_Activate_Window_Cat activateApplicationCommand(m_dwPK_Device, DEVICECATEGORY_Orbiter_CONST, true, BL_SameComputer, LOGO_APPLICATION_NAME);
+	DCE::CMD_Activate_Window activateApplicationCommand(m_dwPK_Device, 4321, LOGO_APPLICATION_NAME);
+	SendCommand(activateApplicationCommand);
 }
 
 void App_Server::ProcessExited(int pid, int status)
@@ -292,8 +298,12 @@ void App_Server::ProcessExited(int pid, int status)
 		return;
 	}
 
-	pair<string, string> *pMessagesLists = (pair<string, string>*)data;
-	SendMessageList( status ? pMessagesLists->first : pMessagesLists->second);
+	if ( data )
+	{
+		pair<string, string> *pMessagesLists = (pair<string, string>*)data;
+		SendMessageList( status ? pMessagesLists->first : pMessagesLists->second);
+		delete pMessagesLists;
+	}
 }
 
 void App_Server::SendMessageList(string messageList)

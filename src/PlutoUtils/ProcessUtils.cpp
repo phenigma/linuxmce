@@ -174,3 +174,17 @@ bool ProcessUtils::ApplicationExited(int pid, string &associatedName, void *&ass
 	pthread_mutex_unlock(&mutexDataStructure);
 	return false;
 }
+
+bool ProcessUtils::ApplicationIsLaunchedByMe(string applicationName)
+{
+	pthread_mutex_lock(&mutexDataStructure);
+
+	if ( mapIdentifierToPidData.find(applicationName) == mapIdentifierToPidData.end() )
+	{
+		pthread_mutex_unlock(&mutexDataStructure);
+		return false;
+	}
+
+	pthread_mutex_unlock(&mutexDataStructure);
+	return true;
+}

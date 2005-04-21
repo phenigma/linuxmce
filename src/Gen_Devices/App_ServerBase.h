@@ -73,7 +73,7 @@ public:
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Kill_Application(string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Hide_Application(string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,class Message *pMessage) {};
@@ -120,7 +120,8 @@ public:
 					string sArguments=pMessage->m_mapParameters[51];
 					string sSendOnFailure=pMessage->m_mapParameters[94];
 					string sSendOnSuccess=pMessage->m_mapParameters[95];
-						CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),sCMD_Result,pMessage);
+					bool bShow_logo=(pMessage->m_mapParameters[115]=="1" ? true : false);
+						CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;

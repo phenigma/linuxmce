@@ -23,6 +23,8 @@ namespace ProcessUtils
 	bool KillApplication(string sAppIdentifier, vector<void *> &associatedData);
 
 	bool ApplicationExited(int pid, string &associatedName, void *&associatedData, bool removeIt = true);
+
+	bool ApplicationIsLaunchedByMe(string applicationName);
 };
 
 #endif // PROCESSUTILS
