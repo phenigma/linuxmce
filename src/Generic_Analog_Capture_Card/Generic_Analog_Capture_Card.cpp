@@ -20,7 +20,7 @@ using namespace DCE;
 #define MOTION_CONF_PATH	"/etc/motion/"
 #define MOTION_CONF_FILE	"motion.conf"
 
-#define SNAPSHOT_SLEEP_TIME	500
+#define SNAPSHOT_SLEEP_TIME	100
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -248,17 +248,17 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 					<< "height 240" <<  endl
 					<< "framerate 2" <<  endl
 					<< "auto_brightness off" <<  endl
-//					<< "brightness 0" <<  endl
-//					<< "contrast 0" <<  endl
-//					<< "saturation 0" <<  endl
-//					<< "hue 0" <<  endl
+					<< "brightness 0" <<  endl
+					<< "contrast 0" <<  endl
+					<< "saturation 0" <<  endl
+					<< "hue 0" <<  endl
 					/* filters*/ << endl
 					<< "despeckle EedDl" << endl
 					<< "lightswitch 50" << endl
 					<< "minimum_motion_frames 5" << endl
 					<< "night_compensate on" << endl
 					<< "noise_tune on" << endl
-//					<< "smart_mask_speed 5" << endl
+					<< "smart_mask_speed 5" << endl
 					/* output */ << endl
 					<< "always_changes on" << endl
 					<< "locate on" << endl
@@ -267,18 +267,17 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 					<< "webcam_maxrate 5" << endl
 					<< "text_changes on" << endl
 					<< "text_right %d-%m-%Y\\n%T" << endl
-					/* movies */ << endl
-//					<< "ffmpeg_cap_new off" << endl
-//					<< "ffmpeg_timelapse 60" << endl
-//					<< "ffmpeg_timelapse_mode daily" << endl
-//					<< "ffmpeg_video_codec mpeg1" << endl
+//					/* movies */ << endl
+					<< "ffmpeg_cap_new on" << endl
+					<< "ffmpeg_timelapse 60" << endl
+					<< "ffmpeg_timelapse_mode daily" << endl
+					<< "ffmpeg_video_codec mpeg1" << endl
 					/* snapshot config */ << endl
 					<< "snapshot_interval 60" << endl
 					<< "snapshot_filename %Y/%m/%d/%H/%M_%S" << endl
 					<< "jpeg_filename %Y/%m/%d/%H/%M_%S" << endl
-//					<< "ffmpeg_filename %Y/%m/%d/%H/%M_%S" << endl
-//					<< "timelapse_filename %Y/%m/%d-timelapse" << endl
-					<< "quiet on" << endl
+					<< "ffmpeg_filename %Y/%m/%d/%H/%M_%S" << endl
+					<< "timelapse_filename %Y/%m/%d-timelapse" << endl
 					<< endl << endl;
 	} catch(ifstream::failure e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot open %s for writing...", sPath.c_str());
@@ -289,7 +288,7 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 	for(size_t i = 0; i < m_pData->m_vectDeviceData_Impl_Children.size(); ++i) {
         DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[i];
 		if(!bFirstAdded) {
-			if(AddChildDeviceToConfigFile(mconffile, pDeviceData_Impl)) {
+			if(AddChildDeviceToConfigFile(mconffile, pDeviceData_Impl, i)) {
 				bFirstAdded = true;
 			}
 			mconffile << endl << endl;
@@ -300,7 +299,7 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 			tconffile.exceptions ( ifstream::eofbit | ifstream::failbit | ifstream::badbit );	
 			try {
 				tconffile.open(sPath.c_str(), fstream::out | fstream::trunc);
-				if(AddChildDeviceToConfigFile(tconffile, pDeviceData_Impl)) {
+				if(AddChildDeviceToConfigFile(tconffile, pDeviceData_Impl, i)) {
 					mconffile << "thread " << sPath << endl;
 				}
 			} catch(ifstream::failure e) {
@@ -420,38 +419,53 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 
 
 bool 
-Generic_Analog_Capture_Card::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData) {
+Generic_Analog_Capture_Card::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData,size_t i) {
 	int PK_Device = pDeviceData->m_dwPK_Device;
 	g_pPlutoLogger->Write(LV_STATUS, "Using child device %d from Generic Analog Capture Card ", PK_Device);
 	
 	string sMotion = pDeviceData->mapParameters_Find(DEVICEDATA_Motion_Option_CONST);
 			
+		  
+
 	//video device
+	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
+
+	if(!sDevice.empty()) {
+		conffile 	<< "videodevice /dev/video" << sDevice << endl;
+	} else {
+		g_pPlutoLogger->Write(LV_WARNING, "Device number not specified for device: %d.", PK_Device);
+		return false;
+	}
+
+	//input port
 	string sPort = pDeviceData->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
 	if(!sPort.empty()) {
-		conffile 	<< "videodevice /dev/video" << sPort << endl;
+		conffile 	<< "input " << sPort << endl;
 	} else {
 		g_pPlutoLogger->Write(LV_WARNING, "Port not specified for device: %d.", PK_Device);
 		return false;
 	}
-
 	
-	//video device
-	string sInputType = m_pData->mapParameters_Find(DEVICEDATA_Video_Input_Type_CONST);
-	if(!sInputType.empty()) {
-		conffile	<< "input " << sInputType << endl;
-	}
-
 	string sNoiseLevel = pDeviceData->mapParameters_Find(DEVICEDATA_Noise_CONST);
 	if(!sNoiseLevel.empty()) {
 		conffile	<< "noise_level " << sNoiseLevel << endl;
 	}
-	conffile	<< "webcam_port " << "800" << sPort << endl;
+
 	
+	//input port
 	string sDescription =  pDeviceData->m_sDescription ;
-	if(!sNoiseLevel.empty()) {
+	if(!sDescription.empty()) {
+
+///////    RoomName should be replaced with name of room, where the camera is ....
 		conffile	<< "text_left " << StringUtils::Replace(sDescription, " ", "_") << "\\nRoomName" << endl << endl << endl;
 	}
+
+	//web port (+8000) and child number
+	string sPortNumber = StringUtils::itos(i+8000);
+	if(!sPortNumber.empty()) {
+		conffile	<< "webcam_port " << sPortNumber << endl;
+	}
+
 					
 	//Check Output Directory
 	string sPath = "/home/cameras/" + StringUtils::itos(PK_Device);

@@ -67,7 +67,7 @@ public:
 
 //<-dceag-h-e->
 	private:
-		bool AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData);
+		bool AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData, size_t i);
 		
 	private:
 		DeviceData_Router* find_Device(int iPK_Device);
