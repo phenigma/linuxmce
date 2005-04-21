@@ -212,6 +212,14 @@ bool Game::Run()
     {
         MSG msg;
 
+		while (GetMessage(&msg, NULL, 0, 0)) 
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		/*
+		//Chris: we don't need the GameLoop. PeekMessage is a CPU eater :)
         if (::PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ))
         {
             if (msg.message == WM_QUIT)
@@ -225,6 +233,7 @@ bool Game::Run()
             if (!m_bSuspended)
                 GameLoop();
         }
+		*/
     }
 
     return true;
