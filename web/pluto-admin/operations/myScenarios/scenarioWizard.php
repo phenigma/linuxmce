@@ -26,7 +26,7 @@ if($action=='form') {
 	$out.='
 		<div align="left" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>	
 		<div align="left" class="err"><B>'.strip_tags(@$_GET['err']).'</B></div>	
-		<form action="index.php" method="POST" name="scenarioWizard" '.(($wizard==0)?'onSubmit="return validateForm();':'').'">
+		<form action="index.php" method="POST" name="scenarioWizard" '.(($wizard==0)?'onSubmit="return validateForm();"':'').'>
 			<input type="hidden" name="section" value="scenarioWizard">
 			<input type="hidden" name="action" value="add">	
 			<input type="hidden" name="roomID" value="'.$roomID.'">
@@ -120,7 +120,7 @@ if($action=='form') {
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',$backLabel=>'index.php?section='.$from));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Lighting Scenarios');
+	$output->setTitle(APPLICATION_NAME);
 	$output->output();
 
 }
