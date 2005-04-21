@@ -247,7 +247,7 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 					<< "width 320" <<  endl
 					<< "height 240" <<  endl
 					<< "framerate 2" <<  endl
-					<< "auto_brightness off" <<  endl
+					<< "auto_brightness on" <<  endl
 					<< "brightness 0" <<  endl
 					<< "contrast 0" <<  endl
 					<< "saturation 0" <<  endl
@@ -284,7 +284,7 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 		return false;
 	}
 				
-	bool bFirstAdded = false;
+	bool bFirstAdded = true;
 	for(size_t i = 0; i < m_pData->m_vectDeviceData_Impl_Children.size(); ++i) {
         DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[i];
 		if(!bFirstAdded) {
