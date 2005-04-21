@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
     if (argc<6)
     {
-		cout << "Usage: MessageSendTest server [-targetType [device|category|template]] [-r | -o] DeviceFrom DeviceTo MsgType(1=Command, 2=Event) MsgID [parm1id param1value] [parm2id parm2value] ..." << endl
+		cout << "Usage: MessageSendTest [-targetType [device|category|template]] [-r | -o] server DeviceFrom DeviceTo MsgType(1=Command, 2=Event) MsgID [parm1id param1value] [parm2id parm2value] ..." << endl
 			<< "\tthe server is the name/ip of the router, such as localhost" << endl
 			<< "\tthe default target type is the device." << endl
 			<< "\t-r means the message will be sent with a response request" << endl
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 	{
 		string sResponse; // We'll use this only if a response wasn't passed in
 		bool bResult;
-		
+
 		if( pMsg->m_eExpectedResponse == ER_DeliveryConfirmation )
 			bResult = pEvent->SendMessage( pMsg, sResponse );
 		else
