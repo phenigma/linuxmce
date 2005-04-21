@@ -156,6 +156,9 @@
 				RelativePath="..\PlutoUtils\Other.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\ProcessUtils.cpp">
+			</File>
+			<File
 				RelativePath="..\SerializeClass\SerializeClass.cpp">
 			</File>
 			<File

@@ -616,6 +616,8 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 		return;
 
     SafetyMessage SafetyMessage(pMessageWillBeDeleted);
+    DeviceData_Router *pDeviceFrom = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_From);
+    DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_To);
 
 	if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_REGISTER_INTERCEPTOR )
     {
@@ -632,9 +634,9 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
     {
         // We're going to have to come up with the list of matching devices
         if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_MASTERDEVICE )
-            (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByDeviceTemplate((*SafetyMessage)->m_dwPK_Device_Template,(*SafetyMessage)->m_eBroadcastLevel, (*SafetyMessage)->m_bRelativeToSender ? (*SafetyMessage)->m_dwPK_Device_From : (*SafetyMessage)->m_dwPK_Device_To);
+            (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByDeviceTemplate((*SafetyMessage)->m_bRelativeToSender ? pDeviceFrom : pDeviceTo,(*SafetyMessage)->m_dwPK_Device_Template,(*SafetyMessage)->m_eBroadcastLevel);
         else if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_CATEGORY )
-            (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByCategory((*SafetyMessage)->m_dwPK_Device_Category_To,(*SafetyMessage)->m_eBroadcastLevel);
+            (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByCategory(pDeviceFrom,(*SafetyMessage)->m_dwPK_Device_Category_To,(*SafetyMessage)->m_eBroadcastLevel);
 //      else if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_GROUP )  TODO
 //          (*SafetyMessage)->m_sDeviceIDTo=GetDevicesByDeviceTemplate((*SafetyMessage)->m_PK_DeviceTemplate,(*SafetyMessage)->m_eBroadcastLevel);
 
@@ -648,9 +650,6 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
         ErrorResponse(pSocket,(*SafetyMessage));
         return;
     }
-
-    DeviceData_Router *pDeviceFrom = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_From);
-    DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_To);
 
 	PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect the interceptor map
 
@@ -774,6 +773,17 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 					Desc = m_mapCommandParmNames[(*i).first];
 				else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
 					Desc = m_mapEventParmNames[(*i).first];
+
+				if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
+					((*i).first==COMMANDPARAMETER_PK_Command_Input_CONST ||
+					(*i).first==COMMANDPARAMETER_PK_Command_Output_CONST ) )
+				{
+					Command *pCommand = mapCommand_Find(atoi((*i).second.c_str()));
+					if( pCommand )
+						Desc += "(" + pCommand->m_sDescription + ")";
+				}
+
+
 				if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 					g_pPlutoLogger->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
 			}
@@ -2122,27 +2132,12 @@ void Router::Configure()
 
 // tempoarary hack. need to optimize & handle broadcats
 // handles some broadcasts ( The Same Computer one )
-string Router::GetDevicesByDeviceTemplate(int PK_DeviceTemplate, eBroadcastLevel BroadcastLevel, int sourceDeviceForBroadcastLevel)
+string Router::GetDevicesByDeviceTemplate(DeviceData_Router *pDeviceData_From,int PK_DeviceTemplate, eBroadcastLevel BroadcastLevel)
 {
-    DeviceData_Base *pRequestedComputer = NULL; // only usefull when doing broadcast_level_same_computer
+	if( BroadcastLevel!=BL_AllHouses && !pDeviceData_From )
+		return "";  // If we're going to filter, we need an incoming device
 
-    pRequestedComputer = m_mapDeviceData_Router_Find(sourceDeviceForBroadcastLevel);
-
-    if ( BroadcastLevel == BL_SameComputer )
-    {
-        while ( pRequestedComputer != NULL && ! pRequestedComputer->WithinCategory(DEVICECATEGORY_Computers_CONST) )
-            pRequestedComputer = pRequestedComputer->m_pDevice_ControlledVia;
-
-        if ( ! pRequestedComputer )
-        {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Requested broadcast level same computer and the computer was not found for the device: %d", sourceDeviceForBroadcastLevel);
-            return "";
-        }
-
-        g_pPlutoLogger->Write(LV_STATUS, "Found computer object with ID: %d", pRequestedComputer->m_dwPK_Device);
-    }
-
-    string Result="";
+	string Result="";
     map<int,class DeviceData_Router *>::iterator itDevice;
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
     {
@@ -2155,14 +2150,12 @@ string Router::GetDevicesByDeviceTemplate(int PK_DeviceTemplate, eBroadcastLevel
             continue;
         }
 
-        if( pDevice->m_dwPK_DeviceTemplate != PK_DeviceTemplate )
+        if( pDevice->m_dwPK_DeviceTemplate != PK_DeviceTemplate ||
+				(BroadcastLevel==BL_DirectSiblings && pDeviceData_From->m_pDevice_ControlledVia!=pDevice->m_pDevice_ControlledVia) ||
+				(BroadcastLevel==BL_SameComputer && (pDeviceData_From->m_pDevice_Core!=pDevice->m_pDevice_Core || pDeviceData_From->m_pDevice_MD!=pDevice->m_pDevice_MD) ) ||
+				(BroadcastLevel==BL_SameRoom && pDeviceData_From->m_dwPK_Room!=pDevice->m_dwPK_Room) ||
+				(BroadcastLevel==BL_SameHouse && pDeviceData_From->m_dwPK_Installation!=pDevice->m_dwPK_Installation) )
             continue;
-
-        if ( BroadcastLevel == BL_SameComputer && ! pDevice->IsChildOf(pRequestedComputer) )
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Broadcasting to same computer but the device (%d) with correct template is not a child of the computer object", pDevice->m_dwPK_Device );
-            continue;
-        }
 
         if( Result.length() )
             Result += ",";
@@ -2173,8 +2166,10 @@ string Router::GetDevicesByDeviceTemplate(int PK_DeviceTemplate, eBroadcastLevel
 }
 
 // tempoarary hack.  need to optimize & handle broadcats
-string Router::GetDevicesByCategory(int PK_DeviceCategory,eBroadcastLevel BroadcastLevel)
+string Router::GetDevicesByCategory(DeviceData_Router *pDeviceData_From,int PK_DeviceCategory,eBroadcastLevel BroadcastLevel)
 {
+	if( BroadcastLevel!=BL_AllHouses && !pDeviceData_From )
+		return ""; // If we're going to filter, we need an incoming device
     string Result="";
     map<int,class DeviceData_Router *>::iterator itDevice;
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
@@ -2186,8 +2181,13 @@ if( !pDevice )
 g_pPlutoLogger->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL in it");
 continue;
 }
-        if( pDevice->m_dwPK_DeviceCategory!=PK_DeviceCategory )
+        if( !pDevice->WithinCategory(PK_DeviceCategory) ||
+				(BroadcastLevel==BL_DirectSiblings && pDeviceData_From->m_pDevice_ControlledVia!=pDevice->m_pDevice_ControlledVia) ||
+				(BroadcastLevel==BL_SameComputer && (pDeviceData_From->m_pDevice_Core!=pDevice->m_pDevice_Core || pDeviceData_From->m_pDevice_MD!=pDevice->m_pDevice_MD) ) ||
+				(BroadcastLevel==BL_SameRoom && pDeviceData_From->m_dwPK_Room!=pDevice->m_dwPK_Room) ||
+				(BroadcastLevel==BL_SameHouse && pDeviceData_From->m_dwPK_Installation!=pDevice->m_dwPK_Installation) )
             continue;
+
         if( Result.length() )
             Result += ",";
         Result += StringUtils::itos(pDevice->m_dwPK_Device);

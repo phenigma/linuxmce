@@ -124,12 +124,6 @@ protected:
 	void TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current);
 
     /**
-     * If the device passed in is a child of an on-screen orbiter which is a child of a pc, or a child of a pc itself,
-	 * then this will return the id of the pc
-     */
-	int Media_Plugin::GetComputerForMediaDevice(DeviceData_Router *pDeviceData_Router);
-
-    /**
      * Find a media type specific for a file name
      */
     //     int FindMediaTypeForFile(string strFileName);

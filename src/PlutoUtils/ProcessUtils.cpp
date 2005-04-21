@@ -6,6 +6,11 @@
 #include <errno.h>
 #include <signal.h>
 
+#ifdef WIN32
+	#include <pthread.h>
+	#include <windows.h>
+#endif
+
 namespace ProcessUtils
 {
 	using std::map;
@@ -131,8 +136,10 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 	MapPidToData::const_iterator itPidsToData = mapPidsToData.begin();
 	while ( itPidsToData != mapPidsToData.end() )
 	{
-    	kill(itPidsToData->first, SIGKILL);
+#ifndef WIN32
+		kill(itPidsToData->first, SIGKILL);
 		associatedData.push_back(itPidsToData->second);
+#endif
 	}
 
 	mapIdentifierToPidData.erase(element);

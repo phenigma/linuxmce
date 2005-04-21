@@ -303,8 +303,8 @@ int k;
 
         class Command_Impl *CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string sCommandLine);  // Load the plug-in on the command line
         int DynamicallyLoadPlugin(string sFile);
-        string GetDevicesByDeviceTemplate(int PK_DeviceTemplate,eBroadcastLevel BroadcastLevel, int sourceDeviceForBroadcastLevel);
-        string GetDevicesByCategory(int PK_DeviceCategory,eBroadcastLevel BroadcastLevel);
+        string GetDevicesByDeviceTemplate(DeviceData_Router *pDeviceData_From,int PK_DeviceTemplate,eBroadcastLevel BroadcastLevel);
+		string GetDevicesByCategory(DeviceData_Router *pDeviceData_From,int PK_DeviceCategory,eBroadcastLevel BroadcastLevel);
         void ErrorResponse(Socket *pSocket,Message *pMessage); // Respond with an error condition if the sender is waiting for a response
 
         // Public
