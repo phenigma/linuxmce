@@ -83,6 +83,7 @@ public:
 	virtual void CMD_Restart_DCERouter(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Wake_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -326,6 +327,30 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+					};
+					iHandled++;
+					continue;
+				case 365:
+					{
+						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					string sText=pMessage->m_mapParameters[9];
+					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
+						CMD_Get_Room_Description(iPK_Device,&sText,&iPK_Room,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[9]=sText;
+						pMessageOut->m_mapParameters[57]=StringUtils::itos(iPK_Room);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}

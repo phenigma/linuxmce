@@ -534,4 +534,40 @@ void General_Info_Plugin::SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot)
 		}
 	}
 	*/
+}//<-dceag-c365-b->
+
+	/** @brief COMMAND: #365 - Get Room Description */
+	/** Given a room or device ID, returns the description.  If device ID, also returns the room ID. */
+		/** @param #2 PK_Device */
+			/** The ID of the device.  Specify this or the room ID. */
+		/** @param #9 Text */
+			/** The description of the room */
+		/** @param #57 PK_Room */
+			/** The ID of the room.  Specify this or the device ID. */
+
+void General_Info_Plugin::CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room,string &sCMD_Result,Message *pMessage)
+//<-dceag-c365-e->
+{
+	if( !(*iPK_Room ) )
+	{
+		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+		if( !pDevice )
+		{
+			*sText = "Bad Device/Room";
+			g_pPlutoLogger->Write(LV_CRITICAL,"Bad Device/room");
+			return;
+		}
+		iPK_Device = pDevice->m_dwPK_Device;
+		*iPK_Room = pDevice->m_dwPK_Room;
+	}
+
+	Room *pRoom = m_pRouter->m_mapRoom_Find(*iPK_Room);
+	if( !pRoom )
+	{
+		*sText = "Bad Room";
+		g_pPlutoLogger->Write(LV_CRITICAL,"Bad room");
+		return;
+	}
+
+	*sText = pRoom->m_sDescription;
 }

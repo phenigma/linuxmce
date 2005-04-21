@@ -83,12 +83,19 @@ void HandleRequestSocket::DisconnectAndWait()
 #endif
 	Disconnect();
 
+	time_t tTimeout = time(NULL) + 15;  // Wait only 15 seconds
 	// This used to be pthread_join, but it crashed without logical explanation on a very intermittent basis.
 	// Try just waiting this way.
-	while( m_bRunning )
+	while( m_bRunning && tTimeout > time(NULL) )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Requesthandler %p (device: %d) waiting for runThread", this, m_dwPK_Device );
 		Sleep(10);
+	}
+
+	if( m_bRunning && m_RequestHandlerThread )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Requesthandler %p (device: %d) runThread won't die!", this, m_dwPK_Device );
+		pthread_cancel(m_RequestHandlerThread);
 	}
 
 	m_RequestHandlerThread = 0;

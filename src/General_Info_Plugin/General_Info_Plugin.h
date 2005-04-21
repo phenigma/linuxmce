@@ -174,6 +174,19 @@ public:
 	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #365 - Get Room Description */
+	/** Given a room or device ID, returns the description.  If device ID, also returns the room ID. */
+		/** @param #2 PK_Device */
+			/** The ID of the device.  Specify this or the room ID. */
+		/** @param #9 Text */
+			/** The description of the room */
+		/** @param #57 PK_Room */
+			/** The ID of the room.  Specify this or the device ID. */
+
+	virtual void CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room) { string sCMD_Result; CMD_Get_Room_Description(iPK_Device,sText,iPK_Room,sCMD_Result,NULL);};
+	virtual void CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

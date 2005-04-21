@@ -5765,5 +5765,45 @@ namespace DCE
 	public:
 		CMD_Back_Clear_Entry_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,363,0); }
 	};
+	class RESP_Get_Room_Description : public PreformedCommandResponse {
+		string *m_sText;int *m_iPK_Room;
+	public:
+		RESP_Get_Room_Description(string *sText,int *iPK_Room) { 
+		m_sText=sText; m_iPK_Room=iPK_Room; }
+		void ParseResponse(Message *pMessage) {
+			*m_sText=pMessage->m_mapParameters[9]; *m_iPK_Room=atoi(pMessage->m_mapParameters[57].c_str()); };
+	};
+	class CMD_Get_Room_Description : public PreformedCommand {
+	public:
+		CMD_Get_Room_Description(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string *sText,int *iPK_Room) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,365,3,2,StringUtils::itos(iPK_Device).c_str(),9,(*sText).c_str(),57,StringUtils::itos(*iPK_Room).c_str());		m_pcResponse = new RESP_Get_Room_Description(sText,iPK_Room); }
+	};
+	class CMD_Get_Room_Description_DL : public PreformedCommand {
+	public:
+		CMD_Get_Room_Description_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string *sText,int *iPK_Room) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,365,3,2,StringUtils::itos(iPK_Device).c_str(),9,(*sText).c_str(),57,StringUtils::itos(*iPK_Room).c_str());		m_pcResponse = new RESP_Get_Room_Description(sText,iPK_Room); }
+	};
+	class CMD_Get_Room_Description_DT : public PreformedCommand {
+	public:
+		CMD_Get_Room_Description_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string *sText,int *iPK_Room) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,365,3,2,StringUtils::itos(iPK_Device).c_str(),9,(*sText).c_str(),57,StringUtils::itos(*iPK_Room).c_str());		m_pcResponse = new RESP_Get_Room_Description(sText,iPK_Room); }
+	};
+	class CMD_Get_Room_Description_Cat : public PreformedCommand {
+	public:
+		CMD_Get_Room_Description_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string *sText,int *iPK_Room) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,365,3,2,StringUtils::itos(iPK_Device).c_str(),9,(*sText).c_str(),57,StringUtils::itos(*iPK_Room).c_str());		m_pcResponse = new RESP_Get_Room_Description(sText,iPK_Room); }
+	};
+	class CMD_NOREP_Get_Room_Description : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Room_Description(long DeviceIDFrom, long DeviceIDTo,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,365,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_NOREP_Get_Room_Description_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Room_Description_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,365,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_NOREP_Get_Room_Description_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Room_Description_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,365,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_NOREP_Get_Room_Description_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Room_Description_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,365,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
 }
 #endif

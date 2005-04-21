@@ -27,6 +27,7 @@ private:
 
 public:
 	pluto_pthread_mutex_t m_MySqlMutex;
+    pthread_mutexattr_t m_MutexAttr;
 	MYSQL *m_pMySQL;
 	bool m_bConnected;
 	string m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName;
@@ -37,15 +38,21 @@ public:
 	{
 		m_pMySQL=NULL;
 		m_bConnected=false;
-		m_MySqlMutex.Init(NULL);
+
+		pthread_mutexattr_init( &m_MutexAttr );
+		pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+		m_MySqlMutex.Init(&m_MutexAttr);
 		m_bConnectFromConstructor = false;
 	}
 
 	MySqlHelper(string host, string user, string pass, string db_name, int port=3306)
 		: m_MySqlMutex("mysql")
 	{
-		m_MySqlMutex.Init(NULL);
-		m_pMySQL = mysql_init(NULL);
+		pthread_mutexattr_init( &m_MutexAttr );
+		pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+		m_MySqlMutex.Init(&m_MutexAttr);
+
+		m_pMySQL=NULL;
 		m_sMySQLHost=host;
 		m_sMySQLUser=user;
 		m_sMySQLPass=pass;
@@ -75,6 +82,7 @@ public:
 
 	bool MySQLConnect(bool bReset=false)
 	{
+		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_MySqlMutex);
 		if( bReset && m_pMySQL )
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"Resetting mysql connection");

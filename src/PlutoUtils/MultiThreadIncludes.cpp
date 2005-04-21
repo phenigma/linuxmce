@@ -14,7 +14,6 @@
 	See the GNU General Public License for more details.
 */
 
-
 #include "PlutoUtils/CommonIncludes.h"	 
 #include "DCE/Logger.h" 
 #include "PlutoUtils/MultiThreadIncludes.h" 
@@ -302,10 +301,12 @@ void PlutoLock::DumpOutstandingLocks()
 			strcat(Message,"**RELEASING**");
 			listMessages.push_back(string(Message));
 
-			pthread_mutex_unlock(&pSafetyLock->m_pMyLock->mutex);
-			pSafetyLock->m_pMyLock->m_NumLocks--;
 			pSafetyLock->m_bReleased=true;
+			pSafetyLock->m_pMyLock->m_NumLocks--;
+			pthread_mutex_unlock(&pSafetyLock->m_pMyLock->mutex);
+/*
 
+AB 19 Apr 05.  Disable the killing of threads.  Just release the lock as above.
 			bool bKilledAlready=false;
 			list<pthread_t>::iterator itKilledThreads;
 			for(itKilledThreads=listKilledPthreads.begin();itKilledThreads!=listKilledPthreads.end();++itKilledThreads)
@@ -329,6 +330,7 @@ void PlutoLock::DumpOutstandingLocks()
 			}
 
 			mapLocks.erase(itMapLock++);
+*/
 		}
 		else
 			++itMapLock;
