@@ -139,137 +139,137 @@ is_null[11] = false;
 	is_modified=false;
 }
 
-long int Row_Package_Directory_File::PK_Package_Directory_File_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Directory_File::PK_Package_Directory_File_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_Package_Directory_File;}
-long int Row_Package_Directory_File::FK_Package_Directory_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Directory_File::FK_Package_Directory_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Package_Directory;}
-long int Row_Package_Directory_File::FK_OperatingSystem_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Directory_File::FK_OperatingSystem_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_OperatingSystem;}
-long int Row_Package_Directory_File::FK_Distro_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Directory_File::FK_Distro_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Distro;}
-string Row_Package_Directory_File::File_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Package_Directory_File::File_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_File;}
-string Row_Package_Directory_File::Search_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Package_Directory_File::Search_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Search;}
-string Row_Package_Directory_File::MakeCommand_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Package_Directory_File::MakeCommand_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_MakeCommand;}
-long int Row_Package_Directory_File::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Directory_File::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_Package_Directory_File::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Directory_File::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_Package_Directory_File::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Directory_File::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_Package_Directory_File::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Package_Directory_File::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_Package_Directory_File::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Package_Directory_File::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
 
 		
-void Row_Package_Directory_File::PK_Package_Directory_File_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::PK_Package_Directory_File_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_Package_Directory_File = val; is_modified=true; is_null[0]=false;}
-void Row_Package_Directory_File::FK_Package_Directory_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::FK_Package_Directory_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Package_Directory = val; is_modified=true; is_null[1]=false;}
-void Row_Package_Directory_File::FK_OperatingSystem_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::FK_OperatingSystem_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_OperatingSystem = val; is_modified=true; is_null[2]=false;}
-void Row_Package_Directory_File::FK_Distro_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::FK_Distro_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Distro = val; is_modified=true; is_null[3]=false;}
-void Row_Package_Directory_File::File_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::File_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_File = val; is_modified=true; is_null[4]=false;}
-void Row_Package_Directory_File::Search_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::Search_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Search = val; is_modified=true; is_null[5]=false;}
-void Row_Package_Directory_File::MakeCommand_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::MakeCommand_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_MakeCommand = val; is_modified=true; is_null[6]=false;}
-void Row_Package_Directory_File::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[7]=false;}
-void Row_Package_Directory_File::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[8]=false;}
-void Row_Package_Directory_File::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[9]=false;}
-void Row_Package_Directory_File::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[10]=false;}
-void Row_Package_Directory_File::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[11]=false;}
 
 		
-bool Row_Package_Directory_File::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory_File::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Package_Directory_File::FK_Distro_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory_File::FK_Distro_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Package_Directory_File::Search_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory_File::Search_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_Package_Directory_File::MakeCommand_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory_File::MakeCommand_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_Package_Directory_File::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory_File::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_Package_Directory_File::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory_File::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_Package_Directory_File::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory_File::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_Package_Directory_File::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory_File::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
 
 			
-void Row_Package_Directory_File::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Package_Directory_File::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_Package_Directory_File::Search_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::Search_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_Package_Directory_File::MakeCommand_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::MakeCommand_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_Package_Directory_File::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_Package_Directory_File::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Package_Directory_File::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_Package_Directory_File::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
@@ -277,7 +277,7 @@ is_modified=true;
 
 string Row_Package_Directory_File::PK_Package_Directory_File_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -290,7 +290,7 @@ return buf;
 
 string Row_Package_Directory_File::FK_Package_Directory_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -303,7 +303,7 @@ return buf;
 
 string Row_Package_Directory_File::FK_OperatingSystem_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -316,7 +316,7 @@ return buf;
 
 string Row_Package_Directory_File::FK_Distro_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -329,7 +329,7 @@ return buf;
 
 string Row_Package_Directory_File::File_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -343,7 +343,7 @@ return s;
 
 string Row_Package_Directory_File::Search_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[5])
 return "NULL";
@@ -357,7 +357,7 @@ return s;
 
 string Row_Package_Directory_File::MakeCommand_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
 return "NULL";
@@ -371,7 +371,7 @@ return s;
 
 string Row_Package_Directory_File::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[7])
 return "NULL";
@@ -384,7 +384,7 @@ return buf;
 
 string Row_Package_Directory_File::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
 return "NULL";
@@ -397,7 +397,7 @@ return buf;
 
 string Row_Package_Directory_File::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[9])
 return "NULL";
@@ -410,7 +410,7 @@ return buf;
 
 string Row_Package_Directory_File::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[10])
 return "NULL";
@@ -423,7 +423,7 @@ return buf;
 
 string Row_Package_Directory_File::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[11])
 return "NULL";
@@ -1006,21 +1006,21 @@ pRow->m_psc_mod = string(row[11],lengths[11]);
 
 class Row_Package_Directory* Row_Package_Directory_File::FK_Package_Directory_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Package_Directory *pTable = table->database->Package_Directory_get();
 return pTable->GetRow(m_FK_Package_Directory);
 }
 class Row_OperatingSystem* Row_Package_Directory_File::FK_OperatingSystem_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_OperatingSystem *pTable = table->database->OperatingSystem_get();
 return pTable->GetRow(m_FK_OperatingSystem);
 }
 class Row_Distro* Row_Package_Directory_File::FK_Distro_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Distro *pTable = table->database->Distro_get();
 return pTable->GetRow(m_FK_Distro);

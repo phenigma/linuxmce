@@ -138,131 +138,131 @@ is_null[10] = false;
 	is_modified=false;
 }
 
-long int Row_Package_Source_Compat::PK_Package_Source_Compat_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Source_Compat::PK_Package_Source_Compat_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_Package_Source_Compat;}
-long int Row_Package_Source_Compat::FK_Package_Source_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Source_Compat::FK_Package_Source_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Package_Source;}
-long int Row_Package_Source_Compat::FK_OperatingSystem_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Source_Compat::FK_OperatingSystem_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_OperatingSystem;}
-long int Row_Package_Source_Compat::FK_Distro_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Source_Compat::FK_Distro_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Distro;}
-short int Row_Package_Source_Compat::MustBuildFromSource_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Package_Source_Compat::MustBuildFromSource_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_MustBuildFromSource;}
-string Row_Package_Source_Compat::Comments_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Package_Source_Compat::Comments_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Comments;}
-long int Row_Package_Source_Compat::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Source_Compat::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_Package_Source_Compat::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Source_Compat::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_Package_Source_Compat::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package_Source_Compat::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_Package_Source_Compat::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Package_Source_Compat::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_Package_Source_Compat::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Package_Source_Compat::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
 
 		
-void Row_Package_Source_Compat::PK_Package_Source_Compat_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::PK_Package_Source_Compat_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_Package_Source_Compat = val; is_modified=true; is_null[0]=false;}
-void Row_Package_Source_Compat::FK_Package_Source_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::FK_Package_Source_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Package_Source = val; is_modified=true; is_null[1]=false;}
-void Row_Package_Source_Compat::FK_OperatingSystem_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::FK_OperatingSystem_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_OperatingSystem = val; is_modified=true; is_null[2]=false;}
-void Row_Package_Source_Compat::FK_Distro_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::FK_Distro_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Distro = val; is_modified=true; is_null[3]=false;}
-void Row_Package_Source_Compat::MustBuildFromSource_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::MustBuildFromSource_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_MustBuildFromSource = val; is_modified=true; is_null[4]=false;}
-void Row_Package_Source_Compat::Comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::Comments_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Comments = val; is_modified=true; is_null[5]=false;}
-void Row_Package_Source_Compat::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[6]=false;}
-void Row_Package_Source_Compat::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[7]=false;}
-void Row_Package_Source_Compat::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[8]=false;}
-void Row_Package_Source_Compat::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[9]=false;}
-void Row_Package_Source_Compat::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[10]=false;}
 
 		
-bool Row_Package_Source_Compat::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Source_Compat::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Package_Source_Compat::FK_Distro_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Source_Compat::FK_Distro_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Package_Source_Compat::MustBuildFromSource_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Source_Compat::MustBuildFromSource_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_Package_Source_Compat::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Source_Compat::Comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_Package_Source_Compat::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Source_Compat::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_Package_Source_Compat::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Source_Compat::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_Package_Source_Compat::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Source_Compat::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_Package_Source_Compat::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Source_Compat::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
 
 			
-void Row_Package_Source_Compat::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Package_Source_Compat::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_Package_Source_Compat::MustBuildFromSource_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::MustBuildFromSource_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_Package_Source_Compat::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::Comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_Package_Source_Compat::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_Package_Source_Compat::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_Package_Source_Compat::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Package_Source_Compat::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Source_Compat::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
@@ -270,7 +270,7 @@ is_modified=true;
 
 string Row_Package_Source_Compat::PK_Package_Source_Compat_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -283,7 +283,7 @@ return buf;
 
 string Row_Package_Source_Compat::FK_Package_Source_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -296,7 +296,7 @@ return buf;
 
 string Row_Package_Source_Compat::FK_OperatingSystem_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -309,7 +309,7 @@ return buf;
 
 string Row_Package_Source_Compat::FK_Distro_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -322,7 +322,7 @@ return buf;
 
 string Row_Package_Source_Compat::MustBuildFromSource_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -335,7 +335,7 @@ return buf;
 
 string Row_Package_Source_Compat::Comments_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[5])
 return "NULL";
@@ -349,7 +349,7 @@ return s;
 
 string Row_Package_Source_Compat::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
 return "NULL";
@@ -362,7 +362,7 @@ return buf;
 
 string Row_Package_Source_Compat::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[7])
 return "NULL";
@@ -375,7 +375,7 @@ return buf;
 
 string Row_Package_Source_Compat::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
 return "NULL";
@@ -388,7 +388,7 @@ return buf;
 
 string Row_Package_Source_Compat::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[9])
 return "NULL";
@@ -401,7 +401,7 @@ return buf;
 
 string Row_Package_Source_Compat::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[10])
 return "NULL";
@@ -962,21 +962,21 @@ pRow->m_psc_mod = string(row[10],lengths[10]);
 
 class Row_Package_Source* Row_Package_Source_Compat::FK_Package_Source_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Package_Source *pTable = table->database->Package_Source_get();
 return pTable->GetRow(m_FK_Package_Source);
 }
 class Row_OperatingSystem* Row_Package_Source_Compat::FK_OperatingSystem_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_OperatingSystem *pTable = table->database->OperatingSystem_get();
 return pTable->GetRow(m_FK_OperatingSystem);
 }
 class Row_Distro* Row_Package_Source_Compat::FK_Distro_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Distro *pTable = table->database->Distro_get();
 return pTable->GetRow(m_FK_Distro);

@@ -140,130 +140,130 @@ is_null[11] = false;
 	is_modified=false;
 }
 
-long int Row_RepositorySource_URL::PK_RepositorySource_URL_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_RepositorySource_URL::PK_RepositorySource_URL_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_RepositorySource_URL;}
-long int Row_RepositorySource_URL::FK_RepositorySource_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_RepositorySource_URL::FK_RepositorySource_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_RepositorySource;}
-string Row_RepositorySource_URL::URL_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_RepositorySource_URL::URL_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_URL;}
-long int Row_RepositorySource_URL::FK_Country_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_RepositorySource_URL::FK_Country_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Country;}
-string Row_RepositorySource_URL::Username_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_RepositorySource_URL::Username_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Username;}
-string Row_RepositorySource_URL::Password_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_RepositorySource_URL::Password_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Password;}
-string Row_RepositorySource_URL::Comments_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_RepositorySource_URL::Comments_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Comments;}
-long int Row_RepositorySource_URL::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_RepositorySource_URL::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_RepositorySource_URL::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_RepositorySource_URL::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_RepositorySource_URL::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_RepositorySource_URL::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_RepositorySource_URL::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_RepositorySource_URL::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_RepositorySource_URL::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_RepositorySource_URL::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
 
 		
-void Row_RepositorySource_URL::PK_RepositorySource_URL_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::PK_RepositorySource_URL_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_RepositorySource_URL = val; is_modified=true; is_null[0]=false;}
-void Row_RepositorySource_URL::FK_RepositorySource_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::FK_RepositorySource_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_RepositorySource = val; is_modified=true; is_null[1]=false;}
-void Row_RepositorySource_URL::URL_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::URL_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_URL = val; is_modified=true; is_null[2]=false;}
-void Row_RepositorySource_URL::FK_Country_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::FK_Country_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Country = val; is_modified=true; is_null[3]=false;}
-void Row_RepositorySource_URL::Username_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::Username_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Username = val; is_modified=true; is_null[4]=false;}
-void Row_RepositorySource_URL::Password_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::Password_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Password = val; is_modified=true; is_null[5]=false;}
-void Row_RepositorySource_URL::Comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::Comments_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Comments = val; is_modified=true; is_null[6]=false;}
-void Row_RepositorySource_URL::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[7]=false;}
-void Row_RepositorySource_URL::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[8]=false;}
-void Row_RepositorySource_URL::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[9]=false;}
-void Row_RepositorySource_URL::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[10]=false;}
-void Row_RepositorySource_URL::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[11]=false;}
 
 		
-bool Row_RepositorySource_URL::FK_Country_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::FK_Country_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_RepositorySource_URL::Username_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::Username_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_RepositorySource_URL::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::Comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_RepositorySource_URL::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_RepositorySource_URL::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_RepositorySource_URL::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_RepositorySource_URL::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
 
 			
-void Row_RepositorySource_URL::FK_Country_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::FK_Country_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_RepositorySource_URL::Username_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::Username_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_RepositorySource_URL::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::Comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_RepositorySource_URL::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_RepositorySource_URL::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_RepositorySource_URL::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_RepositorySource_URL::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
@@ -271,7 +271,7 @@ is_modified=true;
 
 string Row_RepositorySource_URL::PK_RepositorySource_URL_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -284,7 +284,7 @@ return buf;
 
 string Row_RepositorySource_URL::FK_RepositorySource_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -297,7 +297,7 @@ return buf;
 
 string Row_RepositorySource_URL::URL_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -311,7 +311,7 @@ return s;
 
 string Row_RepositorySource_URL::FK_Country_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -324,7 +324,7 @@ return buf;
 
 string Row_RepositorySource_URL::Username_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -338,7 +338,7 @@ return s;
 
 string Row_RepositorySource_URL::Password_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[5])
 return "NULL";
@@ -352,7 +352,7 @@ return s;
 
 string Row_RepositorySource_URL::Comments_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
 return "NULL";
@@ -366,7 +366,7 @@ return s;
 
 string Row_RepositorySource_URL::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[7])
 return "NULL";
@@ -379,7 +379,7 @@ return buf;
 
 string Row_RepositorySource_URL::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
 return "NULL";
@@ -392,7 +392,7 @@ return buf;
 
 string Row_RepositorySource_URL::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[9])
 return "NULL";
@@ -405,7 +405,7 @@ return buf;
 
 string Row_RepositorySource_URL::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[10])
 return "NULL";
@@ -418,7 +418,7 @@ return buf;
 
 string Row_RepositorySource_URL::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[11])
 return "NULL";
@@ -1001,14 +1001,14 @@ pRow->m_psc_mod = string(row[11],lengths[11]);
 
 class Row_RepositorySource* Row_RepositorySource_URL::FK_RepositorySource_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_RepositorySource *pTable = table->database->RepositorySource_get();
 return pTable->GetRow(m_FK_RepositorySource);
 }
 class Row_Country* Row_RepositorySource_URL::FK_Country_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Country *pTable = table->database->Country_get();
 return pTable->GetRow(m_FK_Country);
@@ -1017,7 +1017,7 @@ return pTable->GetRow(m_FK_Country);
 
 void Row_RepositorySource_URL::Installation_RepositorySource_URL_FK_RepositorySource_URL_getrows(vector <class Row_Installation_RepositorySource_URL*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Installation_RepositorySource_URL *pTable = table->database->Installation_RepositorySource_URL_get();
 pTable->GetRows("`FK_RepositorySource_URL`=" + StringUtils::itos(m_PK_RepositorySource_URL),rows);

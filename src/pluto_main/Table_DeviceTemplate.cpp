@@ -190,303 +190,303 @@ is_null[27] = false;
 	is_modified=false;
 }
 
-long int Row_DeviceTemplate::PK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::PK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_DeviceTemplate;}
-string Row_DeviceTemplate::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceTemplate::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Description;}
-string Row_DeviceTemplate::Comments_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceTemplate::Comments_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Comments;}
-long int Row_DeviceTemplate::FK_DeviceCategory_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::FK_DeviceCategory_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_DeviceCategory;}
-long int Row_DeviceTemplate::FK_Manufacturer_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::FK_Manufacturer_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Manufacturer;}
-string Row_DeviceTemplate::Define_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceTemplate::Define_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Define;}
-short int Row_DeviceTemplate::ImplementsDCE_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_DeviceTemplate::ImplementsDCE_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_ImplementsDCE;}
-short int Row_DeviceTemplate::IsEmbedded_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_DeviceTemplate::IsEmbedded_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_IsEmbedded;}
-string Row_DeviceTemplate::CommandLine_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceTemplate::CommandLine_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_CommandLine;}
-short int Row_DeviceTemplate::IsPlugAndPlay_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_DeviceTemplate::IsPlugAndPlay_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_IsPlugAndPlay;}
-short int Row_DeviceTemplate::IsIPBased_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_DeviceTemplate::IsIPBased_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_IsIPBased;}
-short int Row_DeviceTemplate::IsPlugIn_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_DeviceTemplate::IsPlugIn_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_IsPlugIn;}
-long int Row_DeviceTemplate::IRFrequency_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::IRFrequency_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_IRFrequency;}
-long int Row_DeviceTemplate::FK_StabilityStatus_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::FK_StabilityStatus_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_StabilityStatus;}
-long int Row_DeviceTemplate::FK_Package_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::FK_Package_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Package;}
-string Row_DeviceTemplate::DestinationDir_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceTemplate::DestinationDir_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_DestinationDir;}
-long int Row_DeviceTemplate::FK_Users_Maintainer_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::FK_Users_Maintainer_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Users_Maintainer;}
-long int Row_DeviceTemplate::FK_OperatingSystem_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::FK_OperatingSystem_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_OperatingSystem;}
-long int Row_DeviceTemplate::FK_Distro_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::FK_Distro_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Distro;}
-short int Row_DeviceTemplate::InheritsMacFromPC_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_DeviceTemplate::InheritsMacFromPC_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_InheritsMacFromPC;}
-string Row_DeviceTemplate::ConfigureScript_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceTemplate::ConfigureScript_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_ConfigureScript;}
-string Row_DeviceTemplate::ManufacturerURL_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceTemplate::ManufacturerURL_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_ManufacturerURL;}
-string Row_DeviceTemplate::InternalURLSuffix_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceTemplate::InternalURLSuffix_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_InternalURLSuffix;}
-long int Row_DeviceTemplate::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_DeviceTemplate::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_DeviceTemplate::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_DeviceTemplate::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_DeviceTemplate::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_DeviceTemplate::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceTemplate::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
 
 		
-void Row_DeviceTemplate::PK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::PK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_DeviceTemplate = val; is_modified=true; is_null[0]=false;}
-void Row_DeviceTemplate::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
-void Row_DeviceTemplate::Comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::Comments_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Comments = val; is_modified=true; is_null[2]=false;}
-void Row_DeviceTemplate::FK_DeviceCategory_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_DeviceCategory_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_DeviceCategory = val; is_modified=true; is_null[3]=false;}
-void Row_DeviceTemplate::FK_Manufacturer_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_Manufacturer_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Manufacturer = val; is_modified=true; is_null[4]=false;}
-void Row_DeviceTemplate::Define_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::Define_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Define = val; is_modified=true; is_null[5]=false;}
-void Row_DeviceTemplate::ImplementsDCE_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::ImplementsDCE_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_ImplementsDCE = val; is_modified=true; is_null[6]=false;}
-void Row_DeviceTemplate::IsEmbedded_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::IsEmbedded_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_IsEmbedded = val; is_modified=true; is_null[7]=false;}
-void Row_DeviceTemplate::CommandLine_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::CommandLine_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_CommandLine = val; is_modified=true; is_null[8]=false;}
-void Row_DeviceTemplate::IsPlugAndPlay_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::IsPlugAndPlay_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_IsPlugAndPlay = val; is_modified=true; is_null[9]=false;}
-void Row_DeviceTemplate::IsIPBased_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::IsIPBased_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_IsIPBased = val; is_modified=true; is_null[10]=false;}
-void Row_DeviceTemplate::IsPlugIn_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::IsPlugIn_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_IsPlugIn = val; is_modified=true; is_null[11]=false;}
-void Row_DeviceTemplate::IRFrequency_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::IRFrequency_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_IRFrequency = val; is_modified=true; is_null[12]=false;}
-void Row_DeviceTemplate::FK_StabilityStatus_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_StabilityStatus_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_StabilityStatus = val; is_modified=true; is_null[13]=false;}
-void Row_DeviceTemplate::FK_Package_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_Package_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Package = val; is_modified=true; is_null[14]=false;}
-void Row_DeviceTemplate::DestinationDir_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::DestinationDir_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_DestinationDir = val; is_modified=true; is_null[15]=false;}
-void Row_DeviceTemplate::FK_Users_Maintainer_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_Users_Maintainer_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Users_Maintainer = val; is_modified=true; is_null[16]=false;}
-void Row_DeviceTemplate::FK_OperatingSystem_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_OperatingSystem_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_OperatingSystem = val; is_modified=true; is_null[17]=false;}
-void Row_DeviceTemplate::FK_Distro_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_Distro_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Distro = val; is_modified=true; is_null[18]=false;}
-void Row_DeviceTemplate::InheritsMacFromPC_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::InheritsMacFromPC_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_InheritsMacFromPC = val; is_modified=true; is_null[19]=false;}
-void Row_DeviceTemplate::ConfigureScript_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::ConfigureScript_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_ConfigureScript = val; is_modified=true; is_null[20]=false;}
-void Row_DeviceTemplate::ManufacturerURL_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::ManufacturerURL_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_ManufacturerURL = val; is_modified=true; is_null[21]=false;}
-void Row_DeviceTemplate::InternalURLSuffix_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::InternalURLSuffix_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_InternalURLSuffix = val; is_modified=true; is_null[22]=false;}
-void Row_DeviceTemplate::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[23]=false;}
-void Row_DeviceTemplate::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[24]=false;}
-void Row_DeviceTemplate::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[25]=false;}
-void Row_DeviceTemplate::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[26]=false;}
-void Row_DeviceTemplate::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[27]=false;}
 
 		
-bool Row_DeviceTemplate::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::Comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_DeviceTemplate::FK_Manufacturer_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::FK_Manufacturer_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_DeviceTemplate::IsEmbedded_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::IsEmbedded_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_DeviceTemplate::CommandLine_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::CommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_DeviceTemplate::IRFrequency_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::IRFrequency_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[12];}
-bool Row_DeviceTemplate::FK_StabilityStatus_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::FK_StabilityStatus_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[13];}
-bool Row_DeviceTemplate::FK_Package_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::FK_Package_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[14];}
-bool Row_DeviceTemplate::DestinationDir_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::DestinationDir_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[15];}
-bool Row_DeviceTemplate::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[17];}
-bool Row_DeviceTemplate::FK_Distro_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::FK_Distro_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[18];}
-bool Row_DeviceTemplate::InheritsMacFromPC_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::InheritsMacFromPC_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[19];}
-bool Row_DeviceTemplate::ConfigureScript_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::ConfigureScript_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[20];}
-bool Row_DeviceTemplate::ManufacturerURL_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::ManufacturerURL_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[21];}
-bool Row_DeviceTemplate::InternalURLSuffix_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::InternalURLSuffix_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[22];}
-bool Row_DeviceTemplate::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[23];}
-bool Row_DeviceTemplate::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[24];}
-bool Row_DeviceTemplate::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[25];}
-bool Row_DeviceTemplate::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[26];}
 
 			
-void Row_DeviceTemplate::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::Comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::FK_Manufacturer_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_Manufacturer_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::IsEmbedded_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::IsEmbedded_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::CommandLine_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::CommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::IRFrequency_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::IRFrequency_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::FK_StabilityStatus_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_StabilityStatus_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::FK_Package_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_Package_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[14]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::DestinationDir_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::DestinationDir_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[15]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[17]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[18]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::InheritsMacFromPC_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::InheritsMacFromPC_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[19]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::ConfigureScript_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::ConfigureScript_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[20]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::ManufacturerURL_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::ManufacturerURL_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[21]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::InternalURLSuffix_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::InternalURLSuffix_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[22]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[23]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[24]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[25]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[26]=val;
 is_modified=true;
 }
@@ -494,7 +494,7 @@ is_modified=true;
 
 string Row_DeviceTemplate::PK_DeviceTemplate_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -507,7 +507,7 @@ return buf;
 
 string Row_DeviceTemplate::Description_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -521,7 +521,7 @@ return s;
 
 string Row_DeviceTemplate::Comments_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -535,7 +535,7 @@ return s;
 
 string Row_DeviceTemplate::FK_DeviceCategory_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -548,7 +548,7 @@ return buf;
 
 string Row_DeviceTemplate::FK_Manufacturer_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -561,7 +561,7 @@ return buf;
 
 string Row_DeviceTemplate::Define_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[5])
 return "NULL";
@@ -575,7 +575,7 @@ return s;
 
 string Row_DeviceTemplate::ImplementsDCE_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
 return "NULL";
@@ -588,7 +588,7 @@ return buf;
 
 string Row_DeviceTemplate::IsEmbedded_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[7])
 return "NULL";
@@ -601,7 +601,7 @@ return buf;
 
 string Row_DeviceTemplate::CommandLine_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
 return "NULL";
@@ -615,7 +615,7 @@ return s;
 
 string Row_DeviceTemplate::IsPlugAndPlay_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[9])
 return "NULL";
@@ -628,7 +628,7 @@ return buf;
 
 string Row_DeviceTemplate::IsIPBased_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[10])
 return "NULL";
@@ -641,7 +641,7 @@ return buf;
 
 string Row_DeviceTemplate::IsPlugIn_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[11])
 return "NULL";
@@ -654,7 +654,7 @@ return buf;
 
 string Row_DeviceTemplate::IRFrequency_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[12])
 return "NULL";
@@ -667,7 +667,7 @@ return buf;
 
 string Row_DeviceTemplate::FK_StabilityStatus_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[13])
 return "NULL";
@@ -680,7 +680,7 @@ return buf;
 
 string Row_DeviceTemplate::FK_Package_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[14])
 return "NULL";
@@ -693,7 +693,7 @@ return buf;
 
 string Row_DeviceTemplate::DestinationDir_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[15])
 return "NULL";
@@ -707,7 +707,7 @@ return s;
 
 string Row_DeviceTemplate::FK_Users_Maintainer_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[16])
 return "NULL";
@@ -720,7 +720,7 @@ return buf;
 
 string Row_DeviceTemplate::FK_OperatingSystem_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[17])
 return "NULL";
@@ -733,7 +733,7 @@ return buf;
 
 string Row_DeviceTemplate::FK_Distro_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[18])
 return "NULL";
@@ -746,7 +746,7 @@ return buf;
 
 string Row_DeviceTemplate::InheritsMacFromPC_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[19])
 return "NULL";
@@ -759,7 +759,7 @@ return buf;
 
 string Row_DeviceTemplate::ConfigureScript_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[20])
 return "NULL";
@@ -773,7 +773,7 @@ return s;
 
 string Row_DeviceTemplate::ManufacturerURL_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[21])
 return "NULL";
@@ -787,7 +787,7 @@ return s;
 
 string Row_DeviceTemplate::InternalURLSuffix_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[22])
 return "NULL";
@@ -801,7 +801,7 @@ return s;
 
 string Row_DeviceTemplate::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[23])
 return "NULL";
@@ -814,7 +814,7 @@ return buf;
 
 string Row_DeviceTemplate::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[24])
 return "NULL";
@@ -827,7 +827,7 @@ return buf;
 
 string Row_DeviceTemplate::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[25])
 return "NULL";
@@ -840,7 +840,7 @@ return buf;
 
 string Row_DeviceTemplate::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[26])
 return "NULL";
@@ -853,7 +853,7 @@ return buf;
 
 string Row_DeviceTemplate::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[27])
 return "NULL";
@@ -1788,49 +1788,49 @@ pRow->m_psc_mod = string(row[27],lengths[27]);
 
 class Row_DeviceCategory* Row_DeviceTemplate::FK_DeviceCategory_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceCategory *pTable = table->database->DeviceCategory_get();
 return pTable->GetRow(m_FK_DeviceCategory);
 }
 class Row_Manufacturer* Row_DeviceTemplate::FK_Manufacturer_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Manufacturer *pTable = table->database->Manufacturer_get();
 return pTable->GetRow(m_FK_Manufacturer);
 }
 class Row_StabilityStatus* Row_DeviceTemplate::FK_StabilityStatus_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_StabilityStatus *pTable = table->database->StabilityStatus_get();
 return pTable->GetRow(m_FK_StabilityStatus);
 }
 class Row_Package* Row_DeviceTemplate::FK_Package_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Package *pTable = table->database->Package_get();
 return pTable->GetRow(m_FK_Package);
 }
 class Row_Users* Row_DeviceTemplate::FK_Users_Maintainer_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Users *pTable = table->database->Users_get();
 return pTable->GetRow(m_FK_Users_Maintainer);
 }
 class Row_OperatingSystem* Row_DeviceTemplate::FK_OperatingSystem_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_OperatingSystem *pTable = table->database->OperatingSystem_get();
 return pTable->GetRow(m_FK_OperatingSystem);
 }
 class Row_Distro* Row_DeviceTemplate::FK_Distro_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Distro *pTable = table->database->Distro_get();
 return pTable->GetRow(m_FK_Distro);
@@ -1839,161 +1839,161 @@ return pTable->GetRow(m_FK_Distro);
 
 void Row_DeviceTemplate::CommandGroup_D_Command_FK_DeviceTemplate_getrows(vector <class Row_CommandGroup_D_Command*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CommandGroup_D_Command *pTable = table->database->CommandGroup_D_Command_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::ConfigType_FK_DeviceTemplate_getrows(vector <class Row_ConfigType*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_ConfigType *pTable = table->database->ConfigType_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DHCPDevice_FK_DeviceTemplate_getrows(vector <class Row_DHCPDevice*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DHCPDevice *pTable = table->database->DHCPDevice_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::Device_FK_DeviceTemplate_getrows(vector <class Row_Device*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Device *pTable = table->database->Device_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_AV_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_AV*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_AV *pTable = table->database->DeviceTemplate_AV_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DSPMode_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DSPMode*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_DSPMode *pTable = table->database->DeviceTemplate_DSPMode_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DesignObj_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DesignObj*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_DesignObj *pTable = table->database->DeviceTemplate_DesignObj_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceCategory_ControlledVia_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_DeviceCategory_ControlledVia *pTable = table->database->DeviceTemplate_DeviceCategory_ControlledVia_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceCommandGroup_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceCommandGroup*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_DeviceCommandGroup *pTable = table->database->DeviceTemplate_DeviceCommandGroup_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceData_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceData*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_DeviceData *pTable = table->database->DeviceTemplate_DeviceData_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceTemplate_ControlledVia_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_DeviceTemplate_ControlledVia *pTable = table->database->DeviceTemplate_DeviceTemplate_ControlledVia_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceTemplate_ControlledVia_FK_DeviceTemplate_ControlledVia_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_DeviceTemplate_ControlledVia *pTable = table->database->DeviceTemplate_DeviceTemplate_ControlledVia_get();
 pTable->GetRows("`FK_DeviceTemplate_ControlledVia`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceTemplate_Related_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_Related*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_DeviceTemplate_Related *pTable = table->database->DeviceTemplate_DeviceTemplate_Related_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceTemplate_Related_FK_DeviceTemplate_Related_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_Related*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_DeviceTemplate_Related *pTable = table->database->DeviceTemplate_DeviceTemplate_Related_get();
 pTable->GetRows("`FK_DeviceTemplate_Related`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_Event_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Event*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_Event *pTable = table->database->DeviceTemplate_Event_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_InfraredGroup_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_InfraredGroup*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_InfraredGroup *pTable = table->database->DeviceTemplate_InfraredGroup_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_Input_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Input*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_Input *pTable = table->database->DeviceTemplate_Input_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_MediaType*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_MediaType *pTable = table->database->DeviceTemplate_MediaType_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_Output_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Output*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_Output *pTable = table->database->DeviceTemplate_Output_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_PageSetup_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_PageSetup*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_PageSetup *pTable = table->database->DeviceTemplate_PageSetup_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::InfraredGroup_Command_FK_DeviceTemplate_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::InstallWizard_FK_DeviceTemplate_getrows(vector <class Row_InstallWizard*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_InstallWizard *pTable = table->database->InstallWizard_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::StartupScript_FK_DeviceTemplate_getrows(vector <class Row_StartupScript*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_StartupScript *pTable = table->database->StartupScript_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);

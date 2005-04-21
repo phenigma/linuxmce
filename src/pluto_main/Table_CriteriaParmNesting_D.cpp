@@ -137,98 +137,98 @@ is_null[8] = false;
 	is_modified=false;
 }
 
-long int Row_CriteriaParmNesting_D::PK_CriteriaParmNesting_D_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CriteriaParmNesting_D::PK_CriteriaParmNesting_D_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_CriteriaParmNesting_D;}
-long int Row_CriteriaParmNesting_D::FK_CriteriaParmNesting_D_Parent_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CriteriaParmNesting_D::FK_CriteriaParmNesting_D_Parent_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_CriteriaParmNesting_D_Parent;}
-short int Row_CriteriaParmNesting_D::IsAnd_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_CriteriaParmNesting_D::IsAnd_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_IsAnd;}
-short int Row_CriteriaParmNesting_D::IsNot_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_CriteriaParmNesting_D::IsNot_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_IsNot;}
-long int Row_CriteriaParmNesting_D::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CriteriaParmNesting_D::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_CriteriaParmNesting_D::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CriteriaParmNesting_D::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_CriteriaParmNesting_D::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CriteriaParmNesting_D::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_CriteriaParmNesting_D::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_CriteriaParmNesting_D::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_CriteriaParmNesting_D::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_CriteriaParmNesting_D::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
 
 		
-void Row_CriteriaParmNesting_D::PK_CriteriaParmNesting_D_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::PK_CriteriaParmNesting_D_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_CriteriaParmNesting_D = val; is_modified=true; is_null[0]=false;}
-void Row_CriteriaParmNesting_D::FK_CriteriaParmNesting_D_Parent_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::FK_CriteriaParmNesting_D_Parent_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_CriteriaParmNesting_D_Parent = val; is_modified=true; is_null[1]=false;}
-void Row_CriteriaParmNesting_D::IsAnd_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::IsAnd_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_IsAnd = val; is_modified=true; is_null[2]=false;}
-void Row_CriteriaParmNesting_D::IsNot_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::IsNot_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_IsNot = val; is_modified=true; is_null[3]=false;}
-void Row_CriteriaParmNesting_D::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[4]=false;}
-void Row_CriteriaParmNesting_D::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[5]=false;}
-void Row_CriteriaParmNesting_D::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[6]=false;}
-void Row_CriteriaParmNesting_D::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[7]=false;}
-void Row_CriteriaParmNesting_D::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[8]=false;}
 
 		
-bool Row_CriteriaParmNesting_D::FK_CriteriaParmNesting_D_Parent_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CriteriaParmNesting_D::FK_CriteriaParmNesting_D_Parent_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[1];}
-bool Row_CriteriaParmNesting_D::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CriteriaParmNesting_D::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_CriteriaParmNesting_D::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CriteriaParmNesting_D::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_CriteriaParmNesting_D::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CriteriaParmNesting_D::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_CriteriaParmNesting_D::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CriteriaParmNesting_D::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
 
 			
-void Row_CriteriaParmNesting_D::FK_CriteriaParmNesting_D_Parent_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::FK_CriteriaParmNesting_D_Parent_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_CriteriaParmNesting_D::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_CriteriaParmNesting_D::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_CriteriaParmNesting_D::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_CriteriaParmNesting_D::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CriteriaParmNesting_D::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
@@ -236,7 +236,7 @@ is_modified=true;
 
 string Row_CriteriaParmNesting_D::PK_CriteriaParmNesting_D_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -249,7 +249,7 @@ return buf;
 
 string Row_CriteriaParmNesting_D::FK_CriteriaParmNesting_D_Parent_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -262,7 +262,7 @@ return buf;
 
 string Row_CriteriaParmNesting_D::IsAnd_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -275,7 +275,7 @@ return buf;
 
 string Row_CriteriaParmNesting_D::IsNot_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -288,7 +288,7 @@ return buf;
 
 string Row_CriteriaParmNesting_D::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -301,7 +301,7 @@ return buf;
 
 string Row_CriteriaParmNesting_D::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[5])
 return "NULL";
@@ -314,7 +314,7 @@ return buf;
 
 string Row_CriteriaParmNesting_D::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
 return "NULL";
@@ -327,7 +327,7 @@ return buf;
 
 string Row_CriteriaParmNesting_D::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[7])
 return "NULL";
@@ -340,7 +340,7 @@ return buf;
 
 string Row_CriteriaParmNesting_D::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
 return "NULL";
@@ -857,7 +857,7 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 
 class Row_CriteriaParmNesting_D* Row_CriteriaParmNesting_D::FK_CriteriaParmNesting_D_Parent_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CriteriaParmNesting_D *pTable = table->database->CriteriaParmNesting_D_get();
 return pTable->GetRow(m_FK_CriteriaParmNesting_D_Parent);
@@ -866,21 +866,21 @@ return pTable->GetRow(m_FK_CriteriaParmNesting_D_Parent);
 
 void Row_CriteriaParmNesting_D::CriteriaParmNesting_D_FK_CriteriaParmNesting_D_Parent_getrows(vector <class Row_CriteriaParmNesting_D*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CriteriaParmNesting_D *pTable = table->database->CriteriaParmNesting_D_get();
 pTable->GetRows("`FK_CriteriaParmNesting_D_Parent`=" + StringUtils::itos(m_PK_CriteriaParmNesting_D),rows);
 }
 void Row_CriteriaParmNesting_D::CriteriaParm_D_FK_CriteriaParmNesting_D_getrows(vector <class Row_CriteriaParm_D*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CriteriaParm_D *pTable = table->database->CriteriaParm_D_get();
 pTable->GetRows("`FK_CriteriaParmNesting_D`=" + StringUtils::itos(m_PK_CriteriaParmNesting_D),rows);
 }
 void Row_CriteriaParmNesting_D::Criteria_D_FK_CriteriaParmNesting_D_getrows(vector <class Row_Criteria_D*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Criteria_D *pTable = table->database->Criteria_D_get();
 pTable->GetRows("`FK_CriteriaParmNesting_D`=" + StringUtils::itos(m_PK_CriteriaParmNesting_D),rows);

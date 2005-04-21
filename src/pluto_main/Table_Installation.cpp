@@ -165,254 +165,254 @@ is_null[20] = false;
 	is_modified=false;
 }
 
-long int Row_Installation::PK_Installation_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Installation::PK_Installation_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_Installation;}
-string Row_Installation::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Installation::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Description;}
-string Row_Installation::Name_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Installation::Name_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Name;}
-string Row_Installation::Address_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Installation::Address_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Address;}
-string Row_Installation::City_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Installation::City_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_City;}
-string Row_Installation::State_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Installation::State_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_State;}
-string Row_Installation::Zip_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Installation::Zip_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Zip;}
-long int Row_Installation::FK_Country_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Installation::FK_Country_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Country;}
-string Row_Installation::ActivationCode_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Installation::ActivationCode_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_ActivationCode;}
-string Row_Installation::LastStatus_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Installation::LastStatus_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_LastStatus;}
-string Row_Installation::LastAlive_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Installation::LastAlive_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_LastAlive;}
-short int Row_Installation::isActive_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Installation::isActive_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_isActive;}
-long int Row_Installation::FK_Version_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Installation::FK_Version_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Version;}
-short int Row_Installation::isMonitored_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Installation::isMonitored_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_isMonitored;}
-long int Row_Installation::FK_RepositoryType_Source_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Installation::FK_RepositoryType_Source_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_RepositoryType_Source;}
-long int Row_Installation::FK_RepositoryType_Binaries_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Installation::FK_RepositoryType_Binaries_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_RepositoryType_Binaries;}
-long int Row_Installation::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Installation::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_Installation::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Installation::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_Installation::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Installation::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_Installation::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Installation::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_Installation::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Installation::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
 
 		
-void Row_Installation::PK_Installation_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::PK_Installation_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_Installation = val; is_modified=true; is_null[0]=false;}
-void Row_Installation::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
-void Row_Installation::Name_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::Name_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Name = val; is_modified=true; is_null[2]=false;}
-void Row_Installation::Address_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::Address_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Address = val; is_modified=true; is_null[3]=false;}
-void Row_Installation::City_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::City_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_City = val; is_modified=true; is_null[4]=false;}
-void Row_Installation::State_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::State_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_State = val; is_modified=true; is_null[5]=false;}
-void Row_Installation::Zip_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::Zip_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Zip = val; is_modified=true; is_null[6]=false;}
-void Row_Installation::FK_Country_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::FK_Country_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Country = val; is_modified=true; is_null[7]=false;}
-void Row_Installation::ActivationCode_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::ActivationCode_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_ActivationCode = val; is_modified=true; is_null[8]=false;}
-void Row_Installation::LastStatus_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::LastStatus_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_LastStatus = val; is_modified=true; is_null[9]=false;}
-void Row_Installation::LastAlive_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::LastAlive_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_LastAlive = val; is_modified=true; is_null[10]=false;}
-void Row_Installation::isActive_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::isActive_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_isActive = val; is_modified=true; is_null[11]=false;}
-void Row_Installation::FK_Version_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::FK_Version_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Version = val; is_modified=true; is_null[12]=false;}
-void Row_Installation::isMonitored_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::isMonitored_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_isMonitored = val; is_modified=true; is_null[13]=false;}
-void Row_Installation::FK_RepositoryType_Source_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::FK_RepositoryType_Source_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_RepositoryType_Source = val; is_modified=true; is_null[14]=false;}
-void Row_Installation::FK_RepositoryType_Binaries_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::FK_RepositoryType_Binaries_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_RepositoryType_Binaries = val; is_modified=true; is_null[15]=false;}
-void Row_Installation::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[16]=false;}
-void Row_Installation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[17]=false;}
-void Row_Installation::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[18]=false;}
-void Row_Installation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[19]=false;}
-void Row_Installation::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[20]=false;}
 
 		
-bool Row_Installation::Name_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::Name_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Installation::Address_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::Address_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Installation::City_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::City_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_Installation::State_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::State_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_Installation::Zip_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::Zip_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_Installation::FK_Country_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::FK_Country_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_Installation::ActivationCode_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::ActivationCode_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_Installation::LastStatus_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::LastStatus_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_Installation::LastAlive_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::LastAlive_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
-bool Row_Installation::FK_Version_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::FK_Version_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[12];}
-bool Row_Installation::isMonitored_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::isMonitored_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[13];}
-bool Row_Installation::FK_RepositoryType_Source_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::FK_RepositoryType_Source_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[14];}
-bool Row_Installation::FK_RepositoryType_Binaries_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::FK_RepositoryType_Binaries_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[15];}
-bool Row_Installation::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[16];}
-bool Row_Installation::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[17];}
-bool Row_Installation::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[18];}
-bool Row_Installation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[19];}
 
 			
-void Row_Installation::Name_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::Name_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Installation::Address_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::Address_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_Installation::City_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::City_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_Installation::State_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::State_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_Installation::Zip_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::Zip_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_Installation::FK_Country_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::FK_Country_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_Installation::ActivationCode_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::ActivationCode_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Installation::LastStatus_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::LastStatus_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_Installation::LastAlive_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::LastAlive_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_Installation::FK_Version_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::FK_Version_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_Installation::isMonitored_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::isMonitored_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_Installation::FK_RepositoryType_Source_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::FK_RepositoryType_Source_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[14]=val;
 is_modified=true;
 }
-void Row_Installation::FK_RepositoryType_Binaries_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::FK_RepositoryType_Binaries_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[15]=val;
 is_modified=true;
 }
-void Row_Installation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[16]=val;
 is_modified=true;
 }
-void Row_Installation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[17]=val;
 is_modified=true;
 }
-void Row_Installation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[18]=val;
 is_modified=true;
 }
-void Row_Installation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[19]=val;
 is_modified=true;
 }
@@ -420,7 +420,7 @@ is_modified=true;
 
 string Row_Installation::PK_Installation_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -433,7 +433,7 @@ return buf;
 
 string Row_Installation::Description_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -447,7 +447,7 @@ return s;
 
 string Row_Installation::Name_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -461,7 +461,7 @@ return s;
 
 string Row_Installation::Address_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -475,7 +475,7 @@ return s;
 
 string Row_Installation::City_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -489,7 +489,7 @@ return s;
 
 string Row_Installation::State_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[5])
 return "NULL";
@@ -503,7 +503,7 @@ return s;
 
 string Row_Installation::Zip_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
 return "NULL";
@@ -517,7 +517,7 @@ return s;
 
 string Row_Installation::FK_Country_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[7])
 return "NULL";
@@ -530,7 +530,7 @@ return buf;
 
 string Row_Installation::ActivationCode_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
 return "NULL";
@@ -544,7 +544,7 @@ return s;
 
 string Row_Installation::LastStatus_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[9])
 return "NULL";
@@ -558,7 +558,7 @@ return s;
 
 string Row_Installation::LastAlive_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[10])
 return "NULL";
@@ -572,7 +572,7 @@ return s;
 
 string Row_Installation::isActive_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[11])
 return "NULL";
@@ -585,7 +585,7 @@ return buf;
 
 string Row_Installation::FK_Version_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[12])
 return "NULL";
@@ -598,7 +598,7 @@ return buf;
 
 string Row_Installation::isMonitored_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[13])
 return "NULL";
@@ -611,7 +611,7 @@ return buf;
 
 string Row_Installation::FK_RepositoryType_Source_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[14])
 return "NULL";
@@ -624,7 +624,7 @@ return buf;
 
 string Row_Installation::FK_RepositoryType_Binaries_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[15])
 return "NULL";
@@ -637,7 +637,7 @@ return buf;
 
 string Row_Installation::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[16])
 return "NULL";
@@ -650,7 +650,7 @@ return buf;
 
 string Row_Installation::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[17])
 return "NULL";
@@ -663,7 +663,7 @@ return buf;
 
 string Row_Installation::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[18])
 return "NULL";
@@ -676,7 +676,7 @@ return buf;
 
 string Row_Installation::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[19])
 return "NULL";
@@ -689,7 +689,7 @@ return buf;
 
 string Row_Installation::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[20])
 return "NULL";
@@ -1470,28 +1470,28 @@ pRow->m_psc_mod = string(row[20],lengths[20]);
 
 class Row_Country* Row_Installation::FK_Country_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Country *pTable = table->database->Country_get();
 return pTable->GetRow(m_FK_Country);
 }
 class Row_Version* Row_Installation::FK_Version_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Version *pTable = table->database->Version_get();
 return pTable->GetRow(m_FK_Version);
 }
 class Row_RepositoryType* Row_Installation::FK_RepositoryType_Source_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_RepositoryType *pTable = table->database->RepositoryType_get();
 return pTable->GetRow(m_FK_RepositoryType_Source);
 }
 class Row_RepositoryType* Row_Installation::FK_RepositoryType_Binaries_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_RepositoryType *pTable = table->database->RepositoryType_get();
 return pTable->GetRow(m_FK_RepositoryType_Binaries);
@@ -1500,98 +1500,98 @@ return pTable->GetRow(m_FK_RepositoryType_Binaries);
 
 void Row_Installation::CommandGroup_FK_Installation_getrows(vector <class Row_CommandGroup*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Criteria_FK_Installation_getrows(vector <class Row_Criteria*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Criteria *pTable = table->database->Criteria_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Device_FK_Installation_getrows(vector <class Row_Device*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Device *pTable = table->database->Device_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::DeviceGroup_FK_Installation_getrows(vector <class Row_DeviceGroup*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceGroup *pTable = table->database->DeviceGroup_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::EventHandler_FK_Installation_getrows(vector <class Row_EventHandler*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Floorplan_FK_Installation_getrows(vector <class Row_Floorplan*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Floorplan *pTable = table->database->Floorplan_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Household_Installation_FK_Installation_getrows(vector <class Row_Household_Installation*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Household_Installation *pTable = table->database->Household_Installation_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::InfraredGroup_Command_FK_Installation_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::InfraredGroup_Command_Preferred_FK_Installation_getrows(vector <class Row_InfraredGroup_Command_Preferred*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_InfraredGroup_Command_Preferred *pTable = table->database->InfraredGroup_Command_Preferred_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Installation_RepositorySource_URL_FK_Installation_getrows(vector <class Row_Installation_RepositorySource_URL*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Installation_RepositorySource_URL *pTable = table->database->Installation_RepositorySource_URL_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Installation_Users_FK_Installation_getrows(vector <class Row_Installation_Users*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Installation_Users *pTable = table->database->Installation_Users_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Room_FK_Installation_getrows(vector <class Row_Room*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Room *pTable = table->database->Room_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::SetupStep_FK_Installation_getrows(vector <class Row_SetupStep*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_SetupStep *pTable = table->database->SetupStep_get();
 pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Users_FK_Installation_Main_getrows(vector <class Row_Users*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Users *pTable = table->database->Users_get();
 pTable->GetRows("`FK_Installation_Main`=" + StringUtils::itos(m_PK_Installation),rows);

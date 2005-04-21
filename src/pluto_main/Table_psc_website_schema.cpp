@@ -123,18 +123,18 @@ is_null[1] = false;
 	is_modified=false;
 }
 
-long int Row_psc_website_schema::PK_psc_website_schema_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_website_schema::PK_psc_website_schema_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_psc_website_schema;}
-string Row_psc_website_schema::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_psc_website_schema::Value_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Value;}
 
 		
-void Row_psc_website_schema::PK_psc_website_schema_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_website_schema::PK_psc_website_schema_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_psc_website_schema = val; is_modified=true; is_null[0]=false;}
-void Row_psc_website_schema::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_website_schema::Value_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Value = val; is_modified=true; is_null[1]=false;}
 
@@ -145,7 +145,7 @@ m_Value = val; is_modified=true; is_null[1]=false;}
 
 string Row_psc_website_schema::PK_psc_website_schema_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -158,7 +158,7 @@ return buf;
 
 string Row_psc_website_schema::Value_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";

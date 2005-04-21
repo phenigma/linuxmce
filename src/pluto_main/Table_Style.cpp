@@ -143,131 +143,131 @@ is_null[10] = false;
 	is_modified=false;
 }
 
-long int Row_Style::PK_Style_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Style::PK_Style_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_Style;}
-string Row_Style::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Style::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Description;}
-long int Row_Style::FK_Style_Selected_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Style::FK_Style_Selected_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Style_Selected;}
-long int Row_Style::FK_Style_Highlighted_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Style::FK_Style_Highlighted_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Style_Highlighted;}
-long int Row_Style::FK_Style_Alt_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Style::FK_Style_Alt_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Style_Alt;}
-short int Row_Style::AlwaysIncludeOnOrbiter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Style::AlwaysIncludeOnOrbiter_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_AlwaysIncludeOnOrbiter;}
-long int Row_Style::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Style::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_Style::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Style::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_Style::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Style::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_Style::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Style::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_Style::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Style::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
 
 		
-void Row_Style::PK_Style_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::PK_Style_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_Style = val; is_modified=true; is_null[0]=false;}
-void Row_Style::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
-void Row_Style::FK_Style_Selected_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::FK_Style_Selected_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Style_Selected = val; is_modified=true; is_null[2]=false;}
-void Row_Style::FK_Style_Highlighted_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::FK_Style_Highlighted_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Style_Highlighted = val; is_modified=true; is_null[3]=false;}
-void Row_Style::FK_Style_Alt_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::FK_Style_Alt_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Style_Alt = val; is_modified=true; is_null[4]=false;}
-void Row_Style::AlwaysIncludeOnOrbiter_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::AlwaysIncludeOnOrbiter_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_AlwaysIncludeOnOrbiter = val; is_modified=true; is_null[5]=false;}
-void Row_Style::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[6]=false;}
-void Row_Style::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[7]=false;}
-void Row_Style::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[8]=false;}
-void Row_Style::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[9]=false;}
-void Row_Style::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[10]=false;}
 
 		
-bool Row_Style::Description_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Style::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[1];}
-bool Row_Style::FK_Style_Selected_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Style::FK_Style_Selected_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Style::FK_Style_Highlighted_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Style::FK_Style_Highlighted_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Style::FK_Style_Alt_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Style::FK_Style_Alt_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_Style::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Style::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_Style::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Style::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_Style::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Style::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_Style::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Style::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
 
 			
-void Row_Style::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_Style::FK_Style_Selected_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::FK_Style_Selected_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Style::FK_Style_Highlighted_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::FK_Style_Highlighted_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_Style::FK_Style_Alt_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::FK_Style_Alt_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_Style::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_Style::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_Style::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Style::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Style::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
@@ -275,7 +275,7 @@ is_modified=true;
 
 string Row_Style::PK_Style_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -288,7 +288,7 @@ return buf;
 
 string Row_Style::Description_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -302,7 +302,7 @@ return s;
 
 string Row_Style::FK_Style_Selected_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -315,7 +315,7 @@ return buf;
 
 string Row_Style::FK_Style_Highlighted_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -328,7 +328,7 @@ return buf;
 
 string Row_Style::FK_Style_Alt_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -341,7 +341,7 @@ return buf;
 
 string Row_Style::AlwaysIncludeOnOrbiter_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[5])
 return "NULL";
@@ -354,7 +354,7 @@ return buf;
 
 string Row_Style::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
 return "NULL";
@@ -367,7 +367,7 @@ return buf;
 
 string Row_Style::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[7])
 return "NULL";
@@ -380,7 +380,7 @@ return buf;
 
 string Row_Style::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
 return "NULL";
@@ -393,7 +393,7 @@ return buf;
 
 string Row_Style::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[9])
 return "NULL";
@@ -406,7 +406,7 @@ return buf;
 
 string Row_Style::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[10])
 return "NULL";
@@ -967,21 +967,21 @@ pRow->m_psc_mod = string(row[10],lengths[10]);
 
 class Row_Style* Row_Style::FK_Style_Selected_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Style *pTable = table->database->Style_get();
 return pTable->GetRow(m_FK_Style_Selected);
 }
 class Row_Style* Row_Style::FK_Style_Highlighted_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Style *pTable = table->database->Style_get();
 return pTable->GetRow(m_FK_Style_Highlighted);
 }
 class Row_Style* Row_Style::FK_Style_Alt_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Style *pTable = table->database->Style_get();
 return pTable->GetRow(m_FK_Style_Alt);
@@ -990,42 +990,42 @@ return pTable->GetRow(m_FK_Style_Alt);
 
 void Row_Style::DesignObjVariation_Text_Skin_Language_FK_Style_getrows(vector <class Row_DesignObjVariation_Text_Skin_Language*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
 pTable->GetRows("`FK_Style`=" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Skin_FK_Style_getrows(vector <class Row_Skin*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
 pTable->GetRows("`FK_Style`=" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Style_FK_Style_Selected_getrows(vector <class Row_Style*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Style *pTable = table->database->Style_get();
 pTable->GetRows("`FK_Style_Selected`=" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Style_FK_Style_Highlighted_getrows(vector <class Row_Style*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Style *pTable = table->database->Style_get();
 pTable->GetRows("`FK_Style_Highlighted`=" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Style_FK_Style_Alt_getrows(vector <class Row_Style*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Style *pTable = table->database->Style_get();
 pTable->GetRows("`FK_Style_Alt`=" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::StyleVariation_FK_Style_getrows(vector <class Row_StyleVariation*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_StyleVariation *pTable = table->database->StyleVariation_get();
 pTable->GetRows("`FK_Style`=" + StringUtils::itos(m_PK_Style),rows);
