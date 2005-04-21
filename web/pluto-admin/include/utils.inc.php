@@ -2764,7 +2764,7 @@ function htmlPulldown($contentArray,$name,$selectedValue='None',$unselectedLabel
 	return $out;
 }
 
-function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orderClause)
+function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orderClause='')
 {
 	$retArray=array();
 	$res=$dbADO->Execute("SELECT $keyField,$labelField FROM $table $whereClause $orderClause");

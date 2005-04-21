@@ -422,7 +422,7 @@ if($action=='form') {
 		
 		$insertCG_C='
 			INSERT INTO CommandGroup_Command 
-				(FK_CommandGroup,FK_Command,TurnOff,OrderNum,FK_Command)
+				(FK_CommandGroup,FK_Command,TurnOff,OrderNum,FK_Device)
 			VALUES
 				(?,?,?,?,?)';
 		$insertCG_C_CP='
