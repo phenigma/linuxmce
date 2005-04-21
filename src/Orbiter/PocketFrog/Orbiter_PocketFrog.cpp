@@ -40,10 +40,6 @@ const int ciSpaceHeight = 5;
 using namespace Frog;
 CComModule _Module;
 //-----------------------------------------------------------------------------------------------------
-extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
-extern void (*g_pSocketCrashHandler)(Socket *pSocket);
-extern Command_Impl *g_pCommand_Impl;
-//-----------------------------------------------------------------------------------------------------
 // GDI Escapes for ExtEscape()
 #define QUERYESCSUPPORT    8
  
@@ -74,30 +70,6 @@ typedef struct _VIDEO_POWER_MANAGEMENT {
 } VIDEO_POWER_MANAGEMENT, *PVIDEO_POWER_MANAGEMENT;
 //-----------------------------------------------------------------------------------------------------
 #define CHECK_STATUS() { if(m_bQuit) return; }
-//-----------------------------------------------------------------------------------------------------
-void DeadlockHandler(PlutoLock *pPlutoLock)
-{
-	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
-	if( g_pCommand_Impl )
-	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  Going to reload and quit");
-		g_pCommand_Impl->OnReload();
-	}
-}
-//-----------------------------------------------------------------------------------------------------
-void SocketCrashHandler(Socket *pSocket)
-{
-	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
-	g_pCommand_Impl = Orbiter_PocketFrog::GetInstance(); //it is possible that orbiter to be deleted and then 
-													   //SocketCrashHandler to be called (so let's verify this)
-	if( g_pCommand_Impl )
-	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem.  Going to reload and quit");
-		g_pCommand_Impl->OnReload();
-	}
-}
 //-----------------------------------------------------------------------------------------------------
 Orbiter_PocketFrog *Orbiter_PocketFrog::m_pInstance = NULL; //the one and only
 //-----------------------------------------------------------------------------------------------------
@@ -922,7 +894,7 @@ clock_t ccc=clock();
 /*virtual*/ void Orbiter_PocketFrog::OnQuit()
 {
 	m_bQuit = true;
-	PostMessage( WM_CLOSE, 0, 0 );
+	::PostMessage( m_hWnd, WM_CLOSE, 0, 0 );
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)

@@ -17,30 +17,6 @@
 #define VK_R 0x52
 #define VK_Z 0x5A
 
-extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
-extern void (*g_pSocketCrashHandler)(Socket *pSocket);
-extern Command_Impl *g_pCommand_Impl;
-void DeadlockHandler(PlutoLock *pPlutoLock)
-{
-	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
-	if( g_pCommand_Impl )
-	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  Going to reload and quit");
-		g_pCommand_Impl->OnReload();
-	}
-}
-void SocketCrashHandler(Socket *pSocket)
-{
-	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
-	if( g_pCommand_Impl )
-	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem.  Going to reload and quit");
-		g_pCommand_Impl->OnReload();
-	}
-}
-
 const MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
 LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -88,39 +64,6 @@ OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, string ServerAddress, string sL
 	m_bCapsLock = false;
     m_cKeyDown=0;
 	m_bConnectionLost = false;
-
-	/*
-	if(m_bFullScreen)
-	{
-		DEVMODE dmSettings;                          // Device Mode variable - Needed to change modes
-		memset(&dmSettings,0,sizeof(dmSettings));    // Makes Sure Memory's Cleared
-
-		// Get current settings -- This function fills our the settings
-		// This makes sure NT and Win98 machines change correctly
-		if(!EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&dmSettings))
-		{
-			return;
-		}
-
-		dmSettings.dmPelsWidth = 800;                        // Set the desired Screen Width
-		dmSettings.dmPelsHeight = 600;                      // Set the desired Screen Height
-		dmSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;    // Set the flags saying we're changing the Screen Width and Height
-
-		// This function actually changes the screen to full screen
-		// CDS_FULLSCREEN Gets Rid Of Start Bar.
-		// We always want to get a result from this function to check if we failed
-		int result = ChangeDisplaySettings(&dmSettings,CDS_FULLSCREEN); 
-		// Check if we didn't recieved a good return message From the function
-		if(result != DISP_CHANGE_SUCCESSFUL)
-		{
-			// Display the error message and quit the program
-			PostQuitMessage(0);
-		}
-
-		SetWindowPos(hSDLWindow, HWND_TOPMOST, 0, 0, 800, 600, SWP_SHOWWINDOW);
-		SetForegroundWindow(hSDLWindow);
-	}
-	*/
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_Win32::~OrbiterSDL_Win32()
@@ -145,9 +88,6 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 	{
 		throw "OrbiterSDL_Win32 already created!";
 	}
-	g_pDeadlockHandler=DeadlockHandler;
-	g_pSocketCrashHandler=SocketCrashHandler;
-	g_pCommand_Impl=m_pInstance;
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_Win32::Cleanup()

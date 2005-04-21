@@ -43,6 +43,36 @@ using namespace std;
 #include "MainDialog.h"
 #include "PopupMessage.h"
 //-----------------------------------------------------------------------------------------------------
+extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
+extern void (*g_pSocketCrashHandler)(Socket *pSocket);
+extern Command_Impl *g_pCommand_Impl;
+//-----------------------------------------------------------------------------------------------------
+void DeadlockHandler(PlutoLock *pPlutoLock)
+{
+	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+	g_pCommand_Impl = ORBITER::GetInstance();  
+
+	if( g_pCommand_Impl )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  Going to reload and quit");
+		g_pCommand_Impl->OnReload();
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void SocketCrashHandler(Socket *pSocket)
+{
+	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
+	g_pCommand_Impl = ORBITER::GetInstance(); //it is possible that orbiter to be deleted and then SocketCrashHandler to be called (so let's verify this)
+
+	if( g_pCommand_Impl )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem.  Going to reload and quit");
+		g_pCommand_Impl->OnReload();
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 enum OrbiterStages
 {
 	osConnect,
@@ -212,6 +242,9 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 {
 	ORBITER *pOrbiter = NULL;
 	OrbiterStages stage = osConnect;
+
+	g_pDeadlockHandler=DeadlockHandler;
+	g_pSocketCrashHandler=SocketCrashHandler; 
 
 	while(stage != osQuit)
 	{
