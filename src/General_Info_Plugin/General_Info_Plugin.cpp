@@ -313,8 +313,10 @@ g_pPlutoLogger->Write(LV_STATUS, "Forwarding reload to router");
 			/** Send this messages if the process exited with failure error code. */
 		/** @param #95 SendOnSuccess */
 			/** Send this messages if the process exited with success error code. */
+		/** @param #115 Show logo */
+			/** If this is set then we will first select the logo  before spawning the application. */
 
-void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,Message *pMessage)
 //<-dceag-c67-e->
 {
     if ( sName == "" )
