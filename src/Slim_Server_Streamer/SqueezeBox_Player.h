@@ -124,6 +124,27 @@ public:
 	virtual void CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #89 - Vol Up */
+	/** Make the sound go up. */
+
+	virtual void CMD_Vol_Up() { string sCMD_Result; CMD_Vol_Up(sCMD_Result,NULL);};
+	virtual void CMD_Vol_Up(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #90 - Vol Down */
+	/** Make the sound go down. */
+
+	virtual void CMD_Vol_Down() { string sCMD_Result; CMD_Vol_Down(sCMD_Result,NULL);};
+	virtual void CMD_Vol_Down(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #97 - Mute */
+	/** Mute the sound. */
+
+	virtual void CMD_Mute() { string sCMD_Result; CMD_Mute(sCMD_Result,NULL);};
+	virtual void CMD_Mute(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #243 - Enable Broadcasting */
 	/** Enable broadcasting from here. */
 		/** @param #41 StreamID */

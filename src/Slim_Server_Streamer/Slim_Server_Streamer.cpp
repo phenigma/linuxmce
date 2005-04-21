@@ -34,10 +34,11 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
     pthread_mutexattr_settype( &mutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
     m_mutexDataStructureAccess.Init( &mutexAttr );
 
+	pthread_mutex_init(&m_stateChangedMutex, NULL);
+	pthread_cond_init(&m_stateChangedCondition, NULL);
+
     pthread_create(&m_threadPlaybackCompletedChecker, NULL, checkForPlaybackCompleted, this);
 	m_bShouldQuit = false;
-    //pthread_detach(m_threadPlaybackCompletedChecker); // make the thread a free man..
-
 }
 
 //<-dceag-const2-b->!
@@ -47,7 +48,7 @@ Slim_Server_Streamer::~Slim_Server_Streamer()
 //<-dceag-dest-e->
 {
 	m_bShouldQuit = true;
-	
+	pthread_cond_signal(&m_stateChangedCondition);
 	pthread_join(m_threadPlaybackCompletedChecker, NULL);
 }
 
@@ -110,9 +111,7 @@ void Slim_Server_Streamer::ReceivedUnknownCommand(string &sCMD_Result,Message *p
 void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Processing Start streaming command for target devices: %s", sStreamingTargets.c_str());
     PLUTO_SAFETY_LOCK( pm, m_mutexDataStructureAccess);
-
     g_pPlutoLogger->Write(LV_STATUS, "Processing Start streaming command for target devices: %s", sStreamingTargets.c_str());
 
     vector<string> vectPlayersIds;
@@ -148,11 +147,12 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
         SendReceiveCommand(currentPlayerAddress + " sync -"); // break previous syncronization;
         SendReceiveCommand(currentPlayerAddress + " sync " + lastPlayerAddress); // synchronize with the last one.
         lastPlayerAddress = currentPlayerAddress;
-        *itPlayerIds++;
+        itPlayerIds++;
     }
 
 	// add this stream to the list of playing streams.
     m_mapStreamsToPlayers[iStreamID] = make_pair(STATE_PLAY, vectDevices);
+	pthread_cond_signal(&m_stateChangedCondition);
 }
 
 //<-dceag-c262-b->
@@ -161,11 +161,66 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
 	/** Stop the streaming of a particular media stream. */
 		/** @param #41 StreamID */
 			/** The ID of the stream to be stopped. */
+		/** @param #105 StreamingTargets */
+			/** Target destinations for streaming. Semantics dependent on the target device. */
 
-void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string &sCMD_Result,Message *pMessage)
+void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
 //<-dceag-c262-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Not implemented!");
+    PLUTO_SAFETY_LOCK( pm, m_mutexDataStructureAccess);
+    g_pPlutoLogger->Write(LV_STATUS, "Processing Stop Streaming command for target devices: %s", sStreamingTargets.c_str());
+
+	map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itPlayers;
+
+	itPlayers = m_mapStreamsToPlayers.find(iStreamID);
+	if ( itPlayers == m_mapStreamsToPlayers.end() )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Stop_Streaming() got a command for a stream that is not registered here: %d", iStreamID);
+		return;
+	}
+
+	string currentPlayerAddress;
+    vector<string> vectPlayersIds;
+    vector<DeviceData_Base*> &vectDevices = (*itPlayers).second.second;
+
+    StringUtils::Tokenize(sStreamingTargets, ",", vectPlayersIds);
+
+	vector<DeviceData_Base*>::iterator itPlaybackDevices;
+	vector<string>::iterator itPlayerIds = vectPlayersIds.begin();
+    while ( itPlayerIds != vectPlayersIds.end() )
+	{
+		int iPlayerId = atoi((*itPlayerIds).c_str());
+
+        if ( iPlayerId == 0 )
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "Player id string %s parsed to 0. Ignoring.", (*itPlayerIds).c_str() );
+            continue;
+        }
+
+        DeviceData_Base *pPlayerDeviceData = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(iPlayerId);
+        if ( pPlayerDeviceData == NULL )
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "Child with id: %d was not found. Ignoring", iPlayerId);
+            continue;
+        }
+
+		currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pPlayerDeviceData->GetMacAddress()));
+
+		// break this players syncronization.
+        SendReceiveCommand(currentPlayerAddress + " sync -");
+		SendReceiveCommand(currentPlayerAddress + " stop");
+
+		itPlaybackDevices = vectDevices.begin();
+		while ( itPlaybackDevices != vectDevices.end() && *itPlaybackDevices != pPlayerDeviceData )
+			itPlaybackDevices++;
+
+		if ( itPlaybackDevices == vectDevices.end() )
+			g_pPlutoLogger->Write(LV_WARNING, "Asked to stop a stream on a client that was not playing the stream!");
+		else
+			vectDevices.erase(itPlaybackDevices);
+
+		itPlayerIds++;
+	}
 }
 
 bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
@@ -238,7 +293,7 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
 //                                                             COMMAND_Start_Streaming_CONST
 //                                                             );
 
-            DCE::CMD_Spawn_Application_DT spawnApplication(
+			DCE::CMD_Spawn_Application_DT spawnApplication(
                     m_dwPK_Device,                      // send from here
                     DEVICETEMPLATE_App_Server_CONST,    // to an application server
                     BL_SameComputer,                    // on the same computer
@@ -246,7 +301,8 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
                     "slim-server",                              // reference it with this name
                     StringUtils::itos(m_iSlimServerCliPort),    // pass it the desired port number for reconnection.
                     "",                                         // execute this serialized message on exit with failure
-                    "");                                        // execute this serialized message on exit with success
+                    "",
+					false);                                        // execute this serialized message on exit with success
 
             spawnApplication.m_pMessage->m_bRelativeToSender = true;
             SendCommand(spawnApplication);
@@ -312,31 +368,40 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
     {
 		string macAddress, strResult;
 
+		pthread_mutex_lock(&pStreamer->m_stateChangedMutex);
+		while ( pStreamer->m_mapStreamsToPlayers.size() == 0 || pStreamer->m_bShouldQuit )
+			pthread_cond_wait(&pStreamer->m_stateChangedCondition, &pStreamer->m_stateChangedMutex);
+		pthread_mutex_unlock(&pStreamer->m_stateChangedMutex);
+
+		g_pPlutoLogger->Write(LV_STATUS, "Looping");
+
 		if ( pStreamer->m_bShouldQuit )
 			return NULL;
+
 
         PLUTO_SAFETY_LOCK( pm, pStreamer->m_mutexDataStructureAccess);
 
         map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itStreamsToPlayers;
         itStreamsToPlayers = pStreamer->m_mapStreamsToPlayers.begin();
-        while ( itStreamsToPlayers != pStreamer->m_mapStreamsToPlayers.end() &&
-                (*itStreamsToPlayers).second.first == STATE_PLAY )
-        {
-            DeviceData_Base *pPlayerDeviceData = (*itStreamsToPlayers).second.second[0];
+        while ( itStreamsToPlayers != pStreamer->m_mapStreamsToPlayers.end() )
+		{
+			if  ( (*itStreamsToPlayers).second.first == STATE_PLAY )
+        	{
+            	DeviceData_Base *pPlayerDeviceData = (*itStreamsToPlayers).second.second[0];
 
-			macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
-			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str());
+				macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
+				strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str());
 
-            if (strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" )
-            {
-				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
-                pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first);
-            }
-			else if ( strResult == macAddress + " mode pause" )
-			{
-				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_PAUSE);
+				if (strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" )
+				{
+					pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
+					pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first);
+				}
+				else if ( strResult == macAddress + " mode pause" )
+				{
+					pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_PAUSE);
+				}
 			}
-
             itStreamsToPlayers++;
         }
         pm.Release();
@@ -448,6 +513,8 @@ void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,stri
 void Slim_Server_Streamer::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
+    PLUTO_SAFETY_LOCK( pm, m_mutexDataStructureAccess);
+
 	string sControlledPlayerMac;
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
 		return;
@@ -585,3 +652,33 @@ void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sO
 	g_pPlutoLogger->Write(LV_STATUS, "Detected data: position %d from %d", *iMediaPosition, *iMedia_Length);
 }
 //<-dceag-createinst-b->!
+//<-dceag-c89-b->
+
+	/** @brief COMMAND: #89 - Vol Up */
+	/** Make the sound go up. */
+
+void Slim_Server_Streamer::CMD_Vol_Up(string &sCMD_Result,Message *pMessage)
+//<-dceag-c89-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Vol_Up() Not implemented yet.");
+}
+//<-dceag-c90-b->
+
+	/** @brief COMMAND: #90 - Vol Down */
+	/** Make the sound go down. */
+
+void Slim_Server_Streamer::CMD_Vol_Down(string &sCMD_Result,Message *pMessage)
+//<-dceag-c90-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Vol_Down() Not implemented yet.");
+}
+//<-dceag-c97-b->
+
+	/** @brief COMMAND: #97 - Mute */
+	/** Mute the sound. */
+
+void Slim_Server_Streamer::CMD_Mute(string &sCMD_Result,Message *pMessage)
+//<-dceag-c97-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Mute() Not implemented yet.");
+}

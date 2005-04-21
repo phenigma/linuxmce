@@ -39,7 +39,7 @@ SqueezeBox_Player::SqueezeBox_Player(Command_Impl *pPrimaryDeviceCommand, Device
 SqueezeBox_Player::~SqueezeBox_Player()
 //<-dceag-dest-e->
 {
-	
+
 }
 
 //<-dceag-reg-b->
@@ -112,7 +112,7 @@ void SqueezeBox_Player::SomeFunction()
 	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
 
 	// Examples:
-	
+
 	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
 	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
 	SendCommand(CMD_Simulate_Mouse_Click);
@@ -138,12 +138,12 @@ void SqueezeBox_Player::SomeFunction()
 	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
 	// This send command will wait for the destination device to respond since there is
 	// an out parameter
-	SendCommand(CMD_Get_Signal_Strength);  
+	SendCommand(CMD_Get_Signal_Strength);
 
-	// This time we don't care about the out parameter.  We just want the command to 
+	// This time we don't care about the out parameter.  We just want the command to
 	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
 	// will not get set
-	SendCommandNoResponse(CMD_Get_Signal_Strength);  
+	SendCommandNoResponse(CMD_Get_Signal_Strength);
 
 	// This command has an out parameter of a data block.  Any parameter that is a binary
 	// data block is a pair of int and char *
@@ -341,3 +341,33 @@ SqueezeBox_Player_Command *Create_SqueezeBox_Player(Command_Impl *pPrimaryDevice
 	return new SqueezeBox_Player(pPrimaryDeviceCommand, pData, pEvent, pRouter);
 }
 //<-dceag-createinst-e->
+//<-dceag-c89-b->
+
+	/** @brief COMMAND: #89 - Vol Up */
+	/** Make the sound go up. */
+
+void SqueezeBox_Player::CMD_Vol_Up(string &sCMD_Result,Message *pMessage)
+//<-dceag-c89-e->
+{
+
+}
+//<-dceag-c90-b->
+
+	/** @brief COMMAND: #90 - Vol Down */
+	/** Make the sound go down. */
+
+void SqueezeBox_Player::CMD_Vol_Down(string &sCMD_Result,Message *pMessage)
+//<-dceag-c90-e->
+{
+
+}
+//<-dceag-c97-b->
+
+	/** @brief COMMAND: #97 - Mute */
+	/** Mute the sound. */
+
+void SqueezeBox_Player::CMD_Mute(string &sCMD_Result,Message *pMessage)
+//<-dceag-c97-e->
+{
+
+}

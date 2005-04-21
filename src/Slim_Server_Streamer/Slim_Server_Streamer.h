@@ -27,10 +27,12 @@ namespace DCE
 	{
 //<-dceag-decl-e->
         bool					m_bShouldQuit;
-		
+
 		pthread_t               m_threadPlaybackCompletedChecker;
-		pthread_cond_t          m_condPlaybackCompletedChecker;
         pluto_pthread_mutex_t   m_mutexDataStructureAccess;
+
+		pthread_mutex_t			m_stateChangedMutex;
+		pthread_cond_t			m_stateChangedCondition;
 
         // map<int, list<string> > m_mapStreamsToSqueezeBoxesPlayers;
         string  m_strSlimServerCliAddress;
@@ -157,6 +159,27 @@ public:
 	virtual void CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #89 - Vol Up */
+	/** Make the sound go up. */
+
+	virtual void CMD_Vol_Up() { string sCMD_Result; CMD_Vol_Up(sCMD_Result,NULL);};
+	virtual void CMD_Vol_Up(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #90 - Vol Down */
+	/** Make the sound go down. */
+
+	virtual void CMD_Vol_Down() { string sCMD_Result; CMD_Vol_Down(sCMD_Result,NULL);};
+	virtual void CMD_Vol_Down(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #97 - Mute */
+	/** Mute the sound. */
+
+	virtual void CMD_Mute() { string sCMD_Result; CMD_Mute(sCMD_Result,NULL);};
+	virtual void CMD_Mute(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #243 - Enable Broadcasting */
 	/** Enable broadcasting from here. */
 		/** @param #41 StreamID */
@@ -200,9 +223,11 @@ public:
 	/** Stop the streaming of a particular media stream. */
 		/** @param #41 StreamID */
 			/** The ID of the stream to be stopped. */
+		/** @param #105 StreamingTargets */
+			/** Target destinations for streaming. Semantics dependent on the target device. */
 
-	virtual void CMD_Stop_Streaming(int iStreamID) { string sCMD_Result; CMD_Stop_Streaming(iStreamID,sCMD_Result,NULL);};
-	virtual void CMD_Stop_Streaming(int iStreamID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Stop_Streaming(int iStreamID,string sStreamingTargets) { string sCMD_Result; CMD_Stop_Streaming(iStreamID,sStreamingTargets.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -16,7 +16,7 @@ Gen_Dev_Files = $(GENDEV)/Slim_Server_StreamerBase.cpp
 sources = Main.cpp Slim_Server_Streamer.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS +=
+CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS +=
 XTRALDLIBS =
@@ -42,7 +42,7 @@ Slim_Server_Streamer.so: $(sources:.cpp=.o)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
 Slim_Server_Streamer: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
