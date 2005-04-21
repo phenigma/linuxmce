@@ -158,218 +158,218 @@ is_null[21] = false;
 	is_modified=false;
 }
 
-long int Row_StyleVariation::PK_StyleVariation_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::PK_StyleVariation_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_StyleVariation;}
-long int Row_StyleVariation::FK_Style_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::FK_Style_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Style;}
-long int Row_StyleVariation::FK_Skin_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::FK_Skin_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Skin;}
-long int Row_StyleVariation::FK_Criteria_D_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::FK_Criteria_D_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Criteria_D;}
-string Row_StyleVariation::Font_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_StyleVariation::Font_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Font;}
-long int Row_StyleVariation::ForeColor_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::ForeColor_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ForeColor;}
-long int Row_StyleVariation::PixelHeight_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::PixelHeight_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PixelHeight;}
-short int Row_StyleVariation::Bold_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_StyleVariation::Bold_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Bold;}
-short int Row_StyleVariation::Italic_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_StyleVariation::Italic_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Italic;}
-short int Row_StyleVariation::Underline_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_StyleVariation::Underline_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Underline;}
-long int Row_StyleVariation::ShadowX_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::ShadowX_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ShadowX;}
-long int Row_StyleVariation::ShadowY_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::ShadowY_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ShadowY;}
-long int Row_StyleVariation::ShadowColor_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::ShadowColor_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ShadowColor;}
-long int Row_StyleVariation::BorderStyle_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::BorderStyle_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_BorderStyle;}
-long int Row_StyleVariation::FK_HorizAlignment_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::FK_HorizAlignment_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_HorizAlignment;}
-long int Row_StyleVariation::FK_VertAlignment_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::FK_VertAlignment_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_VertAlignment;}
-long int Row_StyleVariation::BackColor_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::BackColor_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_BackColor;}
-long int Row_StyleVariation::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
-long int Row_StyleVariation::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_batch;}
-long int Row_StyleVariation::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_user;}
-short int Row_StyleVariation::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_StyleVariation::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_frozen;}
-string Row_StyleVariation::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_StyleVariation::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_mod;}
 
 		
-void Row_StyleVariation::PK_StyleVariation_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::PK_StyleVariation_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_StyleVariation = val; is_modified=true; is_null[0]=false;}
-void Row_StyleVariation::FK_Style_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::FK_Style_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Style = val; is_modified=true; is_null[1]=false;}
-void Row_StyleVariation::FK_Skin_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::FK_Skin_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Skin = val; is_modified=true; is_null[2]=false;}
-void Row_StyleVariation::FK_Criteria_D_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::FK_Criteria_D_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Criteria_D = val; is_modified=true; is_null[3]=false;}
-void Row_StyleVariation::Font_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::Font_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Font = val; is_modified=true; is_null[4]=false;}
-void Row_StyleVariation::ForeColor_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::ForeColor_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ForeColor = val; is_modified=true; is_null[5]=false;}
-void Row_StyleVariation::PixelHeight_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::PixelHeight_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PixelHeight = val; is_modified=true; is_null[6]=false;}
-void Row_StyleVariation::Bold_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::Bold_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Bold = val; is_modified=true; is_null[7]=false;}
-void Row_StyleVariation::Italic_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::Italic_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Italic = val; is_modified=true; is_null[8]=false;}
-void Row_StyleVariation::Underline_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::Underline_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Underline = val; is_modified=true; is_null[9]=false;}
-void Row_StyleVariation::ShadowX_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::ShadowX_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ShadowX = val; is_modified=true; is_null[10]=false;}
-void Row_StyleVariation::ShadowY_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::ShadowY_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ShadowY = val; is_modified=true; is_null[11]=false;}
-void Row_StyleVariation::ShadowColor_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::ShadowColor_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ShadowColor = val; is_modified=true; is_null[12]=false;}
-void Row_StyleVariation::BorderStyle_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::BorderStyle_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_BorderStyle = val; is_modified=true; is_null[13]=false;}
-void Row_StyleVariation::FK_HorizAlignment_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::FK_HorizAlignment_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_HorizAlignment = val; is_modified=true; is_null[14]=false;}
-void Row_StyleVariation::FK_VertAlignment_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::FK_VertAlignment_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_VertAlignment = val; is_modified=true; is_null[15]=false;}
-void Row_StyleVariation::BackColor_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::BackColor_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_BackColor = val; is_modified=true; is_null[16]=false;}
-void Row_StyleVariation::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[17]=false;}
-void Row_StyleVariation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_batch = val; is_modified=true; is_null[18]=false;}
-void Row_StyleVariation::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_user = val; is_modified=true; is_null[19]=false;}
-void Row_StyleVariation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_frozen = val; is_modified=true; is_null[20]=false;}
-void Row_StyleVariation::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_mod = val; is_modified=true; is_null[21]=false;}
 
 		
-bool Row_StyleVariation::FK_Skin_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::FK_Skin_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_StyleVariation::FK_Criteria_D_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::FK_Criteria_D_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_StyleVariation::ForeColor_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::ForeColor_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_StyleVariation::ShadowX_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::ShadowX_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[10];}
-bool Row_StyleVariation::ShadowY_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::ShadowY_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[11];}
-bool Row_StyleVariation::ShadowColor_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::ShadowColor_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[12];}
-bool Row_StyleVariation::BackColor_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::BackColor_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[16];}
-bool Row_StyleVariation::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[17];}
-bool Row_StyleVariation::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[18];}
-bool Row_StyleVariation::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[19];}
-bool Row_StyleVariation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[20];}
 
 			
-void Row_StyleVariation::FK_Skin_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::FK_Skin_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_StyleVariation::FK_Criteria_D_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::FK_Criteria_D_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_StyleVariation::ForeColor_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::ForeColor_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_StyleVariation::ShadowX_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::ShadowX_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_StyleVariation::ShadowY_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::ShadowY_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_StyleVariation::ShadowColor_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::ShadowColor_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_StyleVariation::BackColor_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::BackColor_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[16]=val;
 is_modified=true;
 }
-void Row_StyleVariation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[17]=val;
 is_modified=true;
 }
-void Row_StyleVariation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[18]=val;
 is_modified=true;
 }
-void Row_StyleVariation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[19]=val;
 is_modified=true;
 }
-void Row_StyleVariation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[20]=val;
 is_modified=true;
 }
@@ -377,7 +377,7 @@ is_modified=true;
 
 string Row_StyleVariation::PK_StyleVariation_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[0])
 return "NULL";
@@ -390,7 +390,7 @@ return buf;
 
 string Row_StyleVariation::FK_Style_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
@@ -403,7 +403,7 @@ return buf;
 
 string Row_StyleVariation::FK_Skin_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
 return "NULL";
@@ -416,7 +416,7 @@ return buf;
 
 string Row_StyleVariation::FK_Criteria_D_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
 return "NULL";
@@ -429,7 +429,7 @@ return buf;
 
 string Row_StyleVariation::Font_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
 return "NULL";
@@ -443,7 +443,7 @@ return s;
 
 string Row_StyleVariation::ForeColor_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[5])
 return "NULL";
@@ -456,7 +456,7 @@ return buf;
 
 string Row_StyleVariation::PixelHeight_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
 return "NULL";
@@ -469,7 +469,7 @@ return buf;
 
 string Row_StyleVariation::Bold_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[7])
 return "NULL";
@@ -482,7 +482,7 @@ return buf;
 
 string Row_StyleVariation::Italic_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[8])
 return "NULL";
@@ -495,7 +495,7 @@ return buf;
 
 string Row_StyleVariation::Underline_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[9])
 return "NULL";
@@ -508,7 +508,7 @@ return buf;
 
 string Row_StyleVariation::ShadowX_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[10])
 return "NULL";
@@ -521,7 +521,7 @@ return buf;
 
 string Row_StyleVariation::ShadowY_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[11])
 return "NULL";
@@ -534,7 +534,7 @@ return buf;
 
 string Row_StyleVariation::ShadowColor_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[12])
 return "NULL";
@@ -547,7 +547,7 @@ return buf;
 
 string Row_StyleVariation::BorderStyle_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[13])
 return "NULL";
@@ -560,7 +560,7 @@ return buf;
 
 string Row_StyleVariation::FK_HorizAlignment_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[14])
 return "NULL";
@@ -573,7 +573,7 @@ return buf;
 
 string Row_StyleVariation::FK_VertAlignment_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[15])
 return "NULL";
@@ -586,7 +586,7 @@ return buf;
 
 string Row_StyleVariation::BackColor_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[16])
 return "NULL";
@@ -599,7 +599,7 @@ return buf;
 
 string Row_StyleVariation::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[17])
 return "NULL";
@@ -612,7 +612,7 @@ return buf;
 
 string Row_StyleVariation::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[18])
 return "NULL";
@@ -625,7 +625,7 @@ return buf;
 
 string Row_StyleVariation::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[19])
 return "NULL";
@@ -638,7 +638,7 @@ return buf;
 
 string Row_StyleVariation::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[20])
 return "NULL";
@@ -651,7 +651,7 @@ return buf;
 
 string Row_StyleVariation::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[21])
 return "NULL";
@@ -1454,35 +1454,35 @@ pRow->m_psc_mod = string(row[21],lengths[21]);
 
 class Row_Style* Row_StyleVariation::FK_Style_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Style *pTable = table->database->Style_get();
 return pTable->GetRow(m_FK_Style);
 }
 class Row_Skin* Row_StyleVariation::FK_Skin_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
 return pTable->GetRow(m_FK_Skin);
 }
 class Row_Criteria_D* Row_StyleVariation::FK_Criteria_D_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Criteria_D *pTable = table->database->Criteria_D_get();
 return pTable->GetRow(m_FK_Criteria_D);
 }
 class Row_HorizAlignment* Row_StyleVariation::FK_HorizAlignment_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_HorizAlignment *pTable = table->database->HorizAlignment_get();
 return pTable->GetRow(m_FK_HorizAlignment);
 }
 class Row_VertAlignment* Row_StyleVariation::FK_VertAlignment_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_VertAlignment *pTable = table->database->VertAlignment_get();
 return pTable->GetRow(m_FK_VertAlignment);

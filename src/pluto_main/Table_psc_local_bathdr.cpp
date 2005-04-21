@@ -129,54 +129,54 @@ is_null[3] = true;
 	is_modified=false;
 }
 
-long int Row_psc_local_bathdr::PK_psc_local_bathdr_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_psc_local_bathdr::PK_psc_local_bathdr_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_psc_local_bathdr;}
-string Row_psc_local_bathdr::IPAddress_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_psc_local_bathdr::IPAddress_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_IPAddress;}
-string Row_psc_local_bathdr::date_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_psc_local_bathdr::date_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_date;}
-string Row_psc_local_bathdr::comments_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_psc_local_bathdr::comments_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_comments;}
 
 		
-void Row_psc_local_bathdr::PK_psc_local_bathdr_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_local_bathdr::PK_psc_local_bathdr_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_psc_local_bathdr = val; is_modified=true; is_null[0]=false;}
-void Row_psc_local_bathdr::IPAddress_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_local_bathdr::IPAddress_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_IPAddress = val; is_modified=true; is_null[1]=false;}
-void Row_psc_local_bathdr::date_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_local_bathdr::date_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_date = val; is_modified=true; is_null[2]=false;}
-void Row_psc_local_bathdr::comments_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_local_bathdr::comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_comments = val; is_modified=true; is_null[3]=false;}
 
 		
-bool Row_psc_local_bathdr::IPAddress_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_psc_local_bathdr::IPAddress_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[1];}
-bool Row_psc_local_bathdr::date_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_psc_local_bathdr::date_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_psc_local_bathdr::comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_psc_local_bathdr::comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
 
 			
-void Row_psc_local_bathdr::IPAddress_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_local_bathdr::IPAddress_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_psc_local_bathdr::date_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_local_bathdr::date_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_psc_local_bathdr::comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_local_bathdr::comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[3]=val;
 is_modified=true;
 }
@@ -184,7 +184,7 @@ is_modified=true;
 
 string Row_psc_local_bathdr::PK_psc_local_bathdr_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[0])
 return "NULL";
@@ -197,7 +197,7 @@ return buf;
 
 string Row_psc_local_bathdr::IPAddress_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
@@ -211,7 +211,7 @@ return s;
 
 string Row_psc_local_bathdr::date_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
 return "NULL";
@@ -225,7 +225,7 @@ return s;
 
 string Row_psc_local_bathdr::comments_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
 return "NULL";
@@ -634,35 +634,35 @@ pRow->m_comments = string(row[3],lengths[3]);
 
 void Row_psc_local_bathdr::psc_local_batdet_FK_psc_local_bathdr_getrows(vector <class Row_psc_local_batdet*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_local_batdet *pTable = table->database->psc_local_batdet_get();
 pTable->GetRows("`FK_psc_local_bathdr`=" + StringUtils::itos(m_PK_psc_local_bathdr),rows);
 }
 void Row_psc_local_bathdr::psc_local_batdet_FK_psc_local_bathdr_orig_getrows(vector <class Row_psc_local_batdet*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_local_batdet *pTable = table->database->psc_local_batdet_get();
 pTable->GetRows("`FK_psc_local_bathdr_orig`=" + StringUtils::itos(m_PK_psc_local_bathdr),rows);
 }
 void Row_psc_local_bathdr::psc_local_batdet_FK_psc_local_bathdr_auth_getrows(vector <class Row_psc_local_batdet*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_local_batdet *pTable = table->database->psc_local_batdet_get();
 pTable->GetRows("`FK_psc_local_bathdr_auth`=" + StringUtils::itos(m_PK_psc_local_bathdr),rows);
 }
 void Row_psc_local_bathdr::psc_local_batdet_FK_psc_local_bathdr_unauth_getrows(vector <class Row_psc_local_batdet*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_local_batdet *pTable = table->database->psc_local_batdet_get();
 pTable->GetRows("`FK_psc_local_bathdr_unauth`=" + StringUtils::itos(m_PK_psc_local_bathdr),rows);
 }
 void Row_psc_local_bathdr::psc_local_batuser_FK_psc_local_bathdr_getrows(vector <class Row_psc_local_batuser*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_local_batuser *pTable = table->database->psc_local_batuser_get();
 pTable->GetRows("`FK_psc_local_bathdr`=" + StringUtils::itos(m_PK_psc_local_bathdr),rows);

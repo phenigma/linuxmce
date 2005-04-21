@@ -136,151 +136,151 @@ is_null[11] = false;
 	is_modified=false;
 }
 
-long int Row_PaidLicense::PK_PaidLicense_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PaidLicense::PK_PaidLicense_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_PaidLicense;}
-long int Row_PaidLicense::FK_Package_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PaidLicense::FK_Package_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Package;}
-long int Row_PaidLicense::FK_License_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PaidLicense::FK_License_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_License;}
-string Row_PaidLicense::ReferenceNumber_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_PaidLicense::ReferenceNumber_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ReferenceNumber;}
-string Row_PaidLicense::Username_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_PaidLicense::Username_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Username;}
-string Row_PaidLicense::Password_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_PaidLicense::Password_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Password;}
-string Row_PaidLicense::Key_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_PaidLicense::Key_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Key;}
-long int Row_PaidLicense::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PaidLicense::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
-long int Row_PaidLicense::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PaidLicense::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_batch;}
-long int Row_PaidLicense::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PaidLicense::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_user;}
-short int Row_PaidLicense::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_PaidLicense::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_frozen;}
-string Row_PaidLicense::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_PaidLicense::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_mod;}
 
 		
-void Row_PaidLicense::PK_PaidLicense_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::PK_PaidLicense_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_PaidLicense = val; is_modified=true; is_null[0]=false;}
-void Row_PaidLicense::FK_Package_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::FK_Package_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Package = val; is_modified=true; is_null[1]=false;}
-void Row_PaidLicense::FK_License_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::FK_License_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_License = val; is_modified=true; is_null[2]=false;}
-void Row_PaidLicense::ReferenceNumber_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::ReferenceNumber_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ReferenceNumber = val; is_modified=true; is_null[3]=false;}
-void Row_PaidLicense::Username_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::Username_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Username = val; is_modified=true; is_null[4]=false;}
-void Row_PaidLicense::Password_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::Password_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Password = val; is_modified=true; is_null[5]=false;}
-void Row_PaidLicense::Key_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::Key_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Key = val; is_modified=true; is_null[6]=false;}
-void Row_PaidLicense::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[7]=false;}
-void Row_PaidLicense::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_batch = val; is_modified=true; is_null[8]=false;}
-void Row_PaidLicense::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_user = val; is_modified=true; is_null[9]=false;}
-void Row_PaidLicense::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_frozen = val; is_modified=true; is_null[10]=false;}
-void Row_PaidLicense::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_mod = val; is_modified=true; is_null[11]=false;}
 
 		
-bool Row_PaidLicense::FK_Package_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PaidLicense::FK_Package_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[1];}
-bool Row_PaidLicense::FK_License_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PaidLicense::FK_License_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_PaidLicense::ReferenceNumber_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PaidLicense::ReferenceNumber_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_PaidLicense::Username_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PaidLicense::Username_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_PaidLicense::Password_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PaidLicense::Password_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_PaidLicense::Key_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PaidLicense::Key_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_PaidLicense::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PaidLicense::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
-bool Row_PaidLicense::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PaidLicense::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
-bool Row_PaidLicense::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PaidLicense::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
-bool Row_PaidLicense::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PaidLicense::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[10];}
 
 			
-void Row_PaidLicense::FK_Package_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::FK_Package_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_PaidLicense::FK_License_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::FK_License_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_PaidLicense::ReferenceNumber_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::ReferenceNumber_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_PaidLicense::Username_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::Username_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_PaidLicense::Password_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::Password_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_PaidLicense::Key_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::Key_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_PaidLicense::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_PaidLicense::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_PaidLicense::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_PaidLicense::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PaidLicense::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[10]=val;
 is_modified=true;
 }
@@ -288,7 +288,7 @@ is_modified=true;
 
 string Row_PaidLicense::PK_PaidLicense_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[0])
 return "NULL";
@@ -301,7 +301,7 @@ return buf;
 
 string Row_PaidLicense::FK_Package_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
@@ -314,7 +314,7 @@ return buf;
 
 string Row_PaidLicense::FK_License_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
 return "NULL";
@@ -327,7 +327,7 @@ return buf;
 
 string Row_PaidLicense::ReferenceNumber_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
 return "NULL";
@@ -341,7 +341,7 @@ return s;
 
 string Row_PaidLicense::Username_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
 return "NULL";
@@ -355,7 +355,7 @@ return s;
 
 string Row_PaidLicense::Password_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[5])
 return "NULL";
@@ -369,7 +369,7 @@ return s;
 
 string Row_PaidLicense::Key_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
 return "NULL";
@@ -383,7 +383,7 @@ return s;
 
 string Row_PaidLicense::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[7])
 return "NULL";
@@ -396,7 +396,7 @@ return buf;
 
 string Row_PaidLicense::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[8])
 return "NULL";
@@ -409,7 +409,7 @@ return buf;
 
 string Row_PaidLicense::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[9])
 return "NULL";
@@ -422,7 +422,7 @@ return buf;
 
 string Row_PaidLicense::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[10])
 return "NULL";
@@ -435,7 +435,7 @@ return buf;
 
 string Row_PaidLicense::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[11])
 return "NULL";
@@ -1018,14 +1018,14 @@ pRow->m_psc_mod = string(row[11],lengths[11]);
 
 class Row_Package* Row_PaidLicense::FK_Package_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
 return pTable->GetRow(m_FK_Package);
 }
 class Row_License* Row_PaidLicense::FK_License_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_License *pTable = table->database->License_get();
 return pTable->GetRow(m_FK_License);

@@ -139,97 +139,97 @@ is_null[9] = false;
 	is_modified=false;
 }
 
-long int Row_CannedEvents::PK_CannedEvents_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents::PK_CannedEvents_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_CannedEvents;}
-string Row_CannedEvents::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_CannedEvents::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
-long int Row_CannedEvents::FK_Event_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents::FK_Event_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Event;}
-short int Row_CannedEvents::bIsAnd_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_CannedEvents::bIsAnd_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_bIsAnd;}
-short int Row_CannedEvents::bIsNot_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_CannedEvents::bIsNot_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_bIsNot;}
-long int Row_CannedEvents::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
-long int Row_CannedEvents::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_batch;}
-long int Row_CannedEvents::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_user;}
-short int Row_CannedEvents::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_CannedEvents::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_frozen;}
-string Row_CannedEvents::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_CannedEvents::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_mod;}
 
 		
-void Row_CannedEvents::PK_CannedEvents_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::PK_CannedEvents_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_CannedEvents = val; is_modified=true; is_null[0]=false;}
-void Row_CannedEvents::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
-void Row_CannedEvents::FK_Event_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::FK_Event_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Event = val; is_modified=true; is_null[2]=false;}
-void Row_CannedEvents::bIsAnd_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::bIsAnd_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_bIsAnd = val; is_modified=true; is_null[3]=false;}
-void Row_CannedEvents::bIsNot_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::bIsNot_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_bIsNot = val; is_modified=true; is_null[4]=false;}
-void Row_CannedEvents::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[5]=false;}
-void Row_CannedEvents::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_batch = val; is_modified=true; is_null[6]=false;}
-void Row_CannedEvents::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_user = val; is_modified=true; is_null[7]=false;}
-void Row_CannedEvents::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_frozen = val; is_modified=true; is_null[8]=false;}
-void Row_CannedEvents::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_mod = val; is_modified=true; is_null[9]=false;}
 
 		
-bool Row_CannedEvents::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_CannedEvents::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_CannedEvents::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
-bool Row_CannedEvents::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
 
 			
-void Row_CannedEvents::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_CannedEvents::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_CannedEvents::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_CannedEvents::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[8]=val;
 is_modified=true;
 }
@@ -237,7 +237,7 @@ is_modified=true;
 
 string Row_CannedEvents::PK_CannedEvents_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[0])
 return "NULL";
@@ -250,7 +250,7 @@ return buf;
 
 string Row_CannedEvents::Description_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
@@ -264,7 +264,7 @@ return s;
 
 string Row_CannedEvents::FK_Event_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
 return "NULL";
@@ -277,7 +277,7 @@ return buf;
 
 string Row_CannedEvents::bIsAnd_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
 return "NULL";
@@ -290,7 +290,7 @@ return buf;
 
 string Row_CannedEvents::bIsNot_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
 return "NULL";
@@ -303,7 +303,7 @@ return buf;
 
 string Row_CannedEvents::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[5])
 return "NULL";
@@ -316,7 +316,7 @@ return buf;
 
 string Row_CannedEvents::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
 return "NULL";
@@ -329,7 +329,7 @@ return buf;
 
 string Row_CannedEvents::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[7])
 return "NULL";
@@ -342,7 +342,7 @@ return buf;
 
 string Row_CannedEvents::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[8])
 return "NULL";
@@ -355,7 +355,7 @@ return buf;
 
 string Row_CannedEvents::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[9])
 return "NULL";
@@ -894,7 +894,7 @@ pRow->m_psc_mod = string(row[9],lengths[9]);
 
 class Row_Event* Row_CannedEvents::FK_Event_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Event *pTable = table->database->Event_get();
 return pTable->GetRow(m_FK_Event);
@@ -903,14 +903,14 @@ return pTable->GetRow(m_FK_Event);
 
 void Row_CannedEvents::CannedEvents_CriteriaParmList_FK_CannedEvents_getrows(vector <class Row_CannedEvents_CriteriaParmList*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CannedEvents_CriteriaParmList *pTable = table->database->CannedEvents_CriteriaParmList_get();
 pTable->GetRows("`FK_CannedEvents`=" + StringUtils::itos(m_PK_CannedEvents),rows);
 }
 void Row_CannedEvents::EventHandler_FK_CannedEvents_getrows(vector <class Row_EventHandler*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
 pTable->GetRows("`FK_CannedEvents`=" + StringUtils::itos(m_PK_CannedEvents),rows);

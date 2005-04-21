@@ -158,208 +158,208 @@ is_null[17] = false;
 	is_modified=false;
 }
 
-long int Row_DesignObjVariation::PK_DesignObjVariation_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::PK_DesignObjVariation_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_DesignObjVariation;}
-long int Row_DesignObjVariation::FK_DesignObj_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_DesignObj_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_DesignObj;}
-long int Row_DesignObjVariation::FK_Criteria_D_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_Criteria_D_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Criteria_D;}
-long int Row_DesignObjVariation::FK_DesignObj_Goto_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_DesignObj_Goto_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_DesignObj_Goto;}
-long int Row_DesignObjVariation::FK_CommandGroup_D_OnActivate_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_CommandGroup_D_OnActivate_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_CommandGroup_D_OnActivate;}
-long int Row_DesignObjVariation::FK_CommandGroup_D_OnLoad_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_CommandGroup_D_OnLoad_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_CommandGroup_D_OnLoad;}
-long int Row_DesignObjVariation::FK_CommandGroup_D_OnUnload_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_CommandGroup_D_OnUnload_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_CommandGroup_D_OnUnload;}
-long int Row_DesignObjVariation::FK_CommandGroup_D_OnTimeout_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_CommandGroup_D_OnTimeout_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_CommandGroup_D_OnTimeout;}
-long int Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_CommandGroup_D_OnStartup;}
-long int Row_DesignObjVariation::FK_Button_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_Button_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Button;}
-long int Row_DesignObjVariation::FK_Criteria_Orbiter_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_Criteria_Orbiter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Criteria_Orbiter;}
-short int Row_DesignObjVariation::DontResetSelectedState_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_DesignObjVariation::DontResetSelectedState_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_DontResetSelectedState;}
-long int Row_DesignObjVariation::FK_StabilityStatus_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_StabilityStatus_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_StabilityStatus;}
-long int Row_DesignObjVariation::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
-long int Row_DesignObjVariation::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_batch;}
-long int Row_DesignObjVariation::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_user;}
-short int Row_DesignObjVariation::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_DesignObjVariation::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_frozen;}
-string Row_DesignObjVariation::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_DesignObjVariation::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_mod;}
 
 		
-void Row_DesignObjVariation::PK_DesignObjVariation_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::PK_DesignObjVariation_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_DesignObjVariation = val; is_modified=true; is_null[0]=false;}
-void Row_DesignObjVariation::FK_DesignObj_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_DesignObj_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_DesignObj = val; is_modified=true; is_null[1]=false;}
-void Row_DesignObjVariation::FK_Criteria_D_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_Criteria_D_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Criteria_D = val; is_modified=true; is_null[2]=false;}
-void Row_DesignObjVariation::FK_DesignObj_Goto_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_DesignObj_Goto_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_DesignObj_Goto = val; is_modified=true; is_null[3]=false;}
-void Row_DesignObjVariation::FK_CommandGroup_D_OnActivate_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnActivate_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_CommandGroup_D_OnActivate = val; is_modified=true; is_null[4]=false;}
-void Row_DesignObjVariation::FK_CommandGroup_D_OnLoad_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnLoad_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_CommandGroup_D_OnLoad = val; is_modified=true; is_null[5]=false;}
-void Row_DesignObjVariation::FK_CommandGroup_D_OnUnload_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnUnload_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_CommandGroup_D_OnUnload = val; is_modified=true; is_null[6]=false;}
-void Row_DesignObjVariation::FK_CommandGroup_D_OnTimeout_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnTimeout_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_CommandGroup_D_OnTimeout = val; is_modified=true; is_null[7]=false;}
-void Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_CommandGroup_D_OnStartup = val; is_modified=true; is_null[8]=false;}
-void Row_DesignObjVariation::FK_Button_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_Button_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Button = val; is_modified=true; is_null[9]=false;}
-void Row_DesignObjVariation::FK_Criteria_Orbiter_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_Criteria_Orbiter_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Criteria_Orbiter = val; is_modified=true; is_null[10]=false;}
-void Row_DesignObjVariation::DontResetSelectedState_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::DontResetSelectedState_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_DontResetSelectedState = val; is_modified=true; is_null[11]=false;}
-void Row_DesignObjVariation::FK_StabilityStatus_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_StabilityStatus_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_StabilityStatus = val; is_modified=true; is_null[12]=false;}
-void Row_DesignObjVariation::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[13]=false;}
-void Row_DesignObjVariation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_batch = val; is_modified=true; is_null[14]=false;}
-void Row_DesignObjVariation::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_user = val; is_modified=true; is_null[15]=false;}
-void Row_DesignObjVariation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_frozen = val; is_modified=true; is_null[16]=false;}
-void Row_DesignObjVariation::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_mod = val; is_modified=true; is_null[17]=false;}
 
 		
-bool Row_DesignObjVariation::FK_Criteria_D_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_Criteria_D_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_DesignObjVariation::FK_DesignObj_Goto_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_DesignObj_Goto_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_DesignObjVariation::FK_CommandGroup_D_OnActivate_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_CommandGroup_D_OnActivate_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_DesignObjVariation::FK_CommandGroup_D_OnLoad_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_CommandGroup_D_OnLoad_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_DesignObjVariation::FK_CommandGroup_D_OnUnload_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_CommandGroup_D_OnUnload_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_DesignObjVariation::FK_CommandGroup_D_OnTimeout_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_CommandGroup_D_OnTimeout_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
-bool Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
-bool Row_DesignObjVariation::FK_Button_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_Button_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
-bool Row_DesignObjVariation::FK_Criteria_Orbiter_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_Criteria_Orbiter_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[10];}
-bool Row_DesignObjVariation::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[13];}
-bool Row_DesignObjVariation::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[14];}
-bool Row_DesignObjVariation::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[15];}
-bool Row_DesignObjVariation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[16];}
 
 			
-void Row_DesignObjVariation::FK_Criteria_D_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_Criteria_D_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_DesignObj_Goto_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_DesignObj_Goto_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_CommandGroup_D_OnActivate_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnActivate_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_CommandGroup_D_OnLoad_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnLoad_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_CommandGroup_D_OnUnload_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnUnload_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_CommandGroup_D_OnTimeout_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnTimeout_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_Button_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_Button_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_Criteria_Orbiter_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_Criteria_Orbiter_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[14]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[15]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[16]=val;
 is_modified=true;
 }
@@ -367,7 +367,7 @@ is_modified=true;
 
 string Row_DesignObjVariation::PK_DesignObjVariation_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[0])
 return "NULL";
@@ -380,7 +380,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_DesignObj_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
@@ -393,7 +393,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_Criteria_D_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
 return "NULL";
@@ -406,7 +406,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_DesignObj_Goto_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
 return "NULL";
@@ -419,7 +419,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_CommandGroup_D_OnActivate_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
 return "NULL";
@@ -432,7 +432,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_CommandGroup_D_OnLoad_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[5])
 return "NULL";
@@ -445,7 +445,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_CommandGroup_D_OnUnload_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
 return "NULL";
@@ -458,7 +458,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_CommandGroup_D_OnTimeout_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[7])
 return "NULL";
@@ -471,7 +471,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[8])
 return "NULL";
@@ -484,7 +484,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_Button_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[9])
 return "NULL";
@@ -497,7 +497,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_Criteria_Orbiter_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[10])
 return "NULL";
@@ -510,7 +510,7 @@ return buf;
 
 string Row_DesignObjVariation::DontResetSelectedState_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[11])
 return "NULL";
@@ -523,7 +523,7 @@ return buf;
 
 string Row_DesignObjVariation::FK_StabilityStatus_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[12])
 return "NULL";
@@ -536,7 +536,7 @@ return buf;
 
 string Row_DesignObjVariation::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[13])
 return "NULL";
@@ -549,7 +549,7 @@ return buf;
 
 string Row_DesignObjVariation::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[14])
 return "NULL";
@@ -562,7 +562,7 @@ return buf;
 
 string Row_DesignObjVariation::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[15])
 return "NULL";
@@ -575,7 +575,7 @@ return buf;
 
 string Row_DesignObjVariation::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[16])
 return "NULL";
@@ -588,7 +588,7 @@ return buf;
 
 string Row_DesignObjVariation::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[17])
 return "NULL";
@@ -1303,77 +1303,77 @@ pRow->m_psc_mod = string(row[17],lengths[17]);
 
 class Row_DesignObj* Row_DesignObjVariation::FK_DesignObj_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
 return pTable->GetRow(m_FK_DesignObj);
 }
 class Row_Criteria_D* Row_DesignObjVariation::FK_Criteria_D_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Criteria_D *pTable = table->database->Criteria_D_get();
 return pTable->GetRow(m_FK_Criteria_D);
 }
 class Row_DesignObj* Row_DesignObjVariation::FK_DesignObj_Goto_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
 return pTable->GetRow(m_FK_DesignObj_Goto);
 }
 class Row_CommandGroup_D* Row_DesignObjVariation::FK_CommandGroup_D_OnActivate_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D *pTable = table->database->CommandGroup_D_get();
 return pTable->GetRow(m_FK_CommandGroup_D_OnActivate);
 }
 class Row_CommandGroup_D* Row_DesignObjVariation::FK_CommandGroup_D_OnLoad_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D *pTable = table->database->CommandGroup_D_get();
 return pTable->GetRow(m_FK_CommandGroup_D_OnLoad);
 }
 class Row_CommandGroup_D* Row_DesignObjVariation::FK_CommandGroup_D_OnUnload_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D *pTable = table->database->CommandGroup_D_get();
 return pTable->GetRow(m_FK_CommandGroup_D_OnUnload);
 }
 class Row_CommandGroup_D* Row_DesignObjVariation::FK_CommandGroup_D_OnTimeout_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D *pTable = table->database->CommandGroup_D_get();
 return pTable->GetRow(m_FK_CommandGroup_D_OnTimeout);
 }
 class Row_CommandGroup_D* Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D *pTable = table->database->CommandGroup_D_get();
 return pTable->GetRow(m_FK_CommandGroup_D_OnStartup);
 }
 class Row_Button* Row_DesignObjVariation::FK_Button_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Button *pTable = table->database->Button_get();
 return pTable->GetRow(m_FK_Button);
 }
 class Row_Criteria* Row_DesignObjVariation::FK_Criteria_Orbiter_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Criteria *pTable = table->database->Criteria_get();
 return pTable->GetRow(m_FK_Criteria_Orbiter);
 }
 class Row_StabilityStatus* Row_DesignObjVariation::FK_StabilityStatus_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StabilityStatus *pTable = table->database->StabilityStatus_get();
 return pTable->GetRow(m_FK_StabilityStatus);
@@ -1382,28 +1382,28 @@ return pTable->GetRow(m_FK_StabilityStatus);
 
 void Row_DesignObjVariation::DesignObjVariation_DesignObj_FK_DesignObjVariation_Parent_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObj *pTable = table->database->DesignObjVariation_DesignObj_get();
 pTable->GetRows("`FK_DesignObjVariation_Parent`=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 void Row_DesignObjVariation::DesignObjVariation_DesignObjParameter_FK_DesignObjVariation_getrows(vector <class Row_DesignObjVariation_DesignObjParameter*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObjParameter *pTable = table->database->DesignObjVariation_DesignObjParameter_get();
 pTable->GetRows("`FK_DesignObjVariation`=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 void Row_DesignObjVariation::DesignObjVariation_Text_FK_DesignObjVariation_getrows(vector <class Row_DesignObjVariation_Text*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text *pTable = table->database->DesignObjVariation_Text_get();
 pTable->GetRows("`FK_DesignObjVariation`=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 void Row_DesignObjVariation::DesignObjVariation_Zone_FK_DesignObjVariation_getrows(vector <class Row_DesignObjVariation_Zone*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Zone *pTable = table->database->DesignObjVariation_Zone_get();
 pTable->GetRows("`FK_DesignObjVariation`=" + StringUtils::itos(m_PK_DesignObjVariation),rows);

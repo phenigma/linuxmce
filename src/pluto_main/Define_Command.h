@@ -332,6 +332,7 @@
 #define COMMAND_HDMI_CONST 361
 #define COMMAND_D4_CONST 362
 #define COMMAND_Back_Clear_Entry_CONST 363
+#define COMMAND_Activate_Window_CONST 365
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

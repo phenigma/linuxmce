@@ -165,195 +165,195 @@ is_null[23] = false;
 	is_modified=false;
 }
 
-long int Row_StartupScript::PK_StartupScript_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StartupScript::PK_StartupScript_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_StartupScript;}
-string Row_StartupScript::When_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_StartupScript::When_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_When;}
-string Row_StartupScript::Command_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_StartupScript::Command_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Command;}
-string Row_StartupScript::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_StartupScript::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
-short int Row_StartupScript::ConfigureOnly_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_StartupScript::ConfigureOnly_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ConfigureOnly;}
-string Row_StartupScript::Parameter_Syntax_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_StartupScript::Parameter_Syntax_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Parameter_Syntax;}
-long int Row_StartupScript::Core_Boot_Order_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StartupScript::Core_Boot_Order_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Core_Boot_Order;}
-long int Row_StartupScript::Core_Background_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StartupScript::Core_Background_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Core_Background;}
-long int Row_StartupScript::Core_Enabled_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StartupScript::Core_Enabled_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Core_Enabled;}
-string Row_StartupScript::Core_Parameter_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_StartupScript::Core_Parameter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Core_Parameter;}
-long int Row_StartupScript::MD_Boot_Order_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StartupScript::MD_Boot_Order_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_MD_Boot_Order;}
-short int Row_StartupScript::MD_Background_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_StartupScript::MD_Background_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_MD_Background;}
-short int Row_StartupScript::MD_Enabled_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_StartupScript::MD_Enabled_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_MD_Enabled;}
-string Row_StartupScript::MD_Parameter_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_StartupScript::MD_Parameter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_MD_Parameter;}
-long int Row_StartupScript::Hybrid_Boot_Order_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StartupScript::Hybrid_Boot_Order_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Hybrid_Boot_Order;}
-short int Row_StartupScript::Hybrid_Background_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_StartupScript::Hybrid_Background_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Hybrid_Background;}
-short int Row_StartupScript::Hybrid_Enabled_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_StartupScript::Hybrid_Enabled_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Hybrid_Enabled;}
-string Row_StartupScript::Hybrid_Parameter_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_StartupScript::Hybrid_Parameter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Hybrid_Parameter;}
-long int Row_StartupScript::FK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StartupScript::FK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_DeviceTemplate;}
-long int Row_StartupScript::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StartupScript::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
-long int Row_StartupScript::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StartupScript::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_batch;}
-long int Row_StartupScript::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StartupScript::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_user;}
-short int Row_StartupScript::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_StartupScript::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_frozen;}
-string Row_StartupScript::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_StartupScript::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_mod;}
 
 		
-void Row_StartupScript::PK_StartupScript_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::PK_StartupScript_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_StartupScript = val; is_modified=true; is_null[0]=false;}
-void Row_StartupScript::When_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::When_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_When = val; is_modified=true; is_null[1]=false;}
-void Row_StartupScript::Command_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Command_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Command = val; is_modified=true; is_null[2]=false;}
-void Row_StartupScript::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Description = val; is_modified=true; is_null[3]=false;}
-void Row_StartupScript::ConfigureOnly_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::ConfigureOnly_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ConfigureOnly = val; is_modified=true; is_null[4]=false;}
-void Row_StartupScript::Parameter_Syntax_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Parameter_Syntax_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Parameter_Syntax = val; is_modified=true; is_null[5]=false;}
-void Row_StartupScript::Core_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Core_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Core_Boot_Order = val; is_modified=true; is_null[6]=false;}
-void Row_StartupScript::Core_Background_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Core_Background_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Core_Background = val; is_modified=true; is_null[7]=false;}
-void Row_StartupScript::Core_Enabled_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Core_Enabled_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Core_Enabled = val; is_modified=true; is_null[8]=false;}
-void Row_StartupScript::Core_Parameter_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Core_Parameter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Core_Parameter = val; is_modified=true; is_null[9]=false;}
-void Row_StartupScript::MD_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::MD_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_MD_Boot_Order = val; is_modified=true; is_null[10]=false;}
-void Row_StartupScript::MD_Background_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::MD_Background_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_MD_Background = val; is_modified=true; is_null[11]=false;}
-void Row_StartupScript::MD_Enabled_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::MD_Enabled_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_MD_Enabled = val; is_modified=true; is_null[12]=false;}
-void Row_StartupScript::MD_Parameter_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::MD_Parameter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_MD_Parameter = val; is_modified=true; is_null[13]=false;}
-void Row_StartupScript::Hybrid_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Hybrid_Boot_Order_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Hybrid_Boot_Order = val; is_modified=true; is_null[14]=false;}
-void Row_StartupScript::Hybrid_Background_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Hybrid_Background_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Hybrid_Background = val; is_modified=true; is_null[15]=false;}
-void Row_StartupScript::Hybrid_Enabled_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Hybrid_Enabled_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Hybrid_Enabled = val; is_modified=true; is_null[16]=false;}
-void Row_StartupScript::Hybrid_Parameter_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::Hybrid_Parameter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Hybrid_Parameter = val; is_modified=true; is_null[17]=false;}
-void Row_StartupScript::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_DeviceTemplate = val; is_modified=true; is_null[18]=false;}
-void Row_StartupScript::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[19]=false;}
-void Row_StartupScript::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_batch = val; is_modified=true; is_null[20]=false;}
-void Row_StartupScript::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_user = val; is_modified=true; is_null[21]=false;}
-void Row_StartupScript::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_frozen = val; is_modified=true; is_null[22]=false;}
-void Row_StartupScript::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_mod = val; is_modified=true; is_null[23]=false;}
 
 		
-bool Row_StartupScript::When_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StartupScript::When_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[1];}
-bool Row_StartupScript::FK_DeviceTemplate_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StartupScript::FK_DeviceTemplate_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[18];}
-bool Row_StartupScript::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StartupScript::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[19];}
-bool Row_StartupScript::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StartupScript::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[20];}
-bool Row_StartupScript::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StartupScript::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[21];}
-bool Row_StartupScript::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StartupScript::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[22];}
 
 			
-void Row_StartupScript::When_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::When_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_StartupScript::FK_DeviceTemplate_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::FK_DeviceTemplate_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[18]=val;
 is_modified=true;
 }
-void Row_StartupScript::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[19]=val;
 is_modified=true;
 }
-void Row_StartupScript::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[20]=val;
 is_modified=true;
 }
-void Row_StartupScript::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[21]=val;
 is_modified=true;
 }
-void Row_StartupScript::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StartupScript::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[22]=val;
 is_modified=true;
 }
@@ -361,7 +361,7 @@ is_modified=true;
 
 string Row_StartupScript::PK_StartupScript_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[0])
 return "NULL";
@@ -374,7 +374,7 @@ return buf;
 
 string Row_StartupScript::When_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
@@ -388,7 +388,7 @@ return s;
 
 string Row_StartupScript::Command_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
 return "NULL";
@@ -402,7 +402,7 @@ return s;
 
 string Row_StartupScript::Description_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
 return "NULL";
@@ -416,7 +416,7 @@ return s;
 
 string Row_StartupScript::ConfigureOnly_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
 return "NULL";
@@ -429,7 +429,7 @@ return buf;
 
 string Row_StartupScript::Parameter_Syntax_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[5])
 return "NULL";
@@ -443,7 +443,7 @@ return s;
 
 string Row_StartupScript::Core_Boot_Order_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
 return "NULL";
@@ -456,7 +456,7 @@ return buf;
 
 string Row_StartupScript::Core_Background_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[7])
 return "NULL";
@@ -469,7 +469,7 @@ return buf;
 
 string Row_StartupScript::Core_Enabled_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[8])
 return "NULL";
@@ -482,7 +482,7 @@ return buf;
 
 string Row_StartupScript::Core_Parameter_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[9])
 return "NULL";
@@ -496,7 +496,7 @@ return s;
 
 string Row_StartupScript::MD_Boot_Order_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[10])
 return "NULL";
@@ -509,7 +509,7 @@ return buf;
 
 string Row_StartupScript::MD_Background_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[11])
 return "NULL";
@@ -522,7 +522,7 @@ return buf;
 
 string Row_StartupScript::MD_Enabled_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[12])
 return "NULL";
@@ -535,7 +535,7 @@ return buf;
 
 string Row_StartupScript::MD_Parameter_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[13])
 return "NULL";
@@ -549,7 +549,7 @@ return s;
 
 string Row_StartupScript::Hybrid_Boot_Order_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[14])
 return "NULL";
@@ -562,7 +562,7 @@ return buf;
 
 string Row_StartupScript::Hybrid_Background_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[15])
 return "NULL";
@@ -575,7 +575,7 @@ return buf;
 
 string Row_StartupScript::Hybrid_Enabled_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[16])
 return "NULL";
@@ -588,7 +588,7 @@ return buf;
 
 string Row_StartupScript::Hybrid_Parameter_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[17])
 return "NULL";
@@ -602,7 +602,7 @@ return s;
 
 string Row_StartupScript::FK_DeviceTemplate_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[18])
 return "NULL";
@@ -615,7 +615,7 @@ return buf;
 
 string Row_StartupScript::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[19])
 return "NULL";
@@ -628,7 +628,7 @@ return buf;
 
 string Row_StartupScript::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[20])
 return "NULL";
@@ -641,7 +641,7 @@ return buf;
 
 string Row_StartupScript::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[21])
 return "NULL";
@@ -654,7 +654,7 @@ return buf;
 
 string Row_StartupScript::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[22])
 return "NULL";
@@ -667,7 +667,7 @@ return buf;
 
 string Row_StartupScript::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[23])
 return "NULL";
@@ -1514,7 +1514,7 @@ pRow->m_psc_mod = string(row[23],lengths[23]);
 
 class Row_DeviceTemplate* Row_StartupScript::FK_DeviceTemplate_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
 return pTable->GetRow(m_FK_DeviceTemplate);
@@ -1523,7 +1523,7 @@ return pTable->GetRow(m_FK_DeviceTemplate);
 
 void Row_StartupScript::Device_StartupScript_FK_StartupScript_getrows(vector <class Row_Device_StartupScript*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_StartupScript *pTable = table->database->Device_StartupScript_get();
 pTable->GetRows("`FK_StartupScript`=" + StringUtils::itos(m_PK_StartupScript),rows);

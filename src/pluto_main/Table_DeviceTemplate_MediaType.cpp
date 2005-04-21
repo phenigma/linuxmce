@@ -144,122 +144,122 @@ is_null[12] = false;
 	is_modified=false;
 }
 
-long int Row_DeviceTemplate_MediaType::PK_DeviceTemplate_MediaType_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DeviceTemplate_MediaType::PK_DeviceTemplate_MediaType_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_DeviceTemplate_MediaType;}
-long int Row_DeviceTemplate_MediaType::FK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DeviceTemplate_MediaType::FK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_DeviceTemplate;}
-long int Row_DeviceTemplate_MediaType::FK_MediaType_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DeviceTemplate_MediaType::FK_MediaType_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_MediaType;}
-short int Row_DeviceTemplate_MediaType::CanPlayFromDiskDrive_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_DeviceTemplate_MediaType::CanPlayFromDiskDrive_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_CanPlayFromDiskDrive;}
-short int Row_DeviceTemplate_MediaType::CanStoreOnServer_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_DeviceTemplate_MediaType::CanStoreOnServer_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_CanStoreOnServer;}
-short int Row_DeviceTemplate_MediaType::CanSetPosition_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_DeviceTemplate_MediaType::CanSetPosition_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_CanSetPosition;}
-short int Row_DeviceTemplate_MediaType::StopOtherMediaInEntArea_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_DeviceTemplate_MediaType::StopOtherMediaInEntArea_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_StopOtherMediaInEntArea;}
-string Row_DeviceTemplate_MediaType::Extensions_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_DeviceTemplate_MediaType::Extensions_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Extensions;}
-long int Row_DeviceTemplate_MediaType::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DeviceTemplate_MediaType::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
-long int Row_DeviceTemplate_MediaType::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DeviceTemplate_MediaType::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_batch;}
-long int Row_DeviceTemplate_MediaType::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DeviceTemplate_MediaType::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_user;}
-short int Row_DeviceTemplate_MediaType::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_DeviceTemplate_MediaType::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_frozen;}
-string Row_DeviceTemplate_MediaType::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_DeviceTemplate_MediaType::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_mod;}
 
 		
-void Row_DeviceTemplate_MediaType::PK_DeviceTemplate_MediaType_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::PK_DeviceTemplate_MediaType_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_DeviceTemplate_MediaType = val; is_modified=true; is_null[0]=false;}
-void Row_DeviceTemplate_MediaType::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_DeviceTemplate = val; is_modified=true; is_null[1]=false;}
-void Row_DeviceTemplate_MediaType::FK_MediaType_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::FK_MediaType_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_MediaType = val; is_modified=true; is_null[2]=false;}
-void Row_DeviceTemplate_MediaType::CanPlayFromDiskDrive_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::CanPlayFromDiskDrive_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_CanPlayFromDiskDrive = val; is_modified=true; is_null[3]=false;}
-void Row_DeviceTemplate_MediaType::CanStoreOnServer_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::CanStoreOnServer_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_CanStoreOnServer = val; is_modified=true; is_null[4]=false;}
-void Row_DeviceTemplate_MediaType::CanSetPosition_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::CanSetPosition_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_CanSetPosition = val; is_modified=true; is_null[5]=false;}
-void Row_DeviceTemplate_MediaType::StopOtherMediaInEntArea_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::StopOtherMediaInEntArea_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_StopOtherMediaInEntArea = val; is_modified=true; is_null[6]=false;}
-void Row_DeviceTemplate_MediaType::Extensions_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::Extensions_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Extensions = val; is_modified=true; is_null[7]=false;}
-void Row_DeviceTemplate_MediaType::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[8]=false;}
-void Row_DeviceTemplate_MediaType::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_batch = val; is_modified=true; is_null[9]=false;}
-void Row_DeviceTemplate_MediaType::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_user = val; is_modified=true; is_null[10]=false;}
-void Row_DeviceTemplate_MediaType::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_frozen = val; is_modified=true; is_null[11]=false;}
-void Row_DeviceTemplate_MediaType::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_mod = val; is_modified=true; is_null[12]=false;}
 
 		
-bool Row_DeviceTemplate_MediaType::Extensions_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate_MediaType::Extensions_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
-bool Row_DeviceTemplate_MediaType::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate_MediaType::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
-bool Row_DeviceTemplate_MediaType::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate_MediaType::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
-bool Row_DeviceTemplate_MediaType::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate_MediaType::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[10];}
-bool Row_DeviceTemplate_MediaType::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate_MediaType::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[11];}
 
 			
-void Row_DeviceTemplate_MediaType::Extensions_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::Extensions_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[11]=val;
 is_modified=true;
 }
@@ -267,7 +267,7 @@ is_modified=true;
 
 string Row_DeviceTemplate_MediaType::PK_DeviceTemplate_MediaType_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[0])
 return "NULL";
@@ -280,7 +280,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::FK_DeviceTemplate_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
@@ -293,7 +293,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::FK_MediaType_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
 return "NULL";
@@ -306,7 +306,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::CanPlayFromDiskDrive_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
 return "NULL";
@@ -319,7 +319,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::CanStoreOnServer_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
 return "NULL";
@@ -332,7 +332,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::CanSetPosition_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[5])
 return "NULL";
@@ -345,7 +345,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::StopOtherMediaInEntArea_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
 return "NULL";
@@ -358,7 +358,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::Extensions_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[7])
 return "NULL";
@@ -372,7 +372,7 @@ return s;
 
 string Row_DeviceTemplate_MediaType::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[8])
 return "NULL";
@@ -385,7 +385,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[9])
 return "NULL";
@@ -398,7 +398,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[10])
 return "NULL";
@@ -411,7 +411,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[11])
 return "NULL";
@@ -424,7 +424,7 @@ return buf;
 
 string Row_DeviceTemplate_MediaType::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[12])
 return "NULL";
@@ -1029,14 +1029,14 @@ pRow->m_psc_mod = string(row[12],lengths[12]);
 
 class Row_DeviceTemplate* Row_DeviceTemplate_MediaType::FK_DeviceTemplate_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
 return pTable->GetRow(m_FK_DeviceTemplate);
 }
 class Row_MediaType* Row_DeviceTemplate_MediaType::FK_MediaType_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_MediaType *pTable = table->database->MediaType_get();
 return pTable->GetRow(m_FK_MediaType);
@@ -1045,7 +1045,7 @@ return pTable->GetRow(m_FK_MediaType);
 
 void Row_DeviceTemplate_MediaType::DeviceTemplate_MediaType_DesignObj_FK_DeviceTemplate_MediaType_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_MediaType_DesignObj *pTable = table->database->DeviceTemplate_MediaType_DesignObj_get();
 pTable->GetRows("`FK_DeviceTemplate_MediaType`=" + StringUtils::itos(m_PK_DeviceTemplate_MediaType),rows);

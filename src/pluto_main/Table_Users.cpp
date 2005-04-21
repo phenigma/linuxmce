@@ -163,265 +163,265 @@ is_null[23] = false;
 	is_modified=false;
 }
 
-long int Row_Users::PK_Users_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Users::PK_Users_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_Users;}
-string Row_Users::UserName_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Users::UserName_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_UserName;}
-string Row_Users::Password_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Users::Password_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Password;}
-string Row_Users::PINCode_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Users::PINCode_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PINCode;}
-short int Row_Users::HasMailbox_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Users::HasMailbox_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_HasMailbox;}
-short int Row_Users::AccessGeneralMailbox_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Users::AccessGeneralMailbox_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_AccessGeneralMailbox;}
-long int Row_Users::Extension_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Users::Extension_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Extension;}
-string Row_Users::FirstName_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Users::FirstName_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FirstName;}
-string Row_Users::LastName_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Users::LastName_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_LastName;}
-string Row_Users::Nickname_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Users::Nickname_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Nickname;}
-long int Row_Users::ExtensionRingTimeout_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Users::ExtensionRingTimeout_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ExtensionRingTimeout;}
-string Row_Users::ForwardEmail_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Users::ForwardEmail_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ForwardEmail;}
-short int Row_Users::FK_Language_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Users::FK_Language_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Language;}
-long int Row_Users::FK_Installation_Main_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Users::FK_Installation_Main_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Installation_Main;}
-short int Row_Users::Staff_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Users::Staff_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Staff;}
-string Row_Users::Password_Unix_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Users::Password_Unix_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Password_Unix;}
-string Row_Users::Password_Samba_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Users::Password_Samba_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Password_Samba;}
-long int Row_Users::FK_UserMode_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Users::FK_UserMode_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_UserMode;}
-long int Row_Users::EK_Dealer_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Users::EK_Dealer_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_EK_Dealer;}
-long int Row_Users::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Users::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
-long int Row_Users::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Users::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_batch;}
-long int Row_Users::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Users::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_user;}
-short int Row_Users::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Users::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_frozen;}
-string Row_Users::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Users::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_mod;}
 
 		
-void Row_Users::PK_Users_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::PK_Users_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_Users = val; is_modified=true; is_null[0]=false;}
-void Row_Users::UserName_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::UserName_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_UserName = val; is_modified=true; is_null[1]=false;}
-void Row_Users::Password_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Password_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Password = val; is_modified=true; is_null[2]=false;}
-void Row_Users::PINCode_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::PINCode_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PINCode = val; is_modified=true; is_null[3]=false;}
-void Row_Users::HasMailbox_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::HasMailbox_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_HasMailbox = val; is_modified=true; is_null[4]=false;}
-void Row_Users::AccessGeneralMailbox_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::AccessGeneralMailbox_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_AccessGeneralMailbox = val; is_modified=true; is_null[5]=false;}
-void Row_Users::Extension_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Extension_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Extension = val; is_modified=true; is_null[6]=false;}
-void Row_Users::FirstName_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::FirstName_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FirstName = val; is_modified=true; is_null[7]=false;}
-void Row_Users::LastName_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::LastName_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_LastName = val; is_modified=true; is_null[8]=false;}
-void Row_Users::Nickname_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Nickname_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Nickname = val; is_modified=true; is_null[9]=false;}
-void Row_Users::ExtensionRingTimeout_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::ExtensionRingTimeout_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ExtensionRingTimeout = val; is_modified=true; is_null[10]=false;}
-void Row_Users::ForwardEmail_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::ForwardEmail_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ForwardEmail = val; is_modified=true; is_null[11]=false;}
-void Row_Users::FK_Language_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::FK_Language_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Language = val; is_modified=true; is_null[12]=false;}
-void Row_Users::FK_Installation_Main_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::FK_Installation_Main_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Installation_Main = val; is_modified=true; is_null[13]=false;}
-void Row_Users::Staff_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Staff_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Staff = val; is_modified=true; is_null[14]=false;}
-void Row_Users::Password_Unix_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Password_Unix_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Password_Unix = val; is_modified=true; is_null[15]=false;}
-void Row_Users::Password_Samba_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Password_Samba_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Password_Samba = val; is_modified=true; is_null[16]=false;}
-void Row_Users::FK_UserMode_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::FK_UserMode_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_UserMode = val; is_modified=true; is_null[17]=false;}
-void Row_Users::EK_Dealer_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::EK_Dealer_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_EK_Dealer = val; is_modified=true; is_null[18]=false;}
-void Row_Users::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[19]=false;}
-void Row_Users::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_batch = val; is_modified=true; is_null[20]=false;}
-void Row_Users::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_user = val; is_modified=true; is_null[21]=false;}
-void Row_Users::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_frozen = val; is_modified=true; is_null[22]=false;}
-void Row_Users::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_mod = val; is_modified=true; is_null[23]=false;}
 
 		
-bool Row_Users::Extension_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::Extension_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_Users::FirstName_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::FirstName_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
-bool Row_Users::LastName_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::LastName_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
-bool Row_Users::Nickname_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::Nickname_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
-bool Row_Users::ForwardEmail_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::ForwardEmail_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[11];}
-bool Row_Users::FK_Language_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::FK_Language_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[12];}
-bool Row_Users::FK_Installation_Main_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::FK_Installation_Main_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[13];}
-bool Row_Users::Staff_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::Staff_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[14];}
-bool Row_Users::Password_Unix_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::Password_Unix_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[15];}
-bool Row_Users::Password_Samba_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::Password_Samba_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[16];}
-bool Row_Users::FK_UserMode_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::FK_UserMode_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[17];}
-bool Row_Users::EK_Dealer_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::EK_Dealer_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[18];}
-bool Row_Users::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[19];}
-bool Row_Users::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[20];}
-bool Row_Users::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[21];}
-bool Row_Users::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Users::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[22];}
 
 			
-void Row_Users::Extension_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Extension_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_Users::FirstName_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::FirstName_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_Users::LastName_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::LastName_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Users::Nickname_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Nickname_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_Users::ForwardEmail_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::ForwardEmail_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_Users::FK_Language_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::FK_Language_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_Users::FK_Installation_Main_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::FK_Installation_Main_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_Users::Staff_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Staff_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[14]=val;
 is_modified=true;
 }
-void Row_Users::Password_Unix_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Password_Unix_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[15]=val;
 is_modified=true;
 }
-void Row_Users::Password_Samba_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::Password_Samba_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[16]=val;
 is_modified=true;
 }
-void Row_Users::FK_UserMode_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::FK_UserMode_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[17]=val;
 is_modified=true;
 }
-void Row_Users::EK_Dealer_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::EK_Dealer_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[18]=val;
 is_modified=true;
 }
-void Row_Users::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[19]=val;
 is_modified=true;
 }
-void Row_Users::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[20]=val;
 is_modified=true;
 }
-void Row_Users::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[21]=val;
 is_modified=true;
 }
-void Row_Users::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Users::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[22]=val;
 is_modified=true;
 }
@@ -429,7 +429,7 @@ is_modified=true;
 
 string Row_Users::PK_Users_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[0])
 return "NULL";
@@ -442,7 +442,7 @@ return buf;
 
 string Row_Users::UserName_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
@@ -456,7 +456,7 @@ return s;
 
 string Row_Users::Password_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
 return "NULL";
@@ -470,7 +470,7 @@ return s;
 
 string Row_Users::PINCode_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
 return "NULL";
@@ -484,7 +484,7 @@ return s;
 
 string Row_Users::HasMailbox_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
 return "NULL";
@@ -497,7 +497,7 @@ return buf;
 
 string Row_Users::AccessGeneralMailbox_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[5])
 return "NULL";
@@ -510,7 +510,7 @@ return buf;
 
 string Row_Users::Extension_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
 return "NULL";
@@ -523,7 +523,7 @@ return buf;
 
 string Row_Users::FirstName_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[7])
 return "NULL";
@@ -537,7 +537,7 @@ return s;
 
 string Row_Users::LastName_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[8])
 return "NULL";
@@ -551,7 +551,7 @@ return s;
 
 string Row_Users::Nickname_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[9])
 return "NULL";
@@ -565,7 +565,7 @@ return s;
 
 string Row_Users::ExtensionRingTimeout_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[10])
 return "NULL";
@@ -578,7 +578,7 @@ return buf;
 
 string Row_Users::ForwardEmail_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[11])
 return "NULL";
@@ -592,7 +592,7 @@ return s;
 
 string Row_Users::FK_Language_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[12])
 return "NULL";
@@ -605,7 +605,7 @@ return buf;
 
 string Row_Users::FK_Installation_Main_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[13])
 return "NULL";
@@ -618,7 +618,7 @@ return buf;
 
 string Row_Users::Staff_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[14])
 return "NULL";
@@ -631,7 +631,7 @@ return buf;
 
 string Row_Users::Password_Unix_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[15])
 return "NULL";
@@ -645,7 +645,7 @@ return s;
 
 string Row_Users::Password_Samba_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[16])
 return "NULL";
@@ -659,7 +659,7 @@ return s;
 
 string Row_Users::FK_UserMode_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[17])
 return "NULL";
@@ -672,7 +672,7 @@ return buf;
 
 string Row_Users::EK_Dealer_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[18])
 return "NULL";
@@ -685,7 +685,7 @@ return buf;
 
 string Row_Users::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[19])
 return "NULL";
@@ -698,7 +698,7 @@ return buf;
 
 string Row_Users::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[20])
 return "NULL";
@@ -711,7 +711,7 @@ return buf;
 
 string Row_Users::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[21])
 return "NULL";
@@ -724,7 +724,7 @@ return buf;
 
 string Row_Users::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[22])
 return "NULL";
@@ -737,7 +737,7 @@ return buf;
 
 string Row_Users::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[23])
 return "NULL";
@@ -1584,21 +1584,21 @@ pRow->m_psc_mod = string(row[23],lengths[23]);
 
 class Row_Language* Row_Users::FK_Language_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Language *pTable = table->database->Language_get();
 return pTable->GetRow(m_FK_Language);
 }
 class Row_Installation* Row_Users::FK_Installation_Main_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
 return pTable->GetRow(m_FK_Installation_Main);
 }
 class Row_UserMode* Row_Users::FK_UserMode_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_UserMode *pTable = table->database->UserMode_get();
 return pTable->GetRow(m_FK_UserMode);
@@ -1607,56 +1607,56 @@ return pTable->GetRow(m_FK_UserMode);
 
 void Row_Users::DeviceTemplate_FK_Users_Maintainer_getrows(vector <class Row_DeviceTemplate*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
 pTable->GetRows("`FK_Users_Maintainer`=" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Device_Users_FK_Users_getrows(vector <class Row_Device_Users*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_Users *pTable = table->database->Device_Users_get();
 pTable->GetRows("`FK_Users`=" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Document_Comment_FK_Users_getrows(vector <class Row_Document_Comment*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Document_Comment *pTable = table->database->Document_Comment_get();
 pTable->GetRows("`FK_Users`=" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::InfraredGroup_Command_FK_Users_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
 pTable->GetRows("`FK_Users`=" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Installation_Users_FK_Users_getrows(vector <class Row_Installation_Users*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation_Users *pTable = table->database->Installation_Users_get();
 pTable->GetRows("`FK_Users`=" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Orbiter_Users_PasswordReq_FK_Users_getrows(vector <class Row_Orbiter_Users_PasswordReq*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Orbiter_Users_PasswordReq *pTable = table->database->Orbiter_Users_PasswordReq_get();
 pTable->GetRows("`FK_Users`=" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Package_Users_FK_Users_getrows(vector <class Row_Package_Users*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Users *pTable = table->database->Package_Users_get();
 pTable->GetRows("`FK_Users`=" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Room_Users_FK_Users_getrows(vector <class Row_Room_Users*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Room_Users *pTable = table->database->Room_Users_get();
 pTable->GetRows("`FK_Users`=" + StringUtils::itos(m_PK_Users),rows);

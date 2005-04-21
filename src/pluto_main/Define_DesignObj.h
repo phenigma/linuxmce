@@ -1187,6 +1187,11 @@
 #define DESIGNOBJ_go_to_security_menu_with_red_CONST 3377
 #define DESIGNOBJ_grpMediaNavigation5_CONST 3378
 #define DESIGNOBJ_objMenuNonDvd_CONST 3384
+#define DESIGNOBJ_butAngles_CONST 3385
+#define DESIGNOBJ_butAudioOptions_CONST 3386
+#define DESIGNOBJ_butSubtitles_CONST 3387
+#define DESIGNOBJ_mnuGenericDvdMenu_CONST 3388
+#define DESIGNOBJ_go_to_nondvdremote_CONST 3389
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

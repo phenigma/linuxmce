@@ -463,6 +463,9 @@
 #define TEXT_Choose_camerav_CONST 1138
 #define TEXT_Single_camera_view_CONST 1139
 #define TEXT_orbiter_regenerated_CONST 1140
+#define TEXT_Angles_CONST 1141
+#define TEXT_Audio_Options_CONST 1142
+#define TEXT_Subtitles_CONST 1143
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

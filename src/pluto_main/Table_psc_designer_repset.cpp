@@ -124,34 +124,34 @@ is_null[2] = true;
 	is_modified=false;
 }
 
-long int Row_psc_designer_repset::PK_psc_designer_repset_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_psc_designer_repset::PK_psc_designer_repset_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_psc_designer_repset;}
-string Row_psc_designer_repset::Setting_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_psc_designer_repset::Setting_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Setting;}
-string Row_psc_designer_repset::Value_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_psc_designer_repset::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Value;}
 
 		
-void Row_psc_designer_repset::PK_psc_designer_repset_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_designer_repset::PK_psc_designer_repset_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_psc_designer_repset = val; is_modified=true; is_null[0]=false;}
-void Row_psc_designer_repset::Setting_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_designer_repset::Setting_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Setting = val; is_modified=true; is_null[1]=false;}
-void Row_psc_designer_repset::Value_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_designer_repset::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Value = val; is_modified=true; is_null[2]=false;}
 
 		
-bool Row_psc_designer_repset::Value_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_psc_designer_repset::Value_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
 
 			
-void Row_psc_designer_repset::Value_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_psc_designer_repset::Value_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 is_null[2]=val;
 is_modified=true;
 }
@@ -159,7 +159,7 @@ is_modified=true;
 
 string Row_psc_designer_repset::PK_psc_designer_repset_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[0])
 return "NULL";
@@ -172,7 +172,7 @@ return buf;
 
 string Row_psc_designer_repset::Setting_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
@@ -186,7 +186,7 @@ return s;
 
 string Row_psc_designer_repset::Value_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
 return "NULL";
