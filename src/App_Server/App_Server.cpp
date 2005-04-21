@@ -282,8 +282,7 @@ void App_Server::EnsureLogoIsDisplayed()
 
 	g_pPlutoLogger->Write(LV_STATUS, "The application is running!. Telling the orbiter to select the application!");
 
-	// DCE::CMD_Activate_Window_Cat activateApplicationCommand(m_dwPK_Device, DEVICECATEGORY_Orbiter_CONST, true, BL_SameComputer, LOGO_APPLICATION_NAME);
-	DCE::CMD_Activate_Window activateApplicationCommand(m_dwPK_Device, 4321, LOGO_APPLICATION_NAME);
+	DCE::CMD_Activate_Window_Cat activateApplicationCommand(m_dwPK_Device, DEVICECATEGORY_Orbiter_CONST, true, BL_SameComputer, LOGO_APPLICATION_NAME);
 	SendCommand(activateApplicationCommand);
 }
 
