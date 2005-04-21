@@ -61,7 +61,7 @@ Table_PageSetup::~Table_PageSetup()
 
 void Row_PageSetup::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_PageSetup *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -92,7 +92,7 @@ void Row_PageSetup::Reload()
 {
 	Row_PageSetup *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -463,7 +463,7 @@ Table_PageSetup::Key::Key(long int in_PK_PageSetup)
 
 Table_PageSetup::Key::Key(Row_PageSetup *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_PageSetup = pRow->m_PK_PageSetup;
 	
@@ -479,7 +479,7 @@ return false;
 
 bool Table_PageSetup::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -606,7 +606,7 @@ condition = condition + "`PK_PageSetup`=" + tmp_PK_PageSetup;
 
 bool Table_PageSetup::GetRows(string where_statement,vector<class Row_PageSetup*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -810,7 +810,7 @@ pRow->m_psc_mod = string(row[12],lengths[12]);
 
 Row_PageSetup* Table_PageSetup::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_PageSetup *pRow = new Row_PageSetup(this);
 	pRow->is_added=true;
@@ -822,7 +822,7 @@ Row_PageSetup* Table_PageSetup::AddRow()
 
 Row_PageSetup* Table_PageSetup::GetRow(long int in_PK_PageSetup)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_PageSetup);
 
@@ -850,7 +850,7 @@ Row_PageSetup* Table_PageSetup::GetRow(long int in_PK_PageSetup)
 
 Row_PageSetup* Table_PageSetup::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_PageSetup[32];

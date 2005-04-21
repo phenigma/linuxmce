@@ -57,7 +57,7 @@ Table_RoomType::~Table_RoomType()
 
 void Row_RoomType::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_RoomType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -88,7 +88,7 @@ void Row_RoomType::Reload()
 {
 	Row_RoomType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -335,7 +335,7 @@ Table_RoomType::Key::Key(long int in_PK_RoomType)
 
 Table_RoomType::Key::Key(Row_RoomType *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_RoomType = pRow->m_PK_RoomType;
 	
@@ -351,7 +351,7 @@ return false;
 
 bool Table_RoomType::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -478,7 +478,7 @@ condition = condition + "`PK_RoomType`=" + tmp_PK_RoomType;
 
 bool Table_RoomType::GetRows(string where_statement,vector<class Row_RoomType*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -627,7 +627,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_RoomType* Table_RoomType::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_RoomType *pRow = new Row_RoomType(this);
 	pRow->is_added=true;
@@ -639,7 +639,7 @@ Row_RoomType* Table_RoomType::AddRow()
 
 Row_RoomType* Table_RoomType::GetRow(long int in_PK_RoomType)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_RoomType);
 
@@ -667,7 +667,7 @@ Row_RoomType* Table_RoomType::GetRow(long int in_PK_RoomType)
 
 Row_RoomType* Table_RoomType::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_RoomType[32];

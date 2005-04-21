@@ -76,7 +76,7 @@ Table_Package::~Table_Package()
 
 void Row_Package::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Package *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -107,7 +107,7 @@ void Row_Package::Reload()
 {
 	Row_Package *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -626,7 +626,7 @@ Table_Package::Key::Key(long int in_PK_Package)
 
 Table_Package::Key::Key(Row_Package *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Package = pRow->m_PK_Package;
 	
@@ -642,7 +642,7 @@ return false;
 
 bool Table_Package::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -769,7 +769,7 @@ condition = condition + "`PK_Package`=" + tmp_PK_Package;
 
 bool Table_Package::GetRows(string where_statement,vector<class Row_Package*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -1028,7 +1028,7 @@ pRow->m_psc_mod = string(row[17],lengths[17]);
 
 Row_Package* Table_Package::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Package *pRow = new Row_Package(this);
 	pRow->is_added=true;
@@ -1040,7 +1040,7 @@ Row_Package* Table_Package::AddRow()
 
 Row_Package* Table_Package::GetRow(long int in_PK_Package)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Package);
 
@@ -1068,7 +1068,7 @@ Row_Package* Table_Package::GetRow(long int in_PK_Package)
 
 Row_Package* Table_Package::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Package[32];

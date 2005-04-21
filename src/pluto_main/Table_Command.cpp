@@ -73,7 +73,7 @@ Table_Command::~Table_Command()
 
 void Row_Command::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Command *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -104,7 +104,7 @@ void Row_Command::Reload()
 {
 	Row_Command *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -427,7 +427,7 @@ Table_Command::Key::Key(long int in_PK_Command)
 
 Table_Command::Key::Key(Row_Command *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Command = pRow->m_PK_Command;
 	
@@ -443,7 +443,7 @@ return false;
 
 bool Table_Command::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -570,7 +570,7 @@ condition = condition + "`PK_Command`=" + tmp_PK_Command;
 
 bool Table_Command::GetRows(string where_statement,vector<class Row_Command*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -752,7 +752,7 @@ pRow->m_psc_mod = string(row[10],lengths[10]);
 
 Row_Command* Table_Command::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Command *pRow = new Row_Command(this);
 	pRow->is_added=true;
@@ -764,7 +764,7 @@ Row_Command* Table_Command::AddRow()
 
 Row_Command* Table_Command::GetRow(long int in_PK_Command)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Command);
 
@@ -792,7 +792,7 @@ Row_Command* Table_Command::GetRow(long int in_PK_Command)
 
 Row_Command* Table_Command::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Command[32];

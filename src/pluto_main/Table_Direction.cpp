@@ -56,7 +56,7 @@ Table_Direction::~Table_Direction()
 
 void Row_Direction::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Direction *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -87,7 +87,7 @@ void Row_Direction::Reload()
 {
 	Row_Direction *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -334,7 +334,7 @@ Table_Direction::Key::Key(long int in_PK_Direction)
 
 Table_Direction::Key::Key(Row_Direction *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Direction = pRow->m_PK_Direction;
 	
@@ -350,7 +350,7 @@ return false;
 
 bool Table_Direction::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -477,7 +477,7 @@ condition = condition + "`PK_Direction`=" + tmp_PK_Direction;
 
 bool Table_Direction::GetRows(string where_statement,vector<class Row_Direction*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -626,7 +626,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_Direction* Table_Direction::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Direction *pRow = new Row_Direction(this);
 	pRow->is_added=true;
@@ -638,7 +638,7 @@ Row_Direction* Table_Direction::AddRow()
 
 Row_Direction* Table_Direction::GetRow(long int in_PK_Direction)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Direction);
 
@@ -666,7 +666,7 @@ Row_Direction* Table_Direction::GetRow(long int in_PK_Direction)
 
 Row_Direction* Table_Direction::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Direction[32];

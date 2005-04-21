@@ -58,7 +58,7 @@ Table_CommandGroup_Command_CommandParameter::~Table_CommandGroup_Command_Command
 
 void Row_CommandGroup_Command_CommandParameter::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_CommandGroup_Command_CommandParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_CommandGroup_Command_CommandParameter::Reload()
 {
 	Row_CommandGroup_Command_CommandParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -342,7 +342,7 @@ pk_FK_CommandParameter = in_FK_CommandParameter;
 
 Table_CommandGroup_Command_CommandParameter::Key::Key(Row_CommandGroup_Command_CommandParameter *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_CommandGroup_Command = pRow->m_FK_CommandGroup_Command;
 pk_FK_CommandParameter = pRow->m_FK_CommandParameter;
@@ -362,7 +362,7 @@ return false;
 
 bool Table_CommandGroup_Command_CommandParameter::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -493,7 +493,7 @@ condition = condition + "`FK_CommandGroup_Command`=" + tmp_FK_CommandGroup_Comma
 
 bool Table_CommandGroup_Command_CommandParameter::GetRows(string where_statement,vector<class Row_CommandGroup_Command_CommandParameter*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -642,7 +642,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_CommandGroup_Command_CommandParameter* Table_CommandGroup_Command_CommandParameter::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_CommandGroup_Command_CommandParameter *pRow = new Row_CommandGroup_Command_CommandParameter(this);
 	pRow->is_added=true;
@@ -654,7 +654,7 @@ Row_CommandGroup_Command_CommandParameter* Table_CommandGroup_Command_CommandPar
 
 Row_CommandGroup_Command_CommandParameter* Table_CommandGroup_Command_CommandParameter::GetRow(long int in_FK_CommandGroup_Command, long int in_FK_CommandParameter)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_CommandGroup_Command, in_FK_CommandParameter);
 
@@ -682,7 +682,7 @@ Row_CommandGroup_Command_CommandParameter* Table_CommandGroup_Command_CommandPar
 
 Row_CommandGroup_Command_CommandParameter* Table_CommandGroup_Command_CommandParameter::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_CommandGroup_Command[32];

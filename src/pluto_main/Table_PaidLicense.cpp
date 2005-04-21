@@ -58,7 +58,7 @@ Table_PaidLicense::~Table_PaidLicense()
 
 void Row_PaidLicense::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_PaidLicense *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_PaidLicense::Reload()
 {
 	Row_PaidLicense *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -458,7 +458,7 @@ Table_PaidLicense::Key::Key(long int in_PK_PaidLicense)
 
 Table_PaidLicense::Key::Key(Row_PaidLicense *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_PaidLicense = pRow->m_PK_PaidLicense;
 	
@@ -474,7 +474,7 @@ return false;
 
 bool Table_PaidLicense::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -601,7 +601,7 @@ condition = condition + "`PK_PaidLicense`=" + tmp_PK_PaidLicense;
 
 bool Table_PaidLicense::GetRows(string where_statement,vector<class Row_PaidLicense*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -794,7 +794,7 @@ pRow->m_psc_mod = string(row[11],lengths[11]);
 
 Row_PaidLicense* Table_PaidLicense::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_PaidLicense *pRow = new Row_PaidLicense(this);
 	pRow->is_added=true;
@@ -806,7 +806,7 @@ Row_PaidLicense* Table_PaidLicense::AddRow()
 
 Row_PaidLicense* Table_PaidLicense::GetRow(long int in_PK_PaidLicense)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_PaidLicense);
 
@@ -834,7 +834,7 @@ Row_PaidLicense* Table_PaidLicense::GetRow(long int in_PK_PaidLicense)
 
 Row_PaidLicense* Table_PaidLicense::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_PaidLicense[32];

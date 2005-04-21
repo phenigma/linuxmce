@@ -62,7 +62,7 @@ Table_DesignObjVariation_Text_Skin_Language::~Table_DesignObjVariation_Text_Skin
 
 void Row_DesignObjVariation_Text_Skin_Language::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_DesignObjVariation_Text_Skin_Language *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -93,7 +93,7 @@ void Row_DesignObjVariation_Text_Skin_Language::Reload()
 {
 	Row_DesignObjVariation_Text_Skin_Language *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -617,7 +617,7 @@ Table_DesignObjVariation_Text_Skin_Language::Key::Key(long int in_PK_DesignObjVa
 
 Table_DesignObjVariation_Text_Skin_Language::Key::Key(Row_DesignObjVariation_Text_Skin_Language *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_DesignObjVariation_Text_Skin_Language = pRow->m_PK_DesignObjVariation_Text_Skin_Language;
 	
@@ -633,7 +633,7 @@ return false;
 
 bool Table_DesignObjVariation_Text_Skin_Language::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -760,7 +760,7 @@ condition = condition + "`PK_DesignObjVariation_Text_Skin_Language`=" + tmp_PK_D
 
 bool Table_DesignObjVariation_Text_Skin_Language::GetRows(string where_statement,vector<class Row_DesignObjVariation_Text_Skin_Language*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -1030,7 +1030,7 @@ pRow->m_psc_mod = string(row[18],lengths[18]);
 
 Row_DesignObjVariation_Text_Skin_Language* Table_DesignObjVariation_Text_Skin_Language::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_DesignObjVariation_Text_Skin_Language *pRow = new Row_DesignObjVariation_Text_Skin_Language(this);
 	pRow->is_added=true;
@@ -1042,7 +1042,7 @@ Row_DesignObjVariation_Text_Skin_Language* Table_DesignObjVariation_Text_Skin_La
 
 Row_DesignObjVariation_Text_Skin_Language* Table_DesignObjVariation_Text_Skin_Language::GetRow(long int in_PK_DesignObjVariation_Text_Skin_Language)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_DesignObjVariation_Text_Skin_Language);
 
@@ -1070,7 +1070,7 @@ Row_DesignObjVariation_Text_Skin_Language* Table_DesignObjVariation_Text_Skin_La
 
 Row_DesignObjVariation_Text_Skin_Language* Table_DesignObjVariation_Text_Skin_Language::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_DesignObjVariation_Text_Skin_Language[32];

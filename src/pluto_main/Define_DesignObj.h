@@ -1168,7 +1168,7 @@
 #define DESIGNOBJ_PowerON_OtherControlling_CONST 3348
 #define DESIGNOBJ_appDesktopMozilla_CONST 3349
 #define DESIGNOBJ_dvd_menu_CONST 3350
-#define DESIGNOBJ_mnuGenericRemote_CONST 3352
+#define DESIGNOBJ_mnuGenericDvdRemote_CONST 3352
 #define DESIGNOBJ_butMoviesFileList_CONST 3353
 #define DESIGNOBJ_butVideosFileList_CONST 3354
 #define DESIGNOBJ_mnuPhonePlaylist_CONST 3355
@@ -1185,6 +1185,8 @@
 #define DESIGNOBJ_save_playlist_CONST 3374
 #define DESIGNOBJ_objMenu2_CONST 3376
 #define DESIGNOBJ_go_to_security_menu_with_red_CONST 3377
+#define DESIGNOBJ_grpMediaNavigation5_CONST 3378
+#define DESIGNOBJ_objMenuNonDvd_CONST 3384
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

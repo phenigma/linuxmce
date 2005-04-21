@@ -57,7 +57,7 @@ Table_Template::~Table_Template()
 
 void Row_Template::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Template *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -88,7 +88,7 @@ void Row_Template::Reload()
 {
 	Row_Template *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -341,7 +341,7 @@ Table_Template::Key::Key(long int in_PK_Template)
 
 Table_Template::Key::Key(Row_Template *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Template = pRow->m_PK_Template;
 	
@@ -357,7 +357,7 @@ return false;
 
 bool Table_Template::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -484,7 +484,7 @@ condition = condition + "`PK_Template`=" + tmp_PK_Template;
 
 bool Table_Template::GetRows(string where_statement,vector<class Row_Template*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -633,7 +633,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_Template* Table_Template::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Template *pRow = new Row_Template(this);
 	pRow->is_added=true;
@@ -645,7 +645,7 @@ Row_Template* Table_Template::AddRow()
 
 Row_Template* Table_Template::GetRow(long int in_PK_Template)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Template);
 
@@ -673,7 +673,7 @@ Row_Template* Table_Template::GetRow(long int in_PK_Template)
 
 Row_Template* Table_Template::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Template[32];

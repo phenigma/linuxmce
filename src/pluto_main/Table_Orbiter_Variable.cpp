@@ -58,7 +58,7 @@ Table_Orbiter_Variable::~Table_Orbiter_Variable()
 
 void Row_Orbiter_Variable::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Orbiter_Variable *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_Orbiter_Variable::Reload()
 {
 	Row_Orbiter_Variable *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -342,7 +342,7 @@ pk_FK_Variable = in_FK_Variable;
 
 Table_Orbiter_Variable::Key::Key(Row_Orbiter_Variable *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_Orbiter = pRow->m_FK_Orbiter;
 pk_FK_Variable = pRow->m_FK_Variable;
@@ -362,7 +362,7 @@ return false;
 
 bool Table_Orbiter_Variable::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -493,7 +493,7 @@ condition = condition + "`FK_Orbiter`=" + tmp_FK_Orbiter+" AND "+"`FK_Variable`=
 
 bool Table_Orbiter_Variable::GetRows(string where_statement,vector<class Row_Orbiter_Variable*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -642,7 +642,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_Orbiter_Variable* Table_Orbiter_Variable::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Orbiter_Variable *pRow = new Row_Orbiter_Variable(this);
 	pRow->is_added=true;
@@ -654,7 +654,7 @@ Row_Orbiter_Variable* Table_Orbiter_Variable::AddRow()
 
 Row_Orbiter_Variable* Table_Orbiter_Variable::GetRow(long int in_FK_Orbiter, long int in_FK_Variable)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_Orbiter, in_FK_Variable);
 
@@ -682,7 +682,7 @@ Row_Orbiter_Variable* Table_Orbiter_Variable::GetRow(long int in_FK_Orbiter, lon
 
 Row_Orbiter_Variable* Table_Orbiter_Variable::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Orbiter[32];

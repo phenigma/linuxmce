@@ -67,7 +67,7 @@ Table_Users::~Table_Users()
 
 void Row_Users::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Users *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -98,7 +98,7 @@ void Row_Users::Reload()
 {
 	Row_Users *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -760,7 +760,7 @@ Table_Users::Key::Key(long int in_PK_Users)
 
 Table_Users::Key::Key(Row_Users *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Users = pRow->m_PK_Users;
 	
@@ -776,7 +776,7 @@ return false;
 
 bool Table_Users::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -903,7 +903,7 @@ condition = condition + "`PK_Users`=" + tmp_PK_Users;
 
 bool Table_Users::GetRows(string where_statement,vector<class Row_Users*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -1228,7 +1228,7 @@ pRow->m_psc_mod = string(row[23],lengths[23]);
 
 Row_Users* Table_Users::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Users *pRow = new Row_Users(this);
 	pRow->is_added=true;
@@ -1240,7 +1240,7 @@ Row_Users* Table_Users::AddRow()
 
 Row_Users* Table_Users::GetRow(long int in_PK_Users)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Users);
 
@@ -1268,7 +1268,7 @@ Row_Users* Table_Users::GetRow(long int in_PK_Users)
 
 Row_Users* Table_Users::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Users[32];

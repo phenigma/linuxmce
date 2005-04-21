@@ -61,7 +61,7 @@ Table_RepositorySource::~Table_RepositorySource()
 
 void Row_RepositorySource::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_RepositorySource *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -92,7 +92,7 @@ void Row_RepositorySource::Reload()
 {
 	Row_RepositorySource *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -448,7 +448,7 @@ Table_RepositorySource::Key::Key(long int in_PK_RepositorySource)
 
 Table_RepositorySource::Key::Key(Row_RepositorySource *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_RepositorySource = pRow->m_PK_RepositorySource;
 	
@@ -464,7 +464,7 @@ return false;
 
 bool Table_RepositorySource::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -591,7 +591,7 @@ condition = condition + "`PK_RepositorySource`=" + tmp_PK_RepositorySource;
 
 bool Table_RepositorySource::GetRows(string where_statement,vector<class Row_RepositorySource*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -784,7 +784,7 @@ pRow->m_psc_mod = string(row[11],lengths[11]);
 
 Row_RepositorySource* Table_RepositorySource::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_RepositorySource *pRow = new Row_RepositorySource(this);
 	pRow->is_added=true;
@@ -796,7 +796,7 @@ Row_RepositorySource* Table_RepositorySource::AddRow()
 
 Row_RepositorySource* Table_RepositorySource::GetRow(long int in_PK_RepositorySource)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_RepositorySource);
 
@@ -824,7 +824,7 @@ Row_RepositorySource* Table_RepositorySource::GetRow(long int in_PK_RepositorySo
 
 Row_RepositorySource* Table_RepositorySource::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_RepositorySource[32];

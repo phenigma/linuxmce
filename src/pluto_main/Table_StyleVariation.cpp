@@ -61,7 +61,7 @@ Table_StyleVariation::~Table_StyleVariation()
 
 void Row_StyleVariation::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_StyleVariation *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -92,7 +92,7 @@ void Row_StyleVariation::Reload()
 {
 	Row_StyleVariation *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -674,7 +674,7 @@ Table_StyleVariation::Key::Key(long int in_PK_StyleVariation)
 
 Table_StyleVariation::Key::Key(Row_StyleVariation *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_StyleVariation = pRow->m_PK_StyleVariation;
 	
@@ -690,7 +690,7 @@ return false;
 
 bool Table_StyleVariation::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -817,7 +817,7 @@ condition = condition + "`PK_StyleVariation`=" + tmp_PK_StyleVariation;
 
 bool Table_StyleVariation::GetRows(string where_statement,vector<class Row_StyleVariation*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -1120,7 +1120,7 @@ pRow->m_psc_mod = string(row[21],lengths[21]);
 
 Row_StyleVariation* Table_StyleVariation::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_StyleVariation *pRow = new Row_StyleVariation(this);
 	pRow->is_added=true;
@@ -1132,7 +1132,7 @@ Row_StyleVariation* Table_StyleVariation::AddRow()
 
 Row_StyleVariation* Table_StyleVariation::GetRow(long int in_PK_StyleVariation)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_StyleVariation);
 
@@ -1160,7 +1160,7 @@ Row_StyleVariation* Table_StyleVariation::GetRow(long int in_PK_StyleVariation)
 
 Row_StyleVariation* Table_StyleVariation::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_StyleVariation[32];

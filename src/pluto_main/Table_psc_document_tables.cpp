@@ -56,7 +56,7 @@ Table_psc_document_tables::~Table_psc_document_tables()
 
 void Row_psc_document_tables::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_psc_document_tables *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -87,7 +87,7 @@ void Row_psc_document_tables::Reload()
 {
 	Row_psc_document_tables *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -293,7 +293,7 @@ Table_psc_document_tables::Key::Key(long int in_PK_psc_document_tables)
 
 Table_psc_document_tables::Key::Key(Row_psc_document_tables *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_psc_document_tables = pRow->m_PK_psc_document_tables;
 	
@@ -309,7 +309,7 @@ return false;
 
 bool Table_psc_document_tables::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -436,7 +436,7 @@ condition = condition + "`PK_psc_document_tables`=" + tmp_PK_psc_document_tables
 
 bool Table_psc_document_tables::GetRows(string where_statement,vector<class Row_psc_document_tables*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -574,7 +574,7 @@ sscanf(row[6], "%li", &(pRow->m_last_psc_batch));
 
 Row_psc_document_tables* Table_psc_document_tables::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_psc_document_tables *pRow = new Row_psc_document_tables(this);
 	pRow->is_added=true;
@@ -586,7 +586,7 @@ Row_psc_document_tables* Table_psc_document_tables::AddRow()
 
 Row_psc_document_tables* Table_psc_document_tables::GetRow(long int in_PK_psc_document_tables)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_psc_document_tables);
 
@@ -614,7 +614,7 @@ Row_psc_document_tables* Table_psc_document_tables::GetRow(long int in_PK_psc_do
 
 Row_psc_document_tables* Table_psc_document_tables::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_psc_document_tables[32];

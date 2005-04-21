@@ -58,7 +58,7 @@ Table_ConfigType_Setting::~Table_ConfigType_Setting()
 
 void Row_ConfigType_Setting::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_ConfigType_Setting *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_ConfigType_Setting::Reload()
 {
 	Row_ConfigType_Setting *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -335,7 +335,7 @@ Table_ConfigType_Setting::Key::Key(long int in_PK_ConfigType_Setting)
 
 Table_ConfigType_Setting::Key::Key(Row_ConfigType_Setting *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_ConfigType_Setting = pRow->m_PK_ConfigType_Setting;
 	
@@ -351,7 +351,7 @@ return false;
 
 bool Table_ConfigType_Setting::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -478,7 +478,7 @@ condition = condition + "`PK_ConfigType_Setting`=" + tmp_PK_ConfigType_Setting;
 
 bool Table_ConfigType_Setting::GetRows(string where_statement,vector<class Row_ConfigType_Setting*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -627,7 +627,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_ConfigType_Setting* Table_ConfigType_Setting::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_ConfigType_Setting *pRow = new Row_ConfigType_Setting(this);
 	pRow->is_added=true;
@@ -639,7 +639,7 @@ Row_ConfigType_Setting* Table_ConfigType_Setting::AddRow()
 
 Row_ConfigType_Setting* Table_ConfigType_Setting::GetRow(long int in_PK_ConfigType_Setting)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_ConfigType_Setting);
 
@@ -667,7 +667,7 @@ Row_ConfigType_Setting* Table_ConfigType_Setting::GetRow(long int in_PK_ConfigTy
 
 Row_ConfigType_Setting* Table_ConfigType_Setting::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_ConfigType_Setting[32];

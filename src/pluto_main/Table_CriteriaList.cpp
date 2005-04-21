@@ -59,7 +59,7 @@ Table_CriteriaList::~Table_CriteriaList()
 
 void Row_CriteriaList::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_CriteriaList *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -90,7 +90,7 @@ void Row_CriteriaList::Reload()
 {
 	Row_CriteriaList *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -337,7 +337,7 @@ Table_CriteriaList::Key::Key(long int in_PK_CriteriaList)
 
 Table_CriteriaList::Key::Key(Row_CriteriaList *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_CriteriaList = pRow->m_PK_CriteriaList;
 	
@@ -353,7 +353,7 @@ return false;
 
 bool Table_CriteriaList::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -480,7 +480,7 @@ condition = condition + "`PK_CriteriaList`=" + tmp_PK_CriteriaList;
 
 bool Table_CriteriaList::GetRows(string where_statement,vector<class Row_CriteriaList*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -629,7 +629,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_CriteriaList* Table_CriteriaList::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_CriteriaList *pRow = new Row_CriteriaList(this);
 	pRow->is_added=true;
@@ -641,7 +641,7 @@ Row_CriteriaList* Table_CriteriaList::AddRow()
 
 Row_CriteriaList* Table_CriteriaList::GetRow(long int in_PK_CriteriaList)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_CriteriaList);
 
@@ -669,7 +669,7 @@ Row_CriteriaList* Table_CriteriaList::GetRow(long int in_PK_CriteriaList)
 
 Row_CriteriaList* Table_CriteriaList::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_CriteriaList[32];

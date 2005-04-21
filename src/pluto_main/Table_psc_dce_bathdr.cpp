@@ -61,7 +61,7 @@ Table_psc_dce_bathdr::~Table_psc_dce_bathdr()
 
 void Row_psc_dce_bathdr::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_psc_dce_bathdr *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -92,7 +92,7 @@ void Row_psc_dce_bathdr::Reload()
 {
 	Row_psc_dce_bathdr *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -248,7 +248,7 @@ Table_psc_dce_bathdr::Key::Key(long int in_PK_psc_dce_bathdr)
 
 Table_psc_dce_bathdr::Key::Key(Row_psc_dce_bathdr *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_psc_dce_bathdr = pRow->m_PK_psc_dce_bathdr;
 	
@@ -264,7 +264,7 @@ return false;
 
 bool Table_psc_dce_bathdr::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -391,7 +391,7 @@ condition = condition + "`PK_psc_dce_bathdr`=" + tmp_PK_psc_dce_bathdr;
 
 bool Table_psc_dce_bathdr::GetRows(string where_statement,vector<class Row_psc_dce_bathdr*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -496,7 +496,7 @@ pRow->m_comments = string(row[3],lengths[3]);
 
 Row_psc_dce_bathdr* Table_psc_dce_bathdr::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_psc_dce_bathdr *pRow = new Row_psc_dce_bathdr(this);
 	pRow->is_added=true;
@@ -508,7 +508,7 @@ Row_psc_dce_bathdr* Table_psc_dce_bathdr::AddRow()
 
 Row_psc_dce_bathdr* Table_psc_dce_bathdr::GetRow(long int in_PK_psc_dce_bathdr)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_psc_dce_bathdr);
 
@@ -536,7 +536,7 @@ Row_psc_dce_bathdr* Table_psc_dce_bathdr::GetRow(long int in_PK_psc_dce_bathdr)
 
 Row_psc_dce_bathdr* Table_psc_dce_bathdr::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_psc_dce_bathdr[32];

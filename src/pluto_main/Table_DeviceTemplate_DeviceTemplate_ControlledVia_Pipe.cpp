@@ -60,7 +60,7 @@ Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe::~Table_DeviceTemplate_De
 
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -91,7 +91,7 @@ void Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe::Reload()
 {
 	Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -398,7 +398,7 @@ pk_FK_Pipe = in_FK_Pipe;
 
 Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe::Key::Key(Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_DeviceTemplate_DeviceTemplate_ControlledVia = pRow->m_FK_DeviceTemplate_DeviceTemplate_ControlledVia;
 pk_FK_Pipe = pRow->m_FK_Pipe;
@@ -418,7 +418,7 @@ return false;
 
 bool Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -549,7 +549,7 @@ condition = condition + "`FK_DeviceTemplate_DeviceTemplate_ControlledVia`=" + tm
 
 bool Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe::GetRows(string where_statement,vector<class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -720,7 +720,7 @@ pRow->m_psc_mod = string(row[9],lengths[9]);
 
 Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe* Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe *pRow = new Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe(this);
 	pRow->is_added=true;
@@ -732,7 +732,7 @@ Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe* Table_DeviceTemplate_Devic
 
 Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe* Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe::GetRow(long int in_FK_DeviceTemplate_DeviceTemplate_ControlledVia, long int in_FK_Pipe)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_DeviceTemplate_DeviceTemplate_ControlledVia, in_FK_Pipe);
 
@@ -760,7 +760,7 @@ Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe* Table_DeviceTemplate_Devic
 
 Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe* Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_DeviceTemplate_DeviceTemplate_ControlledVia[32];

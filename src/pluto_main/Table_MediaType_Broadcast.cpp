@@ -58,7 +58,7 @@ Table_MediaType_Broadcast::~Table_MediaType_Broadcast()
 
 void Row_MediaType_Broadcast::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_MediaType_Broadcast *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_MediaType_Broadcast::Reload()
 {
 	Row_MediaType_Broadcast *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -314,7 +314,7 @@ pk_FK_Broadcast = in_FK_Broadcast;
 
 Table_MediaType_Broadcast::Key::Key(Row_MediaType_Broadcast *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_MediaType = pRow->m_FK_MediaType;
 pk_FK_Broadcast = pRow->m_FK_Broadcast;
@@ -334,7 +334,7 @@ return false;
 
 bool Table_MediaType_Broadcast::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -465,7 +465,7 @@ condition = condition + "`FK_MediaType`=" + tmp_FK_MediaType+" AND "+"`FK_Broadc
 
 bool Table_MediaType_Broadcast::GetRows(string where_statement,vector<class Row_MediaType_Broadcast*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -603,7 +603,7 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 
 Row_MediaType_Broadcast* Table_MediaType_Broadcast::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_MediaType_Broadcast *pRow = new Row_MediaType_Broadcast(this);
 	pRow->is_added=true;
@@ -615,7 +615,7 @@ Row_MediaType_Broadcast* Table_MediaType_Broadcast::AddRow()
 
 Row_MediaType_Broadcast* Table_MediaType_Broadcast::GetRow(long int in_FK_MediaType, long int in_FK_Broadcast)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_MediaType, in_FK_Broadcast);
 
@@ -643,7 +643,7 @@ Row_MediaType_Broadcast* Table_MediaType_Broadcast::GetRow(long int in_FK_MediaT
 
 Row_MediaType_Broadcast* Table_MediaType_Broadcast::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_MediaType[32];

@@ -58,7 +58,7 @@ Table_MediaType_DesignObj::~Table_MediaType_DesignObj()
 
 void Row_MediaType_DesignObj::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_MediaType_DesignObj *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_MediaType_DesignObj::Reload()
 {
 	Row_MediaType_DesignObj *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -314,7 +314,7 @@ pk_FK_DesignObj = in_FK_DesignObj;
 
 Table_MediaType_DesignObj::Key::Key(Row_MediaType_DesignObj *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_MediaType = pRow->m_FK_MediaType;
 pk_FK_DesignObj = pRow->m_FK_DesignObj;
@@ -334,7 +334,7 @@ return false;
 
 bool Table_MediaType_DesignObj::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -465,7 +465,7 @@ condition = condition + "`FK_MediaType`=" + tmp_FK_MediaType+" AND "+"`FK_Design
 
 bool Table_MediaType_DesignObj::GetRows(string where_statement,vector<class Row_MediaType_DesignObj*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -603,7 +603,7 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 
 Row_MediaType_DesignObj* Table_MediaType_DesignObj::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_MediaType_DesignObj *pRow = new Row_MediaType_DesignObj(this);
 	pRow->is_added=true;
@@ -615,7 +615,7 @@ Row_MediaType_DesignObj* Table_MediaType_DesignObj::AddRow()
 
 Row_MediaType_DesignObj* Table_MediaType_DesignObj::GetRow(long int in_FK_MediaType, long int in_FK_DesignObj)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_MediaType, in_FK_DesignObj);
 
@@ -643,7 +643,7 @@ Row_MediaType_DesignObj* Table_MediaType_DesignObj::GetRow(long int in_FK_MediaT
 
 Row_MediaType_DesignObj* Table_MediaType_DesignObj::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_MediaType[32];

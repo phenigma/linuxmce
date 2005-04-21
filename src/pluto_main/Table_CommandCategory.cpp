@@ -59,7 +59,7 @@ Table_CommandCategory::~Table_CommandCategory()
 
 void Row_CommandCategory::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_CommandCategory *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -90,7 +90,7 @@ void Row_CommandCategory::Reload()
 {
 	Row_CommandCategory *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -348,7 +348,7 @@ Table_CommandCategory::Key::Key(long int in_PK_CommandCategory)
 
 Table_CommandCategory::Key::Key(Row_CommandCategory *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_CommandCategory = pRow->m_PK_CommandCategory;
 	
@@ -364,7 +364,7 @@ return false;
 
 bool Table_CommandCategory::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -491,7 +491,7 @@ condition = condition + "`PK_CommandCategory`=" + tmp_PK_CommandCategory;
 
 bool Table_CommandCategory::GetRows(string where_statement,vector<class Row_CommandCategory*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -640,7 +640,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_CommandCategory* Table_CommandCategory::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_CommandCategory *pRow = new Row_CommandCategory(this);
 	pRow->is_added=true;
@@ -652,7 +652,7 @@ Row_CommandCategory* Table_CommandCategory::AddRow()
 
 Row_CommandCategory* Table_CommandCategory::GetRow(long int in_PK_CommandCategory)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_CommandCategory);
 
@@ -680,7 +680,7 @@ Row_CommandCategory* Table_CommandCategory::GetRow(long int in_PK_CommandCategor
 
 Row_CommandCategory* Table_CommandCategory::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_CommandCategory[32];

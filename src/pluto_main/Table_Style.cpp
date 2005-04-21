@@ -65,7 +65,7 @@ Table_Style::~Table_Style()
 
 void Row_Style::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Style *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -96,7 +96,7 @@ void Row_Style::Reload()
 {
 	Row_Style *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -429,7 +429,7 @@ Table_Style::Key::Key(long int in_PK_Style)
 
 Table_Style::Key::Key(Row_Style *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Style = pRow->m_PK_Style;
 	
@@ -445,7 +445,7 @@ return false;
 
 bool Table_Style::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -572,7 +572,7 @@ condition = condition + "`PK_Style`=" + tmp_PK_Style;
 
 bool Table_Style::GetRows(string where_statement,vector<class Row_Style*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -754,7 +754,7 @@ pRow->m_psc_mod = string(row[10],lengths[10]);
 
 Row_Style* Table_Style::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Style *pRow = new Row_Style(this);
 	pRow->is_added=true;
@@ -766,7 +766,7 @@ Row_Style* Table_Style::AddRow()
 
 Row_Style* Table_Style::GetRow(long int in_PK_Style)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Style);
 
@@ -794,7 +794,7 @@ Row_Style* Table_Style::GetRow(long int in_PK_Style)
 
 Row_Style* Table_Style::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Style[32];

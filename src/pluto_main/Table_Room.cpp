@@ -63,7 +63,7 @@ Table_Room::~Table_Room()
 
 void Row_Room::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Room *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -94,7 +94,7 @@ void Row_Room::Reload()
 {
 	Row_Room *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -422,7 +422,7 @@ Table_Room::Key::Key(long int in_PK_Room)
 
 Table_Room::Key::Key(Row_Room *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Room = pRow->m_PK_Room;
 	
@@ -438,7 +438,7 @@ return false;
 
 bool Table_Room::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -565,7 +565,7 @@ condition = condition + "`PK_Room`=" + tmp_PK_Room;
 
 bool Table_Room::GetRows(string where_statement,vector<class Row_Room*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -747,7 +747,7 @@ pRow->m_psc_mod = string(row[10],lengths[10]);
 
 Row_Room* Table_Room::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Room *pRow = new Row_Room(this);
 	pRow->is_added=true;
@@ -759,7 +759,7 @@ Row_Room* Table_Room::AddRow()
 
 Row_Room* Table_Room::GetRow(long int in_PK_Room)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Room);
 
@@ -787,7 +787,7 @@ Row_Room* Table_Room::GetRow(long int in_PK_Room)
 
 Row_Room* Table_Room::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Room[32];

@@ -58,7 +58,7 @@ Table_Command_Pipe::~Table_Command_Pipe()
 
 void Row_Command_Pipe::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Command_Pipe *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_Command_Pipe::Reload()
 {
 	Row_Command_Pipe *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -314,7 +314,7 @@ pk_FK_Pipe = in_FK_Pipe;
 
 Table_Command_Pipe::Key::Key(Row_Command_Pipe *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_Command = pRow->m_FK_Command;
 pk_FK_Pipe = pRow->m_FK_Pipe;
@@ -334,7 +334,7 @@ return false;
 
 bool Table_Command_Pipe::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -465,7 +465,7 @@ condition = condition + "`FK_Command`=" + tmp_FK_Command+" AND "+"`FK_Pipe`=" + 
 
 bool Table_Command_Pipe::GetRows(string where_statement,vector<class Row_Command_Pipe*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -603,7 +603,7 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 
 Row_Command_Pipe* Table_Command_Pipe::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Command_Pipe *pRow = new Row_Command_Pipe(this);
 	pRow->is_added=true;
@@ -615,7 +615,7 @@ Row_Command_Pipe* Table_Command_Pipe::AddRow()
 
 Row_Command_Pipe* Table_Command_Pipe::GetRow(long int in_FK_Command, long int in_FK_Pipe)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_Command, in_FK_Pipe);
 
@@ -643,7 +643,7 @@ Row_Command_Pipe* Table_Command_Pipe::GetRow(long int in_FK_Command, long int in
 
 Row_Command_Pipe* Table_Command_Pipe::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Command[32];

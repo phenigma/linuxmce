@@ -58,7 +58,7 @@ Table_DeviceCategory_Event::~Table_DeviceCategory_Event()
 
 void Row_DeviceCategory_Event::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_DeviceCategory_Event *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_DeviceCategory_Event::Reload()
 {
 	Row_DeviceCategory_Event *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -314,7 +314,7 @@ pk_FK_Event = in_FK_Event;
 
 Table_DeviceCategory_Event::Key::Key(Row_DeviceCategory_Event *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_DeviceCategory = pRow->m_FK_DeviceCategory;
 pk_FK_Event = pRow->m_FK_Event;
@@ -334,7 +334,7 @@ return false;
 
 bool Table_DeviceCategory_Event::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -465,7 +465,7 @@ condition = condition + "`FK_DeviceCategory`=" + tmp_FK_DeviceCategory+" AND "+"
 
 bool Table_DeviceCategory_Event::GetRows(string where_statement,vector<class Row_DeviceCategory_Event*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -603,7 +603,7 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 
 Row_DeviceCategory_Event* Table_DeviceCategory_Event::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_DeviceCategory_Event *pRow = new Row_DeviceCategory_Event(this);
 	pRow->is_added=true;
@@ -615,7 +615,7 @@ Row_DeviceCategory_Event* Table_DeviceCategory_Event::AddRow()
 
 Row_DeviceCategory_Event* Table_DeviceCategory_Event::GetRow(long int in_FK_DeviceCategory, long int in_FK_Event)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_DeviceCategory, in_FK_Event);
 
@@ -643,7 +643,7 @@ Row_DeviceCategory_Event* Table_DeviceCategory_Event::GetRow(long int in_FK_Devi
 
 Row_DeviceCategory_Event* Table_DeviceCategory_Event::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_DeviceCategory[32];

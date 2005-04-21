@@ -58,7 +58,7 @@ Table_StartupScript::~Table_StartupScript()
 
 void Row_StartupScript::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_StartupScript *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_StartupScript::Reload()
 {
 	Row_StartupScript *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -690,7 +690,7 @@ Table_StartupScript::Key::Key(long int in_PK_StartupScript)
 
 Table_StartupScript::Key::Key(Row_StartupScript *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_StartupScript = pRow->m_PK_StartupScript;
 	
@@ -706,7 +706,7 @@ return false;
 
 bool Table_StartupScript::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -833,7 +833,7 @@ condition = condition + "`PK_StartupScript`=" + tmp_PK_StartupScript;
 
 bool Table_StartupScript::GetRows(string where_statement,vector<class Row_StartupScript*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -1158,7 +1158,7 @@ pRow->m_psc_mod = string(row[23],lengths[23]);
 
 Row_StartupScript* Table_StartupScript::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_StartupScript *pRow = new Row_StartupScript(this);
 	pRow->is_added=true;
@@ -1170,7 +1170,7 @@ Row_StartupScript* Table_StartupScript::AddRow()
 
 Row_StartupScript* Table_StartupScript::GetRow(long int in_PK_StartupScript)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_StartupScript);
 
@@ -1198,7 +1198,7 @@ Row_StartupScript* Table_StartupScript::GetRow(long int in_PK_StartupScript)
 
 Row_StartupScript* Table_StartupScript::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_StartupScript[32];

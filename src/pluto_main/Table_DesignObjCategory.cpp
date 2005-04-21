@@ -59,7 +59,7 @@ Table_DesignObjCategory::~Table_DesignObjCategory()
 
 void Row_DesignObjCategory::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_DesignObjCategory *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -90,7 +90,7 @@ void Row_DesignObjCategory::Reload()
 {
 	Row_DesignObjCategory *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -348,7 +348,7 @@ Table_DesignObjCategory::Key::Key(long int in_PK_DesignObjCategory)
 
 Table_DesignObjCategory::Key::Key(Row_DesignObjCategory *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_DesignObjCategory = pRow->m_PK_DesignObjCategory;
 	
@@ -364,7 +364,7 @@ return false;
 
 bool Table_DesignObjCategory::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -491,7 +491,7 @@ condition = condition + "`PK_DesignObjCategory`=" + tmp_PK_DesignObjCategory;
 
 bool Table_DesignObjCategory::GetRows(string where_statement,vector<class Row_DesignObjCategory*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -640,7 +640,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_DesignObjCategory* Table_DesignObjCategory::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_DesignObjCategory *pRow = new Row_DesignObjCategory(this);
 	pRow->is_added=true;
@@ -652,7 +652,7 @@ Row_DesignObjCategory* Table_DesignObjCategory::AddRow()
 
 Row_DesignObjCategory* Table_DesignObjCategory::GetRow(long int in_PK_DesignObjCategory)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_DesignObjCategory);
 
@@ -680,7 +680,7 @@ Row_DesignObjCategory* Table_DesignObjCategory::GetRow(long int in_PK_DesignObjC
 
 Row_DesignObjCategory* Table_DesignObjCategory::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_DesignObjCategory[32];

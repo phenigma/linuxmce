@@ -62,7 +62,7 @@ Table_Language::~Table_Language()
 
 void Row_Language::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Language *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -93,7 +93,7 @@ void Row_Language::Reload()
 {
 	Row_Language *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -345,7 +345,7 @@ Table_Language::Key::Key(long int in_PK_Language)
 
 Table_Language::Key::Key(Row_Language *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Language = pRow->m_PK_Language;
 	
@@ -361,7 +361,7 @@ return false;
 
 bool Table_Language::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -488,7 +488,7 @@ condition = condition + "`PK_Language`=" + tmp_PK_Language;
 
 bool Table_Language::GetRows(string where_statement,vector<class Row_Language*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -637,7 +637,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_Language* Table_Language::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Language *pRow = new Row_Language(this);
 	pRow->is_added=true;
@@ -649,7 +649,7 @@ Row_Language* Table_Language::AddRow()
 
 Row_Language* Table_Language::GetRow(long int in_PK_Language)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Language);
 
@@ -677,7 +677,7 @@ Row_Language* Table_Language::GetRow(long int in_PK_Language)
 
 Row_Language* Table_Language::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Language[32];

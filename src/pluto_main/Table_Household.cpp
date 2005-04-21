@@ -57,7 +57,7 @@ Table_Household::~Table_Household()
 
 void Row_Household::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Household *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -88,7 +88,7 @@ void Row_Household::Reload()
 {
 	Row_Household *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -291,7 +291,7 @@ Table_Household::Key::Key(long int in_PK_Household)
 
 Table_Household::Key::Key(Row_Household *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Household = pRow->m_PK_Household;
 	
@@ -307,7 +307,7 @@ return false;
 
 bool Table_Household::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -434,7 +434,7 @@ condition = condition + "`PK_Household`=" + tmp_PK_Household;
 
 bool Table_Household::GetRows(string where_statement,vector<class Row_Household*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -561,7 +561,7 @@ pRow->m_psc_mod = string(row[5],lengths[5]);
 
 Row_Household* Table_Household::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Household *pRow = new Row_Household(this);
 	pRow->is_added=true;
@@ -573,7 +573,7 @@ Row_Household* Table_Household::AddRow()
 
 Row_Household* Table_Household::GetRow(long int in_PK_Household)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Household);
 
@@ -601,7 +601,7 @@ Row_Household* Table_Household::GetRow(long int in_PK_Household)
 
 Row_Household* Table_Household::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Household[32];

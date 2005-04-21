@@ -59,7 +59,7 @@ Table_Version::~Table_Version()
 
 void Row_Version::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Version *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -90,7 +90,7 @@ void Row_Version::Reload()
 {
 	Row_Version *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -532,7 +532,7 @@ Table_Version::Key::Key(long int in_PK_Version)
 
 Table_Version::Key::Key(Row_Version *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Version = pRow->m_PK_Version;
 	
@@ -548,7 +548,7 @@ return false;
 
 bool Table_Version::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -675,7 +675,7 @@ condition = condition + "`PK_Version`=" + tmp_PK_Version;
 
 bool Table_Version::GetRows(string where_statement,vector<class Row_Version*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -901,7 +901,7 @@ pRow->m_psc_mod = string(row[14],lengths[14]);
 
 Row_Version* Table_Version::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Version *pRow = new Row_Version(this);
 	pRow->is_added=true;
@@ -913,7 +913,7 @@ Row_Version* Table_Version::AddRow()
 
 Row_Version* Table_Version::GetRow(long int in_PK_Version)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Version);
 
@@ -941,7 +941,7 @@ Row_Version* Table_Version::GetRow(long int in_PK_Version)
 
 Row_Version* Table_Version::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Version[32];

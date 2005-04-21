@@ -56,7 +56,7 @@ Table_Firewall::~Table_Firewall()
 
 void Row_Firewall::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Firewall *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -87,7 +87,7 @@ void Row_Firewall::Reload()
 {
 	Row_Firewall *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -419,7 +419,7 @@ Table_Firewall::Key::Key(long int in_PK_Firewall)
 
 Table_Firewall::Key::Key(Row_Firewall *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Firewall = pRow->m_PK_Firewall;
 	
@@ -435,7 +435,7 @@ return false;
 
 bool Table_Firewall::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -562,7 +562,7 @@ condition = condition + "`PK_Firewall`=" + tmp_PK_Firewall;
 
 bool Table_Firewall::GetRows(string where_statement,vector<class Row_Firewall*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -755,7 +755,7 @@ pRow->m_psc_mod = string(row[11],lengths[11]);
 
 Row_Firewall* Table_Firewall::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Firewall *pRow = new Row_Firewall(this);
 	pRow->is_added=true;
@@ -767,7 +767,7 @@ Row_Firewall* Table_Firewall::AddRow()
 
 Row_Firewall* Table_Firewall::GetRow(long int in_PK_Firewall)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Firewall);
 
@@ -795,7 +795,7 @@ Row_Firewall* Table_Firewall::GetRow(long int in_PK_Firewall)
 
 Row_Firewall* Table_Firewall::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Firewall[32];

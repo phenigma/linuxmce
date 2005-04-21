@@ -61,7 +61,7 @@ Table_ParameterType::~Table_ParameterType()
 
 void Row_ParameterType::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_ParameterType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -92,7 +92,7 @@ void Row_ParameterType::Reload()
 {
 	Row_ParameterType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -367,7 +367,7 @@ Table_ParameterType::Key::Key(long int in_PK_ParameterType)
 
 Table_ParameterType::Key::Key(Row_ParameterType *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_ParameterType = pRow->m_PK_ParameterType;
 	
@@ -383,7 +383,7 @@ return false;
 
 bool Table_ParameterType::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -510,7 +510,7 @@ condition = condition + "`PK_ParameterType`=" + tmp_PK_ParameterType;
 
 bool Table_ParameterType::GetRows(string where_statement,vector<class Row_ParameterType*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -670,7 +670,7 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 
 Row_ParameterType* Table_ParameterType::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_ParameterType *pRow = new Row_ParameterType(this);
 	pRow->is_added=true;
@@ -682,7 +682,7 @@ Row_ParameterType* Table_ParameterType::AddRow()
 
 Row_ParameterType* Table_ParameterType::GetRow(long int in_PK_ParameterType)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_ParameterType);
 
@@ -710,7 +710,7 @@ Row_ParameterType* Table_ParameterType::GetRow(long int in_PK_ParameterType)
 
 Row_ParameterType* Table_ParameterType::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_ParameterType[32];

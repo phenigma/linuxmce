@@ -58,7 +58,7 @@ Table_InstallWizard::~Table_InstallWizard()
 
 void Row_InstallWizard::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_InstallWizard *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_InstallWizard::Reload()
 {
 	Row_InstallWizard *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -390,7 +390,7 @@ Table_InstallWizard::Key::Key(long int in_PK_InstallWizard)
 
 Table_InstallWizard::Key::Key(Row_InstallWizard *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_InstallWizard = pRow->m_PK_InstallWizard;
 	
@@ -406,7 +406,7 @@ return false;
 
 bool Table_InstallWizard::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -533,7 +533,7 @@ condition = condition + "`PK_InstallWizard`=" + tmp_PK_InstallWizard;
 
 bool Table_InstallWizard::GetRows(string where_statement,vector<class Row_InstallWizard*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -704,7 +704,7 @@ pRow->m_psc_mod = string(row[9],lengths[9]);
 
 Row_InstallWizard* Table_InstallWizard::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_InstallWizard *pRow = new Row_InstallWizard(this);
 	pRow->is_added=true;
@@ -716,7 +716,7 @@ Row_InstallWizard* Table_InstallWizard::AddRow()
 
 Row_InstallWizard* Table_InstallWizard::GetRow(long int in_PK_InstallWizard)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_InstallWizard);
 
@@ -744,7 +744,7 @@ Row_InstallWizard* Table_InstallWizard::GetRow(long int in_PK_InstallWizard)
 
 Row_InstallWizard* Table_InstallWizard::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_InstallWizard[32];

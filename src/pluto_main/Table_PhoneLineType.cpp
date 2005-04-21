@@ -56,7 +56,7 @@ Table_PhoneLineType::~Table_PhoneLineType()
 
 void Row_PhoneLineType::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_PhoneLineType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -87,7 +87,7 @@ void Row_PhoneLineType::Reload()
 {
 	Row_PhoneLineType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -334,7 +334,7 @@ Table_PhoneLineType::Key::Key(long int in_PK_PhoneLineType)
 
 Table_PhoneLineType::Key::Key(Row_PhoneLineType *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_PhoneLineType = pRow->m_PK_PhoneLineType;
 	
@@ -350,7 +350,7 @@ return false;
 
 bool Table_PhoneLineType::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -477,7 +477,7 @@ condition = condition + "`PK_PhoneLineType`=" + tmp_PK_PhoneLineType;
 
 bool Table_PhoneLineType::GetRows(string where_statement,vector<class Row_PhoneLineType*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -626,7 +626,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_PhoneLineType* Table_PhoneLineType::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_PhoneLineType *pRow = new Row_PhoneLineType(this);
 	pRow->is_added=true;
@@ -638,7 +638,7 @@ Row_PhoneLineType* Table_PhoneLineType::AddRow()
 
 Row_PhoneLineType* Table_PhoneLineType::GetRow(long int in_PK_PhoneLineType)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_PhoneLineType);
 
@@ -666,7 +666,7 @@ Row_PhoneLineType* Table_PhoneLineType::GetRow(long int in_PK_PhoneLineType)
 
 Row_PhoneLineType* Table_PhoneLineType::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_PhoneLineType[32];

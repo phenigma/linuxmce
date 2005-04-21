@@ -58,7 +58,7 @@ Table_DesignObjVariation_DesignObjParameter::~Table_DesignObjVariation_DesignObj
 
 void Row_DesignObjVariation_DesignObjParameter::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_DesignObjVariation_DesignObjParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_DesignObjVariation_DesignObjParameter::Reload()
 {
 	Row_DesignObjVariation_DesignObjParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -342,7 +342,7 @@ pk_FK_DesignObjParameter = in_FK_DesignObjParameter;
 
 Table_DesignObjVariation_DesignObjParameter::Key::Key(Row_DesignObjVariation_DesignObjParameter *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_DesignObjVariation = pRow->m_FK_DesignObjVariation;
 pk_FK_DesignObjParameter = pRow->m_FK_DesignObjParameter;
@@ -362,7 +362,7 @@ return false;
 
 bool Table_DesignObjVariation_DesignObjParameter::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -493,7 +493,7 @@ condition = condition + "`FK_DesignObjVariation`=" + tmp_FK_DesignObjVariation+"
 
 bool Table_DesignObjVariation_DesignObjParameter::GetRows(string where_statement,vector<class Row_DesignObjVariation_DesignObjParameter*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -642,7 +642,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_DesignObjVariation_DesignObjParameter* Table_DesignObjVariation_DesignObjParameter::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_DesignObjVariation_DesignObjParameter *pRow = new Row_DesignObjVariation_DesignObjParameter(this);
 	pRow->is_added=true;
@@ -654,7 +654,7 @@ Row_DesignObjVariation_DesignObjParameter* Table_DesignObjVariation_DesignObjPar
 
 Row_DesignObjVariation_DesignObjParameter* Table_DesignObjVariation_DesignObjParameter::GetRow(long int in_FK_DesignObjVariation, long int in_FK_DesignObjParameter)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_DesignObjVariation, in_FK_DesignObjParameter);
 
@@ -682,7 +682,7 @@ Row_DesignObjVariation_DesignObjParameter* Table_DesignObjVariation_DesignObjPar
 
 Row_DesignObjVariation_DesignObjParameter* Table_DesignObjVariation_DesignObjParameter::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_DesignObjVariation[32];

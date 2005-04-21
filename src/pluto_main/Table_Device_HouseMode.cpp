@@ -59,7 +59,7 @@ Table_Device_HouseMode::~Table_Device_HouseMode()
 
 void Row_Device_HouseMode::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Device_HouseMode *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -90,7 +90,7 @@ void Row_Device_HouseMode::Reload()
 {
 	Row_Device_HouseMode *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -336,7 +336,7 @@ pk_FK_HouseMode = in_FK_HouseMode;
 
 Table_Device_HouseMode::Key::Key(Row_Device_HouseMode *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_Device = pRow->m_FK_Device;
 pk_FK_HouseMode = pRow->m_FK_HouseMode;
@@ -356,7 +356,7 @@ return false;
 
 bool Table_Device_HouseMode::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -487,7 +487,7 @@ condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_HouseMode`="
 
 bool Table_Device_HouseMode::GetRows(string where_statement,vector<class Row_Device_HouseMode*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -636,7 +636,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_Device_HouseMode* Table_Device_HouseMode::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Device_HouseMode *pRow = new Row_Device_HouseMode(this);
 	pRow->is_added=true;
@@ -648,7 +648,7 @@ Row_Device_HouseMode* Table_Device_HouseMode::AddRow()
 
 Row_Device_HouseMode* Table_Device_HouseMode::GetRow(long int in_FK_Device, long int in_FK_HouseMode)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_Device, in_FK_HouseMode);
 
@@ -676,7 +676,7 @@ Row_Device_HouseMode* Table_Device_HouseMode::GetRow(long int in_FK_Device, long
 
 Row_Device_HouseMode* Table_Device_HouseMode::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Device[32];

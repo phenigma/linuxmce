@@ -58,7 +58,7 @@ Table_DeviceCommandGroup_DeviceCommandGroup_Parent::~Table_DeviceCommandGroup_De
 
 void Row_DeviceCommandGroup_DeviceCommandGroup_Parent::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_DeviceCommandGroup_DeviceCommandGroup_Parent *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_DeviceCommandGroup_DeviceCommandGroup_Parent::Reload()
 {
 	Row_DeviceCommandGroup_DeviceCommandGroup_Parent *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -314,7 +314,7 @@ pk_FK_DeviceCommandGroup_Parent = in_FK_DeviceCommandGroup_Parent;
 
 Table_DeviceCommandGroup_DeviceCommandGroup_Parent::Key::Key(Row_DeviceCommandGroup_DeviceCommandGroup_Parent *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_DeviceCommandGroup = pRow->m_FK_DeviceCommandGroup;
 pk_FK_DeviceCommandGroup_Parent = pRow->m_FK_DeviceCommandGroup_Parent;
@@ -334,7 +334,7 @@ return false;
 
 bool Table_DeviceCommandGroup_DeviceCommandGroup_Parent::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -465,7 +465,7 @@ condition = condition + "`FK_DeviceCommandGroup`=" + tmp_FK_DeviceCommandGroup+"
 
 bool Table_DeviceCommandGroup_DeviceCommandGroup_Parent::GetRows(string where_statement,vector<class Row_DeviceCommandGroup_DeviceCommandGroup_Parent*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -603,7 +603,7 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 
 Row_DeviceCommandGroup_DeviceCommandGroup_Parent* Table_DeviceCommandGroup_DeviceCommandGroup_Parent::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_DeviceCommandGroup_DeviceCommandGroup_Parent *pRow = new Row_DeviceCommandGroup_DeviceCommandGroup_Parent(this);
 	pRow->is_added=true;
@@ -615,7 +615,7 @@ Row_DeviceCommandGroup_DeviceCommandGroup_Parent* Table_DeviceCommandGroup_Devic
 
 Row_DeviceCommandGroup_DeviceCommandGroup_Parent* Table_DeviceCommandGroup_DeviceCommandGroup_Parent::GetRow(long int in_FK_DeviceCommandGroup, long int in_FK_DeviceCommandGroup_Parent)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_DeviceCommandGroup, in_FK_DeviceCommandGroup_Parent);
 
@@ -643,7 +643,7 @@ Row_DeviceCommandGroup_DeviceCommandGroup_Parent* Table_DeviceCommandGroup_Devic
 
 Row_DeviceCommandGroup_DeviceCommandGroup_Parent* Table_DeviceCommandGroup_DeviceCommandGroup_Parent::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_DeviceCommandGroup[32];

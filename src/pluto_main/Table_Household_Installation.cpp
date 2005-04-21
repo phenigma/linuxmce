@@ -58,7 +58,7 @@ Table_Household_Installation::~Table_Household_Installation()
 
 void Row_Household_Installation::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Household_Installation *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_Household_Installation::Reload()
 {
 	Row_Household_Installation *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -314,7 +314,7 @@ pk_FK_Installation = in_FK_Installation;
 
 Table_Household_Installation::Key::Key(Row_Household_Installation *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_Household = pRow->m_FK_Household;
 pk_FK_Installation = pRow->m_FK_Installation;
@@ -334,7 +334,7 @@ return false;
 
 bool Table_Household_Installation::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -465,7 +465,7 @@ condition = condition + "`FK_Household`=" + tmp_FK_Household+" AND "+"`FK_Instal
 
 bool Table_Household_Installation::GetRows(string where_statement,vector<class Row_Household_Installation*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -603,7 +603,7 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 
 Row_Household_Installation* Table_Household_Installation::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Household_Installation *pRow = new Row_Household_Installation(this);
 	pRow->is_added=true;
@@ -615,7 +615,7 @@ Row_Household_Installation* Table_Household_Installation::AddRow()
 
 Row_Household_Installation* Table_Household_Installation::GetRow(long int in_FK_Household, long int in_FK_Installation)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_Household, in_FK_Installation);
 
@@ -643,7 +643,7 @@ Row_Household_Installation* Table_Household_Installation::GetRow(long int in_FK_
 
 Row_Household_Installation* Table_Household_Installation::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Household[32];

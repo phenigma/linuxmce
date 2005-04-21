@@ -58,7 +58,7 @@ Table_Text_LS_AltVersions::~Table_Text_LS_AltVersions()
 
 void Row_Text_LS_AltVersions::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Text_LS_AltVersions *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_Text_LS_AltVersions::Reload()
 {
 	Row_Text_LS_AltVersions *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -358,7 +358,7 @@ pk_Version = in_Version;
 
 Table_Text_LS_AltVersions::Key::Key(Row_Text_LS_AltVersions *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_Text = pRow->m_FK_Text;
 pk_FK_Language = pRow->m_FK_Language;
@@ -382,7 +382,7 @@ return false;
 
 bool Table_Text_LS_AltVersions::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -519,7 +519,7 @@ condition = condition + "`FK_Text`=" + tmp_FK_Text+" AND "+"`FK_Language`=" + tm
 
 bool Table_Text_LS_AltVersions::GetRows(string where_statement,vector<class Row_Text_LS_AltVersions*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -679,7 +679,7 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 
 Row_Text_LS_AltVersions* Table_Text_LS_AltVersions::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Text_LS_AltVersions *pRow = new Row_Text_LS_AltVersions(this);
 	pRow->is_added=true;
@@ -691,7 +691,7 @@ Row_Text_LS_AltVersions* Table_Text_LS_AltVersions::AddRow()
 
 Row_Text_LS_AltVersions* Table_Text_LS_AltVersions::GetRow(long int in_FK_Text, long int in_FK_Language, long int in_Version)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	TripleLongKey row_key(in_FK_Text, in_FK_Language, in_Version);
 
@@ -719,7 +719,7 @@ Row_Text_LS_AltVersions* Table_Text_LS_AltVersions::GetRow(long int in_FK_Text, 
 
 Row_Text_LS_AltVersions* Table_Text_LS_AltVersions::FetchRow(TripleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Text[32];

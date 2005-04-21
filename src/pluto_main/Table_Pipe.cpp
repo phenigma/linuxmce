@@ -63,7 +63,7 @@ Table_Pipe::~Table_Pipe()
 
 void Row_Pipe::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Pipe *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -94,7 +94,7 @@ void Row_Pipe::Reload()
 {
 	Row_Pipe *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -346,7 +346,7 @@ Table_Pipe::Key::Key(long int in_PK_Pipe)
 
 Table_Pipe::Key::Key(Row_Pipe *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Pipe = pRow->m_PK_Pipe;
 	
@@ -362,7 +362,7 @@ return false;
 
 bool Table_Pipe::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -489,7 +489,7 @@ condition = condition + "`PK_Pipe`=" + tmp_PK_Pipe;
 
 bool Table_Pipe::GetRows(string where_statement,vector<class Row_Pipe*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -638,7 +638,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_Pipe* Table_Pipe::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Pipe *pRow = new Row_Pipe(this);
 	pRow->is_added=true;
@@ -650,7 +650,7 @@ Row_Pipe* Table_Pipe::AddRow()
 
 Row_Pipe* Table_Pipe::GetRow(long int in_PK_Pipe)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Pipe);
 
@@ -678,7 +678,7 @@ Row_Pipe* Table_Pipe::GetRow(long int in_PK_Pipe)
 
 Row_Pipe* Table_Pipe::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Pipe[32];

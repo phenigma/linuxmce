@@ -58,7 +58,7 @@ Table_Package_Package::~Table_Package_Package()
 
 void Row_Package_Package::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Package_Package *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_Package_Package::Reload()
 {
 	Row_Package_Package *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -335,7 +335,7 @@ pk_FK_Package_DependsOn = in_FK_Package_DependsOn;
 
 Table_Package_Package::Key::Key(Row_Package_Package *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_Package = pRow->m_FK_Package;
 pk_FK_Package_DependsOn = pRow->m_FK_Package_DependsOn;
@@ -355,7 +355,7 @@ return false;
 
 bool Table_Package_Package::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -486,7 +486,7 @@ condition = condition + "`FK_Package`=" + tmp_FK_Package+" AND "+"`FK_Package_De
 
 bool Table_Package_Package::GetRows(string where_statement,vector<class Row_Package_Package*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -635,7 +635,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_Package_Package* Table_Package_Package::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Package_Package *pRow = new Row_Package_Package(this);
 	pRow->is_added=true;
@@ -647,7 +647,7 @@ Row_Package_Package* Table_Package_Package::AddRow()
 
 Row_Package_Package* Table_Package_Package::GetRow(long int in_FK_Package, long int in_FK_Package_DependsOn)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	DoubleLongKey row_key(in_FK_Package, in_FK_Package_DependsOn);
 
@@ -675,7 +675,7 @@ Row_Package_Package* Table_Package_Package::GetRow(long int in_FK_Package, long 
 
 Row_Package_Package* Table_Package_Package::FetchRow(DoubleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Package[32];

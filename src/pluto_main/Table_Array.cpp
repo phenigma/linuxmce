@@ -57,7 +57,7 @@ Table_Array::~Table_Array()
 
 void Row_Array::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Array *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -88,7 +88,7 @@ void Row_Array::Reload()
 {
 	Row_Array *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -356,7 +356,7 @@ Table_Array::Key::Key(long int in_PK_Array)
 
 Table_Array::Key::Key(Row_Array *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Array = pRow->m_PK_Array;
 	
@@ -372,7 +372,7 @@ return false;
 
 bool Table_Array::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -499,7 +499,7 @@ condition = condition + "`PK_Array`=" + tmp_PK_Array;
 
 bool Table_Array::GetRows(string where_statement,vector<class Row_Array*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -659,7 +659,7 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 
 Row_Array* Table_Array::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Array *pRow = new Row_Array(this);
 	pRow->is_added=true;
@@ -671,7 +671,7 @@ Row_Array* Table_Array::AddRow()
 
 Row_Array* Table_Array::GetRow(long int in_PK_Array)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Array);
 
@@ -699,7 +699,7 @@ Row_Array* Table_Array::GetRow(long int in_PK_Array)
 
 Row_Array* Table_Array::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Array[32];

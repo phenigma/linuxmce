@@ -60,7 +60,7 @@ Table_FloorplanObjectType::~Table_FloorplanObjectType()
 
 void Row_FloorplanObjectType::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_FloorplanObjectType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -91,7 +91,7 @@ void Row_FloorplanObjectType::Reload()
 {
 	Row_FloorplanObjectType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -478,7 +478,7 @@ Table_FloorplanObjectType::Key::Key(long int in_PK_FloorplanObjectType)
 
 Table_FloorplanObjectType::Key::Key(Row_FloorplanObjectType *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_FloorplanObjectType = pRow->m_PK_FloorplanObjectType;
 	
@@ -494,7 +494,7 @@ return false;
 
 bool Table_FloorplanObjectType::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -621,7 +621,7 @@ condition = condition + "`PK_FloorplanObjectType`=" + tmp_PK_FloorplanObjectType
 
 bool Table_FloorplanObjectType::GetRows(string where_statement,vector<class Row_FloorplanObjectType*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -836,7 +836,7 @@ pRow->m_psc_mod = string(row[13],lengths[13]);
 
 Row_FloorplanObjectType* Table_FloorplanObjectType::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_FloorplanObjectType *pRow = new Row_FloorplanObjectType(this);
 	pRow->is_added=true;
@@ -848,7 +848,7 @@ Row_FloorplanObjectType* Table_FloorplanObjectType::AddRow()
 
 Row_FloorplanObjectType* Table_FloorplanObjectType::GetRow(long int in_PK_FloorplanObjectType)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_FloorplanObjectType);
 
@@ -876,7 +876,7 @@ Row_FloorplanObjectType* Table_FloorplanObjectType::GetRow(long int in_PK_Floorp
 
 Row_FloorplanObjectType* Table_FloorplanObjectType::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_FloorplanObjectType[32];

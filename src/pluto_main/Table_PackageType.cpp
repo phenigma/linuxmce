@@ -57,7 +57,7 @@ Table_PackageType::~Table_PackageType()
 
 void Row_PackageType::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_PackageType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -88,7 +88,7 @@ void Row_PackageType::Reload()
 {
 	Row_PackageType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -341,7 +341,7 @@ Table_PackageType::Key::Key(long int in_PK_PackageType)
 
 Table_PackageType::Key::Key(Row_PackageType *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_PackageType = pRow->m_PK_PackageType;
 	
@@ -357,7 +357,7 @@ return false;
 
 bool Table_PackageType::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -484,7 +484,7 @@ condition = condition + "`PK_PackageType`=" + tmp_PK_PackageType;
 
 bool Table_PackageType::GetRows(string where_statement,vector<class Row_PackageType*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -633,7 +633,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 Row_PackageType* Table_PackageType::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_PackageType *pRow = new Row_PackageType(this);
 	pRow->is_added=true;
@@ -645,7 +645,7 @@ Row_PackageType* Table_PackageType::AddRow()
 
 Row_PackageType* Table_PackageType::GetRow(long int in_PK_PackageType)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_PackageType);
 
@@ -673,7 +673,7 @@ Row_PackageType* Table_PackageType::GetRow(long int in_PK_PackageType)
 
 Row_PackageType* Table_PackageType::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_PackageType[32];

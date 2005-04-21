@@ -58,7 +58,7 @@ Table_ConfigType_Token::~Table_ConfigType_Token()
 
 void Row_ConfigType_Token::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_ConfigType_Token *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -89,7 +89,7 @@ void Row_ConfigType_Token::Reload()
 {
 	Row_ConfigType_Token *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -359,7 +359,7 @@ pk_FindStr = in_FindStr;
 
 Table_ConfigType_Token::Key::Key(Row_ConfigType_Token *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_ConfigType_Setting = pRow->m_FK_ConfigType_Setting;
 pk_FK_ConfigType_File = pRow->m_FK_ConfigType_File;
@@ -383,7 +383,7 @@ return false;
 
 bool Table_ConfigType_Token::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -520,7 +520,7 @@ condition = condition + "`FK_ConfigType_Setting`=" + tmp_FK_ConfigType_Setting+"
 
 bool Table_ConfigType_Token::GetRows(string where_statement,vector<class Row_ConfigType_Token*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -680,7 +680,7 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 
 Row_ConfigType_Token* Table_ConfigType_Token::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_ConfigType_Token *pRow = new Row_ConfigType_Token(this);
 	pRow->is_added=true;
@@ -692,7 +692,7 @@ Row_ConfigType_Token* Table_ConfigType_Token::AddRow()
 
 Row_ConfigType_Token* Table_ConfigType_Token::GetRow(long int in_FK_ConfigType_Setting, long int in_FK_ConfigType_File, string in_FindStr)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Table_ConfigType_Token::Key row_key(in_FK_ConfigType_Setting, in_FK_ConfigType_File, in_FindStr);
 
@@ -720,7 +720,7 @@ Row_ConfigType_Token* Table_ConfigType_Token::GetRow(long int in_FK_ConfigType_S
 
 Row_ConfigType_Token* Table_ConfigType_Token::FetchRow(Table_ConfigType_Token::Key &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_ConfigType_Setting[32];

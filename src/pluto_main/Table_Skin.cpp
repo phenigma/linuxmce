@@ -66,7 +66,7 @@ Table_Skin::~Table_Skin()
 
 void Row_Skin::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Skin *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -97,7 +97,7 @@ void Row_Skin::Reload()
 {
 	Row_Skin *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -557,7 +557,7 @@ Table_Skin::Key::Key(long int in_PK_Skin)
 
 Table_Skin::Key::Key(Row_Skin *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Skin = pRow->m_PK_Skin;
 	
@@ -573,7 +573,7 @@ return false;
 
 bool Table_Skin::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -700,7 +700,7 @@ condition = condition + "`PK_Skin`=" + tmp_PK_Skin;
 
 bool Table_Skin::GetRows(string where_statement,vector<class Row_Skin*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -948,7 +948,7 @@ pRow->m_psc_mod = string(row[16],lengths[16]);
 
 Row_Skin* Table_Skin::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Skin *pRow = new Row_Skin(this);
 	pRow->is_added=true;
@@ -960,7 +960,7 @@ Row_Skin* Table_Skin::AddRow()
 
 Row_Skin* Table_Skin::GetRow(long int in_PK_Skin)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Skin);
 
@@ -988,7 +988,7 @@ Row_Skin* Table_Skin::GetRow(long int in_PK_Skin)
 
 Row_Skin* Table_Skin::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Skin[32];

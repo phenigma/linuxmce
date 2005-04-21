@@ -56,7 +56,7 @@ Table_psc_designer_repset::~Table_psc_designer_repset()
 
 void Row_psc_designer_repset::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_psc_designer_repset *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -87,7 +87,7 @@ void Row_psc_designer_repset::Reload()
 {
 	Row_psc_designer_repset *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -209,7 +209,7 @@ Table_psc_designer_repset::Key::Key(long int in_PK_psc_designer_repset)
 
 Table_psc_designer_repset::Key::Key(Row_psc_designer_repset *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_psc_designer_repset = pRow->m_PK_psc_designer_repset;
 	
@@ -225,7 +225,7 @@ return false;
 
 bool Table_psc_designer_repset::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -352,7 +352,7 @@ condition = condition + "`PK_psc_designer_repset`=" + tmp_PK_psc_designer_repset
 
 bool Table_psc_designer_repset::GetRows(string where_statement,vector<class Row_psc_designer_repset*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -446,7 +446,7 @@ pRow->m_Value = string(row[2],lengths[2]);
 
 Row_psc_designer_repset* Table_psc_designer_repset::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_psc_designer_repset *pRow = new Row_psc_designer_repset(this);
 	pRow->is_added=true;
@@ -458,7 +458,7 @@ Row_psc_designer_repset* Table_psc_designer_repset::AddRow()
 
 Row_psc_designer_repset* Table_psc_designer_repset::GetRow(long int in_PK_psc_designer_repset)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_psc_designer_repset);
 
@@ -486,7 +486,7 @@ Row_psc_designer_repset* Table_psc_designer_repset::GetRow(long int in_PK_psc_de
 
 Row_psc_designer_repset* Table_psc_designer_repset::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_psc_designer_repset[32];
