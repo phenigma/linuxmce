@@ -1294,6 +1294,15 @@ public:
 	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #365 - Activate Window */
+	/** ActivateApplication - Used by Linux On Screeen Orbiters only */
+		/** @param #50 Name */
+			/** Name as known by ratpoison. */
+
+	virtual void CMD_Activate_Window(string sName) { string sCMD_Result; CMD_Activate_Window(sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 /** temporary solution only */

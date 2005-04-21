@@ -6423,3 +6423,27 @@ void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *
 {
 }
 
+//<-dceag-c354-b->
+
+	/** @brief COMMAND: #354 - Show Mouse Pointer */
+	/** Shows or hides the mouse pointer. */
+		/** @param #8 On/Off */
+			/** 1=show it, 0=hide it. */
+
+void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
+//<-dceag-c354-e->
+{
+}
+
+//<-dceag-c365-b->
+
+	/** @brief COMMAND: #365 - Activate Window */
+	/** ActivateApplication - Used by Linux On Screeen Orbiters only */
+		/** @param #50 Name */
+			/** Name as known by ratpoison. */
+
+void Orbiter::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage)
+//<-dceag-c365-e->
+{
+}
+
