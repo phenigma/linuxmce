@@ -41,7 +41,7 @@ XRecordExtensionHandler::~XRecordExtensionHandler()
 
 	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): cancelling the thread");
 	pthread_cancel(recordingThread);
-	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Joining the theread");
+	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Joining the thread");
 	pthread_join(recordingThread, NULL);
 	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Done");
 }

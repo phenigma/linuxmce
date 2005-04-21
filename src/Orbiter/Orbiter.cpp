@@ -3304,7 +3304,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
                         if( 0 == Text.find( m_sCaptureKeyboard_InternalBuffer ) ) //we have a match,  Text starts with m_sCaptureKeyboard_InternalBuffer
                         {
                             pDataGrid->m_iHighlightedRow = i;
-							
+
 							PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
                             m_vectObjs_NeedRedraw.push_back( pDataGrid );
 							nd.Release();
@@ -4133,7 +4133,7 @@ void *MaintThread(void *p)
 	bMaintThreadIsRunning = true;
 	Orbiter* pOrbiter = (Orbiter *)p;
 
-	while(!pOrbiter->m_bQuit) 
+	while(!pOrbiter->m_bQuit)
 	{
 		PLUTO_SAFETY_LOCK(cm, pOrbiter->m_MaintThreadMutex);// Keep this locked to protect the map
 		if(mapPendingCallbacks.size() == 0)
@@ -4860,7 +4860,7 @@ void Orbiter::CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,st
 void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c18-e->
 {
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );    
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 	sPK_DesignObj = SubstituteVariables( sPK_DesignObj,  NULL,  0,  0 );
     DesignObj_Orbiter *pObj = FindObject( sPK_DesignObj );
     if(  !pObj  )
@@ -5945,7 +5945,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
 
 	//we have nothing to render
-	if(pVectorPlutoGraphic->size() == 0) 
+	if(pVectorPlutoGraphic->size() == 0)
 		return;
 
 	//just in case
@@ -6410,17 +6410,6 @@ void Orbiter::CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCM
 	int X = pObj->m_rPosition.X + pObj->m_rPosition.Width/2;
 	int Y = pObj->m_rPosition.Y + pObj->m_rPosition.Height/2;
 	SetMousePointer(X,Y);
-}
-//<-dceag-c352-b->
-
-	/** @brief COMMAND: #352 - Show Mouse Pointer */
-	/** Shows or hides the mouse pointer. */
-		/** @param #8 On/Off */
-			/** 1=show it, 0=hide it. */
-
-void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
-//<-dceag-c352-e->
-{
 }
 
 //<-dceag-c354-b->

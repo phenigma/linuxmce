@@ -387,6 +387,19 @@ void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Mess
 {
 	bool bShow = sOnOff=="1";
 
+	if ( bShow )
+		commandRatPoison(":banish off");
+	else
+		commandRatPoison(":banish on");
 	// Code goes here to hide/show the the pointer.  bShow==true, means show it.
 }
 
+void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
+{
+	g_pPlutoLogger->Write(LV_WARNING, "CMD off not implemented on the orbiter yet");
+}
+
+void OrbiterLinux::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage)
+{
+	commandRatPoison(string(":select ") + sName);
+}

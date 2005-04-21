@@ -69,6 +69,9 @@ public:
 	// overridden to handle turning on and off the mouse pointer
 	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage);
 
+	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
+
+	virtual void CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage);
 //     virtual void Initialize(GraphicType Type);
 };
 
