@@ -124,24 +124,9 @@ MythTV_Player::~MythTV_Player()
 
 bool MythTV_Player::LaunchMythFrontend()
 {
-
-	/**
-	string commandToFire = StringUtils::Format("0 %d %d %d %d %d",
-				m_pData->m_dwPK_Device_ControlledVia, 					// assume that we are controlled by one Orbiter.
-				MESSAGETYPE_COMMAND, 									// on exit send a command to the Orbiter
-				COMMAND_Go_back_CONST,									// to go back
-				COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST,		// if it is at the
-				DESIGNOBJ_pvr_full_screen_CONST);						// pvr_full_screen.
-	*/
-
 	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", MYTH_WINDOW_NAME);
-//    DCE::CMD_Spawn_Application_DT spawnApplication(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, "/usr/bin/mythfrontend", MYTH_WINDOW_NAME, "", commandToFire, commandToFire);
-//     spawnApplication.m_pMessage->m_bRelativeToSender = true;
-//     SendCommand(spawnApplication);
 
-// 	sleep(5);
-
-    if ( ! m_pRatWrapper )
+	if ( ! m_pRatWrapper )
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
     selectWindow();
@@ -366,7 +351,8 @@ void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 	if ( ! checkXServerConnection())
 		return;
 
-	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME) == false )
+	vector<void *> data;
+	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data) == false )
 		g_pPlutoLogger->Write(LV_WARNING, "I failed to kill the application launched with name: %s", MYTH_WINDOW_NAME);
 }
 
@@ -424,7 +410,10 @@ void MythTV_Player::ProcessExited(int pid, int status)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Process exited %d %d", pid, status);
 
-	string applicationName = ProcessUtils::FindApplicationFromPid(pid, true);
+	void *data;
+	string applicationName;
+	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
+		return;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Got application name: %s compare with %s", applicationName.c_str(), MYTH_WINDOW_NAME);
 

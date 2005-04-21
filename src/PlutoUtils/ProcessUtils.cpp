@@ -11,14 +11,15 @@ namespace ProcessUtils
 	using std::map;
 	using std::vector;
 
-	typedef map<string, vector<int> > MapIdentifierToPids;
+	typedef map<int, void*> MapPidToData;
+	typedef map<string, MapPidToData> MapIdentifierToPidData;
 
-	MapIdentifierToPids mapIdentifierToPids;
+	MapIdentifierToPidData mapIdentifierToPidData;
 }
 
 pthread_mutex_t mutexDataStructure = PTHREAD_MUTEX_INITIALIZER;
 
-bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, string sAppIdentifier)
+bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, string sAppIdentifier, void *attachedData)
 {
     if ( sAppIdentifier == "" )
         sAppIdentifier = "not named";
@@ -92,7 +93,11 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
 		default:
 			pthread_mutex_lock(&mutexDataStructure);
 			printf("ProcessUtils::SpawnApplication() adding this %d pid to the spawned list for %s\n", pid, sAppIdentifier.c_str());
-			mapIdentifierToPids[sAppIdentifier].push_back(pid);
+
+			if ( mapIdentifierToPidData.find(sAppIdentifier) == mapIdentifierToPidData.end() )
+                mapIdentifierToPidData[sAppIdentifier] = map<int, void *>();
+
+			mapIdentifierToPidData[sAppIdentifier][pid] = attachedData;
 			pthread_mutex_unlock(&mutexDataStructure);
             return true;
     }
@@ -107,55 +112,65 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
 #endif
 }
 
-bool ProcessUtils::KillApplication(string sAppIdentifier)
+bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associatedData)
 {
 	pthread_mutex_lock(&mutexDataStructure);
-	MapIdentifierToPids::iterator element = mapIdentifierToPids.find(sAppIdentifier);
+	MapIdentifierToPidData::iterator element = mapIdentifierToPidData.find(sAppIdentifier);
 
-	if (element == mapIdentifierToPids.end())
+	if (element == mapIdentifierToPidData.end())
     {
         printf("ProcessUtils::KillApplication() No application '%s' found. None killed\n", sAppIdentifier.c_str());
 		pthread_mutex_unlock(&mutexDataStructure);
 		return false;
     }
 
-	vector<int> &our_vect = element->second;
-	printf("ProcessUtils::KillApplication(): Found %d '%s' applications. Killing them all (really)\n", our_vect.size(), sAppIdentifier.c_str());
+	MapPidToData &mapPidsToData= element->second;
+	printf("ProcessUtils::KillApplication(): Found %d '%s' applications. Killing them all (really)\n", mapPidsToData.size(), sAppIdentifier.c_str());
 
-	vector<int>::const_iterator i;
-    for (i = our_vect.begin(); i < our_vect.end(); i++)
-    	kill(* i, SIGKILL);
+	associatedData.clear();
+	MapPidToData::const_iterator itPidsToData = mapPidsToData.begin();
+	while ( itPidsToData != mapPidsToData.end() )
+	{
+    	kill(itPidsToData->first, SIGKILL);
+		associatedData.push_back(itPidsToData->second);
+	}
 
-	mapIdentifierToPids.erase(element);
+	mapIdentifierToPidData.erase(element);
 	pthread_mutex_unlock(&mutexDataStructure);
 	return true;
 }
 
-std::string ProcessUtils::FindApplicationFromPid(int pid, bool removeIt)
+bool ProcessUtils::ApplicationExited(int pid, string &associatedName, void *&associatedData, bool removeIt)
 {
 	pthread_mutex_lock(&mutexDataStructure);
 
-	MapIdentifierToPids::iterator applicationElement = mapIdentifierToPids.begin();
-	while ( applicationElement != mapIdentifierToPids.end() )
+	MapIdentifierToPidData::iterator applicationElement = mapIdentifierToPidData.begin();
+	while ( applicationElement != mapIdentifierToPidData.end() )
 	{
-		printf("ProcessUtils::FindApplicationFromPid() Looking at: %s\n", applicationElement->first.c_str());
-		vector<int> &our_vect = applicationElement->second;
-		vector<int>::iterator itPids = our_vect.begin();
-		while ( itPids != our_vect.end() )
+		printf("ProcessUtils::ApplicationExited() Looking at: %s\n", applicationElement->first.c_str());
+
+		MapPidToData &mapPidsToData = applicationElement->second;
+		MapPidToData::iterator itPidsToData = mapPidsToData.begin();
+		while ( itPidsToData != mapPidsToData.end() && itPidsToData->first != pid )
 		{
-			printf("ProcessUtils::FindApplicationFromPid() checking pid %d\n", *itPids);
-			if ( *itPids != pid )
-				itPids++;
-			else
-			{
-				if ( removeIt )
-					itPids = our_vect.erase(itPids);
-				return applicationElement->first;
-			}
+			printf("ProcessUtils::ApplicationExited() checking pid %d\n", itPidsToData->first);
+			itPidsToData++;
+		}
+
+		if ( itPidsToData != mapPidsToData.end() )
+		{
+			associatedName = applicationElement->first;
+			associatedData = itPidsToData->second;
+
+			if ( removeIt )
+				mapPidsToData.erase(itPidsToData);
+
+			pthread_mutex_unlock(&mutexDataStructure);
+			return true;
 		}
 		applicationElement++;
 	}
 
 	pthread_mutex_unlock(&mutexDataStructure);
-	return "";
+	return false;
 }

@@ -11,16 +11,18 @@
 #define PROCESSUTILS
 
 #include <string>
+#include <vector>
 
 namespace ProcessUtils
 {
 	using std::string;
+	using std::vector;
 
-	bool SpawnApplication(string sCmdExecutable, string sCmdParams, string strAppIdentifier);
+	bool SpawnApplication(string sCmdExecutable, string sCmdParams, string strAppIdentifier, void *attachedData = NULL);
 
-	bool KillApplication(string sAppIdentifier);
+	bool KillApplication(string sAppIdentifier, vector<void *> &associatedData);
 
-	string FindApplicationFromPid(int pid, bool removeIt = false);
+	bool ApplicationExited(int pid, string &associatedName, void *&associatedData, bool removeIt = true);
 };
 
 #endif // PROCESSUTILS

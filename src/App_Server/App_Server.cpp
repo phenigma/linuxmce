@@ -29,6 +29,7 @@
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -77,6 +78,8 @@ void sh(int i) /* signal handler */
         g_pAppServer->ProcessExited(pid, status);
 }
 #endif
+
+#define LOGO_APPLICATION_NAME "logo-application"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -203,11 +206,18 @@ void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sC
 			/** Send this messages if the process exited with failure error code. */
 		/** @param #95 SendOnSuccess */
 			/** Send this messages if the process exited with success error code. */
+		/** @param #115 Show logo */
+			/** If this is set then we will first select the logo  before spawning the application. */
 
-void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,Message *pMessage)
+void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,Message *pMessage)
 //<-dceag-c67-e->
 {
-    if (! StartApp(sFilename, sArguments, sName, sSendOnSuccess, sSendOnFailure) )
+	if ( bShow_logo )
+	{
+		EnsureLogoIsDisplayed();
+	}
+
+	if (! ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnSuccess, sSendOnFailure)) )
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Can't spawn '%s': %s %s.", sName.c_str(), sFilename.c_str(), sArguments.c_str());
         sCMD_Result = "Failed";
@@ -228,29 +238,20 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 void App_Server::CMD_Kill_Application(string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c69-e->
 {
-    cout << "command #69 - Kill Application" << endl;
-    cout << "Parm #50 - Name=" << sName << endl;
-
 #ifndef WIN32
-	vector_map::iterator element = m_mapAppPids.find(sName);
-    if (element == m_mapAppPids.end())
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "No application '%s' found. None killed", sName.c_str());
-    }
-    else
-    {
-        const map<int, pair<string, string> > & our_map = element->second;
-        g_pPlutoLogger->Write(LV_STATUS, "Found %d '%s' applications. Killing them all (really)", our_map.size(), sName.c_str());
+	vector<void *> messagesToSend;
+	if ( ! ProcessUtils::KillApplication(sName, messagesToSend) )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Failed to kill the application with name: %s", sName.c_str());
+	}
 
-		map<int, pair<string, string> >::const_iterator i;
-        for (i = our_map.begin(); i != our_map.end(); i++)
-		{
-            kill( (*i).first, SIGKILL); // we don't SIGTERM first; we simply kill them all; where your shutgun at? :)
-			SendMessageList((*i).second.first);
-		}
-
-        m_mapAppPids.erase(element);
-    }
+	vector<void *>::const_iterator itAttachedData = messagesToSend.begin();
+	while (itAttachedData != messagesToSend.end())
+	{
+		pair<string, string> *pStringsPair = (pair<string, string> *)(*itAttachedData);
+		SendMessageList(pStringsPair->second);
+		delete pStringsPair;
+	}
 #endif
 }
 
@@ -269,127 +270,30 @@ void App_Server::CMD_Hide_Application(string sName,string &sCMD_Result,Message *
 }
 
 /* Private */
-bool App_Server::StartApp(string CmdExecutable, string CmdParams, string AppName, string sCommandsOnSuccess, string sCommandsOnFailure)
+void App_Server::EnsureLogoIsDisplayed()
 {
-    if ( AppName == "" )
-        AppName = "not named";
-
-    if (CmdExecutable == "" && CmdParams == "")
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "StartApp: Received empty Executable and Parameters for '%s'", AppName.c_str());
-        return false;
-    }
-
-#ifndef WIN32
-    //parse the args
-    const int MaxArgs = 32;
-
-    char * ptr;
-
-	ptr = (char *) CmdParams.c_str();
-    char * args[MaxArgs];
-    int i = 0;
-
-	// this looks to complicated but i don;t have time to make it cleaner :-( mtoader@gmail.com)
-    args[0] = (char *) CmdExecutable.c_str();
-    while ( *ptr && i < MaxArgs - 1)
-    {
-		if ( *ptr == ' ' || *ptr == '\t' )
-			*ptr++ = 0;
-		while ( *ptr && (*ptr == ' ' || *ptr == '\t') ) ptr++;  // skip the white spaces.
-		if ( *ptr )
-		{
-			args[++i] = ptr; 			// put the next thing as a parameter
-			while ( *ptr && *ptr != ' ' && *ptr != '\t' ) {
-				if ( *ptr == '\\' ) ptr++; // skip quoted characters
-				ptr++;  // skip to the next white space. (this doesn't take into account quoted parameters) )
-			}
-		}
-    }
-
-	args[++i] = 0;
-    g_pPlutoLogger->Write(LV_STATUS, "Found %d arguments", i);
-
-    for (int x = 0 ; x < i; x++)
+	if ( m_mapAppPids.find(LOGO_APPLICATION_NAME) == m_mapAppPids.end() )
 	{
-		char *pArgument 		= args[x];
-		char *pUnquotedArgument = args[x];
-		while ( *pArgument )
-		{
-			if ( *pArgument == '\\' ) pArgument++;
-			*pUnquotedArgument++ = *pArgument++;
-		}
-		*pUnquotedArgument = 0;
-		g_pPlutoLogger->Write(LV_STATUS, "Argument %d: %s", x, args[x]);
+		g_pPlutoLogger->Write(LV_STATUS, "The application is not running! Need to launch it!");
+		ProcessUtils::SpawnApplication("gimv", "/tmp/ana.png", LOGO_APPLICATION_NAME, NULL);
 	}
 
-    pid_t pid = fork();
-    switch (pid)
-    {
-        case 0: //child
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Waiting two seconds (in the forked process).");
-            sleep(2); // sleep so that the signal doesn't get in until later.
-
-            setenv("DISPLAY", ":0", 1);
-            //now, exec the process
-            g_pPlutoLogger->Write(LV_STATUS, "Spawning");
-
-            if ( execvp(args[0], args) == -1)
-                exit(99);
-        }
-
-        case -1:
-            g_pPlutoLogger->Write(LV_CRITICAL, "Error starting %s, err: %s", CmdExecutable.c_str(), strerror(errno));
-            return false;
-            break;
-
-        default:
-            vector_map::iterator element = m_mapAppPids.find(AppName);
-
-            if (element == m_mapAppPids.end())
-                m_mapAppPids[AppName] = map<int, pair<string, string> >();
-
-            m_mapAppPids[AppName][pid] = make_pair(sCommandsOnSuccess, sCommandsOnFailure);
-            return true;
-    }
-#else
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-    ZeroMemory (&si, sizeof(si));
-    si.cb = sizeof(si);
-    ZeroMemory (&pi, sizeof(pi));
-    CreateProcess("C:\\WINDOWS\\system32\\cmd.exe", "/c bogus.bat", NULL, NULL, false, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
-	return true;
-#endif
+	g_pPlutoLogger->Write(LV_STATUS, "The application is running!. Should select the logo!");
 }
 
 void App_Server::ProcessExited(int pid, int status)
 {
-    vector_map::iterator itAppName;
+	string applicationName;
+	void *data;
 
-    itAppName = m_mapAppPids.begin();
+	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "App_Server::ProcessExited() Child with pid %d was not found in our internal data structure. Ignoring signal!", pid);
+		return;
+	}
 
-    while ( itAppName != m_mapAppPids.end() )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Iterating: %s", (*itAppName).first.c_str() );
-
-        map<int, pair<string, string> >::iterator returnCommand;
-
-        returnCommand = (*itAppName).second.find(pid);
-
-        if ( returnCommand != (*itAppName).second.end() ) // found the thing
-        {
-            SendMessageList( status ? (*returnCommand).second.first : (*returnCommand).second.second);
-            (*itAppName).second.erase(returnCommand);
-            return;
-        }
-        else
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Pid not found in the data structure");
-        }
-        itAppName++;
-    }
+	pair<string, string> *pMessagesLists = (pair<string, string>*)data;
+	SendMessageList( status ? pMessagesLists->first : pMessagesLists->second);
 }
 
 void App_Server::SendMessageList(string messageList)
