@@ -60,6 +60,26 @@ using namespace DCE;
 #include "X11/keysym.h"
 #include <X11/extensions/XTest.h>
 
+// we only have signals on Linux and the global var is only used there. so we ifndef it..
+#ifndef WIN32
+#include <sys/wait.h>
+
+MythTV_Player *g_pMythPlayer = NULL;
+
+void sh(int i) /* signal handler */
+{
+    if ( g_pMythPlayer && g_pMythPlayer->m_bQuit )
+		return;
+
+    int status = 0;
+    pid_t pid = 0;
+
+    pid = wait(&status);
+
+    if ( g_pMythPlayer )
+        g_pMythPlayer->ProcessExited(pid, status);
+}
+#endif
 
 #define MYTH_WINDOW_NAME "mythfrontend"
 
@@ -84,6 +104,12 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
     m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
     m_iMythFrontendWindowId = 0;
+
+#ifndef WIN32
+	g_pMythPlayer = this;
+    signal(SIGCHLD, sh); /* install handler */
+#endif
+
 }
 
 //<-dceag-const2-b->!
@@ -99,19 +125,21 @@ MythTV_Player::~MythTV_Player()
 bool MythTV_Player::LaunchMythFrontend()
 {
 
+	/**
 	string commandToFire = StringUtils::Format("0 %d %d %d %d %d",
 				m_pData->m_dwPK_Device_ControlledVia, 					// assume that we are controlled by one Orbiter.
 				MESSAGETYPE_COMMAND, 									// on exit send a command to the Orbiter
 				COMMAND_Go_back_CONST,									// to go back
 				COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST,		// if it is at the
 				DESIGNOBJ_pvr_full_screen_CONST);						// pvr_full_screen.
+	*/
 
 	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", MYTH_WINDOW_NAME);
-    DCE::CMD_Spawn_Application_DT spawnApplication(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, "/usr/bin/mythfrontend", MYTH_WINDOW_NAME, "", commandToFire, commandToFire);
+//    DCE::CMD_Spawn_Application_DT spawnApplication(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, "/usr/bin/mythfrontend", MYTH_WINDOW_NAME, "", commandToFire, commandToFire);
 //     spawnApplication.m_pMessage->m_bRelativeToSender = true;
 //     SendCommand(spawnApplication);
 
-	sleep(5);
+// 	sleep(5);
 
     if ( ! m_pRatWrapper )
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
@@ -380,6 +408,34 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
         }
     }
 }
+
+void MythTV_Player::KillSpawnedDevices()
+{
+#ifndef WIN32
+	signal(SIGCHLD, SIG_IGN);
+#endif
+	MythTV_Player_Command::KillSpawnedDevices();
+
+	// This will only be called when we are dying, so we won't care about what happens to our spawned children.
+	// We had a problem that KillSpawnedDevices called KillPids.sh, which when exited, called the sh signal handler and hung at wait
+}
+
+void MythTV_Player::ProcessExited(int pid, int status)
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Process exited %d %d", pid, status);
+
+	string applicationName = ProcessUtils::FindApplicationFromPid(pid, true);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Got application name: %s compare with %s", applicationName.c_str(), MYTH_WINDOW_NAME);
+
+	if ( applicationName.compare(MYTH_WINDOW_NAME) == 0 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Send go back to the caller!");
+		DCE::CMD_Go_back goBackCommand(m_dwPK_Device, m_pData->m_dwPK_Device_ControlledVia, StringUtils::itos(DESIGNOBJ_pvr_full_screen_CONST), StringUtils::itos(0));
+		SendCommand(goBackCommand);
+	}
+}
+
 //<-dceag-c84-b->
 
 	/** @brief COMMAND: #84 - Get Video Frame */

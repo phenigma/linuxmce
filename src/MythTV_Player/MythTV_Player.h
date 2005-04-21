@@ -15,17 +15,6 @@
 #include "Gen_Devices/MythTV_PlayerBase.h"
 //<-dceag-d-e->
 
-// #include <qapplication.h>
-// #include <libmyth/mythcontext.h>
-// #include <libmyth/mythdialogs.h>
-// #include <libmyth/lcddevice.h>
-//
-// #include <libmythtv/tv.h>
-// #include <libmythtv/frame.h>
-// #include <libmythtv/NuppelVideoPlayer.h>
-
-// #include "MythMainWindowResizable.h"
-
 class RatPoisonWrapper;
 
 //<-dceag-decl-b->
@@ -38,9 +27,6 @@ namespace DCE
         long unsigned int            m_iMythFrontendWindowId;
 
         /** Private member variables */
-//        QApplication                *m_pQApplication;
-//        MythMainWindowResizable     *m_pMythMainWindow;
-//        TV                          *m_pMythTV;
         int                          m_iControllingDevice;
         pthread_t                    m_qApplicationThreadId;
         RatPoisonWrapper            *m_pRatWrapper;
@@ -49,8 +35,6 @@ namespace DCE
         bool checkWindowName(long unsigned int window, string windowName);
 
     protected:
-//        void waitToFireMediaChanged();
-
         bool LaunchMythFrontend();
 
         void processKeyBoardInputRequest(int iXKeySym);
@@ -73,7 +57,10 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-    virtual void CreateChildren();
+		virtual void KillSpawnedDevices();
+		virtual void CreateChildren();
+
+		virtual void ProcessExited(int pid, int status);
     //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

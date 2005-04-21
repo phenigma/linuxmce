@@ -91,6 +91,7 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
 
 		default:
 			pthread_mutex_lock(&mutexDataStructure);
+			printf("ProcessUtils::SpawnApplication() adding this %d pid to the spawned list for %s\n", pid, sAppIdentifier.c_str());
 			mapIdentifierToPids[sAppIdentifier].push_back(pid);
 			pthread_mutex_unlock(&mutexDataStructure);
             return true;
@@ -108,10 +109,10 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
 
 bool ProcessUtils::KillApplication(string sAppIdentifier)
 {
+	pthread_mutex_lock(&mutexDataStructure);
 	MapIdentifierToPids::iterator element = mapIdentifierToPids.find(sAppIdentifier);
 
-	pthread_mutex_lock(&mutexDataStructure);
-    if (element == mapIdentifierToPids.end())
+	if (element == mapIdentifierToPids.end())
     {
         printf("ProcessUtils::KillApplication() No application '%s' found. None killed\n", sAppIdentifier.c_str());
 		pthread_mutex_unlock(&mutexDataStructure);
@@ -128,4 +129,33 @@ bool ProcessUtils::KillApplication(string sAppIdentifier)
 	mapIdentifierToPids.erase(element);
 	pthread_mutex_unlock(&mutexDataStructure);
 	return true;
+}
+
+std::string ProcessUtils::FindApplicationFromPid(int pid, bool removeIt)
+{
+	pthread_mutex_lock(&mutexDataStructure);
+
+	MapIdentifierToPids::iterator applicationElement = mapIdentifierToPids.begin();
+	while ( applicationElement != mapIdentifierToPids.end() )
+	{
+		printf("ProcessUtils::FindApplicationFromPid() Looking at: %s\n", applicationElement->first.c_str());
+		vector<int> &our_vect = applicationElement->second;
+		vector<int>::iterator itPids = our_vect.begin();
+		while ( itPids != our_vect.end() )
+		{
+			printf("ProcessUtils::FindApplicationFromPid() checking pid %d\n", *itPids);
+			if ( *itPids != pid )
+				itPids++;
+			else
+			{
+				if ( removeIt )
+					itPids = our_vect.erase(itPids);
+				return applicationElement->first;
+			}
+		}
+		applicationElement++;
+	}
+
+	pthread_mutex_unlock(&mutexDataStructure);
+	return "";
 }
