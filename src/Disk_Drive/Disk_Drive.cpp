@@ -1324,7 +1324,7 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Mes
 						DEVICETEMPLATE_App_Server_CONST,
 						BL_SameComputer,
 						"/usr/pluto/bin/ripDiskWrapper.sh", sName, strParameters,
-						"", "");
+						"", "", "0");
 
     spawnApplication.m_pMessage->m_bRelativeToSender = true;
     SendCommand(spawnApplication);
