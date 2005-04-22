@@ -4,6 +4,16 @@
 #include <string>
 using namespace std;
 //------------------------------------------------------------------------------------------------------
+enum MenuIds 
+{ 
+    miMain, 
+    miStandardScenarios, 
+    miSetHouseMode, 
+    miChooseMode, 
+    miSpeakInHouse, 
+    miViewCameras 
+};
+//------------------------------------------------------------------------------------------------------
 class PopulateListsInVMC
 {
 public:
@@ -35,7 +45,11 @@ private:
     static bool SaveMenuCollection(class VIPMenuCollection *pMenuCollection, string sDestVMCFile);
 
     //private methods
+    class VIPMenu *GetMenu(MenuIds MenuID, const string& csDescription);
+    class VIPMenuElement_List *GetListElement(MenuIds MenuID, long dwListId, const string& csDescription);
+
     bool PopulateStandardScenariosList();
+    bool PopulateCamerasList();
     bool AddResolutionsForSetHouseMode();
 };
 //------------------------------------------------------------------------------------------------------

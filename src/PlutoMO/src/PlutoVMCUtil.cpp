@@ -891,13 +891,15 @@ void CPlutoVMCUtil::LocalKeyPressed(int KeyCode)
 { 
 	RenderMenu::KeyPressed(KeyCode);
 
-	BDCommandProcessor_Symbian_Base* pBDCommandProcessor_Symbian_Base = 
-		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor_Symbian_Bluetooth;
+	BDCommandProcessor_Symbian_Base* pBDCommandProcessor = 
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor;
 
-	BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
-	pBDCommandProcessor_Symbian_Base->AddCommand(pBD_WhatDoYouHave);
-
-	pBDCommandProcessor_Symbian_Base->ProcessCommands(!m_bSimulation);
+	if(pBDCommandProcessor) //any bt connection ?
+	{
+		BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
+		pBDCommandProcessor->AddCommand(pBD_WhatDoYouHave);
+		pBDCommandProcessor->ProcessCommands(!m_bSimulation);
+	}
 }
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::OpenProgram(string ProgramName)

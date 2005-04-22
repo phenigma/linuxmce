@@ -24,25 +24,12 @@
 #include "MyString.h"
 #include "MyMap.h"
 
-/*
-#define MYSTL_CREATE_LIST(CollectionName,ValueObjectType) TMySglQue<class ValueObjectType> CollectionName
-#define MYSTL_ITERATE_LIST(CollectionName,ValueObjectType,ValueObject,IteratorName) TSglQueIter<class ValueObjectType *> IteratorName(CollectionName); IteratorName.SetToFirst(); ValueObjectType *ValueObject; while(IteratorName!=NULL && (ValueObject=(*IteratorName++))!=NULL)
-#define MYSTL_ADDTO_LIST(CollectionName,ValueObject) CollectionName.AddLast(*ValueObject)
-#define MYSTL_CLEAR_LIST(CollectionName) CollectionName.Reset()
-#define MYSTL_SIZEOF_LIST(CollectionName) CollectionName.Size()
-#define MYSTL_POSITION_INLIST(CollectionName,ValueObjectType,ValueObject,Position) ValueObjectType *ValueObject; int iListCounter=0; list<class ValueObjectType *>::iterator IteratorName;	for(IteratorName=CollectionName.begin(),ValueObject=(IteratorName!=CollectionName.end() ? (*IteratorName) : NULL);	IteratorName!=CollectionName.end() && iListCounter<Position;++IteratorName,++iListCounter,ValueObject=(IteratorName!=CollectionName.end() ? (*IteratorName) : NULL));
-
-#define MYSTL_EXTRACT_FIRST(CollectionName,ValueObjectType,ValueObject) ValueObjectType *ValueObject = CollectionName.First(); CollectionName.Remove(*ValueObject)
-*/
-
 #define MYSTL_CREATE_LIST(CollectionName,ValueObjectType) RPointerArray<class ValueObjectType> CollectionName
 #define MYSTL_ITERATE_LIST(CollectionName,ValueObjectType,ValueObject,IteratorName) ValueObjectType *ValueObject = NULL; for (int IteratorName = 0; IteratorName < CollectionName.Count() && (ValueObject = CollectionName[IteratorName]); IteratorName++)
 #define MYSTL_ADDTO_LIST(CollectionName,ValueObject) CollectionName.Append(ValueObject)
 #define MYSTL_CLEAR_LIST(CollectionName) CollectionName.Reset()
 #define MYSTL_SIZEOF_LIST(CollectionName) CollectionName.Count()
-
 #define MYSTL_POSITION_INLIST(CollectionName,ValueObjectType,ValueObject,Position) ValueObjectType *ValueObject = CollectionName[Position];
-
 #define MYSTL_EXTRACT_FIRST(CollectionName,ValueObjectType,ValueObject) ValueObjectType *ValueObject = CollectionName[0]; CollectionName.Remove(0)
 
 #define MYSTL_CREATE_LONG_MAP(CollectionName,ValueObjectType) TLongMap<class ValueObjectType *> CollectionName

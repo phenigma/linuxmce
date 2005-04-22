@@ -86,8 +86,8 @@ void CPlutoMOAppUi::SetupPaths()
 	char cDrive = GetCurrentDrive();
 	
 	//adjusting drive
-	m_sAppFolder.SetAt(cDrive, 0); //*
-	m_sLoggerFileName.SetAt(cDrive, 0); //*
+	m_sAppFolder.SetAt(cDrive, 0); 
+	m_sLoggerFileName.SetAt(cDrive, 0); 
 	m_sVMCFolderFilter.SetAt(cDrive, 0);
 	m_sPlutoVMC.SetAt(cDrive, 0);
 	m_sPlutoConfig.SetAt(cDrive, 0);
@@ -110,20 +110,17 @@ void CPlutoMOAppUi::ConstructL()
 
 	SymbianLogger *pLogger = new SymbianLogger(m_sLoggerFileName, KCPlutoLoggerId, CCoeStatic::EApp);
 
-	LOG("Setup members\n");
 	//members initialization
-	m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
 	m_bSendKeyStrokes = false;
 	m_bMakeVisibleAllowed = false;
 
+	m_pBDCommandProcessor = NULL;
 #ifndef __WINS__ 
-	m_pBDCommandProcessor_Symbian_Bluetooth = 
-		new BDCommandProcessor_Symbian_Bluetooth("", this);
-	m_pBDCommandProcessor = m_pBDCommandProcessor_Symbian_Bluetooth;
-	m_pBDCommandProcessor_Symbian_Bluetooth->Start();
-	m_pBDCommandProcessor_Symbian_Bluetooth->Listen();
-	m_pBDCommandProcessor_Symbian_Bluetooth->SetupSecurityManager();
-	m_pBDCommandProcessor_Symbian_Bluetooth->AdvertiseThePlutoService();
+	m_pBDCommandProcessor = new BDCommandProcessor_Symbian_Bluetooth("", this);
+	m_pBDCommandProcessor->Start();
+	m_pBDCommandProcessor->Listen();
+	m_pBDCommandProcessor->SetupSecurityManager();
+	m_pBDCommandProcessor->AdvertiseThePlutoService();
 #endif
 
 	m_bPlutoEventVisible = false;
@@ -148,12 +145,12 @@ void CPlutoMOAppUi::Cleanup()
 {
 	CancelCaptureSoftKeys();
 
-	if(NULL != m_pBDCommandProcessor_Symbian_Bluetooth)
+	if(NULL != m_pBDCommandProcessor)
 	{
-		m_pBDCommandProcessor_Symbian_Bluetooth->Disconnect();
+		m_pBDCommandProcessor->Disconnect();
 
-		delete m_pBDCommandProcessor_Symbian_Bluetooth;
-		m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
+		delete m_pBDCommandProcessor;
+		m_pBDCommandProcessor = NULL;
 	}
 
 	if (iAppContainer)
@@ -742,15 +739,15 @@ void CPlutoMOAppUi::LaunchBrowser()
 {
 	LOG("LaunchBrowser start\n");
 
-	HBufC* param = HBufC::NewLC( 128 ); 
+	HBufC* param = HBufC::NewLC( 1024 ); 
 
 	param->Des().Copy( _L("4 "));
 	param->Des().Append( iURL ); 
 
 	// Wap Browser's constants UId 
 	const TInt KWmlBrowserUid = 0x10008D39; 
-
 	TUid id( TUid::Uid( KWmlBrowserUid ) ); 
+
 	TApaTaskList taskList( CEikonEnv::Static()->WsSession() ); 
 	TApaTask task = taskList.FindApp( id ); 
 
@@ -776,6 +773,7 @@ void CPlutoMOAppUi::LaunchBrowser()
 
 		LOG("app doesn't exist\n");
 	} 
+
 	CleanupStack::PopAndDestroy(); // param 
 
 	LOG("LaunchBrowser end\n");
@@ -790,7 +788,7 @@ void CPlutoMOAppUi::SimulateEvent(long eventType, long key)
 void CPlutoMOAppUi::Disconnect()
 {
 	 LOG("Need to disconnect\n");
-	m_pBDCommandProcessor_Symbian_Bluetooth->Disconnect();
+	m_pBDCommandProcessor->Disconnect();
 }
 //---------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::CaptureSoftKeys()

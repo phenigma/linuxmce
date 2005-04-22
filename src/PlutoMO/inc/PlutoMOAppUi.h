@@ -116,7 +116,6 @@ public:
 	void ResetViewer();
 	
 	BDCommandProcessor_Symbian_Bluetooth *m_pBDCommandProcessor;
-	BDCommandProcessor_Symbian_Bluetooth *m_pBDCommandProcessor_Symbian_Bluetooth;
 	
 	bool m_bSendKeyStrokes;
 	bool m_bVMCViewerVisible;

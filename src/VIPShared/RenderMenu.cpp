@@ -429,17 +429,18 @@ void RenderMenu::KeyPressed(int KeyCode)
 				KeyCode==BUTTON_Pound_CONST
 				)
 			{
-				int Number=KeyCode-48;
-				if( KeyCode==BUTTON_Asterisk_CONST )
+				int Number = KeyCode - BUTTON_1_CONST;
+
+				if(KeyCode == BUTTON_Asterisk_CONST)
 					Number=11;
-				else if( KeyCode==BUTTON_Pound_CONST )
+				else if(KeyCode == BUTTON_Pound_CONST)
 					Number=12;
-				else if( KeyCode==BUTTON_0_CONST )
+				else if(KeyCode == BUTTON_0_CONST)
 					Number=10;
 
-				if( Number<= MYSTL_SIZEOF_LIST(m_listVIPList) )
+				if( Number < MYSTL_SIZEOF_LIST(m_listVIPList) && Number >= 0 )
 				{
-					MYSTL_POSITION_INLIST(m_listVIPList,VIPList,pL,Number-1);
+					MYSTL_POSITION_INLIST(m_listVIPList, VIPList, pL, Number);
 					m_sListValue=pL->m_sValue;
 					m_sListText=pL->m_sText;
 					m_sListSearch=KeyCode;
