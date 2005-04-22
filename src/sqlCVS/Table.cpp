@@ -1158,6 +1158,9 @@ void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, strin
 {
 	std::ostringstream sSQL;
 	sSQL << "UPDATE `" << pField_FK->m_pTable->Name_get( ) << "` SET " << pField_FK->Name_get( ) << "='" << NewValue << "'" << " WHERE " << pField_FK->Name_get( ) << "='" << OldValue << "'";
+	if( pField_FK->m_pTable->m_s_psc_id_new_this_update.size() )
+		sSQL << " AND psc_id NOT IN(" << pField_FK->m_pTable->m_s_psc_id_new_this_update << ")";
+
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "Failed to propagate change: " << sSQL.str( ) << endl;
@@ -1207,6 +1210,10 @@ int k=2;
 		}
 
 		sSQL << pA_UpdateRow->m_psc_id << ", " << pA_UpdateRow->m_psc_batch << ", " << (pA_UpdateRow->m_psc_user ? StringUtils::itos(pA_UpdateRow->m_psc_user) : "NULL") << " )";
+
+		if( m_s_psc_id_new_this_update.size() )
+			m_s_psc_id_new_this_update += ",";
+		m_s_psc_id_new_this_update += StringUtils::itos(pA_UpdateRow->m_psc_id);
 
 		// First do a quick check to be sure there's no other record using this primary key
 		if( iAutoIncrementKeyValue )
@@ -1276,7 +1283,7 @@ int k=2;
 				(row = mysql_fetch_row(result_set.r)) && atoi(row[0])!=iAutoIncrementKeyValue )
 			{
 				// We've got a conflict
-				ReassignAutoIncrValue(iAutoIncrementKeyValue);
+~~~				ReassignAutoIncrValue(iAutoIncrementKeyValue);
 			}
 		}
 

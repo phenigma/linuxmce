@@ -98,6 +98,15 @@ namespace sqlCVS
 		
 		int m_psc_id_last_sync, m_psc_batch_last_sync;
 
+		/** When we are doing an update, we may add a row in Table X which has a foreign key to 
+		Table Y (say value 100).  But maybe in table Y there is already an old key with 100 in
+		an unauthorized batch, and it hasn't yet been moved because Table X is being updated before
+		Table Y.  Now, when we get to updating Table Y, we're going to re-locate the existing 100
+		to a new number, and propagate the changes.  But we don't want the propagated changes to 
+		affect the new row we just got in Table Y--only ones that were there already.  So each
+		table stores new psc_id's added in the following variable. */
+		string m_s_psc_id_new_this_update; 
+
 	public:
 int itmp_RowsToDelete;
 		/** @brief constructor */
