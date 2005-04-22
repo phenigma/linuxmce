@@ -28,7 +28,7 @@ ArchiveCoreDumps()
 	rm -rf /usr/pluto/coredump.archive
 	rm -rf "$Critical"
 
-	/usr/pluto/bin/CheckDiskSpace.sh 
+	/usr/pluto/bin/MonitorDiskSpace.sh 
 	if [ "$1" != "0" ]; then
 		UploadLogs &
 	fi
