@@ -1241,10 +1241,9 @@ int k=2;
 	else
 	{
 		cout << "Updating (update) row id " << pA_UpdateRow->m_psc_id << " last sync: " << m_psc_id_last_sync << endl;
-
 		sSQL << "UPDATE `" << m_sName << "` SET ";
 		if( ModifiedRow(pA_UpdateRow->m_psc_id) &&
-				(!g_GlobalConfig.m_bNoPrompts || !AskYNQuestion("In Table " + m_sName + " psc_id: " + StringUtils::itos(pA_UpdateRow->m_psc_id)
+				(g_GlobalConfig.m_bNoPrompts || !AskYNQuestion("In Table " + m_sName + " psc_id: " + StringUtils::itos(pA_UpdateRow->m_psc_id)
 				+ " was modified on the server and locally.\nDelete your local changes?",false)) )
 			bSkippingUpdate=true;
 
@@ -1283,7 +1282,7 @@ int k=2;
 				(row = mysql_fetch_row(result_set.r)) && atoi(row[0])!=iAutoIncrementKeyValue )
 			{
 				// We've got a conflict
-~~~				ReassignAutoIncrValue(iAutoIncrementKeyValue);
+				ReassignAutoIncrValue(iAutoIncrementKeyValue);
 			}
 		}
 
