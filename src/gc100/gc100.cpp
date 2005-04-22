@@ -1279,12 +1279,26 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 //	if (is_open_for_learning)
 	if (open_for_learning())
 	{
+		struct timeval timeout, timeout_tmp;
 		fd_set fdset;
+
+		// clear gc100 serial buffer
+		FD_ZERO(&fdset);
+		FD_SET(learn_fd, &fdset);
+		timeout_tmp.tv_usec = 0;
+		timeout_tmp.tv_sec = 0;
+		while (select(learn_fd + 1, &fdset, NULL, NULL, &timeout_tmp) > 0)
+		{
+			read(learn_fd, learn_buffer, 511);
+			FD_ZERO(&fdset);
+			FD_SET(learn_fd, &fdset);
+			timeout_tmp.tv_usec = 0;
+			timeout_tmp.tv_sec = 0;
+		}
 
 		FD_ZERO(&fdset);
 		FD_SET(learn_fd, &fdset);
-
-		struct timeval timeout, timeout_tmp;
+		
 		timespec_to_timeval(&LEARNING_TIMEOUT, &timeout);
 		if (timeout.tv_usec != 0)
 		{
