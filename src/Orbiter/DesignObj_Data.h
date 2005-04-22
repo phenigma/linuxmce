@@ -162,6 +162,10 @@ public:
 	class PlutoSize m_sOriginalSize;
 	int m_dwIDim;
 
+	// If non-zero, this is a repeating button, and as long as it's held down, the command will keep
+	// repeating until the user lets go, and a parameter 'Repeat' will be added
+	int m_iRepeatInterval;
+
 	DesignObjCommandList m_Action_LoadList,m_Action_UnloadList,m_Action_TimeoutList,m_Action_StartupList;
 	DesignObjZoneList m_ZoneList;
 	VectorDesignObjText m_vectDesignObjText;
@@ -172,7 +176,7 @@ public:
 	{
 		m_PK_DesignObj_Up=m_PK_DesignObj_Down=m_PK_DesignObj_Left=m_PK_DesignObj_Right=0;
 		m_sPK_DesignObj_TiedTo="";
-		m_iVersion=m_iPage=0;
+		m_iRepeatInterval=m_iVersion=m_iPage=0;
 		return;
 	}
 

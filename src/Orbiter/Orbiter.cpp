@@ -185,6 +185,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_bYieldScreen=false;
     m_bYieldInput=false;
     m_bRerenderScreen=false;
+	m_bWeGetRegionsUp=false;
+	m_bRepeatingObject=false;
 
     m_pScreenHistory_Current=NULL;
     m_pObj_LastSelected=m_pObj_Highlighted=NULL;
@@ -493,6 +495,21 @@ g_pPlutoLogger->Write(LV_STATUS,"Screen %s timed out data: %p",m_pScreenHistory_
 		delete pMessage_GotoScreen;
 		pMessage_GotoScreen = NULL;
 	}
+}
+
+void Orbiter::ReselectObject( void *data )
+{
+	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) data;
+
+	// Not used
+	Message *pMessage_GotoScreen=NULL;
+
+	DesignObjZoneList::iterator iZone;
+	for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
+    {
+        DesignObjZone *pDesignObjZone = ( *iZone );
+		ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, pMessage_GotoScreen, 0, 0 );
+    }
 }
 
 void Orbiter::RealRedraw( void *data )
@@ -3344,6 +3361,24 @@ bool Orbiter::ButtonUp( int iPK_Button )
 
     return false; // We don't handle buttons
 }
+
+bool Orbiter::RegionUp( int x,  int y )
+{
+	m_bWeGetRegionsUp=true;
+	if( m_bRepeatingObject )
+	{
+	    PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
+		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+		{
+			CallBackInfo *pCallBackInfo = (*it).second;
+			if( pCallBackInfo->m_fnCallBack== &Orbiter::ReselectObject )
+				pCallBackInfo->m_bStop=true;
+		}
+		m_bRepeatingObject=false;
+	}
+	return false;
+}
+
 //------------------------------------------------------------------------
 bool Orbiter::RegionDown( int x,  int y )
 {
@@ -3572,6 +3607,12 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 	if(  pDesignObjCommandList->size(  )==0  )
         return;
 
+	if( pObj->m_iRepeatInterval && m_bWeGetRegionsUp )
+	{
+		m_bRepeatingObject=true;
+		CallMaintenanceInMiliseconds( pObj->m_iRepeatInterval, &Orbiter::ReselectObject, pObj, pe_ALL );
+	}
+
     g_pPlutoLogger->Write( LV_STATUS, "Executing %d commands in object: %s", ( int ) pDesignObjCommandList->size(  ),  pObj->m_ObjectID.c_str(  ) );
 
     bool bRefreshGrids=false;
@@ -3599,6 +3640,28 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
         // and create an endless loop
         else if( PK_Command==COMMAND_Simulate_Keypress_CONST && X==-1 && Y==-1 )
             continue;
+
+
+// HACK! HACK!
+// TODO - REMOVE THIS AND MAKE IT A PARAMETER FOR THE OBJECT
+// HACK! HACK!
+// TODO - REMOVE THIS AND MAKE IT A PARAMETER FOR THE OBJECT
+// HACK! HACK!
+// TODO - REMOVE THIS AND MAKE IT A PARAMETER FOR THE OBJECT
+// HACK! HACK!
+// TODO - REMOVE THIS AND MAKE IT A PARAMETER FOR THE OBJECT
+
+
+if( PK_Command==COMMAND_Vol_Up_CONST || PK_Command==COMMAND_Vol_Down_CONST )
+{
+	pObj->m_iRepeatInterval=250;
+}
+
+
+
+
+
+
 
         if(  pCommand->m_PK_DeviceTemplate  )
         {

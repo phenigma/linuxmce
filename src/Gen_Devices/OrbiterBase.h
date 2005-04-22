@@ -1141,7 +1141,7 @@ public:
 					};
 					iHandled++;
 					continue;
-				case 365:
+				case 366:
 					{
 						string sCMD_Result="OK";
 					string sName=pMessage->m_mapParameters[50];

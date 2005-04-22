@@ -380,7 +380,7 @@ void Message::Clear()
 	m_MessageID = g_MessageID++;
 #endif
 
-    m_bRelativeToSender = false;
+    m_bRelativeToSender = true;
     m_eExpectedResponse = ER_None;
     m_eBroadcastLevel = BL_SameHouse; // Default broadcast level
     m_bRespondedToMessage = false;

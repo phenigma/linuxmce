@@ -2552,7 +2552,7 @@ void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(map<int,MediaDevice *> 
 
 void Media_Plugin::AddOtherDevicesInPipes_Loop(DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice)
 {
-	if( !pDevice || pmapMediaDevice->find(pDevice->m_dwPK_Device)!=pmapMediaDevice->end() )
+	if( !pDevice )
 		return;
 	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();
 		it!=pDevice->m_mapPipe_Available.end();++it)
@@ -2564,7 +2564,8 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(DeviceData_Router *pDevice,map<in
 			MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice_Pipe->m_dwPK_Device);
 			if( pMediaDevice )
 				(*pmapMediaDevice)[pDevice_Pipe->m_dwPK_Device] = pMediaDevice;
-			AddOtherDevicesInPipes_Loop(pDevice_Pipe,pmapMediaDevice);
+			if( pmapMediaDevice->find(pDevice_Pipe->m_dwPK_Device)==pmapMediaDevice->end() )
+				AddOtherDevicesInPipes_Loop(pDevice_Pipe,pmapMediaDevice);
 		}
 		else
 			g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());

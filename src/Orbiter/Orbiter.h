@@ -138,6 +138,7 @@ protected:
 	bool m_bCaptureKeyboard_Reset; /** < flag for capture keyboard */
 	bool m_bCaptureKeyboard_TypePin; /** < flag for capture keyboard */
 	bool m_bCaptureKeyboard_DataGrid; /** < flag for capture keyboard */
+	bool m_bWeGetRegionsUp; /** < true if the rendering device we're using gives us Region Up Messages */
 
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
@@ -158,7 +159,7 @@ protected:
 	bool m_bYieldScreen; /** < True if the orbiter should make the application desktop full screen ( hide itself ) */
 	bool m_bYieldInput; /** < True if the orbiter should yield all input, like keyboard and mouse. This is useful when running the Orbiter as Linux desktop */
 	bool m_bBypassScreenSaver; /** < True if we don't want the screen to blank */
-
+	bool m_bRepeatingObject; /** < True if we're currently holding down a repeating button */
 	bool m_bRerenderScreen; /** <  */ // Set to true means ignore the objects to redraw, and just redraw the whole screen
 
 	/**
@@ -225,6 +226,9 @@ protected:
 	 * @todo ask - add comments
 	 */
 	void RealRedraw( void *iData );
+
+	// Reselect the given object, used for repeating buttons
+	void ReselectObject( void *data );
 
 public: // temp - remove this
 	/**
@@ -623,7 +627,7 @@ protected:
 	 * @todo ask
 	 * @warning We don't handle this here
 	 */
-	virtual bool RegionUp(int iX, int iY) { return false; };
+	virtual bool RegionUp(int iX, int iY);
 
 public:
 	/**
