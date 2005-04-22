@@ -189,7 +189,7 @@ $out='';
 				$rs->Close();
 				$out.='</select>&nbsp;<input type="submit" class="button" name="submitX" value="Add">';
 				if($package!=0)
-					$out.="  <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}&PK_Package={$package}','status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1');\">Edit package</a>";
+					$out.="  <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}&PK_Package={$package}','status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1,fullscreen=yes');\">Edit package</a>";
 				$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">Create new package</a>";
 				$out.='	
 					</td>

@@ -27,8 +27,8 @@ function wizardOrbiters($output,$dbADO) {
 		$DTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
 	}
 	
-	$queryRooms='SELECT * FROM Room ORDER BY Description ASC';
-	$resRooms=$dbADO->Execute($queryRooms);
+	$queryRooms='SELECT * FROM Room WHERE FK_Installation=? ORDER BY Description ASC';
+	$resRooms=$dbADO->Execute($queryRooms,$installationID);
 	$roomIDArray=array();
 	$roomArray=array();
 	while($rowRoom=$resRooms->FetchRow()){

@@ -320,7 +320,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 						<input type="text" name="packageDirectoryPath_'.$row['PK_Package_Directory'].'" value="'.$row['Path'].'">
 						Alternate input path: <input type="text" name="packageDirectoryInputPath_'.$row['PK_Package_Directory'].'" value="'.$row['InputPath'].'">
 						Flip source <input type="checkbox" name="packageDirectoryFlipSource_'.$row['PK_Package_Directory'].'" value="1" '.(($row['FlipSource']=='1')?'checked':'').'>
-						<input type="submit" class="button" name=da value="Save">
+						<input type="submit" class="button" name=da value="Save"> <input type="submit" class="button" name="delPD_'.$row['PK_Package_Directory'].'" value="Delete" onClick="if(confirm(\'Are you sure you want to delete this directory? The files from it will be also deleted.\'))return true; else return false;">
 						</legend>';
 					
 					$queryDirectoryFiles='SELECT * FROM Package_Directory_File WHERE FK_Package_Directory=?';
@@ -502,6 +502,15 @@ function addPackageToMasterDevice($output,$dbADO) {
 				$pdFlipSource=(@$_POST['packageDirectoryFlipSource_'.$elem]=='1')?1:0;
 				$updatePackageDirectory='UPDATE Package_Directory SET FK_OperatingSystem=?, FK_Distro=?, Path=?, InputPath=?, FlipSource=? WHERE PK_Package_Directory=?';
 				$dbADO->Execute($updatePackageDirectory,array($pdOperatingSystem,$pdDistro,$pdPath,$pdInputPath,$pdFlipSource,$elem));
+				
+				if(isset($_POST['delPD_'.$elem])){
+					$dbADO->Execute('
+						DELETE Package_Directory_File 
+						FROM Package_Directory_File 
+						INNER JOIN Package_Directory ON FK_Package_Directory=PK_Package_Directory
+						WHERE FK_Package_Directory=?',$elem);
+					$dbADO->Execute('DELETE FROM Package_Directory WHERE PK_Package_Directory=?',$elem);
+				}
 			}
 
 			// update  Package_Directory_Files
