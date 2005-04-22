@@ -29,7 +29,7 @@ function firewall($output,$dbADO) {
 	<div align="center"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
 	<table border="0" align="center">
 		<tr>
-			<td colspan="6" align="center"><b>Firewall rules</b></td>
+			<td colspan="7" align="center"><b>Firewall rules</b></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
 			<td align="center"><B>Protocol</B></td>
@@ -37,6 +37,7 @@ function firewall($output,$dbADO) {
 			<td align="center"><B>Destination Port</B></td>
 			<td align="center"><B>Destination IP</B></td>
 			<td align="center"><B>Rule Type</B></td>
+			<td align="center"><B>Limit to IP</B></td>
 			<td>&nbsp;</td>
 		</tr>';
 		$res=$dbADO->Execute('SELECT * FROM Firewall');
@@ -48,15 +49,16 @@ function firewall($output,$dbADO) {
 					<td align="center">'.$row['DestinationPort'].'</td>
 					<td align="center">'.$row['DestinationIP'].'</td>
 					<td align="center">'.$row['RuleType'].'</td>
+					<td align="center">'.$row['SourceIP'].'</td>
 					<td align="center"><a href="index.php?section=firewall&action=del&delid='.$row['PK_Firewall'].'">Delete</a></td>
 				</tr>';
 		}
 		$out.='
 		<tr>
-			<td colspan="6" align="center">&nbsp;</td>
+			<td colspan="7" align="center">&nbsp;</td>
 		</tr>		
 		<tr>
-			<td colspan="6" align="center" bgcolor="#EEEEEE"><B>Add new firewall rule</B></td>
+			<td colspan="7" align="center" bgcolor="#EEEEEE"><B>Add new firewall rule</B></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
 			<td align="center"><B>Protocol</B></td>
@@ -64,6 +66,7 @@ function firewall($output,$dbADO) {
 			<td align="center"><B>Destination Port</B></td>
 			<td align="center"><B>Destination IP</B></td>
 			<td align="center"><B>Rule Type</B></td>
+			<td align="center"><B>Limit to IP*</B></td>
 			<td>&nbsp;</td>
 		</tr>				
 		<tr>
@@ -78,10 +81,14 @@ function firewall($output,$dbADO) {
 				<option value="core_input">core_input</option>
 				<option value="port_forward">port_forward</option>
 			</select></td>
+			<td align="center"><input type="text" name="SourceIP" size="8"></td>
 			<td align="center">&nbsp;</td>
 		</tr>		
 		<tr>
-			<td colspan="6" align="center" bgcolor="#EEEEEE"><input type="submit" class="button" name="add" value="Add"></td>
+			<td colspan="7" align="center" bgcolor="#EEEEEE"><input type="submit" class="button" name="add" value="Add"></td>
+		</tr>		
+		<tr>
+			<td colspan="7" align="left">* Optional field.</td>
 		</tr>		
 	</table>	
 	</form>
@@ -104,9 +111,10 @@ function firewall($output,$dbADO) {
 			$DestinationPort=isset($_POST['DestinationPort'])?$_POST['DestinationPort']:0;
 			$DestinationIP=isset($_POST['DestinationIP'])?$_POST['DestinationIP']:0;
 			$RuleType=@$_POST['RuleType'];
+			$SourceIP=@$_POST['SourceIP'];
 			
-			$insert='INSERT INTO Firewall (Protocol, SourcePort, SourcePortEnd, DestinationPort, DestinationIP, RuleType) VALUES (?,?,?,?,?,?)';
-			$dbADO->Execute($insert,array($Protocol,$SourcePort,$SourcePortEnd,$DestinationPort,$DestinationIP,$RuleType));
+			$insert='INSERT INTO Firewall (Protocol, SourcePort, SourcePortEnd, DestinationPort, DestinationIP, RuleType,SourceIP) VALUES (?,?,?,?,?,?,?)';
+			$dbADO->Execute($insert,array($Protocol,$SourcePort,$SourcePortEnd,$DestinationPort,$DestinationIP,$RuleType,$SourceIP));
 		}
 
 		if(isset($_REQUEST['delid'])){
