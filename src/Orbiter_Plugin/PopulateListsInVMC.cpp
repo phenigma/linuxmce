@@ -13,7 +13,7 @@ enum MenuIds { miMain, miStandardScenarios, miSetHouseMode, miChooseMode, miSpea
 #define liSetHouseMode 1
 
 
-static const string csRelativeURL = "/bubu.php?";
+static const string csRelativeURL = "/check.php?";
 
 bool PopulateListsInVMC(string sSourceVMC, string sDestVMC, long dwPKDevice,
 						Database_pluto_main *pDatabase_pluto_main)
@@ -31,7 +31,7 @@ bool PopulateListsInVMC(string sSourceVMC, string sDestVMC, long dwPKDevice,
 
 	//standard scenarios list + add resolutios
 	PopulateStandardScenariosList(pMenuCollection, pDatabase_pluto_main);
-	AddResolutionsForSetHouseMode(pMenuCollection, pDatabase_pluto_main);
+	//AddResolutionsForSetHouseMode(pMenuCollection, pDatabase_pluto_main);
 
 	//save the vmc file
 	if(!SaveMenuCollection(pMenuCollection, sDestVMC))
@@ -69,29 +69,54 @@ bool SaveMenuCollection(VIPMenuCollection *pMenuCollection, string sVMCFile)
 
 void PopulateStandardScenariosList(VIPMenuCollection *pMenuCollection, Database_pluto_main *pDatabase_pluto_main)
 {
+	//get 'Standard Scenarios' menu page
 	VIPMenu *pStandardScenariosMenu = pMenuCollection->m_mapMenus_Find(miStandardScenarios);
+	if(!pStandardScenariosMenu)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't get 'Standard scenarios' menu with id %d in vmc file", miStandardScenarios);
+		return;
+	}
+
+	//get the list object from the menu
 	VIPMenuElement *pStandardScenariosElement = pStandardScenariosMenu->m_mapMenuElements_Find(liStandardScenarios);
+	if(!pStandardScenariosElement)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't get the object with id %d from 'Standard scenarios' menu from vmc template file.", 
+			liStandardScenarios);
+		return;
+	}
 
 	VIPMenuElement_List *pStandardScenariosList = NULL;
 	if(pStandardScenariosElement->MenuElementID() == MENU_ELEMENT_LIST)
 		pStandardScenariosList = (VIPMenuElement_List *)pStandardScenariosElement;
 	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "The object with id %d 'Standard scenarios' menu is not a list.", liStandardScenarios);
 		return;
+	}
 
 	vector <Row_CommandGroup *> vectRow_CommandGroup;
 	pDatabase_pluto_main->CommandGroup_get()->GetRows("FK_Array = " + StringUtils::ltos(ARRAY_Mobile_Orbiter_Scenarios_CONST),
 		&vectRow_CommandGroup);
 
+    g_pPlutoLogger->Write(LV_STATUS, "<VMC> About to populate the list with standard scenarios, items %d", vectRow_CommandGroup.size());
+
 	int iIndex = 0;
 	pStandardScenariosList->m_sText = "";
 	for(vector <Row_CommandGroup *>::iterator it = vectRow_CommandGroup.begin(); it != vectRow_CommandGroup.end(); it++)
 	{
-		pStandardScenariosList->m_sText += (*it)->Description_get() + "\r\n";
+        string sDescription = (*it)->Description_get();
+        int iKeyCode = BUTTON_1_CONST + iIndex;
+
+		pStandardScenariosList->m_sText += sDescription + "\r\n";
 
 		string sID = StringUtils::ltos((*it)->PK_CommandGroup_get());
 		VIPMenuResolution *pMenuResolution = new VIPMenuResolution("",0,"","", 0,0,0,0,0,"");
-		pMenuResolution->m_sProgramName = csRelativeURL + "id=" + sID;
-		pMenuResolution->m_sTerminatingKey += char(BUTTON_1_CONST + iIndex);
+		pMenuResolution->m_sProgramName = csRelativeURL + "cgid=" + sID;
+		pMenuResolution->m_sTerminatingKey += char(iKeyCode);
+
+        g_pPlutoLogger->Write(LV_STATUS, "<VMC> Added '%s' in the list with standard scenarios, path '%s', key %d", 
+            sDescription.c_str(), pMenuResolution->m_sProgramName.c_str(), iKeyCode);
 
 		pStandardScenariosMenu->AddResolution(pMenuResolution);
 		iIndex++;
@@ -103,6 +128,8 @@ void AddResolutionsForSetHouseMode(VIPMenuCollection *pMenuCollection, Database_
 {
 	VIPMenu *pStandardScenariosMenu = pMenuCollection->m_mapMenus_Find(miChooseMode);
 	VIPMenuElement *pStandardScenariosElement = pStandardScenariosMenu->m_mapMenuElements_Find(liSetHouseMode);
+
+	//pDatabase_pluto_main
 
 	VIPMenuResolution *pMenuResolution = new VIPMenuResolution("",0,"","", 0,0,0,0,0,"");
 	pMenuResolution->m_sProgramName = csRelativeURL + "code=1";
