@@ -2192,7 +2192,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 		DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,PK_Pipe_Current,"");
 		SendCommand(CMD_On);
 
-		if( pMediaDevice->m_pDeviceData_Router->m_pDevice_MD )
+		if( pMediaDevice->m_pDeviceData_Router->m_pDevice_MD && pMediaDevice->m_pDeviceData_Router!=pMediaDevice->m_pDeviceData_Router->m_pDevice_MD )
 		{
 			DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
 			SendCommand(CMD_On);
@@ -2208,7 +2208,7 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 	DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
 	SendCommand(CMD_Off);
 
-	if( pDeviceData_Router->m_pDevice_MD )
+	if( pDeviceData_Router->m_pDevice_MD && pDeviceData_Router!=pDeviceData_Router->m_pDevice_MD )
 		TurnDeviceOff(PK_Pipe,(DeviceData_Router *) pDeviceData_Router->m_pDevice_MD,pmapMediaDevice_Current);
 
     for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
@@ -2570,6 +2570,6 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(DeviceData_Router *pDevice,map<in
 			g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
 	}
 
-	if( pDevice->m_pDevice_MD )
+	if( pDevice->m_pDevice_MD && pDevice!=pDevice->m_pDevice_MD )
 		AddOtherDevicesInPipes_Loop( (DeviceData_Router *) pDevice->m_pDevice_MD, pmapMediaDevice );
 }
