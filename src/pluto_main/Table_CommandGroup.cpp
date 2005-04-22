@@ -155,201 +155,201 @@ is_null[17] = false;
 	is_modified=false;
 }
 
-long int Row_CommandGroup::PK_CommandGroup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::PK_CommandGroup_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_CommandGroup;}
-long int Row_CommandGroup::FK_Array_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::FK_Array_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Array;}
-long int Row_CommandGroup::FK_Installation_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::FK_Installation_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Installation;}
-string Row_CommandGroup::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_CommandGroup::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Description;}
-string Row_CommandGroup::Hint_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_CommandGroup::Hint_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Hint;}
-short int Row_CommandGroup::CanTurnOff_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_CommandGroup::CanTurnOff_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_CanTurnOff;}
-short int Row_CommandGroup::AlwaysShow_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_CommandGroup::AlwaysShow_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_AlwaysShow;}
-short int Row_CommandGroup::CanBeHidden_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_CommandGroup::CanBeHidden_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_CanBeHidden;}
-long int Row_CommandGroup::FK_Criteria_Orbiter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::FK_Criteria_Orbiter_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Criteria_Orbiter;}
-long int Row_CommandGroup::FK_DesignObj_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::FK_DesignObj_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_DesignObj;}
-long int Row_CommandGroup::FK_Template_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::FK_Template_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Template;}
-long int Row_CommandGroup::AltID_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::AltID_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_AltID;}
-long int Row_CommandGroup::FK_Icon_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::FK_Icon_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Icon;}
-long int Row_CommandGroup::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_CommandGroup::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_CommandGroup::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_CommandGroup::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_CommandGroup::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_CommandGroup::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_CommandGroup::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
 
 		
-void Row_CommandGroup::PK_CommandGroup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::PK_CommandGroup_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_CommandGroup = val; is_modified=true; is_null[0]=false;}
-void Row_CommandGroup::FK_Array_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Array_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Array = val; is_modified=true; is_null[1]=false;}
-void Row_CommandGroup::FK_Installation_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Installation_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Installation = val; is_modified=true; is_null[2]=false;}
-void Row_CommandGroup::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Description = val; is_modified=true; is_null[3]=false;}
-void Row_CommandGroup::Hint_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::Hint_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Hint = val; is_modified=true; is_null[4]=false;}
-void Row_CommandGroup::CanTurnOff_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::CanTurnOff_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_CanTurnOff = val; is_modified=true; is_null[5]=false;}
-void Row_CommandGroup::AlwaysShow_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::AlwaysShow_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_AlwaysShow = val; is_modified=true; is_null[6]=false;}
-void Row_CommandGroup::CanBeHidden_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::CanBeHidden_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_CanBeHidden = val; is_modified=true; is_null[7]=false;}
-void Row_CommandGroup::FK_Criteria_Orbiter_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Criteria_Orbiter_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Criteria_Orbiter = val; is_modified=true; is_null[8]=false;}
-void Row_CommandGroup::FK_DesignObj_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_DesignObj_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_DesignObj = val; is_modified=true; is_null[9]=false;}
-void Row_CommandGroup::FK_Template_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Template_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Template = val; is_modified=true; is_null[10]=false;}
-void Row_CommandGroup::AltID_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::AltID_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_AltID = val; is_modified=true; is_null[11]=false;}
-void Row_CommandGroup::FK_Icon_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Icon_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Icon = val; is_modified=true; is_null[12]=false;}
-void Row_CommandGroup::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[13]=false;}
-void Row_CommandGroup::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[14]=false;}
-void Row_CommandGroup::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[15]=false;}
-void Row_CommandGroup::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[16]=false;}
-void Row_CommandGroup::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[17]=false;}
 
 		
-bool Row_CommandGroup::FK_Array_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::FK_Array_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[1];}
-bool Row_CommandGroup::FK_Installation_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::FK_Installation_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_CommandGroup::Hint_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::Hint_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_CommandGroup::FK_Criteria_Orbiter_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::FK_Criteria_Orbiter_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_CommandGroup::FK_DesignObj_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::FK_DesignObj_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_CommandGroup::FK_Template_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::FK_Template_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
-bool Row_CommandGroup::AltID_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::AltID_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[11];}
-bool Row_CommandGroup::FK_Icon_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::FK_Icon_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[12];}
-bool Row_CommandGroup::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[13];}
-bool Row_CommandGroup::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[14];}
-bool Row_CommandGroup::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[15];}
-bool Row_CommandGroup::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[16];}
 
 			
-void Row_CommandGroup::FK_Array_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Array_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_CommandGroup::FK_Installation_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Installation_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_CommandGroup::Hint_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::Hint_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_CommandGroup::FK_Criteria_Orbiter_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Criteria_Orbiter_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_CommandGroup::FK_DesignObj_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_DesignObj_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_CommandGroup::FK_Template_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Template_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_CommandGroup::AltID_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::AltID_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_CommandGroup::FK_Icon_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Icon_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_CommandGroup::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_CommandGroup::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[14]=val;
 is_modified=true;
 }
-void Row_CommandGroup::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[15]=val;
 is_modified=true;
 }
-void Row_CommandGroup::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[16]=val;
 is_modified=true;
 }
@@ -357,7 +357,7 @@ is_modified=true;
 
 string Row_CommandGroup::PK_CommandGroup_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -370,7 +370,7 @@ return buf;
 
 string Row_CommandGroup::FK_Array_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -383,7 +383,7 @@ return buf;
 
 string Row_CommandGroup::FK_Installation_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -396,7 +396,7 @@ return buf;
 
 string Row_CommandGroup::Description_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -410,7 +410,7 @@ return s;
 
 string Row_CommandGroup::Hint_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -424,7 +424,7 @@ return s;
 
 string Row_CommandGroup::CanTurnOff_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[5])
 return "NULL";
@@ -437,7 +437,7 @@ return buf;
 
 string Row_CommandGroup::AlwaysShow_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
 return "NULL";
@@ -450,7 +450,7 @@ return buf;
 
 string Row_CommandGroup::CanBeHidden_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[7])
 return "NULL";
@@ -463,7 +463,7 @@ return buf;
 
 string Row_CommandGroup::FK_Criteria_Orbiter_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
 return "NULL";
@@ -476,7 +476,7 @@ return buf;
 
 string Row_CommandGroup::FK_DesignObj_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[9])
 return "NULL";
@@ -489,7 +489,7 @@ return buf;
 
 string Row_CommandGroup::FK_Template_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[10])
 return "NULL";
@@ -502,7 +502,7 @@ return buf;
 
 string Row_CommandGroup::AltID_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[11])
 return "NULL";
@@ -515,7 +515,7 @@ return buf;
 
 string Row_CommandGroup::FK_Icon_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[12])
 return "NULL";
@@ -528,7 +528,7 @@ return buf;
 
 string Row_CommandGroup::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[13])
 return "NULL";
@@ -541,7 +541,7 @@ return buf;
 
 string Row_CommandGroup::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[14])
 return "NULL";
@@ -554,7 +554,7 @@ return buf;
 
 string Row_CommandGroup::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[15])
 return "NULL";
@@ -567,7 +567,7 @@ return buf;
 
 string Row_CommandGroup::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[16])
 return "NULL";
@@ -580,7 +580,7 @@ return buf;
 
 string Row_CommandGroup::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[17])
 return "NULL";
@@ -1295,42 +1295,42 @@ pRow->m_psc_mod = string(row[17],lengths[17]);
 
 class Row_Array* Row_CommandGroup::FK_Array_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Array *pTable = table->database->Array_get();
 return pTable->GetRow(m_FK_Array);
 }
 class Row_Installation* Row_CommandGroup::FK_Installation_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
 return pTable->GetRow(m_FK_Installation);
 }
 class Row_Criteria* Row_CommandGroup::FK_Criteria_Orbiter_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Criteria *pTable = table->database->Criteria_get();
 return pTable->GetRow(m_FK_Criteria_Orbiter);
 }
 class Row_DesignObj* Row_CommandGroup::FK_DesignObj_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
 return pTable->GetRow(m_FK_DesignObj);
 }
 class Row_Template* Row_CommandGroup::FK_Template_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Template *pTable = table->database->Template_get();
 return pTable->GetRow(m_FK_Template);
 }
 class Row_Icon* Row_CommandGroup::FK_Icon_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Icon *pTable = table->database->Icon_get();
 return pTable->GetRow(m_FK_Icon);
@@ -1339,35 +1339,35 @@ return pTable->GetRow(m_FK_Icon);
 
 void Row_CommandGroup::CommandGroup_Command_FK_CommandGroup_getrows(vector <class Row_CommandGroup_Command*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CommandGroup_Command *pTable = table->database->CommandGroup_Command_get();
 pTable->GetRows("`FK_CommandGroup`=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::CommandGroup_EntertainArea_FK_CommandGroup_getrows(vector <class Row_CommandGroup_EntertainArea*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CommandGroup_EntertainArea *pTable = table->database->CommandGroup_EntertainArea_get();
 pTable->GetRows("`FK_CommandGroup`=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::CommandGroup_Room_FK_CommandGroup_getrows(vector <class Row_CommandGroup_Room*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CommandGroup_Room *pTable = table->database->CommandGroup_Room_get();
 pTable->GetRows("`FK_CommandGroup`=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::Device_CommandGroup_FK_CommandGroup_getrows(vector <class Row_Device_CommandGroup*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Device_CommandGroup *pTable = table->database->Device_CommandGroup_get();
 pTable->GetRows("`FK_CommandGroup`=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::EventHandler_FK_CommandGroup_getrows(vector <class Row_EventHandler*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
 pTable->GetRows("`FK_CommandGroup`=" + StringUtils::itos(m_PK_CommandGroup),rows);

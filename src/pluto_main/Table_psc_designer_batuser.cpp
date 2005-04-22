@@ -130,36 +130,36 @@ is_null[4] = false;
 	is_modified=false;
 }
 
-long int Row_psc_designer_batuser::PK_psc_designer_batuser_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_designer_batuser::PK_psc_designer_batuser_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_psc_designer_batuser;}
-long int Row_psc_designer_batuser::FK_psc_designer_bathdr_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_designer_batuser::FK_psc_designer_bathdr_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_psc_designer_bathdr;}
-long int Row_psc_designer_batuser::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_designer_batuser::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_psc_designer_batuser::is_sup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_psc_designer_batuser::is_sup_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_is_sup;}
-short int Row_psc_designer_batuser::no_pass_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_psc_designer_batuser::no_pass_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_no_pass;}
 
 		
-void Row_psc_designer_batuser::PK_psc_designer_batuser_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_designer_batuser::PK_psc_designer_batuser_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_psc_designer_batuser = val; is_modified=true; is_null[0]=false;}
-void Row_psc_designer_batuser::FK_psc_designer_bathdr_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_designer_batuser::FK_psc_designer_bathdr_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_psc_designer_bathdr = val; is_modified=true; is_null[1]=false;}
-void Row_psc_designer_batuser::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_designer_batuser::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[2]=false;}
-void Row_psc_designer_batuser::is_sup_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_designer_batuser::is_sup_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_is_sup = val; is_modified=true; is_null[3]=false;}
-void Row_psc_designer_batuser::no_pass_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_designer_batuser::no_pass_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_no_pass = val; is_modified=true; is_null[4]=false;}
 
@@ -170,7 +170,7 @@ m_no_pass = val; is_modified=true; is_null[4]=false;}
 
 string Row_psc_designer_batuser::PK_psc_designer_batuser_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -183,7 +183,7 @@ return buf;
 
 string Row_psc_designer_batuser::FK_psc_designer_bathdr_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -196,7 +196,7 @@ return buf;
 
 string Row_psc_designer_batuser::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -209,7 +209,7 @@ return buf;
 
 string Row_psc_designer_batuser::is_sup_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -222,7 +222,7 @@ return buf;
 
 string Row_psc_designer_batuser::no_pass_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -650,7 +650,7 @@ sscanf(row[4], "%hi", &(pRow->m_no_pass));
 
 class Row_psc_designer_bathdr* Row_psc_designer_batuser::FK_psc_designer_bathdr_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_psc_designer_bathdr *pTable = table->database->psc_designer_bathdr_get();
 return pTable->GetRow(m_FK_psc_designer_bathdr);

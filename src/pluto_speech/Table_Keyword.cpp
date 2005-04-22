@@ -27,7 +27,8 @@ void Database_pluto_speech::CreateTable_Keyword()
 
 void Database_pluto_speech::DeleteTable_Keyword()
 {
-	delete tblKeyword;
+	if( tblKeyword )
+		delete tblKeyword;
 }
 
 Table_Keyword::~Table_Keyword()
@@ -55,7 +56,7 @@ Table_Keyword::~Table_Keyword()
 
 void Row_Keyword::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_Keyword *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -86,7 +87,7 @@ void Row_Keyword::Reload()
 {
 	Row_Keyword *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -125,71 +126,75 @@ is_null[4] = true;
 	is_modified=false;
 }
 
-long int Row_Keyword::PK_Keyword_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Keyword::PK_Keyword_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_Keyword;}
-short int Row_Keyword::SimpleAdvanced_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Keyword::SimpleAdvanced_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_SimpleAdvanced;}
-long int Row_Keyword::EK_Room_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Keyword::EK_Room_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_EK_Room;}
-string Row_Keyword::Keyword_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Keyword::Keyword_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Keyword;}
-long int Row_Keyword::EK_CommandGroup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Keyword::EK_CommandGroup_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_EK_CommandGroup;}
 
 		
-void Row_Keyword::PK_Keyword_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Keyword::PK_Keyword_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_Keyword = val; is_modified=true; is_null[0]=false;}
-void Row_Keyword::SimpleAdvanced_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Keyword::SimpleAdvanced_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_SimpleAdvanced = val; is_modified=true; is_null[1]=false;}
-void Row_Keyword::EK_Room_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Keyword::EK_Room_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_EK_Room = val; is_modified=true; is_null[2]=false;}
-void Row_Keyword::Keyword_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Keyword::Keyword_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Keyword = val; is_modified=true; is_null[3]=false;}
-void Row_Keyword::EK_CommandGroup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Keyword::EK_CommandGroup_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_EK_CommandGroup = val; is_modified=true; is_null[4]=false;}
 
 		
-bool Row_Keyword::SimpleAdvanced_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Keyword::SimpleAdvanced_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[1];}
-bool Row_Keyword::EK_Room_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Keyword::EK_Room_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Keyword::Keyword_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Keyword::Keyword_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Keyword::EK_CommandGroup_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Keyword::EK_CommandGroup_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
 
 			
-void Row_Keyword::SimpleAdvanced_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[1]=val;}
-void Row_Keyword::EK_Room_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
-void Row_Keyword::Keyword_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[3]=val;}
-void Row_Keyword::EK_CommandGroup_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
+void Row_Keyword::SimpleAdvanced_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[1]=val;
+is_modified=true;
+}
+void Row_Keyword::EK_Room_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[2]=val;
+is_modified=true;
+}
+void Row_Keyword::Keyword_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[3]=val;
+is_modified=true;
+}
+void Row_Keyword::EK_CommandGroup_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[4]=val;
+is_modified=true;
+}
 	
 
 string Row_Keyword::PK_Keyword_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -202,7 +207,7 @@ return buf;
 
 string Row_Keyword::SimpleAdvanced_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -215,7 +220,7 @@ return buf;
 
 string Row_Keyword::EK_Room_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -228,13 +233,13 @@ return buf;
 
 string Row_Keyword::Keyword_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Keyword.c_str(), (unsigned long) m_Keyword.size());
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Keyword.c_str(), (unsigned long) min(30,m_Keyword.size()));
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -242,7 +247,7 @@ return s;
 
 string Row_Keyword::EK_CommandGroup_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -264,7 +269,7 @@ Table_Keyword::Key::Key(long int in_PK_Keyword)
 
 Table_Keyword::Key::Key(Row_Keyword *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_Keyword = pRow->m_PK_Keyword;
 	
@@ -280,7 +285,7 @@ return false;
 
 bool Table_Keyword::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -294,20 +299,21 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Keyword_asSQL()+", "+pRow->SimpleAdvanced_asSQL()+", "+pRow->EK_Room_asSQL()+", "+pRow->Keyword_asSQL()+", "+pRow->EK_CommandGroup_asSQL();
 
 	
-		string query = "insert into Keyword (PK_Keyword, SimpleAdvanced, EK_Room, Keyword, EK_CommandGroup) values ("+
+		string query = "insert into Keyword (`PK_Keyword`, `SimpleAdvanced`, `EK_Room`, `Keyword`, `EK_CommandGroup`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 				
 			
@@ -337,19 +343,20 @@ sprintf(tmp_PK_Keyword, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Keyword=" + tmp_PK_Keyword;
+condition = condition + "`PK_Keyword`=" + tmp_PK_Keyword;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Keyword="+pRow->PK_Keyword_asSQL()+", SimpleAdvanced="+pRow->SimpleAdvanced_asSQL()+", EK_Room="+pRow->EK_Room_asSQL()+", Keyword="+pRow->Keyword_asSQL()+", EK_CommandGroup="+pRow->EK_CommandGroup_asSQL();
+update_values_list = update_values_list + "`PK_Keyword`="+pRow->PK_Keyword_asSQL()+", `SimpleAdvanced`="+pRow->SimpleAdvanced_asSQL()+", `EK_Room`="+pRow->EK_Room_asSQL()+", `Keyword`="+pRow->Keyword_asSQL()+", `EK_CommandGroup`="+pRow->EK_CommandGroup_asSQL();
 
 	
 		string query = "update Keyword set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}
 	
@@ -381,14 +388,15 @@ sprintf(tmp_PK_Keyword, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Keyword=" + tmp_PK_Keyword;
+condition = condition + "`PK_Keyword`=" + tmp_PK_Keyword;
 
 	
 		string query = "delete from Keyword where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
-			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			return false;
 		}	
 		
@@ -402,27 +410,29 @@ condition = condition + "PK_Keyword=" + tmp_PK_Keyword;
 
 bool Table_Keyword::GetRows(string where_statement,vector<class Row_Keyword*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Keyword " + where_statement;
+		query = "select `Keyword`.* from Keyword " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Keyword where " + where_statement;
+		query = "select `Keyword`.* from Keyword where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -516,7 +526,7 @@ sscanf(row[4], "%li", &(pRow->m_EK_CommandGroup));
 
 Row_Keyword* Table_Keyword::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_Keyword *pRow = new Row_Keyword(this);
 	pRow->is_added=true;
@@ -528,7 +538,7 @@ Row_Keyword* Table_Keyword::AddRow()
 
 Row_Keyword* Table_Keyword::GetRow(long int in_PK_Keyword)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_Keyword);
 
@@ -556,7 +566,7 @@ Row_Keyword* Table_Keyword::GetRow(long int in_PK_Keyword)
 
 Row_Keyword* Table_Keyword::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Keyword[32];
@@ -564,22 +574,24 @@ sprintf(tmp_PK_Keyword, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Keyword=" + tmp_PK_Keyword;
+condition = condition + "`PK_Keyword`=" + tmp_PK_Keyword;
 
 
 	string query = "select * from Keyword where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
-		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

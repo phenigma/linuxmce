@@ -143,117 +143,117 @@ is_null[10] = false;
 	is_modified=false;
 }
 
-long int Row_Document::PK_Document_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Document::PK_Document_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_Document;}
-long int Row_Document::FK_Document_Parent_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Document::FK_Document_Parent_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Document_Parent;}
-short int Row_Document::Hidden_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Document::Hidden_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Hidden;}
-long int Row_Document::Order_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Document::Order_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Order;}
-string Row_Document::Title_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Document::Title_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Title;}
-string Row_Document::Contents_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Document::Contents_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Contents;}
-long int Row_Document::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Document::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_Document::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Document::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_Document::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Document::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_Document::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_Document::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_Document::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Document::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
 
 		
-void Row_Document::PK_Document_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::PK_Document_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_Document = val; is_modified=true; is_null[0]=false;}
-void Row_Document::FK_Document_Parent_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::FK_Document_Parent_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Document_Parent = val; is_modified=true; is_null[1]=false;}
-void Row_Document::Hidden_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::Hidden_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Hidden = val; is_modified=true; is_null[2]=false;}
-void Row_Document::Order_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::Order_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Order = val; is_modified=true; is_null[3]=false;}
-void Row_Document::Title_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::Title_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Title = val; is_modified=true; is_null[4]=false;}
-void Row_Document::Contents_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::Contents_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Contents = val; is_modified=true; is_null[5]=false;}
-void Row_Document::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[6]=false;}
-void Row_Document::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[7]=false;}
-void Row_Document::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[8]=false;}
-void Row_Document::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[9]=false;}
-void Row_Document::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[10]=false;}
 
 		
-bool Row_Document::FK_Document_Parent_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Document::FK_Document_Parent_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[1];}
-bool Row_Document::Contents_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Document::Contents_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_Document::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Document::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_Document::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Document::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_Document::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Document::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_Document::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Document::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
 
 			
-void Row_Document::FK_Document_Parent_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::FK_Document_Parent_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_Document::Contents_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::Contents_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_Document::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_Document::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_Document::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Document::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Document::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
@@ -261,7 +261,7 @@ is_modified=true;
 
 string Row_Document::PK_Document_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -274,7 +274,7 @@ return buf;
 
 string Row_Document::FK_Document_Parent_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -287,7 +287,7 @@ return buf;
 
 string Row_Document::Hidden_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -300,7 +300,7 @@ return buf;
 
 string Row_Document::Order_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -313,7 +313,7 @@ return buf;
 
 string Row_Document::Title_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -327,7 +327,7 @@ return s;
 
 string Row_Document::Contents_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[5])
 return "NULL";
@@ -341,7 +341,7 @@ return s;
 
 string Row_Document::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
 return "NULL";
@@ -354,7 +354,7 @@ return buf;
 
 string Row_Document::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[7])
 return "NULL";
@@ -367,7 +367,7 @@ return buf;
 
 string Row_Document::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
 return "NULL";
@@ -380,7 +380,7 @@ return buf;
 
 string Row_Document::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[9])
 return "NULL";
@@ -393,7 +393,7 @@ return buf;
 
 string Row_Document::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[10])
 return "NULL";
@@ -954,7 +954,7 @@ pRow->m_psc_mod = string(row[10],lengths[10]);
 
 class Row_Document* Row_Document::FK_Document_Parent_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Document *pTable = table->database->Document_get();
 return pTable->GetRow(m_FK_Document_Parent);
@@ -963,42 +963,42 @@ return pTable->GetRow(m_FK_Document_Parent);
 
 void Row_Document::DesignObj_FK_Document_getrows(vector <class Row_DesignObj*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
 pTable->GetRows("`FK_Document`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Document_FK_Document_Parent_getrows(vector <class Row_Document*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Document *pTable = table->database->Document_get();
 pTable->GetRows("`FK_Document_Parent`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Document_Comment_FK_Document_getrows(vector <class Row_Document_Comment*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Document_Comment *pTable = table->database->Document_Comment_get();
 pTable->GetRows("`FK_Document`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Package_FK_Document_getrows(vector <class Row_Package*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Package *pTable = table->database->Package_get();
 pTable->GetRows("`FK_Document`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Package_FK_Document_UsersManual_getrows(vector <class Row_Package*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Package *pTable = table->database->Package_get();
 pTable->GetRows("`FK_Document_UsersManual`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Package_FK_Document_ProgrammersGuide_getrows(vector <class Row_Package*> *rows)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Package *pTable = table->database->Package_get();
 pTable->GetRows("`FK_Document_ProgrammersGuide`=" + StringUtils::itos(m_PK_Document),rows);

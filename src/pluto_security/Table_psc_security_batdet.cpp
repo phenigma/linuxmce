@@ -60,7 +60,7 @@ Table_psc_security_batdet::~Table_psc_security_batdet()
 
 void Row_psc_security_batdet::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_psc_security_batdet *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -91,7 +91,7 @@ void Row_psc_security_batdet::Reload()
 {
 	Row_psc_security_batdet *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -141,60 +141,60 @@ is_null[8] = false;
 	is_modified=false;
 }
 
-long int Row_psc_security_batdet::PK_psc_security_batdet_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_security_batdet::PK_psc_security_batdet_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_psc_security_batdet;}
-long int Row_psc_security_batdet::FK_psc_security_bathdr_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_security_batdet::FK_psc_security_bathdr_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_psc_security_bathdr;}
-string Row_psc_security_batdet::Tablename_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_psc_security_batdet::Tablename_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Tablename;}
-long int Row_psc_security_batdet::New_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_security_batdet::New_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_New;}
-long int Row_psc_security_batdet::Deleted_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_security_batdet::Deleted_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Deleted;}
-long int Row_psc_security_batdet::Modified_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_security_batdet::Modified_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Modified;}
-long int Row_psc_security_batdet::FK_psc_security_bathdr_orig_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_security_batdet::FK_psc_security_bathdr_orig_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_psc_security_bathdr_orig;}
-long int Row_psc_security_batdet::FK_psc_security_bathdr_auth_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_security_batdet::FK_psc_security_bathdr_auth_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_psc_security_bathdr_auth;}
-long int Row_psc_security_batdet::FK_psc_security_bathdr_unauth_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_security_batdet::FK_psc_security_bathdr_unauth_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_psc_security_bathdr_unauth;}
 
 		
-void Row_psc_security_batdet::PK_psc_security_batdet_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_batdet::PK_psc_security_batdet_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_psc_security_batdet = val; is_modified=true; is_null[0]=false;}
-void Row_psc_security_batdet::FK_psc_security_bathdr_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_batdet::FK_psc_security_bathdr_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_psc_security_bathdr = val; is_modified=true; is_null[1]=false;}
-void Row_psc_security_batdet::Tablename_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_batdet::Tablename_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Tablename = val; is_modified=true; is_null[2]=false;}
-void Row_psc_security_batdet::New_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_batdet::New_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_New = val; is_modified=true; is_null[3]=false;}
-void Row_psc_security_batdet::Deleted_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_batdet::Deleted_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Deleted = val; is_modified=true; is_null[4]=false;}
-void Row_psc_security_batdet::Modified_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_batdet::Modified_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Modified = val; is_modified=true; is_null[5]=false;}
-void Row_psc_security_batdet::FK_psc_security_bathdr_orig_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_batdet::FK_psc_security_bathdr_orig_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_psc_security_bathdr_orig = val; is_modified=true; is_null[6]=false;}
-void Row_psc_security_batdet::FK_psc_security_bathdr_auth_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_batdet::FK_psc_security_bathdr_auth_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_psc_security_bathdr_auth = val; is_modified=true; is_null[7]=false;}
-void Row_psc_security_batdet::FK_psc_security_bathdr_unauth_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_batdet::FK_psc_security_bathdr_unauth_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_psc_security_bathdr_unauth = val; is_modified=true; is_null[8]=false;}
 
@@ -205,7 +205,7 @@ m_FK_psc_security_bathdr_unauth = val; is_modified=true; is_null[8]=false;}
 
 string Row_psc_security_batdet::PK_psc_security_batdet_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -218,7 +218,7 @@ return buf;
 
 string Row_psc_security_batdet::FK_psc_security_bathdr_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -231,7 +231,7 @@ return buf;
 
 string Row_psc_security_batdet::Tablename_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -245,7 +245,7 @@ return s;
 
 string Row_psc_security_batdet::New_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -258,7 +258,7 @@ return buf;
 
 string Row_psc_security_batdet::Deleted_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -271,7 +271,7 @@ return buf;
 
 string Row_psc_security_batdet::Modified_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[5])
 return "NULL";
@@ -284,7 +284,7 @@ return buf;
 
 string Row_psc_security_batdet::FK_psc_security_bathdr_orig_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
 return "NULL";
@@ -297,7 +297,7 @@ return buf;
 
 string Row_psc_security_batdet::FK_psc_security_bathdr_auth_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[7])
 return "NULL";
@@ -310,7 +310,7 @@ return buf;
 
 string Row_psc_security_batdet::FK_psc_security_bathdr_unauth_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
 return "NULL";
@@ -332,7 +332,7 @@ Table_psc_security_batdet::Key::Key(long int in_PK_psc_security_batdet)
 
 Table_psc_security_batdet::Key::Key(Row_psc_security_batdet *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_psc_security_batdet = pRow->m_PK_psc_security_batdet;
 	
@@ -348,7 +348,7 @@ return false;
 
 bool Table_psc_security_batdet::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -475,7 +475,7 @@ condition = condition + "`PK_psc_security_batdet`=" + tmp_PK_psc_security_batdet
 
 bool Table_psc_security_batdet::GetRows(string where_statement,vector<class Row_psc_security_batdet*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -635,7 +635,7 @@ sscanf(row[8], "%li", &(pRow->m_FK_psc_security_bathdr_unauth));
 
 Row_psc_security_batdet* Table_psc_security_batdet::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_psc_security_batdet *pRow = new Row_psc_security_batdet(this);
 	pRow->is_added=true;
@@ -647,7 +647,7 @@ Row_psc_security_batdet* Table_psc_security_batdet::AddRow()
 
 Row_psc_security_batdet* Table_psc_security_batdet::GetRow(long int in_PK_psc_security_batdet)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_psc_security_batdet);
 
@@ -675,7 +675,7 @@ Row_psc_security_batdet* Table_psc_security_batdet::GetRow(long int in_PK_psc_se
 
 Row_psc_security_batdet* Table_psc_security_batdet::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_psc_security_batdet[32];
@@ -826,28 +826,28 @@ sscanf(row[8], "%li", &(pRow->m_FK_psc_security_bathdr_unauth));
 
 class Row_psc_security_bathdr* Row_psc_security_batdet::FK_psc_security_bathdr_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_psc_security_bathdr *pTable = table->database->psc_security_bathdr_get();
 return pTable->GetRow(m_FK_psc_security_bathdr);
 }
 class Row_psc_security_bathdr* Row_psc_security_batdet::FK_psc_security_bathdr_orig_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_psc_security_bathdr *pTable = table->database->psc_security_bathdr_get();
 return pTable->GetRow(m_FK_psc_security_bathdr_orig);
 }
 class Row_psc_security_bathdr* Row_psc_security_batdet::FK_psc_security_bathdr_auth_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_psc_security_bathdr *pTable = table->database->psc_security_bathdr_get();
 return pTable->GetRow(m_FK_psc_security_bathdr_auth);
 }
 class Row_psc_security_bathdr* Row_psc_security_batdet::FK_psc_security_bathdr_unauth_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_psc_security_bathdr *pTable = table->database->psc_security_bathdr_get();
 return pTable->GetRow(m_FK_psc_security_bathdr_unauth);

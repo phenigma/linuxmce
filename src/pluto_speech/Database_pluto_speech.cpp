@@ -18,8 +18,8 @@ using namespace std;
 
 Database_pluto_speech::Database_pluto_speech()
 {
-CreateTable_Alias();
-CreateTable_Keyword();
+tblAlias=NULL;
+tblKeyword=NULL;
 }
 
 Database_pluto_speech::~Database_pluto_speech()
@@ -35,11 +35,7 @@ DeleteTable_Keyword();
 
 bool Database_pluto_speech::Connect(string host, string user, string pass, string sDBName, int port)
 {
-db_handle = mysql_init(NULL);
-if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
-{return false;}
-else
-{return true;}
+return MySQLConnect(host, user, pass, sDBName, port);
 }
 
 bool Database_pluto_speech::Connect(class DCEConfig *pDCEConfig)

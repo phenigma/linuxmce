@@ -56,7 +56,7 @@ Table_psc_media_repset::~Table_psc_media_repset()
 
 void Row_psc_media_repset::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_psc_media_repset *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -87,7 +87,7 @@ void Row_psc_media_repset::Reload()
 {
 	Row_psc_media_repset *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -124,41 +124,42 @@ is_null[2] = true;
 	is_modified=false;
 }
 
-long int Row_psc_media_repset::PK_psc_media_repset_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_media_repset::PK_psc_media_repset_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_psc_media_repset;}
-string Row_psc_media_repset::Setting_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_psc_media_repset::Setting_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Setting;}
-string Row_psc_media_repset::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_psc_media_repset::Value_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Value;}
 
 		
-void Row_psc_media_repset::PK_psc_media_repset_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_media_repset::PK_psc_media_repset_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_psc_media_repset = val; is_modified=true; is_null[0]=false;}
-void Row_psc_media_repset::Setting_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_media_repset::Setting_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Setting = val; is_modified=true; is_null[1]=false;}
-void Row_psc_media_repset::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_media_repset::Value_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Value = val; is_modified=true; is_null[2]=false;}
 
 		
-bool Row_psc_media_repset::Value_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_psc_media_repset::Value_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
 
 			
-void Row_psc_media_repset::Value_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
+void Row_psc_media_repset::Value_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[2]=val;
+is_modified=true;
+}
 	
 
 string Row_psc_media_repset::PK_psc_media_repset_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -171,7 +172,7 @@ return buf;
 
 string Row_psc_media_repset::Setting_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -185,7 +186,7 @@ return s;
 
 string Row_psc_media_repset::Value_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -208,7 +209,7 @@ Table_psc_media_repset::Key::Key(long int in_PK_psc_media_repset)
 
 Table_psc_media_repset::Key::Key(Row_psc_media_repset *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_psc_media_repset = pRow->m_PK_psc_media_repset;
 	
@@ -224,7 +225,7 @@ return false;
 
 bool Table_psc_media_repset::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -351,7 +352,7 @@ condition = condition + "`PK_psc_media_repset`=" + tmp_PK_psc_media_repset;
 
 bool Table_psc_media_repset::GetRows(string where_statement,vector<class Row_psc_media_repset*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -445,7 +446,7 @@ pRow->m_Value = string(row[2],lengths[2]);
 
 Row_psc_media_repset* Table_psc_media_repset::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_psc_media_repset *pRow = new Row_psc_media_repset(this);
 	pRow->is_added=true;
@@ -457,7 +458,7 @@ Row_psc_media_repset* Table_psc_media_repset::AddRow()
 
 Row_psc_media_repset* Table_psc_media_repset::GetRow(long int in_PK_psc_media_repset)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_psc_media_repset);
 
@@ -485,7 +486,7 @@ Row_psc_media_repset* Table_psc_media_repset::GetRow(long int in_PK_psc_media_re
 
 Row_psc_media_repset* Table_psc_media_repset::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_psc_media_repset[32];

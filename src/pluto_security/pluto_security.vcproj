@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/pluto_security.lib"/>
+				OutputFile="../lib/pluto_security.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -61,9 +61,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
+				AdditionalIncludeDirectories="..;../DCE;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..;../DCE;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -107,6 +107,9 @@
 				RelativePath=".\Database_pluto_security.cpp">
 			</File>
 			<File
+				RelativePath=".\TableRow.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Alert.cpp">
 			</File>
 			<File
@@ -139,9 +142,7 @@
 			<File
 				RelativePath=".\Table_psc_security_tables.cpp">
 			</File>
-			<File
-				RelativePath=".\TableRow.cpp">
-			</File>
+
 		</Filter>
 		<Filter
 			Name="Header Files"

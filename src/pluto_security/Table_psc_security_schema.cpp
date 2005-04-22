@@ -56,7 +56,7 @@ Table_psc_security_schema::~Table_psc_security_schema()
 
 void Row_psc_security_schema::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_psc_security_schema *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -87,7 +87,7 @@ void Row_psc_security_schema::Reload()
 {
 	Row_psc_security_schema *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -123,18 +123,18 @@ is_null[1] = false;
 	is_modified=false;
 }
 
-long int Row_psc_security_schema::PK_psc_security_schema_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_security_schema::PK_psc_security_schema_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_psc_security_schema;}
-string Row_psc_security_schema::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_psc_security_schema::Value_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Value;}
 
 		
-void Row_psc_security_schema::PK_psc_security_schema_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_schema::PK_psc_security_schema_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_psc_security_schema = val; is_modified=true; is_null[0]=false;}
-void Row_psc_security_schema::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_security_schema::Value_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Value = val; is_modified=true; is_null[1]=false;}
 
@@ -145,7 +145,7 @@ m_Value = val; is_modified=true; is_null[1]=false;}
 
 string Row_psc_security_schema::PK_psc_security_schema_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -158,7 +158,7 @@ return buf;
 
 string Row_psc_security_schema::Value_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -181,7 +181,7 @@ Table_psc_security_schema::Key::Key(long int in_PK_psc_security_schema)
 
 Table_psc_security_schema::Key::Key(Row_psc_security_schema *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_psc_security_schema = pRow->m_PK_psc_security_schema;
 	
@@ -197,7 +197,7 @@ return false;
 
 bool Table_psc_security_schema::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -324,7 +324,7 @@ condition = condition + "`PK_psc_security_schema`=" + tmp_PK_psc_security_schema
 
 bool Table_psc_security_schema::GetRows(string where_statement,vector<class Row_psc_security_schema*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -407,7 +407,7 @@ pRow->m_Value = string(row[1],lengths[1]);
 
 Row_psc_security_schema* Table_psc_security_schema::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_psc_security_schema *pRow = new Row_psc_security_schema(this);
 	pRow->is_added=true;
@@ -419,7 +419,7 @@ Row_psc_security_schema* Table_psc_security_schema::AddRow()
 
 Row_psc_security_schema* Table_psc_security_schema::GetRow(long int in_PK_psc_security_schema)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_psc_security_schema);
 
@@ -447,7 +447,7 @@ Row_psc_security_schema* Table_psc_security_schema::GetRow(long int in_PK_psc_se
 
 Row_psc_security_schema* Table_psc_security_schema::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_psc_security_schema[32];

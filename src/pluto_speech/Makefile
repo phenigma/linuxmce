@@ -12,7 +12,7 @@ Table_Keyword.cpp
 all: libpluto_speech.a all-recursive
 
 libpluto_speech.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $(call cpath,$+)
+	$(AR) rc $@ $+
 	cp $@ ../lib
 
 clean: clean-recursive

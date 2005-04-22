@@ -57,7 +57,7 @@ Table_psc_media_batuser::~Table_psc_media_batuser()
 
 void Row_psc_media_batuser::Delete()
 {
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	Row_psc_media_batuser *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -88,7 +88,7 @@ void Row_psc_media_batuser::Reload()
 {
 	Row_psc_media_batuser *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
@@ -130,36 +130,36 @@ is_null[4] = false;
 	is_modified=false;
 }
 
-long int Row_psc_media_batuser::PK_psc_media_batuser_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_media_batuser::PK_psc_media_batuser_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_psc_media_batuser;}
-long int Row_psc_media_batuser::FK_psc_media_bathdr_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_media_batuser::FK_psc_media_bathdr_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_psc_media_bathdr;}
-long int Row_psc_media_batuser::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_media_batuser::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_psc_media_batuser::is_sup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_psc_media_batuser::is_sup_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_is_sup;}
-short int Row_psc_media_batuser::no_pass_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+short int Row_psc_media_batuser::no_pass_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_no_pass;}
 
 		
-void Row_psc_media_batuser::PK_psc_media_batuser_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_media_batuser::PK_psc_media_batuser_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_psc_media_batuser = val; is_modified=true; is_null[0]=false;}
-void Row_psc_media_batuser::FK_psc_media_bathdr_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_media_batuser::FK_psc_media_bathdr_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_psc_media_bathdr = val; is_modified=true; is_null[1]=false;}
-void Row_psc_media_batuser::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_media_batuser::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[2]=false;}
-void Row_psc_media_batuser::is_sup_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_media_batuser::is_sup_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_is_sup = val; is_modified=true; is_null[3]=false;}
-void Row_psc_media_batuser::no_pass_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_media_batuser::no_pass_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_no_pass = val; is_modified=true; is_null[4]=false;}
 
@@ -170,7 +170,7 @@ m_no_pass = val; is_modified=true; is_null[4]=false;}
 
 string Row_psc_media_batuser::PK_psc_media_batuser_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[0])
 return "NULL";
@@ -183,7 +183,7 @@ return buf;
 
 string Row_psc_media_batuser::FK_psc_media_bathdr_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
@@ -196,7 +196,7 @@ return buf;
 
 string Row_psc_media_batuser::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
@@ -209,7 +209,7 @@ return buf;
 
 string Row_psc_media_batuser::is_sup_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
 return "NULL";
@@ -222,7 +222,7 @@ return buf;
 
 string Row_psc_media_batuser::no_pass_asSQL()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
 return "NULL";
@@ -244,7 +244,7 @@ Table_psc_media_batuser::Key::Key(long int in_PK_psc_media_batuser)
 
 Table_psc_media_batuser::Key::Key(Row_psc_media_batuser *pRow)
 {
-			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_PK_psc_media_batuser = pRow->m_PK_psc_media_batuser;
 	
@@ -260,7 +260,7 @@ return false;
 
 bool Table_psc_media_batuser::Commit()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -387,7 +387,7 @@ condition = condition + "`PK_psc_media_batuser`=" + tmp_PK_psc_media_batuser;
 
 bool Table_psc_media_batuser::GetRows(string where_statement,vector<class Row_psc_media_batuser*> *rows)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
@@ -503,7 +503,7 @@ sscanf(row[4], "%hi", &(pRow->m_no_pass));
 
 Row_psc_media_batuser* Table_psc_media_batuser::AddRow()
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	Row_psc_media_batuser *pRow = new Row_psc_media_batuser(this);
 	pRow->is_added=true;
@@ -515,7 +515,7 @@ Row_psc_media_batuser* Table_psc_media_batuser::AddRow()
 
 Row_psc_media_batuser* Table_psc_media_batuser::GetRow(long int in_PK_psc_media_batuser)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	SingleLongKey row_key(in_PK_psc_media_batuser);
 
@@ -543,7 +543,7 @@ Row_psc_media_batuser* Table_psc_media_batuser::GetRow(long int in_PK_psc_media_
 
 Row_psc_media_batuser* Table_psc_media_batuser::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK(M, m_Mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_psc_media_batuser[32];
@@ -650,7 +650,7 @@ sscanf(row[4], "%hi", &(pRow->m_no_pass));
 
 class Row_psc_media_bathdr* Row_psc_media_batuser::FK_psc_media_bathdr_getrow()
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_psc_media_bathdr *pTable = table->database->psc_media_bathdr_get();
 return pTable->GetRow(m_FK_psc_media_bathdr);

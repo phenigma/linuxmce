@@ -25,14 +25,8 @@ private:
 	struct Key;	//forward declaration
 	
 public:
-    pluto_pthread_mutex_t m_Mutex;
-	pthread_mutexattr_t m_MutexAttr;
-		
-	Table_Type_AttributeType(Database_pluto_media *pDatabase):database(pDatabase), m_Mutex("Type_AttributeType")
+	Table_Type_AttributeType(Database_pluto_media *pDatabase):database(pDatabase)
 	{
-		pthread_mutexattr_init(&m_MutexAttr);
-		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
-		m_Mutex.Init(&m_MutexAttr); 
 	};
 	~Table_Type_AttributeType();
 
