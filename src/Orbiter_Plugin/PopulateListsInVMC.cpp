@@ -1,51 +1,64 @@
 #include "PopulateListsInVMC.h"
+//------------------------------------------------------------------------------------------------------
 #include "Orbiter_Plugin.h"
-
 #include "DCE/Logger.h"
 #include "VIPShared/VIPIncludes.h"
 #include "VIPShared/VIPMenu.h"
+#include "PlutoUtils/PlutoDefs.h"
 #include "pluto_main/Table_Array.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Define_Button.h"
-
+//------------------------------------------------------------------------------------------------------
 enum MenuIds { miMain, miStandardScenarios, miSetHouseMode, miChooseMode, miSpeakInHouse };
+//------------------------------------------------------------------------------------------------------
 #define liStandardScenarios 1
 #define liSetHouseMode 1
-
-
+//------------------------------------------------------------------------------------------------------
 static const string csRelativeURL = "/check.php?";
-
-bool PopulateListsInVMC(string sSourceVMC, string sDestVMC, long dwPKDevice,
-						Database_pluto_main *pDatabase_pluto_main)
+//------------------------------------------------------------------------------------------------------
+PopulateListsInVMC::PopulateListsInVMC(string sSourceTemplateVMC, string sDestinationVMC, long dwPKDevice,
+						Database_pluto_main *pDatabase_pluto_main, long dwInstallation)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Ready to populate lists in %s file", sSourceVMC.c_str());
+    m_pMenuCollection = NULL;
+    m_pDatabase_pluto_main = pDatabase_pluto_main;
+    m_sSourceTemplateVMC = sSourceTemplateVMC;
+    m_sDestinationVMC = sDestinationVMC;
+    m_dwPKDevice = dwPKDevice;
+    m_dwInstallation = dwInstallation;
 
-	if(!FileUtils::FileExists(sSourceVMC))
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "File %s not found!", sSourceVMC.c_str());
-		return false;
-	}
-
-	//load the vmc file
-	VIPMenuCollection *pMenuCollection = LoadMenuCollection(sSourceVMC);
-
-	//standard scenarios list + add resolutios
-	PopulateStandardScenariosList(pMenuCollection, pDatabase_pluto_main);
-	//AddResolutionsForSetHouseMode(pMenuCollection, pDatabase_pluto_main);
-
-	//save the vmc file
-	if(!SaveMenuCollection(pMenuCollection, sDestVMC))
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Unable to save %s!", sDestVMC.c_str());
-		delete pMenuCollection;
-        return false;
-	}
-
-	delete pMenuCollection;
-	return true;
+    g_pPlutoLogger->Write(LV_STATUS, "<VMC> Ready to create VMC file '%s' from template '%s' file for device %d", 
+        m_sSourceTemplateVMC.c_str(), m_sDestinationVMC.c_str(), m_dwPKDevice);
 }
+//------------------------------------------------------------------------------------------------------
+PopulateListsInVMC::~PopulateListsInVMC()
+{
+    //save the vmc file
+    if(!PopulateListsInVMC::SaveMenuCollection(m_pMenuCollection, m_sDestinationVMC))
+        g_pPlutoLogger->Write(LV_STATUS, "Unable to save %s!", m_sDestinationVMC.c_str());
 
-VIPMenuCollection *LoadMenuCollection(string sVMCFile)
+    PLUTO_SAFE_DELETE(m_pMenuCollection);
+}
+//------------------------------------------------------------------------------------------------------
+bool PopulateListsInVMC::DoIt()
+{
+    //check if the file exists
+    if(!FileUtils::FileExists(m_sSourceTemplateVMC))
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "File %s not found!", m_sSourceTemplateVMC.c_str());
+        return false;
+    }
+
+    //load the template vmc file
+    m_pMenuCollection = PopulateListsInVMC::LoadMenuCollection(m_sSourceTemplateVMC);
+
+    //do it!
+    PopulateStandardScenariosList();
+    //AddResolutionsForSetHouseMode(m_pMenuCollection, m_pDatabase_pluto_main);
+
+    return true;
+}
+//------------------------------------------------------------------------------------------------------
+/*static*/ VIPMenuCollection *PopulateListsInVMC::LoadMenuCollection(string sVMCFile)
 {
 	size_t iSize = 0;
 	char *pData = FileUtils::ReadFileIntoBuffer(sVMCFile, iSize);
@@ -58,32 +71,35 @@ VIPMenuCollection *LoadMenuCollection(string sVMCFile)
 
 	return pMenuCollection;
 }
-
-bool SaveMenuCollection(VIPMenuCollection *pMenuCollection, string sVMCFile)
+//------------------------------------------------------------------------------------------------------
+/*static*/ bool PopulateListsInVMC::SaveMenuCollection(VIPMenuCollection *pMenuCollection, string sVMCFile)
 {
 	pMenuCollection->ConvertToBinary();
 
 	return FileUtils::WriteBufferIntoFile(sVMCFile, pMenuCollection->m_pBinary,
 		pMenuCollection->m_iBinarySize);
 }
-
-void PopulateStandardScenariosList(VIPMenuCollection *pMenuCollection, Database_pluto_main *pDatabase_pluto_main)
+//------------------------------------------------------------------------------------------------------
+bool PopulateListsInVMC::PopulateStandardScenariosList()
 {
 	//get 'Standard Scenarios' menu page
-	VIPMenu *pStandardScenariosMenu = pMenuCollection->m_mapMenus_Find(miStandardScenarios);
+	VIPMenu *pStandardScenariosMenu = m_pMenuCollection->m_mapMenus_Find(miStandardScenarios);
 	if(!pStandardScenariosMenu)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't get 'Standard scenarios' menu with id %d in vmc file", miStandardScenarios);
-		return;
+		g_pPlutoLogger->Write(LV_CRITICAL, 
+            "Couldn't get 'Standard scenarios' menu with id %d in vmc file", 
+            miStandardScenarios);
+		return false;
 	}
 
 	//get the list object from the menu
 	VIPMenuElement *pStandardScenariosElement = pStandardScenariosMenu->m_mapMenuElements_Find(liStandardScenarios);
 	if(!pStandardScenariosElement)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't get the object with id %d from 'Standard scenarios' menu from vmc template file.", 
+		g_pPlutoLogger->Write(LV_CRITICAL, 
+            "Couldn't get the object with id %d from 'Standard scenarios' menu from vmc template file.", 
 			liStandardScenarios);
-		return;
+		return false;
 	}
 
 	VIPMenuElement_List *pStandardScenariosList = NULL;
@@ -91,19 +107,24 @@ void PopulateStandardScenariosList(VIPMenuCollection *pMenuCollection, Database_
 		pStandardScenariosList = (VIPMenuElement_List *)pStandardScenariosElement;
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "The object with id %d 'Standard scenarios' menu is not a list.", liStandardScenarios);
-		return;
+		g_pPlutoLogger->Write(LV_CRITICAL, 
+            "The object with id %d 'Standard scenarios' menu is not a list.", liStandardScenarios);
+		return false;
 	}
 
 	vector <Row_CommandGroup *> vectRow_CommandGroup;
-	pDatabase_pluto_main->CommandGroup_get()->GetRows("FK_Array = " + StringUtils::ltos(ARRAY_Mobile_Orbiter_Scenarios_CONST),
+	m_pDatabase_pluto_main->CommandGroup_get()->GetRows(
+        "FK_Array = " + StringUtils::ltos(ARRAY_Mobile_Orbiter_Scenarios_CONST) + " AND " + 
+        "FK_Installation = " + StringUtils::ltos(m_dwInstallation),
 		&vectRow_CommandGroup);
 
-    g_pPlutoLogger->Write(LV_STATUS, "<VMC> About to populate the list with standard scenarios, items %d", vectRow_CommandGroup.size());
+    g_pPlutoLogger->Write(LV_STATUS, "<VMC> About to populate the list with standard scenarios, items %d", 
+        vectRow_CommandGroup.size());
 
 	int iIndex = 0;
 	pStandardScenariosList->m_sText = "";
-	for(vector <Row_CommandGroup *>::iterator it = vectRow_CommandGroup.begin(); it != vectRow_CommandGroup.end(); it++)
+    vector <Row_CommandGroup *>::iterator it;
+	for(it = vectRow_CommandGroup.begin(); it != vectRow_CommandGroup.end(); it++)
 	{
         string sDescription = (*it)->Description_get();
         int iKeyCode = BUTTON_1_CONST + iIndex;
@@ -115,18 +136,20 @@ void PopulateStandardScenariosList(VIPMenuCollection *pMenuCollection, Database_
 		pMenuResolution->m_sProgramName = csRelativeURL + "cgid=" + sID;
 		pMenuResolution->m_sTerminatingKey += char(iKeyCode);
 
-        g_pPlutoLogger->Write(LV_STATUS, "<VMC> Added '%s' in the list with standard scenarios, path '%s', key %d", 
+        g_pPlutoLogger->Write(LV_STATUS, 
+            "<VMC> Added '%s' in the list with standard scenarios, path '%s', key %d", 
             sDescription.c_str(), pMenuResolution->m_sProgramName.c_str(), iKeyCode);
 
 		pStandardScenariosMenu->AddResolution(pMenuResolution);
 		iIndex++;
 	}
 	vectRow_CommandGroup.clear();
+    return true;
 }
-
-void AddResolutionsForSetHouseMode(VIPMenuCollection *pMenuCollection, Database_pluto_main *pDatabase_pluto_main)
+//------------------------------------------------------------------------------------------------------
+bool PopulateListsInVMC::AddResolutionsForSetHouseMode()
 {
-	VIPMenu *pStandardScenariosMenu = pMenuCollection->m_mapMenus_Find(miChooseMode);
+	VIPMenu *pStandardScenariosMenu = m_pMenuCollection->m_mapMenus_Find(miChooseMode);
 	VIPMenuElement *pStandardScenariosElement = pStandardScenariosMenu->m_mapMenuElements_Find(liSetHouseMode);
 
 	//pDatabase_pluto_main
@@ -147,4 +170,6 @@ void AddResolutionsForSetHouseMode(VIPMenuCollection *pMenuCollection, Database_
 		pStandardScenariosMenu->AddResolution(pMenuResolution);
 		iIndex++;
 */
+    return true;
 }
+//------------------------------------------------------------------------------------------------------
