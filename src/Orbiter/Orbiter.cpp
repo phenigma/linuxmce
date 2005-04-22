@@ -6424,15 +6424,14 @@ void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *
 {
 }
 
-//<-dceag-c365-b->
+//<-dceag-c366-b->
 
-	/** @brief COMMAND: #365 - Activate Window */
+	/** @brief COMMAND: #366 - Activate Window */
 	/** ActivateApplication - Used by Linux On Screeen Orbiters only */
 		/** @param #50 Name */
 			/** Name as known by ratpoison. */
 
 void Orbiter::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage)
-//<-dceag-c365-e->
+//<-dceag-c366-e->
 {
 }
-
