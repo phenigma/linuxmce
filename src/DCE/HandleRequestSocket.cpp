@@ -95,7 +95,10 @@ void HandleRequestSocket::DisconnectAndWait()
 	if( m_bRunning && m_RequestHandlerThread )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Requesthandler %p (device: %d) runThread won't die!", this, m_dwPK_Device );
+		
+#ifndef WINCE //not defined under ce :(
 		pthread_cancel(m_RequestHandlerThread);
+#endif
 	}
 
 	m_RequestHandlerThread = 0;

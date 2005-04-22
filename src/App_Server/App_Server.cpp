@@ -28,6 +28,7 @@
 #include "App_Server.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/Other.h"
@@ -39,7 +40,9 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#ifndef WIN32
 #include "utilities/linux/RatpoisonHandler.h"
+#endif
 
 #include <signal.h>
 #include <sys/types.h>
