@@ -34,6 +34,9 @@ PopulateListsInVMC::PopulateListsInVMC(string sSourceTemplateVMC, string sDestin
 //------------------------------------------------------------------------------------------------------
 PopulateListsInVMC::~PopulateListsInVMC()
 {
+    if(!m_pMenuCollection)
+        return;
+
     //save the vmc file
     if(!PopulateListsInVMC::SaveMenuCollection(m_pMenuCollection, m_sDestinationVMC))
         g_pPlutoLogger->Write(LV_STATUS, "Unable to save %s!", m_sDestinationVMC.c_str());
