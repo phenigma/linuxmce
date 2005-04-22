@@ -2552,7 +2552,7 @@ void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(map<int,MediaDevice *> 
 
 void Media_Plugin::AddOtherDevicesInPipes_Loop(DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice)
 {
-	if( !pDevice )
+	if( !pDevice || pmapMediaDevice->find(pDevice->m_dwPK_Device)!=pmapMediaDevice->end() )
 		return;
 	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();
 		it!=pDevice->m_mapPipe_Available.end();++it)
