@@ -1392,19 +1392,10 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 		}
 		else
 		{
-			if( m_pTable_History )
-			{
-				sSQL.str("");
-				sSQL << "SELECT psc_user,psc_batch FROM " << m_pTable_History->m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id << " AND psc_batch<0";
-				PlutoSqlResult result_set;
-				MYSQL_ROW row=NULL;
-				if( (result_set.r=m_pDatabase->mysql_query_result(sSQL.str())) && (row = mysql_fetch_row(result_set.r)) )
-				{
-					psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(atoi(row[0]));
-					AddToHistory( pR_CommitRow, psqlCVSprocessor, atoi(row[1]) );
-					return;
-				}
-			}
+			// The row is not here.  It must have been deleted.  Alternately it's possible that it
+			// was a row checked in as unauthorized, never approved, and therefore only exists in the 
+			// history.  But that shouldn't happen since we no longer checkin modifications to unauthorized
+			// rows
 			cout << "Row not found " << sSQL.str() << endl;
 			cout << "Skipping update -- row was deleted on the server" << endl;
 			pR_CommitRow->m_cProcessOutcome=SKIPPING_ROW_DELETED;
