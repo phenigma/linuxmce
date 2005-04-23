@@ -80,6 +80,7 @@ string m_Protocol;
 long int m_SourcePort;
 long int m_SourcePortEnd;
 long int m_DestinationPort;
+string m_SourceIP;
 string m_DestinationIP;
 string m_RuleType;
 long int m_psc_id;
@@ -88,7 +89,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[12];
+		bool is_null[13];
 	
 	public:
 		long int PK_Firewall_get();
@@ -96,6 +97,7 @@ string Protocol_get();
 long int SourcePort_get();
 long int SourcePortEnd_get();
 long int DestinationPort_get();
+string SourceIP_get();
 string DestinationIP_get();
 string RuleType_get();
 long int psc_id_get();
@@ -110,6 +112,7 @@ void Protocol_set(string val);
 void SourcePort_set(long int val);
 void SourcePortEnd_set(long int val);
 void DestinationPort_set(long int val);
+void SourceIP_set(string val);
 void DestinationIP_set(string val);
 void RuleType_set(string val);
 void psc_id_set(long int val);
@@ -148,7 +151,7 @@ void psc_frozen_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Firewall+ m_Protocol+ m_SourcePort+ m_SourcePortEnd+ m_DestinationPort+ m_DestinationIP+ m_RuleType+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Firewall+ m_Protocol+ m_SourcePort+ m_SourcePortEnd+ m_DestinationPort+ m_SourceIP+ m_DestinationIP+ m_RuleType+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -158,6 +161,7 @@ string Protocol_asSQL();
 string SourcePort_asSQL();
 string SourcePortEnd_asSQL();
 string DestinationPort_asSQL();
+string SourceIP_asSQL();
 string DestinationIP_asSQL();
 string RuleType_asSQL();
 string psc_id_asSQL();
