@@ -197,7 +197,7 @@ for Client in $R; do
 		fi
 
 		echo -n " apt"
-		cp -f /etc/apt/apt.conf.d/30pluto $DlPath/etc/apt/apt.conf.d/
+		sed 's/localhost/dcerouter/g' /etc/apt/apt.conf.d/30pluto > $DlPath/etc/apt/apt.conf.d/30pluto
 
 		echo
 		
