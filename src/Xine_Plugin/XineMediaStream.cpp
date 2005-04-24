@@ -18,10 +18,10 @@ namespace DCE {
 	XineMediaStream::XineMediaStream(
 							class Xine_Plugin *pXinePlugin,
 							class MediaHandlerInfo *pMediaHandlerInfo,
-							DeviceData_Router *pDeviceData_Router,
+							MediaDevice *pMediaDevice,
 							int PK_DesignObj_Remote,
 							int PK_Users,enum SourceType sourceType,int iStreamID)
-				: MediaStream(pMediaHandlerInfo, pDeviceData_Router, PK_DesignObj_Remote, PK_Users,sourceType, iStreamID)
+				: MediaStream(pMediaHandlerInfo, pMediaDevice, PK_DesignObj_Remote, PK_Users,sourceType, iStreamID)
 	{
 		m_bIsStreaming = 0;
 	}

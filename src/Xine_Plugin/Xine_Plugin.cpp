@@ -167,7 +167,7 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d) as playback device!", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 
 	pXineMediaStream = new XineMediaStream( this, pMediaHandlerInfo,
-							pMediaDevice->m_pDeviceData_Router,
+							pMediaDevice,
 							pMediaHandlerInfo->m_iPK_DesignObj,
 							iPK_Users, st_RemovableMedia, StreamID );
 
