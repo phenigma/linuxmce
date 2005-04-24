@@ -433,12 +433,25 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     }
     else
     {
-        pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
+		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
+
 		if( pMediaStream->m_vectMediaStream_Interrupted.size() )
 		{
+			map<int,MediaDevice *> mapMediaDevice_Prior;
+			pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pMediaStream,&mapMediaDevice_Prior);
+			int PK_MediaType_Prior = pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType;
+
+			MediaStream *pMediaStream_Resume = pMediaStream->m_vectMediaStream_Interrupted.back();
+			pMediaStream->m_vectMediaStream_Interrupted.pop_back();
+
+			StreamEnded(pMediaStream);
+
+			StartMedia(pMediaStream_Resume,false,PK_MediaType_Prior,mapMediaDevice_Prior);
 		}
-		StreamEnded(pMediaStream); // This will delete the stream
-        g_pPlutoLogger->Write(LV_STATUS, "Playback completed. The stream can't play anything more.");
+		else
+			StreamEnded(pMediaStream);
+
+		g_pPlutoLogger->Write(LV_STATUS, "Playback completed. The stream can't play anything more.");
     }
 
     return true;
@@ -470,10 +483,10 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 		if( bResume )
 		{
             // We can't queue this.
+			pMediaStream_Resume = pEntertainArea->m_pMediaStream;
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
 			StreamEnded(pEntertainArea->m_pMediaStream,false,false);
-			pMediaStream_Resume = pEntertainArea->m_pMediaStream;
 			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
 		}
 		else
@@ -527,7 +540,6 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 		else
 			EVENT_Listening_to_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
 
-        pEntertainArea->m_pMediaStream=pMediaStream;
         pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
 		if( pOH_Orbiter && pOH_Orbiter->m_pOH_User )
 			pMediaStream->m_iPK_Users = pOH_Orbiter->m_pOH_User->m_iPK_Users;
@@ -541,7 +553,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
     // HACK: get the user if the message originated from an orbiter!
 
     // Todo -- get the real remote
-    if( PK_DesignObj_Remote && PK_DesignObj_Remote!=-1 )
+	if( PK_DesignObj_Remote && PK_DesignObj_Remote!=-1 )
         pMediaStream->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
 
 	// If it's an applicable media type (media that requires displaying on the screen basically)
@@ -560,11 +572,17 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 	if( pMediaStream_Resume )
 		pMediaStream->m_vectMediaStream_Interrupted.push_back(pMediaStream_Resume);
 
-	return StartMedia(pMediaStream,pEntertainArea,bNoChanges,PK_MediaType_Prior,mapMediaDevice_Prior);
+	return StartMedia(pMediaStream,bNoChanges,PK_MediaType_Prior,mapMediaDevice_Prior);
 }
 
-bool Media_Plugin::StartMedia(MediaStream *pMediaStream,EntertainArea *pEntertainArea,bool bNoChanges,int PK_MediaType_Prior, map<int,MediaDevice *> mapMediaDevice_Prior)
+bool Media_Plugin::StartMedia(MediaStream *pMediaStream,bool bNoChanges,int PK_MediaType_Prior, map<int,MediaDevice *> mapMediaDevice_Prior)
 {
+    for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
+    {
+        EntertainArea *pEntertainArea = ( *it ).second;
+		pEntertainArea->m_pMediaStream=pMediaStream;
+	}
+
     g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
     if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
     {
@@ -575,14 +593,11 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,EntertainArea *pEntertai
 			// We need to get the current rendering devices so that we can send on/off commands
 			map<int,MediaDevice *> mapMediaDevice_Current;
 			// only do stuff with valid objects
-			if ( pEntertainArea->m_pMediaStream )
-			{
-				pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Current);
-				HandleOnOffs(PK_MediaType_Prior,pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
-			}
+			pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pMediaStream,&mapMediaDevice_Current);
+			HandleOnOffs(PK_MediaType_Prior,pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
 		}
 
-        if( pMediaStream->m_iPK_DesignObj_Remote )
+        if( pMediaStream->m_iPK_DesignObj_Remote>0 )
         {
             for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
             {
@@ -1040,8 +1055,11 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
                pEntertainArea->m_pMediaStream->m_iPK_MediaType,
                pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote);
 
-	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false, false );
-		SendCommand( CMD_Goto_Screen );
+		if( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote>0 )
+		{
+		    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false, false );
+			SendCommand( CMD_Goto_Screen );
+		}
 	}
 }
 //<-dceag-c74-b->

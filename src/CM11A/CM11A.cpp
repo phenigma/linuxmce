@@ -94,7 +94,7 @@ void CM11A::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 		return;
 	}
 	
-	string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
+	string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 	g_pPlutoLogger->Write(LV_STATUS, "Child device %d has channel %s.", pMessage->m_dwPK_Device_To, sChannel.c_str());
 	
 	switch(pMessage->m_dwID) {

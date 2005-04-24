@@ -941,6 +941,7 @@ bool Disk_Drive::mountDVD(string fileName, string &strMediaUrl)
 	{
 g_pPlutoLogger->Write(LV_ACTION,"returning mounted drive");
 		strMediaUrl = "dvd:/";
+Sleep(500); // TODO: HACK  -- sometimes xine can't play dvd's.  Throw a small delay in to see if it has an effect
 		return true;
 	}
 
@@ -951,9 +952,9 @@ g_pPlutoLogger->Write(LV_ACTION,"returning mounted drive");
     cmd = "losetup /dev/loop5 \"" + fileName + "\"";
 	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
     int iResult2=0,iResult = system(cmd.c_str());
-
 	if( iResult==0 )
 	{
+Sleep(500); // TODO: HACK  -- sometimes xine can't play dvd's.  Throw a small delay in to see if it has an effect
 		cmd = "ln -sf /dev/loop5 /dev/dvd";
 		g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
 		iResult2 = system(cmd.c_str());
@@ -963,6 +964,7 @@ g_pPlutoLogger->Write(LV_ACTION,"returning mounted drive");
 	{
 g_pPlutoLogger->Write(LV_ACTION,"returning mounted dvd");
 		strMediaUrl = "dvd:/";
+Sleep(500); // TODO: HACK  -- sometimes xine can't play dvd's.  Throw a small delay in to see if it has an effect
 		return true;
 	}
 

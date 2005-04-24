@@ -34,7 +34,6 @@
 
 MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users, enum SourceType sourceType, int iStreamID )
 {
-    m_iPK_MediaType = 0; // No media type specified here. The plugin should put the proper media type in here.
     m_iStreamID = iStreamID;
     m_pMediaHandlerInfo=pMediaHandlerInfo;
     m_iPK_DesignObj_Remote=PK_DesignObj_Remote;
@@ -54,6 +53,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice
 	m_bIsMovable = true; // by default all the media can move but not always.
 	m_tTime = time(NULL);
 	m_tTime_Parked = 0;
+	m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
 
     m_pMediaDevice_Source=pMediaDevice;
 

@@ -232,7 +232,7 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
     virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD);
 
     bool StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile,bool bResume);
-	bool StartMedia(MediaStream *pMediaStream,EntertainArea *pEntertainArea,bool bNoChanges,int PK_MediaType_Prior, map<int,MediaDevice *> mapMediaDevice_Prior);
+	bool StartMedia(MediaStream *pMediaStream,bool bNoChanges,int PK_MediaType_Prior, map<int,MediaDevice *> mapMediaDevice_Prior);
 
     /**
      * @brief More capable StartMedia. Does not need an actual device since it will search for it at the play time.
