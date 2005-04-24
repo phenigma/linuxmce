@@ -46,17 +46,6 @@ if [ "$RemovedList" != "0==1" ]; then
 fi
 cd -
 
-# Workaround for 2.0.0.10 release mistake
-XineVer="$(dpkg -s pluto-xine-plugin | grep Version)"
-DCERouterVer="$(dpkg -s pluto-dcerouter | grep Version)"
-
-if [ "$XineVer" != "$DCERouterVer" ]; then
-	apt-get remove -y pluto-xine-plugin
-	apt-get clean
-	apt-get install -y pluto-xine-plugin
-fi
-# End of workaround
-
 SysLogCfg="*.*;auth,authpriv.none	/dev/tty12"
 if ! grep -qF "$SysLogCfg" /etc/syslog.conf; then
 	echo "$SysLogCfg" >>/etc/syslog.conf
