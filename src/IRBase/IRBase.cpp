@@ -356,9 +356,9 @@ bool IRBase::ProcessMessage(Message *pMessage)
 		if( sValue.size() )
 		{
 			if( sValue[0]=='+' )
-				iValue = atoi(sValue.substr(1).c_str());
+				iValue = (sValue.size()>1 ? atoi(sValue.substr(1).c_str()) : 1);
 			else if( sValue[0]=='-' )
-				iValue = atoi(sValue.substr(1).c_str()) * -1;
+				iValue = (sValue.size()>1 ? atoi(sValue.substr(1).c_str()) : 1) * -1;
 			else
 				iValue = atoi(sValue.c_str());
 		}

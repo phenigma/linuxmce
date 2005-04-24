@@ -83,6 +83,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	UniqueColors[2] = PlutoColor(0,0,128).m_Value;
 	UniqueColors[3] = PlutoColor(0,128,128).m_Value;
 	UniqueColors[4] = PlutoColor(128,128,0).m_Value;
+	m_iLastPlaybackSpeed = 1000;
 	m_pDeviceData_Router = pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) );
 	// do stuff with this
 }
@@ -528,11 +529,11 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 		 pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||	// or the TV display
          pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST ) // or stored movies
     {
-        if ( pMediaStream->m_pDeviceData_Router_Source->m_pDevice_ControlledVia &&
-             pMediaStream->m_pDeviceData_Router_Source->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+        if ( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia &&
+             pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
         {
 			// store the orbiter which is directly controlling the target device as the target on-screen display.
-			pMediaStream->m_pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_ControlledVia);
+			pMediaStream->m_pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
         }
     }
 
@@ -672,7 +673,65 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
         }
         pEntertainArea=pOH_Orbiter->m_pEntertainArea;
 
+		// Add some stuff to the message parameters
 		pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST] = StringUtils::itos(pEntertainArea->m_pMediaStream->m_iStreamID_get());
+
+		if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source &&
+			pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND &&
+			(pMessage->m_dwID==COMMAND_Change_Playback_Speed_CONST ||
+			pMessage->m_dwID==COMMAND_Pause_Media_CONST ||
+			pMessage->m_dwID==COMMAND_Play_Media_CONST) )
+		{
+			MediaDevice *pMediaDevice = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source;
+			if( pMessage->m_dwID==COMMAND_Pause_Media_CONST )
+				pMediaDevice->m_iLastPlaybackSpeed = 0;
+			else if( pMessage->m_dwID==COMMAND_Play_Media_CONST )				
+				pMediaDevice->m_iLastPlaybackSpeed = 1000;
+			else if( pMessage->m_dwID==COMMAND_Change_Playback_Speed_CONST )
+			{
+				string sValue = pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST];
+				if( sValue.size() )
+				{
+					int iValue=1;
+					if( sValue[0]=='+' )
+						iValue = (sValue.size()>1 ? atoi(sValue.substr(1).c_str()) : 1);
+					else if( sValue[0]=='-' )
+						iValue = (sValue.size()>1 ? atoi(sValue.substr(1).c_str()) : 1) * -1;
+					else
+						iValue = atoi(sValue.c_str());
+
+					// Relative speed
+					if( abs(iValue)<10 && iValue )
+					{
+						// We were paused, start out in slow motion
+						if( pMediaDevice->m_iLastPlaybackSpeed==0 )
+							pMediaDevice->m_iLastPlaybackSpeed=250;
+
+						if( iValue<0 )
+							pMediaDevice->m_iLastPlaybackSpeed *= 
+								-1 * abs(pMediaDevice->m_iLastPlaybackSpeed * iValue);
+						else
+							pMediaDevice->m_iLastPlaybackSpeed *= 
+								abs(pMediaDevice->m_iLastPlaybackSpeed * iValue);
+g_pPlutoLogger->Write(LV_STATUS,"relative Playback speed now %d for device %d %s",
+pMediaDevice->m_iLastPlaybackSpeed,
+pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
+
+						pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST] = 
+							StringUtils::itos(pMediaDevice->m_iLastPlaybackSpeed);
+					}
+					else
+						pMediaDevice->m_iLastPlaybackSpeed = pMediaDevice->m_iLastPlaybackSpeed;
+				}
+
+			}
+g_pPlutoLogger->Write(LV_STATUS,"Playback speed now %d for device %d %s",
+pMediaDevice->m_iLastPlaybackSpeed,
+pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
+
+		}
 
         // We know it's derived from CommandImpl
         class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl;
@@ -682,7 +741,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
         if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo || !pPlugIn->ReceivedMessage( pMessage ) )
         {
             g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d",
-				pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device );
+				pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device );
 
 			// TODO "Warning: received dcemessage should take a bool but don't delete in or something so we don't need to copy the message!"
 
@@ -695,20 +754,20 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 					g_pPlutoLogger->Write(LV_CRITICAL,"Got a command in media plugin that we can't identify");
 				else
 				{
-				    if( pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_MD &&
+				    if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_MD &&
 						(pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST || pCommand->m_dwPK_Command==COMMAND_Generic_On_CONST || pCommand->m_listPipe.size()) )
 					{
 g_pPlutoLogger->Write(LV_STATUS,"It's an on/off");
-						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_MD;
+						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_MD;
 						Message *pNewMessage = new Message( pMessage );
 						QueueMessageToRouter( pNewMessage );
 					}
 
-					if( pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_mapCommands.find(pMessage->m_dwID) !=
-						pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_mapCommands.end() )
+					if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID) !=
+						pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_mapCommands.end() )
 					{
 g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
-						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
+						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 						Message *pNewMessage = new Message( pMessage );
 						QueueMessageToRouter( pNewMessage );
 					}
@@ -718,7 +777,7 @@ g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
 			{
 g_pPlutoLogger->Write(LV_STATUS,"Just send it to the media device");
 				// Just send it to the media device.  We don't know what it is
-                pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
+                pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	            Message *pNewMessage = new Message( pMessage );
 		        QueueMessageToRouter( pNewMessage );
 			}
@@ -1789,7 +1848,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 	if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo )
 	{
         g_pPlutoLogger->Write(LV_STATUS, "It's a generic stream--just forward it to the device");
-        pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
+        pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	    Message *pNewMessage = new Message( pMessage );
 		QueueMessageToRouter( pNewMessage );
 		return;

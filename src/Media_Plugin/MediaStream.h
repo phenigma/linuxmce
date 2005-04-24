@@ -46,7 +46,7 @@ namespace DCE
         int					m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string				m_sPlaylistName;       	 /** the name of the playlist which was loaded from the database. */
 
-		DeviceData_Router	*m_pDeviceData_Router_Source;      /** The device which is the source of this media stream. */
+		MediaDevice	*m_pMediaDevice_Source;      /** The device which is the source of this media stream. */
 		int 			 m_iPK_MediaType;        	/** The type of media in this stream. */
 
 		// TODO: Ask why do i need to put class in front here ?
@@ -80,7 +80,7 @@ namespace DCE
 
 
         /** @brief constructor*/
-        MediaStream(class MediaHandlerInfo *pMediaHandlerInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
+        MediaStream(class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
 
         /** @brief virtual destructor */
         virtual ~MediaStream();

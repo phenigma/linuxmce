@@ -29,10 +29,10 @@ using namespace DCE;
 void MediaHandlerBase::GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevice)
 {
     g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices with stream %p map %p",pMediaStream, pmapMediaDevice);
-	if( pMediaStream && pMediaStream->m_pDeviceData_Router_Source )
+	if( pMediaStream && pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, " Setting the device data source: to %d (%s)", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device, pMediaStream->m_pDeviceData_Router_Source->m_sDescription.c_str());
-		(*pmapMediaDevice)[pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device] = m_pMedia_Plugin->m_mapMediaDevice_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+		g_pPlutoLogger->Write(LV_STATUS, " Setting the device data source: to %d (%s)", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_sDescription.c_str());
+		(*pmapMediaDevice)[pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device] = m_pMedia_Plugin->m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
 }
 

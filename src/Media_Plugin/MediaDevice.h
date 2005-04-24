@@ -16,6 +16,8 @@ namespace DCE
 		class DeviceData_Router *m_pDeviceData_Router;          /**< The device in the router */
 		map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */
 		list<class EntertainArea *> m_listEntertainArea;
+		int m_iLastPlaybackSpeed;
+
 	};
 
 	typedef list<MediaDevice *> ListMediaDevice;
