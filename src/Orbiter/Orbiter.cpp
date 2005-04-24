@@ -4198,16 +4198,19 @@ void *MaintThread(void *p)
 	bMaintThreadIsRunning = true;
 	Orbiter* pOrbiter = (Orbiter *)p;
 
+	PLUTO_SAFETY_LOCK(cm, pOrbiter->m_MaintThreadMutex);// Keep this locked to protect the map
 	while(!pOrbiter->m_bQuit)
 	{
-		PLUTO_SAFETY_LOCK(cm, pOrbiter->m_MaintThreadMutex);// Keep this locked to protect the map
 		if(mapPendingCallbacks.size() == 0)
 		{
 			//nothing to process. let's sleep...
+g_pPlutoLogger->Write(LV_STATUS,"MaintThread - before cond wait %d",(int) bMaintThreadIsRunning);
 			pthread_cond_wait(&pOrbiter->m_MaintThreadCond,&pOrbiter->m_MaintThreadMutex.mutex); // This will unlock the mutex and lock it on awakening
+g_pPlutoLogger->Write(LV_STATUS,"MaintThread - after cond wait %d",(int) bMaintThreadIsRunning);
 		}
 		else
 		{
+g_pPlutoLogger->Write(LV_STATUS,"MaintThread - we've got something to do %d",(int) bMaintThreadIsRunning);
 			// We've got stuff to check out
 			CallBackInfo *pCallBackInfoGood = NULL;
 			timespec ts_NextCallBack,ts_now;
@@ -4238,18 +4241,24 @@ void *MaintThread(void *p)
 
 			if( pCallBackInfoGood )
 			{
+g_pPlutoLogger->Write(LV_STATUS,"MaintThread - calling member fn% d",(int) bMaintThreadIsRunning);
 				cm.Release(); // Don't keep the mutex locked while executing
 				CALL_MEMBER_FN(*(pCallBackInfoGood->m_pOrbiter), pCallBackInfoGood->m_fnCallBack)(pCallBackInfoGood->m_pData);
 				delete pCallBackInfoGood;
+g_pPlutoLogger->Write(LV_STATUS,"MaintThread - called member fn %d",(int) bMaintThreadIsRunning);
 			}
 			else if( ts_NextCallBack.tv_sec!=0 ) // Should be the case
 			{
+g_pPlutoLogger->Write(LV_STATUS,"MaintThread - before timed wait %d",(int) bMaintThreadIsRunning);
 				pthread_cond_timedwait(&pOrbiter->m_MaintThreadCond, &pOrbiter->m_MaintThreadMutex.mutex, &ts_NextCallBack);
+g_pPlutoLogger->Write(LV_STATUS,"MaintThread - after timed wait %d",(int) bMaintThreadIsRunning);
 			}
 		}
 	}
 
+g_pPlutoLogger->Write(LV_STATUS,"MaintThread - exiting");
 	bMaintThreadIsRunning = false;
+	cm.Release();
 	return NULL;
 }
 
@@ -6291,6 +6300,7 @@ void Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
 
 void Orbiter::KillMaintThread()
 {
+g_pPlutoLogger->Write(LV_STATUS,"Kill Maint Thread %d",(int) bMaintThreadIsRunning);
 	m_bQuit=true;
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
 	time_t tTime = time(NULL);
