@@ -385,7 +385,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			while( itFileNames != dequeFileNames.end() )
 				dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes, *itFileNames++));
 
-            StartMedia(pMediaHandlerInfo,0,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile);
+            StartMedia(pMediaHandlerInfo,0,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false);
             return true;
         }
     }
@@ -434,6 +434,9 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     else
     {
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
+		if( pMediaStream->m_vectMediaStream_Interrupted.size() )
+		{
+		}
 		StreamEnded(pMediaStream); // This will delete the stream
         g_pPlutoLogger->Write(LV_STATUS, "Playback completed. The stream can't play anything more.");
     }
@@ -441,13 +444,18 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     return true;
 }
 
-bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile )
+bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
 	// We need to keep track of the devices where we were previously rendering media so that we can send on/off commands
 	map<int,MediaDevice *> mapMediaDevice_Prior;
 	int PK_MediaType_Prior=0;
+
+	// If Resume is set, then this media is just a temporary stream, like an announcement, and if something
+	// is currently playing, we will store that stream here and resume playing it when the temporary
+	// stream is done.
+	MediaStream *pMediaStream_Resume=NULL;
 
 	bool bNoChanges=false; // We'll set this to true of we're still using the same media plug-in so we know we don't need to resend the on commands
 
@@ -459,19 +467,31 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Prior);
 		PK_MediaType_Prior = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType;
 
-		// this will reset the current media stream if the pMediaHandlerBase is different from the original media Handler.
-		// We should also look at the media types. If the current Media type is different then we will also do a new media stream.
-		if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase != pMediaHandlerInfo->m_pMediaHandlerBase ||
-			 pEntertainArea->m_pMediaStream->m_iPK_MediaType != pMediaHandlerInfo->m_PK_MediaType || pMediaHandlerInfo->m_PK_MediaType==MEDIATYPE_pluto_DVD_CONST )
-        {
+		if( bResume )
+		{
             // We can't queue this.
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
-			StreamEnded(pEntertainArea->m_pMediaStream,false);
+			StreamEnded(pEntertainArea->m_pMediaStream,false,false);
+			pMediaStream_Resume = pEntertainArea->m_pMediaStream;
 			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
-        }
+		}
 		else
-			bNoChanges = true;
+		{
+			// this will reset the current media stream if the pMediaHandlerBase is different from the original media Handler.
+			// We should also look at the media types. If the current Media type is different then we will also do a new media stream.
+			if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase != pMediaHandlerInfo->m_pMediaHandlerBase ||
+				pEntertainArea->m_pMediaStream->m_iPK_MediaType != pMediaHandlerInfo->m_PK_MediaType || pMediaHandlerInfo->m_PK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+			{
+				// We can't queue this.
+				pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
+				g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
+				StreamEnded(pEntertainArea->m_pMediaStream,false);
+				g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): stream ended completed.");
+			}
+			else
+				bNoChanges = true;
+		}
     }
 
     MediaDevice *pMediaDevice=NULL;
@@ -537,8 +557,16 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
         }
     }
 
+	if( pMediaStream_Resume )
+		pMediaStream->m_vectMediaStream_Interrupted.push_back(pMediaStream_Resume);
+
+	return StartMedia(pMediaStream,pEntertainArea,bNoChanges,PK_MediaType_Prior,mapMediaDevice_Prior);
+}
+
+bool Media_Plugin::StartMedia(MediaStream *pMediaStream,EntertainArea *pEntertainArea,bool bNoChanges,int PK_MediaType_Prior, map<int,MediaDevice *> mapMediaDevice_Prior)
+{
     g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
-    if( pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
+    if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
     {
         g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
 
@@ -563,7 +591,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
                     continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream
 
 				// We don't want to change to the remote screen on the orbiter that started playing this if it's audio, so that they can build a playlist
-				if( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device == PK_Device_Orbiter && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
+				if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
 					continue;
 
                 int iPK_DesignObj_Remote = pMediaStream->m_iPK_DesignObj_Remote;
@@ -573,7 +601,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 				// to the correct remote iff thery are the main menu EXCEPT for the originating device which will always be send to the remote.
                 if( pOH_Orbiter!=pMediaStream->m_pOH_Orbiter_OSD )
                 {
-                    if( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==PK_Device_Orbiter )
+                    if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
                     {
                         DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
                             StringUtils::itos(iPK_DesignObj_Remote),"","",false, false);
@@ -912,7 +940,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 	StreamEnded(pTmpMediaStream);
 }
 
-void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff)
+void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream)
 {
 	if ( pMediaStream == NULL )
 	{
@@ -935,7 +963,8 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff)
 	if( bSendOff )
 		HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
 
-    delete pMediaStream;
+	if( bDeleteStream )
+	    delete pMediaStream;
 }
 
 void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea)
@@ -1674,8 +1703,10 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 			/** The DeviceTemplate ID. */
 		/** @param #45 PK_EntertainArea */
 			/** The desired target area for the playback. If this is missing then the orbiter should decide the target based on his controlled area. */
+		/** @param #116 Resume */
+			/** If true, when this media finishes, resume whatever was playing previously.  Useful for making announcements and similar. */
 
-void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,string &sCMD_Result,Message *pMessage)
 //<-dceag-c43-e->
 {
 	int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str()); // TODO: handle multiple entertainment areas
@@ -1775,7 +1806,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
             pMediaHandlerInfo = pList_MediaHandlerInfo->front();
 
 		if( pMediaHandlerInfo )
-			StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume);  // We'll let the plug-in figure out the source, and we'll use the default remote
     }
     else if( dequeMediaFile.size() )
     {
@@ -1786,7 +1817,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
         else
         {
             MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-            StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
+            StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile,bResume);  // We'll let the plug-in figure out the source, and we'll use the default remote
         }
     }
     else  // We got nothing -- find a disk drive within the entertainment area and send it a reset
@@ -1951,7 +1982,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
         return;
     }
     MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-    StartMedia(pMediaHandlerInfo,pMessage->m_dwPK_Device_From,pEntertainArea,0,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
+    StartMedia(pMediaHandlerInfo,pMessage->m_dwPK_Device_From,pEntertainArea,0,0,&dequeMediaFile,false);  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 class DataGridTable *Media_Plugin::FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )

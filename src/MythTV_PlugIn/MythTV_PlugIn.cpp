@@ -192,10 +192,10 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
     string Response;
 
-    m_dwTargetDevice = pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
+	m_dwTargetDevice = pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 
 	vector<DeviceData_Router *> vectDeviceData_Router_PVR;
-	DeviceData_Router *pDevice_Myth = m_pRouter->m_mapDeviceData_Router_Find(pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	DeviceData_Router *pDevice_Myth = m_pRouter->m_mapDeviceData_Router_Find(pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	pDevice_Myth->FindSibblingsWithinCategory(m_pRouter->m_mapDeviceCategory_Find(DEVICECATEGORY_PVR_Capture_Cards_CONST),vectDeviceData_Router_PVR);
 	for(size_t s=0;s<vectDeviceData_Router_PVR.size();++s)
 	{
@@ -218,7 +218,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 			// The player knows how to actually tune to the proper channel. There is no need to hit the database for the proper xmltv id here.
 			DCE::CMD_Tune_to_channel tuneCommand(
 					m_dwPK_Device,
-					pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
+					pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 					"",
 					StringUtils::itos(pMythTvMediaStream->m_iNextProgramChannelID));
 
@@ -238,7 +238,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 	else
 	{
 		// if there is no next channel to tune then just start it.
-		DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+		DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 		SendCommand(cmd);
 	}
 
@@ -251,13 +251,13 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
     PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
 
-	map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
     if( it!=m_mapDevicesToStreams.end() )
         m_mapDevicesToStreams.erase(it);
 
 
 	vector<DeviceData_Router *> vectDeviceData_Router_PVR;
-	DeviceData_Router *pDevice_Myth = m_pRouter->m_mapDeviceData_Router_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	DeviceData_Router *pDevice_Myth = m_pRouter->m_mapDeviceData_Router_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	pDevice_Myth->FindSibblingsWithinCategory(m_pRouter->m_mapDeviceCategory_Find(DEVICECATEGORY_PVR_Capture_Cards_CONST),vectDeviceData_Router_PVR);
 	for(size_t s=0;s<vectDeviceData_Router_PVR.size();++s)
 	{
@@ -271,7 +271,7 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 
 	int i; // report the current playback position here.
 
-    DCE::CMD_Stop_TV cmd(m_dwPK_Device, pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+    DCE::CMD_Stop_TV cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	// this is useless here because all the message processing in the Media Plugin is done with the m_MediaMutex taken and
 	// since this mutex is recursive the release here is useless and the same apply for all the media plugin processing functions.
 	mm.Release();
@@ -291,9 +291,9 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
     g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to stop media command!");
     return true;
 */
-	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Sending command to stop media to the player: %d", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Sending command to stop media to the player: %d", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	SendCommand(cmd);
-	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Returning from stop media command to the player: %d", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Returning from stop media command to the player: %d", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
 	return true;
 }
@@ -363,8 +363,8 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMed
 		DCE::CMD_Track_Frontend_At_IP enableTracking(
 				m_dwPK_Device,	// from me
 				m_pMythBackend_ProxyDevice->m_dwPK_Device, // to the proxy
-				pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
-				pMediaStream->m_pDeviceData_Router_Source->GetIPAddress());
+				pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+				pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->GetIPAddress());
 
 		SendCommand(enableTracking);
 	}

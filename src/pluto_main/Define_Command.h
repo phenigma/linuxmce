@@ -334,6 +334,8 @@
 #define COMMAND_Back_Clear_Entry_CONST 363
 #define COMMAND_Get_Room_Description_CONST 365
 #define COMMAND_Activate_Window_CONST 366
+#define COMMAND_Activate_Window_CONST 366
+#define COMMAND_Execute_Command_Group_CONST 371
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

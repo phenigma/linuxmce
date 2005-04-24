@@ -52,6 +52,10 @@ namespace DCE
 		// TODO: Ask why do i need to put class in front here ?
 		class MediaPosition 	*m_pMediaPosition; 			/** Where we are in the media stream */
 
+		/** If the user starts some media temporarily (like an announcement) and wants the prior
+		media to continue when it's done, the prior interrupted media streams are stored here */
+		vector<class MediaStream  *> m_vectMediaStream_Interrupted;
+
 		char 		*m_pPictureData;
         size_t 		 m_iPictureSize;
 

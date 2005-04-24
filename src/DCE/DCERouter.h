@@ -289,6 +289,7 @@ int k;
         void AddMessageToQueue(Message *pMessage);
         void ProcessQueue();
         void HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage);
+		void HandleRouterMessage(Message *pMessage); // Handle a message for the router internally
         void RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage);
         void CreatedDevice(DeviceData_Router *pDevice);
         void ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceData_Impl *pDevice);
