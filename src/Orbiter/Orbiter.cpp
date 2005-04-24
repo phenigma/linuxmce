@@ -2465,22 +2465,12 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				Event_Orbiter_Started( m_sMainMenu );
 				*/
 
-				DesignObj_OrbiterMap::iterator iHao=m_ScreenMap.begin(  );
-				if ( iHao==m_ScreenMap.end(  ) )
-				{
-					g_pPlutoLogger->Write( LV_CRITICAL, "No screens found." );
-					exit( 1 );
-				}
-				else
-				{
-					GotoScreen( m_sMainMenu );
-				}
-
 				m_pLocationInfo_Initial=NULL;
-				for( DequeLocationInfo::iterator itLocations=m_dequeLocation.begin(  );itLocations!=m_dequeLocation.end(  );++itLocations )
+				for( size_t s=0;s<m_dequeLocation.size();++s)
 				{
-					class LocationInfo *pLocationInfo = *itLocations;
-					g_pPlutoLogger->Write(LV_STATUS,"Checing room: %d ea %d against %d %d",pLocationInfo->PK_Room,pLocationInfo->PK_EntertainArea,iPK_Room,iPK_EntertainArea);
+					class LocationInfo *pLocationInfo = m_dequeLocation[s];
+					g_pPlutoLogger->Write(LV_STATUS,"Checing %d/%d room: %d ea %d against %d %d",
+						(int) s,pLocationInfo->iLocation,pLocationInfo->PK_Room,pLocationInfo->PK_EntertainArea,iPK_Room,iPK_EntertainArea);
 					// If a room/ent area is passed in use that location instead of m_iLocation_Initial
 					if( (pLocationInfo->iLocation==m_iLocation_Initial && !m_pLocationInfo_Initial) ||
 						(pLocationInfo->PK_Room==iPK_Room && pLocationInfo->PK_EntertainArea==0) ||
@@ -2495,6 +2485,18 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				{
 					g_pPlutoLogger->Write( LV_CRITICAL, "No initial Location" );
 					exit( 1 );
+				}
+				CMD_Set_Current_Location(m_pLocationInfo_Initial->iLocation);
+
+				DesignObj_OrbiterMap::iterator iHao=m_ScreenMap.begin(  );
+				if ( iHao==m_ScreenMap.end(  ) )
+				{
+					g_pPlutoLogger->Write( LV_CRITICAL, "No screens found." );
+					exit( 1 );
+				}
+				else
+				{
+					GotoScreen( m_sMainMenu );
 				}
 		}
 		if( !m_pScreenHistory_Current )

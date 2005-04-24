@@ -433,6 +433,8 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                 if(!m_bNoUnknownDeviceIsProcessing) //the list was empty... we are processing the first unknown device
                     ProcessUnknownDevice();
             }
+			else
+				g_pPlutoLogger->Write(LV_STATUS,"Ignoring unknown device %s",sMacAddress.c_str());
         }
     }
     else
