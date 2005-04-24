@@ -69,7 +69,7 @@ void IRBase::ParseDevices()
 		long DeviceID = (*iChild).first;
 
 		string codes;
-		m_mapsDevicePort[DeviceID] = (*iChild).second->m_pData->m_mapParameters[DEVICEDATA_Port_Number_CONST];
+		m_mapsDevicePort[DeviceID] = (*iChild).second->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
 		DCE::CMD_Get_Infrared_Codes_Cat CMD_Get_Infrared_Codes_Cat(m_pCommand_Impl->m_dwPK_Device, DEVICECATEGORY_Infrared_Plugins_CONST,
 			false, BL_SameHouse, DeviceID, &codes);
 		m_pCommand_Impl->SendCommand(CMD_Get_Infrared_Codes_Cat);

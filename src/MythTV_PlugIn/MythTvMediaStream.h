@@ -35,7 +35,7 @@ namespace DCE
 		// class MythTV_PlugIn *m_pMythTV_PlugIn;
 
 		MythTvMediaStream(MediaHandlerInfo *pMediaHandlerInfo,
-		 				  DeviceData_Router *pDeviceData_Router,
+		 				  MediaDevice *pMediaDevice,
 						  int PK_DesignObj_Remote, int PK_Users,
 						  enum SourceType sourceType,
 						  int iStreamID);

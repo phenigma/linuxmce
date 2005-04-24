@@ -117,7 +117,7 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	for(size_t i=0;i<m_pData->m_vectDeviceData_Impl_Children.size();++i) {
                 DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[i];
                 int PK_Device = pDeviceData_Impl->m_dwPK_Device;
-                string sPort = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
+                string sPort = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
                 string sMotion = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Motion_Option_CONST);
        	  string sSensitivity = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Sensitivity_CONST);
 		  string sDevice =  pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Device_CONST);
@@ -383,7 +383,7 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 
 	switch(pMessage->m_dwID) {
 		case COMMAND_Get_Video_Frame_CONST: {
-				string sPortNumber = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
+				string sPortNumber = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 				
 				g_pPlutoLogger->Write(LV_STATUS, "Taking Snapshot...");
 				if(kill(motionpid_, SIGALRM)) {
@@ -438,7 +438,7 @@ Generic_Analog_Capture_Card::AddChildDeviceToConfigFile(std::ofstream& conffile,
 	}
 
 	//input port
-	string sPort = pDeviceData->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
+	string sPort = pDeviceData->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 	if(!sPort.empty()) {
 		conffile 	<< "input " << sPort << endl;
 	} else {
