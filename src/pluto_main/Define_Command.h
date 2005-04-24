@@ -83,7 +83,7 @@
 #define COMMAND_Navigate_Prev_CONST 82
 #define COMMAND_Get_Video_Frame_CONST 84
 #define COMMAND_Reset_Highlight_CONST 85
-#define COMMAND_Goto_Menu_not_used_CONST 86
+#define COMMAND_Menu_Show_Menu_CONST 86
 #define COMMAND_Goto_Media_Menu_CONST 87
 #define COMMAND_Set_Current_Location_CONST 88
 #define COMMAND_Vol_Up_CONST 89
@@ -334,8 +334,10 @@
 #define COMMAND_Back_Clear_Entry_CONST 363
 #define COMMAND_Get_Room_Description_CONST 365
 #define COMMAND_Activate_Window_CONST 366
-#define COMMAND_Activate_Window_CONST 366
-#define COMMAND_Execute_Command_Group_CONST 371
+#define COMMAND_Text_CONST 367
+#define COMMAND_Help_CONST 368
+#define COMMAND_Radio_CONST 369
+#define COMMAND_Execute_Command_Group_CONST 370
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

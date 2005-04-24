@@ -12,7 +12,7 @@
 #define DEVICEDATA_Diskless_Boot_CONST 9
 #define DEVICEDATA_Floorplan_Info_CONST 10
 #define DEVICEDATA_PK_FloorplanObjectType_CONST 11
-#define DEVICEDATA_Channel_CONST 12
+#define DEVICEDATA_PortChannel_Number_CONST 12
 #define DEVICEDATA_IR_Sleep_BeforeAfter_CONST 13
 #define DEVICEDATA_Number_of_Digits_CONST 14
 #define DEVICEDATA_Digit_Delay_CONST 15
@@ -46,7 +46,6 @@
 #define DEVICEDATA_Type_CONST 47
 #define DEVICEDATA_Number_of_ports_CONST 48
 #define DEVICEDATA_Video_Standard_CONST 49
-#define DEVICEDATA_Port_Number_CONST 50
 #define DEVICEDATA_Motion_Option_CONST 51
 #define DEVICEDATA_Sensitivity_CONST 52
 #define DEVICEDATA_Noise_CONST 53
