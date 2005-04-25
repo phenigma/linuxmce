@@ -1049,7 +1049,7 @@ int k=2;
 					if( ( result_set_hi.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row_hi = mysql_fetch_row(result_set_hi.r) ) )
 						iHighestUsedID = atoi(row_hi[0]);
 
-					cout << "Checking:Reassigning Auto Incr Value for table: " << m_sName << " determined highest used value is: " << row[0] << " m_psc_id_next: " << m_psc_id_next << " " << row_hi << endl;
+					cout << "Checking:Reassigning Auto Incr Value for table: " << m_sName << " determined highest used value is: " << row_hi[0] << " m_psc_id_next: " << m_psc_id_next << " " << row_hi << " highestid: " << iHighestUsedID << endl;
 
 					for(map<int, ListChangedRow *>::iterator it1=m_mapUsers2ChangedRowList.begin();it1!=m_mapUsers2ChangedRowList.end();++it1)
 					{
@@ -1061,7 +1061,7 @@ int k=2;
 							if( pChangedRow->m_iNewAutoIncrID>iHighestUsedID )
 							{
 								iHighestUsedID = pChangedRow->m_iNewAutoIncrID;
-cout << "Found higher value: " << pChangedRow->m_iNewAutoIncrID << " orig: " << pChangedRow->m_iOriginalAutoIncrID << " psc_id: " << pChangedRow->m_psc_id << endl;
+cout << "Found higher value: " << pChangedRow->m_iNewAutoIncrID << " orig: " << pChangedRow->m_iOriginalAutoIncrID << " psc_id: " << pChangedRow->m_psc_id << " highestid: " << iHighestUsedID << endl;
 							}
 							if( pChangedRow->m_iOriginalAutoIncrID!=r_CommitRow.m_iNewAutoIncrID )
 								continue;
@@ -1078,8 +1078,10 @@ cout << "Found higher value: " << pChangedRow->m_iNewAutoIncrID << " orig: " << 
 						throw "Internal error--data unexpected";
 					}
 
-					cout << "Checking:Reassigning Auto Incr Value for table (2): " << m_sName << " determined highest used value is: " << row[0] << " m_psc_id_next: " << m_psc_id_next << " pChangedRow " 
-						<< (pChangedRowToMove==NULL ? " is null" : " is not null") << endl;
+					cout << "Checking:Reassigning Auto Incr Value for table (2): " << m_sName << " determined highest used value is: " << row_hi << " m_psc_id_next: " << m_psc_id_next << " pChangedRowToMove " 
+						<< (pChangedRowToMove==NULL ? " is null" : " is not null") << " highestid: " << iHighestUsedID << endl;
+if( pChangedRowToMove )
+cout << "pChangedRowToMove original auto incr id: " << pChangedRowToMove->m_iOriginalAutoIncrID << " psc_id: " << pChangedRowToMove->m_psc_id << endl;
 
 					iHighestUsedID++;
 					if( m_psc_id_next>iHighestUsedID )
@@ -1098,6 +1100,7 @@ cout << "Found higher value: " << pChangedRow->m_iNewAutoIncrID << " orig: " << 
 						// These only apply if it's another row we're checking in
 						m_mapUncommittedAutoIncrChanges[pChangedRowToMove->m_iOriginalAutoIncrID] = iHighestUsedID+1;
 						pChangedRowToMove->m_iOriginalAutoIncrID = iHighestUsedID+1;
+cout << "pChangedRowToMove now original auto incr id: " << pChangedRowToMove->m_iOriginalAutoIncrID << " psc_id: " << pChangedRowToMove->m_psc_id << endl;
 						pChangedRowToMove->m_vectPrimaryKey[0] = StringUtils::itos(iHighestUsedID+1);
 					}
 				}
