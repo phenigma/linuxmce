@@ -286,7 +286,9 @@ void App_Server::EnsureLogoIsDisplayed()
 	g_pPlutoLogger->Write(LV_STATUS, "The application is running!. Telling the orbiter to select the application!");
 
 	DCE::CMD_Activate_Window_Cat activateApplicationCommand(m_dwPK_Device, DEVICECATEGORY_Orbiter_CONST, true, BL_SameComputer, LOGO_APPLICATION_NAME);
-	SendCommand(activateApplicationCommand);
+
+	string response; // this is not used but we need it to force the framework to not return until the command is actually executed.
+	SendCommand(activateApplicationCommand, &response);
 }
 
 void App_Server::ProcessExited(int pid, int status)
