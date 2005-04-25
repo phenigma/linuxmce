@@ -167,4 +167,4 @@ ctl.dmix-digital {
  type hw
  card 0
 }
-<<EOF
+EOF
