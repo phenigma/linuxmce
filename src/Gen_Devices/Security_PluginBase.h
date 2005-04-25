@@ -99,6 +99,7 @@ public:
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
 			return true;
 		int iHandled=0;
@@ -129,6 +130,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

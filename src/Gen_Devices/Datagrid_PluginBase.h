@@ -78,6 +78,7 @@ public:
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
 			return true;
 		int iHandled=0;
@@ -119,6 +120,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,&pData,&iData_Size,&iRow,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -151,6 +158,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,&iWidth,&iHeight,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

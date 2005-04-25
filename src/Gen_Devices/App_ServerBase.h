@@ -81,6 +81,7 @@ public:
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
 			return true;
 		int iHandled=0;
@@ -109,6 +110,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -134,6 +141,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -153,6 +166,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Kill_Application(sName.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -174,6 +193,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Hide_Application(sName.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -194,6 +219,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Halt_Device(iPK_Device,sForce.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

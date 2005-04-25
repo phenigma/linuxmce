@@ -40,6 +40,7 @@ public:
 	string Get_CacheFolder() { return m_mapParameters[57];}
 	int Get_CacheSize() { return atoi(m_mapParameters[58].c_str());}
 	bool Get_Use_OCG_Format() { return (m_mapParameters[64]=="1" ? true : false);}
+	int Get_VideoFrameInterval() { return atoi(m_mapParameters[72].c_str());}
 };
 
 
@@ -94,6 +95,7 @@ public:
 	string DATA_Get_CacheFolder() { return GetData()->Get_CacheFolder(); }
 	int DATA_Get_CacheSize() { return GetData()->Get_CacheSize(); }
 	bool DATA_Get_Use_OCG_Format() { return GetData()->Get_Use_OCG_Format(); }
+	int DATA_Get_VideoFrameInterval() { return GetData()->Get_VideoFrameInterval(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid,string &sCMD_Result,class Message *pMessage) {};
@@ -141,10 +143,13 @@ public:
 	virtual void CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Activate_Window(string sName,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
 			return true;
 		int iHandled=0;
@@ -178,6 +183,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Capture_Keyboard_To_Variable(sPK_DesignObj.c_str(),iPK_Variable,sOnOff.c_str(),sType.c_str(),sReset.c_str(),iPK_Text,bDataGrid,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -196,6 +207,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Orbiter_Beep(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -217,6 +234,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Display_OnOff(sOnOff.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -237,6 +260,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Go_back(sPK_DesignObj_CurrentScreen.c_str(),sForce.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -263,6 +292,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Goto_Screen(iPK_Device,sPK_DesignObj.c_str(),sID.c_str(),sPK_DesignObj_CurrentScreen.c_str(),bStore_Variables,bCant_Go_Back,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -287,6 +322,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Show_Object(sPK_DesignObj.c_str(),iPK_Variable,sComparisson_Operator.c_str(),sComparisson_Value.c_str(),sOnOff.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -305,6 +346,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Terminate_Orbiter(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -326,6 +373,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Remove_Screen_From_History(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -349,6 +402,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Scroll_Grid(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -370,6 +429,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Move_Highlight(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -393,6 +458,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Play_Sound(pData,iData_Size,sFormat.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -413,6 +484,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -432,6 +509,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Regen_Screen(sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -450,6 +533,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Requires_Special_Handling(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -474,6 +563,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Seek_Data_Grid(sText.c_str(),iPosition_X,iPosition_Y,sDataGrid_ID.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -494,6 +589,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Graphic_To_Display(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -517,6 +618,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Object_Parameter(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iPK_DesignObjParameter,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -538,6 +645,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Object_Position(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -561,6 +674,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Object_Size(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -582,6 +701,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Pos_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -605,6 +730,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Size_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -627,6 +758,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Text(sPK_DesignObj.c_str(),sText.c_str(),iPK_Text,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -647,6 +784,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Bound_Icon(sValue_To_Assign.c_str(),sType.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -669,6 +812,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Variable(iPK_Variable,sValue_To_Assign.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -689,6 +838,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -711,6 +866,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -730,6 +891,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Stop_Sound(sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -748,6 +915,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Store_Variables(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -773,6 +946,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Update_Object_Image(sPK_DesignObj.c_str(),sType.c_str(),pData,iData_Size,sDisable_Aspect_Lock.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -792,6 +971,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Current_User(iPK_Users,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -815,6 +1000,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Select_Object(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sTime.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -836,6 +1027,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -854,6 +1051,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Reset_Highlight(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -874,6 +1077,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Current_Location(iLocationID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -896,6 +1105,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -915,6 +1130,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Off(iPK_Pipe,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -936,6 +1157,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Continuous_Refresh(sTime.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -955,6 +1182,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Now_Playing(sValue_To_Assign.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -978,6 +1211,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Bind_Icon(sPK_DesignObj.c_str(),sType.c_str(),bChild,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -997,6 +1236,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Clear_Selected_Devices(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1018,6 +1263,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Main_Menu(sText.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -1036,6 +1287,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Quit(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1058,6 +1315,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Timeout(sPK_DesignObj.c_str(),sTime.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -1078,6 +1341,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Keep_Screen_On(sOnOff.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -1097,6 +1366,64 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Mouse_Pointer_Over_Object(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 354:
+					{
+						string sCMD_Result="OK";
+					string sOnOff=pMessage->m_mapParameters[8];
+						CMD_Show_Mouse_Pointer(sOnOff.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Show_Mouse_Pointer(sOnOff.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 366:
+					{
+						string sCMD_Result="OK";
+					string sName=pMessage->m_mapParameters[50];
+						CMD_Activate_Window(sName.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Activate_Window(sName.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

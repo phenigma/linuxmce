@@ -112,7 +112,7 @@ void SqueezeBox_Player::SomeFunction()
 	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
 
 	// Examples:
-
+	
 	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
 	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
 	SendCommand(CMD_Simulate_Mouse_Click);
@@ -138,12 +138,12 @@ void SqueezeBox_Player::SomeFunction()
 	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
 	// This send command will wait for the destination device to respond since there is
 	// an out parameter
-	SendCommand(CMD_Get_Signal_Strength);
+	SendCommand(CMD_Get_Signal_Strength);  
 
-	// This time we don't care about the out parameter.  We just want the command to
+	// This time we don't care about the out parameter.  We just want the command to 
 	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
 	// will not get set
-	SendCommandNoResponse(CMD_Get_Signal_Strength);
+	SendCommandNoResponse(CMD_Get_Signal_Strength);  
 
 	// This command has an out parameter of a data block.  Any parameter that is a binary
 	// data block is a pair of int and char *
@@ -266,7 +266,7 @@ void SqueezeBox_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Mess
 		/** @param #41 StreamID */
 			/** The media needing the playback speed change. */
 		/** @param #43 MediaPlaybackSpeed */
-			/** The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS */
+			/** The requested media playback speed * 1000.  -1000 = rev, 4000 = 4x fwd, -500 = rev 1/2.  Less than 10 = relative.  +2 = double, -1 = reverse.   See Media_Plugin::ReceivedMessage */
 
 void SqueezeBox_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
@@ -345,8 +345,10 @@ SqueezeBox_Player_Command *Create_SqueezeBox_Player(Command_Impl *pPrimaryDevice
 
 	/** @brief COMMAND: #89 - Vol Up */
 	/** Make the sound go up. */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume up this many times */
 
-void SqueezeBox_Player::CMD_Vol_Up(string &sCMD_Result,Message *pMessage)
+void SqueezeBox_Player::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c89-e->
 {
 
@@ -355,8 +357,10 @@ void SqueezeBox_Player::CMD_Vol_Up(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #90 - Vol Down */
 	/** Make the sound go down. */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume down this many times. */
 
-void SqueezeBox_Player::CMD_Vol_Down(string &sCMD_Result,Message *pMessage)
+void SqueezeBox_Player::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c90-e->
 {
 

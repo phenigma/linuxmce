@@ -16,7 +16,7 @@
 #ifndef Generic_Serial_Device_h
 #define Generic_Serial_Device_h
 
-//	DCE Implemenation for #74 Generic Serial Device
+//	DCE Implemenation for #69 Generic Serial Device
 
 #include "Gen_Devices/Generic_Serial_DeviceBase.h"
 //<-dceag-d-e->
@@ -61,6 +61,8 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_COM_Port_on_PC();
+	int DATA_Get_TCP_Port();
 
 			*****EVENT***** accessors inherited from base class
 

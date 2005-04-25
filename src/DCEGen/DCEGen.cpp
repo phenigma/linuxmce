@@ -518,6 +518,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\tvirtual bool ReceivedMessage(class Message *pMessageOriginal)" << endl;
 	fstr_DeviceCommand << "\t{" << endl;
 
+	fstr_DeviceCommand << "\t\tmap<long, string>::iterator itRepeat;" << endl;
 	fstr_DeviceCommand << "\t\tif( Command_Impl::ReceivedMessage(pMessageOriginal) )" << endl;
 	fstr_DeviceCommand << "\t\t\treturn true;" << endl;
 
@@ -560,6 +561,12 @@ int k=2;
 			fstr_DeviceCommand << "\t\t\t\t\t\t{" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t\tpMessage->m_bRespondedToMessage=true;" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t\tSendString(sCMD_Result);" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t}" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\tif( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t{" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t\tint iRepeat=atoi(pMessage->m_mapParameters[72].c_str());" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t\tfor(int i=2;i<=iRepeat;++i)" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t\t\tCMD_" << pCommandInfo->CPPName() <<  "("  << pCommandInfo->m_sParmsWithNoType_In << (pCommandInfo->m_sParmsWithNoType_In.length() ? "," : "") << "sCMD_Result,pMessage);" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t}" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t};" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\tiHandled++;" << endl;

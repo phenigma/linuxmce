@@ -508,7 +508,7 @@ void Orbiter::ReselectObject( void *data )
 	for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
     {
         DesignObjZone *pDesignObjZone = ( *iZone );
-		ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, pMessage_GotoScreen, 0, 0 );
+		ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, pMessage_GotoScreen, -1, -1, pObj->m_iRepeatParm+1 );
     }
 }
 
@@ -3599,7 +3599,7 @@ DesignObj_Orbiter* Orbiter::FindSingleNumberObject( int PK_Object,  DesignObj_Or
 //------------------------------------------------------------------------
 void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList,
                                     DesignObj_Orbiter *pObj, Message *&pMessage_GotoScreen,
-                                    int X,  int Y )
+                                    int X,  int Y, int Repeat )
 {
 	if(m_bQuit)
 		return;
@@ -3609,10 +3609,14 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 	if(  pDesignObjCommandList->size(  )==0  )
         return;
 
-	if( pObj->m_iRepeatInterval && m_bWeGetRegionsUp )
+	if( pObj->m_iRepeatIntervalInMS && m_bWeGetRegionsUp )
 	{
 		m_bRepeatingObject=true;
-		CallMaintenanceInMiliseconds( pObj->m_iRepeatInterval, &Orbiter::ReselectObject, pObj, pe_ALL );
+		pObj->m_iRepeatParm = Repeat;
+		// Arbitrary decision that there should be a bit of a delay before the object starts repeating that
+		// is 3 times the repeat interval
+		CallMaintenanceInMiliseconds( (Repeat==0 ? pObj->m_iRepeatIntervalInMS * 3 : pObj->m_iRepeatIntervalInMS),
+			&Orbiter::ReselectObject, pObj, pe_ALL, Repeat );
 	}
 
     g_pPlutoLogger->Write( LV_STATUS, "Executing %d commands in object: %s", ( int ) pDesignObjCommandList->size(  ),  pObj->m_ObjectID.c_str(  ) );
@@ -3652,18 +3656,6 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 // TODO - REMOVE THIS AND MAKE IT A PARAMETER FOR THE OBJECT
 // HACK! HACK!
 // TODO - REMOVE THIS AND MAKE IT A PARAMETER FOR THE OBJECT
-
-
-if( PK_Command==COMMAND_Vol_Up_CONST || PK_Command==COMMAND_Vol_Down_CONST )
-{
-	pObj->m_iRepeatInterval=250;
-}
-
-
-
-
-
-
 
         if(  pCommand->m_PK_DeviceTemplate  )
         {
@@ -3769,13 +3761,20 @@ if( PK_Command==COMMAND_Vol_Up_CONST || PK_Command==COMMAND_Vol_Down_CONST )
 				}
 			}
 
+			bool bAlreadySetRepeat=false;
             map<int,  string>::iterator iap;
             for( iap=pCommand->m_ParameterList.begin(  );iap!=pCommand->m_ParameterList.end(  );++iap )
             {
                 string Value = SubstituteVariables( ( *iap ).second, pObj, X, Y );
                 pThisMessage->m_mapParameters[( *iap ).first]=Value;
+				if( ( *iap ).first==COMMANDPARAMETER_Repeat_Command_CONST )
+					bAlreadySetRepeat=true;
+
 g_pPlutoLogger->Write( LV_STATUS, "Parm %d = %s",( *iap ).first,Value.c_str());
             }
+			if( Repeat && !bAlreadySetRepeat )
+				pThisMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST]=StringUtils::itos(Repeat);
+
 
 			pThisMessage->m_dwPK_Device_Group_ID_To=pCommand->m_PK_DeviceGroup;
 

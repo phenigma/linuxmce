@@ -28,7 +28,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 48; } ;
 	virtual const char *GetDeviceDescription() { return "CM11A"; } ;
-	string Get_COM_Port() { return m_mapParameters[37];}
+	string Get_COM_Port_on_PC() { return m_mapParameters[37];}
 };
 
 
@@ -71,14 +71,17 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
-	string DATA_Get_COM_Port() { return GetData()->Get_COM_Port(); }
+	string DATA_Get_COM_Port_on_PC() { return GetData()->Get_COM_Port_on_PC(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
+	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Toggle_Power(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
 			return true;
 		int iHandled=0;
@@ -89,6 +92,59 @@ public:
 			{
 				switch(pMessage->m_dwID)
 				{
+				case 192:
+					{
+						string sCMD_Result="OK";
+					int iPK_Pipe=atoi(pMessage->m_mapParameters[97].c_str());
+					string sPK_Device_Pipes=pMessage->m_mapParameters[98];
+						CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 193:
+					{
+						string sCMD_Result="OK";
+					int iPK_Pipe=atoi(pMessage->m_mapParameters[97].c_str());
+						CMD_Off(iPK_Pipe,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Off(iPK_Pipe,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
 				case 194:
 					{
 						string sCMD_Result="OK";
@@ -105,6 +161,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Toggle_Power(sOnOff.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

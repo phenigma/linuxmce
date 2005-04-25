@@ -28,7 +28,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 49; } ;
 	virtual const char *GetDeviceDescription() { return "EIB"; } ;
-	string Get_COM_Port() { return m_mapParameters[37];}
+	string Get_COM_Port_on_PC() { return m_mapParameters[37];}
 };
 
 
@@ -71,7 +71,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
-	string DATA_Get_COM_Port() { return GetData()->Get_COM_Port(); }
+	string DATA_Get_COM_Port_on_PC() { return GetData()->Get_COM_Port_on_PC(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_EIB_Write(string sAddress,string sData,int iDataType,string &sCMD_Result,class Message *pMessage) {};
@@ -80,6 +80,7 @@ public:
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
 			return true;
 		int iHandled=0;
@@ -109,6 +110,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_EIB_Write(sAddress.c_str(),sData.c_str(),iDataType,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -128,6 +135,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_EIB_Read(sAddress.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

@@ -85,8 +85,8 @@ public:
 	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Vol_Up(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Vol_Down(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Mute(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
@@ -96,6 +96,7 @@ public:
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
 			return true;
 		int iHandled=0;
@@ -126,6 +127,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Play_Media(sFilename.c_str(),iPK_MediaType,iStreamID,iMediaPosition,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -148,6 +155,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Stop_Media(iStreamID,&iMediaPosition,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -168,6 +181,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Pause_Media(iStreamID,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -187,6 +206,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Restart_Media(iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -209,6 +234,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Change_Playback_Speed(iStreamID,iMediaPlaybackSpeed,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -227,6 +258,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Skip_Fwd_ChannelTrack_Greater(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -247,13 +284,20 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Skip_Back_ChannelTrack_Lower(sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
 				case 89:
 					{
 						string sCMD_Result="OK";
-						CMD_Vol_Up(sCMD_Result,pMessage);
+					int iRepeat_Command=atoi(pMessage->m_mapParameters[72].c_str());
+						CMD_Vol_Up(iRepeat_Command,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -265,6 +309,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Vol_Up(iRepeat_Command,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -272,7 +322,8 @@ public:
 				case 90:
 					{
 						string sCMD_Result="OK";
-						CMD_Vol_Down(sCMD_Result,pMessage);
+					int iRepeat_Command=atoi(pMessage->m_mapParameters[72].c_str());
+						CMD_Vol_Down(iRepeat_Command,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -284,6 +335,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Vol_Down(iRepeat_Command,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -303,6 +360,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Mute(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -326,6 +389,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Enable_Broadcasting(iStreamID,&sMediaURL,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -348,6 +417,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Start_Streaming(iStreamID,sStreamingTargets.c_str(),&sMediaURL,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -375,6 +450,12 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Report_Playback_Position(iStreamID,&sOptions,&iMediaPosition,&iMedia_Length,sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -395,6 +476,12 @@ public:
 						{
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Stop_Streaming(iStreamID,sStreamingTargets.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

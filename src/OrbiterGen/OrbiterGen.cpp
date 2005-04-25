@@ -1120,6 +1120,8 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	//	ocDesignObj->m_bDontMergeBackground =  
 	//		(ocDesignObj->m_bHideByDefault ? "1" : "0") << "|" <<
 	ocDesignObj->m_bDontResetState = ocDesignObj->m_pRow_DesignObjVariation->DontResetSelectedState_get()==1;
+	ocDesignObj->m_iRepeatIntervalInMS = ocDesignObj->m_pRow_DesignObjVariation->RepeatMS_get();
+	ocDesignObj->m_bRepeatParm = ocDesignObj->m_pRow_DesignObjVariation->RepeatParm_get()==1;
 	ocDesignObj->m_bCantGoBack = ocDesignObj->m_pRow_DesignObj->CantGoBack_get()==1;
 
 	//		StringUtils::itos(ocDesignObj->m_bChildrenBeforeText) << "|" << 

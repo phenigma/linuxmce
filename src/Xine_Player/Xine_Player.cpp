@@ -251,7 +251,7 @@ void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *p
 		/** @param #41 StreamID */
 			/** The media needing the playback speed change. */
 		/** @param #43 MediaPlaybackSpeed */
-			/** The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS */
+			/** The requested media playback speed * 1000.  -1000 = rev, 4000 = 4x fwd, -500 = rev 1/2.  Less than 10 = relative.  +2 = double, -1 = reverse.   See Media_Plugin::ReceivedMessage */
 
 void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
@@ -393,7 +393,7 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu
+0 - Root menu 
 1 - Title menu
 2 - Media menu */
 
@@ -604,8 +604,10 @@ void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #89 - Vol Up */
 	/** Make the sound go up. */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume up this many times */
 
-void Xine_Player::CMD_Vol_Up(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c89-e->
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Vol_Up() Not implemented!");
@@ -614,8 +616,10 @@ void Xine_Player::CMD_Vol_Up(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #90 - Vol Down */
 	/** Make the sound go down. */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume down this many times. */
 
-void Xine_Player::CMD_Vol_Down(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c90-e->
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Vol_Down() Not implemented!");

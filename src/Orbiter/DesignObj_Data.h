@@ -163,8 +163,9 @@ public:
 	int m_dwIDim;
 
 	// If non-zero, this is a repeating button, and as long as it's held down, the command will keep
-	// repeating until the user lets go, and a parameter 'Repeat' will be added
-	int m_iRepeatInterval;
+	// repeating until the user lets go this many milliseconds.  A parameter 'Repeat' will be added if bRepeatParm is true
+	int m_iRepeatIntervalInMS;
+	bool m_bRepeatParm;
 
 	DesignObjCommandList m_Action_LoadList,m_Action_UnloadList,m_Action_TimeoutList,m_Action_StartupList;
 	DesignObjZoneList m_ZoneList;
@@ -176,7 +177,8 @@ public:
 	{
 		m_PK_DesignObj_Up=m_PK_DesignObj_Down=m_PK_DesignObj_Left=m_PK_DesignObj_Right=0;
 		m_sPK_DesignObj_TiedTo="";
-		m_iRepeatInterval=m_iVersion=m_iPage=0;
+		m_iRepeatIntervalInMS=m_iVersion=m_iPage=0;
+		m_bRepeatParm=false;
 		return;
 	}
 
@@ -190,7 +192,7 @@ public:
 		m_iBaseObjectID + m_iVersion + m_iPage +
 		m_ObjectType + m_rectDontDim +  m_rPosition +  m_rBackgroundPosition + 
 		m_PK_DesignObj_Up + m_PK_DesignObj_Down + m_PK_DesignObj_Left + m_PK_DesignObj_Right + m_sPK_DesignObj_TiedTo + m_sVisibleState +
-		m_sOriginalSize + 
+		m_sOriginalSize + m_iRepeatIntervalInMS + m_bRepeatParm +
 		m_dwIDim + m_dbHitTest;
 
 		// These are handled locally, so start with this

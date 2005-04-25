@@ -98,6 +98,7 @@ public:
 	int m_MaxRow, m_MaxCol; // The total number of rows and columns visible on the screen.  Not related to the actual rows and columns in the grid.  
 	int m_FixedRowHeight, m_FixedColumnWidth, m_RowSpacing;
 	int m_ColumnSpacing, m_FirstRowHeight, m_FirstColumnWidth;
+	int m_iRepeatParm;  // A temporary value used to track how many times this button has repeated
 
 	vector<DesignObj_Orbiter *> m_vectObj_TabStops;  // If this is a screen, this is all the tab stops
 	DesignObj_DataList m_OverlayObjects;

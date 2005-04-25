@@ -115,7 +115,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	string DATA_Get_Port();
+	string DATA_Get_COM_Port_on_PC();
 
 			*****EVENT***** accessors inherited from base class
 

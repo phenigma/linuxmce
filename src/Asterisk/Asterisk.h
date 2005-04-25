@@ -43,6 +43,8 @@ public:
 			*****EVENT***** accessors inherited from base class
 	void EVENT_PBX_CommandResult(int iCommandID,int iResult,string sMessage);
 	void EVENT_PBX_Ring(string sPhoneExtension,string sPhoneCallID,string sPhoneCallerID);
+	void EVENT_Incoming_Call();
+	void EVENT_Voice_Mail_Changed();
 
 			*****COMMANDS***** we need to implement
 	*/

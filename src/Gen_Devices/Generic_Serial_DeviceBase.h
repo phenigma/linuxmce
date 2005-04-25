@@ -28,7 +28,8 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 69; } ;
 	virtual const char *GetDeviceDescription() { return "Generic_Serial_Device"; } ;
-	string Get_COM_Port() { return m_mapParameters[37];}
+	string Get_COM_Port_on_PC() { return m_mapParameters[37];}
+	int Get_TCP_Port() { return atoi(m_mapParameters[69].c_str());}
 };
 
 
@@ -71,13 +72,15 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
-	string DATA_Get_COM_Port() { return GetData()->Get_COM_Port(); }
+	string DATA_Get_COM_Port_on_PC() { return GetData()->Get_COM_Port_on_PC(); }
+	int DATA_Get_TCP_Port() { return GetData()->Get_TCP_Port(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
 			return true;
 		int iHandled=0;
