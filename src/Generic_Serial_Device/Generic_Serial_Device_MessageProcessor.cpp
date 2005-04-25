@@ -64,8 +64,8 @@ Generic_Serial_Device_MessageProcessor::Translate(Message* pmsg, MessageTimedQue
 		}
 	}
 
-	if(pmsg->m_mapParameters.count(COMMANDPARAMETER_Repeat_CONST) > 0) {
-		string countstr = pmsg->m_mapParameters[COMMANDPARAMETER_Repeat_CONST];
+	if(pmsg->m_mapParameters.count(COMMANDPARAMETER_Repeat_Command_CONST) > 0) {
+		string countstr = pmsg->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST];
 		if(!countstr.empty()) {
 			count = atoi(countstr.c_str());
 			if(count == 0) {
