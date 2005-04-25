@@ -787,7 +787,8 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	{
 		pChildDeviceCommand = (*child_iter).second;
 
-		if (pChildDeviceCommand->m_pData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Input_Ouput_CONST)
+		if (pChildDeviceCommand->m_pData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Input_Ouput_CONST
+				|| pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory == DEVICECATEGORY_Security_Device_CONST)
 		{
 			std::string this_pin;
 			std::string io_direction;
@@ -816,7 +817,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 				}
 
 				// See if it matches the global number
-				if ( (global_pin_target>0) && (this_pin == StringUtils::itos(global_pin_target)))
+				if (global_pin_target > 0 && atoi(this_pin.c_str()) == global_pin_target)
 				{
 					g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: matches global number");
 					nomination = child;
