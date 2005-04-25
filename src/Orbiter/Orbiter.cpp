@@ -4245,8 +4245,7 @@ g_pPlutoLogger->Write(LV_STATUS,"MaintThread - calling member fn% d",(int) bMain
 				cm.Release(); // Don't keep the mutex locked while executing
 				CALL_MEMBER_FN(*(pCallBackInfoGood->m_pOrbiter), pCallBackInfoGood->m_fnCallBack)(pCallBackInfoGood->m_pData);
 				cm.Relock();
-				delete pCallBackInfoGood;
-                cm.Relock();
+                delete pCallBackInfoGood;
 g_pPlutoLogger->Write(LV_STATUS,"MaintThread - called member fn %d",(int) bMaintThreadIsRunning);
 			}
 			else if( ts_NextCallBack.tv_sec!=0 ) // Should be the case
