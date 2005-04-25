@@ -214,11 +214,13 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 		CGCommand *oa = new CGCommand(COMMAND_Set_Variable_CONST,m_DesignObj_Generator_Parent);
 		oa->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST]=StringUtils::itos(VARIABLE_Array_ID_CONST);;
 		oa->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST]=av->m_ID;
+		oa->m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
 		oz->m_Commands.push_back(oa);
 
 		oa = new CGCommand(COMMAND_Set_Variable_CONST,m_DesignObj_Generator_Parent);
 		oa->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST]=StringUtils::itos(VARIABLE_Array_Desc_CONST);
 		oa->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST]=av->m_sDescription;
+		oa->m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
 		oz->m_Commands.push_back(oa);
 
 		if( av->m_iPK_Variable>0 )
@@ -226,6 +228,7 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 			oa = new CGCommand(COMMAND_Set_Variable_CONST,m_DesignObj_Generator_Parent);
 			oa->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST]=StringUtils::itos(av->m_iPK_Variable).c_str();
 			oa->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST]=av->m_ID;
+			oa->m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
 			oz->m_Commands.push_back(oa);
 		}
 		ocNextDesignObj->m_ZoneList.insert(ocNextDesignObj->m_ZoneList.begin(),oz);
