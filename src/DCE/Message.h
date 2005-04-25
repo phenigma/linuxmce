@@ -210,7 +210,12 @@ namespace DCE
          * @brief start deserializing the pcData to build the instance of the Message
          */
         void FromData( unsigned long dwSize, char *pcData );
-    };
+
+        /**
+         * @brief Build from command line arguments
+         */
+		void BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom=0 );
+	};
 
     /**
      * @brief ...

@@ -108,6 +108,11 @@ Message::Message( Message *pMessage_Clone )
 
 Message::Message( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom )
 {
+	BuildFromArgs( iNumArgs, cArguments, dwPK_DeviceFrom );
+}
+
+void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom )
+{
     Clear();
 
 	int baseMessageSpecPos = 0;
@@ -229,11 +234,10 @@ Message::Message( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom )
 
 Message::Message( string sMessageInStringFormat )
 {
-    Clear();
 	int iNumArgs;
 	char **pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat,iNumArgs);
 
-	// TODO; call the args constructor
+	BuildFromArgs( iNumArgs, pArgs );
 }
 
 Message::Message( long dwDeviceIDFrom, long dwDeviceIDTo, long dwPriority, long dwMessageType, long dwID, unsigned long dwParameterCount, ... )
