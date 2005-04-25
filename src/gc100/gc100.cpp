@@ -174,8 +174,16 @@ void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 		{ // this is our guy
 			SendString("OK");
 			g_pPlutoLogger->Write(LV_STATUS, "Message for %s passed to Relay", vVDD[i]->m_sDescription.c_str());
-			//bool bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Value_CONST].c_str()) != 0;
-			bool bParm = pMessage->m_dwID == COMMAND_Generic_On_CONST;
+
+			bool bParm;
+			if (pMessage->m_dwID == COMMAND_Toggle_Power_CONST)
+			{
+				bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Value_CONST].c_str()) != 0;
+			}
+			else
+			{
+				bParm = pMessage->m_dwID == COMMAND_Generic_On_CONST;
+			}
 			relay_power(pMessage, bParm);
 			sCMD_Result = "OK";
 			return;
