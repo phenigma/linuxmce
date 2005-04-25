@@ -4,4 +4,4 @@
 #define PLUTO_SAFE_DELETE(x) { if(NULL != (x)) { delete (x); (x) = NULL; } }
 #define PLUTO_SAFE_DELETE_ARRAY(x) { if(NULL != (x)) { delete [] (x); (x) = NULL; } }
 
-#endif 
+#endif

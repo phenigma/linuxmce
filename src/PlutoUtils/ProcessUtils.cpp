@@ -83,7 +83,7 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
     {
         case 0: //child
         {
-            setenv("DISPLAY", ":0", 1);
+			// setenv("DISPLAY", ":0", 1);
             //now, exec the process
             printf("ProcessUtils::SpawnApplication(): Spawning\n");
 
@@ -120,6 +120,8 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
 bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associatedData)
 {
 	pthread_mutex_lock(&mutexDataStructure);
+
+	vector<int> pidsArray;
 	MapIdentifierToPidData::iterator element = mapIdentifierToPidData.find(sAppIdentifier);
 
 	if (element == mapIdentifierToPidData.end())
@@ -129,21 +131,32 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 		return false;
     }
 
-	MapPidToData &mapPidsToData= element->second;
+	MapPidToData &mapPidsToData = element->second;
 	printf("ProcessUtils::KillApplication(): Found %d '%s' applications. Killing them all (really)\n", mapPidsToData.size(), sAppIdentifier.c_str());
 
 	associatedData.clear();
 	MapPidToData::const_iterator itPidsToData = mapPidsToData.begin();
 	while ( itPidsToData != mapPidsToData.end() )
 	{
-#ifndef WIN32
-		kill(itPidsToData->first, SIGKILL);
+		pidsArray.push_back(itPidsToData->first);
 		associatedData.push_back(itPidsToData->second);
-#endif
+		itPidsToData++;
 	}
 
 	mapIdentifierToPidData.erase(element);
 	pthread_mutex_unlock(&mutexDataStructure);
+
+	printf("ProcessUtils::KillApplication(): Mutex unlocked Sending kill signal.\n");
+	// we are doing the killing without the lock taken (since this killing might trigger another call into one of our functions which might cause a deadlock).
+	vector<int>::const_iterator itPids = pidsArray.begin();
+	while ( itPids != pidsArray.end() )
+	{
+#ifndef WIN32
+		kill(*itPids, SIGKILL);
+#endif
+		itPids++;
+	}
+
 	return true;
 }
 
