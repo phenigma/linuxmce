@@ -303,7 +303,7 @@ void EIB::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
-void EIB::handleTelegram(const TelegramMessage *pt) {
+void EIB::handleUniqueTelegram(const TelegramMessage *pt) {
 	g_pPlutoLogger->Write(LV_STATUS, "Processing received Telegram..."); 
 	
 	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;

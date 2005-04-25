@@ -53,6 +53,8 @@ using namespace DCE;
 
 namespace EIBBUS {
 
+std::string FormatHexBuffer(const unsigned char* buff, unsigned int size);
+
 MessagePool::MessagePool(bool monitormode) 
 	: monitormode_(monitormode),
 		initstate_(this),
@@ -207,7 +209,10 @@ bool MessagePool::BaseState::readAcknowledge() {
 
 void 
 MessagePool::BaseState::logTelegram(const TelegramMessage *pt) {
-	g_pPlutoLogger->Write(LV_STATUS, "Telegram: graddr: %s, SUD: %d.", pt->getGroupAddress(), pt->getShortUserData());
+	unsigned char usrdata[MAX_STRING_DATA_LEN];
+	pt->getUserData(usrdata, sizeof(usrdata));
+	g_pPlutoLogger->Write(LV_STATUS, "Telegram: graddr: %s, LENGTH: %d, SUD: %d, UD: %s.", pt->getGroupAddress(), 
+									pt->getDataLength(), pt->getShortUserData(), FormatHexBuffer(usrdata, pt->getDataLength()));
 }
 
 
@@ -331,6 +336,21 @@ void MessagePool::SendState::Handle(void* p) {
 		setState(READYSTATE);
 	}
 	MSGLOCK.Unlock();
+}
+
+std::string FormatHexBuffer(const unsigned char* buff, unsigned int size) {
+	std::string logstr;
+	if(size <= 0) {
+		logstr = "EMPTY BUFFER";
+	} else {
+		char hxbuff[5];
+		for(unsigned int i = 0; i < size; i++) {
+			sprintf(hxbuff, "0x%0hhx", buff[i]);
+			logstr += ((i > 0) ? " " : "");
+			logstr += hxbuff;
+		}
+	}
+	return logstr;
 }
 
 }

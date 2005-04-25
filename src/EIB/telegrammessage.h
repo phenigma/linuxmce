@@ -30,6 +30,9 @@ public:
     TelegramMessage();
 	TelegramMessage(const TelegramMessage& tlmsg);
     ~TelegramMessage();
+	
+	bool operator ==(const TelegramMessage& tlmsg);
+	TelegramMessage& operator=(const TelegramMessage& tlmsg);
 
 public:
 	virtual int Send(BusConnector *pbusconn);
@@ -61,7 +64,7 @@ public:
 	};
 	
 	
-	inline unsigned int getDataLength() {
+	inline unsigned int getDataLength() const {
 		return length_;
 	}
 	

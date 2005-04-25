@@ -35,3 +35,7 @@ telegrammessage.cpp
 telegrammessage.h
 thread.cpp
 thread.h
+/DuplicateFilterPoolInterceptor.h
+/DuplicateFilterPoolInterceptor.cpp
+duplicatefilterpoolinterceptor.cpp
+duplicatefilterpoolinterceptor.h

@@ -39,6 +39,21 @@ TelegramMessage::~TelegramMessage()
 }
 	
 TelegramMessage::TelegramMessage(const TelegramMessage& tlmsg) {
+	operator=(tlmsg);
+}
+
+bool 
+TelegramMessage::operator ==(const TelegramMessage& tlmsg) {
+	if(acttype_ == tlmsg.acttype_ && gaddr_ == tlmsg.gaddr_ && length_ == tlmsg.length_ &&
+		shortusrdata_ == tlmsg.shortusrdata_ && !memcmp(usrdata_, tlmsg.usrdata_, tlmsg.length_)) {
+			return true;
+	} else {
+			return false;
+	}
+}
+
+TelegramMessage& 
+TelegramMessage::operator=(const TelegramMessage& tlmsg) {
 	acttype_ = tlmsg.acttype_;
 	gaddr_ = tlmsg.gaddr_;
 	length_ = tlmsg.length_;

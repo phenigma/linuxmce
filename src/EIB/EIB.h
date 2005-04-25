@@ -8,12 +8,13 @@
 //<-dceag-d-e->
 
 #include "messagepool.h"
+#include "duplicatefilterpoolinterceptor.h"
 
 //<-dceag-decl-b->!
 namespace DCE
 {
 	
-	class EIB : public EIB_Command, public EIBBUS::MessagePoolInterceptor
+	class EIB : public EIB_Command, public EIBBUS::DuplicateFilterPoolInterceptor
 	{
 //<-dceag-decl-e->
 		// Private member variables
@@ -40,7 +41,7 @@ public:
 
 protected:
 		/*callback methods from Message Pool*/
-		virtual void handleTelegram(const EIBBUS::TelegramMessage *pt);
+		virtual void handleUniqueTelegram(const EIBBUS::TelegramMessage *pt);
 
 private:
 		/*process telegram methods*/
