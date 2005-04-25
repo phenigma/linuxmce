@@ -211,8 +211,8 @@ void
 MessagePool::BaseState::logTelegram(const TelegramMessage *pt) {
 	unsigned char usrdata[MAX_STRING_DATA_LEN];
 	pt->getUserData(usrdata, sizeof(usrdata));
-	g_pPlutoLogger->Write(LV_STATUS, "Telegram: graddr: %s, LENGTH: %d, SUD: %d, UD: %s.", pt->getGroupAddress(), 
-									pt->getDataLength(), pt->getShortUserData(), FormatHexBuffer(usrdata, pt->getDataLength()));
+	g_pPlutoLogger->Write(LV_STATUS, "Telegram: graddr: %s, LENGTH: %d, SUD: %d, UD: <%s>.", pt->getGroupAddress(), 
+									pt->getDataLength(), pt->getShortUserData(), FormatHexBuffer(usrdata, pt->getDataLength()).c_str());
 }
 
 
