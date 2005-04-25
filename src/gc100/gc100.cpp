@@ -178,7 +178,7 @@ void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 			bool bParm;
 			if (pMessage->m_dwID == COMMAND_Toggle_Power_CONST)
 			{
-				bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Value_CONST].c_str()) != 0;
+				bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0;
 			}
 			else
 			{
