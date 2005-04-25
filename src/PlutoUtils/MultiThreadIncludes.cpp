@@ -122,12 +122,13 @@ PlutoLock::~PlutoLock()
 int size1 = mapLocks.size();
 			mapLocks.erase(itMapLock);	
 int size2 = mapLocks.size();
+            pthread_mutex_unlock(&m_mapLockMutex->mutex);
+
 if( g_pPlutoLogger && !m_bLogErrorsOnly )
 g_pPlutoLogger->Write(LV_LOCKING, "removed from map (%p) #%d (>%d) %s: %s:%d %s was: %d size, now %d Rel: %s Got: %s", 
 &m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),
 m_Line,m_sMessage.c_str(),size1,size2,(m_bReleased ? "Y" : "N"),(m_bGotLock ? "Y" : "N"));
 
-			pthread_mutex_unlock(&m_mapLockMutex->mutex);
 		}
 	}
 }	
