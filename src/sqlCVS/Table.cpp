@@ -1094,7 +1094,7 @@ cout << "pChangedRowToMove original auto incr id: " << pChangedRowToMove->m_iOri
 					if( m_pDatabase->threaded_mysql_query( sSQL.str() )!=0 )
 						throw "Internal error--query failed moving auto incr key";
 
-					PropagateUpdatedField( m_pField_AutoIncrement, StringUtils::itos( iHighestUsedID+1 ), StringUtils::itos( r_CommitRow.m_iNewAutoIncrID ), pChangedRowToMove );
+					PropagateUpdatedField( m_pField_AutoIncrement, StringUtils::itos( iHighestUsedID ), StringUtils::itos( r_CommitRow.m_iNewAutoIncrID ), pChangedRowToMove );
 					if( pChangedRowToMove )
 					{
 						// These only apply if it's another row we're checking in
