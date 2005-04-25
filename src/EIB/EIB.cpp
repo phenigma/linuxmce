@@ -62,7 +62,7 @@ bool EIB::Connect(int iPK_DeviceTemplate) {
 
 	m_msgPool.regInterceptor(this);
 	
-	string sPort = DATA_Get_COM_Port();
+	string sPort = DATA_Get_COM_Port_on_PC();
 	if(sPort.find("/dev/") == 0) {
 		sPort.erase(0, strlen("/dev/"));
 	}
