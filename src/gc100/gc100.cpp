@@ -801,7 +801,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 			if (InOrOut >= 0 && InOrOut <= 2)
 				io_direction = directions[InOrOut];
 			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
-			g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: testing %s", child->m_sName.c_str());
+			g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: testing %s, %d", child->m_sName.c_str(), this_pin);
 
 			//g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
 
@@ -818,6 +818,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 				// See if it matches the global number
 				if ( (global_pin_target>0) && (this_pin == StringUtils::itos(global_pin_target)))
 				{
+					g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: matches global number");
 					nomination = child;
 				}
 			}
