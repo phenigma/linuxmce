@@ -4244,6 +4244,7 @@ g_pPlutoLogger->Write(LV_STATUS,"MaintThread - we've got something to do %d",(in
 g_pPlutoLogger->Write(LV_STATUS,"MaintThread - calling member fn% d",(int) bMaintThreadIsRunning);
 				cm.Release(); // Don't keep the mutex locked while executing
 				CALL_MEMBER_FN(*(pCallBackInfoGood->m_pOrbiter), pCallBackInfoGood->m_fnCallBack)(pCallBackInfoGood->m_pData);
+				cm.Relock();
 				delete pCallBackInfoGood;
                 cm.Relock();
 g_pPlutoLogger->Write(LV_STATUS,"MaintThread - called member fn %d",(int) bMaintThreadIsRunning);
@@ -4259,7 +4260,6 @@ g_pPlutoLogger->Write(LV_STATUS,"MaintThread - after timed wait %d",(int) bMaint
 
 g_pPlutoLogger->Write(LV_STATUS,"MaintThread - exiting");
 	bMaintThreadIsRunning = false;
-	cm.Release();
 	return NULL;
 }
 
