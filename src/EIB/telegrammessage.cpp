@@ -39,14 +39,18 @@ TelegramMessage::~TelegramMessage()
 }
 	
 TelegramMessage::TelegramMessage(const TelegramMessage& tlmsg) {
-	operator=(tlmsg);
+	*this = tlmsg;
 }
 
 bool 
 TelegramMessage::operator ==(const TelegramMessage& tlmsg) {
 	if(acttype_ == tlmsg.acttype_ && gaddr_ == tlmsg.gaddr_ && length_ == tlmsg.length_ &&
-		shortusrdata_ == tlmsg.shortusrdata_ && !memcmp(usrdata_, tlmsg.usrdata_, tlmsg.length_)) {
-			return true;
+		shortusrdata_ == tlmsg.shortusrdata_) {
+			if(tlmsg.length_ > 0) {
+				return  !memcmp(usrdata_, tlmsg.usrdata_, tlmsg.length_);
+			} else {
+				return true;
+			}
 	} else {
 			return false;
 	}
@@ -58,7 +62,11 @@ TelegramMessage::operator=(const TelegramMessage& tlmsg) {
 	gaddr_ = tlmsg.gaddr_;
 	length_ = tlmsg.length_;
 	shortusrdata_ = tlmsg.shortusrdata_;
-	memcpy(usrdata_, tlmsg.usrdata_, tlmsg.length_);
+	if(tlmsg.length_ > 0) {
+		memcpy(usrdata_, tlmsg.usrdata_, tlmsg.length_);
+	}
+	
+	return *this;
 }
 
 int 
