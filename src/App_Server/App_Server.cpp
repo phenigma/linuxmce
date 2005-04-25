@@ -324,13 +324,17 @@ void App_Server::SendMessageList(string messageList)
     }
 
     Message *pMessage = new Message(commands[0]);    // empty message (to only caryy the rest with him).
-    for ( unsigned int i = 1; i < commands.size(); i++ )
-        pMessage->m_vectExtraMessages.push_back(new Message(commands[i]));
+g_pPlutoLogger->Write(LV_STATUS, "Message %s to: %d type: %d id: %d",commands[0].c_str(),
+					  pMessage->m_dwID,pMessage->m_dwMessage_Type,pMessage->m_dwID);
 
-    PreformedCommand command;
-    command.m_pMessage = pMessage;
-    SendCommand(command);
-    g_pPlutoLogger->Write(LV_STATUS, "After sending");
+	for ( unsigned int i = 1; i < commands.size(); i++ )
+{
+        pMessage->m_vectExtraMessages.push_back(new Message(commands[i]));
+g_pPlutoLogger->Write(LV_STATUS, "Adding Message %s ",commands[i].c_str());
+}
+
+	QueueMessageToRouter( pMessage );
+	g_pPlutoLogger->Write(LV_STATUS, "After sending");
 }
 
 //<-dceag-sample-b->!
