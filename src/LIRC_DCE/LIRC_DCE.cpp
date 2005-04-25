@@ -17,7 +17,7 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 
-//<-dceag-const-b->
+//<-dceag-const-b->!
 // The primary constructor when the class is created as a stand-alone device
 LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: LIRC_DCE_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_Virtual_Device_Translator(m_pData)
@@ -135,7 +135,7 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	lirc_leech(DeviceID);	
 }
 
-//<-dceag-const2-b->
+//<-dceag-const2-b->!
 // The constructor when the class is created as an embedded instance within another stand-alone device
 LIRC_DCE::LIRC_DCE(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
 	: LIRC_DCE_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter), m_Virtual_Device_Translator(m_pData)

@@ -412,9 +412,9 @@ bool IRBase::ProcessMessage(Message *pMessage)
 				g_pPlutoLogger->Write(LV_STATUS, "Found mode delay of %d", Delay);
 			}
 		}
-        if(pMessage->m_mapParameters.count(COMMANDPARAMETER_Repeat_CONST) > 0 && pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_CONST].length() > 0)
+        if(pMessage->m_mapParameters.count(COMMANDPARAMETER_Repeat_Command_CONST) > 0 && pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST].length() > 0)
 		{
-			Count = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_CONST].c_str());
+			Count = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST].c_str());
 			if( Count==0 )
 				Count=1;
 		}

@@ -128,9 +128,6 @@
 			<File
 				RelativePath="Main.cpp">
 			</File>
-			<File
-				RelativePath="..\Dce\Virtual_Device_Translator.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
