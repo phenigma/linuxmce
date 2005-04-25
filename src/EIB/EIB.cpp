@@ -325,7 +325,7 @@ bool EIB::processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pD
 		case DEVICETEMPLATE_Siren_CONST: 
 		case DEVICETEMPLATE_Smoke_Detector_CONST: {
 			string sInputOrOutput = pDevData->mapParameters_Find(DEVICEDATA_InputOrOutput_CONST);
-			if(sInputOrOutput == "1" || sInputOrOutput == "2") { /* check if output */
+			if(sInputOrOutput == "0" || sInputOrOutput == "2") { /* check if output */
 				string sChannel = pDevData->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 				if(sChannel == pt->getGroupAddress()) {
 					g_pPlutoLogger->Write(LV_STATUS, "Sensor triggered. Sending Event."); 
