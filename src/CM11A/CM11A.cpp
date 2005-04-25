@@ -246,6 +246,9 @@ void CM11A::SomeFunction()
 
 void CM11A::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 //<-dceag-c192-e->
+{
+}
+
 //<-dceag-c193-b->
 
 	/** @brief COMMAND: #193 - Off */
@@ -255,6 +258,9 @@ void CM11A::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Mess
 
 void CM11A::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 //<-dceag-c193-e->
+{
+}
+
 //<-dceag-c194-b->
 
 	/** @brief COMMAND: #194 - Toggle Power */
@@ -264,3 +270,5 @@ void CM11A::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 
 void CM11A::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c194-e->
+{
+}
