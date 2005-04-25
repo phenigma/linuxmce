@@ -38,6 +38,8 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "PlutoUtils/ProcessUtils.h"
+
 #ifndef WIN32
 #include "utilities/linux/RatpoisonHandler.h"
 #endif
