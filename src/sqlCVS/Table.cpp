@@ -1047,9 +1047,9 @@ int k=2;
 					PlutoSqlResult result_set_hi;
 					MYSQL_ROW row_hi=NULL;
 					if( ( result_set_hi.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row_hi = mysql_fetch_row(result_set_hi.r) ) )
-						iHighestUsedID = atoi(row[0]);
+						iHighestUsedID = atoi(row_hi[0]);
 
-					cout << "Checking:Reassigning Auto Incr Value for table: " << m_sName << " determined highest used value is: " << row[0] << " m_psc_id_next: " << m_psc_id_next << endl;
+					cout << "Checking:Reassigning Auto Incr Value for table: " << m_sName << " determined highest used value is: " << row[0] << " m_psc_id_next: " << m_psc_id_next << " " << row_hi << endl;
 
 					for(map<int, ListChangedRow *>::iterator it1=m_mapUsers2ChangedRowList.begin();it1!=m_mapUsers2ChangedRowList.end();++it1)
 					{
