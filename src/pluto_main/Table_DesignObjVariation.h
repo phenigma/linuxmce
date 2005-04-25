@@ -88,13 +88,15 @@ long int m_FK_Button;
 long int m_FK_Criteria_Orbiter;
 short int m_DontResetSelectedState;
 long int m_FK_StabilityStatus;
+long int m_RepeatMS;
+short int m_RepeatParm;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[18];
+		bool is_null[20];
 	
 	public:
 		long int PK_DesignObjVariation_get();
@@ -110,6 +112,8 @@ long int FK_Button_get();
 long int FK_Criteria_Orbiter_get();
 short int DontResetSelectedState_get();
 long int FK_StabilityStatus_get();
+long int RepeatMS_get();
+short int RepeatParm_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -130,6 +134,8 @@ void FK_Button_set(long int val);
 void FK_Criteria_Orbiter_set(long int val);
 void DontResetSelectedState_set(short int val);
 void FK_StabilityStatus_set(long int val);
+void RepeatMS_set(long int val);
+void RepeatParm_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -199,7 +205,7 @@ void DesignObjVariation_Zone_FK_DesignObjVariation_getrows(vector <class Row_Des
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DesignObjVariation+ m_FK_DesignObj+ m_FK_Criteria_D+ m_FK_DesignObj_Goto+ m_FK_CommandGroup_D_OnActivate+ m_FK_CommandGroup_D_OnLoad+ m_FK_CommandGroup_D_OnUnload+ m_FK_CommandGroup_D_OnTimeout+ m_FK_CommandGroup_D_OnStartup+ m_FK_Button+ m_FK_Criteria_Orbiter+ m_DontResetSelectedState+ m_FK_StabilityStatus+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DesignObjVariation+ m_FK_DesignObj+ m_FK_Criteria_D+ m_FK_DesignObj_Goto+ m_FK_CommandGroup_D_OnActivate+ m_FK_CommandGroup_D_OnLoad+ m_FK_CommandGroup_D_OnUnload+ m_FK_CommandGroup_D_OnTimeout+ m_FK_CommandGroup_D_OnStartup+ m_FK_Button+ m_FK_Criteria_Orbiter+ m_DontResetSelectedState+ m_FK_StabilityStatus+ m_RepeatMS+ m_RepeatParm+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -217,6 +223,8 @@ string FK_Button_asSQL();
 string FK_Criteria_Orbiter_asSQL();
 string DontResetSelectedState_asSQL();
 string FK_StabilityStatus_asSQL();
+string RepeatMS_asSQL();
+string RepeatParm_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
