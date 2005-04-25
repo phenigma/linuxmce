@@ -385,7 +385,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			while( itFileNames != dequeFileNames.end() )
 				dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes, *itFileNames++));
 
-            StartMedia(pMediaHandlerInfo,0,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false);
+            StartMedia(pMediaHandlerInfo,0,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false,0);
             return true;
         }
     }
@@ -457,7 +457,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     return true;
 }
 
-bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume)
+bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -549,6 +549,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 
     pMediaStream->m_pMediaHandlerInfo = pMediaHandlerInfo;
     pMediaStream->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea] = pEntertainArea;
+	pMediaStream->m_iRepeat=iRepeat;
 
     // HACK: get the user if the message originated from an orbiter!
 
@@ -1723,8 +1724,10 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 			/** The desired target area for the playback. If this is missing then the orbiter should decide the target based on his controlled area. */
 		/** @param #116 Resume */
 			/** If true, when this media finishes, resume whatever was playing previously.  Useful for making announcements and similar. */
+		/** @param #117 Repeat */
+			/** 0=default for media type, 1=loop, -1=do not loop */
 
-void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c43-e->
 {
 	int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str()); // TODO: handle multiple entertainment areas
@@ -1824,7 +1827,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
             pMediaHandlerInfo = pList_MediaHandlerInfo->front();
 
 		if( pMediaHandlerInfo )
-			StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
     }
     else if( dequeMediaFile.size() )
     {
@@ -1835,7 +1838,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
         else
         {
             MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-            StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile,bResume);  // We'll let the plug-in figure out the source, and we'll use the default remote
+            StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
         }
     }
     else  // We got nothing -- find a disk drive within the entertainment area and send it a reset
@@ -2000,7 +2003,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
         return;
     }
     MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-    StartMedia(pMediaHandlerInfo,pMessage->m_dwPK_Device_From,pEntertainArea,0,0,&dequeMediaFile,false);  // We'll let the plug-in figure out the source, and we'll use the default remote
+    StartMedia(pMediaHandlerInfo,pMessage->m_dwPK_Device_From,pEntertainArea,0,0,&dequeMediaFile,false,0);  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 class DataGridTable *Media_Plugin::FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )

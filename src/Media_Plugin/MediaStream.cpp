@@ -54,6 +54,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice
 	m_tTime = time(NULL);
 	m_tTime_Parked = 0;
 	m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
+	m_iRepeat = 0;
 
     m_pMediaDevice_Source=pMediaDevice;
 

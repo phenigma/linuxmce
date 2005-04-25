@@ -69,6 +69,7 @@ namespace DCE
 
 		bool 	m_bIsMovable; 					/** < bCanMove - This if this media stream can be moved in a move media command */
 		int 	m_iOrder;  						/** This is used for the floorplans to order and color code the streams */
+		int		m_iRepeat;						/** Indicates if this media should repeat */
 
 		time_t	m_tTime;						/** When the user started this media */
 		time_t	m_tTime_Parked;					/** When we parked this media -- ie the user left an area with follow me on, so we stop the media, and leave it 'pending' for a while so he can enter another area */
