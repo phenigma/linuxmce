@@ -83,6 +83,9 @@ void sh(int i) /* signal handler */
 
 #define MYTH_WINDOW_NAME "mythfrontend"
 
+// This shoould be the class name of the gimageview application
+#define LOGO_APPLICATION_NAME "gimageview"
+
 class RatPoisonWrapper : public RatpoisonHandler<RatPoisonWrapper>
 {
     Display *display;
@@ -124,10 +127,11 @@ MythTV_Player::~MythTV_Player()
 
 bool MythTV_Player::LaunchMythFrontend()
 {
-	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", MYTH_WINDOW_NAME);
-
 	if ( ! m_pRatWrapper )
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+
+	m_pRatWrapper->commandRatPoison(":select " LOGO_APPLICATION_NAME);
+	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", MYTH_WINDOW_NAME);
 
     selectWindow();
     locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
@@ -200,47 +204,6 @@ void MythTV_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
     sCMD_Result = "UNKNOWN DEVICE";
 }
 
-//<-dceag-sample-b->!
-/*
-void MythTV_Player::waitToFireMediaChanged()
-{
-    while ( m_pMythTV->GetState() == kState_ChangingState )
-    {
-        usleep(50000); //sleep for 1/2 sec;
-    }
-
-    if ( m_pMythTV->GetState() == kState_WatchingLiveTV )
-    {
-        m_pMythMainWindow->setNuppelPlayerToResize(m_pMythTV->activenvp);
-        QString currentChannelName = m_pMythTV->activerecorder->GetCurrentChannel();
-
-        QDateTime currentDateTime = QDateTime::currentDateTime();
-
-        // m_pMythTV->DoInfo(); // This is error prone. It seems to cause crashed. Maybe a race somewhere
-        g_pPlutoLogger->Write(LV_STATUS, "Channel:\"%s\"", currentChannelName.ascii());
-        if ( currentChannelName != "" )
-        {
-            ProgramInfo *programInfo = ProgramInfo::GetProgramAtDateTime(
-                QSqlDatabase::database(),
-                    currentChannelName,
-                    currentDateTime);
-
-            if ( programInfo != NULL )
-            {
-                m_pRatWrapper->makeActive(m_pMythMainWindow->caption().ascii());
-
-                EVENT_Playback_Info_Changed(programInfo->channame.ascii(), programInfo->title.ascii(), programInfo->description.ascii());
-                delete programInfo;
-            }
-        }
-        else
-        {
-            EVENT_Playback_Info_Changed("Not available", "Not available", "");
-            EVENT_Error_Occured("The current channel is empty. This usually means that the mythtv database is inconsistent. You should try to setup the channel list again!");
-        }
-    }
-}
-*/
 void MythTV_Player::selectWindow()
 {
     m_pRatWrapper->commandRatPoison(":select " MYTH_WINDOW_NAME);
@@ -393,6 +356,8 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
                 g_pPlutoLogger->Write(LV_STATUS, "Invalid character %c in channel identifier %s", channelNumber[i], channelNumber.c_str());
         }
     }
+
+	processKeyBoardInputRequest(XK_Return);
 }
 
 void MythTV_Player::KillSpawnedDevices()
