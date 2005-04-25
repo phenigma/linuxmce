@@ -24,8 +24,8 @@ if($action=='form') {
 	$rowCG=$resCG->FetchRow();
 
 	$out.='
-		<div align="left" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>	
-		<div align="left" class="err"><B>'.strip_tags(@$_GET['err']).'</B></div>	
+		<div align="left" class="confirm"><B>'.stripslashes(@$_GET['msg']).'</B></div>	
+		<div align="left" class="err"><B>'.stripslashes(@$_GET['err']).'</B></div>	
 		<form action="index.php" method="POST" name="scenarioWizard" '.(($wizard==0)?'onSubmit="return validateForm();"':'').'>
 			<input type="hidden" name="section" value="scenarioWizard">
 			<input type="hidden" name="action" value="add">	
@@ -93,7 +93,11 @@ if($action=='form') {
 		header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard".@$sufix);
 		exit();
 	}else{
-		header("Location: index.php?section=$from&roomID=$roomID&cgID=$cgID&msg=$msg");
+		if(isset($_POST['addNewDeviceButton'])){
+			header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=Scenario updated.");
+		}else{
+			header("Location: index.php?section=$from&roomID=$roomID&cgID=$cgID&msg=$msg");
+		}
 		exit();
 	}
 	

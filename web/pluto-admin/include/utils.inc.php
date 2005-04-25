@@ -2464,10 +2464,10 @@ function processClimateScenario($cgID,$dbADO)
 {
 	$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
 	foreach($displayedDevicesArray AS $elem){
-		$deviceCommand=(int)$_POST['command_'.$elem];
-		$dimValue=$_POST['dimValue_'.$elem];
-		$oldCommand=$_POST['oldCommand_'.$elem];
-		$oldDimValue=$_POST['oldDimValue_'.$elem];
+		$deviceCommand=(int)@$_POST['command_'.$elem];
+		$dimValue=@$_POST['dimValue_'.$elem];
+		$oldCommand=@$_POST['oldCommand_'.$elem];
+		$oldDimValue=@$_POST['oldDimValue_'.$elem];
 		$deleteCommand='DELETE FROM CommandGroup_Command WHERE FK_CommandGroup=? AND FK_Device=? AND FK_Command=?';
 		$deleteParameters='
 			DELETE CommandGroup_Command_CommandParameter
@@ -2529,7 +2529,8 @@ function processAdvancedScenarios($cgID,$section,$dbADO)
 	$from=@$_REQUEST['from'];
 	$roomID=(int)@$_REQUEST['roomID'];
 	$ehID=@$_REQUEST['ehID'];
-
+	$CommandIsTested=(isset($_REQUEST['commandToTest']) && (int)$_REQUEST['commandToTest']>0)?1:0;
+	
 	if(isset($_REQUEST['cgc']) && (int)$_REQUEST['cgc']>0){
 		$toDel=(int)$_REQUEST['cgc'];
 		$commandsDeleted='';
@@ -2555,31 +2556,6 @@ function processAdvancedScenarios($cgID,$section,$dbADO)
 		}
 		else{
 			header("Location: index.php?section=$section&ehID=$ehID&wizard=$wizard&msg=$commandsDeleted $parametersDeleted");
-		}
-		exit();
-	}
-
-	if(isset($_REQUEST['commandToTest']) && (int)$_REQUEST['commandToTest']>0){
-
-		$commandToTest=$_REQUEST['commandToTest'];
-		$queryCommands='
-			SELECT CommandGroup_Command_CommandParameter.*, FK_Command 
-			FROM CommandGroup_Command
-			LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command 
-			WHERE PK_CommandGroup_Command=?';
-
-		$resCommands=$dbADO->Execute($queryCommands,$commandToTest);
-		$commandParmsArray=array();
-		while($rowCommands=$resCommands->FetchRow()){
-			$commandParmsArray[]=$rowCommands['FK_CommandParameter'].' "'.$rowCommands['IK_CommandParameter'].'"';
-			$FK_Command=$rowCommands['FK_Command'];
-		}
-		$commandToSend='/usr/pluto/bin/MessageSend localhost 0 device 1 '.$FK_Command.' '.join(' ',$commandParmsArray);
-		exec($commandToSend);
-		if($section=='scenarioWizard'){
-			header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=The command with parameters was sent.");
-		}else{
-			header("Location: index.php?section=$section&ehID=$ehID&wizard=$wizard&msg=The command with parameters was sent");
 		}
 		exit();
 	}
@@ -2670,6 +2646,32 @@ function processAdvancedScenarios($cgID,$section,$dbADO)
 		}
 	}
 
+	
+	if($CommandIsTested==1){
+
+		$commandToTest=$_REQUEST['commandToTest'];
+		$queryCommands='
+			SELECT CommandGroup_Command_CommandParameter.*, FK_Command,FK_Device 
+			FROM CommandGroup_Command
+			LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command 
+			WHERE PK_CommandGroup_Command=?';
+
+		$resCommands=$dbADO->Execute($queryCommands,$commandToTest);
+		$commandParmsArray=array();
+		while($rowCommands=$resCommands->FetchRow()){
+			$commandParmsArray[]=$rowCommands['FK_CommandParameter'].' "'.$rowCommands['IK_CommandParameter'].'"';
+			$FK_Command=$rowCommands['FK_Command'];
+			$FK_Device=$rowCommands['FK_Device'];
+		}
+		$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$FK_Device.' 1 '.$FK_Command.' '.join(' ',$commandParmsArray);
+		exec($commandToSend);
+		if($section=='scenarioWizard'){
+			header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=The command with parameters was sent: $commandToSend");
+		}else{
+			header("Location: index.php?section=$section&ehID=$ehID&wizard=$wizard&msg=The command with parameters was sent");
+		}
+		exit();
+	}
 }
 
 function getDeviceNames($dbADO,$filter='')
@@ -2922,7 +2924,6 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify)
 {
 	$serial_ports=array();
 	exec('sudo -u root /usr/pluto/bin/ListSerialPorts.sh', $serial_ports);
-	$serial_ports[]='/ttt/xxx';
 
 	$extra=((isset($allowedToModify) && $allowedToModify==0)?'disabled':'');
 	$out=pulldownFromArray($serial_ports,$name,$selectedPort,$extra,'value');

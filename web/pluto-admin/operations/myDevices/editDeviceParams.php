@@ -515,7 +515,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		if (!is_array($selectedDateArray)) {$selectedDateArray=array();$selectedDateArray[]=0;}
 
 		foreach ($selectedDateArray as $elem) {
-			$value = cleanString(@$_POST['deviceData_'.$elem]);
+			$value = @$_POST['deviceData_'.$elem];
 				$checkIfExists = "select IK_DeviceData from Device_DeviceData where FK_Device = ? and FK_DeviceData = ?";
 				$res = $dbADO->Execute($checkIfExists,array($deviceID,$elem));
 				if ($res && $res->RecordCount()==1) {

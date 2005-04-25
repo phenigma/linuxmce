@@ -9,6 +9,7 @@
 	$GLOBALS['rootLights'] = 73; 				// Lighting devices
 	$GLOBALS['rootAVEquipment'] = 76; 			// AV Equipment
 	$GLOBALS['rootClimate'] = 83; 				// Climate devices
+	$GLOBALS['rootGenericIO'] = 79; 			// Generic I/O
 	$GLOBALS['rootSecurity'] = 84; 				// Security devices
 	$GLOBALS['IntercomCategory']=94;			// Intercom 
 	$GLOBALS['rootCameras']=93;					// Surveillance Cameras

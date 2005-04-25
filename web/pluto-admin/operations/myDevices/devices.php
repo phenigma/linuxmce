@@ -10,6 +10,7 @@ function devices($output,$dbADO) {
 	$type = isset($_REQUEST['type'])?cleanString($_REQUEST['type']):'lights';
 	$installationID = (int)@$_SESSION['installationID'];
 
+	$extraCategoryArray=array();
 	switch($type){
 		case 'interfaces':
 			$deviceCategory=$GLOBALS['rootInterfaces'];
@@ -31,6 +32,7 @@ function devices($output,$dbADO) {
 		break;
 		case 'security':
 			$deviceCategory=$GLOBALS['rootSecurity'];
+			$extraCategoryArray[]=$GLOBALS['rootGenericIO'];
 			$specificFloorplanType=$GLOBALS['SecurityFoorplanType'];
 			$output->setHelpSrc('/support/index.php?section=document&docID=127');
 		break;
@@ -50,6 +52,11 @@ function devices($output,$dbADO) {
 	getDeviceCategoryChildsArray($deviceCategory,$dbADO);
 	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
 	$GLOBALS['childsDeviceCategoryArray'][]=$deviceCategory;
+	
+	foreach ($extraCategoryArray AS $extraCategory){
+		getDeviceCategoryChildsArray($extraCategory,$dbADO);
+		$GLOBALS['childsDeviceCategoryArray'][]=$extraCategory;
+	}
 	
 	$queryDeviceTemplate='
 		SELECT * FROM DeviceTemplate 
