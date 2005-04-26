@@ -145,6 +145,8 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
         currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pPlayerDeviceData->GetMacAddress()));
 
         SendReceiveCommand(currentPlayerAddress + " sync -"); // break previous syncronization;
+		SendReceiveCommand(currentPlayerAddress + " stop"); // stop playback (if any)
+		SendReceiveCommand(currentPlayerAddress + " playlist clear"); // clear previous playlist (if any)
         SendReceiveCommand(currentPlayerAddress + " sync " + lastPlayerAddress); // synchronize with the last one.
         lastPlayerAddress = currentPlayerAddress;
         itPlayerIds++;
