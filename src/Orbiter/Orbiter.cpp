@@ -187,6 +187,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_bRerenderScreen=false;
 	m_bWeGetRegionsUp=false;
 	m_bRepeatingObject=false;
+	m_bInitializeNotFinished=true;
 
     m_pScreenHistory_Current=NULL;
     m_pObj_LastSelected=m_pObj_Highlighted=NULL;
@@ -2519,6 +2520,8 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 
 		CMD_Display_OnOff( "1" );
 
+		m_bInitializeNotFinished=false;
+
 		DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
 		for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
 		{
@@ -2536,6 +2539,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			}
 		}
 	}
+	m_bInitializeNotFinished=false;
 }
 
 void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
@@ -5632,6 +5636,9 @@ void Orbiter::CMD_Reset_Highlight(string &sCMD_Result,Message *pMessage)
 
 bool Orbiter::ReceivedMessage( class Message *pMessageOriginal )
 {
+	while( m_bInitializeNotFinished && !m_bQuit )
+		Sleep(100);
+
 	if(m_bQuit)
 		return false;
 
