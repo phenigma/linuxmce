@@ -190,11 +190,11 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 		{
 			if( m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_bIsMobilePhone )
 			{
-				if( ocNextDesignObj->m_iPK_Button==BUTTON_9_CONST )
+				if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==9 )
 					ocNextDesignObj->m_iPK_Button = BUTTON_Asterisk_CONST;
-				else if( ocNextDesignObj->m_iPK_Button==BUTTON_Asterisk_CONST )
+				else if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==10 )
 					ocNextDesignObj->m_iPK_Button = BUTTON_0_CONST;
-				else if( ocNextDesignObj->m_iPK_Button==BUTTON_0_CONST )
+				else if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==11 )
 					ocNextDesignObj->m_iPK_Button = BUTTON_Pound_CONST;
 				else
 					ocNextDesignObj->m_iPK_Button += m_alChildDesignObjs.size();
