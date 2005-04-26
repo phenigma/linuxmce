@@ -134,5 +134,3 @@ namespace DCE {
 		return MediaStream::CanPlayMore();
 	}
 };
-
-

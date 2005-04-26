@@ -91,7 +91,7 @@ public:
 		XineMediaStream *ConvertToXineMediaStream(MediaStream *pMediaStream, string callerIdMessage = "");
 		void GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevice);
 
-		DeviceData_Router *FindStreamerDevice();
+		MediaDevice *FindStreamerDevice();
 
 	//<-dceag-h-b->
 	/*

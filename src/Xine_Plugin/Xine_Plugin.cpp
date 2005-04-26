@@ -174,7 +174,7 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 	pXineMediaStream->SetPlaybackDeviceForEntArea(pEntertainArea->m_iPK_EntertainArea, pMediaDevice);
 	if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
 	{
-		pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router = FindStreamerDevice();
+		pXineMediaStream->m_pMediaDevice_Source = FindStreamerDevice();
 		pXineMediaStream->setIsStreaming();
 	}
 
@@ -285,13 +285,16 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 	{
 		// HACK: -- todo: get real informations.
 		pXineMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
+
 		mediaURL = sFileToPlay;
 	}
 
+	g_pPlutoLogger->Write(LV_WARNING, "Is streaming ?: %d", pXineMediaStream->isStreaming() );
 	// Establish streaming configuration first if this applies here
 	if ( pXineMediaStream->isStreaming() )
 		StartStreaming(pXineMediaStream);
 
+	g_pPlutoLogger->Write(LV_WARNING, "sending play media from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 							mediaURL,
@@ -302,6 +305,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);
 
+	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 // 	if( !SendCommand( cmd, &Response ) )
 // 		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
 // 					pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
@@ -434,7 +438,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 		// int iStreamingDeviceId;
 		g_pPlutoLogger->Write(LV_STATUS, "Enabling streaming for stream: %d", pXineMediaStream->m_iStreamID_get());
 
-		pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router = FindStreamerDevice();
+		pXineMediaStream->m_pMediaDevice_Source = FindStreamerDevice();
 		pXineMediaStream->setIsStreaming();
 
 		// This is a big error. We can't actually move media in multiple rooms if we don't have a proper streamer.
@@ -496,14 +500,14 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 	return StartStreaming(pXineMediaStream);
 }
 
-DeviceData_Router *Xine_Plugin::FindStreamerDevice()
+MediaDevice *Xine_Plugin::FindStreamerDevice()
 {
 	int iStreamerDeviceId = 0;
 
 	if ( (iStreamerDeviceId = m_pRouter->FindClosestRelative(DEVICETEMPLATE_Slim_Server_Streamer_CONST, m_dwPK_Device)) <= 0 )
 		return NULL;
 	else
-		return m_pRouter->m_mapDeviceData_Router_Find(iStreamerDeviceId);
+		return m_pMedia_Plugin->m_mapMediaDevice_Find(iStreamerDeviceId);
 }
 
 bool Xine_Plugin::StopStreaming(XineMediaStream *pXineMediaStream, vector<MediaDevice*> stopStreamingTargets)
@@ -621,6 +625,7 @@ MediaDevice *Xine_Plugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntert
 	MediaDevice *pMediaDevice;
 	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_Xine_Player_CONST);
 
+	g_pPlutoLogger->Write(LV_STATUS, "Looking for a proper device in the ent area %d (%s)", pEntertainArea->m_iPK_EntertainArea, pEntertainArea->m_sDescription.c_str());
 	if ( pMediaDevice == NULL )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Could not find a Xine Player device (with device template id: %d) in the entertainment area: %d. Looking for a squeeze box.",
@@ -638,6 +643,8 @@ MediaDevice *Xine_Plugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntert
 			return NULL;
 		}
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	return pMediaDevice;
 }
