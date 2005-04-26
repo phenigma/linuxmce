@@ -1377,6 +1377,7 @@ public:
 	}
 
 	static void NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory = true );
+	ScreenHistory *m_pScreenHistory_get() { return m_pScreenHistory; }
 };
 
 //<-dceag-end-b->

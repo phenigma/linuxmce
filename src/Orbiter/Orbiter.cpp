@@ -2513,6 +2513,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 
 			CMD_Display_OnOff( "1" );
 
+			m_pScreenHistory_Current = render.m_pScreenHistory_get();
 			m_bInitializeNotFinished=false;
 		}
 
