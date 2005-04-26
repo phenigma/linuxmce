@@ -36,6 +36,8 @@
 #define EVENT_Follow_Me_Telecom_CONST 33
 #define EVENT_Follow_Me_Security_CONST 34
 #define EVENT_Ripping_Completed_CONST 35
+#define EVENT_Incoming_Call_CONST 36
+#define EVENT_Voice_Mail_Changed_CONST 37
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
