@@ -27,11 +27,9 @@ GetFreeDigit()
 	DHCPsetting="$1"
 
 	Q="SELECT IPaddress
-FROM Device
-JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-WHERE PK_DeviceTemplate=28 AND FK_Device_ControlledVia IS NULL AND MACaddress IS NOT NULL AND IPaddress IS NOT NULL
-ORDER BY IPaddress"
-	R=$(RunSQL "$Q")
+		FROM Device
+		WHERE MACaddress IS NOT NULL AND IPaddress IS NOT NULL AND MACaddress!='' AND IPaddress!=''"
+	R=$(RunSQL "$Q" | sort -t. -n -k1,1 -k2,2 -k3,3 -k4,4)
 
 	Next=$(echo $DHCPsetting | cut -d, -f1 | cut -d- -f1 | cut -d. -f4)
 	if [ -z "$R"  ]; then
