@@ -391,3 +391,11 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
 	DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDLBluetooth::OnReload()
+{  
+    g_pPlutoLogger->Write(LV_WARNING,"Orbiter reloading");
+
+    //kill the connection. this will kill orbiter and then recreate it when the phone will be detected
+    m_pBDCommandProcessor->m_bDead = true;
+}  
+//-----------------------------------------------------------------------------------------------------
