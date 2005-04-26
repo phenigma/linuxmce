@@ -2518,6 +2518,23 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		SendCommand( CMD_Orbiter_Registered );
 
 		CMD_Display_OnOff( "1" );
+
+		DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
+		for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
+		{
+			DesignObj_Orbiter* pObj = (*itDesignObjOrbiter).second;
+			Message *pMessage_GotoScreen=NULL;
+			if(  pObj->m_Action_StartupList.size(  )>0  )
+				ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, pMessage_GotoScreen );
+
+			if( pMessage_GotoScreen )
+			{
+				ReceivedMessage( pMessage_GotoScreen );
+
+				delete pMessage_GotoScreen;
+				pMessage_GotoScreen = NULL;
+			}
+		}
 	}
 }
 
@@ -2795,17 +2812,6 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     COMMANDPARAMETER_PK_Device_CONST,  Device.c_str(  ) ) );
     }
     */
-    Message *pMessage_GotoScreen=NULL;
-    if(  pObj->m_Action_StartupList.size(  )>0  )
-        ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, pMessage_GotoScreen );
-
-    if( pMessage_GotoScreen )
-	{
-        ReceivedMessage( pMessage_GotoScreen );
-
-		delete pMessage_GotoScreen;
-		pMessage_GotoScreen = NULL;
-	}
 
     // Child objects have the format screen.version.page.objectid.x where x is an arbitrary increment to insure uniqueness
     // Some commands need to send messages to an object not knowing the value of x.  So,  we create another map without the suffix
