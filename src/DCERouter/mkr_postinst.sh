@@ -22,6 +22,11 @@ echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
 #done
 #echo "Finished converting tables to InnoDB"
 
+# When we're getting a new software version, be sure we do a full regen 
+# on all the orbiters
+echo "UPDATE Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory SET NeedConfigure=1 WHERE FK_DeviceCategory=5 OR FK_DeviceCategory_Parent=5;" | mysql pluto_main
+echo "DELETE FROM CachedScreens;" | mysql pluto_main
+
 device="$PK_Device"
 code="$Activation_Code"
 
