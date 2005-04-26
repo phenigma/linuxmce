@@ -124,8 +124,6 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
     for( size_t iRoom=0;iRoom<vectRow_Room.size( );++iRoom )
     {
         Row_Room *pRow_Room=vectRow_Room[iRoom];
-//dothis();
-//slimserver needs to be a media device, even though it has no entarea
         vector<Row_EntertainArea *> vectRow_EntertainArea;
         pRow_Room->EntertainArea_FK_Room_getrows( &vectRow_EntertainArea );
         for( size_t s=0;s<vectRow_EntertainArea.size( );++s )
@@ -165,6 +163,24 @@ continue;
             }
         }
     }
+
+	// Streamers are often not in entertainment areas.  But we need them to have an entry as 
+	// a MediaDevice so they can be a media source
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Media_Streamers_CONST);
+	if( pListDeviceData_Router )
+	{
+		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+		{
+			DeviceData_Router *pDeviceData_Router = (*it);
+		    MediaDevice *pMediaDevice = m_mapMediaDevice_Find( pDeviceData_Router->m_dwPK_Device );
+			if( !pMediaDevice && m_mapEntertainAreas.size() )
+			{
+				EntertainArea *pEntertainArea = (*m_mapEntertainAreas.begin()).second;
+				AddDeviceToEntertainArea(pEntertainArea,pDeviceData_Router->m_pRow_Device);
+			}
+		}
+	}
+	
 	// Now go through all the devices in all the ent areas, and add the reverse match so all devices have a list of the entertain areas they're in
     for( map<int, EntertainArea *>::iterator itEntArea=m_mapEntertainAreas.begin( );itEntArea!=m_mapEntertainAreas.end( );++itEntArea )
     {

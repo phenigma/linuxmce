@@ -161,7 +161,6 @@ protected:
 	bool m_bBypassScreenSaver; /** < True if we don't want the screen to blank */
 	bool m_bRepeatingObject; /** < True if we're currently holding down a repeating button */
 	bool m_bRerenderScreen; /** <  Set to true means ignore the objects to redraw, and just redraw the whole screen */
-	bool m_bInitializeNotFinished;  /** <  Until it's false we will hold off processing messages */
 
 	/**
 	 * This is an internal counter. When we start doing stuff that may include lots of embedded commands which want to update the screen, we can create
@@ -1377,7 +1376,6 @@ public:
 	}
 
 	static void NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory = true );
-	ScreenHistory *m_pScreenHistory_get() { return m_pScreenHistory; }
 };
 
 //<-dceag-end-b->

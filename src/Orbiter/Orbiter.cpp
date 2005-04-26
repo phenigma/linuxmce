@@ -187,7 +187,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_bRerenderScreen=false;
 	m_bWeGetRegionsUp=false;
 	m_bRepeatingObject=false;
-	m_bInitializeNotFinished=true;
 
     m_pScreenHistory_Current=NULL;
     m_pObj_LastSelected=m_pObj_Highlighted=NULL;
@@ -2512,9 +2511,6 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			SendCommand( CMD_Orbiter_Registered );
 
 			CMD_Display_OnOff( "1" );
-
-			m_pScreenHistory_Current = render.m_pScreenHistory_get();
-			m_bInitializeNotFinished=false;
 		}
 
 		if( !m_pScreenHistory_Current )
@@ -2539,7 +2535,6 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			}
 		}
 	}
-	m_bInitializeNotFinished=false;
 }
 
 void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
@@ -3626,7 +3621,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 		// Arbitrary decision that there should be a bit of a delay before the object starts repeating that
 		// is 3 times the repeat interval
 		CallMaintenanceInMiliseconds( (Repeat==0 ? pObj->m_iRepeatIntervalInMS * 3 : pObj->m_iRepeatIntervalInMS),
-			&Orbiter::ReselectObject, pObj, pe_ALL, Repeat );
+			&Orbiter::ReselectObject, pObj, pe_ALL, true );
 	}
 
     g_pPlutoLogger->Write( LV_STATUS, "Executing %d commands in object: %s", ( int ) pDesignObjCommandList->size(  ),  pObj->m_ObjectID.c_str(  ) );
@@ -5636,7 +5631,7 @@ void Orbiter::CMD_Reset_Highlight(string &sCMD_Result,Message *pMessage)
 
 bool Orbiter::ReceivedMessage( class Message *pMessageOriginal )
 {
-	while( m_bInitializeNotFinished && !m_bQuit )
+	while( !m_pScreenHistory_Current && !m_bQuit )
 		Sleep(100);
 
 	if(m_bQuit)

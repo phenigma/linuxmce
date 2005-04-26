@@ -1,7 +1,6 @@
 /*
  * $Id: Router.cpp,v 1.21 2004/10/28 05:11:28 mihaid Exp $
  */
-
 #include <string>
 using namespace std;
 
@@ -26,6 +25,7 @@ using namespace std;
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceData.h"
+#include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_main/Table_CommandParameter.h"
 #include "pluto_main/Table_Command_Pipe.h"
 #include "pluto_main/Table_CommandGroup.h"
@@ -1938,6 +1938,18 @@ void Router::Configure()
         for(size_t s2=0;s2<vectDeviceParms.size();++s2)
         {
             Row_Device_DeviceData *pRow_DeviceParm = vectDeviceParms[s2];
+
+			// See if any are set to always use master device list default
+			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = 
+				m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pDevice->m_dwPK_DeviceTemplate,pRow_DeviceParm->FK_DeviceData_get());
+			if( pRow_DeviceTemplate_DeviceData && 
+				pRow_DeviceTemplate_DeviceData->UseDeviceTemplateDefault_get() &&
+				pRow_DeviceTemplate_DeviceData->IK_DeviceData_get()!=pRow_DeviceParm->IK_DeviceData_get() )
+			{
+				pRow_DeviceParm->IK_DeviceData_set( pRow_DeviceTemplate_DeviceData->IK_DeviceData_get() );
+				pRow_DeviceParm->Table_Device_DeviceData_get()->Commit();
+			}
+
             pDevice->m_mapParameters[ pRow_DeviceParm->FK_DeviceData_get()] = pRow_DeviceParm->IK_DeviceData_get();
         }
     }
