@@ -124,7 +124,8 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
     for( size_t iRoom=0;iRoom<vectRow_Room.size( );++iRoom )
     {
         Row_Room *pRow_Room=vectRow_Room[iRoom];
-
+//dothis();
+//slimserver needs to be a media device, even though it has no entarea
         vector<Row_EntertainArea *> vectRow_EntertainArea;
         pRow_Room->EntertainArea_FK_Room_getrows( &vectRow_EntertainArea );
         for( size_t s=0;s<vectRow_EntertainArea.size( );++s )
@@ -1838,7 +1839,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
         else
         {
             MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-            StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+            StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
         }
     }
     else  // We got nothing -- find a disk drive within the entertainment area and send it a reset

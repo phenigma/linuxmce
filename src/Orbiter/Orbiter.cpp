@@ -2498,29 +2498,29 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			{
 				GotoScreen( m_sMainMenu );
 			}
+
+			m_pLocationInfo = m_pLocationInfo_Initial;
+			m_dwPK_Users = m_dwPK_Users_Default;
+
+			DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
+			SendCommand( CMD_Set_Current_User );
+			DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(m_pLocationInfo_Initial->PK_EntertainArea) );
+			SendCommand( CMD_Set_Entertainment_Area );
+			DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pLocationInfo_Initial->PK_Room );
+			SendCommand( CMD_Set_Current_Room );
+			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1" );
+			SendCommand( CMD_Orbiter_Registered );
+
+			CMD_Display_OnOff( "1" );
+
+			m_bInitializeNotFinished=false;
 		}
+
 		if( !m_pScreenHistory_Current )
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "No initial screen" );
 			exit( 1 );
 		}
-
-		m_pLocationInfo = m_pLocationInfo_Initial;
-		m_dwPK_Users = m_dwPK_Users_Default;
-
-		DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
-		SendCommand( CMD_Set_Current_User );
-		DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(m_pLocationInfo_Initial->PK_EntertainArea) );
-		SendCommand( CMD_Set_Entertainment_Area );
-		DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pLocationInfo_Initial->PK_Room );
-		SendCommand( CMD_Set_Current_Room );
-		DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1" );
-		SendCommand( CMD_Orbiter_Registered );
-
-		CMD_Display_OnOff( "1" );
-
-		m_bInitializeNotFinished=false;
-
 		DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
 		for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
 		{
