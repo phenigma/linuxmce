@@ -4,6 +4,8 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoSDLDefs.h"
 #include "../SerializeClass/ShapesColors.h"
+#include "../DCE/Logger.h"
+using namespace DCE;
 
 #include <SDL.h>
 //----------------------------------------------------------------------------------------------------------------

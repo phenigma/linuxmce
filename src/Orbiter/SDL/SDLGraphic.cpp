@@ -43,7 +43,10 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize)
 {
 	if(m_GraphicFormat == GR_OCG)
 	{
-		m_pSDL_Surface = SDL_LoadOCG(pData, iSize);
+		//m_pSDL_Surface = SDL_LoadOCG(pData, iSize);
+
+        g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load ocg files with PocketFrog surfaces in Orbiter SDL. Please check 'Use_OCG' device data for this device. Exiting...");
+        exit(1);
 	}
 	else
 	{
