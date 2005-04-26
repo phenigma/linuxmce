@@ -783,6 +783,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	// What we'd really like to find is something in the 4:3 format.  If we see that,
 	// it takes priority.  The next best thing will be a global pin id (ie 5)
 
+	string target_direction, nomination_direction;
 	for (child_iter=m_mapCommandImpl_Children.begin(); child_iter!=m_mapCommandImpl_Children.end(); ++child_iter)
 	{
 		pChildDeviceCommand = (*child_iter).second;
@@ -806,14 +807,15 @@ void gc100::parse_message_statechange(std::string message, bool change)
 
 			//g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
 
-			if (((target_type == "IR") && (strcasecmp(io_direction.c_str(), "IN") == 0)) ||
-				((target_type == "RELAY") && (strcasecmp(io_direction.c_str(), "OUT") == 0)))
+			if ((target_type == "IR" && io_direction == "IN") ||
+				(target_type == "RELAY" && io_direction == "OUT"))
 			{
 				// See if it matches exactly
 				if (this_pin == module_address)
 				{
 					g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: matches exactly in m:s format");
 					result = child;
+					target_direction = io_direction;
 				}
 
 				// See if it matches the global number
@@ -821,6 +823,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 				{
 					g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: matches global number");
 					nomination = child;
+					nomination_direction = io_direction;
 				}
 			}
 			else
@@ -834,19 +837,27 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: no exact match in m:s format, trying global pin number");
 		result=nomination;
+		target_direction = nomination_direction;
 	}
 
 	if (result!=NULL)
 	{
-		Message *pMessage = new Message(result->m_dwPK_Device, 0, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Sensor_Tripped_CONST,
-			1, EVENTPARAMETER_Tripped_CONST, StringUtils::itos(input_state).c_str());
-		QueueMessageToRouter(pMessage);
-
-		std::string verify_request;
+		if (target_direction == "IN")
+		{
+			Message *pMessage = new Message(result->m_dwPK_Device, 0, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Sensor_Tripped_CONST,
+				1, EVENTPARAMETER_Tripped_CONST, StringUtils::itos(input_state).c_str());
+			QueueMessageToRouter(pMessage);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: target_direction not IN, not sending event");
+		}
 
 		if (change)
 		{
 			// If this was a 'statechange', reissue a state request.  At least once a statechange has been missed.
+			std::string verify_request;
+
 			verify_request="getstate,"+module_address;
 			send_to_gc100(verify_request);
 		}
@@ -1127,9 +1138,14 @@ void gc100::SendIR_Real(string Port, string IRCode)
 	//int timeout_count;
 
 	//ConvertPronto(IRCode.substr(2), gc_code);
-	ConvertPronto(IRCode, gc_code);
-
+	bool ConvertReturn = ConvertPronto(IRCode, gc_code);
 	g_pPlutoLogger->Write(LV_STATUS, "SendIR: Result of Pronto conversion was: %s", gc_code.c_str());
+
+	if (! ConvertReturn)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "SendIR: Pronto conversion failed");
+		return;
+	}
 
 	// Search through all the IR modules and send the code to any IR modules which either matches
 	// the 4:2 style port id or the absolute ('6') port ID or if the port string is blank
