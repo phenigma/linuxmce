@@ -127,7 +127,7 @@ function mediaScenarios($output,$dbADO) {
 					
 					$resMediaTypes=$dbADO->Execute($getMediaTypes,$deviceArray[1]);
 					while($rowMediaTypes=$resMediaTypes->FetchRow()){
-						$out.='<option value="'.$rowMediaTypes['PK_DeviceTemplate_MediaType'].'" '.((@$_POST['newType']==$rowMediaTypes['PK_DeviceTemplate_MediaType'])?'selected':'').'>'.$rowMediaTypes['Description'].'</option>';
+						$out.='<option value="'.$rowMediaTypes['PK_MediaType'].'" '.((@$_POST['newType']==$rowMediaTypes['PK_MediaType'])?'selected':'').'>'.$rowMediaTypes['Description'].'</option>';
 					}
 					$out.='
 						</select>
@@ -149,7 +149,7 @@ function mediaScenarios($output,$dbADO) {
 							FROM DeviceTemplate_MediaType_DesignObj
 							JOIN DesignObj ON FK_DesignObj=PK_DesignObj
 							JOIN DeviceTemplate_MediaType ON FK_DeviceTemplate_MediaType=PK_DeviceTemplate_MediaType
-							WHERE FK_DeviceTemplate_MediaType=?';
+							WHERE FK_MediaType=?';
 						$resRemotes=$dbADO->Execute($queryRemotes,(int)$_POST['newType']);
 						while($rowRemotes=$resRemotes->FetchRow()){
 							$remotesArray[$rowRemotes['FK_DesignObj']]=$rowRemotes['Description'];
@@ -163,7 +163,7 @@ function mediaScenarios($output,$dbADO) {
 								FROM DesignObj
 								INNER JOIN MediaType_DesignObj ON FK_DesignObj=PK_DesignObj
 								INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_MediaType=MediaType_DesignObj.FK_MediaType
-								WHERE PK_DeviceTemplate_MediaType=?';
+								WHERE DeviceTemplate_MediaType.FK_MediaType=?';
 							$resOtherRemotes=$dbADO->Execute($queryOtherRemotes,$_POST['newType']);
 							while($rowOtherRemotes=$resOtherRemotes->FetchRow()){
 								$remotesArray[$rowOtherRemotes['PK_DesignObj']]=$rowOtherRemotes['Description'];
