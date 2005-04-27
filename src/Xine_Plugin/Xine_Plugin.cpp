@@ -208,7 +208,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
+	g_pPlutoLogger->Write( LV_STATUS, "Xine_Plugin::StartMedia() Starting media stream playback." );
 
 	XineMediaStream *pXineMediaStream = NULL;
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StartMedia(): ")) == NULL )
@@ -216,7 +216,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
 	string sFileToPlay = pXineMediaStream->GetFilenameToPlay("Empty file name");
 
-	g_pPlutoLogger->Write( LV_STATUS, "Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
+	g_pPlutoLogger->Write( LV_STATUS, "Xine_Plugin::StartMedia() Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
 
 	string mediaURL;
 	string Response;
@@ -226,7 +226,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 		if( pMediaStream->m_pOH_Orbiter_OSD )
 		{
 			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,10,true);
-			g_pPlutoLogger->Write(LV_CRITICAL,"Displaying one moment message");
+			g_pPlutoLogger->Write(LV_CRITICAL, "Displaying one moment message");
 		}
 
 		if( pXineMediaStream->m_dequeMediaFile.size() )
@@ -290,9 +290,11 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 	}
 
 	g_pPlutoLogger->Write(LV_WARNING, "Is streaming ?: %d", pXineMediaStream->isStreaming() );
+
 	// Establish streaming configuration first if this applies here
-	if ( pXineMediaStream->isStreaming() )
-		StartStreaming(pXineMediaStream);
+	// This is probably needed only if we are doing a direct playback to the target ent area.
+	//	if ( pXineMediaStream->isStreaming() )
+// 	//		StartStreaming(pXineMediaStream);
 
 	g_pPlutoLogger->Write(LV_WARNING, "sending play media from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
@@ -468,7 +470,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 			pMediaDevice = pXineMediaStream->GetPlaybackDeviceForEntArea((*itIntToEntArea).second->m_iPK_EntertainArea);
 		}
 
-		pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router = pMediaDevice ? pMediaDevice->m_pDeviceData_Router : NULL;
+		pXineMediaStream->m_pMediaDevice_Source = pMediaDevice;
 	}
 
 	// Now there are two conditions which can be true.
@@ -476,8 +478,10 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 	// 	Or: 	pXineMediaStream->ShouldUseStreaming() != true && pXineMediaStream->isStreaming() != true
 	// 		We can't have anything else since we have dealt with those situations above.
 
-	// if not streaming then:
-	if ( ! pXineMediaStream->isStreaming() )
+	// if we need to stream then:
+	if ( pXineMediaStream->isStreaming() )
+		StartStreaming(pXineMediaStream);
+	else
 	{
 		// the above code doesn't update the source device when the source device is unique and the stream should not be streamed (not Squeeze box in the target devices set).
 		// so .. we fix this here.
@@ -491,13 +495,13 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 		else if ( mapPlaybackDevices.size() == 0 )
 			return false;
 
-		pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router = (*mapPlaybackDevices.begin()).second->m_pDeviceData_Router;
+		pXineMediaStream->m_pMediaDevice_Source = (*mapPlaybackDevices.begin()).second;
 
-		// start playback like normal do.
-		return StartMedia(pXineMediaStream);
 	}
 
-	return StartStreaming(pXineMediaStream);
+	g_pPlutoLogger->Write(LV_STATUS, "Calling normal startMedia now!");
+	// start playback like normal do.
+	return StartMedia(pXineMediaStream);
 }
 
 MediaDevice *Xine_Plugin::FindStreamerDevice()
