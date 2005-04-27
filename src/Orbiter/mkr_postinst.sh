@@ -21,7 +21,6 @@ else
 { print }
 /Monitor.*Monitor0/ { print("\tDefaultDepth\t24") }
 /Depth.*24/ { print("\t\tModes\t\"800x600\"") }
-/Driver.*i810/ { print("\tOption\t\"NoAccel\"\t\"True\"") }
 ' "$config" >/etc/X11/XF86Config-4.new
 	echo 'Section "ServerFlags"
 	Option "AllowMouseOpenFail" "true"
