@@ -25,8 +25,8 @@ function phoneLines($output,$astADO,$dbADO) {
 	if($action=='form'){
 		
 		$out.=setLeftMenu($dbADO).'
-		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
+		<div align="center" class="err">'.stripslashes(@$_REQUEST['error']).'</div>
+		<div align="center" class="confirm"><B>'.stripslashes(@$_REQUEST['msg']).'</B></div>
 		<h3 align="center">Phone Lines</h3>
 		<form action="index.php" method="POST" name="phoneLines">
 			<input type="hidden" name="section" value="phoneLines">
@@ -52,6 +52,7 @@ function phoneLines($output,$astADO,$dbADO) {
 			$pos++;
 			$out.='
 			<input type="hidden" name="oldName_'.$row['uniqueid'].'" value="'.$row['name'].'">
+			<input type="hidden" name="oldUsername_'.$row['uniqueid'].'" value="'.$row['username'].'">
 			<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#E5E5E5').'">
 				<td><input type="text" name="name_'.$row['uniqueid'].'" value="'.$row['name'].'"></td>
 				<td><select name="type_'.$row['uniqueid'].'">
@@ -76,6 +77,7 @@ function phoneLines($output,$astADO,$dbADO) {
 			$pos++;
 			$out.='
 			<input type="hidden" name="oldName_'.$row['uniqueid'].'" value="'.$row['name'].'">
+			<input type="hidden" name="oldUsername_'.$row['uniqueid'].'" value="'.$row['username'].'">
 			<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#E5E5E5').'">
 				<td><input type="text" name="name_'.$row['uniqueid'].'" value="'.$row['name'].'"></td>
 				<td><select name="type_'.$row['uniqueid'].'">
@@ -189,16 +191,22 @@ function phoneLines($output,$astADO,$dbADO) {
 			$phoneTable=(($type=='SIP')?'sip_buddies':'iax_buddies');
 			$confFile=(($type=='SIP')?'sip.conf':'iax.conf');
 			
-			$resNameExist=$astADO->Execute('SELECT * FROM '.$phoneTable.' WHERE name=?',$name);
+			$resNameExist=$astADO->Execute('SELECT * FROM '.$phoneTable.' WHERE name=? OR username=?',array($name,$username));
 			if($resNameExist->RecordCount()>0){
-				header('Location: index.php?section=phoneLines&error=A phone line called '.$name.' exist.');
+				header('Location: index.php?section=phoneLines&error=A phone line called '.$name.' or the username '.$username.' exists.');
 				exit();
 			}
 			
-			$insertPhoneLine='INSERT INTO '.$phoneTable.' (username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
+			$insertPhoneLine='
+				INSERT INTO '.$phoneTable.' 
+					(username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) 
+				VALUES 
+					(?,?,?,?,?,?,?,?,?,?,?,?)';
 			$insertAstConfig='INSERT INTO ast_config (filename,var_name,var_val,category) VALUES (?,?,?,?)';
+			
 			$astADO->Execute($insertAstConfig,array($confFile, 'register', $username.':'.$secret.'@'.$host,'general'));
 			$astADO->Execute($insertPhoneLine,array($username,$secret,$name,$host,$port,$rtptimeout,'peer','registered-lines',$phoneNumber,$host,'Y',$phoneNumber));
+			$astADO->Execute($insertPhoneLine,array($username,$secret,$username,$host,$port,$rtptimeout,'user','registered-lines',$phoneNumber,$host,'Y',$phoneNumber));
 			
 			if(!isset($defaultLineID)){
 				$astADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_XXXX.',2,'SetVar','DIALLINE='.$name));
@@ -256,32 +264,42 @@ function phoneLines($output,$astADO,$dbADO) {
 				}
 			}
 			
+			$err='';
 			if($_POST['sipLinesArray']!=''){
 				$sipLinesArray=explode(',',$_POST['sipLinesArray']);
 				foreach($sipLinesArray AS $lineID){
 					$username=@$_POST['username_'.$lineID];
 					$name=@$_POST['name_'.$lineID];
 					$oldName=@$_POST['oldName_'.$lineID];
+					$oldUsername=@$_POST['oldUsername_'.$lineID];
 					$host=@$_POST['host_'.$lineID];
 					$port=@$_POST['port_'.$lineID];
 					$rtptimeout=@$_POST['rtptimeout_'.$lineID];
 					$type=@$_POST['type_'.$lineID];
 					
-					if($type=='SIP'){
-						$astADO->Execute('UPDATE sip_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
-						if($name!=$oldName){
-							$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
+					// check if name or username is not already used
+					$resNameExist=$astADO->Execute('SELECT * FROM sip_buddies WHERE uniqueid!=? AND ((name=? OR username=?) AND name!=username)',array($lineID,$name,$username));
+					if($resNameExist->RecordCount()==0){
+						if($type=='SIP'){
+							$astADO->Execute('UPDATE sip_buddies SET username=?, name=?	WHERE name=username AND name=?',array($username,$username,$oldUsername));
+							$astADO->Execute('UPDATE sip_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
+							if($name!=$oldName){
+								$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
+							}
+						}else{
+							if($name==$defaultLineName && $type!=@$defaultLineType){
+								$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=IAX2',@$defaultLineTypeID));
+							}
+							$insertPhoneLine='
+								INSERT INTO iax_buddies 
+									(username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) 
+								SELECT username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser FROM sip_buddies WHERE uniqueid=?';
+							$astADO->Execute($insertPhoneLine,$lineID);
+							deleteLine($lineID,$name,'sip_buddies',$astADO,1);
 						}
 					}else{
-						if($name==$defaultLineName && $type!=@$defaultLineType){
-							$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=IAX2',@$defaultLineTypeID));
-						}
-						$insertPhoneLine='
-							INSERT INTO iax_buddies 
-								(username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) 
-							SELECT username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser FROM sip_buddies WHERE uniqueid=?';
-						$astADO->Execute($insertPhoneLine,$lineID);
-						deleteLine($lineID,$name,'sip_buddies',$astADO,1);
+						// line had invalid name or username
+						$err.='Line '.$oldName.' wasn\'t updated because either line name or username are already used.<br>';
 					}
 				}
 			}
@@ -292,26 +310,35 @@ function phoneLines($output,$astADO,$dbADO) {
 					$username=@$_POST['username_'.$lineID];
 					$name=@$_POST['name_'.$lineID];
 					$oldName=@$_POST['oldName_'.$lineID];
+					$oldUsername=@$_POST['oldUsername_'.$lineID];
 					$host=@$_POST['host_'.$lineID];
 					$port=@$_POST['port_'.$lineID];
 					$rtptimeout=@$_POST['rtptimeout_'.$lineID];
 					$type=@$_POST['type_'.$lineID];
 					
-					if($type=='IAX2'){
-						$astADO->Execute('UPDATE iax_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
-						if($name!=$oldName){
-							$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
+					// check if name or username is not already used
+					$resNameExist=$astADO->Execute('SELECT * FROM iax_buddies WHERE uniqueid!=? AND ((name=? OR username=?) AND name!=username)',array($lineID,$name,$username));
+					if($resNameExist->RecordCount()==0){
+						if($type=='IAX2'){
+							$astADO->Execute('UPDATE iax_buddies SET username=?, name=?	WHERE name=username AND name=?',array($username,$username,$oldUsername));
+							$astADO->Execute('UPDATE iax_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
+							if($name!=$oldName){
+								$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
+							}
+						}else{
+							if($name==$defaultLineName && $type!=@$defaultLineType){
+								$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=SIP',@$defaultLineTypeID));
+							}
+							$insertPhoneLine='
+								INSERT INTO sip_buddies 
+									(username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) 
+								SELECT username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser FROM iax_buddies WHERE uniqueid=?';
+							$astADO->Execute($insertPhoneLine,$lineID);
+							deleteLine($lineID,$name,'iax_buddies',$astADO,1);
 						}
 					}else{
-						if($name==$defaultLineName && $type!=@$defaultLineType){
-							$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=SIP',@$defaultLineTypeID));
-						}
-						$insertPhoneLine='
-							INSERT INTO sip_buddies 
-								(username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) 
-							SELECT username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser FROM iax_buddies WHERE uniqueid=?';
-						$astADO->Execute($insertPhoneLine,$lineID);
-						deleteLine($lineID,$name,'iax_buddies',$astADO,1);
+						// line had invalid name or username
+						$err.='Line '.$oldName.' wasn\'t updated because either line name or username are already used.<br>';
 					}
 				}
 			}			
@@ -323,7 +350,8 @@ function phoneLines($output,$astADO,$dbADO) {
 				exit();
 			}
 			
-			header('Location: index.php?section=phoneLines&msg=The phone lines was updated.');
+			$error=($err!='')?'&error='.$err:'';
+			header('Location: index.php?section=phoneLines&msg=The phone lines was updated.'.$error);
 			exit();
 		}
 		
@@ -364,6 +392,11 @@ function deleteLine($uniqueID,$name,$delTable,$astADO,$dontDelDefault=0)
 		$astADO->Execute('DELETE FROM extensions_table WHERE exten=? AND appdata LIKE ?',array('_9XXX.','DIALLINETYPE=%'));
 	}
 
+	$astADO->Execute('
+		DELETE '.$delTable.' 
+		FROM '.$delTable.' 
+		INNER JOIN '.$delTable.' Alias ON '.$delTable.'.name=Alias.username
+		WHERE Alias.uniqueid=?',$uniqueID);
 	$astADO->Execute('DELETE FROM '.$delTable.' WHERE uniqueid=?',$uniqueID);
 	if($dontDelDefault!=1)
 		$astADO->Execute('DELETE FROM extensions_table WHERE appdata=?','DIALLINE='.$name);
