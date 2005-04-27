@@ -145,9 +145,9 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_pEvent = pEvent;
 	m_bHandleChildren = false;
 	m_bMessageQueueThreadRunning = true;
-	m_listMessageQueueMutex.Init(NULL);
-	m_bGeneric = false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
+	m_listMessageQueueMutex.Init( NULL, &m_listMessageQueueCond );
+	m_bGeneric = false;
 	m_dwMessageInterceptorCounter=0;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
