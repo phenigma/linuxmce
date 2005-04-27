@@ -287,6 +287,34 @@ switch ($section) {
 	    include_once('operations/how_to_get.php');
 	    how_to_get($output,$conn);
     break;
+	case 'mf_psa':
+		$output = new Template();
+		$output->setConn($conn);
+		$output->setTemplateFileType('home');
+	    include_once('operations/manufacturer_price.php');
+	    manufacturer($output,$conn);
+    break;    
+	case 'de_hjc':
+		$output = new Template();
+		$output->setConn($conn);
+		$output->setTemplateFileType('home');
+	    include_once('operations/dealer_price.php');
+	    dealer($output,$conn);
+    break; 
+	case 'mf_ori':
+		$output = new Template();
+		$output->setConn($conn);
+		$output->setTemplateFileType('home');
+	    include_once('operations/manufacturer2.php');
+	    manufacturer($output,$conn);
+    break;    
+	case 'de_akj':
+		$output = new Template();
+		$output->setConn($conn);
+		$output->setTemplateFileType('home');
+	    include_once('operations/dealer2.php');
+	    dealer($output,$conn);
+    break; 
 	case 'manufacturer':
 		$output = new Template();
 		$output->setConn($conn);

@@ -20,14 +20,12 @@ function contact($output,$conn){
 		</tr>	
 		<tr>
 			<td><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /></td>
-			<td><span class="title">Corporate office:</span></td>
+			<td><span class="title">Mail:</span></td>
 		</tr>
 		<tr>
 			<td colspan="2">Pluto<br>
-                  2699 Stirling Road, Building C<br>
-                  Fort Lauderdale, FL 33312<br>
-                  Phone: (877) pluto-4-u<br>
-                  Office house (EST):</span> Mon-Fri 8:30am &ndash; 9:00pm Sat: 10:00am &ndash; 3:00pm
+                  20 Island Avenue, #1112<br>
+                  Miami Beach, FL 33139<br>
 			</td>
 		</tr>	
 		<tr>

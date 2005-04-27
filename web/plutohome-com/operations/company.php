@@ -14,15 +14,15 @@ $out.=<<<TEXT
   </tr>
   <tr>
     <td class="insidetable2">
-<p>Corporate office:<br>
+<p>Contact:<br>
                   <span class="title">Pluto<br>
-                  2699 Stirling Road, Building C<br>
-                  Fort Lauderdale, FL 33312<br>
+                  20 Island Ave., #1112<br>
+				  Miami Beach, FL 33139<br>
                   Phone:</span> <B>(877) pluto-4-u</B><br>
-                  <span class="title">Office house (EST):</span> <B>Mon-Fri 8:30am &ndash; 9:00pm Sat: 10:00am &ndash; 3:00pm</B></p>
+				  </p>
                   
-      <p> Pluto is a privately held company, founded in 2002 in Fort Lauderdale, Florida with the singular mission of offering a product that was more of a lifestyle than a technology. Pluto is a destination that allows our customers to focus on the important things in life, knowing that the myriads of devices and electronic gadgets we have come to rely on work together seamlessly, intuitively.</p>
-      <p>A product this unique could only be developed by a team equally unique. Pluto recruited the best engineers around for its development team. But a product as ambitious as Pluto demanded even more. So Pluto heartily embraced the open source community and found the premier engineers from a variety of open source projects from all over the world. They too were brought to Florida to work side-by-side with our in-house teams, bringing with them years of experience and high-quality projects that were incorporated into the Pluto product.</p></td>
+      <p>Pluto is privately held.  Please use the contact form if you are interested in working with us.
+	  </p></td>
   </tr>
 </table>
 	

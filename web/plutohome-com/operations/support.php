@@ -20,22 +20,6 @@ function support($output,$conn){
 		</tr>	
 		<tr>
 			<td><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /></td>
-			<td><span class="title">Corporate office:</span></td>
-		</tr>
-		<tr>
-			<td colspan="2">Pluto<br>
-                  2699 Stirling Road, Building C<br>
-                  Fort Lauderdale, FL 33312<br>
-                  Phone: (877) pluto-4-u<br>
-                  Office Hours (EST):</span> Mon-Fri 8:30am &ndash; 9:00pm Sat: 10:00am &ndash; 3:00pm
-			</td>
-		</tr>	
-		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>	
-		<tr>
-			<td><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /></td>
 			<td><span class="title">Phone:</span> (877)pluto-4-u</td>
 		</tr>
 		<tr>
