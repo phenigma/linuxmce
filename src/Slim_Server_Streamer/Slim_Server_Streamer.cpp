@@ -20,7 +20,7 @@ using namespace DCE;
 Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Slim_Server_Streamer_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-    , m_mutexDataStructureAccess("internal-data-structure-mutex")
+    , m_dataStructureAccessMutex("internal-data-structure-mutex"), m_stateChangedMutex("state-changed-mutex")
 {
     // Usually the slim server and the application server that is going to spawn it are going to be on the same machine.
     // This is good because you can also restrict the control of the server only to connections from that machine.
@@ -32,10 +32,13 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
     pthread_mutexattr_t      mutexAttr;
     pthread_mutexattr_init( &mutexAttr );
     pthread_mutexattr_settype( &mutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
-    m_mutexDataStructureAccess.Init( &mutexAttr );
 
-	pthread_mutex_init(&m_stateChangedMutex, NULL);
-	pthread_cond_init(&m_stateChangedCondition, NULL);
+	m_dataStructureAccessMutex.Init( &mutexAttr );
+
+	pthread_cond_init( &m_stateChangedCondition, NULL );
+	g_pPlutoLogger->Write(LV_STATUS, "Condition as passed to the mutex: %p", &m_stateChangedCondition );
+	m_stateChangedMutex.Init( &mutexAttr, &m_stateChangedCondition );
+	g_pPlutoLogger->Write(LV_STATUS, "Condition as passed to the mutex: %p", m_stateChangedMutex.m_pthread_cond_t );
 
     pthread_create(&m_threadPlaybackCompletedChecker, NULL, checkForPlaybackCompleted, this);
 	m_bShouldQuit = false;
@@ -111,7 +114,7 @@ void Slim_Server_Streamer::ReceivedUnknownCommand(string &sCMD_Result,Message *p
 void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
-    PLUTO_SAFETY_LOCK( pm, m_mutexDataStructureAccess);
+    PLUTO_SAFETY_LOCK( pm, m_dataStructureAccessMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Processing Start streaming command for target devices: %s", sStreamingTargets.c_str());
 
     vector<string> vectPlayersIds;
@@ -153,7 +156,7 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
     }
 
 	// add this stream to the list of playing streams.
-    m_mapStreamsToPlayers[iStreamID] = make_pair(STATE_PLAY, vectDevices);
+    m_mapStreamsToPlayers[iStreamID] = make_pair(STATE_PAUSE, vectDevices);
 	pthread_cond_signal(&m_stateChangedCondition);
 }
 
@@ -169,8 +172,8 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
 void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
 //<-dceag-c262-e->
 {
-    PLUTO_SAFETY_LOCK( pm, m_mutexDataStructureAccess);
-    g_pPlutoLogger->Write(LV_STATUS, "Processing Stop Streaming command for target devices: %s", sStreamingTargets.c_str());
+	PLUTO_SAFETY_LOCK( pm, m_dataStructureAccessMutex);
+	g_pPlutoLogger->Write(LV_STATUS, "Processing Stop Streaming command for target devices: %s", sStreamingTargets.c_str());
 
 	map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itPlayers;
 
@@ -210,6 +213,7 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
 
 		// break this players syncronization.
         SendReceiveCommand(currentPlayerAddress + " sync -");
+		SendReceiveCommand(currentPlayerAddress + " playlist clear");
 		SendReceiveCommand(currentPlayerAddress + " stop");
 
 		itPlaybackDevices = vectDevices.begin();
@@ -223,6 +227,9 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
 
 		itPlayerIds++;
 	}
+
+	if ( vectDevices.size() == 0 )
+		m_mapStreamsToPlayers.erase(iStreamID);
 }
 
 bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
@@ -370,39 +377,37 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
     {
 		string macAddress, strResult;
 
-		pthread_mutex_lock(&pStreamer->m_stateChangedMutex);
+		PLUTO_SAFETY_LOCK( lock, pStreamer->m_stateChangedMutex );
+		g_pPlutoLogger->Write(LV_STATUS, "The map size: %d should quit: %d", pStreamer->m_mapStreamsToPlayers.size(), pStreamer->m_bShouldQuit );
 		while ( pStreamer->m_mapStreamsToPlayers.size() == 0 || pStreamer->m_bShouldQuit )
-			pthread_cond_wait(&pStreamer->m_stateChangedCondition, &pStreamer->m_stateChangedMutex);
-		pthread_mutex_unlock(&pStreamer->m_stateChangedMutex);
+			lock.CondWait();
+		lock.Release();
 
 		g_pPlutoLogger->Write(LV_STATUS, "Looping");
 
 		if ( pStreamer->m_bShouldQuit )
 			return NULL;
 
-
-        PLUTO_SAFETY_LOCK( pm, pStreamer->m_mutexDataStructureAccess);
+        PLUTO_SAFETY_LOCK( pm, pStreamer->m_dataStructureAccessMutex);
 
         map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itStreamsToPlayers;
         itStreamsToPlayers = pStreamer->m_mapStreamsToPlayers.begin();
         while ( itStreamsToPlayers != pStreamer->m_mapStreamsToPlayers.end() )
 		{
-			if  ( (*itStreamsToPlayers).second.first == STATE_PLAY )
-        	{
-            	DeviceData_Base *pPlayerDeviceData = (*itStreamsToPlayers).second.second[0];
+			DeviceData_Base *pPlayerDeviceData = (*itStreamsToPlayers).second.second[0];
 
-				macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
-				strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str());
+			macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
+			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str());
 
-				if (strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" )
-				{
-					pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
-					pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first);
-				}
-				else if ( strResult == macAddress + " mode pause" )
-				{
-					pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_PAUSE);
-				}
+			if ( itStreamsToPlayers->second.first == STATE_PLAY && ( strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F") )
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Sending playback completed event for stream %d", itStreamsToPlayers->first);
+				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
+				pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first);
+			}
+			else if ( strResult == macAddress + " mode pause" )
+			{
+				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_PAUSE);
 			}
             itStreamsToPlayers++;
         }
@@ -417,7 +422,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
 string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
 {
-	PLUTO_SAFETY_LOCK(dataMutex, m_mutexDataStructureAccess );
+	PLUTO_SAFETY_LOCK( dataMutex, m_dataStructureAccessMutex );
 
     if ( m_mapStreamsToPlayers.find(iStreamID) != m_mapStreamsToPlayers.end() )
     {
@@ -431,7 +436,7 @@ string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
 
 StreamStateType Slim_Server_Streamer::GetStateForStream(int iStreamID)
 {
-	PLUTO_SAFETY_LOCK(dataMutex, m_mutexDataStructureAccess);
+	PLUTO_SAFETY_LOCK(dataMutex, m_dataStructureAccessMutex);
 
 	if ( m_mapStreamsToPlayers.find(iStreamID) == m_mapStreamsToPlayers.end() )
 	{
@@ -444,7 +449,7 @@ StreamStateType Slim_Server_Streamer::GetStateForStream(int iStreamID)
 
 void Slim_Server_Streamer::SetStateForStream(int iStreamID, StreamStateType newState)
 {
-	PLUTO_SAFETY_LOCK(dataMutex, m_mutexDataStructureAccess);
+	PLUTO_SAFETY_LOCK(dataMutex, m_dataStructureAccessMutex);
 
     if ( m_mapStreamsToPlayers.find(iStreamID) == m_mapStreamsToPlayers.end() )
 	{
@@ -496,13 +501,15 @@ void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int
 void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
+	PLUTO_SAFETY_LOCK( pm, m_dataStructureAccessMutex);
+
 	string sControlledPlayerMac;
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
 		return;
 
-	/** @todo: should i remove it from here and desincronize the devices */
+	m_mapStreamsToPlayers.erase(iStreamID);
+	SendReceiveCommand(sControlledPlayerMac + " playlist clear");
 	SendReceiveCommand(sControlledPlayerMac + " stop");
-	SetStateForStream(iStreamID, STATE_STOP);
 }
 
 //<-dceag-c39-b->
@@ -515,7 +522,7 @@ void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,stri
 void Slim_Server_Streamer::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
-    PLUTO_SAFETY_LOCK( pm, m_mutexDataStructureAccess);
+    PLUTO_SAFETY_LOCK( pm, m_dataStructureAccessMutex);
 
 	string sControlledPlayerMac;
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )

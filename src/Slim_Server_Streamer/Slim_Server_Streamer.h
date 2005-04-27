@@ -29,9 +29,10 @@ namespace DCE
         bool					m_bShouldQuit;
 
 		pthread_t               m_threadPlaybackCompletedChecker;
-        pluto_pthread_mutex_t   m_mutexDataStructureAccess;
 
-		pthread_mutex_t			m_stateChangedMutex;
+        pluto_pthread_mutex_t   m_dataStructureAccessMutex;
+		pluto_pthread_mutex_t	m_stateChangedMutex;
+
 		pthread_cond_t			m_stateChangedCondition;
 
         // map<int, list<string> > m_mapStreamsToSqueezeBoxesPlayers;
