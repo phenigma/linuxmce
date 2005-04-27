@@ -83,3 +83,4 @@ fi
 ulimit -c unlimited
 ulimit -n 4096
 shopt -s nullglob
+export HOME=/root
