@@ -781,7 +781,7 @@ int OrbiterGenerator::DoIt()
 		}
 	}
 
-	if( bNewOrbiter && !m_bIsMobilePhone )
+	if( bNewOrbiter && m_pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
 	{
 		cout << "First time generating this orbiter" << endl;
 		Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuFirstTime_CONST);
@@ -790,7 +790,7 @@ int OrbiterGenerator::DoIt()
 		else
 		{
 			alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-			m_sMainMenu=StringUtils::itos(DESIGNOBJ_mnuFirstTime_CONST);
+			m_sInitialScreen=StringUtils::itos(DESIGNOBJ_mnuFirstTime_CONST);
 		}
 	}
 

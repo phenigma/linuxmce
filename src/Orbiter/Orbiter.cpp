@@ -2495,7 +2495,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			}
 			else
 			{
-				GotoScreen( m_sMainMenu );
+				if( m_sInitialScreen.size() )
+					GotoScreen( m_sInitialScreen );
+				else
+					GotoScreen( m_sMainMenu );
 			}
 
 			m_pLocationInfo = m_pLocationInfo_Initial;
