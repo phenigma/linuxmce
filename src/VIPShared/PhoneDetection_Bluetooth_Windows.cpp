@@ -45,18 +45,17 @@ bool PhoneDetection_Bluetooth_Windows::ScanningLoop()
 		return true;  // This loop will get called again
 	}
 	g_pPlutoLogger->Write(LV_STATUS,"Inquiry started");	
-	pthread_mutex_lock(&m_InquiryMutex.mutex);
+	PLUTO_SAFETY_LOCK(im,m_InquiryMutex);
 
 	timespec abstime;
 	abstime.tv_sec = (long) (time(NULL) + INQUIRY_TIMEDOUT);
 	abstime.tv_nsec = 0;
-	if(ETIMEDOUT == pthread_cond_timedwait(&m_InquiryCond,&m_InquiryMutex.mutex, &abstime))
+	if(ETIMEDOUT == im.TimedCondWait(abstime))
 	{
 		StopInquiry();
 		g_pPlutoLogger->Write(LV_STATUS,"Inquiry stopped - timed out %d seconds", INQUIRY_TIMEDOUT);
 	}
 
-	pthread_mutex_unlock(&m_InquiryMutex.mutex);
 	return true;
 } 
 

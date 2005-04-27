@@ -424,6 +424,63 @@ void PlutoLock::Relock()
 }
 
 
+int PlutoLock::CondWait()
+{
+	if( !m_pMyLock->m_pthread_cond_t )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL, "failure cond wait -- no condition (%p): %s:%d %s",&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
+		return EINVAL;
+	}
+
+#ifdef THREAD_LOG
+	if( !m_bLogErrorsOnly && g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_LOCKING, "start cond wait (%p) %s", &m_pMyLock->mutex,m_sMessage.c_str());
+#endif
+	m_bReleased=true;
+	int iResult = pthread_cond_wait(m_pMyLock->m_pthread_cond_t,&m_pMyLock->mutex); // This will unlock the mutex and lock it on awakening
+	m_bReleased=false;
+
+#ifdef THREAD_LOG
+	if( !m_bLogErrorsOnly && g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_LOCKING, "end cond wait (%p) %s", &m_pMyLock->mutex,m_sMessage.c_str());
+#endif
+	return iResult;
+}
+
+int PlutoLock::TimedCondWait(timespec &ts)
+{
+	if( !m_pMyLock->m_pthread_cond_t )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL, "failure cond timed wait -- no condition (%p): %s:%d %s",&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
+		return EINVAL;
+	}
+
+#ifdef THREAD_LOG
+	if( !m_bLogErrorsOnly && g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_LOCKING, "start cond timed wait (%p) %s", &m_pMyLock->mutex,m_sMessage.c_str());
+#endif
+	m_bReleased=true;
+	int iResult = pthread_cond_timedwait(m_pMyLock->m_pthread_cond_t,&m_pMyLock->mutex,&ts); // This will unlock the mutex and lock it on awakening
+	m_bReleased=false;
+
+#ifdef THREAD_LOG
+	if( !m_bLogErrorsOnly && g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_LOCKING, "end cond timed wait (%p) %s", &m_pMyLock->mutex,m_sMessage.c_str());
+#endif
+
+	return iResult;
+}
+
+int PlutoLock::TimedCondWait(int Seconds,int Nanoseconds)
+{
+	timespec ts;
+	ts.tv_sec=Seconds;
+	ts.tv_nsec=Nanoseconds;
+	return TimedCondWait(ts);
+}
+
 void PlutoLock::DoLock()
 {
 	m_bReleased=false;

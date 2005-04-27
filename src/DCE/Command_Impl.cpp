@@ -116,9 +116,9 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_bHandleChildren = false;
 	m_bMessageQueueThreadRunning = true;
 	m_pParent = NULL;
-	m_listMessageQueueMutex.Init( NULL );
-	m_bGeneric = false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
+	m_listMessageQueueMutex.Init( NULL, &m_listMessageQueueCond );
+	m_bGeneric = false;
 	m_dwMessageInterceptorCounter=0;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
@@ -523,17 +523,14 @@ void Command_Impl::QueueMessageToRouter( Message *pMessage )
 
 void Command_Impl::ProcessMessageQueue()
 {
-	pthread_mutex_lock( &m_listMessageQueueMutex.mutex );
+	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
 	while( !m_bQuit )
 	{
 		while( m_listMessageQueue.size() == 0 )
 		{
-			pthread_cond_wait( &m_listMessageQueueCond, &m_listMessageQueueMutex.mutex );
+			mq.CondWait();
 			if( m_bQuit )
-			{
-				pthread_mutex_unlock( &m_listMessageQueueMutex.mutex );
 				return;
-			}
 		}
 
 		list<Message*> copyMessageQueue;
@@ -547,13 +544,13 @@ void Command_Impl::ProcessMessageQueue()
 		}
 
 		m_listMessageQueue.clear();
-		pthread_mutex_unlock( &m_listMessageQueueMutex.mutex );
+		mq.Release();
 		for( itMessageQueue = copyMessageQueue.begin(); itMessageQueue != copyMessageQueue.end(); ++itMessageQueue )
 		{
 			Message *pMessage = *itMessageQueue;
 			m_pEvent->SendMessage( *itMessageQueue );
 		}
-		pthread_mutex_lock( &m_listMessageQueueMutex.mutex );
+		mq.Relock();
 	}
 }
 

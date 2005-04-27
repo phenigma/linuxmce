@@ -69,15 +69,18 @@ public:
 	pthread_t m_thread;
 	string m_sName;
 	int m_NumLocks;  // For tracking recursive
+	pthread_cond_t *m_pthread_cond_t; // non null if there's a condition associated with this
 	pluto_pthread_mutex_t(string Name) 
 		: m_bInitialized(false), m_Line(0), m_LockNum(0), m_sFileName("NONE"), m_thread(pthread_self()), m_sName(Name) 
 	{
 		m_NumLocks=0;
+		m_pthread_cond_t=NULL;
 	}
 	virtual ~pluto_pthread_mutex_t() { if( m_bInitialized ) pthread_mutex_destroy(&mutex); }
-	void Init(pthread_mutexattr_t *type) 
+	void Init(pthread_mutexattr_t *type,pthread_cond_t *pthread_cond_t=NULL)
 	{ 
-		pthread_mutex_init(&mutex, type); m_bInitialized=true; 
+		pthread_mutex_init(&mutex, type); m_bInitialized=true;
+		m_pthread_cond_t=pthread_cond_t;
 	}
 };
 
@@ -102,6 +105,9 @@ public:
 	void Relock();
 	void DoLock();
 	void Release();
+	int CondWait();
+	int TimedCondWait(timespec &ts);
+	int TimedCondWait(int Seconds,int Nanoseconds);
 	static void DumpOutstandingLocks();
 	static void CheckLocks();
 	static void ConfirmNoLocks(string File,int Line);

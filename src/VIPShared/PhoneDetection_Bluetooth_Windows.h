@@ -16,7 +16,7 @@ public:
 	PhoneDetection_Bluetooth_Windows() : m_InquiryMutex("inq mutex") { 
 		m_bWaitingForInquiry=false; 
 		pthread_cond_init(&m_InquiryCond, NULL);
-		m_InquiryMutex.Init(NULL);
+		m_InquiryMutex.Init(NULL,&m_InquiryCond);
 	}
 
 	virtual ~PhoneDetection_Bluetooth_Windows();

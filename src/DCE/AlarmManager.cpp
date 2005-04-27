@@ -36,8 +36,8 @@ void* AlarmThread(void* param)
 AlarmManager::AlarmManager() : m_Mutex("alarm")
 {
 	m_LastID = 0;
-	m_Mutex.Init(NULL);
 	pthread_cond_init(&m_Cond, NULL);
+	m_Mutex.Init(NULL,&m_Cond);
 }
 
 AlarmManager::~AlarmManager()
@@ -109,7 +109,7 @@ void AlarmManager::Run()
 		//If we have alarms, wait until they expire, or just wait until we actually have some
 		if(entry == NULL)
 		{
-			pthread_cond_wait(&m_Cond, &m_Mutex.mutex);
+			mm.CondWait();
 		}
 		else
 		{
@@ -119,7 +119,7 @@ void AlarmManager::Run()
 			timeout.tv_sec = (long)entry->when;
 			timeout.tv_nsec = 0;
 			int ret;
-			ret = pthread_cond_timedwait(&m_Cond, &m_Mutex.mutex, &timeout);
+			ret = mm.TimedCondWait(timeout);
 			if(ret == ETIMEDOUT)
 			{	// Time to actually execute the event
 				int id = entry->id;

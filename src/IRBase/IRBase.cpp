@@ -41,8 +41,8 @@ void IRBase::Init(Command_Impl * pCommand_Impl)
 {
 	m_CurrentChannelSequenceNumber = 1;
 	m_pCommand_Impl = pCommand_Impl;
-	pthread_mutex_init(&m_IRMutex.mutex, 0);
 	pthread_cond_init(&m_IRCond, NULL);
+	m_IRMutex.Init(NULL,&m_IRCond);
 	ParseDevices();
 
 	if (pthread_create(&m_MessageQueueThread, NULL, StartMessageQueueThread, (void *) this))
@@ -430,12 +430,10 @@ bool IRBase::ProcessQueue()
 {
 	bool retval = false;
 
-	pthread_mutex_lock(&m_IRMutex.mutex);
+	PLUTO_SAFETY_LOCK(im,m_IRMutex);
 
 	while (m_IRQueue.size() == 0)
-	{
-		pthread_cond_wait(&m_IRCond, &m_IRMutex.mutex);
-	}
+		im.CondWait();
 
 	// We are holding the mutex
 
@@ -514,7 +512,6 @@ bool IRBase::ProcessQueue()
 
 	m_IRQueue = NewIRQueue;
 
-	pthread_mutex_unlock(&m_IRMutex.mutex);
 	return retval;
 }
 

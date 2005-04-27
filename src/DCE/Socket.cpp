@@ -89,7 +89,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 	while(true)
 	{
 		ts_NextPing.tv_sec=time(NULL)+5;
-		pthread_cond_timedwait(&pSocket->m_PingLoopCond, &pSocket->m_SocketMutex.mutex, &ts_NextPing);
+		sSM.TimedCondWait(ts_NextPing);
 
 		if( !pSocket->m_bUsePingToKeepAlive || pSocket->m_Socket == INVALID_SOCKET )
 		{
@@ -172,7 +172,8 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 	m_iReceiveTimeout = 0;
 	pthread_mutexattr_init( &m_SocketMutexAttr );
 	pthread_mutexattr_settype( &m_SocketMutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
-	m_SocketMutex.Init( &m_SocketMutexAttr );
+	pthread_cond_init( &m_PingLoopCond, NULL );
+	m_SocketMutex.Init( &m_SocketMutexAttr,&m_PingLoopCond );
 #ifdef LL_DEBUG_FILE
 
 	if( m_LL_DEBUG_Mutex == NULL )
@@ -1043,7 +1044,6 @@ void Socket::StartPingLoop()
 {
 	m_bUsePingToKeepAlive=true;
 
-	pthread_cond_init( &m_PingLoopCond, NULL );
 	if(pthread_create( &m_pthread_pingloop_id, NULL, PingLoop, (void*)this) )
 	{
 		m_bUsePingToKeepAlive=false;

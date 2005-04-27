@@ -55,7 +55,7 @@ BDCommandProcessor::BDCommandProcessor( string sMacAddressPhone )
 
 	m_CommandMutex.Init( NULL );
 	pthread_cond_init( &m_PollingCond, NULL );
-	m_PollingMutex.Init( NULL );
+	m_PollingMutex.Init( NULL, &m_PollingCond );
 
 	printf( "end of btcp const: %p\n\n", g_pPlutoLogger );
 }

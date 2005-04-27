@@ -45,7 +45,7 @@ void VIPEmulatorSocket::Run()
 {
 	BDCommandProcessor_Windows_Socket *pProcessor = new BDCommandProcessor_Windows_Socket("",this);
 
-	pthread_mutex_lock(&pProcessor->m_PollingMutex.mutex);
+	PLUTO_SAFETY_LOCK(pm,pProcessor->m_PollingMutex);
 	while(true)
 	{
 		if( pProcessor->MYSTL_SIZEOF_LIST(m_listCommands)==0 && pProcessor->m_pCommand_Sent==NULL )
@@ -59,7 +59,7 @@ int c=ETIMEDOUT;
 	g_pPlutoConfig->m_iPollingInterval = 2000000000;
 			timeout.tv_nsec = 0; g_pPlutoConfig->m_iPollingInterval;
 	//			pthread_cond_wait(&pProcessor->m_PollingCond,&pProcessor->m_PollingMutex.mutex);
-			int ret = pthread_cond_timedwait(&pProcessor->m_PollingCond,&pProcessor->m_PollingMutex.mutex,&timeout);
+			int ret = pm.TimedCondWait(timeout);
 Sleep(500); // This is screwed up, it doesn't matter if it's seconds, ms, nanoseconds, the cond_timedwait always returns immediately
 int k=2;
 		}

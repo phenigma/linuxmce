@@ -21,7 +21,6 @@ BDCommandProcessor_Windows_Bluetooth::BDCommandProcessor_Windows_Bluetooth(strin
 	m_pReceiveBuffer=NULL;
 	m_iSizeReceiveBuffer=0;
 	m_ReceiveBufferMutex.Init(NULL);
-	pthread_cond_init(&m_PollingCond, NULL);
 
 	m_ptr_rfcm = new CRfCommTransport( this );
 
@@ -120,21 +119,17 @@ rb.Relock();
 //		pthread_cond_wait(&m_PollingCond,&m_PollingMutex.mutex);
 	}
 */
-		pthread_mutex_lock(&m_PollingMutex.mutex);
+		PLUTO_SAFETY_LOCK(pm,m_PollingMutex);
 
 		timespec abstime;
 		abstime.tv_sec = time(NULL) + RECV_TIMEDOUT;
 		abstime.tv_nsec = 0;
-		if(ETIMEDOUT == pthread_cond_timedwait(&m_PollingCond,&m_PollingMutex.mutex, &abstime))
+		if(ETIMEDOUT == pm.TimedCondWait(abstime))
 		{
 			m_bDead = true;
 			g_pPlutoLogger->Write(LV_WARNING,"Receive data timed_out! The connection is down.");
-			pthread_mutex_unlock(&m_PollingMutex.mutex);
-
 			return NULL;
 		}
-
-		pthread_mutex_unlock(&m_PollingMutex.mutex);
 	}
 
 	PLUTO_SAFETY_LOCK(rb,m_ReceiveBufferMutex);

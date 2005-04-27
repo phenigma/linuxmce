@@ -20,7 +20,6 @@ protected:
 
 public:
 	pthread_t m_BDSockThreadID;
-	pthread_cond_t m_PollingCond;
 
 	BDCommandProcessor_Windows_Bluetooth(string sMacAddressPhone,string sMacAddressDongle);
 	~BDCommandProcessor_Windows_Bluetooth();

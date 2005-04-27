@@ -230,7 +230,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 		m_pCacheImageManager = new CacheImageManager(m_sCacheFolder, m_iCacheSize);
 
 	pthread_cond_init(&m_MaintThreadCond, NULL);
-	m_MaintThreadMutex.Init(NULL);
+	m_MaintThreadMutex.Init(NULL,&m_MaintThreadCond);
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
 }
 
@@ -4209,7 +4209,7 @@ void *MaintThread(void *p)
 		{
 			//nothing to process. let's sleep...
 g_pPlutoLogger->Write(LV_STATUS,"MaintThread - before cond wait %d",(int) bMaintThreadIsRunning);
-			pthread_cond_wait(&pOrbiter->m_MaintThreadCond,&pOrbiter->m_MaintThreadMutex.mutex); // This will unlock the mutex and lock it on awakening
+			cm.CondWait(); // This will unlock the mutex and lock it on awakening
 g_pPlutoLogger->Write(LV_STATUS,"MaintThread - after cond wait %d",(int) bMaintThreadIsRunning);
 		}
 		else
@@ -4255,7 +4255,7 @@ g_pPlutoLogger->Write(LV_STATUS,"MaintThread - called member fn %d",(int) bMaint
 			else if( ts_NextCallBack.tv_sec!=0 ) // Should be the case
 			{
 g_pPlutoLogger->Write(LV_STATUS,"MaintThread - before timed wait %d",(int) bMaintThreadIsRunning);
-				pthread_cond_timedwait(&pOrbiter->m_MaintThreadCond, &pOrbiter->m_MaintThreadMutex.mutex, &ts_NextCallBack);
+				cm.TimedCondWait(ts_NextCallBack);
 g_pPlutoLogger->Write(LV_STATUS,"MaintThread - after timed wait %d",(int) bMaintThreadIsRunning);
 			}
 		}
