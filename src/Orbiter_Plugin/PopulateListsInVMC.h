@@ -50,7 +50,7 @@ private:
 
     bool PopulateStandardScenariosList();
     bool PopulateCamerasList();
-    bool AddResolutionsForSetHouseMode();
+    bool PopulateSpeechDevicesList();
 };
 //------------------------------------------------------------------------------------------------------
 #endif //__POPULATE_LIST_IN_VMC_H__

@@ -15,8 +15,7 @@
 #define liStandardScenarios 1
 #define liSetHouseMode 1
 #define liViewCameras 1
-//------------------------------------------------------------------------------------------------------
-static const string csRelativeURL = "/check.php?";
+#define liSpeechDevices 2
 //------------------------------------------------------------------------------------------------------
 PopulateListsInVMC::PopulateListsInVMC(string sSourceTemplateVMC, string sDestinationVMC, long dwPKDevice,
 						Database_pluto_main *pDatabase_pluto_main, long dwInstallation)
@@ -58,9 +57,8 @@ bool PopulateListsInVMC::DoIt()
 
     //do it!
     PopulateStandardScenariosList();
-
     PopulateCamerasList();
-    //AddResolutionsForSetHouseMode(m_pMenuCollection, m_pDatabase_pluto_main);
+    PopulateSpeechDevicesList();
 
     return true;
 }
@@ -115,7 +113,7 @@ VIPMenuElement_List *PopulateListsInVMC::GetListElement(MenuIds MenuID, long dwL
     {
         g_pPlutoLogger->Write(LV_CRITICAL, 
             "Couldn't get the object with id %d from '%s' menu from vmc template file.", 
-            csDescription.c_str(), dwListId);
+            dwListId, csDescription.c_str());
         return NULL;
     }
 
@@ -125,7 +123,7 @@ VIPMenuElement_List *PopulateListsInVMC::GetListElement(MenuIds MenuID, long dwL
     else
     {
         g_pPlutoLogger->Write(LV_CRITICAL, 
-            "The object with id %d '%s' menu is not a list.", csDescription.c_str(), liStandardScenarios);
+            "The object with id %d '%s' menu is not a list.", liStandardScenarios, csDescription.c_str());
         return NULL;
     }
 
@@ -170,7 +168,7 @@ bool PopulateListsInVMC::PopulateStandardScenariosList()
 
 		pList->m_sText += sDescription + "\r\n";
 		VIPMenuResolution *pMenuResolution = new VIPMenuResolution("",0,"","", 0,0,0,0,0,"");
-		pMenuResolution->m_sProgramName = csRelativeURL + "cgid=" + sID;
+		pMenuResolution->m_sProgramName = "cgid=" + sID;
 		pMenuResolution->m_sTerminatingKey += char(iKeyCode);
 
         g_pPlutoLogger->Write(LV_STATUS, 
@@ -251,7 +249,7 @@ bool PopulateListsInVMC::PopulateCamerasList()
 
         pList->m_sText += sDescription + "\r\n";
         VIPMenuResolution *pMenuResolution = new VIPMenuResolution("",0,"","", 0,0,0,0,0,"");
-        pMenuResolution->m_sProgramName = csRelativeURL + "cameraid=" + sID;
+        pMenuResolution->m_sProgramName = "cameraid=" + sID;
         pMenuResolution->m_sTerminatingKey += char(iKeyCode);
 
         g_pPlutoLogger->Write(LV_STATUS, 
@@ -265,31 +263,55 @@ bool PopulateListsInVMC::PopulateCamerasList()
     return true;
 }
 //------------------------------------------------------------------------------------------------------
-bool PopulateListsInVMC::AddResolutionsForSetHouseMode()
+bool PopulateListsInVMC::PopulateSpeechDevicesList()
 {
-	//VIPMenu *pStandardScenariosMenu = m_pMenuCollection->m_mapMenus_Find(miChooseMode);
-	//VIPMenuElement *pStandardScenariosElement = pStandardScenariosMenu->m_mapMenuElements_Find(liSetHouseMode);
+    const string csMenuDescription = "Speak in the house";
 
-	//pDatabase_pluto_main
+    VIPMenu *pMenu = GetMenu(miSpeakInHouse, csMenuDescription);
 
-    /*
-	VIPMenuResolution *pMenuResolution = new VIPMenuResolution("",0,"","", 0,0,0,0,0,"");
-	pMenuResolution->m_sProgramName = csRelativeURL + "code=1";
-	pMenuResolution->m_sTerminatingKey += char(BUTTON_1_CONST);
-	pStandardScenariosMenu->AddResolution(pMenuResolution);
-    */
+    if(!pMenu)
+        return false;
 
-/*
-	int iIndex = 0;
+    VIPMenuElement_List *pList = GetListElement(miSpeakInHouse, liSpeechDevices, csMenuDescription);
 
-	string sID = StringUtils::ltos((*it)->PK_CommandGroup_get());
-		VIPMenuResolution *pMenuResolution = new VIPMenuResolution("",0,"","", 0,0,0,0,0,"");
-		pMenuResolution->m_sProgramName = csRelativeURL + "id=" + sID;
-		pMenuResolution->m_sTerminatingKey += char(BUTTON_1_CONST + iIndex);
+    if(!pList)
+        return false; //list element not found
 
-		pStandardScenariosMenu->AddResolution(pMenuResolution);
-		iIndex++;
-*/
+    //get all mobile orbiter scenarios
+    vector<Row_Device *> vectRow_Device;
+    m_pDatabase_pluto_main->Device_get()->GetRows(
+        "FK_DeviceTemplate = " + StringUtils::ltos(DEVICETEMPLATE_Speech_CONST) + " AND " + 
+        "FK_Installation = " + StringUtils::ltos(m_dwInstallation),
+        &vectRow_Device);
+
+    g_pPlutoLogger->Write(LV_STATUS, "<VMC> About to populate the list with speech devices, items %d", 
+        vectRow_Device.size());
+
+    int iIndex = 0;
+    pList->m_sText = "";
+    vector<Row_Device *>::iterator it;
+    for(it = vectRow_Device.begin(); it != vectRow_Device.end(); it++)
+    {
+        Row_Device* pRow_Device = *it;
+
+        long dwPK_Device = pRow_Device->PK_Device_get();
+        string sDescription = pRow_Device->Description_get();
+        int iKeyCode = BUTTON_1_CONST + iIndex;
+        string sID = StringUtils::ltos(dwPK_Device);
+
+        pList->m_sText += sDescription + "\r\n";
+        VIPMenuResolution *pMenuResolution = new VIPMenuResolution("",0,"","", 0,0,0,0,0,"");
+        pMenuResolution->m_sProgramName = "speechid=" + sID;
+        pMenuResolution->m_sTerminatingKey += char(iKeyCode);
+
+        g_pPlutoLogger->Write(LV_STATUS, 
+            "<VMC> Added '%s' in the list with speech devices, path '%s', key %d", 
+            sDescription.c_str(), pMenuResolution->m_sProgramName.c_str(), iKeyCode);
+
+        pMenu->AddResolution(pMenuResolution);
+        iIndex++;
+    }
+    vectRow_Device.clear();
     return true;
 }
 //------------------------------------------------------------------------------------------------------

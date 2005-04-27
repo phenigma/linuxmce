@@ -225,8 +225,8 @@ bool Orbiter_Plugin::Register()
 
 		string sDestFileName = "/usr/pluto/bin/dev_" + StringUtils::ltos(dwPKDevice) + ".vmc";
 
-//		PopulateListsInVMC PopulateListsInVMC_(sSourceVMCFileName, sDestFileName, dwPKDevice, m_pDatabase_pluto_main, m_pRouter->iPK_Installation_get());
-//      PopulateListsInVMC_.DoIt();
+		PopulateListsInVMC PopulateListsInVMC_(sSourceVMCFileName, sDestFileName, dwPKDevice, m_pDatabase_pluto_main, m_pRouter->iPK_Installation_get());
+        PopulateListsInVMC_.DoIt();
 	}
 
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterDetected) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_detected_CONST);

@@ -866,6 +866,7 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::EndPaint()
 {
+    g_pPlutoLogger->Write(LV_WARNING, "End paint...");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect)

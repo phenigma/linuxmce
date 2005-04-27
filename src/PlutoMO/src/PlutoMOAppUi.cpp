@@ -751,6 +751,7 @@ void CPlutoMOAppUi::LaunchBrowser()
 	TApaTaskList taskList( CEikonEnv::Static()->WsSession() ); 
 	TApaTask task = taskList.FindApp( id ); 
 
+	Hide();
 	LOG("if ( task.Exists() )\n");
 
 	if ( task.Exists() ) 
@@ -761,7 +762,6 @@ void CPlutoMOAppUi::LaunchBrowser()
 		CleanupStack::PopAndDestroy(); // param8 
 
 		LOG("app exists\n");
-		
 	} 
 	else 
 	{ 
@@ -773,6 +773,8 @@ void CPlutoMOAppUi::LaunchBrowser()
 
 		LOG("app doesn't exist\n");
 	} 
+
+	task.BringToForeground();
 
 	CleanupStack::PopAndDestroy(); // param 
 

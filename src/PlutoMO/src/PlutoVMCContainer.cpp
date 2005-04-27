@@ -89,6 +89,9 @@ CCoeControl* CPlutoVMCContainer::ComponentControl(TInt aIndex) const
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCContainer::Draw(const TRect& aRect) const
 {
+	if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible == false)
+		return;
+
     CWindowGc& gc = SystemGc();
 
 	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
