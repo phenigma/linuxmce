@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
 	if( sDefines.length() )
 		g_sDefines=sDefines;
 	else if( g_pRow_Version->PK_Version_get()==1 )
-		g_sDefines="-DDEBUG -DTHREAD_LOG -DLL_DEBUG_FILE";
+		g_sDefines="-DDEBUG -DTHREAD_LOG -DLL_DEBUG_FILE -DLOG_ALL_QUERIES";
 
 	cout << "Building version: " << g_pRow_Version->Description_get() << " with: " << g_sDefines << endl;  
 
