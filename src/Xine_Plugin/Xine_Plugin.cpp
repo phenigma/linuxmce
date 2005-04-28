@@ -164,7 +164,9 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 		return NULL;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d) as playback device!", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d: %s) as playback device!",
+			pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+			pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	pXineMediaStream = new XineMediaStream( this, pMediaHandlerInfo,
 							pMediaDevice,
@@ -176,6 +178,7 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 	{
 		pXineMediaStream->m_pMediaDevice_Source = FindStreamerDevice();
 		pXineMediaStream->setIsStreaming();
+		StartStreaming(pXineMediaStream);
 	}
 
 	// if the source device is a disk drive then we can't move this media stream around.
@@ -294,7 +297,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 	// Establish streaming configuration first if this applies here
 	// This is probably needed only if we are doing a direct playback to the target ent area.
 	//	if ( pXineMediaStream->isStreaming() )
-// 	//		StartStreaming(pXineMediaStream);
+ 	//		StartStreaming(pXineMediaStream);
 
 	g_pPlutoLogger->Write(LV_WARNING, "sending play media from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
