@@ -864,7 +864,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "statechange Reply: Sorry, after all that searching, I can't determine which child device should sent the pin_changed");
+		g_pPlutoLogger->Write(LV_WARNING, "statechange Reply: Sorry, after all that searching, I can't determine which child device should be sent the pin_changed");
 	}
 }
 
@@ -905,6 +905,17 @@ void gc100::parse_gc100_reply(std::string message)
 		if ( (message.substr(0,10)=="statechang") )
 		{
 			parse_message_statechange(message,true);
+		}
+	}
+
+	if (message.substr(0, 14) == "unknowncommand")
+	{
+		// From: http://www.globalcache.com/support/port4998.html
+		// unknowncommand 5/6/7 = Connector address 1/2/3 is set up as "sensor in" when attempting to send an IR command.
+		if (message.substr(15) == "5" || message.substr(15) == "6" || message.substr(15) == "7")
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Attepted to send IR through a sensor input");
+			m_bIRComplete = true;
 		}
 	}
 }
@@ -1038,7 +1049,8 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 				io_direction = directions[InOrOut];
 			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
 
-			if (strcasecmp(io_direction.c_str(),"OUT")==0)
+			g_pPlutoLogger->Write(LV_STATUS, "This pin: %s; Pin direction: %s", this_pin.c_str(), io_direction.c_str());
+			if (io_direction == "OUT")
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: Pin direction is out, OK");
 				this_device_id = child->m_dwPK_Device;
@@ -1095,17 +1107,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 
 						// Compose the command to the GC100
 
-						cmd="setstate," + module_id +"," ;
-
-						if (power_on)
-						{
-							cmd = cmd + "1";
-						}
-						else
-						{
-							cmd = cmd + "0";
-						}
-
+						cmd = "setstate," + module_id + "," + (power_on ? "1" : "0") ;
 						send_to_gc100(cmd);
 					}
 				}
@@ -1120,17 +1122,21 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 
 void gc100::SendIR(string Port, string IRCode)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "SendIR wrapper: Port = %s", Port.c_str());
 	SendIR_Loop(Port, IRCode, 1);
 }
 
 void gc100::SendIR_Loop(string Port, string IRCode, int Times)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "SendIR_Loop: Port = %s, Times = %d", Port.c_str(), Times);
 	for (int i = 0; i < Times; i++)
 		SendIR_Real(Port,IRCode);
 }
 
 void gc100::SendIR_Real(string Port, string IRCode)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "SendIR: Port = %s", Port.c_str());
+	
 	m_bIRComplete = false;
 
 	std::string gc_code,send_cmd;
