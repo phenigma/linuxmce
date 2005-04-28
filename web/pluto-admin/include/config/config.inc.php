@@ -7,11 +7,13 @@
   		error_reporting(E_ALL ^ E_NOTICE);
   		$GLOBALS['globalConfigPath']='/var/www/globalconfig/';
   		$GLOBALS['floorplansPath']='/var/www/pluto-admin/floorplans';
+  		$GLOBALS['usersPicsPath']='/var/www/pluto-admin/users';
   		$GLOBALS['pluto.conf']='/etc/pluto.conf';
   	}else{
   		error_reporting(E_ALL);
   		$GLOBALS['globalConfigPath']='/home/users/vali/work/web/globalconfig/';
   		$GLOBALS['floorplansPath']='/home/users/vali/work/web/pluto-admin/floorplans/';
+  		$GLOBALS['usersPicsPath']='/home/users/vali/work/web/pluto-admin/users/';
   		$GLOBALS['pluto.conf']='/home/users/vali/work/web/pluto.conf';
   	}
 

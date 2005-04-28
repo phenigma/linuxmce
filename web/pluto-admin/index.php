@@ -1081,6 +1081,12 @@ switch ($section) {
 	    include_once('operations/myScenarios/sortScenarios.php');
 	    sortScenarios($output,$dbADO);
 	break;	
+	case 'userPic';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/users_settings/userPic.php');
+	    userPic($output,$dbADO);
+	break;	
 
 	
 	case '';
