@@ -517,6 +517,11 @@ throw "problem with delete";
 			throw "Cannot delete rows";
 		}
 	}
+
+	if( r_UpdateTable.m_psc_id_last_sync > m_psc_id_last_sync )
+		m_pRepository->psc_id_last_sync_set(this,r_UpdateTable.m_psc_id_last_sync);
+	if( r_UpdateTable.m_psc_batch_last_sync > m_psc_batch_last_sync )
+		m_pRepository->psc_batch_last_sync_set(this,r_UpdateTable.m_psc_batch_last_sync);
 	return true;
 }
 
@@ -809,6 +814,7 @@ cout << endl;
 				cerr << "Found NULL in query: " << sSQL.str() << endl;
 				throw "Database error";
 			}
+
 			/** If the value of our local row[] is > than the server's vect (and not > than what we've already synced), then we deleted some records locally */
 			while( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )>r_GetAll_psc_id.m_vectAll_psc_id[pos].first && atoi(row[0])<=m_psc_id_last_sync )
 			{

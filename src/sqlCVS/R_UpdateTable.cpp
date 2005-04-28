@@ -88,6 +88,9 @@ bool R_UpdateTable::ProcessRequest( class RA_Processor *pRA_Processor )
 		return true;
 	}
 
+	m_psc_batch_last_sync=psqlCVSprocessor->m_pTable->m_psc_batch_last_sync;
+	m_psc_id_last_sync=psqlCVSprocessor->m_pTable->m_psc_id_last_sync;
+
 	m_cProcessOutcome=SUCCESSFULLY_PROCESSED; /** @todo -- process it */
 
 	return true;   /** Request processed successfully */

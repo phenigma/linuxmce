@@ -477,6 +477,10 @@ void Database::ShowChanges()
 		{
 			Table *pTable = ( *it ).second;
 			
+			if( g_GlobalConfig.m_mapTable.size() && 
+					g_GlobalConfig.m_mapTable.find( pTable->Name_get() )==g_GlobalConfig.m_mapTable.end() )
+				continue;
+
 			/**
 			* Since we don't need to connect to the server for anything here, but we don't each table to make it's own connection, 
 			* Pass in the connection string and the NULL pointer to the socket so a connection will be made the
