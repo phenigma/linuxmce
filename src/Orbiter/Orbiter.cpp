@@ -225,9 +225,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_sCacheFolder = DATA_Get_CacheFolder();
 	m_iCacheSize = DATA_Get_CacheSize();
 	m_pCacheImageManager = NULL;
-
 	if(m_iCacheSize > 0)
 		m_pCacheImageManager = new CacheImageManager(m_sCacheFolder, m_iCacheSize);
+
+    m_iVideoFrameInterval = DATA_Get_VideoFrameInterval();
+    if(!m_iVideoFrameInterval) //not device data doesn't exist or it's 0
+        m_iVideoFrameInterval = 6000; //6 sec
 
 	pthread_cond_init(&m_MaintThreadCond, NULL);
 	m_MaintThreadMutex.Init(NULL,&m_MaintThreadCond);
@@ -761,7 +764,7 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
 			// and should wait the correct interval
 
 			// Don't purge existing callbacks since there can be multiple frames on the screen
-			CallMaintenanceInMiliseconds( pObj->m_vectGraphic.size()==0 ? 0 : DATA_Get_VideoFrameInterval(), &Orbiter::GetVideoFrame, NULL, pe_ALL );
+			CallMaintenanceInMiliseconds( pObj->m_vectGraphic.size()==0 ? 0 : m_iVideoFrameInterval, &Orbiter::GetVideoFrame, NULL, pe_ALL );
 			m_bAlreadyQueuedVideo=true;  // Only schedule once -- that will redraw all video frames
 		}
 		else

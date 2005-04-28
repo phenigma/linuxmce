@@ -148,6 +148,7 @@ protected:
 	time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */
 	string m_sCacheFolder; /** < Where to store graphic files for caching */
 	int m_iCacheSize; /** < The maximum size of the graphics files stored (MB) */
+    int m_iVideoFrameInterval; /** < The interval between two frame requested from the router */
 
 	DesignObjText *m_pCaptureKeyboard_Text; /** < @todo ask */
 	map<int,  vector<PlutoGraphic*> *> m_mapUserIcons; /** < user icons */
