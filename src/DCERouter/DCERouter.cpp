@@ -26,6 +26,7 @@ using namespace std;
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceData.h"
 #include "pluto_main/Table_DeviceTemplate_DeviceData.h"
+#include "pluto_main/Table_DeviceCategory_DeviceData.h"
 #include "pluto_main/Table_CommandParameter.h"
 #include "pluto_main/Table_Command_Pipe.h"
 #include "pluto_main/Table_CommandGroup.h"
@@ -830,6 +831,10 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 						if( !pPlugIn->SafeToReload() )
 						{
                             g_pPlutoLogger->Write(LV_STATUS,"Aborting reload as per %s",pPlugIn->m_sName.c_str());
+							ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+								EVENT_Reload_Aborted_CONST,2,
+								EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
+								EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos((*SafetyMessage)->m_dwPK_Device_From).c_str()));
 							return;
 						}
 					}
@@ -1938,21 +1943,57 @@ void Router::Configure()
         for(size_t s2=0;s2<vectDeviceParms.size();++s2)
         {
             Row_Device_DeviceData *pRow_DeviceParm = vectDeviceParms[s2];
-
-			// See if any are set to always use master device list default
-			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = 
-				m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pDevice->m_dwPK_DeviceTemplate,pRow_DeviceParm->FK_DeviceData_get());
-			if( pRow_DeviceTemplate_DeviceData && 
-				pRow_DeviceTemplate_DeviceData->UseDeviceTemplateDefault_get() &&
-				pRow_DeviceTemplate_DeviceData->IK_DeviceData_get()!=pRow_DeviceParm->IK_DeviceData_get() )
-			{
-				pRow_DeviceParm->IK_DeviceData_set( pRow_DeviceTemplate_DeviceData->IK_DeviceData_get() );
-				pRow_DeviceParm->Table_Device_DeviceData_get()->Commit();
-			}
-
             pDevice->m_mapParameters[ pRow_DeviceParm->FK_DeviceData_get()] = pRow_DeviceParm->IK_DeviceData_get();
         }
-    }
+
+		// Fill in any missing data, and fix default values.  First for DeviceTemplate
+		vector<Row_DeviceTemplate_DeviceData * > vectRow_DeviceTemplate_DeviceData;
+		pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_DeviceData_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_DeviceData);
+		for(size_t s=0;s<vectRow_DeviceTemplate_DeviceData.size();++s)
+		{
+			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = vectRow_DeviceTemplate_DeviceData[s];
+			if( pDevice->m_mapParameters.find( pRow_DeviceTemplate_DeviceData->FK_DeviceData_get() )==pDevice->m_mapParameters.end() )
+			{
+				// This isn't in the database.  Add it.  It must be new
+				Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+				pRow_Device_DeviceData->FK_Device_set( pRow_Device->PK_Device_get() );
+				pRow_Device_DeviceData->FK_DeviceData_set( pRow_DeviceTemplate_DeviceData->FK_DeviceData_get() );
+				pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceTemplate_DeviceData->IK_DeviceData_get() );
+				pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+			}
+			else if( pRow_DeviceTemplate_DeviceData->UseDeviceTemplateDefault_get()==1 && 
+				pRow_DeviceTemplate_DeviceData->IK_DeviceData_get()!=pDevice->m_mapParameters[pRow_DeviceTemplate_DeviceData->FK_DeviceData_get()] )
+			{
+	            Row_Device_DeviceData *pRow_Device_DeviceData = 
+					m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),
+					pRow_DeviceTemplate_DeviceData->FK_DeviceData_get());
+				pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceTemplate_DeviceData->IK_DeviceData_get() );
+				pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+			}
+		}
+
+		// Now for DeviceCategory
+		Row_DeviceCategory *pRow_DeviceCategory = pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow();
+		while( pRow_DeviceCategory )
+		{
+			vector<Row_DeviceCategory_DeviceData * > vectRow_DeviceCategory_DeviceData;
+			pRow_DeviceCategory->DeviceCategory_DeviceData_FK_DeviceCategory_getrows(&vectRow_DeviceCategory_DeviceData);
+			for(size_t s=0;s<vectRow_DeviceCategory_DeviceData.size();++s)
+			{
+				Row_DeviceCategory_DeviceData *pRow_DeviceCategory_DeviceData = vectRow_DeviceCategory_DeviceData[s];
+				if( pDevice->m_mapParameters.find( pRow_DeviceCategory_DeviceData->FK_DeviceData_get() )==pDevice->m_mapParameters.end() )
+				{
+					// This isn't in the database.  Add it.  It must be new
+					Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+					pRow_Device_DeviceData->FK_Device_set( pRow_Device->PK_Device_get() );
+					pRow_Device_DeviceData->FK_DeviceData_set( pRow_DeviceCategory_DeviceData->FK_DeviceData_get() );
+					pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceCategory_DeviceData->IK_DeviceData_get() );
+					pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+				}
+			}
+			pRow_DeviceCategory=pRow_DeviceCategory->FK_DeviceCategory_Parent_getrow();
+		}
+	}
 
     // Now match up children to parents
     map<int,class DeviceData_Router *>::iterator itDevice;

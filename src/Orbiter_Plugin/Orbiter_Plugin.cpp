@@ -232,7 +232,8 @@ bool Orbiter_Plugin::Register()
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterDetected) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_detected_CONST);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterLinked) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_linked_CONST);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterLost),0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_lost_CONST);
-    RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST,0,0,0,0);
+    RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::ReloadAborted),0,0,0,0,MESSAGETYPE_EVENT,EVENT_Reload_Aborted_CONST);
+	RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Orbiters_in_my_room_CONST,0,0,0,0);
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::NewPnpDevice ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_PNP_Device_Detected_CONST );
@@ -610,6 +611,27 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p",pOH_Orbiter);
     */
     return false;
 }
+
+bool Orbiter_Plugin::ReloadAborted(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	int PK_Device = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
+	int PK_Orbiter = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Orbiter_CONST].c_str());
+
+    OH_Orbiter *pOH_Orbiter_From = m_mapOH_Orbiter_Find(PK_Orbiter);
+
+	if( !pOH_Orbiter_From )
+		return false;
+
+	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+
+	string Message = "The reload has aborted";
+	if( pDeviceData_Router )
+		Message+= " as per " + pDeviceData_Router->m_sDescription;
+
+	DisplayMessageOnOrbiter(PK_Orbiter,Message);
+	return true;
+}
+
 bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
     if (!pDeviceFrom)

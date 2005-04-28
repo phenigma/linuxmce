@@ -296,7 +296,7 @@ void General_Info_Plugin::CMD_Restart_DCERouter(string &sCMD_Result,Message *pMe
 {
 // temp debugging since this wasn't going through
 g_pPlutoLogger->Write(LV_STATUS, "Forwarding reload to router");
-	Message *pMessageOut = new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
+	Message *pMessageOut = new Message(pMessage->m_dwPK_Device_From,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
 	SendMessageToRouter(pMessageOut);
 }
 //<-dceag-c67-b->
