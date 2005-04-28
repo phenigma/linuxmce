@@ -266,6 +266,9 @@ void CVIPEditDlg::PopulateWithVariables()
 {
 	MYSTL_ITERATE_LONG_MAP((*m_mapVariables),VIPVariable,pVariable,i) 
 	{
+        if(!pVariable)
+            continue;
+
 		int Item = m_lbItems.AddString(
 			(pVariable->m_sDescription + " " + StringUtils::itos(pVariable->m_iVariableID)).c_str());
 		m_lbItems.SetItemData(Item,pVariable->m_iVariableID);

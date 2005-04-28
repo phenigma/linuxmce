@@ -242,9 +242,6 @@ bool VIPMenuCollection::ConvertToBinary()
 
 	MYSTL_ITERATE_LONG_MAP(m_mapVariables,VIPVariable,pVariable,itVariables)
 	{
-		//VIPVariable *pVariable = (*itVariables).second;
-		//VIPVariable *pVariable = MYSTL_GET_SECOND_LONG_MAP(itVariables);
-
 		Write_long(pVariable->m_iVariableID);
 		Write_string(pVariable->m_sDescription);
 		Write_unsigned_char(pVariable->m_iPhoneSetsValue);
@@ -364,7 +361,7 @@ bool VIPMenuCollection::ConvertToBinary()
 			Write_long(pInput->m_iVariableID);
 			Write_unsigned_char(pInput->m_iTerminateWhenNumberOfChars);
 			Write_unsigned_char(pInput->m_iClearVariable);
-			Write_unsigned_short(pInput->m_pTextElement ? pInput->m_pTextElement->MenuElementID() : -1);
+			Write_unsigned_short(pInput->m_pTextElement ? pInput->m_pTextElement->m_iElementNumber : -1);
 		}
 	}
 

@@ -85,10 +85,14 @@ void CVIPInputDlg::OnBnClickedOk()
 
 	m_pInput->m_iVariableID = m_cbVariable.GetItemData(m_cbVariable.GetCurSel());
 	int TextSel = m_TextElement.GetCurSel();
+
+    m_pInput->m_pTextElement = NULL;
+
+    long lElementID = m_TextElement.GetItemData(TextSel);
 	if( TextSel>=0 )
 	{
-//		m_pInput->m_pMenu->m_vectMenuElements[ m_TextElement.GetItemData(TextSel) ];
+        VIPMenuElement *pElement = m_pInput->m_pMenu->m_mapMenuElements_Find(lElementID);
+        if(pElement->MenuElementID() == MENU_ELEMENT_TEXT)
+            m_pInput->m_pTextElement = (VIPMenuElement_Text *)pElement;
 	}
-	else
-		m_pInput->m_pTextElement = NULL;
 }

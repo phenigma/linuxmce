@@ -69,8 +69,23 @@ void RenderMenu::DoRender()
 	MYSTL_CLEAR_LIST(m_listVIPList);
 	m_pListOnScreen=NULL;
 
+    m_pInput = NULL;
+    MYSTL_ITERATE_LONG_MAP(m_pMenu->m_mapMenuInputs, VIPMenuInput, m_pInput, it)
+    {
+        VIPVariable *pVariable = (m_pInput!=NULL && m_pInput->m_iVariableID!=-1 ? 
+            m_pMenuCollection->m_mapVariables_Find(m_pInput->m_iVariableID) : NULL);
+
+        if(pVariable)
+            m_pInput->m_pTextElement->m_sText = pVariable->m_sCurrentValue;
+
+        break;
+    }
+
 	MYSTL_ITERATE_LONG_MAP(m_pMenu->m_mapMenuElements,VIPMenuElement,pElement,ie)
 	{
+        if( !pElement)
+            continue;
+
 		if( pElement->m_iVariableIDHidden!=0 )
 		{
 			// Skip this item based on the value of the variable
@@ -309,6 +324,7 @@ void RenderMenu::DoRender()
 					for(int iLineNum=0;iLineNum<pList->m_iMaxItemsPerScreen;++iLineNum)
 					{
 						string Line = StringUtils::Tokenize(Text,"\n",pos);
+                        StringUtils::Replace(Line, "\r", "");
 						if( Line.length()==0 )
 							break;
 
@@ -361,6 +377,7 @@ void RenderMenu::DoRender()
 					if( iLineNum==pList->m_iMaxItemsPerScreen )
 					{
 						string Line = StringUtils::Tokenize(Text,"\n",pos);
+                        StringUtils::Replace(Line, "\r", "");
 						m_bListIsMore=Line.length()!=0;
 					}
 					else
@@ -400,6 +417,13 @@ void RenderMenu::KeyPressed(int KeyCode)
 	if( !m_pMenu || !m_pMenuCollection )
 		return;
 
+    m_pInput = NULL;
+    MYSTL_ITERATE_LONG_MAP(m_pMenu->m_mapMenuInputs, VIPMenuInput, m_pInput, it)
+    {
+        //just get the first one
+        break;
+    }
+
 	VIPVariable *pVariable = (m_pInput!=NULL && m_pInput->m_iVariableID!=-1 ? 
 		m_pMenuCollection->m_mapVariables_Find(m_pInput->m_iVariableID) : NULL);
 
@@ -412,6 +436,12 @@ void RenderMenu::KeyPressed(int KeyCode)
 	}
 	else if( KeyCode==BUTTON_Phone_C_CONST && pVariable && pVariable->m_sCurrentValue.length()>0 )
 		pVariable->m_sCurrentValue = pVariable->m_sCurrentValue.substr(0,pVariable->m_sCurrentValue.length()-1);
+
+    if(m_pInput && m_pInput->m_pTextElement)
+    {
+        m_pInput->m_pTextElement->m_sText = pVariable->m_sCurrentValue;
+        bRedrawScreen = true;
+    }
 
 	bool bFilledInput = (pVariable && pVariable->m_sCurrentValue.length()>=m_pInput->m_iNumberOfChars);
 	if( m_pListOnScreen )

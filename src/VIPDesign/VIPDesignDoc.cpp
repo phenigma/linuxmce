@@ -464,6 +464,8 @@ void CVIPDesignDoc::SwitchToMenu(VIPMenu *pMenu,bool bUpdateViews)
 	if( !pMenu )
 		return;
 
+    static long LastMenu = pMenu->m_iMenuNumber;
+    
 	m_pMenu = pMenu;
 	// Just get the first one
 	MYSTL_ITERATE_LONG_MAP(m_pMenu->m_mapMenuInputs,VIPMenuInput,m_pMenuInput,itm);
@@ -471,13 +473,16 @@ void CVIPDesignDoc::SwitchToMenu(VIPMenu *pMenu,bool bUpdateViews)
 	// Go through all of them
 	MYSTL_ITERATE_LONG_MAP(m_pMenu->m_mapMenuInputs,VIPMenuInput,pInput,itm2)
 	{
-		if( pInput->m_iClearVariable )
+        if(LastMenu != pMenu->m_iMenuNumber && pInput->m_iClearVariable )
 		{
 			VIPVariable *pVariable = m_pMenuCollection->m_mapVariables_Find(pInput->m_iVariableID);
 			if( pVariable )
 				pVariable->m_sCurrentValue="";
 		}
 	}
+
+    LastMenu = pMenu->m_iMenuNumber;
+
 	if( bUpdateViews )
 		UpdateAllViews(NULL);
 }

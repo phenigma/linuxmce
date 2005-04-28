@@ -17,7 +17,9 @@
 #define MYSTL_ITERATE_LONG_MAP(CollectionName,ValueObjectType,ValueObject,IteratorName) 	ValueObjectType *ValueObject; map<long,class ValueObjectType *>::iterator IteratorName;	for(IteratorName=CollectionName.begin(),ValueObject=(IteratorName!=CollectionName.end() ? (*IteratorName).second : NULL);			IteratorName!=CollectionName.end();++IteratorName,ValueObject=(IteratorName!=CollectionName.end() ? (*IteratorName).second : NULL))
 #define MYSTL_SIZEOF_LONG_MAP(CollectionName) CollectionName.size()
 #define MYSTL_GET_SECOND_LONG_MAP(IteratorName) (*IteratorName).second
-#define MYSTL_GET_AT_LONG_MAP(CollectionName,ValueObjectType,ValueObject,Position) ValueObjectType *ValueObject=CollectionName[Position]
+#define MYSTL_GET_AT_LONG_MAP(CollectionName,ValueObjectType,ValueObject,Position) \
+    map<long, ValueObjectType*>::iterator it = CollectionName.find(Position); \
+    ValueObjectType* ValueObject = it == CollectionName.end() ? NULL : (*it).second; 
 
 #else
 // Symbian version of the <string>
