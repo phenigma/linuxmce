@@ -822,20 +822,24 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
                 m_bQuit=true;
                 break;
             case SYSCOMMAND_RELOAD:
+			case SYSCOMMAND_RELOAD_FORCED:
 				{
 					system( (string("lsof >> /var/log/pluto/lsof_RELOAD_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
-					map<int,class Command_Impl *>::iterator it;
-					for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
+					if( (*SafetyMessage)->m_dwID!=SYSCOMMAND_RELOAD_FORCED )
 					{
-						Command_Impl *pPlugIn = (*it).second;
-						if( !pPlugIn->SafeToReload() )
+						map<int,class Command_Impl *>::iterator it;
+						for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
 						{
-                            g_pPlutoLogger->Write(LV_STATUS,"Aborting reload as per %s",pPlugIn->m_sName.c_str());
-							ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
-								EVENT_Reload_Aborted_CONST,2,
-								EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
-								EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos((*SafetyMessage)->m_dwPK_Device_From).c_str()));
-							return;
+							Command_Impl *pPlugIn = (*it).second;
+							if( !pPlugIn->SafeToReload() )
+							{
+								g_pPlutoLogger->Write(LV_STATUS,"Aborting reload as per %s",pPlugIn->m_sName.c_str());
+								ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+									EVENT_Reload_Aborted_CONST,2,
+									EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
+									EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos((*SafetyMessage)->m_dwPK_Device_From).c_str()));
+								return;
+							}
 						}
 					}
 				}

@@ -226,6 +226,13 @@ bool EventLoop(ORBITER* pOrbiter)
 
 			RecordMouseAction(Event.button.x, Event.button.y);
 		}
+        else if (Event.type == SDL_MOUSEBUTTONUP)
+		{
+			orbiterEvent.type = Orbiter::Event::REGION_UP;
+			orbiterEvent.data.region.m_iX = Event.button.x;
+			orbiterEvent.data.region.m_iY = Event.button.y;
+            pOrbiter->ProcessEvent(orbiterEvent);
+		}
 #endif
     }  // while
 

@@ -103,6 +103,13 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 #endif
 			break;
 
+		case SDL_MOUSEBUTTONUP:
+			orbiterEvent->type = Orbiter::Event::REGION_UP;
+			orbiterEvent->data.region.m_iButton = sdlEvent.button.button;
+			orbiterEvent->data.region.m_iX = sdlEvent.button.x;
+			orbiterEvent->data.region.m_iY = sdlEvent.button.y;
+			break;
+
 		case SDL_KEYDOWN:
 			// on key up we update the keyboard state
 			// orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
