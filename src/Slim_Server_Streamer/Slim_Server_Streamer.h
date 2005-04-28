@@ -54,7 +54,7 @@ namespace DCE
 
         // Private methods
         bool ConnectToSlimServerCliCommandChannel();
-        string SendReceiveCommand(string command);
+        string SendReceiveCommand(string command, bool bLogCommand = true);
 
         static void *checkForPlaybackCompleted(void *pSlim_Server_Streamer);
 

@@ -13,7 +13,9 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Command.h"
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -114,7 +116,9 @@ void Slim_Server_Streamer::ReceivedUnknownCommand(string &sCMD_Result,Message *p
 void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
-    PLUTO_SAFETY_LOCK( pm, m_dataStructureAccessMutex);
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+//	PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
+
     g_pPlutoLogger->Write(LV_STATUS, "Processing Start streaming command for target devices: %s", sStreamingTargets.c_str());
 
     vector<string> vectPlayersIds;
@@ -172,7 +176,9 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
 void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
 //<-dceag-c262-e->
 {
-	PLUTO_SAFETY_LOCK( pm, m_dataStructureAccessMutex);
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+	// PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
+
 	g_pPlutoLogger->Write(LV_STATUS, "Processing Stop Streaming command for target devices: %s", sStreamingTargets.c_str());
 
 	map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itPlayers;
@@ -287,7 +293,7 @@ bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
     return true;
 }
 
-string Slim_Server_Streamer::SendReceiveCommand(string command)
+string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand)
 {
     if ( m_iServerSocket == 0 || m_iServerSocket == -1 )
     {
@@ -325,7 +331,9 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
         }
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Sending command: %s", command.c_str());
+	if (bLogCommand)
+    	g_pPlutoLogger->Write(LV_STATUS, "Sending command: %s", command.c_str());
+
     unsigned int nBytes;
     const char *sendBuffer;
     char *receiveBuffer;
@@ -365,7 +373,9 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
     string result(receiveBuffer);
     delete receiveBuffer;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Got response: %s", result.c_str());
+	if (bLogCommand)
+    	g_pPlutoLogger->Write(LV_STATUS, "Got response: %s", result.c_str());
+
     return result;
 }
 
@@ -377,18 +387,19 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
     {
 		string macAddress, strResult;
 
-		PLUTO_SAFETY_LOCK( lock, pStreamer->m_stateChangedMutex );
-		g_pPlutoLogger->Write(LV_STATUS, "The map size: %d should quit: %d", pStreamer->m_mapStreamsToPlayers.size(), pStreamer->m_bShouldQuit );
+		PLUTO_SAFETY_LOCK(stateChangedLock, pStreamer->m_stateChangedMutex);
+		// PlutoLock lock(LOCK_PARAMS(pStreamer->m_stateChangedMutex));
 		while ( pStreamer->m_mapStreamsToPlayers.size() == 0 || pStreamer->m_bShouldQuit )
-			lock.CondWait();
-		lock.Release();
+			stateChangedLock.CondWait();
+		stateChangedLock.Release();
 
-		g_pPlutoLogger->Write(LV_STATUS, "Looping");
+//		g_pPlutoLogger->Write(LV_STATUS, "Looping");
 
 		if ( pStreamer->m_bShouldQuit )
 			return NULL;
 
-        PLUTO_SAFETY_LOCK( pm, pStreamer->m_dataStructureAccessMutex);
+		PLUTO_SAFETY_LOCK(dataAccessLock, pStreamer->m_dataStructureAccessMutex);
+		// PlutoLock pm(LOCK_PARAMS(pStreamer->m_dataStructureAccessMutex));
 
         map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itStreamsToPlayers;
         itStreamsToPlayers = pStreamer->m_mapStreamsToPlayers.begin();
@@ -397,7 +408,8 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 			DeviceData_Base *pPlayerDeviceData = (*itStreamsToPlayers).second.second[0];
 
 			macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
-			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str());
+			// do a SendReceive without actually logging the command ( this will potentially fill out the logs. );
+			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str(), false);
 
 			if ( itStreamsToPlayers->second.first == STATE_PLAY && ( strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F") )
 			{
@@ -411,7 +423,8 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 			}
             itStreamsToPlayers++;
         }
-        pm.Release();
+
+        dataAccessLock.Release();
 
         Sleep(500);
     }
@@ -422,7 +435,8 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
 string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
 {
-	PLUTO_SAFETY_LOCK( dataMutex, m_dataStructureAccessMutex );
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+//	PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
     if ( m_mapStreamsToPlayers.find(iStreamID) != m_mapStreamsToPlayers.end() )
     {
@@ -436,7 +450,8 @@ string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
 
 StreamStateType Slim_Server_Streamer::GetStateForStream(int iStreamID)
 {
-	PLUTO_SAFETY_LOCK(dataMutex, m_dataStructureAccessMutex);
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+	//PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
 	if ( m_mapStreamsToPlayers.find(iStreamID) == m_mapStreamsToPlayers.end() )
 	{
@@ -449,7 +464,8 @@ StreamStateType Slim_Server_Streamer::GetStateForStream(int iStreamID)
 
 void Slim_Server_Streamer::SetStateForStream(int iStreamID, StreamStateType newState)
 {
-	PLUTO_SAFETY_LOCK(dataMutex, m_dataStructureAccessMutex);
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+	//PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
     if ( m_mapStreamsToPlayers.find(iStreamID) == m_mapStreamsToPlayers.end() )
 	{
@@ -501,7 +517,8 @@ void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int
 void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
-	PLUTO_SAFETY_LOCK( pm, m_dataStructureAccessMutex);
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+	// PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
 	string sControlledPlayerMac;
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
@@ -522,7 +539,8 @@ void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,stri
 void Slim_Server_Streamer::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
-    PLUTO_SAFETY_LOCK( pm, m_dataStructureAccessMutex);
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+	//PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
 	string sControlledPlayerMac;
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
@@ -625,6 +643,8 @@ void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sO
 	string sPlayerMac;
 	float floatValue;
 
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+
 	if ( (sPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
 		return;
 
@@ -671,7 +691,26 @@ void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sO
 void Slim_Server_Streamer::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c89-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Vol_Up() Not implemented yet.");
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+	//PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
+
+	if ( pMessage->m_mapParameters.find(COMMANDPARAMETER_StreamID_CONST) == pMessage->m_mapParameters.end() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "The stream id was not set on the message! The media plugin should have set this parameter in this message!");
+		return;
+	}
+
+	string sControlledPlayerMac;
+	if ( (sControlledPlayerMac = FindControllingMacForStream(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()))) == "" )
+		return;
+
+	if ( iRepeat_Command == 0 )
+		iRepeat_Command = 1;
+
+	if ( iRepeat_Command >= 100 )
+		iRepeat_Command = 100;
+
+	SendReceiveCommand(sControlledPlayerMac + " mixer volume +" + StringUtils::itos(iRepeat_Command));
 }
 //<-dceag-c90-b->
 
@@ -683,7 +722,26 @@ void Slim_Server_Streamer::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Me
 void Slim_Server_Streamer::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c90-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Vol_Down() Not implemented yet.");
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+	// PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
+
+	if ( pMessage->m_mapParameters.find(COMMANDPARAMETER_StreamID_CONST) == pMessage->m_mapParameters.end() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "The stream id was not set on the message! The media plugin should have set this parameter in this message!");
+		return;
+	}
+
+	string sControlledPlayerMac;
+	if ( (sControlledPlayerMac = FindControllingMacForStream(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()))) == "" )
+		return;
+
+	if ( iRepeat_Command == 0 )
+		iRepeat_Command = 1;
+
+	if ( iRepeat_Command >= 100 )
+		iRepeat_Command = 100;
+
+	SendReceiveCommand(sControlledPlayerMac + " mixer volume -" + StringUtils::itos(iRepeat_Command));
 }
 //<-dceag-c97-b->
 
@@ -693,5 +751,18 @@ void Slim_Server_Streamer::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,
 void Slim_Server_Streamer::CMD_Mute(string &sCMD_Result,Message *pMessage)
 //<-dceag-c97-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Mute() Not implemented yet.");
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+	//PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
+
+	if ( pMessage->m_mapParameters.find(COMMANDPARAMETER_StreamID_CONST) == pMessage->m_mapParameters.end() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "The stream id was not set on the message! The media plugin should have set this parameter in this message!");
+		return;
+	}
+
+	string sControlledPlayerMac;
+	if ( (sControlledPlayerMac = FindControllingMacForStream(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()))) == "" )
+		return;
+
+	SendReceiveCommand(sControlledPlayerMac + " mixer muting");
 }
