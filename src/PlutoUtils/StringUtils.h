@@ -57,7 +57,20 @@ namespace StringUtils
 #endif
     string itos( int iNum );
 
+	/**
+     * @brief replaces the sSearch string with the sReplace string in the sInput string
+     */
+#ifdef SYMBIAN
+	static
+#endif
+    string Replace( string &sInput, string sSearch, string sReplace );
+
 #ifndef SYMBIAN
+
+    /**
+     * @brief replaces the sSearch string with the sReplace string in the specified file and returns false if errors
+     */
+    bool Replace( string sInputFile, string sOutputFile, string sSearch, string sReplace);
 
     /**
      * @brief breaks the Input string in tokens and putes them in the deque_strings parameter, or a vector
@@ -94,16 +107,6 @@ namespace StringUtils
      * @brief returns true if sFirst ends with sSecond
      */
     bool EndsWith( string sFirst, string sSecond, bool bIgnoreCase=false );
-
-	/**
-     * @brief replaces the sSearch string with the sReplace string in the sInput string
-     */
-    string Replace( string &sInput, string sSearch, string sReplace );
-
-    /**
-     * @brief replaces the sSearch string with the sReplace string in the specified file and returns false if errors
-     */
-    bool Replace( string sInputFile, string sOutputFile, string sSearch, string sReplace);
 
     /**
      * @brief returns the value folowing the parameter name in the parameter list tokenized using the delimiters

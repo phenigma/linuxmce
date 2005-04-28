@@ -131,6 +131,19 @@ string StringUtils::itos( int iNum )
 #endif
 }
 
+string StringUtils::Replace( string &sInput, string sSearch, string sReplace )
+{
+    string::size_type s=0;
+
+    while( ( s=sInput.find( sSearch, s ) ) != string::npos ) // search for the first apperence of the sSearch string
+    {
+        sInput.replace( s, sSearch.length(), sReplace );
+        s += sReplace.length();
+    }
+
+    return sInput;
+}
+
 #ifndef SYMBIAN
 
 string StringUtils::ltos( long lNum )
@@ -209,19 +222,6 @@ int StringUtils::CompareNoCase( string sFirst, string sSecond )
     return stricmp( acFirst, acSecond );
 
 #endif
-}
-
-string StringUtils::Replace( string &sInput, string sSearch, string sReplace )
-{
-    string::size_type s=0;
-
-    while( ( s=sInput.find( sSearch, s ) ) != string::npos ) // search for the first apperence of the sSearch string
-    {
-        sInput.replace( s, sSearch.length(), sReplace );
-        s += sReplace.length();
-    }
-
-    return sInput;
 }
 
 bool StringUtils::Replace( string sInputFile, string sOutputFile, string sSearch, string sReplace )
