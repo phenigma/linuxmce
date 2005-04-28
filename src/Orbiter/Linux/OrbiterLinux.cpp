@@ -36,7 +36,10 @@ OrbiterLinux::OrbiterLinux(int DeviceID,
                int nImageWidth, int nImageHeight)
 : OrbiterSDL(DeviceID, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight),
     // defaults
-	/** @hack to make it work for the short term. We need to find a way to set the class name properly or use the window ID if we can find it. */
+	/**
+	 * @hack to make it work for the short term. We need to find a way to set the class name properly or use the window ID if we can find it.
+	 * The reason this is hack is because there could be potentially multiple SDL_Applications running at the same time which could break the controlling code.
+	 */
     m_strWindowName("SDL_App"),
     m_strDisplayName(getenv("DISPLAY")),
 
@@ -172,9 +175,7 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
 		m_pRecordHandler->enableRecording(this);
     }
 
-//    g_pPlutoLogger->Write(LV_STATUS, "Resizing desktop to (%d, %d) and dimensions [%dx%d]", x, y, width, height);
-
-    stringstream commandLine;
+	stringstream commandLine;
 
     commandLine << ":set padding " << x << " " << y << " "
                 << m_nDesktopWidth - x - width << " " << m_nDesktopHeight - y - height;
@@ -192,47 +193,6 @@ bool OrbiterLinux::setDesktopVisible(bool visible)
     else
         return resizeMoveDesktop(0, 0, m_nDesktopWidth - m_nImageWidth, m_nDesktopHeight - m_nImageHeight);
 }
-
-// void OrbiterLinux::bootNestedXServer()
-// {
-//     fixNestedDisplayName();
-//
-//     g_pPlutoLogger->Write(LV_STATUS,
-//                 "Launching Nested XServer for display %s running on the display %s",
-//                 m_strDesktopDisplayName.c_str(),
-//                 m_strDisplayName.c_str());
-//
-//     stringstream strGeometry;
-//
-//     strGeometry << m_nImageWidth << "x" << m_nImageHeight;
-
-/*    char *const xnest[] =
-    {
-        "/usr/bin/X11/Xnest",
-        (char *)m_strDesktopDisplayName.c_str(),
-        "-display", (char *)m_strDisplayName.c_str(),
-        "-name", (char *)m_strDesktopWindowName.c_str(),
-        "-geometry", (char *)strGeometry.str().c_str(),
-        "+kb",
-        "-bw", "0",
-        "-ac",
-        0
-    };
-
-    char *const ratpoisonArgs[] =
-    {
-        "/usr/bin/ratpoison",
-        "-d",
-        (char*)m_strDesktopDisplayName.c_str(),*/
-//         "-display",
-//         (char*)m_strDesktopDisplayName.c_str(),
-//         0
-//
-//     };
-
-//     forkAndWait( xnest, 4 );
-//     forkAndWait( ratpoisonArgs, 2 );
-// }
 
 void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
@@ -280,57 +240,6 @@ void OrbiterLinux::RenderObject(
     ControllerImageSDL::RenderObject(pObj, pObjAttr, XOffset, YOffset);
 }
 */
-
-
-/*!
-    \fn OrbiterLinux::fixNestedDisplayName()
- */
-/*
-void OrbiterLinux::fixNestedDisplayName()
-{
-    if ( m_strDesktopDisplayName != "" )
-        return;
-
-    string strHost;
-    string strDisplay;
-    string strScreen;
-    string strTemp;
-
-    int temp;
-    g_pPlutoLogger->Write(LV_STATUS, "Fixing nested display name location!");
-
-    if ( XServerDisplay == NULL && openDisplay() == false )
-        return;
-
-    strTemp = XDisplayString(XServerDisplay);
-
-    temp =  strTemp.find(':');
-    if ( temp != -1 )
-        strHost = strTemp.substr(0, temp);
-
-    strTemp = strTemp.substr(temp + 1);
-
-    temp = strTemp.find('.');
-
-    if ( temp != -1 )
-    {
-        strScreen = strTemp.substr(temp);
-        strTemp = strTemp.substr(0, temp);
-    }
-
-    strDisplay = strTemp;
-
-    temp = atoi(strDisplay.c_str());
-
-    stringstream strStream;
-
-    strStream << strHost <<  ":" << temp + 1 << strScreen;
-
-    m_strDesktopDisplayName = strStream.str();
-
-    g_pPlutoLogger->Write(LV_STATUS, "Using %s as the DISPLAY var for the nested server!", m_strDesktopDisplayName.c_str());
-*/
-
 
 bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 {
@@ -391,7 +300,6 @@ void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Mess
 		commandRatPoison(":banish off");
 	else
 		commandRatPoison(":banish on");
-	// Code goes here to hide/show the the pointer.  bShow==true, means show it.
 }
 
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)

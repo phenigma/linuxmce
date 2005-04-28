@@ -39,7 +39,7 @@ SDL_Surface* SDL_LoadOCG(char *pOCGData, size_t iOCGDataSize)
 		pSurface->pixels = new char[iPixelsDataSize];
 		memcpy((char *)pSurface->pixels, pPixelsData, iPixelsDataSize);
 
-		delete (SDL_PixelFormat *)pSurface->format; 
+		delete (SDL_PixelFormat *)pSurface->format;
 		pSurface->format = (SDL_PixelFormat *)(new char[iPixelFormatDataSize]);
 		memcpy((char *)pSurface->format, pPixelFormatData, iPixelFormatDataSize);
 	}
@@ -70,7 +70,7 @@ bool SDL_SaveOCG(SDL_Surface *pSurface, string sFilename, bool bPocket)
 	char *pPixelFormatData = new char[iPixelFormatDataSize];
 	memcpy(pPixelFormatData, pSurface->format, iPixelFormatDataSize);
 
-	//we need even surfaces 
+	//we need even surfaces
 	int iWidth = pSurface->w % 2 ? pSurface->w - 1 : pSurface->w;
 	int iHeight = pSurface->h % 2 ? pSurface->h - 1 : pSurface->h;
 	int iPixelsDataSize = iHeight * iWidth * pSurface->format->BytesPerPixel;
@@ -87,7 +87,7 @@ bool SDL_SaveOCG(SDL_Surface *pSurface, string sFilename, bool bPocket)
 	{
 		char *pPixelsDataTemp = pPixelsData;
 		SDL_PixelFormat * PF = pSurface->format;
-		
+
 		for(int y = 0; y < iHeight; y++)
 			for(int x = 0; x < iWidth; x++)
 			{
@@ -118,11 +118,11 @@ bool SDL_SaveOCG(SDL_Surface *pSurface, string sFilename, bool bPocket)
 			}
 	}
 
-	RendererOCG *pRendererOCG = new RendererOCG(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize, 
+	RendererOCG *pRendererOCG = new RendererOCG(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize,
 		iWidth, iHeight);
 
 	bool bResult = pRendererOCG->SaveOCG(sFilename);
-	PLUTO_SAFE_DELETE(pRendererOCG);	
+	PLUTO_SAFE_DELETE(pRendererOCG);
 
 	return bResult;
 }

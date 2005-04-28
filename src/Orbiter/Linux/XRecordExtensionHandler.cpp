@@ -195,25 +195,16 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 			break;
 
 		default:
-//			if ( pRecordingHandler->m_bShouldRecord )
-//			{
-				pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent, pRecordingHandler->m_pDisplay);
-				if ( pRecordingHandler->m_pOrbiter )
-				{
-					Orbiter::Event *pEvent = new Orbiter::Event;
-					*pEvent = pRecordingHandler->m_OrbiterEvent;
-					pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO );
-				}
-			//}
+			pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent, pRecordingHandler->m_pDisplay);
+			if ( pRecordingHandler->m_pOrbiter )
+			{
+				Orbiter::Event *pEvent = new Orbiter::Event;
+				*pEvent = pRecordingHandler->m_OrbiterEvent;
+				pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO );
+			}
 	}
 
 	XRecordFreeData(pRecordedData);
-
-/*	if ( ! pRecordingHandler->m_bShouldRecord )
-	{
-		XSync(pRecordingHandler->m_pDisplay, True);
-		XRecordDisableContext(pRecordingHandler->m_pDisplay, pRecordingHandler->m_recordingContext);
-	}*/
 }
 
 void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent, Display *pDisplay)

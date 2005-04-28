@@ -76,56 +76,6 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 	{
 		case SDL_QUIT: orbiterEvent->type = Orbiter::Event::QUIT;	break;
 
-		case SDL_MOUSEBUTTONDOWN:
-#ifdef WIN32
-			RecordMouseAction(sdlEvent.button.x, sdlEvent.button.y);
-#endif
-#ifdef AUDIDEMO
-			orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
-			switch ( sdlEvent.button.button )
-			{
-				case 1:	orbiterEvent->data.button.m_iPK_Button = BUTTON_4_CONST; 			break;
-				case 2: orbiterEvent->data.button.m_iPK_Button = BUTTON_Enter_CONST; 		break;
-				case 3:	orbiterEvent->data.button.m_iPK_Button = BUTTON_5_CONST; 			break;
-				case 4:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; 	break;
-				case 5:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; 	break;
-				case 6:	orbiterEvent->data.button.m_iPK_Button = BUTTON_2_CONST; 			break;
-				case 7:	orbiterEvent->data.button.m_iPK_Button = BUTTON_1_CONST; 			break;
-
-				default:
-					orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
-			}
-#else
-			orbiterEvent->type = Orbiter::Event::REGION_DOWN;
-			orbiterEvent->data.region.m_iButton = sdlEvent.button.button;
-			orbiterEvent->data.region.m_iX = sdlEvent.button.x;
-			orbiterEvent->data.region.m_iY = sdlEvent.button.y;
-#endif
-			break;
-
-		case SDL_MOUSEBUTTONUP:
-			orbiterEvent->type = Orbiter::Event::REGION_UP;
-			orbiterEvent->data.region.m_iButton = sdlEvent.button.button;
-			orbiterEvent->data.region.m_iX = sdlEvent.button.x;
-			orbiterEvent->data.region.m_iY = sdlEvent.button.y;
-			break;
-
-		case SDL_KEYDOWN:
-			// on key up we update the keyboard state
-			// orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
-
-			switch (sdlEvent.key.keysym.sym)
-			{
-                case SDLK_LSHIFT: case SDLK_RSHIFT:		kbdState->bShiftDown = true; 				break;
-                case SDLK_LCTRL: case SDLK_RCTRL:		kbdState->bControlDown = true;				break;
-                case SDLK_LALT: case SDLK_RALT:			kbdState->bAltDown = true;					break;
-                case SDLK_CAPSLOCK:						kbdState->bCapsLock = !kbdState->bCapsLock;	break;
-                default:
-                    kbdState->cKeyDown=clock();  // We don't care how long the shift, ctrl or alt are held down, but the other keys do matter
-                    break;
-			}
-			break;
-
 		case SDL_KEYUP:
 #ifdef WIN32
 			RecordKeyboardAction(Event.key.keysym.sym);
@@ -270,6 +220,51 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 			}
 
 			break; // case SDL_KEYUP
+
+		case SDL_KEYDOWN:
+			// on key up we update the keyboard state
+			// orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
+			switch (sdlEvent.key.keysym.sym)
+			{
+                case SDLK_LSHIFT: case SDLK_RSHIFT:		kbdState->bShiftDown = true; 				break;
+                case SDLK_LCTRL: case SDLK_RCTRL:		kbdState->bControlDown = true;				break;
+                case SDLK_LALT: case SDLK_RALT:			kbdState->bAltDown = true;					break;
+                case SDLK_CAPSLOCK:						kbdState->bCapsLock = !kbdState->bCapsLock;	break;
+                default:
+                    kbdState->cKeyDown=clock();  // We don't care how long the shift, ctrl or alt are held down, but the other keys do matter
+                    break;
+			}
+			break;
+
+
+		case SDL_MOUSEBUTTONDOWN:
+#ifdef WIN32
+			RecordMouseAction(sdlEvent.button.x, sdlEvent.button.y);
+#endif
+		case SDL_MOUSEBUTTONUP:
+
+#ifdef AUDIDEMO
+			orbiterEvent->type = (sdlEvent.type == SDL_MOUSEBUTTONDOWN) ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
+			switch ( sdlEvent.button.button )
+			{
+				case 1:	orbiterEvent->data.button.m_iPK_Button = BUTTON_4_CONST; 			break;
+				case 2: orbiterEvent->data.button.m_iPK_Button = BUTTON_Enter_CONST; 		break;
+				case 3:	orbiterEvent->data.button.m_iPK_Button = BUTTON_5_CONST; 			break;
+				case 4:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; 	break;
+				case 5:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; 	break;
+				case 6:	orbiterEvent->data.button.m_iPK_Button = BUTTON_2_CONST; 			break;
+				case 7:	orbiterEvent->data.button.m_iPK_Button = BUTTON_1_CONST; 			break;
+
+				default:
+					orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
+			}
+#else
+			orbiterEvent->type = (sdlEvent.type == SDL_MOUSEBUTTONDOWN) ? Orbiter::Event::REGION_DOWN : Orbiter::Event::REGION_UP;
+			orbiterEvent->data.region.m_iButton = sdlEvent.button.button;
+			orbiterEvent->data.region.m_iX = sdlEvent.button.x;
+			orbiterEvent->data.region.m_iY = sdlEvent.button.y;
+#endif
+			break;
 
 		case SDL_MOUSEMOTION: // not handled
 		default:
