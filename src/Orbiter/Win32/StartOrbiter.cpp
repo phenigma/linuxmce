@@ -103,11 +103,13 @@ ORBITER *Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLo
 	}
 	catch(string s)
 	{
+        WriteStatusOutput(("ERROR: " + s).c_str());
 		g_pPlutoLogger->Write(LV_STATUS,s.c_str());
 		return NULL;
 	}
 	catch(const char *s)
 	{
+        WriteStatusOutput((string("ERROR: ") + s).c_str());
 		g_pPlutoLogger->Write(LV_STATUS, s);
 		return NULL;
 	}
