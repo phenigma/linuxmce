@@ -9,6 +9,8 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
+#include "DCE/Logger.h"
+#include "DCE/DCEConfig.h"
 #include "AVMessageTranslation.h"
 
 #include "pluto_main/Define_Command.h"

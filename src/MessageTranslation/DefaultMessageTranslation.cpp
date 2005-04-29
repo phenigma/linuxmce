@@ -9,9 +9,9 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#include "DefaultMessageTranslation.h"
 #include "DCE/Logger.h"
 #include "DCE/DCEConfig.h"
+#include "DefaultMessageTranslation.h"
 
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
@@ -128,9 +128,9 @@ DefaultMessageDispatcher
 void 
 DefaultMessageDispatcher::DispatchMessage(MessageReplicator& inrepl) {
 	for(int i = 0; i < inrepl.getCount(); i++) {
-		usleep(inrepl.getPreDelay() * 1000);
+		Sleep(inrepl.getPreDelay());
 		DispatchMessage(&inrepl.getMessage());
-		usleep(inrepl.getPostDelay() * 1000);
+		Sleep(inrepl.getPostDelay());
 	}
 }
 

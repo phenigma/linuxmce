@@ -108,6 +108,9 @@
 				RelativePath="AlarmManager.cpp">
 			</File>
 			<File
+				RelativePath="..\MessageTranslation\AVMessageTranslation.cpp">
+			</File>
+			<File
 				RelativePath=".\ClientSocket.cpp">
 			</File>
 			<File
@@ -121,6 +124,9 @@
 			</File>
 			<File
 				RelativePath=".\DCEConfig.cpp">
+			</File>
+			<File
+				RelativePath="..\MessageTranslation\DefaultMessageTranslation.cpp">
 			</File>
 			<File
 				RelativePath=".\DeviceData_Base.cpp">
@@ -145,6 +151,9 @@
 			</File>
 			<File
 				RelativePath=".\Message.cpp">
+			</File>
+			<File
+				RelativePath="..\MessageTranslation\MessageTranslation.cpp">
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\minilzo.cpp">
