@@ -95,6 +95,12 @@ bool Xine_Player::Connect(int iPK_DeviceTemplate )
 	if ( ! Command_Impl::Connect(iPK_DeviceTemplate) )
 		return false;
 
+	if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::Connect() xine-lib initialization has failed.");
+        return false;
+    }
+
 	m_pXineSlaveControl->setOutputSpeakerArrangement(DATA_Get_Output_Speaker_arrangement());
 	return true;
 }
@@ -393,7 +399,7 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu 
+0 - Root menu
 1 - Title menu
 2 - Media menu */
 
