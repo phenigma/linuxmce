@@ -424,7 +424,7 @@ function updateMediaDirectors($displayedDevicesArray,$dbADO)
 						INSERT INTO Device 
 							(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) 
 						VALUES (?,?,?,?,?)';
-				if($oldDevice==''){
+				if($oldDevice=='' && !is_null($orbiterMDChild)){
 					$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$_SESSION['installationID'],$orbiterMDChild,$oldRoomID));
 					$optionInsertId=$dbADO->Insert_ID();
 				}

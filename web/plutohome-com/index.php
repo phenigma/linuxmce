@@ -420,6 +420,13 @@ switch ($section) {
 		include_once('client/login/changeEmail.php');
 	    changeEmail($output);
 	break; 
+	case 'deleteInstallation':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('home');
+		include_once('client/deleteInstallation.php');
+	    deleteInstallation($output,$dbADO);
+	break; 
 	
 	
 	default:			

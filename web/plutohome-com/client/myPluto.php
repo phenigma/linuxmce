@@ -30,16 +30,22 @@ function myPluto($output,$dbADO,$conn) {
 		$installationsText='No Pluto installations.<br><br>
 		<b>To get Pluto</b>, choose <a href="index.php?section=wizard&step=1&instid=0">Start wizard</a>.';
 	else {
-		$installationsText='You have the following installations:<br>';
+		$installationsText='You have the following installations:
+		<table width="100%" border="0">';
 		$isDealer=0;
 		while($rowInstallations=$res->FetchRow()){
 			if(@$rowInstallations['EK_Dealer']!='')
 				$isDealer=1;
 			$installationsText.='
-				Installation no. <b>'.$rowInstallations['PK_Installation'].'</b><br>
-				Description: <a href="index.php?section=wizard&step=8&instid='.$rowInstallations['PK_Installation'].'"><b>'.stripslashes($rowInstallations['Description']).'</b></a><br>';
+			<tr>
+				<td colspan="2">Installation no. <b>'.$rowInstallations['PK_Installation'].'</b></td>
+			</tr>
+			<tr bgcolor="#F5F8FF">
+				<td>Description: <a href="index.php?section=wizard&step=8&instid='.$rowInstallations['PK_Installation'].'"><b>'.stripslashes($rowInstallations['Description']).'</b></a></td>
+				<td align="right" width="100"><a href="javascript:if(confirm(\'Are you sure you want to delete the installation?\'))self.location=\'index.php?section=deleteInstallation&dID='.$rowInstallations['PK_Installation'].'\'">[ Delete ]</a></td>
+			</tr>';
 		}
-		$installationsText.='<br><a href="index.php?section=wizard&step=1&instid=0"><b>Start wizard</b></a><br>';
+		$installationsText.='</table><br><a href="index.php?section=wizard&step=1&instid=0"><b>Start wizard</b></a><br>';
 	}
 
 	if(isset($_GET['redirect'])){
@@ -52,9 +58,18 @@ function myPluto($output,$dbADO,$conn) {
 			exit();
 		}
 	}
-
-
-		
+	$msg=(isset($_REQUEST['msg']))?'<span class="confirm">You had deleted the installation no. '.$_REQUEST['msg'].'</span>':'';
+	switch((int)@$_REQUEST['err']){
+		case 1:
+			$errMsg='<span class="err">Installation ID is not specified.</span>';
+		break;
+		case 2:
+			$errMsg='<span class="err">You are allowed to delete only your own installations.</span>';
+		break;
+		default:
+			$errMsg='';
+	}
+	
 	$out = '
       		<table width="100%">
 	      		<tr>
@@ -68,7 +83,7 @@ function myPluto($output,$dbADO,$conn) {
 					<td class="normaltext" colspan="2">Visit our <a href="support/index.php"><B>support site</B></a> to access <a href="support/index.php?section=home&package=0"><B>online documentation</B></a>, <a href="index.php?section=myPluto&redirect=forum"><B>forums</B></a>, <a href="index.php?section=myPluto&redirect=mantis" target="_blank"><B>bug reports</B></a>, <a href="support/index.php?section=mail"><B>mailing lists</B></a> and our <a href="support/index.php?section=document&docID=11"><B>quick start guide</B></a>.</td>
       			</tr>	
 				<tr>
-					<td class="normaltext">&nbsp;</td>
+					<td class="normaltext">&nbsp;'.@$msg.@$errMsg.'</td>
 					<td class="normaltext" align="right">&nbsp;</td>
       			</tr>	
       			<tr bgcolor="#DADDE4">

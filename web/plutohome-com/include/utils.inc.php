@@ -883,4 +883,14 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 	createChildsForControledViaDeviceCategory($FK_DeviceTemplate,$FK_Installation,$insertID,$dbADO,$roomID);
 
 }
+
+function delInstallation($installationID,$dbADO)
+{
+	$installationFKArray=array('CommandGroup','Criteria','Device','DeviceGroup','EventHandler','Floorplan','Household_Installation','InfraredGroup_Command','InfraredGroup_Command_Preferred','Installation_RepositorySource_URL','Installation_Users');
+	foreach($installationFKArray AS $tablename){	
+		$queryDelFromTable='DELETE FROM '.$tablename.' WHERE FK_Installation='.$installationID;
+		$dbADO->Execute($queryDelFromTable);
+	}
+	$dbADO->Execute('DELETE FROM Installation WHERE PK_Installation=?',$installationID);
+}
 ?>
