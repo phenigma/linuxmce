@@ -1,13 +1,21 @@
 #!/bin/bash
 
-mkdir -p -m 0777 /usr/pluto/orbiter/floorplans
-ln -sf /usr/pluto/orbiter/floorplans/ /var/www/pluto-admin/
-mkdir -p /usr/pluto/orbiter/users
-ln -sf /usr/pluto/orbiter/floorplans/ /var/www/floorplans
-ln -sf /usr/pluto/orbiter/users/ /var/www/users
+mkdir -p /usr/pluto/orbiter/floorplans
+chmod -R 777 /usr/pluto/orbiter/floorplans
+chown -R www-data.www-data /usr/pluto/orbiter/floorplans
+rm -f /var/www/pluto-admin/floorplans 2>/dev/null
+ln -s /usr/pluto/orbiter/floorplans/ /var/www/pluto-admin/
 
-mkdir -p -m 0777 /home/mediapics
-ln -sf /home/mediapics /var/www/pluto-admin/mediapics
+mkdir -p /usr/pluto/orbiter/users
+chmod -R 777 /usr/pluto/orbiter/users
+chown -R www-data.www-data /usr/pluto/orbiter/users
+rm -f /var/www/pluto-admin/users
+ln -s /usr/pluto/orbiter/users/ /var/www/pluto-admin/
+
+mkdir -p /home/mediapics
+chmod -R 777 /home/mediapics
+rm -f /var/www/pluto-admin/mediapics
+ln -s /home/mediapics /var/www/pluto-admin/mediapics
 
 a2dissite default || /bin/true
 
