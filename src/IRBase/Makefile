@@ -3,7 +3,7 @@ CXXFLAGS = -Wall -ggdb3
 CPPFLAGS = -I./ -I../ -I../DCE/ -I/usr/include/mysql
 CXX = g++
 LDFLAGS=-L$(ROOT)/lib
-LDLIBS=-lpthread -lDCECommon -lSerial -lSerializeClass -lPlutoUtils
+LDLIBS=-lpthread -lDCECommon -lSerial -lSerializeClass -lPlutoUtils -lMessageTranslation
 
 APPNAME = IRBase
 VERSION = 2.0.0
