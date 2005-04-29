@@ -103,11 +103,8 @@ gc100::~gc100()
 //<-dceag-dest-e->
 {
 	m_bQuit = true; // should this be using a mutex? :)
-	pthread_cancel(m_MessageQueueThread);
 	pthread_cancel(m_EventThread);
-	pthread_join(m_MessageQueueThread, NULL);
 	pthread_join(m_EventThread, NULL);
-	
 }
 
 //<-dceag-reg-b->
@@ -1420,8 +1417,8 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 					DCE::CMD_Store_Infrared_Code_Cat CMD_Store_Infrared_Code_Cat(m_dwPK_Device,
 						DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse,
 						PK_Device, pronto_result, PK_Command);
-					m_pCommand_Impl->SendCommand(CMD_Store_Infrared_Code_Cat);
-					m_CodeMap[longPair(PK_Device, PK_Command)] = pronto_result;
+					getCommandImpl()->SendCommand(CMD_Store_Infrared_Code_Cat);
+					getCodeMap()[longPair(PK_Device, PK_Command)] = pronto_result;
 	
 					bLearnedCode = true;
 					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Code learned successfully", PK_Text);
@@ -1465,7 +1462,7 @@ void gc100::CreateChildren()
 	string device_data;
 
 	gc100_Command::CreateChildren();
-	IRBase::Init(this);
+	IRBase::setCommandImpl(this);
 
 	send_to_gc100("getdevices");
 
