@@ -2186,7 +2186,6 @@ void Orbiter::FindObjectToHighlight(
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightNextObject( int PK_Direction )
 {
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 	vector<DesignObj_DataGrid *> vectObj_SelectedGrids;
 	size_t s;
