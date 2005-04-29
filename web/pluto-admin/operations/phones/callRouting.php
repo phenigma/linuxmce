@@ -181,7 +181,7 @@ function callRouting($output,$dbADO) {
 				$newIntern=substr($_POST['intern'],0,-7);
 				$newInternType='IAX2';
 			}
-			
+
 			if($oldInternationalLine=='' && $newInternational!=''){
 				$dbADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline',$fullCode,2,'SetVar','DIALLINE='.$newInternational));
 				$dbADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline',$fullCode,1,'SetVar','DIALLINETYPE='.$newInternationalType));

@@ -13,6 +13,12 @@ require('include/masterusers.inc.php');
 require('include/template.class.inc.php');
 
 $section = @$_REQUEST['section'];
+if(isset($_SESSION['userLoggedIn']) && !isset($_SESSION['installationID'])){
+	// invalid session, destroy it and send user to login
+	unset($_SESSION);
+	session_destroy();
+	$section='login';
+}
 
 switch ($section) {	
 	case 'login':

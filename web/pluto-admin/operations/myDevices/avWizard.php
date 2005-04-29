@@ -317,7 +317,8 @@ function avWizard($output,$dbADO) {
 										$deviceDataBox.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>
 												<option value="0"></option>';
 										while($rowTable=$resTable->FetchRow()){
-											$deviceDataBox.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').'>'.$rowTable['Description'].'</option>';
+											$itemStyle=($tableName=='FloorplanObjectType' && is_null(@$rowTable['FK_DesignObj_Control']))?' style="background-color:red;"':'';
+											$deviceDataBox.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').' '.$itemStyle.'>'.$rowTable['Description'].'</option>';
 										}
 										$deviceDataBox.='</select>';
 									}
@@ -515,7 +516,7 @@ function avWizard($output,$dbADO) {
 			}
 			$out.='
 				<tr>
-					<td colspan="8">&nbsp;</td>
+					<td colspan="8">'.(($type!='media_directors')?'* PK_FloorplanObjectType in red has no picture available':'').'&nbsp;</td>
 				</tr>
 				<tr>
 					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>

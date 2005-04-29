@@ -230,7 +230,10 @@ function phoneLines($output,$astADO,$dbADO) {
 			$uniqueID=(int)$_REQUEST['dID'];
 			$name=$_REQUEST['name'];
 			$delTable=$_REQUEST['delTable'];
-			setRandomLineDefault($name,$astADO,$defaultLineID,$defaultLineTypeID);
+			if(!setRandomLineDefault($name,$astADO,@$defaultLineID,@$defaultLineTypeID)){
+				// delete default line type
+				deleteDefaultLineType($defaultLineTypeID,$astADO);
+			}
 			deleteLine($uniqueID,$name,$delTable,$astADO);
 			
 			header('Location: index.php?section=phoneLines&msg=The phone line was deleted.');
@@ -280,6 +283,9 @@ function phoneLines($output,$astADO,$dbADO) {
 					// check if name or username is not already used
 					$resNameExist=$astADO->Execute('SELECT * FROM sip_buddies WHERE uniqueid!=? AND ((name=? OR username=?) AND name!=username)',array($lineID,$name,$username));
 					if($resNameExist->RecordCount()==0){
+						if($oldUsername!=$username){
+							$astADO->Execute('UPDATE ast_config SET var_val=REPLACE(var_val,?,?) WHERE filename=? AND var_name=? AND category=? AND var_val LIKE ?',array($oldUsername.':',$username.':','sip.conf','register','general',$oldUsername.':%'));
+						}
 						if($type=='SIP'){
 							$astADO->Execute('UPDATE sip_buddies SET username=?, name=?	WHERE name=username AND name=?',array($username,$username,$oldUsername));
 							$astADO->Execute('UPDATE sip_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
@@ -319,6 +325,9 @@ function phoneLines($output,$astADO,$dbADO) {
 					// check if name or username is not already used
 					$resNameExist=$astADO->Execute('SELECT * FROM iax_buddies WHERE uniqueid!=? AND ((name=? OR username=?) AND name!=username)',array($lineID,$name,$username));
 					if($resNameExist->RecordCount()==0){
+						if($oldUsername!=$username){
+							$astADO->Execute('UPDATE ast_config SET var_val=REPLACE(var_val,?,?) WHERE filename=? AND var_name=? AND category=? AND var_val LIKE ?',array($oldUsername.':',$username.':','iax.conf','register','general',$oldUsername.':%'));
+						}
 						if($type=='IAX2'){
 							$astADO->Execute('UPDATE iax_buddies SET username=?, name=?	WHERE name=username AND name=?',array($username,$username,$oldUsername));
 							$astADO->Execute('UPDATE iax_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
@@ -367,12 +376,12 @@ function phoneLines($output,$astADO,$dbADO) {
 
 function deleteLine($uniqueID,$name,$delTable,$astADO,$dontDelDefault=0)
 {
-	
 	$resPL=$astADO->Execute('SELECT * FROM '.$delTable.' WHERE uniqueid=?',$uniqueID);
 	if($resPL->RecordCount()>0){
 		$rowPL=$resPL->FetchRow();
-		$var_val=$rowPL['username'].':'.$rowPL['secret'].'@'.$rowPL['host'].'/'.$rowPL['fromuser'];
-		$astADO->Execute('DELETE FROM ast_config WHERE var_val=? AND filename=? AND var_name=? AND category=?',array($var_val,'sip.conf', 'register','general'));
+		$var_val=$rowPL['username'].':'.$rowPL['secret'].'@'.$rowPL['host'];
+		$confFile=(($delTable=='sip_buddies')?'sip.conf':'iax.conf');
+		$astADO->Execute('DELETE FROM ast_config WHERE var_val=? AND filename=? AND var_name=? AND category=?',array($var_val, $confFile, 'register','general'));
 	}
 	
 	// check if the line is international or internal
@@ -416,7 +425,16 @@ function setRandomLineDefault($name,$astADO,$defaultLineID,$defaultLineTypeID)
 			$rowFirstOtherLine=$resFirstOtherLine->FetchRow();
 			$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$rowFirstOtherLine['name'],$defaultLineID));
 			$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=IAX2',$defaultLineTypeID));
+		}else{
+			// no other lines available
+			return false;
 		}
 	}
+	return true;
+}
+
+function deleteDefaultLineType($defaultLineTypeID,$astADO)
+{
+	$astADO->Execute('DELETE FROM extensions_table WHERE (exten=? OR exten=?) AND appdata LIKE ?',array('_9XXX.','_XXXX.','DIALLINETYPE=%'));
 }
 ?>
