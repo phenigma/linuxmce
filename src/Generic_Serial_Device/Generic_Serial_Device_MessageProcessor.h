@@ -20,7 +20,7 @@ namespace DCE {
 /**
 @author Igor Spac,,,
 */
-class Generic_Serial_Device_MessageProcessor : public MessageProcessor {
+class Generic_Serial_Device_MessageProcessor : public MessageProcessorBase {
 public:
     Generic_Serial_Device_MessageProcessor();
     ~Generic_Serial_Device_MessageProcessor();

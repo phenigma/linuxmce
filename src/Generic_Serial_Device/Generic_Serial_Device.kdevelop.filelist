@@ -116,3 +116,5 @@ RubyIOPool.h
 /NetworkIOPool.cpp
 /IOUtils.h
 /IOUtils.cpp
+/DefaultMessageTranslation.h
+/DefaultMessageTranslation.cpp

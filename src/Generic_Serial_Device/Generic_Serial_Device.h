@@ -20,8 +20,8 @@
 
 #include "Gen_Devices/Generic_Serial_DeviceBase.h"
 //<-dceag-d-e->
-#include "Generic_Serial_Device_MessageProcessor.h"
 
+#include "MessageTranslation/AVMessageTranslation.h"
 #include "Serial/GenericIODevice.h"
 
 class Database_pluto_main;
@@ -29,7 +29,9 @@ class Database_pluto_main;
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class Generic_Serial_Device : public Generic_Serial_Device_Command, public Generic_Serial_Device_MessageProcessor
+	class Generic_Serial_Device : 
+			public Generic_Serial_Device_Command, 
+			public AVMessageProcessor /*will need translation of AV messages*/
 	{
 //<-dceag-decl-e->
 		// Private methods
@@ -73,7 +75,7 @@ public:
 //<-dceag-h-e->
 
 protected:
-		virtual void DispatchMessage(Message* pmsg); /*overriden from MessageProcessor*/
+		virtual void DispatchMessage(Message* pmsg); 
 /*
 public:
 		DeviceData_Impl* RecursiveFindChildDevice(unsigned dwPK_Device, DeviceData_Impl* pDeviceData_Impl);
