@@ -862,7 +862,8 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
     }
     if( pObj->m_pFloorplanObject && m_mapDevice_Selected.find(pObj->m_pFloorplanObject->PK_Device)!=m_mapDevice_Selected.end() )
     {
-        for(int i=0;i<4;++i)
+		int i;
+        for(i = 0; i < 4; ++i)
             HollowRectangle(pObj->m_rBackgroundPosition.X-i, pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i,
 			    (i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White()));
 
