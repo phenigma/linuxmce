@@ -34,6 +34,7 @@ CreateTunnel()
 	
 	# if tunnel is not active create it
 	if [ -z "$Tunnel" ] || ! nc -z pf.plutohome.com "$RemotePort"; then
+		[ -n "$Tunnel" ] && RemoveTunnel "$Suffix"
 		screen -d -m -S "${screenName}_${Suffix}" /usr/pluto/bin/RemoteAccess_Tunnel.sh "$RemotePort" "$LocalPort" "$RAKey"
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "SSH tunnel enabled."
 	else

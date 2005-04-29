@@ -2,6 +2,7 @@
 #include <sys/time.h>
 #include <sys/select.h>
 #include <unistd.h>
+#include <signal.h>
 
 int main()
 {
@@ -59,5 +60,6 @@ int main()
 
 	if (! old_school)
 		printf("\nThe other end failed to transmit the keep-alive character. Exiting\n");
+	kill(getppid(), SIGKILL);
 	return 0;
 }
