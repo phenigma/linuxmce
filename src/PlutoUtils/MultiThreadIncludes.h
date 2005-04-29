@@ -89,7 +89,7 @@ class PlutoLock
 public:
 	string m_sFileName;
 	int m_Line,m_LockNum;
-	bool m_bReleased,m_bLog,m_bLogErrorsOnly,m_bGotLock;
+	bool m_bReleased,m_bLog,m_bLogErrorsOnly,m_bGotLock,m_bIgnoreDeadlock;
 	
 	string m_sMessage;
 	pluto_pthread_mutex_t *m_pMyLock;

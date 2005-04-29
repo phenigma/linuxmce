@@ -21,6 +21,7 @@
 #define R_UPDATE_TABLE			6
 #define R_CLOSE_TRANSACTION		7
 #define R_APPROVE_BATCH			8
+#define R_GET_ROW				9
 
 #define A_UPDATE_ROW			1
 #define A_UPDATE_SCHEMA			2

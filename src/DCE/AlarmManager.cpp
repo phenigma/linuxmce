@@ -91,6 +91,7 @@ void AlarmManager::Stop()
 void AlarmManager::Run()
 {
 	PLUTO_SAFETY_LOCK(mm,m_Mutex);
+	mm.m_bIgnoreDeadlock=true;
 	AlarmEntry* entry;
 	while(m_Run)
 	{

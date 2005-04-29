@@ -585,6 +585,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 bool Socket::ReceiveData( int iSize, char *pcData )
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
+	sSM.m_bIgnoreDeadlock=true;  // This socket can block a long time on receive.  Don't treat that as a deadlock
 	if( m_Socket == INVALID_SOCKET )
 	{
 		if( m_bQuit )

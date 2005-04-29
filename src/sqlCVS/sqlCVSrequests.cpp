@@ -28,6 +28,7 @@
 #include "R_CommitChanges.h"
 #include "R_CommitTable.h"
 #include "R_CommitRow.h"
+#include "R_GetRow.h"
 #include "R_GetAll_psc_id.h"
 #include "R_UpdateRepository.h"
 #include "R_UpdateTable.h"
@@ -54,6 +55,10 @@ RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData,
 		return pRequest;
 	case R_COMMIT_ROW:
 		pRequest=new R_CommitRow( );
+		pRequest->CreateRequest( dwSize, pcData );
+		return pRequest;
+	case R_GET_ROW:
+		pRequest=new R_GetRow( );
 		pRequest->CreateRequest( dwSize, pcData );
 		return pRequest;
 	case R_GET_ALL_PSC_ID:

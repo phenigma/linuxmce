@@ -1239,7 +1239,10 @@ bool Repository::ShowChanges()
 			cout << setw( 6 ) << iNew << setw( 6 ) << iMod << setw( 6 ) << iDel << endl;
 		}
 
-		cout << "What table do you want more detail on?  Enter 'b' to go back, 'q' to quit" << endl;
+		cout << "What table do you want more detail on?" << endl <<
+			"Enter 'b' to go back, 'q' to quit," << endl << 
+			"'a' for all tables, 'r' to revert all tables" << endl;
+
 		string sTable;
 		cin >> sTable;
 		if( sTable=="b" || sTable=="B" )
@@ -1248,7 +1251,28 @@ bool Repository::ShowChanges()
 			return false;
 
 		int iTable = atoi(sTable.c_str());
-		if( iTable < 1 || iTable > (int) vectTable.size() )
+		if( sTable=="a" || sTable=="A" )
+		{
+			for(size_t s=0;s<vectTable.size();++s)
+			{
+				Table *pTable = vectTable[ s ];
+				if( !pTable->ShowChanges(true) )
+					return false;
+			}
+		}
+		else if( sTable=="r" || sTable=="R" )
+		{
+			if( AskYNQuestion("Revert all changes to all tables?  You will lose all your local changes?",false)==false )
+				continue;
+
+			for(size_t s=0;s<vectTable.size();++s)
+			{
+				Table *pTable = vectTable[ s ];
+				if( !pTable->RevertAllChanges() )
+					return false;
+			}
+		}
+		else if( iTable < 1 || iTable > (int) vectTable.size() )
 			cout << "That is not a valid selection" << endl;
 		else
 		{

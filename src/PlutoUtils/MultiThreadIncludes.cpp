@@ -42,6 +42,7 @@ PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock)
 {
 	m_bLogErrorsOnly=true;
 	m_bReleased=false;
+	m_bIgnoreDeadlock=false;
 	m_pMyLock=pLock;
 	m_sFileName = "*NONE*";
 	m_Line = 9999999;
@@ -56,6 +57,7 @@ PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock,string File,int Line,bool bLog
 {
 	m_sMessage=Message;
 	m_pMyLock=pLock;
+	m_bIgnoreDeadlock=false;
 	m_bLogErrorsOnly=bLogErrorsOnly;
 	m_sFileName=File;
 	m_Line=Line;
@@ -81,6 +83,7 @@ PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock,string File,int Line,bool bLog
 {
 	m_pMyLock=pLock;
 	m_bLogErrorsOnly=bLogErrorsOnly;
+	m_bIgnoreDeadlock=false;
 	m_sFileName=File;
 		m_Line=Line;
 	m_LockNum = ++iNextLock;
@@ -280,7 +283,7 @@ void PlutoLock::DumpOutstandingLocks()
 		// AB 4/8/2004 - end of temporary code
 #endif
 
-		if( pSafetyLock->m_pMyLock->m_sName=="alarm" )
+		if( pSafetyLock->m_bIgnoreDeadlock )
 		{
 			++itMapLock;
 			continue;

@@ -38,6 +38,7 @@
 #include "R_CommitTable.h"
 #include "R_CommitRow.h"
 #include "R_GetAll_psc_id.h"
+#include "R_GetRow.h"
 #include "R_UpdateTable.h"
 #include "A_UpdateRow.h"
 #include "sqlCVSprocessor.h"
@@ -1880,15 +1881,119 @@ bool Table::Dump( SerializeableStrings &str )
 	return true;
 }
 
-bool Table::ShowChanges()
+bool Table::RevertAllChanges()
+{
+	for(map<int, ListChangedRow *>::iterator itCR=m_mapUsers2ChangedRowList.begin();itCR!=m_mapUsers2ChangedRowList.end();++itCR)
+	{
+		ListChangedRow *pListChangedRow = (*itCR).second;
+		for(ListChangedRow::iterator itLCR=pListChangedRow->begin();itLCR!=pListChangedRow->end();++itLCR)
+		{
+			ChangedRow *pChangedRow = *itLCR;
+			RevertChange(pChangedRow);
+		}
+	}
+	return true;
+}
+
+bool Table::RevertChange(ChangedRow *pChangedRow)
+{
+	if( pChangedRow->m_bReverted )
+		return false;
+	std::ostringstream sSQL;
+	if( pChangedRow->m_eTypeOfChange==toc_New )
+	{
+		if( !g_GlobalConfig.m_bNoPrompts && AskYNQuestion("Delete the new row you added?",false)==false )
+			return false;
+		sSQL << "DELETE FROM " << m_sName << pChangedRow->GetWhereClause();
+	}
+	else
+	{
+		// We need the row from the server
+		R_GetRow r_GetRow( m_sName, pChangedRow->m_psc_id );
+
+		int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
+		RA_Processor ra_Processor( ClientID, SoftwareVersion );
+		ra_Processor.AddRequest( &r_GetRow );
+
+		DCE::Socket *pSocket=NULL;
+		while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
+
+		if( r_GetRow.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
+		{
+			cerr << "Cannot get changed record from server:" << (int) r_GetRow.m_cProcessOutcome << endl;
+			throw "Communication error";
+		}
+
+		if( pChangedRow->m_eTypeOfChange==toc_Delete )
+		{
+			sSQL << "INSERT INTO " << m_sName << "(";
+			for( MapStringString::iterator it=r_GetRow.m_mapCurrentValues.begin();it!=r_GetRow.m_mapCurrentValues.end();++it)
+				sSQL << (it!=r_GetRow.m_mapCurrentValues.begin() ? "," : "") << "`" << (*it).first << "`";
+			sSQL << ") VALUES (";
+			for( MapStringString::iterator it=r_GetRow.m_mapCurrentValues.begin();it!=r_GetRow.m_mapCurrentValues.end();++it)
+			{
+				if( it!=r_GetRow.m_mapCurrentValues.begin() )
+					sSQL << ",";
+
+				if( (*it).first=="psc_mod" )
+					sSQL << "0";
+				else if( (*it).second==NULL_TOKEN )
+					sSQL << "NULL";
+				else
+					sSQL << "'" << StringUtils::SQLEscape((*it).second) << "'";
+			}
+			sSQL << ")";
+		}
+		else if( pChangedRow->m_eTypeOfChange==toc_Modify )
+		{
+			sSQL << "UPDATE " << m_sName << " SET ";
+			for( MapStringString::iterator it=r_GetRow.m_mapCurrentValues.begin();it!=r_GetRow.m_mapCurrentValues.end();++it)
+			{
+				if( it!=r_GetRow.m_mapCurrentValues.begin() )
+					sSQL << ",";
+
+				sSQL << "`" << (*it).first << "`=";
+
+				if( (*it).first=="psc_mod" )
+					sSQL << "0";
+				else if( (*it).second==NULL_TOKEN )
+					sSQL << "NULL";
+				else
+					sSQL << "'" << StringUtils::SQLEscape((*it).second) << "'";
+			}
+			sSQL << " WHERE psc_id=" << pChangedRow->m_psc_id;
+		}
+		delete pSocket;
+	}
+
+	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	{
+		cerr << "Revert change: " << sSQL.str( ) << endl;
+		throw "Database error";
+	}
+
+	pChangedRow->m_bReverted=true;
+	return true;
+}
+
+bool Table::ShowChanges(bool bAllUsers)
 {
 	while(true)
 	{
-		cout << "Changes for table: " << m_sName << endl;
-		cout << "    User     New   Mod   Del" << endl;
+		if( !bAllUsers )
+		{
+			cout << "Changes for table: " << m_sName << endl;
+			cout << "    User     New   Mod   Del" << endl;
+		}
 
 		for(map<int, ListChangedRow *>::iterator itCR=m_mapUsers2ChangedRowList.begin();itCR!=m_mapUsers2ChangedRowList.end();++itCR)
 		{
+			if( bAllUsers )
+			{
+				if( !ShowChanges( (*itCR).first ) )
+					return false;
+				continue;
+			}
 			int iUser = (*itCR).first;
 			ListChangedRow *pListChangedRow = (*itCR).second;
 
@@ -1898,6 +2003,8 @@ bool Table::ShowChanges()
 			for(ListChangedRow::iterator itLCR=pListChangedRow->begin();itLCR!=pListChangedRow->end();++itLCR)
 			{
 				ChangedRow *pChangedRow = *itLCR;
+				if( pChangedRow->m_bReverted )
+					continue;
 				if( pChangedRow->m_eTypeOfChange==toc_New )
 					iNew++;
 				else if( pChangedRow->m_eTypeOfChange==toc_Modify )
@@ -1907,14 +2014,22 @@ bool Table::ShowChanges()
 			}
 			cout << setw( 6 ) << iNew << setw( 6 ) << iMod << setw( 6 ) << iDel << endl;
 		}
+		if( bAllUsers )
+			return true;
 
-		cout << "What user do you want more detail on?  Enter 'b' to go back, 'q' to quit" << endl;
+		cout << "What user do you want more detail on?" << endl <<
+			"Enter 'b' to go back, 'q' to quit" << endl <<
+			"Enter 'a' to show all, 'r' to revert all" << endl;
 		string sUser;
 		cin >> sUser;
 		if( sUser=="b" || sUser=="B" )
 			return true;
 		if( sUser=="q" || sUser=="Q" )
 			return false;
+		if( sUser=="a" || sUser=="A" )
+			return ShowChanges(true);
+		if( sUser=="r" || sUser=="R" )
+			return RevertAllChanges();
 
 		if( !ShowChanges( atoi(sUser.c_str()) ) )
 			return false;
@@ -1926,69 +2041,48 @@ bool Table::ShowChanges(int psc_user)
 	ListChangedRow *pListChangedRow = m_mapUsers2ChangedRowList_Find(psc_user);
 	while(true)
 	{
+		vector<ChangedRow *> vectChangedRow; // So we can revert
 		cout << "Changes to table: " << m_sName << " by user: " << psc_user << endl;
-		int iColumnWidth=18;
 
-		ostringstream sql;
-		sql << "SELECT psc_id,";
-		int iFieldCount=0;
-		for(ListField::iterator it = m_listField_PrimaryKey.begin();it != m_listField_PrimaryKey.end();++it)
+		for(ListChangedRow::iterator it=pListChangedRow->begin();it!=pListChangedRow->end();++it)
 		{
-			Field *pField = *it;
-			if( iFieldCount )
-				sql << ",";
-			sql << "`" << pField->Name_get() << "`";
-		}
-
-		sql << " FROM " << m_sName << " WHERE psc_id IN (";
-		bool bFirst=true;
-		for(ListChangedRow::iterator it = pListChangedRow->begin();it != pListChangedRow->end();++it)
-		{
-			if( bFirst )
-				bFirst=false;
-			else
-				sql << ",";
 			ChangedRow *pChangedRow = *it;
-			sql << pChangedRow->m_psc_id;
-		}
-		sql << ")";
-
-		PlutoSqlResult result_set;
-		MYSQL_ROW row=NULL;
-		if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
-		{
-			cout << "psc_id  ";
-			for(int i=1;i<(int) result_set.r->field_count;++i)
+			if( pChangedRow->m_bReverted )
+				continue;
+			vectChangedRow.push_back(pChangedRow); // We need something to reference these numerically
+			cout << setw(4) << vectChangedRow.size();
+			if( pChangedRow->m_eTypeOfChange==toc_Delete )
+				 cout << " DEL psc_id=" << pChangedRow->m_psc_id << endl;
+			else if( pChangedRow->m_eTypeOfChange==toc_Modify )
+				cout << " MOD psc_id=" << pChangedRow->m_psc_id << endl;
+			else if( pChangedRow->m_eTypeOfChange==toc_New )
 			{
-				string sField = result_set.r->fields[i].name;
-				if( ((int) sField.length())>iColumnWidth )
-					cout << sField.substr(0,iColumnWidth);
-				else
-					cout << sField << StringUtils::RepeatChar( ' ', iColumnWidth - (int) sField.length( ) );
-			}
-			cout << endl;
-
-			while( ( row = mysql_fetch_row( result_set.r ) ) )
-			{
-				cout << setw(8) << row[0];
-				for(int i=1;i<(int) result_set.r->field_count;++i)
+				cout << " NEW ";
+				size_t sF=0;
+				for(ListField::iterator itF=m_listField_PrimaryKey.begin();itF!=m_listField_PrimaryKey.end();++itF)
 				{
-					string sValue = row[i] ? row[i] : NULL_TOKEN;
-					if( (int) sValue.length()>iColumnWidth )
-						cout << sValue.substr(0,iColumnWidth);
-					else
-						cout << sValue << StringUtils::RepeatChar( ' ', iColumnWidth - (int) sValue.length( ) );
+					Field *pField = *itF;
+					cout << pField->Name_get() << "=" << pChangedRow->m_vectPrimaryKey[sF++];
 				}
 				cout << endl;
 			}
 		}
 
-		cout << "Enter 'b' to go back, 'q' to quit" << endl;
+		cout << "Enter 'b' to go back, 'q' to quit, 'rX' to revert change X" << endl;
 		string sRow;
 		cin >> sRow;
 		if( sRow=="b" || sRow=="B" )
 			return true;
-		return false;
+		else if( sRow=="q" || sRow=="Q" )
+			return false;
+		if( sRow.size()>1 && (sRow[0]=='r' || sRow[0]=='R') )
+		{
+			int iChangeNum=atoi( sRow.substr(1).c_str() );
+			if( iChangeNum<1 || iChangeNum>vectChangedRow.size() )
+				cout << "Bad number" << endl;
+			else
+				RevertChange( vectChangedRow[iChangeNum-1] );
+		}
 	}
 }
 

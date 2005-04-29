@@ -165,6 +165,9 @@
 				RelativePath=".\R_GetAll_psc_id.cpp">
 			</File>
 			<File
+				RelativePath=".\R_GetRow.cpp">
+			</File>
+			<File
 				RelativePath=".\R_UpdateRepository.cpp">
 			</File>
 			<File

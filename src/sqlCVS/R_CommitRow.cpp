@@ -46,10 +46,6 @@ R_CommitRow::R_CommitRow( sqlCVS::ChangedRow *pChangedRow )
 
 	cout << "Going to commit: " << pChangedRow->m_pTable->Name_get() << " psc_id: " << m_psc_id << " type: " << m_eTypeOfChange << " user: " << m_psc_user << " auto incr: " << m_iOriginalAutoIncrID << endl;
 	
-	if( m_psc_id==333 )
-{
-int k=2;
-}
 	m_bFrozen=false;
 	m_iNewAutoIncrID=m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=m_psc_user_new=0;
 }

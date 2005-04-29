@@ -459,45 +459,48 @@ class Table *Database::GetTableFromForeignKeyString( Table *pTable, string sFiel
 
 void Database::ShowChanges()
 {
-	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!!  */
-	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+	{  // So ra_Processor will fall out of scope before we browse changes
+		int ClientID=1, SoftwareVersion=1; /** @warning HACK!!!  */
+		RA_Processor ra_Processor( ClientID, SoftwareVersion );
 
-	// Don't need to create a transaction since we're not changing anything.
+		// Don't need to create a transaction since we're not changing anything.
 
-	DCE::Socket *pSocket=NULL;
+		DCE::Socket *pSocket=NULL;
 
-	for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
-	{
-		Repository *pRepository = ( *it ).second;
-		if( g_GlobalConfig.m_mapRepository.size() && 
-				g_GlobalConfig.m_mapRepository.find( pRepository->Name_get() )==g_GlobalConfig.m_mapRepository.end() )
-			continue;  // If we specified repositories, only show the tables in those repositories -- not all tables
-
-		for( MapTable::iterator it=pRepository->m_mapTable.begin( );it!=pRepository->m_mapTable.end( );++it )
+		for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
 		{
-			Table *pTable = ( *it ).second;
-			
-			if( g_GlobalConfig.m_mapTable.size() && 
-					g_GlobalConfig.m_mapTable.find( pTable->Name_get() )==g_GlobalConfig.m_mapTable.end() )
-				continue;
+			Repository *pRepository = ( *it ).second;
+			if( g_GlobalConfig.m_mapRepository.size() && 
+					g_GlobalConfig.m_mapRepository.find( pRepository->Name_get() )==g_GlobalConfig.m_mapRepository.end() )
+				continue;  // If we specified repositories, only show the tables in those repositories -- not all tables
 
-			/**
-			* Since we don't need to connect to the server for anything here, but we don't each table to make it's own connection, 
-			* Pass in the connection string and the NULL pointer to the socket so a connection will be made the
-			* first time and preserved for the other tables
-			*/
-			 
-			if( pTable->Repository_get( ) )
+			for( MapTable::iterator it=pRepository->m_mapTable.begin( );it!=pRepository->m_mapTable.end( );++it )
 			{
-				pTable->GetChanges(); // This will get the adds and modifies
-				if( !pTable->DetermineDeletions( ra_Processor, g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) )
+				Table *pTable = ( *it ).second;
+				
+				if( g_GlobalConfig.m_mapTable.size() && 
+						g_GlobalConfig.m_mapTable.find( pTable->Name_get() )==g_GlobalConfig.m_mapTable.end() )
+					continue;
+
+				/**
+				* Since we don't need to connect to the server for anything here, but we don't each table to make it's own connection, 
+				* Pass in the connection string and the NULL pointer to the socket so a connection will be made the
+				* first time and preserved for the other tables
+				*/
+				 
+				if( pTable->Repository_get( ) )
 				{
-					delete pSocket;
-					cerr << "Unable to contact the server to determine what records were deleted" << endl;
-					throw "database error";
+					pTable->GetChanges(); // This will get the adds and modifies
+					if( !pTable->DetermineDeletions( ra_Processor, g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) )
+					{
+						delete pSocket;
+						cerr << "Unable to contact the server to determine what records were deleted" << endl;
+						throw "database error";
+					}
 				}
 			}
 		}
+		delete pSocket;
 	}
 
 	while(true)
@@ -547,10 +550,7 @@ void Database::ShowChanges()
 		string sRepository;
 		cin >> sRepository;
 		if( sRepository=="q" || sRepository=="Q" )
-		{
-			delete pSocket;
 			return;
-		}
 
 		int iRepository = atoi(sRepository.c_str());
 		if( iRepository < 1 || iRepository > (int) vectRepository.size() )
@@ -559,10 +559,7 @@ void Database::ShowChanges()
 		{
 			Repository *pRepository = vectRepository[ iRepository-1 ];
 			if( !pRepository->ShowChanges() )
-			{
-				delete pSocket;
 				return;
-			}
 		}
 	}
 }

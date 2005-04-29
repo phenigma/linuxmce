@@ -117,8 +117,13 @@ int itmp_RowsToDelete;
 		/** @brief destructor */
 		~Table( );
 
+		/** @brief Revert changes made locally */
+		bool RevertAllChanges();
+		bool RevertChange(ChangedRow *pChangedRow);
+
 		/** @brief Displays a summary of all the rows changed in the table.  Called by the 'diff' command.  returns false means the user wants to quit */
-		bool ShowChanges();
+		bool ShowChanges(bool bAllUsers=false);
+
 		/** @brief Displays a summary of all the rows changed in the table by the given user.  Called by the 'diff' command.  returns false means the user wants to quit */
 		bool ShowChanges(int psc_user);
 
