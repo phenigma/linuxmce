@@ -47,7 +47,9 @@ fi
 # could be replaced with a "</dev/zero" for each command...
 keep_sending_enters()
 {
+	set +x
 	while : ; do echo; done
+	set -x
 }
 
 export DEBIAN_FRONTEND=noninteractive
@@ -70,12 +72,15 @@ case "$URL_TYPE" in
 #			[ "$Type" == "router" ] && apt-proxy-import-simple /usr/pluto/install/deb-cache
 		fi
 
-		if ! PackageIsInstalled "$PKG_NAME"; then
+#		if ! PackageIsInstalled "$PKG_NAME"; then
 			#export http_proxy="http://dcerouter:8123"
-			keep_sending_enters | apt-get -t "$REPOS" -y install "$PKG_NAME" || exit $ERR_APT
+			if ! keep_sending_enters | apt-get -t "$REPOS" -y --reinstall install "$PKG_NAME"; then
+				echo "$0: Apt error" >&2
+				exit $ERR_APT
+			fi
 			#unset http_proxy
 #			apt-get clean
-		fi
+#		fi
 	;;
 	
 	direct)
@@ -124,3 +129,5 @@ case "$URL_TYPE" in
 		/usr/pluto/install/Download_CVS.sh "$@" || exit $?
 	;;
 esac
+
+exit 0
