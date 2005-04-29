@@ -864,7 +864,11 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
     {
         for(int i=0;i<4;++i)
             HollowRectangle(pObj->m_rBackgroundPosition.X-i, pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i,
-			(i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White()));
+			    (i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White()));
+
+        //force an update because the object boundaries are not respected
+        PlutoRectangle rect(pObj->m_rBackgroundPosition.X-i, pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i);
+        UpdateRect(rect);
     }
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -5763,6 +5767,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 
 					ReplaceColorInRectangle(fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
 						fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color);
+
 				}
 
                 if( fpObj->pObj->m_vectDesignObjText.size()==1 && Description!="" )

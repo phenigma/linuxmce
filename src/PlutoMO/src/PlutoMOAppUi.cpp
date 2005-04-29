@@ -446,8 +446,10 @@ void CPlutoMOAppUi::SaveFile(
 	RFs   aFs;
 	aFs.Connect();
 
-	aFs.Delete(string(pFileName).Des());
-	file.Create(aFs, string(pFileName).Des(), EFileStream | EFileWrite);
+	string sFullPathName = m_sAppFolder + "\\" + string(pFileName);
+
+	aFs.Delete(sFullPathName.Des());
+	file.Create(aFs, sFullPathName.Des(), EFileStream | EFileWrite);
 
 	HBufC8 *base_str = HBufC8::NewL(iFileDataSize);
 	TPtr8 pStr = base_str->Des();
