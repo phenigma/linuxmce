@@ -96,6 +96,7 @@ void *HandleBDCommandProcessorThread( void *p )
 	PLUTO_SAFETY_LOCK( bm, pBluetooth_Dongle->m_BTMutex );
 	string sMacAddress = pBD_Orbiter_Plus_DongleHandle->m_sMacAddress;
 	u_int64_t iMacAddress = pBD_Orbiter_Plus_DongleHandle->m_iMacAddress;
+    string sVMC_File = pBD_Orbiter_Plus_DongleHandle->m_sVMCFile;
 	
 	if( !pBD_Orbiter || !pBD_Orbiter->m_pBDCommandProcessor || pBD_Orbiter->m_pBDCommandProcessor->m_bDead ) // check if everything is OK first
 	{
@@ -114,29 +115,27 @@ void *HandleBDCommandProcessorThread( void *p )
 	BD_CP_SendMeKeystrokes *pBD_CP_SendMeKeystrokes = new BD_CP_SendMeKeystrokes( 1 );
 	pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_SendMeKeystrokes );
 
-	/******************************************/
-	/** @test BD_CP_SendFile
+    if(sVMC_File != "")
+    {
+        string sDestionationVMCFileName = "PlutoMO.vmc";
 
-	char *pFileName = "a.gif"; ///HARDCODING WARNING!
-	char *pFileData; 
-	unsigned long iFileNameSize = string( pFileName ).size();
-	unsigned long iFileDataSize;
+        size_t iSize = 0;
+        char *pData = FileUtils::ReadFileIntoBuffer(sVMC_File, iSize);
 
-	FILE* file;
-	file = fopen( "C:\\a.gif", "rb" ); 
-	fseek( file, 0, SEEK_END );
-	iFileDataSize = ftell( file );
-	fseek( file, 0, SEEK_SET );
-	pFileData = new char[iFileDataSize];
-	fread( pFileData, 1, iFileDataSize, file );
-	fclose( file ); 
+        if(pData)
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", sVMC_File.c_str(), iSize);
 
- 	BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile( pFileName, pFileData, iFileNameSize, iFileDataSize );
-	pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_SendFile );
-
-	PLUTO_SAFE_DELETE( pFileData );
-	*/
-	/******************************************/
+            BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(
+                const_cast<char *>(sDestionationVMCFileName.c_str()), 
+                pData, 
+                (unsigned long)sDestionationVMCFileName.length(), 
+                (unsigned long)iSize
+            );
+            pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_SendFile );            
+            PLUTO_SAFE_DELETE(pData);
+        }
+    }
 
 	bm.Release();
 	while( NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead && pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL )); // loop for receiving commands
@@ -446,8 +445,10 @@ void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 			/** On = 1 (link to the orbiter or link to the phone); Off = 0 (unlink) */
 		/** @param #47 Mac address */
 			/** The mac address of the phone */
+		/** @param #118 VMC File */
+			/** If VMC File is not empty, BluetoothDongle will have to send the file to PlutoMO */
 
-void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string &sCMD_Result,Message *pMessage)
+void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string sVMC_File,string &sCMD_Result,Message *pMessage)
 //<-dceag-c60-e->
 {
 	cout << "Command #60 - Link with mobile orbiter" << endl;
@@ -543,7 +544,8 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 		BD_Orbiter_Plus_DongleHandle *pBD_Orbiter_Plus_DongleHandle = 
 			new BD_Orbiter_Plus_DongleHandle(
 				pBD_Orbiter, this, sMac_address, 
-				pBD_Orbiter->m_pPhoneDevice->m_iMacAddress
+				pBD_Orbiter->m_pPhoneDevice->m_iMacAddress,
+                sVMC_File
 			);
 
 	    pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, ( void* )pBD_Orbiter_Plus_DongleHandle );

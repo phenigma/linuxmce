@@ -275,6 +275,9 @@
 				RelativePath=".\LogMsg.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\md5c.cpp">
+			</File>
+			<File
 				RelativePath="..\Dce\Message.cpp">
 			</File>
 			<File
@@ -534,10 +537,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 		</Filter>
 		<Filter

@@ -35,24 +35,6 @@ public:
     }
 };
 
-/*
-
-    class Device *m_pDevice_CurrentDetected;
-    class Device *m_pDevice_This;
-    class EntGroup *m_pLastEntgroup;
-    class Device *m_pEntGroupAudioZone_LockedOn;
-    class OCRoom *m_pRoom_LockedOn;
-    class OCController *m_pController;
-    class PlutoServerCore *m_pCore;
-    class OCLogger *m_pOCLogger;
-    int m_iLastMenuType;
-    string m_sID,m_sWidth,m_sHeight,m_sCurrentInput;
-    bool m_bBuildingMenu;
-    bool m_bFollowMeLights,m_bFollowMeClimate,m_bFollowMeMedia,m_bFollowMeTelecom,m_bFollowMeSecurity;
-    int m_iLastSignalStrength,m_EnterKeyAlarm;
-
-*/
-
 //<-dceag-decl-b->!
     class Orbiter_Plugin : public Orbiter_Plugin_Command
     {

@@ -44,6 +44,7 @@
 	#include <cctype>
 	#include <algorithm>
 	#include <stdarg.h>
+
 	#ifdef WIN32
 		#include <windows.h>
 		#ifndef WINCE
@@ -57,7 +58,8 @@
 	#endif
 
 	#ifndef WINCE
-		#include <sys/types.h>
+        #include "md5.h"
+        #include <sys/types.h>
 		#include <sys/stat.h>
 	#endif
 #endif //#ifndef SYMBIAN
@@ -713,5 +715,38 @@ bool FileUtils::LaunchProcessInBackground(string sCommandLine)
 	return true;
 #endif
 }
+
+string FileUtils::FileChecksum( string sFileName)
+{
+    size_t iSize = 0;
+    char *pData = ReadFileIntoBuffer(sFileName, iSize);
+    if( pData == NULL )
+        return "";
+
+    string sChecksum = FileChecksum(pData, iSize);
+    delete pData;
+
+    return sChecksum;
+}
+
+string FileUtils::FileChecksum( char *pData, size_t iSize)
+{
+    MD5_CTX ctx;
+    MD5Init(&ctx);
+    MD5Update(&ctx, (unsigned char *)pData, (unsigned int)iSize);
+    unsigned char digest[16];
+    MD5Final(digest, &ctx);
+
+    char tmp[3];
+    string md5;
+    for (int i = 0; i < 16; i++)
+    {
+        sprintf(tmp, "%02x", digest[i]);
+        md5 += tmp;
+    }
+
+    return md5;
+}
+
 
 #endif //not WINCE

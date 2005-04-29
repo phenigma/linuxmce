@@ -52,6 +52,8 @@ namespace FileUtils
 	bool FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""); /** < scan sDirectory, for files matching any of the sFilespec_CSV (ie *.jpg,a*,bcd*.mpg), and store the names in listFiles.  Optionally recurse into sub-directories up to a level (500 by default). If the max depth was hit return true. The prepended path will be prepended to any files that are found.  Normally this is for internal use only while recursing. */
 	bool PUCopyFile(string sSource,string sDestination); /** < Copies a file from sSource to sDestination.  returns false if it fails, true otherwise */
 	bool LaunchProcessInBackground(string sCommandLine);
+    string FileChecksum( string sFileName); /** < returns file's checksum */
+    string FileChecksum( char *pData, size_t iSize); /** < returns file's checksum */
 #endif
 
 #endif //#ifndef SYMBIAN

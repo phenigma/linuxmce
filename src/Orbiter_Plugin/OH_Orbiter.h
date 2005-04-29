@@ -22,6 +22,7 @@ namespace DCE
 		int m_iLastSignalStrength;
 		int m_iFailedToConnectCount;
 		bool m_bRegistered;
+        string m_sUpdateVMCFile;
 		string m_sVersion;
 
 		time_t m_tRegenTime;

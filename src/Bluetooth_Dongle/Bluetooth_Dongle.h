@@ -73,14 +73,16 @@ public:
 	Bluetooth_Dongle* m_pBluetooth_Dongle;
 	string m_sMacAddress;
 	u_int64_t m_iMacAddress;
+    string m_sVMCFile;
 
 	BD_Orbiter_Plus_DongleHandle(class BD_Orbiter* pBD_Orbiter, class Bluetooth_Dongle* pBluetooth_Dongle, 
-			string sMacAddress, u_int64_t iMacAddress)
+			string sMacAddress, u_int64_t iMacAddress, string sVMCFile)
 	{
 		m_pBD_Orbiter = pBD_Orbiter;
 		m_pBluetooth_Dongle = pBluetooth_Dongle;
 		m_sMacAddress = sMacAddress;
 		m_iMacAddress = iMacAddress;
+        m_sVMCFile = sVMCFile;
 	}
 };
 
@@ -201,9 +203,11 @@ public:
 			/** On = 1 (link to the orbiter or link to the phone); Off = 0 (unlink) */
 		/** @param #47 Mac address */
 			/** The mac address of the phone */
+		/** @param #118 VMC File */
+			/** If VMC File is not empty, BluetoothDongle will have to send the file to PlutoMO */
 
-	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address) { string sCMD_Result; CMD_Link_with_mobile_orbiter(iMediaPosition,sMac_address.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string sVMC_File) { string sCMD_Result; CMD_Link_with_mobile_orbiter(iMediaPosition,sMac_address.c_str(),sVMC_File.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string sVMC_File,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #61 - Get Signal Strength */

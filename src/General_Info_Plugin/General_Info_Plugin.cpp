@@ -221,23 +221,7 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 
 	*iData_Size = (int) Length;
 	*pData = c;
-
-	//compute the checksum
-	MD5_CTX ctx;
-	MD5Init(&ctx);
-	MD5Update(&ctx, (unsigned char *)*pData, (unsigned int)*iData_Size);
-	unsigned char digest[16];
-	MD5Final(digest, &ctx);
-
-	char tmp[3];
-	string md5;
-	for (int i = 0; i < 16; i++)
-	{
-		sprintf(tmp, "%02x", digest[i]);
-		md5 += tmp;
-	}
-
-	*sChecksum = md5;
+    *sChecksum = FileUtils::FileChecksum(*pData, *iData_Size);
 
 	if(*bChecksum_Only)
 	{

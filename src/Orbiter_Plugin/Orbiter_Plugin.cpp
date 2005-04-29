@@ -224,9 +224,18 @@ bool Orbiter_Plugin::Register()
 		sSourceVMCFileName = "/usr/pluto/bin/" + sSourceVMCFileName;
 
 		string sDestFileName = "/usr/pluto/bin/dev_" + StringUtils::ltos(dwPKDevice) + ".vmc";
+        string sOldChecksum = FileUtils::FileChecksum(sDestFileName);
 
 		PopulateListsInVMC PopulateListsInVMC_(sSourceVMCFileName, sDestFileName, dwPKDevice, m_pDatabase_pluto_main, m_pRouter->iPK_Installation_get());
         PopulateListsInVMC_.DoIt();
+
+        if(sOldChecksum != FileUtils::FileChecksum(sDestFileName))
+            g_pPlutoLogger->Write(LV_STATUS, "Need to send %s to PlutoMO, the checksum is changed", sDestFileName.c_str());
+
+        pOH_Orbiter->m_sUpdateVMCFile = 
+            sOldChecksum != FileUtils::FileChecksum(sDestFileName) ?
+            sDestFileName :
+            "";
 	}
 
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterDetected) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_detected_CONST);
@@ -512,7 +521,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
                     -1,
                     pDeviceFrom->m_dwPK_Device,
                     1, //iMediaPosition = On
-                    sMacAddress);
+                    sMacAddress,
+                    pOH_Orbiter->m_sUpdateVMCFile);
 
 				SendCommand(CMD_Link_with_mobile_orbiter);
             }
