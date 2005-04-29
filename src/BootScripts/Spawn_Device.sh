@@ -3,6 +3,8 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/LockUtils.sh
 
+MAX_RESPAWN_COUNT=50
+
 mkdir -p /var/log/pluto
 echo "$(date) Spawn_Device $*" >> /var/log/pluto/Spawn_Device.log
 # syntax: $0 <device_id> <ip_of_router> <cmd_line> 
@@ -71,7 +73,7 @@ echo "$$ Spawn_Device of $Path$cmd_line (by $0)" >>/var/log/pluto/running.pids
 
 Tab=$(printf "\t") # to prevent any smart masses from converting this tab to 4 or 8 spaces
 i=1
-while [ "$i" -le 500 ]; do
+while [ "$i" -le "$MAX_RESPAWN_COUNT" ]; do
 	rm -f /var/log/pluto/spawned_devices_$device_id
 
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Appending log..."
@@ -115,7 +117,18 @@ while [ "$i" -le 500 ]; do
 		echo $(date) died >> "$new_log"
 		echo $(date) $device_name died >> /var/log/pluto/deaths
 		echo $(date) died >> /var/log/pluto/died_${device_id}_$device_name
-		sleep 5
+
+		count=0
+		ls -t1 /usr/pluto/coredump/core_${cmd_line##*/}_* | while read line; do
+			((count++))
+			if [[ "$count" -gt 3 ]]; then
+				rm -f $line
+			fi
+		done
+		if [[ "$count" -gt 3 ]]; then
+			Logging $TYPE $SEVERITY_WARNING "$module" "Found $count cores. Deleted all but latest 3. $i $device_name"
+		fi
+		sleep 20
 		/usr/pluto/bin/Start_LocalDevices.sh
 		i=$((i+1))
 	fi
