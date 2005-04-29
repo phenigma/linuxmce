@@ -336,6 +336,12 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
 	vector<string> numbers;
     StringUtils::Tokenize( sProgramID, "|", numbers );
 
+	if ( numbers.size() == 0 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Invalid channel specification: \"%d\"", sProgramID.c_str());
+		return;
+	}
+
     string channelNumber = numbers[0];
     for( unsigned int i = 0; i < channelNumber.size(); i++ )
     {
