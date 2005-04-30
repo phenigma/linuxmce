@@ -6549,3 +6549,13 @@ void Orbiter::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMes
 //<-dceag-c366-e->
 {
 }
+
+bool Orbiter::OkayToDeserialize(int iSC_Version)
+{
+	if( iSC_Version==ORBITER_SCHEMA )
+		return true;
+	g_pPlutoLogger->Write(LV_CRITICAL,"Cannot deserialize .info file.  It is version %d and I need %d",
+		iSC_Version,ORBITER_SCHEMA);
+	return false;
+}
+

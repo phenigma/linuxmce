@@ -322,6 +322,11 @@ public:
 	virtual void SetupSerialization(int iSC_Version) {}; 
 
 	/**
+	 * @brief override this if you want to be sure you only Deserialize a particular schema version
+	 */
+	virtual bool OkayToDeserialize(int iSC_Version) { return true; }
+
+	/**
 	 * @brief Used for classes that know how to serialize themselves.  Only available in the base class
 	 * @see the source file SerialiseClass.cpp
 	 */

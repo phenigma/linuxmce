@@ -985,6 +985,7 @@ int k=2;
 		+ "',Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
 	threaded_mysql_query(sql);
 
+	m_iSC_Version = ORBITER_SCHEMA;
 	m_tGenerationTime = time(NULL);
 	bool b=SerializeWrite(m_sOutputPath + "C" + StringUtils::itos(m_iPK_Orbiter) + ".info");
 

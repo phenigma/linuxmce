@@ -206,6 +206,9 @@ protected:
 
 	CacheImageManager *m_pCacheImageManager;
 
+	// Be sure we're only reading the correct version
+	virtual bool OkayToDeserialize(int iSC_Version);
+
 	/** these methods are general purpose, and will call Orbiter-specific methods to do the work */
 
 

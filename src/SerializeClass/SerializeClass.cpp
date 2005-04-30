@@ -55,6 +55,11 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 	else
 	{
 		unsigned long iSC_Version = Read_unsigned_long();
+		if( !OkayToDeserialize(iSC_Version) )
+		{
+			cerr << "It's not okay to deserialize version " << iSC_Version << endl;
+			return false;
+		}
 		SetupSerialization(iSC_Version);
 	}
 #ifdef DEBUG_SERIALIZATION
