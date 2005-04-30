@@ -484,7 +484,11 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
     // If this pointer is still valid, then we'll just add this file to the queue
     MediaStream *pMediaStream = NULL;
 
-    if( pEntertainArea->m_pMediaStream )
+	// See if we can queue it
+    if( !bResume && pEntertainArea->m_pMediaStream &&
+		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaHandlerInfo->m_pMediaHandlerBase &&
+		pEntertainArea->m_pMediaStream->m_iPK_MediaType == pMediaHandlerInfo->m_PK_MediaType &&
+		pMediaHandlerInfo->m_PK_MediaType!=MEDIATYPE_pluto_DVD_CONST )
     {
         pMediaStream = pEntertainArea->m_pMediaStream;
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
@@ -505,10 +509,6 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 
 		// ContainsVideo needs this too
 	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
-		if( pMediaStream->ContainsVideo() )
-			EVENT_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
-		else
-			EVENT_Listening_to_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
 
         pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
 		if( pOH_Orbiter && pOH_Orbiter->m_pOH_User )
@@ -549,7 +549,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	{
 		EntertainArea *pEntertainArea = ( *it ).second;
 
-		if( pEntertainArea->m_pMediaStream )
+		if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream!=pMediaStream )
 		{
 			OldStreamInfo *pOldStreamInfo = new OldStreamInfo(pEntertainArea);
 			mapOldStreamInfo[pEntertainArea->m_iPK_EntertainArea]=pOldStreamInfo;
@@ -587,6 +587,10 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		}
 
 		pEntertainArea->m_pMediaStream=pMediaStream;
+		if( pMediaStream->ContainsVideo() )
+			EVENT_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
+		else
+			EVENT_Listening_to_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
 	}
 
 	// If the media is only playing in 1 entertainment area and the source device is in the same entertainment
@@ -2345,19 +2349,22 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 		AddOtherDevicesInPipesToRenderDevices(&mapMediaDevice_Current);
 	}
 
-	// If we watching a DVD, and the pipe was from the dvd player to a video scaler to the tv, and we are now watching
-	// TV with the path from the media director to the tv, we want to turn off the scaler, but not the tv.  We will just
-	// send the media director an on and let the framework propagate the input selection automatically.  However, we don't
-	// want to just send the DVD player an off because then the framework will turn the tv off too.
-	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Prior->begin();it!=pmapMediaDevice_Prior->end();++it)
+	if( pmapMediaDevice_Prior )
 	{
-		// We need a recursive function to propagate the off's along the pipe, but not turning off any devices
-		// that we're still going to use in the current map
-		if ( (*it).second )  // Obs: I got a crash here while testing mihai.t
-			TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,&mapMediaDevice_Current);
-		else
+		// If we watching a DVD, and the pipe was from the dvd player to a video scaler to the tv, and we are now watching
+		// TV with the path from the media director to the tv, we want to turn off the scaler, but not the tv.  We will just
+		// send the media director an on and let the framework propagate the input selection automatically.  However, we don't
+		// want to just send the DVD player an off because then the framework will turn the tv off too.
+		for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Prior->begin();it!=pmapMediaDevice_Prior->end();++it)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Found a NULL associated device in the HandleOnOff: %d", (*it).first);
+			// We need a recursive function to propagate the off's along the pipe, but not turning off any devices
+			// that we're still going to use in the current map
+			if ( (*it).second )  // Obs: I got a crash here while testing mihai.t
+				TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,&mapMediaDevice_Current);
+			else
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Found a NULL associated device in the HandleOnOff: %d", (*it).first);
+			}
 		}
 	}
 
