@@ -515,6 +515,26 @@ void Orbiter::ReselectObject( void *data )
     }
 }
 
+void Orbiter::RedrawObject( void *iData )
+{
+	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) iData;
+	if( !pObj || !pObj->m_bOnScreen )
+		return;
+
+    PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+	NeedToRender render( this, "RedrawObject" );
+
+	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) pObj;
+		pGrid->bReAcquire=true;
+	}
+	m_vectObjs_NeedRedraw.push_back(pObj);
+
+
+	CallMaintenanceInMiliseconds(pObj->m_iRegenInterval,&Orbiter::RedrawObject,pObj,pe_Match_Data);
+}
+
 void Orbiter::RealRedraw( void *data )
 {
 	if( m_bQuit )
@@ -1279,6 +1299,8 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
 		DesignObj_DataGrid *pObj_Datagrid = (DesignObj_DataGrid *) pObj;
 		m_mapObjs_AllGrids[pObj_Datagrid->m_sGridID] = pObj_Datagrid;
 	}
+	if( pObj->m_iRegenInterval )
+		CallMaintenanceInMiliseconds(pObj->m_iRegenInterval,&Orbiter::RedrawObject,pObj,pe_Match_Data);
 
     pVectDesignObj_Orbiter->push_back( pObj );
     pObj->m_bOnScreen=true;
@@ -5798,7 +5820,6 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
     else
         m_AutoInvalidateTime = clock() + (CLOCKS_PER_SEC * 2);
 */
-	CallMaintenanceInMiliseconds(CLOCKS_PER_SEC,&Orbiter::RealRedraw,NULL,pe_ALL);
 }
 
 ScreenHistory *NeedToRender::m_pScreenHistory=NULL;

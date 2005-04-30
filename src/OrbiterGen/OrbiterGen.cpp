@@ -1248,6 +1248,8 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 */
 				ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=Value;
 			}
+			else if( drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_Auto_Invalidate_Time_CONST )
+				ocDesignObj->m_iRegenInterval = atoi(Value.c_str());
 			else
 				ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::Replace(Value,"<%=!%>",StringUtils::itos(PK_Orbiter));
 		}

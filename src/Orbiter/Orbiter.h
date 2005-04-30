@@ -228,6 +228,8 @@ protected:
 	 */
 	void RealRedraw( void *iData );
 
+	void RedrawObject( void *iData );
+
 	// Reselect the given object, used for repeating buttons
 	void ReselectObject( void *data );
 

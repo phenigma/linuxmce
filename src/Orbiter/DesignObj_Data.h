@@ -145,7 +145,7 @@ public:
 	// Our data
 	bool m_bChild,m_bDontResetState,m_bCantGoBack,m_bChildrenBeforeText,m_bProcessActionsAtServer,m_bAnimate,m_bHideByDefault;
 	bool m_bTabStop;
-	int m_PK_DesignObj_Up,m_PK_DesignObj_Down,m_PK_DesignObj_Left,m_PK_DesignObj_Right;
+	int m_PK_DesignObj_Up,m_PK_DesignObj_Down,m_PK_DesignObj_Left,m_PK_DesignObj_Right,m_iRegenInterval;
 	string m_sPK_DesignObj_TiedTo;
 	string m_sVisibleState;
 	int m_iPK_Button,m_dwTimeoutSeconds,m_Priority;
@@ -177,7 +177,7 @@ public:
 	{
 		m_PK_DesignObj_Up=m_PK_DesignObj_Down=m_PK_DesignObj_Left=m_PK_DesignObj_Right=0;
 		m_sPK_DesignObj_TiedTo="";
-		m_iRepeatIntervalInMS=m_iVersion=m_iPage=0;
+		m_iRegenInterval=m_iRepeatIntervalInMS=m_iVersion=m_iPage=0;
 		m_bRepeatParm=false;
 		return;
 	}
@@ -193,7 +193,7 @@ public:
 		m_ObjectType + m_rectDontDim +  m_rPosition +  m_rBackgroundPosition + 
 		m_PK_DesignObj_Up + m_PK_DesignObj_Down + m_PK_DesignObj_Left + m_PK_DesignObj_Right + m_sPK_DesignObj_TiedTo + m_sVisibleState +
 		m_sOriginalSize + m_iRepeatIntervalInMS + m_bRepeatParm +
-		m_dwIDim + m_dbHitTest;
+		m_dwIDim + m_dbHitTest + m_iRegenInterval;
 
 		// These are handled locally, so start with this
 		(*this) + m_Action_LoadList + m_Action_UnloadList + m_Action_TimeoutList + m_Action_StartupList +
