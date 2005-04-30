@@ -25,7 +25,7 @@ namespace DCE
         string m_sUpdateVMCFile;
 		string m_sVersion;
 
-		time_t m_tRegenTime;
+		time_t m_tRegenTime,m_tSendAppTime;
 
 		int PK_Users_get() { return m_pOH_User ? m_pOH_User->m_iPK_Users : 0; }  // Lots of places just want a 0 when there is no user
 
@@ -38,7 +38,7 @@ namespace DCE
 			m_pDevice_CurrentDetected = NULL;
 			m_iFailedToConnectCount = 0;
 			m_bRegistered=false;
-			m_tRegenTime=0;
+			m_tSendAppTime=m_tRegenTime=0;
 			m_pOH_User=NULL;
 		}
 	};

@@ -744,9 +744,16 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 			pMessage->m_dwID==COMMAND_Play_Media_CONST) )
 		{
 			MediaDevice *pMediaDevice = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source;
-			if( pMessage->m_dwID==COMMAND_Pause_Media_CONST )
+			if( pMessage->m_dwID==COMMAND_Pause_Media_CONST && pMediaDevice->m_iLastPlaybackSpeed!=0 )
 				pMediaDevice->m_iLastPlaybackSpeed = 0;
-			else if( pMessage->m_dwID==COMMAND_Play_Media_CONST )				
+			else if( pMessage->m_dwID==COMMAND_Pause_Media_CONST )
+			{
+				// It's the second pause in a row.  Change it to a play
+				pMessage->m_dwID=COMMAND_Change_Playback_Speed_CONST;
+				pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST] = "1000";
+				pMediaDevice->m_iLastPlaybackSpeed = 1000;
+			}
+			else if( pMessage->m_dwID==COMMAND_Play_Media_CONST )
 				pMediaDevice->m_iLastPlaybackSpeed = 1000;
 			else if( pMessage->m_dwID==COMMAND_Change_Playback_Speed_CONST )
 			{
@@ -764,15 +771,31 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 					// Relative speed
 					if( abs(iValue)<10 && iValue )
 					{
-						// We were paused, start out in slow motion
-						if( pMediaDevice->m_iLastPlaybackSpeed==0 )
+						// Nothing does more than 64x, so if we're already more than 32, go back to normal
+						if( abs(pMediaDevice->m_iLastPlaybackSpeed)>32000 )
+							pMediaDevice->m_iLastPlaybackSpeed = 1000;
+						
+						// We're changing directions to reverse, start at -1000
+						else if( iValue<0 && pMediaDevice->m_iLastPlaybackSpeed>0 )
+							pMediaDevice->m_iLastPlaybackSpeed=-1000;
+
+						// We're changing directions to forward, start at 1000
+						else if( iValue>0 && pMediaDevice->m_iLastPlaybackSpeed<0 )
+							pMediaDevice->m_iLastPlaybackSpeed=1000;
+
+						// We were paused and now got a forward.  Start out in slow motion
+						else if( iValue>0 && pMediaDevice->m_iLastPlaybackSpeed==0 )
 							pMediaDevice->m_iLastPlaybackSpeed=250;
 
-						if( iValue<0 )
-							pMediaDevice->m_iLastPlaybackSpeed *= 
+						// We were paused and now got a reverse.  Start out in slow motion
+						else if( iValue<0 && pMediaDevice->m_iLastPlaybackSpeed==0 )
+							pMediaDevice->m_iLastPlaybackSpeed=-250;
+
+						else if( iValue<0 )
+							pMediaDevice->m_iLastPlaybackSpeed = 
 								-1 * abs(pMediaDevice->m_iLastPlaybackSpeed * iValue);
 						else
-							pMediaDevice->m_iLastPlaybackSpeed *= 
+							pMediaDevice->m_iLastPlaybackSpeed = 
 								abs(pMediaDevice->m_iLastPlaybackSpeed * iValue);
 g_pPlutoLogger->Write(LV_STATUS,"relative Playback speed now %d for device %d %s",
 pMediaDevice->m_iLastPlaybackSpeed,

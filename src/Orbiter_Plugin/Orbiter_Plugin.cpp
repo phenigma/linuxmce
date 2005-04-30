@@ -542,14 +542,20 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
         g_pPlutoLogger->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL or unknown dev %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
 		return false;
     }
-g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p",pOH_Orbiter);
     string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
+g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH_Orbiter,sVersion.c_str());
 
     Row_Device *pRow_Device = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device;
     //if( (pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion) && pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
 	if( pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion )
 	{
-		SendAppToPhone(pOH_Orbiter,pDeviceFrom);
+		// It's possible that multiple detectors picked up the phone around the same time and we already
+		// are sending a new version to one, while another is detecting the phone.  Give the user 15 minutes
+		// to acknowledge and install before we try again
+		if( pOH_Orbiter->m_tSendAppTime && time(NULL)-pOH_Orbiter->m_tSendAppTime<900 )
+			g_pPlutoLogger->Write(LV_STATUS,"We already tried to send app to phone %s within the last 15 minutes",sMacAddress.c_str());
+		else
+			SendAppToPhone(pOH_Orbiter,pDeviceFrom);
 	}
 
 	DeviceData_Router *pDevice_PriorDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
@@ -862,7 +868,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
 
         SendCommand(CMD_Send_File_To_Device);
 
-        g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMac_address.c_str());
+        g_pPlutoLogger->Write(LV_WARNING, "Sending command1 CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMac_address.c_str());
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
@@ -1466,6 +1472,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: / %s / %s",
 	pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Reload(); // Just in case it's been changed
     pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_set(0);
     pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Table_Device_get()->Commit();
+	pOH_Orbiter->m_tSendAppTime = time(NULL);
 
     Row_DeviceTemplate *pRow_DeviceTemplate = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->FK_DeviceTemplate_getrow();
     string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
@@ -1480,7 +1487,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: / %s / %s",
 
     SendCommand(CMD_Send_File_To_Device);
 
-    g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", 
+    g_pPlutoLogger->Write(LV_WARNING, "Sending command2 CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", 
 		PlutoMOInstaller.c_str(), pOH_Orbiter->m_pDeviceData_Router->m_sMacAddress.c_str());
 }
 

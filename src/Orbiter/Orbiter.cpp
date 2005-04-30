@@ -1132,7 +1132,8 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 		return;
 
 if(pScreenHistory)
-g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s",pScreenHistory->m_pObj->m_ObjectID.c_str());
+g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s (%d)",
+					  pScreenHistory->m_pObj->m_ObjectID.c_str(),(int) bAddToHistory);
 
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     m_vectObjs_GridsOnScreen.clear(  );
@@ -1167,7 +1168,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
         ObjectOffScreen( m_pScreenHistory_Current->m_pObj );
         if(  bAddToHistory  )
             m_listScreenHistory.push_back( m_pScreenHistory_Current );
-
+DumpScreenHistory();
         if ( m_listScreenHistory.size(  ) > 64 )
 		{
 			delete m_listScreenHistory.front();
@@ -4512,6 +4513,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
     ScreenHistory *pScreenHistory=NULL;
     while(  m_listScreenHistory.size(  )  )
     {
+DumpScreenHistory();
         // The last screen we went to
         pScreenHistory = m_listScreenHistory.back(  );
 
@@ -4719,6 +4721,8 @@ void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,str
 //<-dceag-c8-e->
 {
 g_pPlutoLogger->Write(LV_STATUS,"CMD_Remove_Screen_From_History %s - %s size: %d",sPK_DesignObj.c_str(),sID.c_str(),(int) m_listScreenHistory.size());
+DumpScreenHistory();
+
 	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
 	for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();)
 	{
@@ -6559,3 +6563,15 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 	return false;
 }
 
+// Temporary function to debug a problem with the screen history
+void Orbiter::DumpScreenHistory()
+{
+string s = "history size: " + StringUtils::itos(m_listScreenHistory.size());
+
+for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();++it)
+{
+ScreenHistory *psh = *it;
+s+=psh->m_pObj->m_ObjectID + " / ";
+}
+g_pPlutoLogger->Write(LV_WARNING,"Screen history %s",s.c_str());
+}

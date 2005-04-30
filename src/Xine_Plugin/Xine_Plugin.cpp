@@ -268,7 +268,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 					}
 					else
 					{
-						m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_DVD_CONST) + "%>",false,10,true);
+						m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_DVD_CONST) + "%>",false,20,true);
 						return false;
 					}
 

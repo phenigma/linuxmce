@@ -73,6 +73,7 @@ enum ePurgeExisting { pe_NO=0, pe_ALL, pe_Match_Data };
  */
 class Orbiter : public Orbiter_Command,  public OrbiterData
 {
+void DumpScreenHistory(); // temporary function
 
 //<-dceag-decl-e->
 	friend class BD_PC_SetVariable; /** < Needs to maniuplate our variables */
