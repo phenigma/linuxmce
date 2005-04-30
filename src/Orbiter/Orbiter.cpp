@@ -2015,10 +2015,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
     Invalidate();
     return;
 */
-	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
-	m_vectObjs_NeedRedraw.push_back(pDesignObj_Orbiter);
-
-    RedrawObjects();
+	CMD_Refresh("");
 }
 //------------------------------------------------------------------------
 bool Orbiter::ClickedButton( DesignObj_Orbiter *pObj, int PK_Button )
@@ -6566,7 +6563,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 // Temporary function to debug a problem with the screen history
 void Orbiter::DumpScreenHistory()
 {
-string s = "history size: " + StringUtils::itos(m_listScreenHistory.size());
+	string s = "history size: " + StringUtils::itos(m_listScreenHistory.size());
 
 for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();++it)
 {

@@ -1509,6 +1509,13 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
             if( (pPipe=pDeviceData_Router->m_mapPipe_Active_Find(*it))!=NULL )
             {
                 (*(*pSafetyMessage))->m_dwPK_Device_To = pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get();
+#ifdef DEBUG
+
+				DeviceData_Router *pDevice = m_mapDeviceData_Router_Find((*(*pSafetyMessage))->m_dwPK_Device_To);
+				g_pPlutoLogger->Write(LV_ACTION,"Forwarding %d Command:\x1b[35;1m%s\x1b[0m up pipe to %d (\x1b[36;1m%s\x1b[0m)",
+					pCommand->m_dwPK_Command,pCommand->m_sDescription.c_str(),
+					(*(*pSafetyMessage))->m_dwPK_Device_To,pDevice!=NULL ? pDevice->m_sDescription.c_str() : "*unknown*");
+#endif
                 RealSendMessage(pSocket,pSafetyMessage);
             }
             (*(*pSafetyMessage))->m_dwPK_Device_To = PK_Device;

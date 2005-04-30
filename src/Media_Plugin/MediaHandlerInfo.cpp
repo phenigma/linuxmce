@@ -110,9 +110,9 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
     for( list<class MediaDevice *>::iterator itListMD=m_listMediaDevice.begin( );itListMD!=m_listMediaDevice.end( );++itListMD )
     {
         MediaDevice *pMediaDevice = *itListMD;
-        for( list<class EntertainArea *>::iterator itEntArea=pMediaDevice->m_listEntertainArea.begin( );itEntArea!=pMediaDevice->m_listEntertainArea.end( );++itEntArea )
+        for( map<int,class EntertainArea *>::iterator itEntArea=pMediaDevice->m_mapEntertainArea.begin( );itEntArea!=pMediaDevice->m_mapEntertainArea.end( );++itEntArea )
         {
-            EntertainArea *pEntertainArea = *itEntArea;
+            EntertainArea *pEntertainArea = itEntArea->second;
             List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find( m_PK_MediaType );
             if( !pList_MediaHandlerInfo )
             {

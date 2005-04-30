@@ -43,7 +43,6 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice
     m_bPlaying=false;
     m_pMediaPosition=NULL;
     m_pOH_Orbiter_StartedMedia=NULL;
-    m_pOH_Orbiter_OSD=NULL;
     m_pPictureData=NULL;
     m_iPictureSize=0;
     m_iOrder=0;
@@ -207,3 +206,33 @@ bool MediaStream::ContainsVideo()
 		m_iPK_MediaType==MEDIATYPE_np_Game_CONST;
 }
 
+
+bool MediaStream::OrbiterIsOSD(int PK_Orbiter)
+{
+	for(map<int, class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
+	{
+		EntertainArea *pEntertainArea = it->second;
+		if( pEntertainArea->m_pMediaDevice_ActiveDest &&
+				pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD &&
+				pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device==PK_Orbiter )
+			return true;
+	}
+	return false;
+}
+
+string MediaStream::GetAllOSD()
+{
+	string s;
+	for( map<int, class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
+	{
+		EntertainArea *pEntertainArea = it->second;
+		if( pEntertainArea->m_pMediaDevice_ActiveDest && 
+			pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD )
+		{
+			if( s.size() )
+				s += ",";
+			s += StringUtils::itos(pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device);
+		}
+	}
+	return s;
+}

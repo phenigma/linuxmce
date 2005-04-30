@@ -105,12 +105,19 @@ public:
 	bool NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
     void ProcessUnknownDevice();
+	
 	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false)
+	{
+		DisplayMessageOnOrbiter(StringUtils::itos(dwPK_Device),sMessage,bPromptToResetRouter,iTimeout,bCantGoBack);
+	}
+
+	void DisplayMessageOnOrbiter(string sPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false)
 	{
 		if ( sMessage == "" )
 			sMessage = "Unable to save playlist";
 
-		string sPK_Device = dwPK_Device ? StringUtils::itos(dwPK_Device) : m_sPK_Device_AllOrbiters;
+		if( sPK_Device.size()==0 )
+			sPK_Device = m_sPK_Device_AllOrbiters;
 		DCE::CMD_Set_Text_DL CMD_Set_Text( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), sMessage, TEXT_STATUS_CONST);
 
 		DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, sPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false, bCantGoBack );

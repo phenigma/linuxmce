@@ -33,7 +33,6 @@ namespace DCE
         class MediaHandlerInfo *m_pMediaHandlerInfo; /** Which handler has primary responsibility for this media stream */
 
 		class OH_Orbiter *m_pOH_Orbiter_StartedMedia;    	   /** Which orbiter started this stream in the first place */
-		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-sceren display */
 
         map<int, class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
 
@@ -95,6 +94,7 @@ namespace DCE
         int m_iStreamID_get() { return m_iStreamID; }
 
         void SetPicture(char *pPictureData,int iPictureSize) { delete[] m_pPictureData; m_pPictureData=pPictureData; m_iPictureSize=iPictureSize; }
+		string GetAllOSD();
 
 		virtual bool isMovable();
 		virtual void setIsMovable(bool bIsMovable = true);
@@ -107,6 +107,8 @@ namespace DCE
 
 		virtual bool CanPlayMore();
 		virtual bool ContainsVideo();
+
+		virtual bool OrbiterIsOSD(int PK_Orbiter); // True if the orbiter is an on screen display for this stream
 
 		virtual void DeleteEntryFromPlaylist(int position);
 		virtual void MoveEntryInPlaylist(int position, int displacement);

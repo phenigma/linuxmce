@@ -15,8 +15,9 @@ namespace DCE
 		MediaDevice(class Router *pRouter,Row_Device *pRow_Device);   /** This will store extra information about itself */
 		class DeviceData_Router *m_pDeviceData_Router;          /**< The device in the router */
 		map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */
-		list<class EntertainArea *> m_listEntertainArea;
+		map<int,class EntertainArea *> m_mapEntertainArea;
 		int m_iLastPlaybackSpeed;
+		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-sceren display */
 
 	};
 

@@ -40,6 +40,7 @@ namespace DCE
 		Room *m_pRoom;
 
 		class MediaStream  *m_pMediaStream;   /** The current media streams in this entertainment area */
+		MediaDevice	*m_pMediaDevice_ActiveDest;      /** The media device that is currently rendering media in this area */
 
 		map<int, class MediaDevice *> m_mapMediaDevice;  /** All the media devices in the area */
 		MediaDevice *m_mapMediaDevice_Find(int PK_Device) { map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(PK_Device); return it==m_mapMediaDevice.end() ? NULL : (*it).second; }

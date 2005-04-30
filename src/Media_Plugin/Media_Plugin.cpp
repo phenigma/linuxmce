@@ -85,6 +85,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	UniqueColors[4] = PlutoColor(128,128,0).m_Value;
 	m_iLastPlaybackSpeed = 1000;
 	m_pDeviceData_Router = pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) );
+
 	// do stuff with this
 }
 
@@ -188,7 +189,7 @@ continue;
         for( map<int, class MediaDevice *>::iterator itDevice=pEntertainArea->m_mapMediaDevice.begin( );itDevice!=pEntertainArea->m_mapMediaDevice.end( );++itDevice )
         {
             class MediaDevice *pMediaDevice = ( *itDevice ).second;
-            pMediaDevice->m_listEntertainArea.push_back( pEntertainArea );
+            pMediaDevice->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
         }
     }
 
@@ -335,6 +336,13 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
     {
         pMediaDevice = new MediaDevice( m_pRouter, pRow_Device ); // Nope, create it
         m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
+		if ( pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia &&
+				pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+		{
+			// store the orbiter which is directly controlling the target device as the target on-screen display.
+			pMediaDevice->m_pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
+		}
+
     }
     pEntertainArea->m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
 
@@ -367,7 +375,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
         return false; // Let someone else handle it
     }
 
-    if( !pMediaDevice->m_listEntertainArea.size( ) )
+    if( !pMediaDevice->m_mapEntertainArea.size( ) )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Got a media inserted event from a drive that doesn't exist in an entertainment area" );
         return false; // Let someone else handle it
@@ -375,7 +383,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
     // If there are more than one entertainment areas for this drive there's nothing we can do since we can't know the
     // destination based on the media inserted event. No matter what, we'll just pick the first one
-    EntertainArea *pEntertainArea = pMediaDevice->m_listEntertainArea.front( );
+    EntertainArea *pEntertainArea = pMediaDevice->m_mapEntertainArea.begin( )->second;
 
     // See if there's a media handler for this type of media in this area
     List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find( PK_MediaType );
@@ -574,19 +582,6 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 	if( PK_DesignObj_Remote && PK_DesignObj_Remote!=-1 )
         pMediaStream->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
 
-	// If it's an applicable media type (media that requires displaying on the screen basically)
-    if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ||		// either a DVD
-		 pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||	// or the TV display
-         pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST ) // or stored movies
-    {
-        if ( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia &&
-             pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
-        {
-			// store the orbiter which is directly controlling the target device as the target on-screen display.
-			pMediaStream->m_pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
-        }
-    }
-
 	if( pMediaStream_Resume )
 		pMediaStream->m_vectMediaStream_Interrupted.push_back(pMediaStream_Resume);
 
@@ -595,16 +590,31 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 
 bool Media_Plugin::StartMedia(MediaStream *pMediaStream,bool bNoChanges,int PK_MediaType_Prior, map<int,MediaDevice *> mapMediaDevice_Prior)
 {
-    for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
-    {
-        EntertainArea *pEntertainArea = ( *it ).second;
+	for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
+	{
+		EntertainArea *pEntertainArea = ( *it ).second;
 		pEntertainArea->m_pMediaStream=pMediaStream;
 	}
 
-    g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
-    if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
-    {
-        g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
+	// If the media is only playing in 1 entertainment area and the source device is in the same entertainment
+	// area where we are playing, we will assume the source device is also the rendering device.  In other words,
+	// if we have chosen to play a movie with Xine #1 in Ent Area #2, and if Xine #1 is in Ent Area #2, normally
+	// Xine #1 is both the source and the destination.  However, if we are playing media on a device in a different
+	// entertainment area, or in multiple ones, then we must be streaming.  So the media handler's start media
+	// will be responsible for determining the rendering device for each entertainment area.
+	if( pMediaStream->m_mapEntertainArea.size()==1 )
+	{
+		EntertainArea *pEntertainArea = pMediaStream->m_mapEntertainArea.begin()->second;
+		if( pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=
+			pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.end() )
+			pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;
+	}
+	else
+
+		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
+	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
 
 		if( !bNoChanges )
 		{
@@ -615,71 +625,81 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,bool bNoChanges,int PK_M
 			HandleOnOffs(PK_MediaType_Prior,pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
 		}
 
-        if( pMediaStream->m_iPK_DesignObj_Remote>0 )
-        {
-            for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
-            {
-                OH_Orbiter *pOH_Orbiter = (*it).second;
-                if( !pOH_Orbiter->m_pEntertainArea || pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end() )
-                    continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream
+		if( pMediaStream->m_iPK_DesignObj_Remote>0 )
+		{
+			for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+			{
+				OH_Orbiter *pOH_Orbiter = (*it).second;
+				if( !pOH_Orbiter->m_pEntertainArea || pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end() )
+					continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream
 
 				// We don't want to change to the remote screen on the orbiter that started playing this if it's audio, so that they can build a playlist
 				if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
 					continue;
 
-                int iPK_DesignObj_Remote = pMediaStream->m_iPK_DesignObj_Remote;
+				int iPK_DesignObj_Remote = pMediaStream->m_iPK_DesignObj_Remote;
 
-			    // If there's another user in the entertainment area that is in the middle of something (ie the Orbiter is not at the main menu),
-                // we don't want to forcibly 'take over' and change to the remote screen. So we are only goind to send the orbiters controlling this ent area
+				// If there's another user in the entertainment area that is in the middle of something (ie the Orbiter is not at the main menu),
+				// we don't want to forcibly 'take over' and change to the remote screen. So we are only goind to send the orbiters controlling this ent area
 				// to the correct remote iff thery are the main menu EXCEPT for the originating device which will always be send to the remote.
-                if( pOH_Orbiter!=pMediaStream->m_pOH_Orbiter_OSD )
-                {
-                    if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
-                    {
-                        DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-                            StringUtils::itos(iPK_DesignObj_Remote),"","",false, false);
-                        SendCommand(CMD_Goto_Screen);
-                    }
-                    else
-                    {
-                        DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-                            StringUtils::itos(iPK_DesignObj_Remote),"","-1",false, false);
-                        SendCommand(CMD_Goto_Screen);
-                    }
-                }
-            }
-        }
-        else
-            g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in -- there's no remote control for screen.");
-
-		// finally send the OnScreenDisplay orbiter (the one that is on the target media director) to the app_desktop screen.
-        if( pMediaStream->m_pOH_Orbiter_OSD )
-        {
-			switch( pMediaStream->m_iPK_MediaType )
-			{
-			case MEDIATYPE_pluto_DVD_CONST:
-				pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_dvd_full_screen_CONST;
-				break;
-			case MEDIATYPE_pluto_LiveTV_CONST:
-				pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_pvr_full_screen_CONST;
-				break;
-			case MEDIATYPE_pluto_StoredVideo_CONST:
-				pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_storedvideos_full_screen_CONST;
-				break;
-			default:
-				pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_generic_full_screen_CONST;
-				break;
+				if( !pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) )
+				{
+					if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
+					{
+						DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
+							StringUtils::itos(iPK_DesignObj_Remote),"","",false, false);
+						SendCommand(CMD_Goto_Screen);
+					}
+					else
+					{
+						DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
+							StringUtils::itos(iPK_DesignObj_Remote),"","-1",false, false);
+						SendCommand(CMD_Goto_Screen);
+					}
+				}
 			}
-            DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,0,
-                StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD),"","",false, false);
-            SendCommand(CMD_Goto_Screen);
-        }
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in -- there's no remote control for screen.");
 
-    }
-    else
-        g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed 2.");
 
-    g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() function call completed with honors!");
+		if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ||		// either a DVD
+			pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||	// or the TV display
+			pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST ) // or stored movies
+		{
+			for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
+			{
+				EntertainArea *pEntertainArea = ( *it ).second;
+
+				// finally send the OnScreenDisplay orbiter (the one that is on the target media director) to the app_desktop screen.
+				if( pEntertainArea->m_pMediaDevice_ActiveDest && pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD )
+				{
+					switch( pMediaStream->m_iPK_MediaType )
+					{
+					case MEDIATYPE_pluto_DVD_CONST:
+						pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_dvd_full_screen_CONST;
+						break;
+					case MEDIATYPE_pluto_LiveTV_CONST:
+						pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_pvr_full_screen_CONST;
+						break;
+					case MEDIATYPE_pluto_StoredVideo_CONST:
+						pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_storedvideos_full_screen_CONST;
+						break;
+					default:
+						pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_generic_full_screen_CONST;
+						break;
+					}
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,0,
+						StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD),"","",false, false);
+					SendCommand(CMD_Goto_Screen);
+				}
+			}
+		}
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed 2.");
+
+	g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() function call completed with honors!");
 
 	return true;
 }
@@ -1032,6 +1052,7 @@ void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea)
 
 g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEntertainArea->m_sDescription.c_str(), (int) pEntertainArea->m_mapBoundRemote.size() );
 	pEntertainArea->m_pMediaStream = NULL;
+	pEntertainArea->m_pMediaDevice_ActiveDest=NULL;
 
 	// Set all the now playing's to nothing
     for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
@@ -1077,8 +1098,10 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
 
    g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area: (%d) %p %p", pEntertainArea->m_iPK_EntertainArea, pEntertainArea, pEntertainArea->m_pMediaStream);
 
-	if( pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD &&
-		pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device == (unsigned long)pMessage->m_dwPK_Device_From &&
+   // Is the requesting orbiter the OSD?
+	if( pEntertainArea->m_pMediaDevice_ActiveDest &&
+		pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD && 
+		pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device == (unsigned long)pMessage->m_dwPK_Device_From &&
 		pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD )
 	{
 	   g_pPlutoLogger->Write(LV_STATUS, "Stream media type: %d. This (%d) is an OSD Orbiter. Sending him to screen: %d",
@@ -1673,9 +1696,9 @@ EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_D
     if( !iPK_EntertainArea && iPK_Device )
     {
         MediaDevice *pMediaDevice = m_mapMediaDevice_Find( iPK_Device );
-        if( pMediaDevice && pMediaDevice->m_listEntertainArea.size( ) )
+        if( pMediaDevice && pMediaDevice->m_mapEntertainArea.size( ) )
         {
-            EntertainArea *pEntertainArea = pMediaDevice->m_listEntertainArea.front( );
+            EntertainArea *pEntertainArea = pMediaDevice->m_mapEntertainArea.begin()->second;
             iPK_EntertainArea = pEntertainArea->m_iPK_EntertainArea;
         }
     }
@@ -2240,13 +2263,14 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	map<int,class EntertainArea *>::iterator itEntAreas;
 	for ( itEntAreas  = pMediaStream->m_mapEntertainArea.begin(); itEntAreas != pMediaStream->m_mapEntertainArea.end(); itEntAreas++)
 	{
-		if ( mapRequestedAreas.find((*itEntAreas).first) != mapRequestedAreas.end() )
+		class EntertainArea *pEntertainArea_Playing = (*itEntAreas).second;
+		if ( mapRequestedAreas.find(pEntertainArea_Playing->m_iPK_EntertainArea) != mapRequestedAreas.end() )
 		{
-			mapRequestedAreas.erase((*itEntAreas).first);
-			listChange.push_back((*itEntAreas).second);
+			mapRequestedAreas.erase(pEntertainArea_Playing->m_iPK_EntertainArea);
+			listChange.push_back(pEntertainArea_Playing);
 		}
 		else
-			listStop.push_back((*itEntAreas).second);
+			listStop.push_back(pEntertainArea_Playing);
 	}
 
 	// make the proper start list by walking what is remained in the target list. We can't clean it at the same time since i don't know the semantics.
@@ -2488,9 +2512,9 @@ void Media_Plugin::CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,stri
 		return;
 	}
 
-	for(list<class EntertainArea *>::iterator it=pMediaDevice->m_listEntertainArea.begin();it!=pMediaDevice->m_listEntertainArea.end();++it)
+	for(map<int,class EntertainArea *>::iterator it=pMediaDevice->m_mapEntertainArea.begin();it!=pMediaDevice->m_mapEntertainArea.end();++it)
 	{
-		EntertainArea *pEntertainArea = *it;
+		EntertainArea *pEntertainArea = it->second;
 		(*sText) += StringUtils::itos(pEntertainArea->m_iPK_EntertainArea) + ",";
 	}
 }

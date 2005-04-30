@@ -661,6 +661,11 @@ void Command_Impl::InterceptedMessage(Message *pMessage)
 
 void Command_Impl::ExecCommandGroup(int PK_CommandGroup)
 {
+	if( !PK_CommandGroup )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"Ignoring ExecCommandGroup 0");
+		return;
+	}
 	Message *pMessage = new Message(m_dwPK_Device,0,PRIORITY_NORMAL,MESSAGETYPE_EXEC_COMMAND_GROUP,PK_CommandGroup,0);
 	QueueMessageToRouter(pMessage);
 }

@@ -226,11 +226,9 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
 	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
 	{
-		if( pMediaStream->m_pOH_Orbiter_OSD )
-		{
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,10,true);
-			g_pPlutoLogger->Write(LV_CRITICAL, "Displaying one moment message");
-		}
+		string sPK_Orbiter = pMediaStream->GetAllOSD();
+		if( sPK_Orbiter.size() )
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sPK_Orbiter,"<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,10,true);
 
 		if( pXineMediaStream->m_dequeMediaFile.size() )
 			pXineMediaStream->m_sMediaDescription = pXineMediaStream->m_dequeMediaFile[0]->m_sFilename;
@@ -268,7 +266,10 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 					}
 					else
 					{
-						m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_DVD_CONST) + "%>",false,20,true);
+						string sPK_Orbiter = pMediaStream->GetAllOSD();
+						if( sPK_Orbiter.size() )
+							m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sPK_Orbiter,"<%=T" + StringUtils::itos(TEXT_Cannot_play_DVD_CONST) + "%>",false,20,true);
+
 						return false;
 					}
 
@@ -280,7 +281,9 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
 		if ( !bFound ) // we didn;t find a disk drive which was able to mount hte images
 		{
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"Error -- no drive",false,30,true);
+			string sPK_Orbiter = pMediaStream->GetAllOSD();
+			if( sPK_Orbiter.size() )
+				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sPK_Orbiter,"Error -- no drive",false,30,true);
 			return false;
 		}
 	}
@@ -504,7 +507,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
 	g_pPlutoLogger->Write(LV_STATUS, "Calling normal startMedia now!");
 	// start playback like normal do.
-	return StartMedia(pXineMediaStream);
+	return true; //m_pMedia_Plugin->StartMedia(pXineMediaStream);
 }
 
 MediaDevice *Xine_Plugin::FindStreamerDevice()
