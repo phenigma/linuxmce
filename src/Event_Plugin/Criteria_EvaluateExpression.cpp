@@ -162,7 +162,10 @@ bool EvaluateTimeOfDay(string Expression,void *pExtraInfo)
 	{
 		ListDeviceData_Router *pList = pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_General_Info_Plugin_CONST);
 		if( pList && pList->size() )
-			pGeneral_Info_Plugin = (General_Info_Plugin *) *(pList->begin());
+		{
+			DeviceData_Router *pDevice = *(pList->begin());
+			pGeneral_Info_Plugin = (General_Info_Plugin *) pRouter->m_mapPlugIn_Find(pDevice->m_dwPK_Device);
+		}
 	}
 
 	if( Expression=="DAY" || Expression=="NIGHT")
