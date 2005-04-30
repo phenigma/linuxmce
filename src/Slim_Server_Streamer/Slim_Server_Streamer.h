@@ -75,6 +75,9 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+// TEMP HACK - FORCE A RELOAD BY CAUSING A SEG FAULT!
+virtual void OnReload() { Command_Impl::OnReload(); char *p=NULL; strcpy(p,"sss"); }
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
