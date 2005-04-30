@@ -587,7 +587,11 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 		return false;
 	}
 
-	GetRenderDevices(pMediaStream, &mapPlaybackDevices);
+	for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
+	{
+		EntertainArea *pEntertainArea = ( *itEA ).second;
+		GetRenderDevices(pEntertainArea, &mapPlaybackDevices);
+	}
 
 	// virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage);
 	itPlaybackDevices = mapPlaybackDevices.begin();
@@ -665,13 +669,13 @@ bool Xine_Plugin::BroadcastMedia( class MediaStream *pMediaStream )
 	return true;
 }
 
-void Xine_Plugin::GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevice)
+void Xine_Plugin::GetRenderDevices(EntertainArea *pEntertainArea, map<int,MediaDevice *> *pmapMediaDevice)
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
 	XineMediaStream *pXineMediaStream;
 
-	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::GetRenderDevices() ")) == NULL )
+	if ( !pEntertainArea->m_pMediaStream || (pXineMediaStream = ConvertToXineMediaStream(pEntertainArea->m_pMediaStream, "Xine_Plugin::GetRenderDevices() ")) == NULL )
 		return;
 
 	pXineMediaStream->GetRenderDevices(pmapMediaDevice);

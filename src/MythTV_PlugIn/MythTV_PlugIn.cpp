@@ -383,15 +383,15 @@ bool MythTV_PlugIn::MoveMedia(class MediaStream *pMediaStream, list<EntertainAre
 	return true;
 }
 
-void MythTV_PlugIn::GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevices)
+void MythTV_PlugIn::GetRenderDevices(EntertainArea *pEntertainArea, map<int,MediaDevice *> *pmapMediaDevices)
 {
 	MythTvMediaStream *pMythTvMediaStream;
 
-	if ( (pMythTvMediaStream = ConvertToMythMediaStream(pMediaStream, "MythTV_PlugIn::GetRenderDevices(): ")) == NULL )
+	if ( !pEntertainArea->m_pMediaStream || (pMythTvMediaStream = ConvertToMythMediaStream(pEntertainArea->m_pMediaStream, "MythTV_PlugIn::GetRenderDevices(): ")) == NULL )
 		return;
 
 	/** @todo: implement this with forwarding to the actual media stream */
-	MediaHandlerBase::GetRenderDevices(pMediaStream, pmapMediaDevices);
+	MediaHandlerBase::GetRenderDevices(pEntertainArea, pmapMediaDevices);
 
 	// pMythTvMediaStream->GetRenderDevices(pmapMediaDevices);
 }

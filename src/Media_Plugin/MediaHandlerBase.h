@@ -31,7 +31,7 @@ namespace DCE
 		// Given a stream, what is the rendering device(s).  The source device is stored in the stream.  Normally the source and rendering are the same (dvd player, for example).
 		// But sometimes the source may be a back-end streamer, and the rendering device(s) some network audio players.  The framework needs
 		// to know the rendering devices so it can send on/off's to them.  If the source & dest aren't the same, the plug-in must override this
-		virtual void GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice);
+		virtual void GetRenderDevices(EntertainArea *pEntertainArea,map<int,MediaDevice *> *pmapMediaDevice);
 
 		// it can't virtual and static at the same time.
 		virtual MediaDevice *GetMediaDeviceForEntertainArea(EntertainArea *pEntertainArea, int PK_DeviceTemplate)

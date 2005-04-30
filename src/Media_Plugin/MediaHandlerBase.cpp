@@ -26,13 +26,13 @@
 using namespace std;
 using namespace DCE;
 
-void MediaHandlerBase::GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevice)
+void MediaHandlerBase::GetRenderDevices(EntertainArea *pEntertainArea, map<int,MediaDevice *> *pmapMediaDevice)
 {
-    g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices with stream %p map %p",pMediaStream, pmapMediaDevice);
-	if( pMediaStream && pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router )
+    g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices with ea %p map %p",pEntertainArea, pmapMediaDevice);
+	if( pEntertainArea->m_pMediaDevice_ActiveDest && pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, " Setting the device data source: to %d (%s)", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_sDescription.c_str());
-		(*pmapMediaDevice)[pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device] = m_pMedia_Plugin->m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+		g_pPlutoLogger->Write(LV_STATUS, " Setting the device data source: to %d (%s)",  pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_sDescription.c_str());
+		(*pmapMediaDevice)[pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device] = pEntertainArea->m_pMediaDevice_ActiveDest;
 	}
 }
 

@@ -51,10 +51,6 @@ namespace DCE
 		// TODO: Ask why do i need to put class in front here ?
 		class MediaPosition 	*m_pMediaPosition; 			/** Where we are in the media stream */
 
-		/** If the user starts some media temporarily (like an announcement) and wants the prior
-		media to continue when it's done, the prior interrupted media streams are stored here */
-		vector<class MediaStream  *> m_vectMediaStream_Interrupted;
-
 		char 		*m_pPictureData;
         size_t 		 m_iPictureSize;
 
@@ -69,6 +65,7 @@ namespace DCE
 		bool 	m_bIsMovable; 					/** < bCanMove - This if this media stream can be moved in a move media command */
 		int 	m_iOrder;  						/** This is used for the floorplans to order and color code the streams */
 		int		m_iRepeat;						/** Indicates if this media should repeat */
+		bool 	m_bResume; 						/** < True if this media was started with the 'resume' flag, meaning when it ends, resume what was playing previously */
 
 		time_t	m_tTime;						/** When the user started this media */
 		time_t	m_tTime_Parked;					/** When we parked this media -- ie the user left an area with follow me on, so we stop the media, and leave it 'pending' for a while so he can enter another area */

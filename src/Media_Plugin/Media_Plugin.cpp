@@ -238,6 +238,18 @@ bool Media_Plugin::Register()
 
     m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl->front( );
 
+	for( map<int, class MediaDevice *>::iterator itDevice=m_mapMediaDevice.begin( );itDevice!=m_mapMediaDevice.end( );++itDevice )
+    {
+        class MediaDevice *pMediaDevice = ( *itDevice ).second;
+
+		if ( pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia &&
+			pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+		{
+			// store the orbiter which is directly controlling the target device as the target on-screen display.
+			pMediaDevice->m_pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
+		}
+	}
+
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaInserted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Inserted_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Media_CONST );
@@ -336,13 +348,6 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
     {
         pMediaDevice = new MediaDevice( m_pRouter, pRow_Device ); // Nope, create it
         m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
-		if ( pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia &&
-				pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
-		{
-			// store the orbiter which is directly controlling the target device as the target on-screen display.
-			pMediaDevice->m_pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
-		}
-
     }
     pEntertainArea->m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
 
@@ -460,21 +465,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     {
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
 
-		if( pMediaStream->m_vectMediaStream_Interrupted.size() )
-		{
-			map<int,MediaDevice *> mapMediaDevice_Prior;
-			pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pMediaStream,&mapMediaDevice_Prior);
-			int PK_MediaType_Prior = pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType;
-
-			MediaStream *pMediaStream_Resume = pMediaStream->m_vectMediaStream_Interrupted.back();
-			pMediaStream->m_vectMediaStream_Interrupted.pop_back();
-
-			StreamEnded(pMediaStream);
-
-			StartMedia(pMediaStream_Resume,false,PK_MediaType_Prior,mapMediaDevice_Prior);
-		}
-		else
-			StreamEnded(pMediaStream);
+		StreamEnded(pMediaStream);
 
 		g_pPlutoLogger->Write(LV_STATUS, "Playback completed. The stream can't play anything more.");
     }
@@ -485,52 +476,6 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-
-	// We need to keep track of the devices where we were previously rendering media so that we can send on/off commands
-	map<int,MediaDevice *> mapMediaDevice_Prior;
-	int PK_MediaType_Prior=0;
-
-	// If Resume is set, then this media is just a temporary stream, like an announcement, and if something
-	// is currently playing, we will store that stream here and resume playing it when the temporary
-	// stream is done.
-	MediaStream *pMediaStream_Resume=NULL;
-
-	bool bNoChanges=false; // We'll set this to true of we're still using the same media plug-in so we know we don't need to resend the on commands
-
-	// Normally we'll add new files to the queue if we're playing stored audio/video.
-	// However, if the current media is not playing files, or if it's playing a mounted dvd, or if the new
-    // file to play is a mounted dvd, then we can't add to the queue, and will need to create a new media stream
-    if( pEntertainArea->m_pMediaStream )
-    {
-		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Prior);
-		PK_MediaType_Prior = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType;
-
-		if( bResume )
-		{
-            // We can't queue this.
-			pMediaStream_Resume = pEntertainArea->m_pMediaStream;
-			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
-			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
-			StreamEnded(pEntertainArea->m_pMediaStream,false,false);
-			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
-		}
-		else
-		{
-			// this will reset the current media stream if the pMediaHandlerBase is different from the original media Handler.
-			// We should also look at the media types. If the current Media type is different then we will also do a new media stream.
-			if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase != pMediaHandlerInfo->m_pMediaHandlerBase ||
-				pEntertainArea->m_pMediaStream->m_iPK_MediaType != pMediaHandlerInfo->m_PK_MediaType || pMediaHandlerInfo->m_PK_MediaType==MEDIATYPE_pluto_DVD_CONST )
-			{
-				// We can't queue this.
-				pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
-				g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
-				StreamEnded(pEntertainArea->m_pMediaStream,false);
-				g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): stream ended completed.");
-			}
-			else
-				bNoChanges = true;
-		}
-    }
 
     MediaDevice *pMediaDevice=NULL;
     if( PK_Device_Source )
@@ -582,17 +527,65 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 	if( PK_DesignObj_Remote && PK_DesignObj_Remote!=-1 )
         pMediaStream->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
 
-	if( pMediaStream_Resume )
-		pMediaStream->m_vectMediaStream_Interrupted.push_back(pMediaStream_Resume);
-
-	return StartMedia(pMediaStream,bNoChanges,PK_MediaType_Prior,mapMediaDevice_Prior);
+	pMediaStream->m_bResume=bResume;
+	return StartMedia(pMediaStream);
 }
 
-bool Media_Plugin::StartMedia(MediaStream *pMediaStream,bool bNoChanges,int PK_MediaType_Prior, map<int,MediaDevice *> mapMediaDevice_Prior)
+class OldStreamInfo
 {
+public:
+	EntertainArea *m_pEntertainArea;
+	bool m_bNoChanges;
+	int m_PK_MediaType_Prior;
+	map<int,MediaDevice *> m_mapMediaDevice_Prior;
+	OldStreamInfo(EntertainArea *pEntertainArea) { m_pEntertainArea=pEntertainArea; m_bNoChanges=false; m_PK_MediaType_Prior=0; }
+};
+
+bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
+{
+	map<int,class OldStreamInfo *> mapOldStreamInfo;
+
 	for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
 	{
 		EntertainArea *pEntertainArea = ( *it ).second;
+
+		if( pEntertainArea->m_pMediaStream )
+		{
+			OldStreamInfo *pOldStreamInfo = new OldStreamInfo(pEntertainArea);
+			mapOldStreamInfo[pEntertainArea->m_iPK_EntertainArea]=pOldStreamInfo;
+			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&pOldStreamInfo->m_mapMediaDevice_Prior);
+			pOldStreamInfo->m_PK_MediaType_Prior = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType;
+
+			// If Resume is set, then this media is just a temporary stream, like an announcement, and if something
+			// is currently playing, we will store that stream here and resume playing it when the temporary
+			// stream is done.
+			MediaStream *pMediaStream_Resume=NULL;
+			if( pMediaStream->m_bResume )
+			{
+				pEntertainArea->m_vectMediaStream_Interrupted.push_back(pMediaStream);
+				pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
+				g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
+				StreamEnded(pEntertainArea->m_pMediaStream,false,false);  // Don't delete it
+				g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
+			}
+			else
+			{
+				// this will reset the current media stream if the pMediaHandlerBase is different from the original media Handler.
+				// We should also look at the media types. If the current Media type is different then we will also do a new media stream.
+				if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase != pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase ||
+					pEntertainArea->m_pMediaStream->m_iPK_MediaType != pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType || pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+				{
+					// We can't queue this.
+					pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
+					g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
+					StreamEnded(pEntertainArea->m_pMediaStream,false);
+					g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): stream ended completed.");
+				}
+				else
+					pOldStreamInfo->m_bNoChanges = true;
+			}
+		}
+
 		pEntertainArea->m_pMediaStream=pMediaStream;
 	}
 
@@ -610,19 +603,27 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,bool bNoChanges,int PK_M
 			pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;
 	}
 	else
-
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
+
 	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
 
-		if( !bNoChanges )
+		for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
 		{
-			// We need to get the current rendering devices so that we can send on/off commands
-			map<int,MediaDevice *> mapMediaDevice_Current;
-			// only do stuff with valid objects
-			pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pMediaStream,&mapMediaDevice_Current);
-			HandleOnOffs(PK_MediaType_Prior,pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
+			EntertainArea *pEntertainArea = ( *it ).second;
+			OldStreamInfo *pOldStreamInfo = mapOldStreamInfo[pEntertainArea->m_iPK_EntertainArea];
+			if( !pOldStreamInfo || !pOldStreamInfo->m_bNoChanges )
+			{
+				// We need to get the current rendering devices so that we can send on/off commands
+				map<int,MediaDevice *> mapMediaDevice_Current;
+				// only do stuff with valid objects
+				pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Current);
+				HandleOnOffs(pOldStreamInfo ? pOldStreamInfo->m_PK_MediaType_Prior : 0,
+					pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,
+					pOldStreamInfo ? &pOldStreamInfo->m_mapMediaDevice_Prior : NULL,
+					&mapMediaDevice_Current);
+			}
 		}
 
 		if( pMediaStream->m_iPK_DesignObj_Remote>0 )
@@ -1025,19 +1026,28 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 	}
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-	map<int,MediaDevice *> mapMediaDevice_Prior;
-    g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices" );
-	pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pMediaStream,&mapMediaDevice_Prior);
+
 	// This could have been playing in lots of entertainment areas
     g_pPlutoLogger->Write( LV_STATUS, "Stream %s ended with %d ent areas", pMediaStream->m_sMediaDescription.c_str(), (int) pMediaStream->m_mapEntertainArea.size() );
     for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
     {
         EntertainArea *pEntertainArea = ( *it ).second;
-		MediaInEAEnded(pEntertainArea);
-    }
+		map<int,MediaDevice *> mapMediaDevice_Prior;
+		g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices" );
+		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Prior);
 
-	if( bSendOff )
-		HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
+		MediaInEAEnded(pEntertainArea);
+
+		if( pEntertainArea->m_vectMediaStream_Interrupted.size() )
+		{
+			MediaStream *pMediaStream_Resume = pEntertainArea->m_vectMediaStream_Interrupted.back();
+			pEntertainArea->m_vectMediaStream_Interrupted.pop_back();
+			StartMedia(pMediaStream_Resume);
+		}
+
+		if( bSendOff )
+			HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
+	}
 
 	if( bDeleteStream )
 	    delete pMediaStream;
