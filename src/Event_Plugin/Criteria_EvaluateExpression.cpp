@@ -21,7 +21,9 @@
 #define OPERATOR_GREATERTHAN	3
 #define OPERATOR_LESSTHAN		4
 
-bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventInfo *pEventInfo)
+bool EvaluateTimeOfDay(string Expression,void *pExtraInfo);
+
+bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventInfo *pEventInfo,void *pExtraInfo)
 {
 	string::size_type pos=0;
 	string temp;
@@ -58,8 +60,7 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 		iLValue = &pEventInfo->m_pDevice->m_dwPK_DeviceTemplate;
 		break;
 	case CRITERIAPARMLIST_Time_of_day_CONST:
-		return true; // Not implemented at the moment
-//		break;
+		return EvaluateTimeOfDay(StringUtils::ToUpper(pCriteriaParm->m_sValue),pExtraInfo);
 	case CRITERIAPARMLIST_PK_DeviceCategory_CONST:
 		iLValue = &pEventInfo->m_pDevice->m_dwPK_DeviceCategory;
 		break;
@@ -148,4 +149,31 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 	}
 
 	throw(string("Unhandled criteria"));
+}
+
+#include "../General_Info_Plugin/General_Info_Plugin.h"
+#include "DCERouter.h"
+
+bool EvaluateTimeOfDay(string Expression,void *pExtraInfo)
+{
+	General_Info_Plugin *pGeneral_Info_Plugin = NULL;
+	Router *pRouter = (Router *) pExtraInfo;
+	if( pRouter )
+	{
+		ListDeviceData_Router *pList = pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_General_Info_Plugin_CONST);
+		if( pList && pList->size() )
+			pGeneral_Info_Plugin = (General_Info_Plugin *) *(pList->begin());
+	}
+
+	if( Expression=="DAY" || Expression=="NIGHT")
+	{
+		if( !pGeneral_Info_Plugin )
+			return false;
+
+		bool bIsDaytime;
+		pGeneral_Info_Plugin->CMD_Is_Daytime(&bIsDaytime);
+		return (Expression=="DAY" && bIsDaytime) || (Expression=="NIGHT" && !bIsDaytime);
+	}
+
+	return false;
 }

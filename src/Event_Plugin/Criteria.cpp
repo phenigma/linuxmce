@@ -5,8 +5,8 @@
 #include "Criteria.h"
 #include "CriteriaParmNesting.h"
 
-bool Criteria::Evaluate(class EventInfo *pEventInfo)
+bool Criteria::Evaluate(class EventInfo *pEventInfo,void *pExtraInfo)
 {
-	return m_pCriteriaParmNesting->Evaluate(this,pEventInfo);
+	return m_pCriteriaParmNesting->Evaluate(this,pEventInfo,pExtraInfo);
 }
 

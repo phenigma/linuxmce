@@ -5885,5 +5885,45 @@ namespace DCE
 	public:
 		CMD_Execute_Command_Group_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_CommandGroup) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,370,1,28,StringUtils::itos(iPK_CommandGroup).c_str()); }
 	};
+	class RESP_Is_Daytime : public PreformedCommandResponse {
+		bool *m_bTrueFalse;
+	public:
+		RESP_Is_Daytime(bool *bTrueFalse) { 
+		m_bTrueFalse=bTrueFalse; }
+		void ParseResponse(Message *pMessage) {
+			*m_bTrueFalse=(pMessage->m_mapParameters[119]=="1" ? true : false); };
+	};
+	class CMD_Is_Daytime : public PreformedCommand {
+	public:
+		CMD_Is_Daytime(long DeviceIDFrom, long DeviceIDTo,bool *bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,371,1,119,(*bTrueFalse ? "1" : "0"));		m_pcResponse = new RESP_Is_Daytime(bTrueFalse); }
+	};
+	class CMD_Is_Daytime_DL : public PreformedCommand {
+	public:
+		CMD_Is_Daytime_DL(long DeviceIDFrom, string DeviceIDTo,bool *bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,371,1,119,(*bTrueFalse ? "1" : "0"));		m_pcResponse = new RESP_Is_Daytime(bTrueFalse); }
+	};
+	class CMD_Is_Daytime_DT : public PreformedCommand {
+	public:
+		CMD_Is_Daytime_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,bool *bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,371,1,119,(*bTrueFalse ? "1" : "0"));		m_pcResponse = new RESP_Is_Daytime(bTrueFalse); }
+	};
+	class CMD_Is_Daytime_Cat : public PreformedCommand {
+	public:
+		CMD_Is_Daytime_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool *bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,371,1,119,(*bTrueFalse ? "1" : "0"));		m_pcResponse = new RESP_Is_Daytime(bTrueFalse); }
+	};
+	class CMD_NOREP_Is_Daytime : public PreformedCommand {
+	public:
+		CMD_NOREP_Is_Daytime(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,371,0); }
+	};
+	class CMD_NOREP_Is_Daytime_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Is_Daytime_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,371,0); }
+	};
+	class CMD_NOREP_Is_Daytime_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Is_Daytime_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,371,0); }
+	};
+	class CMD_NOREP_Is_Daytime_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Is_Daytime_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,371,0); }
+	};
 }
 #endif

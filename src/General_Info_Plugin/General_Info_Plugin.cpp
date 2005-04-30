@@ -557,3 +557,19 @@ void General_Info_Plugin::CMD_Get_Room_Description(int iPK_Device,string *sText,
 
 	*sText = pRoom->m_sDescription;
 }
+//<-dceag-c371-b->
+
+	/** @brief COMMAND: #371 - Is Daytime */
+	/** Returns true or false to indicate if it is daytime (ie between sunrise and sunset) */
+		/** @param #119 True/False */
+			/** Returns true if it is daytime. */
+
+void General_Info_Plugin::CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Message *pMessage)
+//<-dceag-c371-e->
+{
+
+	// Temporary hack.  I added a feature request to Radu to use the real sunrise/sunset
+	time_t t_t = time(NULL);
+    struct tm *t = localtime( &t_t );
+	(*bTrueFalse) = t->tm_hour>=8 && t->tm_hour<20;
+}

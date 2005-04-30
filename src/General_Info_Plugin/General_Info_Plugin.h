@@ -189,6 +189,15 @@ public:
 	virtual void CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #371 - Is Daytime */
+	/** Returns true or false to indicate if it is daytime (ie between sunrise and sunset) */
+		/** @param #119 True/False */
+			/** Returns true if it is daytime. */
+
+	virtual void CMD_Is_Daytime(bool *bTrueFalse) { string sCMD_Result; CMD_Is_Daytime(bTrueFalse,sCMD_Result,NULL);};
+	virtual void CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

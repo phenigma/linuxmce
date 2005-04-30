@@ -1228,6 +1228,8 @@ bool Repository::ShowChanges()
 				for(ListChangedRow::iterator itLCR=pListChangedRow->begin();itLCR!=pListChangedRow->end();++itLCR)
 				{
 					ChangedRow *pChangedRow = *itLCR;
+					if( pChangedRow->m_bReverted )
+						continue;
 					if( pChangedRow->m_eTypeOfChange==toc_New )
 						iNew++;
 					else if( pChangedRow->m_eTypeOfChange==toc_Modify )

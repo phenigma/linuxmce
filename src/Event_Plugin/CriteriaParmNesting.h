@@ -10,7 +10,7 @@ public:
 
 	CriteriaParmNesting(bool bNot,bool bAnd) : m_bNot(bNot), m_bAnd(bAnd) {}
 
-	bool Evaluate(class Criteria *ptrCriteria,class EventInfo *pEventInfo);
+	bool Evaluate(class Criteria *ptrCriteria,class EventInfo *pEventInfo,void *pExtraInfo);
 /*
 	{
 		for(int i=0;i<m_vectCriteriaParm.size();++i)

@@ -8,7 +8,7 @@
 #include "EventInfo.h"
 #include "EventHandler.h"
 
-bool CriteriaParmNesting::Evaluate(class Criteria *pCriteria,class EventInfo *pEventInfo)
+bool CriteriaParmNesting::Evaluate(class Criteria *pCriteria,class EventInfo *pEventInfo,void *pExtraInfo)
 {
 	if( m_vectCriteriaParm.size()==0 && m_vectCriteriaParmNesting.size()==0 )
 		return true;
@@ -18,7 +18,7 @@ bool CriteriaParmNesting::Evaluate(class Criteria *pCriteria,class EventInfo *pE
 		CriteriaParm *pCriteriaParm = m_vectCriteriaParm[i];
 //		pEventInfo->pEventHandler->m_vectCriteriaParm.push_back(pCriteriaParm);
 
-		pCriteriaParm->m_bResult = pCriteria->EvaluateExpression(pCriteriaParm,pEventInfo);
+		pCriteriaParm->m_bResult = pCriteria->EvaluateExpression(pCriteriaParm,pEventInfo,pExtraInfo);
 		if( m_bAnd==true && pCriteriaParm->m_bResult==false )
 			return !(!m_bNot ^ false) ;
 		if( m_bAnd==false && pCriteriaParm->m_bResult==true )
@@ -27,7 +27,7 @@ bool CriteriaParmNesting::Evaluate(class Criteria *pCriteria,class EventInfo *pE
 
 	for(size_t i=0;i<m_vectCriteriaParmNesting.size();++i)
 	{
-		bool bResult = m_vectCriteriaParmNesting[i]->Evaluate(pCriteria,pEventInfo);
+		bool bResult = m_vectCriteriaParmNesting[i]->Evaluate(pCriteria,pEventInfo,pExtraInfo);
 		if( m_bAnd==true && bResult==false )
 			return !(!m_bNot ^ false);
 		if( m_bAnd==false && bResult==true )

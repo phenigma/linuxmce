@@ -209,7 +209,7 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 		{
 			try
 			{
-				if( !pEventHandler->m_pCriteria->Evaluate(pEventInfo) )
+				if( !pEventHandler->m_pCriteria->Evaluate(pEventInfo,(void *) m_pRouter) )
 					bResult=false;
 			}
 			catch(exception e)

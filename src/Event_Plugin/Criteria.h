@@ -7,7 +7,7 @@ public:
 	int m_iPK_Criteria;
 	class CriteriaParmNesting *m_pCriteriaParmNesting;
 
-	Criteria(int PK_Criteria,class CriteriaParmNesting *pCriteriaParmNesting) 
+	Criteria(int PK_Criteria,class CriteriaParmNesting *pCriteriaParmNesting)
 	{
 		m_iPK_Criteria=PK_Criteria;
 		m_pCriteriaParmNesting=pCriteriaParmNesting;
@@ -16,9 +16,10 @@ public:
 	virtual ~Criteria()
 	{}
 
-	bool Evaluate(class EventInfo *pEventInfo);
+	bool Evaluate(class EventInfo *pEventInfo,void *pExtraInfo);
 
-	virtual bool EvaluateExpression(class CriteriaParm *CriteriaParm,class EventInfo *pEventInfo);
+
+	virtual bool EvaluateExpression(class CriteriaParm *CriteriaParm,class EventInfo *pEventInfo,void *pExtraInfo);
 };
 
 #endif
