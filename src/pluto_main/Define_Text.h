@@ -466,6 +466,7 @@
 #define TEXT_Angles_CONST 1141
 #define TEXT_Audio_Options_CONST 1142
 #define TEXT_Subtitles_CONST 1143
+#define TEXT_Selected_Devices_CONST 1144
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
