@@ -364,6 +364,14 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StopMedia() ")) == NULL )
 		return false;
 
+	if( pXineMediaStream->isStreaming() )
+		StopStreaming(pXineMediaStream,NULL);  // NULL=stop all
+
+	if( !pXineMediaStream->m_pMediaDevice_Source )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Stopping media in Xine_Plugin but mediadevice_source is null");
+		return false;
+	}
 	int PK_Device = pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	int StreamID = pXineMediaStream->m_iStreamID_get( );
 	int SavedPosition;
@@ -413,7 +421,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 	list<EntertainArea *>::const_iterator itEntArea;
 	list<MediaDevice *> startDevices;
 	XineMediaStream *pXineMediaStream;
-	MediaDevice *pMediaDevice;
+	MediaDevice *pMediaDevice=NULL;
 
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::MoveMedia() ")) == NULL )
 		return false;
@@ -452,7 +460,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 		// only send the command to the streamer if we were actually streaming.
 		if ( pXineMediaStream->isStreaming() )
 		{
-			stopStreamingTargets.push_back(pMediaDevice);
+			stopStreamingTargets.push_back(pEntertainArea->m_pMediaDevice_ActiveDest);
 			/** @todo: Send a message to the streamer to stop playback on this device. */
 			g_pPlutoLogger->Write(LV_STATUS, "Adding device %d to the list of stopped streaming targets.!", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 		}
@@ -463,7 +471,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 	}
 
 	if ( pXineMediaStream->isStreaming() && stopStreamingTargets.size() != 0 )
-		StopStreaming(pXineMediaStream, stopStreamingTargets);
+		StopStreaming(pXineMediaStream, &stopStreamingTargets);
 
 	// in this case we need to locate the streaming device (because we need to enable streaming and the streaming device was not found in a previous call)
 	if ( pXineMediaStream->ShouldUseStreaming() && ! pXineMediaStream->isStreaming() )
@@ -493,12 +501,14 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 		g_pPlutoLogger->Write(LV_STATUS, "Disabling streaming for stream: %d", pXineMediaStream->m_iStreamID_get());
 		pXineMediaStream->setIsStreaming(false);
 
+		// This means we have only 1 ent area, and there must be a xine in it
 		MediaDevice *pMediaDevice;
 		if ( pXineMediaStream->m_mapEntertainArea.size() == 1 )
 		{
 			itIntToEntArea = pXineMediaStream->m_mapEntertainArea.begin();
 			EntertainArea *pEntertainArea = itIntToEntArea->second;
-			pMediaDevice = pEntertainArea->m_pMediaDevice_ActiveDest;
+			pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea,DEVICETEMPLATE_Xine_Player_CONST);
+			pEntertainArea->m_pMediaDevice_ActiveDest = pMediaDevice;
 		}
 
 		pXineMediaStream->m_pMediaDevice_Source = pMediaDevice;
@@ -532,7 +542,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
 	g_pPlutoLogger->Write(LV_STATUS, "Calling normal startMedia now!");
 	// start playback like normal do.
-	return true; //m_pMedia_Plugin->StartMedia(pXineMediaStream);
+	return m_pMedia_Plugin->StartMedia(pXineMediaStream);
 }
 
 MediaDevice *Xine_Plugin::FindStreamerDevice()
@@ -545,7 +555,7 @@ MediaDevice *Xine_Plugin::FindStreamerDevice()
 		return m_pMedia_Plugin->m_mapMediaDevice_Find(iStreamerDeviceId);
 }
 
-bool Xine_Plugin::StopStreaming(XineMediaStream *pXineMediaStream, vector<MediaDevice*> stopStreamingTargets)
+bool Xine_Plugin::StopStreaming(XineMediaStream *pXineMediaStream, vector<MediaDevice*> *stopStreamingTargets)
 {
 	if ( ! pXineMediaStream->isStreaming() )
 	{
@@ -554,26 +564,39 @@ bool Xine_Plugin::StopStreaming(XineMediaStream *pXineMediaStream, vector<MediaD
 	}
 
 	vector<MediaDevice*>::const_iterator itDevices;
+	map<int, EntertainArea *>::iterator itEntertainmentAreas;
 
-	itDevices = stopStreamingTargets.begin();
+	if( stopStreamingTargets )
+		itDevices = stopStreamingTargets->begin();
+	else
+		itEntertainmentAreas = pXineMediaStream->m_mapEntertainArea.begin();
 
 	string strSqueezesToStopList = "";
-	while ( itDevices != stopStreamingTargets.end() )
+	while ( true )
 	{
-		if ( (*itDevices)->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
+		MediaDevice *pDevice;
+		if( stopStreamingTargets )
+			pDevice = (*itDevices);
+		else
+			pDevice = (*itEntertainmentAreas).second->m_pMediaDevice_ActiveDest;
+
+		if ( pDevice && pDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
 		{
 			int ignoredPosition; // we will actually query the Slim Server about this
 			// send them separately since the devices can be in a very different places.
 			DCE::CMD_Stop_Media stopMediaCommand(
 					m_dwPK_Device,
-					(*itDevices)->m_pDeviceData_Router->m_dwPK_Device,
+					pDevice->m_pDeviceData_Router->m_dwPK_Device,
 					pXineMediaStream->m_iStreamID_get(), &ignoredPosition);
 			SendCommand(stopMediaCommand);
 		}
-		else
-			strSqueezesToStopList += StringUtils::itos((*itDevices)->m_pDeviceData_Router->m_dwPK_Device) + ",";
+		else if( pDevice )
+			strSqueezesToStopList += StringUtils::itos(pDevice->m_pDeviceData_Router->m_dwPK_Device) + ",";
 
-		itDevices++;
+		if( stopStreamingTargets && ++itDevices == stopStreamingTargets->end() )
+			break;
+		else if( !stopStreamingTargets && ++itEntertainmentAreas == pXineMediaStream->m_mapEntertainArea.end() )
+			break;
 	}
 
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Plugin::StopStreaming() Send stop streaming command to the Streamer with targets: %s!", strSqueezesToStopList.c_str());

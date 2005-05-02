@@ -898,6 +898,24 @@ g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
 						Message *pNewMessage = new Message( pMessage );
 						QueueMessageToRouter( pNewMessage );
 					}
+
+					// For streaming media the source and destination are often different.  Send it to the dest as well
+				    if( pEntertainArea->m_pMediaDevice_ActiveDest && pEntertainArea->m_pMediaDevice_ActiveDest!=pEntertainArea->m_pMediaStream->m_pMediaDevice_Source )
+					{
+						Message *pNewMessage = new Message( pMessage );
+						pNewMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device;
+						QueueMessageToRouter( pNewMessage );
+
+						// It could be an a/v command that is routed through the m/d to a receiver/tv
+						if( pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD &&
+							pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD != pNewMessage->m_dwPK_Device_To )
+						{
+							pNewMessage = new Message( pMessage );
+							pNewMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD;
+							QueueMessageToRouter( pNewMessage );
+						}
+					}
+
 				}
 			}
 			else
@@ -906,7 +924,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Just send it to the media device");
 				// Just send it to the media device.  We don't know what it is
                 pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	            Message *pNewMessage = new Message( pMessage );
-		        QueueMessageToRouter( pNewMessage );
+				QueueMessageToRouter( pNewMessage );
 			}
         }
 
@@ -2377,10 +2395,8 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 
 	string output = "";
 	for ( itList = listStop.begin(); itList != listStop.end(); itList++ )
-	{
-		MediaInEAEnded(*itList);
 		output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
-	}
+
 	g_pPlutoLogger->Write(LV_STATUS, "Stop list: %s", output.c_str());
 
 	output = "";

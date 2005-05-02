@@ -161,6 +161,8 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
 
 	// add this stream to the list of playing streams.
     m_mapStreamsToPlayers[iStreamID] = make_pair(STATE_PAUSE, vectDevices);
+g_pPlutoLogger->Write(LV_WARNING,"Added entry for stream id: %d size: %d",
+					  iStreamID,(int) m_mapStreamsToPlayers.size());
 	pthread_cond_signal(&m_stateChangedCondition);
 }
 
@@ -179,7 +181,8 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
 	// PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
-	g_pPlutoLogger->Write(LV_STATUS, "Processing Stop Streaming command for target devices: %s", sStreamingTargets.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Processing Stop Streaming command for target devices: %s size: %d", 
+		sStreamingTargets.c_str(),(int) m_mapStreamsToPlayers.size());
 
 	map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itPlayers;
 
@@ -524,6 +527,7 @@ void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,stri
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
 		return;
 
+g_pPlutoLogger->Write(LV_WARNING,"Stop Media for stream %d",iStreamID);
 	m_mapStreamsToPlayers.erase(iStreamID);
 	SendReceiveCommand(sControlledPlayerMac + " playlist clear");
 	SendReceiveCommand(sControlledPlayerMac + " stop");

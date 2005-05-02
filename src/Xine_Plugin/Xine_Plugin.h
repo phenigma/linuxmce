@@ -43,7 +43,7 @@ public:
 
 	protected:
 		virtual bool StartStreaming(class XineMediaStream *m_pMediaStream);
-		virtual bool StopStreaming(class XineMediaStream *pXineMediaStream, std::vector<MediaDevice*> stopStreamingTargets);
+		virtual bool StopStreaming(class XineMediaStream *pXineMediaStream, std::vector<MediaDevice*> *stopStreamingTargets);
 
 		class Orbiter_Plugin *m_pOrbiter_Plugin;
 

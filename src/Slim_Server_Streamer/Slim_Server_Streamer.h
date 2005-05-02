@@ -76,7 +76,11 @@ public:
 //<-dceag-const-e->
 
 // TEMP HACK - FORCE A RELOAD BY CAUSING A SEG FAULT!
-virtual void OnReload() { Command_Impl::OnReload(); char *p=NULL; strcpy(p,"sss"); }
+virtual void OnReload() { 
+	Command_Impl::OnReload(); 
+g_pPlutoLogger->Write(LV_CRITICAL,"Forcing a segfault");
+	char *p=NULL; strcpy(p,"sss"); 
+}
 
 //<-dceag-h-b->
 	/*
