@@ -770,3 +770,14 @@ void Slim_Server_Streamer::CMD_Mute(string &sCMD_Result,Message *pMessage)
 
 	SendReceiveCommand(sControlledPlayerMac + " mixer muting");
 }
+
+
+void Slim_Server_Streamer::OnReload();
+{ 
+	Command_Impl::OnReload(); 
+if( g_pPlutoLogger )
+g_pPlutoLogger->Write(LV_CRITICAL,"Forcing a segfault");
+
+cerr << "****SEGFAULTING***" << endl;
+	char *p=NULL; strcpy(p,"sss"); 
+}
