@@ -75,10 +75,10 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+//<-dceag-h-b->
 // TEMP HACK - FORCE A RELOAD BY CAUSING A SEG FAULT!
 virtual void OnReload();
-
-//<-dceag-h-b->
+virtual void OnQuit() { OnReload(); };
 	/*
 				AUTO-GENERATED SECTION
 				Do not change the declarations
