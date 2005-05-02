@@ -89,6 +89,11 @@ namespace DCE
 		// These are only used by a memory grid.
 		MemoryDataTable m_MemoryDataTable;
 
+		// These aren't serialized.  Just used internally by the plugin
+		int m_iPK_Datagrid;
+		string m_sOptions;
+		bool m_bRePopulateEachTimeRequested; 
+
 		DataGridTable();
 		DataGridTable(int Size, char *Data);
 		virtual ~DataGridTable();

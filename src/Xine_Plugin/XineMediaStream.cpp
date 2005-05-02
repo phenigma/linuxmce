@@ -93,16 +93,6 @@ namespace DCE {
 		return "XineMediaStream::XineMediaPosition class";
 	}
 
-	void XineMediaStream::GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices)
-	{
-		for(map<int, class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
-		{
-			EntertainArea *pEntertainArea = it->second;
-			if( pEntertainArea->m_pMediaDevice_ActiveDest )
-				(*pmapMediaDevices)[ pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device ] = pEntertainArea->m_pMediaDevice_ActiveDest;
-		}
-	}
-
 	bool XineMediaStream::CanPlayMore()
 	{
 		// do not remove the playlist when we are playing stored audio. (it will just confuse the user)

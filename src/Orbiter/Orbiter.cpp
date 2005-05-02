@@ -1005,7 +1005,9 @@ g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str()
     if( !pObj->m_pDataGridTable )
         return;
 
-	if(pObj->m_pDataGridTable->m_RowCount > 0)
+// 2005-05-02 Aaron - Commented this out because a grid being refreshed with a new one with 0 cells 
+// doesn't blank the last rendering, so you still see the old grid
+//	if(pObj->m_pDataGridTable->m_RowCount > 0)
 	{
 		//clear the background for the grid
 		SolidRectangle( pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
@@ -6572,4 +6574,47 @@ ScreenHistory *psh = *it;
 s+=psh->m_pObj->m_ObjectID + " / ";
 }
 g_pPlutoLogger->Write(LV_WARNING,"Screen history %s",s.c_str());
+}
+//<-dceag-c59-b->
+
+	/** @brief COMMAND: #59 - Set Entertainment Area */
+	/** If you don't know the location, you can also set just the entertainment area */
+		/** @param #45 PK_EntertainArea */
+			/** The current entertainment area where the orbiter is. */
+
+void Orbiter::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
+//<-dceag-c59-e->
+{
+    for(size_t s=0;s<m_dequeLocation.size();++s)
+	{
+		LocationInfo *pLocationInfo = m_dequeLocation[s];
+		if( pLocationInfo->PK_EntertainArea == atoi(sPK_EntertainArea.c_str()) )
+		{
+			CMD_Set_Current_Location(pLocationInfo->iLocation);
+			return;
+		}
+	}
+	g_pPlutoLogger->Write( LV_CRITICAL, "Can't set ea to %s",sPK_EntertainArea.c_str() );
+}
+
+//<-dceag-c77-b->
+
+	/** @brief COMMAND: #77 - Set Current Room */
+	/** If you don't know the location, you can also set just the room */
+		/** @param #57 PK_Room */
+			/** The room */
+
+void Orbiter::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMessage)
+//<-dceag-c77-e->
+{
+    for(size_t s=0;s<m_dequeLocation.size();++s)
+	{
+		LocationInfo *pLocationInfo = m_dequeLocation[s];
+		if( pLocationInfo->PK_Room == iPK_Room )
+		{
+			CMD_Set_Current_Location(pLocationInfo->iLocation);
+			return;
+		}
+	}
+	g_pPlutoLogger->Write( LV_CRITICAL, "Can't set ea to %d",iPK_Room );
 }

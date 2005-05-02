@@ -366,6 +366,7 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 
 	if( pXineMediaStream->isStreaming() )
 		StopStreaming(pXineMediaStream,NULL);  // NULL=stop all
+	pXineMediaStream->setIsStreaming(false);
 
 	if( !pXineMediaStream->m_pMediaDevice_Source )
 	{
@@ -415,6 +416,7 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 */
 bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)
 {
+return false;
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
 	map<int, EntertainArea *>::const_iterator itIntToEntArea;
@@ -474,7 +476,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 		StopStreaming(pXineMediaStream, &stopStreamingTargets);
 
 	// in this case we need to locate the streaming device (because we need to enable streaming and the streaming device was not found in a previous call)
-	if ( pXineMediaStream->ShouldUseStreaming() && ! pXineMediaStream->isStreaming() )
+	if ( pXineMediaStream->ShouldUseStreaming() )
 	{
 		// int iStreamingDeviceId;
 		g_pPlutoLogger->Write(LV_STATUS, "Enabling streaming for stream: %d", pXineMediaStream->m_iStreamID_get());
@@ -496,7 +498,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 	}
 
 	// in this case we need to disable because it really is only one device in the target list
-	if ( ! pXineMediaStream->ShouldUseStreaming() && pXineMediaStream->isStreaming() )
+	else if ( ! pXineMediaStream->ShouldUseStreaming() )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Disabling streaming for stream: %d", pXineMediaStream->m_iStreamID_get());
 		pXineMediaStream->setIsStreaming(false);
@@ -513,6 +515,8 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
 		pXineMediaStream->m_pMediaDevice_Source = pMediaDevice;
 	}
+return m_pMedia_Plugin->StartMedia(pXineMediaStream);
+
 
 	// Now there are two conditions which can be true.
 	// 	Either: pXineMediaStream->ShouldUseStreaming() == true && pXineMediaStream->isStreaming() == true
@@ -665,7 +669,7 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 							pMediaStream->GetFilenameToPlay("Empty file name"),
 							pMediaStream->m_iPK_MediaType,
 							pMediaStream->m_iStreamID_get( ),
-							pMediaStream->GetMediaPosition()->m_iSavedPosition);
+							0);//Mihai look into this please pMediaStream->GetMediaPosition()->m_iSavedPosition);
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);
@@ -734,18 +738,6 @@ bool Xine_Plugin::BroadcastMedia( class MediaStream *pMediaStream )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	return true;
-}
-
-void Xine_Plugin::GetRenderDevices(EntertainArea *pEntertainArea, map<int,MediaDevice *> *pmapMediaDevice)
-{
-	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-
-	XineMediaStream *pXineMediaStream;
-
-	if ( !pEntertainArea->m_pMediaStream || (pXineMediaStream = ConvertToXineMediaStream(pEntertainArea->m_pMediaStream, "Xine_Plugin::GetRenderDevices() ")) == NULL )
-		return;
-
-	pXineMediaStream->GetRenderDevices(pmapMediaDevice);
 }
 
 bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )

@@ -1151,6 +1151,15 @@ public:
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #59 - Set Entertainment Area */
+	/** If you don't know the location, you can also set just the entertainment area */
+		/** @param #45 PK_EntertainArea */
+			/** The current entertainment area where the orbiter is. */
+
+	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea) { string sCMD_Result; CMD_Set_Entertainment_Area(sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #66 - Select Object */
 	/** The same as clicking on an object. */
 		/** @param #3 PK_DesignObj */
@@ -1173,6 +1182,15 @@ public:
 
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard) { string sCMD_Result; CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,NULL);};
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #77 - Set Current Room */
+	/** If you don't know the location, you can also set just the room */
+		/** @param #57 PK_Room */
+			/** The room */
+
+	virtual void CMD_Set_Current_Room(int iPK_Room) { string sCMD_Result; CMD_Set_Current_Room(iPK_Room,sCMD_Result,NULL);};
+	virtual void CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #85 - Reset Highlight */

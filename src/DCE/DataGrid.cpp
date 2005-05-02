@@ -194,12 +194,16 @@ void DataGridCell::ToData(unsigned long &Size, char* &Data)
 
 DataGridTable::DataGridTable()
 {
+	m_iPK_Datagrid = 0;
+	m_bRePopulateEachTimeRequested = false;
 	Message::Message();
 	ClearData();
 }
 
 DataGridTable::DataGridTable(int Size, char *Data) 
 {
+	m_iPK_Datagrid = 0;
+	m_bRePopulateEachTimeRequested = false;
 #ifndef DISABLE_LZO_DATAGRID
 	int UncompressedLength = *((int *)Data);
 	char *UncompressedData = new char[UncompressedLength];

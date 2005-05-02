@@ -107,6 +107,8 @@ namespace DCE
 
 		virtual bool OrbiterIsOSD(int PK_Orbiter); // True if the orbiter is an on screen display for this stream
 
+		virtual void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
+
 		virtual void DeleteEntryFromPlaylist(int position);
 		virtual void MoveEntryInPlaylist(int position, int displacement);
 		/**

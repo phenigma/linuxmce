@@ -258,6 +258,13 @@ namespace DCE
 		void RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID);
 
 		/**
+		 * @brief If 1 message is sent on a queue, and a later message is sent in realtime, it's possible
+		 * for the later message to actually get sent first.  This function blocks the thread until all
+		 * messages in the queue have been sent.
+		 */
+		void WaitForMessageQueue();
+
+		/**
 		 * @brief If this is not a plugin loaded into the Router's memory space, the callback will be in the form of a message to this function
 		 */
 		void InterceptedMessage(Message *pMessage);

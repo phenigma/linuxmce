@@ -40,8 +40,6 @@ namespace DCE
 			bool isStreaming();
 			void setIsStreaming(bool isStreaming = true);
 
-			void GetRenderDevices(map<int, MediaDevice *> *pmapRenderDevices);
-
 			bool CanPlayMore();
 
 			class XineMediaPosition : public MediaPosition

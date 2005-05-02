@@ -32,6 +32,7 @@ namespace DCE
 		// But sometimes the source may be a back-end streamer, and the rendering device(s) some network audio players.  The framework needs
 		// to know the rendering devices so it can send on/off's to them.  If the source & dest aren't the same, the plug-in must override this
 		virtual void GetRenderDevices(EntertainArea *pEntertainArea,map<int,MediaDevice *> *pmapMediaDevice);
+		void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);  // In all entertainment areas
 
 		// it can't virtual and static at the same time.
 		virtual MediaDevice *GetMediaDeviceForEntertainArea(EntertainArea *pEntertainArea, int PK_DeviceTemplate)

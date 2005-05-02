@@ -236,3 +236,14 @@ string MediaStream::GetAllOSD()
 	}
 	return s;
 }
+
+void MediaStream::GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices)
+{
+	for(map<int, class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
+	{
+		EntertainArea *pEntertainArea = it->second;
+		if( pEntertainArea->m_pMediaDevice_ActiveDest )
+			(*pmapMediaDevices)[ pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device ] = pEntertainArea->m_pMediaDevice_ActiveDest;
+	}
+}
+

@@ -38,6 +38,8 @@ class DataGridGeneratorCallBack
 public:
 	class DataGridGeneratorPlugIn *m_pDataGridGeneratorPlugIn;
 	DCEDataGridGeneratorFn m_pDCEDataGridGeneratorFn;
+	bool m_bRePopulateEachTimeRequested; // If true, the grid will be repopulated each time it's requested
+
 	/**
 	 * @note There is a reason why the pointer to DataGridGeneratorPlugIn must be passed in as void. If the class being passed in doesn't
 	 * derive from DataGridGeneratorPlugIn as the first parent, the "this" pointer gets offset when it's passed in. Then when the callback is
@@ -49,8 +51,9 @@ public:
 
 	/** @brief constructor */
 	
-	DataGridGeneratorCallBack( void *pDataGridGeneratorPlugIn, DCEDataGridGeneratorFn pDCEDataGridGeneratorFn )
+	DataGridGeneratorCallBack( void *pDataGridGeneratorPlugIn, DCEDataGridGeneratorFn pDCEDataGridGeneratorFn, bool bRePopulateEachTimeRequested=false )
 	{
+		m_bRePopulateEachTimeRequested=bRePopulateEachTimeRequested;
 		m_pDataGridGeneratorPlugIn=( class DataGridGeneratorPlugIn * ) pDataGridGeneratorPlugIn;
 		m_pDCEDataGridGeneratorFn=pDCEDataGridGeneratorFn;
 	}

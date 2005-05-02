@@ -2,6 +2,7 @@
 #define MediaDevice_h
 
 class Row_Device;
+class Row_MediaType;
 
 namespace DCE
 {
@@ -18,7 +19,7 @@ namespace DCE
 		map<int,class EntertainArea *> m_mapEntertainArea;
 		int m_iLastPlaybackSpeed;
 		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-sceren display */
-
+		map<int, Row_MediaType *> m_mapMediaType;
 	};
 
 	typedef list<MediaDevice *> ListMediaDevice;

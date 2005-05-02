@@ -148,6 +148,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 	g_pPlutoLogger->Write( LV_DATAGRID, "Requesting grid: %s", sDataGrid_ID.c_str() );
 #endif
 	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
+
 	DataGridTable *pDataGridTable=NULL;
 	DataGridMap::iterator dg = m_DataGrids.find( sDataGrid_ID );
 	if ( dg == m_DataGrids.end() )
@@ -163,6 +164,23 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 	//	try
 //	{
 		pDataGridTable = ( *dg ).second;
+
+		if( pDataGridTable->m_bRePopulateEachTimeRequested )
+		{
+			int iPK_Variable,Width,Height;
+			string sValue_To_Assign;
+			bool bIsSuccessful;
+			s.Release();
+			CMD_Populate_Datagrid(sID,sDataGrid_ID,pDataGridTable->m_iPK_Datagrid,pDataGridTable->m_sOptions,&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,&Width,&Height);
+			s.Relock();
+			dg = m_DataGrids.find( sDataGrid_ID );
+			if ( dg == m_DataGrids.end() )
+			{
+				g_pPlutoLogger->Write( LV_CRITICAL, "Requesting twice data from unknown grid %s", sDataGrid_ID.c_str() );
+				return;
+			}
+			pDataGridTable = ( *dg ).second;
+		}
 
 		bool bValue = false;
 		if( sSeek.length() && sSeek[0]=='~' )
@@ -288,6 +306,13 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 		g_pPlutoLogger->Write( LV_STATUS, "About to call member function: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
 		pDataGridTable = CALL_MEMBER_FN( *pCB->m_pDataGridGeneratorPlugIn, pCB->m_pDCEDataGridGeneratorFn ) ( sDataGrid_ID, sOptions, NULL, iPK_Variable, sValue_To_Assign, pMessage );
 		g_pPlutoLogger->Write( LV_STATUS, "Called datagrid populate function for grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+
+		if( pCB->m_bRePopulateEachTimeRequested && pDataGridTable )
+		{
+			pDataGridTable->m_iPK_Datagrid=iPK_DataGrid;
+			pDataGridTable->m_sOptions=sOptions;
+			pDataGridTable->m_bRePopulateEachTimeRequested=true;
+		}
 	}
 
 	if( !pDataGridTable )

@@ -89,7 +89,6 @@ public:
 		bool MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 		XineMediaStream *ConvertToXineMediaStream(MediaStream *pMediaStream, string callerIdMessage = "");
-		void GetRenderDevices(EntertainArea *pEntertainArea, map<int,MediaDevice *> *pmapMediaDevice);
 
 		MediaDevice *FindStreamerDevice();
 

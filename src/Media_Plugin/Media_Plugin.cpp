@@ -300,7 +300,7 @@ bool Media_Plugin::Register()
         , DATAGRID_Floorplan_Media_Choices_CONST );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
-        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ActiveMediaStreams ) )
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ActiveMediaStreams ), true )
         , DATAGRID_Floorplan_Media_Streams_CONST );
 
     //  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
@@ -348,7 +348,15 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
     {
         pMediaDevice = new MediaDevice( m_pRouter, pRow_Device ); // Nope, create it
         m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
-    }
+
+		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
+		pMediaDevice->m_pDeviceData_Router->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
+		for(size_t mt=0;mt<vectRow_DeviceTemplate_MediaType.size();++mt)
+		{
+			Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = vectRow_DeviceTemplate_MediaType[mt];
+			pMediaDevice->m_mapMediaType[pRow_DeviceTemplate_MediaType->FK_MediaType_get()]=pRow_DeviceTemplate_MediaType->FK_MediaType_getrow();
+		}
+	}
     pEntertainArea->m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
 
 g_pPlutoLogger->Write( LV_STATUS, "adding device %d %s to map ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),
@@ -457,7 +465,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 //         return false;
 //     }
 
-    if ( pMediaStream->CanPlayMore() )
+    if ( pMediaStream->CanPlayMore() && !pMediaStream->m_bResume )
     {
         pMediaStream->ChangePositionInPlaylist(1);
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream);
@@ -563,6 +571,12 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 {
 	map<int,class OldStreamInfo *> mapOldStreamInfo;
 
+	if( !pMediaStream->m_pMediaDevice_Source )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start media without a source");
+		return false;
+	}
+
 	for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
 	{
 		EntertainArea *pEntertainArea = ( *it ).second;
@@ -574,34 +588,23 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&pOldStreamInfo->m_mapMediaDevice_Prior);
 			pOldStreamInfo->m_PK_MediaType_Prior = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType;
 
+			// this will reset the current media stream if the pMediaHandlerBase is different from the original media Handler.
+			// We should also look at the media types. If the current Media type is different then we will also do a new media stream.
+			if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase &&
+				pEntertainArea->m_pMediaStream->m_iPK_MediaType == pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType )
+					pOldStreamInfo->m_bNoChanges = true;
+			
 			// If Resume is set, then this media is just a temporary stream, like an announcement, and if something
 			// is currently playing, we will store that stream here and resume playing it when the temporary
 			// stream is done.
-			MediaStream *pMediaStream_Resume=NULL;
 			if( pMediaStream->m_bResume )
-			{
-				pEntertainArea->m_vectMediaStream_Interrupted.push_back(pMediaStream);
-				pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
-				g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
-				StreamEnded(pEntertainArea->m_pMediaStream,false,false);  // Don't delete it
-				g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
-			}
-			else
-			{
-				// this will reset the current media stream if the pMediaHandlerBase is different from the original media Handler.
-				// We should also look at the media types. If the current Media type is different then we will also do a new media stream.
-				if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase != pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase ||
-					pEntertainArea->m_pMediaStream->m_iPK_MediaType != pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType || pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType==MEDIATYPE_pluto_DVD_CONST )
-				{
-					// We can't queue this.
-					pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
-					g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
-					StreamEnded(pEntertainArea->m_pMediaStream,false);
-					g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): stream ended completed.");
-				}
-				else
-					pOldStreamInfo->m_bNoChanges = true;
-			}
+				pEntertainArea->m_vectMediaStream_Interrupted.push_back(pEntertainArea->m_pMediaStream);
+
+			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
+			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
+			StreamEnded(pEntertainArea->m_pMediaStream,false,pMediaStream->m_bResume ? false : true);  // Don't delete it if we're going to resume
+			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
+
 		}
 
 		pEntertainArea->m_pMediaStream=pMediaStream;
@@ -626,6 +629,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	}
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
+
+g_pPlutoLogger->Write(LV_STATUS,"Ready to call plugin's startmedia");
 
 	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
 	{
@@ -1033,8 +1038,6 @@ g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
 void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c44-e->
 {
-	MediaStream *pTmpMediaStream;
-
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	vector<EntertainArea *> vectEntertainArea;
@@ -1045,20 +1048,9 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 		EntertainArea *pEntertainArea = vectEntertainArea[s];
 		if( !pEntertainArea->m_pMediaStream )
 			continue; // Don't know what area it should be played in, or there's no media playing there
-
-		pTmpMediaStream = pEntertainArea->m_pMediaStream;
-		mm.Release();
-
-		if ( pTmpMediaStream == NULL )
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_MH_Stop_Media() called but the found ent area (%d) has no MediaStream in it!",  pEntertainArea->m_iPK_EntertainArea);
-			return;
-		}
-
-		g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
-		pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
+		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
-		StreamEnded(pTmpMediaStream);
+		StreamEnded(pEntertainArea->m_pMediaStream);
 	}
 }
 
@@ -1086,8 +1078,12 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		if( pEntertainArea->m_vectMediaStream_Interrupted.size() )
 		{
 			MediaStream *pMediaStream_Resume = pEntertainArea->m_vectMediaStream_Interrupted.back();
-			pEntertainArea->m_vectMediaStream_Interrupted.pop_back();
-			StartMedia(pMediaStream_Resume);
+			// Don't pay attention if it's the stream we just interrupted that ended
+			if( pMediaStream_Resume!=pMediaStream )
+			{
+				pEntertainArea->m_vectMediaStream_Interrupted.pop_back();
+				StartMedia(pMediaStream_Resume);
+			}
 		}
 
 		if( bSendOff )
@@ -1095,7 +1091,24 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 	}
 
 	if( bDeleteStream )
+	{
+		// Just be sure this stream isn't still pending somewhere
+		for( MapEntertainArea::iterator it=m_mapEntertainAreas.begin( );it!=m_mapEntertainAreas.end( );++it )
+		{
+			EntertainArea *pEntertainArea = ( *it ).second;
+
+			for(vector<MediaStream *>::iterator itMSI=pEntertainArea->m_vectMediaStream_Interrupted.begin();itMSI!=pEntertainArea->m_vectMediaStream_Interrupted.end();)
+			{
+				if( *itMSI==pMediaStream )
+				{
+					itMSI=pEntertainArea->m_vectMediaStream_Interrupted.erase(itMSI);
+				}
+				else 
+					itMSI++;
+			}
+		}
 	    delete pMediaStream;
+	}
 }
 
 void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea)
@@ -1944,31 +1957,8 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
     {
 		// Find the media handlers we're going to need
 		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
-
-		for(size_t s=0;s<vectEntertainArea.size();++s)
-		{
-			EntertainArea *pEntertainArea=vectEntertainArea[s];
-			MediaHandlerInfo *pMediaHandlerInfo=NULL;
-			// See if there's a media handler for this type of media in this area
-			List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find(iPK_MediaType);
-			if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
-			{
-				Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(iPK_MediaType);
-				if( pRow_MediaType && pRow_MediaType->DCEAware_get()==0 )
-				{
-					g_pPlutoLogger->Write( LV_STATUS, "Play media type %d in entertain area %d with generic handler", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
-					pMediaHandlerInfo = m_pGenericMediaHandlerInfo;
-					pMediaHandlerInfo->m_PK_MediaType = iPK_MediaType; // Just temporary for start media.  We're in a mutex
-				}
-				else
-					g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
-			}
-			else
-				pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-
-			if( pMediaHandlerInfo )
-				mapMediaHandlerInfo[pMediaHandlerInfo->m_MediaHandlerID]=pMediaHandlerInfo;
-		}
+	
+		GetMediaHandlersForEA(iPK_MediaType, vectEntertainArea, mapMediaHandlerInfo);
 
 		for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 			StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
@@ -2389,8 +2379,6 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	for ( itEntAreas = mapRequestedAreas.begin(); itEntAreas != mapRequestedAreas.end(); itEntAreas++ )
 		listStart.push_back((*itEntAreas).second);
 
-	mapRequestedAreas.clear();
-
 	list<EntertainArea *>::iterator itList;
 
 	string output = "";
@@ -2423,8 +2411,37 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 // 	if ( ! SendCommand(reportCurrentPosition) )
 // 		g_pPlutoLogger->Write(LV_STATUS, "The query for current stream position failed!");
 
-	// I'm not going to find the media devices in here. We will let the plugin decide what devices to use in there
-	pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->MoveMedia(pMediaStream, listStart, listStop, listChange);
+	// We'll let the plugin handle the move.  Maybe there's something special.  If not, we'll just do a stop and then start again
+	if( !pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->MoveMedia(pMediaStream, listStart, listStop, listChange) )
+	{
+		bool bNothingMoreToPlay = mapRequestedAreas.size()==0 && listChange.size()==0;
+		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
+		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
+		StreamEnded(pMediaStream,true,bNothingMoreToPlay);
+
+		if( !bNothingMoreToPlay )
+		{
+			pMediaStream->m_mapEntertainArea=mapRequestedAreas;
+			// Add back in the ones we're restarting that were playing already
+			for ( itList = listChange.begin(); itList != listChange.end(); itList++ ) 
+				pMediaStream->m_mapEntertainArea[(*itList)->m_iPK_EntertainArea] = *itList;
+
+	g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) mapRequestedAreas.size());
+			if( pMediaStream->m_mapEntertainArea.size() )
+			{
+				// Be sure all outgoing stop messages are flushed before we proceed
+				WaitForMessageQueue();
+				pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->WaitForMessageQueue();
+
+				// Find a new source
+				pMediaStream->m_pMediaDevice_Source = GetMediaDeviceForEA(pMediaStream->m_iPK_MediaType,
+					pMediaStream->m_mapEntertainArea.begin()->second);
+	g_pPlutoLogger->Write(LV_WARNING,"Found a new source %d",
+	pMediaStream->m_pMediaDevice_Source ? pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device : 0 );
+				StartMedia(pMediaStream);
+			}
+		}
+	}
 }
 
 void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current)
@@ -2869,3 +2886,43 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(DeviceData_Router *pDevice,map<in
 	if( pDevice->m_pDevice_MD && pDevice!=pDevice->m_pDevice_MD )
 		AddOtherDevicesInPipes_Loop( (DeviceData_Router *) pDevice->m_pDevice_MD, pmapMediaDevice );
 }
+
+void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,vector<EntertainArea *> &vectEntertainArea, map<int,MediaHandlerInfo *> &mapMediaHandlerInfo)
+{
+	for(size_t s=0;s<vectEntertainArea.size();++s)
+	{
+		EntertainArea *pEntertainArea=vectEntertainArea[s];
+		MediaHandlerInfo *pMediaHandlerInfo=NULL;
+		// See if there's a media handler for this type of media in this area
+		List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find(iPK_MediaType);
+		if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
+		{
+			Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(iPK_MediaType);
+			if( pRow_MediaType && pRow_MediaType->DCEAware_get()==0 )
+			{
+				g_pPlutoLogger->Write( LV_STATUS, "Play media type %d in entertain area %d with generic handler", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
+				pMediaHandlerInfo = m_pGenericMediaHandlerInfo;
+				pMediaHandlerInfo->m_PK_MediaType = iPK_MediaType; // Just temporary for start media.  We're in a mutex
+			}
+			else
+				g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
+		}
+		else
+			pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+
+		if( pMediaHandlerInfo )
+			mapMediaHandlerInfo[pMediaHandlerInfo->m_MediaHandlerID]=pMediaHandlerInfo;
+	}
+}
+
+MediaDevice *Media_Plugin::GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *pEntertainArea)
+{
+	for(map<int, class MediaDevice *>::iterator it=pEntertainArea->m_mapMediaDevice.begin();it!=pEntertainArea->m_mapMediaDevice.end();++it)
+	{
+		MediaDevice *pMediaDevice = it->second;
+		if( pMediaDevice->m_mapMediaType.find(iPK_MediaType)!=pMediaDevice->m_mapMediaType.end() )
+			return pMediaDevice;
+	}
+	return NULL;
+}
+

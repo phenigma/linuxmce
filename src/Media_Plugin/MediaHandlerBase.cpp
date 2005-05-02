@@ -36,4 +36,14 @@ void MediaHandlerBase::GetRenderDevices(EntertainArea *pEntertainArea, map<int,M
 	}
 }
 
-
+void MediaHandlerBase::GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices)
+{
+	for(map<int, class EntertainArea *>::iterator it=m_pMedia_Plugin->m_mapEntertainAreas.begin();it!=m_pMedia_Plugin->m_mapEntertainAreas.end();++it)
+	{
+		EntertainArea *pEntertainArea = it->second;
+		if( pEntertainArea->m_pMediaStream && 
+				((void *) pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl)== ((void *) this) && 
+				pEntertainArea->m_pMediaDevice_ActiveDest )
+			(*pmapMediaDevices)[ pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device ] = pEntertainArea->m_pMediaDevice_ActiveDest;
+	}
+}

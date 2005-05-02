@@ -719,3 +719,14 @@ void Command_Impl::DeleteGlobalAllocs()
 	m_mapLockMutex=NULL;
 
 }
+
+void Command_Impl::WaitForMessageQueue()
+{
+	while(true)
+	{
+		PLUTO_SAFETY_LOCK_ERRORSONLY( mq, m_listMessageQueueMutex );
+		if( m_listMessageQueue.size()==0 )
+			return;
+		Sleep(10);
+	}
+}

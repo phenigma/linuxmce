@@ -237,6 +237,8 @@ public:
 	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
 	// For each MD, all it's direct children go in the same room, and if it has an on-screen Orbiter, it's direct children too
 	void PutMDsChildrenInRoom(DeviceData_Router *pDeviceData_Router);
+	void GetMediaHandlersForEA(int iPK_MediaType,vector<EntertainArea *> &vectEntertainArea, map<int,MediaHandlerInfo *> &mapMediaHandlerInfo);
+	MediaDevice *GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *pEntertainArea);
 
     /**
      * @brief Required for plug-ins that render floorplans
