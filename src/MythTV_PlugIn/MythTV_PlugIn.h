@@ -69,7 +69,7 @@ public:
 
     public:
         /** Mandatory implementations */
-        virtual class MediaStream *CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID);
+        virtual class MediaStream *CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID);
 
         virtual bool StartMedia(class MediaStream *pMediaStream);
 

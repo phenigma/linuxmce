@@ -31,8 +31,11 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DataGrid.h"
 
+int g_MediaHandlerID=0;  // So we give each handler a unique ID
+
 MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, class Command_Impl *pCommand_Impl, int PK_MediaType, int PK_DeviceTemplate, bool bCanJumpPosition, bool bUsesDevices, bool bDontRegister )
 {
+	m_MediaHandlerID=g_MediaHandlerID++;
     m_iPK_DesignObj=0;
     m_pMediaHandlerBase=pMediaHandlerBase;
     m_pCommand_Impl=pCommand_Impl;

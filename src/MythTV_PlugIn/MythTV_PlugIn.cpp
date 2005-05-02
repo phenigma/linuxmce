@@ -303,10 +303,14 @@ bool MythTV_PlugIn::BroadcastMedia(class MediaStream *pMediaStream)
     return true;
 }
 
-class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID)
+class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID)
 {
     if ( m_pMedia_Plugin == NULL )
         return NULL;
+
+	EntertainArea *pEntertainArea=NULL;
+	if( vectEntertainArea.size() )
+		pEntertainArea=vectEntertainArea[0];
 
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 

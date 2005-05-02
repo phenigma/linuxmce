@@ -17,6 +17,8 @@ class MediaFile;
 
 void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional);
 
+extern int g_MediaHandlerID;  // So we give each handler a unique ID
+
 namespace DCE
 {
 	enum SourceType {
@@ -44,7 +46,7 @@ namespace DCE
 	class MediaHandlerInfo
 	{
 	public:
-		int m_PK_MediaType;
+		int m_PK_MediaType,m_MediaHandlerID;
 
 		bool    m_bUsesRemovableMedia,      /** True means it can play from a removable drive.
 											For example with MediaType DVD, true means it can play a DVD disc. */
@@ -85,7 +87,7 @@ namespace DCE
 		/** @brief A constructor for a plug-in that wants to specify all this stuff manually */
 
 		MediaHandlerInfo(class MediaHandlerBase *pMediaHandlerBase,class Command_Impl *pCommand_Impl)
-		{ m_pMediaHandlerBase=pMediaHandlerBase; m_pCommand_Impl=pCommand_Impl; m_iPK_DesignObj=0; };
+		{ m_pMediaHandlerBase=pMediaHandlerBase; m_pCommand_Impl=pCommand_Impl; m_iPK_DesignObj=0; m_MediaHandlerID=g_MediaHandlerID++; };
 
 		/** @brief
 		* This will perform some standard tasks commonly needed to setup a plug-in.  First, if PK_DeviceTemplate is specified,

@@ -10,6 +10,7 @@
 //
 //
 #include "XineMediaStream.h"
+#include "../Media_Plugin/EntertainArea.h"
 
 #include "pluto_main/Define_MediaType.h"
 
@@ -49,13 +50,14 @@ namespace DCE {
 	bool XineMediaStream::ShouldUseStreaming()
 	{
 		// if we have more than one target device.
-		if ( m_mapEntertainmentAreasToDevices.size() > 1 )
+		if ( m_mapEntertainArea.size() > 1 )
 			return true;
 
-		if ( m_mapEntertainmentAreasToDevices.size() == 0 )
+		if ( m_mapEntertainArea.size() == 0 )
 			return false;
 
-		if ( (*m_mapEntertainmentAreasToDevices.begin()).second->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST)
+		EntertainArea *pEntertainArea = m_mapEntertainArea.begin()->second;
+		if ( pEntertainArea->m_pMediaDevice_ActiveDest && pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST)
 			return true;
 
 		return false;
@@ -67,25 +69,6 @@ namespace DCE {
 			m_pMediaPosition = new XineMediaPosition();
 
 		return static_cast<XineMediaStream::XineMediaPosition*>(m_pMediaPosition);
-	}
-
-	MediaDevice *XineMediaStream::GetPlaybackDeviceForEntArea(int entAreaId)
-	{
-		map<int, MediaDevice*>::const_iterator itPlaybackDevices;
-
-		if ( (itPlaybackDevices = m_mapEntertainmentAreasToDevices.find(entAreaId)) != m_mapEntertainmentAreasToDevices.end() )
-			return (*itPlaybackDevices).second;
-
-		g_pPlutoLogger->Write(LV_WARNING, "XineMediaStream::GetPlaybackDeviceForEntArea(): Could not find a playback device for ent area: %d!", entAreaId);
-		return NULL;
-	}
-
-	void XineMediaStream::SetPlaybackDeviceForEntArea(int entAreaId, MediaDevice *pMediaDevice)
-	{
-		if ( pMediaDevice == NULL )
-			m_mapEntertainmentAreasToDevices.erase(entAreaId);
-		else
-			m_mapEntertainmentAreasToDevices[entAreaId] = pMediaDevice;
 	}
 
 	XineMediaStream::XineMediaPosition::XineMediaPosition()
@@ -112,16 +95,11 @@ namespace DCE {
 
 	void XineMediaStream::GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices)
 	{
-		map<int, MediaDevice*> &mapRenderDevices = *pmapMediaDevices;
-		map<int, MediaDevice*>::const_iterator itRenderingDevices;
-
-		itRenderingDevices = m_mapEntertainmentAreasToDevices.begin();
-
-		mapRenderDevices.clear();
-		while ( itRenderingDevices != m_mapEntertainmentAreasToDevices.end() )
+		for(map<int, class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
 		{
-			mapRenderDevices[(*itRenderingDevices).second->m_pDeviceData_Router->m_dwPK_Device] = (*itRenderingDevices).second;
-			itRenderingDevices++;
+			EntertainArea *pEntertainArea = it->second;
+			if( pEntertainArea->m_pMediaDevice_ActiveDest )
+				(*pmapMediaDevices)[ pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device ] = pEntertainArea->m_pMediaDevice_ActiveDest;
 		}
 	}
 

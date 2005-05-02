@@ -20,7 +20,7 @@ namespace DCE
 		/** @brief constructor*/
 
 		EntertainArea(int iPK_EntertainArea,bool bOnly1Stream,string sDescription,Room *pRoom)
-		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; }
+		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; m_pMediaDevice_ActiveDest=NULL; }
 
 
 		~EntertainArea()

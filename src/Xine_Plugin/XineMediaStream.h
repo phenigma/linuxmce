@@ -28,7 +28,6 @@ namespace DCE
 	class XineMediaStream : public MediaStream
 	{
 		private:
-			map<int, MediaDevice *> m_mapEntertainmentAreasToDevices;
 			bool					m_bIsStreaming;
 
 		public:
@@ -40,9 +39,6 @@ namespace DCE
 			bool ShouldUseStreaming();
 			bool isStreaming();
 			void setIsStreaming(bool isStreaming = true);
-
-			MediaDevice *GetPlaybackDeviceForEntArea(int entAreaId);
-			void SetPlaybackDeviceForEntArea(int entAreaId, MediaDevice *pMediaDevice);
 
 			void GetRenderDevices(map<int, MediaDevice *> *pmapRenderDevices);
 

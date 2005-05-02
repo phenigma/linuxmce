@@ -151,65 +151,77 @@ public:
     // some of the defaults.  The Plugin could also create a MediaHandlerInfo type manually for complete control over the parameters, and then call
     // RegisterMediaPlugin
     void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,int iPK_MasterDeviceList,bool bUsesDCE)
+	{
+		vector<int> vectPK_MasterDeviceList;
+		vectPK_MasterDeviceList.push_back(iPK_MasterDeviceList);
+		RegisterMediaPlugin(pCommand_Impl,pMediaHandlerBase,vectPK_MasterDeviceList,bUsesDCE);
+	}
+
+    void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,vector<int> &vectPK_MasterDeviceList,bool bUsesDCE)
     {
-        Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_MasterDeviceList);
-        if( !pRow_DeviceTemplate )
-        {
-            g_pPlutoLogger->Write(LV_CRITICAL,"Invalid device template %d as plugin",iPK_MasterDeviceList);
-            return;  // Nothing we can do
-        }
-
-        int iPKDevice = pCommand_Impl->m_dwPK_Device;
-        int iPKDeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
-        string strDescription = pRow_DeviceTemplate->Description_get();
-
-        g_pPlutoLogger->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s (adress %p, plugin base address %p)",iPKDevice,iPKDeviceTemplate,strDescription.c_str(), pCommand_Impl, pMediaHandlerBase);
-        vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
-        pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
-        for(size_t mt=0;mt<vectRow_DeviceTemplate_MediaType.size();++mt)
-        {
-            Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = vectRow_DeviceTemplate_MediaType[mt];
-            MediaHandlerInfo *pMediaHandlerInfo =
-                new MediaHandlerInfo(pMediaHandlerBase,pCommand_Impl,pRow_DeviceTemplate_MediaType->FK_MediaType_get(),
-                    iPK_MasterDeviceList,pRow_DeviceTemplate_MediaType->CanSetPosition_get()==1,bUsesDCE);
-
-			m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
-
-			// Find a default remote control for this.  If one is specified by the DeviceTemplate, use that, and then revert to one that matches the media type
-            vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;
-            pRow_DeviceTemplate_MediaType->DeviceTemplate_MediaType_DesignObj_FK_DeviceTemplate_MediaType_getrows(&vectRow_DeviceTemplate_MediaType_DesignObj);
-            if( vectRow_DeviceTemplate_MediaType_DesignObj.size() )
-                pMediaHandlerInfo->m_iPK_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[0]->FK_DesignObj_get();
-            else
+		for(size_t s=0;s<vectPK_MasterDeviceList.size();++s)
+		{
+			int iPK_MasterDeviceList = vectPK_MasterDeviceList[s];
+			Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_MasterDeviceList);
+			if( !pRow_DeviceTemplate )
 			{
-				vector<Row_MediaType_DesignObj *> vectRow_MediaType_DesignObj;
-				Row_MediaType *pRow_MediaType = pRow_DeviceTemplate_MediaType->FK_MediaType_getrow();
-				if( !pRow_MediaType )
-				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"db problem with media type: %d",pRow_DeviceTemplate_MediaType->FK_MediaType_get());
-					continue;
-				}
-				pRow_MediaType->MediaType_DesignObj_FK_MediaType_getrows(&vectRow_MediaType_DesignObj);
-	            if( vectRow_MediaType_DesignObj.size() )
-				{
-					Row_MediaType_DesignObj *pRow_MediaType_DesignObj = vectRow_MediaType_DesignObj[0];
-
-g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) vectRow_MediaType_DesignObj.size(),pRow_DeviceTemplate_MediaType->FK_MediaType_get(),pRow_MediaType_DesignObj);
-		            pMediaHandlerInfo->m_iPK_DesignObj = pRow_MediaType_DesignObj->FK_DesignObj_get();
-				}
-				else
-	                pMediaHandlerInfo->m_iPK_DesignObj = 0;
+				g_pPlutoLogger->Write(LV_CRITICAL,"Invalid device template %d as plugin",iPK_MasterDeviceList);
+				return;  // Nothing we can do
 			}
-        }
+
+			int iPKDevice = pCommand_Impl->m_dwPK_Device;
+			int iPKDeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
+			string strDescription = pRow_DeviceTemplate->Description_get();
+
+			g_pPlutoLogger->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s (adress %p, plugin base address %p)",iPKDevice,iPKDeviceTemplate,strDescription.c_str(), pCommand_Impl, pMediaHandlerBase);
+			vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
+			pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
+			for(size_t mt=0;mt<vectRow_DeviceTemplate_MediaType.size();++mt)
+			{
+				Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = vectRow_DeviceTemplate_MediaType[mt];
+				MediaHandlerInfo *pMediaHandlerInfo =
+					new MediaHandlerInfo(pMediaHandlerBase,pCommand_Impl,pRow_DeviceTemplate_MediaType->FK_MediaType_get(),
+						iPK_MasterDeviceList,pRow_DeviceTemplate_MediaType->CanSetPosition_get()==1,bUsesDCE);
+
+				m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
+
+				// Find a default remote control for this.  If one is specified by the DeviceTemplate, use that, and then revert to one that matches the media type
+				vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;
+				pRow_DeviceTemplate_MediaType->DeviceTemplate_MediaType_DesignObj_FK_DeviceTemplate_MediaType_getrows(&vectRow_DeviceTemplate_MediaType_DesignObj);
+				if( vectRow_DeviceTemplate_MediaType_DesignObj.size() )
+					pMediaHandlerInfo->m_iPK_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[0]->FK_DesignObj_get();
+				else
+				{
+					vector<Row_MediaType_DesignObj *> vectRow_MediaType_DesignObj;
+					Row_MediaType *pRow_MediaType = pRow_DeviceTemplate_MediaType->FK_MediaType_getrow();
+					if( !pRow_MediaType )
+					{
+						g_pPlutoLogger->Write(LV_CRITICAL,"db problem with media type: %d",pRow_DeviceTemplate_MediaType->FK_MediaType_get());
+						continue;
+					}
+					pRow_MediaType->MediaType_DesignObj_FK_MediaType_getrows(&vectRow_MediaType_DesignObj);
+					if( vectRow_MediaType_DesignObj.size() )
+					{
+						Row_MediaType_DesignObj *pRow_MediaType_DesignObj = vectRow_MediaType_DesignObj[0];
+
+	g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) vectRow_MediaType_DesignObj.size(),pRow_DeviceTemplate_MediaType->FK_MediaType_get(),pRow_MediaType_DesignObj);
+						pMediaHandlerInfo->m_iPK_DesignObj = pRow_MediaType_DesignObj->FK_DesignObj_get();
+					}
+					else
+						pMediaHandlerInfo->m_iPK_DesignObj = 0;
+				}
+			}
+		}
     }
 
     void AddDeviceToEntertainArea(EntertainArea *pEntertainArea,Row_Device *pRow_Device);
-    class EntertainArea *DetermineEntArea(int iPK_Device_Orbiter,int iPK_Device,int iPK_EntertainArea);
+	void DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea );
     class MediaStream *DetermineStreamOnOrbiter(int iPK_Device_Orbiter,bool bErrorIfNotFound=true)
     {
-        class EntertainArea *pEntertainArea = DetermineEntArea(iPK_Device_Orbiter,0,0);
-        if( (!pEntertainArea || !pEntertainArea->m_pMediaStream) && bErrorIfNotFound ) g_pPlutoLogger->Write(LV_CRITICAL,"No stream on orbiter: %d",iPK_Device_Orbiter);
-        return pEntertainArea ? pEntertainArea->m_pMediaStream : NULL;
+        vector<class EntertainArea *> vectEntertainArea;
+		DetermineEntArea(iPK_Device_Orbiter,0,"",vectEntertainArea);
+        if( (vectEntertainArea.size()!=1 || !vectEntertainArea[0]->m_pMediaStream) && bErrorIfNotFound ) g_pPlutoLogger->Write(LV_CRITICAL,"No stream on orbiter: %d",iPK_Device_Orbiter);
+        return vectEntertainArea.size()==1 ? vectEntertainArea[0]->m_pMediaStream : NULL;
     }
 
     int DetermineUserOnOrbiter(int iPK_Device_Orbiter);
@@ -231,7 +243,7 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
      */
     virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD);
 
-    bool StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat);
+    bool StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat);
 	bool StartMedia(MediaStream *pMediaStream);
 
     /**

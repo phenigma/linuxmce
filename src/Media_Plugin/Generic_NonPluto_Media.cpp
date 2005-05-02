@@ -51,11 +51,11 @@ Generic_NonPluto_Media::~Generic_NonPluto_Media()
 }
 
 
-class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
+class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	if ( pEntertainArea == NULL && pMediaDevice == NULL )
+	if ( pMediaDevice == NULL )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
 		return NULL;

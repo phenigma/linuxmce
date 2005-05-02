@@ -85,7 +85,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	UniqueColors[4] = PlutoColor(128,128,0).m_Value;
 	m_iLastPlaybackSpeed = 1000;
 	m_pDeviceData_Router = pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) );
-
+	m_pOH_Orbiter_OSD = NULL;
 	// do stuff with this
 }
 
@@ -415,7 +415,9 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			while( itFileNames != dequeFileNames.end() )
 				dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes, *itFileNames++));
 
-            StartMedia(pMediaHandlerInfo,0,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false,0);
+			vector<EntertainArea *> vectEntertainArea;
+			vectEntertainArea.push_back(pEntertainArea);
+            StartMedia(pMediaHandlerInfo,0,vectEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false,0);
             return true;
         }
     }
@@ -428,7 +430,6 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
 
     MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID );
@@ -473,7 +474,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     return true;
 }
 
-bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
+bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -484,13 +485,26 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
     // If this pointer is still valid, then we'll just add this file to the queue
     MediaStream *pMediaStream = NULL;
 
+    // If all EA's are playing the same stream, it might be possible to queue it
+    MediaStream *pMediaStream_AllEAsPlaying = NULL;
+	for(size_t s=0;s<vectEntertainArea.size();++s)
+	{
+		if( !vectEntertainArea[s]->m_pMediaStream || 
+			(pMediaStream_AllEAsPlaying && vectEntertainArea[s]->m_pMediaStream!=pMediaStream_AllEAsPlaying) )
+		{
+			pMediaStream_AllEAsPlaying=NULL;  // they're not all playing the same stream
+			break;
+		}
+		pMediaStream_AllEAsPlaying=vectEntertainArea[s]->m_pMediaStream;
+	}
+
 	// See if we can queue it
-    if( !bResume && pEntertainArea->m_pMediaStream &&
-		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaHandlerInfo->m_pMediaHandlerBase &&
-		pEntertainArea->m_pMediaStream->m_iPK_MediaType == pMediaHandlerInfo->m_PK_MediaType &&
+    if( !bResume && pMediaStream_AllEAsPlaying &&
+		pMediaStream_AllEAsPlaying->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaHandlerInfo->m_pMediaHandlerBase &&
+		pMediaStream_AllEAsPlaying->m_iPK_MediaType == pMediaHandlerInfo->m_PK_MediaType &&
 		pMediaHandlerInfo->m_PK_MediaType!=MEDIATYPE_pluto_DVD_CONST )
     {
-        pMediaStream = pEntertainArea->m_pMediaStream;
+        pMediaStream = pMediaStream_AllEAsPlaying;
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
         pMediaStream->m_iDequeMediaFile_Pos = pMediaStream->m_dequeMediaFile.size()-1;
 	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
@@ -499,7 +513,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
     {
 
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device_Orbiter);
-		if ( (pMediaStream = pMediaHandlerInfo->m_pMediaHandlerBase->CreateMediaStream(pMediaHandlerInfo,pEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->PK_Users_get() : 0),dequeMediaFile,++m_iStreamID)) == NULL )
+		if ( (pMediaStream = pMediaHandlerInfo->m_pMediaHandlerBase->CreateMediaStream(pMediaHandlerInfo,vectEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->PK_Users_get() : 0),dequeMediaFile,++m_iStreamID)) == NULL )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "The plugin %s (%d) returned a NULL media stream object",
 													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_sName.c_str(),
@@ -518,7 +532,11 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
     }
 
     pMediaStream->m_pMediaHandlerInfo = pMediaHandlerInfo;
-    pMediaStream->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea] = pEntertainArea;
+	for(size_t s=0;s<vectEntertainArea.size();++s)
+	{
+		EntertainArea *pEntertainArea = vectEntertainArea[s];
+	    pMediaStream->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea] = pEntertainArea;
+	}
 	pMediaStream->m_iRepeat=iRepeat;
 
     // HACK: get the user if the message originated from an orbiter!
@@ -997,28 +1015,33 @@ g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
 void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c44-e->
 {
-    int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
 	MediaStream *pTmpMediaStream;
 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    // Only an Orbiter will tell us to play media
-    EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, iPK_Device, iPK_EntertainArea );
-    if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
-        return; // Don't know what area it should be played in, or there's no media playing there
 
-	pTmpMediaStream = pEntertainArea->m_pMediaStream;
-	mm.Release();
-
-	if ( pTmpMediaStream == NULL )
+	vector<EntertainArea *> vectEntertainArea;
+	// Only an Orbiter will tell us to play media
+    DetermineEntArea( pMessage->m_dwPK_Device_From, iPK_Device, sPK_EntertainArea, vectEntertainArea );
+	for(size_t s=0;s<vectEntertainArea.size();++s)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_MH_Stop_Media() called but the found ent area (%d) has no MediaStream in it!",  pEntertainArea->m_iPK_EntertainArea);
-		return;
-	}
+		EntertainArea *pEntertainArea = vectEntertainArea[s];
+		if( !pEntertainArea->m_pMediaStream )
+			continue; // Don't know what area it should be played in, or there's no media playing there
 
-	g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
-    pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
-    g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
-	StreamEnded(pTmpMediaStream);
+		pTmpMediaStream = pEntertainArea->m_pMediaStream;
+		mm.Release();
+
+		if ( pTmpMediaStream == NULL )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_MH_Stop_Media() called but the found ent area (%d) has no MediaStream in it!",  pEntertainArea->m_iPK_EntertainArea);
+			return;
+		}
+
+		g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
+		pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
+		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
+		StreamEnded(pTmpMediaStream);
+	}
 }
 
 void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream)
@@ -1100,16 +1123,19 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
 //<-dceag-c73-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    // Only an Orbiter will send this
-    EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, 0, 0 );
 
-   if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
+	vector<EntertainArea *> vectEntertainArea;
+	// Only an Orbiter will send this
+    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
+
+   if( vectEntertainArea.size()!=1 || !vectEntertainArea[0]->m_pMediaStream )
     {
         g_pPlutoLogger->Write(LV_WARNING, "NULL entertainment area or NULL stream in the entertainment area for device %d", pMessage->m_dwPK_Device_From);
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_No_Media_CONST) + "%>",false,10,true);
         return; // Don't know what area it should be played in, or there's no media playing there
     }
 
+	EntertainArea *pEntertainArea = vectEntertainArea[0];
    g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area: (%d) %p %p", pEntertainArea->m_iPK_EntertainArea, pEntertainArea, pEntertainArea->m_pMediaStream);
 
    // Is the requesting orbiter the OSD?
@@ -1174,16 +1200,20 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
 			pMessage->m_dwPK_Device_From,
 			iPK_Device, sPK_DesignObj.c_str());
 
-	int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // Only an Orbiter will send this
     OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
-    EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, iPK_Device, iPK_EntertainArea );
-    if( !pEntertainArea || !pOH_Orbiter )
+
+
+	vector<EntertainArea *> vectEntertainArea;
+	DetermineEntArea( pMessage->m_dwPK_Device_From, iPK_Device, sPK_EntertainArea, vectEntertainArea );
+    if( vectEntertainArea.size()!=1 || !pOH_Orbiter )
     {
         sCMD_Result="Can't find ent area/orbiter";
         return; // Don't know what area it should be played in, or there's no media playing there
     }
+
+	EntertainArea *pEntertainArea = vectEntertainArea[0];
 
 	if( !atoi( sOnOff.c_str( ) ) ) // Off
         pEntertainArea->m_mapBoundRemote_Remove( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device );
@@ -1702,36 +1732,35 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
     return pDataGrid;
 }
 
-EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, int iPK_EntertainArea )
+void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea )
 {
     g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea1");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // If we don't have an entertainment area, but we do have a device that is a media device we can find it there
-    if( !iPK_EntertainArea && iPK_Device )
+    if( sPK_EntertainArea.size()==0 && iPK_Device )
     {
         MediaDevice *pMediaDevice = m_mapMediaDevice_Find( iPK_Device );
         if( pMediaDevice && pMediaDevice->m_mapEntertainArea.size( ) )
         {
             EntertainArea *pEntertainArea = pMediaDevice->m_mapEntertainArea.begin()->second;
-            iPK_EntertainArea = pEntertainArea->m_iPK_EntertainArea;
+            vectEntertainArea.push_back(pEntertainArea);
         }
     }
 
     g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea2");
     // See if we need to figure out the entertainment area on our own. If so, the only way to do this is if the message came from an orbiter
-    if( !iPK_EntertainArea )
+    if( sPK_EntertainArea.size()==0 )
     {
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( iPK_Device_Orbiter );
         if( !pOH_Orbiter )
         {
-            g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media with no entertainment area from a non-orbiter %d %d %d",iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea );
-            return NULL; // Don't know what area it should be played in
+            g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media with no entertainment area from a non-orbiter %d %d %s",iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
+            return; // Don't know what area it should be played in
         }
 
 		g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea3");
 
-        iPK_EntertainArea = pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0;
-        if( !iPK_EntertainArea )
+        if( !pOH_Orbiter->m_pEntertainArea )
         {
 			// It could be an orbiter that was recently added
 			for( map<int, EntertainArea *>::iterator itEntArea=m_mapEntertainAreas.begin( );itEntArea!=m_mapEntertainAreas.end( );++itEntArea )
@@ -1739,30 +1768,37 @@ EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_D
 				class EntertainArea *pEntertainArea = ( *itEntArea ).second;
 				if( pEntertainArea->m_pRoom && pEntertainArea->m_pRoom->m_dwPK_Room == pOH_Orbiter->m_dwPK_Room )
 				{
-					iPK_EntertainArea = pEntertainArea->m_iPK_EntertainArea;
+		            vectEntertainArea.push_back(pEntertainArea);
 					break;
 				}
 			}
 
 			g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea4");
-			if( !iPK_EntertainArea )
+			if( !vectEntertainArea.size()==0 )
 			{
-				g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter %p %d with no entertainment area (%p) %d %d %d",
+				g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter %p %d with no entertainment area (%p) %d %d %s",
 					pOH_Orbiter,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pEntertainArea,
-					iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea );
-				return NULL; // Don't know what area it should be played in
+					iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea );
+				return; // Don't know what area it should be played in
 			}
         }
+		else
+			vectEntertainArea.push_back(pOH_Orbiter->m_pEntertainArea);
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Found the proper ent area: %d", iPK_EntertainArea);
-    EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( iPK_EntertainArea );
-    if( !pEntertainArea )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media for an invalid entertainment area %d %d %d",iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea );
-        return NULL; // Don't know what area it should be played in
-    }
-    return pEntertainArea;
+    g_pPlutoLogger->Write(LV_STATUS, "Found the proper ent area: %d", (int) vectEntertainArea.size());
+	string::size_type pos=0;
+	while( pos<sPK_EntertainArea.size() )
+	{
+		string s = StringUtils::Tokenize(sPK_EntertainArea,",",pos);
+		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(s.c_str()) );
+		if( !pEntertainArea )
+		{
+			g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media for an invalid entertainment area %d %d %s",iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
+			return; // Don't know what area it should be played in
+		}
+		vectEntertainArea.push_back(pEntertainArea);
+	}
 }
 
 int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
@@ -1807,14 +1843,18 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c43-e->
 {
-	int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str()); // TODO: handle multiple entertainment areas
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
 	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
-    // Only an Orbiter will tell us to play media
-    EntertainArea *pEntertainArea = DetermineEntArea(iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea);
-    if( !pEntertainArea )
+	vector<EntertainArea *> vectEntertainArea;
+
+	// Only an Orbiter will tell us to play media
+    DetermineEntArea(iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea,vectEntertainArea);
+    if( vectEntertainArea.size()==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Got a play media for no ent area");
         return;  // Don't know what area it should be played in
+	}
 
 	// i get the media type here when it's global
     deque<MediaFile *> dequeMediaFile;
@@ -1884,42 +1924,64 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 
 	if( iPK_MediaType )
     {
-		MediaHandlerInfo *pMediaHandlerInfo = NULL; // The handler
+		// Find the media handlers we're going to need
+		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
 
-        // See if there's a media handler for this type of media in this area
-        List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find(iPK_MediaType);
-        if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
-        {
-			Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(iPK_MediaType);
-			if( pRow_MediaType && pRow_MediaType->DCEAware_get()==0 )
+		for(size_t s=0;s<vectEntertainArea.size();++s)
+		{
+			EntertainArea *pEntertainArea=vectEntertainArea[s];
+			MediaHandlerInfo *pMediaHandlerInfo=NULL;
+			// See if there's a media handler for this type of media in this area
+			List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find(iPK_MediaType);
+			if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
 			{
-	            g_pPlutoLogger->Write( LV_STATUS, "Play media type %d in entertain area %d with generic handler", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
-				pMediaHandlerInfo = m_pGenericMediaHandlerInfo;
-				pMediaHandlerInfo->m_PK_MediaType = iPK_MediaType; // Just temporary for start media.  We're in a mutex
+				Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(iPK_MediaType);
+				if( pRow_MediaType && pRow_MediaType->DCEAware_get()==0 )
+				{
+					g_pPlutoLogger->Write( LV_STATUS, "Play media type %d in entertain area %d with generic handler", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
+					pMediaHandlerInfo = m_pGenericMediaHandlerInfo;
+					pMediaHandlerInfo->m_PK_MediaType = iPK_MediaType; // Just temporary for start media.  We're in a mutex
+				}
+				else
+					g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
 			}
 			else
-	            g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
-        }
-        else
-            pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+				pMediaHandlerInfo = pList_MediaHandlerInfo->front();
 
-		if( pMediaHandlerInfo )
-			StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			if( pMediaHandlerInfo )
+				mapMediaHandlerInfo[pMediaHandlerInfo->m_MediaHandlerID]=pMediaHandlerInfo;
+		}
+
+		for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
+			StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
     }
     else if( dequeMediaFile.size() )
     {
         string Extension = StringUtils::ToUpper(FileUtils::FindExtension(dequeMediaFile[0]->m_sFilename));
-        List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
-        if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
-            g_pPlutoLogger->Write(LV_WARNING,"Play media file %s in entertain area %d but nothing to handle it",sFilename.c_str(),pEntertainArea->m_iPK_EntertainArea);
-        else
-        {
-            MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-            StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
-        }
+
+		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
+
+		for(size_t s=0;s<vectEntertainArea.size();++s)
+		{
+			EntertainArea *pEntertainArea=vectEntertainArea[s];
+			List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
+		    if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
+			    g_pPlutoLogger->Write(LV_WARNING,"Play media file %s in entertain area %d but nothing to handle it",sFilename.c_str(),pEntertainArea->m_iPK_EntertainArea);
+	        else
+		    {
+			    MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+				mapMediaHandlerInfo[pMediaHandlerInfo->m_MediaHandlerID] = pMediaHandlerInfo;
+	        }
+		}
+		for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
+{
+			StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+break; // handle multiple handlers
+}
     }
-    else  // We got nothing -- find a disk drive within the entertainment area and send it a reset
+    else if( vectEntertainArea.size()==1 ) // We got nothing -- find a disk drive within the entertainment area and send it a reset
     {
+		EntertainArea *pEntertainArea = vectEntertainArea[0];
 		bool bDiskIsRipping = false;
 		bool bDiskWasReset  = false;
         for(map<int,class MediaDevice *>::iterator itDevice=pEntertainArea->m_mapMediaDevice.begin();itDevice!=pEntertainArea->m_mapMediaDevice.end();++itDevice)
@@ -1945,6 +2007,8 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "There is a ripping operation in progress at this moment. Can't reset the disk.");
 		}
     }
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"Don't know what to do with play media");
 }
 
 //<-dceag-c65-b->
@@ -1960,13 +2024,16 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
 
+	vector<EntertainArea *> vectEntertainArea;
     // Only an Orbiter will tell us to jump to next position
-    EntertainArea *pEntertainArea = DetermineEntArea( iPK_Device_Orbiter, 0, 0);
-    if( !pEntertainArea )
+    DetermineEntArea( iPK_Device_Orbiter, 0, "", vectEntertainArea);
+    if( vectEntertainArea.size()!=1 )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Got jump position but i couldn't find an entertainment area for it!");
         return;
     }
+
+	EntertainArea *pEntertainArea = vectEntertainArea[0];
 
     if ( pEntertainArea->m_pMediaStream == NULL )
     {
@@ -2013,17 +2080,19 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 void Media_Plugin::CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,string sName,bool bSave_as_new,string &sCMD_Result,Message *pMessage)
 //<-dceag-c214-e->
 {
-    int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    // Find the corrent entertainment area to use.
-    EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, 0, iPK_EntertainArea );
 
-    if ( pEntertainArea == NULL || pEntertainArea->m_pMediaStream == NULL)
+	// Find the corrent entertainment area to use.
+	vector<EntertainArea *> vectEntertainArea;
+    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, sPK_EntertainArea, vectEntertainArea );
+
+    if ( vectEntertainArea.size()!=1 || vectEntertainArea[0]->m_pMediaStream == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Couldn't find a valid entertainment area with a valid stream in it. Can't save the playlist");
         return;
     }
 
+	EntertainArea *pEntertainArea = vectEntertainArea[0];
     if ( sName == "" )
         sName = pEntertainArea->m_pMediaStream->m_sPlaylistName;
 
@@ -2053,11 +2122,12 @@ void Media_Plugin::CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,stri
 void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,string &sCMD_Result,Message *pMessage)
 //<-dceag-c231-e->
 {
-    int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // Find the corrent entertainment area to use.
-    EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, 0, iPK_EntertainArea );
-    if ( pEntertainArea == NULL )
+	vector<EntertainArea *> vectEntertainArea;
+	
+	DetermineEntArea( pMessage->m_dwPK_Device_From, 0, sPK_EntertainArea, vectEntertainArea );
+    if ( vectEntertainArea.size()==0 )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Couldn't find a valid entertainment area to load the playlist into.");
         return;
@@ -2073,14 +2143,24 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
     }
 
     string Extension = StringUtils::ToUpper(FileUtils::FindExtension(dequeMediaFile[0]->m_sFilename));
-    List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
-    if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
-    {
-        g_pPlutoLogger->Write(LV_WARNING,"Play playlist %s in entertain area %d but nothing to handle it",sPlaylistName.c_str(),iPK_EntertainArea);
-        return;
-    }
-    MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-    StartMedia(pMediaHandlerInfo,pMessage->m_dwPK_Device_From,pEntertainArea,0,0,&dequeMediaFile,false,0);  // We'll let the plug-in figure out the source, and we'll use the default remote
+	map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
+
+	for(size_t s=0;s<vectEntertainArea.size();++s)
+	{
+		EntertainArea *pEntertainArea=vectEntertainArea[s];
+
+		List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
+		if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"Play playlist %s in entertain area %s but nothing to handle it",sPlaylistName.c_str(),sPK_EntertainArea.c_str());
+			return;
+		}
+		MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+		if( pMediaHandlerInfo )
+			mapMediaHandlerInfo[pMediaHandlerInfo->m_MediaHandlerID]=pMediaHandlerInfo;
+	}
+	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
+	    StartMedia(it->second,pMessage->m_dwPK_Device_From,vectEntertainArea,0,0,&dequeMediaFile,false,0);  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 class DataGridTable *Media_Plugin::FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -2428,14 +2508,16 @@ void Media_Plugin::CMD_Move_Playlist_entry_Up(int iValue,string &sCMD_Result,Mes
 {
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
+	vector<EntertainArea *> vectEntertainArea;
 	// Only an Orbiter will tell us to Mode media
-    EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_dwPK_Device_From, 0, 0);
-    if( !pEntertainArea )
+    DetermineEntArea(pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
+    if( vectEntertainArea.size()==0 )
 	{
         g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Up() got a message from a device that is not a orbiter in an ent area. Ignoring!");
 		return;  // Don't know what area it should be played in
 	}
 
+	EntertainArea *pEntertainArea = vectEntertainArea[0];
 	if ( pEntertainArea->m_pMediaStream == NULL )
 	{
         g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Up(): There is no media stream in the detected ent area %d.!");
@@ -2459,13 +2541,15 @@ void Media_Plugin::CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,M
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	// Only an Orbiter will tell us to Mode media
-    EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_dwPK_Device_From, 0, 0);
-    if( !pEntertainArea )
+	vector<EntertainArea *> vectEntertainArea;
+    DetermineEntArea(pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
+    if( vectEntertainArea.size()!=0 )
 	{
         g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Down() got a message from a device that is not a orbiter in an ent area. Ignoring!");
 		return;  // Don't know what area it should be played in
 	}
 
+	EntertainArea *pEntertainArea = vectEntertainArea[0];
 	if ( pEntertainArea->m_pMediaStream == NULL )
 	{
         g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Down(): There is no media stream in the detected ent area %d.!");
@@ -2488,13 +2572,15 @@ void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Mess
 {	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	// Only an Orbiter will tell us to Mode media
-    EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_dwPK_Device_From, 0, 0);
-    if( !pEntertainArea )
+	vector<EntertainArea *> vectEntertainArea;
+    DetermineEntArea(pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
+    if( vectEntertainArea.size()!=1 )
 	{
         g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Remove_playlist_entry() got a message from a device that is not a orbiter in an ent area. Ignoring!");
 		return;  // Don't know what area it should be played in
 	}
 
+	EntertainArea *pEntertainArea = vectEntertainArea[0];
 	if ( pEntertainArea->m_pMediaStream == NULL )
 	{
         g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Remove_playlist_entry(): There is no media stream in the detected ent area %d.!");
@@ -2606,16 +2692,17 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,M
 	// (this is not here yet, we can put this to have the above functionality. Don't know about the usefullness yet.
 	//
 	// EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_From, 0);
-	EntertainArea *pEntertainArea;
-
 	// is this required here ?!
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-	if ( (pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, 0, 0)) == NULL )
+	vector<EntertainArea *> vectEntertainArea;
+	DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
+	if ( vectEntertainArea.size()!=1 )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): The source device ID in the message is not in an ent area or is not an orbiter. Ignoring request");
 		return;
 	}
 
+	EntertainArea *pEntertainArea = vectEntertainArea[0];
 	// If we have a proper name (aka. non empty one) we need to look in the current entertainment area for the disk drive and forward the received command to him.
 	MediaDevice *pDiskDriveMediaDevice = NULL;
 	if ( sName.length() != 0 )
