@@ -772,7 +772,7 @@ void Slim_Server_Streamer::CMD_Mute(string &sCMD_Result,Message *pMessage)
 }
 
 
-void Slim_Server_Streamer::OnReload();
+void Slim_Server_Streamer::OnReload()
 { 
 	Command_Impl::OnReload(); 
 if( g_pPlutoLogger )
