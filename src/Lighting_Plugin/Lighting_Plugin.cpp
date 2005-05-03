@@ -32,7 +32,7 @@ using namespace DCE;
 #include "DCERouter.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "DCE/DataGrid.h"
-
+#include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Table_CommandGroup_Room.h"
@@ -41,6 +41,7 @@ using namespace DCE;
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Define_FloorplanObjectType_Color.h"
@@ -127,6 +128,8 @@ bool Lighting_Plugin::Register()
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_Device_CONST, MESSAGETYPE_COMMAND, 0 );
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Lighting_CONST );
 
+	m_pListDeviceData_Router_Lights = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Lighting_Device_CONST);
+
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -184,13 +187,8 @@ bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMe
 {
 	// This only runs as a plug-in so we can safely cast it
 	class DeviceData_Router *pDevice_RouterTo = (class DeviceData_Router *) pDeviceTo;
-	if( pDevice_RouterTo )
-	{
-		if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
-			pDevice_RouterTo->m_sState_set("ON");
-		else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-			pDevice_RouterTo->m_sState_set("OFF");
-	}
+	PreprocessLightingMessage(pDevice_RouterTo,pMessage);
+
 	if( pMessage->m_sPK_Device_List_To.length() ) 
 	{
 		int PK_Device;  size_t pos=0;
@@ -198,13 +196,7 @@ bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMe
 		{
 			PK_Device=atoi(StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos).c_str());
 			DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
-			if( pDeviceData_Router )
-			{
-				if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
-					pDeviceData_Router->m_sState_set("ON");
-				else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-					pDeviceData_Router->m_sState_set("OFF");
-			}
+			PreprocessLightingMessage(pDeviceData_Router,pMessage);
 			if( pos>=pMessage->m_sPK_Device_List_To.length() || pos==string::npos )
 				break;
 		}
@@ -252,3 +244,75 @@ g_pPlutoLogger->Write(LV_WARNING,"Lighting left room, exec %d",m_mapRoom_Command
 	ExecCommandGroup(m_mapRoom_CommandGroup[iPK_RoomOrEntArea_Left].second);
 }
 //<-dceag-createinst-b->!
+//<-dceag-c184-b->
+
+	/** @brief COMMAND: #184 - Set Level */
+	/** Went sent by an orbiter, the plugin will adjust all lights in the Orbiter's room */
+		/** @param #76 Level */
+			/** The level to set, as a value between 0 (off) and 100 (full).  It can be preceeded with a - or + indicating a relative value.  +20 means up 20%. */
+
+void Lighting_Plugin::CMD_Set_Level(string sLevel,string &sCMD_Result,Message *pMessage)
+//<-dceag-c184-e->
+{
+	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	if( !pOH_Orbiter || !m_pListDeviceData_Router_Lights )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Device %d sent a set lighting_level but it's not an orbiter or we have no lights %p",
+			pMessage->m_dwPK_Device_From,m_pListDeviceData_Router_Lights);
+		return;
+	}
+
+	for(ListDeviceData_Router::iterator it=m_pListDeviceData_Router_Lights->begin();it!=m_pListDeviceData_Router_Lights->end();++it)
+	{
+		DeviceData_Router *pDeviceData_Router = *it;
+		if( pDeviceData_Router->m_dwPK_Room==pOH_Orbiter->m_dwPK_Room )
+		{
+			DCE::CMD_Set_Level CMD_Set_Level(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,sLevel);
+			SendCommand(CMD_Set_Level);
+		}
+	}
+}
+
+void Lighting_Plugin::PreprocessLightingMessage(DeviceData_Router *pDevice,Message *pMessage)
+{
+	if( !pDevice || !pMessage )
+		return;
+
+	if( pMessage->m_dwID==COMMAND_Set_Level_CONST )
+	{
+		string sLevel = pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST];
+		if( sLevel.size()==0 )
+			pMessage->m_dwID=COMMAND_Generic_Off_CONST;
+		else
+		{
+			int iLevel = atoi(sLevel.c_str());
+			if( sLevel[0]=='+' )
+				iLevel = min(100, GetLightingLevel(pDevice,0)+iLevel);
+			else if( sLevel[0]=='-' )
+				iLevel = max(0, GetLightingLevel(pDevice,0)+iLevel);
+
+			if( iLevel==0 )
+				pMessage->m_dwID=COMMAND_Generic_Off_CONST;
+			else
+			{
+				pDevice->m_sState_set("ON/" + StringUtils::itos(iLevel));
+				pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] = StringUtils::itos(iLevel);
+			}
+		}
+	}
+
+	if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
+		pDevice->m_sState_set("ON/" + StringUtils::itos(GetLightingLevel(pDevice,100)));
+	else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
+		pDevice->m_sState_set("OFF/" + StringUtils::itos(GetLightingLevel(pDevice,0)));
+}
+
+int Lighting_Plugin::GetLightingLevel(DeviceData_Router *pDevice,int iLevel_Default)
+{
+	string sState = pDevice->m_sState_get();
+	string::size_type pos = sState.find("/");
+	if( pos<sState.size()-1 && pos!=string::npos )
+		return atoi(sState.substr(pos+1).c_str());
+	else
+		return iLevel_Default;
+}
