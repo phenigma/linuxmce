@@ -301,11 +301,11 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 				continue; // Shouldn't happen
 			pCell = new DataGridCell( pCommand->m_sDescription,	StringUtils::itos(pCommand->m_dwPK_Command) );
 			pCell->m_Colspan = 4;
-			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,(*it).first,0);
+			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommand->m_dwPK_Command,0);
 			pDataGrid->SetData(0,iRow,pCell);
 
 			pCell = new DataGridCell( "learn","" );
-			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,(*it).first);
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,pCommand->m_dwPK_Command);
 			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 			pDataGrid->SetData(4,iRow++,pCell);
 		}

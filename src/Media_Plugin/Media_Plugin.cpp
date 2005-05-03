@@ -1798,6 +1798,18 @@ void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,D
 	if( !pDevice )
 		return;
 
+	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Active.begin();
+		it!=pDevice->m_mapPipe_Active.end();++it)
+	{
+		Pipe *pPipe = (*it).second;
+		DeviceData_Router *pDevice_Pipe = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		if( pDevice_Pipe && pDevice_Pipe!=pDevice )
+			DevicesPipes_Loop(PK_Orbiter,(DeviceData_Router *)pDevice_Pipe,pDataGrid,iRow,pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get(),pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get());
+	}
+
+	if( pDevice->m_pDevice_MD && pDevice!=pDevice->m_pDevice_MD )
+		DevicesPipes_Loop(PK_Orbiter,(DeviceData_Router *) pDevice->m_pDevice_MD,pDataGrid,iRow);
+
 	DataGridCell *pCell = new DataGridCell( pDevice->m_sDescription);
 	pCell->m_Colspan = 4;
 	pCell->m_pMessage = new Message(m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,2,COMMANDPARAMETER_Retransmit_CONST,"1",COMMANDPARAMETER_PK_Pipe_CONST,"-1");
@@ -1834,18 +1846,6 @@ void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,D
 	);
 
 	pDataGrid->SetData(6,iRow++,pCell);
-
-	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Active.begin();
-		it!=pDevice->m_mapPipe_Active.end();++it)
-	{
-		Pipe *pPipe = (*it).second;
-		DeviceData_Router *pDevice_Pipe = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
-		if( pDevice_Pipe && pDevice_Pipe!=pDevice )
-			DevicesPipes_Loop(PK_Orbiter,(DeviceData_Router *)pDevice_Pipe,pDataGrid,iRow,pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get(),pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get());
-	}
-
-	if( pDevice->m_pDevice_MD && pDevice!=pDevice->m_pDevice_MD )
-		DevicesPipes_Loop(PK_Orbiter,(DeviceData_Router *) pDevice->m_pDevice_MD,pDataGrid,iRow);
 }
 
 void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea )
