@@ -884,7 +884,6 @@
 #define DESIGNOBJ_butWkb_Shift_CONST 2527
 #define DESIGNOBJ_butWkb_Back_CONST 2528
 #define DESIGNOBJ_butWkb_CapsLock_CONST 2529
-#define DESIGNOBJ_dgExtraMediaOptions_CONST 2530
 #define DESIGNOBJ_objControllerBackToPVR_CONST 2531
 #define DESIGNOBJ_mnuMediaAttributeSearchInput_CONST 2532
 #define DESIGNOBJ_grpMediaAttributeSearch_CONST 2533

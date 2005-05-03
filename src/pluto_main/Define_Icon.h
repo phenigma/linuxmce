@@ -1,6 +1,7 @@
 #ifndef __Define_Icon_H__
 #define __Define_Icon_H__
 
+#define ICON_Computer_CONST 1
 
 #define ICON_TABLE "Icon"
 #define ICON_PK_ICON_FIELD "PK_Icon"
