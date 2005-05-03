@@ -140,7 +140,7 @@
 	$GLOBALS['LightingFoorplanType']=2;		// Lighting Zone
 	$GLOBALS['ClimateFoorplanType']=3;		// Climate Zone
 	$GLOBALS['CameraFoorplanType']=4;		// Camera Zone
-	$GLOBALS['EntertainmentZone']=5;		// Entertainment Zone
+	$GLOBALS['EntertainmentZone']=6;		// Entertainment Zone
 	$GLOBALS['AVEquipmentFlorplanType']=6;	// AV Equipment
 	$GLOBALS['PhonesFoorplanType']=7;		// Phones
 	
