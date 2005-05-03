@@ -290,16 +290,16 @@ public:
 	// Sometimes when MediaHanderBase::GetRenderDevices is called, only the top-level render devices (ie the media source)
 	// is desired.  However, HandleOnOffs wants everything in the pipe, and the following function
 	// can be used to add the other devices into the map
-	void AddOtherDevicesInPipesToRenderDevices(map<int,MediaDevice *> *pmapMediaDevice);
-	void AddOtherDevicesInPipes_Loop(DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice);
+	void AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,MediaDevice *> *pmapMediaDevice);
+	void AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice);
 
 
 	// Follow-me
 	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
 	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
 
-	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true);
-	void MediaInEAEnded(EntertainArea *pEntertainArea);
+	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL);
+	void MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent=true);
 
 	virtual bool SafeToReload();
 //<-dceag-h-b->
@@ -488,6 +488,17 @@ public:
 
 	virtual void CMD_Rip_Disk(int iPK_Users,string sName) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #372 - MH Set Volume */
+	/**  */
+		/** @param #45 PK_EntertainArea */
+			/** The Entertainment Area(s) */
+		/** @param #76 Level */
+			/** The level as an abolute value from 0-100, or a relative value like -1 or +1. */
+
+	virtual void CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel) { string sCMD_Result; CMD_MH_Set_Volume(sPK_EntertainArea.c_str(),sLevel.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

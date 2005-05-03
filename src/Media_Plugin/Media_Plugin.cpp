@@ -602,7 +602,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
-			StreamEnded(pEntertainArea->m_pMediaStream,false,pMediaStream->m_bResume ? false : true);  // Don't delete it if we're going to resume
+			StreamEnded(pEntertainArea->m_pMediaStream,false,pMediaStream->m_bResume ? false : true,pMediaStream);  // Don't delete it if we're going to resume
 			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
 
 		}
@@ -1054,7 +1054,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 	}
 }
 
-void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream)
+void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement)
 {
 	if ( pMediaStream == NULL )
 	{
@@ -1073,7 +1073,13 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices" );
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Prior);
 
-		MediaInEAEnded(pEntertainArea);
+		bool bFireEvent=true;
+		if( pMediaStream_Replacement && 
+				pMediaStream_Replacement->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaStream_Replacement->m_mapEntertainArea.end() &&
+				pMediaStream_Replacement->ContainsVideo()==pMediaStream->ContainsVideo() )
+			bFireEvent=false;
+
+		MediaInEAEnded(pEntertainArea,bFireEvent);
 
 		if( pEntertainArea->m_vectMediaStream_Interrupted.size() )
 		{
@@ -1111,12 +1117,15 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 	}
 }
 
-void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea)
+void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent)
 {
-	if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->ContainsVideo() )
-		EVENT_Stopped_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
-	else
-		EVENT_Stopped_Listening_To_Medi(pEntertainArea->m_pRoom->m_dwPK_Room);
+	if( bFireEvent )
+	{
+		if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->ContainsVideo() )
+			EVENT_Stopped_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
+		else
+			EVENT_Stopped_Listening_To_Medi(pEntertainArea->m_pRoom->m_dwPK_Room);
+	}
 
 g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEntertainArea->m_sDescription.c_str(), (int) pEntertainArea->m_mapBoundRemote.size() );
 	pEntertainArea->m_pMediaStream = NULL;
@@ -2459,7 +2468,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 	if( pmapMediaDevice_Prior && pmapMediaDevice_Prior->size() && pmapMediaDevice_Current && pmapMediaDevice_Current->size() )
 	{
 		mapMediaDevice_Current = *pmapMediaDevice_Current;
-		AddOtherDevicesInPipesToRenderDevices(&mapMediaDevice_Current);
+		AddOtherDevicesInPipesToRenderDevices(PK_Pipe_Current,&mapMediaDevice_Current);
 	}
 
 	if( pmapMediaDevice_Prior )
@@ -2507,11 +2516,11 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 
 void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current)
 {
-	if( pmapMediaDevice_Current && pmapMediaDevice_Current->find( pDeviceData_Router->m_dwPK_Device ) != pmapMediaDevice_Current->end() )
-		return;
-
-	DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
-	SendCommand(CMD_Off);
+	if( !pmapMediaDevice_Current || pmapMediaDevice_Current->find( pDeviceData_Router->m_dwPK_Device ) == pmapMediaDevice_Current->end() )
+	{
+		DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
+		SendCommand(CMD_Off);
+	}
 
 	if( pDeviceData_Router->m_pDevice_MD && pDeviceData_Router!=pDeviceData_Router->m_pDevice_MD )
 		TurnDeviceOff(PK_Pipe,(DeviceData_Router *) pDeviceData_Router->m_pDevice_MD,pmapMediaDevice_Current);
@@ -2674,7 +2683,9 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 	else
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Move Media, user %d -- stream %d %s",iPK_Users,pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
-		CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),StringUtils::itos(iPK_RoomOrEntArea));
+		// Only move the media if it's not already there.  Maybe the user just turned follow me on
+		if( pMediaStream->m_mapEntertainArea.find(iPK_RoomOrEntArea)==pMediaStream->m_mapEntertainArea.end() )
+			CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),StringUtils::itos(iPK_RoomOrEntArea));
 	}
 }
 
@@ -2856,13 +2867,13 @@ bool Media_Plugin::SafeToReload()
 	return m_mapRippingJobsToRippingDevices.size() == 0;
 }
 
-void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(map<int,MediaDevice *> *pmapMediaDevice)
+void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,MediaDevice *> *pmapMediaDevice)
 {
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice->begin();it!=pmapMediaDevice->end();++it)
-		AddOtherDevicesInPipes_Loop((*it).second->m_pDeviceData_Router,pmapMediaDevice);
+		AddOtherDevicesInPipes_Loop(PK_Pipe,(*it).second->m_pDeviceData_Router,pmapMediaDevice);
 }
 
-void Media_Plugin::AddOtherDevicesInPipes_Loop(DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice)
+void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice)
 {
 	if( !pDevice )
 		return;
@@ -2870,21 +2881,29 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(DeviceData_Router *pDevice,map<in
 		it!=pDevice->m_mapPipe_Available.end();++it)
 	{
 		Pipe *pPipe = (*it).second;
-		DeviceData_Router *pDevice_Pipe = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
-		if( pDevice_Pipe )
+		if( !PK_Pipe || pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()==PK_Pipe )
 		{
-			MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice_Pipe->m_dwPK_Device);
-			if( pMediaDevice )
-				(*pmapMediaDevice)[pDevice_Pipe->m_dwPK_Device] = pMediaDevice;
-			if( pmapMediaDevice->find(pDevice_Pipe->m_dwPK_Device)==pmapMediaDevice->end() )
-				AddOtherDevicesInPipes_Loop(pDevice_Pipe,pmapMediaDevice);
+			DeviceData_Router *pDevice_Pipe = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+			if( pDevice_Pipe )
+			{
+				MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice_Pipe->m_dwPK_Device);
+				if( pMediaDevice )
+					(*pmapMediaDevice)[pDevice_Pipe->m_dwPK_Device] = pMediaDevice;
+				if( pmapMediaDevice->find(pDevice_Pipe->m_dwPK_Device)==pmapMediaDevice->end() )
+					AddOtherDevicesInPipes_Loop(PK_Pipe,pDevice_Pipe,pmapMediaDevice);
+			}
+			else
+				g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
 		}
-		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
 	}
 
 	if( pDevice->m_pDevice_MD && pDevice!=pDevice->m_pDevice_MD )
-		AddOtherDevicesInPipes_Loop( (DeviceData_Router *) pDevice->m_pDevice_MD, pmapMediaDevice );
+	{
+		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice->m_pDevice_MD->m_dwPK_Device);
+		if( pMediaDevice )
+			(*pmapMediaDevice)[pDevice->m_pDevice_MD->m_dwPK_Device] = pMediaDevice;
+		AddOtherDevicesInPipes_Loop( PK_Pipe, (DeviceData_Router *) pDevice->m_pDevice_MD, pmapMediaDevice );
+	}
 }
 
 void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,vector<EntertainArea *> &vectEntertainArea, map<int,MediaHandlerInfo *> &mapMediaHandlerInfo)
@@ -2926,3 +2945,40 @@ MediaDevice *Media_Plugin::GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *
 	return NULL;
 }
 
+//<-dceag-c372-b->
+
+	/** @brief COMMAND: #372 - MH Set Volume */
+	/**  */
+		/** @param #45 PK_EntertainArea */
+			/** The Entertainment Area(s) */
+		/** @param #76 Level */
+			/** The level as an abolute value from 0-100, or a relative value like -1 or +1. */
+
+void Media_Plugin::CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,string &sCMD_Result,Message *pMessage)
+//<-dceag-c372-e->
+{
+	string::size_type pos=0;
+	while(pos<sPK_EntertainArea.size() && pos!=string::npos)
+	{
+		string s = StringUtils::Tokenize(sPK_EntertainArea,",",pos);
+		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(atoi(s.c_str()));
+		if( pEntertainArea && pEntertainArea->m_pMediaDevice_ActiveDest )
+		{
+			if( sLevel=="-1" )
+			{
+				DCE::CMD_Vol_Down CMD_Vol_Down(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device,1);
+				SendCommand(CMD_Vol_Down);
+			}
+			else if( sLevel=="+1" )
+			{
+				DCE::CMD_Vol_Up CMD_Vol_Up(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device,1);
+				SendCommand(CMD_Vol_Up);
+			}
+			else
+			{
+				DCE::CMD_Set_Volume CMD_Set_Volume(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device,sLevel);
+				SendCommand(CMD_Set_Volume);
+			}			
+		}
+	}
+}

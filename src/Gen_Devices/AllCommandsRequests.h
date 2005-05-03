@@ -5925,5 +5925,21 @@ namespace DCE
 	public:
 		CMD_NOREP_Is_Daytime_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,371,0); }
 	};
+	class CMD_MH_Set_Volume : public PreformedCommand {
+	public:
+		CMD_MH_Set_Volume(long DeviceIDFrom, long DeviceIDTo,string sPK_EntertainArea,string sLevel) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,372,2,45,sPK_EntertainArea.c_str(),76,sLevel.c_str()); }
+	};
+	class CMD_MH_Set_Volume_DL : public PreformedCommand {
+	public:
+		CMD_MH_Set_Volume_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_EntertainArea,string sLevel) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,372,2,45,sPK_EntertainArea.c_str(),76,sLevel.c_str()); }
+	};
+	class CMD_MH_Set_Volume_DT : public PreformedCommand {
+	public:
+		CMD_MH_Set_Volume_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_EntertainArea,string sLevel) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,372,2,45,sPK_EntertainArea.c_str(),76,sLevel.c_str()); }
+	};
+	class CMD_MH_Set_Volume_Cat : public PreformedCommand {
+	public:
+		CMD_MH_Set_Volume_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_EntertainArea,string sLevel) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,372,2,45,sPK_EntertainArea.c_str(),76,sLevel.c_str()); }
+	};
 }
 #endif
