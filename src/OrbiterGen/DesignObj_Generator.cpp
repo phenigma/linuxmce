@@ -91,7 +91,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1687 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==2439 )//2821 && bAddToGenerated )
 {
     int k=2;
 }
@@ -143,7 +143,7 @@ int k=2;
             if( pdrCachedScreen && pdrCachedScreen->Schema_get()==ORBITER_SCHEMA &&
 				(!m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen!=m_pRow_DesignObj->PK_DesignObj_get()) )
             {
-				if( !m_bDontShare && (pdrCachedScreen->ContainsArrays_get()==0 || m_pOrbiterGenerator->m_bDontAutoRegenArrays || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen) )
+				if( m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || (!m_bDontShare && (pdrCachedScreen->ContainsArrays_get()==0 || m_pOrbiterGenerator->m_bDontAutoRegenArrays)) )
 				{
 					time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
 					time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
@@ -754,6 +754,10 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
                             pDesignObj_Generator->m_bCanBeHidden = drOVO->CanBeHidden_get()==1;
                             pDesignObj_Generator->m_bHideByDefault = drOVO->HideByDefault_get()==1;
                             pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
+if( pDesignObj_Generator->m_bChildrenBeforeText )
+{
+int k=2;
+}
                             pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
                             pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
                             pDesignObj_Generator->m_bTabStop = drOVO->IsTabStop_get()==1;
@@ -1701,6 +1705,8 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
         {
             if( m_pOrbiterGenerator->m_pRow_Icon!=NULL && !m_pOrbiterGenerator->m_pRow_Icon->SelectedFileName_isNull() )
                 sValue = m_pOrbiterGenerator->m_pRow_Icon->SelectedFileName_get();
+            else if( m_pOrbiterGenerator->m_pRow_Icon!=NULL )
+                sValue = m_pOrbiterGenerator->m_pRow_Icon->MainFileName_get();
             else
                 sValue = "";
         }
@@ -1708,6 +1714,8 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
         {
             if( m_pOrbiterGenerator->m_pRow_Icon!=NULL && !m_pOrbiterGenerator->m_pRow_Icon->AltFileNames_isNull() )
                 sValue = m_pOrbiterGenerator->m_pRow_Icon->AltFileNames_get();
+            else if( m_pOrbiterGenerator->m_pRow_Icon!=NULL )
+                sValue = m_pOrbiterGenerator->m_pRow_Icon->MainFileName_get();
             else
                 sValue = "";
         }
