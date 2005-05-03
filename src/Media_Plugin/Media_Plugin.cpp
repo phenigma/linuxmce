@@ -2021,7 +2021,7 @@ break; // handle multiple handlers
 
 		if ( !bDiskWasReset && bDiskIsRipping ) // we weren't able to reset any drives and at least one of them was ripping.
 		{
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "There is a ripping operation in progress at this moment. Can't reset the disk.");
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "There is a ripping operation in progress at this moment. Can't reset the disk.",false,10,true);
 		}
     }
 	else
@@ -2120,7 +2120,7 @@ void Media_Plugin::CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,stri
     if( !m_pMediaAttributes->SavePlaylist(pEntertainArea->m_pMediaStream->m_dequeMediaFile, iPK_Users, iPK_Playlist, sName) )
     {
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to save playlist");
-        m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to save playlist");
+        m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to save playlist",false,10,true);
         return;
     }
 
@@ -2155,7 +2155,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
     if( !m_pMediaAttributes->LoadPlaylist( iEK_Playlist, dequeMediaFile, sPlaylistName) || dequeMediaFile.size()==0 )
     {
         g_pPlutoLogger->Write(LV_STATUS, "I was unable to load playlist entries");
-        m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to load playlist");
+        m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to load playlist",false,10,true);
         return;
     }
 
@@ -2844,7 +2844,7 @@ bool Media_Plugin::RippingCompleted( class Socket *pSocket, class Message *pMess
 	int sourceOrbiter = m_mapRippingJobsToRippingDevices[sJobName].second;
 	m_mapRippingJobsToRippingDevices.erase(sJobName);
 
-	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sourceOrbiter,sMessage);
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sourceOrbiter,sMessage,false,1200,true);   // Leave the message on screen for 20 mins
 
 	return true;
 }
