@@ -43,6 +43,7 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Template.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Table_Event.h"
@@ -296,7 +297,7 @@ bool Media_Plugin::Register()
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DevicesPipes ) )
-        , DATAGRID_Devices_Pipes_CONST );
+        , DATAGRID_Devices__Pipes_CONST );
 
 	// datagrids to support the floorplans
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
@@ -1808,7 +1809,7 @@ void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,D
 		if( pCommand )
 		{
 			pCell = new DataGridCell( pCommand->m_sDescription );
-			pCell->m_pMessage = new Message(m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommand->m_dwPK_Command,1,COMMANDPARAMETER_Retransmit_CONST,"1");
+			pCell->m_pMessage = new Message(m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,2,COMMANDPARAMETER_Retransmit_CONST,"1",COMMANDPARAMETER_PK_Command_Input_CONST,StringUtils::itos(pCommand->m_dwPK_Command).c_str());
 			pDataGrid->SetData(4,iRow,pCell);
 		}
 	}
@@ -1818,25 +1819,18 @@ void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,D
 		if( pCommand )
 		{
 			pCell = new DataGridCell( pCommand->m_sDescription );
-			pCell->m_pMessage = new Message(m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommand->m_dwPK_Command,1,COMMANDPARAMETER_Retransmit_CONST,"1");
+			pCell->m_pMessage = new Message(m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,2,COMMANDPARAMETER_Retransmit_CONST,"1",COMMANDPARAMETER_PK_Command_Output_CONST,StringUtils::itos(pCommand->m_dwPK_Command).c_str());
 			pDataGrid->SetData(5,iRow,pCell);
 		}
 	}
+
 	pCell = new DataGridCell( "Advanced" );
-	pCell->m_pMessage = new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuDeviceControl_CONST).c_str());
+    pCell->m_pMessage = new Message(m_dwPK_Device,PK_Orbiter,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Goto_Screen_CONST,
+		1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuDeviceControl_CONST).c_str());
 	pCell->m_pMessage->m_vectExtraMessages.push_back(
-		new Message(m_dwPK_Device,DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Populate_Datagrid_CONST,3,
-		COMMANDPARAMETER_DataGrid_ID_CONST,("cmds_" + StringUtils::itos(PK_Orbiter)).c_str(),
-		COMMANDPARAMETER_PK_DataGrid_CONST,StringUtils::itos(DATAGRID_Commmands_By_Device_CONST).c_str(),
-		COMMANDPARAMETER_Options_CONST,(StringUtils::itos(pDevice->m_dwPK_Device) + "," + StringUtils::itos(PK_Orbiter) + ",670").c_str())
-	);
-	pCell->m_pMessage->m_vectExtraMessages.push_back(
-		new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Text_CONST,1,
-		COMMANDPARAMETER_PK_Text_CONST,"670")
-	);
-	pCell->m_pMessage->m_vectExtraMessages.push_back(
-		new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Show_Object_CONST,1,
-		COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_butTryOtherCodes_CONST).c_str())
+		new Message(m_dwPK_Device,PK_Orbiter,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Variable_CONST,2,
+		COMMANDPARAMETER_PK_Variable_CONST,StringUtils::itos(VARIABLE_Datagrid_Input_CONST).c_str(),
+		COMMANDPARAMETER_Value_To_Assign_CONST,StringUtils::itos(pDevice->m_dwPK_Device).c_str())
 	);
 
 	pDataGrid->SetData(6,iRow++,pCell);
@@ -1900,7 +1894,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 			{
 				g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter %p %d with no entertainment area (%p) %d %d %s",
 					pOH_Orbiter,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pEntertainArea,
-					iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea );
+					iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
 				return; // Don't know what area it should be played in
 			}
         }

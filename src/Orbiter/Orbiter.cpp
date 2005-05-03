@@ -1754,7 +1754,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
         }
         else if( pMessage->m_dwPK_Device_To==m_dwPK_Device || pMessage->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
 		{
-			pMessage->m_dwPK_Device_From=m_dwPK_Device;
+			pMessage->m_dwPK_Device_To=m_dwPK_Device;
 			ReceivedMessage(pMessage);
 		}
         else
