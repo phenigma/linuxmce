@@ -91,7 +91,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2439 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==1687 )//2821 && bAddToGenerated )
 {
     int k=2;
 }
@@ -1705,8 +1705,6 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
         {
             if( m_pOrbiterGenerator->m_pRow_Icon!=NULL && !m_pOrbiterGenerator->m_pRow_Icon->SelectedFileName_isNull() )
                 sValue = m_pOrbiterGenerator->m_pRow_Icon->SelectedFileName_get();
-            else if( m_pOrbiterGenerator->m_pRow_Icon!=NULL )
-                sValue = m_pOrbiterGenerator->m_pRow_Icon->MainFileName_get();
             else
                 sValue = "";
         }
@@ -1714,8 +1712,6 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
         {
             if( m_pOrbiterGenerator->m_pRow_Icon!=NULL && !m_pOrbiterGenerator->m_pRow_Icon->AltFileNames_isNull() )
                 sValue = m_pOrbiterGenerator->m_pRow_Icon->AltFileNames_get();
-            else if( m_pOrbiterGenerator->m_pRow_Icon!=NULL )
-                sValue = m_pOrbiterGenerator->m_pRow_Icon->MainFileName_get();
             else
                 sValue = "";
         }
