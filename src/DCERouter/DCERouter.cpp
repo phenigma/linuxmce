@@ -720,7 +720,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 
 		if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 		{
-			pCommand = mapCommand_Find(pMessage->m_dwID);
+			pCommand = m_mapCommand_Find(pMessage->m_dwID);
 			if( pCommand )
 			{
 				sCommand = pCommand->m_sDescription;
@@ -788,7 +788,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 					((*i).first==COMMANDPARAMETER_PK_Command_Input_CONST ||
 					(*i).first==COMMANDPARAMETER_PK_Command_Output_CONST ) )
 				{
-					Command *pCommand = mapCommand_Find(atoi((*i).second.c_str()));
+					Command *pCommand = m_mapCommand_Find(atoi((*i).second.c_str()));
 					if( pCommand )
 						Desc += "(" + pCommand->m_sDescription + ")";
 				}
@@ -1434,7 +1434,7 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 	// RE: COMMANDPARAMETER_PK_Device_Pipes_CONST - Normally when a device is turned on the corresponding
 	// "pipes" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will 
 	// be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic
-    Command *pCommand = mapCommand_Find((*(*pSafetyMessage))->m_dwID);
+    Command *pCommand = m_mapCommand_Find((*(*pSafetyMessage))->m_dwID);
     int PK_Device = (*(*pSafetyMessage))->m_dwPK_Device_To;
     DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find(PK_Device);
     if( !pCommand || !pDeviceData_Router )

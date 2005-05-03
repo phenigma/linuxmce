@@ -43,6 +43,8 @@ public:
 		class DataGridTable *InfraredGroups(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 		class DataGridTable *InfraredCodes(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 		class DataGridTable *IRGroupCategories(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+
+		void GetInfraredCodes(int iPK_Device,string *sValue_To_Assign,bool bNoIRData=false);
 		
 //<-dceag-h-b->
 	/*

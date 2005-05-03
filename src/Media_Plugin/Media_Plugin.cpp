@@ -294,7 +294,11 @@ bool Media_Plugin::Register()
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaItemAttr ) )
         , DATAGRID_Media_Item_Attr_CONST );
 
-    // datagrids to support the floorplans
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DevicesPipes ) )
+        , DATAGRID_Devices_Pipes_CONST );
+
+	// datagrids to support the floorplans
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::FloorplanMediaChoices ) )
         , DATAGRID_Floorplan_Media_Choices_CONST );
@@ -881,7 +885,7 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 			// that is connected to the media director (like vol up/down going to the receiver).  Don't bother with generic media
 			if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND && pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo!=m_pGenericMediaHandlerInfo )
 			{
-			    Command *pCommand = m_pRouter->mapCommand_Find(pMessage->m_dwID);
+			    Command *pCommand = m_pRouter->m_mapCommand_Find(pMessage->m_dwID);
 				if( !pCommand )
 					g_pPlutoLogger->Write(LV_CRITICAL,"Got a command in media plugin that we can't identify");
 				else
@@ -1770,6 +1774,85 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
         }
     }
     return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::DevicesPipes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    DataGridTable *pDataGrid = new DataGridTable();
+    DataGridCell *pCell;
+
+	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(Parms.c_str()) );
+	if( !pEntertainArea || !pEntertainArea->m_pMediaDevice_ActiveDest )
+		return pDataGrid;
+
+	int iRow=0;
+	DevicesPipes_Loop( pMessage->m_dwPK_Device_From, pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router,
+		pDataGrid,iRow);
+	return pDataGrid;
+}
+
+
+void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,DataGridTable *&pDataGrid,int &iRow)
+{
+	if( !pDevice )
+		return;
+	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Active.begin();
+		it!=pDevice->m_mapPipe_Active.end();++it)
+	{
+		Pipe *pPipe = (*it).second;
+		DeviceData_Router *pDevice_Pipe = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		if( pDevice_Pipe )
+		{
+			DataGridCell *pCell = new DataGridCell( pDevice_Pipe->m_sDescription);
+			pCell->m_Colspan = 4;
+			pCell->m_pMessage = new Message(m_dwPK_Device,pDevice_Pipe->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,1,COMMANDPARAMETER_Retransmit_CONST,"1");
+			pDataGrid->SetData(0,iRow,pCell);
+
+			if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )
+			{
+				Command *pCommand = m_pRouter->m_mapCommand_Find( pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get() );
+				if( pCommand )
+				{
+					pCell = new DataGridCell( pCommand->m_sDescription );
+					pCell->m_pMessage = new Message(m_dwPK_Device,pDevice_Pipe->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommand->m_dwPK_Command,1,COMMANDPARAMETER_Retransmit_CONST,"1");
+					pDataGrid->SetData(4,iRow,pCell);
+				}
+			}
+			if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_isNull() )
+			{
+				Command *pCommand = m_pRouter->m_mapCommand_Find( pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get() );
+				if( pCommand )
+				{
+					pCell = new DataGridCell( pCommand->m_sDescription );
+					pCell->m_pMessage = new Message(m_dwPK_Device,pDevice_Pipe->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommand->m_dwPK_Command,1,COMMANDPARAMETER_Retransmit_CONST,"1");
+					pDataGrid->SetData(5,iRow,pCell);
+				}
+			}
+			pCell = new DataGridCell( "Advanced" );
+			pCell->m_pMessage = new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuDeviceControl_CONST));
+			pCell->m_pMessage->m_vectExtraMessages.push_back(
+				new Message(m_dwPK_Device,DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Populate_Datagrid_CONST,3,
+				COMMANDPARAMETER_DataGrid_ID_CONST,"cmds_" + StringUtils::itos(PK_Orbiter),
+				COMMANDPARAMETER_PK_DataGrid_CONST,StringUtils::itos(DATAGRID_Commmands_By_Device_CONST),
+				COMMANDPARAMETER_Options_CONST,StringUtils::itos(pDevice_Pipe->m_dwPK_Device) + "," + StringUtils::itos(PK_Orbiter) + ",670")
+			);
+			pCell->m_pMessage->m_vectExtraMessages.push_back(
+				new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Text_CONST,1,
+				COMMANDPARAMETER_PK_Text_CONST,"670")
+			);
+			pCell->m_pMessage->m_vectExtraMessages.push_back(
+				new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Show_Object_CONST,1,
+				COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_butTryOtherCodes_CONST))
+			);
+
+			pDataGrid->SetData(6,iRow++,pCell);
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+	}
+
+	if( pDevice->m_pDevice_MD && pDevice!=pDevice->m_pDevice_MD )
+		DevicesPipes_Loop(PK_Orbiter,(DeviceData_Router *) pDevice->m_pDevice_MD,pDataGrid,iRow);
 }
 
 void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea )

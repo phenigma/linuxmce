@@ -443,6 +443,7 @@ string FileUtils::ValidCPPName(string sInput)
     StringUtils::Replace(sInput,"__","_");
     StringUtils::Replace(sInput,"__","_");
     StringUtils::Replace(sInput,"%","");
+    StringUtils::Replace(sInput,"&","");
 
     // taking out the underscores from the begining of the file name
     while(sInput.length() && sInput[0]=='_')

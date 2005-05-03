@@ -171,6 +171,8 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
+	map<int,bool> mapCodesAlreadyShown; // So we can add extra codes at the end
+
 	string::size_type pos=0;
 	int PK_Device = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
 	if( !PK_Device )
@@ -212,6 +214,9 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 			DCE::CMD_Learn_IR CMD_Learn_IR2(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Generic_Off_CONST);
 			pCell->m_pMessage = CMD_Learn_IR2.m_pMessage;
 			pDataGrid->SetData(4,iRow++,pCell);
+
+			mapCodesAlreadyShown[COMMAND_Generic_On_CONST]=true;
+			mapCodesAlreadyShown[COMMAND_Generic_Off_CONST]=true;
 		}
 		else if( (*it).first == COMMAND_Jump_Position_In_Playlist_CONST && bUsesIR )
 		{
@@ -226,6 +231,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 				DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_0_CONST + i);
 				pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 				pDataGrid->SetData(4,iRow++,pCell);
+				mapCodesAlreadyShown[COMMAND_0_CONST + i]=true;
 			}
 			pCell = new DataGridCell( "Enter",	StringUtils::itos(COMMAND_Send_Generic_EnterGo_CONST) );
 			pCell->m_Colspan = 4;
@@ -236,6 +242,8 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Send_Generic_EnterGo_CONST);
 			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 			pDataGrid->SetData(4,iRow++,pCell);
+
+			mapCodesAlreadyShown[COMMAND_Send_Generic_EnterGo_CONST]=true;
 		}
 		else
 		{
@@ -248,6 +256,8 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,(*it).first);
 			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 			pDataGrid->SetData(4,iRow++,pCell);
+
+			mapCodesAlreadyShown[(*it).first]=true;
 		}
 	}
 
@@ -263,6 +273,8 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 		pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pRow_DeviceTemplate_Input->FK_Command_get(),0);
 		pDataGrid->SetData(0,iRow,pCell);
 
+		mapCodesAlreadyShown[pRow_DeviceTemplate_Input->FK_Command_get()]=true;
+
 		if( pRow_DeviceTemplate_AV && pRow_DeviceTemplate_AV->ToggleInput_get()==0 )
 		{
 			pCell = new DataGridCell( "learn","" );
@@ -273,6 +285,30 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 			pCell = new DataGridCell( "TOAD","" );
 
 		pDataGrid->SetData(4,iRow++,pCell);
+	}
+
+	// See if there any commands for which we have i/r codes, but aren't in the 'official list'.  List them now
+	string sCommands;
+	GetInfraredCodes(PK_Device,&sCommands,true);
+	pos=0;
+	while( pos<sCommands.size() && pos!=string::npos )
+	{
+		int PK_Command = atoi( StringUtils::Tokenize(sCommands,"\t",pos).c_str() );
+		if( mapCodesAlreadyShown.find(PK_Command)==mapCodesAlreadyShown.end() )
+		{
+			Command *pCommand = m_pRouter->m_mapCommand_Find(PK_Command);
+			if( !pCommand )
+				continue; // Shouldn't happen
+			pCell = new DataGridCell( pCommand->m_sDescription,	StringUtils::itos(pCommand->m_dwPK_Command) );
+			pCell->m_Colspan = 4;
+			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,(*it).first,0);
+			pDataGrid->SetData(0,iRow,pCell);
+
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,(*it).first);
+			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+			pDataGrid->SetData(4,iRow++,pCell);
+		}
 	}
 
 	return pDataGrid;
@@ -438,6 +474,12 @@ class DataGridTable *Infrared_Plugin::IRGroupCategories(string GridID,string Par
 void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c188-e->
 {
+	GetInfraredCodes(iPK_Device,sValue_To_Assign);
+	sCMD_Result = "OK";
+}
+
+void Infrared_Plugin::GetInfraredCodes(int iPK_Device,string *sValue_To_Assign,bool bNoIRData)
+{
 	int i;
 	size_t Count = 0;
 	Table_InfraredGroup_Command * pTable_InfraredGroup_Command = m_pDatabase_pluto_main->InfraredGroup_Command_get();
@@ -483,7 +525,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d codes for device %d",(int) vectRow_Inf
 				pRow_InfraredGroup_Command->IRData_get() + "\t";
 		}
 	}
-	sCMD_Result = "OK";
 }
 //<-dceag-c250-b->
 

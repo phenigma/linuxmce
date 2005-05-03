@@ -196,7 +196,7 @@ int k;
         ListDeviceData_Router *m_mapDeviceByCategory_Find(int PK_DeviceCategory) { map<int,ListDeviceData_Router *>::iterator it = m_mapDeviceByCategory.find(PK_DeviceCategory); return it==m_mapDeviceByCategory.end() ? NULL : (*it).second; }
         DeviceData_Router *m_mapDeviceData_Router_Find(int PK_Device) { map<int,class DeviceData_Router *>::iterator it = m_mapDeviceData_Router.find(PK_Device); return it==m_mapDeviceData_Router.end() ? NULL : (*it).second; }
         CommandGroup *m_mapCommandGroup_Find(int PK_CommandGroup) { map<int,class CommandGroup *>::iterator it = m_mapCommandGroup.find(PK_CommandGroup); return it==m_mapCommandGroup.end() ? NULL : (*it).second;}
-        Command *mapCommand_Find(int PK_Command) { map<int,class Command *>::iterator it = m_mapCommand.find(PK_Command); return it==m_mapCommand.end() ? NULL : (*it).second; }
+        Command *m_mapCommand_Find(int PK_Command) { map<int,class Command *>::iterator it = m_mapCommand.find(PK_Command); return it==m_mapCommand.end() ? NULL : (*it).second; }
         Room *m_mapRoom_Find(int PK_Room) { map<int,class Room *>::iterator it = m_mapRoom.find(PK_Room); return it==m_mapRoom.end() ? NULL : (*it).second; }
         const map<int,class DeviceData_Router *> *m_mapDeviceData_Router_get() { return &m_mapDeviceData_Router; };
         const map<int,class DeviceGroup *> *m_mapDeviceGroup_get() { return &m_mapDeviceGroup; };
