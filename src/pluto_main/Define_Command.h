@@ -339,6 +339,7 @@
 #define COMMAND_Radio_CONST 369
 #define COMMAND_Execute_Command_Group_CONST 370
 #define COMMAND_Is_Daytime_CONST 371
+#define COMMAND_MH_Set_Volume_CONST 372
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
