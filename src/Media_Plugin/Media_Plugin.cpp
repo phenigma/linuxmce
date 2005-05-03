@@ -1792,63 +1792,62 @@ class DataGridTable *Media_Plugin::DevicesPipes( string GridID, string Parms, vo
 }
 
 
-void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,DataGridTable *&pDataGrid,int &iRow)
+void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,DataGridTable *&pDataGrid,int &iRow,int PK_Command_Input,int PK_Command_Output)
 {
 	if( !pDevice )
 		return;
+
+	DataGridCell *pCell = new DataGridCell( pDevice->m_sDescription);
+	pCell->m_Colspan = 4;
+	pCell->m_pMessage = new Message(m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,2,COMMANDPARAMETER_Retransmit_CONST,"1",COMMANDPARAMETER_PK_Pipe_CONST,"-1");
+	pDataGrid->SetData(0,iRow,pCell);
+
+	if( PK_Command_Input )
+	{
+		Command *pCommand = m_pRouter->m_mapCommand_Find( PK_Command_Input );
+		if( pCommand )
+		{
+			pCell = new DataGridCell( pCommand->m_sDescription );
+			pCell->m_pMessage = new Message(m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommand->m_dwPK_Command,1,COMMANDPARAMETER_Retransmit_CONST,"1");
+			pDataGrid->SetData(4,iRow,pCell);
+		}
+	}
+	if( PK_Command_Output )
+	{
+		Command *pCommand = m_pRouter->m_mapCommand_Find( PK_Command_Output );
+		if( pCommand )
+		{
+			pCell = new DataGridCell( pCommand->m_sDescription );
+			pCell->m_pMessage = new Message(m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommand->m_dwPK_Command,1,COMMANDPARAMETER_Retransmit_CONST,"1");
+			pDataGrid->SetData(5,iRow,pCell);
+		}
+	}
+	pCell = new DataGridCell( "Advanced" );
+	pCell->m_pMessage = new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuDeviceControl_CONST).c_str());
+	pCell->m_pMessage->m_vectExtraMessages.push_back(
+		new Message(m_dwPK_Device,DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Populate_Datagrid_CONST,3,
+		COMMANDPARAMETER_DataGrid_ID_CONST,("cmds_" + StringUtils::itos(PK_Orbiter)).c_str(),
+		COMMANDPARAMETER_PK_DataGrid_CONST,StringUtils::itos(DATAGRID_Commmands_By_Device_CONST).c_str(),
+		COMMANDPARAMETER_Options_CONST,(StringUtils::itos(pDevice->m_dwPK_Device) + "," + StringUtils::itos(PK_Orbiter) + ",670").c_str())
+	);
+	pCell->m_pMessage->m_vectExtraMessages.push_back(
+		new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Text_CONST,1,
+		COMMANDPARAMETER_PK_Text_CONST,"670")
+	);
+	pCell->m_pMessage->m_vectExtraMessages.push_back(
+		new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Show_Object_CONST,1,
+		COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_butTryOtherCodes_CONST).c_str())
+	);
+
+	pDataGrid->SetData(6,iRow++,pCell);
+
 	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Active.begin();
 		it!=pDevice->m_mapPipe_Active.end();++it)
 	{
 		Pipe *pPipe = (*it).second;
 		DeviceData_Router *pDevice_Pipe = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
-		if( pDevice_Pipe )
-		{
-			DataGridCell *pCell = new DataGridCell( pDevice_Pipe->m_sDescription);
-			pCell->m_Colspan = 4;
-			pCell->m_pMessage = new Message(m_dwPK_Device,pDevice_Pipe->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,1,COMMANDPARAMETER_Retransmit_CONST,"1");
-			pDataGrid->SetData(0,iRow,pCell);
-
-			if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )
-			{
-				Command *pCommand = m_pRouter->m_mapCommand_Find( pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get() );
-				if( pCommand )
-				{
-					pCell = new DataGridCell( pCommand->m_sDescription );
-					pCell->m_pMessage = new Message(m_dwPK_Device,pDevice_Pipe->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommand->m_dwPK_Command,1,COMMANDPARAMETER_Retransmit_CONST,"1");
-					pDataGrid->SetData(4,iRow,pCell);
-				}
-			}
-			if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_isNull() )
-			{
-				Command *pCommand = m_pRouter->m_mapCommand_Find( pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get() );
-				if( pCommand )
-				{
-					pCell = new DataGridCell( pCommand->m_sDescription );
-					pCell->m_pMessage = new Message(m_dwPK_Device,pDevice_Pipe->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommand->m_dwPK_Command,1,COMMANDPARAMETER_Retransmit_CONST,"1");
-					pDataGrid->SetData(5,iRow,pCell);
-				}
-			}
-			pCell = new DataGridCell( "Advanced" );
-			pCell->m_pMessage = new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuDeviceControl_CONST));
-			pCell->m_pMessage->m_vectExtraMessages.push_back(
-				new Message(m_dwPK_Device,DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Populate_Datagrid_CONST,3,
-				COMMANDPARAMETER_DataGrid_ID_CONST,"cmds_" + StringUtils::itos(PK_Orbiter),
-				COMMANDPARAMETER_PK_DataGrid_CONST,StringUtils::itos(DATAGRID_Commmands_By_Device_CONST),
-				COMMANDPARAMETER_Options_CONST,StringUtils::itos(pDevice_Pipe->m_dwPK_Device) + "," + StringUtils::itos(PK_Orbiter) + ",670")
-			);
-			pCell->m_pMessage->m_vectExtraMessages.push_back(
-				new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Text_CONST,1,
-				COMMANDPARAMETER_PK_Text_CONST,"670")
-			);
-			pCell->m_pMessage->m_vectExtraMessages.push_back(
-				new Message(m_dwPK_Device,DEVICETEMPLATE_This_Orbiter_CONST,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Show_Object_CONST,1,
-				COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_butTryOtherCodes_CONST))
-			);
-
-			pDataGrid->SetData(6,iRow++,pCell);
-		}
-		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		if( pDevice_Pipe && pDevice_Pipe!=pDevice )
+			DevicesPipes_Loop(PK_Orbiter,(DeviceData_Router *)pDevice_Pipe,pDataGrid,iRow,pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get(),pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get());
 	}
 
 	if( pDevice->m_pDevice_MD && pDevice!=pDevice->m_pDevice_MD )

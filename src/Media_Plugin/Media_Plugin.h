@@ -93,7 +93,7 @@ private:
     class DataGridTable *MediaSearchAutoCompl( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
     class DataGridTable *MediaItemAttr( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *DevicesPipes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
-	void DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,class DataGridTable *&pDataGrid,int &iRow);
+	void DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,class DataGridTable *&pDataGrid,int &iRow,int PK_Command_Input=0,int PK_Command_Output=0);
 
     class DataGridTable *AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );

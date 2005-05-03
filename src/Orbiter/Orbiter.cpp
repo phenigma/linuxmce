@@ -1752,6 +1752,11 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
                 m_vectObjs_NeedRedraw.push_back( pDesignObj_DataGrid );
 			}
         }
+        else if( pMessage->m_dwPK_Device_To==m_dwPK_Device || pMessage->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
+		{
+			pMessage->m_dwPK_Device_From=m_dwPK_Device;
+			ReceivedMessage(pMessage);
+		}
         else
         {
 #pragma warning( "Look into this and the sendreceive above.  one deletes,  the other not.  if it deletes,  you can't select the grid twice.  if not,  the framework will delete.  should make a copy I think" );
