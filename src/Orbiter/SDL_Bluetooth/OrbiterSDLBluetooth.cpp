@@ -26,8 +26,9 @@
 #include "VIPShared/BD_CP_ShowList.h"
 #include "VIPShared/BD_CP_CaptureKeyboard.h"
 #include "VIPShared/BD_CP_SimulateEvent.h"
-
 #include "VIPShared/PlutoPhoneCommands.h"
+
+#include "Orbiter/SDL/JpegWrapper.h"
 
 #include "DataGrid.h"
 #include <SDL_ttf.h>
@@ -52,65 +53,6 @@ OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandPro
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDLBluetooth::~OrbiterSDLBluetooth()
 {
-}
-//-----------------------------------------------------------------------------------------------------
-int sdl_rwops_close(SDL_RWops *context)
-{
-    //if ( context ) {
-    //  free(context);
-    //}
-    return(0);
-}
-//-----------------------------------------------------------------------------------------------------
-static int sdl_rwops_seek(SDL_RWops *context, int offset, int whence)
-{
-    Uint8 *newpos;
-
-    switch (whence) {
-        case SEEK_SET:
-            newpos = context->hidden.mem.base+offset;
-            break;
-        case SEEK_CUR:
-            newpos = context->hidden.mem.here+offset;
-            break;
-        case SEEK_END:
-            newpos = context->hidden.mem.stop+offset;
-            break;
-        default:
-            SDL_SetError("Unknown value for 'whence'");
-            return(-1);
-    }
-    if ( newpos < context->hidden.mem.base ) {
-        newpos = context->hidden.mem.base;
-    }
-    if ( newpos > context->hidden.mem.stop ) {
-        newpos = context->hidden.mem.stop;
-    }
-    context->hidden.mem.here = newpos;
-    return (int) (context->hidden.mem.here-context->hidden.mem.base);
-}
-//-----------------------------------------------------------------------------------------------------
-static int sdl_rwops_write(SDL_RWops *context, const void *ptr, int size, int num)
-{
-    if ( (context->hidden.mem.here + (num*size)) > context->hidden.mem.stop ) {
-        num = (int) (context->hidden.mem.stop-context->hidden.mem.here)/size;
-    }
-    memcpy(context->hidden.mem.here, ptr, num*size);
-    context->hidden.mem.here += num*size;
-    return(num);
-}
-//-----------------------------------------------------------------------------------------------------
-static int sdl_rwops_read(SDL_RWops *context, void * ptr, int size, int maxnum)
-{
-    int num;
-
-    num = maxnum;
-    if ( (context->hidden.mem.here + (num*size)) > context->hidden.mem.stop ) {
-        num = (int) (context->hidden.mem.stop-context->hidden.mem.here)/size;
-    }
-    memcpy(ptr, context->hidden.mem.here, num*size);
-    context->hidden.mem.here += num*size;
-    return(num);
 }
 //-----------------------------------------------------------------------------------------------------
 void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
@@ -153,30 +95,11 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     unsigned char ImageType = 0;
     unsigned long ImageSize;
     char *pImage;
-/*
-    SDL_RWops *dst = new SDL_RWops;
-
-    dst->hidden.mem.base = NULL;
-
-    dst->close = &sdl_rwops_close;
-    dst->seek  = &sdl_rwops_seek;
-    dst->write = &sdl_rwops_write;
-    dst->read  = &sdl_rwops_read;
-
-    int iSize = pScreenImage->h * pScreenImage->pitch;
-    dst->hidden.mem.base = new Uint8[iSize];
-    dst->hidden.mem.here = dst->hidden.mem.base;
-    dst->hidden.mem.stop = dst->hidden.mem.base + iSize;
-
-    SDL_SaveBMP_RW(pScreenImage, dst, 1);
-
-    pImage = (char *)(dst->hidden.mem.base);
-    unsigned int *pImageSize = (unsigned int *)(dst->hidden.mem.base + 2);
-    ImageSize = (unsigned int)*pImageSize;
-*/
 
 	const string csTempFileName = "TmpScreen.png";
-    SaveImageToFile(pScreenImage, csTempFileName);
+
+    //SaveImageToFile(pScreenImage, csTempFileName);
+    SDL_SaveJPG(pScreenImage, csTempFileName.c_str());
 
     FILE* file;
     file = fopen(csTempFileName.c_str(), "rb");
@@ -195,13 +118,6 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     delete pImage;
     pImage = NULL;
 
-
-//  delete dst->hidden.mem.base;
-//  dst->hidden.mem.base = NULL;
-
-//  delete dst;
-//  dst = NULL;
-
     if( m_bShowListSent && !m_vectObjs_GridsOnScreen.size() )
     {
         list<string> listGrid;
@@ -216,9 +132,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     }
 
     if( m_pBDCommandProcessor )
-	{
         m_pBDCommandProcessor->AddCommand(pBD_CP_ShowImage);
-	}
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)

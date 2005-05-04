@@ -37,6 +37,7 @@ sources += \
 	../Orbiter/SDL/SDLRendererOCGHelper.cpp \
 	../Orbiter/SDL/SDLGraphic.cpp \
 	../Orbiter/SDL/OrbiterSDL.cpp \
+	../Orbiter/SDL/JpegWrapper.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
 	../OrbiterGen/Renderer.cpp \
