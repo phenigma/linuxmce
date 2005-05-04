@@ -83,11 +83,11 @@ bool SDL_SaveJPG(SDL_Surface *pSurface, const char* sFileName, int iQuality/*= 7
             {
                 Uint8 *pColor = (Uint8 *) pSurface->pixels + y * pSurface->pitch + x * bpp;
                 
-                *buf = pColor[2];
+                *buf = pColor[0];
                 buf++;
                 *buf = pColor[1];
                 buf++;
-                *buf = pColor[0];
+                *buf = pColor[2];
                 buf++;
             }
     }
