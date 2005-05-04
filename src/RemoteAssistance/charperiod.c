@@ -15,7 +15,8 @@ int main()
 	{
 		if (! FD_ISSET(0, &fd))
 			break;
-		read(0, buf, 1024);
+		if (read(0, buf, 1024) <= 0)
+			break;
 		FD_ZERO(&fd);
 		FD_SET(0, &fd);
 		tv = tv_val;
