@@ -26,20 +26,20 @@
 #include "mutex.h"
 
 
-namespace MYTHTV {
-
-/**
-@author igor
-*/
-class BackendProxyServer : public ProxyServer
+namespace MYTHTV
 {
-public:
-	BackendProxyServer();
-	~BackendProxyServer();
+	/**
+	@author igor
+	*/
+	class BackendProxyServer : public ProxyServer
+	{
+	public:
+		BackendProxyServer();
+		~BackendProxyServer();
 
-protected:
-	virtual void handleAccept(int sockfd, int peersockfd);
-};
+	protected:
+		virtual void handleAccept(int sockfd, int peersockfd);
+	};
 
 };
 

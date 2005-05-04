@@ -12,65 +12,72 @@
 #include "thread.h"
 //#include "DCE/Logger.h"
 
-namespace MYTHTV {
-
-Thread::Thread()
-	: requeststop_(false), threadid_(0)
+namespace MYTHTV
 {
-}
-
-
-Thread::~Thread() {
-}
-
-bool
-Thread::isRunning() {
-	return (threadid_ != 0);
-}
-
-int 
-Thread::Run(bool wait) {
-	if(!handleStartup()) {
-		return false;	
+	Thread::Thread()
+		: requeststop_(false), threadid_(0)
+	{
 	}
-	
-	int ret = pthread_create(&threadid_, NULL, _threadproc, (void*)this);
-	if(ret == 0) {
-//		DCE::g_pPlutoLogger->Write(LV_STATUS, "Thread %d created", threadid);
-	} else {
-//		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Error creating thread");
-		threadid_ = 0;
+
+
+	Thread::~Thread()
+	{
 	}
-	
-	if(wait) {
-		Wait();
+
+	bool Thread::isRunning()
+	{
+		return (threadid_ != 0);
 	}
-	return ret;
-}
 
-void 
-Thread::Wait(bool requeststop) {
-	if(threadid_ != 0) {
-		requeststop_ = requeststop;
-		pthread_join(threadid_, 0);
-		threadid_ = 0;
+	bool Thread::isStopRequested()
+	{
+		return requeststop_;
+	};
+
+	int Thread::Run(bool wait)
+	{
+		if(!handleStartup())
+			return false;
+
+		int ret = pthread_create(&threadid_, NULL, _threadproc, (void*)this);
+
+		if(ret != 0)
+			threadid_ = 0;
+
+		if(wait)
+			Wait();
+
+		return ret;
 	}
-}
 
-void* 
-Thread::_Run() {
-	return 0;
-}
+	void Thread::Wait(bool requeststop)
+	{
+		if(threadid_ != 0) {
+			requeststop_ = requeststop;
+			pthread_join(threadid_, 0);
+			threadid_ = 0;
+		}
+	}
 
-void* Thread::_threadproc(void *arg) {
-	Thread* pme = (Thread*)arg;
+	void* Thread::_Run()
+	{
+		return 0;
+	}
 
-	void* pret = pme->_Run();
-	pme->threadid_ = 0;
-	pme->requeststop_ = false;
-	pme->handleTerminate();
-	pthread_exit(pret);
-	return 0;
-}
+	void* Thread::_threadproc(void *arg)
+	{
+		Thread* pme = (Thread*)arg;
 
+		void* pret = pme->_Run();
+		pme->threadid_ = 0;
+		pme->requeststop_ = false;
+		pme->handleTerminate();
+		pthread_exit(pret);
+		return 0;
+	}
+
+	bool Thread::handleStartup()
+	{
+		return true;
+	};
 };

@@ -1,7 +1,7 @@
 //
 // C++ Implementation: statefullproxypeerthread
 //
-// Description: 
+// Description:
 //
 //
 // Author: igor <igor@dexx>, (C) 2005
@@ -11,16 +11,14 @@
 //
 #include "statefullproxypeerthread.h"
 
-namespace MYTHTV {
+namespace MYTHTV
+{
+	StatefullProxyPeerThread::StatefullProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destsockfd)
+		: ProxyPeerThread(pserver, srcsockfd, destsockfd), state_(PEER_STATE_NONE)
+	{
+	}
 
-StatefullProxyPeerThread::StatefullProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destsockfd)
-	: ProxyPeerThread(pserver, srcsockfd, destsockfd), state_(PEER_STATE_NONE)
-{}
-
-StatefullProxyPeerThread::~StatefullProxyPeerThread()
-{}
-
-
-
-
+	StatefullProxyPeerThread::~StatefullProxyPeerThread()
+	{
+	}
 };

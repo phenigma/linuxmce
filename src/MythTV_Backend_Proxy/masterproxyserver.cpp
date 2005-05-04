@@ -34,8 +34,8 @@
 using namespace std;
 using namespace DCE;
 
-namespace MYTHTV {
-
+namespace MYTHTV
+{
 	MasterProxyServer::MasterProxyServer()
 	{
 		setPeerHost(MASTER_BACKEND_HOST);
@@ -49,11 +49,8 @@ namespace MYTHTV {
 
 	void MasterProxyServer::handleAccept(int sockfd, int peersockfd)
 	{
-		/*instantiate peer handler*/
-		ProxyPeerThread *ppeerthr =
-				new MasterProxyPeerThread(this, sockfd, peersockfd);
+		ProxyPeerThread *ppeerthr = new MasterProxyPeerThread(this, sockfd, peersockfd);
 		ppeerthr->Run(false);
 		addThread(ppeerthr);
 	}
-
 };

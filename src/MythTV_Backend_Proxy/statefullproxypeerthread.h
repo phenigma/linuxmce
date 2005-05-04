@@ -1,7 +1,7 @@
 //
 // C++ Interface: statefullproxypeerthread
 //
-// Description: 
+// Description:
 //
 //
 // Author: igor <igor@dexx>, (C) 2005
@@ -14,30 +14,32 @@
 
 #include "proxypeerthread.h"
 
-namespace MYTHTV {
+namespace MYTHTV
+{
 
 #define PEER_STATE_NONE		0
 
-/**
-@author igor
-*/
-class StatefullProxyPeerThread : public ProxyPeerThread {
-public:
-    StatefullProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destsockfd);
-    ~StatefullProxyPeerThread();
+	/**
+	@author igor
+	*/
+	class StatefullProxyPeerThread : public ProxyPeerThread
+	{
+		public:
+			StatefullProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destsockfd);
+			~StatefullProxyPeerThread();
 
-public:
-	inline void setState(int state) {
-		state_ = state;
-	}
-	inline int getState() {
-		return state_;
-	}
+		public:
+			inline void setState(int state) {
+				state_ = state;
+			}
 
-private:
-	int state_;
-};
+			inline int getState() {
+				return state_;
+			}
 
+		private:
+			int state_;
+	};
 };
 
 #endif

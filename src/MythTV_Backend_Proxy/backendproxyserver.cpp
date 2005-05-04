@@ -34,25 +34,21 @@
 using namespace std;
 using namespace DCE;
 
-namespace MYTHTV {
-
-BackendProxyServer::BackendProxyServer()
+namespace MYTHTV
 {
-//	cout << "Backend proxy Created." << endl;
-};
+	BackendProxyServer::BackendProxyServer()
+	{
+	};
 
-BackendProxyServer::~BackendProxyServer() {
-//	cout << "Backend proxy Destroyed." << endl;
-}
+	BackendProxyServer::~BackendProxyServer()
+	{
+		Wait(true);
+	}
 
-void 
-BackendProxyServer::handleAccept(int sockfd, int peersockfd) {
-	/*instantiate peer handler*/
-	ProxyPeerThread *ppeerthr = 
-			new BackendProxyPeerThread(this, sockfd, peersockfd);
-	ppeerthr->Run(false);
-	addThread(ppeerthr);
-}
-
-
+	void BackendProxyServer::handleAccept(int sockfd, int peersockfd) {
+		/*instantiate peer handler*/
+		ProxyPeerThread *ppeerthr = new BackendProxyPeerThread(this, sockfd, peersockfd);
+		ppeerthr->Run(false);
+		addThread(ppeerthr);
+	}
 };

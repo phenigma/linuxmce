@@ -27,54 +27,56 @@
 #include "thread.h"
 #include "proxyserver.h"
 
-namespace MYTHTV {
-
-/**
-@author igor
-*/class ProxyPeerThread : public ProxyPeer, public Thread
+namespace MYTHTV
 {
-public:
-    ProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destsockfd);
-    virtual ~ProxyPeerThread();
+	/**
+	 * @author igor
+	 *
+	 * s/ProxyPeer/Tunnel
+	 */
+	class ProxyPeerThread : public ProxyPeer, public Thread
+	{
+	public:
+		ProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destsockfd);
+		virtual ~ProxyPeerThread();
 
-protected:
-	virtual void* _Run();
+	protected:
+		virtual void* _Run();
 
-public:
-	ProxyServer* getServer() {
-		return pserver_;
+	public:
+		ProxyServer* getServer() {
+			return pserver_;
+		};
+
+	public:
+		inline int writeDataToSrc(const std::string& data) {
+			return writeData(getSrcSock(), data);
+		}
+		inline int readDataFromSrc(std::string& data) {
+			return readData(getSrcSock(), data);
+		}
+		inline int writeDataToDest(const std::string& data) {
+			return writeData(getDestSock(), data);
+		}
+		inline int readDataFromDest(std::string& data) {
+			return readData(getDestSock(), data);
+		}
+
+	protected:
+		virtual bool processData(const char* data, bool fromsrc) = 0;
+
+	protected:
+		virtual void handleTerminate();
+
+	protected:
+		int readData(int sockfd, std::string& data);
+		int writeData(int sockfd, const std::string& data);
+
+		int replData(bool fromsrc);
+
+	private:
+		ProxyServer* pserver_;
 	};
-
-public:
-	inline int writeDataToSrc(const std::string& data) {
-		return writeData(getSrcSock(), data);
-	}
-	inline int readDataFromSrc(std::string& data) {
-		return readData(getSrcSock(), data);
-	}
-	inline int writeDataToDest(const std::string& data) {
-		return writeData(getDestSock(), data);
-	}
-	inline int readDataFromDest(std::string& data) {
-		return readData(getDestSock(), data);
-	}
-
-protected:
-	virtual bool processData(const char* data, bool fromsrc) = 0;
-
-protected:
-	virtual void handleTerminate();
-
-protected:
-	int readData(int sockfd, std::string& data);
-	int writeData(int sockfd, const std::string& data);
-
-	int replData(bool fromsrc);
-
-private:
-	ProxyServer* pserver_;
-};
-
 };
 
 #endif

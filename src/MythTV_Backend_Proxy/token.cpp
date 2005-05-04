@@ -27,84 +27,83 @@ using namespace std;
 
 namespace MYTHTV {
 
-Token::Token()
-{
-}
-
-Token::Token(const char* data)
-{
-	fillFromData(data);
-}
-
-Token::~Token()
-{
-}
-
-
-int
-Token::fillFromData(const char* data) {
-	std::string tokdata(data);
-
-	values_.clear();
-
-	int index = -1, oldindex = 0;
-	while((index = tokdata.find(TOKEN_DELIMITER, oldindex)) >= 0) {
-		values_.push_back(tokdata.substr(oldindex, index - oldindex));
-		oldindex = index + sizeof(TOKEN_DELIMITER) / sizeof(char) - 1;
+	Token::Token()
+	{
 	}
-	values_.push_back(tokdata.substr(oldindex, tokdata.length() - oldindex));
-	return values_.size();
-}
 
-int
-Token::addValue(const char* data) {
-	values_.push_back(data);
-	return values_.size() - 1;
-}
+	Token::Token(const char* data)
+	{
+		fillFromData(data);
+	}
 
-std::string
-Token::getValue(int index) {
-	return values_[index];
-}
+	Token::~Token()
+	{
+	}
 
-int
-Token::setValue(int index, const char* data) {
-	values_[index] = data;
-	return index;
-}
 
-int
-Token::removeValue(int index) {
-	return 0;
-}
+	int Token::fillFromData(const char* data)
+	{
+		std::string tokdata(data);
 
-int
-Token::findValue(const char* data) {
-	for(unsigned int i = 0; i < values_.size(); i++) {
-		if(values_[i] == data) {
-			return i;
-			break;
+		values_.clear();
+
+		int index = -1, oldindex = 0;
+		while((index = tokdata.find(TOKEN_DELIMITER, oldindex)) >= 0)
+		{
+			values_.push_back(tokdata.substr(oldindex, index - oldindex));
+			oldindex = index + sizeof(TOKEN_DELIMITER) / sizeof(char) - 1;
 		}
+
+		values_.push_back(tokdata.substr(oldindex, tokdata.length() - oldindex));
+		return values_.size();
 	}
 
-	return -1;
-}
+	int Token::addValue(const char* data)
+	{
+		values_.push_back(data);
+		return values_.size() - 1;
+	}
 
-int
-Token::getValuesNum() {
-	return values_.size();
-}
+	std::string Token::getValue(int index)
+	{
+		return values_[index];
+	}
 
-std::string
-Token::Serialize() {
-	string ret;
-	for(unsigned int i = 0; i < values_.size(); i++) {
-		ret += values_[i];
-		if(i < values_.size() - 1) {
-			ret += TOKEN_DELIMITER;
+	int Token::setValue(int index, const char* data)
+	{
+		values_[index] = data;
+		return index;
+	}
+
+	int Token::removeValue(int index)
+	{
+		return 0;
+	}
+
+	int Token::findValue(const char* data)
+	{
+		for(unsigned int i = 0; i < values_.size(); i++)
+			if(values_[i] == data)
+				return i;
+
+		return -1;
+	}
+
+	int Token::getValuesNum()
+	{
+		return values_.size();
+	}
+
+	std::string Token::Serialize()
+	{
+		string ret;
+		for(unsigned int i = 0; i < values_.size(); i++)
+		{
+			ret += values_[i];
+			if(i < values_.size() - 1)
+				ret += TOKEN_DELIMITER;
+
 		}
+		return ret;
 	}
-	return ret;
-}
-
 };

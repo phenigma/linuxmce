@@ -49,8 +49,9 @@ MasterProxyPeerThread::processData(const char* data, bool fromsrc)
 	if(fromsrc && tok.findValue("GET_NEXT_FREE_RECORDER") >= 0) {
 		backrequested_ = true;
 		return false;
-	} else
-	if(!fromsrc && backrequested_) {
+	}
+	else if(!fromsrc && backrequested_)
+	{
 		backrequested_ = false;
 //		cout << "(!)This must be a reply with adress/port for backend server: " << data << endl;
 		if(tok.getValuesNum() >= 3) {

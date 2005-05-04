@@ -23,34 +23,35 @@
 #include <string>
 #include <vector>
 
-namespace MYTHTV {
+namespace MYTHTV
+{
 
-/**
-@author igor
-*/
-class Token{
-public:
-    Token();
-    Token(const char* data);
-    ~Token();
+	/**
+	@author igor
+	*/
+	class Token
+	{
+		public:
+			Token();
+			Token(const char* data);
+			~Token();
 
-public:
-	int fillFromData(const char* data);
-	
-	int addValue(const char* data);
-	std::string getValue(int index);
-	int setValue(int index, const char* data);
-	int removeValue(int index);
-	int findValue(const char* data);
-	int getValuesNum();
+		public:
+			int fillFromData(const char* data);
 
-public:
-	std::string Serialize();
+			int addValue(const char* data);
+			std::string getValue(int index);
+			int setValue(int index, const char* data);
+			int removeValue(int index);
+			int findValue(const char* data);
+			int getValuesNum();
 
-private:
-	std::vector<std::string> values_;
-};
+		public:
+			std::string Serialize();
 
+		private:
+			std::vector<std::string> values_;
+	};
 };
 
 #endif

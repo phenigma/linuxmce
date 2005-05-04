@@ -1,7 +1,7 @@
 //
 // C++ Interface: %{MODULE}
 //
-// Description: 
+// Description:
 //
 //
 // Author: %{AUTHOR} <%{EMAIL}>, (C) %{YEAR}
@@ -14,39 +14,34 @@
 
 #include <pthread.h>
 
-namespace MYTHTV {
+namespace MYTHTV
+{
+	/**
+	@author
+	*/
+	class Thread
+	{
+	public:
+		Thread();
+		virtual ~Thread();
 
-/**
-@author 
-*/
-class Thread {
-public:
-    Thread();
-    virtual ~Thread();
+		virtual int Run(bool wait = true);
+		void Wait(bool requeststop = false);
+		bool isRunning();
 
-	virtual int Run(bool wait = true);
-	void Wait(bool requeststop = false);
-	bool isRunning();
-	
-protected:
-	virtual void* _Run();
-	
-	bool isStopRequested() {
-		return requeststop_;
+	protected:
+		virtual void* _Run();
+		bool isStopRequested();
+
+	protected:
+		virtual bool handleStartup();
+		virtual void handleTerminate() = 0;
+
+	private:
+		bool requeststop_;
+		pthread_t threadid_;
+		static void* _threadproc(void *arg);
 	};
-	
-protected:
-	virtual bool handleStartup() {
-		return true;
-	};
-	virtual void handleTerminate() = 0;
-	
-private:
-	bool requeststop_;
-	pthread_t threadid_;
-	static void* _threadproc(void *arg);
-};
-
 };
 
 #endif
