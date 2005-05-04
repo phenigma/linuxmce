@@ -95,8 +95,9 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 	/********************************************************************************************************
 	COMMAND_Send_Code_CONST
 	********************************************************************************************************/
-	if (pmsg->m_dwID == COMMAND_Send_Code_CONST) {
-		return false;
+	if(pmsg->m_dwID == COMMAND_Send_Code_CONST) {
+		outrepls.push_back(inrepl);
+		return true;
 	} else
 	/********************************************************************************************************
 	COMMAND_Tune_to_channel_CONST
@@ -139,6 +140,7 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
 								DigitCmd[digit], 0),
 						1, DigitDelay);
+			outrepls.push_back(msgrepl);
 		}
 		if(bSendEnter) {
 			g_pPlutoLogger->Write(LV_STATUS, "Sending <enter>...");
@@ -147,9 +149,19 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
 								COMMAND_Send_Generic_EnterGo_CONST, 0),
 						1, DigitDelay);
+			outrepls.push_back(msgrepl);
 		}
 		return true;
 	} 
+	
+	map <longPair, string>::iterator it = codemap_.find(longPair(devid, pmsg->m_dwID));
+	if(it == codemap_.end()) {
+		g_pPlutoLogger->Write(LV_WARNING, "Infrared Code not found for Command %d. Will not be processed by IRBase.", pmsg->m_dwID);
+		return false;
+	} else {
+		outrepls.push_back(inrepl);
+		return true;
+	}
 	
 	// Ok, not a system-handled action.
 	return false;
