@@ -393,7 +393,6 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
 
 	} while( iRet != -1 && iRet != 1 && pos < 1023 && receiveBuffer[pos] != '\n' );
 
-	g_pPlutoLogger->Write(LV_STATUS, "Buffer position is %d", pos);
     receiveBuffer[pos - 1] = '\0';
     if ( pos == 1023 )
     {
@@ -441,9 +440,9 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
 			macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
 			// do a SendReceive without actually logging the command ( this will potentially fill out the logs. );
-			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str());
+			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str(), false);
 
-			g_pPlutoLogger->Write(LV_STATUS, "Current status for stream %d is %d", itStreamsToPlayers->first, itStreamsToPlayers->second.first);
+//		g_pPlutoLogger->Write(LV_STATUS, "Current status for stream %d is %d", itStreamsToPlayers->first, itStreamsToPlayers->second.first);
 			if ( itStreamsToPlayers->second.first == STATE_PLAY && ( strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" ) )
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Sending playback completed event for stream %d", itStreamsToPlayers->first);
