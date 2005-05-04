@@ -1,6 +1,6 @@
 #include "JpegWrapper.h"
 
-#include "sdl.h"
+#include <SDL_image.h>
 #include <stdio.h>
 
 extern "C" 
