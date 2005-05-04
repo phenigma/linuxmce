@@ -39,7 +39,7 @@ using namespace DCE;
 
 #define SLEEP_IO_ERROR			5000
 #define SLEEP_WAIT_MESSAGES		10
-#define SLEEP_WAIT_ACKNOWLEDGE	500
+#define SLEEP_WAIT_ACKNOWLEDGE	3000
 
 /* states */
 #define STATE_READY				1
@@ -196,7 +196,7 @@ bool MessagePool::BaseState::readAcknowledge() {
 	AckMessage ackmsg;
 	while((ret = ackmsg.Recv(BUSCONNECTOR)) != 0) {
 		if(tk.getCurrentPeriodInMiliSecs() > SLEEP_WAIT_ACKNOWLEDGE) {
-			//g_pPlutoLogger->Write(LV_WARNING, "Error receiving Acknowledge message.");
+			g_pPlutoLogger->Write(LV_WARNING, "Timeout receiving Acknowledge message.");
 			return false;
 		}
 		if(ret == Message::RECV_UNKNOWN){
