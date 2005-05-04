@@ -166,7 +166,7 @@ continue;
         }
     }
 
-	// Streamers are often not in entertainment areas.  But we need them to have an entry as 
+	// Streamers are often not in entertainment areas.  But we need them to have an entry as
 	// a MediaDevice so they can be a media source
 	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Media_Streamers_CONST);
 	if( pListDeviceData_Router )
@@ -182,7 +182,7 @@ continue;
 			}
 		}
 	}
-	
+
 	// Now go through all the devices in all the ent areas, and add the reverse match so all devices have a list of the entertain areas they're in
     for( map<int, EntertainArea *>::iterator itEntArea=m_mapEntertainAreas.begin( );itEntArea!=m_mapEntertainAreas.end( );++itEntArea )
     {
@@ -470,6 +470,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 //         return false;
 //     }
 
+	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::PlaybackCompleted() Checking conditions: canPlayMore: %d, shouldResume %d", pMediaStream->CanPlayMore(), pMediaStream->m_bResume);
     if ( pMediaStream->CanPlayMore() && !pMediaStream->m_bResume )
     {
         pMediaStream->ChangePositionInPlaylist(1);
@@ -502,7 +503,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
     MediaStream *pMediaStream_AllEAsPlaying = NULL;
 	for(size_t s=0;s<vectEntertainArea.size();++s)
 	{
-		if( !vectEntertainArea[s]->m_pMediaStream || 
+		if( !vectEntertainArea[s]->m_pMediaStream ||
 			(pMediaStream_AllEAsPlaying && vectEntertainArea[s]->m_pMediaStream!=pMediaStream_AllEAsPlaying) )
 		{
 			pMediaStream_AllEAsPlaying=NULL;  // they're not all playing the same stream
@@ -598,7 +599,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase &&
 				pEntertainArea->m_pMediaStream->m_iPK_MediaType == pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType )
 					pOldStreamInfo->m_bNoChanges = true;
-			
+
 			// If Resume is set, then this media is just a temporary stream, like an announcement, and if something
 			// is currently playing, we will store that stream here and resume playing it when the temporary
 			// stream is done.
@@ -827,7 +828,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 						// Nothing does more than 64x, so if we're already more than 32, go back to normal
 						if( abs(pMediaDevice->m_iLastPlaybackSpeed)>32000 )
 							pMediaDevice->m_iLastPlaybackSpeed = 1000;
-						
+
 						// We're changing directions to reverse, start at -1000
 						else if( iValue<0 && pMediaDevice->m_iLastPlaybackSpeed>0 )
 							pMediaDevice->m_iLastPlaybackSpeed=-1000;
@@ -845,17 +846,17 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 							pMediaDevice->m_iLastPlaybackSpeed=-250;
 
 						else if( iValue<0 )
-							pMediaDevice->m_iLastPlaybackSpeed = 
+							pMediaDevice->m_iLastPlaybackSpeed =
 								-1 * abs(pMediaDevice->m_iLastPlaybackSpeed * iValue);
 						else
-							pMediaDevice->m_iLastPlaybackSpeed = 
+							pMediaDevice->m_iLastPlaybackSpeed =
 								abs(pMediaDevice->m_iLastPlaybackSpeed * iValue);
 g_pPlutoLogger->Write(LV_STATUS,"relative Playback speed now %d for device %d %s",
 pMediaDevice->m_iLastPlaybackSpeed,
 pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
-						pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST] = 
+						pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST] =
 							StringUtils::itos(pMediaDevice->m_iLastPlaybackSpeed);
 					}
 					else
@@ -1079,7 +1080,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Prior);
 
 		bool bFireEvent=true;
-		if( pMediaStream_Replacement && 
+		if( pMediaStream_Replacement &&
 				pMediaStream_Replacement->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaStream_Replacement->m_mapEntertainArea.end() &&
 				pMediaStream_Replacement->ContainsVideo()==pMediaStream->ContainsVideo() )
 			bFireEvent=false;
@@ -1114,7 +1115,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 				{
 					itMSI=pEntertainArea->m_vectMediaStream_Interrupted.erase(itMSI);
 				}
-				else 
+				else
 					itMSI++;
 			}
 		}
@@ -1185,7 +1186,7 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
 
    // Is the requesting orbiter the OSD?
 	if( pEntertainArea->m_pMediaDevice_ActiveDest &&
-		pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD && 
+		pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD &&
 		pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device == (unsigned long)pMessage->m_dwPK_Device_From &&
 		pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD )
 	{
@@ -1995,7 +1996,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 			}
 
 			string Extensions = pRow_MediaType->Extensions_get();
-
+			g_pPlutoLogger->Write(LV_STATUS, "Using there extensions to filter the results: %s", Extensions.c_str());
 			if ( FileUtils::FindFiles(allFilesList, sFilename.substr(0, sFilename.length()-1), Extensions.c_str(), true, true) ) // we have hit the bottom
 			{
 				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter, "You have more than 100 pictures in this folder. Only the first 100 of them have been added to the queue.");
@@ -2042,7 +2043,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
     {
 		// Find the media handlers we're going to need
 		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
-	
+
 		GetMediaHandlersForEA(iPK_MediaType, vectEntertainArea, mapMediaHandlerInfo);
 
 		for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
@@ -2218,7 +2219,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // Find the corrent entertainment area to use.
 	vector<EntertainArea *> vectEntertainArea;
-	
+
 	DetermineEntArea( pMessage->m_dwPK_Device_From, 0, sPK_EntertainArea, vectEntertainArea );
     if ( vectEntertainArea.size()==0 )
     {
@@ -2482,20 +2483,6 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 
 	g_pPlutoLogger->Write(LV_STATUS, "Calling move media on the plugin!");
 
-//	EntertainArea *pEntertainArea;
-// 	pEntertainArea->m_
-	// save the current playback position.
-// 	DCE::CMD_Report_Playback_Position reportCurrentPosition(
-// 		m_dwPK_Device,
-// 		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-// 		pMediaStream->m_iStreamID_get(),
-// 		&pMediaStream->m_sSavedPosition,
-// 		&pMediaStream->m_iSavedPosition,
-// 		&pMediaStream->m_iTotalStreamTime);
-//
-// 	if ( ! SendCommand(reportCurrentPosition) )
-// 		g_pPlutoLogger->Write(LV_STATUS, "The query for current stream position failed!");
-
 	// We'll let the plugin handle the move.  Maybe there's something special.  If not, we'll just do a stop and then start again
 	if( !pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->MoveMedia(pMediaStream, listStart, listStop, listChange) )
 	{
@@ -2508,7 +2495,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 		{
 			pMediaStream->m_mapEntertainArea=mapRequestedAreas;
 			// Add back in the ones we're restarting that were playing already
-			for ( itList = listChange.begin(); itList != listChange.end(); itList++ ) 
+			for ( itList = listChange.begin(); itList != listChange.end(); itList++ )
 				pMediaStream->m_mapEntertainArea[(*itList)->m_iPK_EntertainArea] = *itList;
 
 	g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) mapRequestedAreas.size());
@@ -3054,7 +3041,7 @@ void Media_Plugin::CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,stri
 			{
 				DCE::CMD_Set_Volume CMD_Set_Volume(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device,sLevel);
 				SendCommand(CMD_Set_Volume);
-			}			
+			}
 		}
 	}
 }
