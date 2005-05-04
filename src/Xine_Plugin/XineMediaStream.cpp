@@ -96,7 +96,7 @@ namespace DCE {
 	bool XineMediaStream::CanPlayMore()
 	{
 		// do not remove the playlist when we are playing stored audio. (it will just confuse the user)
-		if ( m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST && m_iRepeat!=-1)
+		if ( m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST && m_iRepeat != -1)
 			return true;
 
 		return MediaStream::CanPlayMore();

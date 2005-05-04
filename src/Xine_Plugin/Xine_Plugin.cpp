@@ -221,7 +221,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StartMedia(): ")) == NULL )
 		return false;
 
-	if ( pXineMediaStream->ShouldUseStreaming() && 
+	if ( pXineMediaStream->ShouldUseStreaming() &&
 		(!pXineMediaStream->m_pMediaDevice_Source || pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceCategory != DEVICECATEGORY_Media_Streamers_CONST) )
 	{
 		pXineMediaStream->m_pMediaDevice_Source = FindStreamerDevice();
@@ -377,9 +377,11 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 	int StreamID = pXineMediaStream->m_iStreamID_get( );
 	int SavedPosition;
 	DCE::CMD_Stop_Media cmd(m_dwPK_Device,                          // Send from us
-							PK_Device,  // Send to the device that is actually playing
-							StreamID,       // Send the stream ID that we want to actually stop
+							PK_Device,  		// Send to the device that is actually playing
+							StreamID,      		// Send the stream ID that we want to actually stop
 							&SavedPosition);
+
+	pXineMediaStream->GetMediaPosition()->m_iSavedPosition = SavedPosition;
 
 	mm.Release();
 	// TODO: Remove the device from the list of players also.
@@ -645,7 +647,7 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 		GetRenderDevices(pEntertainArea, &mapPlaybackDevices);
 	}
 
-	// First get the list of playback devices	
+	// First get the list of playback devices
 	for ( itPlaybackDevices = mapPlaybackDevices.begin(); itPlaybackDevices != mapPlaybackDevices.end(); itPlaybackDevices++ )
 		strTargetDevices += StringUtils::itos((*itPlaybackDevices).second->m_pDeviceData_Router->m_dwPK_Device) + ",";
 
