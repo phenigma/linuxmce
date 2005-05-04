@@ -156,7 +156,7 @@ namespace MYTHTV
 		std::list<ProxyPeerThread*>::iterator it = threads_.begin();
 		while(it != threads_.end())
 		{
-			if(!(*it)->isRunning() || forceterminate)
+			if(!(*it)->isRunning() || bForceTerminate)
 			{
 				delete (*it);
 				it = threads_.erase(it);
