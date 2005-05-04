@@ -222,8 +222,9 @@ if ($action == 'form') {
 			$resInputs=$dbADO->Execute($queryInput,$rowD['FK_DeviceTemplate']);
 			$inputHeight=20;
 			while($rowInputs=$resInputs->FetchRow()){
-				$img=($rowInputs['FK_ConnectorType']=='')?$connectorsArray[0]:$connectorsArray[$rowInputs['FK_ConnectorType']];
-				$inputsForDevice[]='<div align="left" id="in_'.$rowD['PK_Device'].'_cmd_'.$rowInputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:5;top:'.$inputHeight.';border: 1px solid black;align:left;valign:middle;background-color:white;" title="'.$rowInputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowInputs['PK_Command'].'\',\'in_\',\''.$rowInputs['Description'].' ('.str_replace('.gif','',$img).') on '.$rowD['Description'].'\');"><img src="include/images/'.$img.'" align="middle"> '.$rowInputs['Description'].'</div>';
+				$img=(@$rowInputs['FK_ConnectorType']=='')?$connectorsArray[0]:@$connectorsArray[@$rowInputs['FK_ConnectorType']];
+				$img=(file_exists('include/images/'.$img) && $img!='')?$img:$connectorsArray[0];
+				$inputsForDevice[]='<div align="left" id="in_'.$rowD['PK_Device'].'_cmd_'.$rowInputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:5;top:'.$inputHeight.';border: 1px solid black;align:left;valign:middle;background-color:white;" title="'.$rowInputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowInputs['PK_Command'].'\',\'in_\',\''.urlencode($rowInputs['Description']).' ('.str_replace('.gif','',$img).') on '.urlencode($rowD['Description']).'\');"><img src="include/images/'.$img.'" align="middle"> '.$rowInputs['Description'].'</div>';
 				$inputHeight+=25;
 			}
 			
@@ -235,11 +236,11 @@ if ($action == 'form') {
 				WHERE FK_DeviceTemplate=?';
 			$resOutput=$dbADO->Execute($queryOutput,$rowD['FK_DeviceTemplate']);
 			$outHeight=20;
-			$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_0" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="No output" onClick="setPipe(\''.$rowD['PK_Device'].'\',\'0\',\'out_\',\'Output on '.$rowD['Description'].'\');">No output <img src="include/images/none.gif" align="middle"></div>';
+			$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_0" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="No output" onClick="setPipe(\''.$rowD['PK_Device'].'\',\'0\',\'out_\',\'Output on '.urlencode($rowD['Description']).'\');">No output <img src="include/images/none.gif" align="middle"></div>';
 			$outHeight+=25;
 			while($rowOutputs=$resOutput->FetchRow()){
 				$img=($rowOutputs['FK_ConnectorType']=='')?$connectorsArray[0]:$connectorsArray[$rowOutputs['FK_ConnectorType']];
-				$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_'.$rowOutputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="'.$rowOutputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowOutputs['PK_Command'].'\',\'out_\',\''.$rowOutputs['Description'].' ('.str_replace('.gif','',$img).') on '.$rowD['Description'].'\');">'.$rowOutputs['Description'].' <img src="include/images/'.$img.'" align="middle"></div>';
+				$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_'.$rowOutputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="'.$rowOutputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowOutputs['PK_Command'].'\',\'out_\',\''.urlencode($rowOutputs['Description']).' ('.str_replace('.gif','',$img).') on '.urlencode($rowD['Description']).'\');">'.$rowOutputs['Description'].' <img src="include/images/'.$img.'" align="middle"></div>';
 				$outHeight+=25;
 			}
 			$height=($inputHeight>$outHeight)?$inputHeight:$outHeight;
@@ -295,7 +296,7 @@ if ($action == 'form') {
 			foreach ($existingPipes as $devicePipe){
 				foreach($pipeTypesArray as $pipeType=>$pipeTypeDescription){
 					if(isset($devicePipe[$pipeType]) && $devicePipe[$pipeType]['isDisplayed']==0){
-						$jsMissingPipes.='generatePipe('.$devicePipe[$pipeType]['from'].','.(int)$devicePipe[$pipeType]['output'].','.$devicePipe[$pipeType]['to'].','.(int)$devicePipe[$pipeType]['input'].',\''.$pipeTypeDescription.'\',\''.$devicePipe[$pipeType]['description'].'\');';	
+						$jsMissingPipes.='generatePipe('.$devicePipe[$pipeType]['from'].','.(int)$devicePipe[$pipeType]['output'].','.$devicePipe[$pipeType]['to'].','.(int)$devicePipe[$pipeType]['input'].',\''.$pipeTypeDescription.'\',\''.urlencode($devicePipe[$pipeType]['description']).'\');';	
 					}
 				}
 			}

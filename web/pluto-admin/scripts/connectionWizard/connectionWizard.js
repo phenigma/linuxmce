@@ -149,10 +149,11 @@ function generatePipe(deviceFrom,commandOut,deviceTo,commandIn,connectionType,de
 	eval("toX=parseInt(document.getElementById('in_"+deviceTo+"_cmd_"+commandIn+"').style.left)");
 	eval("toY=parseInt(document.getElementById('in_"+deviceTo+"_cmd_"+commandIn+"').style.top)");
 	
+	yHook=getYHook(connectionType);
 	coordXFrom=xContainer+fromX+110;
-	coordYFrom=yContainer+fromY+10;
+	coordYFrom=yContainer+fromY+yHook;
 	coordXTo=xContainerTo+toX;
-	coordYTo=yContainerTo+toY+10;
+	coordYTo=yContainerTo+toY+yHook;
 	
 	eval(connectionType+"Pipe["+deviceFrom+"]=new Array();");
 	eval(connectionType+"Pipe["+deviceFrom+"]['to']="+deviceTo+";");
@@ -210,9 +211,10 @@ function setPipe(device,command,prefix,itemName)
 	eval("xOffsetItem=parseInt(document.getElementById('"+prefix+device+"_cmd_"+command+"').style.left)");
 	eval("yOffsetItem=parseInt(document.getElementById('"+prefix+device+"_cmd_"+command+"').style.top)");
 
+	yHook=getYHook(globalPipe);
 	if(prefix=='in_'){
 		globalXTo=xContainer+xOffsetItem;
-		globalYTo=yContainer+yOffsetItem+10;
+		globalYTo=yContainer+yOffsetItem+yHook;
 		if(globalToDevice!=-1){
 			setMessage('Invalid pipe from input to input',1);
 		}
@@ -222,7 +224,7 @@ function setPipe(device,command,prefix,itemName)
 		
 	}else{
 		globalXFrom=xContainer+xOffsetItem+110;
-		globalYFrom=yContainer+yOffsetItem+10;
+		globalYFrom=yContainer+yOffsetItem+yHook;
 		if(globalFromDevice!=-1){
 			setMessage('Invalid pipe from output to output',1);
 		}		
@@ -385,4 +387,23 @@ function contains (container, containee) {
     containee = containee.parentNode;
   }
   return false;
+}
+
+function getYHook(pipeType)
+{
+	switch(pipeType){
+		case 'audio':
+			yHook=8;
+		break;
+		case 'video':
+			yHook=12;
+		break;
+		case 'audioLive':
+			yHook=16;
+		break;
+		case 'videoLive':
+			yHook=20;
+		break;
+	}
+	return yHook;
 }

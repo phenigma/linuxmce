@@ -278,6 +278,8 @@ function wizardOrbiters($output,$dbADO) {
 					$ip=$_POST['ip_'.$value];
 					$mac=$_POST['mac_'.$value];
 					$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
+				}else{
+					$updateMacIp='';
 				}
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 				$pingTest=(int)@$_POST['PingTest_'.$value];

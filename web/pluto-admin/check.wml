@@ -1,0 +1,61 @@
+<?php 
+Header( "Content-type: text/vnd.wap.wml"); 
+echo "<?xml version=\"1.0\"?>"; 
+?>
+<!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 
+1.1//EN" "http://www.wapforum.org/DTD/wml_1.1.xml">
+<wml>
+<card id="card1" title="PlutoHome WML"> 
+  <p> 
+    <?php  
+require('include/config/config.inc.php');
+require('include/utils.inc.php');
+require('include/masterusers.inc.php');
+
+$ScenariosArray=getAssocArray('Template','PK_Template','Description',$dbADO,'','');
+$ScenariosArray['']='Undefined';
+$msg='';
+
+// Execute scenario command
+if(isset($_REQUEST['cgid'])){
+	$cgid=(int)$_REQUEST['cgid'];
+	if($cgid>0){
+		$res=$dbADO->Execute('SELECT Description,FK_Template FROM CommandGroup WHERE PK_CommandGroup=?',$cgid);
+		if($res->RecordCount()>0){
+			$row=$res->FetchRow();
+			
+			$commandToSend='/usr/pluto/bin/MessageSend localhost 0 0 10 '.$cgid;
+			exec($commandToSend);
+			$msg=$ScenariosArray[$row['FK_Template']].': Scenario <B>'.$row['Description'].'</B> was executed.';
+		}else {
+			$msg='Invalid scenario.';
+		}
+	}else{
+		$msg='Invalid scenario ID.';
+	}
+}
+
+// house mode mode=0&pin=1234
+if(isset($_REQUEST['mode'])){
+	// TODO: process house mode params
+	$msg='House mode under development; mode: '.$_REQUEST['mode'].', PIN: '.$_REQUEST['pin'];
+}
+
+
+// speak in the house: speechid=123 
+if(isset($_REQUEST['speechid'])){
+	// TODO: process speak in the house params
+	$msg='Speak in the house under development; speechid: '.$_REQUEST['speechid'];
+}
+
+// view camera: cameraid=123
+if(isset($_REQUEST['cameraid'])){
+	// TODO: process view camera
+	$msg='View camera under development; camera: '.$_REQUEST['cameraid'];
+}
+
+print $msg;
+    ?> 
+  </p> 
+</card> 
+</wml> 

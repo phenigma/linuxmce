@@ -47,7 +47,8 @@ function editCommandGroup($output,$dbADO) {
 				
 				<input type="hidden" name="action" value="add">	
 				<input type="hidden" name="cgID" value="'.$commandGroupID.'">
-				<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
+			
+				<div align="center" class="confirm"><B>'.stripslashes(@$_REQUEST['msg']).'</B></div>
 				<h2>Edit My Scenario</h2>
 				<table>
 						<tr>
@@ -77,26 +78,17 @@ function editCommandGroup($output,$dbADO) {
 						'.(@(int)$_SESSION['editCommandGroup']['designObjID']!=0
 								?'You have selected : <b>'.$_SESSION['editCommandGroup']['designObjName'].'</b>&nbsp;&nbsp;<br />'
 								:(
-									isset($_GET['msg'])
-									?'<b>'.strip_tags($_GET['msg']).'</b>'
+									isset($_GET['smsg'])
+									?'<b>'.strip_tags($_GET['smsg']).'</b>'
 									:'')
 								 ).' 
 								 <input type="text" name="designObjID" size="20" value="'.(isset($_SESSION['editCommandGroup']['designObjID']) && $_SESSION['editCommandGroup']['designObjID'] != 0 ?$_SESSION['editCommandGroup']['designObjID']:$rowCommandGroupDetails['FK_DesignObj']).'">
 								 <input type="submit" class="button" name="searchCommandGroup" value="Search [...]"  >
 					</td>
 				</tr>
-				<tr><td>Icon</td><td>
-						<select name="icon">';
-	
-							$queryIcons = "SELECT * FROM Icon order by Description Asc";
-							$resIcons = $dbADO->Execute($queryIcons);
-										while ($rowIcons=$resIcons->fetchRow()) {
-											$out.='<option '.($rowIcons['PK_Icon']==$rowCommandGroupDetails['FK_Icon']?" selected='selected' ":'').' value="'.$rowIcons['PK_Icon'].'">'.$rowIcons['Description'].'</option>';
-										}
-						
-							$out.='
-						</select>
-				</td></tr>
+				<tr>
+					<td>Icon</td><td>'.generatePullDown('icon','Icon','PK_Icon','Description',$rowCommandGroupDetails['FK_Icon'],$dbADO).'</td>
+				</tr>
 				<tr><td>Template</td><td>
 						<select name="template">
 							<option value="0">Please select</option>';
@@ -185,23 +177,7 @@ function editCommandGroup($output,$dbADO) {
 					$out.='
 						<tr>
 							<td valign="top"><input type="hidden" name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" value="'.$rowCommandAssigned['FK_Device'].'">'.getDeviceNameForScenarios($rowCommandAssigned['FK_Device'],$dbADO).'</td>';
-					/*
-							<select name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
-								<option value="-300" '.(($rowCommandAssigned['FK_Device']=='-300')?'selected':'').'>[Local Orbiter]</option>
-						';
-							
-							$query = 'SELECT * From Device WHERE FK_Installation = ? order by Description ASC';
-							$resDevices=$dbADO->Execute($query,array($installationID));
-							
-							if ($resDevices) {
-								while ($rowDevice = $resDevices->FetchRow()) {
-									$out.='<option '.($rowDevice['PK_Device']==$rowCommandAssigned['FK_Device']?' selected="selected" ':'').' value="'.$rowDevice['PK_Device'].'">'.$rowDevice['Description'].'</option>';
-								}
-							}
-						
-						$out.='
-					 		</select>';
-					 	*/
+
 					 	$out.='
 					 		</td>
 						<td>
@@ -297,35 +273,8 @@ function editCommandGroup($output,$dbADO) {
 				}
 				
 				$out.='<tr>
-					<td colspan="2">
+					<td colspan="2"><a name="addDevice"></a>
 					 Device:'.deviceForScenariosSelector('addNewDevice',cleanInteger(@$_REQUEST['newDevice']),$dbADO,1,'onChange="this.form.submit();"');
-				/*
-				$out.='	
-				<select name="addNewDevice" onChange="this.form.submit();">
-						<option value="0">-please select-</option>
-						<option value="-300" '.(cleanInteger(@$_REQUEST['newDevice']=='-300')?' selected="selected" ':'').'>[Local Orbiter]</option>
-				';
-				
-				if (isset($devicesAllowed) && is_array($devicesAllowed) && count($devicesAllowed)!=0) {
-					$query = 'SELECT * From Device WHERE FK_Installation = ? AND PK_Device IN ('.join(",",$devicesAllowed).') order by Description ASC';
-					$resDevices=$dbADO->Execute($query,array($installationID));
-				} else {
-					$query = 'SELECT * From Device WHERE FK_Installation = ? order by Description ASC';
-					$resDevices=$dbADO->Execute($query,array($installationID));
-				}
-					
-					
-					if ($resDevices) {
-						while ($rowDevice = $resDevices->FetchRow()) {
-							$out.='<option '.($rowDevice['PK_Device']==cleanInteger(@$_REQUEST['newDevice'])?' selected="selected" ':'').' value="'.$rowDevice['PK_Device'].'">'.$rowDevice['Description'].'</option>';
-						}
-					}
-					$resDevices->Close();
-				
-				$out.='
-					 </select>
-				';
-				*/
 				
 				if (isset($_REQUEST['newDevice']) && cleanInteger($_REQUEST['newDevice'])!=0) {
 					if(cleanInteger(@$_REQUEST['newDevice']!='-300')){
@@ -403,7 +352,7 @@ function editCommandGroup($output,$dbADO) {
 				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID");
 				exit();
 			} else {
-				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&msg=Invalid+ID");
+				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&smsg=Invalid+ID");
 				exit();				
 			}
 		}
@@ -415,24 +364,24 @@ function editCommandGroup($output,$dbADO) {
 
 			if(isset($_REQUEST['cgcID'])){
 				
-				// TODO: finish test command
 				$cgcID=$_REQUEST['cgcID'];
 				$queryCommands='
-					SELECT CommandGroup_Command_CommandParameter.*,FK_Command 
-					FROM CommandGroup_Command_CommandParameter
-					INNER JOIN CommandGroup_Command ON FK_CommandGroup_Command=PK_CommandGroup_Command
+					SELECT CommandGroup_Command_CommandParameter.*, FK_Command,FK_Device 
+					FROM CommandGroup_Command
+					LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command 
 					WHERE PK_CommandGroup_Command=?';
 
 				$resCommands=$dbADO->Execute($queryCommands,$cgcID);
-				// /usr/pluto/bin/MessageSend localhost 0 device 1 PK_Command PK_CommandParm1 "value" PK_CommandParm2 "value"
 				$commandParmsArray=array();
 				while($rowCommands=$resCommands->FetchRow()){
 					$commandParmsArray[]=$rowCommands['FK_CommandParameter'].' "'.$rowCommands['IK_CommandParameter'].'"';
 					$FK_Command=$rowCommands['FK_Command'];
+					$FK_Device=$rowCommands['FK_Device'];
 				}
-				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 device 1 '.$FK_Command.' '.join(' ',$commandParmsArray);
+				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$FK_Device.' 1 '.$FK_Command.' '.join(' ',$commandParmsArray);
 				exec($commandToSend);
-				header('Location: index.php?section=editCommandGroup&cgID='.$commandGroupID.'&msg=The command with parameters was sent.');
+				
+				header('Location: index.php?section=editCommandGroup&cgID='.$commandGroupID.'&msg=The command with parameters was sent: '.$commandToSend);
 				exit();
 			}
 			
@@ -618,7 +567,6 @@ function editCommandGroup($output,$dbADO) {
 			</script>
 			";
 			$_SESSION['editCommandGroup']=array();
-			
 		}
 		
 		 
