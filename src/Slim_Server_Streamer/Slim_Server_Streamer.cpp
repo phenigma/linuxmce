@@ -16,6 +16,7 @@ using namespace DCE;
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Command.h"
 
+#define SOCKET_TIMEOUT		30
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -38,9 +39,7 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
 	m_dataStructureAccessMutex.Init( &mutexAttr );
 
 	pthread_cond_init( &m_stateChangedCondition, NULL );
-	g_pPlutoLogger->Write(LV_STATUS, "Condition as passed to the mutex: %p", &m_stateChangedCondition );
 	m_stateChangedMutex.Init( &mutexAttr, &m_stateChangedCondition );
-	g_pPlutoLogger->Write(LV_STATUS, "Condition as passed to the mutex: %p", m_stateChangedMutex.m_pthread_cond_t );
 
     pthread_create(&m_threadPlaybackCompletedChecker, NULL, checkForPlaybackCompleted, this);
 	m_bShouldQuit = false;
@@ -181,7 +180,7 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
 	// PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
-	g_pPlutoLogger->Write(LV_STATUS, "Processing Stop Streaming command for target devices: %s size: %d", 
+	g_pPlutoLogger->Write(LV_STATUS, "Processing Stop Streaming command for target devices: %s size: %d",
 		sStreamingTargets.c_str(),(int) m_mapStreamsToPlayers.size());
 
 	map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itPlayers;
@@ -304,12 +303,6 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
         if ( ! ConnectToSlimServerCliCommandChannel() )
         {
             g_pPlutoLogger->Write(LV_STATUS, "Reconnection failed. Sending a start command to the application server.");
-//             string notificationMessage = StringUtils::Format("%d %d %d %d",
-//                                                             0,
-//                                                             m_dwPK_Device,
-//                                                             MESSAGETYPE_COMMAND,
-//                                                             COMMAND_Start_Streaming_CONST
-//                                                             );
 
 			DCE::CMD_Spawn_Application_DT spawnApplication(
                     m_dwPK_Device,                      // send from here
@@ -363,7 +356,42 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
     receiveBuffer = new char[1024];
 
     int pos = 0;
-    while ( read((int)m_iServerSocket, receiveBuffer + pos, 1) == 1 && pos < 1023 && receiveBuffer[pos] != '\n' ) pos++;
+	int nBytesRead;
+	int iRet;
+
+	fd_set readFdSet;
+	struct timeval tv;
+
+	do
+    {
+		FD_ZERO( &readFdSet );
+		FD_SET( m_iServerSocket, &readFdSet );
+
+		tv.tv_sec = 0;
+		tv.tv_usec = 100;
+
+		iRet = select( (int)(m_iServerSocket+1), &readFdSet, NULL, NULL, NULL );
+
+		if(iRet <= 0 || iRet > 1)
+		{
+	        g_pPlutoLogger->Write(LV_STATUS, "Invalid select on the socket. Closing connection");
+    	    close((int)m_iServerSocket);
+        	m_iServerSocket = -1;
+			return "";
+		}
+
+		nBytesRead = recv( m_iServerSocket, receiveBuffer + pos, 1023 - pos, 0 );
+		if ( nBytesRead == -1 )
+		{
+	        g_pPlutoLogger->Write(LV_STATUS, "Invalid recv from socket. Closing connection");
+    	    close((int)m_iServerSocket);
+        	m_iServerSocket = -1;
+			return "";
+		}
+
+		pos += nBytesRead;
+
+	} while( iRet != -1 && iRet != 1 && pos < 1023 && receiveBuffer[pos] != '\n' );
 
     receiveBuffer[pos] = '\0';
     if ( pos == 1023 )
@@ -414,7 +442,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 			// do a SendReceive without actually logging the command ( this will potentially fill out the logs. );
 			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str(), false);
 
-			if ( itStreamsToPlayers->second.first == STATE_PLAY && ( strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F") )
+			if ( itStreamsToPlayers->second.first == STATE_PLAY && ( strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" ) )
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Sending playback completed event for stream %d", itStreamsToPlayers->first);
 				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
@@ -495,6 +523,8 @@ void Slim_Server_Streamer::SetStateForStream(int iStreamID, StreamStateType newS
 void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+
 	string sControlledPlayerMac;
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
 		return;
@@ -527,7 +557,12 @@ void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,stri
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
 		return;
 
-g_pPlutoLogger->Write(LV_WARNING,"Stop Media for stream %d",iStreamID);
+	g_pPlutoLogger->Write(LV_WARNING,"Stop Media for stream %d",iStreamID);
+	string sOptions;
+	int mediaPosition;
+	int mediaLength;
+	CMD_Report_Playback_Position(iStreamID,&sOptions,&mediaPosition,&mediaLength,sCMD_Result,pMessage);
+	*iMediaPosition = mediaPosition;
 	m_mapStreamsToPlayers.erase(iStreamID);
 	SendReceiveCommand(sControlledPlayerMac + " playlist clear");
 	SendReceiveCommand(sControlledPlayerMac + " stop");
@@ -773,11 +808,11 @@ void Slim_Server_Streamer::CMD_Mute(string &sCMD_Result,Message *pMessage)
 
 
 void Slim_Server_Streamer::OnReload()
-{ 
-	Command_Impl::OnReload(); 
+{
+	Command_Impl::OnReload();
 if( g_pPlutoLogger )
 g_pPlutoLogger->Write(LV_CRITICAL,"Forcing a segfault");
 
 cerr << "****SEGFAULTING***" << endl;
-	char *p=NULL; strcpy(p,"sss"); 
+	char *p=NULL; strcpy(p,"sss");
 }
