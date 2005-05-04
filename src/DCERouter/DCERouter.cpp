@@ -752,7 +752,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 				g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %s type %d id %d %s, parameters:",
 					pMessage->m_dwPK_Device_From,
 					(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
-					(pDeviceFrom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
+					(pDeviceFrom  && pDeviceTo->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
 					DeviceList.c_str(),
 					pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str());
 			}
@@ -760,10 +760,10 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 				g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %d (\x1b[36;1m%s / %s\x1b[0m), type %d id %d %s, parameters:",
 					pMessage->m_dwPK_Device_From,
 					(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
-					(pDeviceFrom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
+					(pDeviceFrom  && pDeviceTo->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
 					pMessage->m_dwPK_Device_To,
 					(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
-					(pDeviceTo ? pDeviceTo->m_pRoom->m_sDescription.c_str() : ""),
+					(pDeviceTo && pDeviceTo->m_pRoom ? pDeviceTo->m_pRoom->m_sDescription.c_str() : ""),
 					pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str());
 		}
 		else if( pMessage->m_dwMessage_Type != MESSAGETYPE_LOG )
