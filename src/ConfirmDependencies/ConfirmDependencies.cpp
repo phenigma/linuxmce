@@ -90,7 +90,7 @@ int k=2;
 
 void CheckDevice(Row_Device *pRow_Device,bool bSourceCode);
 void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment);
-void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource);
+void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource, int depth = 1);
 PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Compat,bool bMustBuildFromSource);
 void VerifyFiles(PackageInfo *pPackageInfo,vector<Row_Package_Directory_File *> &vectRow_Package_Directory_File,string Path);
 Row_Package_Directory *GetDirectory(Row_Package *pRow_Package,int PK_Directory);
@@ -605,7 +605,7 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 	}
 	else
 	{
-		if (sCommand == "install")
+		if (sCommand == "install" || sCommand == "view")
 		{
 			cout << "#Device: " << pRow_Device->Description_get() << " (#" << pRow_Device->FK_DeviceTemplate_get() << " " << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ") requires software" << endl;
 		}
@@ -619,7 +619,7 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 		CheckDeviceLoop( vectRow_Device[s],bDevelopment );
 }
 
-void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource)
+void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource, int depth)
 {
 	Database_pluto_main *pDatabase_pluto_main = pRow_Distro->Table_Distro_get()->Database_pluto_main_get();
 	vector<Row_Package_Compat *> vectRow_Package_Compat;
@@ -645,6 +645,11 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 		return;
 	}
 
+	cout << "#";
+	for (int i = 0; i < depth; i++)
+		cout << ".";
+	cout << PkgName << endl;
+
 	// Start with the dependencies first, since we want the lowest dependency, and then the top one
 	vector<Row_Package_Package *> vectRow_Package_Package;
 	pRow_Package->Package_Package_FK_Package_getrows(&vectRow_Package_Package);
@@ -658,12 +663,12 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 
 		// Development = false because we only assume the first level of packages are intended to be built
 		// from source
-		CheckPackage(pRow_Package_Package->FK_Package_DependsOn_getrow(),pRow_Device,bDevelopment,pRow_Distro,false);
+		CheckPackage(pRow_Package_Package->FK_Package_DependsOn_getrow(),pRow_Device,bDevelopment,pRow_Distro,false, depth + 1);
 	}
 
 	if( bDevelopment && !pRow_Package->FK_Package_Sourcecode_isNull() )
 	{
-		CheckPackage(pRow_Package->FK_Package_Sourcecode_getrow(),pRow_Device,bDevelopment,pRow_Distro,false);
+		CheckPackage(pRow_Package->FK_Package_Sourcecode_getrow(),pRow_Device,bDevelopment,pRow_Distro,false, depth + 1);
 	}
 
 	// If the command is not 'view' or 'status', we don't need to list each package over and over again within
@@ -751,7 +756,7 @@ int k=2;
 		pRow_Package_Source_Compat_Preferred = FindPreferredSource(vectRow_Package_Source_Compat,pRow_Device);
 
 	if( sCommand=="view" || sCommand=="status" )
-		cout << "PROGRAM: " << pRow_Package->Description_get() << " ";
+		cout << "PROGRAM: " << pRow_Package->Description_get() << endl;
 
     if( !pRow_Package_Source_Compat_Preferred )
 	{
