@@ -42,7 +42,6 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
 	m_stateChangedMutex.Init( &mutexAttr, &m_stateChangedCondition );
 
     pthread_create(&m_threadPlaybackCompletedChecker, NULL, checkForPlaybackCompleted, this);
-	m_bShouldQuit = false;
 }
 
 //<-dceag-const2-b->!
@@ -51,7 +50,7 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
 Slim_Server_Streamer::~Slim_Server_Streamer()
 //<-dceag-dest-e->
 {
-	m_bShouldQuit = true;
+	m_bQuit = true;
 	pthread_cond_signal(&m_stateChangedCondition);
 	pthread_join(m_threadPlaybackCompletedChecker, NULL);
 }
@@ -160,8 +159,6 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
 
 	// add this stream to the list of playing streams.
     m_mapStreamsToPlayers[iStreamID] = make_pair(STATE_PAUSE, vectDevices);
-g_pPlutoLogger->Write(LV_WARNING,"Added entry for stream id: %d size: %d",
-					  iStreamID,(int) m_mapStreamsToPlayers.size());
 	pthread_cond_signal(&m_stateChangedCondition);
 }
 
@@ -420,13 +417,13 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
 		PLUTO_SAFETY_LOCK(stateChangedLock, pStreamer->m_stateChangedMutex);
 		// PlutoLock lock(LOCK_PARAMS(pStreamer->m_stateChangedMutex));
-		while ( pStreamer->m_mapStreamsToPlayers.size() == 0 || pStreamer->m_bShouldQuit )
+		while ( pStreamer->m_mapStreamsToPlayers.size() == 0 && ! pStreamer->m_bQuit )
 			stateChangedLock.CondWait();
 		stateChangedLock.Release();
 
-//		g_pPlutoLogger->Write(LV_STATUS, "Looping");
+		g_pPlutoLogger->Write(LV_STATUS, "Looping ... (quitting ? %d)", pStreamer->m_bQuit );
 
-		if ( pStreamer->m_bShouldQuit )
+		if ( pStreamer->m_bQuit )
 			return NULL;
 
 		PLUTO_SAFETY_LOCK(dataAccessLock, pStreamer->m_dataStructureAccessMutex);
@@ -560,7 +557,7 @@ void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,stri
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
 		return;
 
-	g_pPlutoLogger->Write(LV_WARNING,"Stop Media for stream %d",iStreamID);
+	g_pPlutoLogger->Write(LV_STATUS, "Stop Media for stream %d",iStreamID);
 	string sOptions;
 	int mediaPosition;
 	int mediaLength;
@@ -809,13 +806,12 @@ void Slim_Server_Streamer::CMD_Mute(string &sCMD_Result,Message *pMessage)
 	SendReceiveCommand(sControlledPlayerMac + " mixer muting");
 }
 
-
-void Slim_Server_Streamer::OnReload()
+void Slim_Server_Streamer::OnQuit()
 {
-	Command_Impl::OnReload();
-if( g_pPlutoLogger )
-g_pPlutoLogger->Write(LV_CRITICAL,"Forcing a segfault");
+	g_pPlutoLogger->Write(LV_STATUS, "Calling base impl ");
 
-cerr << "****SEGFAULTING***" << endl;
-	char *p=NULL; strcpy(p,"sss");
+	Command_Impl::OnQuit();
+
+	g_pPlutoLogger->Write(LV_STATUS, "Quitting and signalling. ");
+	pthread_cond_signal(&m_stateChangedCondition);
 }

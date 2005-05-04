@@ -26,8 +26,6 @@ namespace DCE
 	class Slim_Server_Streamer : public Slim_Server_Streamer_Command
 	{
 //<-dceag-decl-e->
-        bool					m_bShouldQuit;
-
 		pthread_t               m_threadPlaybackCompletedChecker;
 
         pluto_pthread_mutex_t   m_dataStructureAccessMutex;
@@ -75,10 +73,9 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+		virtual void OnQuit();
 //<-dceag-h-b->
-// TEMP HACK - FORCE A RELOAD BY CAUSING A SEG FAULT!
-virtual void OnReload();
-virtual void OnQuit() { OnReload(); };
+
 	/*
 				AUTO-GENERATED SECTION
 				Do not change the declarations
