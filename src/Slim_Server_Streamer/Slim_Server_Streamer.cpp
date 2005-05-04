@@ -393,7 +393,8 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
 
 	} while( iRet != -1 && iRet != 1 && pos < 1023 && receiveBuffer[pos] != '\n' );
 
-    receiveBuffer[pos] = '\0';
+	g_pPlutoLogger->Write(LV_STATUS, "Buffer position is %d", pos);
+    receiveBuffer[pos - 1] = '\0';
     if ( pos == 1023 )
     {
         g_pPlutoLogger->Write(LV_STATUS, "Invalid read from socket. Closing connection");
@@ -440,8 +441,9 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
 			macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
 			// do a SendReceive without actually logging the command ( this will potentially fill out the logs. );
-			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str(), false);
+			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str());
 
+			g_pPlutoLogger->Write(LV_STATUS, "Current status for stream %d is %d", itStreamsToPlayers->first, itStreamsToPlayers->second.first);
 			if ( itStreamsToPlayers->second.first == STATE_PLAY && ( strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" ) )
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Sending playback completed event for stream %d", itStreamsToPlayers->first);
@@ -497,6 +499,8 @@ void Slim_Server_Streamer::SetStateForStream(int iStreamID, StreamStateType newS
 {
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
 	//PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
+
+	g_pPlutoLogger->Write(LV_STATUS, "Setting state for stream %d to %d", iStreamID, newState);
 
     if ( m_mapStreamsToPlayers.find(iStreamID) == m_mapStreamsToPlayers.end() )
 	{
