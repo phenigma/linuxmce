@@ -151,7 +151,7 @@ private:
 /*	bool IsMessageProcessed(MessageReplicator& repl);
 	void MarkMessageProcessed(MessageReplicator& repl);
 */
-	int ProcessReplicator(MessageReplicator& repl, MessageReplicatorList& replicators);
+	bool ProcessReplicator(MessageReplicator& repl, MessageReplicatorList& replicators);
 	
 private:
 	pthread_t threadid_;

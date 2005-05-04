@@ -108,21 +108,21 @@ MessageTranslationManager::ProcessMessage(Message* pmsg) {
 	MessageReplicator msgrepl(*pmsg);
 
 	msgqueue_.lock();
-	ret = (ProcessReplicator(msgrepl, msgqueue_) > 0);
+	ret = ProcessReplicator(msgrepl, msgqueue_);
 	msgqueue_.unlock();
 	return ret;
 }
 
-int
+bool
 MessageTranslationManager::ProcessReplicator(MessageReplicator& msgrepl, MessageReplicatorList& replicators) {
 	MessageReplicatorList lrepls;
 	if(!ptranslator_->Translate(msgrepl, lrepls)) {
-		replicators.push_back(msgrepl);
+		return false;
 	} else {
 		MessageReplicatorList::iterator it = lrepls.begin();
 		while(it != lrepls.end()) {
 			if(msgrepl.getMessage().m_dwID == (*it).getMessage().m_dwID) {
-				replicators.push_back(msgrepl);
+				replicators.push_back(*it);
 			} else {
 				MessageReplicatorList prepls;
 				ProcessReplicator(*it, prepls);
@@ -132,8 +132,8 @@ MessageTranslationManager::ProcessReplicator(MessageReplicator& msgrepl, Message
 			}
 			it++;
 		}
+		return (replicators.size() > 0);
 	}
-	return replicators.size();
 }
 /*
 bool 
