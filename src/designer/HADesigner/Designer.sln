@@ -1,23 +1,32 @@
-Microsoft Visual Studio Solution File, Format Version 7.00
+Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HADesigner", "HADesigner.csproj", "{A34C2628-3F2A-4A28-ADF7-39E13A2C6CFC}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HAData", "..\HAData\HAData.csproj", "{C5679AE5-F8FF-451F-A97B-EA58F93B04AF}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopNetUtil", "http://localhost/ShopNetUtil/ShopNetUtil.csproj", "{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ControllerGen", "..\..\..\level4\ControllerGen\ControllerGen.vcproj", "{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ControllerWin", "..\..\..\level1\Controller\Win32\ControllerWin.vcproj", "{8FBD4F3A-6694-4E92-854E-B2B13295E17E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Criteria", "..\Criteria\Criteria.csproj", "{0D8390EC-CBF8-4BD2-A1E0-620F3CEF70D9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Global
-	GlobalSection(DPCodeReviewSolutionGUID) = preSolution
-		DPCodeReviewSolutionGUID = {00000000-0000-0000-0000-000000000000}
-	EndGlobalSection
 	GlobalSection(SolutionConfiguration) = preSolution
-		ConfigName.0 = Debug
-		ConfigName.1 = Release
-	EndGlobalSection
-	GlobalSection(ProjectDependencies) = postSolution
+		Debug = Debug
+		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{A34C2628-3F2A-4A28-ADF7-39E13A2C6CFC}.Debug.ActiveCfg = Debug|.NET
@@ -40,9 +49,16 @@ Global
 		{8FBD4F3A-6694-4E92-854E-B2B13295E17E}.Debug.Build.0 = Debug|Win32
 		{8FBD4F3A-6694-4E92-854E-B2B13295E17E}.Release.ActiveCfg = Release|Win32
 		{8FBD4F3A-6694-4E92-854E-B2B13295E17E}.Release.Build.0 = Release|Win32
+		{0D8390EC-CBF8-4BD2-A1E0-620F3CEF70D9}.Debug.ActiveCfg = Debug|.NET
+		{0D8390EC-CBF8-4BD2-A1E0-620F3CEF70D9}.Debug.Build.0 = Debug|.NET
+		{0D8390EC-CBF8-4BD2-A1E0-620F3CEF70D9}.Release.ActiveCfg = Release|.NET
+		{0D8390EC-CBF8-4BD2-A1E0-620F3CEF70D9}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
 	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+	GlobalSection(DPCodeReviewSolutionGUID) = preSolution
+		DPCodeReviewSolutionGUID = {00000000-0000-0000-0000-000000000000}
 	EndGlobalSection
 EndGlobal

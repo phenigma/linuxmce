@@ -64,7 +64,7 @@
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="&quot;..\..\libs\Libraries\pthreads-win32\include&quot;;..;/mysql/include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;DEBUG;THREAD_LOG"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;DEBUG"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
