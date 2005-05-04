@@ -54,7 +54,7 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 	pmanager->setDatabase(m_pdbPlutoMain);
 	pmanager->setEventDispatcher(GetEvents());
 	
-	AVMessageProcessor::setCommandImpl(this);
+	GSDMessageProcessor::setCommandImpl(this);
 }
 
 //<-dceag-const2-b->!
@@ -87,7 +87,7 @@ void Generic_Serial_Device::ReceivedCommandForChild(DeviceData_Base *pDeviceData
 {
 	sCMD_Result = "UNHANDLED CHILD";
 
-	if(AVMessageProcessor::ProcessMessage(pMessage)) {
+	if(GSDMessageProcessor::ProcessMessage(pMessage)) {
 	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
 		return;
 	}
@@ -107,7 +107,7 @@ void Generic_Serial_Device::ReceivedUnknownCommand(string &sCMD_Result,Message *
 	sCMD_Result = "UNKNOWN DEVICE";
     g_pPlutoLogger->Write(LV_STATUS, "Received UNKNOWN command.");
 	
-	if(AVMessageProcessor::ProcessMessage(pMessage)) {
+	if(GSDMessageProcessor::ProcessMessage(pMessage)) {
 	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
 		return;
 	}

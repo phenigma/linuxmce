@@ -24,6 +24,8 @@
 #include "MessageTranslation/AVMessageTranslation.h"
 #include "Serial/GenericIODevice.h"
 
+#include "GSDMessageProcessing.h"
+
 class Database_pluto_main;
 
 //<-dceag-decl-b->!
@@ -31,7 +33,7 @@ namespace DCE
 {
 	class Generic_Serial_Device : 
 			public Generic_Serial_Device_Command, 
-			public AVMessageProcessor /*will need translation of AV messages*/
+			public GSDMessageProcessor
 	{
 //<-dceag-decl-e->
 		// Private methods

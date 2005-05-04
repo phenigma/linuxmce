@@ -118,3 +118,5 @@ RubyIOPool.h
 /IOUtils.cpp
 /DefaultMessageTranslation.h
 /DefaultMessageTranslation.cpp
+/GSDMessageProcessing.h
+/GSDMessageProcessing.cpp
