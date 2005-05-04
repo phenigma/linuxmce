@@ -119,7 +119,7 @@ while [ "$i" -le "$MAX_RESPAWN_COUNT" ]; do
 		echo $(date) died >> /var/log/pluto/died_${device_id}_$device_name
 
 		count=0
-		ls -t1 /usr/pluto/coredump/core_${cmd_line##*/}_* | while read line; do
+		echo /usr/pluto/coredump/core_${cmd_line##*/}_* | tr ' ' '\n' | while read line; do
 			((count++))
 			if [[ "$count" -gt 3 ]]; then
 				rm -f $line
