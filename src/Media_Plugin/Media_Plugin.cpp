@@ -2502,6 +2502,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 			if( pMediaStream->m_mapEntertainArea.size() )
 			{
 				// Be sure all outgoing stop messages are flushed before we proceed
+g_pPlutoLogger->Write(LV_WARNING,"ready to call wait for message queue");
 				WaitForMessageQueue();
 				pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->WaitForMessageQueue();
 

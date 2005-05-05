@@ -324,7 +324,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot becaues of %d ",*it);
 	}
 
 
-	DisplayMessageOnOrbiter(0,"I'm still regenerating some Orbiter skins, and can't allow the reset until I'm finished.  You will get a message when I have finished.  Please try again then.",false,20,true);
+	DisplayMessageOnOrbiter("","I'm still regenerating some Orbiter skins, and can't allow the reset until I'm finished.  You will get a message when I have finished.  Please try again then.",false,20,true);
 	return false;
 }
 
@@ -1342,7 +1342,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		}
 
 		// Send this to all orbiters
-		DisplayMessageOnOrbiter(0,"Your new " + pRow_Device->Description_get() + " is ready to go.  "
+		DisplayMessageOnOrbiter("","Your new " + pRow_Device->Description_get() + " is ready to go.  "
 			"All your devices must be reset to use it.  Press Quick Reload Router to do it now.  "
 			"It takes about 20 seconds.  Phone calls will not be affected, but your media will.  "
 			"Otherwise press the 'back' arrow and you can do it another time by choosing the option "

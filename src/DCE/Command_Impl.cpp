@@ -725,8 +725,17 @@ void Command_Impl::WaitForMessageQueue()
 	while(true)
 	{
 		PLUTO_SAFETY_LOCK_ERRORSONLY( mq, m_listMessageQueueMutex );
+g_pPlutoLogger->Write(LV_WARNING,"queue size is: %d",(int) m_listMessageQueue.size());
+for(list<Message *>::iterator it = m_listMessageQueue.begin(); it != m_listMessageQueue.end(); it++)
+{
+Message *pMessage = *it;
+g_pPlutoLogger->Write(LV_WARNING,"Message from %d to %d type %d id %d",
+  pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,
+  pMessage->m_dwMessage_Type,pMessage->m_dwID);
+
+}
 		if( m_listMessageQueue.size()==0 )
 			return;
-		Sleep(10);
+Sleep(500);
 	}
 }
