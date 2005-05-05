@@ -51,6 +51,8 @@ using namespace DCE;
 #define MAX_RECVQUEUE_SIZE		20
 #define MAX_RESEND_RETRIES		3
 
+#define INTER_SEND_DELAY		100
+
 namespace EIBBUS {
 
 std::string FormatHexBuffer(const unsigned char* buff, unsigned int size);
@@ -138,9 +140,9 @@ int
 MessagePool::sendTelegram(const TelegramMessage *ptelegram, bool waitack) {
 	msq_.Lock();
 	sendqueue_.push_back(*ptelegram);
+	g_pPlutoLogger->Write(LV_STATUS, "New telegram in Send Queue.");
 	esq_.Signal();
 	msq_.Unlock();
-	g_pPlutoLogger->Write(LV_STATUS, "New telegram in Send Queue.");
 	return 0;
 }
 
@@ -336,6 +338,7 @@ void MessagePool::SendState::Handle(void* p) {
 		setState(READYSTATE);
 	}
 	MSGLOCK.Unlock();
+	usleep(INTER_SEND_DELAY * 1000);
 }
 
 std::string FormatHexBuffer(const unsigned char* buff, unsigned int size) {
