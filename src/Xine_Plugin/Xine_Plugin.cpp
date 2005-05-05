@@ -651,6 +651,29 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 	for ( itPlaybackDevices = mapPlaybackDevices.begin(); itPlaybackDevices != mapPlaybackDevices.end(); itPlaybackDevices++ )
 		strTargetDevices += StringUtils::itos((*itPlaybackDevices).second->m_pDeviceData_Router->m_dwPK_Device) + ",";
 
+	// virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage);
+	itPlaybackDevices = mapPlaybackDevices.begin();
+	while ( itPlaybackDevices != mapPlaybackDevices.end() )
+	{
+		MediaDevice *pMediaDevice = (*itPlaybackDevices).second;
+
+		// when we are starting streaming on xine players we need to point them to the slim server device
+		if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Sending slim server connection command to the xine player");
+
+			DCE::CMD_Play_Media playMediaCommand(
+					m_dwPK_Device,
+					pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+					"slim://" + pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->GetIPAddress() + "/",
+					pMediaStream->m_iPK_MediaType,
+					pMediaStream->m_iStreamID_get(), 0);
+			SendCommand(playMediaCommand);
+		}
+
+		itPlaybackDevices++;
+	}
+
 	string resultingURL;
 	DCE::CMD_Start_Streaming startStreamingCommand(
 					m_dwPK_Device,
@@ -675,29 +698,6 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);
-
-	// virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage);
-	itPlaybackDevices = mapPlaybackDevices.begin();
-	while ( itPlaybackDevices != mapPlaybackDevices.end() )
-	{
-		MediaDevice *pMediaDevice = (*itPlaybackDevices).second;
-
-		// when we are starting streaming on xine players we need to point them to the slim server device
-		if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Sending slim server connection command to the xine player");
-
-			DCE::CMD_Play_Media playMediaCommand(
-					m_dwPK_Device,
-					pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-					"slim://" + pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->GetIPAddress() + "/",
-					pMediaStream->m_iPK_MediaType,
-					pMediaStream->m_iStreamID_get(), 0);
-			SendCommand(playMediaCommand);
-		}
-
-		itPlaybackDevices++;
-	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Established streaming configuration: %d -> [%s]!",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
