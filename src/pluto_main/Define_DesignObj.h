@@ -372,7 +372,7 @@
 #define DESIGNOBJ_butTransferCallMore_CONST 1801
 #define DESIGNOBJ_objRemoveEPGFavoriteChannel_CONST 1802
 #define DESIGNOBJ_objRemoveEPGFavoriteShows_CONST 1803
-#define DESIGNOBJ_icoArrayIcon_CONST 1804
+#define DESIGNOBJ_icoRoomIcon_CONST 1804
 #define DESIGNOBJ_icoHouseStatusIndicator_CONST 1809
 #define DESIGNOBJ_objKeepRecording_CONST 1819
 #define DESIGNOBJ_grpPhoneSearchKeyboard_CONST 1820
@@ -1191,11 +1191,12 @@
 #define DESIGNOBJ_butSubtitles_CONST 3387
 #define DESIGNOBJ_mnuGenericDvdMenu_CONST 3388
 #define DESIGNOBJ_go_to_nondvdremote_CONST 3389
-#define DESIGNOBJ_climate_CONST 3391
-#define DESIGNOBJ_lights_CONST 3392
-#define DESIGNOBJ_security_CONST 3393
-#define DESIGNOBJ_telecom_CONST 3394
-#define DESIGNOBJ_media_CONST 3395
+#define DESIGNOBJ_icoScenario_CONST 3390
+#define DESIGNOBJ_climate_CONST 3393
+#define DESIGNOBJ_lights_CONST 3394
+#define DESIGNOBJ_telecom_CONST 3395
+#define DESIGNOBJ_media_CONST 3396
+#define DESIGNOBJ_security_CONST 3398
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

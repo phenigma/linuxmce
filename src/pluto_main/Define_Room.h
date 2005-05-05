@@ -15,6 +15,8 @@
 #define ROOM_FK_ICON_TABLE_FIELD "Room.FK_Icon"
 #define ROOM_MANUALLYCONFIGUREEA_FIELD "ManuallyConfigureEA"
 #define ROOM_MANUALLYCONFIGUREEA_TABLE_FIELD "Room.ManuallyConfigureEA"
+#define ROOM_HIDEFROMORBITER_FIELD "HideFromOrbiter"
+#define ROOM_HIDEFROMORBITER_TABLE_FIELD "Room.HideFromOrbiter"
 #define ROOM_PSC_ID_FIELD "psc_id"
 #define ROOM_PSC_ID_TABLE_FIELD "Room.psc_id"
 #define ROOM_PSC_BATCH_FIELD "psc_batch"

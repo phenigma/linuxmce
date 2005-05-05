@@ -81,13 +81,14 @@ long int m_FK_RoomType;
 string m_Description;
 long int m_FK_Icon;
 short int m_ManuallyConfigureEA;
+short int m_HideFromOrbiter;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[11];
+		bool is_null[12];
 	
 	public:
 		long int PK_Room_get();
@@ -96,6 +97,7 @@ long int FK_RoomType_get();
 string Description_get();
 long int FK_Icon_get();
 short int ManuallyConfigureEA_get();
+short int HideFromOrbiter_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -109,6 +111,7 @@ void FK_RoomType_set(long int val);
 void Description_set(string val);
 void FK_Icon_set(long int val);
 void ManuallyConfigureEA_set(short int val);
+void HideFromOrbiter_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -158,7 +161,7 @@ void Room_Users_FK_Room_getrows(vector <class Row_Room_Users*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Room+ m_FK_Installation+ m_FK_RoomType+ m_Description+ m_FK_Icon+ m_ManuallyConfigureEA+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Room+ m_FK_Installation+ m_FK_RoomType+ m_Description+ m_FK_Icon+ m_ManuallyConfigureEA+ m_HideFromOrbiter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -169,6 +172,7 @@ string FK_RoomType_asSQL();
 string Description_asSQL();
 string FK_Icon_asSQL();
 string ManuallyConfigureEA_asSQL();
+string HideFromOrbiter_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

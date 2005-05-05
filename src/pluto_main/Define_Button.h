@@ -115,7 +115,7 @@
 #define BUTTON_left_shift_CONST 168
 #define BUTTON_right_shift_CONST 169
 #define BUTTON_caps_lock_CONST 170
-#define BUTTON_both_soft_buttons_CONST 171
+#define BUTTON_both_soft_buttons_CONST 173
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"
