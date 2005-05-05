@@ -67,6 +67,7 @@
 #define DEVICEDATA_Output_Speaker_arrangement_CONST 71
 #define DEVICEDATA_VideoFrameInterval_CONST 72
 #define DEVICEDATA_Alsa_Output_Device_CONST 74
+#define DEVICEDATA_ImageQuality_CONST 75
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
