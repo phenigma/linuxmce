@@ -439,7 +439,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
 			macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
 			// do a SendReceive without actually logging the command ( this will potentially fill out the logs. );
-			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str(), true);
+			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str(), false);
 
 //		g_pPlutoLogger->Write(LV_STATUS, "Current status for stream %d is %d", itStreamsToPlayers->first, itStreamsToPlayers->second.first);
 			if ( itStreamsToPlayers->second.first == STATE_PLAY && ( strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" ) )
