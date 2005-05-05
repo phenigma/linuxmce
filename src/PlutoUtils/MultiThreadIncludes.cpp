@@ -26,10 +26,10 @@
 	#include "wince.h"
 #endif
 
-map<int,PlutoLock *> mapLocks;
+map<int,PlutoLock *> g_mapLocks;
 int iNextLock=1;  // A counter to keep track of locks
 
-pluto_pthread_mutex_t *m_mapLockMutex=NULL;
+pluto_pthread_mutex_t *g_mapLockMutex=NULL;
 
 using namespace DCE;
 
@@ -66,15 +66,15 @@ PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock,string File,int Line,bool bLog
 	m_bGotLock = false;
 	m_thread = pthread_self();
 
-	if( m_mapLockMutex==NULL )
+	if( g_mapLockMutex==NULL )
 	{
-		m_mapLockMutex = new pluto_pthread_mutex_t("maplock");
-		m_mapLockMutex->Init(NULL);
+		g_mapLockMutex = new pluto_pthread_mutex_t("maplock");
+		g_mapLockMutex->Init(NULL);
 	}
 
-	pthread_mutex_lock(&m_mapLockMutex->mutex);
-	mapLocks[m_LockNum] = this;
-	pthread_mutex_unlock(&m_mapLockMutex->mutex);
+	pthread_mutex_lock(&g_mapLockMutex->mutex);
+	g_mapLocks[m_LockNum] = this;
+	pthread_mutex_unlock(&g_mapLockMutex->mutex);
 	DoLock();
 	m_pMyLock->m_NumLocks++;
 }
@@ -91,15 +91,15 @@ PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock,string File,int Line,bool bLog
 	m_bGotLock = false;
 	m_thread = pthread_self();
 
-	if( m_mapLockMutex==NULL )
+	if( g_mapLockMutex==NULL )
 	{
-		m_mapLockMutex = new pluto_pthread_mutex_t("maplock");
-		m_mapLockMutex->Init(NULL);
+		g_mapLockMutex = new pluto_pthread_mutex_t("maplock");
+		g_mapLockMutex->Init(NULL);
 	}
 
-	pthread_mutex_lock(&m_mapLockMutex->mutex);
-	mapLocks[m_LockNum] = this;
-	pthread_mutex_unlock(&m_mapLockMutex->mutex);
+	pthread_mutex_lock(&g_mapLockMutex->mutex);
+	g_mapLocks[m_LockNum] = this;
+	pthread_mutex_unlock(&g_mapLockMutex->mutex);
 	DoLock();
 	m_pMyLock->m_NumLocks++;
 }
@@ -109,11 +109,11 @@ PlutoLock::~PlutoLock()
 	Release();
 	if( m_LockNum )
 	{
-		pthread_mutex_lock(&m_mapLockMutex->mutex);
-		map<int,PlutoLock *>::iterator itMapLock = mapLocks.find(m_LockNum);
-		if( itMapLock==mapLocks.end() )
+		pthread_mutex_lock(&g_mapLockMutex->mutex);
+		map<int,PlutoLock *>::iterator itMapLock = g_mapLocks.find(m_LockNum);
+		if( itMapLock==g_mapLocks.end() )
 		{
-			pthread_mutex_unlock(&m_mapLockMutex->mutex);
+			pthread_mutex_unlock(&g_mapLockMutex->mutex);
 			
 			if( g_pPlutoLogger )
 				g_pPlutoLogger->Write(LV_CRITICAL, "Cannot find self in maplock! (%p) (>%d) %s: %s:%d %s", 
@@ -122,10 +122,10 @@ PlutoLock::~PlutoLock()
 		}
 		else
 		{
-int size1 = mapLocks.size();
-			mapLocks.erase(itMapLock);	
-int size2 = mapLocks.size();
-            pthread_mutex_unlock(&m_mapLockMutex->mutex);
+int size1 = g_mapLocks.size();
+			g_mapLocks.erase(itMapLock);	
+int size2 = g_mapLocks.size();
+            pthread_mutex_unlock(&g_mapLockMutex->mutex);
 
 if( g_pPlutoLogger && !m_bLogErrorsOnly )
 g_pPlutoLogger->Write(LV_LOCKING, "removed from map (%p) #%d (>%d) %s: %s:%d %s was: %d size, now %d Rel: %s Got: %s", 
@@ -140,16 +140,16 @@ m_Line,m_sMessage.c_str(),size1,size2,(m_bReleased ? "Y" : "N"),(m_bGotLock ? "Y
 void PlutoLock::ConfirmNoLocks(string File,int Line)
 {
 	map<int,PlutoLock *>::iterator itMapLock;
-	pthread_mutex_lock(&m_mapLockMutex->mutex);  // Protect the map
-	if( mapLocks.size()==0 )
+	pthread_mutex_lock(&g_mapLockMutex->mutex);  // Protect the map
+	if( g_mapLocks.size()==0 )
 	{
-		pthread_mutex_unlock(&m_mapLockMutex->mutex);
+		pthread_mutex_unlock(&g_mapLockMutex->mutex);
 		return;
 	}
 
 	string sProblems="Check requested in file: " + File + ":" + StringUtils::itos(Line) + "\n";
 	int iNumProblems=0;
-	for(itMapLock=mapLocks.begin();itMapLock!=mapLocks.end();++itMapLock)
+	for(itMapLock=g_mapLocks.begin();itMapLock!=g_mapLocks.end();++itMapLock)
 	{
 		PlutoLock *pSafetyLock = (*itMapLock).second;
 		if( pSafetyLock->m_bReleased )
@@ -157,7 +157,7 @@ void PlutoLock::ConfirmNoLocks(string File,int Line)
 		++iNumProblems;
 		sProblems+=pSafetyLock->m_sFileName + ":" + StringUtils::itos(pSafetyLock->m_Line) + pSafetyLock->m_pMyLock->m_sName + "\n";
 	}
-	pthread_mutex_unlock(&m_mapLockMutex->mutex);
+	pthread_mutex_unlock(&g_mapLockMutex->mutex);
 	if( !iNumProblems )
 		return;
 
@@ -178,10 +178,10 @@ void PlutoLock::ConfirmNoLocks(string File,int Line)
 void PlutoLock::CheckLocks()
 {
 	map<int,PlutoLock *>::iterator itMapLock;
-	pthread_mutex_lock(&m_mapLockMutex->mutex);  // Protect the map
+	pthread_mutex_lock(&g_mapLockMutex->mutex);  // Protect the map
 
 	PlutoLock *pSafetyLock_Problem=NULL;
-	for(itMapLock=mapLocks.begin();itMapLock!=mapLocks.end();++itMapLock)
+	for(itMapLock=g_mapLocks.begin();itMapLock!=g_mapLocks.end();++itMapLock)
 	{
 		PlutoLock *pSafetyLock = (*itMapLock).second;
 		if( time(NULL)-pSafetyLock->m_tTime>DEADLOCK_TIMEOUT_ERROR )
@@ -190,7 +190,7 @@ void PlutoLock::CheckLocks()
 			break;
 		}
 	}
-	pthread_mutex_unlock(&m_mapLockMutex->mutex);
+	pthread_mutex_unlock(&g_mapLockMutex->mutex);
 	if( pSafetyLock_Problem )
 	{
 		DumpOutstandingLocks();
@@ -208,30 +208,30 @@ void PlutoLock::DumpOutstandingLocks()
 	return;
 #endif
 
-	if( !m_mapLockMutex )
+	if( !g_mapLockMutex )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "m_mapLockMutex is NULL!");
+		g_pPlutoLogger->Write(LV_CRITICAL, "g_mapLockMutex is NULL!");
 		return;
 	}
 
 	if( g_pPlutoLogger )
-		g_pPlutoLogger->Write(LV_LOCKING,"Dumping locks %p mutex %p\n",&mapLocks,&m_mapLockMutex); // This way it'll get in the log without doing any locks
+		g_pPlutoLogger->Write(LV_LOCKING,"Dumping locks %p mutex %p\n",&g_mapLocks,&g_mapLockMutex); // This way it'll get in the log without doing any locks
 
-	pthread_mutex_lock(&m_mapLockMutex->mutex);
+	pthread_mutex_lock(&g_mapLockMutex->mutex);
 
-	//the mutex is locked, it's ok to access the size() method of mapLocks.
+	//the mutex is locked, it's ok to access the size() method of g_mapLocks.
 	if( g_pPlutoLogger )
-		g_pPlutoLogger->Write(LV_LOCKING,"Size of locks: %d\n",mapLocks.size());
+		g_pPlutoLogger->Write(LV_LOCKING,"Size of locks: %d\n",g_mapLocks.size());
 
 	// We cannot use a logger in here because the logger will need to get at the map mutex if logging is over a socket
 	map<int,PlutoLock *>::iterator itMapLock;
 	list<string> listMessages;
 	list<pthread_t> listKilledPthreads;
 
-	// We can't use the logger from here on because if it's a socket logger it will need the mapLocks.  Store
+	// We can't use the logger from here on because if it's a socket logger it will need the g_mapLocks.  Store
 	// all messages in listMessages and log after we remove the mutex lock
-	listMessages.push_back(string("Dumping " + StringUtils::itos((int) mapLocks.size()) + " locks"));
-	for(itMapLock=mapLocks.begin();itMapLock!=mapLocks.end();)
+	listMessages.push_back(string("Dumping " + StringUtils::itos((int) g_mapLocks.size()) + " locks"));
+	for(itMapLock=g_mapLocks.begin();itMapLock!=g_mapLocks.end();)
 	{
 		PlutoLock *pSafetyLock = (*itMapLock).second;
 
@@ -333,7 +333,7 @@ AB 19 Apr 05.  Disable the killing of threads.  Just release the lock as above.
 				listKilledPthreads.push_back(pSafetyLock->m_thread);
 			}
 
-			mapLocks.erase(itMapLock++);
+			g_mapLocks.erase(itMapLock++);
 */
 		}
 		else
@@ -357,13 +357,13 @@ AB 19 Apr 05.  Disable the killing of threads.  Just release the lock as above.
 		list<pthread_t>::iterator itKilledThreads;
 		for(itKilledThreads=listKilledPthreads.begin();itKilledThreads!=listKilledPthreads.end();++itKilledThreads)
 		{
-			for(itMapLock=mapLocks.begin();itMapLock!=mapLocks.end();)
+			for(itMapLock=g_mapLocks.begin();itMapLock!=g_mapLocks.end();)
 			{
 				PlutoLock *pSafetyLock = (*itMapLock).second;
 				if( pSafetyLock->m_thread == (*itKilledThreads) )
 				{
 					listMessages.push_back("already killed (>" + StringUtils::itos(pSafetyLock->m_LockNum) + ")");
-					mapLocks.erase(itMapLock++);
+					g_mapLocks.erase(itMapLock++);
 				}
 				else
 					++itMapLock;
@@ -380,7 +380,7 @@ AB 19 Apr 05.  Disable the killing of threads.  Just release the lock as above.
 		}
 
 	}
-	pthread_mutex_unlock(&m_mapLockMutex->mutex);
+	pthread_mutex_unlock(&g_mapLockMutex->mutex);
 
 #ifndef WINCE
 	printf("ready to dump locks using logger: %p\n",g_pPlutoLogger);
@@ -443,6 +443,7 @@ int PlutoLock::CondWait()
 	m_bReleased=true;
 	int iResult = pthread_cond_wait(m_pMyLock->m_pthread_cond_t,&m_pMyLock->mutex); // This will unlock the mutex and lock it on awakening
 	m_bReleased=false;
+	m_bGotLock=true;
 
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly && g_pPlutoLogger )
@@ -467,6 +468,7 @@ int PlutoLock::TimedCondWait(timespec &ts)
 	m_bReleased=true;
 	int iResult = pthread_cond_timedwait(m_pMyLock->m_pthread_cond_t,&m_pMyLock->mutex,&ts); // This will unlock the mutex and lock it on awakening
 	m_bReleased=false;
+	m_bGotLock=true;
 
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly && g_pPlutoLogger )
@@ -486,6 +488,7 @@ int PlutoLock::TimedCondWait(int Seconds,int Nanoseconds)
 
 void PlutoLock::DoLock()
 {
+	m_bGotLock=false;
 	m_bReleased=false;
 	if( !m_pMyLock->m_bInitialized )
 	{
