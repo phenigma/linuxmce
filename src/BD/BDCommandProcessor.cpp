@@ -24,6 +24,8 @@
 #include "BD/BD_HaveNothing.h"
 #include "BD/BD_WhatDoYouHave.h"
 
+#include "VIPShared/PlutoPhoneCommands.h"
+
 /*
 #define _LOG_(log) 
 #ifdef APPSERVER
@@ -335,7 +337,24 @@ long BDCommandProcessor::ReceiveLong()
 void BDCommandProcessor::AddCommand( class BDCommand *pCommand )
 {
 	PLUTO_SAFETY_LOCK( cm, m_CommandMutex );
-	MYSTL_ADDTO_LIST( m_listCommands, pCommand );
+
+#ifndef SYMBIAN
+    if(pCommand->ID() == BD_CP_SHOW_IMAGE)
+    {
+        list<BDCommand *>::iterator it;
+        for(it = m_listCommands.begin(); it != m_listCommands.end();)
+        {
+            BDCommand *p = *it;
+
+            if(p->ID() == BD_CP_SHOW_IMAGE)
+                m_listCommands.erase(it++);
+            else
+                it++;
+        }
+    }
+#endif
+
+    MYSTL_ADDTO_LIST( m_listCommands, pCommand );
 
 	// If we're sitting waiting for a keypress, be sure to wake up that thread now
 	pthread_cond_broadcast( &m_PollingCond );
