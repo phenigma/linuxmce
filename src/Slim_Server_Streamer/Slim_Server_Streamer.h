@@ -60,6 +60,9 @@ namespace DCE
 
 		void SetStateForStream(int iStreamID, StreamStateType newState);
 		StreamStateType GetStateForStream(int iStreamID);
+
+		string makeUpPlayerAddressFromPlayerId(unsigned int playerId);
+
     public:
         // Public member variables
 

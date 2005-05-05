@@ -149,6 +149,9 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
 
         currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pPlayerDeviceData->GetMacAddress()));
 
+		if ( currentPlayerAddress.compare("") == 0 )
+			currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(makeUpPlayerAddressFromPlayerId(iPlayerId)));
+
         SendReceiveCommand(currentPlayerAddress + " sync -"); // break previous syncronization;
 		SendReceiveCommand(currentPlayerAddress + " stop"); // stop playback (if any)
 		SendReceiveCommand(currentPlayerAddress + " playlist clear"); // clear previous playlist (if any)
@@ -422,8 +425,6 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 			stateChangedLock.CondWait();
 		stateChangedLock.Release();
 
-		g_pPlutoLogger->Write(LV_STATUS, "Looping ... (quitting ? %d)", pStreamer->m_bQuit );
-
 		if ( pStreamer->m_bQuit )
 			return NULL;
 
@@ -438,7 +439,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
 			macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
 			// do a SendReceive without actually logging the command ( this will potentially fill out the logs. );
-			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str(), false);
+			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str(), true);
 
 //		g_pPlutoLogger->Write(LV_STATUS, "Current status for stream %d is %d", itStreamsToPlayers->first, itStreamsToPlayers->second.first);
 			if ( itStreamsToPlayers->second.first == STATE_PLAY && ( strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" ) )
@@ -816,3 +817,21 @@ void Slim_Server_Streamer::OnQuit()
 	g_pPlutoLogger->Write(LV_STATUS, "Quitting and signalling. ");
 	pthread_cond_signal(&m_stateChangedCondition);
 }
+
+string Slim_Server_Streamer::makeUpPlayerAddressFromPlayerId(unsigned int playerId)
+{
+	unsigned char values[4];
+
+	int position = 0;
+	values[0] = values[1] = values[2] = values[3] = 0;
+	while ( playerId > 0 && position < 4)
+	{
+		values[position++] = (unsigned char)(playerId % 256);
+		playerId /= 256;
+	}
+
+	string result = StringUtils::Format( "00:00:%02x:%02x:%02x:%02x", values[3], values[2], values[1], values[0]);
+	g_pPlutoLogger->Write(LV_STATUS, "Converted %d playerId to mac address %s", playerId, result.c_str());
+	return result;
+}
+
