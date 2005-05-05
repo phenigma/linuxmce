@@ -17,6 +17,11 @@ chmod -R 777 /home/mediapics
 rm -f /var/www/pluto-admin/mediapics
 ln -s /home/mediapics /var/www/pluto-admin/mediapics
 
+mkdir -p /usr/pluto/orbiter/rooms
+chmod -R 777 /usr/pluto/orbiter/rooms
+rm -f /var/www/pluto-admin/rooms
+ln -s /usr/pluto/orbiter/rooms /var/www/pluto-admin/rooms
+
 a2dissite default || /bin/true
 
 #Index=$(grep DirectoryIndex /etc/apache/httpd.conf | sed 's/DirectoryIndex//g; s/^ *//g; s/ *$//g' | grep -v '^#')
