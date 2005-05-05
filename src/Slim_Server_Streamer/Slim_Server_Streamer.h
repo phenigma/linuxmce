@@ -61,9 +61,8 @@ namespace DCE
 		void SetStateForStream(int iStreamID, StreamStateType newState);
 		StreamStateType GetStateForStream(int iStreamID);
 
-		string makeUpPlayerAddressFromPlayerId(unsigned int playerId);
-
-    public:
+		string getMacAddressForDevice(DeviceData_Base *pDevice);
+public:
         // Public member variables
 
 //<-dceag-const-b->
@@ -245,5 +244,6 @@ public:
 }
 #endif
 //<-dceag-end-e->
+
 //<-dceag-const2-b->!
 

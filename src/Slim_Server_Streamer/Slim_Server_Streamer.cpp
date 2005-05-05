@@ -146,16 +146,12 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
         }
 
 		vectDevices.push_back(pPlayerDeviceData);
+        currentPlayerAddress = getMacAddressForDevice(pPlayerDeviceData);
 
-        currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pPlayerDeviceData->GetMacAddress()));
-
-		if ( currentPlayerAddress.compare("") == 0 )
-			currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(makeUpPlayerAddressFromPlayerId(iPlayerId)));
-
-        SendReceiveCommand(currentPlayerAddress + " sync -"); // break previous syncronization;
 		SendReceiveCommand(currentPlayerAddress + " stop"); // stop playback (if any)
 		SendReceiveCommand(currentPlayerAddress + " playlist clear"); // clear previous playlist (if any)
 		SendReceiveCommand(currentPlayerAddress + " playlist repeat 0"); // set the playlist to non repeating.
+		SendReceiveCommand(currentPlayerAddress + " sync -"); // break previous syncronization;
         SendReceiveCommand(currentPlayerAddress + " sync " + lastPlayerAddress); // synchronize with the last one.
         lastPlayerAddress = currentPlayerAddress;
         itPlayerIds++;
@@ -472,7 +468,8 @@ string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
     if ( m_mapStreamsToPlayers.find(iStreamID) != m_mapStreamsToPlayers.end() )
     {
         DeviceData_Base *playerDevice = m_mapStreamsToPlayers[iStreamID].second.front();
-        return StringUtils::URLEncode(StringUtils::ToLower(playerDevice->GetMacAddress()));
+
+		return getMacAddressForDevice(playerDevice);
     }
 
 	g_pPlutoLogger->Write(LV_WARNING, "Could not find an controlling device for stream: %d", iStreamID);
@@ -529,7 +526,10 @@ void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int
 
 	string sControlledPlayerMac;
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "No controlling mac was found for this stream id: %d", iStreamID);
 		return;
+	}
 
 	// SendReceiveCommand(lastPlayerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
 	SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(sFilename,"//", "/")));
@@ -818,20 +818,12 @@ void Slim_Server_Streamer::OnQuit()
 	pthread_cond_signal(&m_stateChangedCondition);
 }
 
-string Slim_Server_Streamer::makeUpPlayerAddressFromPlayerId(unsigned int playerId)
+string Slim_Server_Streamer::getMacAddressForDevice(DeviceData_Base *pDevice)
 {
-	unsigned char values[4];
+	string macAddress = pDevice->GetMacAddress();
 
-	int position = 0;
-	values[0] = values[1] = values[2] = values[3] = 0;
-	while ( playerId > 0 && position < 4)
-	{
-		values[position++] = (unsigned char)(playerId % 256);
-		playerId /= 256;
-	}
+	if  ( macAddress.compare("") == 0 )
+		macAddress = StringUtils::makeUpPlayerAddressFromPlayerId(pDevice->m_dwPK_Device);
 
-	string result = StringUtils::Format( "00:00:%02x:%02x:%02x:%02x", values[3], values[2], values[1], values[0]);
-	g_pPlutoLogger->Write(LV_STATUS, "Converted %d playerId to mac address %s", playerId, result.c_str());
-	return result;
+	return StringUtils::URLEncode(StringUtils::ToLower(macAddress));
 }
-
