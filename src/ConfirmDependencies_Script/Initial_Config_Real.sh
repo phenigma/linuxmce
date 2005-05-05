@@ -343,9 +343,32 @@ Key="the Enter key"
 #Key="OK"
 Message2="Press $Key to reboot and startup your new Pluto $SysType."
 
+Message24="
+[1;5;31m*** WARNING ***[0m You installed the system using the 2.4 kernel.
+
+The system will reboot using a 2.6 kernel, but the two versions see
+Serial-ATA ports in different ways. If you only have Paralel-ATA units,
+you can reboot without changes. Otherwise, read on.
+
+For now, you have to manually update these files:
+/etc/fstab:
+	replace /dev/hdX* with /dev/sdT*
+		X, T = letters
+		ex: /dev/hde -> /dev/sda; /dev/hde1 -> /dev/sda1
+/boot/grub/menu.lst:
+	For the \"Debian GNU/Linux, kernel 2.6.10-1-686\" kernel entry you
+	need to specify 'root=/dev/sdT1' instead of 'root=/dev/hdX1'
+
+Switch to another console (Alt+F2), login as root and use an editor like
+'nano' or 'vi' to edit those files before you reboot"
+
 echo "$(CatMessages "$Message1" "$Message2")" | fmt
+Kver=$(uname -r)
+if [ "${Kver:0:4}" == "2.4." ]; then
+	echo "$Message24"
+fi
 read
-#MessageBox "$Message1" "$Message2"
+#MessageBox "$Message1" "$Message2" "$Message3"
 
 [ -e /usr/share/vim/vimrc ] || cp /usr/share/vim/vim63/vimrc_example.vim /usr/share/vim/vimrc
 
