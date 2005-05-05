@@ -160,8 +160,8 @@ for Client in $R; do
 		mv $DlPath/etc/mythtv/mysql.txt.$$ $DlPath/etc/mythtv/mysql.txt
 
 		echo -n " MySQL_access"
-		Q="GRANT ALL PRIVILEGES ON pluto_main.* TO 'root'@'$IP';
-		GRANT ALL PRIVILEGES ON mythconverg.* TO 'root'@'$IP';"
+		Q="GRANT ALL PRIVILEGES ON *.* TO 'root'@$IP;
+		GRANT ALL PRIVILEGES ON *.* TO 'eib'@$IP"
 		echo "$Q" | /usr/bin/mysql
 
 		echo -n " Install"
