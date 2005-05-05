@@ -375,7 +375,7 @@ void StringUtils::BreakIntoLines( string sInput, vector<string> *vectStrings, in
     if( iNumCharsSoFar > 0 )
 	{
 		if((int)sInput.length() - iCurrentIndex > iNumChars)
-		{	
+		{
 			while( iNumCharsSoFar > 0 )
 			{
 				int iLineLength = (iNumChars < int(sInput.length() - iFirst) ? iNumChars : int(sInput.length() - iFirst));
@@ -718,6 +718,19 @@ void StringUtils::FreeArgs(char **pArgs,int iNumArgs)
 	delete[] pArgs;
 }
 
+string StringUtils::makeUpPlayerAddressFromPlayerId(unsigned int playerId)
+{
+	unsigned char values[4];
+
+	int position = 0;
+	values[0] = values[1] = values[2] = values[3] = 0;
+	while ( playerId > 0 && position < 4)
+	{
+		values[position++] = (unsigned char)(playerId % 256);
+		playerId /= 256;
+	}
+
+	return Format( "00:00:%02x:%02x:%02x:%02x", values[3], values[2], values[1], values[0]);
+}
+
 #endif //#ifndef SYMBIAN
-
-

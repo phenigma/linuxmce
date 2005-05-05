@@ -165,15 +165,20 @@ namespace StringUtils
      */
     unsigned int CalcChecksum( unsigned int iSize, char *pData );
 
+	/**
+	 * @brief make a mac address from an integer. Usefull to simulate mac addresses from devices
+	 */
+	string makeUpPlayerAddressFromPlayerId(unsigned int playerId);
+
     time_t SQLDateTime( string sSQLDate ); /** < converts the sql formatted date time into a time_t structure */
     string SQLDateTime( time_t t=0 ); /** < converts a time_t structure into a sql formatted date time */
     string SQLEscape( string sInput ); /** < convert a escape sequence so that it can be understood by sql */
 
 	string GetStringFromConsole(); /** < Let's the user enter a string terminated by a carriage return */
 
-	/** < Convert space delimited string to arguments, like on a command line.  Use " to include spaces 
+	/** < Convert space delimited string to arguments, like on a command line.  Use " to include spaces
 		  There's a hardcoded limit of 500 arguments */
-	char **ConvertStringToArgs(string sInput,int &iNumArgs); 
+	char **ConvertStringToArgs(string sInput,int &iNumArgs);
 	void FreeArgs(char **pArgs,int iNumArgs);
 
 	time_t StringToDate(string Value);  /** < Converts a date/time as a string to a time_t */
