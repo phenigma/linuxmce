@@ -39,6 +39,8 @@ using namespace DCE;
 
 #include "pluto_main/Define_Button.h"
 
+#include "SlimServerClient.h"
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -68,8 +70,6 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
        m_pXineSlaveControl = NULL;
 	   return;
     }
-
-
 }
 
 //<-dceag-const2-b->!
@@ -167,10 +167,10 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	if ( sFilename.substr(0, strlen("slim://")).compare("slim://") == 0)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Need to behave like a slim server client");
-		m_pXineSlaveControl->stopMedia(iStreamID);
-		//m_pSlimServerClient->setMacAddress(GetMacAddress());
-		// To not break more stuff
-		// m_pSlimServerClient->connectToServer(sFilename.substr(strlen("slim://")), iStreamID);
+
+		string macAddress = StringUtils::makeUpPlayerAddressFromPlayerId(m_dwPK_Device);
+		getSlimServerClient()->setMacAddress(macAddress);
+		getSlimServerClient()->connectToServer(sFilename.substr(strlen("slim://")), iStreamID);
 	}
 	else
 	{
@@ -478,18 +478,6 @@ void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,in
 	m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, *iMediaPosition, *iMedia_Length);
 }
 
-string Xine_Player::GetMacAddress()
-{
-	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
-
-	if ( pDeviceData_Base == NULL )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "I could not find a device data base object for myself %d: this is very very strange.", m_dwPK_Device);
-		return "";
-	}
-
-	return pDeviceData_Base->GetMacAddress();
-}
 //<-dceag-createinst-b->!
 //<-dceag-c29-b->
 
@@ -750,4 +738,16 @@ void Xine_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 //<-dceag-c240-e->
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Back_Prior_Menu() Not implemented!");
+}
+
+SlimServerClient *Xine_Player::getSlimServerClient()
+{
+	if ( m_pSlimServerClient == NULL )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Creating the Slim Server Client object");
+		m_pSlimServerClient = new SlimServerClient();
+		m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
+	}
+
+	return m_pSlimServerClient;
 }

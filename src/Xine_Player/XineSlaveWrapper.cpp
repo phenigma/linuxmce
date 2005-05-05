@@ -431,6 +431,8 @@ bool XineSlaveWrapper::loadXineConfiguration()
 		"display of configuration settings",
 		"Controls whether more advanced configuration settings are shown.",
      	0, NULL, (void*)1);
+
+	return true;
 }
 
 bool XineSlaveWrapper::createXineLibConnection()

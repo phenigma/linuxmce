@@ -1,14 +1,3 @@
-//
-// C++ Implementation: XinePlayer Network Utils
-//
-// Description:
-//
-//
-// Author: Toader Mihai Claudiu, mtoader@gmail.com
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
 #include "DCE/Logger.h"
 
 using namespace DCE;

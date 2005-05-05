@@ -21,6 +21,8 @@
 
 //<-dceag-decl-b->! custom
 
+class SlimServerClient;
+
 namespace DCE
 {
 
@@ -31,6 +33,11 @@ namespace DCE
 class Xine_Player : public Xine_Player_Command, public RatpoisonHandler<Xine_Player>
 {
 //<-dceag-decl-e->
+private:
+	SlimServerClient *m_pSlimServerClient; /** < m_pSlimServerClient is the wrapper around the slim server protocol */
+
+	SlimServerClient *getSlimServerClient();
+
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
@@ -42,22 +49,11 @@ public:
 //<-dceag-const-e->
     /** Private member variables */
 
-    /**
-     * @brief destructor
-     */
-
     XineSlaveWrapper *m_pXineSlaveControl; /** < m_pXineSlaveControl points to the XineSlaveWrapper object */
-
-	class SlimServerClient *m_pSlimServerClient; /** < m_pSlimServerClient is the wrapper around the slim server protocol */
 
 	bool Connect(int iPK_DeviceTemplate );
 
-	string GetMacAddress();
-    /**
-     * @brief destructor
-     */
-    Display *getDisplay();
-    // Private methods
+	Display *getDisplay();
 public:
     // Public member variables
 
@@ -204,7 +200,7 @@ public:
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu 
+0 - Root menu
 1 - Title menu
 2 - Media menu */
 

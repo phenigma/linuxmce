@@ -14,6 +14,7 @@
 #include "SlimServerClient.h"
 
 #include "NetworkUtils.h"
+#include "SlimHandler.h"
 
 using namespace std;
 using namespace DCE;
@@ -21,14 +22,20 @@ using namespace DCE;
 SlimServerClient::SlimServerClient()
 {
 	dataThreadCommand = THREAD_STOP;
+	dataThreadState = THREAD_STOPPED;
+
 	commandThreadCommand = THREAD_STOP;
+	commandThreadState = THREAD_STOPPED;
 
 	pthread_create(&commandThread, NULL, controlConnectionThread, this);
 	pthread_create(&dataThread, NULL, dataConnectionThread, this);
+
+	m_pSlimHandler = NULL;
 }
 
 SlimServerClient::~SlimServerClient()
 {
+	delete m_pSlimHandler;
 	disconnectFromServer(0); // TODO: When taking in consideration the streamIDs make sure that we loop thru them.
 }
 
@@ -66,7 +73,7 @@ void SlimServerClient::disconnectFromServer(int iStreamID)
 
 void SlimServerClient::setXineSlaveObject(class XineSlaveWrapper *pXineSlaveControl)
 {
-	m_pXine = pXineSlaveControl;
+	m_pXineSlave = pXineSlaveControl;
 }
 
 void *SlimServerClient::controlConnectionThread(void *arguments)
@@ -77,6 +84,9 @@ void *SlimServerClient::controlConnectionThread(void *arguments)
 
 	pSlimServerClient = static_cast<SlimServerClient *>(arguments);
 	controlSocket = -1;
+	lastCommand = THREAD_UNKNOWN;
+
+	SlimHandler *slimProtocolHandler;
 
 	while ( pSlimServerClient->commandThreadCommand != THREAD_EXIT )
 	{
@@ -92,28 +102,37 @@ void *SlimServerClient::controlConnectionThread(void *arguments)
 					g_pPlutoLogger->Write(LV_STATUS, "Starting the command thread!");
 
 					// assume connection failure. Only reset it when we know for sure that we are connected
-					pSlimServerClient->commandThreadState = THREAD_STOPPED;
+					pSlimServerClient->commandThreadState = THREAD_CONNECTING;
 					if ( controlSocket == -1 )
 						controlSocket = connect_to_host(pSlimServerClient->m_strHostname.c_str(), pSlimServerClient->m_iPort);
 
 					if ( controlSocket <= 0 )
 						break;
 
-					if ( pSlimServerClient->slim_do_hello(controlSocket) )
+					slimProtocolHandler = pSlimServerClient->getSlimHandler();
+					slimProtocolHandler->setConnectionSocket(controlSocket);
+					if ( slimProtocolHandler->doHello() )
 						pSlimServerClient->commandThreadState = THREAD_CONNECTED;
+					else
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "Hello was not succesfull");
+						pSlimServerClient->commandThreadState = THREAD_STOPPED;
+					}
 
 					break;
 				case THREAD_EXIT:
-					g_pPlutoLogger->Write(LV_STATUS, "Starting the command thread!");
+					g_pPlutoLogger->Write(LV_STATUS, "Ending the the command thread!");
 					pSlimServerClient->commandThreadState = THREAD_EXITING;
 					break;
+				default:
+					g_pPlutoLogger->Write(LV_STATUS, "Command not handled %d", pSlimServerClient->commandThreadCommand);
 			}
 
 			lastCommand = pSlimServerClient->commandThreadCommand;
 		}
 
-// 		if ( pSlimServerClient->commandThreadState == THREAD_CONNECTED )
-// 			g_pPlutoLogger->Write(LV_STATUS, "Processing commands from the slim server");
+		if ( pSlimServerClient->commandThreadState == THREAD_CONNECTED )
+			slimProtocolHandler->doOneCommand();
 
 		Sleep(100); // 10 commands per ssecond. It should be enough.
 	}
@@ -169,54 +188,15 @@ bool SlimServerClient::parse_server_address(string strConnectionString)
 	return true;
 }
 
-char commandBuffer[1024];
-
-bool SlimServerClient::slim_do_hello(int connection)
+SlimHandler *SlimServerClient::getSlimHandler()
 {
-	strncpy(commandBuffer, "HELO", 4);
-	commandBuffer[4] = 0;
-	commandBuffer[5] = 0;
-	commandBuffer[6] = 0;
-	commandBuffer[7] = 10;
+	if ( m_pSlimHandler == NULL )
+		m_pSlimHandler = new SlimHandler();
 
-	commandBuffer[8] = 3;
-	commandBuffer[9] = 0;
-
-	// g_pPlutoLogger->Write(LV_STATUS, "Got this mac address: %s", m_pXine->GetMacAddress().c_str());
-
-	commandBuffer[10] = m_macAddress[0];
-	commandBuffer[11] = m_macAddress[1];
-	commandBuffer[12] = m_macAddress[2];
-	commandBuffer[13] = m_macAddress[3];
-	commandBuffer[14] = m_macAddress[4];
-	commandBuffer[15] = m_macAddress[5];
-	commandBuffer[16] = 0x00;
-	commandBuffer[17] = 0x00;
-
-// 	*len  = 4 /*HELO*/ + 4 /* payload len */ + 1 /* device ID */ +
-// 			1 /* device ID */ + 6 + /* mac data */ + 2 /* flags */;
-// 	*outBuffer = (char*)xine_xmalloc(*len);
-// 	buffer = *outBuffer;
-//
-// 	strncpy(buffer, "HELO", 4);
-
-	return send (connection, commandBuffer, 18, 0) == 18;
+	return m_pSlimHandler;
 }
 
-void SlimServerClient::setMacAddress(string strMacAddress)
+void SlimServerClient::setMacAddress(std::string strMacAddress)
 {
-	const char *startChar;
-	char *endChar;
-
-	unsigned int index, value;
-
-	index = 0;
-	startChar = strMacAddress.c_str();
-	while ( *endChar != 0 )
-	{
-		value = strtol(startChar, &endChar, 16);
-		m_macAddress[index++] = value & 0xFF;
-		if ( *endChar )
-			startChar = ++endChar;
-	}
+	getSlimHandler()->setMacAddress(strMacAddress);
 }

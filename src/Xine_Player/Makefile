@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-EXTERNAL_LIBS_NAMES = mysqlclient_r pthread jpeg 
+EXTERNAL_LIBS_NAMES = mysqlclient_r pthread jpeg
 INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 MYNAME = Xine_Player
@@ -26,7 +26,7 @@ EXTERNAL_LIBS_NAMES += xine z nsl rt png X11 m Xext Xxf86vm Xtst
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=  XineSlaveWrapper.cpp JpegEncoderDecoder.cpp
+sources +=  XineSlaveWrapper.cpp JpegEncoderDecoder.cpp SlimServerClient.cpp SlimHandler.cpp NetworkUtils.cpp
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
@@ -42,12 +42,14 @@ so: Xine_Player.so
 
 Xine_Player.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
+	mv ../bin/$@ ../bin/$@.bak
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 
 Xine_Player: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
 	$(CXX) -o $(MYNAME) $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
+	mv ../bin/$@ ../bin/$@.bak
 	cp $@ ../bin
 	./post_make.sh $@
 

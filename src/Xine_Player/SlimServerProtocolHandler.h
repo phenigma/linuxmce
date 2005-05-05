@@ -50,7 +50,7 @@ struct slimCommand
 {
 	CommandType type;
 
-	union _commands {
+	union {
 		struct _versionCommand {
 			char *versionData;
 			unsigned int versionDataLength;
@@ -84,6 +84,7 @@ struct slimCommand
 		struct _graphicCommand {
 			char code;
 		} grafic;
+
 	} data;
 };
 

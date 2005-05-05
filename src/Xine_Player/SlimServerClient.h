@@ -1,24 +1,13 @@
-//
-// C++ Interface: %{MODULE}
-//
-// Description:
-//
-//
-// Author: %{AUTHOR} <%{EMAIL}>, (C) %{YEAR}
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
 #ifndef SLIMSERVERCLIENT_H
 #define SLIMSERVERCLIENT_H
 
 #include <string>
 #include <pthread.h>
 
-// #include "XineSlaveWrapper.h"
+#include "SlimHandler.h"
 
-/**
-*/
+class XineSlaveWrapper;
+
 class SlimServerClient
 {
     typedef enum threadState
@@ -31,6 +20,7 @@ class SlimServerClient
 
     typedef enum threadCommand
 	{
+		THREAD_UNKNOWN,
 		THREAD_START,
 		THREAD_STOP,
 		THREAD_EXIT
@@ -39,9 +29,9 @@ class SlimServerClient
 	ThreadStateType 		dataThreadState, commandThreadState;
 	ThreadCommandType		dataThreadCommand, commandThreadCommand;
 
-	class XineSlaveWrapper *m_pXine;
+	XineSlaveWrapper *m_pXineSlave;
+	SlimHandler *m_pSlimHandler;
 
-	unsigned char 	m_macAddress[6];
 	std::string 	m_strHostname;
 	int 			m_iPort;
 
@@ -51,9 +41,6 @@ class SlimServerClient
 private:
 	bool parse_server_address(std::string strConnectionString);
 
-// slim_protocol_functions
-	bool slim_do_hello(int connection);
-
 public:
     SlimServerClient();
 
@@ -62,13 +49,17 @@ public:
 	virtual bool isConnected(int iStreamID);
 	virtual void disconnectFromServer(int iStreamID);
 
-	virtual void setXineSlaveObject(class XineSlaveWrapper *pXineSlaveControl);
+	virtual void setXineSlaveObject(XineSlaveWrapper *pXineSlaveControl);
 	virtual void setMacAddress(std::string strMacAddress);
 
     virtual ~SlimServerClient();
 
+	SlimHandler *getSlimHandler();
+
 	static void *controlConnectionThread(void *arguments);
 	static void *dataConnectionThread(void *arguments);
+
+
 };
 
 #endif
