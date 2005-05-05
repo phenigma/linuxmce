@@ -709,14 +709,14 @@ bool Command_Impl::SetStatus( string sStatus, int dwPK_Device )
 }
 
 extern pluto_pthread_mutex_t *m_LL_DEBUG_Mutex;
-extern pluto_pthread_mutex_t *m_mapLockMutex;
+extern pluto_pthread_mutex_t *g_mapLockMutex;
 void Command_Impl::DeleteGlobalAllocs()
 {
 	delete m_LL_DEBUG_Mutex;
 	m_LL_DEBUG_Mutex=NULL;
 
-	delete m_mapLockMutex;
-	m_mapLockMutex=NULL;
+	delete g_mapLockMutex;
+	g_mapLockMutex=NULL;
 
 }
 

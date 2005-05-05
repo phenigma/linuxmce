@@ -32,7 +32,7 @@
 const char *g_szCompile_Date="<=compile_date=>";
 /*SVN_REVISION*/
 
-extern pluto_pthread_mutex_t *m_mapLockMutex;
+extern pluto_pthread_mutex_t *g_mapLockMutex;
 #ifdef LL_DEBUG_FILE
 	extern pluto_pthread_mutex_t *m_LL_DEBUG_Mutex;
 #endif
@@ -202,10 +202,10 @@ int main(int argc, char *argv[])
 	WSACleanup();
 #endif
 	g_pPlutoLogger->Write(LV_STATUS, "Ready to delete router");
-	if( m_mapLockMutex )
+	if( g_mapLockMutex )
 	{
-		pthread_mutex_destroy(&m_mapLockMutex->mutex);
-		delete m_mapLockMutex;
+		pthread_mutex_destroy(&g_mapLockMutex->mutex);
+		delete g_mapLockMutex;
 	}
 #ifdef LL_DEBUG_FILE
 	if( m_LL_DEBUG_Mutex )
