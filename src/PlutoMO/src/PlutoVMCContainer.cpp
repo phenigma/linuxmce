@@ -526,7 +526,8 @@ bool CPlutoVMCContainer::HandleCaptureKeyboardKeys(const TKeyEvent& aKeyEvent, T
 		{
 			pVMCUtil->m_bRedrawOnlyEdit = true;
 			pVMCUtil->m_bRedrawOnlyGrid = true;
-			m_bNeedRefresh = true;			
+			m_bNeedRefresh = true;	
+			return true;
 		}
 
 	if(BUTTON_Rept_Phone_C_CONST == KeyCode)
@@ -534,7 +535,8 @@ bool CPlutoVMCContainer::HandleCaptureKeyboardKeys(const TKeyEvent& aKeyEvent, T
 		{
 			pVMCUtil->m_bRedrawOnlyEdit = true;
 			pVMCUtil->m_bRedrawOnlyGrid = true;
-			m_bNeedRefresh = true;			
+			m_bNeedRefresh = true;		
+			return true;
 		}
 
 	char KeyChar = GetKeyChar(KeyCode);
