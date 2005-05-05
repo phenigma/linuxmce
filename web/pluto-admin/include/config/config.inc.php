@@ -1,19 +1,23 @@
 <?PHP
   	//debuging
-  	$GLOBALS['inDebug']=0;
+  	$GLOBALS['inDebug']=1;
   	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
   		error_reporting(E_ALL ^ E_NOTICE);
   		$GLOBALS['globalConfigPath']='/var/www/globalconfig/';
   		$GLOBALS['floorplansPath']='/var/www/pluto-admin/floorplans';
-  		$GLOBALS['usersPicsPath']='/var/www/pluto-admin/users';
+  		$GLOBALS['usersPicsPath']='/var/www/pluto-admin/users/';
+  		$GLOBALS['roomsPicsPath']='/var/www/pluto-admin/rooms/';
+  		$GLOBALS['scenariosPicsPath']='/var/www/pluto-admin/scenarios/';
   		$GLOBALS['pluto.conf']='/etc/pluto.conf';
   	}else{
   		error_reporting(E_ALL);
   		$GLOBALS['globalConfigPath']='/home/users/vali/work/web/globalconfig/';
   		$GLOBALS['floorplansPath']='/home/users/vali/work/web/pluto-admin/floorplans/';
   		$GLOBALS['usersPicsPath']='/home/users/vali/work/web/pluto-admin/users/';
+  		$GLOBALS['roomsPicsPath']='/home/users/vali/work/web/pluto-admin/rooms/';
+  		$GLOBALS['scenariosPicsPath']='/home/users/vali/work/web/pluto-admin/scenarios/';
   		$GLOBALS['pluto.conf']='/home/users/vali/work/web/pluto.conf';
   	}
 

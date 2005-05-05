@@ -305,7 +305,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 				while ($row = $resDirectoryPackage->FetchRow()) {
 					$displayedDirectory[]=$row['PK_Directory'];
 					$displayedPackageDirectory[]=$row['PK_Package_Directory'];
-					$out.='<fieldset><legend>'.$row['Description'].' <select name="packageDirectoryOS_'.$row['PK_Package_Directory'].'">
+					$out.='<fieldset><legend>'.generatePullDown('pd_'.$row['PK_Package_Directory'],'Directory','PK_Directory','Description',$row['PK_Directory'],$dbADO,'','style="background:lightyellow;"').' <select name="packageDirectoryOS_'.$row['PK_Package_Directory'].'">
 									<option value="0">-Any-</option>';
 						foreach($arrayDescriptionOperatingSystem as $key => $value){
 							$out.='<option value="'.$arrayIdOperatingSystem[$key].'" '.(($arrayIdOperatingSystem[$key]==$row['FK_OperatingSystem'])?'selected':'').'>'.$value.'</option>';
@@ -500,7 +500,12 @@ function addPackageToMasterDevice($output,$dbADO) {
 				$pdPath=cleanString(@$_POST['packageDirectoryPath_'.$elem]);
 				$pdInputPath=(@$_POST['packageDirectoryInputPath_'.$elem]!='')?cleanString(@$_POST['packageDirectoryInputPath_'.$elem]):NULL;
 				$pdFlipSource=(@$_POST['packageDirectoryFlipSource_'.$elem]=='1')?1:0;
-				$updatePackageDirectory='UPDATE Package_Directory SET FK_OperatingSystem=?, FK_Distro=?, Path=?, InputPath=?, FlipSource=? WHERE PK_Package_Directory=?';
+				$pdDirectoryFilter=((int)@$_POST['pd_'.$elem]!=0)?', FK_Directory='.(int)@$_POST['pd_'.$elem]:'';
+				
+				$updatePackageDirectory='
+					UPDATE Package_Directory 
+					SET FK_OperatingSystem=?, FK_Distro=?, Path=?, InputPath=?, FlipSource=? '.$pdDirectoryFilter.' 
+					WHERE PK_Package_Directory=?';
 				$dbADO->Execute($updatePackageDirectory,array($pdOperatingSystem,$pdDistro,$pdPath,$pdInputPath,$pdFlipSource,$elem));
 				
 				if(isset($_POST['delPD_'.$elem])){

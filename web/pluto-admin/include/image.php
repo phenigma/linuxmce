@@ -7,12 +7,17 @@ header("Pragma: no-cache");
 
 $imagepath=$_REQUEST['imagepath'];
 $imageinfo = getimagesize( $imagepath );
-if ($imageinfo[2] == 2) {
-	$imagetype = "jpg" ;
-}
-else {
-	header( "HTTP/1.0 404 Not Found" );
-	exit ;
+switch ($imageinfo[2]){
+	case 2:
+		$imagetype = "jpg";
+	break;
+	case 3:
+		$imagetype = "png";
+	break;
+	default:
+		header( "HTTP/1.0 404 Not Found" );
+		exit ;
+	break;
 }
 
 header( "Content-type: image/$imagetype" );

@@ -2328,7 +2328,10 @@ function advancedCommandGroupCommandsTable($cgID,$section,$dbADO)
 			$lineCount++;
 			$out.='
 				<tr bgcolor="'.(($lineCount%2==1)?'#DDDDDD':'').'">
-					<td valign="top"><input type="hidden" name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" value="'.$rowCommandAssigned['FK_Device'].'">'.getDeviceNameForScenarios($rowCommandAssigned['FK_Device'],$dbADO).'</td>
+					<td valign="top">
+						<a name="hook_'.$rowCommandAssigned['PK_CommandGroup_Command'].'"></a>
+						<input type="hidden" name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" value="'.$rowCommandAssigned['FK_Device'].'">'.getDeviceNameForScenarios($rowCommandAssigned['FK_Device'],$dbADO).'
+					</td>
 				<td>';
 			if($rowCommandAssigned['FK_Device']!='-300'){
 				$query = "SELECT PK_Command,Command.Description
@@ -2406,6 +2409,7 @@ function advancedCommandGroupCommandsTable($cgID,$section,$dbADO)
 	}
 	$out.='<tr>
 						<td colspan="2">
+							<a name="hook_0"></a>
 					 		<B>Device:</B>'.deviceForScenariosSelector('addNewDevice',cleanInteger(@$_REQUEST['addNewDevice']),$dbADO,1,'onChange="document.'.$section.'.oldWizard.value=\'-1\';this.form.submit();"');
 	$out.=(((int)@$_REQUEST['addNewDevice']!=0)?' Command: ':'').commandPulldownForDevice(cleanInteger(@$_REQUEST['addNewDevice']),$dbADO).'
 						<input type="submit" class="button" name="addNewDeviceButton" value="Add"  ></td>
@@ -2530,6 +2534,7 @@ function processAdvancedScenarios($cgID,$section,$dbADO)
 	$roomID=(int)@$_REQUEST['roomID'];
 	$ehID=@$_REQUEST['ehID'];
 	$CommandIsTested=(isset($_REQUEST['commandToTest']) && (int)$_REQUEST['commandToTest']>0)?1:0;
+	$returnHook=null;
 	
 	if(isset($_REQUEST['cgc']) && (int)$_REQUEST['cgc']>0){
 		$toDel=(int)$_REQUEST['cgc'];
@@ -2593,18 +2598,19 @@ function processAdvancedScenarios($cgID,$section,$dbADO)
 			$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($deviceSelected,$rowCommandAssigned['PK_CommandGroup_Command']));
 
 			if ($dbADO->Affected_Rows()==1) {//enter here only if the Device is changed
-			$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = NULL WHERE PK_CommandGroup_Command = ? ';
-			$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($rowCommandAssigned['PK_CommandGroup_Command']));
-			//delete old parameters
-			$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ? ';
-			$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
+				$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = NULL WHERE PK_CommandGroup_Command = ? ';
+				$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($rowCommandAssigned['PK_CommandGroup_Command']));
+				//delete old parameters
+				$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ? ';
+				$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
 
 			} else {
 				$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = ? WHERE PK_CommandGroup_Command = ? ';
 				$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($commandSelected,$rowCommandAssigned['PK_CommandGroup_Command']));
 				if ($dbADO->Affected_Rows()==1) {//if we have changed the command, delete old values
-				$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ? ';
-				$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
+					$returnHook=$rowCommandAssigned['PK_CommandGroup_Command'];
+					$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ? ';
+					$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
 				}
 
 			}
@@ -2666,12 +2672,14 @@ function processAdvancedScenarios($cgID,$section,$dbADO)
 		$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$FK_Device.' 1 '.$FK_Command.' '.join(' ',$commandParmsArray);
 		exec($commandToSend);
 		if($section=='scenarioWizard'){
-			header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=The command with parameters was sent: $commandToSend");
+			header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=The command with parameters was sent: $commandToSend#hook_$commandToTest");
 		}else{
 			header("Location: index.php?section=$section&ehID=$ehID&wizard=$wizard&msg=The command with parameters was sent");
 		}
 		exit();
 	}
+	
+	return $returnHook;
 }
 
 function getDeviceNames($dbADO,$filter='')

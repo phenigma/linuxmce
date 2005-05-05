@@ -47,15 +47,16 @@ $displayedRooms = array();
 				window.open(locationA,'',attributes);
 			}
 		</script>";
-		$out.='<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
+		$out.='<div class="err">'.(isset($_GET['error'])?stripslashes($_GET['error']):'').'</div>';
 		$out.='
 		<table border="0">
-			<form action="index.php" method="post" name="rooms">
+			<form action="index.php" method="post" name="rooms" enctype="multipart/form-data">
 			<input type="hidden" name="section" value="rooms">
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="lastAction" value="">
 		<tr>
 			<td align="center" bgcolor="#F0F3F8"><B>Room Description</B></td>
+			<td align="center" bgcolor="#F0F3F8"><B>Picture</B></td>
 			<td align="center" bgcolor="#DADDE4"><B>Entertain areas</B></td>
 		</tr>
 		';
@@ -63,9 +64,17 @@ $displayedRooms = array();
 		$roomsFormValidation='';
 		$displayedEntertainArea=array();
 		while ($rowRoom = $resRooms->FetchRow()) {
+			
+			$filePath=$GLOBALS['roomsPicsPath'].$rowRoom['PK_Room'].'.png';
+			if(file_exists($filePath)){
+				$randNumber=rand(0,99999);
+				$roomImage='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'"><br>';
+			}else
+				$roomImage='';
 			$out.='
 			<tr>
 				<td align="center" valign="top"><input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"><br><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">Delete Room</a></td>
+				<td valign="top">'.@$roomImage.'<input type="file" name="pic_'.$rowRoom['PK_Room'].'"></td>
 				';
 			$displayedRooms[]=$rowRoom['PK_Room'];
 			$out.='<td bgcolor="#DADDE4">';
@@ -103,6 +112,10 @@ $displayedRooms = array();
 			<tr>
 				<td colspan="4" align="center"> <input type="submit" class="button" name="add" value="Add room"> <input type="submit" class="button" name="save" value="Save changes"></td>
 			</tr>
+			<tr>
+				<td colspan="4" align="left">* Pictures allowed must be PNG 160x160 px</td>
+			</tr>
+		
 			<input type="hidden" name="displayedEntertainArea" value="'.join(",",$displayedEntertainArea).'">
 			<input type="hidden" name="displayedRooms" value="'.join(",",$displayedRooms).'">
 			</form>
@@ -133,57 +146,83 @@ $displayedRooms = array();
 		exit();
 	}
 	
+	$errNotice='';
 	if (isset($_POST['add'])) {
 		$queryInsertRoom = 'INSERT INTO Room (Description,FK_Installation) values(?,?)';
 		$res = $dbADO->Execute($queryInsertRoom,array('New room',$installationID));
 		$lastInsert = $dbADO->Insert_ID();
 		addScenariosToRoom($lastInsert, $installationID, $dbADO);
 		$locationGoTo = "roomDesc_{$lastInsert}";		
-	}else{
+	}
 	
-		$displayedRooms = cleanString($_POST['displayedRooms']);
-	
-		$displayedRoomsArray = explode(",",$displayedRooms);
-		if (!is_array($displayedRoomsArray) || $displayedRoomsArray===array()) {
-			$displayedRoomsArray=array();
+	$displayedRooms = cleanString($_POST['displayedRooms']);
+
+	$displayedRoomsArray = explode(",",$displayedRooms);
+	if (!is_array($displayedRoomsArray) || $displayedRoomsArray===array()) {
+		$displayedRoomsArray=array();
+	}
+
+	foreach ($displayedRoomsArray as $room) {
+		$queryOldValue = "SELECT Description  FROM Room WHERE PK_Room = ?";
+		$resOldValue = $dbADO->Execute($queryOldValue,array($room));
+		$oldDesc = '';
+		$oldRoomType = '';
+
+		if ($resOldValue) {
+			$rowOldValue = $resOldValue->FetchRow();
+			$oldDesc = $rowOldValue['Description'];
 		}
-	
-		foreach ($displayedRoomsArray as $room) {
-			$queryOldValue = "SELECT Description  FROM Room WHERE PK_Room = ?";
-			$resOldValue = $dbADO->Execute($queryOldValue,array($room));
-			$oldDesc = '';
-			$oldRoomType = '';
 
-			if ($resOldValue) {
-				$rowOldValue = $resOldValue->FetchRow();
-				$oldDesc = $rowOldValue['Description'];
-			}
-			
-			$newDesc = cleanString(@$_POST['roomDesc_'.$room]);
-			$newRoomType = (@$_POST['roomType_'.$room]!=0)?cleanInteger(@$_POST['roomType_'.$room]):NULL;
-	
-			if ($newDesc!=$oldDesc)  {
-				$query = 'UPDATE Room set Description=? WHERE PK_Room = ?';
-				$resUpdRoom = $dbADO->Execute($query,array($newDesc,$room));
-				$locationGoTo = "roomDesc_".$room;
+		$newDesc = cleanString(@$_POST['roomDesc_'.$room]);
+		$newRoomType = (@$_POST['roomType_'.$room]!=0)?cleanInteger(@$_POST['roomType_'.$room]):NULL;
+
+		if ($newDesc!=$oldDesc)  {
+			$query = 'UPDATE Room set Description=? WHERE PK_Room = ?';
+			$resUpdRoom = $dbADO->Execute($query,array($newDesc,$room));
+			$locationGoTo = "roomDesc_".$room;
+		}
+
+		// upload room picture
+		$filePath=$GLOBALS['roomsPicsPath'].$room.'.png';
+		if($_FILES['pic_'.$room]['name']!=''){
+			switch($_FILES['pic_'.$room]['type']){
+				case 'image/x-png':
+				case 'image/png':
+					$invalidType=false;
+				break;
+				default:
+					$invalidType=true;
+				break;
 			}
 
-			if(isset($_POST['addEA_'.$room])){
-				$insertEntertainArea='INSERT INTO EntertainArea (Description,FK_Room) VALUES (?,?)';
-				$dbADO->Execute($insertEntertainArea,array($oldDesc,$room));
-				$lastInsert = $dbADO->Insert_ID();
-				$locationGoTo = "entertainArea_{$lastInsert}";
-			}
-	
-			$displayedEntertainAreaArray=explode(',',$_POST['displayedEntertainArea']);
-			foreach ($displayedEntertainAreaArray as $key => $value){
-				$entertainAreaDescription=stripslashes(@$_POST['entertainArea_'.$value]);
-				$private=isset($_POST['private_'.$value])?$_POST['private_'.$value]:0;
-				$fot=(isset($_POST['fot_'.$value]) && (int)$_POST['fot_'.$value]>0)?$_POST['fot_'.$value]:NULL;
-				
-				$updateEntertainArea='UPDATE EntertainArea SET Description=?, Private=?, FK_FloorplanObjectType=? WHERE PK_EntertainArea=?';
-				$dbADO->Execute($updateEntertainArea,array($entertainAreaDescription,$private,$fot,$value));
-			}
+			if($invalidType===false){
+				$imageinfo = @getimagesize( $_FILES['pic_'.$room]['tmp_name'] );
+				if($imageinfo[0]!=160 && $imageinfo[1]!=160){
+					$errNotice.=$_FILES['pic_'.$room]['name'].' it\'s not 160x160.<br>';
+				}else{
+					if(!move_uploaded_file($_FILES['pic_'.$room]['tmp_name'],$filePath)){
+						$errNotice.=$_FILES['pic_'.$room]['name'].' wasn\'t uploaded, check the rights for '.$filePath;
+					}
+				}
+			}else 
+				$errNotice.=$_FILES['pic_'.$room]['name'].' is not a valid PNG file.<br>';
+		}
+
+		if(isset($_POST['addEA_'.$room])){
+			$insertEntertainArea='INSERT INTO EntertainArea (Description,FK_Room) VALUES (?,?)';
+			$dbADO->Execute($insertEntertainArea,array($oldDesc,$room));
+			$lastInsert = $dbADO->Insert_ID();
+			$locationGoTo = "entertainArea_{$lastInsert}";
+		}
+
+		$displayedEntertainAreaArray=explode(',',$_POST['displayedEntertainArea']);
+		foreach ($displayedEntertainAreaArray as $key => $value){
+			$entertainAreaDescription=stripslashes(@$_POST['entertainArea_'.$value]);
+			$private=isset($_POST['private_'.$value])?$_POST['private_'.$value]:0;
+			$fot=(isset($_POST['fot_'.$value]) && (int)$_POST['fot_'.$value]>0)?$_POST['fot_'.$value]:NULL;
+
+			$updateEntertainArea='UPDATE EntertainArea SET Description=?, Private=?, FK_FloorplanObjectType=? WHERE PK_EntertainArea=?';
+			$dbADO->Execute($updateEntertainArea,array($entertainAreaDescription,$private,$fot,$value));
 		}
 	}
 
@@ -191,9 +230,9 @@ $displayedRooms = array();
 	exec($commandToSend);
 	
 	if (strstr($locationGoTo,"#")) {
-		header("Location: index.php?section=rooms&msg=Saved!".$locationGoTo);
+		header("Location: index.php?section=rooms&msg=Saved!".$locationGoTo.'&error='.$errNotice);
 	} else {
-		header("Location: index.php?section=rooms&msg=Saved!&lastAction=".$locationGoTo);
+		header("Location: index.php?section=rooms&msg=Saved!&lastAction=".$locationGoTo.'&error='.$errNotice);
 	}
 	
 }

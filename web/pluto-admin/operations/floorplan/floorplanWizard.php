@@ -84,7 +84,7 @@ function floorplanWizard($output,$dbADO) {
 		';
 	if(file_exists($path.'/'.$page.'.png')){
 		$randNumber=rand(0,99999);
-		$floorPlanImage='operations/floorplan/image.php?imagepath='.$GLOBALS['floorplansPath'].'/inst'.$installationID.'/'.$page.'.png&rand='.$randNumber;
+		$floorPlanImage='include/image.php?imagepath='.$GLOBALS['floorplansPath'].'/inst'.$installationID.'/'.$page.'.png&rand='.$randNumber;
 		//$floorPlanImage='floorplans/inst'.$installationID.'/'.$page.'.png';
 		$imgArray=getimagesize($path.'/'.$page.'.png');
 		$origWidth=$imgArray[0];

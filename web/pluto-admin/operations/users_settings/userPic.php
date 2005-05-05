@@ -11,7 +11,7 @@ function userPic($output,$dbADO) {
 	$filePath=$GLOBALS['usersPicsPath'].$userID.'.jpg';
 	if(file_exists($filePath)){
 		$randNumber=rand(0,99999);
-		$floorplanImage='<img src="operations/floorplan/image.php?imagepath='.$filePath.'&rand='.$randNumber.'">';
+		$userImage='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'">';
 	}
 	
 	if ($action=='form') {
@@ -33,7 +33,7 @@ function userPic($output,$dbADO) {
 		<h3>Update user\'s picture</h3>
 		<table>	
 			<tr>
-				<td align="center">'.@$floorplanImage.'</td>
+				<td align="center">'.@$userImage.'</td>
 			</tr>
 			<tr>
 				<td align="center">Choose picture * <input type="file" name="pic"> <input type="submit" class="button" name="add" value="Upload picture"></td>

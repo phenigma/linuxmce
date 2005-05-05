@@ -12,7 +12,7 @@ function uploadFloorplan($output,$dbADO) {
 	
 	if(file_exists($path.'/'.$page.'.png')){
 		$randNumber=rand(0,99999);
-		$floorplanImage='operations/floorplan/image.php?imagepath='.$GLOBALS['floorplansPath'].'/inst'.$installationID.'/'.$page.'.png&rand='.$randNumber;
+		$floorplanImage='include/image.php?imagepath='.$GLOBALS['floorplansPath'].'/inst'.$installationID.'/'.$page.'.png&rand='.$randNumber;
 	}
 
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';

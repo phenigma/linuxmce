@@ -2,7 +2,7 @@
 function editCommandGroup($output,$dbADO) {
 	
 	/* @var $dbADO ADOConnection */
-	/* @var $rs ADORecordSet */
+	/* @var $insertRs ADORecordSet */
 	/* @var $output Template */
 
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -10,6 +10,8 @@ function editCommandGroup($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 	$commandGroupID = @(int)$_REQUEST['cgID'];
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
+	$hook='';
+	$errNotice='';
 	
 	if(isset($_REQUEST['dcgID'])){
 		$commandGroupID = (int)$_REQUEST['dcgID'];
@@ -30,6 +32,12 @@ function editCommandGroup($output,$dbADO) {
 		$query = "SELECT * FROM CommandGroup WHERE PK_CommandGroup = ? AND FK_Installation = ?";
 		$resCommandGroupDetails = $dbADO->Execute($query,array($commandGroupID,$installationID));
 		
+		$filePath=$GLOBALS['scenariosPicsPath'].$commandGroupID.'.png';
+		if(file_exists($filePath)){
+			$randNumber=rand(0,99999);
+			$scenarioImg='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'">';
+		}else
+			$scenarioImg='&nbsp;';		
 		
 		if (!$resCommandGroupDetails || $resCommandGroupDetails->RecordCount()!=1) {
 			$out='This command group does not exists or you don\'t have access to it!';
@@ -42,15 +50,16 @@ function editCommandGroup($output,$dbADO) {
 					window.open(locationA,\'\',attributes);
 				}
 			</script>
-			<form action="index.php" method="POST" name="editCommandGroup">
+			<form action="index.php" method="POST" name="editCommandGroup" enctype="multipart/form-data">
 				<input type="hidden" name="section" value="editCommandGroup">
 				
 				<input type="hidden" name="action" value="add">	
 				<input type="hidden" name="cgID" value="'.$commandGroupID.'">
 			
 				<div align="center" class="confirm"><B>'.stripslashes(@$_REQUEST['msg']).'</B></div>
+				<div align="center" class="err"><B>'.stripslashes(@$_REQUEST['error']).'</B></div>
 				<h2>Edit My Scenario</h2>
-				<table>
+				<table border="0">
 						<tr>
 							<td>Description</td>
 							<td><input type="text" size="20" name="description" value="'.$rowCommandGroupDetails['Description'].'"></td>
@@ -85,9 +94,6 @@ function editCommandGroup($output,$dbADO) {
 								 <input type="text" name="designObjID" size="20" value="'.(isset($_SESSION['editCommandGroup']['designObjID']) && $_SESSION['editCommandGroup']['designObjID'] != 0 ?$_SESSION['editCommandGroup']['designObjID']:$rowCommandGroupDetails['FK_DesignObj']).'">
 								 <input type="submit" class="button" name="searchCommandGroup" value="Search [...]"  >
 					</td>
-				</tr>
-				<tr>
-					<td>Icon</td><td>'.generatePullDown('icon','Icon','PK_Icon','Description',$rowCommandGroupDetails['FK_Icon'],$dbADO).'</td>
 				</tr>
 				<tr><td>Template</td><td>
 						<select name="template">
@@ -149,8 +155,13 @@ function editCommandGroup($output,$dbADO) {
 					}
 			$out.='</td>
 				</tr>
-					
-				<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
+				<tr>
+					<td>Picture * <br><input type="file" name="pic"><br>* Must be PNG 160x160 px</td>
+					<td>'.$scenarioImg.'</td>
+				</tr>
+				<tr>
+					<td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  ></td>
+				</tr>
 				';
 						
 				$selectCommandsAssigned = "
@@ -176,7 +187,10 @@ function editCommandGroup($output,$dbADO) {
 				while ($rowCommandAssigned = $resCommandAssigned->FetchRow()) {
 					$out.='
 						<tr>
-							<td valign="top"><input type="hidden" name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" value="'.$rowCommandAssigned['FK_Device'].'">'.getDeviceNameForScenarios($rowCommandAssigned['FK_Device'],$dbADO).'</td>';
+							<td valign="top">
+								<a name="hook_'.$rowCommandAssigned['PK_CommandGroup_Command'].'"></a>
+								<input type="hidden" name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" value="'.$rowCommandAssigned['FK_Device'].'">
+								'.getDeviceNameForScenarios($rowCommandAssigned['FK_Device'],$dbADO).'</td>';
 
 					 	$out.='
 					 		</td>
@@ -242,7 +256,7 @@ function editCommandGroup($output,$dbADO) {
 					
 							</td>
 						<td valign="top">
-						<input type="button" class="button" name="editA" value="Remove" onClick="windowOpen(\'index.php?section=deleteCommandFromCommandGroup_Command&from=editCommandGroup&cgID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');"">
+						<input type="button" class="button" name="editA" value="Remove" onClick="if(confirm(\'Are you sure you want to delete the command from scenario?\'))windowOpen(\'index.php?section=deleteCommandFromCommandGroup_Command&from=editCommandGroup&cgID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');"">
 						</td>						
 					</tr>
 					<tr>
@@ -252,7 +266,12 @@ function editCommandGroup($output,$dbADO) {
 				}
 				
 				$out.='
-									<tr><td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="Save changes"  ></td></tr>
+									<tr>
+										<td colspan="3" align="center">
+											<a name="hook_0"></a>
+											<input type="submit" class="button" name="addNewDeviceButton" value="Save changes"  >
+										</td>
+									</tr>
 								</table>
 							</fieldset>
 					</td>
@@ -321,7 +340,6 @@ function editCommandGroup($output,$dbADO) {
 			<script>
 		 		var frmvalidator = new formValidator("editCommandGroup");
  				frmvalidator.addValidation("description","req","Please enter a description for this scenario.");			
-	 			//frmvalidator.addValidation("icon","dontselect=0","Please select an Icon!");			
 			</script>
 			';
 		}
@@ -363,7 +381,7 @@ function editCommandGroup($output,$dbADO) {
 		if ($canModifyInstallation) {
 
 			if(isset($_REQUEST['cgcID'])){
-				
+				// test command
 				$cgcID=$_REQUEST['cgcID'];
 				$queryCommands='
 					SELECT CommandGroup_Command_CommandParameter.*, FK_Command,FK_Device 
@@ -381,7 +399,7 @@ function editCommandGroup($output,$dbADO) {
 				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$FK_Device.' 1 '.$FK_Command.' '.join(' ',$commandParmsArray);
 				exec($commandToSend);
 				
-				header('Location: index.php?section=editCommandGroup&cgID='.$commandGroupID.'&msg=The command with parameters was sent: '.$commandToSend);
+				header('Location: index.php?section=editCommandGroup&cgID='.$commandGroupID.'&msg=The command with parameters was sent: '.$commandToSend.'#hook_'.$cgcID);
 				exit();
 			}
 			
@@ -393,6 +411,7 @@ function editCommandGroup($output,$dbADO) {
 				$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command
 				(FK_CommandGroup,FK_Command,FK_Device) values(?,?,?)";			
 				$insertRs = $dbADO->Execute($queryInsertCommandGroup_Command,array($commandGroupID,$y,$x));			
+				$hook='hook_'.$dbADO->Insert_ID();
 			}
 			
 			$isModified = 0;
@@ -488,18 +507,44 @@ function editCommandGroup($output,$dbADO) {
 			$hint = cleanString($_POST['hint']);
 			$arrayID = cleanInteger($_POST['arrayType']);
 			$designObjID = ($_SESSION['editCommandGroup']['designObjID']>0)?$_SESSION['editCommandGroup']['designObjID']:null;
-			$iconID = (isset($_POST['icon']))?(int)$_POST['icon']:NULL;
 			$templateID = (isset($_POST['template']) && $_POST['template']!=0)?cleanInteger($_POST['template']):NULL;
 			
-			$updateCommandGroup = "UPDATE CommandGroup SET Description = ?,FK_Array=?,FK_DesignObj =?,FK_Icon=?,FK_Template=?, Hint=?
-			WHERE PK_CommandGroup = ?
-			";
-			$res=$dbADO->Execute($updateCommandGroup,array($description,$arrayID,$designObjID,$iconID,$templateID,$hint,$commandGroupID));
+			// upload scenario picture
+			$filePath=$GLOBALS['scenariosPicsPath'].$commandGroupID.'.png';
+			if($_FILES['pic']['name']!=''){
+				switch($_FILES['pic']['type']){
+					case 'image/x-png':
+					case 'image/png':
+						$invalidType=false;
+					break;
+					default:
+						$invalidType=true;
+					break;
+				}
+	
+				if($invalidType===false){
+					$imageinfo = @getimagesize( $_FILES['pic']['tmp_name'] );
+					if($imageinfo[0]!=160 && $imageinfo[1]!=160){
+						$errNotice.=$_FILES['pic']['name'].' it\'s not 160x160.<br>';
+					}else{
+						if(!move_uploaded_file($_FILES['pic']['tmp_name'],$filePath)){
+							$errNotice.=$_FILES['pic']['name'].' wasn\'t uploaded, check the rights for '.$filePath;
+						}
+					}
+				}else 
+					$errNotice.=$_FILES['pic']['name'].' is not a valid PNG file.<br>';
+			}
+			
+			$updateCommandGroup = "
+				UPDATE CommandGroup 
+				SET Description = ?,FK_Array=?,FK_DesignObj =?,FK_Template=?, Hint=?
+				WHERE PK_CommandGroup = ?";
+			$res=$dbADO->Execute($updateCommandGroup,array($description,$arrayID,$designObjID,$templateID,$hint,$commandGroupID));
 			$isModified=1;
 			
 			if ((@$_POST['addNewDevice']!=0) && cleanInteger(@$_POST['addNewDeviceCommand'])==0) {
 				$addNewDevice =  cleanInteger($_POST['addNewDevice']);			
-				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&newDevice=$addNewDevice");
+				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&newDevice=$addNewDevice#hook_0");
 				exit();							
 			}
 
@@ -557,13 +602,14 @@ function editCommandGroup($output,$dbADO) {
 			}
 			setOrbitersNeedConfigure($installationID,$dbADO);			
 			
+			$errNotice=urlencode($errNotice);
 			$out.="
 			<script>
 				alert('Command Group ".($isModified?"":"not")." updated! $parametersUpdatedAlert ');
 			    //opener.document.forms.{$from}.action.value='form';
 				//opener.document.forms.{$from}.submit();
 				//self.close();
-				document.location.href='index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&saved=1';
+				document.location.href='index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&saved=1&error=$errNotice#$hook';
 			</script>
 			";
 			$_SESSION['editCommandGroup']=array();

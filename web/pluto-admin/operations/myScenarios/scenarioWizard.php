@@ -68,7 +68,7 @@ if($action=='form') {
 	}
 	$oldWizard=(int)$_POST['oldWizard'];
 	$wizard=(int)$_POST['wizard'];
-	
+
 	switch($oldWizard){
 		case 0:
 			processLightingScenario($cgID,$dbADO);
@@ -78,8 +78,9 @@ if($action=='form') {
 			processClimateScenario($cgID,$dbADO);
 			$msg='Scenario updated';
 		break;
+		case -1:
 		case 2:
-			processAdvancedScenarios($cgID,$section,$dbADO);
+			$returnHook=processAdvancedScenarios($cgID,$section,$dbADO);
 			$isModified=$GLOBALS['isModified'];
 			$parametersUpdatedAlert=$GLOBALS['parametersUpdatedAlert'];
 			$msg="Command Group ".($isModified?"":"not")." updated! $parametersUpdatedAlert";
@@ -90,14 +91,10 @@ if($action=='form') {
 	if($wizard!=$oldWizard){
 		if((int)@$_REQUEST['addNewDevice']!=0)
 			$sufix='&addNewDevice='.(int)@$_REQUEST['addNewDevice'];
-		header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard".@$sufix);
+		header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard".@$sufix.'#hook_0');
 		exit();
 	}else{
-		if(isset($_POST['addNewDeviceButton'])){
-			header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=Scenario updated.");
-		}else{
-			header("Location: index.php?section=$from&roomID=$roomID&cgID=$cgID&msg=$msg");
-		}
+		header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=Scenario updated.#hook_$returnHook");
 		exit();
 	}
 	
