@@ -195,6 +195,7 @@ while [ "$ok" -eq 0 ]; do
 # try to get data off the Internet
 	ok_internet=0
 	while [ "$ok_internet" -eq 0 ]; do
+		echo "Getting activation script"
 		answer=$(wget -O - "$activation_url?code=$activation_key" 2>/dev/null)
 		if [ "$?" -ne 0 ]; then
 			try_again "Failed to contact activation server over the Internet" && continue
