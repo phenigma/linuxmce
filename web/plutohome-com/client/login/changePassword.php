@@ -27,7 +27,7 @@ function changePassword($output)
 				<td align="left"><B>Confirm New Password</B></td>
 				<td><input type="password" name="confirm" class="textfield" TABINDEX="3"/><br></td>
 			</tr>
-			<tr><td colspan="2" align="left"><input type="submit" name="changePasswordword" value="Change Password" /></td></tr>
+			<tr><td colspan="2" align="left"><input type="submit" name="changePasswordword" value="Change Password" TABINDEX="4"/></td></tr>
 		</table>
 		</form>';
 
