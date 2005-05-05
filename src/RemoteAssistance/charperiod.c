@@ -11,6 +11,7 @@ int main()
 
 	FD_ZERO(&fd);
 	FD_SET(0, &fd);
+	tv.tv_sec = 30; // 1st timeout waits for SSH/TCP negociation too
 	while (select(1, &fd, 0, 0, &tv) > 0)
 	{
 		if (! FD_ISSET(0, &fd))
