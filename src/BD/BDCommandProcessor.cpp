@@ -336,7 +336,7 @@ void BDCommandProcessor::AddCommand( class BDCommand *pCommand )
 {
 	PLUTO_SAFETY_LOCK( cm, m_CommandMutex );
 	MYSTL_ADDTO_LIST( m_listCommands, pCommand );
-	
+
 	// If we're sitting waiting for a keypress, be sure to wake up that thread now
 	pthread_cond_broadcast( &m_PollingCond );
 }

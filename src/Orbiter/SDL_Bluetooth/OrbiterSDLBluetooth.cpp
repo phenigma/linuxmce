@@ -49,6 +49,11 @@ OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandPro
     m_pBDCommandProcessor(pBDCommandProcessor)
 {
     m_bShowListSent = false;
+
+    m_ImageQuality = DATA_Get_ImageQuality();
+
+    if(m_ImageQuality < 10 || m_ImageQuality > 100)
+        m_ImageQuality = 70; //default
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDLBluetooth::~OrbiterSDLBluetooth()
@@ -98,8 +103,10 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
 	const string csTempFileName = "TmpScreen.png";
 
-    //SaveImageToFile(pScreenImage, csTempFileName);
-    SDL_SaveJPG(pScreenImage, csTempFileName.c_str());
+    if(m_ImageQuality == 100) //we'll use pngs for best quality
+        SaveImageToFile(pScreenImage, csTempFileName);
+    else
+        SDL_SaveJPG(pScreenImage, csTempFileName.c_str(), m_ImageQuality);
 
     FILE* file;
     file = fopen(csTempFileName.c_str(), "rb");

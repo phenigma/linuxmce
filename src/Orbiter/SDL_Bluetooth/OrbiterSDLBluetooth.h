@@ -19,6 +19,7 @@ namespace DCE
 class OrbiterSDLBluetooth : public OrbiterSDL
 {
 	bool  m_bShowListSent;
+    int   m_ImageQuality;
 
 	BDCommandProcessor *m_pBDCommandProcessor;
 
