@@ -48,7 +48,7 @@ NameVirtualHost *
 	</Directory>
 	<Directory /var/www/>
 		Options Indexes FollowSymLinks MultiViews
-		AllowOverride None
+		AllowOverride All
 		Order allow,deny
 		allow from all
 		# This directive allows us to have apache2's default start page
