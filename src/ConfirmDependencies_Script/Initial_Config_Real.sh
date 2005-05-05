@@ -60,7 +60,7 @@ RestoreCoreConf()
 if [ "$Type" == "router" ]; then
 	# /etc/polipo/config
 	polipo_conf='# Pluto config for polipo
-proxyAddress = "::"
+proxyAddress = "0.0.0.0"
 proxyPort = 8123
 allowedClients = 127.0.0.1
 logFile = /var/log/polipo.log

@@ -174,7 +174,7 @@ update-inetd --group BOOT --add "tftp        dgram   udp wait    nobody /usr/sbi
 ### Configure polipo, frox and apt
 # /etc/polipo/config
 polipo_conf='# Pluto config for polipo
-proxyAddress = "::"
+proxyAddress = "0.0.0.0"
 proxyPort = 8123
 allowedClients = 0.0.0.0/0
 logFile = /var/log/polipo.log

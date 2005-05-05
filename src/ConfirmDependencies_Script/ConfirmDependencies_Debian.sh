@@ -72,7 +72,7 @@ case "$URL_TYPE" in
 #			[ "$Type" == "router" ] && apt-proxy-import-simple /usr/pluto/install/deb-cache
 		fi
 
-#		if ! PackageIsInstalled "$PKG_NAME"; then
+		if ! PackageIsInstalled "$PKG_NAME"; then
 			#export http_proxy="http://dcerouter:8123"
 			if ! keep_sending_enters | apt-get -t "$REPOS" -y --reinstall install "$PKG_NAME"; then
 				echo "$0: Apt error" >&2
@@ -80,7 +80,7 @@ case "$URL_TYPE" in
 			fi
 			#unset http_proxy
 #			apt-get clean
-#		fi
+		fi
 	;;
 	
 	direct)
