@@ -2361,6 +2361,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 {
 	MediaStream *pMediaStream;
 
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	if ( (pMediaStream = m_mapMediaStream_Find(iStreamID)) == NULL )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "No media stream with ID %d available", iStreamID );
@@ -2734,6 +2735,8 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 	MediaStream *pMediaStream = NULL;
 	time_t tStarted = 0;
 
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
 	// Find the last media stream this user started
 	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
 	{
@@ -2761,6 +2764,8 @@ void Media_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Use
 	// See if we have any pending media for this user
 	MediaStream *pMediaStream = NULL;
 	time_t tStarted = 0;
+
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	// Find the last media stream this user started
 	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )

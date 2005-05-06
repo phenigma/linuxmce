@@ -91,7 +91,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1687 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==2253 )//2821 && bAddToGenerated )
 {
     int k=2;
 }
@@ -672,23 +672,28 @@ int k=2;
 						{
 							DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_FloorplanObjectType->FK_DesignObj_Control_getrow(),
 								rectangle,this,false,false);  // See if it will fill in the wdith/height automatically
-							pDesignObj_Generator->m_bCanBeHidden = false;
-							pDesignObj_Generator->m_bHideByDefault = false;
-							pDesignObj_Generator->m_bChildrenBeforeText = false;
-							pDesignObj_Generator->m_bChildrenBehind = false;
-							pDesignObj_Generator->m_bDontMergeBackground = false;
-							pDesignObj_Generator->m_iFloorplanPage = m_iFloorplanPage;
-							pDesignObj_Generator->m_iFloorplanDevice = PK_Device_EA;
+							if( pDesignObj_Generator->m_pRow_DesignObjVariation )
+							{
+								pDesignObj_Generator->m_bCanBeHidden = false;
+								pDesignObj_Generator->m_bHideByDefault = false;
+								pDesignObj_Generator->m_bChildrenBeforeText = false;
+								pDesignObj_Generator->m_bChildrenBehind = false;
+								pDesignObj_Generator->m_bDontMergeBackground = false;
+								pDesignObj_Generator->m_iFloorplanPage = m_iFloorplanPage;
+								pDesignObj_Generator->m_iFloorplanDevice = PK_Device_EA;
 
-							// Scale these here because we need to reset all the x/y positions since we may have used a different scale factor
-							pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get(),NULL);
-							m_alChildDesignObjs.push_back(pDesignObj_Generator);
-							pDesignObj_Generator->m_rBackgroundPosition.X=X;
-							pDesignObj_Generator->m_rBackgroundPosition.Y=Y;
-							pDesignObj_Generator->m_rPosition.X=X;
-							pDesignObj_Generator->m_rPosition.Y=Y;
+								// Scale these here because we need to reset all the x/y positions since we may have used a different scale factor
+								pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get(),NULL);
+								m_alChildDesignObjs.push_back(pDesignObj_Generator);
+								pDesignObj_Generator->m_rBackgroundPosition.X=X;
+								pDesignObj_Generator->m_rBackgroundPosition.Y=Y;
+								pDesignObj_Generator->m_rPosition.X=X;
+								pDesignObj_Generator->m_rPosition.Y=Y;
 
-							pDesignObj_Generator->m_pFloorplanFillPoint = new PlutoPoint(pRow_FloorplanObjectType->FillX_get() * ScaleFactor / 1000,pRow_FloorplanObjectType->FillY_get() * ScaleFactor / 1000);
+								pDesignObj_Generator->m_pFloorplanFillPoint = new PlutoPoint(pRow_FloorplanObjectType->FillX_get() * ScaleFactor / 1000,pRow_FloorplanObjectType->FillY_get() * ScaleFactor / 1000);
+							}
+							else
+								delete pDesignObj_Generator;
 						}
                     }
                 }
@@ -733,12 +738,17 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
                             m_pOrbiterGenerator->m_iFloorplanPage = ++PageCount;
                             PlutoRectangle rectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get());
                             DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),rectangle,this,false,false);
-                            pDesignObj_Generator->m_bCanBeHidden = true;
-                            pDesignObj_Generator->m_bHideByDefault = true;
-                            pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
-                            pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
-                            pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
-                            m_alChildDesignObjs.push_back(pDesignObj_Generator);
+							if( pDesignObj_Generator->m_pRow_DesignObjVariation )
+							{
+								pDesignObj_Generator->m_bCanBeHidden = true;
+								pDesignObj_Generator->m_bHideByDefault = true;
+								pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
+								pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
+								pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
+								m_alChildDesignObjs.push_back(pDesignObj_Generator);
+							}
+							else
+								delete pDesignObj_Generator;
                         }
                     }
                     else

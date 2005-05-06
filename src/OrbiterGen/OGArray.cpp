@@ -90,8 +90,13 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 		m_ocBack = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,
 			m_mds->DesignObj_get()->GetRow(atoi(m_drOVCP_MoreBack->Value_get().c_str())),
 			PlutoRectangle(m_ptNextPosition.X,m_ptNextPosition.Y,0,0),m_DesignObj_Generator_Parent,false,false);
-		m_ocBack->m_sDesignObjGoto = m_ocBack->m_pOrbiterGenerator->m_iPK_DesignObj_Screen + "." + StringUtils::itos(m_ocBack->m_iVersion) + "." + StringUtils::itos(m_iPage-1);
-		m_alChildDesignObjs.push_back(m_ocBack);
+		if( m_ocBack->m_pRow_DesignObjVariation )
+		{
+			m_ocBack->m_sDesignObjGoto = m_ocBack->m_pOrbiterGenerator->m_iPK_DesignObj_Screen + "." + StringUtils::itos(m_ocBack->m_iVersion) + "." + StringUtils::itos(m_iPage-1);
+			m_alChildDesignObjs.push_back(m_ocBack);
+		}
+		else
+			delete m_ocBack;
 	}
 
 	for(m_iLastVisibleArrayEntry=StartingOffset;m_iLastVisibleArrayEntry<(int) m_alValues->size();++m_iLastVisibleArrayEntry)
@@ -185,6 +190,12 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 			ocNextDesignObj = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,m_mds->DesignObj_get()->GetRow(av->m_PK_DesignObjID_Substitute),PlutoRectangle(m_ptNextPosition,PlutoSize(0,0)),m_DesignObj_Generator_Parent,false,false);
 		}
 
+		if( !ocNextDesignObj->m_pRow_DesignObjVariation )
+		{
+			delete ocNextDesignObj;
+			continue;
+		}
+
 		// In an array we want to increment the buttons
 		if( ocNextDesignObj->m_iPK_Button )
 		{
@@ -249,6 +260,12 @@ void CGArray::CheckLastEntry()
 			m_mds->DesignObj_get()->GetRow(atoi(m_drOVCP_MoreFwd->Value_get().c_str())),
 			PlutoRectangle(obPrevious->m_rPosition.X,obPrevious->m_rPosition.Y,0,0),
 			m_DesignObj_Generator_Parent,false,false);
+
+		if( !m_ocFwd->m_pRow_DesignObjVariation )
+		{
+			delete m_ocFwd;
+			return;
+		}
 
 		// See if maybe we're just supposed to change screens rather than paging through all the options
 		if( m_ocFwd->m_DesignObj_GeneratorGoto!=NULL )

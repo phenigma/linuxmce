@@ -1073,6 +1073,10 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 
 	int PK_Orbiter = ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get();
 	Row_Orbiter * m_pRow_Orbiter = ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter;
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==2253 )//2821 && bAddToGenerated )
+{
+    int k=2;
+}
 
 	if( ocDesignObj->m_bChild )
 	{
