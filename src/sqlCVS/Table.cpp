@@ -1105,10 +1105,10 @@ cout << "pChangedRowToMove original auto incr id: " << pChangedRowToMove->m_iOri
 					if( pChangedRowToMove )
 					{
 						// These only apply if it's another row we're checking in
-						m_mapUncommittedAutoIncrChanges[pChangedRowToMove->m_iOriginalAutoIncrID] = iHighestUsedID+1;
-						pChangedRowToMove->m_iOriginalAutoIncrID = iHighestUsedID+1;
+						m_mapUncommittedAutoIncrChanges[pChangedRowToMove->m_iOriginalAutoIncrID] = iHighestUsedID;
+						pChangedRowToMove->m_iOriginalAutoIncrID = iHighestUsedID;
 cout << "pChangedRowToMove now original auto incr id: " << pChangedRowToMove->m_iOriginalAutoIncrID << " psc_id: " << pChangedRowToMove->m_psc_id << endl;
-						pChangedRowToMove->m_vectPrimaryKey[0] = StringUtils::itos(iHighestUsedID+1);
+						pChangedRowToMove->m_vectPrimaryKey[0] = StringUtils::itos(iHighestUsedID);
 					}
 				}
 

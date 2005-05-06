@@ -595,6 +595,7 @@ bool Repository::CheckIn( )
 			Table *pTable = ( *itT ).second;
 			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_New ) )
 			{
+				cerr << "Table: " << pTable->Name_get() << " failed to checkin adds" << endl;
 				delete pSocket;
 				return false;
 			}
@@ -611,6 +612,7 @@ bool Repository::CheckIn( )
 			Table *pTable = ( *itT ).second;
 			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Modify ) )
 			{
+				cerr << "Table: " << pTable->Name_get() << " failed to checkin updates" << endl;
 				delete pSocket;
 				return false;
 			}
@@ -627,6 +629,7 @@ bool Repository::CheckIn( )
 			Table *pTable = ( *itT ).second;
 			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Delete ) )
 			{
+				cerr << "Table: " << pTable->Name_get() << " failed to deletes" << endl;
 				delete pSocket;
 				return false;
 			}

@@ -142,7 +142,7 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
 
         if ( !pSocket->ReceiveData( 14, acResponseHeader ) )  // Not a valid message
         {
-            fprintf(stderr,"invalid response 1\n");
+            fprintf(stderr,"invalid response 1 %s\n",acResponseHeader);
             return false;
         }
 
@@ -154,7 +154,7 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
 
         if( *pdwSanityCheck != PVPR )  // PVPR
         {
-            fprintf(stderr,"invalid response 1\n");
+            fprintf(stderr,"invalid response 1b %d\n",(*pdwSanityCheck));
             return false;
         }
 
