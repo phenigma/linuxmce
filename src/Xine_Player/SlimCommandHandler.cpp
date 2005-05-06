@@ -1,5 +1,5 @@
 /*
-	SlimHandler
+ SlimCommandHandler
 
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
@@ -13,75 +13,60 @@
 
 	See the GNU General Public License for more details.
 */
-#include "SlimHandler.h"
+#include "SlimCommandHandler.h"
+#include "SlimDataHandler.h"
+#include "SlimServerClient.h"
 
 #include "DCE/Logger.h"
 
 using namespace DCE;
 
-SlimHandler::SlimHandler()
+SlimCommandHandler::SlimCommandHandler()
 {
-	m_iConnection = 0;
 }
 
 
-SlimHandler::~SlimHandler()
+SlimCommandHandler::~SlimCommandHandler()
 {
 
 }
 
-int SlimHandler::sendBuffer(unsigned char *buffer, unsigned int start, unsigned int len)
+bool SlimCommandHandler::readCommand(int &commandBufferSize)
 {
-	int sentCharacters = 0;
-
-	sentCharacters = send(m_iConnection, buffer + start, len, 0);
-
-	g_pPlutoLogger->Write(LV_STATUS, "result from send was %d", sentCharacters);
-
-	return sentCharacters;
-}
-
-bool SlimHandler::readBuffer(unsigned char *buffer, unsigned int start, unsigned int freeLen, int &readLen)
-{
-	if ( freeLen <= 2 )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "The buffer is too small");
-		readLen = 0;
-		return false;
-	}
-
 	unsigned int frameLength;
-	if ( recv (m_iConnection, buffer + start, 2, 0) != 2 )
+
+	if ( ! readData(m_commandBuffer, 0, 2, commandBufferSize) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Could not read the buffer size!");
-		readLen = 0;
+	 	commandBufferSize = 0;
 		return false;
 	}
 
-	frameLength = (unsigned int)(int)(buffer[start] << 8 | buffer[start + 1]);
+	frameLength = (unsigned int)(int)(m_commandBuffer[0] << 8 | m_commandBuffer[1]);
 
-	if ( frameLength >= freeLen)
+	if ( frameLength >= sizeof(m_commandBuffer) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "The buffer is too small: required %d", frameLength);
-		readLen = 0;
+		g_pPlutoLogger->Write(LV_STATUS, "The buffer is too small: required %d available %d", frameLength, sizeof(m_commandBuffer));
+		commandBufferSize = 0;
 		return false;
 	}
 
-	if ( recv (m_iConnection, buffer, frameLength, 0) != (int)frameLength)
+	if ( ! readData(m_commandBuffer, 0, frameLength, commandBufferSize))
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Could not read all the bytes %d!", frameLength);
-		readLen = 0;
 		return false;
 	}
 
-	readLen = frameLength;
 	return true;
 }
 
-bool SlimHandler::doHello()
+bool SlimCommandHandler::doHello()
 {
-	if ( m_iConnection == 0 )
+	if ( ! isCommunicationOpen() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Socket is not open yet. Can't do hello !");
 		return false;
+	}
 
 	strncpy((char*)m_commandBuffer, "HELO", 4);
 	m_commandBuffer[4] = 0;
@@ -101,15 +86,99 @@ bool SlimHandler::doHello()
 	m_commandBuffer[16] = 0x00;
 	m_commandBuffer[17] = 0x00;
 
-	return sendBuffer(m_commandBuffer, 0, 18) == 18;
+	int sentChars;
+	return writeData(m_commandBuffer, 0, 18, sentChars);
 }
 
-void SlimHandler::setConnectionSocket(unsigned int iConnection)
+
+bool SlimCommandHandler::doStatus(char *statusType)
 {
-	m_iConnection = iConnection;
-}
+	if ( ! isCommunicationOpen() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Socket is not open yet. Can't do status !");
+		return false;
+	}
 
-void SlimHandler::setMacAddress(string strMacAddress)
+	char crlf 	 = 0;
+	char masInit = 0;
+	char masMode = 1;
+
+	unsigned int readPtr = getSlimServerClient()->getSlimDataHandler()->getReadPtr();
+	unsigned int writePtr = getSlimServerClient()->getSlimDataHandler()->getWritePtr();
+	long long bytesRX = 0;
+	unsigned int jiffies = getSlimServerClient()->getSlimDataHandler()->getJiffies();
+
+	int outputBufferSize = getSlimServerClient()->getSlimDataHandler()->getBufferSize();
+	int outputBufferFullness = getSlimServerClient()->getSlimDataHandler()->getBufferFilledSpace();
+
+	int elapsedSeconds = 1;
+
+	int writeCount;
+	int pos;
+
+	strncpy((char*)m_commandBuffer, "STAT", 4);
+
+	// please excuse the lack of beauty of this code.
+	pos = 4;
+	m_commandBuffer[pos++] = 0;
+	m_commandBuffer[pos++] = 0;
+	m_commandBuffer[pos++] = 0;
+	m_commandBuffer[pos++] = 4 + 3 + 4 + 4 + 8 + 2 + 4 + 4 + 4 + 4;
+
+	m_commandBuffer[pos++] = statusType[0];
+	m_commandBuffer[pos++] = statusType[1];
+	m_commandBuffer[pos++] = statusType[2];
+	m_commandBuffer[pos++] = statusType[3];
+
+	m_commandBuffer[pos++] = crlf;
+	m_commandBuffer[pos++] = masInit;
+	m_commandBuffer[pos++] = masMode;
+
+	m_commandBuffer[pos++] = (readPtr >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (readPtr >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (readPtr >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (readPtr >> 0x00) & 0xFF;
+
+	m_commandBuffer[pos++] = (writePtr >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (writePtr >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (writePtr >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (writePtr >> 0x00) & 0xFF;
+
+	m_commandBuffer[pos++] = (char)(bytesRX >> 0x38) & 0xFF;
+	m_commandBuffer[pos++] = (char)(bytesRX >> 0x30) & 0xFF;
+	m_commandBuffer[pos++] = (char)(bytesRX >> 0x28) & 0xFF;
+	m_commandBuffer[pos++] = (char)(bytesRX >> 0x20) & 0xFF;
+	m_commandBuffer[pos++] = (char)(bytesRX >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (char)(bytesRX >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (char)(bytesRX >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (char)(bytesRX >> 0x00) & 0xFF;
+
+	m_commandBuffer[pos++] = 0xFF;
+	m_commandBuffer[pos++] = 0xFF;
+
+	m_commandBuffer[pos++] = (jiffies >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (jiffies >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (jiffies >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (jiffies >> 0x00) & 0xFF;
+
+	m_commandBuffer[pos++] = (outputBufferSize >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (outputBufferSize >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (outputBufferSize >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (outputBufferSize >> 0x00) & 0xFF;
+
+	m_commandBuffer[pos++] = (outputBufferFullness >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (outputBufferFullness >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (outputBufferFullness >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (outputBufferFullness >> 0x00) & 0xFF;
+
+	m_commandBuffer[pos++] = (elapsedSeconds >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (elapsedSeconds >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (elapsedSeconds >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (elapsedSeconds >> 0x00) & 0xFF;
+
+	return writeData(m_commandBuffer, 0, pos, writeCount);
+}
+void SlimCommandHandler::setMacAddress(string strMacAddress)
 {
 	const char *startChar;
 	char *endChar;
@@ -127,10 +196,10 @@ void SlimHandler::setMacAddress(string strMacAddress)
 	}
 }
 
-void SlimHandler::doOneCommand()
+void SlimCommandHandler::doOneCommand()
 {
 	int readSize;
-	if ( ! readBuffer(m_commandBuffer, 0, 1024 * 50 - 1, readSize) )
+	if ( ! readCommand(readSize) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Error reading command");
 		return;
@@ -139,57 +208,79 @@ void SlimHandler::doOneCommand()
 	if ( readSize == 0 )
 		return;
 
-	if ( ! decodeCommand(m_commandBuffer, readSize) )
+	if ( ! decodeCommand(readSize) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Could not decode command: %s", m_commandBuffer);
 		return;
 	}
 
 	dumpCommand();
+
+	processCommand();
 }
 
-bool SlimHandler::decodeCommand(unsigned char *buffer, int size)
+bool SlimCommandHandler::processCommand()
 {
-	if ( strncmp((const char*)buffer, "vers", 4) == 0 )
+	switch ( protocolCommand.type )
+	{
+		case COMMAND_STREAM: return processStrmCommand();
+		default: return true;
+	}
+}
+
+bool SlimCommandHandler::processStrmCommand()
+{
+	switch(protocolCommand.data.stream.command)
+	{
+		case STREAM_START: return startStreamingClient();
+		default:
+			g_pPlutoLogger->Write(LV_STATUS, "Command not implemented yet!");
+			return false;
+	}
+}
+
+bool SlimCommandHandler::decodeCommand(int size)
+{
+	if ( strncmp((const char*)m_commandBuffer, "vers", 4) == 0 )
 	{
 		protocolCommand.type = COMMAND_VERSION;
-		protocolCommand.data.version.versionData = buffer + 4;
+		protocolCommand.data.version.versionData = m_commandBuffer + 4;
 		protocolCommand.data.version.versionDataLength = (unsigned int)strlen((char*)protocolCommand.data.version.versionData);
 		return 1;
 	}
 
-	if ( strncmp((const char*)buffer, "strm", 4) == 0 )
-		return decodeStrmCommand(buffer + 4, size - 4);
+	if ( strncmp((const char*)m_commandBuffer, "strm", 4) == 0 )
+		return decodeStrmCommand(m_commandBuffer + 4, size - 4);
 
-	if ( strncmp((const char*)buffer, "vfdc", 4) == 0 )
-		return decodeVfdcCommand(buffer + 4, size - 4);
+	if ( strncmp((const char*)m_commandBuffer, "vfdc", 4) == 0 )
+		return decodeVfdcCommand(m_commandBuffer + 4, size - 4);
 
-	if ( strncmp((const char*)buffer, "i2cc", 4) == 0 )
-		return decodeI2ccCommand(buffer + 4, size - 4);
+	if ( strncmp((const char*)m_commandBuffer, "i2cc", 4) == 0 )
+		return decodeI2ccCommand(m_commandBuffer + 4, size - 4);
 
-	if ( strncmp((const char*)buffer, "visu", 4) == 0 )
-		return decodeVisuCommand(buffer + 4, size - 4);
+	if ( strncmp((const char*)m_commandBuffer, "visu", 4) == 0 )
+		return decodeVisuCommand(m_commandBuffer + 4, size - 4);
 
-	if ( strncmp((const char*)buffer, "audg", 4) == 0 )
-		return decodeAudgCommand(buffer + 4, size - 4);
+	if ( strncmp((const char*)m_commandBuffer, "audg", 4) == 0 )
+		return decodeAudgCommand(m_commandBuffer + 4, size - 4);
 
-	if ( strncmp((const char*)buffer, "grfb", 4) == 0 )
-		return decodeGrfbCommand(buffer + 4, size - 4);
+	if ( strncmp((const char*)m_commandBuffer, "grfb", 4) == 0 )
+		return decodeGrfbCommand(m_commandBuffer + 4, size - 4);
 
-	if ( strncmp((const char*)buffer, "grfe", 4) == 0 )
-		return decodeGrfeCommand(buffer + 4, size - 4);
+	if ( strncmp((const char*)m_commandBuffer, "grfe", 4) == 0 )
+		return decodeGrfeCommand(m_commandBuffer + 4, size - 4);
 
-	if ( strncmp((const char*)buffer, "grfd", 4) == 0 )
+	if ( strncmp((const char*)m_commandBuffer, "grfd", 4) == 0 )
 	{
 		protocolCommand.type = COMMAND_DISPLAY;
 		return true;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "SlimHandler::decodeCommand() Cound not interpret protocol command: %s", buffer);
+	g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::decodeCommand() Cound not interpret protocol command: %s", m_commandBuffer);
 	return false;
 }
 
-bool SlimHandler::decodeStrmCommand(unsigned char *buffer, int size)
+bool SlimCommandHandler::decodeStrmCommand(unsigned char *buffer, int size)
 {
 	protocolCommand.type = COMMAND_STREAM;
 
@@ -208,7 +299,7 @@ bool SlimHandler::decodeStrmCommand(unsigned char *buffer, int size)
 		protocolCommand.data.stream.command = STREAM_STATUS;
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "SlimHandler::decodeStrmCommand() Invalid stream control command %c. Ignoring!", buffer[0]);
+		g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::decodeStrmCommand() Invalid stream control command %c. Ignoring!", buffer[0]);
 		protocolCommand.data.stream.command = STREAM_NO_COMMAND;
 		return false;
 	}
@@ -222,7 +313,7 @@ bool SlimHandler::decodeStrmCommand(unsigned char *buffer, int size)
 	else
 	{
 		protocolCommand.data.stream.format = STREAM_FORMAT_UNKNOWN;
-		g_pPlutoLogger->Write(LV_STATUS, "SlimHandler::decodeStrmCommand() Unknown streaming format: %c. Ignoring!", buffer[2]);
+		g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::decodeStrmCommand() Unknown streaming format: %c. Ignoring!", buffer[2]);
 		return false;
 	}
 
@@ -262,7 +353,7 @@ bool SlimHandler::decodeStrmCommand(unsigned char *buffer, int size)
 	return true;
 }
 
-bool SlimHandler::decodeVfdcCommand(unsigned char *buffer, int size)
+bool SlimCommandHandler::decodeVfdcCommand(unsigned char *buffer, int size)
 {
 	unsigned char *internalBuffer;
 	unsigned int internalBufferPos;
@@ -339,7 +430,7 @@ bool SlimHandler::decodeVfdcCommand(unsigned char *buffer, int size)
 	return true;
 }
 
-bool SlimHandler::decodeI2ccCommand(unsigned char *buffer, int size)
+bool SlimCommandHandler::decodeI2ccCommand(unsigned char *buffer, int size)
 {
 	int i;
 
@@ -376,35 +467,35 @@ bool SlimHandler::decodeI2ccCommand(unsigned char *buffer, int size)
 	return true;
 }
 
-bool SlimHandler::decodeGrfbCommand(unsigned char *buffer, int size)
+bool SlimCommandHandler::decodeGrfbCommand(unsigned char *buffer, int size)
 {
 	protocolCommand.type = COMMAND_GRFB;
-//	g_pPlutoLogger->Write(LV_STATUS, "SlimHandler::decodeGrfbCommand() Unsupported command");
+//	g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::decodeGrfbCommand() Unsupported command");
 	return true;
 }
 
-bool SlimHandler::decodeGrfeCommand(unsigned char *buffer, int size)
+bool SlimCommandHandler::decodeGrfeCommand(unsigned char *buffer, int size)
 {
 	protocolCommand.type = COMMAND_GRFE;
-//	g_pPlutoLogger->Write(LV_STATUS, "SlimHandler::decodeGrfeCommand() Unsupported command");
+//	g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::decodeGrfeCommand() Unsupported command");
 	return true;
 }
 
-bool SlimHandler::decodeAudgCommand(unsigned char *buffer, int size)
+bool SlimCommandHandler::decodeAudgCommand(unsigned char *buffer, int size)
 {
 	protocolCommand.type = COMMAND_AUDG;
-//	g_pPlutoLogger->Write(LV_STATUS, "SlimHandler::decodeAudgCommand() Unsupported command");
+//	g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::decodeAudgCommand() Unsupported command");
 	return true;
 }
 
-bool SlimHandler::decodeVisuCommand(unsigned char *buffer, int size)
+bool SlimCommandHandler::decodeVisuCommand(unsigned char *buffer, int size)
 {
 	protocolCommand.type = COMMAND_VISU;
-//	g_pPlutoLogger->Write(LV_STATUS, "SlimHandler::decodeVisuCommand() Unsupported command");
+//	g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::decodeVisuCommand() Unsupported command");
 	return true;
 }
 
-void SlimHandler::dumpCommand()
+void SlimCommandHandler::dumpCommand()
 {
 	switch(protocolCommand.type)
 	{
@@ -423,6 +514,8 @@ void SlimHandler::dumpCommand()
 			case STREAM_PAUSE: g_pPlutoLogger->Write(LV_STATUS, "\tsubcommand: pause"); break;
 			case STREAM_UNPAUSE: g_pPlutoLogger->Write(LV_STATUS, "\tsubcommand: unpause"); break;
 			case STREAM_QUIT: g_pPlutoLogger->Write(LV_STATUS, "\tsubcommand: quit"); break;
+			case STREAM_FLUSH: g_pPlutoLogger->Write(LV_STATUS, "\tsubcommand: flush"); break;
+			case STREAM_STATUS: g_pPlutoLogger->Write(LV_STATUS, "\tsubcommand: status"); break;
 		}
 		switch ( protocolCommand.data.stream.format )
 		{
@@ -478,3 +571,27 @@ void SlimHandler::dumpCommand()
 		break;
 	}
 }
+
+bool SlimCommandHandler::startStreamingClient()
+{
+	SlimDataHandler *pSlimDataHandler = getSlimServerClient()->getSlimDataHandler();
+
+	string strHostName = getSlimServerClient()->getHostName();
+
+	if ( protocolCommand.data.stream.hostAddr.s_addr != 0 )
+		strHostName = StringUtils::Format("%d.%d.%d.%d",
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x18 & 0xFF,
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x10 & 0xFF,
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x08 & 0xFF,
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x00 & 0xFF);
+
+	pSlimDataHandler->setConnectionData(strHostName, protocolCommand.data.stream.hostPort, protocolCommand.data.stream.urlAddress, protocolCommand.data.stream.urlSize);
+	pSlimDataHandler->startProcessingData();
+
+	Sleep(800);
+
+	doStatus("STMc");
+	doStatus("STMh");
+	return true;
+}
+

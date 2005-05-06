@@ -1,5 +1,5 @@
 /*
-	SlimHandler
+ SlimCommandHandler
 
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
@@ -13,8 +13,11 @@
 
 	See the GNU General Public License for more details.
 */
-#ifndef SLIMHANDLER_H
-#define SLIMHANDLER_H
+#ifndef SLIMCOMMANDHANDLER_H
+#define SLIMCOMMANDHANDLER_H
+
+#include "SocketCommunicator.h"
+#include "SlimServerClientUser.h"
 
 #include <string>
 
@@ -53,6 +56,9 @@ typedef enum _StreamFormatType
 	STREAM_FORMAT_FLAC = 2,
 	STREAM_FORMAT_PCM = 3
 } StreamFormatType;
+
+
+class SlimServerClient;
 
 struct slimProtocolCommand
 {
@@ -100,22 +106,24 @@ struct slimProtocolCommand
 };
 
 
-class SlimHandler
+class SlimCommandHandler: public SocketCommunicator, public SlimServerClientUser
 {
 private:
 	unsigned char 	m_commandBuffer[1024 * 50];
 	unsigned char 	m_macAddress[6];
 
-	unsigned int 	m_iConnection;
-
 	struct slimProtocolCommand protocolCommand;
 
 private:
-	int sendBuffer(unsigned char *buffer, unsigned int start, unsigned int len);
+//	int sendBuffer(unsigned char *buffer, unsigned int start, unsigned int len);
 
-	bool readBuffer(unsigned char *buffer, unsigned int start, unsigned int freeLen, int &readLen);
+//	bool readBuffer(unsigned char *buffer, unsigned int start, unsigned int freeLen, int &readLen);
 
-	bool decodeCommand(unsigned char *buffer, int readSize);
+	void dumpCommand();
+
+	bool readCommand(int &readSize);
+	bool decodeCommand(int readSize);
+	bool processCommand();
 
 	bool decodeStrmCommand(unsigned char *buffer, int size);
 	bool decodeVfdcCommand(unsigned char *buffer, int size);
@@ -125,17 +133,23 @@ private:
 	bool decodeGrfbCommand(unsigned char *buffer, int size);
 	bool decodeGrfeCommand(unsigned char *buffer, int size);
 
-	void dumpCommand();
-public:
-    SlimHandler();
+	bool processStrmCommand();
 
-    ~SlimHandler();
+	bool startStreamingClient();
+
+
+public:
+    SlimCommandHandler();
+
+    ~SlimCommandHandler();
 
 	void setMacAddress(string strMacAddress);
 
-	void setConnectionSocket(unsigned int iConnection);
+	// void setConnectionSocket(unsigned int iConnection);
+
 	// protocol related functions
 	bool doHello();
+	bool doStatus(char *statusType);
 
 	void doOneCommand();
 };

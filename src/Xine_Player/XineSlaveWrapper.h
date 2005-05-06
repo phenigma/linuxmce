@@ -351,6 +351,11 @@ public:
 	 * @brief Enable Sound data passthru for this player.
 	 */
 	void setOutputSpeakerArrangement(string strOutputSpeakerArrangement);
+
+	/**
+	 *
+	 */
+	int getDeviceId();
 };
 
 #endif

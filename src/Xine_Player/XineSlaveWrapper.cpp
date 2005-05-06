@@ -1737,3 +1737,9 @@ void XineSlaveWrapper::setOutputSpeakerArrangement(string strOutputSpeakerArrang
 
 	return;
 }
+
+int XineSlaveWrapper::getDeviceId()
+{
+	return m_pAggregatorObject->m_dwPK_Device;
+}
+

@@ -170,6 +170,8 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 
 		string macAddress = StringUtils::makeUpPlayerAddressFromPlayerId(m_dwPK_Device);
 		getSlimServerClient()->setMacAddress(macAddress);
+		getSlimServerClient()->setMediaStreamID(iStreamID);
+		getSlimServerClient()->setRequestingObjectID(pMessage->m_dwPK_Device_From);
 		getSlimServerClient()->connectToServer(sFilename.substr(strlen("slim://")), iStreamID);
 	}
 	else

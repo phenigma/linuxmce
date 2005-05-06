@@ -14,7 +14,9 @@
 #include "SlimServerClient.h"
 
 #include "NetworkUtils.h"
-#include "SlimHandler.h"
+#include "SlimCommandHandler.h"
+#include "SlimDataHandler.h"
+#include "XineSlaveWrapper.h"
 
 using namespace std;
 using namespace DCE;
@@ -30,20 +32,23 @@ SlimServerClient::SlimServerClient()
 	pthread_create(&commandThread, NULL, controlConnectionThread, this);
 	pthread_create(&dataThread, NULL, dataConnectionThread, this);
 
-	m_pSlimHandler = NULL;
+	m_pSlimCommandHandler = NULL;
+	m_pSlimDataHandler = NULL;
 }
 
 SlimServerClient::~SlimServerClient()
 {
-	delete m_pSlimHandler;
-	disconnectFromServer(0); // TODO: When taking in consideration the streamIDs make sure that we loop thru them.
+	delete m_pSlimCommandHandler;
+	delete m_pSlimDataHandler;
+
+	// TODO: When taking in consideration the streamIDs make sure that we loop thru them.
+	disconnectFromServer(0);
 }
 
 bool SlimServerClient::connectToServer(string serverUrl, int controlledStreamID)
 {
 	// ignore the controlledStreamID for now
 	// TODO: use this in the future if we need it. Or remove it alltogether
-
 
 	if ( ! parse_server_address(serverUrl) )
 		return false;
@@ -86,7 +91,7 @@ void *SlimServerClient::controlConnectionThread(void *arguments)
 	controlSocket = -1;
 	lastCommand = THREAD_UNKNOWN;
 
-	SlimHandler *slimProtocolHandler;
+	SlimCommandHandler *slimCommandHandler = pSlimServerClient->getSlimCommandHandler();
 
 	while ( pSlimServerClient->commandThreadCommand != THREAD_EXIT )
 	{
@@ -102,22 +107,23 @@ void *SlimServerClient::controlConnectionThread(void *arguments)
 					g_pPlutoLogger->Write(LV_STATUS, "Starting the command thread!");
 
 					// assume connection failure. Only reset it when we know for sure that we are connected
+
+
 					pSlimServerClient->commandThreadState = THREAD_CONNECTING;
-					if ( controlSocket == -1 )
-						controlSocket = connect_to_host(pSlimServerClient->m_strHostname.c_str(), pSlimServerClient->m_iPort);
 
-					if ( controlSocket <= 0 )
-						break;
-
-					slimProtocolHandler = pSlimServerClient->getSlimHandler();
-					slimProtocolHandler->setConnectionSocket(controlSocket);
-					if ( slimProtocolHandler->doHello() )
-						pSlimServerClient->commandThreadState = THREAD_CONNECTED;
-					else
+					slimCommandHandler->setTargetAddress(pSlimServerClient->m_strHostname, pSlimServerClient->m_iPort);
+					if ( ! slimCommandHandler->openCommunication() )
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "Command socket connect was not succesfull");
+						pSlimServerClient->commandThreadState = THREAD_STOPPED;
+					}
+					else if ( ! slimCommandHandler->doHello() )
 					{
 						g_pPlutoLogger->Write(LV_STATUS, "Hello was not succesfull");
 						pSlimServerClient->commandThreadState = THREAD_STOPPED;
 					}
+					else
+						pSlimServerClient->commandThreadState = THREAD_CONNECTED;
 
 					break;
 				case THREAD_EXIT:
@@ -132,7 +138,7 @@ void *SlimServerClient::controlConnectionThread(void *arguments)
 		}
 
 		if ( pSlimServerClient->commandThreadState == THREAD_CONNECTED )
-			slimProtocolHandler->doOneCommand();
+			slimCommandHandler->doOneCommand();
 
 		Sleep(100); // 10 commands per ssecond. It should be enough.
 	}
@@ -142,6 +148,61 @@ void *SlimServerClient::controlConnectionThread(void *arguments)
 
 void *SlimServerClient::dataConnectionThread(void *arguments)
 {
+	SlimServerClient::ThreadCommandType lastCommand;
+	SlimServerClient *pSlimServerClient;
+	int controlSocket;
+
+	pSlimServerClient = static_cast<SlimServerClient *>(arguments);
+	controlSocket = -1;
+	lastCommand = THREAD_UNKNOWN;
+
+	SlimDataHandler *slimDataHandler = pSlimServerClient->getSlimDataHandler();
+
+	while ( pSlimServerClient->dataThreadCommand != THREAD_EXIT )
+	{
+		if ( pSlimServerClient->dataThreadCommand != lastCommand )
+		{
+			switch( pSlimServerClient->dataThreadCommand )
+			{
+				case THREAD_STOP:
+					g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::dataConnectionThread() Pausing the data thread!");
+					pSlimServerClient->dataThreadState = THREAD_STOPPED;
+					break;
+				case THREAD_START:
+					g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::dataConnectionThread()  Starting the data thread!");
+
+					// assume connection failure. Only reset it when we know for sure that we are connected
+					pSlimServerClient->dataThreadState = THREAD_CONNECTING;
+					if ( slimDataHandler->openConnection() )
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::dataConnectionThread() Data connection thread was succesfull!");
+						pSlimServerClient->dataThreadState= THREAD_CONNECTED;
+					}
+					else
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::dataConnectionThread() Data connection thread was not succesfull!");
+						pSlimServerClient->dataThreadState = THREAD_STOPPED;;
+					}
+
+					break;
+				case THREAD_EXIT:
+					g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::dataConnectionThread() Ending the data thread!");
+					pSlimServerClient->dataThreadState = THREAD_EXITING;
+					break;
+				default:
+					g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::dataConnectionThread() Command not handled %d", pSlimServerClient->dataThreadCommand);
+			}
+
+			lastCommand = pSlimServerClient->dataThreadCommand;
+		}
+
+
+		if ( pSlimServerClient->dataThreadState == THREAD_CONNECTED )
+			slimDataHandler->readStreamData();
+
+		Sleep(50);
+	}
+
 	return NULL;
 }
 
@@ -188,15 +249,60 @@ bool SlimServerClient::parse_server_address(string strConnectionString)
 	return true;
 }
 
-SlimHandler *SlimServerClient::getSlimHandler()
+std::string SlimServerClient::getHostName()
 {
-	if ( m_pSlimHandler == NULL )
-		m_pSlimHandler = new SlimHandler();
+	return m_strHostname;
+}
 
-	return m_pSlimHandler;
+SlimDataHandler *SlimServerClient::getSlimDataHandler()
+{
+	if ( m_pSlimDataHandler == NULL )
+	{
+		m_pSlimDataHandler = new SlimDataHandler();
+		m_pSlimDataHandler->setSlimServerClient(this);
+	}
+
+	return m_pSlimDataHandler;
+}
+
+SlimCommandHandler *SlimServerClient::getSlimCommandHandler()
+{
+	if ( m_pSlimCommandHandler == NULL )
+	{
+		m_pSlimCommandHandler = new SlimCommandHandler();
+		m_pSlimCommandHandler->setSlimServerClient(this);
+	}
+
+	return m_pSlimCommandHandler;
 }
 
 void SlimServerClient::setMacAddress(std::string strMacAddress)
 {
-	getSlimHandler()->setMacAddress(strMacAddress);
+	getSlimCommandHandler()->setMacAddress(strMacAddress);
+}
+
+bool SlimServerClient::commandDataThread(ThreadCommandType threadCommand)
+{
+	dataThreadCommand = threadCommand;
+	return true;
+}
+
+std::string SlimServerClient::getFifoName()
+{
+	return StringUtils::Format("%d", m_pXineSlave->getDeviceId());
+}
+
+bool SlimServerClient::startDataReader(string fifoFileName)
+{
+	return m_pXineSlave->playStream(string("fifo://") + fifoFileName, m_iStreamID, 0, m_iRequestingObjectID);
+}
+
+void SlimServerClient::setMediaStreamID(int iStreamID)
+{
+	m_iStreamID = iStreamID;
+}
+
+void SlimServerClient::setRequestingObjectID(int iRequestingObjectID)
+{
+	m_iRequestingObjectID = iRequestingObjectID;
 }
