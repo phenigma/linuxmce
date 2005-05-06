@@ -464,7 +464,7 @@ int OrbiterGenerator::DoIt()
 	list<LocationInfo *> listLocationInfo;
 
 	vector<Row_Room *> vectRow_Room;
-	mds.Room_get()->GetRows("FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Room);
+	mds.Room_get()->GetRows("HideFromOrbiter=0 AND FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Room);
 	for(size_t s=0;s<vectRow_Room.size();++s)
 	{
 		Row_Room *pRow_Room = vectRow_Room[s];

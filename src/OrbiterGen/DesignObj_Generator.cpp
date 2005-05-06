@@ -1429,7 +1429,6 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 for(it=m_pOrbiterGenerator->m_dequeLocation.begin();it!=m_pOrbiterGenerator->m_dequeLocation.end();++it)
                 {
                     LocationInfo *li = (*it);
-
                     alArray->push_back(new ArrayValue(StringUtils::itos(li->iLocation) + "," + StringUtils::itos(li->PK_Room) + "," + StringUtils::itos(li->PK_EntertainArea),li->Description,li->drIcon,0,0,0,VARIABLE_PK_Device_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
                 }
             }
@@ -1637,6 +1636,10 @@ string DesignObj_Generator::GetParm(int PK_DesignObjParameter,Row_DesignObjVaria
 
 string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTimeVariables)
 {
+if( Text.find("RIL")!=string::npos )
+{
+int k=2;
+}
     *bContainsRunTimeVariables=false;
     size_t Pos = Text.find("<%=");
     while( Pos!=string::npos )
@@ -1654,6 +1657,13 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
             sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 		else if( sVariable=="L" )
 			sValue = StringUtils::itos(m_pOrbiterGenerator->m_iLocation);
+		else if( sVariable=="RIL" ) // Room in location
+		{
+			string::size_type pos = m_pOrbiterGenerator->m_iID_Array.find(',');
+			string::size_type pos2 = m_pOrbiterGenerator->m_iID_Array.find(',',pos+1);
+			if( pos!=string::npos && pos2!=string::npos )
+				sValue = m_pOrbiterGenerator->m_iID_Array.substr(pos+1,pos2-pos-1);
+		}
 		else if( sVariable.substr(0,2)=="MM" )
             sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get());
         else if( sVariable.substr(0,2)=="MS" )
