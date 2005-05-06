@@ -185,7 +185,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_bYieldScreen=false;
     m_bYieldInput=false;
     m_bRerenderScreen=false;
-	m_bWeGetRegionsUp=false;
+	m_bWeCanRepeat=false;
 	m_bRepeatingObject=false;
 
     m_pScreenHistory_Current=NULL;
@@ -3404,7 +3404,7 @@ bool Orbiter::ButtonUp( int iPK_Button )
 
 bool Orbiter::RegionUp( int x,  int y )
 {
-	m_bWeGetRegionsUp=true;
+	m_bWeCanRepeat=true;
 	if( m_bRepeatingObject )
 	{
 	    PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
@@ -3647,7 +3647,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 	if(  pDesignObjCommandList->size(  )==0  )
         return;
 
-	if( pObj->m_iRepeatIntervalInMS && m_bWeGetRegionsUp )
+	if( pObj->m_iRepeatIntervalInMS && m_bWeCanRepeat )
 	{
 		m_bRepeatingObject=true;
 		pObj->m_iRepeatParm = Repeat;

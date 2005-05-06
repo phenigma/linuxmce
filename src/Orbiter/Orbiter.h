@@ -139,7 +139,7 @@ protected:
 	bool m_bCaptureKeyboard_Reset; /** < flag for capture keyboard */
 	bool m_bCaptureKeyboard_TypePin; /** < flag for capture keyboard */
 	bool m_bCaptureKeyboard_DataGrid; /** < flag for capture keyboard */
-	bool m_bWeGetRegionsUp; /** < true if the rendering device we're using gives us Region Up Messages */
+	bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
 
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */

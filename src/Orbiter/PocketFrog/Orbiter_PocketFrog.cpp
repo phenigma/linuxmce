@@ -93,6 +93,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	m_bConnectionLost = false;
 	m_bReload = false;
 	m_bQuit = false;
+	m_bWeCanRepeat = true;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()

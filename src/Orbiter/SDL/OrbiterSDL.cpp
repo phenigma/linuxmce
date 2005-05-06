@@ -100,6 +100,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
         g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
     }
 #endif
+	m_bWeCanRepeat = true;
 
     g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
 }
