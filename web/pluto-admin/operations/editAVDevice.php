@@ -3,7 +3,7 @@ function editAVDevice($output,$dbADO) {
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 $out='';
-$dbADO->debug=false;
+//$dbADO->debug=true;
 
 $action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 $from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';

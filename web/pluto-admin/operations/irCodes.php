@@ -364,7 +364,7 @@ function irCodes($output,$dbADO) {
 		$commandsDisplayed=explode(',',$_POST['commandsDisplayed']);
 		foreach ($commandsDisplayed AS $commandID){
 			$sufix=($infraredGroupID>0)?$infraredGroupID:'';
-			$preferredCommand=(int)@$_POST['prefered_'.$commandID.'_'.$sufix];
+			$preferredCommand=((int)@$_POST['prefered_'.$commandID.'_'.$sufix]!=0)?(int)@$_POST['prefered_'.$commandID.'_'.$sufix]:(int)@$_POST['prefered_'.$commandID.'_'];
 			if($preferredCommand>0){
 				if(isset($GLOBALS['igcPrefered'][$commandID]) && $GLOBALS['igcPrefered'][$commandID]!=$preferredCommand){
 					$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($preferredCommand,$installationID));

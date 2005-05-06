@@ -37,9 +37,8 @@ if ($action == 'form') {
 	<input type="hidden" name="devicesCoords" value="">
 	<input type="hidden" name="oldEntertainArea" value="'.$entertainArea.'">
 	
-	<div style="position:absolute;top:25px;Z-INDEX:2;"><br><br><a href="index.php?section=avWizard">Advanced mode</a>
-	<br></div>
 	<div align="center"><h3>A/V equipment connection wizard</h3></div>
+	<a href="index.php?section=avWizard">Advanced mode</a><br><br>
 	Edit devices in:'.generatePullDown('entertainArea','EntertainArea','PK_EntertainArea','Description',$_SESSION['AVentertainArea'],$dbADO,' INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.(int)$_SESSION['installationID'],'onChange="savePositions();"').'<br>';
 	$devicesList=array();
 	if($entertainArea!=0){		
@@ -73,8 +72,11 @@ if ($action == 'form') {
 		</div>
 		</div>
 		';
-		
 		$avDTsArray=getDeviceTemplatesFromCategory($deviceCategory,$dbADO);
+		$GLOBALS['childsDeviceCategoryArray']=array();
+		$mdArray=getDeviceTemplatesFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
+		$avDTsArray=array_merge($avDTsArray,$mdArray);
+		
 		if(count($avDTsArray)==0)
 			$avDTsArray[]=0;
 		$queryDevice='

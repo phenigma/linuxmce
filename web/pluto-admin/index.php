@@ -1093,6 +1093,12 @@ switch ($section) {
 	    include_once('operations/users_settings/userPic.php');
 	    userPic($output,$dbADO);
 	break;	
+	case 'mythSettings';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/mythSettings.php');
+	    mythSettings($output,$dbADO);
+	break;	
 
 	
 	case '';

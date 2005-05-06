@@ -20,12 +20,14 @@
 	$GLOBALS['specialized']=97;					// Specialized
 	$GLOBALS['InfraredInterface']=114;			// Infrared Interface
 	$GLOBALS['TVdevices']=77;					// TV's
+	$GLOBALS['CableBoxes']=105;					// Cable boxes
+	$GLOBALS['SatelliteBoxes']=108;				// Satellite Boxes
 	$GLOBALS['TVVCRCombo']=106;					// TV VCR Combo
 	$GLOBALS['AmpsReceivers']=103;				// Amps/Receivers
 	$GLOBALS['GenericSerialDevices']=119;		// GenericSerialDevices
-	$GLOBALS['PVRCaptureCards']=75;			// PVR Capture Cards
-	$GLOBALS['SoundCards']=124;			// Sound Cards
-	$GLOBALS['VideoCards']=125;			// Video Cards
+	$GLOBALS['PVRCaptureCards']=75;				// PVR Capture Cards
+	$GLOBALS['SoundCards']=124;					// Sound Cards
+	$GLOBALS['VideoCards']=125;					// Video Cards
 
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	
