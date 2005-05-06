@@ -20,6 +20,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "pluto_main/Database_pluto_main.h"
+#include "pluto_main/Define_Command.h"
 
 using namespace std;
 
@@ -76,57 +77,59 @@ RubyDCECodeSupplier::FillClassMembersFromDevice(Database_pluto_main* pdb, long i
 	if((cmds.r = pdb->mysql_query_result(sql.c_str()))) {
 		MYSQL_ROW rowcmd;
 		while((rowcmd = mysql_fetch_row(cmds.r))) {
+			string scmdid = rowcmd[0];
 			int cmdid = atoi(rowcmd[0]);
-			if(!isCmdImplemented(cmdid)) {
-				sprintf(tmpbuff, "%d", cmdid);
-				string scmdid = tmpbuff;
-
-				string scmdtext;
-				if(rowcmd[1] != NULL) {
-					scmdtext = TranslateCommandToRuby(rowcmd[1]);
-				}
-				
-				if(!scmdtext.empty()) {
-					/*for each command*/
-					rcode_ += "#### " + scmdid + " ####################################################################\n";
-					rcode_ += "def cmd_"; rcode_ += scmdid; rcode_ += "(";
-		
-					/*add command parameters*/
-					sql = "select PK_CommandParameter, CommandParameter.Description "
-										"from CommandParameter "
-											"inner join Command_CommandParameter on FK_CommandParameter=PK_CommandParameter "
-											"inner join Command on FK_Command=PK_Command "
-										"where PK_Command = "; sql += scmdid; sql += " order by PK_CommandParameter asc";
-											
-					g_pPlutoLogger->Write(LV_STATUS, "Running query to get params for Command %s: \n%s", scmdid.c_str(), sql.c_str());
-					
-					PARAMLIST& paramlist = cmdparammap_[cmdid];
-					PlutoSqlResult params;
-					if((params.r = pdb->mysql_query_result(sql.c_str()))) {
-						MYSQL_ROW rowparam;
-						while((rowparam = mysql_fetch_row(params.r))) {
-							if(paramlist.size() > 0) {
-								rcode_ += ", ";
-							}
-							string rbparam = StringUtils::ToLower(FileUtils::ValidCPPName(rowparam[1]).c_str());
-							
-							PARAMPAIR parampair(atoi(rowparam[0]), rbparam);
-							paramlist.push_back(parampair);
-							
-							rcode_ += rbparam;
-						}
-					}
-					
-					g_pPlutoLogger->Write(LV_STATUS, "Added %d parameeters for Command %s: ", paramlist.size(), scmdid.c_str());
-					
-					rcode_ += ")""\n"; // SetLevel(
-					//rcode_ += "conn_ = getConn()""\n";
+			if(!isCmdImplemented(cmdid) && rowcmd[1] != NULL) {
+				if(cmdid == COMMAND_Private_Method_Listing_CONST) {
 					if(rowcmd[1] != NULL) {
-						rcode_ += TranslateCommandToRuby(rowcmd[1]);
+						rcode_ += "#### PRIVATE METHODS ####################################################################\n";
+						rcode_ += rowcmd[1];
+						rcode_ += "\n";
+					} 
+				} else {
+					string scmdtext = TranslateCommandToRuby(rowcmd[1]);
+					if(!scmdtext.empty()) {
+						/*for each command*/
+						rcode_ += "#### " + scmdid + " ####################################################################\n";
+						rcode_ += "def cmd_"; rcode_ += scmdid; rcode_ += "(";
+			
+						/*add command parameters*/
+						sql = "select PK_CommandParameter, CommandParameter.Description "
+											"from CommandParameter "
+												"inner join Command_CommandParameter on FK_CommandParameter=PK_CommandParameter "
+												"inner join Command on FK_Command=PK_Command "
+											"where PK_Command = "; sql += scmdid; sql += " order by PK_CommandParameter asc";
+												
+						g_pPlutoLogger->Write(LV_STATUS, "Running query to get params for Command %s: \n%s", scmdid.c_str(), sql.c_str());
+						
+						PARAMLIST& paramlist = cmdparammap_[cmdid];
+						PlutoSqlResult params;
+						if((params.r = pdb->mysql_query_result(sql.c_str()))) {
+							MYSQL_ROW rowparam;
+							while((rowparam = mysql_fetch_row(params.r))) {
+								if(paramlist.size() > 0) {
+									rcode_ += ", ";
+								}
+								string rbparam = StringUtils::ToLower(FileUtils::ValidCPPName(rowparam[1]).c_str());
+								
+								PARAMPAIR parampair(atoi(rowparam[0]), rbparam);
+								paramlist.push_back(parampair);
+								
+								rcode_ += rbparam;
+							}
+						}
+						
+						g_pPlutoLogger->Write(LV_STATUS, "Added %d parameeters for Command %s: ", paramlist.size(), scmdid.c_str());
+						
+						rcode_ += ")""\n"; // SetLevel(
+						//rcode_ += "conn_ = getConn()""\n";
+						if(rowcmd[1] != NULL) {
+							rcode_ += TranslateCommandToRuby(rowcmd[1]);
+						}
+					
+						/*insert ruby code for the method*/
+						rcode_ += "\n""end""\n"; // def
 					}
-				
-					/*insert ruby code for the method*/
-					rcode_ += "\n""end""\n"; // def
 				}
 			}
 		}
