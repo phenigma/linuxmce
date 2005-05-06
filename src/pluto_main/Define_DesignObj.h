@@ -1197,6 +1197,8 @@
 #define DESIGNOBJ_telecom_CONST 3395
 #define DESIGNOBJ_media_CONST 3396
 #define DESIGNOBJ_security_CONST 3398
+#define DESIGNOBJ_objVolUpLong_CONST 3399
+#define DESIGNOBJ_objVolDownLong_CONST 3400
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
