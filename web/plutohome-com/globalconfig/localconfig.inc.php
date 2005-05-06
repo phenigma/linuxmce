@@ -51,4 +51,11 @@
 	$dbPlutoSecurityPass = "";
 	$dbPlutoSecurityServer = "localhost";
 	$dbPlutoSecurityDatabase = "pluto_security";
+	
+	// myth database
+	$dbMythType = "MySQL";
+	$dbMythUser = "root";
+	$dbMythPass = "";
+	$dbMythServer = "localhost";
+	$dbMythDatabase = "mythconverg";
 ?>
