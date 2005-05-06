@@ -183,10 +183,16 @@ void Generic_Serial_Device::RunThread() {
 		/*we are in case 1*/
 		pmanager->addDevice(m_pData);
 	} else {
+	    g_pPlutoLogger->Write(LV_STATUS, "Device has no GSD specified as command line. Looking for children.");
 		/*we are in case 2*/
 		VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
-		for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
-			pmanager->addDevice(vDeviceData[i]);
+		if(vDeviceData.size() == 0) {
+		    g_pPlutoLogger->Write(LV_WARNING, "Device has no children. GSD has no device.");
+			return;
+		} else {
+			for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
+				pmanager->addDevice(vDeviceData[i]);
+			}
 		}
 	}
 	
