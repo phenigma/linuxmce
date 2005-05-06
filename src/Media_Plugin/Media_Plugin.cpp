@@ -2579,8 +2579,21 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 	}
 }
 
-void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current)
+void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current,vector<int> *p_vectDevice)
 {
+	bool bCreatedVect=false;
+	if( !p_vectDevice )
+	{
+		p_vectDevice = new vector<int>;
+		bCreatedVect=true;
+	}
+
+	// Be sure we skip over recursive entries
+	for(size_t s=0;s<p_vectDevice->size();++s)
+		if( (*p_vectDevice)[s]==pDeviceData_Router->m_dwPK_Device )
+			return;
+	p_vectDevice->push_back(pDeviceData_Router->m_dwPK_Device);
+
 	if( !pmapMediaDevice_Current || pmapMediaDevice_Current->find( pDeviceData_Router->m_dwPK_Device ) == pmapMediaDevice_Current->end() )
 	{
 		DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
@@ -2588,7 +2601,7 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 	}
 
 	if( pDeviceData_Router->m_pDevice_MD && pDeviceData_Router!=pDeviceData_Router->m_pDevice_MD )
-		TurnDeviceOff(PK_Pipe,(DeviceData_Router *) pDeviceData_Router->m_pDevice_MD,pmapMediaDevice_Current);
+		TurnDeviceOff(PK_Pipe,(DeviceData_Router *) pDeviceData_Router->m_pDevice_MD,pmapMediaDevice_Current,p_vectDevice);
 
     for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
     {
@@ -2598,8 +2611,11 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 
 		DeviceData_Router *pDeviceData_RouterChild = m_pRouter->m_mapDeviceData_Router_Find( pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get() );
 		if( pDeviceData_RouterChild )
-			TurnDeviceOff(PK_Pipe,pDeviceData_RouterChild,pmapMediaDevice_Current);
+			TurnDeviceOff(PK_Pipe,pDeviceData_RouterChild,pmapMediaDevice_Current,p_vectDevice);
 	}
+
+	if( bCreatedVect )
+		delete p_vectDevice;
 }
 //<-dceag-createinst-b->!
 
@@ -2942,10 +2958,24 @@ void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,Me
 		AddOtherDevicesInPipes_Loop(PK_Pipe,(*it).second->m_pDeviceData_Router,pmapMediaDevice);
 }
 
-void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice)
+void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice,vector<int> *p_vectDevice)
 {
 	if( !pDevice )
 		return;
+
+	bool bCreatedVect=false;
+	if( !p_vectDevice )
+	{
+		p_vectDevice = new vector<int>;
+		bCreatedVect=true;
+	}
+
+	// Be sure we skip over recursive entries
+	for(size_t s=0;s<p_vectDevice->size();++s)
+		if( (*p_vectDevice)[s]==pDevice->m_dwPK_Device )
+			return;
+	p_vectDevice->push_back(pDevice->m_dwPK_Device);
+
 	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();
 		it!=pDevice->m_mapPipe_Available.end();++it)
 	{
@@ -2959,7 +2989,7 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 				if( pMediaDevice )
 					(*pmapMediaDevice)[pDevice_Pipe->m_dwPK_Device] = pMediaDevice;
 				if( pmapMediaDevice->find(pDevice_Pipe->m_dwPK_Device)==pmapMediaDevice->end() )
-					AddOtherDevicesInPipes_Loop(PK_Pipe,pDevice_Pipe,pmapMediaDevice);
+					AddOtherDevicesInPipes_Loop(PK_Pipe,pDevice_Pipe,pmapMediaDevice,p_vectDevice);
 			}
 			else
 				g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
@@ -2971,8 +3001,10 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice->m_pDevice_MD->m_dwPK_Device);
 		if( pMediaDevice )
 			(*pmapMediaDevice)[pDevice->m_pDevice_MD->m_dwPK_Device] = pMediaDevice;
-		AddOtherDevicesInPipes_Loop( PK_Pipe, (DeviceData_Router *) pDevice->m_pDevice_MD, pmapMediaDevice );
+		AddOtherDevicesInPipes_Loop( PK_Pipe, (DeviceData_Router *) pDevice->m_pDevice_MD, pmapMediaDevice, p_vectDevice );
 	}
+	if( bCreatedVect )
+		delete p_vectDevice;
 }
 
 void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,vector<EntertainArea *> &vectEntertainArea, map<int,MediaHandlerInfo *> &mapMediaHandlerInfo)

@@ -123,7 +123,7 @@ protected:
     /**
      * Turn off the device and other devices in the pipe, but without turning off devices we are currently using
      */
-	void TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current);
+	void TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current,vector<int> *p_vectDevice=NULL);
 
     /**
      * Find a media type specific for a file name
@@ -293,7 +293,7 @@ public:
 	// is desired.  However, HandleOnOffs wants everything in the pipe, and the following function
 	// can be used to add the other devices into the map
 	void AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,MediaDevice *> *pmapMediaDevice);
-	void AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice);
+	void AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice,vector<int> *p_vectDevice=NULL);
 
 
 	// Follow-me

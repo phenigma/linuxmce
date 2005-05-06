@@ -298,6 +298,10 @@ int k;
         void AlarmCallback(int id, void* param);
         void Configure(); // Build the config information from the database
 
+		void CheckForRecursiveControlledVia(DeviceData_Router *pDevice,vector<int> *pvect_Device_ControlledVia);
+		void CheckForRecursiveRouteTo(DeviceData_Router *pDevice,vector<int> *pvect_Device_RouteTo);
+		void CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvect_Device_Pipe);
+
 #ifdef AUDIDEMO
         class Command_Impl *CreatePlugInHardCoded(int PK_Device, int PK_DeviceTemplate, string sCommandLine);  // Load the plug-in on the command line
 #endif

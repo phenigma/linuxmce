@@ -1450,7 +1450,7 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Pipe_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
 			PK_Pipe = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
 
-		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
+		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Active.begin();it!=pDeviceData_Router->m_mapPipe_Active.end();++it)
         {
             Pipe *pPipe = (*it).second;
 			if( PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get() )
@@ -2047,24 +2047,12 @@ void Router::Configure()
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
     {
         DeviceData_Router *pDevice = (*itDevice).second;
-        DeviceData_Router *pDevice2 = pDevice;
-        while( pDevice2 && pDevice2->m_pDevice_ControlledVia )
-		{
-			if( pDevice2->m_pDevice_ControlledVia==pDevice )
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Device %d recurses",pDevice->m_dwPK_Device);
-				((DeviceData_Router *)pDevice->m_pDevice_ControlledVia)->m_vectDeviceData_Impl_Children.clear();
-				pDevice->m_pDevice_ControlledVia = NULL;
-				pDevice->m_dwPK_Device_ControlledVia = 0;
-				pDevice->m_pRow_Device->FK_Device_ControlledVia_setNull(true);
-				pDevice->m_pRow_Device->Table_Device_get()->Commit();
-
-				DeviceData_Base *pDevice3 = allDevices.m_mapDeviceData_Base_Find(pDevice->m_dwPK_Device);
-				pDevice3->m_pDevice_ControlledVia = NULL;
-				pDevice3->m_dwPK_Device_ControlledVia = 0;
-			}
-			pDevice2 = (DeviceData_Router *) pDevice2->m_pDevice_ControlledVia;
-		}
+		vector<int> vect_Device_ControlledVia;
+		CheckForRecursiveControlledVia(pDevice,&vect_Device_ControlledVia);
+		vector<int> vect_Device_RouteTo;
+		CheckForRecursiveRouteTo(pDevice,&vect_Device_RouteTo);
+		vector<int> vect_Device_Pipe;
+		CheckForRecursivePipes(pDevice,&vect_Device_Pipe);
     }
 
     // Now match up devices with Core's and Media Directors
@@ -2373,3 +2361,73 @@ void Router::HandleRouterMessage(Message *pMessage)
 	}
 }
 
+
+void Router::CheckForRecursiveControlledVia(DeviceData_Router *pDevice,vector<int> *pvect_Device_ControlledVia)
+{
+	for(size_t s=0;s<pvect_Device_ControlledVia->size();++s)
+		if( (*pvect_Device_ControlledVia)[s]==pDevice->m_dwPK_Device )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Device %d is recursive controlled via",pDevice->m_dwPK_Device);
+			pDevice->m_pDevice_ControlledVia=NULL;
+			pDevice->m_dwPK_Device_ControlledVia=0;
+			pDevice->m_pRow_Device->FK_Device_ControlledVia_setNull(true);
+			pDevice->m_pRow_Device->Table_Device_get()->Commit();
+		}
+
+	if( !pDevice->m_pDevice_ControlledVia )
+		return;
+	
+	pvect_Device_ControlledVia->push_back(pDevice->m_dwPK_Device);
+	CheckForRecursiveControlledVia((DeviceData_Router *) pDevice->m_pDevice_ControlledVia,pvect_Device_ControlledVia);
+}
+void Router::CheckForRecursiveRouteTo(DeviceData_Router *pDevice,vector<int> *pvect_Device_RouteTo)
+{
+	for(size_t s=0;s<pvect_Device_RouteTo->size();++s)
+		if( (*pvect_Device_RouteTo)[s]==pDevice->m_dwPK_Device )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Device %d is recursive route to",pDevice->m_dwPK_Device);
+			pDevice->m_pDevice_RouteTo=NULL;
+			pDevice->m_pRow_Device->FK_Device_RouteTo_setNull(true);
+			pDevice->m_pRow_Device->Table_Device_get()->Commit();
+		}
+
+	if( !pDevice->m_pDevice_RouteTo )
+		return;
+	
+	pvect_Device_RouteTo->push_back(pDevice->m_dwPK_Device);
+	CheckForRecursiveRouteTo((DeviceData_Router *) pDevice->m_pDevice_RouteTo,pvect_Device_RouteTo);
+}
+void Router::CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvect_Device_Pipe)
+{
+	bool bPipesRecurse=false;
+    for(map<int,Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();it!=pDevice->m_mapPipe_Available.end();++it)
+    {
+        Pipe *pPipe = (*it).second;
+		for(size_t s=0;s<pvect_Device_Pipe->size();++s)
+			if( (*pvect_Device_Pipe)[s]==pDevice->m_dwPK_Device )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Device %d is recursive pipe",pDevice->m_dwPK_Device);
+				bPipesRecurse=true;
+				pPipe->m_pRow_Device_Device_Pipe->Delete();
+				pPipe->m_pRow_Device_Device_Pipe->Table_Device_Device_Pipe_get()->Commit();
+			}
+	}
+
+	if( bPipesRecurse )
+		pDevice->m_mapPipe_Available.clear();
+
+	pvect_Device_Pipe->push_back(pDevice->m_dwPK_Device);
+
+	// Store the destinations in a vect so we don't risk clearing the map while a parent is iterating it
+	vector<DeviceData_Router *> vectDevice;
+    for(map<int,Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();it!=pDevice->m_mapPipe_Available.end();++it)
+    {
+        Pipe *pPipe = (*it).second;
+		DeviceData_Router *pDevice_Dest = m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		if( pDevice_Dest )
+			vectDevice.push_back(pDevice_Dest);
+	}
+
+	for(size_t s=0;s<vectDevice.size();++s)
+		CheckForRecursivePipes(vectDevice[s],pvect_Device_Pipe);
+}
