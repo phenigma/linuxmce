@@ -42,14 +42,12 @@ so: Xine_Player.so
 
 Xine_Player.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
-	mv ../bin/$@ ../bin/$@.bak
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 
 Xine_Player: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
 	$(CXX) -o $(MYNAME) $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
-	mv ../bin/$@ ../bin/$@.bak
 	cp $@ ../bin
 	./post_make.sh $@
 
