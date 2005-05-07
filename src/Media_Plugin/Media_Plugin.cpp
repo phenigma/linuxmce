@@ -1794,10 +1794,23 @@ class DataGridTable *Media_Plugin::DevicesPipes( string GridID, string Parms, vo
 }
 
 
-void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,DataGridTable *&pDataGrid,int &iRow,int PK_Command_Input,int PK_Command_Output)
+void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,DataGridTable *&pDataGrid,int &iRow,int PK_Command_Input,int PK_Command_Output,vector<int> *p_vectDevice)
 {
 	if( !pDevice )
 		return;
+
+	bool bCreatedVect=false;
+	if( !p_vectDevice )
+	{
+		p_vectDevice = new vector<int>;
+		bCreatedVect=true;
+	}
+
+	// Be sure we skip over recursive entries
+	for(size_t s=0;s<p_vectDevice->size();++s)
+		if( (*p_vectDevice)[s]==pDevice->m_dwPK_Device )
+			return;
+	p_vectDevice->push_back(pDevice->m_dwPK_Device);
 
 	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Active.begin();
 		it!=pDevice->m_mapPipe_Active.end();++it)
@@ -1805,11 +1818,11 @@ void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,D
 		Pipe *pPipe = (*it).second;
 		DeviceData_Router *pDevice_Pipe = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
 		if( pDevice_Pipe && pDevice_Pipe!=pDevice )
-			DevicesPipes_Loop(PK_Orbiter,(DeviceData_Router *)pDevice_Pipe,pDataGrid,iRow,pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get(),pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get());
+			DevicesPipes_Loop(PK_Orbiter,(DeviceData_Router *)pDevice_Pipe,pDataGrid,iRow,pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get(),pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get(),p_vectDevice);
 	}
 
 	if( pDevice->m_pDevice_MD && pDevice!=pDevice->m_pDevice_MD )
-		DevicesPipes_Loop(PK_Orbiter,(DeviceData_Router *) pDevice->m_pDevice_MD,pDataGrid,iRow);
+		DevicesPipes_Loop(PK_Orbiter,(DeviceData_Router *) pDevice->m_pDevice_MD,pDataGrid,iRow,0,0,p_vectDevice);
 
 	DataGridCell *pCell = new DataGridCell( pDevice->m_sDescription);
 	pCell->m_Colspan = 4;
@@ -1847,6 +1860,9 @@ void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,D
 	);
 
 	pDataGrid->SetData(6,iRow++,pCell);
+
+	if( bCreatedVect )
+		delete p_vectDevice;
 }
 
 void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea )
