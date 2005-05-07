@@ -317,14 +317,16 @@ bool Orbiter_Plugin::SafeToReload()
 	if( m_listRegenCommands.size()==0 )
 		return true;
 
+	string sOrbiters;
 	g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot %d pending",(int) m_listRegenCommands.size());
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 	{
+		sOrbiters += StringUtils::itos(*it) + " ";
+
 g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot becaues of %d ",*it);
 	}
 
-
-	DisplayMessageOnOrbiter("","I'm still regenerating some Orbiter skins, and can't allow the reset until I'm finished.  You will get a message when I have finished.  Please try again then.",false,20,true);
+	DisplayMessageOnOrbiter("","I'm still regenerating skins for Orbiters " + sOrbiters + ", and can't allow the reset until I'm finished.  You will get a message when I have finished.  Please try again then.",false,20,true);
 	return false;
 }
 
@@ -630,6 +632,10 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH
 
 bool Orbiter_Plugin::ReloadAborted(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
+	// Originally this was a generic message about aborting reload.  But then we don't see the specialized ones.
+	// It's probably better to require a plugin to display a message when it's aborting a reload
+	return false;
+
 	int PK_Device = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
 	int PK_Orbiter = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Orbiter_CONST].c_str());
 

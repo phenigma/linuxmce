@@ -2949,7 +2949,16 @@ bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 
 bool Media_Plugin::SafeToReload()
 {
-	return m_mapRippingJobsToRippingDevices.size() == 0;
+	if( m_mapRippingJobsToRippingDevices.size() )
+	{
+		string sJobs;
+		for(map<string, pair<int, int> >::iterator it=m_mapRippingJobsToRippingDevices.begin();it!=m_mapRippingJobsToRippingDevices.end();++it)
+			sJobs += (*it).first + " / ";
+
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter("","I can't reload right now because I'm still ripping these jobs: " + sJobs,false,20,true);
+		return false;
+	}
+	return true;
 }
 
 void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,MediaDevice *> *pmapMediaDevice)
