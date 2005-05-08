@@ -476,6 +476,9 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 	// The server will send us all updates after m_psc_batch_last_sync, but we need to tell it to 
 	// explicitly exclude any batches that we sent ourselves, since have them already.  Create a list
 	// of the batches we created since our last sync
+
+	cout << "Requesting update table: " << m_sName << " last batch: " << m_psc_batch_last_sync << " last id: " << m_psc_id_last_sync << " extra batches:";
+
 	ostringstream sSQL;
 	sSQL << "SELECT PK_psc_" << m_pRepository->Name_get() << "_bathdr FROM psc_" << m_pRepository->Name_get() << "_bathdr "
 		<< " WHERE PK_psc_" << m_pRepository->Name_get() << "_bathdr>" << m_psc_batch_last_sync;
@@ -483,9 +486,12 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
 		while( ( row = mysql_fetch_row( result_set.r ) ) )
+		{
 			r_UpdateTable.m_vect_psc_batch.push_back( atoi(row[0]) );
+			cout << row[0] << ",";
+		}
 
-	cout << "Requesting update" << endl;
+	cout << endl;
 
 	ra_Processor.SendRequest( &r_UpdateTable, pSocket );
 	if( r_UpdateTable.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
@@ -2103,6 +2109,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 	}
 	else if( pChangedRow->m_eTypeOfChange==toc_Modify && pChangedRow->m_mapFieldValues.size() )
 	{
+		bool bFound_psc_batch=false;
 		sSql << "UPDATE `" << m_sName << "` SET ";
 		bool bFirst=true;
 		for(MapStringString::iterator it=pChangedRow->m_mapFieldValues.begin();it!=pChangedRow->m_mapFieldValues.end();++it)
@@ -2112,6 +2119,14 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 			else
 				sSql << ",";
 			sSql << "`" << (*it).first << "`='" << StringUtils::SQLEscape((*it).second) << "'";
+			if( (*it).first=="psc_batch" )
+				bFound_psc_batch=true;
+		}
+		if( !bFound_psc_batch )
+		{
+			if( !bFirst )
+				sSql << ",";
+			sSql << "psc_batch=" << pChangedRow->m_psc_batch;
 		}
 		sSql << " WHERE psc_id=" << pChangedRow->m_psc_id;
 	}
