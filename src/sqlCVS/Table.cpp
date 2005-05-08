@@ -1344,7 +1344,7 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 			else
 				psc_user = 0;
 
-			if( bFrozen || psc_user )
+			if( bFrozen || psc_user || (!m_bAnonymous && psqlCVSprocessor->m_bAllAnonymous) )
 			{
 				psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psc_user);
 				AddToHistory( pR_CommitRow, psqlCVSprocessor );
@@ -1373,6 +1373,7 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 
 void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user )
 {
+	cout << "UpdateRow table: " << m_sName << " psc_id: " << pR_CommitRow->m_psc_id << " user: " << pR_CommitRow->m_psc_user << " is sup: " << psqlCVSprocessor->m_bSupervisor << endl;
 	// If the user is a supervisor, he can do anything, otherwise be sure we're allowed to do this
 	if( !psqlCVSprocessor->m_bSupervisor )
 	{
@@ -1393,7 +1394,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 			else
 				psc_user = 0;
 
-			if( bFrozen || psc_user )
+			if( bFrozen || psc_user || (!m_bAnonymous && psqlCVSprocessor->m_bAllAnonymous) )
 			{
 				psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psc_user);
 				AddToHistory( pR_CommitRow, psqlCVSprocessor );

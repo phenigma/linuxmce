@@ -154,6 +154,7 @@ cout << "validate user:" << psc_user << " bnopass: " << bNoPassword << " is sup:
 				if( bSupervisor2 && !bNoPassword )
 					bSupervisor=true;
 			}
+cout << "exiting validate user is sup: " << bSupervisor << endl;
 			return bExpectAtLeastOne==false || bValidatedUser;
 		}
 	};
