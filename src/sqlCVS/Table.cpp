@@ -1570,12 +1570,12 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 			sSql << "SELECT * FROM " << m_sName << "_pschmask WHERE psc_batch=" << psc_batch;
 			PlutoSqlResult result_set2;
 			MYSQL_ROW row2=NULL;
-			if( ( result_set2.r=m_pDatabase->mysql_query_result( sSql.str() ) )==NULL || ( row2 = mysql_fetch_row( result_set2.r ) )==NULL )
+			if( psc_toc!=toc_Modify || ( result_set2.r=m_pDatabase->mysql_query_result( sSql.str() ) )==NULL || ( row2 = mysql_fetch_row( result_set2.r ) )==NULL )
 			{
 				/* This shouldn't happen, but since it did, just add all fields */
-				cerr << "***ERROR*** Cannot find value in history mask table:" << sSql.str() << endl;
+				if( psc_toc==toc_Modify )
+					cerr << "***ERROR*** Cannot find value in history mask table:" << sSql.str() << endl;
 				
-
 				for(MapField::iterator it=m_mapField.begin();it!=m_mapField.end();++it)
 				{
 					string Field = (*it).first;
