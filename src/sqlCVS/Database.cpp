@@ -1592,9 +1592,19 @@ void Database::ListBatchContents()
 	Repository *pRepository = (*g_GlobalConfig.m_mapRepository.begin()).second;
 
 	std::ostringstream sSQL;
+	sSQL << "SELECT IPAddress,`date` FROM " << pRepository->m_pTable_BatchHeader->Name_get() <<
+		" WHERE PK_" << pRepository->m_pTable_BatchHeader->Name_get() << "=" << g_GlobalConfig.m_psc_batch;
+	PlutoSqlResult result_hdr;
+	MYSQL_ROW row=NULL;
+	if( ( result_hdr.r=mysql_query_result( sSQL.str( ) ) ) && ( row = mysql_fetch_row( result_hdr.r ) ) )
+	{
+		cout << "Batch: " << g_GlobalConfig.m_psc_batch << " Repository: " << pRepository->Name_get() <<
+			" IP: " << row[0] << " Date: " << row[1] << endl;
+	}
+
+	sSQL.str("");
 	sSQL << "SELECT DISTINCT Tablename FROM psc_" << pRepository->Name_get() << "_batdet WHERE FK_psc_" << pRepository->Name_get() << "_bathdr=" << g_GlobalConfig.m_psc_batch;
 	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
 	if( ( result_set.r=mysql_query_result( sSQL.str( ) ) ) )
 	{
 		while ( row = mysql_fetch_row( result_set.r ) )

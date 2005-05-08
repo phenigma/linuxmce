@@ -2095,7 +2095,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 	{
 		sSql << "DELETE FROM `" << m_sName << "` WHERE psc_id=" << pChangedRow->m_psc_id;
 	}
-	else if( pChangedRow->m_eTypeOfChange==toc_Modify )
+	else if( pChangedRow->m_eTypeOfChange==toc_Modify && pChangedRow->m_mapFieldValues.size() )
 	{
 		sSql << "UPDATE `" << m_sName << "` SET ";
 		bool bFirst=true;
@@ -2109,7 +2109,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 		}
 		sSql << " WHERE psc_id=" << pChangedRow->m_psc_id;
 	}
-	else
+	else if( pChangedRow->m_eTypeOfChange==toc_New )
 	{
 		sSql << "INSERT INTO `" << m_sName << "` (";
 		bool bFirst=true;
@@ -2159,7 +2159,11 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 	}
 	else
 	{
-		if( m_pDatabase->threaded_mysql_query( sSql.str( ) )!=0 )
+		if( sSql.str().size()==0 )
+		{
+			cout << "WARNING: Nothing to do applying this change table: " << m_sName << " psc_id: " << pChangedRow->m_psc_id << endl;
+		}
+		else if( m_pDatabase->threaded_mysql_query( sSql.str( ) )!=0 )
 		{
 			cerr << "Error applying changed row: " << sSql.str() << endl;
 			throw "Database error applying changed row";
