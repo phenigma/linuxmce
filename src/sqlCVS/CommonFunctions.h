@@ -143,7 +143,7 @@ cout << "Ready to loop.  size is: " << (int) pmapUsersPasswords->size() << endl;
 				bool bNoPassword,bSupervisor2;
 cout << "before validate user" << endl;
 				int psc_user = ValidateUser( (*it).first, (*it).second, bNoPassword, bSupervisor2 );
-cout << "validate user:" << psc_user << endl;
+cout << "validate user:" << psc_user << " bnopass: " << bNoPassword << " is sup: " << bSupervisor2 << endl;
 				if( !psc_user )
 				{
 					return false;
@@ -151,7 +151,7 @@ cout << "validate user:" << psc_user << endl;
 				cout << "Validated user: " << psc_user << " Is sup: " << bSupervisor2 << endl;
 				bValidatedUser=true;
 				m_mapValidatedUsers[psc_user]=new ValidatedUser(psc_user,bNoPassword,bSupervisor2);
-				if( bSupervisor2 )
+				if( bSupervisor2 && !bNoPassword )
 					bSupervisor=true;
 			}
 			return bExpectAtLeastOne==false || bValidatedUser;
