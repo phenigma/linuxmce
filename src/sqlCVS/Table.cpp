@@ -2109,7 +2109,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 		}
 		sSql << " WHERE psc_id=" << pChangedRow->m_psc_id;
 	}
-	else if( pChangedRow->m_eTypeOfChange==toc_New )
+	else if( pChangedRow->m_eTypeOfChange==toc_New && pChangedRow->m_mapFieldValues.size() )
 	{
 		sSql << "INSERT INTO `" << m_sName << "` (";
 		bool bFirst=true;
@@ -2149,13 +2149,14 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 		sSql << ")";
 	}
 
-	if( pChangedRow->m_eTypeOfChange==toc_New && m_pField_AutoIncrement )
+	if( pChangedRow->m_eTypeOfChange==toc_New && m_pField_AutoIncrement && sSql.str().size()!=0 )
 	{
 		if( !( pChangedRow->m_iNewAutoIncrID=m_pDatabase->threaded_mysql_query_withID( sSql.str( ) ) ) )
 		{
 			cerr << "Failed to insert row: " << sSql.str( ) << endl;
 			throw "Failed to insert row";
 		}
+
 	}
 	else
 	{
