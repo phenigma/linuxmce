@@ -1554,6 +1554,8 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 			int psc_id = atoi(row[0]);
 			TypeOfChange psc_toc = (TypeOfChange) atoi(row[1]);
 
+			cout << "Retrieving change to table: " << m_sName << " batch: " << psc_batch << " id: " << psc_id << " toc: " << (int) psc_toc << endl;
+
 			if( psc_toc==toc_Delete )
 			{
 				ChangedRow *pChangedRow = new ChangedRow(this,psc_toc,psc_id,psc_batch);
@@ -1572,6 +1574,7 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 			MYSQL_ROW row2=NULL;
 			if( psc_toc!=toc_Modify || ( result_set2.r=m_pDatabase->mysql_query_result( sSql.str() ) )==NULL || ( row2 = mysql_fetch_row( result_set2.r ) )==NULL )
 			{
+				cout << "It's either not a modify (2) or it's not in pschist"  << endl;
 				/* This shouldn't happen, but since it did, just add all fields */
 				if( psc_toc==toc_Modify )
 					cerr << "***ERROR*** Cannot find value in history mask table:" << sSql.str() << endl;
@@ -1586,6 +1589,7 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 			}
 			else
 			{
+				cout << "It's a modify and it's in pschist"  << endl;
 				for(int i=0;i<(int) result_set2.r->field_count;++i)
 				{
 					string Field = result_set2.r->fields[i].name;
@@ -1603,6 +1607,7 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 				pChangedRow->m_mapFieldValues[Field] = (row[i] ? row[i] : NULL_TOKEN);
 			}
 
+			cout << "Row has %d changed fields: " << (int) pChangedRow->m_mapFieldValues.size() << endl;
 			mapChangedRow[psc_id] = pChangedRow;
 		}
 	}
@@ -2088,7 +2093,7 @@ bool Table::ShowChanges(int psc_user)
 
 void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 {
-	cout << "Apply changed row for id: " << pChangedRow->m_psc_id << endl;
+	cout << "Apply changed row for id: " << pChangedRow->m_psc_id << " type: " << (int) pChangedRow->m_eTypeOfChange << " fields: " << 			cout << "Row has %d changed fields: " << (int) pChangedRow->m_mapFieldValues.size() << endl;
 
 	ostringstream sSql;
 	if( pChangedRow->m_eTypeOfChange==toc_Delete )
