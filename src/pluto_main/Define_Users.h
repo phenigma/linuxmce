@@ -31,6 +31,8 @@
 #define USERS_FK_LANGUAGE_TABLE_FIELD "Users.FK_Language"
 #define USERS_FK_INSTALLATION_MAIN_FIELD "FK_Installation_Main"
 #define USERS_FK_INSTALLATION_MAIN_TABLE_FIELD "Users.FK_Installation_Main"
+#define USERS_HIDEFROMORBITER_FIELD "HideFromOrbiter"
+#define USERS_HIDEFROMORBITER_TABLE_FIELD "Users.HideFromOrbiter"
 #define USERS_STAFF_FIELD "Staff"
 #define USERS_STAFF_TABLE_FIELD "Users.Staff"
 #define USERS_PASSWORD_UNIX_FIELD "Password_Unix"

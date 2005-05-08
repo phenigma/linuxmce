@@ -89,6 +89,7 @@ long int m_ExtensionRingTimeout;
 string m_ForwardEmail;
 short int m_FK_Language;
 long int m_FK_Installation_Main;
+short int m_HideFromOrbiter;
 short int m_Staff;
 string m_Password_Unix;
 string m_Password_Samba;
@@ -100,7 +101,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[24];
+		bool is_null[25];
 	
 	public:
 		long int PK_Users_get();
@@ -117,6 +118,7 @@ long int ExtensionRingTimeout_get();
 string ForwardEmail_get();
 short int FK_Language_get();
 long int FK_Installation_Main_get();
+short int HideFromOrbiter_get();
 short int Staff_get();
 string Password_Unix_get();
 string Password_Samba_get();
@@ -143,6 +145,7 @@ void ExtensionRingTimeout_set(long int val);
 void ForwardEmail_set(string val);
 void FK_Language_set(short int val);
 void FK_Installation_Main_set(long int val);
+void HideFromOrbiter_set(short int val);
 void Staff_set(short int val);
 void Password_Unix_set(string val);
 void Password_Samba_set(string val);
@@ -219,7 +222,7 @@ void Room_Users_FK_Users_getrows(vector <class Row_Room_Users*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Users+ m_UserName+ m_Password+ m_PINCode+ m_HasMailbox+ m_AccessGeneralMailbox+ m_Extension+ m_FirstName+ m_LastName+ m_Nickname+ m_ExtensionRingTimeout+ m_ForwardEmail+ m_FK_Language+ m_FK_Installation_Main+ m_Staff+ m_Password_Unix+ m_Password_Samba+ m_FK_UserMode+ m_EK_Dealer+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Users+ m_UserName+ m_Password+ m_PINCode+ m_HasMailbox+ m_AccessGeneralMailbox+ m_Extension+ m_FirstName+ m_LastName+ m_Nickname+ m_ExtensionRingTimeout+ m_ForwardEmail+ m_FK_Language+ m_FK_Installation_Main+ m_HideFromOrbiter+ m_Staff+ m_Password_Unix+ m_Password_Samba+ m_FK_UserMode+ m_EK_Dealer+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -238,6 +241,7 @@ string ExtensionRingTimeout_asSQL();
 string ForwardEmail_asSQL();
 string FK_Language_asSQL();
 string FK_Installation_Main_asSQL();
+string HideFromOrbiter_asSQL();
 string Staff_asSQL();
 string Password_Unix_asSQL();
 string Password_Samba_asSQL();
