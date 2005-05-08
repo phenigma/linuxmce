@@ -1500,7 +1500,7 @@ void Database::Approve( bool bReject )
 		if( r_ApproveBatch.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 		{
 			ra_Processor.RemoveRequest( &r_ApproveBatch ); /**< It's going to fall out of scope, so we don't want the processor to retry */
-			cerr << "Unable to approve batch:" << (int) r_ApproveBatch.m_cProcessOutcome << endl;
+			cerr << "Unable to approve batch:" << (int) r_ApproveBatch.m_cProcessOutcome << " " << r_ApproveBatch.m_sMessage << endl;
 			if( r_ApproveBatch.m_cProcessOutcome==LOGIN_FAILED )
 				cerr << "Login failed" << endl;
 

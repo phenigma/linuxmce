@@ -1416,6 +1416,8 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 for(size_t s=0;s<vectIUs.size();++s)
                 {
                     Row_Installation_Users *drIU = vectIUs[s];
+					if( drIU->FK_Users_getrow()->HideFromOrbiter_get()==1 )
+						continue;
                     if( PK_Array==ARRAY_Phone_Users_CONST && drIU->FK_Users_getrow()->Extension_isNull() )
                         continue;
                     alArray->push_back(new ArrayValue(StringUtils::itos(drIU->FK_Users_getrow()->PK_Users_get()),drIU->FK_Users_getrow()->UserName_get(),NULL,0,0,

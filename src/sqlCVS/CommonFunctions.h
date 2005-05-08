@@ -140,18 +140,18 @@ cout << "Map was null, using internal" << endl;
 cout << "Ready to loop.  size is: " << (int) pmapUsersPasswords->size() << endl;
 			for(MapStringString::iterator it=pmapUsersPasswords->begin();it!=pmapUsersPasswords->end();++it)
 			{
-				bool bNoPassword,bSupervisor;
+				bool bNoPassword,bSupervisor2;
 cout << "before validate user" << endl;
-				int psc_user = ValidateUser( (*it).first, (*it).second, bNoPassword, bSupervisor );
+				int psc_user = ValidateUser( (*it).first, (*it).second, bNoPassword, bSupervisor2 );
 cout << "validate user:" << psc_user << endl;
 				if( !psc_user )
 				{
 					return false;
 				}
-				cout << "Validated user: " << psc_user << " Is sup: " << bSupervisor << endl;
+				cout << "Validated user: " << psc_user << " Is sup: " << bSupervisor2 << endl;
 				bValidatedUser=true;
-				m_mapValidatedUsers[psc_user]=new ValidatedUser(psc_user,bNoPassword,bSupervisor);
-				if( bSupervisor )
+				m_mapValidatedUsers[psc_user]=new ValidatedUser(psc_user,bNoPassword,bSupervisor2);
+				if( bSupervisor2 )
 					bSupervisor=true;
 			}
 			return bExpectAtLeastOne==false || bValidatedUser;

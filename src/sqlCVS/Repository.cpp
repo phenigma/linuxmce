@@ -1431,6 +1431,7 @@ bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *p
 						int i = row[0] ? atoi(row[0]) : 0;
 						if( i && g_GlobalConfig.m_mapValidatedUsers.find(i)==g_GlobalConfig.m_mapValidatedUsers.end() )
 						{
+							cout << "Not authorized to commit this batch";
 							pR_ApproveBatch->m_sMessage = "Not authorized to commit this batch";
 							return false;
 						}
