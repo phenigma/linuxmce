@@ -2090,7 +2090,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 {
 	cout << "Apply changed row for id: " << pChangedRow->m_psc_id << endl;
 
-	ostringstream sSql,sSqlMask;
+	ostringstream sSql;
 	if( pChangedRow->m_eTypeOfChange==toc_Delete )
 	{
 		sSql << "DELETE FROM `" << m_sName << "` WHERE psc_id=" << pChangedRow->m_psc_id;

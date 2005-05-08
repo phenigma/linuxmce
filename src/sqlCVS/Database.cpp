@@ -1458,7 +1458,7 @@ void Database::Rollback( )
 	}
 }
 
-void Database::Approve( )
+void Database::Approve( bool bReject )
 {
 	if( g_GlobalConfig.m_mapRepository.size()==0 && PromptForRepositories(true)!=1 )
 		return;  // User must have chosen quit
@@ -1484,7 +1484,7 @@ void Database::Approve( )
 	for(MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin();it!=g_GlobalConfig.m_mapRepository.end();++it)
 	{
 		Repository *pRepository = (*it).second;
-		R_ApproveBatch r_ApproveBatch( pRepository->Name_get(), g_GlobalConfig.m_psc_batch );
+		R_ApproveBatch r_ApproveBatch( pRepository->Name_get(), g_GlobalConfig.m_psc_batch, bReject );
 		for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
 		{
 			// We don't care about user 0, or users who didn't log in
@@ -1506,7 +1506,10 @@ void Database::Approve( )
 
 			return;
 		}
-		cout << "Approved batch in repository: " << pRepository->Name_get() << endl;
+		if( bReject )
+			cout << "Rejected batch in repository: " << pRepository->Name_get() << endl;
+		else
+			cout << "Approved batch in repository: " << pRepository->Name_get() << endl;
 	}
 }
 

@@ -153,7 +153,7 @@ namespace sqlCVS
 		/**
 		 *  @brief Approve an existing unauthorized batch
 		 */
-		void Approve( );
+		void Approve( bool bReject=false );
 
 		/**
 		 *  @brief MySql's transaction handling.  This only works with the InnoDB engine

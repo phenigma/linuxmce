@@ -109,6 +109,7 @@ string GetCommand( )
 		<< "D.	**disabled** Synchronize my database with the server. Same as checkin+update ( sync )" << endl
 		<< "E.	View my local changes ( diff )" << endl
 		<< "F.	Approve pending batch ( approve )" << endl
+		<< "G.	Reject pending batch ( reject )" << endl
 		<< endl
 		<< "Z.	Change login or users" << endl
 		<< endl 
@@ -157,6 +158,8 @@ string GetCommand( )
 		return "diff";
 	else if( s=="f" || s=="F" )
 		return "approve";
+	else if( s=="g" || s=="G" )
+		return "reject";
 	else if( s=="z" || s=="Z" )
 		ChangeLoginUsers();  // This will loop back to the same menu
 	else if( s=="q" || s=="Q" )
@@ -455,6 +458,10 @@ int main( int argc, char *argv[] )
 			else if( g_GlobalConfig.m_sCommand=="approve" )
 			{
 				database.Approve();
+			}
+			else if( g_GlobalConfig.m_sCommand=="reject" )
+			{
+				database.Approve(true);
 			}
 			else
 			{

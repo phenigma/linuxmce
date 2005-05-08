@@ -1372,8 +1372,20 @@ void Repository::ResetSystemTables()
 bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *psqlCVSprocessor)
 {
 	psqlCVSprocessor->m_pRepository=this;
-
 	ostringstream sql;
+	if( pR_ApproveBatch->m_bReject )
+	{
+		sql << "UPDATE psc_" << m_sName << "_batdet SET FK_psc_" << m_sName << "_bathdr_auth=-1"
+			<< " WHERE FK_psc_" << m_sName << "_bathdr=" << pR_ApproveBatch->m_psc_batch;
+
+		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		{
+			cerr << "SQL failed: " << sql.str( ) << endl;
+			throw "Database Error";
+		}
+		return true;
+	}
+
 	sql << "SELECT DISTINCT Tablename FROM psc_" << m_sName << "_batdet WHERE FK_psc_" 
 		<< m_sName << "_bathdr=" << pR_ApproveBatch->m_psc_batch << " AND FK_psc_" << m_sName << "_bathdr_auth=0";
 	PlutoSqlResult result_set;

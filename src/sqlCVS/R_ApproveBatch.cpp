@@ -38,10 +38,11 @@
 
 using namespace sqlCVS;
 
-R_ApproveBatch::R_ApproveBatch( string sRepository, int psc_batch )
+R_ApproveBatch::R_ApproveBatch( string sRepository, int psc_batch, bool bReject )
 {
 	m_sRepository=sRepository;
 	m_psc_batch=psc_batch;
+	m_bReject=bReject;
 }
 
 bool R_ApproveBatch::ProcessRequest( class RA_Processor *pRA_Processor )

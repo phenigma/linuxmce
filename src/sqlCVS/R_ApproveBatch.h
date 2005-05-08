@@ -23,12 +23,13 @@ public:
 	map<string, string> m_mapUsersPasswords; /**< All the users who are checking in this session */
 	int m_psc_batch;
 	string m_sRepository;
+	bool m_bReject;
 
 	/** @brief Response Variables */
 	string m_sMessage;
 
 	/** @brief constructors */
-	R_ApproveBatch( string sRepository, int psc_batch );
+	R_ApproveBatch( string sRepository, int psc_batch, bool bReject );
 	R_ApproveBatch( ) {};
 
 	/**
@@ -42,7 +43,7 @@ public:
 	virtual void SetupSerialization_Request( )
 	{
 		RA_Request::SetupSerialization_Request( );
-		StartSerializeList( ) + m_sRepository + m_psc_batch + m_mapUsersPasswords ;
+		StartSerializeList( ) + m_sRepository + m_psc_batch + m_mapUsersPasswords + m_bReject;
 	}
 
 	virtual void SetupSerialization_Response( )
