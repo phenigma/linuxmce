@@ -14,33 +14,32 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
  
  */
-
+//------------------------------------------------------------------------------------------------------------------
 #include "plutomo.hrh"
 #include <avkon.hrh>
 #include <aknnotewrappers.h> 
 #include <aknutils.h>  // for Fonts. 
 #include <e32def.h>
-
 #include <aknviewappui.h>
 #include <avkon.hrh>
-
-#include "PlutoMOAppUi.h"
-#include "BD_PC_SelectedFromList.h"
-#include "BD_PC_SetVariable.h"
-#include "BD/BD_WhatDoYouHave.h"
-
-#include "PlutoUtils/PlutoDefs.h"
-
-#include "PlutoVMCContainer.h"
+//------------------------------------------------------------------------------------------------------------------
 #include "PlutoVMCUtil.h"
+//------------------------------------------------------------------------------------------------------------------
+#include "PlutoMOAppUi.h"
+#include "PlutoVMCContainer.h"
 #include "PlutoVMCView.h"
 #include "ImageLoader.h"
 #include "Logger.h"
-
+//------------------------------------------------------------------------------------------------------------------
+#include "BD_PC_SelectedFromList.h"
+#include "BD_PC_SetVariable.h"
+#include "PlutoUtils/PlutoDefs.h"
+#include "BD/BD_WhatDoYouHave.h"
+#include "VIPShared/BD_PC_KeyWasPressed.h"
+//------------------------------------------------------------------------------------------------------------------
 #ifdef __WINS__
 //#define TEST_DATAGRID
 #endif
-
 //------------------------------------------------------------------------------------------------------------------
 CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aUid, scop)
 {
@@ -92,6 +91,7 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 	m_CaptureKeyboardParam.bDataGrid = false;
 	m_CaptureKeyboardParam.bReset = true;
 	m_CaptureKeyboardParam.bTypePin = false;
+	m_CaptureKeyboardParam.bNumbersOnly = false;
 	m_CaptureKeyboardParam.bTextBox = true;
 	m_CaptureKeyboardParam.iVariable = 17;
 	m_CaptureKeyboardParam.sVariableValue = "";
@@ -101,6 +101,11 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 	m_CaptureKeyboardParam.TextHeight = 25;
 	m_CaptureKeyboardParam.Reset();	
 #endif
+
+	string sRepList = "30,31";
+	InterceptRepeatedKeys(sRepList.length(), sRepList.c_str());
+	bool bubu1 = IsRepeatedKey(0xA4);
+	bool bubu2 = IsRepeatedKey(EStdKeyLeftArrow);
 
 	m_bEdit_BackspacePressed = false;
 }
@@ -170,9 +175,13 @@ void CPlutoVMCUtil::SetList(
 		m_uGridWidth	= Width;
 		m_uGridHeight	= Height;
 
+		int i;
+		for(i = 0; i < m_GridList.Count(); i++)
+			delete m_GridList[i];
+
 		m_GridList.Reset();
 
-		for(int i = 0; i < List.Count(); i++)
+		for(i = 0; i < List.Count(); i++)
 		{
 			m_GridList.Append(List[i]);
 		}
@@ -185,11 +194,34 @@ void CPlutoVMCUtil::SetList(
 
 }
 //------------------------------------------------------------------------------------------------------------------
+void CPlutoVMCUtil::InterceptRepeatedKeys(unsigned long  KeysListSize, const char *pRepeatedKeysList)
+{
+	int i;
+	for(i = 0; i < m_RepeatedKeys.Count(); i++)
+		delete m_RepeatedKeys[i];
+
+	m_RepeatedKeys.Reset();
+
+	if(KeysListSize)
+	{
+		unsigned int msgpos = 0;
+		string token;
+		string sList = pRepeatedKeysList;
+
+		while((token = StringUtils::Tokenize(sList, ",", msgpos)) != "") 	
+		{
+			int *item = new int;
+			*item = PlutoKey2SymbianKey(atoi(token.c_str()));
+			m_RepeatedKeys.Append(item);
+		}
+	}
+}
+//------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 	bool bOnOff, 
 	bool bDataGrid, 
 	bool bReset, 
-	bool bTypePin, 
+	int  iEditType, 
 	int  iVariable, 
 	string sText
 )
@@ -200,7 +232,9 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 	{
 		m_CaptureKeyboardParam.bDataGrid = bDataGrid;
 		m_CaptureKeyboardParam.bReset = bReset;
-		m_CaptureKeyboardParam.bTypePin = bTypePin; 
+
+		m_CaptureKeyboardParam.bTypePin = 2 == iEditType; 
+		m_CaptureKeyboardParam.bNumbersOnly = 1 == iEditType;
 
 		m_CaptureKeyboardParam.iVariable = iVariable;
 
@@ -902,6 +936,22 @@ void CPlutoVMCUtil::LocalKeyPressed(int KeyCode)
 	}
 }
 //------------------------------------------------------------------------------------------------------------------
+void CPlutoVMCUtil::SendKey(int KeyCode, int EventType) 
+{ 
+	BDCommandProcessor_Symbian_Base* pBDCommandProcessor = 
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor;
+
+	if(pBDCommandProcessor)
+	{
+		BDCommand *pCommand = new BD_PC_KeyWasPressed(KeyCode, EventType);
+		pBDCommandProcessor->AddCommand(pCommand);
+
+		BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
+		pBDCommandProcessor->AddCommand(pBD_WhatDoYouHave);
+		pBDCommandProcessor->ProcessCommands(!m_bSimulation);
+	}
+}
+//------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::OpenProgram(string ProgramName)
 {
 	//TODO: implement this
@@ -934,3 +984,87 @@ bool CPlutoVMCUtil::Draw3dRect(MyRect &rect)
 	return true;
 }
 //------------------------------------------------------------------------------------------------------------------
+int CPlutoVMCUtil::PlutoKey2SymbianKey(long iPlutoKey)
+{
+	int iSymbianKey = 0;
+
+	switch(iPlutoKey)
+	{
+		case BUTTON_Up_Arrow_CONST:			iSymbianKey=EStdKeyUpArrow;			break;
+		case BUTTON_Down_Arrow_CONST:		iSymbianKey=EStdKeyDownArrow;		break;
+		case BUTTON_Right_Arrow_CONST:		iSymbianKey=EStdKeyRightArrow;		break;
+		case BUTTON_Left_Arrow_CONST:		iSymbianKey=EStdKeyLeftArrow;		break;
+		case BUTTON_Phone_Talk_CONST:		iSymbianKey=EStdKeyYes;				break;
+		case BUTTON_Phone_End_CONST:		iSymbianKey=EStdKeyNo;				break;
+		case BUTTON_Enter_CONST:			iSymbianKey=EStdKeyEnter;			break;
+		case BUTTON_Phone_C_CONST:			iSymbianKey=EStdKeyEscape;			break;
+		case BUTTON_Asterisk_CONST:			iSymbianKey=EStdKeyNkpAsterisk;		break;
+		case BUTTON_Pound_CONST:			iSymbianKey=EStdKeyHash;			break;
+		case BUTTON_Phone_Pencil_CONST:		iSymbianKey=0x12;					break;
+		case BUTTON_Phone_Soft_left_CONST:	iSymbianKey=0xA4;					break;
+		case BUTTON_Phone_Soft_right_CONST:	iSymbianKey=0xA5;					break;
+			
+		case BUTTON_0_CONST:				iSymbianKey=0x30;					break;
+		case BUTTON_1_CONST:				iSymbianKey=0x31;					break;
+		case BUTTON_2_CONST:				iSymbianKey=0x32;					break;
+		case BUTTON_3_CONST:				iSymbianKey=0x33;					break;
+		case BUTTON_4_CONST:				iSymbianKey=0x34;					break;
+		case BUTTON_5_CONST:				iSymbianKey=0x35;					break;
+		case BUTTON_6_CONST:				iSymbianKey=0x36;					break;
+		case BUTTON_7_CONST:				iSymbianKey=0x37;					break;
+		case BUTTON_8_CONST:				iSymbianKey=0x38;					break;
+		case BUTTON_9_CONST:				iSymbianKey=0x39;					break;
+	}
+
+	return iSymbianKey;
+}
+//------------------------------------------------------------------------------------------------------------------
+long CPlutoVMCUtil::SymbianKey2PlutoKey(int iSymbianKey)
+{
+	int iPlutoKey = 0;
+
+	switch(iSymbianKey)
+	{
+		case EStdKeyUpArrow:				iPlutoKey=BUTTON_Up_Arrow_CONST;		break;
+		case EStdKeyDownArrow:				iPlutoKey=BUTTON_Down_Arrow_CONST;		break;
+		case EStdKeyRightArrow:				iPlutoKey=BUTTON_Right_Arrow_CONST;		break;
+		case EStdKeyLeftArrow:				iPlutoKey=BUTTON_Left_Arrow_CONST;		break;
+		case EStdKeyYes:					iPlutoKey=BUTTON_Phone_Talk_CONST;		break;
+		case EStdKeyNo:						iPlutoKey=BUTTON_Phone_End_CONST;		break;
+		case EStdKeyEnter:					iPlutoKey=BUTTON_Enter_CONST;			break;
+		case EStdKeyEscape:					iPlutoKey=BUTTON_Phone_C_CONST;			break;
+		case EStdKeyNkpAsterisk:			iPlutoKey=BUTTON_Asterisk_CONST;		break;
+		case EStdKeyHash:					iPlutoKey=BUTTON_Pound_CONST;			break;
+		case 0x12:							iPlutoKey=BUTTON_Phone_Pencil_CONST;	break;
+		case 0xA4:							iPlutoKey=BUTTON_Phone_Soft_left_CONST;	break;
+		case 0xA5:							iPlutoKey=BUTTON_Phone_Soft_right_CONST;break;
+			
+		case 0x30:							iPlutoKey=BUTTON_0_CONST;				break;
+		case 0x31:							iPlutoKey=BUTTON_1_CONST;				break;
+		case 0x32:							iPlutoKey=BUTTON_2_CONST;				break;
+		case 0x33:							iPlutoKey=BUTTON_3_CONST;				break;
+		case 0x34:							iPlutoKey=BUTTON_4_CONST;				break;
+		case 0x35:							iPlutoKey=BUTTON_5_CONST;				break;
+		case 0x36:							iPlutoKey=BUTTON_6_CONST;				break;
+		case 0x37:							iPlutoKey=BUTTON_7_CONST;				break;
+		case 0x38:							iPlutoKey=BUTTON_8_CONST;				break;
+		case 0x39:							iPlutoKey=BUTTON_9_CONST;				break;
+
+	}
+
+	return iPlutoKey;
+}
+//------------------------------------------------------------------------------------------------------------------
+bool CPlutoVMCUtil::IsRepeatedKey(int iSymbianKey)
+{
+	for(int i = 0; i < m_RepeatedKeys.Count(); i++)
+	{
+		int *pRepeatedKey = m_RepeatedKeys[i];
+		if(*pRepeatedKey == iSymbianKey)
+			return true;
+	}
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------------
+

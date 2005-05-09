@@ -45,12 +45,21 @@ public:
 			bool bOnOff, 
 			bool bDataGrid, 
 			bool bReset, 
-			bool bTypePin, 
+			int  iEditType, 
 			int  iVariable, 
 			string sText
 		);
 
+		int PlutoKey2SymbianKey(long iPlutoKey);
+		long SymbianKey2PlutoKey(int iSymbianKey);
+
+		bool IsRepeatedKey(int iSymbianKey);
+		
+		void InterceptRepeatedKeys(unsigned long  KeysListSize, const char *pRepeatedKeysList);
+
 		void LocalKeyPressed(int KeyCode);
+		void SendKey(int KeyCode, int EventType);
+
 		void LocalDoRender();
 
 		virtual void Redraw();
@@ -110,6 +119,7 @@ private:
 		unsigned long m_uGridHeight;
 
 		RPointerArray<string> m_GridList;
+		RPointerArray<int> m_RepeatedKeys;
 
 		bool m_bGridSendSelectedOnMove;
 };

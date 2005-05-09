@@ -68,6 +68,10 @@ BD_CP_ShowList::~BD_CP_ShowList()
 #ifndef SYMBIAN
 	m_DataGridList.clear();
 #else
+	int i;
+	for(i = 0; i < m_DataGridList.Count(); i++)
+		delete m_DataGridList[i];
+
 	m_DataGridList.Close();
 #endif //SYMBIAN
 }

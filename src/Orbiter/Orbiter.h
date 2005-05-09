@@ -137,7 +137,7 @@ protected:
 	/** flags */
 	bool m_bCaptureKeyboard_OnOff; /** < flag for capture keyboard */
 	bool m_bCaptureKeyboard_Reset; /** < flag for capture keyboard */
-	bool m_bCaptureKeyboard_TypePin; /** < flag for capture keyboard */
+	int m_iCaptureKeyboard_EditType; /** < 0 = normal, 1 = numbers only, 2 = pin */
 	bool m_bCaptureKeyboard_DataGrid; /** < flag for capture keyboard */
 	bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
 
@@ -147,9 +147,15 @@ protected:
 	string m_sNowPlaying; /** < set by the media engine, this is whatever media is currently playing */
 	int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
 	time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */
-	string m_sCacheFolder; /** < Where to store graphic files for caching */
+    time_t m_tButtonDown;  
+    string m_sCacheFolder; /** < Where to store graphic files for caching */
 	int m_iCacheSize; /** < The maximum size of the graphics files stored (MB) */
     int m_iVideoFrameInterval; /** < The interval between two frame requested from the router */
+
+    bool m_bShiftDown;
+    bool m_bControlDown;
+    bool m_bAltDown;
+    bool m_bCapsLock;
 
 	DesignObjText *m_pCaptureKeyboard_Text; /** < @todo ask */
 	map<int,  vector<PlutoGraphic*> *> m_mapUserIcons; /** < user icons */
@@ -503,6 +509,10 @@ void RealRedraw( void *data );  // temp hack -- see comments
 
 	virtual void PlayMNG_CallBack(void *data);
 
+    virtual void GetRepeatedKeysForScreen(DesignObj_Orbiter* pObj, string& sKeysList);
+
+    virtual bool IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button);
+
 	/**
 	 * @brief renders text with the specified style
 	 */
@@ -635,6 +645,10 @@ protected:
 	 * @warning We don't handle this here
 	 */
 	virtual bool RegionUp(int iX, int iY);
+
+
+    virtual void StopRepeatRelatedEvents();
+    virtual bool HandleButtonEvent(int PK_Button);
 
 public:
 	/**

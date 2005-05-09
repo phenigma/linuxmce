@@ -210,7 +210,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 
     m_bCaptureKeyboard_OnOff = false;
     m_bCaptureKeyboard_Reset = false;
-    m_bCaptureKeyboard_TypePin = false;
+    m_iCaptureKeyboard_EditType = 0;
     m_bCaptureKeyboard_DataGrid = false;
     m_iCaptureKeyboard_PK_Variable = 0;
     m_sCaptureKeyboard_Text = "";
@@ -235,6 +235,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	pthread_cond_init(&m_MaintThreadCond, NULL);
 	m_MaintThreadMutex.Init(NULL,&m_MaintThreadCond);
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
+
+    m_bShiftDown = false;
+    m_bControlDown = false;
+    m_bAltDown = false;
+    m_bCapsLock = false;
 }
 
 //<-dceag-const2-b->!
@@ -448,7 +453,6 @@ if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
     }
 #endif
 g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
-
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -3168,17 +3172,17 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 	return false;
 }
 
-bool Orbiter::ButtonDown( int PK_Button )
+/*virtual*/ bool Orbiter::HandleButtonEvent(int PK_Button)
 {
     if( !PK_Button || !m_pScreenHistory_Current )
         return false;
-    NeedToRender render( this, "Button Down" );  // Redraw anything that was changed by this command
 
+    NeedToRender render( this, "Button Down" );  // Redraw anything that was changed by this command
     class ScreenHistory *pScreenHistory = m_pScreenHistory_Current;
 
     bool bHandled=false;
     if( !GotActivity(  ) )
-		return true;
+        return true;
 
     if(  PK_Button == BUTTON_Enter_CONST  )
     {
@@ -3195,17 +3199,17 @@ bool Orbiter::ButtonDown( int PK_Button )
             for( s=0;s<m_vectObjs_GridsOnScreen.size(  );++s )
             {
                 DesignObj_DataGrid *pDesignObj_DataGrid = m_vectObjs_GridsOnScreen[s];
-				// We're using the arrows, so use this to activate the cell
+                // We're using the arrows, so use this to activate the cell
                 if(  !pDesignObj_DataGrid->IsHidden(  ) && pDesignObj_DataGrid->m_pDataGridTable && pDesignObj_DataGrid->m_sExtraInfo.find( 'A' )!=string::npos )
                 {
                     // We've got a datagrid that allows the user to highlight cells without selecting them.  Now that enter was pressed it needs to select the cell
-					g_pPlutoLogger->Write(LV_STATUS, "Enter key press. Status: iHighlightedColumn %d, GridCurCol %d, iHighlightedRow %d, GridCurRow %d",
-						pDesignObj_DataGrid->m_iHighlightedColumn, pDesignObj_DataGrid->m_GridCurCol,
-						pDesignObj_DataGrid->m_iHighlightedRow, pDesignObj_DataGrid->m_GridCurRow);
+                    g_pPlutoLogger->Write(LV_STATUS, "Enter key press. Status: iHighlightedColumn %d, GridCurCol %d, iHighlightedRow %d, GridCurRow %d",
+                        pDesignObj_DataGrid->m_iHighlightedColumn, pDesignObj_DataGrid->m_GridCurCol,
+                        pDesignObj_DataGrid->m_iHighlightedRow, pDesignObj_DataGrid->m_GridCurRow);
 
                     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
-						pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol,
-						pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
+                        pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol,
+                        pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
                     if(  pCell  )
                     {
                         // First select the cell,  then select the grid object,  passing in -1 values so it won't reselect the cell
@@ -3214,15 +3218,15 @@ bool Orbiter::ButtonDown( int PK_Button )
                     }
                 }
             }
-g_pPlutoLogger->Write(LV_STATUS,"Before dg release.  %d",(int) vectSelectedGrids.size(  ));
+            g_pPlutoLogger->Write(LV_STATUS,"Before dg release.  %d",(int) vectSelectedGrids.size(  ));
             dg.Release(  );
             for( s=0;s<vectSelectedGrids.size(  );++s )
             {
-g_pPlutoLogger->Write(LV_STATUS,"in for loop: %d",(int) s);
+                g_pPlutoLogger->Write(LV_STATUS,"in for loop: %d",(int) s);
                 DesignObj_DataGrid *pDesignObj_DataGrid = vectSelectedGrids[s];
                 SelectedObject( pDesignObj_DataGrid, -1, -1 );
             }
-g_pPlutoLogger->Write(LV_STATUS,"after for loop");
+            g_pPlutoLogger->Write(LV_STATUS,"after for loop");
         }
     }
     if(  !( bHandled=ClickedButton( m_pScreenHistory_Current->m_pObj,  PK_Button ) )  )
@@ -3276,7 +3280,7 @@ g_pPlutoLogger->Write(LV_STATUS,"after for loop");
         }
         else if(  PK_Button==BUTTON_F4_CONST  )  // home
         {
-g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
+            g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
             //LACA_B4_0( "Orbitercore::respond to input home" );
             GotoScreen( m_sMainMenu );
             bHandled=true;
@@ -3296,7 +3300,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
                 ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
                 ( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
                 ( PK_Button >= BUTTON_1_CONST && PK_Button <= BUTTON_0_CONST )
-                 )
+                )
             {
                 char ch;
 
@@ -3306,8 +3310,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
                     ch = '1' + PK_Button - BUTTON_1_CONST;
                 else
                     ch = ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ?
-                        'a' + PK_Button - BUTTON_a_CONST :
-                        'A' + PK_Button - BUTTON_A_CONST;
+                    'a' + PK_Button - BUTTON_a_CONST :
+                'A' + PK_Button - BUTTON_A_CONST;
 
                 bHandled |= CaptureKeyboard_EditText_AppendChar( ch );
             }
@@ -3324,14 +3328,14 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
             else if( PK_Button == BUTTON_caps_lock_CONST )
                 int k=2;// TODO: implement this
 
-			if(bHandled)
-			{
-				if(NULL != m_pCaptureKeyboard_Text && NULL != m_pCaptureKeyboard_Text->m_pObject)
-				{
-					PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
-					m_vectObjs_NeedRedraw.push_back(m_pCaptureKeyboard_Text->m_pObject);
-				}
-			}
+            if(bHandled)
+            {
+                if(NULL != m_pCaptureKeyboard_Text && NULL != m_pCaptureKeyboard_Text->m_pObject)
+                {
+                    PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
+                    m_vectObjs_NeedRedraw.push_back(m_pCaptureKeyboard_Text->m_pObject);
+                }
+            }
         }
 
         if( m_bCaptureKeyboard_DataGrid )
@@ -3340,7 +3344,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
                 ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
                 ( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
                 ( PK_Button == BUTTON_Back_CONST )
-                 )
+                )
             {
                 PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
                 if( m_vectObjs_GridsOnScreen.size(  ) > 0 )
@@ -3362,9 +3366,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
                         {
                             pDataGrid->m_iHighlightedRow = i;
 
-							PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
+                            PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
                             m_vectObjs_NeedRedraw.push_back( pDataGrid );
-							nd.Release();
+                            nd.Release();
 
                             //selected
                             bHandled = true;
@@ -3393,33 +3397,107 @@ g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
 
     return bHandled;
 }
-//------------------------------------------------------------------------
+
+bool Orbiter::ButtonDown( int iPK_Button )
+{
+    //if this is a repeated button, we'll handle it right away
+    if(IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button))
+    {
+g_pPlutoLogger->Write(LV_CRITICAL, "Repeated key %d", iPK_Button);
+        return HandleButtonEvent(iPK_Button);
+    }
+
+    //this is not a repeated button
+    //it will be handled in ButtonUp
+    m_tButtonDown = clock();
+    return false;
+}
+
 bool Orbiter::ButtonUp( int iPK_Button )
 {
-	// TODO: See it we need the button
-    NeedToRender render( this, "Button Up" );  // Redraw anything that was changed by this command
+    //if this was a repeated button, we might want to stop all repeat related events
+    if(IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button)) 
+    {
+        StopRepeatRelatedEvents();
+        return false;
+    }
 
-    return false; // We don't handle buttons
+    //this is not a repeated button
+    if(m_tButtonDown && clock() - m_tButtonDown > CLOCKS_PER_SEC/2)
+    {
+        //it is a long key - let's get the right button code
+        switch(	iPK_Button)
+        {
+            case BUTTON_0_CONST:        iPK_Button = BUTTON_Rept_0_CONST; break;
+            case BUTTON_1_CONST:        iPK_Button = BUTTON_Rept_1_CONST; break;
+            case BUTTON_2_CONST:        iPK_Button = BUTTON_Rept_2_CONST; break;
+            case BUTTON_3_CONST:        iPK_Button = BUTTON_Rept_3_CONST; break;
+            case BUTTON_4_CONST:        iPK_Button = BUTTON_Rept_4_CONST; break;
+            case BUTTON_5_CONST:        iPK_Button = BUTTON_Rept_5_CONST; break;
+            case BUTTON_6_CONST:        iPK_Button = BUTTON_Rept_6_CONST; break;
+            case BUTTON_7_CONST:        iPK_Button = BUTTON_Rept_7_CONST; break;
+            case BUTTON_8_CONST:        iPK_Button = BUTTON_Rept_8_CONST; break;
+            case BUTTON_9_CONST:        iPK_Button = BUTTON_Rept_9_CONST; break;
+            case BUTTON_Asterisk_CONST: iPK_Button = BUTTON_Rept_Asterisk_CONST;  break;
+            case BUTTON_Pound_CONST:    iPK_Button = BUTTON_Rept_Pound_CONST;     break;
+
+#ifdef PHONEKEYS
+                case BUTTON_C_CONST:
+                case BUTTON_c_CONST:
+                    iPK_Button = BUTTON_Rept_Phone_C_CONST;         
+                    break;
+                case BUTTON_P_CONST:
+                case BUTTON_p_CONST:
+                    iPK_Button = BUTTON_Rept_Phone_Pencil_CONST;    
+                    break;
+                case BUTTON_T_CONST:
+                case BUTTON_t_CONST:
+                    iPK_Button = BUTTON_Rept_Phone_Talk_CONST;      
+                    break;
+                case BUTTON_E_CONST:
+                case BUTTON_e_CONST:
+                    iPK_Button = BUTTON_Rept_Phone_End_CONST;       
+                    break;
+                case BUTTON_L_CONST:
+                case BUTTON_l_CONST:
+                    iPK_Button = BUTTON_Rept_Phone_Soft_left_CONST; 
+                    break;
+                case BUTTON_R_CONST:
+                case BUTTON_r_CONST:
+                    iPK_Button = BUTTON_Rept_Phone_Soft_right_CONST;
+                    break;
+#endif 
+        }
+
+g_pPlutoLogger->Write(LV_CRITICAL, "Long key %d", iPK_Button);
+    }
+else
+g_pPlutoLogger->Write(LV_CRITICAL, "Short key %d", iPK_Button);
+        
+    return HandleButtonEvent(iPK_Button);
+}
+
+/*virtual*/ void Orbiter::StopRepeatRelatedEvents()
+{
+    m_bWeCanRepeat=true;
+    if( m_bRepeatingObject )
+    {
+        PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
+        for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+        {
+            CallBackInfo *pCallBackInfo = (*it).second;
+            if( pCallBackInfo->m_fnCallBack== &Orbiter::ReselectObject )
+                pCallBackInfo->m_bStop=true;
+        }
+        m_bRepeatingObject=false;
+    }
 }
 
 bool Orbiter::RegionUp( int x,  int y )
 {
-	m_bWeCanRepeat=true;
-	if( m_bRepeatingObject )
-	{
-	    PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
-		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
-		{
-			CallBackInfo *pCallBackInfo = (*it).second;
-			if( pCallBackInfo->m_fnCallBack== &Orbiter::ReselectObject )
-				pCallBackInfo->m_bStop=true;
-		}
-		m_bRepeatingObject=false;
-	}
+    StopRepeatRelatedEvents();
 	return false;
 }
-
-//------------------------------------------------------------------------
 bool Orbiter::RegionDown( int x,  int y )
 {
 	NeedToRender render( this, "Region Down" );  // Redraw anything that was changed by this command
@@ -5530,7 +5608,7 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
     m_bCaptureKeyboard_OnOff = sOnOff == "0" ? false : true;
 
     //normal/pin paramter
-    m_bCaptureKeyboard_TypePin = sType == "2";
+    m_iCaptureKeyboard_EditType = atoi(sType.c_str());
 
     //reset parameter
     m_bCaptureKeyboard_Reset = sReset != "0";
@@ -6238,6 +6316,40 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", pObj->m_ObjectID.c_str());
 }
 
+/*virtual*/ void Orbiter::GetRepeatedKeysForScreen(DesignObj_Orbiter* pObj, string& sKeysList)
+{
+    if(pObj->m_bRepeatParm)
+    {
+        if(sKeysList.length())
+            sKeysList += ",";
+
+        sKeysList += StringUtils::ltos(pObj->m_iPK_Button);
+    }
+
+    DesignObj_DataList::iterator it;
+    for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
+    {
+        DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)(*it);
+        GetRepeatedKeysForScreen(pDesignObj_Orbiter, sKeysList);
+    }
+}
+
+/*virtual*/ bool Orbiter::IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button)
+{
+    if(pObj->m_bRepeatParm && pObj->m_iPK_Button == iPK_Button)
+        return true;
+
+    DesignObj_DataList::iterator it;
+    for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
+    {
+        DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)(*it);
+        if(IsRepeatedKeyForScreen(pDesignObj_Orbiter, iPK_Button))
+            return true;
+    }
+
+    return false;
+}
+
 /*virtual*/ void Orbiter::PlayMNG_CallBack(void *data)
 {
 	DesignObj_Orbiter* pObj = (DesignObj_Orbiter*)data;
@@ -6566,7 +6678,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 // Temporary function to debug a problem with the screen history
 void Orbiter::DumpScreenHistory()
 {
-	string s = "history size: " + StringUtils::itos(m_listScreenHistory.size());
+	string s = "history size: " + StringUtils::itos(int(m_listScreenHistory.size()));
 
 for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();++it)
 {

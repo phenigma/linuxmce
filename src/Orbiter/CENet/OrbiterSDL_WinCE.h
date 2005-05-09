@@ -36,9 +36,6 @@ class OrbiterSDL_WinCE : public OrbiterSDL
 {
 private:
 	
-    bool m_bShiftDown, m_bControlDown, m_bAltDown, m_bRepeat, m_bCapsLock;
-    clock_t m_cKeyDown;
-
 	static OrbiterSDL_WinCE* m_pInstance; //the one and only instance of OrbiterSDL_WinCE
 	
 	OrbiterSDL_WinCE(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 

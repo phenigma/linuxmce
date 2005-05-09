@@ -4,6 +4,7 @@
 #include "StringUtils.h"
 #include "SDL_syswm.h"
 #include "MainDialog.h"
+#include "VirtualKeysTranslator.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
@@ -83,13 +84,6 @@ OrbiterSDL_WinCE::OrbiterSDL_WinCE(int DeviceID, string ServerAddress, string sL
 		OldSDLWindowProc = reinterpret_cast<WNDPROC>(::SetWindowLong(hSDLWindow, 
 			GWL_WNDPROC, reinterpret_cast<long>(SDLWindowProc)));
 	}
-
-    m_bShiftDown = false;
-	m_bControlDown = false;
-	m_bAltDown = false;
-	m_bRepeat = false;
-	m_bCapsLock = false;
-    m_cKeyDown=0;
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
@@ -420,191 +414,36 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_WinCE::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (uMsg == WM_KEYDOWN)
+    Orbiter::Event orbiterEvent;
+    orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
+    orbiterEvent.data.button.m_iPK_Button = 0;
+
+    if(uMsg == WM_KEYDOWN)
+        orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
+    else if(uMsg == WM_KEYUP)
+        orbiterEvent.type = Orbiter::Event::BUTTON_UP;
+
+    if(!TranslateVirtualKeys2PlutoKeys(uMsg, wParam, lParam, orbiterEvent.data.button.m_iPK_Button, 
+        m_bShiftDown, m_bAltDown, m_bControlDown, m_bCapsLock)
+    )
+        return; //prevent auto-repeted
+
+    //orbiter win xp/ce specifics
+    if( wParam == VK_F12 && orbiterEvent.type == Orbiter::Event::BUTTON_UP) 
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Key pressed event");
-		switch (wParam)
-        {
-			case VK_SHIFT:
-				m_bShiftDown=true;
-				break;
-			case VK_CONTROL:
-				m_bControlDown=true;
-				break;
-			case VK_MENU:
-				m_bAltDown=true;
-				break;
-			case VK_CAPITAL:
-				m_bCapsLock = !m_bCapsLock;
-				break;
-			default:
-				m_cKeyDown = clock();  // We don't care how long the shift, ctrl or alt are held down, but the other keys do matter
-				break;
-        }
+        OnQuit();
     }
-    else if (uMsg == WM_KEYUP)
+#ifdef WINCE
+    else if( wParam == VK_F10) 
+#else
+    else if( wParam == VK_A && m_bControlDown)
+#endif
     {
-		RecordKeyboardAction(wParam);
+        ShowMainDialog();
+        m_bControlDown = false;
+    }
 
-        bool bHandled=false;
-        m_bRepeat = m_cKeyDown && clock() - m_cKeyDown > CLOCKS_PER_SEC/2;
-        m_cKeyDown=0;
-
-        g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d",(int) wParam, (int) m_bRepeat, (int) m_bShiftDown);
-
-        if( wParam == VK_SHIFT)
-            m_bShiftDown=false;
-        else if( wParam == VK_CONTROL)
-            m_bControlDown=false;
-        else if( wParam == VK_MENU )
-            m_bAltDown=false;
-		else if( wParam == VK_ESCAPE && m_bControlDown && m_bAltDown)
-		{
-			m_bQuit = true;
-
-			atexit(SDL_Quit);
-			::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
-
-			SDL_Event event;
-			event.type = SDL_USEREVENT;
-			SDL_PushEvent(&event); 
-		}
-		else if( wParam == VK_F10)
-		{
-			ShowMainDialog();
-		}
-        else if( !m_bShiftDown && !m_bControlDown && !m_bAltDown && !m_bRepeat )
-        {
-            switch (wParam)
-            {
-				case '0':
-					bHandled=ButtonDown(BUTTON_0_CONST);
-					break;
-				case '1':
-					bHandled=ButtonDown(BUTTON_1_CONST);
-					break;
-				case '2':
-					bHandled=ButtonDown(BUTTON_2_CONST);
-					break;
-				case '3':
-					bHandled=ButtonDown(BUTTON_3_CONST);
-					break;
-				case '4':
-					bHandled=ButtonDown(BUTTON_4_CONST);
-					break;
-				case '5':
-					bHandled=ButtonDown(BUTTON_5_CONST);
-					break;
-				case '6':
-					bHandled=ButtonDown(BUTTON_6_CONST);
-					break;
-				case '7':
-					bHandled=ButtonDown(BUTTON_7_CONST);
-					break;
-				case '8':
-					bHandled=ButtonDown(BUTTON_8_CONST);
-					break;
-				case '9':
-					bHandled=ButtonDown(BUTTON_9_CONST);
-					break;
-				case VK_F1:
-					bHandled=ButtonDown(BUTTON_F1_CONST);
-					break;
-				case VK_F2:
-					bHandled=ButtonDown(BUTTON_F2_CONST);
-					break;
-				case VK_F3:
-					bHandled=ButtonDown(BUTTON_F3_CONST);
-					break;
-				case VK_F4:
-					bHandled=ButtonDown(BUTTON_F4_CONST);
-					break;
-				case VK_F5:
-					bHandled=ButtonDown(BUTTON_F5_CONST);
-					break;
-				case VK_UP:
-					bHandled=ButtonDown(BUTTON_Up_Arrow_CONST);
-					break;
-				case VK_DOWN:
-					bHandled=ButtonDown(BUTTON_Down_Arrow_CONST);
-					break;
-				case VK_LEFT:
-					bHandled=ButtonDown(BUTTON_Left_Arrow_CONST);
-					break;
-				case VK_RIGHT:
-					bHandled=ButtonDown(BUTTON_Right_Arrow_CONST);
-					break;
-				case VK_RETURN:
-					bHandled=ButtonDown(BUTTON_Enter_CONST);
-					break;
-				case VK_BACK:
-					bHandled=ButtonDown(BUTTON_Back_CONST);
-					break;
-				default:
-					g_pPlutoLogger->Write(LV_STATUS, "Unknown key: %d", (int) wParam);
-            };
-        } 
-        else if( m_bShiftDown && !m_bControlDown && !m_bAltDown && !m_bRepeat )
-        {
-            switch (wParam)
-            {
-				case VK_UP:
-					bHandled=ButtonDown(BUTTON_Shift_Up_Arrow_CONST);
-					break;
-				case VK_DOWN:
-					bHandled=ButtonDown(BUTTON_Shift_Down_Arrow_CONST);
-					break;
-				case VK_LEFT:
-					bHandled=ButtonDown(BUTTON_Shift_Left_Arrow_CONST);
-					break;
-				case VK_RIGHT:
-					bHandled=ButtonDown(BUTTON_Shift_Right_Arrow_CONST);
-					break;
-				case '3':
-					bHandled=ButtonDown(BUTTON_Pound_CONST);
-					break;
-				case '8':
-					bHandled=ButtonDown(BUTTON_Asterisk_CONST);
-					break;
-            };
-        }
-        else if( m_bRepeat )
-        {
-            switch (wParam)
-            {
-				case '0':
-					bHandled=ButtonDown(BUTTON_Rept_0_CONST);
-					break;
-				case '1':
-					bHandled=ButtonDown(BUTTON_Rept_1_CONST);
-					break;
-				case '2':
-					bHandled=ButtonDown(BUTTON_Rept_2_CONST);
-					break;
-				case '3':
-					bHandled=ButtonDown(BUTTON_Rept_3_CONST);
-					break;
-				case '4':
-					bHandled=ButtonDown(BUTTON_Rept_4_CONST);
-					break;
-				case '5':
-					bHandled=ButtonDown(BUTTON_Rept_5_CONST);
-					break;
-				case '6':
-					bHandled=ButtonDown(BUTTON_Rept_6_CONST);
-					break;
-				case '7':
-					bHandled=ButtonDown(BUTTON_Rept_7_CONST);
-					break;
-				case '8':
-					bHandled=ButtonDown(BUTTON_Rept_8_CONST);
-					break;
-				case '9':
-					bHandled=ButtonDown(BUTTON_Rept_9_CONST);
-					break;
-			}
-		}
-	}
+    Orbiter::ProcessEvent(orbiterEvent);
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_WinCE::WriteStatusOutput(const char* pMessage)

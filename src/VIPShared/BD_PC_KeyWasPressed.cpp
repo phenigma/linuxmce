@@ -24,10 +24,11 @@
 #include "../pluto_dce/Table_Command.h"
 #endif
 
-BD_PC_KeyWasPressed::BD_PC_KeyWasPressed(int Key) 
+BD_PC_KeyWasPressed::BD_PC_KeyWasPressed(int Key, int EventType) 
 	
 {
 	m_Key=Key;
+    m_EventType = EventType;
 
 #ifdef SYMBIAN
 	LOG("#	Sending 'KeyWasPressed' command  #\n");
@@ -38,12 +39,14 @@ void BD_PC_KeyWasPressed::ConvertCommandToBinary()
 {
 	BDCommand::ConvertCommandToBinary();
 	Write_long(m_Key);
+    Write_long(m_EventType);
 }
 
 void BD_PC_KeyWasPressed::ParseCommand(unsigned long size,const char *data)
 {
 	BDCommand::ParseCommand(size,data);
 	m_Key = Read_long();
+    m_EventType = Read_long();
 }
 
 
@@ -58,17 +61,17 @@ bool BD_PC_KeyWasPressed::ProcessCommand(BDCommandProcessor *pProcessor)
 
 	if(NULL == pOrbiter || NULL == pOrbiter->m_pOrbiter || pOrbiter->m_pOrbiter->m_bQuit)
 	{
-		//TODO: log this
+        g_pPlutoLogger->Write(LV_WARNING, "No keypress command will be dispatch: Orbiter was killed or is exiting.");
 		return false;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "Received BD_PC_KeyWasPressed from PlutoMO. Phone code: %d", m_Key);
+	g_pPlutoLogger->Write(LV_WARNING, "Received BD_PC_KeyWasPressed from PlutoMO. Phone code: %d, %s", m_Key,
+        m_EventType ? "key up" : "key down");
 
 	Orbiter::Event orbiterEvent;
-	orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
+    orbiterEvent.type = m_EventType ? Orbiter::Event::BUTTON_UP : Orbiter::Event::BUTTON_DOWN;
 	orbiterEvent.data.button.m_iPK_Button = m_Key;
 	pOrbiter->m_pOrbiter->ProcessEvent(orbiterEvent);
-
 	return true;
 }
 

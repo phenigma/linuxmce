@@ -399,7 +399,7 @@ void RenderMenu::KeyPressed(int KeyCode)
 #ifdef EMULATOR
 	if( g_pPlutoConfig->m_bSendKeyStrokes && g_pPlutoConfig->m_pBDCommandProcessor )
 	{
-		BDCommand *pCommand = new BD_PC_KeyWasPressed(KeyCode);
+		BDCommand *pCommand = new BD_PC_KeyWasPressed(KeyCode, EventType);
 		g_pPlutoConfig->m_pBDCommandProcessor->AddCommand(pCommand);
 	}
 #endif
@@ -409,7 +409,7 @@ void RenderMenu::KeyPressed(int KeyCode)
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor
 		)
 	{
-		BDCommand *pCommand = new BD_PC_KeyWasPressed(KeyCode);
+		BDCommand *pCommand = new BD_PC_KeyWasPressed(KeyCode, 0);
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor->AddCommand(pCommand);
 	}
 #endif

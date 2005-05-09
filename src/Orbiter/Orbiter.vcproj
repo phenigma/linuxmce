@@ -197,6 +197,9 @@
 			<File
 				RelativePath="..\Splitter\TextWrapper.cpp">
 			</File>
+			<File
+				RelativePath=".\Win32\VirtualKeysTranslator.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

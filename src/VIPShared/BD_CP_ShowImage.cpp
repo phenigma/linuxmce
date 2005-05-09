@@ -30,6 +30,7 @@
 
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"
+#include "PlutoUtils/PlutoDefs.h"
 #include "BD/BDCommandProcessor.h"
 #else
 #include "VIPShared/VIPIncludes.h"
@@ -40,23 +41,26 @@
 #include "PlutoUtils/MyStl.h"
 #include "BD_CP_ShowImage.h"
 
-BD_CP_ShowImage::BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize,const char *pImage) 
+BD_CP_ShowImage::BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize,const char *pImage,
+                                 unsigned long KeysListSize, const char* pRepeatedKeysList) 
 	
 {
 	m_iImageType=ImageType;
-	m_ImageSize=ImageSize;
-	m_pImage = (char *)malloc(m_ImageSize);
+	
+    m_ImageSize=ImageSize;
+	m_pImage = new char[m_ImageSize];
 	memcpy(m_pImage, pImage, m_ImageSize);
+
+    m_KeysListSize = KeysListSize;
+    m_pRepeatedKeysList = new char[m_KeysListSize];
+    memcpy(m_pRepeatedKeysList, pRepeatedKeysList, m_KeysListSize);
 }
 
 BD_CP_ShowImage::~BD_CP_ShowImage()
 {
 #ifndef SYMBIAN
-	if(NULL != m_pImage)  //the symbian app (plutovmcutil will delete the data)
-	{
-		delete [] m_pImage;
-		m_pImage = NULL;
-	}
+	PLUTO_SAFE_DELETE_ARRAY(m_pImage);
+    PLUTO_SAFE_DELETE_ARRAY(m_pRepeatedKeysList);
 #endif
 }
 
@@ -65,22 +69,27 @@ void BD_CP_ShowImage::ConvertCommandToBinary()
 	BDCommand::ConvertCommandToBinary();
 	Write_unsigned_char(m_iImageType);
 	Write_long(m_ImageSize);
-	Write_block(m_pImage,m_ImageSize);
+	Write_block(m_pImage, m_ImageSize);
+    Write_long(m_KeysListSize);
+    Write_block(m_pRepeatedKeysList, m_KeysListSize);
 }
 
 void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 {
-	BDCommand::ParseCommand(size,data);
+	BDCommand::ParseCommand(size, data);
 
 #ifdef VIPPHONE
 	m_iImageType = Read_unsigned_char();
 	m_ImageSize = Read_long();
 	m_pImage = Read_block(m_ImageSize);
+    m_KeysListSize = Read_long();
+    m_pRepeatedKeysList = Read_block(m_KeysListSize);
 
 #ifdef SYMBIAN
 	 LOG("#	Received 'ShowImage' command  #\n");
 
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenImage(m_iImageType, m_ImageSize, m_pImage);
+    ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->InterceptRepeatedKeys(m_KeysListSize, m_pRepeatedKeysList);
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Show();
 
 #endif //SYMBIAN
@@ -89,6 +98,7 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 	g_pPlutoConfig->m_pDoc->m_pImageStatic_Type=m_iImageType;
 	g_pPlutoConfig->m_pDoc->m_pImageStatic_Size=m_ImageSize;
 	g_pPlutoConfig->m_pDoc->m_pImageStatic_Data=m_pImage;
+    //TODO: incercept repetead keys?
 	g_pPlutoConfig->m_pDoc->InvalidateAllViews();
 #endif //VIPDESIGN
 

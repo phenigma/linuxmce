@@ -8,7 +8,7 @@ class BD_CP_CaptureKeyboard : public BDCommand
 {
 	bool m_bOnOff;
 	bool m_bReset;
-	bool m_bTypePin;
+	int m_iEditType;
 	bool m_bDataGrid;
 	int  m_iVariable;
 	string m_sText;
@@ -16,7 +16,7 @@ class BD_CP_CaptureKeyboard : public BDCommand
 public:
 	BD_CP_CaptureKeyboard()  {}
 	BD_CP_CaptureKeyboard(
-		bool bOnOff, bool bDataGrid, bool bReset, bool bTypePin, 
+		bool bOnOff, bool bDataGrid, bool bReset, int iEditType, 
 		int iVariable, string sText
 	);
 

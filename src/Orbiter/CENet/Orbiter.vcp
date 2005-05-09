@@ -2395,6 +2395,7 @@ DEP_CPP_ORBITERS=\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\StartOrbiter.h"\
+	"..\Win32\VirtualKeysTranslator.h"\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
@@ -3997,6 +3998,47 @@ DEP_CPP_TEXTW=\
 	
 NODEP_CPP_TEXTW=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\Win32\VirtualKeysTranslator.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_VIRTU=\
+	"..\Win32\VirtualKeysTranslator.h"\
+	
+NODEP_CPP_VIRTU=\
+	"..\pluto_main\Define_Button.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_VIRTU=\
+	"..\Win32\VirtualKeysTranslator.h"\
+	
+NODEP_CPP_VIRTU=\
+	"..\pluto_main\Define_Button.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_VIRTU=\
+	"..\Win32\VirtualKeysTranslator.h"\
+	
+NODEP_CPP_VIRTU=\
+	"..\pluto_main\Define_Button.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_VIRTU=\
+	"..\..\pluto_main\Define_Button.h"\
+	"..\Win32\VirtualKeysTranslator.h"\
 	
 
 !ENDIF 

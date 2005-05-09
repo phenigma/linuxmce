@@ -17,8 +17,8 @@ class Orbiter_PocketFrog : public Orbiter, public PlutoGame
 protected:
 	static Orbiter_PocketFrog* m_pInstance; //the one and only instance of OrbiterSDL_Win32
 
-    bool m_bShiftDown, m_bControlDown, m_bAltDown, m_bRepeat, m_bCapsLock;
-    clock_t m_cKeyDown;
+    //bool m_bShiftDown, m_bControlDown, m_bAltDown, m_bRepeat, m_bCapsLock;
+    //clock_t m_cKeyDown;
 	bool m_bUpdating;
 	bool m_bFullScreen;
 

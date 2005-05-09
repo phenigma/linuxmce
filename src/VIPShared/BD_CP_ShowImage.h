@@ -9,10 +9,13 @@ class BD_CP_ShowImage : public BDCommand
 	unsigned char m_iImageType;
 	char *m_pImage;
 	unsigned long m_ImageSize;
+    unsigned long m_KeysListSize;
+    char *m_pRepeatedKeysList;
 
 public:
 	BD_CP_ShowImage()  {m_ImageSize = 0; m_pImage = NULL; m_iImageType = 0;}
-	BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize,const char *pImage);
+	BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize,const char *pImage,
+        unsigned long KeysListSize, const char* pRepeatedKeysList);
 
 	~BD_CP_ShowImage();
 

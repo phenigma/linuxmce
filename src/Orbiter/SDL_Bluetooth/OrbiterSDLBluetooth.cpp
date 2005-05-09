@@ -18,6 +18,8 @@
 #include "OrbiterSDLBluetooth.h"
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/PlutoDefs.h"
 #include "DCE/Logger.h"
 #include "OrbiterSDLBluetooth.h"
 #include "SerializeClass/ShapesColors.h"
@@ -97,39 +99,32 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDLBluetooth::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
 {
-    unsigned char ImageType = 0;
-    unsigned long ImageSize;
-    char *pImage;
-
 	const string csTempFileName = "TmpScreen.png";
 
+    //generate the jpeg or png image with current screen
     if(m_ImageQuality == 100) //we'll use pngs for best quality
         SaveImageToFile(pScreenImage, csTempFileName);
     else
         SDL_SaveJPG(pScreenImage, csTempFileName.c_str(), m_ImageQuality);
 
-    FILE* file;
-    file = fopen(csTempFileName.c_str(), "rb");
-    fseek(file, 0, SEEK_END);
-    ImageSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
+    string sRepeatedKeysList;
+    GetRepeatedKeysForScreen(m_pScreenHistory_Current->m_pObj, sRepeatedKeysList);
+    g_pPlutoLogger->Write(LV_WARNING, "Repeated keys list %s", sRepeatedKeysList.c_str());
 
-    pImage = new char[ImageSize];
+    //load the image into a buffer and create 'BD_CP_ShowImage' command
+    size_t iImageSize;
+    char *pImage = FileUtils::ReadFileIntoBuffer(csTempFileName, iImageSize);
 
-    fread(pImage, 1, ImageSize, file);
-    fclose(file);
+	g_pPlutoLogger->Write(LV_WARNING, "Ready to send a picture, size %d", iImageSize);
+    BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(0, (unsigned long)iImageSize, pImage, 
+        (unsigned long)(sRepeatedKeysList.length()), sRepeatedKeysList.c_str());
 
-	g_pPlutoLogger->Write(LV_WARNING, "Ready to send a picture, size %d", ImageSize);
+    PLUTO_SAFE_DELETE_ARRAY(pImage);
 
-    BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(ImageType, ImageSize, pImage);
-    delete pImage;
-    pImage = NULL;
-
+    //hide any list if need it sending a 'BD_CP_ShowList' with Off option
     if( m_bShowListSent && !m_vectObjs_GridsOnScreen.size() )
     {
         list<string> listGrid;
-        listGrid.clear();
-
         BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(0, 0, 0, 0, 0, listGrid, false, false);
         if( m_pBDCommandProcessor )
         {
@@ -138,6 +133,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
         }
     }
 
+    //finally, send the image
     if( m_pBDCommandProcessor )
         m_pBDCommandProcessor->AddCommand(pBD_CP_ShowImage);
 }
@@ -265,14 +261,14 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
     )
     {
 		g_pPlutoLogger->Write(LV_WARNING, "Sending BD_CP_CaptureKeyboard command with parameters: On: %d, Reset: %d, PinType: %d, DataGrid: %d, PK_Variable: %d, Text: %s",
-			m_bCaptureKeyboard_OnOff, m_bCaptureKeyboard_Reset, m_bCaptureKeyboard_TypePin,
+			m_bCaptureKeyboard_OnOff, m_bCaptureKeyboard_Reset, m_iCaptureKeyboard_EditType,
 			m_bCaptureKeyboard_DataGrid, m_iCaptureKeyboard_PK_Variable, m_sCaptureKeyboard_Text.c_str()
 		);
 
 		BD_CP_CaptureKeyboard *pBD_CP_CaptureKeyboard = new BD_CP_CaptureKeyboard(
 				m_bCaptureKeyboard_OnOff,
 				m_bCaptureKeyboard_Reset,
-				m_bCaptureKeyboard_TypePin,
+				m_iCaptureKeyboard_EditType,
 				m_bCaptureKeyboard_DataGrid,
 				m_iCaptureKeyboard_PK_Variable,
 				m_sCaptureKeyboard_Text

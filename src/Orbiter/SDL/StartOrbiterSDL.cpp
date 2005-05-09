@@ -76,27 +76,32 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 	{
 		case SDL_QUIT: orbiterEvent->type = Orbiter::Event::QUIT;	break;
 
+		case SDL_KEYDOWN:
 		case SDL_KEYUP:
-#ifdef WIN32
-			RecordKeyboardAction(Event.key.keysym.sym);
-#endif
-			orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
 
-			kbdState->bRepeat = (kbdState->cKeyDown && (clock() - kbdState->cKeyDown > CLOCKS_PER_SEC / 2) );
-			kbdState->cKeyDown = 0;
-			g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d ctrl: %d alt: %d caps: %d: downtime: %d",
+            orbiterEvent->type = SDL_KEYDOWN == sdlEvent.type ? Orbiter::Event::BUTTON_UP : 
+                Orbiter::Event::BUTTON_DOWN;
+
+            switch (sdlEvent.key.keysym.sym)
+            {
+                case SDLK_LSHIFT:   case SDLK_RSHIFT:		kbdState->bShiftDown = SDL_KEYDOWN == sdlEvent.type; 				break;
+                case SDLK_LCTRL:    case SDLK_RCTRL:		kbdState->bControlDown = SDL_KEYDOWN == sdlEvent.type;				break;
+                case SDLK_LALT:     case SDLK_RALT:			kbdState->bAltDown = SDL_KEYDOWN == sdlEvent.type;					break;
+            }
+
+            if(SDL_KEYDOWN == sdlEvent.type && SDLK_CAPSLOCK == sdlEvent.key.keysym.sym)
+                kbdState->bCapsLock = !kbdState->bCapsLock;
+
+			g_pPlutoLogger->Write(LV_STATUS, "key up %d shif: %d ctrl: %d alt: %d caps: %d",
 					(int) sdlEvent.key.keysym.sym,
-					(int) kbdState->bRepeat,
 					(int) kbdState->bShiftDown,
 					(int) kbdState->bControlDown,
 					(int) kbdState->bAltDown,
-					(int) kbdState->bCapsLock,
-					(int) kbdState->cKeyDown);
+					(int) kbdState->bCapsLock);
 
 #ifndef PHONEKEYS
 			if ( SDLK_a <= sdlEvent.key.keysym.sym && sdlEvent.key.keysym.sym <= SDLK_z )
 			{
-				orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
 				if( ( ! kbdState->bCapsLock && ! kbdState->bShiftDown ) ||
 					(   kbdState->bCapsLock &&   kbdState->bShiftDown ) )
 					orbiterEvent->data.button.m_iPK_Button = BUTTON_a_CONST + sdlEvent.key.keysym.sym - SDLK_a;
@@ -120,7 +125,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 				orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
 				kbdState->bAltDown=false;
 			}
-			else if( ! kbdState->bShiftDown && ! kbdState->bControlDown && ! kbdState->bAltDown && ! kbdState->bRepeat )
+			else if( ! kbdState->bShiftDown && ! kbdState->bControlDown && ! kbdState->bAltDown )
 			{
 				// No Modifiers were down
 				switch (sdlEvent.key.keysym.sym )
@@ -165,7 +170,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
                         g_pPlutoLogger->Write(LV_STATUS, "Unknown key: %d", (int) sdlEvent.key.keysym.sym);
 				};
 			} // else if( !bShiftDown && !bControlDown && !bAltDown && !bRepeat )
-        	else if ( kbdState->bShiftDown && ! kbdState->bControlDown && ! kbdState->bAltDown && ! kbdState->bRepeat )
+        	else if ( kbdState->bShiftDown && ! kbdState->bControlDown && ! kbdState->bAltDown )
             {
 				// The Shift key was pressed
 				switch (sdlEvent.key.keysym.sym)
@@ -174,68 +179,14 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 					case SDLK_DOWN:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Shift_Down_Arrow_CONST; break;
 					case SDLK_LEFT:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Shift_Left_Arrow_CONST; break;
 					case SDLK_RIGHT:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Shift_Right_Arrow_CONST; break;
-
-//					case SDLK_0:  		orbiterEvent->data.button.m_iPK_Button = BUTTON_0_CONST; break;
-//					case SDLK_1:  		orbiterEvent->data.button.m_iPK_Button = BUTTON_1_CONST; break;
-//					case SDLK_2: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_2_CONST; break;
 					case SDLK_3: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_Pound_CONST; break;
-// 					case SDLK_4: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_4_CONST; break;
-// 					case SDLK_5: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_5_CONST; break;
-// 					case SDLK_6: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_6_CONST; break;
-// 					case SDLK_7: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_7_CONST; break;
  					case SDLK_8: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_Asterisk_CONST; break;
-// 					case SDLK_9: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_9_CONST; break;
 
 					default:
 						orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
 				};
 			}
-            else if( kbdState->bRepeat ) // if we need to repeat the key
-            {
-				switch (sdlEvent.key.keysym.sym)
-                {
-                    case SDLK_0: case SDLK_KP0: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_0_CONST; break;
-                    case SDLK_1: case SDLK_KP1: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_1_CONST; break;
-                    case SDLK_2: case SDLK_KP2: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_2_CONST; break;
-                    case SDLK_3: case SDLK_KP3: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_3_CONST; break;
-                    case SDLK_4: case SDLK_KP4: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_4_CONST; break;
-                    case SDLK_5: case SDLK_KP5: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_5_CONST; break;
-                    case SDLK_6: case SDLK_KP6: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_6_CONST; break;
-                    case SDLK_7: case SDLK_KP7: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_7_CONST; break;
-                    case SDLK_8: case SDLK_KP8: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_8_CONST; break;
-                    case SDLK_9: case SDLK_KP9: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_9_CONST; break;
-#ifdef PHONEKEYS
-                    case SDLK_c:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_C_CONST; break;
-                    case SDLK_p:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_Pencil_CONST; break;
-                    case SDLK_t:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_Talk_CONST; break;
-                    case SDLK_e:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_End_CONST; break;
-                    case SDLK_l:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_Soft_left_CONST; break;
-                    case SDLK_r:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_Soft_right_CONST; break;
-					case SDLK_ASTERISK: orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Asterisk_CONST; break;
-                    case SDLK_HASH:     orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Pound_CONST; break;
-#endif
-					default:
-						orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
-				}
-			}
-
-			break; // case SDL_KEYUP
-
-		case SDL_KEYDOWN:
-			// on key up we update the keyboard state
-			// orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
-			switch (sdlEvent.key.keysym.sym)
-			{
-                case SDLK_LSHIFT: case SDLK_RSHIFT:		kbdState->bShiftDown = true; 				break;
-                case SDLK_LCTRL: case SDLK_RCTRL:		kbdState->bControlDown = true;				break;
-                case SDLK_LALT: case SDLK_RALT:			kbdState->bAltDown = true;					break;
-                case SDLK_CAPSLOCK:						kbdState->bCapsLock = !kbdState->bCapsLock;	break;
-                default:
-                    kbdState->cKeyDown=clock();  // We don't care how long the shift, ctrl or alt are held down, but the other keys do matter
-                    break;
-			}
 			break;
-
 
 		case SDL_MOUSEBUTTONDOWN:
 #ifdef WIN32

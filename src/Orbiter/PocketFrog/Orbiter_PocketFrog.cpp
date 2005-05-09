@@ -4,6 +4,7 @@
 #include "MainDialog.h"
 #include "Resource.h"
 #include "SelfUpdate.h"
+#include "VirtualKeysTranslator.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
@@ -16,16 +17,6 @@ using namespace Frog::Internal;
 
 #include "src/internal/graphicbuffer.h" 
 #include <src/rasterizer.h>
-
-//-----------------------------------------------------------------------------------------------------
-#define VK_A 0x41
-#define VK_C 0x43
-#define VK_E 0x45
-#define VK_T 0x54
-#define VK_P 0x50
-#define VK_L 0x4C
-#define VK_R 0x52
-#define VK_Z 0x5A
 //-----------------------------------------------------------------------------------------------------
 const int ciCharWidth = 9;
 const int ciCharHeight = 16;
@@ -82,14 +73,13 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     m_config.splashScreenTime = 0;	
 	m_bUpdating = false;
 	m_bFullScreen=bFullScreen;
-
+/*
 	m_bShiftDown = false;
 	m_bControlDown = false;
 	m_bAltDown = false;
 	m_bRepeat = false;
 	m_bCapsLock = false;
-	m_bQuit = false;
-
+*/
 	m_bConnectionLost = false;
 	m_bReload = false;
 	m_bQuit = false;
@@ -133,11 +123,17 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	GetDisplay()->Update();
 	Initialize(gtPocketFrogGraphic);
 
-	if(m_bQuit)
-		return false;
-
-	if(m_bReload)
-		return false;
+	if(m_bQuit || m_bReload)
+    {
+#ifdef WINCE
+        MessageBox(TEXT("Orbiter cannot start because no screens are generated. \r\nTo generate screens, please use OrbiterGen."),
+            TEXT("Pluto Orbiter"), MB_ICONHAND);
+#else
+        MessageBox("Orbiter cannot start because no screens are generated. \r\nTo generate screens, please use OrbiterGen.",
+            "Pluto Orbiter", MB_ICONHAND);
+#endif
+        exit(1);
+    }
 
 	if (!m_bLocalMode)
 		CreateChildren();
@@ -231,289 +227,51 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	static WPARAM wOldParam = 0;
-	static bool bLastEvent_KeyDown = false;
+    Orbiter::Event orbiterEvent;
+    orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
+    orbiterEvent.data.button.m_iPK_Button = 0;
 
-	if(uMsg == WM_KEYDOWN && bLastEvent_KeyDown && wOldParam == wParam) //this is a repeated key
-		return;
+    if(uMsg == WM_KEYDOWN)
+        orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
+    else if(uMsg == WM_KEYUP)
+        orbiterEvent.type = Orbiter::Event::BUTTON_UP;
 
-	wOldParam = wParam;
-	bLastEvent_KeyDown = uMsg == WM_KEYDOWN; //false if WM_KEYUP
+    if(!TranslateVirtualKeys2PlutoKeys(uMsg, wParam, lParam, orbiterEvent.data.button.m_iPK_Button, 
+        m_bShiftDown, m_bAltDown, m_bControlDown, m_bCapsLock)
+    )
+        return; //prevent auto-repeted
 
-    if (uMsg == WM_KEYDOWN)
+    //orbiter win xp/ce specifics
+    if( wParam == VK_F12 && orbiterEvent.type == Orbiter::Event::BUTTON_UP) 
     {
-		if ( wParam == 81)
-		{
-			OnQuit();
-			return;
-		}
-
-        g_pPlutoLogger->Write(LV_STATUS, "Key pressed event");
-		switch (wParam)
-        {
-			case VK_SHIFT:
-				m_bShiftDown=true;
-				break;
-			case VK_CONTROL:
-				g_pPlutoLogger->Write(LV_STATUS, "Control key pressed");
-				m_bControlDown=true;
-				break;
-			case VK_MENU:
-				m_bAltDown=true;
-				break;
-			case VK_CAPITAL:
-				m_bCapsLock = !m_bCapsLock;
-				break;
-			default:
-				m_cKeyDown = clock();  // We don't care how long the shift, ctrl or alt are held down, but the other keys do matter
-				break;
-        }
+        OnQuit();
     }
-    else if (uMsg == WM_KEYUP)	
+#ifdef WINCE
+    else if( wParam == VK_F10) 
+#else
+    else if( wParam == VK_A && m_bControlDown)
+#endif
     {
-		RecordKeyboardAction(long(wParam));
-
-        bool bHandled=false;
-clock_t ccc=clock();
-        m_bRepeat = m_cKeyDown && clock() - m_cKeyDown > CLOCKS_PER_SEC/2;
-        m_cKeyDown=0;
-
-        g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d",(int) wParam, (int) m_bRepeat, (int) m_bShiftDown);
-
-#ifndef PHONEKEYS
-        if(wParam >= VK_A && wParam <= VK_Z && !m_bControlDown && !m_bAltDown) // A-Z keys
-        {
-            if((!m_bCapsLock && !m_bShiftDown) || (m_bCapsLock && m_bShiftDown))
-                bHandled = Orbiter::ButtonDown(BUTTON_a_CONST + int(wParam) - VK_A);
-            else
-                bHandled = Orbiter::ButtonDown(BUTTON_A_CONST + int(wParam) - VK_Z);
-        }
-#endif 
-        if( wParam == VK_SHIFT)
-            m_bShiftDown=false;
-        else if( wParam == VK_CONTROL)
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Control key released");
-            m_bControlDown=false;
-		}
-        else if( wParam == VK_MENU )
-            m_bAltDown=false;
-		else if( wParam == VK_F12) 
-		{
-			OnQuit();
-		}
-#ifdef WINCE
-		else if( wParam == VK_F10) //A && m_bControlDown)
-#else
-		else if( wParam == VK_A && m_bControlDown)
-#endif
-		{
-			ShowMainDialog();
-			m_bControlDown=false;
-		}
-		else if( wParam == VK_P && m_bControlDown)
-		{
-			static int Count = 0;
-			m_bControlDown=false;
+        ShowMainDialog();
+        m_bControlDown = false;
+    }
+    else if( wParam == VK_P && m_bControlDown)
+    {
+        static int Count = 0;
+        m_bControlDown=false;
 
 #ifdef WINCE
-			wchar_t wPath[4096];
+        wchar_t wPath[4096];
 
-			string sPath = string("/backbuffer") + StringUtils::ltos(Count++);
-			mbstowcs(wPath, sPath.c_str(), 4096);	
-			SaveImage(GetDisplay()->GetBackBuffer(), wPath);
+        string sPath = string("/backbuffer") + StringUtils::ltos(Count++);
+        mbstowcs(wPath, sPath.c_str(), 4096);	
+        SaveImage(GetDisplay()->GetBackBuffer(), wPath);
 #else
-			SaveImage(GetDisplay()->GetBackBuffer(), (string("backbuffer") + StringUtils::ltos(Count++)).c_str());
+        SaveImage(GetDisplay()->GetBackBuffer(), (string("backbuffer") + StringUtils::ltos(Count++)).c_str());
 #endif
-		}
-        else if( !m_bShiftDown && !m_bControlDown && !m_bAltDown && !m_bRepeat )
-        {
-            switch (wParam)
-            {
-				case '0':
-					bHandled=Orbiter::ButtonDown(BUTTON_0_CONST);
-					break;
-				case '1':
-					bHandled=Orbiter::ButtonDown(BUTTON_1_CONST);
-					break;
-				case '2':
-					bHandled=Orbiter::ButtonDown(BUTTON_2_CONST);
-					break;
-				case '3':
-					bHandled=Orbiter::ButtonDown(BUTTON_3_CONST);
-					break;
-				case '4':
-					bHandled=Orbiter::ButtonDown(BUTTON_4_CONST);
-					break;
-				case '5':
-					bHandled=Orbiter::ButtonDown(BUTTON_5_CONST);
-					break;
-				case '6':
-					bHandled=Orbiter::ButtonDown(BUTTON_6_CONST);
-					break;
-				case '7':
-					bHandled=Orbiter::ButtonDown(BUTTON_7_CONST);
-					break;
-				case '8':
-					bHandled=Orbiter::ButtonDown(BUTTON_8_CONST);
-					break;
-				case '9':
-					bHandled=Orbiter::ButtonDown(BUTTON_9_CONST);
-					break;
+    }
 
-#ifdef PHONEKEYS
-                case VK_C:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Phone_C_CONST);
-                    break;
-                case VK_P:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Phone_Pencil_CONST);
-                    break;
-                case VK_T:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Phone_Talk_CONST);
-                    break;
-                case VK_E:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Phone_End_CONST);
-                    break;
-                case VK_L:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Phone_Soft_left_CONST);
-                    break;
-                case VK_R:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Phone_Soft_right_CONST);
-                    break;
-                case '*':
-                    bHandled = Orbiter::ButtonDown(BUTTON_Asterisk_CONST);
-                    break;
-				case '#':
-                    bHandled = Orbiter::ButtonDown(BUTTON_Pound_CONST);
-                    break;
-#endif 
-
-				case VK_F1:
-					bHandled=Orbiter::ButtonDown(BUTTON_F1_CONST);
-					break;
-				case VK_F2:
-					bHandled=Orbiter::ButtonDown(BUTTON_F2_CONST);
-					break;
-				case VK_F3:
-					bHandled=Orbiter::ButtonDown(BUTTON_F3_CONST);
-					break;
-				case VK_F4:
-					bHandled=Orbiter::ButtonDown(BUTTON_F4_CONST);
-					break;
-				case VK_F5:
-					bHandled=Orbiter::ButtonDown(BUTTON_F5_CONST);
-					break;
-				case VK_UP:
-					bHandled=Orbiter::ButtonDown(BUTTON_Up_Arrow_CONST);
-					break;
-				case VK_DOWN:
-					bHandled=Orbiter::ButtonDown(BUTTON_Down_Arrow_CONST);
-					break;
-				case VK_LEFT:
-					bHandled=Orbiter::ButtonDown(BUTTON_Left_Arrow_CONST);
-					break;
-				case VK_RIGHT:
-					bHandled=Orbiter::ButtonDown(BUTTON_Right_Arrow_CONST);
-					break;
-				case VK_RETURN:
-					bHandled=Orbiter::ButtonDown(BUTTON_Enter_CONST);
-					break;
-				case VK_BACK:
-					bHandled=Orbiter::ButtonDown(BUTTON_Back_CONST);
-					break;
-				default:
-					g_pPlutoLogger->Write(LV_STATUS, "Unknown key: %d", (int) wParam);
-            };
-        } 
-        else if( m_bShiftDown && !m_bControlDown && !m_bAltDown && !m_bRepeat )
-        {
-            switch (wParam)
-            {
-				case VK_UP:
-					bHandled=Orbiter::ButtonDown(BUTTON_Shift_Up_Arrow_CONST);
-					break;
-				case VK_DOWN:
-					bHandled=Orbiter::ButtonDown(BUTTON_Shift_Down_Arrow_CONST);
-					break;
-				case VK_LEFT:
-					bHandled=Orbiter::ButtonDown(BUTTON_Shift_Left_Arrow_CONST);
-					break;
-				case VK_RIGHT:
-					bHandled=Orbiter::ButtonDown(BUTTON_Shift_Right_Arrow_CONST);
-					break;
-				case '3':
-					bHandled=Orbiter::ButtonDown(BUTTON_Pound_CONST);
-					break;
-				case '8':
-					bHandled=Orbiter::ButtonDown(BUTTON_Asterisk_CONST);
-					break;
-            };
-        }
-		else if( m_bShiftDown && m_bControlDown && wParam==VK_F1 )
-			GotoScreen(m_sMainMenu);
-        else if( m_bRepeat )
-        {
-            switch (wParam)
-            {
-				case '0':
-					bHandled=Orbiter::ButtonDown(BUTTON_Rept_0_CONST);
-					break;
-				case '1':
-					bHandled=Orbiter::ButtonDown(BUTTON_Rept_1_CONST);
-					break;
-				case '2':
-					bHandled=Orbiter::ButtonDown(BUTTON_Rept_2_CONST);
-					break;
-				case '3':
-					bHandled=Orbiter::ButtonDown(BUTTON_Rept_3_CONST);
-					break;
-				case '4':
-					bHandled=Orbiter::ButtonDown(BUTTON_Rept_4_CONST);
-					break;
-				case '5':
-					bHandled=Orbiter::ButtonDown(BUTTON_Rept_5_CONST);
-					break;
-				case '6':
-					bHandled=Orbiter::ButtonDown(BUTTON_Rept_6_CONST);
-					break;
-				case '7':
-					bHandled=Orbiter::ButtonDown(BUTTON_Rept_7_CONST);
-					break;
-				case '8':
-					bHandled=Orbiter::ButtonDown(BUTTON_Rept_8_CONST);
-					break;
-				case '9':
-					bHandled=Orbiter::ButtonDown(BUTTON_Rept_9_CONST);
-					break;
-#ifdef PHONEKEYS
-                case VK_C:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Rept_Phone_C_CONST);
-                    break;
-                case VK_P:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Rept_Phone_Pencil_CONST);
-                    break;
-                case VK_T:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Rept_Phone_Talk_CONST);
-                    break;
-                case VK_E:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Rept_Phone_End_CONST);
-                    break;
-                case VK_L:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Rept_Phone_Soft_left_CONST);
-                    break;
-                case VK_R:
-                    bHandled = Orbiter::ButtonDown(BUTTON_Rept_Phone_Soft_right_CONST);
-                    break;
-                case '*':
-                    bHandled = Orbiter::ButtonDown(BUTTON_Rept_Asterisk_CONST);
-                    break;
-				case '#':
-                    bHandled = Orbiter::ButtonDown(BUTTON_Rept_Pound_CONST);
-                    break;
-#endif 
-			}
-		}
-	}
+    Orbiter::ProcessEvent(orbiterEvent);
 }
 //-----------------------------------------------------------------------------------------------------
 /*static inline*/ Pixel Orbiter_PocketFrog::GetColor16(PlutoColor color)

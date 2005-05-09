@@ -198,7 +198,8 @@ int CPlutoVMCContainer::GetKeyCode(const TKeyEvent& aKeyEvent, TEventCode aType)
 				case EStdKeyYes:		 KeyCode=BUTTON_Rept_Phone_Talk_CONST;		break;
 				case EStdKeyNo:			 KeyCode=BUTTON_Rept_Phone_End_CONST;		break;
 				case EStdKeyEscape:		 KeyCode=BUTTON_Rept_Phone_C_CONST;			break;
-				case EStdKeyNkpAsterisk: KeyCode=BUTTON_Rept_Asterisk_CONST;		break;
+				case 42:				 KeyCode=BUTTON_Rept_Asterisk_CONST;		break;
+				case 127:				 KeyCode=BUTTON_Rept_Pound_CONST;			break;
 
 				case 0x30:			     KeyCode=BUTTON_Rept_0_CONST;				break;
 				case 0x31:				 KeyCode=BUTTON_Rept_1_CONST;				break;
@@ -398,8 +399,8 @@ char CPlutoVMCContainer::GetKeyChar(int KeyCode)
 {
 	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
 
-	const char *KeysMap[] = {".0",".1","abc2","def3","ghi4","jkl5","mno6","pqrs7","tuv8","wxyz9"}; 
-	int KeysMapIndex[]    = {2,   2,   4,     4,     4,      4,    4,     5,      4,      5     }; 
+	const char *KeysMap[]			 = {".0",".1","abc2","def3","ghi4","jkl5","mno6","pqrs7","tuv8","wxyz9"}; 
+	int KeysMapIndex[]				 = {2,   2,   4,     4,     4,      4,    4,     5,      4,      5     }; 
 	
 	const iDiff = 14 * KEY_TIMER_INTERVAL / 200000;
 
@@ -409,35 +410,34 @@ char CPlutoVMCContainer::GetKeyChar(int KeyCode)
 	m_bDeleteLastKey = false;
 	pVMCUtil->m_bEdit_BackspacePressed = false;
 
+	//numeric button? (0, 1, ... 9)
 	if(IsNumberKey(KeyCode))
 	{
-		if(pVMCUtil->m_CaptureKeyboardParam.bTypePin)
+		//only digits
+		if(pVMCUtil->m_CaptureKeyboardParam.bTypePin || pVMCUtil->m_CaptureKeyboardParam.bNumbersOnly)
 			return '0' + NumberKeyIndex(KeyCode);
 
 		int KeyIndex = NumberKeyIndex(m_uLastKeyCode);
-
 		if(KeyIndex == 0 || KeyIndex == 1)
 		{
 			KeyChar = KeysMap[KeyIndex][0];
 		}
 
+		//first key ? start the timer!
 		if(m_uLastKeyCode == 0) 
 		{
 			m_iRepeatStep = 0;
-
 			const unsigned long iTimerInterval = 2 * KEY_TIMER_INTERVAL;
 			
 			if (iKeyTimer->IsActive())
-			{
 				iKeyTimer->Cancel();
-			}
 
 			iKeyTimer->Start(iTimerInterval, iTimerInterval, TCallBack(KeyTimerCallBack, this)); 
-
-			KeyChar = KeysMap[NumberKeyIndex(KeyCode)][m_iRepeatStep];//***
+			KeyChar = KeysMap[NumberKeyIndex(KeyCode)][m_iRepeatStep];
 		}
 		else
 		{
+			//different button then last one or time's up - stop the timer, we have a key
 			if(m_uLastKeyCode != KeyCode || iNow - m_iLastTick > iDiff)
 			{
 				if(m_uLastKeyCode != KeyCode)
@@ -452,7 +452,7 @@ char CPlutoVMCContainer::GetKeyChar(int KeyCode)
 				m_iLastTick = 0;
 				m_uLastKeyCode = 0;
 			}
-			else
+			else //same button, just shift keys and start again the timer
 			{
 				m_bDeleteLastKey = true;
 				m_iRepeatStep++;
@@ -471,7 +471,7 @@ char CPlutoVMCContainer::GetKeyChar(int KeyCode)
 		m_uLastKeyCode = KeyCode;
 		m_iLastTick = iNow;
 	}
-	else
+	else 
 		if(m_uLastKeyCode)
 		{
 			KeyChar = KeysMap[NumberKeyIndex(m_uLastKeyCode)][m_iRepeatStep];
@@ -588,6 +588,8 @@ TKeyResponse CPlutoVMCContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent, TEve
 //------------------------------------------------------------------------------------------------------------------
 TKeyResponse CPlutoVMCContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
+	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
+
 	if(aType == EEventKeyDown)
 		m_bDataKeys = false;
 
@@ -600,6 +602,13 @@ TKeyResponse CPlutoVMCContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEven
 
 	if(!((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bMakeVisibleAllowed)
 		return EKeyWasNotConsumed;
+
+	//any repeated keys?
+	if(pVMCUtil->IsRepeatedKey(aKeyEvent.iScanCode))
+	{
+		pVMCUtil->SendKey(pVMCUtil->SymbianKey2PlutoKey(aKeyEvent.iScanCode), aType == EEventKeyUp);
+		return EKeyWasConsumed;
+	}
 
 	TKeyResponse Response = EKeyWasNotConsumed;
 	m_bNeedRefresh = false;
@@ -659,42 +668,12 @@ void CPlutoVMCContainer::HandleControlEventL(
 //------------------------------------------------------------------------------------------------------------------
 int CPlutoVMCContainer::GetSymbianKeyEventFromKeyCode(TKeyEvent& aKeyEvent, TEventCode& aType, long key)
 {
+	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
+	
 	aKeyEvent.iRepeats = 0;
 	m_bDataKeys = false;
 	aType = EEventKeyUp;
-	
-	//TODO: also simulate long keys
-
-	switch(key)
-	{
-		case BUTTON_Up_Arrow_CONST:			aKeyEvent.iScanCode=EStdKeyUpArrow;		break;
-		case BUTTON_Down_Arrow_CONST:		aKeyEvent.iScanCode=EStdKeyDownArrow;	break;
-		case BUTTON_Right_Arrow_CONST:		aKeyEvent.iScanCode=EStdKeyRightArrow;	break;
-		case BUTTON_Left_Arrow_CONST:		aKeyEvent.iScanCode=EStdKeyLeftArrow;	break;
-	
-		case BUTTON_Phone_Talk_CONST:		aKeyEvent.iScanCode=EStdKeyYes;		break;
-		case BUTTON_Phone_End_CONST:		aKeyEvent.iScanCode=EStdKeyNo;		break;
-		case BUTTON_Enter_CONST:			aKeyEvent.iScanCode=EStdKeyEnter;	break;
-
-		case BUTTON_Phone_C_CONST:			aKeyEvent.iScanCode=EStdKeyEscape;	break;
-		case BUTTON_Asterisk_CONST:			aKeyEvent.iScanCode=EStdKeyNkpAsterisk;	break;
-		case BUTTON_Pound_CONST:			aKeyEvent.iScanCode=EStdKeyHash;	break;
-	
-		case BUTTON_0_CONST:			aKeyEvent.iScanCode=0x30;	break;
-		case BUTTON_1_CONST:			aKeyEvent.iScanCode=0x31;	break;
-		case BUTTON_2_CONST:			aKeyEvent.iScanCode=0x32;	break;
-		case BUTTON_3_CONST:			aKeyEvent.iScanCode=0x33;	break;
-		case BUTTON_4_CONST:			aKeyEvent.iScanCode=0x34;	break;
-		case BUTTON_5_CONST:			aKeyEvent.iScanCode=0x35;	break;
-		case BUTTON_6_CONST:			aKeyEvent.iScanCode=0x36;	break;
-		case BUTTON_7_CONST:			aKeyEvent.iScanCode=0x37;	break;
-		case BUTTON_8_CONST:			aKeyEvent.iScanCode=0x38;	break;
-		case BUTTON_9_CONST:			aKeyEvent.iScanCode=0x39;	break;
-
-		case BUTTON_Phone_Pencil_CONST:			aKeyEvent.iScanCode=0x12;	break;
-		case BUTTON_Phone_Soft_left_CONST:		aKeyEvent.iScanCode=0xA4;	break;
-		case BUTTON_Phone_Soft_right_CONST:		aKeyEvent.iScanCode=0xA5;	break;
-	}
+	aKeyEvent.iScanCode = pVMCUtil->PlutoKey2SymbianKey(key);
 
 	return 0;
 }

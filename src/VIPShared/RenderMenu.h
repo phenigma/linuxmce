@@ -31,6 +31,7 @@ struct CaptureKeyboardParam
 	bool bDataGrid;
 	bool bReset;
 	bool bTypePin;
+	bool bNumbersOnly;
 
 	int    iVariable;
 	string sVariableValue;

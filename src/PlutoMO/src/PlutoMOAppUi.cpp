@@ -383,6 +383,12 @@ void CPlutoMOAppUi::OpenImage(unsigned char Type, unsigned long Size, const char
 	MakeViewerVisible(m_bMakeVisibleAllowed);
 }
 //----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::InterceptRepeatedKeys(unsigned long  KeysListSize, const char *pRepeatedKeysList)
+{
+	CPlutoVMCUtil *pVCMUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
+	pVCMUtil->InterceptRepeatedKeys(KeysListSize, pRepeatedKeysList);	
+}
+//----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::OpenVMC(bool bParsed, TFileName& iFileName, 
 								 VIPMenuCollection *pVMC)
 {
@@ -422,7 +428,7 @@ void CPlutoMOAppUi::SetCaptureKeyboardCommand(
 	bool bOnOff, 
 	bool bDataGrid, 
 	bool bReset, 
-	bool bTypePin, 
+	int  iEditType, 
 	int  iVariable, 
 	string sText
 )
@@ -430,7 +436,7 @@ void CPlutoMOAppUi::SetCaptureKeyboardCommand(
 	CreateVMCView();
 
 	CPlutoVMCUtil *pVCMUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
-	pVCMUtil->SetCaptureKeyboardCommand(bOnOff, bDataGrid, bReset, bTypePin, iVariable, sText);
+	pVCMUtil->SetCaptureKeyboardCommand(bOnOff, bDataGrid, bReset, iEditType, iVariable, sText);
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::SaveFile(

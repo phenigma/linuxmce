@@ -18,7 +18,7 @@
 #include <eikdoc.h>
 //----------------------------------------------------------------------------------------------
 //this version is must be synchronized with the one from Orbiter_Plugin.cpp
-#define  VERSION "2005.04.28"
+#define  VERSION "2005.05.06"
 //----------------------------------------------------------------------------------------------
 #include "BD/BDCommandProcessor_Symbian_Bluetooth.h"
 //----------------------------------------------------------------------------------------------
@@ -82,6 +82,7 @@ public:
 	void OpenVMC(bool bParsed, TFileName& iFileName, 
 								 VIPMenuCollection *pVMC); 
 	void OpenImage(unsigned char Type, unsigned long Size, const char *Data);
+	void InterceptRepeatedKeys(unsigned long  KeysListSize, const char *pRepeatedKeysList);
 	void CloseVMC();
 
 	void ShowList(
@@ -99,7 +100,7 @@ public:
 		bool bOnOff, 
 		bool bDataGrid, 
 		bool bReset, 
-		bool bTypePin, 
+		int  iEditType, 
 		int  iVariable, 
 		string sText
 	);
