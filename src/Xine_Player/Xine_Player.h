@@ -36,6 +36,8 @@ class Xine_Player : public Xine_Player_Command, public RatpoisonHandler<Xine_Pla
 private:
 	SlimServerClient *m_pSlimServerClient; /** < m_pSlimServerClient is the wrapper around the slim server protocol */
 
+	pluto_pthread_mutex_t 	m_xineSlaveMutex;
+
 	SlimServerClient *getSlimServerClient();
 
 //<-dceag-const-b->

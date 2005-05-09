@@ -18,6 +18,7 @@
 #include "SlimDataHandler.h"
 #include "XineSlaveWrapper.h"
 
+
 using namespace std;
 using namespace DCE;
 
@@ -76,7 +77,13 @@ void SlimServerClient::disconnectFromServer(int iStreamID)
 	pthread_join(commandThread, NULL);
 }
 
+void SlimServerClient::setXineSlaveMutex(pluto_pthread_mutex_t *pXineSlaveMutex)
+{
+	m_pXineSlaveMutex = pXineSlaveMutex;
+}
+
 void SlimServerClient::setXineSlaveObject(class XineSlaveWrapper *pXineSlaveControl)
+
 {
 	m_pXineSlave = pXineSlaveControl;
 }
@@ -157,6 +164,7 @@ void *SlimServerClient::dataConnectionThread(void *arguments)
 	lastCommand = THREAD_UNKNOWN;
 
 	SlimDataHandler *slimDataHandler = pSlimServerClient->getSlimDataHandler();
+	SlimCommandHandler *slimCommandHandler = pSlimServerClient->getSlimCommandHandler();
 
 	while ( pSlimServerClient->dataThreadCommand != THREAD_EXIT )
 	{
@@ -168,7 +176,11 @@ void *SlimServerClient::dataConnectionThread(void *arguments)
 					g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::dataConnectionThread() Pausing the data thread!");
 					pSlimServerClient->dataThreadState = THREAD_STOPPED;
 					break;
+
 				case THREAD_START:
+					if ( pSlimServerClient->dataThreadState == THREAD_CONNECTED )
+						break;
+
 					g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::dataConnectionThread()  Starting the data thread!");
 
 					// assume connection failure. Only reset it when we know for sure that we are connected
@@ -185,10 +197,23 @@ void *SlimServerClient::dataConnectionThread(void *arguments)
 					}
 
 					break;
+				case THREAD_PLAY:
+					if ( pSlimServerClient->dataThreadState != THREAD_CONNECTED )
+						break;
+					pSlimServerClient->dataThreadState = THREAD_PLAYING;
+					break;
+
+				case THREAD_PAUSE:
+					if ( pSlimServerClient->dataThreadState != THREAD_PLAYING )
+						break;
+					pSlimServerClient->dataThreadState = THREAD_PAUSED;
+					break;
+
 				case THREAD_EXIT:
 					g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::dataConnectionThread() Ending the data thread!");
 					pSlimServerClient->dataThreadState = THREAD_EXITING;
 					break;
+
 				default:
 					g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::dataConnectionThread() Command not handled %d", pSlimServerClient->dataThreadCommand);
 			}
@@ -196,9 +221,11 @@ void *SlimServerClient::dataConnectionThread(void *arguments)
 			lastCommand = pSlimServerClient->dataThreadCommand;
 		}
 
-
 		if ( pSlimServerClient->dataThreadState == THREAD_CONNECTED )
 			slimDataHandler->readStreamData();
+
+		if ( pSlimServerClient->dataThreadState == THREAD_PLAYING && slimCommandHandler->needToSendStatus() )
+			slimCommandHandler->doStatus("STMt");
 
 		Sleep(50);
 	}
@@ -292,9 +319,17 @@ std::string SlimServerClient::getFifoName()
 	return StringUtils::Format("%d", m_pXineSlave->getDeviceId());
 }
 
-bool SlimServerClient::startDataReader(string fifoFileName)
+bool SlimServerClient::startDataReader(string fifoFileName, bool autostart)
 {
-	return m_pXineSlave->playStream(string("fifo://") + fifoFileName, m_iStreamID, 0, m_iRequestingObjectID);
+	PLUTO_SAFETY_LOCK(xineSlaveMutex, *m_pXineSlaveMutex);
+
+	if ( ! autostart )
+		return true;
+
+	if ( ! m_pXineSlave->playStream(string("fifo://") + fifoFileName, m_iStreamID, 0, m_iRequestingObjectID) )
+		return false;
+
+	return true;
 }
 
 void SlimServerClient::setMediaStreamID(int iStreamID)
@@ -306,3 +341,17 @@ void SlimServerClient::setRequestingObjectID(int iRequestingObjectID)
 {
 	m_iRequestingObjectID = iRequestingObjectID;
 }
+
+int SlimServerClient::getPlaybackSeconds()
+{
+	PLUTO_SAFETY_LOCK(xineSlaveMutex, *m_pXineSlaveMutex);
+
+	int positionTime = 0;
+	int totalTime = 0;
+
+	if ( m_pXineSlave != NULL)
+		m_pXineSlave->getStreamPlaybackPosition(m_iStreamID, positionTime, totalTime);
+
+	return positionTime / 1000;
+}
+

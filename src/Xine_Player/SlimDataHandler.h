@@ -38,12 +38,16 @@ class SlimDataHandler: public SocketCommunicator, public SlimServerClientUser
 	unsigned int  readPtr;
 	unsigned int  writePtr;
 
+	long long bytesRx;
+
 	pthread_mutex_t bufferAccessMutex;
 	pthread_t		fifoWriterThread;
 
 	string 	fifoPipeName;
 
-	long long epoch;
+	struct timeval epochTime;
+
+	bool bLogBufferAccess;
 
 protected:
 	bool fillBuffer(char *pBuffer, unsigned int pBufferOffset, unsigned int pBufferLen);
@@ -53,14 +57,13 @@ protected:
 	static void *xineFifoWriterThread(void *);
 public:
 
-
     SlimDataHandler();
 
     ~SlimDataHandler();
 
 	virtual bool openConnection();
 
-	bool startProcessingData();
+	bool startProcessingData(bool autostart);
 
 	bool readStreamData();
 
@@ -68,6 +71,8 @@ public:
 	unsigned int getWritePtr();
 	unsigned int getBufferFreeSpace();
 	unsigned int getBufferFilledSpace();
+
+	long long getBytesRx();
 
 	long getBufferSize();
 	long long getJiffies();

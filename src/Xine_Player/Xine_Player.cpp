@@ -46,8 +46,17 @@ using namespace DCE;
 Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Xine_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_xineSlaveMutex("xine-slave-access-mutex")
 {
-    m_pXineSlaveControl = new XineSlaveWrapper();
+	pthread_mutexattr_t      mutexAttr;
+    pthread_mutexattr_init( &mutexAttr );
+    pthread_mutexattr_settype( &mutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+
+	m_xineSlaveMutex.Init( &mutexAttr );
+
+	m_pXineSlaveControl = new XineSlaveWrapper();
+
+
 
 	//m_pSlimServerClient = new SlimServerClient();
 //	m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
@@ -154,6 +163,7 @@ void Xine_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called.");
 
     if ( ! m_pXineSlaveControl )
@@ -197,7 +207,9 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
-    if ( ! m_pXineSlaveControl )
+    PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Stop_Media() I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
         return;
@@ -224,7 +236,9 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
 void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
-    if ( ! m_pXineSlaveControl )
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Pause_Media() I don't have a slave to use. Ignoring.");
         return;
@@ -243,7 +257,9 @@ void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
 void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
 {
-    if ( ! m_pXineSlaveControl )
+    PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Restart_Media() I don't have a slave to use. Ignoring.");
         return;
@@ -264,6 +280,8 @@ void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *p
 void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
     if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() I don't have a slave to use. Ignoring.");
@@ -281,6 +299,8 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
 	if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater() I don't have a slave to use. Ignoring.");
@@ -299,6 +319,8 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message 
 void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
 	if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Back_ChannelTrack_Lower() I don't have a slave to use. Ignoring.");
@@ -313,7 +335,9 @@ void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *
 
 Display *Xine_Player::getDisplay()
 {
-    if ( ! m_pXineSlaveControl )
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::getDisplay(). I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
         return NULL;
@@ -331,6 +355,8 @@ Display *Xine_Player::getDisplay()
 void Xine_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c81-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
     if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Next() I don't have a slave to use. Ignoring.");
@@ -350,7 +376,9 @@ void Xine_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *p
 void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c82-e->
 {
-    if ( ! m_pXineSlaveControl )
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Prev() I don't have a slave to use. Ignoring.");
         return;
@@ -380,7 +408,9 @@ void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *p
 void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
 {
-    if ( ! m_pXineSlaveControl )
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
     {
        g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Get_Video_Frame() I don't have a slave to use. Ignoring.");
        return;
@@ -408,7 +438,9 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c87-e->
 {
-    if ( ! m_pXineSlaveControl )
+    PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
     {
        g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Goto_Media_Menu() I don't have a slave to use. Ignoring.");
        return;
@@ -439,7 +471,9 @@ void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool b
 void Xine_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c243-e->
 {
-    if ( ! m_pXineSlaveControl )
+    PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
     {
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Enable_Broadcasting() I don't have a slave to use. Ignoring.");
         return;
@@ -471,6 +505,8 @@ void Xine_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string
 void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,Message *pMessage)
 //<-dceag-c259-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
 	if ( ! m_pXineSlaveControl )
     {
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Report_Playback_Position() I don't have a slave to use. Ignoring.");
@@ -493,6 +529,8 @@ void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,in
 void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
 	if ( ! m_pXineSlaveControl )
     {
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Simulate_Mouse_Click() I don't have a slave to use. Ignoring.");
@@ -511,6 +549,8 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
 	if ( ! m_pXineSlaveControl )
     {
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_EnterGo() I don't have a slave to use. Ignoring.");
@@ -530,6 +570,8 @@ void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
 	if ( ! m_pXineSlaveControl )
     {
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Up() I don't have a slave to use. Ignoring.");
@@ -548,6 +590,8 @@ void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
 	if ( ! m_pXineSlaveControl )
     {
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Down() I don't have a slave to use. Ignoring.");
@@ -567,6 +611,8 @@ void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
 	if ( ! m_pXineSlaveControl )
     {
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Left() I don't have a slave to use. Ignoring.");
@@ -586,6 +632,8 @@ void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
 	if ( ! m_pXineSlaveControl )
     {
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Right() I don't have a slave to use. Ignoring.");
@@ -749,6 +797,7 @@ SlimServerClient *Xine_Player::getSlimServerClient()
 		g_pPlutoLogger->Write(LV_STATUS, "Creating the Slim Server Client object");
 		m_pSlimServerClient = new SlimServerClient();
 		m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
+		m_pSlimServerClient->setXineSlaveMutex(&m_xineSlaveMutex);
 	}
 
 	return m_pSlimServerClient;

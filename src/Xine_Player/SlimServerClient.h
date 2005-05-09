@@ -6,6 +6,7 @@
 
 #include "SlimCommandHandler.h"
 // #include "SlimDataBufferHandler.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 
 class SlimDataHandler;
 class XineSlaveWrapper;
@@ -18,6 +19,8 @@ public:
 		THREAD_STOPPED,
 		THREAD_CONNECTING,
 		THREAD_CONNECTED,
+		THREAD_PLAYING,
+		THREAD_PAUSED,
 		THREAD_EXITING
 	} ThreadStateType;
 
@@ -26,6 +29,8 @@ public:
 		THREAD_UNKNOWN,
 		THREAD_START,
 		THREAD_STOP,
+		THREAD_PLAY,
+		THREAD_PAUSE,
 		THREAD_EXIT
 	} ThreadCommandType;
 
@@ -34,7 +39,8 @@ private:
 	ThreadStateType 		dataThreadState, commandThreadState;
 	ThreadCommandType		dataThreadCommand, commandThreadCommand;
 
-	XineSlaveWrapper *m_pXineSlave;
+	XineSlaveWrapper 		*m_pXineSlave;
+	pluto_pthread_mutex_t   *m_pXineSlaveMutex;
 
 	SlimDataHandler 	*m_pSlimDataHandler;
 	SlimCommandHandler 	*m_pSlimCommandHandler;
@@ -60,6 +66,7 @@ public:
 	virtual void disconnectFromServer(int iStreamID);
 
 	virtual void setXineSlaveObject(XineSlaveWrapper *pXineSlaveControl);
+	virtual void setXineSlaveMutex(pluto_pthread_mutex_t *pXineSlaveMutex);
 	virtual void setMacAddress(std::string strMacAddress);
 
     virtual ~SlimServerClient();
@@ -67,10 +74,12 @@ public:
 	SlimDataHandler		*getSlimDataHandler();
 	SlimCommandHandler	*getSlimCommandHandler();
 
+	int getPlaybackSeconds();
+
 	std::string getHostName();
 	std::string getFifoName();
 
-	bool startDataReader(std::string fifoFileName);
+	bool startDataReader(std::string fifoFileName, bool autostart);
 
 	void setMediaStreamID(int iStreamID);
 	void setRequestingObjectID(int iRequestingObjectID);

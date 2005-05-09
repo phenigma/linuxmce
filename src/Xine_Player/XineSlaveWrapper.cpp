@@ -340,6 +340,7 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
             g_pPlutoLogger->Write(LV_STATUS, "Starting stream from position: %d", mediaPosition);
             xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
         }
+
         if ( xine_play(xineStream->m_pStream, 0, 0) )
         {
 			g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete: ", time(NULL) - startTime);
@@ -351,8 +352,8 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
 			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
 //             }
         }
-       else
-            xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
+       	else
+			xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
     }
     else
     {

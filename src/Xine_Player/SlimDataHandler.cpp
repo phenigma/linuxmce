@@ -27,6 +27,7 @@ using namespace DCE;
 
 SlimDataHandler::SlimDataHandler()
 {
+	bLogBufferAccess = false;
 }
 
 
@@ -35,7 +36,7 @@ SlimDataHandler::~SlimDataHandler()
 
 }
 
-bool SlimDataHandler::startProcessingData()
+bool SlimDataHandler::startProcessingData(bool autostart)
 {
 	getSlimServerClient()->commandDataThread(SlimServerClient::THREAD_START);
 
@@ -44,9 +45,12 @@ bool SlimDataHandler::startProcessingData()
 	unlink(fifoPipeName.c_str());
 	mkfifo(fifoPipeName.c_str(), S_IRWXU | S_IRWXG);
 
-	pthread_create(&fifoWriterThread, NULL, &xineFifoWriterThread, this);
+	if ( autostart )
+	{
+		pthread_create(&fifoWriterThread, NULL, &xineFifoWriterThread, this);
+		getSlimServerClient()->startDataReader(fifoPipeName, autostart);
+	}
 
-	getSlimServerClient()->startDataReader(fifoPipeName);
 	return true;
 }
 
@@ -116,12 +120,12 @@ bool SlimDataHandler::fillBuffer(char *pBuffer, unsigned int pBufferOffset, unsi
 	oldWritePtr = writePtr;
 
 	if ( getBufferFreeSpace() < pBufferLen )
-	{
-// 		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) writing %d: [ %d->%d, %d->%d ].", BUFFER_SIZE, pBufferLen, readPtr, readPtr, oldWritePtr, writePtr);
 		return false;
-	}
 
 	pthread_mutex_lock(&bufferAccessMutex);
+	if ( bLogBufferAccess )
+		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) before writing %d: [ read: %d, write: %d].", BUFFER_SIZE, pBufferLen, readPtr, writePtr);
+
 	if ( writePtr < readPtr)
 	{
 		memcpy(buffer + writePtr, pBuffer + pBufferOffset, pBufferLen);
@@ -145,8 +149,10 @@ bool SlimDataHandler::fillBuffer(char *pBuffer, unsigned int pBufferOffset, unsi
 		}
 	}
 
-// 	g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) writing %d: [ %d->%d, %d->%d ].", BUFFER_SIZE, pBufferLen, readPtr, readPtr, oldWritePtr, writePtr);
+	bytesRx += pBufferLen;
 
+	if ( bLogBufferAccess )
+		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) after writing %d: [ read: %d, write: %d].", BUFFER_SIZE, pBufferLen, readPtr, writePtr);
 	pthread_mutex_unlock(&bufferAccessMutex);
 	return true;
 }
@@ -163,7 +169,10 @@ bool SlimDataHandler::readBuffer(char *pBuffer, unsigned int pBufferOffset, unsi
 	if ( getBufferFilledSpace() <= pBufferLen )
 		return false;
 
+
 	pthread_mutex_lock(&bufferAccessMutex);
+	if ( bLogBufferAccess )
+		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) before reading %d: [ read: %d, write: %d].", BUFFER_SIZE, requestedReadSize, readPtr, writePtr);
 
 	copiedCount = 0;
 
@@ -199,7 +208,8 @@ bool SlimDataHandler::readBuffer(char *pBuffer, unsigned int pBufferOffset, unsi
 		copiedCount += count;
 	}
 
-// 	printf("<---Buffer (%d) reading %d: [ %d->%d, %d->%d ].\n", BUFFER_SIZE, requestedReadSize, oldReadPtr, readPtr, writePtr, writePtr);
+	if ( bLogBufferAccess )
+		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) after reading %d: [ read: %d, write: %d].", BUFFER_SIZE, requestedReadSize, readPtr, writePtr);
 
 	pthread_mutex_unlock(&bufferAccessMutex);
 	return copiedCount;
@@ -333,25 +343,38 @@ void *SlimDataHandler::xineFifoWriterThread(void *parameters)
 		return NULL;
 	}
 
-	char buffer[PIPE_BUF * 3/2];
+	char buffer[PIPE_BUF];
 	int bufferSize = sizeof(buffer);
 	while ( true )
 	{
 		while ( ! pSlimDataHandler->readBuffer(buffer, 0, bufferSize) )
-			Sleep(10);
+			Sleep(1);
 
 		while ( write(fifoPipeFileDescriptor, buffer, bufferSize ) == EAGAIN )
-			Sleep(10);
+			Sleep(1);
 	}
 }
 
 long long SlimDataHandler::getJiffies()
 {
-	if ( epoch == 0 )
+	if ( epochTime.tv_sec == 0 && epochTime.tv_usec == 0 )
 	{
-		epoch = (uintmax_t)time(NULL);
+		if ( ! gettimeofday(&epochTime, NULL) == -1 )
+			g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::getJiffies() getimeofday failed %s", strerror(errno));
+
 		return 0;
 	}
 
-	return (uintmax_t)time(NULL) - epoch;
+	struct timeval currentTime;
+
+	if ( ! gettimeofday(&currentTime, NULL) == -1 )
+		g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::getJiffies() getimeofday failed %s", strerror(errno));
+
+
+	return (currentTime.tv_sec - epochTime.tv_sec) * 1000 + currentTime.tv_usec - epochTime.tv_usec;
+}
+
+long long SlimDataHandler::getBytesRx()
+{
+	return bytesRx;
 }

@@ -23,6 +23,11 @@ using namespace DCE;
 
 SlimCommandHandler::SlimCommandHandler()
 {
+// #ifdef DEBUG
+	bLogControlProtocol = true;
+//#else
+//	bLogControlProtocol = false;
+//#endif
 }
 
 
@@ -58,6 +63,40 @@ bool SlimCommandHandler::readCommand(int &commandBufferSize)
 	}
 
 	return true;
+}
+
+bool SlimCommandHandler::doIR(char format, char noBits, int irCode)
+{
+	if ( ! isCommunicationOpen() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Socket is not open yet. Can't do hello !");
+		return false;
+	}
+
+	long jiffies = getSlimServerClient()->getSlimDataHandler()->getJiffies();
+
+	strncpy((char*)m_commandBuffer, "IR  ", 4);
+	int pos = 4;
+	m_commandBuffer[pos++] = 0;
+	m_commandBuffer[pos++] = 0;
+	m_commandBuffer[pos++] = 0;
+	m_commandBuffer[pos++] = 10;
+
+	m_commandBuffer[pos++] = (jiffies >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (jiffies >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (jiffies >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (jiffies >> 0x00) & 0xFF;
+
+	m_commandBuffer[pos++] = format;
+	m_commandBuffer[pos++] = noBits;
+
+	m_commandBuffer[pos++] = (irCode >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (irCode >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (irCode  >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (irCode  >> 0x00) & 0xFF;
+
+	int sentChars;
+	return writeData(m_commandBuffer, 0, 18, sentChars);
 }
 
 bool SlimCommandHandler::doHello()
@@ -105,20 +144,34 @@ bool SlimCommandHandler::doStatus(char *statusType)
 
 	unsigned int readPtr = getSlimServerClient()->getSlimDataHandler()->getReadPtr();
 	unsigned int writePtr = getSlimServerClient()->getSlimDataHandler()->getWritePtr();
-	long long bytesRX = 0;
+	long long bytesRX = getSlimServerClient()->getSlimDataHandler()->getBytesRx();
 	unsigned int jiffies = getSlimServerClient()->getSlimDataHandler()->getJiffies();
 
 	int outputBufferSize = getSlimServerClient()->getSlimDataHandler()->getBufferSize();
 	int outputBufferFullness = getSlimServerClient()->getSlimDataHandler()->getBufferFilledSpace();
 
-	int elapsedSeconds = 1;
+	int elapsedSeconds = getSlimServerClient()->getPlaybackSeconds();
+
+	if ( bLogControlProtocol )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Sending status command: %s", statusType);
+		g_pPlutoLogger->Write(LV_STATUS, "\tcrlf: 0x%x", crlf);
+		g_pPlutoLogger->Write(LV_STATUS, "\tmasInit: 0x%x", masInit);
+		g_pPlutoLogger->Write(LV_STATUS, "\tmasMode: 0x%x", masMode);
+		g_pPlutoLogger->Write(LV_STATUS, "\treadPtr: %d", readPtr);
+		g_pPlutoLogger->Write(LV_STATUS, "\twritePtr: %d", writePtr);
+		g_pPlutoLogger->Write(LV_STATUS, "\tbytesRX: %d", bytesRX);
+		g_pPlutoLogger->Write(LV_STATUS, "\tjiffies: %d", jiffies);
+		g_pPlutoLogger->Write(LV_STATUS, "\toutputBufferSize: %d", outputBufferSize);
+		g_pPlutoLogger->Write(LV_STATUS, "\toutputBufferFullnes: %d", outputBufferFullness);
+		g_pPlutoLogger->Write(LV_STATUS, "\telapsedSeconds: %d", elapsedSeconds);
+	}
 
 	int writeCount;
 	int pos;
 
 	strncpy((char*)m_commandBuffer, "STAT", 4);
 
-	// please excuse the lack of beauty of this code.
 	pos = 4;
 	m_commandBuffer[pos++] = 0;
 	m_commandBuffer[pos++] = 0;
@@ -176,6 +229,9 @@ bool SlimCommandHandler::doStatus(char *statusType)
 	m_commandBuffer[pos++] = (elapsedSeconds >> 0x08) & 0xFF;
 	m_commandBuffer[pos++] = (elapsedSeconds >> 0x00) & 0xFF;
 
+	if ( gettimeofday(&lastStatusTimeVal, NULL) == -1 )
+		g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::doStatus() gettimeofday failed %s", strerror(errno));
+
 	return writeData(m_commandBuffer, 0, pos, writeCount);
 }
 void SlimCommandHandler::setMacAddress(string strMacAddress)
@@ -232,7 +288,8 @@ bool SlimCommandHandler::processStrmCommand()
 {
 	switch(protocolCommand.data.stream.command)
 	{
-		case STREAM_START: return startStreamingClient();
+		case STREAM_START:   return startStreamingClient();
+		case STREAM_UNPAUSE: return unpauseStreamingClient();
 		default:
 			g_pPlutoLogger->Write(LV_STATUS, "Command not implemented yet!");
 			return false;
@@ -497,6 +554,9 @@ bool SlimCommandHandler::decodeVisuCommand(unsigned char *buffer, int size)
 
 void SlimCommandHandler::dumpCommand()
 {
+	if ( ! bLogControlProtocol )
+		return;
+
 	switch(protocolCommand.type)
 	{
 	case COMMAND_VERSION:
@@ -572,6 +632,28 @@ void SlimCommandHandler::dumpCommand()
 	}
 }
 
+bool SlimCommandHandler::unpauseStreamingClient()
+{
+	SlimDataHandler *pSlimDataHandler = getSlimServerClient()->getSlimDataHandler();
+
+	string strHostName = getSlimServerClient()->getHostName();
+
+	if ( protocolCommand.data.stream.hostAddr.s_addr != 0 )
+		strHostName = StringUtils::Format("%d.%d.%d.%d",
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x18 & 0xFF,
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x10 & 0xFF,
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x08 & 0xFF,
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x00 & 0xFF);
+
+	pSlimDataHandler->setConnectionData(strHostName, protocolCommand.data.stream.hostPort, protocolCommand.data.stream.urlAddress, protocolCommand.data.stream.urlSize);
+
+	pSlimDataHandler->startProcessingData(protocolCommand.data.stream.autoStart - '0');
+
+	Sleep(800);
+
+	return doStatus("STMr");
+}
+
 bool SlimCommandHandler::startStreamingClient()
 {
 	SlimDataHandler *pSlimDataHandler = getSlimServerClient()->getSlimDataHandler();
@@ -586,12 +668,25 @@ bool SlimCommandHandler::startStreamingClient()
 				protocolCommand.data.stream.hostAddr.s_addr >> 0x00 & 0xFF);
 
 	pSlimDataHandler->setConnectionData(strHostName, protocolCommand.data.stream.hostPort, protocolCommand.data.stream.urlAddress, protocolCommand.data.stream.urlSize);
-	pSlimDataHandler->startProcessingData();
+
+	pSlimDataHandler->startProcessingData(protocolCommand.data.stream.autoStart - '0');
 
 	Sleep(800);
 
-	doStatus("STMc");
-	doStatus("STMh");
-	return true;
+	return doStatus("STMc") && doStatus("STMh");
 }
 
+bool SlimCommandHandler::needToSendStatus()
+{
+	struct timeval currentTimeVal;
+	if ( gettimeofday(&currentTimeVal, NULL) == -1 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::needToSendStatus() gettimeofday failed: %s", strerror(errno));
+		return false;
+	}
+
+	if ( ((currentTimeVal.tv_sec - lastStatusTimeVal.tv_sec) * 1000 + (currentTimeVal.tv_usec - lastStatusTimeVal.tv_usec)) > 1000 )
+		return true;
+
+	return false;
+}

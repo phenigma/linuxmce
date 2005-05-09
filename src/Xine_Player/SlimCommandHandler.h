@@ -114,6 +114,10 @@ private:
 
 	struct slimProtocolCommand protocolCommand;
 
+	bool bLogControlProtocol;
+
+	struct timeval lastStatusTimeVal;
+
 private:
 //	int sendBuffer(unsigned char *buffer, unsigned int start, unsigned int len);
 
@@ -136,6 +140,8 @@ private:
 	bool processStrmCommand();
 
 	bool startStreamingClient();
+	bool unpauseStreamingClient();
+
 
 
 public:
@@ -150,8 +156,11 @@ public:
 	// protocol related functions
 	bool doHello();
 	bool doStatus(char *statusType);
+	bool doIR(char format, char noBits, int irCode);
 
 	void doOneCommand();
+
+	bool needToSendStatus();
 };
 
 #endif
