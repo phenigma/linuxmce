@@ -370,7 +370,12 @@ fi
 read
 #MessageBox "$Message1" "$Message2" "$Message3"
 
-[ -e /usr/share/vim/vimrc ] || cp /usr/share/vim/vim63/vimrc_example.vim /usr/share/vim/vimrc
+[ -e /root/.vimrc ] || cp /usr/share/vim/vim63/vimrc_example.vim /root/.vimrc
+
+echo "Setting debconf front-end to Noninteractive"
+awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
+	{print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
+mv /var/cache/debconf/config.dat.$$ /var/cache/debconf/config.dat
 
 if [ "$Type" == "diskless" ]; then
 	# Replace Initial_Config.sh entry with regular one in inittab
