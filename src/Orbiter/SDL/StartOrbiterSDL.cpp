@@ -79,7 +79,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
 
-            orbiterEvent->type = SDL_KEYDOWN == sdlEvent.type ? Orbiter::Event::BUTTON_UP : 
+            orbiterEvent->type = SDL_KEYDOWN != sdlEvent.type ? Orbiter::Event::BUTTON_UP : 
                 Orbiter::Event::BUTTON_DOWN;
 
             switch (sdlEvent.key.keysym.sym)
@@ -92,7 +92,8 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
             if(SDL_KEYDOWN == sdlEvent.type && SDLK_CAPSLOCK == sdlEvent.key.keysym.sym)
                 kbdState->bCapsLock = !kbdState->bCapsLock;
 
-			g_pPlutoLogger->Write(LV_STATUS, "key up %d shif: %d ctrl: %d alt: %d caps: %d",
+			g_pPlutoLogger->Write(LV_STATUS, "key %s %d shif: %d ctrl: %d alt: %d caps: %d",
+                    SDL_KEYDOWN == sdlEvent.type ? "down" : "up",
 					(int) sdlEvent.key.keysym.sym,
 					(int) kbdState->bShiftDown,
 					(int) kbdState->bControlDown,
