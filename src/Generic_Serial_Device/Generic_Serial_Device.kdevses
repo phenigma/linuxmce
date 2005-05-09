@@ -1,22 +1,40 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="5" >
+ <DocsAndViews NumberOfDocuments="11" >
   <Doc0 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/Generic_Serial_Device.h" >
    <View0 line="33" Type="Source" />
   </Doc0>
   <Doc1 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/GSDMessageProcessing.h" >
-   <View0 line="14" Type="Source" />
+   <View0 Type="Source" />
   </Doc1>
   <Doc2 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/GSDMessageProcessing.cpp" >
-   <View0 line="17" Type="Source" />
+   <View0 Type="Source" />
   </Doc2>
   <Doc3 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/Generic_Serial_Device.cpp" >
-   <View0 line="57" Type="Source" />
+   <View0 line="162" Type="Source" />
   </Doc3>
   <Doc4 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/Makefile" >
-   <View0 line="24" Type="Source" />
+   <View0 line="7" Type="Source" />
   </Doc4>
+  <Doc5 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyEmbeder.h" >
+   <View0 line="41" Type="Source" />
+  </Doc5>
+  <Doc6 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyEmbeder.cpp" >
+   <View0 line="45" Type="Source" />
+  </Doc6>
+  <Doc7 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDCECodeSupplier.h" >
+   <View0 line="31" Type="Source" />
+  </Doc7>
+  <Doc8 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDCECodeSupplier.cpp" >
+   <View0 line="82" Type="Source" />
+  </Doc8>
+  <Doc9 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyIOManager.h" >
+   <View0 line="43" Type="Source" />
+  </Doc9>
+  <Doc10 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyIOManager.cpp" >
+   <View0 line="26" Type="Source" />
+  </Doc10>
  </DocsAndViews>
  <pluginList>
   <kdevbookmarks>
