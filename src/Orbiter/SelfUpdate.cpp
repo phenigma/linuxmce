@@ -55,14 +55,17 @@ OrbiterSelfUpdate::~OrbiterSelfUpdate()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
 {
-	int iNumArgs;
-
 #ifdef WINCE
 	wchar_t pProcessNameW[256];
 	::GetModuleFileName(NULL, pProcessNameW, sizeof(pProcessNameW));
 	wcstombs(pProcessFilePath, pProcessNameW, 256);
 #else
-	LPSTR pCmdLine = GetCommandLine();
+    ::GetModuleFileName(NULL, pProcessFilePath, 256);
+
+    /*
+    int iNumArgs;
+    LPSTR pCmdLine = GetCommandLine();
+    g_pPlutoLogger->Write(LV_STATUS, "Orbiter's command line: %s", pCmdLine);
 
 	wchar_t pCmdLineW[256];
 	mbstowcs(pCmdLineW, pCmdLine, 256);
@@ -70,9 +73,11 @@ void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
 
 	wchar_t *pProcessNameW = pCmdLineParams[0];
 	wcstombs(pProcessFilePath, pProcessNameW, 256);
+    ::LocalFree(pCmdLineParams);
+    */
 
-	::LocalFree(pCmdLineParams);
-	//delete pCmdLineParams;
+    g_pPlutoLogger->Write(LV_STATUS, "Orbiter's full path: %s", pProcessFilePath);
+
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
@@ -165,7 +170,11 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 		return false; //we'll continue with this version
 	}
 
-	string sUpdateBinaryPath = sStoragePath + "/" + sUpdateName;
+	string sUpdateBinaryPath;
+    if(sStoragePath == "")
+        sUpdateBinaryPath = sUpdateName;
+    else
+        sUpdateBinaryPath = sStoragePath + "/" + sUpdateName;
 
 #ifdef WINCE
 	wchar_t UpdateFileNameW[256];

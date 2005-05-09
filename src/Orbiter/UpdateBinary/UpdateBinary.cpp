@@ -195,7 +195,14 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	StringUtils::Replace(sOrbiterMD5FileName, ".EXE", ".MD5");
 
 	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to update MD5 file: %s", sOrbiterMD5FileName.c_str());
-	while(!FileUtils::WriteBufferIntoFile(sOrbiterMD5FileName, const_cast<char *>(sChecksum.c_str()), sChecksum.length()))
+
+    bool bOrbiterMD5FilePathIsWrong = false;
+    if(!FileUtils::FileExists(sOrbiterMD5FileName))
+    {
+        bOrbiterMD5FilePathIsWrong = true;
+    }
+
+	if(!FileUtils::WriteBufferIntoFile(sOrbiterMD5FileName, const_cast<char *>(sChecksum.c_str()), sChecksum.length()))
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the update file" );
 		Sleep(1000); //we'll continue with this version
@@ -264,8 +271,15 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	#define COMM_FILE const_cast<char *>(sCommFile.c_str())
 #endif		
 
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to delete the communcation file");
-	::DeleteFile(COMM_FILE);
+    if(!bOrbiterMD5FilePathIsWrong)
+    {
+    	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to delete the communcation file");
+    	::DeleteFile(COMM_FILE);
+    }
+    else
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL,  "The communication file will not be removed because the OrbiterMD5 file path is not correct!");
+    }
 
 #ifdef WINCE
 	if(!::CreateProcess(OrbiterPathW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
