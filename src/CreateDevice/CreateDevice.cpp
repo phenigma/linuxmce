@@ -113,7 +113,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 			
 		if( ( resultPackage.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( resultPackage.r ) ) && row[0] )
 		{
-			string sCommand = "apt-get install " + string(row[0]);
+			string sCommand = "apt-get install -y " + string(row[0]);
 			g_pPlutoLogger->Write(LV_STATUS,"Running %s",sCommand.c_str());
 			system(sCommand.c_str());
 		}
