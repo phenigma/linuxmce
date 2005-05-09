@@ -1319,7 +1319,14 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		timeout_tmp.tv_sec = 0;
 		while (select(learn_fd + 1, &fdset, NULL, NULL, &timeout_tmp) > 0)
 		{
-			read(learn_fd, learn_buffer, 511);
+			if (read(learn_fd, learn_buffer, 511) < 0)
+			{
+				retval = errno;
+				g_pPlutoLogger->Write(LV_WARNING, "Buffer clearing loop exited with read() error: errno=%d (%s)\n", retval, strerror(retval));
+				m_bQuit = true;
+				break;
+			}
+			
 			FD_ZERO(&fdset);
 			FD_SET(learn_fd, &fdset);
 			timeout_tmp.tv_usec = 0;
