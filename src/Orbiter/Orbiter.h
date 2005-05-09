@@ -147,7 +147,7 @@ protected:
 	string m_sNowPlaying; /** < set by the media engine, this is whatever media is currently playing */
 	int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
 	time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */
-    time_t m_tButtonDown;  
+    timespec m_tButtonDown;  
     string m_sCacheFolder; /** < Where to store graphic files for caching */
 	int m_iCacheSize; /** < The maximum size of the graphics files stored (MB) */
     int m_iVideoFrameInterval; /** < The interval between two frame requested from the router */

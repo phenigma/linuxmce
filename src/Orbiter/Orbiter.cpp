@@ -3409,7 +3409,7 @@ g_pPlutoLogger->Write(LV_CRITICAL, "Repeated key %d", iPK_Button);
 
     //this is not a repeated button
     //it will be handled in ButtonUp
-    m_tButtonDown = clock();
+    gettimeofday(&m_tButtonDown,NULL);
     return false;
 }
 
@@ -3423,7 +3423,12 @@ bool Orbiter::ButtonUp( int iPK_Button )
     }
 
     //this is not a repeated button
-    if(m_tButtonDown && clock() - m_tButtonDown > CLOCKS_PER_SEC/2)
+    timespec m_tButtonUp;  
+    gettimeofday(&m_tButtonUp,NULL);
+    timespec m_tInterval = m_tButtonUp - m_tButtonDown;
+    long tMilisecondsPassed = m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
+
+    if(tMilisecondsPassed > 500) //more then half of second
     {
         //it is a long key - let's get the right button code
         switch(	iPK_Button)
