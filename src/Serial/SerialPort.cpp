@@ -147,12 +147,11 @@ size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
     tv.tv_usec = (Timeout % 1000) * 1000;
 
     ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
-    if (ret == 0 || ret ==-1)
-    { 
-    	return 0;
+    if (ret <= 0) { 
+    	return -1;
     }   
     size_t retval = read(m_fdSerial,Buf,MaxLen);
-    return (retval < 0 ? 0 : retval);   
+    return retval;   
 }
 
 bool CSerialPort::IsReadEmpty()
