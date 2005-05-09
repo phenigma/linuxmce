@@ -281,6 +281,8 @@ ff02::3 ip6-allhosts
 	echo "$hosts" >/etc/hosts
 fi
 
+clear
+
 chmod +x "$DIR"/activation.sh
 if bash -x "$DIR"/activation.sh; then
 	echo "Activation went ok"
