@@ -199,6 +199,8 @@ void
 MessageTranslationManager::_QueueProc() {
 	handleStart();
 	while(!stopqueue_) {
+Sleep(50);
+g_pPlutoLogger->Write(LV_STATUS,"_QueueProc sleep");
 		msgqueue_.lock();
 		MessageReplicatorList::iterator it = msgqueue_.begin();
 		if(it != msgqueue_.end()) {

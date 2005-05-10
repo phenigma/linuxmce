@@ -5278,6 +5278,7 @@ void Orbiter::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_
 //<-dceag-c28-e->
 {
     ButtonDown( atoi(sPK_Button.c_str()) ); // TODO: Handle shift and send second digit if shit is down
+    ButtonUp( atoi(sPK_Button.c_str()) ); // TODO: Handle shift and send second digit if shit is down
 }
 
 //<-dceag-c29-b->

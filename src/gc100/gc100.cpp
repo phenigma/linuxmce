@@ -1493,6 +1493,8 @@ void gc100::EventThread()
 {
 	while (! m_bQuit)
 	{
+Sleep(50);
+g_pPlutoLogger->Write(LV_STATUS,"EventThread");
 		read_from_gc100();
 	}
 }
