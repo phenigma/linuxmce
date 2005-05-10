@@ -72,7 +72,7 @@ public:
 	//Data accessors
 	//Event accessors
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Infrared_Codes(int iPK_Device,char **pData,int *iData_Size,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,int iPK_Command_Input,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_GC100(string &sCMD_Result,class Message *pMessage) {};
 
@@ -94,13 +94,14 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
-						CMD_Get_Infrared_Codes(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
+					char *pData=pMessage->m_mapData_Parameters[19];
+					int iData_Size=pMessage->m_mapData_Lengths[19];
+						CMD_Get_Infrared_Codes(iPK_Device,&pData,&iData_Size,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -113,7 +114,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_Infrared_Codes(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
+								CMD_Get_Infrared_Codes(iPK_Device,&pData,&iData_Size,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

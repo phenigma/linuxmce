@@ -44,7 +44,7 @@ public:
 		class DataGridTable *InfraredCodes(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 		class DataGridTable *IRGroupCategories(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
-		void GetInfraredCodes(int iPK_Device,string *sValue_To_Assign,bool bNoIRData=false);
+		void GetInfraredCodes(int iPK_Device,map<int,string> &mapCodes,bool bNoIRData=false);
 		
 //<-dceag-h-b->
 	/*
@@ -65,12 +65,11 @@ public:
 	/** Retrieves all the infrared codes for a given device. */
 		/** @param #2 PK_Device */
 			/** The device to retrieve the infrared codes for. */
-		/** @param #5 Value To Assign */
-			/** A tab delimited list of all the commands and infrared codes for the device.  The format is:
-\t{\tData} */
+		/** @param #19 Data */
+			/** A serialized map(int,string) with the commands/codes. */
 
-	virtual void CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Infrared_Codes(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
-	virtual void CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Infrared_Codes(int iPK_Device,char **pData,int *iData_Size) { string sCMD_Result; CMD_Get_Infrared_Codes(iPK_Device,pData,iData_Size,sCMD_Result,NULL);};
+	virtual void CMD_Get_Infrared_Codes(int iPK_Device,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #250 - Store Infrared Code */

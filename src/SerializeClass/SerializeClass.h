@@ -125,14 +125,19 @@ public:
 	char *m_pcCurrentPosition; /** < current position in the DataBlock */
 	void *m_pExtraSerializationData;  /** < this is only used in the Serialize method to store misc data */
 	unsigned long m_iSC_Version; /** < A schema version.  Set this in your constructor to support multiple schemas. */
+	/** < If the following is true, then it won't call SetupSerialization, it will assume it's done manually.
+	This allows the class to be used in general serialization, like this: 
+	SerializeClass sc;  sc + myMapIntStrings; sc.SerializeWrite(); */
+	bool m_bManuallySetupSerialization;
 
 	/**
 	 * @brief basic constructor
 	 */
-	SerializeClass()
+	SerializeClass(bool bManuallySetupSerialization=false)
 	{
 		m_pcDataBlock = m_pcCurrentPosition = NULL;
 		m_iSC_Version = 1;
+		m_bManuallySetupSerialization = bManuallySetupSerialization;
 	}
 
 	/**

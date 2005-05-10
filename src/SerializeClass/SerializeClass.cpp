@@ -40,31 +40,33 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 	// In some cases a class may need extra data to properly serialize in UnknownSerialize.  This is an extra void pointer that can be cast to something useful
 	m_pExtraSerializationData=pExtraSerializationData;
 
-	// For Symbian compatibility
-	MYSTL_ITERATE_LIST( m_listItemToSerialize, ItemToSerialize, pItem_del, it_del )
+	if( !m_bManuallySetupSerialization )
 	{
-		delete pItem_del;
-	}
-	MYSTL_CLEAR_LIST(m_listItemToSerialize);
-
-	if( bWriting )
-	{
-		Write_unsigned_long(m_iSC_Version);
-		SetupSerialization(m_iSC_Version);
-	}
-	else
-	{
-		unsigned long iSC_Version = Read_unsigned_long();
-		if( !OkayToDeserialize(iSC_Version) )
+		// For Symbian compatibility
+		MYSTL_ITERATE_LIST( m_listItemToSerialize, ItemToSerialize, pItem_del, it_del )
 		{
-#ifndef SYMBIAN
-#ifndef WINCE //no 'cerr' under CE
-			cerr << "It's not okay to deserialize version " << iSC_Version << endl;
-#endif
-#endif
-			return false;
+			delete pItem_del;
 		}
-		SetupSerialization(iSC_Version);
+		MYSTL_CLEAR_LIST(m_listItemToSerialize);
+		if( bWriting )
+		{
+			Write_unsigned_long(m_iSC_Version);
+			SetupSerialization(m_iSC_Version);
+		}
+		else
+		{
+			unsigned long iSC_Version = Read_unsigned_long();
+			if( !OkayToDeserialize(iSC_Version) )
+			{
+	#ifndef SYMBIAN
+	#ifndef WINCE //no 'cerr' under CE
+				cerr << "It's not okay to deserialize version " << iSC_Version << endl;
+	#endif
+	#endif
+				return false;
+			}
+			SetupSerialization(iSC_Version);
+		}
 	}
 #ifdef DEBUG_SERIALIZATION
 	cout << "Schema for: " << SerializeClassClassName();

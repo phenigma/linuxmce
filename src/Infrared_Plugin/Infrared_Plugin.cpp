@@ -106,7 +106,6 @@ bool Infrared_Plugin::Register()
     }
 
     m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl_2nd->front( );
-
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -288,12 +287,11 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 	}
 
 	// See if there any commands for which we have i/r codes, but aren't in the 'official list'.  List them now
-	string sCommands;
-	GetInfraredCodes(PK_Device,&sCommands,true);
-	pos=0;
-	while( pos<sCommands.size() && pos!=string::npos )
+	map<int,string> mapCodes;
+	GetInfraredCodes(PK_Device,mapCodes,true);
+	for(map<int,string>::iterator it=mapCodes.begin();it!=mapCodes.end();++it)
 	{
-		int PK_Command = atoi( StringUtils::Tokenize(sCommands,"\t",pos).c_str() );
+		int PK_Command = (*it).first;
 		if( mapCodesAlreadyShown.find(PK_Command)==mapCodesAlreadyShown.end() )
 		{
 			Command *pCommand = m_pRouter->m_mapCommand_Find(PK_Command);
@@ -467,18 +465,23 @@ class DataGridTable *Infrared_Plugin::IRGroupCategories(string GridID,string Par
 	/** Retrieves all the infrared codes for a given device. */
 		/** @param #2 PK_Device */
 			/** The device to retrieve the infrared codes for. */
-		/** @param #5 Value To Assign */
-			/** A tab delimited list of all the commands and infrared codes for the device.  The format is:
-\t{\tData} */
+		/** @param #19 Data */
+			/** A serialized map(int,string) with the commands/codes. */
 
-void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c188-e->
 {
-	GetInfraredCodes(iPK_Device,sValue_To_Assign);
+	map<int,string> mapCodes;
+	GetInfraredCodes(iPK_Device,mapCodes);
+	SerializeClass sc(true);
+	sc + mapCodes;
+	sc.SerializeWrite();
+	*iData_Size = sc.m_dwAllocatedSize;
+	*pData = sc.m_pcDataBlock;
 	sCMD_Result = "OK";
 }
 
-void Infrared_Plugin::GetInfraredCodes(int iPK_Device,string *sValue_To_Assign,bool bNoIRData)
+void Infrared_Plugin::GetInfraredCodes(int iPK_Device,map<int,string> &mapCodes,bool bNoIRData)
 {
 	int i;
 	size_t Count = 0;
@@ -511,18 +514,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d codes for device %d",(int) vectRow_Inf
 		Count += vectRow_InfraredGroup_Command[i].size();
 }
 	
-	// Format: <Count> \t (<Command ID> \t <IRData> \t){<Count> times}
-	* sValue_To_Assign = StringUtils::ltos(Count) + "\t";
-
 	for (i = 0; i < 2; i++)
 	{
 		vector<Row_InfraredGroup_Command *>::iterator it_vRIGC;
 		for (it_vRIGC = vectRow_InfraredGroup_Command[i].begin(); it_vRIGC != vectRow_InfraredGroup_Command[i].end(); it_vRIGC++)
 		{
 			Row_InfraredGroup_Command * pRow_InfraredGroup_Command = * it_vRIGC;
-//			cout << (*j)->Description_get() << ": " << (*j)->IRData_get() << endl;
-			* sValue_To_Assign += StringUtils::ltos(pRow_InfraredGroup_Command->FK_Command_get()) + "\t" +
-				pRow_InfraredGroup_Command->IRData_get() + "\t";
+			mapCodes[pRow_InfraredGroup_Command->FK_Command_get()] = pRow_InfraredGroup_Command->IRData_get();
 		}
 	}
 }
