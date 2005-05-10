@@ -4,13 +4,22 @@ use DBI;
 
 $db = DBI->connect("dbi:mysql:database=pluto_main;host=10.0.0.150;user=root;password=") or die "Couldn't connect to database: $DBI::errstr\n";
 
-if($ARGV[0] eq "") {
-	print "Usage: MakeChangeLog.pl <svn log file>\n";
+if($ARGV[1] eq "" && $ARGV[0] ne "m" && $ARGV[0] ne "t") {
+	print "Usage: MakeChangeLog.pl <operation> <svn log file>\n";
 	exit(1);
 }
 
-$input_file = $ARGV[0];
-print "Parsing file $input_file\n";
+if($ARGV[0] eq "t") {
+	trim($ARGV[1]);
+	exit(1);
+} elsif($ARGV[0] eq "m") {
+	$input_file = $ARGV[1];
+	print "Parsing file $input_file\n";
+} else {
+	print "Unkown operation (t=for trimming the log file, m=to modify the database with the log values)\n";
+	exit(1);
+}
+
 
 open(FILE,$input_file);
 @data = <FILE>;
@@ -364,4 +373,40 @@ sub addchange {
 		addchange("plutovip",$localc);
 		addchange("gc100",$localc);
 	}
+}
+
+sub trim {
+	$file = shift;
+	open(FL,$file);
+	@data = <FL>;
+	close(FL);
+	open(FL,">new.log");
+	foreach $line (@data) {
+		chomp($line);
+		if($line ne "") {
+			@splits = split(/\-/,$line);
+			if($splits[0] ne "") {
+				if($line =~ m/\|/) {
+					@splits = split(/\|/,$line);
+					print FL "$splits[1]|";
+				} else {
+					print FL "$line\n";
+				}
+			}
+		}
+	}
+	close(FL);
+	open(FL,"new.log");
+	@data = <FL>;
+	close(FL);
+	open(FL,">new.log");
+	foreach $line (@data) {
+		chomp($line);
+		@splits = split(/\|/,$line);
+		@splits2 = split(/\:/,$splits[1]);
+		if($splits2[0] eq "cl") {
+			print FL "$line\n";
+		}
+	}
+	close(FL);
 }
