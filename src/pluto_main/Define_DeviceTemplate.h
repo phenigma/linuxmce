@@ -24,7 +24,7 @@
 #define DEVICETEMPLATE_VirtDev_DCE_Router_CONST -100
 #define DEVICETEMPLATE_DCERouter_CONST 1
 #define DEVICETEMPLATE_Media_Plugin_CONST 2
-#define DEVICETEMPLATE_Aprilaire_Controller_CONST 3
+#define DEVICETEMPLATE_Aprilaire_Thermostat_Controlle_CONST 3
 #define DEVICETEMPLATE_Standard_Thermostat_CONST 4
 #define DEVICETEMPLATE_Xine_Player_CONST 5
 #define DEVICETEMPLATE_Xine_Plugin_CONST 6
@@ -1565,6 +1565,8 @@
 #define DEVICETEMPLATE_Dream_Box_IR_Control_CONST 1623
 #define DEVICETEMPLATE_Doorbell_button_CONST 1624
 #define DEVICETEMPLATE_Chime_CONST 1625
+#define DEVICETEMPLATE_QS1080IR_CONST 1626
+#define DEVICETEMPLATE_System_10_Plus_CONST 1627
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

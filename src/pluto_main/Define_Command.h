@@ -341,6 +341,16 @@
 #define COMMAND_Is_Daytime_CONST 371
 #define COMMAND_MH_Set_Volume_CONST 372
 #define COMMAND_Private_Method_Listing_CONST 373
+#define COMMAND_Input_1_CONST 374
+#define COMMAND_Input_2_CONST 375
+#define COMMAND_Input_3_CONST 376
+#define COMMAND_Input_4_CONST 377
+#define COMMAND_Input_5_CONST 378
+#define COMMAND_Input_6_CONST 379
+#define COMMAND_Input_7_CONST 380
+#define COMMAND_Input_8_CONST 381
+#define COMMAND_Input_9_CONST 382
+#define COMMAND_Input_10_CONST 383
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

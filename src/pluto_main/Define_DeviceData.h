@@ -13,11 +13,6 @@
 #define DEVICEDATA_Floorplan_Info_CONST 10
 #define DEVICEDATA_PK_FloorplanObjectType_CONST 11
 #define DEVICEDATA_PortChannel_Number_CONST 12
-#define DEVICEDATA_IR_Sleep_BeforeAfter_CONST 13
-#define DEVICEDATA_Number_of_Digits_CONST 14
-#define DEVICEDATA_Digit_Delay_CONST 15
-#define DEVICEDATA_IR_Power_Delay_CONST 16
-#define DEVICEDATA_IR_Mode_Delay_CONST 17
 #define DEVICEDATA_InputOrOutput_CONST 18
 #define DEVICEDATA_Default_State_CONST 19
 #define DEVICEDATA_No_Effects_CONST 20
