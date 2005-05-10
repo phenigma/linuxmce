@@ -47,20 +47,21 @@ IRBase::handleStart() {
 
 		g_pPlutoLogger->Write(LV_STATUS, "Requested IR cored for device: %lu", devid);
 		
-		string codes;
-		DCE::CMD_Get_Infrared_Codes_Cat CMD_Get_Infrared_Codes_Cat(getCommandImpl()->m_dwPK_Device, DEVICECATEGORY_Infrared_Plugins_CONST,
-																		false, BL_SameHouse, devid, &codes);
-		getCommandImpl()->SendCommand(CMD_Get_Infrared_Codes_Cat);
-		g_pPlutoLogger->Write(LV_STATUS, "IR Code request got this reply: %s", codes.c_str());
+		map<int,string> mapClass;  
+		// this will have all the Ruby code, where int is the PK_Command and string is the codeint 
+		int iSize; char* pData = NULL; // Place holders for the 'out' parameter
+		DCE::CMD_Get_Infrared_Codes_DT CMD_Get_Infrared_Codes_DT(devid, DEVICETEMPLATE_Infrared_Plugin_CONST,
+					BL_SameHouse, devid, &pData, &iSize);
+		getCommandImpl()->SendCommand(CMD_Get_Infrared_Codes_DT);  // Get the codes from I/R Plugin
+		SerializeClass mapsc(true);  // A manual serialize class
+		mapsc + mapClass;
+		mapsc.SerializeRead(iSize, pData); // De-serialize the data
 		
-		size_t pos = 0;
-		long count = atoi(StringUtils::Tokenize(codes, "\t", pos).c_str());
-		g_pPlutoLogger->Write(LV_STATUS, "IR Code count: %d", count);
-		
-		for(long i = 0; i < count; i++) {
-			long cmdid = atoi(StringUtils::Tokenize(codes, "\t", pos).c_str());
-			string code = StringUtils::Tokenize(codes, "\t", pos);
-			codemap_[longPair(devid, cmdid)] = code;
+		g_pPlutoLogger->Write(LV_STATUS, "IR Code count: %d", mapClass.size());
+				
+		for(map<int,string>::iterator it = mapClass.begin(); it != mapClass.end(); it++ ) {
+			long cmdid = (*it).first;
+			codemap_[longPair(devid, cmdid)] = (*it).second;
 			g_pPlutoLogger->Write(LV_STATUS, "Loaded IR code for Device %ld, Action %ld", devid, cmdid);
 		}
 	}
