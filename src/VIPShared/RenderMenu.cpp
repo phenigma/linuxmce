@@ -409,7 +409,7 @@ void RenderMenu::KeyPressed(int KeyCode)
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor
 		)
 	{
-		BDCommand *pCommand = new BD_PC_KeyWasPressed(KeyCode, 0);
+		BDCommand *pCommand = new BD_PC_KeyWasPressed(KeyCode, 2 /*execute*/);
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor->AddCommand(pCommand);
 	}
 #endif

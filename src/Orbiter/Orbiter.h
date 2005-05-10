@@ -617,6 +617,8 @@ public:
 
 	void QueueEventForProcessing( void *eventData );
 
+    virtual bool HandleButtonEvent(int PK_Button);
+
 protected:
 	/**
 	 *	ACCEPT OUTSIDE INPUT
@@ -646,9 +648,7 @@ protected:
 	 */
 	virtual bool RegionUp(int iX, int iY);
 
-
     virtual void StopRepeatRelatedEvents();
-    virtual bool HandleButtonEvent(int PK_Button);
 
 public:
 	/**

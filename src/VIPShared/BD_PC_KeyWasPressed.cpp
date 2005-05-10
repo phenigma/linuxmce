@@ -65,13 +65,22 @@ bool BD_PC_KeyWasPressed::ProcessCommand(BDCommandProcessor *pProcessor)
 		return false;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "Received BD_PC_KeyWasPressed from PlutoMO. Phone code: %d, %s", m_Key,
-        m_EventType ? "key up" : "key down");
+    if(m_EventType == 2) //execute
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Received BD_PC_KeyWasPressed from PlutoMO. Phone code: %d, 'execute'", m_Key);
+        pOrbiter->m_pOrbiter->HandleButtonEvent(m_Key);
+    }
+    else
+    {
+	    g_pPlutoLogger->Write(LV_WARNING, "Received BD_PC_KeyWasPressed from PlutoMO. Phone code: %d, %s", m_Key,
+            m_EventType ? "key up" : "key down");
 
-	Orbiter::Event orbiterEvent;
-    orbiterEvent.type = m_EventType ? Orbiter::Event::BUTTON_UP : Orbiter::Event::BUTTON_DOWN;
-	orbiterEvent.data.button.m_iPK_Button = m_Key;
-	pOrbiter->m_pOrbiter->ProcessEvent(orbiterEvent);
+	    Orbiter::Event orbiterEvent;
+        orbiterEvent.type = m_EventType ? Orbiter::Event::BUTTON_UP : Orbiter::Event::BUTTON_DOWN;
+	    orbiterEvent.data.button.m_iPK_Button = m_Key;
+	    pOrbiter->m_pOrbiter->ProcessEvent(orbiterEvent);
+    }
+
 	return true;
 }
 

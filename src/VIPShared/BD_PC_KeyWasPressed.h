@@ -9,7 +9,7 @@
 class BD_PC_KeyWasPressed : public BDCommand 
 {
 	int m_Key;
-    int m_EventType; // 0 - ButtonDown, 1 - ButtonUp
+    int m_EventType; // 0 - ButtonDown, 1 - ButtonUp, 2 - Execute
 
 public:
 	BD_PC_KeyWasPressed()  {}

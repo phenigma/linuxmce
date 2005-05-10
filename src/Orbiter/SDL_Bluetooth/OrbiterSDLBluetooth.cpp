@@ -273,7 +273,7 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
 				m_iCaptureKeyboard_PK_Variable,
 				m_sCaptureKeyboard_Text
 		);
-
+                
 		if( m_pBDCommandProcessor )
 			m_pBDCommandProcessor->AddCommand(pBD_CP_CaptureKeyboard);
     }
