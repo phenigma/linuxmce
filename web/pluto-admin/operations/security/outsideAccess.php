@@ -71,7 +71,7 @@ function outsideAccess($output,$dbADO) {
 	<table width="600">
 		<tr>
 			<td><input type="checkbox" name="allow80" value="1" '.(($allowAccessOn80==1)?'checked':'').'></td>
-			<td>Allow outside to the website on port 80</td>
+			<td>Allow outside access to the website on port 80</td>
 			<td>&nbsp;</td>
 		</tr>		
 		<tr>

@@ -50,7 +50,10 @@ function wizardOrbiters($output,$dbADO) {
 	<input type="hidden" name="action" value="add">	
 	<h3  align="left">Orbiters</h3>
 	Download <a href="index.php?section=orbitersWin">Orbiter Win Installer</a>
-		<table border="0">';
+		<table border="0">
+			<tr>
+				<td colspan="2" align="center"><input type="submit" class="button" name="QuickRegenAll" value="Quick Regen All"> <input type="submit" class="button" name="FullRegenAll" value="Full Regen All"> <input type="checkbox" name="reset_all" value="1"> Reset Router when done regenerating</td>
+			</tr>';
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();
 				$DeviceDataDescriptionToDisplay=array();
@@ -196,7 +199,11 @@ function wizardOrbiters($output,$dbADO) {
 						unset($ddValue);
 					}
 				}
-			$out.='	
+			$out.='
+				<tr>
+					<td align="right"><input type="checkbox" name="reset_'.$rowD['PK_Device'].'" value="1"></td>
+					<td>Reset Router when done regenerating</td>
+				</tr>	
 				<tr>
 					<td align="center" colspan="2"><input type="submit" class="button" name="quickRegen_'.$rowD['PK_Device'].'" value="Quick regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="fullRegen_'.$rowD['PK_Device'].'" value="Full regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="update" value="Update"  > &nbsp;&nbsp;<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Adv"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"> &nbsp;&nbsp; <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  >
 					
@@ -244,6 +251,24 @@ function wizardOrbiters($output,$dbADO) {
 			header("Location: index.php?section=devices&error=You are not authorised to change the installation.");
 			exit(0);
 		}
+		
+		if(isset($_POST['QuickRegenAll'])){
+			$ResetRouter=((int)@$_POST['reset_all']==1)?' 24 1':'';
+			setOrbitersNeedConfigure($installationID,$dbADO);
+				
+			$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template 0 '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 0 21 "-r"'.$ResetRouter;
+			exec($commandToSend);
+			
+		}		
+		if(isset($_POST['FullRegenAll'])){
+			$ResetRouter=((int)@$_POST['reset_all']==1)?' 24 1':'';
+			setOrbitersNeedConfigure($installationID,$dbADO);
+				
+			$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template 0 '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 0 21 "-r"'.$ResetRouter;
+			exec($commandToSend);
+		}		
+
+		
 		$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
 		foreach($displayedDevicesArray as $value){
 			if(isset($_POST['delete_'.$value])){
@@ -254,8 +279,9 @@ function wizardOrbiters($output,$dbADO) {
 				$dbADO->Execute($updateOrbiter,$value); 
 				$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
 				$updateOrbiters=true;
-
-				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"';
+				$ResetRouter=((int)@$_POST['reset_'.$value]==1)?' 24 1':'';
+				
+				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"'.$ResetRouter;
 				exec($commandToSend,$tmp);
 			}
 			if(isset($_POST['fullRegen_'.$value])){
@@ -263,8 +289,9 @@ function wizardOrbiters($output,$dbADO) {
 				$dbADO->Execute($updateOrbiter,$value); 
 				$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
 				$updateOrbiters=true;
+				$ResetRouter=((int)@$_POST['reset_'.$value]==1)?' 24 1':'';
 				
-				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"';
+				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"'.$ResetRouter;
 				exec($commandToSend);
 			}
 		}

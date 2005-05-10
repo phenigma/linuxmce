@@ -1740,8 +1740,10 @@ function deleteCriteriaParmNesting($cpnID,$dbADO)
 function setOrbitersNeedConfigure($installationID,$dbADO)
 {
 	$orbitersArray=getValidOrbitersArray($installationID,$dbADO);
-	if(count($orbitersArray)!=0)
+	if(count($orbitersArray)!=0){
 		$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device IN ('.join(',',$orbitersArray).') AND FK_Installation=?',$installationID);
+		$dbADO->Execute('UPDATE Orbiter SET Modification_LastGen=0 WHERE PK_Orbiter IN ('.join(',',$orbitersArray).')'); 
+	}
 }
 
 function setDCERouterNeedConfigure($installationID,$dbADO)

@@ -54,6 +54,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				<td align="center"><B>Can modify<br>configuration?</B></td>
 				<td align="center"><B>Language</B></td>
 				<td align="center"><B>Primary<br>Installation</B></td>
+				<td align="center"><B>Hide From Orbiter</B></td>
 				</tr>';
 		$displayedUsers=array();
 		$i=0;
@@ -122,7 +123,10 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						</td>
 			';
 			
-			$out.='</tr>';
+			$out.='
+				<td align="center"><input type="checkbox" name="HideFromOrbiter_'.$rowUser['PK_Users'].'" value="1" '.(($rowUser['HideFromOrbiter']==1)?" checked='checked' ":'').'></td>			
+			</tr>
+			';
 			$i++;
 		}
 		
@@ -264,6 +268,8 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				$userCanModifyInstallation = cleanInteger(@$_POST['userCanModifyInstallation_'.$user]);
 
 				$userLanguage = cleanInteger(@$_POST['userLanguage_'.$user]);
+				$HideFromOrbiter = cleanInteger(@$_POST['HideFromOrbiter_'.$user]);
+				
 
 				$userMainInstallation = ((int)($_POST['userMainInstallation_'.$user])==0?NULL:cleanInteger($_POST['userMainInstallation_'.$user]));
 				$query = 'UPDATE Users set
@@ -275,11 +281,12 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 									Nickname=?,
 									ForwardEmail=?,
 									FK_Language=?,
-									FK_Installation_Main=?
+									FK_Installation_Main=?,
+									HideFromOrbiter=?
 							WHERE PK_Users = ?';
 				$resUpdUser = $dbADO->Execute($query,array($hasMailbox,$userAccessGeneralMailbox,
 				$userExtension,$userFirstName,$userLastName,$userNickname,
-				$userForwardEmail,$userLanguage,$userMainInstallation,$user));
+				$userForwardEmail,$userLanguage,$userMainInstallation,$HideFromOrbiter,$user));
 
 				// check if is the last user who could modify this installation
 				$resLastUser=$dbADO->Execute('SELECT FK_Users FROM Installation_Users WHERE userCanModifyInstallation=1 AND FK_Installation =?',array($installationID));

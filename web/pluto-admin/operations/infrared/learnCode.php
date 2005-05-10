@@ -8,7 +8,7 @@ function learnCode($output,$dbADO) {
 	$dtID=(int)$_REQUEST['dtID'];
 	$infraredGroupID=(int)@$_REQUEST['infraredGroupID'];
 	$noRefresh=(isset($_REQUEST['noRefresh']))?1:0;
-	
+
 	if ($action=='form') {		
 		$res=$dbADO->Execute('SELECT psc_mod AS lastTime,PK_InfraredGroup_Command FROM InfraredGroup_Command ORDER BY psc_mod DESC');
 		$row=$res->FetchRow();
@@ -53,8 +53,9 @@ function learnCode($output,$dbADO) {
 		{
 			document.learnCode.irData.disabled=val;
 			document.learnCode.add.disabled=val;
-			if(val==false){
+			if(val===false){
 				document.learnCode.action.value="cancel";
+				window.clearInterval(newInterval);
 				document.learnCode.submit();
 			}
 			else{
@@ -111,12 +112,13 @@ function learnCode($output,$dbADO) {
 				</script>
 				";
 			}
-			else
+			else{
 				$out.='
 				<script>
 					self.close();
 				</script>
 			';
+			}
 		}elseif(isset($_POST['add'])){
 			$irData=stripslashes($_POST['irData']);
 			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
@@ -144,6 +146,7 @@ function learnCode($output,$dbADO) {
 				$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($igcID,$_SESSION['installationID']));
 			}
 			$out.='<script>
+				alert(\'aa\')
 					opener.location.reload();
 					self.close();
 				</script>

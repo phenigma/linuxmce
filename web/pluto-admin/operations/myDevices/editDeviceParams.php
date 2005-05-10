@@ -81,7 +81,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			DeviceData.PK_DeviceData as PK_DD,
 			ParameterType.Description as PT_Desc,
 			Device_DeviceData.IK_DeviceData as IK_DeviceData,
-			AllowedToModify,DeviceTemplate_DeviceData.FK_DeviceTemplate AS DT_DD_Exists
+			AllowedToModify,DeviceTemplate_DeviceData.FK_DeviceTemplate AS DT_DD_Exists,DeviceTemplate_DeviceData.Description AS ExtraInfo
 		FROM Device_DeviceData 
 			INNER JOIN DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData
 			INNER JOIN ParameterType on FK_ParameterType = PK_ParameterType
@@ -110,10 +110,18 @@ $installationID = (int)@$_SESSION['installationID'];
 		<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 		<div class="confirm">'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</div>
 	
-	
-		<a href="index.php?section=addMyDevice&parentID='.$deviceID.'">Create '.($deviceID==0?' Top Level ':'').'Child Device</a> &nbsp; &nbsp; &nbsp;
-
-	'.$deleteLink.' &nbsp; &nbsp; &nbsp; <a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=800,height=600,scrollbars=1,resizable=1\');">Send command to device</a>
+	<table width="100%" bgcolor="#F0F3F8">
+		<tr>
+			<td><a href="index.php?section=addMyDevice&parentID='.$deviceID.'">Create '.($deviceID==0?' Top Level ':'').'Child Device</a> &nbsp; &nbsp; &nbsp;
+			'.$deleteLink.' &nbsp; &nbsp; &nbsp; 
+			<a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=800,height=600,scrollbars=1,resizable=1\');">Send command to device</a>
+			</td>
+			<td align="right"><a href="javascript:windowOpen(\'index.php?section=errorLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">View errors in log</a>&nbsp;&nbsp;&nbsp;
+				<a href="javascript:windowOpen(\'index.php?section=fullLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">View whole log</a>&nbsp;&nbsp;&nbsp;
+				<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">Follow log</a>
+			</td>
+		</tr>
+	</table>
 	<form method="post" action="index.php" name="editDeviceParams">
 	<fieldset>
 	<legend>Device Info #'.$deviceID.'</legend>
@@ -430,7 +438,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			if($rowDevicedata['PK_DD']==$GLOBALS['Port'])
 				$formElement=serialPortsPulldown('deviceData_'.$rowDevicedata['PK_DD'],stripslashes($rowDevicedata['IK_DeviceData']),$rowDevicedata['AllowedToModify']);
 			else
-				$formElement="<input type=\"text\" name=\"deviceData_".$rowDevicedata['PK_DD']."\" value=\"".stripslashes($rowDevicedata['IK_DeviceData'])."\" ".(($rowDevicedata['AllowedToModify']==1 || $rowDevicedata['DT_DD_Exists']=='')?'':'disabled').">";
+				$formElement="<input type=\"text\" name=\"deviceData_".$rowDevicedata['PK_DD']."\" value=\"".stripslashes($rowDevicedata['IK_DeviceData'])."\" ".(($rowDevicedata['AllowedToModify']==1 || $rowDevicedata['DT_DD_Exists']=='')?'':'disabled')."> ".$rowDevicedata['ExtraInfo'];
 			
 			$out.="
 				<tr>
@@ -599,7 +607,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$out.='
 		<script>
 			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.((isset($error))?'&error='.$error:'&msg='.@$msg).'\';
-			top.frames[\'treeframe\'].location=\'index.php?section=leftMenu\';
+			//top.frames[\'treeframe\'].location=\'index.php?section=leftMenu\';
 		</script>';
 	} else {
 		Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error=You are not allowed to modify installation.');

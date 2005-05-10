@@ -165,7 +165,8 @@ function avWizard($output,$dbADO) {
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();
 				$DDTypesToDisplay=array();	
-				$joinArray=$DTIDArray;	// used only for query when there are no DT in selected category
+				$joinArray=$DTIDArray;	
+				$joinArray[]=0; 	// used only for query when there are no DT in selected category
 				$orderFilter=($type!='media_directors')?'ORDER BY FK_Device_ControlledVia DESC, Device.Description ASC':'';
 				$queryDevice='
 					SELECT 
@@ -495,6 +496,8 @@ function avWizard($output,$dbADO) {
 						<tr>
 							<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$mdDistro,1).'<hr></td>
 						</tr>';
+						$setupDisklessMD=' <input type="button" class="button" name="setupDisklessMD" value="Setup Diskless Media Directors *" onClick="windowOpen(\'operations/logs/executeLog.php?script=1\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');">';
+						$setupDisklessMDInfo='* When you add a new diskless M/D, you must first click this button, wait for the setup process to complete, then do a ‘quick reload router’, and then you can bootup your new diskless media director.';
 					}
 
 				}else {
@@ -511,7 +514,10 @@ function avWizard($output,$dbADO) {
 			if($resDevice->RecordCount()!=0){
 				$out.='
 				<tr>
-					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
+					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="Update">'.@$setupDisklessMD.'</td>
+				</tr>
+				<tr>
+					<td colspan="8" align="left">'.@$setupDisklessMDInfo.'</td>
 				</tr>';
 			}
 			$out.='

@@ -1099,6 +1099,24 @@ switch ($section) {
 	    include_once('operations/myDevices/mythSettings.php');
 	    mythSettings($output,$dbADO);
 	break;	
+	case 'errorLog';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/logs/errorLog.php');
+	    errorLog($output,$dbADO);
+	break;	
+	case 'fullLog';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/logs/fullLog.php');
+	    fullLog($output,$dbADO);
+	break;		
+	case 'followLog';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/logs/followLog.php');
+	    followLog($output,$dbADO);
+	break;	
 
 	
 	case '';

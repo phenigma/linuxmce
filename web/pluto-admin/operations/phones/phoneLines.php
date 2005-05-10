@@ -293,7 +293,7 @@ function phoneLines($output,$astADO,$dbADO) {
 								$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
 							}
 						}else{
-							if($name==$defaultLineName && $type!=@$defaultLineType){
+							if($name==@$defaultLineName && $type!=@$defaultLineType){
 								$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=IAX2',@$defaultLineTypeID));
 							}
 							$insertPhoneLine='
@@ -301,6 +301,7 @@ function phoneLines($output,$astADO,$dbADO) {
 									(username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) 
 								SELECT username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser FROM sip_buddies WHERE uniqueid=?';
 							$astADO->Execute($insertPhoneLine,$lineID);
+							$astADO->Execute('UPDATE ast_config SET filename=? WHERE filename=? AND var_name=? AND category=? AND var_val LIKE ?',array('iax.conf','sip.conf','register','general',$oldUsername.':%'));
 							deleteLine($lineID,$name,'sip_buddies',$astADO,1);
 						}
 					}else{
@@ -343,6 +344,7 @@ function phoneLines($output,$astADO,$dbADO) {
 									(username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) 
 								SELECT username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser FROM iax_buddies WHERE uniqueid=?';
 							$astADO->Execute($insertPhoneLine,$lineID);
+							$astADO->Execute('UPDATE ast_config SET filename=? WHERE filename=? AND var_name=? AND category=? AND var_val LIKE ?',array('sip.conf','iax.conf','register','general',$oldUsername.':%'));
 							deleteLine($lineID,$name,'iax_buddies',$astADO,1);
 						}
 					}else{

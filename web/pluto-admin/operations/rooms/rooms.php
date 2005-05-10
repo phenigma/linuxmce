@@ -57,6 +57,7 @@ $displayedRooms = array();
 		<tr>
 			<td align="center" bgcolor="#F0F3F8"><B>Room Description</B></td>
 			<td align="center" bgcolor="#F0F3F8"><B>Picture</B></td>
+			<td align="center" bgcolor="#F0F3F8"><B>Don’t show room on Orbiter’s</B></td>
 			<td align="center" bgcolor="#DADDE4"><B>Entertain areas</B></td>
 		</tr>
 		';
@@ -75,6 +76,7 @@ $displayedRooms = array();
 			<tr>
 				<td align="center" valign="top"><input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"><br><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">Delete Room</a></td>
 				<td valign="top">'.@$roomImage.'<input type="file" name="pic_'.$rowRoom['PK_Room'].'"></td>
+				<td valign="top" align="center"><input type="checkbox" name="hidden_'.$rowRoom['PK_Room'].'" value="1" '.(($rowRoom['HideFromOrbiter']==1)?'checked':'').'></td>
 				';
 			$displayedRooms[]=$rowRoom['PK_Room'];
 			$out.='<td bgcolor="#DADDE4">';
@@ -163,7 +165,7 @@ $displayedRooms = array();
 	}
 
 	foreach ($displayedRoomsArray as $room) {
-		$queryOldValue = "SELECT Description  FROM Room WHERE PK_Room = ?";
+		$queryOldValue = "SELECT Description,HideFromOrbiter  FROM Room WHERE PK_Room = ?";
 		$resOldValue = $dbADO->Execute($queryOldValue,array($room));
 		$oldDesc = '';
 		$oldRoomType = '';
@@ -171,14 +173,16 @@ $displayedRooms = array();
 		if ($resOldValue) {
 			$rowOldValue = $resOldValue->FetchRow();
 			$oldDesc = $rowOldValue['Description'];
+			$oldHideFromOrbiter=$rowOldValue['HideFromOrbiter'];
 		}
 
 		$newDesc = cleanString(@$_POST['roomDesc_'.$room]);
 		$newRoomType = (@$_POST['roomType_'.$room]!=0)?cleanInteger(@$_POST['roomType_'.$room]):NULL;
-
-		if ($newDesc!=$oldDesc)  {
-			$query = 'UPDATE Room set Description=? WHERE PK_Room = ?';
-			$resUpdRoom = $dbADO->Execute($query,array($newDesc,$room));
+		$HideFromOrbiter=(int)@$_POST['hidden_'.$room];
+		
+		if ($newDesc!=$oldDesc || $oldHideFromOrbiter!=$HideFromOrbiter)  {
+			$query = 'UPDATE Room set Description=?,HideFromOrbiter=? WHERE PK_Room = ?';
+			$resUpdRoom = $dbADO->Execute($query,array($newDesc,$HideFromOrbiter,$room));
 			$locationGoTo = "roomDesc_".$room;
 		}
 
