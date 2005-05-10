@@ -16,24 +16,29 @@
 
 #include "DCE/Message.h"
 #include "DCE/Logger.h"
-#include "DCE/DeviceData_Base.h"
+#include "DCE/DeviceData_Impl.h"
+#include "DCE/Command_Impl.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_DeviceTemplate.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 using namespace std;
 
 namespace DCE {
 
 void 
-RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, DeviceData_Base* pdevicedata) {
+RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedata) {
 	if(rcode_.length() == 0) {
 		rcode_ = "require 'Ruby_Generic_Serial_Device'""\n";
 	}
 
 	unsigned long devtemplid = pdevicedata->m_dwPK_DeviceTemplate;
 	unsigned long devid = pdevicedata->m_dwPK_Device;
+	
+	devtemplid;
 	
 	/* 
 		header:
@@ -45,9 +50,84 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, DeviceData_Base* pdeviced
 	char tmpbuff[20];
 	sprintf(tmpbuff, "%lu", devid);
 	rcode_ += "class Device_"; rcode_ += tmpbuff; rcode_ += " < Ruby_Generic_Serial_Device::RubySerialIOWrapper""\n";
+
+
+	g_pPlutoLogger->Write(LV_STATUS, "Fetching Ruby code from Infrared Plugin");
 	
+	map<int,string> mapClass;  
+	// this will have all the Ruby code, where int is the PK_Command and string is the codeint 
+	int iSize; char* pData = NULL; // Place holders for the 'out' parameter
+	DCE::CMD_Get_Infrared_Codes_DT CMD_Get_Infrared_Codes_DT(devid, DEVICETEMPLATE_Infrared_Plugin_CONST,
+				BL_SameHouse, devid, &pData, &iSize);
+	pcmdimpl->SendCommand(CMD_Get_Infrared_Codes_DT);  // Get the codes from I/R Plugin
+	SerializeClass mapsc(true);  // A manual serialize class
+	mapsc + mapClass;
+	mapsc.SerializeRead(iSize, pData); // De-serialize the data
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Fetched %d commands...", mapClass.size());
+
+	for(map<int,string>::iterator it = mapClass.begin(); it != mapClass.end(); it++ ) {
+		int cmdid = (*it).first;
+		string scmdid = StringUtils::itos(cmdid);
+		if(!isCmdImplemented(cmdid)) {
+			if(cmdid == COMMAND_Private_Method_Listing_CONST) {
+				if(!privateassigned_) {
+					rcode_ += "#### PRIVATE METHODS ####################################################################\n";
+					rcode_ += (*it).second;
+					rcode_ += "\n";
+					privateassigned_ = true;
+				} 
+			} else {
+				string scmdtext = TranslateCommandToRuby((*it).second);
+				if(!scmdtext.empty()) {
+					/*for each command*/
+					rcode_ += "#### " + scmdid + " ####################################################################\n";
+					rcode_ += "def cmd_"; rcode_ += scmdid; rcode_ += "(";
+		
+					/*add command parameters*/
+					std::string sql = "select PK_CommandParameter, CommandParameter.Description "
+										"from CommandParameter "
+											"inner join Command_CommandParameter on FK_CommandParameter=PK_CommandParameter "
+											"inner join Command on FK_Command=PK_Command "
+										"where PK_Command = "; sql += scmdid; sql += " order by PK_CommandParameter asc";
+											
+					g_pPlutoLogger->Write(LV_STATUS, "Running query to get params for Command %s: \n%s", scmdid.c_str(), sql.c_str());
+					
+					PARAMLIST& paramlist = cmdparammap_[cmdid];
+					PlutoSqlResult params;
+					if((params.r = pdb->mysql_query_result(sql.c_str()))) {
+						MYSQL_ROW rowparam;
+						while((rowparam = mysql_fetch_row(params.r))) {
+							if(paramlist.size() > 0) {
+								rcode_ += ", ";
+							}
+							string rbparam = StringUtils::ToLower(FileUtils::ValidCPPName(rowparam[1]).c_str());
+							
+							PARAMPAIR parampair(atoi(rowparam[0]), rbparam);
+							paramlist.push_back(parampair);
+							
+							rcode_ += rbparam;
+						}
+					}
+					
+					g_pPlutoLogger->Write(LV_STATUS, "Added %d parameeters for Command %s: ", paramlist.size(), scmdid.c_str());
+					
+					rcode_ += ")""\n"; // SetLevel(
+					
+					//rcode_ += "conn_ = getConn()""\n";
+					rcode_ += TranslateCommandToRuby(scmdtext);
+					
+					/*insert ruby code for the method*/
+					rcode_ += "\n""end""\n"; // def
+				}
+			}
+		}
+	}
+		
+	/*	
 	FillClassMembersFromDevice(pdb, devid, false);
 	FillClassMembersFromDevice(pdb, devtemplid, true);
+	*/
 	
 	rcode_ += "end""\n"; // class
 }
@@ -73,7 +153,6 @@ RubyDCECodeSupplier::FillClassMembersFromDevice(Database_pluto_main* pdb, long i
 
 	g_pPlutoLogger->Write(LV_STATUS, "Running query to get Ruby code: \n%s", sql.c_str())	;
 
-	bool privassigned = false;
 	PlutoSqlResult cmds;
 	if((cmds.r = pdb->mysql_query_result(sql.c_str()))) {
 		MYSQL_ROW rowcmd;
@@ -82,11 +161,11 @@ RubyDCECodeSupplier::FillClassMembersFromDevice(Database_pluto_main* pdb, long i
 			int cmdid = atoi(rowcmd[0]);
 			if(!isCmdImplemented(cmdid) && rowcmd[1] != NULL) {
 				if(cmdid == COMMAND_Private_Method_Listing_CONST) {
-					if(!privassigned && rowcmd[1] != NULL) {
+					if(!privateassigned_ && rowcmd[1] != NULL) {
 						rcode_ += "#### PRIVATE METHODS ####################################################################\n";
 						rcode_ += rowcmd[1];
 						rcode_ += "\n";
-						privassigned = true;
+						privateassigned_ = true;
 					} 
 				} else {
 					string scmdtext = TranslateCommandToRuby(rowcmd[1]);

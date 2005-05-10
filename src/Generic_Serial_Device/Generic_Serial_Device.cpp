@@ -181,7 +181,7 @@ void Generic_Serial_Device::RunThread() {
 	g_pPlutoLogger->Write(LV_STATUS, "Device %d has commad line %s.", m_dwPK_Device, m_pData->m_sCommandLine.c_str());
 	if(m_pData->m_sCommandLine == GSD_COMMAND_LINE) {
 		/*we are in case 1*/
-		pmanager->addDevice(m_pData);
+		pmanager->addDevice(this, m_pData);
 	} else {
 	    g_pPlutoLogger->Write(LV_STATUS, "Device has no GSD specified as command line. Looking for children.");
 		/*we are in case 2*/
@@ -191,7 +191,7 @@ void Generic_Serial_Device::RunThread() {
 			return;
 		} else {
 			for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
-				pmanager->addDevice(vDeviceData[i]);
+				pmanager->addDevice(this, vDeviceData[i]);
 			}
 		}
 	}

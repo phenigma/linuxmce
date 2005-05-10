@@ -65,7 +65,7 @@ public:
 		return pevdisp_;
 	}
 		
-	int addDevice(DeviceData_Impl* pdevdata);
+	int addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata);
 	int removeDevice(DeviceData_Impl* pdevdata);
 	bool hasDevice(DeviceData_Base* pdevdata);
 	

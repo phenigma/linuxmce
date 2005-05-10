@@ -24,7 +24,8 @@ class Database_pluto_main;
 
 namespace DCE {
 
-class DeviceData_Base;
+class DeviceData_Impl;
+class Command_Impl;
 
 /**
 @author Igor Spac,,,
@@ -35,7 +36,7 @@ public:
     virtual ~RubyDCECodeSupplier();
 
 public:
-	void addCode(Database_pluto_main* pdb, DeviceData_Base* pdevicedata);
+	void addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedata);
 	void clearCode();
 	
 public:
@@ -44,6 +45,9 @@ public:
 	}
 
 	bool isCmdImplemented(int cmd);
+	bool isPrivateAssigned() {
+		return privateassigned_;
+	}
 	int getParamsOrderForCmd(/*in*/int cmd, /*out*/std::list<int>& params);
 	int getParamsNamesForCmd(/*in*/int cmd, /*out*/std::list<std::string>& params);
 	
@@ -61,6 +65,7 @@ private:
 		std::map<int, PARAMLIST> COMMANDPARAMMAP; /*map between command id and param map*/
 
 	COMMANDPARAMMAP cmdparammap_;
+	bool privateassigned_;
 
 private:
 	std::string rcode_;
