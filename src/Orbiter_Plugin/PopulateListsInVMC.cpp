@@ -31,7 +31,7 @@ PopulateListsInVMC::PopulateListsInVMC(string sSourceTemplateVMC, string sDestin
         m_sSourceTemplateVMC.c_str(), m_sDestinationVMC.c_str(), m_dwPKDevice);
 }
 //------------------------------------------------------------------------------------------------------
-PopulateListsInVMC::~PopulateListsInVMC()
+void PopulateListsInVMC::SaveIt()
 {
     if(!m_pMenuCollection)
         return;
@@ -59,6 +59,8 @@ bool PopulateListsInVMC::DoIt()
     PopulateStandardScenariosList();
     PopulateCamerasList();
     PopulateSpeechDevicesList();
+
+    SaveIt();
 
     return true;
 }

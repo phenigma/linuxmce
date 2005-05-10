@@ -22,9 +22,6 @@ public:
     PopulateListsInVMC(string sSourceTemplateVMC, string sDestVMC, long dwPKDevice, 
         class Database_pluto_main *pDatabase_pluto_main, long dwInstallation);
 
-    //destructor
-    ~PopulateListsInVMC();
-
     //create new vmc for the device
     bool DoIt();
 
@@ -51,6 +48,8 @@ private:
     bool PopulateStandardScenariosList();
     bool PopulateCamerasList();
     bool PopulateSpeechDevicesList();
+
+    void SaveIt();
 };
 //------------------------------------------------------------------------------------------------------
 #endif //__POPULATE_LIST_IN_VMC_H__
