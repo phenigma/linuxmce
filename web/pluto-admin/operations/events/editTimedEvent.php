@@ -10,7 +10,6 @@ function editTimedEvent($output,$dbADO) {
 	$monthNamesArray = array(1=>"January", 2=>"February", 3=>"March", 4=>"April", 5=>"May", 6=>"June", 7=>"July", 8=>"August", 9=>"September", 10=>"October", 11=>"November", 12=>"December"); 	
 	$wizard=isset($_REQUEST['wizard'])?(int)$_REQUEST['wizard']:2;
 	$section=$_REQUEST['section'];
-
 	
 	$queryEventHandler='
 		SELECT EventHandler.*,Criteria.FK_CriteriaParmNesting 
@@ -304,92 +303,6 @@ function editTimedEvent($output,$dbADO) {
 			}
 		}
 		
-		// command group process
-		$x=cleanInteger(@$_POST['device']);
-		$y=cleanInteger(@$_POST['addNewDeviceCommand']);
-		if ($y!=0 && $x!=0) {
-			$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command
-				(FK_CommandGroup,FK_Command,FK_Device) values(?,?,?)";			
-			$insertRs = $dbADO->Execute($queryInsertCommandGroup_Command,array($commandGroupID,$y,$x));
-		}
-
-		$selectCommandsAssigned = "
-				SELECT CommandGroup_Command.* FROM 
-					CommandGroup_Command				
-					INNER JOIN 
-						Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
-					WHERE 
-						Device.FK_Installation = ?
-				";								
-		$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($installationID));
-
-		$parametersUpdatedAlert = 'Parameters not updated!';
-
-		if ($resCommandAssigned) {
-			while ($rowCommandAssigned = $resCommandAssigned->FetchRow()) {
-
-				$deviceSelected = isset($_POST['device_'.$rowCommandAssigned['PK_CommandGroup_Command']])?$_POST['device_'.$rowCommandAssigned['PK_CommandGroup_Command']]:$x;
-				$commandSelected = isset($_POST['deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command']])?$_POST['deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command']]:$y;
-
-				$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Device = ? WHERE PK_CommandGroup_Command = ? ';
-				$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($deviceSelected,$rowCommandAssigned['PK_CommandGroup_Command']));
-
-				if ($dbADO->Affected_Rows()==1) {//enter here only if the Device is changed
-				$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = NULL WHERE PK_CommandGroup_Command = ? ';
-				$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($rowCommandAssigned['PK_CommandGroup_Command']));
-				//delete old parameters
-				$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE
-									FK_CommandGroup_Command = ? 
-						';
-				$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
-
-				} else {
-					$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = ? WHERE PK_CommandGroup_Command = ? ';
-					$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($commandSelected,$rowCommandAssigned['PK_CommandGroup_Command']));
-					if ($dbADO->Affected_Rows()==1) {//if we have changed the command, delete old values
-					$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE
-									FK_CommandGroup_Command = ? 
-							';
-					$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
-					}
-				}
-
-				$query = "
-					SELECT Command_CommandParameter.FK_CommandParameter,Command_CommandParameter.Description as C_CP_Description,CommandParameter.Description as CP_Description,
-						CommandGroup_Command_CommandParameter.IK_CommandParameter,
-						ParameterType.Description as PT_Description
-					FROM Command_CommandParameter 
-						INNER JOIN Command on FK_Command = PK_Command
-						INNER JOIN CommandParameter ON Command_CommandParameter.FK_CommandParameter = CommandParameter.PK_CommandParameter
-						INNER JOIN ParameterType ON CommandParameter.FK_ParameterType = ParameterType.PK_ParameterType
-						LEFT JOIN CommandGroup_Command_CommandParameter ON CommandGroup_Command_CommandParameter.FK_CommandParameter = Command_CommandParameter.FK_CommandParameter
-					WHERE FK_Command = ?
-								";
-
-				$resSelectParameters = $dbADO->Execute($query,array($commandSelected));
-
-				if ($resSelectParameters) {
-					while ($rowSelectParameters=$resSelectParameters->fetchRow()) {
-						$value=cleanString(@$_POST['CommandParameterValue_'.$rowCommandAssigned['PK_CommandGroup_Command'].'_'.$rowSelectParameters['FK_CommandParameter']]);
-						//see if we need to update or to insert
-						$checkExists = "SELECT * FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ? AND  FK_CommandParameter = ?";
-						$resExists=$dbADO->Execute($checkExists,array($rowCommandAssigned['PK_CommandGroup_Command'],$rowSelectParameters['FK_CommandParameter']));
-						if ($resExists->RecordCount()==1) {
-							$update = "UPDATE CommandGroup_Command_CommandParameter  SET  IK_CommandParameter  = ? WHERE FK_CommandGroup_Command = ? AND  FK_CommandParameter =? ";
-							$dbADO->Execute($update,array($value,$rowCommandAssigned['PK_CommandGroup_Command'],$rowSelectParameters['FK_CommandParameter']));
-						} else {
-							$insert = "INSERT INTO CommandGroup_Command_CommandParameter (IK_CommandParameter,FK_CommandGroup_Command,FK_CommandParameter) values(?,?,?)";
-							$dbADO->Execute($insert,array($value,$rowCommandAssigned['PK_CommandGroup_Command'],$rowSelectParameters['FK_CommandParameter']));
-						}
-						if ($dbADO->Affected_Rows()==1) {
-							$parametersUpdatedAlert='Parameters updated!';
-						}
-
-					}
-				}
-			}
-		}
-
 		$displayedRoomsArray=explode(',',$_POST['displayedRoomsArray']);
 		$oldCheckedRooms=explode(',',$_POST['oldCheckedRooms']);
 		foreach($displayedRoomsArray AS $roomID){
@@ -432,7 +345,8 @@ function editTimedEvent($output,$dbADO) {
 			header("Location: index.php?section=editTimedEvent&ehID=$eventHandlerID&wizard=$wizard".@$sufix);
 			exit();
 		}else{
-			header("Location: index.php?section=timedEvents&msg=$msg");
+			//header("Location: index.php?section=timedEvents&msg=$msg");
+			header("Location: index.php?section=editTimedEvent&ehID=$eventHandlerID&wizard=$wizard".@$sufix);
 			exit();
 		}
 		

@@ -1869,7 +1869,7 @@ function deviceForScenariosSelector($name,$selectedValue,$dbADO,$allowNoValue=1,
 	$query = '
 		SELECT Device.*, Room.Description AS RoomName, DeviceTemplate.Description AS Template
 		FROM Device 
-		INNER JOIN DeviceTemplate ON FK_DEviceTemplate=PK_DeviceTemplate
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 		LEFT JOIN Room ON FK_Room=PK_Room
 		WHERE Device.FK_Installation = ? AND FK_Device_ControlledVia IS NULL
 		ORDER BY FK_Room ASC,Description ASC';
@@ -1893,7 +1893,7 @@ function getDeviceNameForScenarios($deviceID,$dbADO)
 	$query = '
 		SELECT Device.*, Room.Description AS RoomName, DeviceTemplate.Description AS Template
 		FROM Device 
-		INNER JOIN DeviceTemplate ON FK_DEviceTemplate=PK_DeviceTemplate
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 		LEFT JOIN Room ON FK_Room=PK_Room
 		WHERE PK_Device = ? ';
 	$resDevice=$dbADO->Execute($query,$deviceID);
