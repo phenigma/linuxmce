@@ -49,7 +49,7 @@ IRBase::handleStart() {
 		
 		map<int,string> mapClass;  
 		// this will have all the Ruby code, where int is the PK_Command and string is the codeint 
-		int iSize; char* pData = NULL; // Place holders for the 'out' parameter
+		int iSize=0; char* pData = NULL; // Place holders for the 'out' parameter
 		DCE::CMD_Get_Infrared_Codes_DT CMD_Get_Infrared_Codes_DT(devid, DEVICETEMPLATE_Infrared_Plugin_CONST,
 					BL_SameHouse, devid, &pData, &iSize);
 		getCommandImpl()->SendCommand(CMD_Get_Infrared_Codes_DT);  // Get the codes from I/R Plugin
