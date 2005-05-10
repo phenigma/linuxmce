@@ -72,7 +72,8 @@ RubyDCECodeSupplier::FillClassMembersFromDevice(Database_pluto_main* pdb, long i
 	sql += " group by FK_Command order by FK_Command asc; ";
 
 	g_pPlutoLogger->Write(LV_STATUS, "Running query to get Ruby code: \n%s", sql.c_str())	;
-						
+
+	bool privassigned = false;
 	PlutoSqlResult cmds;
 	if((cmds.r = pdb->mysql_query_result(sql.c_str()))) {
 		MYSQL_ROW rowcmd;
@@ -81,10 +82,11 @@ RubyDCECodeSupplier::FillClassMembersFromDevice(Database_pluto_main* pdb, long i
 			int cmdid = atoi(rowcmd[0]);
 			if(!isCmdImplemented(cmdid) && rowcmd[1] != NULL) {
 				if(cmdid == COMMAND_Private_Method_Listing_CONST) {
-					if(rowcmd[1] != NULL) {
+					if(!privassigned && rowcmd[1] != NULL) {
 						rcode_ += "#### PRIVATE METHODS ####################################################################\n";
 						rcode_ += rowcmd[1];
 						rcode_ += "\n";
+						privassigned = true;
 					} 
 				} else {
 					string scmdtext = TranslateCommandToRuby(rowcmd[1]);
