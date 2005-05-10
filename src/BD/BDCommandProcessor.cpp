@@ -338,6 +338,7 @@ void BDCommandProcessor::AddCommand( class BDCommand *pCommand )
 {
 	PLUTO_SAFETY_LOCK( cm, m_CommandMutex );
 
+    /*
 #ifndef SYMBIAN
     if(pCommand->ID() == BD_CP_SHOW_IMAGE)
     {
@@ -353,6 +354,7 @@ void BDCommandProcessor::AddCommand( class BDCommand *pCommand )
         }
     }
 #endif
+    */
 
     MYSTL_ADDTO_LIST( m_listCommands, pCommand );
 

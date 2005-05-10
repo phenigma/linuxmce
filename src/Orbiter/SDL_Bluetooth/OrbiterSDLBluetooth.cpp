@@ -109,7 +109,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
     string sRepeatedKeysList;
     GetRepeatedKeysForScreen(m_pScreenHistory_Current->m_pObj, sRepeatedKeysList);
-    g_pPlutoLogger->Write(LV_WARNING, "Repeated keys list %s", sRepeatedKeysList.c_str());
+    g_pPlutoLogger->Write(LV_WARNING, "Repeated keys list %s: ", sRepeatedKeysList.c_str());
 
     //load the image into a buffer and create 'BD_CP_ShowImage' command
     size_t iImageSize;
@@ -136,6 +136,8 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     //finally, send the image
     if( m_pBDCommandProcessor )
         m_pBDCommandProcessor->AddCommand(pBD_CP_ShowImage);
+
+    g_pPlutoLogger->Write(LV_STATUS, "ShowImage command added to the queue");
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
