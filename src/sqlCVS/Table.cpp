@@ -562,7 +562,18 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 			sSql << (s>0 ? "," : "") << pR_UpdateTable->m_vect_psc_batch[s];
 		sSql << ")";
 	}
-	sSql << " ORDER BY psc_batch,psc_id";
+	sSql << " ORDER BY psc_id,psc_batch";
+
+	/* 10 May 05 - this used to be order by psc_batch,psc_id.  But it happened that a row was
+	added by a user (1230), then he added another row (1232), then he updated the first row (1230).
+	Now 1230 has a higher psc_batch.  So, we return the row 1232 first, set the last sync:
+	if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync )
+		m_pRepository->psc_id_last_sync_set(this,pA_UpdateRow->m_psc_id);
+	and then when 1230 comes in, it's treated as an update not a new row:
+		if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync && !psc_id_exists(pA_UpdateRow->m_psc_id) )
+	It's never added, and therefore repored as deleted the next time.  So we'll do this
+	in order of psc_id, not psc_batch.  It doesn't appear that the order of psc_batch is important,
+	so I just changed the sort order */
 
 	int i_psc_id_field = ( int ) pR_UpdateTable->m_pvectFields->size( );
 	int i_psc_batch_field = i_psc_id_field+1;
