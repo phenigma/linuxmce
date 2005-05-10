@@ -178,5 +178,5 @@ bool EvaluateTimeOfDay(string Expression,void *pExtraInfo)
 		return (Expression=="DAY" && bIsDaytime) || (Expression=="NIGHT" && !bIsDaytime);
 	}
 
-	return false;
+	return true;
 }
