@@ -6102,7 +6102,8 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25));
 	EndPaint();
 
-	ButtonDown(key);
+	HandleButtonEvent(key);
+    StopRepeatRelatedEvents(); 
 }
 
 time_t Orbiter::GetLastScreenChangedTime()

@@ -496,6 +496,17 @@ bool CPlutoVMCContainer::HandleCaptureKeyboardKeys(const TKeyEvent& aKeyEvent, T
 	if(KeyCode <= 0)
 		return false; //ignore this key
 
+	//enter keys & text not empty
+	if(BUTTON_Enter_CONST == KeyCode && pVMCUtil->m_CaptureKeyboardParam.sVariableValue.length() > 0)
+	{
+		pVMCUtil->SetVariable();
+		pVMCUtil->LocalKeyPressed(BUTTON_Terminate_Text_CONST);
+		pVMCUtil->m_bRedrawOnlyEdit = true;
+		pVMCUtil->m_bRedrawOnlyGrid = true;
+		m_bNeedRefresh = true;	
+		return true;
+	}
+
 	//verify is there is an 'interesting' key
 	if(
 		!IsNumberKey(aKeyEvent)					&&

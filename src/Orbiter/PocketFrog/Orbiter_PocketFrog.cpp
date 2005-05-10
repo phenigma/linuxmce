@@ -125,13 +125,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 
 	if(m_bQuit || m_bReload)
     {
-#ifdef WINCE
+        ShowMainDialog();
         MessageBox(TEXT("Orbiter cannot start because no screens are generated. \r\nTo generate screens, please use OrbiterGen."),
             TEXT("Pluto Orbiter"), MB_ICONHAND);
-#else
-        MessageBox("Orbiter cannot start because no screens are generated. \r\nTo generate screens, please use OrbiterGen.",
-            "Pluto Orbiter", MB_ICONHAND);
-#endif
+
         exit(1);
     }
 
