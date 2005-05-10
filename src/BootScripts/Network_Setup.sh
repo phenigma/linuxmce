@@ -42,6 +42,8 @@ if [ "$NetIfConf" -eq 0 ]; then
 	RunSQL "$Q"
 fi
 
+Q="GRANT ALL PRIVILEGES ON *.* TO 'root'@$IntIP"
+RunSQL "$Q"
 echo "Writing network configuration with one in database"
 
 /etc/init.d/networking stop
@@ -186,3 +188,6 @@ echo "$hosts" >/etc/hosts
 # polipo, at least, caches DNS settings, so it needs restarting if we changed them
 /etc/init.d/polipo restart
 /etc/init.d/frox restart
+
+Q="FLUSH PRIVILEGES"
+RunSQL "$Q"
