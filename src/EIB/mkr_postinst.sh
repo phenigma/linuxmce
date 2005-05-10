@@ -1,10 +1,17 @@
 #!/bin/bash
-echo 'CREATE DATABASE IF NOT EXISTS `eib`;' | mysql -h dcerouter
-echo 'CREATE TABLE IF NOT EXISTS `groupaddresses` (
-`name` varchar(100) default NULL,
-`address` varchar(100) NOT NULL,
-PRIMARY KEY  (`address`)
-);' | mysql eib -h dcerouter
+
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
+
+Q='CREATE DATABASE IF NOT EXISTS `eib`'
+RunSQL "$Q"
+
+Q='CREATE TABLE IF NOT EXISTS `groupaddresses` (
+	`name` varchar(100) default NULL,
+	`address` varchar(100) NOT NULL,
+	PRIMARY KEY  (`address`)
+)'
+RunSQL "$Q"
 
 # add eib user
 adduser --system --home /var/run/eib eib || true
