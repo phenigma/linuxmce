@@ -89,7 +89,7 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	cm.Release();
 
 	m_pCommand_Sent->ConvertCommandToBinary();
-	g_pPlutoLogger->Write(LV_WARNING,"# Sending %s command #", m_pCommand_Sent->Description());
+	//g_pPlutoLogger->Write(LV_WARNING,"# Sending %s command #", m_pCommand_Sent->Description());
 
 	if(!SendLong( m_pCommand_Sent->ID() ))
 	{
