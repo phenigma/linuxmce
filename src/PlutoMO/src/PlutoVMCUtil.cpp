@@ -102,11 +102,6 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 	m_CaptureKeyboardParam.Reset();	
 #endif
 
-	string sRepList = "30,31";
-	InterceptRepeatedKeys(sRepList.length(), sRepList.c_str());
-	bool bubu1 = IsRepeatedKey(0xA4);
-	bool bubu2 = IsRepeatedKey(EStdKeyLeftArrow);
-
 	m_bEdit_BackspacePressed = false;
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -176,8 +171,8 @@ void CPlutoVMCUtil::SetList(
 		m_uGridHeight	= Height;
 
 		int i;
-		for(i = 0; i < m_GridList.Count(); i++)
-			delete m_GridList[i];
+		//for(i = 0; i < m_GridList.Count(); i++)
+			//delete m_GridList[i];
 
 		m_GridList.Reset();
 
@@ -197,13 +192,16 @@ void CPlutoVMCUtil::SetList(
 void CPlutoVMCUtil::InterceptRepeatedKeys(unsigned long  KeysListSize, const char *pRepeatedKeysList)
 {
 	int i;
-	for(i = 0; i < m_RepeatedKeys.Count(); i++)
-		delete m_RepeatedKeys[i];
+	//for(i = 0; i < m_RepeatedKeys.Count(); i++)
+		//delete m_RepeatedKeys[i];
 
 	m_RepeatedKeys.Reset();
 
 	if(KeysListSize)
 	{
+		LOG("repeated keys:");
+		LOG(pRepeatedKeysList);
+
 		unsigned int msgpos = 0;
 		string token;
 		string sList = pRepeatedKeysList;

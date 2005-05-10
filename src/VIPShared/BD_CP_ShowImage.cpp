@@ -76,6 +76,10 @@ void BD_CP_ShowImage::ConvertCommandToBinary()
 
 void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 {
+#ifdef SYMBIAN
+    LOG("#	BD_CP_ShowImage::ParseCommand  #\n");
+#endif
+
 	BDCommand::ParseCommand(size, data);
 
 #ifdef VIPPHONE
@@ -88,9 +92,12 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 #ifdef SYMBIAN
 	 LOG("#	Received 'ShowImage' command  #\n");
 
-	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenImage(m_iImageType, m_ImageSize, m_pImage);
-    ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->InterceptRepeatedKeys(m_KeysListSize, m_pRepeatedKeysList);
-	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Show();
+	 LOG("Open image\n");
+	 ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenImage(m_iImageType, m_ImageSize, m_pImage);
+	 ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Show();
+
+	 LOG("Intercept repeated keys\n");
+     ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->InterceptRepeatedKeys(m_KeysListSize, m_pRepeatedKeysList);
 
 #endif //SYMBIAN
 

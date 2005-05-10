@@ -352,6 +352,15 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		}
 		*/
 
+		if(iStatus != KErrNone)
+		{
+			LOG(" status : error");
+		}
+		else
+		{
+			LOG(" or EConnectionLost");
+		}
+
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bMakeVisibleAllowed = false;
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ResetViewer();
 
@@ -690,6 +699,9 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 			if(*lType)
 			{
 				m_pCommand = BuildCommandFromData(*lType);
+
+				//LOG("About to parse command. Type:");
+				//LOG(*lType);
 				m_pCommand->ParseCommand(*lSize, m_ReceiveAckData);
 				m_pCommand->ProcessCommand(NULL);
 				m_pCommand->ConvertAckToBinary();
