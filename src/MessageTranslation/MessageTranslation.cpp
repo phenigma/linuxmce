@@ -199,8 +199,6 @@ void
 MessageTranslationManager::_QueueProc() {
 	handleStart();
 	while(!stopqueue_) {
-Sleep(50);
-cout << "_QueueProc sleep";
 		msgqueue_.lock();
 		MessageReplicatorList::iterator it = msgqueue_.begin();
 		if(it != msgqueue_.end()) {
@@ -214,6 +212,7 @@ cout << "_QueueProc sleep";
 			}
 		} else {
 			msgqueue_.unlock();
+			usleep(POOL_IDLE_SLEEP * 1000);
 		}
 	}
 	handleStop();
