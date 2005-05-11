@@ -188,7 +188,6 @@ RubyIOManager::RouteMessageToDevice(DeviceData_Base* pdevdata, Message *pMessage
 void* 
 RubyIOManager::_Run() {
 	while(!isStopRequested()) {
-		Sleep(50);  // HACK, HACK, HACK TO PREVENT GSD FROM USING UP 100% OF THE CPU
 		bool msgarrived = emsg_.Wait(DEFAULT_POOL_TIME);
 		mmsg_.Lock();
 		if(!msgarrived && msgqueue_.size() == 0) {
