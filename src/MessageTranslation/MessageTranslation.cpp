@@ -19,6 +19,10 @@
 #define POOL_IDLE_SLEEP					50
 #define MARKPARAM_MESSAGE_PROCESS		((unsigned long)-1)
 
+#ifdef WIN32
+#define usleep(x) Sleep((x) / 1000)
+#endif
+
 namespace DCE {
 
 MessageReplicatorList::MessageReplicatorList() {
