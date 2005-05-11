@@ -63,6 +63,7 @@
 #define DEVICEDATA_VideoFrameInterval_CONST 72
 #define DEVICEDATA_Alsa_Output_Device_CONST 74
 #define DEVICEDATA_ImageQuality_CONST 75
+#define DEVICEDATA_COM_Port_ParityBitStop_CONST 76
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
