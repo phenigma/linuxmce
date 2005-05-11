@@ -63,7 +63,20 @@ CSerialPort::CSerialPort(string Port, unsigned BPS, eParityBitStop ParityBitStop
     t.c_iflag = IGNBRK | INPCK;
     t.c_oflag = 0;
     // TODO: Implement paritybitstop
-    t.c_cflag = CS8 | CREAD | CLOCAL/* | CSTOPB*/;
+	switch(ParityBitStop) {
+	case epbsN81:
+	    t.c_cflag = CS8 | CREAD | CLOCAL;
+		break;
+	case epbsE81:
+	    t.c_cflag = CS8 | CREAD | CLOCAL | PARENB;
+		break;
+	case epbsO81:
+	    t.c_cflag = CS8 | CREAD | CLOCAL | PARENB | PARODD;
+		break;
+	default:
+	    t.c_cflag = CS8 | CREAD | CLOCAL/* | CSTOPB*/;
+		break;
+	}
 	if (FlowControl)
 		t.c_cflag |= CRTSCTS;
     t.c_lflag = 0;

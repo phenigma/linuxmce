@@ -9,7 +9,11 @@
 
 using namespace std;
 
-enum eParityBitStop { epbsN81 };
+enum eParityBitStop { 
+	epbsN81,
+	epbsE81,
+	epbsO81
+};
 
 class   CSerialPort
 {
