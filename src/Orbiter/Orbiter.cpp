@@ -647,11 +647,6 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
         return;
 	}
 
-    if(  pObj->m_ObjectID=="2689.0.0.2855.179"  )
-    {
-        int k=2;
-    }
-
     PROFILE_START( ctObj )
 
         PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex )
@@ -1017,16 +1012,11 @@ g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str()
 		SolidRectangle( pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
 	}
 
-    string::size_type pos = 0;
-
-    char Prefix[10]="";  // Do this outside since we'll only grab the first style,  sometimes teh cell is plank
-
     // short for "number of ARRow ROWS": ArrRows
     // last screen exception: we consider one up arrow as not being there so we don't skip a row when we scroll up
     int ArrRows = 0;
 
     DataGridTable *pT = pObj->m_pDataGridTable;
-    int DGLastRow = pT->m_bKeepColumnHeader ? pObj->m_pDataGridTable->m_RowCount-2 : pObj->m_pDataGridTable->m_RowCount-1;
     int i,  j; //indexes
 
     bool bAddedUpButton=false, bAddedDownButton=false;
@@ -1100,7 +1090,7 @@ g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str()
 //------------------------------------------------------------------------
 void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelections )
 {
-    bool bAcquiredGrid = AcquireGrid( pObj,  pObj->m_GridCurCol,  pObj->m_GridCurRow,  pObj->m_pDataGridTable );
+    AcquireGrid( pObj,  pObj->m_GridCurCol,  pObj->m_GridCurRow,  pObj->m_pDataGridTable );
 g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj->m_ObjectID.c_str(),pObj->m_pDataGridTable);
 
 	/* todo 2.0
@@ -1294,11 +1284,6 @@ void Orbiter::ObjectOnScreenWrapper(  )
 // If an object has the don't reset state true,  it won't reset to normal,  and it's children won't reset either
 void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, bool bDontResetState )
 {
-    if(  pObj->m_iBaseObjectID == 2707  )
-    {
-        int k=2;
-    }
-
 	// Do this again since sometimes there will be several grids with the same name within the application and if
 	// we're going to do a lookup, such as with seek grid, we want to find the one most recently on screen
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
@@ -1371,7 +1356,6 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
         //if(  pObj->m_iBaseObjectID == 2707  )
     {
         g_pPlutoLogger->Write( LV_STATUS, "control off screen state: %d undo: %p", pObj->m_GraphicToDisplay, pObj->m_pGraphicToUndoSelect );
-        int k=2;
     }
 
     pObj->m_bOnScreen=false;
@@ -1460,13 +1444,10 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 			nd.Release();
 
             if(  pObj->m_ObjectID.find( "2715" )!=string::npos  )
-                //if(  pObj->m_iBaseObjectID == 2707  )
             {
                 g_pPlutoLogger->Write( LV_STATUS, "Saving image for control: state: %d undo: %p", pObj->m_GraphicToDisplay, pObj->m_pGraphicToUndoSelect );
-                int k=2;
             }
 
-			vector<PlutoGraphic*> *pVectorPlutoGraphic = &(pObj->m_vectSelectedGraphic);
 			if(pObj->m_vectSelectedGraphic.size())
 			{
 				PlutoGraphic *pPlutoGraphic = pObj->m_vectSelectedGraphic[0];
@@ -1600,7 +1581,6 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
     // There's a variable associated with this,  so it's a selectable grid.  Which cell was touched?
     // Go through the cells on the screen
     int i, j;
-    string::size_type pos = 0;
     DataGridTable *pT = pDesignObj_DataGrid->m_pDataGridTable;
 
     // Let's say we have six rows,  and we are on the last page.  We'll only show 5 plus an

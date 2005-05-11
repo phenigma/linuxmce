@@ -149,7 +149,7 @@ void *GeneratorThread( void *p)
 			x = rand() % pOrbiter->m_iImageWidth;//  SDL_WIDTH;
 			y = rand() % pOrbiter->m_iImageHeight;
 
-			if(!pOrbiter->m_bQuit)
+			if(!pOrbiter->m_bQuit && bGenerateMouseClicks)
 				pOrbiter->SimulateMouseClick(x, y);
 		}
 		else
