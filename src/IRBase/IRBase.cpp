@@ -112,13 +112,12 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 					
 		long NumDigits = 3;
 		bool bSendEnter = false;
-		map<int,string>::iterator param = 
-				pDeviceData_Impl->m_mapParameters.find(DEVICEDATA_Number_of_Digits_CONST);
-		if (param != pDeviceData_Impl->m_mapParameters.end()) {
+		string sNumDigits = pRowAV->NumericEntry_get();
+		if (sNumDigits.size()) {
 			string::size_type pos = 0;
 	
-			NumDigits = atoi(StringUtils::Tokenize((*param).second, ",", pos).c_str());
-			string tok = StringUtils::ToUpper(StringUtils::Tokenize((*param).second, ",", pos));
+			NumDigits = atoi(StringUtils::Tokenize(sNumDigits, ",", pos).c_str());
+			string tok = StringUtils::ToUpper(StringUtils::Tokenize(sNumDigits, ",", pos));
 	
 			bSendEnter = (tok=="E" || tok=="e");
 		} else {
