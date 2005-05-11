@@ -165,6 +165,7 @@ void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 	cout << "Processing..." << endl;
 
 	VectDeviceData_Impl vVDD = m_pData->m_vectDeviceData_Impl_Children;
+	cout << "vVDD.size() = " << vVDD.size() << endl;
 	for (VectDeviceData_Impl::size_type i = 0; i < vVDD.size(); i++)
 	{
 		if (vVDD[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To && vVDD[i]->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Input_Ouput_CONST)
