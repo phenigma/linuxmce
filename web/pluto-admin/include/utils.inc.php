@@ -2937,7 +2937,7 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParentIP)
 	}
 	
 	$serial_ports=array();
-	exec("/usr/pluto/bin/LaunchRemoteCmd.sh '$topParentIP' /usr/pluto/bin/ListSerialPorts.sh", $serial_ports);
+	exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$topParentIP' /usr/pluto/bin/ListSerialPorts.sh", $serial_ports);
 
 	$extra=((isset($allowedToModify) && $allowedToModify==0)?'disabled':'');
 	$out=pulldownFromArray($serial_ports,$name,$selectedPort,$extra,'value');
