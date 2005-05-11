@@ -17,7 +17,7 @@ sources = Main.cpp Orbiter_Plugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS += -fmessage-length=0
-CPPFLAGS +=
+CPPFLAGS += -DVIPDESIGN
 LDFLAGS +=
 XTRALDLIBS = -lpluto_main
 
