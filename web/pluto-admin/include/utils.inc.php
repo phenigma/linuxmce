@@ -2930,8 +2930,12 @@ function PortForHumans($device,$deviceNames)
 	return "Unknown: $devname";
 }
 
-function serialPortsPulldown($name,$selectedPort,$allowedToModify)
+function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParentIP)
 {
+	if($topParentIP==0){
+		return 'Error: top parent IP not found';
+	}
+	
 	$serial_ports=array();
 	exec('sudo -u root /usr/pluto/bin/ListSerialPorts.sh', $serial_ports);
 
@@ -3037,5 +3041,25 @@ function getDeviceInformation($deviceID,$dbADO)
 		$row=$res->FetchRow();
 	}
 	return $row;
+}
+
+function getTopLevelParent($deviceID,$dbADO)
+{
+	$topParent=0;
+	if($deviceID!=0){
+		$res=$dbADO->Execute('SELECT FK_DeviceTemplate,FK_Device_ControlledVia,IPaddress FROM Device WHERE PK_Device=?',$deviceID);
+		$row=$res->FetchRow();
+		if((int)$row['FK_Device_ControlledVia']!=0){
+			$topParent=getTopLevelParent($row['FK_Device_ControlledVia'],$dbADO);
+		}else{
+			if($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'] || $row['FK_DeviceTemplate']==$GLOBALS['rootMediaDirectorsID']){
+				$topParent=($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'] && $row['IPaddress']=='')?'127.0.0.1':$row['IPaddress'];
+			}else{
+				$topParent=0;
+			}
+		}
+	}
+	
+	return $topParent;
 }
 ?>

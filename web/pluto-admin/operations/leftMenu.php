@@ -3,6 +3,9 @@ function leftMenu($output,$dbADO) {
 	$out='';
 	$currentSection = @cleanString($_REQUEST['rightSection']);
 	$installationID = (int)@$_SESSION['installationID'];
+	global $devicesArray;
+	
+	$devicesArray=array();
 	
 	$treeType = isset($_REQUEST['treeType'])?cleanString(strip_tags($_REQUEST['treeType'])):'devices';
 	$out.= '	
@@ -80,6 +83,7 @@ function leftMenu($output,$dbADO) {
 								auxS'.$row1['PK_Device'].'.xID = -'.$row1['PK_Device'].';
 							';
 							$jsTree.=getDeviceChilds($row1['PK_Device'],$dbADO);
+							$devicesArray[$row1['PK_Device']]=$row1['PK_Device'].' '.$row1['Description'];
 						}
 					}			
 		}
@@ -88,7 +92,7 @@ function leftMenu($output,$dbADO) {
 			$installationTxt = '';
 			
 				$installationTxt.='
-					<form action="index.php" method="post">
+					
 					Change Installation:
 					<input type="hidden" name="section" value="leftMenu">
 					<input type="hidden" name="rightSection" value="'.$currentSection.'">
@@ -99,11 +103,11 @@ function leftMenu($output,$dbADO) {
 					}
 
 					$installationTxt.='</select> <input type="submit" class="button" name="submitX" value="Go">
-				</form>
+				
 				';
-			
-		
+			ksort($devicesArray,SORT_NUMERIC);
 			$out.='
+			<form action="index.php" method="post" name="leftMenu">
 			<tr>
 				<td><hr /></td>
 			</tr>
@@ -112,20 +116,16 @@ function leftMenu($output,$dbADO) {
 					'.$installationTxt.'
 				</td>
 			</tr>
-			<!--<tr>
-				<td>
-					<a href="index.php?section=installationSettings" target="basefrm">Settings</a>
-				</td>
-			</tr>
 			<tr>
 				<td>
-					<a href="index.php?section=rooms" target="basefrm">Rooms</a>
+					'.pulldownFromArray($devicesArray,'quickJump',0,'').' <input type="button" class="button" value="Quick jump" onClick="showDevice();">
 				</td>
-			</tr>		-->	
+			</tr>
+			</form>			
 			';		
 			
 			$scriptInHead = "
-			
+	
 			<!-- As in a client-side built tree, all the tree infrastructure is put in place
 			     within the HEAD block, but the actual tree rendering is trigered within the
 			     BODY -->
@@ -207,7 +207,11 @@ function leftMenu($output,$dbADO) {
 					}
 				} 
 			
-			
+			function showDevice()
+			{
+				if(document.leftMenu.quickJump.value!=0)
+					top.basefrm.location='index.php?section=editDeviceParams&deviceID='+document.leftMenu.quickJump.value;
+			}				
 			
 			
 			</script>
@@ -271,6 +275,7 @@ function leftMenu($output,$dbADO) {
 
 
 function getDeviceChilds($parentID,$dbADO) {
+	global $devicesArray;
 	$queryGP = "select * from Device where FK_Device_ControlledVia = $parentID";
 	$resGP = $dbADO->Execute($queryGP);
 	$jsTree='';
@@ -281,6 +286,7 @@ function getDeviceChilds($parentID,$dbADO) {
 					auxS'.$row['PK_Device'].'.xID = '.$row['PK_Device'].';
 				';
 				$jsTree.=getDeviceChilds($row['PK_Device'],$dbADO);
+				$devicesArray[$row['PK_Device']]=$row['PK_Device'].' '.$row['Description'];
 		}
 	}
 	return $jsTree;

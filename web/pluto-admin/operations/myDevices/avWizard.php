@@ -331,7 +331,7 @@ function avWizard($output,$dbADO) {
 								break;
 								default:
 									if($value==$GLOBALS['Port']){
-										$deviceDataBox.=serialPortsPulldown('deviceData_'.$rowD['PK_Device'].'_'.$value,@$ddValue,$rowDDforDevice['AllowedToModify']);
+										$deviceDataBox.=serialPortsPulldown('deviceData_'.$rowD['PK_Device'].'_'.$value,@$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($rowD['PK_Device'],$dbADO));
 									}else{
 										$deviceDataBox.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 									}

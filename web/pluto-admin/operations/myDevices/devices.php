@@ -256,7 +256,7 @@ function devices($output,$dbADO) {
 								}
 								else
 								{
-									$out.=serialPortsPulldown('deviceData_'.$rowD['PK_Device'].'_'.$value,$ddValue,$rowDDforDevice['AllowedToModify']);
+									$out.=serialPortsPulldown('deviceData_'.$rowD['PK_Device'].'_'.$value,$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($rowD['PK_Device'],$dbADO));
 								}
 						}
 						
