@@ -1194,9 +1194,24 @@ static void init_controls(struct cx8800_dev *dev)
 		.id    = V4L2_CID_AUDIO_VOLUME,
 		.value = 0x3f,
 	};
+	static struct v4l2_control hue = {
+		.id    = V4L2_CID_HUE,
+		.value = 0x0,
+	};
+	static struct v4l2_control contrast = {
+		.id    = V4L2_CID_CONTRAST,
+		.value = 0x40,
+	};
+	static struct v4l2_control brightness = {
+		.id    = V4L2_CID_BRIGHTNESS,
+		.value = 0x99,
+	};
 
 	set_control(dev,&mute);
 	set_control(dev,&volume);
+	set_control(dev,&hue);
+	set_control(dev,&contrast);
+	set_control(dev,&brightness);
 }
 
 /* ------------------------------------------------------------------ */
@@ -2289,4 +2304,5 @@ module_exit(cx8800_fini);
  * Local variables:
  * c-basic-offset: 8
  * End:
+ * kate: eol "unix"; indent-width 3; remove-trailing-space on; replace-trailing-space-save on; tab-width 8; replace-tabs off; space-indent off; mixed-indent off
  */
