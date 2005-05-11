@@ -84,14 +84,13 @@ long int m_TogglePower;
 long int m_ToggleDSP;
 long int m_ToggleInput;
 long int m_ToggleOutput;
-string m_NumericEntry;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[15];
+		bool is_null[14];
 	
 	public:
 		long int FK_DeviceTemplate_get();
@@ -103,7 +102,6 @@ long int TogglePower_get();
 long int ToggleDSP_get();
 long int ToggleInput_get();
 long int ToggleOutput_get();
-string NumericEntry_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -120,7 +118,6 @@ void TogglePower_set(long int val);
 void ToggleDSP_set(long int val);
 void ToggleInput_set(long int val);
 void ToggleOutput_set(long int val);
-void NumericEntry_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -128,15 +125,13 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool NumericEntry_isNull();
-bool psc_id_isNull();
+		bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void NumericEntry_setNull(bool val);
-void psc_id_setNull(bool val);
+		void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
@@ -160,7 +155,7 @@ void psc_frozen_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DeviceTemplate+ m_UsesIR+ m_IR_PowerDelay+ m_IR_ModeDelay+ m_DigitDelay+ m_TogglePower+ m_ToggleDSP+ m_ToggleInput+ m_ToggleOutput+ m_NumericEntry+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_DeviceTemplate+ m_UsesIR+ m_IR_PowerDelay+ m_IR_ModeDelay+ m_DigitDelay+ m_TogglePower+ m_ToggleDSP+ m_ToggleInput+ m_ToggleOutput+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -174,7 +169,6 @@ string TogglePower_asSQL();
 string ToggleDSP_asSQL();
 string ToggleInput_asSQL();
 string ToggleOutput_asSQL();
-string NumericEntry_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -1192,9 +1192,6 @@
 #define DESIGNOBJ_mnuGenericDvdMenu_CONST 3388
 #define DESIGNOBJ_go_to_nondvdremote_CONST 3389
 #define DESIGNOBJ_icoScenario_CONST 3390
-#define DESIGNOBJ_lights_CONST 3394
-#define DESIGNOBJ_telecom_CONST 3395
-#define DESIGNOBJ_security_CONST 3398
 #define DESIGNOBJ_objVolUpLong_CONST 3399
 #define DESIGNOBJ_objVolDownLong_CONST 3400
 
