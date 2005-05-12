@@ -229,13 +229,12 @@ bool Orbiter_Plugin::Register()
 		PopulateListsInVMC PopulateListsInVMC_(sSourceVMCFileName, sDestFileName, dwPKDevice, m_pDatabase_pluto_main, m_pRouter->iPK_Installation_get());
         PopulateListsInVMC_.DoIt();
 
+        pOH_Orbiter->m_sUpdateVMCFile = sDestFileName;
         if(sOldChecksum != FileUtils::FileChecksum(sDestFileName))
+        {
             g_pPlutoLogger->Write(LV_STATUS, "Need to send %s to PlutoMO, the checksum is changed", sDestFileName.c_str());
-
-        pOH_Orbiter->m_sUpdateVMCFile = 
-            sOldChecksum != FileUtils::FileChecksum(sDestFileName) ?
-            sDestFileName :
-            "";
+            pOH_Orbiter->m_pDeviceData_Router->m_sStatus_set("NEED VMC");
+        }
 	}
 
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterDetected) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_detected_CONST);
@@ -519,12 +518,19 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
 				if( pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_get() == 1 )
 					SendAppToPhone( pOH_Orbiter, pDeviceFrom );
 
+                string sVmcFileToSend = "";
+                if(pOH_Orbiter->m_pDeviceData_Router->m_sStatus_get() == "NEED VMC")
+                {
+                    pOH_Orbiter->m_pDeviceData_Router->m_sStatus_set("");
+                    sVmcFileToSend = pOH_Orbiter->m_sUpdateVMCFile;
+                }
+
                 DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
                     -1,
                     pDeviceFrom->m_dwPK_Device,
                     1, //iMediaPosition = On
                     sMacAddress,
-                    pOH_Orbiter->m_sUpdateVMCFile);
+                    sVmcFileToSend);
 
 				SendCommand(CMD_Link_with_mobile_orbiter);
             }
