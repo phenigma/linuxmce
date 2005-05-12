@@ -521,7 +521,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
                 string sVmcFileToSend = "";
                 if(pOH_Orbiter->m_pDeviceData_Router->m_sStatus_get() == "NEED VMC")
                 {
-                    pOH_Orbiter->m_pDeviceData_Router->m_sStatus_set("");
+                    //we'll reset the status when we'll be sure that the connection is established
                     sVmcFileToSend = pOH_Orbiter->m_sUpdateVMCFile;
                 }
 
@@ -575,6 +575,10 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH
 		StringUtils::itos(pOH_Orbiter->m_pEntertainArea_Locked ? pOH_Orbiter->m_pEntertainArea_Locked->m_iPK_EntertainArea : 0),sMacAddress,
 		pOH_Orbiter->m_dwPK_Room_Locked ? pOH_Orbiter->m_dwPK_Room_Locked : 0);
     SendCommand(CMD_Create_Mobile_Orbiter);
+
+    //it's ok now to reset the status
+    if(pOH_Orbiter->m_pDeviceData_Router->m_sStatus_get() == "NEED VMC")
+        pOH_Orbiter->m_pDeviceData_Router->m_sStatus_set("");
 
 		// See if there's an ent group involved
 
