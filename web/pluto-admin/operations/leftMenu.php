@@ -117,8 +117,10 @@ function leftMenu($output,$dbADO) {
 				</td>
 			</tr>
 			<tr>
-				<td>
+				<td><fieldset><legend>Go to device</legend>
+				<div align="right">
 					'.pulldownFromArray($devicesArray,'quickJump',0,'').' <input type="button" class="button" value="Quick jump" onClick="showDevice();">
+				</div></fieldset>
 				</td>
 			</tr>
 			</form>			

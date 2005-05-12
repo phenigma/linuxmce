@@ -213,31 +213,52 @@ function irCodes($output,$dbADO) {
 		$oldCheckedDCG=array();
 		$deviceCG=array();
 		foreach ($cgArray AS $key=>$arrayValues){
-			// insert command in InfraredGroup_Command
-			if($arrayValues['checked']==1){
-				$dbADO->Execute('
-					INSERT INTO InfraredGroup_Command 
-						(FK_InfraredGroup,FK_Command,FK_DeviceTemplate,IRData,FK_Users) 
-					SELECT
-						NULL,DeviceCommandGroup_Command.FK_Command,'.$dtID.',\'\','.$_SESSION['userID'].'
-					FROM DeviceCommandGroup_Command
-					LEFT JOIN InfraredGroup_Command ON InfraredGroup_Command.FK_Command=DeviceCommandGroup_Command.FK_Command AND FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL AND (FK_Device IS NULL OR FK_Device=?) AND FK_Users=?
-					WHERE FK_DeviceCommandGroup=? AND PK_InfraredGroup_Command IS NULL',array($dtID,$deviceID,$_SESSION['userID'],$key));
-				$oldCheckedDCG[]=$key;
-			}
-
-			$deviceCG[]=$key;
 			// get commands from DeviceCommandGroup
 			$res=$dbADO->Execute('
-				SELECT Command.Description 
+				SELECT Command.Description,PK_Command 
 				FROM DeviceCommandGroup_Command 
 				INNER JOIN Command ON FK_Command=PK_Command
 				WHERE FK_DeviceCommandGroup=?
 				ORDER BY Description ASC',$key);
 			$commandsInGroup=array();
+			$commandIDs=array();
 			while($rowC=$res->FetchRow()){
 				$commandsInGroup[]=$rowC['Description'];
+				$commandIDs[]=$rowC['PK_Command'];
 			}
+			
+			
+			// insert command in InfraredGroup_Command
+			if($arrayValues['checked']==1){
+				//$dbADO->debug=true;
+					if(count($commandIDs)==0){
+						$commandIDs[]=0;
+					}
+					
+					$oldRes=$dbADO->Execute('
+						SELECT PK_InfraredGroup_Command,FK_Command
+						FROM InfraredGroup_Command 
+						WHERE FK_Command IN ('.join(',',$commandIDs).') AND 
+							((FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL AND (FK_Device IS NULL OR FK_Device=?))
+							OR (FK_DeviceTemplate IS NULL AND FK_InfraredGroup IS NOT NULL AND FK_Device IS NULL))',array($dtID,$deviceID));
+					$existCommands=array();
+					while($rowCom=$oldRes->FetchRow()){
+						$existCommands[]=$rowCom['FK_Command'];
+					}
+					$commandsToAdd=array_diff($commandIDs,$existCommands);
+					foreach ($commandsToAdd AS $cmd){
+						$dbADO->Execute('
+							INSERT INTO InfraredGroup_Command
+								(FK_InfraredGroup,FK_Command,FK_DeviceTemplate,IRData,FK_Users) 
+							VALUES
+								(NULL,?,?,?,?)
+						',array($cmd,$dtID,'',$_SESSION['userID']));
+					}
+					
+				$oldCheckedDCG[]=$key;
+			}
+
+			$deviceCG[]=$key;
 			$out.='
 			<tr>
 				<td><input type="checkbox" name="dcg_'.$key.'" value="1" '.(($arrayValues['checked']==1)?'checked':'').'></td>

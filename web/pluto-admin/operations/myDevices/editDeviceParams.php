@@ -526,12 +526,12 @@ $installationID = (int)@$_SESSION['installationID'];
 			$value = @$_POST['deviceData_'.$elem];
 				$checkIfExists = "select IK_DeviceData from Device_DeviceData where FK_Device = ? and FK_DeviceData = ?";
 				$res = $dbADO->Execute($checkIfExists,array($deviceID,$elem));
-				if ($res && $res->RecordCount()==1) {
+				if ($res && $res->RecordCount()==1 && isset($_POST['deviceData_'.$elem])) {
 					
 					$query = "update Device_DeviceData set IK_DeviceData = ? where  FK_Device = ? and FK_DeviceData = ?";
 					$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));	
 				} else {
-					if ($elem!=0) {
+					if ($elem!=0 && isset($_POST['deviceData_'.$elem])) {
 						$query = "insert into Device_DeviceData  (IK_DeviceData,FK_Device,FK_DeviceData) values(?,?,?)";
 						$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));
 						
