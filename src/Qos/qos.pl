@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+exit;
+
 $BAND=5120;	#Maximum bandwidth measured in kbit
 $DEVICE="eth0"; #Device on which we are doing shaping
 $PAck=60;	#Percentage for minimum bandwidth 4 small datagrams
