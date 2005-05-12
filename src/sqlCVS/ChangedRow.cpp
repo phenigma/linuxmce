@@ -39,6 +39,8 @@ string ChangedRow::GetWhereClause()
 	 * If it's not a new row, it will have m_psc_id assigned
 	 */
 	 
+	cout << "where clause for psc_id: " << m_psc_id << " has %d keys:" << (int) m_vectPrimaryKey.size() << endl;
+
 	if( m_psc_id )
 		sWhere << " WHERE psc_id=" << m_psc_id;
 	else

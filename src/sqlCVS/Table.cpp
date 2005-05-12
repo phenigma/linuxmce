@@ -647,8 +647,11 @@ void Table::GetChanges( )
 			/** Add all the primary key values   */
 			vector<string> vectPrimaryKeys;
 			for( size_t s=0;s<m_listField_PrimaryKey.size( );++s )
+			{
+cout << "pk: " << s << " " << row[s+3];
 				vectPrimaryKeys.push_back( row[s+3] );
-
+			}
+cout << " psc_id: " << (row[0] ? atoi( row[0] ) : 0) << endl;
 			int iAutoIncrValue = iAutoIncrField>=0 ? atoi( row[iAutoIncrField] ) : 0;
 
 			if( row[1] && atoi(row[1])<1 )
