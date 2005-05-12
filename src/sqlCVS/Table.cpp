@@ -504,6 +504,7 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 		return false;
 	}
 
+	cout << "Requested update" << endl;
 	// Now delete any rows in our vect that we found during the DetermineDeletions phase
 	if( m_vectRowsToDelete.size() )
 	{

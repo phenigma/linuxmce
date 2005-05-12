@@ -782,6 +782,8 @@ void Repository::psc_id_last_sync_set( Table *pTable, int psc_id )
 	if( pTable->Repository_get( )!=this || !m_pTable_Tables || pTable->bIsSystemTable_get( ) )
 		throw "Internal error Repository::psc_id_set";
 
+cout << "psc_id_last_sync_set: table: " << pTable->Name_get() << " psc_id: " << psc_id << endl;
+
 	std::ostringstream sSQL;
 	sSQL << "UPDATE `" << m_pTable_Tables->Name_get( ) << "` SET last_psc_id='" << psc_id << "' WHERE Tablename='" << pTable->Name_get( ) << "'";
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
@@ -814,6 +816,8 @@ void Repository::psc_batch_last_sync_set( Table *pTable, int psc_batch )
 {
 	if( pTable->Repository_get( )!=this || !m_pTable_Tables || pTable->bIsSystemTable_get( ) )
 		throw "Internal error Repository::psc_batch_set";
+
+cout << "psc_batch_last_sync_get: table: " << pTable->Name_get() << " psc_batch: " << psc_batch << endl;
 
 	std::ostringstream sSQL;
 	sSQL << "UPDATE `" << m_pTable_Tables->Name_get( ) << "` SET last_psc_batch='" << psc_batch << "' WHERE Tablename='" << pTable->Name_get( ) << "'";

@@ -202,6 +202,10 @@ int main(int argc, char *argv[])
 	WSACleanup();
 #endif
 	g_pPlutoLogger->Write(LV_STATUS, "Ready to delete router");
+/*
+Leaving this code in cases a memory leak.  But this way any threads that were spawned
+by child processes and may still be holding locks won't crash when they exit. 
+
 	if( g_mapLockMutex )
 	{
 		pthread_mutex_destroy(&g_mapLockMutex->mutex);
@@ -214,7 +218,7 @@ int main(int argc, char *argv[])
 		delete m_LL_DEBUG_Mutex;
 	}
 #endif
-
+*/
 	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bStartRouter);
 	if( bStartRouter )
 		return 2;

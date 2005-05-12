@@ -61,7 +61,8 @@ R_UpdateTable::~R_UpdateTable( )
 
 bool R_UpdateTable::ProcessRequest( class RA_Processor *pRA_Processor )
 {
-	cout << "Update table: " << m_sTableName << endl;
+	cout << "R_Update start table: " << m_sTableName << " m_psc_batch_last_sync: " <<
+		m_psc_batch_last_sync << " m_psc_id_last_sync: " << m_psc_id_last_sync << endl;
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 
 	psqlCVSprocessor->m_pTable = g_GlobalConfig.m_pDatabase->m_mapTable_Find( m_sTableName );
@@ -88,8 +89,8 @@ bool R_UpdateTable::ProcessRequest( class RA_Processor *pRA_Processor )
 		return true;
 	}
 
-	m_psc_batch_last_sync=psqlCVSprocessor->m_pTable->m_psc_batch_last_sync;
-	m_psc_id_last_sync=psqlCVSprocessor->m_pTable->m_psc_id_last_sync;
+	cout << "R_Update end table: " << m_sTableName << " m_psc_batch_last_sync: " <<
+		m_psc_batch_last_sync << " m_psc_id_last_sync: " << m_psc_id_last_sync << endl;
 
 	m_cProcessOutcome=SUCCESSFULLY_PROCESSED; /** @todo -- process it */
 
