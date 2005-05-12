@@ -53,6 +53,8 @@ using namespace DCE;
 
 #define INTER_SEND_DELAY		100
 
+extern long g_dwTelegramDelay;
+
 namespace EIBBUS {
 
 std::string FormatHexBuffer(const unsigned char* buff, unsigned int size);
@@ -244,20 +246,20 @@ void MessagePool::InitState::Handle(void* p) {
 }
 
 void MessagePool::ReadyState::Handle(void* p) {
-	bool dosend = false;
-	MSGLOCK.Lock();
-	if(SENDQUEUE.size() > 0) {
-		dosend = true;
-	}
-	MSGLOCK.Unlock();
-	if(!dosend && EVENTSENDQUEUE.Wait(SLEEP_WAIT_MESSAGES)) {
-		dosend = true;
-	}
-	if(dosend) {
-		setState(SENDSTATE);
+	if(BUSCONNECTOR->isDataAvailable()) {
+		setState(RECVSTATE);
 	} else {
-		if(BUSCONNECTOR->isDataAvailable()) {
-			setState(RECVSTATE);
+		bool dosend = false;
+		MSGLOCK.Lock();
+		if(SENDQUEUE.size() > 0) {
+			dosend = true;
+		}
+		MSGLOCK.Unlock();
+		if(!dosend && EVENTSENDQUEUE.Wait(SLEEP_WAIT_MESSAGES)) {
+			dosend = true;
+		}
+		if(dosend) {
+			setState(SENDSTATE);
 		}
 	}
 }
@@ -303,7 +305,7 @@ void MessagePool::SendState::Handle(void* p) {
 		errcount_ = 0;
 		setState(READYSTATE);
 		
-		g_pPlutoLogger->Write(LV_STATUS, "Acknowledge not received. Abandoning message send.");
+		g_pPlutoLogger->Write(LV_WARNING, "Acknowledge not received. Abandoning message send.");
 		return;
 	}
 	
@@ -312,7 +314,11 @@ void MessagePool::SendState::Handle(void* p) {
 		bool waitack = true;
 		TelegramMessage& tlmsg = *SENDQUEUE.begin();
 	
-		g_pPlutoLogger->Write(LV_STATUS, "Sending telegram...");
+		if(errcount_ == 0) {
+			g_pPlutoLogger->Write(LV_STATUS, "Sending telegram...");
+		} else {
+			g_pPlutoLogger->Write(LV_STATUS, "Sending telegram. Retry %d.", errcount_);
+		}
 	
 		TimeTracker tk;
 		tk.Start();
@@ -338,7 +344,7 @@ void MessagePool::SendState::Handle(void* p) {
 		setState(READYSTATE);
 	}
 	MSGLOCK.Unlock();
-	usleep(INTER_SEND_DELAY * 1000);
+	usleep(g_dwTelegramDelay * 1000);
 }
 
 std::string FormatHexBuffer(const unsigned char* buff, unsigned int size) {

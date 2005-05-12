@@ -103,6 +103,8 @@ extern "C" {
 }
 //<-dceag-plug-e->
 
+long g_dwTelegramDelay	= 10;
+
 //<-dceag-main-b->
 int main(int argc, char* argv[]) 
 {
@@ -137,6 +139,9 @@ int main(int argc, char* argv[])
 			break;
 		case 'l':
 			sLogger = argv[++optnum];
+			break;
+		case 't':
+			g_dwTelegramDelay = atoi(argv[++optnum]);
 			break;
 		default:
 			bError=true;
