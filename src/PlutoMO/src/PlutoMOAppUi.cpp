@@ -469,6 +469,9 @@ void CPlutoMOAppUi::SaveFile(
 	file.Close();
 
 	aFs.Close();
+
+	if(string(pFileName) == string("PlutoMO.cfg"))
+		ReadConfigurationFile();
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::UpdateScreen(

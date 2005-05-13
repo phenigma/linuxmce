@@ -137,6 +137,29 @@ void *HandleBDCommandProcessorThread( void *p )
         }
     }
 
+    const string csPlutoMOConfigFile = "/usr/pluto/bin/PlutoMO.cfg";
+    if(FileUtils::FileExists(csPlutoMOConfigFile))
+    {
+        string sDestionationVMCFileName = "PlutoMO.cfg";
+
+        size_t iSize = 0;
+        char *pData = FileUtils::ReadFileIntoBuffer(csPlutoMOConfigFile, iSize);
+
+        if(pData)
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", sVMC_File.c_str(), iSize);
+
+            BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(
+                const_cast<char *>(sDestionationVMCFileName.c_str()), 
+                pData, 
+                (unsigned long)sDestionationVMCFileName.length(), 
+                (unsigned long)iSize
+                );
+            pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_SendFile );            
+            PLUTO_SAFE_DELETE(pData);
+        }
+    }
+
 	bm.Release();
 	while( NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead && pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL )); // loop for receiving commands
 	bm.Relock();

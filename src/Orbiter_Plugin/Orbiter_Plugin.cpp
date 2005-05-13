@@ -64,7 +64,7 @@ using namespace DCE;
 #include <algorithm>
 
 #define VERSION "<=version=>"
-string g_sLatestMobilePhoneVersion="2005.05.06";
+string g_sLatestMobilePhoneVersion="2005.05.13";
 
 #include "../Media_Plugin/EntertainArea.h"
 #include "../Media_Plugin/Media_Plugin.h"
@@ -204,38 +204,8 @@ bool Orbiter_Plugin::Register()
         }
     }
 
-
-	for(map<string, OH_Orbiter *>::iterator iter = m_mapOH_Orbiter_Mac.begin(); iter != m_mapOH_Orbiter_Mac.end(); ++iter)
-	{
-		OH_Orbiter *pOH_Orbiter = (*iter).second;
-
-		long dwPKDevice = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
-		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(dwPKDevice);
-		long dwDeviceTemplate = pRow_Device->FK_DeviceTemplate_get();
-		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(dwDeviceTemplate);
-		string sDescription = pRow_DeviceTemplate->Description_get();
-		string sSourceVMCFileName = sDescription + ".vmc";
-
-		StringUtils::Replace(sSourceVMCFileName, "/", "-");
-		StringUtils::Replace(sSourceVMCFileName, ":", "-");
-		StringUtils::Replace(sSourceVMCFileName, "\\", "-");
-		StringUtils::Replace(sSourceVMCFileName, "*", "-");
-		StringUtils::Replace(sSourceVMCFileName, "?", "-");
-		sSourceVMCFileName = "/usr/pluto/bin/" + sSourceVMCFileName;
-
-		string sDestFileName = "/usr/pluto/bin/dev_" + StringUtils::ltos(dwPKDevice) + ".vmc";
-        string sOldChecksum = FileUtils::FileChecksum(sDestFileName);
-
-		PopulateListsInVMC PopulateListsInVMC_(sSourceVMCFileName, sDestFileName, dwPKDevice, m_pDatabase_pluto_main, m_pRouter->iPK_Installation_get());
-        PopulateListsInVMC_.DoIt();
-
-        pOH_Orbiter->m_sUpdateVMCFile = sDestFileName;
-        if(sOldChecksum != FileUtils::FileChecksum(sDestFileName))
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Need to send %s to PlutoMO, the checksum is changed", sDestFileName.c_str());
-            pOH_Orbiter->m_pDeviceData_Router->m_sStatus_set("NEED VMC");
-        }
-	}
+    GenerateVMCFiles();
+    GeneratePlutoMOConfig();
 
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterDetected) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_detected_CONST);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterLinked) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_linked_CONST);
@@ -1508,3 +1478,65 @@ g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: / %s / %s",
 		PlutoMOInstaller.c_str(), pOH_Orbiter->m_pDeviceData_Router->m_sMacAddress.c_str());
 }
 
+void Orbiter_Plugin::GenerateVMCFiles()
+{
+    //create vmc files for each mobile device
+    for(map<string, OH_Orbiter *>::iterator iter = m_mapOH_Orbiter_Mac.begin(); iter != m_mapOH_Orbiter_Mac.end(); ++iter)
+    {
+        OH_Orbiter *pOH_Orbiter = (*iter).second;
+
+        long dwPKDevice = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+        Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(dwPKDevice);
+        long dwDeviceTemplate = pRow_Device->FK_DeviceTemplate_get();
+        Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(dwDeviceTemplate);
+        string sDescription = pRow_DeviceTemplate->Description_get();
+        string sSourceVMCFileName = sDescription + ".vmc";
+
+        StringUtils::Replace(sSourceVMCFileName, "/", "-");
+        StringUtils::Replace(sSourceVMCFileName, ":", "-");
+        StringUtils::Replace(sSourceVMCFileName, "\\", "-");
+        StringUtils::Replace(sSourceVMCFileName, "*", "-");
+        StringUtils::Replace(sSourceVMCFileName, "?", "-");
+        sSourceVMCFileName = "/usr/pluto/bin/" + sSourceVMCFileName;
+
+        string sDestFileName = "/usr/pluto/bin/dev_" + StringUtils::ltos(dwPKDevice) + ".vmc";
+        string sOldChecksum = FileUtils::FileChecksum(sDestFileName);
+
+        PopulateListsInVMC PopulateListsInVMC_(sSourceVMCFileName, sDestFileName, dwPKDevice, m_pDatabase_pluto_main, m_pRouter->iPK_Installation_get());
+        PopulateListsInVMC_.DoIt();
+
+        pOH_Orbiter->m_sUpdateVMCFile = sDestFileName;
+        if(sOldChecksum != FileUtils::FileChecksum(sDestFileName))
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "Need to send %s to PlutoMO, the checksum is changed", sDestFileName.c_str());
+            pOH_Orbiter->m_pDeviceData_Router->m_sStatus_set("NEED VMC");
+        }
+    }
+}
+
+void Orbiter_Plugin::GeneratePlutoMOConfig()
+{
+    const string csWapConfFile("/etc/WAP.conf");
+    const string csPlutoMOConfFile("/usr/pluto/bin/PlutoMO.cfg");
+
+    if(FileUtils::FileExists(csWapConfFile))
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "About to generate '%s' file", csPlutoMOConfFile.c_str());
+
+        size_t iSize = 0;
+        char *pWapURL = FileUtils::ReadFileIntoBuffer(csWapConfFile, iSize);
+
+        string sPlutoMOConfig(pWapURL);
+        delete []pWapURL;
+
+        //TODO: append to sPlutoMOConfig incoming calls records too
+        sPlutoMOConfig += "\n0\n"; //no records for now
+
+        FileUtils::WriteBufferIntoFile(csPlutoMOConfFile, const_cast<char *>(sPlutoMOConfig.c_str()), 
+            sPlutoMOConfig.length());
+    }
+    else
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "'%s' file not found. No PlutoMO.cfg will be generated", csWapConfFile.c_str());
+    }
+}
