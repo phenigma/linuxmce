@@ -53,9 +53,9 @@ function wapSettings($output,$dbADO) {
 		if(isset($_POST['save'])){
 			$url=$_POST['url'];
 			
-			$handle = fopen($settingsFile, 'w');
+			$handle = @fopen($settingsFile, 'w');
 
-			if (!fwrite($handle, $url)) {
+			if (!@fwrite($handle, $url)) {
 				header("Location: index.php?section=wapSettings&error=Cannot write to ".$settingsFile);
 				exit();
 			}
