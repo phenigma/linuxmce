@@ -49,7 +49,7 @@ function media_entertainment($output) {
         <br />
         <img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> All media - music, movies, TV shows, home videos, etc. are stored on the Pluto Core - the central server. The Core is powerful enough to handle dozens of simultaneous media streams. You\'ll never have to worry about a hard drive crash and losing your media. You have virtually unlimited capacity, and everyone in the family can enjoy any media anywhere, anytime.<br />
         <br />
-        <img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> The Pluto Core distributes all the media digitally. This means you have to tear open your walls to run extra cables, plus the media can go from anywhere to anywhere with absolutely no loss of quality.</p>
+        <img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> The Pluto Core distributes all the media digitally. This means you do not have to tear open your walls to run extra cables, plus the media can go from anywhere to anywhere with absolutely no loss of quality.</p>
       </td>
   </tr>
 </table>
