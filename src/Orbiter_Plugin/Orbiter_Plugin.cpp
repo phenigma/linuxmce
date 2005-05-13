@@ -1516,7 +1516,7 @@ void Orbiter_Plugin::GenerateVMCFiles()
 
 void Orbiter_Plugin::GeneratePlutoMOConfig()
 {
-    const string csWapConfFile("/etc/WAP.conf");
+    const string csWapConfFile("/etc/wap.conf");
     const string csPlutoMOConfFile("/usr/pluto/bin/PlutoMO.cfg");
 
     if(FileUtils::FileExists(csWapConfFile))
