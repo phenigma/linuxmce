@@ -97,9 +97,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 
 	Rect r;
 	::GetClientRect( m_hWnd, &r );
-	g_pPlutoLogger->Write(LV_CRITICAL, "Before fullscreen GetClientRect reports: %d, %d, %d, %d",
-		r.left, r.top, r.right, r.bottom);
-
 	Surface* pLogoSurface = NULL;
 
 #ifdef WINCE

@@ -969,8 +969,6 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
         //pTextStyle->m_ForeColor = PlutoColor( 255, 255, 255, 255 );
         //pTextStyle->m_iPK_VertAlignment=2;
 
-if( Text.m_sText.find("s of our")!=string::npos)
-int k=2;
         RenderText( &Text, pTextStyle );
     }
     else
@@ -2103,11 +2101,11 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
     for( iter = pObj->m_ChildObjects.begin(  ); iter != pObj->m_ChildObjects.end(  ); iter++ )
     {
         DesignObj_Data *p = ( *iter );
-        if(  p->m_ObjectID.find( "3016" )!=string::npos  )
+/*      if(  p->m_ObjectID.find( "3016" )!=string::npos  )
         {
             int k=2;
         }
-        //DesignObj_Orbiter *pCurrentObj =
+*/
         if( ( *iter )->m_bTabStop && ( ( DesignObj_Orbiter * ) ( *iter ) )->m_bOnScreen &&
             ( ( DesignObj_Orbiter * ) ( *iter ) )->IsHidden(  ) == false && ( *iter )->m_bTabStop  )
         {
@@ -2213,7 +2211,7 @@ void Orbiter::FindObjectToHighlight(
                 CMD_Scroll_Grid( "", "", PK_Direction );
             else  // Otherwise we move 1 row at a time
             {
-int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
+//int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
                 switch( PK_Direction )
                 {
                 case DIRECTION_Up_CONST:
@@ -2776,7 +2774,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
 	ShowProgress();
-
+/*
     if(  pObj->m_ObjectID.find( "2211.0.0.2233" )!=string::npos  )
     {
         int k=2;
@@ -2792,7 +2790,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
         //  string screen = pc->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST];
 
     }
-
+*/
     m_mapObj_All[pObj->m_ObjectID] = pObj;  // Do this earlier since the bind to action may require looking this up.
 
     if(  pObj->m_bHideByDefault  )
@@ -3076,7 +3074,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
             DesignObjCommandList::iterator iAction;
             for( iAction=( *iZone )->m_Commands.begin(  );iAction!=( *iZone )->m_Commands.end(  );++iAction )
             {
-                int c = ( *iAction )->m_PK_Command;
+                //int c = ( *iAction )->m_PK_Command;
                 if(  ( *iAction )->m_PK_Command==COMMAND_Set_Current_Location_CONST  )
                 {
                     map<int,  string>::iterator iap;
@@ -4473,6 +4471,10 @@ void Orbiter::GetVideoFrame( void *data )
 			{
 				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "" );
 			}
+            else
+            {
+                g_pPlutoLogger->Write(LV_CRITICAL, "CMD_Get_Video_Frame failed: the image buffer is empty");
+            }
 		}
 	}
 	m_bAlreadyQueuedVideo=false;
