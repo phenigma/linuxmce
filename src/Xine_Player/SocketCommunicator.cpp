@@ -59,19 +59,24 @@ bool SocketCommunicator::isCommunicationOpen()
 	return m_iCommunicationSocket != -1;
 }
 
+int SocketCommunicator::getCommunicationSocket()
+{
+	return m_iCommunicationSocket;
+}
+
 bool SocketCommunicator::readData(unsigned char *buffer, int offset, int len, int &readSize)
 {
 	readSize = recv (m_iCommunicationSocket, buffer + offset, len, 0);
 
-	if ( readSize != len && readSize != 0 )
-		g_pPlutoLogger->Write(LV_STATUS, "Read %d chars wanted to read %d!", readSize, len);
+// 	if ( readSize != len && readSize != 0 )
+// 		g_pPlutoLogger->Write(LV_STATUS, "Read %d chars wanted to read %d!", readSize, len);
 
 	return readSize == len;
 }
 
 bool SocketCommunicator::readDataNonBlocking(unsigned char *buffer, int offset, int len, int &readSize)
 {
-	if ( ! isCommunicationOpen() )
+	if ( ! isCommunicationOpen() || len == 0)
 		return false;
 
 	if ( fcntl(m_iCommunicationSocket, F_SETFL, O_NONBLOCK) != 0 )
@@ -88,7 +93,7 @@ bool SocketCommunicator::readDataNonBlocking(unsigned char *buffer, int offset, 
 		return false;
 	}
 
-	if  (readSize < 0 )
+	if ( readSize < 0 )
 		return false;
 
 	return true;

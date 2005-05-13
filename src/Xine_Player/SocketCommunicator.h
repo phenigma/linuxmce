@@ -36,6 +36,8 @@ public:
     virtual ~SocketCommunicator();
 
 
+	virtual int getCommunicationSocket();
+
 	virtual void setTargetAddress(string strHostName, int iPort);
 
 	virtual bool openCommunication();

@@ -1575,8 +1575,8 @@ int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime
     int count = 10;
     while( --count && ! xine_get_pos_length(xineStream->m_pStream, &iPosStream, &iPosTime, &iLengthTime) )
     {
-          g_pPlutoLogger->Write(LV_STATUS, "Error reading stream position: %d", xine_get_error(xineStream->m_pStream));
-          usleep(25000);
+          // g_pPlutoLogger->Write(LV_STATUS, "Error reading stream position: %d", xine_get_error(xineStream->m_pStream));
+          usleep(2500);
     }
 
 //     if ( xine_get_pos_length(xineStream->m_pStream, &iPosStream, &iPosTime, &iLengthTime) == 0 )

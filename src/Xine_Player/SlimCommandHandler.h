@@ -23,6 +23,8 @@
 
 #include <netinet/in.h>
 
+#include "SocketOperationListener.h"
+
 using std::string;
 
 typedef enum _CommandType
@@ -106,7 +108,7 @@ struct slimProtocolCommand
 };
 
 
-class SlimCommandHandler: public SocketCommunicator, public SlimServerClientUser
+class SlimCommandHandler: public SocketCommunicator, public SlimServerClientUser, public SocketOperationListener
 {
 private:
 	unsigned char 	m_commandBuffer[1024 * 50];
@@ -151,16 +153,18 @@ public:
 
 	void setMacAddress(string strMacAddress);
 
-	// void setConnectionSocket(unsigned int iConnection);
-
 	// protocol related functions
 	bool doHello();
 	bool doStatus(char *statusType);
 	bool doIR(char format, char noBits, int irCode);
 
+	// helper functions
 	void doOneCommand();
 
 	bool needToSendStatus();
+
+	// base interface implementations
+	virtual bool dataIsAvailable(int socket);
 };
 
 #endif

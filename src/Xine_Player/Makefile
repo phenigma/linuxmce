@@ -26,7 +26,12 @@ EXTERNAL_LIBS_NAMES += xine z nsl rt png X11 m Xext Xxf86vm Xtst
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=  XineSlaveWrapper.cpp JpegEncoderDecoder.cpp NetworkUtils.cpp SlimServerClient.cpp SocketCommunicator.cpp SlimCommandHandler.cpp SlimDataHandler.cpp SlimServerClientUser.cpp
+sources +=  XineSlaveWrapper.cpp \
+	JpegEncoderDecoder.cpp NetworkUtils.cpp \
+	SlimServerClient.cpp SocketCommunicator.cpp \
+	SlimCommandHandler.cpp SlimDataHandler.cpp \
+	SlimServerClientUser.cpp DataReaderThread.cpp \
+	ThreadedStateMachine.cpp
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
@@ -48,6 +53,7 @@ Xine_Player.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) M
 
 Xine_Player: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
 	$(CXX) -o $(MYNAME) $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
+#	mv ../bin/$@ ../bin/$@.bak
 	cp $@ ../bin
 	./post_make.sh $@
 

@@ -92,8 +92,8 @@ bool SlimCommandHandler::doIR(char format, char noBits, int irCode)
 
 	m_commandBuffer[pos++] = (irCode >> 0x18) & 0xFF;
 	m_commandBuffer[pos++] = (irCode >> 0x10) & 0xFF;
-	m_commandBuffer[pos++] = (irCode  >> 0x08) & 0xFF;
-	m_commandBuffer[pos++] = (irCode  >> 0x00) & 0xFF;
+	m_commandBuffer[pos++] = (irCode >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (irCode >> 0x00) & 0xFF;
 
 	int sentChars;
 	return writeData(m_commandBuffer, 0, 18, sentChars);
@@ -122,7 +122,7 @@ bool SlimCommandHandler::doHello()
 	m_commandBuffer[13] = m_macAddress[3];
 	m_commandBuffer[14] = m_macAddress[4];
 	m_commandBuffer[15] = m_macAddress[5];
-	m_commandBuffer[16] = 0x00;
+	m_commandBuffer[16] = 0x80;
 	m_commandBuffer[17] = 0x00;
 
 	int sentChars;
@@ -139,16 +139,16 @@ bool SlimCommandHandler::doStatus(char *statusType)
 	}
 
 	char crlf 	 = 0;
-	char masInit = 0;
+	char masInit = getSlimServerClient()->getSlimDataHandler()->getStreamFormat();
 	char masMode = 1;
 
-	unsigned int readPtr = getSlimServerClient()->getSlimDataHandler()->getReadPtr();
-	unsigned int writePtr = getSlimServerClient()->getSlimDataHandler()->getWritePtr();
 	long long bytesRX = getSlimServerClient()->getSlimDataHandler()->getBytesRx();
 	unsigned int jiffies = getSlimServerClient()->getSlimDataHandler()->getJiffies();
 
-	int outputBufferSize = getSlimServerClient()->getSlimDataHandler()->getBufferSize();
-	int outputBufferFullness = getSlimServerClient()->getSlimDataHandler()->getBufferFilledSpace();
+	int decoderBufferSize = getSlimServerClient()->getSlimDataHandler()->getBufferSize();
+	int decoderBufferFullness = getSlimServerClient()->getSlimDataHandler()->getBufferFilledSpace();
+	int outputBufferSize = 0;
+	int outputBufferFullness = 0;
 
 	int elapsedSeconds = getSlimServerClient()->getPlaybackSeconds();
 
@@ -158,8 +158,8 @@ bool SlimCommandHandler::doStatus(char *statusType)
 		g_pPlutoLogger->Write(LV_STATUS, "\tcrlf: 0x%x", crlf);
 		g_pPlutoLogger->Write(LV_STATUS, "\tmasInit: 0x%x", masInit);
 		g_pPlutoLogger->Write(LV_STATUS, "\tmasMode: 0x%x", masMode);
-		g_pPlutoLogger->Write(LV_STATUS, "\treadPtr: %d", readPtr);
-		g_pPlutoLogger->Write(LV_STATUS, "\twritePtr: %d", writePtr);
+		g_pPlutoLogger->Write(LV_STATUS, "\tdecoderBufferSize: %d", decoderBufferSize);
+		g_pPlutoLogger->Write(LV_STATUS, "\tdecoderBufferFullness: %d", decoderBufferFullness);
 		g_pPlutoLogger->Write(LV_STATUS, "\tbytesRX: %d", bytesRX);
 		g_pPlutoLogger->Write(LV_STATUS, "\tjiffies: %d", jiffies);
 		g_pPlutoLogger->Write(LV_STATUS, "\toutputBufferSize: %d", outputBufferSize);
@@ -187,15 +187,15 @@ bool SlimCommandHandler::doStatus(char *statusType)
 	m_commandBuffer[pos++] = masInit;
 	m_commandBuffer[pos++] = masMode;
 
-	m_commandBuffer[pos++] = (readPtr >> 0x18) & 0xFF;
-	m_commandBuffer[pos++] = (readPtr >> 0x10) & 0xFF;
-	m_commandBuffer[pos++] = (readPtr >> 0x08) & 0xFF;
-	m_commandBuffer[pos++] = (readPtr >> 0x00) & 0xFF;
+	m_commandBuffer[pos++] = (decoderBufferSize >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (decoderBufferSize >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (decoderBufferSize >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (decoderBufferSize >> 0x00) & 0xFF;
 
-	m_commandBuffer[pos++] = (writePtr >> 0x18) & 0xFF;
-	m_commandBuffer[pos++] = (writePtr >> 0x10) & 0xFF;
-	m_commandBuffer[pos++] = (writePtr >> 0x08) & 0xFF;
-	m_commandBuffer[pos++] = (writePtr >> 0x00) & 0xFF;
+	m_commandBuffer[pos++] = (decoderBufferFullness >> 0x18) & 0xFF;
+	m_commandBuffer[pos++] = (decoderBufferFullness >> 0x10) & 0xFF;
+	m_commandBuffer[pos++] = (decoderBufferFullness >> 0x08) & 0xFF;
+	m_commandBuffer[pos++] = (decoderBufferFullness >> 0x00) & 0xFF;
 
 	m_commandBuffer[pos++] = (char)(bytesRX >> 0x38) & 0xFF;
 	m_commandBuffer[pos++] = (char)(bytesRX >> 0x30) & 0xFF;
@@ -560,16 +560,16 @@ void SlimCommandHandler::dumpCommand()
 	switch(protocolCommand.type)
 	{
 	case COMMAND_VERSION:
-		g_pPlutoLogger->Write(LV_STATUS, "Slim command VERSION: ");
-		g_pPlutoLogger->Write(LV_STATUS, "\tdata: %s: ", protocolCommand.data.version.versionData);
-		g_pPlutoLogger->Write(LV_STATUS, "\tlength: %c: ", protocolCommand.data.version.versionDataLength);
+		g_pPlutoLogger->Write(LV_STATUS, "0x%x Slim command VERSION: ", pthread_self());
+		g_pPlutoLogger->Write(LV_STATUS, "0x%x\tdata: %s: ", pthread_self(), protocolCommand.data.version.versionData);
+		g_pPlutoLogger->Write(LV_STATUS, "0x%x\tlength: %c: ", pthread_self(), protocolCommand.data.version.versionDataLength);
 		break;
 
 	case COMMAND_STREAM:
-		g_pPlutoLogger->Write(LV_STATUS, "Slim command STREAM: ");
+		g_pPlutoLogger->Write(LV_STATUS, "0x%x Slim command STREAM: ", pthread_self());
 		switch ( protocolCommand.data.stream.command )
 		{
-			case STREAM_NO_COMMAND: g_pPlutoLogger->Write(LV_STATUS, "\tsubcommand: none"); break;
+			case STREAM_NO_COMMAND: g_pPlutoLogger->Write(LV_STATUS, "0x%x \tsubcommand: none", pthread_self()); break;
 			case STREAM_START: g_pPlutoLogger->Write(LV_STATUS, "\tsubcommand: start"); break;
 			case STREAM_PAUSE: g_pPlutoLogger->Write(LV_STATUS, "\tsubcommand: pause"); break;
 			case STREAM_UNPAUSE: g_pPlutoLogger->Write(LV_STATUS, "\tsubcommand: unpause"); break;
@@ -627,7 +627,7 @@ void SlimCommandHandler::dumpCommand()
 		g_pPlutoLogger->Write(LV_STATUS, "Slim command GRFB ");
 		break;
 	case COMMAND_GRFE:
-		g_pPlutoLogger->Write(LV_STATUS, "Slim command GRFE ");
+		g_pPlutoLogger->Write(LV_STATUS, "0x%x Slim command GRFE ", pthread_self());
 		break;
 	}
 }
@@ -647,11 +647,21 @@ bool SlimCommandHandler::unpauseStreamingClient()
 
 	pSlimDataHandler->setConnectionData(strHostName, protocolCommand.data.stream.hostPort, protocolCommand.data.stream.urlAddress, protocolCommand.data.stream.urlSize);
 
-	pSlimDataHandler->startProcessingData(protocolCommand.data.stream.autoStart - '0');
+	if ( ! pSlimDataHandler->openConnection() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "bool SlimCommandHandler::startStreamingClient() Opening data connection failed!");
+		return false;
+	}
 
-	Sleep(800);
+	if ( ! doStatus("STMr") )
+	{
+		pSlimDataHandler->closeCommunication();
+		return false;
+	}
 
-	return doStatus("STMr");
+	getSlimServerClient()->getDataReaderThread()->addSocketOperationListenerForSocket(pSlimDataHandler->getCommunicationSocket(), pSlimDataHandler);
+
+	return true;
 }
 
 bool SlimCommandHandler::startStreamingClient()
@@ -661,19 +671,58 @@ bool SlimCommandHandler::startStreamingClient()
 	string strHostName = getSlimServerClient()->getHostName();
 
 	if ( protocolCommand.data.stream.hostAddr.s_addr != 0 )
+	{
 		strHostName = StringUtils::Format("%d.%d.%d.%d",
 				protocolCommand.data.stream.hostAddr.s_addr >> 0x18 & 0xFF,
 				protocolCommand.data.stream.hostAddr.s_addr >> 0x10 & 0xFF,
 				protocolCommand.data.stream.hostAddr.s_addr >> 0x08 & 0xFF,
 				protocolCommand.data.stream.hostAddr.s_addr >> 0x00 & 0xFF);
+	}
 
 	pSlimDataHandler->setConnectionData(strHostName, protocolCommand.data.stream.hostPort, protocolCommand.data.stream.urlAddress, protocolCommand.data.stream.urlSize);
 
-	pSlimDataHandler->startProcessingData(protocolCommand.data.stream.autoStart - '0');
+	if ( protocolCommand.data.stream.format == STREAM_FORMAT_MP3 )
+	{
+		pSlimDataHandler->setStreamFormat('m');
+	}
+	else if ( protocolCommand.data.stream.format == STREAM_FORMAT_FLAC )
+	{
+		pSlimDataHandler->setStreamFormat('f');
+	}
+	else if ( protocolCommand.data.stream.format == STREAM_FORMAT_PCM )
+	{
+		pSlimDataHandler->setStreamFormat('p');
+	}
+	else
+	{
+		pSlimDataHandler->setStreamFormat(' ');
+	}
 
-	Sleep(800);
+	if ( ! pSlimDataHandler->openConnection() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "bool SlimCommandHandler::startStreamingClient() Opening data connection failed!");
+		return false;
+	}
 
-	return doStatus("STMc") && doStatus("STMh");
+	if ( ! doStatus("STMc") )
+	{
+		pSlimDataHandler->closeCommunication();
+		return false;
+	}
+
+	if ( ! doStatus("STMh") )
+	{
+		pSlimDataHandler->closeCommunication();
+		return false;
+	}
+
+	getSlimServerClient()->getDataReaderThread()->addSocketOperationListenerForSocket(pSlimDataHandler->getCommunicationSocket(), pSlimDataHandler);
+
+	g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::startStreamingClient() Before pSlimDataHandler->initDataProcessing!");
+	pSlimDataHandler->initDataProcessing(protocolCommand.data.stream.autoStart - '0');
+	g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::startStreamingClient() After pSlimDataHandler->initDataProcessing!");
+
+	return true;
 }
 
 bool SlimCommandHandler::needToSendStatus()
@@ -685,8 +734,24 @@ bool SlimCommandHandler::needToSendStatus()
 		return false;
 	}
 
-	if ( ((currentTimeVal.tv_sec - lastStatusTimeVal.tv_sec) * 1000 + (currentTimeVal.tv_usec - lastStatusTimeVal.tv_usec)) > 1000 )
+	if ( ((currentTimeVal.tv_sec - lastStatusTimeVal.tv_sec) * 1000 + (currentTimeVal.tv_usec - lastStatusTimeVal.tv_usec) / 1000 ) > 1000 )
 		return true;
 
 	return false;
+}
+
+bool SlimCommandHandler::dataIsAvailable(int socket)
+{
+	if ( socket == getCommunicationSocket() )
+		doOneCommand();
+
+	if ( needToSendStatus() )
+	{
+		if ( getSlimServerClient()->getSlimDataHandler()->getBufferFilledSpace() == 0 )
+			doStatus("STMd");
+		else
+			doStatus("STMt");
+	}
+
+	return true;
 }

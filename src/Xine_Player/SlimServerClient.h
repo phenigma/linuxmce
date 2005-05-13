@@ -8,40 +8,59 @@
 // #include "SlimDataBufferHandler.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 
+#include "DataReaderThread.h"
+
 class SlimDataHandler;
 class XineSlaveWrapper;
 
 class SlimServerClient
 {
 public:
-    typedef enum threadState
-	{
-		THREAD_STOPPED,
-		THREAD_CONNECTING,
-		THREAD_CONNECTED,
-		THREAD_PLAYING,
-		THREAD_PAUSED,
-		THREAD_EXITING
-	} ThreadStateType;
+	class CommandConnState {
+		public: typedef enum {
+			DISCONNECTED,
+			CONNECTING,
+			NOT_CONNECTED,
+			CONNECTED
+		} State;
+	};
 
-    typedef enum threadCommand
-	{
-		THREAD_UNKNOWN,
-		THREAD_START,
-		THREAD_STOP,
-		THREAD_PLAY,
-		THREAD_PAUSE,
-		THREAD_EXIT
-	} ThreadCommandType;
+	class DataConnState	{
+		public: typedef enum {
+				NOT_CONNECTED,
+				CONNECTED
+			} State;
+	};
+
+// 	typedef enum threadState
+// 	{
+// 		THREAD_STOPPED,
+// 		THREAD_CONNECTING,
+// 		THREAD_CONNECTED,
+// 		THREAD_PLAYING,
+// 		THREAD_PAUSED,
+// 		THREAD_EXITING
+// 	} ThreadStateType;
+//
+//     typedef enum threadCommand
+// 	{
+// 		THREAD_UNKNOWN,
+// 		THREAD_START,
+// 		THREAD_STOP,
+// 		THREAD_PLAY,
+// 		THREAD_PAUSE,
+// 		THREAD_EXIT
+// 	} ThreadCommandType;
 
 private:
 
-	ThreadStateType 		dataThreadState, commandThreadState;
-	ThreadCommandType		dataThreadCommand, commandThreadCommand;
+	CommandConnState::State 	commandConnectionState;
+	DataConnState::State 		dataConnectionState;
 
 	XineSlaveWrapper 		*m_pXineSlave;
 	pluto_pthread_mutex_t   *m_pXineSlaveMutex;
 
+	DataReaderThread 	*m_pDataReaderThread;
 	SlimDataHandler 	*m_pSlimDataHandler;
 	SlimCommandHandler 	*m_pSlimCommandHandler;
 
@@ -59,9 +78,7 @@ private:
 public:
     SlimServerClient();
 
-	virtual bool commandDataThread(ThreadCommandType threadCommand);
 	virtual bool connectToServer(std::string serverUrl, int controlledStreamID);
-	virtual bool isConnecting(int iStreamID);
 	virtual bool isConnected(int iStreamID);
 	virtual void disconnectFromServer(int iStreamID);
 
@@ -71,6 +88,7 @@ public:
 
     virtual ~SlimServerClient();
 
+	DataReaderThread 	*getDataReaderThread();
 	SlimDataHandler		*getSlimDataHandler();
 	SlimCommandHandler	*getSlimCommandHandler();
 
