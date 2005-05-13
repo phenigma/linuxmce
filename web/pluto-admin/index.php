@@ -1117,6 +1117,12 @@ switch ($section) {
 	    include_once('operations/logs/followLog.php');
 	    followLog($output,$dbADO);
 	break;	
+	case 'wapSettings';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/network/wapSettings.php');
+	    wapSettings($output,$dbADO);
+	break;	
 
 	
 	case '';

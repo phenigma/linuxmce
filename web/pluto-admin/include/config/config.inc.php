@@ -11,6 +11,7 @@
   		$GLOBALS['roomsPicsPath']='/var/www/pluto-admin/rooms/';
   		$GLOBALS['scenariosPicsPath']='/var/www/pluto-admin/scenarios/';
   		$GLOBALS['pluto.conf']='/etc/pluto.conf';
+  		$GLOBALS['wap.conf']='/etc/wap.conf';
   	}else{
   		error_reporting(E_ALL);
   		$GLOBALS['globalConfigPath']='/home/users/vali/work/web/globalconfig/';
@@ -19,6 +20,7 @@
   		$GLOBALS['roomsPicsPath']='/home/users/vali/work/web/pluto-admin/rooms/';
   		$GLOBALS['scenariosPicsPath']='/home/users/vali/work/web/pluto-admin/scenarios/';
   		$GLOBALS['pluto.conf']='/home/users/vali/work/web/pluto.conf';
+  		$GLOBALS['wap.conf']='/home/users/vali/work/web/wap.conf';
   	}
 
   	include_once($GLOBALS['globalConfigPath'].'globalconfig.inc.php');
