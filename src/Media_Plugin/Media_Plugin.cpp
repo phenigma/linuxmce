@@ -2811,8 +2811,10 @@ void Media_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Use
 		g_pPlutoLogger->Write(LV_WARNING,"Move Media left, but user %d isn't listening to anything.  Open Streams: %d",iPK_Users,(int) m_mapMediaStream.size());
 	else
 	{
+		g_pPlutoLogger->Write(LV_WARNING,"Before Move Media, user %d -- parking stream %d %s",
+			iPK_Users,pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
 		CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),"");  // Park it for the time being
-		g_pPlutoLogger->Write(LV_WARNING,"Move Media left, user %d -- parking stream %d %s",iPK_Users,pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
+		g_pPlutoLogger->Write(LV_WARNING,"After Move Media");
 	}
 }
 
