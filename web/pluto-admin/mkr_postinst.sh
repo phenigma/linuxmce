@@ -109,3 +109,7 @@ chmod 440 /etc/sudoers
 
 sed -i 's/^session.gc_maxlifetime = 1440$/session.gc_maxlifetime = 144000/' /etc/php4/apache2/php.ini
 /etc/init.d/apache2 reload
+
+[[ -f /etc/wap.conf ]] || : >/etc/wap.conf
+chown www-data.root /etc/wap.conf
+chmod 664 /etc/wap.conf
