@@ -140,7 +140,7 @@ void *HandleBDCommandProcessorThread( void *p )
     const string csPlutoMOConfigFile = "/usr/pluto/bin/PlutoMO.cfg";
     if(FileUtils::FileExists(csPlutoMOConfigFile))
     {
-        string sDestionationVMCFileName = "PlutoMO.cfg";
+        string sDestionationCfgFileName = "PlutoMO.cfg";
 
         size_t iSize = 0;
         char *pData = FileUtils::ReadFileIntoBuffer(csPlutoMOConfigFile, iSize);
@@ -150,9 +150,9 @@ void *HandleBDCommandProcessorThread( void *p )
             g_pPlutoLogger->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", sVMC_File.c_str(), iSize);
 
             BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(
-                const_cast<char *>(sDestionationVMCFileName.c_str()), 
+                const_cast<char *>(sDestionationCfgFileName.c_str()), 
                 pData, 
-                (unsigned long)sDestionationVMCFileName.length(), 
+                (unsigned long)sDestionationCfgFileName.length(), 
                 (unsigned long)iSize
                 );
             pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_SendFile );            

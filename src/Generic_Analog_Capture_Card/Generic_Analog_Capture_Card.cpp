@@ -399,6 +399,8 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 						
 						g_pPlutoLogger->Write(LV_STATUS, "Sending Reply message to sender.");
 						
+                            pMessage->m_bRespondedToMessage=true;
+
 							Message *pMessageOut=new Message(pMessage->m_dwPK_Device_To, pMessage->m_dwPK_Device_From,
 																	PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 0);
 							pMessageOut->m_mapData_Parameters[19]=pFileData; 
