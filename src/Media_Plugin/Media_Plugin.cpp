@@ -444,7 +444,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
-	bool bWithErrors = pMessage->m_mapParameters[EVENTPARAMETER_With_Errors_CONST];
+	bool bWithErrors = pMessage->m_mapParameters[EVENTPARAMETER_With_Errors_CONST]=="1";
     MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID );
 
     if ( pMediaStream == NULL )
