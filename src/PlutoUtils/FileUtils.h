@@ -53,6 +53,8 @@ namespace FileUtils
 	Optionally recurse into sub-directories up to a level (500 by default). If the max depth was hit return true. 
 	The prepended path will be prepended to any files that are found.  Normally this is for internal use only while recursing. */
 	bool FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""); 
+	/** < same thing as FindFiles, but returns Directories instead */
+	bool FindDirectories(list<string> &listFiles,string sDirectory,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""); 
 	bool PUCopyFile(string sSource,string sDestination); /** < Copies a file from sSource to sDestination.  returns false if it fails, true otherwise */
 	bool LaunchProcessInBackground(string sCommandLine);
     string FileChecksum( string sFileName); /** < returns file's checksum */

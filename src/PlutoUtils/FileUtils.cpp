@@ -488,14 +488,12 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
         if (!(finddata.attrib & _A_SUBDIR) && finddata.name[0] != '.')
         {
             string::size_type pos = 0;
-            for (;;)
+            while(true)
             {
                 string s = StringUtils::Tokenize(sFileSpec_CSV, ",", pos);
-                if (s.substr(0,1) == "*")
+                if (s.size() && s.substr(0,1) == "*")
                     s = s.substr(1);  // If it's a *.ext drop the *
-                if (s == "")
-                    break;
-                if (s == ".*" || s == "*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )
+                if (sFileSpec_CSV.size()==0 || (s.size() && (s == ".*" || s == "*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )) )
                 {
 					if( bFullyQualifiedPath )
 	                    listFiles.push_back(sDirectory + finddata.name);
@@ -503,6 +501,8 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 	                    listFiles.push_back(PrependedPath + finddata.name);
                     break;
                 }
+                if (pos>=sFileSpec_CSV.size())
+                    break;
             }
 
 			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
@@ -522,11 +522,9 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
     DIR * dirp = opendir(sDirectory.c_str());
     struct dirent entry;
     struct dirent * direntp = & entry;
-// g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
 
     if (dirp == NULL)
     {
-//      g_pPlutoLogger->Write(LV_CRITICAL, "opendir1 %s failed: %s", BasePath.c_str(), strerror(errno));
         return false;
     }
 
@@ -557,26 +555,23 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 
         if (!S_ISDIR(s.st_mode) && entry.d_name[0] != '.' )
         {
-// g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
             size_t pos = 0;
-            for (;;)
+            while(true)
             {
                 string s = StringUtils::Tokenize(sFileSpec_CSV, string(","), pos);
-// g_pPlutoLogger->Write(LV_STATUS, "comparing extension %s", s.c_str());
 //				if (s.substr(0,1) == "*")  // If it's a *.ext drop the *
 //					s = s.substr(1);
-				if (s == "")
-					break;
 //				if (s == ".*" || s == "*" || StringUtils::EndsWith(entry.d_name, s.c_str(),true) )
-				if (fnmatch(s.c_str(), entry.d_name, 0) == 0 || StringUtils::EndsWith(entry.d_name, s.c_str(),true))
+				if (sFileSpec_CSV.size()==0 || fnmatch(s.c_str(), entry.d_name, 0) == 0 || StringUtils::EndsWith(entry.d_name, s.c_str(),true))
 				{
-// g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
 					if( bFullyQualifiedPath )
 						listFiles.push_back(sDirectory + entry.d_name);
 					else
 						listFiles.push_back(PrependedPath + entry.d_name);
 					break;
 				}
+                if (pos>=sFileSpec_CSV.size())
+                    break;
             }
 
 			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
@@ -594,6 +589,89 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 	return false; // if we are here it means we didn't hit the bottom return false.
 }
 
+bool FileUtils::FindDirectories(list<string> &listDirectories, string sDirectory, bool bRecurse, bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath)
+{
+    if( !StringUtils::EndsWith(sDirectory,"/") )
+        sDirectory += "/";
+
+#ifdef WIN32
+    intptr_t ptrFileList;
+    _finddata_t finddata;
+
+    ptrFileList = _findfirst((sDirectory + "*.*").c_str(), & finddata);
+    while (ptrFileList != -1)
+    {
+        if ( finddata.attrib & _A_SUBDIR && finddata.name[0] != '.')
+        {
+			if( bFullyQualifiedPath )
+	            listDirectories.push_back(sDirectory + finddata.name);
+			else
+	            listDirectories.push_back(PrependedPath + finddata.name);
+
+			if ( iMaxFileCount && iMaxFileCount < listDirectories.size() )
+				return true; // max depth hit
+			if (bRecurse && FindDirectories(listDirectories, sDirectory + finddata.name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
+					return true; // if one recursive call hit the maximum depth then return now.
+		}
+        if (_findnext(ptrFileList, & finddata) < 0)
+            break;
+    }
+
+    _findclose(ptrFileList);
+#else // Linux
+    DIR * dirp = opendir(sDirectory.c_str());
+    struct dirent entry;
+    struct dirent * direntp = & entry;
+
+    if (dirp == NULL)
+    {
+        return false;
+    }
+
+    int x;
+    while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
+    {
+		struct stat s;
+		lstat((sDirectory + entry.d_name).c_str(), &s);
+
+		if ( S_ISLNK(s.st_mode) )
+		{
+			char *pLinkContents = new char[s.st_size + 1];
+			if ( -1 == readlink((sDirectory + entry.d_name).c_str(),  pLinkContents, s.st_size) )
+			{
+				printf("Error reading link contents for symlink %s (%s).\n", (sDirectory + entry.d_name).c_str(), strerror(errno));
+				delete[] pLinkContents;
+				continue;
+			}
+			if ( pLinkContents[0] == '.' && s.st_size == 1 )
+			{
+				delete[] pLinkContents;
+				continue;
+			}
+
+			delete[] pLinkContents;
+			stat((sDirectory + entry.d_name).c_str(), &s);
+		}
+
+        if (S_ISDIR(s.st_mode) && entry.d_name[0] != '.' )
+        {
+			if( bFullyQualifiedPath )
+				listDirectories.push_back(sDirectory + entry.d_name);
+			else
+				listDirectories.push_back(PrependedPath + entry.d_name);
+
+			if ( iMaxFileCount && iMaxFileCount < listDirectories.size() )
+				return true;
+        
+			if (bRecurse && FindDirectories( listDirectories, sDirectory + entry.d_name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/" ) )
+				return true;
+		}
+    }
+    closedir (dirp);
+#endif
+
+	return false; // if we are here it means we didn't hit the bottom return false.
+}
 // Use a 1 meg buffer
 #define BUFFER_SIZE		1000000
 #include <iostream>
@@ -645,7 +723,6 @@ bool FileUtils::LaunchProcessInBackground(string sCommandLine)
 {
     if (sCommandLine == "")
     {
-        // g_pPlutoLogger->Write(LV_WARNING, "FileUtils::LaunchProcessInBackground(): Invalid parameters (empty params)");
         return false;
     }
 
