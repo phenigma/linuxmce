@@ -145,6 +145,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 	*pData=NULL;
 
 #ifdef DEBUG
+	clock_t cStart=clock(); // move this to within #debug
 	g_pPlutoLogger->Write( LV_DATAGRID, "Requesting grid: %s", sDataGrid_ID.c_str() );
 #endif
 	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
@@ -161,8 +162,6 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 	g_pPlutoLogger->Write( LV_DATAGRID, "Found grid: %s", sDataGrid_ID.c_str() );
 #endif
 
-	//	try
-//	{
 		pDataGridTable = ( *dg ).second;
 
 		if( pDataGridTable->m_bRePopulateEachTimeRequested )
@@ -218,13 +217,7 @@ g_pPlutoLogger->Write( LV_DATAGRID, "it has a seek value grid: %s rows: %d", sDa
 				{
 					while(CellText[++posStart]!='`');
 				}
-/* don't remember what this was needed for.  It just strips off the first character??
-				posEnd = CellText.find('\n');
-				if( posEnd )
-					CellText = CellText.substr(posStart+1,posEnd-posStart-1);
-				else
-					CellText = CellText.substr(posStart+1);
-*/
+
 				// If we're looking for a specific ID, we need to match it.  Otherwise we're looking for 
 				// a value and will assume anything past the value is okay.
 				if( bValue==false && CellText>sSeek )
@@ -243,26 +236,10 @@ g_pPlutoLogger->Write( LV_DATAGRID, "ready to call todata: %s ", sDataGrid_ID.c_
 #endif
 
 		pDataGridTable->ToData( sDataGrid_ID, *iData_Size, *pData, iColumn, *iRow, iColumn_count, iRow_count );
-		// hack, what the hell. If I delete the pointer, the system crashes. But it's a valid pointer. It was just allocated in the prior todata
-		/*
-		g_ptest=*pData;
-		delete[] ( *pData );
-		*/
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d", sDataGrid_ID.c_str(), *iData_Size, iColumn_count, iRow_count );
+		clock_t cStop = clock();
+		g_pPlutoLogger->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d %s ms", sDataGrid_ID.c_str(), *iData_Size, iColumn_count, iRow_count, (int) (cStop-cStart) );
 #endif
-/*
-	}
-	catch( ... )
-	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Exception getting grid #%s pointer %p", sDataGrid_ID.c_str(), pDataGridTable );
-		g_pPlutoLogger->Write( LV_CRITICAL, "col start: %d row start: %d col count: %d rowcount: %d", iColumn, iRow, iColumn_count, iRow_count );
-#ifdef USE_DATAGRID2
-		if( pDataGridTable )
-			g_pPlutoLogger->Write( LV_CRITICAL, "cell count: %d col count: %d row count %d", pDataGridTable->m_CellCount, pDataGridTable->m_ColumnCount, pDataGridTable->m_RowCount );
-#endif
-	}
-*/
 }
 
 //<-dceag-c35-b->
@@ -296,7 +273,10 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
 	string::size_type pos=0;
 
+#ifdef DEBUG
+	clock_t cStart=clock(); // move this to within #debug
 	g_pPlutoLogger->Write( LV_STATUS, "About to populate grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+#endif
 
 	DataGridTable *pDataGridTable=NULL;
 	map<int, class DataGridGeneratorCallBack *>::iterator itGridCB = m_mapDataGridGeneratorCallBack.find( iPK_DataGrid );
@@ -334,7 +314,10 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 	*iWidth=pDataGridTable->GetCols();
 	*iHeight=pDataGridTable->GetRows();
 	m_DataGrids[sDataGrid_ID]=pDataGridTable;
-	g_pPlutoLogger->Write( LV_STATUS, "Returning from populate grid successful? %s", (*bIsSuccessful ? "Y" : "N") );
+#ifdef DEBUG
+	clock_t cStop = clock();
+	g_pPlutoLogger->Write( LV_STATUS, "Returning from populate grid successful? %s %d ms", (*bIsSuccessful ? "Y" : "N"), (int) (cStop-cStart) );
+#endif
 	return;
 }
 
