@@ -225,6 +225,7 @@ cout << "GetFileAttribute " << sDirectory << " / " << sFile << " " << value << e
 }
 #endif
 cout << "GetFileAttribute " << sDirectory << " / " << sFile << " not found " << endl;
+	return 0;
 }        
 
 
