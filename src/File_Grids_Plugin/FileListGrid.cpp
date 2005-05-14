@@ -84,14 +84,17 @@ g_pPlutoLogger->Write(LV_STATUS, "Pic for %s is: %d",flInfo->m_sPath.c_str( ),PK
 			if( PKID_MED_Picture )
 			{
 				PictureFile = "/home/mediapics/" + StringUtils::itos(PKID_MED_Picture) + "_tn.jpg";
-//g_pPlutoLogger->Write(LV_STATUS, "Loking for file: %s", PictureFile.c_str());
-#ifdef WIN32
-				string::size_type s;
-				while( (s=PictureFile.find('/'))!=string::npos )
-					PictureFile.replace(s,1,"\\");
-#endif
 				pIconBuffer = FileUtils::ReadFileIntoBuffer(PictureFile,stIconSize);
+g_pPlutoLogger->Write(LV_STATUS, "Pic file: %s has size: %d", PictureFile.c_str(),stIconSize);
 				format = GR_JPG;
+			}
+
+			if( pIconBuffer )
+			{
+				if( !pCell )
+					pCell = new DataGridCell("","");
+				pCell->SetImage(pIconBuffer,(int) stIconSize,format);
+				SetData(0,row,pCell);
 			}
 		}
 	}
