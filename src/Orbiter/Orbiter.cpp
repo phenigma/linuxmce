@@ -1926,7 +1926,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
 	{
 		CMD_Set_Text(pDesignObj_Orbiter->m_ObjectID, StringUtils::itos(	int(m_tTimeoutTime - time(NULL)) ) + " seconds",TEXT_USR_ENTRY_CONST);
-		CMD_Continuous_Refresh("1");
+		CMD_Continuous_Refresh("10");
 	}
 }
 

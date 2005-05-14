@@ -67,6 +67,9 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 			enum eGraphicFormat format;
 
 			FileListInfo *flInfo = m_vectFileInfo[row];
+			if( flInfo->m_bIsBack )
+				continue;
+
 			int n = 79,result;
 			char value[80];
 			memset( value, 0, sizeof( value ) );
@@ -107,6 +110,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Pic file: %s has size: %d", PictureFile.c_str(
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
 	}
+g_pPlutoLogger->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
 #endif
 
 #endif
