@@ -335,7 +335,7 @@ public:
     /**
      * @brief Fired by a xineStream object when the stream has completed playback
      */
-    void playbackCompleted(int iStreamID);
+    void playbackCompleted(int iStreamID,bool bWithErrors);
 
     /**
      * @brief Find current position for stream.

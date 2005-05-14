@@ -353,12 +353,12 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
 //             }
         }
        	else
-			xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
+			xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
     }
     else
     {
         g_pPlutoLogger->Write(LV_STATUS, "Failed to open %s", fileName.c_str());
-        xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
+        xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,true);
     }
 
 	return true;
@@ -564,7 +564,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
                 send_event(XINE_SE_PLAYBACK_FINISHED, "");
         */
             g_pPlutoLogger->Write(LV_WARNING, "Playback finished for m_pstream: %d", xineStream->m_iStreamID);
-            xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
+            xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
             xineStream->m_bIsRendering = false;
             break;
 		case XINE_EVENT_QUIT:
@@ -1555,10 +1555,10 @@ void XineSlaveWrapper::selectMenu(int iStreamID, int iMenuType)
     xine_event_send(xineStream->m_pStream, &xine_event);
 }
 
-void XineSlaveWrapper::playbackCompleted(int iStreamID)
+void XineSlaveWrapper::playbackCompleted(int iStreamID,bool bWithErrors)
 {
     g_pPlutoLogger->Write(LV_STATUS, "Fire playback completed event");
-    this->m_pAggregatorObject->EVENT_Playback_Completed(iStreamID);
+    this->m_pAggregatorObject->EVENT_Playback_Completed(iStreamID,bWithErrors);
 }
 
 int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime, int &totalTime)

@@ -26,9 +26,9 @@ public:
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 7,2,9,StringUtils::itos(iStream_ID).c_str(),10,(bOnOff ? "1" : "0")));
 	}
 
-	virtual void Playback_Completed(int iStream_ID)
+	virtual void Playback_Completed(int iStream_ID,bool bWith_Errors)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 12,1,9,StringUtils::itos(iStream_ID).c_str()));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 12,2,9,StringUtils::itos(iStream_ID).c_str(),37,(bWith_Errors ? "1" : "0")));
 	}
 
 };
@@ -44,6 +44,7 @@ public:
 	virtual int GetPK_DeviceList() { return 5; } ;
 	virtual const char *GetDeviceDescription() { return "Xine_Player"; } ;
 	string Get_Output_Speaker_arrangement() { return m_mapParameters[71];}
+	string Get_Alsa_Output_Device() { return m_mapParameters[74];}
 };
 
 
@@ -87,10 +88,11 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	string DATA_Get_Output_Speaker_arrangement() { return GetData()->Get_Output_Speaker_arrangement(); }
+	string DATA_Get_Alsa_Output_Device() { return GetData()->Get_Alsa_Output_Device(); }
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }
-	void EVENT_Playback_Completed(int iStream_ID) { GetEvents()->Playback_Completed(iStream_ID); }
+	void EVENT_Playback_Completed(int iStream_ID,bool bWith_Errors) { GetEvents()->Playback_Completed(iStream_ID,bWith_Errors); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,class Message *pMessage) {};

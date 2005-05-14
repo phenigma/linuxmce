@@ -444,7 +444,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
-
+	bool bWithErrors = pMessage->m_mapParameters[EVENTPARAMETER_With_Errors_CONST];
     MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID );
 
     if ( pMediaStream == NULL )
@@ -471,7 +471,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 //     }
 
 	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::PlaybackCompleted() Checking conditions: canPlayMore: %d, shouldResume %d", pMediaStream->CanPlayMore(), pMediaStream->m_bResume);
-    if ( pMediaStream->CanPlayMore() && !pMediaStream->m_bResume )
+    if ( !bWithErrors && pMediaStream->CanPlayMore() && !pMediaStream->m_bResume )
     {
         pMediaStream->ChangePositionInPlaylist(1);
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream);

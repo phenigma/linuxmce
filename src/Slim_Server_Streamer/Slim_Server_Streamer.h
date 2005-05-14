@@ -77,7 +77,6 @@ public:
 
 		virtual void OnQuit();
 //<-dceag-h-b->
-
 	/*
 				AUTO-GENERATED SECTION
 				Do not change the declarations
@@ -87,7 +86,7 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Playback_Completed(int iStream_ID);
+	void EVENT_Playback_Completed(int iStream_ID,bool bWith_Errors);
 
 			*****COMMANDS***** we need to implement
 	*/

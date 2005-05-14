@@ -188,7 +188,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	{
 		if ( ! m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From) )
 		{
-			EVENT_Playback_Completed(iStreamID);
+			EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
 			delete m_pXineSlaveControl;
 			m_pXineSlaveControl = NULL;
 		}
@@ -431,7 +431,7 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu
+0 - Root menu 
 1 - Title menu
 2 - Media menu */
 

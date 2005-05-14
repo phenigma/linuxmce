@@ -46,7 +46,6 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	int DATA_Get_PK_FloorplanObjectType();
 	string DATA_Get_COM_Port_on_PC();
 
 			*****EVENT***** accessors inherited from base class

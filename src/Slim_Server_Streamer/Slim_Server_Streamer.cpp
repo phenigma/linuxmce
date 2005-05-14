@@ -442,7 +442,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Sending playback completed event for stream %d", itStreamsToPlayers->first);
 				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
-				pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first);
+				pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first,true);
 			}
 			else if ( strResult == macAddress + " mode pause" )
 			{

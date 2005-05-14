@@ -16,9 +16,9 @@ public:
 	Slim_Server_Streamer_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
-	virtual void Playback_Completed(int iStream_ID)
+	virtual void Playback_Completed(int iStream_ID,bool bWith_Errors)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 12,1,9,StringUtils::itos(iStream_ID).c_str()));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 12,2,9,StringUtils::itos(iStream_ID).c_str(),37,(bWith_Errors ? "1" : "0")));
 	}
 
 };
@@ -76,7 +76,7 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
-	void EVENT_Playback_Completed(int iStream_ID) { GetEvents()->Playback_Completed(iStream_ID); }
+	void EVENT_Playback_Completed(int iStream_ID,bool bWith_Errors) { GetEvents()->Playback_Completed(iStream_ID,bWith_Errors); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,class Message *pMessage) {};
