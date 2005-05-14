@@ -25,6 +25,7 @@
 
 #ifndef WIN32
 #include <dirent.h>
+#include <attr/attributes.h>
 #endif
 
 #include <mysql.h>
