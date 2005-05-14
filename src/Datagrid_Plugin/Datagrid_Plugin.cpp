@@ -238,7 +238,7 @@ g_pPlutoLogger->Write( LV_DATAGRID, "ready to call todata: %s ", sDataGrid_ID.c_
 		pDataGridTable->ToData( sDataGrid_ID, *iData_Size, *pData, iColumn, *iRow, iColumn_count, iRow_count );
 #ifdef DEBUG
 		clock_t cStop = clock();
-		g_pPlutoLogger->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d %s ms", sDataGrid_ID.c_str(), *iData_Size, iColumn_count, iRow_count, (int) (cStop-cStart) );
+		g_pPlutoLogger->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d %d ms", sDataGrid_ID.c_str(), *iData_Size, iColumn_count, iRow_count, (int) (cStop-cStart) );
 #endif
 }
 
