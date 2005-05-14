@@ -46,8 +46,12 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, string db_name, 
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
 		return;
 	}
-	m_sDirectory=sDirectory;
+	m_sDirectory=StringUtils::Replace(sDirectory,"\\","/");  // Be sure no Windows \'s
 	m_sExtensions=sExtensions;
+
+	// We don't want a trailing slash on the directory
+	if( m_sDirectory.size() && m_sDirectory[ m_sDirectory.size()-1 ]=='/' )
+		m_sDirectory = m_sDirectory.substr(0,m_sDirectory.size()-1);
 }
 
 void UpdateMedia::DoIt()
