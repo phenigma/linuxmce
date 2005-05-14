@@ -16,7 +16,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 		$alertTypesLabels[$row['PK_AlertType']]=$row['Description'];
 	}
 	
-	$pullDownArray = array(0=>'Do Nothing',2=>'Announcement');
+	$pullDownArray = array(0=>'Do Nothing',2=>'Announcement',3=>'Snap Picture');
 	
 	$properties = array('disarmed', 'armed - away', 'armed - at home', 'sleeping', 'entertaining', 'extended away');
 	
