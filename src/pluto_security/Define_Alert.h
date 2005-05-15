@@ -7,8 +7,6 @@
 #define ALERT_PK_ALERT_TABLE_FIELD "Alert.PK_Alert"
 #define ALERT_FK_ALERTTYPE_FIELD "FK_AlertType"
 #define ALERT_FK_ALERTTYPE_TABLE_FIELD "Alert.FK_AlertType"
-#define ALERT_EK_DEVICE_FIELD "EK_Device"
-#define ALERT_EK_DEVICE_TABLE_FIELD "Alert.EK_Device"
 #define ALERT_DETECTIONTIME_FIELD "DetectionTime"
 #define ALERT_DETECTIONTIME_TABLE_FIELD "Alert.DetectionTime"
 #define ALERT_EXPIRATIONTIME_FIELD "ExpirationTime"

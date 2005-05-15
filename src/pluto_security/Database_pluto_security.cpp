@@ -20,9 +20,9 @@ Database_pluto_security::Database_pluto_security()
 {
 tblAlert=NULL;
 tblAlertType=NULL;
+tblAlert_Device=NULL;
 tblModeChange=NULL;
 tblNotification=NULL;
-tblPicture=NULL;
 tblpsc_security_batdet=NULL;
 tblpsc_security_bathdr=NULL;
 tblpsc_security_batuser=NULL;
@@ -40,9 +40,9 @@ void Database_pluto_security::DeleteAllTables()
 {
 DeleteTable_Alert();
 DeleteTable_AlertType();
+DeleteTable_Alert_Device();
 DeleteTable_ModeChange();
 DeleteTable_Notification();
-DeleteTable_Picture();
 DeleteTable_psc_security_batdet();
 DeleteTable_psc_security_bathdr();
 DeleteTable_psc_security_batuser();

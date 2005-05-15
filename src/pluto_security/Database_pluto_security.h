@@ -16,9 +16,9 @@ void DeleteAllTables();
 private:
 class Table_Alert* tblAlert;
 class Table_AlertType* tblAlertType;
+class Table_Alert_Device* tblAlert_Device;
 class Table_ModeChange* tblModeChange;
 class Table_Notification* tblNotification;
-class Table_Picture* tblPicture;
 class Table_psc_security_batdet* tblpsc_security_batdet;
 class Table_psc_security_bathdr* tblpsc_security_bathdr;
 class Table_psc_security_batuser* tblpsc_security_batuser;
@@ -28,9 +28,9 @@ class Table_psc_security_tables* tblpsc_security_tables;
 public:
 class Table_Alert* Alert_get() { if( !tblAlert ) CreateTable_Alert(); return tblAlert; }
 class Table_AlertType* AlertType_get() { if( !tblAlertType ) CreateTable_AlertType(); return tblAlertType; }
+class Table_Alert_Device* Alert_Device_get() { if( !tblAlert_Device ) CreateTable_Alert_Device(); return tblAlert_Device; }
 class Table_ModeChange* ModeChange_get() { if( !tblModeChange ) CreateTable_ModeChange(); return tblModeChange; }
 class Table_Notification* Notification_get() { if( !tblNotification ) CreateTable_Notification(); return tblNotification; }
-class Table_Picture* Picture_get() { if( !tblPicture ) CreateTable_Picture(); return tblPicture; }
 class Table_psc_security_batdet* psc_security_batdet_get() { if( !tblpsc_security_batdet ) CreateTable_psc_security_batdet(); return tblpsc_security_batdet; }
 class Table_psc_security_bathdr* psc_security_bathdr_get() { if( !tblpsc_security_bathdr ) CreateTable_psc_security_bathdr(); return tblpsc_security_bathdr; }
 class Table_psc_security_batuser* psc_security_batuser_get() { if( !tblpsc_security_batuser ) CreateTable_psc_security_batuser(); return tblpsc_security_batuser; }
@@ -44,9 +44,9 @@ void Disconnect();
 private:
 void CreateTable_Alert();
 void CreateTable_AlertType();
+void CreateTable_Alert_Device();
 void CreateTable_ModeChange();
 void CreateTable_Notification();
-void CreateTable_Picture();
 void CreateTable_psc_security_batdet();
 void CreateTable_psc_security_bathdr();
 void CreateTable_psc_security_batuser();
@@ -55,9 +55,9 @@ void CreateTable_psc_security_schema();
 void CreateTable_psc_security_tables();
 void DeleteTable_Alert();
 void DeleteTable_AlertType();
+void DeleteTable_Alert_Device();
 void DeleteTable_ModeChange();
 void DeleteTable_Notification();
-void DeleteTable_Picture();
 void DeleteTable_psc_security_batdet();
 void DeleteTable_psc_security_bathdr();
 void DeleteTable_psc_security_batuser();

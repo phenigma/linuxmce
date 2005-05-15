@@ -8,9 +8,9 @@ LDLIBS =  -lmysqlclient_r
 sources = Database_pluto_security.cpp TableRow.cpp \
 Table_Alert.cpp \
 Table_AlertType.cpp \
+Table_Alert_Device.cpp \
 Table_ModeChange.cpp \
 Table_Notification.cpp \
-Table_Picture.cpp \
 Table_psc_security_batdet.cpp \
 Table_psc_security_bathdr.cpp \
 Table_psc_security_batuser.cpp \

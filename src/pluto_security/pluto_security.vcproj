@@ -116,13 +116,13 @@
 				RelativePath=".\Table_AlertType.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Alert_Device.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_ModeChange.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Notification.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Picture.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_psc_security_batdet.cpp">
