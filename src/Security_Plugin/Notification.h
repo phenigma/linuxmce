@@ -32,6 +32,7 @@ namespace DCE
 
 		// Private member variables 
 	    pluto_pthread_mutex_t m_AlertMutex;
+		pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
 		Row_Alert *m_pRow_Alert;
 		class Security_Plugin *m_pSecurity_Plugin;
 		class Router *m_pRouter;
@@ -41,12 +42,16 @@ namespace DCE
 
 	public:
 		Notification(Security_Plugin *pSecurity_Plugin,Router *pRouter,Row_Alert *pRow_Alert);
+		~Notification();
 		void DoIt();
 
-		void NotifyOrbiters(bool bProcessInBackground);
-		void NotifyOthers(bool bProcessInBackground);
-		void NotifyOrbiter(string sPhoneNumber,int iDelay);
-		void NotifyOther(string sPhoneNumber,int iDelay);
+		bool NotifyLoop(int iType,bool bProcessInBackground);
+
+		// These functions do the actualy notification.  The will not return until
+		// the user acknowledges the alert, or until it times out in iDelay or MAX_TIMEOUT_FOR_PHONES seconds.
+		// It returns true if the user decided to cancel the event (ie reset the Alert)
+		bool NotifyOrbiter(string sPhoneNumber,int iDelay);
+		bool NotifyOther(string sPhoneNumber,int iDelay);
 	};
 }
 #endif

@@ -56,6 +56,7 @@ public:
     Database_pluto_main *m_pDatabase_pluto_main;
 	class FloorplanInfoProvider *m_pLighting_Floorplan,*m_pClimate_Floorplan,*m_pMedia_Floorplan,*m_pSecurity_Floorplan,*m_pTelecom_Floorplan;
 	class Media_Plugin *m_pMedia_Plugin;
+	class Security_Plugin *m_pSecurity_Plugin;
 
     // Private methods
     map<string,UnknownDeviceInfos *> m_mapUnknownDevices; // A temporary map to match Bluetooth Dongle's with devices they detect

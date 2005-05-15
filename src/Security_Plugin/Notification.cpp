@@ -67,8 +67,15 @@ Notification::Notification(Security_Plugin *pSecurity_Plugin,Router *pRouter,Row
 	m_pSecurity_Plugin=pSecurity_Plugin;
 	m_pRouter=pRouter;
 	m_pRow_Alert=pRow_Alert;
-	m_AlertMutex.Init(NULL);
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+	m_AlertMutex.Init(&m_MutexAttr);
 
+}
+
+Notification::~Notification()
+{
+    pthread_mutexattr_destroy(&m_MutexAttr);
 }
 
 NotificationInfo::~NotificationInfo() 
@@ -90,21 +97,23 @@ void Notification::DoIt()
 	if( pos!=string::npos && pos<m_sOther_Phone_Notifications.length()-1 )
 		iOrder = atoi( m_sOther_Phone_Notifications.substr(pos+1).c_str() );
 	
-	if( iOrder==1 )
+	am.Release();
+	if( iOrder==0 )
 	{
-		NotifyOrbiters(false);
-		NotifyOthers(false);
+		if( !NotifyLoop(TYPE_ORBITER,false) )
+			NotifyLoop(TYPE_OTHER,false);
 	}
-	else if( iOrder==2 )
+	else if( iOrder==1 )
 	{
-		NotifyOthers(false);
-		NotifyOrbiters(false);
+		if( !NotifyLoop(TYPE_OTHER,false) )
+			NotifyLoop(TYPE_ORBITER,false);
 	}
 	else
 	{
-		NotifyOthers(true);
-		NotifyOrbiters(true);
+		if( !NotifyLoop(TYPE_OTHER,true) )
+			NotifyLoop(TYPE_ORBITER,true);
 	}
+	am.Relock();
 
 	// Wait for any pending calls to complete before we exit
 	while( m_listNotificationInfo.size() )
@@ -115,19 +124,32 @@ void Notification::DoIt()
 	}
 }
 
-void Notification::NotifyOrbiters(bool bProcessInBackground)
+bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 {
 	PLUTO_SAFETY_LOCK(am,m_AlertMutex);
+	if( m_pRow_Alert->ResetTime_isNull()==false )  // If it's not null we handled it
+		return true;
+
+	string *s;
+	if( iType==TYPE_ORBITER )
+		s=&m_sOrbiterNotifications;
+	else
+		s=&m_sOther_Phone_Notifications;
+
 	string::size_type pos=0;
-	int iDelay = atoi(StringUtils::Tokenize(m_sOrbiterNotifications,",",pos).c_str());
-	while( pos<m_sOrbiterNotifications.size() && pos!=string::npos )
+	int iDelay = atoi(StringUtils::Tokenize((*s),",",pos).c_str());
+
+	if( iType==TYPE_OTHER )
+		StringUtils::Tokenize((*s),",",pos); // Pop the execution order off--we don't need it here
+
+	while( pos<(*s).size() && pos!=string::npos )
 	{
-        string sPhoneNumber = StringUtils::Tokenize(m_sOrbiterNotifications,",",pos);
-		bool bMonitor = StringUtils::Tokenize(m_sOrbiterNotifications,",",pos)=="1";
-		bool bSecurity = StringUtils::Tokenize(m_sOrbiterNotifications,",",pos)=="1";
-		bool bFire = StringUtils::Tokenize(m_sOrbiterNotifications,",",pos)=="1";
-		bool bAirQuality = StringUtils::Tokenize(m_sOrbiterNotifications,",",pos)=="1";
-		bool bDoorbell = StringUtils::Tokenize(m_sOrbiterNotifications,",",pos)=="1";
+        string sPhoneNumber = StringUtils::Tokenize((*s),",",pos);
+		bool bMonitor = StringUtils::Tokenize((*s),",",pos)=="1";
+		bool bSecurity = StringUtils::Tokenize((*s),",",pos)=="1";
+		bool bFire = StringUtils::Tokenize((*s),",",pos)=="1";
+		bool bAirQuality = StringUtils::Tokenize((*s),",",pos)=="1";
+		bool bDoorbell = StringUtils::Tokenize((*s),",",pos)=="1";
 
 		if( 	(m_pRow_Alert->FK_AlertType_get()==ALERTTYPE_Monitor_mode_CONST && !bMonitor) ||
 				(m_pRow_Alert->FK_AlertType_get()==ALERTTYPE_Security_CONST && !bSecurity) ||
@@ -140,7 +162,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Skipping orbiter %s",sPhoneNumber.c_str());
 }
 
 		if( iDelay>0 )
-			NotifyOrbiter(sPhoneNumber,iDelay);  // Function will give that phone iDelay seconds
+		{
+			if( NotifyOrbiter(sPhoneNumber,iDelay) )  // Function will give that phone iDelay seconds
+				return true;  // Stop notifying others
+		}
 		else
 		{
 			NotificationInfo *pNotificationInfo = new NotificationInfo(this,TYPE_ORBITER,sPhoneNumber);
@@ -151,26 +176,27 @@ g_pPlutoLogger->Write(LV_STATUS,"Skipping orbiter %s",sPhoneNumber.c_str());
 	}
 
 	// Wait for any pending calls to complete before we exit if we're not processing in the background
-	while( !bProcessInBackground && m_listNotificationInfo.size() )
+	while( !bProcessInBackground && m_listNotificationInfo.size() && m_pRow_Alert->ResetTime_isNull() )
 	{
 		am.Release();
 		Sleep(1000);  // They may need to use the lock to add/delete themselves from m_listNotificationInfo
 		am.Relock();
 	}
+
+	return m_pRow_Alert->ResetTime_isNull()==false;  // If it's not null we handled it
 }
 
-void Notification::NotifyOthers(bool bProcessInBackground)
-{
-}
-
-void Notification::NotifyOrbiter(string sPhoneNumber,int iDelay)
+bool Notification::NotifyOrbiter(string sPhoneNumber,int iDelay)
 {
 	// iDelay = How many seconds to wait for the phone to respond and acknowledge
 	if( iDelay==0 )
 		iDelay = MAX_TIMEOUT_FOR_PHONES;
+
+	return false;
 }
 
-void Notification::NotifyOther(string sPhoneNumber,int iDelay)
+bool Notification::NotifyOther(string sPhoneNumber,int iDelay)
 {
+	return false;
 }
 

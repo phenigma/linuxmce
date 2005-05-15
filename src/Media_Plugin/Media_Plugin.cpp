@@ -222,6 +222,7 @@ Media_Plugin::~Media_Plugin()
 
     delete m_pGenericMediaHandlerInfo;
 	delete m_pGeneric_NonPluto_Media;
+    pthread_mutexattr_destroy(&m_MutexAttr);
 }
 
 //<-dceag-reg-b->

@@ -131,6 +131,8 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 	}
 
 	m_pDeviceData_Router_this = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
+	m_bMonitorMode = m_pDeviceData_Router_this->m_sStatus_get()=="1";
+	SetMonitorModeBoundIcon();
 
 	Row_Text_LS *pRow_Text_LS = m_pDatabase_pluto_main->Text_LS_get()->GetRow(TEXT_Countdown_before_alarm_CONST,m_pRouter->iPK_Language_get());
 	if( pRow_Text_LS )
@@ -204,7 +206,8 @@ Security_Plugin::~Security_Plugin()
 
 	delete m_pDatabase_pluto_main;
 	delete m_pDatabase_pluto_security;
-	
+
+    pthread_mutexattr_destroy(&m_MutexAttr);
 }
 
 //<-dceag-reg-b->
@@ -318,11 +321,6 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 {
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	int PK_HouseMode = atoi(sValue_To_Assign.c_str());
-	if( PK_HouseMode<HOUSEMODE_Unarmed_at_home_CONST || PK_HouseMode>HOUSEMODE_Armed_Extended_away_CONST )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to set invalid house mode: %d",PK_HouseMode);
-		return;
-	}
 
 	// The password can either be the password or teh PIN code, and either plain text or md5.  iPK_Users is optional
 	ostringstream sql;
@@ -346,6 +344,19 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 
 	m_tExitTime=0;
 	m_pAlarmManager->CancelAlarmByType(PROCESS_COUNTDOWN_BEFORE_ARMED);
+
+	if( PK_HouseMode==-1 || PK_HouseMode==-2 )
+	{
+		m_bMonitorMode=(PK_HouseMode==-1);
+		SetMonitorModeBoundIcon();
+		return;
+	}
+
+	if( PK_HouseMode<HOUSEMODE_Unarmed_at_home_CONST || PK_HouseMode>HOUSEMODE_Armed_Extended_away_CONST )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to set invalid house mode: %d",PK_HouseMode);
+		return;
+	}
 
 	bool bFailed=false; // Will be set to true if any of the devices fail to get set
 	bool bSensorsActive=false; // Will be set to true if any sensors are set to active/arme
@@ -416,21 +427,11 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		{
 			DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceGroup->m_vectDeviceData_Base[s];  // it's coming from the router, so it's safe to cast it
 			if( pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_Orbiter_CONST )
-			{
-				DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pDevice->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode");
-				SendCommand(CMD_Set_Bound_Icon);
-			}
+				SetHouseModeBoundIcon(m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice->m_dwPK_Device));
 		}
 	}
 	else
-	{
-		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
-		{
-			OH_Orbiter *pOH_Orbiter = (*it).second;
-			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode");
-			SendCommand(CMD_Set_Bound_Icon);
-		}
-	}
+		SetHouseModeBoundIcon();
 	
 	DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), "", "", false, true );
 
@@ -574,6 +575,16 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 			pDevice->m_sState_set(Mode + ",," + sPK_ModeChange );
 		return true;
 	}
+
+	// The first digit in the alert data is 0/1 for monitor mode
+	if( m_bMonitorMode && atoi(pDevice->m_mapParameters[DEVICEDATA_Alert_CONST].c_str()) )
+	{
+		// Monitor mode is on, so no matter what notify the appropriate users
+		Row_Alert *pRow_Alert = LogAlert( m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Monitor_mode_CONST),pDevice);
+		if( pRow_Alert )
+			ProcessAlert(pRow_Alert);
+	}
+
 
 	int PK_AlertType = GetAlertType(PK_HouseMode,pDevice);
 	if( PK_AlertType==ALERTTYPE_DONOTHING )
@@ -863,3 +874,4 @@ g_pPlutoLogger->Write(LV_STATUS,"new alert PK: %d",pRow_Alert->PK_Alert_get());
 
 	return bNewAlert ? pRow_Alert : NULL;
 }
+

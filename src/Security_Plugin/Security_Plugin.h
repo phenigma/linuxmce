@@ -24,6 +24,7 @@ class Row_ModeChange;
 #include "AlarmManager.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "Orbiter_Plugin/FollowMe_Device.h"
+#include "Orbiter_Plugin/Orbiter_Plugin.h"
 
 /*
 	All sensors' states are in this form: Mode,Bypass,Delay
@@ -63,6 +64,7 @@ namespace DCE
     Row_ModeChange *m_mapRow_ModeChange_Last_Find(int PK_DeviceGroup) { map<int,class Row_ModeChange *>::iterator it = m_mapRow_ModeChange_Last.find(PK_DeviceGroup); return it==m_mapRow_ModeChange_Last.end() ? NULL : (*it).second; }
 	int m_PK_Device_TextToSpeach;
 	map<pthread_t,class Notification *> m_mapNotification; // Any pending notifications
+	bool m_bMonitorMode; // True if the user is monitoring events
 	
 	// The announcements we'll need to make are stored here.  They come from the Text_LS table
 	string m_sCountdownBeforeAlarm,m_sCountdownBeforeArmed,m_sShortCountdownBeforeAlarm,m_sShortCountdownBeforeArmed;
@@ -171,6 +173,34 @@ public:
 
 
 //<-dceag-h-e->
+	// make these inline so Orbiter Plugin can call them without adding the security plugin.cpp file
+	// TODO: All the plugins should call the other plugins using the shared objects/dll's rather than static linking
+	void Security_Plugin::SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare=NULL)
+	{
+		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+		{
+			OH_Orbiter *pOH_Orbiter = (*it).second;
+			if( pOH_Orbiter==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
+			{
+				DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos((int) m_bMonitorMode),"monitormode");
+				SendCommand(CMD_Set_Bound_Icon);
+			}
+		}
+	}
+
+	void Security_Plugin::SetHouseModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare=NULL)
+	{
+		int PK_HouseMode = atoi(m_pDeviceData_Router_this->m_sState_get().c_str());
+		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+		{
+			OH_Orbiter *pOH_Orbiter = (*it).second;
+			if( pOH_Orbiter==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
+			{
+				DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode");
+				SendCommand(CMD_Set_Bound_Icon);
+			}
+		}
+	}
 };
 
 //<-dceag-end-b->
