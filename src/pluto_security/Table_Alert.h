@@ -77,6 +77,7 @@ class DLL_EXPORT Row_Alert : public TableRow, public SerializeClass
 		
 		long int m_PK_Alert;
 long int m_FK_AlertType;
+long int m_EK_Device;
 string m_DetectionTime;
 string m_ExpirationTime;
 short int m_ResetBeforeExpiration;
@@ -91,11 +92,12 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[15];
+		bool is_null[16];
 	
 	public:
 		long int PK_Alert_get();
 long int FK_AlertType_get();
+long int EK_Device_get();
 string DetectionTime_get();
 string ExpirationTime_get();
 short int ResetBeforeExpiration_get();
@@ -113,6 +115,7 @@ string psc_mod_get();
 		
 		void PK_Alert_set(long int val);
 void FK_AlertType_set(long int val);
+void EK_Device_set(long int val);
 void DetectionTime_set(string val);
 void ExpirationTime_set(string val);
 void ResetBeforeExpiration_set(short int val);
@@ -176,13 +179,14 @@ void Notification_FK_Alert_getrows(vector <class Row_Notification*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Alert+ m_FK_AlertType+ m_DetectionTime+ m_ExpirationTime+ m_ResetBeforeExpiration+ m_Benign+ m_ResetTime+ m_EK_Users+ m_AnnouncementOnly+ m_PhotoOnly+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Alert+ m_FK_AlertType+ m_EK_Device+ m_DetectionTime+ m_ExpirationTime+ m_ResetBeforeExpiration+ m_Benign+ m_ResetTime+ m_EK_Users+ m_AnnouncementOnly+ m_PhotoOnly+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Alert_asSQL();
 string FK_AlertType_asSQL();
+string EK_Device_asSQL();
 string DetectionTime_asSQL();
 string ExpirationTime_asSQL();
 string ResetBeforeExpiration_asSQL();
