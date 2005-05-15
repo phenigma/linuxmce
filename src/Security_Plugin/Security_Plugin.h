@@ -62,6 +62,7 @@ namespace DCE
 	map<int,Row_ModeChange *> m_mapRow_ModeChange_Last;  // Map based on the zone (DeviceGroup) or 0 for all zones
     Row_ModeChange *m_mapRow_ModeChange_Last_Find(int PK_DeviceGroup) { map<int,class Row_ModeChange *>::iterator it = m_mapRow_ModeChange_Last.find(PK_DeviceGroup); return it==m_mapRow_ModeChange_Last.end() ? NULL : (*it).second; }
 	int m_PK_Device_TextToSpeach;
+	map<pthread_t,class Notification *> m_mapNotification; // Any pending notifications
 	
 	// The announcements we'll need to make are stored here.  They come from the Text_LS table
 	string m_sCountdownBeforeAlarm,m_sCountdownBeforeArmed,m_sShortCountdownBeforeAlarm,m_sShortCountdownBeforeArmed;
@@ -133,6 +134,9 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Path();
+	string DATA_Get_Mobile_Orbiter_Notification();
+	string DATA_Get_Other_Phone_Notifications();
+	string DATA_Get_Neighbors_to_Call();
 	int DATA_Get_PK_HouseMode();
 	void DATA_Set_PK_HouseMode(int Value);
 	string DATA_Get_PK_Device();
@@ -142,6 +146,8 @@ public:
 	void EVENT_Fire_Alarm(int iPK_Device);
 	void EVENT_Reset_Alarm();
 	void EVENT_Air_Quality(int iPK_Device);
+	void EVENT_Doorbell(int iPK_Device);
+	void EVENT_Monitor_Mode(int iPK_Device);
 
 			*****COMMANDS***** we need to implement
 	*/

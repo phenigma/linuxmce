@@ -41,7 +41,7 @@ using namespace DCE;
 #include "DCERouter.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "DCE/DataGrid.h"
-
+#include "Notification.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 
 #include "pluto_main/Database_pluto_main.h"
@@ -81,6 +81,14 @@ using namespace DCE;
 #define COUNTDOWN_INTERVAL_1			10  // How many seconds to wait when making the initial, full announcement
 #define COUNTDOWN_INTERVAL_2			5	// How many seconds to wait for subsequence announcement, while still not in RAPID_COUNTDOWN
 #define COUNTDOWN_INTERVAL_3			1	// How many seconds to wait for the RAPID_COUNTDOWN
+
+void* StartNotification( void* param ) 
+{
+	Notification *pNotification = (Notification*)param;
+	pNotification->DoIt();
+	delete pNotification;
+	return NULL;
+}
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -187,6 +195,13 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 Security_Plugin::~Security_Plugin()
 //<-dceag-dest-e->
 {
+	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
+	if( m_mapNotification.size() )
+	{
+		for( map<pthread_t,Notification *>::iterator it=m_mapNotification.begin();it!=m_mapNotification.end();++it)
+			pthread_cancel(it->first);
+	}
+
 	delete m_pDatabase_pluto_main;
 	delete m_pDatabase_pluto_security;
 	
@@ -625,16 +640,6 @@ int Security_Plugin::GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice)
 	return atoi( pDevice->m_mapParameters[DEVICEDATA_EK_AlertType_CONST].c_str() );
 }
 
-void Security_Plugin::SecurityBreach(DeviceData_Router *pDevice)
-{
-	EVENT_Security_Breach(pDevice->m_dwPK_Device);
-}
-
-void Security_Plugin::FireAlarm(DeviceData_Router *pDevice)
-{
-	EVENT_Fire_Alarm(pDevice->m_dwPK_Device);
-}
-
 void Security_Plugin::AlarmCallback(int id, void* param)
 {
 	if( id==PROCESS_ALERT )
@@ -654,6 +659,18 @@ void Security_Plugin::ProcessAlert(Row_Alert *pRow_Alert)
 		EVENT_Fire_Alarm(pRow_Alert->EK_Device_get());
 	else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Air_Quality_CONST )
 		EVENT_Air_Quality(pRow_Alert->EK_Device_get());
+	else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Doorbell_CONST )
+		EVENT_Doorbell(pRow_Alert->EK_Device_get());
+	else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Monitor_mode_CONST )
+		EVENT_Monitor_Mode(pRow_Alert->EK_Device_get());
+
+	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
+	Notification *pNotification = new Notification(this,m_pRouter,pRow_Alert);
+	pthread_t pthread_id; 
+	if(pthread_create( &pthread_id, NULL, StartNotification, (void*)pNotification) )
+		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create Notification thread" );
+	else
+		m_mapNotification[pthread_id]=pNotification;
 }
 
 void Security_Plugin::ProcessCountdown(int id,Row_Alert *pRow_Alert)

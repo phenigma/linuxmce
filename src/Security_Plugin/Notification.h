@@ -15,15 +15,38 @@ class Row_Alert;
 
 namespace DCE
 {
+	class NotificationInfo
+	{
+	public:
+		class Notification *m_pNotification;
+		int m_Type;
+		string m_sPhoneNumber;
+		NotificationInfo(Notification *pNotification,int Type,string sPhoneNumber) {
+			m_pNotification=pNotification; m_Type=Type; m_sPhoneNumber=sPhoneNumber; }
+		~NotificationInfo();
+	};
+
 	class Notification 
 	{
+		friend class NotificationInfo;
+
 		// Private member variables 
 	    pluto_pthread_mutex_t m_AlertMutex;
 		Row_Alert *m_pRow_Alert;
 		class Security_Plugin *m_pSecurity_Plugin;
 		class Router *m_pRouter;
 
+		string m_sOther_Phone_Notifications,m_sOrbiterNotifications;
+		list<NotificationInfo *> m_listNotificationInfo;
+
+	public:
 		Notification(Security_Plugin *pSecurity_Plugin,Router *pRouter,Row_Alert *pRow_Alert);
+		void DoIt();
+
+		void NotifyOrbiters(bool bProcessInBackground);
+		void NotifyOthers(bool bProcessInBackground);
+		void NotifyOrbiter(string sPhoneNumber,int iDelay);
+		void NotifyOther(string sPhoneNumber,int iDelay);
 	};
 }
 #endif
