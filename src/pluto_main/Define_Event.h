@@ -39,6 +39,9 @@
 #define EVENT_Incoming_Call_CONST 36
 #define EVENT_Voice_Mail_Changed_CONST 37
 #define EVENT_Reload_Aborted_CONST 38
+#define EVENT_Air_Quality_CONST 39
+#define EVENT_Doorbell_CONST 40
+#define EVENT_Monitor_Mode_CONST 41
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
