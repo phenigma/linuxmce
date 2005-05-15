@@ -84,8 +84,8 @@ void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
 string OrbiterSelfUpdate::GetOrbiterCheckSum()
 {
 	string sMD5FilePath = m_sOrbiterFilePath;
-	StringUtils::Replace(sMD5FilePath, ".exe", ".MD5");
-	StringUtils::Replace(sMD5FilePath, ".EXE", ".MD5");
+	StringUtils::Replace(&sMD5FilePath, ".exe", ".MD5");
+	StringUtils::Replace(&sMD5FilePath, ".EXE", ".MD5");
 
 	if(!FileUtils::FileExists(sMD5FilePath))
 		FileUtils::WriteBufferIntoFile(sMD5FilePath, "dummy			", 5);

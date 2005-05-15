@@ -191,8 +191,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 	//save the Orbiter.MD5 file
 	string sOrbiterMD5FileName = sOrbiterFileName;
-	StringUtils::Replace(sOrbiterMD5FileName, ".exe", ".MD5");
-	StringUtils::Replace(sOrbiterMD5FileName, ".EXE", ".MD5");
+	StringUtils::Replace(&sOrbiterMD5FileName, ".exe", ".MD5");
+	StringUtils::Replace(&sOrbiterMD5FileName, ".EXE", ".MD5");
 
 	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to update MD5 file: %s", sOrbiterMD5FileName.c_str());
 
@@ -253,7 +253,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 #ifdef WINCE
 	string sOrbiterPath = sOrbiterFileName;
 
-	StringUtils::Replace(sOrbiterCommandLine, sOrbiterFileName + " ", "");
+	StringUtils::Replace(&sOrbiterCommandLine, sOrbiterFileName + " ", "");
 	string sCmdLine = sOrbiterCommandLine;
 
 	wchar_t CmdLineW[256];

@@ -219,7 +219,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			{
 				int X = pDesignObj_Generator->m_rBackgroundPosition.Width;
 				int Y = pDesignObj_Generator->m_rBackgroundPosition.Height;
-				StringUtils::Replace(pDesignObj_Generator->m_sVisibleState,"T","");
+				StringUtils::Replace(&pDesignObj_Generator->m_sVisibleState,"T","");
 				int LineWidth = X / 8 + 1; // The width of each line
 				unsigned char *pHitTest = new unsigned char[LineWidth * Y];
 				pDesignObj_Generator->m_dbHitTest.m_dwSize = LineWidth * Y;

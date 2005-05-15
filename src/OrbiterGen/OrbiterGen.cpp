@@ -175,9 +175,9 @@ int main(int argc, char *argv[])
 	}
 
 	// Windows will work with / also
-	GraphicsFiles = StringUtils::Replace(GraphicsFiles,"\\","/");
-	FontFiles = StringUtils::Replace(FontFiles,"\\","/");
-	OutputFiles = StringUtils::Replace(OutputFiles,"\\","/");
+	StringUtils::Replace(&GraphicsFiles,"\\","/");
+	StringUtils::Replace(&FontFiles,"\\","/");
+	StringUtils::Replace(&OutputFiles,"\\","/");
 
 	if( GraphicsFiles.length() && GraphicsFiles[GraphicsFiles.length()-1]!='/' )
 		GraphicsFiles+="/";
@@ -1256,7 +1256,7 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==2253 )//2821 && bAddToGen
 			else if( drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_Auto_Invalidate_Time_CONST )
 				ocDesignObj->m_iRegenInterval = atoi(Value.c_str());
 			else
-				ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::Replace(Value,"<%=!%>",StringUtils::itos(PK_Orbiter));
+				ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::Replace(&Value,"<%=!%>",StringUtils::itos(PK_Orbiter));
 		}
 	}
 

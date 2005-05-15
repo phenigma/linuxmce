@@ -469,6 +469,10 @@
 #define TEXT_Selected_Devices_CONST 1144
 #define TEXT_press_pencil_to_go_to_floorplan_CONST 1145
 #define TEXT_type_channel_number_CONST 1146
+#define TEXT_Countdown_before_alarm_CONST 1147
+#define TEXT_Countdown_before_armed_CONST 1148
+#define TEXT_Short_countdown_before_alarm_CONST 1149
+#define TEXT_Short_countdown_before_armed_CONST 1150
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

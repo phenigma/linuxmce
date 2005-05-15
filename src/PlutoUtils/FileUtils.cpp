@@ -110,7 +110,7 @@ void FileUtils::ReadFileIntoVector( string sFileName, vector<string> &vectString
 	}
 	// Strip any \r that will be in a Windows file
 	for(s=0;s<vectString.size();++s)
-		vectString[s] = StringUtils::Replace(vectString[s],"\r","");
+		vectString[s] = StringUtils::Replace(&vectString[s],"\r","");
 
 	delete [] Buffer;
 }
@@ -220,7 +220,7 @@ string FileUtils::FindExtension( string sFileName )
 void FileUtils::MakeDir(string sDirectory)
 {
     // Windows understands both
-    sDirectory = StringUtils::Replace( sDirectory, "\\", "/" );
+    sDirectory = StringUtils::Replace( &sDirectory, "\\", "/" );
 
     if( !StringUtils::EndsWith(sDirectory,"/") )
         sDirectory += "/";
@@ -423,27 +423,27 @@ string FileUtils::ValidCPPName(string sInput)
     StringUtils::TrimSpaces(sInput); // elliminting the spaces
 
     // replacing all the invalid characters
-    StringUtils::Replace(sInput," ","_");
-    StringUtils::Replace(sInput,":","_");
-    StringUtils::Replace(sInput,"=","_");
-    StringUtils::Replace(sInput,",","_");
-    StringUtils::Replace(sInput,"@","_");
-    StringUtils::Replace(sInput,"-","");
-    StringUtils::Replace(sInput,"/","");
-    StringUtils::Replace(sInput,"#","Num");
-    StringUtils::Replace(sInput,"*","");
-    StringUtils::Replace(sInput,"$","");
-    StringUtils::Replace(sInput,".","");
-    StringUtils::Replace(sInput,"\"","");
-    StringUtils::Replace(sInput,"(","_");
-    StringUtils::Replace(sInput,")","_");
-    StringUtils::Replace(sInput,"?","_");
-    StringUtils::Replace(sInput,"<","_");
-    StringUtils::Replace(sInput,">","");
-    StringUtils::Replace(sInput,"__","_");
-    StringUtils::Replace(sInput,"__","_");
-    StringUtils::Replace(sInput,"%","");
-    StringUtils::Replace(sInput,"&","");
+    StringUtils::Replace(&sInput," ","_");
+    StringUtils::Replace(&sInput,":","_");
+    StringUtils::Replace(&sInput,"=","_");
+    StringUtils::Replace(&sInput,",","_");
+    StringUtils::Replace(&sInput,"@","_");
+    StringUtils::Replace(&sInput,"-","");
+    StringUtils::Replace(&sInput,"/","");
+    StringUtils::Replace(&sInput,"#","Num");
+    StringUtils::Replace(&sInput,"*","");
+    StringUtils::Replace(&sInput,"$","");
+    StringUtils::Replace(&sInput,".","");
+    StringUtils::Replace(&sInput,"\"","");
+    StringUtils::Replace(&sInput,"(","_");
+    StringUtils::Replace(&sInput,")","_");
+    StringUtils::Replace(&sInput,"?","_");
+    StringUtils::Replace(&sInput,"<","_");
+    StringUtils::Replace(&sInput,">","");
+    StringUtils::Replace(&sInput,"__","_");
+    StringUtils::Replace(&sInput,"__","_");
+    StringUtils::Replace(&sInput,"%","");
+    StringUtils::Replace(&sInput,"&","");
 
     // taking out the underscores from the begining of the file name
     while(sInput.length() && sInput[0]=='_')

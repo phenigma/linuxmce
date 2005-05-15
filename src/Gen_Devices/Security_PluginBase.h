@@ -45,6 +45,7 @@ public:
 	virtual const char *GetDeviceDescription() { return "Security_Plugin"; } ;
 	int Get_PK_HouseMode() { return atoi(m_mapParameters[38].c_str());}
 	void Set_PK_HouseMode(int Value) { SetParm(38,StringUtils::itos(Value).c_str()); }
+	string Get_PK_Device() { return m_mapParameters[77];}
 };
 
 
@@ -89,6 +90,7 @@ public:
 	//Data accessors
 	int DATA_Get_PK_HouseMode() { return GetData()->Get_PK_HouseMode(); }
 	void DATA_Set_PK_HouseMode(int Value) { GetData()->Set_PK_HouseMode(Value); }
+	string DATA_Get_PK_Device() { return GetData()->Get_PK_Device(); }
 	//Event accessors
 	void EVENT_Security_Breach(int iPK_Device) { GetEvents()->Security_Breach(iPK_Device); }
 	void EVENT_Fire_Alarm(int iPK_Device) { GetEvents()->Fire_Alarm(iPK_Device); }

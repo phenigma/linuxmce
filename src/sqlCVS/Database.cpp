@@ -938,7 +938,7 @@ int Database::PromptForSqlCvsFiles( )
 			{
 				/** The file is not an existing repository */
 				if( g_GlobalConfig.m_sRepository.find( "," + sRepository + "," )!=string::npos )
-					StringUtils::Replace( g_GlobalConfig.m_sRepository, "," + sRepository + ",","" );
+					StringUtils::Replace( &g_GlobalConfig.m_sRepository, "," + sRepository + ",","" );
 				else
 				{
 					if( g_GlobalConfig.m_sRepository.length( )==0 )

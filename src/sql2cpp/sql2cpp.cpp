@@ -143,7 +143,7 @@ int main( int argc, char *argv[] )
 	if( sOutputPath=="" )
 		sOutputPath = "../" + sDBName;
 
-	sOutputPath = StringUtils::Replace( sOutputPath, "\\", "/" ); // Unix path
+	StringUtils::Replace( &sOutputPath, "\\", "/" ); // Unix path
 
 	if( sOutputPath[sOutputPath.length()-1]!='/' ) // adding a final /
 		sOutputPath+="/";

@@ -46,7 +46,7 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, string db_name, 
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
 		return;
 	}
-	m_sDirectory=StringUtils::Replace(sDirectory,"\\","/");  // Be sure no Windows \'s
+	m_sDirectory=StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
 	m_sExtensions=sExtensions;
 
 	// We don't want a trailing slash on the directory
@@ -150,7 +150,11 @@ cout << "Found " << (int) vectPicture_File.size() << " pics for file" << endl;
 		// Does one of the attributes have a picture
 		vector<Row_Picture_Attribute *> vectPicture_Attribute;
 		m_pDatabase_pluto_media->Picture_Attribute_get()->GetRows(
-			"JOIN File_Attribute ON Picture_Attribute.FK_Attribute=File_Attribute.FK_Attribute WHERE FK_File=" + 
+			"JOIN File_Attribute ON Picture_Attribute.FK_Attribute=File_Attribute.FK_Attribute "
+			"JOIN Attribute ON Picture_Attribute.FK_Attribute=Attribute.PK_Attribute "
+			"JOIN AttributeType ON Attribute.FK_AttributeType=AttributeType.PK_AttributeType "
+			"ORDER BY `PicPriority` "
+			"WHERE FK_File=" + 
 			StringUtils::itos(PK_File),&vectPicture_Attribute);
 
 cout << "Found " << (int) vectPicture_Attribute.size() << " pics for attribute" << endl;

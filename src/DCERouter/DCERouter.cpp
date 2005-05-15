@@ -206,6 +206,10 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     m_dwPK_Device = m_pRow_Device_Me->PK_Device_get();
     m_dwPK_Installation = m_pRow_Device_Me->FK_Installation_get();
 
+	Row_Device_DeviceData *pRow_Device_DeviceData = 
+        m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_dwPK_Device,DEVICEDATA_PK_Language_CONST);
+
+	m_PK_Language = pRow_Device_DeviceData ? atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) : 1;
     if( m_sBasePath=="" )
     {
         // Let's find it

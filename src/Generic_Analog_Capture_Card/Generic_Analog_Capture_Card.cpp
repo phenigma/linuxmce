@@ -185,7 +185,7 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 		sRep = "thread /etc/motion/thread" + sPortNumber + ".conf";
 	
 		std::string std = pData;
-		std = StringUtils::Replace(std,sLine,sRep);
+		StringUtils::Replace(&std,sLine,sRep);
 
 		g_pPlutoLogger->Write(LV_STATUS, "Adding child camera %d to main config file",i);
 		strcpy(pData,std.c_str());
@@ -459,7 +459,7 @@ Generic_Analog_Capture_Card::AddChildDeviceToConfigFile(std::ofstream& conffile,
 	if(!sDescription.empty()) {
 
 ///////    RoomName should be replaced with name of room, where the camera is ....
-		conffile	<< "text_left " << StringUtils::Replace(sDescription, " ", "_") << "\\nRoomName" << endl << endl << endl;
+		conffile	<< "text_left " << StringUtils::Replace(&sDescription, " ", "_") << "\\nRoomName" << endl << endl << endl;
 	}
 
 	//web port (+8000) and child number

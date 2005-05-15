@@ -295,10 +295,10 @@ void WinOrbiterLogger::WriteEntry( Entry& entry )
 
 	str = string(acBuff) + " " + str;
 
-	StringUtils::Replace(str, "\x1b[31;1m", "");
-	StringUtils::Replace(str, "\x1b[0m", "");
-	StringUtils::Replace(str, "\x1b[33;1m", "");
-	StringUtils::Replace(str, char(0x1B) + string("[33m"), "");
+	StringUtils::Replace(&str, "\x1b[31;1m", "");
+	StringUtils::Replace(&str, "\x1b[0m", "");
+	StringUtils::Replace(&str, "\x1b[33;1m", "");
+	StringUtils::Replace(&str, char(0x1B) + string("[33m"), "");
 
 	string s = str + "\n";
 	FILE* f = fopen("orbiter_logger.out", "a+");

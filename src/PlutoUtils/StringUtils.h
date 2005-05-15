@@ -63,7 +63,9 @@ namespace StringUtils
 #ifdef SYMBIAN
 	static
 #endif
-    string Replace( string &sInput, string sSearch, string sReplace );
+	// Replaces sSearch with sReplace.  The first one replaces the input string passed in, the 2nd does not
+    string Replace( string sInput, const string &sSearch, const string &sReplace );
+	string Replace( string *sInput, const string &sSearch, const string &sReplace );
 
 #ifndef SYMBIAN
 

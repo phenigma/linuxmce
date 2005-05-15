@@ -633,7 +633,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
 
                             query.str("");
                             query << "insert into DCL_item (title, s_item_type) values ('";
-                            query << StringUtils::Replace(title, "'", "''") << "', 'CD')";
+                            query << StringUtils::Replace(&title, "'", "''") << "', 'CD')";
                             pthread_mutex_lock (&sqlLock);
                             Result_NoData queryResult = query.execute();
                             pthread_mutex_unlock (&sqlLock);
@@ -671,7 +671,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
                                 query.str("");
                                 query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
                                 query << result << ", 'ARTIST', 10, '";
-                                query << StringUtils::Replace(artist, string("'"), string("''")).c_str() << "')";
+                                query << StringUtils::Replace(&artist, string("'"), string("''")).c_str() << "')";
         printf("query 3 - a\n");
         fflush(stdout);
                                 pthread_mutex_lock (&sqlLock);
@@ -719,7 +719,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
                                     query.str("");
                                     query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
                                     query << result << ", 'CDTRACK', " << seq++ <<", '";
-                                    query << StringUtils::Replace(title, string("'"), string("''")).c_str() << "')";
+                                    query << StringUtils::Replace(&title, string("'"), string("''")).c_str() << "')";
         printf("query 6 track: %s\n",track->title);
         fflush(stdout);
                                     pthread_mutex_lock (&sqlLock);
@@ -882,7 +882,7 @@ string Disk_Drive::dvd_read_name(const int fd)
 
               query.str("");
               query << "insert into DCL_item (title, s_item_type) values ('";
-              query << StringUtils::Replace(strTitle, string("'"), string("''")).c_str() << "', 'DVD')";
+              query << StringUtils::Replace(&strTitle, string("'"), string("''")).c_str() << "', 'DVD')";
               pthread_mutex_lock (&sqlLock);
               Result_NoData queryResult = query.execute();
               pthread_mutex_unlock (&sqlLock);
@@ -1317,8 +1317,8 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Mes
 	strParameters = StringUtils::Format("%d %d %s %s %d %d",
 			m_dwPK_Device,
 			pMessage->m_dwPK_Device_From,
-			StringUtils::Replace(quotedJobName, " ", "\\ ").c_str(),
-			StringUtils::Replace(quotedDeviceName, " ", "\\ ").c_str(),
+			StringUtils::Replace(&quotedJobName, " ", "\\ ").c_str(),
+			StringUtils::Replace(&quotedDeviceName, " ", "\\ ").c_str(),
 			m_mediaDiskStatus, iPK_Users);
 
     DCE::CMD_Spawn_Application_DT

@@ -54,6 +54,7 @@ using namespace DCE;
 
 #define  VERSION "<=version=>"
 extern const char *g_szCompile_Date;
+extern Command_Impl *g_pCommand_Impl;
 
 #define PROFILING_GRID
 
@@ -1169,22 +1170,6 @@ DumpScreenHistory();
             m_listScreenHistory.pop_front(  );
 		}
     }
-
-	//purge pending tasks, if need it
-	PLUTO_SAFETY_LOCK( pm, m_MaintThreadMutex );
-	map<int,CallBackInfo *>::iterator itCallBackInfo;
-	for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end();)
-	{
-		CallBackInfo *pCallBackInfo = (*itCallBackInfo).second;
-		if(pCallBackInfo->m_bPurgeTaskWhenScreenIsChanged)
-		{
-			mapPendingCallbacks.erase(itCallBackInfo++);
-			delete pCallBackInfo;
-		}
-		else
-			itCallBackInfo++;
-	}
-	pm.Release();
 
 	// todo 2.0 SelectFirstObject(  );
 
@@ -5915,6 +5900,28 @@ void NeedToRender::NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAdd
 g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHistory->m_pObj->m_ObjectID.c_str());
 	m_pScreenHistory = pScreenHistory;
 	m_bAddToHistory = bAddToHistory;
+
+	//purge pending tasks, if need it.  Do it here, so that things will happen in the right order.
+	//ie: CMD_GotoScreen, CMD_SelectObject. The real need to change screens won't get called until
+	//after all messages are processed, wiping out CMD_SelectObject
+	Orbiter *pOrbiter = (Orbiter *) g_pCommand_Impl;
+	if( pOrbiter )
+	{
+		PLUTO_SAFETY_LOCK( pm, pOrbiter->m_MaintThreadMutex );
+		map<int,CallBackInfo *>::iterator itCallBackInfo;
+		for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end();)
+		{
+			CallBackInfo *pCallBackInfo = (*itCallBackInfo).second;
+			if(pCallBackInfo->m_bPurgeTaskWhenScreenIsChanged)
+			{
+				mapPendingCallbacks.erase(itCallBackInfo++);
+				delete pCallBackInfo;
+			}
+			else
+				itCallBackInfo++;
+		}
+		pm.Release();
+	}
 }
 
 //<-dceag-c242-b->

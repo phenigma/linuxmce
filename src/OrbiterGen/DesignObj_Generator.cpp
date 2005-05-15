@@ -233,7 +233,7 @@ int k=2;
         {
             if( m_pOrbiterGenerator->m_bNoEffects )
             {
-                sGraphicFile = StringUtils::Replace(sGraphicFile,".MNG",".PNG");
+                sGraphicFile = StringUtils::Replace(&sGraphicFile,".MNG",".PNG");
             }
             size_t scPos=0;
             for(;;)
@@ -259,7 +259,7 @@ int k=2;
 
                 Row_Image * drImage=NULL;
                 // Be sure there are no windows paths in here.  Windows will work with forward slashes also, use them instead
-                sGraphicFile = StringUtils::Replace(sGraphicFile,"\\","/");
+                sGraphicFile = StringUtils::Replace(&sGraphicFile,"\\","/");
                 string sOriginalFile = sGraphicFile;
 	                if( sGraphicFile[0]=='/' )
                     sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + sGraphicFile;

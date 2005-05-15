@@ -1492,11 +1492,11 @@ void Orbiter_Plugin::GenerateVMCFiles()
         string sDescription = pRow_DeviceTemplate->Description_get();
         string sSourceVMCFileName = sDescription + ".vmc";
 
-        StringUtils::Replace(sSourceVMCFileName, "/", "-");
-        StringUtils::Replace(sSourceVMCFileName, ":", "-");
-        StringUtils::Replace(sSourceVMCFileName, "\\", "-");
-        StringUtils::Replace(sSourceVMCFileName, "*", "-");
-        StringUtils::Replace(sSourceVMCFileName, "?", "-");
+        StringUtils::Replace(&sSourceVMCFileName, "/", "-");
+        StringUtils::Replace(&sSourceVMCFileName, ":", "-");
+        StringUtils::Replace(&sSourceVMCFileName, "\\", "-");
+        StringUtils::Replace(&sSourceVMCFileName, "*", "-");
+        StringUtils::Replace(&sSourceVMCFileName, "?", "-");
         sSourceVMCFileName = "/usr/pluto/bin/" + sSourceVMCFileName;
 
         string sDestFileName = "/usr/pluto/bin/dev_" + StringUtils::ltos(dwPKDevice) + ".vmc";

@@ -549,7 +549,7 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 	{
 		if( StringUtils::ToUpper(m_sFilter).find("WHERE")==string::npos )
 			sSql << " WHERE";
-		StringUtils::Replace(m_sFilter,"<%=U%>",g_GlobalConfig.csvUserID());
+		StringUtils::Replace(&m_sFilter,"<%=U%>",g_GlobalConfig.csvUserID());
 		sSql << " " << m_sFilter << " AND ";
 	}
 	else
@@ -1875,7 +1875,7 @@ bool Table::Dump( SerializeableStrings &str )
 	for(size_t sVI=0;sVI<vectIndex.size();++sVI)
 		str.m_vectString.push_back( vectIndex[sVI] );
 
-	StringUtils::Replace(m_sFilter,"<%=U%>",g_GlobalConfig.csvUserID());
+	StringUtils::Replace(&m_sFilter,"<%=U%>",g_GlobalConfig.csvUserID());
 	sSQL.str( "" );
 	sSQL << "SELECT " << sFieldList << " FROM " << m_sName << (m_sFilter.length() && StringUtils::ToUpper(m_sFilter).find("WHERE")==string::npos ? " WHERE " : " " ) << m_sFilter;
 	if( num_psc_id!=-1 )

@@ -23,6 +23,26 @@ class Row_ModeChange;
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "Orbiter_Plugin/FollowMe_Device.h"
 
+/*
+	All sensors' states are in this form: Mode,Bypass,Delay
+	where Mode=one of the house modes used in GetModeString: ARMED, AT HOME SECURE, SLEEPING, ENTERTAINING, EXTENDED AWAY,UNARMED
+	Bypass=PERMBYPASS (permanently bypass the sensor, ignoring anything that happens to it),
+		WAIT (wait for the sensor to return to a normal state, and then consider it active),
+		BYPASS (bypass the sensor for this session.  When the sensor's mode changes, revert to normal)
+		[empty] (normal, the sensor is active)
+	Delay=
+
+	So each sensor can be independent.  This allows for unlimited 'zones', since each sensor can do its own thing.
+	The SetHouseMode command goes through and sets all the sensors to the appropriate mode.  If SetHouseMode is passed
+	in a PK_DeviceGroup, it sets only the sensors in that group, thus the device group acts like a zone.
+
+	When a sensor is tripped, SensorTrippedEvent is called.  If the sensor is in WAIT bypass and returns to normal, the bypass flag is cleared.
+	Otherwise the house mode for that sensor is determined, and GetAlertType is called to determine which type of alert
+	is appropriate, see pluto_security db, table: AlertType (e.g., Security, Fire, Air Quality, Movement, Information).
+	Or perhaps it's not an alert, just an announcement or a snap photo.
+
+*/
+
 //<-dceag-decl-b->!
 namespace DCE
 {
@@ -38,6 +58,14 @@ namespace DCE
 	map<int,Row_ModeChange *> m_mapRow_ModeChange_Last;  // Map based on the zone (DeviceGroup) or 0 for all zones
     Row_ModeChange *m_mapRow_ModeChange_Last_Find(int PK_DeviceGroup) { map<int,class Row_ModeChange *>::iterator it = m_mapRow_ModeChange_Last.find(PK_DeviceGroup); return it==m_mapRow_ModeChange_Last.end() ? NULL : (*it).second; }
 	int m_PK_Device_TextToSpeach;
+	
+	// The announcements we'll need to make are stored here.  They come from the Text_LS table
+	string m_sCountdownBeforeAlarm,m_sCountdownBeforeArmed,m_sShortCountdownBeforeAlarm,m_sShortCountdownBeforeArmed;
+
+	// If there is a pending exit delay that we are counting down for, the time at which the delay expires
+	// will be stored here
+	time_t m_tExitTime;
+	bool m_bExitDelay_New; // Set to true when a new exit delay is started so we know to make a full announcement.
 
 	// Private methods
 public:
@@ -66,6 +94,7 @@ public:
 	bool SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevice);
 	string GetModeString(int PK_HouseMode);
 	int GetModeID(string Mode);
+	// Returns the PK_AlertType for this mode/house.  Or ALERTTYPE_DONOTHING, ALERTTYPE_ANNOUNCMENT, ALERTTYPE_PHOTO
 	int GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice);
 	void SecurityBreach(DeviceData_Router *pDevice);
 	void FireAlarm(DeviceData_Router *pDevice);
@@ -77,12 +106,17 @@ public:
 
 	// Alarm callback
 	virtual void AlarmCallback(int id, void* param);
+	void ProcessCountdownBeforeArmed();
 	void ProcessCountdownBeforeAlarm();
-	void SayToDevices(string sText,map<int,DeviceData_Router *> &mapAudioDevices,DeviceData_Router *pDeviceData_Router);
+	void SayToDevices(string sText,DeviceData_Router *pDeviceData_Router);
 
 	// Follow-me
 	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left) {}
 	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left) {}
+
+	// Actions
+	void AnnounceAlert(DeviceData_Router *pDevice);
+	void SnapPhoto(DeviceData_Router *pDevice);
 
 //<-dceag-h-b->
 	/*
@@ -94,6 +128,7 @@ public:
 			*****DATA***** accessors inherited from base class
 	int DATA_Get_PK_HouseMode();
 	void DATA_Set_PK_HouseMode(int Value);
+	string DATA_Get_PK_Device();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Security_Breach(int iPK_Device);

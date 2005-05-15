@@ -352,15 +352,15 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		string FirstString = TextToDisplay.substr(0, iPos - 1);
 		string SecondString = TextToDisplay.substr(iPos + 1, TextToDisplay.length() - 1);
 
-		StringUtils::Replace(FirstString, FirstString, "\n", "");
-		StringUtils::Replace(FirstString, FirstString, "\r", "");
+		StringUtils::Replace(&FirstString, "\n", "");
+		StringUtils::Replace(&FirstString, "\r", "");
 
 		vectStringsInterm.push_back(FirstString);
 		TextToDisplay = SecondString;
 	}
 
-	StringUtils::Replace(TextToDisplay, TextToDisplay, "\n", "");
-	StringUtils::Replace(TextToDisplay, TextToDisplay, "\r", "");
+	StringUtils::Replace(&TextToDisplay, "\n", "");
+	StringUtils::Replace(&TextToDisplay, "\r", "");
 	vectStringsInterm.push_back(TextToDisplay);
 
 	vector<string> vectStrings;

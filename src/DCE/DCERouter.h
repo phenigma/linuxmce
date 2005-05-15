@@ -155,7 +155,7 @@ int k;
         pluto_pthread_mutex_t m_CoreMutex,m_InterceptorMutex;
         pthread_mutex_t m_MessageQueueMutex;
         pthread_cond_t m_MessageQueueCond;
-        int m_Port;
+        int m_Port,m_dwPK_Language;
         unsigned long m_dwPK_Device_Largest;
 		bool m_bStopProcessingMessages; // We're going to kill ourselves
         string m_sBasePath;
@@ -203,6 +203,7 @@ int k;
 		const map<int,class Room *> *m_mapRoom_get() { return &m_mapRoom; }
 
         int iPK_Installation_get() { return m_dwPK_Installation; }
+        int iPK_Language_get() { return m_dwPK_Language; }
         string sBasePath_get() { return m_sBasePath; }
 
         string sDBHost_get() { return m_sDBHost; }

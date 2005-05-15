@@ -133,9 +133,9 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
-	GeneratedOutput = StringUtils::Replace(GeneratedOutput,"\\","/");
-	TemplateInput = StringUtils::Replace(TemplateInput,"\\","/");
-	TemplateOutput = StringUtils::Replace(TemplateOutput,"\\","/");
+	StringUtils::Replace(&GeneratedOutput,"\\","/");
+	StringUtils::Replace(&TemplateInput,"\\","/");
+	StringUtils::Replace(&TemplateOutput,"\\","/");
 
 	if( GeneratedOutput.length() && GeneratedOutput[GeneratedOutput.length()-1]!='/' )
 		GeneratedOutput+="/";
@@ -1384,16 +1384,16 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "\tclass RESP_" << Name << " : public PreformedCommandResponse {" << endl;
 			// these come in as int *iFoo,string *sFoo.  Change to int *m_iFoo;string *m_sFoo;
 			string decls=commandInfo.m_sParmsWithTypePointers_Out;
-			StringUtils::Replace(decls," *"," *m_");
-			StringUtils::Replace(decls,",",";");
-			StringUtils::Replace(decls,"*m_*","**m_");  // for those char **
+			StringUtils::Replace(&decls," *"," *m_");
+			StringUtils::Replace(&decls,",",";");
+			StringUtils::Replace(&decls,"*m_*","**m_");  // for those char **
 			fstr_DeviceCommand << "\t\t" << decls << ";" << endl;
 			fstr_DeviceCommand << "\tpublic:" << endl;
 			fstr_DeviceCommand << "\t\tRESP_" << Name << "(" << commandInfo.m_sParmsWithTypePointers_Out << ") { " << endl;
 
 			// take the parms with no type, get rid of the c_str(), and assign everything to local variables
 			string list = commandInfo.m_sParmsWithNoType_Out; string::size_type pos=0; string variable;
-			StringUtils::Replace(list,".c_str()","");
+			StringUtils::Replace(&list,".c_str()","");
 			fstr_DeviceCommand << "\t\t";
 			while( (variable=StringUtils::Tokenize(list,",",pos)).length()>0 )
 				fstr_DeviceCommand << "m_" << variable << "=" << variable << "; ";
@@ -1403,7 +1403,7 @@ void DCEGen::WriteGlobals()
 
 			// each of these is in the format \t\t\t\tint iX = pMessage->  convert to *iX = pMessage
 			list = commandInfo.m_sAssignParmToLocal_Out;  pos=0;
-			StringUtils::Replace(list,"\t","");
+			StringUtils::Replace(&list,"\t","");
 			fstr_DeviceCommand << "\t\t\t";
 			while( (variable=StringUtils::Tokenize(list,"\n",pos)).length()>0 )
 			{
@@ -1447,7 +1447,7 @@ int k=2;
 		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
-			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
+			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
 		fstr_DeviceCommand << "\t};\n"; // end class
@@ -1466,7 +1466,7 @@ int k=2;
 		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
-			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
+			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
 		fstr_DeviceCommand << "\t};\n"; // end class
@@ -1485,7 +1485,7 @@ int k=2;
 		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
-			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
+			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
 		fstr_DeviceCommand << "\t};\n"; // end class
@@ -1504,7 +1504,7 @@ int k=2;
 		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
-			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
+			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
 		fstr_DeviceCommand << "\t};\n"; // end class

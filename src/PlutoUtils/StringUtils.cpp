@@ -131,7 +131,7 @@ string StringUtils::itos( int iNum )
 #endif
 }
 
-string StringUtils::Replace( string &sInput, string sSearch, string sReplace )
+string StringUtils::Replace( string sInput, const string &sSearch, const string &sReplace )
 {
     string::size_type s=0;
 
@@ -142,6 +142,11 @@ string StringUtils::Replace( string &sInput, string sSearch, string sReplace )
     }
 
     return sInput;
+}
+
+string StringUtils::Replace( string *sInput, const string &sSearch, const string &sReplace )
+{
+	return (*sInput) = StringUtils::Replace( (*sInput),sSearch,sReplace );	
 }
 
 #ifndef SYMBIAN

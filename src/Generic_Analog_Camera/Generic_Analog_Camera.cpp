@@ -93,7 +93,7 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 	g_pPlutoLogger->Write(LV_STATUS, "Replacing %s",sLine.c_str());
 	g_pPlutoLogger->Write(LV_STATUS, "With %s",sRep.c_str());
 	std::string std = pData;
-	std = StringUtils::Replace(std,sLine,sRep);
+	std = StringUtils::Replace(&std,sLine,sRep);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Adding child camera to main config file");
 	strcpy(pData,std.c_str());
