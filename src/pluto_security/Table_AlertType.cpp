@@ -118,16 +118,17 @@ is_null[0] = false;
 is_null[1] = true;
 is_null[2] = true;
 is_null[3] = true;
+is_null[4] = true;
 m_Description = "";
-is_null[4] = false;
-is_null[5] = true;
+is_null[5] = false;
 is_null[6] = true;
 is_null[7] = true;
 is_null[8] = true;
+is_null[9] = true;
 m_psc_frozen = 0;
-is_null[9] = false;
-m_psc_mod = "00000000000000";
 is_null[10] = false;
+m_psc_mod = "00000000000000";
+is_null[11] = false;
 
 
 	is_added=false;
@@ -147,6 +148,9 @@ return m_ExitDelay;}
 long int Row_AlertType::AlarmDuration_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_AlarmDuration;}
+long int Row_AlertType::PoolAlerts_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_PoolAlerts;}
 string Row_AlertType::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Description;}
@@ -182,27 +186,30 @@ m_ExitDelay = val; is_modified=true; is_null[2]=false;}
 void Row_AlertType::AlarmDuration_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_AlarmDuration = val; is_modified=true; is_null[3]=false;}
+void Row_AlertType::PoolAlerts_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_PoolAlerts = val; is_modified=true; is_null[4]=false;}
 void Row_AlertType::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Description = val; is_modified=true; is_null[4]=false;}
+m_Description = val; is_modified=true; is_null[5]=false;}
 void Row_AlertType::Define_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Define = val; is_modified=true; is_null[5]=false;}
+m_Define = val; is_modified=true; is_null[6]=false;}
 void Row_AlertType::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[6]=false;}
+m_psc_id = val; is_modified=true; is_null[7]=false;}
 void Row_AlertType::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[7]=false;}
+m_psc_batch = val; is_modified=true; is_null[8]=false;}
 void Row_AlertType::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[8]=false;}
+m_psc_user = val; is_modified=true; is_null[9]=false;}
 void Row_AlertType::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[9]=false;}
+m_psc_frozen = val; is_modified=true; is_null[10]=false;}
 void Row_AlertType::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[10]=false;}
+m_psc_mod = val; is_modified=true; is_null[11]=false;}
 
 		
 bool Row_AlertType::DelayBeforeAlarm_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -214,21 +221,24 @@ return is_null[2];}
 bool Row_AlertType::AlarmDuration_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
+bool Row_AlertType::PoolAlerts_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[4];}
 bool Row_AlertType::Define_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[5];}
+return is_null[6];}
 bool Row_AlertType::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[6];}
+return is_null[7];}
 bool Row_AlertType::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[7];}
+return is_null[8];}
 bool Row_AlertType::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[8];}
+return is_null[9];}
 bool Row_AlertType::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[9];}
+return is_null[10];}
 
 			
 void Row_AlertType::DelayBeforeAlarm_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -243,24 +253,28 @@ void Row_AlertType::AlarmDuration_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY
 is_null[3]=val;
 is_modified=true;
 }
-void Row_AlertType::Define_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[5]=val;
+void Row_AlertType::PoolAlerts_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[4]=val;
 is_modified=true;
 }
-void Row_AlertType::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_AlertType::Define_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_AlertType::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_AlertType::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_AlertType::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_AlertType::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_AlertType::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_AlertType::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
+is_modified=true;
+}
+void Row_AlertType::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[10]=val;
 is_modified=true;
 }
 	
@@ -317,11 +331,24 @@ sprintf(buf, "%li", m_AlarmDuration);
 return buf;
 }
 
-string Row_AlertType::Description_asSQL()
+string Row_AlertType::PoolAlerts_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PoolAlerts);
+
+return buf;
+}
+
+string Row_AlertType::Description_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[5])
 return "NULL";
 
 char *buf = new char[41];
@@ -335,7 +362,7 @@ string Row_AlertType::Define_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char *buf = new char[41];
@@ -349,7 +376,7 @@ string Row_AlertType::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -362,7 +389,7 @@ string Row_AlertType::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -375,7 +402,7 @@ string Row_AlertType::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -388,7 +415,7 @@ string Row_AlertType::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[9])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -401,7 +428,7 @@ string Row_AlertType::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[10])
+if (is_null[11])
 return "NULL";
 
 char *buf = new char[29];
@@ -449,10 +476,10 @@ bool Table_AlertType::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_AlertType_asSQL()+", "+pRow->DelayBeforeAlarm_asSQL()+", "+pRow->ExitDelay_asSQL()+", "+pRow->AlarmDuration_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_AlertType_asSQL()+", "+pRow->DelayBeforeAlarm_asSQL()+", "+pRow->ExitDelay_asSQL()+", "+pRow->AlarmDuration_asSQL()+", "+pRow->PoolAlerts_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into AlertType (`PK_AlertType`, `DelayBeforeAlarm`, `ExitDelay`, `AlarmDuration`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into AlertType (`PK_AlertType`, `DelayBeforeAlarm`, `ExitDelay`, `AlarmDuration`, `PoolAlerts`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -503,7 +530,7 @@ condition = condition + "`PK_AlertType`=" + tmp_PK_AlertType;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_AlertType`="+pRow->PK_AlertType_asSQL()+", `DelayBeforeAlarm`="+pRow->DelayBeforeAlarm_asSQL()+", `ExitDelay`="+pRow->ExitDelay_asSQL()+", `AlarmDuration`="+pRow->AlarmDuration_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_AlertType`="+pRow->PK_AlertType_asSQL()+", `DelayBeforeAlarm`="+pRow->DelayBeforeAlarm_asSQL()+", `ExitDelay`="+pRow->ExitDelay_asSQL()+", `AlarmDuration`="+pRow->AlarmDuration_asSQL()+", `PoolAlerts`="+pRow->PoolAlerts_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update AlertType set " + update_values_list + " where " + condition;
@@ -647,78 +674,89 @@ sscanf(row[3], "%li", &(pRow->m_AlarmDuration));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Description = "";
+pRow->m_PoolAlerts = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Description = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_PoolAlerts));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Define = "";
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Define = string(row[5],lengths[5]);
+pRow->m_Description = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_id = 0;
+pRow->m_Define = "";
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_id));
+pRow->m_Define = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_batch));
+sscanf(row[7], "%li", &(pRow->m_psc_id));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_user));
+sscanf(row[8], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[9], "%li", &(pRow->m_psc_user));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_psc_mod = string(row[10],lengths[10]);
+sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_psc_mod = string(row[11],lengths[11]);
 }
 
 
@@ -876,78 +914,89 @@ sscanf(row[3], "%li", &(pRow->m_AlarmDuration));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Description = "";
+pRow->m_PoolAlerts = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Description = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_PoolAlerts));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Define = "";
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Define = string(row[5],lengths[5]);
+pRow->m_Description = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_id = 0;
+pRow->m_Define = "";
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_id));
+pRow->m_Define = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_batch));
+sscanf(row[7], "%li", &(pRow->m_psc_id));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_user));
+sscanf(row[8], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[9], "%li", &(pRow->m_psc_user));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_psc_mod = string(row[10],lengths[10]);
+sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_psc_mod = string(row[11],lengths[11]);
 }
 
 

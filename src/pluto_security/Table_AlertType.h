@@ -79,6 +79,7 @@ class DLL_EXPORT Row_AlertType : public TableRow, public SerializeClass
 short int m_DelayBeforeAlarm;
 short int m_ExitDelay;
 long int m_AlarmDuration;
+long int m_PoolAlerts;
 string m_Description;
 string m_Define;
 long int m_psc_id;
@@ -87,13 +88,14 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[11];
+		bool is_null[12];
 	
 	public:
 		long int PK_AlertType_get();
 short int DelayBeforeAlarm_get();
 short int ExitDelay_get();
 long int AlarmDuration_get();
+long int PoolAlerts_get();
 string Description_get();
 string Define_get();
 long int psc_id_get();
@@ -107,6 +109,7 @@ string psc_mod_get();
 void DelayBeforeAlarm_set(short int val);
 void ExitDelay_set(short int val);
 void AlarmDuration_set(long int val);
+void PoolAlerts_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
 void psc_id_set(long int val);
@@ -119,6 +122,7 @@ void psc_mod_set(string val);
 		bool DelayBeforeAlarm_isNull();
 bool ExitDelay_isNull();
 bool AlarmDuration_isNull();
+bool PoolAlerts_isNull();
 bool Define_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
@@ -129,6 +133,7 @@ bool psc_frozen_isNull();
 		void DelayBeforeAlarm_setNull(bool val);
 void ExitDelay_setNull(bool val);
 void AlarmDuration_setNull(bool val);
+void PoolAlerts_setNull(bool val);
 void Define_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
@@ -154,7 +159,7 @@ void psc_frozen_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_AlertType+ m_DelayBeforeAlarm+ m_ExitDelay+ m_AlarmDuration+ m_Description+ m_Define+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_AlertType+ m_DelayBeforeAlarm+ m_ExitDelay+ m_AlarmDuration+ m_PoolAlerts+ m_Description+ m_Define+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -163,6 +168,7 @@ void psc_frozen_setNull(bool val);
 string DelayBeforeAlarm_asSQL();
 string ExitDelay_asSQL();
 string AlarmDuration_asSQL();
+string PoolAlerts_asSQL();
 string Description_asSQL();
 string Define_asSQL();
 string psc_id_asSQL();
