@@ -37,6 +37,7 @@ using namespace std;
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_DeviceGroup.h"
 #include "pluto_main/Table_Device_DeviceGroup.h"
+#include "pluto_main/Table_Device_Device_Related.h"
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Table_DeviceTemplate_DeviceCommandGroup.h"
@@ -2038,10 +2039,21 @@ void Router::Configure()
 		}
     }
 
-    // Now match up route to's
+    // Now match up route to's and find any related devices
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
     {
         DeviceData_Router *pDevice = (*itDevice).second;
+		vector<Row_Device_Device_Related *> vectRow_Device_Device_Related;
+		pDevice->m_pRow_Device->Device_Device_Related_FK_Device_getrows(&vectRow_Device_Device_Related);
+		for(size_t s=0;s<vectRow_Device_Device_Related.size();++s)
+		{
+			Row_Device_Device_Related *pRow_Device_Device_Related = vectRow_Device_Device_Related[s];
+			DeviceData_Router *pDevice_Related = m_mapDeviceData_Router_Find(pRow_Device_Device_Related->FK_Device_Related_get());
+			if( pDevice_Related )
+				pDevice->m_mapDeviceRelation[pDevice_Related->m_dwPK_Device] = new DeviceRelation(pDevice_Related,pRow_Device_Device_Related->Value_get());
+
+
+		}
         DeviceData_Router *pDevice_RouteTo = m_mapDeviceData_Router_Find(pDevice->m_pRow_Device->FK_Device_RouteTo_get());
         if( pDevice_RouteTo )
             pDevice->m_pDevice_RouteTo = pDevice_RouteTo;

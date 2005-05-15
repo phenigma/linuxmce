@@ -5,6 +5,7 @@
 #define ALERTTYPE_Fire_CONST 2
 #define ALERTTYPE_Air_Quality_CONST 3
 #define ALERTTYPE_Movement_CONST 4
+#define ALERTTYPE_Information_CONST 5
 
 #define ALERTTYPE_TABLE "AlertType"
 #define ALERTTYPE_PK_ALERTTYPE_FIELD "PK_AlertType"

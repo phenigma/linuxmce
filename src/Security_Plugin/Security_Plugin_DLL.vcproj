@@ -137,6 +137,9 @@
 				RelativePath="Main.cpp">
 			</File>
 			<File
+				RelativePath=".\Notification.cpp">
+			</File>
+			<File
 				RelativePath="Security_Plugin.cpp">
 			</File>
 			<File

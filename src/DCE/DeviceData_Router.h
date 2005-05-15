@@ -88,8 +88,13 @@ namespace DCE
 	class DeviceRelation 
 	{
 	public:
-		class DeviceData_Router *pDevice;
-		string sParms;
+		class DeviceData_Router *m_pDevice;
+		string m_sParms;
+		DeviceRelation(class DeviceData_Router *pDevice,string sParms)
+		{
+			m_pDevice=pDevice;
+			m_sParms=sParms;
+		}
 	};
 
 	class DeviceData_Router : public DeviceData_Impl

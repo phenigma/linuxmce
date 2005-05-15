@@ -31,6 +31,11 @@ public:
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 18,0));
 	}
 
+	virtual void Air_Quality(int iPK_Device)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 39,1,26,StringUtils::itos(iPK_Device).c_str()));
+	}
+
 };
 
 
@@ -43,6 +48,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 33; } ;
 	virtual const char *GetDeviceDescription() { return "Security_Plugin"; } ;
+	string Get_Path() { return m_mapParameters[2];}
 	int Get_PK_HouseMode() { return atoi(m_mapParameters[38].c_str());}
 	void Set_PK_HouseMode(int Value) { SetParm(38,StringUtils::itos(Value).c_str()); }
 	string Get_PK_Device() { return m_mapParameters[77];}
@@ -88,6 +94,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Path() { return GetData()->Get_Path(); }
 	int DATA_Get_PK_HouseMode() { return GetData()->Get_PK_HouseMode(); }
 	void DATA_Set_PK_HouseMode(int Value) { GetData()->Set_PK_HouseMode(Value); }
 	string DATA_Get_PK_Device() { return GetData()->Get_PK_Device(); }
@@ -95,6 +102,7 @@ public:
 	void EVENT_Security_Breach(int iPK_Device) { GetEvents()->Security_Breach(iPK_Device); }
 	void EVENT_Fire_Alarm(int iPK_Device) { GetEvents()->Fire_Alarm(iPK_Device); }
 	void EVENT_Reset_Alarm() { GetEvents()->Reset_Alarm(); }
+	void EVENT_Air_Quality(int iPK_Device) { GetEvents()->Air_Quality(iPK_Device); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,class Message *pMessage) {};
 

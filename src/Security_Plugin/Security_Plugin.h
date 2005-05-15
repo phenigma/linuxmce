@@ -17,6 +17,8 @@
 class Database_pluto_main;
 class Database_pluto_security;
 class Row_Alert;
+class Row_AlertType;
+class Row_Alert_Device;
 class Row_ModeChange;
 #include "DeviceData_Router.h"
 #include "AlarmManager.h"
@@ -30,7 +32,8 @@ class Row_ModeChange;
 		WAIT (wait for the sensor to return to a normal state, and then consider it active),
 		BYPASS (bypass the sensor for this session.  When the sensor's mode changes, revert to normal)
 		[empty] (normal, the sensor is active)
-	Delay=
+	ModeChange=[PK_ModeChange] The record in the database when we changed this mode.  We will do a lookup if the sensor
+		is triggered to see if the change occurred during the exit delay
 
 	So each sensor can be independent.  This allows for unlimited 'zones', since each sensor can do its own thing.
 	The SetHouseMode command goes through and sets all the sensors to the appropriate mode.  If SetHouseMode is passed
@@ -51,6 +54,7 @@ namespace DCE
 //<-dceag-decl-e->
 	// Private member variables 
     pluto_pthread_mutex_t m_SecurityMutex;
+	pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
     class Orbiter_Plugin *m_pOrbiter_Plugin;
 	DeviceData_Router *m_pDeviceData_Router_this;
 	class AlarmManager *m_pAlarmManager;
@@ -66,6 +70,7 @@ namespace DCE
 	// will be stored here
 	time_t m_tExitTime;
 	bool m_bExitDelay_New; // Set to true when a new exit delay is started so we know to make a full announcement.
+	map<int,bool> m_mapAlarm_New; // For a PK_Alert Set to true when a new exit delay is started so we know to make a full announcement.
 
 	// Private methods
 public:
@@ -106,8 +111,8 @@ public:
 
 	// Alarm callback
 	virtual void AlarmCallback(int id, void* param);
-	void ProcessCountdownBeforeArmed();
-	void ProcessCountdownBeforeAlarm();
+	void ProcessCountdown(int id,Row_Alert *pRow_Alert);
+	void ProcessAlert(Row_Alert *pRow_Alert);
 	void SayToDevices(string sText,DeviceData_Router *pDeviceData_Router);
 
 	// Follow-me
@@ -116,7 +121,8 @@ public:
 
 	// Actions
 	void AnnounceAlert(DeviceData_Router *pDevice);
-	void SnapPhoto(DeviceData_Router *pDevice);
+	void SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_Router *pDevice);
+	Row_Alert *LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice);  // Returns NULL if the alert was pooled with another
 
 //<-dceag-h-b->
 	/*
@@ -126,6 +132,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Path();
 	int DATA_Get_PK_HouseMode();
 	void DATA_Set_PK_HouseMode(int Value);
 	string DATA_Get_PK_Device();
@@ -134,6 +141,7 @@ public:
 	void EVENT_Security_Breach(int iPK_Device);
 	void EVENT_Fire_Alarm(int iPK_Device);
 	void EVENT_Reset_Alarm();
+	void EVENT_Air_Quality(int iPK_Device);
 
 			*****COMMANDS***** we need to implement
 	*/

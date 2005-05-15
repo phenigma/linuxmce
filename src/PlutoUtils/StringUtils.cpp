@@ -539,7 +539,63 @@ time_t StringUtils::SQLDateTime( string sSQLDate )
         t.tm_min = atoi( sSQLDate.substr(10,2).c_str() );
         t.tm_sec = atoi( sSQLDate.substr(12,2).c_str() );
     }
-    else
+	else if( sSQLDate.find('-')!=string::npos && sSQLDate.find(':')!=string::npos ) // yyyy-mm-dd hh:mm:ss
+	{
+		string::size_type p1=0,p2;
+		p2 = sSQLDate.find('-',p1+1);
+		t.tm_year = atoi(sSQLDate.substr(p1,p2-p1).c_str())-1900;
+
+		p1=p2+1;
+		p2 = sSQLDate.find('-',p1+1);
+		if( p2 )
+			t.tm_mon = atoi(sSQLDate.substr(p1,p2-p1).c_str())-1;
+
+		p1=p2+1;
+		p2 = sSQLDate.find(' ',p1+1);
+		if( p2 )
+			t.tm_mday = atoi(sSQLDate.substr(p1,p2-p1).c_str());
+
+		p1=p2+1;
+		p2 = sSQLDate.find(':',p1+1);
+		if( p2 )
+			t.tm_hour = atoi(sSQLDate.substr(p1,p2-p1).c_str());
+
+		p1=p2+1;
+		p2 = sSQLDate.find(':',p1+1);
+		if( p2 )
+			t.tm_min = atoi(sSQLDate.substr(p1,p2-p1).c_str());
+
+		t.tm_sec = atoi(sSQLDate.substr(p2+1).c_str());
+	}
+	else if( sSQLDate.find('/')!=string::npos && sSQLDate.find(':')!=string::npos ) // yyyy-mm-dd hh:mm:ss
+	{
+		string::size_type p1=0,p2;
+		p2 = sSQLDate.find('/',p1+1);
+		t.tm_year = atoi(sSQLDate.substr(p1,p2-p1).c_str())-1900;
+
+		p1=p2+1;
+		p2 = sSQLDate.find('/',p1+1);
+		if( p2 )
+			t.tm_mon = atoi(sSQLDate.substr(p1,p2-p1).c_str())-1;
+
+		p1=p2+1;
+		p2 = sSQLDate.find(' ',p1+1);
+		if( p2 )
+			t.tm_mday = atoi(sSQLDate.substr(p1,p2-p1).c_str());
+
+		p1=p2+1;
+		p2 = sSQLDate.find(':',p1+1);
+		if( p2 )
+			t.tm_hour = atoi(sSQLDate.substr(p1,p2-p1).c_str());
+
+		p1=p2+1;
+		p2 = sSQLDate.find(':',p1+1);
+		if( p2 )
+			t.tm_min = atoi(sSQLDate.substr(p1,p2-p1).c_str());
+
+		t.tm_sec = atoi(sSQLDate.substr(p2+1).c_str());
+	}
+	else 
     {
         const char *pcDate = sSQLDate.c_str();
         t.tm_year = atoi( &pcDate[0] )-1900;
