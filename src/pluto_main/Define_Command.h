@@ -351,6 +351,7 @@
 #define COMMAND_Input_8_CONST 381
 #define COMMAND_Input_9_CONST 382
 #define COMMAND_Input_10_CONST 383
+#define COMMAND_Process_Receive_Command_For_Child_CONST 384
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
