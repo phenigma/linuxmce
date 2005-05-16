@@ -240,7 +240,7 @@ bool StringUtils::Replace( string sInputFile, string sOutputFile, string sSearch
     string sInput( buffer );
     delete[] buffer; // freeing the buffer allocated by ReadFileIntoBuffer
 
-    StringUtils::Replace( sInput, sSearch, sReplace );
+    StringUtils::Replace( &sInput, sSearch, sReplace );
 
 #ifndef WIN32
     system(("mkdir -p \"" + FileUtils::BasePath(sOutputFile) + "\"").c_str());
