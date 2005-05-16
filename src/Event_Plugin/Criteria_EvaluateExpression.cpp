@@ -54,6 +54,8 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 		iLValue = &iTmp;
 		break;
 	case CRITERIAPARMLIST_PK_Device_CONST:
+		if( iRValue==0 )
+			return true;
 		iLValue = &pEventInfo->m_pDevice->m_dwPK_Device;
 		break;
 	case CRITERIAPARMLIST_PK_DeviceTemplate_CONST:

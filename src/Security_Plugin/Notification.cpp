@@ -192,11 +192,13 @@ bool Notification::NotifyOrbiter(string sPhoneNumber,int iDelay)
 	if( iDelay==0 )
 		iDelay = MAX_TIMEOUT_FOR_PHONES;
 
+	g_pPlutoLogger->Write(LV_CRITICAL,"Notifying orbiter %s for delay %d",sPhoneNumber.c_str(),iDelay);
 	return false;
 }
 
 bool Notification::NotifyOther(string sPhoneNumber,int iDelay)
 {
+	g_pPlutoLogger->Write(LV_CRITICAL,"Notifying phone %s for delay %d",sPhoneNumber.c_str(),iDelay);
 	return false;
 }
 

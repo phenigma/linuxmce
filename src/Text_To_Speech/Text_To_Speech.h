@@ -6,6 +6,7 @@
 
 #include "Gen_Devices/Text_To_SpeechBase.h"
 //<-dceag-d-e->
+#define FILE_PATH "/home/public/data/tts"
 
 //<-dceag-decl-b->
 namespace DCE
@@ -28,6 +29,11 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+
+		pluto_pthread_mutex_t m_TTSMutex; //this will protect needredraw vectors
+		int m_dwPK_Device_MediaPlugin;
+		int m_dwID;  // A numeric ID for the request
+		map<time_t,string> m_mapOutstandingFiles; // So we can delete files more than 5 minutes old
 
 //<-dceag-h-b->
 	/*

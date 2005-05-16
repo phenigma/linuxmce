@@ -2101,8 +2101,10 @@ void Router::Configure()
         {
             Row_Device_DeviceGroup *pRow_Device_DeviceGroup = vectRow_Device_DeviceGroup[s2];
             pDeviceGroup->m_vectPK_Device.push_back(pRow_Device_DeviceGroup->FK_Device_get());
+			pDeviceGroup->m_vectDeviceData_Base.push_back(m_mapDeviceData_Router_Find(pRow_Device_DeviceGroup->FK_Device_get()));
         }
         allDevices.m_mapDeviceGroup[pDeviceGroup->m_dwPK_DeviceGroup] = pDeviceGroup;
+        m_mapDeviceGroup[pDeviceGroup->m_dwPK_DeviceGroup] = pDeviceGroup;
     }
 
     // Serialize everything

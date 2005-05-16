@@ -1913,6 +1913,27 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 		CMD_Set_Text(pDesignObj_Orbiter->m_ObjectID, StringUtils::itos(	int(m_tTimeoutTime - time(NULL)) ) + " seconds",TEXT_USR_ENTRY_CONST);
 		CMD_Continuous_Refresh("10");
 	}
+	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_objHouseStatusIndicator_CONST )
+	{
+		// This is actually at startup time.  Figure out what device group this is controlling
+		int PK_DeviceGroup=0;
+		for(DesignObjZoneList::iterator itZ=pDesignObj_Orbiter->m_ZoneList.begin();itZ!=pDesignObj_Orbiter->m_ZoneList.end();++itZ)
+		{
+			DesignObjZone *pDesignObjZone = *itZ;
+
+			for(DesignObjCommandList::iterator it=pDesignObjZone->m_Commands.begin();it!=pDesignObjZone->m_Commands.end();++it)
+			{
+				DesignObjCommand *pDesignObjCommand = *it;
+				if( pDesignObjCommand->m_PK_Command==COMMAND_Set_Variable_CONST )
+				{
+					int PK_Variable = atoi(pDesignObjCommand->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST].c_str());
+					if( PK_Variable == VARIABLE_PK_DeviceGroup_CONST )
+						PK_DeviceGroup = atoi(pDesignObjCommand->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST].c_str());
+				}
+			}
+		}
+		CMD_Bind_Icon(pDesignObj_Orbiter->m_ObjectID, "housemode" + StringUtils::itos(PK_DeviceGroup),true);
+	}
 }
 
 void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)

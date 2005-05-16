@@ -105,7 +105,7 @@ public:
 	string GetModeString(int PK_HouseMode);
 	int GetModeID(string Mode);
 	// Returns the PK_AlertType for this mode/house.  Or ALERTTYPE_DONOTHING, ALERTTYPE_ANNOUNCMENT, ALERTTYPE_PHOTO
-	int GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice);
+	int GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice,bool *bNotify=NULL);
 	void SecurityBreach(DeviceData_Router *pDevice);
 	void FireAlarm(DeviceData_Router *pDevice);
 	string AlertsSinceLastChange(int PK_DeviceGroup);
@@ -114,6 +114,7 @@ public:
 
 	/** Interceptors */
     bool SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+	bool SensorTrippedEvent(class DeviceData_Router *pDevice,bool bIsTripped);
 	bool OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 	// Alarm callback
@@ -129,7 +130,7 @@ public:
 	// Actions
 	void AnnounceAlert(DeviceData_Router *pDevice);
 	void SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_Router *pDevice);
-	Row_Alert *LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice);  // Returns NULL if the alert was pooled with another
+	Row_Alert *LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice,bool bNotify=false);  // Returns NULL if the alert was pooled with another
 	void SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare=NULL);
 	void SetHouseModeBoundIcon(int PK_DeviceGroup=-1,OH_Orbiter *pOH_Orbiter_Compare=NULL);
 

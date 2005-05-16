@@ -71,6 +71,7 @@ using namespace DCE;
 #define PROCESS_ALERT					1
 #define PROCESS_COUNTDOWN_BEFORE_ALARM	2
 #define PROCESS_COUNTDOWN_BEFORE_ARMED	3
+#define PROCESS_MODE_CHANGE				4
 
 // Non-alert types
 #define ALERTTYPE_DONOTHING				0
@@ -133,7 +134,6 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 
 	m_pDeviceData_Router_this = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
 	m_bMonitorMode = m_pDeviceData_Router_this->m_sStatus_get()=="1";
-	SetMonitorModeBoundIcon();
 
 	Row_Text_LS *pRow_Text_LS = m_pDatabase_pluto_main->Text_LS_get()->GetRow(TEXT_Countdown_before_alarm_CONST,m_pRouter->iPK_Language_get());
 	if( pRow_Text_LS )
@@ -355,6 +355,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 
 	m_tExitTime=0;
 	m_pAlarmManager->CancelAlarmByType(PROCESS_COUNTDOWN_BEFORE_ARMED);
+	m_pAlarmManager->CancelAlarmByType(PROCESS_MODE_CHANGE);
 
 	if( PK_HouseMode==-1 || PK_HouseMode==-2 )
 	{
@@ -386,7 +387,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		for(size_t s=0;s<pDeviceGroup->m_vectDeviceData_Base.size();++s)
 		{
 			DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceGroup->m_vectDeviceData_Base[s];  // it's coming from the router, so it's safe to cast it
-			if( pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST )
+			if( pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST && pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_Generic_IO_CONST )
 				continue;
 			mapResetDevices[pDevice->m_dwPK_Device] = pDevice;
 			if( !SetHouseMode(pDevice,iPK_Users,PK_HouseMode,sHandling_Instructions) )
@@ -394,28 +395,30 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 				bFailed=true;
 				break;
 			}
-			if( !bSensorsActive && GetAlertType(PK_HouseMode,pDevice)>0 )
+			if( !bSensorsActive && GetAlertType(PK_HouseMode,pDevice)==ALERTTYPE_Security_CONST )
 				bSensorsActive=true;
 		}
 	}
 	else
 	{
-		ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Security_Device_CONST);
-		if( !pListDeviceData_Router )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Trying to set house mode with no security devices");
-		else
+		for(int i=0;i<2;++i)
 		{
-			for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+			ListDeviceData_Router *pListDeviceData_Router = 
+				(i==0 ? m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Security_Device_CONST) : m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Generic_IO_CONST) );
+			if( pListDeviceData_Router )
 			{
-				DeviceData_Router *pDevice = *it;
-				mapResetDevices[pDevice->m_dwPK_Device] = pDevice;
-				if( !SetHouseMode(pDevice,iPK_Users,PK_HouseMode,sHandling_Instructions) )
+				for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 				{
-					bFailed=true;
-					break;
+					DeviceData_Router *pDevice = *it;
+					mapResetDevices[pDevice->m_dwPK_Device] = pDevice;
+					if( !SetHouseMode(pDevice,iPK_Users,PK_HouseMode,sHandling_Instructions) )
+					{
+						bFailed=true;
+						break;
+					}
+					if( !bSensorsActive && GetAlertType(PK_HouseMode,pDevice)==ALERTTYPE_Security_CONST )
+						bSensorsActive=true;
 				}
-				if( !bSensorsActive && GetAlertType(PK_HouseMode,pDevice)>0 )
-					bSensorsActive=true;
 			}
 		}
 	}
@@ -452,6 +455,9 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 			m_pAlarmManager->AddRelativeAlarm(0,this,PROCESS_COUNTDOWN_BEFORE_ARMED,NULL);
 		}
 	}
+
+	// We want to be sure to fire tripped status's for any sensors that may have gotten tripped during the countdown
+	m_pAlarmManager->AddRelativeAlarm(pRow_AlertType->ExitDelay_get(),this,PROCESS_MODE_CHANGE,NULL);
 
 	DCE::CMD_Set_Text CMD_Set_TextAlert( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), sAlerts,
 		TEXT_Alerts_Placeholder_CONST );
@@ -549,17 +555,19 @@ bool Security_Plugin::SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevic
 
 bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-	DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceFrom;
-
-	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
-	if( !pDevice || (pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST && pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_Generic_IO_CONST) )
+	if( !pDeviceFrom || (pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST && pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Generic_IO_CONST) )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Receieved a sensor trip from an unrecognized device: %d",pMessage->m_dwPK_Device_From);
 		return false;
 	}
-
 	bool bTripped = pMessage->m_mapParameters[EVENTPARAMETER_Tripped_CONST]=="1";
-	pDevice->m_sStatus_set(bTripped ? "TRIPPED" : "NORMAL");
+	return SensorTrippedEvent((DeviceData_Router *) pDeviceFrom,bTripped);
+}
+
+bool Security_Plugin::SensorTrippedEvent(DeviceData_Router *pDevice,bool bIsTripped)
+{
+	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
+	pDevice->m_sStatus_set(bIsTripped ? "TRIPPED" : "NORMAL");
 
 	string State = pDevice->m_sState_get();
 	string::size_type pos=0;
@@ -569,7 +577,7 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 
 	int PK_HouseMode = GetModeID(Mode);
 
-	if( bTripped==false )
+	if( bIsTripped==false )
 	{
 		if( Bypass=="WAIT" )
 			pDevice->m_sState_set(Mode + ",," + sPK_ModeChange );
@@ -586,7 +594,8 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 	}
 
 
-	int PK_AlertType = GetAlertType(PK_HouseMode,pDevice);
+	bool bNotify=false;
+	int PK_AlertType = GetAlertType(PK_HouseMode,pDevice,&bNotify);
 	if( PK_AlertType==ALERTTYPE_DONOTHING )
 		return true;
 	else if( PK_AlertType<0 )
@@ -618,30 +627,40 @@ time_t tnow = time(NULL);
 
 	if( Bypass!="BYPASS" && Bypass!="PERMBYPASS" && SensorIsTripped(PK_HouseMode,pDevice) )
 	{
-		Row_Alert *pRow_Alert=LogAlert(pRow_AlertType,pDevice);
+		Row_Alert *pRow_Alert=LogAlert(pRow_AlertType,pDevice,bNotify);
 		if( pRow_Alert )
 		{
 			m_pAlarmManager->AddRelativeAlarm(0,this,PROCESS_COUNTDOWN_BEFORE_ALARM,(void *) pRow_Alert);
 			m_pAlarmManager->AddAbsoluteAlarm(StringUtils::SQLDateTime(pRow_Alert->ExpirationTime_get()),this,PROCESS_ALERT,(void *) pRow_Alert);
+			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,
+				0,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST),"","",false,false);
+			SendCommand(CMD_Goto_Screen_DL);
 		}
 	}
 
 	return true;
 }
 
-int Security_Plugin::GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice)
+int Security_Plugin::GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice,bool *bNotify)
 {
 	// 0=Do nothing, 1=fire alert, 2=make announcement, 3=snap phto
 	int Alert=0;
 	string sAlertData = pDevice->m_mapParameters[DEVICEDATA_Alert_CONST];
 	//monitor mode, disarmed, armed - away, armed - at home, sleeping, entertaining, extended away
-	sAlertData="0,0,1,1,1,1,1";
 	if( sAlertData.length()<13 )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Alert data not specified for %d",pDevice->m_dwPK_Device);
 		return 0;
 	}
-	Alert = sAlertData[PK_HouseMode * 2]-48;
+
+	string::size_type pos=0;
+	string s;
+	for( int i=0;i<=PK_HouseMode;++i )
+		s=StringUtils::Tokenize(sAlertData,",",pos); // Go to the Xth digit
+	Alert = atoi(s.c_str());
+	if( bNotify )
+		*bNotify = s.find('N')!=string::npos;
+
 	if( Alert==0 )
 		return ALERTTYPE_DONOTHING;
 	else if( Alert==2 )
@@ -659,6 +678,27 @@ void Security_Plugin::AlarmCallback(int id, void* param)
 		ProcessCountdown(id,(Row_Alert *) param);
 	else if( id==PROCESS_COUNTDOWN_BEFORE_ARMED )
 		ProcessCountdown(id,NULL);
+	else if( id==PROCESS_MODE_CHANGE )
+	{
+		PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
+		for(int i=0;i<2;++i)
+		{
+			ListDeviceData_Router *pListDeviceData_Router = 
+				(i==0 ? m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Security_Device_CONST) : m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Generic_IO_CONST) );
+			if( pListDeviceData_Router )
+			{
+				for( ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+				{
+					DeviceData_Router *pDeviceData_Router = *it;
+					string::size_type pos=0;
+					string Mode = StringUtils::Tokenize(pDeviceData_Router->m_sState_get(),",",pos);
+					int PK_HouseMode = GetModeID(Mode);
+					if( SensorIsTripped(PK_HouseMode,pDeviceData_Router) )
+						SensorTrippedEvent(pDeviceData_Router,true);
+				}
+			}
+		}
+	}
 }
 
 void Security_Plugin::ProcessAlert(Row_Alert *pRow_Alert)
@@ -826,7 +866,7 @@ void Security_Plugin::SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_R
 	}
 }
 
-Row_Alert *Security_Plugin::LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice)
+Row_Alert *Security_Plugin::LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice,bool bNotify)
 {
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	Row_Alert *pRow_Alert=NULL;
@@ -855,6 +895,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Pooling alert PK: %d",pRow_Alert->PK_Alert_get(
 		bNewAlert=true;
 		pRow_Alert = m_pDatabase_pluto_security->Alert_get()->AddRow();
 		pRow_Alert->FK_AlertType_set(pRow_AlertType->PK_AlertType_get());
+		pRow_Alert->Notification_set(bNotify);
 		pRow_Alert->EK_Device_set(pDevice->m_dwPK_Device);
 		pRow_Alert->DetectionTime_set(StringUtils::SQLDateTime(time(NULL)));
 		pRow_Alert->ExpirationTime_set(StringUtils::SQLDateTime(time(NULL) + (pRow_AlertType ? pRow_AlertType->ExitDelay_get() : 0) ));
@@ -891,17 +932,17 @@ void Security_Plugin::SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare)
 
 void Security_Plugin::SetHouseModeBoundIcon(int PK_DeviceGroup,OH_Orbiter *pOH_Orbiter_Compare)
 {
-	for(map<int,int>::iterator it=m_mapPK_HouseMode.begin();it!=m_mapPK_HouseMode.end();++it)
+	for(map<int,int>::iterator itHM=m_mapPK_HouseMode.begin();itHM!=m_mapPK_HouseMode.end();++itHM)
 	{
-		if( PK_DeviceGroup==-1 || PK_DeviceGroup==it->first )
+		if( PK_DeviceGroup==-1 || PK_DeviceGroup==itHM->first )
 		{
-			int PK_HouseMode=it->second;
+			int PK_HouseMode=itHM->second;
 			for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 			{
 				OH_Orbiter *pOH_Orbiter = (*it).second;
-				if( pOH_Orbiter==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
+				if( pOH_Orbiter_Compare==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
 				{
-					DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode" + StringUtils::itos(it->first));
+					DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode" + StringUtils::itos(itHM->first));
 					SendCommand(CMD_Set_Bound_Icon);
 				}
 			}

@@ -1886,15 +1886,19 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
     if( sPK_EntertainArea.size()==0 )
     {
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( iPK_Device_Orbiter );
-        if( !pOH_Orbiter )
+		MediaDevice *pMediaDevice;
+		if( iPK_Device && (pMediaDevice = m_mapMediaDevice_Find(iPK_Device))!=NULL )
+		{
+			// Maybe there's a specific media device we should use
+			for( MapEntertainArea::iterator it=pMediaDevice->m_mapEntertainArea.begin( );it!=pMediaDevice->m_mapEntertainArea.end( );++it )
+				vectEntertainArea.push_back(( *it ).second);
+		}
+        else if( !pOH_Orbiter )
         {
-            g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media with no entertainment area from a non-orbiter %d %d %s",iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
-            return; // Don't know what area it should be played in
+			g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media with no entertainment area/device from a non-orbiter %d %d %s",iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
+			return; // Don't know what area it should be played in
         }
-
-		g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea3");
-
-        if( !pOH_Orbiter->m_pEntertainArea )
+        else if( !pOH_Orbiter->m_pEntertainArea )
         {
 			// It could be an orbiter that was recently added
 			for( map<int, EntertainArea *>::iterator itEntArea=m_mapEntertainAreas.begin( );itEntArea!=m_mapEntertainAreas.end( );++itEntArea )
@@ -2046,7 +2050,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 			pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
 
 		if( vectRow_DeviceTemplate_MediaType.size()!=1 )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot decisively determine media type for %d/%d, rows: %d",
+			g_pPlutoLogger->Write(LV_STATUS,"Cannot decisively determine media type for %d/%d, rows: %d",
 				iPK_Device,iPK_DeviceTemplate,(int) vectRow_DeviceTemplate_MediaType.size());
 
 		if( vectRow_DeviceTemplate_MediaType.size() )
@@ -2056,17 +2060,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 		}
     }
 
-	if( iPK_MediaType )
-    {
-		// Find the media handlers we're going to need
-		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
-
-		GetMediaHandlersForEA(iPK_MediaType, vectEntertainArea, mapMediaHandlerInfo);
-
-		for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
-			StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
-    }
-    else if( dequeMediaFile.size() )
+    if( dequeMediaFile.size() )
     {
         string Extension = StringUtils::ToUpper(FileUtils::FindExtension(dequeMediaFile[0]->m_sFilename));
 
@@ -2089,6 +2083,16 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 			StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
 break; // handle multiple handlers
 }
+    }
+	else if( iPK_MediaType )
+    {
+		// Find the media handlers we're going to need
+		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
+
+		GetMediaHandlersForEA(iPK_MediaType, vectEntertainArea, mapMediaHandlerInfo);
+
+		for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
+			StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
     }
     else if( vectEntertainArea.size()==1 ) // We got nothing -- find a disk drive within the entertainment area and send it a reset
     {
