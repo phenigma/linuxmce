@@ -2093,7 +2093,7 @@ void Router::Configure()
     for(size_t s=0;s<vectDeviceGroup.size();++s)
     {
         Row_DeviceGroup *pRow_DeviceGroup = vectDeviceGroup[s];
-        DeviceGroup *pDeviceGroup = new DeviceGroup(pRow_DeviceGroup->PK_DeviceGroup_get(),pRow_DeviceGroup->Description_get());
+        DeviceGroup *pDeviceGroup = new DeviceGroup(pRow_DeviceGroup->PK_DeviceGroup_get(),pRow_DeviceGroup->Description_get(),pRow_DeviceGroup->Type_get());
 
         vector<Row_Device_DeviceGroup *> vectRow_Device_DeviceGroup;
         pRow_DeviceGroup->Device_DeviceGroup_FK_DeviceGroup_getrows(&vectRow_Device_DeviceGroup);

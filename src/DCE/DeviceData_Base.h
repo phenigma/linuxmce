@@ -175,10 +175,11 @@ namespace DCE
 	public:
 		int m_dwPK_DeviceGroup;
 		string m_sDescription;
+		int m_Type;
 		vector<int> m_vectPK_Device;
 		vector<class DeviceData_Base *> m_vectDeviceData_Base;
 
-		DeviceGroup(int dwPK_DeviceGroup,string sDescription) { m_sDescription=sDescription; m_dwPK_DeviceGroup=dwPK_DeviceGroup; }
+		DeviceGroup(int dwPK_DeviceGroup,string sDescription,int Type) { m_sDescription=sDescription; m_dwPK_DeviceGroup=dwPK_DeviceGroup; m_Type=Type; }
 		DeviceGroup() {}
 
 		void SetupSerialization(int iSC_Version)

@@ -60,6 +60,7 @@ using namespace DCE;
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Table_Text_LS.h"
+#include "pluto_main/Table_Device_DeviceData.h"
 
 #include "pluto_security/Table_Alert.h"
 #include "pluto_security/Table_Alert_Device.h"
@@ -189,6 +190,16 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 	m_PK_Device_TextToSpeach = pDeviceData_Base ? pDeviceData_Base->m_dwPK_Device : 0;
 
 	FileUtils::MakeDir(DATA_Get_Path()); // Just be sure it's here
+
+	// Get the zones
+    for(map<int,class DeviceGroup *>::const_iterator it=m_pRouter->m_mapDeviceGroup_get()->begin();it!=m_pRouter->m_mapDeviceGroup_get()->end();++it)
+	{
+		DeviceGroup *pDeviceGroup = it->second;
+		if( pDeviceGroup->m_Type==1 )
+			m_mapDeviceGroup[pDeviceGroup->m_dwPK_DeviceGroup]=pDeviceGroup;
+	}
+
+	GetHouseModes();
 }
 
 //<-dceag-const2-b->!
@@ -415,23 +426,12 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		return;
 	}
 
-	m_pDeviceData_Router_this->m_sState_set(GetModeString(PK_HouseMode));
+	m_mapPK_HouseMode[iPK_DeviceGroup]=PK_HouseMode;
+	SaveHouseModes();
 	Row_AlertType *pRow_AlertType = m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Security_CONST);
 	string sAlerts = AlertsSinceLastChange(iPK_DeviceGroup);
 
-	// Set the house indicators on either all orbiters, or just orbiters in this group if we only changed a zone
-	if( pDeviceGroup )
-	{
-		// Only set the house mode on the orbiters within this group
-		for(size_t s=0;s<pDeviceGroup->m_vectDeviceData_Base.size();++s)
-		{
-			DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceGroup->m_vectDeviceData_Base[s];  // it's coming from the router, so it's safe to cast it
-			if( pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_Orbiter_CONST )
-				SetHouseModeBoundIcon(m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice->m_dwPK_Device));
-		}
-	}
-	else
-		SetHouseModeBoundIcon();
+	SetHouseModeBoundIcon(iPK_DeviceGroup);
 	
 	DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), "", "", false, true );
 
@@ -567,7 +567,7 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 	string Bypass = StringUtils::Tokenize(State,",",pos);
 	string sPK_ModeChange = StringUtils::Tokenize(State,",",pos);
 
-	int PK_HouseMode = GetModeID(m_pDeviceData_Router_this->m_sState_get());
+	int PK_HouseMode = GetModeID(Mode);
 
 	if( bTripped==false )
 	{
@@ -781,11 +781,11 @@ int Security_Plugin::GetModeID(string Mode)
 bool Security_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
 	bool bRegistered = pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST]=="1";
-	int PK_HouseMode = GetModeID(m_pDeviceData_Router_this->m_sState_get());
 	if( bRegistered )
 	{
-		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pMessage->m_dwPK_Device_From,StringUtils::itos(PK_HouseMode),"housemode");
-		SendCommand(CMD_Set_Bound_Icon);
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDeviceFrom->m_dwPK_Device);
+		SetHouseModeBoundIcon(-1,pOH_Orbiter);
+		SetMonitorModeBoundIcon(pOH_Orbiter);
 	}
 	return true;
 }
@@ -873,5 +873,73 @@ g_pPlutoLogger->Write(LV_STATUS,"new alert PK: %d",pRow_Alert->PK_Alert_get());
 	SnapPhoto(pRow_Alert_Device,pDevice);
 
 	return bNewAlert ? pRow_Alert : NULL;
+}
+
+
+void Security_Plugin::SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare)
+{
+	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+	{
+		OH_Orbiter *pOH_Orbiter = (*it).second;
+		if( pOH_Orbiter==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
+		{
+			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos((int) m_bMonitorMode),"monitormode");
+			SendCommand(CMD_Set_Bound_Icon);
+		}
+	}
+}
+
+void Security_Plugin::SetHouseModeBoundIcon(int PK_DeviceGroup,OH_Orbiter *pOH_Orbiter_Compare)
+{
+	for(map<int,int>::iterator it=m_mapPK_HouseMode.begin();it!=m_mapPK_HouseMode.end();++it)
+	{
+		if( PK_DeviceGroup==-1 || PK_DeviceGroup==it->first )
+		{
+			int PK_HouseMode=it->second;
+			for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+			{
+				OH_Orbiter *pOH_Orbiter = (*it).second;
+				if( pOH_Orbiter==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
+				{
+					DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode" + StringUtils::itos(it->first));
+					SendCommand(CMD_Set_Bound_Icon);
+				}
+			}
+		}
+	}
+}
+
+void Security_Plugin::GetHouseModes()
+{
+	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_dwPK_Device,DEVICEDATA_Configuration_CONST);
+	if( !pRow_Device_DeviceData )
+		return;
+
+	m_mapPK_HouseMode.clear();
+	string sData=pRow_Device_DeviceData->IK_DeviceData_get();
+	string::size_type pos=0;
+	while( pos<sData.size() && pos!=string::npos )
+	{
+		int PK_DeviceGroup = atoi( StringUtils::Tokenize(sData,",",pos).c_str() );
+		m_mapPK_HouseMode[PK_DeviceGroup]=atoi( StringUtils::Tokenize(sData,",",pos).c_str() );
+	}
+}
+
+void Security_Plugin::SaveHouseModes()
+{
+	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_dwPK_Device,DEVICEDATA_Configuration_CONST);
+	if( !pRow_Device_DeviceData )
+	{
+		pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+		pRow_Device_DeviceData->FK_Device_set(m_dwPK_Device);
+		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_Configuration_CONST);
+	}
+
+	string sData;
+	for(map<int,int>::iterator it=m_mapPK_HouseMode.begin();it!=m_mapPK_HouseMode.end();++it)
+		sData += StringUtils::itos(it->first) + "," + StringUtils::itos(it->second) + ",";
+
+	pRow_Device_DeviceData->IK_DeviceData_set(sData);
+	pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
 }
 

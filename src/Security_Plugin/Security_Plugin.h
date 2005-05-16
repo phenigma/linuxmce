@@ -65,6 +65,8 @@ namespace DCE
 	int m_PK_Device_TextToSpeach;
 	map<pthread_t,class Notification *> m_mapNotification; // Any pending notifications
 	bool m_bMonitorMode; // True if the user is monitoring events
+	map<int,class DeviceGroup *> m_mapDeviceGroup; // The device groups that are valid security zones
+	map<int,int> m_mapPK_HouseMode;  // Map the house mode to the devicegroup
 	
 	// The announcements we'll need to make are stored here.  They come from the Text_LS table
 	string m_sCountdownBeforeAlarm,m_sCountdownBeforeArmed,m_sShortCountdownBeforeAlarm,m_sShortCountdownBeforeArmed;
@@ -107,6 +109,8 @@ public:
 	void SecurityBreach(DeviceData_Router *pDevice);
 	void FireAlarm(DeviceData_Router *pDevice);
 	string AlertsSinceLastChange(int PK_DeviceGroup);
+	void SaveHouseModes();  // Save m_mapPK_HouseMode to the database
+	void GetHouseModes(); // Get m_mapPK_HouseMode from the database
 
 	/** Interceptors */
     bool SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
@@ -126,6 +130,8 @@ public:
 	void AnnounceAlert(DeviceData_Router *pDevice);
 	void SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_Router *pDevice);
 	Row_Alert *LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice);  // Returns NULL if the alert was pooled with another
+	void SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare=NULL);
+	void SetHouseModeBoundIcon(int PK_DeviceGroup=-1,OH_Orbiter *pOH_Orbiter_Compare=NULL);
 
 //<-dceag-h-b->
 	/*
@@ -175,32 +181,6 @@ public:
 //<-dceag-h-e->
 	// make these inline so Orbiter Plugin can call them without adding the security plugin.cpp file
 	// TODO: All the plugins should call the other plugins using the shared objects/dll's rather than static linking
-	void Security_Plugin::SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare=NULL)
-	{
-		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
-		{
-			OH_Orbiter *pOH_Orbiter = (*it).second;
-			if( pOH_Orbiter==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
-			{
-				DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos((int) m_bMonitorMode),"monitormode");
-				SendCommand(CMD_Set_Bound_Icon);
-			}
-		}
-	}
-
-	void Security_Plugin::SetHouseModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare=NULL)
-	{
-		int PK_HouseMode = atoi(m_pDeviceData_Router_this->m_sState_get().c_str());
-		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
-		{
-			OH_Orbiter *pOH_Orbiter = (*it).second;
-			if( pOH_Orbiter==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
-			{
-				DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode");
-				SendCommand(CMD_Set_Bound_Icon);
-			}
-		}
-	}
 };
 
 //<-dceag-end-b->

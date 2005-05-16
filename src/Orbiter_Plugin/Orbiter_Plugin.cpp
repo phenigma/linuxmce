@@ -68,7 +68,6 @@ string g_sLatestMobilePhoneVersion="2005.05.13";
 
 #include "../Media_Plugin/EntertainArea.h"
 #include "../Media_Plugin/Media_Plugin.h"
-#include "../Security_Plugin/Security_Plugin.h"
 
 //<-dceag-const-b->!
 Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -172,8 +171,8 @@ bool Orbiter_Plugin::Register()
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Security plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
-	m_pSecurity_Plugin = ( Security_Plugin * ) pListCommand_Impl->front( );
-	m_pSecurity_Floorplan=( FloorplanInfoProvider * ) m_pSecurity_Plugin;
+	Security_Plugin *pSecurity_Plugin = ( Security_Plugin * ) pListCommand_Impl->front( );
+	m_pSecurity_Floorplan=( FloorplanInfoProvider * ) pSecurity_Plugin;
 
 	m_pTelecom_Floorplan=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Telecom_Plugin_CONST );
@@ -1191,9 +1190,6 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Me
 
 		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icont(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Telecom ? "1" : "0","follow_telecom");
 		SendCommand(CMD_Set_Bound_Icont);
-
-		m_pSecurity_Plugin->SetHouseModeBoundIcon(pOH_Orbiter);
-		m_pSecurity_Plugin->SetMonitorModeBoundIcon(pOH_Orbiter);
 	}
 }
 
