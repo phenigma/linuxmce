@@ -58,6 +58,7 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
         case VK_R:      iPK_Button = BUTTON_Phone_Soft_right_CONST;  break;
         case '*':       iPK_Button = BUTTON_Asterisk_CONST;          break;
         case '#':       iPK_Button = BUTTON_Pound_CONST;             break;
+        case VK_W:      iPK_Button = BUTTON_Terminate_Text_CONST;    break;
 #endif 
 
         case VK_F1:     iPK_Button = BUTTON_F1_CONST;            break;

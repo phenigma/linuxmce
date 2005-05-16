@@ -11,6 +11,7 @@
 #define VK_L 0x4C
 #define VK_R 0x52
 #define VK_Z 0x5A
+#define VK_W 0x57
 //-----------------------------------------------------------------------------------------------------
 bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
                                int& iPK_Button, bool& bShiftDown, bool& bAltDown, 

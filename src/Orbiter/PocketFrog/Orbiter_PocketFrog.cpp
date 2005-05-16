@@ -316,16 +316,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
         for (int i = 0; i < width; i++)
         {
 			pixelCurrent = GetDisplay()->GetPixel(i + x, j + y);
-			const int max_diff = 5;
 
-    		if(
-				abs(GetRedColor(pixelSrc)	- GetRedColor(pixelCurrent))  < max_diff	    &&
-				abs(GetGreenColor(pixelSrc) - GetGreenColor(pixelCurrent)) < max_diff + 30  &&
-				abs(GetBlueColor(pixelSrc)	- GetBlueColor(pixelCurrent)) < max_diff
-			)
-			{   
+    		if(pixelSrc == pixelCurrent)
 				GetDisplay()->SetPixel(i + x, j + y, pixelDest);
-			}
         }
     }
 }

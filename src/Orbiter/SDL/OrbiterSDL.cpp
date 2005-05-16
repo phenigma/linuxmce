@@ -359,7 +359,7 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
             // we may need locking on the surface
 			Pixel = getpixel(m_pScreenImage, i + x, j + y);
 			unsigned char *pPixel = (unsigned char *) &Pixel;
-			const int max_diff = 20;
+			const int max_diff = 3;
 			if ( abs(Source[0]-pPixel[0])<max_diff && abs(Source[1]-pPixel[1])<max_diff && abs(Source[2]-pPixel[2])<max_diff && abs(Source[3]-pPixel[3])<max_diff )
 			{
 				putpixel(m_pScreenImage, i + x, j + y, PlutoPixelDest);

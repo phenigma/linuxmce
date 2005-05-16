@@ -890,6 +890,7 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
         cerr << "Failed to create sub-surface. Can't extract subset" << endl;
     }
 
+    /*
     // copy pixel by pixel (this can be optimized to get line by line?)
     for (int j = 0; j < rect.Height; j++)
     {
@@ -898,16 +899,15 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
             // we may need locking on the two surfaces
             putpixel(SubSurface, i, j, getpixel(pRenderImage, i + rect.X, j + rect.Y));
         }
-    }
+    }*/
+
+    SDL_Rect SourceRect;
+    SourceRect.x = rect.Left(); SourceRect.y = rect.Top();
+    SourceRect.w = rect.Width; SourceRect.h = rect.Height;
+    SDL_SetAlpha(pRenderImage->m_pSDL_Surface, 0, 0);
+    SDL_BlitSurface(pRenderImage->m_pSDL_Surface, &SourceRect, SubSurface->m_pSDL_Surface, NULL);
+
     SubSurface->NewSurface = false;
-    /*
-    SDL_FillRect(Screen, NULL, SDL_MapRGB(Screen->format, 0, 0, 0));
-    SDL_BlitSurface(SubSurface->m_pSDL_Surface, NULL, Screen, NULL);
-    SDL_Flip(Screen);
-    SDL_Event SDL_event;
-    SDL_PollEvent(&SDL_event);
-    */
-    //Sleep(5000);
 
     return SubSurface;
 }
