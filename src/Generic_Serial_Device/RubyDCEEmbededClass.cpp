@@ -78,7 +78,10 @@ RubyDCEEmbededClass::CallCmdForChildHandler(Message *pMessage) {
 		pembclass = new RubyEmbededClassImpl<>("Command");
 		RubyCommandWrapper* pWrapper = reinterpret_cast<RubyCommandWrapper*>(DATA_PTR(pembclass->getValue()));
 		
-		if(pWrapper != NULL) {
+		if(pWrapper == NULL) {
+			delete pembclass;
+			return;
+		} else {
 			pWrapper->setDevIdFrom(pMessage->m_dwPK_Device_From);
 			pWrapper->setDevIdTo(pMessage->m_dwPK_Device_To);
 			pWrapper->setPriority(pMessage->m_dwPriority);
@@ -86,9 +89,6 @@ RubyDCEEmbededClass::CallCmdForChildHandler(Message *pMessage) {
 			pWrapper->setId(pMessage->m_dwID);
 			
 			pWrapper->setParams(pMessage->m_mapParameters);
-		} else {
-			delete pembclass; pembclass = NULL;
-			return;
 		};
 	} catch(RubyException e) {
 		pembclass = NULL;
@@ -103,6 +103,8 @@ RubyDCEEmbededClass::CallCmdForChildHandler(Message *pMessage) {
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
 	}
+	
+	delete pembclass;
 }
 
 };
