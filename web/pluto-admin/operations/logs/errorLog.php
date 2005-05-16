@@ -14,7 +14,7 @@ function errorLog($output,$dbADO) {
 
 	if ($action == 'form') {
 		$selectDevice='
-			SELECT Device.Description,PK_Device,DeviceTemplate.Description AS Template, DeviceCategory.Description AS Category,Manufacturer.Description AS Manufacturer, FK_Manufacturer,FK_DeviceCategory
+			SELECT Device.Description,PK_Device,DeviceTemplate.Description AS Template, DeviceCategory.Description AS Category,Manufacturer.Description AS Manufacturer, FK_Manufacturer,FK_DeviceCategory,FK_DeviceTemplate
 			FROM Device
 			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
@@ -22,7 +22,16 @@ function errorLog($output,$dbADO) {
 			WHERE PK_Device=?';
 		$resDevice=$dbADO->Execute($selectDevice,$deviceID);
 		$rowDevice=$resDevice->FetchRow();
-		$logName='/var/log/pluto/'.$deviceID.'_'.str_replace(array(' ','\''),array('_','_'),$rowDevice['Template']).'.log';
+		$logName=$deviceID.'_'.str_replace(array(' ','\''),array('_','_'),$rowDevice['Template']);
+		
+		$patern=array("/[ :+=()<]/","/[->*?\$\.%\/]/","/#/","/__/","/^_*/","/_*$/");
+		$replacement =array("_","","","","","");
+		$logName=preg_replace($patern,$replacement,$logName);
+		
+		// override log namimg rules for DCE router and orbiters
+		$logName=($rowDevice['FK_DeviceTemplate']==$GLOBALS['rootDCERouter'])?$deviceID.'_DCERouter.newlog':$logName;
+		
+		$logName='/var/log/pluto/'.$logName.'.newlog';
 		
 		if(file_exists($logName)){
 			exec('grep \'^01\' '.$logName.' | /usr/pluto/bin/ansi2html',$retArray);

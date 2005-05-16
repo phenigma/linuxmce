@@ -261,7 +261,7 @@ $out.='
 		</td>
 		</tr>
 		<tr>
-			<td colspan="2" align="center"><span class="'.(($usesIR>0)?'':'grayout').'">IR Power Delay: <input type="text" name="irPowerDelay" value="'.$irPowerDelay.'" size="5" '.$enabledIROptions.' /> IR Mode Delay: <input type="text" name="irModeDelay" value="'.$irModeDelay.'" size="5" '.$enabledIROptions.'/> Digit Delay (ms): <input type="text" name="irDigitDelay" value="'.$digitDelay.'" size="5" '.$enabledIROptions.'/></span></td>
+			<td colspan="2" align="center"> Power Delay: <input type="text" name="irPowerDelay" value="'.$irPowerDelay.'" size="5" /> Mode Delay: <input type="text" name="irModeDelay" value="'.$irModeDelay.'" size="5" /> Digit Delay (ms): <input type="text" name="irDigitDelay" value="'.$digitDelay.'" size="5" /></td>
 		</tr>
 		<tr>
 			<td align="right"><span class="'.(($usesIR>0)?'':'grayout').'">Toggle Power: </span></td>

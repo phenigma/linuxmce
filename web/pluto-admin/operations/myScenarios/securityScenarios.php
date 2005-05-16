@@ -492,10 +492,10 @@ if($action=='form') {
 		}else{
 			$insertCommandGroup='
 				INSERT INTO CommandGroup 
-					(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
+					(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template,FK_DesignObj)
 				VALUES
-					(?,?,?,?,?,?,?)';
-			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'Security Panel',0,0,0,$GLOBALS['SecurityArmDisarmTemplate']));
+					(?,?,?,?,?,?,?,?)';
+			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'Security Panel',0,0,0,$GLOBALS['SecurityArmDisarmTemplate'],3275));
 			$armDisarmCG=$dbADO->Insert_ID();
 			$newDisarmCG=1;
 			

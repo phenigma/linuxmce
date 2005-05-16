@@ -39,6 +39,7 @@
 	$GLOBALS['deviceTemplateOrbiter']=8;		// Orbiter
 	$GLOBALS['OrbiterPlugIn'] = 12; 			// Orbiter Plug In
 	$GLOBALS['rootMediaDirectorsID'] = 28; 		// Media Directors
+	$GLOBALS['SecurityPlugin'] = 33;	 		// Security plugin
 	$GLOBALS['LightSwitchOnOff']=37;			// Light Switch (on/off)
 	$GLOBALS['LightSwitchDimmable']=38;			// Light Switch (dimmable)
 	$GLOBALS['InfraredPlugIn'] = 39; 			// Infrared Plug In
@@ -125,6 +126,7 @@
 	$GLOBALS['FloorplanObjectType']=11;			// FloorplanObjectType
 	$GLOBALS['Channel']=12;						// Channel
 	$GLOBALS['InputOrOutput']=18;				// InputOrOutput
+	$GLOBALS['Language']=26;					// Language
 	$GLOBALS['DHCPDeviceData']=28;				// DHCP
 	$GLOBALS['PhoneNumber']=31;					// Phone Number
 	$GLOBALS['NetworkInterfaces']=32;			// Network Interfaces
@@ -135,6 +137,7 @@
 	$GLOBALS['Port']=37;						// Port
 	$GLOBALS['securityAlertType']=45;			// Alert type 
 	$GLOBALS['InfraredPort']=50;				// Infrared Port
+	$GLOBALS['PK_Device']=77;					// PK_Device
 	
 	// PK_FloorplanType from table FloorplanType 
 

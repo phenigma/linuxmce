@@ -10,12 +10,15 @@ function cellphoneNotifications($output,$dbADO) {
 	
 	// TODO: extract Wap Server PK_Device 
 	// using dummy device for testing
-	$deviceID=555;
-	
+	$deviceID=getDeviceFromDT($installationID,$GLOBALS['SecurityPlugin'],$dbADO);
+	if(is_null($deviceID)){
+		$_GET['error']='Cannot find Security plugin.';
+	}
+
 	if ($action == 'form') {
 		$out.=setLeftMenu($dbADO).'
-	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
-	<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+	<div class="err" align="center">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
+	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 	<form action="index.php" method="POST" name="cellphoneNotifications">
 	<input type="hidden" name="section" value="cellphoneNotifications">
 	<input type="hidden" name="action" value="add">	
@@ -24,12 +27,14 @@ function cellphoneNotifications($output,$dbADO) {
 			<h3>Mobile Orbiter Notifications</h3>
 			<p>List the phone numbers for any mobile orbiters (ie mobile phones running Pluto\'s software) that you want to be notified.  The phone will beep, show you a live video, and let you control the house.</p>
 			';
-			$queryDDD='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
-			$resDDD=$dbADO->Execute($queryDDD,array($deviceID,$GLOBALS['MobileOrbiterNotification']));
 			$monArray=array();
-			if($resDDD->RecordCount()>0){
-				$rowDDD=$resDDD->FetchRow();
-				$monArray=explode(',',$rowDDD['IK_DeviceData']);
+			if(!is_null($deviceID)){
+				$queryDDD='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+				$resDDD=$dbADO->Execute($queryDDD,array($deviceID,$GLOBALS['MobileOrbiterNotification']));
+				if($resDDD->RecordCount()>0){
+					$rowDDD=$resDDD->FetchRow();
+					$monArray=explode(',',$rowDDD['IK_DeviceData']);
+				}
 			}
 		$out.='
 			Call Order: 
@@ -47,17 +52,19 @@ function cellphoneNotifications($output,$dbADO) {
 				<td align="center"><B>Monitor Mode</B></td>
 				<td align="center"><B>Security</B></td>
 				<td align="center"><B>Fire</B></td>
+				<td align="center"><B>Air Quality Alerts</B></td>
 				<td align="center"><B>Door Intercom</B></td>
 			</tr>
 			<input type="hidden" name="oldMon" value="'.@join(',',$monArray).'">';
-			for($i=0;$i<4;$i++){
+			for($i=0;$i<5;$i++){
 				$out.='
 				<tr>
-					<td align="center"><input type="text" name="tel_'.(5*$i+1).'" value="'.@$monArray[5*$i+1].'"/></td>
-					<td align="center"><input type="checkbox" name="monitor_mode_'.(5*$i+2).'" value="1" '.(((int)@$monArray[5*$i+2]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="security_'.(5*$i+3).'" value="1" '.(((int)@$monArray[5*$i+3]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="fire_'.(5*$i+4).'" value="1" '.(((int)@$monArray[5*$i+4]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="door_intercom_'.(5*$i+5).'" value="1" '.(((int)@$monArray[5*$i+5]>0)?'checked':'').'/></td>
+					<td align="center"><input type="text" name="tel_'.(6*$i+1).'" value="'.@$monArray[6*$i+1].'"/></td>
+					<td align="center"><input type="checkbox" name="monitor_mode_'.(6*$i+2).'" value="1" '.(((int)@$monArray[6*$i+2]>0)?'checked':'').'/></td>
+					<td align="center"><input type="checkbox" name="security_'.(6*$i+3).'" value="1" '.(((int)@$monArray[6*$i+3]>0)?'checked':'').'/></td>
+					<td align="center"><input type="checkbox" name="fire_'.(6*$i+4).'" value="1" '.(((int)@$monArray[6*$i+4]>0)?'checked':'').'/></td>
+					<td align="center"><input type="checkbox" name="air_'.(6*$i+5).'" value="1" '.(((int)@$monArray[6*$i+5]>0)?'checked':'').'/></td>
+					<td align="center"><input type="checkbox" name="door_intercom_'.(6*$i+6).'" value="1" '.(((int)@$monArray[6*$i+6]>0)?'checked':'').'/></td>
 				</tr>';
 			}
 		$out.='
@@ -95,16 +102,18 @@ function cellphoneNotifications($output,$dbADO) {
 				<td align="center"><B>Monitor Mode</B></td>
 				<td align="center"><B>Security</B></td>
 				<td align="center"><B>Fire</B></td>
+				<td align="center"><B>Air Quality Alerts</B></td>
 				<td align="center"><B>Door Intercom</B></td>
 			</tr>';
-			for($i=0;$i<4;$i++){
+			for($i=0;$i<5;$i++){
 				$out.='
 				<tr>
-					<td align="center"><input type="text" name="opn_tel_'.(5*$i+2).'" value="'.@$opnArray[5*$i+2].'"/></td>
-					<td align="center"><input type="checkbox" name="opn_monitor_mode_'.(5*$i+3).'" value="1" '.(((int)@$opnArray[5*$i+3]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="opn_security_'.(5*$i+4).'" value="1" '.(((int)@$opnArray[5*$i+4]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="opn_fire_'.(5*$i+5).'" value="1" '.(((int)@$opnArray[5*$i+5]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="opn_door_intercom_'.(5*$i+6).'" value="1" '.(((int)@$opnArray[5*$i+6]>0)?'checked':'').'/></td>
+					<td align="center"><input type="text" name="opn_tel_'.(6*$i+2).'" value="'.@$opnArray[6*$i+2].'"/></td>
+					<td align="center"><input type="checkbox" name="opn_monitor_mode_'.(6*$i+3).'" value="1" '.(((int)@$opnArray[6*$i+3]>0)?'checked':'').'/></td>
+					<td align="center"><input type="checkbox" name="opn_security_'.(6*$i+4).'" value="1" '.(((int)@$opnArray[6*$i+4]>0)?'checked':'').'/></td>
+					<td align="center"><input type="checkbox" name="opn_fire_'.(6*$i+5).'" value="1" '.(((int)@$opnArray[6*$i+5]>0)?'checked':'').'/></td>
+					<td align="center"><input type="checkbox" name="opn_air_'.(6*$i+6).'" value="1" '.(((int)@$opnArray[6*$i+6]>0)?'checked':'').'/></td>
+					<td align="center"><input type="checkbox" name="opn_door_intercom_'.(6*$i+7).'" value="1" '.(((int)@$opnArray[6*$i+7]>0)?'checked':'').'/></td>
 				</tr>';
 			}
 		$out.='
@@ -136,9 +145,11 @@ function cellphoneNotifications($output,$dbADO) {
 			}
 		$out.='
 		<input type="hidden" name="oldNtc" value="'.join(',',$ntcArray).'">
-		</table>
-		<div align="center"><input type="submit" class="button" name="update" value="Update"  ></div>
-	</form>';
+		</table>';
+		if(!is_null($deviceID)){
+			$out.='<div align="center"><input type="submit" class="button" name="update" value="Update"  ></div>';
+		}
+	$out.='</form>';
 	$scriptInHead='
 	<script language="javascript" type="text/javascript">
 		function form_change()
@@ -159,20 +170,22 @@ function cellphoneNotifications($output,$dbADO) {
 			header("Location: index.php?section=cellphoneNotifications&type=$type&error=You are not authorised to change the installation.");
 			exit(0);
 		}
-		
+
 		$oldMon=$_POST['oldMon'];
 		$mon_sequence=((int)$_POST['mon_sequence']>0)?(int)$_POST['mon_seconds']:(int)$_POST['mon_sequence'];
 		$MONDeviceData=$mon_sequence;
-		for($i=0;$i<4;$i++){
-			$tel=cleanString($_POST['tel_'.(5*$i+1)]);
-			$monitor_mode=(int)@$_POST['monitor_mode_'.(5*$i+2)];
-			$security=(int)@$_POST['security_'.(5*$i+3)];
-			$fire=(int)@$_POST['fire_'.(5*$i+4)];
-			$door_intercom=(int)@$_POST['door_intercom_'.(5*$i+5)];
+		for($i=0;$i<5;$i++){
+			$tel=cleanString($_POST['tel_'.(6*$i+1)]);
+			$monitor_mode=(int)@$_POST['monitor_mode_'.(6*$i+2)];
+			$security=(int)@$_POST['security_'.(6*$i+3)];
+			$fire=(int)@$_POST['fire_'.(6*$i+4)];
+			$air=(int)@$_POST['air_'.(6*$i+5)];
+			$door_intercom=(int)@$_POST['door_intercom_'.(6*$i+6)];
 			if($tel!=''){
-				$MONDeviceData.=",$tel,$monitor_mode,$security,$fire,$door_intercom";
+				$MONDeviceData.=",$tel,$monitor_mode,$security,$fire,$air,$door_intercom";
 			}
 		}
+
 		if($oldMon==''){
 			$insertMonDDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
 			$dbADO->Execute($insertMonDDD,array($deviceID,$GLOBALS['MobileOrbiterNotification'],$MONDeviceData));
@@ -186,14 +199,15 @@ function cellphoneNotifications($output,$dbADO) {
 		$opn_order=(int)$_POST['opn_order'];
 		
 		$OPNDeviceData=$opn_sequence.','.$opn_order;
-		for($i=0;$i<4;$i++){
-			$tel=cleanString($_POST['opn_tel_'.((5*$i+2))]);
-			$monitor_mode=(int)@$_POST['opn_monitor_mode_'.((5*$i+3))];
-			$security=(int)@$_POST['opn_security_'.((5*$i+4))];
-			$fire=(int)@$_POST['opn_fire_'.((5*$i+5))];
-			$door_intercom=(int)@$_POST['opn_door_intercom_'.((5*$i+6))];
+		for($i=0;$i<5;$i++){
+			$tel=cleanString($_POST['opn_tel_'.((6*$i+2))]);
+			$monitor_mode=(int)@$_POST['opn_monitor_mode_'.((6*$i+3))];
+			$security=(int)@$_POST['opn_security_'.((6*$i+4))];
+			$fire=(int)@$_POST['opn_fire_'.((6*$i+5))];
+			$air=(int)@$_POST['opn_air_'.((6*$i+6))];
+			$door_intercom=(int)@$_POST['opn_door_intercom_'.((6*$i+7))];
 			if($tel!=''){
-				$OPNDeviceData.=",$tel,$monitor_mode,$security,$fire,$door_intercom";
+				$OPNDeviceData.=",$tel,$monitor_mode,$security,$fire,$air,$door_intercom";
 			}
 		}
 		if($oldOpn==''){

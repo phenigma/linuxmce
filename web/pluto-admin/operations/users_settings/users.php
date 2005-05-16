@@ -22,7 +22,8 @@ $out.='<p>Add all the users, or family members, who will be using Pluto.</p>';
 
 
 if ($action=='form') {
-$queryUsers = 'SELECT Users.*,Installation_Users.userCanModifyInstallation as canModifyInstallation FROM Users 
+$queryUsers = 'SELECT Users.*,Installation_Users.userCanModifyInstallation as canModifyInstallation,userCanChangeHouseMode 
+		FROM Users 
 		INNER JOIN Installation_Users on FK_Users = PK_Users
 		WHERE FK_Installation = ?';
 $resUsers = $dbADO->Execute($queryUsers,array($installationID));
@@ -91,7 +92,17 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						</td>
 						
 						<td><input type="text" name="userForwardEmail_'.$rowUser['PK_Users'].'" value="'.$rowUser['ForwardEmail'].'"></td>
-						<td align="center"><input type="checkbox" name="userCanModifyInstallation_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['canModifyInstallation']?" checked='checked' ":'').'></td>
+						<td align="center">
+							<input type="checkbox" name="userCanModifyInstallation_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['canModifyInstallation']?" checked='checked' ":'').'>
+							<table width="100%">
+								<tr bgcolor="#CCCCCC">
+									<td align="center"><B>Can set house/security mode</B></td>
+								</tr>
+								<tr>
+									<td align="center"><input type="checkbox" name="userCanChangeHouseMode_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['userCanChangeHouseMode']?" checked='checked' ":'').'></td>
+								</tr>			
+							</table>
+						</td>
 			';
 			
 			if ($resLanguages) {
@@ -266,7 +277,8 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				$userForwardEmail = cleanString($_POST['userForwardEmail_'.$user]);
 
 				$userCanModifyInstallation = cleanInteger(@$_POST['userCanModifyInstallation_'.$user]);
-
+				$userCanChangeHouseMode= cleanInteger(@$_POST['userCanChangeHouseMode_'.$user]);
+				
 				$userLanguage = cleanInteger(@$_POST['userLanguage_'.$user]);
 				$HideFromOrbiter = cleanInteger(@$_POST['HideFromOrbiter_'.$user]);
 				
@@ -296,7 +308,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 					exit();
 				}
 
-				$updateInstallationUserCanModify = 'UPDATE Installation_Users set userCanModifyInstallation = '.$userCanModifyInstallation.' WHERE FK_Users = ? and FK_Installation = ? ';
+				$updateInstallationUserCanModify = 'UPDATE Installation_Users set userCanModifyInstallation = '.$userCanModifyInstallation.',userCanChangeHouseMode='.$userCanChangeHouseMode.' WHERE FK_Users = ? and FK_Installation = ? ';
 				$dbADO->Execute($updateInstallationUserCanModify,array($user,$installationID));
 				$locationGoTo = "userDesc_".$user;
 

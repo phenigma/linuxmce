@@ -1906,7 +1906,7 @@ function getDeviceNameForScenarios($deviceID,$dbADO)
 	
 }
 
-function pulldownChildsDevice($parentDevice,$selectedValue,$dbADO,$depth)
+function pulldownChildsDevice($parentDevice,$selectedValue,$dbADO,$depth,$filter='')
 {
 	$out='';
 	$query = '
@@ -1914,7 +1914,7 @@ function pulldownChildsDevice($parentDevice,$selectedValue,$dbADO,$depth)
 		FROM Device 
 		LEFT JOIN Room ON FK_Room=PK_Room
 		INNER JOIN DeviceTemplate ON FK_DEviceTemplate=PK_DeviceTemplate
-		WHERE Device.FK_Installation = ? AND FK_Device_ControlledVia =?
+		WHERE Device.FK_Installation = ? AND FK_Device_ControlledVia =? '.$filter.'
 		ORDER BY FK_Room ASC,Description ASC';
 	$resDevices=$dbADO->Execute($query,array($_SESSION['installationID'],$parentDevice));
 	while($rowDevice=$resDevices->FetchRow()){
@@ -3061,5 +3061,55 @@ function getTopLevelParent($deviceID,$dbADO)
 	}
 	
 	return $topParent;
+}
+
+function getDeviceFromDT($installationID,$DeviceTemplate,$dbADO)
+{
+	$res=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($DeviceTemplate,$installationID));
+	if($res->RecordCount()==0){
+		return null;
+	}else{
+		$row=$res->FetchRow();
+		return $row['PK_Device'];
+	}
+}
+
+function getDeviceData($deviceID,$deviceData,$dbADO)
+{
+	$req=$dbADO->Execute('SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?',array($deviceID,$deviceData));
+	if($req->RecordCount()==0){
+		return null;
+	}else{
+		$row=$req->FetchRow();
+		return $row['IK_DeviceData'];
+	}
+}
+
+function devicesTree($name,$selectedValue,$dbADO,$filter,$extra='')
+{
+	$out='
+		<select name="'.$name.'" '.$extra.'>';
+	$out.='<option value="0">-Please select-</option>';
+							
+	$query = '
+		SELECT Device.*, Room.Description AS RoomName, DeviceTemplate.Description AS Template
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		LEFT JOIN Room ON FK_Room=PK_Room
+		WHERE Device.FK_Installation = ? AND FK_Device_ControlledVia IS NULL '.$filter.'
+		ORDER BY FK_Room ASC,Description ASC';
+	$resTopDevices=$dbADO->Execute($query,array($_SESSION['installationID']));
+							
+	if ($resTopDevices) {
+		while ($rowTopDevice = $resTopDevices->FetchRow()) {
+			$roomName=($rowTopDevice['RoomName']!='')?stripslashes($rowTopDevice['RoomName']):'No Room';
+			$out.='<option '.($rowTopDevice['PK_Device']==$selectedValue?' selected="selected" ':'').' value="'.$rowTopDevice['PK_Device'].'" title="Device template #'.$rowTopDevice['FK_DeviceTemplate'].': '.$rowTopDevice['Template'].'">'.$rowTopDevice['Description'].' ['.$roomName.']</option>';
+			$out.=pulldownChildsDevice($rowTopDevice['PK_Device'],$selectedValue,$dbADO,1,$filter);
+		}
+	}
+						
+	$out.='
+		</select>';
+	return $out;
 }
 ?>

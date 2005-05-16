@@ -37,7 +37,11 @@ function installationSettings($output,$dbADO) {
 	
 	
 	$installationID = cleanInteger($_SESSION['installationID']);
-		
+	$dceRouterID=getDeviceFromDT($installationID,$GLOBALS['rootDCERouter'],$dbADO);
+	if($dceRouterID!==null){
+		$defLanguage=getLanguage($dceRouterID,$dbADO);
+	}
+	
 	$query = "
 		SELECT Installation.*,Version.Description AS V_Desc FROM Installation 
 			LEFT JOIN Version on FK_Version	= PK_Version 
@@ -175,6 +179,10 @@ function installationSettings($output,$dbADO) {
 				<tr>
 					<td colspan="2" align="center">Timezone selected: <B>'.$timeZone[1].'</B></td>
 				</tr>
+				<tr>
+					<td align="center"><B>Default Language</B></td>
+					<td>'.generatePullDown('newLanguage','Language','PK_Language','Description',$defLanguage,$dbADO).'</td>
+				</tr>				
 				<input type="hidden" name="newTimeZone" value="'.$timeZone[0].'">
 				';
 			}
@@ -214,6 +222,7 @@ function installationSettings($output,$dbADO) {
 		$state = cleanString(@$_POST['State'],50);
 		$zip = cleanString(@$_POST['Zip'],50);
 		$country=((int)$_POST['countryID']!=0)?(int)$_POST['countryID']:NULL;
+		$newLanguage=(int)$_POST['newLanguage'];
 		
 		if ($installationID!=0 && $description!='') {
 			
@@ -227,6 +236,14 @@ function installationSettings($output,$dbADO) {
 				$cmdToSend='sudo -u root /usr/pluto/bin/SetTimeZone.sh '.$newTimeZone;
 				exec($cmdToSend);	
 			}
+			if($newLanguage!=$defLanguage){
+				if($defLanguage==0){
+					$dbADO->Execute('INSERT INTO Device_DeviceData (IK_DeviceData,FK_Device,FK_DeviceData) VALUES (?,?,?)',array($newLanguage,$dceRouterID,$GLOBALS['Language']));
+				}else{
+					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newLanguage,$dceRouterID,$GLOBALS['Language']));
+				}
+			}
+			
 			header("Location: index.php?section=installationSettings&from=$from&msg=Installation was updated.");
 			exit();
 		} else {
@@ -240,5 +257,16 @@ function installationSettings($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();
+}
+
+function getLanguage($DCERouterID,$dbADO)
+{
+	$res=$dbADO->Execute('SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?',array($DCERouterID,$GLOBALS['Language']));
+	if($res->RecordCount()==0){
+		return 0;
+	}else{
+		$row=$res->FetchRow();
+		return $row['IK_DeviceData'];
+	}
 }
 ?>

@@ -35,7 +35,7 @@ function editMediaFile($output,$mediadbADO) {
 		
 		$out.='
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-			<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 			<form action="index.php" method="POST" name="editMediaFile" enctype="multipart/form-data">
 				<input type="hidden" name="section" value="editMediaFile">
 				<input type="hidden" name="action" value="update">
@@ -94,7 +94,7 @@ function editMediaFile($output,$mediadbADO) {
 				$out.='
 						<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#FFFFFF').'">
 							<td><b>'.$rowAttributes['Description'].'</b></td>
-							<td>'.$rowAttributes['Name'].(($rowAttributes['FirstName']!='')?', '.$rowAttributes['FirstName']:'').'</td>
+							<td><a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties">'.$rowAttributes['Name'].(($rowAttributes['FirstName']!='')?', '.$rowAttributes['FirstName']:'').'</a></td>
 							<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete this attribute from the file?\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'\'">Remove</a></td>
 						</tr>';
 			}
@@ -228,12 +228,12 @@ function editMediaFile($output,$mediadbADO) {
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Attribute deleted from this file.');			
 		}
 	
+		$path=stripslashes(@$_POST['Path']);
+		$fileName=@$_POST['filename'];
+		$newFilePath=$path.'/'.$fileName;
 		if(isset($_POST['update'])){
-			$fileName=$_POST['filename'];
-			$path=stripslashes($_POST['Path']);
 			$type=(int)$_POST['type'];
-			$newFilePath=$path.'/'.$fileName;
-			
+						
 			$oldPath=stripslashes($_POST['oldPath']);
 			$oldFilename=stripslashes($_POST['oldFilename']);
 			$oldFilePath=$oldPath.'/'.$oldFilename;
@@ -248,6 +248,8 @@ function editMediaFile($output,$mediadbADO) {
 				}
 			}
 			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, FK_Type=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
+			
+			exec('/usr/pluto/bin/UpdateMedia –d "'.$newFilePath.'"');
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			
 			exit();
 		}
@@ -279,6 +281,7 @@ function editMediaFile($output,$mediadbADO) {
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$error);			
 				exit();
 			}else{
+				exec('/usr/pluto/bin/UpdateMedia –d "'.$newFilePath.'"');
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=The picture was uploaded.');			
 				exit();
 			}
