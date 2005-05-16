@@ -114,7 +114,7 @@ public:
 
 	/** Interceptors */
     bool SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
-	bool SensorTrippedEvent(class DeviceData_Router *pDevice,bool bIsTripped);
+	bool SensorTrippedEventHandler(class DeviceData_Router *pDevice,bool bIsTripped);
 	bool OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 	// Alarm callback

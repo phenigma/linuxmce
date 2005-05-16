@@ -452,7 +452,9 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		{
 			m_bExitDelay_New=true;
 			m_tExitTime=time(NULL) + pRow_AlertType->ExitDelay_get();
-			m_pAlarmManager->AddRelativeAlarm(0,this,PROCESS_COUNTDOWN_BEFORE_ARMED,NULL);
+			// Even if there's a delay, don't do the countdown unless the user is leaving the house
+			if( PK_HouseMode==HOUSEMODE_Armed_away_CONST || PK_HouseMode==HOUSEMODE_Armed_Extended_away_CONST )
+				m_pAlarmManager->AddRelativeAlarm(0,this,PROCESS_COUNTDOWN_BEFORE_ARMED,NULL);
 		}
 	}
 
@@ -561,10 +563,10 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 		return false;
 	}
 	bool bTripped = pMessage->m_mapParameters[EVENTPARAMETER_Tripped_CONST]=="1";
-	return SensorTrippedEvent((DeviceData_Router *) pDeviceFrom,bTripped);
+	return SensorTrippedEventHandler((DeviceData_Router *) pDeviceFrom,bTripped);
 }
 
-bool Security_Plugin::SensorTrippedEvent(DeviceData_Router *pDevice,bool bIsTripped)
+bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool bIsTripped)
 {
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	pDevice->m_sStatus_set(bIsTripped ? "TRIPPED" : "NORMAL");
@@ -690,11 +692,12 @@ void Security_Plugin::AlarmCallback(int id, void* param)
 				for( ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 				{
 					DeviceData_Router *pDeviceData_Router = *it;
+					string sState = pDeviceData_Router->m_sState_get();
 					string::size_type pos=0;
-					string Mode = StringUtils::Tokenize(pDeviceData_Router->m_sState_get(),",",pos);
+					string Mode = StringUtils::Tokenize(sState,",",pos);
 					int PK_HouseMode = GetModeID(Mode);
 					if( SensorIsTripped(PK_HouseMode,pDeviceData_Router) )
-						SensorTrippedEvent(pDeviceData_Router,true);
+						SensorTrippedEventHandler(pDeviceData_Router,true);
 				}
 			}
 		}
