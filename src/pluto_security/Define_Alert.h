@@ -25,6 +25,8 @@
 #define ALERT_ANNOUNCEMENTONLY_TABLE_FIELD "Alert.AnnouncementOnly"
 #define ALERT_PHOTOONLY_FIELD "PhotoOnly"
 #define ALERT_PHOTOONLY_TABLE_FIELD "Alert.PhotoOnly"
+#define ALERT_NOTIFICATION_FIELD "Notification"
+#define ALERT_NOTIFICATION_TABLE_FIELD "Alert.Notification"
 #define ALERT_PSC_ID_FIELD "psc_id"
 #define ALERT_PSC_ID_TABLE_FIELD "Alert.psc_id"
 #define ALERT_PSC_BATCH_FIELD "psc_batch"

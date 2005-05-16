@@ -86,13 +86,14 @@ string m_ResetTime;
 long int m_EK_Users;
 short int m_AnnouncementOnly;
 short int m_PhotoOnly;
+short int m_Notification;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[16];
+		bool is_null[17];
 	
 	public:
 		long int PK_Alert_get();
@@ -106,6 +107,7 @@ string ResetTime_get();
 long int EK_Users_get();
 short int AnnouncementOnly_get();
 short int PhotoOnly_get();
+short int Notification_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -124,6 +126,7 @@ void ResetTime_set(string val);
 void EK_Users_set(long int val);
 void AnnouncementOnly_set(short int val);
 void PhotoOnly_set(short int val);
+void Notification_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -139,6 +142,7 @@ bool ResetTime_isNull();
 bool EK_Users_isNull();
 bool AnnouncementOnly_isNull();
 bool PhotoOnly_isNull();
+bool Notification_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -153,6 +157,7 @@ void ResetTime_setNull(bool val);
 void EK_Users_setNull(bool val);
 void AnnouncementOnly_setNull(bool val);
 void PhotoOnly_setNull(bool val);
+void Notification_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -179,7 +184,7 @@ void Notification_FK_Alert_getrows(vector <class Row_Notification*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Alert+ m_FK_AlertType+ m_EK_Device+ m_DetectionTime+ m_ExpirationTime+ m_ResetBeforeExpiration+ m_Benign+ m_ResetTime+ m_EK_Users+ m_AnnouncementOnly+ m_PhotoOnly+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Alert+ m_FK_AlertType+ m_EK_Device+ m_DetectionTime+ m_ExpirationTime+ m_ResetBeforeExpiration+ m_Benign+ m_ResetTime+ m_EK_Users+ m_AnnouncementOnly+ m_PhotoOnly+ m_Notification+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -195,6 +200,7 @@ string ResetTime_asSQL();
 string EK_Users_asSQL();
 string AnnouncementOnly_asSQL();
 string PhotoOnly_asSQL();
+string Notification_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

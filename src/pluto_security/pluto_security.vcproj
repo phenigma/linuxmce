@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="pluto_security"
+	Name="*DBName*"
 	ProjectGUID="{0627DAA4-A0AB-4486-8D17-3F1F3089AD6F}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="../lib/pluto_security.lib"/>
+				OutputFile="../lib/*DBName*.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -76,7 +76,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="../lib/pluto_security-r.lib"/>
+				OutputFile="../lib/*DBName*-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -103,46 +103,7 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
-			<File
-				RelativePath=".\Database_pluto_security.cpp">
-			</File>
-			<File
-				RelativePath=".\TableRow.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Alert.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_AlertType.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Alert_Device.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_ModeChange.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Notification.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_psc_security_batdet.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_psc_security_bathdr.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_psc_security_batuser.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_psc_security_repset.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_psc_security_schema.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_psc_security_tables.cpp">
-			</File>
-
+@sources@
 		</Filter>
 		<Filter
 			Name="Header Files"
