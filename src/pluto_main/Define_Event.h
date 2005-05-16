@@ -42,6 +42,8 @@
 #define EVENT_Air_Quality_CONST 39
 #define EVENT_Doorbell_CONST 40
 #define EVENT_Monitor_Mode_CONST 41
+#define EVENT_Movement_Detected_CONST 42
+#define EVENT_House_Mode_Changed_CONST 43
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"

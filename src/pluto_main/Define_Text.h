@@ -473,6 +473,8 @@
 #define TEXT_Countdown_before_armed_CONST 1148
 #define TEXT_Short_countdown_before_alarm_CONST 1149
 #define TEXT_Short_countdown_before_armed_CONST 1150
+#define TEXT_Wait_to_Arm_CONST 1151
+#define TEXT_Try_Again_CONST 1152
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
