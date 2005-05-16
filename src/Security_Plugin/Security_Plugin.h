@@ -130,7 +130,7 @@ public:
 	// Actions
 	void AnnounceAlert(DeviceData_Router *pDevice);
 	void SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_Router *pDevice);
-	Row_Alert *LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice,bool bNotify=false);  // Returns NULL if the alert was pooled with another
+	Row_Alert *LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice,bool bAnnouncementOnly,bool bNotify);  // Returns NULL if the alert was pooled with another
 	void SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare=NULL);
 	void SetHouseModeBoundIcon(int PK_DeviceGroup=-1,OH_Orbiter *pOH_Orbiter_Compare=NULL);
 

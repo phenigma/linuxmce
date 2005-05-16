@@ -167,7 +167,7 @@ void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sPK_Device_Lis
 	PLUTO_SAFETY_LOCK(tm,m_TTSMutex);
 
 	string sFile = "/home/public/data/tts/" + StringUtils::itos(m_dwID++) + ".wav";
-	string sCmd = "flite -t \"" + sText + "\" -o " + sFile;
+	string sCmd = "flite -t \"" + sText + " mississippi\" -o " + sFile;
 	system(sCmd.c_str());
 	if( FileUtils::FileExists(sFile) )
 	{

@@ -163,8 +163,16 @@ g_pPlutoLogger->Write(LV_STATUS,"Skipping orbiter %s",sPhoneNumber.c_str());
 
 		if( iDelay>0 )
 		{
-			if( NotifyOrbiter(sPhoneNumber,iDelay) )  // Function will give that phone iDelay seconds
-				return true;  // Stop notifying others
+			if( iType==TYPE_ORBITER )
+			{
+				if( NotifyOrbiter(sPhoneNumber,iDelay) )  // Function will give that phone iDelay seconds
+					return true;  // Stop notifying others
+			}
+			else
+			{
+				if( NotifyOther(sPhoneNumber,iDelay) )  // Function will give that phone iDelay seconds
+					return true;  // Stop notifying others
+			}
 		}
 		else
 		{

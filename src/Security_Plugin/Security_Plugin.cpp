@@ -356,6 +356,8 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	m_tExitTime=0;
 	m_pAlarmManager->CancelAlarmByType(PROCESS_COUNTDOWN_BEFORE_ARMED);
 	m_pAlarmManager->CancelAlarmByType(PROCESS_MODE_CHANGE);
+	m_pAlarmManager->CancelAlarmByType(PROCESS_COUNTDOWN_BEFORE_ALARM);
+	m_pAlarmManager->CancelAlarmByType(PROCESS_ALERT);
 
 	if( PK_HouseMode==-1 || PK_HouseMode==-2 )
 	{
@@ -370,7 +372,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		return;
 	}
 
-	bool bFailed=false; // Will be set to true if any of the devices fail to get set
+	list<DeviceData_Router *> listDevice_Blocked; // All devices that are blocked
 	bool bSensorsActive=false; // Will be set to true if any sensors are set to active/arme
 	map<int,DeviceData_Router *> mapResetDevices; // Keep track of the devices we change so we can reset any pending alarms that are affected
 
@@ -391,10 +393,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 				continue;
 			mapResetDevices[pDevice->m_dwPK_Device] = pDevice;
 			if( !SetHouseMode(pDevice,iPK_Users,PK_HouseMode,sHandling_Instructions) )
-			{
-				bFailed=true;
-				break;
-			}
+				listDevice_Blocked.push_back(pDevice);
 			if( !bSensorsActive && GetAlertType(PK_HouseMode,pDevice)==ALERTTYPE_Security_CONST )
 				bSensorsActive=true;
 		}
@@ -412,19 +411,22 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 					DeviceData_Router *pDevice = *it;
 					mapResetDevices[pDevice->m_dwPK_Device] = pDevice;
 					if( !SetHouseMode(pDevice,iPK_Users,PK_HouseMode,sHandling_Instructions) )
-					{
-						bFailed=true;
-						break;
-					}
+						listDevice_Blocked.push_back(pDevice);
 					if( !bSensorsActive && GetAlertType(PK_HouseMode,pDevice)==ALERTTYPE_Security_CONST )
 						bSensorsActive=true;
 				}
 			}
 		}
 	}
-	if( bFailed )
+	if( listDevice_Blocked.size() )
 	{
+		string sText;
+		for(list<DeviceData_Router *>::iterator it=listDevice_Blocked.begin();it!=listDevice_Blocked.end();++it)
+			sText += (*it)->m_sDescription + "  ";
+
 		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuSensorsNotReady_CONST), "", "", false, false );
+		DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuSensorsNotReady_CONST), sText, TEXT_TRIPPED_SENSOR_CONST);
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
 		SendCommand( CMD_Goto_Screen );
 		return;
 	}
@@ -508,23 +510,39 @@ string Security_Plugin::AlertsSinceLastChange(int PK_DeviceGroup)
 	if( !pRow_ModeChange )
 		return "";
 
+	string sAlert;
 	vector<Row_Alert *> vectRow_Alert;
+	this->m_pDatabase_pluto_security->Alert_get()->GetRows("DetectionTime>='" + pRow_ModeChange->ChangeTime_get() + "'",&vectRow_Alert);
+	for(size_t s=0;s<vectRow_Alert.size();++s)
+	{
+		Row_Alert *pRow_Alert = vectRow_Alert[s];
+		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(pRow_Alert->EK_Device_get());
+		sAlert += pRow_Alert->DetectionTime_get() + " ";
+		if( pDevice )
+			sAlert += pDevice->m_sDescription;
+		if( pRow_Alert->PhotoOnly_get()==1 )
+			sAlert += " (photo only)";
+		if( pRow_Alert->AnnouncementOnly_get()==1 )
+			sAlert += " (announce only)";
 
-	return "todo";
+		sAlert+= "\n";
+	}
+
+	return sAlert;
 }
 
 bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int iPK_Users,int PK_HouseMode,string sHandlingInstructions) 
 {
-	string NewMode = GetModeString(PK_HouseMode);
-
+	// Don't set the new mode, our caller will do that when it confirms all the devices can be set
 	string State = pDevice->m_sState_get();
 	string::size_type pos=0;
 	string Mode = StringUtils::Tokenize(State,",",pos);
 	string Bypass = StringUtils::Tokenize(State,",",pos);
+	string sPK_ModeChange = StringUtils::Tokenize(State,",",pos);
 
 	if( Bypass=="PERMBYPASS" )
 	{
-		pDevice->m_sState_set(NewMode + "," + Bypass);
+		pDevice->m_sState_set(Mode + "," + Bypass);
 		return true; // We're bypassing this one
 	}
 
@@ -542,6 +560,8 @@ bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int iPK_Users,int 
 	}
 	else
 		Bypass = "";
+
+	pDevice->m_sState_set(Mode + "," + Bypass + "," + sPK_ModeChange);
 
 	return true;
 }
@@ -579,9 +599,9 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 
 	int PK_HouseMode = GetModeID(Mode);
 
-	if( bIsTripped==false )
+	if( Bypass=="WAIT" || bIsTripped==false )
 	{
-		if( Bypass=="WAIT" )
+		if( bIsTripped==false )  // We're not waiting any more
 			pDevice->m_sState_set(Mode + ",," + sPK_ModeChange );
 		return true;
 	}
@@ -590,25 +610,33 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 	if( m_bMonitorMode && atoi(pDevice->m_mapParameters[DEVICEDATA_Alert_CONST].c_str()) )
 	{
 		// Monitor mode is on, so no matter what notify the appropriate users
-		Row_Alert *pRow_Alert = LogAlert( m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Monitor_mode_CONST),pDevice);
+		Row_Alert *pRow_Alert = LogAlert( m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Monitor_mode_CONST),pDevice,true,true);
 		if( pRow_Alert )
 			ProcessAlert(pRow_Alert);
 	}
 
 
-	bool bNotify=false;
+	bool bNotify=false,bAnnouncementOnly=false;
 	int PK_AlertType = GetAlertType(PK_HouseMode,pDevice,&bNotify);
-	if( PK_AlertType==ALERTTYPE_DONOTHING )
-		return true;
-	else if( PK_AlertType<0 )
+	if( PK_AlertType<=0 )
 	{
+		bAnnouncementOnly=true; // This is something information only, like an announcement, or only has a notification and do nothing
 		// It's some type of information alert
 		if( PK_AlertType==ALERTTYPE_ANNOUNCMENT )
 			AnnounceAlert(pDevice);
-		LogAlert( m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Information_CONST),pDevice);
+		if( PK_AlertType!=ALERTTYPE_DONOTHING && !bNotify )  // If there's a notification, we're going to process it anyway
+			LogAlert( m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Information_CONST),pDevice,bAnnouncementOnly,bNotify);
+		if( !bNotify )
+			return true;
+		else
+			// Get the real alert type.  We already set bAnnouncementOnly=true so we know not to fire the event
+			PK_AlertType = atoi(pDevice->m_mapParameters[DEVICEDATA_EK_AlertType_CONST].c_str());
 	}
 
+	// What type of alert is this?  Maybe it's just informational
 	Row_AlertType *pRow_AlertType = m_pDatabase_pluto_security->AlertType_get()->GetRow(PK_AlertType);
+	if( !pRow_AlertType )
+		pRow_AlertType = m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Information_CONST);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Alert type is %d %p, delay %s #pending: %d",
 		PK_AlertType,pRow_AlertType,sPK_ModeChange.c_str(),(int) m_vectPendingAlerts.size());
@@ -627,16 +655,23 @@ time_t tnow = time(NULL);
 		}
 	}
 
-	if( Bypass!="BYPASS" && Bypass!="PERMBYPASS" && SensorIsTripped(PK_HouseMode,pDevice) )
+	bool bSensorIsTripped = SensorIsTripped(PK_HouseMode,pDevice);
+	if( Bypass!="BYPASS" && Bypass!="PERMBYPASS" && (bSensorIsTripped || bNotify))
 	{
-		Row_Alert *pRow_Alert=LogAlert(pRow_AlertType,pDevice,bNotify);
+		Row_Alert *pRow_Alert=LogAlert(pRow_AlertType,pDevice,bAnnouncementOnly,bNotify);
 		if( pRow_Alert )
 		{
-			m_pAlarmManager->AddRelativeAlarm(0,this,PROCESS_COUNTDOWN_BEFORE_ALARM,(void *) pRow_Alert);
 			m_pAlarmManager->AddAbsoluteAlarm(StringUtils::SQLDateTime(pRow_Alert->ExpirationTime_get()),this,PROCESS_ALERT,(void *) pRow_Alert);
-			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,
-				0,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST),"","",false,false);
-			SendCommand(CMD_Goto_Screen_DL);
+			if( bSensorIsTripped && !bAnnouncementOnly &&
+				(pRow_AlertType->PK_AlertType_get()==ALERTTYPE_Security_CONST ||
+				pRow_AlertType->PK_AlertType_get()==ALERTTYPE_Fire_CONST || 
+				pRow_AlertType->PK_AlertType_get()==ALERTTYPE_Air_Quality_CONST) )
+			{
+				m_pAlarmManager->AddRelativeAlarm(0,this,PROCESS_COUNTDOWN_BEFORE_ALARM,(void *) pRow_Alert);
+				DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,
+					0,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST),"","",false,false);
+				SendCommand(CMD_Goto_Screen_DL);
+			}
 		}
 	}
 
@@ -674,6 +709,7 @@ int Security_Plugin::GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice,bo
 
 void Security_Plugin::AlarmCallback(int id, void* param)
 {
+	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	if( id==PROCESS_ALERT )
 		ProcessAlert((Row_Alert *) param);
 	else if( id==PROCESS_COUNTDOWN_BEFORE_ALARM )
@@ -682,7 +718,6 @@ void Security_Plugin::AlarmCallback(int id, void* param)
 		ProcessCountdown(id,NULL);
 	else if( id==PROCESS_MODE_CHANGE )
 	{
-		PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 		for(int i=0;i<2;++i)
 		{
 			ListDeviceData_Router *pListDeviceData_Router = 
@@ -706,25 +741,33 @@ void Security_Plugin::AlarmCallback(int id, void* param)
 
 void Security_Plugin::ProcessAlert(Row_Alert *pRow_Alert)
 {
+	if( !pRow_Alert->ResetTime_isNull() )
+		return; // It was already reset
 	g_pPlutoLogger->Write(LV_STATUS,"Processing alert %d type %d",pRow_Alert->PK_Alert_get(),pRow_Alert->FK_AlertType_get());
-	if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Security_CONST )
-		EVENT_Security_Breach(pRow_Alert->EK_Device_get());
-	else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Fire_CONST )
-		EVENT_Fire_Alarm(pRow_Alert->EK_Device_get());
-	else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Air_Quality_CONST )
-		EVENT_Air_Quality(pRow_Alert->EK_Device_get());
-	else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Doorbell_CONST )
-		EVENT_Doorbell(pRow_Alert->EK_Device_get());
-	else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Monitor_mode_CONST )
-		EVENT_Monitor_Mode(pRow_Alert->EK_Device_get());
+	if( !pRow_Alert->AnnouncementOnly_get() )
+	{
+		if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Security_CONST )
+			EVENT_Security_Breach(pRow_Alert->EK_Device_get());
+		else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Fire_CONST )
+			EVENT_Fire_Alarm(pRow_Alert->EK_Device_get());
+		else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Air_Quality_CONST )
+			EVENT_Air_Quality(pRow_Alert->EK_Device_get());
+		else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Doorbell_CONST )
+			EVENT_Doorbell(pRow_Alert->EK_Device_get());
+		else if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Monitor_mode_CONST )
+			EVENT_Monitor_Mode(pRow_Alert->EK_Device_get());
+	}
 
-	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
-	Notification *pNotification = new Notification(this,m_pRouter,pRow_Alert);
-	pthread_t pthread_id; 
-	if(pthread_create( &pthread_id, NULL, StartNotification, (void*)pNotification) )
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create Notification thread" );
-	else
-		m_mapNotification[pthread_id]=pNotification;
+	if( pRow_Alert->Notification_get() )
+	{
+		PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
+		Notification *pNotification = new Notification(this,m_pRouter,pRow_Alert);
+		pthread_t pthread_id; 
+		if(pthread_create( &pthread_id, NULL, StartNotification, (void*)pNotification) )
+			g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create Notification thread" );
+		else
+			m_mapNotification[pthread_id]=pNotification;
+	}
 }
 
 void Security_Plugin::ProcessCountdown(int id,Row_Alert *pRow_Alert)
@@ -869,7 +912,7 @@ void Security_Plugin::SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_R
 	}
 }
 
-Row_Alert *Security_Plugin::LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice,bool bNotify)
+Row_Alert *Security_Plugin::LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice,bool bAnnouncementOnly,bool bNotify)
 {
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	Row_Alert *pRow_Alert=NULL;
@@ -899,6 +942,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Pooling alert PK: %d",pRow_Alert->PK_Alert_get(
 		pRow_Alert = m_pDatabase_pluto_security->Alert_get()->AddRow();
 		pRow_Alert->FK_AlertType_set(pRow_AlertType->PK_AlertType_get());
 		pRow_Alert->Notification_set(bNotify);
+		pRow_Alert->AnnouncementOnly_set(bAnnouncementOnly);
 		pRow_Alert->EK_Device_set(pDevice->m_dwPK_Device);
 		pRow_Alert->DetectionTime_set(StringUtils::SQLDateTime(time(NULL)));
 		pRow_Alert->ExpirationTime_set(StringUtils::SQLDateTime(time(NULL) + (pRow_AlertType ? pRow_AlertType->ExitDelay_get() : 0) ));
