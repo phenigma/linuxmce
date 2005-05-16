@@ -45,8 +45,11 @@ public:
 	}
 
 	bool isCmdImplemented(int cmd);
-	bool isPrivateAssigned() {
+	bool isPrivateAssigned() {	
 		return privateassigned_;
+	}
+	bool isProcChildCommandAssigned() {
+		return procchildcmdassigned_;
 	}
 	int getParamsOrderForCmd(/*in*/int cmd, /*out*/std::list<int>& params);
 	int getParamsNamesForCmd(/*in*/int cmd, /*out*/std::list<std::string>& params);
@@ -66,6 +69,7 @@ private:
 
 	COMMANDPARAMMAP cmdparammap_;
 	bool privateassigned_;
+	bool procchildcmdassigned_;
 
 private:
 	std::string rcode_;

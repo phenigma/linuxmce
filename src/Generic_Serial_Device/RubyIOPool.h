@@ -49,7 +49,7 @@ public:
 	}
 	
 public:
-	int RouteMessage(Message* pMessage);
+	int HandleMessage(Message* pMessage);
 
 protected:
 	/*delegated methods*/

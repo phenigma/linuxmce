@@ -70,7 +70,7 @@ public:
 	bool hasDevice(DeviceData_Base* pdevdata);
 	
 public:
-	int RouteMessageToDevice(DeviceData_Base* pdevdata, Message *pMessage);
+	int RouteMessage(DeviceData_Base* pdevdata, Message *pMessage);
 	
 protected:
 	/*methods for comunicating with DCE, accessed by wrappers */

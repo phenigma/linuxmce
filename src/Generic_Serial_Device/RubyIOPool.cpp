@@ -91,6 +91,7 @@ RubyIOPool::Cleanup() {
 void 
 RubyIOPool::PopulateDevice(DeviceData_Impl* pdevdata, Database_pluto_main* pdb, RubyDeviceWrapper& devwrap) {
 	devwrap.setDevId(pdevdata->m_dwPK_Device);
+	devwrap.setDevTemplId(pdevdata->m_dwPK_DeviceTemplate);
 
 	int numparams = 0;	
 	std::map<int, string>::iterator it = pdevdata->m_mapParameters.begin();
@@ -98,7 +99,7 @@ RubyIOPool::PopulateDevice(DeviceData_Impl* pdevdata, Database_pluto_main* pdb, 
 		Row_DeviceData *p_Row_DeviceData = pdb->DeviceData_get()->GetRow((*it).first);
 		if( !p_Row_DeviceData )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"RubyIOPool::PopulateDevice with device %d couldn't find device %d",
+			g_pPlutoLogger->Write(LV_STATUS,"RubyIOPool::PopulateDevice with device %d couldn't find parameter %d",
 				pdevdata->m_dwPK_Device,(*it).first);
 		}
 		else
@@ -117,12 +118,16 @@ RubyIOPool::PopulateDevice(DeviceData_Impl* pdevdata, Database_pluto_main* pdb, 
 }
 
 int 
-RubyIOPool::RouteMessage(Message* pMessage) {
+RubyIOPool::HandleMessage(Message* pMessage) {
 	if(!pembclass_) {
 		return -1;
 	}
-	
-	pembclass_->CallCmdHandler(pMessage);
+
+	if(pdevdata_->m_dwPK_Device == (unsigned long)pMessage->m_dwPK_Device_To) {
+		pembclass_->CallCmdHandler(pMessage);
+	} else {
+		pembclass_->CallCmdForChildHandler(pMessage);
+	}
 	return 0;
 }
 
@@ -146,34 +151,30 @@ RubyIOPool::handleTerminate() {
 
 void 
 RubyIOPool::RubyIOState::handleRead(IOConnection* pconn) {
-	static Message 	
-				datamsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Incoming_Data_CONST, 0);
 	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
-	psm->RouteMessage(&datamsg);
+	Message datamsg(0, psm->getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Incoming_Data_CONST, 0);
+	psm->HandleMessage(&datamsg);
 }
 
 void 
 RubyIOPool::RubyIOState::handleStart() {
-	static Message 	
-				startmsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Initialize_CONST, 0);
 	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
-	psm->RouteMessage(&startmsg);
+	Message startmsg(0, psm->getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Initialize_CONST, 0);
+	psm->HandleMessage(&startmsg);
 }
 
 void 
 RubyIOPool::RubyIOState::handleIdle() {
-	static Message 	
-				idlemsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_IDLE_CONST, 0);
 	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
-	psm->RouteMessage(&idlemsg);
+	Message idlemsg(0, psm->getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_IDLE_CONST, 0);
+	psm->HandleMessage(&idlemsg);
 }
 
 void 
 RubyIOPool::RubyIOState::handleStop() {
-	static Message 	
-				stopmsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Release_CONST, 0);
 	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
-	psm->RouteMessage(&stopmsg);
+	Message stopmsg(0, psm->getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Release_CONST, 0);
+	psm->HandleMessage(&stopmsg);
 }
 
 /*

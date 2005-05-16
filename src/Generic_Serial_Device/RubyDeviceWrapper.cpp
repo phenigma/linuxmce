@@ -26,5 +26,15 @@ RubyDeviceWrapper::~RubyDeviceWrapper()
 {
 }
 
+RubyDeviceWrapper*
+RubyDeviceWrapper::FindChildDevice(int devid) {
+	for(std::map<int, RubyDeviceWrapper>::iterator it = childdevices_.begin();
+				it != childdevices_.end(); it++) {
+		if((*it).first == devid) {
+			return &(*it).second;
+		}
+	}
+	return NULL;
+}
 
 };

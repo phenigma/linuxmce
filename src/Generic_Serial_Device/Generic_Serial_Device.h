@@ -54,6 +54,7 @@ public:
 		virtual void Transmit(const char *pData,int iSize);
 
 		virtual void RunThread();
+		virtual void ParseDeviceHierarchy(DeviceData_Impl *pdevdata = NULL);
 		
 //<-dceag-const2-b->!
 

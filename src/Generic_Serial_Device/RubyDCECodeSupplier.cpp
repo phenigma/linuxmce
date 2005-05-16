@@ -77,6 +77,14 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, D
 					rcode_ += "\n";
 					privateassigned_ = true;
 				} 
+			} else
+			if(cmdid == COMMAND_Process_Receive_Command_For_Child_CONST) {
+				if(!procchildcmdassigned_) {
+					rcode_ += "def cmd_ReceiveCommandForChild(cmd)\n";
+					rcode_ += (*it).second;
+					rcode_ += "\n""end""\n"; // def
+					procchildcmdassigned_ = true;
+				}
 			} else {
 				string scmdtext = TranslateCommandToRuby((*it).second);
 				if(!scmdtext.empty()) {
@@ -116,7 +124,6 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, D
 					
 					//rcode_ += "conn_ = getConn()""\n";
 					rcode_ += TranslateCommandToRuby(scmdtext);
-					
 					/*insert ruby code for the method*/
 					rcode_ += "\n""end""\n"; // def
 				}

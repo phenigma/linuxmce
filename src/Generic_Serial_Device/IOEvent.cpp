@@ -26,7 +26,7 @@ IOEvent::IOEvent() {
 
 IOEvent::~IOEvent() {
 	pthread_mutex_destroy(&mutex_);
-	pthread_cond_destroy(&event_);
+		pthread_cond_destroy(&event_);
 }
 
 void 

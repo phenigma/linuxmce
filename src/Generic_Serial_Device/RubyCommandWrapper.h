@@ -25,6 +25,7 @@ namespace DCE {
 */
 class RubyCommandWrapper {
 public:
+	RubyCommandWrapper();
     RubyCommandWrapper(long devidfrom, long devidto, long priority, long type, long id);
     ~RubyCommandWrapper();
 
@@ -39,26 +40,24 @@ public:
 	const std::map<long, std::string>& getParams() {
 		return params_;
 	}
-	
-	long getDevIdFrom() {
-		return devidfrom_;
+	void setParams(const std::map<long, std::string>& params) {
+		params_ = params;
 	}
 	
-	long getDevIdTo() {
-		return devidto_;
-	}
+	long getDevIdFrom() { return devidfrom_; }
+	void setDevIdFrom(long devidfrom) { devidfrom_ = devidfrom; }
 	
-	long getPriority() {
-		return priority_;
-	}
+	long getDevIdTo() { return devidto_; }
+	void setDevIdTo(long devidto) { devidto_ = devidto; }
 	
-	long getType() {
-		return type_;
-	}
+	long getPriority() { return priority_; }
+	void setPriority(long priority) { priority_ = priority; }
 	
-	long getId() {
-		return id_;
-	}
+	long getType() { return type_; }
+	void setType(long type) { type_ = type; }
+	
+	long getId() { return id_; }
+	void setId(long id) { id_ = id; }
 	
 public:
 	long devidfrom_;

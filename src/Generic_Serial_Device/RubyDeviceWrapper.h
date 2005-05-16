@@ -36,6 +36,13 @@ public:
 		devid_ = devid;
 	}
 	
+	int getDevTemplId() {
+		return devtemplid_;
+	}
+	void setDevTemplId(int devtemplid) {
+		devtemplid_ = devtemplid;
+	}
+	
 	const char* getData(const char* dataname) {
 		return devdata_[dataname].c_str();
 	}
@@ -49,9 +56,13 @@ public:
 	void setChildDevices(std::map<int, RubyDeviceWrapper>& devices) {
 		childdevices_ = devices;
 	}
+
+public:
+	RubyDeviceWrapper* FindChildDevice(int devid);
 		
 public:
 	int devid_;
+	int devtemplid_;
 	std::map<std::string, std::string> devdata_;
 	std::map<int, RubyDeviceWrapper> childdevices_; /*child device*/
 };

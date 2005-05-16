@@ -151,53 +151,35 @@ void Generic_Serial_Device::Transmit(const char *pData,int iSize)
 }
 
 void Generic_Serial_Device::DispatchMessage(Message* pmsg) {
-	g_pPlutoLogger->Write(LV_STATUS, "Dispatching Message %d to %d...", pmsg->m_dwID, pmsg->m_dwPK_Device_To);
+	g_pPlutoLogger->Write(LV_STATUS, "Routing Message %d to %d...", pmsg->m_dwID, pmsg->m_dwPK_Device_To);
 
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
-	
-	/*find child*/
-	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pmsg->m_dwPK_Device_To);
-	while(pDeviceData_Base != NULL && !pmanager->hasDevice(pDeviceData_Base)) {
-		pDeviceData_Base =
-			m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
-	}
-	
-	if(pDeviceData_Base == NULL) {
-	    g_pPlutoLogger->Write(LV_CRITICAL, "Error in parsing Controlled Via hierarchy.");
-		return;
-	}
-	
-    g_pPlutoLogger->Write(LV_STATUS, "Routing message to child device %d.", pDeviceData_Base->m_dwPK_Device);
-	pmanager->RouteMessageToDevice(pDeviceData_Base, pmsg);
+	DeviceData_Base *pDeviceData_Base = 
+			m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pmsg->m_dwPK_Device_To);
+	pmanager->RouteMessage(pDeviceData_Base, pmsg);
 }
 
 void Generic_Serial_Device::RunThread() {
-	/* register serial devices
-		1. method if device has Generic_Serial_Device specified as command line, then we are standalone driver, controlling a single device
-	 	2. if no command line is specfified, we control child devices (performance hit, as we run only in single thread)
-	*/
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
-    
-	g_pPlutoLogger->Write(LV_STATUS, "Device %d has commad line %s.", m_dwPK_Device, m_pData->m_sCommandLine.c_str());
-	if(m_pData->m_sCommandLine == GSD_COMMAND_LINE) {
-		/*we are in case 1*/
-		pmanager->addDevice(this, m_pData);
-	} else {
-	    g_pPlutoLogger->Write(LV_STATUS, "Device has no GSD specified as command line. Looking for children.");
-		/*we are in case 2*/
-		VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
-		if(vDeviceData.size() == 0) {
-		    g_pPlutoLogger->Write(LV_WARNING, "Device has no children. GSD has no device.");
-			return;
-		} else {
-			for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
-				pmanager->addDevice(this, vDeviceData[i]);
-			}
-		}
-	}
+	ParseDeviceHierarchy(m_pData);
 	
 	pmanager->Run(false);
 	Generic_Serial_Device_Command::RunThread();
 	pmanager->Wait(true);
     g_pPlutoLogger->Write(LV_STATUS, "Generic Serial Device RunThread ended.");
+}
+
+void Generic_Serial_Device::ParseDeviceHierarchy(DeviceData_Impl *pdevdata) {
+	g_pPlutoLogger->Write(LV_STATUS, "Device %d has commad line <%s>.", pdevdata->m_dwPK_Device, pdevdata->m_sCommandLine.c_str());
+	RubyIOManager* pmanager = RubyIOManager::getInstance();
+	if(pdevdata->m_sCommandLine == GSD_COMMAND_LINE) {
+		pmanager->addDevice(this, pdevdata);
+		VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
+		for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
+			ParseDeviceHierarchy(vDeviceData[i]);
+		}
+	} else {
+	    g_pPlutoLogger->Write(LV_STATUS, "Device %d has no GSD specified as command line. No ruby code will be executed.",
+						pdevdata->m_dwPK_Device);
+	}
 }

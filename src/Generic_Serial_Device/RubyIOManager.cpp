@@ -107,6 +107,22 @@ RubyIOManager::addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata) {
 			pio->setBPS(bps);
 			pio->setSerialPort(serport.c_str());
 			
+			string sparbitstop = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_ParityBitStop_CONST];
+			if(!sparbitstop.empty()) {
+				g_pPlutoLogger->Write(LV_STATUS, "Using paritybit/stopbit: %s.", sparbitstop.c_str());
+				if(sparbitstop == "N81") {
+					pio->setParityBitStop(epbsN81);
+				} else
+				if(sparbitstop == "E81") {
+					pio->setParityBitStop(epbsE81);
+				} else
+				if(sparbitstop == "081") {
+					pio->setParityBitStop(epbsO81);
+				} else {
+					/*more to be implemented*/
+					g_pPlutoLogger->Write(LV_CRITICAL, "Paritybit/Stopbit %s NOT supported.", sparbitstop.c_str());
+				}
+			}
 			} break;
 		
 		/*** Network Device Initialization *********************************/
@@ -175,14 +191,31 @@ RubyIOManager::hasDevice(DeviceData_Base* pdevdata) {
 }
 
 int 
-RubyIOManager::RouteMessageToDevice(DeviceData_Base* pdevdata, Message *pMessage) {
-	g_pPlutoLogger->Write(LV_STATUS, "Pushing message to stack..."); 
+RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
+	g_pPlutoLogger->Write(LV_STATUS, "Dispatching Message %d to %d...", pMessage->m_dwID, pMessage->m_dwPK_Device_To);
+
+	RubyIOManager* pmanager = RubyIOManager::getInstance();
+	
+	/*find device*/
+	DeviceData_Base *ptmpdevdata = pdevdata->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_To);
+	while(ptmpdevdata != NULL && !pmanager->hasDevice(ptmpdevdata)) {
+		pdevdata = ptmpdevdata;
+		ptmpdevdata =
+			pdevdata->m_AllDevices.m_mapDeviceData_Base_Find(ptmpdevdata->m_dwPK_Device_ControlledVia);
+	}
+	
+	if(ptmpdevdata == NULL) {
+	    g_pPlutoLogger->Write(LV_STATUS, "Command will be handled in Parent device.");
+		ptmpdevdata = pdevdata;
+	}
+		
+    g_pPlutoLogger->Write(LV_STATUS, "Routing message to device %d.", ptmpdevdata->m_dwPK_Device);
 	mmsg_.Lock();
-	std::pair<unsigned, Message> msg(pdevdata->m_dwPK_Device, *pMessage);
+	std::pair<unsigned, Message> msg(ptmpdevdata->m_dwPK_Device, *pMessage);
 	msgqueue_.push_back(msg);
 	mmsg_.Unlock();
 	emsg_.Signal();
-	return -1;
+	return 0;
 }
 
 void* 
@@ -234,10 +267,9 @@ RubyIOManager::DispatchMessageToDevice(Message *pmsg, unsigned deviceid) {
 	
 	POOLMAP::iterator it = pools_.begin();
 	while(it != pools_.end()) {
-		if((*it).second != NULL && (*it).second->getDeviceData() && 
-				(!deviceid || (*it).second->getDeviceData()->m_dwPK_Device == deviceid)) {
+		if((*it).second != NULL && (*it).second->getDeviceData()) {
 			g_pPlutoLogger->Write(LV_STATUS, "Routing message to Ruby Interpreter...");
-			(*it).second->RouteMessage(pmsg);
+			(*it).second->HandleMessage(pmsg);
 			bret = true;
 		}
 		it++;
