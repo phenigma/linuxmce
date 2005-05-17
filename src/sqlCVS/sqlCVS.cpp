@@ -500,15 +500,14 @@ int main( int argc, char *argv[] )
 				database.DumpTables( sRepository, &listCommandParms );
 
 */
-return 0;
+	return 0;
 		};
 	}
-	catch( int *pException )
+	catch( char *pException )
 	{
 		cerr << "Caught exception: " << pException << endl;
 		exit(1);
 	}
-/*
 	catch( const char *pException )
 	{
 		cerr << "Caught exception: " << pException << endl;
@@ -525,7 +524,7 @@ return 0;
 		cerr << "Caught unknown exception" << endl;
 		exit(1);
 	}
-*/
+
 	delete g_pPlutoLogger;
 #ifdef _WIN32
 		WSACleanup( );

@@ -82,7 +82,8 @@ namespace sqlCVS
 		int m_psc_id;		/**< the id of the row */
 		int m_psc_batch;	
 		int m_psc_user;         /**< the user */
-		int m_iOriginalAutoIncrID;
+		int m_iBeforeTransmit_iAutoIncrID;  /** The AutoIncr ID before we send it.  May not be the original because it could have been moved around a few times */
+		int m_iOriginalAutoIncrID; /** The original AutoIncr ID before any changes.  This is used by m_mapUncommittedAutoIncrChanges to keep track of all changes */
 		int m_iNewAutoIncrID;
 		bool m_bCommitted;     /**< whether or not the change was committed */
 		bool m_bFrozen;  		/**< The row could not be committed because it's frozen */
@@ -103,13 +104,13 @@ namespace sqlCVS
 		 * @brief constructor
 		 */
 		 
-		ChangedRow(class Table *pTable, TypeOfChange eTypeOfChange, int psc_id, int psc_batch, int psc_user, int iOriginalAutoIncrID, vector<string> &vectPrimaryKey)
+		ChangedRow(class Table *pTable, TypeOfChange eTypeOfChange, int psc_id, int psc_batch, int psc_user, int iBeforeTransmit_iAutoIncrID, vector<string> &vectPrimaryKey)
 		{
 			m_pTable=pTable;
 			m_vectPrimaryKey = vectPrimaryKey;
 			m_eTypeOfChange = eTypeOfChange;
 			m_psc_id=psc_id; m_psc_batch=psc_batch; m_psc_user=psc_user;
-			m_iOriginalAutoIncrID=iOriginalAutoIncrID;
+			m_iOriginalAutoIncrID=m_iBeforeTransmit_iAutoIncrID=iBeforeTransmit_iAutoIncrID;
 			m_iNewAutoIncrID=-1;
 			m_bCommitted=false;
 			m_bReverted=m_bFrozen=false;

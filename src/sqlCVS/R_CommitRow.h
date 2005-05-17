@@ -31,7 +31,7 @@ public:
 	int m_psc_id;
 	int m_psc_batch;
 	int m_psc_user;
-	int m_iOriginalAutoIncrID;
+	int m_iBeforeTransmit_iAutoIncrID;
 	int m_eTypeOfChange;
 	vector<string> m_vectValues;
 
@@ -65,7 +65,7 @@ public:
 	{
 		RA_Request::SetupSerialization_Request( );
 		StartSerializeList( ) + m_psc_id + m_psc_batch + m_psc_user 
-			+ m_iOriginalAutoIncrID + m_vectValues + m_eTypeOfChange;
+			+ m_iBeforeTransmit_iAutoIncrID + m_vectValues + m_eTypeOfChange;
 	}
 
 	/**

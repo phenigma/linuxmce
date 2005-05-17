@@ -41,10 +41,10 @@ R_CommitRow::R_CommitRow( sqlCVS::ChangedRow *pChangedRow )
 	m_psc_id = pChangedRow->m_psc_id;
 	m_psc_batch = pChangedRow->m_psc_batch;
 	m_psc_user = pChangedRow->m_psc_user;
-	m_iOriginalAutoIncrID = pChangedRow->m_iOriginalAutoIncrID;
+	m_iBeforeTransmit_iAutoIncrID = pChangedRow->m_iBeforeTransmit_iAutoIncrID;
 	m_eTypeOfChange = pChangedRow->m_eTypeOfChange;
 
-	cout << "Going to commit: " << pChangedRow->m_pTable->Name_get() << " psc_id: " << m_psc_id << " type: " << m_eTypeOfChange << " user: " << m_psc_user << " auto incr: " << m_iOriginalAutoIncrID << endl;
+	cout << "Going to commit: " << pChangedRow->m_pTable->Name_get() << " psc_id: " << m_psc_id << " type: " << m_eTypeOfChange << " user: " << m_psc_user << " auto incr: " << m_iBeforeTransmit_iAutoIncrID << endl;
 	
 	m_bFrozen=false;
 	m_iNewAutoIncrID=m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=m_psc_user_new=0;
@@ -63,7 +63,7 @@ int k=2;
 		m_cProcessOutcome=INTERNAL_ERROR;
 	}
 
-	cout << "Committing row table: " << psqlCVSprocessor->m_pTable->Name_get() << " psc_id: " << m_psc_id << " type: " << m_eTypeOfChange << " user: " << m_psc_user << " auto incr: " << m_iOriginalAutoIncrID << endl;
+	cout << "Committing row table: " << psqlCVSprocessor->m_pTable->Name_get() << " psc_id: " << m_psc_id << " type: " << m_eTypeOfChange << " user: " << m_psc_user << " auto incr: " << m_iBeforeTransmit_iAutoIncrID << endl;
 
 	m_iNewAutoIncrID=0;
 	m_cProcessOutcome=SUCCESSFULLY_PROCESSED; /** @todo -- process it */

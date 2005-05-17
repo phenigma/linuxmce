@@ -1046,7 +1046,7 @@ int k=2;
 
 			/** Do this last since the 2 above may be relying on the old primary key */
 			
-			if( r_CommitRow.m_iNewAutoIncrID && r_CommitRow.m_iNewAutoIncrID!=r_CommitRow.m_iOriginalAutoIncrID )
+			if( r_CommitRow.m_iNewAutoIncrID && r_CommitRow.m_iNewAutoIncrID!=r_CommitRow.m_iBeforeTransmit_iAutoIncrID )
 			{
 				if( !m_pField_AutoIncrement )
 					throw ( "Internal error: Trying to set a non existant auto increment in table: " + m_sName ).c_str( );
@@ -1089,9 +1089,9 @@ int k=2;
 							if( pChangedRow->m_iNewAutoIncrID>iHighestUsedID )
 							{
 								iHighestUsedID = pChangedRow->m_iNewAutoIncrID;
-cout << "Found higher value: " << pChangedRow->m_iNewAutoIncrID << " orig: " << pChangedRow->m_iOriginalAutoIncrID << " psc_id: " << pChangedRow->m_psc_id << " highestid: " << iHighestUsedID << endl;
+cout << "Found higher value: " << pChangedRow->m_iNewAutoIncrID << " orig: " << pChangedRow->m_iBeforeTransmit_iAutoIncrID << " psc_id: " << pChangedRow->m_psc_id << " highestid: " << iHighestUsedID << endl;
 							}
-							if( pChangedRow->m_iOriginalAutoIncrID!=r_CommitRow.m_iNewAutoIncrID )
+							if( pChangedRow->m_iBeforeTransmit_iAutoIncrID!=r_CommitRow.m_iNewAutoIncrID )
 								continue;
 
 							pChangedRowToMove=pChangedRow;  // We're going to keep going because we need to determine iHighestUsedID
@@ -1102,14 +1102,14 @@ cout << "Found higher value: " << pChangedRow->m_iNewAutoIncrID << " orig: " << 
 					if( pChangedRowToMove && 
 						(pChangedRowToMove->m_bCommitted || pChangedRowToMove->m_eTypeOfChange!=toc_New || pChangedRowToMove->m_vectPrimaryKey.size()!=1) )
 					{
-						cerr << "Something is wrong with re-allocating an auto incr primary key: " << r_CommitRow.m_iNewAutoIncrID << "-" << r_CommitRow.m_iOriginalAutoIncrID << endl;
+						cerr << "Something is wrong with re-allocating an auto incr primary key: " << r_CommitRow.m_iNewAutoIncrID << "-" << r_CommitRow.m_iBeforeTransmit_iAutoIncrID << endl;
 						throw "Internal error--data unexpected";
 					}
 
 					cout << "Checking:Reassigning Auto Incr Value for table (2): " << m_sName << " determined highest used value is: " << row_hi << " m_psc_id_next: " << m_psc_id_next << " pChangedRowToMove " 
 						<< (pChangedRowToMove==NULL ? " is null" : " is not null") << " highestid: " << iHighestUsedID << endl;
 if( pChangedRowToMove )
-cout << "pChangedRowToMove original auto incr id: " << pChangedRowToMove->m_iOriginalAutoIncrID << " psc_id: " << pChangedRowToMove->m_psc_id << endl;
+cout << "pChangedRowToMove original auto incr id: " << pChangedRowToMove->m_iBeforeTransmit_iAutoIncrID << " psc_id: " << pChangedRowToMove->m_psc_id << endl;
 
 					iHighestUsedID++;
 					if( m_psc_id_next>iHighestUsedID )
@@ -1126,9 +1126,9 @@ cout << "pChangedRowToMove original auto incr id: " << pChangedRowToMove->m_iOri
 					if( pChangedRowToMove )
 					{
 						// These only apply if it's another row we're checking in
-						cout << "Propagating/Setting #1 m_mapUncommittedAutoIncrChanges[" << r_CommitRow.m_iOriginalAutoIncrID << "]=" << r_CommitRow.m_iNewAutoIncrID << endl;
-cout << "pChangedRowToMove now original auto incr id: " << pChangedRowToMove->m_iOriginalAutoIncrID << " highest: " << iHighestUsedID << " psc_id: " << pChangedRowToMove->m_psc_id << endl;
-						pChangedRowToMove->m_iOriginalAutoIncrID = iHighestUsedID;
+						m_mapUncommittedAutoIncrChanges[pChangedRowToMove->m_iOriginalAutoIncrID] = iHighestUsedID;
+						pChangedRowToMove->m_iBeforeTransmit_iAutoIncrID = iHighestUsedID;
+cout << "pChangedRowToMove now original auto incr id: " << pChangedRowToMove->m_iBeforeTransmit_iAutoIncrID << " psc_id: " << pChangedRowToMove->m_psc_id << endl;
 						pChangedRowToMove->m_vectPrimaryKey[0] = StringUtils::itos(iHighestUsedID);
 					}
 				}
@@ -1156,11 +1156,10 @@ cout << "pChangedRowToMove now original auto incr id: " << pChangedRowToMove->m_
 				* the propagate, it's modification flag will be set again
 				*/
 				
-			if( r_CommitRow.m_iNewAutoIncrID && r_CommitRow.m_iNewAutoIncrID!=r_CommitRow.m_iOriginalAutoIncrID )
+			if( r_CommitRow.m_iNewAutoIncrID && r_CommitRow.m_iNewAutoIncrID!=r_CommitRow.m_iBeforeTransmit_iAutoIncrID )
 			{
-cout << "Propagating/Setting m_mapUncommittedAutoIncrChanges[" << r_CommitRow.m_iOriginalAutoIncrID << "]=" << r_CommitRow.m_iNewAutoIncrID << endl;
-				m_mapUncommittedAutoIncrChanges[r_CommitRow.m_iOriginalAutoIncrID] = r_CommitRow.m_iNewAutoIncrID;
-				PropagateUpdatedField( m_pField_AutoIncrement, StringUtils::itos( r_CommitRow.m_iNewAutoIncrID ), StringUtils::itos( r_CommitRow.m_iOriginalAutoIncrID ), pChangedRow );
+				m_mapUncommittedAutoIncrChanges[pChangedRow->m_iOriginalAutoIncrID] = r_CommitRow.m_iNewAutoIncrID;
+				PropagateUpdatedField( m_pField_AutoIncrement, StringUtils::itos( r_CommitRow.m_iNewAutoIncrID ), StringUtils::itos( r_CommitRow.m_iBeforeTransmit_iAutoIncrID ), pChangedRow );
 			}
 			pChangedRow->m_bCommitted=true;
 		}
@@ -1174,7 +1173,7 @@ void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, strin
 	for( ListField::iterator itList=pField_Changed->m_listField_ReferringToMe_Directly.begin( );itList!=pField_Changed->m_listField_ReferringToMe_Directly.end( );++itList )
 	{
 		Field *pField_FK = *itList;
-		pField_Changed->m_pTable->PropagateUpdatedField( pField_Changed, NewValue, OldValue, pChangedRow, pField_FK );
+		PropagateUpdatedField( pField_Changed, NewValue, OldValue, pChangedRow, pField_FK );
 	}
 /** @test
 	for( ListField::iterator itList=pField_Changed->m_listField_ReferringToMe_Indirectly.begin( );itList!=pField_Changed->m_listField_ReferringToMe_Indirectly.end( );++itList )
@@ -1188,12 +1187,6 @@ void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, strin
 
 void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow, Field *pField_FK )
 {
-printf("in table: %s checking if field %s is auto incr %p %p\n",m_sName.c_str(),pField_Changed->Name_get().c_str(),pField_Changed,m_pField_AutoIncrement);
-	if( m_pField_AutoIncrement && m_pField_AutoIncrement==pField_Changed )
-	{
-cout << m_sName << ".m_mapUncommittedAutoIncrChanges[" << OldValue << "]=" << NewValue << endl;
-		m_mapUncommittedAutoIncrChanges[ atoi(OldValue.c_str()) ] = atoi(NewValue.c_str());
-	}
 	std::ostringstream sSQL;
 	sSQL << "UPDATE `" << pField_FK->m_pTable->Name_get( ) << "` SET " << pField_FK->Name_get( ) << "='" << NewValue << "'" << " WHERE " << pField_FK->Name_get( ) << "='" << OldValue << "'";
 	if( pField_FK->m_pTable->m_s_psc_id_new_this_update.size() )
