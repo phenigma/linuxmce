@@ -35,23 +35,29 @@ namespace DCE
 		pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
 		Row_Alert *m_pRow_Alert;
 		class Security_Plugin *m_pSecurity_Plugin;
+        class Telecom_Plugin *m_pTelecom_Plugin;
 		class Router *m_pRouter;
 
 		string m_sOther_Phone_Notifications,m_sOrbiterNotifications;
 		list<NotificationInfo *> m_listNotificationInfo;
 
 	public:
-		Notification(Security_Plugin *pSecurity_Plugin,Router *pRouter,Row_Alert *pRow_Alert);
+		Notification(Security_Plugin *pSecurity_Plugin,Telecom_Plugin *pTelecom_Plugin,Router *pRouter,Row_Alert *pRow_Alert);
 		~Notification();
 		void DoIt();
 
 		bool NotifyLoop(int iType,bool bProcessInBackground);
 
-		// These functions do the actualy notification.  The will not return until
+		// These functions do the actualy notification.  They will not return until
 		// the user acknowledges the alert, or until it times out in iDelay or MAX_TIMEOUT_FOR_PHONES seconds.
 		// It returns true if the user decided to cancel the event (ie reset the Alert)
 		bool NotifyOrbiter(string sPhoneNumber,int iDelay);
 		bool NotifyOther(string sPhoneNumber,int iDelay);
+
+    private: 
+        string GenerateWavFile(long nAlertType);
+
+        bool ExecuteNotification(string sPhoneNumber, int iDelay, bool bNotifyOrbiter);
 	};
 }
 #endif

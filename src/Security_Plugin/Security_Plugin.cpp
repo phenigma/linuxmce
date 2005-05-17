@@ -248,12 +248,29 @@ bool Security_Plugin::Register()
 
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl->front( );
 
+    m_pTelecom_Plugin=NULL;
+    pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Telecom_Plugin_CONST );
+
+    if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot find Telecom plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+        return false;
+    }
+
+    m_pTelecom_Plugin=( Telecom_Plugin * ) pListCommand_Impl->front( );
+
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( 
 		new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Security_Plugin::SecurityScenariosGrid ) )
 		, DATAGRID_Security_Scenarios_CONST );
 
     RegisterMsgInterceptor((MessageInterceptorFn)(&Security_Plugin::SensorTrippedEvent) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Sensor_Tripped_CONST);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Security_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);
+
+
+    //testing - hack
+    //vector<Row_Alert *> vectRow_Alert;
+    //m_pDatabase_pluto_security->Alert_get()->GetRows("PK_Alert = 12",&vectRow_Alert);
+    //ProcessAlert(vectRow_Alert[0]);
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -761,7 +778,7 @@ void Security_Plugin::ProcessAlert(Row_Alert *pRow_Alert)
 	if( pRow_Alert->Notification_get() )
 	{
 		PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
-		Notification *pNotification = new Notification(this,m_pRouter,pRow_Alert);
+		Notification *pNotification = new Notification(this,m_pTelecom_Plugin,m_pRouter,pRow_Alert);
 		pthread_t pthread_id; 
 		if(pthread_create( &pthread_id, NULL, StartNotification, (void*)pNotification) )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create Notification thread" );

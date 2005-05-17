@@ -19,7 +19,7 @@ sources = Main.cpp Orbiter_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS += -DVIPDESIGN -DORBITER_PLUGIN
 LDFLAGS +=
-XTRALDLIBS = -lpluto_main
+XTRALDLIBS = -lpluto_main -lpluto_security
 
 Gen_Dev_Files +=
 sources += FollowMe_Device.cpp ../CreateDevice/CreateDevice.cpp ../VIPShared/VIPMenu.cpp PopulateListsInVMC.cpp

@@ -56,6 +56,7 @@ namespace DCE
 	// Private member variables 
     pluto_pthread_mutex_t m_SecurityMutex;
 	pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
+    class Telecom_Plugin *m_pTelecom_Plugin;
     class Orbiter_Plugin *m_pOrbiter_Plugin;
 	DeviceData_Router *m_pDeviceData_Router_this;
 	class AlarmManager *m_pAlarmManager;

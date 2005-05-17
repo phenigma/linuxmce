@@ -13,6 +13,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 
 class Database_pluto_main;
+class Database_pluto_security;
 #include "OH_Orbiter.h"
 
 namespace DCE
@@ -54,6 +55,7 @@ public:
 
 	// Private member variables
     Database_pluto_main *m_pDatabase_pluto_main;
+    Database_pluto_security *m_pDatabase_pluto_security;
 	class FloorplanInfoProvider *m_pLighting_Floorplan,*m_pClimate_Floorplan,*m_pMedia_Floorplan,*m_pSecurity_Floorplan,*m_pTelecom_Floorplan;
 	class Media_Plugin *m_pMedia_Plugin;
 

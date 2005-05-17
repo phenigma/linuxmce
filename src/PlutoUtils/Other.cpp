@@ -39,6 +39,8 @@
 		#include <dirent.h>
 		#define stricmp(x, y) strcasecmp(x, y)
 	#endif
+
+    #include "StringUtils.h"
 #endif //#ifndef SYMBIAN
 
 #ifndef WIN32
@@ -91,3 +93,26 @@ const char *FastParser::GetNextParm()
     m_pcData++;
     return (const char *)pcReturnValue;
 }
+
+#ifndef SYMBIAN
+string GenerateCallerID(long nAlertType)
+{
+    //TODO: replace these constants with the right values
+    const string csPrefix = "555";
+    const int cnNumberLength = 6;
+
+    //the caller id will be like this: 555-000124
+    string sCallerID(csPrefix);
+    string sNum = StringUtils::ltos(nAlertType);
+    sCallerID += StringUtils::RepeatChar('0', - static_cast<int>(sNum.length()) + cnNumberLength) + sNum;
+
+    return sCallerID;
+}
+
+string TextToSpeech(string sText)
+{
+    //TODO: return the wav filename
+    //HINT: use m_pSecurity_Plugin->m_PK_Device_TextToSpeach
+    return "not_implemented.wav";
+}
+#endif

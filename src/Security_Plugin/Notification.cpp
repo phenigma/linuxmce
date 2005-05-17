@@ -34,6 +34,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "Security_Plugin.h"
+#include "../Telecom_Plugin/Telecom_Plugin.h"
 
 #include <iostream>
 using namespace std;
@@ -61,10 +62,11 @@ void* StartNotificationInfo( void* param )
 }
 
 // The primary constructor when the class is created as a stand-alone device
-Notification::Notification(Security_Plugin *pSecurity_Plugin,Router *pRouter,Row_Alert *pRow_Alert)
+Notification::Notification(Security_Plugin *pSecurity_Plugin,Telecom_Plugin *pTelecom_Plugin,Router *pRouter,Row_Alert *pRow_Alert)
 	: m_AlertMutex("alert")
 {
 	m_pSecurity_Plugin=pSecurity_Plugin;
+    m_pTelecom_Plugin=pTelecom_Plugin;
 	m_pRouter=pRouter;
 	m_pRow_Alert=pRow_Alert;
     pthread_mutexattr_init( &m_MutexAttr );
@@ -129,6 +131,10 @@ bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 	PLUTO_SAFETY_LOCK(am,m_AlertMutex);
 	if( m_pRow_Alert->ResetTime_isNull()==false )  // If it's not null we handled it
 		return true;
+
+    //hack... for testing
+    //m_sOrbiterNotifications = m_sOther_Phone_Notifications = "30,0723144156,0,1,0,0,0";
+    //iType = TYPE_ORBITER; //hack
 
 	string *s;
 	if( iType==TYPE_ORBITER )
@@ -196,17 +202,61 @@ g_pPlutoLogger->Write(LV_STATUS,"Skipping orbiter %s",sPhoneNumber.c_str());
 
 bool Notification::NotifyOrbiter(string sPhoneNumber,int iDelay)
 {
-	// iDelay = How many seconds to wait for the phone to respond and acknowledge
-	if( iDelay==0 )
-		iDelay = MAX_TIMEOUT_FOR_PHONES;
-
 	g_pPlutoLogger->Write(LV_CRITICAL,"Notifying orbiter %s for delay %d",sPhoneNumber.c_str(),iDelay);
-	return false;
+    return ExecuteNotification(sPhoneNumber, iDelay, true);
 }
 
 bool Notification::NotifyOther(string sPhoneNumber,int iDelay)
 {
 	g_pPlutoLogger->Write(LV_CRITICAL,"Notifying phone %s for delay %d",sPhoneNumber.c_str(),iDelay);
-	return false;
+    return ExecuteNotification(sPhoneNumber, iDelay, false);
 }
 
+bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNotifyOrbiter)
+{
+    // iDelay = How many seconds to wait for the phone to respond and acknowledge
+    if( iDelay==0 )
+        iDelay = MAX_TIMEOUT_FOR_PHONES;
+
+    long nAlertType = m_pRow_Alert->FK_AlertType_get();
+    string sCallerID = bNotifyOrbiter ? GenerateCallerID(nAlertType) : ""; //no called id for the others
+    string sWavFileName = GenerateWavFile(nAlertType);
+
+    //hardcoding!! we'll get the right default line id after the database will be redesigned
+    //TODO: find the device id for the right phone the place the call
+    int nPhoneDevice = 4759; 
+
+    //TODO: attach the called id and the wav file
+    DCE::CMD_PL_Originate CMD_PL_Originate_(
+        m_pSecurity_Plugin->m_dwPK_Device, 
+        m_pTelecom_Plugin->m_dwPK_Device,
+        nPhoneDevice, 
+        sPhoneNumber
+        );
+
+    string sResponse;
+    bool bResponse = m_pSecurity_Plugin->SendCommand(CMD_PL_Originate_, &sResponse);
+
+    //TODO: wait iDelay seconds for a response
+
+    return false;
+}
+
+string Notification::GenerateWavFile(long nAlertType)
+{
+    string sText = "This is Pluto.";
+    switch(nAlertType)
+    {
+        case ALERTTYPE_Security_CONST:      sText += "There is a security breach.";     break;
+        case ALERTTYPE_Fire_CONST:          sText += "Your house is on fire.";          break;
+        case ALERTTYPE_Air_Quality_CONST:   sText += "Air Quality?";                    break;
+        case ALERTTYPE_Movement_CONST:      sText += "Movement?";                       break;
+        case ALERTTYPE_Information_CONST:   sText += "Information?";                    break;
+        case ALERTTYPE_Doorbell_CONST:      sText += "Doorbell?";                       break;
+        case ALERTTYPE_Monitor_mode_CONST:  sText += "Monitor mode?";                   break;
+
+        default: sText+= "Unknown security event";
+    }
+
+    return TextToSpeech(sText);
+}

@@ -31,6 +31,9 @@ using namespace DCE;
 
 #include <sstream>
 
+#include "pluto_security/Database_pluto_security.h"
+#include "pluto_security/Table_AlertType.h"
+
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Users.h"
 #include "pluto_main/Table_Device.h"
@@ -85,6 +88,14 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
         return;
     }
 
+    m_pDatabase_pluto_security = new Database_pluto_security( );
+    if( !m_pDatabase_pluto_security->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_security", m_pRouter->iDBPort_get( ) ) )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+        m_bQuit=true;
+        return;
+    }
+
 	vector<Row_Users *> vectRow_Users;
 	m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
 	for(size_t s=0;s<vectRow_Users.size();++s)
@@ -102,6 +113,7 @@ Orbiter_Plugin::~Orbiter_Plugin()
 {
     m_mapUnknownDevices.clear();
 	delete m_pDatabase_pluto_main;
+    delete m_pDatabase_pluto_security;
 
 	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
 		delete (*it).second;
@@ -1521,7 +1533,7 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
 
     if(FileUtils::FileExists(csWapConfFile))
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "About to generate '%s' file", csPlutoMOConfFile.c_str());
+        g_pPlutoLogger->Write(LV_STATUS, "About to generate '%s' file", csPlutoMOConfFile.c_str());
 
         size_t iSize = 0;
         char *pWapURL = FileUtils::ReadFileIntoBuffer(csWapConfFile, iSize);
@@ -1529,8 +1541,35 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
         string sPlutoMOConfig(pWapURL);
         delete []pWapURL;
 
-        //TODO: append to sPlutoMOConfig incoming calls records too
-        sPlutoMOConfig += "\n0\n"; //no records for now
+        sPlutoMOConfig += "\n";
+        
+        //generating the list with alert types
+        vector<Row_AlertType *> vectRow_AlertType;
+        m_pDatabase_pluto_security->AlertType_get()->GetRows("1 = 1", &vectRow_AlertType);
+        sPlutoMOConfig += StringUtils::ltos(long(vectRow_AlertType.size())) + "\n";
+
+        size_t i;
+        for(i = 0; i < vectRow_AlertType.size(); i++)
+        {
+            Row_AlertType *pRow_AlertType = vectRow_AlertType[i];
+            sPlutoMOConfig += pRow_AlertType->Description_get() + "\n";
+        }
+
+        //generate the list with known caller ids
+        sPlutoMOConfig += StringUtils::ltos(long(vectRow_AlertType.size())) + "\n";
+        for(i = 0; i < vectRow_AlertType.size(); i++)
+        {
+            Row_AlertType *pRow_AlertType = vectRow_AlertType[i];
+
+            sPlutoMOConfig += StringUtils::ltos(pRow_AlertType->PK_AlertType_get()) + "\n";
+            string sCallerID = GenerateCallerID(pRow_AlertType->PK_AlertType_get());
+            sPlutoMOConfig += sCallerID + "\n";
+            sPlutoMOConfig += pRow_AlertType->Description_get() + "\n";
+
+            //TODO: need a 'Hang up true/false' filder in AlertType table
+            sPlutoMOConfig += "1\n";
+        }
+        vectRow_AlertType.clear();
 
         FileUtils::WriteBufferIntoFile(csPlutoMOConfFile, const_cast<char *>(sPlutoMOConfig.c_str()), 
             sPlutoMOConfig.length());
