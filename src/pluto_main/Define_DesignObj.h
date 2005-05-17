@@ -1197,6 +1197,7 @@
 #define DESIGNOBJ_objMonitorMode_CONST 3401
 #define DESIGNOBJ_objWaitToArm_CONST 3402
 #define DESIGNOBJ_objTryAgain_CONST 3403
+#define DESIGNOBJ_dgCDTracksToRip_CONST 3404
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

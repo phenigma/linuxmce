@@ -65,7 +65,9 @@
 #define DEVICEDATA_ImageQuality_CONST 75
 #define DEVICEDATA_COM_Port_ParityBitStop_CONST 76
 #define DEVICEDATA_PK_Device_CONST 77
-#define DEVICEDATA_COM_Port_BaudRate_CONST 78
+#define DEVICEDATA_COM_Port_BaudRate_CONST 79
+#define DEVICEDATA_Area_CONST 80
+#define DEVICEDATA_Channel_CONST 81
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
