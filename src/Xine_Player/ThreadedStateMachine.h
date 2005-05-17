@@ -51,6 +51,7 @@ private:
 	list<State*> m_desiredStatesList;
 
 	bool m_bMachineSignalled;
+	bool m_bMachineIsWaiting;
 	bool m_bNeedToQuit;
 
 protected:
@@ -62,6 +63,8 @@ protected:
 
 	virtual void waitConditionsChange();
 	virtual void signalConditionsChange();
+
+	virtual bool machineIsWaiting();
 
 	virtual void emptyTransition(State &pSourceState, State &pTargetState);
 	virtual State *findNextState(State *pCurrentState) = 0;

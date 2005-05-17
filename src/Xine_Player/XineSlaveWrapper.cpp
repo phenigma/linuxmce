@@ -193,18 +193,18 @@ bool XineSlaveWrapper::createWindow()
     return true;
 }
 
+
 /**
  *
- *  \fn XineSlaveWrapper::playStream(string fileName, int m_istreamID, int mediaPosition, int iRequestingObject);
+ *  \fn XineSlaveWrapper::createStream(string fileName, int streamID, int mediaPosition, int iRequestingObject);
  */
-bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosition, int iRequestingObject)
+bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequestingObject)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Got a play media command for %s", fileName.c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "Got a create stream command command for %s", fileName.c_str());
 
-	time_t startTime = time(NULL);
+	bool isNewStream = false;
 
-    bool isNewStream = false;
-    XineStream *xineStream = getStreamForId(iStreamID, ""); /** @warning HACK: This should be changed to behave properly */
+    XineStream *xineStream = getStreamForId(streamID, ""); /** @warning HACK: This should be changed to behave properly */
 
     g_pPlutoLogger->Write(LV_STATUS, "Testing to see if we can reuse the stream.");
 
@@ -214,8 +214,8 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         isNewStream = true;
         xineStream = new XineStream();
         xineStream->m_pOwner = this;
-        xineStream->m_iStreamID = iStreamID;
-		setStreamForId(iStreamID, xineStream);
+        xineStream->m_iStreamID = streamID;
+		setStreamForId(streamID, xineStream);
     }
     else
     {
@@ -234,7 +234,7 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         g_pPlutoLogger->Write(LV_STATUS, "Closed!");
 
         xineStream->m_bIsRendering = false;
-        xineStream->m_iStreamID = iStreamID;
+        xineStream->m_iStreamID = streamID;
     }
 
     m_x11Visual.display           = XServerDisplay;
@@ -266,7 +266,7 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
     xineStream->m_iRequestingObject = iRequestingObject;
 
     if (isNewStream )
-        m_mapStreams[iStreamID] = xineStream; /** @todo: check for leaks (if someone will send me multiple playStream with the same Stream ID it will leak memory) */
+        m_mapStreams[streamID] = xineStream; /** @todo: check for leaks (if someone will send me multiple playStream with the same Stream ID it will leak memory) */
 
     if ( isNewStream )
     {
@@ -278,13 +278,13 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
     xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_DRAWABLE_CHANGED, (void *) windows[m_iCurrentWindow]);
     xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_VIDEOWIN_VISIBLE, (void *) 1);
 
-	setXineStreamDebugging(iStreamID, true);
+	setXineStreamDebugging(streamID, true);
 
     if( xine_open(xineStream->m_pStream, fileName.c_str()))
     {
         g_pPlutoLogger->Write(LV_STATUS, "Opened..... ");
 
-        setXineStreamDebugging(iStreamID, false);
+        setXineStreamDebugging(streamID, false);
         xineStream->m_bHasVideo = xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_HAS_VIDEO);
 
         if ( xineStream->m_iImgWidth == 0)
@@ -337,23 +337,8 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         if ( ! xineStream->m_bHasVideo )
         {
             g_pPlutoLogger->Write(LV_STATUS, "Stream is seekable: %d", xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_SEEKABLE));
-            g_pPlutoLogger->Write(LV_STATUS, "Starting stream from position: %d", mediaPosition);
             xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
         }
-
-        if ( xine_play(xineStream->m_pStream, 0, 0) )
-        {
-			g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete: ", time(NULL) - startTime);
-
-//             if ( ! xineStream->m_bHasVideo )
-//             {
-			g_pPlutoLogger->Write(LV_STATUS, "Starting audio stream from position: %d", mediaPosition);
-			xine_play(xineStream->m_pStream, mediaPosition, 0);
-			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
-//             }
-        }
-       	else
-			xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
     }
     else
     {
@@ -362,6 +347,34 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
     }
 
 	return true;
+}
+
+/**
+ * @brief play the stream with the streamID identifier.
+ */
+bool XineSlaveWrapper::playStream(int streamID, int mediaPosition)
+{
+	XineStream *xineStream = getStreamForId(streamID, "XineSlaveWrapper::playStream() could not play an empty stream!");
+
+	if ( xineStream == NULL )
+		return false;
+
+	time_t startTime = time(NULL);
+
+	if ( xine_play(xineStream->m_pStream, 0, 0) )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete: ", time(NULL) - startTime);
+
+		g_pPlutoLogger->Write(LV_STATUS, "Starting audio stream from position: %d", mediaPosition);
+		xine_play(xineStream->m_pStream, mediaPosition, 0);
+		xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
+		return true;
+	}
+    else
+	{
+		xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
+		return false;
+	}
 }
 
 bool XineSlaveWrapper::closeWindow()
@@ -1558,7 +1571,8 @@ void XineSlaveWrapper::selectMenu(int iStreamID, int iMenuType)
 void XineSlaveWrapper::playbackCompleted(int iStreamID,bool bWithErrors)
 {
     g_pPlutoLogger->Write(LV_STATUS, "Fire playback completed event");
-    this->m_pAggregatorObject->EVENT_Playback_Completed(iStreamID,bWithErrors);
+	if ( ! m_isSlimClient )
+    	this->m_pAggregatorObject->EVENT_Playback_Completed(iStreamID,bWithErrors);
 }
 
 int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime, int &totalTime)
@@ -1575,8 +1589,8 @@ int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime
     int count = 10;
     while( --count && ! xine_get_pos_length(xineStream->m_pStream, &iPosStream, &iPosTime, &iLengthTime) )
     {
-          // g_pPlutoLogger->Write(LV_STATUS, "Error reading stream position: %d", xine_get_error(xineStream->m_pStream));
-          usleep(2500);
+          g_pPlutoLogger->Write(LV_STATUS, "Error reading stream position: %d", xine_get_error(xineStream->m_pStream));
+          usleep(500);
     }
 
 //     if ( xine_get_pos_length(xineStream->m_pStream, &iPosStream, &iPosTime, &iLengthTime) == 0 )
@@ -1742,5 +1756,15 @@ void XineSlaveWrapper::setOutputSpeakerArrangement(string strOutputSpeakerArrang
 int XineSlaveWrapper::getDeviceId()
 {
 	return m_pAggregatorObject->m_dwPK_Device;
+}
+
+bool XineSlaveWrapper::isSlimClient()
+{
+	return m_isSlimClient;
+}
+
+void XineSlaveWrapper::setSlimClient(bool isSlimClient)
+{
+	m_isSlimClient = isSlimClient;
 }
 

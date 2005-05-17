@@ -36,6 +36,21 @@ class SlimServerClient;
 
 class SlimDataHandler: public SocketCommunicator, public SlimServerClientUser, public SocketOperationListener, public ThreadedStateMachine
 {
+public:
+	class PlayerState {
+	public:
+		typedef enum _state {
+			PLAYER_DISCONNECTED,
+			PLAYER_CONNECTED,
+			PLAYER_PLAYING,
+			PLAYER_BUFFERING,
+			PLAYER_PAUSED
+		} STATE;
+
+		static string describeState(PlayerState::STATE state);
+	};
+
+private:
 	unsigned char 	*m_urlAddress;
 	unsigned int 	m_urlAddressSize;
 	unsigned char 	m_streamFormat;
@@ -50,16 +65,19 @@ class SlimDataHandler: public SocketCommunicator, public SlimServerClientUser, p
 
 	long long bytesRx;
 
-	pthread_mutex_t bufferAccessMutex;
-	pthread_t		fifoWriterThread;
+	pluto_pthread_mutex_t 	bufferAccessMutex;
+	pthread_cond_t			bufferAccessCondition;
 
 	string 	fifoPipeName;
 	int		fifoFileDescriptor;
 
 	struct timeval epochTime;
 
-	bool m_bLogBufferAccess;
-	bool m_isReaderRunning;
+	bool m_isLogBufferAccess;
+	bool m_isPlayerCreated;
+	bool m_isAutoStart;
+
+	PlayerState::STATE m_playerState;
 
 protected:
 	void resetBuffer();
@@ -67,8 +85,6 @@ protected:
 	bool peekBuffer(char *pBuffer, unsigned int pBufferOffset, unsigned int pBufferLen);
 	bool readBuffer(char *pBuffer, unsigned int pBufferOffset, unsigned int pBufferLen);
 	bool readBuffer(unsigned int readSize);
-
-	static void *xineFifoWriterThread(void *);
 
 	State STATE_CLOSED_PIPE;
 	State STATE_WAIT_TO_SEND;
@@ -81,9 +97,6 @@ protected:
 	virtual void quitMachine(State &fromState, State &toState);
 
 	virtual State *findNextState(State *pCurrentState);
-
-	bool isReaderRunning();
-	void setReaderRunning(bool isReaderRunning);
 public:
 
     SlimDataHandler();
@@ -91,9 +104,12 @@ public:
     ~SlimDataHandler();
 
 	virtual bool openConnection();
+	virtual bool closeConnection();
 
-	bool initDataProcessing(bool autostart);
-	bool startDataReader();
+	bool initDataProcessing();
+
+	bool createPlayer();
+	bool startPlayer();
 
 	bool readStreamData();
 
@@ -108,11 +124,20 @@ public:
 
 	long long getBytesRx();
 
-	long getBufferSize();
+	unsigned int getBufferSize();
 	long long getJiffies();
 
 	void setStreamFormat(unsigned char streamFormat);
 	bool setConnectionData(string strHostName, int port, unsigned char *urlAddress, unsigned int urlAddressSize);
+
+	PlayerState::STATE getPlayerState();
+	void setPlayerState(PlayerState::STATE playerState);
+
+	bool isAutoStart();
+	void setAutoStart(bool isAutoStart);
+
+	bool isPlayerCreated();
+	void setPlayerCreated(bool playerCreated);
 
 	// base interface implementations
 	virtual bool dataIsAvailable(int socket);

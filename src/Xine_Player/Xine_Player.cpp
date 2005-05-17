@@ -163,8 +163,8 @@ void Xine_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s.", sFilename.c_str());
 	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called.");
 
     if ( ! m_pXineSlaveControl )
     {
@@ -179,6 +179,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		g_pPlutoLogger->Write(LV_STATUS, "Need to behave like a slim server client");
 
 		string macAddress = StringUtils::makeUpPlayerAddressFromPlayerId(m_dwPK_Device);
+		m_pXineSlaveControl->setSlimClient(true);
 		getSlimServerClient()->setMacAddress(macAddress);
 		getSlimServerClient()->setMediaStreamID(iStreamID);
 		getSlimServerClient()->setRequestingObjectID(pMessage->m_dwPK_Device_From);
@@ -186,7 +187,8 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	}
 	else
 	{
-		if ( ! m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From) )
+		m_pXineSlaveControl->setSlimClient(false);
+		if ( ! m_pXineSlaveControl->createStream(sFilename, iStreamID, pMessage->m_dwPK_Device_From) || ! m_pXineSlaveControl->playStream(iStreamID, iMediaPosition) )
 		{
 			EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
 			delete m_pXineSlaveControl;
@@ -224,6 +226,9 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
     g_pPlutoLogger->Write(LV_STATUS, "position %d", *iMediaPosition);
     m_pXineSlaveControl->stopMedia(iStreamID);
     g_pPlutoLogger->Write(LV_STATUS, "The stream playback should be stopped at this moment and the resources should be freed!");
+
+	if ( getSlimServerClient()->isConnected(iStreamID) )
+		getSlimServerClient()->disconnectFromServer(iStreamID);
 }
 
 //<-dceag-c39-b->
@@ -431,7 +436,7 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu 
+0 - Root menu
 1 - Title menu
 2 - Media menu */
 

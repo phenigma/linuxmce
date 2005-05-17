@@ -103,7 +103,5 @@ bool SocketCommunicator::writeData(unsigned char *buffer, int offset, int len, i
 {
 	writeCount = send(m_iCommunicationSocket, buffer + offset, len, 0);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Result from send was %d", writeCount);
-
 	return writeCount == len;
 }

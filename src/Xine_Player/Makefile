@@ -29,9 +29,10 @@ Gen_Dev_Files +=
 sources +=  XineSlaveWrapper.cpp \
 	JpegEncoderDecoder.cpp NetworkUtils.cpp \
 	SlimServerClient.cpp SocketCommunicator.cpp \
-	SlimCommandHandler.cpp SlimDataHandler.cpp \
-	SlimServerClientUser.cpp DataReaderThread.cpp \
-	ThreadedStateMachine.cpp
+	SlimCommandHandler.cpp \
+	SlimDataHandler.cpp SlimDataHandler_PlayerState.cpp \
+	SlimServerClientUser.cpp DataReaderThread.cpp SocketOperationListener.cpp \
+	ThreadedStateMachine.cpp ThreadedStateMachine_State.cpp
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)

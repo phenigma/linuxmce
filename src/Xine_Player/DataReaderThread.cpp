@@ -46,7 +46,9 @@ void DataReaderThread::addSocketOperationListenerForSocket(int socket, SocketOpe
 {
 	PLUTO_SAFETY_LOCK(dataLock, m_mutexLoop);
 
+	g_pPlutoLogger->Write(LV_STATUS, "DataReaderThread::addSocketOperationListenerForSocket() adding listener %s for socket %d", pListener->getName().c_str(), socket);
 	m_mapSockets[socket].push_back(pListener);
+	pListener->registeredForSocket(socket);
 
 	pthread_cond_signal(&m_threadControlCondition);
 }
@@ -54,31 +56,53 @@ void DataReaderThread::addSocketOperationListenerForSocket(int socket, SocketOpe
 void DataReaderThread::removedSocketOperationListenerForSocket(int socket, SocketOperationListener *pListener)
 {
 	PLUTO_SAFETY_LOCK(dataLock, m_mutexLoop);
+
+	g_pPlutoLogger->Write(LV_STATUS, "DataReaderThread::removedSocketOperationListenerForSocket() remove listener %s for socket %d", pListener->getName().c_str(), socket);
 	map<int, vector<SocketOperationListener *> >::iterator itSockets;
+	if ( (itSockets = m_mapSockets.find(socket)) == m_mapSockets.end() )
+		return;
 
-	itSockets = m_mapSockets.begin();
-	if ( itSockets != m_mapSockets.end() )
+	vector<SocketOperationListener*>::iterator itListeners = itSockets->second.begin();
+	while ( itListeners != itSockets->second.end() )
 	{
-		vector<SocketOperationListener*>::iterator itListeners = itSockets->second.begin();
-
-		while ( itListeners != itSockets->second.end() )
+		if ( *itListeners == pListener )
 		{
-			if ( *itListeners == pListener )
-				itListeners = itSockets->second.erase(itListeners);
-
-			itListeners++;
+			itListeners = itSockets->second.erase(itListeners);
+			pListener->unregisteredForSocket(socket);
 		}
+		else
+			itListeners++;
 	}
+
+	if ( m_mapSockets[socket].size() == 0 )
+		m_mapSockets.erase(socket);
 }
 
 void DataReaderThread::removeSocket(int socket)
 {
 	PLUTO_SAFETY_LOCK(dataLock, m_mutexLoop);
+
+	map<int, vector<SocketOperationListener *> >::iterator itSockets;
+	if ( (itSockets = m_mapSockets.find(socket)) == m_mapSockets.end() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "DataReaderThread::removeSocket() remove socket called for invalid socket: %d", socket);
+		return;
+	}
+
+	vector<SocketOperationListener*>::iterator itListeners = itSockets->second.begin();
+	while ( itListeners != itSockets->second.end() )
+	{
+		(*itListeners)->unregisteredForSocket(socket);
+		itListeners = itSockets->second.erase(itListeners);
+	}
+
 	m_mapSockets.erase(socket);
 }
 
 int DataReaderThread::setup_FD_SET(fd_set *fileDescriptorSet)
 {
+	PLUTO_SAFETY_LOCK(dataLock, m_mutexLoop);
+
 	int maxFileDescriptor;
 	map<int, vector<SocketOperationListener*> >::const_iterator itSockets;
 
@@ -98,11 +122,11 @@ int DataReaderThread::setup_FD_SET(fd_set *fileDescriptorSet)
 
 void DataReaderThread::processDataAvailable(fd_set *fileDescriptorSet)
 {
+	map<int, vector<SocketOperationListener*> > m_mapActiveListeners;
+
 	PLUTO_SAFETY_LOCK(dataLock, m_mutexLoop);
 
 	map<int, vector<SocketOperationListener*> >::const_iterator itSockets;
-
-	map<int, vector<SocketOperationListener*> > m_mapActiveListeners;
 
 	itSockets = m_mapSockets.begin();
 	while( itSockets != m_mapSockets.end() )
@@ -117,7 +141,7 @@ void DataReaderThread::processDataAvailable(fd_set *fileDescriptorSet)
 	itSockets = m_mapActiveListeners.begin();
 	while( itSockets != m_mapActiveListeners.end() )
 	{
-//		g_pPlutoLogger->Write(LV_STATUS, "DataReaderThread::processDataAvailable() Data is available on socket %d", itSockets->first);
+// 		g_pPlutoLogger->Write(LV_STATUS, "DataReaderThread::processDataAvailable() Data is available on socket %d", itSockets->first);
 		vector<SocketOperationListener *>::const_iterator itListeners = itSockets->second.begin();
 
 		while ( itListeners != itSockets->second.end() )

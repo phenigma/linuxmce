@@ -97,7 +97,8 @@ public:
 	std::string getHostName();
 	std::string getFifoName();
 
-	bool startDataReader(std::string fifoFileName, bool autostart);
+	bool createDataReader(std::string fifoFileName);
+	bool startDataReader(bool autostart);
 
 	void setMediaStreamID(int iStreamID);
 	void setRequestingObjectID(int iRequestingObjectID);

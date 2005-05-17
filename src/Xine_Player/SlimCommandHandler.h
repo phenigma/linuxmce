@@ -141,10 +141,9 @@ private:
 
 	bool processStrmCommand();
 
+	bool quitStreamingClient();
 	bool startStreamingClient();
 	bool unpauseStreamingClient();
-
-
 
 public:
     SlimCommandHandler();
@@ -152,6 +151,8 @@ public:
     ~SlimCommandHandler();
 
 	void setMacAddress(string strMacAddress);
+
+	bool closeConnection();
 
 	// protocol related functions
 	bool doHello();

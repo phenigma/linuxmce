@@ -16,10 +16,32 @@
 #ifndef SOCKETOPERATIONLISTENER_H
 #define SOCKETOPERATIONLISTENER_H
 
+#include <map>
+#include <string>
+
+using std::map;
+using std::string;
+
 class SocketOperationListener
 {
+	map<int, int> m_mapRegisteredStatus;
+
+	string 		  m_listenerName;
+
 public:
+	SocketOperationListener(string name);
+
+	virtual ~SocketOperationListener();
+
+	virtual void registeredForSocket(int socket);
+
+	virtual void unregisteredForSocket(int socket);
+
+	virtual bool isSocketObserved(int socket);
+
 	virtual bool dataIsAvailable(int socket) = 0;
+
+	virtual string getName();
 };
 
 #endif

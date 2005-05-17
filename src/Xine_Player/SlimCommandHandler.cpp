@@ -22,6 +22,7 @@
 using namespace DCE;
 
 SlimCommandHandler::SlimCommandHandler()
+	: SocketOperationListener("slim-command-handler")
 {
 // #ifdef DEBUG
 	bLogControlProtocol = true;
@@ -290,6 +291,7 @@ bool SlimCommandHandler::processStrmCommand()
 	{
 		case STREAM_START:   return startStreamingClient();
 		case STREAM_UNPAUSE: return unpauseStreamingClient();
+		case STREAM_QUIT: 	 return quitStreamingClient();
 		default:
 			g_pPlutoLogger->Write(LV_STATUS, "Command not implemented yet!");
 			return false;
@@ -632,43 +634,12 @@ void SlimCommandHandler::dumpCommand()
 	}
 }
 
-bool SlimCommandHandler::unpauseStreamingClient()
-{
-	SlimDataHandler *pSlimDataHandler = getSlimServerClient()->getSlimDataHandler();
-
-	string strHostName = getSlimServerClient()->getHostName();
-
-	if ( protocolCommand.data.stream.hostAddr.s_addr != 0 )
-		strHostName = StringUtils::Format("%d.%d.%d.%d",
-				protocolCommand.data.stream.hostAddr.s_addr >> 0x18 & 0xFF,
-				protocolCommand.data.stream.hostAddr.s_addr >> 0x10 & 0xFF,
-				protocolCommand.data.stream.hostAddr.s_addr >> 0x08 & 0xFF,
-				protocolCommand.data.stream.hostAddr.s_addr >> 0x00 & 0xFF);
-
-	pSlimDataHandler->setConnectionData(strHostName, protocolCommand.data.stream.hostPort, protocolCommand.data.stream.urlAddress, protocolCommand.data.stream.urlSize);
-
-	if ( ! pSlimDataHandler->openConnection() )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "bool SlimCommandHandler::startStreamingClient() Opening data connection failed!");
-		return false;
-	}
-
-	if ( ! doStatus("STMr") )
-	{
-		pSlimDataHandler->closeCommunication();
-		return false;
-	}
-
-	getSlimServerClient()->getDataReaderThread()->addSocketOperationListenerForSocket(pSlimDataHandler->getCommunicationSocket(), pSlimDataHandler);
-
-	return true;
-}
-
 bool SlimCommandHandler::startStreamingClient()
 {
 	SlimDataHandler *pSlimDataHandler = getSlimServerClient()->getSlimDataHandler();
 
 	string strHostName = getSlimServerClient()->getHostName();
+	int autoStart = protocolCommand.data.stream.autoStart;
 
 	if ( protocolCommand.data.stream.hostAddr.s_addr != 0 )
 	{
@@ -681,22 +652,10 @@ bool SlimCommandHandler::startStreamingClient()
 
 	pSlimDataHandler->setConnectionData(strHostName, protocolCommand.data.stream.hostPort, protocolCommand.data.stream.urlAddress, protocolCommand.data.stream.urlSize);
 
-	if ( protocolCommand.data.stream.format == STREAM_FORMAT_MP3 )
-	{
-		pSlimDataHandler->setStreamFormat('m');
-	}
-	else if ( protocolCommand.data.stream.format == STREAM_FORMAT_FLAC )
-	{
-		pSlimDataHandler->setStreamFormat('f');
-	}
-	else if ( protocolCommand.data.stream.format == STREAM_FORMAT_PCM )
-	{
-		pSlimDataHandler->setStreamFormat('p');
-	}
-	else
-	{
-		pSlimDataHandler->setStreamFormat(' ');
-	}
+	if ( protocolCommand.data.stream.format == STREAM_FORMAT_MP3 )			pSlimDataHandler->setStreamFormat('m');
+	else if ( protocolCommand.data.stream.format == STREAM_FORMAT_FLAC )	pSlimDataHandler->setStreamFormat('f');
+	else if ( protocolCommand.data.stream.format == STREAM_FORMAT_PCM )		pSlimDataHandler->setStreamFormat('p');
+	else																	pSlimDataHandler->setStreamFormat(' ');
 
 	if ( ! pSlimDataHandler->openConnection() )
 	{
@@ -704,25 +663,65 @@ bool SlimCommandHandler::startStreamingClient()
 		return false;
 	}
 
-	if ( ! doStatus("STMc") )
-	{
-		pSlimDataHandler->closeCommunication();
-		return false;
-	}
-
-	if ( ! doStatus("STMh") )
-	{
-		pSlimDataHandler->closeCommunication();
-		return false;
-	}
-
+	pSlimDataHandler->setAutoStart(autoStart != '0');
 	getSlimServerClient()->getDataReaderThread()->addSocketOperationListenerForSocket(pSlimDataHandler->getCommunicationSocket(), pSlimDataHandler);
 
-	g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::startStreamingClient() Before pSlimDataHandler->initDataProcessing!");
-	pSlimDataHandler->initDataProcessing(protocolCommand.data.stream.autoStart - '0');
-	g_pPlutoLogger->Write(LV_STATUS, "SlimCommandHandler::startStreamingClient() After pSlimDataHandler->initDataProcessing!");
+	if ( ! doStatus("STMc") || ! doStatus("STMh") )
+	{
+		pSlimDataHandler->closeCommunication();
+		return false;
+	}
+
+	if ( ! pSlimDataHandler->isAutoStart() )
+	{
+		if( ! doStatus("STMl") )
+		{
+			pSlimDataHandler->closeCommunication();
+			return false;
+		}
+	}
 
 	return true;
+}
+
+bool SlimCommandHandler::unpauseStreamingClient()
+{
+	SlimDataHandler *pSlimDataHandler = getSlimServerClient()->getSlimDataHandler();
+	string strHostName = getSlimServerClient()->getHostName();
+
+	if ( pSlimDataHandler->getPlayerState() == SlimDataHandler::PlayerState::PLAYER_DISCONNECTED )
+	{
+
+		if ( protocolCommand.data.stream.hostAddr.s_addr != 0 )
+			strHostName = StringUtils::Format("%d.%d.%d.%d",
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x18 & 0xFF,
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x10 & 0xFF,
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x08 & 0xFF,
+				protocolCommand.data.stream.hostAddr.s_addr >> 0x00 & 0xFF);
+
+		pSlimDataHandler->setConnectionData(strHostName, protocolCommand.data.stream.hostPort, protocolCommand.data.stream.urlAddress, protocolCommand.data.stream.urlSize);
+
+		if ( ! pSlimDataHandler->openConnection() )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "bool SlimCommandHandler::startStreamingClient() Opening data connection failed!");
+			return false;
+		}
+	}
+
+	pSlimDataHandler->setAutoStart(protocolCommand.data.stream.autoStart != '0');
+
+	if ( ! pSlimDataHandler->startPlayer() || ! doStatus("STMr") )
+	{
+		pSlimDataHandler->closeCommunication();
+		return false;
+	}
+
+	return true;
+}
+
+bool SlimCommandHandler::quitStreamingClient()
+{
+	return getSlimServerClient()->getSlimDataHandler()->closeConnection();
 }
 
 bool SlimCommandHandler::needToSendStatus()
@@ -742,16 +741,41 @@ bool SlimCommandHandler::needToSendStatus()
 
 bool SlimCommandHandler::dataIsAvailable(int socket)
 {
-	if ( socket == getCommunicationSocket() )
-		doOneCommand();
-
-	if ( needToSendStatus() )
+	if ( socket != getCommunicationSocket() || ! isCommunicationOpen() )
 	{
-		if ( getSlimServerClient()->getSlimDataHandler()->getBufferFilledSpace() == 0 )
+		getSlimServerClient()->getDataReaderThread()->removedSocketOperationListenerForSocket(socket, this);
+		return false;
+	}
+
+	/** @todo read more commands in a batch */
+	doOneCommand();
+
+	SlimDataHandler *pSlimDataHandler = getSlimServerClient()->getSlimDataHandler();
+
+	if ( needToSendStatus() && (pSlimDataHandler->getPlayerState() == SlimDataHandler::PlayerState::PLAYER_PLAYING ||
+		  						pSlimDataHandler->getPlayerState() == SlimDataHandler::PlayerState::PLAYER_BUFFERING) )
+	{
+		if ( pSlimDataHandler->getBufferFilledSpace() == 0 )
+		{
 			doStatus("STMd");
+			doStatus("STMu");
+			doStatus("STMf");
+		}
 		else
 			doStatus("STMt");
 	}
 
+	if ( pSlimDataHandler->getPlayerState() == SlimDataHandler::PlayerState::PLAYER_BUFFERING &&
+		 pSlimDataHandler->getBufferFreeSpace() > 1 &&
+		 ! pSlimDataHandler->isSocketObserved(pSlimDataHandler->getCommunicationSocket())  )
+		getSlimServerClient()->getDataReaderThread()->addSocketOperationListenerForSocket(pSlimDataHandler->getCommunicationSocket(), pSlimDataHandler);
+
 	return true;
 }
+
+bool SlimCommandHandler::closeConnection()
+{
+	getSlimServerClient()->getDataReaderThread()->removedSocketOperationListenerForSocket(getCommunicationSocket(), this);
+	return closeCommunication();
+}
+

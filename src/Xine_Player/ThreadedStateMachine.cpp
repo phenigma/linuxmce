@@ -65,27 +65,34 @@ void ThreadedStateMachine::startMachine()
 
 void ThreadedStateMachine::signalConditionsChange()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "ThreadedStateMachine::signalConditionsChange() signalling need to transition!");
+	if ( ! machineIsWaiting() )
+		return;
+
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::signalConditionsChange() Signalling condition!", pthread_self());
 	PLUTO_SAFETY_LOCK(waitTransitionLock, m_machineWaitMutex);
 	m_bMachineSignalled = true;
 	waitTransitionLock.Release();
 	pthread_cond_signal(&m_machineWaitCondition);
 }
 
+bool ThreadedStateMachine::machineIsWaiting()
+{
+	return m_bMachineIsWaiting;
+}
+
 void ThreadedStateMachine::waitConditionsChange()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::waitConditionsChange() (\"%s\") waiting !", pthread_self(), m_pStateCurrent->getName().c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::waitConditionsChange() Waiting in state \"%s\"!", pthread_self(), m_pStateCurrent->getName().c_str());
 
 	PLUTO_SAFETY_LOCK(waitTransitionLock, m_machineWaitMutex);
 	m_bMachineSignalled = false;
+	m_bMachineIsWaiting = true;
 	while ( ! m_bMachineSignalled )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::waitConditionsChange() calling conditional wait!", pthread_self());
+// 		g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::waitConditionsChange() Calling conditional wait!", pthread_self());
 		waitTransitionLock.CondWait();
-// 		g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::waitConditionsChange() exit conditional wait!", pthread_self());
 	}
-	m_bMachineSignalled = false;
-// 	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::waitConditionsChange() waiting is over!", pthread_self());
+	m_bMachineIsWaiting = false;
 }
 
 void ThreadedStateMachine::emptyTransition(State &pSourceState, State &pTargetState)
@@ -103,21 +110,17 @@ void ThreadedStateMachine::machineLoop()
 	while ( m_finalStates.find(m_pStateCurrent) == m_finalStates.end() )
 	{
 		State *pStateTarget = findNextState(m_pStateCurrent);
-
-		if ( pStateTarget != &STATE_WAITING )
-			g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::machineLoop() Current state: \"%s\" Next state: \"%s\"",
-					pthread_self(),
-					m_pStateCurrent->getName().c_str(),
-					pStateTarget->getName().c_str());
-
-// 		if ( pStateTarget != &STATE_WAITING )
-// 			g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::machineLoop() Before transition %s -> %s!",
-// 					pthread_self(), m_pStateCurrent->getName().c_str(), pStateTarget->getName().c_str());
+// 		g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::machineLoop() New loop \"%s\" -- computed --> \"%s\"",
+// 			pthread_self(),
+// 			m_pStateCurrent->getName().c_str(),
+// 			  pStateTarget->getName().c_str());
 
 		if ( m_stateMatrix.find(make_pair<State*, State*>(m_pStateCurrent, pStateTarget)) != m_stateMatrix.end() )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::machineLoop() Invoking transition function: %s -> %s !",
-					pthread_self(), m_pStateCurrent->getName().c_str(), pStateTarget->getName().c_str());
+			g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::machineLoop() \"%s\" -- transiting -->  \"%s\"",
+					pthread_self(),
+					m_pStateCurrent->getName().c_str(),
+					pStateTarget->getName().c_str());
 
 			MachineTransitionFunction transitionFunction = m_stateMatrix[make_pair<State*, State*>(m_pStateCurrent, pStateTarget)];
 			(this->*transitionFunction)(*m_pStateCurrent, *pStateTarget);
@@ -127,9 +130,6 @@ void ThreadedStateMachine::machineLoop()
 		{
 			waitConditionsChange();
 		}
-
-// 		if ( pStateTarget != &STATE_WAITING )
-// 			g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::machineLoop() After transition. %s!", pthread_self(), m_pStateCurrent->getName().c_str());
 	}
 }
 
@@ -154,22 +154,3 @@ void *ThreadedStateMachine::threadMachineLoop(void *parameters)
 	return NULL;
 }
 
-ThreadedStateMachine::State::State(string name)
-	: m_strName(name)
-{
-}
-
-string ThreadedStateMachine::State::getName()
-{
-	return m_strName;
-}
-
-bool ThreadedStateMachine::State::operator==(const ThreadedStateMachine::State& other) const
-{
-	return this == &other;
-}
-
-bool ThreadedStateMachine::State::operator<(const ThreadedStateMachine::State& other) const
-{
-	return this < &other;
-}

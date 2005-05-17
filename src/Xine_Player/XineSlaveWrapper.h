@@ -113,6 +113,8 @@ class XineSlaveWrapper
 
     map<int, XineStream *> m_mapStreams;
 
+	bool 		m_isSlimClient;
+
     /** @warning HACK: */
     XineStream *m_pSameStream;
 
@@ -236,12 +238,18 @@ public:
     bool setXineStreamDebugging(int streamID, bool newValue);
 
     /**
+     * @brief crate a media stream object from a filename.
+     */
+
+    bool createStream(string fileName, int streamID, int requestingObject);
+
+	/**
      * @brief play the stream represented by the fileName.
      */
 
-    bool playStream(string fileName, int streamID, int mediaPosition, int requestingObject);
+    bool playStream(int streamID, int mediaPosition);
 
-    /**
+	/**
      * @brief callback function to listen for events from the xine lib.
      */
 
@@ -356,6 +364,10 @@ public:
 	 *
 	 */
 	int getDeviceId();
+
+
+	bool isSlimClient();
+	void setSlimClient(bool isSlimClient);
 };
 
 #endif

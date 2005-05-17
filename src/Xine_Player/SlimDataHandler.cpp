@@ -20,20 +20,30 @@
 
 #include "DCE/Logger.h"
 
+
 #include <fcntl.h>
 
 using namespace DCE;
 
 SlimDataHandler::SlimDataHandler()
-	: STATE_CLOSED_PIPE("pipe-closed"), STATE_WAIT_TO_SEND("waiting-to-send"), STATE_READY_TO_SEND("ready-to-send")
+	:	SocketOperationListener("slim-data-handler"), bufferAccessMutex("buffer-access-mutex"), m_isLogBufferAccess(false), m_isPlayerCreated(false), m_isAutoStart(false)
+		, STATE_CLOSED_PIPE("pipe-closed"), STATE_WAIT_TO_SEND("waiting-to-send"), STATE_READY_TO_SEND("ready-to-send")
 {
-	m_bLogBufferAccess = false;
+    pthread_mutexattr_t      mutexAttr;
+    pthread_mutexattr_init( &mutexAttr );
+    pthread_mutexattr_settype( &mutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+
+	pthread_cond_init( &bufferAccessCondition, NULL );
+	bufferAccessMutex.Init( &mutexAttr, &bufferAccessCondition);
 
 	resetBuffer();
+
+	setPlayerState(PlayerState::PLAYER_DISCONNECTED);
 
 	gettimeofday(&epochTime, NULL);
 
 	addTransition(STATE_START, STATE_CLOSED_PIPE, &ThreadedStateMachine::emptyTransition);
+
 	addTransition(STATE_CLOSED_PIPE, STATE_WAIT_TO_SEND, (MachineTransitionFunction)&SlimDataHandler::openPipe);
 	addTransition(STATE_WAIT_TO_SEND, STATE_CLOSED_PIPE, (MachineTransitionFunction)&SlimDataHandler::closePipe);
 
@@ -57,7 +67,13 @@ SlimDataHandler::~SlimDataHandler()
 
 ThreadedStateMachine::State *SlimDataHandler::findNextState(ThreadedStateMachine::State *pCurrentState)
 {
-// 	g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::findNextState() Computing next state from state \"%s\"!", pthread_self(), pCurrentState->getName().c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::findNextState() Current: \"%s\" [ fill: %d, thres: %d, play state %s, quit: %d]!",
+			pthread_self(),
+			pCurrentState->getName().c_str(),
+			getBufferFilledSpace(),
+			getBufferThresoldLevel(),
+			PlayerState::describeState(getPlayerState()).c_str(),
+			getNeedToQuit());
 
 	if ( getNeedToQuit() )
 		return &STATE_QUIT;
@@ -65,10 +81,10 @@ ThreadedStateMachine::State *SlimDataHandler::findNextState(ThreadedStateMachine
 	if ( pCurrentState == &STATE_START )
 		return &STATE_CLOSED_PIPE;
 
-	if ( pCurrentState == &STATE_CLOSED_PIPE && getBufferFilledSpace() > getBufferThresoldLevel() )
+	if ( pCurrentState == &STATE_CLOSED_PIPE && getBufferFilledSpace() > getBufferThresoldLevel() && getPlayerState() == PlayerState::PLAYER_BUFFERING )
 		return &STATE_WAIT_TO_SEND;
 
-	if ( pCurrentState == &STATE_WAIT_TO_SEND && getBufferFilledSpace() > getPipeBufferSize() )
+	if ( pCurrentState == &STATE_WAIT_TO_SEND && getBufferFilledSpace() > 0 )
 		return &STATE_READY_TO_SEND;
 
 	if ( pCurrentState == &STATE_READY_TO_SEND )
@@ -109,7 +125,7 @@ unsigned int SlimDataHandler::getPipeBufferSize()
 	return sizeof(pipeBuffer);
 }
 
-bool SlimDataHandler::initDataProcessing(bool autostart)
+bool SlimDataHandler::initDataProcessing()
 {
 	fifoPipeName = string("/tmp/xine-slim-") + getSlimServerClient()->getFifoName();
 
@@ -119,9 +135,26 @@ bool SlimDataHandler::initDataProcessing(bool autostart)
 	return true;
 }
 
-bool SlimDataHandler::startDataReader()
+bool SlimDataHandler::createPlayer()
 {
-	return getSlimServerClient()->startDataReader(fifoPipeName, true);
+	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::createPlayer() entry");
+	bool bResult = getSlimServerClient()->createDataReader(fifoPipeName);
+	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::createPlayer() exit");
+
+	return bResult;
+}
+
+bool SlimDataHandler::startPlayer()
+{
+	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::startPlayer() entry [state: %s])", PlayerState::describeState(getPlayerState()).c_str());
+	if ( getPlayerState() == PlayerState::PLAYER_PLAYING)
+		return true;
+
+	if ( ! getSlimServerClient()->startDataReader(isAutoStart()) )
+		return false;
+
+	setPlayerState(PlayerState::PLAYER_PLAYING);
+	return true;
 }
 
 bool SlimDataHandler::readStreamData()
@@ -154,50 +187,49 @@ unsigned int SlimDataHandler::getWritePtr()
 	return writePtr;
 }
 
-long SlimDataHandler::getBufferSize()
+unsigned int SlimDataHandler::getBufferSize()
 {
 	return BUFFER_SIZE;
 }
 
 unsigned int SlimDataHandler::getBufferFreeSpace()
 {
+	PLUTO_SAFETY_LOCK(lock, bufferAccessMutex);
 	int freeSpace;
 
-	pthread_mutex_lock(&bufferAccessMutex);
 	freeSpace = readPtr - writePtr;
 
 	if ( freeSpace <= 0 )
 		freeSpace += BUFFER_SIZE;
 
-	pthread_mutex_unlock(&bufferAccessMutex);
 	return (unsigned int)freeSpace;
 }
 
 unsigned int SlimDataHandler::getBufferFilledSpace()
 {
+	PLUTO_SAFETY_LOCK(lock, bufferAccessMutex);
+
 	int availableData;
 
-	pthread_mutex_lock(&bufferAccessMutex);
 	availableData = writePtr - readPtr;
 
 	if (availableData < 0)
 		availableData += BUFFER_SIZE;
-
-	pthread_mutex_unlock(&bufferAccessMutex);
 
 	return availableData;
 }
 
 bool SlimDataHandler::fillBuffer(char *pBuffer, unsigned int pBufferOffset, unsigned int pBufferLen)
 {
+	PLUTO_SAFETY_LOCK(lock, bufferAccessMutex);
+
 	int oldWritePtr;
 	oldWritePtr = writePtr;
 
 	if ( getBufferFreeSpace() < pBufferLen )
 		return false;
 
-	pthread_mutex_lock(&bufferAccessMutex);
-	if ( m_bLogBufferAccess )
+	if ( m_isLogBufferAccess )
 		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) before writing %d: [ read: %d, write: %d].", BUFFER_SIZE, pBufferLen, readPtr, writePtr);
 
 	if ( writePtr < readPtr)
@@ -225,35 +257,34 @@ bool SlimDataHandler::fillBuffer(char *pBuffer, unsigned int pBufferOffset, unsi
 
 	bytesRx += pBufferLen;
 
-	if ( m_bLogBufferAccess )
+	if ( m_isLogBufferAccess )
 		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) after writing %d: [ read: %d, write: %d].", BUFFER_SIZE, pBufferLen, readPtr, writePtr);
-	pthread_mutex_unlock(&bufferAccessMutex);
+
 	return true;
 }
 
 void SlimDataHandler::resetBuffer()
 {
-	pthread_mutex_lock(&bufferAccessMutex);
+	PLUTO_SAFETY_LOCK(lock, bufferAccessMutex);
 	readPtr = writePtr = 0;
 	bytesRx = 0;
 	epochTime.tv_sec = epochTime.tv_usec = 0;
-	pthread_mutex_unlock(&bufferAccessMutex);
 }
 
 bool SlimDataHandler::peekBuffer(char *pBuffer, unsigned int pBufferOffset, unsigned int pBufferLen)
 {
 	int oldReadPtr;
-	int requestedReadSize;
+	int requestedPeekSize;
 	int copiedCount;
 
 	oldReadPtr = readPtr;
-	requestedReadSize = pBufferLen;
+	requestedPeekSize = pBufferLen;
 
 	if ( getBufferFilledSpace() < pBufferLen )
 		return false;
 
-	if ( m_bLogBufferAccess )
-		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) before peeking %d: [ read: %d, write: %d].", BUFFER_SIZE, requestedReadSize, readPtr, writePtr);
+	if ( m_isLogBufferAccess )
+		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) before peeking %d: [ read: %d, write: %d].", BUFFER_SIZE, requestedPeekSize, readPtr, writePtr);
 
 	copiedCount = 0;
 
@@ -281,14 +312,16 @@ bool SlimDataHandler::peekBuffer(char *pBuffer, unsigned int pBufferOffset, unsi
 		copiedCount += count;
 	}
 
-	if ( m_bLogBufferAccess )
-		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) after peeking %d: [ read: %d, write: %d].", BUFFER_SIZE, requestedReadSize, readPtr, writePtr);
+	if ( m_isLogBufferAccess )
+		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) after peeking %d: [ read: %d, write: %d] copied count: %d.", BUFFER_SIZE, requestedPeekSize, readPtr, writePtr, copiedCount);
 
-	return copiedCount;
+	return copiedCount == requestedPeekSize;
 }
 
 bool SlimDataHandler::readBuffer(unsigned int readSize)
 {
+	PLUTO_SAFETY_LOCK(lock, bufferAccessMutex);
+
 	int requestedReadSize;
 	int copiedCount;
 
@@ -297,7 +330,6 @@ bool SlimDataHandler::readBuffer(unsigned int readSize)
 
 	requestedReadSize = readSize;
 
-	pthread_mutex_lock(&bufferAccessMutex);
 	if ( writePtr < readPtr )
 	{
 		unsigned int count = BUFFER_SIZE - readPtr;
@@ -325,16 +357,16 @@ bool SlimDataHandler::readBuffer(unsigned int readSize)
 		readSize -= count;
 	}
 
-	if ( m_bLogBufferAccess )
+	if ( m_isLogBufferAccess )
 		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) after reading %d: [ read: %d, write: %d].", BUFFER_SIZE, requestedReadSize, readPtr, writePtr);
-
-	pthread_mutex_unlock(&bufferAccessMutex);
 
 	return copiedCount;
 }
 
 bool SlimDataHandler::readBuffer(char *pBuffer, unsigned int pBufferOffset, unsigned int pBufferLen)
 {
+	PLUTO_SAFETY_LOCK(lock, bufferAccessMutex);
+
 	int requestedReadSize;
 	int copiedCount;
 
@@ -343,8 +375,7 @@ bool SlimDataHandler::readBuffer(char *pBuffer, unsigned int pBufferOffset, unsi
 	if ( getBufferFilledSpace() < pBufferLen )
 		return false;
 
-	pthread_mutex_lock(&bufferAccessMutex);
-	if ( m_bLogBufferAccess )
+	if ( m_isLogBufferAccess )
 		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) before reading %d: [ read: %d, write: %d].", BUFFER_SIZE, requestedReadSize, readPtr, writePtr);
 
 	copiedCount = 0;
@@ -381,17 +412,27 @@ bool SlimDataHandler::readBuffer(char *pBuffer, unsigned int pBufferOffset, unsi
 		copiedCount += count;
 	}
 
-	if ( m_bLogBufferAccess )
+	if ( m_isLogBufferAccess )
 		g_pPlutoLogger->Write(LV_STATUS, "--->Buffer (%d) after reading %d: [ read: %d, write: %d].", BUFFER_SIZE, requestedReadSize, readPtr, writePtr);
 
-	pthread_mutex_unlock(&bufferAccessMutex);
 	return true;
+}
+
+bool SlimDataHandler::closeConnection()
+{
+	setPlayerState(PlayerState::PLAYER_DISCONNECTED);
+
+	getSlimServerClient()->getDataReaderThread()->removedSocketOperationListenerForSocket(getCommunicationSocket(), this);
+
+	return closeCommunication();
 }
 
 bool SlimDataHandler::openConnection()
 {
 	if ( ! openCommunication() )
 		return false;
+
+	setPlayerState(PlayerState::PLAYER_CONNECTED);
 
 	unsigned int done,  linenum, contentlength, writeBufferSize;
 	int len;
@@ -450,7 +491,7 @@ bool SlimDataHandler::openConnection()
 					if (sscanf((char *)buffer, "ICY %d %50[^\015\012]", &httpcode, httpstatus) != 2)
 					{
 						g_pPlutoLogger->Write(LV_STATUS, "Invalid http answer");
-						closeCommunication();
+						closeConnection();
 						return false;
 					}
 					else
@@ -483,6 +524,13 @@ bool SlimDataHandler::openConnection()
 			len ++;
 	}
 
+	if ( ! initDataProcessing() )
+	{
+		closeConnection();
+		return false;
+	}
+
+	setPlayerState(PlayerState::PLAYER_BUFFERING);
 	return true;
 }
 
@@ -495,77 +543,6 @@ bool SlimDataHandler::setConnectionData(string strHostName, int iPort, unsigned 
 	m_urlAddressSize = urlAddressSize;
 
 	return true;
-}
-
-void *SlimDataHandler::xineFifoWriterThread(void *parameters)
-{
-	SlimDataHandler *pSlimDataHandler = static_cast<SlimDataHandler*>(parameters);
-	int 			fifoPipeFileDescriptor;
-// 	struct timeval 	maxWaitTime;
-// 	int 			returnSelectValue;
-
-	while ( true )
-// 	{
-// 		fd_set writeFileDescriptorSet;
-//
-// 		FD_ZERO(&writeFileDescriptorSet);
-// 		FD_SET(&writeFileDescriptorSet, fifoFile);
-//
-// 		maxWaitTime.tv_sec = 0;
-//         // maxWaitTime.tv_usec = 250000; // wait at most 1/4 of a second
-// 		maxWaitTime.tv_usec = 1000000; // wait at most 1/4 of a second
-//
-// 		returnSelectValue = select(fifoFile + 1, NULL, &writeFileDescriptorSet, NULL, &maxWaitTime);
-//
-// 		switch ( returnSelectValue )
-// 		{
-// 			case -1:
-// 				g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::xineFifoWriterThread() Error during a select call: %s", strerror(errno));
-// 				break;
-// 			case 0:
-// 				// timeout
-// 				break;
-// 			default:
-// 				if ( FD_ISSET(fifoFile, &writeFileDescriptorSet) )
-// 				{
-// 					char buffer[PIPE_BUF];
-// 					while ( pSlimDataHandler->readBuffer(buffer, 0, bufferSize) )
-// 						write(fifoFile, buffer, bufferSize);
-// 				}
-// 		}
-// 	}
-
-	Sleep(800);
-	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::xineFifoWriterThread() Opening the named fifo pipe %s", pSlimDataHandler->fifoPipeName.c_str());
-
-	if ((fifoPipeFileDescriptor = open(pSlimDataHandler->fifoPipeName.c_str(), O_WRONLY)) == -1 )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::xineFifoWriterThread() Fifo opening for write failed");
-		return NULL;
-	}
-
-	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::xineFifoWriterThread() named fifo pipe %s is open", pSlimDataHandler->fifoPipeName.c_str());
-
-	if ( fcntl(fifoPipeFileDescriptor, F_SETFL, O_NONBLOCK) != 0 )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::xineFifoWriterThread() Could not put the file descriptor in non blocking mode (%s)", strerror(errno));
-		return NULL;
-	}
-
-
-	char buffer[PIPE_BUF];
-	int bufferSize = sizeof(buffer);
-	while ( true )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::xineFifoWriterThread() Looping 0x%x!", pthread_self() );
-		while ( ! pSlimDataHandler->readBuffer(buffer, 0, bufferSize) )
-			usleep(100);
-
-		while ( write(fifoPipeFileDescriptor, buffer, bufferSize ) == EAGAIN )
-			usleep(100);
-
-		Sleep(900);
-	}
 }
 
 long long SlimDataHandler::getJiffies()
@@ -593,34 +570,28 @@ long long SlimDataHandler::getBytesRx()
 
 bool SlimDataHandler::dataIsAvailable(int socket)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::dataIsAvailable() Data is available on socket %d", pthread_self(), socket);
+	if ( getBufferFreeSpace() == 1 )
+	{
+		// when the buffer space is scarce we remove ourselves from the watcher thread. We will get readded by the state machine right after the buffer is read again.
+		getSlimServerClient()->getDataReaderThread()->removedSocketOperationListenerForSocket(socket, this);
+		return false;
+	}
 
 	while ( readStreamData() )
 	{
-		// g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::dataIsAvailable() Write Ptr: %d, Read Ptr: %d", pthread_self(), getWritePtr(), getReadPtr());
-
-		if ( getBufferFilledSpace() > getBufferThresoldLevel() && ! isReaderRunning() )
-		{
+		if ( getBufferFilledSpace() > getBufferThresoldLevel() && getPlayerState() == PlayerState::PLAYER_BUFFERING && ! isPlayerCreated() ) {
 			signalConditionsChange();
-			setReaderRunning(startDataReader());
+			setPlayerCreated(createPlayer());
+			if ( isPlayerCreated() )
+				getSlimServerClient()->getSlimCommandHandler()->doStatus("STMt");
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::dataIsAvailable() after exiting Write Ptr: %d, Read Ptr: %d", pthread_self(), getWritePtr(), getReadPtr());
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::dataIsAvailable() New Write Ptr: %d, Read Ptr: %d", pthread_self(), getWritePtr(), getReadPtr());
 
 	signalConditionsChange();
 
 	return true;
-}
-
-void SlimDataHandler::setReaderRunning(bool isReaderRunning)
-{
-	m_isReaderRunning = isReaderRunning;
-}
-
-bool SlimDataHandler::isReaderRunning()
-{
-	return m_isReaderRunning;
 }
 
 void SlimDataHandler::openPipe(State &fromState, State &toState)
@@ -640,6 +611,8 @@ void SlimDataHandler::openPipe(State &fromState, State &toState)
 		g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::openPipe() Could not put the file descriptor in non blocking mode (%s)", strerror(errno));
 		return;
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::openPipe() the file descriptor %d is set to non blocking", fifoFileDescriptor);
 }
 
 void SlimDataHandler::closePipe(State &fromState, State &toState)
@@ -661,14 +634,14 @@ void SlimDataHandler::sendDataThruPipe(State &fromState, State &toState)
 		int				returnSelectValue;
 		struct timeval  maxWaitTime;
 
-		if ( getNeedToQuit() )
+		if ( getNeedToQuit() || fifoFileDescriptor == -1)
 			return;
 
  		FD_ZERO(&writeFileDescriptorSet);
  		FD_SET(fifoFileDescriptor, &writeFileDescriptorSet);
 
- 		maxWaitTime.tv_sec = 0;
- 		maxWaitTime.tv_usec = 250000; // wait at most 1/4 of a second
+ 		maxWaitTime.tv_sec = 0; // wait at most 1 second
+ 		maxWaitTime.tv_usec = 100;
 
  		returnSelectValue = select(fifoFileDescriptor + 1, NULL, &writeFileDescriptorSet, NULL, &maxWaitTime);
 
@@ -680,35 +653,44 @@ void SlimDataHandler::sendDataThruPipe(State &fromState, State &toState)
  			case  0: break;
  			case -1: g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::sendDataThruPipe() Error during a select call: %s", strerror(errno)); break;
  			default:
-// 				g_pPlutoLogger->Write(LV_STATUS, "Select call result: %d", returnSelectValue);
+ 				// g_pPlutoLogger->Write(LV_STATUS, "Select call result: %d", returnSelectValue);
  				if ( FD_ISSET(fifoFileDescriptor, &writeFileDescriptorSet) )
  				{
-					bufferSize = getPipeBufferSize();
+					if ( (bufferSize = min(getBufferFilledSpace(), getPipeBufferSize())) == 0 )
+					{
+						bStillSending = false;
+						break;
+					}
+
 					while ( (bStillSending = peekBuffer((char*)pipeBuffer, 0, bufferSize)) )
 					{
 						if ( (writtenData = write(fifoFileDescriptor, pipeBuffer, bufferSize )) > 0 )
 							readBuffer(writtenData);
-						else
+
+						if ( writtenData == 0 || (writtenData == -1 && errno != EAGAIN) )
+						{
+							bStillSending = false; // the socket was just closed.
+							close(fifoFileDescriptor);
+							fifoFileDescriptor = -1;
+						}
+
+						if ( writtenData <= 0 )
 							break;
 
-// 						g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::sendDataThruPipe() After the send loop %d, %d", pthread_self(), writtenData, bStillSending);
-					}
-
-					g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::sendDataThruPipe() After the send loop %d, %d (%d)", pthread_self(), writtenData, bStillSending, getBufferFilledSpace());
-					if ( ! bStillSending ) // this means no write error but buffer underrun. In this case we need to actually drain the buffer
-					{
-						bufferSize = min(getBufferFilledSpace(), getPipeBufferSize());
-						g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::sendDataThruPipe() Draining the buffer size(%d)", pthread_self(), bufferSize);
-						if ( peekBuffer((char*)pipeBuffer, 0, bufferSize) && (writtenData = write(fifoFileDescriptor, pipeBuffer, bufferSize )) > 0 )
+// 						g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::sendDataThruPipe() After the send loop %d, %d, bufferSize %d", pthread_self(), writtenData, bStillSending, bufferSize);
+						if ( (bufferSize = min(getBufferFilledSpace(), getPipeBufferSize())) == 0 )
 						{
-							g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::sendDataThruPipe() Doing the actual write %d, %d", pthread_self(), writtenData, bStillSending);
-							readBuffer(writtenData);
+							bStillSending = false;
+							break;
 						}
 					}
  				}
  		}
 
-// 		g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::sendDataThruPipe() Write Ptr: %d, Read Ptr: %d", pthread_self(), getWritePtr(), getReadPtr());
+		if ( isCommunicationOpen() && ! isSocketObserved(getCommunicationSocket()) && getBufferFreeSpace() > getBufferSize() / 2  )
+			getSlimServerClient()->getDataReaderThread()->addSocketOperationListenerForSocket(getCommunicationSocket(), this);
+
+//  		g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::sendDataThruPipe() Write Ptr: %d, Read Ptr: %d", pthread_self(), getWritePtr(), getReadPtr());
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::sendDataThruPipe() before returning: Write Ptr: %d, Read Ptr: %d", pthread_self(), getWritePtr(), getReadPtr());
@@ -719,7 +701,7 @@ void SlimDataHandler::waitToSendDataThruPipe(State &fromState, State &toState)
 // 	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::waitToSendDataThruPipe() need to send data to the pipe %d", fifoFileDescriptor);
 
 	// data is available
-	if ( getBufferFilledSpace() > 0 )
+	if ( getBufferFilledSpace() > 0 && fifoFileDescriptor != -1 )
 		return;
 
 	waitConditionsChange();
@@ -728,4 +710,36 @@ void SlimDataHandler::waitToSendDataThruPipe(State &fromState, State &toState)
 void SlimDataHandler::quitMachine(State &fromState, State &toState)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::quitMachine() need to send data to the pipe %d", fifoFileDescriptor);
+}
+
+SlimDataHandler::PlayerState::STATE SlimDataHandler::getPlayerState()
+{
+	return m_playerState;
+}
+
+void SlimDataHandler::setPlayerState(PlayerState::STATE playerState)
+{
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x SlimDataHandler::setPlayerState() Setting state to %s", pthread_self(), PlayerState::describeState(playerState).c_str());
+	m_playerState = playerState;
+	signalConditionsChange();
+}
+
+bool SlimDataHandler::isAutoStart()
+{
+	return m_isAutoStart;
+}
+
+void SlimDataHandler::setAutoStart(bool isAutoStart)
+{
+	m_isAutoStart = isAutoStart;
+}
+
+bool SlimDataHandler::isPlayerCreated()
+{
+	return m_isPlayerCreated;
+}
+
+void SlimDataHandler::setPlayerCreated(bool playerCreated)
+{
+	m_isPlayerCreated = playerCreated;
 }
