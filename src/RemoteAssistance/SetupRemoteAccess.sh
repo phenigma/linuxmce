@@ -14,6 +14,32 @@ shopt -s nullglob
 
 screen -wipe &>/dev/null
 
+AddCronEntry()
+{
+	# if this script is not in a cron job
+	if ! grep -qF "$cronCmd" /etc/crontab; then
+		# add it to crontab
+		echo "$cronEntry" >>/etc/crontab
+		/etc/init.d/cron reload
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry"
+	else
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry already present. Not adding."
+	fi
+}
+
+DelCronEntry()
+{
+	# remove script from crontab
+	if grep -qF "$cronCmd" /etc/crontab; then
+		grep -vF "$cronCmd" /etc/crontab >/etc/crontab.$$
+		mv /etc/crontab.$$ /etc/crontab
+		/etc/init.d/cron reload
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry found. Removed."
+	else
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry not found. Not removing."
+	fi
+}
+
 CreateTunnel()
 {
 	Suffix="$1"
@@ -22,16 +48,6 @@ CreateTunnel()
 
 	Tunnel=$(echo /var/run/screen/S-root/*${screenName}_${Suffix}*)
 
-	# if this script is not in a cron job
-	if ! grep -qF "$cronCmd" /etc/crontab; then
-		# add it to be run every 10 mins
-		echo "$cronEntry" >>/etc/crontab
-		/etc/init.d/cron reload
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry"
-	else
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry already present. Not adding."
-	fi
-	
 	# if tunnel is not active create it
 	if [ -z "$Tunnel" ] || ! nc -z pf.plutohome.com "$RemotePort"; then
 		[ -n "$Tunnel" ] && RemoveTunnel "$Suffix"
@@ -47,16 +63,6 @@ RemoveTunnel()
 	Suffix="$1"
 	Tunnel=$(echo /var/run/screen/S-root/*${screenName}_${Suffix}*)
 
-	# remove script from cron job
-	if grep -qF "$cronCmd" /etc/crontab; then
-		grep -vF "$cronCmd" /etc/crontab >/etc/crontab.$$
-		mv /etc/crontab.$$ /etc/crontab
-		/etc/init.d/cron reload
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry found. Removed."
-	else
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry not found. Not removing."
-	fi
-	
 	# kill port forward if it exists
 	if [ -n "$Tunnel" ]; then
 		PID="${Tunnel##*/}"
@@ -99,8 +105,10 @@ RemoveTunnels()
 }
 
 if [ -n "$remote" ]; then
+	AddCronEntry
 	[ "$1" == "restart" ] && RemoveTunnels
 	CreateTunnels
 else
+	DelCronEntry
 	RemoveTunnels
 fi
