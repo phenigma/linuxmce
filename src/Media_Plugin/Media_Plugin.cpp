@@ -430,7 +430,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			{
 				MediaFile *pMediaFile = new MediaFile(dequeFileNames[s]);
 				if( dequeFileNames.size()>1 )
-					pMediaFile->m_sDescription = "Unknown track " + StringUtils::itos(s);
+					pMediaFile->m_sDescription = "Unknown track " + StringUtils::itos(s+1);
 				else
 					pMediaFile->m_sDescription = "Unknown disc";
 
@@ -611,7 +611,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			// We should also look at the media types. If the current Media type is different then we will also do a new media stream.
 			if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase &&
 				pEntertainArea->m_pMediaStream->m_iPK_MediaType == pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType )
-					pOldStreamInfo->m_bNoChanges = true;
+				pOldStreamInfo->m_bNoChanges = true;
 
 			// If Resume is set, then this media is just a temporary stream, like an announcement, and if something
 			// is currently playing, we will store that stream here and resume playing it when the temporary
@@ -649,7 +649,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
 
-g_pPlutoLogger->Write(LV_STATUS,"Ready to call plugin's startmedia");
+	g_pPlutoLogger->Write(LV_STATUS,"Ready to call plugin's startmedia");
 
 	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
 	{
@@ -772,10 +772,11 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
     int currentPos = 0;
     for ( itFiles = pMediaStream->m_dequeMediaFile.begin(); itFiles != pMediaStream->m_dequeMediaFile.end(); itFiles++ )
     {
+		MediaFile *pMediaFile = *itFiles;
         // int index = itFiles - pMediaStream->m_dequeMediaFile.begin();
-        sCurrentFile = (*itFiles)->FullyQualifiedFile();
+		sCurrentFile = pMediaFile->m_sDescription.size() ? pMediaFile->m_sDescription : pMediaFile->FullyQualifiedFile();
 
-        pDataGrid->SetData(0, currentPos++,new DataGridCell((*itFiles)->m_sFilename, StringUtils::itos(itFiles - pMediaStream->m_dequeMediaFile.begin())));
+        pDataGrid->SetData(0, currentPos++,new DataGridCell(sCurrentFile, StringUtils::itos(itFiles - pMediaStream->m_dequeMediaFile.begin())));
 		g_pPlutoLogger->Write(LV_STATUS, "Returning data: (%d) -> %s", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str());
     }
 
@@ -970,52 +971,43 @@ void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream )
     {
 g_pPlutoLogger->Write(LV_STATUS, "We have %d media entries in the playback list", pMediaStream->m_dequeMediaFile.size());
 		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
-        pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(
-													pMediaFile->m_sPath + "/" + FileUtils::FileWithoutExtension(pMediaFile->m_sFilename) + ".jpg", pMediaStream->m_iPictureSize);
-
-g_pPlutoLogger->Write(LV_STATUS, "Got 1 picture data %p", pMediaStream->m_pPictureData);
-        if( !pMediaStream->m_pPictureData )
-        {
-            pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(pMediaFile->m_sPath + "/cover.jpg", pMediaStream->m_iPictureSize);
 
 g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaStream->m_pPictureData, pMediaFile->m_dwPK_File);
-            if( !pMediaStream->m_pPictureData && pMediaFile->m_dwPK_File )
-            {
-                int PK_Picture=0;
+		if( pMediaFile->m_dwPK_File )
+		{
+			int PK_Picture=0;
 
-g_pPlutoLogger->Write(LV_STATUS, "Looking got media database file with ID: %d", pMediaFile->m_dwPK_File );
-                Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(pMediaFile->m_dwPK_File);
-                vector<Row_Picture_File *> vectRow_Picture_File;
-                if ( pRow_File )
-                {
-g_pPlutoLogger->Write(LV_STATUS, "We found a file row %p", pRow_File );
-                    pRow_File->Picture_File_FK_File_getrows(&vectRow_Picture_File);
+	g_pPlutoLogger->Write(LV_STATUS, "Looking got media database file with ID: %d", pMediaFile->m_dwPK_File );
+			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(pMediaFile->m_dwPK_File);
+			vector<Row_Picture_File *> vectRow_Picture_File;
+			if ( pRow_File )
+			{
+	g_pPlutoLogger->Write(LV_STATUS, "We found a file row %p", pRow_File );
+				pRow_File->Picture_File_FK_File_getrows(&vectRow_Picture_File);
 
-g_pPlutoLogger->Write(LV_STATUS, "We got %d rows.", vectRow_Picture_File.size() );
-                    if( vectRow_Picture_File.size() )
-                        PK_Picture = vectRow_Picture_File[0]->FK_Picture_get();
-                    else
-                    {
-                        vector<Row_File_Attribute *> vectRow_File_Attribute;
-                        pRow_File->File_Attribute_FK_File_getrows(&vectRow_File_Attribute);
-                        for(size_t s=0;s<vectRow_File_Attribute.size();++s)
-                        {
-                            vector<Row_Picture_Attribute *> vectRow_Picture_Attribute;
-                            vectRow_File_Attribute[s]->FK_Attribute_getrow()->Picture_Attribute_FK_Attribute_getrows(&vectRow_Picture_Attribute);
-                            if( vectRow_Picture_Attribute.size() )
-                            {
-                                PK_Picture = vectRow_Picture_Attribute[0]->FK_Picture_get();
-                                break;
-                            }
-                        }
-                    }
-
+	g_pPlutoLogger->Write(LV_STATUS, "We got %d rows.", vectRow_Picture_File.size() );
+				if( vectRow_Picture_File.size() )
+					PK_Picture = vectRow_Picture_File[0]->FK_Picture_get();
+				else
+				{
+					vector<Row_File_Attribute *> vectRow_File_Attribute;
+					pRow_File->File_Attribute_FK_File_getrows(&vectRow_File_Attribute);
+					for(size_t s=0;s<vectRow_File_Attribute.size();++s)
+					{
+						vector<Row_Picture_Attribute *> vectRow_Picture_Attribute;
+						vectRow_File_Attribute[s]->FK_Attribute_getrow()->Picture_Attribute_FK_Attribute_getrows(&vectRow_Picture_Attribute);
+						if( vectRow_Picture_Attribute.size() )
+						{
+							PK_Picture = vectRow_Picture_Attribute[0]->FK_Picture_get();
+							break;
+						}
+					}
+				}
+			}
 g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
-                }
-                if( PK_Picture )
-                    pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
-            }
-        }
+	        if( PK_Picture )
+		        pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
+		}
     }
 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -2869,6 +2861,14 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string
 	}
 
 	EntertainArea *pEntertainArea = vectEntertainArea[0];
+
+	// If it's a cd and no tracks were specified, prompt the user
+	if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST && sTracks.size()==0 )
+	{
+		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuCDTrackCopy_CONST),"","",false,true);
+		SendCommand(CMD_Goto_Screen);
+		return;
+	}
 	// If we have a proper name (aka. non empty one) we need to look in the current entertainment area for the disk drive and forward the received command to him.
 	MediaDevice *pDiskDriveMediaDevice = NULL;
 	if ( sName.length() != 0 )
@@ -2902,7 +2902,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string
 			StreamEnded(pTmpMediaStream);
 		}
 
-		DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName, "A");
+		DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName, sTracks);
 		SendCommand(cmdRipDisk);
 		m_mapRippingJobsToRippingDevices[sName] = make_pair<int, int>(pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMessage->m_dwPK_Device_From);
 		return;

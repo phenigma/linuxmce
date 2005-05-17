@@ -1200,7 +1200,6 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
         }
 
         mrl = m_sDrive;
-		string sID_CMD="/usr/pluto/bin/ID_CD.sh";  // Default id script
         switch (m_mediaDiskStatus)
         {
             case DISCTYPE_CD_MIXED: // treat a mixed CD as an audio CD for now.
@@ -1213,7 +1212,6 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
                 break;
 
             case DISCTYPE_DVD_VIDEO:
-				sID_CMD="/usr/pluto/bin/ID_DVD.sh";
                 mrl = m_sDrive;
                 // "dvd:/";
 //              serverMRL = "dvd:/" + m_MyIPAddress + ": " + DVDCSS_SERVER_PORT + "/";
@@ -1226,7 +1224,6 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
                 break;
 
             case DISCTYPE_CD_VCD:
-				sID_CMD="/usr/pluto/bin/ID_VCD.sh";
                 status = MEDIATYPE_pluto_StoredVideo_CONST;
                 break;
 
@@ -1246,11 +1243,9 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 
         if ( bFireEvent )
         {
-			sID_CMD += " " + StringUtils::itos(m_discid) + " " + m_sDrive;
 			m_discid=time(NULL);
-			g_pPlutoLogger->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d id: %s", mrl.c_str(),m_discid,sID_CMD.c_str());
+			g_pPlutoLogger->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);
             EVENT_Media_Inserted(status, mrl,StringUtils::itos(m_discid));
-			FileUtils::LaunchProcessInBackground(sID_CMD);
         }
         else
         {
@@ -1321,16 +1316,13 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &
 
 	string strParameters, strCommOnFailure, strCommOnSuccess;
 
-	// use temp variables since the Replace function changes the input string
-	string quotedDeviceName = m_sDrive;
-	string quotedJobName = sName;
-
-	strParameters = StringUtils::Format("%d %d %s %s %d %d",
+	strParameters = StringUtils::Format("%d %d \"%s\" %s %d %d \"%s\"",
 			m_dwPK_Device,
 			pMessage->m_dwPK_Device_From,
-			StringUtils::Replace(&quotedJobName, " ", "\\ ").c_str(),
-			StringUtils::Replace(&quotedDeviceName, " ", "\\ ").c_str(),
-			m_mediaDiskStatus, iPK_Users);
+			StringUtils::Replace(sName, " ", "\\ ").c_str(),
+			StringUtils::Replace(m_sDrive, " ", "\\ ").c_str(),
+			m_mediaDiskStatus, iPK_Users,
+			sTracks.c_str());
 
     DCE::CMD_Spawn_Application_DT
 		spawnApplication(m_dwPK_Device,

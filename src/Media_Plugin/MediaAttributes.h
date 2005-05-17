@@ -112,6 +112,7 @@ public:
 
 	MediaFile(string sMRL)	{
 		m_sFilename=sMRL;
+		m_dwPK_File=0;
 	}
 
 	MediaFile(MediaAttributes *pMediaAttributes, string sFullyQualifiedFile)	{
@@ -132,7 +133,10 @@ public:
 	int m_dwPK_File;
 	string m_sPath,m_sFilename,m_sDescription;
 	string FullyQualifiedFile() {
-		return m_sPath + "/" + m_sFilename; 
+		if( m_sPath.size() )
+			return m_sPath + "/" + m_sFilename; 
+		else
+			return m_sFilename; 
 	}
 };
 

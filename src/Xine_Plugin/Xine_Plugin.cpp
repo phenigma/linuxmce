@@ -314,7 +314,16 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 	else
 	{
 		// HACK: -- todo: get real informations.
-		pXineMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
+		if( pXineMediaStream->m_dequeMediaFile.size()>pXineMediaStream->m_iDequeMediaFile_Pos )
+		{
+			MediaFile *pMediaFile = pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos];
+			if( pMediaFile && pMediaFile->m_sDescription.size() )
+				pXineMediaStream->m_sMediaDescription = pMediaFile->m_sDescription;
+			else
+				pXineMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
+		}
+		else
+			pXineMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
 
 		mediaURL = sFileToPlay;
 	}
