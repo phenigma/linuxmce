@@ -63,8 +63,10 @@ public:
 
     int  m_serverPid;
     int  m_serverPort;
-    int  m_discid;
+    int  m_discid;		// A unique ID to indicate the insertion of this disc, will be set to the time(NULL) at insertion
     int  m_what_is_ripping;
+
+	string m_sDrive;	// The drive, normally DATA_Get_Drive()
 
     char *m_args[100];
 
@@ -105,7 +107,7 @@ public:
 	void DATA_Set_Drive(string Value);
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL);
+	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID);
 	void EVENT_Ripping_Completed(int iResult,string sName);
 
 			*****COMMANDS***** we need to implement
@@ -213,9 +215,11 @@ public:
 			/** The user who needs this rip in his private area. */
 		/** @param #50 Name */
 			/** The target disk name. */
+		/** @param #121 Tracks */
+			/** For CD's, this must be "A", or a comma-delimted list of tracks (1 based) to rip. */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

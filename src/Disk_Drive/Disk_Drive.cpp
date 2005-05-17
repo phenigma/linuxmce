@@ -71,6 +71,10 @@ Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHand
         m_monitorEnabled(true), m_mediaInserted(false), m_mediaDiskStatus(DISCTYPE_NONE), m_serverPid(-1), m_serverPort(SERVER_PORT)
 //<-dceag-const-e->
 {
+	m_discid=0;  // No disc inserted
+	m_sDrive=DATA_Get_Drive();
+	if( m_sDrive=="" )
+		m_sDrive="/dev/cdrom";
 }
 
 //<-dceag-const2-b->!
@@ -534,7 +538,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
     try {
         g_pPlutoLogger->Write(LV_STATUS, "Opening drive first time.");
 
-        fd = open( DATA_Get_Drive().c_str(), O_RDONLY | O_NONBLOCK );
+        fd = open( m_sDrive.c_str(), O_RDONLY | O_NONBLOCK );
         if (fd < 0)
             throw string ("Failed to open CD device" + string (strerror (errno)));
 
@@ -748,7 +752,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
 
                     while (track)
                     {
-                        sb << mrl << i << " Unknown Track " << i++ << endl;
+                        sb << mrl << i << "\tUnknown Track " << i++ << endl;
                         track = track->next;
                     }
 
@@ -930,9 +934,7 @@ bool Disk_Drive::mountDVD(string fileName, string &strMediaUrl)
 	// True if we're playing a physical dis, false if it's a file
 	bool bDriveMount = StringUtils::StartsWith(fileName,"/dev/",true);
 
-	string sDrive = bDriveMount ? fileName : DATA_Get_Drive();
-	if( sDrive.length()==0 )
-		sDrive = "/dev/cdrom";
+	string sDrive = bDriveMount ? fileName : m_sDrive;
 
 	string cmd = "ln -sf " + sDrive + " /dev/dvd";
 	g_pPlutoLogger->Write(LV_STATUS,"cmd drivemount: %d - %s",(int) bDriveMount,cmd.c_str());
@@ -1182,22 +1184,23 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
     string genre;
     string mrl = ""; //, serverMRL, title;
 
-    int result = cdrom_checkdrive( DATA_Get_Drive().c_str(), &m_mediaDiskStatus);
+    int result = cdrom_checkdrive( m_sDrive.c_str(), &m_mediaDiskStatus);
 
     //     g_pPlutoLogger->Write(LV_STATUS, "Disc Reset: checkdrive status: %d  result: %d", m_mediaDiskStatus, result);
 
     // we only care if a new CD was inserted in the meantime.
     if (result >= 0 && m_mediaDiskStatus != DISCTYPE_NONE && m_mediaInserted == false)
     {
-        int fd = open( DATA_Get_Drive().c_str(), O_RDONLY | O_NONBLOCK );
+        int fd = open( m_sDrive.c_str(), O_RDONLY | O_NONBLOCK );
         if (fd < 0)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Failed to open device: %s", DATA_Get_Drive().c_str());
+            g_pPlutoLogger->Write(LV_WARNING, "Failed to open device: %s", m_sDrive.c_str());
             // throw ("failed to open cdrom device" );
             return false;
         }
 
-        mrl = DATA_Get_Drive().c_str();
+        mrl = m_sDrive;
+		string sID_CMD="/usr/pluto/bin/ID_CD.sh";  // Default id script
         switch (m_mediaDiskStatus)
         {
             case DISCTYPE_CD_MIXED: // treat a mixed CD as an audio CD for now.
@@ -1210,7 +1213,8 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
                 break;
 
             case DISCTYPE_DVD_VIDEO:
-                mrl = DATA_Get_Drive();
+				sID_CMD="/usr/pluto/bin/ID_DVD.sh";
+                mrl = m_sDrive;
                 // "dvd:/";
 //              serverMRL = "dvd:/" + m_MyIPAddress + ": " + DVDCSS_SERVER_PORT + "/";
 //              title = dvd_read_name (fd);
@@ -1222,6 +1226,7 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
                 break;
 
             case DISCTYPE_CD_VCD:
+				sID_CMD="/usr/pluto/bin/ID_VCD.sh";
                 status = MEDIATYPE_pluto_StoredVideo_CONST;
                 break;
 
@@ -1241,8 +1246,11 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 
         if ( bFireEvent )
         {
-            g_pPlutoLogger->Write(LV_WARNING, "One Media Inserted event fired (%s)", mrl.c_str());
-            EVENT_Media_Inserted(status, mrl);
+			sID_CMD += " " + StringUtils::itos(m_discid) + " " + m_sDrive;
+			m_discid=time(NULL);
+			g_pPlutoLogger->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d id: %s", mrl.c_str(),m_discid,sID_CMD.c_str());
+            EVENT_Media_Inserted(status, mrl,m_discid);
+			FileUtils::LaunchProcessInBackground(sID_CMD);
         }
         else
         {
@@ -1265,6 +1273,7 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
     {
         if ( m_mediaInserted == true )
         {
+			m_discid=0;
             m_mediaInserted = false;
             g_pPlutoLogger->Write(LV_STATUS, "Disk is not in the drive at the moment");
         }
@@ -1284,8 +1293,10 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 			/** The user who needs this rip in his private area. */
 		/** @param #50 Name */
 			/** The target disk name. */
+		/** @param #121 Tracks */
+			/** For CD's, this must be "A", or a comma-delimted list of tracks (1 based) to rip. */
 
-void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	if ( m_isRipping )
@@ -1311,7 +1322,7 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Mes
 	string strParameters, strCommOnFailure, strCommOnSuccess;
 
 	// use temp variables since the Replace function changes the input string
-	string quotedDeviceName = DATA_Get_Drive();
+	string quotedDeviceName = m_sDrive;
 	string quotedJobName = sName;
 
 	strParameters = StringUtils::Format("%d %d %s %s %d %d",
