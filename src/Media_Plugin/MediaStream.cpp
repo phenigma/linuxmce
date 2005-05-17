@@ -34,6 +34,7 @@
 
 MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users, enum SourceType sourceType, int iStreamID )
 {
+	m_discid=0;
     m_iStreamID = iStreamID;
     m_pMediaHandlerInfo=pMediaHandlerInfo;
     m_iPK_DesignObj_Remote=PK_DesignObj_Remote;

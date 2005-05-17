@@ -35,6 +35,7 @@ namespace DCE
 		class OH_Orbiter *m_pOH_Orbiter_StartedMedia;    	   /** Which orbiter started this stream in the first place */
 
         map<int, class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
+		map<int,string> m_mapAttributes;  /** An external media identification script may set attributes here.  The int is a pluto_media.PK_AttributeType */
 
         /**
          * As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list.
@@ -44,6 +45,7 @@ namespace DCE
         unsigned int		m_iDequeMediaFile_Pos;   /** The play position in the m_dequeFilename deque. */
         int					m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string				m_sPlaylistName;       	 /** the name of the playlist which was loaded from the database. */
+		int m_discid;  /** A unique number to identify the disc inserted, if this is from a removable disc (CD/DVD) */
 
 		MediaDevice		*m_pMediaDevice_Source;      /** The device which is the source of this media stream. */
 		int 			 m_iPK_MediaType;        	/** The type of media in this stream. */

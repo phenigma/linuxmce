@@ -247,7 +247,8 @@ public:
      */
     virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD);
 
-    bool StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat);
+	// Returns NULL if it failed to start any media, otherwise returns the stream
+    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat);
 	bool StartMedia(MediaStream *pMediaStream);
 
     /**
@@ -486,10 +487,12 @@ public:
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
 		/** @param #50 Name */
-			/** The target disk name. */
+			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
+		/** @param #121 Tracks */
+			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #372 - MH Set Volume */

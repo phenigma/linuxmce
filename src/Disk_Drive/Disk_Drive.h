@@ -214,9 +214,9 @@ public:
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
 		/** @param #50 Name */
-			/** The target disk name. */
+			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
-			/** For CD's, this must be "A", or a comma-delimted list of tracks (1 based) to rip. */
+			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 
 	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,Message *pMessage);

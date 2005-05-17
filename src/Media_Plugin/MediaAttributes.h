@@ -110,6 +110,10 @@ public:
 		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
 	}
 
+	MediaFile(string sMRL)	{
+		m_sFilename=sMRL;
+	}
+
 	MediaFile(MediaAttributes *pMediaAttributes, string sFullyQualifiedFile)	{
 		m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
 		m_dwPK_File=pMediaAttributes->GetFileIDFromFilePath(sFullyQualifiedFile);
@@ -124,8 +128,9 @@ public:
 	~MediaFile() {
 	}
 
+	map<int,string> m_mapAttributes;  /** An external media identification script may set attributes here.  The int is a pluto_media.PK_AttributeType */
 	int m_dwPK_File;
-	string m_sPath,m_sFilename;
+	string m_sPath,m_sFilename,m_sDescription;
 	string FullyQualifiedFile() {
 		return m_sPath + "/" + m_sFilename; 
 	}

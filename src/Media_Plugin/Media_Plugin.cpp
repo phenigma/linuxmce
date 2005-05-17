@@ -383,6 +383,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int PK_MediaType = atoi( pMessage->m_mapParameters[EVENTPARAMETER_FK_MediaType_CONST].c_str( ) );
+	int discid = atoi( pMessage->m_mapParameters[EVENTPARAMETER_ID_CONST].c_str( ) );
     string MRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
 
     // First figure out what entertainment area this corresponds to. We are expecting that whatever media player is running on this pc will have
@@ -425,13 +426,22 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			deque<string>::const_iterator itFileNames;
 
 			StringUtils::Tokenize(MRL, "\n", dequeFileNames, false);
-			itFileNames = dequeFileNames.begin();
-			while( itFileNames != dequeFileNames.end() )
-				dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes, *itFileNames++));
+			for(size_t s=0;s<dequeFileNames.size();++s)
+			{
+				MediaFile *pMediaFile = new MediaFile(dequeFileNames[s]);
+				if( dequeFileNames.size()>1 )
+					pMediaFile->m_sDescription = "Unknown track " + StringUtils::itos(s);
+				else
+					pMediaFile->m_sDescription = "Unknown disc";
+
+				dequeMediaFile.push_back(pMediaFile);
+			}
 
 			vector<EntertainArea *> vectEntertainArea;
 			vectEntertainArea.push_back(pEntertainArea);
-            StartMedia(pMediaHandlerInfo,0,vectEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false,0);
+            MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,0,vectEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false,0);
+			if( pMediaStream )
+				pMediaStream->m_discid = discid;
             return true;
         }
     }
@@ -489,7 +499,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     return true;
 }
 
-bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
+MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -533,7 +543,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 			g_pPlutoLogger->Write(LV_CRITICAL, "The plugin %s (%d) returned a NULL media stream object",
 													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_sName.c_str(),
 													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_dwPK_Device);
-			return false;
+			return pMediaStream;
 		}
 
 		// ContainsVideo needs this too
@@ -561,7 +571,9 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
         pMediaStream->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
 
 	pMediaStream->m_bResume=bResume;
-	return StartMedia(pMediaStream);
+	if( StartMedia(pMediaStream) )
+		return pMediaStream;
+	return NULL;
 }
 
 class OldStreamInfo
@@ -2834,9 +2846,11 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
 		/** @param #50 Name */
-			/** The target disk name. */
+			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
+		/** @param #121 Tracks */
+			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 
-void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	// we only have the sources device. This should be an orbiter
@@ -2888,7 +2902,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,M
 			StreamEnded(pTmpMediaStream);
 		}
 
-		DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName);
+		DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName, "A");
 		SendCommand(cmdRipDisk);
 		m_mapRippingJobsToRippingDevices[sName] = make_pair<int, int>(pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMessage->m_dwPK_Device_From);
 		return;
