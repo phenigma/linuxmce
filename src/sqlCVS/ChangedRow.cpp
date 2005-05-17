@@ -63,6 +63,7 @@ string ChangedRow::GetWhereClause()
 				pField->m_pField_IReferTo_Directly->m_pTable->m_pField_AutoIncrement &&
 				pField->m_pField_IReferTo_Directly->m_pTable->m_mapUncommittedAutoIncrChanges.find( atoi(m_vectPrimaryKey[Count].c_str()) ) != pField->m_pField_IReferTo_Directly->m_pTable->m_mapUncommittedAutoIncrChanges.end() )
 			{
+cout << "Changed row translating w/ m_mapUncommittedAutoIncrChanges original: " << m_vectPrimaryKey[Count] << " now: " << pField->m_pField_IReferTo_Directly->m_pTable->m_mapUncommittedAutoIncrChanges[ atoi(m_vectPrimaryKey[Count].c_str())] << endl;
 				sWhere << pField->m_pField_IReferTo_Directly->m_pTable->m_mapUncommittedAutoIncrChanges[ atoi(m_vectPrimaryKey[Count].c_str())];
 				Count++;
 			}
