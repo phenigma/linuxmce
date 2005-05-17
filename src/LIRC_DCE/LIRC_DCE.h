@@ -38,6 +38,7 @@ public:
 //<-dceag-const-e->
 
 		map<string,Message *> m_mapMessages;
+		Router *pRoute;
 
 //<-dceag-const2-b->
 		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router

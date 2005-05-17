@@ -12,6 +12,7 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "Message.h"
 #include "DCERouter.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
@@ -25,8 +26,6 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 {
 	vector<string> vectMapping,vectConfiguration;
 	string sMapping = DATA_Get_Mapping(), sConfiguration = DATA_Get_Configuration();	StringUtils::Tokenize(sMapping,"\r\n",vectMapping);	StringUtils::Tokenize(sConfiguration,"\r\n",vectConfiguration);
-//	StringUtils::Tokenize(DATA_Get_Mapping(),"\r\n",vectMapping);
-//	StringUtils::Tokenize(DATA_Get_Configuration(),"\r\n",vectConfiguration);
 
 	bool bCodesBegan=false;
 	for(size_t s=0;s<vectConfiguration.size();++s)
@@ -51,11 +50,14 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 
 		m_mapMessages[StringUtils::ToUpper(vectConfiguration[s].substr(0,pos_firstspace))]=NULL;
 	}
+	//Pana aici avem in m_mapMessages o list cu Tokens-urile din Configuation file
+	//se apeleaza probabil m_mapMessages["VolUP"] = *pointer ro Message;
 
 	// Now find messages for those tokens
 	map<string,Message *>::iterator it;
 	for(size_t s=0;s<vectMapping.size();++s)
 	{
+	cout << vectMapping[s] << endl;
 		string::size_type pos=0;
 		while(pos<vectMapping[s].size() && pos!=string::npos)
 		{
@@ -93,16 +95,23 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 		sSerialPort = "/dev/ttyS1";
 		g_pPlutoLogger->Write(LV_STATUS, "->Found Serial 2 in database");
 	} else {
-		return;
+		sSerialPort = "/dev/lircd";
+		g_pPlutoLogger->Write(LV_STATUS, "No SerialPort selected, selecting default /dev/lircd");
 	}
 	
-	if(sSerialPort == "" || sLIRCDriver == "") {
-		g_pPlutoLogger->Write(LV_STATUS, "No SerialPort or Driver selected");
-		return;
+	if(sLIRCDriver == "") {
+		g_pPlutoLogger->Write(LV_STATUS, "No Driver selected, using 'default' as default");
+		sLIRCDriver = "default";
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "->Found Driver %s in database",sLIRCDriver.c_str());
+	
+	g_pPlutoLogger->Write(LV_STATUS, "->Using Driver %s in database",sLIRCDriver.c_str());
 	system("rm -f /etc/lirc/hardware.conf");
+	g_pPlutoLogger->Write(LV_STATUS, "->Writing hardware Config file",sLIRCDriver.c_str());
 	fp = fopen("/etc/lirc/hardware.conf","wt");
+	if(fp == NULL) {
+		g_pPlutoLogger->Write(LV_STATUS, "->Can't open file",sLIRCDriver.c_str());
+		exit(0);
+	}
 	fprintf(fp,"# /etc/lirc/hardware.conf\n");
 	fprintf(fp,"#\n");
 	fprintf(fp,"# Arguments which will be used when launching lircd\n");
@@ -110,29 +119,29 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	fprintf(fp,"#Dont start lircmd even if there seams to be a good config file\n");
 	fprintf(fp,"START_LIRCMD=false\n");
 	fprintf(fp,"#Try to load appropriate kernel modules\n");
-	fprintf(fp,"LOAD_MODULES=false\n");
+	fprintf(fp,"LOAD_MODULES=true\n");
 	fprintf(fp,"# Run \"lircd --driver=help\" for a list of supported drivers.\n");
 	fprintf(fp,"DRIVER=\"%s\"\n",sLIRCDriver.c_str());
 	fprintf(fp,"DEVICE=\"%s\"\n",sSerialPort.c_str());
-	fprintf(fp,"#MODULES=\"lirc_dev lirc_serial\"\n");
+	fprintf(fp,"MODULES=\"lirc_dev lirc_mceusb\"\n");
 	fprintf(fp,"# Default configuration files for your hardware if any\n");
 	fprintf(fp,"LIRCD_CONF=\"lircd.conf\"\n");
 	fprintf(fp,"LIRCMD_CONF=\"lircmd.conf\"\n");
 	fprintf(fp,"MODULES=\"UNCONFIGURED\"\n");
 	fclose(fp);
 	g_pPlutoLogger->Write(LV_STATUS, "Making Software config");
-/*	string sConfiguration = DATA_Get_Configuration();
-	if(sConfiguration == "") {
-		g_pPlutoLogger->Write(LV_STATUS, "No valid configuration found into the database");
-		return;
-	}*/
+	
 	system("rm -f /etc/lirc/lircd.conf");
 	fp = fopen("/etc/lirc/lircd.conf","wt");
 	fprintf(fp,"%s",sConfiguration.c_str());
 	fclose(fp);
-	system("/etc/init.d/lirc restart");
-// Check if it started
+
+	system("killall -9 lircd");
+	system("lircd /etc/lirc/lircd.conf");
+//TODO: Check if it started*/
+	pRoute = pRouter;
 	lirc_leech(DeviceID);	
+	g_pPlutoLogger->Write(0, "Over and out"); 
 }
 
 //<-dceag-const2-b->!
@@ -206,73 +215,35 @@ void LIRC_DCE::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 
 int LIRC_DCE::lirc_leech(int DeviceID) {
 #ifndef WIN32
+	
 	if(lirc_init("irexec",1)==-1) return 1;
 
 	char *code;
-	char *hex;
-	int ret;
-	string::size_type iPos = 0;
-	string::size_type iPos2 = 0;
-	string::size_type iPos3 = 0;
-	string::size_type iPos4 = 0;	
-	string sMapping;
-	string sToken = "\n";
-	string sToken2 = "|";
-	string sToken3 = "x";
-	string sToken4 = " ";
-	string sLine, sHex, sMesg, sHexx, sMsg;
-	Message* pMessage = NULL;
-		
 
-	hex = new char[16];
+	g_pPlutoLogger->Write(0, "Leeching"); 
 	while(lirc_nextcode(&code)==0)
 	{
-		strncpy(hex,code,16);
-		sMapping = DATA_Get_Mapping();
-		iPos = 0;
-		do {
-			sLine = StringUtils::Tokenize(sMapping, sToken, iPos);
-			if(strcmp(sLine.c_str(),"") == 0)
-				break;
-			iPos2 = 0;
-			sHexx = StringUtils::Tokenize(sLine, sToken2, iPos2);
-			iPos3 = 0;
-			sHex = StringUtils::Tokenize(sHexx, sToken3, iPos3);
-			sHex = StringUtils::Tokenize(sHexx, sToken3, iPos3);
-			sMesg = StringUtils::Tokenize(sLine, sToken2, iPos2);
-			sHex = StringUtils::ToLower(sHex);
-			sHexx = StringUtils::ToLower(hex);
-			if(strcmp(sHex.c_str(),hex) == 0) {
-//				g_pPlutoLogger->Write(LV_STATUS, "Sending Message : [%s]",sMesg.c_str());
-				
-				int msgFrom, msgTo, msgType, msgID;
-				iPos4 = 0;
-				
-//				sMsg = StringUtils::Tokenize(sMesg, sToken4, iPos4);
-//				msgFrom = atoi(sMsg.c_str());
-				msgFrom = DeviceID;
-				sMsg = StringUtils::Tokenize(sMesg, sToken4, iPos4);
-				msgTo = atoi(sMsg.c_str());
-				sMsg = StringUtils::Tokenize(sMesg, sToken4, iPos4);
-				msgType = atoi(sMsg.c_str());
-				sMsg = StringUtils::Tokenize(sMesg, sToken4, iPos4);
-				msgID = atoi(sMsg.c_str());
-			
-				pMessage = new Message(msgFrom, msgTo, PRIORITY_NORMAL, 	msgType, msgID, 0);
-				if(pMessage) {
-					if(!GetEvents()->SendMessage(pMessage)) {
-						g_pPlutoLogger->Write(LV_WARNING, "Error sending Event."); 
-					}
-				}	
-
-			}
-			
-		} while(strcmp(sLine.c_str(),"") != 0);
-
-		free(code);
-		if(ret==-1) break;
+		string sCode = string(code);
+		vector<string> vectTrimmed;
+//		map<string,Message *>::iterator it;
+		
+		StringUtils::Tokenize(sCode," ",vectTrimmed);
+		string sToken = vectTrimmed[2];
+		g_pPlutoLogger->Write(0, "Key Pressed. %s",sToken.c_str()); 
+		
+		if(m_mapMessages.find(StringUtils::ToUpper(sToken))!=m_mapMessages.end() )
+		{
+			if(m_mapMessages[StringUtils::ToUpper(sToken)] != NULL) {
+				if(!fork()) {
+				if(!GetEvents()->SendMessage(m_mapMessages[StringUtils::ToUpper(sToken)])) {
+					g_pPlutoLogger->Write(LV_WARNING, "Error sending Event."); 
+				}
+				}
+			}	
+		} else {
+			g_pPlutoLogger->Write(LV_WARNING, "Error Invalid Key."); 
+		}
 	}
-	delete hex;
 	lirc_deinit();
 #endif
 	return 0;
