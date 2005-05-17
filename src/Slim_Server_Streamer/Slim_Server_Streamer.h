@@ -17,7 +17,8 @@ typedef enum _StreamState {
 	STATE_UNDEFINED,
 	STATE_STOP,
 	STATE_PAUSE,
-	STATE_PLAY
+	STATE_PLAY,
+	STATE_CHANGING
 } StreamStateType;
 
 //<-dceag-decl-b->

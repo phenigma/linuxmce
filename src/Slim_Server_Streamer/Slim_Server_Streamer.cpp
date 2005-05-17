@@ -148,6 +148,13 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
 		vectDevices.push_back(pPlayerDeviceData);
         currentPlayerAddress = getMacAddressForDevice(pPlayerDeviceData);
 
+		g_pPlutoLogger->Write(LV_STATUS, "Slim_Server_Streamer::CMD_Start_Streaming() Making sure that the player \"%s\" is connected before doing anything.", StringUtils::URLDecode(currentPlayerAddress).c_str());
+		while ( SendReceiveCommand(currentPlayerAddress + " connected ?") != currentPlayerAddress + " connected 1" )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Slim_Server_Streamer::CMD_Start_Streaming() Not yet connected");
+			Sleep(500);
+		}
+
 		SendReceiveCommand(currentPlayerAddress + " stop"); // stop playback (if any)
 		SendReceiveCommand(currentPlayerAddress + " playlist clear"); // clear previous playlist (if any)
 		SendReceiveCommand(currentPlayerAddress + " playlist repeat 0"); // set the playlist to non repeating.
@@ -214,7 +221,7 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
             continue;
         }
 
-		currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pPlayerDeviceData->GetMacAddress()));
+		currentPlayerAddress = getMacAddressForDevice(pPlayerDeviceData);
 
 		// break this players syncronization.
         SendReceiveCommand(currentPlayerAddress + " sync -");
@@ -325,7 +332,7 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
     }
 
 	if (bLogCommand)
-    	g_pPlutoLogger->Write(LV_STATUS, "Sending command: %s", command.c_str());
+    	g_pPlutoLogger->Write(LV_STATUS, "Sending command: %s", StringUtils::URLDecode(command).c_str());
 
     unsigned int nBytes;
     const char *sendBuffer;
@@ -402,7 +409,7 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
     delete receiveBuffer;
 
 	if (bLogCommand)
-    	g_pPlutoLogger->Write(LV_STATUS, "Got response: %s", result.c_str());
+    	g_pPlutoLogger->Write(LV_STATUS, "Got response: %s", StringUtils::URLDecode(result).c_str());
 
     return result;
 }
@@ -433,11 +440,16 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 		{
 			DeviceData_Base *pPlayerDeviceData = (*itStreamsToPlayers).second.second[0];
 
-			macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
-			// do a SendReceive without actually logging the command ( this will potentially fill out the logs. );
-			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str(), false);
+			macAddress = pStreamer->FindControllingMacForStream(itStreamsToPlayers->first);
 
-//		g_pPlutoLogger->Write(LV_STATUS, "Current status for stream %d is %d", itStreamsToPlayers->first, itStreamsToPlayers->second.first);
+			// do a SendReceive without actually logging the command ( this will potentially fill out the logs. );
+ 			strResult = pStreamer->SendReceiveCommand(macAddress + " mode ?", false);
+
+// 			g_pPlutoLogger->Write(LV_STATUS, "Current status for stream %d is %d (result: %s)",
+// 					itStreamsToPlayers->first,
+// 					itStreamsToPlayers->second.first,
+// 					StringUtils::URLDecode(strResult).c_str());
+
 			if ( itStreamsToPlayers->second.first == STATE_PLAY && ( strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" ) )
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Sending playback completed event for stream %d", itStreamsToPlayers->first);
@@ -531,7 +543,7 @@ void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int
 		return;
 	}
 
-	// SendReceiveCommand(lastPlayerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
+	SetStateForStream(iStreamID, STATE_CHANGING);
 	SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sFilename,"//", "/")));
 
 	if ( iMediaPosition != 0 )
