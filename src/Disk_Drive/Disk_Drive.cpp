@@ -752,7 +752,7 @@ string Disk_Drive::getTracks (string mrl, string &genre)
 
                     while (track)
                     {
-                        sb << mrl << i << "\tUnknown Track " << i++ << endl;
+                        sb << mrl << i++ << endl;
                         track = track->next;
                     }
 

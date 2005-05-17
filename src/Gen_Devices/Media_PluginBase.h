@@ -108,7 +108,7 @@ public:
 	virtual void CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -468,7 +468,8 @@ public:
 						string sCMD_Result="OK";
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 					string sName=pMessage->m_mapParameters[50];
-						CMD_Rip_Disk(iPK_Users,sName.c_str(),sCMD_Result,pMessage);
+					string sTracks=pMessage->m_mapParameters[121];
+						CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -485,7 +486,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Rip_Disk(iPK_Users,sName.c_str(),sCMD_Result,pMessage);
+								CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

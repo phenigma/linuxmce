@@ -16,9 +16,9 @@ public:
 	Disk_Drive_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
-	virtual void Media_Inserted(int iFK_MediaType,string sMRL)
+	virtual void Media_Inserted(int iFK_MediaType,string sMRL,string sID)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3,2,3,StringUtils::itos(iFK_MediaType).c_str(),4,sMRL.c_str()));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3,3,3,StringUtils::itos(iFK_MediaType).c_str(),4,sMRL.c_str(),7,sID.c_str()));
 	}
 
 	virtual void Ripping_Completed(int iResult,string sName)
@@ -85,7 +85,7 @@ public:
 	string DATA_Get_Drive() { return GetData()->Get_Drive(); }
 	void DATA_Set_Drive(string Value) { GetData()->Set_Drive(Value); }
 	//Event accessors
-	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str()); }
+	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str()); }
 	void EVENT_Ripping_Completed(int iResult,string sName) { GetEvents()->Ripping_Completed(iResult,sName.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
@@ -101,7 +101,7 @@ public:
 	virtual void CMD_Start_Ripping_DVD(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Format_Drive(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Close_Tray(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -450,7 +450,8 @@ public:
 						string sCMD_Result="OK";
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 					string sName=pMessage->m_mapParameters[50];
-						CMD_Rip_Disk(iPK_Users,sName.c_str(),sCMD_Result,pMessage);
+					string sTracks=pMessage->m_mapParameters[121];
+						CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -467,7 +468,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Rip_Disk(iPK_Users,sName.c_str(),sCMD_Result,pMessage);
+								CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
