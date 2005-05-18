@@ -1742,71 +1742,50 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
         return true;
 	}
 
+    string NewValue;
     int PK_Variable = pDesignObj_DataGrid->m_iPK_Variable;
-    /* hack -- todo -- handle multi select
-    if ( pDesignObj_DataGrid->m_bIsMultiSelect )
+    
+    //handle multi select
+    if(pDesignObj_DataGrid->m_bIsMultiSelect)
     {
-    PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-    string Selections = m_mapVariable[PK_Variable];
-    vm.Release(  );
-    string::size_type valpos;
+        DataGridTable *pT = pDesignObj_DataGrid->m_pDataGridTable;
 
-    if ( ( valpos=delSelections.find( "|"+string( pCell->GetValue(  ) )+"|" ) )!=string::npos )
-    {
-    NewValue = delSelections.substr( 0,  valpos ) + Selections.substr( valpos+strlen( pCell->GetValue(  ) ) );
-    if ( NewValue.length(  ) > 0 )
-    NewValue = NewValue.substr( 1 );
-    if ( RenderCell( ( DesignObj_DataGrid * )pDesignObj_DataGrid,  pT,  pCell,  j,  i,  false ) )
-    CMD_Refresh( "" );
+        PLUTO_SAFETY_LOCK(vm, m_VariableMutex);
+        string delSelections = "|"+m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable]+"|";
+        string Selections = m_mapVariable[PK_Variable];
+        vm.Release();
+        string::size_type valpos;
+
+        int i, j;
+        i = pCell->m_Colspan;
+        j = pCell->m_Rowspan;
+
+        if((valpos = delSelections.find("|" + string(pCell->GetValue()) + "|")) != string::npos)
+        {
+            NewValue = delSelections.substr(0, valpos) + Selections.substr(valpos + strlen(pCell->GetValue()));
+            
+            if(NewValue.length() > 0)
+                NewValue = NewValue.substr(1);
+        }
+        else
+        {
+            if(Selections.length() > 0)
+                NewValue = Selections + "|" + pCell->GetValue();
+            else
+                NewValue = pCell->GetValue();
+        }
     }
     else
     {
-    if ( Selections.length(  ) > 0 )
-    NewValue = Selections + "|" + pCell->GetValue(  );
-    else
-    NewValue = pCell->GetValue(  );
+        // Not multi-select.  Just replace it.
+        NewValue =  pCell->GetValue(  );
+    }
 
-    if ( RenderCell( ( DesignObj_DataGrid * )pDesignObj_DataGrid,  pT,  pCell,  j,  i,  true ) )
-    CMD_Refresh( "" );
-    }
-    bFinishLoop = true;
-    }
-    else
-    {
-    */
-    // Not multi-select.  Just replace it.
-    string NewValue =  pCell->GetValue(  );
-    /*
-    if ( !pDesignObj_DataGrid->m_bDontShowSelection )
-    {
-
-    if ( pLastCell )
-    {
-    if ( pLastCell != pCell )
-    {
-    if( RenderCell( ( DesignObj_DataGrid * )pDesignObj_DataGrid,  pT,  pLastCell,  LastJ,  LastI,  false ) )
-    CMD_Refresh( "" );
-    }
-    bFinishLoop = true;
-    }
-    if ( NewValue.length(  ) > 0 )
-    {
-    if ( RenderCell( ( DesignObj_DataGrid * )pDesignObj_DataGrid,  pT,  pCell,  j,  i,  true ) )
-    CMD_Refresh( "" );
-    }
-    hack -- need this      }
-    */
-
-	g_pPlutoLogger->Write(LV_WARNING, "Need to update variable %d of the datagrid with value %s",
-		pDesignObj_DataGrid->m_iPK_Variable, NewValue.c_str());
+    g_pPlutoLogger->Write(LV_WARNING, "Need to update variable %d of the datagrid with value %s",
+        pDesignObj_DataGrid->m_iPK_Variable, NewValue.c_str());
 
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
     m_mapVariable[PK_Variable] = NewValue;
-    /* hack todo
-    bFoundSelection = true;
-    vm.Release(  );
-    }
-    */
 
     return true;
 }

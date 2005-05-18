@@ -147,7 +147,7 @@ void *HandleBDCommandProcessorThread( void *p )
 
         if(pData)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", sVMC_File.c_str(), iSize);
+            g_pPlutoLogger->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", csPlutoMOConfigFile.c_str(), iSize);
 
             BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(
                 const_cast<char *>(sDestionationCfgFileName.c_str()), 
