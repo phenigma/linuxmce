@@ -284,18 +284,10 @@ function editRespondToEvent($output,$dbADO) {
 		}
 	
 		setOrbitersNeedConfigure($installationID,$dbADO);
-		if($wizard!=$oldWizard){
-			if((int)@$_REQUEST['addNewDevice']!=0)
-				$sufix='&addNewDevice='.(int)@$_REQUEST['addNewDevice'];
-			header("Location: index.php?section=editRespondToEvent&ehID=$eventHandlerID&wizard=$wizard".@$sufix);
-			exit();
-		}else{
-			header("Location: index.php?section=respondToEvents&msg=$msg");
-			exit();
-		}
-		
-	
-		header('Location: index.php?section=editRespondToEvent&ehID='.$eventHandlerID.'&msg=The event handler was updated&wizard='.$wizard);
+		if((int)@$_REQUEST['addNewDevice']!=0)
+			$sufix='&addNewDevice='.(int)@$_REQUEST['addNewDevice'];
+		header("Location: index.php?section=editRespondToEvent&ehID=$eventHandlerID&wizard=$wizard".@$sufix);
+		exit();
 	}
 	
 	$output->setNavigationMenu(array("Respond to Events"=>'index.php?section=respondToEvents'));

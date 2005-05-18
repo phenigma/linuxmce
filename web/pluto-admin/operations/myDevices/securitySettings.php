@@ -55,7 +55,9 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 				<td></td>
 				<td align="center"><B>Monitor mode</B></td>';
 			foreach($properties AS $label){
-				$out.='<td align="center"><B>'.$label.'</B></td>';
+				$out.='
+					<td align="center"><B>N</B></td>
+					<td align="center"><B>'.$label.'</B></td>';
 			}
 		$out.='				
 			</tr>';
@@ -113,14 +115,18 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 						unset($oldProperties);
 					}
 					$out.='<input type="hidden" name="oldProperties_'.$rowD['PK_Device'].'" value="'.@$oldProperties.'">';
+					$bgcolor=(count($displayedDevices)%2==0)?'#FFFFFF':'#F0F3F8';
 					$out.='
-						<tr>
+						<tr bgcolor="'.$bgcolor.'">
 							<td align="center"><b>'.$rowD['Description'].'</b><br>('.$rowD['DTemplate'].')</td>';
 					$out.='<td align="center"><input type="checkbox" name="monitor_mode_'.$rowD['PK_Device'].'" '.((@$oldPropertiesArray[0]==1)?'checked':'').'></td>';
 					foreach($properties AS $itemNo=> $itemValue){
-						$out.='<td><select name="'.str_replace(' ','',$itemValue).'_'.$rowD['PK_Device'].'">';
+						$isNotifyChecked=(substr(@$oldPropertiesArray[$itemNo+1],0,1)=='N')?'checked':'';
+						$out.='
+							<td><input type="checkbox" name="notify_'.str_replace(' ','',$itemValue).'_'.$rowD['PK_Device'].'" '.$isNotifyChecked.'></td>
+							<td><select name="'.str_replace(' ','',$itemValue).'_'.$rowD['PK_Device'].'">';
 						foreach($pullDownArray AS $key=>$value){
-							$out.='<option value="'.$key.'" '.((@$oldPropertiesArray[$itemNo+1]==$key)?'selected':'').'>'.$value.'</option>';
+							$out.='<option value="'.$key.'" '.((str_replace('N','',@$oldPropertiesArray[$itemNo+1])==$key)?'selected':'').'>'.$value.'</option>';
 						}
 						$out.='</select></td>';
 					}
@@ -129,7 +135,10 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 				$out.='<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">';
 		$out.='
 			<tr>
-				<td colspan="7" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
+				<td colspan="13" align="left">* Check the boxes under "N" column if you want to receive notifications for this alert</td>
+			</tr>		
+			<tr>
+				<td colspan="13" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
 			</tr>
 		</table>
 		</form>
@@ -149,7 +158,8 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 			$oldProperties=$_POST['oldProperties_'.$device];
 			$newProperties=(isset($_POST['monitor_mode_'.$device]))?1:0;
 			foreach($properties AS $itemNo=> $itemValue){
-				$newProperties.=','.$_POST[str_replace(' ','',$itemValue).'_'.$device];
+				$notify=(isset($_POST['notify_'.str_replace(' ','',$itemValue).'_'.$device]))?'N':'';
+				$newProperties.=','.$notify.$_POST[str_replace(' ','',$itemValue).'_'.$device];
 			}
 			$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_DeviceData=? AND FK_Device=?';
 			$dbADO->Execute($updateDDD,array($newProperties,$GLOBALS['securityAlert'],$device));

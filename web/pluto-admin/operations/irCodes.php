@@ -518,7 +518,7 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 					<td>'.((is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<B> Not in database</B>':$textAreaElem).'</td>
 					<td align="center" width="100">';
 					if(!is_null($rowStandardCode['PK_InfraredGroup_Command']))
-						$out.=((!is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&from=avWizard&action=testCode&owner='.$rowStandardCode['FK_Users'].'&ig_c='.$rowStandardCode['PK_InfraredGroup_Command'].'&irCode=\'+escape(document.irCodes.irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'.value);"><a name="test_'.$rowStandardCode['PK_InfraredGroup_Command'].'"></a>':'').'
+						$out.=((!is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<input type="button" class="button" name="edit" value="Edit" onClick="windowOpen(\'index.php?section=editCode&ircode='.$rowStandardCode['PK_InfraredGroup_Command'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br><input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&from=avWizard&action=testCode&owner='.$rowStandardCode['FK_Users'].'&ig_c='.$rowStandardCode['PK_InfraredGroup_Command'].'&irCode=\'+escape(document.irCodes.irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'.value);"><a name="test_'.$rowStandardCode['PK_InfraredGroup_Command'].'"></a>':'').'
 					</td>
 				</tr>';
 		}
@@ -543,7 +543,8 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 					<td align="center" width="100"><B>'.$rowUserCode['Description'].'</B><br> User: '.$rowUserCode['FK_Users'].'</td>
 					<td width="25"><input type="radio" name="prefered_'.$rowUserCode['FK_Command'].'_'.$rowUserCode['FK_InfraredGroup'].'" value="'.$rowUserCode['PK_InfraredGroup_Command'].'" '.((in_array($rowUserCode['PK_InfraredGroup_Command'],$GLOBALS['igcPrefered']))?'checked':'').'></td>
 					<td>'.$textareaUserCode.'</td>
-					<td align="center" width="100">';
+					<td align="center" width="100">
+						<input type="button" class="button" name="edit" value="Edit" onClick="windowOpen(\'index.php?section=editCode&ircode='.$rowUserCode['PK_InfraredGroup_Command'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>';
 					if($rowUserCode['FK_Users']==$_SESSION['userID']){
 						$out.='<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowUserCode['PK_InfraredGroup_Command'].';document.irCodes.submit();}"> <br>';
 					}

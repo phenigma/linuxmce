@@ -107,11 +107,11 @@ function securityStatus($output,$dbADO) {
 				</select></td>
 					<td align="center"><select name="bypass_'.$rowD['PK_Device'].'">';
 					foreach ($bypassArray AS $bypass){
-						$out.='<option value="'.$bypass.'" '.(($bypass==$stateParts[1])?'selected':'').'>'.$bypass.'</option>';
+						$out.='<option value="'.$bypass.'" '.(($bypass==@$stateParts[1])?'selected':'').'>'.$bypass.'</option>';
 					}
 					$out.='</select></td>
 					<td align="center"><input type="checkbox" name="delay" '.((@$stateParts[2]!='')?'checked':'').' disabled></td>
-					<td align="center"><input type="checkbox" name="tripped" '.(($rowD['Status']!='')?'TRIPPED':'').' disabled></td>
+					<td align="center"><input type="checkbox" name="tripped" '.(($rowD['Status']=='TRIPPED')?'checked':'').' disabled></td>
 					<td align="center">'.$rowD['FloorplanType'].'</td>
 				</tr>
 				<input type="hidden" name="oldDelay_'.$rowD['PK_Device'].'" value="'.@$stateParts[2].'">

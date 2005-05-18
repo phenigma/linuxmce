@@ -10,6 +10,7 @@ $arrayID = $GLOBALS['ArrayIDForSecurity'];
 
 $cameraDevices=getDevicesArrayFromCategory($GLOBALS['rootCameras'],$dbADO);
 $cameraIDArray=array_keys($cameraDevices);
+$deviceGroups=getDeviceGroups($installationID,$dbADO);
 
 if($action=='form') {
 	
@@ -29,6 +30,7 @@ if($action=='form') {
 		<input type="hidden" name="roomID" value="">	
 	
 	<table width="100%" cellpadding="4" cellspacing="0" border="0">';
+	
 	$selectCameraCG='
 		SELECT CommandGroup.*,IK_CommandParameter 
 		FROM CommandGroup 
@@ -53,14 +55,33 @@ if($action=='form') {
 	$displayedRooms=array();
 	$displayedRoomNames=array();
 	while($rowRooms=$resRooms->FetchRow()){
+		
 		$queryCG_T='
-			SELECT CommandGroup.*, CommandGroup_Room.*, Room.Description AS RoomName
+			SELECT CommandGroup.*, CommandGroup_Room.*, Room.Description AS RoomName,IK_CommandParameter
 			FROM CommandGroup_Room
-				INNER JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup
+				INNER JOIN CommandGroup ON CommandGroup_Room.FK_CommandGroup=PK_CommandGroup
 				INNER JOIN Room ON FK_Room=PK_Room
+				INNER JOIN CommandGroup_Command ON CommandGroup_Command.FK_CommandGroup=PK_CommandGroup
+				INNER JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command
 			WHERE
 				FK_Room=? AND FK_Template=? AND CommandGroup.FK_Installation=?';
-		$resArmDisarm=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecurityArmDisarmTemplate'],$installationID));
+		$resArmDisarm=$dbADO->Execute($queryCG_T.' AND IK_CommandParameter=0',array($rowRooms['PK_Room'],$GLOBALS['SecurityArmDisarmTemplate'],$installationID));
+		
+		// zones area
+		$zonesLinesArray=array();
+		foreach ($deviceGroups AS $dgID=>$dgDescription){
+			${'resZone_'.$dgID}=$dbADO->Execute($queryCG_T.' AND IK_CommandParameter='.$dgID,array($rowRooms['PK_Room'],$GLOBALS['SecurityArmDisarmTemplate'],$installationID));
+			$zonesLinesArray[]='
+				<input type="hidden" name="oldZone_'.$dgID.'_'.$rowRooms['PK_Room'].'" value="'.((${'resZone_'.$dgID}->RecordCount()>0)?'1':'0').'">
+				<tr>
+					<td width="20">&nbsp;</td>
+					<td><input type="checkbox" name="zone_'.$dgID.'_'.$rowRooms['PK_Room'].'" value="1" '.((${'resZone_'.$dgID}->RecordCount()>0)?'checked':'').'> '.$dgDescription.'</td>
+				</tr>			
+			';
+		}
+		$zoneTableRows=join('',$zonesLinesArray);
+		// end zone area
+		
 		$resViewAll=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecurityViewCamerasTemplate'],$installationID));
 		$resSOS=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecuritySOSTemplate'],$installationID));
 		$out.='
@@ -75,8 +96,9 @@ if($action=='form') {
 		</tr>
 		<tr>
 			<td width="20">&nbsp;</td>
-			<td><input type="checkbox" name="armDisarm_'.$rowRooms['PK_Room'].'" value="1" '.(($resArmDisarm->RecordCount()>0)?'checked':'').'> Button to arm system, disarm system</td>
+			<td><input type="checkbox" name="armDisarm_'.$rowRooms['PK_Room'].'" value="1" '.(($resArmDisarm->RecordCount()>0)?'checked':'').'> Main Security Panel</td>
 		</tr>
+		'.$zoneTableRows.'
 		<tr>
 			<td width="20">&nbsp;</td>
 			<td><input type="checkbox" name="viewAll_'.$rowRooms['PK_Room'].'" value="1" '.(($resViewAll->RecordCount()>0)?'checked':'').'> Button to view all cameras</td>
@@ -483,8 +505,13 @@ if($action=='form') {
 		$displayedRoomsArray=explode(',',$_POST['displayedRooms']);
 		$displayedRoomNamesArray=explode(',',$_POST['displayedRoomNames']);
 		
-		$selectArmDisarm='SELECT * FROM CommandGroup WHERE FK_Template=? AND FK_Installation=?';
-		$resArmDisarm=$dbADO->Execute($selectArmDisarm,array($GLOBALS['SecurityArmDisarmTemplate'],$installationID));
+		$selectArmDisarm='
+			SELECT * 
+			FROM CommandGroup 
+			INNER JOIN CommandGroup_Command ON FK_CommandGroup=PK_CommandGroup
+			INNER JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command
+			WHERE FK_Template=? AND FK_Installation=? AND IK_CommandParameter=?';
+		$resArmDisarm=$dbADO->Execute($selectArmDisarm,array($GLOBALS['SecurityArmDisarmTemplate'],$installationID,0));
 		if($resArmDisarm->RecordCount()){
 			$rowArmDisarm=$resArmDisarm->FetchRow();
 			$armDisarmCG=$rowArmDisarm['PK_CommandGroup'];
@@ -502,7 +529,48 @@ if($action=='form') {
 			$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
 			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuSecurityPanel']));
+			
+			$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandSetVar'],0,0,$GLOBALS['localOrbiter']));
+			$cg_cID=$dbADO->Insert_ID();
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$GLOBALS['PK_DeviceGroup']));
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],0));
 		}
+		
+		// zones process
+		foreach ($deviceGroups AS $dgID=>$dgDescription){
+			$selectZone='
+				SELECT * 
+				FROM CommandGroup 
+				INNER JOIN CommandGroup_Command ON FK_CommandGroup=PK_CommandGroup
+				INNER JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command
+				WHERE FK_Template=? AND FK_Installation=? AND IK_CommandParameter=?';
+			$resZone=$dbADO->Execute($selectZone,array($GLOBALS['SecurityArmDisarmTemplate'],$installationID,$dgID));
+			if($resZone->RecordCount()!=0){
+				$rowZone=$resZone->FetchRow();
+				${"zoneCG_$dgID"}=$rowZone['PK_CommandGroup'];
+				${"newZone_$dgID"}=0;
+			}else{
+				$insertCommandGroup='
+					INSERT INTO CommandGroup 
+						(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template,FK_DesignObj)
+					VALUES
+						(?,?,?,?,?,?,?,?)';
+				$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,$dgDescription,0,0,0,$GLOBALS['SecurityArmDisarmTemplate'],3275));
+				${"zoneCG_$dgID"}=$dbADO->Insert_ID();
+				${"newZone_$dgID"}=1;
+				
+				$dbADO->Execute($insertCG_C,array(${"zoneCG_$dgID"},$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
+				$cg_cID=$dbADO->Insert_ID();
+				$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuSecurityPanel']));
+				
+				$dbADO->Execute($insertCG_C,array(${"zoneCG_$dgID"},$GLOBALS['commandSetVar'],0,0,$GLOBALS['localOrbiter']));
+				$cg_cID=$dbADO->Insert_ID();
+				$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$GLOBALS['PK_DeviceGroup']));
+				$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],$dgID));
+			}
+		}
+		// end zones
+		
 
 		$selectViewAll='SELECT * FROM CommandGroup WHERE FK_Template=?  AND FK_Installation=?';
 		$resViewAll=$dbADO->Execute($selectViewAll,array($GLOBALS['SecurityViewCamerasTemplate'],$installationID));
@@ -555,6 +623,9 @@ if($action=='form') {
 		$uncheckedArmDisarm=0;
 		$uncheckedViewAll=0;
 		$uncheckedSOS=0;
+		foreach ($deviceGroups AS $dgID=>$dgDescription){
+			${"uncheckedZone_$dgID"}=0;
+		}
 		foreach($displayedRoomsArray as $key=>$room){
 			$armDisarm=(int)@$_POST['armDisarm_'.$room];
 			$oldArmDisarm=(int)@$_POST['oldArmDisarm_'.$room];
@@ -570,6 +641,22 @@ if($action=='form') {
 				$dbADO->Execute($deleteCG_Room,array($armDisarmCG,$room));
 			}
 
+			// zones
+			foreach ($deviceGroups AS $dgID=>$dgDescription){
+				$zone=(int)@$_POST['zone_'.$dgID.'_'.$room];
+				$oldZone=(int)@$_POST['oldZone_'.$dgID.'_'.$room];
+				if($oldZone==0){
+					if($zone==1){
+						if(${"newZone_$dgID"}==1)
+							$dbADO->Execute('UPDATE CommandGroup SET Hint=? WHERE PK_CommandGroup=?',array($displayedRoomNamesArray[$key],$armDisarmCG));
+						$dbADO->Execute($insertCG_Room,array(${"zoneCG_$dgID"},$room,${"zoneCG_$dgID"}));
+					}else 
+						${"uncheckedZone_$dgID"}++;
+				}elseif($zone==0){
+					${"uncheckedZone_$dgID"}++;
+					$dbADO->Execute($deleteCG_Room,array(${"zoneCG_$dgID"},$room));
+				}
+			}
 			
 			$viewAll=(int)@$_POST['viewAll_'.$room];
 			$oldViewAll=(int)@$_POST['oldViewAll_'.$room];
@@ -606,6 +693,10 @@ if($action=='form') {
 		if($uncheckedSOS==count($displayedRoomsArray))
 			deleteCommandGroup($sosCG,$dbADO);
 
+		foreach ($deviceGroups AS $dgID=>$dgDescription){
+			if(${"uncheckedZone_$dgID"}==count($displayedRoomsArray))
+				deleteCommandGroup(${"zoneCG_$dgID"},$dbADO);
+		}	
 			
 		// Update CommandGroups description
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);

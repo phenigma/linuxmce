@@ -3006,7 +3006,7 @@ function getCheckedDeviceCommandGroup($deviceTemplate,$deviceCategory,$dbADO)
 		INNER JOIN DeviceCategory on FK_DeviceCategory = PK_DeviceCategory
 		WHERE 
 			FK_DeviceCategory in ($deviceParent,$deviceCategory) OR
-			PK_DeviceCommandGroup in (".join(",",$selCheckedCommandsGroups).")
+			PK_DeviceCommandGroup in (".join(",",$selCheckedCommandsGroups).") 
 		ORDER BY DeviceCommandGroup.Description Asc	";
 	$resCommands = $dbADO->_Execute($query);
 				
@@ -3016,6 +3016,12 @@ function getCheckedDeviceCommandGroup($deviceTemplate,$deviceCategory,$dbADO)
 			$groups[$row['PK_DeviceCommandGroup']]['checked']=(in_array($row['PK_DeviceCommandGroup'],$selCheckedCommandsGroups))?1:0;
 			$groups[$row['PK_DeviceCommandGroup']]['Description']=$row['Description'];
 		}
+	}
+	
+	$resN=$dbADO->Execute('SELECT * FROM DeviceCommandGroup WHERE FK_DeviceCategory IS NULL');
+	while($rowN=$resN->FetchRow()){
+		$groups[$rowN['PK_DeviceCommandGroup']]['checked']=(in_array($rowN['PK_DeviceCommandGroup'],$selCheckedCommandsGroups))?1:0;
+		$groups[$rowN['PK_DeviceCommandGroup']]['Description']=$rowN['Description'];
 	}
 	
 	return $groups;
@@ -3111,5 +3117,15 @@ function devicesTree($name,$selectedValue,$dbADO,$filter,$extra='')
 	$out.='
 		</select>';
 	return $out;
+}
+
+function getDeviceGroups($installationID, $dbADO)
+{
+	$req=$dbADO->Execute('SELECT PK_DeviceGroup,Description FROM DeviceGroup WHERE FK_Installation=? ORDER BY Description ASC',$installationID);
+	$dg=array();
+	while($row=$req->Fetchrow()){
+		$dg[$row['PK_DeviceGroup']]=$row['Description'];
+	}
+	return $dg;
 }
 ?>

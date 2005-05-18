@@ -1123,7 +1123,20 @@ switch ($section) {
 	    include_once('operations/network/wapSettings.php');
 	    wapSettings($output,$dbADO);
 	break;	
+	case 'zones';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/zones.php');
+	    zones($output,$dbADO);
+	break;	
+	case 'editCode';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/infrared/editCode.php');
+	    editCode($output,$dbADO);
+	break;	
 
+	
 	
 	case '';
 		$output = new Template($dbADO);	

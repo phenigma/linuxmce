@@ -177,6 +177,7 @@
 	
 	$GLOBALS['camerasVariableNumbersArray']=array(18,19,20,21);
 	$GLOBALS['cameraVariable']=22;
+	$GLOBALS['PK_DeviceGroup']=32;
 	
 	// PK_StartupScript from table StartupScript
 	$GLOBALS['ProcessLogs']=45;					// Process_Logs.sh
