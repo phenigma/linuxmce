@@ -61,6 +61,9 @@ using namespace DCE;
 
 namespace EIBBUS {
 
+std::string 
+FormatHexBuffer(const char* buff, unsigned int size);
+
 int 
 Message::SendBuffer(BusConnector *pbusconn, 
 		const unsigned char* msg, unsigned int length)
@@ -71,7 +74,8 @@ Message::SendBuffer(BusConnector *pbusconn,
 	pbusconn->Send((unsigned char*)msg, length);
 	tk.Stop();
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Buffer sent in %.5f seconds", tk.getTotalPeriodInSecs());
+	g_pPlutoLogger->Write(LV_STATUS, "Buffer <%s> sent in %.5f seconds", 
+			FormatHexBuffer((const char*)msg, length).c_str(), tk.getTotalPeriodInSecs());
 		
 	pbusconn->incFrameBit();
 	return 0;
@@ -220,5 +224,20 @@ PeiMessage::ReceivePeiBuffer(BusConnector *pbusconn,
 	return RECV_UNKNOWN;
 }
 
+std::string 
+FormatHexBuffer(const char* buff, unsigned int size) {
+	std::string logstr;
+	if(size <= 0) {
+		logstr = "EMPTY BUFFER";
+	} else {
+		char hxbuff[5];
+		for(unsigned int i = 0; i < size; i++) {
+			sprintf(hxbuff, "0x%0hhx", buff[i]);
+			logstr += ((i > 0) ? " " : "");
+			logstr += hxbuff;
+		}
+	}
+	return logstr;
+}
 
 };

@@ -95,7 +95,7 @@ TelegramMessage::Recv(BusConnector *pbusconn) {
 	
 	setGroupAddress(gaddrstr);
 	
-	unsigned char acpishortuserdata = inmsg[7];
+	unsigned char acpishortuserdata = inmsg	[7];
 	setActionType((ACTIONTYPE)(acpishortuserdata >> 6));
 	
 	switch(length_) {
@@ -115,7 +115,7 @@ TelegramMessage::Send(BusConnector *pbusconn) {
 	if(getActionType() != WRITE) {
 		shortusrdata_ = 0;
 		length_ = 0;
-	}
+	}	
 		
 	unsigned char routingcounterlength = (unsigned short)(length_ + 1) + 0xE0;
 	unsigned char acpishortuserdata = (unsigned char)(getActionType() << 6) 
@@ -220,7 +220,7 @@ getgroupaddrfromstr(const char *gadstr)
         return 0xfff;
 
     middleSubGad = subGad + (middleGad << 8);
-    return swapushort( (middleSubGad & 0x7ff) | ( mainGad << 11 ) );
+    return swapushort( ((subGad + (middleGad << 8)) & 0x7ff) | ( mainGad << 11 ) );
 };
 
 bool 
