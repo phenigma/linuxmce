@@ -26,7 +26,7 @@ function change_password($conn,$connMain){
             $LinuxPass = crypt($_POST['password'], $LinuxSalt);
 			$updateMasterUsers=dbQuery("UPDATE MasterUsers SET Password='$password' WHERE PK_MasterUsers = '$PK_MasterUsers'",$conn);
 			
-			$updateUsers=dbQuery("UPDATE Users SET Password_Unix='$LinuxPass', Password_Samba='$SambaPass' WHERE PK_Users = '$PK_MasterUsers'",$connMain);
+			$updateUsers=dbQuery("UPDATE Users SET Password='$password', Password_Unix='$LinuxPass', Password_Samba='$SambaPass' WHERE PK_Users = '$PK_MasterUsers'",$connMain);
 			if($updateMasterUsers)
 				$out="Password changed";
 			else
