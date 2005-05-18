@@ -188,6 +188,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	else
 	{
 		m_pXineSlaveControl->setSlimClient(false);
+// 		getSlimServerClient()->disconnectFromServer();
 		if ( ! m_pXineSlaveControl->createStream(sFilename, iStreamID, pMessage->m_dwPK_Device_From) || ! m_pXineSlaveControl->playStream(iStreamID, iMediaPosition) )
 		{
 			EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
@@ -219,13 +220,13 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
 
     int currentTime, totalTime;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Got a stop media for stream ID %d", iStreamID);
+    g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() Got a stop media for stream ID %d", iStreamID);
     m_pXineSlaveControl->pauseMediaStream(iStreamID);
-    g_pPlutoLogger->Write(LV_STATUS, "After pause media %d", iStreamID);
+    g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() After pause media %d", iStreamID);
     *iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, currentTime, totalTime);
-    g_pPlutoLogger->Write(LV_STATUS, "position %d", *iMediaPosition);
+    g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() position %d", *iMediaPosition);
     m_pXineSlaveControl->stopMedia(iStreamID);
-    g_pPlutoLogger->Write(LV_STATUS, "The stream playback should be stopped at this moment and the resources should be freed!");
+    g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() The stream playback should be stopped at this moment and the resources should be freed!");
 
 	if ( getSlimServerClient()->isConnected(iStreamID) )
 		getSlimServerClient()->disconnectFromServer(iStreamID);
@@ -249,6 +250,9 @@ void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
         return;
     }
 
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+
 	m_pXineSlaveControl->pauseMediaStream(iStreamID);
 }
 
@@ -269,6 +273,9 @@ void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *p
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Restart_Media() I don't have a slave to use. Ignoring.");
         return;
     }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
 
 	m_pXineSlaveControl->restartMediaStream(iStreamID);
 }
@@ -293,6 +300,9 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
         return;
     }
 
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+
 	m_pXineSlaveControl->changePlaybackSpeed(iStreamID, (XineSlaveWrapper::PlayBackSpeedType)iMediaPlaybackSpeed);
 }
 
@@ -311,6 +321,9 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message 
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater() I don't have a slave to use. Ignoring.");
         return;
     }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
 
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_NEXT);
 }
@@ -331,6 +344,9 @@ void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Back_ChannelTrack_Lower() I don't have a slave to use. Ignoring.");
         return;
     }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
 
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_PREVIOUS);
 }
@@ -368,6 +384,9 @@ void Xine_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *p
         return;
     }
 
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+
     m_pXineSlaveControl->selectNextButton(iStreamID);
 }
 
@@ -388,6 +407,9 @@ void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *p
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Prev() I don't have a slave to use. Ignoring.");
         return;
     }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
 
 	m_pXineSlaveControl->selectPrevButton(iStreamID);
 }
@@ -421,6 +443,9 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
        return;
     }
 
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+
 	*pData = NULL;
     *iData_Size = 0;
 
@@ -450,6 +475,9 @@ void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_R
        g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Goto_Media_Menu() I don't have a slave to use. Ignoring.");
        return;
     }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
 
 	if  ( iMenuType != 0 && iMenuType != 1 && iMenuType != 2 )
 		iMenuType = 0;
@@ -483,6 +511,9 @@ void Xine_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Enable_Broadcasting() I don't have a slave to use. Ignoring.");
         return;
     }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
 
 	int iBroadcastPort;
 
@@ -518,6 +549,9 @@ void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,in
         return;
     }
 
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+
 	m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, *iMediaPosition, *iMedia_Length);
 }
 
@@ -541,6 +575,9 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Simulate_Mouse_Click() I don't have a slave to use. Ignoring.");
         return;
     }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
 
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->simulateMouseClick(iPosition_X, iPosition_Y);
@@ -582,6 +619,10 @@ void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Up() I don't have a slave to use. Ignoring.");
         return;
     }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_UP);
 	// m_pXineSlaveControl->simulateKeystroke(BUTTON_Up_Arrow_CONST);
@@ -602,6 +643,9 @@ void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Down() I don't have a slave to use. Ignoring.");
         return;
     }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
 
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_DOWN);
@@ -624,6 +668,10 @@ void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
         return;
     }
 
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+
 	// m_pXineSlaveControl->simulateKeystroke(BUTTON_Left_Arrow_CONST);
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_LEFT);
@@ -644,6 +692,9 @@ void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Right() I don't have a slave to use. Ignoring.");
         return;
     }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
 
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_RIGHT);

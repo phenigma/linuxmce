@@ -290,6 +290,7 @@ bool SlimCommandHandler::processStrmCommand()
 	switch(protocolCommand.data.stream.command)
 	{
 		case STREAM_START:   return startStreamingClient();
+		case STREAM_PAUSE:   return pauseStreamingClient();
 		case STREAM_UNPAUSE: return unpauseStreamingClient();
 		case STREAM_QUIT: 	 return quitStreamingClient();
 		default:
@@ -684,6 +685,20 @@ bool SlimCommandHandler::startStreamingClient()
 	return true;
 }
 
+bool SlimCommandHandler::pauseStreamingClient()
+{
+	SlimDataHandler *pSlimDataHandler = getSlimServerClient()->getSlimDataHandler();
+	string strHostName = getSlimServerClient()->getHostName();
+
+	if ( ! pSlimDataHandler->pausePlayer() || ! doStatus("STMp") )
+	{
+		pSlimDataHandler->closeCommunication();
+		return false;
+	}
+
+	return true;
+}
+
 bool SlimCommandHandler::unpauseStreamingClient()
 {
 	SlimDataHandler *pSlimDataHandler = getSlimServerClient()->getSlimDataHandler();
@@ -710,7 +725,7 @@ bool SlimCommandHandler::unpauseStreamingClient()
 
 	pSlimDataHandler->setAutoStart(protocolCommand.data.stream.autoStart != '0');
 
-	if ( ! pSlimDataHandler->startPlayer() || ! doStatus("STMr") )
+	if ( ! pSlimDataHandler->unpausePlayer() || ! doStatus("STMr") )
 	{
 		pSlimDataHandler->closeCommunication();
 		return false;

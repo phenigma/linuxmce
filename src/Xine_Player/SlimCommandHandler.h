@@ -143,6 +143,7 @@ private:
 
 	bool quitStreamingClient();
 	bool startStreamingClient();
+	bool pauseStreamingClient();
 	bool unpauseStreamingClient();
 
 public:

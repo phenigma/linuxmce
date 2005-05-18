@@ -54,36 +54,40 @@ private:
 	bool m_bMachineIsWaiting;
 	bool m_bNeedToQuit;
 
+	void machineLoop();
+
 protected:
 	State STATE_START;
 	State STATE_WAITING;
 	State STATE_QUIT;
 
-	virtual void machineLoop();
+	void waitConditionsChange();
+	void signalConditionsChange();
 
-	virtual void waitConditionsChange();
-	virtual void signalConditionsChange();
+	bool machineIsWaiting();
 
-	virtual bool machineIsWaiting();
-
-	virtual void emptyTransition(State &pSourceState, State &pTargetState);
-	virtual State *findNextState(State *pCurrentState) = 0;
+	void emptyTransition(State &pSourceState, State &pTargetState);
 
 	bool getNeedToQuit();
 	void setNeedToQuit(bool bNeedToQuit);
 
 	State& getCurrentState();
-public:
 
+	void addTransition(ThreadedStateMachine::State &sourceState, ThreadedStateMachine::State &targetState, MachineTransitionFunction transition);
+	void setFinalState(ThreadedStateMachine::State &finalState);
+	void setInitialState(ThreadedStateMachine::State &initialState);
+
+	void stopMachine();
+	void startMachine();
+	void restartMachine();
+
+	virtual State *findNextState(State *pCurrentState) = 0;
+	virtual void resetMachine();
+
+public:
 	ThreadedStateMachine();
 
     virtual ~ThreadedStateMachine();
-
-	virtual void addTransition(ThreadedStateMachine::State &sourceState, ThreadedStateMachine::State &targetState, MachineTransitionFunction transition);
-	virtual void setFinalState(ThreadedStateMachine::State &finalState);
-	virtual void setInitialState(ThreadedStateMachine::State &initialState);
-
-	virtual void startMachine();
 };
 
 #endif

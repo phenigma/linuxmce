@@ -352,7 +352,7 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
 /**
  * @brief play the stream with the streamID identifier.
  */
-bool XineSlaveWrapper::playStream(int streamID, int mediaPosition)
+bool XineSlaveWrapper::playStream(int streamID, int mediaPosition, bool playbackStopped)
 {
 	XineStream *xineStream = getStreamForId(streamID, "XineSlaveWrapper::playStream() could not play an empty stream!");
 
@@ -367,12 +367,16 @@ bool XineSlaveWrapper::playStream(int streamID, int mediaPosition)
 
 		g_pPlutoLogger->Write(LV_STATUS, "Starting audio stream from position: %d", mediaPosition);
 		xine_play(xineStream->m_pStream, mediaPosition, 0);
-		xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
+
+		if ( playbackStopped )
+			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
+		else
+			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
 		return true;
 	}
     else
 	{
-		xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
+		xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID, false);
 		return false;
 	}
 }

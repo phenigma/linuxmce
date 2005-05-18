@@ -84,11 +84,16 @@ bool SlimServerClient::isConnected(int iStreamID)
 
 void SlimServerClient::disconnectFromServer(int iStreamID)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::disconnectFromServer() Called for stream %d", iStreamID);
+
 	if ( ! isConnected(iStreamID) )
 		return;
 
-	getSlimDataHandler()->closeConnection();
-	getSlimCommandHandler()->closeConnection();
+	if ( getSlimDataHandler()->isCommunicationOpen() )
+		getSlimDataHandler()->closeConnection();
+
+	if  (getSlimCommandHandler()->isCommunicationOpen() )
+		getSlimCommandHandler()->closeConnection();
 }
 
 void SlimServerClient::setXineSlaveMutex(pluto_pthread_mutex_t *pXineSlaveMutex)
@@ -339,24 +344,28 @@ std::string SlimServerClient::getFifoName()
 	return StringUtils::Format("%d", m_pXineSlave->getDeviceId());
 }
 
-bool SlimServerClient::createDataReader(string fifoFileName)
+bool SlimServerClient::createDataReader(string fifoFileName, bool autostart)
 {
 	PLUTO_SAFETY_LOCK(xineSlaveMutex, *m_pXineSlaveMutex);
 	g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::createDataReader() called");
 
-	return m_pXineSlave->createStream(string("fifo://") + fifoFileName, m_iStreamID, m_iRequestingObjectID);
+	return
+		   m_pXineSlave->createStream(string("fifo://") + fifoFileName, m_iStreamID, m_iRequestingObjectID)
+		&& m_pXineSlave->playStream(m_iStreamID, 0, autostart);
 }
 
-bool SlimServerClient::startDataReader(bool autostart)
+bool SlimServerClient::pauseDataReader()
 {
 	PLUTO_SAFETY_LOCK(xineSlaveMutex, *m_pXineSlaveMutex);
+	m_pXineSlave->pauseMediaStream(m_iStreamID);
+	return true;
+}
 
-	g_pPlutoLogger->Write(LV_STATUS, "SlimServerClient::createDataReader() called with autostart %d", autostart);
-
-	if ( autostart )
-		return m_pXineSlave->playStream(m_iStreamID, 0);
-
-	return false;
+bool SlimServerClient::unpauseDataReader()
+{
+	PLUTO_SAFETY_LOCK(xineSlaveMutex, *m_pXineSlaveMutex);
+	m_pXineSlave->pauseMediaStream(m_iStreamID);
+	return true;
 }
 
 void SlimServerClient::setMediaStreamID(int iStreamID)

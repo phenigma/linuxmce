@@ -109,7 +109,9 @@ public:
 	bool initDataProcessing();
 
 	bool createPlayer();
-	bool startPlayer();
+// 	bool startPlayer();
+	bool pausePlayer();
+	bool unpausePlayer();
 
 	bool readStreamData();
 

@@ -138,19 +138,49 @@ bool SlimDataHandler::initDataProcessing()
 bool SlimDataHandler::createPlayer()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::createPlayer() entry");
-	bool bResult = getSlimServerClient()->createDataReader(fifoPipeName);
-	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::createPlayer() exit");
 
-	return bResult;
+	if ( ! getSlimServerClient()->createDataReader(fifoPipeName, isAutoStart()) )
+		return false;
+
+	if ( isAutoStart() )
+		setPlayerState(PlayerState::PLAYER_PLAYING);
+	else
+		setPlayerState(PlayerState::PLAYER_BUFFERING);
+
+	return true;
 }
 
-bool SlimDataHandler::startPlayer()
+// bool SlimDataHandler::startPlayer()
+// {
+// 	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::startPlayer() entry [state: %s])", PlayerState::describeState(getPlayerState()).c_str());
+// 	if ( getPlayerState() == PlayerState::PLAYER_PLAYING)
+// 		return true;
+//
+// 	if ( ! getSlimServerClient()->startDataReader(isAutoStart()) )
+// 		return false;
+//
+// 	setPlayerState(PlayerState::PLAYER_PLAYING);
+// 	return true;
+// }
+
+bool SlimDataHandler::pausePlayer()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::startPlayer() entry [state: %s])", PlayerState::describeState(getPlayerState()).c_str());
+	if ( getPlayerState() == PlayerState::PLAYER_PAUSED )
+		return true;
+
+	if ( ! getSlimServerClient()->pauseDataReader() )
+		return false;
+
+	setPlayerState(PlayerState::PLAYER_PAUSED);
+	return true;
+}
+
+bool SlimDataHandler::unpausePlayer()
+{
 	if ( getPlayerState() == PlayerState::PLAYER_PLAYING)
 		return true;
 
-	if ( ! getSlimServerClient()->startDataReader(isAutoStart()) )
+	if ( ! getSlimServerClient()->unpauseDataReader() )
 		return false;
 
 	setPlayerState(PlayerState::PLAYER_PLAYING);
@@ -424,7 +454,11 @@ bool SlimDataHandler::closeConnection()
 
 	getSlimServerClient()->getDataReaderThread()->removedSocketOperationListenerForSocket(getCommunicationSocket(), this);
 
-	return closeCommunication();
+	closeCommunication();
+
+	resetMachine();
+
+	return true;
 }
 
 bool SlimDataHandler::openConnection()

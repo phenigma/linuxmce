@@ -39,28 +39,37 @@ ThreadedStateMachine::ThreadedStateMachine()
 
 ThreadedStateMachine::~ThreadedStateMachine()
 {
+	stopMachine();
+}
+
+void ThreadedStateMachine::stopMachine()
+{
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::stopMachine() entry point.", pthread_self());
 	setNeedToQuit(true);
+	signalConditionsChange();
 	pthread_join(runningThread, NULL);
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::stopMachine() exit point.", pthread_self());
 }
 
-bool ThreadedStateMachine::getNeedToQuit()
+void ThreadedStateMachine::resetMachine()
 {
-	return m_bNeedToQuit;
-}
-
-void ThreadedStateMachine::setNeedToQuit(bool bNeedToQuit)
-{
-	m_bNeedToQuit = bNeedToQuit;
-}
-
-void ThreadedStateMachine::setInitialState(ThreadedStateMachine::State &initialState)
-{
-	m_pStateCurrent = &initialState;
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::resetMachine() entry point.", pthread_self());
+	setInitialState(STATE_START);
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::resetMachine() exit point.", pthread_self());
 }
 
 void ThreadedStateMachine::startMachine()
 {
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::startMachine() entry point.", pthread_self());
 	pthread_create(&runningThread, NULL, threadMachineLoop, this);
+	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::startMachine() exit point.", pthread_self());
+}
+
+void ThreadedStateMachine::restartMachine()
+{
+	stopMachine();
+	resetMachine();
+	startMachine();
 }
 
 void ThreadedStateMachine::signalConditionsChange()
@@ -98,6 +107,21 @@ void ThreadedStateMachine::waitConditionsChange()
 void ThreadedStateMachine::emptyTransition(State &pSourceState, State &pTargetState)
 {
 
+}
+
+bool ThreadedStateMachine::getNeedToQuit()
+{
+	return m_bNeedToQuit;
+}
+
+void ThreadedStateMachine::setNeedToQuit(bool bNeedToQuit)
+{
+	m_bNeedToQuit = bNeedToQuit;
+}
+
+void ThreadedStateMachine::setInitialState(ThreadedStateMachine::State &initialState)
+{
+	m_pStateCurrent = &initialState;
 }
 
 ThreadedStateMachine::State& ThreadedStateMachine::getCurrentState()
@@ -153,4 +177,5 @@ void *ThreadedStateMachine::threadMachineLoop(void *parameters)
 
 	return NULL;
 }
+
 
