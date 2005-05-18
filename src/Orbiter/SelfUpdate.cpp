@@ -231,7 +231,12 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	string sUpdateName = m_pOrbiter->DATA_Get_Update_Name();
 	string sStoragePath = m_pOrbiter->DATA_Get_Path();
 	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
-	string sUpdateBinaryFilePath = sStoragePath + "/" + sUpdateName;
+	string sUpdateBinaryFilePath;
+    
+    if(sUpdateBinaryFilePath == "")
+        sUpdateBinaryFilePath = sUpdateName;
+    else
+        sUpdateBinaryFilePath = sStoragePath + "/" + sUpdateName;
 
 	string sCmdLine = "";
 
