@@ -25,7 +25,7 @@ SlimCommandHandler::SlimCommandHandler()
 	: SocketOperationListener("slim-command-handler")
 {
 // #ifdef DEBUG
-	bLogControlProtocol = true;
+	bLogControlProtocol = false;
 //#else
 //	bLogControlProtocol = false;
 //#endif

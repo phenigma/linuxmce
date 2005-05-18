@@ -61,6 +61,7 @@ void ThreadedStateMachine::resetMachine()
 void ThreadedStateMachine::startMachine()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::startMachine() entry point.", pthread_self());
+	setNeedToQuit(false);
 	pthread_create(&runningThread, NULL, threadMachineLoop, this);
 	g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::startMachine() exit point.", pthread_self());
 }

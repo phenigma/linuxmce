@@ -39,6 +39,7 @@ class Xine_Player;  /**< to be able to use it in declarations */
 */
 class XineSlaveWrapper
 {
+public:
     typedef enum _playbackSpeedEnum
 	{
 		PLAYBACK_REW_32     = -32000,
@@ -62,6 +63,7 @@ class XineSlaveWrapper
 		PLAYBACK_FF_32      =  32000,
 	} PlayBackSpeedType;
 
+private:
 	class XineStream
     {
         int                 m_iStreamID;

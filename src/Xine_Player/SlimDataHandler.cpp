@@ -177,7 +177,8 @@ bool SlimDataHandler::pausePlayer()
 
 bool SlimDataHandler::unpausePlayer()
 {
-	if ( getPlayerState() == PlayerState::PLAYER_PLAYING)
+	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::unpausePlayer() entry");
+	if ( getPlayerState() == PlayerState::PLAYER_PLAYING )
 		return true;
 
 	if ( ! getSlimServerClient()->unpauseDataReader() )
@@ -456,7 +457,8 @@ bool SlimDataHandler::closeConnection()
 
 	closeCommunication();
 
-	resetMachine();
+	restartMachine();
+	resetBuffer();
 
 	return true;
 }
@@ -776,4 +778,11 @@ bool SlimDataHandler::isPlayerCreated()
 void SlimDataHandler::setPlayerCreated(bool playerCreated)
 {
 	m_isPlayerCreated = playerCreated;
+}
+
+void SlimDataHandler::resetMachine()
+{
+	ThreadedStateMachine::resetMachine();
+	setPlayerCreated(false);
+	setPlayerState(PlayerState::PLAYER_DISCONNECTED);
 }

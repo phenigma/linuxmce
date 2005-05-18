@@ -97,6 +97,7 @@ protected:
 	virtual void quitMachine(State &fromState, State &toState);
 
 	virtual State *findNextState(State *pCurrentState);
+	virtual void resetMachine();
 public:
 
     SlimDataHandler();

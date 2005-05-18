@@ -54,7 +54,7 @@ Xine_Player.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) M
 
 Xine_Player: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
 	$(CXX) -o $(MYNAME) $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
-#	mv ../bin/$@ ../bin/$@.bak
+	mv ../bin/$@ ../bin/$@.bak
 	cp $@ ../bin
 	./post_make.sh $@
 
