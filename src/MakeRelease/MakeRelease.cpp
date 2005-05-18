@@ -1381,7 +1381,7 @@ string Makefile = "none:\n"
 "\t\n"
 "\n"
 "install:\n"
-"\tcp -a root/* $(DESTDIR)\n";
+"\tcp -a root/* $(DESTDIR) || true\n";
 
 	f = fopen((Dir + "/Makefile").c_str(), "w");
 	if (!f)
