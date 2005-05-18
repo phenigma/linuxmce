@@ -401,7 +401,7 @@ void PlutoLock::Relock()
 	if( !m_bReleased )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL, "failure relocking(%p): %s:%d %s",&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
+			g_pPlutoLogger->Write(LV_CRITICAL, "failure relocking(%p): (>%d) %s:%d %s",&m_pMyLock->mutex, m_LockNum, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
 
 		return; // We don't have a lock
 	}
@@ -410,7 +410,7 @@ void PlutoLock::Relock()
 	if( !m_bLogErrorsOnly )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_LOCKING, "relocking (%p) %s", &m_pMyLock->mutex,m_sMessage.c_str());
+			g_pPlutoLogger->Write(LV_LOCKING, "relocking (%p) (>%d) %s", &m_pMyLock->mutex,m_LockNum,m_sMessage.c_str());
 
 		DoLock();
 	}
