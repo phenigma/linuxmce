@@ -678,6 +678,13 @@ TInt CPlutoMOAppUi::DoIdle()
 
 		LOG(iCurType);
 
+	
+		//just open vali's wml page for security
+		iURL.Copy(iURLClone);
+		iURL.Append(string("security=0").Des());
+		LaunchBrowser();
+
+		/*
 		//test
 		if(NULL == iPlutoEventView)
 		{
@@ -703,6 +710,7 @@ TInt CPlutoMOAppUi::DoIdle()
 		task.BringToForeground();
 
 		LOG("Bring to foreground\n");
+		*/
 
 
 		/*

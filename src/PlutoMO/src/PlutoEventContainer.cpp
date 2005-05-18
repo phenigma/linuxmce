@@ -78,6 +78,24 @@ TKeyResponse CPlutoEventContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEv
 	{
 		switch(aKeyEvent.iScanCode)		
 		{
+			case 0x31: //reset the alarm 
+				break;
+			case 0x32: //ignore the alarm 
+				break;
+			case 0x33: //fire an SOS event
+				break;
+			case 0x34: //notify the neibors
+				break;
+			case 0x35: //speak to the person in the house
+				break;
+			case 0x36: //go to the regular vmc remote control
+				TFileName file_name;
+				file_name.Append(pApp->m_sPlutoVMC.Des());
+				pApp->OpenVMC(false, file_name, NULL);
+				pApp->m_bPlutoEventVisible = false;
+				MakeVisible(false);
+				break;
+			/*
 			case 0x31:	 //go to pluto control panel (the browser)
 			{
 				pApp->LaunchBrowser();
@@ -103,6 +121,7 @@ TKeyResponse CPlutoEventContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEv
 				MakeVisible(false);
 				break;
 			} 
+			*/
 		}
 	}
 

@@ -324,7 +324,7 @@ void RenderMenu::DoRender()
 					for(int iLineNum=0;iLineNum<pList->m_iMaxItemsPerScreen;++iLineNum)
 					{
 						string Line = StringUtils::Tokenize(Text,"\n",pos);
-                        StringUtils::Replace(&Line, "\r", "");
+                        StringUtils::Replace(Line, "\r", "");
 						if( Line.length()==0 )
 							break;
 
@@ -377,7 +377,7 @@ void RenderMenu::DoRender()
 					if( iLineNum==pList->m_iMaxItemsPerScreen )
 					{
 						string Line = StringUtils::Tokenize(Text,"\n",pos);
-                        StringUtils::Replace(&Line, "\r", "");
+                        StringUtils::Replace(Line, "\r", "");
 						m_bListIsMore=Line.length()!=0;
 					}
 					else
