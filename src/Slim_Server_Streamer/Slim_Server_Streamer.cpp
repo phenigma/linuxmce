@@ -456,7 +456,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
 				pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first,true);
 			}
-			else if ( strResult == macAddress + " mode pause" )
+			else if ( strResult == macAddress + " mode pause" && itStreamsToPlayers->second.first != STATE_PAUSE )
 			{
 				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_PAUSE);
 			}
@@ -601,12 +601,7 @@ void Slim_Server_Streamer::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Mes
 
 	// SendReceiveCommand(lastPlayerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
 
-	if ( GetStateForStream(iStreamID) == STATE_PAUSE )
-	{
-		SendReceiveCommand(sControlledPlayerMac + " pause 0");
-		SetStateForStream(iStreamID, STATE_PLAY);
-	}
-	else
+	if ( GetStateForStream(iStreamID) == STATE_PLAY )
 	{
 		SendReceiveCommand(sControlledPlayerMac + " pause 1");
 		SetStateForStream(iStreamID, STATE_PAUSE);
@@ -638,6 +633,17 @@ void Slim_Server_Streamer::CMD_Restart_Media(int iStreamID,string &sCMD_Result,M
 void Slim_Server_Streamer::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
+	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
+
+	string sControlledPlayerMac;
+	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
+		return;
+
+	if ( GetStateForStream(iStreamID) == STATE_PAUSE )
+	{
+		SendReceiveCommand(sControlledPlayerMac + " pause 0");
+		SetStateForStream(iStreamID, STATE_PLAY);
+	}
 }
 
 //<-dceag-c63-b->
