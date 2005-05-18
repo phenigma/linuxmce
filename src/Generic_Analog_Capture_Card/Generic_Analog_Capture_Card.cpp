@@ -271,12 +271,12 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 					<< "ffmpeg_cap_new on" << endl
 					<< "ffmpeg_timelapse 60" << endl
 					<< "ffmpeg_timelapse_mode daily" << endl
-					<< "ffmpeg_video_codec mpeg1" << endl
+					<< "ffmpeg_video_codec msmpeg4" << endl
 					/* snapshot config */ << endl
 					<< "snapshot_interval 60" << endl
 					<< "snapshot_filename %Y/%m/%d/%H/%M_%S" << endl
 					<< "jpeg_filename %Y/%m/%d/%H/%M_%S" << endl
-					<< "ffmpeg_filename %Y/%m/%d/%H/%M_%S" << endl
+					<< "ffmpeg_filename movies/%d_%m_%Y_%H_%M_%S" << endl
 					<< "timelapse_filename %Y/%m/%d-timelapse" << endl
 					<< endl << endl;
 	} catch(ifstream::failure e) {
