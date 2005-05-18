@@ -36,7 +36,8 @@
 namespace std
 {
 	%template(RDWMap) map<int, DCE::RubyDeviceWrapper>;	
-	%template(ParamMap) map<std::string, std::string>;
+	%template(IParamMap) map<int, std::string>;
+	%template(LParamMap) map<long, std::string>;
 }
 
 

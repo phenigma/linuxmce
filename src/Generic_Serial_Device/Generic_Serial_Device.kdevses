@@ -1,43 +1,97 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="12" >
-  <Doc0 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/Generic_Serial_Device.h" >
-   <View0 Type="Source" />
+ <DocsAndViews NumberOfDocuments="30" >
+  <Doc0 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubySerialIOWrapper.h" >
+   <View0 line="65" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/GSDMessageProcessing.h" >
-   <View0 Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyCommandWrapper.h" >
+   <View0 line="68" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/GSDMessageProcessing.cpp" >
-   <View0 Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/Generic_Serial_Device.cpp" >
+   <View0 line="145" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/Generic_Serial_Device.cpp" >
-   <View0 Type="Source" />
+  <Doc3 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDCECodeSupplier.h" >
+   <View0 line="57" Type="Source" />
   </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/Makefile" >
-   <View0 Type="Source" />
+  <Doc4 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyIOManager.cpp" >
+   <View0 line="25" Type="Source" />
   </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyEmbeder.h" >
-   <View0 Type="Source" />
+  <Doc5 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/Generic_Serial_Device.h" >
+   <View0 line="39" Type="Source" />
   </Doc5>
-  <Doc6 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyEmbeder.cpp" >
-   <View0 Type="Source" />
+  <Doc6 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyIOManager.h" >
+   <View0 line="43" Type="Source" />
   </Doc6>
-  <Doc7 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDCECodeSupplier.h" >
-   <View0 line="38" Type="Source" />
+  <Doc7 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyIOPool.cpp" >
+   <View0 line="96" Type="Source" />
   </Doc7>
-  <Doc8 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDCECodeSupplier.cpp" >
-   <View0 Type="Source" />
+  <Doc8 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyIOPool.h" >
+   <View0 line="32" Type="Source" />
   </Doc8>
-  <Doc9 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyIOManager.h" >
-   <View0 Type="Source" />
+  <Doc9 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/IOPool.h" >
+   <View0 line="27" Type="Source" />
   </Doc9>
-  <Doc10 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyIOManager.cpp" >
-   <View0 line="26" Type="Source" />
+  <Doc10 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/IOPool.cpp" >
+   <View0 line="37" Type="Source" />
   </Doc10>
-  <Doc11 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDeviceWrapper.h" >
-   <View0 line="50" Type="Source" />
+  <Doc11 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDCEEmbededClass.h" >
+   <View0 line="0" Type="Source" />
   </Doc11>
+  <Doc12 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDCEEmbededClass.cpp" >
+   <View0 line="34" Type="Source" />
+  </Doc12>
+  <Doc13 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDCECodeSupplier.cpp" >
+   <View0 line="72" Type="Source" />
+  </Doc13>
+  <Doc14 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyEmbededClass.h" >
+   <View0 line="93" Type="Source" />
+  </Doc14>
+  <Doc15 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyCommandWrapper.cpp" >
+   <View0 line="22" Type="Source" />
+  </Doc15>
+  <Doc16 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/LoopStateMachine.h" >
+   <View0 line="45" Type="Source" />
+  </Doc16>
+  <Doc17 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/LoopStateMachine.cpp" >
+   <View0 line="60" Type="Source" />
+  </Doc17>
+  <Doc18 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/SerialIOConnection.h" >
+   <View0 line="25" Type="Source" />
+  </Doc18>
+  <Doc19 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/SerialIOConnection.cpp" >
+   <View0 line="62" Type="Source" />
+  </Doc19>
+  <Doc20 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/NetworkIOConnection.cpp" >
+   <View0 line="90" Type="Source" />
+  </Doc20>
+  <Doc21 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/NetworkIOConnection.h" >
+   <View0 line="0" Type="Source" />
+  </Doc21>
+  <Doc22 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDeviceWrapper.h" >
+   <View0 line="72" Type="Source" />
+  </Doc22>
+  <Doc23 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubySerialIOConnectionWrapper.h" >
+   <View0 line="19" Type="Source" />
+  </Doc23>
+  <Doc24 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubySerialIOConnectionWrapper.cpp" >
+   <View0 line="0" Type="Source" />
+  </Doc24>
+  <Doc25 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/BufferedIOConnection.h" >
+   <View0 line="58" Type="Source" />
+  </Doc25>
+  <Doc26 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/BufferedIOConnection.cpp" >
+   <View0 line="0" Type="Source" />
+  </Doc26>
+  <Doc27 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/IOUtils.h" >
+   <View0 line="0" Type="Source" />
+  </Doc27>
+  <Doc28 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/IOUtils.cpp" >
+   <View0 line="19" Type="Source" />
+  </Doc28>
+  <Doc29 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/Generic_Serial_Device/RubyDeviceWrapper.cpp" >
+   <View0 line="23" Type="Source" />
+  </Doc29>
  </DocsAndViews>
  <pluginList>
   <kdevbookmarks>

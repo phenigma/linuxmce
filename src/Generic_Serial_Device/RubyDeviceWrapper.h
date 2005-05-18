@@ -43,17 +43,17 @@ public:
 		devtemplid_ = devtemplid;
 	}
 	
-	const char* getData(const char* dataname) {
-		return devdata_[dataname].c_str();
+	const std::map<int, std::string>& getData() {
+		return devdata_;
 	}
-	void setData(const char* dataname, const char* datavalue) {
-		devdata_[dataname] = datavalue;
+	void setData(const std::map<int, std::string>& devdata) {
+		devdata_ = devdata;
 	}
-
-	std::map<int, RubyDeviceWrapper>& getChildDevices() {
+	
+	std::map<int, DCE::RubyDeviceWrapper>& getChildDevices() {
 		return childdevices_;
 	}
-	void setChildDevices(std::map<int, RubyDeviceWrapper>& devices) {
+	void setChildDevices(std::map<int, DCE::RubyDeviceWrapper>& devices) {
 		childdevices_ = devices;
 	}
 
@@ -63,8 +63,8 @@ public:
 public:
 	int devid_;
 	int devtemplid_;
-	std::map<std::string, std::string> devdata_;
-	std::map<int, RubyDeviceWrapper> childdevices_; /*child device*/
+	std::map<int, std::string> devdata_;
+	std::map<int, DCE::RubyDeviceWrapper> childdevices_; /*child device*/
 };
 
 };

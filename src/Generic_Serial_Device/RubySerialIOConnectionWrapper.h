@@ -36,6 +36,9 @@ public:
 	RecvDelimited(const char* delimbuff, unsigned int delimsize, int timeout) {
 		return BufferedIOConnection::Recv(delimbuff, delimsize, timeout);
 	}
+	void UndoRecv(const char* buff, unsigned int size) {
+		BufferedIOConnection::UndoRecv(buff, size);
+	}
 	int Send(const char* buff, unsigned int size) {
 		return BufferedIOConnection::Send(buff, size);
 	}

@@ -76,9 +76,12 @@ SerialIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 		g_pPlutoLogger->Write(LV_STATUS, "Receiving buffer from %s with max size %d and timeout %d...", 
 									serport_.c_str(), size, timeout);
 		int retsize = psp_->Read(buff, size, timeout);
-		if(retsize <= 0) {
-			Close();		
+		if(retsize == 0) {
 			g_pPlutoLogger->Write(LV_STATUS, "Received EOF. Closing Connection.");
+			Close();		
+		} else
+		if(retsize < 0) {
+			g_pPlutoLogger->Write(LV_STATUS, "Timeout receiving data.");
 		} else {
 			g_pPlutoLogger->Write(LV_STATUS, "Received buffer from %s: <%s>", 
 									serport_.c_str(), IOUtils::FormatHexBuffer(buff, retsize).c_str());

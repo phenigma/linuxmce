@@ -16,6 +16,8 @@
 #include "DCE/Message.h"
 #include "DCE/Logger.h"
 
+#include "pluto_main/Define_Command.h"
+
 #include <ruby.h>
 
 using namespace std;
@@ -43,7 +45,9 @@ RubyDCEEmbededClass::~RubyDCEEmbededClass()
 void 
 RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	if(!pcs_->isCmdImplemented(pMessage->m_dwID)) {
-		g_pPlutoLogger->Write(LV_STATUS, "Command %d not supported.", pMessage->m_dwID);
+		if(pMessage->m_dwID != COMMAND_Process_IDLE_CONST) {
+			g_pPlutoLogger->Write(LV_STATUS, "Command %d not supported.", pMessage->m_dwID);
+		}
 		return;
 	}
 	

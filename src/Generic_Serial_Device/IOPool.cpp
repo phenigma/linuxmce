@@ -27,6 +27,15 @@ IOPool::~IOPool() {
 }
 
 bool 
+IOPool::handleStartup() {
+	IOConnection* pconn = getConnection();
+	if(pconn) {
+		pconn->Open();
+	}
+	return LoopStateMachine::handleStartup();
+}
+
+bool 
 IOPool::handleIteration() {
 	IOConnection* pconn = getConnection();
 	if(!pconn) {
@@ -55,6 +64,15 @@ IOPool::handleIteration() {
 		}
 	}
 	return LoopStateMachine::handleIteration();
+}
+
+void 
+IOPool::handleTerminate() {
+	LoopStateMachine::handleTerminate();
+	IOConnection* pconn = getConnection();
+	if(pconn) {
+		pconn->Close();
+	}
 }
 
 };

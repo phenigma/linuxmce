@@ -35,7 +35,9 @@ public:
 	
 	/*pool handling*/
 public:
+	virtual bool handleStartup();
 	virtual bool handleIteration();
+	virtual void handleTerminate();
 
 	/*states*/
 protected:

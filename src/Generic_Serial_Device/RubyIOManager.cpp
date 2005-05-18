@@ -83,23 +83,23 @@ RubyIOManager::addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata) {
 	switch(porttype) {
 		/*** Serial Device Initialization *********************************/
 		case PORTTYPE_SERIAL: {
-			string serport;
 			int bps = 9600;
 			
-			if(sport.find("/dev/") == 0) {
-				sport.erase(0, strlen("/dev/"));
+			string serport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST];
+			if(serport.find("/dev/") == 0) {
+				serport.erase(0, strlen("/dev/"));
 			}
 			
-			/*/dev/ttyS0(9600)*/
-			/*parse conn params*/
-			int lpar = sport.find("("), rpar = sport.find(")", lpar + 1);
-			if(lpar > 0 && rpar > 0) {
-				bps = atoi(sport.substr(lpar + 1, rpar - lpar - 1).c_str());
-				serport = sport.substr(0, lpar);
+			string sbaudrate = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_BaudRate_CONST];
+			if(!sbaudrate.empty() && sbaudrate[0] == 'B') {
+				int tbps = atoi(sbaudrate.substr(1, sbaudrate.length() -1).c_str());
+				if(tbps != 0) {
+					bps = tbps;
+				}
 			} else {
-				serport = sport;
+				g_pPlutoLogger->Write(LV_STATUS, "BaudRate not specified or invalid, using default: %d.", bps);
 			}
-		
+			
 			g_pPlutoLogger->Write(LV_STATUS, "Using port %s, at bps: %d.", serport.c_str(), bps);
 			
 			pnewpool = new SerialIOPool();

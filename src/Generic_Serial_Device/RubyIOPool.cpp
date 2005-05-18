@@ -93,7 +93,9 @@ RubyIOPool::PopulateDevice(DeviceData_Impl* pdevdata, Database_pluto_main* pdb, 
 	devwrap.setDevId(pdevdata->m_dwPK_Device);
 	devwrap.setDevTemplId(pdevdata->m_dwPK_DeviceTemplate);
 
-	int numparams = 0;	
+	int numparams = pdevdata->m_mapParameters.size();	
+	devwrap.setData(pdevdata->m_mapParameters);
+	/*
 	std::map<int, string>::iterator it = pdevdata->m_mapParameters.begin();
 	while(it != pdevdata->m_mapParameters.end()) {
 		Row_DeviceData *p_Row_DeviceData = pdb->DeviceData_get()->GetRow((*it).first);
@@ -105,7 +107,7 @@ RubyIOPool::PopulateDevice(DeviceData_Impl* pdevdata, Database_pluto_main* pdb, 
 		else
 			devwrap.setData(FileUtils::ValidCPPName(p_Row_DeviceData->Description_get()).c_str(), (*it).second.c_str());
 		it++; numparams++;
-	}
+	}*/
 	g_pPlutoLogger->Write(LV_STATUS, "Added %d data params to device %d.", numparams, pdevdata->m_dwPK_Device);
 		
 	std::map<int, RubyDeviceWrapper>& childdevices = devwrap.getChildDevices();
