@@ -515,13 +515,13 @@ void Command_Impl::QueueMessageToRouter( Message *pMessage )
 	if( m_bLocalMode )
 		return;
 
-g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue adding Type %d ID %d To %d to queue of size: %d",
+g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) adding Type %d ID %d To %d to queue of size: %d",m_dwPK_Device,
 pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_listMessageQueue.size());
 	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
 	m_listMessageQueue.push_back( pMessage );
 	mq.Release();
 	pthread_cond_broadcast( &m_listMessageQueueCond );
-g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue done adding Type %d ID %d To %d to queue of size: %d",
+g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) done adding Type %d ID %d To %d to queue of size: %d",m_dwPK_Device,
 pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_listMessageQueue.size());
 }
 
@@ -530,12 +530,12 @@ void Command_Impl::ProcessMessageQueue()
 	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
 	while( !m_bQuit )
 	{
-g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue in while loop with %d messages",
+g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) in while loop with %d messages",m_dwPK_Device,
 (int) m_listMessageQueue.size());
 		while( m_listMessageQueue.size() == 0 )
 		{
 			mq.CondWait();
-g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue woke up with %d messages",
+g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) woke up with %d messages",m_dwPK_Device,
 (int) m_listMessageQueue.size());
 			if( m_bQuit )
 				return;
@@ -551,12 +551,12 @@ g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue woke up with %d messages",
 			copyMessageQueue.push_back( *itMessageQueue );
 		}
 
-g_pPlutoLogger->Write(LV_WARNING,"copied queue and clearing it m_listMessageQueue has %d messages",
+g_pPlutoLogger->Write(LV_WARNING,"copied queue and clearing it m_listMessageQueue(%d) has %d messages",m_dwPK_Device,
 (int) m_listMessageQueue.size());
 
 		m_listMessageQueue.clear();
 		mq.Release();
-g_pPlutoLogger->Write(LV_WARNING,"sending copy of m_listMessageQueue with %d messages",
+g_pPlutoLogger->Write(LV_WARNING,"sending copy of m_listMessageQueue(%d) with %d messages",m_dwPK_Device,
 (int) copyMessageQueue.size());
 		for( itMessageQueue = copyMessageQueue.begin(); itMessageQueue != copyMessageQueue.end(); ++itMessageQueue )
 		{
@@ -564,7 +564,7 @@ g_pPlutoLogger->Write(LV_WARNING,"sending copy of m_listMessageQueue with %d mes
 			m_pEvent->SendMessage( *itMessageQueue );
 		}
 		mq.Relock();
-g_pPlutoLogger->Write(LV_WARNING,"sendt copy of m_listMessageQueue with %d messages",
+g_pPlutoLogger->Write(LV_WARNING,"sendt copy of m_listMessageQueue(%d) with %d messages",m_dwPK_Device,
 (int) copyMessageQueue.size());
 	}
 }
