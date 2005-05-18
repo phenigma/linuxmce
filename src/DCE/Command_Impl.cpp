@@ -517,7 +517,7 @@ void Command_Impl::QueueMessageToRouter( Message *pMessage )
 
 g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue adding Type %d ID %d To %d to queue of size: %d",
 pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_listMessageQueue.size());
-	PLUTO_SAFETY_LOCK_ERRORSONLY( mq, m_listMessageQueueMutex );
+	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
 	m_listMessageQueue.push_back( pMessage );
 	mq.Release();
 	pthread_cond_broadcast( &m_listMessageQueueCond );
