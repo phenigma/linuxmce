@@ -44,7 +44,7 @@ case $diskType in
 	2)
 		command="nice -n 15 dd if=$sourceDevice of=\"/home/public/data/movies/$targetFileName.in-progress-dvd\" bs=10M"
 	;;
-	0|1)
+	0|1|6|7|8)
 		Dir="/home/public/data/music/$targetFileName"
 		command="nice -n 15 cdparanoia -d $sourceDevice \$Track - | flac -o $Dir/\$FileName.in-progress-flac -"
 	;;
@@ -65,7 +65,7 @@ if [[ "$diskType" == 2 ]]; then
 		/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_RESULT_FAILURE 35 "$targetFileName";
 		rm "/home/public/data/movies/$targetFileName.in-progress-dvd";
 	fi
-elif [[ "$diskType" == 0 || "$diskType" == 1 ]]; then
+elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" == 7 || "$diskType" == 8 ]]; then
 	mkdir -p "$Dir"
 	for File in ${trackList//|/ }; do
 		Track=${File%,*}
