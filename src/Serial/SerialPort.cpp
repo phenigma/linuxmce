@@ -84,30 +84,39 @@ CSerialPort::CSerialPort(string Port, unsigned BPS, eParityBitStop ParityBitStop
     {
     case 300:
         cfsetispeed(&t,B300);
+        cfsetospeed(&t,B300);
         break;
     case 1200:
         cfsetispeed(&t,B1200);
+        cfsetospeed(&t,B1200);
         break;
     case 2400:
         cfsetispeed(&t,B2400);
+        cfsetospeed(&t,B2400);
         break;
     case 4800:
         cfsetispeed(&t,B4800);
+        cfsetospeed(&t,B4800);
         break;
     case 9600:
         cfsetispeed(&t,B9600);
+        cfsetospeed(&t,B9600);
         break;
     case 19200:
         cfsetispeed(&t,B19200);
+        cfsetospeed(&t,B19200);
         break;
     case 38400:
         cfsetispeed(&t,B38400);
+        cfsetospeed(&t,B38400);
 	break;
     case 57600:
         cfsetispeed(&t,B57600);
+        cfsetospeed(&t,B57600);
 	break;
     case 115200:
         cfsetispeed(&t,B115200);
+        cfsetospeed(&t,B115200);
     default:
         throw string("Baud rate not supported");
     }
