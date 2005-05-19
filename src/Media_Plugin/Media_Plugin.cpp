@@ -2862,12 +2862,33 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string
 
 	EntertainArea *pEntertainArea = vectEntertainArea[0];
 
-	// If it's a cd and no tracks were specified, prompt the user
-	if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST && sTracks.size()==0 )
+	// If it's a cd and no tracks were specified, prompt the user, otherwise fill in the file names
+	if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 	{
-		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuCDTrackCopy_CONST),"","",false,true);
-		SendCommand(CMD_Goto_Screen);
-		return;
+		if( sTracks.size()==0 )
+		{
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuCDTrackCopy_CONST),"","",false,true);
+			SendCommand(CMD_Goto_Screen);
+			return;
+		}
+		else 
+		{
+			string sNewTracks="";
+			string::size_type pos=0;
+			while( pos<sTracks.size() && pos!=string::npos )
+			{
+				string sTrack = StringUtils::Tokenize(sTracks,"|",pos);
+				sNewTracks += sTrack;
+				int iTrack = atoi(sTrack.c_str());
+				if( iTrack && iTrack<=pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() && pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription.size() )
+					sNewTracks += "," + pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription + "|";
+				else
+					sNewTracks += ",Unknown " + sTrack + "|";
+g_pPlutoLogger->Write(LV_STATUS,"%s %d %s",sTrack.c_str(),iTrack,sNewTracks);
+			}
+g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
+			sTracks=sNewTracks;
+		}
 	}
 	// If we have a proper name (aka. non empty one) we need to look in the current entertainment area for the disk drive and forward the received command to him.
 	MediaDevice *pDiskDriveMediaDevice = NULL;
