@@ -1415,7 +1415,7 @@ public:
 
 	}
 
-	static void NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory = true );
+	static void NeedToChangeScreens( class Orbiter *pOrbiter, ScreenHistory *pScreenHistory, bool bAddToHistory = true );
 };
 
 //<-dceag-end-b->

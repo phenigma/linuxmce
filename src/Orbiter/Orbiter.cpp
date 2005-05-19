@@ -230,7 +230,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 		m_pCacheImageManager = new CacheImageManager(m_sCacheFolder, m_iCacheSize);
 
     m_iVideoFrameInterval = DATA_Get_VideoFrameInterval();
-    if(!m_iVideoFrameInterval) //not device data doesn't exist or it's 0
+    if(!m_iVideoFrameInterval) //this device data doesn't exist or it's 0
         m_iVideoFrameInterval = 6000; //6 sec
 
 	pthread_cond_init(&m_MaintThreadCond, NULL);
@@ -4593,7 +4593,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
 			GotoScreen( m_sMainMenu );
 		}
 		else
-			NeedToRender::NeedToChangeScreens( pScreenHistory, false );
+			NeedToRender::NeedToChangeScreens( this, pScreenHistory, false );
 
 	}
 	else
@@ -4684,7 +4684,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
     // See if we need to store the variables on this screen,  so we restore them in case of a go back
     if(  bStore_Variables  )
         CMD_Store_Variables(  );
-	NeedToRender::NeedToChangeScreens( pScreenHistory_New );
+	NeedToRender::NeedToChangeScreens( this, pScreenHistory_New );
 }
 
 //<-dceag-c6-b->
@@ -5895,7 +5895,7 @@ NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
     g_iDontRender++;
 }
 
-void NeedToRender::NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory )
+void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScreenHistory, bool bAddToHistory )
 {
 g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHistory->m_pObj->m_ObjectID.c_str());
 	m_pScreenHistory = pScreenHistory;
@@ -5904,7 +5904,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHis
 	//purge pending tasks, if need it.  Do it here, so that things will happen in the right order.
 	//ie: CMD_GotoScreen, CMD_SelectObject. The real need to change screens won't get called until
 	//after all messages are processed, wiping out CMD_SelectObject
-	Orbiter *pOrbiter = (Orbiter *) g_pCommand_Impl;
+	//Orbiter *pOrbiter = m_pOrbiter(Orbiter *) g_pCommand_Impl;
 	if( pOrbiter )
 	{
 		PLUTO_SAFETY_LOCK( pm, pOrbiter->m_MaintThreadMutex );
