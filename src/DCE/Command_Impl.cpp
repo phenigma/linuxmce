@@ -519,8 +519,8 @@ g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) adding Type %d ID %d To
 pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_listMessageQueue.size());
 	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
 	m_listMessageQueue.push_back( pMessage );
-	mq.Release();
 	pthread_cond_broadcast( &m_listMessageQueueCond );
+	mq.Release();
 g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) done adding Type %d ID %d To %d to queue of size: %d",m_dwPK_Device,
 pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_listMessageQueue.size());
 }
