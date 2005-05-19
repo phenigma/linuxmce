@@ -401,7 +401,12 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 	case 'R':
 	case 'N':
 	case 'V':
-		SetStatus("REBOOTING",m_dwPK_Device_MD);
+		if( sForce[0]=='R' )
+			SetStatus("REBOOTING",m_dwPK_Device_MD);
+		else if( sForce[0]=='N' )
+			SetStatus("MD_REBOOTING",m_dwPK_Device_MD);
+		else if( sForce[0]=='V' )
+			SetStatus("PC_REBOOTING",m_dwPK_Device_MD);
 
 #ifndef WIN32
 		g_pPlutoLogger->Write(LV_STATUS,"Calling reboot");
