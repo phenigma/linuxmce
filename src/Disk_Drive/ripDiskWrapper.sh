@@ -53,16 +53,16 @@ esac
 
 echo $command;
 if [ "$command" == "" ]; then 
-	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID $mediaPluginDeviceID 2 35 20 $result 35 "$targetFileName";
+	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $result 35 "$targetFileName";
 	exit;
 fi
 
 if [[ "$diskType" == 2 ]]; then
 	if eval $command; then
-		/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID $mediaPluginDeviceID 2 35 20 $ERR_SUCCESS 35 "$targetFileName";
+		/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_SUCCESS 35 "$targetFileName";
 		mv -f "/home/public/data/movies/$targetFileName.in-progress-dvd" "/home/public/data/movies/$targetFileName.dvd";
 	else
-		/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID $mediaPluginDeviceID 2 35 20 $ERR_RESULT_FAILURE 35 "$targetFileName";
+		/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_RESULT_FAILURE 35 "$targetFileName";
 		rm "/home/public/data/movies/$targetFileName.in-progress-dvd";
 	fi
 elif [[ "$diskType" == 0 || "$diskType" == 1 ]]; then
@@ -72,10 +72,10 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 ]]; then
 		FileName=${File#*,}
 #		if ! nice -n 15 cdparanoia -d $sourceDevice $Track - | flac -o $Dir/$FileName.in-progress-flac -; then
 		if ! eval $command; then
-			/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID $mediaPluginDeviceID 2 35 20 $ERR_RESULT_FAILURE 35 "$FileName"
+			/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_RESULT_FAILURE 35 "$FileName"
 			exit
 		fi
 		mv $Dir/$FileName.in-progress-flac $Dir/$FileName.flac
 	done
-	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID $mediaPluginDeviceID 2 35 20 $ERR_SUCCESS 35 "$targetFileName"
+	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_SUCCESS 35 "$targetFileName"
 fi
