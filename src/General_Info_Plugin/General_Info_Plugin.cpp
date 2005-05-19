@@ -425,7 +425,7 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string &s
 	if( sForce=="V" || sForce=="N" )
 	{
 		SetNetBoot(pDevice,sForce=="N");
-		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,pDevice->m_dwPK_Device,"R");
+		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,pDevice->m_dwPK_Device,sForce.c_str());
 		SendCommand(CMD_Halt_Device);
 	}
 	else
