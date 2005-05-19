@@ -17,10 +17,10 @@ Gen_Dev_Files = $(GENDEV)/MythTV_PlugInBase.cpp
 sources = Main.cpp MythTV_PlugIn.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS +=
-CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/../libs/Libraries
+CXXFLAGS += -fmessage-length=0
+CPPFLAGS += -DQT_THREAD_SUPPORT -I/usr/include/qt3 -I$(ROOT)/../libs/Libraries
 INTERNAL_LIBS_NAMES += pluto_main pluto_media
-EXTERNAL_LIBS_NAMES += qt-mt myth-0.17 mythtv-0.17
+EXTERNAL_LIBS_NAMES += qt-mt myth-0.18 mythtv-0.18
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \

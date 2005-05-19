@@ -15,13 +15,13 @@
 #include <qsqldatabase.h>
 #include <qsqlquery.h>
 #include <qsqlresult.h>
+#include <qmutex.h>
 
 #include <libmyth/mythcontext.h>
 #include <libmyth/mythdialogs.h>
 #include <libmythtv/programinfo.h>
 
 #include <libmythtv/remoteutil.h>
-
 
 using namespace DCE;
 
@@ -52,19 +52,12 @@ MythTvWrapper::~MythTvWrapper()
 
 bool MythTvWrapper::initMythTVGlobalContext()
 {
-    gContext = new MythContext(MYTH_BINARY_VERSION, false); /** we don't need X in the plugin */
+    gContext = new MythContext(MYTH_BINARY_VERSION); /** we don't need X in the plugin */
 
-    QSqlDatabase *db = QSqlDatabase::addDatabase("QMYSQL3");
-    if (!db)
+    g_pPlutoLogger->Write(LV_STATUS, "MythTvWrapper::initMythTVGlobalContext() MythContext object was created.");
+    if (!gContext->Init(false))
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Could not connect to mysql database");
-        return false;
-    }
-
-    g_pPlutoLogger->Write(LV_STATUS, "database object was created");
-    if (!gContext->OpenDatabase(db))
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Could not open mysql database");
+        g_pPlutoLogger->Write(LV_CRITICAL, "MythTvWrapper::initMythTVGlobalContext() Could not init the MythContext object.");
         return false;
     }
 
@@ -562,7 +555,6 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, 
     ProgramInfo *programInfo;
 
     programInfo = ProgramInfo::GetProgramAtDateTime(
-                                        QSqlDatabase::database(),
                                         QString::number(channelId),
                                         programStartTime);
 
@@ -571,7 +563,7 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, 
 		g_pPlutoLogger->Write(LV_STATUS, "I could not find the data for the show that i want to record. Is the MythTV Backed and/or proxy working ?");
 		return ScheduleRecordTVResult_Failed;
 	}
-    programInfo->ApplyRecordStateChange(QSqlDatabase::database(), kSingleRecord);
+    programInfo->ApplyRecordStateChange(kSingleRecord);
 
     vector<ProgramInfo *> *conflictsWith = RemoteGetConflictList(programInfo);
 
