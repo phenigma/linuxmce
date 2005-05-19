@@ -706,7 +706,8 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 							0);//Mihai look into this please pMediaStream->GetMediaPosition()->m_iSavedPosition);
 
 	// No handling of errors (it will in some cases deadlock the router.)
-	SendCommand(cmd);
+	//SendCommand(cmd);
+	QueueMessageToRouter(cmd.m_pMessage);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Established streaming configuration: %d -> [%s]!",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
