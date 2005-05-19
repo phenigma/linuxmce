@@ -6117,5 +6117,21 @@ namespace DCE
 	public:
 		CMD_Input_10_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,383,0); }
 	};
+	class CMD_Process_Receive_Command_For_Child : public PreformedCommand {
+	public:
+		CMD_Process_Receive_Command_For_Child(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,384,0); }
+	};
+	class CMD_Process_Receive_Command_For_Child_DL : public PreformedCommand {
+	public:
+		CMD_Process_Receive_Command_For_Child_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,384,0); }
+	};
+	class CMD_Process_Receive_Command_For_Child_DT : public PreformedCommand {
+	public:
+		CMD_Process_Receive_Command_For_Child_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,384,0); }
+	};
+	class CMD_Process_Receive_Command_For_Child_Cat : public PreformedCommand {
+	public:
+		CMD_Process_Receive_Command_For_Child_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,384,0); }
+	};
 }
 #endif

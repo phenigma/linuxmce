@@ -523,7 +523,7 @@ pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_l
 	mq.Release();
 g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) done adding Type %d ID %d To %d to queue of size: %d",m_dwPK_Device,
 pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_listMessageQueue.size());
-	Sleep(500); // This should give the process que plenty of time to wakeup
+	Sleep(30); // This should give the process que plenty of time to wakeup
 	mq.Relock(); // Confirm that nothing was blocking the mutex
 	pthread_cond_broadcast( &m_listMessageQueueCond );  // Try again.  Should be harmless
 g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) rebroadcasting",m_dwPK_Device);

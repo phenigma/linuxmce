@@ -1233,6 +1233,12 @@ TextStyle *DesignObj_Generator::PickStyleVariation(vector<Row_StyleVariation *> 
             drCorrectMatch= drSV_Neither;
     }
 
+    if( !drCorrectMatch )
+	{
+		cout << "***ERROR*** No matching style variation with " << (int) vectrsv.size() << " choices." << endl;
+		return NULL;
+	}
+
     TextStyle *pTextStyle = pGenerator->m_mapTextStyle_Find(drCorrectMatch->FK_Style_get());
     if( !pTextStyle )
     {
