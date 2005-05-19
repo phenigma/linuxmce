@@ -47,7 +47,6 @@
 #define EVENT_Presence_Detected_CONST 44
 #define EVENT_Presence_Lost_CONST 45
 
-
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
 #define EVENT_PK_EVENT_TABLE_FIELD "Event.PK_Event"

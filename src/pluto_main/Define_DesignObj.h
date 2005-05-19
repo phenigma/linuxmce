@@ -1198,6 +1198,7 @@
 #define DESIGNOBJ_objWaitToArm_CONST 3402
 #define DESIGNOBJ_objTryAgain_CONST 3403
 #define DESIGNOBJ_dgCDTracksToRip_CONST 3404
+#define DESIGNOBJ_objMonitorTogleOnOff_CONST 3405
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
