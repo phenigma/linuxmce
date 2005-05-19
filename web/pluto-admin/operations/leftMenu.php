@@ -147,7 +147,7 @@ function leftMenu($output,$dbADO) {
 			USEFRAMES = 1
 			USEICONS = 1
 			WRAPTEXT = 1
-			PRESERVESTATE = 0
+			PRESERVESTATE = 1
 			ICONPATH = 'scripts/treeview/' 
 			HIGHLIGHT = 1
 			GLOBALTARGET = 'R'
@@ -163,8 +163,13 @@ function leftMenu($output,$dbADO) {
 			  					auxS.iconSrcClosed = ICONPATH + \"diffFolder.gif\" 
 			":'')."
 			
-			foldersTree.treeID = 't2'
-			
+			foldersTree.treeID = 't2';
+			";
+			// set highlighted device
+			if((int)@$_REQUEST['deviceID']!=0)
+				$scriptInHead.="highlightObjLink(auxS".((int)@$_REQUEST['deviceID']).");";
+
+			$scriptInHead.="
 			function getObj(obj) {
 					if (document.layers) {
 						if (typeof obj == 'string') {
@@ -258,7 +263,6 @@ function leftMenu($output,$dbADO) {
 			</tr>
 			-->
 			';
-
 
 
 			$output->setScriptInHead($scriptInHead);

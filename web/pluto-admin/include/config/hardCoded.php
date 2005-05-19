@@ -136,7 +136,7 @@
 	$GLOBALS['NeighborstoCall']=36;				// Neighbors to Call 
 	$GLOBALS['Port']=37;						// Port
 	$GLOBALS['securityAlertType']=45;			// Alert type 
-	$GLOBALS['InfraredPort']=50;				// Infrared Port
+	$GLOBALS['InfraredPort']=12;				// Infrared Port
 	$GLOBALS['PK_Device']=77;					// PK_Device
 	
 	// PK_FloorplanType from table FloorplanType 
@@ -217,4 +217,6 @@
 	$GLOBALS['defaultDateFormat']='Y-m-d h:i:s';
 
 	$GLOBALS['GenericSerialDeviceCommandLine']='Generic_Serial_Device';		// the command line used to identify generic serial devices
+	
+	$GLOBALS['SecurityPicsPath']='/home/securitypic/';
 ?>

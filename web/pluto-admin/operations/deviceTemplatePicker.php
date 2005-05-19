@@ -5,7 +5,7 @@ function deviceTemplatePicker($output,$dbADO) {
 	$userID= (int)@$_SESSION['userID'];
 	$out='';
 	$dbADO->debug=false;
-	//unset($_SESSION['categoryID']);
+	
 	$_SESSION['from']=(isset($_REQUEST['from']))?cleanString(@$_REQUEST['from']):@$_SESSION['from'];
 	$_SESSION['categoryID']=(isset($_SESSION['categoryID']))?$_SESSION['categoryID']:NULL;
 	$_SESSION['categoryID']=(isset($_REQUEST['categoryID']))?cleanInteger($_REQUEST['categoryID']):$_SESSION['categoryID'];

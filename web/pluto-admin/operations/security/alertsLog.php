@@ -21,7 +21,16 @@ function alertsLog($output,$securitydbADO,$dbADO) {
 			<input type="hidden" name="action" value="add">
 			';
 		$query='
-			SELECT PK_Alert,Description, UNIX_TIMESTAMP(DetectionTime) AS DetectionTime, UNIX_TIMESTAMP(ExpirationTime) AS ExpirationTime, UNIX_TIMESTAMP(ResetTime) AS ResetTime,EK_Device,ResetBeforeExpiration,Benign,EK_Users
+			SELECT 
+				PK_Alert,
+				Description, 
+				UNIX_TIMESTAMP(DetectionTime) AS DetectionTime, 
+				UNIX_TIMESTAMP(ExpirationTime) AS ExpirationTime, 
+				UNIX_TIMESTAMP(ResetTime) AS ResetTime,
+				EK_Device,
+				ResetBeforeExpiration,
+				Benign,
+				EK_Users
 			FROM Alert
 				INNER JOIN AlertType ON FK_Alerttype=PK_AlertType
 			ORDER BY DetectionTime DESC';
@@ -86,7 +95,6 @@ function headerAlertLog()
 	$output='<table border="0" align="center">
 				<tr bgcolor="lightblue">
 					<td align="center"><B>Alert type</B></td>
-					<td align="center"><B>Device</B></td>
 					<td align="center"><B>Detection time</B></td>
 					<td align="center"><B>Expiration time</B></td>
 					<td align="center"><B>Reset before expiration</B></td>
@@ -106,14 +114,6 @@ function footerAlertLog()
 function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 {
 	$device='';
-	if($row['EK_Device']!=''){
-		$queryDevice='SELECT * FROM Device WHERE PK_Device=?';
-		$resDevice=$dbADO->Execute($queryDevice,(int)$row['EK_Device']);
-		if($resDevice){
-			$rowDevice=$resDevice->FetchRow();
-			$device=$rowDevice['Description'];
-		}
-	}
 	
 	$user='';
 	if($row['EK_Users']!=''){
@@ -128,7 +128,6 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 	$out='
 		<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
 			<td align="center">'.$row['Description'].'</td>
-			<td align="center">'.$device.'</td>
 			<td align="center">'.date($GLOBALS['defaultDateFormat'],$row['DetectionTime']).'</td>
 			<td align="center">'.date($GLOBALS['defaultDateFormat'],$row['ExpirationTime']).'</td>
 			<td align="center"><input type="checkbox" name="checkb" '.(($row['ResetBeforeExpiration']==1)?'checked':'').' disabled></td>
@@ -137,6 +136,21 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 			<td align="center">'.$user.'</td>
 		</tr>
 	';
+	$queryAD='SELECT PK_Alert_Device,EK_Device,UNIX_TIMESTAMP(DetectionTime) AS DetectionTime  FROM Alert_Device WHERE FK_Alert=?';
+	$resAD=$securitydbADO->Execute($queryAD,$row['PK_Alert']);
+	while($rowAD=$resAD->FetchRow()){
+		$resD=$dbADO->Execute('SELECT * FROM Device WHERE PK_Device =?',$rowAD['EK_Device']);
+		while($rowD=$resD->FetchRow()){
+		$out.='
+			<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
+				<td align="center"><img src="include/image.php?imagepath='.$GLOBALS['SecurityPicsPath'].$rowAD['PK_Alert_Device'].'.jpg"></td>
+				<td align="center">'.date($GLOBALS['defaultDateFormat'],$rowAD['DetectionTime']).'</td>
+				<td align="left" colspan="5"><B>Device: </B><a href="index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'">'.$rowD['Description'].'</a></td>
+			</tr>
+			';
+		}
+	}	
+	
 	$queryNotifications='SELECT * FROM Notification WHERE FK_Alert=?';
 	$resNotifications=$securitydbADO->Execute($queryNotifications,$row['PK_Alert']);
 	while($rowNotification=$resNotifications->FetchRow()){
@@ -145,33 +159,10 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 			<td align="center"><B>Notification</B></td>
 			<td align="center">'.date($GLOBALS['defaultDateFormat'],$rowNotification['NotificationTime']).'</td>
 			<td align="left" colspan="2"><B>Info: </B>'.$rowNotification['Info'].'</td>
-			<td align="left" colspan="4"><B>Result: </B>'.$rowNotification['Result'].'</td>
+			<td align="left" colspan="3"><B>Result: </B>'.$rowNotification['Result'].'</td>
 		</tr>
 		';
 	}
-	$queryPicture='SELECT * FROM Picture WHERE FK_Alert=?';
-	$resPicture=$securitydbADO->Execute($queryPicture,$row['PK_Alert']);
-	while($rowPicture=$resPicture->FetchRow()){
-
-		$picdevice='';
-		if($rowPicture['EK_Device']!=''){
-			$queryPicDevice='SELECT * FROM Device WHERE PK_Device=?';
-			$resPicDevice=$dbADO->Execute($queryPicDevice,(int)$rowPicture['EK_Device']);
-			if($resPicDevice){
-				$rowPicDevice=$resPicDevice->FetchRow();
-				$picdevice=$rowPicDevice['Description'];
-			}
-		}
-		$out.='
-		<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
-			<td align="center"><B>Picture</B></td>
-			<td>&nbsp;</td>
-			<td align="left" colspan="2"><B>Device: </B>'.$picdevice.'</td>
-			<td align="left" colspan="4"><B>File: </B><a href="'.$rowPicture['Filename'].'" target="_blank">'.$rowPicture['Filename'].'</a></td>
-		</tr>
-		';
-	}
-	
 	
 	return $out;
 }

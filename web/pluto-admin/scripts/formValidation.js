@@ -155,7 +155,7 @@ function add_validation(itemname,descriptor,errstr)
     if(itemobj.length && isNaN(itemobj.selectedIndex)) {
 		itemobj = itemobj[0];
 	}	
-		
+	
 	if(!itemobj){
 		alert("BUG: Couldnot get the input object named: "+itemname);
 		return;

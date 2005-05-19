@@ -108,7 +108,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	
 	
 		<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
-		<div class="confirm">'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</div>
+		<div class="confirm" align="center"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
 	
 	<table width="100%" bgcolor="#F0F3F8">
 		<tr>
@@ -606,7 +606,7 @@ $installationID = (int)@$_SESSION['installationID'];
 
 		$out.='
 		<script>
-			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.((isset($error))?'&error='.$error:'&msg='.@$msg).'\';
+			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.((isset($error))?'&error='.$error:'&msg=Device updated').'\';
 			//top.frames[\'treeframe\'].location=\'index.php?section=leftMenu\';
 		</script>';
 	} else {

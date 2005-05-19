@@ -441,7 +441,7 @@ function irCodes($output,$dbADO) {
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$ig_c));
 			}
 
-			header("Location: index.php?section=irCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=IR codes updated.&label=".$GLOBALS['label']);
+			header("Location: index.php?section=irCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=IR/GSD codes updated.&label=".$GLOBALS['label']);
 			exit();
 		}
 
@@ -449,7 +449,7 @@ function irCodes($output,$dbADO) {
 	}
 
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: IR Codes');
+	$output->setTitle(APPLICATION_NAME.' :: IR/GSD Codes');
 	$output->output();
 
 }

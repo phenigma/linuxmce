@@ -20,19 +20,30 @@ function editCode($output,$dbADO) {
 		}
 		
 		$out.='
-		<div align="center" style="height:90%; width:99%;">
+		<script language="JavaScript" type="text/javascript" src="scripts/wysiwyg/richtext.js"></script>
+		<script language="JavaScript" type="text/javascript">
+		<!--
+		//Usage: initRTE(imagesPath, includesPath, cssFile)
+		initRTE("scripts/wysiwyg/images/", "scripts/wysiwyg/", "scripts/wysiwyg/");
+		//-->
+		</script>		
 		
+		<div align="center" style="height:90%; width:99%;">
 		<div class="err">'.stripslashes(@$_GET['error']).'</div>
 		<div class="confirm" align="center"><B>'.stripslashes(@$_GET['msg']).'</B></div>
 		
 		
-		<form action="index.php" method="post" name="editCode">
+		<form action="index.php" method="post" name="editCode" onSubmit="updateRTEs();">
 		<input type="hidden" name="section" value="editCode">
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="ircode" value="'.$ircode.'">		
 		<B>IR/GSD code</B><br>
-
-		<textarea name="irdata" style="width:100%;height:100%;">'.@$oldData.'</textarea><br>
+<script language="JavaScript" type="text/javascript">
+<!--
+//Usage: writeRichText(fieldname, html, width, height, buttons, readOnly)
+writeRichText(\'irdata\', \''.addslashes(str_replace(array("\r\n"),'<br>',@$oldData)).'\', 770, 460, true, false);
+//-->
+</script>
 		<input type="submit" class="button" name="save" value="Update"> <input type="button" class="button" name="close" value="Close" onclick="self.close();">
 		</form>
 		</div>
@@ -45,9 +56,12 @@ function editCode($output,$dbADO) {
 			exit(0);
 		}
 		
-		$irData=stripslashes($_POST['irdata']);
-		$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$ircode));
+		$irData=stripslashes(str_replace("\r\n","",$_POST['irdata']));
+		$irData=str_replace("<br>","\r\n",$irData);
+		$irData=unhtmlentities($irData);
 		
+		
+		$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array(trim($irData),$ircode));
 		$out.="
 			<script>
 			    opener.location.reload();
@@ -61,5 +75,13 @@ function editCode($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: Edit IR/GSD code');			
 	$output->output();
+}
+
+function unhtmlentities($chaineHtml)
+{ 
+	$tmp = get_html_translation_table(HTML_ENTITIES);
+	$tmp = array_flip ($tmp);
+	$chaineTmp = strtr ($chaineHtml, $tmp);
+	return $chaineTmp;
 }
 ?>

@@ -1162,16 +1162,26 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		
 		if ($manufOrDevice || $defaultAll==1)	{
 		
-			$queryModels = "SELECT DeviceTemplate.*,DeviceCategory.Description as deviceDescription,
-									Manufacturer.Description as manufacturerDescription 
-							FROM DeviceTemplate INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
-								  				  INNER JOIN Manufacturer ON PK_Manufacturer=FK_Manufacturer
+			$queryModels = "SELECT 
+								DeviceTemplate.*,
+								DeviceCategory.Description as deviceDescription,
+								Manufacturer.Description as manufacturerDescription 
+							FROM DeviceTemplate 
+							INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+							INNER JOIN Manufacturer ON PK_Manufacturer=FK_Manufacturer
 							WHERE 1=1 $where ORDER BY Description";	
 			$rs = $dbADO->_Execute($queryModels);
 			
 			$arJsPos=0;
-				while ($row = $rs->FetchRow()) {
-					
+
+			// if call come from addMyDevice, aply controlled by filter
+			if(ereg('parentID',$_SESSION['from']) && $_SESSION['parentID']!=0){
+				$allowedDevices=getDeviceTemplatesControlledBy($_SESSION['parentID'],$dbADO);
+			}
+
+			while ($row = $rs->FetchRow()) {
+			
+				if(count($allowedDevices)==0 || (count($allowedDevices)>0 && in_array($row['PK_DeviceTemplate'],$allowedDevices)))			
 					$selectModels.="<option ".($selectedModel==$row['PK_DeviceTemplate']?" selected ":"")." value='{$row['PK_DeviceTemplate']}' ".(($row['IsPlugAndPlay']==1)?'style="background-color:lightgreen;"':'').">{$row['Description']}</option>";
 					
 					if ($row['PK_DeviceTemplate']>0) {
@@ -1302,8 +1312,13 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 						<th width="25%">Manufacturers</th>
 						<th width="25%">Device Category</th>
 						<th width="25%">
-						Models
-						
+						Models ';
+						if(ereg('parentID',$_SESSION['from']) && $_SESSION['parentID']!=0){
+							$parentFields=getProperties($_SESSION['parentID'],'Device','FK_DeviceTemplate','PK_Device',$dbADO);
+							$dtFields=getProperties($parentFields['FK_DeviceTemplate'],'DeviceTemplate','Description','PK_DeviceTemplate',$dbADO);
+							$out.=' controlled by '.$dtFields['Description'];
+						}
+						$out.='
 						</th>				
 					</tr>
 					<tr valign="top">
@@ -1388,6 +1403,13 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							$disabled_str = "disabled";
 				
 				$out.='	<b>Device templates highlighted are plug and play.';
+			if($boolDeviceTemplate==1){
+					$out.='
+						<br><br>If your model is not listed, pick the manufacturer and the category and then type the model here: <input type="text" name="DeviceTemplate_Description" size="15"'.$disabledAdd.' />
+							<input type="submit" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  />';
+				}
+					
+				
 				$out.='
 						</td>				
 					</tr>';
@@ -1395,13 +1417,6 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 					$out.='
 					<tr>
 						<td colspan="3">To add a device, choose the manufacturer and the category to see all models for you selection. Pick the model you want and click <B>"Add device"</B>.</td>
-					</tr>';
-				}
-				if($boolDeviceTemplate==1){
-					$out.='
-					<tr>
-						<td colspan="3">If your model is not listed, pick the manufacturer and the category and then type the model here: <input type="text" name="DeviceTemplate_Description" size="15"'.$disabledAdd.' />
-							<input type="submit" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  /></td>
 					</tr>';
 				}
 				if($categoryID==$GLOBALS['rootAVEquipment']){
@@ -2799,7 +2814,26 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 
 function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$controlledVia,$dbADO,$zeroOption='0,- Please Select -',$jsEvent='')
 {
+	$optionsArray=getControlledViaDeviceTemplates($deviceID,$dtID,$deviceCategory,$dbADO);
+	
+	$selectOptions='';
+	foreach ($optionsArray AS $key=>$value){
+		$selectOptions.='<option value="'.$key.'" '.(($key==$controlledVia)?'selected':'').'>'.$value.'</option>';
+	}
+	
 	$zeroValues=explode(',',$zeroOption);
+	$out='
+	<select name="'.$pulldownName.'">
+		<option value="'.@$zeroValues[0].'">'.$zeroValues[1].'</option>
+		'.$selectOptions.'
+	</select>';
+	
+	return $out;
+}
+
+function getControlledViaDeviceTemplates($deviceID,$dtID,$deviceCategory,$dbADO)
+{
+	
 	$installationID=(int)$_SESSION['installationID'];
 	
 	$whereClause='';
@@ -2859,7 +2893,6 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 	if($resDeviceTemplate) {
 		while ($row=$resDeviceTemplate->FetchRow()) {
 			$optionsArray[$row['PK_Device']]=$row['Description'];
-			//$selectOptions.='<option value="'.$row['PK_Device'].'" '.($row['PK_Device']==$controlledVia?' selected="selected" ':'').'>'.$row['Description'].'</option>';
 		}
 	}
 	
@@ -2890,19 +2923,10 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 		}
 	}
 	asort ($optionsArray, SORT_STRING);
-	$selectOptions='';
-	foreach ($optionsArray AS $key=>$value){
-		$selectOptions.='<option value="'.$key.'" '.(($key==$controlledVia)?'selected':'').'>'.$value.'</option>';
-	}
-	
-	$out='
-	<select name="'.$pulldownName.'">
-		<option value="'.@$zeroValues[0].'">'.$zeroValues[1].'</option>
-		'.$selectOptions.'
-	</select>';
-	
-	return $out;
+
+	return $optionsArray;
 }
+
 
 function PortForHumans($device,$deviceNames)
 {
@@ -3127,5 +3151,72 @@ function getDeviceGroups($installationID, $dbADO)
 		$dg[$row['PK_DeviceGroup']]=$row['Description'];
 	}
 	return $dg;
+}
+
+function getDeviceTemplatesControlledBy($parentID,$dbADO)
+{
+	$whereClause='';
+	$selectMasterDeviceForParent = '
+		SELECT Device.FK_DeviceTemplate,FK_DeviceCategory,FK_DeviceCategory_Parent 
+		FROM Device 
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+		WHERE PK_Device = ?';
+	$resSelectMasterDeviceForParent = $dbADO->Execute($selectMasterDeviceForParent,array($parentID));
+	if ($resSelectMasterDeviceForParent) {
+		$rowSelectMasterDeviceForParent = $resSelectMasterDeviceForParent->FetchRow();
+		$DeviceTemplateForParent = $rowSelectMasterDeviceForParent['FK_DeviceTemplate'];
+		$DeviceCategoryForParent = $rowSelectMasterDeviceForParent['FK_DeviceCategory'];
+		$ParentDeviceCategoryForParent = $rowSelectMasterDeviceForParent['FK_DeviceCategory_Parent'];
+
+		$queryDTControlledByCategory ='SELECT FK_DeviceTemplate FROM DeviceTemplate_DeviceCategory_ControlledVia WHERE FK_DeviceCategory = ? OR FK_DeviceCategory = ?';
+		$resDTControlledByCategory = $dbADO->Execute($queryDTControlledByCategory,array($DeviceCategoryForParent,$ParentDeviceCategoryForParent));
+
+		$childsDeviceTemplateArray = array();
+		if ($resDTControlledByCategory) {
+			while ($rowDTControlledByCategory= $resDTControlledByCategory->FetchRow()) {
+				$childsDeviceTemplateArray[]=$rowDTControlledByCategory['FK_DeviceTemplate'];
+			}
+		}
+
+		$querySelectControlledViaDeviceTemplate ='SELECT FK_DeviceTemplate FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE FK_DeviceTemplate_ControlledVia = ?';
+		$resSelectControlledViaDeviceTemplate= $dbADO->Execute($querySelectControlledViaDeviceTemplate,array($DeviceTemplateForParent));
+
+		
+		if ($resSelectControlledViaDeviceTemplate) {
+			while ($rowSelectControlledVia = $resSelectControlledViaDeviceTemplate->FetchRow()) {
+				$childsDeviceTemplateArray[]=$rowSelectControlledVia['FK_DeviceTemplate'];
+			}
+		}
+
+		if (count($childsDeviceTemplateArray)) {
+			$whereClause.=' AND PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
+		}
+	}
+
+
+
+	$queryDeviceTemplate = "select PK_DeviceTemplate ,Description from DeviceTemplate where 1=1 $whereClause order by Description asc";
+	$resDeviceTemplate = $dbADO->_Execute($queryDeviceTemplate);
+	$DeviceTemplates = array();
+	if($resDeviceTemplate) {
+		while ($row=$resDeviceTemplate->FetchRow()) {
+			$DeviceTemplates[].=$row['PK_DeviceTemplate'];
+		}
+	}
+	
+	return $DeviceTemplates;
+}
+
+function getProperties($primaryKey,$table,$properties,$field,$dbADO)
+{
+	$propArray=explode(',',$properties);
+	$res=$dbADO->Execute("SELECT $properties FROM $table WHERE $field='$primaryKey'");
+	if($res->RecordCount()>0){
+		$row=$res->FetchRow();
+		return $row;
+	}else{
+		return null;
+	}
 }
 ?>
