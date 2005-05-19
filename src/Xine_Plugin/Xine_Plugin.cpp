@@ -678,6 +678,7 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 					pMediaStream->m_iPK_MediaType,
 					pMediaStream->m_iStreamID_get(), 0);
 			SendCommand(playMediaCommand);
+g_pPlutoLogger->Write(LV_CRITICAL,"Finished sending playback to xine %d",pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 		}
 
 		itPlaybackDevices++;
@@ -697,7 +698,7 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 		return false;
 	}
 
-g_pPlutoLogger->Write(LV_CRITICAL,"About to call play media within start streaming");
+g_pPlutoLogger->Write(LV_CRITICAL,"About to call sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
