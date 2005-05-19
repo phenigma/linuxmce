@@ -2878,12 +2878,12 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string
 			while( pos<sTracks.size() && pos!=string::npos )
 			{
 				string sTrack = StringUtils::Tokenize(sTracks,"|",pos);
-				sNewTracks += sTrack;
 				int iTrack = atoi(sTrack.c_str());
-				if( iTrack && iTrack<=pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() && pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription.size() )
+				sNewTracks += StringUtils::itos(iTrack+1);
+				if( iTrack<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() && pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription.size() )
 					sNewTracks += "," + pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription + "|";
 				else
-					sNewTracks += ",Unknown " + sTrack + "|";
+					sNewTracks += ",Unknown " + StringUtils::itos(iTrack+1) + "|";
 g_pPlutoLogger->Write(LV_STATUS,"%s %d %s",sTrack.c_str(),iTrack,sNewTracks.c_str());
 			}
 g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
