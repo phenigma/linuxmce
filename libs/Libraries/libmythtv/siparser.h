@@ -16,7 +16,6 @@ using namespace std;
 //#include "dvbchannel.h"
 #include "sitypes.h"
 #include "qtextcodec.h"
-#include "qsqldatabase.h"
 
 /* TODO: Fix this size */
 #define NumHandlers     7
@@ -113,9 +112,6 @@ public:
     void ParseTable(uint8_t* buffer, int size, uint16_t pid);
     void CheckTrackers();
 
-    void SetDB(QSqlDatabase* _db_conn, pthread_mutex_t* _db_lock)
-        { db_conn = _db_conn; db_lock = _db_lock; };
-
 signals:
 
     void FindTransportsComplete();
@@ -132,9 +128,6 @@ signals:
 
 private:
 
-
-    QSqlDatabase* db_conn;
-    pthread_mutex_t* db_lock;
 
     // Fixes for various DVB Network Spec Deviations
     void LoadDVBSpecDeviations(uint16_t NetworkID);
@@ -250,11 +243,6 @@ private:
     bool         exitParserThread;
 
     TableSourcePIDObject TableSourcePIDs;
-
-    bool verifyPAT(tablehead_t *head,uint8_t *data, int len);
-    bool verifySDT(uint8_t *buf, int len);
-    bool verifyNIT(uint8_t *buf, int len);
-    bool verifyPMT(uint8_t *data, int len);
 
     /* Huffman Text Decompression Routines */
     int HuffmanGetRootNode(uint8_t Input, uint8_t Table[]);

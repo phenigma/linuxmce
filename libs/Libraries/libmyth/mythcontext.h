@@ -12,8 +12,10 @@
 #include <qsocketdevice.h>
 #include <qstringlist.h>
 #include <qnetwork.h> 
+#include <qmutex.h>
 
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 using namespace std;
@@ -32,6 +34,7 @@ class MythPluginManager;
 class MediaMonitor;
 class MythMediaDevice;
 class DisplayRes;
+class MDBManager;
 
 enum VerboseMask {
     VB_IMPORTANT = 0x0001,
@@ -80,12 +83,43 @@ struct DatabaseParams {
 };
     
 
+// The verbose_mutex lock is a recursive lock so it is possible (while
+// not recommended) to use a VERBOSE macro within another VERBOSE macro.
+// But waiting for another thread to do something is not safe within a 
+// VERBOSE macro, since those threads may wish to use the VERBOSE macro
+// and this will cause a deadlock.
+#ifdef DEBUG
+
 #define VERBOSE(mask,args...) \
 do { \
-if ((print_verbose_messages & mask) != 0) \
-    cout << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") \
-         << " " << args << endl; \
+    if ((print_verbose_messages & mask) != 0) \
+    { \
+        QDateTime dtmp = QDateTime::currentDateTime(); \
+        QString dtime = dtmp.toString("yyyy-MM-dd hh:mm:ss.zzz"); \
+        MythContext::verbose_mutex.lock(); \
+        cout << dtime << " " << args << endl; \
+        MythContext::verbose_mutex.unlock(); \
+    } \
 } while (0)
+
+#else // if !DEBUG
+
+// use a slower non-deadlockable version in release builds
+#define VERBOSE(mask,args...) \
+do { \
+    if ((print_verbose_messages & mask) != 0) \
+    { \
+        QDateTime dtmp = QDateTime::currentDateTime(); \
+        QString dtime = dtmp.toString("yyyy-MM-dd hh:mm:ss.zzz"); \
+        ostringstream verbose_macro_tmp; \
+        verbose_macro_tmp << dtime << " " << args; \
+        MythContext::verbose_mutex.lock(); \
+        cout << verbose_macro_tmp.str() << endl; \
+        MythContext::verbose_mutex.unlock(); \
+    } \
+} while (0)
+
+#endif // DEBUG
 
 class MythEvent : public QCustomEvent
 {
@@ -128,8 +162,8 @@ class MythPrivRequest
     void *m_data;
 };
 
-#define MYTH_BINARY_VERSION "0.17.20050130-1"
-#define MYTH_PROTO_VERSION "14"
+#define MYTH_BINARY_VERSION "0.18.20050409-1"
+#define MYTH_PROTO_VERSION "15"
 
 extern int print_verbose_messages;
 
@@ -139,8 +173,10 @@ class MythContext : public QObject
 {
     Q_OBJECT
   public:
-    MythContext(const QString &binversion, bool gui = true);
+    MythContext(const QString &binversion);
     virtual ~MythContext();
+
+    bool Init(bool gui = true);
 
     QString GetMasterHostPrefix(void);
 
@@ -155,6 +191,7 @@ class MythContext : public QObject
     QString GetInstallPrefix(void);
     QString GetShareDir(void);
     QString GetLibraryDir(void);
+    static QString GetConfDir(void);
 
     QString GetFilePrefix(void);
 
@@ -164,12 +201,20 @@ class MythContext : public QObject
 
     void RefreshBackendConfig(void);
 
+    // Note that these give the dimensions for the GUI,
+    // which the user may have set to be different from the raw screen size
     void GetScreenSettings(float &wmult, float &hmult);
     void GetScreenSettings(int &width, float &wmult,
                            int &height, float &hmult);
     void GetScreenSettings(int &xbase, int &width, float &wmult,
                            int &ybase, int &height, float &hmult);
-   
+
+    // This returns the raw (drawable) screen size
+    void GetScreenBounds(int &xbase, int &ybase, int &width, int &height);
+
+    // Parse an X11 style command line (-geometry) string
+    bool ParseGeometryOverride(const QString geometry);
+
     QString FindThemeDir(const QString &themename);
     QString GetThemeDir(void);
 
@@ -191,9 +236,8 @@ class MythContext : public QObject
 
     QString GetFiltersDir(void);
 
-    int OpenDatabase(QSqlDatabase *db, bool promptOnFailure = true);
-    static void KickDatabase(QSqlDatabase *db);
-    static void DBError(const QString &where, const QSqlQuery& query);
+    MDBManager *GetDBManager(void);
+    static void DBError(const QString &where, const QSqlQuery &query);
     static QString DBErrorMessage(const QSqlError& err);
 
     DatabaseParams GetDatabaseParams(void);
@@ -208,7 +252,15 @@ class MythContext : public QObject
     void SaveSetting(const QString &key, int newValue);
     void SaveSetting(const QString &key, const QString &newValue);
     QString GetSetting(const QString &key, const QString &defaultval = "");
+
+    // Convenience setting query methods
     int GetNumSetting(const QString &key, int defaultval = 0);
+    double GetFloatSetting(const QString &key, double defaultval = 0.0);
+    void GetResolutionSetting(const QString &type, int &width, int &height,
+                              double& forced_aspect, short &refreshrate,
+                              int index=-1);
+    void GetResolutionSetting(const QString &type, int &width, int &height,
+                              int index=-1);
 
     QString GetSettingOnHost(const QString &key, const QString &host,
                              const QString &defaultval = "");
@@ -269,6 +321,8 @@ class MythContext : public QObject
     void addPrivRequest(MythPrivRequest::Type t, void *data);
     void waitPrivRequest() const;
     MythPrivRequest popPrivRequest();
+
+    static QMutex verbose_mutex;
 
   private slots:
     void EventSocketRead();

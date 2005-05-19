@@ -38,8 +38,7 @@ class RawDataList
 class NuppelDecoder : public DecoderBase
 {
   public:
-    NuppelDecoder(NuppelVideoPlayer *parent, MythSqlDatabase *db,
-                  ProgramInfo *pginfo);
+    NuppelDecoder(NuppelVideoPlayer *parent, ProgramInfo *pginfo);
    ~NuppelDecoder();
 
     static bool CanHandle(char testbuf[2048]);
@@ -48,7 +47,8 @@ class NuppelDecoder : public DecoderBase
     bool GetFrame(int onlyvideo);
 
     bool isLastFrameKey(void) { return (lastKey == framesPlayed); }
-    void WriteStoredData(RingBuffer *rb, bool writevid);
+    void WriteStoredData(RingBuffer *rb, bool writevid, long timecodeOffset);
+    void ClearStoredData(void);
 
     long UpdateStoredFrameNum(long framenumber);
 

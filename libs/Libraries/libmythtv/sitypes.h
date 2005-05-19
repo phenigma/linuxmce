@@ -1,5 +1,5 @@
 /*
- * $Id: sitypes.h,v 1.3 2005/01/31 05:49:56 ijr Exp $
+ * $Id: sitypes.h,v 1.5 2005/03/27 18:18:56 taylor Exp $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  */
 
@@ -114,6 +114,9 @@ public:
     uint16_t      GuidePID;
     bool          GuideOnSingleTransport;
     uint16_t      GuideTransportID;
+    /* List of ServiceID:s for which to parse out subtitle from the description.
+       Used in EITFixUpStyle4() */
+    QMap_uint16_t ParseSubtitleServiceIDs;
 
 };
 
@@ -301,6 +304,16 @@ public:
     bool Record;
 };
 
+class Person
+{
+public:
+    Person() {};
+    Person(const QString &r, const QString &n)
+        :role(r),name(n) {};
+    QString role;
+    QString name;
+};
+
 class Event
 {
 //TODO: Int conversion
@@ -329,6 +342,9 @@ public:
     bool SubTitled;
     int ETM_Location;    /* Used to flag still waiting ETTs for ATSC */
     bool ATSC;
+    //bool PreviouslyShown;
+    QDate OriginalAirDate;
+    QValueList<Person> Credits;
 };
 
 // DVB TransportObject - Used with NIT Scanning

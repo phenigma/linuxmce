@@ -3,6 +3,7 @@
 
 #include <qsocket.h>
 #include <qstringlist.h>
+#include <qdatetime.h>
 #include <qcolor.h>
 
 #include <time.h>
@@ -34,11 +35,6 @@ void encodeLongLong(QStringList &list, long long num);
 long long decodeLongLong(QStringList &list, int offset);
 long long decodeLongLong(QStringList &list, QStringList::iterator &it);
 
-#if defined(Q_WS_X11)
-void GetMythTVGeometry(Display *dpy, int screen_num, int *x, int *y, 
-                       int *w, int *h);
-#endif
-
 QRgb blendColors(QRgb source, QRgb add, int alpha);
 
 #define MYTH_SYSTEM_DONT_BLOCK_LIRC (1)
@@ -46,6 +42,9 @@ QRgb blendColors(QRgb source, QRgb add, int alpha);
 int myth_system(const QString &command, int flags = 0);
 
 QString cutDownString(QString text, QFont *testFont, int maxwidth);
+
+QDateTime MythUTCToLocal(const QDateTime &utc);
+int MythSecsTo(const QDateTime &from, const QDateTime &to);
 
 long long stringToLongLong(const QString &str);
 QString longLongToString(long long ll);

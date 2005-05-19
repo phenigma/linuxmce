@@ -13,8 +13,7 @@ class RingBuffer;
 class DecoderBase
 {
   public:
-    DecoderBase(NuppelVideoPlayer *parent, MythSqlDatabase *db,
-                ProgramInfo *pginfo);
+    DecoderBase(NuppelVideoPlayer *parent, ProgramInfo *pginfo);
     virtual ~DecoderBase() { }
 
     virtual void Reset(void);
@@ -35,7 +34,9 @@ class DecoderBase
     virtual bool DoFastForward(long long desiredFrame, bool doflush = true);
 
     virtual bool isLastFrameKey() = 0;
-    virtual void WriteStoredData(RingBuffer *rb, bool storevid) = 0;
+    virtual void WriteStoredData(RingBuffer *rb, bool storevid,
+                                 long timecodeOffset) = 0;
+    virtual void ClearStoredData(void) { return; };
     virtual void SetRawAudioState(bool state) { getrawframes = state; }
     virtual bool GetRawAudioState(void) { return getrawframes; }
     virtual void SetRawVideoState(bool state) { getrawvideo = state; }
@@ -66,6 +67,8 @@ class DecoderBase
     virtual void incCurrentAudioTrack(){}
     virtual void decCurrentAudioTrack(){}
     virtual bool setCurrentAudioTrack(int){ return false;}
+
+    void setTranscoding(bool value) { transcoding = value; };
                                                           
     bool IsErrored() { return errored; }
   protected:
@@ -77,7 +80,6 @@ class DecoderBase
     } PosMapEntry;
 
     NuppelVideoPlayer *m_parent;
-    MythSqlDatabase *m_db;
     ProgramInfo *m_playbackinfo;
 
     RingBuffer *ringBuffer;
@@ -92,6 +94,7 @@ class DecoderBase
 
     bool ateof;
     bool exitafterdecoded;
+    bool transcoding;
 
     bool hasFullPositionMap;
     bool recordingHasPositionMap;

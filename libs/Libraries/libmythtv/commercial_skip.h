@@ -5,6 +5,7 @@
 
 #include "NuppelVideoPlayer.h"
 #include "mythcontext.h"
+#include "remoteencoder.h"
 
 enum commMapValues {
     MARK_START = 0,
@@ -30,24 +31,45 @@ enum frameMaskValues {
     COMM_FRAME_RATING_SYMBOL = 0x0010
 };
 
+enum frameAspects {
+    COMM_ASPECT_NORMAL = 0,
+    COMM_ASPECT_WIDE
+};
+
+enum frameFormats {
+    COMM_FORMAT_NORMAL = 0,
+    COMM_FORMAT_LETTERBOX,
+    COMM_FORMAT_PILLARBOX,
+    COMM_FORMAT_MAX
+};
+
 // Set max comm break length to 00:08:05 minutes & max comm length to 00:02:05
 #define MIN_COMM_BREAK_LENGTH   60
-#define MAX_COMM_BREAK_LENGTH  485
-#define MAX_COMM_LENGTH  125
-#define MIN_SHOW_LENGTH  65
+#define MAX_COMM_BREAK_LENGTH  395
+#define MAX_COMM_LENGTH        125
+#define MIN_SHOW_LENGTH         65
+#define LOGO_SAMPLES_NEEDED    240
+#define LOGO_SAMPLE_SPACING      2
+#define LOGO_SECONDS_NEEDED    (LOGO_SAMPLES_NEEDED * LOGO_SAMPLE_SPACING)
 
 extern "C" {
 #include "frame.h"
 }
 
-class CommDetect
+class CommDetect : public QObject
 {
+    Q_OBJECT
   public:
     CommDetect(int w, int h, double frame_rate, int method);
     ~CommDetect(void);
 
+    void customEvent(QCustomEvent *e);
+
     void Init(int w, int h, double frame_rate, int method);
+    void SetVideoParams(float aspect);
     void SetCommDetectMethod(int method) { commDetectMethod = method; };
+    void SetWatchingRecording(bool watching, RemoteEncoder *rec,
+                              NuppelVideoPlayer *nvp);
 
     void ProcessNextFrame(VideoFrame *frame, long long frame_number = -1);
     void SetVerboseDebugging(bool beVerbose = true)
@@ -68,6 +90,7 @@ class CommDetect
     void GetBlankCommBreakMap(QMap<long long, int> &breaks);
     void GetSceneChangeMap(QMap<long long, int> &scenes,
                            long long start_frame = -1);
+    void GetLogoCommBreakMap(QMap<long long, int> &map);
 
     void BuildMasterCommList(void);
     void BuildAllMethodsCommList(void);
@@ -78,7 +101,7 @@ class CommDetect
     void MergeBlankCommList(void);
     void DeleteCommAtFrame(QMap<long long, int> &commMap, long long frame);
 
-    bool FrameIsInCommBreak(long long f, QMap<long long, int> &breakMap);
+    bool FrameIsInBreakMap(long long f, QMap<long long, int> &breakMap);
 
     void DumpMap(QMap<long long, int> &map);
     void DumpLogo(bool fromCurrentFrame = false);
@@ -105,6 +128,8 @@ class CommDetect
         int maxBrightness;
         int avgBrightness;
         int sceneChangePercent;
+        int aspect;
+        int format;
         int flagMask;
     } FrameInfoEntry;
 
@@ -113,11 +138,13 @@ class CommDetect
         long end;
         long frames;
         double length;
-        int bf_count;
-        int logo_count;
-        int rating_count;
-        int sc_count;
-        double sc_rate;
+        int bfCount;
+        int logoCount;
+        int ratingCount;
+        int scCount;
+        double scRate;
+        int formatMatch;
+        int aspectMatch;
         int score;
     } FrameBlock;
 
@@ -133,6 +160,8 @@ class CommDetect
 
     void CleanupFrameInfo(void);
     void DumpFrameInfo(void);
+    void UpdateFrameBlock(FrameBlock *fbp, FrameInfoEntry finfo, int format,
+                          int aspect);
     void DetectEdges(VideoFrame *frame, EdgeMaskEntry *edges, int edgeDiff);
 
     bool aggressiveDetection;
@@ -147,10 +176,12 @@ class CommDetect
     int horizSpacing;
     int vertSpacing;
     int border;
+    int blankFrameMaxDiff;
     double fps;
     double fpm;
     bool blankFramesOnly;
     int blankFrameCount;
+    int currentAspect;
 
     long long framesProcessed;
 
@@ -161,6 +192,10 @@ class CommDetect
     bool detectStationLogo;
 
     bool skipAllBlanks;
+
+    NuppelVideoPlayer *m_parent;
+    bool watchingRecording;
+    RemoteEncoder *recorder;
 
     EdgeMaskEntry *edgeMask;
 
@@ -180,7 +215,7 @@ class CommDetect
     int logoMinY;
     int logoMaxY;
 
-    unsigned char *frame_ptr;
+    unsigned char *framePtr;
 
     QMap<long long, FrameInfoEntry> frameInfo;
     QMap<long long, int> blankFrameMap;
@@ -199,6 +234,7 @@ class CommDetect
 
     bool lastFrameWasBlank;
     bool lastFrameWasSceneChange;
+    bool decoderFoundAspectChanges;
 
     int histogram[256];
     int lastHistogram[256];

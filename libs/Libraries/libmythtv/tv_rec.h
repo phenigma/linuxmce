@@ -12,7 +12,6 @@
 #include <map>
 using namespace std;
 
-class QSqlDatabase;
 class QSocket;
 class ChannelBase;
 class ProgramInfo;
@@ -33,7 +32,7 @@ typedef enum
 
 typedef struct _dvb_options_t
 {
-    int swfilter;
+    int hw_decoder;
     int recordts;
     int wait_for_seqstart;
     int dmx_buf_size;
@@ -46,6 +45,7 @@ typedef struct _firewire_options_t
     int port;
     int node;
     int speed;
+    int connection;
     QString model;
 } firewire_options_t;
 
@@ -55,7 +55,7 @@ class TVRec
     TVRec(int capturecardnum);
    ~TVRec(void);
 
-    void Init(void);
+    bool Init(void); // returns true if init is successful
 
     void RecordPending(ProgramInfo *rcinfo, int secsleft);
     int StartRecording(ProgramInfo *rcinfo);
@@ -79,7 +79,7 @@ class TVRec
     bool IsRecording(void) { return StateIsRecording(internalState); }
 
     bool CheckChannel(ChannelBase *chan, const QString &channum, 
-                      QSqlDatabase *& a_db_conn, pthread_mutex_t *&a_db_lock, QString& inputID); 
+                      QString& inputID); 
     void SetChannelValue(QString &field_name,int value, ChannelBase *chan,
                          const QString &channum);
     int GetChannelValue(const QString &channel_field, ChannelBase *chan, 
@@ -148,6 +148,7 @@ class TVRec
 
     int GetCaptureCardNum(void) { return m_capturecardnum; }
 
+    bool IsErrored() { return errored; }
  protected:
     void RunTV(void);
     static void *EventThread(void *param);
@@ -167,9 +168,6 @@ class TVRec
                     QString &type, dvb_options_t &dvb_opts, firewire_options_t &firewire_opts,
                     bool &skip_bt);
 
-    void ConnectDB(int cardnum);
-    void DisconnectDB(void);
-
     void SetupRecorder(class RecordingProfile& profile);
     void TeardownRecorder(bool killFile = false);
     
@@ -188,9 +186,6 @@ class TVRec
     RecorderBase *nvr;
     RingBuffer *rbuffer;
     ChannelBase *channel;
-
-    QSqlDatabase *db_conn;
-    pthread_mutex_t db_lock;
 
     TVState internalState;
 
@@ -242,6 +237,8 @@ class TVRec
 
     dvb_options_t dvb_options;
     firewire_options_t firewire_options;
+
+    bool errored;
 
     char requestBuffer[256001];
 

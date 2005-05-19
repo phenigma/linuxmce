@@ -44,7 +44,7 @@ typedef  void (*StatusCallback)(int, void*);
 class NuppelVideoPlayer
 {
  public:
-    NuppelVideoPlayer(MythSqlDatabase *ldb = NULL, ProgramInfo *info = NULL);
+    NuppelVideoPlayer(ProgramInfo *info = NULL);
    ~NuppelVideoPlayer();
 
     friend class CommDetect;
@@ -92,6 +92,7 @@ class NuppelVideoPlayer
 
     int GetVideoWidth(void) { return video_width; }
     int GetVideoHeight(void) { return video_height; }
+    float GetVideoAspect(void) { return video_aspect; }
     float GetFrameRate(void) { return video_frame_rate; }
     long long GetTotalFrameCount(void) { return totalFrames; }
     long long GetFramesPlayed(void) { return framesPlayed; }
@@ -100,11 +101,6 @@ class NuppelVideoPlayer
     void SetRecorder(RemoteEncoder *recorder);
 
     OSD *GetOSD(void) { return osd; }
-
-    void SetOSDFontName(QString filename, QString osdccfont, QString prefix)
-    { osdfontname = filename; osdccfontname = osdccfont; osdprefix = prefix; }
-
-    void SetOSDThemeName(QString themename) { osdtheme = themename; }
 
     // don't use this on something you're playing
     char *GetScreenGrab(int secondsin, int &buflen, int &vw, int &vh);
@@ -115,15 +111,16 @@ class NuppelVideoPlayer
     QString GetEncodingType(void);
     void SetAudioOutput (AudioOutput *ao) { audioOutput = ao; }
     void FlushTxtBuffers(void) { rtxt = wtxt; }
-    bool WriteStoredData(RingBuffer *outRingBuffer, bool writevideo);
+    bool WriteStoredData(RingBuffer *outRingBuffer, bool writevideo,
+                         long timecodeOffset);
     long UpdateStoredFrameNum(long curFrameNum);
     void InitForTranscode(bool copyaudio, bool copyvideo);
     bool TranscodeGetNextFrame(QMap<long long, int>::Iterator &dm_iter,
                                int *did_ff, bool *is_key, bool honorCutList);
     void TranscodeWriteText(void (*func)(void *, unsigned char *, int, int, int), void *ptr);
 
-    int FlagCommercials(bool showPercentage = false, bool fullSpeed = false,
-                        int *controlFlag = NULL, bool inJobQueue = false);
+    int FlagCommercials(bool showPercentage, bool fullSpeed,
+                        bool inJobQueue);
     bool RebuildSeekTable(bool showPercentage = true, StatusCallback cb = NULL,
                           void* cbData = NULL);
 
@@ -135,6 +132,7 @@ class NuppelVideoPlayer
     bool PipPlayerSet(void) { return !needsetpipplayer; }
 
     void SetVideoFilters(QString &filters) { videoFilterList = filters; }
+    void SetTranscoding(bool value);
 
     void SetWatchingRecording(bool mode);
     void SetBookmark(void);
@@ -357,10 +355,6 @@ class NuppelVideoPlayer
     int totalLength;
     long long totalFrames;
 
-    QString osdfontname;
-    QString osdccfontname;
-    QString osdprefix;
-    QString osdtheme;
     OSD *osd;
 
     bool disablevideo;
@@ -384,6 +378,8 @@ class NuppelVideoPlayer
     int seekamountpos;
     OSDSet *timedisplay;
 
+    bool transcoding;
+
     QMap<long long, int> deleteMap;
     QMap<long long, int>::Iterator deleteIter;
     QMap<long long, int> blankMap;
@@ -401,7 +397,6 @@ class NuppelVideoPlayer
     WId embedid;
     int embx, emby, embw, embh;
 
-    MythSqlDatabase *m_db;
     ProgramInfo *m_playbackinfo;
 
     long long bookmarkseek;
@@ -413,6 +408,9 @@ class NuppelVideoPlayer
     int commrewindamount;
     int commnotifyamount;
     bool tryunflaggedskip;
+    int lastCommSkipDirection;
+    long long lastCommSkipStart;
+    time_t lastCommSkipTime;
 
     QString ccline;
     int cccol;

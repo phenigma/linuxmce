@@ -12,7 +12,7 @@
 
 using namespace std;
 
-class QSqlDatabase;
+//class QSqlDatabase;
 class QWidget;
 class ConfigurationGroup;
 class QDir;
@@ -28,8 +28,8 @@ public:
     virtual QWidget* configWidget(ConfigurationGroup *cg, QWidget* parent,
                                   const char* widgetName = 0);
 
-    virtual void load(QSqlDatabase* db) = 0;
-    virtual void save(QSqlDatabase* db) = 0;
+    virtual void load() = 0;
+    virtual void save() = 0;
 
     // A name for looking up the setting
     void setName(QString str) {
@@ -103,8 +103,10 @@ class ConfigurationGroup: virtual public Configurable
 {
     Q_OBJECT
   public:
-    ConfigurationGroup(bool luselabel = true, bool luseframe = true) 
-             { uselabel = luselabel; useframe = luseframe; }
+    ConfigurationGroup(bool luselabel = true, bool luseframe = true,
+                       bool lzeroMargin = false, bool lzeroSpace = false) 
+              { uselabel = luselabel; useframe = luseframe; 
+               zeroMargin = lzeroMargin; zeroSpace = lzeroSpace; }
     virtual ~ConfigurationGroup();
 
 
@@ -114,9 +116,9 @@ class ConfigurationGroup: virtual public Configurable
 
     virtual Setting* byName(QString name);
 
-    virtual void load(QSqlDatabase* db);
+    virtual void load();
 
-    virtual void save(QSqlDatabase* db);
+    virtual void save();
 
     void setUseLabel(bool useit) { uselabel = useit; }
     void setUseFrame(bool useit) { useframe = useit; }
@@ -129,12 +131,15 @@ class ConfigurationGroup: virtual public Configurable
     childList children;
     bool uselabel;
     bool useframe;
+    bool zeroMargin;
+    bool zeroSpace;
 };
 
 class VerticalConfigurationGroup: virtual public ConfigurationGroup {
  public:
-    VerticalConfigurationGroup(bool uselabel = true, bool useframe = true) 
-                : ConfigurationGroup(uselabel, useframe) { }
+    VerticalConfigurationGroup(bool uselabel = true, bool useframe = true,
+                                 bool zeroMargin = false, bool zeroSpace = false) 
+                : ConfigurationGroup(uselabel, useframe, zeroMargin, zeroSpace) { }
 
     virtual QWidget* configWidget(ConfigurationGroup *cg, QWidget* parent,
                                   const char* widgetName = 0);
@@ -142,11 +147,25 @@ class VerticalConfigurationGroup: virtual public ConfigurationGroup {
 
 class HorizontalConfigurationGroup: virtual public ConfigurationGroup {
  public:
-    HorizontalConfigurationGroup(bool uselabel = true, bool useframe = true) 
-                : ConfigurationGroup(uselabel, useframe) { }
+    HorizontalConfigurationGroup(bool uselabel = true, bool useframe = true,
+                                 bool zeroMargin = false, bool zeroSpace = false) 
+                : ConfigurationGroup(uselabel, useframe, zeroMargin, zeroSpace) { }
 
     virtual QWidget* configWidget(ConfigurationGroup *cg, QWidget* parent,
                                   const char* widgetName = 0);
+};
+
+class GridConfigurationGroup: virtual public ConfigurationGroup {
+ public:
+    GridConfigurationGroup(uint col, bool uselabel = true, bool useframe = true,
+                           bool zeroMargin = false, bool zeroSpace = false) 
+                : ConfigurationGroup(uselabel, useframe, zeroMargin, zeroSpace), 
+                  columns(col) { }
+
+    virtual QWidget* configWidget(ConfigurationGroup *cg, QWidget* parent,
+                                  const char* widgetName = 0);
+ private:
+    uint columns;
 };
 
 class StackedConfigurationGroup: virtual public ConfigurationGroup {
@@ -159,7 +178,7 @@ public:
                                   const char* widgetName = 0);
 
     void raise(Configurable* child);
-    virtual void save(QSqlDatabase* db);
+    virtual void save();
 
     // save all children, or only the top?
     void setSaveAll(bool b) { saveAll = b; };
@@ -193,7 +212,7 @@ public:
                                      const char* widgetName = 0);
 
     // Show a dialogWidget, and save if accepted
-    int exec(QSqlDatabase* db, bool saveOnExec = true, bool doLoad = true);
+    int exec(bool saveOnExec = true, bool doLoad = true);
 
 protected:
     MythDialog *dialog;
@@ -356,10 +375,12 @@ class ComboBoxSetting: public SelectSetting {
     Q_OBJECT;
 
 protected:
-    ComboBoxSetting(bool _rw = false) {
+    ComboBoxSetting(bool _rw = false, int _step = 1) {
         rw = _rw;
+        step = _step;
         widget = NULL;
     };
+
 public:
     virtual void setValue(QString newValue) {
         if (!rw)
@@ -394,6 +415,9 @@ protected slots:
 private:
     bool rw;
     MythComboBox *widget;
+
+protected:
+    int step;
 };
 
 class ListBoxSetting: public SelectSetting {
@@ -545,9 +569,9 @@ public:
         setLabel("Channel");
     };
 
-    static void fillSelections(QSqlDatabase* db, SelectSetting* setting);
-    virtual void fillSelections(QSqlDatabase* db) {
-        fillSelections(db, this);
+    static void fillSelections(SelectSetting* setting);
+    virtual void fillSelections() {
+        fillSelections(this);
     };
 };
 
@@ -582,8 +606,8 @@ public:
     DBStorage(QString _table, QString _column):
         table(_table), column(_column) {};
 
-    virtual void load(QSqlDatabase* db) = 0;
-    virtual void save(QSqlDatabase* db) = 0;
+    virtual void load() = 0;
+    virtual void save() = 0;
 
 protected:
     QString getColumn(void) const { return column; };
@@ -600,8 +624,8 @@ public:
 
     virtual ~SimpleDBStorage() {};
 
-    virtual void load(QSqlDatabase* db);
-    virtual void save(QSqlDatabase* db);
+    virtual void load();
+    virtual void save();
 
 protected:
 
@@ -613,8 +637,8 @@ protected:
 
 class TransientStorage: virtual public Setting {
 public:
-    virtual void load(QSqlDatabase* db) { (void)db; }
-    virtual void save(QSqlDatabase* db) { (void)db; }
+    virtual void load() {  }
+    virtual void save() {  }
 };
 
 class AutoIncrementStorage: virtual public IntegerSetting, public DBStorage {
@@ -624,8 +648,8 @@ public:
         setValue(0);
     };
 
-    virtual void load(QSqlDatabase* db) { (void)db; };
-    virtual void save(QSqlDatabase* db);
+    virtual void load() { };
+    virtual void save();
 };
 
 class ButtonSetting: virtual public Setting {
@@ -667,7 +691,7 @@ public:
 
     virtual MythDialog* dialogWidget(MythMainWindow* parent,
                                      const char* widgetName=0);
-    int exec(QSqlDatabase* db, bool saveOnAccept=true);
+    int exec(bool saveOnAccept=true);
 
 public slots:
     void accept() { if (dialog) dialog->accept(); };
@@ -751,6 +775,42 @@ class HostComboBox: public ComboBoxSetting, public HostSetting {
     HostComboBox(const QString &name, bool rw = false) :
         ComboBoxSetting(rw),
         HostSetting(name) { }
+    virtual ~HostComboBox() { ; }
+};
+
+class HostRefreshRateComboBox: virtual public HostComboBox
+{
+    Q_OBJECT
+  public:
+    HostRefreshRateComboBox(const QString &name, bool rw = false) :
+        HostComboBox(name, rw) { ; }
+    virtual ~HostRefreshRateComboBox() { ; }
+  public slots:
+    virtual void ChangeResolution(const QString& resolution);
+  private:
+    static const vector<short> GetRefreshRates(const QString &resolution);
+};
+
+class HostTimeBox: public ComboBoxSetting, public HostSetting {
+  public:
+    HostTimeBox(const QString &name, const QString &defaultTime = "00:00",
+                const int interval = 1) :
+        ComboBoxSetting(false, 30 / interval),
+        HostSetting(name)
+    {
+        int hour;
+        int minute;
+        QString timeStr;
+
+        for (hour = 0; hour < 24; hour++)
+        {
+            for (minute = 0; minute < 60; minute += interval)
+            {
+                timeStr = timeStr.sprintf("%02d:%02d", hour, minute);
+                addSelection(timeStr, timeStr, timeStr == defaultTime);
+            }
+        }
+    }
 };
 
 class HostLineEdit: public LineEditSetting, public HostSetting {

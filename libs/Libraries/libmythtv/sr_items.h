@@ -2,6 +2,7 @@
 #define SR_ITEMS_H
 #include <qsqldatabase.h>
 #include "mythcontext.h"
+#include "mythdbcon.h"
 #include "managedlist.h"
 #include "scheduledrecording.h"
 #include "recordingprofile.h"
@@ -171,25 +172,29 @@ class SRRecordingType : public SRSelectSetting
         }
 
 
-        void addNormalSelections(bool haschannel)
+        void addNormalSelections(bool haschannel, bool ismanual)
         {
             addSelection(QObject::tr("Do not record this program"), kNotRecording);
 
             if (haschannel)
                 addSelection(QObject::tr("Record only this showing"), kSingleRecord);
-            addSelection(QObject::tr("Record one showing of this title"), kFindOneRecord);
+            if (!ismanual)
+                addSelection(QObject::tr("Record one showing of this title"), kFindOneRecord);
 
             if (haschannel)
                 addSelection(QObject::tr("Record in this timeslot every week"), kWeekslotRecord);
-            addSelection(QObject::tr("Record one showing of this title every week"), kFindWeeklyRecord);
+            if (!ismanual)
+                addSelection(QObject::tr("Record one showing of this title every week"), kFindWeeklyRecord);
 
             if (haschannel)
                 addSelection(QObject::tr("Record in this timeslot every day"),  kTimeslotRecord);
-            addSelection(QObject::tr("Record one showing of this title every day"), kFindDailyRecord);
+            if (!ismanual)
+                addSelection(QObject::tr("Record one showing of this title every day"), kFindDailyRecord);
 
-            if (haschannel)
+            if (haschannel && !ismanual)
                 addSelection(QObject::tr("Record at any time on this channel"), kChannelRecord);
-           addSelection(QObject::tr("Record at any time on any channel"), kAllRecord);
+            if (!ismanual)
+                addSelection(QObject::tr("Record at any time on any channel"), kAllRecord);
         }
 
         void addOverrideSelections(void)
@@ -293,14 +298,14 @@ class SRProfileSelector: public SRSelectSetting {
         }
 
 
-        virtual void load(QSqlDatabase* db) {
-            fillSelections(db);
-            SRSelectSetting::load(db);
+        virtual void load() {
+            fillSelections();
+            SRSelectSetting::load();
         }
 
-        virtual void fillSelections(QSqlDatabase* db) {
+        virtual void fillSelections() {
             clearSelections();
-            RecordingProfile::fillSelections(db, selectItem, 0);
+            RecordingProfile::fillSelections(selectItem, 0);
         }
 };
 
@@ -524,6 +529,16 @@ class SRFindId: public IntegerSetting, public SimpleSRSetting
         }
 };
 
+class SRParentId: public IntegerSetting, public SimpleSRSetting
+{
+    public:
+        SRParentId(ScheduledRecording& parent)
+            : SimpleSRSetting(parent, "parentid")
+        {
+            setVisible(false);
+        }
+};
+
 class SRAutoTranscode: public SRSelectSetting 
 {
     public:
@@ -698,9 +713,9 @@ class SRRecGroup: public SRSelectSetting
         }
 
 
-        virtual void load(QSqlDatabase *db) {
-            fillSelections(db);
-            SRSelectSetting::load(db);
+        virtual void load() {
+            fillSelections();
+            SRSelectSetting::load();
         }
 
         virtual QString getValue(void) const {
@@ -710,7 +725,7 @@ class SRRecGroup: public SRSelectSetting
                 return settingValue;
         }
 
-        virtual void fillSelections(QSqlDatabase *db)
+        virtual void fillSelections()
         {
             addButton(QString("[ %1 ]").arg(QObject::tr("Create a new recording group")), "__NEW_GROUP__");
             connect(selectItem, SIGNAL(buttonPressed(ManagedListItem*, ManagedListItem*)), this,
@@ -718,12 +733,12 @@ class SRRecGroup: public SRSelectSetting
 
             addSelection(QString(QObject::tr("Store in the \"%1\" recording group"))
                          .arg(QObject::tr("Default")), "Default");
-
+            MSqlQuery query(MSqlQuery::InitCon());
             QString thequery = QString("SELECT DISTINCT recgroup from recorded "
                                        "WHERE recgroup <> 'Default'");
-            QSqlQuery query = db->exec(thequery);
+            query.prepare(thequery);
 
-            if (query.isActive() && query.numRowsAffected() > 0)
+            if (query.exec() && query.isActive() && query.size() > 0)
             {
                 while (query.next())
                 {
@@ -736,9 +751,9 @@ class SRRecGroup: public SRSelectSetting
 
             thequery = QString("SELECT DISTINCT recgroup from record "
                                "WHERE recgroup <> 'Default'");
-            query = db->exec(thequery);
+            query.prepare(thequery);
 
-            if (query.isActive() && query.numRowsAffected() > 0)
+            if (query.exec() && query.isActive() && query.size() > 0)
                 while (query.next())
                 {
                     QString recgroup = QString::fromUtf8(query.value(0).toString());
