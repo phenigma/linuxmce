@@ -515,9 +515,9 @@ void Command_Impl::QueueMessageToRouter( Message *pMessage )
 	if( m_bLocalMode )
 		return;
 
+	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
 g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) adding Type %d ID %d To %d to queue of size: %d",m_dwPK_Device,
 pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_listMessageQueue.size());
-	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
 	m_listMessageQueue.push_back( pMessage );
 	pthread_cond_broadcast( &m_listMessageQueueCond );
 	mq.Release();
@@ -526,8 +526,7 @@ pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_l
 	Sleep(500); // This should give the process que plenty of time to wakeup
 	mq.Relock(); // Confirm that nothing was blocking the mutex
 	pthread_cond_broadcast( &m_listMessageQueueCond );  // Try again.  Should be harmless
-g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) rebroadcasting Type %d ID %d To %d to queue of size: %d",m_dwPK_Device,
-pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_listMessageQueue.size());
+g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) rebroadcasting",m_dwPK_Device);
 }
 
 void Command_Impl::ProcessMessageQueue()
@@ -582,6 +581,7 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	// Just put it in the queue.  The queue will delete pPreformedCommand.m_pMessage after sending
 	if( iConfirmation == 0 || ( iConfirmation == -1 && !pPreformedCommand.m_pcResponse ) )
 	{
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand queue conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
 		pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_None;
 		QueueMessageToRouter( pPreformedCommand.m_pMessage );
 		return true;
@@ -590,22 +590,27 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	// We need a response.  It will be a string if there are no out parameters
 	if( !pPreformedCommand.m_pcResponse )
 	{
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
 		pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
 		string sResponse; // We'll use this only if a response wasn't passed in
 		if( !p_sResponse )
 			p_sResponse = &sResponse;
 
 		bool bResult = m_pcRequestSocket->SendMessage( pPreformedCommand.m_pMessage, *p_sResponse );
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done conf %d resp %p (%d) %s",
+					  iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str());
 		return bResult && *p_sResponse == "OK";
 	}
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
 	// There are out parameters, we need to get a message back in return
 	pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done conf %d resp %p %p %d",
+iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0));
 	if( !pResponse || pResponse->m_dwID != 0 )
 	{
 		if(pResponse)
 			delete pResponse;
-
 
 		return false;
 	}
@@ -616,6 +621,7 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 		*p_sResponse = sResponse;
 
 	bool bResult = sResponse=="OK";
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm exiting conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
 
 	delete pResponse;
 	return bResult;
