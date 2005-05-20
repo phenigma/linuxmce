@@ -145,23 +145,34 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
             continue;
         }
 
-		vectDevices.push_back(pPlayerDeviceData);
         currentPlayerAddress = getMacAddressForDevice(pPlayerDeviceData);
 
 		g_pPlutoLogger->Write(LV_STATUS, "Slim_Server_Streamer::CMD_Start_Streaming() Making sure that the player \"%s\" is connected before doing anything.", StringUtils::URLDecode(currentPlayerAddress).c_str());
-		while ( SendReceiveCommand(currentPlayerAddress + " connected ?") != currentPlayerAddress + " connected 1" )
+		int nTries = 10;
+		while ( nTries && SendReceiveCommand(currentPlayerAddress + " connected ?") != currentPlayerAddress + " connected 1" )
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Slim_Server_Streamer::CMD_Start_Streaming() Not yet connected");
 			Sleep(500);
+			nTries--;
 		}
 
-		SendReceiveCommand(currentPlayerAddress + " stop"); // stop playback (if any)
-		SendReceiveCommand(currentPlayerAddress + " playlist clear"); // clear previous playlist (if any)
-		SendReceiveCommand(currentPlayerAddress + " playlist repeat 0"); // set the playlist to non repeating.
-		SendReceiveCommand(currentPlayerAddress + " sync -"); // break previous syncronization;
-        SendReceiveCommand(currentPlayerAddress + " sync " + lastPlayerAddress); // synchronize with the last one.
-        lastPlayerAddress = currentPlayerAddress;
-        itPlayerIds++;
+		if ( nTries == 0 )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Start_Streaming() Device %d (%s) with mac address %s was not detected as connected. Ignoring device.",
+				pPlayerDeviceData->m_dwPK_Device, pPlayerDeviceData->m_sDescription.c_str(), currentPlayerAddress.c_str());
+		}
+		else
+		{
+			vectDevices.push_back(pPlayerDeviceData);
+			SendReceiveCommand(currentPlayerAddress + " stop"); // stop playback (if any)
+			SendReceiveCommand(currentPlayerAddress + " playlist clear"); // clear previous playlist (if any)
+			SendReceiveCommand(currentPlayerAddress + " playlist repeat 0"); // set the playlist to non repeating.
+			SendReceiveCommand(currentPlayerAddress + " sync -"); // break previous syncronization;
+        	SendReceiveCommand(currentPlayerAddress + " sync " + lastPlayerAddress); // synchronize with the last one.
+	        lastPlayerAddress = currentPlayerAddress;
+		}
+
+		itPlayerIds++;
     }
 
 	// add this stream to the list of playing streams.
@@ -438,8 +449,6 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
         itStreamsToPlayers = pStreamer->m_mapStreamsToPlayers.begin();
         while ( itStreamsToPlayers != pStreamer->m_mapStreamsToPlayers.end() )
 		{
-			DeviceData_Base *pPlayerDeviceData = (*itStreamsToPlayers).second.second[0];
-
 			macAddress = pStreamer->FindControllingMacForStream(itStreamsToPlayers->first);
 
 			// do a SendReceive without actually logging the command ( this will potentially fill out the logs. );
@@ -838,10 +847,12 @@ void Slim_Server_Streamer::OnQuit()
 
 string Slim_Server_Streamer::getMacAddressForDevice(DeviceData_Base *pDevice)
 {
-	string macAddress = pDevice->GetMacAddress();
+	string macAddress;
 
-	if  ( macAddress.compare("") == 0 )
+	if ( pDevice->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
 		macAddress = StringUtils::makeUpPlayerAddressFromPlayerId(pDevice->m_dwPK_Device);
+	else
+		macAddress = pDevice->GetMacAddress();
 
 	return StringUtils::URLEncode(StringUtils::ToLower(macAddress));
 }
