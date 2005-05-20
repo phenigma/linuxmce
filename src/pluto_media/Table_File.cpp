@@ -118,8 +118,7 @@ void Row_File::SetDefaultValues()
 {
 	m_PK_File = 0;
 is_null[0] = false;
-m_FK_Type = 0;
-is_null[1] = false;
+is_null[1] = true;
 m_Path = "";
 is_null[2] = false;
 m_Filename = "0";
@@ -212,6 +211,9 @@ void Row_File::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->da
 m_psc_mod = val; is_modified=true; is_null[10]=false;}
 
 		
+bool Row_File::FK_Type_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[1];}
 bool Row_File::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
@@ -226,6 +228,10 @@ bool Row_File::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->datab
 return is_null[9];}
 
 			
+void Row_File::FK_Type_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[1]=val;
+is_modified=true;
+}
 void Row_File::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
