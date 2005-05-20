@@ -231,6 +231,7 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
     {
         sCMD_Result = "OK";
     }
+	g_pPlutoLogger->Write(LV_WARNING, "Finished spawning '%s': %s %s.", sName.c_str(), sFilename.c_str(), sArguments.c_str());
 }
 
 //<-dceag-c69-b->
