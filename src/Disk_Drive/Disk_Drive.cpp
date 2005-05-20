@@ -1314,7 +1314,7 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &
 
 	string strParameters, strCommOnFailure, strCommOnSuccess;
 
-	strParameters = StringUtils::Format("%d %d %s %s %d %d %s",
+	strParameters = StringUtils::Format("%d\t%d\t%s\t%s\t%d\t%d\t%s",
 			m_dwPK_Device,
 			pMessage->m_dwPK_Device_From,
 			StringUtils::Replace(sName, " ", "\\ ").c_str(),
