@@ -16,9 +16,9 @@ public:
 	Disk_Drive_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
-	virtual void Media_Inserted(int iFK_MediaType,string sMRL,string sID)
+	virtual void Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3,3,3,StringUtils::itos(iFK_MediaType).c_str(),4,sMRL.c_str(),7,sID.c_str()));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3,4,3,StringUtils::itos(iFK_MediaType).c_str(),4,sMRL.c_str(),7,sID.c_str(),35,sName.c_str()));
 	}
 
 	virtual void Ripping_Completed(int iResult,string sName)
@@ -85,7 +85,7 @@ public:
 	string DATA_Get_Drive() { return GetData()->Get_Drive(); }
 	void DATA_Set_Drive(string Value) { GetData()->Set_Drive(Value); }
 	//Event accessors
-	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str()); }
+	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str(),sName.c_str()); }
 	void EVENT_Ripping_Completed(int iResult,string sName) { GetEvents()->Ripping_Completed(iResult,sName.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
