@@ -21,6 +21,10 @@ function printUsage
 
 [ "$#" -lt "6" ] && printUsage && exit;
 
+for i in "$@"; do
+	echo "Parameter: $i"
+done
+
 diskDriveDeviceID=$1;
 mediaPluginDeviceID=$2;
 targetFileName=$3;
@@ -46,7 +50,7 @@ case $diskType in
 	;;
 	0|1|6|7|8)
 		Dir="/home/public/data/music/$targetFileName"
-		command="nice -n 15 cdparanoia -d $sourceDevice \$Track - | flac -o $Dir/\$FileName.in-progress-flac -"
+		command="nice -n 15 cdparanoia -d $sourceDevice \$Track - | flac -o \"$Dir/\$FileName.in-progress-flac\" -"
 	;;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
 esac
@@ -67,15 +71,24 @@ if [[ "$diskType" == 2 ]]; then
 	fi
 elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" == 7 || "$diskType" == 8 ]]; then
 	mkdir -p "$Dir"
+	trackList=${trackList// /@~#}
 	for File in ${trackList//|/ }; do
+		File=${File//@~#/ }
 		Track=${File%,*}
 		FileName=${File#*,}
 #		if ! nice -n 15 cdparanoia -d $sourceDevice $Track - | flac -o $Dir/$FileName.in-progress-flac -; then
+		echo "Executing: $(eval echo \"$command\")"
 		if ! eval $command; then
+			echo "Ripping failed"
 			/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_RESULT_FAILURE 35 "$FileName"
 			exit
 		fi
-		mv $Dir/$FileName.in-progress-flac $Dir/$FileName.flac
+		echo "First file ripped ok moving: $Dir/$FileName.in-progress-flac"
+		mv "$Dir/$FileName.in-progress-flac" "$Dir/$FileName.flac"
 	done
+	echo "Ripping successful"
 	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_SUCCESS 35 "$targetFileName"
 fi
+
+echo "Exiting ripping script"
+
