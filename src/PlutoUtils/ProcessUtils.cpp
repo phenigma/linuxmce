@@ -46,13 +46,17 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
 	string::size_type pos = 0;
     int i = 0;
 
+	printf("ProcessUtils::SpawnApplication() sCMDExec %s parms: %s size: %d\n",
+		sCmdExecutable.c_str(),sCmdParams.c_str(),(int) sCmdParams.size());
+
 	// this looks to complicated but i don;t have time to make it cleaner :-( mtoader@gmail.com)
     args[0] = (char *) strdup(sCmdExecutable.c_str());
+printf("dupped exec %s",args[0]);
 	while ( pos!=string::npos && pos<sCmdParams.size() && i < MaxArgs - 1)
 {
 string s=StringUtils::Tokenize(sCmdParams,"\t",pos);
 const char *ps=strdup(s.c_str());
-printf("dupped arg %d %s",i,ps);
+printf("dupped arg %d %s\n",i,ps);
 
 		args[++i] = strdup(s.c_str());
 }
@@ -61,17 +65,7 @@ printf("dupped arg %d %s",i,ps);
 	printf("ProcessUtils::SpawnApplication() Found %d arguments\n", i);
 
     for (int x = 0 ; x < i; x++)
-	{
-		char *pArgument 		= args[x];
-		char *pUnquotedArgument = args[x];
-		while ( *pArgument )
-		{
-			if ( *pArgument == '\\' ) pArgument++;
-			*pUnquotedArgument++ = *pArgument++;
-		}
-		*pUnquotedArgument = 0;
 		printf("ProcessUtils::SpawnApplication() Argument %d: %s\n", x, args[x]);
-	}
 
     pid_t pid = fork();
     switch (pid)

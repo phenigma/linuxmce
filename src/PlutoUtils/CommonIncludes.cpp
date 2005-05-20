@@ -44,7 +44,7 @@ bool AskYNQuestion(string Question,bool bDefault)
 				return bDefault;
 			if (c != EOF)
 				break;
-			sleep(50);
+			Sleep(50);
 		}
 	}
 }
