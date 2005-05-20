@@ -22,6 +22,7 @@
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
+#include "pluto_media/Table_Type_Extension.h"
 
 #ifdef WIN32
 #include <direct.h>
@@ -38,7 +39,7 @@
 using namespace std;
 using namespace DCE;
 
-UpdateMedia::UpdateMedia(string host, string user, string pass, string db_name, int port,string sDirectory,string sExtensions)
+UpdateMedia::UpdateMedia(string host, string user, string pass, string db_name, int port,string sDirectory)
 {
 	m_pDatabase_pluto_media = new Database_pluto_media( );
 	if( !m_pDatabase_pluto_media->Connect( host, user, pass, db_name, port ) )
@@ -47,7 +48,19 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, string db_name, 
 		return;
 	}
 	m_sDirectory=StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
-	m_sExtensions=sExtensions;
+
+	vector<Row_Type_Extension *> vectRow_Type_Extension;
+	m_pDatabase_pluto_media->Type_Extension_get()->GetRows("1=1",&vectRow_Type_Extension);
+	for(size_t s=0;s<vectRow_Type_Extension.size();++s)
+	{
+		Row_Type_Extension *pRow_Type_Extension = vectRow_Type_Extension[s];
+		m_sExtensions += pRow_Type_Extension->Extension_get() + ",";
+		m_mapExtensions[pRow_Type_Extension->Extension_get()] = pRow_Type_Extension->FK_Type_get();
+	}
+
+#ifdef WIN32
+	chdir("Z:\\");
+#endif
 
 	// We don't want a trailing slash on the directory
 	if( m_sDirectory.size() && m_sDirectory[ m_sDirectory.size()-1 ]=='/' )
@@ -73,8 +86,8 @@ int UpdateMedia::ReadDirectory(string sDirectory)
 	FileUtils::FindFiles(listFilesOnDisk,sDirectory,m_sExtensions);
 
 	map<string,pair<Row_File *,bool> > mapFiles;
-	vector<Row_File *> vectRow_File;
 
+	vector<Row_File *> vectRow_File;
 	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(sDirectory) + "'",
 		&vectRow_File);
 	for(size_t s=0;s<vectRow_File.size();++s)
@@ -102,8 +115,9 @@ cout << *it << " not in db-attr: " << PK_File << endl;
 			{
 				// Is it a media file?
 				string sExtension = FileUtils::FindExtension(*it);
-				if( sExtension.size() && m_sExtensions.find( "," + StringUtils::ToUpper(sExtension) + "," )!=string::npos )
-					PK_File = AddFileToDatabase(sDirectory,*it);
+				int PK_Type = m_mapExtensions[sExtension];
+				if( PK_Type )
+					PK_File = AddFileToDatabase(PK_Type,sDirectory,*it);
 				else
 				{
 cout << "not a media file" << endl;
@@ -134,37 +148,9 @@ cout << *it << " exists in db as: " << PK_File << endl;
 			SetFileAttribute(sDirectory,*it,PK_File);  // The file doesn't exist.  Shouldn't really happen
 		}
 
-
-		// If we're here, then this is a file and it's in the database.  Look for the picture
-		vector<Row_Picture_File *> vectPicture_File;
-		m_pDatabase_pluto_media->Picture_File_get()->GetRows("FK_File=" + StringUtils::itos(PK_File),&vectPicture_File);
-cout << "Found " << (int) vectPicture_File.size() << " pics for file" << endl;
-		if( vectPicture_File.size() )
-		{
-			SetPicAttribute(sDirectory,*it,vectPicture_File[0]->FK_Picture_get());
-			if( !PK_Picture )
-				PK_Picture = vectPicture_File[0]->FK_Picture_get();  // The first pic for this directory
-			continue;
-		}
-
-		// Does one of the attributes have a picture
-		vector<Row_Picture_Attribute *> vectPicture_Attribute;
-		m_pDatabase_pluto_media->Picture_Attribute_get()->GetRows(
-			"JOIN File_Attribute ON Picture_Attribute.FK_Attribute=File_Attribute.FK_Attribute "
-			" JOIN Attribute ON Picture_Attribute.FK_Attribute=Attribute.PK_Attribute "
-			" JOIN AttributeType ON Attribute.FK_AttributeType=AttributeType.PK_AttributeType "
-			" WHERE FK_File=" + 
-			StringUtils::itos(PK_File),&vectPicture_Attribute) +
-			" ORDER BY `PicPriority`";
-
-cout << "Found " << (int) vectPicture_Attribute.size() << " pics for attribute" << endl;
-		if( vectPicture_Attribute.size() )
-		{
-			SetPicAttribute(sDirectory,*it,vectPicture_Attribute[0]->FK_Picture_get());
-			if( !PK_Picture )
-				PK_Picture = vectPicture_Attribute[0]->FK_Picture_get();  // The first pic for this directory
-			continue;
-		}
+		int i = GetPicForFileOrDirectory(sDirectory + "/" + *it,PK_File);
+		if( !PK_Picture )
+			PK_Picture = i;
 	}
 
 	// See if there are any files in the database that aren't in the directory any more
@@ -189,7 +175,11 @@ cout << (int) listSubDirectories.size() << " sub directories" << endl;
 	}
 
 	// Whatever was the first picture we found will be the one for this directory
-	SetPicAttribute(sDirectory,"",PK_Picture);
+	int PK_Picture_Directory = GetPicForFileOrDirectory(sDirectory,0);
+	if( PK_Picture_Directory )
+		PK_Picture = PK_Picture_Directory;  // This takes priority
+
+	SetPicAttribute("",sDirectory,PK_Picture);
 
 	return PK_Picture;
 }
@@ -199,7 +189,10 @@ void UpdateMedia::SetPicAttribute(string sDirectory,string sFile,int PK_Picture)
 	cout << "SetPicAttribute " << sDirectory << " / " << sFile << " " << PK_Picture  << endl;
 #ifndef WIN32
 	string sPK_Picture = StringUtils::itos(PK_Picture);
-	attr_set( (sDirectory + "/" + sFile).c_str( ), "PIC", sPK_Picture.c_str( ), sPK_Picture.length( ), 0 );
+	if( m_sDirectory.size() )
+		attr_set( (sDirectory + "/" + sFile).c_str( ), "PIC", sPK_Picture.c_str( ), sPK_Picture.length( ), 0 );
+	else
+		attr_set( sFile.c_str( ), "PIC", sPK_Picture.c_str( ), sPK_Picture.length( ), 0 );
 #endif
 }
 
@@ -237,14 +230,56 @@ cout << "GetFileAttribute " << sDirectory << " / " << sFile << " not found " << 
 }        
 
 
-int UpdateMedia::AddFileToDatabase(string sDirectory,string sFile)
+int UpdateMedia::AddFileToDatabase(int PK_Type,string sDirectory,string sFile)
 {
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 	pRow_File->Path_set(sDirectory);
 	pRow_File->Filename_set(sFile);
+	pRow_File->FK_Type_set(PK_Type);
 	// TODO: Add attributes from ID3 tags
 	pRow_File->Table_File_get()->Commit();
 cout << "Added " << sDirectory << " / " << sFile << " to db " << pRow_File->PK_File_get() << endl;
 	return pRow_File->PK_File_get();
 }
 
+int UpdateMedia::GetPicForFileOrDirectory(string sFile,int PK_File)
+{
+	if( !PK_File )
+	{
+		vector<Row_File *> vectRow_File;
+		m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::BasePath(sFile)) + 
+			"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sFile)) + "'",
+			&vectRow_File);
+		if( vectRow_File.size() )
+			PK_File = vectRow_File[0]->PK_File_get();
+		else
+			return 0;  // Can do nothing.  This isn't in the database
+	}
+
+	vector<Row_Picture_File *> vectPicture_File;
+	m_pDatabase_pluto_media->Picture_File_get()->GetRows("FK_File=" + StringUtils::itos(PK_File),&vectPicture_File);
+cout << "Found " << (int) vectPicture_File.size() << " pics for file" << endl;
+	if( vectPicture_File.size() )
+	{
+		SetPicAttribute("",sFile,vectPicture_File[0]->FK_Picture_get());
+		return vectPicture_File[0]->FK_Picture_get();  // The first pic for this directory
+	}
+
+	// Does one of the attributes have a picture
+	vector<Row_Picture_Attribute *> vectPicture_Attribute;
+	m_pDatabase_pluto_media->Picture_Attribute_get()->GetRows(
+		"JOIN File_Attribute ON Picture_Attribute.FK_Attribute=File_Attribute.FK_Attribute "
+		" JOIN Attribute ON Picture_Attribute.FK_Attribute=Attribute.PK_Attribute "
+		" JOIN AttributeType ON Attribute.FK_AttributeType=AttributeType.PK_AttributeType "
+		" WHERE FK_File=" + 
+		StringUtils::itos(PK_File) +
+		" ORDER BY `PicPriority`",&vectPicture_Attribute);
+
+cout << "Found " << (int) vectPicture_Attribute.size() << " pics for attribute" << endl;
+	if( vectPicture_Attribute.size() )
+	{
+		SetPicAttribute("",sFile,vectPicture_Attribute[0]->FK_Picture_get());
+		return vectPicture_Attribute[0]->FK_Picture_get();  // The first pic for this directory
+	}
+	return 0;
+}
