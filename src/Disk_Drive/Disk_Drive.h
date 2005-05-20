@@ -107,7 +107,7 @@ public:
 	void DATA_Set_Drive(string Value);
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID);
+	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
 	void EVENT_Ripping_Completed(int iResult,string sName);
 
 			*****COMMANDS***** we need to implement

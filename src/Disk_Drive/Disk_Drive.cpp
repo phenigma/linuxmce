@@ -1245,7 +1245,7 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
         {
 			m_discid=time(NULL);
 			g_pPlutoLogger->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);
-            EVENT_Media_Inserted(status, mrl,StringUtils::itos(m_discid));
+            EVENT_Media_Inserted(status, mrl,StringUtils::itos(m_discid),m_sDrive);
         }
         else
         {
