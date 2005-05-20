@@ -10,6 +10,9 @@
 	#include <pthread.h>
 	#include <windows.h>
 #endif
+using namespace std;
+
+#include "StringUtils.h"
 
 namespace ProcessUtils
 {
@@ -40,7 +43,7 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
     const int MaxArgs = 32;
     char * args[MaxArgs];
 
-	string::size_t pos = 0;
+	string::size_type pos = 0;
     int i = 0;
 
 	// this looks to complicated but i don;t have time to make it cleaner :-( mtoader@gmail.com)
