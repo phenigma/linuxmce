@@ -11,6 +11,7 @@ using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
+#include "sys/wait.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -185,8 +186,43 @@ void CDDB_Identifier::CMD_Identify_Media(string sFilename,string *sID,string &sC
 	cout << "Parm #10 - ID=" << sID << endl;
 	cout << "Parm #13 - Filename=" << sFilename << endl;
 
-	// Tab separated: CDID Artist Title Genre Track1_title Track2_title ...
+	// sID: Tab separated: CDID Artist Title Genre Track1_title [Track2_title ...]
+	int pid = fork();
+	const int MAX = 4096;
+
+	if (pid == -1)
+		return;
+
+	int child_pipe[2];
+
+	pipe(child_pipe);
+	if (pid == 0)
+	{
+		close(child_pipe[0]);
+		dup2(child_pipe[1], 1);
+
+		execl("/usr/pluto/bin/cddb_id.sh", "cddb_id.sh", sFilename.c_str(), (char *) NULL);
+		
+		exit(-1);
+	}
+	else
+	{
+		int retcode, bytes;
+		* sID = "";
+		char buffer[MAX + 1];
+
+		close(child_pipe[1]);
+
+		while ((bytes = read(child_pipe[0], &buffer, MAX)) > 0)
+		{
+			buffer[bytes] = 0;
+			* sID += buffer;
+		}
+		
+		waitpid(pid, &retcode, 0);
+		retcode = WEXITSTATUS(retcode);
+		if (retcode == 0)
+			sCMD_Result = "OK";
+	}
 }
-
-
 
