@@ -80,13 +80,14 @@ long int m_FK_Type;
 string m_Path;
 string m_Filename;
 long int m_Missing;
+long int m_IsDirectory;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[10];
+		bool is_null[11];
 	
 	public:
 		long int PK_File_get();
@@ -94,6 +95,7 @@ long int FK_Type_get();
 string Path_get();
 string Filename_get();
 long int Missing_get();
+long int IsDirectory_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -106,6 +108,7 @@ void FK_Type_set(long int val);
 void Path_set(string val);
 void Filename_set(string val);
 void Missing_set(long int val);
+void IsDirectory_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -146,7 +149,7 @@ void PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_File+ m_FK_Type+ m_Path+ m_Filename+ m_Missing+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_File+ m_FK_Type+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -156,6 +159,7 @@ string FK_Type_asSQL();
 string Path_asSQL();
 string Filename_asSQL();
 string Missing_asSQL();
+string IsDirectory_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

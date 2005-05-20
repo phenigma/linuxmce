@@ -13,6 +13,8 @@
 #define FILE_FILENAME_TABLE_FIELD "File.Filename"
 #define FILE_MISSING_FIELD "Missing"
 #define FILE_MISSING_TABLE_FIELD "File.Missing"
+#define FILE_ISDIRECTORY_FIELD "IsDirectory"
+#define FILE_ISDIRECTORY_TABLE_FIELD "File.IsDirectory"
 #define FILE_PSC_ID_FIELD "psc_id"
 #define FILE_PSC_ID_TABLE_FIELD "File.psc_id"
 #define FILE_PSC_BATCH_FIELD "psc_batch"

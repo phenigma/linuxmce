@@ -78,18 +78,20 @@ class DLL_EXPORT Row_AttributeType : public TableRow, public SerializeClass
 		long int m_PK_AttributeType;
 string m_Description;
 string m_Define;
+long int m_PicPriority;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[8];
+		bool is_null[9];
 	
 	public:
 		long int PK_AttributeType_get();
 string Description_get();
 string Define_get();
+long int PicPriority_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -100,6 +102,7 @@ string psc_mod_get();
 		void PK_AttributeType_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
+void PicPriority_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -108,6 +111,7 @@ void psc_mod_set(string val);
 
 		
 		bool Define_isNull();
+bool PicPriority_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -115,6 +119,7 @@ bool psc_frozen_isNull();
 
 			
 		void Define_setNull(bool val);
+void PicPriority_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -140,7 +145,7 @@ void Type_AttributeType_FK_AttributeType_getrows(vector <class Row_Type_Attribut
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_AttributeType+ m_Description+ m_Define+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_AttributeType+ m_Description+ m_Define+ m_PicPriority+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -148,6 +153,7 @@ void Type_AttributeType_FK_AttributeType_getrows(vector <class Row_Type_Attribut
 		string PK_AttributeType_asSQL();
 string Description_asSQL();
 string Define_asSQL();
+string PicPriority_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
