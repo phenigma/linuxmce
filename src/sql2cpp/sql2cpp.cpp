@@ -54,12 +54,9 @@
 using namespace std;
 
 vector<string> g_TablesList;
-class DCELogger *g_pDCELogger;
 
 int main( int argc, char *argv[] )
 {
-	
-//                123456789012345678901234567890123456789012345678901234567890
 	cout << " Copyright (C) 2004 Pluto, Inc., a Florida Corporation " << endl
 	    	<< " www.plutohome.com " << endl
 	    	<< " Phone: +1 (877) 758-8648 " << endl

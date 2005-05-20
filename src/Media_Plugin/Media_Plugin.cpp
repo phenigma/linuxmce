@@ -67,6 +67,7 @@ using namespace DCE;
 #include "pluto_media/Table_File.h"
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
+#include "pluto_media/Table_AttributeType.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "pluto_main/Define_DataGrid.h"
@@ -253,6 +254,7 @@ bool Media_Plugin::Register()
 	}
 
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaInserted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Inserted_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaIdentified ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Identified_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Media_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Completed_CONST );
@@ -442,13 +444,62 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
             MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,0,vectEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false,0);
 			if( pMediaStream )
 				pMediaStream->m_discid = discid;
-            return true;
+
+			// Notify the identifiers that it's time to ID what this is
+			DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(pDeviceFrom->m_dwPK_Device,DEVICECATEGORY_Media_Identifiers_CONST,
+				false,BL_SameComputer,pDeviceFrom->m_dwPK_Device,StringUtils::itos(discid),pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST]);
+			SendCommand(CMD_Identify_Media_Cat);
+
+			return true;
         }
     }
 
     g_pPlutoLogger->Write( LV_WARNING, "Nothing knows how to handle removable media here. We have %d Plugins registered", ( int ) pList_MediaHandlerInfo->size( ) );
     return false; // Couldn't handle it//                     g_pPlutoLogger->Write(LV_STATUS, "Filename: %s", sFilename.c_str());
 
+}
+
+bool Media_Plugin::MediaIdentified( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	int discid = atoi( pMessage->m_mapParameters[EVENTPARAMETER_ID_CONST].c_str( ) );
+    string sFormat = pMessage->m_mapParameters[40];
+    string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
+	int PK_Device_Disk_Drive = atoi( pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str( ) );
+	string sValue = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+
+	DeviceData_Router *pDevice_Disk_Drive = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Disk_Drive);
+	if( !pDevice_Disk_Drive )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find the disk drive device identified");
+		return false;
+	}
+
+	// Find the media stream
+	MediaStream *pMediaStream=NULL;
+    for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
+    {
+        MediaStream *pMS = (*it).second;
+		// If the disk matches, and the drive is either the source, or a sibbling of the source, this is the stream
+		if( pMS->m_discid==discid &&
+			(pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device==PK_Device_Disk_Drive ||
+			pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia==pDevice_Disk_Drive->m_pDevice_ControlledVia ) )
+		{
+			pMediaStream=pMS;
+			break;
+		}
+	}
+
+	if( !pMediaStream )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find media identified");
+		return false;
+	}
+	if( sFormat=="CDDB-TAB" )
+		Parse_CDDB_Media_ID(pMediaStream,sValue);
+
+	return true;
 }
 
 bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -961,7 +1012,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Just send it to the media device");
     return true;
 }
 
-void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream )
+void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream, bool bRefreshScreen )
 {
     delete pMediaStream->m_pPictureData;
 	pMediaStream->m_pPictureData = NULL;
@@ -1018,6 +1069,11 @@ g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
         {
             BoundRemote *pBoundRemote = ( *itBR ).second;
             pBoundRemote->UpdateOrbiter( pMediaStream );
+			if( bRefreshScreen )
+			{
+				DCE::CMD_Regen_Screen CMD_Regen_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+				SendCommand(CMD_Regen_Screen);
+			}
         }
         for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
         {
@@ -2873,18 +2929,49 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string
 		}
 		else 
 		{
-			string sNewTracks="";
-			string::size_type pos=0;
-			while( pos<sTracks.size() && pos!=string::npos )
+			if( sName.size()==0 )
 			{
-				string sTrack = StringUtils::Tokenize(sTracks,"|",pos);
-				int iTrack = atoi(sTrack.c_str());
-				sNewTracks += StringUtils::itos(iTrack+1);
-				if( iTrack<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() && pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription.size() )
-					sNewTracks += "," + pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription + "|";
-				else
-					sNewTracks += ",Unknown " + StringUtils::itos(iTrack+1) + "|";
-g_pPlutoLogger->Write(LV_STATUS,"%s %d %s",sTrack.c_str(),iTrack,sNewTracks.c_str());
+				sName = pEntertainArea->m_pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Group_CONST];
+				if( sName.size() )
+					sName += "/"; // We got a gropu
+
+				sName += pEntertainArea->m_pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Album_CONST];
+			}
+
+			// Validate the name and be sure it's unique
+			if( sName.size()==0 )
+				sName = "Unknown disc";
+
+			if( FileUtils::DirExists("/home/public/data/music/" + sName) )
+			{
+				int Counter=1;
+				while( FileUtils::DirExists("/home/public/data/music/" + sName + StringUtils::itos(Counter++)) );
+			}
+
+			string sNewTracks="";
+			if( sTracks=="A" )
+			{
+				for(size_t s=0;s<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size();++s)
+				{
+					MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[s];
+					sNewTracks += StringUtils::itos(s+1) +
+						"," + pMediaFile->m_sDescription + "|";
+				}
+			}
+			else
+			{
+				string::size_type pos=0;
+				while( pos<sTracks.size() && pos!=string::npos )
+				{
+					string sTrack = StringUtils::Tokenize(sTracks,"|",pos);
+					int iTrack = atoi(sTrack.c_str());
+					sNewTracks += StringUtils::itos(iTrack+1);
+					if( iTrack<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() && pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription.size() )
+						sNewTracks += "," + pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription + "|";
+					else
+						sNewTracks += ",Unknown " + StringUtils::itos(iTrack+1) + "|";
+	g_pPlutoLogger->Write(LV_STATUS,"%s %d %s",sTrack.c_str(),iTrack,sNewTracks.c_str());
+				}
 			}
 g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
 			sTracks=sNewTracks;
@@ -3149,4 +3236,37 @@ void Media_Plugin::CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,stri
 			}
 		}
 	}
+}
+
+void Media_Plugin::Parse_CDDB_Media_ID(MediaStream *pMediaStream,string sValue)
+{
+	string::size_type pos=0;
+	// The cddb info is space delimited
+	pMediaStream->m_mapAttributes[0] = "CDDB-TAB";  // A special attribute indicating who determined these value
+	pMediaStream->m_mapAttributes[ATTRIBUTETYPE_CDDB_CONST] = StringUtils::Tokenize(sValue," ",pos); // cddb id
+	int NumTracks=atoi(StringUtils::Tokenize(sValue," ",pos).c_str()); // cddb id
+
+	// The actual data is now tab delimited.
+	StringUtils::Tokenize(sValue,"\t",pos); // Skip to the first tab
+	pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Group_CONST] = StringUtils::Tokenize(sValue,"\t",pos);
+	pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Album_CONST] = StringUtils::Tokenize(sValue,"\t",pos);
+	pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Genre_CONST] = StringUtils::Tokenize(sValue,"\t",pos);
+
+	// Read the info for the tracks.  NumTracks normally should = pMediaStream->m_dequeMediaFile.size()
+	for(size_t s=0;s<NumTracks && s<pMediaStream->m_dequeMediaFile.size();++s)
+	{
+		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[s];
+		pMediaFile->m_sDescription = StringUtils::Tokenize(sValue,"\t\n",pos);
+	}
+
+	if( pMediaStream->m_dequeMediaFile.size() && pMediaStream->m_iDequeMediaFile_Pos<pMediaStream->m_dequeMediaFile.size() )
+	{
+		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
+		pMediaStream->m_sMediaDescription = pMediaFile->m_sDescription;
+	}
+	else
+		pMediaStream->m_sMediaDescription = pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Group_CONST] + " / " + 
+			pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Album_CONST];
+
+	MediaInfoChanged(pMediaStream,true);
 }

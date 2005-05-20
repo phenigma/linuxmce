@@ -71,7 +71,6 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream )
         CMD_Update_Object_Image.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
     }
 
-
 	m_pMedia_Plugin->QueueMessageToRouter( CMD_Update_Object_Image.m_pMessage );
     // TODO -- Need a real way to send multiple messages to the same device in one package. This gets them to the
 }

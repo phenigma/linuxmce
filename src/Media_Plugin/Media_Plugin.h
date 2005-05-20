@@ -106,6 +106,12 @@ protected:
 
 	bool DiskDriveIsRipping(int iPK_Device);
 
+	/**
+	 * Parse media identification that came in CDDB Format 
+	 */
+
+	void Parse_CDDB_Media_ID(MediaStream *pMediaStream,string sValue);
+
     /**
      * Find a media plugin info object that will play the specified file.
      */
@@ -261,8 +267,9 @@ public:
 
     /**
      * @brief Whenever the state of the media changes, the plug-in should call this function so we can update all the orbiter's pictures, descriptions, etc.
+	 * If the content of the media changed, such as when a new CD is identified and all the track lists need updating, set bRefreshScreen=true
      */
-    void MediaInfoChanged(MediaStream *pMediaStream);
+    void MediaInfoChanged(MediaStream *pMediaStream, bool bRefreshScreen=false );
 
     // We need our own message queue so that if a message comes in we don't know how to handle, we first hand it off to the plug-in, and if
     // that doesn't handle it either, we send it to the actual media device
@@ -275,6 +282,11 @@ public:
     bool MediaInserted(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
     /**
+     * @brief EVENT_Media_Identified event interceptor, fired when a media identification device identifies media
+     */
+    bool MediaIdentified(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+
+	/**
      * @brief EVENT_Playback_Completed event interceptor. Called when the router finds an event of this type in the queue.
      */
     bool PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);

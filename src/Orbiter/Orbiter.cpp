@@ -4247,7 +4247,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
             pObj->m_MaxRow, pObj->m_MaxCol, pObj->m_bKeepRowHeader, pObj->m_bKeepColHeader, true, pObj->m_sSeek, pObj->m_iSeekColumn, &data, &size, &GridCurRow );
 
         if(  !SendCommand( CMD_Request_Datagrid_Contents )  )
-            g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %s failed", pObj->m_ObjectID.c_str(  ) );
+            g_pPlutoLogger->Write( LV_CRITICAL, "Request datagrid: %s failed", pObj->m_ObjectID.c_str(  ) );
         else
         {
             if ( size && data )
@@ -4945,7 +4945,7 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 	{
 		DesignObj_DataGrid* pDesignObj = *it;
 
-		if(pDesignObj->m_sGridID == sDataGrid_ID)
+		if(sDataGrid_ID=="*" || pDesignObj->m_sGridID == sDataGrid_ID)
 		{
 			pDesignObj->bReAcquire=true;
 
@@ -4966,7 +4966,8 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 void Orbiter::CMD_Regen_Screen(string &sCMD_Result,Message *pMessage)
 //<-dceag-c15-e->
 {
-    cout << "Need to implement command #15 - Regen Screen" << endl;
+	if( m_pScreenHistory_Current )
+		NeedToRender::NeedToChangeScreens( this, m_pScreenHistory_Current );
 }
 
 //<-dceag-c16-b->
