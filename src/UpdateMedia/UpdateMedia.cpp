@@ -150,12 +150,12 @@ cout << "Found " << (int) vectPicture_File.size() << " pics for file" << endl;
 		// Does one of the attributes have a picture
 		vector<Row_Picture_Attribute *> vectPicture_Attribute;
 		m_pDatabase_pluto_media->Picture_Attribute_get()->GetRows(
-			"JOIN File_Attribute ON Picture_Attribute.FK_Attribute=File_Attribute.FK_Attribute "
-			"JOIN Attribute ON Picture_Attribute.FK_Attribute=Attribute.PK_Attribute "
-			"JOIN AttributeType ON Attribute.FK_AttributeType=AttributeType.PK_AttributeType "
-			"ORDER BY `PicPriority` "
-			"WHERE FK_File=" + 
-			StringUtils::itos(PK_File),&vectPicture_Attribute);
+			" JOIN File_Attribute ON Picture_Attribute.FK_Attribute=File_Attribute.FK_Attribute "
+			" JOIN Attribute ON Picture_Attribute.FK_Attribute=Attribute.PK_Attribute "
+			" JOIN AttributeType ON Attribute.FK_AttributeType=AttributeType.PK_AttributeType "
+			" WHERE FK_File=" + 
+			StringUtils::itos(PK_File),&vectPicture_Attribute) +
+			" ORDER BY `PicPriority`";
 
 cout << "Found " << (int) vectPicture_Attribute.size() << " pics for attribute" << endl;
 		if( vectPicture_Attribute.size() )

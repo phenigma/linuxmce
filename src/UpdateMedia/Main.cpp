@@ -45,6 +45,12 @@ int main(int argc, char *argv[])
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
+		if( argv[optnum][0]!='-' )
+		{
+			cerr << "Unknown option " << argv[optnum] << endl;
+			bError=true;
+		}
+
 		c=argv[optnum][1];
 		switch (c)
 		{
