@@ -123,7 +123,7 @@ public:
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
 		if( (result_set.r=mysql_query_result("SELECT md5('" + Input +"')"))==NULL || (row = mysql_fetch_row(result_set.r))==NULL )
-			throw "error getting md5";
+			return "";
 
 		return row[0];
 	}
