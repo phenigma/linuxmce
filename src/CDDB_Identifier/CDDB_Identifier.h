@@ -45,6 +45,7 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Media_Identified(string sMRL,string sID,int iPK_Device,string sValue,string sFormat);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -52,13 +53,15 @@ public:
 
 	/** @brief COMMAND: #314 - Identify Media */
 	/** New media has been inserted and needs to be identified.  Any third party Media Identifier device can provide a description of the media. */
+		/** @param #2 PK_Device */
+			/** The disk drive that has the media */
 		/** @param #10 ID */
-			/** Information about the media in XML format.  See http://plutohome.com/support/index.php?section=document&docID=188 */
+			/** The ID of the disk */
 		/** @param #13 Filename */
 			/** The media that needs to be identified, such as /dev/cdrom under Linux, or E: under Windows */
 
-	virtual void CMD_Identify_Media(string sFilename,string *sID) { string sCMD_Result; CMD_Identify_Media(sFilename.c_str(),sID,sCMD_Result,NULL);};
-	virtual void CMD_Identify_Media(string sFilename,string *sID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Identify_Media(int iPK_Device,string sID,string sFilename) { string sCMD_Result; CMD_Identify_Media(iPK_Device,sID.c_str(),sFilename.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Identify_Media(int iPK_Device,string sID,string sFilename,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

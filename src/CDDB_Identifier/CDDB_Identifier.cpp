@@ -93,19 +93,21 @@ void CDDB_Identifier::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessa
 
 	/** @brief COMMAND: #314 - Identify Media */
 	/** New media has been inserted and needs to be identified.  Any third party Media Identifier device can provide a description of the media. */
+		/** @param #2 PK_Device */
+			/** The disk drive that has the media */
 		/** @param #10 ID */
-			/** Information about the media in XML format.  See http://plutohome.com/support/index.php?section=document&docID=188 */
+			/** The ID of the disk */
 		/** @param #13 Filename */
 			/** The media that needs to be identified, such as /dev/cdrom under Linux, or E: under Windows */
 
-void CDDB_Identifier::CMD_Identify_Media(string sFilename,string *sID,string &sCMD_Result,Message *pMessage)
+void CDDB_Identifier::CMD_Identify_Media(int iPK_Device,string sID,string sFilename,string &sCMD_Result,Message *pMessage)
 //<-dceag-c314-e->
 {
 	cout << "Command #314 - Identify Media" << endl;
 	cout << "Parm #10 - ID=" << sID << endl;
 	cout << "Parm #13 - Filename=" << sFilename << endl;
 
-	// sID: Tab separated: CDID Artist Title Genre Track1_title [Track2_title ...]
+	// sResult: Tab separated: CDID Artist Title Genre Track1_title [Track2_title ...]
 
 	int child_pipe[2];
 	pipe(child_pipe);
@@ -135,7 +137,7 @@ void CDDB_Identifier::CMD_Identify_Media(string sFilename,string *sID,string &sC
 	else
 	{
 		int retcode, bytes;
-		* sID = "";
+		string sResult;
 		char buffer[MAX + 1];
 
 		close(child_pipe[1]);
@@ -143,14 +145,17 @@ void CDDB_Identifier::CMD_Identify_Media(string sFilename,string *sID,string &sC
 		while ((bytes = read(child_pipe[0], &buffer, MAX)) > 0)
 		{
 			buffer[bytes] = 0;
-			* sID += buffer;
+			sResult += buffer;
 		}
 		
 		cout << "Result: " << * sID << endl;
 		waitpid(pid, &retcode, 0);
 		retcode = WEXITSTATUS(retcode);
 		if (retcode == 0)
+		{
 			sCMD_Result = "OK";
+			EVENT_Media_Identified(sFilename,sID,iPK_Device,sResult,"CDDB-TAB");
+		}
 
 		close(child_pipe[0]);
 	}
