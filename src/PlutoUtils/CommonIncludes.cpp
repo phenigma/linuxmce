@@ -30,16 +30,22 @@ bool AskYNQuestion(string Question,bool bDefault)
 	{
 		fflush(stdin);
 		cout << Question << (bDefault ? " [Y/n] " : " [N/y] ");
-		char c = getch();
-		cout << endl;
-		if( c==3 )
-			exit(1);
-		if( c=='y' || c=='Y' )
-			return true;
-		if( c=='n' || c=='N' )
-			return false;
-		if( c=='\n' )
-			return bDefault;
+		while (true)
+		{
+			char c = getch();
+			cout << endl;
+			if( c==3 )
+				exit(1);
+			if( c=='y' || c=='Y' )
+				return true;
+			if( c=='n' || c=='N' )
+				return false;
+			if( c=='\n' )
+				return bDefault;
+			if (c != EOF)
+				break;
+			sleep(50);
+		}
 	}
 }
 
