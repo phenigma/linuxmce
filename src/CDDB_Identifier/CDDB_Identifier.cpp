@@ -181,9 +181,11 @@ void CDDB_Identifier::SomeFunction()
 void CDDB_Identifier::CMD_Identify_Media(string sFilename,string *sID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c314-e->
 {
-	cout << "Need to implement command #314 - Identify Media" << endl;
+	cout << "Command #314 - Identify Media" << endl;
 	cout << "Parm #10 - ID=" << sID << endl;
 	cout << "Parm #13 - Filename=" << sFilename << endl;
+
+	// Tab separated: CDID Artist Title Genre Track1_title Track2_title ...
 }
 
 
