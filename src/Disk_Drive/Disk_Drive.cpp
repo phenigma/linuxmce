@@ -1294,6 +1294,8 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Going to rip %s", sName.c_str() );
+
 	if ( m_isRipping )
 	{
 		EVENT_Ripping_Completed(RIP_RESULT_ALREADY_RIPPING, sName);
@@ -1322,7 +1324,7 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &
 			m_mediaDiskStatus, iPK_Users,
 			sTracks.c_str());
 
-	g_pPlutoLogger->Write(LV_STATUS, "Launching ripping job with name \"%s\" for disk with type \"%d\" parms %s", sName.c_str(), m_mediaDiskStatus, strParameters.c_str() );
+	g_pPlutoLogger->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", sName.c_str(), m_mediaDiskStatus, strParameters.c_str() );
 
 	DCE::CMD_Spawn_Application_DT
 		spawnApplication(m_dwPK_Device,
