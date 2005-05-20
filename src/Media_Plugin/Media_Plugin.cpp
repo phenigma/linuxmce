@@ -2945,7 +2945,10 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string
 			if( FileUtils::DirExists("/home/public/data/music/" + sName) )
 			{
 				int Counter=1;
-				while( FileUtils::DirExists("/home/public/data/music/" + sName + StringUtils::itos(Counter++)) );
+				string sNewName = sName + "_" + StringUtils::itos(Counter++);
+				while( FileUtils::DirExists("/home/public/data/music/" + sNewName) )
+					sNewName = sName + "_" + StringUtils::itos(Counter++);
+				sName = sNewName;
 			}
 
 			string sNewTracks="";
