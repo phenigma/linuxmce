@@ -106,22 +106,30 @@ void CDDB_Identifier::CMD_Identify_Media(string sFilename,string *sID,string &sC
 	cout << "Parm #13 - Filename=" << sFilename << endl;
 
 	// sID: Tab separated: CDID Artist Title Genre Track1_title [Track2_title ...]
+
+	int child_pipe[2];
+	pipe(child_pipe);
+
 	int pid = fork();
 	const int MAX = 4096;
 
 	if (pid == -1)
+	{
+		close(child_pipe[1]);
+		close(child_pipe[2]);
+		cout << "fork failed" << endl;
 		return;
+	}
 
-	int child_pipe[2];
-
-	pipe(child_pipe);
 	if (pid == 0)
 	{
 		close(child_pipe[0]);
 		dup2(child_pipe[1], 1);
 
+		cerr << "/usr/pluto/bin/cddb_id.sh" << sFilename.c_str() << endl;
 		execl("/usr/pluto/bin/cddb_id.sh", "cddb_id.sh", sFilename.c_str(), (char *) NULL);
 		
+		cerr << "exec failed" << endl;
 		exit(-1);
 	}
 	else
@@ -138,10 +146,13 @@ void CDDB_Identifier::CMD_Identify_Media(string sFilename,string *sID,string &sC
 			* sID += buffer;
 		}
 		
+		cout << "Result: " << * sID << endl;
 		waitpid(pid, &retcode, 0);
 		retcode = WEXITSTATUS(retcode);
 		if (retcode == 0)
 			sCMD_Result = "OK";
+
+		close(child_pipe[0]);
 	}
 }
 
