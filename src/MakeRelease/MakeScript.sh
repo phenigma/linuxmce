@@ -52,7 +52,7 @@ fi
 
 echo Using version with id: "$version"
 
-if [ "x$nobuild" = "x" ]; then
+if [ "$nobuild" = "" ]; then
 	rm /tmp/main_sqlcvs.dump
     if [ $version -eq 1 ]; then
 	    Q="select PK_Version from Version WHERE PK_Version<>1 ORDER BY date desc, PK_Version limit 1"
@@ -61,14 +61,14 @@ if [ "x$nobuild" = "x" ]; then
 		Q="select VersionName from Version WHERE PK_Version=$last_version"
 		last_version_name=$(echo "$Q;" | mysql -N pluto_main)
 
-		O1="UPDATE Version SET VersionName='${last_version_name}_$(date +%g%m%d%H)' WHERE PK_Version=$version;"
-        echo $O1 | mysql pluto_main
+		O1="UPDATE Version SET VersionName='${last_version_name}.$(date +%g%m%d%H)' WHERE PK_Version=$version;"
+        echo "$O1" | mysql pluto_main
 		
 		#This is an hourly build, so we're going to dump the pluto_main database and make it our sqlCVS database
 		mysqldump --quote-names --allow-keywords --add-drop-table pluto_main > /tmp/main_sqlcvs.dump
 	else
 		#This is a release build, so we want to get a real sqlCVS
-		sh -x /home/database-dumps/sync-sqlcvs.sh
+		bash -x /home/database-dumps/sync-sqlcvs.sh
 		rm /tmp/main_sqlcvs.tar.gz
 		ssh uploads@plutohome.com "rm /tmp/main_sqlcvs.dump /home/uploads/main_sqlcvs.tar.gz; mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump; cd /tmp; tar zcvf /home/uploads/main_sqlcvs.tar.gz main_sqlcvs.dump"
 		scp uploads@plutohome.com:/home/uploads/main_sqlcvs.tar.gz /tmp/
@@ -266,7 +266,7 @@ if [ "x$fastrun" = "x" ]; then
 else
 	(echo -e "Remove fastrun flag\n\n") | mail -s "**remove fastrun flag**" mihai.t@plutohome.com -c aaron@plutohome.com
 fi
-
+sh -x /home/SendToSwiss.sh
 read
 
 
