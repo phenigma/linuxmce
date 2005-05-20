@@ -16,6 +16,11 @@ public:
 	CDDB_Identifier_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
+	virtual void Media_Identified(string sMRL,string sID,int iPK_Device,string sValue,string sFormat)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 46,5,4,sMRL.c_str(),7,sID.c_str(),26,StringUtils::itos(iPK_Device).c_str(),30,sValue.c_str(),40,sFormat.c_str()));
+	}
+
 };
 
 
@@ -71,8 +76,9 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
+	void EVENT_Media_Identified(string sMRL,string sID,int iPK_Device,string sValue,string sFormat) { GetEvents()->Media_Identified(sMRL.c_str(),sID.c_str(),iPK_Device,sValue.c_str(),sFormat.c_str()); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Identify_Media(string sFilename,string *sID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Identify_Media(int iPK_Device,string sID,string sFilename,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -91,14 +97,14 @@ public:
 				case 314:
 					{
 						string sCMD_Result="OK";
-					string sFilename=pMessage->m_mapParameters[13];
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sID=pMessage->m_mapParameters[10];
-						CMD_Identify_Media(sFilename.c_str(),&sID,sCMD_Result,pMessage);
+					string sFilename=pMessage->m_mapParameters[13];
+						CMD_Identify_Media(iPK_Device,sID.c_str(),sFilename.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapParameters[10]=sID;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -111,7 +117,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Identify_Media(sFilename.c_str(),&sID,sCMD_Result,pMessage);
+								CMD_Identify_Media(iPK_Device,sID.c_str(),sFilename.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
