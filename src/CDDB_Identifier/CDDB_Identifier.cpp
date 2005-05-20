@@ -148,7 +148,7 @@ void CDDB_Identifier::CMD_Identify_Media(int iPK_Device,string sID,string sFilen
 			sResult += buffer;
 		}
 		
-		cout << "Result: " << * sID << endl;
+		cout << "Result: " << sResult << endl;
 		waitpid(pid, &retcode, 0);
 		retcode = WEXITSTATUS(retcode);
 		if (retcode == 0)
