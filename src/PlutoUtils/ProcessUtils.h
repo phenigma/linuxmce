@@ -18,6 +18,7 @@ namespace ProcessUtils
 	using std::string;
 	using std::vector;
 
+	// sCmdParams are tab delimited
 	bool SpawnApplication(string sCmdExecutable, string sCmdParams, string strAppIdentifier, void *attachedData = NULL);
 
 	bool KillApplication(string sAppIdentifier, vector<void *> &associatedData);

@@ -38,29 +38,21 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
 #ifndef WIN32
     //parse the args
     const int MaxArgs = 32;
-
-    char * ptr;
-
-	ptr = (char *) sCmdParams.c_str();
     char * args[MaxArgs];
+
+	string::size_t pos = 0;
     int i = 0;
 
 	// this looks to complicated but i don;t have time to make it cleaner :-( mtoader@gmail.com)
-    args[0] = (char *) sCmdExecutable.c_str();
-    while ( *ptr && i < MaxArgs - 1)
-    {
-		if ( *ptr == ' ' || *ptr == '\t' )
-			*ptr++ = 0;
-		while ( *ptr && (*ptr == ' ' || *ptr == '\t') ) ptr++;  // skip the white spaces.
-		if ( *ptr )
-		{
-			args[++i] = ptr; 			// put the next thing as a parameter
-			while ( *ptr && *ptr != ' ' && *ptr != '\t' ) {
-				if ( *ptr == '\\' ) ptr++; // skip quoted characters
-				ptr++;  // skip to the next white space. (this doesn't take into account quoted parameters) )
-			}
-		}
-    }
+    args[0] = (char *) strdup(sCmdExecutable.c_str());
+	while ( pos!=string::npos && pos<sCmdParams.size() && i < MaxArgs - 1)
+{
+string s=StringUtils::Tokenize(sCmdParams,"\t",pos);
+const char *ps=strdup(s.c_str());
+printf("dupped arg %d %s",i,ps);
+
+		args[++i] = strdup(s.c_str());
+}
 
 	args[++i] = 0;
 	printf("ProcessUtils::SpawnApplication() Found %d arguments\n", i);
@@ -96,6 +88,11 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
             return false;
 
 		default:
+			for(int i=0;i<i;++i)
+				free(args[i]);
+
+			printf("Freed args");
+
 			pthread_mutex_lock(&mutexDataStructure);
 			printf("ProcessUtils::SpawnApplication() adding this %d pid to the spawned list for %s\n", pid, sAppIdentifier.c_str());
 
