@@ -34,7 +34,7 @@ void Database_pluto_media::DeleteTable_Type_Extension()
 
 Table_Type_Extension::~Table_Type_Extension()
 {
-	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
+	map<Table_Type_Extension::Key, class TableRow*, Table_Type_Extension::Key_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
 		Row_Type_Extension *pRow = (Row_Type_Extension *) (*it).second;
@@ -74,8 +74,8 @@ void Row_Type_Extension::Delete()
 		}
 		else
 		{
-			SingleLongKey key(pRow->m_FK_Type);
-			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
+			Table_Type_Extension::Key key(pRow->m_FK_Type,pRow->m_Extension);
+			map<Table_Type_Extension::Key, TableRow*, Table_Type_Extension::Key_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -93,7 +93,7 @@ void Row_Type_Extension::Reload()
 	
 	if (!is_added)
 	{
-		SingleLongKey key(pRow->m_FK_Type);
+		Table_Type_Extension::Key key(pRow->m_FK_Type,pRow->m_Extension);
 		Row_Type_Extension *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -305,9 +305,10 @@ return s;
 
 
 
-Table_Type_Extension::Key::Key(long int in_FK_Type)
+Table_Type_Extension::Key::Key(long int in_FK_Type, string in_Extension)
 {
 			pk_FK_Type = in_FK_Type;
+pk_Extension = in_Extension;
 	
 }
 
@@ -316,6 +317,7 @@ Table_Type_Extension::Key::Key(Row_Type_Extension *pRow)
 			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
 			pk_FK_Type = pRow->m_FK_Type;
+pk_Extension = pRow->m_Extension;
 	
 }		
 
@@ -323,6 +325,9 @@ bool Table_Type_Extension::Key_Less::operator()(const Table_Type_Extension::Key 
 {
 			if (key1.pk_FK_Type!=key2.pk_FK_Type)
 return key1.pk_FK_Type<key2.pk_FK_Type;
+else
+if (key1.pk_Extension!=key2.pk_Extension)
+return key1.pk_Extension<key2.pk_Extension;
 else
 return false;	
 }	
@@ -362,7 +367,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL(
 				
 			
 			addedRows.erase(i);
-			SingleLongKey key(pRow->m_FK_Type);	
+			Table_Type_Extension::Key key(pRow->m_FK_Type,pRow->m_Extension);	
 			cachedRows[key] = pRow;
 					
 			
@@ -376,18 +381,21 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL(
 //update modified
 	
 
-	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<Table_Type_Extension::Key, class TableRow*, Table_Type_Extension::Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_Type_Extension* pRow = (Row_Type_Extension*) (*i).second;	
-		SingleLongKey key(pRow->m_FK_Type);
+		Table_Type_Extension::Key key(pRow->m_FK_Type,pRow->m_Extension);
 
 		char tmp_FK_Type[32];
-sprintf(tmp_FK_Type, "%li", key.pk);
+sprintf(tmp_FK_Type, "%li", key.pk_FK_Type);
+
+char tmp_Extension[17];
+mysql_real_escape_string(database->m_pMySQL,tmp_Extension, key.pk_Extension.c_str(), (unsigned long) key.pk_Extension.size());
 
 
 string condition;
-condition = condition + "`FK_Type`=" + tmp_FK_Type;
+condition = condition + "`FK_Type`=" + tmp_FK_Type+" AND "+"`Extension`=" + "\"" + tmp_Extension+ "\"";
 	
 			
 		
@@ -422,17 +430,20 @@ update_values_list = update_values_list + "`FK_Type`="+pRow->FK_Type_asSQL()+", 
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
+		map<Table_Type_Extension::Key, class TableRow*, Table_Type_Extension::Key_Less>::iterator i = deleted_cachedRows.begin();
 	
-		SingleLongKey key = (*i).first;
+		Table_Type_Extension::Key key = (*i).first;
 		Row_Type_Extension* pRow = (Row_Type_Extension*) (*i).second;	
 
 		char tmp_FK_Type[32];
-sprintf(tmp_FK_Type, "%li", key.pk);
+sprintf(tmp_FK_Type, "%li", key.pk_FK_Type);
+
+char tmp_Extension[17];
+mysql_real_escape_string(database->m_pMySQL,tmp_Extension, key.pk_Extension.c_str(), (unsigned long) key.pk_Extension.size());
 
 
 string condition;
-condition = condition + "`FK_Type`=" + tmp_FK_Type;
+condition = condition + "`FK_Type`=" + tmp_FK_Type+" AND "+"`Extension`=" + "\"" + tmp_Extension+ "\"";
 
 	
 		string query = "delete from Type_Extension where " + condition;
@@ -570,9 +581,9 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 
 		//checking for duplicates
 
-		SingleLongKey key(pRow->m_FK_Type);
+		Table_Type_Extension::Key key(pRow->m_FK_Type,pRow->m_Extension);
 		
-		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
+		map<Table_Type_Extension::Key, class TableRow*, Table_Type_Extension::Key_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
@@ -602,13 +613,13 @@ Row_Type_Extension* Table_Type_Extension::AddRow()
 
 
 
-Row_Type_Extension* Table_Type_Extension::GetRow(long int in_FK_Type)
+Row_Type_Extension* Table_Type_Extension::GetRow(long int in_FK_Type, string in_Extension)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
-	SingleLongKey row_key(in_FK_Type);
+	Table_Type_Extension::Key row_key(in_FK_Type, in_Extension);
 
-	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
+	map<Table_Type_Extension::Key, class TableRow*, Table_Type_Extension::Key_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -630,17 +641,20 @@ Row_Type_Extension* Table_Type_Extension::GetRow(long int in_FK_Type)
 
 
 
-Row_Type_Extension* Table_Type_Extension::FetchRow(SingleLongKey &key)
+Row_Type_Extension* Table_Type_Extension::FetchRow(Table_Type_Extension::Key &key)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Type[32];
-sprintf(tmp_FK_Type, "%li", key.pk);
+sprintf(tmp_FK_Type, "%li", key.pk_FK_Type);
+
+char tmp_Extension[17];
+mysql_real_escape_string(database->m_pMySQL,tmp_Extension, key.pk_Extension.c_str(), (unsigned long) key.pk_Extension.size());
 
 
 string condition;
-condition = condition + "`FK_Type`=" + tmp_FK_Type;
+condition = condition + "`FK_Type`=" + tmp_FK_Type+" AND "+"`Extension`=" + "\"" + tmp_Extension+ "\"";
 
 
 	string query = "select * from Type_Extension where " + condition;		

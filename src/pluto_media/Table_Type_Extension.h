@@ -18,7 +18,7 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_Type_Extension : public TableBase , SingleLongKeyBase
+class DLL_EXPORT Table_Type_Extension : public TableBase 
 {
 private:
 	Database_pluto_media *database;
@@ -36,9 +36,10 @@ private:
 	{
 		friend class Row_Type_Extension;
 		long int pk_FK_Type;
+string pk_Extension;
 
 		
-		Key(long int in_FK_Type);
+		Key(long int in_FK_Type, string in_Extension);
 	
 		Key(class Row_Type_Extension *pRow);
 	};
@@ -47,8 +48,8 @@ private:
 		bool operator()(const Table_Type_Extension::Key &key1, const Table_Type_Extension::Key &key2) const;
 	};	
 
-	
-	
+	map<Table_Type_Extension::Key, class TableRow*, Table_Type_Extension::Key_Less> cachedRows;
+	map<Table_Type_Extension::Key, class TableRow*, Table_Type_Extension::Key_Less> deleted_cachedRows;
 
 public:				
 	bool Commit();
@@ -57,13 +58,13 @@ public:
 	Database_pluto_media *Database_pluto_media_get() { return database; }
 	
 		
-	class Row_Type_Extension* GetRow(long int in_FK_Type);
+	class Row_Type_Extension* GetRow(long int in_FK_Type, string in_Extension);
 	
 
 private:	
 	
 		
-	class Row_Type_Extension* FetchRow(SingleLongKey &key);
+	class Row_Type_Extension* FetchRow(Table_Type_Extension::Key &key);
 		
 			
 };
