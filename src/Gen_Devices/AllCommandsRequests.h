@@ -6149,5 +6149,21 @@ namespace DCE
 	public:
 		CMD_NOREP_Verify_PIN_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Users,string sPassword) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,387,2,17,StringUtils::itos(iPK_Users).c_str(),99,sPassword.c_str()); }
 	};
+	class CMD_Set_Media_Private : public PreformedCommand {
+	public:
+		CMD_Set_Media_Private(long DeviceIDFrom, long DeviceIDTo,string sPK_EntertainArea,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,388,2,45,sPK_EntertainArea.c_str(),119,(bTrueFalse ? "1" : "0")); }
+	};
+	class CMD_Set_Media_Private_DL : public PreformedCommand {
+	public:
+		CMD_Set_Media_Private_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_EntertainArea,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,388,2,45,sPK_EntertainArea.c_str(),119,(bTrueFalse ? "1" : "0")); }
+	};
+	class CMD_Set_Media_Private_DT : public PreformedCommand {
+	public:
+		CMD_Set_Media_Private_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_EntertainArea,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,388,2,45,sPK_EntertainArea.c_str(),119,(bTrueFalse ? "1" : "0")); }
+	};
+	class CMD_Set_Media_Private_Cat : public PreformedCommand {
+	public:
+		CMD_Set_Media_Private_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_EntertainArea,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,388,2,45,sPK_EntertainArea.c_str(),119,(bTrueFalse ? "1" : "0")); }
+	};
 }
 #endif

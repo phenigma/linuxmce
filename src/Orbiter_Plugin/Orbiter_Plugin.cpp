@@ -761,6 +761,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p %d now in ea %p %d",pOH_Orbiter,
 	FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->PK_Users_get(),
 		pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0,
 		pEntertainArea_Last ? pEntertainArea_Last->m_iPK_EntertainArea : 0);
+
+	DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconl(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+		StringUtils::itos((int)(pEntertainArea && pEntertainArea->m_bMediaIsPrivate)),"media_private");
+	SendCommand(CMD_Set_Bound_Iconl);
+
 }
 
 //<-dceag-sample-b->! no sample

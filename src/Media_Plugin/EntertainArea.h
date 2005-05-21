@@ -20,7 +20,7 @@ namespace DCE
 		/** @brief constructor*/
 
 		EntertainArea(int iPK_EntertainArea,bool bOnly1Stream,string sDescription,Room *pRoom)
-		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; m_pMediaDevice_ActiveDest=NULL; }
+		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; m_pMediaDevice_ActiveDest=NULL; m_bMediaIsPrivate=false; }
 
 
 		~EntertainArea()
@@ -38,6 +38,7 @@ namespace DCE
 		int m_iPK_EntertainArea;
 		string m_sDescription;
 		Room *m_pRoom;
+		bool m_bMediaIsPrivate;
 
 		class MediaStream  *m_pMediaStream;   /** The current media streams in this entertainment area */
 		MediaDevice	*m_pMediaDevice_ActiveDest;      /** The media device that is currently rendering media in this area */

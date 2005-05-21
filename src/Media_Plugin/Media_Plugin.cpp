@@ -2376,6 +2376,17 @@ class DataGridTable *Media_Plugin::ActiveMediaStreams( string GridID, string Par
     for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
     {
         MediaStream *pMediaStream = (*it).second;
+		bool bPrivate=false;
+		for( map<int,class EntertainArea *>::iterator itEntAreas=pMediaStream->m_mapEntertainArea.begin(); itEntAreas != pMediaStream->m_mapEntertainArea.end(); itEntAreas++)
+		{
+			if( itEntAreas->second->m_bMediaIsPrivate )
+			{
+				bPrivate=true;
+				continue;
+			}
+		}
+		if( bPrivate )
+			continue;
         pMediaStream->m_iOrder = iRow;
         DataGridCell *pDataGridCell = new DataGridCell(pMediaStream->m_sMediaDescription,StringUtils::itos(pMediaStream->m_iStreamID_get()));
         pDataGridCell->m_AltColor = UniqueColors[iRow];
@@ -3272,4 +3283,35 @@ void Media_Plugin::Parse_CDDB_Media_ID(MediaStream *pMediaStream,string sValue)
 			pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Album_CONST];
 
 	MediaInfoChanged(pMediaStream,true);
+}
+//<-dceag-c388-b->
+
+	/** @brief COMMAND: #388 - Set Media Private */
+	/** Indicate if the media in an entertainment area is private or not. */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area */
+		/** @param #119 True/False */
+			/** True if the media in this area is public (the default), false if it's not */
+
+void Media_Plugin::CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse,string &sCMD_Result,Message *pMessage)
+//<-dceag-c388-e->
+{
+	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
+	if( !pEntertainArea )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Tried to set private flag on non-existant ea");
+		return;
+	}
+	pEntertainArea->m_bMediaIsPrivate=!bTrueFalse;
+
+	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+	{
+		OH_Orbiter *pOH_Orbiter = (*it).second;
+		if( pOH_Orbiter->m_pEntertainArea != pEntertainArea )
+			continue;
+
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconl(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+			StringUtils::itos((int) pEntertainArea->m_bMediaIsPrivate),"media_private");
+		SendCommand(CMD_Set_Bound_Iconl);
+	}
 }

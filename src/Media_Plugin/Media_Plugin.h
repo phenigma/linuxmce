@@ -518,6 +518,17 @@ public:
 	virtual void CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #388 - Set Media Private */
+	/** Indicate if the media in an entertainment area is private or not. */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area */
+		/** @param #119 True/False */
+			/** True if the media in this area is public (the default), false if it's not */
+
+	virtual void CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse) { string sCMD_Result; CMD_Set_Media_Private(sPK_EntertainArea.c_str(),bTrueFalse,sCMD_Result,NULL);};
+	virtual void CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 
