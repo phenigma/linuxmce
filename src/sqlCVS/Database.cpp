@@ -133,6 +133,7 @@ void Database::LoadDatabaseStructure()
 	for( MapTable::iterator itT=m_mapTable.begin( );itT!=m_mapTable.end( );++itT )
 	{
 		Table *pTable = ( *itT ).second;
+
 		pTable->MatchUpHistory( );
 		pTable->GetDependencies( );
 		if( pTable->Repository_get( ) )

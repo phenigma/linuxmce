@@ -6109,5 +6109,45 @@ namespace DCE
 	public:
 		CMD_Process_Receive_Command_For_Child_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,384,0); }
 	};
+	class RESP_Verify_PIN : public PreformedCommandResponse {
+		bool *m_bIsSuccessful;
+	public:
+		RESP_Verify_PIN(bool *bIsSuccessful) { 
+		m_bIsSuccessful=bIsSuccessful; }
+		void ParseResponse(Message *pMessage) {
+			*m_bIsSuccessful=(pMessage->m_mapParameters[40]=="1" ? true : false); };
+	};
+	class CMD_Verify_PIN : public PreformedCommand {
+	public:
+		CMD_Verify_PIN(long DeviceIDFrom, long DeviceIDTo,int iPK_Users,string sPassword,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,387,3,17,StringUtils::itos(iPK_Users).c_str(),99,sPassword.c_str(),40,(*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Verify_PIN(bIsSuccessful); }
+	};
+	class CMD_Verify_PIN_DL : public PreformedCommand {
+	public:
+		CMD_Verify_PIN_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Users,string sPassword,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,387,3,17,StringUtils::itos(iPK_Users).c_str(),99,sPassword.c_str(),40,(*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Verify_PIN(bIsSuccessful); }
+	};
+	class CMD_Verify_PIN_DT : public PreformedCommand {
+	public:
+		CMD_Verify_PIN_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Users,string sPassword,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,387,3,17,StringUtils::itos(iPK_Users).c_str(),99,sPassword.c_str(),40,(*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Verify_PIN(bIsSuccessful); }
+	};
+	class CMD_Verify_PIN_Cat : public PreformedCommand {
+	public:
+		CMD_Verify_PIN_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Users,string sPassword,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,387,3,17,StringUtils::itos(iPK_Users).c_str(),99,sPassword.c_str(),40,(*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Verify_PIN(bIsSuccessful); }
+	};
+	class CMD_NOREP_Verify_PIN : public PreformedCommand {
+	public:
+		CMD_NOREP_Verify_PIN(long DeviceIDFrom, long DeviceIDTo,int iPK_Users,string sPassword) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,387,2,17,StringUtils::itos(iPK_Users).c_str(),99,sPassword.c_str()); }
+	};
+	class CMD_NOREP_Verify_PIN_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Verify_PIN_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Users,string sPassword) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,387,2,17,StringUtils::itos(iPK_Users).c_str(),99,sPassword.c_str()); }
+	};
+	class CMD_NOREP_Verify_PIN_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Verify_PIN_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Users,string sPassword) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,387,2,17,StringUtils::itos(iPK_Users).c_str(),99,sPassword.c_str()); }
+	};
+	class CMD_NOREP_Verify_PIN_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Verify_PIN_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Users,string sPassword) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,387,2,17,StringUtils::itos(iPK_Users).c_str(),99,sPassword.c_str()); }
+	};
 }
 #endif

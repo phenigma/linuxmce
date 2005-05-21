@@ -1299,7 +1299,9 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
         case ARRAY_Media_Scenarios_CONST:
             if( m_pOrbiterGenerator->m_pRow_EntertainArea==NULL )
                 break;
-            PriorSort=-1;
+
+            alArray->push_back(new ArrayValue("","",NULL,0,DESIGNOBJ_butCurrentlyPlaying_CONST,0,0,false,false,false));
+			PriorSort=-1;
 
             {
                 vector<class Row_CommandGroup_EntertainArea *> vectEGs;

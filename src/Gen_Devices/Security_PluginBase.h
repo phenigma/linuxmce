@@ -46,6 +46,11 @@ public:
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 41,1,26,StringUtils::itos(iPK_Device).c_str()));
 	}
 
+	virtual void House_Mode_Changed(int iPK_DeviceGroup,int iPK_HouseMode)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 43,2,38,StringUtils::itos(iPK_DeviceGroup).c_str(),39,StringUtils::itos(iPK_HouseMode).c_str()));
+	}
+
 };
 
 
@@ -121,8 +126,10 @@ public:
 	void EVENT_Air_Quality(int iPK_Device) { GetEvents()->Air_Quality(iPK_Device); }
 	void EVENT_Doorbell(int iPK_Device) { GetEvents()->Doorbell(iPK_Device); }
 	void EVENT_Monitor_Mode(int iPK_Device) { GetEvents()->Monitor_Mode(iPK_Device); }
+	void EVENT_House_Mode_Changed(int iPK_DeviceGroup,int iPK_HouseMode) { GetEvents()->House_Mode_Changed(iPK_DeviceGroup,iPK_HouseMode); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Verify_PIN(int iPK_Users,string sPassword,bool *bIsSuccessful,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -164,6 +171,35 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 387:
+					{
+						string sCMD_Result="OK";
+					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
+					string sPassword=pMessage->m_mapParameters[99];
+					bool bIsSuccessful=(pMessage->m_mapParameters[40]=="1" ? true : false);
+						CMD_Verify_PIN(iPK_Users,sPassword.c_str(),&bIsSuccessful,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[40]=(bIsSuccessful ? "1" : "0");
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Verify_PIN(iPK_Users,sPassword.c_str(),&bIsSuccessful,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

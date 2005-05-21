@@ -32,6 +32,7 @@
 #include "pluto_main/Table_Language.h"
 #include "pluto_main/Table_Text.h"
 #include "pluto_main/Table_Style.h"
+#include "pluto_main/Table_Room_Users.h"
 #include "pluto_main/Table_Variable.h"
 #include "pluto_main/Table_StyleVariation.h"
 #include "pluto_main/Table_Device.h"
@@ -463,11 +464,39 @@ int OrbiterGenerator::DoIt()
 	// position, but we also need to sort it, and deque's don't implement sorting
 	list<LocationInfo *> listLocationInfo;
 
+	// If a User has the flag 'requires pin' set to true, then unless the user is specifically allowed
+	// to use this orbiter by having a record in Room_Users with FK_Room=NULL, then this user requires a pin
+	vector<Row_Users *> vectRow_Users;
+	mds.Users_get()->GetRows("LEFT JOIN Room_Users ON FK_Users=PK_Users AND FK_Orbiter=" + StringUtils::itos(m_pRow_Device->PK_Device_get()) + " WHERE RequirePinToSelect=1 AND FK_Users IS NULL",
+		&vectRow_Users);
+	for(size_t s=0;s<vectRow_Users.size();++s)
+		m_vectPK_Users_RequiringPIN.push_back( vectRow_Users[s]->PK_Users_get() );
+
 	vector<Row_Room *> vectRow_Room;
 	mds.Room_get()->GetRows("HideFromOrbiter=0 AND FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Room);
 	for(size_t s=0;s<vectRow_Room.size();++s)
 	{
 		Row_Room *pRow_Room = vectRow_Room[s];
+		vector<Row_Room_Users *> vectRow_Room_Users;
+		pRow_Room->Room_Users_FK_Room_getrows(&vectRow_Room_Users);
+
+		// If there are records in Room_Users for this room, then this room has restrictions.  There must be a
+		// record in the database with FK_Orbiter=this to explicitly allow this orbiter, or with
+		// FK_Orbiter=NULL to allow all orbiters
+		if(vectRow_Room_Users.size()) 
+		{
+			size_t s;
+			for(s=0;s<vectRow_Room_Users.size();++s)
+			{
+				Row_Room_Users *pRow_Room_Users = vectRow_Room_Users[s];
+				if( pRow_Room_Users->FK_Orbiter_isNull() ||
+						pRow_Room_Users->FK_Orbiter_get() == m_pRow_Device->PK_Device_get() )
+					break; // this one is good
+			}
+			if( s>=vectRow_Room_Users.size() )
+				continue;  // we didn't find anything matching
+		}
+
 		LocationInfo *li = new LocationInfo();
 		li->Description = pRow_Room->Description_get();
 		li->PK_EntertainArea = 0;
@@ -475,6 +504,16 @@ int OrbiterGenerator::DoIt()
 		li->drIcon=NULL;
 		if( !pRow_Room->FK_Icon_isNull() )
 			li->drIcon = pRow_Room->FK_Icon_getrow();
+
+		// If there are record in Room_Users for this room, and users are specified, then
+		// only those users can access this room
+		for(size_t s=0;s<vectRow_Room_Users.size();++s)
+		{
+			Row_Room_Users *pRow_Room_Users = vectRow_Room_Users[s];
+			if( !pRow_Room_Users->FK_Users_isNull() )
+				li->m_vectAllowedUsers.push_back(pRow_Room_Users->FK_Users_get());
+		}
+
 		listLocationInfo.push_back(li);
 	}
 

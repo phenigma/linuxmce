@@ -334,7 +334,7 @@ class DataGridTable *Security_Plugin::SecurityScenariosGrid( string GridID, stri
 	/** @brief COMMAND: #19 - Set House Mode */
 	/** Sets the current security setting (at home, away, etc.) for the house */
 		/** @param #5 Value To Assign */
-			/** A value from the HouseMode table */
+			/** A value from the HouseMode table, or -1=monitor mode on, -2=monitor mode off */
 		/** @param #17 PK_Users */
 			/** The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode. */
 		/** @param #99 Password */
@@ -1048,3 +1048,30 @@ void Security_Plugin::SaveHouseModes()
 	pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
 }
 
+//<-dceag-c387-b->
+
+	/** @brief COMMAND: #387 - Verify PIN */
+	/** Verifies a user's PIN Code */
+		/** @param #17 PK_Users */
+			/** The user */
+		/** @param #40 IsSuccessful */
+			/** true if successful, false otherwise */
+		/** @param #99 Password */
+			/** The pin code, either raw or preferrably in md5 format for security */
+
+void Security_Plugin::CMD_Verify_PIN(int iPK_Users,string sPassword,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage)
+//<-dceag-c387-e->
+{
+	// The password can either be the password or teh PIN code, and either plain text or md5.  iPK_Users is optional
+	ostringstream sql;
+	sql << "SELECT PK_Users FROM Users WHERE PK_Users=" << iPK_Users
+		<< " AND (Password='" << sPassword << "' OR Password='" << m_pRouter->md5(sPassword) 
+		<< "' OR PINCode='" << sPassword << "' OR PINCode='" << m_pRouter->md5(sPassword) << "')";
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pRouter->mysql_query_result( sql.str( ) ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL )
+        *bIsSuccessful=false;
+	else
+        *bIsSuccessful=true;
+}

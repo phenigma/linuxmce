@@ -57,6 +57,7 @@ itmp_RowsToDelete=0;
 	m_pField_id=m_pField_batch=m_pField_user=m_pField_frozen=m_pField_mod=NULL;
 	m_pTable_History=m_pTable_History_Mask=m_pTable_WeAreHistoryFor=m_pTable_WeAreHistoryMaskFor=NULL;
 	m_pField_AutoIncrement=NULL;
+	m_bIsSystemTable=false;
 	GetFields( );
 	m_psc_id_next=1;
 	m_psc_id_last_sync=m_psc_batch_last_sync=-1;

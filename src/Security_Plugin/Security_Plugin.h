@@ -158,6 +158,7 @@ public:
 	void EVENT_Air_Quality(int iPK_Device);
 	void EVENT_Doorbell(int iPK_Device);
 	void EVENT_Monitor_Mode(int iPK_Device);
+	void EVENT_House_Mode_Changed(int iPK_DeviceGroup,int iPK_HouseMode);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -166,7 +167,7 @@ public:
 	/** @brief COMMAND: #19 - Set House Mode */
 	/** Sets the current security setting (at home, away, etc.) for the house */
 		/** @param #5 Value To Assign */
-			/** A value from the HouseMode table */
+			/** A value from the HouseMode table, or -1=monitor mode on, -2=monitor mode off */
 		/** @param #17 PK_Users */
 			/** The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode. */
 		/** @param #99 Password */
@@ -178,6 +179,19 @@ public:
 
 	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions) { string sCMD_Result; CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #387 - Verify PIN */
+	/** Verifies a user's PIN Code */
+		/** @param #17 PK_Users */
+			/** The user */
+		/** @param #40 IsSuccessful */
+			/** true if successful, false otherwise */
+		/** @param #99 Password */
+			/** The pin code, either raw or preferrably in md5 format for security */
+
+	virtual void CMD_Verify_PIN(int iPK_Users,string sPassword,bool *bIsSuccessful) { string sCMD_Result; CMD_Verify_PIN(iPK_Users,sPassword.c_str(),bIsSuccessful,sCMD_Result,NULL);};
+	virtual void CMD_Verify_PIN(int iPK_Users,string sPassword,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

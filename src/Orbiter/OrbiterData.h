@@ -8,7 +8,7 @@
 
 #include <deque>
 
-#define ORBITER_SCHEMA		7	// Used to determine if cached screens can be used or if the schema has changed
+#define ORBITER_SCHEMA		8	// Used to determine if cached screens can be used or if the schema has changed
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
@@ -39,6 +39,7 @@ public:
 	int PK_Room,PK_EntertainArea,iLocation;
 	// Some virtual devices within the media director
 	int m_dwPK_Device_MediaDirector,m_dwPK_Device_DiscDrive,m_dwPK_Device_AppServer,m_dwPK_Device_MediaBurner,m_dwPK_Device_VideoConf,m_dwPK_Device_CamcorderCapt,m_dwPK_Device_Orbiter,m_dwPK_Device_WebBrowser; 
+	vector<int> m_vectAllowedUsers;
 	string Description;
 	class Row_Icon *drIcon; // Not serialized, just a temporary pointer for the generator
 	vector<class PlutoGraphic*> *m_pvectGraphic; // Not serialized, just a temporary pointer for the orbiter with the button for this location
@@ -48,7 +49,7 @@ public:
 	{
 		StartSerializeList() + PK_Room + PK_EntertainArea + iLocation + Description +
 			m_dwPK_Device_MediaDirector + m_dwPK_Device_DiscDrive + m_dwPK_Device_AppServer + m_dwPK_Device_MediaBurner + m_dwPK_Device_VideoConf + 
-			m_dwPK_Device_CamcorderCapt + m_dwPK_Device_Orbiter + m_dwPK_Device_WebBrowser;
+			m_dwPK_Device_CamcorderCapt + m_dwPK_Device_Orbiter + m_dwPK_Device_WebBrowser + m_vectAllowedUsers;
 	}
 	virtual string SerializeClassClassName() { return "LocationInfo"; }
 };
@@ -64,6 +65,7 @@ public:
 	string m_sMainMenu,m_sSleepingMenu,m_sScreenSaveMenu,m_sInitialScreen;
 	ScreenMap m_ScreenMap;
 	map<int,string> m_mapTextString;
+	vector<int> m_vectPK_Users_RequiringPIN;
 
 	// Some global devices
 	int m_dwPK_Device_Router,m_dwPK_Device_DatagridPlugIn,m_dwPK_Device_InfraredPlugIn,m_dwPK_Device_GeneralInfoPlugIn,m_dwPK_Device_EventPlugIn,m_dwPK_Device_OrbiterPlugIn,
@@ -118,7 +120,7 @@ public:
 		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sInitialScreen + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users_Default + m_iLocation_Initial
 			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_EventPlugIn + m_dwPK_Device_InfraredPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
 			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn
-			+ m_dwPK_Device_LocalAppServer + m_tGenerationTime + m_mapTextString;
+			+ m_dwPK_Device_LocalAppServer + m_tGenerationTime + m_mapTextString + m_vectPK_Users_RequiringPIN;
 
 		(*this) + m_ScreenMap + m_mapTextStyle + m_dequeLocation; // this is serialized custom
 	}

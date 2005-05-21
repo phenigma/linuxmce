@@ -140,6 +140,8 @@ protected:
 	int m_iCaptureKeyboard_EditType; /** < 0 = normal, 1 = numbers only, 2 = pin */
 	bool m_bCaptureKeyboard_DataGrid; /** < flag for capture keyboard */
 	bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
+	bool m_bRestrictedOp_IsUser;
+	int m_iRestrictedOp_ID;
 
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */

@@ -265,6 +265,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0" );
     SendCommand( CMD_Orbiter_Registered );
 
+	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
 	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
 	for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
 	{
@@ -370,6 +371,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 		m_pCacheImageManager = NULL;
 	}
 
+	vm.Release();
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_ScreenMutex.mutex);
 	pthread_mutex_destroy(&m_VariableMutex.mutex);
@@ -1840,7 +1842,26 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
     if( pDesignObj_Orbiter->m_pFloorplanObject )
         SelectedFloorplan(pDesignObj_Orbiter);
 
-	if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST)
+	if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butPINGo_CONST)
+	{
+		if( m_bRestrictedOp_IsUser )
+		{
+			bool bValid=false;
+			DCE::CMD_Verify_PIN CMD_Verify_PIN(m_dwPK_Device, m_dwPK_Device_SecurityPlugIn,
+				m_iRestrictedOp_ID,m_mapVariable[VARIABLE_Datagrid_Input_CONST],&bValid);
+			if( SendCommand(CMD_Verify_PIN) && bValid )
+			{
+				CMD_Set_Current_User(m_iRestrictedOp_ID);
+				CMD_Goto_Screen(0,m_sMainMenu,"","",false,false);
+			}
+			else
+			{
+				m_mapVariable[VARIABLE_Datagrid_Input_CONST]="";
+				CMD_Set_Text(m_pScreenHistory_Current->m_pObj->m_ObjectID,"***INVALID***",TEXT_PIN_Code_CONST);
+			}
+		}
+	}
+	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST)
 	{
 		if( !m_pLocationInfo->m_dwPK_Device_MediaDirector || m_pLocationInfo->m_dwPK_Device_MediaDirector==DEVICEID_NULL )
 		{
@@ -3724,6 +3745,43 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
             SpecialHandlingObjectSelected( pObj );
             continue;
         }
+        else if( PK_Command==COMMAND_Set_Current_User_CONST && m_vectPK_Users_RequiringPIN.size() )
+		{
+			int PK_Users = atoi(pCommand->m_ParameterList[COMMANDPARAMETER_PK_Users_CONST].c_str());
+			for(size_t s=0;s<m_vectPK_Users_RequiringPIN.size();++s)
+			{
+				if( PK_Users==m_vectPK_Users_RequiringPIN[s] )
+				{
+					// This user requires a PIN.  Change there and return
+					m_bRestrictedOp_IsUser=true;
+					m_iRestrictedOp_ID=PK_Users;
+					CMD_Goto_Screen(0,StringUtils::itos(DESIGNOBJ_mnuUserPinCode_CONST),"","",false,true);
+					return;
+				}
+			}
+		}
+		else if( PK_Command==COMMAND_Set_Current_Location_CONST )
+		{
+			// Only cc
+			int iLocationID = atoi(pCommand->m_ParameterList[COMMANDPARAMETER_LocationID_CONST].c_str());
+	        LocationInfo *pLocationInfo = m_dequeLocation[iLocationID];
+			if( pLocationInfo->m_vectAllowedUsers.size() )
+			{
+				// Only some users can switch to this location
+				size_t s;
+				for(s=0;s<pLocationInfo->m_vectAllowedUsers.size();++s)
+				{
+					if( m_dwPK_Users==pLocationInfo->m_vectAllowedUsers[s] )
+						break; // this one's ok
+				}
+				if( s>=pLocationInfo->m_vectAllowedUsers.size() )
+				{
+					CMD_Set_Text( StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "You are not allowed to access this location", TEXT_STATUS_CONST);
+					CMD_Goto_Screen( 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false, true );
+					return;
+				}
+			}
+		}
         // We may attach a simulate keypress action to an onscreen button, like a keyboard key, which simulates pressing
         // that key if the user touches it.  In this case, we don't want to execute the simulate keypress command
         // if the button was selected because the user hit the button associated with it (ie x==-1 and y==-1 when input was ButtonDown)
