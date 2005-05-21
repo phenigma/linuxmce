@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_Room_Users.h"
 #include "Table_Room.h"
 #include "Table_Users.h"
+#include "Table_Orbiter.h"
 
 
 
@@ -35,7 +36,7 @@ void Database_pluto_main::DeleteTable_Room_Users()
 
 Table_Room_Users::~Table_Room_Users()
 {
-	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
 		Row_Room_Users *pRow = (Row_Room_Users *) (*it).second;
@@ -75,8 +76,8 @@ void Row_Room_Users::Delete()
 		}
 		else
 		{
-			DoubleLongKey key(pRow->m_FK_Room,pRow->m_FK_Users);
-			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_Room_Users);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -94,7 +95,7 @@ void Row_Room_Users::Reload()
 	
 	if (!is_added)
 	{
-		DoubleLongKey key(pRow->m_FK_Room,pRow->m_FK_Users);
+		SingleLongKey key(pRow->m_PK_Room_Users);
 		Row_Room_Users *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -114,17 +115,19 @@ Row_Room_Users::Row_Room_Users(Table_Room_Users *pTable):table(pTable)
 
 void Row_Room_Users::SetDefaultValues()
 {
-	m_FK_Room = 0;
+	m_PK_Room_Users = 0;
 is_null[0] = false;
-m_FK_Users = 0;
+m_FK_Room = 0;
 is_null[1] = false;
 is_null[2] = true;
 is_null[3] = true;
 is_null[4] = true;
+is_null[5] = true;
+is_null[6] = true;
 m_psc_frozen = 0;
-is_null[5] = false;
+is_null[7] = false;
 m_psc_mod = "00000000000000";
-is_null[6] = false;
+is_null[8] = false;
 
 
 	is_added=false;
@@ -132,12 +135,18 @@ is_null[6] = false;
 	is_modified=false;
 }
 
+long int Row_Room_Users::PK_Room_Users_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_PK_Room_Users;}
 long int Row_Room_Users::FK_Room_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Room;}
 long int Row_Room_Users::FK_Users_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Users;}
+long int Row_Room_Users::FK_Orbiter_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_Orbiter;}
 long int Row_Room_Users::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
@@ -155,66 +164,99 @@ string Row_Room_Users::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->data
 return m_psc_mod;}
 
 		
+void Row_Room_Users::PK_Room_Users_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_PK_Room_Users = val; is_modified=true; is_null[0]=false;}
 void Row_Room_Users::FK_Room_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Room = val; is_modified=true; is_null[0]=false;}
+m_FK_Room = val; is_modified=true; is_null[1]=false;}
 void Row_Room_Users::FK_Users_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Users = val; is_modified=true; is_null[1]=false;}
+m_FK_Users = val; is_modified=true; is_null[2]=false;}
+void Row_Room_Users::FK_Orbiter_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_Orbiter = val; is_modified=true; is_null[3]=false;}
 void Row_Room_Users::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[2]=false;}
+m_psc_id = val; is_modified=true; is_null[4]=false;}
 void Row_Room_Users::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[3]=false;}
+m_psc_batch = val; is_modified=true; is_null[5]=false;}
 void Row_Room_Users::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[4]=false;}
+m_psc_user = val; is_modified=true; is_null[6]=false;}
 void Row_Room_Users::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[5]=false;}
+m_psc_frozen = val; is_modified=true; is_null[7]=false;}
 void Row_Room_Users::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[6]=false;}
+m_psc_mod = val; is_modified=true; is_null[8]=false;}
 
 		
-bool Row_Room_Users::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Room_Users::FK_Users_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Room_Users::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Room_Users::FK_Orbiter_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Room_Users::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Room_Users::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_Room_Users::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Room_Users::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
+bool Row_Room_Users::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[6];}
+bool Row_Room_Users::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[7];}
 
 			
-void Row_Room_Users::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Room_Users::FK_Users_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Room_Users::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Room_Users::FK_Orbiter_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_Room_Users::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Room_Users::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_Room_Users::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Room_Users::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
+void Row_Room_Users::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[6]=val;
+is_modified=true;
+}
+void Row_Room_Users::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[7]=val;
+is_modified=true;
+}
 	
+
+string Row_Room_Users::PK_Room_Users_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PK_Room_Users);
+
+return buf;
+}
 
 string Row_Room_Users::FK_Room_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[0])
+if (is_null[1])
 return "NULL";
 
 char buf[32];
@@ -227,7 +269,7 @@ string Row_Room_Users::FK_Users_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[1])
+if (is_null[2])
 return "NULL";
 
 char buf[32];
@@ -236,11 +278,24 @@ sprintf(buf, "%li", m_FK_Users);
 return buf;
 }
 
+string Row_Room_Users::FK_Orbiter_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Orbiter);
+
+return buf;
+}
+
 string Row_Room_Users::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[2])
+if (is_null[4])
 return "NULL";
 
 char buf[32];
@@ -253,7 +308,7 @@ string Row_Room_Users::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[3])
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -266,7 +321,7 @@ string Row_Room_Users::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[4])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -279,7 +334,7 @@ string Row_Room_Users::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -292,7 +347,7 @@ string Row_Room_Users::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[8])
 return "NULL";
 
 char *buf = new char[29];
@@ -305,10 +360,9 @@ return s;
 
 
 
-Table_Room_Users::Key::Key(long int in_FK_Room, long int in_FK_Users)
+Table_Room_Users::Key::Key(long int in_PK_Room_Users)
 {
-			pk_FK_Room = in_FK_Room;
-pk_FK_Users = in_FK_Users;
+			pk_PK_Room_Users = in_PK_Room_Users;
 	
 }
 
@@ -316,18 +370,14 @@ Table_Room_Users::Key::Key(Row_Room_Users *pRow)
 {
 			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
-			pk_FK_Room = pRow->m_FK_Room;
-pk_FK_Users = pRow->m_FK_Users;
+			pk_PK_Room_Users = pRow->m_PK_Room_Users;
 	
 }		
 
 bool Table_Room_Users::Key_Less::operator()(const Table_Room_Users::Key &key1, const Table_Room_Users::Key &key2) const
 {
-			if (key1.pk_FK_Room!=key2.pk_FK_Room)
-return key1.pk_FK_Room<key2.pk_FK_Room;
-else
-if (key1.pk_FK_Users!=key2.pk_FK_Users)
-return key1.pk_FK_Users<key2.pk_FK_Users;
+			if (key1.pk_PK_Room_Users!=key2.pk_PK_Room_Users)
+return key1.pk_PK_Room_Users<key2.pk_PK_Room_Users;
 else
 return false;	
 }	
@@ -345,10 +395,10 @@ bool Table_Room_Users::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Room_asSQL()+", "+pRow->FK_Users_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Room_Users_asSQL()+", "+pRow->FK_Room_asSQL()+", "+pRow->FK_Users_asSQL()+", "+pRow->FK_Orbiter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Room_Users (`FK_Room`, `FK_Users`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into Room_Users (`PK_Room_Users`, `FK_Room`, `FK_Users`, `FK_Orbiter`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -367,7 +417,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Room_asSQL(
 				
 			
 			addedRows.erase(i);
-			DoubleLongKey key(pRow->m_FK_Room,pRow->m_FK_Users);	
+			SingleLongKey key(pRow->m_PK_Room_Users);	
 			cachedRows[key] = pRow;
 					
 			
@@ -381,26 +431,23 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Room_asSQL(
 //update modified
 	
 
-	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_Room_Users* pRow = (Row_Room_Users*) (*i).second;	
-		DoubleLongKey key(pRow->m_FK_Room,pRow->m_FK_Users);
+		SingleLongKey key(pRow->m_PK_Room_Users);
 
-		char tmp_FK_Room[32];
-sprintf(tmp_FK_Room, "%li", key.pk1);
-
-char tmp_FK_Users[32];
-sprintf(tmp_FK_Users, "%li", key.pk2);
+		char tmp_PK_Room_Users[32];
+sprintf(tmp_PK_Room_Users, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`FK_Room`=" + tmp_FK_Room+" AND "+"`FK_Users`=" + tmp_FK_Users;
+condition = condition + "`PK_Room_Users`=" + tmp_PK_Room_Users;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`FK_Room`="+pRow->FK_Room_asSQL()+", `FK_Users`="+pRow->FK_Users_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Room_Users`="+pRow->PK_Room_Users_asSQL()+", `FK_Room`="+pRow->FK_Room_asSQL()+", `FK_Users`="+pRow->FK_Users_asSQL()+", `FK_Orbiter`="+pRow->FK_Orbiter_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Room_Users set " + update_values_list + " where " + condition;
@@ -430,20 +477,17 @@ update_values_list = update_values_list + "`FK_Room`="+pRow->FK_Room_asSQL()+", 
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		DoubleLongKey key = (*i).first;
+		SingleLongKey key = (*i).first;
 		Row_Room_Users* pRow = (Row_Room_Users*) (*i).second;	
 
-		char tmp_FK_Room[32];
-sprintf(tmp_FK_Room, "%li", key.pk1);
-
-char tmp_FK_Users[32];
-sprintf(tmp_FK_Users, "%li", key.pk2);
+		char tmp_PK_Room_Users[32];
+sprintf(tmp_PK_Room_Users, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`FK_Room`=" + tmp_FK_Room+" AND "+"`FK_Users`=" + tmp_FK_Users;
+condition = condition + "`PK_Room_Users`=" + tmp_PK_Room_Users;
 
 	
 		string query = "delete from Room_Users where " + condition;
@@ -503,87 +547,109 @@ bool Table_Room_Users::GetRows(string where_statement,vector<class Row_Room_User
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_FK_Room = 0;
+pRow->m_PK_Room_Users = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_FK_Room));
+sscanf(row[0], "%li", &(pRow->m_PK_Room_Users));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_Users = 0;
+pRow->m_FK_Room = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_Users));
+sscanf(row[1], "%li", &(pRow->m_FK_Room));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Users = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_psc_id));
+sscanf(row[2], "%li", &(pRow->m_FK_Users));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_psc_batch = 0;
+pRow->m_FK_Orbiter = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_psc_batch));
+sscanf(row[3], "%li", &(pRow->m_FK_Orbiter));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_user));
+sscanf(row[4], "%li", &(pRow->m_psc_id));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[5], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_psc_mod = string(row[6],lengths[6]);
+sscanf(row[6], "%li", &(pRow->m_psc_user));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[8]=false;
+pRow->m_psc_mod = string(row[8],lengths[8]);
 }
 
 
 
 		//checking for duplicates
 
-		DoubleLongKey key(pRow->m_FK_Room,pRow->m_FK_Users);
+		SingleLongKey key(pRow->m_PK_Room_Users);
 		
-		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
@@ -613,13 +679,13 @@ Row_Room_Users* Table_Room_Users::AddRow()
 
 
 
-Row_Room_Users* Table_Room_Users::GetRow(long int in_FK_Room, long int in_FK_Users)
+Row_Room_Users* Table_Room_Users::GetRow(long int in_PK_Room_Users)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
-	DoubleLongKey row_key(in_FK_Room, in_FK_Users);
+	SingleLongKey row_key(in_PK_Room_Users);
 
-	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -641,20 +707,17 @@ Row_Room_Users* Table_Room_Users::GetRow(long int in_FK_Room, long int in_FK_Use
 
 
 
-Row_Room_Users* Table_Room_Users::FetchRow(DoubleLongKey &key)
+Row_Room_Users* Table_Room_Users::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
-	char tmp_FK_Room[32];
-sprintf(tmp_FK_Room, "%li", key.pk1);
-
-char tmp_FK_Users[32];
-sprintf(tmp_FK_Users, "%li", key.pk2);
+	char tmp_PK_Room_Users[32];
+sprintf(tmp_PK_Room_Users, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`FK_Room`=" + tmp_FK_Room+" AND "+"`FK_Users`=" + tmp_FK_Users;
+condition = condition + "`PK_Room_Users`=" + tmp_PK_Room_Users;
 
 
 	string query = "select * from Room_Users where " + condition;		
@@ -691,78 +754,100 @@ condition = condition + "`FK_Room`=" + tmp_FK_Room+" AND "+"`FK_Users`=" + tmp_F
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_FK_Room = 0;
+pRow->m_PK_Room_Users = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_FK_Room));
+sscanf(row[0], "%li", &(pRow->m_PK_Room_Users));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_Users = 0;
+pRow->m_FK_Room = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_Users));
+sscanf(row[1], "%li", &(pRow->m_FK_Room));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Users = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_psc_id));
+sscanf(row[2], "%li", &(pRow->m_FK_Users));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_psc_batch = 0;
+pRow->m_FK_Orbiter = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_psc_batch));
+sscanf(row[3], "%li", &(pRow->m_FK_Orbiter));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_user));
+sscanf(row[4], "%li", &(pRow->m_psc_id));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[5], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_psc_mod = string(row[6],lengths[6]);
+sscanf(row[6], "%li", &(pRow->m_psc_user));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[8]=false;
+pRow->m_psc_mod = string(row[8],lengths[8]);
 }
 
 
@@ -786,6 +871,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Users *pTable = table->database->Users_get();
 return pTable->GetRow(m_FK_Users);
+}
+class Row_Orbiter* Row_Room_Users::FK_Orbiter_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Orbiter *pTable = table->database->Orbiter_get();
+return pTable->GetRow(m_FK_Orbiter);
 }
 
 
