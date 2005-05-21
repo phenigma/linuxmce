@@ -110,7 +110,8 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool FK_Users_isNull();
+		bool FK_Room_isNull();
+bool FK_Users_isNull();
 bool FK_Orbiter_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
@@ -118,7 +119,8 @@ bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void FK_Users_setNull(bool val);
+		void FK_Room_setNull(bool val);
+void FK_Users_setNull(bool val);
 void FK_Orbiter_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);

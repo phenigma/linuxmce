@@ -523,7 +523,12 @@ bool Table_ConfigType_Token::GetRows(string where_statement,vector<class Row_Con
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
-	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+	if( StringUtils::StartsWith(where_statement,"where ",true) || 
+		StringUtils::StartsWith(where_statement,"join ",true) ||
+		StringUtils::StartsWith(where_statement,"left ",true) ||
+		StringUtils::StartsWith(where_statement,"right ",true) ||
+		StringUtils::StartsWith(where_statement,"full ",true) ||
+		StringUtils::StartsWith(where_statement,"outer ",true) )
 		query = "select `ConfigType_Token`.* from ConfigType_Token " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;

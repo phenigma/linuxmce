@@ -355,7 +355,12 @@ bool Table_psc_ir_repset::GetRows(string where_statement,vector<class Row_psc_ir
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
-	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+	if( StringUtils::StartsWith(where_statement,"where ",true) || 
+		StringUtils::StartsWith(where_statement,"join ",true) ||
+		StringUtils::StartsWith(where_statement,"left ",true) ||
+		StringUtils::StartsWith(where_statement,"right ",true) ||
+		StringUtils::StartsWith(where_statement,"full ",true) ||
+		StringUtils::StartsWith(where_statement,"outer ",true) )
 		query = "select `psc_ir_repset`.* from psc_ir_repset " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;

@@ -117,8 +117,7 @@ void Row_Room_Users::SetDefaultValues()
 {
 	m_PK_Room_Users = 0;
 is_null[0] = false;
-m_FK_Room = 0;
-is_null[1] = false;
+is_null[1] = true;
 is_null[2] = true;
 is_null[3] = true;
 is_null[4] = true;
@@ -193,6 +192,9 @@ void Row_Room_Users::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,tab
 m_psc_mod = val; is_modified=true; is_null[8]=false;}
 
 		
+bool Row_Room_Users::FK_Room_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[1];}
 bool Row_Room_Users::FK_Users_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
@@ -213,6 +215,10 @@ bool Row_Room_Users::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table-
 return is_null[7];}
 
 			
+void Row_Room_Users::FK_Room_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[1]=val;
+is_modified=true;
+}
 void Row_Room_Users::FK_Users_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
@@ -512,7 +518,12 @@ bool Table_Room_Users::GetRows(string where_statement,vector<class Row_Room_User
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
-	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+	if( StringUtils::StartsWith(where_statement,"where ",true) || 
+		StringUtils::StartsWith(where_statement,"join ",true) ||
+		StringUtils::StartsWith(where_statement,"left ",true) ||
+		StringUtils::StartsWith(where_statement,"right ",true) ||
+		StringUtils::StartsWith(where_statement,"full ",true) ||
+		StringUtils::StartsWith(where_statement,"outer ",true) )
 		query = "select `Room_Users`.* from Room_Users " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;

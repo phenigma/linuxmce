@@ -385,7 +385,7 @@
 #define DESIGNOBJ_arrMiscSub_CONST 1829
 #define DESIGNOBJ_butMiscArrayAutoMore_CONST 1830
 #define DESIGNOBJ_arrSecuritySub_CONST 1831
-#define DESIGNOBJ_butSecurityArrayAutoMore_CONST 1832
+#define DESIGNOBJ_butSecurityArrayMore_CONST 1832
 #define DESIGNOBJ_butTeleArrayAutoMore_CONST 1833
 #define DESIGNOBJ_arrTeleArraySub_CONST 1834
 #define DESIGNOBJ_objAddtoSpeedDial_CONST 1835
@@ -1199,6 +1199,17 @@
 #define DESIGNOBJ_objTryAgain_CONST 3403
 #define DESIGNOBJ_dgCDTracksToRip_CONST 3404
 #define DESIGNOBJ_objMonitorTogleOnOff_CONST 3405
+#define DESIGNOBJ_objGotoFullLightingOptions_CONST 3406
+#define DESIGNOBJ_objGotoFullMediaOptions_CONST 3407
+#define DESIGNOBJ_objGotoFullClimateOptions_CONST 3408
+#define DESIGNOBJ_objGotoFullTelecomOptions_CONST 3409
+#define DESIGNOBJ_objGotoFullSecurityOptions_CONST 3410
+#define DESIGNOBJ_objGotoFullOther_Options_CONST 3411
+#define DESIGNOBJ_butLightsArray_NoKB_CONST 3412
+#define DESIGNOBJ_butMediaArray_NoKB_CONST 3413
+#define DESIGNOBJ_butClimateArray_NoKB_CONST 3414
+#define DESIGNOBJ_butTeleArray_NoKB_CONST 3415
+#define DESIGNOBJ_butSecurityArray_NoKB_CONST 3416
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
