@@ -119,8 +119,7 @@ void Row_DeviceCommandGroup::SetDefaultValues()
 {
 	m_PK_DeviceCommandGroup = 0;
 is_null[0] = false;
-m_FK_DeviceCategory = 0;
-is_null[1] = false;
+is_null[1] = true;
 m_Description = "";
 is_null[2] = false;
 is_null[3] = true;
@@ -189,6 +188,9 @@ void Row_DeviceCommandGroup::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONL
 m_psc_mod = val; is_modified=true; is_null[7]=false;}
 
 		
+bool Row_DeviceCommandGroup::FK_DeviceCategory_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[1];}
 bool Row_DeviceCommandGroup::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
@@ -203,6 +205,10 @@ bool Row_DeviceCommandGroup::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(s
 return is_null[6];}
 
 			
+void Row_DeviceCommandGroup::FK_DeviceCategory_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[1]=val;
+is_modified=true;
+}
 void Row_DeviceCommandGroup::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;

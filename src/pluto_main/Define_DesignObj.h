@@ -1210,10 +1210,15 @@
 #define DESIGNOBJ_butClimateArray_NoKB_CONST 3414
 #define DESIGNOBJ_butTeleArray_NoKB_CONST 3415
 #define DESIGNOBJ_butSecurityArray_NoKB_CONST 3416
+#define DESIGNOBJ_butMakePrivate_CONST 3417
+#define DESIGNOBJ_icoMediaPrivate_CONST 3418
 #define DESIGNOBJ_butResponse1_CONST 3419
 #define DESIGNOBJ_butResponse2_CONST 3420
 #define DESIGNOBJ_butResponse3_CONST 3421
 #define DESIGNOBJ_butResponse4_CONST 3422
+#define DESIGNOBJ_mnuViewAttributes_CONST 3423
+#define DESIGNOBJ_dgMediaAttributesCurrentStream_CONST 3424
+#define DESIGNOBJ_butViewAttributes_CONST 3425
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -352,6 +352,10 @@
 #define COMMAND_Input_9_CONST 382
 #define COMMAND_Input_10_CONST 383
 #define COMMAND_Process_Receive_Command_For_Child_CONST 384
+#define COMMAND_Verify_PIN_CONST 387
+#define COMMAND_Set_Media_Private_CONST 388
+#define COMMAND_Send_Message_CONST 389
+#define COMMAND_Get_Default_Ripping_Name_CONST 390
 #define COMMAND_Set_Media_Attribute_CONST 391
 
 #define COMMAND_TABLE "Command"
