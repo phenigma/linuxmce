@@ -581,3 +581,8 @@ void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
 	}	
 }
 //<-dceag-createinst-b->!
+
+void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar)
+{
+}
+

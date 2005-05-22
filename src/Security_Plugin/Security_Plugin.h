@@ -25,6 +25,7 @@ class Row_ModeChange;
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "Orbiter_Plugin/FollowMe_Device.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
+#include "Orbiter/Floorplan.h"
 
 /*
 	All sensors' states are in this form: Mode,Bypass,Delay
@@ -50,7 +51,7 @@ class Row_ModeChange;
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class Security_Plugin : public Security_Plugin_Command, public DataGridGeneratorPlugIn, public AlarmEvent, public FollowMe_Device
+	class Security_Plugin : public Security_Plugin_Command, public DataGridGeneratorPlugIn, public AlarmEvent, public FloorplanInfoProvider, public FollowMe_Device
 	{
 //<-dceag-decl-e->
 	// Private member variables 
@@ -134,6 +135,9 @@ public:
 	Row_Alert *LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice,bool bAnnouncementOnly,bool bNotify);  // Returns NULL if the alert was pooled with another
 	void SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare=NULL);
 	void SetHouseModeBoundIcon(int PK_DeviceGroup=-1,OH_Orbiter *pOH_Orbiter_Compare=NULL);
+
+	// Floorplan
+	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
 
 //<-dceag-h-b->
 	/*

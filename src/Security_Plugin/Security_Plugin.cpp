@@ -61,6 +61,10 @@ using namespace DCE;
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Table_Text_LS.h"
 #include "pluto_main/Table_Device_DeviceData.h"
+#include "pluto_main/Define_DataGrid.h"
+#include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_FloorplanObjectType.h"
+#include "pluto_main/Define_FloorplanObjectType_Color.h"
 
 #include "pluto_security/Table_Alert.h"
 #include "pluto_security/Table_Alert_Device.h"
@@ -1074,4 +1078,47 @@ void Security_Plugin::CMD_Verify_PIN(int iPK_Users,string sPassword,bool *bIsSuc
         *bIsSuccessful=false;
 	else
         *bIsSuccessful=true;
+}
+
+void Security_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar)
+{
+	switch(iFloorplanObjectType)
+	{
+	case FLOORPLANOBJECTTYPE_SECURITY_DOOR_CONST:
+	case FLOORPLANOBJECTTYPE_SECURITY_WINDOW_CONST:
+	case FLOORPLANOBJECTTYPE_SECURITY_MOTION_DETECTOR_CONST:
+	case FLOORPLANOBJECTTYPE_SECURITY_SMOKE_CONST:
+	case FLOORPLANOBJECTTYPE_SECURITY_AIRQUALITY_CONST:
+		PK_DesignObj_Toolbar=0;
+		break;
+	case FLOORPLANOBJECTTYPE_SECURITY_CAMERA_CONST:
+		PK_DesignObj_Toolbar=0;  // Camera toolbar (view)
+		break;
+	case FLOORPLANOBJECTTYPE_SECURITY_INTERCOM_CONST:
+		PK_DesignObj_Toolbar=0;  // Intercom - call, open door
+		break;
+	case FLOORPLANOBJECTTYPE_SECURITY_SIREN_CONST:
+	case FLOORPLANOBJECTTYPE_SECURITY_CHIME_CONST:
+		PK_DesignObj_Toolbar=0;  // Sound
+		break;
+	};
+
+	OSD=pDeviceData_Router->m_sState_get();
+	string::size_type pos=0;
+	string Mode = StringUtils::Tokenize(OSD,",",pos);
+	int PK_HouseMode = GetModeID(Mode);
+	string Bypass = StringUtils::Tokenize(OSD,",",pos);
+	bool bTripped = pDeviceData_Router->m_sStatus_get()=="TRIPPED";
+	int PK_AlertType = 0;
+	if( bTripped )
+		PK_AlertType = GetAlertType(PK_HouseMode,pDeviceData_Router);
+
+	if( Bypass=="BYPASS" || Bypass=="PERMBYPASS" )
+		iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_SECURITY_DOOR_BYPASSED_CONST;
+	else if( bTripped )
+		iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_SECURITY_DOOR_TRIGGERED_CONST;
+	else if( PK_AlertType>0 )
+		iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_SECURITY_DOOR_ARMED_CONST;
+	else
+		iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_SECURITY_DOOR_CLOSED_CONST;
 }

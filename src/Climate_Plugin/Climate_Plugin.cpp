@@ -44,6 +44,9 @@ using namespace DCE;
 #include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DataGrid.h"
+#include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_FloorplanObjectType.h"
+#include "pluto_main/Define_FloorplanObjectType_Color.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -159,3 +162,31 @@ class DataGridTable *Climate_Plugin::ClimateScenariosGrid(string GridID,string P
 
 
 //<-dceag-createinst-b->!
+void Climate_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar)
+{
+	switch(iFloorplanObjectType)
+	{
+	case FLOORPLANOBJECTTYPE_CLIMATE_THERMOSTAT_CONST:
+		PK_DesignObj_Toolbar=DESIGNOBJ_grpThermostatControls_CONST;
+		break;
+	case FLOORPLANOBJECTTYPE_CLIMATE_THERMOMETER_CONST:
+		PK_DesignObj_Toolbar=0;
+		break;
+	case FLOORPLANOBJECTTYPE_CLIMATE_WEATHER_STATION_CONST:
+		PK_DesignObj_Toolbar=0;
+		break;
+	case FLOORPLANOBJECTTYPE_CLIMATE_DAMPER_CONST:
+		PK_DesignObj_Toolbar=0;
+		break;
+	case FLOORPLANOBJECTTYPE_CLIMATE_POOL_CONST:
+		PK_DesignObj_Toolbar=DESIGNOBJ_grpPoolControls_CONST;
+		break;
+	case FLOORPLANOBJECTTYPE_CLIMATE_SPRINKLER_CONST:
+		PK_DesignObj_Toolbar=DESIGNOBJ_grpSprinklerControls_CONST;
+		break;
+	};
+	if( (OSD=pDeviceData_Router->m_sState_get())=="OFF" )
+		iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_CLIMATE_THERMOSTAT_OFF_CONST;
+	else
+		iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_CLIMATE_THERMOSTAT_COOLING_CONST;
+}

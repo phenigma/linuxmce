@@ -1021,19 +1021,16 @@ void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,
 		break;
 	case FLOORPLANTYPE_Entertainment_Zone_CONST:
 		pFloorplanInfoProvider=m_pMedia_Floorplan;
-//		m_pMedia_Plugin->Populate_CurrentMediaOptions(Page,sValue_To_Assign);
 		break;
-/*
 	case FLOORPLANTYPE_Climate_Zone_CONST:
-		pFloorplanInfoProvider=m_pClimate_Plugin;
+		pFloorplanInfoProvider=m_pClimate_Floorplan;
 		break;
 	case FLOORPLANTYPE_Phones_CONST:
-		pFloorplanInfoProvider=m_pTelecom_Plugin;
+		pFloorplanInfoProvider=m_pTelecom_Floorplan;
 		break;
 	case FLOORPLANTYPE_Security_Zone_CONST:
-		pFloorplanInfoProvider=m_pSecurity_Plugin;
+		pFloorplanInfoProvider=m_pSecurity_Floorplan;
 		break;
-*/
 	};
 
 	if( !pFloorplanInfoProvider )
@@ -1054,14 +1051,20 @@ g_pPlutoLogger->Write(LV_STATUS, "get floorplan for page %d type %d map %p objs 
 		for(int i=0;i<(int) fpObjVector->size();++i)
 		{
 			string OSD="";
-			int iPK_FloorplanObjectType_Color=0,iColor=0;
+
+			// Color is the color to fill the icon with, Description is the status which
+			// appears at the bottom of the floorplan when the item is selected, OSD is
+			// the text will be put into any text object within the icon (like the temperature
+			// next to a thermastat, and PK_DesignObj_Toolbar is the toolbar to activate
+			// when the object is selected.
+			int iPK_FloorplanObjectType_Color=0,iColor=0,PK_DesignObj_Toolbar=0;
 			string sDescription;
 			Row_FloorplanObjectType_Color *pRow_FloorplanObjectType_Color = NULL;
 
 			FloorplanObject *fpObj = (*fpObjVector)[i];
 			DeviceData_Router *pDeviceData_Router = fpObj->m_pDeviceData_Router;
 
-			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDeviceData_Router,fpObj->m_pEntertainArea,fpObj->Type,iPK_FloorplanObjectType_Color,iColor,sDescription,OSD);
+			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDeviceData_Router,fpObj->m_pEntertainArea,fpObj->Type,iPK_FloorplanObjectType_Color,iColor,sDescription,OSD,PK_DesignObj_Toolbar);
 			if( iPK_FloorplanObjectType_Color )
 				pRow_FloorplanObjectType_Color = m_pDatabase_pluto_main->FloorplanObjectType_Color_get()->GetRow(iPK_FloorplanObjectType_Color);
 
@@ -1070,7 +1073,7 @@ g_pPlutoLogger->Write(LV_STATUS, "get floorplan for page %d type %d map %p objs 
 			if( sDescription.length()==0 && pRow_FloorplanObjectType_Color )
 				sDescription = pRow_FloorplanObjectType_Color->Description_get();
 
-			(*sValue_To_Assign) += StringUtils::itos(iColor) + "|" + sDescription + "|" + OSD + "|";
+			(*sValue_To_Assign) += StringUtils::itos(iColor) + "|" + sDescription + "|" + OSD + (PK_DesignObj_Toolbar ? "|" + StringUtils::itos(PK_DesignObj_Toolbar) : "|") + "|";
 		}
 	}
 	if( (*sValue_To_Assign).length()==0 )

@@ -1943,7 +1943,23 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
     CMD_Set_Variable(VARIABLE_Array_Desc_CONST,pDesignObj_Orbiter->m_pFloorplanObject->DeviceDescription);
     CMD_Set_Variable(VARIABLE_Status_CONST,pDesignObj_Orbiter->m_pFloorplanObject->Status);
 
-    // We've selected this object twice, cycle through the vector of device groups
+	// If this has a toolbar, and either (1) there is no previously selected object, 
+	// (2) there was a previously selected object but it wasn't a floorplan or (3) used a different toolbar
+	// then we need to activate this toolbar and remove any previous one
+	int PK_DesignObj_Toolbar_ToTurnOn=0,PK_DesignObj_Toolbar_ToTurnOff=0;
+	if( pDesignObj_Orbiter->m_pFloorplanObject && pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar &&
+		(!m_pObj_LastSelected || m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar!=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar) )
+	{
+		PK_DesignObj_Toolbar_ToTurnOn=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar;
+		if( m_pObj_LastSelected && m_pObj_LastSelected->m_pFloorplanObject && m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar )
+			PK_DesignObj_Toolbar_ToTurnOff=m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar;
+	}
+	else if( m_pObj_LastSelected && m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar &&
+			pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar!=m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar )
+		PK_DesignObj_Toolbar_ToTurnOff=m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar;
+
+
+	// We've selected this object twice, cycle through the vector of device groups
     if( m_pObj_LastSelected==pDesignObj_Orbiter )
     {
         // We went past the end, select nothing.  Or this is an ent area with no device pointer, so there are no groups anyway
@@ -1957,7 +1973,9 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
             m_mapDevice_Selected.clear();
             m_pObj_LastSelected=NULL;
             m_iLastEntryInDeviceGroup=-1;  // Start at the beginning
-        }
+			PK_DesignObj_Toolbar_ToTurnOn=0;
+			PK_DesignObj_Toolbar_ToTurnOff=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar;
+		}
         else
         {
             // Maybe this doesn't belong to any device groups, just toggle on and off
@@ -1988,6 +2006,11 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 	        m_mapDevice_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base;
         m_pObj_LastSelected=pDesignObj_Orbiter;
     }
+
+	if( PK_DesignObj_Toolbar_ToTurnOn )
+		CMD_Show_Object(StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOn),0,"","","1");
+	if( PK_DesignObj_Toolbar_ToTurnOff )
+		CMD_Show_Object(StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOff),0,"","","0");
 
 /*
     if( pDesignObj_Orbiter->m_pParentObject->m_iBaseObjectID==OBJECT_FPENTERTAINMENT_CONST )
@@ -4132,6 +4155,9 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         else if(  Variable=="SD" )
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 				Output += StringUtils::itos((*it).first) + ",";
+        else if(  Variable=="SDD" )
+			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
+				Output += it->second->m_sDescription + ",";
         else if(  Variable=="R" && m_pLocationInfo  )
             Output += StringUtils::itos( m_pLocationInfo->PK_Room );
         else if(  Variable=="U" )
@@ -5879,17 +5905,22 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
         for(int i=0;i<(int) fpObjVector->size();++i)
         {
             FloorplanObject *fpObj = (*fpObjVector)[i];
+			// Color is the color to fill the icon with, Description is the status which
+			// appears at the bottom of the floorplan when the item is selected, OSD is
+			// the text will be put into any text object within the icon (like the temperature
+			// next to a thermastat, and PK_DesignObj_Toolbar is the toolbar to activate
+			// when the object is selected.
             int Color = atoi(StringUtils::Tokenize(sResult,"|",pos).c_str());
-            string Description = StringUtils::Tokenize(sResult,"|",pos);
+            fpObj->Status = StringUtils::Tokenize(sResult,"|",pos);
             string OSD = StringUtils::Tokenize(sResult,"|",pos);
+            fpObj->m_dwPK_DesignObj_Toolbar = atoi(StringUtils::Tokenize(sResult,"|",pos).c_str());
 
-            fpObj->Status=Description;
-            if( fpObj->pObj )
+			if( fpObj->pObj )
             {
                 if( fpObj->pObj->m_rBackgroundPosition.X+fpObj->pObj->m_rBackgroundPosition.Width>m_Width ||
                     fpObj->pObj->m_rBackgroundPosition.Y+fpObj->pObj->m_rBackgroundPosition.Height>m_Height )
                 {
-                    g_pPlutoLogger->Write(LV_CRITICAL,"Floorplan object %s is out of bounds ",Description.c_str());
+                    g_pPlutoLogger->Write(LV_CRITICAL,"Floorplan object %s is out of bounds ",fpObj->DeviceDescription.c_str());
                     continue;
                 }
 
@@ -5906,7 +5937,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 
 				}
 
-                if( fpObj->pObj->m_vectDesignObjText.size()==1 && Description!="" )
+                if( fpObj->pObj->m_vectDesignObjText.size()==1 )
                 {
                     DesignObjText *pDesignObjText = fpObj->pObj->m_vectDesignObjText[0];
                     pDesignObjText->m_sText = OSD;

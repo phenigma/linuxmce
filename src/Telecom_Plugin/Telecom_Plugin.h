@@ -10,12 +10,13 @@
 #include "DCE/DeviceData_Router.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "Orbiter_Plugin/FollowMe_Device.h"
+#include "Orbiter/Floorplan.h"
 class Database_pluto_main;
 
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class Telecom_Plugin : public Telecom_Plugin_Command, public DataGridGeneratorPlugIn, public FollowMe_Device
+	class Telecom_Plugin : public Telecom_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Device
 	{
 //<-dceag-decl-e->
 	// Private member variables
@@ -46,6 +47,9 @@ public:
 	// Follow-me
 	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left) {}
 	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left) {}
+
+	// Floorplan
+	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
 
 //<-dceag-h-b->
 	/*

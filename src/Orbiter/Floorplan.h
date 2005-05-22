@@ -24,6 +24,7 @@ public:
 	string Status;
 #ifdef ORBITER
 	DCE::DeviceData_Base *m_pDeviceData_Base;
+	int m_dwPK_DesignObj_Toolbar; // The toolbar to control this object
 #else
 	DCE::DeviceData_Router *m_pDeviceData_Router;
 	DCE::EntertainArea *m_pEntertainArea;
@@ -41,7 +42,12 @@ public:
 class FloorplanInfoProvider
 {
 public:
-	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD)=0;
+	// Color is the color to fill the icon with, Description is the status which
+	// appears at the bottom of the floorplan when the item is selected, OSD is
+	// the text will be put into any text object within the icon (like the temperature
+	// next to a thermastat, and PK_DesignObj_Toolbar is the toolbar to activate
+	// when the object is selected.
+	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar)=0;
 };
 
 #endif

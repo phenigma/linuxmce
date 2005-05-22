@@ -626,7 +626,7 @@ int k=2;
         {
 			string FPInfo_Value;
 			string Description;
-			int PK_Device_EA;
+			int PK_Device_EA=0;
             Row_FloorplanObjectType *pRow_FloorplanObjectType = NULL;
 			if( FloorplanType==FLOORPLANTYPE_Entertainment_Zone_CONST )
 			{
@@ -642,11 +642,18 @@ int k=2;
 				Row_Device_DeviceData *pRow_Device_DeviceData = vectRow_Device_DeviceData[s];
 		        Row_Device_DeviceData *pRow_Device_DeviceData_FPInfo = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_Floorplan_Info_CONST);
 			    Row_Device_DeviceData *pRow_Device_DeviceData_ObjType = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
-	            int FloorplanObjectType = atoi(pRow_Device_DeviceData_ObjType->IK_DeviceData_get().c_str());
-		        pRow_FloorplanObjectType = m_mds->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
-				FPInfo_Value = pRow_Device_DeviceData_FPInfo->IK_DeviceData_get();
-				Description = pRow_Device_DeviceData_FPInfo->FK_Device_getrow()->Description_get();
-				PK_Device_EA = pRow_Device_DeviceData_FPInfo->FK_Device_get();
+				if( !pRow_Device_DeviceData_FPInfo || !pRow_Device_DeviceData_ObjType )
+				{
+					cerr << "01\t**Error: Floorplan object " << pRow_Device_DeviceData->FK_Device_getrow()->FK_DeviceTemplate_get() << " " << pRow_Device_DeviceData->FK_Device_getrow()->FK_DeviceTemplate_getrow()->Description_get() << " is missing info" << endl;
+				}
+				else
+				{
+					int FloorplanObjectType = atoi(pRow_Device_DeviceData_ObjType->IK_DeviceData_get().c_str());
+					pRow_FloorplanObjectType = m_mds->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
+					FPInfo_Value = pRow_Device_DeviceData_FPInfo->IK_DeviceData_get();
+					Description = pRow_Device_DeviceData_FPInfo->FK_Device_getrow()->Description_get();
+					PK_Device_EA = pRow_Device_DeviceData_FPInfo->FK_Device_get();
+				}
 			}
             if( FPInfo_Value.length() )
             {
@@ -689,6 +696,12 @@ int k=2;
 								pDesignObj_Generator->m_rBackgroundPosition.Y=Y;
 								pDesignObj_Generator->m_rPosition.X=X;
 								pDesignObj_Generator->m_rPosition.Y=Y;
+								for(size_t s=0;s<pDesignObj_Generator->m_vectDesignObjText.size();++s)
+								{
+									CGText *ot = (CGText *) pDesignObj_Generator->m_vectDesignObjText[s];
+									ot->m_rPosition.X=X;
+									ot->m_rPosition.Y=Y;
+								}
 
 								pDesignObj_Generator->m_pFloorplanFillPoint = new PlutoPoint(pRow_FloorplanObjectType->FillX_get() * ScaleFactor / 1000,pRow_FloorplanObjectType->FillY_get() * ScaleFactor / 1000);
 							}

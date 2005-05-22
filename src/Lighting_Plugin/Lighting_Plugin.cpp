@@ -205,7 +205,7 @@ bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMe
 	return true;
 }
 
-void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD)
+void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar)
 {
 	switch(iFloorplanObjectType)
 	{
@@ -216,10 +216,12 @@ void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Rout
 	case FLOORPLANOBJECTTYPE_LIGHT_CHANDALIER_CONST:
 	case FLOORPLANOBJECTTYPE_LIGHT_PICTURE_LIGHT_CONST:
 	case FLOORPLANOBJECTTYPE_LIGHT_ACCENT_LIGHT_CONST:
-		if( pDeviceData_Router->m_sState_get()=="OFF" )
+		if( (OSD=pDeviceData_Router->m_sState_get())=="OFF" )
 			iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_LIGHT_CEILING_LIGHT_OFF_CONST;
 		else
 			iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_LIGHT_CEILING_LIGHT_ON_CONST;
+		
+		PK_DesignObj_Toolbar=DESIGNOBJ_grpLightControls_CONST;
 	};
 }
 
