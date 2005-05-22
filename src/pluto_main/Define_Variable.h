@@ -33,6 +33,7 @@
 #define VARIABLE_Followme_Security_CONST 30
 #define VARIABLE_Misc_Data_3_CONST 31
 #define VARIABLE_PK_DeviceGroup_CONST 32
+#define VARIABLE_Misc_Data_4_CONST 33
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

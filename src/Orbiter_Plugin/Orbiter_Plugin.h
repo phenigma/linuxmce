@@ -10,6 +10,7 @@
 #include "Orbiter/Floorplan.h"
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_Variable.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 
 class Database_pluto_main;
@@ -108,25 +109,76 @@ public:
 
     void ProcessUnknownDevice();
 	
-	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false)
+	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false,
+		string sOption1="",string sMessage1="",string sOption2="",string sMessage2="",string sOption3="",string sMessage3="",string sOption4="", string sMessage4="" )
 	{
-		DisplayMessageOnOrbiter(StringUtils::itos(dwPK_Device),sMessage,bPromptToResetRouter,iTimeout,bCantGoBack);
+		DisplayMessageOnOrbiter(StringUtils::itos(dwPK_Device),sMessage,bPromptToResetRouter,iTimeout,bCantGoBack,
+			sOption1,sMessage1,sOption2,sMessage2,sOption3,sMessage3,sOption4,sMessage4);
 	}
 
-	void DisplayMessageOnOrbiter(string sPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false)
+	void DisplayMessageOnOrbiter(string sPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false,
+		string sOption1="",string sMessage1="",string sOption2="",string sMessage2="",string sOption3="",string sMessage3="",string sOption4="", string sMessage4="" )
 	{
 		if ( sMessage == "" )
 			sMessage = "Unable to save playlist";
 
 		if( sPK_Device.size()==0 )
 			sPK_Device = m_sPK_Device_AllOrbiters;
-		DCE::CMD_Set_Text_DL CMD_Set_Text( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), sMessage, TEXT_STATUS_CONST);
-
 		DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, sPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false, bCantGoBack );
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 
-		DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butRestartDCERouter_CONST), 0, "", "", bPromptToResetRouter ? "1" : "0" );
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+		DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), sMessage, TEXT_STATUS_CONST);
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
+
+		if( bPromptToResetRouter )
+		{
+			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butRestartDCERouter_CONST), 0, "", "", "1" );
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+		}
+
+		if( sOption1.size() )
+		{
+			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+
+			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), sOption1, TEXT_STATUS_CONST);
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
+
+			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_1_CONST , sMessage1);
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
+		}
+		if( sOption2.size() )
+		{
+			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 0, "", "", "1" );
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+
+			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), sOption2, TEXT_STATUS_CONST);
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
+
+			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_2_CONST , sMessage2);
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
+		}
+		if( sOption3.size() )
+		{
+			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 0, "", "", "1" );
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+
+			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), sOption3, TEXT_STATUS_CONST);
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
+
+			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_3_CONST , sMessage3);
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
+		}
+		if( sOption4.size() )
+		{
+			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", "1" );
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+
+			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), sOption4, TEXT_STATUS_CONST);
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
+
+			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_4_CONST , sMessage4);
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
+		}
 
 		DCE::CMD_Set_Timeout_DL CMD_Set_Timeout( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), StringUtils::itos(iTimeout) );
 		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Timeout.m_pMessage);

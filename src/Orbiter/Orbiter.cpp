@@ -1221,7 +1221,7 @@ void Orbiter::ObjectOnScreenWrapper(  )
 ;    // are on the screen.  This caused a problem when there is an onload that sets
     // a variable and a datagrid that uses it.  PopulateDataGrid can get called before the
     // variable is set.  10-15-2003
-    ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, m_pScreenHistory_Current->m_pObj, false );
+    ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, m_pScreenHistory_Current->m_pObj );
 
     // Do the on load actions for the screen itself,  and objects on it
     Message *pMessage_GotoScreen=NULL;
@@ -1267,7 +1267,7 @@ void Orbiter::ObjectOnScreenWrapper(  )
 }
 //------------------------------------------------------------------------
 // If an object has the don't reset state true,  it won't reset to normal,  and it's children won't reset either
-void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, bool bDontResetState )
+void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj )
 {
 	// Do this again since sometimes there will be several grids with the same name within the application and if
 	// we're going to do a lookup, such as with seek grid, we want to find the one most recently on screen
@@ -1287,17 +1287,6 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
     if(  pObj->m_bTabStop  )
         m_vectObjs_TabStops.push_back( pObj );
 
-
-    if(  pObj->m_bDontResetState || pObj->m_bOneTimeDontReset  )
-    {
-        pObj->m_bOneTimeDontReset=false;
-        bDontResetState=true;
-    }
-    else if(  !bDontResetState  )
-    {
-        pObj->m_GraphicToDisplay=GRAPHIC_NORMAL;
-        pObj->m_bHidden=pObj->m_bHideByDefault;
-    }
 
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Broadcast_Video_CONST )
 	{
@@ -1323,9 +1312,7 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
 
     DesignObj_DataList::iterator iHao;
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
-    {
-        ObjectOnScreen( pVectDesignObj_Orbiter, ( DesignObj_Orbiter * )( *iHao ), bDontResetState );
-    }
+        ObjectOnScreen( pVectDesignObj_Orbiter, ( DesignObj_Orbiter * )( *iHao ) );
 }
 //------------------------------------------------------------------------
 void Orbiter::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
@@ -4109,6 +4096,13 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += m_sNowPlaying;
         else if(  Variable=="ND" )
 			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
+        else if(  Variable=="DFN"  )
+		{
+			string sFilename="Unknown disc";
+			DCE::CMD_Get_Default_Ripping_Name CMD_Get_Default_Ripping_Name(m_dwPK_Device,m_dwPK_Device_MediaPlugIn,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),&sFilename);
+			SendCommand(CMD_Get_Default_Ripping_Name);
+			Output += sFilename;
+		}
         else if(  Variable.length()>1 && Variable[0]=='G' && Variable[1]=='D' )
 		{
 			DesignObj_Orbiter *pObjGD = pObj;
@@ -6011,6 +6005,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHis
 				itCallBackInfo++;
 		}
 		pm.Release();
+
+		// We also want to handle reseting the selected states here for the same reason,
+		// Otherwise we may have a show_object message come in and get processed afterward
+		pOrbiter->ResetState(pScreenHistory->m_pObj);
 	}
 }
 
@@ -6815,4 +6813,35 @@ void Orbiter::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMe
 		}
 	}
 	g_pPlutoLogger->Write( LV_CRITICAL, "Can't set ea to %d",iPK_Room );
+}
+//<-dceag-c389-b->
+
+	/** @brief COMMAND: #389 - Send Message */
+	/** Sends a message stored in a parameter as a text object. */
+		/** @param #9 Text */
+			/** The message in command line-style format */
+
+void Orbiter::CMD_Send_Message(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c389-e->
+{
+	Message *pMessageOut = new Message(sText);
+	QueueMessageToRouter(pMessageOut);
+}
+
+void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
+{
+    if(  pObj->m_bDontResetState || pObj->m_bOneTimeDontReset  )
+    {
+        pObj->m_bOneTimeDontReset=false;
+        bDontResetState=true;
+    }
+    else if(  !bDontResetState  )
+    {
+        pObj->m_GraphicToDisplay=GRAPHIC_NORMAL;
+        pObj->m_bHidden=pObj->m_bHideByDefault;
+    }
+
+    DesignObj_DataList::iterator iHao;
+    for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+        ResetState( (DesignObj_Orbiter * )( *iHao ), bDontResetState );
 }

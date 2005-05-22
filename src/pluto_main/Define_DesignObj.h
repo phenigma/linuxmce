@@ -1210,6 +1210,10 @@
 #define DESIGNOBJ_butClimateArray_NoKB_CONST 3414
 #define DESIGNOBJ_butTeleArray_NoKB_CONST 3415
 #define DESIGNOBJ_butSecurityArray_NoKB_CONST 3416
+#define DESIGNOBJ_butResponse1_CONST 3419
+#define DESIGNOBJ_butResponse2_CONST 3420
+#define DESIGNOBJ_butResponse3_CONST 3421
+#define DESIGNOBJ_butResponse4_CONST 3422
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

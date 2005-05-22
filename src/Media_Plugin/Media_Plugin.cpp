@@ -302,6 +302,10 @@ bool Media_Plugin::Register()
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DevicesPipes ) )
         , DATAGRID_Devices__Pipes_CONST );
 
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaAttrCurStream ) )
+        , DATAGRID_Media_Attr_Cur_Stream_CONST );
+
 	// datagrids to support the floorplans
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::FloorplanMediaChoices ) )
@@ -1841,6 +1845,7 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
 
 class DataGridTable *Media_Plugin::DevicesPipes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     DataGridTable *pDataGrid = new DataGridTable();
     DataGridCell *pCell;
 
@@ -1924,6 +1929,31 @@ void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,D
 
 	if( bCreatedVect )
 		delete p_vectDevice;
+}
+
+class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+    DataGridTable *pDataGrid = new DataGridTable();
+    DataGridCell *pCell;
+
+	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(Parms.c_str()) );
+	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
+		return pDataGrid;
+
+	int iRow=0;
+	for( map<int,string>::iterator it=pEntertainArea->m_pMediaStream->m_mapAttributes.begin();it!=pEntertainArea->m_pMediaStream->m_mapAttributes.end();++it)
+	{
+		Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
+		if( pRow_AttributeType && it->second.size() )
+		{
+			DataGridCell *pCell = new DataGridCell( pRow_AttributeType->Description_get() + ": " + it->second );
+			pDataGrid->SetData(0,iRow++,pCell);
+
+		}
+	}
+
+	return pDataGrid;
 }
 
 void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea )
@@ -2940,28 +2970,6 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string
 		}
 		else 
 		{
-			if( sName.size()==0 )
-			{
-				sName = pEntertainArea->m_pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Group_CONST];
-				if( sName.size() )
-					sName += "/"; // We got a gropu
-
-				sName += pEntertainArea->m_pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Album_CONST];
-			}
-
-			// Validate the name and be sure it's unique
-			if( sName.size()==0 )
-				sName = "Unknown disc";
-
-			if( FileUtils::DirExists("/home/public/data/music/" + sName) )
-			{
-				int Counter=1;
-				string sNewName = sName + "_" + StringUtils::itos(Counter++);
-				while( FileUtils::DirExists("/home/public/data/music/" + sNewName) )
-					sNewName = sName + "_" + StringUtils::itos(Counter++);
-				sName = sNewName;
-			}
-
 			string sNewTracks="";
 			if( sTracks=="A" )
 			{
@@ -2991,51 +2999,61 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 			sTracks=sNewTracks;
 		}
 	}
+
+	// Validate the name and be sure it's unique
+	if( sName.size()==0 )
+		sName = "Unknown disc";
+
+	if( FileUtils::DirExists(sName) )
+	{
+		int Counter=1;
+		string sNewName = sName + "_" + StringUtils::itos(Counter++);
+		while( FileUtils::DirExists(sNewName) )
+			sNewName = sName + "_" + StringUtils::itos(Counter++);
+		sName = sNewName;
+	}
+
+	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "movies" : "music";
+	if( iPK_Users==0 )
+		sName = "/home/public/data/" + sSubDir + "/" + sName;
+	else
+		sName = "/home/user_" + StringUtils::itos(iPK_Users) + "/data/" + sSubDir + "/" + sName;
+
 	// If we have a proper name (aka. non empty one) we need to look in the current entertainment area for the disk drive and forward the received command to him.
 	MediaDevice *pDiskDriveMediaDevice = NULL;
-	if ( sName.length() != 0 )
+	map<int, class MediaDevice *>::const_iterator itMediaDevicesInEntArea;
+	for ( itMediaDevicesInEntArea = pEntertainArea->m_mapMediaDevice.begin(); itMediaDevicesInEntArea != pEntertainArea->m_mapMediaDevice.end(); itMediaDevicesInEntArea++ )
 	{
-		map<int, class MediaDevice *>::const_iterator itMediaDevicesInEntArea;
-		for ( itMediaDevicesInEntArea = pEntertainArea->m_mapMediaDevice.begin(); itMediaDevicesInEntArea != pEntertainArea->m_mapMediaDevice.end(); itMediaDevicesInEntArea++ )
+		MediaDevice * pMediaDevice = (*itMediaDevicesInEntArea).second;
+		if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory == DEVICECATEGORY_Disc_Drives_CONST )
 		{
-			MediaDevice * pMediaDevice = (*itMediaDevicesInEntArea).second;
-			if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory == DEVICECATEGORY_Disc_Drives_CONST )
-			{
-				g_pPlutoLogger->Write(LV_STATUS, "Found a disk drive in the target ent area");
-				pDiskDriveMediaDevice = pMediaDevice;
-				break;
-			}
+			g_pPlutoLogger->Write(LV_STATUS, "Found a disk drive in the target ent area");
+			pDiskDriveMediaDevice = pMediaDevice;
+			break;
 		}
+	}
 
-		if ( pDiskDriveMediaDevice == NULL )
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): No disk drive was found in the target ent. area with id: %d. Not ripping anything.", pEntertainArea->m_iPK_EntertainArea);
-			return;
-		}
-
-		if( pEntertainArea->m_pMediaStream )
-		{
-			MediaStream *pTmpMediaStream = pEntertainArea->m_pMediaStream;
-			mm.Release();
-
-			g_pPlutoLogger->Write( LV_STATUS, "Sending stop media before rip" );
-			pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
-			g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia begfore rip" );
-			StreamEnded(pTmpMediaStream);
-		}
-
-		DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName, sTracks);
-		SendCommand(cmdRipDisk);
-		m_mapRippingJobsToRippingDevices[sName] = make_pair<int, int>(pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMessage->m_dwPK_Device_From);
+	if ( pDiskDriveMediaDevice == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): No disk drive was found in the target ent. area with id: %d. Not ripping anything.", pEntertainArea->m_iPK_EntertainArea);
 		return;
 	}
 
-	mm.Release();
+	if( pEntertainArea->m_pMediaStream )
+	{
+		MediaStream *pTmpMediaStream = pEntertainArea->m_pMediaStream;
+		mm.Release();
 
-	// if we are here then this is called in an evil way. We need to ask the user for the name.
-	g_pPlutoLogger->Write(LV_STATUS, "Media plugin got a CMD_Rip_Disk with an empty desired name and needs to ask the user for the name.");
-	DCE::CMD_Goto_Screen gotoScreen(m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuPVRFileSave_CONST), "", "", false, false);
-	SendCommand(gotoScreen);
+		g_pPlutoLogger->Write( LV_STATUS, "Sending stop media before rip" );
+		pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
+		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia begfore rip" );
+		StreamEnded(pTmpMediaStream);
+	}
+
+	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName, sTracks);
+	SendCommand(cmdRipDisk);
+	m_mapRippingJobsToRippingDevices[sName] = make_pair<int, int>(pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMessage->m_dwPK_Device_From);
+	return;
 }
 
 // This should be in sync with the typedef in the Disk_Drive.h
@@ -3108,6 +3126,7 @@ bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 
 bool Media_Plugin::SafeToReload()
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	if( m_mapRippingJobsToRippingDevices.size() )
 	{
 		string sJobs;
@@ -3226,6 +3245,7 @@ MediaDevice *Media_Plugin::GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *
 void Media_Plugin::CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c372-e->
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	string::size_type pos=0;
 	while(pos<sPK_EntertainArea.size() && pos!=string::npos)
 	{
@@ -3296,6 +3316,7 @@ void Media_Plugin::Parse_CDDB_Media_ID(MediaStream *pMediaStream,string sValue)
 void Media_Plugin::CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse,string &sCMD_Result,Message *pMessage)
 //<-dceag-c388-e->
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
 	if( !pEntertainArea )
 	{
@@ -3315,3 +3336,57 @@ void Media_Plugin::CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFals
 		SendCommand(CMD_Set_Bound_Iconl);
 	}
 }
+//<-dceag-c390-b->
+
+	/** @brief COMMAND: #390 - Get Default Ripping Name */
+	/** Gets the default name for ripping the media in the given entertainment area. */
+		/** @param #13 Filename */
+			/** The default filename */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area */
+
+void Media_Plugin::CMD_Get_Default_Ripping_Name(string sPK_EntertainArea,string *sFilename,string &sCMD_Result,Message *pMessage)
+//<-dceag-c390-e->
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
+	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
+	{
+		*sFilename = "***ERROR*** cannot rip";  // should not happen
+
+		return;
+	}
+	if( pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+	{
+		(*sFilename) = pEntertainArea->m_pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Group_CONST];
+		if( sFilename->size() )
+			(*sFilename) += "/"; // We got a gropu
+
+		(*sFilename) += pEntertainArea->m_pMediaStream->m_mapAttributes[ATTRIBUTETYPE_Album_CONST];
+	}
+	else
+		(*sFilename) = pEntertainArea->m_pMediaStream->m_sMediaDescription;
+
+	// Validate the name and be sure it's unique
+	if( sFilename->size()==0 )
+		(*sFilename) = "Unknown disc";
+}
+
+//<-dceag-c391-b->
+
+	/** @brief COMMAND: #391 - Set Media Attribute */
+	/** Changes the media attribute */
+		/** @param #5 Value To Assign */
+			/** The new value of the attribute */
+		/** @param #41 StreamID */
+			/** The ID of the stream */
+		/** @param #121 Tracks */
+			/** If empty, the attribute is for the disc.  If specified, it is for this track number */
+		/** @param #122 PK_AttributeType */
+			/** The type of attribute to set */
+
+void Media_Plugin::CMD_Set_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iPK_AttributeType,string &sCMD_Result,Message *pMessage)
+//<-dceag-c391-e->
+{
+}
+

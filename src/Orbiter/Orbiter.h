@@ -298,7 +298,7 @@ public: // temp - remove this
 	 * @param pObj pointer to the object to put on screen
 	 * @todo ask (makesure)
 	 */
-	virtual void ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, bool bDontResetState );
+	virtual void ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj );
 
 	/**
 	 * @brief takes out the specified object from screen
@@ -672,6 +672,11 @@ public:
 	 * @todo ask
 	 */
 	virtual DesignObjText *FindText( DesignObj_Orbiter *pObj, int iPK_Text );
+
+	/**
+	 * @brief Reset the selected state of an object because it's coming on screen
+	 */
+	void ResetState(DesignObj_Orbiter *pObj, bool bDontResetState=false);
 
 	/**
 	 * @brief Redraw any objects that change during execution of a command
@@ -1347,6 +1352,15 @@ public:
 
 	virtual void CMD_Activate_Window(string sName) { string sCMD_Result; CMD_Activate_Window(sName.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #389 - Send Message */
+	/** Sends a message stored in a parameter as a text object. */
+		/** @param #9 Text */
+			/** The message in command line-style format */
+
+	virtual void CMD_Send_Message(string sText) { string sCMD_Result; CMD_Send_Message(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Send_Message(string sText,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -93,6 +93,7 @@ private:
     class DataGridTable *MediaSearchAutoCompl( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
     class DataGridTable *MediaItemAttr( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *DevicesPipes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *MediaAttrCurStream( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	void DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,DataGridTable *&pDataGrid,int &iRow,int PK_Command_Input=0,int PK_Command_Output=0,vector<int> *p_vectDevice=NULL);
 
     class DataGridTable *AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
@@ -527,6 +528,32 @@ public:
 
 	virtual void CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse) { string sCMD_Result; CMD_Set_Media_Private(sPK_EntertainArea.c_str(),bTrueFalse,sCMD_Result,NULL);};
 	virtual void CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #390 - Get Default Ripping Name */
+	/** Gets the default name for ripping the media in the given entertainment area. */
+		/** @param #13 Filename */
+			/** The default filename */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area */
+
+	virtual void CMD_Get_Default_Ripping_Name(string sPK_EntertainArea,string *sFilename) { string sCMD_Result; CMD_Get_Default_Ripping_Name(sPK_EntertainArea.c_str(),sFilename,sCMD_Result,NULL);};
+	virtual void CMD_Get_Default_Ripping_Name(string sPK_EntertainArea,string *sFilename,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #391 - Set Media Attribute */
+	/** Changes the media attribute */
+		/** @param #5 Value To Assign */
+			/** The new value of the attribute */
+		/** @param #41 StreamID */
+			/** The ID of the stream */
+		/** @param #121 Tracks */
+			/** If empty, the attribute is for the disc.  If specified, it is for this track number */
+		/** @param #122 PK_AttributeType */
+			/** The type of attribute to set */
+
+	virtual void CMD_Set_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iPK_AttributeType) { string sCMD_Result; CMD_Set_Media_Attribute(sValue_To_Assign.c_str(),iStreamID,sTracks.c_str(),iPK_AttributeType,sCMD_Result,NULL);};
+	virtual void CMD_Set_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iPK_AttributeType,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -31,6 +31,8 @@
 #define DATAGRID_Infrared_Codes_CONST 28
 #define DATAGRID_Alarms_In_Room_CONST 29
 #define DATAGRID_Devices__Pipes_CONST 30
+#define DATAGRID_Media_Attr_Cur_Stream_CONST 31
+
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
