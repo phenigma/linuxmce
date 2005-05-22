@@ -46,10 +46,10 @@ command="";
 result=$ERR_NONE;
 case $diskType in 
 	2)
-		command="nice -n 15 dd if=$sourceDevice of=\"/home/public/data/movies/$targetFileName.in-progress-dvd\" bs=10M"
+		command="nice -n 15 dd if=$sourceDevice of=\"$targetFileName.in-progress-dvd\" bs=10M"
 	;;
 	0|1|6|7|8)
-		Dir="/home/public/data/music/$targetFileName"
+		Dir="$targetFileName"
 		command="nice -n 15 cdparanoia -d $sourceDevice \$Track - | flac -o \"$Dir/\$FileName.in-progress-flac\" -"
 	;;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
@@ -64,10 +64,10 @@ fi
 if [[ "$diskType" == 2 ]]; then
 	if eval $command; then
 		/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_SUCCESS 35 "$targetFileName";
-		mv -f "/home/public/data/movies/$targetFileName.in-progress-dvd" "/home/public/data/movies/$targetFileName.dvd";
+		mv -f "$targetFileName.in-progress-dvd" "$targetFileName.dvd";
 	else
 		/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_RESULT_FAILURE 35 "$targetFileName";
-		rm "/home/public/data/movies/$targetFileName.in-progress-dvd";
+		rm "$targetFileName.in-progress-dvd";
 	fi
 elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" == 7 || "$diskType" == 8 ]]; then
 	mkdir -p "$Dir"
