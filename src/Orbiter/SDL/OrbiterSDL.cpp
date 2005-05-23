@@ -179,7 +179,7 @@ g_pPlutoLogger->Write(LV_STATUS,"*******rendering timeout at %d,%d - %d,%d",Text
 	try
 	{
 		WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, 
-			pTextStyle,PK_HorizAlignment,PK_VertAlignment);
+			pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment);
 	}
 	catch(...)
 	{
