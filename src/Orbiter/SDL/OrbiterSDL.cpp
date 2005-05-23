@@ -152,7 +152,7 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 
 //-----------------------------------------------------------------------------------------------------
 void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
-                       string FontPath, TextStyle *pTextStyle);
+                       string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment);
 
 #include "pluto_main/Define_Text.h"
 //-----------------------------------------------------------------------------------------------------
@@ -178,7 +178,8 @@ g_pPlutoLogger->Write(LV_STATUS,"*******rendering timeout at %d,%d - %d,%d",Text
 
 	try
 	{
-		WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, pTextStyle);
+		WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, 
+			pTextStyle,PK_HorizAlignment,PK_VertAlignment);
 	}
 	catch(...)
 	{
