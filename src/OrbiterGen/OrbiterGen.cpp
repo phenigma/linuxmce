@@ -1553,22 +1553,30 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==2253 )//2821 && bAddToGen
 void OrbiterGenerator::OutputText(DesignObj_Generator *ocDesignObj,CGText *p_DesignObjText,bool bPrerender)
 {
 	p_DesignObjText->m_PK_Text = p_DesignObjText->m_pdrText_LS->FK_Text_get();
+if( p_DesignObjText->m_PK_Text==795 )
+{
+	int k=2;
+}
 	if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_HorizAlignment_isNull() )
+		p_DesignObjText->m_iPK_HorizAlignment = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_HorizAlignment_get();
+	else
 	{
-		for(MapTextStyle::iterator it=p_DesignObjText->m_mapTextStyle.begin();it!=p_DesignObjText->m_mapTextStyle.end();++it)
-		{
-			TextStyle *pTextStyle = (*it).second;;
-			pTextStyle->m_iPK_HorizAlignment = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_HorizAlignment_get();
-		}
+		MapTextStyle::iterator it=p_DesignObjText->m_mapTextStyle.begin();
+		if( it==p_DesignObjText->m_mapTextStyle.end() )
+			p_DesignObjText->m_iPK_HorizAlignment=1;
+		else
+			p_DesignObjText->m_iPK_HorizAlignment=it->second->m_iPK_HorizAlignment;
 	}
 
 	if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_VertAlignment_isNull() )
+		p_DesignObjText->m_iPK_VertAlignment = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_VertAlignment_get();
+	else
 	{
-		for(MapTextStyle::iterator it=p_DesignObjText->m_mapTextStyle.begin();it!=p_DesignObjText->m_mapTextStyle.end();++it)
-		{
-			TextStyle *pTextStyle = (*it).second;;
-			pTextStyle->m_iPK_VertAlignment = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_VertAlignment_get();
-		}
+		MapTextStyle::iterator it=p_DesignObjText->m_mapTextStyle.begin();
+		if( it==p_DesignObjText->m_mapTextStyle.end() )
+			p_DesignObjText->m_iPK_VertAlignment=1;
+		else
+			p_DesignObjText->m_iPK_VertAlignment=it->second->m_iPK_VertAlignment;
 	}
 
 //	p_DesignObjText->m_Rotate = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->Rotate_get();

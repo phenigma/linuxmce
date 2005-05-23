@@ -990,8 +990,6 @@ string TableInfo_Generator::table_constants_defines()
 	MYSQL_ROW row;
 
 	map<string,int> mapDefines; // Be sure there's no dups
-	bool bFoundDups=false;
-
 	while ((row = mysql_fetch_row(res)))
 	{
 		if( !row[1] && !row[2] )
@@ -1001,17 +999,13 @@ string TableInfo_Generator::table_constants_defines()
 		
 		string DefineString = FileUtils::ValidCPPName(define);
 		if( mapDefines.find(DefineString)!=mapDefines.end() )
-		{
-			bFoundDups=true;
-		}
+			cout << "#define table: " << get_table_name() << " define: " << DefineString << " is a dup" << endl;
 		else
 		{
 			mapDefines[DefineString]=1;
 			s += "#define " + StringUtils::ToUpper(get_table_name()) + "_" + DefineString + "_CONST " + row[0] + "\n";
 		}
 	}
-	if( bFoundDups )
-		cout << "There were duplicate define constants for table " << get_table_name() << endl;
 
 	return s;
 }

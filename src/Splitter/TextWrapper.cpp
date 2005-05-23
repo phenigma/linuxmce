@@ -59,17 +59,17 @@ void TextLineWrap::AddImageWord(ImageRow & line, RendererImage * word)
 }
 
 list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
-							   string FontPath, TextStyle * pTextStyle)
+							   string FontPath, TextStyle * pTextStyle, int PK_HorizAlignment,int PK_VertAlignment)
 {
 	string flags("");
 
-	switch (pTextStyle->m_iPK_HorizAlignment)
+	switch (PK_HorizAlignment)
 	{
 		case HORIZALIGNMENT_Center_CONST: flags += "c"; break;
 		case HORIZALIGNMENT_Right_CONST: flags += "r"; break;
 	}
 
-	switch (pTextStyle->m_iPK_VertAlignment)
+	switch (PK_VertAlignment)
 	{
 		case VERTALIGNMENT_Middle_CONST: flags += "m"; break;
 		case VERTALIGNMENT_Bottom_CONST: flags += "b"; break;
@@ -260,9 +260,9 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 
 // WORKAROUND: void * = SDL_Surface *
 void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, int H,
-					   string FontPath, TextStyle *pTextStyle)
+					   string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment)
 {
 	TextLineWrap T;
-	T.Wrap(text, X, Y, W, H, FontPath, pTextStyle);
+	T.Wrap(text, X, Y, W, H, FontPath, pTextStyle,PK_HorizAlignment,PK_VertAlignment);
 	T.RenderToSurface(Surface);
 }

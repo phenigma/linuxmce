@@ -255,9 +255,10 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sPK_Orbiter,"<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,10,true);
 
 		if( pXineMediaStream->m_dequeMediaFile.size() )
-			pXineMediaStream->m_sMediaDescription = pXineMediaStream->m_dequeMediaFile[0]->m_sFilename;
-		else
-			pXineMediaStream->m_sMediaDescription = "DVD";
+		{
+			MediaFile *pMediaFile = pXineMediaStream->m_dequeMediaFile[0];
+			pXineMediaStream->m_sMediaDescription = pMediaFile->m_sDescription.size() ? pMediaFile->m_sDescription : FileUtils::FilenameWithoutPath(pMediaFile->m_sFilename);
+		}
 
 		g_pPlutoLogger->Write(LV_STATUS, "Got pluto DVD media type");
 		// Find a disk Drive in one of the entertainment areas.// Wait(true);

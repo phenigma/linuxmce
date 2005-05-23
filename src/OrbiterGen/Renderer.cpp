@@ -97,8 +97,9 @@ Renderer::~Renderer()
 // A standard version that has non-standard variations, will also want all of it's children to render only the standard version
 void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion)
 {
+
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("2195")!=string::npos )
+	if( pDesignObj_Generator->m_ObjectID.find("2238")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -789,14 +790,14 @@ void Renderer::SaveMNGToFile(string FileName, RendererMNG * MNG)
 
 /* WORKAROUND */
 void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
-                       string FontPath, TextStyle *pTextStyle);
+                       string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment);
 
 void Renderer::RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator *pDesignObj_Generator, PlutoPoint pos)
 {
     PlutoRectangle rect = pDesignObjText->m_rPosition + pos;
 
     WrapAndRenderText(pRenderImage->m_pSDL_Surface, pDesignObjText->m_sText, rect.X, rect.Y, rect.Width, rect.Height,
-        m_sFontPath, pTextStyle);
+        m_sFontPath, pTextStyle,pDesignObjText->m_iPK_HorizAlignment,pDesignObjText->m_iPK_VertAlignment);
 }
 
 Uint32 Renderer::getpixel(RendererImage * RIsurface, int x, int y)

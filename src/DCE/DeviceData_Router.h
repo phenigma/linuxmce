@@ -17,7 +17,11 @@ namespace DCE
 	{
 	public:
 		Row_Device_Device_Pipe *m_pRow_Device_Device_Pipe;
-		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe) { m_pRow_Device_Device_Pipe=pRow_Device_Device_Pipe; }
+		// A plugin or something can set this flag, and then off's won't get propagated.  That way the pipe
+		// that goes to the display devices for an on-screen orbiter, for example, can be set to true
+		// so that only the 'off' from the on screen orbiter will turn the rendering device off.
+		bool m_bDontSendOff;  
+		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe) { m_pRow_Device_Device_Pipe=pRow_Device_Device_Pipe; m_bDontSendOff=false; }
 	};
 
 	class Command

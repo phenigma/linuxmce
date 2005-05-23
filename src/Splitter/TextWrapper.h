@@ -16,7 +16,7 @@ typedef void SDL_Surface;
 #endif
 
 void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, int H,
-					   string FontPath, TextStyle *pTextStyle);
+					   string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment);
 
 class LineAttr
 {
@@ -48,7 +48,7 @@ class TextLineWrap
 		list<LineAttr> LineAttrData;
 
 		~TextLineWrap();
-		list<Row> & Wrap(string text, int atX, int atY, int W, int H, string FontPath, TextStyle * pTextStyle);
+		list<Row> & Wrap(string text, int atX, int atY, int W, int H, string FontPath, TextStyle * pTextStyle,int PK_HorizAlignment,int PK_VertAlignment);
 		void Clear();
 		void RenderToScreen();
 		void RenderToSurface(SDL_Surface * Surface);

@@ -47,7 +47,12 @@ int k=2;
 
 	bool bContainsRunTimeVariables;
 	m_sText = m_pParent->SubstituteVariables(m_sText,&bContainsRunTimeVariables);
-/*
+if( m_sText.find("Copy")!=string::npos )
+{
+int k=2;
+}
+	/*
+
 
 todo c++
 	vector<Row_Text_LS_AltVersions *> vectAVs;

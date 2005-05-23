@@ -829,7 +829,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
     {
 		MediaFile *pMediaFile = *itFiles;
         // int index = itFiles - pMediaStream->m_dequeMediaFile.begin();
-		sCurrentFile = pMediaFile->m_sDescription.size() ? pMediaFile->m_sDescription : pMediaFile->FullyQualifiedFile();
+		sCurrentFile = pMediaFile->m_sDescription.size() ? pMediaFile->m_sDescription : FileUtils::FilenameWithoutPath(pMediaFile->FullyQualifiedFile());
 
         pDataGrid->SetData(0, currentPos++,new DataGridCell(sCurrentFile, StringUtils::itos(itFiles - pMediaStream->m_dequeMediaFile.begin())));
 		g_pPlutoLogger->Write(LV_STATUS, "Returning data: (%d) -> %s", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str());

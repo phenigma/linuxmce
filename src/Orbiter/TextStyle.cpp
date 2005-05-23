@@ -47,9 +47,9 @@ TextStyle::TextStyle(class Row_StyleVariation *pRow_StyleVariation)
 	m_iShadowX = pRow_StyleVariation->ShadowX_get();
 	m_iShadowY = pRow_StyleVariation->ShadowY_get();
 	m_iBorderStyle = pRow_StyleVariation->BorderStyle_get();
-	m_iPK_HorizAlignment = pRow_StyleVariation->FK_HorizAlignment_get();
-	m_iPK_VertAlignment = pRow_StyleVariation->FK_VertAlignment_get();
 	m_pTTF_Font=NULL;
+	m_iPK_HorizAlignment=pRow_StyleVariation->FK_HorizAlignment_get();
+	m_iPK_VertAlignment=pRow_StyleVariation->FK_VertAlignment_get();
  //	m_iRotate = pRow_StyleVariation->r;
 	/*
 	m_SelectedBGColor = pRow_StyleVariation->;

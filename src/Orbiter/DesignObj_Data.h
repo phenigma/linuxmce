@@ -96,6 +96,7 @@ public:
 	int m_PK_Text;
 	int m_iLastXOffset,m_iLastYOffset;  // Used only within the Orbiter
 	string m_sText;
+	int m_iPK_VertAlignment,m_iPK_HorizAlignment;
 	MapTextStyle m_mapTextStyle;
 	TextStyle *m_mapTextStyle_Find(int Version)
 	{
@@ -107,7 +108,7 @@ public:
 
 	DesignObjText(class DesignObj_Orbiter *pObj) 
 	{ 
-		m_pObject=pObj; m_iLastXOffset=m_iLastYOffset=0; 
+		m_pObject=pObj; m_iLastXOffset=m_iLastYOffset=0; m_iPK_VertAlignment=m_iPK_HorizAlignment=0;
 	}
 	DesignObjText() { m_pObject = NULL; }
 	
@@ -128,7 +129,7 @@ public:
 	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_sText + m_bPreRender +
-			m_PK_Text + m_mapAltVersions + m_rPosition;
+			m_PK_Text + m_mapAltVersions + m_rPosition + m_iPK_VertAlignment + m_iPK_HorizAlignment;
 		
 		(*this) + m_mapTextStyle;
 	}

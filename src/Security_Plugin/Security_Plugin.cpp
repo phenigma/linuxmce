@@ -380,9 +380,9 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	m_pAlarmManager->CancelAlarmByType(PROCESS_COUNTDOWN_BEFORE_ALARM);
 	m_pAlarmManager->CancelAlarmByType(PROCESS_ALERT);
 
-	if( PK_HouseMode==-1 || PK_HouseMode==-2 )
+	if( PK_HouseMode==-1 )
 	{
-		m_bMonitorMode=(PK_HouseMode==-1);
+		m_bMonitorMode=!m_bMonitorMode;
 		SetMonitorModeBoundIcon();
 		return;
 	}
@@ -990,7 +990,7 @@ void Security_Plugin::SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare)
 	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 	{
 		OH_Orbiter *pOH_Orbiter = (*it).second;
-		if( pOH_Orbiter==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
+		if( pOH_Orbiter_Compare==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
 		{
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos((int) m_bMonitorMode),"monitormode");
 			SendCommand(CMD_Set_Bound_Icon);

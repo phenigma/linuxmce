@@ -483,7 +483,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	if(rectLocation.bottom > rectLocation.top + Text->m_rPosition.Width)
 		rectLocation.bottom = rectLocation.top + Text->m_rPosition.Width;
 
-	switch (pTextStyle->m_iPK_HorizAlignment)
+	switch (Text->m_iPK_HorizAlignment)
 	{
 		case HORIZALIGNMENT_Center_CONST: 
 			::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 

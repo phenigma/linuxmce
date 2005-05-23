@@ -333,20 +333,23 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	}
 	m_mapFloorplanObjectVector.clear();
 
+	//clearing screen history
+	list < ScreenHistory * >::iterator itScreenHistory;
+	for(itScreenHistory = m_listScreenHistory.begin(); itScreenHistory != m_listScreenHistory.end(); itScreenHistory++)
+	{
+ScreenHistory * psh = *itScreenHistory;
+		if( *itScreenHistory==m_pScreenHistory_Current )
+			m_pScreenHistory_Current=NULL;
+		delete *itScreenHistory;
+		*itScreenHistory = NULL;
+	}
+	m_listScreenHistory.clear();
+
 	if(NULL != m_pScreenHistory_Current)
 	{
 		delete m_pScreenHistory_Current;
 		m_pScreenHistory_Current = NULL;
 	}
-
-	//clearing screen history
-	list < ScreenHistory * >::iterator itScreenHistory;
-	for(itScreenHistory = m_listScreenHistory.begin(); itScreenHistory != m_listScreenHistory.end(); itScreenHistory++)
-	{
-		delete *itScreenHistory;
-		*itScreenHistory = NULL;
-	}
-	m_listScreenHistory.clear();
 
 	//clearing device data map
 	map< string, class DesignObj_DataGrid * >::iterator itDesignObjDataGrid;
@@ -971,6 +974,9 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
         //pTextStyle->m_BackColor = PlutoColor( 0, 0, 0, 255 );
         //pTextStyle->m_ForeColor = PlutoColor( 255, 255, 255, 255 );
         //pTextStyle->m_iPK_VertAlignment=2;
+
+		Text.m_iPK_HorizAlignment = pTextStyle->m_iPK_HorizAlignment;
+		Text.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
 
         RenderText( &Text, pTextStyle );
     }
@@ -6039,7 +6045,7 @@ bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
 
 			if( m_pScreenHistory_Current->m_pObj->m_iBaseObjectID==m_pDesignObj_Orbiter_MainMenu->m_iBaseObjectID ||
 					(m_pDesignObj_Orbiter_SleepingMenu && m_pScreenHistory_Current->m_pObj->m_iBaseObjectID==m_pDesignObj_Orbiter_SleepingMenu->m_iBaseObjectID) ||
-					(m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_ScreenSaveMenu->m_iBaseObjectID) )
+					(m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj->m_iBaseObjectID==m_pDesignObj_Orbiter_ScreenSaveMenu->m_iBaseObjectID) )
 				return true;
 			else
 	            return false;

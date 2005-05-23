@@ -91,7 +91,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2253 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==2585 )//2821 && bAddToGenerated )
 {
     int k=2;
 }
@@ -690,6 +690,9 @@ int k=2;
 								pDesignObj_Generator->m_iFloorplanDevice = PK_Device_EA;
 
 								// Scale these here because we need to reset all the x/y positions since we may have used a different scale factor
+								// they will be offset by the parent floorplan object
+								// and they are to be centered on the point, rather than upper/left like the others.  That will be 
+								// handled when ScaleAllValues is called the second time.
 								pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get(),NULL);
 								m_alChildDesignObjs.push_back(pDesignObj_Generator);
 								pDesignObj_Generator->m_rBackgroundPosition.X=X;
@@ -1578,6 +1581,21 @@ int k=2;
 
         m_bValuesScaled=true;
     }
+	else if( m_ocoParent && m_ocoParent->m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
+	{
+		// Floorplans were scaled already, but they need to be offset by the parent floorplan object
+		// and they are to be centered on the point, rather than upper/left like the others
+		m_rBackgroundPosition.X += m_ocoParent->m_rBackgroundPosition.X - m_rBackgroundPosition.Width/2;
+		m_rBackgroundPosition.Y += m_ocoParent->m_rBackgroundPosition.Y - m_rBackgroundPosition.Width/2;
+		m_rPosition.X += m_ocoParent->m_rPosition.X - m_rPosition.Width/2;
+		m_rPosition.Y += m_ocoParent->m_rPosition.Y - m_rPosition.Width/2;
+        for(size_t s=0;s<m_vectDesignObjText.size();++s)
+        {
+            CGText *ot = (CGText *) m_vectDesignObjText[s];
+			ot->m_rPosition.X += m_ocoParent->m_rPosition.X - m_rPosition.Width/2;
+			ot->m_rPosition.Y += m_ocoParent->m_rPosition.Y - m_rPosition.Width/2;
+		}
+	}
 
     for(size_t s=0;s<m_alChildDesignObjs.size();++s)
     {
