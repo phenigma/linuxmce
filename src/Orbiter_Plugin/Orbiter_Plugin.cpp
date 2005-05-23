@@ -1419,16 +1419,16 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 		return false;
 
 	pOH_Orbiter->m_bDisplayOn = pMessage->m_dwID==COMMAND_Generic_On_CONST;
-	Message *pMessage_New = new Message(pMessage);
-	pMessage_New->m_dwPK_Device_To = pDeviceTo->m_pDevice_MD->m_dwPK_Device;
-	QueueMessageToRouter(pMessage_New);
-
 	if( pOH_Orbiter->m_pDeviceData_Router->m_mapParameters.find(DEVICEDATA_Leave_Monitor_on_for_OSD_CONST)!=
 		pOH_Orbiter->m_pDeviceData_Router->m_mapParameters.end() && 
 		pOH_Orbiter->m_pDeviceData_Router->m_mapParameters[DEVICEDATA_Leave_Monitor_on_for_OSD_CONST]=="1" )
 	{
 		OverrideAVPipe(pOH_Orbiter->m_pDeviceData_Router,pOH_Orbiter->m_bDisplayOn);
 	}
+
+	Message *pMessage_New = new Message(pMessage);
+	pMessage_New->m_dwPK_Device_To = pDeviceTo->m_pDevice_MD->m_dwPK_Device;
+	QueueMessageToRouter(pMessage_New);
 
 	return false; // Let others handle it too
 }
@@ -1648,7 +1648,7 @@ void Orbiter_Plugin::OverrideAVPipe(DeviceData_Router *pDevice_OSD,bool bOverrid
 			{
 				class Pipe *pPipe2 = it2->second;
 				if( pPipe2->m_pRow_Device_Device_Pipe->FK_Device_To_get()==pMediaDevice->m_pDeviceData_Router->m_dwPK_Device )
-					pPipe2->m_bDontSendOff=true;
+					pPipe2->m_bDontSendOff=bOverride;
 			}
 		}
 	}
