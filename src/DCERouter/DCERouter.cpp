@@ -1458,7 +1458,7 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Active.begin();it!=pDeviceData_Router->m_mapPipe_Active.end();++it)
         {
             Pipe *pPipe = (*it).second;
-			if( PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get() )
+			if( (PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()) || pPipe->m_bDontSendOff )
 				continue;
 
 			Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),

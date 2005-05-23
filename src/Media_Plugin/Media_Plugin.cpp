@@ -43,6 +43,7 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Template.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
@@ -88,6 +89,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_iLastPlaybackSpeed = 1000;
 	m_pDeviceData_Router = pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) );
 	m_pOH_Orbiter_OSD = NULL;
+	m_bDontSendOffIfOSD_ON=false;
 	// do stuff with this
 }
 
@@ -2718,8 +2720,13 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 
 	if( !pmapMediaDevice_Current || pmapMediaDevice_Current->find( pDeviceData_Router->m_dwPK_Device ) == pmapMediaDevice_Current->end() )
 	{
-		DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
-		SendCommand(CMD_Off);
+		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDeviceData_Router->m_dwPK_Device);
+		// Don't turn the device off the OSD needs it on
+		if( !pMediaDevice || !pMediaDevice->m_bDontSendOffIfOSD_ON || (pMediaDevice->m_pOH_Orbiter_OSD && pMediaDevice->m_pOH_Orbiter_OSD->m_bDisplayOn==false))
+		{
+			DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
+			SendCommand(CMD_Off);
+		}
 	}
 
 	if( pDeviceData_Router->m_pDevice_MD && pDeviceData_Router!=pDeviceData_Router->m_pDevice_MD )
@@ -3389,4 +3396,5 @@ void Media_Plugin::CMD_Set_Media_Attribute(string sValue_To_Assign,int iStreamID
 //<-dceag-c391-e->
 {
 }
+
 

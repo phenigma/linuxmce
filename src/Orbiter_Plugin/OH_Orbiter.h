@@ -21,7 +21,7 @@ namespace DCE
 
 		int m_iLastSignalStrength;
 		int m_iFailedToConnectCount;
-		bool m_bRegistered;
+		bool m_bRegistered,m_bDisplayOn;
         string m_sUpdateVMCFile;
 		string m_sVersion;
 
@@ -37,7 +37,7 @@ namespace DCE
 			m_iLastSignalStrength = 0;
 			m_pDevice_CurrentDetected = NULL;
 			m_iFailedToConnectCount = 0;
-			m_bRegistered=false;
+			m_bDisplayOn=m_bRegistered=false;
 			m_tSendAppTime=m_tRegenTime=0;
 			m_pOH_User=NULL;
 		}

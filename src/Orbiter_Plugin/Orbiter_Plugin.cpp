@@ -41,9 +41,11 @@ using namespace DCE;
 #include "pluto_main/Table_UnknownDevices.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Variable.h"
+#include "pluto_main/Table_Device_Device_Pipe.h"
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_DeviceCategory_DeviceData.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_Command.h"
 #include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Define_EventParameter.h"
@@ -213,6 +215,13 @@ bool Orbiter_Plugin::Register()
             }
             else
                 m_mapOH_Orbiter_Mac[StringUtils::ToUpper(pDeviceData_Router->m_sMacAddress)] = pOH_Orbiter;
+
+			if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia &&
+				pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
+			{
+				RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST);
+				RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST);
+			}
         }
     }
 
@@ -1403,6 +1412,27 @@ bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessag
 	return false;  // Let anybody else have this who wants it
 }
 
+bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_To);
+	if( !pOH_Orbiter || !pDeviceTo->m_pDevice_MD )
+		return false;
+
+	pOH_Orbiter->m_bDisplayOn = pMessage->m_dwID==COMMAND_Generic_On_CONST;
+	Message *pMessage_New = new Message(pMessage);
+	pMessage_New->m_dwPK_Device_To = pDeviceTo->m_pDevice_MD->m_dwPK_Device;
+	QueueMessageToRouter(pMessage_New);
+
+	if( pOH_Orbiter->m_pDeviceData_Router->m_mapParameters.find(DEVICEDATA_Leave_Monitor_on_for_OSD_CONST)!=
+		pOH_Orbiter->m_pDeviceData_Router->m_mapParameters.end() && 
+		pOH_Orbiter->m_pDeviceData_Router->m_mapParameters[DEVICEDATA_Leave_Monitor_on_for_OSD_CONST]=="1" )
+	{
+		OverrideAVPipe(pOH_Orbiter->m_pDeviceData_Router,pOH_Orbiter->m_bDisplayOn);
+	}
+
+	return false; // Let others handle it too
+}
+
 //<-dceag-c274-b->
 
 	/** @brief COMMAND: #274 - Set Room For Device */
@@ -1586,4 +1616,40 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "'%s' file not found. No PlutoMO.cfg will be generated", csWapConfFile.c_str());
     }
+}
+
+void Orbiter_Plugin::OverrideAVPipe(DeviceData_Router *pDevice_OSD,bool bOverride)
+{
+	// This will only be called with OSD's.
+	// Find the a/v equipment we are connected to, and disable the off for those pipes 
+	// So other a/v equipment won't turn them off.  It will be our parent, the media director
+	if( !pDevice_OSD->m_pDevice_MD )
+		return;
+
+	DeviceData_Router *pDevice_MD = (DeviceData_Router *) pDevice_OSD->m_pDevice_MD;
+	MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_MD->m_dwPK_Device);
+	if( pMediaDevice )
+		pMediaDevice->m_bDontSendOffIfOSD_ON=bOverride;
+
+	for(map<int, class Pipe *>::iterator it=pDevice_MD->m_mapPipe_Available.begin();
+		it!=pDevice_MD->m_mapPipe_Available.end();++it)
+	{
+		class Pipe *pPipe = it->second;
+		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		if( !pMediaDevice )
+			continue; // shouldn't happen -- it's not a/v equipment
+		pMediaDevice->m_bDontSendOffIfOSD_ON=bOverride;
+		for(size_t s=0;s<pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes.size();++s)
+		{
+			// Find the pipes used to send to our output devices and disable them
+			DeviceData_Router *pAVDevice = pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes[s];
+			for(map<int, class Pipe *>::iterator it2=pAVDevice->m_mapPipe_Available.begin();
+				it2!=pAVDevice->m_mapPipe_Available.end();++it2)
+			{
+				class Pipe *pPipe2 = it2->second;
+				if( pPipe2->m_pRow_Device_Device_Pipe->FK_Device_To_get()==pMediaDevice->m_pDeviceData_Router->m_dwPK_Device )
+					pPipe2->m_bDontSendOff=true;
+			}
+		}
+	}
 }

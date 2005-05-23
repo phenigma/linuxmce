@@ -182,7 +182,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
     m_iImageHeight=iImageHeight;
-    m_bDisplayOn=true;
+    m_bDisplayOn=false;  // So the first touch will turn it on
     m_bYieldScreen=false;
     m_bYieldInput=false;
     m_bRerenderScreen=false;
@@ -2546,8 +2546,6 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			SendCommand( CMD_Set_Current_User );
 			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1" );
 			SendCommand( CMD_Orbiter_Registered );
-
-			CMD_Display_OnOff( "1" );
 		}
 
 		if( !m_pScreenHistory_Current )

@@ -68,6 +68,8 @@
 #define DEVICEDATA_COM_Port_BaudRate_CONST 78
 #define DEVICEDATA_Area_CONST 80
 #define DEVICEDATA_Channel_CONST 81
+#define DEVICEDATA_Leave_Monitor_on_for_OSD_CONST 84
+
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

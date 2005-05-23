@@ -14,6 +14,7 @@ namespace DCE
 
 		/** @brief constructor */
 		MediaDevice(class Router *pRouter,Row_Device *pRow_Device);   /** This will store extra information about itself */
+		bool m_bDontSendOffIfOSD_ON;  // This allows that only the OSD can turn it off
 		class DeviceData_Router *m_pDeviceData_Router;          /**< The device in the router */
 		map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */
 		map<int,class EntertainArea *> m_mapEntertainArea;
