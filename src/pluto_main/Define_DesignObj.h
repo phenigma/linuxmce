@@ -1198,7 +1198,6 @@
 #define DESIGNOBJ_objWaitToArm_CONST 3402
 #define DESIGNOBJ_objTryAgain_CONST 3403
 #define DESIGNOBJ_dgCDTracksToRip_CONST 3404
-#define DESIGNOBJ_objMonitorTogleOnOff_CONST 3405
 #define DESIGNOBJ_objGotoFullLightingOptions_CONST 3406
 #define DESIGNOBJ_objGotoFullMediaOptions_CONST 3407
 #define DESIGNOBJ_objGotoFullClimateOptions_CONST 3408
