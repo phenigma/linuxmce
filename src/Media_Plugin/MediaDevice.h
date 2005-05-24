@@ -21,6 +21,12 @@ namespace DCE
 		int m_iLastPlaybackSpeed;
 		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-sceren display */
 		map<int, Row_MediaType *> m_mapMediaType;
+
+		// These will only be used if this is a disk drive.  If so, we'll keep track of the orbiter
+		// that reset the drive so that when the drive later fires a media inserted we know which 
+		// orbiter originated the request
+		class OH_Orbiter *m_pOH_Orbiter_Reset;
+		time_t m_tReset;
 	};
 
 	typedef list<MediaDevice *> ListMediaDevice;

@@ -111,6 +111,8 @@ namespace DCE
 
 		virtual void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
 
+		virtual int SpecialOsdScreen(); // Returns 0 if this stream has a special object for OSD
+
 		virtual void DeleteEntryFromPlaylist(int position);
 		virtual void MoveEntryInPlaylist(int position, int displacement);
 		/**

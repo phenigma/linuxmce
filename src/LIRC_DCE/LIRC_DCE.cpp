@@ -25,7 +25,9 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 //<-dceag-const-e->
 {
 	vector<string> vectMapping,vectConfiguration;
-	string sMapping = DATA_Get_Mapping(), sConfiguration = DATA_Get_Configuration();	StringUtils::Tokenize(sMapping,"\r\n",vectMapping);	StringUtils::Tokenize(sConfiguration,"\r\n",vectConfiguration);
+	string sMapping = DATA_Get_Mapping(), sConfiguration = DATA_Get_Configuration();
+	StringUtils::Tokenize(sMapping,"\r\n",vectMapping);	
+	StringUtils::Tokenize(sConfiguration,"\r\n",vectConfiguration);
 
 	bool bCodesBegan=false;
 	for(size_t s=0;s<vectConfiguration.size();++s)

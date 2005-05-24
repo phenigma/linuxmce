@@ -90,6 +90,8 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_pDeviceData_Router = pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) );
 	m_pOH_Orbiter_OSD = NULL;
 	m_bDontSendOffIfOSD_ON=false;
+	m_pOH_Orbiter_Reset=NULL;
+	m_tReset=0;
 	// do stuff with this
 }
 
@@ -447,8 +449,13 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
 			vector<EntertainArea *> vectEntertainArea;
 			vectEntertainArea.push_back(pEntertainArea);
-			g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Media Inserted");
-            MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,0,vectEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false,0);
+			int PK_Orbiter=0;
+			if( pMediaDevice->m_pOH_Orbiter_Reset && time(NULL)-pMediaDevice->m_tReset<60 )
+				PK_Orbiter = pMediaDevice->m_pOH_Orbiter_Reset->m_pDeviceData_Router->m_dwPK_Device;
+
+			g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Media Inserted with orbiter %d",PK_Orbiter);
+
+			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false,0);
 			if( pMediaStream )
 				pMediaStream->m_discid = discid;
 
@@ -732,6 +739,9 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			}
 		}
 
+		// See if there's a special screen for the OSD
+		pMediaStream->m_iPK_DesignObj_RemoteOSD = pMediaStream->SpecialOsdScreen();
+
 		if( pMediaStream->m_iPK_DesignObj_Remote>0 )
 		{
 			for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
@@ -749,7 +759,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				// If there's another user in the entertainment area that is in the middle of something (ie the Orbiter is not at the main menu),
 				// we don't want to forcibly 'take over' and change to the remote screen. So we are only goind to send the orbiters controlling this ent area
 				// to the correct remote iff thery are the main menu EXCEPT for the originating device which will always be send to the remote.
-				if( !pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) )
+				// If this is the OSD and there's a special screen, don't switch, we'll do it below
+				if( !pMediaStream->m_iPK_DesignObj_RemoteOSD || !pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) )
 				{
 					if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
 					{
@@ -770,9 +781,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in -- there's no remote control for screen.");
 
 
-		if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ||		// either a DVD
-			pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||	// or the TV display
-			pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST ) // or stored movies
+		if ( pMediaStream->m_iPK_DesignObj_RemoteOSD ) // this needs special handling for the OSD
 		{
 			for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
 			{
@@ -781,21 +790,6 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				// finally send the OnScreenDisplay orbiter (the one that is on the target media director) to the app_desktop screen.
 				if( pEntertainArea->m_pMediaDevice_ActiveDest && pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD )
 				{
-					switch( pMediaStream->m_iPK_MediaType )
-					{
-					case MEDIATYPE_pluto_DVD_CONST:
-						pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_dvd_full_screen_CONST;
-						break;
-					case MEDIATYPE_pluto_LiveTV_CONST:
-						pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_pvr_full_screen_CONST;
-						break;
-					case MEDIATYPE_pluto_StoredVideo_CONST:
-						pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_storedvideos_full_screen_CONST;
-						break;
-					default:
-						pMediaStream->m_iPK_DesignObj_RemoteOSD = DESIGNOBJ_generic_full_screen_CONST;
-						break;
-					}
 					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,0,
 						StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD),"","",false, false);
 					SendCommand(CMD_Goto_Screen);
@@ -2206,6 +2200,9 @@ break; // handle multiple handlers
             {
 				if ( ! DiskDriveIsRipping(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device) )
 				{
+					pMediaDevice->m_pOH_Orbiter_Reset = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Device_Orbiter);
+					pMediaDevice->m_tReset = time(NULL);
+
 					DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
                 	SendCommand(CMD_Reset_Disk_Drive);
 					bDiskWasReset = true;

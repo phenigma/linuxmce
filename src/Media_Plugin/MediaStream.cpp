@@ -230,6 +230,21 @@ bool MediaStream::OrbiterIsOSD(int PK_Orbiter)
 	return false;
 }
 
+int MediaStream::SpecialOsdScreen()
+{
+	switch( m_iPK_MediaType )
+	{
+	case MEDIATYPE_pluto_DVD_CONST:
+		return DESIGNOBJ_dvd_full_screen_CONST;
+	case MEDIATYPE_pluto_LiveTV_CONST:
+		return DESIGNOBJ_pvr_full_screen_CONST;
+	case MEDIATYPE_pluto_StoredVideo_CONST:
+		return DESIGNOBJ_storedvideos_full_screen_CONST;
+	}
+
+	return 0;
+}
+
 string MediaStream::GetAllOSD()
 {
 	string s;
