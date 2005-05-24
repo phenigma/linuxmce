@@ -867,16 +867,23 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 		{
 			MediaDevice *pMediaDevice = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source;
 			if( pMessage->m_dwID==COMMAND_Pause_Media_CONST && pMediaDevice->m_iLastPlaybackSpeed!=0 )
+			{
+				OverrideNowPlaying(pEntertainArea->m_pMediaStream,"(pause) " + pEntertainArea->m_pMediaStream->m_sMediaDescription);
 				pMediaDevice->m_iLastPlaybackSpeed = 0;
+			}
 			else if( pMessage->m_dwID==COMMAND_Pause_Media_CONST )
 			{
 				// It's the second pause in a row.  Change it to a play
 				pMessage->m_dwID=COMMAND_Change_Playback_Speed_CONST;
 				pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST] = "1000";
 				pMediaDevice->m_iLastPlaybackSpeed = 1000;
+				OverrideNowPlaying(pEntertainArea->m_pMediaStream,pEntertainArea->m_pMediaStream->m_sMediaDescription);
 			}
 			else if( pMessage->m_dwID==COMMAND_Play_Media_CONST )
+			{
+				OverrideNowPlaying(pEntertainArea->m_pMediaStream,pEntertainArea->m_pMediaStream->m_sMediaDescription);
 				pMediaDevice->m_iLastPlaybackSpeed = 1000;
+			}
 			else if( pMessage->m_dwID==COMMAND_Change_Playback_Speed_CONST )
 			{
 				string sValue = pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST];
@@ -930,7 +937,11 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 					else
 						pMediaDevice->m_iLastPlaybackSpeed = pMediaDevice->m_iLastPlaybackSpeed;
 				}
-
+				if( pMediaDevice->m_iLastPlaybackSpeed==1 )
+					OverrideNowPlaying(pEntertainArea->m_pMediaStream,pEntertainArea->m_pMediaStream->m_sMediaDescription);
+				else
+					OverrideNowPlaying(pEntertainArea->m_pMediaStream,"(" +
+						StringUtils::itos(pMediaDevice->m_iLastPlaybackSpeed/1000) + "x) "+ pEntertainArea->m_pMediaStream->m_sMediaDescription);
 			}
 g_pPlutoLogger->Write(LV_STATUS,"Playback speed now %d for device %d %s",
 pMediaDevice->m_iLastPlaybackSpeed,
@@ -1083,6 +1094,21 @@ g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
                 m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription );
+        }
+    }
+}
+
+void Media_Plugin::OverrideNowPlaying(MediaStream *pMediaStream,string sNowPlaying)
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+    for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
+    {
+        EntertainArea *pEntertainArea = ( *it ).second;
+        for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+        {
+            OH_Orbiter *pOH_Orbiter = (*it).second;
+            if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
+                m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, sNowPlaying );
         }
     }
 }

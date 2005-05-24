@@ -108,6 +108,12 @@ protected:
 	bool DiskDriveIsRipping(int iPK_Device);
 
 	/**
+	 * Sometimes we just want to override the description with a
+	 * status like 'pause', '2x', etc.
+	 */
+	void OverrideNowPlaying(MediaStream *pMediaStream,string sNowPlaying);
+
+	/**
 	 * Parse media identification that came in CDDB Format 
 	 */
 
