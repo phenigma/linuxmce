@@ -447,6 +447,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
 			vector<EntertainArea *> vectEntertainArea;
 			vectEntertainArea.push_back(pEntertainArea);
+			g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Media Inserted");
             MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,0,vectEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false,0);
 			if( pMediaStream )
 				pMediaStream->m_discid = discid;
@@ -542,6 +543,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     if ( !bWithErrors && pMediaStream->CanPlayMore() && !pMediaStream->m_bResume )
     {
         pMediaStream->ChangePositionInPlaylist(1);
+		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from playback completed");
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream);
     }
     else
@@ -628,6 +630,7 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsi
         pMediaStream->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
 
 	pMediaStream->m_bResume=bResume;
+	g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from StartMedia");
 	if( StartMedia(pMediaStream) )
 		return pMediaStream;
 	return NULL;
@@ -1161,6 +1164,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 			if( pMediaStream_Resume!=pMediaStream )
 			{
 				pEntertainArea->m_vectMediaStream_Interrupted.pop_back();
+				g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from StreamEnded");
 				StartMedia(pMediaStream_Resume);
 			}
 		}
@@ -2172,6 +2176,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 		}
 		for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 {
+			g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from MH Play Media1");
 			StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
 break; // handle multiple handlers
 }
@@ -2184,7 +2189,10 @@ break; // handle multiple handlers
 		GetMediaHandlersForEA(iPK_MediaType, vectEntertainArea, mapMediaHandlerInfo);
 
 		for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from MH Play Media2");
 			StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+		}
     }
     else if( vectEntertainArea.size()==1 ) // We got nothing -- find a disk drive within the entertainment area and send it a reset
     {
@@ -2267,7 +2275,10 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 	//
 	// but a few specific ones (like the MythTV MediaStream need to so special handling here)
 	if ( pEntertainArea->m_pMediaStream->ProcessJumpPosition(sValue_To_Assign) ) // if the specification was valid for this stream then continue processing in the media plugin
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from JumpPos (handler)");
     	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
+	}
 
 //  StartMediaByPositionInPlaylist(pEntertainArea, pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos, 0, 0);
 }
@@ -2367,7 +2378,10 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 			mapMediaHandlerInfo[pMediaHandlerInfo->m_MediaHandlerID]=pMediaHandlerInfo;
 	}
 	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Load Playlist");
 	    StartMedia(it->second,pMessage->m_dwPK_Device_From,vectEntertainArea,0,0,&dequeMediaFile,false,0);  // We'll let the plug-in figure out the source, and we'll use the default remote
+	}
 }
 
 class DataGridTable *Media_Plugin::FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -2634,7 +2648,7 @@ g_pPlutoLogger->Write(LV_WARNING,"ready to call wait for message queue");
 				// Find a new source
 				pMediaStream->m_pMediaDevice_Source = GetMediaDeviceForEA(pMediaStream->m_iPK_MediaType,
 					pMediaStream->m_mapEntertainArea.begin()->second);
-	g_pPlutoLogger->Write(LV_WARNING,"Found a new source %d",
+	g_pPlutoLogger->Write(LV_WARNING,"calling startmedia from move - Found a new source %d",
 	pMediaStream->m_pMediaDevice_Source ? pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device : 0 );
 				StartMedia(pMediaStream);
 			}

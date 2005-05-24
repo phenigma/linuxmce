@@ -81,6 +81,9 @@ void MediaStream::setIsMovable(bool bIsMovable)
 
 void MediaStream::SetPlaylistPosition(int position)
 {
+g_pPlutoLogger->Write(LV_STATUS,"SetPlaylistPosition with position %d dequepos %d size %d m_pmediaposition %p",
+	position,m_iDequeMediaFile_Pos,(int) m_dequeMediaFile.size(),m_pMediaPosition);
+
 	if ( (unsigned int)position == m_iDequeMediaFile_Pos )
 		return;
 
@@ -100,11 +103,17 @@ void MediaStream::SetPlaylistPosition(int position)
 
 void MediaStream::ChangePositionInPlaylist(int iHowMuch)
 {
-    SetPlaylistPosition(m_iDequeMediaFile_Pos + iHowMuch);
+g_pPlutoLogger->Write(LV_STATUS,"ChangePositionInPlaylist with position %d how much %d",
+	m_iDequeMediaFile_Pos,iHowMuch);
+
+	SetPlaylistPosition(m_iDequeMediaFile_Pos + iHowMuch);
 }
 
 string MediaStream::GetFilenameToPlay(string sNoFilesFileName )
 {
+g_pPlutoLogger->Write(LV_STATUS,"GetFilenameToPlay called with size: %d pos: %d",
+	(int) m_dequeMediaFile.size(), m_iDequeMediaFile_Pos);
+
     if ( m_dequeMediaFile.size() == 0 )
         return sNoFilesFileName;
 

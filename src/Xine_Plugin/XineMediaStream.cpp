@@ -83,6 +83,8 @@ namespace DCE {
 
 	void XineMediaStream::XineMediaPosition::Reset()
 	{
+g_pPlutoLogger->Write(LV_STATUS,"XineMediaPosition reset");
+
 		m_iSavedPosition = 0;
 		m_iTotalStreamTime = 0;
 		m_sSavedPosition = "";

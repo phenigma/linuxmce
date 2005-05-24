@@ -215,7 +215,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Plugin::StartMedia() Starting media stream playback." );
+	g_pPlutoLogger->Write( LV_STATUS, "Xine_Plugin::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
 
 	XineMediaStream *pXineMediaStream = NULL;
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StartMedia(): ")) == NULL )
@@ -339,7 +339,9 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 	// If this is streaming, we already called PlayMedia within StartStreaming above
 	if( !pXineMediaStream->isStreaming() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "sending play media from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+		g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d saved pos %d", 
+			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+			pMediaStream->m_iDequeMediaFile_Pos, pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
 		DCE::CMD_Play_Media cmd(m_dwPK_Device,
 								pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 								mediaURL,
@@ -670,7 +672,7 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 		// when we are starting streaming on xine players we need to point them to the slim server device
 		if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Sending slim server connection command to the xine player");
+			g_pPlutoLogger->Write(LV_STATUS, "Sending CMD_Play_Media slim server connection command to the xine player");
 
 			DCE::CMD_Play_Media playMediaCommand(
 					m_dwPK_Device,
@@ -699,7 +701,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Finished sending playback to xine %d",pMediaD
 		return false;
 	}
 
-g_pPlutoLogger->Write(LV_CRITICAL,"About to call sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
