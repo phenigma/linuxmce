@@ -1218,6 +1218,7 @@
 #define DESIGNOBJ_mnuViewAttributes_CONST 3423
 #define DESIGNOBJ_dgMediaAttributesCurrentStream_CONST 3424
 #define DESIGNOBJ_butViewAttributes_CONST 3425
+#define DESIGNOBJ_tr_CONST 3426
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
