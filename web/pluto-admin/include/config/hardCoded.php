@@ -24,6 +24,7 @@
 	$GLOBALS['SatelliteBoxes']=108;				// Satellite Boxes
 	$GLOBALS['TVVCRCombo']=106;					// TV VCR Combo
 	$GLOBALS['AmpsReceivers']=103;				// Amps/Receivers
+	$GLOBALS['RemoteControlls']=117;			// Remote Controlls
 	$GLOBALS['GenericSerialDevices']=119;		// GenericSerialDevices
 	$GLOBALS['PVRCaptureCards']=75;				// PVR Capture Cards
 	$GLOBALS['SoundCards']=124;					// Sound Cards

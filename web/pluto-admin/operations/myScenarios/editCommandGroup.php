@@ -156,7 +156,7 @@ function editCommandGroup($output,$dbADO) {
 			$out.='</td>
 				</tr>
 				<tr>
-					<td>Picture * <br><input type="file" name="pic"><br>* Must be PNG 160x160 px</td>
+					<td>Picture * <br><input type="file" name="pic"><br>* Recommended IPG or PNG 160x160 px</td>
 					<td>'.$scenarioImg.'</td>
 				</tr>
 				<tr>
@@ -515,6 +515,9 @@ function editCommandGroup($output,$dbADO) {
 				switch($_FILES['pic']['type']){
 					case 'image/x-png':
 					case 'image/png':
+					case 'image/jpg':
+					case 'image/pjpeg':
+					case 'image/jpeg':						
 						$invalidType=false;
 					break;
 					default:
@@ -523,13 +526,15 @@ function editCommandGroup($output,$dbADO) {
 				}
 	
 				if($invalidType===false){
-					$imageinfo = @getimagesize( $_FILES['pic']['tmp_name'] );
-					if($imageinfo[0]!=160 && $imageinfo[1]!=160){
-						$errNotice.=$_FILES['pic']['name'].' it\'s not 160x160.<br>';
+					if(!move_uploaded_file($_FILES['pic']['tmp_name'],$filePath)){
+						$errNotice.=$_FILES['pic']['name'].' wasn\'t uploaded, check the rights for '.$filePath;
 					}else{
-						if(!move_uploaded_file($_FILES['pic']['tmp_name'],$filePath)){
-							$errNotice.=$_FILES['pic']['name'].' wasn\'t uploaded, check the rights for '.$filePath;
-						}
+						// convert to png and/or resize if necessary
+						exec('chmod 777 -R '.$filePath);
+						$imageinfo = @getimagesize( $filePath );
+						if($imageinfo[0]!=160 && $imageinfo[1]!=160){
+							$flag=resizeImage($filePath,$filePath,160,160,1);
+						}					
 					}
 				}else 
 					$errNotice.=$_FILES['pic']['name'].' is not a valid PNG file.<br>';

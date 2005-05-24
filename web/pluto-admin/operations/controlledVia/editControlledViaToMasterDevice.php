@@ -164,7 +164,7 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 												
 							
 				$out.='<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"> <input type="submit" class="button" name="addPipe" value="Add pipe"></td>
 				</tr>
 			</table>
 		</form>
@@ -184,7 +184,7 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 		
 		
 		
-		if ($autocreate==1) {
+		if ($autocreate==1 && isset($_POST['addPipe'])) {
 				$checkIfIsAPipeAlready = "SELECT FK_DeviceTemplate_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia_Pipe  where FK_DeviceTemplate_DeviceTemplate_ControlledVia = ?";
 				$query = $dbADO->Execute($checkIfIsAPipeAlready,array($objID));
 				if ($query && $query->RecordCount()==0) {															
@@ -238,13 +238,16 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 		
 		$affectedPipes = 'Pipes not updated!';
 		while ($rowSelectedPipesUsed = $resSelectPipesUsed->FetchRow()) {	
-			$input=cleanInteger(@$_POST['input_'.$rowSelectedPipesUsed['FK_To']]);
-			$outputs=cleanInteger(@$_POST['output_'.$rowSelectedPipesUsed['FK_To']]);
+			$input=(cleanInteger(@$_POST['input_'.$rowSelectedPipesUsed['FK_To']])!=0)?cleanInteger(@$_POST['input_'.$rowSelectedPipesUsed['FK_To']]):NULL;
+			$outputs=(cleanInteger(@$_POST['output_'.$rowSelectedPipesUsed['FK_To']])!=0)?cleanInteger(@$_POST['output_'.$rowSelectedPipesUsed['FK_To']]):NULL;
 			$pipe=cleanInteger(@$_POST['pipe_'.$rowSelectedPipesUsed['FK_To']]);
 			$toChild = cleanInteger(@$_POST['toChild_'.$rowSelectedPipesUsed['FK_To']]);
 			$deviceTo=$rowSelectedPipesUsed['FK_To'];
+			
+			if($pipe!=0){
 				$updateDevicePipe = 'UPDATE DeviceTemplate_DeviceTemplate_ControlledVia_Pipe SET FK_Command_Input=?,FK_Command_Output=?,FK_Pipe=?,ToChild=? WHERE FK_DeviceTemplate_DeviceTemplate_ControlledVia = ? ';
 				$res=$dbADO->Execute($updateDevicePipe,array($input,$outputs,$pipe,$toChild,$objID));
+			}
 				$affectedPipes = $dbADO->Affected_Rows()==1 && $affectedPipes == 'Pipes not updated!'?"Pipes updated!":"Pipes not updated!";
 		}
 		

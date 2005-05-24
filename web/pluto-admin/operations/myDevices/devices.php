@@ -38,7 +38,7 @@ function devices($output,$dbADO) {
 		break;
 		case 'surveillance_cameras':
 			$deviceCategory=$GLOBALS['rootCameras'];
-			$specificFloorplanType=$GLOBALS['CameraFoorplanType'];
+			$specificFloorplanType=$GLOBALS['SecurityFoorplanType'];
 			$output->setHelpSrc('/support/index.php?section=document&docID=147');
 		break;
 		case 'phones':

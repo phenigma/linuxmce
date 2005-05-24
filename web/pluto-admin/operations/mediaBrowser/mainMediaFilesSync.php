@@ -12,13 +12,49 @@ function mainMediaFilesSync($output,$mediadbADO) {
 		$typeArray[$rowType['PK_Type']]=$rowType['Description'];
 	}
 	$notInDBArray=array();	
+	$oldDir=substr($path,strrpos($path,'/')+1);
 	
 	if($action=='form'){
 		if($path!=''){
 			$physicalFiles=grabFiles($path);
 			
-			$out.='<h3>Directory: '.$path.'</h3>
+			$out.='
+			<script>
+			function requestName(oldDir)
+			{
+				var newDir=prompt("Please type the new name for the directory: ",oldDir);
+				if(newDir!=oldDir && newDir!=""){
+					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($path).'&action=renDir&newDir="+newDir;
+				}
+			}
+			
+			function confirmDel()
+			{
+				if(confirm("Are you sure you want to delete this directory? All files from it will be also deleted.")){
+					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($path).'&action=delDir";
+				}
+			}
+			
+			function createSubdir()
+			{
+				var subDir=prompt("Please type the new name for the subdirectory: ","");
+				if(subDir!=""){
+					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($path).'&action=newDir&subDir="+subDir;
+				}
+			}
+			</script>
+			
+			<table cellpadding="3" cellspacing="0">
+				<tr bgcolor="#F0F3F8">
+					<td><B>Directory: '.$path.'</B></td>
+					<td><input type="button" class="button" name="renameDir" value="Rename" onClick="requestName(\''.addslashes($oldDir).'\')"></td>
+					<td><input type="button" class="button" name="subDir" value="Create subdirectory" onClick="createSubdir()"></td>
+					<td><input type="button" class="button" name="delDir" value="Delete" onClick="confirmDel();"></td>
+				</tr>
+			</table>
+			
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div><br>
+			<div align="center" class="err"><B>'.@$_REQUEST['error'].'</B></div><br>
 			<form action="index.php" method="POST" name="mainMediaFilesSync">
 			<input type="hidden" name="section" value="mainMediaFilesSync">
 			<input type="hidden" name="action" value="update">
@@ -134,14 +170,57 @@ function mainMediaFilesSync($output,$mediadbADO) {
 		
 	}else{
 	// process area
-		$notInDBArray=explode(',',$_POST['notInDBArray']);
-		foreach($notInDBArray AS $physicalkey){
-			$filename=stripslashes($_POST['filename_'.$physicalkey]);
-			$type=(int)$_POST['type_'.$physicalkey];
-			if($type!=0)
-				$mediadbADO->Execute('INSERT INTO File (FK_Type, Path, Filename) VALUES (?,?,?)',array($type,stripslashes($path),$filename));
+		if($action=='renDir'){
+			$newDir=stripslashes($_REQUEST['newDir']);
+			if(ereg('/',$newDir)){
+				header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&error=Invalid directory name.');
+			}else{
+				$newPath=str_replace($oldDir,$newDir,$path);
+				exec('mv "'.$oldDir.'" "'.$newDir.'"');
+				$out.='
+				<script>
+					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($newPath).'&msg=The directory was renamed.";
+					top.treeframe.location="index.php?section=leftMediaFilesSync&startPath='.urlencode($newPath).'";
+				</script>';				
+			}
 		}
-		header('Location: index.php?section=mainMediaFilesSync&path='.$path.'&msg=File added to database.');
+
+		if($action=='delDir'){
+			$newPath=getUpperLevel($path);
+			exec('rm -rf "'.$path.'"');
+			$out.='
+				<script>
+					self.location="index.php?section=mainMediaFilesSync&msg=The directory was deleted.";
+					top.treeframe.location="index.php?section=leftMediaFilesSync&startPath='.urlencode($newPath).'";
+				</script>';	
+		}
+
+		if($action=='newDir'){
+			$subDir=stripslashes($_REQUEST['subDir']);
+			if(ereg('/',$subDir)){
+				header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&error=Invalid subdirectory name.');
+			}else{
+				$newPath=$path.'/'.$subDir;
+				exec('mkdir "'.$newPath.'"');
+				$out.='
+				<script>
+					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($newPath).'&msg=The subdirectory was created.";
+					top.treeframe.location="index.php?section=leftMediaFilesSync&startPath='.urlencode($newPath).'";
+				</script>';				
+			}
+			
+		}
+		
+		if($action=='update'){
+			$notInDBArray=explode(',',@$_POST['notInDBArray']);
+			foreach($notInDBArray AS $physicalkey){
+				$filename=stripslashes(@$_POST['filename_'.$physicalkey]);
+				$type=(int)@$_POST['type_'.$physicalkey];
+				if($type!=0)
+					$mediadbADO->Execute('INSERT INTO File (FK_Type, Path, Filename) VALUES (?,?,?)',array($type,stripslashes($path),$filename));
+			}
+			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg=File added to database.');
+		}
 	}
 	
 	$output->setReloadLeftFrame(false);	
@@ -151,3 +230,11 @@ function mainMediaFilesSync($output,$mediadbADO) {
 	$output->output();
 }
 
+function getUpperLevel($path)
+{
+	if($path=='/')
+		return $path;
+	$upLevel=substr($path,0,-1);
+	return substr($upLevel,0,strrpos($upLevel,'/'));
+}
+?>

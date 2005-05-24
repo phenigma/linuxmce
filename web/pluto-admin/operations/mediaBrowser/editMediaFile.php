@@ -9,6 +9,11 @@ function editMediaFile($output,$mediadbADO) {
 	
 	$scriptInHead='
 	<script>
+	function windowOpen(locationA,attributes) 
+	{
+		window.open(locationA,\'\',attributes);
+	}
+
 	function searchList()
 	{
 		fragment=document.editMediaFile.newAttributeName.value.toLowerCase();
@@ -62,6 +67,10 @@ function editMediaFile($output,$mediadbADO) {
 			<tr bgColor="#EEEEEE">
 				<td><B>File:</B></td>
 				<td><input type="text" name="filename" value="'.$rowFile['Filename'].'" size="55"></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td align="right"><input type="button" class="button" name="delete" value="Delete File" onClick="if(confirm(\'Are you sure you want to delete this file? It will be removed both from database and disk.\')){document.editMediaFile.action.value=\'del\';document.editMediaFile.submit();}"> <input type="button" class="button" name="moveFile" value="Move file to other directory" onClick="windowOpen(\'index.php?section=moveFile&fileID='.$fileID.'&filePath='.urlencode(stripslashes($rowFile['Path']).'/'.$rowFile['Filename']).'\',\'width=500,height=400,toolbars=true\');"></td>
 			</tr>
 			<tr bgcolor="#EBEFF9">
 				<td><B>Location:</B></td>
@@ -178,6 +187,7 @@ function editMediaFile($output,$mediadbADO) {
 			';
 		}	
 	}else{
+		$mediadbADO->debug=true;
 	// process area
 		if(isset($_REQUEST['picID'])){
 			$toDelete=$_REQUEST['picID'];
@@ -231,12 +241,28 @@ function editMediaFile($output,$mediadbADO) {
 		$path=stripslashes(@$_POST['Path']);
 		$fileName=@$_POST['filename'];
 		$newFilePath=$path.'/'.$fileName;
+
+		$oldPath=stripslashes($_POST['oldPath']);
+		$oldFilename=stripslashes($_POST['oldFilename']);
+		$oldFilePath=$oldPath.'/'.$oldFilename;
+		
+		if($action=='del'){
+			// delete physical file
+			@unlink($oldFilePath);
+			$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=?',$fileID);
+			$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File=?',$fileID);
+			$mediadbADO->Execute('DELETE FROM File WHERE PK_File=?',$fileID);
+			
+			exec('/usr/pluto/bin/UpdateMedia –d "'.$oldPath.'"');
+			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($oldPath).'&msg=Media file was deleted.');			
+			exit();
+
+		}
+		
+		
 		if(isset($_POST['update'])){
 			$type=(int)$_POST['type'];
 						
-			$oldPath=stripslashes($_POST['oldPath']);
-			$oldFilename=stripslashes($_POST['oldFilename']);
-			$oldFilePath=$oldPath.'/'.$oldFilename;
 			if(file_exists($oldFilePath)){
 				if($path==$oldPath){
 					if($fileName!=$oldFilename)
@@ -249,7 +275,7 @@ function editMediaFile($output,$mediadbADO) {
 			}
 			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, FK_Type=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
 			
-			exec('/usr/pluto/bin/UpdateMedia –d "'.$newFilePath.'"');
+			exec('/usr/pluto/bin/UpdateMedia –d "'.$path.'"');
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			
 			exit();
 		}
@@ -281,7 +307,7 @@ function editMediaFile($output,$mediadbADO) {
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$error);			
 				exit();
 			}else{
-				exec('/usr/pluto/bin/UpdateMedia –d "'.$newFilePath.'"');
+				exec('/usr/pluto/bin/UpdateMedia –d "'.$path.'"');
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=The picture was uploaded.');			
 				exit();
 			}

@@ -8,7 +8,7 @@ function userPic($output,$dbADO) {
 	
 	$installationID = cleanInteger($_SESSION['installationID']);
 	
-	$filePath=$GLOBALS['usersPicsPath'].$userID.'.jpg';
+	$filePath=$GLOBALS['usersPicsPath'].$userID.'.png';
 	if(file_exists($filePath)){
 		$randNumber=rand(0,99999);
 		$userImage='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'">';
@@ -39,7 +39,7 @@ function userPic($output,$dbADO) {
 				<td align="center">Choose picture * <input type="file" name="pic"> <input type="submit" class="button" name="add" value="Upload picture"></td>
 			</tr>
 			<tr>
-				<td align="left">* Allowed file type is JPG. <br>
+				<td align="left">* Allowed file type is JPG or PNG. <br>
 		&nbsp;&nbsp;&nbsp;Please use a file with a ratio width/height=1. <br>
 		&nbsp;&nbsp;&nbsp;For best results, the picture should have 160px x 160px.</td>
 			</tr>		
@@ -64,6 +64,8 @@ function userPic($output,$dbADO) {
 		
 		if($_FILES['pic']['name']!=''){
 			switch($_FILES['pic']['type']){
+				case 'image/x-png':
+				case 'image/png';
 				case 'image/jpg':
 				case 'image/pjpeg':
 				case 'image/jpeg': $invalidType=false;
@@ -82,10 +84,16 @@ function userPic($output,$dbADO) {
 				header("Location: index.php?section=userPic&from=$from&userID=$userID&error=Check the rights for $filePath.");
 				exit();
 			}else{
-				$resizeFlag=resizeImage($filePath, $filePath, 160, 160);
+				exec('chmod 777 -R '.$filePath);
+				$resizeFlag=resizeImage($filePath, $filePath, 160, 160,1);
 			}
 			
-			header("Location: index.php?section=userPic&from=$from&userID=$userID&msg=Picture updated.");
+			$out.='
+			<script>
+				opener.document.forms[0].action.value=\'form\';
+				opener.document.forms[0].submit();
+				self.close();
+			</script>';
 		}
 	}
 		

@@ -37,7 +37,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			}
 		</script>
 		
-		<table border='0'>
+		<table border='0' cellpadding='3' cellspacing='1'>
 			<form action='index.php' method='post' name='users'>
 			<input type='hidden' name='section' value='users'>
 			<input type='hidden' name='action' value='add'>
@@ -45,17 +45,9 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 		";
 		
 		$usersFormValidation='';
-		$out.='<tr bgcolor="#CCCCCC">
+		$out.='<tr bgcolor="#DFDFDF">
 				<td align="center"><B>Username</B></td>
-				<td align="center"><B>Voicemail<br>+Email</B></td>
-				<td align="center"><B>Access general<br>mailbox</B></td>
-				<td align="center"><B>Extension<br>for intercom</B></td>
-				<td align="center"><B>Name</b></td>
-				<td align="center"><b>Email</B></td>
-				<td align="center"><B>Can modify<br>configuration?</B></td>
-				<td align="center"><B>Language</B></td>
-				<td align="center"><B>Primary<br>Installation</B></td>
-				<td align="center"><B>Hide From Orbiter</B></td>
+				<td align="center" colspan="5"><B>Details</b></td>
 				</tr>';
 		$displayedUsers=array();
 		$i=0;
@@ -71,31 +63,120 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 		$resHisInstallations = $dbADO->Execute($queryHisInstallations,array($_SESSION['userID']));
 		
 		while ($rowUser = $resUsers->FetchRow()) {
+			if ($resLanguages) {
+				$resLanguages->MoveFirst();
+				$languagesTxt='';
+				while ($rowLanguages=$resLanguages->fetchRow()) {
+					$languagesTxt.='<option value="'.$rowLanguages['PK_Language'].'" '.($rowUser['FK_Language']==$rowLanguages['PK_Language']?"selected = 'selected'":"").'>'.$rowLanguages['Description'].'</option>';
+				}
+			}
+			
+			$filePath=$GLOBALS['usersPicsPath'].$rowUser['PK_Users'].'.png';
+			if(file_exists($filePath)){
+				$randNumber=rand(0,99999);
+				$userImage='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'">';
+			}else{
+				$userImage='';
+			}			
+			
 			$displayedUsers[]=$rowUser['PK_Users'];
-			$color=($i%2==1?"CCCCCC":"EEEEEE");
+			$color=($i%2==1?"F0F3F8":"EEEEEE");
 			$out.='<tr valign="top" bgcolor="#'.$color.'">
 						<td>
-							<B>'.$rowUser['UserName'].'</B><br>
-							<a href="javascript:void(0);" onClick="if (confirm(\'Are you sure you want to remove user from this installation?\')) { windowOpen(\'index.php?section=removeUserFromInstallation&from=users&userID='.$rowUser['PK_Users'].'\',\'width=500,height=500,toolbars=true,resizable=yes\');}">Remove User From Installation</a><br />
-							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">Change Password</a><br>
-							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbars=true,resizable=yes\');">Change PIN</a><br>
-							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userPic&from=users&userID='.$rowUser['PK_Users'].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');">Upload picture</a>
+							<table width="100%">
+								<tr bgcolor="lightblue">
+									<td align="center"><B>'.$rowUser['UserName'].'</B></td>
+								</tr>
+								<tr>
+									<td align="center">
+										<a href="javascript:void(0);" onClick="if (confirm(\'Are you sure you want to remove user from this installation?\')) { windowOpen(\'index.php?section=removeUserFromInstallation&from=users&userID='.$rowUser['PK_Users'].'\',\'width=500,height=500,toolbars=true,resizable=yes\');}">Remove User From Installation</a><br />
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">Change Password</a><br>
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbars=true,resizable=yes\');">Change PIN</a><br>
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userPic&from=users&userID='.$rowUser['PK_Users'].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');">Upload picture</a>
+									</td>
+								</tr>			
+							</table>			
 						</td>
-						<td align="center"><input type="checkbox" name="userHasMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['HasMailbox']?" checked='checked' ":'').'></td>
-						<td align="center"><input type="checkbox" name="userAccessGeneralMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['AccessGeneralMailbox']?" checked='checked' ":'').'></td>
-						<td><input type="text" name="userExtension_'.$rowUser['PK_Users'].'" value="'.$rowUser['Extension'].'"></td>
+						<td align="center">
+							<table width="100%">
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>Voicemail<br>+Email</B></td>
+								</tr>
+								<tr>
+									<td align="center"><input type="checkbox" name="userHasMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['HasMailbox']?" checked='checked' ":'').'></td>
+								</tr>			
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>Access general<br>mailbox</B></td>
+								</tr>
+								<tr>
+									<td align="center"><input type="checkbox" name="userAccessGeneralMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['AccessGeneralMailbox']?" checked='checked' ":'').'></td>
+								</tr>	
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>Extension<br>for intercom</B></td>
+								</tr>
+								<tr>
+									<td align="center"><input type="text" name="userExtension_'.$rowUser['PK_Users'].'" value="'.$rowUser['Extension'].'"></td>
+								</tr>	
+							</table>
+						</td>
+						<td>
+							<table width="100%">
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>FirstName</B></td>
+								</tr>
+								<tr>
+									<td align="center"><input type="text" name="userFirstName_'.$rowUser['PK_Users'].'" value="'.$rowUser['FirstName'].'"></td>
+								</tr>			
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>LastName</B></td>
+								</tr>
+								<tr>
+									<td align="center"><input type="text" name="userLastName_'.$rowUser['PK_Users'].'" value="'.$rowUser['LastName'].'"></td>
+								</tr>	
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>NickName</B></td>
+								</tr>
+								<tr>
+									<td align="center"><input type="text" name="userNickname_'.$rowUser['PK_Users'].'" value="'.$rowUser['Nickname'].'"></td>
+								</tr>	
+			
+							</table>			
+						</td>
 						
 						<td>
-							FirstName:<input type="text" name="userFirstName_'.$rowUser['PK_Users'].'" value="'.$rowUser['FirstName'].'"><br />
-							LastName :<input type="text" name="userLastName_'.$rowUser['PK_Users'].'" value="'.$rowUser['LastName'].'"><br />
-							NickName :<input type="text" name="userNickname_'.$rowUser['PK_Users'].'" value="'.$rowUser['Nickname'].'">
-						</td>
-						
-						<td><input type="text" name="userForwardEmail_'.$rowUser['PK_Users'].'" value="'.$rowUser['ForwardEmail'].'"></td>
-						<td align="center">
-							<input type="checkbox" name="userCanModifyInstallation_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['canModifyInstallation']?" checked='checked' ":'').'>
 							<table width="100%">
-								<tr bgcolor="#CCCCCC">
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>Email</B></td>
+								</tr>
+								<tr>
+									<td align="center"><input type="text" name="userForwardEmail_'.$rowUser['PK_Users'].'" value="'.$rowUser['ForwardEmail'].'"></td>
+								</tr>			
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>Language</B></td>
+								</tr>
+								<tr>
+									<td align="center"><select name="userLanguage_'.$rowUser['PK_Users'].'">
+									'.$languagesTxt.'
+									</select>
+									</td>
+								</tr>	
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>Hide From Orbiter</B></td>
+								</tr>
+								<tr>
+									<td align="center"><input type="checkbox" name="HideFromOrbiter_'.$rowUser['PK_Users'].'" value="1" '.(($rowUser['HideFromOrbiter']==1)?" checked='checked' ":'').'></td>
+								</tr>	
+							</table>			
+						</td>
+						<td align="center">
+							<table width="100%">
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>Can modify configuration?</B></td>
+								</tr>
+								<tr>
+									<td align="center"><input type="checkbox" name="userCanModifyInstallation_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['canModifyInstallation']?" checked='checked' ":'').'></td>
+								</tr>			
+								<tr bgcolor="#DFDFDF">
 									<td align="center"><B>Can set house/security mode</B></td>
 								</tr>
 								<tr>
@@ -103,39 +184,16 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 								</tr>			
 							</table>
 						</td>
-			';
-			
-			if ($resLanguages) {
-					$resLanguages->MoveFirst();
-					$languagesTxt='';
-					while ($rowLanguages=$resLanguages->fetchRow()) {
-						$languagesTxt.='<option value="'.$rowLanguages['PK_Language'].'" '.($rowUser['FK_Language']==$rowLanguages['PK_Language']?"selected = 'selected'":"").'>'.$rowLanguages['Description'].'</option>';
-					}
-			}
-			$out.='		<td>
-							<select name="userLanguage_'.$rowUser['PK_Users'].'">
-							'.$languagesTxt.'
-							</select>
-						</td>
-			';
-			
-			if ($resHisInstallations) {
-					$resHisInstallations->MoveFirst();
-					$hisInstallationsTxt='';
-					while ($rowHisInstallations=$resHisInstallations->fetchRow()) {
-						$hisInstallationsTxt.='<option value="'.$rowHisInstallations['PK_Installation'].'" '.($rowUser['FK_Installation_Main']==$rowHisInstallations['PK_Installation']?"selected = 'selected'":"").'>'.$rowHisInstallations['Description'].'</option>';
-					}
-			}
-			$out.='		<td>
-							<select name="userMainInstallation_'.$rowUser['PK_Users'].'">
-							<option value="0">-please select-</option>
-							'.$hisInstallationsTxt.'
-							</select>
-						</td>
-			';
-			
-			$out.='
-				<td align="center"><input type="checkbox" name="HideFromOrbiter_'.$rowUser['PK_Users'].'" value="1" '.(($rowUser['HideFromOrbiter']==1)?" checked='checked' ":'').'></td>			
+						<td align="center">
+							<table width="100%">
+								<tr bgcolor="#DFDFDF">
+									<td align="center"><B>Picture</B></td>
+								</tr>
+								<tr>
+									<td align="center">'.@$userImage.'</td>
+								</tr>			
+							</table>
+						</td>			
 			</tr>
 			';
 			$i++;

@@ -23,10 +23,17 @@ if($action=='form') {
 	$resCG=$dbADO->Execute($queryCG,$cgID);
 	$rowCG=$resCG->FetchRow();
 
+	$filePath=$GLOBALS['scenariosPicsPath'].$cgID.'.png';
+	if(file_exists($filePath)){
+		$randNumber=rand(0,99999);
+		$scenarioImg='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'"><br>';
+	}else
+		$scenarioImg='&nbsp;';		
+
 	$out.='
 		<div align="left" class="confirm"><B>'.stripslashes(@$_GET['msg']).'</B></div>	
 		<div align="left" class="err"><B>'.stripslashes(@$_GET['err']).'</B></div>	
-		<form action="index.php" method="POST" name="scenarioWizard" '.(($wizard==0)?'onSubmit="return validateForm();"':'').'>
+		<form action="index.php" method="POST" name="scenarioWizard" '.(($wizard==0)?'onSubmit="return validateForm();"':'').' enctype="multipart/form-data">
 			<input type="hidden" name="section" value="scenarioWizard">
 			<input type="hidden" name="action" value="add">	
 			<input type="hidden" name="roomID" value="'.$roomID.'">
@@ -44,7 +51,11 @@ if($action=='form') {
 				</select>
 				</td>
 			</tr>
-		</table>';
+		</table>
+		<table>
+			<tr>
+				<td align="center" valign="top">'.$scenarioImg.'<input type="file" name="pic" value=""></td>
+				<td>';
 	switch ($wizard){
 		case 0:
 			$out.=lightingDevicesTable($cgID,$dbADO);
@@ -56,7 +67,9 @@ if($action=='form') {
 			$out.=advancedCommandGroupCommandsTable($cgID,$section,$dbADO);
 		break;
 	}
-	$out.='
+	$out.='</td>
+		</tr>
+	</table>
 	</form>
 	';
 }else{	
@@ -87,14 +100,48 @@ if($action=='form') {
 		break;	
 	}
 
+	// upload scenario picture
+	$errNotice='';
+	$filePath=$GLOBALS['scenariosPicsPath'].$cgID.'.png';
+	if($_FILES['pic']['name']!=''){
+		switch($_FILES['pic']['type']){
+			case 'image/x-png':
+			case 'image/png':
+			case 'image/jpg':
+			case 'image/pjpeg':
+			case 'image/jpeg':
+			$invalidType=false;
+			break;
+			default:
+			$invalidType=true;
+			break;
+		}
+
+		if($invalidType===false){
+			if(!move_uploaded_file($_FILES['pic']['tmp_name'],$filePath)){
+				$errNotice.=$_FILES['pic']['name'].' wasn\'t uploaded, check the rights for '.$filePath;
+			}else{
+				// convert to png and/or resize if necessary
+				exec('chmod 777 -R '.$filePath);
+				$imageinfo = @getimagesize( $filePath );
+				if($imageinfo[0]!=160 && $imageinfo[1]!=160){
+					$flag=resizeImage($filePath,$filePath,160,160,1);
+				}
+			}
+		}else
+		$errNotice.=$_FILES['pic']['name'].' is not a valid PNG file.<br>';
+	}
+	$errToLink=($errNotice!='')?'&error='.urlencode($errNotice):'';
+	
+	
 	setOrbitersNeedConfigure($installationID,$dbADO);
 	if($wizard!=$oldWizard){
 		if((int)@$_REQUEST['addNewDevice']!=0)
 			$sufix='&addNewDevice='.(int)@$_REQUEST['addNewDevice'];
-		header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard".@$sufix.'#hook_0');
+		header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard".@$sufix.$errToLink.'#hook_0');
 		exit();
 	}else{
-		header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=Scenario updated.#hook_$returnHook");
+		header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=Scenario updated.$errToLink#hook_".@$returnHook);
 		exit();
 	}
 	

@@ -865,7 +865,7 @@ function grabFiles($path) {
 }
 
 
-function resizeImage($source, $destination, $new_width, $new_height)
+function resizeImage($source, $destination, $new_width, $new_height,$forcedPNG=0)
 {
 	if(!file_exists($source))
 		return 1;	// Source file does not exists
@@ -901,17 +901,23 @@ function resizeImage($source, $destination, $new_width, $new_height)
 	$new_h=$new_height;	 
 
 	$tmpArray=@getimagesize($source);
+	$destinationType=substr($destination,strrpos($destination,'.')+1);
 	
 	$dst_img=imagecreatetruecolor($new_w,$new_h);
 	$src_img=(@$tmpArray[2]==2)?ImageCreateFromJpeg($source):imagecreatefrompng($source);
 	if(!@imagecopyresized($dst_img,$src_img,0,0,$src_x,$src_y,$new_w,$new_h,$src_w,$src_h))
 		return 3; // resize error
-	if((@$tmpArray[2]==2) && !@imagejpeg($dst_img, $destination, 100))
-		return 4; // writing thumbnail error
-	elseif(@$tmpArray[2]==3 && !@imagepng($dst_img, $destination, 100))
-		return 4;
-	else
-		return true;
+	if($forcedPNG==1 && !@imagepng($dst_img, str_replace('.jpg','.png',$destination), 100)){
+		return 5; // writing png thumbnail error
+	}else{
+		if(($destinationType=='jpg') && !@imagejpeg($dst_img, $destination, 100))
+			return 4; // writing jpg thumbnail error
+		elseif(@$destinationType=='png' && !@imagepng($dst_img, $destination, 100))
+			return 5;	// writing png thumbnail error
+	}
+
+	
+	return 0;
 }
 
 function multi_page($query, $params,$url, $page_no, $art_pagina,$dbADO)
@@ -985,6 +991,7 @@ function multi_page_format($row, $art_index,$mediadbADO)
 
 function getDevicesArrayFromCategory($categoryID,$dbADO)
 {
+	$GLOBALS['childsDeviceCategoryArray']=array();
 	getDeviceCategoryChildsArray($categoryID,$dbADO);
 	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
 	$GLOBALS['childsDeviceCategoryArray'][]=$categoryID;
@@ -1175,7 +1182,8 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			$arJsPos=0;
 
 			// if call come from addMyDevice, aply controlled by filter
-			if(ereg('parentID',$_SESSION['from']) && $_SESSION['parentID']!=0){
+			$allowedDevices=array();
+			if(ereg('parentID',@$_SESSION['from']) && @$_SESSION['parentID']!=0){
 				$allowedDevices=getDeviceTemplatesControlledBy($_SESSION['parentID'],$dbADO);
 			}
 
@@ -1305,6 +1313,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		<input type="hidden" name="deviceSelected" value="'.$selectedDevice.'">
 		<input type="hidden" name="modelSelected" value="'.$selectedModel.'">
 		<input type="hidden" name="allowAdd" value="'.(int)@$_REQUEST['allowAdd'].'">
+		<input type="hidden" name="parmToKeep" value="'.@$_REQUEST['parmToKeep'].'">
 		
 		<table cellpadding="5" cellspacing="0" border="0" align="center">
 				<input type="hidden" name="selectedField" value="" />
@@ -1313,7 +1322,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 						<th width="25%">Device Category</th>
 						<th width="25%">
 						Models ';
-						if(ereg('parentID',$_SESSION['from']) && $_SESSION['parentID']!=0){
+						if(ereg('parentID',@$_SESSION['from']) && $_SESSION['parentID']!=0){
 							$parentFields=getProperties($_SESSION['parentID'],'Device','FK_DeviceTemplate','PK_Device',$dbADO);
 							$dtFields=getProperties($parentFields['FK_DeviceTemplate'],'DeviceTemplate','Description','PK_DeviceTemplate',$dbADO);
 							$out.=' controlled by '.$dtFields['Description'];
@@ -1386,7 +1395,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							if($returnValue==0){
 								$out.='<input type="button" class="button" name="edit_DeviceTemplate" value="Edit" onClick="javascript:checkEdit(this.form);" />';
 							}else{
-								$out.='<br><input type="button" class="button" name="pickDT" value="Add device" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1\';self.close();" />';
+								$out.='<br><input type="button" class="button" name="pickDT" value="Add device" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1&'.$_REQUEST['parmToKeep'].'\';self.close();" />';
 							}
 							$out.='
 							<hr />
@@ -1506,11 +1515,12 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		 			$queryInsertManufacturer = 'INSERT INTO Manufacturer (Description) values(?)';
 		 			$res = $dbADO->Execute($queryInsertManufacturer,array($Manufacturer_Description));	 			
 		 			header("Location: index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode");
+		 			exit();
 		 		}	 			 		
 			 }
 			$out.="
 				<script>
-					self.location='index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode';
+					self.location='index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=".$justAddedNode.'&'.$_REQUEST['parmToKeep']."';
 				</script>";
 		}else{
 			$out.="
@@ -1590,6 +1600,7 @@ function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValu
 
 function getDeviceTemplatesFromCategory($categoryID,$dbADO)
 {
+	$GLOBALS['childsDeviceCategoryArray']=array();
 	getDeviceCategoryChildsArray($categoryID,$dbADO);
 	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
 	$GLOBALS['childsDeviceCategoryArray'][]=$categoryID;
@@ -1846,12 +1857,12 @@ function getMediaPluginID($installationID,$dbADO)
 	return $row['PK_Device'];
 }
 
-function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey='key')
+function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey='key',$zeroValueDescription='- Please select -')
 {
 //	if(count($valuesArray)==0)
 //		return null;
 	$out='<select name="'.$name.'" "'.$extra.'">
-			<option value="0">- Please select -</option>';
+			<option value="0">'.$zeroValueDescription.'</option>';
 	foreach ($valuesArray AS $key=>$value){
 		$optionValue=($valueKey=='key')?$key:$value;
 		$out.='<option value="'.$optionValue.'" '.(($optionValue==$selectedValue)?'selected':'').'>'.$value.'</option>';
@@ -3218,5 +3229,59 @@ function getProperties($primaryKey,$table,$properties,$field,$dbADO)
 	}else{
 		return null;
 	}
+}
+
+function displayRemotes($mdID,$dbADO)
+{
+	$out='<B>Infrared remote controls you will use:</B> ';
+	$remotes=array();
+	
+	$DTarray=getDeviceTemplatesFromCategory($GLOBALS['RemoteControlls'],$dbADO);
+	if(count($DTarray==0)){
+		$DTarray[]=0;
+	}
+	
+	$res=$dbADO->Execute('SELECT PK_Device,Description FROM Device WHERE FK_Device_ControlledVia=? AND FK_DeviceTemplate IN ('.join(',',$DTarray).')',array($mdID));
+	while($row=$res->fetchRow()){
+		$remotes[$row['PK_Device']]=$row['Description'];
+	}
+	$delLinks='';
+	foreach ($remotes AS $rid=>$description){
+		$delLinks.='<a href="javascript:if(confirm(\'Are you sure you want to delete this remote?\'))self.location=\'index.php?section=avWizard&type=media_directors&action=del&delRemote='.$rid.'\';">'.$description.'</a>, ';
+	}
+	$out.=substr($delLinks,0,-2).' <input type="button" class="button" name="button" value="Add Remote" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type=media_directors').'&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">';
+	
+	return $out;
+}
+
+function processRemotes($dbADO)
+{
+	global $dbPlutoMainDatabase;
+	$installationID=(int)$_SESSION['installationID'];
+	$mdID=(int)@$_REQUEST['mdID'];
+	
+	unset($_SESSION['from']);
+	$deviceTemplate=(int)@$_REQUEST['deviceTemplate'];
+	if($deviceTemplate!=0 && $mdID!=0){
+		$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$mdID,$ret);
+		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
+		$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
+		exec($commandToSend);
+	}
+	
+	if(isset($_REQUEST['delRemote']) && (int)$_REQUEST['delRemote']!=0){
+		deleteDevice((int)$_REQUEST['delRemote'],$dbADO);
+	}
+}
+
+function getArrayFromTable($tableName,$primary,$secundary,$dbADO,$filter='',$orderBy='')
+{
+	$res=$dbADO->execute("SELECT $primary,$secundary FROM $tableName $filter $orderBy");
+	$result=array();
+	while($row=$res->Fetchrow()){
+		$result[$row[$primary]]=$row[$secundary];
+	}
+	
+	return $result;
 }
 ?>

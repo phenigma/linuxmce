@@ -1135,7 +1135,18 @@ switch ($section) {
 	    include_once('operations/infrared/editCode.php');
 	    editCode($output,$dbADO);
 	break;	
-
+	case 'moveFile';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/mediaBrowser/moveFile.php');
+	    moveFile($output,$mediadbADO);
+	break;	
+	case 'restrictAccess';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/users_settings/restrictAccess.php');
+	    restrictAccess($output,$dbADO);
+	break;	
 	
 	
 	case '';

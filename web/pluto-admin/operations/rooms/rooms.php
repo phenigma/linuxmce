@@ -56,7 +56,7 @@ $displayedRooms = array();
 			<input type="hidden" name="lastAction" value="">
 		<tr>
 			<td align="center" bgcolor="#F0F3F8"><B>Room Description</B></td>
-			<td align="center" bgcolor="#F0F3F8"><B>Picture</B></td>
+			<td align="center" bgcolor="#F0F3F8"><B>Picture *</B></td>
 			<td align="center" bgcolor="#F0F3F8"><B>Don’t show room on Orbiter’s</B></td>
 			<td align="center" bgcolor="#DADDE4"><B>Entertain areas</B></td>
 		</tr>
@@ -74,7 +74,7 @@ $displayedRooms = array();
 				$roomImage='';
 			$out.='
 			<tr>
-				<td align="center" valign="top"><input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"><br><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">Delete Room</a></td>
+				<td align="center" valign="top"><input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"><br><a href="javascript:void(0);" onClick="if(confirm(\'Are you sure you want to delete this room?\'))windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">Delete Room</a></td>
 				<td valign="top">'.@$roomImage.'<input type="file" name="pic_'.$rowRoom['PK_Room'].'"></td>
 				<td valign="top" align="center"><input type="checkbox" name="hidden_'.$rowRoom['PK_Room'].'" value="1" '.(($rowRoom['HideFromOrbiter']==1)?'checked':'').'></td>
 				';
@@ -115,7 +115,7 @@ $displayedRooms = array();
 				<td colspan="4" align="center"> <input type="submit" class="button" name="add" value="Add room"> <input type="submit" class="button" name="save" value="Save changes"></td>
 			</tr>
 			<tr>
-				<td colspan="4" align="left">* Pictures allowed must be PNG 160x160 px</td>
+				<td colspan="4" align="left">* Pictures allowed must be JPG or PNG; if will be resized to 160x160 px if it has other resolution</td>
 			</tr>
 		
 			<input type="hidden" name="displayedEntertainArea" value="'.join(",",$displayedEntertainArea).'">
@@ -187,26 +187,32 @@ $displayedRooms = array();
 		}
 
 		// upload room picture
-		$filePath=$GLOBALS['roomsPicsPath'].$room.'.png';
+		$imgType=(ereg('png',$_FILES['pic_'.$room]['type']))?'png':'jpg';
+		$filePath=$GLOBALS['roomsPicsPath'].$room.'.'.$imgType;
 		if($_FILES['pic_'.$room]['name']!=''){
 			switch($_FILES['pic_'.$room]['type']){
 				case 'image/x-png':
 				case 'image/png':
+				case 'image/jpg':
+				case 'image/pjpeg':
+				case 'image/jpeg':				
 					$invalidType=false;
 				break;
 				default:
 					$invalidType=true;
 				break;
 			}
-
+						
 			if($invalidType===false){
-				$imageinfo = @getimagesize( $_FILES['pic_'.$room]['tmp_name'] );
-				if($imageinfo[0]!=160 && $imageinfo[1]!=160){
-					$errNotice.=$_FILES['pic_'.$room]['name'].' it\'s not 160x160.<br>';
+				if(!move_uploaded_file($_FILES['pic_'.$room]['tmp_name'],$filePath)){
+					$errNotice.=$_FILES['pic_'.$room]['name'].' wasn\'t uploaded, check the rights for '.$filePath;
 				}else{
-					if(!move_uploaded_file($_FILES['pic_'.$room]['tmp_name'],$filePath)){
-						$errNotice.=$_FILES['pic_'.$room]['name'].' wasn\'t uploaded, check the rights for '.$filePath;
-					}
+					// convert to png and/or resize if necessary
+					exec('chmod 777 -R '.$filePath);
+					$imageinfo = @getimagesize( $filePath );
+					if($imageinfo[0]!=160 && $imageinfo[1]!=160){
+						$flag=resizeImage($filePath,$filePath,160,160,1);
+					}					
 				}
 			}else 
 				$errNotice.=$_FILES['pic_'.$room]['name'].' is not a valid PNG file.<br>';
