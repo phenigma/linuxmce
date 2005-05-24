@@ -22,6 +22,11 @@ chmod -R 777 /usr/pluto/orbiter/rooms
 rm -f /var/www/pluto-admin/rooms
 ln -s /usr/pluto/orbiter/rooms /var/www/pluto-admin/rooms
 
+mkdir -p /usr/pluto/orbiter/scenarios
+chmod -R 777 /usr/pluto/orbiter/scenarios
+rm -f /var/www/pluto-admin/scenarios
+ln -s /usr/pluto/orbiter/scenarios /var/www/pluto-admin/scenarios
+
 a2dissite default || /bin/true
 
 #Index=$(grep DirectoryIndex /etc/apache/httpd.conf | sed 's/DirectoryIndex//g; s/^ *//g; s/ *$//g' | grep -v '^#')
