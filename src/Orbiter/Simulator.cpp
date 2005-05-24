@@ -62,8 +62,8 @@ void *GeneratorThread( void *p)
 
 	Sleep(pSimulator->m_dwStartGeneratorThreadDelay);
 
-	bool bGenerateMouseClicks = pSimulator->m_bGenerateKeyboardEvents;
-	bool bGenerateKeyboardEvents = pSimulator->m_bGenerateMouseClicks;
+	bool bGenerateMouseClicks = pSimulator->m_bGenerateMouseClicks;
+	bool bGenerateKeyboardEvents = pSimulator->m_bGenerateKeyboardEvents;
 	bool bOption1 = pSimulator->m_iKeysSetToGenerate == 0;
 	bool bOption2 = pSimulator->m_iKeysSetToGenerate == 1;
 	bool bOption3 = pSimulator->m_iKeysSetToGenerate == 2;
