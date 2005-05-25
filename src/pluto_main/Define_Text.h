@@ -478,6 +478,15 @@
 #define TEXT_ViewSet_Attributes_CONST 1153
 #define TEXT_Reset_signal_sent_CONST 1154
 #define TEXT_Pending_Tasks_CONST 1155
+#define TEXT_view_button_CONST 1156
+#define TEXT_speak_CONST 1157
+#define TEXT_open_CONST 1158
+#define TEXT_sound_for_CONST 1159
+#define TEXT_1_sec_CONST 1160
+#define TEXT_5_sec_CONST 1161
+#define TEXT_15_sec_CONST 1162
+#define TEXT_30_sec_CONST 1163
+#define TEXT_60_sec_CONST 1164
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

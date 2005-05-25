@@ -1222,6 +1222,17 @@
 #define DESIGNOBJ_mnuPendingTasks_CONST 3427
 #define DESIGNOBJ_dgPendingTasks_CONST 3428
 #define DESIGNOBJ_butPendingTasks_CONST 3429
+#define DESIGNOBJ_grpCameraControls_CONST 3430
+#define DESIGNOBJ_grpIntercomControls_CONST 3431
+#define DESIGNOBJ_grpSirenControls_CONST 3432
+#define DESIGNOBJ_butSpeak_CONST 3434
+#define DESIGNOBJ_butOpen_CONST 3435
+#define DESIGNOBJ_butSoundfor_CONST 3436
+#define DESIGNOBJ_but1sec_CONST 3437
+#define DESIGNOBJ_but5sec_CONST 3438
+#define DESIGNOBJ_but15sec_CONST 3439
+#define DESIGNOBJ_but30sec_CONST 3440
+#define DESIGNOBJ_but60sec_CONST 3441
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
