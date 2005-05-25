@@ -1395,7 +1395,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							if($returnValue==0){
 								$out.='<input type="button" class="button" name="edit_DeviceTemplate" value="Edit" onClick="javascript:checkEdit(this.form);" />';
 							}else{
-								$out.='<br><input type="button" class="button" name="pickDT" value="Add device" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1&'.$_REQUEST['parmToKeep'].'\';self.close();" />';
+								$out.='<br><input type="button" class="button" name="pickDT" value="Add device" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1&'.@$_REQUEST['parmToKeep'].'\';self.close();" />';
 							}
 							$out.='
 							<hr />
@@ -3283,5 +3283,19 @@ function getArrayFromTable($tableName,$primary,$secundary,$dbADO,$filter='',$ord
 	}
 	
 	return $result;
+}
+
+function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
+{
+	$fieldsArray=explode(',',$fields);
+	$res=$dbADO->execute("SELECT $fields FROM $tableName $filter $orderBy");
+	$result=array();
+	while($row=$res->Fetchrow()){
+		foreach ($fieldsArray AS $field){
+			$result[$field][]=$row[$field];
+		}
+	}
+	
+	return $result;	
 }
 ?>

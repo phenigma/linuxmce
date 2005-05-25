@@ -5,7 +5,8 @@ header("Cache-Control: no-store, no-cache, must-revalidate");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
-session_start('Pluto-admin');
+session_name('Pluto-admin');
+session_start();
 
 require('include/config/config.inc.php');
 require('include/utils.inc.php');
