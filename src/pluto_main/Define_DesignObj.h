@@ -1219,6 +1219,9 @@
 #define DESIGNOBJ_dgMediaAttributesCurrentStream_CONST 3424
 #define DESIGNOBJ_butViewAttributes_CONST 3425
 #define DESIGNOBJ_tr_CONST 3426
+#define DESIGNOBJ_mnuPendingTasks_CONST 3427
+#define DESIGNOBJ_dgPendingTasks_CONST 3428
+#define DESIGNOBJ_butPendingTasks_CONST 3429
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

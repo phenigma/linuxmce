@@ -476,6 +476,8 @@
 #define TEXT_Wait_to_Arm_CONST 1151
 #define TEXT_Try_Again_CONST 1152
 #define TEXT_ViewSet_Attributes_CONST 1153
+#define TEXT_Reset_signal_sent_CONST 1154
+#define TEXT_Pending_Tasks_CONST 1155
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
