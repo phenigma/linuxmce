@@ -23,7 +23,7 @@ function register($output,$conn){
 				<td class="formextrainfo">Your email address is not verified.  However we would prefer a valid email address--we never share it, our database is secure, and we don\'t send newsletters unless you subscribe.</td>
 			</tr>
 			<tr>
-				<td align="left"><B>Username</B> </td>
+				<td align="left"><B>Username</B> * </td>
 				<td><input type="text" class="textfield" name="username" value="" /></td>
 				<td class="formextrainfo">If you get a PlutoHome system, this will also be your username for messaging, VOIP and video phone calls<br/></td>
 			</tr>
@@ -45,11 +45,13 @@ function register($output,$conn){
 			<tr>
 				<td colspan="3" align="left"><input type="image" name="register" src="images/buttons/buton_sign_up.gif" onsubmit="validateEmail(this);"/></th>
 			</tr>
-         <tr>
-         <td colspan="3" align="left"><a href="index.php?section=login">I am an Existing User</a></td>
-       </tr>
+    	     <tr>
+	    	     <td colspan="3" align="left"><a href="index.php?section=login">I am an Existing User</a></td>
+       		</tr>
+			<tr>
+				<td colspan="3" align="left" class="formextrainfo">* When you register we automatically register you for our forums and bug reports.  You can use your email address as your username, but if you do, your email address will be visible in the forums.</th>
+			</tr>  	
 		</table>
-		
 		</div>
 		</form>
   		<script>

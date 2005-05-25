@@ -1,5 +1,6 @@
 <?php
-session_start('Pluto');
+session_name('Pluto');
+session_start();
 require('include/config/config.inc.php');
 require('include/template.class.inc.php');
 require('include/masterusers.inc.php');
@@ -426,6 +427,13 @@ switch ($section) {
        	$output->setTemplateFileType('home');
 		include_once('client/deleteInstallation.php');
 	    deleteInstallation($output,$dbADO);
+	break; 
+	case 'irCodes':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('operations/irCodes.php');
+	    irCodes($output);
 	break; 
 	
 	
