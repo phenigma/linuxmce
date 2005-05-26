@@ -34,6 +34,14 @@ ArchiveCoreDumps()
 	fi
 }
 
+ArchiveLogs()
+{
+	tar -czf "$Output/log-$Filename.tar.gz" /var/log/pluto/log.archive/ 2>/dev/null
+	rm -rf /var/log/pluto/log.archive
+
+	find "$Output" -mtime +5 -exec rm -f '{}' ';'
+}
+
 Filename="${PK_Device}_$(date +%F_%H-%M-%S)"
 Critical="/var/log/pluto/critical"
 Output="/var/log/pluto/archive"
@@ -50,7 +58,7 @@ CoreFiles=$(echo /usr/pluto/coredump/*)
 [ -n "$CoreFiles" ] && mv /usr/pluto/coredump/* /usr/pluto/coredump.archive/
 ArchiveCoreDumps "$Param" &
 
-tar -czf "$Output/log-$Filename.tar.gz" /var/log/pluto/*.{,new}log 2>/dev/null
-rm -f /var/log/pluto/*.log
-
-find "$Output" -mtime +5 -exec rm -f '{}' ';'
+mkdir -p /var/log/pluto/log.archive
+mv /var/log/pluto/*.log /var/log/pluto/log.archive
+cp /var/log/pluto/*.newlog /var/log/pluto/log.archive
+ArchiveLogs &
