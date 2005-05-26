@@ -487,6 +487,7 @@
 #define TEXT_15_sec_CONST 1162
 #define TEXT_30_sec_CONST 1163
 #define TEXT_60_sec_CONST 1164
+#define TEXT_Advanced_Options_CONST 1165
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

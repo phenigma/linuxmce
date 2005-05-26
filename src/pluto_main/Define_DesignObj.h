@@ -1233,6 +1233,10 @@
 #define DESIGNOBJ_but15sec_CONST 3439
 #define DESIGNOBJ_but30sec_CONST 3440
 #define DESIGNOBJ_but60sec_CONST 3441
+#define DESIGNOBJ_go_to_advanced_options_CONST 3442
+#define DESIGNOBJ_go_to_computing2_CONST 3443
+#define DESIGNOBJ_go_to_sleeping2_CONST 3444
+#define DESIGNOBJ_go_to_power2_CONST 3445
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

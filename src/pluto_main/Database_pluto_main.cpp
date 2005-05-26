@@ -16,12 +16,6 @@ using namespace std;
 
 #include "DCEConfig.h"
 
-
-namespace DCE
-{
-	Logger *g_pPlutoLogger; //dummy
-}
-using namespace DCE;
 Database_pluto_main::Database_pluto_main()
 {
 tblArray=NULL;

@@ -219,10 +219,10 @@ Table_psc_website_repset.cpp \
 Table_psc_website_schema.cpp \
 Table_psc_website_tables.cpp
 
-all: libpluto_main.so all-recursive
+all: libpluto_main.a all-recursive
 
-libpluto_main.so: $(sources:.cpp=.o)
-	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
+libpluto_main.a: $(sources:.cpp=.o)
+	$(AR) rc $@ $+
 	cp $@ ../lib
 
 clean: clean-recursive
