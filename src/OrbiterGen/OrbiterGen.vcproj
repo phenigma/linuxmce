@@ -33,15 +33,18 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib libpng-pluto-d.lib zlib1-pluto-d.lib pluto_main.lib dce.lib"
+				AdditionalOptions="/FORCE:MULTIPLE "
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib libpng-pluto-d.lib zlib1-pluto-d.lib DCE.lib pluto_main.lib"
 				OutputFile="../Debug/OrbiterGen.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/debug;../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug"
-				IgnoreDefaultLibraryNames="nafxcwd.lib"
+				IgnoreDefaultLibraryNames=""
 				AddModuleNamesToAssembly=""
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/OrbiterGen.pdb"
 				SubSystem="1"
+				OptimizeReferences="0"
+				EnableCOMDATFolding="0"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
