@@ -85,6 +85,7 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 	bool statU = false, statI = false, statB = false;
 	LineAttr LAttr;
 	pair<int, int> WW; // used to stand for "Word Width", but now it's "Word Dimensions" (first: Width; second: Height)
+    int lastY = 0;
 
 	m_FontPath = FontPath;
 	m_FontFile = pTextStyle->m_sFont;
@@ -133,11 +134,12 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 
 			WW = WordWidth(Space + * j, RI, pTextStyle);
 
-			if (lastX + WW.first >= Width && lastX != 0)
+			if (lastX + WW.first >= Width && lastY + WW.second < Height)
 			{
 				LAttr.Width = lastX;
 				LAttr.Height = WW.second;
 				AddRow(line, ImageLine, LAttr);
+                lastY += WW.second;
 				line.clear();
 				ImageLine.clear();
 				LAttr.Width = lastX = 0;
@@ -160,7 +162,10 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 		}
 		LAttr.Width = lastX;
 		LAttr.Height = WW.second;
-		AddRow(line, ImageLine, LAttr);
+
+        if (lastY + WW.second < Height)
+		    AddRow(line, ImageLine, LAttr);
+
 		line.clear();
 		ImageLine.clear();
 		lastX = 0;
