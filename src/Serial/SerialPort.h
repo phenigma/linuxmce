@@ -31,6 +31,7 @@ public:
 	virtual bool IsReadEmpty();
 	virtual size_t Read(char *Buf, size_t MaxLen, int Timeout=5);
 	virtual void Write(char *Buf, size_t Len);
+	virtual void Flush();
 
 public:
 #ifdef WIN32

@@ -35,6 +35,10 @@ bool CSerialPort::IsReadEmpty()
     return FALSE;
 }
 
+void CSerialPort::Flush() {
+}
+
+
 #else
 
 #include <sys/types.h>
@@ -196,6 +200,10 @@ bool CSerialPort::IsReadEmpty()
 	}
 }
 
+
+void CSerialPort::Flush() {
+    tcflush(m_fdSerial, TCIOFLUSH);
+}
 
 
 #endif
