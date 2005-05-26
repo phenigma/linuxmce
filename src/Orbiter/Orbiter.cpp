@@ -1406,14 +1406,14 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
             }
         }
 
-		if( pMessage_GotoScreen )
+        if( pMessage_GotoScreen )
             ReceivedMessage( pMessage_GotoScreen );
 
-		for(list<Message *>::iterator it = listTempMessages.begin(); it != listTempMessages.end(); ++it)
-			delete *it;
-		listTempMessages.clear();
+        for(list<Message *>::iterator it = listTempMessages.begin(); it != listTempMessages.end(); ++it)
+            delete *it;
+        listTempMessages.clear();
 
-        if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
+        if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED && !pMessage_GotoScreen) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
         {
             pObj->m_GraphicToDisplay=GRAPHIC_SELECTED;
 
@@ -2378,7 +2378,8 @@ void Orbiter::FindObjectToHighlight(
     m_pObj_Highlighted = pNextObject;
 
 	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
-    m_vectObjs_NeedRedraw.push_back( m_pObj_Highlighted );
+    if(m_pObj_Highlighted)
+        m_vectObjs_NeedRedraw.push_back( m_pObj_Highlighted );
     if(  pDesignObj_Orbiter_OriginallyHighlight  )
         m_vectObjs_NeedRedraw.push_back( pDesignObj_Orbiter_OriginallyHighlight );
 	nd.Release();
@@ -4479,6 +4480,8 @@ void Orbiter::DeselectObjects( void *data )
 
     PLUTO_SAFETY_LOCK( vm, m_ScreenMutex )
 	DesignObj_Orbiter *pObj = ( DesignObj_Orbiter * ) data;
+
+g_pPlutoLogger->Write(LV_WARNING, "Deselecting %s object, state '%s'", pObj->m_ObjectID.c_str(), pObj->m_GraphicToDisplay==GRAPHIC_SELECTED ? "'selected'" : "'normal'");
 
     if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED  )
     {

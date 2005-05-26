@@ -315,10 +315,13 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     {
         for (int i = 0; i < width; i++)
         {
-			pixelCurrent = GetDisplay()->GetPixel(i + x, j + y);
+            if(i + x >= 0 && j + y >= 0 && i + x < m_iImageWidth && j + y < m_iImageHeight)
+            {
+			    pixelCurrent = GetDisplay()->GetPixel(i + x, j + y);
 
-    		if(pixelSrc == pixelCurrent)
-				GetDisplay()->SetPixel(i + x, j + y, pixelDest);
+    		    if(pixelSrc == pixelCurrent)
+				    GetDisplay()->SetPixel(i + x, j + y, pixelDest);
+            }
         }
     }
 }
