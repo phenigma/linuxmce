@@ -317,6 +317,7 @@ int main( int argc, char *argv[] )
 
 	db_h_out << "#include \"PlutoUtils/MySQLHelper.h\"" << endl;
 
+    db_h_out << "#ifdef WIN32" << endl;
     db_h_out << "#ifdef EXPORT_DLL" << endl;
     db_h_out << "\t#ifndef DECLSPECIFIER" << endl;
     db_h_out << "\t\t#define DECLSPECIFIER __declspec(dllexport)" << endl;
@@ -326,6 +327,10 @@ int main( int argc, char *argv[] )
     db_h_out << "\t\t#define DECLSPECIFIER __declspec(dllimport)" << endl;
     db_h_out << "\t#endif" << endl;
     db_h_out << "#endif" << endl;
+    db_h_out << "#else" << endl;
+    db_h_out << "#define DECLSPECIFIER" << endl;
+    db_h_out << "#endif" << endl;
+
     db_h_out << "class DECLSPECIFIER MySqlHelper;" << endl;
     db_h_out << "class DECLSPECIFIER SerializeClass;" << endl;
     db_h_out << endl;

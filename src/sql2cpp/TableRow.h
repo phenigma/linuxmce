@@ -3,14 +3,18 @@
 
 #pragma warning (disable : 4251)
 
-#ifdef EXPORT_DLL
-#ifndef DECLSPECIFIER
-#define DECLSPECIFIER __declspec(dllexport)
-#endif
+#ifdef WIN32
+    #ifdef EXPORT_DLL
+    #ifndef DECLSPECIFIER
+    #define DECLSPECIFIER __declspec(dllexport)
+    #endif
+    #else
+    #ifndef DECLSPECIFIER
+    #define DECLSPECIFIER __declspec(dllimport)
+    #endif
+    #endif
 #else
-#ifndef DECLSPECIFIER
-#define DECLSPECIFIER __declspec(dllimport)
-#endif
+    #define DECLSPECIFIER
 #endif
 
 class DECLSPECIFIER SerializeClass;
