@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_Attribute.h"
 #include "Table_AttributeType.h"
 
+#include "Table_Disc_Attribute.h"
 #include "Table_File_Attribute.h"
 #include "Table_Picture_Attribute.h"
 #include "Table_SearchToken_Attribute.h"
@@ -517,7 +518,12 @@ bool Table_Attribute::GetRows(string where_statement,vector<class Row_Attribute*
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
-	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+	if( StringUtils::StartsWith(where_statement,"where ",true) || 
+		StringUtils::StartsWith(where_statement,"join ",true) ||
+		StringUtils::StartsWith(where_statement,"left ",true) ||
+		StringUtils::StartsWith(where_statement,"right ",true) ||
+		StringUtils::StartsWith(where_statement,"full ",true) ||
+		StringUtils::StartsWith(where_statement,"outer ",true) )
 		query = "select `Attribute`.* from Attribute " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
@@ -872,6 +878,13 @@ return pTable->GetRow(m_FK_AttributeType);
 }
 
 
+void Row_Attribute::Disc_Attribute_FK_Attribute_getrows(vector <class Row_Disc_Attribute*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Disc_Attribute *pTable = table->database->Disc_Attribute_get();
+pTable->GetRows("`FK_Attribute`=" + StringUtils::itos(m_PK_Attribute),rows);
+}
 void Row_Attribute::File_Attribute_FK_Attribute_getrows(vector <class Row_File_Attribute*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);

@@ -1,12 +1,6 @@
 #ifndef __Table_AlertType_H__
 #define __Table_AlertType_H__
 
-#ifdef SQL2CPP_DLLEXPORT
-#define DLL_EXPORT __declspec(dllexport)
-#else
-#define DLL_EXPORT
-#endif
-
 #include "TableRow.h"
 #include "Database_pluto_security.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
@@ -18,7 +12,10 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_AlertType : public TableBase , SingleLongKeyBase
+class DECLSPECIFIER TableRow;
+class DECLSPECIFIER SerializeClass;
+
+class DECLSPECIFIER Table_AlertType : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_security *database;
@@ -68,7 +65,7 @@ private:
 			
 };
 
-class DLL_EXPORT Row_AlertType : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_AlertType : public TableRow, public SerializeClass
 	{
 		friend struct Table_AlertType::Key;
 		friend class Table_AlertType;

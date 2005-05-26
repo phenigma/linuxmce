@@ -478,7 +478,12 @@ bool Table_psc_media_batdet::GetRows(string where_statement,vector<class Row_psc
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	string query;
-	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+	if( StringUtils::StartsWith(where_statement,"where ",true) || 
+		StringUtils::StartsWith(where_statement,"join ",true) ||
+		StringUtils::StartsWith(where_statement,"left ",true) ||
+		StringUtils::StartsWith(where_statement,"right ",true) ||
+		StringUtils::StartsWith(where_statement,"full ",true) ||
+		StringUtils::StartsWith(where_statement,"outer ",true) )
 		query = "select `psc_media_batdet`.* from psc_media_batdet " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;

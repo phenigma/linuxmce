@@ -1,51 +1,69 @@
 #ifndef __TableRow_H_
 #define __TableRow_H_
 
-struct SingleLongKey
+#pragma warning (disable : 4251)
+
+#ifdef WIN32
+    #ifdef EXPORT_DLL
+    #ifndef DECLSPECIFIER
+    #define DECLSPECIFIER __declspec(dllexport)
+    #endif
+    #else
+    #ifndef DECLSPECIFIER
+    #define DECLSPECIFIER __declspec(dllimport)
+    #endif
+    #endif
+#else
+    #define DECLSPECIFIER
+#endif
+
+class DECLSPECIFIER SerializeClass;
+
+struct DECLSPECIFIER SingleLongKey
 {
 	long int pk;
 	SingleLongKey(long int in);
 };
 
-struct SingleLongKey_Less
+struct DECLSPECIFIER SingleLongKey_Less
 {			
 	bool operator()(const SingleLongKey &key1, const SingleLongKey &key2) const;
 };
 
-struct DoubleLongKey
+struct DECLSPECIFIER DoubleLongKey
 {
 	long int pk1,pk2;
 	DoubleLongKey(long int in1,long int in2);
 };
 
-struct DoubleLongKey_Less
+struct DECLSPECIFIER DoubleLongKey_Less
 {			
 	bool operator()(const DoubleLongKey &key1, const DoubleLongKey &key2) const;
 };
 
-struct TripleLongKey
+struct DECLSPECIFIER TripleLongKey
 {
 	long int pk1,pk2,pk3;
 	TripleLongKey(long int in1,long int in2,long int in3);
 };
 
-struct TripleLongKey_Less
+struct DECLSPECIFIER TripleLongKey_Less
 {			
 	bool operator()(const TripleLongKey &key1, const TripleLongKey &key2) const;
 };
 
-struct SingleStringKey
+struct DECLSPECIFIER SingleStringKey
 {
 	string pk;
 	SingleStringKey(string in);
 };
 
-struct SingleStringKey_Less
+struct DECLSPECIFIER SingleStringKey_Less
 {			
 	bool operator()(const SingleStringKey &key1, const SingleStringKey &key2) const;
 };
 
-class TableRow
+class DECLSPECIFIER TableRow
 {
 protected:
 	bool is_deleted;
@@ -57,32 +75,32 @@ public:
 	bool is_deleted_get() { return is_deleted; }
 };
 
-class TableBase
+class DECLSPECIFIER TableBase
 {
 public:
 	vector<class TableRow*> addedRows;
 	vector<class TableRow*> deleted_addedRows;	
 };
 
-class SingleLongKeyBase
+class DECLSPECIFIER SingleLongKeyBase
 {
 public:
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less> cachedRows;
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less> deleted_cachedRows;
 };
-class DoubleLongKeyBase
+class DECLSPECIFIER DoubleLongKeyBase
 {
 public:
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less> cachedRows;
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less> deleted_cachedRows;
 };
-class TripleLongKeyBase
+class DECLSPECIFIER TripleLongKeyBase
 {
 public:
 	map<TripleLongKey, class TableRow*, TripleLongKey_Less> cachedRows;
 	map<TripleLongKey, class TableRow*, TripleLongKey_Less> deleted_cachedRows;
 };
-class SingleStringKeyBase
+class DECLSPECIFIER SingleStringKeyBase
 {
 public:
 	map<SingleStringKey, class TableRow*, SingleStringKey_Less> cachedRows;

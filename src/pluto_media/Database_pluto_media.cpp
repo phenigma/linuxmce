@@ -20,6 +20,8 @@ Database_pluto_media::Database_pluto_media()
 {
 tblAttribute=NULL;
 tblAttributeType=NULL;
+tblDisc=NULL;
+tblDisc_Attribute=NULL;
 tblFile=NULL;
 tblFile_Attribute=NULL;
 tblPicture=NULL;
@@ -49,6 +51,8 @@ void Database_pluto_media::DeleteAllTables()
 {
 DeleteTable_Attribute();
 DeleteTable_AttributeType();
+DeleteTable_Disc();
+DeleteTable_Disc_Attribute();
 DeleteTable_File();
 DeleteTable_File_Attribute();
 DeleteTable_Picture();

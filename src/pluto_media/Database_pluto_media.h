@@ -16,6 +16,8 @@ void DeleteAllTables();
 private:
 class Table_Attribute* tblAttribute;
 class Table_AttributeType* tblAttributeType;
+class Table_Disc* tblDisc;
+class Table_Disc_Attribute* tblDisc_Attribute;
 class Table_File* tblFile;
 class Table_File_Attribute* tblFile_Attribute;
 class Table_Picture* tblPicture;
@@ -37,6 +39,8 @@ class Table_psc_media_tables* tblpsc_media_tables;
 public:
 class Table_Attribute* Attribute_get() { if( !tblAttribute ) CreateTable_Attribute(); return tblAttribute; }
 class Table_AttributeType* AttributeType_get() { if( !tblAttributeType ) CreateTable_AttributeType(); return tblAttributeType; }
+class Table_Disc* Disc_get() { if( !tblDisc ) CreateTable_Disc(); return tblDisc; }
+class Table_Disc_Attribute* Disc_Attribute_get() { if( !tblDisc_Attribute ) CreateTable_Disc_Attribute(); return tblDisc_Attribute; }
 class Table_File* File_get() { if( !tblFile ) CreateTable_File(); return tblFile; }
 class Table_File_Attribute* File_Attribute_get() { if( !tblFile_Attribute ) CreateTable_File_Attribute(); return tblFile_Attribute; }
 class Table_Picture* Picture_get() { if( !tblPicture ) CreateTable_Picture(); return tblPicture; }
@@ -62,6 +66,8 @@ void Disconnect();
 private:
 void CreateTable_Attribute();
 void CreateTable_AttributeType();
+void CreateTable_Disc();
+void CreateTable_Disc_Attribute();
 void CreateTable_File();
 void CreateTable_File_Attribute();
 void CreateTable_Picture();
@@ -82,6 +88,8 @@ void CreateTable_psc_media_schema();
 void CreateTable_psc_media_tables();
 void DeleteTable_Attribute();
 void DeleteTable_AttributeType();
+void DeleteTable_Disc();
+void DeleteTable_Disc_Attribute();
 void DeleteTable_File();
 void DeleteTable_File_Attribute();
 void DeleteTable_Picture();

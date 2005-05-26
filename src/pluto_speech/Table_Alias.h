@@ -1,12 +1,6 @@
 #ifndef __Table_Alias_H__
 #define __Table_Alias_H__
 
-#ifdef SQL2CPP_DLLEXPORT
-#define DLL_EXPORT __declspec(dllexport)
-#else
-#define DLL_EXPORT
-#endif
-
 #include "TableRow.h"
 #include "Database_pluto_speech.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
@@ -18,7 +12,10 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_Alias : public TableBase , SingleLongKeyBase
+class DECLSPECIFIER TableRow;
+class DECLSPECIFIER SerializeClass;
+
+class DECLSPECIFIER Table_Alias : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_speech *database;
@@ -68,7 +65,7 @@ private:
 			
 };
 
-class DLL_EXPORT Row_Alias : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_Alias : public TableRow, public SerializeClass
 	{
 		friend struct Table_Alias::Key;
 		friend class Table_Alias;

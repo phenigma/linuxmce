@@ -14,13 +14,13 @@
 			Name="Debug|Win32"
 			OutputDirectory="../lib"
 			IntermediateDirectory="Debug"
-			ConfigurationType="4"
+			ConfigurationType="2"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..;../DCE;../../libs/Libraries/pthreads-win32/include;/mysql/include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DEBUG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DEBUG;EXPORT_DLL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -31,8 +31,12 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="../lib/pluto_speech.lib"/>
+				Name="VCLinkerTool"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib"
+				OutputFile="../Debug/pluto_speech.dll"
+				AdditionalLibraryDirectories="/mysql/lib/Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
+				ModuleDefinitionFile="pluto_speech.def"
+				ImportLibrary="../lib/pluto_speech.lib"/>				
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -54,9 +58,9 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
+			OutputDirectory="../lib"
 			IntermediateDirectory="Release"
-			ConfigurationType="4"
+			ConfigurationType="2"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
@@ -64,7 +68,7 @@
 				AdditionalIncludeDirectories="..;../DCE;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;EXPORT_DLL"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -75,8 +79,12 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="../lib/pluto_speech-r.lib"/>
+				Name="VCLinkerTool"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE-r.lib"
+				OutputFile="../Bin/pluto_speech-r.dll"
+				AdditionalLibraryDirectories="/mysql/lib/Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
+				ModuleDefinitionFile="pluto_speech.def"
+				ImportLibrary="../lib/pluto_speech-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool

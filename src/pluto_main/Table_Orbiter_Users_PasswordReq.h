@@ -1,12 +1,6 @@
 #ifndef __Table_Orbiter_Users_PasswordReq_H__
 #define __Table_Orbiter_Users_PasswordReq_H__
 
-#ifdef SQL2CPP_DLLEXPORT
-#define DLL_EXPORT __declspec(dllexport)
-#else
-#define DLL_EXPORT
-#endif
-
 #include "TableRow.h"
 #include "Database_pluto_main.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
@@ -18,7 +12,10 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_Orbiter_Users_PasswordReq : public TableBase , DoubleLongKeyBase
+class DECLSPECIFIER TableRow;
+class DECLSPECIFIER SerializeClass;
+
+class DECLSPECIFIER Table_Orbiter_Users_PasswordReq : public TableBase , DoubleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -69,7 +66,7 @@ private:
 			
 };
 
-class DLL_EXPORT Row_Orbiter_Users_PasswordReq : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_Orbiter_Users_PasswordReq : public TableRow, public SerializeClass
 	{
 		friend struct Table_Orbiter_Users_PasswordReq::Key;
 		friend class Table_Orbiter_Users_PasswordReq;

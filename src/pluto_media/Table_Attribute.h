@@ -1,12 +1,6 @@
 #ifndef __Table_Attribute_H__
 #define __Table_Attribute_H__
 
-#ifdef SQL2CPP_DLLEXPORT
-#define DLL_EXPORT __declspec(dllexport)
-#else
-#define DLL_EXPORT
-#endif
-
 #include "TableRow.h"
 #include "Database_pluto_media.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
@@ -18,7 +12,10 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_Attribute : public TableBase , SingleLongKeyBase
+class DECLSPECIFIER TableRow;
+class DECLSPECIFIER SerializeClass;
+
+class DECLSPECIFIER Table_Attribute : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_media *database;
@@ -68,7 +65,7 @@ private:
 			
 };
 
-class DLL_EXPORT Row_Attribute : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_Attribute : public TableRow, public SerializeClass
 	{
 		friend struct Table_Attribute::Key;
 		friend class Table_Attribute;
@@ -140,7 +137,8 @@ void psc_frozen_setNull(bool val);
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void File_Attribute_FK_Attribute_getrows(vector <class Row_File_Attribute*> *rows);
+		void Disc_Attribute_FK_Attribute_getrows(vector <class Row_Disc_Attribute*> *rows);
+void File_Attribute_FK_Attribute_getrows(vector <class Row_File_Attribute*> *rows);
 void Picture_Attribute_FK_Attribute_getrows(vector <class Row_Picture_Attribute*> *rows);
 void SearchToken_Attribute_FK_Attribute_getrows(vector <class Row_SearchToken_Attribute*> *rows);
 
