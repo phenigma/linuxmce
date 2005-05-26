@@ -315,10 +315,22 @@ int main( int argc, char *argv[] )
 	db_h_out << "#define __Database_"<<sDBName<<"_H_" << endl;
 	db_h_out << "#include <mysql.h>" << endl;
 
-	db_h_out << "#ifdef SQL2CPP_DLLEXPORT" << endl << "#define DLL_EXPORT __declspec(dllexport)" << endl << "#else" << endl << "#define DLL_EXPORT" << endl << "#endif" << endl;
 	db_h_out << "#include \"PlutoUtils/MySQLHelper.h\"" << endl;
 
-	db_h_out << "class DLL_EXPORT Database_" << sDBName << ": public MySqlHelper" << endl;
+    db_h_out << "#ifdef EXPORT_DLL" << endl;
+    db_h_out << "\t#ifndef DECLSPECIFIER" << endl;
+    db_h_out << "\t\t#define DECLSPECIFIER __declspec(dllexport)" << endl;
+    db_h_out << "\t#endif" << endl;
+    db_h_out << "#else" << endl;
+    db_h_out << "\t#ifndef DECLSPECIFIER" << endl;
+    db_h_out << "\t\t#define DECLSPECIFIER __declspec(dllimport)" << endl;
+    db_h_out << "\t#endif" << endl;
+    db_h_out << "#endif" << endl;
+    db_h_out << "class DECLSPECIFIER MySqlHelper;" << endl;
+    db_h_out << "class DECLSPECIFIER SerializeClass;" << endl;
+    db_h_out << endl;
+
+	db_h_out << "class DECLSPECIFIER Database_" << sDBName << ": public MySqlHelper" << endl;
 	db_h_out << "{" << endl;
 	db_h_out << "public:" << endl;
 	db_h_out << "Database_" << sDBName << "();" << endl;
@@ -333,9 +345,11 @@ int main( int argc, char *argv[] )
 		makefile_out << " \\" << endl << "Table_" + (*i)->get_table_name() + ".cpp";
 	}
 
-	makefile_out << endl << endl << "all: lib" << sDBName << ".a all-recursive" << endl << endl;
-	makefile_out << "lib" << sDBName << ".a: $(sources:.cpp=.o)" << endl;
-	makefile_out << "\t$(AR) rc $@ $+" << endl;
+	makefile_out << endl << endl << "all: lib" << sDBName << ".so all-recursive" << endl << endl;
+
+
+	makefile_out << "lib" << sDBName << ".so: $(sources:.cpp=.o)" << endl;
+	makefile_out << "\t$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)" << endl;
 	makefile_out << "\tcp $@ ../lib" << endl << endl;
 	makefile_out << "clean: clean-recursive" << endl;
 	makefile_out << "\trm -f *.o *.d lib" << sDBName << ".a >/dev/null" << endl << endl;
@@ -382,6 +396,13 @@ int main( int argc, char *argv[] )
 
 	db_cpp_out << endl << "#include \"Database_" + sDBName + ".h\"" << endl << endl;
 	db_cpp_out << endl << "#include \"DCEConfig.h\"" << endl << endl;
+
+	db_cpp_out << endl << "namespace DCE";
+    db_cpp_out << endl << "{";
+    db_cpp_out << endl << "\tLogger *g_pPlutoLogger; //dummy";
+    db_cpp_out << endl << "}";
+    db_cpp_out << endl << "using namespace DCE;" << endl;
+
 	db_cpp_out << "Database_" << sDBName << "::Database_" << sDBName << "()" << endl;
 	db_cpp_out << "{" << endl;
 	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
@@ -417,6 +438,10 @@ int main( int argc, char *argv[] )
 
 	string tbrow_cpp = sOutputPath + "TableRow.cpp";
 	FileUtils::PUCopyFile(sInputPath + "TableRow.cpp",tbrow_cpp);
+
+    //def file
+    string sBuffer = "EXPORTS\r\n";
+    FileUtils::WriteBufferIntoFile(sOutputPath + sDBName + ".def", const_cast<char *>(sBuffer.c_str()), sBuffer.length());
 
 	cout << "Classes generated successfully!" << endl;
 

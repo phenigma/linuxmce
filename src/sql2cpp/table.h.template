@@ -1,12 +1,6 @@
 #ifndef __Table_@table_name@_H__
 #define __Table_@table_name@_H__
 
-#ifdef SQL2CPP_DLLEXPORT
-#define DLL_EXPORT __declspec(dllexport)
-#else
-#define DLL_EXPORT
-#endif
-
 #include "TableRow.h"
 #include "Database_@database_name@.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
@@ -18,7 +12,10 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_@table_name@ : public TableBase @table_base@
+class DECLSPECIFIER TableRow;
+class DECLSPECIFIER SerializeClass;
+
+class DECLSPECIFIER Table_@table_name@ : public TableBase @table_base@
 {
 private:
 	Database_@database_name@ *database;
@@ -67,7 +64,7 @@ private:
 			
 };
 
-class DLL_EXPORT Row_@table_name@ : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_@table_name@ : public TableRow, public SerializeClass
 	{
 		friend struct Table_@table_name@::Key;
 		friend class Table_@table_name@;

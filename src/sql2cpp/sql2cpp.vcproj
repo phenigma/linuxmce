@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="/mysql/Include;.."
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GENERATOR"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GENERATOR;EXPORT_DLL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -163,6 +163,24 @@
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			<File
+				RelativePath=".\database.vcproj.template">
+			</File>
+			<File
+				RelativePath=".\define.h.template">
+			</File>
+			<File
+				RelativePath=".\table.cpp.template">
+			</File>
+			<File
+				RelativePath=".\table.h.template">
+			</File>
+			<File
+				RelativePath=".\TableRow.cpp">
+			</File>
+			<File
+				RelativePath=".\TableRow.h">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
