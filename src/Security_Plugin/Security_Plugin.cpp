@@ -1092,14 +1092,14 @@ void Security_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Rout
 		PK_DesignObj_Toolbar=0;
 		break;
 	case FLOORPLANOBJECTTYPE_SECURITY_CAMERA_CONST:
-		PK_DesignObj_Toolbar=0;  // Camera toolbar (view)
+		PK_DesignObj_Toolbar=DESIGNOBJ_grpCameraControls_CONST;  // Camera toolbar (view)
 		break;
 	case FLOORPLANOBJECTTYPE_SECURITY_INTERCOM_CONST:
-		PK_DesignObj_Toolbar=0;  // Intercom - call, open door
+		PK_DesignObj_Toolbar=DESIGNOBJ_grpIntercomControls_CONST;  // Intercom - call, open door
 		break;
 	case FLOORPLANOBJECTTYPE_SECURITY_SIREN_CONST:
 	case FLOORPLANOBJECTTYPE_SECURITY_CHIME_CONST:
-		PK_DesignObj_Toolbar=0;  // Sound
+		PK_DesignObj_Toolbar=DESIGNOBJ_grpSirenControls_CONST;  // Sound
 		break;
 	};
 
