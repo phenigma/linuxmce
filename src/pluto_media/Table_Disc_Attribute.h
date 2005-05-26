@@ -1,0 +1,157 @@
+#ifndef __Table_Disc_Attribute_H__
+#define __Table_Disc_Attribute_H__
+
+#include "TableRow.h"
+#include "Database_pluto_media.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+#include "Define_Disc_Attribute.h"
+#include "SerializeClass/SerializeClass.h"
+
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DECLSPECIFIER TableRow;
+class DECLSPECIFIER SerializeClass;
+
+class DECLSPECIFIER Table_Disc_Attribute : public TableBase , TripleLongKeyBase
+{
+private:
+	Database_pluto_media *database;
+	struct Key;	//forward declaration
+	
+public:
+	Table_Disc_Attribute(Database_pluto_media *pDatabase):database(pDatabase)
+	{
+	};
+	~Table_Disc_Attribute();
+
+private:		
+	friend class Row_Disc_Attribute;
+	struct Key
+	{
+		friend class Row_Disc_Attribute;
+		long int pk_FK_Disc;
+long int pk_FK_Attribute;
+long int pk_Track;
+
+		
+		Key(long int in_FK_Disc, long int in_FK_Attribute, long int in_Track);
+	
+		Key(class Row_Disc_Attribute *pRow);
+	};
+	struct Key_Less
+	{			
+		bool operator()(const Table_Disc_Attribute::Key &key1, const Table_Disc_Attribute::Key &key2) const;
+	};	
+
+	
+	
+
+public:				
+	bool Commit();
+	bool GetRows(string where_statement,vector<class Row_Disc_Attribute*> *rows);
+	class Row_Disc_Attribute* AddRow();
+	Database_pluto_media *Database_pluto_media_get() { return database; }
+	
+		
+	class Row_Disc_Attribute* GetRow(long int in_FK_Disc, long int in_FK_Attribute, long int in_Track);
+	
+
+private:	
+	
+		
+	class Row_Disc_Attribute* FetchRow(TripleLongKey &key);
+		
+			
+};
+
+class DECLSPECIFIER Row_Disc_Attribute : public TableRow, public SerializeClass
+	{
+		friend struct Table_Disc_Attribute::Key;
+		friend class Table_Disc_Attribute;
+	private:
+		Table_Disc_Attribute *table;
+		
+		long int m_FK_Disc;
+long int m_FK_Attribute;
+long int m_Track;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
+
+		bool is_null[8];
+	
+	public:
+		long int FK_Disc_get();
+long int FK_Attribute_get();
+long int Track_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
+
+		
+		void FK_Disc_set(long int val);
+void FK_Attribute_set(long int val);
+void Track_set(long int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
+
+		
+		bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
+
+			
+		void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
+	
+	
+		void Delete();
+		void Reload();		
+	
+		Row_Disc_Attribute(Table_Disc_Attribute *pTable);
+	
+		bool IsDeleted(){return is_deleted;};
+		bool IsModified(){return is_modified;};			
+		class Table_Disc_Attribute *Table_Disc_Attribute_get() { return table; };
+
+		// Return the rows for foreign keys 
+		class Row_Disc* FK_Disc_getrow();
+class Row_Attribute* FK_Attribute_getrow();
+
+
+		// Return the rows in other tables with foreign keys pointing here
+		
+
+		// Setup binary serialization
+		void SetupSerialization(int iSC_Version) {
+			StartSerializeList() + m_FK_Disc+ m_FK_Attribute+ m_Track+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+		}
+	private:
+		void SetDefaultValues();
+		
+		string FK_Disc_asSQL();
+string FK_Attribute_asSQL();
+string Track_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
+
+	};
+
+#endif
+
