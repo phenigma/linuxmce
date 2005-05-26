@@ -18,10 +18,10 @@ Table_psc_security_repset.cpp \
 Table_psc_security_schema.cpp \
 Table_psc_security_tables.cpp
 
-all: libpluto_security.a all-recursive
+all: libpluto_security.so all-recursive
 
-libpluto_security.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+libpluto_security.so: $(sources:.cpp=.o)
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
 	cp $@ ../lib
 
 clean: clean-recursive

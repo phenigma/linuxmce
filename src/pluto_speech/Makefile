@@ -9,10 +9,10 @@ sources = Database_pluto_speech.cpp TableRow.cpp \
 Table_Alias.cpp \
 Table_Keyword.cpp
 
-all: libpluto_speech.a all-recursive
+all: libpluto_speech.so all-recursive
 
-libpluto_speech.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+libpluto_speech.so: $(sources:.cpp=.o)
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
 	cp $@ ../lib
 
 clean: clean-recursive

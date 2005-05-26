@@ -16,6 +16,12 @@ using namespace std;
 
 #include "DCEConfig.h"
 
+
+namespace DCE
+{
+	Logger *g_pPlutoLogger; //dummy
+}
+using namespace DCE;
 Database_pluto_speech::Database_pluto_speech()
 {
 tblAlias=NULL;

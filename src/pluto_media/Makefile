@@ -29,10 +29,10 @@ Table_psc_media_repset.cpp \
 Table_psc_media_schema.cpp \
 Table_psc_media_tables.cpp
 
-all: libpluto_media.a all-recursive
+all: libpluto_media.so all-recursive
 
-libpluto_media.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+libpluto_media.so: $(sources:.cpp=.o)
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
 	cp $@ ../lib
 
 clean: clean-recursive

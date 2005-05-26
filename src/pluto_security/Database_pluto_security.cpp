@@ -16,6 +16,12 @@ using namespace std;
 
 #include "DCEConfig.h"
 
+
+namespace DCE
+{
+	Logger *g_pPlutoLogger; //dummy
+}
+using namespace DCE;
 Database_pluto_security::Database_pluto_security()
 {
 tblAlert=NULL;
