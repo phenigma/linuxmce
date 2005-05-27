@@ -1,13 +1,24 @@
 #ifndef __Database_pluto_main_H_
 #define __Database_pluto_main_H_
 #include <mysql.h>
-#ifdef SQL2CPP_DLLEXPORT
-#define DLL_EXPORT __declspec(dllexport)
-#else
-#define DLL_EXPORT
-#endif
 #include "PlutoUtils/MySQLHelper.h"
-class DLL_EXPORT Database_pluto_main: public MySqlHelper
+#ifdef WIN32
+#ifdef EXPORT_DLL
+	#ifndef DECLSPECIFIER
+		#define DECLSPECIFIER __declspec(dllexport)
+	#endif
+#else
+	#ifndef DECLSPECIFIER
+		#define DECLSPECIFIER __declspec(dllimport)
+	#endif
+#endif
+#else
+#define DECLSPECIFIER
+#endif
+class DECLSPECIFIER MySqlHelper;
+class DECLSPECIFIER SerializeClass;
+
+class DECLSPECIFIER Database_pluto_main: public MySqlHelper
 {
 public:
 Database_pluto_main();
