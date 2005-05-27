@@ -2,7 +2,7 @@ ROOT = ../
 CXXFLAGS = -Wall -g -static
 CPPFLAGS = -I$(ROOT) -I.. -I$(ROOT)/DCE
 LDFLAGS = -L$(ROOT)lib
-LDLIBS = -lpthread -lDCECommon -lSerializeClass -lPlutoUtils 
+LDLIBS = -lpthread -lmysqlclient_r -lDCECommon -lSerializeClass -lPlutoUtils 
 
 APPNAME = MessageSend
 VERSION = 2.0.0
