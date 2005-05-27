@@ -44,7 +44,7 @@ RubyDCEEmbededClass::~RubyDCEEmbededClass()
 
 void 
 RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
-	if(!pcs_->isCmdImplemented(pMessage->m_dwID)) {
+	if(!pcs_->isCmdImplemented(pMessage->m_dwPK_Device_To, pMessage->m_dwID)) {
 		if(pMessage->m_dwID != COMMAND_Process_IDLE_CONST) {
 			g_pPlutoLogger->Write(LV_STATUS, "Command %d not supported.", pMessage->m_dwID);
 		}
@@ -52,7 +52,7 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	}
 	
 	std::list<int> paramids;
-	pcs_->getParamsOrderForCmd(pMessage->m_dwID, paramids);
+	pcs_->getParamsOrderForCmd(pMessage->m_dwPK_Device_To, pMessage->m_dwID, paramids);
 	
 	std::list<VALUE> params;
 	for(std::list<int>::iterator pmit = paramids.begin(); pmit != paramids.end(); pmit++) {
@@ -69,8 +69,8 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 }
 
 void 
-RubyDCEEmbededClass::CallCmdForChildHandler(Message *pMessage) {
-	if(!pcs_->isProcChildCommandAssigned()) {
+RubyDCEEmbededClass::CallCmdForChildHandler(unsigned devid, Message *pMessage) {
+	if(!pcs_->isProcChildCommandAssigned(devid)) {
 		g_pPlutoLogger->Write(LV_STATUS, "Command For Child not supported.");
 		return;
 	}

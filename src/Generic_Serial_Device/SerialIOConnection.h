@@ -67,6 +67,8 @@ public:
 	virtual bool isOpened();
 	virtual bool isDataAvailable(int timeout);
 
+	void Flush();
+
 private:
 	CSerialPort* psp_;
 	

@@ -36,7 +36,7 @@ public:
     virtual ~RubyDCECodeSupplier();
 
 public:
-	void addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedata);
+	void addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedata, bool io);
 	void clearCode();
 	
 public:
@@ -44,18 +44,17 @@ public:
 		return rcode_.c_str();
 	}
 
-	bool isCmdImplemented(int cmd);
-	bool isPrivateAssigned() {	
-		return privateassigned_;
+	bool isCmdImplemented(unsigned devid, int cmd);
+	bool isPrivateAssigned(unsigned devid) {	
+		return privateassigned_[devid];
 	}
-	bool isProcChildCommandAssigned() {
-		return procchildcmdassigned_;
+	bool isProcChildCommandAssigned(unsigned devid) {
+		return procchildcmdassigned_[devid];
 	}
-	int getParamsOrderForCmd(/*in*/int cmd, /*out*/std::list<int>& params);
-	int getParamsNamesForCmd(/*in*/int cmd, /*out*/std::list<std::string>& params);
+	int getParamsOrderForCmd(unsigned devid, /*in*/int cmd, /*out*/std::list<int>& params);
+	int getParamsNamesForCmd(unsigned devid, /*in*/int cmd, /*out*/std::list<std::string>& params);
 	
 private:
-	void FillClassMembersFromDevice(Database_pluto_main* pdb, long id, bool isDevTemplate);
 	std::string TranslateCommandToRuby(const std::string& cmdtxt);
 
 private:
@@ -66,10 +65,13 @@ private:
 		std::list< std::pair<int, std::string> > PARAMLIST; /*list of pairs: param id and ruby param name*/
 	typedef 
 		std::map<int, PARAMLIST> COMMANDPARAMMAP; /*map between command id and param map*/
+	typedef
+		std::map<unsigned, COMMANDPARAMMAP> DEVICEMAP;
 
-	COMMANDPARAMMAP cmdparammap_;
-	bool privateassigned_;
-	bool procchildcmdassigned_;
+	DEVICEMAP devicemap_;
+	std::map<unsigned, bool> privateassigned_;
+	std::map<unsigned, bool> procchildcmdassigned_;
+	bool commandassigned_;
 
 private:
 	std::string rcode_;

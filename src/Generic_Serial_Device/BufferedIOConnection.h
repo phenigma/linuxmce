@@ -52,6 +52,12 @@ public:
 	virtual bool isDataAvailable(int timeout) {
 		return (!buff_.in_avail()) || (pconn_ ? pconn_->isDataAvailable(timeout) : false);
 	}
+	
+	void Flush() {
+		if(pconn_) {
+			pconn_->Flush();
+		}
+	}
 
 	/*particular members members*/
 	virtual int Recv(char* buff, unsigned int size, int timeout);

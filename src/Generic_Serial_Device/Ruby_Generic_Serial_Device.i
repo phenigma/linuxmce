@@ -3,6 +3,7 @@
 %{
 	#include "RubyDeviceWrapper.h"
 	#include "RubyCommandWrapper.h"
+	#include "RubySerialWrapper.h"
 	#include "RubySerialIOWrapper.h"
 	#include "RubySerialIOConnectionWrapper.h"
 
@@ -48,7 +49,9 @@ namespace std
 %include "RubyDeviceWrapper.h"
 %include "RubyCommandWrapper.h"
 %include "RubySerialIOConnectionWrapper.h"
+%include "RubySerialWrapper.h"
 %include "RubySerialIOWrapper.h"
+
 
 
 

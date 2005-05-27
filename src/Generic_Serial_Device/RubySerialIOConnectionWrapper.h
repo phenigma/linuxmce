@@ -46,6 +46,10 @@ public:
 		return BufferedIOConnection::isDataAvailable(timeout);
 	}
 
+	void Flush() {
+		BufferedIOConnection::Flush();
+	}
+
 	bool Reconnect();
 };
 

@@ -36,7 +36,7 @@ public:
 
 public:
 	void CallCmdHandler(Message *pMessage);
-	void CallCmdForChildHandler(Message *pMessage);
+	void CallCmdForChildHandler(unsigned devid, Message *pMessage);
 
 private:
 	RubyDCECodeSupplier* pcs_;

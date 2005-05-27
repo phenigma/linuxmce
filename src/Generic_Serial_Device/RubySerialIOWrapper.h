@@ -15,21 +15,15 @@
 #ifndef DCERUBYSERIALIOWRAPPER_H
 #define DCERUBYSERIALIOWRAPPER_H
 
-#include "RubyDeviceWrapper.h"
-#include "RubyCommandWrapper.h"
-#include "RubyDCEConnector.h"
-#include "RubySerialIOConnectionWrapper.h"
-
-#include <map>
+#include "RubySerialWrapper.h"
+#include <list>
 
 namespace DCE {
-
-class Event_Impl;
 
 /**
 @author Igor Spac,,,
 */
-class RubySerialIOWrapper {
+class RubySerialIOWrapper : public RubySerialWrapper {
 	friend class RubySerialIOPool;
 public:
     RubySerialIOWrapper();
@@ -44,30 +38,9 @@ public:
 		return conn_;
 	}
 	
-	void setDevice(const RubyDeviceWrapper& device) {
-		device_ = device;
-	}
-	RubyDeviceWrapper& getDevice() {
-		return device_;
-	}
-	
-	void setDCEConnector(RubyDCEConnector* pdce) {
-		pdce_ = pdce;
-	}
-	RubyDCEConnector* getDCEConnector() {
-		return pdce_;
-	}
-	
-public:
-	void SendCommand(RubyCommandWrapper* pcmd);
-
 	/*accessed from ruby code*/
 public:
 	RubySerialIOConnectionWrapper conn_; /*connection*/
-	RubyDeviceWrapper device_; /*our device*/
-	
-private:
-	RubyDCEConnector* pdce_;
 };
 
 };

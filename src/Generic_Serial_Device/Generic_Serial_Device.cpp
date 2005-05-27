@@ -176,7 +176,9 @@ void Generic_Serial_Device::ParseDeviceHierarchy(DeviceData_Impl *pdevdata) {
 		if(pmanager->addDevice(this, pdevdata) >= 0) {
 			VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
 			for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
-				ParseDeviceHierarchy(vDeviceData[i]);
+				if(!pmanager->hasDevice(vDeviceData[i])) {
+					ParseDeviceHierarchy(vDeviceData[i]);
+				}
 			}
 		}
 	} else {

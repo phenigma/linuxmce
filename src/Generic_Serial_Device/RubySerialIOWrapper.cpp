@@ -17,17 +17,9 @@
 namespace DCE {
 
 RubySerialIOWrapper::RubySerialIOWrapper()
-	: pdce_(NULL)
 {}
 
 RubySerialIOWrapper::~RubySerialIOWrapper()
 {}
-
-void 
-RubySerialIOWrapper::SendCommand(RubyCommandWrapper* pcmd) {
-	if(pdce_) {
-		pdce_->SendCommand(pcmd);
-	}
-}
 
 };

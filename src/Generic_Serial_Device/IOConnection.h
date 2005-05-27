@@ -31,6 +31,8 @@ public:
 
 	virtual bool isOpened() = 0;
 	virtual bool isDataAvailable(int timeout) = 0;
+
+	virtual void Flush() = 0;
 };
 
 };

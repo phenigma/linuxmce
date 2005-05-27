@@ -20,6 +20,7 @@
 #include "RubyDCECodeSupplier.h"
 #include "RubyDCEEmbededClass.h"
 #include "RubyDCEConnector.h"
+#include "RubyDCEDeviceNode.h"
 
 class Database_pluto_main;
 
@@ -30,7 +31,7 @@ class DeviceData_Impl;
 /**
 @author Igor Spac,,,
 */
-class RubyIOPool : protected IOPool {
+class RubyIOPool : protected IOPool, public RubyDCEDeviceNode {
 	friend class RubyIOManager;
 
 public:
@@ -40,16 +41,6 @@ public:
 public:
 	bool Init(RubyDCECodeSupplier* pcs, Database_pluto_main* pdb);
 	void Cleanup();
-	
-	void setDeviceData(DeviceData_Impl* pdevdata) {
-		pdevdata_ = pdevdata;
-	}
-	DeviceData_Impl* getDeviceData() {
-		return pdevdata_;
-	}
-	
-public:
-	int HandleMessage(Message* pMessage);
 
 protected:
 	/*delegated methods*/
@@ -66,21 +57,12 @@ protected:
 	protected:
 		RubyIOState(RubyIOPool* psm) 
 			: IOPoolState(psm) {};
-		virtual void handleStart();
-		virtual void handleStop();
-		virtual void handleIdle();
 		virtual void handleRead(IOConnection* pconn);
 	} defstate_;
 		
 private:
-	void PopulateDevice(DeviceData_Impl* pdevdata, Database_pluto_main* pdb, RubyDeviceWrapper& devwrap);
-	
-private:
 	IOPool* ppool_;
 	bool relpool_;
-	
-	DeviceData_Impl* pdevdata_;
-	RubyDCEEmbededClass* pembclass_; // Ruby class instance
 };
 
 };

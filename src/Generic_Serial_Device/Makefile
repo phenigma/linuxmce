@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS = -lruby1.8 -lSerial -lpluto_main -lrt -lMessageTranslation
 
 Gen_Dev_Files +=
-sources += $(ROOT)/Serial/GenericIODevice.cpp FileCodeSupplier.cpp IOEvent.cpp IOMutex.cpp IOPool.cpp IOThread.cpp LoopStateMachine.cpp RubyEmbeder.cpp RubyEmbededClass.cpp RubyExceptions.cpp RubyStdStreamRedirector.cpp SerialInterceptorCodeSupplier.cpp SerialIOConnection.cpp NetworkIOConnection.cpp SerialIOPool.cpp NetworkIOPool.cpp StateMachine.cpp TestEmbededClass.cpp TestRubyEmbederCodeSupplier.cpp RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyDCECodeSupplier.cpp RubyDCEEmbededClass.cpp RubyIOManager.cpp RubyIOPool.cpp RubyCommandWrapper.cpp BufferedIOConnection.cpp RubySerialIOConnectionWrapper.cpp IOUtils.cpp GSDMessageProcessing.cpp
+sources += $(ROOT)/Serial/GenericIODevice.cpp FileCodeSupplier.cpp IOEvent.cpp IOMutex.cpp IOPool.cpp IOThread.cpp LoopStateMachine.cpp RubyEmbeder.cpp RubyEmbededClass.cpp RubyExceptions.cpp RubyStdStreamRedirector.cpp SerialInterceptorCodeSupplier.cpp SerialIOConnection.cpp NetworkIOConnection.cpp SerialIOPool.cpp NetworkIOPool.cpp StateMachine.cpp TestEmbededClass.cpp TestRubyEmbederCodeSupplier.cpp RubySerialWrapper.cpp RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyDCECodeSupplier.cpp RubyDCEEmbededClass.cpp RubyIOManager.cpp RubyIOPool.cpp RubyCommandWrapper.cpp BufferedIOConnection.cpp RubySerialIOConnectionWrapper.cpp IOUtils.cpp GSDMessageProcessing.cpp RubyDCEDeviceNode.cpp
 
 #<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -52,11 +52,11 @@ Generic_Serial_Device: $(sources:.cpp=.o)
 
 Ruby_$(MYNAME).so: Ruby_$(MYNAME)_wrap.o 
 	ln -s /usr/lib/libtcl8.4.so.0 /usr/lib/libtcl8.4.so | true
-	$(CXX) -shared -o Ruby_$(MYNAME).so $(LDFLAGS) $(LDLIBS) Ruby_$(MYNAME)_wrap.o RubySerialIOWrapper.o RubyDeviceWrapper.o RubyCommandWrapper.o RubySerialIOConnectionWrapper.o BufferedIOConnection.o -ltcl8.4 -lstdc++
+	$(CXX) -shared -o Ruby_$(MYNAME).so $(LDFLAGS) $(LDLIBS) Ruby_$(MYNAME)_wrap.o RubySerialWrapper.o RubySerialIOWrapper.o RubyDeviceWrapper.o RubyCommandWrapper.o RubySerialIOConnectionWrapper.o BufferedIOConnection.o -ltcl8.4 -lstdc++
 	cp $@ ../bin
 	
 Ruby_$(MYNAME)_wrap.o: Ruby_$(MYNAME)_wrap.cxx
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) Ruby_$(MYNAME)_wrap.cxx RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyCommandWrapper.cpp RubySerialIOConnectionWrapper.cpp BufferedIOConnection.cpp -I/usr/include/tcl8.4 
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) Ruby_$(MYNAME)_wrap.cxx RubySerialWrapper.cpp RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyCommandWrapper.cpp RubySerialIOConnectionWrapper.cpp BufferedIOConnection.cpp -I/usr/include/tcl8.4 
 
 Ruby_Generic_Serial_Device_wrap.cxx:
 	swig -ruby -c++ Ruby_Generic_Serial_Device.i

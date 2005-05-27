@@ -98,6 +98,12 @@ SerialIOConnection::isOpened() {
 	return (psp_ != NULL);
 }
 
+void SerialIOConnection::Flush() {
+	if(psp_ != NULL) {
+		psp_->Flush();
+	}
+}
+
 bool 
 SerialIOConnection::isDataAvailable(int timeout) {
 	if(psp_ != NULL) {

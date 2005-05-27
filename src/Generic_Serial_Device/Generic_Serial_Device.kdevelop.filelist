@@ -120,3 +120,7 @@ RubyIOPool.h
 /DefaultMessageTranslation.cpp
 /GSDMessageProcessing.h
 /GSDMessageProcessing.cpp
+/RubyDCEDeviceNode.h
+/RubyDCEDeviceNode.cpp
+/RubySerialWrapper.h
+/RubySerialWrapper.cpp

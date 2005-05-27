@@ -17,7 +17,7 @@
 namespace DCE {
 
 RubyDeviceWrapper::RubyDeviceWrapper()
-	: devid_(0)
+	: devid_(0), parent_(NULL)
 {
 }
 

@@ -36,7 +36,7 @@ namespace DCE {
 RubyIOManager* RubyIOManager::s_instance_ = NULL;
 
 RubyIOManager::RubyIOManager()
-	: pdb_(NULL), pevdisp_(NULL)
+	: pdb_(NULL), pevdisp_(NULL), rootnode_(NULL)
 {
 }
 
@@ -53,11 +53,10 @@ RubyIOManager::getInstance() {
 	return s_instance_;
 }
 
-int 
-RubyIOManager::addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata) {
-	g_pPlutoLogger->Write(LV_STATUS, "Adding child device: %d.", pdevdata->m_dwPK_Device);
-	cs_.addCode(pdb_, pcmdimpl, pdevdata);
-	
+RubyDCEDeviceNode* 
+RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata) {
+	RubyDCEDeviceNode* pNode = NULL;
+
 	string sport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST];
 	PORTTYPE porttype = PORTTYPE_UNKNOWN;
 	if(!sport.empty() && sport != "0") {
@@ -67,126 +66,175 @@ RubyIOManager::addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata) {
 		if(!sport.empty()) {
 			porttype = PORTTYPE_NETWORK;
 		} else {
-			g_pPlutoLogger->Write(LV_CRITICAL, "GSP Port is not specified. Please supply one of the supported port types.");
-			return -1;
+			g_pPlutoLogger->Write(LV_STATUS, "GSP Port is not specified. Instantiating non-IO Wrapper.");
 		}
 	}
-	
-	/*check the kind of device we instantiate, based on port string*/
-	RubyIOPool*& ppool = pools_[sport];
-	if(ppool != NULL) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "There is already a device configured for port: %s.", sport.c_str());
+
+	if(porttype == PORTTYPE_UNKNOWN) {
+		pNode = new RubyDCEDeviceNode();
+		cs_.addCode(pdb_, pcmdimpl, pdevdata, false);
+		
+	} else {
+		cs_.addCode(pdb_, pcmdimpl, pdevdata, true);
+	    IOPool* pnewpool = NULL;
+    	switch(porttype) {
+        	/*** Serial Device Initialization *********************************/
+    	    case PORTTYPE_SERIAL: {
+	            int bps = 9600;
+
+        	    string serport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST];
+            	if(serport.find("/dev/") == 0) {
+	                serport.erase(0, strlen("/dev/"));
+    	        }
+
+        	    string sbaudrate = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_BaudRate_CONST];
+            	if(!sbaudrate.empty() && sbaudrate[0] == 'B') {
+	                int tbps = atoi(sbaudrate.substr(1, sbaudrate.length() -1).c_str());
+    	            if(tbps != 0) {
+        	            bps = tbps;
+            	    }
+	            } else {
+    	            g_pPlutoLogger->Write(LV_STATUS, "BaudRate not specified or invalid, using default: %d.", bps);
+        	    }
+
+	            g_pPlutoLogger->Write(LV_STATUS, "Using port %s, at bps: %d.", serport.c_str(), bps);
+
+    	        pnewpool = new SerialIOPool();
+        	    SerialIOConnection* pio = reinterpret_cast<SerialIOConnection*>(pnewpool->getConnection());
+            	pio->setBPS(bps);
+	            pio->setSerialPort(serport.c_str());
+
+	            string sparbitstop = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_ParityBitStop_CONST];
+    	        if(!sparbitstop.empty()) {
+        	        g_pPlutoLogger->Write(LV_STATUS, "Using paritybit/stopbit: %s.", sparbitstop.c_str());
+                	if(sparbitstop == "N81") {
+            	        pio->setParityBitStop(epbsN81);
+	                } else
+    	            if(sparbitstop == "E81") {
+        	            pio->setParityBitStop(epbsE81);
+            	    } else
+                	if(sparbitstop == "081") {
+	                    pio->setParityBitStop(epbsO81);
+        	        } else {
+    	                /*more to be implemented*/
+            	        g_pPlutoLogger->Write(LV_CRITICAL, "Paritybit/Stopbit %s NOT supported.", sparbitstop.c_str());
+                	}
+	            }
+    	        } break;
+	       /*** Network Device Initialization *********************************/
+    	    case PORTTYPE_NETWORK: {
+        	    string netaddr;
+	            int netport = -1;
+
+	            int lpar = sport.find("("), rpar = sport.find(")", lpar + 1);
+    	        if(lpar > 0 && rpar > 0) {
+        	        netport = atoi(sport.substr(lpar + 1, rpar - lpar - 1).c_str());
+            	    netaddr = sport.substr(0, lpar);
+	            } else {
+    	            /*get device ip addr*/
+        	        netport = atoi(sport.c_str());
+            	    netaddr = pdevdata->GetIPAddress();
+	            }
+
+    	        if(!netaddr.empty()) {
+        	        g_pPlutoLogger->Write(LV_STATUS, "Using network device with address <%s>, at port: <%d>.", netaddr.c_str(), netport);
+            	} else {
+    	            g_pPlutoLogger->Write(LV_CRITICAL, "Could not determine network address for device %d.", pdevdata->m_dwPK_Device);
+	                return NULL;
+        	    }
+
+	            pnewpool = new NetworkIOPool();
+    	        NetworkIOConnection* pio = reinterpret_cast<NetworkIOConnection*>(pnewpool->getConnection());
+        	    pio->setHost(netaddr.c_str());
+            	pio->setPort(netport);
+
+	            } break;
+
+    	    default:
+        	    /*we checked for unknown before, so we cannot get here*/
+	            return NULL;
+	    }
+
+	    int delay = atoi(pdevdata->m_mapParameters[DEVICEDATA_Idle_Delay_CONST].c_str());
+	    if(delay == 0) {
+    	    delay = DEFAULT_DELAY_TIME;
+	    }
+    	g_pPlutoLogger->Write(LV_STATUS, "Using Idle Delay: %d.", delay);
+		pNode = new RubyIOPool(pnewpool);
+		((RubyIOPool*)pNode)->setIdleDelay(delay);
+	}
+
+    pNode->setDeviceData(pdevdata);
+	return pNode;
+}
+
+int 
+RubyIOManager::addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata) {
+	g_pPlutoLogger->Write(LV_STATUS, "Adding device: %d.", pdevdata->m_dwPK_Device);
+
+	/*parse Code nodes and insert node*/
+	RubyDCEDeviceNode* pNewNode = addDevice(pcmdimpl, pdevdata, rootnode_);
+	if(!pNewNode) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Could not add new Device Node.");
 		return -1;
-	} 
+	}
 
-	IOPool* pnewpool = NULL;
-	switch(porttype) {
-		/*** Serial Device Initialization *********************************/
-		case PORTTYPE_SERIAL: {
-			int bps = 9600;
-			
-			string serport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST];
-			if(serport.find("/dev/") == 0) {
-				serport.erase(0, strlen("/dev/"));
-			}
-			
-			string sbaudrate = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_BaudRate_CONST];
-			if(!sbaudrate.empty() && sbaudrate[0] == 'B') {
-				int tbps = atoi(sbaudrate.substr(1, sbaudrate.length() -1).c_str());
-				if(tbps != 0) {
-					bps = tbps;
-				}
-			} else {
-				g_pPlutoLogger->Write(LV_STATUS, "BaudRate not specified or invalid, using default: %d.", bps);
-			}
-			
-			g_pPlutoLogger->Write(LV_STATUS, "Using port %s, at bps: %d.", serport.c_str(), bps);
-			
-			pnewpool = new SerialIOPool();
-			SerialIOConnection* pio = reinterpret_cast<SerialIOConnection*>(pnewpool->getConnection());
-			pio->setBPS(bps);
-			pio->setSerialPort(serport.c_str());
-			
-			string sparbitstop = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_ParityBitStop_CONST];
-			if(!sparbitstop.empty()) {
-				g_pPlutoLogger->Write(LV_STATUS, "Using paritybit/stopbit: %s.", sparbitstop.c_str());
-				if(sparbitstop == "N81") {
-					pio->setParityBitStop(epbsN81);
-				} else
-				if(sparbitstop == "E81") {
-					pio->setParityBitStop(epbsE81);
-				} else
-				if(sparbitstop == "081") {
-					pio->setParityBitStop(epbsO81);
-				} else {
-					/*more to be implemented*/
-					g_pPlutoLogger->Write(LV_CRITICAL, "Paritybit/Stopbit %s NOT supported.", sparbitstop.c_str());
-				}
-			}
-			} break;
-		
-		/*** Network Device Initialization *********************************/
-		case PORTTYPE_NETWORK: {
-			string netaddr;
-			int netport = -1;
-			
-			int lpar = sport.find("("), rpar = sport.find(")", lpar + 1);
-			if(lpar > 0 && rpar > 0) {
-				netport = atoi(sport.substr(lpar + 1, rpar - lpar - 1).c_str());
-				netaddr = sport.substr(0, lpar);
-			} else {
-				/*get device ip addr*/
-				netport = atoi(sport.c_str());
-				netaddr = pdevdata->GetIPAddress();
-			}
-						
-			if(!netaddr.empty()) {
-				g_pPlutoLogger->Write(LV_STATUS, "Using network device with address <%s>, at port: <%d>.", netaddr.c_str(), netport);
-			} else {
-				g_pPlutoLogger->Write(LV_CRITICAL, "Could not determine network address for device %d.", pdevdata->m_dwPK_Device);
-				return -1;
-			}
-			
-			pnewpool = new NetworkIOPool();
-			NetworkIOConnection* pio = reinterpret_cast<NetworkIOConnection*>(pnewpool->getConnection());
-			pio->setHost(netaddr.c_str());
-			pio->setPort(netport);
-			
-			} break;
-		
-		default:
-			/*we checked for unknown before, so we cannot get here*/
-			return -1;
+	if(!rootnode_) {
+		rootnode_ = pNewNode;
 	}
 	
-	int delay = atoi(pdevdata->m_mapParameters[DEVICEDATA_Idle_Delay_CONST].c_str());
-	if(delay == 0) {
-		delay = DEFAULT_DELAY_TIME;
-	}
-	g_pPlutoLogger->Write(LV_STATUS, "Using Idle Delay: %d.", delay);
-
-	ppool = new RubyIOPool(pnewpool);
-	ppool->setDeviceData(pdevdata);
-	ppool->setIdleDelay(delay);
-	
-	g_pPlutoLogger->Write(LV_STATUS, "Child device %d added.", pdevdata->m_dwPK_Device);
 	return 0;
+}
+
+RubyDCEDeviceNode* 
+RubyIOManager::addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata, RubyDCEDeviceNode* pNode) {
+	if(pNode == NULL) {
+		return InstantiateNode(pcmdimpl, pdevdata);
+	} 
+	RubyDCEDeviceNode* pNewNode = NULL;
+	if(pdevdata->m_dwPK_Device_ControlledVia == pNode->getDeviceData()->m_dwPK_Device) {
+		pNewNode = InstantiateNode(pcmdimpl, pdevdata);
+		if(pNewNode) {
+			pNode->addChild(pNewNode);
+		}
+	} else {
+		std::list<RubyDCEDeviceNode*>& children = pNode->getChildren();
+		for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
+			pNewNode = addDevice(pcmdimpl, pdevdata, *it);
+			if(pNewNode) {
+				break;
+			}
+		}
+	}
+	return pNewNode;
 }
 
 int 
 RubyIOManager::removeDevice(DeviceData_Impl* pdevdata) {
+	/*NOT Implemented*/
 	return -1;
 }
 bool 
 RubyIOManager::hasDevice(DeviceData_Base* pdevdata) {
-	POOLMAP::iterator it = pools_.begin();
-	while(it != pools_.end()) {
-		if((*it).second != NULL && (*it).second->getDeviceData() && 
-				(*it).second->getDeviceData()->m_dwPK_Device == pdevdata->m_dwPK_Device) {
+	return hasDevice(pdevdata, rootnode_);
+}
+
+bool 
+RubyIOManager::hasDevice(DeviceData_Base* pdevdata, RubyDCEDeviceNode* pNode) {
+	if(!pNode) {
+		return false;
+	}
+
+	if(pNode->getDeviceData()->m_dwPK_Device == pdevdata->m_dwPK_Device) {
+		return true;
+	}
+
+	std::list<RubyDCEDeviceNode*>& children = pNode->getChildren();
+    for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
+		if(hasDevice(pdevdata, *it)) {
 			return true;
 		}
-		it++;
-	}
+    }
 	return false;
 }
 
@@ -225,7 +273,10 @@ RubyIOManager::_Run() {
 		mmsg_.Lock();
 		if(!msgarrived && msgqueue_.size() == 0) {
 			mmsg_.Unlock();
-			
+			if(rootnode_) {
+				rootnode_->handleNoMessage();
+			}
+			/*	
 			POOLMAP::iterator it = pools_.begin();
 			while(it != pools_.end()) {
 				if((*it).second != NULL) {
@@ -233,6 +284,7 @@ RubyIOManager::_Run() {
 				}
 				it++;
 			}
+			*/
 		} else {
 			mmsg_.Unlock();
 			
@@ -249,7 +301,8 @@ RubyIOManager::_Run() {
 				mmsg_.Unlock();
 				
 				if(pmsg != NULL) {
-					DispatchMessageToDevice(pmsg, deviceid);
+					g_pPlutoLogger->Write(LV_STATUS, "Routing message to Ruby Interpreter...");
+					rootnode_->handleMessage(pmsg);
 					delete pmsg;
 					pmsg = NULL;
 				} else {
@@ -260,23 +313,6 @@ RubyIOManager::_Run() {
 	}
 	return 0;
 }
-
-bool 
-RubyIOManager::DispatchMessageToDevice(Message *pmsg, unsigned deviceid) {
-	bool bret = false;
-	
-	POOLMAP::iterator it = pools_.begin();
-	while(it != pools_.end()) {
-		if((*it).second != NULL && (*it).second->getDeviceData()) {
-			g_pPlutoLogger->Write(LV_STATUS, "Routing message to Ruby Interpreter...");
-			(*it).second->HandleMessage(pmsg);
-			bret = true;
-		}
-		it++;
-	}
-	return bret;
-}
-
 
 void 
 RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
@@ -300,28 +336,18 @@ RubyIOManager::handleStartup() {
 	}
 
 	/*start serial pools*/
-	POOLMAP::iterator it = pools_.begin();
-	while(it != pools_.end()) {
-		if((*it).second != NULL) {
-			(*it).second->Init(&cs_, pdb_);
-			(*it).second->handleStartup();
- 			(*it).second->handleIteration(); // added one iteration processing in order for idle to be called first
-		}
-		it++;
+	if(rootnode_) {
+		rootnode_->Init(&cs_, pdb_);
+		rootnode_->handleStartup();
+		rootnode_->handleNoMessage(); // added one iteration processing in order for idle to be called first	
 	}
 	return true;
 }
 
 void
 RubyIOManager::handleTerminate() {
-	/*signal pools stop*/
-	POOLMAP::iterator it = pools_.begin();
-	while(it != pools_.end()) {
-		if((*it).second != NULL) {
-			(*it).second->handleTerminate();
-			delete (*it).second;
-		}
-		it++;
+	if(rootnode_) {
+		rootnode_->handleTerminate();
 	}
 }
 

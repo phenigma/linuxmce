@@ -45,7 +45,7 @@ class RubyIOManager : protected RubyDCEConnector, public IOThread {
     RubyIOManager();
     virtual ~RubyIOManager();
 
-	friend class RubyIOPool;
+	friend class RubyDCEDeviceNode;
 	
 public:
 	static RubyIOManager* getInstance();
@@ -88,8 +88,11 @@ protected:
 	};
 		
 private:
-	bool DispatchMessageToDevice(Message *pmsg, unsigned deviceid);
-
+	RubyDCEDeviceNode* InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata);
+	RubyDCEDeviceNode* addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata, RubyDCEDeviceNode* pNode);
+	bool hasDevice(DeviceData_Base* pdevdata, RubyDCEDeviceNode* pNode);
+	bool DispatchMessage(Message *pmsg, unsigned deviceid, RubyDCEDeviceNode* pNode);
+	
 private:
 	static RubyIOManager* s_instance_;
 	
@@ -103,8 +106,12 @@ private:
 	IOMutex mmsg_;
 	IOEvent emsg_;
 
+	/*[serial port <--> pool] map*/
+	/*
 	typedef std::map<std::string, RubyIOPool*> POOLMAP;
-	POOLMAP pools_; /*[serial port <--> pool] map*/
+	POOLMAP pools_; 
+	*/
+	RubyDCEDeviceNode* rootnode_;	
 };
 
 };

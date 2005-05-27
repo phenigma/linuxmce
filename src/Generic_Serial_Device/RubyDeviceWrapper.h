@@ -50,6 +50,14 @@ public:
 		devdata_ = devdata;
 	}
 	
+	DCE::RubyDeviceWrapper* getParent() {
+		return parent_;
+	}
+
+	void setParent(DCE::RubyDeviceWrapper* parent) {
+           parent_ = parent;
+	}
+
 	std::map<int, DCE::RubyDeviceWrapper>& getChildDevices() {
 		return childdevices_;
 	}
@@ -64,6 +72,8 @@ public:
 	int devid_;
 	int devtemplid_;
 	std::map<int, std::string> devdata_;
+
+	DCE::RubyDeviceWrapper* parent_;
 	std::map<int, DCE::RubyDeviceWrapper> childdevices_; /*child device*/
 };
 

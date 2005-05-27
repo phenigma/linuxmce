@@ -53,7 +53,8 @@ public:
 
 	virtual bool isOpened();
 	virtual bool isDataAvailable(int timeout);
-	
+
+	void Flush() {};	
 private:
 	std::string host_;
 	int port_;
