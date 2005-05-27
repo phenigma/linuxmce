@@ -4,7 +4,7 @@ GDEV = ./Gen_Devices
 CXXFLAGS = -Wall -ggdb3
 CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_DEVEL_DEFINES -DUSE_LZO_DATAGRID -D_GNU_SOURCE $(EXTRA)
 CXX = g++
-LDLIBS = -lpthread -lmysqlclient_r
+LDLIBS = -lpthread -lmysqlclient_r -lSerializeClass
 
 APPNAME = DCECommon
 VERSION = 2.0.0
