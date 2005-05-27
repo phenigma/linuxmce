@@ -32,11 +32,9 @@ IOUtils::FormatHexBuffer(const char* buff, unsigned int size) {
 	return logstr;
 }
 
-};
-
 std::string IOUtils::FormatHexAsciiBuffer(const char* buff, unsigned int size)
 {
-	string Result = FormatHexBuffer(buff,size);
+	std::string Result = FormatHexBuffer(buff,size);
 	if( Result.size() )
 	{
 		Result += " (";
@@ -51,3 +49,5 @@ std::string IOUtils::FormatHexAsciiBuffer(const char* buff, unsigned int size)
 		Result += ")";
 	}
 }
+
+};
