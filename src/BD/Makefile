@@ -8,14 +8,18 @@ LDLIBS = -lmysqlclient_r
 sources = BDCommand.cpp BDCommandProcessor.cpp BDCommandProcessor_Linux_Bluetooth.cpp
 #sources = BDCommand.cpp BDCommandProcessor.cpp
 
-all: libBDCommon.a all-recursive
+all: libBDCommon.so all-recursive
 
 libBDCommon.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 
+libBDCommon.so: $(sources:.cpp=.o)
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
+	cp $@ ../lib
+
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libBDCommon.a >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libBDCommon.{a,so} >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
