@@ -187,7 +187,6 @@ function editMediaFile($output,$mediadbADO) {
 			';
 		}	
 	}else{
-		$mediadbADO->debug=true;
 	// process area
 		if(isset($_REQUEST['picID'])){
 			$toDelete=$_REQUEST['picID'];
@@ -242,8 +241,8 @@ function editMediaFile($output,$mediadbADO) {
 		$fileName=@$_POST['filename'];
 		$newFilePath=$path.'/'.$fileName;
 
-		$oldPath=stripslashes($_POST['oldPath']);
-		$oldFilename=stripslashes($_POST['oldFilename']);
+		$oldPath=stripslashes(@$_POST['oldPath']);
+		$oldFilename=stripslashes(@$_POST['oldFilename']);
 		$oldFilePath=$oldPath.'/'.$oldFilename;
 		
 		if($action=='del'){

@@ -29,7 +29,7 @@ function followLog($output,$dbADO) {
 		$logName=preg_replace($patern,$replacement,$logName);
 		
 		// override log namimg rules for DCE router and orbiters
-		$logName=($rowDevice['FK_DeviceTemplate']==$GLOBALS['rootDCERouter'])?$deviceID.'_DCERouter.newlog':$logName;
+		$logName=($rowDevice['FK_DeviceTemplate']==$GLOBALS['rootDCERouter'])?$deviceID.'_DCERouter':$logName;
 		
 		$logName='/var/log/pluto/'.$logName.'.newlog';
 

@@ -69,6 +69,7 @@ function wizardOrbiters($output,$dbADO) {
 						INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
 					WHERE
 						FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
+
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				while($rowD=$resDevice->FetchRow()){
 					$displayedDevices[]=$rowD['PK_Device'];
@@ -83,6 +84,7 @@ function wizardOrbiters($output,$dbADO) {
 				$joinArray[]=24;		// Skin
 				$joinArray[]=25;		// Size
 				$joinArray[]=26;		// Language
+				$joinArray[]=84;		// Leave Monitor on for OSD
 			
 				$queryDeviceDeviceData='
 					SELECT 
@@ -160,6 +162,7 @@ function wizardOrbiters($output,$dbADO) {
 						$rowDDforDevice=$resDDforDevice->FetchRow();
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 					}
+
 					if(@$rowDDforDevice['ShowInWizard']==1 || @$rowDDforDevice['ShowInWizard']==''){
 						$out.='
 						<tr>
@@ -205,7 +208,7 @@ function wizardOrbiters($output,$dbADO) {
 					<td>Reset Router when done regenerating</td>
 				</tr>	
 				<tr>
-					<td align="center" colspan="2"><input type="submit" class="button" name="quickRegen_'.$rowD['PK_Device'].'" value="Quick regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="fullRegen_'.$rowD['PK_Device'].'" value="Full regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="update" value="Update"  > &nbsp;&nbsp;<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Adv"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"> &nbsp;&nbsp; <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  >
+					<td align="center" colspan="2"><input type="submit" class="button" name="quickRegen_'.$rowD['PK_Device'].'" value="Quick regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="fullRegen_'.$rowD['PK_Device'].'" value="Full regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="update" value="Update"  > &nbsp;&nbsp;<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Adv"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"> &nbsp;&nbsp; <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(!confirm(\'Are you sure you want to delete this orbiter?\'))return false;">
 					
 					
 					</td>
