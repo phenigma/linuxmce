@@ -1140,7 +1140,7 @@
 #define DESIGNOBJ_butPlutoAdminSite_CONST 3317
 #define DESIGNOBJ_butPlutoAdminSite2_CONST 3318
 #define DESIGNOBJ_mnuScreenSaver_CONST 3319
-#define DESIGNOBJ_setDisplayOff_CONST 3320
+#define DESIGNOBJ_go_to_power_and_display_CONST 3320
 #define DESIGNOBJ_Info_CONST 3321
 #define DESIGNOBJ_butRegenOrbiter_CONST 3322
 #define DESIGNOBJ_noconfirmationdelete_CONST 3323
