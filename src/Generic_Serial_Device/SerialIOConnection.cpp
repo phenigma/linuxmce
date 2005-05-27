@@ -60,7 +60,7 @@ int
 SerialIOConnection::Send(const char* buff, unsigned int size) {
 	if(psp_ != NULL) {
 		g_pPlutoLogger->Write(LV_STATUS, "Sending buffer to %s with size %d: <%s>.", 
-									serport_.c_str(), size, IOUtils::FormatHexBuffer(buff, size).c_str());
+									serport_.c_str(), size, IOUtils::FormatHexAsciiBuffer(buff, size).c_str());
 		psp_->Write((char*)buff, size);
 		g_pPlutoLogger->Write(LV_STATUS, "Buffer sent.");
 		return size;
@@ -84,7 +84,7 @@ SerialIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 			g_pPlutoLogger->Write(LV_STATUS, "Timeout receiving data.");
 		} else {
 			g_pPlutoLogger->Write(LV_STATUS, "Received buffer from %s: <%s>", 
-									serport_.c_str(), IOUtils::FormatHexBuffer(buff, retsize).c_str());
+									serport_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize).c_str());
 		}
 		return retsize;
 	} else {

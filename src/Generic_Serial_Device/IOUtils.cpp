@@ -33,3 +33,21 @@ IOUtils::FormatHexBuffer(const char* buff, unsigned int size) {
 }
 
 };
+
+std::string IOUtils::FormatHexAsciiBuffer(const char* buff, unsigned int size)
+{
+	string Result = FormatHexBuffer(buff,size);
+	if( Result.size() )
+	{
+		Result += " (";
+		for(int i=0;i<Result.size();++i)
+		{
+			char c = Result[i];
+			if( c>=' ' && c<='~' )
+				Result += c;
+			else
+				Result += 'X';
+		}
+		Result += ")";
+	}
+}
