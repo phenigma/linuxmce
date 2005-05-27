@@ -1,5 +1,7 @@
 <?php
-	session_start('Pluto');
+	session_name('Pluto');
+	session_start();
+
 
 	if($_SERVER['HTTP_HOST']=='www.plutohome.com'){
 		header('Location: http://plutohome.com'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);

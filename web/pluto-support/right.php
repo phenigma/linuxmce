@@ -1,5 +1,7 @@
 <?php
-	session_start('Pluto');
+	session_name('Pluto');
+	session_start();
+
 
 	require('include/config/config.inc.php');
 	require('include/utils.inc.php');

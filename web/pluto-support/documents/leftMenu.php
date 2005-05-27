@@ -34,7 +34,7 @@
 					$res = $dbADO->Execute($query,$elem);
 					if ($elem!=$parentID) {
 						while ($row = $res->FetchRow()) {
-						$linePrefix=($_SESSION['editVar']!='0' && userIsAdmin(@$_SESSION['userID']))?$row['PK_Document'].' - '.$row['Order'].' ':'';
+						$linePrefix=($_SESSION['editVar']!='0' && $GLOBALS['disableDocumentsEdit']!=1 )?$row['PK_Document'].' - '.$row['Order'].' ':'';
 						$out.='
 						<tr>
 							<td><a href="right.php?section=documents/userHome&docID='.$row['PK_Document'].'&reloadTree=true"><b>'.$linePrefix.$row['Title'].' &gt;&gt;</b></a></td>
@@ -42,7 +42,7 @@
 					}
 				}else{
 					while ($row = $res->FetchRow()) {
-						$linePrefix=($_SESSION['editVar']!='0' && userIsAdmin(@$_SESSION['userID']))?$row['PK_Document'].' - '.$row['Order'].' ':'';
+						$linePrefix=($_SESSION['editVar']!='0' && $GLOBALS['disableDocumentsEdit']!=1 )?$row['PK_Document'].' - '.$row['Order'].' ':'';
 						$rootTitle=$linePrefix.$row['Title'];
 						$rootLink='right.php?section=documents/userHome&docID='.$row['PK_Document'].'&reloadTree=true';
 					}
@@ -59,7 +59,7 @@
 		$res = $dbADO->Execute($query,$parentID);
 		if ($res) {
 			while ($row = $res->FetchRow()) {
-				$linePrefix=($_SESSION['editVar']!='0' && userIsAdmin(@$_SESSION['userID']))?$row['PK_Document'].' - '.$row['Order'].' ':'';
+				$linePrefix=($_SESSION['editVar']!='0' && $GLOBALS['disableDocumentsEdit']!=1 )?$row['PK_Document'].' - '.$row['Order'].' ':'';
 				
 				$jsTree.='
 					auxS'.$row['PK_Document'].' = insFld(foldersTree,gFld("'.$linePrefix.addslashes($row['Title']).'", "right.php?section=documents/documentDisplay&docID='.$row['PK_Document'].'"))
@@ -74,7 +74,7 @@
 		$res = $dbADO->_Execute($query);
 		if ($res) {
 			while ($row = $res->FetchRow()) {
-				$linePrefix=($_SESSION['editVar']!='0' && userIsAdmin(@$_SESSION['userID']))?$row['PK_Document'].' - '.$row['Order'].' ':'';
+				$linePrefix=($_SESSION['editVar']!='0' && $GLOBALS['disableDocumentsEdit']!=1 )?$row['PK_Document'].' - '.$row['Order'].' ':'';
 				$jsTree.='
 						auxS'.$row['PK_Document'].' = insFld(foldersTree, gFld("'.$linePrefix.addslashes($row['Title']).'", "right.php?section=documents/documentDisplay&docID='.$row['PK_Document'].'"));
 						auxS'.$row['PK_Document'].'.xID = -'.$row['PK_Document'].';
@@ -116,7 +116,7 @@
 			foldersTree.xID = 1001635872
 
 			$jsTree
-			".(($_SESSION['editVar']!='0' && userIsAdmin(@$_SESSION['userID']))?"
+			".(($_SESSION['editVar']!='0' && $GLOBALS['disableDocumentsEdit']!=1 )?"
 								auxS = insFld(foldersTree, gFld(\"Add document\", \"right.php?section=documents/addDocument&parentID=0\"));
 								auxS.xID = 0;
 								auxS.iconSrc = ICONPATH + \"diffFolder.gif\"
@@ -192,6 +192,7 @@
 								<noscript>
 								A tree for site navigation will open here if you enable JavaScript in your browser.
 								</noscript>
+						'.(($GLOBALS['disableDocumentsEdit']!=1)?'<input type="button" class="button" name="setEdit" value="'.(($_SESSION['editVar']!=1)?'Activate':'Deactivate').' edit mode" onClick="top.location=\'index.php?edit='.(($_SESSION['editVar']!=1)?'1':'0').'\'">':'').'
 					</td>
 				</tr>
 				<tr>
@@ -222,7 +223,7 @@ function getChilds($parentID,$dbADO) {
 	$jsTree='';
 	if ($resGP) {
 		while ($row=$resGP->FetchRow()) {
-				$linePrefix=($_SESSION['editVar']!='0' && userIsAdmin(@$_SESSION['userID']))?$row['PK_Document'].' - '.$row['Order'].' ':'';
+				$linePrefix=($_SESSION['editVar']!='0' && $GLOBALS['disableDocumentsEdit']!=1 )?$row['PK_Document'].' - '.$row['Order'].' ':'';
 				$jsTree.= '
 					auxS'.$row['PK_Document'].' = insFld(auxS'.$parentID.', gFld("'.$linePrefix.addslashes($row['Title']).'", "right.php?section=documents/documentDisplay&docID='.$row['PK_Document'].'"))
 					auxS'.$row['PK_Document'].'.xID = '.$row['PK_Document'].';

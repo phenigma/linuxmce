@@ -26,7 +26,7 @@ if($action=='form'){
 		<input type="hidden" name="action" value="edit">
 		<input type="hidden" name="docID" value="'.$docID.'">
 				<table border="0">';
-		if(userIsAdmin(@$_SESSION['userID']) && $edit>0){
+		if(@$GLOBALS['disableDocumentsEdit']!=1 && $edit>0){
 			$out.='
 					<tr>
 						<td><input type="button" name="addChild" value="Add child" onClick="javascript:self.location=\'right.php?section=documents/addDocument&parentID='.$docID.'\'"> <input type="button" name="deleteDocument" value="Delete" onClick="javascript: if (confirm(\'Are you sure you want to delete this document?'.($childsToDelete==1?' There is 1 child to delete!':($childsToDelete>0?'There are '.$childsToDelete.' childs to delete!':'')).'\')) self.location=\'right.php?section=documents/deleteDocument&docID='.$docID.'\';" /></td>
@@ -39,7 +39,7 @@ if($action=='form'){
 					<tr>
 						<td>'.$rowDocument['Contents'].'</td>
 					</tr>';
-		if(userIsAdmin(@$_SESSION['userID']) && $edit>0){
+		if(@$GLOBALS['disableDocumentsEdit']!=1 && $edit>0){
 			$out.='
 					<tr>
 						<td><input type="submit" name="edit" value="Edit"></td>

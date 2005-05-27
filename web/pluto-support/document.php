@@ -1,5 +1,5 @@
 <?php
-
+session_name('Pluto');
 session_start();
 
 require('include/config/config.inc.php');
