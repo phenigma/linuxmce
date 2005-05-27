@@ -50,7 +50,7 @@ bin: Xine_Plugin
 
 so: Xine_Plugin.so
 
-Xine_Plugin.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
+Xine_Plugin.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.so) Makefile
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	chmod +x post_make.sh

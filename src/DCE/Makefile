@@ -22,7 +22,7 @@ libDCECommon: libDCECommon.so libDCECommon.a
 
 libDCECommon.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
-#	cp $@ ../lib
+	cp $@ ../lib
 
 libDCECommon.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $(call cpath,$+)

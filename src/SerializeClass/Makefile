@@ -13,7 +13,7 @@ libSerializeClass: libSerializeClass.so libSerializeClass.a
 
 libSerializeClass.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
-#	cp $@ ../lib
+	cp $@ ../lib
 	
 libSerializeClass.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $(call cpath,$+)

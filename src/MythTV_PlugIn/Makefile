@@ -49,7 +49,7 @@ bin: MythTV_PlugIn
 
 so: MythTV_PlugIn.so
 
-MythTV_PlugIn.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
+MythTV_PlugIn.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.so) Makefile
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	chmod +x post_make.sh

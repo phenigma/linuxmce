@@ -13,7 +13,7 @@ libPlutoUtils: libPlutoUtils.so libPlutoUtils.a
 
 libPlutoUtils.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
-#	cp $@ ../lib
+	cp $@ ../lib
 	
 libPlutoUtils.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $(call cpath,$+)
