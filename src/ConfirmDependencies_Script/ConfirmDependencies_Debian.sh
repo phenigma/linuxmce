@@ -2,6 +2,9 @@
 echo $0 $*
 
 . /usr/pluto/install/Common.sh
+if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
+	. /usr/pluto/bin/Config_Ops.sh
+fi
 
 set -x
 
@@ -78,6 +81,14 @@ case "$URL_TYPE" in
 				echo "$0: Apt error" >&2
 				exit $ERR_APT
 			fi
+			
+			if [[ -n "$PK_Device" && -n "$PK_PACKAGE" ]]; then
+				Version=$(dpkg -s "$PKG_NAME" | grep ^Version: | cut -d' ' -f2-)
+				DateTime=$(date +'%Y-%m-%d %k:%M:%S')
+				Q="INSERT INTO Package_Device(FK_Package, FK_Device, Version, InstallDate) VALUES('$PK_PACKAGE', '$PK_Device', '$Version', '$DateTime')"
+				echo "$Q;" | /usr/bin/mysql -h $MySQLHost -u $MySqlUser pluto_main &>/dev/null || /bin/true
+			fi
+
 			#unset http_proxy
 #			apt-get clean
 		fi

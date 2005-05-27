@@ -24,6 +24,7 @@ CONFIG=$(echo "${10}" | sed "$SPACE_SED") # configuration
 USERNAME=$(echo "${11}" | sed "$SPACE_SED") # CVS/SVN username
 PASSWORD=$(echo "${12}" | sed "$SPACE_SED") # CVS/SVN password
 PARAMETER=$(echo "${13}" | sed "$SPACE_SED") # Parameter
+PK_PACKAGE="${14}"
 
 CatMessages()
 {

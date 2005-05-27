@@ -1026,7 +1026,8 @@ void InstallPackage(PackageInfo *pPackageInfo, bool bElse)
 		<< " \"" << pPackageInfo->m_sConfiguration << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Username_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Password_get() << "\""
-		<< " \"" << pPackageInfo->m_pRow_Package_Source->Parms_get() << "\"";
+		<< " \"" << pPackageInfo->m_pRow_Package_Source->Parms_get() << "\""
+		<< " \"" << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << "\"";
 
 	if( pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_CVS_CONST ||
 		pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_Subversion_SVN_CONST )
