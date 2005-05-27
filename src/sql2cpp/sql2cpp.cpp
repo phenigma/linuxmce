@@ -48,12 +48,20 @@
 #include "PlutoUtils/FileUtils.h"
 #include "DatabaseInfo.h"
 #include "CommonFunctions.h"
+#include "DCE/Logger.h"
 
 #define  VERSION "<=version=>"
 
 using namespace std;
 
 vector<string> g_TablesList;
+
+namespace DCE
+{
+    Logger *g_pPlutoLogger = NULL;
+}
+
+using namespace DCE; 
 
 int main( int argc, char *argv[] )
 {

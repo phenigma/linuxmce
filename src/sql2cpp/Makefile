@@ -2,7 +2,7 @@ ROOT = ..
 CXXFLAGS = -Wall -g 
 CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE -DDEBUG -DGENERATOR
 LDFLAGS = -L$(ROOT)/lib 
-LDLIBS = -lDCECommon -lPlutoUtils -lpthread -lmysqlclient_r -lattr
+LDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread -lmysqlclient_r -lattr
 CXX = g++
 
 APPNAME = sql2cpp
