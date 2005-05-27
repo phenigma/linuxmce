@@ -52,9 +52,10 @@
 				$stepActions=$_REQUEST['action'];
 			break;
 		}
-		
-		if(@$doNothing!=1)
-			$logsADO->Execute("INSERT INTO WizardLog (FK_SiteLog,Step,Actions) VALUES (?,?,?)",array($insertID,$step,@$stepActions));
+
+		if(@$doNothing!=1){
+			$logsADO->Execute("INSERT INTO WizardLog (FK_SiteLog,Step,Actions,EK_Users,EK_Installation) VALUES (?,?,?,?,?)",array($insertID,$step,@$stepActions,(int)$_SESSION['userID'],(int)$_SESSION['installationID']));
+		}
 	}
 	$logsADO->Close();
 ?>

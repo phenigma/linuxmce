@@ -80,7 +80,10 @@ function setTemplateFileType($type) {
 			break;	
 			case "nonews":
 			    $this->content = implode('',file("include/templates/template.nonews.tpl.html")); 
-			break;			
+			break;
+			case "popup":
+				$this->content = implode('',file("include/templates/template.popup.tpl.html"));  		
+			break;						
 			default:
 				$this->templateType = 'public';
 				$this->content = implode('',file("include/templates/template.home.tpl.html")); 

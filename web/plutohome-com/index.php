@@ -428,6 +428,13 @@ switch ($section) {
 		include_once('client/deleteInstallation.php');
 	    deleteInstallation($output,$dbADO);
 	break; 
+	case 'ir':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('operations/ir.php');
+	    ir($output);
+	break; 	
 	case 'irCodes':
     	$output = new Template();
     	$output->setConn($conn);
@@ -435,7 +442,50 @@ switch ($section) {
 		include_once('operations/irCodes.php');
 	    irCodes($output);
 	break; 
-	
+	case 'newIRCode':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('popup');
+		include_once('operations/newIRCode.php');
+	    newIRCode($output);
+	break;	
+	case 'editAVDevice':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('operations/editAVDevice.php');
+	    editAVDevice($output);
+	break; 
+
+	case 'admin':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('admin/admin.php');
+	    admin($output);
+	break; 
+	case 'requestFeedback':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('admin/requestFeedback.php');
+	    requestFeedback($output);
+	break;
+	case 'feedbackQuestions':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('admin/feedbackQuestions.php');
+	    feedbackQuestions($output);
+	break;
+	case 'editQuestion':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('admin/editQuestion.php');
+	    editQuestion($output);
+	break;
+
 	
 	default:			
 		$output = new Template();	

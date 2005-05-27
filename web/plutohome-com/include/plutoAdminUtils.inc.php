@@ -148,10 +148,10 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		     The variable foldersTree creates its structure with calls to
 			 gFld, insFld, and insDoc -->
 		<script>
-		cssClass='formextrainfo'
+		cssClass='normaltext'
 		USETEXTLINKS = 1
 		STARTALLOPEN = 0
-		USEFRAMES = ".$useframes."
+		USEFRAMES = 0
 		USEICONS = 0
 		WRAPTEXT = 1
 		PRESERVESTATE = 1
@@ -285,11 +285,11 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 						}
 						$out.='
 						</td>
-						<td width="25%" align="center"  valign="top" class="formextrainfo">
+						<td width="25%" align="center"  valign="top" class="normaltext">
 							<script>
 								function checkEdit() {
 									if(document.'.$formName.'.model.selectedIndex!=0){							
-										self.location=\'index.php?section=operations/editMasterDevice&model=\'+document.'.$formName.'.model[document.'.$formName.'.model.selectedIndex].value;
+										self.location=\'index.php?section=editAVDevice&deviceID=\'+document.'.$formName.'.model[document.'.$formName.'.model.selectedIndex].value;
 									}
 								}
 		
@@ -350,7 +350,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 				if($categoryID==$GLOBALS['rootAVEquipment']){
 					$out.='
 					<tr>
-						<td colspan="3" class="formextrainfo">After you add the device you\'ll to choose the A/V properties button and then I/R codes.</td>
+						<td colspan="3" class="normaltext">After you add the device you\'ll to choose the A/V properties button and then I/R codes.</td>
 					</tr>';
 				}
 				$out.='
@@ -504,6 +504,66 @@ function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValu
 	}
 	$pullDown.='</select>';
 	return $pullDown;
+}
+
+function getCheckedDeviceCommandGroup($deviceTemplate,$deviceCategory,$dbADO)
+{
+	$querySelCheckedCommandGroups = 'SELECT FK_DeviceCommandGroup FROM DeviceTemplate_DeviceCommandGroup WHERE  FK_DeviceTemplate = ?';
+	$resSelCheckedCommandGroups = $dbADO->Execute($querySelCheckedCommandGroups,$deviceTemplate);
+	$selCheckedCommandsGroups = array();
+	if ($resSelCheckedCommandGroups) {
+		while ($rowSelCheckedCommandGroups = $resSelCheckedCommandGroups->FetchRow()) {
+			$selCheckedCommandsGroups[]=$rowSelCheckedCommandGroups['FK_DeviceCommandGroup'];
+		}
+	}
+
+	if (!is_array($selCheckedCommandsGroups)) {
+		$selCheckedCommandsGroups=array();
+		$selCheckedCommandsGroups[]=0;
+	}
+	if (count($selCheckedCommandsGroups)==0) {
+		$selCheckedCommandsGroups[]=0;
+	}
+
+	$query = "
+		SELECT  ".$dbADO->IfNull('FK_DeviceCategory_Parent','0')." AS parent 
+		FROM DeviceCategory
+		WHERE PK_DeviceCategory = ?";
+	$deviceParent=0;
+	$res = $dbADO->Execute($query,array($deviceCategory));
+	if ($res) {
+		while ($row = $res->FetchRow()) {
+			$deviceParent=$row['parent'];
+		}
+	}
+
+	$deviceParent=(int)$deviceParent;
+	$deviceCG = array();
+	$query = "
+		SELECT DeviceCommandGroup.* 
+		FROM DeviceCommandGroup
+		INNER JOIN DeviceCategory on FK_DeviceCategory = PK_DeviceCategory
+		WHERE 
+			FK_DeviceCategory in ($deviceParent,$deviceCategory) OR
+			PK_DeviceCommandGroup in (".join(",",$selCheckedCommandsGroups).") 
+		ORDER BY DeviceCommandGroup.Description Asc	";
+	$resCommands = $dbADO->_Execute($query);
+				
+	$groups = array();
+	if ($resCommands) {
+		while ($row = $resCommands->FetchRow()) {
+			$groups[$row['PK_DeviceCommandGroup']]['checked']=(in_array($row['PK_DeviceCommandGroup'],$selCheckedCommandsGroups))?1:0;
+			$groups[$row['PK_DeviceCommandGroup']]['Description']=$row['Description'];
+		}
+	}
+	
+	$resN=$dbADO->Execute('SELECT * FROM DeviceCommandGroup WHERE FK_DeviceCategory IS NULL');
+	while($rowN=$resN->FetchRow()){
+		$groups[$rowN['PK_DeviceCommandGroup']]['checked']=(in_array($rowN['PK_DeviceCommandGroup'],$selCheckedCommandsGroups))?1:0;
+		$groups[$rowN['PK_DeviceCommandGroup']]['Description']=$rowN['Description'];
+	}
+	
+	return $groups;
 }
 
 ?>
