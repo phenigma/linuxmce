@@ -91,6 +91,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/FORCE:MULTIPLE "
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib SDL-pluto-r.lib SDL_image-pluto-r.lib SDL_ttf-pluto-r.lib SGE-pluto-r.lib libpng-pluto-r.lib zlib1-pluto-r.lib pluto_main-r.lib dce-r.lib"
 				OutputFile="../bin/OrbiterGen.exe"
 				LinkIncremental="1"
