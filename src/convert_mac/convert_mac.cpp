@@ -9,6 +9,14 @@
 using namespace std;
 
 #include "BD/PhoneDevice.h"
+#include "DCE/Logger.h"
+
+namespace DCE
+{
+    Logger *g_pPlutoLogger = NULL;
+}
+
+using namespace DCE; 
 
 int main(int argc, char *argv[])
 {

@@ -5,7 +5,7 @@ LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lDCECommon -lattr -lPlutoUtils
 CXX = g++
 
-sources = 	convert_mac.cpp
+sources = convert_mac.cpp
 
 XTRALDLIBS = 
 
