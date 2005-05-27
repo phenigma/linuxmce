@@ -539,7 +539,10 @@ void Orbiter::RedrawObject( void *iData )
 		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) pObj;
 		pGrid->bReAcquire=true;
 	}
-	m_vectObjs_NeedRedraw.push_back(pObj);
+
+    PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
+    m_vectObjs_NeedRedraw.push_back(pObj);
+    nd.Release();
 
 
 	CallMaintenanceInMiliseconds(pObj->m_iRegenInterval,&Orbiter::RedrawObject,pObj,pe_Match_Data);
