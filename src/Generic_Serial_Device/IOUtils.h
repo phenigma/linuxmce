@@ -25,7 +25,7 @@ namespace DCE {
 class IOUtils{
 public:
 	static std::string FormatHexBuffer(const char* buff, unsigned int size);
-	static std::string FormatHexAsciiBuffer(const char* buff, unsigned int size);
+	static std::string FormatHexAsciiBuffer(const char* buff, unsigned int size,const char *color="0");
 };
 
 };

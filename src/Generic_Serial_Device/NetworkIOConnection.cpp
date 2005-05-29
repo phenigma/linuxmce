@@ -83,7 +83,7 @@ NetworkIOConnection::Send(const char* buff, unsigned int size) {
 		return -1;
 	}
 	g_pPlutoLogger->Write(LV_STATUS, "Sending buffer to %s with size %d: <%s>.", 
-									host_.c_str(), size, IOUtils::FormatHexAsciiBuffer(buff, size).c_str());
+									host_.c_str(), size, IOUtils::FormatHexAsciiBuffer(buff, size).c_str(),"31");
 	send(sockfd_, buff, size, 0);
 	g_pPlutoLogger->Write(LV_STATUS, "Buffer sent.");
 	return size;
@@ -108,7 +108,7 @@ NetworkIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 	}
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Received buffer from %s: <%s>", 
-									host_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize).c_str());
+									host_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize).c_str(),"33");
 	return retsize;
 }
 

@@ -32,22 +32,28 @@ IOUtils::FormatHexBuffer(const char* buff, unsigned int size) {
 	return logstr;
 }
 
-std::string IOUtils::FormatHexAsciiBuffer(const char* buff, unsigned int size)
+std::string IOUtils::FormatHexAsciiBuffer(const char* buff, unsigned int size, const char *color)
 {
 	std::string Result = FormatHexBuffer(buff,size);
 	if( Result.size() )
 	{
-		Result += " (";
-		for(int i=0;i<Result.size();++i)
+		Result += " (\x1b[" + std::string(color) + ";1m";
+
+		for(int i=0;i<size;++i)
 		{
-			char c = Result[i];
+			char c = buff[i];
 			if( c>=' ' && c<='~' )
 				Result += c;
+			else if( c=='\r' )
+				Result += "\\r";
+			else if( c=='\n' )
+				Result += "\\n";
 			else
-				Result += 'X';
+				Result += '#';
 		}
-		Result += ")";
+		Result += "\x1b[0m)";
 	}
+	return Result;
 }
 
 };
