@@ -1371,7 +1371,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
             }
         }
 
-        if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED && !pMessage_GotoScreen) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
+        if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
         {
             pObj->m_GraphicToDisplay=GRAPHIC_SELECTED;
 
