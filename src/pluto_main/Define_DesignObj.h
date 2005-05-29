@@ -1237,6 +1237,8 @@
 #define DESIGNOBJ_go_to_computing2_CONST 3443
 #define DESIGNOBJ_go_to_sleeping2_CONST 3444
 #define DESIGNOBJ_go_to_power2_CONST 3445
+#define DESIGNOBJ_objTextInput_CONST 3446
+#define DESIGNOBJ_mnuAddAttribute_CONST 3447
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -356,7 +356,9 @@
 #define COMMAND_Set_Media_Private_CONST 388
 #define COMMAND_Send_Message_CONST 389
 #define COMMAND_Get_Default_Ripping_Name_CONST 390
-#define COMMAND_Set_Media_Attribute_CONST 391
+#define COMMAND_Add_Media_Attribute_CONST 391
+#define COMMAND_Set_Media_Attribute_Text_CONST 392
+#define COMMAND_Get_Attribute_CONST 393
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
