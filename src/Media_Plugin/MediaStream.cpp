@@ -31,10 +31,14 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DataGrid.h"
 
+#include "pluto_media/Database_pluto_media.h"
+#include "pluto_media/Table_Attribute.h"
+#include "pluto_media/Define_AttributeType.h"
+
 
 MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users, enum SourceType sourceType, int iStreamID )
 {
-	m_discid=0;
+	m_dwPK_Disc=m_discid=0;
     m_iStreamID = iStreamID;
     m_pMediaHandlerInfo=pMediaHandlerInfo;
     m_iPK_DesignObj_Remote=PK_DesignObj_Remote;
@@ -272,3 +276,38 @@ void MediaStream::GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices)
 	}
 }
 
+void MediaStream::UpdateDescriptionsFromAttributes()
+{
+	Media_Plugin *pMedia_Plugin = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin;
+	for(size_t s=0;s<m_dequeMediaFile.size();++s)
+	{
+		MediaFile *pMediaFile = m_dequeMediaFile[s];
+		int PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Song_CONST);
+		if( PK_Attribute )
+		{
+			Row_Attribute *pRow_Attribute = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
+			if( pRow_Attribute ) // should always be valid
+				pMediaFile->m_sDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute);
+		}
+	}
+
+	if( m_dequeMediaFile.size() && m_iDequeMediaFile_Pos<m_dequeMediaFile.size() )
+	{
+		MediaFile *pMediaFile = m_dequeMediaFile[m_iDequeMediaFile_Pos];
+		m_sMediaDescription = pMediaFile->m_sDescription;
+	}
+	else
+	{
+		m_sMediaDescription = "";
+		Row_Attribute *pRow_Attribute_Group = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(m_mapPK_Attribute_Find(ATTRIBUTETYPE_Group_CONST));
+		Row_Attribute *pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST));
+
+		if( pRow_Attribute_Group )
+			m_sMediaDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute_Group);
+
+		if( pRow_Attribute_Album && pRow_Attribute_Group )
+			m_sMediaDescription += " / " + pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute_Album);
+		else if( pRow_Attribute_Album )
+			m_sMediaDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute_Album);
+	}
+}

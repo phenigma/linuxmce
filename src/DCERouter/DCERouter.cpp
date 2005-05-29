@@ -840,12 +840,14 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 						for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
 						{
 							Command_Impl *pPlugIn = (*it).second;
-							if( !pPlugIn->SafeToReload() )
+							string sPendingTasks;
+							if( !pPlugIn->SafeToReload(&sPendingTasks) )
 							{
-								g_pPlutoLogger->Write(LV_STATUS,"Aborting reload as per %s",pPlugIn->m_sName.c_str());
+								g_pPlutoLogger->Write(LV_STATUS,"Aborting reload as per %s %s",pPlugIn->m_sName.c_str(),sPendingTasks.c_str());
 								ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
-									EVENT_Reload_Aborted_CONST,2,
+									EVENT_Reload_Aborted_CONST,3,
 									EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
+									EVENTPARAMETER_Text_CONST,sPendingTasks.c_str(),
 									EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos((*SafetyMessage)->m_dwPK_Device_From).c_str()));
 								return;
 							}

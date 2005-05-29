@@ -72,7 +72,7 @@ public:
 	void SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDevice_Dongle);
 
 	//from command_impl class
-	virtual bool SafeToReload();
+	virtual bool SafeToReload(string *sPendingTasks=NULL);
 	list<int> m_listRegenCommands;
 
 	pluto_pthread_mutex_t m_UnknownDevicesMutex;

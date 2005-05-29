@@ -497,17 +497,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Screen %s timed out data: %p",m_pScreenHistory_
 		return;
 
 	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) data;
-    Message *pMessage_GotoScreen=NULL;
     if(  pObj->m_Action_TimeoutList.size(  )>0  )
-        ExecuteCommandsInList( &pObj->m_Action_TimeoutList, pObj, pMessage_GotoScreen );
-
-    if( pMessage_GotoScreen )
-	{
-        ReceivedMessage( pMessage_GotoScreen );
-
-		delete pMessage_GotoScreen;
-		pMessage_GotoScreen = NULL;
-	}
+        ExecuteCommandsInList( &pObj->m_Action_TimeoutList, pObj );
 }
 
 void Orbiter::ReselectObject( void *data )
@@ -515,13 +506,11 @@ void Orbiter::ReselectObject( void *data )
 	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) data;
 
 	// Not used
-	Message *pMessage_GotoScreen=NULL;
-
 	DesignObjZoneList::iterator iZone;
 	for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
     {
         DesignObjZone *pDesignObjZone = ( *iZone );
-		ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, pMessage_GotoScreen, -1, -1, pObj->m_iRepeatParm+1 );
+		ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, -1, -1, pObj->m_iRepeatParm+1 );
     }
 }
 
@@ -1233,12 +1222,7 @@ void Orbiter::ObjectOnScreenWrapper(  )
     ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, m_pScreenHistory_Current->m_pObj );
 
     // Do the on load actions for the screen itself,  and objects on it
-    Message *pMessage_GotoScreen=NULL;
-	list <Message *> listTempMessages;
-    ExecuteCommandsInList( &m_pScreenHistory_Current->m_pObj->m_Action_LoadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
-
-	if(NULL != pMessage_GotoScreen)
-		listTempMessages.push_back(pMessage_GotoScreen);
+    ExecuteCommandsInList( &m_pScreenHistory_Current->m_pObj->m_Action_LoadList, m_pScreenHistory_Current->m_pObj, 0, 0 );
 
     size_t s;
     for( s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
@@ -1246,18 +1230,9 @@ void Orbiter::ObjectOnScreenWrapper(  )
         DesignObj_Orbiter *pDesignObj_Orbiter = vectDesignObj_Orbiter_OnScreen[s];
         if(  pDesignObj_Orbiter!=m_pScreenHistory_Current->m_pObj  )  // We just did the screen itself above
 		{
-            ExecuteCommandsInList( &pDesignObj_Orbiter->m_Action_LoadList, pDesignObj_Orbiter, pMessage_GotoScreen, 0, 0 );
-
-			if(NULL != pMessage_GotoScreen)
-				listTempMessages.push_back(pMessage_GotoScreen);
+            ExecuteCommandsInList( &pDesignObj_Orbiter->m_Action_LoadList, pDesignObj_Orbiter, 0, 0 );
 		}
     }
-    if( pMessage_GotoScreen )
-		ReceivedMessage( pMessage_GotoScreen );
-
-	for(list<Message *>::iterator it = listTempMessages.begin(); it != listTempMessages.end(); ++it)
-		delete *it;
-	listTempMessages.clear();
 
     for( s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
     {
@@ -1357,15 +1332,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
     pObj->m_pvectCurrentGraphic = NULL;
 	pObj->m_pvectCurrentPlayingGraphic = NULL;
 
-    Message *pMessage_GotoScreen = NULL;
-    ExecuteCommandsInList( &pObj->m_Action_UnloadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
-    if( pMessage_GotoScreen )
-	{
-        ReceivedMessage( pMessage_GotoScreen );
-
-		delete pMessage_GotoScreen;
-		pMessage_GotoScreen = NULL;
-	}
+    ExecuteCommandsInList( &pObj->m_Action_UnloadList, m_pScreenHistory_Current->m_pObj, 0, 0 );
 
     DesignObj_DataList::iterator iHao;
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
@@ -1393,28 +1360,16 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
         // There's a problem that we draw the selected state before we show or hide other objects,  and this causes
         // the other objects to be drawn on top of the selected state.  We'll execute the commands first so that
         // show/hides are executed before setting the selected state
-        Message *pMessage_GotoScreen=NULL;
         DesignObjZoneList::iterator iZone;
 
-		list<Message *> listTempMessages;
 		for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
         {
             DesignObjZone *pDesignObjZone = ( *iZone );
             if(  pDesignObjZone->m_Rect.Width==0 || pDesignObjZone->m_Rect.Height==0 || pDesignObjZone->m_Rect.Contains( X, Y )  )
             {
-                ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, pMessage_GotoScreen, X, Y );
-
-				if(NULL != pMessage_GotoScreen)
-					listTempMessages.push_back(pMessage_GotoScreen);
+                ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, X, Y );
             }
         }
-
-        if( pMessage_GotoScreen )
-            ReceivedMessage( pMessage_GotoScreen );
-
-        for(list<Message *>::iterator it = listTempMessages.begin(); it != listTempMessages.end(); ++it)
-            delete *it;
-        listTempMessages.clear();
 
         if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED && !pMessage_GotoScreen) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
         {
@@ -2561,17 +2516,8 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
 		{
 			DesignObj_Orbiter* pObj = (*itDesignObjOrbiter).second;
-			Message *pMessage_GotoScreen=NULL;
 			if(  pObj->m_Action_StartupList.size(  )>0  )
-				ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, pMessage_GotoScreen );
-
-			if( pMessage_GotoScreen )
-			{
-				ReceivedMessage( pMessage_GotoScreen );
-
-				delete pMessage_GotoScreen;
-				pMessage_GotoScreen = NULL;
-			}
+				ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj );
 		}
 	}
 }
@@ -3721,13 +3667,11 @@ DesignObj_Orbiter* Orbiter::FindSingleNumberObject( int PK_Object,  DesignObj_Or
 }
 //------------------------------------------------------------------------
 void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList,
-                                    DesignObj_Orbiter *pObj, Message *&pMessage_GotoScreen,
+                                    DesignObj_Orbiter *pObj,
                                     int X,  int Y, int Repeat )
 {
 	if(m_bQuit)
 		return;
-
-	pMessage_GotoScreen = NULL;
 
 	if(  pDesignObjCommandList->size(  )==0  )
         return;
@@ -3941,13 +3885,6 @@ g_pPlutoLogger->Write( LV_STATUS, "Parm %d = %s",( *iap ).first,Value.c_str());
             if(  pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
             {
                 pThisMessage->m_dwPK_Device_To = m_dwPK_Device; // So the handler will loop back to ourselves
-				if( PK_Command==COMMAND_Goto_Screen_CONST || PK_Command==COMMAND_Go_back_CONST )
-				{
-					if( pMessage_GotoScreen )
-						delete pMessage_GotoScreen;  // Shouldn't happen, but we're only going to process the last goto anyway
-					pMessage_GotoScreen = pThisMessage;
-					continue;
-				}
                 ReceivedMessage( pThisMessage );
 				delete pThisMessage;
 				pThisMessage = NULL;
@@ -4124,6 +4061,22 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 				}
 			}
 			Output += StringUtils::itos(pObjGD->m_GraphicToDisplay);
+		}
+        else if(  Variable.length()>1 && Variable[0]=='A' )
+		{
+			int PK_Attribute;
+			string sAttribute;
+			if( Variable[1]=='V' )
+				PK_Attribute = atoi(m_mapVariable[atoi(Variable.substr(2).c_str())].c_str());
+			else
+				PK_Attribute = atoi(Variable.substr(2).c_str());
+			DCE::CMD_Get_Attribute CMD_Get_Attribute(m_dwPK_Device,m_dwPK_Device_MediaPlugIn,PK_Attribute,&sAttribute);
+			SendCommand(CMD_Get_Attribute);
+			Output += sAttribute;
+		}
+        else if(  Variable.length()>1 && Variable[0]=='E' )
+		{
+			Output += "<%=" + Variable.substr(1) + "%>";
 		}
         else if(  Variable=="SG" )
 		{
@@ -6834,7 +6787,8 @@ void Orbiter::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMe
 void Orbiter::CMD_Send_Message(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c389-e->
 {
-	Message *pMessageOut = new Message(sText);
+	string sMessage = SubstituteVariables(sText,NULL,0,0);
+	Message *pMessageOut = new Message(sMessage);
 	QueueMessageToRouter(pMessageOut);
 }
 

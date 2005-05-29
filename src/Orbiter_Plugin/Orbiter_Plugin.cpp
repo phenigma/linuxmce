@@ -302,21 +302,31 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
     return false;  // Continue to process it
 }
 
-bool Orbiter_Plugin::SafeToReload()
+bool Orbiter_Plugin::SafeToReload(string *sPendingTasks)
 {
 	if( m_listRegenCommands.size()==0 )
 		return true;
 
 	string sOrbiters;
 	g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot %d pending",(int) m_listRegenCommands.size());
-	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
+	if( sPendingTasks )
 	{
-		sOrbiters += StringUtils::itos(*it) + " ";
+		for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
+		{
+			(*sPendingTasks) += "Regen Orbiter " + StringUtils::itos(*it);
+			OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(*it);
+			if( pOH_Orbiter )
+			{
+				int Minutes = (time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
+				(*sPendingTasks) += " (" + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + 
+					") " + StringUtils::itos(Minutes) + " minutes";
+			}
 
-g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot becaues of %d ",*it);
+			(*sPendingTasks) += "\n";
+	g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot becaues of %d ",*it);
+		}
 	}
 
-	DisplayMessageOnOrbiter("","I'm still regenerating skins for Orbiters " + sOrbiters + ", and can't allow the reset until I'm finished.  You will get a message when I have finished.  Please try again then.",false,20,true);
 	return false;
 }
 
@@ -650,6 +660,7 @@ bool Orbiter_Plugin::ReloadAborted(class Socket *pSocket,class Message *pMessage
 	string Message = "The reload has aborted";
 	if( pDeviceData_Router )
 		Message+= " as per " + pDeviceData_Router->m_sDescription;
+	Message += "\n" + pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
 
 	DisplayMessageOnOrbiter(PK_Orbiter,Message);
 	return true;

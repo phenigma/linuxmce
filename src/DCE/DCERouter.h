@@ -58,10 +58,6 @@ namespace DCE
     {
     public:
         list<class MessageInterceptorCallBack *> m_listMessageInterceptor;
-MessageFromInterceptor()
-{
-int k;
-}
 		~MessageFromInterceptor()
 		{
 			for(list<class MessageInterceptorCallBack *>::iterator it=m_listMessageInterceptor.begin();it!=m_listMessageInterceptor.end();++it)
@@ -201,6 +197,7 @@ int k;
         const map<int,class DeviceData_Router *> *m_mapDeviceData_Router_get() { return &m_mapDeviceData_Router; };
         const map<int,class DeviceGroup *> *m_mapDeviceGroup_get() { return &m_mapDeviceGroup; };
 		const map<int,class Room *> *m_mapRoom_get() { return &m_mapRoom; }
+		const map<int,class Command_Impl *> *m_mapPlugIn_get() { return &m_mapPlugIn; }
 
         int iPK_Installation_get() { return m_dwPK_Installation; }
         int iPK_Language_get() { return m_dwPK_Language; }

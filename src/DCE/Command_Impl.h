@@ -164,7 +164,7 @@ namespace DCE
 		* @brief For now will only be used by plugins, but later this member function could
 		* be implemented in all devices; should be overriden
 		*/
-		virtual bool SafeToReload() { return true; };
+		virtual bool SafeToReload(string *sPendingTasks=NULL) { return true; };
 
 		/**
 		 * @brief just calls OnQuit()

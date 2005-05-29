@@ -264,6 +264,9 @@ public:
     MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat);
 	bool StartMedia(MediaStream *pMediaStream);
 
+	int AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *pMediaStream);
+	bool IsDiscAlreadyIdentified(string sIdentifiedDisc,MediaStream *pMediaStream);
+
     /**
      * @brief More capable StartMedia. Does not need an actual device since it will search for it at the play time.
      *
@@ -323,7 +326,7 @@ public:
 	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL);
 	void MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent=true);
 
-	virtual bool SafeToReload();
+	virtual bool SafeToReload(string *sPendingTasks=NULL);
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -547,7 +550,7 @@ public:
 	virtual void CMD_Get_Default_Ripping_Name(string sPK_EntertainArea,string *sFilename,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #391 - Set Media Attribute */
+	/** @brief COMMAND: #391 - Add Media Attribute */
 	/** Changes the media attribute */
 		/** @param #5 Value To Assign */
 			/** The new value of the attribute */
@@ -555,11 +558,33 @@ public:
 			/** The ID of the stream */
 		/** @param #121 Tracks */
 			/** If empty, the attribute is for the disc.  If specified, it is for this track number */
-		/** @param #122 PK_AttributeType */
+		/** @param #122 EK_AttributeType */
 			/** The type of attribute to set */
 
-	virtual void CMD_Set_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iPK_AttributeType) { string sCMD_Result; CMD_Set_Media_Attribute(sValue_To_Assign.c_str(),iStreamID,sTracks.c_str(),iPK_AttributeType,sCMD_Result,NULL);};
-	virtual void CMD_Set_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iPK_AttributeType,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType) { string sCMD_Result; CMD_Add_Media_Attribute(sValue_To_Assign.c_str(),iStreamID,sTracks.c_str(),iEK_AttributeType,sCMD_Result,NULL);};
+	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #392 - Set Media Attribute Text */
+	/** Adds a new attribute */
+		/** @param #5 Value To Assign */
+			/** The new value.  If it's a name, LastName^Firstname format */
+		/** @param #123 PK_Attribute */
+			/** The attribute */
+
+	virtual void CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iPK_Attribute) { string sCMD_Result; CMD_Set_Media_Attribute_Text(sValue_To_Assign.c_str(),iPK_Attribute,sCMD_Result,NULL);};
+	virtual void CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iPK_Attribute,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #393 - Get Attribute */
+	/** Returns the attribute text for the given ID */
+		/** @param #9 Text */
+			/** The value */
+		/** @param #123 PK_Attribute */
+			/** The attribute */
+
+	virtual void CMD_Get_Attribute(int iPK_Attribute,string *sText) { string sCMD_Result; CMD_Get_Attribute(iPK_Attribute,sText,sCMD_Result,NULL);};
+	virtual void CMD_Get_Attribute(int iPK_Attribute,string *sText,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

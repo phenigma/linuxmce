@@ -8,12 +8,13 @@
 //<-dceag-d-e->
 
 #include "DeviceData_Router.h"
+#include "Datagrid_Plugin/Datagrid_Plugin.h"
 
 class Database_pluto_main;
 //<-dceag-decl-b->
 namespace DCE
 {
-	class General_Info_Plugin : public General_Info_Plugin_Command
+	class General_Info_Plugin : public General_Info_Plugin_Command, public DataGridGeneratorPlugIn
 	{
 //<-dceag-decl-e->
 //<-dceag-const-b->
@@ -28,11 +29,14 @@ public:
 	
 	// Private member variables
 	Database_pluto_main *m_pDatabase_pluto_main;
+    class Datagrid_Plugin *m_pDatagrid_Plugin;
 
 	// Private methods
 	void SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot);
 public:
 	// Public member variables
+
+    class DataGridTable *PendingTasks( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
 
 //<-dceag-h-b->
 	/*

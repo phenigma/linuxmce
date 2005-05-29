@@ -21,6 +21,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "DataGrid.h"
 
 #include <iostream>
 using namespace std;
@@ -35,6 +36,7 @@ using namespace DCE;
 #include "DCE/DeviceData_Router.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_UnknownDevices.h"
+#include "pluto_main/Define_DataGrid.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -66,6 +68,19 @@ General_Info_Plugin::~General_Info_Plugin()
 bool General_Info_Plugin::Register()
 //<-dceag-reg-e->
 {
+    // Get the datagrid plugin
+    m_pDatagrid_Plugin=NULL;
+    ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Datagrid_Plugin_CONST );
+    if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "File grids cannot find datagrid handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+        return false;
+    }
+    m_pDatagrid_Plugin=( Datagrid_Plugin * ) pListCommand_Impl->front( );
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasks ) )
+        , DATAGRID_Pending_Tasks_CONST );
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -507,3 +522,30 @@ void General_Info_Plugin::CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Me
     struct tm *t = localtime( &t_t );
 	(*bTrueFalse) = t->tm_hour>=8 && t->tm_hour<20;
 }
+
+class DataGridTable *General_Info_Plugin::PendingTasks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	string sPendingTasks;
+
+    for(map<int,class Command_Impl *>::const_iterator it=m_pRouter->m_mapPlugIn_get()->begin();it!=m_pRouter->m_mapPlugIn_get()->end();++it)
+    {
+		Command_Impl *pPlugIn = (*it).second;
+		// We don't care about the return code, just what tasks are pending
+		pPlugIn->SafeToReload(&sPendingTasks);
+	}
+
+    DataGridTable *pDataGrid = new DataGridTable( );
+    DataGridCell *pCell;
+
+	int RowCount=0;
+	string::size_type pos=0;
+	while(pos<sPendingTasks.size() && pos!=string::npos)
+	{
+		string sTask = StringUtils::Tokenize(sPendingTasks,"\n",pos);
+        pCell = new DataGridCell( sTask );
+        pDataGrid->SetData( 0, RowCount++, pCell );
+	}
+
+	return pDataGrid;
+}
+

@@ -56,6 +56,8 @@ OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandPro
 
     if(m_ImageQuality < 10 || m_ImageQuality > 100)
         m_ImageQuality = 70; //default
+
+	m_bDisplayOn=true;  // Override the default behavior -- when the phone starts the display is already on
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDLBluetooth::~OrbiterSDLBluetooth()

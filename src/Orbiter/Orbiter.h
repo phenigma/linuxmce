@@ -726,8 +726,12 @@ public:
 	 * after setting all the variables and such.  So, rather than executing a goto screen, if one is found, it will be set in pMessage_GotoScreen
 	 * and the caller is expected to pass it to ReceiveMessage after execute commands in list has finished.  We don't just put it at the end of
 	 * execute commands, because we could be calling ExecuteCommands more than 1 at a time, such as if multiple objects were selected.
+
+	 AB 5/29/2005 -- This means that if a button does a goto screen, then a show object for a button by default hidden,
+	 it won't be unhidden because the goto screen (which resets the hidden flag) is executed last.  This concept of 
+	 holding up the goto is probably no longer needed since we now use NeedToRender, which serves the same purpose
 	 */
-	void ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList, DesignObj_Orbiter *pDesignObj_Orbiter, Message *&pMessage_GotoScreen, int iX = -1, int iY = -1, int Repeat=0 ); // Execute commands
+	void ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList, DesignObj_Orbiter *pDesignObj_Orbiter, int iX = -1, int iY = -1, int Repeat=0 ); // Execute commands
 
 	/**
 	 * @brief returns the grid cell dimensions in the parameters

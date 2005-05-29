@@ -1049,3 +1049,46 @@ void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
     for(size_t s=0;s<dAdditional.size();++s)
         dTarget.push_back(dAdditional[s]);
 }
+
+Row_Attribute *MediaAttributes::GetAttributeFromDescription(int PK_AttributeType,string sName,string sFirstName)
+{
+	string::size_type posTab;
+	if( sFirstName.size()==0 && (posTab=sName.find('\t'))!=string::npos )
+	{
+		sFirstName = sName.substr(posTab+1);
+		sName = sName.substr(0,posTab-1);
+	}
+	string sWhere = "FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " AND Name='" + StringUtils::SQLEscape(sName) + "'";
+	if( sFirstName.size() )
+		sWhere += " AND FirstName='" + StringUtils::SQLEscape(sFirstName) + "'";
+
+	vector<Row_Attribute *> vectRow_Attribute;
+	m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
+	if( vectRow_Attribute.size() )
+		return vectRow_Attribute[0];
+	else
+	{
+		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
+		pRow_Attribute->FK_AttributeType_set(PK_AttributeType);
+		pRow_Attribute->Name_set(sName);
+		pRow_Attribute->FirstName_set(sFirstName);
+		pRow_Attribute->Table_Attribute_get()->Commit();
+		return pRow_Attribute;
+	}
+}
+
+string MediaAttributes::GetTabbedName(Row_Attribute *pRow_Attribute)
+{
+	if( pRow_Attribute->FirstName_get().size()==0 )
+		return pRow_Attribute->Name_get();
+	else
+		return pRow_Attribute->Name_get() + "\t" + pRow_Attribute->FirstName_get();
+}
+
+string MediaAttributes::GetPrintableName(Row_Attribute *pRow_Attribute)
+{
+	if( pRow_Attribute->FirstName_get().size()==0 )
+		return pRow_Attribute->Name_get();
+	else
+		return pRow_Attribute->Name_get() + ", " + pRow_Attribute->FirstName_get();
+}

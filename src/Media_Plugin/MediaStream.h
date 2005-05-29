@@ -35,7 +35,8 @@ namespace DCE
 		class OH_Orbiter *m_pOH_Orbiter_StartedMedia;    	   /** Which orbiter started this stream in the first place */
 
         map<int, class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
-		map<int,string> m_mapAttributes;  /** An external media identification script may set attributes here.  The int is a pluto_media.PK_AttributeType */
+		map<int,int> m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
+        int m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : (*it).second; }
 
         /**
          * As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list.
@@ -46,6 +47,7 @@ namespace DCE
         int					m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string				m_sPlaylistName;       	 /** the name of the playlist which was loaded from the database. */
 		int m_discid;  /** A unique number to identify the disc inserted, if this is from a removable disc (CD/DVD) */
+		int m_dwPK_Disc;  /** 0 if this isn't a removable disc media */
 
 		MediaDevice		*m_pMediaDevice_Source;      /** The device which is the source of this media stream. */
 		int 			 m_iPK_MediaType;        	/** The type of media in this stream. */
@@ -120,6 +122,12 @@ namespace DCE
 		 * @return true if the specification was undestood by the MediaStream, false otherwise.
 		 */
 		virtual bool ProcessJumpPosition(string sJumpSpecification);
+	
+		/**
+		 * @brief Goes through the attributes (song title, group, etc.) and determines the
+		 * appropriate description for the stream and each file in it
+		 */
+		virtual void UpdateDescriptionsFromAttributes();
     };
 
     typedef map<int,MediaStream *> MapMediaStream;

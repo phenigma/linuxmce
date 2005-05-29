@@ -19,6 +19,7 @@ using namespace std;
  */
 
 class MediaFile;  // Class declared at the end of the file since it references MediaAttributes
+class Row_Attribute;
 
 /**
  * @brief the attributes of the media
@@ -87,7 +88,11 @@ public:
     int GetAttributeFromFileID(int PK_File);
     int GetAttributeFromFilePath(string File);
     int GetFileIDFromAttributeID(int PK_Attribute);
+	// First name can either be a separate parameter, or part of Name delimited by a tab
+    Row_Attribute *GetAttributeFromDescription(int PK_AttributeType,string sName,string sFirstName=""); 
+	string GetTabbedName(Row_Attribute *pRow_Attribute);
 	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);
+	string GetPrintableName(Row_Attribute *pRow_Attribute);
 
     void MarkAsMissing(int iKey, string fileName);
 
@@ -129,7 +134,8 @@ public:
 	~MediaFile() {
 	}
 
-	map<int,string> m_mapAttributes;  /** An external media identification script may set attributes here.  The int is a pluto_media.PK_AttributeType */
+	map<int,int> m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
+	int m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : (*it).second; }
 	int m_dwPK_File;
 	string m_sPath,m_sFilename,m_sDescription;
 	string FullyQualifiedFile() {
