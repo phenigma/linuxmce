@@ -142,6 +142,9 @@
 				RelativePath=".\Table_Picture_Attribute.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Picture_Disc.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Picture_File.cpp">
 			</File>
 			<File

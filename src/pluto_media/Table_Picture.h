@@ -127,6 +127,7 @@ void psc_frozen_setNull(bool val);
 
 		// Return the rows in other tables with foreign keys pointing here
 		void Picture_Attribute_FK_Picture_getrows(vector <class Row_Picture_Attribute*> *rows);
+void Picture_Disc_FK_Picture_getrows(vector <class Row_Picture_Disc*> *rows);
 void Picture_File_FK_Picture_getrows(vector <class Row_Picture_File*> *rows);
 
 

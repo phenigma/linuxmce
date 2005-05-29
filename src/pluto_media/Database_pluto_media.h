@@ -33,6 +33,7 @@ class Table_File* tblFile;
 class Table_File_Attribute* tblFile_Attribute;
 class Table_Picture* tblPicture;
 class Table_Picture_Attribute* tblPicture_Attribute;
+class Table_Picture_Disc* tblPicture_Disc;
 class Table_Picture_File* tblPicture_File;
 class Table_Playlist* tblPlaylist;
 class Table_PlaylistEntry* tblPlaylistEntry;
@@ -56,6 +57,7 @@ class Table_File* File_get() { if( !tblFile ) CreateTable_File(); return tblFile
 class Table_File_Attribute* File_Attribute_get() { if( !tblFile_Attribute ) CreateTable_File_Attribute(); return tblFile_Attribute; }
 class Table_Picture* Picture_get() { if( !tblPicture ) CreateTable_Picture(); return tblPicture; }
 class Table_Picture_Attribute* Picture_Attribute_get() { if( !tblPicture_Attribute ) CreateTable_Picture_Attribute(); return tblPicture_Attribute; }
+class Table_Picture_Disc* Picture_Disc_get() { if( !tblPicture_Disc ) CreateTable_Picture_Disc(); return tblPicture_Disc; }
 class Table_Picture_File* Picture_File_get() { if( !tblPicture_File ) CreateTable_Picture_File(); return tblPicture_File; }
 class Table_Playlist* Playlist_get() { if( !tblPlaylist ) CreateTable_Playlist(); return tblPlaylist; }
 class Table_PlaylistEntry* PlaylistEntry_get() { if( !tblPlaylistEntry ) CreateTable_PlaylistEntry(); return tblPlaylistEntry; }
@@ -83,6 +85,7 @@ void CreateTable_File();
 void CreateTable_File_Attribute();
 void CreateTable_Picture();
 void CreateTable_Picture_Attribute();
+void CreateTable_Picture_Disc();
 void CreateTable_Picture_File();
 void CreateTable_Playlist();
 void CreateTable_PlaylistEntry();
@@ -105,6 +108,7 @@ void DeleteTable_File();
 void DeleteTable_File_Attribute();
 void DeleteTable_Picture();
 void DeleteTable_Picture_Attribute();
+void DeleteTable_Picture_Disc();
 void DeleteTable_Picture_File();
 void DeleteTable_Playlist();
 void DeleteTable_PlaylistEntry();

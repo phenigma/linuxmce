@@ -14,6 +14,7 @@ Table_File.cpp \
 Table_File_Attribute.cpp \
 Table_Picture.cpp \
 Table_Picture_Attribute.cpp \
+Table_Picture_Disc.cpp \
 Table_Picture_File.cpp \
 Table_Playlist.cpp \
 Table_PlaylistEntry.cpp \

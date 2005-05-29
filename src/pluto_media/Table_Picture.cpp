@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_Picture.h"
 
 #include "Table_Picture_Attribute.h"
+#include "Table_Picture_Disc.h"
 #include "Table_Picture_File.h"
 
 
@@ -774,6 +775,13 @@ void Row_Picture::Picture_Attribute_FK_Picture_getrows(vector <class Row_Picture
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Picture_Attribute *pTable = table->database->Picture_Attribute_get();
+pTable->GetRows("`FK_Picture`=" + StringUtils::itos(m_PK_Picture),rows);
+}
+void Row_Picture::Picture_Disc_FK_Picture_getrows(vector <class Row_Picture_Disc*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Picture_Disc *pTable = table->database->Picture_Disc_get();
 pTable->GetRows("`FK_Picture`=" + StringUtils::itos(m_PK_Picture),rows);
 }
 void Row_Picture::Picture_File_FK_Picture_getrows(vector <class Row_Picture_File*> *rows)

@@ -16,35 +16,35 @@
 
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
+#include "Table_Picture_Disc.h"
+#include "Table_Picture.h"
 #include "Table_Disc.h"
 
-#include "Table_Disc_Attribute.h"
-#include "Table_Picture_Disc.h"
 
 
-void Database_pluto_media::CreateTable_Disc()
+void Database_pluto_media::CreateTable_Picture_Disc()
 {
-	tblDisc = new Table_Disc(this);
+	tblPicture_Disc = new Table_Picture_Disc(this);
 }
 
-void Database_pluto_media::DeleteTable_Disc()
+void Database_pluto_media::DeleteTable_Picture_Disc()
 {
-	if( tblDisc )
-		delete tblDisc;
+	if( tblPicture_Disc )
+		delete tblPicture_Disc;
 }
 
-Table_Disc::~Table_Disc()
+Table_Picture_Disc::~Table_Picture_Disc()
 {
-	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		Row_Disc *pRow = (Row_Disc *) (*it).second;
+		Row_Picture_Disc *pRow = (Row_Picture_Disc *) (*it).second;
 		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		Row_Disc *pRow = (Row_Disc *) (*it).second;
+		Row_Picture_Disc *pRow = (Row_Picture_Disc *) (*it).second;
 		delete pRow;
 	}
 
@@ -56,16 +56,16 @@ Table_Disc::~Table_Disc()
 }
 
 
-void Row_Disc::Delete()
+void Row_Picture_Disc::Delete()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-	Row_Disc *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_Picture_Disc *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
 			vector<TableRow*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Disc *) *i != this); i++);
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Picture_Disc *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -75,8 +75,8 @@ void Row_Disc::Delete()
 		}
 		else
 		{
-			SingleLongKey key(pRow->m_PK_Disc);
-			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_Picture,pRow->m_FK_Disc);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -85,17 +85,17 @@ void Row_Disc::Delete()
 		}	
 }
 
-void Row_Disc::Reload()
+void Row_Picture_Disc::Reload()
 {
-	Row_Disc *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_Picture_Disc *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
 	{
-		SingleLongKey key(pRow->m_PK_Disc);
-		Row_Disc *pRow = table->FetchRow(key);
+		DoubleLongKey key(pRow->m_FK_Picture,pRow->m_FK_Disc);
+		Row_Picture_Disc *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
 		{
@@ -107,16 +107,17 @@ void Row_Disc::Reload()
 	
 }
 
-Row_Disc::Row_Disc(Table_Disc *pTable):table(pTable)
+Row_Picture_Disc::Row_Picture_Disc(Table_Picture_Disc *pTable):table(pTable)
 {
 	SetDefaultValues();
 }
 
-void Row_Disc::SetDefaultValues()
+void Row_Picture_Disc::SetDefaultValues()
 {
-	m_PK_Disc = 0;
+	m_FK_Picture = 0;
 is_null[0] = false;
-is_null[1] = true;
+m_FK_Disc = 0;
+is_null[1] = false;
 is_null[2] = true;
 is_null[3] = true;
 is_null[4] = true;
@@ -131,92 +132,85 @@ is_null[6] = false;
 	is_modified=false;
 }
 
-long int Row_Disc::PK_Disc_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Picture_Disc::FK_Picture_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_PK_Disc;}
-string Row_Disc::ID_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+return m_FK_Picture;}
+long int Row_Picture_Disc::FK_Disc_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_ID;}
-long int Row_Disc::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+return m_FK_Disc;}
+long int Row_Picture_Disc::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_Disc::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Picture_Disc::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_Disc::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Picture_Disc::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_Disc::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Picture_Disc::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_Disc::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Picture_Disc::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
 
 		
-void Row_Disc::PK_Disc_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Picture_Disc::FK_Picture_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_PK_Disc = val; is_modified=true; is_null[0]=false;}
-void Row_Disc::ID_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+m_FK_Picture = val; is_modified=true; is_null[0]=false;}
+void Row_Picture_Disc::FK_Disc_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_ID = val; is_modified=true; is_null[1]=false;}
-void Row_Disc::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+m_FK_Disc = val; is_modified=true; is_null[1]=false;}
+void Row_Picture_Disc::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[2]=false;}
-void Row_Disc::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Picture_Disc::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[3]=false;}
-void Row_Disc::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Picture_Disc::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[4]=false;}
-void Row_Disc::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Picture_Disc::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[5]=false;}
-void Row_Disc::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Picture_Disc::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[6]=false;}
 
 		
-bool Row_Disc::ID_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[1];}
-bool Row_Disc::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Picture_Disc::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Disc::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Picture_Disc::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Disc::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Picture_Disc::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_Disc::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Picture_Disc::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
 
 			
-void Row_Disc::ID_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[1]=val;
-is_modified=true;
-}
-void Row_Disc::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Picture_Disc::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Disc::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Picture_Disc::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_Disc::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Picture_Disc::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_Disc::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Picture_Disc::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
 	
 
-string Row_Disc::PK_Disc_asSQL()
+string Row_Picture_Disc::FK_Picture_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -224,26 +218,25 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_PK_Disc);
+sprintf(buf, "%li", m_FK_Picture);
 
 return buf;
 }
 
-string Row_Disc::ID_asSQL()
+string Row_Picture_Disc::FK_Disc_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
 
-char *buf = new char[511];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_ID.c_str(), (unsigned long) min(255,m_ID.size()));
-string s=string()+"\""+buf+"\"";
-delete buf;
-return s;
+char buf[32];
+sprintf(buf, "%li", m_FK_Disc);
+
+return buf;
 }
 
-string Row_Disc::psc_id_asSQL()
+string Row_Picture_Disc::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -256,7 +249,7 @@ sprintf(buf, "%li", m_psc_id);
 return buf;
 }
 
-string Row_Disc::psc_batch_asSQL()
+string Row_Picture_Disc::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -269,7 +262,7 @@ sprintf(buf, "%li", m_psc_batch);
 return buf;
 }
 
-string Row_Disc::psc_user_asSQL()
+string Row_Picture_Disc::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -282,7 +275,7 @@ sprintf(buf, "%li", m_psc_user);
 return buf;
 }
 
-string Row_Disc::psc_frozen_asSQL()
+string Row_Picture_Disc::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -295,7 +288,7 @@ sprintf(buf, "%hi", m_psc_frozen);
 return buf;
 }
 
-string Row_Disc::psc_mod_asSQL()
+string Row_Picture_Disc::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -312,29 +305,34 @@ return s;
 
 
 
-Table_Disc::Key::Key(long int in_PK_Disc)
+Table_Picture_Disc::Key::Key(long int in_FK_Picture, long int in_FK_Disc)
 {
-			pk_PK_Disc = in_PK_Disc;
+			pk_FK_Picture = in_FK_Picture;
+pk_FK_Disc = in_FK_Disc;
 	
 }
 
-Table_Disc::Key::Key(Row_Disc *pRow)
+Table_Picture_Disc::Key::Key(Row_Picture_Disc *pRow)
 {
 			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
-			pk_PK_Disc = pRow->m_PK_Disc;
+			pk_FK_Picture = pRow->m_FK_Picture;
+pk_FK_Disc = pRow->m_FK_Disc;
 	
 }		
 
-bool Table_Disc::Key_Less::operator()(const Table_Disc::Key &key1, const Table_Disc::Key &key2) const
+bool Table_Picture_Disc::Key_Less::operator()(const Table_Picture_Disc::Key &key1, const Table_Picture_Disc::Key &key2) const
 {
-			if (key1.pk_PK_Disc!=key2.pk_PK_Disc)
-return key1.pk_PK_Disc<key2.pk_PK_Disc;
+			if (key1.pk_FK_Picture!=key2.pk_FK_Picture)
+return key1.pk_FK_Picture<key2.pk_FK_Picture;
+else
+if (key1.pk_FK_Disc!=key2.pk_FK_Disc)
+return key1.pk_FK_Disc<key2.pk_FK_Disc;
 else
 return false;	
 }	
 
-bool Table_Disc::Commit()
+bool Table_Picture_Disc::Commit()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -343,14 +341,14 @@ bool Table_Disc::Commit()
 	{
 		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Disc *pRow = (Row_Disc *)*i;
+		Row_Picture_Disc *pRow = (Row_Picture_Disc *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Disc_asSQL()+", "+pRow->ID_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Picture_asSQL()+", "+pRow->FK_Disc_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Disc (`PK_Disc`, `ID`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into Picture_Disc (`FK_Picture`, `FK_Disc`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -366,12 +364,10 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Disc_asSQL(
 			
 			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
-			if (id!=0)
-pRow->m_PK_Disc=id;
-	
+				
 			
 			addedRows.erase(i);
-			SingleLongKey key(pRow->m_PK_Disc);	
+			DoubleLongKey key(pRow->m_FK_Picture,pRow->m_FK_Disc);	
 			cachedRows[key] = pRow;
 					
 			
@@ -385,26 +381,29 @@ pRow->m_PK_Disc=id;
 //update modified
 	
 
-	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
-		Row_Disc* pRow = (Row_Disc*) (*i).second;	
-		SingleLongKey key(pRow->m_PK_Disc);
+		Row_Picture_Disc* pRow = (Row_Picture_Disc*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_Picture,pRow->m_FK_Disc);
 
-		char tmp_PK_Disc[32];
-sprintf(tmp_PK_Disc, "%li", key.pk);
+		char tmp_FK_Picture[32];
+sprintf(tmp_FK_Picture, "%li", key.pk1);
+
+char tmp_FK_Disc[32];
+sprintf(tmp_FK_Disc, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "`PK_Disc`=" + tmp_PK_Disc;
+condition = condition + "`FK_Picture`=" + tmp_FK_Picture+" AND "+"`FK_Disc`=" + tmp_FK_Disc;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Disc`="+pRow->PK_Disc_asSQL()+", `ID`="+pRow->ID_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Picture`="+pRow->FK_Picture_asSQL()+", `FK_Disc`="+pRow->FK_Disc_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
-		string query = "update Disc set " + update_values_list + " where " + condition;
+		string query = "update Picture_Disc set " + update_values_list + " where " + condition;
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
@@ -421,7 +420,7 @@ update_values_list = update_values_list + "`PK_Disc`="+pRow->PK_Disc_asSQL()+", 
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Disc* pRow = (Row_Disc*) (*i);
+		Row_Picture_Disc* pRow = (Row_Picture_Disc*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -431,20 +430,23 @@ update_values_list = update_values_list + "`PK_Disc`="+pRow->PK_Disc_asSQL()+", 
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		SingleLongKey key = (*i).first;
-		Row_Disc* pRow = (Row_Disc*) (*i).second;	
+		DoubleLongKey key = (*i).first;
+		Row_Picture_Disc* pRow = (Row_Picture_Disc*) (*i).second;	
 
-		char tmp_PK_Disc[32];
-sprintf(tmp_PK_Disc, "%li", key.pk);
+		char tmp_FK_Picture[32];
+sprintf(tmp_FK_Picture, "%li", key.pk1);
+
+char tmp_FK_Disc[32];
+sprintf(tmp_FK_Disc, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "`PK_Disc`=" + tmp_PK_Disc;
+condition = condition + "`FK_Picture`=" + tmp_FK_Picture+" AND "+"`FK_Disc`=" + tmp_FK_Disc;
 
 	
-		string query = "delete from Disc where " + condition;
+		string query = "delete from Picture_Disc where " + condition;
 		
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
@@ -453,7 +455,7 @@ condition = condition + "`PK_Disc`=" + tmp_PK_Disc;
 			return false;
 		}	
 		
-		pRow = (Row_Disc*) (*i).second;;
+		pRow = (Row_Picture_Disc*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
@@ -461,7 +463,7 @@ condition = condition + "`PK_Disc`=" + tmp_PK_Disc;
 	return true;
 }
 
-bool Table_Disc::GetRows(string where_statement,vector<class Row_Disc*> *rows)
+bool Table_Picture_Disc::GetRows(string where_statement,vector<class Row_Picture_Disc*> *rows)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -472,11 +474,11 @@ bool Table_Disc::GetRows(string where_statement,vector<class Row_Disc*> *rows)
 		StringUtils::StartsWith(where_statement,"right ",true) ||
 		StringUtils::StartsWith(where_statement,"full ",true) ||
 		StringUtils::StartsWith(where_statement,"outer ",true) )
-		query = "select `Disc`.* from Disc " + where_statement;
+		query = "select `Picture_Disc`.* from Picture_Disc " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select `Disc`.* from Disc where " + where_statement;
+		query = "select `Picture_Disc`.* from Picture_Disc where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
@@ -501,28 +503,28 @@ bool Table_Disc::GetRows(string where_statement,vector<class Row_Disc*> *rows)
 	{	
 		unsigned long *lengths = mysql_fetch_lengths(res);
 
-		Row_Disc *pRow = new Row_Disc(this);
+		Row_Picture_Disc *pRow = new Row_Picture_Disc(this);
 		
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_Disc = 0;
+pRow->m_FK_Picture = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_Disc));
+sscanf(row[0], "%li", &(pRow->m_FK_Picture));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_ID = "";
+pRow->m_FK_Disc = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_ID = string(row[1],lengths[1]);
+sscanf(row[1], "%li", &(pRow->m_FK_Disc));
 }
 
 if (row[2] == NULL)
@@ -584,14 +586,14 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 
 		//checking for duplicates
 
-		SingleLongKey key(pRow->m_PK_Disc);
+		DoubleLongKey key(pRow->m_FK_Picture,pRow->m_FK_Disc);
 		
-		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (Row_Disc *)(*i).second;
+			pRow = (Row_Picture_Disc *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -604,11 +606,11 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 	return true;					
 }
 
-Row_Disc* Table_Disc::AddRow()
+Row_Picture_Disc* Table_Picture_Disc::AddRow()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
-	Row_Disc *pRow = new Row_Disc(this);
+	Row_Picture_Disc *pRow = new Row_Picture_Disc(this);
 	pRow->is_added=true;
 	addedRows.push_back(pRow);
 	return pRow;		
@@ -616,13 +618,13 @@ Row_Disc* Table_Disc::AddRow()
 
 
 
-Row_Disc* Table_Disc::GetRow(long int in_PK_Disc)
+Row_Picture_Disc* Table_Picture_Disc::GetRow(long int in_FK_Picture, long int in_FK_Disc)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
-	SingleLongKey row_key(in_PK_Disc);
+	DoubleLongKey row_key(in_FK_Picture, in_FK_Disc);
 
-	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -633,9 +635,9 @@ Row_Disc* Table_Disc::GetRow(long int in_PK_Disc)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (Row_Disc*) (*i).second;
+		return (Row_Picture_Disc*) (*i).second;
 	//we have to fetch row
-	Row_Disc* pRow = FetchRow(row_key);
+	Row_Picture_Disc* pRow = FetchRow(row_key);
 
 	if (pRow!=NULL)
 		cachedRows[row_key] = pRow;
@@ -644,20 +646,23 @@ Row_Disc* Table_Disc::GetRow(long int in_PK_Disc)
 
 
 
-Row_Disc* Table_Disc::FetchRow(SingleLongKey &key)
+Row_Picture_Disc* Table_Picture_Disc::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
-	char tmp_PK_Disc[32];
-sprintf(tmp_PK_Disc, "%li", key.pk);
+	char tmp_FK_Picture[32];
+sprintf(tmp_FK_Picture, "%li", key.pk1);
+
+char tmp_FK_Disc[32];
+sprintf(tmp_FK_Disc, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "`PK_Disc`=" + tmp_PK_Disc;
+condition = condition + "`FK_Picture`=" + tmp_FK_Picture+" AND "+"`FK_Disc`=" + tmp_FK_Disc;
 
 
-	string query = "select * from Disc where " + condition;		
+	string query = "select * from Picture_Disc where " + condition;		
 
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
@@ -686,28 +691,28 @@ condition = condition + "`PK_Disc`=" + tmp_PK_Disc;
 						
 	unsigned long *lengths = mysql_fetch_lengths(res);
 
-	Row_Disc *pRow = new Row_Disc(this);
+	Row_Picture_Disc *pRow = new Row_Picture_Disc(this);
 		
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_Disc = 0;
+pRow->m_FK_Picture = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_Disc));
+sscanf(row[0], "%li", &(pRow->m_FK_Picture));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_ID = "";
+pRow->m_FK_Disc = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_ID = string(row[1],lengths[1]);
+sscanf(row[1], "%li", &(pRow->m_FK_Disc));
 }
 
 if (row[2] == NULL)
@@ -773,22 +778,22 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 }
 
 
-
-
-void Row_Disc::Disc_Attribute_FK_Disc_getrows(vector <class Row_Disc_Attribute*> *rows)
+class Row_Picture* Row_Picture_Disc::FK_Picture_getrow()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_Disc_Attribute *pTable = table->database->Disc_Attribute_get();
-pTable->GetRows("`FK_Disc`=" + StringUtils::itos(m_PK_Disc),rows);
+class Table_Picture *pTable = table->database->Picture_get();
+return pTable->GetRow(m_FK_Picture);
 }
-void Row_Disc::Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *rows)
+class Row_Disc* Row_Picture_Disc::FK_Disc_getrow()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_Picture_Disc *pTable = table->database->Picture_Disc_get();
-pTable->GetRows("`FK_Disc`=" + StringUtils::itos(m_PK_Disc),rows);
+class Table_Disc *pTable = table->database->Disc_get();
+return pTable->GetRow(m_FK_Disc);
 }
+
+
 
 
 
