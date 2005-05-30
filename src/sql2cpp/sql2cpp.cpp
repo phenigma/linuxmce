@@ -365,7 +365,7 @@ int main( int argc, char *argv[] )
 	makefile_out << "\t$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)" << endl;
 	makefile_out << "\tcp $@ ../lib" << endl << endl;
 	makefile_out << "clean: clean-recursive" << endl;
-	makefile_out << "\trm -f *.o *.d lib" << sDBName << ".a >/dev/null" << endl << endl;
+	makefile_out << "\trm -f *.o *.d lib" << sDBName << ".so >/dev/null" << endl << endl;
 	makefile_out << "include $(ROOT)/PlutoUtils/make.rules" << endl;
 	makefile_out << "-include $(sources:.cpp=.d)" << endl;
 
