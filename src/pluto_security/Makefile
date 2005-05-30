@@ -25,7 +25,7 @@ libpluto_security.so: $(sources:.cpp=.o)
 	cp $@ ../lib
 
 clean: clean-recursive
-	rm -f *.o *.d libpluto_security.a >/dev/null
+	rm -f *.o *.d libpluto_security.so >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

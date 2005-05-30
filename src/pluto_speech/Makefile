@@ -16,7 +16,7 @@ libpluto_speech.so: $(sources:.cpp=.o)
 	cp $@ ../lib
 
 clean: clean-recursive
-	rm -f *.o *.d libpluto_speech.a >/dev/null
+	rm -f *.o *.d libpluto_speech.so >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)
