@@ -90,7 +90,7 @@ function genericSerialDevices($output,$dbADO) {
 				$displayedAVDevices=array();
 				$displayedAVDevicesDescription=array();
 				$queryDevice='
-					SELECT Device.*
+					SELECT Device.*,ImplementsDCE
 					FROM Device 
 					INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 					WHERE CommandLine=? AND FK_Installation=?';	
@@ -98,10 +98,30 @@ function genericSerialDevices($output,$dbADO) {
 				while($rowD=$resDevice->FetchRow()){
 					$displayedAVDevices[]=$rowD['PK_Device'];
 					$displayedAVDevicesDescription[]=$rowD['Description'];
+					
+					$qdev=$dbADO->Execute('
+						SELECT Device.* 
+						FROM DeviceTemplate_DeviceTemplate_ControlledVia 
+						INNER JOIN DeviceTemplate ON DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate=PK_DeviceTemplate
+						INNER JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate
+						WHERE FK_DeviceTemplate_ControlledVia = ? AND ImplementsDCE!=1',$rowD['FK_DeviceTemplate']);
+					if($qdev->RecordCount()>0){
+						while($rowDev=$qdev->FetchRow()){
+							$displayedAVDevices[]=$rowDev['PK_Device'];
+							$displayedAVDevicesDescription[]=$rowDev['Description'];
+							$gsdChilds=array();
+							$gsdChilds=getChildDevices($gsdChilds,$rowDev['PK_Device'],$dbADO);
+							foreach ($gsdChilds AS $devID=>$devName){
+								$displayedAVDevices[]=$devID;
+								$displayedAVDevicesDescription[]=$devName;
+							}
+						}
+					}
 				}
 				$resDevice->Close();
-				
-			
+
+				if(count($displayedAVDevices)==0)
+					$displayedAVDevices[]=0;
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();
 				$DDTypesToDisplay=array();	
@@ -113,9 +133,8 @@ function genericSerialDevices($output,$dbADO) {
 						LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate
 						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 						INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
-					WHERE CommandLine=? AND FK_Installation=? 
-					ORDER BY FK_Device_ControlledVia DESC, Device.Description ASC';	
-				$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['GenericSerialDeviceCommandLine'],$installationID));
+					WHERE PK_Device IN ('.join(',',$displayedAVDevices).')';	
+				$resDevice=$dbADO->Execute($queryDevice);
 				$childOf=array();
 				while($rowD=$resDevice->FetchRow()){
 					if($rowD['FK_Device_ControlledVia']==$rowD['FK_Device_RouteTo'])
@@ -395,5 +414,18 @@ function genericSerialDevices($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: Generic Serial Devices');
 	$output->output();
+}
+
+function getChildDevices($childs,$deviceID,$dbADO){
+	if($deviceID==''){
+		return $childs;
+	}
+	$res=$dbADO->Execute('SELECT * FROM Device WHERE FK_Device_ControlledVia=?',$deviceID);
+	while($row=$res->FetchRow()){
+		$childs[$row['PK_Device']]=$row['Description'];
+		$childs=getChildDevices($childs,$row['PK_Device'],$dbADO);
+	}
+	
+	return $childs;
 }
 ?>

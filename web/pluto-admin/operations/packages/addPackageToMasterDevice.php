@@ -552,8 +552,12 @@ function addPackageToMasterDevice($output,$dbADO) {
 			}
 			$out.="
 			<script>
-			    opener.document.forms.{$from}.action.value='form';
-				opener.document.forms.{$from}.submit();";
+				try{
+			    	opener.document.forms.{$from}.action.value='form';
+					opener.document.forms.{$from}.submit();
+				}catch(e){
+					// opener was closed, ignore
+				}";
 			if(isset($_POST['saveClose']))
 				$out.="self.close();";
 			else
