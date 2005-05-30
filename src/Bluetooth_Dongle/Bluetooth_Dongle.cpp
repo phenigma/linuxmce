@@ -651,6 +651,15 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 					0, m_dwPK_EntertainArea);
 		}
 
+        if(!pOrbiter) //failed to start orbiter
+        {
+            if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
+            {
+                pBD_Orbiter->m_pBDCommandProcessor->m_bDead = true;
+                g_pPlutoLogger->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", sMac_address.c_str() );
+            }
+        }
+
 		if(NULL != pOrbiter)
 		{
 			Simulator::GetInstance()->m_pOrbiter = (Orbiter *)pOrbiter;	
@@ -663,7 +672,7 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 
 		pBD_Orbiter->m_pOrbiter = ( Orbiter * )pOrbiter;
 	}
- else
+    else
 	{
 		if( NULL == pBD_Orbiter->m_pBDCommandProcessor )
 			g_pPlutoLogger->Write( LV_WARNING, "Cannot create orbiter for %s device: the CommandProcessor is null!", sMac_address.c_str() );
