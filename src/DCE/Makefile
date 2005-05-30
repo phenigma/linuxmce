@@ -18,9 +18,7 @@ sources = DataGrid.cpp ClientSocket.cpp Logger.cpp Message.cpp \
 	DCEConfig.cpp DCEMySqlConfig.cpp \
 	Virtual_Device_Translator.cpp
 
-all: libDCECommon all-recursive
-
-libDCECommon: libDCECommon.so libDCECommon.a
+all: libDCECommon.so all-recursive
 
 libDCECommon.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
@@ -35,6 +33,7 @@ clean:
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
+
 
 include $(ROOT)/PlutoUtils/make.rules
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))

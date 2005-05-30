@@ -7,14 +7,18 @@ LDLIBS = -lmysqlclient_r
 
 sources = RA_Processor.cpp RA_Action.cpp RA_Request.cpp RAServer.cpp RAClientSocket.cpp RAServerSocket.cpp
 
-all: libRACommon.a all-recursive
+all: libRACommon.so all-recursive
+
+libRACommon.so: $(sources:.cpp=.o)
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
+	cp $@ ../lib 
 
 libRACommon.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 		
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libRACommon.a >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libRACommon.so >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

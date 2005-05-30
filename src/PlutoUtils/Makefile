@@ -7,9 +7,7 @@ CXX = g++
 
 sources = CommonIncludes.cpp FileUtils.cpp MultiThreadIncludes.cpp Other.cpp ProcessUtils.cpp StringUtils.cpp getch.cpp md5c.cpp minilzo.cpp
 
-all: libPlutoUtils all-recursive
-
-libPlutoUtils: libPlutoUtils.so libPlutoUtils.a
+all: libPlutoUtils.so all-recursive
 
 libPlutoUtils.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)

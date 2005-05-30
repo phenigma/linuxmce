@@ -32,14 +32,18 @@ sources = \
     VIPIncludes.cpp
 #sources = BD_CP_CaptureKeyboard.cpp  BD_CP_ShowImage.cpp  BD_CP_ShowList.cpp  BD_PC_KeyWasPressed.cpp  BD_PC_SelectedFromList.cpp  BD_PC_SetVariable.cpp
 
-all: libVIPCommon.a all-recursive
+all: libVIPCommon.so all-recursive
+
+libVIPCommon.so: $(sources:.cpp=.o)
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
+	cp $@ ../lib
 
 libVIPCommon.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 		
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libVIPCommon.a >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libVIPCommon.a libVIPCommon.so >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

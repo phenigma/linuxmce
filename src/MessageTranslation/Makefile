@@ -10,13 +10,11 @@ VERSION = 2.0.0
 
 sources = MessageTranslation.cpp DefaultMessageTranslation.cpp AVMessageTranslation.cpp
 
-all: libMessageTranslation all-recursive
-
-libMessageTranslation: libMessageTranslation.so libMessageTranslation.a
+all: libMessageTranslation.so all-recursive
 
 libMessageTranslation.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
-#	cp $@ $(ROOT)/lib
+	cp $@ $(ROOT)/lib
 
 libMessageTranslation.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $+

@@ -7,9 +7,7 @@ CXX = g++
 
 sources = SerializeClass.cpp
 
-all: libSerializeClass all-recursive
-
-libSerializeClass: libSerializeClass.so libSerializeClass.a
+all: libSerializeClass.so all-recursive
 
 libSerializeClass.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)

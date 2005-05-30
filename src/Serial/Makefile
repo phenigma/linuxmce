@@ -8,13 +8,11 @@ VERSION = 2.0.0
 
 sources = SerialPort.cpp
 
-all: Serial all-recursive
-
-Serial: libSerial.so libSerial.a
+all: Serial.so all-recursive
 
 libSerial.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
-#	cp $@ ../lib
+	cp $@ ../lib
 
 libSerial.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $(call cpath,$+)
