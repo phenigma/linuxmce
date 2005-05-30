@@ -34,21 +34,22 @@ done
 
 if ! Query="$(/usr/bin/cddb-tool query "$URL" "$ProtoVersion" "$User" "$Host" "$DiscID")"; then
 	Err=$Err_Query
+else
+	Code=$(echo "$Query" | head -1 | cut -d' ' -f1)
+	case "$Code" in
+		200) # one match
+			QueryID=$(echo "$Query" | cut -d' ' -f2,3)
+		;;
+		202|403|409|503) # no match/error
+			Err=$Err_NoMatch
+		;;
+		210|211) # multiple match (210 - exact, 211 - inexact)
+			QueryID=$(echo "$Query" | head -2 | tail -1 | cut -d' ' -f1,2)
+		;;
+	esac
 fi
-Code=$(echo "$Query" | head -1 | cut -d' ' -f1)
-case "$Code" in
-	200) # one match
-		QueryID=$(echo "$Query" | cut -d' ' -f2,3)
-	;;
-	202|403|409|503) # no match/error
-		Err=$Err_NoMatch
-	;;
-	210|211) # multiple match (210 - exact, 211 - inexact)
-		QueryID=$(echo "$Query" | head -2 | tail -1 | cut -d' ' -f1,2)
-	;;
-esac
 
-[[ $Err -ne 0 ]] && output "$Tag" && exit $Err
+[[ $Err -ne 0 ]] && output "$Tag" && exit
 
 /usr/bin/cddb-tool read "$URL" "$ProtoVersion" "$User" "$Host" "$QueryID" >/tmp/cddbread.$$
 Read="$(/usr/bin/cddb-tool parse /tmp/cddbread.$$)"
