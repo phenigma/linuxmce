@@ -265,6 +265,8 @@ bool Media_Plugin::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Media_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Completed_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::DeviceOnOff ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_On_Off_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::AvInputChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_AV_Input_Changed_CONST );
 
     // And the datagrid plug-in
     m_pDatagrid_Plugin=NULL;
@@ -3183,6 +3185,49 @@ bool Media_Plugin::RippingCompleted( class Socket *pSocket, class Message *pMess
 	return true;
 }
 
+bool Media_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	bool bIsOn = pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST]=="1";
+	MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pMessage->m_dwPK_Device_From);
+	if( !pMediaDevice )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Got an on/off from a non-media device");
+		return true;  // It's not for us
+	}
+
+	// First figure out if this device is involved in any streams
+	MediaDevice *pMediaDevice_Source,*pMediaDevice_Dest=NULL;
+	EntertainArea *pEntertainArea=NULL;
+	MediaStream *pMediaStream=NULL;
+
+	int iIsSource_OrDest = DetermineInvolvement(pMediaDevice, pMediaDevice_Source,pMediaDevice_Dest,
+		pEntertainArea,pMediaStream);
+
+	if( bIsOn && iIsSource_OrDest )  // Nothing to report, we turned on something we already knew was on
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Nothing to report, we turned on something we already knew was on");
+		return true;
+	}
+	if( !bIsOn && !iIsSource_OrDest )  // Nothing to report, we turned off something we already knew was off
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Nothing to report, we turned off something we already knew was off");
+		return true;
+	}
+
+	if( bIsOn )
+	{
+		// We didn't find anything indicating any involvement with this object
+
+	}
+	return true;
+}
+
+bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	return true;
+}
+
 bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 {
 	map<string, pair<int, int> >::const_iterator itRippingJobs;
@@ -3626,3 +3671,53 @@ void Media_Plugin::CMD_Get_Attribute(int iPK_Attribute,string *sText,string &sCM
 	}
 }
 
+int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&pMediaDevice_Source,MediaDevice *&pMediaDevice_Dest,
+	EntertainArea *&pEntertainArea,MediaStream *&pMediaStream)
+{
+    for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
+    {
+        MediaStream *pMS = (*it).second;
+
+		// See if the device turned off was the source for some media
+		if( pMS->m_pMediaDevice_Source==pMediaDevice )
+		{
+			pMediaStream = pMS;
+			return 1;  // This is the source device
+		}
+
+		// If not, maybe it's being fed the signal from the source
+		for(size_t s=0;s<pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes.size();++s)
+		{
+			DeviceData_Base *pDevice = pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes[s];
+			if( pDevice==pMS->m_pMediaDevice_Source->m_pDeviceData_Router )
+			{
+				pMediaStream = pMS;
+				pMediaDevice_Source = pMS->m_pMediaDevice_Source;
+				return 1;
+			}
+		}
+
+		for( MapEntertainArea::iterator it=pMS->m_mapEntertainArea.begin( );it!=pMS->m_mapEntertainArea.end( );++it )
+		{
+			EntertainArea *pEA = ( *it ).second;
+			if( pMediaDevice==pEntertainArea->m_pMediaDevice_ActiveDest )
+			{
+				pMediaStream = pMS;
+				pEntertainArea = pEA;
+				return 2;  // This is the dest device
+			}
+			// If not, maybe it's being fed the signal from the dest
+			for(size_t s=0;s<pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes.size();++s)
+			{
+				DeviceData_Base *pDevice = pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes[s];
+				if( pDevice==pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router )
+				{
+					pMediaStream = pMS;
+					pMediaDevice_Dest = pEntertainArea->m_pMediaDevice_ActiveDest;
+					return 2;  // This is the dest device
+				}
+			}
+		}
+	}
+	return 0; // No involvement
+}

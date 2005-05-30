@@ -21,8 +21,8 @@ CPPFLAGS +=
 LDFLAGS +=  
 XTRALDLIBS = -lpluto_main -lldap
 
-Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
-sources += ../Orbiter_Plugin/FollowMe_Device.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp callmanager.cpp calldata.cpp ldapmanager.cpp ldapexception.cpp ldapentry.cpp ldapentrycollection.cpp ldapattribute.cpp
+Gen_Dev_Files += 
+sources += callmanager.cpp calldata.cpp ldapmanager.cpp ldapexception.cpp ldapentry.cpp ldapentrycollection.cpp ldapattribute.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

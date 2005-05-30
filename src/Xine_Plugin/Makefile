@@ -24,19 +24,9 @@ LDFLAGS +=
 INTERNAL_LIBS_NAMES += pluto_main pluto_media
 EXTERNAL_LIBS_NAMES += attr
 
-Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
+Gen_Dev_Files += 
 sources += \
 	XineMediaStream.cpp \
-	../Orbiter_Plugin/FollowMe_Device.cpp \
-	../Media_Plugin/MediaHandlerInfo.cpp \
-	../Media_Plugin/MediaHandlerBase.cpp \
-	../Media_Plugin/Media_Plugin.cpp \
-	../Media_Plugin/MediaAttributes.cpp \
-	../Media_Plugin/MediaStream.cpp \
-	../Media_Plugin/BoundRemote.cpp \
-	../Media_Plugin/Generic_NonPluto_Media.cpp \
-	../Datagrid_Plugin/Datagrid_Plugin.cpp \
-	../File_Grids_Plugin/FileListGrid.cpp \
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)

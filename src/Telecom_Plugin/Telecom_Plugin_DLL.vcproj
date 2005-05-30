@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib Datagrid_Plugin.lib"
 				OutputFile="../Debug/Telecom_Plugin.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib;../Debug"
 				ModuleDefinitionFile="Telecom_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Telecom_Plugin.pdb"
@@ -129,12 +129,6 @@
 			</File>
 			<File
 				RelativePath=".\callmanager.cpp">
-			</File>
-			<File
-				RelativePath="..\Datagrid_Plugin\Datagrid_Plugin.cpp">
-			</File>
-			<File
-				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
 			</File>
 			<File
 				RelativePath="..\Orbiter_Plugin\FollowMe_Device.cpp">

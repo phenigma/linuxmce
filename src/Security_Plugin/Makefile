@@ -21,8 +21,8 @@ CPPFLAGS +=
 LDFLAGS += 
 XTRALDLIBS = -lpluto_main -lpluto_security
 
-Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
-sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp ../Orbiter_Plugin/FollowMe_Device.cpp Notification.cpp
+Gen_Dev_Files +=
+sources += Notification.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

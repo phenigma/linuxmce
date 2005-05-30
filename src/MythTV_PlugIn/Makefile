@@ -22,18 +22,8 @@ CPPFLAGS += -DQT_THREAD_SUPPORT -I/usr/include/qt3 -I$(ROOT)/../libs/Libraries
 INTERNAL_LIBS_NAMES += pluto_main pluto_media
 EXTERNAL_LIBS_NAMES += qt-mt myth-0.18 mythtv-0.18
 
-Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
+Gen_Dev_Files += 
 sources += \
-	../Orbiter_Plugin/FollowMe_Device.cpp \
-	../Media_Plugin/MediaHandlerInfo.cpp \
-	../Media_Plugin/MediaHandlerBase.cpp \
-	../Media_Plugin/Media_Plugin.cpp \
-	../Media_Plugin/MediaAttributes.cpp \
-	../Media_Plugin/MediaStream.cpp \
-	../Media_Plugin/BoundRemote.cpp \
-	../Datagrid_Plugin/Datagrid_Plugin.cpp \
-    ../Media_Plugin/Generic_NonPluto_Media.cpp \
-	../File_Grids_Plugin/FileListGrid.cpp \
 	MythTvMediaStream.cpp \
 	MythTvWrapper.cpp
 

@@ -21,8 +21,8 @@ CPPFLAGS +=
 LDFLAGS +=
 XTRALDLIBS =
 
-Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
-sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp
+Gen_Dev_Files += 
+sources += 
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

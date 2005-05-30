@@ -134,12 +134,6 @@
 				RelativePath=".\CriteriaParmNesting.cpp">
 			</File>
 			<File
-				RelativePath="..\Datagrid_Plugin\Datagrid_Plugin.cpp">
-			</File>
-			<File
-				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
-			</File>
-			<File
 				RelativePath="Event_Plugin.cpp">
 			</File>
 			<File

@@ -21,10 +21,8 @@ CPPFLAGS +=
 LDFLAGS += 
 XTRALDLIBS = -lpluto_main -lpluto_media
 
-Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
-sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp \
-	../Media_Plugin/MediaAttributes.cpp \
-	FileListGrid.cpp \
+Gen_Dev_Files += 
+sources += 	FileListGrid.cpp \
 	FileListOps.cpp
 
 #<-dceag-mf-b->

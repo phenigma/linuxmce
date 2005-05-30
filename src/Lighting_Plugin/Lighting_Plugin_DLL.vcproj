@@ -125,12 +125,6 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="..\Datagrid_Plugin\Datagrid_Plugin.cpp">
-			</File>
-			<File
-				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
-			</File>
-			<File
 				RelativePath="..\Orbiter_Plugin\FollowMe_Device.cpp">
 			</File>
 			<File

@@ -311,6 +311,16 @@ public:
 	 */
 	bool RippingCompleted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
+	/**
+	 * @brief EVENT_Device_On_Off_CONST event interceptor, when some equipment was turned on or off manually
+	 */
+	bool DeviceOnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
+	/**
+	 * @brief EVENT_AV_Input_Changed_CONST event interceptor, when some equipment was has the input changed manually
+	 */
+	bool AvInputChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
 
 	// Sometimes when MediaHanderBase::GetRenderDevices is called, only the top-level render devices (ie the media source)
 	// is desired.  However, HandleOnOffs wants everything in the pipe, and the following function
@@ -327,6 +337,15 @@ public:
 	void MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent=true);
 
 	virtual bool SafeToReload(string *sPendingTasks=NULL);
+
+	// Given pMediaDevice, this function will find out if that device is presently being used by any media streams
+	// and return a 1 if it's involved as the source, and 2 if the destination, or 0 if there's no involvement.
+	// If it returns non-zero, pMediaStream will be set to the stream.  If it's a source, but not the direct source (ie fed by another)
+	// pMediaDevice_Source will be the direct source.  The same is true with pMediaDevice_Dest
+	// If it's involved in the destination, pEntertainArea will also be set
+	int DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&pMediaDevice_Source,MediaDevice *&pMediaDevice_Dest,
+		EntertainArea *&pEntertainArea,MediaStream *&pMediaStream);
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
