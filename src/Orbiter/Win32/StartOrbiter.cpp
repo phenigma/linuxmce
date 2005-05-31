@@ -294,7 +294,7 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 				WriteStatusOutput("Failed to connect to DCERouter. I'll try again in 2 seconds...");
 				Sleep(2000);
 				stage = osConnect;
-				break; //not implemented yet
+				break; 
 		}
 	}
 

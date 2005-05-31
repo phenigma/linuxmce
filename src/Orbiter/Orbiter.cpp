@@ -2389,7 +2389,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				{
 					delete buffer;
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to read Orbiter data from file: %s/%s", m_sLocalDirectory.c_str(  ), Filename.c_str(  ) );
-					Sleep( 5000 );
+                    m_bQuit = true;
 					m_bReload = true;
 					exit( 1 );
 				}
@@ -4498,6 +4498,7 @@ void Orbiter::GetVideoFrame( void *data )
 			if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
 			{
 				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "" );
+                delete pBuffer; //we don't need it anymore
 			}
             else
             {
