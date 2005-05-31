@@ -17,6 +17,8 @@
 class Database_pluto_main;
 class Row_Device;
 
+typedef class Command_Impl * (* RAP_FType) (class Router *, int, Logger *);
+
 /*
 
 Classes to hold pointers to the call back functions, and general helper classes
@@ -304,7 +306,8 @@ namespace DCE
         class Command_Impl *CreatePlugInHardCoded(int PK_Device, int PK_DeviceTemplate, string sCommandLine);  // Load the plug-in on the command line
 #endif
 
-        class Command_Impl *CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string sCommandLine);  // Load the plug-in on the command line
+		RAP_FType PlugIn_Load(int PK_Device, int PK_DeviceTemplate, string sCommandLine); // Load the plug-in on the command line
+		class Command_Impl * PlugIn_Activate(int PK_Device, RAP_FType RegisterAsPlugin, string sLogFile); // Call specified plug-in registering function
         int DynamicallyLoadPlugin(string sFile);
         string GetDevicesByDeviceTemplate(DeviceData_Router *pDeviceData_From,int PK_DeviceTemplate,eBroadcastLevel BroadcastLevel);
 		string GetDevicesByCategory(DeviceData_Router *pDeviceData_From,int PK_DeviceCategory,eBroadcastLevel BroadcastLevel);

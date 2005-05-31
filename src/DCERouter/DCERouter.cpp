@@ -326,13 +326,29 @@ Router::~Router()
     delete m_pDatabase_pluto_main;
 }
 
+
+typedef struct
+{
+	int PK_Device, PK_DeviceTemplate;
+	RAP_FType func;
+	string log;
+} plugin_activation_data;
+
 void Router::RegisterAllPlugins()
 {
+	list<plugin_activation_data> list_fRAP;
+	list<plugin_activation_data>::iterator i_fRAP;
+	plugin_activation_data pad_tmp;
+    string sLogFile;
+	int iPK_Device, iPK_DeviceTemplate;
+	RAP_FType RAP_RegisterAsPlugin;
+	size_t s;
+	
 	// We're going to store a map with all the plug-ins we loaded so we can try to dynamically load plug-ins that weren't in the database
 	map<string,int> mapPluginCommands;
     vector<Row_Device *> vectRow_Device;
     m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD) + "=" + StringUtils::itos(m_dwPK_Device), &vectRow_Device);
-    for(size_t s=0;s<vectRow_Device.size();++s )
+    for (s = 0; s < vectRow_Device.size(); s++)
     {
         Row_Device *pRow_Device = vectRow_Device[s];
 
@@ -351,26 +367,27 @@ void Router::RegisterAllPlugins()
 #ifdef AUDIDEMO
         Command_Impl *pPlugIn = CreatePlugInHardCoded(pRow_Device->PK_Device_get(), pRow_Device->FK_DeviceTemplate_get(), CommandLine);
 #else
-        Command_Impl *pPlugIn = CreatePlugIn(pRow_Device->PK_Device_get(), pRow_Device->FK_DeviceTemplate_get(), CommandLine);
+		iPK_Device = pRow_Device->PK_Device_get();
+		iPK_DeviceTemplate = pRow_Device->FK_DeviceTemplate_get();
+		sLogFile = StringUtils::itos(iPK_Device) + "_" + CommandLine + "_" + StringUtils::itos(iPK_DeviceTemplate) + ".log";
+		
+		RAP_RegisterAsPlugin = PlugIn_Load(iPK_Device, iPK_DeviceTemplate, CommandLine);
+		if (RAP_RegisterAsPlugin)
+		{
+			pad_tmp.PK_Device = iPK_Device;
+			pad_tmp.PK_DeviceTemplate = iPK_DeviceTemplate;
+			pad_tmp.func = RAP_RegisterAsPlugin;
+			pad_tmp.log = sLogFile;
+			list_fRAP.push_back(pad_tmp);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load plug-in for device: %d. Be sure the file %s exists",
+				iPK_Device, CommandLine.c_str());
+		}
 #endif
-        if( !pPlugIn )
-        {
-            g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create plug-in for device: %d.  Be sure the file %s exists",
-                pRow_Device->PK_Device_get(),CommandLine.c_str());
-        }
-        else
-        {
-            m_mapPlugIn[pRow_Device->PK_Device_get()]=pPlugIn;
-            ListCommand_Impl *pListCommand_Impl = m_mapPlugIn_DeviceTemplate[pRow_Device->FK_DeviceTemplate_get()];
-            if( !pListCommand_Impl )
-            {
-                pListCommand_Impl = new ListCommand_Impl();
-                m_mapPlugIn_DeviceTemplate[pRow_Device->FK_DeviceTemplate_get()]=pListCommand_Impl;
-            }
-            pListCommand_Impl->push_back(pPlugIn);
-        }
-    }
-
+	}
+	
 	// Repeat and see if we can find any plugins to load dynamically
 	list<string> listFiles;
 #ifdef WIN32
@@ -404,24 +421,46 @@ void Router::RegisterAllPlugins()
 			}
 			pListDeviceData_Router->push_back(pDevice);
 
-			Command_Impl *pPlugIn = CreatePlugIn(m_dwPK_Device_Largest + PlugInNumber, PK_DeviceTemplate, sFile);
-			if( !pPlugIn )
+			iPK_Device = m_dwPK_Device_Largest + PlugInNumber;
+			RAP_RegisterAsPlugin = PlugIn_Load(iPK_Device, PK_DeviceTemplate, sFile);
+			sLogFile = StringUtils::itos(iPK_Device) + "_" + sFile + "_" + StringUtils::itos(PK_DeviceTemplate) + ".log";
+
+			if (RAP_RegisterAsPlugin)
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create plug-in for dynamic device %s",sFile.c_str());
+				pad_tmp.PK_Device = iPK_Device;
+				pad_tmp.PK_DeviceTemplate = PK_DeviceTemplate;
+				pad_tmp.func = RAP_RegisterAsPlugin;
+				pad_tmp.log = sLogFile;
+				list_fRAP.push_back(pad_tmp);
 			}
 			else
 			{
-				m_mapPlugIn[m_dwPK_Device_Largest + PlugInNumber]=pPlugIn;
-				ListCommand_Impl *pListCommand_Impl = m_mapPlugIn_DeviceTemplate[PK_DeviceTemplate];
-				if( !pListCommand_Impl )
-				{
-					pListCommand_Impl = new ListCommand_Impl();
-					m_mapPlugIn_DeviceTemplate[PK_DeviceTemplate]=pListCommand_Impl;
-				}
-				pListCommand_Impl->push_back(pPlugIn);
+				g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load plug-in for device: %d. Be sure the file %s exists",
+					iPK_Device, sFile.c_str());
 			}
 		}
 	}
+
+	g_pPlutoLogger->Write(LV_WARNING, "Activating plug-ins");
+	for (i_fRAP = list_fRAP.begin(); i_fRAP != list_fRAP.end(); i_fRAP++)
+	{
+		Command_Impl * pPlugIn = PlugIn_Activate(i_fRAP->PK_Device, i_fRAP->func, i_fRAP->log);
+        if( !pPlugIn )
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL,"Cannot initialize plug-in for device: %d", i_fRAP->PK_Device);
+        }
+        else
+        {
+            m_mapPlugIn[i_fRAP->PK_Device] = pPlugIn;
+            ListCommand_Impl *pListCommand_Impl = m_mapPlugIn_DeviceTemplate[i_fRAP->PK_DeviceTemplate];
+            if( !pListCommand_Impl )
+            {
+                pListCommand_Impl = new ListCommand_Impl();
+                m_mapPlugIn_DeviceTemplate[i_fRAP->PK_DeviceTemplate] = pListCommand_Impl;
+            }
+            pListCommand_Impl->push_back(pPlugIn);
+        }
+    }
 
     map<int,class Command_Impl *>::iterator it;
     for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
@@ -436,14 +475,12 @@ void Router::RegisterAllPlugins()
 // PK_Device = 4 for now
 // Description: Loads SO/DLL; Calls RegisterAsPlugin(...) from that
 // Return: Result from RegisterAsPlugin(...) on success; NULL on error
-Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string sCommandLine)
+RAP_FType Router::PlugIn_Load(int PK_Device, int PK_DeviceTemplate, string sCommandLine)
 {
-    typedef class Command_Impl * (* RAP_FType) (class Router *, int, Logger *);
     RAP_FType RegisterAsPlugin;
+    void * so_handle;
     string ErrorMessage;
     char MS_ErrorMessage[1024];
-
-    void * so_handle;
 
     if (sCommandLine == "")
         return NULL;
@@ -452,7 +489,7 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
     sCommandLine += ".so";
     if (sCommandLine.find("/") == string::npos)
         sCommandLine = "./" + sCommandLine;
-    so_handle = dlopen(sCommandLine.c_str(), RTLD_NOW);
+    so_handle = dlopen(sCommandLine.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 #else
     so_handle = LoadLibrary(sCommandLine.c_str());
 #endif
@@ -491,9 +528,16 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
 
     g_pPlutoLogger->Write(LV_WARNING, "Loaded plug-in device: %d master device: %d -- %s",PK_Device, PK_DeviceTemplate, sCommandLine.c_str());
 
-    string LogFile = StringUtils::itos(PK_Device) + "_" + sCommandLine + "_" + StringUtils::itos(PK_DeviceTemplate) + ".log";
+	return RegisterAsPlugin;
+}
+
+Command_Impl * Router::PlugIn_Activate(int PK_Device, RAP_FType RegisterAsPlugin, string sLogFile)
+{
+    string ErrorMessage;
+    char MS_ErrorMessage[1024];
+
     char sz[100];
-    strcpy(sz,LogFile.c_str());
+    strcpy(sz, sLogFile.c_str());
 
     // HACK ___ when I pass in a string > 16 characters, even a copy like this, it crashes when the string is destroyed as the function exits!!!!  But a constant string works????
 //  return RegisterAsPlugin(this, PK_Device, sz);
@@ -507,6 +551,7 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
 		g_pPlutoLogger->Write(LV_CRITICAL,"Plugin %d threw an exception",PK_Device);
 	}
 
+	g_pPlutoLogger->Write(LV_WARNING, "Plugin %d activated", PK_Device);
 	return pCommand_Impl;
 }
 
@@ -523,7 +568,7 @@ int Router::DynamicallyLoadPlugin(string sFile)
         return NULL;
 
 #ifndef WIN32
-    so_handle = dlopen(sFile.c_str(), RTLD_NOW);
+    so_handle = dlopen(sFile.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 #else
     so_handle = LoadLibrary(sFile.c_str());
 #endif
