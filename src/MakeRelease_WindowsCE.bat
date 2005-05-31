@@ -7,7 +7,7 @@ CALL SET LOG_PATH=c:
 
 del %LOG_PATH%\BuildCE.log
 
-%MAKERELEASE_PATH%\bin\MakeRelease.exe -h 10.0.0.170 -o 12 -s %INPUT_PATH% -n / -c -k 119,138
+%MAKERELEASE_PATH%\Debug\MakeRelease.exe -h 10.0.0.170 -o 12 -s %INPUT_PATH% -n / -c -k 119,138
 
 
 
