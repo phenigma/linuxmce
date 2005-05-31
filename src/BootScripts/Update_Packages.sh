@@ -17,4 +17,8 @@ apt-get update
 apt-get -y $DownloadOnly dist-upgrade
 cp /var/cache/apt/archives/kernel-image* /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ 2>/dev/null
 
-[[ -z "$DownloadOnly" ]] && apt-get clean
+if [[ -n "$DownloadOnly" ]]; then
+	/usr/pluto/bin/MessageSend localhost 0 -1001 2 47
+else
+	apt-get clean
+fi
