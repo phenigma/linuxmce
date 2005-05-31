@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib pluto_security.lib Datagrid_Plugin.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib pluto_security.lib"
 				OutputFile="../Debug/Security_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;/mysql/lib/debug"
@@ -124,6 +124,12 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
+			<File
+				RelativePath="..\Datagrid_Plugin\Datagrid_Plugin.cpp">
+			</File>
+			<File
+				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
+			</File>
 			<File
 				RelativePath="..\Orbiter_Plugin\FollowMe_Device.cpp">
 			</File>
