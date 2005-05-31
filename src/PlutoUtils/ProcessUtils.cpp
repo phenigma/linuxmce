@@ -156,6 +156,10 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 
 bool ProcessUtils::ApplicationExited(int pid, string &associatedName, void *&associatedData, bool removeIt)
 {
+	// It can happen the thread that spawns hasn't yet had a chance to store the pid before it exits
+	// Sleep half a sec just to be sure we give it some time.
+	Sleep(500);
+
 	pthread_mutex_lock(&mutexDataStructure);
 
 	MapIdentifierToPidData::iterator applicationElement = mapIdentifierToPidData.begin();

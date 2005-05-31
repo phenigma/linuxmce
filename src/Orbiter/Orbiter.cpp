@@ -4039,6 +4039,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += string(VERSION) + "(" + g_szCompile_Date + ")";
         else if(  Variable=="NP" )
             Output += m_sNowPlaying;
+        else if(  Variable=="B" )
+			Output += "\t";
         else if(  Variable=="ND" )
 			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
         else if(  Variable=="DFN"  )

@@ -219,6 +219,8 @@ void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sC
 void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,Message *pMessage)
 //<-dceag-c67-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS,"SpawnApp file: %s name %s args %s failure %s logo %d",
+		sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),(int) bShow_logo);
 	if ( bShow_logo )
 		EnsureLogoIsDisplayed();
 
@@ -284,7 +286,7 @@ void App_Server::EnsureLogoIsDisplayed()
 		ProcessUtils::SpawnApplication("gimv", "/usr/pluto/share/wait-screen.gif", LOGO_APPLICATION_NAME, NULL);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "The application is running!. Telling the orbiter to select the application!");
+	g_pPlutoLogger->Write(LV_STATUS, "The 'application spawning' background is running!. Telling the orbiter to select the application!");
 
 	DCE::CMD_Activate_Window_Cat activateApplicationCommand(m_dwPK_Device, DEVICECATEGORY_Orbiter_CONST, true, BL_SameComputer, LOGO_APPLICATION_NAME);
 
