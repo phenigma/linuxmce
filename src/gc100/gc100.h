@@ -63,7 +63,7 @@ private:
 	void parse_message_device(std::string message);
 	void parse_message_statechange(std::string message, bool change);
 
-	pthread_t m_EventThread, m_LearningThread;
+	pthread_t m_EventThread, m_LearningThread, m_SocketThread;
 
 	// Public member variables
 
@@ -97,6 +97,7 @@ private:
 	bool m_bLearning;
 	bool m_bStopLearning;
 
+	int learn_client, learn_server;
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
@@ -125,10 +126,12 @@ public:
 
 //<-dceag-h-e->
 		virtual void LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, long PK_Text);
+		int LEARN_IR_via_Socket();
 		virtual void LEARN_IR_CANCEL();
 
 		void LearningThread(LearningInfo * pLearningInfo);
 		void EventThread();
+		void SocketThread(int port);
 
 		bool Open_gc100_Socket();
 		bool send_to_gc100(string Cmd);

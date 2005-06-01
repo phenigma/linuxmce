@@ -49,6 +49,7 @@ const timespec READY_TIMEOUT = {3, 0};
 const string LEARN_PREFIX_IRL = "GC-IRL";
 const string LEARN_PREFIX_IRE = "GC-IRE";
 const int GC100_COMMAND_PORT = 4998;
+const int hardcoded_Socket_Port = 6777;
 
 /** pthread wrapper functions for the in-object thread functions */
 // Learning thread
@@ -62,11 +63,29 @@ void * StartLearningThread(void * Arg)
 	return NULL;
 }
 
+// Learning thread, called from socket
+void * StartLearningThread_via_Socket(void * Arg)
+{
+	gc100 * pgc100 = (gc100 *) Arg;
+	
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	pgc100->LearningThread(NULL);
+	return NULL;
+}
+
 // gc100 generated events processor: pin change, IR completion
 void * StartEventThread(void * Arg)
 {
 	gc100 * pgc100 = (gc100 *) Arg;
 	pgc100->EventThread();
+	return NULL;
+}
+
+// raw learning socket handler
+void * StartSocketThread(void * Arg)
+{
+	gc100 * pgc100 = (gc100 *) Arg;
+	pgc100->SocketThread(hardcoded_Socket_Port);
 	return NULL;
 }
 
@@ -1206,7 +1225,6 @@ void gc100::SendIR_Real(string Port, string IRCode)
 	g_pPlutoLogger->Write(LV_STATUS, "Finished sending all IRs");
 }
 
-// Not done
 // TODO: Create LearningInfo object and spawn new thread
 void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, long PK_Text)
 {
@@ -1241,6 +1259,34 @@ void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, lo
 //		DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Can't learn because no learning port is open", PK_Text);
 //		SendCommand(CMD_Set_Text);
 //	}
+}
+
+int gc100::LEARN_IR_via_Socket()
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Received LEARN_IR via Socket");
+	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
+
+	learn_input_string = "";
+
+	if (! m_bLearning)
+	{
+		if (pthread_create(&m_LearningThread, NULL, StartLearningThread_via_Socket, (void *) this))
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
+			m_bQuit = 1;
+			exit(1);
+		}
+		m_bLearning = false;
+		pthread_detach(m_LearningThread);
+		return 0;
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Learning thread already running");
+		string sMsg = "BUSY\n";
+		send(learn_client, sMsg.c_str(), sMsg.length(), 0);
+		return -1;
+	}
 }
 
 bool gc100::open_for_learning()
@@ -1285,14 +1331,24 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	int retval;
 	int ErrNo;
 
-	long PK_Command = pLearningInfo->m_PK_Command;
-	long PK_Device = pLearningInfo->m_PK_Device;
-	long PK_Device_Orbiter = pLearningInfo->m_PK_Device_Orbiter;
-	long PK_Text = pLearningInfo->m_PK_Text;
+	long PK_Command, PK_Device, PK_Device_Orbiter, PK_Text;
 
+	// pLearningInfo is NULL when called from socket (raw learning)
+	if (pLearningInfo)
 	{
-		DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Waiting for IR code", PK_Text);
-		SendCommand(CMD_Set_Text);
+		PK_Command = pLearningInfo->m_PK_Command;
+		PK_Device = pLearningInfo->m_PK_Device;
+		PK_Device_Orbiter = pLearningInfo->m_PK_Device_Orbiter;
+		PK_Text = pLearningInfo->m_PK_Text;
+
+		{
+			DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Waiting for IR code", PK_Text);
+			SendCommand(CMD_Set_Text);
+		}
+	}
+	else
+	{
+		PK_Command = PK_Device = PK_Device_Orbiter = PK_Text = 0;
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Learning thread started");
@@ -1412,31 +1468,56 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 				std::string pronto_result;
 
 				if (!learning_error)
-				{  // Only send this if there was no error detected
-					g_pPlutoLogger->Write(LV_STATUS, "Finished learning, Device=%d, Command=%d, Orbiter=%d, size=%d", PK_Device,
-						PK_Command, PK_Device_Orbiter, learn_input_string.length());
+				{
+					// Only send this if there was no error detected
+					if (pLearningInfo)
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "Finished learning, Device=%d, Command=%d, Orbiter=%d, size=%d", PK_Device,
+							PK_Command, PK_Device_Orbiter, learn_input_string.length());
+					}
+					else
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "Finished learning, socket");
+					}
+
 					g_pPlutoLogger->Write(LV_STATUS, "Terminating on retval of %d err=%d, desc=%s", retval, ErrNo, strerror(ErrNo));
 					g_pPlutoLogger->Write(LV_STATUS, "Raw learn string received: %s\n", learn_input_string.c_str());
 
 					pronto_result=IRL_to_pronto(learn_input_string);
 					g_pPlutoLogger->Write(LV_STATUS, "Conversion to Pronto: %s", pronto_result.c_str());
 
-					// TODO: lookup IR plugin once and send message to it directly instead of this
-					DCE::CMD_Store_Infrared_Code_Cat CMD_Store_Infrared_Code_Cat(m_dwPK_Device,
-						DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse,
-						PK_Device, pronto_result, PK_Command);
-					getCommandImpl()->SendCommand(CMD_Store_Infrared_Code_Cat);
-					getCodeMap()[longPair(PK_Device, PK_Command)] = pronto_result;
+					if (pLearningInfo)
+					{
+						// TODO: lookup IR plugin once and send message to it directly instead of this
+						DCE::CMD_Store_Infrared_Code_Cat CMD_Store_Infrared_Code_Cat(m_dwPK_Device,
+							DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse,
+							PK_Device, pronto_result, PK_Command);
+						getCommandImpl()->SendCommand(CMD_Store_Infrared_Code_Cat);
+						getCodeMap()[longPair(PK_Device, PK_Command)] = pronto_result;
 	
-					bLearnedCode = true;
-					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Code learned successfully", PK_Text);
-					SendCommand(CMD_Set_Text);
+						bLearnedCode = true;
+						DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Code learned successfully", PK_Text);
+						SendCommand(CMD_Set_Text);
+					}
+					else
+					{
+						string sMsg = pronto_result + "\n";
+						send(learn_client, sMsg.c_str(), sMsg.length(), 0);
+					}
 				}
 				else
 				{
 					g_pPlutoLogger->Write(LV_WARNING, "'Learned' event not sent because GC-IRL indicated error");
-					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", string("'Learned' event not sent because GC-IRL indicated error: ") + ErrorMsg, PK_Text);
-					SendCommand(CMD_Set_Text);
+					if (pLearningInfo)
+					{
+						DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", string("'Learned' event not sent because GC-IRL indicated error: ") + ErrorMsg, PK_Text);
+						SendCommand(CMD_Set_Text);
+					}
+					else
+					{
+						string sMsg = "GC100 ERROR\n";
+						send(learn_client, sMsg.c_str(), sMsg.length(), 0);
+					}
 				}
 			}
 		}
@@ -1445,12 +1526,33 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 			if (! m_bStopLearning && ! m_bQuit)
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Timeout");
-				DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
-				SendCommand(CMD_Set_Text);
+				if (pLearningInfo)
+				{
+					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
+					SendCommand(CMD_Set_Text);
+				}
+				else
+				{
+					string sMsg = "TIMEOUT\n";
+					send(learn_client, sMsg.c_str(), sMsg.length(), 0);
+				}
 			}
 		}
 		close(learn_fd);
 	} // end if is_open_for_learning
+	else
+	{
+		if (pLearningInfo)
+		{
+			DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Failed to open learning device", PK_Text);
+			SendCommand(CMD_Set_Text);
+		}
+		else
+		{
+			string sMsg = "CAN'T OPEN\n";
+			send(learn_client, sMsg.c_str(), sMsg.length(), 0);
+		}
+	}
 	m_bLearning = false;
 	m_bStopLearning = false;
 
@@ -1488,6 +1590,11 @@ void gc100::CreateChildren()
 		m_bQuit = 1;
 		exit(1);
 	}
+
+	if (pthread_create(&m_SocketThread, NULL, StartSocketThread, (void *) this))
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Failed to create Socket Thread");
+	}
 }
 
 void gc100::EventThread()
@@ -1515,4 +1622,54 @@ void gc100::SetQuitFlag()
 	m_bQuit = true;
 }
 
+void gc100::SocketThread(int port)
+{
+	struct sockaddr_in saddr;
+	const int buff_size = 4096;
+	char buffer[buff_size];
+	int count, ret;
+
+	saddr.sin_family = AF_INET;
+	saddr.sin_port = htons(port);
+	saddr.sin_addr.s_addr = INADDR_ANY;
+
+	// TODO: check for errors
+	learn_server = socket(PF_INET, SOCK_STREAM, 0);
+	{
+		int x = 1;
+		setsockopt(learn_server, SOL_SOCKET, SO_REUSEADDR, &x, sizeof(x));
+	}
+	bind(learn_server, (struct sockaddr *) &saddr, sizeof(saddr));
+	listen(learn_server, 5);
+
+	while (! m_bQuit)
+	{
+		learn_client = accept(learn_server, NULL, NULL);
+		g_pPlutoLogger->Write(LV_STATUS, "Accepted client on socket");
+		while (! m_bQuit && (count = recv(learn_client, buffer, buff_size - 1, 0)) > 0)
+		{
+			buffer[count] = 0;
+			sscanf(buffer, "%s", buffer);
+			if (strcmp("LEARN", buffer) ==  0)
+			{
+				ret = LEARN_IR_via_Socket();
+				if (ret == 0)
+				{
+					while (m_bLearning)
+					{
+						Sleep(1000);
+					}
+				}
+			}
+			else
+			{
+				string sMsg = "UNKNOWN\n";
+				send(learn_client, sMsg.c_str(), sMsg.length(), 0);
+			}
+		
+		}
+		close(learn_client);
+		g_pPlutoLogger->Write(LV_STATUS, "Socket client disconnected");
+	}
+}
 //<-dceag-createinst-b->!
