@@ -1,5 +1,5 @@
 /*
- * $Id: ir-common.c,v 1.8 2005/02/22 12:28:40 kraxel Exp $
+ * $Id: ir-common.c,v 1.10 2005/05/22 19:23:39 nsh Exp $
  *
  * some common structs and functions to handle infrared remotes via
  * input layer ...
@@ -185,18 +185,30 @@ IR_KEYTAB_TYPE ir_codes_hauppauge_new[IR_KEYTAB_SIZE] = {
 	[ 0x07 ] = KEY_KP7,             // 7
 	[ 0x08 ] = KEY_KP8,             // 8
 	[ 0x09 ] = KEY_KP9,             // 9
+	[ 0x0a ] = KEY_TEXT,      	// keypad asterisk as well
 	[ 0x0b ] = KEY_RED,             // red button
-	[ 0x0c ] = KEY_OPTION,          // black key without text
+	[ 0x0c ] = KEY_RADIO,           // radio
 	[ 0x0d ] = KEY_MENU,            // menu
+	[ 0x0e ] = KEY_SUBTITLE,	// also the # key
 	[ 0x0f ] = KEY_MUTE,            // mute
 	[ 0x10 ] = KEY_VOLUMEUP,        // volume +
 	[ 0x11 ] = KEY_VOLUMEDOWN,      // volume -
-	[ 0x1e ] = KEY_NEXT,            // skip >|
+	[ 0x12 ] = KEY_PREVIOUS,        // previous channel
+	[ 0x14 ] = KEY_UP,              // up
+	[ 0x15 ] = KEY_DOWN,		// down
+	[ 0x16 ] = KEY_LEFT,		// left
+	[ 0x17 ] = KEY_RIGHT,		// right
+	[ 0x18 ] = KEY_VIDEO,		// Videos
+	[ 0x19 ] = KEY_AUDIO,		// Music
+	[ 0x1a ] = KEY_MHP,		// Pictures - presume this means "Multimedia Home Platform"- no "PICTURES" key in input.h
+	[ 0x1b ] = KEY_EPG,		// Guide
+	[ 0x1c ] = KEY_TV,		// TV
+	[ 0x1e ] = KEY_NEXTSONG,        // skip >|
 	[ 0x1f ] = KEY_EXIT,            // back/exit
 	[ 0x20 ] = KEY_CHANNELUP,       // channel / program +
 	[ 0x21 ] = KEY_CHANNELDOWN,     // channel / program -
 	[ 0x22 ] = KEY_CHANNEL,         // source (old black remote)
-	[ 0x24 ] = KEY_PREVIOUS,        // replay |<
+	[ 0x24 ] = KEY_PREVIOUSSONG,    // replay |<
 	[ 0x25 ] = KEY_ENTER,           // OK
 	[ 0x26 ] = KEY_SLEEP,           // minimize (old black remote)
 	[ 0x29 ] = KEY_BLUE,            // blue key
@@ -213,6 +225,39 @@ IR_KEYTAB_TYPE ir_codes_hauppauge_new[IR_KEYTAB_SIZE] = {
 	[ 0x3d ] = KEY_POWER,           // system power (green button)
 };
 EXPORT_SYMBOL(ir_codes_hauppauge_new);
+
+IR_KEYTAB_TYPE ir_codes_pixelview[IR_KEYTAB_SIZE] = {
+	[  2 ] = KEY_KP0,
+	[  1 ] = KEY_KP1,
+	[ 11 ] = KEY_KP2,
+	[ 27 ] = KEY_KP3,
+	[  5 ] = KEY_KP4,
+	[  9 ] = KEY_KP5,
+	[ 21 ] = KEY_KP6,
+	[  6 ] = KEY_KP7,
+	[ 10 ] = KEY_KP8,
+	[ 18 ] = KEY_KP9,
+
+	[  3 ] = KEY_TUNER,       // TV/FM
+	[  7 ] = KEY_SEARCH,      // scan
+	[ 28 ] = KEY_ZOOM,        // full screen
+	[ 30 ] = KEY_POWER,
+	[ 23 ] = KEY_VOLUMEDOWN,
+	[ 31 ] = KEY_VOLUMEUP,
+	[ 20 ] = KEY_CHANNELDOWN,
+	[ 22 ] = KEY_CHANNELUP,
+	[ 24 ] = KEY_MUTE,
+
+	[  0 ] = KEY_LIST,        // source
+	[ 19 ] = KEY_INFO,        // loop
+	[ 16 ] = KEY_LAST,        // +100
+	[ 13 ] = KEY_CLEAR,       // reset
+	[ 12 ] = BTN_RIGHT,       // fun++
+	[  4 ] = BTN_LEFT,        // fun--
+	[ 14 ] = KEY_GOTO,        // function
+	[ 15 ] = KEY_STOP,         // freeze
+};
+EXPORT_SYMBOL(ir_codes_pixelview);
 
 /* -------------------------------------------------------------------------- */
 
@@ -380,3 +425,4 @@ EXPORT_SYMBOL_GPL(ir_decode_biphase);
  * c-basic-offset: 8
  * End:
  */
+

@@ -31,6 +31,7 @@
 #include <linux/version.h>
 
 #include <linux/module.h>
+#include <linux/moduleparam.h>
 #include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -192,11 +193,13 @@ hauppauge_tuner[] =
 	{ TUNER_ABSENT,        "TCL MFPE05 2"},
 	/* 90-99 */
 	{ TUNER_ABSENT,        "LG TALN H202T"},
-	{ TUNER_ABSENT,        "Philips FQ1216AME MK4"},
+	{ TUNER_PHILIPS_FQ1216AME_MK4, "Philips FQ1216AME MK4"},
 	{ TUNER_PHILIPS_FQ1236A_MK4, "Philips FQ1236A MK4"},
 	{ TUNER_ABSENT,        "Philips FQ1286A MK4"},
 	{ TUNER_ABSENT,        "Philips FQ1216ME MK5"},
 	{ TUNER_ABSENT,        "Philips FQ1236 MK5"},
+	{ TUNER_ABSENT,        "Unspecified"},
+	{ TUNER_LG_PAL_TAPE,   "LG PAL (TAPE Series)"},
 };
 
 static char *sndtype[] = {

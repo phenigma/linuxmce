@@ -78,7 +78,6 @@ else
 endif
 
 CC += -I$(obj)
-EXTRA_CFLAGS += -I$(obj) 
 EXTRA_CFLAGS += -g
 
 snapshot := $(wildcard $(obj)/.snapshot)

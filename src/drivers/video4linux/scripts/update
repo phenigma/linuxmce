@@ -72,7 +72,7 @@ v4l2basic
 
 xinsmod tveeprom  debug=0
 xinsmod dvb-pll   debug=0
-xinsmod btcx-risc debug=1
+xinsmod btcx-risc debug=0
 xinsmod ir-common debug=0 repeat=0
 xinsmod tuner     tuner_debug=0
 xinsmod tda9887   debug=0 qss=1

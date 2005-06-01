@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-dvb.c,v 1.29 2005/02/18 13:26:20 kraxel Exp $
+ * $Id: cx88-dvb.c,v 1.32 2005/05/22 19:23:39 nsh Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * MPEG Transport Stream (DVB) routines
@@ -191,7 +191,7 @@ static int or51132_set_ts_param(struct dvb_frontend* fe,
 	return 0;
 }
 
-struct or51132_config pchdtv_hd3000 = {
+static struct or51132_config pchdtv_hd3000 = {
 	.demod_address    = 0x15,
 	.pll_address      = 0x61,
 	.pll_desc         = &dvb_pll_thomson_dtt7610,
@@ -203,7 +203,7 @@ static int dvb_register(struct cx8802_dev *dev)
 {
 	/* init struct videobuf_dvb */
 	dev->dvb.name = dev->core->name;
-	dev->ts_gen_cntrl = 0xc0;
+	dev->ts_gen_cntrl = 0x0c;
 
 	/* init frontend */
 	switch (dev->core->board) {
@@ -243,10 +243,8 @@ static int dvb_register(struct cx8802_dev *dev)
 		break;
 #endif
 	default:
-		printk("%s: The frontend of your DVB/ATSC card isn't supported yet\n"
-		       "%s: you might want to look out for patches here:\n"
-		       "%s:     http://dl.bytesex.org/patches/\n",
-		       dev->core->name, dev->core->name, dev->core->name);
+		printk("%s: The frontend of your DVB/ATSC card isn't supported yet\n",
+		       dev->core->name);
 		break;
 	}
 	if (NULL == dev->dvb.frontend) {
@@ -308,9 +306,11 @@ static int __devinit dvb_probe(struct pci_dev *pci_dev,
 			    dev);
 	err = dvb_register(dev);
 	if (0 != err)
-		goto fail_free;
+		goto fail_fini;
 	return 0;
 
+ fail_fini:
+	cx8802_fini_common(dev);
  fail_free:
 	kfree(dev);
  fail_core:
@@ -362,7 +362,7 @@ static int dvb_init(void)
 	printk(KERN_INFO "cx2388x: snapshot date %04d-%02d-%02d\n",
 	       SNAPSHOT/10000, (SNAPSHOT/100)%100, SNAPSHOT%100);
 #endif
-	return pci_module_init(&dvb_pci_driver);
+	return pci_register_driver(&dvb_pci_driver);
 }
 
 static void dvb_fini(void)

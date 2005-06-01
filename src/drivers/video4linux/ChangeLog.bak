@@ -1,3 +1,220 @@
+2005-06-01 04:31  mchehab
+	* cx88-cards.c:
+
+	- cosmetic changes to reflect pal_m patch applied to -mm series.
+
+2005-06-01 03:32  mchehab
+	* scripts/make_kern_diff.sh:
+
+	- new script to check differences between kernel CVS and kernel 2.6
+
+2005-05-30 16:43  mchehab
+	* cx88-cards.c:
+
+	- changed tuner number to its corresponding name for PV Ultra Pro.
+
+2005-05-30 16:33  mchehab
+	* cx88-cards.c:
+
+	- Included PCI ID 14f1:8800 to CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO
+
+2005-05-30 02:42  mchehab
+	* tuner-core.c, tuner-simple.c, tuner.h:
+
+	- tuner-core changed to support multiple I2C devices
+	- has to define CONFIG_TUNER_MULTI_I2C to allow new behavor
+	- By default, it uses first I2C device for FM and TV
+	- New client control TUNER_SET_ADDR changes I2C addr for FM or TV
+	- TVision 5533 MF now uses I2C on 0xC2 for TV and on 0xC0 for radio
+	- TVision 5533 MF div now uses only integer arithmetics
+	- tuner I2C dettach now generates warn log if failed
+
+2005-05-29 13:38  nshmyrev
+
+	* cx88-cards.c, cx88.h:
+	
+	Add support for "DViCO - FusionHDTV 3 Gold-Q". Thanks to 
+	Michael Krufky <mkrufky@m1k.net>.
+
+2005-05-27 05:45  mchehab
+
+	* tuner-simple.c:
+
+	- Added initial support for Radio tuner for Ymec TVF xxx3 MF
+	- Buffer values determinated empirically.
+	- There's a hack for selecting I2C bus for Radio (0xC0>>1)
+
+2005-05-25 04:00  nshmyrev
+
+	* bttv-cards.c, bttv.h:
+	
+	Add support for the Adlink RTV24 capture card. Thanks to Peter
+	Skipworth <pskipworth@clarityvi.com>
+
+2005-05-25 02:40  nshmyrev
+
+	* saa7134-vbi.c, saa7134-video.c, saa7134.h:
+	
+	saa7134 ntsc vbi fix. Patch from mschimek@nusurf.at which is merged to
+	kernel -mm tree.
+
+2005-05-25 02:25  kraxel 
+
+	* bttv-i2c.c: Don't try to access the i2c bus if the register wasn't successful.
+
+2005-05-23 23:57  nshmyrev
+
+	* saa7134-cards.c, saa7134-input.c: Add Behold names to Manli
+	cards, since they should be identical. Add remote support for
+	those card. Thanks to Michael Tokarev <mjt@tls.msk.ru>.
+
+2005-05-23 00:55  nshmyrev
+
+	* cx88-input.c:  
+	
+	enables the remote control input on the KWorld XPert DVB-T card.
+	Thanks to cybercide@f2s.com <cybercide@f2s.com>
+
+2005-05-22 23:50  nshmyrev
+
+	* saa7134-cards.c, saa7134.h, saa7134-input.c:
+	
+	Update entries for Lifeview Platinum FM, Avermedia 307 Studio,
+	Avermedia 307 and Avermedia GO 007 FM
+
+2005-05-22 23:40  nshmyrev
+
+	* ir-common.c:
+	
+	Update hauppage ir codes
+
+2005-05-22 23:20  nshmyrev
+
+	* tda9887.c, tuner-core.c:
+	
+	Fix module_param_string argument order
+
+2005-05-22 23:20  nshmyrev
+
+	* bttv-i2c.c, compat.h, cx88-dvb.c, saa6752hs.c:
+	* saa7134-core.c, saa7134-empress.c:
+	
+	Merge changes from 2.6.12 kernel.
+
+2005-05-22 23:06  nshmyrev
+
+	* scripts/cardlist, doc/CARDLIST.bttv, doc/CARDLIST.cx88:
+	* doc/CARDLIST.tuner, doc/CARDLIST.saa7134:
+	
+	Update cardlist script and list of cards
+
+2005-05-18 01:30   mchehab
+	* tuner-simple.c, tuner.h:
+
+	- Added support for some  Ymec tuners used on Pixelview Cards.
+	- There are some docs about it on http://www.ymec.com.tw/tuner.htm.
+
+2005-05-15 19:07  mchehab
+	* scripts/cardlist, doc/CARDLIST.bttv, doc/CARDLIST.cx88,
+	  doc/CARDLIST.saa7134, doc/CARDLIST.tuner:
+
+	- scripts/cardlist updated to generate doc/CARDLIST.cx88
+	- doc/CARDLIST.xxx updated.
+
+2005-05-15 19:01  mchehab
+	* cx88-cards.c, cx88.h, cx88-input.c, ir-common.c, ir-common.h,
+	  ir-kbd-gpio.c:
+	- Added support for Pixelview Ultra Pro Stereo by Manuel Capinha.
+
+2005-05-15 18:49  mchehab
+	* cx88-core.c:
+	- Mauro Chehab(mchehab at brturbo.com.br): Added support for PAL-M FSC.
+
+2005-04-26 11:01  kraxel
+
+	* README.patches:
+
+	- update README.patches
+
+2005-04-04 00:14  kraxel
+
+	* README.patches:
+
+	- Final commit: add README.patches
+
+2005-03-10 11:07  kraxel
+
+	* or51132.c:
+
+	- fix from akpm.
+
+2005-03-08 09:38  kraxel
+
+	* tuner-simple.c, tuner.h, tveeprom.c:
+
+	- tuner + tveeprom updates from Jarod Wilson.
+
+2005-03-07 17:10  kraxel
+
+	* cx88-tvaudio.c:
+
+	- cx88: stereo/bilang fix.
+
+2005-03-07 16:58  kraxel
+
+	* cx88-blackbird.c, cx88-dvb.c, cx88-video.c:
+
+	- minor cleanup.
+
+2005-03-07 15:18  kraxel
+
+	* cx88-dvb.c, cx88-mpeg.c:
+
+	- fix cx88-dvb.
+
+2005-03-07 13:01  kraxel
+
+	* cx88-mpeg.c, saa7134-cards.c, saa7134.h, tda8290.c,
+	  scripts/update:
+
+	- add flyvideo duo.
+
+2005-03-04 10:34  kraxel
+
+	* cx88-mpeg.c:
+
+	- hopefully fix dvb ts setup.
+
+2005-03-04 10:24  kraxel
+
+	* mt20xx.c, tda8290.c, tuner-simple.c, tveeprom.c:
+
+	- build fixes for older kernels.
+
+2005-03-04 10:12  kraxel
+
+	* cx88-cards.c, cx88-input.c, cx88.h:
+
+	- cx88: add support for IO-DATA BCTV7E.
+
+2005-03-03 16:30  kraxel
+
+	* saa6752hs.c, tuner-simple.c:
+
+	- misc small stuff.
+
+2005-03-02 14:16  kraxel
+
+	* tuner-simple.c:
+
+	- one more tuner fix from Jarod Wilson.
+
+2005-03-01 11:22  kraxel
+
+	* tuner-simple.c, tuner.h, tvaudio.c, tveeprom.c:
+
+	- tuner update (for pvr) from Jarod Wilson.
+
 2005-02-24 14:32  kraxel
 
 	* cx88-video.c, video-buf.c:
@@ -880,7 +1097,7 @@
 	  saa7134-reg.h, saa7134-ts.c, saa7134-tvaudio.c, saa7134-vbi.c,
 	  saa7134-video.c, saa7134.h, video-buf.c, video-buf.h:
 
-	- added a bunch of $Id$ tags.
+	- added a bunch of $Id: ChangeLog,v 1.14 2005/06/01 03:33:05 mchehab Exp $ tags.
 
 2004-09-15 17:35  kraxel
 

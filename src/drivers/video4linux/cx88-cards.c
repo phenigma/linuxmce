@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-cards.c,v 1.65 2005/02/22 09:56:28 kraxel Exp $
+ * $Id: cx88-cards.c,v 1.71 2005/05/30 15:43:44 mchehab Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * card-specific stuff.
@@ -239,30 +239,30 @@ struct cx88_board cx88_boards[] = {
 			.gpio3  = 0x02000000,
 		 },
         },
-        [CX88_BOARD_LEADTEK_PVR2000] = {
+	[CX88_BOARD_LEADTEK_PVR2000] = {
 		// gpio values for PAL version from regspy by DScaler
-                .name           = "Leadtek PVR 2000",
-                .tuner_type     = 38,
+		.name           = "Leadtek PVR 2000",
+		.tuner_type     = 38,
 		.tda9887_conf   = TDA9887_PRESENT,
-                .input          = {{
-                        .type   = CX88_VMUX_TELEVISION,
-                        .vmux   = 0,
-                        .gpio0  = 0x0000bde2,
-                },{
-                        .type   = CX88_VMUX_COMPOSITE1,
-                        .vmux   = 1,
-                        .gpio0  = 0x0000bde6,
-                },{
-                        .type   = CX88_VMUX_SVIDEO,
-                        .vmux   = 2,
-                        .gpio0  = 0x0000bde6,
-                }},
-                .radio = {
-                        .type   = CX88_RADIO,
-                        .gpio0  = 0x0000bd62,
-                },
+		.input          = {{
+			.type   = CX88_VMUX_TELEVISION,
+			.vmux   = 0,
+			.gpio0  = 0x0000bde2,
+		},{
+			.type   = CX88_VMUX_COMPOSITE1,
+			.vmux   = 1,
+			.gpio0  = 0x0000bde6,
+		},{
+			.type   = CX88_VMUX_SVIDEO,
+			.vmux   = 2,
+			.gpio0  = 0x0000bde6,
+		}},
+		.radio = {
+			.type   = CX88_RADIO,
+			.gpio0  = 0x0000bd62,
+		},
 		.blackbird = 1,
-        },
+	},
 	[CX88_BOARD_IODATA_GVVCP3PCI] = {
  		.name		= "IODATA GV-VCP3/PCI",
 		.tuner_type     = TUNER_ABSENT,
@@ -428,12 +428,6 @@ struct cx88_board cx88_boards[] = {
 			.vmux   = 2,
 			.gpio0	= 0x0f00,
 		}},
-#if 0
-		.ts             = {
-			 .type   = CX88_TS,
-			 .gpio0  = 0x00000f01,   /* Hooked to tuner reset bit */
-		 }
-#endif
 	},
         [CX88_BOARD_HAUPPAUGE_DVB_T1] = {
                 .name           = "Hauppauge Nova-T DVB-T",
@@ -561,36 +555,87 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_DIGITALLOGIC_MEC] = {
 		.name           = "Digital-Logic MICROSPACE Entertainment Center (MEC)",
 		.tuner_type     = 38,
-		.tda9887_conf   = TDA9887_PRESENT  /*| TDA9887_QSS | TDA9887_INTERCARRIER */,
+		.tda9887_conf   = TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
-			// .gpio0  = 0x0000bde2, //0x0000bde6 9c80 8480
-			// .gpio0   = 0x00009d82, // This works
-			.gpio0	= 0x00009d80,
-			// .gpio1  = 0x0000002a,
-			// .gpio2  = 0x0000009d,
+			.gpio0  = 0x00009d80,
 		},{
 			.type   = CX88_VMUX_COMPOSITE1,
 			.vmux   = 1,
-			.gpio0  = 0x00009d76, // 04
-			// .gpio1  = 0x00000075,
-			// .gpio2  = 0x000000dd,
+			.gpio0  = 0x00009d76,
 		},{
 			.type   = CX88_VMUX_SVIDEO,
 			.vmux   = 2,
-			.gpio0  = 0x00009d76, // 04
-			// .gpio1  = 0x00000000,
-			// .gpio2  = 0x00000001,
+			.gpio0  = 0x00009d76,
 		}},
 		.radio = {
 			.type   = CX88_RADIO,
-			.gpio0  = 0x00009d00, // 00
-			.gpio1  = 0x00000000,
-			.gpio2  = 0x00000000,
+			.gpio0  = 0x00009d00,
 		},
 		.blackbird = 1,
 	},
+	[CX88_BOARD_IODATA_GVBCTV7E] = {
+		.name           = "IODATA GV/BCTV7E",
+		.tuner_type     = TUNER_PHILIPS_FQ1286,
+		.tda9887_conf   = TDA9887_PRESENT,
+		.input          = {{
+			.type   = CX88_VMUX_TELEVISION,
+			.vmux   = 1,
+			.gpio1  = 0x0000e03f,
+		},{
+			.type   = CX88_VMUX_COMPOSITE1,
+			.vmux   = 2,
+			.gpio1  = 0x0000e07f,
+		},{
+			.type   = CX88_VMUX_SVIDEO,
+			.vmux   = 3,
+			.gpio1  = 0x0000e07f,
+		}}
+	},
+	[CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO] = {
+		.name           = "PixelView PlayTV Ultra Pro (Stereo)",
+		/* May be also TUNER_YMEC_TVF_5533MF for NTSC/M or PAL/M */
+		.tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
+		.input          = {{
+			.type   = CX88_VMUX_TELEVISION,
+			.vmux   = 0,
+			.gpio0  = 0xbf61,  /* internal decoder */
+		},{
+			.type   = CX88_VMUX_COMPOSITE1,
+			.vmux   = 1,
+			.gpio0	= 0xbf63,
+		},{
+			.type   = CX88_VMUX_SVIDEO,
+			.vmux   = 2,
+			.gpio0	= 0xbf63,
+		}},
+		.radio = {
+			 .type  = CX88_RADIO,
+			 .gpio0 = 0xbf60,
+		 },
+	},
+        [CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q] = {
+                .name           = "DViCO - FusionHDTV 3 Gold-Q",
+                .tuner_type     = TUNER_THOMSON_DTT7611,
+                .input          = {{
+                        .type   = CX88_VMUX_TELEVISION,
+                        .vmux   = 0,
+                        .gpio0  = 0x0f0d,
+                },{
+                        .type   = CX88_VMUX_CABLE,
+                        .vmux   = 0,
+                        .gpio0  = 0x0f05,
+                },{
+                        .type   = CX88_VMUX_COMPOSITE1,
+                        .vmux   = 1,
+                        .gpio0  = 0x0f00,
+                },{
+                        .type   = CX88_VMUX_SVIDEO,
+                        .vmux   = 2,
+                        .gpio0  = 0x0f00,
+                }},
+        },
 };
 const unsigned int cx88_bcount = ARRAY_SIZE(cx88_boards);
 
@@ -663,6 +708,10 @@ struct cx88_subid cx88_subids[] = {
 		.subdevice = 0xd810,
 		.card      = CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD,
 	},{
+		.subvendor = 0x18ac,
+		.subdevice = 0xd820,
+		.card      = CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q,
+	},{
 		.subvendor = 0x18AC,
 		.subdevice = 0xDB00,
 		.card      = CX88_BOARD_DVICO_FUSIONHDTV_DVB_T1,
@@ -702,6 +751,14 @@ struct cx88_subid cx88_subids[] = {
 		.subvendor = 0x14F1,
 		.subdevice = 0x0342,
 		.card      = CX88_BOARD_DIGITALLOGIC_MEC,
+	},{
+		.subvendor = 0x10fc,
+		.subdevice = 0xd035,
+		.card      = CX88_BOARD_IODATA_GVBCTV7E,
+	},{
+		.subvendor = 0x14f1,
+		.subdevice = 0x8800,
+		.card      = CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO,
 	}
 };
 const unsigned int cx88_idcount = ARRAY_SIZE(cx88_subids);
@@ -921,4 +978,5 @@ EXPORT_SYMBOL(cx88_card_setup);
  * Local variables:
  * c-basic-offset: 8
  * End:
+ * kate: eol "unix"; indent-width 3; remove-trailing-space on; replace-trailing-space-save on; tab-width 8; replace-tabs off; space-indent off; mixed-indent off
  */

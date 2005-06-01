@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-input.c,v 1.8 2005/02/22 12:28:40 kraxel Exp $
+ * $Id: cx88-input.c,v 1.11 2005/05/22 20:57:56 nsh Exp $
  *
  * Device driver for GPIO attached remote control interfaces
  * on Conexant 2388x based TV/DVB cards.
@@ -71,6 +71,56 @@ static IR_KEYTAB_TYPE ir_codes_dntv_live_dvb_t[IR_KEYTAB_SIZE] = {
 	[ 0x1d ] = KEY_RECORD,      // 'record'
 	[ 0x1e ] = KEY_CHANNELDOWN, // 'channel -'
 	[ 0x1f ] = KEY_VOLUMEDOWN,  // 'volume -'
+};
+
+/* ---------------------------------------------------------------------- */
+
+/* IO-DATA BCTV7E Remote */
+static IR_KEYTAB_TYPE ir_codes_iodata_bctv7e[IR_KEYTAB_SIZE] = {
+	[ 0x40 ] = KEY_TV,              // TV
+	[ 0x20 ] = KEY_RADIO,           // FM
+	[ 0x60 ] = KEY_EPG,             // EPG
+	[ 0x00 ] = KEY_POWER,           // power
+
+	[ 0x50 ] = KEY_KP1,             // 1
+	[ 0x30 ] = KEY_KP2,             // 2
+	[ 0x70 ] = KEY_KP3,             // 3
+	[ 0x10 ] = KEY_L,               // Live
+
+	[ 0x48 ] = KEY_KP4,             // 4
+	[ 0x28 ] = KEY_KP5,             // 5
+	[ 0x68 ] = KEY_KP6,             // 6
+	[ 0x08 ] = KEY_T,               // Time Shift
+
+	[ 0x58 ] = KEY_KP7,             // 7
+	[ 0x38 ] = KEY_KP8,             // 8
+	[ 0x78 ] = KEY_KP9,             // 9
+	[ 0x18 ] = KEY_PLAYPAUSE,       // Play
+
+	[ 0x44 ] = KEY_KP0,             // 10
+	[ 0x24 ] = KEY_ENTER,           // 11
+	[ 0x64 ] = KEY_ESC,             // 12
+	[ 0x04 ] = KEY_M,               // Multi
+
+	[ 0x54 ] = KEY_VIDEO,           // VIDEO
+	[ 0x34 ] = KEY_CHANNELUP,       // channel +
+	[ 0x74 ] = KEY_VOLUMEUP,        // volume +
+	[ 0x14 ] = KEY_MUTE,            // Mute
+
+	[ 0x4c ] = KEY_S,               // SVIDEO
+	[ 0x2c ] = KEY_CHANNELDOWN,     // channel -
+	[ 0x6c ] = KEY_VOLUMEDOWN,      // volume -
+	[ 0x0c ] = KEY_ZOOM,            // Zoom
+
+	[ 0x5c ] = KEY_PAUSE,           // pause
+	[ 0x3c ] = KEY_C,               // || (red)
+	[ 0x7c ] = KEY_RECORD,          // recording
+	[ 0x1c ] = KEY_STOP,            // stop
+
+	[ 0x41 ] = KEY_REWIND,          // backward <<
+	[ 0x21 ] = KEY_PLAY,            // play
+	[ 0x61 ] = KEY_FASTFORWARD,     // forward >>
+	[ 0x01 ] = KEY_NEXT,            // skip >|
 };
 
 /* ---------------------------------------------------------------------- */
@@ -185,6 +235,7 @@ int cx88_ir_init(struct cx88_core *core, struct pci_dev *pci)
 	/* detect & configure */
 	switch (core->board) {
 	case CX88_BOARD_DNTV_LIVE_DVB_T:
+	case CX88_BOARD_KWORLD_DVB_T:
 		ir_codes         = ir_codes_dntv_live_dvb_t;
 		ir->gpio_addr    = MO_GP1_IO;
 		ir->mask_keycode = 0x1f;
@@ -204,7 +255,22 @@ int cx88_ir_init(struct cx88_core *core, struct pci_dev *pci)
 		ir->mask_keyup   = 0x100;
 		ir->polling      = 1; // ms
 		break;
+	case CX88_BOARD_IODATA_GVBCTV7E:
+		ir_codes         = ir_codes_iodata_bctv7e;
+		ir->gpio_addr    = MO_GP0_IO;
+		ir->mask_keycode = 0xfd;
+		ir->mask_keydown = 0x02;
+		ir->polling      = 5; // ms
+		break;
+	case CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO:
+		ir_codes         = ir_codes_pixelview;
+		ir->gpio_addr    = MO_GP1_IO;
+		ir->mask_keycode = 0x1f; 
+		ir->mask_keyup   = 0x80;
+		ir->polling      = 1; // ms
+		break;
 	}
+
 	if (NULL == ir_codes) {
 		kfree(ir);
 		return -ENODEV;

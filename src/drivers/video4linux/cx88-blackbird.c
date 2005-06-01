@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-blackbird.c,v 1.25 2005/02/16 13:11:55 kraxel Exp $
+ * $Id: cx88-blackbird.c,v 1.26 2005/03/07 15:58:05 kraxel Exp $
  *
  *  Support for a cx23416 mpeg encoder via cx2388x host port.
  *  "blackbird" reference design.
@@ -39,7 +39,7 @@ MODULE_AUTHOR("Jelle Foks <jelle@foks.8m.com>");
 MODULE_AUTHOR("Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]");
 MODULE_LICENSE("GPL");
 
-static unsigned int mpegbufs = 16;
+static unsigned int mpegbufs = 8;
 module_param(mpegbufs,int,0644);
 MODULE_PARM_DESC(mpegbufs,"number of mpeg buffers, range 2-32");
 
@@ -1734,7 +1734,6 @@ static int mpeg_open(struct inode *inode, struct file *file)
 			    V4L2_FIELD_TOP,
 			    sizeof(struct cx88_buffer),
 			    fh);
-	//msleep(1000);
 	return 0;
 }
 
@@ -1950,7 +1949,7 @@ static int blackbird_init(void)
 	printk(KERN_INFO "cx2388x: snapshot date %04d-%02d-%02d\n",
 	       SNAPSHOT/10000, (SNAPSHOT/100)%100, SNAPSHOT%100);
 #endif
-	return pci_module_init(&blackbird_pci_driver);
+	return pci_register_driver(&blackbird_pci_driver);
 }
 
 static void blackbird_fini(void)
@@ -1966,4 +1965,5 @@ module_exit(blackbird_fini);
  * Local variables:
  * c-basic-offset: 8
  * End:
+ * kate: eol "unix"; indent-width 3; remove-trailing-space on; replace-trailing-space-save on; tab-width 8; replace-tabs off; space-indent off; mixed-indent off
  */

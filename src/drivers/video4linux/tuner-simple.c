@@ -1,5 +1,5 @@
 /*
- * $Id: tuner-simple.c,v 1.6 2005/03/01 10:22:25 kraxel Exp $
+ * $Id: tuner-simple.c,v 1.14 2005/05/30 02:02:47 mchehab Exp $
  *
  * i2c tv tuner chip device driver
  * controls all those simple 4-control-bytes style tuners.
@@ -8,6 +8,7 @@
 #include <linux/i2c.h>
 #include <linux/videodev.h>
 #include <media/tuner.h>
+#include "compat.h"
 
 /* ---------------------------------------------------------------------- */
 
@@ -204,14 +205,21 @@ static struct tunertype tuners[] = {
 	  16*160.00,16*454.00,0x41,0x42,0x04,0x8e,940}, // UHF band untested
 	{ "tda8290+75", Philips,PAL|NTSC,
 	  /* see tda8290.c for details */ },
-	{ "LG PAL (TAPE series, pvr150)", LGINNOTEK, PAL,
+	{ "LG PAL (TAPE series)", LGINNOTEK, PAL,
           16*170.00, 16*450.00, 0x01,0x02,0x08,0xce,623},
 
-        { "Philips PAL/SECAM multi (FM1216ME pvr150)", Philips, PAL,
+        { "Philips PAL/SECAM multi (FQ1216AME MK4)", Philips, PAL,
           16*160.00,16*442.00,0x01,0x02,0x04,0xce,623 },
         { "Philips FQ1236A MK4", Philips, NTSC,
-          16*160.00,16*454.00,0x41,0x42,0x04,0x8e,732 },
+          16*160.00,16*442.00,0x01,0x02,0x04,0x8e,732 },
 
+	/* Should work for TVF8531MF, TVF8831MF, TVF8731MF */
+	{ "Ymec TVision TVF-8531MF", TEMIC, NTSC,
+	  16*160.00,16*454.00,0xa0,0x90,0x30,0x8e,732},
+	{ "Ymec TVision TVF-5533MF", TEMIC, NTSC,
+	  16*160.00,16*454.00,0x01,0x02,0x04,0x8e,732},
+	{ "Thomson DDT 7611", THOMSON, ATSC,
+	  16*157.25,16*454.00,0x39,0x3a,0x3c,0x8e,732},
 };
 unsigned const int tuner_count = ARRAY_SIZE(tuners);
 
@@ -424,6 +432,13 @@ static void default_set_radio_freq(struct i2c_client *c, unsigned int freq)
 	buffer[2] = tun->config;
 
 	switch (t->type) {
+	case TUNER_YMEC_TVF_5533MF:
+		
+		/*These values are empirically determinated */
+		div = (freq*122)/16 - 20;
+		buffer[2] = 0x88; /* could be also 0x80 */
+		buffer[3] = 0x19; /* could be also 0x10, 0x18, 0x99 */
+		break;
 	case TUNER_PHILIPS_FM1216ME_MK3:
 	case TUNER_PHILIPS_FM1236_MK3:
 		buffer[3] = 0x19;
@@ -457,7 +472,21 @@ int default_tuner_init(struct i2c_client *c)
 	tuner_info("type set to %d (%s)\n",
 		   t->type, tuners[t->type].name);
 	strlcpy(c->name, tuners[t->type].name, sizeof(c->name));
-
+	
+	switch (t->type) {
+	case TUNER_YMEC_TVF_5533MF:
+		{
+			struct tuner_addr tun_addr = { V4L2_TUNER_ANALOG_TV, 0xc2>>1 };
+			
+			if (c->driver->command) {
+				c->driver->command(c, TUNER_SET_ADDR, &tun_addr);
+			} else {
+				tuner_warn("Couldn't set TV tuner I2C address to 0x%02x\n",tun_addr.addr<<1);
+			}
+			break;
+		}
+	}
+	
 	t->tv_freq    = default_set_tv_freq;
 	t->radio_freq = default_set_radio_freq;
 	t->has_signal = tuner_signal;

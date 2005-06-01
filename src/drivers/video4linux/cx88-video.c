@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-video.c,v 1.57 2005/02/24 13:32:30 kraxel Exp $
+ * $Id: cx88-video.c,v 1.58 2005/03/07 15:58:05 kraxel Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * video4linux video interface
@@ -2184,7 +2184,7 @@ static void __devexit cx8800_finidev(struct pci_dev *pci_dev)
 
 static int cx8800_suspend(struct pci_dev *pci_dev, pm_message_t state)
 {
-        struct cx8800_dev *dev = pci_get_drvdata(pci_dev);
+	struct cx8800_dev *dev = pci_get_drvdata(pci_dev);
 	struct cx88_core *core = dev->core;
 
 	/* stop video+vbi capture */
@@ -2220,7 +2220,7 @@ static int cx8800_suspend(struct pci_dev *pci_dev, pm_message_t state)
 
 static int cx8800_resume(struct pci_dev *pci_dev)
 {
-        struct cx8800_dev *dev = pci_get_drvdata(pci_dev);
+	struct cx8800_dev *dev = pci_get_drvdata(pci_dev);
 	struct cx88_core *core = dev->core;
 
 	if (dev->state.disabled) {
@@ -2260,8 +2260,8 @@ struct pci_device_id cx8800_pci_tbl[] = {
 	{
 		.vendor       = 0x14f1,
 		.device       = 0x8800,
-                .subvendor    = PCI_ANY_ID,
-                .subdevice    = PCI_ANY_ID,
+		.subvendor    = PCI_ANY_ID,
+		.subdevice    = PCI_ANY_ID,
 	},{
 		/* --- end of list --- */
 	}
@@ -2269,10 +2269,10 @@ struct pci_device_id cx8800_pci_tbl[] = {
 MODULE_DEVICE_TABLE(pci, cx8800_pci_tbl);
 
 static struct pci_driver cx8800_pci_driver = {
-        .name     = "cx8800",
-        .id_table = cx8800_pci_tbl,
-        .probe    = cx8800_initdev,
-        .remove   = __devexit_p(cx8800_finidev),
+	.name     = "cx8800",
+	.id_table = cx8800_pci_tbl,
+	.probe    = cx8800_initdev,
+	.remove   = __devexit_p(cx8800_finidev),
 
 	.suspend  = cx8800_suspend,
 	.resume   = cx8800_resume,
@@ -2288,7 +2288,7 @@ static int cx8800_init(void)
 	printk(KERN_INFO "cx2388x: snapshot date %04d-%02d-%02d\n",
 	       SNAPSHOT/10000, (SNAPSHOT/100)%100, SNAPSHOT%100);
 #endif
-	return pci_module_init(&cx8800_pci_driver);
+	return pci_register_driver(&cx8800_pci_driver);
 }
 
 static void cx8800_fini(void)

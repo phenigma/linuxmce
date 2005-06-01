@@ -5,7 +5,14 @@ cat bttv-cards.c \
 	| perl -ne '/"([^"]+)"/; printf("card=%d - %s\n",$i++,$1)' \
 	> doc/CARDLIST.bttv
 
-cat tuner.c \
+LINE="`grep -n "gdi_tuner\[\]" cx88-cards.c|cut -f1 -d:`"
+
+head -$LINE cx88-cards.c \
+	| grep "\.name.*=" \
+	| perl -ne '/"([^"]+)"/; printf("card=%d - %s\n",$i++,$1)' \
+	> doc/CARDLIST.cx88
+
+cat tuner-simple.c \
 	| grep "{ \"" \
 	| perl -ne '/"([^"]+)"/; printf("tuner=%d - %s\n",$i++,$1)' \
 	> doc/CARDLIST.tuner

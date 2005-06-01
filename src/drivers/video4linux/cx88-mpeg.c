@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-mpeg.c,v 1.22 2005/02/18 13:26:20 kraxel Exp $
+ * $Id: cx88-mpeg.c,v 1.25 2005/03/07 14:18:00 kraxel Exp $
  *
  *  Support for the mpeg transport stream transfers
  *  PCI function #2 of the cx2388x.
@@ -83,7 +83,6 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 		cx_write(MO_PINMUX_IO, 0x88); /* enable MPEG parallel IO */
 
 		// cx_write(TS_F2_CMD_STAT_MM, 0x2900106); /* F2_CMD_STAT_MM defaults + master + memory space */
-
 		cx_write(TS_GEN_CNTRL, 0x46); /* punctured clock TS & posedge driven & software reset */
 		udelay(100);
 
@@ -123,7 +122,6 @@ static int cx8802_stop_dma(struct cx8802_dev *dev)
 	/* disable irqs */
 	cx_clear(MO_PCI_INTMSK, 0x000004);
 	cx_clear(MO_TS_INTMSK, 0x1f0011);
-	//cx_clear(MO_TS_INTMSK, 0x0f0011);
 
 	/* Reset the controller */
 	cx_write(TS_GEN_CNTRL, 0xcd);
@@ -199,16 +197,13 @@ void cx8802_buf_queue(struct cx8802_dev *dev, struct cx88_buffer *buf)
 	if (list_empty(&q->active)) {
 		dprintk( 0, "queue is empty - first active\n" );
 		list_add_tail(&buf->vb.queue,&q->active);
-                spin_lock(&dev->slock);
 		cx8802_start_dma(dev, q, buf);
-                spin_unlock(&dev->slock);
 		buf->vb.state = STATE_ACTIVE;
 		buf->count    = q->count++;
-		//cx8802_restart_queue(dev,q);
 		mod_timer(&q->timeout, jiffies+BUFFER_TIMEOUT);
 		dprintk(0,"[%p/%d] %s - first active\n",
 			buf, buf->vb.i, __FUNCTION__);
-		udelay(100);
+		//udelay(100);
 
 	} else {
 		dprintk( 1, "queue is not empty - append to active\n" );
@@ -219,7 +214,7 @@ void cx8802_buf_queue(struct cx8802_dev *dev, struct cx88_buffer *buf)
 		prev->risc.jmp[1] = cpu_to_le32(buf->risc.dma);
 		dprintk( 1, "[%p/%d] %s - append to active\n",
 			buf, buf->vb.i, __FUNCTION__);
-		udelay(100);
+		//udelay(100);
 	}
 }
 
@@ -261,18 +256,12 @@ void cx8802_cancel_buffers(struct cx8802_dev *dev)
 static void cx8802_timeout(unsigned long data)
 {
 	struct cx8802_dev *dev = (struct cx8802_dev*)data;
-	//struct cx88_core *core = dev->core;
 
 	dprintk(0, "%s\n",__FUNCTION__);
 
 	if (debug)
 		cx88_sram_channel_dump(dev->core, &cx88_sram_channels[SRAM_CH28]);
 	cx8802_stop_dma(dev);
-	/* stop dma */
-	//cx_clear(MO_TS_DMACNTRL, 0x11);
-	/* Reset the controller */
-	//cx_write(TS_GEN_CNTRL, 0xcd);
-
 	do_cancel_buffers(dev,"timeout",1);
 }
 
@@ -330,7 +319,6 @@ static void cx8802_mpeg_irq(struct cx8802_dev *dev)
 }
 
 #define MAX_IRQ_LOOP 10
-//#define MAX_IRQ_LOOP 50
 
 static irqreturn_t cx8802_irq(int irq, void *dev_id, struct pt_regs *regs)
 {
@@ -346,8 +334,8 @@ static irqreturn_t cx8802_irq(int irq, void *dev_id, struct pt_regs *regs)
 		dprintk( 1, "cx8802_irq\n" );
 		dprintk( 1, "    loop: %d/%d\n", loop, MAX_IRQ_LOOP );
 		dprintk( 1, "    status: %d\n", status );
-		cx_write(MO_PCI_INTSTAT, status);
 		handled = 1;
+		cx_write(MO_PCI_INTSTAT, status);
 
 		if (status & core->pci_irqmask)
 			cx88_core_irq(core,status);
@@ -514,4 +502,5 @@ EXPORT_SYMBOL(cx8802_resume_common);
  * Local variables:
  * c-basic-offset: 8
  * End:
+ * kate: eol "unix"; indent-width 3; remove-trailing-space on; replace-trailing-space-save on; tab-width 8; replace-tabs off; space-indent off; mixed-indent off
  */

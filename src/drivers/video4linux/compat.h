@@ -20,7 +20,7 @@
 #endif
 
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,6)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,9)
 # define __user
 # define __kernel
 # define __iomem
@@ -31,6 +31,10 @@
 # define pci_choose_state(pci_dev, state)  (state)
 # define PCI_D0                            (0)
 # define assert_spin_locked(foobar)
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,9)
+#define __le32 __u32
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,7)
@@ -74,10 +78,6 @@ static inline unsigned long msleep_interruptible(unsigned int msecs)
 	}
 	return jiffies_to_msecs(timeout);
 }
-#endif
-
-#ifndef __iomem
-#define __iomem
 #endif
 
 /*

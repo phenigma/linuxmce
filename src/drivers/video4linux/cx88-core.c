@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-core.c,v 1.24 2005/01/19 12:01:55 kraxel Exp $
+ * $Id: cx88-core.c,v 1.26 2005/06/01 03:33:05 mchehab Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * driver core
@@ -128,8 +128,8 @@ void cx88_print_ioctl(char *name, unsigned int cmd)
 		       v4l2_ioctls[_IOC_NR(cmd)] : "???");
 		break;
 	default:
-		printk(KERN_DEBUG "%s: ioctl 0x%08x (0x%x, %s, #%d)\n",
-		       name, cmd, _IOC_TYPE(cmd), dir, _IOC_NR(cmd));
+		printk(KERN_DEBUG "%s: ioctl 0x%08x (???, %s, #%d)\n",
+		       name, cmd, dir, _IOC_NR(cmd));
 	}
 }
 
@@ -636,10 +636,8 @@ void cx88_wakeup(struct cx88_core *core,
 		wake_up(&buf->vb.done);
 	}
 	if (list_empty(&q->active)) {
-		dprintk(2,"del_timer\n");
 		del_timer(&q->timeout);
 	} else {
-		dprintk(2,"mod_timer\n");
 		mod_timer(&q->timeout, jiffies+BUFFER_TIMEOUT);
 	}
 	if (bc != 1)
@@ -744,6 +742,10 @@ static unsigned int inline norm_fsc8(struct cx88_tvnorm *norm)
 {
 	static const unsigned int ntsc = 28636360;
 	static const unsigned int pal  = 35468950;
+	static const unsigned int palm  = 28604892;
+
+	if (norm->id & V4L2_STD_PAL_M)
+		return palm;
 
 	return (norm->id & V4L2_STD_625_50) ? pal : ntsc;
 }
@@ -757,6 +759,11 @@ static unsigned int inline norm_notchfilter(struct cx88_tvnorm *norm)
 
 static unsigned int inline norm_htotal(struct cx88_tvnorm *norm)
 {
+	/* Should always be Line Draw Time / (4*FSC) */
+
+	if (norm->id & V4L2_STD_PAL_M)
+		return 909;
+
 	return (norm->id & V4L2_STD_625_50) ? 1135 : 910;
 }
 
@@ -1246,4 +1253,5 @@ EXPORT_SYMBOL(cx88_core_put);
  * Local variables:
  * c-basic-offset: 8
  * End:
+ * kate: eol "unix"; indent-width 3; remove-trailing-space on; replace-trailing-space-save on; tab-width 8; replace-tabs off; space-indent off; mixed-indent off
  */

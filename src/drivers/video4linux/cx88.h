@@ -1,5 +1,5 @@
 /*
- * $Id: cx88.h,v 1.55 2005/02/21 13:57:59 kraxel Exp $
+ * $Id: cx88.h,v 1.58 2005/05/29 10:22:08 nsh Exp $
  *
  * v4l2 device driver for cx2388x based TV cards
  *
@@ -162,6 +162,9 @@ extern struct sram_channel cx88_sram_channels[];
 #define CX88_BOARD_DNTV_LIVE_DVB_T         23
 #define CX88_BOARD_HAUPPAUGE_ROSLYN        24
 #define CX88_BOARD_DIGITALLOGIC_MEC	       25
+#define CX88_BOARD_IODATA_GVBCTV7E         26
+#define CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO 27
+#define CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q  28
 
 enum cx88_itype {
 	CX88_VMUX_COMPOSITE1 = 1,
@@ -557,4 +560,5 @@ int cx8802_resume_common(struct pci_dev *pci_dev);
  * Local variables:
  * c-basic-offset: 8
  * End:
+ * kate: eol "unix"; indent-width 3; remove-trailing-space on; replace-trailing-space-save on; tab-width 8; replace-tabs off; space-indent off; mixed-indent off
  */
