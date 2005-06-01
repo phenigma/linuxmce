@@ -45,6 +45,8 @@
 #include "pluto_main/Table_Package_Directory.h"
 #include "pluto_main/Table_Package_Directory_File.h"
 
+#include "PlutoUtils/StringUtils.h"
+
 #define  VERSION "<=version=>"
 
 using namespace std;
@@ -1501,7 +1503,13 @@ string Makefile = "none:\n"
 		int iPkgManufacturer = pRow_Package_Source_Dependency->FK_Package_getrow()->FK_Manufacturer_get();
 		sDepends += ", " + sPkgName;
 		if (iPkgManufacturer == 1 && sPkgVerBase != "") /* HARDCODED: 1 = Pluto */
-			sDepends += string("")+ " (>= " + sPkgVerBase + ")";
+		{
+			string::size_type iLastDotNext = sPkgVerBase.rfind(".", sPkgVerBase.length());
+			string sPkgVerBaseMajor = sPkgVerBase.substr(0, iLastDot);
+			string sPkgVerBaseMinor = sPkgVerBase.substr(iLastDot);
+			int iPkgVerBaseNext = atoi(sPkgVerBaseMinor.c_str()) + 1;
+			sDepends += string("")+ " (>= " + sPkgVerBase + ")" + ", " + sPkgName + " (<< " + sPkgVerBaseMajor + StringUtils::itos(iPkgVerBaseNext) + ")";
+		}
 		g_DebianPackages[sPkgName] = true;
 	}
 	g_DebianPackages[Package_Name] = true;
