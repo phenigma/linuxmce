@@ -873,8 +873,8 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 	int bitrate_peak = 7500000;
 #if 1
 	bitrate_mode = BLACKBIRD_VIDEO_CBR;
-	bitrate = 4000*1024;
-	bitrate_peak = 4000*1024;
+	bitrate = 4500000;
+	bitrate_peak = 6000000;
 #endif
 
 	/* assign stream type */
@@ -1570,7 +1570,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 	case IVTV_IOC_G_CODEC:
 	{
 		struct ivtv_ioctl_codec *codec = arg;
-#if 0
+#if 1
 		printk( KERN_INFO "IVTV_IOC_G/S_CODEC\n" );
 		printk( KERN_INFO "CODEC: aspect: %d\n", codec->aspect );
 		printk( KERN_INFO "CODEC: audio : %d\n", codec->audio_bitmask );
@@ -1593,18 +1593,18 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		codec->audio_bitmask = (2 << 2) | (14 << 4); /* layer II | 384kbps */
 		codec->bframes = 2;
 		codec->bitrate_mode = 1; /* cbr */
-		codec->bitrate = 4000*1024; /* bps */
-		codec->bitrate_peak = 4000*1024; /* peak */
+		codec->bitrate = 4500000; /* bps */
+		codec->bitrate_peak = 6000000; /* peak */
 		codec->dnr_mode = 0; /* spatial=manual | temporal=manual */
 		codec->dnr_spatial = 0;
 		codec->dnr_temporal = 0;
 		codec->dnr_type = 0; /* disabled */
-		codec->framerate = 30; /* 30fps */
+		codec->framerate = 1; /* 25fps */
 		codec->framespergop = 15;
 		codec->gop_closure = 0; /* open */
 		codec->pulldown = 0; /* enabled */
 		codec->stream_type = 0; /* program stream */
-#if 0
+#if 1
 		printk( KERN_INFO "CODEC: aspect: %d\n", codec->aspect );
 		printk( KERN_INFO "CODEC: audio : %d\n", codec->audio_bitmask );
 		printk( KERN_INFO "CODEC: bfrms : %d\n", codec->bframes );
