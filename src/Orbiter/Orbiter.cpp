@@ -4498,7 +4498,7 @@ void Orbiter::GetVideoFrame( void *data )
 			if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
 			{
 				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "" );
-                delete pBuffer; //we don't need it anymore
+                delete [] pBuffer; //we don't need it anymore
 			}
             else
             {
@@ -5655,6 +5655,13 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
         }
         else
             pObj = m_pScreenHistory_Current->m_pObj;
+
+    
+    if(!pObj)
+    {
+        g_pPlutoLogger->Write( LV_CONTROLLER,  "CMD_Capture_Keyboard_To_Variable: pObj is null!" );
+        return true;
+    }
 
     //find the text object
     m_pCaptureKeyboard_Text = FindText( pObj,  iPK_Text );

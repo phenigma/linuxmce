@@ -407,12 +407,14 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		{
 			case HORIZALIGNMENT_Left_CONST:
 				break;
-			case HORIZALIGNMENT_Center_CONST:
-				X += (Text->m_rPosition.Width - iTextRectWidth) / 2;
-				break;
 			case HORIZALIGNMENT_Right_CONST:
 				X += Text->m_rPosition.Width - iTextRectWidth;
 				break;
+            case HORIZALIGNMENT_Center_CONST:
+                X += (Text->m_rPosition.Width - iTextRectWidth) / 2;
+                break;
+            default:
+                break; //HORIZALIGNMENT_Left_CONST
 		}
 
 		if(Y + i * (ciCharHeight + ciSpaceHeight) + ciCharHeight >= Text->m_rPosition.Y + Text->m_rPosition.Height) 
@@ -488,15 +490,20 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 
 	switch (Text->m_iPK_HorizAlignment)
 	{
-		case HORIZALIGNMENT_Center_CONST: 
-			::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
-				DT_WORDBREAK | DT_CENTER | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
-		break;
-		
 		case HORIZALIGNMENT_Left_CONST: 
 			::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
 				DT_WORDBREAK | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
 		break;
+
+        case HORIZALIGNMENT_Center_CONST: 
+            ::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
+                DT_WORDBREAK | DT_CENTER | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
+        break;
+
+        default: //HORIZALIGNMENT_Left_CONST
+            ::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
+                DT_WORDBREAK | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
+            break;
 	}
 
 	::SelectObject(hdc, hFontOld);

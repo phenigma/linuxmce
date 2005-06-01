@@ -184,7 +184,7 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 {
 	list<ImageRow>::iterator i1; list<LineAttr>::iterator i2;
 	list<ImageRow>::reverse_iterator j1; list<LineAttr>::reverse_iterator j2;
-	int X, Y = 0;
+	int X = 0, Y = 0;
 
 	list<ImageRow> TopLines, MiddleLines, BottomLines;
 	list<LineAttr> TopAttr, MiddleAttr, BottomAttr;
