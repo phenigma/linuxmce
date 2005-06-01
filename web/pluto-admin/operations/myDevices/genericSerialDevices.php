@@ -104,13 +104,13 @@ function genericSerialDevices($output,$dbADO) {
 						FROM DeviceTemplate_DeviceTemplate_ControlledVia 
 						INNER JOIN DeviceTemplate ON DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate=PK_DeviceTemplate
 						INNER JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate
-						WHERE FK_DeviceTemplate_ControlledVia = ? AND ImplementsDCE!=1',$rowD['FK_DeviceTemplate']);
+						WHERE FK_DeviceTemplate_ControlledVia = ? AND ImplementsDCE=1',$rowD['FK_DeviceTemplate']);
 					if($qdev->RecordCount()>0){
 						while($rowDev=$qdev->FetchRow()){
 							$displayedAVDevices[]=$rowDev['PK_Device'];
 							$displayedAVDevicesDescription[]=$rowDev['Description'];
 							$gsdChilds=array();
-							$gsdChilds=getChildDevices($gsdChilds,$rowDev['PK_Device'],$dbADO);
+							$gsdChilds=getChildDevices($gsdChilds,$rowDev['PK_Device'],$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_Device_ControlledVia=? AND ImplementsDCE=1');
 							foreach ($gsdChilds AS $devID=>$devName){
 								$displayedAVDevices[]=$devID;
 								$displayedAVDevicesDescription[]=$devName;
@@ -416,14 +416,16 @@ function genericSerialDevices($output,$dbADO) {
 	$output->output();
 }
 
-function getChildDevices($childs,$deviceID,$dbADO){
+function getChildDevices($childs,$deviceID,$dbADO,$filter){
 	if($deviceID==''){
 		return $childs;
 	}
-	$res=$dbADO->Execute('SELECT * FROM Device WHERE FK_Device_ControlledVia=?',$deviceID);
+	$res=$dbADO->Execute('
+		SELECT * 
+		FROM Device '.$filter,$deviceID);
 	while($row=$res->FetchRow()){
 		$childs[$row['PK_Device']]=$row['Description'];
-		$childs=getChildDevices($childs,$row['PK_Device'],$dbADO);
+		$childs=getChildDevices($childs,$row['PK_Device'],$dbADO,$filter);
 	}
 	
 	return $childs;

@@ -90,6 +90,7 @@ $out.='
 					VALUES
 						(?,?,1,1)',array($GLOBALS['Tuner'],$dtID));
 				$insertID=$dbADO->Insert_ID();
+				$GLOBALS['tuner_'.$i]=($GLOBALS['tuner_'.$i]=='' || $GLOBALS['tuner_'.$i]==0)?NULL:$GLOBALS['tuner_'.$i];
 				$dbADO->Execute('
 					INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe
 						(FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)
@@ -112,6 +113,7 @@ $out.='
 						(?,?,1,1)',array($GLOBALS['Tuner'],$dtID));
 				$insertID=$dbADO->Insert_ID();
 				
+				$command=($command=='')?NULL:$command;
 				$dbADO->Execute($controlPipeQuery,array($insertID,1,$command));
 				$dbADO->Execute($controlPipeQuery,array($insertID,2,$command));
 				$dbADO->Execute($dt_InputQuery,array($dtID,$command));

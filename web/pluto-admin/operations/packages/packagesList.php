@@ -8,8 +8,8 @@ function packagesList($output,$dbADO) {
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	
 	$PK_Package = (isset($_REQUEST['PK_Package']))?cleanInteger($_REQUEST['PK_Package']):0;
-	$packageOrder=(isset($_POST['packageOrder']))?$_POST['packageOrder']:0;
-	$showDependancy=(isset($_POST['showDependancy']))?$_POST['showDependancy']:0;
+	$packageOrder=(isset($_REQUEST['packageOrder']))?$_REQUEST['packageOrder']:0;
+	$showDependancy=(isset($_REQUEST['showDependancy']))?$_REQUEST['showDependancy']:0;
 
 	$out='
 		<script>
@@ -20,7 +20,7 @@ function packagesList($output,$dbADO) {
 	';
 	$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=packagesList','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">Create new package</a><br><br>";
 	$out.='
-	<form action="index.php" method="post" name="packagesList">
+	<form action="index.php" method="get" name="packagesList">
 	<input type="hidden" name="section" value="packagesList">
 	<input type="hidden" name="action" value="form">
 	<table>
