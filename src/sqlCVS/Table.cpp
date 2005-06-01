@@ -839,8 +839,16 @@ cout << endl;
 			}
 
 			/** If the value of our local row[] is > than the server's vect (and not > than what we've already synced), then we deleted some records locally */
-			while( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )>r_GetAll_psc_id.m_vectAll_psc_id[pos].first && atoi(row[0])<=m_psc_id_last_sync )
+			while( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )>r_GetAll_psc_id.m_vectAll_psc_id[pos].first )
 			{
+				// Exception to the rule.  If the id is > than we last synced, it's possible that we checked in the row
+				// have not yet pulled any new updates, so our last synced is still old, but we deleted it locally.  So
+				// if the batch is in our list of batches, then we really did delete it
+				if( r_GetAll_psc_id.m_vectAll_psc_id[pos].first>m_psc_id_last_sync && 
+						!DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[pos].second) )
+					continue;
+				
+				
 cout << "We deleted a row locally - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
 " local db psc_id: " << atoi( row[0] ) << " server psc_id deleted: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " batch: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].second << endl;
 if( r_GetAll_psc_id.m_vectAll_psc_id[pos].second>m_psc_batch_last_sync )
@@ -882,8 +890,13 @@ itmp_RowsToDelete++;
 		/** There are still more rows in the server's vect. We must have deleted them */
 		for( ;pos<r_GetAll_psc_id.m_vectAll_psc_id.size( );++pos )
 		{
-			if( r_GetAll_psc_id.m_vectAll_psc_id[pos].first>m_psc_id_last_sync )
+			// Exception to the rule.  If the id is > than we last synced, it's possible that we checked in the row
+			// have not yet pulled any new updates, so our last synced is still old, but we deleted it locally.  So
+			// if the batch is in our list of batches, then we really did delete it
+			if( r_GetAll_psc_id.m_vectAll_psc_id[pos].first>m_psc_id_last_sync && 
+					!DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[pos].second) )
 				continue;
+
 cout << "Still rows in server's vect - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
 " psc_id: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " batch: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].second << endl;
 
@@ -2403,6 +2416,20 @@ bool Table::ModifiedRow(int psc_id)
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) && row[0] )
 		return atoi(row[0])!=0;
+	else
+		return false;
+}
+
+bool Table::DoWeHaveBatch( int psc_batch )
+{
+	std::ostringstream sSQL2;
+	sSQL2 << "SELECT * FROM `psc_" << m_pRepository->Name_get() << "_bathdr` WHERE "
+		<< "PK_psc_" << m_pRepository->Name_get() << "_bathdr"
+		<< "=" << psc_batch;
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) && row[0] )
+		return true;
 	else
 		return false;
 }
