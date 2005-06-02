@@ -311,3 +311,30 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 			m_sMediaDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute_Album);
 	}
 }
+
+string MediaStream::GetEntAreasWithout(EntertainArea *pEntertainArea)
+{
+	string sResult;
+	for(map<int, class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
+	{
+		EntertainArea *pEA = it->second;
+		if( pEA!=pEntertainArea )
+			sResult += StringUtils::itos(pEA->m_iPK_EntertainArea) + ",";
+	}
+
+	return sResult;
+}
+
+string MediaStream::GetEntAreasWithout(map<int,class EntertainArea *> *p_mapEntertainArea)
+{
+	string sResult;
+	for(map<int, class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
+	{
+		EntertainArea *pEA = it->second;
+		if( !p_mapEntertainArea || p_mapEntertainArea->find(pEA->m_iPK_EntertainArea)==p_mapEntertainArea->end() )
+			sResult += StringUtils::itos(pEA->m_iPK_EntertainArea) + ",";
+	}
+
+	return sResult;
+}
+

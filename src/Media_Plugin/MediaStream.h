@@ -128,7 +128,14 @@ namespace DCE
 		 * appropriate description for the stream and each file in it
 		 */
 		virtual void UpdateDescriptionsFromAttributes();
-    };
+
+		/**
+		* return a comma delimited list of all active destination ent areas
+		* except the one passed in, or all areas if the parameter is null
+		*/
+		string GetEntAreasWithout(EntertainArea *pEntertainArea);
+		string GetEntAreasWithout(map<int,class EntertainArea *> *p_mapEntertainArea);
+	};
 
     typedef map<int,MediaStream *> MapMediaStream;
 }

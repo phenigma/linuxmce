@@ -94,6 +94,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_pOH_Orbiter_OSD = NULL;
 	m_bDontSendOffIfOSD_ON=false;
 	m_pOH_Orbiter_Reset=NULL;
+	m_pCommandGroup=NULL;
 	m_tReset=0;
 	// do stuff with this
 }
@@ -201,6 +202,28 @@ continue;
             pMediaDevice->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
         }
     }
+
+	// Go through all the command groups, looking for ones that are used to turn a device on.  If the device
+	// is turned on manually, we'll execute that command group
+    for(map<int,CommandGroup *>::const_iterator it=m_pRouter->m_mapCommandGroup_get()->begin();it!=m_pRouter->m_mapCommandGroup_get()->end();++it)
+    {
+		CommandGroup *pCommandGroup = it->second;
+		for(size_t s=0;s<pCommandGroup->m_vectCommandGroup_Command.size();++s)
+		{
+			CommandGroup_Command *pCommandGroup_Command = pCommandGroup->m_vectCommandGroup_Command[s];
+			if( pCommandGroup_Command->m_pCommand->m_dwPK_Command==COMMAND_MH_Play_Media_CONST &&
+				pCommandGroup_Command->m_mapParameter.find(COMMANDPARAMETER_PK_Device_CONST)!=pCommandGroup_Command->m_mapParameter.end() )
+			{
+				int PK_Device = atoi(pCommandGroup_Command->m_mapParameter[COMMANDPARAMETER_PK_Device_CONST].c_str());
+				MediaDevice *pMediaDevice = m_mapMediaDevice_Find(PK_Device);
+				if( pMediaDevice )
+				{
+					pMediaDevice->m_pCommandGroup = pCommandGroup;
+					break;
+				}
+			}
+		}
+	}
 
 	m_pGeneric_NonPluto_Media = new Generic_NonPluto_Media(this);
     m_pGenericMediaHandlerInfo = new MediaHandlerInfo(m_pGeneric_NonPluto_Media,this,0,0,false,false);
@@ -3196,8 +3219,13 @@ bool Media_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessage, 
 		return true;  // It's not for us
 	}
 
+	return HandleDeviceOnOffEvent(pMediaDevice,bIsOn);
+}
+
+bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
+{
 	// First figure out if this device is involved in any streams
-	MediaDevice *pMediaDevice_Source,*pMediaDevice_Dest=NULL;
+	MediaDevice *pMediaDevice_Source=NULL,*pMediaDevice_Dest=NULL;
 	EntertainArea *pEntertainArea=NULL;
 	MediaStream *pMediaStream=NULL;
 
@@ -3215,16 +3243,77 @@ bool Media_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessage, 
 		return true;
 	}
 
-	if( bIsOn )
+	if( bIsOn==false )
 	{
-		// We didn't find anything indicating any involvement with this object
+		// We're only playing in 1 EA.  Just shut it off
+		if( pMediaStream->m_mapEntertainArea.size()<2 )
+			StreamEnded(pMediaStream);
 
+		// We turned off the destination in an entertainment area
+		else if( pEntertainArea )
+			CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),pMediaStream->GetEntAreasWithout(pEntertainArea));
+
+		// We're streaming to multiple destinations, and the device we turned off isn't the source
+		// so we'll just do a move media removing this
+		else if( pMediaDevice_Source && pMediaStream->m_mapEntertainArea.size()>1 )
+			CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),pMediaStream->GetEntAreasWithout(&pMediaDevice->m_mapEntertainArea));
+
+		// We can't turn off just 1 area -- shut down the whole stream
+		else
+			StreamEnded(pMediaStream);
+	}
+	else if( pMediaDevice->m_pCommandGroup )
+		QueueMessageToRouter(new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,
+			MESSAGETYPE_EXEC_COMMAND_GROUP,pMediaDevice->m_pCommandGroup->m_PK_CommandGroup,0));
+	else
+	{
+		// We don't have a specific command to do this, but since watching tv is such a common task
+		// we've got a special case for it.  Don't bother if it's not just a simple tv in a single
+		// entertainment area
+		if( pMediaDevice->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_TVs_CONST) &&
+			pMediaDevice->m_mapEntertainArea.size()==1 )
+		{
+			vector<EntertainArea *> vectEntertainArea;
+			vectEntertainArea.push_back( pMediaDevice->m_mapEntertainArea.begin()->second );
+
+			map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
+			GetMediaHandlersForEA(MEDIATYPE_pluto_LiveTV_CONST, vectEntertainArea, mapMediaHandlerInfo);
+
+			for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Auto start TV");
+				StartMedia(it->second,0,vectEntertainArea,0, 0,NULL,false,0);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			}
+		}
 	}
 	return true;
 }
 
 bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
+	if( !pDeviceFrom )
+		return true;
+
+	DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceFrom;
+	int PK_Command = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Command_CONST].c_str());
+
+	// See what media device is using that input
+	for(size_t s=0;s<pDevice->m_vectDevices_SendingPipes.size();++s)
+	{
+		DeviceData_Router *pDevice_Child = pDevice->m_vectDevices_SendingPipes[s];
+        for(map<int,Pipe *>::iterator it=pDevice_Child->m_mapPipe_Available.begin();it!=pDevice_Child->m_mapPipe_Available.end();++it)
+        {
+            Pipe *pPipe = (*it).second;
+			if( pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get()==pDevice->m_dwPK_Device &&
+				pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get()==PK_Command )
+			{
+				MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_From_get());
+				if( pMediaDevice )
+					HandleDeviceOnOffEvent(pMediaDevice,true);
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -3679,7 +3768,7 @@ int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&
         MediaStream *pMS = (*it).second;
 
 		// See if the device turned off was the source for some media
-		if( pMS->m_pMediaDevice_Source==pMediaDevice )
+		if( pMS->m_pMediaDevice_Source==pMediaDevice || pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD==pMediaDevice->m_pDeviceData_Router )
 		{
 			pMediaStream = pMS;
 			return 1;  // This is the source device
@@ -3689,7 +3778,7 @@ int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&
 		for(size_t s=0;s<pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes.size();++s)
 		{
 			DeviceData_Base *pDevice = pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes[s];
-			if( pDevice==pMS->m_pMediaDevice_Source->m_pDeviceData_Router )
+			if( pMS->m_pMediaDevice_Source->m_pDeviceData_Router==pDevice || pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD==pDevice )
 			{
 				pMediaStream = pMS;
 				pMediaDevice_Source = pMS->m_pMediaDevice_Source;
@@ -3700,7 +3789,7 @@ int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&
 		for( MapEntertainArea::iterator it=pMS->m_mapEntertainArea.begin( );it!=pMS->m_mapEntertainArea.end( );++it )
 		{
 			EntertainArea *pEA = ( *it ).second;
-			if( pMediaDevice==pEntertainArea->m_pMediaDevice_ActiveDest )
+			if( pEA->m_pMediaDevice_ActiveDest==pMediaDevice || pEA->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_pDevice_MD==pMediaDevice->m_pDeviceData_Router )
 			{
 				pMediaStream = pMS;
 				pEntertainArea = pEA;
@@ -3710,9 +3799,10 @@ int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&
 			for(size_t s=0;s<pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes.size();++s)
 			{
 				DeviceData_Base *pDevice = pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes[s];
-				if( pDevice==pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router )
+				if( pEA->m_pMediaDevice_ActiveDest->m_pDeviceData_Router==pDevice || pEA->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_pDevice_MD==pDevice )
 				{
 					pMediaStream = pMS;
+					pEntertainArea = pEA;
 					pMediaDevice_Dest = pEntertainArea->m_pMediaDevice_ActiveDest;
 					return 2;  // This is the dest device
 				}

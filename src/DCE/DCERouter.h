@@ -200,6 +200,7 @@ namespace DCE
         const map<int,class DeviceGroup *> *m_mapDeviceGroup_get() { return &m_mapDeviceGroup; };
 		const map<int,class Room *> *m_mapRoom_get() { return &m_mapRoom; }
 		const map<int,class Command_Impl *> *m_mapPlugIn_get() { return &m_mapPlugIn; }
+        const map<int,class CommandGroup *> *m_mapCommandGroup_get() { return &m_mapCommandGroup; }
 
         int iPK_Installation_get() { return m_dwPK_Installation; }
         int iPK_Language_get() { return m_dwPK_Language; }

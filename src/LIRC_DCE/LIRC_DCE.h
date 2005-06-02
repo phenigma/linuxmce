@@ -54,10 +54,9 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	string DATA_Get_Configuration();
+	string DATA_Get_Device();
 	string DATA_Get_Mapping();
 	string DATA_Get_Serial_Port();
-	string DATA_Get_LIRC_Driver();
 
 			*****EVENT***** accessors inherited from base class
 

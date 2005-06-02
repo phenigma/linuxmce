@@ -21,6 +21,7 @@ namespace DCE
 		int m_iLastPlaybackSpeed;
 		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-sceren display */
 		map<int, Row_MediaType *> m_mapMediaType;
+		class CommandGroup *m_pCommandGroup; // A command group used to turn this device on
 
 		// These will only be used if this is a disk drive.  If so, we'll keep track of the orbiter
 		// that reset the drive so that when the drive later fires a media inserted we know which 

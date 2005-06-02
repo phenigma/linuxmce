@@ -20,8 +20,6 @@
 
 namespace DCE
 {
-
-
 	typedef map<int,class Command_Base *> Map_Command_Base;
 	typedef map<int,class DeviceData_Base *> Map_DeviceData_Base;
 	typedef map<int,class DeviceCategory *> Map_DeviceCategory;

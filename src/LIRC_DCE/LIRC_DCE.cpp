@@ -25,9 +25,24 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 //<-dceag-const-e->
 {
 	vector<string> vectMapping,vectConfiguration;
-	string sMapping = DATA_Get_Mapping(), sConfiguration = DATA_Get_Configuration();
+	string sMapping = DATA_Get_Mapping();
 	StringUtils::Tokenize(sMapping,"\r\n",vectMapping);	
-	StringUtils::Tokenize(sConfiguration,"\r\n",vectConfiguration);
+
+	// Find all our sibblings that are remote controls
+	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
+		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
+	{
+		DeviceData_Base *pDevice = itD->second;
+		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
+			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_LIRC_Remote_Controls_CONST )
+		{
+			string sConfiguration;
+			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
+				pDevice->m_dwPK_Device,DEVICEDATA_Configuration_CONST,true,&sConfiguration);
+			if( SendCommand(CMD_Get_Device_Data_Cat) && sConfiguration.size() )
+				StringUtils::Tokenize(sConfiguration,"\r\n",vectConfiguration);
+		}
+	}
 
 	bool bCodesBegan=false;
 	for(size_t s=0;s<vectConfiguration.size();++s)
@@ -74,6 +89,7 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 					char **pArgs = StringUtils::ConvertStringToArgs(vectMapping[s].substr(pos+1),iNumberOfArguments);
 					if( iNumberOfArguments )  // Should always be true
 					{
+						g_pPlutoLogger->Write(LV_STATUS,"LIRC button: %s will fire: %s",sToken.c_str(),vectMapping[s].substr(pos+1).c_str());
 						Message *pMessage = new Message(iNumberOfArguments,pArgs,m_dwPK_Device);
 // TODO: Dan, if you want hex codes rather than strings, we can do the conversion here
 						m_mapMessages[ (*it).first ] = pMessage;
@@ -83,10 +99,14 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 		}
 	}
 
+	for(map<string,Message *>::iterator it=m_mapMessages.begin();it!=m_mapMessages.end();++it)
+		if( it->second==NULL )
+			g_pPlutoLogger->Write(LV_STATUS,"No message for LIRC button: %s",it->first.c_str());
+
 	FILE *fp;
 	string sCOM1 = "1";
 	string sCOM2 = "2";
-	string sLIRCDriver = DATA_Get_LIRC_Driver();
+	string sLIRCDriver = DATA_Get_Device();
 	string sSerialPort = DATA_Get_Serial_Port();
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Making hardware config");
@@ -112,7 +132,7 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	fp = fopen("/etc/lirc/hardware.conf","wt");
 	if(fp == NULL) {
 		g_pPlutoLogger->Write(LV_STATUS, "->Can't open file",sLIRCDriver.c_str());
-		exit(0);
+		return;
 	}
 	fprintf(fp,"# /etc/lirc/hardware.conf\n");
 	fprintf(fp,"#\n");
@@ -135,7 +155,8 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	
 	system("rm -f /etc/lirc/lircd.conf");
 	fp = fopen("/etc/lirc/lircd.conf","wt");
-	fprintf(fp,"%s",sConfiguration.c_str());
+//	RADU --- NEED TO IMPLEMENT THE FOLLOWING -- I DON'T KNOW THE FORMAT
+//	fprintf(fp,"%s",sConfiguration.c_str());
 	fclose(fp);
 
 	system("killall -9 lircd");

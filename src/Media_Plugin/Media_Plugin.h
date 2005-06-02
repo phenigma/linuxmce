@@ -106,6 +106,7 @@ protected:
     bool EnsureCorrectMediaStreamForDevice(MediaHandlerInfo *pMediaHandlerInfo, EntertainArea *pEntertainArea, int iPK_Device);
 
 	bool DiskDriveIsRipping(int iPK_Device);
+	bool HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn);
 
 	/**
 	 * Sometimes we just want to override the description with a

@@ -28,10 +28,9 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 77; } ;
 	virtual const char *GetDeviceDescription() { return "LIRC_DCE"; } ;
-	string Get_Configuration() { return m_mapParameters[59];}
+	string Get_Device() { return m_mapParameters[1];}
 	string Get_Mapping() { return m_mapParameters[60];}
 	string Get_Serial_Port() { return m_mapParameters[62];}
-	string Get_LIRC_Driver() { return m_mapParameters[63];}
 };
 
 
@@ -74,10 +73,9 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
-	string DATA_Get_Configuration() { return GetData()->Get_Configuration(); }
+	string DATA_Get_Device() { return GetData()->Get_Device(); }
 	string DATA_Get_Mapping() { return GetData()->Get_Mapping(); }
 	string DATA_Get_Serial_Port() { return GetData()->Get_Serial_Port(); }
-	string DATA_Get_LIRC_Driver() { return GetData()->Get_LIRC_Driver(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 
