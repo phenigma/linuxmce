@@ -112,6 +112,7 @@ for Client in $R; do
 	DlPath="$DlDir/$IP"
 	HexIP=$(gethostip -x "$IP")
 	lcdMAC=$(echo ${MAC//:/-} | tr 'A-Z' 'a-z')
+	MAC=$(echo ${MAC//-/:} | tr 'a-z' 'A-Z')
 
 	MOON_IP="$IP"
 	MOON_ADDRESS="$IP moon$MoonNumber"
