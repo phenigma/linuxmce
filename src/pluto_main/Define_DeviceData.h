@@ -53,7 +53,6 @@
 #define DEVICEDATA_Mapping_CONST 60
 #define DEVICEDATA_ThreshHold_CONST 61
 #define DEVICEDATA_Serial_Port_CONST 62
-#define DEVICEDATA_LIRC_Driver_CONST 63
 #define DEVICEDATA_Use_OCG_Format_CONST 64
 #define DEVICEDATA_Video_Input_Type_CONST 65
 #define DEVICEDATA_Connector_CONST 68

@@ -50,6 +50,7 @@
 #define EVENT_New_Version_available_CONST 47
 #define EVENT_Device_OnOff_CONST 48
 #define EVENT_AV_Input_Changed_CONST 49
+#define EVENT_Media_Description_Changed_CONST 50
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
