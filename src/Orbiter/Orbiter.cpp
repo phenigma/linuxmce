@@ -600,6 +600,9 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
     if(  !m_pObj_Highlighted && m_vectObjs_TabStops.size(  )  )
 	    HighlightFirstObject(  );
 
+    if(NULL != m_pObj_Highlighted/*&&  m_pObj_Highlighted->m_vectHighlightedGraphic.size()*/)
+    	HighlightObject( m_pObj_Highlighted );
+
     m_vectObjs_NeedRedraw.clear();
 	m_vectTexts_NeedRedraw.clear();
 
@@ -703,6 +706,9 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
     {
         RenderGraphic( pObj,  rectTotal );
     }
+
+    if(pObj == m_pObj_Highlighted)
+        HighlightObject(pObj);
 
     // Matt is going to pass through the text before/after children
     /*  moving this block to the end to see if it puts text on top of icons
@@ -1243,11 +1249,11 @@ void Orbiter::ObjectOnScreenWrapper(  )
         }
     }
 
-    if(  m_vectObjs_TabStops.size(  )  )
-        HighlightFirstObject();
+    //if(  m_vectObjs_TabStops.size(  )  )
+    //   HighlightFirstObject();
 
-    if(NULL != m_pObj_Highlighted &&  m_pObj_Highlighted->m_vectHighlightedGraphic.size())
-		HighlightObject( m_pObj_Highlighted );
+    //if(NULL != m_pObj_Highlighted &&  m_pObj_Highlighted->m_vectHighlightedGraphic.size())
+	//	HighlightObject( m_pObj_Highlighted );
 }
 //------------------------------------------------------------------------
 // If an object has the don't reset state true,  it won't reset to normal,  and it's children won't reset either
@@ -1268,9 +1274,8 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
 
     // Add it to the list of tab stops whether it's visible or not.  The findfirst/next will skip of hidden objects anyway
     // And this way we don't need to worry about the changing state of objects that are hidden/shown
-    if(  pObj->m_bTabStop  )
+    if(  pObj->m_bTabStop  ) 
         m_vectObjs_TabStops.push_back( pObj );
-
 
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Broadcast_Video_CONST )
 	{
@@ -2052,10 +2057,11 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
     int w = pObj->m_rBackgroundPosition.Width;
     int h = pObj->m_rBackgroundPosition.Height;
 
-    SolidRectangle( x,  y,  w,  h,  0,  100 );
+    PlutoColor BlackColor(0, 0, 0, 100);
+
+    HollowRectangle(x + w / 2, y + h / 4, 1, h / 2, BlackColor);
+    HollowRectangle(x + w / 4, y + h / 2, w / 2, 1, BlackColor);
 }
-
-
 
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightFirstObject(  )
@@ -2284,17 +2290,16 @@ void Orbiter::FindObjectToHighlight(
 
 	for(s=0;s<vectObj_SelectedGrids.size();++s)
 		SelectedObject(vectObj_SelectedGrids[s]);
-    if( NULL == m_pObj_Highlighted ||
-        (
-        m_pObj_Highlighted &&
-        (
-        !m_pObj_Highlighted->m_bOnScreen ||
-        m_pObj_Highlighted->IsHidden(  )
-         )
-         )
-         )
+
+    if(NULL == m_pObj_Highlighted || (m_pObj_Highlighted && (!m_pObj_Highlighted->m_bOnScreen || m_pObj_Highlighted->IsHidden())))
     {
-        HighlightFirstObject(  );
+        HighlightFirstObject();
+
+        PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
+        if(m_pObj_Highlighted)
+            m_vectObjs_NeedRedraw.push_back( m_pObj_Highlighted );
+        nd.Release();
+
         return;
     }
 
@@ -2325,21 +2330,26 @@ void Orbiter::FindObjectToHighlight(
         break;
     }
 
-    if(  pNextObject == m_pObj_Highlighted  )
+    if(!pNextObject || pNextObject == m_pObj_Highlighted) 
     {
-        // We didn't find a match with the hints
-        DesignObj_OrbiterMap::iterator iter;
-        for( iter = m_ScreenMap.begin(  ); iter != m_ScreenMap.end(  ); iter++ )
-            FindObjectToHighlight( &pNextObject,  ( *iter ).second,  PK_Direction );
+        if(!pNextObject)
+            pNextObject = m_pObj_Highlighted;
+
+        FindObjectToHighlight( &pNextObject, m_pScreenHistory_Current->m_pObj, PK_Direction );
     }
 
     m_pObj_Highlighted = pNextObject;
 
 	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
+    if(pDesignObj_Orbiter_OriginallyHighlight)
+        if(pDesignObj_Orbiter_OriginallyHighlight->m_vectGraphic.size())
+            m_vectObjs_NeedRedraw.push_back( pDesignObj_Orbiter_OriginallyHighlight );
+        else //this button is embedded in the background, we must rerender all
+            m_vectObjs_NeedRedraw.push_back( m_pScreenHistory_Current->m_pObj );
+
     if(m_pObj_Highlighted)
         m_vectObjs_NeedRedraw.push_back( m_pObj_Highlighted );
-    if(  pDesignObj_Orbiter_OriginallyHighlight  )
-        m_vectObjs_NeedRedraw.push_back( pDesignObj_Orbiter_OriginallyHighlight );
+
 	nd.Release();
 }
 
@@ -6371,6 +6381,9 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio);
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", pObj->m_ObjectID.c_str());
+
+    if(pObj == m_pObj_Highlighted)
+        HighlightObject(pObj);
 }
 
 /*virtual*/ void Orbiter::GetRepeatedKeysForScreen(DesignObj_Orbiter* pObj, string& sKeysList)
@@ -6431,7 +6444,11 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	{
 		BeginPaint();
 		RenderGraphic(pPlutoGraphic, pObj->m_rBackgroundPosition, pObj->m_bDisableAspectLock);
-		UpdateRect(pObj->m_rPosition);
+
+        if(pObj == m_pObj_Highlighted)
+            HighlightObject(pObj);
+
+        UpdateRect(pObj->m_rPosition);
 		EndPaint();
 	}
 
