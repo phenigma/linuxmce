@@ -1636,8 +1636,8 @@ void gc100::SocketThread(int port)
 	// TODO: check for errors
 	learn_server = socket(PF_INET, SOCK_STREAM, 0);
 	{
-		int x = 1;
-		setsockopt(learn_server, SOL_SOCKET, SO_REUSEADDR, &x, sizeof(x));
+        int x = 1;
+        setsockopt(learn_server, SOL_SOCKET, SO_REUSEADDR, (char *)&x, sizeof(x));
 	}
 	bind(learn_server, (struct sockaddr *) &saddr, sizeof(saddr));
 	listen(learn_server, 5);

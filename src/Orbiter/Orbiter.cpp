@@ -3349,7 +3349,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 bool Orbiter::ButtonDown( int iPK_Button )
 {
     //if this is a repeated button, we'll handle it right away
-    if(IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button))
+    if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button))
     {
 g_pPlutoLogger->Write(LV_CRITICAL, "Repeated key %d", iPK_Button);
         return HandleButtonEvent(iPK_Button);
@@ -3364,7 +3364,7 @@ g_pPlutoLogger->Write(LV_CRITICAL, "Repeated key %d", iPK_Button);
 bool Orbiter::ButtonUp( int iPK_Button )
 {
     //if this was a repeated button, we might want to stop all repeat related events
-    if(IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button)) 
+    if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button)) 
     {
         StopRepeatRelatedEvents();
         return false;
