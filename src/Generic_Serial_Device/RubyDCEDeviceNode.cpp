@@ -31,11 +31,14 @@
 using namespace EMBRUBY;
 using namespace std;
 
+#define DEFAULT_IDLE_DELAY	5000
+
 namespace DCE {
 
 RubyDCEDeviceNode::RubyDCEDeviceNode()
-	: parent_(NULL), pembclass_(NULL)
+	: parent_(NULL), pembclass_(NULL), idledelay_(DEFAULT_IDLE_DELAY)
 {
+	lastidle_.tv_sec = lastidle_.tv_nsec = 0;
 }
 
 
@@ -105,9 +108,16 @@ RubyDCEDeviceNode::handleNoMessage() {
         return false;
     }
 	
-	Message idlemsg(0, getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_IDLE_CONST, 0);
-	getEmbClass()->CallCmdHandler(&idlemsg);    
-
+	struct timespec timespec;
+	clock_gettime(CLOCK_REALTIME, &timespec);
+	
+	if( (timespec.tv_sec - lastidle_.tv_sec) * 1000  
+			+ ((timespec.tv_nsec - lastidle_.tv_nsec) / 1000000) >= (int)idledelay_) {
+		lastidle_ = timespec;
+		Message idlemsg(0, getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_IDLE_CONST, 0);
+		getEmbClass()->CallCmdHandler(&idlemsg);    
+	}
+	
 	std::list<RubyDCEDeviceNode*>& children = getChildren();
     for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
 		(*it)->handleNoMessage();

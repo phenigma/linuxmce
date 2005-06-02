@@ -60,6 +60,14 @@ public:
 	}
 	RubyDCEDeviceNode* findChild(unsigned devid);
 
+public:
+	void setIdleDelay(unsigned idledelay) {
+		idledelay_ = idledelay;
+	}
+	unsigned getIdleDelay() {
+		return idledelay_;
+	}
+		
 protected:
 	virtual bool handleNoMessage();
 	virtual bool handleMessage(Message* pmsg);
@@ -77,6 +85,10 @@ private:
 private:
 	RubyDCEDeviceNode* parent_;
 	std::list<RubyDCEDeviceNode*> children_;
+
+private:
+	unsigned idledelay_;
+	struct timespec lastidle_;
 	
 private:
 	DeviceData_Impl* pdevdata_;

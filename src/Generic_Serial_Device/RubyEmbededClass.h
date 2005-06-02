@@ -161,13 +161,20 @@ VALUE RubyEmbededClassImpl<T>::callmethod(const char* methodname, const std::lis
 	}
 	
 	if(error) {
+		VALUE exception_instance = rb_gv_get("$!");
+		VALUE message = rb_obj_as_string(exception_instance);
+		
 		std::string errpoint;
-		ID id = rb_frame_last_func();
-		if(id) {
-			errpoint = ", in: ";
-			errpoint += rb_id2name(id);
-		} 	
-		throw RubyException(std::string("Cannot call class method: ") + methodname + _backtrace());
+		errpoint = "\nerror: ";
+		errpoint += RSTRING(message)->ptr;
+		errpoint += ", line: ";
+		
+		char tmpbuff[12];
+		sprintf(tmpbuff, "%d", ruby_sourceline);
+		errpoint += tmpbuff;
+		
+		errpoint += "\n";
+		throw RubyException(std::string("Cannot call class method: ") + methodname + errpoint + "backtrace: " + _backtrace());
 	}
 	
 	return vret;

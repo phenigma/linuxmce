@@ -94,7 +94,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
         	            bps = tbps;
             	    }
 	            } else {
-    	            g_pPlutoLogger->Write(LV_STATUS, "BaudRate not specified or invalid, using default: %d.", bps);
+    	            g_pPlutoLogger->Write(LV_STATUS, "Ba>=udRate not specified or invalid, using default: %d.", bps);
         	    }
 
 	            g_pPlutoLogger->Write(LV_STATUS, "Using port %s, at bps: %d.", serport.c_str(), bps);
@@ -155,15 +155,15 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 	            return NULL;
 	    }
 
-	    int delay = atoi(pdevdata->m_mapParameters[DEVICEDATA_Idle_Delay_CONST].c_str());
-	    if(delay == 0) {
-    	    delay = DEFAULT_DELAY_TIME;
-	    }
-    	g_pPlutoLogger->Write(LV_STATUS, "Using Idle Delay: %d.", delay);
 		pNode = new RubyIOPool(pnewpool);
-		((RubyIOPool*)pNode)->setIdleDelay(delay);
 	}
 
+	int delay = atoi(pdevdata->m_mapParameters[DEVICEDATA_Idle_Delay_CONST].c_str());
+	if(delay == 0) {
+		delay = DEFAULT_DELAY_TIME;
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "Using Idle Delay: %d.", delay);
+	pNode->setIdleDelay(delay);
     pNode->setDeviceData(pdevdata);
 	return pNode;
 }

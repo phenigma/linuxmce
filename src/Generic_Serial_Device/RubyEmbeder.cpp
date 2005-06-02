@@ -75,7 +75,20 @@ RubyEmbeder::loadCode(RubyEmbederCodeSupplier *psup) throw(RubyException) {
 	int error = 0;
 	rb_protect(_loadcode, reinterpret_cast<VALUE>(code.c_str()), &error);
 	if(error) {
-		throw RubyException("Syntax Error");
+		VALUE exception_instance = rb_gv_get("$!");
+		VALUE message = rb_obj_as_string(exception_instance);
+		
+		std::string errpoint;
+		errpoint = "\nerror: ";
+		errpoint += RSTRING(message)->ptr;
+		
+		errpoint += ", line: ";
+		char tmpbuff[12];
+		sprintf(tmpbuff, "%d", ruby_sourceline);
+		errpoint += tmpbuff;
+		
+		errpoint += "\n";
+		throw RubyException(std::string("Error loading code: ") + errpoint);
 	}
 }
 

@@ -172,9 +172,9 @@ void Generic_Serial_Device::RunThread() {
 void Generic_Serial_Device::ParseDeviceHierarchy(DeviceData_Impl *pdevdata) {
 	g_pPlutoLogger->Write(LV_STATUS, "Device %d has commad line <%s>.", pdevdata->m_dwPK_Device, pdevdata->m_sCommandLine.c_str());
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
-	if(pdevdata->m_sCommandLine == GSD_COMMAND_LINE) {
+	if(pdevdata->m_sCommandLine == GSD_COMMAND_LINE || pdevdata->m_bImplementsDCE) {
 		if(pmanager->addDevice(this, pdevdata) >= 0) {
-			VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
+			VectDeviceData_Impl& vDeviceData = pdevdata->m_vectDeviceData_Impl_Children;
 			for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
 				if(!pmanager->hasDevice(vDeviceData[i])) {
 					ParseDeviceHierarchy(vDeviceData[i]);
