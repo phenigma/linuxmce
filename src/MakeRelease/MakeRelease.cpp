@@ -1505,8 +1505,8 @@ string Makefile = "none:\n"
 		if (iPkgManufacturer == 1 && sPkgVerBase != "") /* HARDCODED: 1 = Pluto */
 		{
 			string::size_type iLastDotNext = sPkgVerBase.rfind(".", sPkgVerBase.length());
-			string sPkgVerBaseMajor = sPkgVerBase.substr(0, iLastDot);
-			string sPkgVerBaseMinor = sPkgVerBase.substr(iLastDot);
+			string sPkgVerBaseMajor = sPkgVerBase.substr(0, iLastDotNext + 1);
+			string sPkgVerBaseMinor = sPkgVerBase.substr(iLastDotNext + 1);
 			int iPkgVerBaseNext = atoi(sPkgVerBaseMinor.c_str()) + 1;
 			sDepends += string("")+ " (>= " + sPkgVerBase + ")" + ", " + sPkgName + " (<< " + sPkgVerBaseMajor + StringUtils::itos(iPkgVerBaseNext) + ")";
 		}
