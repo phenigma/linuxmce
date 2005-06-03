@@ -3298,4 +3298,51 @@ function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
 	
 	return $result;	
 }
+
+function displayReceivers($mdID,$dbADO)
+{
+	$out='<B>Infrared Receivers</B> ';
+
+	unset($GLOBALS['childsDeviceCategoryArray']);
+	$GLOBALS['childsDeviceCategoryArray']=array();
+	getDeviceCategoryChildsArray($GLOBALS['InfraredReceivers'],$dbADO);
+	$categArray=cleanArray($GLOBALS['childsDeviceCategoryArray']);
+	$categArray[]=$GLOBALS['InfraredReceivers'];
+	
+	$templateArray=getArrayFromTable('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'WHERE FK_DeviceCategory IN ('.join(',',$categArray).')','ORDER BY Description ASC');
+	
+	if(count($templateArray)==0)
+		$templateArray[]=0;
+	$receiverArray=getFieldsAsArray('Device','PK_Device,FK_DeviceTemplate',$dbADO,'WHERE FK_Device_ControlledVia='.$mdID.' AND FK_DeviceTemplate IN ('.join(',',array_keys($templateArray)).')');
+	if(count($receiverArray)==0)
+		$selectedReceiver=0;
+	else
+		$selectedReceiver=$receiverArray['PK_Device'][0];
+	$out.='
+		<input type="hidden" name="oldReceiverDT_'.$mdID.'" value="'.@$receiverArray['FK_DeviceTemplate'][0].'">
+		<input type="hidden" name="oldReceiver_'.$mdID.'" value="'.$selectedReceiver.'">';
+		
+	$out.=pulldownFromArray($templateArray,'receiver_'.$mdID,@$receiverArray['FK_DeviceTemplate'][0]);
+	
+	return $out;
+}
+
+function processReceiver($mdID,$dbADO)
+{
+	$oldReceiver=(int)@$_POST['oldReceiver_'.$mdID];
+	$oldReceiverDT=(int)@$_POST['oldReceiverDT_'.$mdID];
+	$newReceiver=(int)@$_POST['receiver_'.$mdID];
+	if($oldReceiver==0){
+		if($newReceiver!=0){
+			createDevice($newReceiver,$_SESSION['installationID'],$mdID,NULL,$dbADO,1);
+		}
+	}else{
+		if($newReceiver==0){
+			deleteDevice($oldReceiver,$dbADO);
+		}elseif($oldReceiverDT!==$newReceiver){
+			deleteDevice($oldReceiver,$dbADO);
+			createDevice($newReceiver,$_SESSION['installationID'],$mdID,NULL,$dbADO,1);
+		}
+	}
+}
 ?>

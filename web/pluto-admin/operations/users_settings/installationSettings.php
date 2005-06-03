@@ -225,7 +225,6 @@ function installationSettings($output,$dbADO) {
 		$newLanguage=(int)$_POST['newLanguage'];
 		
 		if ($installationID!=0 && $description!='') {
-			
 			$queryUpdate = 'UPDATE Installation Set Description=?,Name=?,Address=?,City=?,State=?,Zip=?,FK_Country=? 
 							WHERE PK_Installation = ?';
 			$dbADO->Execute($queryUpdate,array($description,$name,$address,$city,$state,$zip,$country,$installationID));
@@ -237,7 +236,7 @@ function installationSettings($output,$dbADO) {
 				exec($cmdToSend);	
 			}
 			if($newLanguage!=$defLanguage){
-				if($defLanguage==0){
+				if(is_null($defLanguage)){
 					$dbADO->Execute('INSERT INTO Device_DeviceData (IK_DeviceData,FK_Device,FK_DeviceData) VALUES (?,?,?)',array($newLanguage,$dceRouterID,$GLOBALS['Language']));
 				}else{
 					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newLanguage,$dceRouterID,$GLOBALS['Language']));
@@ -263,7 +262,7 @@ function getLanguage($DCERouterID,$dbADO)
 {
 	$res=$dbADO->Execute('SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?',array($DCERouterID,$GLOBALS['Language']));
 	if($res->RecordCount()==0){
-		return 0;
+		return null;
 	}else{
 		$row=$res->FetchRow();
 		return $row['IK_DeviceData'];

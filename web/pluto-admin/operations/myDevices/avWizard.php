@@ -494,7 +494,7 @@ function avWizard($output,$dbADO) {
 						
 						$out.='
 						<tr>
-							<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$mdDistro,1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO).'<hr></td>
+							<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$mdDistro,1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO).'<br>'.displayReceivers($rowD['PK_Device'],$dbADO).'<hr></td>
 						</tr>';
 						$setupDisklessMD=' <input type="button" class="button" name="setupDisklessMD" value="Setup Diskless Media Directors *" onClick="windowOpen(\'operations/logs/executeLog.php?script=1\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');">';
 						$setupDisklessMDInfo='* When you add a new diskless M/D, you must first click this button, wait for the setup process to complete, then do a ‘quick reload router’, and then you can bootup your new diskless media director.';
@@ -713,6 +713,7 @@ function avWizard($output,$dbADO) {
 						recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$room,$dbADO);
 						
 					}
+					processReceiver($value,$dbADO);
 				}
 			}
 			

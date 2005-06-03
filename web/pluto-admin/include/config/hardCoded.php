@@ -29,6 +29,7 @@
 	$GLOBALS['PVRCaptureCards']=75;				// PVR Capture Cards
 	$GLOBALS['SoundCards']=124;					// Sound Cards
 	$GLOBALS['VideoCards']=125;					// Video Cards
+	$GLOBALS['InfraredReceivers']=132;			// Infrared receivers
 
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	
