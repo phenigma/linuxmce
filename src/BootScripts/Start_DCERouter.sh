@@ -17,7 +17,8 @@ sleep 5
 # Wait 5 seconds so DCERouter has a chance to open the socket and start listening
 # TODO: use nc -z and a timeout
 
-/usr/pluto/bin/SetupRemoteAccess.sh
+/usr/pluto/bin/SetupRemoteAccess.sh &
+disown -a
 
 # Delete old packages
 cd /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
