@@ -163,7 +163,7 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 		LAttr.Width = lastX;
 		LAttr.Height = WW.second;
 
-        if (lastY + WW.second < Height)
+        if (lastY + WW.second <= Height)
 		    AddRow(line, ImageLine, LAttr);
 
 		line.clear();
