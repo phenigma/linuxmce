@@ -710,7 +710,9 @@ void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_addr
 	Command += "/usr/pluto/bin/" + sFilename;
 
 	//linux only
+    g_pPlutoLogger->Write(LV_WARNING, "Executing command: %s", Command.c_str());
 	system( Command.c_str() );
+    g_pPlutoLogger->Write(LV_WARNING, "Command executed.");
 #endif
 }
 
