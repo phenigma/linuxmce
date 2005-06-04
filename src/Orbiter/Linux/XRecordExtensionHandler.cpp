@@ -105,7 +105,7 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 	{
 		if ( pXRecordObject->m_shouldRecord && ! pXRecordObject->m_isRecordingEnabled )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "XRecordExtensionHandler::recordingThreadMainFunction(): Enabling recording!!!");
+			g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::recordingThreadMainFunction(): Enabling recording!!!");
 			if ( ! XRecordEnableContext(
 					pDataConnection,
 					pXRecordObject->m_recordingContext,

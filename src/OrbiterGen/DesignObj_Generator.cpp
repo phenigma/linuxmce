@@ -231,10 +231,13 @@ int k=2;
 
         if( sGraphicFile.length()>0 )
         {
+cout << "1: " << sGraphicFile << " ne: " << m_pOrbiterGenerator->m_bNoEffects << endl;
             if( m_pOrbiterGenerator->m_bNoEffects )
             {
                 sGraphicFile = StringUtils::Replace(&sGraphicFile,".MNG",".PNG");
+                sGraphicFile = StringUtils::Replace(&sGraphicFile,".mng",".png");
             }
+cout << "2: " << sGraphicFile << endl;
             size_t scPos=0;
             for(;;)
             {

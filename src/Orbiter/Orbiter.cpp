@@ -473,7 +473,7 @@ void Orbiter::RedrawObjects(  )
 
 void Orbiter::ScreenSaver( void *data )
 {
-g_pPlutoLogger->Write(LV_CRITICAL,"::Screen saver Bypass screen saver now: %d",(int)m_bBypassScreenSaver);
+g_pPlutoLogger->Write(LV_STATUS,"::Screen saver Bypass screen saver now: %d",(int)m_bBypassScreenSaver);
 	if( m_bBypassScreenSaver || !m_pDesignObj_Orbiter_ScreenSaveMenu )
 		return;
 
@@ -3432,10 +3432,10 @@ bool Orbiter::ButtonUp( int iPK_Button )
 #endif 
         }
 
-g_pPlutoLogger->Write(LV_CRITICAL, "Long key %d", iPK_Button);
+g_pPlutoLogger->Write(LV_STATUS, "Long key %d", iPK_Button);
     }
 else
-g_pPlutoLogger->Write(LV_CRITICAL, "Short key %d", iPK_Button);
+g_pPlutoLogger->Write(LV_STATUS, "Short key %d", iPK_Button);
         
     return HandleButtonEvent(iPK_Button);
 }
@@ -4512,7 +4512,7 @@ void Orbiter::GetVideoFrame( void *data )
 			}
             else
             {
-                g_pPlutoLogger->Write(LV_CRITICAL, "CMD_Get_Video_Frame failed: the image buffer is empty");
+                g_pPlutoLogger->Write(LV_WARNING, "CMD_Get_Video_Frame failed: the image buffer is empty");
             }
 		}
 	}
@@ -6645,7 +6645,7 @@ void Orbiter::CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,Message *pMes
 //<-dceag-c325-e->
 {
 	m_bBypassScreenSaver = sOnOff!="0";
-	g_pPlutoLogger->Write(LV_CRITICAL,"Bypass screen saver now: %d",(int)m_bBypassScreenSaver);
+	g_pPlutoLogger->Write(LV_STATUS,"Bypass screen saver now: %d",(int)m_bBypassScreenSaver);
 }
 //<-dceag-c192-b->
 

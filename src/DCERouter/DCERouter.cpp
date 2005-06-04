@@ -1604,11 +1604,12 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 
     // We have to do this here after we've parsed the DEVICEID_LIST
     DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find((*(*pSafetyMessage))->m_dwPK_Device_To);
-    if( pDeviceTo && pDeviceTo->m_pDevice_RouteTo )
-        (*(*pSafetyMessage))->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
 
     if ( (*(*pSafetyMessage))->m_dwMessage_Type==MESSAGETYPE_COMMAND )
         HandleCommandPipes(pSocket,pSafetyMessage);
+
+	if( pDeviceTo && pDeviceTo->m_pDevice_RouteTo )
+        (*(*pSafetyMessage))->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
 //  g_pPlutoLogger->Write(LV_STATUS,"begin realsendmessage before lock");
     PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
     int RouteToDevice = DEVICEID_NULL;
