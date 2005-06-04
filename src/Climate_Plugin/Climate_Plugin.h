@@ -48,6 +48,12 @@ public:
 	// Floorplan
 	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
 
+	// Interceptors
+	bool ClimateCommand( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	void PreprocessClimateMessage(DeviceData_Router *pDevice,Message *pMessage);
+	int GetClimateLevel(DeviceData_Router *pDevice,int iLevel_Default);
+	string GetTemperature(DeviceData_Router *pDevice);
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

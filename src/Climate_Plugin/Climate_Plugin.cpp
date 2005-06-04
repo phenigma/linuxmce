@@ -42,6 +42,10 @@ using namespace DCE;
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Define_Array.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_DesignObj.h"
@@ -103,6 +107,8 @@ bool Climate_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Climate_Plugin::ClimateScenariosGrid))
 		,DATAGRID_Climate_Scenarios_CONST);
+
+    RegisterMsgInterceptor(( MessageInterceptorFn )( &Climate_Plugin::ClimateCommand ), 0, 0, 0, DEVICECATEGORY_Climate_Device_CONST, 0, 0 );
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -189,4 +195,108 @@ void Climate_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Route
 		iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_CLIMATE_THERMOSTAT_OFF_CONST;
 	else
 		iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_CLIMATE_THERMOSTAT_COOLING_CONST;
+}
+
+bool Climate_Plugin::ClimateCommand( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	// This only runs as a plug-in so we can safely cast it
+	class DeviceData_Router *pDevice_RouterTo = (class DeviceData_Router *) pDeviceTo;
+	PreprocessClimateMessage(pDevice_RouterTo,pMessage);
+
+	class DeviceData_Router *pDevice_RouterFrom = (class DeviceData_Router *) pDeviceFrom;
+	PreprocessClimateMessage(pDevice_RouterFrom,pMessage);
+
+	if( pMessage->m_sPK_Device_List_To.length() ) 
+	{
+		int PK_Device;  size_t pos=0;
+		while( true )
+		{
+			PK_Device=atoi(StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos).c_str());
+			DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+			PreprocessClimateMessage(pDeviceData_Router,pMessage);
+			if( pos>=pMessage->m_sPK_Device_List_To.length() || pos==string::npos )
+				break;
+		}
+	}
+
+	return true;
+}
+
+void Climate_Plugin::PreprocessClimateMessage(DeviceData_Router *pDevice,Message *pMessage)
+{
+	if( !pDevice || !pMessage || !pDevice->WithinCategory(DEVICECATEGORY_Climate_Device_CONST) )
+		return;
+
+	// The State is in the format ON|OFF/SET TEMP (CURRENT TEMP)
+	if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+	{
+		if( pMessage->m_dwID==COMMAND_Set_Level_CONST )
+		{
+			string sLevel = pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST];
+			if( sLevel.size()==0 )
+				pMessage->m_dwID=COMMAND_Generic_Off_CONST;
+			else
+			{
+				int iLevel = atoi(sLevel.c_str());
+				if( sLevel[0]=='+' )
+					iLevel = min(100, GetClimateLevel(pDevice,0)+iLevel);
+				else if( sLevel[0]=='-' )
+					iLevel = max(0, GetClimateLevel(pDevice,0)+iLevel);
+
+				if( iLevel==0 )
+					pMessage->m_dwID=COMMAND_Generic_Off_CONST;
+				else
+				{
+					pDevice->m_sState_set("ON/" + StringUtils::itos(iLevel) + GetTemperature(pDevice));
+					pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] = StringUtils::itos(iLevel);
+				}
+			}
+		}
+
+		if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
+			pDevice->m_sState_set("ON/" + StringUtils::itos(GetClimateLevel(pDevice,100)) + GetTemperature(pDevice));
+		else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
+			pDevice->m_sState_set("OFF/" + StringUtils::itos(GetClimateLevel(pDevice,0)) + GetTemperature(pDevice));
+		else if( pMessage->m_dwID==COMMAND_Set_HeatCool_CONST )
+		{
+			string sState = pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
+			if( sState=="H" )
+				pDevice->m_sState_set("HEAT/" + StringUtils::itos(GetClimateLevel(pDevice,0)) + GetTemperature(pDevice));
+			else if( sState=="C" )
+				pDevice->m_sState_set("COOL/" + StringUtils::itos(GetClimateLevel(pDevice,0)) + GetTemperature(pDevice));
+			else
+				pDevice->m_sState_set("AUTO/" + StringUtils::itos(GetClimateLevel(pDevice,0)) + GetTemperature(pDevice));
+		}
+	}
+	else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT && pMessage->m_dwID==EVENT_Temperature_Changed_CONST )
+	{
+		// Replace the current temp
+		string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+		string sCurrentState = pDevice->m_sState_get();
+		string::size_type pos = sCurrentState.find('(');
+		if( pos!=string::npos )
+			sCurrentState = sCurrentState.substr(0,pos-1); // Get rid of the current temp
+		pDevice->m_sState_set(sCurrentState + " (" + sLevel + ")");
+	}
+}
+
+int Climate_Plugin::GetClimateLevel(DeviceData_Router *pDevice,int iLevel_Default)
+{
+	string sState = pDevice->m_sState_get();
+	string::size_type pos = sState.find("/");
+	if( pos<sState.size()-1 && pos!=string::npos )
+		return atoi(sState.substr(pos+1).c_str());
+	else
+		return iLevel_Default;
+}
+
+string Climate_Plugin::GetTemperature(DeviceData_Router *pDevice)
+{
+	// Replace the current temp
+	string sCurrentState = pDevice->m_sState_get();
+	string::size_type pos = sCurrentState.find('(');
+	if( pos!=string::npos )
+		return sCurrentState.substr(pos); // Get rid of the current temp
+	else
+		return "";
 }
