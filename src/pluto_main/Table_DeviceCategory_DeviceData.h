@@ -82,13 +82,14 @@ short int m_AllowedToModify;
 string m_Description;
 short int m_ShowInWizard;
 short int m_ShortDescription;
+short int m_UseDeviceCategoryDefault;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[14];
+		bool is_null[15];
 	
 	public:
 		long int FK_DeviceCategory_get();
@@ -100,6 +101,7 @@ short int AllowedToModify_get();
 string Description_get();
 short int ShowInWizard_get();
 short int ShortDescription_get();
+short int UseDeviceCategoryDefault_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -116,6 +118,7 @@ void AllowedToModify_set(short int val);
 void Description_set(string val);
 void ShowInWizard_set(short int val);
 void ShortDescription_set(short int val);
+void UseDeviceCategoryDefault_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -158,7 +161,7 @@ class Row_DeviceData* FK_DeviceData_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DeviceCategory+ m_FK_DeviceData+ m_IK_DeviceData+ m_Required+ m_SetByDevice+ m_AllowedToModify+ m_Description+ m_ShowInWizard+ m_ShortDescription+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_DeviceCategory+ m_FK_DeviceData+ m_IK_DeviceData+ m_Required+ m_SetByDevice+ m_AllowedToModify+ m_Description+ m_ShowInWizard+ m_ShortDescription+ m_UseDeviceCategoryDefault+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -172,6 +175,7 @@ string AllowedToModify_asSQL();
 string Description_asSQL();
 string ShowInWizard_asSQL();
 string ShortDescription_asSQL();
+string UseDeviceCategoryDefault_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -226,7 +226,7 @@ libpluto_main.so: $(sources:.cpp=.o)
 	cp $@ ../lib
 
 clean: clean-recursive
-	rm -f *.o *.d libpluto_main.a >/dev/null
+	rm -f *.o *.d libpluto_main.so >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

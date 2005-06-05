@@ -187,8 +187,6 @@
 #define COMMAND_Generic_Off_CONST 193
 #define COMMAND_Toggle_Power_CONST 194
 #define COMMAND_Dial_CONST 195
-#define COMMAND_Cool_CONST 196
-#define COMMAND_Heat_CONST 197
 #define COMMAND_Move_Up_CONST 200
 #define COMMAND_Move_Down_CONST 201
 #define COMMAND_Move_Left_CONST 202
