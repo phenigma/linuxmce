@@ -1096,6 +1096,8 @@ void XineSlaveWrapper::stopMedia(int iStreamID)
 		xine_dispose(pStream->m_pStream);
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS, "Going to call a %p and v %p",m_pXineAudio,m_pXineVideo);
+
 	if ( m_pXineAudio )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Calling xine_close_audio_driver for stream with id: %d");
@@ -1110,6 +1112,7 @@ void XineSlaveWrapper::stopMedia(int iStreamID)
 		m_pXineVideo = NULL;
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS, "deleting pstream");
 	delete pStream;
 
 	// ignore the return since we know for sure that it was the same stream

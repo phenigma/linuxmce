@@ -290,6 +290,7 @@ bool Media_Plugin::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Completed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::DeviceOnOff ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_OnOff_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::AvInputChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_AV_Input_Changed_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaDescriptionChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Description_Changed_CONST );
 
     // And the datagrid plug-in
     m_pDatagrid_Plugin=NULL;
@@ -2702,8 +2703,9 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	if( !pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->MoveMedia(pMediaStream, listStart, listStop, listChange) )
 	{
 		bool bNothingMoreToPlay = mapRequestedAreas.size()==0 && listChange.size()==0;
-		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
+		g_pPlutoLogger->Write( LV_STATUS, "Calling StopMedia" );
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
+		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
 		StreamEnded(pMediaStream,true,bNothingMoreToPlay);
 
 		if( !bNothingMoreToPlay )
@@ -3287,6 +3289,32 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 		}
 	}
 	return true;
+}
+
+bool Media_Plugin::MediaDescriptionChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pMessage->m_dwPK_Device_From);
+	if( !pMediaDevice )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Got an on/off from a non-media device");
+		return true;  // It's not for us
+	}
+
+	// First figure out if this device is involved in any streams
+	MediaDevice *pMediaDevice_Source=NULL,*pMediaDevice_Dest=NULL;
+	EntertainArea *pEntertainArea=NULL;
+	MediaStream *pMediaStream=NULL;
+
+	int iIsSource_OrDest = DetermineInvolvement(pMediaDevice, pMediaDevice_Source,pMediaDevice_Dest,
+		pEntertainArea,pMediaStream);
+
+	if( pMediaStream )
+	{
+		pMediaStream->m_sMediaDescription = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
+		MediaInfoChanged(pMediaStream,false);
+	}
 }
 
 bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )

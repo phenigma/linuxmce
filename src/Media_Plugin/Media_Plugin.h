@@ -322,6 +322,11 @@ public:
 	 */
 	bool AvInputChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
+	/**
+	 * @brief EVENT_MediaDescriptionChanged_CONST event interceptor, when some equipment wants to change the description for the media it's playing
+	 */
+	bool MediaDescriptionChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
 
 	// Sometimes when MediaHanderBase::GetRenderDevices is called, only the top-level render devices (ie the media source)
 	// is desired.  However, HandleOnOffs wants everything in the pipe, and the following function

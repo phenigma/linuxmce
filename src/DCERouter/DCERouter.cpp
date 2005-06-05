@@ -2058,6 +2058,15 @@ void Router::Configure()
 					pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceCategory_DeviceData->IK_DeviceData_get() );
 					pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
 				}
+				else if( pRow_DeviceCategory_DeviceData->UseDeviceCategoryDefault_get()==1 && 
+					pRow_DeviceCategory_DeviceData->IK_DeviceData_get()!=pDevice->m_mapParameters[pRow_DeviceCategory_DeviceData->FK_DeviceData_get()] )
+				{
+					Row_Device_DeviceData *pRow_Device_DeviceData = 
+						m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),
+						pRow_DeviceCategory_DeviceData->FK_DeviceData_get());
+					pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceCategory_DeviceData->IK_DeviceData_get() );
+					pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+				}
 			}
 			pRow_DeviceCategory=pRow_DeviceCategory->FK_DeviceCategory_Parent_getrow();
 		}

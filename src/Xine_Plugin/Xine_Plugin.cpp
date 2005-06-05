@@ -387,25 +387,28 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 	}
 	int PK_Device = pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	int StreamID = pXineMediaStream->m_iStreamID_get( );
-	int SavedPosition;
+	int SavedPosition=0;
 	DCE::CMD_Stop_Media cmd(m_dwPK_Device,                          // Send from us
 							PK_Device,  		// Send to the device that is actually playing
 							StreamID,      		// Send the stream ID that we want to actually stop
 							&SavedPosition);
 
-	pXineMediaStream->GetMediaPosition()->m_iSavedPosition = SavedPosition;
 
-	mm.Release();
+// todo -- temporary hack -- Xine can lockup while trying to stop.  
+// Ignore the out paramater until we fix this
+delete cmd.m_pcResponse;
+cmd.m_pcResponse=NULL;
+
 	// TODO: Remove the device from the list of players also.
 	string Response;
-	if( !SendCommand( cmd, &Response ) )
+	if( !SendCommand( cmd ) ) // hack - todo see above, &Response ) )
 	{
 		// TODO: handle failure when sending the command. This is ignored now.
 		g_pPlutoLogger->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
 	}
 	else
 	{
-		mm.Relock();
+		pXineMediaStream->GetMediaPosition()->m_iSavedPosition = SavedPosition;
 		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(StreamID);
 		if( !pMediaStream || (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StopMedia() ")) == NULL )
 		{
