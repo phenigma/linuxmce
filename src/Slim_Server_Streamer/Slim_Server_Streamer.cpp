@@ -434,15 +434,20 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 		string macAddress, strResult;
 
 		PLUTO_SAFETY_LOCK(stateChangedLock, pStreamer->m_stateChangedMutex);
-		// PlutoLock lock(LOCK_PARAMS(pStreamer->m_stateChangedMutex));
+		PLUTO_SAFETY_LOCK(dataAccessLock, pStreamer->m_dataStructureAccessMutex);
+		// AB 5-Jun-05 -- This code is crashing all the time accessing the vect.  Mihai didn't protect it here, maybe that's
+		// why???  Without digging in deeper, I moved m_dataStructureAccessMutex above, and release it before CondWait
 		while ( pStreamer->m_mapStreamsToPlayers.size() == 0 && ! pStreamer->m_bQuit )
+		{
+			dataAccessLock.Release();
 			stateChangedLock.CondWait();
+			dataAccessLock.Relock();
+		}
 		stateChangedLock.Release();
 
 		if ( pStreamer->m_bQuit )
 			return NULL;
 
-		PLUTO_SAFETY_LOCK(dataAccessLock, pStreamer->m_dataStructureAccessMutex);
 		// PlutoLock pm(LOCK_PARAMS(pStreamer->m_dataStructureAccessMutex));
 
         map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itStreamsToPlayers;
@@ -484,11 +489,21 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
 {
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
-//	PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
     if ( m_mapStreamsToPlayers.find(iStreamID) != m_mapStreamsToPlayers.end() )
     {
-        DeviceData_Base *playerDevice = m_mapStreamsToPlayers[iStreamID].second.front();
+		g_pPlutoLogger->Write(LV_STATUS,"Slim_Server_Streamer::FindControllingMacForStream vect: found the m_mapStreamsToPlayers");
+		vector<DeviceData_Base *> *pvectDeviceData_Base = &(m_mapStreamsToPlayers[iStreamID].second);
+		g_pPlutoLogger->Write(LV_STATUS,"Slim_Server_Streamer::FindControllingMacForStream vect: %p size: %d",
+			pvectDeviceData_Base,(int) pvectDeviceData_Base->size());
+
+		if( pvectDeviceData_Base.size()==0 )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Slim_Server_Streamer::FindControllingMacForStream vect is 0");
+			return "";
+		}
+
+        DeviceData_Base *playerDevice = pvectDeviceData_Base->front();
 
 		return getMacAddressForDevice(playerDevice);
     }
