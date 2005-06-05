@@ -1060,11 +1060,14 @@ void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream, bool bRefreshScr
     delete pMediaStream->m_pPictureData;
 	pMediaStream->m_pPictureData = NULL;
     pMediaStream->m_iPictureSize = 0;
+g_pPlutoLogger->Write(LV_STATUS, "Delete m_pPictureData - info changed");
 
 	if( pMediaStream->m_dwPK_Disc )
 	{
 		vector<Row_Picture_Disc *> vectRow_Picture_Disc;
 		m_pDatabase_pluto_media->Picture_Disc_get()->GetRows("FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc),&vectRow_Picture_Disc);
+
+g_pPlutoLogger->Write(LV_STATUS, "Getting m_pPictureData for disc %d size %d",pMediaStream->m_dwPK_Disc,(int) vectRow_Picture_Disc.size());
 		if( vectRow_Picture_Disc.size() )
 	        pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(vectRow_Picture_Disc[0]->FK_Picture_get()) + ".jpg", pMediaStream->m_iPictureSize);
 	}
@@ -1111,6 +1114,8 @@ g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
 		        pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
 		}
     }
+
+g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMediaStream->m_pPictureData,pMediaStream->m_iPictureSize);
 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
