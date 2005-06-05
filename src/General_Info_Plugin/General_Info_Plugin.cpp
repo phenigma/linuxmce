@@ -464,9 +464,9 @@ void General_Info_Plugin::SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot)
 	g_pPlutoLogger->Write(LV_STATUS,"Setting net boot for file %s to %d",sFile.c_str(),(int) bNetBoot);
 
 	if( bNetBoot )
-		StringUtils::Replace(sFile,sFile,"KERNEL ","LOCALBOOT 0 #ERNEL ");
-	else
 		StringUtils::Replace(sFile,sFile,"LOCALBOOT 0 #ERNEL ","KERNEL ");
+	else
+		StringUtils::Replace(sFile,sFile,"KERNEL ","LOCALBOOT 0 #ERNEL ");
 }
 
 //<-dceag-c365-b->
