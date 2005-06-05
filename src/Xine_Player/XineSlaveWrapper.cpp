@@ -244,18 +244,21 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
     m_x11Visual.frame_output_cb   = &frameOutputCallback;
     m_x11Visual.user_data         = xineStream;
 
+    g_pPlutoLogger->Write(LV_STATUS, "Opening Video Driver");
     if( isNewStream && (m_pXineVideo = xine_open_video_driver(m_pXine, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, (void *) &m_x11Visual)) == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Giving up.", m_sXineVideoDriverName.c_str());
         return false;
     }
 
+    g_pPlutoLogger->Write(LV_STATUS, "Opening Audio Driver");
     if ( isNewStream && (m_pXineAudio = xine_open_audio_driver(m_pXine, m_sXineAudioDriverName.c_str(), NULL)) == NULL )
     {
         g_pPlutoLogger->Write(LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str());
         return false;
     }
 
+    g_pPlutoLogger->Write(LV_STATUS, "Calling xine_stream_new");
     if ( isNewStream && (xineStream->m_pStream = xine_stream_new(m_pXine, m_pXineAudio, m_pXineVideo)) == NULL )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Could not create stream (wanted to play: %s)", fileName.c_str());
@@ -270,6 +273,7 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
 
     if ( isNewStream )
     {
+	    g_pPlutoLogger->Write(LV_STATUS, "xine_event_new_queue");
         xineStream->m_pStreamEventQueue = xine_event_new_queue(xineStream->m_pStream);
         xine_event_create_listener_thread(xineStream->m_pStreamEventQueue, xineEventListener, xineStream);
     }
@@ -280,6 +284,7 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
 
 	setXineStreamDebugging(streamID, true);
 
+    g_pPlutoLogger->Write(LV_STATUS, "Ready to call xine_open");
     if( xine_open(xineStream->m_pStream, fileName.c_str()))
     {
         g_pPlutoLogger->Write(LV_STATUS, "Opened..... ");
@@ -346,6 +351,7 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
         xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,true);
     }
 
+	g_pPlutoLogger->Write(LV_STATUS, "Done with CreateStream");
 	return true;
 }
 

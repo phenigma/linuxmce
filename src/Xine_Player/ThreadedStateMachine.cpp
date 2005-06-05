@@ -135,10 +135,10 @@ void ThreadedStateMachine::machineLoop()
 	while ( m_finalStates.find(m_pStateCurrent) == m_finalStates.end() )
 	{
 		State *pStateTarget = findNextState(m_pStateCurrent);
-// 		g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::machineLoop() New loop \"%s\" -- computed --> \"%s\"",
-// 			pthread_self(),
-// 			m_pStateCurrent->getName().c_str(),
-// 			  pStateTarget->getName().c_str());
+ 		g_pPlutoLogger->Write(LV_STATUS, "0x%x ThreadedStateMachine::machineLoop() New loop \"%s\" -- computed --> \"%s\"",
+ 			pthread_self(),
+ 			m_pStateCurrent->getName().c_str(),
+ 			  pStateTarget->getName().c_str());
 
 		if ( m_stateMatrix.find(make_pair<State*, State*>(m_pStateCurrent, pStateTarget)) != m_stateMatrix.end() )
 		{

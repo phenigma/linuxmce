@@ -734,7 +734,7 @@ void SlimDataHandler::sendDataThruPipe(State &fromState, State &toState)
 
 void SlimDataHandler::waitToSendDataThruPipe(State &fromState, State &toState)
 {
-// 	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::waitToSendDataThruPipe() need to send data to the pipe %d", fifoFileDescriptor);
+ 	g_pPlutoLogger->Write(LV_STATUS, "SlimDataHandler::waitToSendDataThruPipe() need to send data to the pipe %d", fifoFileDescriptor);
 
 	// data is available
 	if ( getBufferFilledSpace() > 0 && fifoFileDescriptor != -1 )
