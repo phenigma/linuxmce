@@ -585,6 +585,9 @@ bool Repository::CheckIn( )
 		return false;
 	}
 
+	st.Commit();  // The schema may have been changed, causing the transaction to close.  Start a new one
+	SafetyTransaction st2( m_pDatabase );
+
 	/** First add all records */
 	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
 	{
@@ -691,6 +694,9 @@ bool Repository::Update( )
 		pSocket=NULL;
 		return false;
 	}
+
+	st.Commit();  // The schema may have been changed, causing the transaction to close.  Start a new one
+	SafetyTransaction st2( m_pDatabase );
 
 	/** Update Tables */
 	
