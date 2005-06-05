@@ -497,7 +497,7 @@ string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
 		g_pPlutoLogger->Write(LV_STATUS,"Slim_Server_Streamer::FindControllingMacForStream vect: %p size: %d",
 			pvectDeviceData_Base,(int) pvectDeviceData_Base->size());
 
-		if( pvectDeviceData_Base.size()==0 )
+		if( pvectDeviceData_Base->size()==0 )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Slim_Server_Streamer::FindControllingMacForStream vect is 0");
 			return "";
