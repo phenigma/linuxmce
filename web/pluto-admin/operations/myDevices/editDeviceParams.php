@@ -26,7 +26,9 @@ $installationID = (int)@$_SESSION['installationID'];
 			ManufacturerURL,
 			InternalURLSuffix,
 			FK_DeviceCategory,
-			PingTest
+			PingTest,
+			State,
+			Status
 		FROM Device 
 		INNER JOIN DeviceTemplate on FK_DeviceTemplate = PK_DeviceTemplate
 		WHERE PK_Device = ?";
@@ -49,6 +51,8 @@ $installationID = (int)@$_SESSION['installationID'];
 		$InternalURLSuffix=$row['InternalURLSuffix'];
 		$DeviceCategory= $row['FK_DeviceCategory'];	
 		$PingTest=$row['PingTest'];
+		$State=$row['State'];
+		$Status=$row['Status'];
 	}
 	
 	if ($DeviceTemplate==0) {
@@ -206,7 +210,14 @@ $installationID = (int)@$_SESSION['installationID'];
 					<td><input type="checkbox" name="PingTest" value="1" '.(($PingTest==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
 					<td>Use 5 second pings to ensure connection stays alive.</td>
 				</tr>
-					
+				<tr>
+					<td>State</td>
+					<td><input type="text" name="State" value="'.$State.'"></td>
+				</tr>
+				<tr>
+					<td>Status</td>
+					<td><input type="text" name="Status" value="'.$Status.'"></td>
+				</tr>
 				<tr>
 					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
 				</tr>
@@ -481,6 +492,8 @@ $installationID = (int)@$_SESSION['installationID'];
 		$controlledVia = (@$_POST['controlledVia']!='0')?cleanInteger(@$_POST['controlledVia']):NULL;
 		$needConfigure = (isset($_POST['needConfigure']))?cleanInteger($_POST['needConfigure']):0;
 		$PingTest=(isset($_POST['PingTest']))?1:0;
+		$State= cleanString($_POST['State']);
+		$Status= cleanString($_POST['Status']);
 		
 		$addNewDeviceRelated = (int)$_POST['addNewDeviceRelated'];
 		if ($addNewDeviceRelated!=0) {
@@ -549,8 +562,8 @@ $installationID = (int)@$_SESSION['installationID'];
 				}
 			
 			$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
-			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=?,PingTest=? WHERE PK_Device = ?";
-			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$controlledVia,$needConfigure,$room,$PingTest,$deviceID));
+			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=?,PingTest=?,State=?,`Status`=? WHERE PK_Device = ?";
+			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$controlledVia,$needConfigure,$room,$PingTest,$State,$Status,$deviceID));
 			setDCERouterNeedConfigure($installationID,$dbADO);
 			$EntAreasArray=explode(',',$_POST['displayedEntAreas']);
 			$OldEntAreasArray=explode(',',$_POST['oldEntAreas']);

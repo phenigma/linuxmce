@@ -522,7 +522,7 @@ if($action=='form') {
 					(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template,FK_DesignObj)
 				VALUES
 					(?,?,?,?,?,?,?,?)';
-			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'Security Panel',0,0,0,$GLOBALS['SecurityArmDisarmTemplate'],3275));
+			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'Security',0,0,0,$GLOBALS['SecurityArmDisarmTemplate'],3275));
 			$armDisarmCG=$dbADO->Insert_ID();
 			$newDisarmCG=1;
 			

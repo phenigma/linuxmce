@@ -1036,7 +1036,7 @@ function deleteDevice($PK_Device,$dbADO)
 	}
 	foreach ($toDelete as $elem) {
 	
-		$arrayFKDeviceTables=array('CommandGroup_Command','Device_Command','Device_CommandGroup','Device_DeviceData','Device_DeviceGroup','Device_Device_Related','Device_EntertainArea','Device_HouseMode','Device_Orbiter','Device_StartupScript','Device_Users','InfraredGroup_Command');
+		$arrayFKDeviceTables=array('CommandGroup_Command','Device_Command','Device_CommandGroup','Device_DeviceData','Device_DeviceGroup','Device_Device_Related','Device_EntertainArea','Device_HouseMode','Device_Orbiter','Device_StartupScript','Device_Users');
 		foreach($arrayFKDeviceTables AS $tablename){	
 			$queryDelFromTable='DELETE FROM '.$tablename.' WHERE FK_Device='.$elem;
 			$dbADO->Execute($queryDelFromTable);
@@ -2290,25 +2290,30 @@ function climateDevicesTable($cgID,$dbADO)
 		if($resCGCommands->RecordCount()==0)
 			$selectedCommand=1;
 		else{
-			$rowCGCommands=$resCGCommands->FetchRow();
-			switch($rowCGCommands['FK_Command']){
+			while($rowCGC=$resCGCommands->FetchRow()){
+				if($rowCGC['FK_Command']!=$GLOBALS['genericSetLevelCommand'])
+					$rowCGCommands=$rowCGC;
+				else
+					$rowCGCSetLevel=$rowCGC;
+			}
+			switch(@$rowCGCommands['FK_Command']){
 				case $GLOBALS['genericONCommand']:
 					$selectedCommand=2;
 				break;
 				case $GLOBALS['setCoolHeat']:
-				if($rowCGCommands['IK_CommandParameter']=='H')
-					$selectedCommand=3;
-				else
-					$selectedCommand=4;
+					if($rowCGCommands['IK_CommandParameter']=='H')
+						$selectedCommand=3;
+					else
+						$selectedCommand=4;
 				break;
 				case $GLOBALS['genericOFFCommand']:
 					$selectedCommand=5;
 				break;
-				case $GLOBALS['genericSetLevelCommand']:
-					$selectedCommand=6;
-					$dimValue=($rowCGCommands['FK_CommandParameter']==$GLOBALS['commandParamAbsoluteLevel'])?$rowCGCommands['IK_CommandParameter']:'';
+				default:
+					$selectedCommand=0;
 				break;
 			}
+			$dimValue=(@$rowCGCSetLevel['FK_CommandParameter']==$GLOBALS['commandParamAbsoluteLevel'])?$rowCGCSetLevel['IK_CommandParameter']:'';
 		}
 		$out.='
 			<tr bgcolor="'.(($lineCount%2==0)?'#DDDDDD':'').'">
@@ -2319,7 +2324,7 @@ function climateDevicesTable($cgID,$dbADO)
 				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="3" '.(($selectedCommand==3)?'checked':'').'></td>
 				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="4" '.(($selectedCommand==4)?'checked':'').'></td>
 				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="5" '.(($selectedCommand==5)?'checked':'').'></td>
-				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="6" '.(($selectedCommand==6)?'checked':'').'> <input type="text" name="dimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'" size="3" onClick="eval(\'document.climateScenarios.command_'.$rowGetRoomsDevice['PK_Device'].'[5].checked=true\');"></td>
+				<td align="center"><input type="text" name="dimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'" size="3" onClick="eval(\'document.climateScenarios.command_'.$rowGetRoomsDevice['PK_Device'].'[5].checked=true\');"></td>
 			</tr>
 			<input type="hidden" name="oldCommand_'.$rowGetRoomsDevice['PK_Device'].'" value="'.$selectedCommand.'">
 			<input type="hidden" name="oldDimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'">		
@@ -2511,6 +2516,7 @@ function processClimateScenario($cgID,$dbADO)
 			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericHeatCommand']));
 			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericCoolCommand']));
 			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericOFFCommand']));
+			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['setCoolHeat']));
 			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericSetLevelCommand']));
 			$dbADO->Execute($deleteParameters,array($cgID,$elem));
 
@@ -2542,15 +2548,17 @@ function processClimateScenario($cgID,$dbADO)
 					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
 					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericOFFCommand']));
 				break;
-				case 6:
-					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
-					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericSetLevelCommand']));
-					$cgcInsertID=$dbADO->Insert_ID();
-
-					$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-					$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['commandParamAbsoluteLevel'],$dimValue));
-				break;
 			}
+
+			if($dimValue!=''){
+				$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
+				$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericSetLevelCommand']));
+				$cgcInsertID=$dbADO->Insert_ID();
+
+				$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+				$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['commandParamAbsoluteLevel'],$dimValue));
+			}
+
 		}
 	}
 }

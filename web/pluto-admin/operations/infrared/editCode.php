@@ -21,13 +21,7 @@ function editCode($output,$dbADO) {
 		
 		$out.='
 		<script language="JavaScript" type="text/javascript" src="scripts/wysiwyg/richtext.js"></script>
-		<script language="JavaScript" type="text/javascript">
-		<!--
-		//Usage: initRTE(imagesPath, includesPath, cssFile)
-		initRTE("scripts/wysiwyg/images/", "scripts/wysiwyg/", "scripts/wysiwyg/");
-		//-->
-		</script>		
-		
+	
 		<div align="center" style="height:90%; width:99%;">
 		<div class="err">'.stripslashes(@$_GET['error']).'</div>
 		<div class="confirm" align="center"><B>'.stripslashes(@$_GET['msg']).'</B></div>
@@ -38,12 +32,7 @@ function editCode($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="ircode" value="'.$ircode.'">		
 		<B>IR/GSD code</B><br>
-<script language="JavaScript" type="text/javascript">
-<!--
-//Usage: writeRichText(fieldname, html, width, height, buttons, readOnly)
-writeRichText(\'irdata\', \''.addslashes(str_replace(array("\r\n"),'<br>',@$oldData)).'\', 770, 460, true, false);
-//-->
-</script>
+		<textarea name="irdata" style="width:100%;height:540;">'.@$oldData.'</textarea>
 		<input type="submit" class="button" name="save" value="Update"> <input type="button" class="button" name="close" value="Close" onclick="self.close();">
 		</form>
 		</div>
@@ -56,8 +45,7 @@ writeRichText(\'irdata\', \''.addslashes(str_replace(array("\r\n"),'<br>',@$oldD
 			exit(0);
 		}
 		
-		$irData=stripslashes(str_replace("\r\n","",$_POST['irdata']));
-		$irData=str_replace("<br>","\r\n",$irData);
+		$irData=stripslashes($_POST['irdata']);
 		$irData=unhtmlentities($irData);
 		
 		

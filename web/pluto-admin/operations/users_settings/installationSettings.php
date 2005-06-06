@@ -160,8 +160,10 @@ function installationSettings($output,$dbADO) {
 					$out.='
 						<select name="zone" onChange="document.installationSettings.timeZoneText.value=escape(document.installationSettings.zone[document.installationSettings.zone.selectedIndex].text);document.installationSettings.action.value=\'form\';document.installationSettings.submit();">
 							<option value="">- Please select -</option>';
-					foreach ($zonesArray[$selContinent][$selCountry] AS $zone){
-						$out.='<option value="'.$zone[0].'" '.(($zone[0]==@$_POST['zone'])?'selected':'').'>'.(($zone[1]!='')?$zone[1]:$zone[0]).'</option>';
+					$orderedZonesArray=$zonesArray[$selContinent][$selCountry];
+					asort($orderedZonesArray);
+					foreach ($orderedZonesArray AS $zone){
+						$out.='<option value="'.$zone[0].'" '.(($zone[0]==@$_POST['zone'])?'selected':'').'>'.str_replace($selContinent.'/','',$zone[0]).' - '.(($zone[1]!='')?$zone[1]:$zone[0]).'</option>';
 					}
 					$out.='
 						</select>';

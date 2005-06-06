@@ -58,6 +58,7 @@ function irCodes($output,$dbADO) {
 		</script>	
 	<div class="err"><br>'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>	
+		
 		<form action="index.php" method="POST" name="irCodes">
 			<input type="hidden" name="section" value="irCodes">
 			<input type="hidden" name="action" value="update">
@@ -66,6 +67,7 @@ function irCodes($output,$dbADO) {
 			<input type="hidden" name="infraredGroupID" value="'.$infraredGroupID.'">
 			<input type="hidden" name="irgroup_command" value="">
 			<input type="hidden" name="label" value="'.$label.'">';
+		
 		$selectDTData='
 			SELECT DeviceTemplate.Description AS Template, DeviceCategory.Description AS Category,Manufacturer.Description AS Manufacturer, FK_Manufacturer,FK_DeviceCategory
 			FROM DeviceTemplate
@@ -89,7 +91,7 @@ function irCodes($output,$dbADO) {
 			}
 		}
 
-		$excludedCommandsArray=array($GLOBALS['powerCommand'],$GLOBALS['genericONCommand'],$GLOBALS['genericOFFCommand'],$GLOBALS['DSPModeCommand'],$GLOBALS['inputSelectCommand'],$GLOBALS['outputSelectCommand']);
+		$excludedCommandsArray=array($GLOBALS['powerCommand'],$GLOBALS['genericONCommand'],$GLOBALS['genericOFFCommand'],$GLOBALS['DSPModeCommand']);		// $GLOBALS['inputSelectCommand'],$GLOBALS['outputSelectCommand'] removed vor GSD
 		$resGrabOldValues = $dbADO->Execute('SELECT * FROM DeviceTemplate_AV WHERE FK_DeviceTemplate = ?',$dtID);
 		$row=$resGrabOldValues->FetchRow();
 		$togglePower = $row['TogglePower'];
@@ -101,6 +103,7 @@ function irCodes($output,$dbADO) {
 		}else{
 			$commandsToShow=array($GLOBALS['genericONCommand'],$GLOBALS['genericOFFCommand']);
 		}
+		
 		// exception for ruby codes
 		if($GLOBALS['label']!='infrared'){
 			$resRubyCommands=$dbADO->Execute('SELECT * FROM Command WHERE FK_CommandCategory=?',$GLOBALS['GeneralInternal']);
@@ -354,7 +357,7 @@ function irCodes($output,$dbADO) {
 				$dbADO->Execute('DELETE FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
 				if(!is_null($newIRGroup))
 					$dbADO->Execute('INSERT INTO DeviceTemplate_InfraredGroup (FK_DeviceTemplate, FK_InfraredGroup) VALUES (?,?)',array($dtID,$newIRGroup));
-				$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND FK_InfraredGroup IS NOT NULL',array($newIRGroup,$dtID));
+				$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND (FK_InfraredGroup=? OR  FK_InfraredGroup IS NULL)',array($newIRGroup,$dtID,$oldIRGroup));
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.&label=".$GLOBALS['label']);
 				exit();
 			}
