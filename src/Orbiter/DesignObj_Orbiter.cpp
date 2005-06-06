@@ -83,6 +83,7 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pCore)
 	m_pvectCurrentGraphic = NULL;
 	m_pGraphicToUndoSelect = NULL;
 	m_pvectCurrentPlayingGraphic = NULL;
+	m_pObj_Screen = NULL;
 
 	m_iCurrentFrame = 0;
 

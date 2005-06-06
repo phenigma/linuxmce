@@ -117,7 +117,7 @@ public:
 	bool m_bLoop_Background,m_bLoop_Selected,m_bLoop_Highlighted;
 	vector<bool> m_bvectLoop_Alt;
 	int m_iCurrentFrame;
-
+	DesignObj_Orbiter *m_pObj_Screen;
 
 	class Orbiter_CriteriaList *m_pCriteria;
 	ProntoCCF *m_pCCF;

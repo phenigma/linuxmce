@@ -611,6 +611,10 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )
 {
+if( pObj->m_ObjectID.find("1785")!=string::npos && this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
+{
+int k=2;
+}
     if(  pObj->m_pDesignObj_Orbiter_TiedTo  )
     {
         pObj->m_bHidden = pObj->m_pDesignObj_Orbiter_TiedTo->IsHidden(  );
@@ -2772,6 +2776,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     }
 */
     m_mapObj_All[pObj->m_ObjectID] = pObj;  // Do this earlier since the bind to action may require looking this up.
+	pObj->m_pObj_Screen=pObj_Screen;
 
     if(  pObj->m_bHideByDefault  )
         pObj->m_bHidden = true;
@@ -4448,6 +4453,9 @@ void Orbiter::DeselectObjects( void *data )
 
     PLUTO_SAFETY_LOCK( vm, m_ScreenMutex )
 	DesignObj_Orbiter *pObj = ( DesignObj_Orbiter * ) data;
+	 
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj!=pObj->m_pObj_Screen )
+		return; // We must have since changed screens
 
 g_pPlutoLogger->Write(LV_WARNING, "Deselecting %s object, state '%s'", pObj->m_ObjectID.c_str(), pObj->m_GraphicToDisplay==GRAPHIC_SELECTED ? "'selected'" : "'normal'");
 
