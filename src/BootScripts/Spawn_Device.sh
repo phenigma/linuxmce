@@ -19,17 +19,17 @@ module="$device_name" #$(basename $0)
 cmd_line="$3"
 
 AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"
-WaitLock "Spawn_Device"
+WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "Dev: $device_id; Already Running: $(cat $AlreadyRunning)"
 if grep -q "^$device_id$" "$AlreadyRunning" 2>/dev/null; then
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "Device $ChildDeviceID was marked as 'running'. Not starting"
 	echo "$(date) Already running: $device_id" >>/var/log/pluto/Spawn_Device.log
-	Unlock "Spawn_Device"
+	Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 	exit
 fi
 echo "$device_id" >>"$AlreadyRunning"
 echo "$(date) About to be run: $device_id" >>/var/log/pluto/Spawn_Device.log
-Unlock "Spawn_Device"
+Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "device: $device_id ip: $ip_of_router cmd_line: $cmd_line"
 

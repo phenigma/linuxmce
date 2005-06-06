@@ -7,39 +7,59 @@ Dir="/usr/pluto/locks"
 Lock()
 {
 	local Lock="$1"
-	local NoLog="$2"
-	[[ -z "$NoLog" ]] && echo -n "$(date) Lock '$1' "
+	local Device="$2"
+	local NoLog="$3"
+	
+	[[ -z "$NoLog" ]] && echo -n "$(date) Lock '$Lock' ($Device) "
 
 	[ -z "$Lock" ] && return 1
-	if ln -s "$Dir/$1" "$Dir/$1" 2>/dev/null; then
+	if ln -s "/proc/$$-$Device" "$Dir/$Lock" 2>/dev/null; then
 		[[ -z "$NoLog" ]] && echo "fail"
+		return 0
 	else
 		[[ -z "$NoLog" ]] && echo "success"
+		return 1
 	fi
 }
 
 # there is no ability to check if this our lock yet
 Unlock()
 {
-	echo -n "$(date) Unlock '$1' "
 	local Lock="$1"
+	local Device="$2"
+	
+	echo -n "$(date) Unlock '$Lock' ($Device) "
 
 	[ -z "$Lock" ] && echo 'fail' && return 1
-	rm -f "$Dir/$1" 2>/dev/null
+	rm -f "$Dir/$Lock" 2>/dev/null
 	echo 'success'
+	return 0
 }
 
 TryLock()
 {
-	echo -n "$(date) TryLock '$1' "
-	Lock "$1" && echo 'success' || echo 'fail'
+	local Lock="$1"
+	local Device="$2"
+
+	echo -n "$(date) TryLock '$Lock' ($Device) "
+	if Lock "$Lock" "$Device"; then
+		echo 'success'
+		return 0
+	else
+		echo 'fail'
+		return 1
+	fi
 }
 
 WaitLock()
 {
-	echo "$(date) WaitLock '$1'"
-	until Lock "$1" nolog; do
+	local Lock="$1"
+	local Device="$2"
+	
+	echo "$(date) WaitLock '$Lock' ($Device)"
+	until Lock "$1" "$Device" nolog; do
 		sleep 1
 	done
-	echo "$(date) WaitLock '$1' success"
+	echo "$(date) WaitLock '$Lock' ($Device) success"
+	return 0
 }
