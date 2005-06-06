@@ -1,5 +1,5 @@
 ROOT = ..
-CXXFLAGS = -Wall -O2 -D_GNU_SOURCE
+CXXFLAGS = -Wall -O2 -D_GNU_SOURCE -fPIC -g -ggdb3
 CPPFLAGS = -I/usr/include/mysql -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG -DUSE_MYSQL
 CXX = g++
 LDFLAGS = -L$(ROOT)/lib
@@ -226,7 +226,7 @@ libpluto_main.so: $(sources:.cpp=.o)
 	cp $@ ../lib
 
 clean: clean-recursive
-	rm -f *.o *.d libpluto_main.a >/dev/null
+	rm -f *.o *.d libpluto_main.so >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)
