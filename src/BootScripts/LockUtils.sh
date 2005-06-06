@@ -7,6 +7,8 @@ Dir="/usr/pluto/locks"
 Lock()
 {
 	local Lock="$1"
+	local NoLog="$2"
+	[[ -z "$NoLog" ]] && echo "$(date) Lock '$1'"
 
 	[ -z "$Lock" ] && return 1
 	ln -s "$Dir/$1" "$Dir/$1" 2>/dev/null
@@ -15,7 +17,7 @@ Lock()
 # there is no ability to check if this our lock yet
 Unlock()
 {
-	echo -n "Unlock '$1' "
+	echo -n "$(date) Unlock '$1' "
 	local Lock="$1"
 
 	[ -z "$Lock" ] && echo 'fail' && return 1
@@ -25,15 +27,15 @@ Unlock()
 
 TryLock()
 {
-	echo -n "TryLock '$1' "
+	echo -n "$(date) TryLock '$1' "
 	Lock "$1" && echo 'success' || echo 'fail'
 }
 
 WaitLock()
 {
-	echo "WaitLock '$1'"
-	until Lock "$1"; do
+	echo "$(date) WaitLock '$1'"
+	until Lock "$1" nolog; do
 		sleep 1
 	done
-	echo "WaitLock '$1' success"
+	echo "$(date) WaitLock '$1' success"
 }
