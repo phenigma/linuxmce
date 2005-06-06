@@ -297,6 +297,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::HollowRectangle(int x, int y, int width, int height, PlutoColor color)
 {
+    if(width <= 0 || height <= 0)
+        return;
+
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	GetDisplay()->DrawRect(x, y, x + width, y + height, GetColor16(color));

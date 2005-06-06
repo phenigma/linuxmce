@@ -2061,10 +2061,15 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
     int w = pObj->m_rBackgroundPosition.Width;
     int h = pObj->m_rBackgroundPosition.Height;
 
-    PlutoColor BlackColor(0, 0, 0, 100);
+    //PlutoColor BlackColor(0, 0, 0, 100);
+    //HollowRectangle(x + w / 2, y + h / 4, 1, h / 2, BlackColor);
+    //HollowRectangle(x + w / 4, y + h / 2, w / 2, 1, BlackColor);
 
-    HollowRectangle(x + w / 2, y + h / 4, 1, h / 2, BlackColor);
-    HollowRectangle(x + w / 4, y + h / 2, w / 2, 1, BlackColor);
+    PlutoColor WhiteColor(255, 255, 255, 100);
+    PlutoColor RedColor(255, 0, 0, 100);
+
+    HollowRectangle(x, y, w - 1, h - 1, RedColor);
+    HollowRectangle(x + 1, y + 1, w - 3, h - 3, WhiteColor);
 }
 
 //------------------------------------------------------------------------

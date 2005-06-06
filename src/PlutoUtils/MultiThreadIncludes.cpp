@@ -196,7 +196,9 @@ void PlutoLock::CheckLocks()
 		PlutoLock *pSafetyLock = (*itMapLock).second;
 		if( time(NULL)-pSafetyLock->m_tTime>DEADLOCK_TIMEOUT_ERROR )
 		{
+#ifndef WINCE
 			cout << "Found a safety lock problem: " << pSafetyLock << endl;
+#endif
 			pSafetyLock_Problem=pSafetyLock;
 			break;
 		}
@@ -205,8 +207,10 @@ void PlutoLock::CheckLocks()
 	if( pSafetyLock_Problem )
 	{
 		DumpOutstandingLocks();
+#ifndef WINCE
 		cout << "Calling deadlock handler 2" << endl;
 		cerr << "Calling deadlock handler 2" << endl;
+#endif
 		if( g_pDeadlockHandler )
 			(*g_pDeadlockHandler)(pSafetyLock_Problem);
 	}
@@ -549,8 +553,10 @@ void PlutoLock::DoLock()
 			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get lock(%p) %s: %s:%d last used %s:%d thread: %d (>%d) %s",
 				&m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
 		DumpOutstandingLocks();
+#ifndef WINCE
 		cout << "Calling deadlock handler 1" << endl;
 		cerr << "Calling deadlock handler 1" << endl;
+#endif
 		if( g_pDeadlockHandler )
 			(*g_pDeadlockHandler)(this);
 		pthread_mutex_lock(&m_pMyLock->mutex);
