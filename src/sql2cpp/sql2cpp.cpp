@@ -311,7 +311,8 @@ int main( int argc, char *argv[] )
 	ofstream makefile_out(makefile.c_str());
 
 	makefile_out << "ROOT = .." << endl;
-	makefile_out << "CXXFLAGS = -Wall -O2 -D_GNU_SOURCE" << endl;
+
+	makefile_out << "CXXFLAGS = -Wall -O2 -D_GNU_SOURCE -fPIC -g -ggdb3" << endl;
 	makefile_out << "CPPFLAGS = -I/usr/include/mysql -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG -DUSE_MYSQL" << endl;
 	makefile_out << "CXX = g++" << endl;
 	makefile_out << "LDFLAGS = -L$(ROOT)/lib" << endl;
