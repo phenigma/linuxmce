@@ -15,20 +15,25 @@ Lock()
 # there is no ability to check if this our lock yet
 Unlock()
 {
+	echo -n "Unlock '$1' "
 	local Lock="$1"
 
-	[ -z "$Lock" ] && return 1
+	[ -z "$Lock" ] && echo 'fail' && return 1
 	rm -f "$Dir/$1" 2>/dev/null
+	echo 'success'
 }
 
 TryLock()
 {
-	Lock "$1"
+	echo -n "TryLock '$1' "
+	Lock "$1" && echo 'success' || echo 'fail'
 }
 
 WaitLock()
 {
+	echo "WaitLock '$1'"
 	until Lock "$1"; do
 		sleep 1
 	done
+	echo "WaitLock '$1' success"
 }
