@@ -1239,6 +1239,9 @@
 #define DESIGNOBJ_go_to_power2_CONST 3445
 #define DESIGNOBJ_objTextInput_CONST 3446
 #define DESIGNOBJ_mnuAddAttribute_CONST 3447
+#define DESIGNOBJ_mnuRadioRemote_CONST 3448
+#define DESIGNOBJ_mnuGenericCDRemote_CONST 3449
+#define DESIGNOBJ_butRandom_CONST 3450
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
