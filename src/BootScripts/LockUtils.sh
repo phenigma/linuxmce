@@ -8,10 +8,14 @@ Lock()
 {
 	local Lock="$1"
 	local NoLog="$2"
-	[[ -z "$NoLog" ]] && echo "$(date) Lock '$1'"
+	[[ -z "$NoLog" ]] && echo -n "$(date) Lock '$1' "
 
 	[ -z "$Lock" ] && return 1
-	ln -s "$Dir/$1" "$Dir/$1" 2>/dev/null
+	if ln -s "$Dir/$1" "$Dir/$1" 2>/dev/null; then
+		[[ -z "$NoLog" ]] && echo "fail"
+	else
+		[[ -z "$NoLog" ]] && echo "success"
+	fi
 }
 
 # there is no ability to check if this our lock yet
