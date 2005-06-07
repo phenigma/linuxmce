@@ -1,11 +1,3 @@
-bool g_bHackToBeSureWeStop=false;
-void* HackToBeSureWeStop(void* param) 
-{
-	Sleep(1000);
-	if( g_bHackToBeSureWeStop )
-		kill(getpid(), SIGSEGV);
-}
-
 /*
     Xine_Player
 
@@ -48,6 +40,16 @@ using namespace DCE;
 #include "pluto_main/Define_Button.h"
 
 #include "SlimServerClient.h"
+
+bool g_bHackToBeSureWeStop=false;
+void* HackToBeSureWeStop(void* param) 
+{
+	Sleep(1000);
+	if( g_bHackToBeSureWeStop )
+		kill(getpid(), SIGSEGV);
+	return NULL;
+}
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -235,7 +237,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
     g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() position %d", *iMediaPosition);
 
 pthread_t pt;
-pthread_create(&pt, NULL, HackToBeSureWeStop, (void*)this))
+pthread_create(&pt, NULL, HackToBeSureWeStop, NULL);
 g_bHackToBeSureWeStop=true;
     m_pXineSlaveControl->stopMedia(iStreamID);
 g_bHackToBeSureWeStop=false;
