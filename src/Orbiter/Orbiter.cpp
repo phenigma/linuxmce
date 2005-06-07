@@ -4439,9 +4439,12 @@ g_pPlutoLogger->Write(LV_STATUS, "CallMaintenanceInMiliseconds started with mapP
 
 	mapPendingCallbacks[pCallBackInfo->m_iCounter]=pCallBackInfo;
 
+  
+/*
 g_pPlutoLogger->Write( LV_CONTROLLER, "Added callback id = %d %p %s, size is now: %d", pCallBackInfo->m_iCounter, pCallBackInfo,
 					  (pCallBackInfo->m_fnCallBack==Orbiter::RealRedraw ? "redraw" : (pCallBackInfo->m_fnCallBack==Orbiter::ScreenSaver ? "screen saver" : "other")),
 					  (int) mapPendingCallbacks.size());
+*/
 
 	cm.Release();
 
