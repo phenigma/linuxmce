@@ -266,7 +266,18 @@ Simulator::Simulator()
 //------------------------------------------------------------------------------------------------------
 Simulator::~Simulator()
 {
-	m_bIsRunning = false;
+    m_bStopGeneratorThread = true;
+
+    time_t tTime = time(NULL);
+    while(m_bIsRunning)
+    {
+        Sleep(10);
+        if( tTime + 5 < time(NULL) )
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop the simulator thread!");
+            return;
+        }
+    }
 }
 //------------------------------------------------------------------------------------------------------
 /*static*/ Simulator* Simulator::GetInstance()

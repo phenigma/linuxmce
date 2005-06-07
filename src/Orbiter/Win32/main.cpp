@@ -249,6 +249,30 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 
+#ifdef POCKETFROG
+        //if the simulator is still running
+        //we want to shutdown pocketfrog gracefully, giving it time to process shutdown messages first.
+        //1 sec should be enough
+
+        if(Simulator::GetInstance()->IsRunning())
+        {
+            Orbiter_PocketFrog::GetInstance()->OnQuit();
+
+            time_t tTime = time(NULL);
+            while(1)
+            {
+                if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+                {
+                    TranslateMessage(&msg);
+                    DispatchMessage(&msg);
+                }
+
+                if( tTime + 1 < time(NULL) )
+                    break;
+            }
+        }
+#endif        
+
 		g_pPlutoLogger->Write(LV_STATUS, "Exited process messages loop. We are shutting down....");
 
 #ifdef WINCE

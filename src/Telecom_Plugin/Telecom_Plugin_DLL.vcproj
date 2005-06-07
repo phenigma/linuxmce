@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib Datagrid_Plugin.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib"
 				OutputFile="../Debug/Telecom_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib;../Debug"

@@ -15,6 +15,7 @@
 #endif
 
 extern HINSTANCE	g_hInst; // The current instance
+extern HWND			g_hwndMainDialog;		// The main dialog window handle
 //-----------------------------------------------------------------------------------------------------
 WORD				MyRegisterClass	(HINSTANCE, LPTSTR);
 BOOL				InitInstance	(HINSTANCE, int);

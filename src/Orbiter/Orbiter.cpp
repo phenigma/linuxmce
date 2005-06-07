@@ -250,6 +250,11 @@ Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter  %p is exiting",this);
+
+    //stop the simulator, if running
+    if(Simulator::GetInstance()->IsRunning())
+        StopSimulatorThread();
+
 	// Be sure we get the maint thread to cleanly exit
 	KillMaintThread();
 
@@ -6553,6 +6558,24 @@ g_pPlutoLogger->Write(LV_STATUS,"Kill Maint Thread %d",(int) bMaintThreadIsRunni
 			exit(1);
 		}
 	}
+}
+
+void Orbiter::StopSimulatorThread()
+{
+    g_pPlutoLogger->Write(LV_STATUS,"Stopping simulator thread...");
+    Simulator::GetInstance()->StopRandomEventGenerator();
+
+    time_t tTime = time(NULL);
+    while(Simulator::GetInstance()->IsRunning())
+    {
+        Sleep(10);
+        if( tTime + 5 < time(NULL) )
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop the simulator thread!");
+            return;
+        }
+    }
+    g_pPlutoLogger->Write(LV_STATUS,"Simulator thread stopped.");
 }
 
 int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)

@@ -410,6 +410,8 @@ public: // temp - remove this
 	 */
 	void KillMaintThread();
 
+    void StopSimulatorThread();
+
 	/**
 	 * @brief Convert a virtual device (a negative device that corresponds to the VirtDev entries in DeviceTemplate) into the real device ID
 	 */
