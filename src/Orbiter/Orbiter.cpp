@@ -4315,7 +4315,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
             {
                 pDataGridTable = new DataGridTable( size,  data );
 
-				free(data); //data was allocated using malloc
+				delete[] data; //data was allocated using malloc
 				data = NULL;
 
 				g_pPlutoLogger->Write( LV_STATUS, "Got %d rows %d cols in new %s m_pDataGridTable %p", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), pObj->m_ObjectID.c_str(), pDataGridTable );
@@ -4414,6 +4414,9 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 {
     PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
 
+g_pPlutoLogger->Write(LV_STATUS, "CallMaintenanceInMiliseconds started with mapPendingCallbacks size: %d",
+        mapPendingCallbacks.size());
+
 	if( e_PurgeExisting!=pe_NO )
 	{
 		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
@@ -4436,9 +4439,9 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 
 	mapPendingCallbacks[pCallBackInfo->m_iCounter]=pCallBackInfo;
 
-//g_pPlutoLogger->Write( LV_CONTROLLER, "### Added callback id = %d %p %s, size is now: %d", pCallBackInfo->m_iCounter, pCallBackInfo,
-//					  (pCallBackInfo->m_fnCallBack==Orbiter::RealRedraw ? "redraw" : (pCallBackInfo->m_fnCallBack==Orbiter::ScreenSaver ? "screen saver" : "other")),
-//					  (int) mapPendingCallbacks.size());
+g_pPlutoLogger->Write( LV_CONTROLLER, "Added callback id = %d %p %s, size is now: %d", pCallBackInfo->m_iCounter, pCallBackInfo,
+					  (pCallBackInfo->m_fnCallBack==Orbiter::RealRedraw ? "redraw" : (pCallBackInfo->m_fnCallBack==Orbiter::ScreenSaver ? "screen saver" : "other")),
+					  (int) mapPendingCallbacks.size());
 
 	cm.Release();
 
