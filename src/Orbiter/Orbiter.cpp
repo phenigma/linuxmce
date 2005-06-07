@@ -2406,7 +2406,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				char *buffer = FileUtils::ReadFileIntoBuffer( m_sLocalDirectory + "/" + Filename, size );
 				if(  !buffer || !SerializeRead( ( long ) size, buffer, ( void * ) this ) || !ParseConfigurationData( Type )  )
 				{
-					delete buffer;
+					delete[] buffer;
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to read Orbiter data from file: %s/%s", m_sLocalDirectory.c_str(  ), Filename.c_str(  ) );
                     m_bQuit = true;
 					m_bReload = true;
@@ -4315,7 +4315,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
             {
                 pDataGridTable = new DataGridTable( size,  data );
 
-				delete[] data; //data was allocated using malloc
+				delete[] data; 
 				data = NULL;
 
 				g_pPlutoLogger->Write( LV_STATUS, "Got %d rows %d cols in new %s m_pDataGridTable %p", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), pObj->m_ObjectID.c_str(), pDataGridTable );

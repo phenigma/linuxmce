@@ -89,7 +89,7 @@ PlutoConfig::PlutoConfig()
 	m_sEmulatorAddress = GetSetting("AddressOfEmulator:",buffer, "localhost");
 	m_iEmulatorPort = atoi(GetSetting("PortForEmulator:",buffer,"3461").c_str());
 
-	delete buffer;
+	delete[] buffer;
 	buffer = NULL;
 
 	time_t t = time(NULL);

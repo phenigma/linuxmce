@@ -25,10 +25,10 @@ bool BDCommandProcessor_Windows_Socket::SendData(int size,const char *data)
 
 char *BDCommandProcessor_Windows_Socket::ReceiveData(int size)
 {
-	char *Data = (char *)malloc(size);
+	char *Data = new char[size];
 	if( !m_pSocket->ReceiveData(size,Data) )
 	{
-		delete Data;
+		delete[] Data;
 		return NULL;
 	}
 	return Data;

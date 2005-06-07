@@ -93,7 +93,7 @@ DevicePoll::SendPacket(CSerialPort* pport,
 					
 					char *buff = new char[resp];
 					pport->Read(buff, resp, CM11A_READ_TIMEOUT);
-					delete buff;
+					delete[] buff;
 					g_pPlutoLogger->Write(LV_STATUS, "Data read successfully...");
 				} else {
 					g_pPlutoLogger->Write(LV_STATUS, "No data to read...");
