@@ -20,6 +20,24 @@ else
 	echo "remote=$password" >>/etc/pluto.conf
 fi
 
+CheckPort=1
+if grep -q '^RA_CheckRemotePort.*=' /etc/pluto.conf; then
+	CheckPort=$(grep 'RA_CheckRemotePort.*=' /etc/pluto.conf)
+	CheckPort=${CheckPort#*=}
+fi
+
+[[ "$CheckPort" == "0" ]] && DefAnswerTxt="[y/N]" || DefAnswerTxt="[Y/n]"
+echo -n "Enable anti-hanging check? $DefAnswerTxt: "
+read Answer
+[[ "$Answer" == "n" || "$Answer" == "N" ]] && CheckPort=0
+[[ "$Answer" == "y" || "$Answer" == "Y" ]] && CheckPort=1
+
+if grep -q '^RA_CheckRemotePort.*=' /etc/pluto.conf; then
+	sed -i "s/^RA_CheckRemotePort.*=.*\$/RA_CheckRemotePort=$CheckPort/g" /etc/pluto.conf
+else
+	echo "RA_CheckRemotePort=$CheckPort" >>/etc/pluto.conf
+fi
+
 /usr/pluto/bin/SetupRemoteAccess.sh
 
 echo

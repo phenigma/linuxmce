@@ -49,12 +49,33 @@ CreateTunnel()
 	Tunnel=$(echo /var/run/screen/S-root/*${screenName}_${Suffix}*)
 
 	# if tunnel is not active create it
-	if [ -z "$Tunnel" ] || ! nc -z pf.plutohome.com "$RemotePort"; then
-		[ -n "$Tunnel" ] && RemoveTunnel "$Suffix"
-		screen -d -m -S "${screenName}_${Suffix}" /usr/pluto/bin/RemoteAccess_Tunnel.sh "$RemotePort" "$LocalPort" "$RAKey"
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "SSH tunnel enabled."
+	Dead=0
+	if [[ "$RA_CheckRemotePort" == "1" ]]; then
+		if [[ -z "$Tunnel" ]] || ! nc -z -w1 pf.plutohome.com "$RemotePort"; then
+			Dead=1
+		fi
 	else
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "SSH tunnel already present. Not enabling."
+		if [[ -z "$Tunnel" ]]; then
+			Dead=1
+		fi
+	fi
+	if [[ "$Dead" -eq 1 ]]; then
+		FalseAlarm=0
+		if [[ -n "$Tunnel" && "$RA_CheckRemotePort" == "1" ]]; then
+			for ((i=0;i<5;i++)); do
+				nc -z -w1 pf.plutohome.com "$RemotePort" && FalseAlarm=1 && break
+				sleep 1
+			done
+		fi
+		if [[ "$FalseAlarm" -eq 0 ]]; then
+			[[ -n "$Tunnel" ]] && RemoveTunnel "$Suffix"
+			screen -d -m -S "${screenName}_${Suffix}" /usr/pluto/bin/RemoteAccess_Tunnel.sh "$RemotePort" "$LocalPort" "$RAKey"
+			Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "$Suffix tunnel enabled."
+		else
+			Logging "$TYPE" "$SEVERITY_WARNING" "$0" "$Suffix tunnel not down. False alarm"
+		fi
+	else
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "$Suffix tunnel already present. Not enabling."
 	fi
 }
 
