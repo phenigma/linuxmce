@@ -33,6 +33,7 @@ function addControlledViaToMasterDevice($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		<div class="err">'.@$_GET['error'].'</div>
 			<table>			
 				<tr>
 					<td>Controlled via:</td>
@@ -107,21 +108,25 @@ function addControlledViaToMasterDevice($output,$dbADO) {
 		//RerouteMessagesToParent AutoCreateChildren
 		
 		if ((int)$_SESSION['addControlledViaToMasterDevice']['deviceTemplateID']!=0 && (int)$deviceID!=0) {
-			$insertObjToDevice = 'insert into DeviceTemplate_DeviceTemplate_ControlledVia
-					(FK_DeviceTemplate, FK_DeviceTemplate_ControlledVia,RerouteMessagesToParent,AutoCreateChildren) 
-					values(?,?,?,?)';
-						
-			$query = $dbADO->Execute($insertObjToDevice,array($deviceID,$_SESSION['addControlledViaToMasterDevice']['deviceTemplateID'],$reroute,$autocreate));
-			$lastInsert = $dbADO->Insert_ID();
-			
-			if ($autocreate==1) {
-				$insertPipe = "INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe (FK_DeviceTemplate_DeviceTemplate_ControlledVia) values (?)";
-				$query = $dbADO->Execute($insertPipe,array($lastInsert));
+			$resIsControlled=$dbADO->Execute('SELECT * FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE FK_DeviceTemplate=? AND FK_DeviceTemplate_ControlledVia=?',array($deviceID,$_SESSION['addControlledViaToMasterDevice']['deviceTemplateID']));
+			if($resIsControlled->RecordCount()==0){
+				$insertObjToDevice = 'insert into DeviceTemplate_DeviceTemplate_ControlledVia
+						(FK_DeviceTemplate, FK_DeviceTemplate_ControlledVia,RerouteMessagesToParent,AutoCreateChildren) 
+						values(?,?,?,?)';
+							
+				$query = $dbADO->Execute($insertObjToDevice,array($deviceID,$_SESSION['addControlledViaToMasterDevice']['deviceTemplateID'],$reroute,$autocreate));
+				$lastInsert = $dbADO->Insert_ID();
 				
-				header("Location: index.php?section=editControlledViaToMasterDevice&from=$from&objID=$lastInsert");
+				if ($autocreate==1) {
+					
+					header("Location: index.php?section=editControlledViaToMasterDevice&from=$from&objID=$lastInsert");
+					exit();
+				}
+			}else{
+				header("Location: index.php?section=addControlledViaToMasterDevice&from=$from&deviceID=$deviceID&error=The device template is already controlled by this.");
 				exit();
 			}
-			
+						
 			$out.="
 			<script>
 				alert('Controlled via added!');			

@@ -119,9 +119,11 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 														INNER JOIN DeviceTemplate DT2 ON DT2.PK_DeviceTemplate = FK_DeviceTemplate_ControlledVia
 												WHERE  FK_DeviceTemplate_DeviceTemplate_ControlledVia = ?';
 							$resSelectPipesUsed = $dbADO->Execute($selectPipesUsed,array($objID));
+							$displayedPipes=array();
 							
 							if ($resSelectPipesUsed) {
 								while ($rowSelectedPipesUsed = $resSelectPipesUsed->FetchRow()) {
+									$displayedPipes[]=$rowSelectedPipesUsed['FK_Pipe'];
 									$out.='<tr><td>'.$rowSelectedPipesUsed['Desc_To']." <input type='hidden' name='deviceTo_{$rowSelectedPipesUsed['FK_To']}'> &nbsp;&nbsp;&nbsp;&nbsp;</td>";
 									
 									$resSelectInputs->MoveFirst();			
@@ -162,9 +164,21 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 					</td>
 				</tr>';
 												
-							
+			$out.='	<tr>
+					<td colspan="2" align="center">New pipe <select name="newPipe">
+						<option value="0">-please select-</option>';
+		$resSelectPipes->MoveFirst();			
+		while ($rowSelPipes = $resSelectPipes->FetchRow()) {
+			if(!in_array($rowSelPipes['PK_Pipe'],$displayedPipes))
+				$out.= '<option value="'.$rowSelPipes['PK_Pipe'].'">'.$rowSelPipes['Description'].'</option>';
+		}
+
+		$out.='		</select> <input type="submit" class="button" name="addPipe" value="Add">
+					</td>
+				</tr>';
+								
 				$out.='<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"> <input type="submit" class="button" name="addPipe" value="Add pipe"></td>
+							<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 		</form>
@@ -184,16 +198,13 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 		
 		
 		
-		if ($autocreate==1 && isset($_POST['addPipe'])) {
-				$checkIfIsAPipeAlready = "SELECT FK_DeviceTemplate_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia_Pipe  where FK_DeviceTemplate_DeviceTemplate_ControlledVia = ?";
-				$query = $dbADO->Execute($checkIfIsAPipeAlready,array($objID));
-				if ($query && $query->RecordCount()==0) {															
-					$insertPipe = "INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe (FK_DeviceTemplate_DeviceTemplate_ControlledVia) values (?)";
-					$query = $dbADO->Execute($insertPipe,array($objID));
+		if(isset($_POST['addPipe']) && (int)$_POST['newPipe']!=0){
+			$newPipe=(int)$_POST['newPipe'];
+			$insertPipe = "INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe (FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe) values (?,?)";
+			$query = $dbADO->Execute($insertPipe,array($objID,$newPipe));
 					
-					header("Location: index.php?section=editControlledViaToMasterDevice&from=$from&objID=$objID");
-					exit();
-				}
+			header("Location: index.php?section=editControlledViaToMasterDevice&from=$from&objID=$objID");
+			exit();
 		}
 		
 		$_SESSION['editControlledViaToMasterDevice']['deviceTemplateID'] = 0;

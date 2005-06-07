@@ -62,6 +62,11 @@ function outsideAccess($output,$dbADO) {
 		}
 		return true;
 	}
+		
+	function setAntiHanging()
+	{
+		document.outsideAccess.RA_CheckRemotePort.checked=(document.outsideAccess.allowOnPassword.checked)?true:false;
+	}
 	</script>	
 		
 	<div class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
@@ -80,7 +85,7 @@ function outsideAccess($output,$dbADO) {
 			<td><input type="text" name="port" value="'.@$port.'"></td>
 		</tr>
 		<tr>
-			<td><input type="checkbox" name="allowOnPassword" value="1" '.(isset($remote)?'checked':'').'></td>
+			<td><input type="checkbox" name="allowOnPassword" value="1" '.(isset($remote)?'checked':'').' onClick="setAntiHanging();"></td>
 			<td>Allow Pluto tech support temporary access using this password</td>
 			<td><input type="password" name="password" value="'.(isset($remote)?$remote:'').'"></td>
 		</tr>
@@ -89,7 +94,11 @@ function outsideAccess($output,$dbADO) {
 			<td>Confirm password</td>
 			<td><input type="password" name="password1" value="'.(isset($remote)?$remote:'').'"></td>
 		</tr>
-		
+		<tr>
+			<td><input type="checkbox" name="RA_CheckRemotePort" value="1" '.(isset($RA_CheckRemotePort)?'checked':'').'></td>
+			<td>Enable anti-hanging measure for Remote Assistance</td>
+			<td>&nbsp;</td>
+		</tr>		
 		<tr>
 			<td colspan="3">You will need to provide your support rep the password and the following installation number: <b>'.$_SESSION['installationID'].'</b></td>
 		</tr>
@@ -175,6 +184,14 @@ function outsideAccess($output,$dbADO) {
 				writeToFile($accessFile, 'remote',@$remote,$password);
 			}else {
 				removeFromFile('remote',$accessFile);
+			}
+			
+			if(@$RA_CheckRemotePort==1){
+				if(isset($_POST['RA_CheckRemotePort'])){
+					writeToFile($accessFile, 'RA_CheckRemotePort',1,0);	
+				}
+			}else{
+				writeToFile($accessFile, 'RA_CheckRemotePort',0,1);
 			}
 
 			exec('sudo -u root /usr/pluto/bin/SetupRemoteAccess.sh');
