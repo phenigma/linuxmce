@@ -109,9 +109,9 @@ while [ "$i" -le "$MAX_RESPAWN_COUNT" ]; do
 		exit
 	elif [ "$Ret" -eq 2 ]; then
 		Logging $TYPE $SEVERITY_WARNING "$module" "Device requests restart... $i $device_name"
-		echo $(date) Shutdown >> "$new_log"
+		echo $(date) Restart >> "$new_log"
 		sleep 10
-		/usr/pluto/bin/Start_LocalDevices.sh
+		#/usr/pluto/bin/Start_LocalDevices.sh
 	else
 		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... $i $device_name"
 		echo $(date) died >> "$new_log"
@@ -129,7 +129,7 @@ while [ "$i" -le "$MAX_RESPAWN_COUNT" ]; do
 			Logging $TYPE $SEVERITY_WARNING "$module" "Found $count cores. Deleted all but latest 3. $i $device_name"
 		fi
 		sleep 20
-		/usr/pluto/bin/Start_LocalDevices.sh
+		#/usr/pluto/bin/Start_LocalDevices.sh
 		i=$((i+1))
 	fi
 	echo out
