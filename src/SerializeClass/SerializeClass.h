@@ -353,6 +353,7 @@ public:
 		if( m_dwAllocatedSize - dwCurrentSize < dwSize )
 		{
 			char *pcDataBlock_new = new char[m_dwAllocatedSize + dwSize + BLOCK_SIZE];
+			memcpy(pcDataBlock_new,m_pcDataBlock,m_dwAllocatedSize);
 			delete[] m_pcDataBlock;
 			m_pcDataBlock = pcDataBlock_new;
 //			m_pcDataBlock = (char *) realloc(m_pcDataBlock, m_dwAllocatedSize + dwSize + BLOCK_SIZE);
