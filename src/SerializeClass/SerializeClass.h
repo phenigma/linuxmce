@@ -29,9 +29,6 @@
 	#include <e32std.h>
 
 	#define u_int64_t TInt64
-	#define malloc(x) User::Alloc(x)
-	#define free(x) User::Free(x)
-	#define realloc(x,y) User::ReAlloc(x,y)
 	#define memcpy Mem::Copy
 #endif
 
@@ -355,7 +352,10 @@ public:
 		unsigned long dwCurrentSize = (unsigned long) (m_pcCurrentPosition - m_pcDataBlock);
 		if( m_dwAllocatedSize - dwCurrentSize < dwSize )
 		{
-			m_pcDataBlock = (char *) realloc(m_pcDataBlock, m_dwAllocatedSize + dwSize + BLOCK_SIZE);
+			char *pcDataBlock_new = new char[m_dwAllocatedSize + dwSize + BLOCK_SIZE];
+			delete[] m_pcDataBlock;
+			m_pcDataBlock = pcDataBlock_new;
+//			m_pcDataBlock = (char *) realloc(m_pcDataBlock, m_dwAllocatedSize + dwSize + BLOCK_SIZE);
 			m_dwAllocatedSize += dwSize + BLOCK_SIZE;
 			m_pcCurrentPosition = m_pcDataBlock + dwCurrentSize;
 		}

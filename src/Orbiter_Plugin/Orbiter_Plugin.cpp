@@ -516,6 +516,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
 					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
 				}
 
+				pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Reload(); // Just in case we changed this to resend the app to the phone
 				if( pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_get() == 1 )
 					SendAppToPhone( pOH_Orbiter, pDeviceFrom );
 
@@ -555,6 +556,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
 g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH_Orbiter,sVersion.c_str());
 
     Row_Device *pRow_Device = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device;
+	pRow_Device->Reload(); // Just in case we changed this to resend the app to the phone
     //if( (pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion) && pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
 	if( pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion )
 	{

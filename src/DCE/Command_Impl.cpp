@@ -516,8 +516,6 @@ void Command_Impl::QueueMessageToRouter( Message *pMessage )
 		return;
 
 	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
-g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) adding Type %d ID %d To %d to queue of size: %d",m_dwPK_Device,
-pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To,(int) m_listMessageQueue.size());
 	m_listMessageQueue.push_back( pMessage );
 	pthread_cond_broadcast( &m_listMessageQueueCond );
 }
@@ -527,13 +525,9 @@ void Command_Impl::ProcessMessageQueue()
 	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
 	while( !m_bQuit )
 	{
-g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) in while loop with %d messages",m_dwPK_Device,
-(int) m_listMessageQueue.size());
 		while( m_listMessageQueue.size() == 0 )
 		{
 			mq.CondWait();
-g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) woke up with %d messages",m_dwPK_Device,
-(int) m_listMessageQueue.size());
 			if( m_bQuit )
 				return;
 		}
@@ -548,21 +542,16 @@ g_pPlutoLogger->Write(LV_WARNING,"m_listMessageQueue(%d) woke up with %d message
 			copyMessageQueue.push_back( *itMessageQueue );
 		}
 
-g_pPlutoLogger->Write(LV_WARNING,"copied queue and clearing it m_listMessageQueue(%d) has %d messages",m_dwPK_Device,
-(int) m_listMessageQueue.size());
 
 		m_listMessageQueue.clear();
 		mq.Release();
-g_pPlutoLogger->Write(LV_WARNING,"sending copy of m_listMessageQueue(%d) with %d messages",m_dwPK_Device,
-(int) copyMessageQueue.size());
+
 		for( itMessageQueue = copyMessageQueue.begin(); itMessageQueue != copyMessageQueue.end(); ++itMessageQueue )
 		{
 			Message *pMessage = *itMessageQueue;
 			m_pEvent->SendMessage( *itMessageQueue );
 		}
 		mq.Relock();
-g_pPlutoLogger->Write(LV_WARNING,"sendt copy of m_listMessageQueue(%d) with %d messages",m_dwPK_Device,
-(int) copyMessageQueue.size());
 	}
 }
 
@@ -744,15 +733,6 @@ void Command_Impl::WaitForMessageQueue()
 	while(true)
 	{
 		PLUTO_SAFETY_LOCK_ERRORSONLY( mq, m_listMessageQueueMutex );
-g_pPlutoLogger->Write(LV_WARNING,"queue size is: %d",(int) m_listMessageQueue.size());
-for(list<Message *>::iterator it = m_listMessageQueue.begin(); it != m_listMessageQueue.end(); it++)
-{
-Message *pMessage = *it;
-g_pPlutoLogger->Write(LV_WARNING,"Message from %d to %d type %d id %d",
-  pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,
-  pMessage->m_dwMessage_Type,pMessage->m_dwID);
-
-}
 		if( m_listMessageQueue.size()==0 )
 			return;
 		mq.Release();

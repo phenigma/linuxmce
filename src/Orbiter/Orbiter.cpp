@@ -4342,19 +4342,16 @@ void *MaintThread(void *p)
 	bMaintThreadIsRunning = true;
 	Orbiter* pOrbiter = (Orbiter *)p;
 
-	PLUTO_SAFETY_LOCK(cm, pOrbiter->m_MaintThreadMutex);// Keep this locked to protect the map
+	PLUTO_SAFETY_LOCK_ERRORSONLY(cm, pOrbiter->m_MaintThreadMutex);// Keep this locked to protect the map
 	while(!pOrbiter->m_bQuit)
 	{
 		if(mapPendingCallbacks.size() == 0)
 		{
 			//nothing to process. let's sleep...
-g_pPlutoLogger->Write(LV_STATUS,"MaintThread - before cond wait %d",(int) bMaintThreadIsRunning);
 			cm.CondWait(); // This will unlock the mutex and lock it on awakening
-g_pPlutoLogger->Write(LV_STATUS,"MaintThread - after cond wait %d",(int) bMaintThreadIsRunning);
 		}
 		else
 		{
-g_pPlutoLogger->Write(LV_STATUS,"MaintThread - we've got something to do %d",(int) bMaintThreadIsRunning);
 			// We've got stuff to check out
 			CallBackInfo *pCallBackInfoGood = NULL;
 			timespec ts_NextCallBack,ts_now;
@@ -4385,23 +4382,18 @@ g_pPlutoLogger->Write(LV_STATUS,"MaintThread - we've got something to do %d",(in
 
 			if( pCallBackInfoGood )
 			{
-g_pPlutoLogger->Write(LV_STATUS,"MaintThread - calling member fn% d",(int) bMaintThreadIsRunning);
 				cm.Release(); // Don't keep the mutex locked while executing
 				CALL_MEMBER_FN(*(pCallBackInfoGood->m_pOrbiter), pCallBackInfoGood->m_fnCallBack)(pCallBackInfoGood->m_pData);
 				cm.Relock();
                 delete pCallBackInfoGood;
-g_pPlutoLogger->Write(LV_STATUS,"MaintThread - called member fn %d",(int) bMaintThreadIsRunning);
 			}
 			else if( ts_NextCallBack.tv_sec!=0 ) // Should be the case
 			{
-g_pPlutoLogger->Write(LV_STATUS,"MaintThread - before timed wait %d",(int) bMaintThreadIsRunning);
 				cm.TimedCondWait(ts_NextCallBack);
-g_pPlutoLogger->Write(LV_STATUS,"MaintThread - after timed wait %d",(int) bMaintThreadIsRunning);
 			}
 		}
 	}
 
-g_pPlutoLogger->Write(LV_STATUS,"MaintThread - exiting");
 	bMaintThreadIsRunning = false;
 	return NULL;
 }

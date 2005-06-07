@@ -3485,6 +3485,7 @@ MediaDevice *Media_Plugin::GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *
 void Media_Plugin::CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c372-e->
 {
+g_pPlutoLogger->Write(LV_STATUS,"CMD_MH_Set_Volume");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	string::size_type pos=0;
 	while(pos<sPK_EntertainArea.size() && pos!=string::npos)
@@ -3493,6 +3494,7 @@ void Media_Plugin::CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,stri
 		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(atoi(s.c_str()));
 		if( pEntertainArea && pEntertainArea->m_pMediaDevice_ActiveDest )
 		{
+g_pPlutoLogger->Write(LV_STATUS,"For EA %s found active device %d",s.c_str(),pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device);
 			if( sLevel=="-1" )
 			{
 				DCE::CMD_Vol_Down CMD_Vol_Down(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device,1);

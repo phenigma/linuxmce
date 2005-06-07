@@ -1,3 +1,11 @@
+bool g_bHackToBeSureWeStop=false;
+void* HackToBeSureWeStop(void* param) 
+{
+	Sleep(1000);
+	if( g_bHackToBeSureWeStop )
+		kill(getpid(), SIGSEGV);
+}
+
 /*
     Xine_Player
 
@@ -225,8 +233,13 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
     g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() After pause media %d", iStreamID);
     *iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, currentTime, totalTime);
     g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() position %d", *iMediaPosition);
+
+pthread_t pt;
+pthread_create(&pt, NULL, HackToBeSureWeStop, (void*)this))
+g_bHackToBeSureWeStop=true;
     m_pXineSlaveControl->stopMedia(iStreamID);
-    g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() The stream playback should be stopped at this moment and the resources should be freed!");
+g_bHackToBeSureWeStop=false;
+	g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() The stream playback should be stopped at this moment and the resources should be freed!");
 
 	if ( getSlimServerClient()->isConnected(iStreamID) )
 		getSlimServerClient()->disconnectFromServer(iStreamID);
