@@ -231,7 +231,7 @@ function devices($output,$dbADO) {
 											$filterQuery=" WHERE FK_Installation='".$installationID."'";
 										break;
 										case 'FloorplanObjectType':
-											$filterQuery=" WHERE FK_FloorplanType='".$specificFloorplanType."'";
+											$filterQuery=" WHERE FK_FloorplanType='".@$specificFloorplanType."'";
 									}
 									
 									$queryTable="SELECT * FROM $tableName $filterQuery ORDER BY Description ASC";
@@ -327,7 +327,7 @@ function devices($output,$dbADO) {
 			setDCERouterNeedConfigure($installationID,$dbADO);
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
-				$description=@$_POST['description_'.$value];
+				$description=stripslashes(@$_POST['description_'.$value]);
 				if(isset($_POST['ip_'.$value])){
 					$ip=$_POST['ip_'.$value];
 					$mac=$_POST['mac_'.$value];

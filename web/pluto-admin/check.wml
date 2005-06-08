@@ -54,6 +54,33 @@ if(isset($_REQUEST['cameraid'])){
 	$msg='View camera under development; camera: '.$_REQUEST['cameraid'];
 }
 
+// Security alerts
+if(isset($_REQUEST['security'])){
+	$DateFormat='H:i:s d-m-Y';
+	
+	$rs=$securityADO->Execute('
+		SELECT 
+			Alert.*,
+			AlertType.Description,
+			UNIX_TIMESTAMP(DetectionTime) AS UnixTime
+		FROM Alert
+		INNER JOIN AlertType ON FK_AlertType=PK_AlertType
+		ORDER BY DetectionTime DESC LIMIT 0,10');
+	$msg='<b>Security alerts:</b><br/>';
+	$pos=0;
+	while($row=$rs->FetchRow()){
+		$pos++;
+		$msg.=$pos.'. <a href="">'.$row['Description'].'</a> - '.date($DateFormat,$row['UnixTime']).'<br/>';
+	}
+	
+	$msg.='<hr/><b>What to do?</b><br/>
+	a) <a href="">reseting the alarm</a><br/> 
+	b) <a href="">ignoring the alert (ie it continues to notify others)</a><br/> 
+	c) <a href="">fire an SOS event (which will call the police, for example)</a><br/>
+	d) <a href="">notifying the neighbors</a><br/> 
+	e) <a href="">speak to the person in the house</a>';
+}
+
 print $msg;
     ?> 
   </p> 
