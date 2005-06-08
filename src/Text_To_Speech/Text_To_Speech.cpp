@@ -167,7 +167,7 @@ void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sPK_Device_Lis
 	PLUTO_SAFETY_LOCK(tm,m_TTSMutex);
 
 	string sFile = "/home/public/data/tts/" + StringUtils::itos(m_dwID++) + ".wav";
-	string sCmd = "flite -t \"" + sText + " mississippi\" -o " + sFile;
+	string sCmd = "flite -t \"" + sText + ".\" -o " + sFile;
 	system(sCmd.c_str());
 	if( FileUtils::FileExists(sFile) )
 	{
@@ -175,8 +175,11 @@ void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sPK_Device_Lis
 		while( pos<sPK_Device_List.size() && pos!=string::npos )
 		{
 			int PK_Device = atoi(StringUtils::Tokenize(sPK_Device_List,",",pos).c_str());
-			DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_dwPK_Device,m_dwPK_Device_MediaPlugin,PK_Device,"",sFile,0,0,"",true,false);
-			SendCommand(CMD_MH_Play_Media);
+			if( PK_Device )
+			{
+				DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_dwPK_Device,m_dwPK_Device_MediaPlugin,PK_Device,"",sFile,0,0,"",true,false);
+				SendCommand(CMD_MH_Play_Media);
+			}
 		}
 		m_mapOutstandingFiles[time(NULL)]=sFile;
 	}
