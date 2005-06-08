@@ -277,15 +277,15 @@ printf("RubyIOManager::_Run()\n");
 			if(rootnode_) {
 				rootnode_->handleNoMessage();
 			}
-			/*	
+printf("poolmap: %d\n",pools_.size());
 			POOLMAP::iterator it = pools_.begin();
 			while(it != pools_.end()) {
+printf("poolmap ptr: %p\n",(*it).second);
 				if((*it).second != NULL) {
 					(*it).second->handleIteration();
 				}
 				it++;
 			}
-			*/
 		} else {
 			mmsg_.Unlock();
 			
