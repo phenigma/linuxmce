@@ -269,6 +269,7 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 void* 
 RubyIOManager::_Run() {
 	while(!isStopRequested()) {
+printf("RubyIOManager::_Run()\n");
 		bool msgarrived = emsg_.Wait(DEFAULT_POOL_TIME);
 		mmsg_.Lock();
 		if(!msgarrived && msgqueue_.size() == 0) {

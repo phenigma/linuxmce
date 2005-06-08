@@ -82,6 +82,7 @@ RubyIOPool::handleStartup() {
 
 bool 
 RubyIOPool::handleIteration() {
+printf("RubyIOPool::handleIteration\n",);
 	ppool_->handleIteration();
 	return IOPool::handleIteration();
 }
