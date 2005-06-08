@@ -37,24 +37,18 @@ IOPool::handleStartup() {
 
 bool 
 IOPool::handleIteration() {
-printf("In handleIteration\n");
 	IOConnection* pconn = getConnection();
 	if(!pconn) {
-printf("!pcon\n");
 		return LoopStateMachine::handleIteration();
 	}
 	
 	IOPoolState* pstate = reinterpret_cast<IOPoolState*>(getState());
-printf("pstate: %d\n",pstate);
 	if(pstate != NULL) {
 		if(!pconn->isOpened()) {
-printf("!pconn->isOpened()\n");
 			if(!pconn->Open()) {	
-printf("!pconn->Open()\n");
 				usleep(FAIL_SLEEP_TIME * 1000);
 				return true;
 			} else {
-printf("else pstate: %p\n",pstate);
 				if(pstate != NULL) {
 					pstate->handleOpen(pconn);
 					return true;
@@ -62,17 +56,12 @@ printf("else pstate: %p\n",pstate);
 			}
 		}
 		IOConnection* pconn = getConnection();
-printf("pconn : %p\n",pconn);
 		if(pconn && pconn->isDataAvailable(DATA_AVAILABLE_WAIT_TIME)) {
-printf("data available - pstate: %p\n",pstate);
 			if(pstate != NULL) {
 				pstate->handleRead(pconn);
 				return true;
 			}
 		}
-else
-printf("no data available\n");
-
 	}
 	return LoopStateMachine::handleIteration();
 }

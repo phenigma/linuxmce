@@ -81,10 +81,10 @@ RubyIOPool::handleStartup() {
 }
 
 bool 
-RubyIOPool::handleIteration() {
-printf("RubyIOPool::handleIteration\n");
+RubyIOPool::handleNoMessage() {
 	ppool_->handleIteration();
-	return IOPool::handleIteration();
+	IOPool::handleIteration();
+	return RubyDCEDeviceNode::handleNoMessage();
 }
 
 void 
@@ -97,7 +97,6 @@ RubyIOPool::handleTerminate() {
 void 
 RubyIOPool::RubyIOState::handleRead(IOConnection* pconn) {
 	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
-printf("RubyIOPool::RubyIOState::handleRead %p\n",psm);
 	Message datamsg(0, psm->getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Incoming_Data_CONST, 0);
 	psm->handleMessage(&datamsg);
 }

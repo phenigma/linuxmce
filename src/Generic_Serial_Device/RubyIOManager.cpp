@@ -269,7 +269,6 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 void* 
 RubyIOManager::_Run() {
 	while(!isStopRequested()) {
-printf("RubyIOManager::_Run()\n");
 		bool msgarrived = emsg_.Wait(DEFAULT_POOL_TIME);
 		mmsg_.Lock();
 		if(!msgarrived && msgqueue_.size() == 0) {
@@ -277,15 +276,15 @@ printf("RubyIOManager::_Run()\n");
 			if(rootnode_) {
 				rootnode_->handleNoMessage();
 			}
-printf("poolmap: %d\n",pools_.size());
+			/*	
 			POOLMAP::iterator it = pools_.begin();
 			while(it != pools_.end()) {
-printf("poolmap ptr: %p\n",(*it).second);
 				if((*it).second != NULL) {
 					(*it).second->handleIteration();
 				}
 				it++;
 			}
+			*/
 		} else {
 			mmsg_.Unlock();
 			

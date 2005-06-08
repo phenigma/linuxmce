@@ -35,7 +35,6 @@ SerialIOPool::getConnection() {
 
 bool 
 SerialIOPool::handleIteration() {
-printf("SerialIOPool::handleIteration\n");
 	return IOPool::handleIteration();
 }
 

@@ -44,7 +44,6 @@ LoopStateMachine::handleStartup() {
 bool 
 LoopStateMachine::handleIteration() {
 	LoopState* pstate = reinterpret_cast<LoopState*>(getState());
-printf("LoopStateMachine::handleIteration %p",pstate);
 	if(pstate != NULL) {
 		struct timespec timespec;
 		clock_gettime(CLOCK_REALTIME, &timespec);

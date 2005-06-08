@@ -106,7 +106,6 @@ void SerialIOConnection::Flush() {
 
 bool 
 SerialIOConnection::isDataAvailable(int timeout) {
-printf("SerialIOConnection::isDataAvailable psp: %p\n",psp_);
 	if(psp_ != NULL) {
 		while(timeout > 0) {
 			if(!(psp_->IsReadEmpty())) {
@@ -117,7 +116,6 @@ printf("SerialIOConnection::isDataAvailable psp: %p\n",psp_);
 		}
 		return (!(psp_->IsReadEmpty()));
 	}
-printf("SerialIOConnection::isDataAvailable - no\n");
 	return false;
 }
 

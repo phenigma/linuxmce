@@ -48,7 +48,7 @@ protected:
 		return ppool_->getConnection();
 	}
 	bool handleStartup();
-	bool handleIteration();
+	bool handleNoMessage();
 	void handleTerminate();
 	
 protected:
