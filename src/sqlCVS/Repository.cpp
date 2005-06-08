@@ -651,7 +651,7 @@ bool Repository::CheckIn( )
 		// TODO: This is a bit unsafe since it's possible the connection gets dropped the split second
 		// after we send the close transaction and before getting the server's reply, meaning we would
 		// roll back the transaction and try to re-commit.  Need a fail-safe reply
-		st.Commit();
+		st2.Commit();
 		ostringstream sql;
 		sql << "INSERT INTO `" << m_pTable_BatchHeader->Name_get() << "` (PK_" << m_pTable_BatchHeader->Name_get() << ",date) VALUES(" 
 			<< r_CommitChanges.m_psc_batch << ",NOW())";
@@ -718,7 +718,7 @@ bool Repository::Update( )
 	pSocket=NULL;
 
 	if( r_CloseTransaction.m_cProcessOutcome==SUCCESSFULLY_PROCESSED )
-		st.Commit();
+		st2.Commit();
 	else
 		cerr << "Failed to close transaction.  Transaction will be rolled back!" << endl;
 	return true;
