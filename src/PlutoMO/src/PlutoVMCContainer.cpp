@@ -511,9 +511,7 @@ bool CPlutoVMCContainer::HandleCaptureKeyboardKeys(const TKeyEvent& aKeyEvent, T
 	if(
 		!IsNumberKey(aKeyEvent)					&&
 		BUTTON_Rept_Phone_C_CONST != KeyCode	&&
-		BUTTON_Phone_C_CONST != KeyCode			&&
-		BUTTON_Up_Arrow_CONST != KeyCode		&&
-		BUTTON_Down_Arrow_CONST != KeyCode
+		BUTTON_Phone_C_CONST != KeyCode			
 	)
 	{
 		m_uLastKeyCode = 0;
