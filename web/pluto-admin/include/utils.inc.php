@@ -840,30 +840,16 @@ function grabDirectory ($path, $depth) {
 }
 
 
-function grabFiles($path) {
+function grabFiles($path,$fileParm='-type f') {
 	$filesArray=array();
 	// required to read files larger than 2G
-	exec('find "'.$path.'" -type f -maxdepth 1',$retArray);
+	exec('find "'.$path.'" '.$fileParm.' -maxdepth 1',$retArray);
 	foreach ($retArray AS $file){
-		$filesArray[]=str_replace($path.'/','',$file);
+		if($file!=$path)
+			$filesArray[]=str_replace($path.'/','',$file);
 	}
-	/*
-	if (($d = @opendir ($path)) === false) 
-		return $filesArray;
-	else {
-		while ($f = readdir ($d)) {
-			if ($f != "." && $f != "..") {
-				if (@is_file ($path . "/" . $f)) {
-					$filesArray[]= $f;
-				} 
-			}
-		}
-		closedir ($d);
-	}
-	*/
 	return $filesArray;
 }
-
 
 function resizeImage($source, $destination, $new_width, $new_height,$forcedPNG=0)
 {

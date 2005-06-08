@@ -16,7 +16,7 @@ function mainMediaFilesSync($output,$mediadbADO) {
 	
 	if($action=='form'){
 		if($path!=''){
-			$physicalFiles=grabFiles($path);
+			$physicalFiles=grabFiles($path,'');
 			
 			$out.='
 			<script>
@@ -216,8 +216,10 @@ function mainMediaFilesSync($output,$mediadbADO) {
 			foreach($notInDBArray AS $physicalkey){
 				$filename=stripslashes(@$_POST['filename_'.$physicalkey]);
 				$type=(int)@$_POST['type_'.$physicalkey];
-				if($type!=0)
-					$mediadbADO->Execute('INSERT INTO File (FK_Type, Path, Filename) VALUES (?,?,?)',array($type,stripslashes($path),$filename));
+				if($type!=0){
+					$isDir=(is_dir(stripslashes($path).'/'.$filename))?1:0;
+					$mediadbADO->Execute('INSERT INTO File (FK_Type, Path, Filename,IsDirectory) VALUES (?,?,?,?)',array($type,stripslashes($path),$filename,$isDir));
+				}
 			}
 			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg=File added to database.');
 		}

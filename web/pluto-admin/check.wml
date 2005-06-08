@@ -70,15 +70,17 @@ if(isset($_REQUEST['security'])){
 	$pos=0;
 	while($row=$rs->FetchRow()){
 		$pos++;
-		$msg.=$pos.'. <a href="">'.$row['Description'].'</a> - '.date($DateFormat,$row['UnixTime']).'<br/>';
+		$msg.=$pos.'. <a href="#">'.$row['Description'].'</a> - '.date($DateFormat,$row['UnixTime']).'<br/>
+		';
 	}
 	
-	$msg.='<hr/><b>What to do?</b><br/>
-	a) <a href="">reseting the alarm</a><br/> 
-	b) <a href="">ignoring the alert (ie it continues to notify others)</a><br/> 
-	c) <a href="">fire an SOS event (which will call the police, for example)</a><br/>
-	d) <a href="">notifying the neighbors</a><br/> 
-	e) <a href="">speak to the person in the house</a>';
+	$msg.='<br/>
+	<b>What to do?</b><br/>
+	a) <a href="#">reseting the alarm</a><br/> 
+	b) <a href="#">ignoring the alert (ie it continues to notify others)</a><br/> 
+	c) <a href="#">fire an SOS event (which will call the police, for example)</a><br/>
+	d) <a href="#">notifying the neighbors</a><br/> 
+	e) <a href="#">speak to the person in the house</a><br/>';
 }
 
 print $msg;

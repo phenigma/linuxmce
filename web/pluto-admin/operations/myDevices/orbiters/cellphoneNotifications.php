@@ -186,6 +186,8 @@ function cellphoneNotifications($output,$dbADO) {
 			}
 		}
 
+		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($MONDeviceData,$deviceID,$GLOBALS['MobileOrbiterNotification']));
+/*
 		if($oldMon==''){
 			$insertMonDDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
 			$dbADO->Execute($insertMonDDD,array($deviceID,$GLOBALS['MobileOrbiterNotification'],$MONDeviceData));
@@ -193,7 +195,7 @@ function cellphoneNotifications($output,$dbADO) {
 			$updateMonDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 			$dbADO->Execute($updateMonDDD,array($MONDeviceData,$deviceID,$GLOBALS['MobileOrbiterNotification']));
 		}
-
+*/
 		$oldOpn=$_POST['oldOpn'];
 		$opn_sequence=((int)$_POST['opn_sequence']>0)?(int)$_POST['opn_seconds']:(int)$_POST['opn_sequence'];
 		$opn_order=(int)$_POST['opn_order'];
@@ -210,6 +212,8 @@ function cellphoneNotifications($output,$dbADO) {
 				$OPNDeviceData.=",$tel,$monitor_mode,$security,$fire,$air,$door_intercom";
 			}
 		}
+		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($OPNDeviceData,$deviceID,$GLOBALS['OtherPhoneNotifications']));
+/*
 		if($oldOpn==''){
 			$insertOpnDDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
 			$dbADO->Execute($insertOpnDDD,array($deviceID,$GLOBALS['OtherPhoneNotifications'],$OPNDeviceData));
@@ -217,7 +221,7 @@ function cellphoneNotifications($output,$dbADO) {
 			$updateOpnDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 			$dbADO->Execute($updateOpnDDD,array($OPNDeviceData,$deviceID,$GLOBALS['OtherPhoneNotifications']));
 		}
-
+*/
 		$oldNtc=$_POST['oldNtc'];
 		$NTCDeviceDataArray=array();
 		for($i=0;$i<4;$i++){
@@ -228,6 +232,8 @@ function cellphoneNotifications($output,$dbADO) {
 		}
 		
 		$NTCDeviceData=join(',',$NTCDeviceDataArray);
+		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($NTCDeviceData,$deviceID,$GLOBALS['NeighborstoCall']));
+/*
 		if($oldNtc=='' && $NTCDeviceData!=''){
 			$insertNTCDeviceData='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
 			$dbADO->Execute($insertNTCDeviceData,array($deviceID,$GLOBALS['NeighborstoCall'],$NTCDeviceData));
@@ -235,7 +241,7 @@ function cellphoneNotifications($output,$dbADO) {
 			$updateNtcDeviceData='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 			$dbADO->Execute($updateNtcDeviceData,array($NTCDeviceData,$deviceID,$GLOBALS['NeighborstoCall']));
 		}
-		
+*/		
 		header("Location: index.php?section=cellphoneNotifications&msg=Cellphone notifications was updated");	
 		exit();	
 	}

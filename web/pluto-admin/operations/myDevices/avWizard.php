@@ -618,6 +618,8 @@ function avWizard($output,$dbADO) {
 							}
 						}
 					}
+					
+					$oldAudioPipeArray=array();
 					$oldAudioPipeArray=explode(',',@$_POST['oldAudioPipe_'.$value]);
 					$oldTo=@$oldAudioPipeArray[0];
 					$oldInput=@$oldAudioPipeArray[1];
@@ -652,6 +654,7 @@ function avWizard($output,$dbADO) {
 
 					if(isset($_POST['videoOutput_'.$value])){
 						
+						$oldVideoPipeArray=array();
 						$oldVideoPipeArray=explode(',',$_POST['oldVideoPipe_'.$value]);
 						$oldTo=$oldVideoPipeArray[0];
 						$oldInput=$oldVideoPipeArray[1];
