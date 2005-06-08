@@ -20,11 +20,12 @@ cmd_line="$3"
 
 AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"
 WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
-Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "Dev: $device_id; Already Running: $(cat $AlreadyRunning)"
+Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Dev: $device_id; Already Running list: $(cat $AlreadyRunning | tr '\n' ',')"
 if grep -q "^$device_id$" "$AlreadyRunning" 2>/dev/null; then
-	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "Device $ChildDeviceID was marked as 'running'. Not starting"
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Device $device_id was marked as 'running'. Not starting"
 	echo "$(date) Already running: $device_id" >>/var/log/pluto/Spawn_Device.log
 	Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Dev: $device_id; Exiting"
 	exit
 fi
 echo "$device_id" >>"$AlreadyRunning"
