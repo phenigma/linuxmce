@@ -115,6 +115,7 @@ void CPlutoMOAppUi::ConstructL()
 	m_bMakeVisibleAllowed = false;
 
 	m_pBDCommandProcessor = NULL;
+
 #ifndef __WINS__ 
 	m_pBDCommandProcessor = new BDCommandProcessor_Symbian_Bluetooth("", this);
 	m_pBDCommandProcessor->Start();
@@ -452,6 +453,9 @@ void CPlutoMOAppUi::SaveFile(
 	RFs   aFs;
 	aFs.Connect();
 
+	LOG("Saving file: ");
+	LOG(pFileName);
+	LOG(iFileNameSize);
 	string sFullPathName = m_sAppFolder + "\\" + string(pFileName);
 
 	aFs.Delete(sFullPathName.Des());
@@ -603,6 +607,7 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 	LOG(string(aTellNumber));
 	LOG("\n");
 
+	/* //this is a hack... we'll intercept all the calls (for the show)
 	for(i = 0; i < iNumPhoneTypes; ++i)
 	{
 		TInt PhoneLen = iPhoneTypes[i].iPhoneNumber.Length();
@@ -628,8 +633,25 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 			return;
 		}
 	}
-	iCall.Close();
+	*/
 
+	iCall.HangUp();
+	LOG("Hang up call - ok\n");
+
+	iCurType = i;
+
+	LOG("Ready to call DoIdleStatic\n");
+	if(!(iIdle))
+	{
+		iIdle = CIdle::NewL(CActive::EPriorityIdle);
+	}
+
+	iIdle->Start(TCallBack(DoIdleStatic,this));
+	return;
+
+
+//	iCall.Close();
+	
 /*
 	//parse for phone and get event id
 	if(aTellNumber == string("0723144156")) //hack! ok, this is my phone no
@@ -659,6 +681,7 @@ void CPlutoMOAppUi::CloseVMC()
 //----------------------------------------------------------------------------------------------
 TInt CPlutoMOAppUi::DoIdleStatic(TAny *aAppUi)
 {
+	LOG("In DoIdleStatic\n");
 	return ((CPlutoMOAppUi*)aAppUi)->DoIdle();
 }
 //----------------------------------------------------------------------------------------------
@@ -668,18 +691,23 @@ TInt CPlutoMOAppUi::DoIdle()
 	RCall::TStatus iCallStatus;
 	iCall.GetStatus(iCallStatus);
 
+	LOG("In DoIdle\n");
+
 	// check for status of the call set ret to ETrue when hannging up
 	// or idle. and bring app to front
-	if (iCallStatus == RCall::EStatusHangingUp || iCallStatus == RCall::EStatusIdle)
+
+	//hack for the show!!!
+	//if (iCallStatus == RCall::EStatusHangingUp || iCallStatus == RCall::EStatusIdle)
 	{
 		ret = EFalse; //finished do not come back
 		iCall.Close();
-		LOG("Ready to open PlutoEventView\n");
+		//LOG("Ready to open PlutoEventView\n");
 
-		LOG(iCurType);
+		//LOG(iCurType);
 
 	
 		//just open vali's wml page for security
+		LOG("About to open the browser\n");
 		iURL.Copy(iURLClone);
 		iURL.Append(string("security=0").Des());
 		LaunchBrowser();
@@ -746,10 +774,10 @@ TInt CPlutoMOAppUi::DoIdle()
 		LOG("open vmc file - ok");
 		*/
 	}
-	else
-		ret = ETrue; //not finish, do come back
+//	else
+//		ret = ETrue; //not finish, do come back
 
-	//LOG("end of idle");
+	LOG("end of idle");
 
 	return ret;
 }

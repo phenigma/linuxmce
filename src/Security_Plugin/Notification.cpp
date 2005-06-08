@@ -219,7 +219,7 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
         iDelay = MAX_TIMEOUT_FOR_PHONES;
 
     long nAlertType = m_pRow_Alert->FK_AlertType_get();
-    string sCallerID = bNotifyOrbiter ? GenerateCallerID(nAlertType) : ""; //no called id for the others
+    string sCallerID = bNotifyOrbiter ? GenerateCallerID(nAlertType) : ""; //no caller id for the others
     string sWavFileName = GenerateWavFile(nAlertType);
 
     //hardcoding!! we'll get the right default line id after the database will be redesigned
@@ -232,7 +232,7 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
         m_pTelecom_Plugin->m_dwPK_Device,
         nPhoneDevice, 
         sPhoneNumber
-        );
+        ); 
 
     string sResponse;
     bool bResponse = m_pSecurity_Plugin->SendCommand(CMD_PL_Originate_, &sResponse);
