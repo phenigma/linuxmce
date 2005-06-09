@@ -4529,14 +4529,15 @@ void Orbiter::GetVideoFrame( void *data )
             else
             {
                 g_pPlutoLogger->Write(LV_WARNING, "CMD_Get_Video_Frame failed: the image buffer is empty");
+                g_pPlutoLogger->Write(LV_STATUS, "Scheduling object @%p: %s", pObj, pObj->m_ObjectID.c_str());
+
+                // Don't purge existing callbacks since there can be multiple frames on the screen
+                CallMaintenanceInMiliseconds( m_iVideoFrameInterval, &Orbiter::GetVideoFrame, NULL, pe_ALL );
             }
 		}
 	}
 	m_bAlreadyQueuedVideo=false;
     NeedToRender render( this, "GetVideoFrame" );  // Block this at the end so other renderings may occur in the meantime
-
-	//GetVideoFrame will be called again in RenderObj via CMD_Update_Object_Img -> RealRedraw
-    //CallMaintenanceInMiliseconds( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, pe_Match );
 }
 
 /*
