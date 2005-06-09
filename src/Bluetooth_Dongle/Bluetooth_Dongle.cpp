@@ -189,6 +189,9 @@ void *HandleBDCommandProcessorThread( void *p )
 	PLUTO_SAFE_DELETE(pBD_Orbiter->m_pOrbiter);
 	g_pPlutoLogger->Write( LV_STATUS, "Orbiter deleted. %p", pBD_Orbiter->m_pOrbiter);
 
+    //don't need it anymore
+    bm.Release();
+
 	g_pPlutoLogger->Write( LV_STATUS, "Deleting parameter...");
 	PLUTO_SAFE_DELETE(pBD_Orbiter_Plus_DongleHandle);
 
@@ -283,6 +286,8 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
         bm.Release();
         Sleep(50);
     }
+
+	pthread_mutex_destroy(&m_BTMutex.mutex);
 
     g_pPlutoLogger->Write(LV_STATUS, "Exiting Bluetooth_Dongle destructor... ");
 }
