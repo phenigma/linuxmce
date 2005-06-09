@@ -1626,7 +1626,7 @@ void gc100::SocketThread(int port)
 {
 	struct sockaddr_in saddr;
 	const int buff_size = 4096;
-	char buffer[buff_size];
+	char buffer[buff_size], * parm;
 	int count, ret;
 
 	saddr.sin_family = AF_INET;
@@ -1649,8 +1649,7 @@ void gc100::SocketThread(int port)
 		while (! m_bQuit && (count = recv(learn_client, buffer, buff_size - 1, 0)) > 0)
 		{
 			buffer[count] = 0;
-			sscanf(buffer, "%s", buffer);
-			if (strcmp("LEARN", buffer) ==  0)
+			if (strncmp("LEARN", buffer, 5) == 0)
 			{
 				ret = LEARN_IR_via_Socket();
 				if (ret == 0)
@@ -1660,6 +1659,35 @@ void gc100::SocketThread(int port)
 						Sleep(1000);
 					}
 				}
+			}
+			else if (strncmp("GC-PRONTO ", buffer, 10) == 0)
+			{
+				string sMsg;
+				
+				parm = buffer + 10;
+				sMsg = IRL_to_pronto(parm) + "\n";
+				send(learn_client, sMsg.c_str(), sMsg.length(), 0);
+			}
+			else if (strncmp("PRONTO-GC ", buffer, 10) == 0)
+			{
+				string sMsg;
+				
+				parm = buffer + 10;
+				ret = ConvertPronto(parm, sMsg);
+				if (ret)
+				{
+					sMsg += "\n";
+					send(learn_client, sMsg.c_str(), sMsg.length(), 0);
+				}
+				else
+				{
+					sMsg = "ERROR\n";
+					send(learn_client, sMsg.c_str(), sMsg.length(), 0);
+				}
+			}
+			else if (strncmp("QUIT", buffer, 4) == 0)
+			{
+				break;
 			}
 			else
 			{
