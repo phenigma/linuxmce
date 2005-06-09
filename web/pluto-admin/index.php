@@ -1148,6 +1148,12 @@ switch ($section) {
 	    include_once('operations/users_settings/restrictAccess.php');
 	    restrictAccess($output,$dbADO);
 	break;	
+	case 'amp';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/phones/amp.php');
+	    amp($output,$dbADO);
+	break;	
 	
 	
 	case '';

@@ -156,7 +156,7 @@ function editCommandGroup($output,$dbADO) {
 			$out.='</td>
 				</tr>
 				<tr>
-					<td>Picture * <br><input type="file" name="pic"><br>* Recommended IPG or PNG 160x160 px</td>
+					<td>Picture * <br><input type="file" name="pic"><br>* Recommended JPG or PNG 160x160 px</td>
 					<td>'.$scenarioImg.'</td>
 				</tr>
 				<tr>

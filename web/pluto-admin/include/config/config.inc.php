@@ -44,6 +44,8 @@
 	define("APPDIRECTORY",$directory);
 	define("UPLOADDIR",'upload');
 	
+	
+	
 	define("LANG","ro-RO");
 	
 	
