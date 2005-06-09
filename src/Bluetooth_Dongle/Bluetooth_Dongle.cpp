@@ -815,19 +815,8 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 		{
 			PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 			PhoneDevice *pDevice = m_mapPhoneDevice_Detected_Find(pBD_Orbiter->m_pPhoneDevice->m_iMacAddress);
-			if( !pDevice )
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find 05-03-09");
-
-				for(map<u_int64_t,class PhoneDevice *>::iterator itDevice = m_mapPhoneDevice_Detected.begin();itDevice != m_mapPhoneDevice_Detected.end();++itDevice)		
-				{
-					class PhoneDevice *pPhoneDevice = (*itDevice).second;
-					g_pPlutoLogger->Write(LV_WARNING, "Map contains device %s, connected: %d", pPhoneDevice->m_sMacAddress.c_str(), (int)pPhoneDevice->m_bIsConnected);
-				}
-			}
-			else
+			if( pDevice )
 				m_mapPhoneDevice_Detected[pBD_Orbiter->m_pPhoneDevice->m_iMacAddress]->m_bIsConnected = false;
-			
 		}
 
 		if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
@@ -835,8 +824,6 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 			pBD_Orbiter->m_pBDCommandProcessor->m_bDead = true;
 			g_pPlutoLogger->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", sMac_address.c_str() );
 		}
-
-		return;
 	}
 }
 	
