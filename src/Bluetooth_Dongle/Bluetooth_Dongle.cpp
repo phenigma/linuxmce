@@ -251,25 +251,37 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
             continue;
         }
 
-        if(pBD_Orbiter->m_pPhoneDevice)
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Ready to disconnect PhoneDevice for %s mac... ", sMacAddress.c_str());
-            pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
-        }
-
-        if(pBD_Orbiter->m_pOrbiter)
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Ready to delete orbiter for %s mac... ", sMacAddress.c_str());
-
-            delete pBD_Orbiter->m_pOrbiter;
-            pBD_Orbiter->m_pOrbiter = NULL;
-        }
-
         if(pBD_Orbiter->m_pBDCommandProcessor)
         {
-            g_pPlutoLogger->Write(LV_STATUS, "Marking BDCommandProcess as dead for %s mac... ", sMacAddress.c_str());
+            g_pPlutoLogger->Write(LV_WARNING, "Marking BDCommandProcessor as dead for %s mac... ", sMacAddress.c_str());
             pBD_Orbiter->m_pBDCommandProcessor->m_bDead = true;
         }
+    }
+    bm.Release();
+
+    g_pPlutoLogger->Write(LV_WARNING, "Waiting all HandleBDCommandProcessor to exit...");
+    bool bThreadsRunning = true;
+    while(bThreadsRunning)
+    {
+        bThreadsRunning = false;
+        bm.Relock();
+
+        map<string, BD_Orbiter*>::iterator it;
+        for(it = m_mapOrbiterSockets.begin(); it != m_mapOrbiterSockets.end(); it++)
+        {
+            BD_Orbiter* pBD_Orbiter = (*it).second;
+            string sMacAddress = (*it).first;
+
+            if(pBD_Orbiter && (pBD_Orbiter->m_pBDCommandProcessor || pBD_Orbiter->m_pOrbiter))
+            {
+                g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s device is still running...", sMacAddress.c_str());
+                bThreadsRunning = true;
+                break;
+            }
+        }
+
+        bm.Release();
+        Sleep(50);
     }
 
     g_pPlutoLogger->Write(LV_STATUS, "Exiting Bluetooth_Dongle destructor... ");
