@@ -48,6 +48,8 @@ DCEConfig::DCEConfig(string sFilename) : RA_Config()
 		m_mapParameters[Token]=StringUtils::TrimSpaces(Value);
     }
 
+    vectString.clear();
+
     m_sDBHost               = ReadString("MySqlHost",m_sDBHost);
     m_sDBUser               = ReadString("MySqlUser",m_sDBUser);
     m_sDBPassword           = ReadString("MySqlPassword",m_sDBPassword);

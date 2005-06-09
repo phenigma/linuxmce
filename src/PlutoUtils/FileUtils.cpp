@@ -112,7 +112,7 @@ void FileUtils::ReadFileIntoVector( string sFileName, vector<string> &vectString
 	for(s=0;s<vectString.size();++s)
 		vectString[s] = StringUtils::Replace(&vectString[s],"\r","");
 
-	delete [] Buffer;
+	delete[] Buffer;
 }
 
 bool FileUtils::WriteVectorToFile( string sFileName, vector<string> &vectString )
