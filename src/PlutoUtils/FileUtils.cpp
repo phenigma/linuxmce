@@ -802,7 +802,7 @@ string FileUtils::FileChecksum( string sFileName)
         return "";
 
     string sChecksum = FileChecksum(pData, iSize);
-    delete pData;
+    delete[] pData;
 
     return sChecksum;
 }

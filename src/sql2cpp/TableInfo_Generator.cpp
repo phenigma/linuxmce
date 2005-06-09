@@ -500,7 +500,7 @@ string TableInfo_Generator::get_set_default_values()
 				mysql_real_escape_string( m_pDB, to, (*i)->m_pcFieldDefaultValue, (unsigned long) strlen((*i)->m_pcFieldDefaultValue) ); 
 				s = s + "m_" + (*i)->m_pcFieldName + " = \"" + to + "\";\n";
 				s = s + "is_null[" + int2string(field_index) + "] = false;\n";
-				delete to;
+				delete[] to;
 			}
 			else
 				if (((*i)->getCType() != "unsupported_type") && ((*i)->getCType() != "MYSQL_DATE")) /** @todo how to handle it? */
@@ -842,7 +842,7 @@ string TableInfo_Generator::get_fields_sql_getters_definition()
 				".c_str(), (unsigned long) min(" + StringUtils::itos((*i)->m_iLength) + ",m_" + (*i)->m_pcFieldName + ".size()));\n";
 
 			sCode = sCode + "string s=string("")+\"\\\"\"+buf+\"\\\"\";\n";
-			sCode = sCode + "delete buf;\n";
+			sCode = sCode + "delete[] buf;\n";
 			sCode = sCode + "return s;\n";
 		}
 		else

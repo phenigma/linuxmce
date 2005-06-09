@@ -62,10 +62,11 @@
 #define MAX_MENU_SIZE		500000   // Each menu won't be more than 500k
 
 
-VIPMenuCollection::VIPMenuCollection(long size, const char *data)
+VIPMenuCollection::VIPMenuCollection(long size, const char *data) 
 {
 	m_pBinary=NULL;
 	m_iBinarySize=0;
+    m_iNextChildID=0;
 	
 	StartReading(size,(char *)data);
 	m_iMenuCollectionID = Read_unsigned_short();
