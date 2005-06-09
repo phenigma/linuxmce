@@ -396,6 +396,8 @@ string gc100::IRL_uncompress(string IRL_string)
 	string::size_type pos = 0;
 	string sResult = "";
 
+	g_pPlutoLogger->Write(LV_WARNING, "IRL_uncompress: compressed string: %s", IRL_string.c_str());
+	
 	string token1, token2, digits2, comp2;
 
 	// take prefix and frequency verbatim
@@ -406,7 +408,7 @@ string gc100::IRL_uncompress(string IRL_string)
 	{
 		if ((pos >= IRL_string.length()) || (++pair_num > 5000))
 		{
-			//g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: no more pairs; we're done");
+			//g_pPlutoLogger->Write(LV_STATUS, "IRL_uncompress: no more pairs; we're done");
 			done = true;
 		}
 		else
@@ -416,7 +418,7 @@ string gc100::IRL_uncompress(string IRL_string)
 
 			if (token1 == "X" || token2 == "X" || token1 == "Z" || token2 == "Z")
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: end-of sequence X or Z character detected");
+				g_pPlutoLogger->Write(LV_STATUS, "IRL_uncompress: end-of sequence X or Z character detected");
 				done = true;
 			}
 			else
@@ -430,6 +432,7 @@ string gc100::IRL_uncompress(string IRL_string)
 					{
 						digits2 = token2.substr(0, i);
 						comp2 = token2.substr(i);
+						break;
 					}
 				}
 
@@ -448,6 +451,7 @@ string gc100::IRL_uncompress(string IRL_string)
 		}
 	}
 
+	g_pPlutoLogger->Write(LV_WARNING, "IRL_uncompress: uncompressed code: %s", sResult.c_str());
 	return sResult;
 }
 
@@ -505,7 +509,7 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 	token=StringUtils::Tokenize(learned_string,",",pos); // Next token is frequency
 	sscanf(token.c_str(),"%d",&freq);
 	g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: freq is %d",freq);
-	freq_token=(int) (41450/((freq/100)-5)) ;
+	freq_token = (int) (4145146 / freq);
 	sprintf(conv_buf,"%04x ",freq_token);
 	// Output: frequency word
 	result+=std::string(conv_buf);
