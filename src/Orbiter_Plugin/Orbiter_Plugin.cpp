@@ -495,17 +495,17 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
 				pOH_Orbiter->m_iLastSignalStrength > m_iThreshHold
 			)
             {
-                g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s already has a strong association with %d (%d/%d)",
+                g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s already has a strong association with %d (%d/%d/%d)",
                     sMacAddress.c_str(),
                     pOH_Orbiter->m_pDevice_CurrentDetected->m_sDescription.c_str(),
                     pOH_Orbiter->m_iLastSignalStrength,
-                    SignalStrength);
+                    SignalStrength,m_iThreshHold);
 
             }
             else
             {
-                g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d (%d,%d)", sMacAddress.c_str(),
-                    pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_iLastSignalStrength,SignalStrength);
+                g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d (%d,%d,%d)", sMacAddress.c_str(),
+                    pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_iLastSignalStrength,SignalStrength,m_iThreshHold);
 
 				if(NULL != pOH_Orbiter->m_pDevice_CurrentDetected)
 				{
