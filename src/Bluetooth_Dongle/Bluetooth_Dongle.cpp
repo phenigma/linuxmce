@@ -182,8 +182,8 @@ void *HandleBDCommandProcessorThread( void *p )
 		g_pPlutoLogger->Write( LV_STATUS, "Setting PhoneDevice IsConnected flag to false...");
 	}
 
-	g_pPlutoLogger->Write( LV_STATUS, "Deleting command processor...");
-	PLUTO_SAFE_DELETE(pBD_Orbiter->m_pBDCommandProcessor);
+    g_pPlutoLogger->Write( LV_STATUS, "Deleting command processor...");
+    PLUTO_SAFE_DELETE(pBD_Orbiter->m_pBDCommandProcessor);
 
 	g_pPlutoLogger->Write( LV_STATUS, "Deleting orbiter... %p", pBD_Orbiter->m_pOrbiter);
 	PLUTO_SAFE_DELETE(pBD_Orbiter->m_pOrbiter);
@@ -223,16 +223,17 @@ void *ReconnectToBluetoothDongleThread(void *p)
 	    BD_Orbiter *pBD_Orbiter = pBluetooth_Dongle->m_mapOrbiterSockets_Find(sPhoneMacAddress);
 
         //still connected ?
-        if(!pBD_Orbiter || !pBD_Orbiter->m_pBDCommandProcessor)
+        if(!pBD_Orbiter || !(pBD_Orbiter->m_pBDCommandProcessor || pBD_Orbiter->m_pOrbiter))
             break;
         
         bm.Release();
 
-        g_pPlutoLogger->Write(LV_STATUS, "HandleBDCommandProcessor for %s still running. I'll try again in 50 ms...", sPhoneMacAddress.c_str());
+        g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s still running. I'll try again in 50 ms...", sPhoneMacAddress.c_str());
         Sleep(50);
     }
 
     //BDCommandProcessor is disconnected now, let's give mobile a little time to disconnect
+    g_pPlutoLogger->Write(LV_WARNING, "Sleeping 2 sec. to give mobile a little time to disconnect...");
     Sleep(2000); 
 
     g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s BDCommandProcessor is disconnected now, we can connect the to new dongle with id %d", sPhoneMacAddress.c_str(), iDeviceToLink);
