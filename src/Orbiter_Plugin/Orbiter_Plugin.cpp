@@ -521,7 +521,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
 				if(NULL != pOH_Orbiter->m_pDevice_CurrentDetected)
 				{
 					DCE::CMD_Disconnect_From_Mobile_Orbiter cmd_Disconnect_From_Mobile_Orbiter(
-						-1,
+						m_dwPK_Device,
 						pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
 						sMacAddress,sVmcFileToSend,pDeviceFrom->m_dwPK_Device); //add the new dongle--if this is not 0, this dongle will send a link with mobile orbiter when it has finished disconnecting
 					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
@@ -529,7 +529,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
 				else  // Only do this if there's no other dongle
 				{
 					DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
-						-1,
+						m_dwPK_Device,
 						pDeviceFrom->m_dwPK_Device,
 						1, //iMediaPosition = On
 						sMacAddress,
@@ -576,7 +576,7 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH
     // Associated with a new media director.  Show the corresponding menu
     pOH_Orbiter->m_pDevice_CurrentDetected = (DeviceData_Router *) pDeviceFrom;
 
-    DCE::CMD_Create_Mobile_Orbiter CMD_Create_Mobile_Orbiter(-1/*m_Device*/,pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+    DCE::CMD_Create_Mobile_Orbiter CMD_Create_Mobile_Orbiter(m_dwPK_Device,pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 		StringUtils::itos(pOH_Orbiter->m_pEntertainArea_Locked ? pOH_Orbiter->m_pEntertainArea_Locked->m_iPK_EntertainArea : 0),sMacAddress,
 		pOH_Orbiter->m_dwPK_Room_Locked ? pOH_Orbiter->m_dwPK_Room_Locked : 0);
     SendCommand(CMD_Create_Mobile_Orbiter);
