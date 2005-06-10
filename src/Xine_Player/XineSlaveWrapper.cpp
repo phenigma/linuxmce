@@ -22,6 +22,7 @@
  * C++ Implementation: Xine Player DCE Plugin (the Xine lib slave controller)
  *
  */
+#include "CommonIncludes.h"
 #include "DCE/Logger.h"
 #include "XineSlaveWrapper.h"
 #include "Xine_Player.h"
