@@ -22,7 +22,6 @@
  * C++ Implementation: Xine Player DCE Plugin (the Xine lib slave controller)
  *
  */
-#include "CommonIncludes.h"
 #include "DCE/Logger.h"
 #include "XineSlaveWrapper.h"
 #include "Xine_Player.h"
@@ -587,8 +586,9 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
              else
                 send_event(XINE_SE_PLAYBACK_FINISHED, "");
         */
-			Sleep(2);  // AB 10-June-05 -- Xine seems to report this before the buffers are flushed (about 1.5 seconds too early).  So we'll add a little delay
             g_pPlutoLogger->Write(LV_WARNING, "Playback finished for m_pstream: %d", xineStream->m_iStreamID);
+			usleep(2000000);  // AB 10-June-05 -- Xine seems to report this before the buffers are flushed (about 1.5 seconds too early).  So we'll add a little delay
+g_pPlutoLogger->Write(LV_WARNING, "Playback finished for m_pstream: %d after sleep", xineStream->m_iStreamID);
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
             xineStream->m_bIsRendering = false;
             break;

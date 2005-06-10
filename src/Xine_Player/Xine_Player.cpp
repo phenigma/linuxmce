@@ -44,10 +44,14 @@ using namespace DCE;
 bool g_bHackToBeSureWeStop=false;
 void* HackToBeSureWeStop(void* param) 
 {
-	Sleep(1000);
-	printf("g_bHackToBeSureWeStop: %d",g_bHackToBeSureWeStop);
+	usleep(3000000);
+	printf("g_bHackToBeSureWeStop: %d\n",g_bHackToBeSureWeStop);
 	if( g_bHackToBeSureWeStop )
+	{
+		printf("Killing xine because stop failed\n");
+		fflush(stdout);
 		kill(getpid(), SIGSEGV);
+	}
 	return NULL;
 }
 
@@ -238,8 +242,8 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
     g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() position %d", *iMediaPosition);
 
 pthread_t pt;
-pthread_create(&pt, NULL, HackToBeSureWeStop, NULL);
 g_bHackToBeSureWeStop=true;
+pthread_create(&pt, NULL, HackToBeSureWeStop, NULL);
     m_pXineSlaveControl->stopMedia(iStreamID);
 g_bHackToBeSureWeStop=false;
 	g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() The stream playback should be stopped at this moment and the resources should be freed!");
