@@ -330,6 +330,9 @@ int OrbiterGenerator::DoIt()
 	else
 		m_bNoEffects = false;
 
+// HACK - TEMPORARILY DISABLE EFFECTS
+m_bNoEffects = true;
+
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Use_OCG_Format_CONST);
 	if( pRow_Device_DeviceData )
 		m_bUseOCG = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())==1;
