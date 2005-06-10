@@ -44,11 +44,12 @@ using namespace DCE;
 bool g_bHackToBeSureWeStop=false;
 void* HackToBeSureWeStop(void* param) 
 {
+	g_pPlutoLogger->Write(LV_STATUS,"starting hack\n");
 	usleep(3000000);
-	printf("g_bHackToBeSureWeStop: %d\n",g_bHackToBeSureWeStop);
+	g_pPlutoLogger->Write(LV_STATUS,"g_bHackToBeSureWeStop: %d\n",g_bHackToBeSureWeStop);
 	if( g_bHackToBeSureWeStop )
 	{
-		printf("Killing xine because stop failed\n");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Killing xine because stop failed\n");
 		fflush(stdout);
 		kill(getpid(), SIGSEGV);
 	}
@@ -246,6 +247,7 @@ g_bHackToBeSureWeStop=true;
 pthread_create(&pt, NULL, HackToBeSureWeStop, NULL);
     m_pXineSlaveControl->stopMedia(iStreamID);
 g_bHackToBeSureWeStop=false;
+pthread_cancel(pt);
 	g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() The stream playback should be stopped at this moment and the resources should be freed!");
 
 	if ( getSlimServerClient()->isConnected(iStreamID) )
