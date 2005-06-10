@@ -205,6 +205,12 @@ void *ReconnectToBluetoothDongleThread(void *p)
 {
     BD_ReconnectInfo *pReconnectInfo = (BD_ReconnectInfo *)p;
 
+    if(!pReconnectInfo)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "BD_ReconnectInfo is invalid!");
+        return NULL;
+    }
+
     Bluetooth_Dongle *pBluetooth_Dongle = pReconnectInfo->m_pBluetooth_Dongle;
     string sVMC_File = pReconnectInfo->m_sVMCFile;
     string sPhoneMacAddress = pReconnectInfo->m_sPhoneMacAddress;
@@ -871,6 +877,8 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 	}
 
     BD_ReconnectInfo *pReconnectInfo = new BD_ReconnectInfo(this, sMac_address, iDeviceToLink, sVMC_File);
-    pthread_create( NULL, NULL, ReconnectToBluetoothDongleThread, (void*)pReconnectInfo );
+
+    pthread_t pthread_id;
+    pthread_create( &pthread_id, NULL, ReconnectToBluetoothDongleThread, (void*)pReconnectInfo );
 }
 	
