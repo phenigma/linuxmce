@@ -43,6 +43,9 @@ private:
 	
 private:
 	static RubyEmbeder* s_instance_;
+
+private:
+	std::string addLineNumbers(std::string str);
 };
 
 class RubyEmbederCodeSupplier {

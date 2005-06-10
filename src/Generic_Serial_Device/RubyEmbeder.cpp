@@ -63,7 +63,7 @@ RubyEmbeder::loadCode(RubyEmbederCodeSupplier *psup) throw(RubyException) {
 		throw RubyException("Empty code passed to Ruby Embeder");
 	}
 
-	cout << "RCODE:" << endl << code << endl;
+	cout << "RCODE:" << endl << addLineNumbers(code) << endl;
 
 /*	
 	{	//destroy in before rb_load_file
@@ -99,4 +99,26 @@ RubyEmbeder::_loadcode(VALUE arg) {
 	return 0;
 }
 
+std::string 
+RubyEmbeder::addLineNumbers(std::string str)
+{
+	static std::string result;
+	char buf[16];
+	unsigned int i,j,k;
+	
+	result="";
+	i=j=k=0;
+	for(i=0;i<str.size();i++)
+	{
+		if(str[i]=='\n')
+		{
+			sprintf(buf,"%4d:",k++);
+			result += buf + str.substr(j,i-j+1);
+			j=i+1;
+		}
+	}
+	sprintf(buf,"%3d:",++k);
+	result += buf + str.substr(j,i-j);
+	return result;
+}
 }
