@@ -507,15 +507,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d (%d,%d,%d)", sMacAddress.c_str(),
                     pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_iLastSignalStrength,SignalStrength,m_iThreshHold);
 
-				if(NULL != pOH_Orbiter->m_pDevice_CurrentDetected)
-				{
-					DCE::CMD_Disconnect_From_Mobile_Orbiter cmd_Disconnect_From_Mobile_Orbiter(
-						-1,
-						pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
-						sMacAddress);
-					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
-				}
-
 				pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Reload(); // Just in case we changed this to resend the app to the phone
 				if( pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_get() == 1 )
 					SendAppToPhone( pOH_Orbiter, pDeviceFrom );
@@ -527,14 +518,25 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
                     sVmcFileToSend = pOH_Orbiter->m_sUpdateVMCFile;
                 }
 
-                DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
-                    -1,
-                    pDeviceFrom->m_dwPK_Device,
-                    1, //iMediaPosition = On
-                    sMacAddress,
-                    sVmcFileToSend);
+				if(NULL != pOH_Orbiter->m_pDevice_CurrentDetected)
+				{
+					DCE::CMD_Disconnect_From_Mobile_Orbiter cmd_Disconnect_From_Mobile_Orbiter(
+						-1,
+						pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
+						sMacAddress,pDeviceFrom->m_dwPK_Device,sVmcFileToSend); xx; //add the new dongle--if this is not 0, this dongle will send a link with mobile orbiter when it has finished disconnecting
+					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
+				}
+				else  xx; // Only do this if there's no other dongle
+				{
+					DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
+						-1,
+						pDeviceFrom->m_dwPK_Device,
+						1, //iMediaPosition = On
+						sMacAddress,
+						sVmcFileToSend);
 
-				SendCommand(CMD_Link_with_mobile_orbiter);
+					SendCommand(CMD_Link_with_mobile_orbiter);
+				}
             }
         }
     }
