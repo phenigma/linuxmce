@@ -263,9 +263,13 @@ public:
 	/** Disconnects Mobile Orbiter from this BluetoothDongle. */
 		/** @param #47 Mac address */
 			/** The mac address of the phone */
+		/** @param #118 VMC File */
+			/** Path the VMC file to send */
+		/** @param #124 DeviceToLink */
+			/** Send CMD_Link_with_mobile_orbiter command to DeviceToLink */
 
-	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address) { string sCMD_Result; CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink) { string sCMD_Result; CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sVMC_File.c_str(),iDeviceToLink,sCMD_Result,NULL);};
+	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

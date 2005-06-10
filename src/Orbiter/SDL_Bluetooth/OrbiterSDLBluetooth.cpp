@@ -144,6 +144,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 {
+    /*
     PLUTO_SAFETY_LOCK(dg,m_DatagridMutex);
     string delSelections;
     if (!pObj->sSelVariable.empty())
@@ -152,6 +153,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
         delSelections = "|"+m_mapVariable[atoi(pObj->sSelVariable.c_str())]+"|";
         vm.Release();
     }
+    */
 
 #if (defined(PROFILING))
     clock_t clkStart = clock();

@@ -791,8 +791,12 @@ void Bluetooth_Dongle::CMD_Ignore_MAC_Address(string sMac_address,string &sCMD_R
 	/** Disconnects Mobile Orbiter from this BluetoothDongle. */
 		/** @param #47 Mac address */
 			/** The mac address of the phone */
+		/** @param #118 VMC File */
+			/** Path the VMC file to send */
+		/** @param #124 DeviceToLink */
+			/** Send CMD_Link_with_mobile_orbiter command to DeviceToLink */
 
-void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string &sCMD_Result,Message *pMessage)
+void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink,string &sCMD_Result,Message *pMessage)
 //<-dceag-c333-e->
 {
 	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
@@ -825,5 +829,7 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 			g_pPlutoLogger->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", sMac_address.c_str() );
 		}
 	}
+
+    //TODO: Link to iDeviceToLink
 }
 	

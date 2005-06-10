@@ -95,7 +95,7 @@ public:
 	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_EntertainArea,string sMac_address,int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Ignore_MAC_Address(string sMac_address,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -254,7 +254,9 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sMac_address=pMessage->m_mapParameters[47];
-						CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sCMD_Result,pMessage);
+					string sVMC_File=pMessage->m_mapParameters[118];
+					int iDeviceToLink=atoi(pMessage->m_mapParameters[124].c_str());
+						CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sVMC_File.c_str(),iDeviceToLink,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -271,7 +273,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sCMD_Result,pMessage);
+								CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sVMC_File.c_str(),iDeviceToLink,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

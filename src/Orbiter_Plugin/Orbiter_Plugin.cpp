@@ -523,10 +523,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
 					DCE::CMD_Disconnect_From_Mobile_Orbiter cmd_Disconnect_From_Mobile_Orbiter(
 						-1,
 						pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
-						sMacAddress,pDeviceFrom->m_dwPK_Device,sVmcFileToSend); xx; //add the new dongle--if this is not 0, this dongle will send a link with mobile orbiter when it has finished disconnecting
+						sMacAddress,sVmcFileToSend,pDeviceFrom->m_dwPK_Device); //add the new dongle--if this is not 0, this dongle will send a link with mobile orbiter when it has finished disconnecting
 					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
 				}
-				else  xx; // Only do this if there's no other dongle
+				else  // Only do this if there's no other dongle
 				{
 					DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
 						-1,
