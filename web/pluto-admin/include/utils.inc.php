@@ -2245,12 +2245,13 @@ function climateDevicesTable($cgID,$dbADO)
 	$queryGetRoomsDevice = '
 			SELECT Device.*, DeviceTemplate.Description AS Type, Room.Description AS RoomName 
 				FROM Device 
-			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
 			LEFT JOIN Room ON FK_Room=PK_Room
-			WHERE PK_Device IN ('.join(',',$climateDevicesArray).')
+			LEFT JOIN DeviceTemplate_DeviceCommandGroup ON DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate=Device.FK_DeviceTemplate
+			WHERE PK_Device IN ('.join(',',$climateDevicesArray).') AND FK_DeviceCommandGroup = ?
 			ORDER BY Description ASC';
 	$lineCount=0;
-	$resGetRoomsDevice = $dbADO->Execute($queryGetRoomsDevice);
+	$resGetRoomsDevice = $dbADO->Execute($queryGetRoomsDevice,$GLOBALS['ThermostatCommands']);
 	if($resGetRoomsDevice->RecordCount()==0){
 		$out.='
 			<tr>
@@ -2626,7 +2627,7 @@ function processAdvancedScenarios($cgID,$section,$dbADO)
 				$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ? ';
 				$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
 
-			} else {
+			} elseif($commandSelected!=0) {
 				$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = ? WHERE PK_CommandGroup_Command = ? ';
 				$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($commandSelected,$rowCommandAssigned['PK_CommandGroup_Command']));
 				if ($dbADO->Affected_Rows()==1) {//if we have changed the command, delete old values

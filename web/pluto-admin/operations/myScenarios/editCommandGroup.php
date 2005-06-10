@@ -450,7 +450,7 @@ function editCommandGroup($output,$dbADO) {
 						';
 						$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
 				
-					} else {
+					} elseif($commandSelected!=0) {
 						$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = ? WHERE PK_CommandGroup_Command = ? ';
 						$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($commandSelected,$rowCommandAssigned['PK_CommandGroup_Command']));
 						if ($dbADO->Affected_Rows()==1) {//if we have changed the command, delete old values

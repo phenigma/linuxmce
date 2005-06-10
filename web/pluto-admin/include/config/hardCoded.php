@@ -214,6 +214,9 @@
 
 	// PK_Package from table Package
 	$GLOBALS['orbiterInstallerPackage']=363;
+
+	// DeviceCommandGroups
+	$GLOBALS['ThermostatCommands']=36;
 	
 	// date format
 	$GLOBALS['defaultDateFormat']='Y-m-d h:i:s';
