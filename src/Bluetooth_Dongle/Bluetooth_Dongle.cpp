@@ -90,10 +90,10 @@ void *HandleBDCommandProcessorThread( void *p )
 {
 	BD_Orbiter_Plus_DongleHandle *pBD_Orbiter_Plus_DongleHandle = (BD_Orbiter_Plus_DongleHandle *)p;
 
-	/** @todo -- need a mutex to protect this, right */
+    Bluetooth_Dongle *pBluetooth_Dongle = pBD_Orbiter_Plus_DongleHandle->m_pBluetooth_Dongle;
+    PLUTO_SAFETY_LOCK( bm, pBluetooth_Dongle->m_BTMutex );
+
 	BD_Orbiter *pBD_Orbiter = pBD_Orbiter_Plus_DongleHandle->m_pBD_Orbiter; // converting it to an BD_Orbiter object
-	Bluetooth_Dongle *pBluetooth_Dongle = pBD_Orbiter_Plus_DongleHandle->m_pBluetooth_Dongle;
-	PLUTO_SAFETY_LOCK( bm, pBluetooth_Dongle->m_BTMutex );
 	string sMacAddress = pBD_Orbiter_Plus_DongleHandle->m_sMacAddress;
 	u_int64_t iMacAddress = pBD_Orbiter_Plus_DongleHandle->m_iMacAddress;
     string sVMC_File = pBD_Orbiter_Plus_DongleHandle->m_sVMCFile;
@@ -197,6 +197,46 @@ void *HandleBDCommandProcessorThread( void *p )
 
 	g_pPlutoLogger->Write( LV_STATUS, "Exiting HandleBDCommandProcessorThread...");
 	return NULL;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+void *ReconnectToBluetoothDongleThread(void *p)
+{
+    BD_ReconnectInfo *pReconnectInfo = (BD_ReconnectInfo *)p;
+
+    Bluetooth_Dongle *pBluetooth_Dongle = pReconnectInfo->m_pBluetooth_Dongle;
+    string sVMC_File = pReconnectInfo->m_sVMCFile;
+    string sPhoneMacAddress = pReconnectInfo->m_sPhoneMacAddress;
+    int iDeviceToLink = pReconnectInfo->m_iDeviceToLink;
+
+    g_pPlutoLogger->Write(LV_STATUS, "Waiting HandleBDCommandProcessor for %s to exit...", sPhoneMacAddress.c_str());
+    while(1)
+    {
+        PLUTO_SAFETY_LOCK(bm, pBluetooth_Dongle->m_BTMutex);
+	    BD_Orbiter *pBD_Orbiter = pBluetooth_Dongle->m_mapOrbiterSockets_Find(sPhoneMacAddress);
+
+        //still connected ?
+        if(!pBD_Orbiter || !pBD_Orbiter->m_pBDCommandProcessor)
+            break;
+        
+        bm.Release();
+
+        g_pPlutoLogger->Write(LV_STATUS, "HandleBDCommandProcessor for %s still running. I'll try again in 50 ms...", sPhoneMacAddress.c_str());
+        Sleep(50);
+    }
+
+    //BDCommandProcessor is disconnected now, let's give mobile a little time to disconnect
+    Sleep(500); 
+
+    g_pPlutoLogger->Write(LV_STATUS, "HandleBDCommandProcessor for %s BDCommandProcessor is disconnected now, we can connect the to new dongle", sPhoneMacAddress.c_str());
+    DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(-1, iDeviceToLink, 1, sPhoneMacAddress, sVMC_File);
+    pBluetooth_Dongle->SendCommand(CMD_Link_with_mobile_orbiter);
+
+    delete pReconnectInfo;
+
+    g_pPlutoLogger->Write(LV_STATUS, "ReconnectToBluetoothDongleThread exiting...");
+    return NULL;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -830,6 +870,7 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 		}
 	}
 
-    //TODO: Link to iDeviceToLink
+    BD_ReconnectInfo *pReconnectInfo = new BD_ReconnectInfo(this, sMac_address, iDeviceToLink, sVMC_File);
+    pthread_create( NULL, NULL, ReconnectToBluetoothDongleThread, (void*)pReconnectInfo );
 }
 	

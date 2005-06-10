@@ -86,6 +86,23 @@ public:
 	}
 };
 
+class BD_ReconnectInfo
+{
+public:
+    Bluetooth_Dongle* m_pBluetooth_Dongle;
+    string m_sPhoneMacAddress;
+    int m_iDeviceToLink;
+    string m_sVMCFile;
+
+    BD_ReconnectInfo(class Bluetooth_Dongle* pBluetooth_Dongle, string sPhoneMacAddress, int iDeviceToLink, string sVMCFile)
+    {
+        m_pBluetooth_Dongle = pBluetooth_Dongle;
+        m_sPhoneMacAddress = sPhoneMacAddress;
+        m_iDeviceToLink = iDeviceToLink;
+        m_sVMCFile = sVMCFile;
+    }
+};
+
 //<-dceag-decl-b->! this is custom
 namespace DCE
 {
