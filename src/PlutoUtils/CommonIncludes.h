@@ -31,8 +31,9 @@ using namespace std;
 	#include <netdb.h>
 	#include <string.h>
 
-	#define Sleep(x)   usleep(x*1000)
+	//#define Sleep(x)   usleep(x*1000)
 	//#define Sleep(x) { struct timeval t; t.tv_sec = (x / 1000) ; t.tv_usec = (x % 1000) * 1000000; select(0, NULL, NULL, NULL, &t); }
+	void Sleep(int miliseconds);
 
 	#define stricmp(x, y) strcasecmp(x, y)
 
