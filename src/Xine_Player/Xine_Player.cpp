@@ -45,7 +45,7 @@ bool g_bHackToBeSureWeStop=false;
 void* HackToBeSureWeStop(void* param) 
 {
 	Sleep(1000);
-	printf("g_bHackToBeSureWeStop: %d",g_bHackToBeSureWeStop)
+	printf("g_bHackToBeSureWeStop: %d",g_bHackToBeSureWeStop);
 	if( g_bHackToBeSureWeStop )
 		kill(getpid(), SIGSEGV);
 	return NULL;
