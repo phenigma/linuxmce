@@ -233,10 +233,10 @@ void *ReconnectToBluetoothDongleThread(void *p)
     }
 
     //BDCommandProcessor is disconnected now, let's give mobile a little time to disconnect
-    Sleep(500); 
+    Sleep(2000); 
 
-    g_pPlutoLogger->Write(LV_STATUS, "HandleBDCommandProcessor for %s BDCommandProcessor is disconnected now, we can connect the to new dongle", sPhoneMacAddress.c_str());
-    DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(-1, iDeviceToLink, 1, sPhoneMacAddress, sVMC_File);
+    g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s BDCommandProcessor is disconnected now, we can connect the to new dongle with id %d", sPhoneMacAddress.c_str(), iDeviceToLink);
+    DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(pBluetooth_Dongle->m_dwPK_Device, iDeviceToLink, 1, sPhoneMacAddress, sVMC_File);
     pBluetooth_Dongle->SendCommand(CMD_Link_with_mobile_orbiter);
 
     delete pReconnectInfo;
