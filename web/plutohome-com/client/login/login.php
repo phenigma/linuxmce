@@ -103,10 +103,10 @@ if (isset($_POST['username']) && $_POST['username']!='') {
             <td align="left"><input type="checkbox" name="autologin" value="1"></td>
 		</tr>	
 	    <tr class="insidetable">
-	      <td colspan="2" align="left"><input type="image" name="submitX" src="images/buttons/buton_login.gif" /></td>
+	      <td colspan="2" align="left">* You must enable cookies and javascript in order to login.<br><input type="image" name="submitX" src="images/buttons/buton_login.gif" /></td>
 	    </tr>
 		<tr class="insidetable">
-			<td colspan="2"><div align="left">If you already registered on <a href="http://www.plutovip.com">Plutovip.com</a>, your username and password are linked and will work on this site too.
+			<td colspan="2"><br><div align="left">If you already registered on <a href="http://www.plutovip.com">Plutovip.com</a>, your username and password are linked and will work on this site too.
 						<br> 
 						<br>
 						Not already registered? <a href="index.php?section=register">Click here</a> to register.<br><br></div>

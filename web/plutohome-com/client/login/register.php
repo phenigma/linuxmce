@@ -69,17 +69,33 @@ function register($output,$conn){
   		$errorsCount=0;
   		$mail=$_POST['email'];
 
-  		if (!ereg ("[0-9a-zA-Z]@[0-9a-zA-Z].[0-9a-zA-Z]", $mail)){
-  			$out.='<table align="center"><tr><td align="center" colspan="3"> Invalid e-mail entered</td></tr></table>';
+  		list($userName, $mailDomain) =split("@",$mail); 
+		if (!checkdnsrr($mailDomain, "MX")) { 
+  			$out.='
+  				<table align="center">
+  					<tr>
+  						<td align="center" colspan="3" class="err" style="font-size:16px;"> Invalid e-mail entered</td>
+  					</tr>
+  				</table>';
   			$errorsCount++;
   		}
 
   		if($_POST['username']==''){
-  			$out.='<table align="center"><tr><td align="center" colspan="3"> Invalid username entered</td></tr></table>';
+  			$out.='
+  				<table align="center">
+  					<tr>
+  						<td align="center" colspan="3" class="err" style="font-size:16px;"> Invalid username entered</td>
+  					</tr>
+  				</table>';
   			$errorsCount++;
   		}
   		if($_POST['password']=='' || $_POST['password2']=='' || $_POST['password']!=$_POST['password2']){
-  			$out.='<table align="center"><tr><td align="center" colspan="3"> Invalid password entered</td></tr></table>';
+  			$out.='
+  				<table align="center">
+  					<tr>
+  						<td align="center" colspan="3" class="err" style="font-size:16px;"> Invalid password entered</td>
+  					</tr>
+  				</table>';
   			$errorsCount++;
   		}
   		$pass=$_POST['password'];
@@ -101,7 +117,12 @@ function register($output,$conn){
   		if($errorsCount==0){
 	  		$userAddedtoMasterUsers=addtoMasterUsers($typeUser,$mail,$_POST['username'],$referrerID,$pass,$addMasterUserUrl);
 	  		if(!$userAddedtoMasterUsers[0]){
-	  			$out.='<table align="center"><tr><td align="center" colspan="3"> '.$userAddedtoMasterUsers[1].'</td></tr></table>';
+	  			$out.='
+	  				<table align="center">
+	  					<tr>
+	  						<td align="center" colspan="3" class="err" style="font-size:16px;"> '.$userAddedtoMasterUsers[1].'</td>
+	  					</tr>
+	  				</table>';
 	  			$errorsCount++;
 	  		}
   		}
@@ -119,6 +140,7 @@ function register($output,$conn){
 				$_SESSION['extPassword']=$res->ExtPassword;
 			}
   			header("Location: index.php?section=myPluto");
+  			exit();
   		}
   	}
 
