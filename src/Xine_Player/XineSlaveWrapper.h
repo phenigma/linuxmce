@@ -90,7 +90,7 @@ private:
 
     friend class DCE::Xine_Player;
 
-    static Xine_Player *m_pAggregatorObject;  /** < points the Xine Player */
+    Xine_Player *m_pAggregatorObject;  /** < points the Xine Player */
 
     string m_sWindowTitle;
     string m_sConfigFile;

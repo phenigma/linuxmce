@@ -45,7 +45,7 @@ bool g_bHackToBeSureWeStop=false;
 void* HackToBeSureWeStop(void* param) 
 {
 	g_pPlutoLogger->Write(LV_STATUS,"starting hack\n");
-	usleep(5000000);
+	usleep(3000000);
 	g_pPlutoLogger->Write(LV_STATUS,"g_bHackToBeSureWeStop: %d\n",g_bHackToBeSureWeStop);
 	if( g_bHackToBeSureWeStop )
 	{
@@ -53,7 +53,6 @@ void* HackToBeSureWeStop(void* param)
 		fflush(stdout);
 		kill(getpid(), SIGSEGV);
 	}
-
 	return NULL;
 }
 

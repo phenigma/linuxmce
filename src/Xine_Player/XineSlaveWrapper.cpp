@@ -51,8 +51,31 @@ typedef struct
   uint32_t  status;
 } MWMHints;
 
-XineSlaveWrapper::Xine_Player *m_pAggregatorObject;  
 
+/*
+	Crazy hack -- it seems xine is firing the payback completed event
+	2 seconds before it's really completed, chopping off the end of the media,
+	probably due to a delay flushing the buffer???  Here's a stupid hack
+	to delay the event for 2 seconds 
+*/
+
+class DelayedPlaybackCompletedInfo
+{
+	Xine_Player *m_pXine_Player;
+	int m_iStreamID;
+	bool m_bWithErrors;
+}
+
+void* DelayedPlaybackCompleted(void* param) 
+{
+	DelayedPlaybackCompletedInfo *pDelayedPlaybackCompletedInfo = (DelayedPlaybackCompletedInfo *) param;
+	g_pPlutoLogger->Write(LV_WARNING, "DelayedPlaybackCompleted before sleep for id: %d",pDelayedPlaybackCompletedInfo->m_iStreamID);
+	usleep(2000000);  // AB 10-June-05 -- Xine seems to report this before the buffers are flushed (about 1.5 seconds too early).  So we'll add a little delay
+	g_pPlutoLogger->Write(LV_WARNING, "DelayedPlaybackCompleted after sleep for id: %d",pDelayedPlaybackCompletedInfo->m_iStreamID);
+	pDelayedPlaybackCompletedInfo->m_pXine_Player->EVENT_Playback_Completed(
+		pDelayedPlaybackCompletedInfo->m_iStreamID,pDelayedPlaybackCompletedInfo->m_bWithErrors);
+	delete pDelayedPlaybackCompletedInfo;
+}
 
 XineSlaveWrapper::XineSlaveWrapper()
     : m_sWindowTitle("pluto-xine-playback-window"),
@@ -568,7 +591,6 @@ void XineSlaveWrapper::frameOutputCallback(void *data, int video_width, int vide
  */
 void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *event)
 {
-    PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
     XineStream *xineStream = (XineStream *)userData;
 
     switch(event->type)
@@ -589,9 +611,6 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
              else
                 send_event(XINE_SE_PLAYBACK_FINISHED, "");
         */
-            g_pPlutoLogger->Write(LV_WARNING, "Playback finished for m_pstream: %d", xineStream->m_iStreamID);
-			usleep(2000000);  // AB 10-June-05 -- Xine seems to report this before the buffers are flushed (about 1.5 seconds too early).  So we'll add a little delay
-g_pPlutoLogger->Write(LV_WARNING, "Playback finished for m_pstream: %d after sleep", xineStream->m_iStreamID);
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
             xineStream->m_bIsRendering = false;
             break;
@@ -1588,9 +1607,16 @@ void XineSlaveWrapper::selectMenu(int iStreamID, int iMenuType)
 
 void XineSlaveWrapper::playbackCompleted(int iStreamID,bool bWithErrors)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Fire playback completed event");
+    g_pPlutoLogger->Write(LV_STATUS, "Fire playback completed event %d",(int) m_isSlimClient);
 	if ( ! m_isSlimClient )
-    	this->m_pAggregatorObject->EVENT_Playback_Completed(iStreamID,bWithErrors);
+	{
+		DelayedPlaybackCompleted *pDelayedPlaybackCompleted = new DelayedPlaybackCompleted();
+		pDelayedPlaybackCompleted->m_pXine_Player = m_pAggregatorObject;
+		pDelayedPlaybackCompleted->m_iStreamID = iStreamID;
+		pDelayedPlaybackCompleted->m_bWithErrors = bWithErrors;
+		pthread_t pt;
+		pthread_create(&pt, NULL, DelayedPlaybackCompleted, NULL);
+	}
 }
 
 int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime, int &totalTime)
