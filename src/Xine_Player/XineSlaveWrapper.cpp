@@ -51,6 +51,8 @@ typedef struct
   uint32_t  status;
 } MWMHints;
 
+XineSlaveWrapper::Xine_Player *m_pAggregatorObject;  
+
 
 XineSlaveWrapper::XineSlaveWrapper()
     : m_sWindowTitle("pluto-xine-playback-window"),
