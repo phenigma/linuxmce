@@ -566,6 +566,7 @@ void XineSlaveWrapper::frameOutputCallback(void *data, int video_width, int vide
  */
 void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *event)
 {
+    PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
     XineStream *xineStream = (XineStream *)userData;
 
     switch(event->type)
