@@ -208,8 +208,8 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		if ( ! m_pXineSlaveControl->createStream(sFilename, iStreamID, pMessage->m_dwPK_Device_From) || ! m_pXineSlaveControl->playStream(iStreamID, iMediaPosition) )
 		{
 			EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
-			delete m_pXineSlaveControl;
-			m_pXineSlaveControl = NULL;
+//			delete m_pXineSlaveControl;  AB 2005-06-10 Why did Mihai put this here?  It means if there's ever a bad file Xine is permenantly unable to play anything
+//			m_pXineSlaveControl = NULL;
 		}
 	}
 }
