@@ -149,14 +149,15 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	fprintf(fp,"# Default configuration files for your hardware if any\n");
 	fprintf(fp,"LIRCD_CONF=\"lircd.conf\"\n");
 	fprintf(fp,"LIRCMD_CONF=\"lircmd.conf\"\n");
-	fprintf(fp,"MODULES=\"UNCONFIGURED\"\n");
 	fclose(fp);
 	g_pPlutoLogger->Write(LV_STATUS, "Making Software config");
 	
 	system("rm -f /etc/lirc/lircd.conf");
 	fp = fopen("/etc/lirc/lircd.conf","wt");
-//	RADU --- NEED TO IMPLEMENT THE FOLLOWING -- I DON'T KNOW THE FORMAT
-//	fprintf(fp,"%s",sConfiguration.c_str());
+	for(size_t s = 0; s < vectConfiguration.size(); ++s)
+	{
+		fprintf(fp, "%s\n", vectConfiguration[s].c_str());
+	}
 	fclose(fp);
 
 	system("killall -9 lircd");
