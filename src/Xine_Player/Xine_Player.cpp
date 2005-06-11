@@ -179,7 +179,7 @@ void Xine_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s.", sFilename.c_str());
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s with slave %p.", sFilename.c_str(),m_pXineSlaveControl);
 	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
 
     if ( ! m_pXineSlaveControl )
@@ -212,6 +212,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 //			m_pXineSlaveControl = NULL;
 		}
 	}
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with slave %p.", sFilename.c_str(),m_pXineSlaveControl);
 }
 
 //<-dceag-c38-b->
@@ -236,7 +237,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
 
     int currentTime, totalTime;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() Got a stop media for stream ID %d", iStreamID);
+    g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() Got a stop media for stream ID %d (%p)", iStreamID, m_pXineSlaveControl);
     m_pXineSlaveControl->pauseMediaStream(iStreamID);
     g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() After pause media %d", iStreamID);
     *iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, currentTime, totalTime);
