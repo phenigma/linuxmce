@@ -147,6 +147,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     if(!m_pDatabase_pluto_main->Connect(m_sDBHost,m_sDBUser,m_sDBPassword,m_sDBName,m_dwIDBPort) )
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		exit(1);
     }
 
     if( !m_dwPK_Installation && g_DCEConfig.m_iPK_Installation>0 )

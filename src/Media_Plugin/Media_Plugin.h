@@ -339,6 +339,10 @@ public:
 	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
 	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
 
+	// If it ended because we're starting another stream, bSendOff==false so we don't turn everything off
+	// If the new stream we're starting has bResume true, then bDeleteStream==false so we don't delete the stream since we'll be resuming it
+	// If a new stream is replacing an old one, pMediaStream_Replacement is set to the new stream so we know if we should
+	// fire the watching/listening events again.
 	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL);
 	void MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent=true);
 

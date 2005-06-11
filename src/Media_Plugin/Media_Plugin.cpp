@@ -584,7 +584,8 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     }
     else
     {
-		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
+		if( !pMediaStream->m_bStopped )
+			pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
 
 		StreamEnded(pMediaStream);
 
@@ -619,7 +620,7 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsi
 	}
 
 	// See if we can queue it
-    if( !bResume && pMediaStream_AllEAsPlaying &&
+    if( !bResume && pMediaStream_AllEAsPlaying && !pMediaStream_AllEAsPlaying->m_bResume &&
 		pMediaStream_AllEAsPlaying->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaHandlerInfo->m_pMediaHandlerBase &&
 		pMediaStream_AllEAsPlaying->m_iPK_MediaType == pMediaHandlerInfo->m_PK_MediaType &&
 		pMediaHandlerInfo->m_PK_MediaType!=MEDIATYPE_pluto_DVD_CONST )
@@ -711,8 +712,9 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 
 			// If Resume is set, then this media is just a temporary stream, like an announcement, and if something
 			// is currently playing, we will store that stream here and resume playing it when the temporary
-			// stream is done.
-			if( pMediaStream->m_bResume )
+			// stream is done.  But don't resume another stream that also has a resume, since it too was just 
+			// an announcement.
+			if( pMediaStream->m_bResume && !pEntertainArea->m_pMediaStream->m_bResume )
 				pEntertainArea->m_vectMediaStream_Interrupted.push_back(pEntertainArea->m_pMediaStream);
 
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
@@ -766,6 +768,13 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 					pOldStreamInfo ? &pOldStreamInfo->m_mapMediaDevice_Prior : NULL,
 					&mapMediaDevice_Current);
 			}
+		}
+
+		// If this is just an announcement don't bother sending the orbiters to the remote screen
+		if( pMediaStream->m_bResume )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() done - not sending to remote since stream is marked resumte");
+			return true;
 		}
 
 		// See if there's a special screen for the OSD
@@ -1219,7 +1228,9 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 
 		MediaInEAEnded(pEntertainArea,bFireEvent);
 
-		if( pEntertainArea->m_vectMediaStream_Interrupted.size() )
+		// If the stream ended because we're starting a new one, don't bother resuming any pending streams.
+		// We'll do that when this replacement stream ends
+		if( pEntertainArea->m_vectMediaStream_Interrupted.size() && !pMediaStream_Replacement )
 		{
 			MediaStream *pMediaStream_Resume = pEntertainArea->m_vectMediaStream_Interrupted.back();
 			// Don't pay attention if it's the stream we just interrupted that ended
@@ -1254,6 +1265,8 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		}
 	    delete pMediaStream;
 	}
+	else 
+		pMediaStream->m_bStopped=true;
 }
 
 void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent)
@@ -3320,6 +3333,7 @@ bool Media_Plugin::MediaDescriptionChanged( class Socket *pSocket, class Message
 		pMediaStream->m_sMediaDescription = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
 		MediaInfoChanged(pMediaStream,false);
 	}
+	return true;
 }
 
 bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )

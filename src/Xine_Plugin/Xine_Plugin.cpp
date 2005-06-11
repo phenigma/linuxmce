@@ -1,3 +1,5 @@
+int g_iLastStreamIDPlayed=0;
+
 /*
 	Xine_Plugin
 
@@ -214,6 +216,7 @@ XineMediaStream *Xine_Plugin::ConvertToXineMediaStream(MediaStream *pMediaStream
 bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	g_pPlutoLogger->Write( LV_STATUS, "Xine_Plugin::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
 
@@ -361,7 +364,9 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 // 	else
 // 		g_pPlutoLogger->Write(LV_STATUS, "The sources device responded to play media command!" );
 
-	m_pMedia_Plugin->MediaInfoChanged( pXineMediaStream );
+	// If there are more than 1 song in the queue, we likely added to an existing queue, so we want
+	// to refresh=true so any orbiters will re-render the play list
+	m_pMedia_Plugin->MediaInfoChanged( pXineMediaStream, pXineMediaStream->m_dequeMediaFile.size()>1 );
 	return true;
 }
 
@@ -371,6 +376,10 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 
 	g_pPlutoLogger->Write(LV_STATUS, "Stopping media in Xine_Plugin!");
 
+if( pMediaStream->m_iStreamID_get()<g_iLastStreamIDPlayed )
+{
+int k=2;
+}
 	XineMediaStream *pXineMediaStream = NULL;
 
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StopMedia() ")) == NULL )

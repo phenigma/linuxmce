@@ -71,6 +71,8 @@ namespace DCE
 		int		m_iRepeat;						/** Indicates if this media should repeat */
 		bool 	m_bResume; 						/** < True if this media was started with the 'resume' flag, meaning when it ends, resume what was playing previously */
 
+		bool	m_bStopped;						/** Set when we stop the stream, so that if we later get a playback completed we know we already stopped it and don't need to do anything more */
+
 		time_t	m_tTime;						/** When the user started this media */
 		time_t	m_tTime_Parked;					/** When we parked this media -- ie the user left an area with follow me on, so we stop the media, and leave it 'pending' for a while so he can enter another area */
 

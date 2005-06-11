@@ -461,6 +461,10 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	
 	DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), "", "", false, true );
 
+	DCE::CMD_Set_Graphic_To_Display CMD_Set_Graphic_To_Display(0, pMessage->m_dwPK_Device_From, 
+		StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_icoHouseStatusIndicator_CONST),StringUtils::itos(PK_HouseMode));
+	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Graphic_To_Display.m_pMessage);
+
 	DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), pRow_AlertType->ExitDelay_get() && bSensorsActive ? "<%=CD%> seconds" : "IMMEDIATELY",
 		TEXT_House_Mode_Time_CONST );
 	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
