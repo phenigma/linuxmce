@@ -90,6 +90,7 @@ void Sleep(int miliseconds)
 {
 	struct timeval t;
 	t.tv_sec = (miliseconds / 1000);
-	t.tv_usec = (miliseconds % 1000) * 1000000;
-	while (t.tv_sec > 0 && t.tv_usec > 0) select(0, NULL, NULL, NULL, &t);
+	t.tv_usec = (miliseconds % 1000) * 1000;
+	while (t.tv_sec > 0 || t.tv_usec > 0)
+		select(0, NULL, NULL, NULL, &t);
 }
