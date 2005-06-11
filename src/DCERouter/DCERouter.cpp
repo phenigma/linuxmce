@@ -1166,7 +1166,10 @@ bool Router::Run()
     StartListening();
 	int Timeout=0;
 	while( !m_bRunning && Timeout++<10 )
+	{
 		Sleep(500); // Give the listener socket a chance to start before we load the plugins
+		g_pPlutoLogger->Write(LV_STATUS, "Waiting for listener thread");
+	}
 	if( !m_bRunning )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Could not start listening");
