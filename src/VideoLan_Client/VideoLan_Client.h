@@ -173,6 +173,22 @@ public:
 //<-dceag-h-e->
 	};
 
+	class VideoLanClientInstance
+	{
+	public:
+		int m_iStreamID;
+		string m_sCommandLine;
+		VideoLan_Client *m_pVideoLan_Client;
+		pthread_t m_pthread_t;
+
+		VideoLanClientInstance(VideoLan_Client *pVideoLan_Client,int iStreamID,string sCommandLine)
+		{
+			m_pVideoLan_Client=pVideoLan_Client;
+			m_iStreamID=iStreamID;
+			m_sCommandLine=sCommandLine;
+		}
+	};
+
 //<-dceag-end-b->
 }
 #endif

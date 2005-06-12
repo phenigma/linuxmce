@@ -12,6 +12,14 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+void* SpawnVideoLanClient(void* param) 
+{
+	VideoLanClientInstance *pVideoLanClientInstance = (VideoLanClientInstance *) param;
+	g_pPlutoLogger->Write(LV_STATUS,"Spawning: %s for stream %d",pVideoLanClientInstance->m_sCommandLine.c_str(),pVideoLanClientInstance->m_iStreamID);
+	system(pVideoLanClientInstance->m_sCommandLine.c_str());
+	return NULL;
+}
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 VideoLan_Client::VideoLan_Client(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -190,6 +198,10 @@ void VideoLan_Client::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	cout << "Parm #29 - PK_MediaType=" << iPK_MediaType << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
+
+	string sCommand = "vlc -f \"" + sFilename + "\"";
+	VideoLanClientInstance *pVideoLanClientInstance = new VideoLanClientInstance(this,iStreamID,sCommand);
+	pthread_create(&pVideoLanClientInstance->m_pthread_t, NULL, SpawnVideoLanClient, (void *) pVideoLanClientInstance);
 }
 
 //<-dceag-c38-b->
