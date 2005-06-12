@@ -199,9 +199,21 @@ void VideoLan_Client::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
 
-	string sCommand = "vlc -f \"" + sFilename + "\"";
+	string sCommand = "vlc --intf rc -f \"" + sFilename + "\"";
 	VideoLanClientInstance *pVideoLanClientInstance = new VideoLanClientInstance(this,iStreamID,sCommand);
 	pthread_create(&pVideoLanClientInstance->m_pthread_t, NULL, SpawnVideoLanClient, (void *) pVideoLanClientInstance);
+
+	g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 5 seconds");
+	Sleep(5000);
+	g_pPlutoLogger->Write(LV_STATUS,"active frame");
+    makeActive("frame");
+	Sleep(5000);
+	g_pPlutoLogger->Write(LV_STATUS,"active Frame");
+    makeActive("Frame");
+	Sleep(5000);
+	g_pPlutoLogger->Write(LV_STATUS,"active Unnamed");
+    makeActive("Unnamed");
+	Sleep(5000);
 }
 
 //<-dceag-c38-b->
