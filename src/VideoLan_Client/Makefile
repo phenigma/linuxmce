@@ -1,4 +1,4 @@
-#<-dceag-mh-b->
+#<-dceag-mh-b->!
 GENDEV=../Gen_Devices
 
 ROOT = ..
@@ -6,26 +6,30 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+EXTERNAL_LIBS_NAMES = mysqlclient_r pthread jpeg
+INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 MYNAME = VideoLan_Client
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1698mplateID
+MYDEVTEMPLATEID = 5mplateID
 
 Gen_Dev_Files = $(GENDEV)/VideoLan_ClientBase.cpp
 sources = Main.cpp VideoLan_Client.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS +=
+CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
-LDFLAGS +=
+LDFLAGS += -L/usr/X11R6/lib -L/usr/lib
+INTERNAL_LIBS_NAMES +=
+EXTERNAL_LIBS_NAMES += z nsl rt png X11 m Xext Xxf86vm Xtst
+
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=
+sources +=  
 
-#<-dceag-mf-b->
-LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+#<-dceag-mf-b->!
+LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
 
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
@@ -36,14 +40,15 @@ bin: VideoLan_Client
 
 so: VideoLan_Client.so
 
-VideoLan_Client.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
+VideoLan_Client.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.so) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
-VideoLan_Client: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
+
+VideoLan_Client: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.so) Makefile
+	$(CXX) -o $(MYNAME) $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
+#	mv ../bin/$@ ../bin/$@.bak
 	cp $@ ../bin
 	./post_make.sh $@
 
