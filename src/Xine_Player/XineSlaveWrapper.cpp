@@ -61,10 +61,11 @@ typedef struct
 
 class DelayedPlaybackCompletedInfo
 {
+public:
 	Xine_Player *m_pXine_Player;
 	int m_iStreamID;
 	bool m_bWithErrors;
-}
+};
 
 void* DelayedPlaybackCompleted(void* param) 
 {
@@ -1610,12 +1611,12 @@ void XineSlaveWrapper::playbackCompleted(int iStreamID,bool bWithErrors)
     g_pPlutoLogger->Write(LV_STATUS, "Fire playback completed event %d",(int) m_isSlimClient);
 	if ( ! m_isSlimClient )
 	{
-		DelayedPlaybackCompleted *pDelayedPlaybackCompleted = new DelayedPlaybackCompleted();
-		pDelayedPlaybackCompleted->m_pXine_Player = m_pAggregatorObject;
-		pDelayedPlaybackCompleted->m_iStreamID = iStreamID;
-		pDelayedPlaybackCompleted->m_bWithErrors = bWithErrors;
+		DelayedPlaybackCompletedInfo *pDelayedPlaybackCompletedInfo = new DelayedPlaybackCompletedInfo();
+		pDelayedPlaybackCompletedInfo->m_pXine_Player = m_pAggregatorObject;
+		pDelayedPlaybackCompletedInfo->m_iStreamID = iStreamID;
+		pDelayedPlaybackCompletedInfo->m_bWithErrors = bWithErrors;
 		pthread_t pt;
-		pthread_create(&pt, NULL, DelayedPlaybackCompleted, NULL);
+		pthread_create(&pt, NULL, DelayedPlaybackCompleted, (void *) pDelayedPlaybackCompletedInfo);
 	}
 }
 
