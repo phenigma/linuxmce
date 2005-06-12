@@ -947,15 +947,20 @@ Sleep(500); // TODO: HACK  -- sometimes xine can't play dvd's.  Throw a small de
 		return true;
 	}
 
-	cmd = "losetup -d /dev/loop5";
-	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
-	system(cmd.c_str());  // Don't care about the return. 
+	string cmdUnmount = "losetup -d /dev/loop5";
+	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmdUnmount.c_str());
+	system(cmdUnmount.c_str());  // Don't care about the return. 
 
     cmd = "losetup /dev/loop5 \"" + fileName + "\"";
 	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
     int iResult2=0,iResult = system(cmd.c_str());
 	if( iResult==0 )
 	{
+		g_pPlutoLogger->Write(LV_WARNING,"first attempt to mount failed %s",cmd.c_str());
+Sleep(1000);
+	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmdUnmount.c_str());
+	system(cmdUnmount.c_str());  // Don't care about the return. 
+
 Sleep(500); // TODO: HACK  -- sometimes xine can't play dvd's.  Throw a small delay in to see if it has an effect
 		cmd = "ln -sf /dev/loop5 /dev/dvd";
 		g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
