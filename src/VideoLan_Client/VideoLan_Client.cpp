@@ -222,7 +222,7 @@ void VideoLan_Client::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
 //	m_pRatWrapper->commandRatPoison(":select " LOGO_APPLICATION_NAME);
-	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", VLC_WINDOW_NAME);
+	ProcessUtils::SpawnApplication(sCommand, "", VLC_WINDOW_NAME);
 
     selectWindow();
     locateVlcFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
