@@ -216,13 +216,13 @@ void VideoLan_Client::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
 
-	string sCommand = "vlc --intf rc -f \"" + sFilename + "\"";
+	string sCommand = "--intf\trc\t-f\t" + sFilename;
 
 	if ( ! m_pRatWrapper )
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
 //	m_pRatWrapper->commandRatPoison(":select " LOGO_APPLICATION_NAME);
-	ProcessUtils::SpawnApplication(sCommand, "", VLC_WINDOW_NAME);
+	ProcessUtils::SpawnApplication("vlc", sCommand.c_str(), VLC_WINDOW_NAME);
 
     selectWindow();
     locateVlcFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
