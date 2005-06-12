@@ -595,6 +595,45 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     return true;
 }
 
+void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, string sPK_DesignObj, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream)
+{
+	if( !iPK_MediaType && dequeMediaFile->size() )
+	{
+        string Extension = StringUtils::ToUpper(FileUtils::FindExtension((*dequeMediaFile)[0]->m_sFilename));
+
+		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
+
+		for(size_t s=0;s<vectEntertainArea.size();++s)
+		{
+			EntertainArea *pEntertainArea=vectEntertainArea[s];
+			List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
+		    if( pList_MediaHandlerInfo && pList_MediaHandlerInfo->size() )
+			{
+			    MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+				iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
+				break;
+	        }
+		}
+	}
+
+	if( !iPK_MediaType )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"StartMedia - MediaType==0");
+		return;
+	}
+
+	// Find the media handlers we're going to need
+	map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
+
+	GetMediaHandlersForEA(iPK_MediaType, vectEntertainArea, mapMediaHandlerInfo);
+
+	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from MH Play Media2");
+		StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+	}
+}
+
 MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
@@ -2248,45 +2287,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 		}
     }
 
-    if( dequeMediaFile.size() )
-    {
-        string Extension = StringUtils::ToUpper(FileUtils::FindExtension(dequeMediaFile[0]->m_sFilename));
-
-		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
-
-		for(size_t s=0;s<vectEntertainArea.size();++s)
-		{
-			EntertainArea *pEntertainArea=vectEntertainArea[s];
-			List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
-		    if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
-			    g_pPlutoLogger->Write(LV_WARNING,"Play media file %s in entertain area %d but nothing to handle it",sFilename.c_str(),pEntertainArea->m_iPK_EntertainArea);
-	        else
-		    {
-			    MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-				mapMediaHandlerInfo[pMediaHandlerInfo->m_MediaHandlerID] = pMediaHandlerInfo;
-	        }
-		}
-		for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
-{
-			g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from MH Play Media1");
-			StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
-break; // handle multiple handlers
-}
-    }
-	else if( iPK_MediaType )
-    {
-		// Find the media handlers we're going to need
-		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
-
-		GetMediaHandlersForEA(iPK_MediaType, vectEntertainArea, mapMediaHandlerInfo);
-
-		for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
-		{
-			g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from MH Play Media2");
-			StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
-		}
-    }
-    else if( vectEntertainArea.size()==1 ) // We got nothing -- find a disk drive within the entertainment area and send it a reset
+    if( vectEntertainArea.size()==1 && dequeMediaFile.size()==0 && iPK_MediaType==0 ) // We got nothing -- find a disk drive within the entertainment area and send it a reset
     {
 		EntertainArea *pEntertainArea = vectEntertainArea[0];
 		bool bDiskIsRipping = false;
@@ -2318,7 +2319,7 @@ break; // handle multiple handlers
 		}
     }
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Don't know what to do with play media");
+		StartMedia(iPK_MediaType,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 //<-dceag-c65-b->
@@ -2717,37 +2718,33 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 
 	g_pPlutoLogger->Write(LV_STATUS, "Calling move media on the plugin!");
 
-	// We'll let the plugin handle the move.  Maybe there's something special.  If not, we'll just do a stop and then start again
-	if( !pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->MoveMedia(pMediaStream, listStart, listStop, listChange) )
+	bool bNothingMoreToPlay = mapRequestedAreas.size()==0 && listChange.size()==0;
+	g_pPlutoLogger->Write( LV_STATUS, "Calling StopMedia" );
+	pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
+	g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
+	StreamEnded(pMediaStream,true,bNothingMoreToPlay);
+
+	if( !bNothingMoreToPlay )
 	{
-		bool bNothingMoreToPlay = mapRequestedAreas.size()==0 && listChange.size()==0;
-		g_pPlutoLogger->Write( LV_STATUS, "Calling StopMedia" );
-		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
-		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
-		StreamEnded(pMediaStream,true,bNothingMoreToPlay);
+		pMediaStream->m_mapEntertainArea=mapRequestedAreas;
+		// Add back in the ones we're restarting that were playing already
+		for ( itList = listChange.begin(); itList != listChange.end(); itList++ )
+			pMediaStream->m_mapEntertainArea[(*itList)->m_iPK_EntertainArea] = *itList;
 
-		if( !bNothingMoreToPlay )
+g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) mapRequestedAreas.size());
+		if( pMediaStream->m_mapEntertainArea.size() )
 		{
-			pMediaStream->m_mapEntertainArea=mapRequestedAreas;
-			// Add back in the ones we're restarting that were playing already
-			for ( itList = listChange.begin(); itList != listChange.end(); itList++ )
-				pMediaStream->m_mapEntertainArea[(*itList)->m_iPK_EntertainArea] = *itList;
-
-	g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) mapRequestedAreas.size());
-			if( pMediaStream->m_mapEntertainArea.size() )
-			{
-				// Be sure all outgoing stop messages are flushed before we proceed
+			// Be sure all outgoing stop messages are flushed before we proceed
 g_pPlutoLogger->Write(LV_WARNING,"ready to call wait for message queue");
-				WaitForMessageQueue();
-				pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->WaitForMessageQueue();
+			WaitForMessageQueue();
+			pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->WaitForMessageQueue();
 
-				// Find a new source
-				pMediaStream->m_pMediaDevice_Source = GetMediaDeviceForEA(pMediaStream->m_iPK_MediaType,
-					pMediaStream->m_mapEntertainArea.begin()->second);
-	g_pPlutoLogger->Write(LV_WARNING,"calling startmedia from move - Found a new source %d",
-	pMediaStream->m_pMediaDevice_Source ? pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device : 0 );
-				StartMedia(pMediaStream);
-			}
+			// Find a new source
+			pMediaStream->m_pMediaDevice_Source = GetMediaDeviceForEA(pMediaStream->m_iPK_MediaType,
+				pMediaStream->m_mapEntertainArea.begin()->second);
+g_pPlutoLogger->Write(LV_WARNING,"calling startmedia from move - Found a new source %d",
+pMediaStream->m_pMediaDevice_Source ? pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device : 0 );
+			StartMedia(pMediaStream);
 		}
 	}
 }

@@ -381,24 +381,6 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMed
     return pMediaStream;
 }
 
-bool MythTV_PlugIn::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)
-{
-    g_pPlutoLogger->Write(LV_STATUS, "This is not implemented yet here");
-	return true;
-}
-
-void MythTV_PlugIn::GetRenderDevices(EntertainArea *pEntertainArea, map<int,MediaDevice *> *pmapMediaDevices)
-{
-	MythTvMediaStream *pMythTvMediaStream;
-
-	if ( !pEntertainArea->m_pMediaStream || (pMythTvMediaStream = ConvertToMythMediaStream(pEntertainArea->m_pMediaStream, "MythTV_PlugIn::GetRenderDevices(): ")) == NULL )
-		return;
-
-	/** @todo: implement this with forwarding to the actual media stream */
-	MediaHandlerBase::GetRenderDevices(pEntertainArea, pmapMediaDevices);
-
-	// pMythTvMediaStream->GetRenderDevices(pmapMediaDevices);
-}
 
 MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaStream, string callerIdMessage)
 {

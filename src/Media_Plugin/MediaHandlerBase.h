@@ -8,7 +8,6 @@
 * what type of media it can play.  It may register several times with different types of media and different capabilities.
 */
 
-// WARN: MediaHandlerBase was moved below because it needed the definition of the EntertainArea object
 namespace DCE
 {
 
@@ -19,14 +18,16 @@ namespace DCE
 		class Media_Plugin *m_pMedia_Plugin;
 
 		/** @brief constructor */
-		MediaHandlerBase() {}
+		MediaHandlerBase() { m_iPriority=5; }
+
+		int m_iPriority; // If multiple media handlers can handle the same type of media in an area the one with the highest priority will be chosen
+		vector<class MediaHandlerInfo *> m_vectMediaHandlerInfo; // The media handler info's we have
 
 		/** @brief Each Plugin will create its own instance of MediaStream, so it can create a derived version with extra information */
 		virtual class MediaStream *CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo,vector<class EntertainArea *> &vectEntertainArea,MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeMediaFile,int StreamID)=0;
 		virtual bool StartMedia(class MediaStream *pMediaStream)=0;
 		virtual bool StopMedia(class MediaStream *pMediaStream)=0;
 		virtual bool BroadcastMedia(class MediaStream *pMediaStream)=0;
-		virtual bool MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)=0;
 
 		// Given a stream, what is the rendering device(s).  The source device is stored in the stream.  Normally the source and rendering are the same (dvd player, for example).
 		// But sometimes the source may be a back-end streamer, and the rendering device(s) some network audio players.  The framework needs

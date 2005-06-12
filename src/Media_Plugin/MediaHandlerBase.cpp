@@ -36,7 +36,7 @@ void MediaHandlerBase::GetRenderDevices(EntertainArea *pEntertainArea, map<int,M
 	}
 }
 
-void MediaHandlerBase::GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices)
+void MediaHandlerBase:: GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices)
 {
 	for(map<int, class EntertainArea *>::iterator it=m_pMedia_Plugin->m_mapEntertainAreas.begin();it!=m_pMedia_Plugin->m_mapEntertainAreas.end();++it)
 	{

@@ -20,6 +20,7 @@
 #include "DCE/Logger.h"
 #include "DCERouter.h"
 #include "MediaHandlerInfo.h"
+#include "MediaHandlerBase.h"
 #include "pluto_main/Table_MediaType.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType.h"
@@ -38,12 +39,7 @@ class Database_pluto_media;
 class Row_EntertainArea;
 class MediaFile;
 
-/**
- * A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes in a MediaHandlerInfo pointer indicating
- * what type of media it can play.  It may register several times with different types of media and different capabilities.
- */
 
-// WARN: MediaHandlerBase was moved below because it needed the definition of the EntertainArea object
 namespace DCE
 {
 
@@ -200,6 +196,7 @@ public:
 						iPK_MasterDeviceList,pRow_DeviceTemplate_MediaType->CanSetPosition_get()==1,bUsesDCE);
 
 				m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
+				pMediaHandlerBase->m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
 
 				// Find a default remote control for this.  If one is specified by the DeviceTemplate, use that, and then revert to one that matches the media type
 				vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;
@@ -261,8 +258,14 @@ public:
      */
     virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
 
-	// Returns NULL if it failed to start any media, otherwise returns the stream
+	// This version is called by MH_Play_Media.  It may result in multiple handlers and multiple streams
+	// if there isn't 1 handler that can do it all.  If p_vectMediaStream is passed it will have a list of all the streams that were created as a result
+	void StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, string sPK_DesignObj, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream=NULL);
+
+	// This creates a single media stream for a given media handler and starts playing it by calling the next StartMedia, or returns NULL if it cannot create the stream
     MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat);
+
+	// This is the final stage of 'StartMedia' that starts playing the given stream.  This is also called when the stream changes, or is moved, and needs to be restarted
 	bool StartMedia(MediaStream *pMediaStream);
 
 	int AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *pMediaStream);

@@ -51,16 +51,18 @@ namespace DCE
 		bool    m_bUsesRemovableMedia,      /** True means it can play from a removable drive.
 											For example with MediaType DVD, true means it can play a DVD disc. */
 
-											m_bCanStoreOnServer,        /** True means it can play stored media from the server */
+		m_bCanStoreOnServer,        /** True means it can play stored media from the server */
 
-											m_bCanBroadcastInHouse,     /** Means it can be broadcast within the house, using one of the protocols
-																		in the send/receive lists below  */
+		m_bCanBroadcastInHouse,     /** Means it can be broadcast within the house, using one of the protocols
+									in the send/receive lists below  */
 
-																		m_bIsExternalTransmission,      /** True means it is an external transmissions, like Radio.
-																										Not related to internal broadcasting between devices */
+		m_bIsExternalTransmission,      /** True means it is an external transmissions, like Radio.
+										Not related to internal broadcasting between devices */
 
-																										m_bCanJumpPosition;         /** True means the device can save its position, and return to it, or have another device
-																																	continue the stream where this left off  */
+		m_bCanJumpPosition,         /** True means the device can save its position, and return to it, or have another device
+									continue the stream where this left off  */
+
+		m_bMultipleDestinations;	/** True means this can be sent to multiple destinations */
 
 		int m_iPK_DesignObj;            /** What remote control to use for this type of media */
 

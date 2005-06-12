@@ -44,8 +44,6 @@ namespace DCE
 
 		virtual int GetType();
 
-		virtual void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
-
 		virtual bool ProcessJumpPosition(string sJumpSpecification);
 
 		virtual bool ShouldTuneToNewChannel();

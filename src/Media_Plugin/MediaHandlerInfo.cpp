@@ -43,6 +43,7 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
     m_bCanJumpPosition=bCanJumpPosition;
     m_bUsesDevices=bUsesDevices;
     m_bUsesRemovableMedia=true;
+	m_bMultipleDestinations=false;
 
     if( PK_DeviceTemplate )
     {
@@ -81,22 +82,27 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
         string::size_type pos=0;
         while( true )
         {
-            string Extension_list = pRow_DeviceTemplate_MediaType->Extensions_get( );
+            string Extension_list;
+			if( pRow_DeviceTemplate_MediaType->Extensions_isNull( ) )
+				Extension_list = pRow_DeviceTemplate_MediaType->FK_MediaType_getrow()->Extensions_get();
+			else
+				Extension_list = pRow_DeviceTemplate_MediaType->Extensions_get( );
+
             string Extension = StringUtils::ToUpper( StringUtils::Tokenize( Extension_list, string( ", " ), pos ) );
             if( !Extension.size( ) )
                 break;
             m_listExtensions.push_back( Extension );
         }
+		m_bUsesRemovableMedia = pRow_DeviceTemplate_MediaType->CanPlayFromDiskDrive_get( )==1;
+		m_bCanStoreOnServer = pRow_DeviceTemplate_MediaType->CanStoreOnServer_get( )==1;
+		m_bIsExternalTransmission = pRow_DeviceTemplate_MediaType->FK_MediaType_getrow()->IsExternalTransmission_get( )==1;
+		m_bMultipleDestinations = pRow_DeviceTemplate_MediaType->CanPlayInMultipleAreas_get( )==1;
     }
     else
     {
         Row_MediaType *pRow_MediaType=m_pMediaHandlerBase->m_pMedia_Plugin->m_pDatabase_pluto_main->MediaType_get( )->GetRow( m_PK_MediaType );
         if( pRow_MediaType )
         {
-    //todo      m_bUsesRemovableMedia = pRow_MediaType->UsesRemoveableMedia_get( )==1;
-    //todo      m_bCanStoreOnServer = pRow_MediaType->CanStoreOnServer_get( )==1;
-    // todo     m_bCanBroadcastInHouse = pRow_MediaType->CanBroadcastInHouse_get( )==1;
-    //todo hack     m_bIsExternalTransmission = pRow_MediaType->IsExternalTransmission_get( )==1;
             string::size_type pos=0;
             while( true )
             {
