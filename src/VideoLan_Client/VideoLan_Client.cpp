@@ -12,6 +12,7 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "PlutoUtils/ProcessUtils.h"
 #include "utilities/linux/RatpoisonHandler.h"
 
 #include "X11/Xlib.h"
@@ -294,7 +295,7 @@ bool VideoLan_Client::locateVlcFrontendWindow(long unsigned int window)
     if ( checkWindowName(window, VLC_WINDOW_NAME ) )
     {
         g_pPlutoLogger->Write(LV_STATUS, "Found window id: 0x%x", window );
-        m_iMythFrontendWindowId = window;
+        m_iVideoLanWindowId = window;
         return true;
     }
 

@@ -16,6 +16,7 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+	long unsigned int		m_iVideoLanWindowId;
         RatPoisonWrapper            *m_pRatWrapper;
 
 		// Private methods
