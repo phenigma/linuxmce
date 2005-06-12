@@ -16,6 +16,10 @@ namespace DCE
 		// Private member variables
 
 		// Private methods
+
+		pluto_pthread_mutex_t m_VideoLanMutex; // Other classes may need this
+		map<int,class VideoLanServerInstance *> m_mapVideoLanServerInstance; // Map based on stream ID's
+        class VideoLanServerInstance *m_mapVideoLanServerInstance_Find(int iStreamID) { map<int,class VideoLanServerInstance *>::iterator it = m_mapVideoLanServerInstance.find(iStreamID); return it==m_mapVideoLanServerInstance.end() ? NULL : (*it).second; }
 public:
 		// Public member variables
 
@@ -29,11 +33,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-//<-dceag-const2-b->
-		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
-		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
-		VideoLan_Server(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-//<-dceag-const2-e->
+//<-dceag-const2-b->!
 
 //<-dceag-h-b->
 	/*
@@ -195,6 +195,25 @@ public:
 
 
 //<-dceag-h-e->
+	};
+
+	class VideoLanServerInstance
+	{
+	public:
+		int m_iStreamID;
+		string m_sStreamingTargets,m_sMediaURL,m_sFilename,m_sCommandLine;
+		bool m_bRunning;
+		VideoLan_Server *m_pVideoLan_Server;
+		pthread_t m_pthread_t;
+
+		VideoLanServerInstance(VideoLan_Server *pVideoLan_Server,int iStreamID,string sStreamingTargets,string sMediaURL)
+		{
+			m_pVideoLan_Server=pVideoLan_Server;
+			m_iStreamID=iStreamID;
+			m_sStreamingTargets=sStreamingTargets;
+			m_sMediaURL=sMediaURL;
+			m_bRunning=false;
+		}
 	};
 
 //<-dceag-end-b->

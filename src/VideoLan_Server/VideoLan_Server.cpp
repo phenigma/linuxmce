@@ -12,21 +12,25 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+void* SpawnVideoLanServer(void* param) 
+{
+	VideoLanServerInstance *pVideoLanServerInstance = (VideoLanServerInstance *) param;
+	g_pPlutoLogger->Write(LV_STATUS,"Spawning: %s for stream %d",pVideoLanServerInstance->m_sCommandLine.c_str(),pVideoLanServerInstance->m_iStreamID);
+	system(pVideoLanServerInstance->m_sCommandLine.c_str());
+	return NULL;
+}
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 VideoLan_Server::VideoLan_Server(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: VideoLan_Server_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_VideoLanMutex("videolan")
 {
+	m_VideoLanMutex.Init(NULL);
 }
 
-//<-dceag-const2-b->
-// The constructor when the class is created as an embedded instance within another stand-alone device
-VideoLan_Server::VideoLan_Server(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-	: VideoLan_Server_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
-//<-dceag-const2-e->
-{
-}
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 VideoLan_Server::~VideoLan_Server()
@@ -43,14 +47,8 @@ bool VideoLan_Server::Register()
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
-/*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
-	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
-	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
-//<-dceag-createinst-b->
-VideoLan_Server_Command *Create_VideoLan_Server(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-{
-	return new VideoLan_Server(pPrimaryDeviceCommand, pData, pEvent, pRouter);
-}
+//<-dceag-createinst-b->!
+
 //<-dceag-createinst-e->
 
 /*
@@ -109,6 +107,27 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	cout << "Parm #29 - PK_MediaType=" << iPK_MediaType << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
+
+	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
+	if( !pVideoLanServerInstance )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt play nonexistant stream");
+		return;
+	}
+
+	pVideoLanServerInstance->m_sFilename = sFilename;
+	pVideoLanServerInstance->m_sCommandLine = "vlc \"" + sFilename + 
+		"\" --sout '#standard{access=udp,mux=ts,url=192.168.80.1,sap,name=\"s" + StringUtils::itos(iStreamID) + "\"}'";
+
+	pthread_create(&pVideoLanServerInstance->m_pthread_t, NULL, SpawnVideoLanServer, (void *) pVideoLanServerInstance);
+
+	string::size_type pos=0;
+	while( pos<pVideoLanServerInstance->m_sStreamingTargets.size() )
+	{
+		int PK_Device = atoi(StringUtils::Tokenize(pVideoLanServerInstance->m_sStreamingTargets,",",pos).c_str());
+		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,"udp:",iPK_MediaType,iStreamID,iMediaPosition);
+		SendCommand(CMD_Play_Media);
+	}
 }
 
 //<-dceag-c38-b->
@@ -269,6 +288,9 @@ void VideoLan_Server::CMD_Start_Streaming(int iStreamID,string sStreamingTargets
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #59 - MediaURL=" << sMediaURL << endl;
 	cout << "Parm #105 - StreamingTargets=" << sStreamingTargets << endl;
+
+	VideoLanServerInstance *pVideoLanServerInstance = new VideoLanServerInstance(this,iStreamID,sStreamingTargets,*sMediaURL);
+	m_mapVideoLanServerInstance[iStreamID]=pVideoLanServerInstance;
 }
 
 //<-dceag-c259-b->
