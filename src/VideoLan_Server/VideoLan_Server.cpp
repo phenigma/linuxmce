@@ -116,7 +116,7 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	}
 
 	pVideoLanServerInstance->m_sFilename = sFilename;
-	pVideoLanServerInstance->m_sCommandLine = "vlc \"" + sFilename + 
+	pVideoLanServerInstance->m_sCommandLine = "vlc --intf rc \"" + sFilename + 
 		"\" --sout '#standard{access=udp,mux=ts,url=192.168.80.1,sap,name=\"s" + StringUtils::itos(iStreamID) + "\"}'";
 
 	pthread_create(&pVideoLanServerInstance->m_pthread_t, NULL, SpawnVideoLanServer, (void *) pVideoLanServerInstance);
