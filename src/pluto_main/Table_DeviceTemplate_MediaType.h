@@ -78,6 +78,7 @@ long int m_FK_MediaType;
 short int m_CanPlayFromDiskDrive;
 short int m_CanStoreOnServer;
 short int m_CanSetPosition;
+short int m_CanPlayInMultipleAreas;
 short int m_StopOtherMediaInEntArea;
 string m_Extensions;
 long int m_psc_id;
@@ -86,7 +87,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[13];
+		bool is_null[14];
 	
 	public:
 		long int PK_DeviceTemplate_MediaType_get();
@@ -95,6 +96,7 @@ long int FK_MediaType_get();
 short int CanPlayFromDiskDrive_get();
 short int CanStoreOnServer_get();
 short int CanSetPosition_get();
+short int CanPlayInMultipleAreas_get();
 short int StopOtherMediaInEntArea_get();
 string Extensions_get();
 long int psc_id_get();
@@ -110,6 +112,7 @@ void FK_MediaType_set(long int val);
 void CanPlayFromDiskDrive_set(short int val);
 void CanStoreOnServer_set(short int val);
 void CanSetPosition_set(short int val);
+void CanPlayInMultipleAreas_set(short int val);
 void StopOtherMediaInEntArea_set(short int val);
 void Extensions_set(string val);
 void psc_id_set(long int val);
@@ -153,7 +156,7 @@ class Row_MediaType* FK_MediaType_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DeviceTemplate_MediaType+ m_FK_DeviceTemplate+ m_FK_MediaType+ m_CanPlayFromDiskDrive+ m_CanStoreOnServer+ m_CanSetPosition+ m_StopOtherMediaInEntArea+ m_Extensions+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DeviceTemplate_MediaType+ m_FK_DeviceTemplate+ m_FK_MediaType+ m_CanPlayFromDiskDrive+ m_CanStoreOnServer+ m_CanSetPosition+ m_CanPlayInMultipleAreas+ m_StopOtherMediaInEntArea+ m_Extensions+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -164,6 +167,7 @@ string FK_MediaType_asSQL();
 string CanPlayFromDiskDrive_asSQL();
 string CanStoreOnServer_asSQL();
 string CanSetPosition_asSQL();
+string CanPlayInMultipleAreas_asSQL();
 string StopOtherMediaInEntArea_asSQL();
 string Extensions_asSQL();
 string psc_id_asSQL();
