@@ -85,7 +85,8 @@ int UniqueColors[MAX_MEDIA_COLORS];
 // For sorting by priority
 static bool MediaHandlerComparer(MediaHandlerInfo *x, MediaHandlerInfo *y)
 {
-	return x->m_pMediaHandlerBase->m_iPriority<y->m_pMediaHandlerBase->m_iPriority;
+	// Reverse since we want highest priorities first
+	return x->m_pMediaHandlerBase->m_iPriority>y->m_pMediaHandlerBase->m_iPriority;
 }
 
 MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
