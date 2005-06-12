@@ -8,12 +8,12 @@ CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
-MYNAME = VideoLAN_PlugIn
+MYNAME = VideoLan_PlugIn
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 1696mplateID
 
-Gen_Dev_Files = $(GENDEV)/VideoLAN_PlugInBase.cpp
-sources = Main.cpp VideoLAN_PlugIn.cpp $(Gen_Dev_Files)
+Gen_Dev_Files = $(GENDEV)/VideoLan_PlugInBase.cpp
+sources = Main.cpp VideoLan_PlugIn.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
@@ -32,23 +32,23 @@ whattodo:
 
 all: bin so
 
-bin: VideoLAN_PlugIn
+bin: VideoLan_PlugIn
 
-so: VideoLAN_PlugIn.so
+so: VideoLan_PlugIn.so
 
-VideoLAN_PlugIn.so: $(sources:.cpp=.o)
+VideoLan_PlugIn.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-VideoLAN_PlugIn: $(sources:.cpp=.o)
+VideoLan_PlugIn: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) VideoLAN_PlugIn.bin VideoLAN_PlugIn.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) VideoLan_PlugIn.bin VideoLan_PlugIn.so >/dev/null
 
 package:
 	chmod +x make_package.sh

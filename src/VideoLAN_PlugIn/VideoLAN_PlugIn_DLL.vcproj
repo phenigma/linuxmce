@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="VideoLAN_PlugIn"
+	Name="VideoLan_PlugIn"
 	ProjectGUID="{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -33,12 +33,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
-				OutputFile="../Debug/VideoLAN_PlugIn.dll"
+				OutputFile="../Debug/VideoLan_PlugIn.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
-				ModuleDefinitionFile="VideoLAN_PlugIn.def"
+				ModuleDefinitionFile="VideoLan_PlugIn.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/VideoLAN_PlugIn.pdb"
+				ProgramDatabaseFile="$(OutDir)/VideoLan_PlugIn.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -87,10 +87,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
-				OutputFile="../bin/VideoLAN_PlugIn.dll"
+				OutputFile="../bin/VideoLan_PlugIn.dll"
 				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				LinkIncremental="1"
-				ModuleDefinitionFile="VideoLAN_PlugIn.def"
+				ModuleDefinitionFile="VideoLan_PlugIn.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -128,13 +128,13 @@
 				RelativePath="Main.cpp">
 			</File>
 			<File
-				RelativePath="VideoLAN_PlugIn.cpp">
+				RelativePath="VideoLan_PlugIn.cpp">
 			</File>
 			<File
-				RelativePath="VideoLAN_PlugIn.def">
+				RelativePath="VideoLan_PlugIn.def">
 			</File>
 			<File
-				RelativePath="..\Gen_Devices\VideoLAN_PlugInBase.cpp">
+				RelativePath="..\Gen_Devices\VideoLan_PlugInBase.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -144,7 +144,7 @@
 				RelativePath="..\DCE\DCEDeviceData_Impl.h">
 			</File>
 			<File
-				RelativePath="VideoLAN_PlugIn.h">
+				RelativePath="VideoLan_PlugIn.h">
 			</File>
 		</Filter>
 		<Filter

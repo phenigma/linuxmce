@@ -1,7 +1,7 @@
 <-dceag-p-b->
 Package = DCE_Destination_Package
 Dir = 
-desc = DCE Implemenation for #1696 VideoLAN Plug-In
+desc = DCE Implemenation for #1696 VideoLan Plug-In
 Maintainer = DCE_MaintainerName
 Email = DCE_MaintainerEmail
 Depend = DCE_Dependencies

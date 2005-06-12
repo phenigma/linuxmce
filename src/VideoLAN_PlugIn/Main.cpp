@@ -1,5 +1,5 @@
 //<-dceag-incl-b->
-#include "VideoLAN_PlugIn.h"
+#include "VideoLan_PlugIn.h"
 #include "DCE/Logger.h"
 #include "ServerLogger.h"
 #include "PlutoUtils/FileUtils.h"
@@ -72,7 +72,7 @@ extern "C" {
 		// Then the Router will scan for all .so or .dll files, and if found they will be registered with a temporary device number
 		bool bIsRuntimePlugin=false;
 		if( bIsRuntimePlugin )
-			return VideoLAN_PlugIn::PK_DeviceTemplate_get_static();
+			return VideoLan_PlugIn::PK_DeviceTemplate_get_static();
 		else
 			return 0;
 	}
@@ -86,19 +86,19 @@ extern "C" {
 		g_pPlutoLogger = pPlutoLogger;
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
-		VideoLAN_PlugIn *pVideoLAN_PlugIn = new VideoLAN_PlugIn(PK_Device, "localhost",true,false,pRouter);
-		if( pVideoLAN_PlugIn->m_bQuit )
+		VideoLan_PlugIn *pVideoLan_PlugIn = new VideoLan_PlugIn(PK_Device, "localhost",true,false,pRouter);
+		if( pVideoLan_PlugIn->m_bQuit )
 		{
-			delete pVideoLAN_PlugIn;
+			delete pVideoLan_PlugIn;
 			return NULL;
 		}
 		else
 		{
-			g_pCommand_Impl=pVideoLAN_PlugIn;
+			g_pCommand_Impl=pVideoLan_PlugIn;
 			g_pDeadlockHandler=Plugin_DeadlockHandler;
 			g_pSocketCrashHandler=Plugin_SocketCrashHandler;
 		}
-		return pVideoLAN_PlugIn;
+		return pVideoLan_PlugIn;
 	}
 }
 //<-dceag-plug-e->
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
 
-	cout << "VideoLAN_PlugIn, v." << VERSION << endl
+	cout << "VideoLan_PlugIn, v." << VERSION << endl
 		<< "Visit www.plutohome.com for source code and license information" << endl << endl;
 
 	string sRouter_IP="dcerouter";
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
 	if (bError)
 	{
 		cout << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
-			<< "Usage: VideoLAN_PlugIn [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]" << endl
+			<< "Usage: VideoLan_PlugIn [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
 			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
 			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, VideoLAN_PlugIn::PK_DeviceTemplate_get_static(), sRouter_IP);
+			g_pPlutoLogger = new ServerLogger(PK_Device, VideoLan_PlugIn::PK_DeviceTemplate_get_static(), sRouter_IP);
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
@@ -189,15 +189,15 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		VideoLAN_PlugIn *pVideoLAN_PlugIn = new VideoLAN_PlugIn(PK_Device, sRouter_IP);	
-		if ( pVideoLAN_PlugIn->Connect(pVideoLAN_PlugIn->PK_DeviceTemplate_get()) ) 
+		VideoLan_PlugIn *pVideoLan_PlugIn = new VideoLan_PlugIn(PK_Device, sRouter_IP);	
+		if ( pVideoLan_PlugIn->Connect(pVideoLan_PlugIn->PK_DeviceTemplate_get()) ) 
 		{
-			g_pCommand_Impl=pVideoLAN_PlugIn;
+			g_pCommand_Impl=pVideoLan_PlugIn;
 			g_pDeadlockHandler=DeadlockHandler;
 			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
-			pVideoLAN_PlugIn->CreateChildren();
-			pthread_join(pVideoLAN_PlugIn->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			pVideoLan_PlugIn->CreateChildren();
+			pthread_join(pVideoLan_PlugIn->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 
@@ -206,10 +206,10 @@ int main(int argc, char* argv[])
 			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
 
-		if( pVideoLAN_PlugIn->m_bReload )
+		if( pVideoLan_PlugIn->m_bReload )
 			bReload=true;
 
-		delete pVideoLAN_PlugIn;
+		delete pVideoLan_PlugIn;
 	}
 	catch(string s)
 	{

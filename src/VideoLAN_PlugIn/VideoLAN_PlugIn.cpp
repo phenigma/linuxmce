@@ -1,5 +1,5 @@
 //<-dceag-d-b->
-#include "VideoLAN_PlugIn.h"
+#include "VideoLan_PlugIn.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
@@ -14,22 +14,22 @@ using namespace DCE;
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
-VideoLAN_PlugIn::VideoLAN_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: VideoLAN_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+VideoLan_PlugIn::VideoLan_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
+	: VideoLan_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
 
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device
-VideoLAN_PlugIn::VideoLAN_PlugIn(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-	: VideoLAN_PlugIn_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
+VideoLan_PlugIn::VideoLan_PlugIn(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+	: VideoLan_PlugIn_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
 }
 
 //<-dceag-dest-b->
-VideoLAN_PlugIn::~VideoLAN_PlugIn()
+VideoLan_PlugIn::~VideoLan_PlugIn()
 //<-dceag-dest-e->
 {
 	
@@ -37,19 +37,47 @@ VideoLAN_PlugIn::~VideoLAN_PlugIn()
 
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
-bool VideoLAN_PlugIn::Register()
+bool VideoLan_PlugIn::Register()
 //<-dceag-reg-e->
 {
-	return Connect(PK_DeviceTemplate_get()); 
+	m_pMedia_Plugin=NULL;
+	ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Media_Plugin_CONST );
+	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Xine plug in cannot find media handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+		return false;
+	}
+
+	m_pMedia_Plugin=( Media_Plugin * ) pListCommand_Impl->front( );
+
+    pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Orbiter_Plugin_CONST );
+    if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "Media handler plug in cannot find orbiter handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+        return false;
+    }
+
+    m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl->front( );
+
+	vector<int> vectPK_DeviceTemplate;
+	vectPK_DeviceTemplate.push_back(DEVICETEMPLATE_VideoLan_Client_CONST);
+	m_pMedia_Plugin->RegisterMediaPlugin( this, this, vectPK_DeviceTemplate, true );
+
+	// In our device data we will give ourselves a lower priority and set multipledestinations=true 
+	// so we yield priority for single destinations to a non-streaming type of media
+	for(size_t s=0;s<m_vectMediaHandlerInfo.size();++s)
+		m_vectMediaHandlerInfo[s]->m_bMultipleDestinations=true;
+
+	return Connect(PK_DeviceTemplate_get());
 }
 
 /*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
 	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
 	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
 //<-dceag-createinst-b->
-VideoLAN_PlugIn_Command *Create_VideoLAN_PlugIn(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+VideoLan_PlugIn_Command *Create_VideoLan_PlugIn(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
 {
-	return new VideoLAN_PlugIn(pPrimaryDeviceCommand, pData, pEvent, pRouter);
+	return new VideoLan_PlugIn(pPrimaryDeviceCommand, pData, pEvent, pRouter);
 }
 //<-dceag-createinst-e->
 
@@ -62,7 +90,7 @@ VideoLAN_PlugIn_Command *Create_VideoLAN_PlugIn(Command_Impl *pPrimaryDeviceComm
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void VideoLAN_PlugIn::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void VideoLan_PlugIn::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";
@@ -74,100 +102,344 @@ void VideoLAN_PlugIn::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
-void VideoLAN_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
+void VideoLan_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-cmduk-e->
 {
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
-//<-dceag-sample-b->
-/*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
-
-**** IF YOU DON'T WANT DCEGENERATOR TO KEEP PUTTING THIS AUTO-GENERATED SECTION ****
-**** ADD AN ! AFTER THE BEGINNING OF THE AUTO-GENERATE TAG, LIKE //<=dceag-sample-b->! ****
-Without the !, everything between <=dceag-sometag-b-> and <=dceag-sometag-e->
-will be replaced by DCEGenerator each time it is run with the normal merge selection.
-The above blocks are actually <- not <=.  We don't want a substitution here
-
-void VideoLAN_PlugIn::SomeFunction()
-{
-	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
-	// to do all your registration, such as creating message interceptors
-
-	// If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
-	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
-
-	// Examples:
-	
-	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
-	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click);
-
-	// Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
-	// And we want a response, which will be "OK" if the command was successfull
-	string sResponse;
-	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
-	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
-
-	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-	// Note the _Cat for category
-	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
-    SendCommand(CMD_Simulate_Mouse_Click_Cat);
-
-	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-	// Note the _DT.
-	DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click_DT);
-
-	// This command has a normal string parameter, but also an int as an out parameter
-	int iValue;
-	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
-	// This send command will wait for the destination device to respond since there is
-	// an out parameter
-	SendCommand(CMD_Get_Signal_Strength);  
-
-	// This time we don't care about the out parameter.  We just want the command to 
-	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
-	// will not get set
-	SendCommandNoResponse(CMD_Get_Signal_Strength);  
-
-	// This command has an out parameter of a data block.  Any parameter that is a binary
-	// data block is a pair of int and char *
-	// We'll also want to see the response, so we'll pass a string for that too
-
-	int iFileSize;
-	char *pFileContents
-	string sResponse;
-	DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
-	SendCommand(CMD_Request_File);
-
-	// If the device processed the command (in this case retrieved the file),
-	// sResponse will be "OK", and iFileSize will be the size of the file
-	// and pFileContents will be the file contents.  **NOTE**  We are responsible
-	// free deleting pFileContents.
-
-
-	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
-
-	// Get our IP address from our data
-	string sIP = DATA_Get_IP_Address();
-
-	// Set our data "Filename" to "myfile"
-	DATA_Set_Filename("myfile");
-
-	// Fire the "Finished with file" event, which takes no parameters
-	EVENT_Finished_with_file();
-	// Fire the "Touch or click" which takes an X and Y parameter
-	EVENT_Touch_or_click(10,150);
-}
-*/
-//<-dceag-sample-e->
-
+//<-dceag-sample-b->!
 /*
 
 	COMMANDS TO IMPLEMENT
 
 */
 
+class MediaStream *VideoLan_PlugIn::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
+{
+	VideoLanMediaStream *pVideoLanMediaStream;
+	MediaDevice *pMediaDevice_PassedIn;
+
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
+	pMediaDevice_PassedIn = NULL;
+	if ( vectEntertainArea.size()==0 && pMediaDevice == NULL )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
+		return NULL;
+	}
+
+	if ( pMediaDevice != NULL  && // test the media device only if it set
+	     pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate != DEVICETEMPLATE_VideoLan_Client_CONST )
+	{
+		pMediaDevice_PassedIn = pMediaDevice;
+		pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(m_pRouter->FindClosestRelative(DEVICETEMPLATE_VideoLan_Client_CONST, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device));
+	}
+
+	if ( !pMediaDevice )
+	{
+		for(size_t s=0;s<vectEntertainArea.size();++s)
+		{
+			EntertainArea *pEntertainArea = vectEntertainArea[0];
+			pMediaDevice = FindMediaDeviceForEntertainArea(pEntertainArea);
+			if( pMediaDevice )
+				break;
+		}
+		if( !pMediaDevice )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
+			return NULL;
+		}
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d: %s) as playback device!",
+			pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+			pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
+
+	pVideoLanMediaStream = new VideoLanMediaStream( this, pMediaHandlerInfo,
+							pMediaDevice,
+							pMediaHandlerInfo->m_iPK_DesignObj,
+							iPK_Users, st_RemovableMedia, StreamID );
+
+	return pVideoLanMediaStream;
+}
+
+VideoLanMediaStream *VideoLan_PlugIn::ConvertToVideoLanMediaStream(MediaStream *pMediaStream, string callerIdMessage)
+{
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
+	if ( pMediaStream == NULL )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
+		return NULL;
+	}
+
+	if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_VIDEOLAN )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is not a VideoLanMediaStream!").c_str());
+		return NULL;
+	}
+
+	return static_cast<VideoLanMediaStream *>(pMediaStream);
+}
+
+bool VideoLan_PlugIn::StartMedia( class MediaStream *pMediaStream )
+{
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
+	g_pPlutoLogger->Write( LV_STATUS, "VideoLan_PlugIn::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
+
+	VideoLanMediaStream *pVideoLanMediaStream = NULL;
+	if ( (pVideoLanMediaStream = ConvertToVideoLanMediaStream(pMediaStream, "VideoLan_PlugIn::StartMedia(): ")) == NULL )
+		return false;
+
+	if ( !pVideoLanMediaStream->m_pMediaDevice_Source || pVideoLanMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceCategory != DEVICECATEGORY_Media_Streamers_CONST )
+	{
+		pVideoLanMediaStream->m_pMediaDevice_Source = FindStreamerDevice();
+	}
+
+	if( pVideoLanMediaStream->m_pMediaDevice_Source && pVideoLanMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceCategory == DEVICECATEGORY_Media_Streamers_CONST )
+	{
+		// Find the destinations for each ent area
+		map<int, EntertainArea *>::iterator itEntertainmentAreas;
+		for ( itEntertainmentAreas = pVideoLanMediaStream->m_mapEntertainArea.begin(); itEntertainmentAreas != pVideoLanMediaStream->m_mapEntertainArea.end(); itEntertainmentAreas++ )
+		{
+			EntertainArea *pEntertainArea = ( *itEntertainmentAreas ).second;
+			pEntertainArea->m_pMediaDevice_ActiveDest = FindMediaDeviceForEntertainArea(pEntertainArea);
+		}
+
+		pVideoLanMediaStream->setIsStreaming();
+		StartStreaming(pVideoLanMediaStream);
+	}
+
+	string sFileToPlay = pVideoLanMediaStream->GetFilenameToPlay("Empty file name");
+
+	g_pPlutoLogger->Write( LV_STATUS, "VideoLan_PlugIn::StartMedia() Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
+
+	string mediaURL;
+	string Response;
+
+	// HACK: -- todo: get real informations.
+	if( pVideoLanMediaStream->m_dequeMediaFile.size()>pVideoLanMediaStream->m_iDequeMediaFile_Pos )
+	{
+		MediaFile *pMediaFile = pVideoLanMediaStream->m_dequeMediaFile[pVideoLanMediaStream->m_iDequeMediaFile_Pos];
+		if( pMediaFile && pMediaFile->m_sDescription.size() )
+			pVideoLanMediaStream->m_sMediaDescription = pMediaFile->m_sDescription;
+		else
+			pVideoLanMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
+	}
+	else
+		pVideoLanMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
+
+	mediaURL = sFileToPlay;
 
 
+	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+// 	if( !SendCommand( cmd, &Response ) )
+// 		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
+// 					pVideoLanMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+// 					pVideoLanMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_sDescription.c_str());
+// 	else
+// 		g_pPlutoLogger->Write(LV_STATUS, "The sources device responded to play media command!" );
+
+	// If there are more than 1 song in the queue, we likely added to an existing queue, so we want
+	// to refresh=true so any orbiters will re-render the play list
+	m_pMedia_Plugin->MediaInfoChanged( pVideoLanMediaStream, pVideoLanMediaStream->m_dequeMediaFile.size()>1 );
+	return true;
+}
+
+bool VideoLan_PlugIn::StopMedia( class MediaStream *pMediaStream )
+{
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
+	g_pPlutoLogger->Write(LV_STATUS, "Stopping media in VideoLan_PlugIn!");
+
+	VideoLanMediaStream *pVideoLanMediaStream = NULL;
+
+	if ( (pVideoLanMediaStream = ConvertToVideoLanMediaStream(pMediaStream, "VideoLan_PlugIn::StopMedia() ")) == NULL )
+		return false;
+
+	if( pVideoLanMediaStream->isStreaming() )
+		StopStreaming(pVideoLanMediaStream,NULL);  // NULL=stop all
+	pVideoLanMediaStream->setIsStreaming(false);
+
+	if( !pVideoLanMediaStream->m_pMediaDevice_Source )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Stopping media in VideoLan_PlugIn but mediadevice_source is null");
+		return false;
+	}
+	int PK_Device = pVideoLanMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+	int StreamID = pVideoLanMediaStream->m_iStreamID_get( );
+	int SavedPosition=0;
+	DCE::CMD_Stop_Media cmd(m_dwPK_Device,                          // Send from us
+							PK_Device,  		// Send to the device that is actually playing
+							StreamID,      		// Send the stream ID that we want to actually stop
+							&SavedPosition);
+
+
+// todo -- temporary hack -- Maybe slim can lockup while trying to stop.  
+// Ignore the out paramater until we fix this
+delete cmd.m_pcResponse;
+cmd.m_pcResponse=NULL;
+
+	// TODO: Remove the device from the list of players also.
+	string Response;
+	if( !SendCommand( cmd ) ) // hack - todo see above, &Response ) )
+	{
+		// TODO: handle failure when sending the command. This is ignored now.
+		g_pPlutoLogger->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
+	}
+	else
+	{
+		pVideoLanMediaStream->GetMediaPosition()->m_iSavedPosition = SavedPosition;
+		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(StreamID);
+		if( !pMediaStream || (pVideoLanMediaStream = ConvertToVideoLanMediaStream(pMediaStream, "VideoLan_PlugIn::StopMedia() ")) == NULL )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Stream has vanished or was changed.");
+			return false; // It's ok -- the user just stopped it
+		}
+
+		pVideoLanMediaStream->GetMediaPosition()->m_iSavedPosition=SavedPosition;
+		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped at position: %d",
+											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+											pVideoLanMediaStream->GetMediaPosition()->m_iSavedPosition);
+	}
+
+	return true;
+}
+
+MediaDevice *VideoLan_PlugIn::FindStreamerDevice()
+{
+	int iStreamerDeviceId = 0;
+
+	if ( (iStreamerDeviceId = m_pRouter->FindClosestRelative(DEVICETEMPLATE_VideoLan_Server_CONST, m_dwPK_Device)) <= 0 )
+		return NULL;
+	else
+		return m_pMedia_Plugin->m_mapMediaDevice_Find(iStreamerDeviceId);
+}
+
+bool VideoLan_PlugIn::StopStreaming(VideoLanMediaStream *pVideoLanMediaStream, vector<MediaDevice*> *stopStreamingTargets)
+{
+	if ( ! pVideoLanMediaStream->isStreaming() )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "VideoLan_PlugIn::StopStreaming() Function was called for a MediaStream that is not streaming currently!");
+		return false;
+	}
+
+	vector<MediaDevice*>::const_iterator itDevices;
+	map<int, EntertainArea *>::iterator itEntertainmentAreas;
+
+	if( stopStreamingTargets )
+		itDevices = stopStreamingTargets->begin();
+	else
+		itEntertainmentAreas = pVideoLanMediaStream->m_mapEntertainArea.begin();
+
+	string strSqueezesToStopList = "";
+	while ( true )
+	{
+		MediaDevice *pDevice;
+		if( stopStreamingTargets )
+			pDevice = (*itDevices);
+		else
+			pDevice = (*itEntertainmentAreas).second->m_pMediaDevice_ActiveDest;
+
+		if( pDevice )
+			strSqueezesToStopList += StringUtils::itos(pDevice->m_pDeviceData_Router->m_dwPK_Device) + ",";
+
+		if( stopStreamingTargets && ++itDevices == stopStreamingTargets->end() )
+			break;
+		else if( !stopStreamingTargets && ++itEntertainmentAreas == pVideoLanMediaStream->m_mapEntertainArea.end() )
+			break;
+	}
+
+	g_pPlutoLogger->Write(LV_WARNING, "VideoLan_PlugIn::StopStreaming() Send stop streaming command to the Streamer with targets: %s!", strSqueezesToStopList.c_str());
+	if ( strSqueezesToStopList.size() != 0 )
+	{
+		// send the StopStreaming command to the VideoLanStreamer
+		DCE::CMD_Stop_Streaming stopStreamingCommands(
+				m_dwPK_Device,
+				pVideoLanMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+				pVideoLanMediaStream->m_iStreamID_get(),
+				strSqueezesToStopList);
+
+		SendCommand(stopStreamingCommands);
+	}
+
+	return true;
+}
+
+bool VideoLan_PlugIn::StartStreaming(VideoLanMediaStream *pMediaStream)
+{
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
+	map<int, MediaDevice *>::const_iterator itPlaybackDevices;
+	map<int, MediaDevice *> mapPlaybackDevices;
+	string strTargetDevices = "";
+
+	if ( ! pMediaStream->isStreaming() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Called VideoLan_PlugIn::StartStreaming but with a MediaStream (streamid: %d) that is non streamable.", pMediaStream->m_iStreamID_get());
+		return false;
+	}
+
+	if ( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router == NULL )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "VideoLan_PlugIn::StartStreaming() was passed a stream with a NULL source device! Ignoring request!.");
+		return false;
+	}
+
+	for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
+	{
+		EntertainArea *pEntertainArea = ( *itEA ).second;
+		GetRenderDevices(pEntertainArea, &mapPlaybackDevices);
+	}
+
+	// First get the list of playback devices
+	for ( itPlaybackDevices = mapPlaybackDevices.begin(); itPlaybackDevices != mapPlaybackDevices.end(); itPlaybackDevices++ )
+		strTargetDevices += StringUtils::itos((*itPlaybackDevices).second->m_pDeviceData_Router->m_dwPK_Device) + ",";
+
+	// virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage);
+	itPlaybackDevices = mapPlaybackDevices.begin();
+
+	string resultingURL;
+	DCE::CMD_Start_Streaming startStreamingCommand(
+					m_dwPK_Device,
+					pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+					pMediaStream->m_iStreamID_get(),
+					strTargetDevices,
+					&resultingURL );
+
+	if( !SendCommand(startStreamingCommand) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Send StartStreaming Command failed");
+		return false;
+	}
+
+g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+
+	DCE::CMD_Play_Media cmd(m_dwPK_Device,
+							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+							pMediaStream->GetFilenameToPlay("Empty file name"),
+							pMediaStream->m_iPK_MediaType,
+							pMediaStream->m_iStreamID_get( ),
+							0);//Mihai look into this please pMediaStream->GetMediaPosition()->m_iSavedPosition);
+
+	// No handling of errors (it will in some cases deadlock the router.)
+	SendCommand(cmd);
+	//QueueMessageToRouter(cmd.m_pMessage);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Established streaming configuration: %d -> [%s]!",
+											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+											strTargetDevices.c_str());
+	return true;
+}
+
+MediaDevice *VideoLan_PlugIn::FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea)
+{
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+	MediaDevice *pMediaDevice;
+	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_SqueezeBox_CONST);
+	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
+
+	return pMediaDevice;
+}
