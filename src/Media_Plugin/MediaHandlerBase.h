@@ -19,6 +19,7 @@ namespace DCE
 
 		/** @brief constructor */
 		MediaHandlerBase() { m_iPriority=5; }
+		virtual ~MediaHandlerBase() { }
 
 		int m_iPriority; // If multiple media handlers can handle the same type of media in an area the one with the highest priority will be chosen
 		vector<class MediaHandlerInfo *> m_vectMediaHandlerInfo; // The media handler info's we have
