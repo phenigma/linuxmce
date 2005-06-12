@@ -7,10 +7,12 @@
 #include "Gen_Devices/VideoLan_ClientBase.h"
 //<-dceag-d-e->
 
+#include "utilities/linux/RatpoisonHandler.h"
+
 //<-dceag-decl-b->
 namespace DCE
 {
-	class VideoLan_Client : public VideoLan_Client_Command
+	class VideoLan_Client : public VideoLan_Client_Command, public RatpoisonHandler<VideoLan_Client>
 	{
 //<-dceag-decl-e->
 		// Private member variables
