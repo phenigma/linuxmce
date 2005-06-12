@@ -115,9 +115,19 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 		return;
 	}
 
+	int PK_Device = atoi(pVideoLanServerInstance->m_sStreamingTargets.c_str());
+	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(PK_Device);
+	string sIP;
+	if( pDeviceData_Base->m_sIPAddress.size() )
+		sIP = pDeviceData_Base->m_sIPAddress;
+	else if( pDeviceData_Base->m_pDevice_ControlledVia && pDeviceData_Base->m_pDevice_ControlledVia->m_sIPAddress.size() )
+		sIP = pDeviceData_Base->m_pDevice_ControlledVia->m_sIPAddress;
+
+	g_pPlutoLogger->Write(LV_STATUS,"Device %d %p IP %s",PK_Device,pDeviceData_Base,sIP.c_str());
+
 	pVideoLanServerInstance->m_sFilename = sFilename;
 	pVideoLanServerInstance->m_sCommandLine = "vlc --intf rc \"" + sFilename + 
-		"\" --sout '#standard{access=udp,mux=ts,url=192.168.80.1,sap,name=\"s" + StringUtils::itos(iStreamID) + "\"}'";
+		"\" --sout '#standard{access=udp,mux=ts,url=" + sIP + ",sap,name=\"s" + StringUtils::itos(iStreamID) + "\"}'";
 
 	pthread_create(&pVideoLanServerInstance->m_pthread_t, NULL, SpawnVideoLanServer, (void *) pVideoLanServerInstance);
 
