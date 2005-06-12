@@ -1,5 +1,5 @@
 //
-// C++ Implementation: Xine_Plugin
+// C++ Implementation: SlimServer_PlugIn
 //
 // Description:
 //
@@ -9,34 +9,45 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#include "XineMediaStream.h"
+#include "SlimServerMediaStream.h"
 #include "../Media_Plugin/EntertainArea.h"
 
 #include "pluto_main/Define_MediaType.h"
 
 namespace DCE {
 
-	XineMediaStream::XineMediaStream(
-							class Xine_Plugin *pXinePlugin,
+	SlimServerMediaStream::SlimServerMediaStream(
+							class SlimServer_PlugIn *pSlimServerPlugin,
 							class MediaHandlerInfo *pMediaHandlerInfo,
 							MediaDevice *pMediaDevice,
 							int PK_DesignObj_Remote,
 							int PK_Users,enum SourceType sourceType,int iStreamID)
 				: MediaStream(pMediaHandlerInfo, pMediaDevice, PK_DesignObj_Remote, PK_Users,sourceType, iStreamID)
 	{
+		m_bIsStreaming = 0;
 	}
 
-	XineMediaStream::~XineMediaStream()
+	SlimServerMediaStream::~SlimServerMediaStream()
 	{
 		delete m_pMediaPosition;
 	}
 
-	int XineMediaStream::GetType()
+	int SlimServerMediaStream::GetType()
 	{
-		return MEDIASTREAM_TYPE_XINE;
+		return MEDIASTREAM_TYPE_SLIMSERVER;
 	}
 
-	bool XineMediaStream::ShouldUseStreaming()
+	bool SlimServerMediaStream::isStreaming()
+	{
+		return m_bIsStreaming;
+	}
+
+	void SlimServerMediaStream::setIsStreaming(bool isStreaming)
+	{
+		m_bIsStreaming = isStreaming;
+	}
+
+	bool SlimServerMediaStream::ShouldUseStreaming()
 	{
 		// if we have more than one target device.
 		if ( m_mapEntertainArea.size() > 1 )
@@ -52,39 +63,39 @@ namespace DCE {
 		return false;
 	}
 
-	XineMediaStream::XineMediaPosition *XineMediaStream::GetMediaPosition()
+	SlimServerMediaStream::SlimServerMediaPosition *SlimServerMediaStream::GetMediaPosition()
 	{
 		if ( m_pMediaPosition == NULL )
-			m_pMediaPosition = new XineMediaPosition();
+			m_pMediaPosition = new SlimServerMediaPosition();
 
-		return static_cast<XineMediaStream::XineMediaPosition*>(m_pMediaPosition);
+		return static_cast<SlimServerMediaStream::SlimServerMediaPosition*>(m_pMediaPosition);
 	}
 
-	XineMediaStream::XineMediaPosition::XineMediaPosition()
+	SlimServerMediaStream::SlimServerMediaPosition::SlimServerMediaPosition()
 	{
 		Reset();
 	}
 
-	XineMediaStream::XineMediaPosition::~XineMediaPosition()
+	SlimServerMediaStream::SlimServerMediaPosition::~SlimServerMediaPosition()
 	{
 		// HACK: No-op dtor. But to avoid gcc warnings.
 	}
 
-	void XineMediaStream::XineMediaPosition::Reset()
+	void SlimServerMediaStream::SlimServerMediaPosition::Reset()
 	{
-g_pPlutoLogger->Write(LV_STATUS,"XineMediaPosition reset");
+g_pPlutoLogger->Write(LV_STATUS,"SlimServerMediaPosition reset");
 
 		m_iSavedPosition = 0;
 		m_iTotalStreamTime = 0;
 		m_sSavedPosition = "";
 	}
 
-	string XineMediaStream::XineMediaPosition::GetID()
+	string SlimServerMediaStream::SlimServerMediaPosition::GetID()
 	{
-		return "XineMediaStream::XineMediaPosition class";
+		return "SlimServerMediaStream::SlimServerMediaPosition class";
 	}
 
-	bool XineMediaStream::CanPlayMore()
+	bool SlimServerMediaStream::CanPlayMore()
 	{
 		// do not remove the playlist when we are playing stored audio. (it will just confuse the user)
 		if ( m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST && m_iRepeat != -1)

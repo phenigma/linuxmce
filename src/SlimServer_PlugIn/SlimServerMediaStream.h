@@ -1,5 +1,5 @@
 //
-// C++ Interface: Xine_Plugin
+// C++ Interface: SlimServer_PlugIn
 //
 // Description:
 //
@@ -9,8 +9,8 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#ifndef DCEXINEMEDIASTREAM_H
-#define DCEXINEMEDIASTREAM_H
+#ifndef DCESLIMSERVERMEDIASTREAM_H
+#define DCESLIMSERVERMEDIASTREAM_H
 
 #include "../Media_Plugin/MediaHandlerInfo.h"
 #include "../Media_Plugin/MediaStream.h"
@@ -25,22 +25,24 @@ namespace DCE
 {
 	using namespace std;
 
-	class XineMediaStream : public MediaStream
+	class SlimServerMediaStream : public MediaStream
 	{
 		private:
 			bool					m_bIsStreaming;
 
 		public:
-			XineMediaStream(class Xine_Plugin *pXinePlugin, class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
+			SlimServerMediaStream(class SlimServer_PlugIn *pSlimServerPlugin, class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
 
-			virtual ~XineMediaStream();
+			virtual ~SlimServerMediaStream();
 			virtual int GetType();
 
 			bool ShouldUseStreaming();
+			bool isStreaming();
+			void setIsStreaming(bool isStreaming = true);
 
 			bool CanPlayMore();
 
-			class XineMediaPosition : public MediaPosition
+			class SlimServerMediaPosition : public MediaPosition
 			{
 				public:
 					// data related to stream position. I'm not sure we even need it here because we can always ask the device
@@ -49,13 +51,13 @@ namespace DCE
 					int					m_iTotalStreamTime;
 					string 				m_sSavedPosition;
 
-					XineMediaPosition();
-					virtual ~XineMediaPosition();
+					SlimServerMediaPosition();
+					virtual ~SlimServerMediaPosition();
 					virtual void Reset();
 					virtual string GetID();
 			};
 
-			XineMediaPosition *GetMediaPosition();
+			SlimServerMediaPosition *GetMediaPosition();
 	};
 
 };

@@ -42,8 +42,6 @@ public:
 	// Private member variables
 
 	protected:
-		virtual bool StartStreaming(class XineMediaStream *m_pMediaStream);
-		virtual bool StopStreaming(class XineMediaStream *pXineMediaStream, std::vector<MediaDevice*> *stopStreamingTargets);
 
 		class Orbiter_Plugin *m_pOrbiter_Plugin;
 
@@ -68,11 +66,6 @@ public:
 		*/
 		virtual bool StopMedia( class MediaStream *pMediaStream );
 
-		/**
-		* @brief This will set the media to broadcast mode. (Is this still needed) ?
-		*/
-		virtual bool BroadcastMedia( class MediaStream *pMediaStream );
-
 		virtual MediaDevice *FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea);
 		/**
 		* @brief We need to see all media inserted events so we can start the appropriate media devices
@@ -81,8 +74,6 @@ public:
 		bool MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 		XineMediaStream *ConvertToXineMediaStream(MediaStream *pMediaStream, string callerIdMessage = "");
-
-		MediaDevice *FindStreamerDevice();
 
 	//<-dceag-h-b->
 	/*

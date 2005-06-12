@@ -45,8 +45,6 @@ public:
 		*/
 		virtual bool StopMedia( class MediaStream *pMediaStream );
 
-		virtual bool BroadcastMedia(class MediaStream *pMediaStream) { return true; }
-
 	};
 }
 #endif

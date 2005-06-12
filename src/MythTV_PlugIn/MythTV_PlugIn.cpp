@@ -298,10 +298,6 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 	return true;
 }
 
-bool MythTV_PlugIn::BroadcastMedia(class MediaStream *pMediaStream)
-{
-    return true;
-}
 
 class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID)
 {

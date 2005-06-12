@@ -75,8 +75,6 @@ public:
 
         virtual bool StopMedia(class MediaStream *pMediaStream);
 
-        virtual bool BroadcastMedia(class MediaStream *pMediaStream);
-
 		MythTvMediaStream* ConvertToMythMediaStream(MediaStream *pMediaStream, string callerIdMessage = "");
 
         /** Datagrids */

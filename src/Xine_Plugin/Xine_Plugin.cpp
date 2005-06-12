@@ -89,13 +89,11 @@ bool Xine_Plugin::Register()
 
 	vector<int> vectPK_DeviceTemplate;
 	vectPK_DeviceTemplate.push_back(DEVICETEMPLATE_Xine_Player_CONST);
-	vectPK_DeviceTemplate.push_back(DEVICETEMPLATE_SqueezeBox_Player_CONST);
 	m_pMedia_Plugin->RegisterMediaPlugin( this, this, vectPK_DeviceTemplate, true );
 
-	// We will give ourselves a higher priority and set multipledestinations=false since this 
+	// In our device data we will give ourselves a higher priority and set multipledestinations=false since this 
 	// media handler doesn't do multipledestinations, but, if there's only 1 destination, this
 	// should be chosen over another handler that does streaming since this is more efficient
-	m_iPriority=7;
 	for(size_t s=0;s<m_vectMediaHandlerInfo.size();++s)
 		m_vectMediaHandlerInfo[s]->m_bMultipleDestinations=false;
 
@@ -215,25 +213,8 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StartMedia(): ")) == NULL )
 		return false;
 
-	if ( pXineMediaStream->ShouldUseStreaming() &&
-		(!pXineMediaStream->m_pMediaDevice_Source || pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceCategory != DEVICECATEGORY_Media_Streamers_CONST) )
-	{
-		pXineMediaStream->m_pMediaDevice_Source = FindStreamerDevice();
-	}
-
-	if( pXineMediaStream->m_pMediaDevice_Source && pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceCategory == DEVICECATEGORY_Media_Streamers_CONST )
-	{
-		// Find the destinations for each ent area
-		map<int, EntertainArea *>::iterator itEntertainmentAreas;
-		for ( itEntertainmentAreas = pXineMediaStream->m_mapEntertainArea.begin(); itEntertainmentAreas != pXineMediaStream->m_mapEntertainArea.end(); itEntertainmentAreas++ )
-		{
-			EntertainArea *pEntertainArea = ( *itEntertainmentAreas ).second;
-			pEntertainArea->m_pMediaDevice_ActiveDest = FindMediaDeviceForEntertainArea(pEntertainArea);
-		}
-
-		pXineMediaStream->setIsStreaming();
-		StartStreaming(pXineMediaStream);
-	}
+	if ( pXineMediaStream->ShouldUseStreaming() )
+		return false; // We don't do streaming
 
 	string sFileToPlay = pXineMediaStream->GetFilenameToPlay("Empty file name");
 
@@ -323,31 +304,21 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 		mediaURL = sFileToPlay;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "Is streaming ?: %d", pXineMediaStream->isStreaming() );
+	g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d saved pos %d", 
+		m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+		pMediaStream->m_iDequeMediaFile_Pos, pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
+	DCE::CMD_Play_Media cmd(m_dwPK_Device,
+							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+							mediaURL,
+							pXineMediaStream->m_iPK_MediaType,
+							pXineMediaStream->m_iStreamID_get( ),
+							pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
 
-	// Establish streaming configuration first if this applies here
-	// This is probably needed only if we are doing a direct playback to the target ent area.
-	//	if ( pXineMediaStream->isStreaming() )
- 	//		StartStreaming(pXineMediaStream);
-
-	// If this is streaming, we already called PlayMedia within StartStreaming above
-	if( !pXineMediaStream->isStreaming() )
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d saved pos %d", 
-			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-			pMediaStream->m_iDequeMediaFile_Pos, pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
-		DCE::CMD_Play_Media cmd(m_dwPK_Device,
-								pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-								mediaURL,
-								pXineMediaStream->m_iPK_MediaType,
-								pXineMediaStream->m_iStreamID_get( ),
-								pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
-
-		// No handling of errors (it will in some cases deadlock the router.)
-		SendCommand(cmd);
-	}
+	// No handling of errors (it will in some cases deadlock the router.)
+	SendCommand(cmd);
 
 	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+
 // 	if( !SendCommand( cmd, &Response ) )
 // 		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
 // 					pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
@@ -375,10 +346,6 @@ int k=2;
 
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StopMedia() ")) == NULL )
 		return false;
-
-	if( pXineMediaStream->isStreaming() )
-		StopStreaming(pXineMediaStream,NULL);  // NULL=stop all
-	pXineMediaStream->setIsStreaming(false);
 
 	if( !pXineMediaStream->m_pMediaDevice_Source )
 	{
@@ -425,162 +392,6 @@ cmd.m_pcResponse=NULL;
 	return true;
 }
 
-MediaDevice *Xine_Plugin::FindStreamerDevice()
-{
-	int iStreamerDeviceId = 0;
-
-	if ( (iStreamerDeviceId = m_pRouter->FindClosestRelative(DEVICETEMPLATE_Slim_Server_Streamer_CONST, m_dwPK_Device)) <= 0 )
-		return NULL;
-	else
-		return m_pMedia_Plugin->m_mapMediaDevice_Find(iStreamerDeviceId);
-}
-
-bool Xine_Plugin::StopStreaming(XineMediaStream *pXineMediaStream, vector<MediaDevice*> *stopStreamingTargets)
-{
-	if ( ! pXineMediaStream->isStreaming() )
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Plugin::StopStreaming() Function was called for a MediaStream that is not streaming currently!");
-		return false;
-	}
-
-	vector<MediaDevice*>::const_iterator itDevices;
-	map<int, EntertainArea *>::iterator itEntertainmentAreas;
-
-	if( stopStreamingTargets )
-		itDevices = stopStreamingTargets->begin();
-	else
-		itEntertainmentAreas = pXineMediaStream->m_mapEntertainArea.begin();
-
-	string strSqueezesToStopList = "";
-	while ( true )
-	{
-		MediaDevice *pDevice;
-		if( stopStreamingTargets )
-			pDevice = (*itDevices);
-		else
-			pDevice = (*itEntertainmentAreas).second->m_pMediaDevice_ActiveDest;
-
-		if ( pDevice && pDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
-		{
-			int ignoredPosition; // we will actually query the Slim Server about this
-			// send them separately since the devices can be in a very different places.
-			DCE::CMD_Stop_Media stopMediaCommand(
-					m_dwPK_Device,
-					pDevice->m_pDeviceData_Router->m_dwPK_Device,
-					pXineMediaStream->m_iStreamID_get(), &ignoredPosition);
-			SendCommand(stopMediaCommand);
-		}
-		else if( pDevice )
-			strSqueezesToStopList += StringUtils::itos(pDevice->m_pDeviceData_Router->m_dwPK_Device) + ",";
-
-		if( stopStreamingTargets && ++itDevices == stopStreamingTargets->end() )
-			break;
-		else if( !stopStreamingTargets && ++itEntertainmentAreas == pXineMediaStream->m_mapEntertainArea.end() )
-			break;
-	}
-
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Plugin::StopStreaming() Send stop streaming command to the Streamer with targets: %s!", strSqueezesToStopList.c_str());
-	if ( strSqueezesToStopList.size() != 0 )
-	{
-		// send the StopStreaming command to the SlimServerStreamer
-		DCE::CMD_Stop_Streaming stopStreamingCommands(
-				m_dwPK_Device,
-				pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-				pXineMediaStream->m_iStreamID_get(),
-				strSqueezesToStopList);
-
-		SendCommand(stopStreamingCommands);
-	}
-
-	return true;
-}
-
-bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
-{
-	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-
-	map<int, MediaDevice *>::const_iterator itPlaybackDevices;
-	map<int, MediaDevice *> mapPlaybackDevices;
-	string strTargetDevices = "";
-
-	if ( ! pMediaStream->isStreaming() )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Called Xine_Plugin::StartStreaming but with a MediaStream (streamid: %d) that is non streamable.", pMediaStream->m_iStreamID_get());
-		return false;
-	}
-
-	if ( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router == NULL )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Xine_Plugin::StartStreaming() was passed a stream with a NULL source device! Ignoring request!.");
-		return false;
-	}
-
-	for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
-	{
-		EntertainArea *pEntertainArea = ( *itEA ).second;
-		GetRenderDevices(pEntertainArea, &mapPlaybackDevices);
-	}
-
-	// First get the list of playback devices
-	for ( itPlaybackDevices = mapPlaybackDevices.begin(); itPlaybackDevices != mapPlaybackDevices.end(); itPlaybackDevices++ )
-		strTargetDevices += StringUtils::itos((*itPlaybackDevices).second->m_pDeviceData_Router->m_dwPK_Device) + ",";
-
-	// virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage);
-	itPlaybackDevices = mapPlaybackDevices.begin();
-	while ( itPlaybackDevices != mapPlaybackDevices.end() )
-	{
-		MediaDevice *pMediaDevice = (*itPlaybackDevices).second;
-
-		// when we are starting streaming on xine players we need to point them to the slim server device
-		if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Sending CMD_Play_Media slim server connection command to the xine player");
-
-			DCE::CMD_Play_Media playMediaCommand(
-					m_dwPK_Device,
-					pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-					"slim://" + pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->GetIPAddress() + "/",
-					pMediaStream->m_iPK_MediaType,
-					pMediaStream->m_iStreamID_get(), 0);
-			SendCommand(playMediaCommand);
-g_pPlutoLogger->Write(LV_CRITICAL,"Finished sending playback to xine %d",pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
-		}
-
-		itPlaybackDevices++;
-	}
-
-	string resultingURL;
-	DCE::CMD_Start_Streaming startStreamingCommand(
-					m_dwPK_Device,
-					pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-					pMediaStream->m_iStreamID_get(),
-					strTargetDevices,
-					&resultingURL );
-
-	if( !SendCommand(startStreamingCommand) )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Send StartStreaming Command failed");
-		return false;
-	}
-
-g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
-
-	DCE::CMD_Play_Media cmd(m_dwPK_Device,
-							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-							pMediaStream->GetFilenameToPlay("Empty file name"),
-							pMediaStream->m_iPK_MediaType,
-							pMediaStream->m_iStreamID_get( ),
-							0);//Mihai look into this please pMediaStream->GetMediaPosition()->m_iSavedPosition);
-
-	// No handling of errors (it will in some cases deadlock the router.)
-	SendCommand(cmd);
-	//QueueMessageToRouter(cmd.m_pMessage);
-
-	g_pPlutoLogger->Write(LV_STATUS, "Established streaming configuration: %d -> [%s]!",
-											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-											strTargetDevices.c_str());
-	return true;
-}
 
 MediaDevice *Xine_Plugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea)
 {
@@ -596,27 +407,12 @@ MediaDevice *Xine_Plugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntert
 				DEVICETEMPLATE_Xine_Player_CONST,
 				pEntertainArea->m_iPK_EntertainArea);
 
-		pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_SqueezeBox_Player_CONST);
-
-		if ( pMediaDevice == NULL )
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "No squeeze box device (device template id: %d) was found in the entertainment area: %d. Ignoring this ent area ",
-				DEVICETEMPLATE_SqueezeBox_Player_CONST,
-				pEntertainArea->m_iPK_EntertainArea);
-
-			return NULL;
-		}
+		return NULL;
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	return pMediaDevice;
-}
-
-bool Xine_Plugin::BroadcastMedia( class MediaStream *pMediaStream )
-{
-	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-	return true;
 }
 
 bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )

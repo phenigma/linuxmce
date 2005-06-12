@@ -27,7 +27,6 @@ namespace DCE
 		virtual class MediaStream *CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo,vector<class EntertainArea *> &vectEntertainArea,MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeMediaFile,int StreamID)=0;
 		virtual bool StartMedia(class MediaStream *pMediaStream)=0;
 		virtual bool StopMedia(class MediaStream *pMediaStream)=0;
-		virtual bool BroadcastMedia(class MediaStream *pMediaStream)=0;
 
 		// Given a stream, what is the rendering device(s).  The source device is stored in the stream.  Normally the source and rendering are the same (dvd player, for example).
 		// But sometimes the source may be a back-end streamer, and the rendering device(s) some network audio players.  The framework needs
