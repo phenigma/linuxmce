@@ -69,7 +69,7 @@
 #define DEVICEDATA_Channel_CONST 81
 #define DEVICEDATA_Leave_Monitor_on_for_OSD_CONST 84
 #define DEVICEDATA_Priority_CONST 85
-#define DEVICEDATA_Ignore_State_CONST 86
+#define DEVICEDATA_Ignore_State_CONST 87
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
