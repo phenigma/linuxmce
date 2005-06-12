@@ -18,7 +18,7 @@ namespace DCE
 		class Media_Plugin *m_pMedia_Plugin;
 
 		/** @brief constructor */
-		MediaHandlerBase() { m_iPriority=5; }
+		MediaHandlerBase() { }
 		virtual ~MediaHandlerBase() { }
 
 		int m_iPriority; // If multiple media handlers can handle the same type of media in an area the one with the highest priority will be chosen

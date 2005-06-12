@@ -68,6 +68,7 @@ Xine_Plugin::~Xine_Plugin()
 bool Xine_Plugin::Register()
 //<-dceag-reg-e->
 {
+	m_iPriority=DATA_Get_Priority();
 	m_pMedia_Plugin=NULL;
 	ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Media_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )

@@ -219,11 +219,11 @@ int k=2;
         {
             if( GraphicType==1 )
                 o=GetParm(DESIGNOBJPARAMETER_Graphic_Filename_CONST,true);
-            else if( GraphicType==2 )
+            else if( GraphicType==2 && !m_pOrbiterGenerator->m_bIgnoreSelected )
                 o=GetParm(DESIGNOBJPARAMETER_Selected_Graphic_Fil_CONST,true);
-            else if( GraphicType==3 )
+            else if( GraphicType==3 && !m_pOrbiterGenerator->m_bIgnoreHighlighted)
                 o=GetParm(DESIGNOBJPARAMETER_Highlighted_Graphic_CONST,true);
-            else
+            else if( !m_pOrbiterGenerator->m_bIgnoreAlt )
                 o=GetParm(DESIGNOBJPARAMETER_Alt_Graphic_File_CONST,true);
         }
 

@@ -1,11 +1,11 @@
-#include "VideoLAN_PlugInBase.h"
+#include "VideoLan_PlugInBase.h"
 #include "DeviceData_Impl.h"
 #include "Logger.h"
 
 using namespace DCE;
-#include "VideoLAN_PlugInBase.h"
-extern VideoLAN_PlugIn_Command *Create_VideoLAN_PlugIn(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-DeviceData_Impl *VideoLAN_PlugIn_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
+#include "VideoLan_PlugInBase.h"
+extern VideoLan_PlugIn_Command *Create_VideoLan_PlugIn(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
+DeviceData_Impl *VideoLan_PlugIn_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position
 	SerializeClass b;
@@ -15,22 +15,22 @@ DeviceData_Impl *VideoLAN_PlugIn_Data::CreateData(DeviceData_Impl *Parent,char *
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
 		case 1696:
-			return new VideoLAN_PlugIn_Data();
+			return new VideoLan_PlugIn_Data();
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
 	return NULL;
 }
 
-Event_Impl *VideoLAN_PlugIn_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice )
+Event_Impl *VideoLan_PlugIn_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice )
 {
 	switch(dwPK_DeviceTemplate) {
 		case 1696:
-			return (Event_Impl *) new VideoLAN_PlugIn_Event(pOCClientSocket, dwDevice);
+			return (Event_Impl *) new VideoLan_PlugIn_Event(pOCClientSocket, dwDevice);
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
 	return NULL;
 }
-Command_Impl  *VideoLAN_PlugIn_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
+Command_Impl  *VideoLan_PlugIn_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
 	return NULL;

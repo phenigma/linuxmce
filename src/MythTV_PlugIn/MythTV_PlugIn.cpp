@@ -57,6 +57,7 @@ MythTV_PlugIn::~MythTV_PlugIn()
 bool MythTV_PlugIn::Register()
 //<-dceag-reg-e->
 {
+	m_iPriority=DATA_Get_Priority();
     /** Get a pointer to the media plugin */
     m_pMedia_Plugin=NULL;
     ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find(DEVICETEMPLATE_Media_Plugin_CONST);

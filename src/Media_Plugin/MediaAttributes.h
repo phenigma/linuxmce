@@ -125,6 +125,14 @@ public:
 		m_dwPK_File=pMediaAttributes->GetFileIDFromFilePath(sFullyQualifiedFile);
 	}
 
+	MediaFile(MediaFile *pMediaFile_Copy) {
+		m_dwPK_File=pMediaFile_Copy->m_dwPK_File;
+		m_sPath=pMediaFile_Copy->m_sPath;
+		m_sFilename=pMediaFile_Copy->m_sFilename;
+		m_sDescription=pMediaFile_Copy->m_sDescription;
+	}
+
+
 	MediaFile(Row_PlaylistEntry *pRow_PlaylistEntry) {
 		m_dwPK_File=pRow_PlaylistEntry->FK_File_get(); 
 		m_sPath=pRow_PlaylistEntry->Path_get();

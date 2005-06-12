@@ -82,6 +82,12 @@ using namespace DCE;
 #define MAX_MEDIA_COLORS    5 // We need some unique colors to color-code the media streams
 int UniqueColors[MAX_MEDIA_COLORS];
 
+// For sorting by priority
+static bool MediaHandlerComparer(MediaHandlerInfo *x, MediaHandlerInfo *y)
+{
+	return x->m_pMediaHandlerBase->m_iPriority<y->m_pMediaHandlerBase->m_iPriority;
+}
+
 MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 {
 	UniqueColors[0] = PlutoColor(128,0,0).m_Value;
@@ -595,11 +601,11 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     return true;
 }
 
-void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, string sPK_DesignObj, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream)
+void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, string sPK_DesignObj, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream)
 {
-	if( !iPK_MediaType && dequeMediaFile->size() )
+	if( !iPK_MediaType && p_dequeMediaFile->size() )
 	{
-        string Extension = StringUtils::ToUpper(FileUtils::FindExtension((*dequeMediaFile)[0]->m_sFilename));
+        string Extension = StringUtils::ToUpper(FileUtils::FindExtension((*p_dequeMediaFile)[0]->m_sFilename));
 
 		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
 
@@ -622,16 +628,44 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 		return;
 	}
 
-	// Find the media handlers we're going to need
-	map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
+	// Find the media handlers we're going to need.  If everything can be handled by one
+	// handler, vectEA_to_MediaHandler will only have 1 element.  Otherwise it will have an
+	// element for each handler we need to use (which will translate to a stream for each)
+	// and the list of entertainment areas
+	vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > vectEA_to_MediaHandler;
 
-	GetMediaHandlersForEA(iPK_MediaType, vectEntertainArea, mapMediaHandlerInfo);
+	GetMediaHandlersForEA(iPK_MediaType, vectEntertainArea, vectEA_to_MediaHandler);
 
-	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
+	// If there are 2 or more stream and we have a deque of mediafiles, make copies of them
+	// so each stream will have it's own and won't share, causing duplicate deletes when the stream
+	// is closed
+	deque<MediaFile *> *p_dequeMediaFile_Copy=NULL;
+	if( vectEA_to_MediaHandler.size()>1 && p_dequeMediaFile && p_dequeMediaFile->size() )
+		p_dequeMediaFile_Copy = p_dequeMediaFile;
+
+	for(size_t s=0;s<vectEA_to_MediaHandler.size();++s)
 	{
+		MediaHandlerInfo *pMediaHandlerInfo = vectEA_to_MediaHandler[s].first;
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from MH Play Media2");
-		StartMedia(it->second,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+
+		if( p_dequeMediaFile_Copy )
+		{
+			p_dequeMediaFile = new deque<MediaFile *>;
+			for(size_t sFile=0;sFile<p_dequeMediaFile_Copy->size();++sFile)
+				(*p_dequeMediaFile).push_back( new MediaFile((*p_dequeMediaFile_Copy)[sFile]) );
+
+		}
+
+		StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,vectEA_to_MediaHandler[s].second,
+			iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,p_dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+
+		if( p_dequeMediaFile_Copy )
+			delete p_dequeMediaFile;
 	}
+
+	if( p_dequeMediaFile_Copy )
+		for(size_t s=0;s<p_dequeMediaFile_Copy->size();++s)
+			delete (*p_dequeMediaFile_Copy)[s];
 }
 
 MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
@@ -1240,7 +1274,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 	}
 }
 
-void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement)
+void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea)
 {
 	if ( pMediaStream == NULL )
 	{
@@ -1264,6 +1298,13 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 				pMediaStream_Replacement->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaStream_Replacement->m_mapEntertainArea.end() &&
 				pMediaStream_Replacement->ContainsVideo()==pMediaStream->ContainsVideo() )
 			bFireEvent=false;
+
+		for(size_t s=0;p_vectEntertainArea && s<p_vectEntertainArea->size();++s)
+			if( (*p_vectEntertainArea)[s]==pEntertainArea )
+			{
+				bFireEvent=false;
+				break;
+			}
 
 		MediaInEAEnded(pEntertainArea,bFireEvent);
 
@@ -2604,148 +2645,35 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 
 	g_pPlutoLogger->Write(LV_WARNING,"Move Media, stream %d  ea: %s",iStreamID,sPK_EntertainArea.c_str());
 
-	// cases:
-        // the stream only play in an entertainment area.
-            // in this case we should look to see if the current ent area is in the list of the requested ent ares.
-                // if not then we put this one in the list of ent areas to be stopped.
-                // if it is we just have a list of ent areas that need to need to be started on.
-        // the stream already plays in multiple entertainment area.
-            // find out which of the current playing entertainment areas should be stopped (iterate and look to see
-                // which one is not in the list of areas that need to be started on).
 
-    // at this point we have 2 lists:
-        // - the list of the ent areas that need to stop playing
-        // - the list of the ent areas that need to start playing.
+	vector<EntertainArea *> vectEntertainArea;
+    DetermineEntArea(0,0,sPK_EntertainArea,vectEntertainArea);
 
-    // we need the master device (the one which will act as a server). Issues
-        // the stream was already using a master device (means that the stream was already streaming in multiple ent areas)
-            // and the master device is in the list of the currently playing ent areas. (easy: it will continue to be the master).
-        // the stream was already using a master device (means that the stream was already streaming in multiple ent areas)
-            // but the master is not in the list of the future playing devices.
-                // we should either stop it and elect a new master from the target areas list. or we could continue to use the old one.
-                // the first solution will contain the problem in the future somehow (you only use your own resources) but the second
-                // is simpler to implement quickly but it will probably create unwanted conflicts in the certain use cases.
-        // the stream was not using a master device to stream data. It was only a simple stream.
-            // if the source device is in the desired list of playing devices it will become the master.
-            // if not we will have to stop the playback there and start it on the new master device which is going to be elected
-                // from the target ent areas list.
-
-    // now we should have 3 items:
-        // - the new master device (if it was the old master then we don't do anything. If it is a new one we should restart the media from the place that it was stopped )
-        // - the list of devices to send stop commands (this can contain the the old master as well if this apply).
-        // - the list of devices to send play from stream commands.
-
-    // We will first issue stop commands where appliable. (this should be passed )
-    // make a new ent area list which will contain the target ent areas
-    //  (with the change that we will put our preferred master device at the strat of the list) and pass it to plugin Move/Play Media Command. ?
-
-	map<int, EntertainArea *> mapRequestedAreas;
-
-    string::size_type nPosition = 0;
-    string sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-	while ( sCurrentEntArea.length() )
-    {
-		int iPK_EntertainArea = atoi(sCurrentEntArea.c_str());
-		if ( iPK_EntertainArea == 0 ) // sanity check. We need this here since the m_mapEntertainAreas_Find() can't handle 0 as an entertainment area. :-(
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "The string %s could not be converted to a valid number (it should be a not 0 number but it converted to 0)", sCurrentEntArea.c_str());
-			sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-			continue;
-		}
-
-		EntertainArea *realEntertainmentArea = m_mapEntertainAreas_Find(iPK_EntertainArea);
-
-		if ( realEntertainmentArea == NULL )
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Could not map the %d ent area id to a real entertatainment area", iPK_EntertainArea);
-			sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-			continue;
-		}
-
-		mapRequestedAreas[iPK_EntertainArea] = realEntertainmentArea;
-		sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-	}
-
-	// now we have transformed the desired ent areas spec (id1, id2, id3) into a real structure { {id1 -> EntertainArea *}, {id2 -> EntertainArea *}, {id3 -> EntertainArea *}}
-	// we will walk it to see what is already playing and what is not already playing. We need to have 3 lists in the end.
-	//      - the list of devices that should stop playing
-	//      - the list of devices that should start playing
-	//      - the list of devices which probably need a change in the way that they are playing now ()
-	//  Those 3 should be passed the the media plugin info object in the end.
-
-	// The building of lists. Walk the list of current ent areas.
-	//      - if the area is in the target list we will put in the update list and remove it from the target list
-	//      - if the area is not in the target list we will put in the remove list
-	//
-	//  In the end the remove list is the list to stop media on, the update list is the list which probably need to have the MediaURL updated on
-	//          (if we migrate the media from one machine to anoter or .. ) and what is remained in the target list is the list of the devices that need
-	//          media to be started on
-
-	list<EntertainArea *> listStop, listChange, listStart;
-
-	map<int,class EntertainArea *>::iterator itEntAreas;
-	for ( itEntAreas  = pMediaStream->m_mapEntertainArea.begin(); itEntAreas != pMediaStream->m_mapEntertainArea.end(); itEntAreas++)
-	{
-		class EntertainArea *pEntertainArea_Playing = (*itEntAreas).second;
-		if ( mapRequestedAreas.find(pEntertainArea_Playing->m_iPK_EntertainArea) != mapRequestedAreas.end() )
-		{
-			mapRequestedAreas.erase(pEntertainArea_Playing->m_iPK_EntertainArea);
-			listChange.push_back(pEntertainArea_Playing);
-		}
-		else
-			listStop.push_back(pEntertainArea_Playing);
-	}
-
-	// make the proper start list by walking what is remained in the target list. We can't clean it at the same time since i don't know the semantics.
-	for ( itEntAreas = mapRequestedAreas.begin(); itEntAreas != mapRequestedAreas.end(); itEntAreas++ )
-		listStart.push_back((*itEntAreas).second);
-
-	list<EntertainArea *>::iterator itList;
-
-	string output = "";
-	for ( itList = listStop.begin(); itList != listStop.end(); itList++ )
-		output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
-
-	g_pPlutoLogger->Write(LV_STATUS, "Stop list: %s", output.c_str());
-
-	output = "";
-	for ( itList = listStart.begin(); itList != listStart.end(); itList++ ) output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
-	g_pPlutoLogger->Write(LV_STATUS, "Start list: %s", output.c_str());
-
-	output = "";
-	for ( itList = listChange.begin(); itList != listChange.end(); itList++ ) output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
-	g_pPlutoLogger->Write(LV_STATUS, "Change list: %s", output.c_str());
-
-	g_pPlutoLogger->Write(LV_STATUS, "Calling move media on the plugin!");
-
-	bool bNothingMoreToPlay = mapRequestedAreas.size()==0 && listChange.size()==0;
+	bool bNothingMoreToPlay = vectEntertainArea.size()==0;
 	g_pPlutoLogger->Write( LV_STATUS, "Calling StopMedia" );
 	pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
 	g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
-	StreamEnded(pMediaStream,true,bNothingMoreToPlay);
+	StreamEnded(pMediaStream,true,bNothingMoreToPlay,NULL,&vectEntertainArea);
 
 	if( !bNothingMoreToPlay )
 	{
-		pMediaStream->m_mapEntertainArea=mapRequestedAreas;
-		// Add back in the ones we're restarting that were playing already
-		for ( itList = listChange.begin(); itList != listChange.end(); itList++ )
-			pMediaStream->m_mapEntertainArea[(*itList)->m_iPK_EntertainArea] = *itList;
 
-g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) mapRequestedAreas.size());
-		if( pMediaStream->m_mapEntertainArea.size() )
-		{
-			// Be sure all outgoing stop messages are flushed before we proceed
-g_pPlutoLogger->Write(LV_WARNING,"ready to call wait for message queue");
-			WaitForMessageQueue();
-			pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->WaitForMessageQueue();
+g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) vectEntertainArea.size());
+		// Be sure all outgoing stop messages are flushed before we proceed
+		WaitForMessageQueue();
+		pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->WaitForMessageQueue();
 
-			// Find a new source
-			pMediaStream->m_pMediaDevice_Source = GetMediaDeviceForEA(pMediaStream->m_iPK_MediaType,
-				pMediaStream->m_mapEntertainArea.begin()->second);
-g_pPlutoLogger->Write(LV_WARNING,"calling startmedia from move - Found a new source %d",
-pMediaStream->m_pMediaDevice_Source ? pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device : 0 );
-			StartMedia(pMediaStream);
-		}
+		// TODO --- Hmmm... I was passing in pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device
+		// instead of 0, but that means that when moving from 1 xine to another, it thinks the source isn't the dest
+		// and it doesn't play.  Change this to 0, but a better solution is probably that the plugin figures this out
+		// since sometimes the source will be preserved across moves maybe???
+		StartMedia( pMediaStream->m_iPK_MediaType, (pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
+			vectEntertainArea, 0,
+			StringUtils::itos(pMediaStream->m_iPK_DesignObj_Remote), 
+			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat);
+
+		pMediaStream->m_dequeMediaFile.clear();  // We don't want to delete the media files since we will have re-used the same pointers above
+		delete pMediaStream; // We will have started with new copies
 	}
 }
 
@@ -3292,7 +3220,7 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 		{
 			vector<EntertainArea *> vectEntertainArea;
 			vectEntertainArea.push_back( pMediaDevice->m_mapEntertainArea.begin()->second );
-
+/*
 			map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
 			GetMediaHandlersForEA(MEDIATYPE_pluto_LiveTV_CONST, vectEntertainArea, mapMediaHandlerInfo);
 
@@ -3301,6 +3229,7 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 				g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Auto start TV");
 				StartMedia(it->second,0,vectEntertainArea,0, 0,NULL,false,0);  // We'll let the plug-in figure out the source, and we'll use the default remote
 			}
+*/
 		}
 	}
 	return true;
@@ -3445,12 +3374,16 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 		delete p_vectDevice;
 }
 
-void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,vector<EntertainArea *> &vectEntertainArea, map<int,MediaHandlerInfo *> &mapMediaHandlerInfo)
+void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler)
 {
+	// This function needs to find a media handler for every entertainment area.  This map will store all our possibilities
+	// of handlers and what entertainment areas they can support.  We'll first populate the map, then pick the best matches
+	// to store in vectEA_to_MediaHandler
+	map<MediaHandlerInfo *, vector<EntertainArea *> > mapMediaHandlerInfo;
 	for(size_t s=0;s<vectEntertainArea.size();++s)
 	{
 		EntertainArea *pEntertainArea=vectEntertainArea[s];
-		MediaHandlerInfo *pMediaHandlerInfo=NULL;
+
 		// See if there's a media handler for this type of media in this area
 		List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find(iPK_MediaType);
 		if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
@@ -3459,17 +3392,79 @@ void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,vector<EntertainArea 
 			if( pRow_MediaType && pRow_MediaType->DCEAware_get()==0 )
 			{
 				g_pPlutoLogger->Write( LV_STATUS, "Play media type %d in entertain area %d with generic handler", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
-				pMediaHandlerInfo = m_pGenericMediaHandlerInfo;
-				pMediaHandlerInfo->m_PK_MediaType = iPK_MediaType; // Just temporary for start media.  We're in a mutex
+				m_pGenericMediaHandlerInfo->m_PK_MediaType = iPK_MediaType; // Just temporary for start media.  We're in a mutex
+				mapMediaHandlerInfo[m_pGenericMediaHandlerInfo].push_back(pEntertainArea);
 			}
 			else
 				g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
 		}
 		else
-			pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+		{
+			for( List_MediaHandlerInfo::iterator it=pList_MediaHandlerInfo->begin();it!=pList_MediaHandlerInfo->end();++it )
+			{
+				MediaHandlerInfo *pMediaHandlerInfo = *it;
+				mapMediaHandlerInfo[pMediaHandlerInfo].push_back(pEntertainArea);
+			}
+		}
+	}
 
-		if( pMediaHandlerInfo )
-			mapMediaHandlerInfo[pMediaHandlerInfo->m_MediaHandlerID]=pMediaHandlerInfo;
+	if( mapMediaHandlerInfo.size()==1 && (vectEntertainArea.size()==1 || mapMediaHandlerInfo.begin()->first->m_bMultipleDestinations) )
+	{
+		// It's easy, save ourselves the trouble of searching we've got 1 handler and it can take care of it
+		vectEA_to_MediaHandler.push_back( make_pair< MediaHandlerInfo *,vector<EntertainArea *> >(mapMediaHandlerInfo.begin()->first,mapMediaHandlerInfo.begin()->second) );
+		return;
+	}
+
+	// It's more work, we need to prioritize the handlers and start making assignments from the top
+	list<MediaHandlerInfo *> listMediaHandlerInfo;
+	for( map<MediaHandlerInfo *, vector<EntertainArea *> >::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it )
+		listMediaHandlerInfo.push_back( it->first );
+	listMediaHandlerInfo.sort(MediaHandlerComparer);
+
+	// Now a map to keep track of which EA's we have matched
+	map<int,bool> mapMatched;
+	for(size_t s=0;s<vectEntertainArea.size();++s)
+		mapMatched[ vectEntertainArea[s]->m_iPK_EntertainArea ] = false;
+
+	vector<EntertainArea *> vEmpty;  // Just an empty vect since we're creating new ones on the stack
+
+	// Now, we're going to make 2 passes if we have more than 1 EA.  First we'll find handlers that can play multiple
+	// areas, reducing the number of redundant streams, and then on the 2nd pass pick up EA's not yet serviced
+	bool bMultipleEA = vectEntertainArea.size()>1;
+	for(int pass=0;pass< ( bMultipleEA ? 2 : 1); ++pass)
+	{
+		for( list<MediaHandlerInfo *>::iterator it=listMediaHandlerInfo.begin();it!=listMediaHandlerInfo.end();++it )
+		{
+			MediaHandlerInfo *pMediaHandlerInfo = *it;
+			if( bMultipleEA && pass==0 && !pMediaHandlerInfo->m_bMultipleDestinations )
+				continue;
+
+			bool bAlreadyUsed=false;  // We'll set this to true when we assign a media handler to allow for splitting into multiple entries if the device can't handle more than 1 EA
+			bool bNeedToStartWithEmpty=true;  // The first time we find a match we know we need to start with a new empty vect
+
+			// Get all the possible EA's
+			vector<EntertainArea *> *pvect_EntertainArea = &mapMediaHandlerInfo[pMediaHandlerInfo];
+			for(size_t s=0;s<pvect_EntertainArea->size();++s)
+			{
+				// And fill in the ones we didn't match
+				if( !mapMatched[ (*pvect_EntertainArea)[s]->m_iPK_EntertainArea ] )
+				{
+					if( bAlreadyUsed || bNeedToStartWithEmpty ) // Start with a new empty vector if we already used it and can't handle multiple EA's
+					{
+						vectEA_to_MediaHandler.push_back( make_pair< MediaHandlerInfo *,vector<EntertainArea *> >(
+							pMediaHandlerInfo,vEmpty) );
+						bNeedToStartWithEmpty=false;
+					}
+
+					// Mark it as matched, and add it to the vect we just created
+					mapMatched[ (*pvect_EntertainArea)[s]->m_iPK_EntertainArea ]=true;
+					vectEA_to_MediaHandler.back().second.push_back( (*pvect_EntertainArea)[s] );
+					if( !pMediaHandlerInfo->m_bMultipleDestinations )
+						bAlreadyUsed=true;  // Don't re-use this it can't handle multiple destinations
+
+				}
+			}
+		}
 	}
 }
 

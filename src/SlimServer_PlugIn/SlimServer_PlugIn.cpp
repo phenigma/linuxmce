@@ -40,11 +40,12 @@ SlimServer_PlugIn::~SlimServer_PlugIn()
 bool SlimServer_PlugIn::Register()
 //<-dceag-reg-e->
 {
+	m_iPriority=DATA_Get_Priority();
 	m_pMedia_Plugin=NULL;
 	ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Media_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Xine plug in cannot find media handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+		g_pPlutoLogger->Write( LV_CRITICAL, "SlimServer plug in cannot find media handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
 
@@ -125,11 +126,10 @@ class MediaStream *SlimServer_PlugIn::CreateMediaStream( class MediaHandlerInfo 
 	}
 
 	if ( pMediaDevice != NULL  && // test the media device only if it set
-		 pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate != DEVICETEMPLATE_Xine_Player_CONST &&
 	     pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate != DEVICETEMPLATE_SqueezeBox_Player_CONST )
 	{
 		pMediaDevice_PassedIn = pMediaDevice;
-		pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(m_pRouter->FindClosestRelative(DEVICETEMPLATE_Xine_Player_CONST, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device));
+		pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(m_pRouter->FindClosestRelative(DEVICETEMPLATE_SqueezeBox_Player_CONST, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device));
 	}
 
 	if ( !pMediaDevice )
@@ -236,23 +236,6 @@ bool SlimServer_PlugIn::StartMedia( class MediaStream *pMediaStream )
 	//	if ( pSlimServerMediaStream->isStreaming() )
  	//		StartStreaming(pSlimServerMediaStream);
 
-	// If this is streaming, we already called PlayMedia within StartStreaming above
-	if( !pSlimServerMediaStream->isStreaming() )
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d saved pos %d", 
-			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-			pMediaStream->m_iDequeMediaFile_Pos, pSlimServerMediaStream->GetMediaPosition()->m_iSavedPosition);
-		DCE::CMD_Play_Media cmd(m_dwPK_Device,
-								pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-								mediaURL,
-								pSlimServerMediaStream->m_iPK_MediaType,
-								pSlimServerMediaStream->m_iStreamID_get( ),
-								pSlimServerMediaStream->GetMediaPosition()->m_iSavedPosition);
-
-		// No handling of errors (it will in some cases deadlock the router.)
-		SendCommand(cmd);
-	}
-
 	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 // 	if( !SendCommand( cmd, &Response ) )
 // 		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
@@ -296,7 +279,7 @@ bool SlimServer_PlugIn::StopMedia( class MediaStream *pMediaStream )
 							&SavedPosition);
 
 
-// todo -- temporary hack -- Xine can lockup while trying to stop.  
+// todo -- temporary hack -- Maybe slim can lockup while trying to stop.  
 // Ignore the out paramater until we fix this
 delete cmd.m_pcResponse;
 cmd.m_pcResponse=NULL;
@@ -362,17 +345,7 @@ bool SlimServer_PlugIn::StopStreaming(SlimServerMediaStream *pSlimServerMediaStr
 		else
 			pDevice = (*itEntertainmentAreas).second->m_pMediaDevice_ActiveDest;
 
-		if ( pDevice && pDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
-		{
-			int ignoredPosition; // we will actually query the Slim Server about this
-			// send them separately since the devices can be in a very different places.
-			DCE::CMD_Stop_Media stopMediaCommand(
-					m_dwPK_Device,
-					pDevice->m_pDeviceData_Router->m_dwPK_Device,
-					pSlimServerMediaStream->m_iStreamID_get(), &ignoredPosition);
-			SendCommand(stopMediaCommand);
-		}
-		else if( pDevice )
+		if( pDevice )
 			strSqueezesToStopList += StringUtils::itos(pDevice->m_pDeviceData_Router->m_dwPK_Device) + ",";
 
 		if( stopStreamingTargets && ++itDevices == stopStreamingTargets->end() )
@@ -429,27 +402,6 @@ bool SlimServer_PlugIn::StartStreaming(SlimServerMediaStream *pMediaStream)
 
 	// virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage);
 	itPlaybackDevices = mapPlaybackDevices.begin();
-	while ( itPlaybackDevices != mapPlaybackDevices.end() )
-	{
-		MediaDevice *pMediaDevice = (*itPlaybackDevices).second;
-
-		// when we are starting streaming on xine players we need to point them to the slim server device
-		if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Xine_Player_CONST )
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Sending CMD_Play_Media slim server connection command to the xine player");
-
-			DCE::CMD_Play_Media playMediaCommand(
-					m_dwPK_Device,
-					pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-					"slim://" + pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->GetIPAddress() + "/",
-					pMediaStream->m_iPK_MediaType,
-					pMediaStream->m_iStreamID_get(), 0);
-			SendCommand(playMediaCommand);
-g_pPlutoLogger->Write(LV_CRITICAL,"Finished sending playback to xine %d",pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
-		}
-
-		itPlaybackDevices++;
-	}
 
 	string resultingURL;
 	DCE::CMD_Start_Streaming startStreamingCommand(
@@ -487,29 +439,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %
 MediaDevice *SlimServer_PlugIn::FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea)
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-
 	MediaDevice *pMediaDevice;
-	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_Xine_Player_CONST);
-
-	g_pPlutoLogger->Write(LV_STATUS, "Looking for a proper device in the ent area %d (%s)", pEntertainArea->m_iPK_EntertainArea, pEntertainArea->m_sDescription.c_str());
-	if ( pMediaDevice == NULL )
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Could not find a Xine Player device (with device template id: %d) in the entertainment area: %d. Looking for a squeeze box.",
-				DEVICETEMPLATE_Xine_Player_CONST,
-				pEntertainArea->m_iPK_EntertainArea);
-
-		pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_SqueezeBox_Player_CONST);
-
-		if ( pMediaDevice == NULL )
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "No squeeze box device (device template id: %d) was found in the entertainment area: %d. Ignoring this ent area ",
-				DEVICETEMPLATE_SqueezeBox_Player_CONST,
-				pEntertainArea->m_iPK_EntertainArea);
-
-			return NULL;
-		}
-	}
-
+	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_SqueezeBox_Player_CONST);
 	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	return pMediaDevice;

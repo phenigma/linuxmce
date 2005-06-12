@@ -1,5 +1,5 @@
-#ifndef VideoLAN_PlugInBase_h
-#define VideoLAN_PlugInBase_h
+#ifndef VideoLan_PlugInBase_h
+#define VideoLan_PlugInBase_h
 #include "DeviceData_Impl.h"
 #include "Message.h"
 #include "Command_Impl.h"
@@ -9,11 +9,11 @@ namespace DCE
 {
 //   OUR EVENT CLASS 
 
-class VideoLAN_PlugIn_Event : public Event_Impl
+class VideoLan_PlugIn_Event : public Event_Impl
 {
 public:
-	VideoLAN_PlugIn_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,1696, ServerAddress, bConnectEventHandler) {};
-	VideoLAN_PlugIn_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
+	VideoLan_PlugIn_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,1696, ServerAddress, bConnectEventHandler) {};
+	VideoLan_PlugIn_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
 };
@@ -21,13 +21,13 @@ public:
 
 //   OUR DATA CLASS 
 
-class VideoLAN_PlugIn_Data : public DeviceData_Impl
+class VideoLan_PlugIn_Data : public DeviceData_Impl
 {
 public:
-	virtual ~VideoLAN_PlugIn_Data() {};
+	virtual ~VideoLan_PlugIn_Data() {};
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1696; } ;
-	virtual const char *GetDeviceDescription() { return "VideoLAN_PlugIn"; } ;
+	virtual const char *GetDeviceDescription() { return "VideoLan_PlugIn"; } ;
 	int Get_Priority() { return atoi(m_mapParameters[85].c_str());}
 };
 
@@ -35,22 +35,22 @@ public:
 
 //   OUR COMMAND CLASS 
 
-class VideoLAN_PlugIn_Command : public Command_Impl
+class VideoLan_PlugIn_Command : public Command_Impl
 {
 public:
-	VideoLAN_PlugIn_Command(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL)
+	VideoLan_PlugIn_Command(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL)
 	: Command_Impl(DeviceID, ServerAddress, bLocalMode, pRouter)
 	{
 		if( m_bLocalMode )
 			return;
 		m_pData=NULL;
-		m_pEvent = new VideoLAN_PlugIn_Event(DeviceID, ServerAddress);
+		m_pEvent = new VideoLan_PlugIn_Event(DeviceID, ServerAddress);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
 			throw "Cannot get configuration data";
-		m_pData = new VideoLAN_PlugIn_Data();
+		m_pData = new VideoLan_PlugIn_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
 		delete[] pConfig;
@@ -60,11 +60,11 @@ public:
 		m_pData->m_pEvent_Impl = m_pEvent;
 		m_pcRequestSocket = new Event_Impl(DeviceID, 1696,ServerAddress);
 	};
-	VideoLAN_PlugIn_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
-	virtual ~VideoLAN_PlugIn_Command() {};
-	VideoLAN_PlugIn_Event *GetEvents() { return (VideoLAN_PlugIn_Event *) m_pEvent; };
-	VideoLAN_PlugIn_Data *GetData() { return (VideoLAN_PlugIn_Data *) m_pData; };
-	const char *GetClassName() { return "VideoLAN_PlugIn_Command"; };
+	VideoLan_PlugIn_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
+	virtual ~VideoLan_PlugIn_Command() {};
+	VideoLan_PlugIn_Event *GetEvents() { return (VideoLan_PlugIn_Event *) m_pEvent; };
+	VideoLan_PlugIn_Data *GetData() { return (VideoLan_PlugIn_Data *) m_pData; };
+	const char *GetClassName() { return "VideoLan_PlugIn_Command"; };
 	virtual int PK_DeviceTemplate_get() { return 1696; };
 	static int PK_DeviceTemplate_get_static() { return 1696; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };

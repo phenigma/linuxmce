@@ -250,7 +250,7 @@ public:
 	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
 	// For each MD, all it's direct children go in the same room, and if it has an on-screen Orbiter, it's direct children too
 	void PutMDsChildrenInRoom(DeviceData_Router *pDeviceData_Router);
-	void GetMediaHandlersForEA(int iPK_MediaType,vector<EntertainArea *> &vectEntertainArea, map<int,MediaHandlerInfo *> &mapMediaHandlerInfo);
+	void GetMediaHandlersForEA(int iPK_MediaType,vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler);
 	MediaDevice *GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *pEntertainArea);
 
     /**
@@ -346,7 +346,7 @@ public:
 	// If the new stream we're starting has bResume true, then bDeleteStream==false so we don't delete the stream since we'll be resuming it
 	// If a new stream is replacing an old one, pMediaStream_Replacement is set to the new stream so we know if we should
 	// fire the watching/listening events again.
-	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL);
+	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL,vector<EntertainArea *> *p_vectEntertainArea=NULL);
 	void MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent=true);
 
 	virtual bool SafeToReload(string *sPendingTasks=NULL);

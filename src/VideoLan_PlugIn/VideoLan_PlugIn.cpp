@@ -40,6 +40,7 @@ VideoLan_PlugIn::~VideoLan_PlugIn()
 bool VideoLan_PlugIn::Register()
 //<-dceag-reg-e->
 {
+	m_iPriority=DATA_Get_Priority();
 	m_pMedia_Plugin=NULL;
 	ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Media_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
@@ -438,7 +439,7 @@ MediaDevice *VideoLan_PlugIn::FindMediaDeviceForEntertainArea(EntertainArea *pEn
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	MediaDevice *pMediaDevice;
-	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_SqueezeBox_CONST);
+	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_VideoLan_Client_CONST);
 	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	return pMediaDevice;

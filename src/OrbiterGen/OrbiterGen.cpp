@@ -333,6 +333,20 @@ int OrbiterGenerator::DoIt()
 // HACK - TEMPORARILY DISABLE EFFECTS
 m_bNoEffects = true;
 
+
+	// Get the ignore state flag
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Ignore_State_CONST);
+	if( pRow_Device_DeviceData )
+	{
+		string sIgnoreState = pRow_Device_DeviceData->IK_DeviceData_get();
+		m_bIgnoreSelected = sIgnoreState.find('S')!=string::npos;
+		m_bIgnoreHighlighted = sIgnoreState.find('H')!=string::npos;
+		m_bIgnoreAlt = sIgnoreState.find('A')!=string::npos;
+	}
+	else
+		m_bIgnoreSelected = m_bIgnoreHighlighted = m_bIgnoreAlt = false;
+
+
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Use_OCG_Format_CONST);
 	if( pRow_Device_DeviceData )
 		m_bUseOCG = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())==1;
