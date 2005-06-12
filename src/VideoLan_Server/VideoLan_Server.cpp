@@ -118,10 +118,15 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	int PK_Device = atoi(pVideoLanServerInstance->m_sStreamingTargets.c_str());
 	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(PK_Device);
 	string sIP;
-	if( pDeviceData_Base->m_sIPAddress.size() )
-		sIP = pDeviceData_Base->m_sIPAddress;
-	else if( pDeviceData_Base->m_pDevice_ControlledVia && pDeviceData_Base->m_pDevice_ControlledVia->m_sIPAddress.size() )
-		sIP = pDeviceData_Base->m_pDevice_ControlledVia->m_sIPAddress;
+	while( pDeviceData_Base )
+	{
+		if( pDeviceData_Base->m_sIPAddress.size() )
+		{
+			sIP = pDeviceData_Base->m_sIPAddress;
+			break;
+		}
+		pDeviceData_Base = pDeviceData_Base->m_pDevice_ControlledVia;
+	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"Device %d %p IP %s",PK_Device,pDeviceData_Base,sIP.c_str());
 
