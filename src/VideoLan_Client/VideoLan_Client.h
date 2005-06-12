@@ -7,17 +7,25 @@
 #include "Gen_Devices/VideoLan_ClientBase.h"
 //<-dceag-d-e->
 
-#include "utilities/linux/RatpoisonHandler.h"
+class RatPoisonWrapper;
 
 //<-dceag-decl-b->
 namespace DCE
 {
-	class VideoLan_Client : public VideoLan_Client_Command, public RatpoisonHandler<VideoLan_Client>
+	class VideoLan_Client : public VideoLan_Client_Command
 	{
 //<-dceag-decl-e->
 		// Private member variables
+        RatPoisonWrapper            *m_pRatWrapper;
 
 		// Private methods
+        void selectWindow();
+        bool checkWindowName(long unsigned int window, string windowName);
+
+		// This should be Window but if i put #include <X11/Xlib.h>  in this it will break the compilation.
+        bool locateVlcFrontendWindow(long unsigned int window);
+
+		bool checkXServerConnection();
 public:
 		// Public member variables
 

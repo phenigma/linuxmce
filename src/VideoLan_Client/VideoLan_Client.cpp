@@ -12,13 +12,27 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-void* SpawnVideoLanClient(void* param) 
+#include "utilities/linux/RatpoisonHandler.h"
+
+#include "X11/Xlib.h"
+#include "X11/Xutil.h"
+#include "X11/keysym.h"
+#include <X11/extensions/XTest.h>
+
+#define VLC_WINDOW_NAME "vlc"
+// This shoould be the class name of the gimageview application
+#define LOGO_APPLICATION_NAME "gimageview"
+
+class RatPoisonWrapper : public RatpoisonHandler<RatPoisonWrapper>
 {
-	VideoLanClientInstance *pVideoLanClientInstance = (VideoLanClientInstance *) param;
-	g_pPlutoLogger->Write(LV_STATUS,"Spawning: %s for stream %d",pVideoLanClientInstance->m_sCommandLine.c_str(),pVideoLanClientInstance->m_iStreamID);
-	system(pVideoLanClientInstance->m_sCommandLine.c_str());
-	return NULL;
-}
+    Display *display;
+
+public:
+    RatPoisonWrapper(Display *display) : display(display) {}
+    Display *getDisplay() { return display; }
+    void commandRatPoison(string command) { RatpoisonHandler<RatPoisonWrapper>::commandRatPoison(command); }
+};
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -26,6 +40,8 @@ VideoLan_Client::VideoLan_Client(int DeviceID, string ServerAddress,bool bConnec
 	: VideoLan_Client_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+    m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+    m_iVideoLanWindowId = 0;
 }
 
 //<-dceag-const2-b->
@@ -200,6 +216,18 @@ void VideoLan_Client::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
 
 	string sCommand = "vlc --intf rc -f \"" + sFilename + "\"";
+
+	if ( ! m_pRatWrapper )
+        m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+
+//	m_pRatWrapper->commandRatPoison(":select " LOGO_APPLICATION_NAME);
+	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", VLC_WINDOW_NAME);
+
+    selectWindow();
+    locateVlcFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+
+/*
+
 	VideoLanClientInstance *pVideoLanClientInstance = new VideoLanClientInstance(this,iStreamID,sCommand);
 	pthread_create(&pVideoLanClientInstance->m_pthread_t, NULL, SpawnVideoLanClient, (void *) pVideoLanClientInstance);
 
@@ -214,6 +242,72 @@ void VideoLan_Client::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	g_pPlutoLogger->Write(LV_STATUS,"active Unnamed");
     makeActive("Unnamed");
 	Sleep(5000);
+*/
+}
+
+bool VideoLan_Client::checkXServerConnection()
+{
+	if ( ! m_pRatWrapper || ! m_pRatWrapper->getDisplay() )
+	{
+		if ( !m_pRatWrapper )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "The ratpoison command handler value is null. This usually means the XServer connection is down or useless");
+			return false;
+		}
+
+		if ( !m_pRatWrapper->getDisplay() )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "The Display* value in the ratpoison command handler is null. This ususally means the XServer connection is down or useless");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void VideoLan_Client::selectWindow()
+{
+    m_pRatWrapper->commandRatPoison(":select " VLC_WINDOW_NAME);
+}
+
+bool VideoLan_Client::checkWindowName(long unsigned int window, string windowName)
+{
+    XTextProperty text;
+
+	if ( ! checkXServerConnection())
+		return false;
+
+	if ( XGetWMName (m_pRatWrapper->getDisplay(), window, &text) && windowName == string((const char*)text.value) )
+        return true;
+
+    return false;
+}
+
+bool VideoLan_Client::locateVlcFrontendWindow(long unsigned int window)
+{
+    Window parent_win, root_win, *child_windows;
+    unsigned int num_child_windows;
+
+	if ( ! checkXServerConnection())
+		return false;
+
+    if ( checkWindowName(window, VLC_WINDOW_NAME ) )
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Found window id: 0x%x", window );
+        m_iMythFrontendWindowId = window;
+        return true;
+    }
+
+    XQueryTree(m_pRatWrapper->getDisplay(), (Window)window, &root_win, &parent_win, &child_windows, &num_child_windows);
+
+    for ( unsigned int i = 0; i < num_child_windows; i++ )
+        if ( locateVlcFrontendWindow(child_windows[i]) )
+            return true;
+
+    /* we need to free the list of child IDs, as it was dynamically allocated */
+    /* by the XQueryTree function.                                            */
+    XFree(child_windows);
+    return false;
 }
 
 //<-dceag-c38-b->

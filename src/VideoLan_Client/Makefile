@@ -3,30 +3,28 @@ GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
-CXXFLAGS = -Wall -fPIC -ggdb3
+CXXFLAGS = -Wall -fPIC -ggdb3 -fmessage-length=0
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-EXTERNAL_LIBS_NAMES = mysqlclient_r pthread jpeg
+EXTERNAL_LIBS_NAMES = mysqlclient_r pthread
 INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 MYNAME = VideoLan_Client
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 5mplateID
+MYDEVTEMPLATEID = 35mplateID
 
 Gen_Dev_Files = $(GENDEV)/VideoLan_ClientBase.cpp
 sources = Main.cpp VideoLan_Client.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS += -fmessage-length=0
+CXXFLAGS +=
 CPPFLAGS +=
-LDFLAGS += -L/usr/X11R6/lib -L/usr/lib
+LDFLAGS += -L/usr/X11R6/lib
 INTERNAL_LIBS_NAMES +=
-EXTERNAL_LIBS_NAMES += z nsl rt png X11 m Xext Xxf86vm Xtst
-
-XTRALDLIBS =
+EXTERNAL_LIBS_NAMES += Xtst
 
 Gen_Dev_Files +=
-sources +=  
+sources += 
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
@@ -48,7 +46,6 @@ VideoLan_Client.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.
 
 VideoLan_Client: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.so) Makefile
 	$(CXX) -o $(MYNAME) $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
-#	mv ../bin/$@ ../bin/$@.bak
 	cp $@ ../bin
 	./post_make.sh $@
 
@@ -64,4 +61,3 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
 endif
 #<-dceag-mf-e->
-
