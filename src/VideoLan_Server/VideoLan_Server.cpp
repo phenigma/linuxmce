@@ -15,6 +15,10 @@ using namespace DCE;
 #include "PlutoUtils/ProcessUtils.h"
 
 #ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it..
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 VideoLan_Server *g_pVideoLan_Server = NULL;
 
 void sh(int i) /* signal handler */
