@@ -33,6 +33,8 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+		void ProcessExited(int pid, int status);
+
 //<-dceag-const2-b->!
 
 //<-dceag-h-b->

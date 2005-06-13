@@ -14,6 +14,25 @@ using namespace DCE;
 
 #include "PlutoUtils/ProcessUtils.h"
 
+#ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it..
+VideoLan_Server *g_pVideoLan_Server = NULL;
+
+void sh(int i) /* signal handler */
+{
+    if ( g_pVideoLan_Server && g_pVideoLan_Server->m_bQuit )
+		return;
+
+    int status = 0;
+    pid_t pid = 0;
+
+
+    pid = wait(&status);
+
+    if ( g_pVideoLan_Server )
+        g_pVideoLan_Server->ProcessExited(pid, status);
+}
+#endif
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -23,6 +42,10 @@ VideoLan_Server::VideoLan_Server(int DeviceID, string ServerAddress,bool bConnec
 	, m_VideoLanMutex("videolan")
 {
 	m_VideoLanMutex.Init(NULL);
+#ifndef WIN32
+	g_pVideoLan_Server = this;
+    signal(SIGCHLD, sh); /* install handler */
+#endif
 }
 
 //<-dceag-const2-b->!
@@ -129,7 +152,7 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 
 	pVideoLanServerInstance->m_sFilename = sFilename;
 	pVideoLanServerInstance->m_sCommandLine = "--intf\trc\t" + sFilename + 
-		"\t--sout\t#standard{access=udp,mux=ts,url=" + sIP + ",sap,name=\"s" + StringUtils::itos(iStreamID) + "}";
+		"\t--sout\t#standard{access=udp,mux=ts,url=" + sIP + ",sap,name=\"s" + StringUtils::itos(iStreamID) + "\"}";
 	pVideoLanServerInstance->m_sSpawnName = "vlc_s_" + StringUtils::itos(iStreamID);
 	
 
@@ -380,4 +403,15 @@ void VideoLan_Server::CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,
 
 	m_mapVideoLanServerInstance.erase(iStreamID);
 
+}
+
+void VideoLan_Server::ProcessExited(int pid, int status)
+{
+	string applicationName;
+	void *data;
+
+	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
+		g_pPlutoLogger->Write(LV_WARNING, "VideoLan_Server::ProcessExited() Child with pid %d was not found in our internal data structure. Ignoring signal!", pid);
+	else
+		g_pPlutoLogger->Write(LV_WARNING, "VideoLan_Server::ProcessExited() Child with pid %d terminated", pid);
 }
