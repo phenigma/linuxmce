@@ -19,6 +19,9 @@ using namespace DCE;
 #include "X11/Xutil.h"
 #include "X11/keysym.h"
 #include <X11/extensions/XTest.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define VLC_WINDOW_NAME "vlc"
 // This shoould be the class name of the gimageview application
