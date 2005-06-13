@@ -1,5 +1,5 @@
 <?
-function avWizard($output,$dbADO) {
+function mediaDirectors($output,$dbADO) {
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -7,25 +7,19 @@ function avWizard($output,$dbADO) {
 	$userID = (int)@$_SESSION['userID'];
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
-	$type = isset($_REQUEST['type'])?cleanString($_REQUEST['type']):'avEquipment';
 	$installationID = (int)@$_SESSION['installationID'];
 
 	$pvrArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['PVRCaptureCards'],'ORDER BY Description ASC');
 	$soundArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['SoundCards'],'ORDER BY Description ASC');
 	$videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['VideoCards'],'ORDER BY Description ASC');
+	$audioSettingsArray=array('M'=>'Manual settings', 'C'=>'SPDIF Coax', 'O'=>'SPDIF TosLink', 'S'=>'Stereo', 'L'=>'Multi-channel analog');
+	$videoSettingsArray=array('M'=>'Manual', '640'=>'640x480', '800'=>'800x600', '1024'=>'1024x768', '1224'=>'1280x1024', '1600'=>'1600x1200', '480P'=>'480p', '720P'=>'720p', '1280I'=>'1280i', '1280P'=>'1280P');
+	$refreshArray=array('50'=>'50 hz', '60'=>'60 hz', '72'=>'72 hz','75'=>'75 hz', '80'=>'80 hz');
+	
+	$deviceCategory=$GLOBALS['rootMediaDirectors'];
+	$specificFloorplanType=$GLOBALS['EntertainmentZone'];
+	$output->setHelpSrc('/support/index.php?section=document&docID=129');
 
-	switch($type){
-		case 'avEquipment':
-			$deviceCategory=$GLOBALS['rootAVEquipment'];
-			$specificFloorplanType=$GLOBALS['AVEquipmentFlorplanType'];
-			$title='A/V Equipment';
-			$output->setHelpSrc('/support/index.php?section=document&docID=131');
-		break;
-		case 'media_directors':
-			header("Location: index.php?section=mediaDirectors");
-			exit();
-		break;
-	}
 	// get selected category Device Templates
 	getDeviceCategoryChildsArray($deviceCategory,$dbADO);
 	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
@@ -42,7 +36,7 @@ function avWizard($output,$dbADO) {
 		$DTArray[]=$rowDeviceCategory['Description'];
 		$DTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
 	}
-	
+
 	// get AV Device Templates
 	unset($GLOBALS['childsDeviceCategoryArray']);
 	getDeviceCategoryChildsArray($GLOBALS['rootAVEquipment'],$dbADO);
@@ -58,8 +52,7 @@ function avWizard($output,$dbADO) {
 	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
 		$avDTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
 	}
-	
-	
+
 	$queryRooms='SELECT * FROM Room WHERE FK_Installation=? ORDER BY Description ASC';
 	$resRooms=$dbADO->Execute($queryRooms,$installationID);
 	$roomIDArray=array();
@@ -89,33 +82,11 @@ function avWizard($output,$dbADO) {
 	</script>
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div class="confirm" align="center"><B>'.strip_tags(@$_GET['msg']).'</B></div>
-	<form action="index.php" method="POST" name="avWizard">
-	<input type="hidden" name="section" value="avWizard">
-	<input type="hidden" name="type" value="'.$type.'">
+	<form action="index.php" method="POST" name="mediaDirectors">
+	<input type="hidden" name="section" value="mediaDirectors">
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">			
-	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>';
-		if($type=='avEquipment'){
-			$out.='<a href="index.php?section=connectionWizard">Connection Wizard</a>';
-			$queryDevice='
-				SELECT Device.* 
-				FROM Device
-				WHERE FK_DeviceTemplate=? AND Device.FK_Installation=?';
-			$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['rootCoreID'],$installationID));
-			if($resDevice->RecordCount()!=0){
-				$rowDevice=$resDevice->FetchRow();
-				$coreID=$rowDevice['PK_Device'];
-			}
-			if(isset($coreID)){
-				$resDevice_StartupScript=$dbADO->Execute('SELECT * FROM Device_StartupScript WHERE FK_Device=? AND FK_StartupScript=?',array($coreID,$GLOBALS['ShareIRCodes']));
-				$rowShare=$resDevice_StartupScript->FetchRow();
-				$sharedWithOthers=($rowShare['Enabled']==1)?1:0;
-			}
-			
-			$out.='<div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> Share my I/R codes with other Pluto users.</div>';
-			$out.='	<input type="hidden" name="coreID" value="'.$coreID.'">
-					<input type="hidden" name="oldShareIRCodes" value="'.((@$sharedWithOthers>0)?'1':'0').'">';
-		}
+	<div align="center"><h3>Media Directors</h3></div>';
 		
 		$infraredAndSpecialisedDevices=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
 		$specialisedAndComputerDevices=getDevicesFromCategories(array($GLOBALS['rootComputerID'],$GLOBALS['specialized']),$dbADO);
@@ -124,7 +95,7 @@ function avWizard($output,$dbADO) {
 		<table align="center" border="0" cellpadding="2" cellspacing="0">
 				<tr>
 					<td align="center"><B>Device</B></td>
-					<td align="center"><B>Room '.(($type!='media_directors')?'/ Controlled by':'').'</B></td>';
+					<td align="center"><B>Room</B></td>';
 		$out.='
 					<td align="center"><B>Output</B></td>
 					<td align="center"><B>Connected to</B></td>
@@ -147,7 +118,7 @@ function avWizard($output,$dbADO) {
 					$displayedAVDevicesDescription[]=$rowD['Description'];
 				}
 				$resDevice->Close();
-
+				
 				$queryConnectedToDevices='
 					SELECT DISTINCT Device.*
 					FROM Device 
@@ -160,13 +131,12 @@ function avWizard($output,$dbADO) {
 					$conD[$rowConD['PK_Device']]=$rowConD['Description'];
 				}
 				$resConnectedToDevices->Close();
-			
+							
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();
 				$DDTypesToDisplay=array();	
 				$joinArray=$DTIDArray;	
 				$joinArray[]=0; 	// used only for query when there are no DT in selected category
-				$orderFilter=($type!='media_directors')?'ORDER BY FK_Device_ControlledVia DESC, Device.Description ASC':'';
 				$queryDevice='
 					SELECT 
 						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased,DeviceTemplate_AV.UsesIR,FK_DeviceCategory
@@ -175,7 +145,7 @@ function avWizard($output,$dbADO) {
 						LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate
 						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 						INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
-					WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=? '.$orderFilter;	
+					WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=? ';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				$childOf=array();
 				while($rowD=$resDevice->FetchRow()){
@@ -272,7 +242,7 @@ function avWizard($output,$dbADO) {
 					$audioInputPulldown.='</select>';
 					
 					$audioConnectToPulldown='<input type="hidden" name="oldAudioPipe_'.$rowD['PK_Device'].'" value="'.@$toDevice.','.$audioInput.','.$audioOutput.'"><a name="AudioPipe_'.$rowD['PK_Device'].'"></a>
-					<select name="audioConnectTo_'.$rowD['PK_Device'].'" onChange="document.avWizard.cmd.value=1;document.forms[0].submit();">
+					<select name="audioConnectTo_'.$rowD['PK_Device'].'" onChange="document.mediaDirectors.cmd.value=1;document.forms[0].submit();">
 						<option value="0"></option>';
 					foreach($conD AS $key=>$device){
 						if($key!=$rowD['PK_Device'])
@@ -281,9 +251,11 @@ function avWizard($output,$dbADO) {
 					$audioConnectToPulldown.='</select>';
 					
 					$deviceDataBox='';
+					$oldAudioDD=null;
+					$oldVideoDD=null;
 					foreach($DeviceDataToDisplay as $key => $value){
 						$queryDDforDevice='
-							SELECT DeviceData.Description, ParameterType.Description AS typeParam, Device_DeviceData.IK_DeviceData,ShowInWizard,ShortDescription,AllowedToModify,DeviceTemplate_DeviceData.Description AS Tooltip
+							SELECT DeviceData.Description, ParameterType.Description AS typeParam, Device_DeviceData.IK_DeviceData,ShowInWizard,ShortDescription,AllowedToModify,DeviceTemplate_DeviceData.Description AS Tooltip,PK_DeviceData
 							FROM DeviceData 
 							INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
 							INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
@@ -295,6 +267,17 @@ function avWizard($output,$dbADO) {
 	
 						$rowDDforDevice=$resDDforDevice->FetchRow();
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
+						$oldAudioDD=($rowDDforDevice['PK_DeviceData']==$GLOBALS['AudioSettings'])?$rowDDforDevice['IK_DeviceData']:$oldAudioDD;
+						if(!is_null($oldAudioDD)){
+							$oldAudioSettings=(substr($oldAudioDD,-1)=='3')?substr($oldAudioDD,0,-1):$oldAudioDD;
+							$oldAC3=(substr($oldAudioDD,-1)=='3')?'checked':'';
+						}
+						$oldVideoDD=($rowDDforDevice['PK_DeviceData']==$GLOBALS['VideoSettings'])?$rowDDforDevice['IK_DeviceData']:$oldVideoDD;
+						if(!is_null($oldVideoDD)){
+							$oldVideoDDArray=explode('/',$oldVideoDD);
+							$oldResolution=@$oldVideoDDArray[0];
+							$oldRefresh=@$oldVideoDDArray[1];
+						}
 						
 						if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='') && @$resDDforDevice->RecordCount()>0){
 							$deviceDataBox.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle"> ':'');
@@ -349,21 +332,10 @@ function avWizard($output,$dbADO) {
 					}
 					
 					$buttons='';
-					if($type=='avEquipment'){
-						$buttons.='	<input type="button" class="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
-							<input type="button" class="button" name="btn" value="IR/GSD Codes" onClick="windowOpen(\'index.php?section=irCodes&from=avWizard&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>';
-					}
 					$buttons.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(confirm(\'Are you sure you want to delete this device?\'))return true;else return false;"></td>';
 					
 					
-					if($type!='media_directors'){
-						$controlledByPulldown=controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO);
-
-					unset($GLOBALS['DeviceIDControlledVia']);
-					unset($GLOBALS['DeviceControlledVia']);
-				}else {
 					$controlledByPulldown='&nbsp;';
-				}
 
 				$videoOutputPulldown='<select name="videoOutput_'.$rowD['PK_Device'].'" '.((@$childOf[$rowD['PK_Device']]=='')?'':'disabled').'>
 						<option value="0"></option>';
@@ -401,7 +373,7 @@ function avWizard($output,$dbADO) {
 					
 					$videoConnectToPulldown='<input type="hidden" name="oldVideoPipe_'.$rowD['PK_Device'].'" value="'.@$toDevice.','.$videoInput.','.$videoOutput.'">
 						<a name="VideoPipe_'.$rowD['PK_Device'].'"></a>
-					<select name="videoConnectTo_'.$rowD['PK_Device'].'" onChange="document.avWizard.cmd.value=1;document.forms[0].submit();" '.((@$childOf[$rowD['PK_Device']]=='')?'':'disabled').'>
+					<select name="videoConnectTo_'.$rowD['PK_Device'].'" onChange="document.mediaDirectors.cmd.value=1;document.forms[0].submit();" '.((@$childOf[$rowD['PK_Device']]=='')?'':'disabled').'>
 						<option value="0"></option>';
 					foreach($conD AS $key=>$device){
 						if($key!=$rowD['PK_Device'])
@@ -469,41 +441,35 @@ function avWizard($output,$dbADO) {
 					<td>'.$videoInputPulldown.'</td>
 				</tr>';
 				}
-				if($type=='media_directors'){
-					$orbiterMDChild=getMediaDirectorOrbiterChild($rowD['PK_Device'],$dbADO);
-					if($orbiterMDChild){
-						$pvrDevice=getSubDT($rowD['PK_Device'],$GLOBALS['PVRCaptureCards'],$dbADO);
-						$soundDevice=getSubDT($rowD['PK_Device'],$GLOBALS['SoundCards'],$dbADO);
-						$videoDevice=getSubDT($rowD['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
-						$out.='
+				$orbiterMDChild=getMediaDirectorOrbiterChild($rowD['PK_Device'],$dbADO);
+				if($orbiterMDChild){
+					$pvrDevice=getSubDT($rowD['PK_Device'],$GLOBALS['PVRCaptureCards'],$dbADO);
+					$soundDevice=getSubDT($rowD['PK_Device'],$GLOBALS['SoundCards'],$dbADO);
+					$videoDevice=getSubDT($rowD['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
+					$out.='
 						<tr class="normaltext">
 							<td colspan="7">
 								<table>
 									<tr>
-										<td>PVR Capture Card</td>
-										<td>'.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],$pvrDevice,'None').'</td>
-										<td>Sound Card</td>
-										<td>'.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').'</td>
-										<td>Video Card</td>
-										<td>'.htmlPulldown($videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'
+										<td valign="top">PVR Capture Card</td>
+										<td valign="top">'.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],$pvrDevice,'None').'</td>
+										<td align="right">Sound Card '.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').'<br>
+										Audio settings '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],$oldAudioSettings).'<br>
+										AC3 passthrough <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.$oldAC3.'></td>
+										<td align="right">Video Card '.htmlPulldown($videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
+										Resolution: '.pulldownFromArray($videoSettingsArray,'videoSettings_'.$rowD['PK_Device'],$oldResolution).'<br>
+										Refresh: '.pulldownFromArray($refreshArray,'refresh_'.$rowD['PK_Device'],$oldRefresh).'
 									</tr>
 								</table>
 							</td>
 						</tr>';
-						
-						$out.='
+
+					$out.='
 						<tr>
 							<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$mdDistro,1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO).'<br>'.displayReceivers($rowD['PK_Device'],$dbADO).'<hr></td>
 						</tr>';
-						$setupDisklessMD=' <input type="button" class="button" name="setupDisklessMD" value="Setup Diskless Media Directors *" onClick="windowOpen(\'operations/logs/executeLog.php?script=1\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');">';
-						$setupDisklessMDInfo='* When you add a new diskless M/D, you must first click this button, wait for the setup process to complete, then do a ‘quick reload router’, and then you can bootup your new diskless media director.';
-					}
-
-				}else {
-					$out.='
-						<tr>
-							<td colspan="8"><hr></td>
-						</tr>';					
+					$setupDisklessMD=' <input type="button" class="button" name="setupDisklessMD" value="Setup Diskless Media Directors *" onClick="windowOpen(\'operations/logs/executeLog.php?script=1\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');">';
+					$setupDisklessMDInfo='* When you add a new diskless M/D, you must first click this button, wait for the setup process to complete, then do a ‘quick reload router’, and then you can bootup your new diskless media director.';
 				}
 			}
 			$out.='
@@ -521,15 +487,15 @@ function avWizard($output,$dbADO) {
 			}
 			$out.='
 				<tr>
-					<td colspan="8">'.(($type!='media_directors')?'* PK_FloorplanObjectType in red has no picture available':'').'&nbsp;</td>
+					<td colspan="8">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
-		 	var frmvalidator = new formValidator("avWizard");
+		 	var frmvalidator = new formValidator("mediaDirectors");
  //			frmvalidator.addValidation("Description","req","Please enter a device description");			
 //	 		frmvalidator.addValidation("masterDevice","dontselect=0","Please select a Device Template!");			
 		</script>
@@ -541,7 +507,7 @@ function avWizard($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=avWizard&type=$type&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=mediaDirectors&type=$type&error=You are not authorised to change the installation.");
 			exit(0);
 		}
 		
@@ -588,13 +554,8 @@ function avWizard($output,$dbADO) {
 						$updateDevice='UPDATE Device SET Description=?, FK_Room=?, FK_Device_ControlledVia=? '.@$updateMacIp.' WHERE PK_Device=?';
 						$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
 					}else{
-						if($type=='media_directors'){
-							$updateDevice='UPDATE Device SET Description=?, FK_Room=? '.@$updateMacIp.' WHERE PK_Device=?';
-							$dbADO->Execute($updateDevice,array($description,$room,$value));
-						}else{
-							$updateDevice='UPDATE Device SET Description=? '.@$updateMacIp.' WHERE PK_Device=?';
-							$dbADO->Execute($updateDevice,array($description,$value));
-						}
+						$updateDevice='UPDATE Device SET Description=?, FK_Room=? '.@$updateMacIp.' WHERE PK_Device=?';
+						$dbADO->Execute($updateDevice,array($description,$room,$value));
 					}
 					foreach($DeviceDataToDisplayArray as $ddValue){
 						$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;
@@ -687,35 +648,37 @@ function avWizard($output,$dbADO) {
 						}
 					}
 
-					if($type=='media_directors'){
-						$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
-						$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$orbiterMDChild]);
-						foreach($installOptionsArray AS $elem){
-							$oldDevice=@$_POST['oldDevice_'.$orbiterMDChild.'_requiredTemplate_'.$elem];
-							$optionalDevice=(isset($_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]))?$_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]:0;
-							if($optionalDevice!=0){
-								$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
-								
-								if($oldDevice==''){
-									$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$orbiterMDChild);
-									$dbADO->Execute('UPDATE Device SET Description=?,FK_Room=? WHERE PK_Device=?',array($OptionalDeviceName,$room,$insertID));
-								}
-							}else{
-								if($oldDevice!=''){
-									deleteDevice($oldDevice,$dbADO);
-								}
+
+					$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
+					$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$orbiterMDChild]);
+					foreach($installOptionsArray AS $elem){
+						$oldDevice=@$_POST['oldDevice_'.$orbiterMDChild.'_requiredTemplate_'.$elem];
+						$optionalDevice=(isset($_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]))?$_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]:0;
+						if($optionalDevice!=0){
+							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
+
+							if($oldDevice==''){
+								$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$orbiterMDChild);
+								$dbADO->Execute('UPDATE Device SET Description=?,FK_Room=? WHERE PK_Device=?',array($OptionalDeviceName,$room,$insertID));
+							}
+						}else{
+							if($oldDevice!=''){
+								deleteDevice($oldDevice,$dbADO);
 							}
 						}
-						// add/delete PVR Capture Card, sound card and video card
-						$pvrDT=$_POST['PVRCaptureCard_'.$value];
-						recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$room,$dbADO);
-						$soundDT=$_POST['SoundCard_'.$value];
-						recreateDevice($value,$GLOBALS['SoundCards'],$soundDT,$_SESSION['installationID'],$room,$dbADO);
-						$videoDT=$_POST['VideoCard_'.$value];
-						recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$room,$dbADO);
-						
 					}
+					// add/delete PVR Capture Card, sound card and video card
+					$pvrDT=$_POST['PVRCaptureCard_'.$value];
+					recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$room,$dbADO);
+					$soundDT=$_POST['SoundCard_'.$value];
+					recreateDevice($value,$GLOBALS['SoundCards'],$soundDT,$_SESSION['installationID'],$room,$dbADO);
+					$videoDT=$_POST['VideoCard_'.$value];
+					recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$room,$dbADO);
+
+
 					processReceiver($value,$dbADO);
+					processAudioSettings($value,$dbADO);
+					processVideoSettings($value,$dbADO);		
 				}
 			}
 			
@@ -723,7 +686,7 @@ function avWizard($output,$dbADO) {
 			exec($commandToSend);
 		}
 		processRemotes($dbADO);
-				
+		
 		if(isset($_REQUEST['add'])){
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
@@ -732,24 +695,19 @@ function avWizard($output,$dbADO) {
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 				exec($commandToSend);
-				
-				if(isInfrared($deviceTemplate,$dbADO)){
-					// add video port
-					$dbADO->Execute('INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData) VALUES (?,?)',array($insertID,$GLOBALS['InfraredPort']));
-				}
 			}
-			header("Location: index.php?section=avWizard&type=$type&lastAdded=$deviceTemplate#deviceLink_".@$insertID);
+			header("Location: index.php?section=mediaDirectors&type=$type&lastAdded=$deviceTemplate#deviceLink_".@$insertID);
 			exit();
 		}
 		
 		
-		header("Location: index.php?section=avWizard&msg=The devices was updated&type=$type".@$anchor);		
+		header("Location: index.php?section=mediaDirectors&msg=The devices was updated".@$anchor);		
 	}
 
 	$output->setScriptCalendar('null');
 
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.((isset($title))?' :: '.$title:' :: '.strtoupper(str_replace('_',' ',$type))));
+	$output->setTitle(APPLICATION_NAME.' :: Media Directors');
 	$output->output();
 }
 

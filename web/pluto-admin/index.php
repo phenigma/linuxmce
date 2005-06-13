@@ -1154,6 +1154,12 @@ switch ($section) {
 	    include_once('operations/phones/amp.php');
 	    amp($output,$dbADO);
 	break;	
+	case 'mediaDirectors';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/mediaDirectors.php');
+	    mediaDirectors($output,$dbADO);
+	break;	
 	
 	
 	case '';

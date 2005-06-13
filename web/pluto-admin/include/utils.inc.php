@@ -3340,4 +3340,37 @@ function processReceiver($mdID,$dbADO)
 		}
 	}
 }
+
+function getLogName($deviceID,$dtID,$dtDescription)
+{
+	$logName=$deviceID.'_'.str_replace(array(' ','\''),array('_','_'),$dtDescription);
+
+	$patern=array("/[ :+=()<]/","/[->*?\$\.%\/]/","/#/","/__/","/^_*/","/_*$/");
+	$replacement =array("_","","","","","");
+	$logName=preg_replace($patern,$replacement,$logName);
+
+	// override log namimg rules for DCE router and orbiters
+	$logName=($dtID==$GLOBALS['rootDCERouter'])?'DCERouter.newlog':$logName.'.newlog';
+
+	$logName='/var/log/pluto/'.$logName;
+	
+	return $logName;
+}
+
+function processAudioSettings($deviceID,$dbADO)
+{
+	if(isset($_POST['audioSettings_'.$deviceID]) && $_POST['audioSettings_'.$deviceID]!='0'){
+		$newAS=$_POST['audioSettings_'.$deviceID].@$_POST['ac3_'.$deviceID];
+		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newAS,$deviceID,$GLOBALS['AudioSettings']));
+	}
+}
+
+function processVideoSettings($deviceID,$dbADO)
+{
+	if(isset($_POST['videoSettings_'.$deviceID]) && $_POST['videoSettings_'.$deviceID]!='0'){
+		$newVS=$_POST['videoSettings_'.$deviceID].'/'.$_POST['refresh_'.$deviceID];
+		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$deviceID,$GLOBALS['VideoSettings']));
+	}
+}
+
 ?>

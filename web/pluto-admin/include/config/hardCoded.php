@@ -140,6 +140,8 @@
 	$GLOBALS['securityAlertType']=45;			// Alert type 
 	$GLOBALS['InfraredPort']=12;				// Infrared Port
 	$GLOBALS['PK_Device']=77;					// PK_Device
+	$GLOBALS['AudioSettings']=85;				// Audio settings
+	$GLOBALS['VideoSettings']=86;				// Video settings
 	
 	// PK_FloorplanType from table FloorplanType 
 

@@ -22,16 +22,8 @@ function errorLog($output,$dbADO) {
 			WHERE PK_Device=?';
 		$resDevice=$dbADO->Execute($selectDevice,$deviceID);
 		$rowDevice=$resDevice->FetchRow();
-		$logName=$deviceID.'_'.str_replace(array(' ','\''),array('_','_'),$rowDevice['Template']);
-		
-		$patern=array("/[ :+=()<]/","/[->*?\$\.%\/]/","/#/","/__/","/^_*/","/_*$/");
-		$replacement =array("_","","","","","");
-		$logName=preg_replace($patern,$replacement,$logName);
-		
-		// override log namimg rules for DCE router and orbiters
-		$logName=($rowDevice['FK_DeviceTemplate']==$GLOBALS['rootDCERouter'])?$deviceID.'_DCERouter.newlog':$logName;
-		
-		$logName='/var/log/pluto/'.$logName.'.newlog';
+
+		$logName=getLogName($deviceID,$rowDevice['FK_DeviceTemplate'],$rowDevice['Template']);
 		
 		if(file_exists($logName)){
 			exec('grep \'^01\' '.$logName.' | /usr/pluto/bin/ansi2html',$retArray);
