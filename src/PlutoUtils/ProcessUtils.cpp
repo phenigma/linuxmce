@@ -61,7 +61,7 @@ bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, st
 
 	// this looks to complicated but i don;t have time to make it cleaner :-( mtoader@gmail.com)
     args[0] = (char *) strdup(sCmdExecutable.c_str());
-printf("dupped exec %s",args[0]);
+printf("dupped exec %s\n",args[0]);
 	while ( pos!=string::npos && pos<sCmdParams.size() && i < MaxArgs - 1)
 {
 string s=StringUtils::Tokenize(sCmdParams,"\t",pos);

@@ -29,6 +29,7 @@
 #include "pluto_main/Table_RepositorySource_URL.h"
 #include "pluto_main/Table_Installation_RepositorySource_URL.h"
 #include "pluto_main/Table_Package.h"
+#include "pluto_main/Table_Package_Device.h"
 #include "pluto_main/Table_Distro.h"
 #include "pluto_main/Table_Installation.h"
 #include "pluto_main/Define_DeviceCategory.h"
@@ -49,6 +50,8 @@ namespace DCE
 {
 	Logger *g_pPlutoLogger;
 }
+
+int iPK_Device=0;
 
 class PackageInfo
 {
@@ -85,7 +88,7 @@ int k=2;
 		m_pRow_RepositorySource_URL=pRow_RepositorySource_URL;
 		m_bMustBuild=bMustBuild;
 		m_pRow_Package_Directory_Compiled_Output=NULL;
-		Row_Package_Device *pRow_Package_Device = pRow_Package_Source_Compat->Table->Database()->Package_Device_get()->GetRow(m_pRow_Package_Source_Compat->FK_Package_get(),iPK_Device);
+		Row_Package_Device *pRow_Package_Device = pRow_Package_Source_Compat->Table_Package_Source_Compat_get()->Database_pluto_main_get()->Package_Device_get()->GetRow(pRow_Package_Source->FK_Package_get(),iPK_Device);
 		m_bAlreadyInstalled = (pRow_Package_Device!=NULL);
 	}
 };
@@ -108,7 +111,6 @@ list<PackageInfo *> listPackageInfo;  // We need a list so we can keep them in t
 DCEConfig dceConfig;
 Row_Distro *pRow_Distro=NULL;
 map<int,Row_Package *> m_mapReportedErrors;
-int iPK_Device=0;
 
 string GetCommand()
 {
