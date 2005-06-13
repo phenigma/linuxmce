@@ -2073,8 +2073,10 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
     PlutoColor WhiteColor(255, 255, 255, 100);
     PlutoColor RedColor(255, 0, 0, 100);
 
-    HollowRectangle(x, y, w - 1, h - 1, RedColor);
-    HollowRectangle(x + 1, y + 1, w - 3, h - 3, WhiteColor);
+    HollowRectangle(x    , y    , w - 1, h - 1, RedColor);
+    HollowRectangle(x + 1, y + 1, w - 3, h - 3, RedColor);
+    HollowRectangle(x + 2, y + 2, w - 5, h - 5, WhiteColor);
+    HollowRectangle(x + 3, y + 3, w - 7, h - 7, WhiteColor);
 }
 
 //------------------------------------------------------------------------
@@ -5408,7 +5410,7 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
 
     if(  iData_Size==0  )
     {
-        //pObj->m_pGraphic=NULL;
+        //pObj->m_pGraphic=NULL;*
         return;
     }
 
