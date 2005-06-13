@@ -219,7 +219,7 @@ void VideoLan_Server::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlayback
 		return;
 	}
 
-	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"next")==false )
+	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"next\n")==false )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop VideoLan Server");
 }
 
