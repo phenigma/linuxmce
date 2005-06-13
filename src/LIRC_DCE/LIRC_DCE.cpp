@@ -127,6 +127,7 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	}
 	
 	g_pPlutoLogger->Write(LV_STATUS, "->Using Driver %s in database",sLIRCDriver.c_str());
+/*
 	system("rm -f /etc/lirc/hardware.conf");
 	g_pPlutoLogger->Write(LV_STATUS, "->Writing hardware Config file",sLIRCDriver.c_str());
 	fp = fopen("/etc/lirc/hardware.conf","wt");
@@ -151,9 +152,10 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	fprintf(fp,"LIRCMD_CONF=\"lircmd.conf\"\n");
 	fclose(fp);
 	g_pPlutoLogger->Write(LV_STATUS, "Making Software config");
+*/
 	
-	system("rm -f /etc/lirc/lircd.conf");
-	fp = fopen("/etc/lirc/lircd.conf","wt");
+	remove("/etc/lircd.conf");
+	fp = fopen("/etc/lircd.conf", "wt");
 	for(size_t s = 0; s < vectConfiguration.size(); ++s)
 	{
 		fprintf(fp, "%s\n", vectConfiguration[s].c_str());
@@ -161,7 +163,9 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	fclose(fp);
 
 	system("killall -9 lircd");
-	system("lircd /etc/lirc/lircd.conf");
+	system("modprobe lirc_dev");
+	system("modprobe lirc_mceusb");
+	system((string("lircd") + " -H " + sLIRCDriver + " -d " + sSerialPort + " /etc/lircd.conf").c_str());
 //TODO: Check if it started*/
 	pRoute = pRouter;
 	lirc_leech(DeviceID);	
