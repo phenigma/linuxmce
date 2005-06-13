@@ -491,6 +491,7 @@
 #define TEXT_Edit_Attribute_CONST 1166
 #define TEXT_Random_CONST 1167
 #define TEXT_Main_menu_CONST 1168
+#define TEXT_mobile_signal_strenght_CONST 1169
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
