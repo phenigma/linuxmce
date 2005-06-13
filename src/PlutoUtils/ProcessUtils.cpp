@@ -101,9 +101,11 @@ printf("dupped arg %d %s\n",i,ps);
 			printf("ProcessUtils::SpawnApplication() adding this %d pid to the spawned list for %s\n", pid, sAppIdentifier.c_str());
 
 			if ( mapIdentifierToPidData.find(sAppIdentifier) == mapIdentifierToPidData.end() )
-                mapIdentifierToPidData[sAppIdentifier] = map<int, void *>();
+                mapIdentifierToPidData[sAppIdentifier] = map<int, PidData *>();
 
-			mapIdentifierToPidData[sAppIdentifier][pid] = attachedData;
+			PidData *pPidData = new PidData();
+			pPidData->m_pData = attachedData;
+			mapIdentifierToPidData[sAppIdentifier][pid] = pPidData;
 			pthread_mutex_unlock(&mutexDataStructure);
             return true;
     }
