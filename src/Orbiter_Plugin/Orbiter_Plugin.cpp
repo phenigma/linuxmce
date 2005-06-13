@@ -464,22 +464,33 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 
             if( pOH_Orbiter->m_pDevice_CurrentDetected )
             {
-                DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(
+                DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength1(
                     m_dwPK_Device,
 					pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
                     sMacAddress,
                     &iCurrentSignalStrength);
 
-                if( SendCommand(CMD_Get_Signal_Strength) )
+                g_pPlutoLogger->Write(LV_STATUS,"Getting the signal strength ... (1)");
+                if( SendCommand(CMD_Get_Signal_Strength1) )
 			    {
-g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s dongle %d reported strength of %d",sMacAddress.c_str(),pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,iCurrentSignalStrength);
+                    g_pPlutoLogger->Write(LV_WARNING,"Mobile Orbiter %s dongle %d reported strength of %d (1)",sMacAddress.c_str(),pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,iCurrentSignalStrength);
 					if(iCurrentSignalStrength)
 						pOH_Orbiter->m_iLastSignalStrength = iCurrentSignalStrength;
 			    }
-                else
-				{
-g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength from dongle %d",sMacAddress.c_str(),pDeviceFrom->m_dwPK_Device);
-				}
+
+                DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength2(
+                    m_dwPK_Device,
+                    pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
+                    sMacAddress,
+                    &iCurrentSignalStrength);
+
+                g_pPlutoLogger->Write(LV_STATUS,"Getting the signal strength ... (2)");
+                if( SendCommand(CMD_Get_Signal_Strength2) )
+                {
+                    g_pPlutoLogger->Write(LV_WARNING,"Mobile Orbiter %s dongle %d reported strength of %d (2)",sMacAddress.c_str(),pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,iCurrentSignalStrength);
+                    if(iCurrentSignalStrength)
+                        pOH_Orbiter->m_iLastSignalStrength = iCurrentSignalStrength;
+                }
             }
 
 			if( pOH_Orbiter->m_pDevice_CurrentDetected &&
