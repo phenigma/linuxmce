@@ -10,6 +10,8 @@
 #ifdef WIN32
 	#include <pthread.h>
 	#include <windows.h>
+#else
+	#include <fcntl.h>
 #endif
 using namespace std;
 
@@ -24,7 +26,7 @@ namespace ProcessUtils
 	{
 	public:
 		void *m_pData;
-		int in, out, err; // process i/o file descriptors on our pipe ends
+		int in; // pipe to child's stdin
 	};
 
 	typedef map<int, PidData *> MapPidToData;
@@ -35,7 +37,7 @@ namespace ProcessUtils
 
 pthread_mutex_t mutexDataStructure = PTHREAD_MUTEX_INITIALIZER;
 
-bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, string sAppIdentifier, void *attachedData)
+bool ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, string sAppIdentifier, void *attachedData, bool bLogOutput)
 {
     if ( sAppIdentifier == "" )
         sAppIdentifier = "not named";
@@ -75,22 +77,35 @@ printf("dupped arg %d %s\n",i,ps);
     for (int x = 0 ; x < i; x++)
 		printf("ProcessUtils::SpawnApplication() Argument %d: %s\n", x, args[x]);
 
+	int in[2];
+	pipe(in);
+
     pid_t pid = fork();
+
     switch (pid)
     {
-		int in[2], out[2], err[2];
-		pipe(in);
-		pipe(out);
-		pipe(err);
         case 0: //child
         {
 			// setenv("DISPLAY", ":0", 1);
             //now, exec the process
             printf("ProcessUtils::SpawnApplication(): Spawning\n");
 
+			string sLogFile;
+			if (bLogOutput)
+			{
+				sLogFile = string("") + "/var/log/pluto/Spawn_" + sAppIdentifier + "_" + StringUtils::itos(getpid()) + ".newlog";
+			}
+			else
+			{
+				sLogFile = "/dev/null";
+			}
+			int fd = open(sLogFile.c_str(), O_WRONLY | O_CREAT);
+			dup2(fd, 1);
+			dup2(fd, 2);
+			close(fd);
+			
 			close(in[1]);
-			close(out[0]);
-			close(err[0]);
+			dup2(in[0], 0);
             if ( execvp(args[0], args) == -1)
                 exit(99);
         }
@@ -101,8 +116,6 @@ printf("dupped arg %d %s\n",i,ps);
 
 		default:
 			close(in[0]);
-			close(out[1]);
-			close(err[1]);
 			for(int i=0;i<i;++i)
 				free(args[i]);
 
@@ -117,8 +130,6 @@ printf("dupped arg %d %s\n",i,ps);
 			PidData *pPidData = new PidData();
 			pPidData->m_pData = attachedData;
 			pPidData->in = in[1];
-			pPidData->out = out[0];
-			pPidData->err = err[0];
 			mapIdentifierToPidData[sAppIdentifier][pid] = pPidData;
 			pthread_mutex_unlock(&mutexDataStructure);
             return true;
@@ -254,7 +265,7 @@ bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
 	while ( itPidsToData != mapPidsToData.end() )
 	{
 		PidData *pPidData = itPidsToData->second;
-//		SendKeys(sKeys,pPidData->in);
+		write(pPidData->in, sKeys.c_str(), sKeys.length());
 		itPidsToData++;
 	}
 
