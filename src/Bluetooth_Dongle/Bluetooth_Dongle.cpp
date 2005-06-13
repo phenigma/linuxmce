@@ -600,21 +600,6 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 
 		BD_Orbiter *pBD_Orbiter = ( *iMos ).second;
 
-		if ( iMediaPosition == 0 )
-		{
-			if ( pBD_Orbiter->m_pBDCommandProcessor == NULL )
-			{
-				g_pPlutoLogger->Write( LV_STATUS, "Got disconnect for unlinked MO %s!", sMac_address.c_str() );
-			}
-			else
-			{
-				pBD_Orbiter->m_pBDCommandProcessor = NULL;
-				bm.Release();
-				pBD_Orbiter->m_pBDCommandProcessor->m_bExit = true; // Cause the scan loop to terminate
-			}
-			return;
-		}
-
 		if ( pBD_Orbiter->m_pBDCommandProcessor != NULL )
 		{
 			if( pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
