@@ -451,61 +451,52 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
     }
     else
     {
-		/*
-        if(pOH_Orbiter->m_iFailedToConnectCount >= 3) //if we tried to connect to this phone 3 times
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "Failed to connect to the phone after 3 retries. We won't try again.");
-            return true;
-        }
-		*/
-
-        int SignalStrength = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Signal_Strength_CONST].c_str());
-
         if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
         {
+            int SignalStrength = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Signal_Strength_CONST].c_str());
             pOH_Orbiter->m_iLastSignalStrength = SignalStrength;
-			g_pPlutoLogger->Write(LV_STATUS, "Redetecting the same device with strength: %d",pOH_Orbiter->m_iLastSignalStrength);
+			g_pPlutoLogger->Write(LV_STATUS, "Redetecting the same device with strength: %d", pOH_Orbiter->m_iLastSignalStrength);
         }
         else
         {
+            int iCurrentSignalStrength = 0;
+            int iOldSignalStrength = pOH_Orbiter->m_iLastSignalStrength;
+
             if( pOH_Orbiter->m_pDevice_CurrentDetected )
             {
                 DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(
                     m_dwPK_Device,
 					pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
                     sMacAddress,
-                    &SignalStrength);
+                    &iCurrentSignalStrength);
 
                 if( SendCommand(CMD_Get_Signal_Strength) )
-			{
-g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s dongle %d reported strength of %d",sMacAddress.c_str(),pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,SignalStrength);
-					if(SignalStrength)
-						pOH_Orbiter->m_iLastSignalStrength = SignalStrength;
-			}
+			    {
+g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s dongle %d reported strength of %d",sMacAddress.c_str(),pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,iCurrentSignalStrength);
+					if(iCurrentSignalStrength)
+						pOH_Orbiter->m_iLastSignalStrength = iCurrentSignalStrength;
+			    }
                 else
 				{
-					//leave the last value
-                    //pOH_Orbiter->m_iLastSignalStrength = 0;
 g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength from dongle %d",sMacAddress.c_str(),pDeviceFrom->m_dwPK_Device);
 				}
             }
 
 			if( pOH_Orbiter->m_pDevice_CurrentDetected &&
-				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength &&
-				pOH_Orbiter->m_iLastSignalStrength > m_iThreshHold
+                (iCurrentSignalStrength >= m_iThreshHold || iOldSignalStrength >= m_iThreshHold)
 			)
             {
+                //the current signal strength or the last signal strength are higher then the thresh hold
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s already has a strong association with %d (%d/%d/%d)",
                     sMacAddress.c_str(),
                     pOH_Orbiter->m_pDevice_CurrentDetected->m_sDescription.c_str(),
-                    pOH_Orbiter->m_iLastSignalStrength,
-                    SignalStrength,m_iThreshHold);
-
+                    iOldSignalStrength, iCurrentSignalStrength, m_iThreshHold);
             }
             else
             {
+                //the current signal strength and the last signal strength are lower then the thresh hold
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d (%d,%d,%d)", sMacAddress.c_str(),
-                    pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_iLastSignalStrength,SignalStrength,m_iThreshHold);
+                    pDeviceFrom->m_dwPK_Device, iOldSignalStrength, iCurrentSignalStrength, m_iThreshHold);
 
 				pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Reload(); // Just in case we changed this to resend the app to the phone
 				if( pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_get() == 1 )
@@ -520,18 +511,20 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
 
 				if(NULL != pOH_Orbiter->m_pDevice_CurrentDetected)
 				{
+                    //this dongle will send a link with mobile orbiter when it has finished disconnecting
 					DCE::CMD_Disconnect_From_Mobile_Orbiter cmd_Disconnect_From_Mobile_Orbiter(
 						m_dwPK_Device,
 						pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
-						sMacAddress,sVmcFileToSend,pDeviceFrom->m_dwPK_Device); //add the new dongle--if this is not 0, this dongle will send a link with mobile orbiter when it has finished disconnecting
+						sMacAddress,sVmcFileToSend,pDeviceFrom->m_dwPK_Device); 
 					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
 				}
-				else  // Only do this if there's no other dongle
+				else 
 				{
+                     //Only do this if there's no other dongle
 					DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
 						m_dwPK_Device,
 						pDeviceFrom->m_dwPK_Device,
-						1, //iMediaPosition = On
+						1, 
 						sMacAddress,
 						sVmcFileToSend);
 
