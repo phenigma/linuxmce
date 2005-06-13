@@ -36,7 +36,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Handle follow me type %d",pMessage->m_dwID);
 
 	if( iPK_RoomOrEntArea_Left )
 		FollowMe_LeftRoom(pMessage->m_dwID, iPK_Orbiter, iPK_Users, iPK_RoomOrEntArea, iPK_RoomOrEntArea_Left);
-	if( !m_bOneAtATime )  // Some things, like media, climate, etc. can only have 1 thing going.  Others like Telecom don't have that restriction
+	if( iPK_RoomOrEntArea )  // Some things, like media, climate, etc. can only have 1 thing going.  Others like Telecom don't have that restriction
 		FollowMe_EnteredRoom(pMessage->m_dwID, iPK_Orbiter, iPK_Users, iPK_RoomOrEntArea, iPK_RoomOrEntArea_Left);
 
 	return false; // Let other devices handle this too

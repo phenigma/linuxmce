@@ -56,7 +56,7 @@ public:
 	Row_Package_Source_Compat *m_pRow_Package_Source_Compat;
 	Row_Package_Source *m_pRow_Package_Source;
 	Row_RepositorySource_URL *m_pRow_RepositorySource_URL;
-	bool m_bMustBuild;
+	bool m_bMustBuild,m_bAlreadyInstalled;
 
 	string m_sBinaryExecutiblesPathPath, m_sSourceIncludesPath, m_sSourceImplementationPath, m_sBinaryLibraryPath, m_sConfiguration;
 	vector<Row_Package_Directory_File *> m_vectRow_Package_Directory_File_BinaryExecutibles, m_vectRow_Package_Directory_File_SourceIncludes,
@@ -85,6 +85,8 @@ int k=2;
 		m_pRow_RepositorySource_URL=pRow_RepositorySource_URL;
 		m_bMustBuild=bMustBuild;
 		m_pRow_Package_Directory_Compiled_Output=NULL;
+		Row_Package_Device *pRow_Package_Device = pRow_Package_Source_Compat->Table->Database()->Package_Device_get()->GetRow(m_pRow_Package_Source_Compat->FK_Package_get(),iPK_Device);
+		m_bAlreadyInstalled = (pRow_Package_Device!=NULL);
 	}
 };
 
@@ -106,6 +108,7 @@ list<PackageInfo *> listPackageInfo;  // We need a list so we can keep them in t
 DCEConfig dceConfig;
 Row_Distro *pRow_Distro=NULL;
 map<int,Row_Package *> m_mapReportedErrors;
+int iPK_Device=0;
 
 string GetCommand()
 {
@@ -162,7 +165,7 @@ int main(int argc, char *argv[])
 	g_pPlutoLogger = new FileLogger(stdout);
 
 	bool bError=false,bIncludeDisklessMD=true,bSourceCode=false; // An error parsing the command line
-	int iPK_Device = dceConfig.m_iPK_Device_Computer;
+	iPK_Device = dceConfig.m_iPK_Device_Computer;
 	char c;
 
 	for(int optnum=1;optnum<argc;++optnum)
@@ -335,6 +338,15 @@ int main(int argc, char *argv[])
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
 			PackageInfo *pPackageInfo = *it;
+			if( pPackageInfo->m_bAlreadyInstalled )
+			{
+				cout << "\t# PK_Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << endl;
+				cout << "\t# Rep. type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
+				cout << "\t# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
+					<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
+				cout << "\t# ****** SKIPPING --- PACKAGE ALREADY INSTALLED ******" << endl;
+				continue;
+			}
 
 			cout << "ok=0" << endl;
 			cout << "while [ \"$ok\" -eq 0 ]; do" << endl;

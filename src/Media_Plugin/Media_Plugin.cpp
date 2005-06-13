@@ -2648,18 +2648,29 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 
 
 	vector<EntertainArea *> vectEntertainArea;
-    DetermineEntArea(0,0,sPK_EntertainArea,vectEntertainArea);
+	if( sPK_EntertainArea.size() )  // If it's empty, we're just parking the media
+	    DetermineEntArea(0,0,sPK_EntertainArea,vectEntertainArea);
 
 	bool bNothingMoreToPlay = vectEntertainArea.size()==0;
-	g_pPlutoLogger->Write( LV_STATUS, "Calling StopMedia" );
-	pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
-	g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
-	StreamEnded(pMediaStream,true,bNothingMoreToPlay,NULL,&vectEntertainArea);
-
-	if( !bNothingMoreToPlay )
+	g_pPlutoLogger->Write( LV_STATUS, "Calling StopMedia parked %d", (int) pMediaStream->m_tTime_Parked );
+	
+	if( pMediaStream->m_tTime_Parked==0 )
 	{
+		// Don't bother stopping the media if it's already parked
+		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
+		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
+		StreamEnded(pMediaStream,true,false,NULL,&vectEntertainArea);
+	}
 
+	if( bNothingMoreToPlay )
+	{
+		pMediaStream->m_tTime_Parked = time(NULL);
+		pMediaStream->m_mapEntertainArea.clear();
+	}
+	else
+	{
 g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) vectEntertainArea.size());
+		pMediaStream->m_tTime_Parked = 0;
 		// Be sure all outgoing stop messages are flushed before we proceed
 		WaitForMessageQueue();
 		pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->WaitForMessageQueue();

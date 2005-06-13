@@ -451,6 +451,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
     }
     else
     {
+	    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
         if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
         {
             int SignalStrength = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Signal_Strength_CONST].c_str());
@@ -464,6 +465,10 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 
             if( pOH_Orbiter->m_pDevice_CurrentDetected )
             {
+				// It's possible the other dongle has died, or the m/d is turned off, so we'll need
+				// to remove the m_pDevice_CurrentDetected if we fail to communicate with it twice, otherwise
+				// the 'link' command will never get sent to this one.
+				bool bFailedToCommunicateWithDongle=false;
                 DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength1(
                     m_dwPK_Device,
 					pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
@@ -480,6 +485,11 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                         iOldSignalStrength = iCurrentSignalStrength;
                     }
                 }
+				else
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"Dongle %d failed to respond once",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device);
+					bFailedToCommunicateWithDongle=true;
+				}
 
                 DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength2(
                     m_dwPK_Device,
@@ -494,6 +504,11 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                     if(iCurrentSignalStrength)
                         pOH_Orbiter->m_iLastSignalStrength = iCurrentSignalStrength;
                 }
+				else if( bFailedToCommunicateWithDongle )
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"Dongle %d failed to respond twice",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device);
+					pOH_Orbiter->m_pDevice_CurrentDetected=NULL;
+				}
             }
 
 			if( pOH_Orbiter->m_pDevice_CurrentDetected &&
@@ -578,6 +593,7 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH
 			SendAppToPhone(pOH_Orbiter,pDeviceFrom);
 	}
 
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	DeviceData_Router *pDevice_PriorDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
 
     // Associated with a new media director.  Show the corresponding menu
@@ -709,10 +725,12 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
         }
 		*/
 
+	    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
         if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
         {
             pOH_Orbiter->m_pDevice_CurrentDetected=NULL;
 			pOH_Orbiter->m_iLastSignalStrength = 0;
+			mm.Release();
 
 			FireFollowMe("LCTS",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->PK_Users_get(),
 				0,pOH_Orbiter->m_dwPK_Room);
@@ -752,9 +770,13 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
         return;
     }
 
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+	DeviceData_Router *pDevice_CurrentDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
+	mm.Release();
+
 	int iPK_Users_Last = pOH_Orbiter->PK_Users_get();
-	if( pOH_Orbiter->PK_Users_get() && pOH_Orbiter->PK_Users_get()!=iPK_Users && NULL != pOH_Orbiter->m_pDevice_CurrentDetected)
-		FireFollowMe("LCMST",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,pOH_Orbiter->PK_Users_get(),0,0);
+	if( pOH_Orbiter->PK_Users_get() && pOH_Orbiter->PK_Users_get()!=iPK_Users && NULL != pDevice_CurrentDetected)
+		FireFollowMe("LCMST",pDevice_CurrentDetected->m_dwPK_Device,pOH_Orbiter->PK_Users_get(),0,0);
     pOH_Orbiter->m_pOH_User = m_mapOH_User_Find(iPK_Users);
 	if( pOH_Orbiter->PK_Users_get() && pOH_Orbiter->PK_Users_get()!=iPK_Users_Last && pOH_Orbiter->m_dwPK_Room )
 		FireFollowMe("LCST",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->PK_Users_get(),pOH_Orbiter->m_dwPK_Room,0);
