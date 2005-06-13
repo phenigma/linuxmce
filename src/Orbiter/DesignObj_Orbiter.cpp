@@ -103,7 +103,6 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pCore)
 	m_bDisableAspectLock=false;
 	m_bOnScreen=false;
 	m_bContainsDataGrid=false;
-	m_bTabStop = true;
 };
 //-------------------------------------------------------------------------------------------------------
 DesignObj_Orbiter::~DesignObj_Orbiter()

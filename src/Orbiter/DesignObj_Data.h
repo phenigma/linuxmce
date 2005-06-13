@@ -179,7 +179,7 @@ public:
 		m_PK_DesignObj_Up=m_PK_DesignObj_Down=m_PK_DesignObj_Left=m_PK_DesignObj_Right=0;
 		m_sPK_DesignObj_TiedTo="";
 		m_iRegenInterval=m_iRepeatIntervalInMS=m_iVersion=m_iPage=0;
-		m_bRepeatParm=false;
+		m_bTabStop = m_bRepeatParm=false;
 		return;
 	}
 

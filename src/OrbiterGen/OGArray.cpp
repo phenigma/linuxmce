@@ -218,6 +218,7 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 		ocNextDesignObj->m_bChildrenBeforeText = drDesignObjVariation_DesignObj->DisplayChildrenBeforeText_get()==1;
 		ocNextDesignObj->m_bChildrenBehind = drDesignObjVariation_DesignObj->DisplayChildrenBehindBackground_get()==1;
 		ocNextDesignObj->m_bDontMergeBackground = drDesignObjVariation_DesignObj->DontMergeBackground_get()==1;
+		ocNextDesignObj->m_bTabStop = drDesignObjVariation_DesignObj->IsTabStop_get()==1;
 
 		// Insert a zone in the beginning to add the variables
 		CGZone *oz = new CGZone();

@@ -1129,7 +1129,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 
 	int PK_Orbiter = ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get();
 	Row_Orbiter * m_pRow_Orbiter = ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter;
-if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==2253 )//2821 && bAddToGenerated )
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3412 )//2821 && bAddToGenerated )
 {
     int k=2;
 }
@@ -1197,7 +1197,6 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==2253 )//2821 && bAddToGen
 		ocDesignObj->m_iPK_Criteria = 0;
 
 	ocDesignObj->m_bAnimate = ocDesignObj->m_pRow_DesignObj->Animate_get()==1;
-	ocDesignObj->m_bTabStop = ocDesignObj->m_bTabStop;
 
 	int NumParms=0;
 
