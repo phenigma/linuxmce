@@ -248,29 +248,21 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 
 	char *code;
 
-	g_pPlutoLogger->Write(0, "Leeching"); 
+	g_pPlutoLogger->Write(LV_STATUS, "Leeching"); 
 	while(lirc_nextcode(&code)==0)
 	{
 		string sCode = string(code);
 		vector<string> vectTrimmed;
-//		map<string,Message *>::iterator it;
 		
 		StringUtils::Tokenize(sCode," ",vectTrimmed);
 		string sToken = vectTrimmed[2];
-		g_pPlutoLogger->Write(0, "Key Pressed. %s",sToken.c_str()); 
+		g_pPlutoLogger->Write(LV_STATUS, "Key Pressed. %s (%s)",sToken.c_str(),sCode.c_str()); 
 		
-		if(m_mapMessages.find(StringUtils::ToUpper(sToken))!=m_mapMessages.end() )
-		{
-			if(m_mapMessages[StringUtils::ToUpper(sToken)] != NULL) {
-				if(!fork()) {
-				if(!GetEvents()->SendMessage(m_mapMessages[StringUtils::ToUpper(sToken)])) {
-					g_pPlutoLogger->Write(LV_WARNING, "Error sending Event."); 
-				}
-				}
-			}	
-		} else {
+		map<string,Message *>::iterator it=m_mapMessages.find(StringUtils::ToUpper(sToken));
+		if(it!=m_mapMessages.end() && it->second )
+			QueueMessageToRouter(it->second);
+		else
 			g_pPlutoLogger->Write(LV_WARNING, "Error Invalid Key."); 
-		}
 	}
 	lirc_deinit();
 #endif
