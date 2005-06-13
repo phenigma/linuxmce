@@ -24,6 +24,7 @@ namespace ProcessUtils
 	{
 	public:
 		void *m_pData;
+		int in, out, err; // process i/o file descriptors on our pipe ends
 	};
 
 	typedef map<int, PidData *> MapPidToData;
@@ -77,12 +78,19 @@ printf("dupped arg %d %s\n",i,ps);
     pid_t pid = fork();
     switch (pid)
     {
+		int in[2], out[2], err[2];
+		pipe(in);
+		pipe(out);
+		pipe(err);
         case 0: //child
         {
 			// setenv("DISPLAY", ":0", 1);
             //now, exec the process
             printf("ProcessUtils::SpawnApplication(): Spawning\n");
 
+			close(in[1]);
+			close(out[0]);
+			close(err[0]);
             if ( execvp(args[0], args) == -1)
                 exit(99);
         }
@@ -92,6 +100,9 @@ printf("dupped arg %d %s\n",i,ps);
             return false;
 
 		default:
+			close(in[0]);
+			close(out[1]);
+			close(err[1]);
 			for(int i=0;i<i;++i)
 				free(args[i]);
 
@@ -105,6 +116,9 @@ printf("dupped arg %d %s\n",i,ps);
 
 			PidData *pPidData = new PidData();
 			pPidData->m_pData = attachedData;
+			pPidData->in = in[1];
+			pPidData->out = out[0];
+			pPidData->err = err[0];
 			mapIdentifierToPidData[sAppIdentifier][pid] = pPidData;
 			pthread_mutex_unlock(&mutexDataStructure);
             return true;
