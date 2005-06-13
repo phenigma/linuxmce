@@ -201,7 +201,7 @@ public:
 	{
 	public:
 		int m_iStreamID;
-		string m_sStreamingTargets,m_sMediaURL,m_sFilename,m_sCommandLine;
+		string m_sStreamingTargets,m_sMediaURL,m_sFilename,m_sCommandLine,m_sSpawnName;
 		bool m_bRunning;
 		VideoLan_Server *m_pVideoLan_Server;
 		pthread_t m_pthread_t;

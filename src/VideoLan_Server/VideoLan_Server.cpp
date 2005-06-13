@@ -12,13 +12,8 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-void* SpawnVideoLanServer(void* param) 
-{
-	VideoLanServerInstance *pVideoLanServerInstance = (VideoLanServerInstance *) param;
-	g_pPlutoLogger->Write(LV_STATUS,"Spawning: %s for stream %d",pVideoLanServerInstance->m_sCommandLine.c_str(),pVideoLanServerInstance->m_iStreamID);
-	system(pVideoLanServerInstance->m_sCommandLine.c_str());
-	return NULL;
-}
+#include "PlutoUtils/ProcessUtils.h"
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -102,6 +97,8 @@ void VideoLan_Server::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessa
 void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
+
 	cout << "Need to implement command #37 - Play Media" << endl;
 	cout << "Parm #13 - Filename=" << sFilename << endl;
 	cout << "Parm #29 - PK_MediaType=" << iPK_MediaType << endl;
@@ -131,10 +128,16 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	g_pPlutoLogger->Write(LV_STATUS,"Device %d %p IP %s",PK_Device,pDeviceData_Base,sIP.c_str());
 
 	pVideoLanServerInstance->m_sFilename = sFilename;
-	pVideoLanServerInstance->m_sCommandLine = "vlc --intf rc \"" + sFilename + 
-		"\" --sout '#standard{access=udp,mux=ts,url=" + sIP + ",sap,name=\"s" + StringUtils::itos(iStreamID) + "\"}'";
+	pVideoLanServerInstance->m_sCommandLine = "--intf\trc\t" + sFilename + 
+		"\t--sout\t#standard{access=udp,mux=ts,url=" + sIP + ",sap,name=\"s" + StringUtils::itos(iStreamID) + "}";
+	pVideoLanServerInstance->m_sSpawnName = "vlc_s_" + StringUtils::itos(iStreamID);
+	
 
-	pthread_create(&pVideoLanServerInstance->m_pthread_t, NULL, SpawnVideoLanServer, (void *) pVideoLanServerInstance);
+	if( !ProcessUtils::SpawnApplication("vlc",pVideoLanServerInstance->m_sCommandLine,pVideoLanServerInstance->m_sSpawnName) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to spawn server");
+		return;
+	}
 
 	string::size_type pos=0;
 	while( pos<pVideoLanServerInstance->m_sStreamingTargets.size() )
@@ -160,6 +163,7 @@ void VideoLan_Server::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &s
 	cout << "Need to implement command #38 - Stop Media" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
+
 }
 
 //<-dceag-c39-b->
@@ -304,6 +308,8 @@ void VideoLan_Server::CMD_Start_Streaming(int iStreamID,string sStreamingTargets
 	cout << "Parm #59 - MediaURL=" << sMediaURL << endl;
 	cout << "Parm #105 - StreamingTargets=" << sStreamingTargets << endl;
 
+	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
+
 	VideoLanServerInstance *pVideoLanServerInstance = new VideoLanServerInstance(this,iStreamID,sStreamingTargets,*sMediaURL);
 	m_mapVideoLanServerInstance[iStreamID]=pVideoLanServerInstance;
 }
@@ -346,7 +352,20 @@ void VideoLan_Server::CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,
 	cout << "Need to implement command #262 - Stop Streaming" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #105 - StreamingTargets=" << sStreamingTargets << endl;
+
+	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
+
+	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
+	if( !pVideoLanServerInstance )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt play nonexistant stream");
+		return;
+	}
+
+	vector<void *> data;
+	if( ProcessUtils::KillApplication(pVideoLanServerInstance->m_sSpawnName,data)==false )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop VideoLan Server");
+
+	m_mapVideoLanServerInstance.erase(iStreamID);
+
 }
-
-
-
