@@ -259,7 +259,7 @@ bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
     }
 
 	MapPidToData &mapPidsToData = element->second;
-	printf("ProcessUtils::SendKeysToProcess(): Found %d '%s' applications.\n", mapPidsToData.size(), sAppIdentifier.c_str());
+	printf("ProcessUtils::SendKeysToProcess(): Found %d '%s' applications, sending %s.\n", mapPidsToData.size(), sAppIdentifier.c_str(), sKeys.c_str());
 
 	MapPidToData::const_iterator itPidsToData = mapPidsToData.begin();
 	while ( itPidsToData != mapPidsToData.end() )
