@@ -26,6 +26,8 @@ namespace ProcessUtils
 	bool ApplicationExited(int pid, string &associatedName, void *&associatedData, bool removeIt = true);
 
 	bool ApplicationIsLaunchedByMe(string applicationName);
+
+	bool SendKeysToProcess(string sAppIdentifier,string sKeys);
 };
 
 #endif // PROCESSUTILS

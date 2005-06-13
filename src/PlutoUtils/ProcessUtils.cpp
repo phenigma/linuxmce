@@ -232,3 +232,31 @@ bool ProcessUtils::ApplicationIsLaunchedByMe(string applicationName)
 	pthread_mutex_unlock(&mutexDataStructure);
 	return true;
 }
+
+bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
+{
+	pthread_mutex_lock(&mutexDataStructure);
+
+	vector<int> pidsArray;
+	MapIdentifierToPidData::iterator element = mapIdentifierToPidData.find(sAppIdentifier);
+
+	if (element == mapIdentifierToPidData.end())
+    {
+        printf("ProcessUtils::KillApplication() No application '%s' found. None to send keys to\n", sAppIdentifier.c_str());
+		pthread_mutex_unlock(&mutexDataStructure);
+		return false;
+    }
+
+	MapPidToData &mapPidsToData = element->second;
+	printf("ProcessUtils::SendKeysToProcess(): Found %d '%s' applications.\n", mapPidsToData.size(), sAppIdentifier.c_str());
+
+	MapPidToData::const_iterator itPidsToData = mapPidsToData.begin();
+	while ( itPidsToData != mapPidsToData.end() )
+	{
+		PidData *pPidData = itPidsToData->second;
+//		SendKeys(sKeys,pPidData->in);
+		itPidsToData++;
+	}
+
+	pthread_mutex_unlock(&mutexDataStructure);
+}
