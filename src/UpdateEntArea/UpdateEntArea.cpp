@@ -368,11 +368,31 @@ void UpdateEntArea::AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,
 void UpdateEntArea::AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 {
 	vector<Row_Device *> vectRow_Device; 
+
+	// First fix up any embedded devices
 	pRow_EntertainArea->FK_Room_getrow()->Device_FK_Room_getrows(&vectRow_Device);
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];
-		// Check up 3 generations of DeviceCategories to see if this is a media director
+		vector<Row_Device *> vectRow_Device_Embedded; 
+		pRow_Device->Device_FK_Device_RouteTo_getrows(&vectRow_Device_Embedded);
+		for(size_t s2=0;s2<vectRow_Device_Embedded.size();++s2)
+		{
+			Row_Device *pRow_Device_Child = vectRow_Device_Embedded[s2];
+			if( pRow_Device_Child->FK_Room_get()!=pRow_Device->FK_Room_get() )
+			{
+				pRow_Device_Child->FK_Room_set(pRow_Device->FK_Room_get());
+				pRow_Device_Child->Table_Device_get()->Commit();
+			}
+		}
+	}
+
+	vectRow_Device.clear();
+	pRow_EntertainArea->FK_Room_getrow()->Device_FK_Room_getrows(&vectRow_Device);
+	for(size_t s=0;s<vectRow_Device.size();++s)
+	{
+		Row_Device *pRow_Device = vectRow_Device[s];
+		// Check up 3 generations of DeviceCategories to see if this is av equipment
 		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_AV_CONST ||
 			pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_AV_CONST ||
 			(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get() &&
