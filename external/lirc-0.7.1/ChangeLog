@@ -1,0 +1,3669 @@
+2005-04-17  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	0.7.1 release
+
+2005-04-16  venkyr  <venkyr@k7>
+
+	* /cvsroot/lirc/lirc/NEWS: Re: iMON-PAD and iMON-RSC support.
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/setup.data:
+	Added support for iMON-PAD and iMON-RSC.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_imon/lirc_imon.c:
+	Printing incoming IR data (for debugging new models) now controlled by
+	conditional compilation.
+
+	* /cvsroot/lirc/lirc/remotes/imon/lircd.conf.imon, /cvsroot/lirc/lirc/remotes/imon/lircd.conf.imon-rsc:
+	Created separate config file for IMON RSC remote.  Original file (imon)
+	contains configuration for IMON MultiMedian remote.
+
+2005-04-15  venkyr  <venkyr@k7>
+
+	* /cvsroot/lirc/lirc/remotes/imon/lircd.conf.imon-pad:
+	Config file for iMON PAD remote
+
+	* /cvsroot/lirc/lirc/drivers/lirc_imon/lirc_imon.c:
+	Added support for controllers that decode the IR in firmware (iMON-PAD).
+
+2005-04-14  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	added support for new version of Winfast TV2000 XP card (Stephen Vinall)
+
+2005-04-09  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.7.1pre4 snapshot release
+
+2005-04-01  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/kworld/lircd.conf.kworld:
+	added configuration for DVB-T card
+
+2005-03-30  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	correction for SAPPHIRE_ATIUSB_5000023600
+
+2005-03-29  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	new configuration for ATI Remote Wonder Sapphire version
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.c, /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.h:
+	A few tidyups and keypress timings
+
+2005-03-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.h, /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.c:
+	update to support 2.6 kernels
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/remotes/adaptec/lircd.conf.AVC-2410:
+	use full code for Adaptec AVC-2410 card
+
+2005-03-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/config_file.h, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/ir_remote_types.h, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/daemons/transmit.c:
+	added support for SPACE_FIRST protocol
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c:
+	removed obsolete remaining_gap calculation in transmit simulation code
+
+2005-03-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/NEWS: added due credit for Adaptec AVC-2410 code
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	merged from release branch: finally make transmitter enabled the default
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am:
+	added ir_remote_types.h, fixed typo
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am: added ir_remote_types.h
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	finally make transmitter enabled the default
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.7.1pre3 snapshot release
+
+2005-03-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/ericsson/lircd.conf.bte, /cvsroot/lirc/lirc/daemons/hw_bte.c:
+	fix tty_create_lock call,
+	minor changes
+
+2005-03-24  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c: refusing to connect to myself
+
+2005-03-21  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_igorplugusb/lirc_igorplugusb.c:
+	removed unregister in set_use_dec
+
+2005-03-20  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c:
+	make lirc_flags non-static as lircrc_config relies on this function
+
+	* /cvsroot/lirc/lirc/remotes/ericsson/lircd.conf.bte, /cvsroot/lirc/lirc/daemons/hw_bte.c, /cvsroot/lirc/lirc/daemons/hw_bte.h, /cvsroot/lirc/lirc/setup.sh:
+	bte driver updated
+
+2005-03-13  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_hiddev.c: simplified repeat logic
+
+2005-03-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_mceusb/lirc_mceusb.c, /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.c, /cvsroot/lirc/lirc/drivers/lirc_igorplugusb/lirc_igorplugusb.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	removed obsolete unregister code
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	use set_current_state
+
+	* /cvsroot/lirc/lirc/daemons/hw_hiddev.c: make repeat work
+
+2005-03-11  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_hiddev.c, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/dvico/lircd.conf.fusionHDTV, /cvsroot/lirc/lirc/setup.data:
+	added support for DViCO USB Remote (William Uther)
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c: fixed typo
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added support for Adaptec AVC-2410 capture card
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/TODO:
+	lirc_unregister_plugin() can be called even if device is open (necessary for removable devices like USB receivers)
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircmd.c:
+	syslog identity without spaces
+
+	* /cvsroot/lirc/lirc/tools/irpty.c: compile on FreeBSD
+
+2005-03-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_bte.c, /cvsroot/lirc/lirc/daemons/hw_dsp.c, /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_mouseremote.c, /cvsroot/lirc/lirc/daemons/hw_mp3anywhere.c, /cvsroot/lirc/lirc/daemons/hw_udp.c, /cvsroot/lirc/lirc/daemons/hw_uirt2_raw.c, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/daemons/serial.c, /cvsroot/lirc/lirc/daemons/transmit.c:
+	applied patch: eliminate format related compiler warnings
+
+2005-03-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_livedrive_seq.c, /cvsroot/lirc/lirc/daemons/hw_livedrive_midi.c:
+	added include for reverse function
+
+	* /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c:
+	removed deadlock in buffer overflow condition
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/ir_remote.h:
+	added code to remove trailing pulse
+
+	* /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c:
+	prevent buffer overflows in delay buffer
+
+2005-03-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	corrected locking,
+	cleaned up usb unlink procedure,
+	fixed timer locking,
+	removed unnecessary variables,
+	minor number is now set by lirc_register_plugin
+
+2005-02-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_igorplugusb/.cvsignore:
+	added .cvsignore
+
+	* /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c:
+	cleaned up timer locking
+
+2005-02-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c:
+	flush hardware buffer on open
+
+	* /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/drivers/lirc.h, /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c, /cvsroot/lirc/lirc/daemons/hardware.h, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/ir_remote_types.h:
+	support for receiver resolution
+
+	* /cvsroot/lirc/lirc/tools/mode2.c:
+	support LIRC_MODE_CODE and LIRC_MODE_LIRCCODE
+
+2005-02-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	added configuration for Niveus X10
+
+2005-02-22  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	change buffer lengths
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	fix ati2 buffer problem
+
+2005-02-20  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS:
+	lirc-0.7.1pre2 snapshot release
+
+2005-02-19  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c:
+	minimise error in signal length
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h:
+	increased MAX_IRCTL_DEVICES to 4
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_sir/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_streamzap/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_mceusb/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_parallel/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_sasem/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_i2c/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_imon/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_it87/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_bt829/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_dev/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_gpio/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_atiusb/.cvsignore:
+	ignore .tmp_versions
+
+	* /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_mceusb/lirc_mceusb.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/drivers/lirc_igorplugusb/lirc_igorplugusb.c, /cvsroot/lirc/lirc/drivers/lirc_imon/lirc_imon.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c, /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c, /cvsroot/lirc/lirc/TODO:
+	module reference counting is now done properly using an owner field in the plugin struct (2.6 and higher)
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	removed unnecessary spinlock:
+	lirc_dev prevents calling set_use_inc on a plugin already in use
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	added ATI Sapphire Remote Bob II USB
+
+	* /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/NEWS:
+	slight change to decode algorithm:
+	decoding was very unreliable since release 0.6.6 for Motorola
+	protocol which is mostly used by Grundig remotes
+
+2005-02-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c:
+	fixed CVS keyword
+
+	* /cvsroot/lirc/lirc/remotes/leadtek/lircd.conf.PVR2000, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added support for Winfast PVR2000 TV card
+
+	* /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/drivers/lirc_streamzap/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c, /cvsroot/lirc/lirc/drivers/lirc_streamzap/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/remotes/streamzap/lircd.conf.streamzap, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added support for Streamzap PC remote
+
+2005-02-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/irrecord.c:
+	support multi-code buttons
+
+2005-02-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	removed obsolete calls to enable_irq/disable_irq
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c:
+	fixed bug related to multi-code buttons
+
+2005-02-01  venkyr  <venkyr@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_imon/lirc_imon.c:
+	lirc_unregister_plugin is now properly handled on USB disconnects.
+
+2005-01-29  venkyr  <venkyr@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_imon/lirc_imon.c:
+	Added support for external iMON IR recevier.
+	Added support for VFDs with 6-pkt protocol.
+	Fixes for gcc-3.4 issues.
+
+2005-01-29  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb: fixed wrong code
+
+2005-01-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_imon/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_imon/lirc_imon.c, /cvsroot/lirc/lirc/drivers/lirc_imon/Makefile.am, /cvsroot/lirc/lirc/remotes/imon/lircd.conf.imon, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/NEWS:
+	added support for Soundgraph iMON MultiMedian IR/VFD (Venky Raju)
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	new X10 remote variation
+
+2005-01-26  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	make sure to do async unlinks everywhere
+
+2005-01-23  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/head.html: added favicon
+
+2005-01-22  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.7.1pre1 release
+
+	* /cvsroot/lirc/lirc/daemons/hw_mouseremote.c, /cvsroot/lirc/lirc/daemons/hw_mouseremote.h:
+	added CVS Id tags
+
+	* /cvsroot/lirc/lirc/remotes/x10/lircd.conf.mouseremote, /cvsroot/lirc/lirc/remotes/x10/lircmd.conf.mouseremote, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_mouseremote.c, /cvsroot/lirc/lirc/daemons/hw_mouseremote.h, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/daemons/serial.c, /cvsroot/lirc/lirc/daemons/serial.h, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added support for X10 MouseRemote RF Receiver (Geoffrey Hausheer)
+
+2005-01-14  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/NEWS:
+	added support for Hauppauge PVR150 (Per Jönsson)
+
+2005-01-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c:
+	use parport macros to call irq functions
+
+2004-12-31  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	interrupt handler functional again...
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	corrected appearance of warning
+
+2004-12-30  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/NEWS:
+	get rid of check_region (breaks 2.2.x compatibility)
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	removed unnecessary include
+
+2004-12-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	added more buttons for Q-Sonic Master Remote 6in1 PC
+
+2004-12-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	parameter to choose transmitter polarity added (Stefan Schmidt)
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	added I2C compatibility code for non 2.6 kernels (Jerome Brock)
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/index.html:
+	Using multiple different devices simultaneously
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	shared interrupts: handle only if really for us
+
+2004-12-19  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/hauppauge/lircd.conf.hauppauge:
+	no spaces allowed in names
+
+	* /cvsroot/lirc/lirc/remotes/hauppauge/lircd.conf.hauppauge:
+	added configuration for PVR-350
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html:
+	added note about Linux input layer config file
+
+2004-12-18  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in:
+	3 additional checks for header files (patch by Matthias Ringwald)
+
+2004-12-01  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	request ivtv for PVR-250 as well
+
+	* /cvsroot/lirc/lirc/daemons/hw_devinput.c: fixed EVIOCGRAB ioctl call
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	allow interrupt sharing (patch from Jason Miller)
+
+2004-12-01  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	patch from an ati-rw2 user.
+
+2004-11-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/Makefile.am:
+	the library revision should have been incremented in the last release
+
+2004-11-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	even cleaner solution for shell search problem
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	not all shells search for sourced files in the current directory
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	fixed build for SA1100 machines
+
+2004-11-21  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/TODO:
+	transmit behaviour: if(min_repeat>0 && remaining_gap<10000) directly send out all signals (should fix problems with JVC/Echostar dish box described by Karl Bongers)
+
+2004-11-20  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/receive.c:
+	fixed bug affecting repeat handling with remotes that have a repeat signal,
+	repeats are only reported now when the repeat signal is received
+
+	* /cvsroot/lirc/lirc/daemons/hw_ea65.c, /cvsroot/lirc/lirc/daemons/Makefile.am:
+	cosmetic changes
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_ea65.c, /cvsroot/lirc/lirc/daemons/hw_ea65.h, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/remotes/ea65/lircd.conf.ea65, /cvsroot/lirc/lirc/remotes/ea65/lircrc.ea65, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/NEWS:
+	added support for AOpen XC Cube EA65, EA65-II (Max Krasnyansky)
+
+	* /cvsroot/lirc/lirc/tools/irxevent.c: removed DEBUG flag
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	added configuration for nvidia personal cinema remote UR88A (Phil Speights)
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/hw_default.h, /cvsroot/lirc/lirc/daemons/hw_uirt2_raw.c, /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/daemons/transmit.h:
+	hide optimisation from upper layers
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/NEWS:
+	added IGNORE directive (patch by Steven Mueller)
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	wait without wait queue
+
+	* /cvsroot/lirc/lirc/daemons/dump_config.c:
+	only print out actually used bits
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	started development for 0.7.1
+
+2004-11-14  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	Fixes memory freeing issues
+	Remote Wonder II now supported using one LIRC device
+	VERY EXPERIMENTAL!
+
+2004-11-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/NEWS:
+	release delayed due to failed regression tests
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.c:
+	driver does not compile on 2.6
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c:
+	fixed 64-bit division trouble
+
+2004-11-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in: fixed caraca config file selection
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS:
+	0.7.0 release
+
+2004-10-29  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	add better debugging
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	major changes to better support remote wonder II (two inbound endpoints) -- still need to determine what data needs to be ignored from each endpoint
+
+2004-10-23  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added TriTan Technology TView95
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c:
+	fixed core dump when font is missing
+
+2004-10-19  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	minor change; display endpoint in hex
+
+2004-10-11  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_devinput.c:
+	fix usage of pre/post data with devinput
+
+2004-10-10  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	add a little more debugging information
+
+2004-10-09  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0_7_0pre8 pre-release
+
+	* /cvsroot/lirc/lirc/daemons/hw_devinput.c: support repeats
+
+	* /cvsroot/lirc/lirc/autogen.sh: updated links
+
+2004-10-08  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	remove old macro
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	kernel 2.4 doesn't support multiple usb tables per module; changed method for determining if we're using a remote wonder 1 or 2.
+
+2004-09-26  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	it appears that kernel 2.4 automagically resubmits urb after transfer completion.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	add -EPIPE error for good measure :)
+
+	* /cvsroot/lirc/lirc/setup.data:
+	Updated lirc_atiusb description to include remote wonder II support
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	implemented code for ATI's Remote Wonder II (based on patch from Falk Zoll)
+
+2004-09-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	added some additional model information
+
+	* /cvsroot/lirc/lirc/contrib/lirc.rules, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/configure.in:
+	added hints for devfs and sysfs
+
+2004-09-11  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_atilibusb.c, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/NEWS:
+	added userspce USB driver for ATI remotes (Michael Gold)
+
+2004-09-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_mceusb/lirc_mceusb.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	sysfs and devfs clean-ups (David Härdeman),
+	compilation fixes
+
+2004-09-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	added another config variation
+
+2004-09-02  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	linux 2.6.8.1 atiusb fix patch from Martin Tomasek <mtd@centrum.cz>
+
+2004-08-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/receive.c:
+	bugfix for serial protocol decoder
+
+2004-08-21  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c:
+	get rid of floating point operations
+
+2004-08-20  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/mceusb/lircd.conf.mceusb:
+	additional buttons for HP Media Center remote control
+
+2004-08-09  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	Patch from Reynald Poittevin to fix remote id stripping.
+
+2004-08-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c:
+	make more stuff static (David Härdeman)
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_igorplugusb/lirc_igorplugusb.c, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_mceusb/lirc_mceusb.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c, /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	harmonize debugging printk
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/drivers/lirc_igorplugusb/lirc_igorplugusb.c, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_mceusb/lirc_mceusb.c, /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c, /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c:
+	harmonize module information (David Härdeman)
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c, /cvsroot/lirc/lirc/drivers/lirc_igorplugusb/lirc_igorplugusb.c:
+	corrected minimum version
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	devfs and sysfs support for 2.6 (David Härdeman)
+
+2004-08-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_igorplugusb/lirc_igorplugusb.c, /cvsroot/lirc/lirc/drivers/lirc_igorplugusb/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/NEWS:
+	added support for Igor Cesko's USB IR receiver (Jan Hochstein)
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c: check for error
+
+2004-07-31  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	added config file for another variation of this receiver
+
+2004-07-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in: fixed typo in possible_drivers
+
+2004-07-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0_7_0pre7 release
+
+	* /cvsroot/lirc/lirc/drivers/lirc_mceusb/lirc_mceusb.c:
+	support for 2.6 kernels (Malte Rohde)
+
+2004-07-24  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/pcmak/lircd.conf.pcmak, /cvsroot/lirc/lirc/remotes/pcmak/lircmd.conf.pcmak, /cvsroot/lirc/lirc/remotes/pcmak/lircrc.pcmak, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_pcmak.c, /cvsroot/lirc/lirc/daemons/hw_pcmak.h, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/setup.sh:
+	added support for ELMAK PCMAK (Pawel Nowak)
+
+2004-07-18  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/setup.data:
+	convenience entries for Extigy USB sound card
+
+2004-07-11  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/install.html:
+	changed link for Technisat driver
+
+2004-06-19  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.7.0pre6
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_sasem/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.c, /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.h, /cvsroot/lirc/lirc/drivers/lirc_sasem/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/remotes/sasem/lircd.conf.dignhv5, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/NEWS:
+	added support for Sasem OnAir Remocon-V (Oliver Stabel)
+
+2004-06-13  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.7.0pre5
+
+	* /cvsroot/lirc/lirc/doc/html-source/help.html:
+	list archive at geocrawler seems to have disappeared
+
+2004-05-30  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/mode2.c:
+	fixed compiler warning (Michael Mauch)
+
+2004-05-23  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/hercules/lircd.conf.smarttv_stereo, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/data2setup.sh, /cvsroot/lirc/lirc/setup.data:
+	added config file for Hercules SmartTV Stereo TV card (Dimitris Michail)
+
+2004-05-23  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	oops.  forgot to increment the version #define
+
+2004-05-20  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb-unknown_ch, /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb, /cvsroot/lirc/lirc/configure.in:
+	added new atiusb config files,
+	general clean-up
+
+2004-05-16  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c:
+	inteface change in 2.6.4 (Stian Davidsen)
+
+2004-05-06  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	attempt to handle repeats, somewhat based on the gatos code
+	-- new module parameter, repeat = repeat timeout (1/100 sec)
+
+2004-04-28  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	use channel 1 or set unique=0
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	- clearly print received data and channel (debug)
+	- add channel acceptance bit mask option
+	- add channel-specific option (default to non-unique, where the channel code is removed from key-code)
+	- bump version to 0.4
+	*** channel number not tested with 4/5-byte Dutch remotes ***
+
+2004-04-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	usb structure change in 2.6.5 (Kenneth Aafloy)
+
+	* /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c, /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c, /cvsroot/lirc/lirc/TODO:
+	added missing module reference counting,
+	new MOD_[INC|DEC]_USE_COUNT macros for 2.6
+
+	* /cvsroot/lirc/lirc/daemons/receive.c:
+	reset state on new keypress for remotes that use toggle_mask
+
+	* /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.common:
+	added Makefile.common
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	return if bttv_get_cardinfo() fails
+
+2004-04-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_sir/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_sir/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_i2c/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_it87/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_it87/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_mceusb/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_mceusb/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_bt829/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_bt829/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_dev/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_dev/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_gpio/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_gpio/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_i2c/.cvsignore, /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/drivers/lirc_atiusb/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_atiusb/Makefile.am, /cvsroot/lirc/lirc/acinclude.m4, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/TODO:
+	install .ko modules on 2.6
+
+2004-04-24  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	added IgorPlug to parameter list (patch by Martin Lillepuu)
+
+2004-04-10  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	renamed KERNEL26 define to be consistent with all other modules
+
+2004-04-10  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	fix lirc #includes such it'll compile under kernel 2.6 from lirc's source
+
+2004-04-09  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	work-around for problems reported with cdialog 0.9b-20040316
+
+	* /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_mceusb/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c, /cvsroot/lirc/lirc/drivers/lirc_bt829/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h:
+	more drivers that compile with 2.6
+
+2004-04-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h:
+	added note about CONFIG_MODULE_UNLOAD for 2.6 kernels
+
+2004-03-30  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h:
+	fixed warning about redefinition of daemonize in kernels with modversions enabled
+
+2004-03-29  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in: fixed setting of default values
+
+2004-03-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h: fixed unsafe defines
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/kcompat.h:
+	part of the drivers compile now with 2.6 kernels
+
+	* /cvsroot/lirc/lirc/drivers/lirc_mceusb/.cvsignore:
+	added .cvsignore for lirc_mceusb directory
+
+2004-03-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/man-source/irxevent.inc:
+	reformatted for nicer man page output
+
+	* /cvsroot/lirc/lirc/doc/man-source/irxevent.inc, /cvsroot/lirc/lirc/tools/irxevent.c:
+	added Focus flag (Rob Spearman),
+	restructured code to actually match the documentation
+
+2004-03-15  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	fixed problem with lirc_dev thread exiting too early
+
+2004-03-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/NEWS:
+	system-wide lircrc (Michal Svec)
+
+2004-03-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_mceusb/lirc_mceusb.c: cleanups
+
+2004-03-02  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	fixed endianness issue in Hauppauge driver
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c: --listen takes optional argument
+
+2004-02-29  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/mceusb/lircd.conf.mceusb:
+	fixed eps and gap value
+
+	* /cvsroot/lirc/lirc/drivers/Makefile.am:
+	added Makefile.kernel to EXTRA_DIST
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am: fixed irrecord file list
+
+	* /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_mceusb/lirc_mceusb.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/NEWS:
+	replaced get_key interface with more flexible add_to_buf method
+
+2004-02-11  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/mode2.c: check for character device
+
+2004-02-08  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/config_file.h, /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/daemons/transmit.c:
+	added preliminary support for serial protocols
+
+2004-02-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/dump_config.c: write rc6_mask
+
+2004-02-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	don't set ptrail for pulse encoded remotes
+
+2004-02-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	prevent infinite loop during toggle bit detection
+
+2004-02-02  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/creative/lircd.conf.livedrive, /cvsroot/lirc/lirc/daemons/hw_livedrive_common.h, /cvsroot/lirc/lirc/daemons/hw_livedrive_midi.c, /cvsroot/lirc/lirc/daemons/hw_livedrive_seq.c:
+	added support for audigy2 livedrive controls (Stephen Beahm)
+
+2004-01-31  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	apply transform functions to all remote configs
+
+2004-01-31  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	fix couple typos
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	forgot to submit urb for receiving!
+	tested and working w/ 2.6 (I finally got lirc to compile)
+
+2004-01-29  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	lirc_dev requires set_use_inc/dec functions to be set, otherwise it crashes
+
+2004-01-27  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	fix kernel oops on device probe
+
+2004-01-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_udp.c: prevent integer overflow
+
+2004-01-24  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	request module "lirc_dev"
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	fixed memset() kernel seg fault problem
+	major updates for kernel 2.6 support (now compiles & loads!)
+	removed set_use_inc/dec functions (not needed for usb?)
+	code clean ups
+
+2004-01-19  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/Makefile.kernel:
+	Added missing file from the module building change.
+
+2004-01-18  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_atiusb/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_bt829/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_dev/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_gpio/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_i2c/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_it87/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am:
+	Hack to make kernel module building more reliable, it should, maybe with small
+	tunning, work for 2.6 kernels.
+
+2004-01-18  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	started adding kernel 2.6 usb changes based on Brian Julin's GATOS ati_remote 2.6 port
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	nicer way to free kernel memory on failure
+
+2004-01-13  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_mceusb/lirc_mceusb.c, /cvsroot/lirc/lirc/drivers/lirc_mceusb/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/remotes/mceusb/lircd.conf.mceusb, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/NEWS:
+	added support for Windows Media Center Remotes (Dan Conti)
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/daemons/transmit.c:
+	added rc6_mask for better RC6 variations support
+
+2004-01-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	fixed typo
+
+2004-01-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh: fixed type
+
+2003-12-30  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/NEWS:
+	fine-tuning of lirc_sir driver
+
+	* /cvsroot/lirc/lirc/daemons/hw_audio_alsa.c, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/doc/html-source/audio-alsa.html, /cvsroot/lirc/lirc/doc/release-html.sh, /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/contrib/lirc.redhat, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	IR receiver IC connected to auido input using ALSA (Andrew Zabolotny)
+
+	* /cvsroot/lirc/lirc/daemons/hw_livedrive_common.c, /cvsroot/lirc/lirc/daemons/hw_livedrive_midi.c, /cvsroot/lirc/lirc/daemons/hw_livedrive_seq.c:
+	timing issues fixed (Stephen Beahm)
+
+2003-12-29  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb-unknown_ch:
+	example atiusb configuration file for (unknown channel).
+
+2003-12-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_devinput.c:
+	get exclusive access to input device (Arkadiusz Miskiewicz)
+
+2003-12-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	fix for Igor receiver
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	fixed typo in pidfile command line processing
+
+2003-11-23  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in: fixed --driver=any build failure
+
+2003-11-17  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	fix lirc_dev buffer init
+
+2003-11-14  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	different method to copy received buffer to lirc
+	renamed BUFLEN to USB_BUFLEN as it is now defined in lirc_dev.h
+
+2003-11-13  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	why are some people having problems with the code length?  works perfectly on my ati remote....?
+
+2003-11-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c: major number sanity check
+
+2003-11-11  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	properly handles 4 and 5 byte codes
+
+2003-11-10  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c:
+	repeat parameter was not respected for config entries where button entry is not set (reported by Peter Kundrat)
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/NEWS:
+	added include command to .lircrc config file (Ingo van Lil)
+
+	* /cvsroot/lirc/lirc/daemons/hw_creative_infracd.c:
+	fixed potential buffer overflow
+
+2003-11-09  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	Apparently, some remotes emit both 4 and 5 byte codes.  This change accepts codes >= 4.  we can assume that the code will be <= maxp <= BUF_LEN.  I'm not sure how LIRC/LIRC_DEV will handle bytes_in_key = 4 with a 5 byte input...
+
+	One user reports:
+	The remote which is described in German including a picture under
+	http://www.pearl.de/product.jsp?pdid=PE4444&catid=5005&rate=5
+	has some mouse movement keys. These and the corresponding mouse buttons have
+	4-byte codes (7 codes). The rest  which are more than 30 keys have 5-byte
+	codes.
+
+2003-11-07  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	report received data length (debug)
+	remove unnecessary #defines
+
+2003-11-06  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	appears to fix inc/dec problem - we shouldn't disconnect the remote on dec, but wait until the remote receiver is unplugged or the module is unloaded.  On inc, we should connect the remote only if it hasn't been already connected (the original problem).
+
+2003-11-02  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c: fix typos
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	keep track of use count
+	add extra safety checks for set_use_inc/dec()
+
+2003-11-02  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	generated codes for this card did not match config file since 0.6.6
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	removed superfluous IRUNLOCK
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	don't touch *_data_bits if remote has pre or post
+
+2003-10-29  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/setup.data:
+	change description of atiusb to include NVidia and X10 RF remotes (same remote, but with a different usb product id)
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	support other X10 USB product IDs (definitions found in windows ini file)
+	attempt to fix multiple access problem
+
+2003-10-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_uirt2.c, /cvsroot/lirc/lirc/daemons/hw_uirt2_common.c, /cvsroot/lirc/lirc/daemons/hw_uirt2_common.h, /cvsroot/lirc/lirc/daemons/hw_uirt2_raw.c:
+	better transmit algorithm implemented
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	clearer debug output
+
+2003-10-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added support for Prolink Pixelview PV-BT878P+ (Rev.4C,8E)
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/hw_uirt2.c, /cvsroot/lirc/lirc/daemons/hw_uirt2_common.c, /cvsroot/lirc/lirc/daemons/hw_uirt2_common.h, /cvsroot/lirc/lirc/daemons/hw_uirt2_raw.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added support for UIRT2 (Mikael Magnusson)
+
+	* /cvsroot/lirc/lirc/daemons/hw_tira.c, /cvsroot/lirc/lirc/setup.data:
+	corrected bug, typo (Gregory McLean)
+
+2003-10-07  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/.cvsignore:
+	Adapt to atiusb, .cvsignore was blindly copied from lirc_serial.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/.cvsignore:
+	I had forgotten .cvsignore :-/
+
+2003-10-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh: removed Karsten's email on his request
+
+2003-09-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/remotes/leadtek/lircd.conf.RM-0010:
+	use correct codes
+
+	* /cvsroot/lirc/lirc/doc/lirc.css: center HR's
+
+2003-09-23  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	Use wake_up() instead of wake_up_sync() since the later is not available until
+	2.4.20 kernels and wake_up() seams enough.
+
+2003-09-21  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_tira.c, /cvsroot/lirc/lirc/daemons/hw_tira.h, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/data2setup.sh, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/setup.sh:
+	added support for Home Electronics Tira USB device (Gregory McLean)
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/config_file.h, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/TODO:
+	added preliminary support for special Pioneer protocol feature
+
+2003-08-15  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_devinput.c, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added support for Linux input layer (Oliver Endriss, Jack Thomasson)
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	enabled lircd to optinally decode buttons that are not included in the config file
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h:
+	added reverse flag compatibility mode
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_client.h:
+	added delay directive to .lircrc config file (Tobias Blomberg)
+
+2003-08-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html:
+	clarification about lirc_gpio parameters added
+
+2003-08-05  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	If p->get_queue is provided there should be no need for read, poll or ioctl.
+
+2003-08-03  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/remotes/creative/lircd.conf.breakoutbox, /cvsroot/lirc/lirc/setup.data:
+	patches for Asus TV-Box and Creative PersonalCinema BreakOut-Box
+
+2003-07-21  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	lirc_buffer_init may fail;
+	removed leftover comment.
+
+2003-07-19  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html:
+	added section on kernel recompile shutcut
+
+	* /cvsroot/lirc/lirc/daemons/hw_bte.c: log flood fixed (vss)
+
+2003-06-17  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c, /cvsroot/lirc/lirc/drivers/lirc_atiusb/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added support for ATI RF Remote Wonder (Paul Miller).
+
+2003-06-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/irexec.c:
+	choose program name (patch by Vidar Holen)
+
+	* /cvsroot/lirc/lirc/remotes/iodata/lircd.conf.gvbctv5pci, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/NEWS:
+	added support for I-O Data GV-BCTV5/PCI TV card (Jens C. Rasmussen)
+
+2003-05-24  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_creative_infracd.c:
+	fixed too small buffer bug
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	corrected company name
+
+2003-05-12  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/autogen.sh:
+	Create setup-driver.sh so CVS users don't miss it.
+
+2003-05-07  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/.cvsignore: ignore setup-driver.sh
+
+	* /cvsroot/lirc/lirc/setup.data: Remove the obsolet old_* stuff.
+
+2003-05-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/man-source/irw.inc, /cvsroot/lirc/lirc/remotes/creative/lircd.conf.infracd, /cvsroot/lirc/lirc/daemons/hw_creative_infracd.c, /cvsroot/lirc/lirc/daemons/hw_creative_infracd.h, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS:
+	added support for Creative iNFRA CDROMO (Leonid Froenchenko)
+
+2003-05-07  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/data2setup.sh, /cvsroot/lirc/lirc/Makefile.am, /cvsroot/lirc/lirc/setup.data, /cvsroot/lirc/lirc/setup.sh:
+	Move the "hardware selection menu" to a machine readable format.
+
+2003-05-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/irrecord.c:
+	fixed bug in device selection,
+	order of --device and --driver option was relevant but shouldn't be
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	allow forcing bttv id
+
+2003-05-04  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	Use labeled (.FIELDNAME =) initializing for 'plugin'.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	Remove extra lirc_buffer_unlock and make irctl_read return if it already wrote
+	some data and the buffer is empty.
+
+2003-05-03  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/hauppauge/lircd.conf.hauppauge:
+	added config for new Hauppauge PVR models
+
+2003-05-03  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am:
+	synchronize EXTRA_lircd_SOURCES and EXTRA_irrecord_SOURCES.
+
+2003-05-02  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h:
+	make lirc_buffer_full overflow tolerant.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h:
+	Replace the semaphore in 'struct lirc_buffer' with an spinlock.
+
+2003-05-01  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/hw_default.c:
+	/dev/lirc can also be socket (for devices that use bidirectional communication through a helper daemon)
+
+	* /cvsroot/lirc/lirc/tools/irsend.c:
+	can specify socket name on command line
+
+2003-04-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/asus/lircd.conf.asus, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added support for VisionTek BreakOut-Box (Stefan Jahn)
+
+2003-04-21  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/creative/lircd.conf.livedrive:
+	rm900 is a subset of rm1000w
+
+	* /cvsroot/lirc/lirc/daemons/hw_livedrive.c, /cvsroot/lirc/lirc/daemons/hw_livedrive_common.c, /cvsroot/lirc/lirc/daemons/hw_livedrive_common.h, /cvsroot/lirc/lirc/daemons/hw_livedrive_midi.c, /cvsroot/lirc/lirc/daemons/hw_livedrive_seq.c, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/acconfig.h:
+	split livedrive support into two separate modules for OSS/Alsa
+
+2003-04-20  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	finished Kworld support with original config file
+
+2003-04-19  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added support for Igor Ceska's receiver variation
+
+	* /cvsroot/lirc/lirc/daemons/hw_bte.c, /cvsroot/lirc/lirc/daemons/hw_bte.h, /cvsroot/lirc/lirc/remotes/ericsson/lircd.conf.bte, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/TODO, /cvsroot/lirc/lirc/NEWS:
+	added support for Ericsson mobile phone via Bluetooth (Vadim Shliakhov)
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c:
+	fixed bug related with button sequences,
+	if $HOME is not set use / as default
+
+2003-03-31  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/kworld/lircd.conf.kworld, /cvsroot/lirc/lirc/configure.in:
+	finished Kworld support with original config file
+
+2003-03-30  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/mode2.c, /cvsroot/lirc/lirc/tools/smode2.c, /cvsroot/lirc/lirc/tools/xmode2.c:
+	better guidance for dummies
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	fixed bad pidfile command line parsing
+
+2003-03-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am:
+	Mac OS X uses fifo instead of socket
+
+2003-02-16  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_mp3anywhere.c, /cvsroot/lirc/lirc/daemons/hw_mp3anywhere.h, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/remotes/x10/lircd.conf.mp3anywhere, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added support for X10 MP3 Anywhere RF receiver (Shawn Nycz),
+	fixed Creative Infra Receiver setup bug
+
+	* /cvsroot/lirc/lirc/daemons/hw_creative.c: pre not hardwired anymore
+
+2003-02-15  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_livedrive.c, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/remotes/creative/lircd.conf.livedrive, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added support for Creative LiveDrive (Stephen Beahm)
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c:
+	transmit did not work correctly for raw config files that had the CONST_LENGTH flag turned on
+
+	* /cvsroot/lirc/lirc/doc/man-source/lircd.inc, /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/TODO:
+	use strtoull() instead of strtouq(),
+	fixed compiler warnings when using --with-syslog,
+	removed some duplicated code in start_server(),
+	new command line options that allow multiple instances of lircd (patch from Kir Kostuchenko):
+	  --output
+	  --logfile
+	  --pidfile
+
+2003-02-13  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/irxevent.c:
+	replaced nice but broken code by ugly but working code
+
+2003-01-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_audio.c, /cvsroot/lirc/lirc/daemons/Makefile.am:
+	more soundcard driver changes
+
+	* /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/Makefile.am:
+	removed dist-bz2 target in favour of automake 1.5 built-in dist-bzip2 target
+
+	* /cvsroot/lirc/lirc/tools/irpty.c, /cvsroot/lirc/lirc/autogen.sh, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/drivers/lirc.h, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added support for IR receiver connected to soundcard input,
+	most parts now compile on Mac OS X/Darwin (Matthias Ringwald)
+
+2003-01-19  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h:
+	Documented new fields.
+
+2003-01-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/TODO:
+	new function in irrecord to invert codes,
+	some typos fixed
+
+2002-12-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/smode2.c: removed dummy printfs
+
+2002-12-16  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	fix to support more RC-5 remotes
+
+2002-12-15  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	- lirc_dev:
+		- Introduces 'struct lirc_buffer' and functions to handle it.
+			- Moves the lock and wait queue to 'struct lirc_buffer'.
+			- Locking happens implicitly on lirc_buffer_[read!write]_1.
+			- The caller is responsible of locking on
+			  _lirc_buffer_[read!write]_1
+		- Plugins can provide an 'struct lirc_buffer' for reading.
+		- Remove 'struct irctl'->bytes_in_key in favor of 'struct
+		  lirc_buffer'->chunk_size.
+		- Extends lirc_dev's irctl_read and irctl_poll to acomodate lirc_serial.
+
+	- lirc_serial:
+		- Integrates lirc_serial with the above, removing lirc_poll and
+		  lirc_read.
+
+2002-12-02  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	added support for AVerTV GO/wFM card
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	added explicit test command line switch,
+	this has confused too many people
+
+2002-11-21  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/NEWS:
+	fixed show-stopper bug in RC-6 transmit code
+
+	* /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	added hint to hdparm
+
+2002-11-19  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c:
+	- Make set_use_inc return an int to allow the plugins to reject an open.
+	- Move features into 'struct lirc_plugin' to allow the plugins to specify it's
+	  features.
+	- Add an 'ioctl' function pointer to 'struct lirc_plugin' so plugins have a
+	  chance to handle ioctl's before the general cases are handled.
+	- Extend the lirc_dev's ioctl handling to be more generic so it meets
+	  lirc_serial's needs.
+	- Make lirc_serial take advantage of lirc_dev's new capabilities.
+	- Make all other drivers fit with lirc_dev's changes.
+
+2002-11-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/config_file.h, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/daemons/transmit.c:
+	added support for strange Grundig protocol
+
+2002-11-11  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh: yet another TV card
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS:
+	yet another TV card,
+	config files still missing
+
+2002-11-09  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/remotes/leadtek/lircd.conf.leadtek, /cvsroot/lirc/lirc/remotes/leadtek/lircd.conf.RM-0007, /cvsroot/lirc/lirc/remotes/leadtek/lircd.conf.RM-0010, /cvsroot/lirc/lirc/remotes/leadtek/lircmd.conf.leadtek, /cvsroot/lirc/lirc/remotes/leadtek/lircmd.conf.RM-0007, /cvsroot/lirc/lirc/remotes/leadtek/lircmd.conf.RM-0010, /cvsroot/lirc/lirc/setup.sh:
+	better WinView 601 support
+
+	* /cvsroot/lirc/lirc/remotes/life-view/lircd.conf.flyvideo:
+	some more buttons for LR50Q model
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html:
+	mentioned BUTTON*.* in lircmd.conf
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	won't check for signals as signals are all blocked anyway,
+	bugfix: lirc_thread has to be waken up during shutdown
+
+2002-11-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/receive.c:
+	increased heuristic to better support Leadtek cards
+
+2002-11-03  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/leadtek/lircd.conf.leadtek, /cvsroot/lirc/lirc/remotes/leadtek/lircmd.conf.leadtek, /cvsroot/lirc/lirc/remotes/winfast/lircd.conf.tv2000, /cvsroot/lirc/lirc/remotes/winfast/lircmd.conf.tv2000, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added support for Leadtek WinView 601 TV card
+
+2002-10-30  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/remotes/winfast/lircd.conf.tv2000, /cvsroot/lirc/lirc/setup.sh:
+	added support for WinFast TV 2000 XP (Markus Lischka)
+
+2002-10-27  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	- Renamed calc_pulse_lengths_in_clocks into init_timing_params and wrote one
+	  for the !USE_RDTSC case.
+	- Inlined 'void on(void)' and 'void off(void)', better performance, and timing
+	  will not depend on CPU that much.
+	- Broke up send_pulse_homebrew, it now calls send_pulse_homebrew_softcarrier.
+	  And the implementation of send_pulse_homebrew_softcarrier depends on
+	  USE_RDTSC.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	Restore proper check_region behaviour.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_it87/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_sir/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_bt829/Makefile.am:
+	Make sure that depmod is run after installing the modules, and not before.
+
+2002-10-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/generic/RC-6.conf:
+	added template config file for RC-6 protocol
+
+2002-10-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.vdomate, /cvsroot/lirc/lirc/setup.sh:
+	added support for AverMedia VDOMATE
+
+2002-10-21  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/tools/irsend.c, /cvsroot/lirc/lirc/tools/rc.c, /cvsroot/lirc/lirc/doc/man/Makefile.am, /cvsroot/lirc/lirc/doc/man-source/irsend.inc, /cvsroot/lirc/lirc/doc/man-source/rc.inc, /cvsroot/lirc/lirc/tools/.cvsignore, /cvsroot/lirc/lirc/tools/Makefile.am, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/doc/man/.cvsignore, /cvsroot/lirc/lirc/doc/release-html.sh, /cvsroot/lirc/lirc/doc/release-man.sh:
+	Renamed 'rc' to 'irsend' and updated everything I could think of to reflect
+	the change.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_bt829/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_dev/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_it87/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_sir/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/TODO:
+	Renamed --disable-manage-devices into --enable-sandboxed enhanced it and added
+	a documentation note for packagers.
+
+	* /cvsroot/lirc/lirc/configure.in:
+	sed segfaults when $hw_module is too long :(, changed the implementation to
+	use "sort -u".
+
+2002-10-15  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/remotes/pixelview/lircrc.playtv_pro, /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	New email for Artur Lipowski.
+
+2002-10-12  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/drivers/Makefile.am:
+	- Removes support for 2.0 kernels;
+	- Removes support for 2.2.17 and older kernels, 2.2.18 and above have some
+	  usefull 2.4 compatibility built in already;
+	- Started a kcompat.h header file, to hold backwards compatibility code.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c: Cosmetic.
+
+2002-10-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_udp.c: support for pre ISO C99 systems
+
+2002-10-10  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/configure.in: lirc_aver was gone long ago.
+
+2002-10-09  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c:
+	Include parameter list in function prototypes to comply with ANSI C.
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am:
+	Make sure that hw_caraca.c, hw_caraca.h and hw_udp.c get included in release
+	tarballs.
+
+2002-10-08  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h:
+	Make all kernel modules into lirc_plugin's.
+
+2002-10-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/asus/lircd.conf.asus, /cvsroot/lirc/lirc/setup.sh:
+	added support for Asus TV-Box (patch by Stefan Jahn)
+
+	* /cvsroot/lirc/lirc/remotes/life-view/lircd.conf.fly98, /cvsroot/lirc/lirc/remotes/life-view/lircd.conf.flyvideo, /cvsroot/lirc/lirc/remotes/life-view/lircd.conf.FlyVideo_II, /cvsroot/lirc/lirc/remotes/life-view/lircmd.conf.fly98, /cvsroot/lirc/lirc/remotes/life-view/lircmd.conf.flyvideo, /cvsroot/lirc/lirc/remotes/life-view/lircrc.fly98, /cvsroot/lirc/lirc/remotes/life-view/lircrc.flyvideo, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/ANNOUNCE:
+	added support for another FlyVideo type card,
+	major FlyVideo config cleanup
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.6.6 release
+
+2002-10-02  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c: cosmetic change
+
+2002-09-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c: malloc.h is obsolete
+
+2002-09-21  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/doc/man/Makefile.am:
+	forgot links to rc page
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	pre2
+
+2002-09-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/man-source/xmode2.inc, /cvsroot/lirc/lirc/tools/.cvsignore, /cvsroot/lirc/lirc/tools/ircat.c, /cvsroot/lirc/lirc/tools/irexec.c, /cvsroot/lirc/lirc/tools/Makefile.am, /cvsroot/lirc/lirc/tools/mode2.c, /cvsroot/lirc/lirc/tools/rc.c, /cvsroot/lirc/lirc/tools/smode2.c, /cvsroot/lirc/lirc/tools/xmode2.c, /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/doc/man/.cvsignore, /cvsroot/lirc/lirc/doc/man-source/help2man.inc, /cvsroot/lirc/lirc/doc/man-source/irexec.inc, /cvsroot/lirc/lirc/doc/man-source/irxevent.inc, /cvsroot/lirc/lirc/doc/man-source/lircd.inc, /cvsroot/lirc/lirc/doc/man-source/rc.inc, /cvsroot/lirc/lirc/doc/release-html.sh, /cvsroot/lirc/lirc/doc/release-man.sh, /cvsroot/lirc/lirc/NEWS:
+	moved rc tool from xrc package to LIRC package
+
+2002-09-02  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/TODO: more things to do.
+
+2002-08-31  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c: enable should be initialized.
+
+2002-08-30  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/remotes/winfast/lircd.conf.tv2000:
+	bugfix for Winfast TV 2000 cards (untested)
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	former version did not notice when server went down after successful connect in client mode
+
+2002-08-25  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/configure.in:
+	Do proper quoting on the vgalib detection for autoconf 2.5x compatibility.
+
+2002-08-17  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/head.html, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/doc/man/Makefile.am, /cvsroot/lirc/lirc/doc/man-source/ircat.inc, /cvsroot/lirc/lirc/doc/release-html.sh, /cvsroot/lirc/lirc/doc/release-man.sh, /cvsroot/lirc/lirc/remotes/generic/NEC-AIWA.conf, /cvsroot/lirc/lirc/remotes/generic/SANYO.conf, /cvsroot/lirc/lirc/TODO, /cvsroot/lirc/lirc/tools/ircat.c, /cvsroot/lirc/lirc/tools/irexec.c, /cvsroot/lirc/lirc/tools/irpty.c, /cvsroot/lirc/lirc/tools/irw.c, /cvsroot/lirc/lirc/tools/Makefile.am:
+	added ircat tool (patch by Bjorn Bringert),
+	minor fixes
+
+2002-07-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	SEND_ONCE accepts optional repeat count (done by Scott Baily)
+
+2002-07-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/NEWS:
+	added SIR support for Actisys Act200L dongle (Karl Bongers)
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c, /cvsroot/lirc/lirc/tools/mode2.c, /cvsroot/lirc/lirc/tools/smode2.c:
+	add check for PIPE on fh,
+	don't do ioctl if pipe
+
+2002-07-13  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hardware.h, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/lircd.c:
+	Add patch to have a 'null' driver by Andy Mortimer and massage things to
+	remove the LIRC_NETWORK_ONLY special case.
+
+2002-07-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	cosmetic fix for recursive call of configure script
+
+2002-07-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c: learn toggle_mask, untested
+
+2002-07-01  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc.h:
+	int32_t would create incompatibilities on 64 bit architectures
+
+	* /cvsroot/lirc/lirc/tools/.cvsignore, /cvsroot/lirc/lirc/daemons/config_file.c:
+	begin and end now accepted as button names
+
+2002-06-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/drivers/lirc.h:
+	should compile again with current 2.4.x kernels
+
+2002-06-24  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/hw_udp.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added UDP network driver
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/serial.c, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/tools/irxevent.c:
+	minor cleanups
+
+2002-06-16  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	set O_NONBLOCK flag to client file descriptors to avoid blocking of lircd when client becomes unreachable
+
+2002-06-16  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/doc/man-source/irxevent.inc, /cvsroot/lirc/lirc/tools/irxevent.c:
+	Allow sending events to an specific 'WindowID'.
+
+	* /cvsroot/lirc/lirc/doc/man-source/irxevent.inc, /cvsroot/lirc/lirc/tools/irxevent.c:
+	Allow targeting the 'RootWindow' which makes sending events to the
+	windowmanager posible/easier.
+
+2002-05-20  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/setup.sh:
+	additional config file docu
+
+2002-05-18  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/setup.sh:
+	restructured setup script
+
+2002-05-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html:
+	clearer explanation of serial port problem
+
+2002-05-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html: doc update
+
+	* /cvsroot/lirc/lirc/daemons/receive.c: fixed stall bug
+
+2002-05-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hardware.h, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/hw_default.h, /cvsroot/lirc/lirc/daemons/hw_dsp.c, /cvsroot/lirc/lirc/daemons/hw_slinke.c, /cvsroot/lirc/lirc/daemons/hw_slinke.h, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/daemons/receive.c:
+	changes to integrate hw_dsp,
+	irrecord bugfix
+
+2002-04-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/config_file.h, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/receive.c:
+	changes to decode unknown protocol found on a Goldstar TV remote
+
+2002-04-22  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/tools/Makefile.am, /cvsroot/lirc/lirc/daemons/hw_dsp.c, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS:
+	added support for hardware connected to soundcard input (Pavel Machek)
+
+2002-04-18  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/doc/man-source/irpty.inc:
+	The previous fix would add an extra space, this time it won't.
+
+2002-04-11  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/doc/man-source/irpty.inc:
+	A formating error was causing a piece of text not to be shown.
+
+2002-04-01  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/remotes/pixelview/lircd.conf.playtv_pro:
+	changed config file for Pixelview PlayTV pro and compatible TV cards to use original codes
+
+2002-03-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_bt829/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c, /cvsroot/lirc/lirc/drivers/lirc_bt829/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/tekram/lircd.conf.m230, /cvsroot/lirc/lirc/remotes/tekram/lircmd.conf.m230, /cvsroot/lirc/lirc/setup.sh:
+	added support for Tekram M230 Mach64 (Froenchenko Leonid)
+
+2002-03-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	changes for Sharp Zaurus hardware,
+	disable interrupts during transmit
+
+2002-03-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/contrib/sendxevent.c:
+	command line version of irxevent
+
+2002-03-24  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	fixed bug in command line driver selection
+
+2002-03-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c:
+	fixed minor bug in timer initialization
+
+2002-02-23  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	described interrupt issue
+
+	* /cvsroot/lirc/lirc/doc/man2html.c, /cvsroot/lirc/lirc/doc/man-source/irxevent.inc:
+	removed links to man pages from generated html pages
+
+2002-02-22  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/daemons/config_file.c:
+	added support for error detection scheme found on Sharp RRMCG0041SJSA remote
+
+2002-02-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/receive.c: code cleanup
+
+2002-02-01  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/doc/man-source/irrecord.inc, /cvsroot/lirc/lirc/TODO:
+	no new protocols seem to show up
+
+2002-02-01  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_it87/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_sir/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am:
+	Didn't notice that mkdev and rmdev where used in multiple Makefile.am files.
+	This should fix 'configure --disable-manage-devices'
+
+2002-01-31  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh: really disable X11
+
+2002-01-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	0.6.5 release
+
+	* /cvsroot/lirc/lirc/doc/html-source/help.html: cosmetic fix
+
+2002-01-22  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/INSTALL, /cvsroot/lirc/lirc/README:
+	added pointers to main documentation
+
+2002-01-18  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/.cvsignore: added more files to ignore
+
+	* /cvsroot/lirc/lirc/doc/man/.cvsignore: added .cvsignore
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html:
+	added note about serial.c kernel bug
+
+	* /cvsroot/lirc/lirc/doc/man/Makefile.am:
+	man pages have to go into distribution
+
+	* /cvsroot/lirc/lirc/doc/.cvsignore, /cvsroot/lirc/lirc/README:
+	doc.html has been removed
+
+2002-01-16  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	users don't look in the 'Other serial port devices' section
+
+2002-01-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/Makefile.am, /cvsroot/lirc/lirc/doc/man/Makefile.am, /cvsroot/lirc/lirc/doc/release-man.sh:
+	fixed man page handling (did not install correctly)
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/irrecord.c:
+	cosmetic fixes
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_it87/README, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/setup.sh:
+	renamed I/O base address parameter to io
+
+	* /cvsroot/lirc/lirc/doc/html-source/help.html: fixed typo
+
+2001-12-17  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/head1.html, /cvsroot/lirc/lirc/doc/html-source/head2.html, /cvsroot/lirc/lirc/doc/html-source/head.html, /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/doc/lirc.css, /cvsroot/lirc/lirc/doc/Makefile.am, /cvsroot/lirc/lirc/doc/release-html.sh:
+	cleaned up html documentation, now uses CSS
+
+2001-12-16  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/programs.html:
+	Forgot to remove "html/" from the links.
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html:
+	Revised lircmd/XF4 configuration.
+	More IntelliMouse vs. IMPS/2 updates.
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/programs.html:
+	Some documentation is generated from man pages.
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/head1.html, /cvsroot/lirc/lirc/doc/html-source/head2.html, /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	Fixed html comments which prevented some text from showing up in a browser.
+
+2001-12-15  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/remotes/life-view/lircmd.conf.fly98, /cvsroot/lirc/lirc/remotes/pixelview/lircmd.conf.playtv_pro, /cvsroot/lirc/lirc/remotes/pixelview/lircmd.conf.remotemaster, /cvsroot/lirc/lirc/remotes/silitek/lircmd.conf.silitek, /cvsroot/lirc/lirc/remotes/winfast/lircmd.conf.tv2000, /cvsroot/lirc/lirc/contrib/lircmd.conf, /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/doc/man-source/lircmd.inc, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/avermedia/lircmd.conf.avermedia, /cvsroot/lirc/lirc/remotes/avermedia/lircmd.conf.avermedia98, /cvsroot/lirc/lirc/remotes/bestbuy/lircmd.conf.bestbuy, /cvsroot/lirc/lirc/remotes/bestbuy/lircmd.conf.bestbuy2, /cvsroot/lirc/lirc/remotes/hauppauge/lircmd.conf.hauppauge:
+	Implemented IntelliMouse protocol in lircmd which is more appropriate for the
+	pipe we use there.
+
+2001-12-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_it87/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.h, /cvsroot/lirc/lirc/drivers/lirc_it87/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_it87/README, /cvsroot/lirc/lirc/drivers/lirc_it87/TODO, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added support for ITE IT8712/IT8705 CIR port (Hans-Günter Lütke Uphues)
+
+2001-12-12  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	Added the GPL license paragraph to source files, MODULE_LICENSE
+	declarations and a couple of MODULE_AUTHOR and MODULE_DESCRIPTION
+	declarations.
+
+	* /cvsroot/lirc/lirc/daemons/hw-types.c:
+	Include 'irman' in the list of available drivers if available.
+
+	* /cvsroot/lirc/lirc/configure.in:
+	'irman' support wasn't building properly when driver 'any' was selected.
+
+2001-12-08  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hardware.h, /cvsroot/lirc/lirc/daemons/hw_caraca.c, /cvsroot/lirc/lirc/daemons/hw_creative.c, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/hw_default.h, /cvsroot/lirc/lirc/daemons/hw_irman.c, /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_pinsys.c, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/hw_silitek.c, /cvsroot/lirc/lirc/daemons/hw_slinke.c, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/drivers/lirc.h:
+	implemented functions to set receiver frequency range
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	implemented sane read function
+
+2001-12-02  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in:
+	check for svgalib include files added
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	del_timer_sync() not available in 2.2.x
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html:
+	docs are far from being complete...
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	fixed potential kernel crash due to timer still being active at module removal
+
+	* /cvsroot/lirc/lirc/daemons/hw_logitech.c:
+	increased timeout, warning in debug mode only
+
+2001-11-27  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/dump_config.c:
+	Christoph prefers #ifdef rather than #if with autoconf preprocesor macros.
+
+2001-11-24  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/daemons/lircmd.c:
+	ANSI-C forbids text after #endif, only comments are accepted there.
+
+2001-11-22  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/doc/man2html.c, /cvsroot/lirc/lirc/tools/smode2.c:
+	Removed some compiler warnnings.
+
+2001-11-20  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_gpio/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_i2c/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_sir/Makefile.am:
+	automake 1.5 seams to change some variables which broke module compilation.
+
+	* /cvsroot/lirc/lirc/configure.in:
+	prevent "AC_PROG_CPP was called before AC_PROG_CC" autoconf error.
+
+	* /cvsroot/lirc/lirc/doc/man-source/irrecord.inc, /cvsroot/lirc/lirc/doc/man-source/irw.inc, /cvsroot/lirc/lirc/doc/man-source/irxevent.inc, /cvsroot/lirc/lirc/doc/man-source/lircd.inc, /cvsroot/lirc/lirc/doc/man-source/lircmd.inc, /cvsroot/lirc/lirc/doc/man-source/mode2-common.inc, /cvsroot/lirc/lirc/doc/man-source/mode2.inc, /cvsroot/lirc/lirc/doc/man-source/smode2.inc, /cvsroot/lirc/lirc/doc/man-source/xmode2.inc, /cvsroot/lirc/lirc/tools/irw.c, /cvsroot/lirc/lirc/tools/irxevent.c, /cvsroot/lirc/lirc/tools/mode2.c, /cvsroot/lirc/lirc/tools/smode2.c, /cvsroot/lirc/lirc/tools/xmode2.c, /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/Makefile.am, /cvsroot/lirc/lirc/doc/man2html.c, /cvsroot/lirc/lirc/doc/man-source/daemons.inc, /cvsroot/lirc/lirc/doc/man-source/help2man.inc, /cvsroot/lirc/lirc/doc/man-source/irexec.inc, /cvsroot/lirc/lirc/doc/man-source/irpty.inc, /cvsroot/lirc/lirc/doc/release-html.sh, /cvsroot/lirc/lirc/doc/release-man.sh, /cvsroot/lirc/lirc/Makefile.am:
+	Generate manpages with help2man and html program manuals from the manpages.
+
+2001-11-18  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/pinnacle_systems/lircd.conf.pctv:
+	some more buttons
+
+	* /cvsroot/lirc/lirc/daemons/receive.c: didn't compile
+
+	* /cvsroot/lirc/lirc/daemons/hw_pinsys.c:
+	warning only should appear in debug mode,
+	otherwise the log file could fill up quite fast
+
+2001-11-14  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added support for Prolink PV-BT878P+9B card (Arkadiusz Miskiewicz)
+
+	* /cvsroot/lirc/lirc/daemons/receive.c:
+	introduced better heuristic that should fix problems with repeat and most TV cards
+
+2001-11-14  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/tools/irpty.c:
+	Polishing the use of forkpty in irpty.
+
+2001-11-09  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/programs.html:
+	location of config files was wrong
+
+2001-11-04  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/configure.in:
+	The check for gl_setcontextvga in libvgagl was not using -lvga so it failed
+	even if libvga and libvgagl where there.
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/tools/irpty.c, /cvsroot/lirc/lirc/tools/Makefile.am:
+	Use libc6's forkpty if available: enables devpts and probably devfs support.
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/Makefile.am:
+	made device node creation a configure option, to make easier installation by
+	non root users. This makes Debian packing easier and maybe others.
+
+	* /cvsroot/lirc/lirc/configure.in:
+	Tagged driver/configuration selection heuristic for easier extraction on
+	Debian packing process and maybe others.
+
+2001-11-03  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	accept CR-LF in config file
+
+2001-10-21  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	removed nearly all compile time configuration from module,
+	the used hardware can now be chosen with a variable
+
+2001-10-18  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/serial.c, /cvsroot/lirc/lirc/TODO:
+	recognize stale lockfiles
+
+	* /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	added known bugs section
+
+2001-10-14  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/setup.sh:
+	fixed potential problem with udelay() on fast machines
+
+2001-09-30  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/TODO:
+	added support for Hauppauge DVB-s card
+
+2001-09-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	an unresolved symbol appeared in a special configuration, fixed
+
+2001-09-18  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	loops_per_jiffy is also used since 2.2.18
+
+2001-09-17  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	IRdeo Remote does support receiving
+
+	* /cvsroot/lirc/lirc/setup.sh: fixed typo in TV card selection
+
+2001-09-14  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/setup.sh:
+	added support for IRdeo Remote
+
+2001-09-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/remotes/generic/MOTOROLA.conf:
+	added template config file for Motorola protocol
+
+2001-08-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/NEWS:
+	AVerMedia TV cards with ID 0x00011461 and 0x00041461 should finally work with the provided config files
+
+2001-08-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/daemons/transmit.h:
+	fixed two bugs in transmit code that affected distance between repeated signals
+
+2001-08-16  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	moved error logging to correct place
+
+2001-08-15  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	0.6.4 release
+
+2001-08-10  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	fixed segfault occuring for remotes with very short signals
+
+2001-08-08  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	fixed compile error in debug code
+
+2001-08-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c: rdtsc in 2.2.x
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/NEWS:
+	use rdtsc if available (Steve Davies)
+
+	* /cvsroot/lirc/lirc/remotes/generic/SONY12.conf:
+	measured duty_cycle using oscilloscope
+
+2001-07-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	changes to improve transmissoin quality (Steve Davies)
+
+2001-07-24  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	made ISR more fail safe, some clean-ups
+
+2001-07-18  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	small gaps between bytes were generated...
+
+2001-07-16  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/lircd.c:
+	fixed network only compile error
+
+2001-07-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/serial.c: cosmetic fix
+
+2001-07-11  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/NEWS:
+	fixed bug in Irdeo transmit code
+
+2001-07-06  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	It now should be POSIX Bourne shell compatible.
+
+2001-07-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	produce nicer pre/post data values
+
+2001-07-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/Makefile.am:
+	handle multiple remotes in pre/post remove functions
+
+2001-07-04  uid26674  <uid26674@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	address was reused on wrong socket...
+
+2001-06-24  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/life-view/lircd.conf.FlyVideo_II, /cvsroot/lirc/lirc/setup.sh:
+	added support for FlyVideo II TV card
+
+2001-06-23  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	Animax receiver won't transmit...
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c:
+	changes for 2.4.x kernels
+
+	* /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/setup.sh:
+	hw-types.[c|h] was not included in the distribution
+
+2001-06-15  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/NEWS: updated NEWS file
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c: Power on IR module
+
+2001-06-14  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/remotes/cph03x/lircd.conf.cph03x, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/TODO:
+	added support for FlyVideo 98/FM TV card
+
+	* /cvsroot/lirc/lirc/contrib/conf.modules.aver:
+	lirc_aver no longer exists
+
+2001-06-11  ranty  <ranty@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/programs.html:
+	documentation update: muti-driver lircd and long options for irpty.
+
+	* /cvsroot/lirc/lirc/tools/irpty.c:
+	added long options including --help and --version.
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hardware.h, /cvsroot/lirc/lirc/daemons/hw_caraca.c, /cvsroot/lirc/lirc/daemons/hw_creative.c, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/hw_irman.c, /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_pinsys.c, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/hw_silitek.c, /cvsroot/lirc/lirc/daemons/hw_slinke.c, /cvsroot/lirc/lirc/daemons/hw-types.c, /cvsroot/lirc/lirc/daemons/hw-types.h, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/daemons/receive.c:
+	Multiple drivers may be linked into lircd and selected at runtime.
+
+2001-06-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/dump_config.c: changed description
+
+2001-05-24  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_pinsys.c, /cvsroot/lirc/lirc/daemons/hw_pinsys.h:
+	changed timeout value
+
+2001-05-20  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/winfast/lircd.conf.tv2000, /cvsroot/lirc/lirc/remotes/winfast/lircmd.conf.tv2000, /cvsroot/lirc/lirc/setup.sh:
+	added support for Winfast TV2000,
+	thanks to Juan Toledo for the patch
+
+2001-05-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/install.html:
+	changed default location of some files
+
+	* /cvsroot/lirc/lirc/contrib/lirc.suse7.1:
+	added S.u.S.E. 7.1 init script
+
+2001-04-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_dev/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_gpio/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_i2c/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_sir/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am:
+	modified Makefiles to support DESTDIR, etc.
+
+2001-04-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/remotes/bestbuy/lircd.conf.bestbuy, /cvsroot/lirc/lirc/remotes/bestbuy/lircd.conf.bestbuy2, /cvsroot/lirc/lirc/remotes/bestbuy/lircmd.conf.bestbuy2, /cvsroot/lirc/lirc/setup.sh:
+	added support for BT878 version of BestBuy Easy TV card (Miguel Angel)
+
+	* /cvsroot/lirc/lirc/configure.in: added iPAQ to configure script
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c: reuse address
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/setup.sh:
+	initial iPAQ support (NOT working)
+
+2001-04-24  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/remotes/knc_one/lircd.conf.knc_one, /cvsroot/lirc/lirc/setup.sh:
+	added support for KNC ONE TV cards (Ulrich Mueller)
+
+	* /cvsroot/lirc/lirc/remotes/pinnacle_systems/lircd.conf.pctv:
+	added extra buttons for new version of the remote
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html: added mode3 warning
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html:
+	added X 4.0 configuration detail
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c: fixed repeat bug
+
+	* /cvsroot/lirc/lirc/daemons/hw_silitek.c, /cvsroot/lirc/lirc/daemons/hw_silitek.h, /cvsroot/lirc/lirc/remotes/silitek/lircd.conf.silitek, /cvsroot/lirc/lirc/remotes/silitek/lircmd.conf.silitek:
+	added support for Silitek SM-1000 receiver,
+	many thanks to Krister Wicksell Eriksson
+
+	* /cvsroot/lirc/lirc/tools/irxevent.c: fixed bug (Scott A. Herod)
+
+	* /cvsroot/lirc/lirc/daemons/hw_pixelview.c:
+	timeout was too short (Michael Beattie)
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/tools/irw.c:
+	fixed some compile warnings
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	show buffer overrun error only in DEBUG mode
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	show buffer overrun error only in DEBUG mode,
+	added clock debug code,
+	changes to transmit code
+
+	* /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_slinke.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/remotes/packard_bell/lircd.conf.packard_bell:
+	added support for Silitek SM-1000 receiver,
+	many thanks to Krister Wicksell Eriksson
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	fixed autodetection issues with PixelView cards (Gerd),
+	probe 0x1a first
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	added TCP/IP network support (Bryan Clingman),
+	added support for Silitek SM-1000 receiver,
+	many thanks to Krister Wicksell Eriksson
+
+	* /cvsroot/lirc/lirc/configure.in:
+	added TCP/IP network support (Bryan Clingman),
+	fixed autodetection issues with PixelView cards (Gerd),
+	added support for Silitek SM-1000 receiver,
+	many thanks to Krister Wicksell Eriksson
+
+	* /cvsroot/lirc/lirc/acconfig.h:
+	added TCP/IP network support (Bryan Clingman),
+	fixed autodetection issues with PixelView cards (Gerd)
+
+	* /cvsroot/lirc/lirc/NEWS: changed behaviour of repeat setting,
+	added TCP/IP network support (Bryan Clingman),
+	added support for Silitek SM-1000 receiver,
+	many thanks to Krister Wicksell Eriksson,
+	0.6.3 release
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	added TCP/IP network support (Bryan Clingman)
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c:
+	changed behaviour of repeat setting
+
+2001-02-04  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/remotes/sigma_designs/lircd.conf.realmagic:
+	changes for version 1.5
+
+	* /cvsroot/lirc/lirc/remotes/technisat/lircd.conf.mediafocusI:
+	cosmetic change to reduce confusion
+
+2001-01-30  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.h: fixed bug in map_code
+
+2001-01-27  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/Makefile.am: added dist-bz2 target
+
+2001-01-21  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	fixed possible kernel oops in lirc_i2c
+
+	* /cvsroot/lirc/lirc/daemons/hw_caraca.c, /cvsroot/lirc/lirc/daemons/hw_creative.c, /cvsroot/lirc/lirc/daemons/hw_irman.c, /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/irrecord.c:
+	fixed(?) irrecord toggle_bit problem
+
+	* /cvsroot/lirc/lirc/remotes/bestbuy/lircd.conf.bestbuy, /cvsroot/lirc/lirc/remotes/bestbuy/lircmd.conf.bestbuy:
+	added BestBuy config files
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added support for BestBuy EasyTV (Miguel A. Alvarez <maacruz@navegalia.com>)
+
+2001-01-20  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/remotes/provideo/lircd.conf.pv951:
+	added config file for PV951
+
+2001-01-18  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added support for ProVideo PV951 (Bogdan Gaspar)
+
+	* /cvsroot/lirc/lirc/remotes/generic/DENON.conf: frequency update
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c:
+	fixed 2.0.x compile problem
+
+2001-01-13  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	some AVerMedia card ID related changes
+
+2001-01-11  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/ChangeLog, /cvsroot/lirc/lirc/daemons/irrecord.c:
+	not obvious enough
+
+	* /cvsroot/lirc/lirc/ChangeLog, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia:
+	adjusted number of bits in driver
+
+2001-01-10  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	changes to driver to work with the new AVerMedia config file
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia, /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia98:
+	got the codes of the old AVerMedia remote from Santiago
+
+2001-01-06  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_creative.c, /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_pinsys.c, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/creative/lircd.conf.creative, /cvsroot/lirc/lirc/setup.sh:
+	fixed irrecord incompatibility with some receivers
+
+2001-01-05  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	config file did not work for AVerMedia TVCapture98 1461:0004
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_creative.c, /cvsroot/lirc/lirc/daemons/hw_creative.h, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/setup.sh:
+	added support for Creative Infra receiver
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_gpio/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_i2c/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_sir/Makefile.am:
+	changed for 2.4.0 kernel Makefiles
+
+2000-12-23  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/acinclude.m4, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	some devfs related changes
+
+2000-12-15  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/TODO:
+	added support for Tekram Irmate 210,
+	cleaned up SIR driver (thanks to Frank Przybylski for bug fixes and suggestions)
+
+2000-12-09  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	removed module_ prefix
+
+2000-12-08  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_irman.c, /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_pinsys.c, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/hw_slinke.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/tools/mode2.c, /cvsroot/lirc/lirc/tools/smode2.c, /cvsroot/lirc/lirc/tools/xmode2.c, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/contrib/lirc.debian, /cvsroot/lirc/lirc/contrib/lirc.suse, /cvsroot/lirc/lirc/daemons/hardware.h, /cvsroot/lirc/lirc/daemons/hw_caraca.c, /cvsroot/lirc/lirc/daemons/hw_default.c:
+	device name can be selected from command line
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_fly98/ChangeLog, /cvsroot/lirc/lirc/drivers/lirc_fly98/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.c, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.h, /cvsroot/lirc/lirc/drivers/lirc_fly98/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_fly98/patches/lirc_fly98-bttv-0.6.3.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/patches/lirc_fly98-kernel-2.2.10.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/patches/lirc_fly98-kernel-2.2.11.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/patches/lirc_fly98-kernel-2.2.14.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/patches/lirc_fly98-kernel-2.2.15.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/README, /cvsroot/lirc/lirc/drivers/lirc_gpio/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_i.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/README, /cvsroot/lirc/lirc/remotes/technisat/lircd.conf.mediafocusI, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	added support for Technisat MediaFocus I,
+	moved lirc_gpio_p to lirc_gpio,
+	removed lirc_gpio_i,
+	added support of Fly98 TV card to lirc_gpio (interrupt driven),
+	removed old lirc_fly98 driver,
+	adapted lirc_i2c and lirc_gpio to current bttv versions
+
+2000-12-03  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_i.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	some clean-ups
+
+	* /cvsroot/lirc/lirc/remotes/generic/DENON.conf, /cvsroot/lirc/lirc/remotes/generic/NEC-AIWA.conf, /cvsroot/lirc/lirc/remotes/generic/NEC.conf, /cvsroot/lirc/lirc/remotes/generic/NEC-pulse.conf, /cvsroot/lirc/lirc/remotes/generic/NEC-short-pulse.conf, /cvsroot/lirc/lirc/remotes/generic/RC-5.conf, /cvsroot/lirc/lirc/remotes/generic/RECS80.conf, /cvsroot/lirc/lirc/remotes/generic/SONY12.conf, /cvsroot/lirc/lirc/remotes/generic/SONY20.conf:
+	added generic config files for various protocols
+
+2000-11-30  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	PixelView support, untested
+
+2000-11-26  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/programs.html:
+	documentation updates
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_i.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c:
+	update for 2.4.x kernels
+
+2000-11-25  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/doc/html-source/install.html:
+	better min_repeat handling
+
+2000-11-24  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	changes to transmit code in lirc_serial
+
+2000-11-23  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	compiling the serial port module is not really mandatory
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c: cosmetic changes
+
+	* /cvsroot/lirc/lirc/acinclude.m4:
+	fixed problem when mktemp is not installed
+
+2000-11-16  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html: fixed bad link
+
+2000-11-13  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/doc/html-source/programs.html:
+	existing config files now can be used as templates for new remotes
+
+	* /cvsroot/lirc/lirc/remotes/sigma_designs/lircd.conf.realmagic:
+	config file should be correct now
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	added Miro PCTV to list of supported devices
+
+2000-11-11  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/doc/html-source/install.html:
+	LIRC homepage moved to www.lirc.org
+
+2000-11-10  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/remotes/sigma_designs/lircd.conf.realmagic, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/setup.sh:
+	added support for REALmagic remote control from Sigma Designs
+
+2000-11-09  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_client.h, /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/NEWS:
+	added startup_mode flag to .lircrc config file,
+	thanks to Bruno Coudoin for the patches
+
+2000-11-01  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/programs.html:
+	most users probably don't know how to pass arguments to the slave program
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	workaround for I2C read failures
+
+2000-10-23  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/acinclude.m4:
+	configure script broke with 2.2.18pre* kernels because it failed to recognise the correct CC value,
+	it should work again, but it's still a hack
+
+2000-10-22  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	documentation updated
+
+2000-10-10  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/configure.in:
+	enable devfs only for lirc_dev
+
+2000-10-08  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/contrib/lircd.suse6, /cvsroot/lirc/lirc/contrib/lirc.suse6.2:
+	renamed file
+
+2000-10-07  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	uploaded Gerd's patch,
+	Hauppauge support should work again
+
+2000-10-02  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/serial.c: removed too much
+
+2000-10-01  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/tools/irxevent.c:
+	small fix and enhancement,
+	thanks to Tom Hudec <Tom.Hudec@seznam.cz> for the patch
+
+2000-09-30  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_haup/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c, /cvsroot/lirc/lirc/drivers/lirc_haup/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_i2c/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c, /cvsroot/lirc/lirc/drivers/lirc_i2c/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/README, /cvsroot/lirc/lirc/remotes/pixelview/lircd.conf.playtv_bt878, /cvsroot/lirc/lirc/setup.sh:
+	started adding support for Pixelview PlayTV (bt878) card,
+	not working yet
+
+	* /cvsroot/lirc/lirc/daemons/serial.c, /cvsroot/lirc/lirc/tools/lirc_client.c:
+	small fixes
+
+2000-09-27  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/setup.sh:
+	added support for PixelView PlayTV PAK TV card
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/TODO:
+	temporary devfs work-around
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/TODO:
+	reducing misunderstandings
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	devfs support officially will come with 2.4.x AFAIK
+
+2000-09-26  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh: substituted which with type
+
+2000-09-21  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c:
+	lirc_haup needs bttv module
+
+2000-09-19  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c:
+	bugfix and additional consistency tests
+
+	* /cvsroot/lirc/lirc/contrib/lircs: added LIRC starter stript,
+	thanks to Michael Kammerer for this contribution
+
+2000-09-18  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c:
+	added alternative display mode for xmode2,
+	thanks to Peter T. Whiting for the patch
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/chronos/lircd.conf.chronos, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/ANNOUNCE:
+	 added support for Chronos Video Shuttle II TV card,
+	thanks to Tonu Raitviir <jussuf@BumpClub.ee> for patches
+
+2000-09-17  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/NEWS:
+	fixed typo
+
+2000-09-07  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/setup.sh:
+	added support for Phoebe Tv Master
+
+2000-09-03  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/daemons/receive.h, /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/daemons/transmit.h:
+	recognition of toggle bit should work again,
+	implemented recognition of min_repeat
+
+2000-08-28  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c:
+	mapping should be correct now
+
+2000-08-26  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c:
+	moved some bits around
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	ok, IRdeo support should *work* now,
+	transmitting is also implemented
+
+2000-08-25  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_caraca.c, /cvsroot/lirc/lirc/daemons/hw_caraca.h, /cvsroot/lirc/lirc/remotes/caraca/lircd.conf.caraca, /cvsroot/lirc/lirc/remotes/caraca/lircrc.caraca:
+	added caraca files...
+
+2000-08-23  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	Added support for IRdeo.
+	Currently only receiving works. Many thanks to Hans-Hermann Redenius for contributing a device.
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	Konrad Riedel has added support for CARACA (caraca.sourceforge.net)
+
+2000-08-17  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	bugfix: don't close device during repeating
+
+2000-08-12  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	doc updates
+
+2000-08-05  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh: added bttv card ids
+
+2000-07-29  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c:
+	this mask seems to be correct
+
+2000-07-28  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html:
+	explained bttv autodetection
+
+	* /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_i.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/remotes/pixelview/lircd.conf.playtv_pro, /cvsroot/lirc/lirc/remotes/pixelview/lircrc.playtv_pro:
+	code clean-up (Artur)
+
+2000-07-27  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/remotes/cph03x/lircd.conf.cph03x, /cvsroot/lirc/lirc/setup.sh:
+	some TV card changes
+
+2000-07-26  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/ChangeLog, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/TODO:
+	implemented min_repeat (one TODO item less)
+
+2000-07-23  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c: fix for 2.4.0-test4
+
+	* /cvsroot/lirc/lirc/configure.in: fixed typo in configure script
+
+2000-07-21  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/Makefile.am, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/.cvsignore, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/NEWS:
+	releasing lirc-0.6.1
+
+2000-07-19  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia, /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia98, /cvsroot/lirc/lirc/remotes/avermedia/lircmd.conf.avermedia, /cvsroot/lirc/lirc/remotes/avermedia/lircmd.conf.avermedia98, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/configure.in:
+	added config files for old AVerMedia cards
+
+2000-07-13  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/ChangeLog, /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/daemons/slinke.c, /cvsroot/lirc/lirc/daemons/slinke.h:
+	added a tool to convert Slink-e device files to LIRC config files
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/setup.sh:
+	added CPH6xx support (untested)
+
+2000-07-08  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_pinsys.c, /cvsroot/lirc/lirc/daemons/hw_pinsys.h, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/pinnacle_systems/lircd.conf.pctv, /cvsroot/lirc/lirc/setup.sh:
+	added support for PCTV receiver,
+	many thanks to Bart Alewijnse for contributing the driver
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/hw_irman.c, /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/hw_slinke.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/daemons/serial.c, /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lircd now can be configured to use syslogd for log output,
+	thanks to Rainer Clasen for the suggestion
+
+	* /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/tools/irexec.c, /cvsroot/lirc/lirc/tools/Makefile.am:
+	added --daemon option to irexec (suggestion by Eric Crahen)
+
+2000-07-06  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/NEWS:
+	added RC-MM support
+
+2000-07-05  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/daemons/config_file.h, /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/daemons/receive.h, /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/daemons/transmit.h, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added RC-6 support
+
+	* /cvsroot/lirc/lirc/daemons/hw_slinke.c:
+	made memory allocations safer,
+	freeing allocations
+
+2000-07-02  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_slinke.c, /cvsroot/lirc/lirc/daemons/hw_slinke.h, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/setup.sh:
+	added support for Slink-e from Nirvis Systems,
+	code provided by Max Spring
+
+	* /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_pixelview.c:
+	added O_NONBLOCK,O_NOCTTY flags to open()
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	nobody reads documentations...
+
+2000-06-24  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/receive.c: fix for unusual header
+
+2000-06-22  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/setup.sh:
+	support for CPH03x TV cards (untested)
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/setup.sh:
+	UIR=Irman
+
+2000-06-18  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	fixes for latest kernel,
+	thanks to wollny for the patch
+
+2000-06-12  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/hw_default.h, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/daemons/receive.c, /cvsroot/lirc/lirc/daemons/receive.h, /cvsroot/lirc/lirc/daemons/serial.c, /cvsroot/lirc/lirc/daemons/serial.h, /cvsroot/lirc/lirc/daemons/transmit.c, /cvsroot/lirc/lirc/daemons/transmit.h:
+	internal change of code structure
+
+2000-06-11  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia:
+	AVerMedia config updates
+
+2000-06-02  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia:
+	now should work with TVCapture98 cards
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c:
+	some SMP fixes (thanks to Gert)
+
+2000-05-27  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	chaged default for SOFT_CARRIER to enabled
+
+2000-05-22  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c:
+	finally we get it right, TVPhone98 works
+
+2000-05-21  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c:
+	you were right Artur, it could not be correct... :)
+
+2000-05-15  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/ChangeLog:
+	This is still version 0.1 of the software. A new patches has been added
+	to the archive: for kernel 2.2.14 and 2.2.15.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/README:
+	2.2.15 kernel patch added.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/patches/lirc_fly98-kernel-2.2.15.diff:
+	Patch for 2.2.15 kernel bttv driver added.
+
+2000-05-15  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html:
+	lirc_gpio_p doc updates
+
+2000-05-14  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/help.html: new mailing list
+
+2000-05-11  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/daemons/lircd.c:
+	lircd now creates pid lockfile in /var/run
+
+2000-05-10  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c:
+	code clean-ups (Artur)
+
+2000-05-09  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_aver/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_aver/lirc_aver.c, /cvsroot/lirc/lirc/drivers/lirc_aver/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_aver/patches/lirc_aver-bttv-0.6.4.diff, /cvsroot/lirc/lirc/drivers/lirc_aver/patches/lirc_aver-kernel-2.2.10.diff, /cvsroot/lirc/lirc/drivers/lirc_aver/patches/lirc_aver-kernel-2.2.12.diff, /cvsroot/lirc/lirc/drivers/lirc_pixview/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_pixview/lirc_pixview.c, /cvsroot/lirc/lirc/drivers/lirc_pixview/Makefile.am:
+	removed obsoleted drivers
+
+2000-05-06  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/hw_default.h, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia, /cvsroot/lirc/lirc/remotes/avermedia/lircmd.conf.avermedia:
+	changes to make AverMedia TVCapture98 work with the correct config file
+
+2000-05-05  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c:
+	changed algorithm of get_key() to allow AVerMedia support
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	changed order of devfs registration (Artur)
+
+2000-05-05  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/ChangeLog:
+	Documentation corrected. Patch for kernel 2.2.14 added.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/patches/lirc_fly98-kernel-2.2.14.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/README:
+	Documentation corrected. Added patch for 2.2.14 kernel.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/README:
+	Instructions updated and corrected.
+
+2000-05-04  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	added include for smp_lock.h
+
+2000-05-03  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/doc/html-source/programs.html:
+	added --permission option,
+	lircd creates /dev/lircd if it does not exist
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/doc/html-source/programs.html:
+	added --nodaemon option
+
+	* /cvsroot/lirc/lirc/configure.in: removed superfluous =
+
+2000-04-29  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/acinclude.m4, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	added devfs support to lirc_dev,
+	thanks to Gerd Knorr for patches
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c:
+	fixed handling of minor-numbers
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html:
+	too many people are still trying to run mode2
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	added some maintainer-only functions
+
+2000-04-24  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/config_file.h, /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/drivers/lirc.h, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/NEWS:
+	added duty_cycle option to lircd.conf
+
+	* /cvsroot/lirc/lirc/setup.sh: sorry guys, setup.sh was broken
+
+2000-04-19  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	making things idiot proof, my fault ;-)
+
+2000-04-18  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.h, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup_new.c, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup_new.h, /cvsroot/lirc/lirc/drivers/lirc_haup/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_haup/patches/lirc_haup-linux-2.2.12.diff, /cvsroot/lirc/lirc/setup.sh:
+	removed old (buggy) Hauppauge driver
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/NEWS:
+	hardware is only initialized if clients have connected to lircd
+
+	* /cvsroot/lirc/lirc/doc/html-source/programs.html:
+	added pointer to remote control section
+
+2000-04-17  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/TODO:
+	is this clear enough ?
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c: SIGHUP does again what it should
+
+2000-04-15  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/TODO:
+	implemented proper signal handlers
+
+2000-04-13  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/remotes/pixelview/lircmd.conf.playtv_pro, /cvsroot/lirc/lirc/configure.in:
+	added lircmd config file for PixelView PlayTV pro cards
+
+2000-04-11  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/TODO:
+	daemon(), where are you?
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup_new.c:
+	changed default minor number
+
+	* /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	added short info about lirc_dev purpose and usage
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html:
+	added short info about lirc_gpio_i and lirc_gpio_p with parameter descriptions
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	fixed compatibility bug with DECLARE_WAITQUEUE definition (required for 2.3.x kernels)
+
+2000-04-06  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/Makefile.am:
+	now automake uses top_module variable to find which module is valid
+
+	* /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_i.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c:
+	minor parameter can be now negative and it has -1 as default value
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/Makefile.am:
+	added EXPORT_SYMTAB symbol definition to compiler flags
+
+	* /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c:
+	fixed logical bug in lirc_read function, fixed bug in interpretation of minor device number in lirc_register_plugin
+
+	* /cvsroot/lirc/lirc/configure.in:
+	added a top_module variable which is used in lirc_gpio directory for decision which module (lirc_gpio_p or lirc_gpio_i) to use
+
+2000-04-02  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c: fixes for 2.3.x
+
+	* /cvsroot/lirc/lirc/remotes/pixelview/lircd.conf.playtv_pro, /cvsroot/lirc/lirc/remotes/pixelview/lircrc.playtv_pro:
+	config files for PixelView PlayTV pro card
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/drivers/lirc_dev/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.h, /cvsroot/lirc/lirc/drivers/lirc_dev/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_gpio/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_i.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio_p.c, /cvsroot/lirc/lirc/drivers/lirc_gpio/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.h, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup_new.c, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup_new.h, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	added hardware abstraction layer for TV cards(Artur Lipowski <lipowski@comarch.pl>)
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html:
+	forgot to mention TOGGLE_ACTIVATE
+
+	* /cvsroot/lirc/lirc/daemons/lircmd.c: fixed leave semantics
+
+	* /cvsroot/lirc/lirc/ANNOUNCE: noticed error 1 min after release...
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/head1.html, /cvsroot/lirc/lirc/doc/html-source/head2.html, /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/NEWS:
+	releasing lirc-0.6.0
+
+2000-04-01  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh: last pre release
+
+2000-03-30  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/Makefile.am, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/TODO:
+	probably broke configuration <g>
+
+2000-03-27  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/doc/irxevent.keys, /cvsroot/lirc/lirc/doc/Makefile.am:
+	done
+
+2000-03-25  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/ChangeLog: oops, don't need any ChangeLog in CVS
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c, /cvsroot/lirc/lirc/ChangeLog, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/smode2.c:
+	95% done
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/install.html:
+	ispell is your friend
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	sense variable could tilt in undesired situations
+
+	* /cvsroot/lirc/lirc/tools/irpty.c:
+	found some bugs while trying to understand what this program does
+
+2000-03-24  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	final spurt
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html:
+	compile kernel serial support as module
+
+2000-03-23  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/TODO:
+	SMP support, fixed many minor implementation drawbacks
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c:
+	fixed minor flaw
+
+2000-03-21  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/TODO:
+	finally fixed daemonize code (I hope)
+
+2000-03-18  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh: made clear serial port requirements
+
+2000-03-16  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/tools/xmode2.c:
+	some small fixes
+
+2000-03-14  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/foot.html:
+	only section 3 missing
+
+2000-03-12  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in:
+	better use some default values than :
+
+2000-03-10  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/Makefile.am:
+	removed Hauppauge driver too early
+
+2000-03-09  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/.cvsignore: fixed file name
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/Makefile.am:
+	started removing unmaintained drivers
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	doc 75% ready
+
+2000-03-07  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/configure.html:
+	documentation starts becoming useful
+
+2000-03-03  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_sir/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/drivers/lirc_sir/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/TODO:
+	added SIR IrDA driver from Milan Pikula
+
+2000-03-02  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c:
+	fixed some more init problems (again thanks to Crispin Flowerday)
+
+2000-02-19  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c:
+	fixed reinit problem (thanks to Crispin Flowerday for the hint)
+
+2000-02-12  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircmd.c: release buttons when deactivated
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup_new.c, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup_new.h, /cvsroot/lirc/lirc/drivers/lirc_haup/Makefile.am, /cvsroot/lirc/lirc/setup.sh:
+	added Hauppauge driver that uses new I2C layer,
+	thanks to Tom Lees for the port to the new layer
+
+2000-02-07  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/remotes/pixelview/lircd.conf.remotemaster, /cvsroot/lirc/lirc/remotes/pixelview/lircmd.conf.remotemaster:
+	added config file for lircmd
+
+2000-02-05  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.c, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	corrected EINTR semantics
+
+	* /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/remotes/pixelview/lircd.conf.remotemaster:
+	PixelView RemoteMaster 2000 should work now
+
+2000-02-02  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/tools/irexec.c, /cvsroot/lirc/lirc/tools/irpty.c, /cvsroot/lirc/lirc/tools/irxevent.c, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_client.h:
+	cleaned up library interface
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c: added help string
+
+	* /cvsroot/lirc/lirc/acconfig.h: fixed --disable-long-codes
+
+2000-01-24  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.h:
+	bug hunting
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c: minor fixes
+
+	* /cvsroot/lirc/lirc/remotes/README: pointer to remotes
+
+2000-01-23  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c: minor protocol bug fixed
+
+2000-01-20  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/Makefile.am: remove CVS traces from distribution
+
+2000-01-18  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/Makefile.am: correctec typo
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/remotes/logitech/lircd.conf.logitech, /cvsroot/lirc/lirc/remotes/logitech/lircmd.conf.logitech:
+	added config files for Logitech receiver
+
+1999-12-29  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/kbttv2210-gpiomon.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/kbttv2211-gpiomon.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/patches/lirc_fly98-bttv-0.6.3.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/patches/lirc_fly98-kernel-2.2.10.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/patches/lirc_fly98-kernel-2.2.11.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/bttv063-gpiomon.diff:
+	Diff files moved to the patches directory and commited to cvs.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_fly98/README:
+	Patches renamed and moved to patches subdirectory.
+	Makefile.am modified to include distribution of patches.
+
+1999-12-12  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	some more docs
+
+1999-11-22  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	some more docs
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c:
+	uploaded patch from Mike <rickettm@ox.compsoc.net> for 2.3.x kernels
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	removed autodetection failure warning
+
+1999-11-07  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircmd.c:
+	glibc-2.1 seems to choke on fclose(stdin), hmm...
+
+	* /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/doc/html-source/technical.html:
+	updated docs
+
+1999-10-27  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in: fixed check for libirman
+
+1999-10-20  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_aver/Makefile.am:
+	corrected EXTRA_DIST line
+
+1999-10-19  denis  <denis@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_aver/lirc-aver-2.2.10.patch.gz, /cvsroot/lirc/lirc/drivers/lirc_aver/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_aver/patches/lirc_aver-bttv-0.6.4.diff, /cvsroot/lirc/lirc/drivers/lirc_aver/patches/lirc_aver-kernel-2.2.10.diff, /cvsroot/lirc/lirc/drivers/lirc_aver/patches/lirc_aver-kernel-2.2.12.diff:
+	Added patches with lirc stuff for kernel-2.2.10/2.2.12 and bttv-0.6.4
+
+1999-10-18  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/.cvsignore: added .libs
+
+	* /cvsroot/lirc/lirc/contrib/lircd.suse6: init script for S.u.S.E. 6.2
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/ChangeLog, /cvsroot/lirc/lirc/daemons/hw_default.c:
+	NO_HEAD_REP now works
+	many thanks to Ti Leggett for his help
+
+	* /cvsroot/lirc/lirc/tools/mode2.c, /cvsroot/lirc/lirc/tools/smode2.c, /cvsroot/lirc/lirc/tools/xmode2.c:
+	more understandable error message
+
+1999-10-14  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/help.html:
+	doc updates
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	fixed problem with seldom protocol (untested)
+
+1999-10-09  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/.cvsignore, /cvsroot/lirc/lirc/daemons/.cvsignore, /cvsroot/lirc/lirc/doc/.cvsignore, /cvsroot/lirc/lirc/tools/.cvsignore:
+	updated some .cvsignore files
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c:
+	don't try to compile with old kernels
+
+1999-10-08  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am:
+	create /usr/local/etc/ if not present
+
+1999-10-03  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_haup/patches/lirc_haup-linux-2.2.12.diff:
+	added kernel patch for Hauppauge driver
+
+1999-09-28  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.h, /cvsroot/lirc/lirc/lirc-bttv-2.2.7.patch.gz:
+	removed old patch
+	fixed poll semantics
+
+1999-09-26  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c: some locking fixes
+	patch for 2.3.x provided by Mike Ricketts
+
+1999-09-25  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/smode2.c: fixed typo
+
+1999-09-24  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/ChangeLog: Typos corrected.
+
+1999-09-21  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c:
+	fixed request_module() problem
+	hm, why can't you use the return value ?
+
+1999-09-16  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html: added updating infos
+
+1999-09-16  denis  <denis@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_aver/lirc-aver-2.2.10.patch.gz:
+	Patch against kernel 2.2.10 for AverMedia lirc driver functionality.
+
+1999-09-15  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/mode2.c, /cvsroot/lirc/lirc/tools/smode2.c, /cvsroot/lirc/lirc/tools/xmode2.c:
+	allow only MODE2 drivers
+
+1999-09-13  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/INSTALL, /cvsroot/lirc/lirc/README:
+	writing docs...
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/doc.html, /cvsroot/lirc/lirc/doc/html-source/foot.html, /cvsroot/lirc/lirc/doc/html-source/head1.html, /cvsroot/lirc/lirc/doc/html-source/head2.html, /cvsroot/lirc/lirc/doc/html-source/help.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/programs.html, /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/doc/images/diode.gif, /cvsroot/lirc/lirc/doc/images/lirc.gif, /cvsroot/lirc/lirc/doc/images/marb18.jpg, /cvsroot/lirc/lirc/doc/Makefile.am, /cvsroot/lirc/lirc/doc/release-html.sh:
+	started to write some docu... (thanks to Karsten)
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/contrib/lircd.conf, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/TODO, /cvsroot/lirc/lirc/tools/irexec.c, /cvsroot/lirc/lirc/tools/irpty.c, /cvsroot/lirc/lirc/tools/irw.c, /cvsroot/lirc/lirc/tools/irxevent.c, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_client.h, /cvsroot/lirc/lirc/tools/Makefile.am, /cvsroot/lirc/lirc/tools/mode2.c, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/Makefile.am, /cvsroot/lirc/lirc/NEWS:
+	moved lirc_client into a library
+
+1999-09-12  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/TODO:
+	changes not worth mentioning
+
+1999-09-09  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/ChangeLog, /cvsroot/lirc/lirc/drivers/lirc_fly98/README:
+	Docs (Readme, ChangeLog) corrected and updated.
+
+1999-09-07  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c: added missng &'s
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/tools/irxevent.c:
+	merged with irxevent-0.5.0 with small modifications
+
+1999-09-06  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_irman.c, /cvsroot/lirc/lirc/daemons/hw_irman.h, /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_logitech.h, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/hw_pixelview.h, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/daemons/serial.c, /cvsroot/lirc/lirc/drivers/irman/.cvsignore, /cvsroot/lirc/lirc/drivers/irman/lirmand.c, /cvsroot/lirc/lirc/drivers/irman/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/TODO:
+	removed lirmand,
+	added support of shift encoded remotes to irrecord
+
+1999-09-02  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/config_file.h, /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/dump_config.h, /cvsroot/lirc/lirc/daemons/hardware.h, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/hw_default.h, /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_logitech.h, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/hw_pixelview.h, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/drivers/irman/lirmand.c, /cvsroot/lirc/lirc/drivers/lirc.h, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/tools/mode2.c, /cvsroot/lirc/lirc/tools/smode2.c, /cvsroot/lirc/lirc/tools/xmode2.c:
+	changed type of all signal related data to lirc_t,
+	this should fix incompatibilities with Alphas
+
+1999-08-30  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	implemented repeat code support,
+	thanks to Joachim Groh for suggestions
+
+1999-08-25  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c: fixed typos
+
+1999-08-24  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c:
+	uploaded new version from Heinrich Langos,
+	modified it a bit on occation
+
+1999-08-18  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c: added debug option
+
+1999-08-16  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/kbttv2211-gpiomon.diff:
+	Small bugs (typos) in the patch fixed.
+	Verified that it works with stock 2.2.11 kernel.
+
+1999-08-15  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c: improved sync
+
+1999-08-15  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/kbttv2211-gpiomon.diff:
+	Added patch for version 2.2.11 of the linux kernel.
+
+1999-08-13  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/irrecord.c:
+	further improved irrecord
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c: added heuristic for repeats
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	moved noise filter to device driver
+
+1999-08-12  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/hw_logitech.c, /cvsroot/lirc/lirc/daemons/hw_logitech.h, /cvsroot/lirc/lirc/setup.sh:
+	added support of Logitech/AST receiver
+	many thanks to Isaac Lauer for the patch
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.h, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/irrecord.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/tools/irrecord.c, /cvsroot/lirc/lirc/tools/Makefile.am:
+	moved irrecord to daemons directory
+	started to rewrite irrecord
+	this version is far from being usable
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c: added noise filter
+
+1999-08-07  denis  <denis@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh:
+	Fixed tiny mistake with AverMadia
+
+1999-08-06  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_aver/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_fly98/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_haup/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/setup.sh:
+	automatic install of config files
+	receiver only support in lirc_serial
+
+1999-08-04  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/drivers/lirc_pixview/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_pixview/lirc_pixview.c, /cvsroot/lirc/lirc/drivers/lirc_pixview/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/remotes/pixelview/lircd.conf.playtv, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/configure.in:
+	added Nathan Hand's patch for Pixelview TV cards
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.h, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c:
+	implemented buffer
+	added request_module for bttv
+	fixed bug in locking
+
+1999-08-03  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/.cvsignore, /cvsroot/lirc/lirc/daemons/.cvsignore, /cvsroot/lirc/lirc/drivers/.cvsignore, /cvsroot/lirc/lirc/drivers/irman/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_aver/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_fly98/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_haup/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_parallel/.cvsignore, /cvsroot/lirc/lirc/drivers/lirc_serial/.cvsignore, /cvsroot/lirc/lirc/tools/.cvsignore:
+	added .cvsignore files
+
+	* /cvsroot/lirc/lirc/drivers/lirc_aver/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_fly98/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_haup/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am:
+	Makefiles should now be complete
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c: forgot a FIXME ;-)
+
+	* /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/Makefile.am:
+	small fixes
+
+	* /cvsroot/lirc/lirc/daemons/lircmd.c: new directive: TOGGLE_ACTIVATE
+
+	* /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia, /cvsroot/lirc/lirc/remotes/avermedia/lircmd.conf.avermedia, /cvsroot/lirc/lirc/remotes/life-view/lircd.conf.fly98, /cvsroot/lirc/lirc/remotes/life-view/lircmd.conf.fly98:
+	adjusted config files to use new features
+
+1999-08-03  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/README, /cvsroot/lirc/lirc/remotes/fly98/lircd.conf.fly98, /cvsroot/lirc/lirc/remotes/fly98/lircmd.conf.fly98, /cvsroot/lirc/lirc/remotes/fly98/lircrc.fly98, /cvsroot/lirc/lirc/remotes/life-view/lircd.conf.fly98, /cvsroot/lirc/lirc/remotes/life-view/lircmd.conf.fly98, /cvsroot/lirc/lirc/remotes/life-view/lircrc.fly98:
+	Small additional rearangements
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/README:
+	*** empty log message ***
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/ChangeLog, /cvsroot/lirc/lirc/drivers/lirc_fly98/kbttv2210-gpiomon.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.c, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.h, /cvsroot/lirc/lirc/drivers/lirc_fly98/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_fly98/README:
+	Changed Makefile.am to conform to the rest of the tree. Small modyfication
+	of kernel patch (tristate changed to bool in Config.in). Clean-ups.
+	No real bugs found so far. README modyfied to adapt to this changes.
+	Example configurations moved to live-view directory.
+
+1999-08-02  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/hardware.h, /cvsroot/lirc/lirc/daemons/hw_default.c, /cvsroot/lirc/lirc/daemons/hw_default.h, /cvsroot/lirc/lirc/daemons/hw_pixelview.c, /cvsroot/lirc/lirc/daemons/hw_pixelview.h, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/daemons/serial.c, /cvsroot/lirc/lirc/daemons/serial.h, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/tools/Makefile.am, /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/setup.sh:
+	reorganisation of lircd's code
+	added support for Pixelview RemoteMaster
+
+	* /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.h, /cvsroot/lirc/lirc/drivers/lirc_haup/Makefile.am, /cvsroot/lirc/lirc/remotes/hauppauge/lircmd.conf.hauppauge:
+	uploaded *working* Hauppauge driver
+	many thanks to Matti Airas for making it finally work
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am:
+	added config.h to dependencies
+
+1999-08-02  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/README:
+	nstalation instructions added
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/bttv063-gpiomon.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/ChangeLog, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.c, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.h, /cvsroot/lirc/lirc/drivers/lirc_fly98/README, /cvsroot/lirc/lirc/README, /cvsroot/lirc/lirc/remotes/fly98/lircd.conf.fly98, /cvsroot/lirc/lirc/remotes/fly98/lircmd.conf.fly98, /cvsroot/lirc/lirc/remotes/fly98/lircrc.fly98:
+	Finally a working setup. Further clean-up of the kernel patch (got it
+	even smaller). Configuration files for lircd, lircmd and ~/.lircrc.
+	Lock-up in the bttv caused by wrong initialization order removed.
+	External bttv patch not fully tested yet. Internal version 0.1. BETA.
+
+1999-08-01  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/kbttv2210-gpiomon.diff:
+	Even smaller patch. Only gpiomonitor function added. remote.c removed
+	from the kernel - all is handled by the lirc_fly98.o module.
+	Better integrated with menuconfig of the kernel.
+	Lockup fixed - better update your driver!
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/ChangeLog: Change log file
+
+1999-07-30  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/contrib/lirc.m4:
+	m4 macros to check for LIRC support
+
+	* /cvsroot/lirc/lirc/acinclude.m4, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am:
+	further changes for kernel Makefile usage
+
+1999-07-27  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c:
+	bug-fix for LIRC_MODE_CODE and LIRC_MODE_LIRCCODE,
+	all buttons on Hauppauge remote control should work now
+
+1999-07-27  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.c:
+	Error code returned by read function changed from -EIO to -EFAULT
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/Makefile.am:
+	Default location of the kernel sources changed to more standard dir.
+
+1999-07-27  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am:
+	drivers now use kernel Makefile to compile,
+	this fixes some long known problems
+
+	* /cvsroot/lirc/lirc/acinclude.m4: additional m4 macros
+
+1999-07-27  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/bttv063-gpiomon-0.0.2.diff:
+	*** empty log message ***
+
+	* /cvsroot/lirc/lirc/README: Note for FlyVideo98 added
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/Makefile.am:
+	Errors corrected. Added location of the kernel source as a param.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/README:
+	Small notes about configuration added
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.c, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.h:
+	Minor cleanup of the driver. Poll function added. Bugfixes.
+	Supports patched kernel and external bttv drivers.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/bttv063-gpiomon.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/kbttv2210-gpiomon.diff:
+	Patches for bttv-0.6.3 and kernel bttv 2.2.10.
+	They implement GPIO monitoring hook into the bttv driver.
+	Version 0.0.3
+
+1999-07-26  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/README:
+	First README version - only short notice.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/bttv063-gpiomon-0.0.2.diff, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.h:
+	Patch for the bttv-0.6.3 driver to support GPIO monitoring by
+	external modules. Supports interupt driven reading (no polling).
+	Removed some traces of remote control driver dependence. Changed masks
+	of the interupt mask register. All keys on the remote are properly read
+	(even power key with id=0).
+
+	lirc_fly98.h - header file for the remote control driver.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.c:
+	New version of the driver. Cleaner interface to the bttv driver.
+	LIRC_MODE_CODE mode reading with blocking reads. IOCTRL interface
+	implemented. True interrupt driven readout in the bttv patch.
+	Multi-character reading commented out. Support for multiple cards.
+
+1999-07-24  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	fixes for 2.3.x kernels (thanks to Adam Fritzler for the patch),disabled interrupts during transmission
+
+1999-07-23  jochym  <jochym@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.c:
+	Added author ID to the FlyVideo98 driver
+
+1999-07-21  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.h, /cvsroot/lirc/lirc/Makefile.am, /cvsroot/lirc/lirc/NEWS:
+	several small changes
+
+1999-07-08  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/Makefile.am: added setup.sh
+	added rcs2log call for 'make dist'
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/Makefile.am:
+	maintainer-mode fixes
+
+	* /cvsroot/lirc/lirc/tools/irrecord.c: added debug code
+
+	* /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly89.c, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly98.c:
+	renamed file
+
+1999-06-29  nic  <nic@k7>
+
+	* /cvsroot/lirc/lirc/setup.sh: *** empty log message ***
+
+1999-06-21  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/tools/irrecord.c:
+	support for different modulation frequencies (currently transmission only)
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c:
+	send_command() returns errors
+
+1999-06-19  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_client.h:
+	added new feature to .lircrc config file
+
+1999-06-14  denis  <denis@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_haup/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_fly98/Makefile.am:
+	module_SCRIPTS changed to module_DATA.
+	Run "depmod -a" after installation.
+
+	* /cvsroot/lirc/lirc/contrib/conf.modules.aver:
+	/etc/conf.modules file for autoload lirc_aver driver.
+
+	* /cvsroot/lirc/lirc/contrib/lirc.redhat: RedHat 5.x init script
+
+	* /cvsroot/lirc/lirc/drivers/lirc_aver/lirc_aver.c:
+	Changed indentation from 2 to 8 chars.
+
+1999-06-11  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c: potential memory leak fixed
+
+1999-06-08  denis  <denis@k7>
+
+	* /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia:
+	Support for new 8-bit LIRC_MODE_CODE mode added.
+	Repeat bit support added.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_aver/lirc_aver.c:
+	Compilation with new lirc fixed.
+	New lirc ioctl interface added.
+	Main lirc config.h file added.
+	"major" module option added.
+	Repeat code with "repeat_bit" implemented.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_aver/Makefile.am:
+	Changed .o file representation from module_SCRIPTS to module_DATA
+	because of installed file permissions.
+	Added module dependencies generation (depmod -a) after intallation.
+
+	* /cvsroot/lirc/lirc/configure.in: Added 'depmod' program search.
+	Fixed return value from ${withval} to ${enableval} after AC_ARG_ENABLE.
+	Commented out SHELL redefinition.
+
+1999-05-28  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	lircd could be blocked by applications
+
+1999-05-15  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/Makefile.am:
+	added maintainer mode
+
+1999-05-14  wheeley  <wheeley@k7>
+
+	* /cvsroot/lirc/lirc/drivers/irman/lirmand.c:
+	hopefully fixed buggy daemonization
+
+	* /cvsroot/lirc/lirc/drivers/Makefile.am: added lirc.h to distribution
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/Makefile.am:
+	added maintainer mode
+
+1999-05-10  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	now works with 2.0.x kernels
+
+1999-05-07  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/tools/Makefile.am, /cvsroot/lirc/lirc/tools/mode2.c:
+	added mode2, I need it
+
+	* /cvsroot/lirc/lirc/tools/irrecord.c: added some debug code
+
+1999-05-06  wheeley  <wheeley@k7>
+
+	* /cvsroot/lirc/lirc/drivers/irman/lirmand.c:
+	incorporated signal patch from yoann
+
+	* /cvsroot/lirc/lirc/autogen.sh: added to repository
+
+1999-05-06  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircmd.c:
+	added config-file argument to daemons' command line
+
+1999-05-05  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/drivers/lirc.h, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/tools/irrecord.c:
+	added new ioctl interface to lircd, lirc_parallel, lirc_serial
+
+	* /cvsroot/lirc/lirc/drivers/lirc_aver/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_fly98/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_haup/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am:
+	corrected mknod call
+
+1999-05-04  wheeley  <wheeley@k7>
+
+	* /cvsroot/lirc/lirc/drivers/irman/lirmand.c:
+	fixed signal problem in lirmand.c
+
+1999-05-04  rggammon  <rggammon@k7>
+
+	* /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/drivers/lirc_aver/lirc_aver.c, /cvsroot/lirc/lirc/drivers/lirc_aver/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_fly98/lirc_fly89.c, /cvsroot/lirc/lirc/drivers/lirc_fly98/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc.h, /cvsroot/lirc/lirc/drivers/lirc_haup/lirc_haup.c, /cvsroot/lirc/lirc/drivers/lirc_haup/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/lirc-bttv-2.2.7.patch.gz, /cvsroot/lirc/lirc/remotes/avermedia/lircd.conf.avermedia, /cvsroot/lirc/lirc/remotes/avermedia/lircmd.conf.avermedia, /cvsroot/lirc/lirc/remotes/fly98/lircd.conf.fly98, /cvsroot/lirc/lirc/remotes/fly98/lircmd.conf.fly98:
+	Added patches for Avermedia, Fly98, and Hauppague tv cards. These all need
+	various degrees of work. Also includes an experimental ioctl interface for
+	the avermedia driver.
+
+1999-05-03  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c:
+	fixed stupid bug that has overwritten the control register
+
+1999-04-29  Christoph Bartelmus  <columbus@k7>
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/ChangeLog, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/contrib/irman2lirc, /cvsroot/lirc/lirc/contrib/lircd.conf, /cvsroot/lirc/lirc/contrib/lirc.debian, /cvsroot/lirc/lirc/contrib/lircmd.conf, /cvsroot/lirc/lirc/contrib/lircrc, /cvsroot/lirc/lirc/contrib/lirc.suse, /cvsroot/lirc/lirc/COPYING, /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/config_file.h, /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/dump_config.h, /cvsroot/lirc/lirc/daemons/ir_remote.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircd.h, /cvsroot/lirc/lirc/daemons/lircmd.c, /cvsroot/lirc/lirc/daemons/Makefile.am, /cvsroot/lirc/lirc/drivers/irman/lirmand.c, /cvsroot/lirc/lirc/drivers/irman/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.h, /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am, /cvsroot/lirc/lirc/Makefile.am, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/remotes/animax/lircd.conf.animax, /cvsroot/lirc/lirc/remotes/animax/lircmd.conf.animax, /cvsroot/lirc/lirc/remotes/hauppauge/lircd.conf.hauppauge, /cvsroot/lirc/lirc/remotes/life-view/lircd.conf.FlyVideo_II, /cvsroot/lirc/lirc/remotes/packard_bell/lircd.conf.packard_bell, /cvsroot/lirc/lirc/TODO, /cvsroot/lirc/lirc/tools/irexec.c, /cvsroot/lirc/lirc/tools/irpty.c, /cvsroot/lirc/lirc/tools/irrecord.c, /cvsroot/lirc/lirc/tools/irw.c, /cvsroot/lirc/lirc/tools/irxevent.c, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_client.h, /cvsroot/lirc/lirc/tools/Makefile.am, /cvsroot/lirc/lirc/tools/smode2.c, /cvsroot/lirc/lirc/tools/xmode2.c:
+	changed revision to reflect current lirc version
+
+	* /cvsroot/lirc/lirc/tools/irrecord.c: Imported sources.
+
+	* /cvsroot/lirc/lirc/tools/irrecord.c: New file.
+
+	* /cvsroot/lirc/lirc/tools/irexec.c, /cvsroot/lirc/lirc/tools/irpty.c, /cvsroot/lirc/lirc/tools/irw.c, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_client.h:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/tools/irexec.c, /cvsroot/lirc/lirc/tools/irpty.c, /cvsroot/lirc/lirc/tools/irw.c, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_client.h:
+	New file.
+
+	* /cvsroot/lirc/lirc/tools/irxevent.c: Imported sources.
+
+	* /cvsroot/lirc/lirc/tools/irxevent.c: New file.
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c: Imported sources.
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c: New file.
+
+	* /cvsroot/lirc/lirc/tools/Makefile.am, /cvsroot/lirc/lirc/tools/smode2.c:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/tools/Makefile.am, /cvsroot/lirc/lirc/tools/smode2.c:
+	New file.
+
+	* /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/dump_config.h:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/daemons/dump_config.c, /cvsroot/lirc/lirc/daemons/dump_config.h:
+	New file.
+
+	* /cvsroot/lirc/lirc/daemons/lircmd.c: Imported sources.
+
+	* /cvsroot/lirc/lirc/daemons/lircmd.c: New file.
+
+	* /cvsroot/lirc/lirc/daemons/config_file.h: Imported sources.
+
+	* /cvsroot/lirc/lirc/daemons/config_file.h: New file.
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.h:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/daemons/config_file.c, /cvsroot/lirc/lirc/daemons/ir_remote.h, /cvsroot/lirc/lirc/daemons/lircd.h:
+	New file.
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c: Imported sources.
+
+	* /cvsroot/lirc/lirc/daemons/ir_remote.c: New file.
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c: Imported sources.
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c: New file.
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am: Imported sources.
+
+	* /cvsroot/lirc/lirc/daemons/Makefile.am: New file.
+
+	* /cvsroot/lirc/lirc/drivers/irman/lirmand.c: Imported sources.
+
+	* /cvsroot/lirc/lirc/drivers/irman/lirmand.c: New file.
+
+	* /cvsroot/lirc/lirc/drivers/irman/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.h:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/drivers/irman/Makefile.am, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.h:
+	New file.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_parallel/Makefile.am: New file.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c: New file.
+
+	* /cvsroot/lirc/lirc/contrib/lirc.debian, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/contrib/lirc.debian, /cvsroot/lirc/lirc/drivers/lirc_serial/Makefile.am, /cvsroot/lirc/lirc/drivers/Makefile.am:
+	New file.
+
+	* /cvsroot/lirc/lirc/contrib/irman2lirc, /cvsroot/lirc/lirc/contrib/lircd.conf, /cvsroot/lirc/lirc/contrib/lircmd.conf, /cvsroot/lirc/lirc/contrib/lircrc, /cvsroot/lirc/lirc/contrib/lirc.suse, /cvsroot/lirc/lirc/remotes/packard_bell/lircd.conf.packard_bell:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/contrib/irman2lirc, /cvsroot/lirc/lirc/contrib/lircd.conf, /cvsroot/lirc/lirc/contrib/lircmd.conf, /cvsroot/lirc/lirc/contrib/lircrc, /cvsroot/lirc/lirc/contrib/lirc.suse, /cvsroot/lirc/lirc/remotes/packard_bell/lircd.conf.packard_bell:
+	New file.
+
+	* /cvsroot/lirc/lirc/remotes/animax/lircd.conf.animax, /cvsroot/lirc/lirc/remotes/animax/lircmd.conf.animax, /cvsroot/lirc/lirc/remotes/hauppauge/lircd.conf.hauppauge, /cvsroot/lirc/lirc/remotes/life-view/lircd.conf.FlyVideo_II:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/remotes/animax/lircd.conf.animax, /cvsroot/lirc/lirc/remotes/animax/lircmd.conf.animax, /cvsroot/lirc/lirc/remotes/hauppauge/lircd.conf.hauppauge, /cvsroot/lirc/lirc/remotes/life-view/lircd.conf.FlyVideo_II:
+	New file.
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/ChangeLog, /cvsroot/lirc/lirc/configure.in:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/ChangeLog, /cvsroot/lirc/lirc/configure.in:
+	New file.
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/TODO:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/TODO:
+	New file.
+
+	* /cvsroot/lirc/lirc/COPYING, /cvsroot/lirc/lirc/Makefile.am:
+	Imported sources.
+
+	* /cvsroot/lirc/lirc/COPYING, /cvsroot/lirc/lirc/Makefile.am: New file.
+
+	* /cvsroot/lirc/lirc/AUTHORS: Imported sources.
+
+	* /cvsroot/lirc/lirc/AUTHORS: New file.
+

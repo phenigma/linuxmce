@@ -1,0 +1,40 @@
+* add owner field to lirc_plugin and handle module locking in lirc_dev
+
+* lirc_unregister_plugin() must be possible even when the device is open
+
+* accept comments not only at beginning of line
+
+* transmit behaviour: if(min_repeat>0 && remaining_gap<10000) directly send out all signals (should fix problems with JVC/Echostar dish box described by Karl Bongers)
+
+* fix tool command line options for config file
+
+* on_enter, on_leave in .lircrc modes
+
+* proper devfs
+
+* make the package portable (you will be able to use LIRC with an
+  Irman on Solaris)
+
+* irrecord: fancy Kenwood repeat code 78 11243 78: repeat_tail?
+
+* button_down & button_up codes.
+
+* Pioneer protocol:
+  add irrecord support,
+  reset button state,
+  implement transmitting & config file dump
+
+* Grundig/Motorola (context?) protocol (maybe?)
+
+* echostar protocol reported by John.colburn@shaw.ca:
+  there's no gap and no ptrail although it is space encoded
+
+* internationalization
+
+* IrDA support (SIR support is available, real CIR support is still missing)
+
+* integrate lircrc_config with lirc source package.
+
+* add 'debian/' directory. (ranty)
+
+* write a daemon to keep track of state.

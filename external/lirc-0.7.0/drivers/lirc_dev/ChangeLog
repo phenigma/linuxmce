@@ -1,0 +1,165 @@
+
+RCS file: /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c,v
+Working file: lirc_dev.c
+head: 1.28
+branch:
+locks: strict
+access list:
+symbolic names:
+	lirc-0_7_0pre3: 1.28
+	lirc-0_7_0pre2: 1.26
+	lirc-0_7_0pre1: 1.18
+	lirc-0_6_6: 1.18
+	lirc-0_6_6pre2: 1.18
+	lirc-0_6_6pre1: 1.18
+	lirc-0_6_5: 1.18
+	lirc-0_6_5pre1: 1.17
+	lirc-0_6_4: 1.17
+	lirc-0_6_3: 1.17
+keyword substitution: kv
+total revisions: 28;	selected revisions: 28
+description:
+----------------------------
+revision 1.28
+date: 2004/02/29 11:53:25;  author: lirc;  state: Exp;  lines: +38 -22
+replaced get_key interface with more flexible add_to_buf method
+----------------------------
+revision 1.27
+date: 2004/01/13 13:59:48;  author: lirc;  state: Exp;  lines: +2 -2
+added support for Windows Media Center Remotes (Dan Conti)
+----------------------------
+revision 1.26
+date: 2003/08/05 08:54:21;  author: ranty;  state: Exp;  lines: +2 -2
+If p->get_queue is provided there should be no need for read, poll or ioctl.
+----------------------------
+revision 1.25
+date: 2003/05/04 09:31:28;  author: ranty;  state: Exp;  lines: +6 -7
+Remove extra lirc_buffer_unlock and make irctl_read return if it already wrote
+some data and the buffer is empty.
+----------------------------
+revision 1.24
+date: 2002/12/15 08:49:21;  author: ranty;  state: Exp;  lines: +73 -89
+- lirc_dev:
+	- Introduces 'struct lirc_buffer' and functions to handle it.
+		- Moves the lock and wait queue to 'struct lirc_buffer'.
+		- Locking happens implicitly on lirc_buffer_[read!write]_1.
+		- The caller is responsible of locking on
+		  _lirc_buffer_[read!write]_1
+	- Plugins can provide an 'struct lirc_buffer' for reading.
+	- Remove 'struct irctl'->bytes_in_key in favor of 'struct
+	  lirc_buffer'->chunk_size.
+	- Extends lirc_dev's irctl_read and irctl_poll to acomodate lirc_serial.
+
+- lirc_serial:
+	- Integrates lirc_serial with the above, removing lirc_poll and
+	  lirc_read.
+----------------------------
+revision 1.23
+date: 2002/11/19 20:22:06;  author: ranty;  state: Exp;  lines: +36 -11
+- Make set_use_inc return an int to allow the plugins to reject an open.
+- Move features into 'struct lirc_plugin' to allow the plugins to specify it's
+  features.
+- Add an 'ioctl' function pointer to 'struct lirc_plugin' so plugins have a
+  chance to handle ioctl's before the general cases are handled.
+- Extend the lirc_dev's ioctl handling to be more generic so it meets
+  lirc_serial's needs.
+- Make lirc_serial take advantage of lirc_dev's new capabilities.
+- Make all other drivers fit with lirc_dev's changes.
+----------------------------
+revision 1.22
+date: 2002/11/09 22:13:15;  author: lirc;  state: Exp;  lines: +26 -3
+won't check for signals as signals are all blocked anyway,
+bugfix: lirc_thread has to be waken up during shutdown
+----------------------------
+revision 1.21
+date: 2002/10/15 08:37:39;  author: ranty;  state: Exp;  lines: +2 -2
+New email for Artur Lipowski.
+----------------------------
+revision 1.20
+date: 2002/10/12 15:31:47;  author: ranty;  state: Exp;  lines: +5 -5
+- Removes support for 2.0 kernels;
+- Removes support for 2.2.17 and older kernels, 2.2.18 and above have some
+  usefull 2.4 compatibility built in already;
+- Started a kcompat.h header file, to hold backwards compatibility code.
+----------------------------
+revision 1.19
+date: 2002/10/08 21:59:46;  author: ranty;  state: Exp;  lines: +57 -13
+Make all kernel modules into lirc_plugin's.
+----------------------------
+revision 1.18
+date: 2001/12/12 20:26:01;  author: ranty;  state: Exp;  lines: +18 -2
+Added the GPL license paragraph to source files, MODULE_LICENSE
+declarations and a couple of MODULE_AUTHOR and MODULE_DESCRIPTION
+declarations.
+----------------------------
+revision 1.17
+date: 2000/12/23 11:23:57;  author: columbus;  state: Exp;  lines: +3 -15
+some devfs related changes
+----------------------------
+revision 1.16
+date: 2000/12/09 11:02:02;  author: columbus;  state: Exp;  lines: +6 -4
+removed module_ prefix
+----------------------------
+revision 1.15
+date: 2000/12/03 18:02:54;  author: columbus;  state: Exp;  lines: +14 -9
+some clean-ups
+----------------------------
+revision 1.14
+date: 2000/09/30 19:32:40;  author: columbus;  state: Exp;  lines: +2 -2
+started adding support for Pixelview PlayTV (bt878) card,
+not working yet
+----------------------------
+revision 1.13
+date: 2000/09/27 17:49:47;  author: columbus;  state: Exp;  lines: +7 -2
+devfs support officially will come with 2.4.x AFAIK
+----------------------------
+revision 1.12
+date: 2000/09/07 16:05:22;  author: columbus;  state: Exp;  lines: +2 -2
+added support for Phoebe Tv Master
+----------------------------
+revision 1.11
+date: 2000/07/28 11:10:44;  author: columbus;  state: Exp;  lines: +47 -43
+code clean-up (Artur)
+----------------------------
+revision 1.10
+date: 2000/07/26 19:49:16;  author: columbus;  state: Exp;  lines: +4 -7
+implemented min_repeat (one TODO item less)
+----------------------------
+revision 1.9
+date: 2000/07/23 10:32:02;  author: columbus;  state: Exp;  lines: +3 -3
+fix for 2.4.0-test4
+----------------------------
+revision 1.8
+date: 2000/06/18 09:28:01;  author: columbus;  state: Exp;  lines: +8 -11
+fixes for latest kernel,
+thanks to wollny for the patch
+----------------------------
+revision 1.7
+date: 2000/06/02 14:15:56;  author: columbus;  state: Exp;  lines: +11 -15
+some SMP fixes (thanks to Gert)
+----------------------------
+revision 1.6
+date: 2000/05/05 11:07:06;  author: columbus;  state: Exp;  lines: +15 -16
+changed order of devfs registration (Artur)
+----------------------------
+revision 1.5
+date: 2000/05/04 05:15:05;  author: columbus;  state: Exp;  lines: +2 -1
+added include for smp_lock.h
+----------------------------
+revision 1.4
+date: 2000/04/29 09:12:38;  author: columbus;  state: Exp;  lines: +36 -2
+added devfs support to lirc_dev,
+thanks to Gerd Knorr for patches
+----------------------------
+revision 1.3
+date: 2000/04/11 13:52:38;  author: columbus;  state: Exp;  lines: +6 -5
+fixed compatibility bug with DECLARE_WAITQUEUE definition (required for 2.3.x kernels)
+----------------------------
+revision 1.2
+date: 2000/04/06 17:22:42;  author: columbus;  state: Exp;  lines: +41 -26
+fixed logical bug in lirc_read function, fixed bug in interpretation of minor device number in lirc_register_plugin
+----------------------------
+revision 1.1
+date: 2000/04/02 13:07:21;  author: columbus;  state: Exp;
+added hardware abstraction layer for TV cards(Artur Lipowski <lipowski@comarch.pl>)
+=============================================================================

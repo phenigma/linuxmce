@@ -1,0 +1,68 @@
+#
+# this config file was automatically generated
+# using lirc-0.6.6(serial) on Tue Dec  3 19:42:24 2002
+#
+# contributed by 
+#
+# brand:                       /etc/lircd.conf
+# model no. of remote control: 
+# devices being controlled by this remote:
+#
+
+begin remote
+
+  name  /etc/lircd.conf
+  bits           16
+  flags SPACE_ENC|CONST_LENGTH
+  eps            30
+  aeps          100
+
+  header       9109  4449
+  one           628  1630
+  zero          628   499
+  ptrail        626
+  repeat       9110  4447
+  pre_data_bits   26
+  pre_data       0x1A1F2F
+  gap          108378
+  toggle_bit      0
+
+
+      begin codes
+          power                    0x00000000000000FF
+          mouse                    0x000000000000807F
+          tv                       0x00000000000040BF
+          1                        0x000000000000C03F
+          2                        0x00000000000020DF
+          3                        0x000000000000A05F
+          4                        0x000000000000E01F
+          5                        0x00000000000010EF
+          6                        0x000000000000906F
+          7                        0x000000000000D02F
+          8                        0x00000000000030CF
+          9                        0x000000000000B04F
+          0                        0x000000000000F00F
+          repeat                   0x000000000000F807
+          enter                    0x00000000000008F7
+          focus                    0x000000000000609F
+          source                   0x00000000000050AF
+          playmode                 0x000000000000708F
+          switch                   0x0000000000008877
+          audio                    0x00000000000048B7
+          video                    0x000000000000C837
+          catv                     0x00000000000028D7
+          stereo                   0x000000000000A857
+          +                        0x0000000000006897
+          up                       0x000000000000E817
+          mute                     0x000000000000B847
+          -                        0x0000000000009867
+          down                     0x00000000000058A7
+          prev                     0x00000000000038C7
+          play                     0x0000000000007887
+          stop                     0x000000000000D827
+          next                     0x00000000000018E7
+      end codes
+
+end remote
+
+

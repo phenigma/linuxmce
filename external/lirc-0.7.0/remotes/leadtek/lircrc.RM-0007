@@ -1,0 +1,443 @@
+# lircrc
+#end
+begin
+    prog   = irexec
+    flags  = startup_mode
+    mode   = xmms
+end
+
+begin
+    prog   = irexec
+    button = MTS
+    config = echo "turning monitor off..." && xset dpms force off
+    flags  = once
+end
+
+begin
+    prog   = irexec
+    button = RED
+    config = echo "xawtv"
+    mode   = xawtv
+end
+
+begin
+    prog   = irexec
+    button = GREEN
+    config = echo "xmms" && xmms &
+    mode   = xmms
+end
+
+begin
+    prog   = irexec
+    button = YELLOW
+    config = echo "mplayer"
+    mode   = mplayer
+end
+
+begin
+    prog   = irexec
+    button = BLUE
+    config = echo "mouse"
+    mode   = mouse
+end
+
+begin
+    prog   = irexec
+    button = MUTE
+    config = echo "mute" && rexima vol 0
+    config = echo "unmute" && rexima vol 75
+end
+
+# YELLOW ESTA RESERVADO PARA EL LIRC-MOUSE
+
+# xawtv
+#####################################################################
+begin xawtv
+    begin
+        prog   = irexec
+        button = POWER
+        config = xawtv &
+        config = xawtv-remote quit &
+    end
+    begin
+	prog   = xawtv
+	button = CH_UP
+	config = setstation next
+        repeat = 2
+    end
+    begin
+	prog   = xawtv
+	button = CH_DOWN
+	config = setstation prev
+        repeat = 2
+    end
+    begin
+	prog   = xawtv
+	button = VOL_UP
+	config = volume inc
+        repeat = 1
+    end
+    begin
+	prog   = xawtv
+	button = VOL_DOWN
+	config = volume dec
+        repeat = 1
+    end
+    begin
+	prog   = xawtv
+	button = PC/TV
+	config = fullscreen toggle
+    end
+    begin
+	prog   = xawtv
+	button = VIDEO
+	config = setinput next
+    end
+    # Keypad
+    begin
+	prog   = xawtv
+	button = 1
+	config = keypad 1
+    end
+    begin
+	prog   = xawtv
+	button = 2
+	config = keypad 2
+    end
+    begin
+	prog   = xawtv
+	button = 3
+	config = keypad 3
+    end
+    begin
+	prog   = xawtv
+	button = 4
+	config = keypad 4
+    end
+    begin
+	prog   = xawtv
+	button = 5
+	config = keypad 5
+    end
+    begin
+	prog   = xawtv
+	button = 6
+	config = keypad 6
+    end
+    begin
+	prog   = xawtv
+	button = 7
+	config = keypad 7
+    end
+    begin
+	prog   = xawtv
+	button = 8
+	config = keypad 8
+    end
+    begin
+	prog   = xawtv
+	button = 9
+	config = keypad 9
+    end
+    begin
+	prog   = xawtv
+	button = 0
+	config = keypad 0
+    end
+end xawtv
+
+# xmms
+#####################################################################
+begin xmms
+    begin
+        prog   = xmms
+        button = POWER
+        config = STOP
+    end
+    begin
+        prog   = xmms
+        button = FM
+        config = PLAYPAUSE
+    end
+    begin
+        prog   = xmms
+        button = HELP
+        config = SHUFFLE
+    end
+    begin
+        prog   = xmms
+        button = SCAN
+        config = REPEAT
+    end
+    begin
+        prog   = irexec
+        button = OPTIONS
+        config = echo "going to xmms select mode..."
+        mode   = xmms_select
+    end
+    begin
+        prog   = xmms
+        button = CH_UP
+        config = NEXT
+    end
+    begin
+        prog   = xmms
+        button = CH_DOWN
+        config = PREV
+    end
+    begin
+        prog   = xmms
+        button = PC/TV
+        config = FWD 3
+        repeat = 2
+    end
+    begin
+        prog   = xmms
+        button = MENU
+        config = BWD 3
+        repeat = 2
+    end
+    begin
+	prog   = irexec
+	button = VOL_UP
+	config = aumix -p +5
+        repeat = 1
+    end
+    begin
+	prog   = irexec
+	button = VOL_DOWN
+	config = aumix -p -5
+        repeat = 1
+    end
+    begin
+        prog   = xmms
+        button = 1
+        config = ONE
+    end
+    begin
+        prog   = xmms
+        button = 2
+        config = TWO
+    end
+    begin
+        prog   = xmms
+        button = 3
+        config = THREE
+    end
+    begin
+        prog   = xmms
+        button = 4
+        config = FOUR
+    end
+    begin
+        prog   = xmms
+        button = 5
+        config = FIVE
+    end
+    begin
+        prog   = xmms
+        button = 6
+        config = SIX
+    end
+    begin
+        prog   = xmms
+        button = 7
+        config = SEVEN
+    end
+    begin
+        prog   = xmms
+        button = 8
+        config = EIGHT
+    end
+    begin
+        prog   = xmms
+        button = 9
+        config = NINE
+    end
+    begin
+        prog   = xmms
+        button = 0
+        config = ZERO
+    end
+    begin
+        prog   = xmms
+        button = RETURN
+        config = SETPOS
+    end
+#   begin
+#      prog   = xmms
+#      button = clear
+#      config = PLAYLIST_CLEAR
+#   end
+#   begin
+#      prog   = xmms
+#      button = load
+#      config = PLAYLIST_ADD .xmms/xmms.m3u
+#   end
+end xmms
+ 
+# The following is an alternative mapping for the number-pad to show
+# how to use the SELECT command.
+begin xmms_select
+    begin
+        prog   = xmms
+        button = POWER
+        config = STOP
+    end
+    begin
+        prog   = xmms
+        button = FM
+        config = PLAYPAUSE
+    end
+    begin
+        prog   = xmms
+        button = HELP
+        config = SHUFFLE
+    end
+    begin
+        prog   = xmms
+        button = SCAN
+        config = REPEAT
+    end
+    begin
+        prog   = irexec
+        button = OPTIONS
+        config = echo "returning to normal xmms mode..."
+        mode   = xmms
+    end
+    begin
+        prog   = xmms
+        button = CH_UP
+        config = NEXT
+    end
+    begin
+        prog   = xmms
+        button = CH_DOWN
+        config = PREV
+    end
+    begin
+        prog   = xmms
+        button = PC/TV
+        config = FWD 3
+        repeat = 2
+    end
+    begin
+        prog   = xmms
+        button = MENU
+        config = BWD 3
+        repeat = 2
+    end
+    begin
+	prog   = irexec
+	button = VOL_UP
+	config = aumix -p +5
+        repeat = 1
+    end
+    begin
+	prog   = irexec
+	button = VOL_DOWN
+	config = aumix -p -5
+        repeat = 1
+    end
+
+    begin
+        prog   = xmms
+        button = 1
+        config = SELECT 1
+    end
+    begin
+        prog   = xmms
+        button = 2
+        config = SELECT 2ABC
+    end
+    begin
+        prog   = xmms
+        button = 3
+        config = SELECT 3DEF
+    end
+    begin
+        prog   = xmms
+        button = 4
+        config = SELECT 4GHI
+    end
+    begin
+        prog   = xmms
+        button = 5
+        config = SELECT 5JKL
+    end
+    begin
+        prog   = xmms
+        button = 6
+        config = SELECT 6MNO
+    end
+    begin
+        prog   = xmms
+        button = 7
+        config = SELECT 7PQRS
+    end
+    begin
+        prog   = xmms
+        button = 8
+        config = SELECT 8TUV
+    end
+    begin
+        prog   = xmms
+        button = 9
+        config = SELECT 9WXYZ
+    end
+    begin
+        prog   = xmms
+        button = RETURN
+        config = SETPOS
+    end
+end xmms_select
+
+# xmplayer
+#####################################################################
+begin mplayer
+    begin
+        prog   = mplayer
+        button = POWER
+        config = quit
+        mode   = xmms
+    end
+    begin
+	prog   = irexec
+	button = VOL_UP
+	config = aumix -p +5
+        repeat = 1
+    end
+    begin
+	prog   = irexec
+	button = VOL_DOWN
+	config = aumix -p -5
+        repeat = 1
+    end
+    begin
+        prog   = mplayer
+        button = HELP
+        config = pause
+    end
+    begin
+        prog   = mplayer
+        button = PC/TV
+        config = fullscreen
+    end
+    begin
+        prog   = mplayer
+        button = CH_UP
+        config = seek +10
+        repeat = 1
+    end
+    begin
+        prog   = mplayer
+        button = CH_DOWN
+        config = seek -10
+        repeat = 1
+    end
+    begin
+        prog   = mplayer
+        button = RETURN
+        config = seek 0 1\npause
+    end
+end mplayer

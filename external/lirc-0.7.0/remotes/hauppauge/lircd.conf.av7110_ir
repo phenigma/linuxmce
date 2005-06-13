@@ -1,0 +1,59 @@
+#
+# lircd.conf (VDR, Hauppauge WinTV Nexus Rev 2.1)
+#
+# by Oliver Endriss o.endriss@gmx.de
+#
+
+#
+# tested with API-2 (NEWSTRUCT) and API-3 DVB driver (/dev/input/event0)
+#
+
+begin remote
+  name  nexus-event0
+      begin codes
+# TV
+          Red                      0x0000000080010179
+
+# RADIO
+          Green                    0x0000000080010181
+
+# FULL_SCREEN
+          Ok                       0x0000000080010177
+
+# CH+
+          Up                       0x0000000080010192
+
+# CH-
+          Down                     0x0000000080010193
+
+# VOL-
+          Left                     0x0000000080010072
+
+# VOL+
+          Right                    0x0000000080010073
+
+# MUTE
+          Menu                     0x0000000080010071
+
+# SOURCE
+          Back                     0x0000000080010161
+
+          1                        0x0000000080010002
+          2                        0x0000000080010003
+          3                        0x0000000080010004
+          4                        0x0000000080010005
+          5                        0x0000000080010006
+          6                        0x0000000080010007
+          7                        0x0000000080010008
+          8                        0x0000000080010009
+          9                        0x000000008001000a
+          0                        0x000000008001000b
+
+# RESERVED
+          Yellow                   0x0000000080010168
+
+# MINIMIZE
+          Blue                     0x000000008001009a
+      end codes
+
+end remote
