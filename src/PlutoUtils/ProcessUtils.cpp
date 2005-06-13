@@ -20,7 +20,13 @@ namespace ProcessUtils
 	using std::map;
 	using std::vector;
 
-	typedef map<int, void*> MapPidToData;
+	class PidData
+	{
+	public:
+		void *m_pData;
+	};
+
+	typedef map<int, PidData *> MapPidToData;
 	typedef map<string, MapPidToData> MapIdentifierToPidData;
 
 	MapIdentifierToPidData mapIdentifierToPidData;
@@ -160,6 +166,8 @@ bool ProcessUtils::ApplicationExited(int pid, string &associatedName, void *&ass
 	// It can happen the thread that spawns hasn't yet had a chance to store the pid before it exits
 	// Sleep half a sec just to be sure we give it some time.
 	Sleep(500);
+
+	printf("ProcessUtils::ApplicationExited() pid exited: %d\n", pid);
 
 	pthread_mutex_lock(&mutexDataStructure);
 
