@@ -209,6 +209,18 @@ void VideoLan_Server::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlayback
 	cout << "Need to implement command #41 - Change Playback Speed" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #43 - MediaPlaybackSpeed=" << iMediaPlaybackSpeed << endl;
+
+	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
+
+	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
+	if( !pVideoLanServerInstance )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt change playback on nonexistant stream");
+		return;
+	}
+
+	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"next")==false )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop VideoLan Server");
 }
 
 //<-dceag-c63-b->
