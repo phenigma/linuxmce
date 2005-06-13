@@ -187,7 +187,8 @@ bool ProcessUtils::ApplicationExited(int pid, string &associatedName, void *&ass
 		if ( itPidsToData != mapPidsToData.end() )
 		{
 			associatedName = applicationElement->first;
-			associatedData = itPidsToData->second;
+			PidData *pPidData = itPidsToData->second;
+			associatedData = pPidData->m_pData;
 
 			if ( removeIt )
 				mapPidsToData.erase(itPidsToData);
