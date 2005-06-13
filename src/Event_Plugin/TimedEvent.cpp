@@ -69,7 +69,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 			time_t t=time(NULL);
 			struct tm *tm_Now = localtime(&t);
 			int CurrentDow = tm_Now->tm_wday==0 ? 7 : tm_Now->tm_wday; // We use M=1, Sunday=7
-			if( (m_sDaysOfWeek.length() && !m_sDaysOfWeek.find(StringUtils::itos(CurrentDow))) ||
+			if( (m_sDaysOfWeek.length() && !m_sDaysOfWeek.find(StringUtils::itos(CurrentDow))==string::npos) ||
 				!SetNextTime(tm_Now,tm_Now,m_sTimes) )
 			{
 				// Either the current day is not in the list, or there are no times in m_sTimes that are after tm_Now.
@@ -160,7 +160,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 		m_tTime = time(NULL);
 struct tm *tmLocal = localtime(&m_tTime);
 g_pPlutoLogger->Write(LV_STATUS,"Timer: %s set for %d/%d/%d %d:%d:%d in %d seconds",
-	m_pRow_EventHandler->Description_get().c_str(),tmLocal->tm_mon+1,tmLocal->tm_mday,tmLocal->tm_year,tmLocal->tm_hour,tmLocal->tm_min,tmLocal->tm_sec,m_tTime - time(NULL));
+	m_pRow_EventHandler->Description_get().c_str(),tmLocal->tm_mon+1,tmLocal->tm_mday,tmLocal->tm_year-100,tmLocal->tm_hour,tmLocal->tm_min,tmLocal->tm_sec,m_tTime - time(NULL));
 }
 
 class TimeOfDay
@@ -195,8 +195,8 @@ public:
 	{
 		if( tm->tm_hour!=m_H )
 			return m_H>=tm->tm_hour;
-		if( tm->tm_hour!=m_M )
-			return m_M>=tm->tm_hour;
+		if( tm->tm_min!=m_M )
+			return m_M>=tm->tm_min;
 		return m_S>=tm->tm_hour;
 	};
 };

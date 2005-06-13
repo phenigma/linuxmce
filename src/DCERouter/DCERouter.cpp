@@ -2117,7 +2117,13 @@ void Router::Configure()
 		}
         DeviceData_Router *pDevice_RouteTo = m_mapDeviceData_Router_Find(pDevice->m_pRow_Device->FK_Device_RouteTo_get());
         if( pDevice_RouteTo )
+		{
             pDevice->m_pDevice_RouteTo = pDevice_RouteTo;
+			if( pDevice->m_dwPK_Room != pDevice_RouteTo->m_dwPK_Room )
+			{
+				pDevice->m_pRow_Device->FK_Room_set()==
+			}
+		}
     }
 
 	// Be sure nothing is recursive

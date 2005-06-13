@@ -37,7 +37,12 @@ using namespace DCE;
 Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Event_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_EventMutex("security")
 {
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+	m_EventMutex.Init(&m_MutexAttr);
+
 	m_dwID_EventInstance=0;
 	m_pTimedEvent_Next=NULL;
 
@@ -74,7 +79,14 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 		if( pRow_EventHandler->TimedEvent_get() )
 		{
 			TimedEvent *pTimedEvent = new TimedEvent(pRow_EventHandler);
-			m_mapTimedEvent[pTimedEvent->m_pRow_EventHandler->PK_EventHandler_get()] = pTimedEvent;
+			pTimedEvent->m_pCommandGroup = m_pRouter->m_mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get());
+			if( !pTimedEvent->m_pCommandGroup )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Timed event %d has no commands",pRow_EventHandler->PK_EventHandler_get());
+				delete pTimedEvent;
+			}
+			else
+				m_mapTimedEvent[pTimedEvent->m_pRow_EventHandler->PK_EventHandler_get()] = pTimedEvent;
 		}
 		else
 		{
@@ -92,6 +104,10 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 		}
 	}
 
+	m_pAlarmManager = new AlarmManager();
+    m_pAlarmManager->Start(2);      //4 = number of worker threads
+
+	PLUTO_SAFETY_LOCK(em,m_EventMutex);
 	SetNextTimedEventCallback();
 }
 
@@ -241,6 +257,7 @@ void Event_Plugin::ExecuteEvent(EventInstance *pEventInstance)
 
 void Event_Plugin::SetNextTimedEventCallback()
 {
+	PLUTO_SAFETY_LOCK(em,m_EventMutex);
 	if( m_mapTimedEvent.size()==0 )
 	{
 		m_pTimedEvent_Next=NULL;
@@ -257,14 +274,28 @@ void Event_Plugin::SetNextTimedEventCallback()
 		if( pTimedEvent->m_tTime < m_pTimedEvent_Next->m_tTime )
 			m_pTimedEvent_Next = pTimedEvent;
 	}
+
+	if( m_pTimedEvent_Next )
+	{
+		m_pAlarmManager->AddAbsoluteAlarm( m_pTimedEvent_Next->m_tTime, this, ALARM_TIMED_EVENT, (void *) m_pTimedEvent_Next );
+		g_pPlutoLogger->Write(LV_STATUS,"Timer: next event is %s in %d seconds",
+			m_pTimedEvent_Next->m_pRow_EventHandler->Description_get().c_str(),
+			m_pTimedEvent_Next->m_tTime - time(NULL));
+	}
 }
 
 void Event_Plugin::AlarmCallback(int id, void* param)
 {
+	PLUTO_SAFETY_LOCK(em,m_EventMutex);
 	if( id==ALARM_TIMED_EVENT )
 	{
 		TimedEvent *pTimedEvent = (TimedEvent *) param;
+
+		g_pPlutoLogger->Write(LV_STATUS,"Timer: %s firing command group %d",
+			pTimedEvent->m_pRow_EventHandler->Description_get().c_str(),pTimedEvent->m_pCommandGroup->m_PK_CommandGroup);
+
 		ExecCommandGroup(pTimedEvent->m_pCommandGroup->m_PK_CommandGroup);
+		pTimedEvent->CalcNextTime();
 		SetNextTimedEventCallback();
 	}
 }

@@ -25,6 +25,9 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		pluto_pthread_mutex_t m_EventMutex;
+		pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
+		class AlarmManager *m_pAlarmManager;
 	    Database_pluto_main *m_pDatabase_pluto_main;
 		map<int,Criteria *> m_mapCriteria;
 		map<int,ListEventHandler *> m_mapListEventHandler;
