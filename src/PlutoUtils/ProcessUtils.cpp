@@ -156,7 +156,7 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 	while ( itPidsToData != mapPidsToData.end() )
 	{
 		pidsArray.push_back(itPidsToData->first);
-		associatedData.push_back(itPidsToData->second);
+		associatedData.push_back(itPidsToData->second->m_pData);
 		itPidsToData++;
 	}
 
@@ -259,4 +259,5 @@ bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
 	}
 
 	pthread_mutex_unlock(&mutexDataStructure);
+	return true;
 }
