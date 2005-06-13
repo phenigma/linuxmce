@@ -86,7 +86,7 @@ case "$URL_TYPE" in
 				Version=$(dpkg -s "$PKG_NAME" | grep ^Version: | cut -d' ' -f2-)
 				DateTime=$(date +'%Y-%m-%d %k:%M:%S')
 				Q="INSERT INTO Package_Device(FK_Package, FK_Device, Version, InstallDate) VALUES('$PK_PACKAGE', '$PK_Device', '$Version', '$DateTime')"
-				echo "$Q;" | /usr/bin/mysql -h $MySQLHost -u $MySqlUser pluto_main &>/dev/null || /bin/true
+				echo "$Q;" | /usr/bin/mysql -h $MySqlHost -u $MySqlUser pluto_main &>/dev/null || /bin/true
 			fi
 
 			#unset http_proxy
