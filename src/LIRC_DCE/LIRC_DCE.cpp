@@ -18,6 +18,10 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/fcntl.h>
+
 //<-dceag-const-b->!
 // The primary constructor when the class is created as a stand-alone device
 LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -117,8 +121,23 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 		sSerialPort = "/dev/ttyS1";
 		g_pPlutoLogger->Write(LV_STATUS, "->Found Serial 2 in database");
 	} else {
-		sSerialPort = "/dev/lircd";
-		g_pPlutoLogger->Write(LV_STATUS, "No SerialPort selected, selecting default /dev/lircd");
+		struct stat buf;
+		
+		if (stat("/dev/lirc", &buf) != -1 && S_ISCHR(buf.st_mode))
+		{
+			sSerialPort = "/dev/lirc";
+		}
+		else if (stat("/dev/lirc/0", &buf) != -1 && S_ISCHR(buf.st_mode))
+		{
+			sSerialPort = "/dev/lirc/0";
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "No SerialPort selected and no default entry found. Exiting.");
+			exit(0);
+		}
+
+		g_pPlutoLogger->Write(LV_STATUS, "No SerialPort selected, selecting default %s", sSerialPort.c_str());
 	}
 	
 	if(sLIRCDriver == "") {
