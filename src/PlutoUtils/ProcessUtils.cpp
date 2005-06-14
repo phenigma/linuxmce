@@ -80,6 +80,7 @@ printf("dupped arg %d %s\n",i,ps);
 	int in[2];
 	pipe(in);
 
+	pthread_mutex_lock(&mutexDataStructure);
     pid_t pid = fork();
 
     switch (pid)
@@ -112,6 +113,7 @@ printf("dupped arg %d %s\n",i,ps);
 
         case -1:
             printf("ProcessUtils::SpawnApplication() Error starting %s, err: %s\n", sCmdExecutable.c_str(), strerror(errno));
+			pthread_mutex_unlock(&mutexDataStructure);
             return false;
 
 		default:
@@ -119,9 +121,8 @@ printf("dupped arg %d %s\n",i,ps);
 			for(int i=0;i<i;++i)
 				free(args[i]);
 
-			printf("Freed args");
+			printf("Freed args\n");
 
-			pthread_mutex_lock(&mutexDataStructure);
 			printf("ProcessUtils::SpawnApplication() adding this %d pid to the spawned list for %s\n", pid, sAppIdentifier.c_str());
 
 			if ( mapIdentifierToPidData.find(sAppIdentifier) == mapIdentifierToPidData.end() )
@@ -190,10 +191,6 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 
 bool ProcessUtils::ApplicationExited(int pid, string &associatedName, void *&associatedData, bool removeIt)
 {
-	// It can happen the thread that spawns hasn't yet had a chance to store the pid before it exits
-	// Sleep half a sec just to be sure we give it some time.
-	Sleep(500);
-
 	printf("ProcessUtils::ApplicationExited() pid exited: %d\n", pid);
 
 	pthread_mutex_lock(&mutexDataStructure);
