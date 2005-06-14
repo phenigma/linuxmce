@@ -1847,8 +1847,9 @@ function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey
 {
 //	if(count($valuesArray)==0)
 //		return null;
-	$out='<select name="'.$name.'" "'.$extra.'">
-			<option value="0">'.$zeroValueDescription.'</option>';
+	$out='<select name="'.$name.'" "'.$extra.'">';
+	if($zeroValueDescription!='')
+		$out.='<option value="0">'.$zeroValueDescription.'</option>';
 	foreach ($valuesArray AS $key=>$value){
 		$optionValue=($valueKey=='key')?$key:$value;
 		$out.='<option value="'.$optionValue.'" '.(($optionValue==$selectedValue)?'selected':'').'>'.$value.'</option>';

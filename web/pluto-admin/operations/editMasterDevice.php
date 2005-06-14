@@ -11,6 +11,7 @@ $out='';
 	$deviceID = (int)$_REQUEST['model'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
+	$dtRelatedValues=array('1'=>'Sister device', '2'=>'Install on core', '3'=>'Plugin for the router');
 	
 //the form	
 	if ($action=='form') {
@@ -622,6 +623,42 @@ $out='';
 					</fieldset>
 					</td>
 				</tr>';
+			
+			$resRel=$dbADO->Execute('
+				SELECT DeviceTemplate_DeviceTemplate_Related.*, D1.Description
+				FROM DeviceTemplate_DeviceTemplate_Related 
+				INNER JOIN DeviceTemplate D1 ON FK_DeviceTemplate_Related=PK_DeviceTemplate
+				WHERE FK_DeviceTemplate=?',$deviceID);				
+			$dtRelatedRows='';
+			while($rowRel=$resRel->FetchRow()){
+				$dtRelatedRows.='
+					<tr>
+						<td>&nbsp;</td>
+						<td bgcolor="#EEEEEE">'.$rowRel['Description'].'</td>
+						<td bgcolor="#EEEEEE">'.$dtRelatedValues[$rowRel['Value']].'</td>
+						<td bgcolor="#EEEEEE"><a href="javascript:if(confirm(\'Are you sure you want to delete this relation?\')){document.editMasterDevice.delRelated.value='.$rowRel['FK_DeviceTemplate_Related'].';document.editMasterDevice.submit();}">Delete</a></td>
+					</tr>';
+			}
+			$out.='		
+				<tr>
+						<td valign="top" colspan="2"><a name="dtRelated"></a>
+				
+				<fieldset>
+            		<legend>Device Template Related</legend>
+						<input type="hidden" name="delRelated" value="">
+						<span class="err">'.@$_REQUEST['errRelated'].'</span>
+						<table>'.$dtRelatedRows.'
+							<tr>
+								<td>Add device template related</td>
+								<td><input type="text" name="addRelated" value=""></td>
+								<td>'.pulldownFromArray($dtRelatedValues,'valueRelated','','','key','').'</td>
+								<td><input type="submit" class="button" name="add" value="Add"></td>
+							</tr>
+						</table>
+					</fieldset>
+					</td>
+				</tr>';
+					
 			$queryDT_DO='
 				SELECT DesignObj.Description, PK_DesignObj 
 				FROM DeviceTemplate_DesignObj 
@@ -971,7 +1008,7 @@ $out='';
 
 		
 		if ($deviceID!=0 && $description!='' && $category!=0 && $manufacturer!=0) {
-		$updateQuery = "UPDATE DeviceTemplate SET 
+			$updateQuery = "UPDATE DeviceTemplate SET 
 							Description = ?, 
 							ImplementsDCE = ?,							
 							CommandLine = ?, 
@@ -987,16 +1024,40 @@ $out='';
 							InternalURLSuffix=?
 							WHERE PK_DeviceTemplate = ?";
 
-		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$isIPBased,$ConfigureScript,$comments,$manufacturerURL,$internalURLsufix,$deviceID));
+			$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$isIPBased,$ConfigureScript,$comments,$manufacturerURL,$internalURLsufix,$deviceID));
 
-		if($isPlugIn==1 && $oldIsPlugIn==0){
-			$insertControlledVia = '
-				INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia
-					(FK_DeviceTemplate, FK_DeviceTemplate_ControlledVia) 
-				VALUES(?,?)';
-			$query = $dbADO->Execute($insertControlledVia,array($deviceID,$GLOBALS['rootDCERouter']));
-		
-		}	
+			if($isPlugIn==1 && $oldIsPlugIn==0){
+				$insertControlledVia = '
+					INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia
+						(FK_DeviceTemplate, FK_DeviceTemplate_ControlledVia) 
+					VALUES(?,?)';
+				$query = $dbADO->Execute($insertControlledVia,array($deviceID,$GLOBALS['rootDCERouter']));
+			
+			}	
+			$addRelated=(int)$_POST['addRelated'];
+			$valueRelated=(int)$_POST['valueRelated'];
+			if($addRelated!=0){
+				$dtRelatedArray=getFieldsAsArray('DeviceTemplate','PK_DeviceTemplate',$dbADO,'WHERE PK_DeviceTemplate='.$addRelated);
+				if(count($dtRelatedArray)==0){
+					header("Location: index.php?section=editMasterDevice&model=$deviceID&errRelated=Device Template no $addRelated does not exist!#dtRelated");
+					exit();
+				}else{
+					$alreadyExist=getFieldsAsArray('DeviceTemplate_DeviceTemplate_Related','FK_DeviceTemplate_Related',$dbADO,'WHERE FK_DeviceTemplate='.$deviceID.' AND FK_DeviceTemplate_Related='.$addRelated);
+					if(count($alreadyExist)>0){
+						header("Location: index.php?section=editMasterDevice&model=$deviceID&errRelated=Device Template is already related with $addRelated!#dtRelated");
+						exit();
+					}else{
+						$dbADO->Execute('INSERT INTO DeviceTemplate_DeviceTemplate_Related (FK_DeviceTemplate,FK_DeviceTemplate_Related,Value) VALUES (?,?,?)',array($deviceID,$addRelated,$valueRelated));
+						$locationGoTo='#dtRelated';
+					}
+				}
+			}
+			
+			if((int)$_POST['delRelated']>0){
+				$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceTemplate_Related WHERE FK_DeviceTemplate=? AND FK_DeviceTemplate_Related=?',array($deviceID,(int)$_POST['delRelated']));
+				$locationGoTo='#dtRelated';
+			}
+			
 			if (strstr($locationGoTo,"#")) {
 				header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=Saved!".$locationGoTo);
 			} else {
