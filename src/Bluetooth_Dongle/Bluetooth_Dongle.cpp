@@ -404,6 +404,7 @@ bool Bluetooth_Dongle::ScanningLoop()
 			BD_Orbiter *p_BD_Orbiter = ( *iMos ).second;
 			if ( NULL != p_BD_Orbiter->m_pBDCommandProcessor && p_BD_Orbiter->m_pBDCommandProcessor->m_bDead )
 			{
+                g_pPlutoLogger->Write(LV_STATUS, "Sending orbiter lost from ScanningLoop");
 				GetEvents()->Mobile_orbiter_lost( ( *iMos ).first.c_str(), false );
 				BDCommandProcessor *pSock = p_BD_Orbiter->m_pBDCommandProcessor;
 				p_BD_Orbiter->m_pBDCommandProcessor = NULL;
@@ -505,6 +506,7 @@ void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 		&& NULL != pBD_Orbiter->m_pPhoneDevice
 		&& !pBD_Orbiter->m_pPhoneDevice->m_bIsConnected;
 
+    g_pPlutoLogger->Write(LV_STATUS, "Sending orbiter lost from LostDevice...");
 	GetEvents()->Mobile_orbiter_lost( pDevice->m_sMacAddress.c_str(), bConnectionFailed );
 
 	if ( NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pOrbiter )
@@ -516,22 +518,13 @@ void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 
 		delete pBD_Orbiter->m_pOrbiter;
 		pBD_Orbiter->m_pOrbiter = NULL;
-
 		g_pPlutoLogger->Write( LV_WARNING, "Orbiter deleted for %s device!", pDevice->m_sMacAddress.c_str() );
 			
 		if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
 		{
-			/*
-			delete pBD_Orbiter->m_pBDCommandProcessor;
-			pBD_Orbiter->m_pBDCommandProcessor = NULL;
-			*/
-
 			pBD_Orbiter->m_pBDCommandProcessor->m_bDead = true;
-
 			g_pPlutoLogger->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", pDevice->m_sMacAddress.c_str() );
 		}
-
-		return;
 	}
 }
 
