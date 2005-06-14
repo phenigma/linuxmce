@@ -6277,5 +6277,37 @@ namespace DCE
 	public:
 		CMD_Radio_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,394,0); }
 	};
+	class CMD_Check_for_updates : public PreformedCommand {
+	public:
+		CMD_Check_for_updates(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,395,0); }
+	};
+	class CMD_Check_for_updates_DL : public PreformedCommand {
+	public:
+		CMD_Check_for_updates_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,395,0); }
+	};
+	class CMD_Check_for_updates_DT : public PreformedCommand {
+	public:
+		CMD_Check_for_updates_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,395,0); }
+	};
+	class CMD_Check_for_updates_Cat : public PreformedCommand {
+	public:
+		CMD_Check_for_updates_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,395,0); }
+	};
+	class CMD_Check_for_updates_done : public PreformedCommand {
+	public:
+		CMD_Check_for_updates_done(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,396,0); }
+	};
+	class CMD_Check_for_updates_done_DL : public PreformedCommand {
+	public:
+		CMD_Check_for_updates_done_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,396,0); }
+	};
+	class CMD_Check_for_updates_done_DT : public PreformedCommand {
+	public:
+		CMD_Check_for_updates_done_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,396,0); }
+	};
+	class CMD_Check_for_updates_done_Cat : public PreformedCommand {
+	public:
+		CMD_Check_for_updates_done_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,396,0); }
+	};
 }
 #endif

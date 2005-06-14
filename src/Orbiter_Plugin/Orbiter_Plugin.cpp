@@ -304,6 +304,7 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
 
 bool Orbiter_Plugin::SafeToReload(string *sPendingTasks)
 {
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	if( m_listRegenCommands.size()==0 )
 		return true;
 
@@ -1334,6 +1335,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c266-e->
 {
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
     for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
@@ -1376,6 +1378,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD
 void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c267-e->
 {
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
 	if( !pOH_Orbiter )
 	{
@@ -1439,6 +1442,9 @@ bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessag
 	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable3.m_pMessage);
 
 	QueueMessageToRouter(CMD_Goto_Screen.m_pMessage);
+
+	DCE::CMD_Check_for_updates_Cat CMD_Check_for_updates_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse);
+	SendCommand(CMD_Check_for_updates_Cat);
 
 	return false;  // Let anybody else have this who wants it
 }

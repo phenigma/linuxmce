@@ -21,7 +21,6 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "DataGrid.h"
 
 #include <iostream>
 using namespace std;
@@ -37,13 +36,19 @@ using namespace DCE;
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_UnknownDevices.h"
 #include "pluto_main/Define_DataGrid.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_Text.h"
+#include "DataGrid.h"
+#include "Orbiter_Plugin/Orbiter_Plugin.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: General_Info_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_GipMutex("GeneralInfo")
 {
+	m_bRerunConfigWhenDone=false;
 	m_pDatabase_pluto_main = new Database_pluto_main();
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
@@ -77,6 +82,15 @@ bool General_Info_Plugin::Register()
         return false;
     }
     m_pDatagrid_Plugin=( Datagrid_Plugin * ) pListCommand_Impl->front( );
+
+    pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Orbiter_Plugin_CONST );
+    if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "Media handler plug in cannot find orbiter handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+        return false;
+    }
+
+    m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl->front( );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasks ) )
@@ -307,7 +321,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Forwarding reload to router");
 		/** @param #50 Name */
 			/** A name that we'll remember the application by for future kill commands */
 		/** @param #51 Arguments */
-			/** Command arguments */
+			/** Command arguments, tab delimited */
 		/** @param #94 SendOnFailure */
 			/** Send this messages if the process exited with failure error code. */
 		/** @param #95 SendOnSuccess */
@@ -549,3 +563,90 @@ class DataGridTable *General_Info_Plugin::PendingTasks( string GridID, string Pa
 	return pDataGrid;
 }
 
+//<-dceag-c395-b->
+
+	/** @brief COMMAND: #395 - Check for updates */
+	/** Check all PC's in the system to see if there are available updates on any of them by having all AppServer's run /usr/pluto/bin/Config_Device_Changes.sh */
+
+void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMessage)
+//<-dceag-c395-e->
+{
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+
+	if( PendingConfigs() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Schedule a m_bRerunConfigWhenDone");
+		m_bRerunConfigWhenDone=true;
+		return;
+	}
+
+	ListDeviceData_Router *pListDeviceData_Router = 
+		m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_App_Server_CONST);
+
+	g_pPlutoLogger->Write(LV_WARNING,"General plugin checking for updates %p",pListDeviceData_Router);
+
+	if( !pListDeviceData_Router )
+		return;
+
+	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+	{
+		DeviceData_Router *pDevice = *it;
+		if( pDevice->m_pDevice_ControlledVia && pDevice->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
+		{
+			if( !m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device] )
+			{
+				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
+					"","",StringUtils::itos(pDevice->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false);
+				string sResponse;
+				if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
+					g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send spawn application to %d",pDevice->m_dwPK_Device);
+				else
+					m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device]=true;
+			}
+		}
+	}
+}
+
+//<-dceag-c396-b->
+
+	/** @brief COMMAND: #396 - Check for updates done */
+	/** An App Server finished running /usr/pluto/bin/Config_Device_Changes.sh and notifies the g.i. plugin. */
+
+void General_Info_Plugin::CMD_Check_for_updates_done(string &sCMD_Result,Message *pMessage)
+//<-dceag-c396-e->
+{
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+
+	DeviceData_Router *pDevice_AppServer = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
+	if( !pDevice_AppServer || !pDevice_AppServer->m_pDevice_ControlledVia )
+		return; // Shouldn't happen
+
+	m_mapMediaDirectors_PendingConfig[pDevice_AppServer->m_pDevice_ControlledVia->m_dwPK_Device]=false;
+	g_pPlutoLogger->Write(LV_STATUS,"device %d done config update",pMessage->m_dwPK_Device_From);
+
+	if( PendingConfigs() )
+		return; // Others are still running
+
+	if( m_bRerunConfigWhenDone )
+	{
+		m_bRerunConfigWhenDone=false;
+		g_pPlutoLogger->Write(LV_STATUS,"New requests came in the meantime.  Rerun again");
+		CMD_Check_for_updates();  // Do it again
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Done updating config");
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+	}
+}
+
+bool General_Info_Plugin::PendingConfigs()
+{
+	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
+	{
+		if( it->second )
+			return true;
+	}
+	return false;
+}

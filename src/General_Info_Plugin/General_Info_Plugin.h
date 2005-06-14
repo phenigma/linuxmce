@@ -14,7 +14,7 @@ class Database_pluto_main;
 //<-dceag-decl-b->
 namespace DCE
 {
-	class General_Info_Plugin : public General_Info_Plugin_Command, public DataGridGeneratorPlugIn
+	class General_Info_Plugin : public General_Info_Plugin_Command
 	{
 //<-dceag-decl-e->
 //<-dceag-const-b->
@@ -30,9 +30,14 @@ public:
 	// Private member variables
 	Database_pluto_main *m_pDatabase_pluto_main;
     class Datagrid_Plugin *m_pDatagrid_Plugin;
+    class Orbiter_Plugin *m_pOrbiter_Plugin;
+    pluto_pthread_mutex_t m_GipMutex; // Other classes may need this
+	bool m_bRerunConfigWhenDone;
+	map<int,bool> m_mapMediaDirectors_PendingConfig;
 
 	// Private methods
 	void SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot);
+	bool PendingConfigs();
 public:
 	// Public member variables
 
@@ -60,7 +65,7 @@ public:
 		/** @param #50 Name */
 			/** A name that we'll remember the application by for future kill commands */
 		/** @param #51 Arguments */
-			/** Command arguments */
+			/** Command arguments, tab delimited */
 		/** @param #94 SendOnFailure */
 			/** Send this messages if the process exited with failure error code. */
 		/** @param #95 SendOnSuccess */
@@ -200,6 +205,20 @@ public:
 
 	virtual void CMD_Is_Daytime(bool *bTrueFalse) { string sCMD_Result; CMD_Is_Daytime(bTrueFalse,sCMD_Result,NULL);};
 	virtual void CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #395 - Check for updates */
+	/** Check all PC's in the system to see if there are available updates on any of them by having all AppServer's run /usr/pluto/bin/Config_Device_Changes.sh */
+
+	virtual void CMD_Check_for_updates() { string sCMD_Result; CMD_Check_for_updates(sCMD_Result,NULL);};
+	virtual void CMD_Check_for_updates(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #396 - Check for updates done */
+	/** An App Server finished running /usr/pluto/bin/Config_Device_Changes.sh and notifies the g.i. plugin. */
+
+	virtual void CMD_Check_for_updates_done() { string sCMD_Result; CMD_Check_for_updates_done(sCMD_Result,NULL);};
+	virtual void CMD_Check_for_updates_done(string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
