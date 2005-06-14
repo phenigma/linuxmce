@@ -166,7 +166,11 @@ void PrintCmd(int argc, char * argv[])
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger(stdout);
+#ifdef WIN32
+	g_pPlutoLogger = new FileLogger("stdout");
+#else
+	g_pPlutoLogger = new FileLogger("/var/log/pluto/ConfirmDependencies.newlog");
+#endif
 
 	bool bError=false,bIncludeDisklessMD=true,bSourceCode=false; // An error parsing the command line
 	iPK_Device = dceConfig.m_iPK_Device_Computer;
@@ -420,6 +424,7 @@ int main(int argc, char *argv[])
 			}
 
 			cout << "\tfi" << endl;
+			cout << "done" << endl;
 
 check_config:
 			if( pRow_Device->Status_get()=="**RUN_CONFIG**" )
@@ -436,35 +441,34 @@ check_config:
 
 				cout << "#Cleared RUN_CONFIG flag" << endl;
 			}
-			cout << "done" << endl;
-
-			for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
-			{
-				PackageInfo *pPackageInfo = *it;
-				VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_BinaryExecutibles,pPackageInfo->m_sBinaryExecutiblesPathPath);
-				VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_SourceIncludes,pPackageInfo->m_sSourceIncludesPath);
-				VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_SourceImplementation,pPackageInfo->m_sSourceImplementationPath);
-				VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_BinaryLibrary,pPackageInfo->m_sBinaryLibraryPath);
-				VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_Configuration,pPackageInfo->m_sConfiguration);
-			}
-
-			cout <<
-				"if [ \"$error\" -ne 0 ]; then" EOL
-				"\techo \"Note: Some packages failed to install\"" EOL
-				"fi" EOL
-				;
-
-			cout << "rm -f /usr/pluto/install/.notdone" << endl;
-			cout << "echo \"*************************\"" << endl;
-			cout << "echo \"*************************\"" << endl;
-			cout << "echo \"Installation complete.\"" << endl;
-			cout << "echo \"If there was any source code that needed to be built,\"" << endl;
-			cout << "echo \"we created a file '/usr/pluto/install/compile.sh' which compiles them.\"" << endl;
-			cout << "echo \"Press enter to continue.\"" << endl;
-			cout << "echo \"*************************\"" << endl;
-			cout << "echo \"*************************\"" << endl;
-			cout << "read" << endl;
 		}
+
+		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
+		{
+			PackageInfo *pPackageInfo = *it;
+			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_BinaryExecutibles,pPackageInfo->m_sBinaryExecutiblesPathPath);
+			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_SourceIncludes,pPackageInfo->m_sSourceIncludesPath);
+			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_SourceImplementation,pPackageInfo->m_sSourceImplementationPath);
+			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_BinaryLibrary,pPackageInfo->m_sBinaryLibraryPath);
+			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_Configuration,pPackageInfo->m_sConfiguration);
+		}
+
+		cout <<
+			"if [ \"$error\" -ne 0 ]; then" EOL
+			"\techo \"Note: Some packages failed to install\"" EOL
+			"fi" EOL
+			;
+
+		cout << "rm -f /usr/pluto/install/.notdone" << endl;
+		cout << "echo \"*************************\"" << endl;
+		cout << "echo \"*************************\"" << endl;
+		cout << "echo \"Installation complete.\"" << endl;
+		cout << "echo \"If there was any source code that needed to be built,\"" << endl;
+		cout << "echo \"we created a file '/usr/pluto/install/compile.sh' which compiles them.\"" << endl;
+		cout << "echo \"Press enter to continue.\"" << endl;
+		cout << "echo \"*************************\"" << endl;
+		cout << "echo \"*************************\"" << endl;
+		cout << "read" << endl;
 	}
 	else if( sCommand=="build" || sCommand=="buildall" )
 	{
