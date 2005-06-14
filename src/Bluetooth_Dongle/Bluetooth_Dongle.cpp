@@ -664,6 +664,12 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 	}
     else
     {
+        if(pBD_Orbiter->m_pBDCommandProcessor)
+        {
+            delete pBD_Orbiter->m_pBDCommandProcessor;
+            pBD_Orbiter->m_pBDCommandProcessor = NULL;
+        }
+
         g_pPlutoLogger->Write( LV_WARNING, "Failed to connect to PlutoMO. We'll resume scanning" );
         ResumeScanning();
     }
