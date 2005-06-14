@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 
 	bool bError=false;
 	char c;
+
 	for(int optnum=1;optnum<argc;++optnum)
 	{
 		c=argv[optnum][1];
@@ -105,6 +106,11 @@ int main(int argc, char *argv[])
 
 		exit(0);
 	}
+
+	string args;
+	for(int optnum=1;optnum<argc;++optnum)
+		args += string(argv[optnum]) + " ";
+	g_pPlutoLogger->Write(LV_STATUS,"Called with: %s",args.c_str());
 
 	CreateDevice createDevice(dceConfig.m_iPK_Installation,dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
 	createDevice.m_bDontCallConfigureScript=bDontCallConfigureScript;
