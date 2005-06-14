@@ -358,8 +358,8 @@
 #define COMMAND_Set_Media_Attribute_Text_CONST 392
 #define COMMAND_Get_Attribute_CONST 393
 #define COMMAND_Radio_CONST 394
+#define COMMAND_Check_for_updates_CONST 395
 #define COMMAND_Check_for_updates_done_CONST 396
-
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
