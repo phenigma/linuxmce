@@ -45,18 +45,24 @@ void *HandleDetectionThread(void *p)
 	//we don't want to detect a phone and send a message to orbiters if they are not registered yet
 	//because we'll lost that message
 	Sleep(5000);
-	
+
+g_pPlutoLogger->Write(LV_STATUS, "In HandleDetectionThread");
 	while(!pe->m_bAbortScanLoop)
     {
+g_pPlutoLogger->Write(LV_STATUS, "In while");
         if(!pe->m_bScanningSuspended)
         {
+g_pPlutoLogger->Write(LV_STATUS, "Scanning...");
             if(pe->ScanningLoop())
 	    	    pe->DetectionLogic();
             else
                 break;
         }
         else
+        {
+g_pPlutoLogger->Write(LV_STATUS, "Scanning suspended. Sleeping 100 ms...");
             Sleep(100); //TODO: use condwait + broadcast
+        }
     }
 
 	pe->m_bInScanLoop=false;

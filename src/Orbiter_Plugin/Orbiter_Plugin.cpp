@@ -712,19 +712,6 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
     }
     else
     {
-		/*
-        if(bConnectionFailed)
-        {
-            pOH_Orbiter->m_iFailedToConnectCount++;
-            g_pPlutoLogger->Write(
-                LV_WARNING,
-                "Failed to connect to app on %s device, loop %d",
-                sMacAddress.c_str(),
-                pOH_Orbiter->m_iFailedToConnectCount
-            );
-        }
-		*/
-
 	    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
         if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
         {
