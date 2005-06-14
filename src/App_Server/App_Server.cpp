@@ -91,7 +91,9 @@ void sh(int i) /* signal handler */
 App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: App_Server_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_AppMutex("AppServer")
 {
+	m_AppMutex.Init(NULL);
 #ifndef WIN32
 	g_pAppServer = this;
     signal(SIGCHLD, sh); /* install handler */
@@ -219,6 +221,7 @@ void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sC
 void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,Message *pMessage)
 //<-dceag-c67-e->
 {
+	PLUTO_SAFETY_LOCK(ap,m_AppMutex);
 	g_pPlutoLogger->Write(LV_STATUS,"SpawnApp file: %s name %s args %s failure %s logo %d",
 		sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),(int) bShow_logo);
 	if ( bShow_logo )
@@ -296,6 +299,7 @@ void App_Server::EnsureLogoIsDisplayed()
 
 void App_Server::ProcessExited(int pid, int status)
 {
+	PLUTO_SAFETY_LOCK(ap,m_AppMutex);
 	string applicationName;
 	void *data;
 

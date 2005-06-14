@@ -48,6 +48,7 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 //<-dceag-const-e->
 	, m_GipMutex("GeneralInfo")
 {
+	m_GipMutex.Init(NULL);
 	m_bRerunConfigWhenDone=false;
 	m_pDatabase_pluto_main = new Database_pluto_main();
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )

@@ -29,6 +29,7 @@ public:
         // Private member variables
         typedef map<string, map<int, pair<string, string> > > vector_map;
         vector_map m_mapAppPids; // PIDs associated with an AppName - used for application mass killing (not massacres :P)
+	    pluto_pthread_mutex_t m_AppMutex; // Other classes may need this
 
         // Private methods
         bool StartApp(string CmdExecutable, string CmdParams, string AppName, string sCommandsOnSuccess, string sCommandsOnFailure);
