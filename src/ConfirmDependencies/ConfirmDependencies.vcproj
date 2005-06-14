@@ -125,6 +125,9 @@
 			<File
 				RelativePath="ConfirmDependencies.cpp">
 			</File>
+			<File
+				RelativePath="..\CreateDevice\CreateDevice.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
