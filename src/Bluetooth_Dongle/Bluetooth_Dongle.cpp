@@ -664,10 +664,10 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 	}
     else
     {
-        g_pPlutoLogger->Write( LV_WARNING, "Failed to connect to PlutoMO." );
+        g_pPlutoLogger->Write( LV_WARNING, "Failed to connect to PlutoMO. We'll resume scanning" );
+        ResumeScanning();
     }
 
-    ResumeScanning();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -774,6 +774,8 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 		else
 			g_pPlutoLogger->Write( LV_WARNING, "Cannot create orbiter for %s device: the CommandProcessor is dead!", sMac_address.c_str() );
 	}
+
+    ResumeScanning();
 }
 
 //-----------------------------------------------------------------------------------------------------
