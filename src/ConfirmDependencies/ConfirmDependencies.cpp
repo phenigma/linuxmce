@@ -1,4 +1,3 @@
-
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -41,6 +40,8 @@
 #include "pluto_main/Table_Package_Directory_File.h"
 #include "pluto_main/Table_Package_Compat.h"
 
+#include "CreateDevice/CreateDevice.h"
+
 #define  VERSION "<=version=>"
 
 using namespace std;
@@ -52,6 +53,7 @@ namespace DCE
 }
 
 int iPK_Device=0;
+class CreateDevice *g_pCreateDevice;
 
 class PackageInfo
 {
@@ -78,10 +80,10 @@ public:
 		Row_Package_Source *pRow_Package_Source, Row_RepositorySource_URL *pRow_RepositorySource_URL,
 		bool bMustBuild)
 	{
-if( pRow_Package_Source->FK_Package_get()==280 )
-{
-int k=2;
-}
+		if( pRow_Package_Source->FK_Package_get()==280 )
+		{
+			int k=2;
+		}
 		m_pRow_Package_Source_Compat=pRow_Package_Source_Compat;
 		m_pRow_Package_Source=pRow_Package_Source;
 		m_pRow_Package_Source=pRow_Package_Source;
@@ -275,8 +277,8 @@ int main(int argc, char *argv[])
 			<< "port        -- port for database connection, default is 3306" << endl
 			<< "output path -- Where to put the output files.  Default is ../[database name]" << endl
 			<< "input path  -- Where to find the template files.  Default is . then ../ConfirmDependencies" << endl
-		    << "device id   -- the device id" << endl
-		    << "-n no prompts -- errors will be sent to a log file without asking the user to continue" << endl;
+			<< "device id   -- the device id" << endl
+			<< "-n no prompts -- errors will be sent to a log file without asking the user to continue" << endl;
 
 		exit(0);
 	}
@@ -291,7 +293,7 @@ int main(int argc, char *argv[])
 		cout << "#!/bin/sh" << endl;
 		cout << "error=0" << endl;
 	}
-	
+
 	Database_pluto_main database_pluto_main;
 	if(!database_pluto_main.Connect(&dceConfig))
 	{
@@ -309,28 +311,31 @@ int main(int argc, char *argv[])
 	PrintCmd(argc, argv);
 	pRow_Installation = pRow_Device->FK_Installation_getrow();
 
+	CreateDevice createDevice(pRow_Installation->PK_Installation_get(),dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
+	createDevice.ConfirmRelations(pRow_Device->PK_Device_get(),true);
+
 	CheckDevice(pRow_Device,bSourceCode);
-/*
+	/*
 	if( bIncludeDisklessMD )
 	{
-		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Core_CONST )
-		{
-			// If this is a core, find all other devices in this installation that are media directors and which are set to diskless boot
-			vector<Row_Device *> vectAllDevices;
-			pRow_Device->FK_Installation_getrow()->Device_FK_Installation_getrows(&vectAllDevices);
-			for(size_t s=0;s<vectAllDevices.size();++s)
-			{
-				Row_Device *pRow_Device = vectAllDevices[s];
-				if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
-				{
-					Row_Device_DeviceData *pRow_Device_DeviceData = database_pluto_main.Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Diskless_Boot_CONST);
-					if( pRow_Device_DeviceData && pRow_Device_DeviceData->IK_DeviceData_get()=="1" )
-						CheckDevice(pRow_Device,bSourceCode);
-				}
-			}
-		}
+	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Core_CONST )
+	{
+	// If this is a core, find all other devices in this installation that are media directors and which are set to diskless boot
+	vector<Row_Device *> vectAllDevices;
+	pRow_Device->FK_Installation_getrow()->Device_FK_Installation_getrows(&vectAllDevices);
+	for(size_t s=0;s<vectAllDevices.size();++s)
+	{
+	Row_Device *pRow_Device = vectAllDevices[s];
+	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
+	{
+	Row_Device_DeviceData *pRow_Device_DeviceData = database_pluto_main.Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Diskless_Boot_CONST);
+	if( pRow_Device_DeviceData && pRow_Device_DeviceData->IK_DeviceData_get()=="1" )
+	CheckDevice(pRow_Device,bSourceCode);
 	}
-*/
+	}
+	}
+	}
+	*/
 	if( !pRow_Distro )
 		return 0;
 
@@ -347,53 +352,53 @@ int main(int argc, char *argv[])
 				cout << "\t# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
 					<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
 				cout << "\t# ****** SKIPPING --- PACKAGE ALREADY INSTALLED ******" << endl;
-				continue;
+				goto check_config;
 			}
 
 			cout << "ok=0" << endl;
 			cout << "while [ \"$ok\" -eq 0 ]; do" << endl;
 			cout << "\tdpkg --configure -a" << endl;
-//			cout << endl << "-----------------------------------------------------" << endl;
-if( pPackageInfo->m_pRow_Package_Source->FK_Package_get()==277 )
-{
-int k=2;
-}
+			//			cout << endl << "-----------------------------------------------------" << endl;
+			if( pPackageInfo->m_pRow_Package_Source->FK_Package_get()==277 )
+			{
+				int k=2;
+			}
 			cout << "\t# PK_Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << endl;
 			cout << "\t# Rep. type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
 			cout << "\t# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
 				<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
-/*
-on package 277, it tried the targz before the DEB
-makerelease isn't building all and isn't updating the versions
-*/
+			/*
+			on package 277, it tried the targz before the DEB
+			makerelease isn't building all and isn't updating the versions
+			*/
 			InstallPackage(pPackageInfo);
 
-/* AB 1/26/05 - for the moment I'm going to comment this out so we don't keep trying alternate sources.  If one source failes, it really is a failure and we should stop
+			/* AB 1/26/05 - for the moment I'm going to comment this out so we don't keep trying alternate sources.  If one source failes, it really is a failure and we should stop
 			if (pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() != REPOSITORYTYPE_PACKAGE_CONST)
 			{
-				for(size_t s=0;s<pPackageInfo->m_vectPackageInfo.size();++s)
-				{
-					PackageInfo *pPackageInfoAlt = pPackageInfo->m_vectPackageInfo[s];
-					cout << "\t# PK_Package: " << pPackageInfoAlt->m_pRow_Package_Source->FK_Package_get() << endl;
-					cout << "\t# Rep. type: " << pPackageInfoAlt->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
-					cout << "\t# Package: " << pPackageInfoAlt->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
-						<< " Type: " << pPackageInfoAlt->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
-					InstallPackage(pPackageInfoAlt, true);
-				}
+			for(size_t s=0;s<pPackageInfo->m_vectPackageInfo.size();++s)
+			{
+			PackageInfo *pPackageInfoAlt = pPackageInfo->m_vectPackageInfo[s];
+			cout << "\t# PK_Package: " << pPackageInfoAlt->m_pRow_Package_Source->FK_Package_get() << endl;
+			cout << "\t# Rep. type: " << pPackageInfoAlt->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
+			cout << "\t# Package: " << pPackageInfoAlt->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
+			<< " Type: " << pPackageInfoAlt->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
+			InstallPackage(pPackageInfoAlt, true);
 			}
-*/
+			}
+			*/
 			cout << "\telse" << endl;
-//			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
+			//			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
 
 
 #define EOL "\n"
 			cout <<
-			"\t\techo \"***************************************************\"" EOL
-			"\t\techo \"***ERROR*** Processing of package '" + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "' failed\"" EOL
-			//"\t\techo \"I tried every known option to find this software. " EOL
-			//"\t\tYou will need\"" EOL
-			//"\t\techo \"to get it manually.  Press any key to continue.\"" EOL
-			"\t\techo \"***************************************************\"" EOL;
+				"\t\techo \"***************************************************\"" EOL
+				"\t\techo \"***ERROR*** Processing of package '" + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "' failed\"" EOL
+				//"\t\techo \"I tried every known option to find this software. " EOL
+				//"\t\tYou will need\"" EOL
+				//"\t\techo \"to get it manually.  Press any key to continue.\"" EOL
+				"\t\techo \"***************************************************\"" EOL;
 
 			if( bInteractive )
 			{
@@ -404,45 +409,62 @@ makerelease isn't building all and isn't updating the versions
 					"\t\t\tok=1" EOL
 					"\t\t\terror=1" EOL
 					"\t\tfi" EOL
-				;
+					;
 			}
 			else
 			{
 				cout << "\t\techo \"01 Error processing package " + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "\" >> /var/log/pluto/ConfirmDependencies.log" EOL
 					"\t\tok=1" EOL
 					"\t\terror=1" EOL
-				;
+					;
 			}
 
 			cout << "\tfi" << endl;
-			cout << "done" << endl;
-		}
-		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
-		{
-			PackageInfo *pPackageInfo = *it;
-			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_BinaryExecutibles,pPackageInfo->m_sBinaryExecutiblesPathPath);
-			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_SourceIncludes,pPackageInfo->m_sSourceIncludesPath);
-			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_SourceImplementation,pPackageInfo->m_sSourceImplementationPath);
-			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_BinaryLibrary,pPackageInfo->m_sBinaryLibraryPath);
-			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_Configuration,pPackageInfo->m_sConfiguration);
-		}
-		
-		cout <<
-			"if [ \"$error\" -ne 0 ]; then" EOL
-			"\techo \"Note: Some packages failed to install\"" EOL
-			"fi" EOL
-		;
 
-		cout << "rm -f /usr/pluto/install/.notdone" << endl;
-		cout << "echo \"*************************\"" << endl;
-		cout << "echo \"*************************\"" << endl;
-		cout << "echo \"Installation complete.\"" << endl;
-		cout << "echo \"If there was any source code that needed to be built,\"" << endl;
-		cout << "echo \"we created a file '/usr/pluto/install/compile.sh' which compiles them.\"" << endl;
-		cout << "echo \"Press enter to continue.\"" << endl;
-		cout << "echo \"*************************\"" << endl;
-		cout << "echo \"*************************\"" << endl;
-		cout << "read" << endl;
+check_config:
+			if( pRow_Device->Status_get()=="**RUN_CONFIG**" )
+			{
+				if( pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get().size() )
+				{
+					cout << "#Running configure script" << endl;
+					cout << "/usr/pluto/bin/" << pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get()
+						<< " " + StringUtils::itos(pRow_Device->PK_Device_get()) << " \"" << pRow_Device->IPaddress_get()
+						<< "\" \"" + pRow_Device->MACaddress_get() + "\"" << endl;
+				}
+
+				pRow_Device->Status_set("");
+
+				cout << "#Cleared RUN_CONFIG flag" << endl;
+			}
+			cout << "done" << endl;
+
+			for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
+			{
+				PackageInfo *pPackageInfo = *it;
+				VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_BinaryExecutibles,pPackageInfo->m_sBinaryExecutiblesPathPath);
+				VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_SourceIncludes,pPackageInfo->m_sSourceIncludesPath);
+				VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_SourceImplementation,pPackageInfo->m_sSourceImplementationPath);
+				VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_BinaryLibrary,pPackageInfo->m_sBinaryLibraryPath);
+				VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_Configuration,pPackageInfo->m_sConfiguration);
+			}
+
+			cout <<
+				"if [ \"$error\" -ne 0 ]; then" EOL
+				"\techo \"Note: Some packages failed to install\"" EOL
+				"fi" EOL
+				;
+
+			cout << "rm -f /usr/pluto/install/.notdone" << endl;
+			cout << "echo \"*************************\"" << endl;
+			cout << "echo \"*************************\"" << endl;
+			cout << "echo \"Installation complete.\"" << endl;
+			cout << "echo \"If there was any source code that needed to be built,\"" << endl;
+			cout << "echo \"we created a file '/usr/pluto/install/compile.sh' which compiles them.\"" << endl;
+			cout << "echo \"Press enter to continue.\"" << endl;
+			cout << "echo \"*************************\"" << endl;
+			cout << "echo \"*************************\"" << endl;
+			cout << "read" << endl;
+		}
 	}
 	else if( sCommand=="build" || sCommand=="buildall" )
 	{
@@ -450,13 +472,13 @@ makerelease isn't building all and isn't updating the versions
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
 			PackageInfo *pPackageInfo = *it;
-string s=pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get();
-if( s=="Pluto Standard Plugins Source" )
-{
-int k=2;
-}
+			string s=pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get();
+			if( s=="Pluto Standard Plugins Source" )
+			{
+				int k=2;
+			}
 			if( pPackageInfo->m_pRow_Package_Directory_Compiled_Output==NULL ||
-					pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->IsSource_get()==0 || (!pPackageInfo->m_bMustBuild && sCommand!="buildall")  )
+				pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->IsSource_get()==0 || (!pPackageInfo->m_bMustBuild && sCommand!="buildall")  )
 				continue;
 
 			vector<Row_Package_Directory *> vectRow_Package_Directory_Compiled;
@@ -479,8 +501,8 @@ int k=2;
 					Row_Package_Directory_File *pRow_Package_Directory_File = vectRow_Package_Directory_File[s];
 
 					if( pRow_Package_Directory_File->FK_Distro_get()==pRow_Distro->PK_Distro_get() ||
-							pRow_Package_Directory_File->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() ||
-							(pRow_Package_Directory_File->FK_Distro_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_isNull()) )
+						pRow_Package_Directory_File->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() ||
+						(pRow_Package_Directory_File->FK_Distro_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_isNull()) )
 					{
 						cout << pRow_Package_Directory_File->MakeCommand_get() << endl;
 						cout << "if [ $? -ne 0 ]; then" << endl;
@@ -562,26 +584,26 @@ int k=2;
 	// 4. Version
 	// And then the following, which are directories or files and indicate where this program will expect to find the file
 	// The ConfirmDependencies may choose to ignore these, such as with packages, since they define their own locations
-    // 5. Binary Executibles
+	// 5. Binary Executibles
 	// 6. Source Includes
 	// 7. Source Implementation
 	// 8. Binary Library
 	// 9. Configuration
-/*
+	/*
 
 	if( pRow_RepositorySource_URL )
-		cout << " \"" << pRow_RepositorySource_URL->URL_get() << "\"";
+	cout << " \"" << pRow_RepositorySource_URL->URL_get() << "\"";
 	else
-		cout << " \"\"";
+	cout << " \"\"";
 
 	cout << " \"" << pRow_Package_Source->Repository_get() << "\""
-		<< " \"" << pRow_Package_Source->FK_RepositoryType_get() << "\""
-		<< " \"" << pRow_Package_Source->Version_get() << "\"";
+	<< " \"" << pRow_Package_Source->FK_RepositoryType_get() << "\""
+	<< " \"" << pRow_Package_Source->Version_get() << "\"";
 
 
-		}
 	}
-*/
+	}
+	*/
 	return 0;
 }
 
@@ -699,10 +721,10 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 		}
 	}
 
-if( pRow_Package->PK_Package_get()==280 )
-{
-int k=2;
-}
+	if( pRow_Package->PK_Package_get()==280 )
+	{
+		int k=2;
+	}
 
 	// If we find a source specific for our distro, that does not require a build from source code,
 	// that will be considered a perfect match, and added here.
@@ -738,9 +760,9 @@ int k=2;
 				pRPSC_Match=pRPSC; // This is considered the perfect match
 			else if( pRPSC->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() && !pRPSC->MustBuildFromSource_get() )
 				pRPSC_OS=pRPSC; // It matched the OS, so we'll use it if we don't find an exact match for the distro
-		
+
 			if( (pRPSC->FK_Distro_isNull() || pRow_Distro->PK_Distro_get()==pRPSC->FK_Distro_get()) && 
-					(pRPSC->FK_OperatingSystem_isNull() || pRow_Distro->FK_OperatingSystem_get()==pRPSC->FK_OperatingSystem_get()) )
+				(pRPSC->FK_OperatingSystem_isNull() || pRow_Distro->FK_OperatingSystem_get()==pRPSC->FK_OperatingSystem_get()) )
 				pRPSC_Comp=pRPSC;
 		}
 		if( pRow_Package->IsSource_get()==1 && pRPSC_Comp )  // See comments above
@@ -772,7 +794,7 @@ int k=2;
 	if( sCommand=="view" || sCommand=="status" )
 		cout << "PROGRAM: " << pRow_Package->Description_get() << endl;
 
-    if( !pRow_Package_Source_Compat_Preferred )
+	if( !pRow_Package_Source_Compat_Preferred )
 	{
 		if( !pRow_Package->FK_Package_Sourcecode_isNull() )
 		{
@@ -790,7 +812,7 @@ int k=2;
 				else
 					//cout << "#*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
 					cout << pRow_Package->PK_Package_get() << "," << pRow_Package->Description_get() << "," <<
-						"#*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
+					"#*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
 			}
 			return;
 		}
@@ -823,7 +845,7 @@ Row_Package_Source_Compat *FindPreferredSource(vector<Row_Package_Source_Compat 
 				return pRow_Package_Source_Compat;
 
 			if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_RepositorySource_getrow()->FK_RepositoryType_get() ==
-					pRow_Device->FK_Installation_getrow()->FK_RepositoryType_Source_get() )
+				pRow_Device->FK_Installation_getrow()->FK_RepositoryType_Source_get() )
 				return pRow_Package_Source_Compat;
 		}
 		else
@@ -834,7 +856,7 @@ Row_Package_Source_Compat *FindPreferredSource(vector<Row_Package_Source_Compat 
 				return pRow_Package_Source_Compat;
 
 			if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_RepositorySource_getrow()->FK_RepositoryType_get() ==
-					pRow_Device->FK_Installation_getrow()->FK_RepositoryType_Binaries_get() )
+				pRow_Device->FK_Installation_getrow()->FK_RepositoryType_Binaries_get() )
 				return pRow_Package_Source_Compat;
 		}
 	}
@@ -866,10 +888,10 @@ PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Comp
 		cout << "# Got NULL" << endl;
 		return NULL;
 	}
-if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_get()==135 )
-{
-int k=2;
-}
+	if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_get()==135 )
+	{
+		int k=2;
+	}
 
 	Database_pluto_main *pDatabase_pluto_main = pRow_Package_Source_Compat->Table_Package_Source_Compat_get()->Database_pluto_main_get();
 	Row_Package *pRow_Package = pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_getrow();
@@ -879,54 +901,54 @@ int k=2;
 	Row_RepositorySource *pRow_RepositorySource = pRow_Package_Source->FK_RepositorySource_getrow();
 	Row_RepositorySource_URL *pRow_RepositorySource_URL=NULL;
 
-//	if( !pRow_Package_Source_Compat_Match->FK_Package_Source_getrow()->FK_RepositorySource_isNull() )
-//	{
-		vector<Row_RepositorySource_URL *> vectRow_RepositorySource_URL;
-		pRow_Package_Source->FK_RepositorySource_getrow()->RepositorySource_URL_FK_RepositorySource_getrows(&vectRow_RepositorySource_URL);
-		Row_RepositorySource_URL *pRow_RepositorySource_URL_Country=NULL;
-		for(size_t t=0;t<vectRow_RepositorySource_URL.size();++t)
-		{
-			Row_RepositorySource_URL *pRow_RepositorySource_URL_test = vectRow_RepositorySource_URL[t];
-			
-			// If this repository is specifically mentioned in the Installation_RepositorySource_URL table, we'll use it.
-			Row_Installation_RepositorySource_URL *pInstallation_RepositorySource_URL = 
-					pDatabase_pluto_main->Installation_RepositorySource_URL_get()->GetRow(
-						pRow_Installation->PK_Installation_get(),
-						pRow_RepositorySource_URL_test->PK_RepositorySource_URL_get());
+	//	if( !pRow_Package_Source_Compat_Match->FK_Package_Source_getrow()->FK_RepositorySource_isNull() )
+	//	{
+	vector<Row_RepositorySource_URL *> vectRow_RepositorySource_URL;
+	pRow_Package_Source->FK_RepositorySource_getrow()->RepositorySource_URL_FK_RepositorySource_getrows(&vectRow_RepositorySource_URL);
+	Row_RepositorySource_URL *pRow_RepositorySource_URL_Country=NULL;
+	for(size_t t=0;t<vectRow_RepositorySource_URL.size();++t)
+	{
+		Row_RepositorySource_URL *pRow_RepositorySource_URL_test = vectRow_RepositorySource_URL[t];
 
-			if( pInstallation_RepositorySource_URL )
-			{
-				pRow_RepositorySource_URL=pRow_RepositorySource_URL_test;
-				break;
-			}
+		// If this repository is specifically mentioned in the Installation_RepositorySource_URL table, we'll use it.
+		Row_Installation_RepositorySource_URL *pInstallation_RepositorySource_URL = 
+			pDatabase_pluto_main->Installation_RepositorySource_URL_get()->GetRow(
+			pRow_Installation->PK_Installation_get(),
+			pRow_RepositorySource_URL_test->PK_RepositorySource_URL_get());
 
-			// If this source is at least in the same country we'll consider it a tentative match while we keep looking for an exact match
-			if( pRow_Installation->FK_Country_get()==pRow_RepositorySource_URL_test->FK_Country_get() )
-				pRow_RepositorySource_URL_Country = pRow_RepositorySource_URL_test;  
-		}
-		if( !pRow_RepositorySource_URL )
+		if( pInstallation_RepositorySource_URL )
 		{
-			// We didn't find an exact match, see if we found one in the same country
-			if( pRow_RepositorySource_URL_Country )
-				pRow_RepositorySource_URL=pRow_RepositorySource_URL_Country;
-			// If not, just take the first one
-			else if( vectRow_RepositorySource_URL.size() )
-				pRow_RepositorySource_URL = vectRow_RepositorySource_URL[0];
+			pRow_RepositorySource_URL=pRow_RepositorySource_URL_test;
+			break;
 		}
-//	}
+
+		// If this source is at least in the same country we'll consider it a tentative match while we keep looking for an exact match
+		if( pRow_Installation->FK_Country_get()==pRow_RepositorySource_URL_test->FK_Country_get() )
+			pRow_RepositorySource_URL_Country = pRow_RepositorySource_URL_test;  
+	}
+	if( !pRow_RepositorySource_URL )
+	{
+		// We didn't find an exact match, see if we found one in the same country
+		if( pRow_RepositorySource_URL_Country )
+			pRow_RepositorySource_URL=pRow_RepositorySource_URL_Country;
+		// If not, just take the first one
+		else if( vectRow_RepositorySource_URL.size() )
+			pRow_RepositorySource_URL = vectRow_RepositorySource_URL[0];
+	}
+	//	}
 
 	if( !pRow_RepositorySource_URL )
 	{
 		cout << "# PK_Package=" << pRow_Package->PK_Package_get() << "," << pRow_Package->Description_get() << ","
-			 << "**ERROR** Cannot find a URL for Repository Source: " 
-			 << pRow_RepositorySource->Description_get() << endl;
+			<< "**ERROR** Cannot find a URL for Repository Source: " 
+			<< pRow_RepositorySource->Description_get() << endl;
 		return NULL;
 	}
 
 	PackageInfo *pPackageInfo = new PackageInfo(pRow_Package_Source_Compat,pRow_Package_Source,pRow_RepositorySource_URL,bMustBuildFromSource);
 
 	Row_Package_Directory *pRow_Package_Directory;
-	
+
 	pRow_Package_Directory = GetDirectory(pRow_Package,DIRECTORY_Binary_Executables_CONST);
 	if( pRow_Package_Directory )
 	{
@@ -957,7 +979,7 @@ int k=2;
 			if( pRow_Package_Directory_SI->FK_Distro_get() == pRow_Distro->PK_Distro_get() ||
 				pRow_Package_Directory_SI->FK_OperatingSystem_get() == pRow_Distro->FK_OperatingSystem_get() ||
 				( pRow_Package_Directory_SI->FK_Distro_isNull() && pRow_Package_Directory_SI->FK_OperatingSystem_isNull() ) )
-					pPackageInfo->m_vectAltSourceImplementation.push_back(pRow_Package_Directory_SI);
+				pPackageInfo->m_vectAltSourceImplementation.push_back(pRow_Package_Directory_SI);
 		}
 
 		pPackageInfo->m_sSourceImplementationPath = pRow_Package_Directory->Path_get();

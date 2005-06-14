@@ -107,21 +107,17 @@ int main(int argc, char *argv[])
 	}
 
 	CreateDevice createDevice(dceConfig.m_iPK_Installation,dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
+	createDevice.m_bDontCallConfigureScript=bDontCallConfigureScript;
 
-	string ConfigureScript;
-	int PK_Device=createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIPAddress,sMacAddress,iPK_Device_Controlled_Via,&ConfigureScript);
+	int PK_Device=createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIPAddress,sMacAddress,iPK_Device_Controlled_Via);
 	if( PK_Device==0 )
 	{
 		cerr << "CreateDevice failed" << endl;
 		exit(1);
 	}
 	
-	if( !bDontCallConfigureScript && ConfigureScript.length() )
-	{
-		system( (ConfigureScript + " " + StringUtils::itos(PK_Device) + " \"" + sIPAddress + "\" \"" + sMacAddress + "\"").c_str() );
-	}
-
 	cout << PK_Device << endl;
+
 	return 0;
 }
 

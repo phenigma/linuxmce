@@ -35,7 +35,7 @@ using namespace std;
 using namespace DCE;
 
 
-int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string *psConfigureScript)
+int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia)
 {
 	if( !m_bConnected )
 	{
@@ -73,11 +73,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	int iPK_DeviceCategory;
 	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript,IsPlugAndPlay,FK_Package FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
-	{
 		iPK_DeviceCategory = atoi(row[0]);
-		if( psConfigureScript && row[2] && row[3] && string(row[3])!="1" ) // Plug and play devices will spawn the ConfigureScript when plugged and call us--don't call the configure script again
-			(*psConfigureScript) = string("/usr/pluto/bin/") + row[2];
-	}
 	else
 	{
 		cerr << "Cannot find DeviceTemplate: " << iPK_DeviceTemplate << endl;
@@ -86,10 +82,10 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 
 	int iPK_Package = row[4] ? atoi(row[4]) : 0;
 
-	SQL = "INSERT INTO Device(Description,FK_DeviceTemplate,FK_Installation,IPAddress,MACaddress";
+	SQL = "INSERT INTO Device(Description,FK_DeviceTemplate,FK_Installation,IPAddress,MACaddress,Status";
 	if( PK_Device_ControlledVia )
 		SQL += ",FK_Device_ControlledVia";
-	SQL+=") VALUES('" + StringUtils::SQLEscape(row[1]) + "'," + StringUtils::itos(iPK_DeviceTemplate) + "," + StringUtils::itos(m_iPK_Installation) + ",'" + sIPAddress + "','" + sMacAddress + "'";
+	SQL+=") VALUES('" + StringUtils::SQLEscape(row[1]) + "'," + StringUtils::itos(iPK_DeviceTemplate) + "," + StringUtils::itos(m_iPK_Installation) + ",'" + sIPAddress + "','" + sMacAddress + "','" + (m_bDontCallConfigureScript ? "" : "**RUN_CONFIG**") + "'";
 	if( PK_Device_ControlledVia )
 		SQL += "," + StringUtils::itos(PK_Device_ControlledVia);
 		
@@ -101,23 +97,35 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		exit(1);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d Package: %d",PK_Device,iPK_Package);
+	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d Package: %d configure: %d",PK_Device,iPK_Package,(int) m_bDontCallConfigureScript);
 
-	if( iPK_Package )
+	ConfirmRelations(PK_Device);
+
+	// If we weren't given a controlled via, try to find an appropriate one
+	if( !PK_Device_ControlledVia )
 	{
-
-#ifndef WIN32
-		// Try to load the package
-		SQL = "SELECT Name from Package_Source JOIN RepositorySource on FK_RepositorySource=PK_RepositorySource WHERE FK_Package="
-			+ StringUtils::itos(iPK_Package) + " AND FK_RepositoryType=1";
-			
-		if( ( resultPackage.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( resultPackage.r ) ) && row[0] )
+		PlutoSqlResult result_cv1,result_cv2;
+		int iPK_Device_ControlledVia_New=0;
+		SQL = "SELECT PK_Device FROM DeviceTemplate_DeviceTemplate_ControlledVia JOIN Device ON Device.FK_DeviceTemplate=FK_DeviceTemplate_ControlledVia WHERE DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+		if( (result_cv1.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_cv1.r)) )
+			iPK_Device_ControlledVia_New = atoi(row[0]);
+		else
 		{
-			string sCommand = "apt-get install -y " + string(row[0]);
-			g_pPlutoLogger->Write(LV_STATUS,"Running %s",sCommand.c_str());
-			system(sCommand.c_str());
+			SQL = "SELECT PK_Device FROM DeviceTemplate_DeviceCategory_ControlledVia JOIN Device ON DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory=Device.FK_DeviceCategory WHERE DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+			if( (result_cv2.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_cv2.r)) )
+				iPK_Device_ControlledVia_New = atoi(row[0]);
 		}
-#endif
+
+		if( iPK_Device_ControlledVia_New )
+		{
+			SQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device_ControlledVia_New) +
+				" WHERE PK_Device=" + StringUtils::itos(PK_Device);
+			if( threaded_mysql_query(SQL)!=0 )
+			{
+				cout << "Error updating device controlled via" << endl;
+				exit(1);
+			}
+		}
 	}
 
 	// Loop through all the categories
@@ -185,7 +193,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 			{
 				if( mapParametersAdded.find(atoi(row[0]))!=mapParametersAdded.end() )
 				{
-					SQL = "UPDATE Device_DeviceData SET IK_DeviceData='" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "' " +
+						SQL = "UPDATE Device_DeviceData SET IK_DeviceData='" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "' " +
 						"WHERE FK_Device=" + StringUtils::itos(PK_Device) + " AND FK_DeviceData=" + row[0];
 				}
 				else
@@ -300,6 +308,74 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 					}
 				}
 			}
+		}
+	}
+}
+
+void CreateDevice::ConfirmRelations(int PK_Device,bool bRecurseChildren)
+{
+	PlutoSqlResult result_dt,result_related,result_related2,result_related3;
+	MYSQL_ROW row,row3;
+
+	int PK_DeviceTemplate=0;
+	string SQL = "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	if( (result_dt.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_dt.r)) )
+		PK_DeviceTemplate=atoi(row[0]);
+
+	if( !PK_DeviceTemplate )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Invalid device template for device %d",PK_Device);
+		return;
+	}
+
+	// See if this requires dragging any other types of devices
+	SQL = "SELECT FK_DeviceTemplate_Related,Value FROM DeviceTemplate_DeviceTemplate_Related WHERE FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate);
+	if( ( result_related.r=mysql_query_result( SQL ) ) )
+	{
+g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) result_related.r->row_count,SQL.c_str());
+		while( row=mysql_fetch_row( result_related.r ) )
+		{
+			int iPK_DeviceTemplate_Related = atoi(row[0]);
+			int iRelation= (row[1] ? atoi(row[1]) : 0);
+			if( iRelation>=1 && iRelation<=3 )
+			{
+				// We need this device too.  See if we already have it
+				SQL = "SELECT FK_DeviceTemplate FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related);
+				if( (result_related2.r=mysql_query_result(SQL)) && result_related2.r->row_count>0 )
+					continue;  // It's ok.  We got it
+
+				// That device doesn't exist.  We need to create it
+				if( iRelation==1 )  // It's a sister device
+				{
+					SQL = "SELECT FK_Device_ControlledVia FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
+					if( (result_related3.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related3.r)) )
+						DoIt(0,iPK_DeviceTemplate_Related,"","",atoi(row3[0]));
+				}
+				else if( iRelation==2 )  // It's a child of the core (ie DCERouter's parent)
+				{
+					SQL = "SELECT FK_Device_ControlledVia FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST);
+					if( (result_related3.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related3.r)) )
+						DoIt(0,iPK_DeviceTemplate_Related,"","",atoi(row3[0]));
+				}
+				else if( iRelation==3 )  // It's a plugin (ie child of DCERouter)
+				{
+					SQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST);
+					if( (result_related3.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related3.r)) )
+						DoIt(0,iPK_DeviceTemplate_Related,"","",atoi(row3[0]));
+				}
+			}
+		}
+	}
+
+	if( bRecurseChildren )
+	{
+		PlutoSqlResult result_child_dev;
+		SQL = "SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia=" + StringUtils::itos(PK_Device);
+		if( ( result_child_dev.r=mysql_query_result( SQL ) ) )
+		{
+	g_pPlutoLogger->Write(LV_STATUS,"Found result_child_dev %d rows with %s",(int) result_child_dev.r->row_count,SQL.c_str());
+			while( row=mysql_fetch_row( result_child_dev.r ) )
+				ConfirmRelations(atoi(row[0]),true);
 		}
 	}
 }
