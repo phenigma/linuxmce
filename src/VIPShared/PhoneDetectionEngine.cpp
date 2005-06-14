@@ -46,8 +46,18 @@ void *HandleDetectionThread(void *p)
 	//because we'll lost that message
 	Sleep(5000);
 	
-	while( !pe->m_bAbortScanLoop && pe->ScanningLoop() )
-		pe->DetectionLogic();
+	while(!pe->m_bAbortScanLoop)
+    {
+        if(!pe->m_bScanningSuspended)
+        {
+            if(pe->ScanningLoop())
+	    	    pe->DetectionLogic();
+            else
+                break;
+        }
+        else
+            Sleep(100); //TODO: use condwait + broadcast
+    }
 
 	pe->m_bInScanLoop=false;
 	return NULL;
@@ -266,4 +276,16 @@ g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",pDevice->m_sMacAddress.c_str
 			delete pDevice;
 		}
 	}
+}
+
+/*virtual*/ void PhoneDetectionEngine::SuspendScanning()
+{
+    g_pPlutoLogger->Write(LV_WARNING, "Suspending scanning...");
+    m_bScanningSuspended = true;
+}
+
+/*virtual*/ void PhoneDetectionEngine::ResumeScanning()
+{
+    g_pPlutoLogger->Write(LV_WARNING, "Resuming scanning...");
+    m_bScanningSuspended = false;
 }

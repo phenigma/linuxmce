@@ -96,6 +96,12 @@ void PhoneDetection_Bluetooth_Windows::RequestStopScanning()
 	StopInquiry(); 
 };
 
+void PhoneDetection_Bluetooth_Windows::SuspendScanning()
+{
+    PhoneDetectionEngine::SuspendScanning();
+	pthread_cond_broadcast(&m_InquiryCond);
+}
+
 PhoneDetection_Bluetooth_Windows::~PhoneDetection_Bluetooth_Windows()
 {
 	//StopScanning() is called in the destructor base, BUT the derived

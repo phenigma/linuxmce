@@ -626,6 +626,8 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 		return;
 	}
 
+    g_pPlutoLogger->Write( LV_WARNING, "About to connect to PlutoMO. We'll suspend scanning..." );
+    SuspendScanning();
 
 #ifdef BT_SOCKET
 	// We must be using the DetectionSimulator
@@ -657,8 +659,15 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
                 sVMC_File
 			);
 
+        g_pPlutoLogger->Write( LV_WARNING, "Connected to PlutoMO." );
 	    pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, ( void* )pBD_Orbiter_Plus_DongleHandle );
 	}
+    else
+    {
+        g_pPlutoLogger->Write( LV_WARNING, "Failed to connect to PlutoMO." );
+    }
+
+    ResumeScanning();
 }
 
 //-----------------------------------------------------------------------------------------------------

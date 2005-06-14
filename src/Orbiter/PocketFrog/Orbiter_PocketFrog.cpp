@@ -177,7 +177,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		rc.right = rc.left + m_iImageWidth;
 		rc.top = (iHeight - m_iImageHeight) / 2;
 		rc.bottom = rc.top + m_iImageHeight;
-		MoveWindow(rc.left, rc.top, m_iImageWidth, m_iImageHeight + 25, TRUE);
+		MoveWindow(rc.left, rc.top, m_iImageWidth + 6, m_iImageHeight + 25, TRUE);
 	}
 #endif
 

@@ -25,6 +25,8 @@ public:
 
 	virtual void RequestStopScanning();
 
+    virtual void SuspendScanning();
+
 	//from BtIf
 	virtual void OnDeviceResponded(BD_ADDR	 bda,
 								   DEV_CLASS dev_class,

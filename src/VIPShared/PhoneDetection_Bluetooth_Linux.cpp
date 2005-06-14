@@ -60,8 +60,11 @@ PhoneDetection_Bluetooth_Linux::PhoneDetection_Bluetooth_Linux()
 
 bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 {
-	if( m_bAbortScanLoop )
+	if( m_bAbortScanLoop)
 		return false;
+
+     if(m_bScanningSuspended)
+         return true;
 
 g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 	g_pPlutoLogger->Write(LV_STATUS, "Start of scan loop");
@@ -189,7 +192,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 
 	g_pPlutoLogger->Write(LV_WARNING, "Inquiry started");	
 	
-	while (!__io_canceled && cancel && !m_bAbortScanLoop) {
+	while (!__io_canceled && cancel && !m_bAbortScanLoop && !m_bScanningSuspended) {
 		p.revents = 0;
 
 		if (poll(&p, 1, 100) > 0) {

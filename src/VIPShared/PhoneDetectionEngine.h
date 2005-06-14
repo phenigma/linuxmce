@@ -18,7 +18,12 @@ public:
 
 	bool m_bInScanLoop; // True if it's in the scanning loop
 	bool m_bAbortScanLoop;  // True when we are in the process of Aborting the scan
-	pthread_t m_ThreadID;
+    
+    //We are not going to perform any scanning if this is true
+    //the current scan loop will be interrupted right again if this one is set to true
+    bool m_bScanningSuspended; 
+	
+    pthread_t m_ThreadID;
 	pluto_pthread_mutex_t m_MapMutex,m_StartStopMutex;
 	pthread_mutexattr_t m_MutexAttr;
 
@@ -31,6 +36,7 @@ public:
 		m_StartStopMutex.Init(NULL);
 		m_bInScanLoop=false;
 		m_bAbortScanLoop=false;
+        m_bScanningSuspended = false;
 		m_ThreadID=NULL;
 	}
 	virtual ~PhoneDetectionEngine() 
@@ -60,6 +66,11 @@ public:
 	// StopScanning will kill the thread, and return only when it has safely
 	// stopped the scan
 	virtual void StopScanning();
+
+    //break the current scanning loop, ignore its results and do not start another one
+    //untip ResumeScanning is called
+    virtual void SuspendScanning();
+    virtual void ResumeScanning();
 
 	// RequestStopScanning will kill the thread, but will return immediately.
 	// The calling class can later call StopScanning to be sure it has stopped
