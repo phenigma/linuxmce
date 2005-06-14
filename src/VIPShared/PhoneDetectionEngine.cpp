@@ -108,6 +108,12 @@ void *SignalStrengthThread(void *p)
 
 void PhoneDetectionEngine::DetectionLogic()
 {
+    if(m_bScanningSuspended)
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "The scanning is suspended. We'll ignore the results of this scan");
+        return; 
+    }
+
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 	g_pPlutoLogger->Write(LV_STATUS, "Devices detected last loop: %d", m_mapPhoneDevice_Detected.size());
 	g_pPlutoLogger->Write(LV_STATUS, "Devices detected this loop: %d", m_mapDevicesDetectedThisScan.size());
