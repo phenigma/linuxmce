@@ -56,7 +56,9 @@ Unset_NeedConfigure_Children()
 	done
 }
 
-NeedConfigure "$PK_Device" || exit 0
+if [[ "$1" != "F" ]]; then
+	NeedConfigure "$PK_Device" || exit 0
+fi
 
 [ -n "$MySqlPassword" ] && Pass="-p$MySqlPassword"
 CUsh="/usr/pluto/install/config_update.sh"
