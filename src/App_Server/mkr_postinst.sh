@@ -3,7 +3,7 @@
 
 mkdir -p ~root/.gimv/
 
-echo "Making the ~/root/.gimv/keyconf file";
+echo "Making the ~root/.gimv/keyconf file";
 cat > ~root/.gimv/keyconf  <<EOF
 [Common]
 common_auto_completion1=
