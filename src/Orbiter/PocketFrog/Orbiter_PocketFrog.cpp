@@ -73,13 +73,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     m_config.splashScreenTime = 0;	
 	m_bUpdating = false;
 	m_bFullScreen=bFullScreen;
-/*
-	m_bShiftDown = false;
-	m_bControlDown = false;
-	m_bAltDown = false;
-	m_bRepeat = false;
-	m_bCapsLock = false;
-*/
 	m_bConnectionLost = false;
 	m_bReload = false;
 	m_bQuit = false;
@@ -164,21 +157,12 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		g_pPlutoLogger->Write(LV_CRITICAL, "After fullscreen GetClientRect reports: %d, %d, %d, %d",
 			r.left, r.top, r.right, r.bottom);
 	}
+    /*
 	else
 	{
-		RECT rc;
-		HWND hWndDesktop = ::GetDesktopWindow();
-		::GetWindowRect(hWndDesktop, &rc);
-
-		int iWidth = rc.right - rc.left;
-		int iHeight = rc.bottom - rc.top;
-
-		rc.left = (iWidth - m_iImageWidth) / 2;
-		rc.right = rc.left + m_iImageWidth;
-		rc.top = (iHeight - m_iImageHeight) / 2;
-		rc.bottom = rc.top + m_iImageHeight;
-		MoveWindow(rc.left, rc.top, m_iImageWidth + 6, m_iImageHeight + 25, TRUE);
+        AdjustWindowSize(m_iImageWidth + 6, m_iImageHeight + 25);
 	}
+    */
 #endif
 
 	return true;
@@ -816,5 +800,24 @@ void Orbiter_PocketFrog::PingFailed()
 	m_bQuit = true;
 	m_bReload = true;
 	OnQuit();
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::AdjustWindowSize(int iOrbiterWidth, int iOrbiterHeight)
+{
+    iOrbiterWidth += 6; //the border
+    iOrbiterHeight += 25; //the title + the border
+
+    RECT rc;
+    HWND hWndDesktop = ::GetDesktopWindow();
+    ::GetWindowRect(hWndDesktop, &rc);
+
+    int iDesktopWidth = rc.right - rc.left;
+    int iDesktopHeight = rc.bottom - rc.top;
+
+    rc.left = (iDesktopWidth - iOrbiterWidth) / 2;
+    rc.right = rc.left + iOrbiterWidth;
+    rc.top = (iDesktopHeight - iOrbiterHeight) / 2;
+    rc.bottom = rc.top + iOrbiterHeight;
+    MoveWindow(rc.left, rc.top, iOrbiterWidth, iOrbiterHeight, TRUE);
 }
 //-----------------------------------------------------------------------------------------------------

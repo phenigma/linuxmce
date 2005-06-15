@@ -616,7 +616,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )
 {
-if( pObj->m_ObjectID.find("1785")!=string::npos && this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
+if( pObj->m_ObjectID.find("3412")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
 {
 int k=2;
 }
@@ -652,15 +652,15 @@ int k=2;
     }
 
     if ( pObj->m_bHidden )
-{
+    {
 g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
         return;
 	}
 
     PROFILE_START( ctObj )
 
-        PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex )
-        PlutoRectangle rectBackground = pObj->m_rBackgroundPosition;
+    PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex )
+    PlutoRectangle rectBackground = pObj->m_rBackgroundPosition;
     PlutoRectangle rectTotal = pObj->m_rPosition;
     vm.Release(  );
 
@@ -1385,7 +1385,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
             }
         }
 
-        if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
+        if(  /*pObj->m_vectSelectedGraphic.size() &&*/ pObj->m_GraphicToDisplay != GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
         {
             pObj->m_GraphicToDisplay=GRAPHIC_SELECTED;
 
@@ -2066,10 +2066,6 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
     int w = pObj->m_rBackgroundPosition.Width;
     int h = pObj->m_rBackgroundPosition.Height;
 
-    //PlutoColor BlackColor(0, 0, 0, 100);
-    //HollowRectangle(x + w / 2, y + h / 4, 1, h / 2, BlackColor);
-    //HollowRectangle(x + w / 4, y + h / 2, w / 2, 1, BlackColor);
-
     PlutoColor WhiteColor(255, 255, 255, 100);
     PlutoColor RedColor(255, 0, 0, 100);
 
@@ -2078,7 +2074,24 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
     HollowRectangle(x + 2, y + 2, w - 5, h - 5, WhiteColor);
     HollowRectangle(x + 3, y + 3, w - 7, h - 7, WhiteColor);
 }
+//------------------------------------------------------------------------
+/*virtual*/ void Orbiter::SelectObject( class DesignObj_Orbiter *pObj )
+{
+g_pPlutoLogger->Write(LV_CRITICAL, "Sel obj - render");
 
+    int x = pObj->m_rBackgroundPosition.X;
+    int y = pObj->m_rBackgroundPosition.Y;
+    int w = pObj->m_rBackgroundPosition.Width;
+    int h = pObj->m_rBackgroundPosition.Height;
+
+    PlutoColor WhiteColor(255, 255, 255, 100);
+    PlutoColor BlueColor(0, 0, 255, 100);
+
+    HollowRectangle(x    , y    , w - 1, h - 1, BlueColor);
+    HollowRectangle(x + 1, y + 1, w - 3, h - 3, BlueColor);
+    HollowRectangle(x + 2, y + 2, w - 5, h - 5, WhiteColor);
+    HollowRectangle(x + 3, y + 3, w - 7, h - 7, WhiteColor);
+}
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightFirstObject(  )
 {
@@ -2538,6 +2551,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			g_pPlutoLogger->Write( LV_CRITICAL, "No initial screen" );
 			exit( 1 );
 		}
+
+        AdjustWindowSize(m_pScreenHistory_Current->m_pObj->m_rPosition.Width, 
+            m_pScreenHistory_Current->m_pObj->m_rPosition.Height);
+
 		DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
 		for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
 		{

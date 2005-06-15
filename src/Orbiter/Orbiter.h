@@ -256,6 +256,11 @@ public: // temp - remove this
 	 */
 	void ScreenSaver( void *data );
 
+    /**
+    * @brief Adjust the window size
+    */
+    virtual void AdjustWindowSize(int iWidth, int iHeight) {}
+
 	/**
 	 * @brief renders an object on the screen
 	 * @todo ask
@@ -364,6 +369,11 @@ public: // temp - remove this
 	 * Highlighting is used to show the currently 'highlighted' object, particularly with a remote that has up/down/left/right/enter controls
 	 * These functions move between objects that have their 'tab stop' property set to true
 	 */
+
+    /**
+    * @brief Render selected state for this object
+    */
+    virtual void SelectObject( class DesignObj_Orbiter *pObj );
 
 	/**
 	 * @brief Highlight this object
