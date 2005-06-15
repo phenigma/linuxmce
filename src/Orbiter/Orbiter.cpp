@@ -601,11 +601,11 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 		}
 	}
 
-    // See if maybe we just added an object that's a tab stop that wasn't there before
-    if(  !m_pObj_Highlighted && m_vectObjs_TabStops.size(  )  )
-	    HighlightFirstObject(  );
+    //See if maybe we just added an object that's a tab stop that wasn't there before
+    //if(!m_pObj_Highlighted && m_vectObjs_TabStops.size(  )  )
+	//    HighlightFirstObject();
 
-    if(NULL != m_pObj_Highlighted/*&&  m_pObj_Highlighted->m_vectHighlightedGraphic.size()*/)
+    if(NULL != m_pObj_Highlighted)
     	HighlightObject( m_pObj_Highlighted );
 
     m_vectObjs_NeedRedraw.clear();
