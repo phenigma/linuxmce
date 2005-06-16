@@ -6254,6 +6254,24 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
 	bool bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
 
+    //hack: if a button doesn't have a mng as selected state (see bDisableEffects), then the png
+    //used in normal state will be rendered for selected state + a blue rectangle to show the selection
+    if(!bIsMNG && pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
+    {
+        pVectorPlutoGraphic = &pObj->m_vectGraphic; //normal state
+
+        //we have nothing to render
+        if(pVectorPlutoGraphic->size() == 0)
+            return;
+
+        if(int(pVectorPlutoGraphic->size()) <= pObj->m_iCurrentFrame)
+            pObj->m_iCurrentFrame = 0;
+
+        iCurrentFrame = pObj->m_iCurrentFrame;
+        pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
+        bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
+    }
+
 	string sFileName = "";
 	if(pPlutoGraphic->IsEmpty() && NULL != m_pCacheImageManager &&
 		m_pCacheImageManager->IsImageInCache(pPlutoGraphic->m_Filename, pObj->m_Priority)
