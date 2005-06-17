@@ -80,7 +80,7 @@ void sh(int i) /* signal handler */
     pid = wait(&status);
 
     if ( g_pAppServer )
-        g_pAppServer->ProcessExited(pid, status);
+        g_pAppServer->ProcessExited(pid, WEXITSTATUS(status));
 }
 #endif
 
@@ -227,7 +227,7 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 	if ( bShow_logo )
 		EnsureLogoIsDisplayed();
 
-	if (! ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnSuccess, sSendOnFailure)) )
+	if (! ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnFailure, sSendOnSuccess)) )
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Can't spawn '%s': %s %s.", sName.c_str(), sFilename.c_str(), sArguments.c_str());
         sCMD_Result = "Failed";

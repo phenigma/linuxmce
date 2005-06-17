@@ -107,8 +107,13 @@ printf("dupped arg %d %s\n",i,ps);
 			
 			close(in[1]);
 			dup2(in[0], 0);
+			
+			// TODO: use a SysV or POSIX semaphore to synchronize with parent (after it releases it's mutex)
+			Sleep(1000);
             if ( execvp(args[0], args) == -1)
+			{
                 exit(99);
+			}
         }
 
         case -1:

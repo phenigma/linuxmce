@@ -510,6 +510,11 @@ bool Socket::SendData( int iSize, const char *pcData )
 			tv.tv_sec = 1;
 			tv.tv_usec = 0;
 			iRet = select((int) (m_Socket+1), NULL, &wrfds, NULL, &tv);
+			if (errno == EINTR)
+			{
+				errno = 0;
+				iRet = 0;
+			}
 
 			tv_total -= 1;
 			tv_total += tv;
@@ -630,6 +635,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 
 			tv_total.tv_sec = m_iReceiveTimeout;
 			tv_total.tv_usec = 0;
+			//g_pPlutoLogger->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d", m_iReceiveTimeout, m_Socket);
 			do
 			{
 				if( m_Socket == INVALID_SOCKET || m_bQuit )
@@ -641,6 +647,11 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 				tv.tv_sec = 1;
 				tv.tv_usec = 0;
 				iRet = select((int) (m_Socket+1), &rfds, NULL, NULL, &tv);
+				if (errno == EINTR)
+				{
+					errno = 0;
+					iRet = 0;
+				}
 
 				tv_total -= 1;
 				tv_total += tv;
@@ -649,6 +660,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #else
 			} while (iRet != -1 && iRet != 1);
 #endif
+			//g_pPlutoLogger->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d ret %d errno %d %s", tv_total.tv_sec, m_Socket, iRet, errno, strerror(errno));
 
 			if( iRet == 0 || iRet == -1 )
 			{
@@ -719,7 +731,6 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #ifdef WIN32
 				g_pPlutoLogger->Write(LV_STATUS,"Socket closure error code: %d",WSAGetLastError());
 #endif
-				Close();
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveData %p failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
 				this, m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
@@ -760,6 +771,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #else
 				g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveData failed, bytes left %d socket %d %s", m_iSockBufBytesLeft, m_Socket, m_sName.c_str() );
 #endif
+				Close();
 				return false;
 			}
 			m_pcCurInsockBuffer = m_pcInSockBuffer; // refreshing the current position
