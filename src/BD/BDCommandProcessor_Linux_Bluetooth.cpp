@@ -65,14 +65,27 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const %s",sMacAddressPhone.c_str());
 		return;
 	}
 	
-	printf("# try to connect\n");
-	int err_code = 0;
-	if ((err_code = connect(m_CommHandle, (struct sockaddr *)&raddr, sizeof(raddr))) < 0) 
+	int iRetries = 10;
+    int err_code = 0;
+	while(iRetries--)
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Can't connect RFCOMM socket %s. (The symbian app is not started or it's dead)",sMacAddressPhone.c_str());
-		printf("# error code: %d\n", err_code);
+		err_code = 0;
+	    printf("# try to connect\n");
+		if((err_code = connect(m_CommHandle, (struct sockaddr *)&raddr, sizeof(raddr))) < 0) 
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"Can't connect RFCOMM socket %s. (%d)",sMacAddressPhone.c_str(), 10 - iRetries);
+			printf("# error code: %d\n", err_code);
+			Sleep(300);
+		}
+		else
+			break; //connected
+	}
+
+	if(err_code < 0) 
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"Failed to connect to PlutoMO, phone mac %s", sMacAddressPhone.c_str());
 		close(m_CommHandle);
-		m_bDead=true;
+	    m_bDead=true;
 		return;
 	}
 
