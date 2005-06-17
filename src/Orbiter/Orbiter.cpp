@@ -1176,6 +1176,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
 
 		m_pScreenHistory_Current->m_pObj->m_bActive=false;
         ObjectOffScreen( m_pScreenHistory_Current->m_pObj );
+
+        PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
         if(  bAddToHistory  )
             m_listScreenHistory.push_back( m_pScreenHistory_Current );
 DumpScreenHistory();
@@ -1184,6 +1186,7 @@ DumpScreenHistory();
 			delete m_listScreenHistory.front();
             m_listScreenHistory.pop_front(  );
 		}
+        vm.Release();
     }
 
 	// todo 2.0 SelectFirstObject(  );
@@ -4860,10 +4863,11 @@ void Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c8-e->
 {
+    PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+
 g_pPlutoLogger->Write(LV_STATUS,"CMD_Remove_Screen_From_History %s - %s size: %d",sPK_DesignObj.c_str(),sID.c_str(),(int) m_listScreenHistory.size());
 DumpScreenHistory();
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
 	for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();)
 	{
 		ScreenHistory *pScreenHistory = *it;
@@ -6827,6 +6831,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 // Temporary function to debug a problem with the screen history
 void Orbiter::DumpScreenHistory()
 {
+    PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
 	string s = "history size: " + StringUtils::itos(int(m_listScreenHistory.size()));
 
 for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();++it)
