@@ -82,9 +82,9 @@ printf("dupped arg %d %s\n",i,ps);
 	int in[2];
 	pipe(in);
 
+	struct sembuf sops;
 	int semSpawnApplication = semget(IPC_PRIVATE, 1, IPC_CREAT | 0600);
 	semctl(semSpawnApplication, 0, SETVAL, 1);
-	struct sembuf sops;
 
 	pthread_mutex_lock(&mutexDataStructure);
     pid_t pid = fork();
