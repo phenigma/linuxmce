@@ -12,6 +12,8 @@
 	#include <windows.h>
 #else
 	#include <fcntl.h>
+	#include <sys/ipc.h>
+	#include <sys/sem.h>
 #endif
 using namespace std;
 
@@ -80,6 +82,10 @@ printf("dupped arg %d %s\n",i,ps);
 	int in[2];
 	pipe(in);
 
+	int semSpawnApplication = semget(IPC_PRIVATE, 1, IPC_CREAT | 0600);
+	semctl(semSpawnApplication, 0, SETVAL, 1);
+	struct sembuf sops;
+
 	pthread_mutex_lock(&mutexDataStructure);
     pid_t pid = fork();
 
@@ -108,8 +114,11 @@ printf("dupped arg %d %s\n",i,ps);
 			close(in[1]);
 			dup2(in[0], 0);
 			
-			// TODO: use a SysV or POSIX semaphore to synchronize with parent (after it releases it's mutex)
-			Sleep(1000);
+			sops.sem_num = 0;
+			sops.sem_op = 0;
+			sops.sem_flg = 0;
+			semop(semSpawnApplication, &sops, 1);
+			
             if ( execvp(args[0], args) == -1)
 			{
                 exit(99);
@@ -138,6 +147,13 @@ printf("dupped arg %d %s\n",i,ps);
 			pPidData->in = in[1];
 			mapIdentifierToPidData[sAppIdentifier][pid] = pPidData;
 			pthread_mutex_unlock(&mutexDataStructure);
+
+			sops.sem_num = 0;
+			sops.sem_op = -1;
+			sops.sem_flg = 0;
+			semop(semSpawnApplication, &sops, 1);
+			semctl(semSpawnApplication, 0, IPC_RMID);
+			
             return true;
     }
 #else
