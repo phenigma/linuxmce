@@ -37,6 +37,19 @@ public:
     }
 };
 
+class AllowedConnections
+{
+public:
+    time_t m_tExpirationTime;
+    int m_iDeviceIDAllowed;
+
+    AllowedConnections(time_t tExpirationTime, int iDeviceIDAllowed)
+    {
+        m_tExpirationTime = tExpirationTime;
+        m_iDeviceIDAllowed = iDeviceIDAllowed;
+    }
+};
+
 //<-dceag-decl-b->!
     class Orbiter_Plugin : public Orbiter_Plugin_Command
     {
@@ -75,6 +88,9 @@ public:
 	virtual bool SafeToReload(string *sPendingTasks=NULL);
 	list<int> m_listRegenCommands;
 
+	pluto_pthread_mutex_t m_AllowedConnectionsMutex;
+    map<string, class AllowedConnections *> m_mapAllowedConnections;
+
 	pluto_pthread_mutex_t m_UnknownDevicesMutex;
     bool m_bNoUnknownDeviceIsProcessing;
 	string m_sPK_Device_AllOrbiters;
@@ -97,6 +113,11 @@ public:
     OH_User *m_mapOH_User_Find(int PK_User) {
         map<int,class OH_User *>::iterator it = m_mapOH_User.find(PK_User);
         return it==m_mapOH_User.end() ? NULL : (*it).second;
+    }
+
+    class AllowedConnections *m_mapAllowedConnections_Find(string sMacAddress) {
+        map<string, class AllowedConnections *>::iterator it = m_mapAllowedConnections.find(sMacAddress);
+        return it==m_mapAllowedConnections.end() ? NULL : (*it).second;
     }
 
 	// Our interceptors

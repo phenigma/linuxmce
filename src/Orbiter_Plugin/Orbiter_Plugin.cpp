@@ -74,13 +74,17 @@ string g_sLatestMobilePhoneVersion="2005.06.16";
 #include "../Media_Plugin/EntertainArea.h"
 #include "../Media_Plugin/Media_Plugin.h"
 
+#define EXPIRATION_INTERVAL 30
+
 //<-dceag-const-b->!
 Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-    : Orbiter_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_UnknownDevicesMutex("Unknown devices varibles")
+    : Orbiter_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_UnknownDevicesMutex("Unknown devices varibles"),
+    m_AllowedConnectionsMutex("allow connections")
 //<-dceag-const-e->
 {
     m_bNoUnknownDeviceIsProcessing = false;
     m_UnknownDevicesMutex.Init(NULL);
+    m_AllowedConnectionsMutex.Init(NULL);
 
     m_pDatabase_pluto_main = new Database_pluto_main();
     if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
@@ -122,7 +126,11 @@ Orbiter_Plugin::~Orbiter_Plugin()
 
 	for(map<int,OH_User *>::iterator it=m_mapOH_User.begin();it!=m_mapOH_User.end();++it)
 		delete (*it).second;
-	
+
+    PLUTO_SAFETY_LOCK(ac, m_AllowedConnectionsMutex);
+    for(map<string, class AllowedConnections *>::iterator it=m_mapAllowedConnections.begin();it!=m_mapAllowedConnections.end();++it)
+        delete (*it).second;
+    ac.Release();
 }
 
 /* Kind of a hack -- The goal was to allow the lighting, telecom, media, climate and security plug-ins to be
@@ -541,10 +549,21 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 
 				if(NULL != pOH_Orbiter->m_pDevice_CurrentDetected)
 				{
+                    //allow only 'pDeviceFrom->m_dwPK_Device' device to connect to PlutoMO in EXPIRATION_INTERVAL sec.
+                    //this will prevent other dongle to connect to PlutoMO while it is disconnected and
+                    //it is waiting for the 'pDeviceFrom->m_dwPK_Device' to connect
+                    //if the that device will not connect to PlutoMO in EXPIRATION_INTERVAL seconds, any other device 
+                    //will be allowed to connect to PlutoMO.
+                    PLUTO_SAFETY_LOCK(ac, m_AllowedConnectionsMutex);
+                    m_mapAllowedConnections[sMacAddress] = new AllowedConnections(time(NULL) + EXPIRATION_INTERVAL, pDeviceFrom->m_dwPK_Device);
+                    ac.Release();
+
+                    g_pPlutoLogger->Write(LV_WARNING, "Only %d dongle will be allow to connect to %s phone in %d seconds", pDeviceFrom->m_dwPK_Device,
+                        sMacAddress.c_str(), EXPIRATION_INTERVAL);
+
                     //this dongle will send a link with mobile orbiter when it has finished disconnecting
 					DCE::CMD_Disconnect_From_Mobile_Orbiter cmd_Disconnect_From_Mobile_Orbiter(
-						m_dwPK_Device,
-						pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
+						m_dwPK_Device, pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
 						sMacAddress,sVmcFileToSend,pDeviceFrom->m_dwPK_Device); 
 					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
 				}
@@ -552,12 +571,8 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 				{
                      //Only do this if there's no other dongle
 					DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
-						m_dwPK_Device,
-						pDeviceFrom->m_dwPK_Device,
-						1, 
-						sMacAddress,
-						sVmcFileToSend);
-
+						m_dwPK_Device, pDeviceFrom->m_dwPK_Device, 1, 
+						sMacAddress, sVmcFileToSend);
 					SendCommand(CMD_Link_with_mobile_orbiter);
 				}
             }
@@ -577,6 +592,35 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
         g_pPlutoLogger->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL or unknown dev %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
 		return false;
     }
+
+    PLUTO_SAFETY_LOCK(ac, m_AllowedConnectionsMutex);
+    AllowedConnections *pAllowedConnections = m_mapAllowedConnections_Find(sMacAddress);
+    if(NULL != pAllowedConnections)
+    {
+        if(pAllowedConnections->m_iDeviceIDAllowed == pDeviceFrom->m_dwPK_Device)
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "This device (%d) is allowed to connect to PlutoMO %s", pDeviceFrom->m_dwPK_Device,
+                sMacAddress.c_str());
+            m_mapAllowedConnections[sMacAddress] = NULL;
+            delete pAllowedConnections;
+        }
+        else //other device
+            if(pAllowedConnections->m_tExpirationTime < time(NULL)) 
+            {
+                g_pPlutoLogger->Write(LV_WARNING, "The connection interval expired. Device %d is now allowed to connect to PlutoMO %s", pDeviceFrom->m_dwPK_Device,
+                    sMacAddress.c_str());
+                m_mapAllowedConnections[sMacAddress] = NULL;
+                delete pAllowedConnections;
+            }
+            else
+            {
+                g_pPlutoLogger->Write(LV_WARNING, "Device %d is not allowed to connect to PlutoMO %s. Waiting for %d device to link", pDeviceFrom->m_dwPK_Device,
+                    sMacAddress.c_str());
+                return false;
+            }
+    }
+    ac.Release();
+
     string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
 g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH_Orbiter,sVersion.c_str());
 
