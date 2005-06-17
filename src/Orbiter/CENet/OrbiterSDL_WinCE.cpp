@@ -287,7 +287,7 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 	 }
 
 	 // Set up our memory DC with the font and bitmap
-	 SelectObject(m_hdc, fontInfo.bitmap);
+	::SelectObject(m_hdc, fontInfo.bitmap);
 
 	::SetTextColor(m_hdc, RGB(color.r, color.g, color.b));
 	::SetBkMode(m_hdc, TRANSPARENT);
