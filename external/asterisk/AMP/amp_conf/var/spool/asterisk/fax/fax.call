@@ -1,0 +1,7 @@
+Channel: Zap/g1/2442790
+MaxRetries: 0
+WaitTime: 20
+Context: ext-fax
+Extension: out_fax
+Priority: 1
+SetVar: TXFAX_NAME=/var/spool/asterisk/fax/test.tif

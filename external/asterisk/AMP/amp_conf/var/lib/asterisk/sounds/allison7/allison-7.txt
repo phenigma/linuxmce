@@ -1,0 +1,174 @@
+
+%what-time-it-is%Do you have any idea what <emph> time </emph> it is?
+%what-time-it-is2%Do you have any idea what <emph> time </emph> it is?
+%at-tone-time-exactly%At the sound of the tone, the time will be exactly
+%if-you-know-the%if you know the
+%that-you-require%that you require
+%it-now%it now
+%to-collect-voicemail%to collect voicemail
+%to-join-a-meeting%to join a meeting
+%accessible-through-system%accessible through this system
+%starting-with-either%starting with either
+%digit%digit
+%digits%digits
+%list%list
+%user%user
+%extensions%extensions
+%office-code%office code
+%speak-to-the-operator%speak to the operator
+%uk%UK
+%welcome%welcome
+%no-empty-conferences%No empty conferences currently exist.
+%entering-conf-number%You are entering conference number
+%an-error-has-occured%An error has occured.
+%unconditional%unconditional
+%call-forwarding%Call forwarding
+%on-busy%on busy
+%on-no-answer%on no answer
+%enabled%enabled
+%disabled%disabled
+%do-not-disturb%Do not disturb
+%error-number%error number
+%uh-oh1%Uh oh!  [in a cutesy, Teletubbie's like voice] 
+%uh-oh2%Uh oh!  [in a cutesy, Teletubbie's like voice] 
+%teletubbie-murder%has been brutally murdered and mutilated by the Teletubbies. 
+%thank-you-cooperation%Thank you for your cooperation.
+%computer-friend1%The computer is your friend.
+%computer-friend2%The computer is your friend.
+%asterisk-friend%Asterisk is your friend.
+%walks-into-bar-mail%A man walks into a bar, sits down and ... welcome to Comedian Mail!
+%you-dialed-wrong-number%You have dialed the wrong number.
+%jedi-extension-trick%This is not the extension you are looking for.
+%pls-hold-while-try%Please hold while we try to connect you.
+%busy-hangovers%We're all busy with our hangovers.
+%lines-complaining-customers%All lines are full of complaining customers.
+%if-rotary-phone%If you have a rotary phone, please stay on the line after the menu.
+%thank-you-for-calling%Thank you for calling.
+%system-status-msg%Please listen carefully to the following system status message.
+%all-reps-busy%All of our representatives are currently busy.
+%pls-lv-msg-will-contact%Please leave a message after the tone and a representative will contact you as soon as possible.
+%pls-stay-on-line%Please stay on the line and your call will be answered by the next available representative.
+%to-be-called-back%To be called back when a representative is available, press-- 
+%now%now.
+%enter-phone-number10%Please enter your ten-digit telephone number, area code first.
+%please-enter-your%Please enter your
+%post-entry-pound%digit account number, skipping any punctuation, followed by the pound key.
+%press-1%Press 1
+%press-2%Press 2
+%press-3%Press 3
+%press-4%Press 4
+%press-5%Press 5
+%press-6%Press 6
+%press-7%Press 7
+%press-8%Press 8
+%press-9%Press 9
+%press-hash%Press hash
+%press-star%Press star
+%press-pound%Press pound
+%for-wakeup-call%For a wakeup call...
+%wakeup-call%Wakeup call
+%this-is-yr-wakeup-call%This is your wakeup call.
+%to-snooze-for%To snooze for...
+%to-rqst-wakeup-call%To request a wakeup call...
+%to-confirm-wakeup%To confirm a wakeup call...
+%to-cancel-wakeup%To cancel a wakeup call...
+%enter-a-time%Enter a time using 4 digits.  Start with a zero for hours less than ten. 
+%1-for-am-2-for-pm%Press 1 for A.M, or 2 for P.M.
+%rqsted-wakeup-for%You have requested a wakeup call for...
+%not-rqsted-wakeup%You have not requested a wakeup call.
+%wakeup-call-cancelled%Your wakeup call has been cancelled.
+%for-english-press%For english, press
+%continue-english-press%To continue in english, press
+%to-extension%to extension 
+%feature-not-avail-line%That feature is not available on this line
+%save-announce-press%To save this announcement, press
+%to-rerecord-announce%To rerecord this announcement, press
+%minus%minus
+%plus%plus
+%times%times
+%divided-by%divided by
+%equals%equals
+%your-account%Your account
+%has-been%has been
+%on-monthly-tel-stment%on your monthly telephone statement
+%info-about-last-call%Information about your last call
+%flagged-for-lea%has been flagged for retrvial by law enforcement officials
+%lea-may-request-info%Law enforcement officials may request this information
+%within%within
+%the-next%the next
+%the-number-u-dialed%The number you have dialed
+%the-new-number-is%The new number is
+%has-been-changed-to%has been changed to
+%has-been-disconnected%has been disconnected
+%no-longer-in-service%is no longer in service
+%temp-disconnected%has been temporarialy disconnected
+%at-customers-request%at the customers request
+%reassigned-new-areacode%has been reassigned in another areacode
+%pls-try-area-code%please try area code
+%not-yet-assigned%has not yet been assigned
+%calls-taken-by%calls are being taken by
+%no-info-about-number%no further information is available about this number
+%all-circuits-busy-now%All circuits are busy now
+%pls-try-call-later%please try your call again later
+%a-charge-for-this-svc%A charge for this service
+%for-the-weather%For the weather
+%by%by
+%telephone-number%telephone number
+%zip-code%zip code
+%address%address
+%international-call%international call
+%please-try%please try
+%www-switchboard-com%www.switchboard.com
+%directory-assistance%directory assistance
+%days%days
+%weeks%weeks
+%months%months
+%years%years
+%if-u-know-ext-dial%If you know the extension of the party you wish to reach, dial it now. 
+%company-dir-411%To access our company directory, dial 411 or dial zero to leave a message in our general mailbox.
+%hold-or-dial%Please continue to hold or dial zero to leave a message in our general mailbox.
+%call-forward%Call Forward
+%current-time-is%The current time is
+%will-reflect-charge-of%will reflect a charge of 
+%added-to%added to
+%wish-to-continue%do you wish to continue?
+%for-yes-press%for yes, press
+%for-no-press%for no, press
+%or-press%or press
+%to-hear-msg-again%to hear this message again.
+%for-a-list-of%For a list of 
+%that-number%that number
+%our-business-hours-are%Our business hours are
+%for-investor-relations%for investor relations, press 
+%for-louie-louie%for the lyrics to louie, louie, press 
+%lyrics-louie-louie%[
+        Louie Louie, me gotta go
+        Louie Louie, me gotta go
+        Fine little girl she waits for me
+        Me catch the ship for cross the sea
+        Me sail the ship all alone
+        Me never thinks me make it home
+        (chorus)
+        Three nights and days me sail the sea
+        Me think of girl constantly
+        On the ship I dream she there
+        I smell the rose in her hair
+        (chorus, guitar solo)
+        Me see Jamaica moon above
+        It won't be long, me see my love
+        I take her in my arms and then
+        Me tell her I never leave again]
+%hear-toilet-flush%to hear a toilet flush, press 
+%hear-odd-noise%to hear an odd noise, press 
+%infuriate-tech-staff%to infuriate our tech staff with your obvious questions, press [X]
+# Note: [T] denotes "trailing" spoken emphasis; phrase is meant to be at end of sentence.
+%T-is-not-available%[T] is not available 
+%T-to-leave-msg%[T] to leave a message
+%T-to-rtrn-to-main-menu%[T] to return to the main menu
+%T-to-reach-main-office%[T] to reach the main office
+%T-changed-to%[T] has been changed to [Extension Y]
+%T-to-hear-cur-ancmnt%[T] to hear the current announcement
+%T-to-rec-ancmnt%[T] to rerecord this announcement
+%T-to-enable-ancmnt%[T] to enable this announcement
+%T-to-disable-ancmnt%[T] to disable this announcement
+

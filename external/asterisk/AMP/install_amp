@@ -1,0 +1,650 @@
+#!/usr/bin/php -q
+<?php
+
+// define versions. latest version must be last
+$versions = array(
+		'1.10.005',
+		'1.10.006',
+		'1.10.007beta1',
+		'1.10.007beta2',
+		'1.10.007',
+		'1.10.007a',
+		'1.10.008beta1',
+		'1.10.008beta2',
+		'1.10.008beta3',
+		'1.10.008',
+	);
+
+define("AMP_CONF", "/etc/amportal.conf");
+
+define("UPGRADE_DIR", dirname(__FILE__)."/upgrades");
+
+/********************************************************************************************************************/
+
+function out($text) {
+	echo $text."\n";
+}
+
+function outn($text) {
+	echo $text;
+}
+
+function error($text) {
+	echo "[ERROR] ".$text."\n";
+}
+
+function fatal($text) {
+	echo "[FATAL] ".$text."\n";
+	exit(1);
+}
+
+function debug($text) {
+	global $debug;
+	
+	if ($debug) echo "[DEBUG] ".$text."\n";
+}
+
+function showHelp() {
+	out("Optional parameters:");
+	out("  --help, -h, -?           Show this help");
+	out("  --username <user>        Use <user> to connect to db and write config");
+	out("  --password <pass>        Use <pass> to connect to db and write config");
+	out("  --debug                  Enable debug output");
+	out("  --dry-run                Don't actually do anything");
+	out("  --force-version <ver>    Force upgrade from version <ver>");
+}
+
+function parse_amportal_conf($filename) {
+	$file = file($filename);
+	foreach ($file as $line) {
+		if (preg_match("/^\s*([a-zA-Z0-9]+)\s*=\s*(.*)\s*([;#].*)?/",$line,$matches)) { 
+			$conf[ $matches[1] ] = $matches[2];
+		}
+	}
+	return $conf;
+}
+
+//get the version number
+function getversion() {
+	global $db;
+	$sql = "SELECT value FROM admin WHERE variable = 'version'";
+	$results = $db->getAll($sql);
+	if(DB::IsError($results)) {
+		return false;
+	}
+	return $results[0][0];
+}
+
+//set the version number
+function setversion($version) {
+	global $db;
+	$sql = "UPDATE admin SET value = '".$version."' WHERE variable = 'version'";
+	debug($sql);
+	$result = $db->query($sql); 
+	if(DB::IsError($result)) {     
+		die($result->getMessage()); 
+	}
+}
+
+function write_amportal_conf($filename, $conf) {
+	$file = file($filename);
+	// parse through the file
+	foreach (array_keys($file) as $key) {
+		if (preg_match("/^\s*([a-zA-Z0-9]+)\s*=\s*(.*)\s*([;#].*)?/",$file[$key],$matches)) {
+			// this is an option=value line
+			if (isset($conf[ $matches[1] ])) {
+				// rewrite the line, if we have this in $conf
+				$file[$key] = $matches[1]."=".$conf[ $matches[1] ]."\n";
+				// unset it so we know what's new
+				unset($conf[ $matches[1] ]);
+			}
+		}
+	}
+	
+	// add new entries
+	foreach ($conf as $key=>$val) {
+		$file[] = $key."=".$val."\n";
+	}
+	
+	// write the file
+	if (!$fd = fopen($filename, "w")) {
+		fatal("Could not open ".$filename." for writing");
+	}
+	fwrite($fd, implode("",$file));
+	fclose($fd);
+}
+
+function ask_overwrite($file1, $file2) {
+	global $check_md5s;
+	do {
+		out($file2." has been changed from the original version.");
+		outn("Overwrite (y=yes/a=all/n=no/d=diff/s=shell/x=exit)? ");
+		$key = fgets(STDIN,1024);
+		switch (strtolower($key[0])) {
+			case "y": return true; 
+			case "a": $check_md5s=false; return true;
+			case "n": return false;
+			case "d": 
+				out("");
+				passthru("diff -u ".$file2." ".$file1);
+			break;
+			case "s":
+				if (function_exists("pcntl_fork")) {
+					out("");
+					$shell = (isset($_ENV["SHELL"]) ? $_ENV["SHELL"] : "/bin/bash");
+					out("Dropping to shell. Type 'exit' to return");
+					out("-> Original file:  ".$file2);
+					out("-> New file:       ".$file1);
+					
+					$pid = pcntl_fork();
+					if ($pid == -1) {
+						out("[ERROR] cannot fork");
+					} else if ($pid) {
+						// parent
+						pcntl_waitpid($pid, $status);
+						// we wait till the child exits/dies/whatever
+					} else {
+						pcntl_exec($shell, array(), $_ENV);
+					}
+					
+					out("Returned from shell");
+				} else {
+					out("[ERROR] PHP not built with process control (--enable-pcntl) support: cannot spawn shell");
+				}
+				
+			break;
+			case "x": 
+				out("-> Original file:  ".$file2);
+				out("-> New file:       ".$file1);
+				out("Exiting install program.");
+				exit(1);
+			break;
+		}
+		out("");
+	} while(1);
+}
+
+/** Recursively copy a directory
+ */
+function recursive_copy($dirsourceparent, $dirdest, &$md5sums, $dirsource = "") {
+	global $dryrun;
+	global $check_md5s;
+	global $amp_conf;
+	
+	if ($dirsource && ($dirsource[0] != "/")) $dirsource = "/".$dirsource;
+	
+	if (is_dir($dirsourceparent.$dirsource)) $dir_handle = opendir($dirsourceparent.$dirsource);
+	
+	/*
+	echo "dirsourceparent: "; var_dump($dirsourceparent);
+	echo "dirsource: "; var_dump($dirsource);
+	echo "dirdest: "; var_dump($dirdest);
+	*/
+	
+	while (isset($dir_handle) && ($file = readdir($dir_handle))) {
+		if (($file!=".") && ($file!="..") && ($file != "CVS")) {
+			$source = $dirsourceparent.$dirsource."/".$file;
+			$destination =  $dirdest.$dirsource."/".$file;
+			
+			// html and cgi-bin directories are configurable in amportal.conf
+			$destination=str_replace("/var/www/html",$amp_conf["AMPWEBROOT"],$destination);
+			$destination=str_replace("/var/www/cgi-bin",$amp_conf["AMPCGIBIN"],$destination);
+			
+			// if this is a directory, ensure destination exists
+			if (is_dir($source)) {
+				if (!file_exists($destination)) {
+					debug("mkdir ".$destination);
+					if ((!$dryrun) && ($destination != "")) {
+						mkdir($destination, 0750);
+					}
+				}
+			}
+			
+			if (!is_dir($source)) {
+				if ($check_md5s && file_exists($destination) && isset($md5sums[$destination]) && (md5_file($destination) != $md5sums[$destination])) {
+					$overwrite = ask_overwrite($source, $destination, $md5sums);
+				} else {
+					$overwrite = true;
+				}
+				
+				if ($overwrite) {
+					debug("copy ".$source." -> ".$destination);
+					if (!$dryrun) {
+						copy($source, $destination);
+					}
+				} else {
+					debug("not overwriting ".$destination);
+				}
+			} else {
+				//echo "recursive_copy($dirsourceparent, $dirdest, $md5sums, $dirsource/$file)";
+				recursive_copy($dirsourceparent, $dirdest, $md5sums, $dirsource."/".$file);
+			}
+		}
+	}
+	
+	if (isset($dir_handle)) closedir($dir_handle);
+	
+	return true;
+}
+
+function read_md5_file($filename) {
+	$md5 = array();
+	if (file_exists($filename)) {
+		foreach (file($filename) as $line) {
+			if (preg_match("/^([a-f0-9]{32})\s+(.*)$/", $line, $matches)) {
+				$md5[ "/".$matches[2] ] = $matches[1];
+			}
+		}
+	}
+	return $md5;
+}
+
+/** Include a .php file
+ * This is a function just to keep a seperate context
+ */
+function run_included($file) {
+	global $db;
+	global $amp_conf;
+	
+	include($file);
+}
+
+/** Install a particular version
+ */
+function install_upgrade($version) {
+	global $db;
+	global $dryrun;
+	
+	if (is_dir(UPGRADE_DIR."/".$version)) {
+		$dir = opendir(UPGRADE_DIR."/".$version);
+		while ($file = readdir($dir)) {
+			if (($file[0] != ".") && is_file(UPGRADE_DIR."/".$version."/".$file)) {
+				if (strtolower(substr($file,-4)) == ".sql") {
+					out("-> Running SQL script ".UPGRADE_DIR."/".$version."/".$file);
+					// run sql script
+					$fd = fopen(UPGRADE_DIR."/".$version."/".$file, "r");
+					while (!feof($fd)) {
+						$data .= fread($fd, 1024);
+					}
+					fclose($fd);
+
+					preg_match_all("/((SELECT|INSERT|UPDATE|DELETE|CREATE|DROP).*);\s*\n/Us", $data, $matches);
+					
+					foreach ($matches[1] as $sql) {
+						debug($sql);
+						if (!$dryrun) {
+							$result = $db->query($sql); 
+							if(DB::IsError($result)) {     
+								fatal($result->getDebugInfo()."\" while running ".$file."\n"); 
+							}
+						}
+					}
+					
+				} else if (strtolower(substr($file,-4)) == ".php") {
+					out("-> Running PHP script ".UPGRADE_DIR."/".$version."/".$file);
+					if (!$dryrun) {
+						run_included(UPGRADE_DIR."/".$version."/".$file);
+					}
+					
+				} else if (is_executable(UPGRADE_DIR."/".$version."/".$file)) {
+					out("-> Executing ".UPGRADE_DIR."/".$version."/".$file);
+					if (!$dryrun) {
+						exec(UPGRADE_DIR."/".$version."/".$file);
+					}
+				} else {
+					error("-> Don't know what to do with ".UPGRADE_DIR."/".$version."/".$file);
+				}
+			}
+		}
+	}
+}
+
+/** Invoke upgrades
+ * @param $versions array	The version upgrade scripts to run
+ */
+function run_upgrade($versions) {
+	global $dryrun;
+	
+	foreach ($versions as $version) {
+		out("Upgrading to ".$version."..");
+		install_upgrade($version);
+		if (!$dryrun) {
+			setversion($version);
+		}
+		out("Upgrading to ".$version."..OK");
+	}
+}
+
+/** Write AMP-generated configuration files
+ */
+function generate_configs() {
+	global $amp_conf;
+	global $dryrun;
+	
+	out("Generating extensions_additional.conf..");
+	if (!$dryrun)
+		passthru("su - asterisk -c ".$amp_conf["AMPWEBROOT"]."/admin/retrieve_extensions_from_mysql.pl");
+	out("Generating sip_additional.conf..");
+	if (!$dryrun)
+		passthru("su - asterisk -c ".$amp_conf["AMPWEBROOT"]."/admin/retrieve_sip_conf_from_mysql.pl");
+	out("Generating zap_additional.conf..");
+	if (!$dryrun)
+		passthru("su - asterisk -c ".$amp_conf["AMPWEBROOT"]."/admin/retrieve_zap_conf_from_mysql.pl");
+	out("Generating iax_additional.conf..");
+	if (!$dryrun)
+		passthru("su - asterisk -c ".$amp_conf["AMPWEBROOT"]."/admin/retrieve_iax_conf_from_mysql.pl");
+	out("Generating meetme_additional.conf..");
+	if (!$dryrun)
+		passthru("su - asterisk -c ".$amp_conf["AMPWEBROOT"]."/admin/retrieve_meetme_conf_from_mysql.pl");
+	out("Generating queues_additional.conf..");
+	if (!$dryrun)
+		passthru("su - asterisk -c ".$amp_conf["AMPWEBROOT"]."/admin/retrieve_queues_from_mysql.pl");
+	out("Generating op_buttons_additional.conf..");
+	if (!$dryrun)
+		passthru("su - asterisk -c ".$amp_conf["AMPWEBROOT"]."/admin/retrieve_op_conf_from_mysql.pl");
+}
+
+
+/** Set reload flag for AMP admin
+ */
+function needreload() {
+	global $db;
+	$sql = "UPDATE admin SET value = 'true' WHERE variable = 'need_reload'"; 
+	$result = $db->query($sql); 
+	if(DB::IsError($result)) {     
+		die($result->getMessage()); 
+	}
+}
+
+
+/** Collect AMP settings
+ */
+function collect_settings($filename) {
+	out("Creating new /etc/amportal.conf");
+	
+	outn("Enter your USERNAME to connect to the 'asterisk' database:\n [asteriskuser] ");
+	$key = trim(fgets(STDIN,1024));
+	if (preg_match('/^$/',$key)) $amp_conf["AMPDBUSER"] = "asteriskuser";
+	else $amp_conf["AMPDBUSER"] = $key;
+	
+	outn("Enter your PASSWORD to connect to the 'asterisk' database:\n [amp109] ");
+	$key = trim(fgets(STDIN,1024));
+	if (preg_match('/^$/',$key)) $amp_conf["AMPDBPASS"] = "amp109";
+	else $amp_conf["AMPDBPASS"] = $key;
+	
+	outn("Enter a USERNAME to connect to the Asterisk Manager interface:\n [admin] ");
+	$key = trim(fgets(STDIN,1024));
+	if (preg_match('/^$/',$key)) $amp_conf["AMPMGRUSER"] = "admin";
+	else $amp_conf["AMPMGRUSER"] = $key;
+	
+	outn("Enter a PASSWORD to connect to the Asterisk Manager interface:\n [amp111] ");
+	$key = trim(fgets(STDIN,1024));
+	if (preg_match('/^$/',$key)) $amp_conf["AMPMGRPASS"] = "amp111";
+	else $amp_conf["AMPMGRPASS"] = $key;
+	
+	do {
+		outn("Enter the path to your Apache webroot:\n [/var/www/html] ");
+		$key = trim(fgets(STDIN,1024));
+		if (preg_match('/^$/',$key)) $amp_conf["AMPWEBROOT"] = "/var/www/html";
+		else $amp_conf["AMPWEBROOT"] = rtrim($key,'/');
+		if (is_dir($amp_conf["AMPWEBROOT"])) break;
+		else error($amp_conf["AMPWEBROOT"]." is not a directory!");
+	} while(1);
+	
+	do {
+		outn("Enter the path to your Apache cgi-bin:\n [/var/www/cgi-bin] ");
+		$key = trim(fgets(STDIN,1024));
+		if (preg_match('/^$/',$key)) $amp_conf["AMPCGIBIN"] = "/var/www/cgi-bin";
+		else $amp_conf["AMPCGIBIN"] = rtrim($key,'/');
+		if (is_dir($amp_conf["AMPCGIBIN"])) break;
+		else error($amp_conf["AMPCGIBIN"]." is not a directory!");
+	} while(1);
+	
+	outn("Enter the IP ADDRESS or hostname used to access the AMP web-admin:\n [xx.xx.xx.xx] ");
+	$key = trim(fgets(STDIN,1024));
+	if (preg_match('/^$/',$key)) $amp_conf["AMPWEBADDRESS"] = "xx.xx.xx.xx";
+	else $amp_conf["AMPWEBADDRESS"] = $key;
+	
+	outn("Enter a PASSWORD to perform call transfers with the Flash Operator Panel:\n [passw0rd] ");
+	$key = trim(fgets(STDIN,1024));
+	if (preg_match('/^$/',$key)) $amp_conf["FOPPASSWORD"] = "passw0rd";
+	else $amp_conf["FOPPASSWORD"] = $key;
+	
+	// write amportal.conf
+	write_amportal_conf($filename, $amp_conf);
+	outn("/etc/amportal.conf written");
+}
+
+/********************************************************************************************************************/
+
+// **** Make sure we have STDIN etc
+
+// from  ben-php dot net at efros dot com   at  php.net/install.unix.commandline
+if (version_compare(phpversion(),'4.3.0','<') || !defined("STDIN")) {
+	define('STDIN',fopen("php://stdin","r"));
+	define('STDOUT',fopen("php://stdout","r"));
+	define('STDERR',fopen("php://stderr","r"));
+	register_shutdown_function( create_function( '' , 'fclose(STDIN); fclose(STDOUT); fclose(STDERR); return true;' ) );
+}
+   
+// **** Make sure we have PEAR's DB.php, and include it
+
+outn("Checking for PEAR DB..");
+if (! @ include('DB.php')) {
+	out("FAILED");
+	fatal("PEAR must be installed (requires DB.php). Include path: ".ini_get("include_path"));
+}
+out("OK");
+
+
+// **** Make sure we have PEAR's GetOpts.php, and include it
+
+outn("Checking for PEAR Console::Getopt..");
+if (! @ include("Console/Getopt.php")) {
+	out("FAILED");
+	fatal("PEAR must be installed (requires Console/Getopt.php). Include path: ".ini_get("include_path"));
+}
+out("OK");
+
+
+// **** Parse out command-line options
+
+$shortopts = "h?u:p:";
+$longopts = array("help","debug","dry-run","username=","password=","force-version=");
+
+$args = Console_Getopt::getopt(Console_Getopt::readPHPArgv(), $shortopts, $longopts);
+if (is_object($args)) {
+	// assume it's PEAR_ERROR
+	out($args->message);
+	exit(255);
+}
+
+$debug = false;
+$dryrun = false;
+
+foreach ($args[0] as $arg) {
+	switch ($arg[0]) {
+		case "--help": case "h": case "?":
+			showHelp();
+			exit(10);
+		break;
+		case "--dry-run":
+			out("Dry-run only, nothing will be changed");
+			$dryrun = true;
+		break;
+		case "--debug":
+			$debug = true;
+			debug("Debug mode enabled");
+		break;
+		case "--username": case "u":
+			out("Using username: ".$arg[1]);
+			$new_username = $arg[1];
+		break;
+		case "--password": case "p":
+			out("Using password: ".str_repeat("*",strlen($arg[1])));
+			$new_password = $arg[1];
+		break;
+		case "--force-version":
+			$version = $arg[1];
+			out("Forcing upgrade from version ".$version);
+		break;
+	}
+}
+
+
+// **** Look for user = root
+
+outn("Checking user..");
+$current_user=(isset($_ENV["USER"]) ? $_ENV["USER"] : exec('whoami',$output));
+if ($current_user != "root"){
+	out("FAILED");
+	fatal($argv[0]." must be run as root");
+}
+out("OK");
+
+
+// **** Check for amportal.conf, create if necessary
+
+outn("Checking for ".AMP_CONF."..");
+if (!file_exists(AMP_CONF)) {
+	out(AMP_CONF." does not exist, copying default");
+	copy("amportal.conf", "/etc/amportal.conf");
+	collect_settings(AMP_CONF);
+}
+out("OK");
+
+// **** read amportal.conf
+
+outn("Reading ".AMP_CONF."..");
+$amp_conf = parse_amportal_conf(AMP_CONF);
+if (count($amp_conf) == 0) {
+	fatal("FAILED");
+}
+out("OK");
+
+if (isset($new_username) || isset($new_password)) {
+	// new username/pwd 
+	
+	if (isset($new_username)) {
+		$amp_conf["AMPDBUSER"] = $new_username;
+	}
+	if (isset($new_password)) {
+		$amp_conf["AMPDBPASS"] = $new_password;
+	}
+	
+	// write amportal.conf
+	write_amportal_conf(AMP_CONF, $amp_conf);
+}
+
+// **** Connect to database
+
+outn("Connecting to database..");
+
+$db_user = $amp_conf["AMPDBUSER"];
+$db_pass = $amp_conf["AMPDBPASS"];
+$db_host = 'localhost';
+$db_name = 'asterisk';
+$db_engine = 'mysql';
+
+$datasource = $db_engine.'://'.$db_user.':'.$db_pass.'@'.$db_host.'/'.$db_name;
+
+$db = DB::connect($datasource); // attempt connection
+
+if(DB::isError($db)) {
+	out("FAILED");
+	debug($db->userinfo);
+	out("Try running ".$argv[0]." --username=user --password=pass  (using your own user and pass)");
+	fatal("Cannot connect to database");
+	
+}
+out("OK");
+
+
+// **** Read DB for version info
+
+if (!isset($version)) {
+	outn("Checking current version of AMP..");
+	$version = getversion();
+	if (!$version) {
+		out("no version information");
+		out("Assuming new installation");
+	} else {
+		out($version);
+	}
+}
+
+
+// **** Copy files
+
+outn("Installing new AMP files..");
+$check_md5s=true;
+$md5sums = read_md5_file(UPGRADE_DIR."/".$version.".md5");
+recursive_copy("amp_conf", "", $md5sums);
+if (!is_file("/etc/asterisk/voicemail.conf")) exec("cp /etc/asterisk/voicemail.conf.template /etc/asterisk/voicemail.conf");
+out("OK");
+
+// **** Apply amportal.conf configuration to files
+
+debug("Running ".dirname(__FILE__)."/apply_conf.sh");
+outn("Configuring install for your environment..");
+if (!$dryrun) {
+	exec(dirname(__FILE__)."/apply_conf.sh");
+}
+out("OK");
+
+
+// **** Set permissions all files
+
+outn("Setting permissions on files..");
+if (!$dryrun) {
+	exec("chmod u+x /usr/sbin/amportal");
+	exec("/usr/sbin/amportal chown");
+}
+out("OK");
+
+
+// **** Read upgrades/ directory
+
+outn("Checking for upgrades..");
+
+// read it from ugprades/ unless $version has already been defined
+if (!isset($versions)) {
+	$versions = array();
+	$dir = opendir(UPGRADE_DIR);
+	while ($file = readdir($dir)) {
+		if (($file[0] != ".") && is_dir(UPGRADE_DIR."/".$file)) {
+			$versions[] = $file;
+		}
+	}
+	closedir($dir);
+
+	// callback to use php's version_compare() to sort	
+	usort($versions, "version_compare");
+}
+
+if (false !== ($pos = array_search($version, $versions))) {
+	$upgrades = array_slice($versions, $pos+1);
+	out(count($upgrades)." found");
+	
+	run_upgrade($upgrades);
+} else {
+	out("Current version not found");
+}
+
+
+// **** Generate AMP configs
+out("Generating AMP configs..");
+generate_configs();
+out("Generating AMP configs..OK");
+
+// **** Bounce FOP
+outn("Restarting Flash Operator Panel..");
+exec('su - asterisk -c "'.$amp_conf["AMPWEBROOT"].'/admin/bounce_op.sh"');
+out("OK");
+
+
+// **** Set reload flag for AMP admin
+needreload();
+out("Please Reload Asterisk by visiting http://".$amp_conf["AMPWEBADDRESS"]."/admin");
+
+?>

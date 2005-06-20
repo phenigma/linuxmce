@@ -1,0 +1,78 @@
+1.10.008
+
+- Backup/Restore (schedule and restore backups)
+- Extension Call Recording (inbound and outbound calls)
+- Queue Call Recording (inbound to agents)
+- Custom Trunks (use any Asterisk supported technology as a trunk)
+- Remote Agents (join a Queue from any endpoint on a trunk)
+- Outbound Route Password (require a password for certain outbound patterns)
+- i18n (web interface can now be translated)
+- ZAP trunk channels no longer hard-coded in retrieve_op_conf_from_mysql.pl
+- *<exten> dials direct to voicemail()
+
+1.10.007
+
+- Added cvs2cl generated ChangeLog (see this for all changes and bug fixes)
+- Added AMP Users (multi-department, multi-tenant)
+- Added incremental upgrade script (install_amp)
+- Use /etc/amportal.conf to tweak AMP to your environement (MySql credentials, web root, ip address, etc).  Apply changes with apply_conf.sh
+- New Outbound Routes page to control trunks used for outbound calls based on dial patterns
+- LCR using Outbound Routes
+- Trunks page redone to support routing, adds dial rules to modify numbers per-trunk before dialing
+- ENUM Trunks
+- Queues support added
+- Support for ZAP extensions
+- More voicemail options added
+- New AGI-based directory application to support both first and last name lookups and return to operator
+- provide customization points for all AMP generated extension contexts.
+- Upgrade to Flash Operator Panel 0.20
+- Upgrade Asterisk-Stat to v2.0
+
+
+1.10.006
+
+- Use extensions_custom.conf for customizations.  Sample included.
+- Add option to define outbound CallerID on trunks
+- Add option to define outbound CallerID for extensions
+- Create extensions without voicemail and directory
+- Web voicemail (vmail.cgi) will automatically log in users linking from email notication. NOTE: see the new vm_email.inc.template for new URL format
+- Add Call-Forward on Busy application (enable: *90<destination>, disable: *91)
+- Upgrade FOP to 0.19.  AMP now writes out op_buttons_additional.conf
+- Include AMP version on admin welcome page
+- Rework extensions admin
+- Add 'allow','disallow' settings for SIP and IAX extensions
+- Add 'pickupgroup','callgroup' settings for SIP extensions
+- Digital Receptionist voice menus can now be named
+- Allow custom goto for Call Groups
+- Digital Receptionist wizard check for proper format on custom goto
+- Fixed bug which limited AMP to 10 Digital Receptionist menus
+- Default outbound numbers now dial via a macro
+- Increase verbosity of mysql connection errors
+- Fixed upload wav for Ditial Receptionist
+- Fix Trunks admin so that it writes FOP config
+
+1.10.005
+
+- Add "Advanced Edit" qualify= option for NEWLY created extensions
+- Add support for custom applications in Digital Receptionist admin
+- Prevent creation of multiple DIALOUTIDS variables in Trunks admin
+- Allow for long 'register' sting in Trunks admin (for new installs only)
+- Don't allow an extension number to be changed in Extension admin (force delete/re-create extension)
+- Fix counter bug in Digital Receptionist admin
+
+1.10.004
+
+- Added Call Group CID Name prefixing
+- Renamed parking.conf to features.conf
+- Added condition to dialparties.agi that prevents potential pinning of the CPU
+- Allow Digital Receptionist voice recordings to be uploaded in AMP admin
+- Added new AMP logo
+- Added AMP process control script "amportal"
+- Write meetme configuration for IAX and SIP extensions
+- Added IAX2 and SIP trunking
+- Added "DID Routing"
+
+1.10.003
+
+- Added support for IAX clients
+- Upgraded to FOP 0.17

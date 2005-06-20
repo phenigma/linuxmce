@@ -1,0 +1,1073 @@
+%carried-away-by-monkeys.gsm%Nobody is available to take your call at the moment.  They have been carried away by monkeys.
+
+%lots-o-monkeys.gsm%(sound effects of many angry monkeys)
+
+%nbdy-avail-to-take-call.gsm%Nobody is avaialble to take your call.
+
+%something-terribly-wrong.gsm%Something is terribly wrong!
+
+%weasels-eaten-phonesys.gsm%Weasels have eaten our phone system.
+
+%press-pound-save-changes.gsm%Press pound to save your changes.
+
+%press-star-cancel.gsm%Press star to cancel.
+
+
+%international-call.gsm%International call
+
+
+%to-dial-by-name-press%to dial by name, press
+
+
+%directory%directory
+
+
+%driving-directions.gsm%for driving directions to our location, press
+
+
+%available-options.gsm%available options
+
+
+%to-record-call.gsm%to record call
+
+
+%turn-off-recording.gsm%to turn off call recording
+
+
+%groovy.gsm%groovy
+
+
+%activated.gsm%activated
+
+
+%de-activated.gsm%de-activated
+
+
+%this-call-may-be.gsm%This call may be
+
+
+%recorded.gsm%recorded
+
+
+%monitored.gsm%monitored
+
+
+%for-quality-purposes.gsm%for quality assurance purposes
+
+
+%because-paranoid.gsm%because we're paranoid
+
+
+%channel-insecure-warn.gsm%This voice path is insecure - do not discuss classified information or use project codewords.
+
+
+%channel-secure%This voice path is secure.
+
+
+%for.gsm%for
+
+
+%to-hear-menu-again.gsm%to hear this menu again
+
+
+%menu.gsm%menu
+
+%enter-ext-of-person.gsm%enter the extension of the person you are trying to reach
+
+
+%after-the-tone%after the tone
+
+
+%call-quality-menu.gsm%Please rate the quality of the call you just made.  Use the keys one through four to rate the voice quality of the call, with one being the best quality, and four meaning that it was very difficult to understand the other party.  Press five if the call was prematurely disconnected.  Press six if the call was never completed.  Press seven if one direction of the call could not be heard.  Press eight if there were other difficulties.
+
+
+%star-for-menu-again.gsm%Press the star key to hear this menu again
+
+
+%please-enter-the.gsm%Please enter the
+
+
+%conference-call.gsm%conference call
+
+
+%chat-room.gsm%chat room
+
+
+%extension.gsm%extension
+
+
+%channel.gsm%channel
+
+%you-wish-to-join.gsm%you wish to join
+
+
+%card-is-invalid.gsm%card is invalid
+
+
+%card-balance-is.gsm%card balance is
+
+
+%too-low.gsm%too low
+
+
+%dollars.gsm%dollars
+
+
+%cents.gsm%cents
+
+
+%minutes.gsm%minutes
+
+
+%card-number.gsm%card number
+
+
+%your.gsm%your
+
+
+%please-contact-tech-supt.gsm%Please contact technical support
+
+
+%doing-enum-lookup.gsm%Doing an e-num lookup
+
+
+%enum-lookup-failed.gsm%e-num lookup failed
+
+
+%enum-lookup-successful.gsm%e-num lookup successful
+
+
+%not-auth-pstn.gsm%You at not authorized to call out using the PSTN
+
+
+%pin-numer-accepted.gsm%Pin number accepted
+
+
+%speed-dial.gsm%Speed-dial
+
+
+%is-not-set%is not set
+
+
+%has-been-cleared.gsm%has been cleared
+
+
+%has-been-set-to%has been set to
+
+
+%is-set-to.gsm%is set to
+
+
+%call-fwd-on-busy.gsm%Call-Forward on Busy
+
+
+%call-fwd-unconditional.gsm%Call-Forward Unconditional
+
+
+%call-fwd-no-ans.gsm%Call-Forward on No Answer
+
+
+%call-fwd-parallel.gsm%Call-Forward Parallel
+
+
+%call-fwd-cancelled.gsm%call forward cancelled
+
+
+%pls-wait-connect-call.gsm%Please wait, while I connect your call.
+
+
+%busy-pls-hold.gsm%All our lines are currently busy.  Please hold and someone will be with you shortly.
+
+
+%ext-or-zero.gsm%Please dial the extension of the person you're trying to reach, or 0 for an operator.
+
+
+%discon-or-out-of-service.gsm%The number you have dialed has been disconnected or is no longer in service.  Please check the number, and try your call again.
+
+
+%hours.gsm%hours
+
+
+%seconds.gsm%seconds
+
+
+%at.gsm%at
+
+
+%received.gsm%received
+
+
+%yesterday.gsm%yesterday
+
+
+%today.gsm%today
+
+
+%tomorrow.gsm%tomorrow
+
+
+%first.gsm%first
+
+
+%second.gsm%second
+
+
+%third.gsm%third
+
+
+%fourth.gsm%fourth
+
+
+%fifth.gsm%fifth
+
+
+%sixth.gsm%sixth
+
+
+%seventh.gsm%seventh
+
+
+%eighth.gsm%eighth
+
+
+%ninth.gsm%ninth
+
+
+%tenth.gsm%tenth
+
+
+%eleventh.gsm%eleventh
+
+
+%twelveth.gsm%twelveth
+
+
+%thirteenth.gsm%thirteenth
+
+
+%fourteenth.gsm%fourteenth
+
+
+%fifteenth.gsm%fifteenth
+
+
+%sixteenth.gsm%sixteenth
+
+
+%seventeenth.gsm%seventeenth
+
+
+%eighteenth.gsm%eighteenth
+
+
+%nineteenth.gsm%nineteenth
+
+
+%twentieth.gsm%twentieth
+
+
+%thirtieth.gsm%thirtieth
+
+
+%star.gsm%star
+
+
+%pound.gsm%pound
+
+
+%hash.gsm%hash
+
+
+%octothorpe.gsm%octothorpe
+
+
+%office-iguanas.gsm%The office has been overrun with iguanas.
+
+
+%gambling-drunk.gsm%We're off gambling and getting drunk.
+
+
+%nobody-but-chickens.gsm%Nobody here but us chickens!
+
+
+%deadbeat.gsm%Deadbeat!
+
+
+%pls-try-again.gsm%Please try again!
+
+
+%the-monkeys-twice.gsm%The monkeys!  THE MONKEYS!
+
+
+%pls-enter-vm-password.gsm%Please enter your voicemail password
+
+
+%your-msg-has-been-saved%Your message has been saved
+
+
+%goodbye%Goodbye!
+
+
+%pls-enter-conf-password%Please enter the conference password
+
+
+%the-party-you-are-calling%The party you are calling
+
+
+%is-curntly-unavail%is currently unavailable
+
+
+%is-curntly-busy%is currently busy
+
+
+%for-accounting%For accounting
+
+
+%for-billing%For billing
+
+
+%for-tech-support%For technical support
+
+
+%seconds%seconds
+
+
+%and-prs-pound-whn-finished%And press pound when finished
+
+
+%if-this-is-correct-press%if this is correct, press
+
+
+%otherwise-press%otherwise press
+
+
+%you-entered%You entered
+
+
+%im-sorry%I'm sorry
+
+
+%that-is-not-rec-phn-num%That is not a recognized phone number
+
+
+%please-try-again%Please try again
+
+
+%sixtieth%sixtieth
+
+
+%seventieth%seventieth
+
+
+%eightieth%eightieth
+
+
+%ninetieth%ninetieth
+
+
+%hundredth%hundredth
+
+
+%thousandth%thousandth
+
+
+%millionth%millionth
+
+
+%billionth%billionth
+
+
+%negative%negative
+
+
+%zulu%zulu
+
+
+%gmt%greenwich mean time
+
+
+%time%time
+
+
+%eastern%eastern
+
+
+%central%central
+
+
+%mountain%mountain
+
+
+%pacific%pacific
+
+
+%atlantic%atlantic
+
+
+%standard%standard
+
+
+%european%european
+
+
+%daylight%daylight
+
+
+%time%time
+
+
+%pls-entr-num-uwish2-call%please enter the number you wish to call
+
+
+%then-press-pound%then press pound
+
+
+%year%year
+
+
+%month%month
+
+
+%day%day
+
+
+%from-unknown-caller%from an unknown caller
+
+
+%your-msg-is-too-short%your message is too short
+
+
+%the-num-i-have-is%the number I have is
+
+
+%to-call-this-number%to call this number
+
+
+%to-enter-a-diff-number%to enter a different number
+
+
+%to-enter-a-number%to enter a number
+
+
+%to-compose-a-message%to compose a message
+
+
+%to-erase-yr-temp-grtg%to erase your temporary greeting
+
+
+%to-rec-yr-temp-grtg%to record your temporary greeting
+
+
+%to-rerecord-yr-message%to re-record your message
+
+
+%your-temp-greeting%your temporary greeting
+
+
+%has-expired%has expired
+
+
+%is-in-use%is in use
+
+
+%will-expire%will expire
+
+
+%will-not-expire%will not expire
+
+
+%to-change-exp-date%to change the expiration date
+
+
+%to-send-a-reply%to send a reply
+
+
+%to-call-prson-w-sent-msg%to call the person who sent this message
+
+
+%to-place-outgoing-call%to place an outgoing call
+
+
+%if-grtg-played-indefinately%if this greeting should be played indefinately
+
+
+%if-grtg-should-expire-at%if this greeting should expire at
+
+
+%midnight-tonight%midnight tonight
+
+
+%midnight%midnight
+
+
+%tonight%tonight%
+
+
+%midnight-tomorrow-night%midnight tomorrow night
+
+
+%tomorrow-night%tomorrow-night
+
+
+%another-time%another time
+
+
+%to-hear-msg-envelope%to hear the message envelope
+
+
+%say-temp-msg-prs-pound%say your temporary message and then press the pound key
+
+
+%to-accept-recording%to accept this recording
+
+
+%to-listen-to-it%to listen to it
+
+
+%to-rerecord-it%to re-record it
+
+
+%to-reach-operator%to reach an operator
+
+
+%to-cancel-this-msg%to cancel this message
+
+
+%nothing-recorded%nothing has been recorded
+
+
+%speak-louder%please speak louder to ensure a clear recording
+
+
+%dont-know-who-sent%I'm afraid I don't know who sent this message
+
+
+%no-reply-no-mailbox%you cannot reply to this message because the sender does not have a mailbox
+
+
+%invalid-date%invalid date
+
+
+%message-from%message from
+
+
+%target-attendant%target attendant
+
+
+%outside-transfer%outside transfer
+
+
+%default-attendant%default attendant
+
+
+%pls-ent-num-transfer%please enter the number to use for call transfer
+
+
+%ent-target-attendant%please enter the number of the extension to use for your target attendant
+
+
+%to-use-def-attendant%to use the default attendant, just press pound
+
+
+%no-911-1%this line does not support nine one one services [quickly]
+
+
+%no-911-2%this line does not support nine one one services 
+
+
+%no-112-1%this line does not support one one two services [quickly]
+
+
+%no-112-2%this line does not support one one two services
+
+
+%you-are-caller-num%you are caller number
+
+
+%you-are-curr-call-num%you are currently caller number
+
+
+%in-the-queue%in the queue
+
+
+%in-the-line%in the line
+
+
+%wtng-to-spk-w-rep%waiting to speak with a representative
+
+
+%first-in-line%your call is now first in line, and will be answered by the first available representative
+
+
+%these-are-currently%these are currently
+
+
+%calls-waiting-for-rep%calls waiting to speak with a representative
+
+
+%est-hold-time-is%the estimated hold time is currently
+
+
+%minutes%minutes
+
+
+%thnk-u-for-patience%thank you for your patience
+
+
+a%a
+
+b%b
+
+c%c
+
+d%d
+
+e%e
+
+f%f
+
+g%g
+
+h%h
+
+i%i
+
+j%j
+
+k%k
+
+l%l
+
+m%m
+
+n%n
+
+o%o
+
+p%p
+
+q%q
+
+r%r
+
+s%s
+
+t%t
+
+u%u
+
+v%v
+
+w%w
+
+x%x
+
+y%y
+
+z%z
+
+%National Weather Service%national-weather-service
+
+%Persons in the immediate path of the%persons-in-path-of
+
+%Please enter the conference call number for the conference you wish to join.%enter-conf-pin-number
+
+%Please enter the conference pin number.%enter-conf-pin
+
+%Sorry, but the user's mailbox can't accept more messages. %sorry-mailbox-full
+
+%That pin is invalid for this conference.%pin-invalid
+
+%abandons% abandons
+
+%afternoon% afternoon
+
+%ampersand% ampersand
+
+%approximately% approximately
+
+%are advised to seek shelter immediately%  advised-to-seek-shelter
+
+%at sign% at-sign
+
+%average speed of answer%avg-speed-answer
+
+%backslash%backslash
+
+%bar%bar
+
+%barometric%barometric
+
+%beaufort%beaufort
+
+%calls%calls
+
+%celsius%celsius
+
+%chance of%chance-of
+
+%changing%changing
+
+%clear%clear
+
+%clearing%clearing
+
+%close parenthesis%close-parenthesis
+
+%clouds%clouds
+
+%cloudy%cloudy
+
+%comma%comma
+
+%cyclone%cyclone
+
+%dash%dash
+
+%degrees%degrees
+
+%dollar%dollar
+
+%doppler radar%doppler-radar
+
+%dot%dot
+
+%early%early
+
+%east%east
+
+%easterly%easterly
+
+%equals%equals
+
+%euro%euro
+
+%euros%euros
+
+%evening%evening
+
+%exclamation point%exclaimation-point
+
+%fahrenheit%fahrenheit
+
+%falling%falling
+
+%fast%fast
+
+%fiftieth%fiftieth
+
+%fog%fog
+
+%foggy%foggy
+
+%followed by%followed-by
+
+%fortieth%fortieth
+
+%freeze%freeze
+
+%freezing%freezing
+
+%gale%gale
+
+%greater than%greater-than
+
+%hail%hail
+
+%half%half
+
+%has issued a%has-issued-a
+
+%hecto-pascal%hectopascal
+
+%high%high
+
+%humidity%humidity
+
+%hurricane%hurricane
+
+%ice%ice
+
+%icy%icy
+
+%in the%in-the
+
+%indicated%indicated
+
+%kilometers per hour%kilometers-per-hour
+
+%knots%knots
+
+%late%late
+
+%later%later
+
+%left bracket%left-bracket
+
+%less than%less-than
+
+%lightning%lightning
+
+%local authorities%local-authorities
+
+%low%low
+
+%maximum%maximum
+
+%meter%meter
+
+%meters%meters
+
+%miles per hour%miles-per-hour
+
+%minimum%minimum
+
+%mist%mist
+
+%misty%misty
+
+%morning%morning
+
+%mostly%mostly
+
+%moving%moving
+
+%nautical miles%nautical-miles
+
+%north%north
+
+%northerly%northerly
+
+%one moment, please.%one-moment-please
+
+%open parenthesis%open-parenthesis
+
+%partially%partially
+
+%partly%partly
+
+%pascal%pascal
+
+%pascal%pascal2
+
+%patchy%patchy
+
+%percent%percent
+
+%period%period
+
+%pipe%pipe
+
+%please record your name at the tone.%pls-rcrd-name-at-tone
+
+%plus%plus
+
+%pounds%pounds
+
+%pressure%pressure
+
+%quarter%quarter
+
+%quickly%quickly
+
+%quote%quote
+
+%rain%rain
+
+%rainy%rainy
+
+%right bracket%right-bracket
+
+%rising%rising
+
+%scattered%scattered
+
+%severe%severe
+
+%sighted%sighted
+
+%slash%slash
+
+%sleet%sleet
+
+%sleeting%sleeting
+
+%slow%slow
+
+%slowly%slowly
+
+%snow%snow
+
+%snowy%snowy
+
+%south%south
+
+%southerly%southerly
+
+%space%space
+
+%staffing%staffing
+
+%sterling%sterling
+
+%storm%storm
+
+%sun%sun
+
+%sunny%sunny
+
+%temperature%temperature 
+
+%thunderstorm%thunderstorm
+
+%tide%tide
+
+%tornado%tornado
+
+%turning to%turning-to
+
+%typhoon%typhoon
+
+%warning%warning
+
+%watch%watch
+
+%weather%weather
+
+%west%west
+
+%westerly%westerly
+
+%wind%wind
+
+%windy%windy
+
+%with%with
+
+%zed%zed
+
+%Alpha% alpha
+
+
+%Bravo% bravo
+
+
+%Charlie%charlie
+
+
+%Delta%delta
+
+
+%Echo%echo
+
+
+%Foxtrot%foxtrot
+
+
+%Golf%golf
+
+
+%Hotel%hotel
+
+
+%India%india
+
+
+%Juliet%juliet
+
+
+%Kilo%kilo
+
+
+%Lima%lima
+
+
+%Mike%mike
+
+
+%November%november
+
+
+%Oscar%oscar
+
+
+%Papa%papa
+
+
+%Quebec%quebec
+
+
+%Romeo%romeo
+
+
+%Sierra%sierra
+
+
+%Tango%tango
+
+
+%Uniform%uniform
+
+
+%Victor%victor
+
+
+%Whiskey%whiskey
+
+
+%Xray%xray
+
+
+%Yankee%yankee
+
+
+%Zulu%zulu
+
+
+%Niner%niner
+
+%So, _you_ sound cute.%you-sound-cute
+
+%So, do you dial here often?%dial-here-often
+
+%What are you wearing?%what-are-you-wearing
+
+%giggle%giggle1
+
+%Oooo! Is that a telephone in your pocket, or are you just happy to see me?%telephone-in-your-pocket
+
+%Oooo! Is that a telephone in your pocket, or are you just happy to see me?%telephone-in-your-pocket2
+
+%Oooh, that tickles!%that-tickles
+
+%Press that button again!%press-button-again
+
+%Yeah!%yeah
+
+%He's currently away from his phone, the naughty boy.%away-naughty-boy
+
+%She's currently away from her phone, the naughty girl.%away-naughty-girl
+
+%Just kidding; didn't mean to get you all upset.%just-kidding-not-upset
+
+
+%Can you believe this phone system is free?%believe-its-free
+
+%Hang on a second...%hang-on-a-second
+
+%I said HANG ON a second!%hang-on-a-second-angry
+
+%Wrong, wrong, wrong.  Try again, smart guy.%wrong-try-again-smarty
+
+%All your base are belong to us.%all-your-base
+
+%Your call is important to us, but exactly why we haven't answered it yet is a mystery even to us.%why-no-answer-mystery 
+
+%Perhaps we're%perhaps-we-are
+
+%Perhaps we're%perhaps-we-are2
+
+
+
+
+

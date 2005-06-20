@@ -1,0 +1,9 @@
+These files consist of silence.  I have found in certain circumstances when
+prompting the user for keystrokes that the Wait() application does not
+actually listen for DTMF, so often if you have a loop with a Wait() that
+pauses between two Background() audio files, you will lose keystrokes from
+the user.  To combat that, I have created a bunch of sound files that should
+get used instead of Wait(), and these can be played back with Background()
+
+jtodd@loligo.com 2003-09-04
+
