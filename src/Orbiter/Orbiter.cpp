@@ -342,7 +342,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	list < ScreenHistory * >::iterator itScreenHistory;
 	for(itScreenHistory = m_listScreenHistory.begin(); itScreenHistory != m_listScreenHistory.end(); itScreenHistory++)
 	{
-ScreenHistory * psh = *itScreenHistory;
+        ScreenHistory * psh = *itScreenHistory;
 		if( *itScreenHistory==m_pScreenHistory_Current )
 			m_pScreenHistory_Current=NULL;
 		delete *itScreenHistory;
@@ -1145,6 +1145,14 @@ if(pScreenHistory)
 g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s (%d)",
 					  pScreenHistory->m_pObj->m_ObjectID.c_str(),(int) bAddToHistory);
 
+
+    if(m_pScreenHistory_Current == pScreenHistory)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"Need to change screens called for the same screen: %s (%d) Skipping...",
+            pScreenHistory->m_pObj->m_ObjectID.c_str(),(int) bAddToHistory);
+        return;
+    }
+
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     m_vectObjs_GridsOnScreen.clear(  );
 	m_vectObjs_VideoOnScreen.clear(  );
@@ -1156,7 +1164,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s (%d)",
 
 	// ATTEN: The siganture was changed from RegionUp() -> RegionUp(int x, int y);
 	// TODO: Make sure this is called properly (if the implementation will actually take the params into
-	// account it will probably break somehing). )))
+	// account it will probably break something). )))
 	RegionUp ( 0, 0);
 
     //  m_listDevice_Selected=""; // Nothing is selected anymore
