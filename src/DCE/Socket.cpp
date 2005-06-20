@@ -510,11 +510,14 @@ bool Socket::SendData( int iSize, const char *pcData )
 			tv.tv_sec = 1;
 			tv.tv_usec = 0;
 			iRet = select((int) (m_Socket+1), NULL, &wrfds, NULL, &tv);
+
+#ifndef WINCE
 			if (errno == EINTR)
 			{
 				errno = 0;
 				iRet = 0;
 			}
+#endif
 
 			tv_total -= 1;
 			tv_total += tv;
@@ -647,12 +650,14 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 				tv.tv_sec = 1;
 				tv.tv_usec = 0;
 				iRet = select((int) (m_Socket+1), &rfds, NULL, NULL, &tv);
+
+#ifndef WINCE
 				if (errno == EINTR)
 				{
 					errno = 0;
 					iRet = 0;
 				}
-
+#endif
 				tv_total -= 1;
 				tv_total += tv;
 #ifndef DISABLE_SOCKET_TIMEOUTS
