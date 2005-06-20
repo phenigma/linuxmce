@@ -806,9 +806,28 @@ void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_addr
 	Command += "/usr/pluto/bin/" + sFilename;
 
 	//linux only
-    g_pPlutoLogger->Write(LV_WARNING, "Executing command: %s", Command.c_str());
-	system( Command.c_str() );
-    g_pPlutoLogger->Write(LV_WARNING, "Command executed.");
+    int Retries = 5;
+
+    while(Retries--)
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Executing command: %s", Command.c_str());
+        int ret = system( Command.c_str() );
+
+        if(ret == -1)
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL, "Script not found.");
+            break;
+        } 
+        else if(ret == 0)
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "File uploaded successfully.");
+            break;
+        }
+        else 
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "Failed to upload the file to the phone. Returned code: %d", ret);
+        }
+    }
 #endif
 }
 
