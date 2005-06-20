@@ -569,6 +569,9 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 				}
 				else 
 				{
+                    if(!ConnectionAllowed(pDeviceFrom->m_dwPK_Device, sMacAddress))
+                        return false;
+
                      //Only do this if there's no other dongle
 					DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
 						m_dwPK_Device, pDeviceFrom->m_dwPK_Device, 1, 
@@ -582,8 +585,41 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
     return true;
 }
 
+bool Orbiter_Plugin::ConnectionAllowed(int iDevice, string sMacAddress)
+{
+    PLUTO_SAFETY_LOCK(ac, m_AllowedConnectionsMutex);
+    AllowedConnections *pAllowedConnections = m_mapAllowedConnections_Find(sMacAddress);
+    if(NULL != pAllowedConnections)
+    {
+        if(pAllowedConnections->m_iDeviceIDAllowed == iDevice)
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "This device (%d) is allowed to connect to PlutoMO %s", iDevice, sMacAddress.c_str());
+            m_mapAllowedConnections[sMacAddress] = NULL;
+            delete pAllowedConnections;
+        }
+        else //other device
+            if(pAllowedConnections->m_tExpirationTime < time(NULL)) 
+            {
+                g_pPlutoLogger->Write(LV_WARNING, "The connection interval expired. Device %d is now allowed to connect to PlutoMO %s", iDevice,
+                    sMacAddress.c_str());
+                m_mapAllowedConnections[sMacAddress] = NULL;
+                delete pAllowedConnections;
+            }
+            else
+            {
+                g_pPlutoLogger->Write(LV_WARNING, "Device %d is not allowed to connect to PlutoMO %s. Waiting for %d device to link", iDevice,
+                    sMacAddress.c_str(), pAllowedConnections->m_iDeviceIDAllowed);
+                return false;
+            }
+    }
+    ac.Release();
+    return true;
+}
+
 bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
+    g_pPlutoLogger->Write(LV_WARNING,"Intercepted MobileOrbiterLinked command sent by %d to %d", pDeviceFrom->m_dwPK_Device, pDeviceTo->m_dwPK_Device);
+
     string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Mac_Find(sMacAddress);
 
@@ -593,33 +629,8 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
 		return false;
     }
 
-    PLUTO_SAFETY_LOCK(ac, m_AllowedConnectionsMutex);
-    AllowedConnections *pAllowedConnections = m_mapAllowedConnections_Find(sMacAddress);
-    if(NULL != pAllowedConnections)
-    {
-        if(pAllowedConnections->m_iDeviceIDAllowed == pDeviceFrom->m_dwPK_Device)
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "This device (%d) is allowed to connect to PlutoMO %s", pDeviceFrom->m_dwPK_Device,
-                sMacAddress.c_str());
-            m_mapAllowedConnections[sMacAddress] = NULL;
-            delete pAllowedConnections;
-        }
-        else //other device
-            if(pAllowedConnections->m_tExpirationTime < time(NULL)) 
-            {
-                g_pPlutoLogger->Write(LV_WARNING, "The connection interval expired. Device %d is now allowed to connect to PlutoMO %s", pDeviceFrom->m_dwPK_Device,
-                    sMacAddress.c_str());
-                m_mapAllowedConnections[sMacAddress] = NULL;
-                delete pAllowedConnections;
-            }
-            else
-            {
-                g_pPlutoLogger->Write(LV_WARNING, "Device %d is not allowed to connect to PlutoMO %s. Waiting for %d device to link", pDeviceFrom->m_dwPK_Device,
-                    sMacAddress.c_str(), pAllowedConnections->m_iDeviceIDAllowed);
-                return false;
-            }
-    }
-    ac.Release();
+    if(!ConnectionAllowed(pDeviceFrom->m_dwPK_Device, sMacAddress))
+        return false;
 
     string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
 g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH_Orbiter,sVersion.c_str());

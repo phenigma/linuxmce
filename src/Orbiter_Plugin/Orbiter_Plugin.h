@@ -120,6 +120,8 @@ public:
         return it==m_mapAllowedConnections.end() ? NULL : (*it).second;
     }
 
+    bool ConnectionAllowed(int iDevice, string sMacAddress);
+
 	// Our interceptors
     bool RouteToOrbitersInRoom(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
     bool MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
