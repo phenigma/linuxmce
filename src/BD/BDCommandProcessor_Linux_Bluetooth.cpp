@@ -22,12 +22,20 @@
 
 using namespace DCE;
 
+void DummySignalHandler(int) {
+g_pPlutoLogger->Write(LV_CRITICAL, "Need to cancel bd comm");
+}
+
 BDCommandProcessor_Linux_Bluetooth::BDCommandProcessor_Linux_Bluetooth(string sMacAddressPhone,string sMacAddressDongle,class PhoneDevice *pDevice)
 : BDCommandProcessor(sMacAddressPhone)
 	
 {
 printf("start of constructor %p\n",g_pPlutoLogger);
 g_pPlutoLogger->Write(LV_STATUS,"start of const %s",sMacAddressPhone.c_str());
+
+	m_bQuit = false;
+	m_bRunning = false;
+
 	m_pDevice=pDevice;
 	if( !m_pDevice )
 		cerr << "temporary hack -- m_pDevice is NULL. " << sMacAddressPhone << endl;
@@ -75,7 +83,7 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const %s",sMacAddressPhone.c_str());
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"Can't connect RFCOMM socket %s. (%d)",sMacAddressPhone.c_str(), 10 - iRetries);
 			printf("# error code: %d\n", err_code);
-			Sleep(300);
+			Sleep(1000);
 		}
 		else
 			break; //connected
@@ -105,6 +113,20 @@ BDCommandProcessor_Linux_Bluetooth::~BDCommandProcessor_Linux_Bluetooth()
 {
 	if (m_CommHandle)
 	{
+		m_bQuit = true;
+		signal(SIGUSR1 ,DummySignalHandler);
+		raise(SIGUSR1);
+		
+		time_t start = time(NULL);
+		while(m_bRunning)
+		{
+			if(time(NULL) - start > 5)
+				break;
+			
+			g_pPlutoLogger->Write(LV_STATUS, "Waiting any operation with the socket to finish...");
+			Sleep(50);
+		}
+		
 		close(m_CommHandle);
 		m_CommHandle = 0;
 	}
@@ -114,11 +136,13 @@ bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 {
 //	g_pPlutoLogger->Write(LV_STATUS, "Ready to send %d bytes of data", size);
 	
+	m_bRunning = true;
+	
 	int br;
 	int bytes_to_send = size;
 	int bytes_sent = 0;
 
-	while(bytes_to_send > 0)
+	while(bytes_to_send > 0 && !m_bQuit)
 	{
 		br = write(m_CommHandle, data + bytes_sent, bytes_to_send);
 
@@ -140,20 +164,23 @@ bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 //			printf("@need to send more data... \n");
 		}
 	}
+
+	m_bRunning = false;
 }
 
 char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 {
 //	g_pPlutoLogger->Write(LV_STATUS, "Ready to receive %d bytes of data", size);
+//
+	m_bRunning = true;
 		
 	char *buffer = (char *)malloc(size);
 	int br = 0;
 	int bytes_to_receive = size;
 	int bytes_received = 0;
 
-	while(bytes_to_receive > 0)
+	while(bytes_to_receive > 0 && !m_bQuit)
 	{
-	
 		br = read(m_CommHandle, buffer + bytes_received, bytes_to_receive);
 
 		if (br==-1) 
@@ -175,6 +202,8 @@ char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 		}
 	}
 
+	m_bRunning = false;
+	
 	return buffer;
 }
 

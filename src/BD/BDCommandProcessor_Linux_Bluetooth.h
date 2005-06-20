@@ -12,6 +12,8 @@ class BDCommandProcessor_Linux_Bluetooth : public BDCommandProcessor
 {
 protected:
 	int m_CommHandle;
+	bool m_bQuit;
+	bool m_bRunning;
 	class PhoneDevice *m_pDevice;
 
 public:
