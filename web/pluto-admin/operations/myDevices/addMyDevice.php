@@ -82,11 +82,11 @@ function addMyDevice($output,$dbADO) {
 			self.location.href=\"index.php?section=editDeviceParams&deviceID=$insertID&parentID=$parentID&msg=New device added.\";
 		</script>";
 		}else{
-			$_SESSION['Description']=cleanString($_POST['Description']);
-			$_SESSION['IPaddressMyDevice'] = cleanString($_POST['IPaddress']);
-			$_SESSION['MACaddressMyDevice'] = cleanString($_POST['MACaddress']);
+			$_SESSION['Description']=cleanString(@$_POST['Description']);
+			$_SESSION['IPaddressMyDevice'] = cleanString(@$_POST['IPaddress']);
+			$_SESSION['MACaddressMyDevice'] = cleanString(@$_POST['MACaddress']);
 			$_SESSION['ignoreOnOff'] = cleanInteger(@$_POST['IgnoreOnOff']);
-			$_SESSION['parentID']=(int)$_POST['parentID'];
+			$_SESSION['parentID']=(int)@$_POST['parentID'];
 			$parentID = isset($_REQUEST['parentID'])?cleanInteger($_REQUEST['parentID']):0;			
 			
 			header("Location: index.php?section=addMyDevice&parentID=$parentID");

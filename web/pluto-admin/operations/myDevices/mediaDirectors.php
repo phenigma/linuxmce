@@ -454,11 +454,11 @@ function mediaDirectors($output,$dbADO) {
 										<td valign="top">PVR Capture Card</td>
 										<td valign="top">'.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],$pvrDevice,'None').'</td>
 										<td align="right">Sound Card '.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').'<br>
-										Audio settings '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],$oldAudioSettings).'<br>
-										AC3 passthrough <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.$oldAC3.'></td>
-										<td align="right">Video Card '.htmlPulldown($videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
-										Resolution: '.pulldownFromArray($videoSettingsArray,'videoSettings_'.$rowD['PK_Device'],$oldResolution).'<br>
-										Refresh: '.pulldownFromArray($refreshArray,'refresh_'.$rowD['PK_Device'],$oldRefresh).'
+										Audio settings '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],@$oldAudioSettings).'<br>
+										AC3 passthrough <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.@$oldAC3.'></td>
+										<td align="right">Video Card '.htmlPulldown(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
+										Resolution: '.pulldownFromArray($videoSettingsArray,'videoSettings_'.$rowD['PK_Device'],@$oldResolution).'<br>
+										Refresh: '.pulldownFromArray($refreshArray,'refresh_'.$rowD['PK_Device'],@$oldRefresh).'
 									</tr>
 								</table>
 							</td>

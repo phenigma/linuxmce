@@ -3245,7 +3245,7 @@ function displayRemotes($mdID,$dbADO)
 	foreach ($remotes AS $rid=>$description){
 		$delLinks.='<a href="javascript:if(confirm(\'Are you sure you want to delete this remote?\'))self.location=\'index.php?section=avWizard&type=media_directors&action=del&delRemote='.$rid.'\';">'.$description.'</a>, ';
 	}
-	$out.=substr($delLinks,0,-2).' <input type="button" class="button" name="button" value="Add Remote" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type=media_directors').'&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">';
+	$out.=substr($delLinks,0,-2).' <input type="button" class="button" name="button" value="Add Remote" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">';
 	
 	return $out;
 }
@@ -3374,4 +3374,13 @@ function processVideoSettings($deviceID,$dbADO)
 	}
 }
 
+function isCritical($deviceID)
+{
+	if(in_array($deviceID,$GLOBALS['CriticalDeviceTemplates'])){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
 ?>

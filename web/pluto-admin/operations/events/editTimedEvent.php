@@ -222,6 +222,12 @@ function editTimedEvent($output,$dbADO) {
 		}
 		$description=$_POST['description'];
 		$timedEventType=(int)$_POST['timedEventType'];
+
+		// update EventHandler
+		if($description==''){
+			header("Location: index.php?section=editTimedEvent&ehID=$eventHandlerID&wizard=$wizard&error=Description cannot be empty.");
+			exit();
+		}
 		
 		if(isset($_POST['continue'])){
 			$updateEventHandler='UPDATE EventHandler SET Description=?, TimedEvent=? WHERE PK_EventHandler=?';
@@ -313,11 +319,7 @@ function editTimedEvent($output,$dbADO) {
 				$dbADO->Execute('DELETE FROM CommandGroup_Room WHERE FK_CommandGroup=? AND FK_Room=?',array($commandGroupID,$roomID));
 			}
 		}
-		
-		// update EventHandler
-		$updateEventHandler='UPDATE EventHandler SET Description=?  WHERE PK_EventHandler=?';
-		$dbADO->Execute($updateEventHandler,array($description,$eventHandlerID));
-		
+	
 		$oldWizard=(int)$_POST['oldWizard'];
 		$wizard=(int)$_POST['wizard'];
 		
@@ -342,11 +344,11 @@ function editTimedEvent($output,$dbADO) {
 		if($wizard!=$oldWizard){
 			if((int)@$_REQUEST['addNewDevice']!=0)
 				$sufix='&addNewDevice='.(int)@$_REQUEST['addNewDevice'];
-			header("Location: index.php?section=editTimedEvent&ehID=$eventHandlerID&wizard=$wizard".@$sufix);
+			header("Location: index.php?section=editTimedEvent&ehID=$eventHandlerID&wizard=$wizard&msg=Timed event updated.".@$sufix);
 			exit();
 		}else{
 			//header("Location: index.php?section=timedEvents&msg=$msg");
-			header("Location: index.php?section=editTimedEvent&ehID=$eventHandlerID&wizard=$wizard".@$sufix);
+			header("Location: index.php?section=editTimedEvent&ehID=$eventHandlerID&msg=Timed event updated.&wizard=$wizard".@$sufix);
 			exit();
 		}
 		

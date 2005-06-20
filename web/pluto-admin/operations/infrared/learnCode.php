@@ -146,7 +146,6 @@ function learnCode($output,$dbADO) {
 				$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($igcID,$_SESSION['installationID']));
 			}
 			$out.='<script>
-				alert(\'aa\')
 					opener.location.reload();
 					self.close();
 				</script>

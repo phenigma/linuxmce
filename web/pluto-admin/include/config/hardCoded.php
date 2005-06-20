@@ -226,4 +226,8 @@
 	$GLOBALS['GenericSerialDeviceCommandLine']='Generic_Serial_Device';		// the command line used to identify generic serial devices
 	
 	$GLOBALS['SecurityPicsPath']='/home/securitypic/';
+	
+	// criticals device templates; user will be notified not to delete them
+	$GLOBALS['CriticalDeviceTemplates']=array(1,2,6,7,8,9,10,12,27,28,31,32,33,34,36,39);
+	
 ?>

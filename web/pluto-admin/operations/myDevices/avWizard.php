@@ -94,7 +94,16 @@ function avWizard($output,$dbADO) {
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">			
-	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>';
+	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>
+	
+	<div id="preloader" style="display:;">
+		<table width="100%">
+			<tr>
+				<td align="center">Loading, please wait ...</td>
+			</tr>
+		</table>
+	</div>
+	<div id="content" style="display:none;">';
 		if($type=='avEquipment'){
 			$out.='<a href="index.php?section=connectionWizard">Connection Wizard</a>';
 			$queryDevice='
@@ -535,7 +544,9 @@ function avWizard($output,$dbADO) {
 		</script>
 	
 	</form>
+	</div>
 	';
+	$output->setScriptInBody('onLoad="document.getElementById(\'preloader\').style.display=\'none\';document.getElementById(\'content\').style.display=\'\';";');
 	} else {
 		$cmd=cleanInteger(@$_POST['cmd']);
 		// check if the user has the right to modify installation
