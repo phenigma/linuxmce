@@ -615,7 +615,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
             else
             {
                 g_pPlutoLogger->Write(LV_WARNING, "Device %d is not allowed to connect to PlutoMO %s. Waiting for %d device to link", pDeviceFrom->m_dwPK_Device,
-                    sMacAddress.c_str());
+                    sMacAddress.c_str(), pAllowedConnections->m_iDeviceIDAllowed);
                 return false;
             }
     }
