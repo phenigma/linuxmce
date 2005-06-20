@@ -618,8 +618,6 @@ bool Orbiter_Plugin::ConnectionAllowed(int iDevice, string sMacAddress)
 
 bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-    g_pPlutoLogger->Write(LV_WARNING,"Intercepted MobileOrbiterLinked command sent by %d to %d", pDeviceFrom->m_dwPK_Device, pDeviceTo->m_dwPK_Device);
-
     string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Mac_Find(sMacAddress);
 
