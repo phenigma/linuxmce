@@ -36,7 +36,7 @@ while [ "$i" -le 200 ]; do
 	elif [ "$Ret" -eq 2 ]; then
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Device requests restart... $i $device_name"
 		#/usr/pluto/bin/Start_LocalDevices.sh
-		echo $(date) Shutdown >> "$new_log"
+		echo $(date) Restart >> "$new_log"
 	else
 		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... $i $device_name"
 		echo $(date) died >> "$new_log"

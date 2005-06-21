@@ -74,6 +74,7 @@ echo "$$ Spawn_Device of $Path$cmd_line (by $0)" >>/var/log/pluto/running.pids
 
 Tab=$(printf "\t") # to prevent any smart masses from converting this tab to 4 or 8 spaces
 i=1
+ReloadWatcher=0
 while [ "$i" -le "$MAX_RESPAWN_COUNT" ]; do
 	rm -f /var/log/pluto/spawned_devices_$device_id
 
@@ -82,6 +83,15 @@ while [ "$i" -le "$MAX_RESPAWN_COUNT" ]; do
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
 	echo $(date) Starting > "$new_log"
 
+	if [[ "$ReloadWatcher" -eq 1 ]]; then
+		/usr/pluto/bin/Start_LocalDevices.sh
+	fi
+
+	ReloadLock=/usr/pluto/locks/reload_watcher
+	if [[ "${cmd_line//App*Server}" != "$cmd_line" && ! -f "$ReloadLock" ]]; then
+		echo "Device: $device_id" >"$ReloadLock"
+		ReloadWatcher=1
+	fi
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Found $Path$cmd_line"
 	if [ "${cmd_line/Spawn_Device}" == "$cmd_line" ] && [ "${Valgrind/$cmd_line}" != "$Valgrind" ]; then
 #		(/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id") | tee "$new_log"
