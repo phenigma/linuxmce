@@ -1,8 +1,4 @@
 <?php
-if(@$_GET['mode']=='register'){
-	Header("Location: ".$plutoHomeRegister);
-}
-
 /***************************************************************************
  *                                profile.php
  *                            -------------------

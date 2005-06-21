@@ -78,7 +78,12 @@ $page_title = ( $mode == 'editprofile' ) ? $lang['Edit_profile'] : $lang['Regist
 if ( $mode == 'register' && !isset($HTTP_POST_VARS['agreed']) && !isset($HTTP_GET_VARS['agreed']) )
 {
 	include($phpbb_root_path . 'includes/page_header.'.$phpEx);
-
+	// added byPluto
+	if(@$_GET['mode']=='register'){
+		print ('<script>self.location="'.$plutoHomeRegister.'";</script>');
+	}
+	// end added byPluto
+	
 	show_coppa();
 
 	include($phpbb_root_path . 'includes/page_tail.'.$phpEx);
