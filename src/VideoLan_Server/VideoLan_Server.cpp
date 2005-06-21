@@ -160,7 +160,7 @@ if(true)
 	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmdUnmount.c_str());
 	system(cmdUnmount.c_str());  // Don't care about the return. 
 
-    cmd = "losetup /dev/loop6 \"" + fileName + "\"";
+	string cmd = "losetup /dev/loop6 \"" + sFilename + "\"";
 	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
     int iResult2=0,iResult = system(cmd.c_str());
 	
@@ -179,7 +179,7 @@ Sleep(500);
 g_pPlutoLogger->Write(LV_ACTION,"returning mounted dvd");
 sFilename = "/dev/loop6";
 Sleep(500); // TODO: HACK  -- sometimes xine can't play dvd's.  Throw a small delay in to see if it has an effect
-		return true;
+		return ;
 	}
 }
 
