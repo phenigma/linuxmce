@@ -481,7 +481,7 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 //<-dceag-c313-e->
 {
 	bool bRelative = false;
-	if (sLevel[0] == '+' || sLevel[0] == '-')
+	if ( sLevel.size()>1 && sLevel[0] == '+' || sLevel[0] == '-')
 		bRelative = true;
 	
 	string sCmd = string("") + "/usr/bin/amixer sset Master " + sLevel.substr(bRelative ? 1 : 0) + "%" + (bRelative ? sLevel.substr(0, 1) : "");

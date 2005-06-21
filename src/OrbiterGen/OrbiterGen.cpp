@@ -447,6 +447,12 @@ m_bNoEffects = true;
 	}
 
 	m_pRow_Size = NULL;
+	if( !m_pRow_Device->FK_Device_ControlledVia_isNull() &&
+		m_pRow_Device->FK_Device_ControlledVia_getrow()->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
+	{
+		// This is an on-screen orbiter
+		use the resolution from the m/d by creating a new Row_Size with add row that we'll never commit
+	}
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Size_CONST);
 	if( pRow_Device_DeviceData )
 		m_pRow_Size = mds.Size_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );

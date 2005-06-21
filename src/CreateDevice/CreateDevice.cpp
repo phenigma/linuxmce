@@ -312,7 +312,7 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 	}
 }
 
-void CreateDevice::ConfirmRelations(int PK_Device,bool bRecurseChildren)
+void CreateDevice::ConfirmRelations(int PK_Device,bool bRecurseChildren,bool bOnlyAddDevicesOnCore)
 {
 	PlutoSqlResult result_dt,result_related,result_related2,result_related3;
 	MYSQL_ROW row,row3;
@@ -345,7 +345,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 					continue;  // It's ok.  We got it
 
 				// That device doesn't exist.  We need to create it
-				if( iRelation==1 )  // It's a sister device
+				if( iRelation==1 && !bOnlyAddDevicesOnCore )  // It's a sister device
 				{
 					SQL = "SELECT FK_Device_ControlledVia FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
 					if( (result_related3.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related3.r)) )

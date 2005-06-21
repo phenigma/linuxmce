@@ -13,7 +13,7 @@ public:
 	int DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia=0);
 	void CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategory);
 	void CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplate);
-	void ConfirmRelations(int PK_Device,bool bRecurseChildren=true);
+	void ConfirmRelations(int PK_Device,bool bRecurseChildren=true,bool bOnlyAddDevicesOnCore=false);
 
 	bool m_bDontCallConfigureScript;
 };

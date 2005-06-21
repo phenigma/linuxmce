@@ -318,6 +318,14 @@ int main(int argc, char *argv[])
 	CreateDevice createDevice(pRow_Installation->PK_Installation_get(),dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
 	createDevice.ConfirmRelations(pRow_Device->PK_Device_get(),true);
 
+	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Core_CONST )
+	{
+		// For each of the media directors we also want to see if extra devices (like plugins) are needed on the core
+		vector<Row_Device *> vectRow_Device_MD;
+		database_pluto_main.Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Media_Director_CONST),&vectRow_Device_MD);
+		for(size_t s=0;s<vectRow_Device_MD.size();++s)
+			createDevice.ConfirmRelations(vectRow_Device_MD[s]->PK_Device_get(),true,true);
+	}
 	CheckDevice(pRow_Device,bSourceCode);
 	/*
 	if( bIncludeDisklessMD )

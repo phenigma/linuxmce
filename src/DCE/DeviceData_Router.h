@@ -245,6 +245,18 @@ namespace DCE
 			}
 		}
 
+		void FindChildrenWithinCategory(int PK_DeviceCategory,vector<DeviceData_Router *> &vectDeviceData_Router)
+		{
+			if( !PK_DeviceCategory )
+				return;
+			for( size_t s=0;s<m_vectDeviceData_Impl_Children.size();++s )
+			{
+				DeviceData_Router *pDevice = (DeviceData_Router *) m_vectDeviceData_Impl_Children[s];
+				if( pDevice->WithinCategory(PK_DeviceCategory) )
+					vectDeviceData_Router.push_back(pDevice);
+			}
+		}
+
 		// We're not going to use this, since we're not creating actual devices.  Implement this pure virtual function from our base class
 		class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition) { return NULL; };
 	};

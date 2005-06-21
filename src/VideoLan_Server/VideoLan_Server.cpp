@@ -153,6 +153,7 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"Device %d %p IP %s",PK_Device,pDeviceData_Base,sIP.c_str());
+g_pPlutoLogger->Write(LV_CRITICAL,"ext:%s",StringUtils::ToUpper(FileUtils::FindExtension(sFilename)).c_str());
 
 	pVideoLanServerInstance->m_sFilename = sFilename;
 	pVideoLanServerInstance->m_sCommandLine = "--intf\trc\t" + sFilename + 

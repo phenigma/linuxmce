@@ -123,7 +123,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 		{
 			// Since there's no other a/v device for volume adjustments, we'll send it to an app server
 			vector<DeviceData_Router *> vectDeviceData_Router;
-			m_pDeviceData_Router->FindSibblingsWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDeviceData_Router);
+			m_pDeviceData_Router->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDeviceData_Router);
 			if( vectDeviceData_Router.size() )
 				m_pDevice_App_Server_Volume = vectDeviceData_Router[0];
 		}
@@ -1127,6 +1127,19 @@ g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
 						QueueMessageToRouter( pNewMessage );
 					}
 
+					if( pEntertainArea->m_pMediaDevice_ActiveDest && pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD &&  // then it's going to the media director
+						(pCommand->m_dwPK_Command==COMMAND_Vol_Up_CONST || pCommand->m_dwPK_Command==COMMAND_Vol_Down_CONST || pCommand->m_dwPK_Command==COMMAND_Set_Volume_CONST) // It's a volume command
+						)
+					{
+						MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD); // We have an app server to control the volume
+						if( pMediaDevice && pMediaDevice->m_pDevice_App_Server_Volume )  // We have an MD and it uses appserver for the volume
+						{
+							Message *pNewMessage = new Message( pMessage );
+							pNewMessage->m_dwPK_Device_To = pMediaDevice->m_pDevice_App_Server_Volume->m_dwPK_Device;
+							QueueMessageToRouter( pNewMessage );
+						}
+					}
+
 					// For streaming media the source and destination are often different.  Send it to the dest as well
 				    if( pEntertainArea->m_pMediaDevice_ActiveDest && pEntertainArea->m_pMediaDevice_ActiveDest!=pEntertainArea->m_pMediaStream->m_pMediaDevice_Source )
 					{
@@ -1142,17 +1155,7 @@ g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
 							pNewMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD;
 							QueueMessageToRouter( pNewMessage );
 						}
-						else if( pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD &&  // then it's going to the media director
-							pEntertainArea->m_pMediaDevice_ActiveDest->m_pDevice_App_Server_Volume && // We have an app server to control the volume
-							(pCommand->m_dwPK_Command==COMMAND_Vol_Up_CONST || pCommand->m_dwPK_Command==COMMAND_Vol_Down_CONST || pCommand->m_dwPK_Command==COMMAND_Set_Volume_CONST) // It's a volume command
-							)
-						{
-							pNewMessage = new Message( pMessage );
-							pNewMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaDevice_ActiveDest->m_pDevice_App_Server_Volume->m_dwPK_Device_MD;
-							QueueMessageToRouter( pNewMessage );
-						}
 					}
-
 				}
 			}
 			else
