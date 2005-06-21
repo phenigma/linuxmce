@@ -268,7 +268,7 @@ void Event_Plugin::SetNextTimedEventCallback()
 	for(MapTimedEvent::iterator it=m_mapTimedEvent.begin();it!=m_mapTimedEvent.end();++it)
 	{
 		TimedEvent *pTimedEvent = (*it).second;
-		if( pTimedEvent->m_tTime=0 )
+		if( pTimedEvent->m_tTime==0 )
 			continue;
 
 		if( !m_pTimedEvent_Next )
