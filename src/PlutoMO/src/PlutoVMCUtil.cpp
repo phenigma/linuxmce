@@ -680,8 +680,8 @@ void CPlutoVMCUtil::LocalDoRender()
 			m_pGC->SetBrushColor(blue_lite);
 			SetTextProperties(1, "Arial", 0, 0, 0);
 
-			MyRect rect(SCREEN_HEIGHT - 30, SCREEN_WIDTH - 50, 100, 100);// hardcoding warning!!
-			TRect BackRect(SCREEN_WIDTH - 50, SCREEN_HEIGHT - 45, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 30);
+			MyRect rect(SCREEN_HEIGHT - 30, SCREEN_WIDTH - 30, 100, 100);// hardcoding warning!!
+			TRect BackRect(SCREEN_WIDTH - 40, SCREEN_HEIGHT - 45, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 30);
 			m_pGC->DrawRect(BackRect);
 			string buf = string::IntegerToString(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_iSignalStrength);
 			DrawText(buf.c_str(), rect);
