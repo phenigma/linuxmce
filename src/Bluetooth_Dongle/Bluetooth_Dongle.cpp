@@ -182,10 +182,10 @@ void *HandleBDCommandProcessorThread( void *p )
 		g_pPlutoLogger->Write( LV_STATUS, "Setting PhoneDevice IsConnected flag to false...");
 	}
 
-    g_pPlutoLogger->Write( LV_STATUS, "Deleting command processor...");
+    g_pPlutoLogger->Write( LV_CRITICAL, "Deleting command processor...");
     PLUTO_SAFE_DELETE(pBD_Orbiter->m_pBDCommandProcessor);
 
-	g_pPlutoLogger->Write( LV_STATUS, "Deleting orbiter... %p", pBD_Orbiter->m_pOrbiter);
+	g_pPlutoLogger->Write( LV_CRITICAL, "Deleting orbiter... %p", pBD_Orbiter->m_pOrbiter);
 	PLUTO_SAFE_DELETE(pBD_Orbiter->m_pOrbiter);
 	g_pPlutoLogger->Write( LV_STATUS, "Orbiter deleted. %p", pBD_Orbiter->m_pOrbiter);
 
@@ -231,7 +231,7 @@ void *ReconnectToBluetoothDongleThread(void *p)
         
         bm.Release();
 
-        g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s still running. I'll try again in 250 ms...", sPhoneMacAddress.c_str());
+        g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s still running. I'll try again in 250 ms... (cp %p, orb %p)", sPhoneMacAddress.c_str(), pBD_Orbiter->m_pBDCommandProcessor, pBD_Orbiter->m_pOrbiter);
         Sleep(250);
     }
 
