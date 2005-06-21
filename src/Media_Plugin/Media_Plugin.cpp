@@ -103,6 +103,32 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_pOH_Orbiter_Reset=NULL;
 	m_pCommandGroup=NULL;
 	m_tReset=0;
+	m_pDevice_App_Server_Volume=NULL;
+
+	// See if this is an M/D
+	if( m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
+	{
+		// and has a pipe for audio -- if so, we won't adjust the PC's volume
+		bool bFoundPipe=false;
+        for(map<int,Pipe *>::iterator it=m_pDeviceData_Router->m_mapPipe_Available.begin();it!=m_pDeviceData_Router->m_mapPipe_Available.end();++it)
+        {
+            Pipe *pPipe = (*it).second;
+			if( pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()==1 )
+			{
+				bFoundPipe=true;
+				break;
+			}
+		}
+		if( !bFoundPipe )
+		{
+			// Since there's no other a/v device for volume adjustments, we'll send it to an app server
+			vector<DeviceData_Router *> vectDeviceData_Router;
+			m_pDeviceData_Router->FindSibblingsWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDeviceData_Router);
+			if( vectDeviceData_Router.size() )
+				m_pDevice_App_Server_Volume = vectDeviceData_Router[0];
+		}
+	}
+
 	// do stuff with this
 }
 
@@ -1114,6 +1140,15 @@ g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
 						{
 							pNewMessage = new Message( pMessage );
 							pNewMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD;
+							QueueMessageToRouter( pNewMessage );
+						}
+						else if( pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD &&  // then it's going to the media director
+							pEntertainArea->m_pMediaDevice_ActiveDest->m_pDevice_App_Server_Volume && // We have an app server to control the volume
+							(pCommand->m_dwPK_Command==COMMAND_Vol_Up_CONST || pCommand->m_dwPK_Command==COMMAND_Vol_Down_CONST || pCommand->m_dwPK_Command==COMMAND_Set_Volume_CONST) // It's a volume command
+							)
+						{
+							pNewMessage = new Message( pMessage );
+							pNewMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaDevice_ActiveDest->m_pDevice_App_Server_Volume->m_dwPK_Device_MD;
 							QueueMessageToRouter( pNewMessage );
 						}
 					}

@@ -879,6 +879,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
             case SYSCOMMAND_RELOAD:
 			case SYSCOMMAND_RELOAD_FORCED:
 				{
+					g_pPlutoLogger->Write(LV_STATUS,"Received reload command");
 					system( (string("lsof >> /var/log/pluto/lsof_RELOAD_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
 					if( (*SafetyMessage)->m_dwID!=SYSCOMMAND_RELOAD_FORCED )
 					{
@@ -1196,6 +1197,7 @@ bool Router::Run()
         // command connections.
 		if (m_bReload)
 		{
+		    g_pPlutoLogger->Write(LV_STATUS, "Detected m_bReload=true %d %d",(int) m_bQuit,(int) m_bRunning);
 			DoReload();
 			Sleep(3000); // Wait 3 seconds for all devices to get the message before dropping the sockets
 			bReload=true;

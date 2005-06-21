@@ -210,7 +210,7 @@ void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sC
 		/** @param #50 Name */
 			/** A name that we'll remember the application by for future kill commands */
 		/** @param #51 Arguments */
-			/** Command arguments */
+			/** Command arguments, tab delimited */
 		/** @param #94 SendOnFailure */
 			/** Send this messages if the process exited with failure error code. */
 		/** @param #95 SendOnSuccess */
@@ -436,3 +436,39 @@ void App_Server::KillSpawnedDevices()
 	// This will only be called when we are dying, so we won't care about what happens to our spawned children.
 	// We had a problem that KillSpawnedDevices called KillPids.sh, which when exited, called the sh signal handler and hung at wait
 }
+//<-dceag-c89-b->
+
+	/** @brief COMMAND: #89 - Vol Up */
+	/** Increase the volume 1% */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume up this many times */
+
+void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
+//<-dceag-c89-e->
+{
+}
+
+//<-dceag-c90-b->
+
+	/** @brief COMMAND: #90 - Vol Down */
+	/** Decrease the volume 1% */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume down this many times. */
+
+void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
+//<-dceag-c90-e->
+{
+}
+
+//<-dceag-c313-b->
+
+	/** @brief COMMAND: #313 - Set Volume */
+	/** Set the volume to a specific level between 0-100 */
+		/** @param #76 Level */
+			/** A value between 0 and 100 where 0 is mute and 100 is full volume.  Numbers preceded with a - or + are relative.  +15 means up 15, -10 means down 10 */
+
+void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMessage)
+//<-dceag-c313-e->
+{
+}
+

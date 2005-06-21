@@ -76,7 +76,7 @@ public:
 		/** @param #50 Name */
 			/** A name that we'll remember the application by for future kill commands */
 		/** @param #51 Arguments */
-			/** Command arguments */
+			/** Command arguments, tab delimited */
 		/** @param #94 SendOnFailure */
 			/** Send this messages if the process exited with failure error code. */
 		/** @param #95 SendOnSuccess */
@@ -104,6 +104,33 @@ public:
 
 	virtual void CMD_Hide_Application(string sName) { string sCMD_Result; CMD_Hide_Application(sName.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Hide_Application(string sName,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #89 - Vol Up */
+	/** Increase the volume 1% */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume up this many times */
+
+	virtual void CMD_Vol_Up(int iRepeat_Command) { string sCMD_Result; CMD_Vol_Up(iRepeat_Command,sCMD_Result,NULL);};
+	virtual void CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #90 - Vol Down */
+	/** Decrease the volume 1% */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume down this many times. */
+
+	virtual void CMD_Vol_Down(int iRepeat_Command) { string sCMD_Result; CMD_Vol_Down(iRepeat_Command,sCMD_Result,NULL);};
+	virtual void CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #313 - Set Volume */
+	/** Set the volume to a specific level between 0-100 */
+		/** @param #76 Level */
+			/** A value between 0 and 100 where 0 is mute and 100 is full volume.  Numbers preceded with a - or + are relative.  +15 means up 15, -10 means down 10 */
+
+	virtual void CMD_Set_Volume(string sLevel) { string sCMD_Result; CMD_Set_Volume(sLevel.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #323 - Halt Device */

@@ -163,7 +163,7 @@ void VideoLan_Client::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
 
-	string sCommand = "--intf\trc\t-f\t" + sFilename;
+	string sCommand = "--no-video-deco\t--no-osd\t--intf\trc\t-f\t" + sFilename;
 
 	if ( ! m_pRatWrapper )
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));

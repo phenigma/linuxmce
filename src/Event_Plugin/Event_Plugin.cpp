@@ -1,3 +1,5 @@
+interval_timer_with_no_time_is_infinite
+
 //<-dceag-d-b->
 #include "Event_Plugin.h"
 #include "DCE/Logger.h"

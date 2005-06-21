@@ -15,7 +15,9 @@ namespace DCE
 		/** @brief constructor */
 		MediaDevice(class Router *pRouter,Row_Device *pRow_Device);   /** This will store extra information about itself */
 		bool m_bDontSendOffIfOSD_ON;  // This allows that only the OSD can turn it off
-		class DeviceData_Router *m_pDeviceData_Router;          /**< The device in the router */
+		class DeviceData_Router *m_pDeviceData_Router,          /**< The device in the router */
+			*m_pDevice_App_Server_Volume;   /**< Used if this is a media director, and there is no destination device in the audio path, and there is an app server to adjust the volume in the PC */
+
 		map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */
 		map<int,class EntertainArea *> m_mapEntertainArea;
 		int m_iLastPlaybackSpeed;

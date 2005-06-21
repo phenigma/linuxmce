@@ -602,6 +602,7 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"Finding GC100",false,30,true);
 
 	returned = system(Command.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Find gc100 returned %d",returned);
 
 	if ( returned == -1) {
 		g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
