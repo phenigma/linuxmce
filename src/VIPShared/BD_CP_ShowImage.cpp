@@ -97,7 +97,8 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 #ifdef SYMBIAN
 	 LOG("#	Received 'ShowImage' command  #\n");
 
-     LOG("Signal strength on/off\n");
+     LOG("Signal strength on/off \n");
+     LOG(m_bSignalStrengthScreen);
      ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSignalStrengthScreen = m_bSignalStrengthScreen;
 
 	 LOG("Open image\n");

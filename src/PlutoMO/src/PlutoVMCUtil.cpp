@@ -36,6 +36,7 @@
 #include "PlutoUtils/PlutoDefs.h"
 #include "BD/BD_WhatDoYouHave.h"
 #include "VIPShared/BD_PC_KeyWasPressed.h"
+#include "VIPShared/BD_PC_GetSignalStrength.h"
 //------------------------------------------------------------------------------------------------------------------
 #ifdef __WINS__
 //#define TEST_DATAGRID
@@ -645,25 +646,60 @@ void CPlutoVMCUtil::LocalDoRender()
 {
 	if(NULL != m_pMenu || (m_pImageStatic_Size && m_pImageStatic_Data))
 	{
-		m_pGC->SetPenStyle(CGraphicsContext::ENullPen);
-		m_pGC->SetBrushColor(KRgbGray);
-		m_pGC->SetBrushStyle(CGraphicsContext::ESolidBrush);
-		
-		if(!m_bRedrawOnlyGrid && !m_bRedrawOnlyEdit)
+		if(!((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bRender_SignalStrengthOnly)
 		{
-			TRect aRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-			m_pGC->DrawRect(aRect);
+			m_pGC->SetPenStyle(CGraphicsContext::ENullPen);
+			m_pGC->SetBrushColor(KRgbGray);
+			m_pGC->SetBrushStyle(CGraphicsContext::ESolidBrush);
+			
+			if(!m_bRedrawOnlyGrid && !m_bRedrawOnlyEdit)
+			{
+				TRect aRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+				m_pGC->DrawRect(aRect);
 
-			DoRender();
+				DoRender();
+			}
+
+			if(m_bGridExists)
+			{
+				DrawDataGrid(m_uGridX, m_uGridY, m_uGridWidth, m_uGridHeight, m_GridList);
+			}			
+
+			if(m_CaptureKeyboardParam.bTextBox)
+				DrawEdit();
 		}
 
-		if(m_bGridExists)
+		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSignalStrengthScreen)
 		{
-			DrawDataGrid(m_uGridX, m_uGridY, m_uGridWidth, m_uGridHeight, m_GridList);
-		}			
+			//render signal strength
+			LOG("Rendering ss");
 
-		if(m_CaptureKeyboardParam.bTextBox)
-			DrawEdit();
+			TRgb blue_lite(205,214,237); // appears as blank screen gray-green color
+			m_pGC->SetBrushStyle(CGraphicsContext::ESolidBrush);
+			m_pGC->SetPenStyle(CGraphicsContext::ENullPen);
+			m_pGC->SetBrushColor(blue_lite);
+			SetTextProperties(1, "Arial", 0, 0, 0);
+
+			MyRect rect(SCREEN_HEIGHT - 30, SCREEN_WIDTH - 50, 100, 100);// hardcoding warning!!
+			TRect BackRect(SCREEN_WIDTH - 50, SCREEN_HEIGHT - 45, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 30);
+			m_pGC->DrawRect(BackRect);
+			string buf = string::IntegerToString(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_iSignalStrength);
+			DrawText(buf.c_str(), rect);
+
+			LOG("Requested new ss");
+
+			//request new signal strength
+			BDCommandProcessor_Symbian_Base* pBDCommandProcessor = 
+				((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor;
+
+			if(pBDCommandProcessor)
+			{
+				BDCommand *pCommand = new BD_PC_GetSignalStrength();
+				pBDCommandProcessor->AddCommand(pCommand);
+			}
+
+			LOG("Sent");
+		}
 	}
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -691,6 +727,9 @@ void CPlutoVMCUtil::LocalDoRender()
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char *ImageBuf)
 {	
+	
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bRender_SignalStrengthOnly = false;
+
 	m_pImageStatic_Type=0;
 	m_pImageStatic_Size=0;
 	if(NULL != m_pImageStatic_Data)

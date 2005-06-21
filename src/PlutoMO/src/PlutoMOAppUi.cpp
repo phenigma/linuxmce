@@ -125,6 +125,9 @@ void CPlutoMOAppUi::ConstructL()
 #endif
 
 	m_bPlutoEventVisible = false;
+	m_iSignalStrength = 0;
+	m_bSignalStrengthScreen = false;
+	m_bRender_SignalStrengthOnly = false;
 
 	LOG("Waiting for connections...\n");
 
@@ -591,6 +594,10 @@ void CPlutoMOAppUi::ResetViewer()
 	SetCaptureKeyboardCommand(false, false, true, false, 0, "");
 
 	LOG("Reset Viewer complete!\n");
+
+	m_bRender_SignalStrengthOnly = false;
+	m_iSignalStrength = 0;
+	m_bSignalStrengthScreen = false;
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::NotifyIncomingCall(TDesC& aCallName)
@@ -601,7 +608,7 @@ void CPlutoMOAppUi::NotifyIncomingCall(TDesC& aCallName)
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 {
-	TInt i;
+	TInt i = 0;
 
 	LOG("NotifyIncomingNumber: Phone number:\n");
 	LOG(string(aTellNumber));
@@ -638,7 +645,7 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 	iCall.HangUp();
 	LOG("Hang up call - ok\n");
 
-	iCurType = i;
+	//iCurType = i;
 
 	LOG("Ready to call DoIdleStatic\n");
 	if(!(iIdle))
@@ -865,6 +872,17 @@ void CPlutoMOAppUi::CancelCaptureSoftKeys()
 	{
 		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyIdYes);	
 		m_iCapturedKeyIdYes = 0;
+	}
+}
+//---------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::SetCurrentSignalStrength(int iSignalStrength)
+{
+	m_iSignalStrength = iSignalStrength;
+
+	if(m_iSignalStrength)
+	{
+		m_bRender_SignalStrengthOnly = true;
+		m_pVMCView->Refresh();
 	}
 }
 //---------------------------------------------------------------------------------------------

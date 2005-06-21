@@ -17,7 +17,7 @@
 #include <eikapp.h>
 #include <eikdoc.h>
 //----------------------------------------------------------------------------------------------
-//this version is must be synchronized with the one from Orbiter_Plugin.cpp
+//this version must be synchronized with the one from Orbiter_Plugin.cpp
 #define  VERSION "2005.06.16"
 //----------------------------------------------------------------------------------------------
 #include "BD/BDCommandProcessor_Symbian_Bluetooth.h"
@@ -105,15 +105,9 @@ public:
 		string sText
 	);
 
-	void SaveFile(
-		long iFileNameSize, 
-		const char *pFileName, 
-		long iFileDataSize, 
-		const char *pFileData
-	);
-
+	void SaveFile(long iFileNameSize, const char *pFileName, long iFileDataSize, const char *pFileData);
+	void SetCurrentSignalStrength(int iSignalStrength);
 	void SimulateEvent(long eventType, long key);
-
 	void ResetViewer();
 	
 	BDCommandProcessor_Symbian_Bluetooth *m_pBDCommandProcessor;
@@ -123,6 +117,10 @@ public:
 	bool m_bMakeVisibleAllowed;
 
 	CPlutoVMCView* m_pVMCView;
+
+	int  m_iSignalStrength;
+	bool m_bSignalStrengthScreen;
+	bool m_bRender_SignalStrengthOnly;
 
 
 	//incoming calls and stuff related
