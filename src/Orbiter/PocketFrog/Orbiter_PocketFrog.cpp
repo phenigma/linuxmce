@@ -157,12 +157,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		g_pPlutoLogger->Write(LV_CRITICAL, "After fullscreen GetClientRect reports: %d, %d, %d, %d",
 			r.left, r.top, r.right, r.bottom);
 	}
-    /*
-	else
-	{
-        AdjustWindowSize(m_iImageWidth + 6, m_iImageHeight + 25);
-	}
-    */
 #endif
 
 	return true;
@@ -804,6 +798,7 @@ void Orbiter_PocketFrog::PingFailed()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::AdjustWindowSize(int iOrbiterWidth, int iOrbiterHeight)
 {
+#ifndef WINCE
     iOrbiterWidth += 6; //the border
     iOrbiterHeight += 25; //the title + the border
 
@@ -819,5 +814,6 @@ void Orbiter_PocketFrog::PingFailed()
     rc.top = (iDesktopHeight - iOrbiterHeight) / 2;
     rc.bottom = rc.top + iOrbiterHeight;
     MoveWindow(rc.left, rc.top, iOrbiterWidth, iOrbiterHeight, TRUE);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
