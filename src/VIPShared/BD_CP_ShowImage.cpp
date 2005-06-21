@@ -40,9 +40,10 @@
 
 #include "PlutoUtils/MyStl.h"
 #include "BD_CP_ShowImage.h"
+#include "BD_PC_GetSignalStrength.h"
 
 BD_CP_ShowImage::BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize,const char *pImage,
-                                 unsigned long KeysListSize, const char* pRepeatedKeysList) 
+                                 unsigned long KeysListSize, const char* pRepeatedKeysList, bool bSignalStrengthScreen) 
 	
 {
 	m_iImageType=ImageType;
@@ -54,6 +55,8 @@ BD_CP_ShowImage::BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize
     m_KeysListSize = KeysListSize;
     m_pRepeatedKeysList = new char[m_KeysListSize];
     memcpy(m_pRepeatedKeysList, pRepeatedKeysList, m_KeysListSize);
+
+    m_bSignalStrengthScreen = bSignalStrengthScreen;
 }
 
 BD_CP_ShowImage::~BD_CP_ShowImage()
@@ -72,6 +75,7 @@ void BD_CP_ShowImage::ConvertCommandToBinary()
 	Write_block(m_pImage, m_ImageSize);
     Write_long(m_KeysListSize);
     Write_block(m_pRepeatedKeysList, m_KeysListSize);
+    Write_unsigned_char(m_bSignalStrengthScreen);
 }
 
 void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
@@ -88,9 +92,13 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 	m_pImage = Read_block(m_ImageSize);
     m_KeysListSize = Read_long();
     m_pRepeatedKeysList = Read_block(m_KeysListSize);
+    m_bSignalStrengthScreen = Read_unsigned_char();
 
 #ifdef SYMBIAN
 	 LOG("#	Received 'ShowImage' command  #\n");
+
+     LOG("Signal strength on/off\n");
+     ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSignalStrengthScreen = m_bSignalStrengthScreen;
 
 	 LOG("Open image\n");
 	 ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenImage(m_iImageType, m_ImageSize, m_pImage);
@@ -98,14 +106,13 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 
 	 LOG("Intercept repeated keys\n");
      ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->InterceptRepeatedKeys(m_KeysListSize, m_pRepeatedKeysList);
-
 #endif //SYMBIAN
 
 #ifdef VIPDESIGN
 	g_pPlutoConfig->m_pDoc->m_pImageStatic_Type=m_iImageType;
 	g_pPlutoConfig->m_pDoc->m_pImageStatic_Size=m_ImageSize;
 	g_pPlutoConfig->m_pDoc->m_pImageStatic_Data=m_pImage;
-    //TODO: incercept repetead keys?
+    //TODO: intercept repetead keys?
 	g_pPlutoConfig->m_pDoc->InvalidateAllViews();
 #endif //VIPDESIGN
 
@@ -114,5 +121,17 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 
 bool BD_CP_ShowImage::ProcessCommand(BDCommandProcessor *pProcessor)
 {
+#ifdef SYMBIAN
+	//request signal strength
+	BDCommandProcessor_Symbian_Base* pBDCommandProcessor = 
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor;
+
+	if(pBDCommandProcessor && m_bSignalStrengthScreen)
+	{
+		BDCommand *pCommand = new BD_PC_GetSignalStrength();
+		pBDCommandProcessor->AddCommand(pCommand);
+	}
+#endif
+
 	return true;
 }

@@ -45,6 +45,8 @@
 
 using namespace DCE;
 
+#define ADVANCED_OPTIONS_SCREEN "2022"
+
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, int nImageWidth, int nImageHeight)
     : OrbiterSDL(DeviceID, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight),
@@ -101,7 +103,14 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDLBluetooth::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
 {
-	const string csTempFileName = "TmpScreen.png";
+    bool bSignalStrengthScreen = false;
+    if(NULL != m_pScreenHistory_Current)
+    {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Current screen: %s",  m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
+        bSignalStrengthScreen = m_pScreenHistory_Current->m_pObj->m_ObjectID.find(ADVANCED_OPTIONS_SCREEN) != string::npos;
+    }
+
+    const string csTempFileName = "TmpScreen.png";
 
     //generate the jpeg or png image with current screen
     if(m_ImageQuality == 100) //we'll use pngs for best quality
@@ -117,9 +126,9 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     size_t iImageSize;
     char *pImage = FileUtils::ReadFileIntoBuffer(csTempFileName, iImageSize);
 
-	g_pPlutoLogger->Write(LV_WARNING, "Ready to send a picture, size %d", iImageSize);
+	g_pPlutoLogger->Write(LV_WARNING, "Ready to send a picture, size %d, reporting signal strength %d", iImageSize, bSignalStrengthScreen);
     BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(0, (unsigned long)iImageSize, pImage, 
-        (unsigned long)(sRepeatedKeysList.length()), sRepeatedKeysList.c_str());
+        (unsigned long)(sRepeatedKeysList.length()), sRepeatedKeysList.c_str(), bSignalStrengthScreen);
 
     PLUTO_SAFE_DELETE_ARRAY(pImage);
 
@@ -144,21 +153,9 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 {
-    /*
-    PLUTO_SAFETY_LOCK(dg,m_DatagridMutex);
-    string delSelections;
-    if (!pObj->sSelVariable.empty())
-    {
-        PLUTO_SAFETY_LOCK(vm,m_VariableMutex)
-        delSelections = "|"+m_mapVariable[atoi(pObj->sSelVariable.c_str())]+"|";
-        vm.Release();
-    }
-    */
-
 #if (defined(PROFILING))
     clock_t clkStart = clock();
 #endif
-
 
 	bool bUsePhoneGrid = false;
 	int iSelectedColumn = pObj->m_iInitialColNum;

@@ -25,12 +25,13 @@ sources = \
     BD_PC_VMCTerminated.cpp \
 	BD_PC_ReportMyVersion.cpp \
 	BD_CP_SimulateEvent.cpp \
+	BD_CP_CurrentSignalStrength.cpp \
+	BD_PC_GetSignalStrength.cpp \
     PhoneDetection_Bluetooth_Linux.cpp \
     PhoneDetectionEngine.cpp \
     PhoneDetection_Simulate.cpp \
     PlutoPhoneCommands.cpp \
     VIPIncludes.cpp
-#sources = BD_CP_CaptureKeyboard.cpp  BD_CP_ShowImage.cpp  BD_CP_ShowList.cpp  BD_PC_KeyWasPressed.cpp  BD_PC_SelectedFromList.cpp  BD_PC_SetVariable.cpp
 
 all: libVIPCommon.so all-recursive
 

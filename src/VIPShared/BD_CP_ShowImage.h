@@ -12,10 +12,12 @@ class BD_CP_ShowImage : public BDCommand
     unsigned long m_KeysListSize;
     char *m_pRepeatedKeysList;
 
+    bool m_bSignalStrengthScreen;
+
 public:
 	BD_CP_ShowImage()  {m_ImageSize = 0; m_pImage = NULL; m_iImageType = 0;}
 	BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize,const char *pImage,
-        unsigned long KeysListSize, const char* pRepeatedKeysList);
+        unsigned long KeysListSize, const char* pRepeatedKeysList, bool bSignalStrengthScreen);
 
 	~BD_CP_ShowImage();
 

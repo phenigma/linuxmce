@@ -10,6 +10,7 @@
 #define BD_PC_SELECTED_FROM_LIST		8
 #define BD_PC_SET_VARIABLE				9
 #define BD_PC_REPORT_MY_VERSION			10
+#define BD_PC_GET_SIGNAL_STRENGTH       11
 
 #define BD_CP_SEND_ME_KEYSTROKES		101
 #define BD_CP_SHOW_IMAGE				102
@@ -20,6 +21,7 @@
 #define BD_CP_CAPTURE_KEYBOARD			107
 #define BD_CP_SEND_FILE					108
 #define BD_CP_SIMULATE_EVENT			109
+#define BD_CP_CURRENT_SIGNAL_STRENGTH   110
 
 class BDCommand *BuildCommandFromData( unsigned long dwType );
 

@@ -32,11 +32,11 @@ class PhoneDetection_Bluetooth_Linux : public PhoneDetectionEngine
 public:
 	PhoneDetection_Bluetooth_Linux();
 
+	virtual int GetLinkQuality(const char *addr);	   
+
 protected:
 	// This function needs to be overridden 
 	virtual bool ScanningLoop();
-
-	virtual int GetLinkQuality(const char *addr);
 };
 #endif
 

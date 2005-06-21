@@ -27,6 +27,7 @@
 #include "BD_PC_SelectedFromList.h"
 #include "BD_PC_SetVariable.h"
 #include "BD_PC_ReportMyVersion.h"
+#include "BD_PC_GetSignalStrength.h"
 
 #include "BD/BD_HaveNothing.h"
 #include "BD_CP_SendMeKeystrokes.h"
@@ -38,6 +39,7 @@
 #include "BD_CP_CaptureKeyboard.h"
 #include "BD_CP_SendFile.h"
 #include "BD_CP_SimulateEvent.h"
+#include "BD_CP_CurrentSignalStrength.h"
 
 class BDCommand *BuildCommandFromData( unsigned long dwType )
 {
@@ -59,8 +61,10 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 		return new BD_PC_SelectedFromList();
 	case BD_PC_SET_VARIABLE:
 		return new BD_PC_SetVariable();
-	case BD_PC_REPORT_MY_VERSION:
+    case BD_PC_REPORT_MY_VERSION:
 		return new BD_PC_ReportMyVersion();
+    case BD_PC_GET_SIGNAL_STRENGTH:
+        return new BD_PC_GetSignalStrength();
 
 
 	case BD_CP_HAVE_NOTHING:
@@ -83,6 +87,8 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 		return new BD_CP_SendFile();
 	case BD_CP_SIMULATE_EVENT:
 		return new BD_CP_SimulateEvent();
+    case BD_CP_CURRENT_SIGNAL_STRENGTH:
+        return new BD_CP_CurrentSignalStrength();
 
 	default:
 		// Log Error
