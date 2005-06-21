@@ -166,6 +166,11 @@ bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 	}
 
 	m_bRunning = false;
+
+	if(m_bQuit)
+		return false;
+
+	return true;
 }
 
 char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
@@ -203,6 +208,9 @@ char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 	}
 
 	m_bRunning = false;
+
+	if(m_bQuit)
+		return NULL;
 	
 	return buffer;
 }
