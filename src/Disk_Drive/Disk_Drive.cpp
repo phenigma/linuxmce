@@ -934,7 +934,7 @@ bool Disk_Drive::mountDVD(string fileName, string &strMediaUrl)
 	// True if we're playing a physical dis, false if it's a file
 	bool bDriveMount = StringUtils::StartsWith(fileName,"/dev/",true);
 
-	string sDrive = bDriveMount ? fileName : "";//m_sDrive;
+	string sDrive = bDriveMount ? fileName : m_sDrive;
 
 	string cmd = "ln -sf " + sDrive + " /dev/dvd";
 	g_pPlutoLogger->Write(LV_STATUS,"cmd drivemount: %d - %s",(int) bDriveMount,cmd.c_str());
