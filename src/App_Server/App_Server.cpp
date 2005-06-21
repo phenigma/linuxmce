@@ -446,6 +446,11 @@ void App_Server::KillSpawnedDevices()
 void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c89-e->
 {
+	for (; iRepeat_Command >= 0; iRepeat_Command --)
+		system("/usr/bin/amixer sset Master 1+");
+
+	// TODO: check that the mixer actually worked
+	sCMD_Result = "OK";
 }
 
 //<-dceag-c90-b->
@@ -458,6 +463,11 @@ void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMe
 void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c90-e->
 {
+	for (; iRepeat_Command >= 0; iRepeat_Command --)
+		system("/usr/bin/amixer sset Master 1-");
+	
+	// TODO: check that the mixer actually worked
+	sCMD_Result = "OK";
 }
 
 //<-dceag-c313-b->
@@ -470,5 +480,13 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c313-e->
 {
+	bool bRelative = false;
+	if (sLevel[0] == '+' || sLevel[0] == '-')
+		bRelative = true;
+	
+	string sCmd = string("") + "/usr/bin/amixer sset Master " + sLevel.substr(bRelative ? 1 : 0) + "%" + (bRelative ? sLevel.substr(0, 1) : "");
+	system(sCmd.c_str());
+	
+	// TODO: check that the mixer actually worked
+	sCMD_Result = "OK";
 }
-
