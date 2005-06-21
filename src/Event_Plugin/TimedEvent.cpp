@@ -38,6 +38,7 @@ TimedEvent::TimedEvent(Row_EventHandler *pRow_EventHandler)
 
 void TimedEvent::CalcNextTime()
 {
+	m_tTime=0;
 	switch(m_iTimedEventType)
 	{
 	case INTERVAL_EVENT:
@@ -57,7 +58,6 @@ void TimedEvent::CalcNextTime()
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"Interval timer %s has no time: %s",
 					m_pRow_EventHandler->Description_get().c_str(),m_sTimes.c_str());
-				m_tTime=0;
 				return;
 			}
 g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d",
@@ -91,7 +91,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 					tm_Now->tm_mday += (7-CurrentDow+iDowFirst);
 				else
 				{
-					m_tTime=0;
 					g_pPlutoLogger->Write(LV_CRITICAL,"Day of week timer %s has no day of week: %s",
 						m_pRow_EventHandler->Description_get().c_str(),m_sDaysOfWeek.c_str());
 					return;
@@ -99,7 +98,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 
 				if( !SetNextTime(NULL,tm_Now,m_sTimes) )
 				{
-					m_tTime=0;
 					g_pPlutoLogger->Write(LV_CRITICAL,"Day of week timer %s has no next time: %s",
 						m_pRow_EventHandler->Description_get().c_str(),m_sTimes.c_str());
 					return;
@@ -136,7 +134,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 				}
 				else
 				{
-					m_tTime=0;
 					g_pPlutoLogger->Write(LV_CRITICAL,"Day of week timer %s has no day of week: %s",
 						m_pRow_EventHandler->Description_get().c_str(),m_sDaysOfMonth.c_str());
 					return;
@@ -144,7 +141,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 
 				if( !SetNextTime(NULL,tm_Now,m_sTimes) )  // First time that day
 				{
-					m_tTime=0;
 					g_pPlutoLogger->Write(LV_CRITICAL,"Day of week timer %s has no next time: %s",
 						m_pRow_EventHandler->Description_get().c_str(),m_sTimes.c_str());
 					return;
