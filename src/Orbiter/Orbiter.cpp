@@ -1146,13 +1146,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s (%d)",
 					  pScreenHistory->m_pObj->m_ObjectID.c_str(),(int) bAddToHistory);
 
 
-    if(m_pScreenHistory_Current == pScreenHistory)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Need to change screens called for the same screen: %s (%d) Skipping...",
-            pScreenHistory->m_pObj->m_ObjectID.c_str(),(int) bAddToHistory);
-        return;
-    }
-
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     m_vectObjs_GridsOnScreen.clear(  );
 	m_vectObjs_VideoOnScreen.clear(  );
@@ -1185,16 +1178,19 @@ g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
 		m_pScreenHistory_Current->m_pObj->m_bActive=false;
         ObjectOffScreen( m_pScreenHistory_Current->m_pObj );
 
-        PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
-        if(  bAddToHistory  )
-            m_listScreenHistory.push_back( m_pScreenHistory_Current );
-DumpScreenHistory();
-        if ( m_listScreenHistory.size(  ) > 64 )
-		{
-			delete m_listScreenHistory.front();
-            m_listScreenHistory.pop_front(  );
-		}
-        vm.Release();
+        if(m_pScreenHistory_Current != pScreenHistory)
+        {
+            //update the list only if the screen is changed
+            PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+            if(  bAddToHistory  )
+                m_listScreenHistory.push_back( m_pScreenHistory_Current );
+            DumpScreenHistory();
+            if ( m_listScreenHistory.size(  ) > 64 )
+            {
+                delete m_listScreenHistory.front();
+                m_listScreenHistory.pop_front(  );
+            }
+        }
     }
 
 	// todo 2.0 SelectFirstObject(  );
