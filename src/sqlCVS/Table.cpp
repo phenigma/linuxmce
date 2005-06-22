@@ -846,7 +846,10 @@ cout << endl;
 				// if the batch is in our list of batches, then we really did delete it
 				if( r_GetAll_psc_id.m_vectAll_psc_id[pos].first>m_psc_id_last_sync && 
 						!DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[pos].second) )
+				{
+					pos++;
 					continue;
+				}
 				
 				
 cout << "We deleted a row locally - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 

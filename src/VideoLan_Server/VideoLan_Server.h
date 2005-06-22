@@ -47,6 +47,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Network_Interfaces();
 
 			*****EVENT***** accessors inherited from base class
 

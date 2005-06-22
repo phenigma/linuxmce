@@ -28,6 +28,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1697; } ;
 	virtual const char *GetDeviceDescription() { return "VideoLan_Server"; } ;
+	string Get_Network_Interfaces() { return m_mapParameters[32];}
 };
 
 
@@ -70,6 +71,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Network_Interfaces() { return GetData()->Get_Network_Interfaces(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,class Message *pMessage) {};
