@@ -45,7 +45,7 @@ function addMyDevice($output,$dbADO) {
 				</tr>
 				<tr>
 					<td>Device template</td>
-					<td><input type="button" class="button" name="pick" value="Pick device template" onclick="document.addMyDevice.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('addMyDevice&parentID='.$parentID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td><input type="button" class="button" name="pick" value="Pick device template" onclick="document.addMyDevice.submit();windowOpen(\'index.php?section=deviceTemplatePicker&categoryID=0&from='.urlencode('addMyDevice&parentID='.$parentID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 	</form>
