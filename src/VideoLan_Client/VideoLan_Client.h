@@ -18,6 +18,7 @@ namespace DCE
 		// Private member variables
 	long unsigned int		m_iVideoLanWindowId;
         RatPoisonWrapper            *m_pRatWrapper;
+		int m_dwPK_Device_VideoLan_Server;
 
 		// Private methods
         void selectWindow();
