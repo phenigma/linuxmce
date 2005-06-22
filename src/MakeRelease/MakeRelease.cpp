@@ -78,7 +78,7 @@ public:
 string g_sPackages, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
-bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false;
+bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false;
 Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
 Row_Distro *g_pRow_Distro;
@@ -203,6 +203,9 @@ int main(int argc, char *argv[])
 		case 'f':
 			sDefines = argv[++optnum];
 			break;
+		case 'd':
+			g_bDontTouchDB = true;
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -214,6 +217,7 @@ int main(int argc, char *argv[])
 	{
 		cout << "MakeRelease, v." << VERSION << endl
 			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-k Packages] [-m Manufacturers] [-o Distro] [-a] [-f Defines]" << endl
+			<< "\t[-d]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
@@ -221,7 +225,8 @@ int main(int argc, char *argv[])
 			<< "port        -- port for database connection, default is 3306" << endl
 			<< "output path -- Where to put the output files.  Default is ../[database name]" << endl
 			<< "input path  -- Where to find the template files.  Default is . then ../MakeRelease" << endl
-			<< "-a(abort)   -- Abort on error without prompting" << endl;
+			<< "-a(abort)   -- Abort on error without prompting" << endl
+			<< "-d          -- Don't make changes to the database" << endl;
 
 		exit(0);
 	}
@@ -342,7 +347,9 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-	g_pDatabase_pluto_main->Package_Source_get()->Commit();
+
+	if( !g_bDontTouchDB )
+		g_pDatabase_pluto_main->Package_Source_get()->Commit();
 
 	cout << "********************************************************************" << endl
 		<< "COMPILATION PHASE" << endl
@@ -873,7 +880,8 @@ AsksSourceQuests:
 		}
 
 		pRow_Package_Source_SVN->Version_set(g_pRow_Version->VersionName_get());
-		g_pDatabase_pluto_main->Package_Source_get()->Commit();
+		if( !g_bDontTouchDB )
+			g_pDatabase_pluto_main->Package_Source_get()->Commit();
 	}
 	else
 		pRow_Package_Source_SVN = vectRow_Package_Source[0];
@@ -901,7 +909,8 @@ AsksSourceQuests:
 			cout << "What is the name?"; 
 			string s = StringUtils::GetStringFromConsole();
 			pRow_Package_Directory->Path_set(s);
-			g_pDatabase_pluto_main->Package_Directory_get()->Commit();
+			if( !g_bDontTouchDB )
+				g_pDatabase_pluto_main->Package_Directory_get()->Commit();
 			vectRow_Package_Directory.push_back(pRow_Package_Directory);
 		}
 	}
@@ -990,7 +999,8 @@ AsksSourceQuests:
 			pRow_Package_Source_Compat = g_pDatabase_pluto_main->Package_Source_Compat_get()->AddRow();
 			pRow_Package_Source_Compat->FK_Package_Source_set(pRow_Package_Source_SVN->PK_Package_Source_get());
 			pRow_Package_Source_Compat->FK_Distro_set( g_pRow_Distro->PK_Distro_get() );
-			g_pDatabase_pluto_main->Package_Source_Compat_get()->Commit();
+			if( !g_bDontTouchDB )
+				g_pDatabase_pluto_main->Package_Source_Compat_get()->Commit();
 		}
 		else
 			pRow_Package_Source_Compat = vectRow_Package_Source_Compat[0];
@@ -1021,7 +1031,8 @@ AsksSourceQuests:
 			pRow_Package_Directory_File->FK_Package_Directory_set(pRow_Package_Directory->PK_Package_Directory_get());
 			pRow_Package_Directory_File->FK_Distro_set(g_pRow_Distro->PK_Distro_get());
 			pRow_Package_Directory_File->File_set(s);
-			g_pDatabase_pluto_main->Package_Directory_File_get()->Commit();
+			if( !g_bDontTouchDB )
+				g_pDatabase_pluto_main->Package_Directory_File_get()->Commit();
 			vectRow_Package_Directory_File.push_back(pRow_Package_Directory_File);
 		}
 
