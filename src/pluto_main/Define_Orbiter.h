@@ -11,6 +11,8 @@
 #define ORBITER_MODIFICATION_LASTGEN_TABLE_FIELD "Orbiter.Modification_LastGen"
 #define ORBITER_REGEN_FIELD "Regen"
 #define ORBITER_REGEN_TABLE_FIELD "Orbiter.Regen"
+#define ORBITER_SIZE_FIELD "Size"
+#define ORBITER_SIZE_TABLE_FIELD "Orbiter.Size"
 #define ORBITER_PSC_ID_FIELD "psc_id"
 #define ORBITER_PSC_ID_TABLE_FIELD "Orbiter.psc_id"
 #define ORBITER_PSC_BATCH_FIELD "psc_batch"
