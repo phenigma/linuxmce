@@ -13,6 +13,7 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "PlutoUtils/ProcessUtils.h"
+#include "pluto_main/Define_CommandParameter.h"
 
 #ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it..
 #include <signal.h>
