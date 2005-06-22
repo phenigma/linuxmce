@@ -601,22 +601,22 @@ public:
 	/** Adds a new attribute */
 		/** @param #5 Value To Assign */
 			/** The new value.  If it's a name, LastName^Firstname format */
-		/** @param #123 PK_Attribute */
+		/** @param #123 EK_Attribute */
 			/** The attribute */
 
-	virtual void CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iPK_Attribute) { string sCMD_Result; CMD_Set_Media_Attribute_Text(sValue_To_Assign.c_str(),iPK_Attribute,sCMD_Result,NULL);};
-	virtual void CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iPK_Attribute,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_Attribute) { string sCMD_Result; CMD_Set_Media_Attribute_Text(sValue_To_Assign.c_str(),iEK_Attribute,sCMD_Result,NULL);};
+	virtual void CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_Attribute,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #393 - Get Attribute */
 	/** Returns the attribute text for the given ID */
 		/** @param #9 Text */
 			/** The value */
-		/** @param #123 PK_Attribute */
+		/** @param #123 EK_Attribute */
 			/** The attribute */
 
-	virtual void CMD_Get_Attribute(int iPK_Attribute,string *sText) { string sCMD_Result; CMD_Get_Attribute(iPK_Attribute,sText,sCMD_Result,NULL);};
-	virtual void CMD_Get_Attribute(int iPK_Attribute,string *sText,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Attribute(int iEK_Attribute,string *sText) { string sCMD_Result; CMD_Get_Attribute(iEK_Attribute,sText,sCMD_Result,NULL);};
+	virtual void CMD_Get_Attribute(int iEK_Attribute,string *sText,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

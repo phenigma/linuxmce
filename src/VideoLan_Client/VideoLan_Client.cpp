@@ -326,11 +326,6 @@ void VideoLan_Client::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlayback
 	cout << "Need to implement command #41 - Change Playback Speed" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #43 - MediaPlaybackSpeed=" << iMediaPlaybackSpeed << endl;
-
-	// This has to be implemented by the server
-	Message *pNewMessage = new Message(pMessage);
-	pNewMessage->m_dwPK_Device_To = m_dwPK_Device_VideoLan_Server;
-	QueueMessageToRouter(pNewMessage);
 }
 
 //<-dceag-c63-b->
@@ -342,10 +337,6 @@ void VideoLan_Client::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Mess
 //<-dceag-c63-e->
 {
 	cout << "Need to implement command #63 - Skip Fwd - Channel/Track Greater" << endl;
-	// This has to be implemented by the server
-	Message *pNewMessage = new Message(pMessage);
-	pNewMessage->m_dwPK_Device_To = m_dwPK_Device_VideoLan_Server;
-	QueueMessageToRouter(pNewMessage);
 }
 
 //<-dceag-c64-b->
@@ -357,10 +348,6 @@ void VideoLan_Client::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Messa
 //<-dceag-c64-e->
 {
 	cout << "Need to implement command #64 - Skip Back - Channel/Track Lower" << endl;
-	// This has to be implemented by the server
-	Message *pNewMessage = new Message(pMessage);
-	pNewMessage->m_dwPK_Device_To = m_dwPK_Device_VideoLan_Server;
-	QueueMessageToRouter(pNewMessage);
 }
 
 //<-dceag-c89-b->

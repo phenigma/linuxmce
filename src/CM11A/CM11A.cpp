@@ -234,3 +234,9 @@ void CM11A::SomeFunction()
 */
 
 
+//<-dceag-createinst-b->
+CM11A_Command *Create_CM11A(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+{
+	return new CM11A(pPrimaryDeviceCommand, pData, pEvent, pRouter);
+}
+//<-dceag-createinst-e->

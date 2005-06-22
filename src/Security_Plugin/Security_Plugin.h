@@ -171,7 +171,7 @@ public:
 	/** @brief COMMAND: #19 - Set House Mode */
 	/** Sets the current security setting (at home, away, etc.) for the house */
 		/** @param #5 Value To Assign */
-			/** A value from the HouseMode table, or -1=monitor mode on, -2=monitor mode off */
+			/** A value from the HouseMode table, or -1=toggle monitor mode */
 		/** @param #17 PK_Users */
 			/** The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode. */
 		/** @param #99 Password */

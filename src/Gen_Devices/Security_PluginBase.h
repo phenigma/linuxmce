@@ -235,7 +235,7 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 						SendString(sCMD_Result);
 						}
-					if( sCMD_Result!="UNHANDLED" )
+					if( sCMD_Result!="UNHANDLED" && sCMD_Result!="UNKNOWN DEVICE" )
 						iHandled++;
 				}
 			}

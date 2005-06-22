@@ -52,6 +52,7 @@ public:
 	bool Get_Use_OCG_Format() { return (m_mapParameters[64]=="1" ? true : false);}
 	int Get_VideoFrameInterval() { return atoi(m_mapParameters[72].c_str());}
 	int Get_ImageQuality() { return atoi(m_mapParameters[75].c_str());}
+	string Get_Ignore_State() { return m_mapParameters[87];}
 };
 
 
@@ -113,6 +114,7 @@ public:
 	bool DATA_Get_Use_OCG_Format() { return GetData()->Get_Use_OCG_Format(); }
 	int DATA_Get_VideoFrameInterval() { return GetData()->Get_VideoFrameInterval(); }
 	int DATA_Get_ImageQuality() { return GetData()->Get_ImageQuality(); }
+	string DATA_Get_Ignore_State() { return GetData()->Get_Ignore_State(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
@@ -1558,7 +1560,7 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 						SendString(sCMD_Result);
 						}
-					if( sCMD_Result!="UNHANDLED" )
+					if( sCMD_Result!="UNHANDLED" && sCMD_Result!="UNKNOWN DEVICE" )
 						iHandled++;
 				}
 			}

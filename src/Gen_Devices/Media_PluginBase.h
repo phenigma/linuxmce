@@ -113,8 +113,8 @@ public:
 	virtual void CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Default_Ripping_Name(string sPK_EntertainArea,string *sFilename,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iPK_Attribute,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Attribute(int iPK_Attribute,string *sText,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_Attribute,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Attribute(int iEK_Attribute,string *sText,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -611,8 +611,8 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
-					int iPK_Attribute=atoi(pMessage->m_mapParameters[123].c_str());
-						CMD_Set_Media_Attribute_Text(sValue_To_Assign.c_str(),iPK_Attribute,sCMD_Result,pMessage);
+					int iEK_Attribute=atoi(pMessage->m_mapParameters[123].c_str());
+						CMD_Set_Media_Attribute_Text(sValue_To_Assign.c_str(),iEK_Attribute,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -629,7 +629,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Set_Media_Attribute_Text(sValue_To_Assign.c_str(),iPK_Attribute,sCMD_Result,pMessage);
+								CMD_Set_Media_Attribute_Text(sValue_To_Assign.c_str(),iEK_Attribute,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -637,9 +637,9 @@ public:
 				case 393:
 					{
 						string sCMD_Result="OK";
-					int iPK_Attribute=atoi(pMessage->m_mapParameters[123].c_str());
+					int iEK_Attribute=atoi(pMessage->m_mapParameters[123].c_str());
 					string sText=pMessage->m_mapParameters[9];
-						CMD_Get_Attribute(iPK_Attribute,&sText,sCMD_Result,pMessage);
+						CMD_Get_Attribute(iEK_Attribute,&sText,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -657,7 +657,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_Attribute(iPK_Attribute,&sText,sCMD_Result,pMessage);
+								CMD_Get_Attribute(iEK_Attribute,&sText,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -693,7 +693,7 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 						SendString(sCMD_Result);
 						}
-					if( sCMD_Result!="UNHANDLED" )
+					if( sCMD_Result!="UNHANDLED" && sCMD_Result!="UNKNOWN DEVICE" )
 						iHandled++;
 				}
 			}

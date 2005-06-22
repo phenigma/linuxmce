@@ -58,6 +58,7 @@ namespace DCE
 			};
 
 			VideoLanMediaPosition *GetMediaPosition();
+			int SpecialOsdScreen();
 	};
 
 };

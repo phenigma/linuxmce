@@ -88,6 +88,7 @@ private:
 	void SearchForGotos(class DesignObj_Data *pDesignObj_Data);
 	void SearchForGotos(class DesignObj_Data *pDesignObj_Data,DesignObjCommandList *alCommands);
 	void MatchChildDevicesToLocation(LocationInfo *li,Row_Device *pRow_Device);
+	class Row_Size *TranslateSize(string sSize);
 };
 
 #endif

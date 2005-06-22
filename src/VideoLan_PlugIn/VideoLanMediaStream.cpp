@@ -13,6 +13,7 @@
 #include "../Media_Plugin/EntertainArea.h"
 
 #include "pluto_main/Define_MediaType.h"
+#include "pluto_main/Define_DesignObj.h"
 
 namespace DCE {
 
@@ -103,4 +104,16 @@ g_pPlutoLogger->Write(LV_STATUS,"VideoLanMediaPosition reset");
 
 		return MediaStream::CanPlayMore();
 	}
+
+	int VideoLanMediaStream::SpecialOsdScreen()
+	{
+		switch( m_iPK_MediaType )
+		{
+		case MEDIATYPE_pluto_DVD_CONST:
+			return DESIGNOBJ_vlc_dvd_full_screen_CONST;
+		}
+
+		return MediaStream::SpecialOsdScreen();
+	}
+
 };

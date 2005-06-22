@@ -238,7 +238,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	mediaURL = sFileToPlay;
 
-	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST && StringUtils::ToUpper(FileUtils::FindExtension(mediaURL))=="DVD" )
+	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
 		mediaURL = "dvd:/" + mediaURL;
 
 	g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d saved pos %d", 

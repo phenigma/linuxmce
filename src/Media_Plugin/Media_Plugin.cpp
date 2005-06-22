@@ -2719,7 +2719,7 @@ g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) vectEntertainAr
 		// since sometimes the source will be preserved across moves maybe???
 		StartMedia( pMediaStream->m_iPK_MediaType, (pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
 			vectEntertainArea, 0,
-			StringUtils::itos(pMediaStream->m_iPK_DesignObj_Remote), 
+			"", // The remote may be different
 			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat);
 
 		pMediaStream->m_dequeMediaFile.clear();  // We don't want to delete the media files since we will have re-used the same pointers above
@@ -3803,14 +3803,14 @@ int Media_Plugin::AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *pMed
 	/** Adds a new attribute */
 		/** @param #5 Value To Assign */
 			/** The new value.  If it's a name, LastName^Firstname format */
-		/** @param #123 PK_Attribute */
+		/** @param #123 EK_Attribute */
 			/** The attribute */
 
-void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iPK_Attribute,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_Attribute,string &sCMD_Result,Message *pMessage)
 //<-dceag-c392-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-	Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(iPK_Attribute);
+	Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(iEK_Attribute);
 	if( pRow_Attribute )
 	{
 		string sFirstName;
@@ -3837,13 +3837,13 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iPK_
 	/** Returns the attribute text for the given ID */
 		/** @param #9 Text */
 			/** The value */
-		/** @param #123 PK_Attribute */
+		/** @param #123 EK_Attribute */
 			/** The attribute */
 
-void Media_Plugin::CMD_Get_Attribute(int iPK_Attribute,string *sText,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Get_Attribute(int iEK_Attribute,string *sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c393-e->
 {
-	Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(iPK_Attribute);
+	Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(iEK_Attribute);
 	if( pRow_Attribute )
 	{
 		(*sText) = m_pMediaAttributes->GetTabbedName(pRow_Attribute);

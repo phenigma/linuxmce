@@ -833,6 +833,7 @@ public:
 	bool DATA_Get_Use_OCG_Format();
 	int DATA_Get_VideoFrameInterval();
 	int DATA_Get_ImageQuality();
+	string DATA_Get_Ignore_State();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

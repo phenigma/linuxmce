@@ -41,7 +41,7 @@ void sh(int i) /* signal handler */
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 VideoLan_Server::VideoLan_Server(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-: VideoLan_Server_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: VideoLan_Server_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 , m_VideoLanMutex("videolan")
 {
@@ -111,16 +111,16 @@ COMMANDS TO IMPLEMENT
 
 //<-dceag-c37-b->
 
-/** @brief COMMAND: #37 - Play Media */
-/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
-/** @param #13 Filename */
-/** The file to play.  The format is specific on the media type and the media player. */
-/** @param #29 PK_MediaType */
-/** The type of media */
-/** @param #41 StreamID */
-/** The media that we need to play. */
-/** @param #42 MediaPosition */
-/** The position at which we need to start playing. */
+	/** @brief COMMAND: #37 - Play Media */
+	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
+		/** @param #13 Filename */
+			/** The file to play.  The format is specific on the media type and the media player. */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #41 StreamID */
+			/** The media that we need to play. */
+		/** @param #42 MediaPosition */
+			/** The position at which we need to start playing. */
 
 void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
@@ -213,12 +213,12 @@ string VideoLan_Server::GetVlanStream(vector<string> &vectIPs,int iStreamID)
 
 //<-dceag-c38-b->
 
-/** @brief COMMAND: #38 - Stop Media */
-/** This will instruct the media player to stop the playback of a media started with the "Play Media" Command */
-/** @param #41 StreamID */
-/** The media needing to be stopped. */
-/** @param #42 MediaPosition */
-/** The position at which this stream was last played. */
+	/** @brief COMMAND: #38 - Stop Media */
+	/** This will instruct the media player to stop the playback of a media started with the "Play Media" Command */
+		/** @param #41 StreamID */
+			/** The media needing to be stopped. */
+		/** @param #42 MediaPosition */
+			/** The position at which this stream was last played. */
 
 void VideoLan_Server::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
@@ -231,10 +231,10 @@ void VideoLan_Server::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &s
 
 //<-dceag-c39-b->
 
-/** @brief COMMAND: #39 - Pause Media */
-/** This will stop a media that is currently played. This method should be paired with the "Restart Media" and used when the playback will be stopped and restarted on the same display device. */
-/** @param #41 StreamID */
-/** The media stream for which we need to pause playback. */
+	/** @brief COMMAND: #39 - Pause Media */
+	/** This will stop a media that is currently played. This method should be paired with the "Restart Media" and used when the playback will be stopped and restarted on the same display device. */
+		/** @param #41 StreamID */
+			/** The media stream for which we need to pause playback. */
 
 void VideoLan_Server::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
@@ -245,10 +245,10 @@ void VideoLan_Server::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message 
 
 //<-dceag-c40-b->
 
-/** @brief COMMAND: #40 - Restart Media */
-/** This will restart a media was paused with the above command */
-/** @param #41 StreamID */
-/** The media stream that we need to restart playback for. */
+	/** @brief COMMAND: #40 - Restart Media */
+	/** This will restart a media was paused with the above command */
+		/** @param #41 StreamID */
+			/** The media stream that we need to restart playback for. */
 
 void VideoLan_Server::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
@@ -259,12 +259,12 @@ void VideoLan_Server::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Messag
 
 //<-dceag-c41-b->
 
-/** @brief COMMAND: #41 - Change Playback Speed */
-/** Will make the playback to FF with a configurable amount of speed. */
-/** @param #41 StreamID */
-/** The media needing the playback speed change. */
-/** @param #43 MediaPlaybackSpeed */
-/** The requested media playback speed * 1000.  -1000 = rev, 4000 = 4x fwd, -500 = rev 1/2.  Less than 10 = relative.  +2 = double, -1 = reverse.   See Media_Plugin::ReceivedMessage */
+	/** @brief COMMAND: #41 - Change Playback Speed */
+	/** Will make the playback to FF with a configurable amount of speed. */
+		/** @param #41 StreamID */
+			/** The media needing the playback speed change. */
+		/** @param #43 MediaPlaybackSpeed */
+			/** The requested media playback speed * 1000.  -1000 = rev, 4000 = 4x fwd, -500 = rev 1/2.  Less than 10 = relative.  +2 = double, -1 = reverse.   See Media_Plugin::ReceivedMessage */
 
 void VideoLan_Server::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
@@ -282,25 +282,41 @@ void VideoLan_Server::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlayback
 		return;
 	}
 
+	string cmd="title_n\n";
+	if( iMediaPlaybackSpeed<0 )
+		cmd="title_p\n";
+
 	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"next\n")==false )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop VideoLan Server");
 }
 
 //<-dceag-c63-b->
 
-/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
-/** Chapter/Track Next/Down/Forward */
+	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
+	/** Chapter/Track Next/Down/Forward */
 
 void VideoLan_Server::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
 {
 	cout << "Need to implement command #63 - Skip Fwd - Channel/Track Greater" << endl;
+
+	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
+
+	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
+	if( !pVideoLanServerInstance )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt skip fwd on nonexistant stream");
+		return;
+	}
+
+	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"chapter_n\n")==false )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_n");
 }
 
 //<-dceag-c64-b->
 
-/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
-/** Chapter/Track Back/Up/Prior */
+	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
+	/** Chapter/Track Back/Up/Prior */
 
 void VideoLan_Server::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
@@ -310,10 +326,10 @@ void VideoLan_Server::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Messa
 
 //<-dceag-c89-b->
 
-/** @brief COMMAND: #89 - Vol Up */
-/** Make the sound go up. */
-/** @param #72 Repeat Command */
-/** If specified, repeat the volume up this many times */
+	/** @brief COMMAND: #89 - Vol Up */
+	/** Make the sound go up. */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume up this many times */
 
 void VideoLan_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c89-e->
@@ -324,10 +340,10 @@ void VideoLan_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message
 
 //<-dceag-c90-b->
 
-/** @brief COMMAND: #90 - Vol Down */
-/** Make the sound go down. */
-/** @param #72 Repeat Command */
-/** If specified, repeat the volume down this many times. */
+	/** @brief COMMAND: #90 - Vol Down */
+	/** Make the sound go down. */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume down this many times. */
 
 void VideoLan_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c90-e->
@@ -338,8 +354,8 @@ void VideoLan_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Messa
 
 //<-dceag-c97-b->
 
-/** @brief COMMAND: #97 - Mute */
-/** Mute the sound. */
+	/** @brief COMMAND: #97 - Mute */
+	/** Mute the sound. */
 
 void VideoLan_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
 //<-dceag-c97-e->
@@ -349,12 +365,12 @@ void VideoLan_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c243-b->
 
-/** @brief COMMAND: #243 - Enable Broadcasting */
-/** Enable broadcasting from here. */
-/** @param #41 StreamID */
-/** The stream to enable broadcast for */
-/** @param #59 MediaURL */
-/** The media url from which this stream can be played. */
+	/** @brief COMMAND: #243 - Enable Broadcasting */
+	/** Enable broadcasting from here. */
+		/** @param #41 StreamID */
+			/** The stream to enable broadcast for */
+		/** @param #59 MediaURL */
+			/** The media url from which this stream can be played. */
 
 void VideoLan_Server::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c243-e->
@@ -366,14 +382,14 @@ void VideoLan_Server::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,st
 
 //<-dceag-c249-b->
 
-/** @brief COMMAND: #249 - Start Streaming */
-/** Starts streaming */
-/** @param #41 StreamID */
-/** Identifier for this streaming session. */
-/** @param #59 MediaURL */
-/** The url to use to play this stream. */
-/** @param #105 StreamingTargets */
-/** Target destinations for streaming. Semantics dependent on the target device. */
+	/** @brief COMMAND: #249 - Start Streaming */
+	/** Starts streaming */
+		/** @param #41 StreamID */
+			/** Identifier for this streaming session. */
+		/** @param #59 MediaURL */
+			/** The url to use to play this stream. */
+		/** @param #105 StreamingTargets */
+			/** Target destinations for streaming. Semantics dependent on the target device. */
 
 void VideoLan_Server::CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
@@ -391,16 +407,16 @@ void VideoLan_Server::CMD_Start_Streaming(int iStreamID,string sStreamingTargets
 
 //<-dceag-c259-b->
 
-/** @brief COMMAND: #259 - Report Playback Position */
-/** This will report the playback position of the current stream. */
-/** @param #39 Options */
-/** Other options that the player might record for this position. Usefull if we have a non standard encoding of the player position. */
-/** @param #41 StreamID */
-/** The stream ID on which to report the position. */
-/** @param #42 MediaPosition */
-/** The reported media position ( in milliseconds since the beginning of the stream). */
-/** @param #106 Media Length */
-/** The complete length of the media stream. Where appliable. */
+	/** @brief COMMAND: #259 - Report Playback Position */
+	/** This will report the playback position of the current stream. */
+		/** @param #39 Options */
+			/** Other options that the player might record for this position. Usefull if we have a non standard encoding of the player position. */
+		/** @param #41 StreamID */
+			/** The stream ID on which to report the position. */
+		/** @param #42 MediaPosition */
+			/** The reported media position ( in milliseconds since the beginning of the stream). */
+		/** @param #106 Media Length */
+			/** The complete length of the media stream. Where appliable. */
 
 void VideoLan_Server::CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,Message *pMessage)
 //<-dceag-c259-e->
@@ -414,12 +430,12 @@ void VideoLan_Server::CMD_Report_Playback_Position(int iStreamID,string *sOption
 
 //<-dceag-c262-b->
 
-/** @brief COMMAND: #262 - Stop Streaming */
-/** Stop the streaming of a particular media stream. */
-/** @param #41 StreamID */
-/** The ID of the stream to be stopped. */
-/** @param #105 StreamingTargets */
-/** Target destinations for streaming. Semantics dependent on the target device. */
+	/** @brief COMMAND: #262 - Stop Streaming */
+	/** Stop the streaming of a particular media stream. */
+		/** @param #41 StreamID */
+			/** The ID of the stream to be stopped. */
+		/** @param #105 StreamingTargets */
+			/** Target destinations for streaming. Semantics dependent on the target device. */
 
 void VideoLan_Server::CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
 //<-dceag-c262-e->

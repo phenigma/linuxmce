@@ -676,7 +676,7 @@ int k=2;
 	fstr_DeviceCommand << "\t\t\t\t\t\t\tpMessage->m_bRespondedToMessage=true;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tSendString(sCMD_Result);" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\t}" << endl;
-	fstr_DeviceCommand << "\t\t\t\t\tif( sCMD_Result!=\"UNHANDLED\" )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tif( sCMD_Result!=\"UNHANDLED\" && sCMD_Result!=\"UNKNOWN DEVICE\" )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tiHandled++;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t\t}" << endl;
