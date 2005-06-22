@@ -348,7 +348,7 @@ void CHighlightedCustomer::OnTaskSendImage()
 
 		::SetCurrentDirectory(CurrentFolder);
 
-		BD_CP_ShowImage *pCommand = new BD_CP_ShowImage(ImageType, ImageSize, pImage, 0, "");
+		BD_CP_ShowImage *pCommand = new BD_CP_ShowImage(ImageType, ImageSize, pImage, 0, "", false);
 
 		if(NULL != m_pCustomer->GetCommandProcessor()) //** not connected */
 			m_pCustomer->GetCommandProcessor()->AddCommand(pCommand);

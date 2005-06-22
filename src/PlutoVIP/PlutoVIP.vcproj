@@ -167,6 +167,9 @@
 				RelativePath="..\VIPShared\BD_CP_CaptureKeyboard.cpp">
 			</File>
 			<File
+				RelativePath="..\VIPShared\BD_CP_CurrentSignalStrength.cpp">
+			</File>
+			<File
 				RelativePath="..\VIPShared\BD_CP_Disconnect.cpp">
 			</File>
 			<File
@@ -192,6 +195,9 @@
 			</File>
 			<File
 				RelativePath="..\VIPShared\BD_PC_Disconnect.cpp">
+			</File>
+			<File
+				RelativePath="..\VIPShared\BD_PC_GetSignalStrength.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\BD_PC_KeyWasPressed.cpp">
@@ -537,10 +543,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 		</Filter>
 		<Filter
