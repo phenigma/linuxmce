@@ -153,7 +153,7 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 			if( pDeviceData_Base->m_sIPAddress.size() )
 			{
 				vectIPs.push_back(pDeviceData_Base->m_sIPAddress);
-				vectDevices.push_back(pDeviceData_Base->m_dwPK_Device);
+				vectDevices.push_back(PK_Device);
 				break;
 			}
 			pDeviceData_Base = pDeviceData_Base->m_pDevice_ControlledVia;
