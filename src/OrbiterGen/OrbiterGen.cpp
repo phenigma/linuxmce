@@ -451,10 +451,25 @@ m_bNoEffects = true;
 		m_pRow_Device->FK_Device_ControlledVia_getrow()->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
 	{
 		// This is an on-screen orbiter
+		pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->FK_Device_ControlledVia_get(),DEVICEDATA_Video_settings_CONST);
+		if( pRow_Device_DeviceData )
+		{
+			string sSize = pRow_Device_DeviceData->IK_DeviceData_get();
+			string::size_type pos=sSize.find('/');
+			if( pos!=string::npos )
+				sSize = sSize.substr(0,pos-1);
+			cout << "Found OSD using size: " << sSize << endl;
+
+			m_pRow_Size = TranslateSize(sSize);
+		}
 	}
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Size_CONST);
-	if( pRow_Device_DeviceData )
-		m_pRow_Size = mds.Size_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+
+	if( !m_pRow_Size )
+	{
+		pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Size_CONST);
+		if( pRow_Device_DeviceData )
+			m_pRow_Size = mds.Size_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+	}
 
 	if( !m_pRow_Size )
 	{
@@ -466,6 +481,19 @@ m_bNoEffects = true;
 
 	if( !m_pRow_Size )
 		throw "Cannot determine the size";
+
+	string sSize = StringUtils::itos(m_pRow_Size->Width_get()) + ","
+		+ StringUtils::itos(m_pRow_Size->Height_get()) + ","
+		+ StringUtils::itos(m_pRow_Size->ScaleX_get()) + ","
+		+ StringUtils::itos(m_pRow_Size->ScaleY_get());
+
+	if( m_pRow_Orbiter->Size_get()!=sSize )
+	{
+		m_pRow_Orbiter->Size_set(sSize);
+		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+		string sSQL = "DELETE FROM CachedScreens WHERE FK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
+		threaded_mysql_query(sSQL);
+	}
 
 	m_sizeScreen = new PlutoSize(m_pRow_Size->Width_get() * 1000 / m_pRow_Size->ScaleX_get(),m_pRow_Size->Height_get() * 1000 / m_pRow_Size->ScaleY_get());
 	m_iPK_DesignObj_Screen = m_pRow_DesignObj_MainMenu->PK_DesignObj_get();
@@ -1668,4 +1696,27 @@ cout << "Set appserver to " << li->m_dwPK_Device_AppServer << endl;
 
 		};
 	}
+}
+
+Row_Size *OrbiterGenerator::TranslateSize(string sSize)
+{
+	cout << "Translating size: " << sSize << endl;
+	Row_Size *pRow_Size = mds.Size_get()->AddRow();
+	if( sSize=="1024" )
+	{
+		pRow_Size->Width_set(1024);
+		pRow_Size->Height_set(768);
+		pRow_Size->ScaleX_set(480);
+		pRow_Size->ScaleY_set(480);
+		return pRow_Size;
+	}
+	else if( sSize=="800" )
+	{
+		pRow_Size->Width_set(800);
+		pRow_Size->Height_set(600);
+		pRow_Size->ScaleX_set(376);
+		pRow_Size->ScaleY_set(376);
+		return pRow_Size;
+	}
+	return NULL;
 }
