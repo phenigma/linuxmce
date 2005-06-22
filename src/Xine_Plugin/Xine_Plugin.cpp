@@ -224,86 +224,22 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	string mediaURL;
 	string Response;
 
-	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
+	// HACK: -- todo: get real informations.
+	if( pXineMediaStream->m_dequeMediaFile.size()>pXineMediaStream->m_iDequeMediaFile_Pos )
 	{
-		string sPK_Orbiter = pMediaStream->GetAllOSD();
-		if( sPK_Orbiter.size() )
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sPK_Orbiter,"<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,10,true);
-
-		if( pXineMediaStream->m_dequeMediaFile.size() )
-		{
-			MediaFile *pMediaFile = pXineMediaStream->m_dequeMediaFile[0];
-			pXineMediaStream->m_sMediaDescription = pMediaFile->m_sDescription.size() ? pMediaFile->m_sDescription : FileUtils::FilenameWithoutPath(pMediaFile->m_sFilename);
-		}
-
-		g_pPlutoLogger->Write(LV_STATUS, "Got pluto DVD media type");
-		// Find a disk Drive in one of the entertainment areas.// Wait(true);
-		map<int, EntertainArea *>::iterator itEntertainmentAreas;
-
-		bool bFound = false ;
-
-		for ( itEntertainmentAreas = pXineMediaStream->m_mapEntertainArea.begin(); ! bFound && itEntertainmentAreas != pXineMediaStream->m_mapEntertainArea.end(); itEntertainmentAreas++ )
-		{
-			EntertainArea *pEntertainArea = ( *itEntertainmentAreas ).second;
-
-			map<int, MediaDevice *>::iterator itDevice;
-			for( itDevice = pEntertainArea->m_mapMediaDevice.begin( ); ! bFound && itDevice != pEntertainArea->m_mapMediaDevice.end( ); ++itDevice )
-			{
-				class MediaDevice *pMediaDevice = ( *itDevice ).second;
-
-				if( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
-				{
-					DCE::CMD_Mount_Disk_Image mountCommand(
-								pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-								pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-								sFileToPlay,
-								&mediaURL );
-
-					// TODO: read the response ( see if the mount was succesfull ) and continue if not.
-					if ( SendCommand( mountCommand, &Response ) )
-					{
-						bFound = true;
-						break;
-					}
-					else
-					{
-						string sPK_Orbiter = pMediaStream->GetAllOSD();
-						if( sPK_Orbiter.size() )
-							m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sPK_Orbiter,"<%=T" + StringUtils::itos(TEXT_Cannot_play_DVD_CONST) + "%>",false,20,true);
-
-						return false;
-					}
-
-					g_pPlutoLogger->Write(LV_CRITICAL, "Disk drive mount command didn't complete succesfully (response %s). Error message: %s", Response.c_str(), mediaURL.c_str( ) );
-				}
-			}
-			g_pPlutoLogger->Write( LV_STATUS, "Media device %d got back URL: %s", pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, mediaURL.c_str( ) );
-		}
-
-		if ( !bFound ) // we didn;t find a disk drive which was able to mount hte images
-		{
-			string sPK_Orbiter = pMediaStream->GetAllOSD();
-			if( sPK_Orbiter.size() )
-				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sPK_Orbiter,"Error -- no drive",false,30,true);
-			return false;
-		}
-	}
-	else
-	{
-		// HACK: -- todo: get real informations.
-		if( pXineMediaStream->m_dequeMediaFile.size()>pXineMediaStream->m_iDequeMediaFile_Pos )
-		{
-			MediaFile *pMediaFile = pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos];
-			if( pMediaFile && pMediaFile->m_sDescription.size() )
-				pXineMediaStream->m_sMediaDescription = pMediaFile->m_sDescription;
-			else
-				pXineMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
-		}
+		MediaFile *pMediaFile = pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos];
+		if( pMediaFile && pMediaFile->m_sDescription.size() )
+			pXineMediaStream->m_sMediaDescription = pMediaFile->m_sDescription;
 		else
 			pXineMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
-
-		mediaURL = sFileToPlay;
 	}
+	else
+		pXineMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
+
+	mediaURL = sFileToPlay;
+
+	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST && StringUtils::ToUpper(FileUtils::FindExtension(mediaURL))=="DVD" )
+		mediaURL = "dvd:/" + mediaURL;
 
 	g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d saved pos %d", 
 		m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,

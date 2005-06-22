@@ -2222,6 +2222,12 @@ void Router::Configure()
             CommandGroup_Command *pCommandGroup_Command = new CommandGroup_Command(
                 m_mapCommand[pRow_CommandGroup_Command->FK_Command_get()],
                 m_mapDeviceData_Router_Find(pRow_CommandGroup_Command->FK_Device_get()));
+
+			if( !pCommandGroup_Command->m_pCommand )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"CommandGroup %d with invalid command",pRow_CommandGroup->PK_CommandGroup_get());
+				continue; // Shouldn't happen
+			}
             pCommandGroup->m_vectCommandGroup_Command.push_back(pCommandGroup_Command);
             vector<Row_CommandGroup_Command_CommandParameter *> vectRow_CommandGroup_Command_CommandParameter;
             pRow_CommandGroup_Command->CommandGroup_Command_CommandParameter_FK_CommandGroup_Command_getrows(&vectRow_CommandGroup_Command_CommandParameter);
