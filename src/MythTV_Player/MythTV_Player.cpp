@@ -120,6 +120,10 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 MythTV_Player::~MythTV_Player()
 //<-dceag-dest-e->
 {
+	// Kill any instances we spawned
+	vector<void *> data;
+	ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data);
+
     delete m_pRatWrapper;
 
 }

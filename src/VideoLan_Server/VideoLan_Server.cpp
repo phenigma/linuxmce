@@ -59,7 +59,13 @@ VideoLan_Server::VideoLan_Server(int DeviceID, string ServerAddress,bool bConnec
 VideoLan_Server::~VideoLan_Server()
 //<-dceag-dest-e->
 {
-
+	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
+	for(map<int,class VideoLanServerInstance *>::iterator it=m_mapVideoLanServerInstance.begin();it!=m_mapVideoLanServerInstance.end();++it)
+	{
+		// Kill any instances we spawned
+		vector<void *> data;
+		ProcessUtils::KillApplication(it->second->m_sSpawnName, data);
+	}
 }
 
 //<-dceag-reg-b->

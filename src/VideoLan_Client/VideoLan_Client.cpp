@@ -86,7 +86,9 @@ VideoLan_Client::VideoLan_Client(Command_Impl *pPrimaryDeviceCommand, DeviceData
 VideoLan_Client::~VideoLan_Client()
 //<-dceag-dest-e->
 {
-	
+	// Kill any instances we spawned
+	vector<void *> data;
+	ProcessUtils::KillApplication("vlc_c", data);
 }
 
 //<-dceag-reg-b->
@@ -172,7 +174,7 @@ void VideoLan_Client::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
 //	m_pRatWrapper->commandRatPoison(":select " LOGO_APPLICATION_NAME);
-	if( ProcessUtils::SpawnApplication("vlc", sCommand.c_str(), "vlc_c" + StringUtils::itos(iStreamID))==false )
+	if( ProcessUtils::SpawnApplication("vlc", sCommand.c_str(), "vlc_c")==false )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to start videolan client");
 
     selectWindow();
