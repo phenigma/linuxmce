@@ -153,24 +153,38 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 {
+    g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
+
 #if (defined(PROFILING))
     clock_t clkStart = clock();
 #endif
 
-	bool bUsePhoneGrid = false;
-	int iSelectedColumn = pObj->m_iInitialColNum;
+    //sending datagrid off command
+    list<string> listGridClean;
+    listGridClean.clear();
+    BD_CP_ShowList *pBD_CP_ShowList_Off = new BD_CP_ShowList(0, 0, 0, 0, 0, listGridClean, false, false);
+    if( m_pBDCommandProcessor )
+        m_pBDCommandProcessor->AddCommand(pBD_CP_ShowList_Off);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
+    int iSelectedColumn = pObj->m_iInitialColNum;
+	bool bUsePhoneGrid = false;
 
 	//if 'c' - column  extraoption is specified, we'll send to phone the specified column
 	size_t sPos;
 	if((sPos = pObj->m_sExtraInfo.find( 'c' )) != string::npos)
 	{
 		bUsePhoneGrid=true;
-		
 		if(sPos + 1 < pObj->m_sExtraInfo.size())
 			iSelectedColumn = pObj->m_sExtraInfo[sPos + 1] - '0';
 	}
+
+    //if 'F' option is specified, we'll let the base the render the grid
+    if(pObj->m_sExtraInfo.find( 'F' ) != string::npos) 
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "OrbiterSDLBluetooth: I won't render this grid on the phone");
+        OrbiterSDL::RenderDataGrid(pObj);
+        return;
+    }
 
 	pObj->m_MaxRow = 0; //get all rows
 
@@ -179,48 +193,30 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 
 	if(pObj->m_pDataGridTable)
     {
-		list<string> listGridClean;
-		listGridClean.clear();
-
-		BD_CP_ShowList *pBD_CP_ShowList_Off = new BD_CP_ShowList(0, 0, 0, 0, 0, listGridClean, false, false);
-		if( m_pBDCommandProcessor )
-			m_pBDCommandProcessor->AddCommand(pBD_CP_ShowList_Off);
-
 		g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pObj->m_pDataGridTable->m_ColumnCount);
 
-		if(pObj->m_pDataGridTable->m_ColumnCount == 1)
+		if(pObj->m_pDataGridTable->m_ColumnCount == 1)//we can render on column datagrid
 			bUsePhoneGrid = true;
-
-		if(pObj->m_sExtraInfo.find( 'F' ) != string::npos) //force rendering on the orbiter
-			bUsePhoneGrid = false;
 
         if(!bUsePhoneGrid)
         {
-            g_pPlutoLogger->Write(LV_WARNING,
-                "OrbiterSDLBluetooth: I won't render this grid on the phone"
-            );
-
+            g_pPlutoLogger->Write(LV_WARNING, "OrbiterSDLBluetooth: I won't render this grid on the phone");
 			OrbiterSDL::RenderDataGrid(pObj);
             return;
         }
-		pObj->m_MaxRow = pObj->m_pDataGridTable->getTotalRowCount();
 
-		//now I have a grid with one column.. I know how to render it on the phone
+		pObj->m_MaxRow = pObj->m_pDataGridTable->getTotalRowCount();
 
         int x       = pObj->m_rPosition.X;
         int y       = pObj->m_rPosition.Y;
         int Width   = pObj->m_rPosition.Width;
         int Height  = pObj->m_rPosition.Height;
-
         list<string> listGrid;
-
-
 		bool bSendSelectedOnMove = false; 
-		//if 'T' extraoptions is specified, then when user presses up/down buttons, PlutoMO will send a SelectedItem command
+
+        //if 'T' extraoptions is specified, then when user presses up/down buttons, PlutoMO will send a SelectedItem command
 		if(pObj->m_sExtraInfo.find( 'T' ) != string::npos)
-		{
 			bSendSelectedOnMove = true;
-		}
 
 		bool bTurnOn = true;
 		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d, selected item %d, send 'selected item' %d",
@@ -229,10 +225,8 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
         for(int i = 0; i < pObj->m_pDataGridTable->getTotalRowCount(); i++)
         {
             DataGridCell * pCell = pObj->m_pDataGridTable->GetData(iSelectedColumn, i);
-
 			string sItem = pCell != NULL ? pCell->GetText() : "<empty>";
 			g_pPlutoLogger->Write(LV_STATUS, "Item %d : '%s'", i, sItem.c_str());
-			
             listGrid.push_back(sItem);
         }
 
