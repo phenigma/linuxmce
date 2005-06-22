@@ -180,6 +180,7 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 		return;
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS,"Found %d Devices",(int) vectDevices.size());
 	for(size_t s=0;s<vectDevices.size();++s)
 	{
 		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,vectDevices[s],"udp:",iPK_MediaType,iStreamID,iMediaPosition);
