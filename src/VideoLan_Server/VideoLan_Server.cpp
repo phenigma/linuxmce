@@ -307,6 +307,8 @@ void VideoLan_Server::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlayback
 void VideoLan_Server::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
 {
+	int iStreamID = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+
 	cout << "Need to implement command #63 - Skip Fwd - Channel/Track Greater" << endl;
 
 	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
@@ -330,7 +332,20 @@ void VideoLan_Server::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Mess
 void VideoLan_Server::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
 {
+	int iStreamID = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+
 	cout << "Need to implement command #64 - Skip Back - Channel/Track Lower" << endl;
+	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
+
+	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
+	if( !pVideoLanServerInstance )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt skip fwd on nonexistant stream");
+		return;
+	}
+
+	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"chapter_p\n")==false )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_p");
 }
 
 //<-dceag-c89-b->
