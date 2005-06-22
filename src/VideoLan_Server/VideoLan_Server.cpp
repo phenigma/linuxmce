@@ -46,6 +46,7 @@ VideoLan_Server::VideoLan_Server(int DeviceID, string ServerAddress,bool bConnec
 , m_VideoLanMutex("videolan")
 {
 	m_VideoLanMutex.Init(NULL);
+	m_bUseMultiCast=false;
 #ifndef WIN32
 	g_pVideoLan_Server = this;
 	signal(SIGCHLD, sh); /* install handler */
@@ -139,24 +140,37 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 		return;
 	}
 
-	int PK_Device = atoi(pVideoLanServerInstance->m_sStreamingTargets.c_str());
-	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(PK_Device);
-	string sIP;
-	while( pDeviceData_Base )
+	vector<string> vectIPs;
+	vector<int> vectDevices;
+	string::size_type pos=0;
+	while(pos!=string::npos && pos<pVideoLanServerInstance->m_sStreamingTargets.size())
 	{
-		if( pDeviceData_Base->m_sIPAddress.size() )
+		int PK_Device = atoi(StringUtils::Tokenize(pVideoLanServerInstance->m_sStreamingTargets,",",pos).c_str());
+		DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(PK_Device);
+		g_pPlutoLogger->Write(LV_STATUS,"Device %d found at %p",PK_Device,pDeviceData_Base);
+		while( pDeviceData_Base )
 		{
-			sIP = pDeviceData_Base->m_sIPAddress;
-			break;
+			if( pDeviceData_Base->m_sIPAddress.size() )
+			{
+				vectIPs.push_back(pDeviceData_Base->m_sIPAddress);
+				vectDevices.push_back(pDeviceData_Base->m_dwPK_Device);
+				break;
+			}
+			pDeviceData_Base = pDeviceData_Base->m_pDevice_ControlledVia;
 		}
-		pDeviceData_Base = pDeviceData_Base->m_pDevice_ControlledVia;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Device %d %p IP %s",PK_Device,pDeviceData_Base,sIP.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Found %d IP's",(int) vectIPs.size());
+
+	if( vectIPs.size()==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"No IP's to stream to");
+		return;
+	}
 
 	pVideoLanServerInstance->m_sFilename = sFilename;
 	pVideoLanServerInstance->m_sCommandLine = "--intf\trc\t" + sFilename + 
-		"\t--sout\t#standard{access=udp,mux=ts,url=" + sIP + ",sap,name=\"s" + StringUtils::itos(iStreamID) + "\"}";
+		"\t--sout\t" + GetVlanStream(vectIPs,iStreamID);
 	pVideoLanServerInstance->m_sSpawnName = "vlc_s_" + StringUtils::itos(iStreamID);
 
 
@@ -166,13 +180,34 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 		return;
 	}
 
-	string::size_type pos=0;
-	while( pos<pVideoLanServerInstance->m_sStreamingTargets.size() )
+	for(size_t s=0;s<vectDevices.size();++s)
 	{
-		int PK_Device = atoi(StringUtils::Tokenize(pVideoLanServerInstance->m_sStreamingTargets,",",pos).c_str());
-		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,"udp:",iPK_MediaType,iStreamID,iMediaPosition);
+		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,vectDevices[s],"udp:",iPK_MediaType,iStreamID,iMediaPosition);
 		SendCommand(CMD_Play_Media);
 	}
+}
+
+string VideoLan_Server::GetVlanStream(vector<string> &vectIPs,int iStreamID)
+{
+	string sStream;
+	if( vectIPs.size()==1 )
+		sStream = "#standard{access=udp,mux=ts,url=" + vectIPs[0] + ",sap,name=\"s" + StringUtils::itos(iStreamID) + "\"}";
+	else if( m_bUseMultiCast )
+		sStream = "MultiCast";
+	else
+	{
+		sStream = "#duplicate{";
+		for(size_t s=0;s<vectIPs.size();++s)
+		{
+			if( s!=0 )
+				sStream += ",";
+			sStream += "dst=standard{access=udp,mux=ts,url=" + vectIPs[s] + ",sap,name=\"s" + StringUtils::itos(iStreamID) + "\"}";
+		}
+		sStream += "}";
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"Returning stream %s",sStream.c_str());
+	return sStream;
 }
 
 //<-dceag-c38-b->

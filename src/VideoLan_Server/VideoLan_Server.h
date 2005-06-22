@@ -14,12 +14,14 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		bool m_bUseMultiCast;
 
 		// Private methods
 
 		pluto_pthread_mutex_t m_VideoLanMutex; // Other classes may need this
 		map<int,class VideoLanServerInstance *> m_mapVideoLanServerInstance; // Map based on stream ID's
         class VideoLanServerInstance *m_mapVideoLanServerInstance_Find(int iStreamID) { map<int,class VideoLanServerInstance *>::iterator it = m_mapVideoLanServerInstance.find(iStreamID); return it==m_mapVideoLanServerInstance.end() ? NULL : (*it).second; }
+		string GetVlanStream(vector<string> &vectIPs,int iStreamID);
 public:
 		// Public member variables
 
