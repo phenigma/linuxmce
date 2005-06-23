@@ -307,7 +307,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     }
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle)
+/*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point)
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
@@ -402,7 +402,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		if(Y + i * (ciCharHeight + ciSpaceHeight) + ciCharHeight >= Text->m_rPosition.Y + Text->m_rPosition.Height) 
 			break;
 
-		GetDisplay()->DrawVGAText(VGAROMFont, TextW, DVT_NONE, X, Y + i * (ciCharHeight + ciSpaceHeight), color);
+		GetDisplay()->DrawVGAText(VGAROMFont, TextW, DVT_NONE, point.X + X, point.Y + Y + i * (ciCharHeight + ciSpaceHeight), color);
 	}
 	vectStrings.clear();
 
@@ -470,6 +470,11 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	if(rectLocation.bottom > rectLocation.top + Text->m_rPosition.Width)
 		rectLocation.bottom = rectLocation.top + Text->m_rPosition.Width;
 
+    rectLocation.left += point.X;
+    rectLocation.right += point.X;
+    rectLocation.top += point.Y;
+    rectLocation.bottom += point.Y;
+
 	switch (Text->m_iPK_HorizAlignment)
 	{
 		case HORIZALIGNMENT_Left_CONST: 
@@ -496,12 +501,12 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
+/*virtual*/ void Orbiter_PocketFrog::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	Rect srcRect;
-	srcRect.Set(pObj->m_rPosition.Left(), pObj->m_rPosition.Top(), pObj->m_rPosition.Right(), pObj->m_rPosition.Bottom());
+	srcRect.Set(point.X + pObj->m_rPosition.Left(), point.Y + pObj->m_rPosition.Top(), point.X + pObj->m_rPosition.Right(), point.Y + pObj->m_rPosition.Bottom());
 
 	Surface *pSurface = GetDisplay()->CreateSurface(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
 	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(pSurface);
@@ -538,7 +543,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     Orbiter::RedrawObjects();
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio)
+/*virtual*/ void Orbiter_PocketFrog::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
+    bool bDisableAspectRatio, PlutoPoint point)
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
@@ -559,6 +565,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		pPlutoGraphic->Clear(); //force reload ocg
 		return;
 	}
+
+    rectTotal.X += point.X;
+    rectTotal.Y += point.Y;
 
 	if(pSurface->GetWidth() == 0 || pSurface->GetHeight() == 0)
 		return;
@@ -606,26 +615,30 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     g_pPlutoLogger->Write(LV_WARNING, "End paint...");
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect)
+/*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect, PlutoPoint point)
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
+    PlutoRectangle localrect = rect;
+    localrect.X += point.X;
+    localrect.Y += point.Y;
+
 	//clipping the rectangle 
-	if(rect.X < 0)
-		rect.X = 0;
+	if(localrect.X < 0)
+		localrect.X = 0;
 
-	if(rect.Y < 0)
-		rect.Y = 0;
+	if(localrect.Y < 0)
+		localrect.Y = 0;
 
-	if(rect.Right() >= m_Width)
-		rect.Width = m_Width - rect.X - 1;
+	if(localrect.Right() >= m_Width)
+		localrect.Width = m_Width - localrect.X - 1;
 
-	if(rect.Bottom() >= m_Height)
-		rect.Height = m_Height - rect.Y - 1;
+	if(localrect.Bottom() >= m_Height)
+		localrect.Height = m_Height - localrect.Y - 1;
 
 	Rect rectUpdate;
-	rectUpdate.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
+	rectUpdate.Set(localrect.Left(), localrect.Top(), localrect.Right(), localrect.Bottom());
 	GetDisplay()->Update(&rectUpdate);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -756,7 +769,7 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 		SolidRectangle(iStart, m_iImageHeight - 50, iProgressWidth, 3, white);
 		SolidRectangle(iStart, m_iImageHeight - 50, Counter / iStep, 3, green);
 		PlutoRectangle rect(iStart, m_iImageHeight - 50, iProgressWidth, 3);
-		UpdateRect(rect);
+		UpdateRect(rect, PlutoPoint(0, 0));
 	}
 }
 //-----------------------------------------------------------------------------------------------------

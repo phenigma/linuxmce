@@ -67,6 +67,24 @@ public:
 typedef void ( Orbiter::*OrbiterCallBack )( void *data );
 enum ePurgeExisting { pe_NO=0, pe_ALL, pe_Match_Data };
 
+//todo : need to serialize it ? 
+class PlutoPopup
+{
+public:
+    string m_sPK_DesignObj;
+    string m_sName;
+    PlutoPoint m_Position;
+    bool m_bVisible;
+
+    PlutoPopup(string sPK_DesignObj, string sName, PlutoPoint Position, bool bVisible = false)
+    {
+        m_sPK_DesignObj = sPK_DesignObj;
+        m_sName = sName;
+        m_Position = Position;    
+        m_bVisible = bVisible;
+    }
+};
+
 //<-dceag-decl-b->! custom
 /**
  * @brief
@@ -195,12 +213,15 @@ protected:
 	 */
 	vector < class DesignObj_Orbiter * > m_vectObjs_NeedRedraw;
 	vector < class DesignObjText * > m_vectTexts_NeedRedraw;
+    PlutoPopup *m_pActivePopup;
 
 	vector < class DesignObj_Orbiter * > m_vectObjs_TabStops; /** < All the tab stops */
 	vector < class DesignObj_Orbiter * > m_vectObjs_Selected; /** < All the objects currently selected */
 	vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
 	vector < class DesignObj_Orbiter * > m_vectObjs_VideoOnScreen; /** < All the video on screen */
 	bool m_bAlreadyQueuedVideo; // We only put 1 GetVideFrame in the queue
+
+    vector <class PlutoPopup*> m_vectPopups;
 
 	map< string, class DesignObj_DataGrid * > m_mapObjs_AllGrids; /** < All the datagrids */
 
@@ -220,6 +241,26 @@ protected:
 
 	/** these methods are general purpose, and will call Orbiter-specific methods to do the work */
 
+    /**
+    * @brief Show a popup
+    */
+    virtual void ShowPopup(string sPK_DesignObj);
+
+    /**
+    * @brief Hide a popup
+    */
+    virtual void HidePopup(string sPK_DesignObj);
+
+    /**
+    * @brief Render a popup
+    */
+    virtual void RenderPopup(string sPK_DesignObj, PlutoPoint point, string sPopupName);
+
+    /**
+    * @brief Get the popup with the id or name specified
+    */
+    PlutoPopup *FindPopupByID(string sPK_DesignObj);
+    PlutoPopup *FindPopupByName(string sPopupName);
 
 	/**
 	 * @brief Render the screen in m_pScreenHistory_Current
@@ -227,7 +268,7 @@ protected:
 	virtual void RenderScreen();
 	virtual void BeginPaint() {};
 	virtual void EndPaint() {};
-	virtual void UpdateRect(PlutoRectangle rect) {};
+	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point) {};
 
 	/**
 	 * @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht
@@ -265,13 +306,13 @@ public: // temp - remove this
 	 * @brief renders an object on the screen
 	 * @todo ask
 	 */
-	virtual void RenderObject( DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen );
+	virtual void RenderObject( DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen, PlutoPoint point = PlutoPoint(0, 0) );
 
 	/**
 	 * @brief renders a floorplan
 	 * @todo ask
 	 */
-	virtual void RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen);
+	virtual void RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen, PlutoPoint point = PlutoPoint(0, 0));
 
 	/**
 	 * @brief prepares the render datagrid for rendering
@@ -283,7 +324,7 @@ public: // temp - remove this
 	 * @brief renders the data grid
 	 * @todo ask better comment
 	 */
-	virtual void RenderDataGrid( DesignObj_DataGrid *pObj );
+	virtual void RenderDataGrid( DesignObj_DataGrid *pObj, PlutoPoint point = PlutoPoint(0, 0) );
 
 	/**
 	 * @brief The framework will call this when it's time to change screens
@@ -322,7 +363,7 @@ public: // temp - remove this
 	 * @brief
 	 * @param if X and Y are -1, the object was selected by pushing a keyboard key, rather than touching the screen
 	 */
-	void SelectedObject( DesignObj_Orbiter *pDesignObj_Orbiter, int iX = -1, int iY = -1 );
+	void SelectedObject( DesignObj_Orbiter *pDesignObj_Orbiter, int iX = -1, int iY = -1);
 
 	/**
 	 * @brief
@@ -373,12 +414,12 @@ public: // temp - remove this
     /**
     * @brief Render selected state for this object
     */
-    virtual void SelectObject( class DesignObj_Orbiter *pObj );
+    virtual void SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point = PlutoPoint(0, 0) );
 
 	/**
 	 * @brief Highlight this object
 	 */
-	virtual void HighlightObject( class DesignObj_Orbiter *pObj );
+	virtual void HighlightObject( class DesignObj_Orbiter *pObj,  PlutoPoint point = PlutoPoint(0, 0));
 
 	/**
 	 * @brief Find the first 'tab stop' object on screen and highlight it
@@ -498,21 +539,21 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 * Not all controllers will be able to do this. Mainly the 'iX' nested
 	 * @todo ask
 	 */
-	virtual bool RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal );
+	virtual bool RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point = PlutoPoint(0, 0) );
 
 	/**
 	 * @brief renders a cell in the specified cell of the specified table at the specified coordinates
 	 * @todo ask
 	 */
-	virtual bool RenderCell( class DesignObj_DataGrid *pObj, class DataGridTable *pT, class DataGridCell *pCell, int j, int i, int iGraphicToDisplay );
+	virtual bool RenderCell( class DesignObj_DataGrid *pObj, class DataGridTable *pT, class DataGridCell *pCell, int j, int i, int iGraphicToDisplay, PlutoPoint point = PlutoPoint(0, 0) );
 
 	/**
 	 * @brief renders a graphic object in the specified rectangle
 	 * @todo ask
 	 */
-	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio = false) = 0;
+	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0)) = 0;
 
-	virtual void RenderGraphic( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio = false );
+	virtual void RenderGraphic( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0) );
 
 	virtual PlutoGraphic *CreateGraphic() = 0;
 
@@ -530,7 +571,7 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	/**
 	 * @brief renders text with the specified style
 	 */
-	virtual void RenderText( class DesignObjText *Text, class TextStyle *pTextStyle ) = 0;
+	virtual void RenderText( class DesignObjText *Text, class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0) ) = 0;
 
 	/**
 	 * @brief draws an rectangle
@@ -566,7 +607,7 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	/**
 	 * @brief We're going to be redrawing something on top of this object. Save it's state, so that during the next redraw this will be used
 	 */
-	virtual void SaveBackgroundForDeselect( DesignObj_Orbiter *pObj ) = 0;
+	virtual void SaveBackgroundForDeselect( DesignObj_Orbiter *pObj, PlutoPoint point ) = 0;
 
 /*
 	virtual void Initialize( GraphicType Type );
@@ -1378,6 +1419,30 @@ public:
 
 	virtual void CMD_Send_Message(string sText) { string sCMD_Result; CMD_Send_Message(sText.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Send_Message(string sText,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #397 - Show Popup */
+	/** Shows a screen as a popup, at position x, y */
+		/** @param #3 PK_DesignObj */
+			/** The ID of the screen */
+		/** @param #11 Position X */
+			/** X position */
+		/** @param #12 Position Y */
+			/** Y position */
+		/** @param #50 Name */
+			/** The popup name */
+
+	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName) { string sCMD_Result; CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #398 - Hide Popup */
+	/**  */
+		/** @param #3 PK_DesignObj */
+			/** The ID of the object (popup) */
+
+	virtual void CMD_Hide_Popup(string sPK_DesignObj) { string sCMD_Result; CMD_Hide_Popup(sPK_DesignObj.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

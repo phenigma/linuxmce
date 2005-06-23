@@ -156,12 +156,12 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 
 #include "pluto_main/Define_Text.h"
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
+/*virtual*/ void OrbiterSDL::RenderText(DesignObjText *Text,TextStyle *pTextStyle, PlutoPoint point)
 {
     string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
     SDL_Rect TextLocation;
-    TextLocation.x = Text->m_rPosition.X;
-    TextLocation.y = Text->m_rPosition.Y;
+    TextLocation.x = point.X + Text->m_rPosition.X;
+    TextLocation.y = point.Y + Text->m_rPosition.Y;
     TextLocation.w = Text->m_rPosition.Width;
     TextLocation.h = Text->m_rPosition.Height;
 
@@ -202,7 +202,7 @@ g_pPlutoLogger->Write(LV_STATUS,"*******rendering timeout at %d,%d - %d,%d",Text
 
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderGraphic(PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal,
-	bool bDisableAspectRatio)
+	bool bDisableAspectRatio, PlutoPoint point)
 {
 	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtSDLGraphic)
 		return;//nothing to render or not an sdl graphic
@@ -215,8 +215,10 @@ g_pPlutoLogger->Write(LV_STATUS,"*******rendering timeout at %d,%d - %d,%d",Text
 
 	//render the sdl surface
 	SDL_Rect Destination;
-	Destination.x = rectTotal.X; Destination.y = rectTotal.Y;
-	Destination.w = rectTotal.Width; Destination.h = rectTotal.Height;
+	Destination.x = point.X + rectTotal.X; 
+    Destination.y = point.Y + rectTotal.Y;
+	Destination.w = rectTotal.Width; 
+    Destination.h = rectTotal.Height;
 
 	if(pSDL_Surface->w == 0 || pSDL_Surface->h == 0) //nothing to render
 		return; //malformated image?
@@ -248,14 +250,13 @@ g_pPlutoLogger->Write(LV_STATUS,"*******rendering timeout at %d,%d - %d,%d",Text
 			SDL_BlitSurface(pSDL_Surface, NULL, m_pScreenImage, &Destination);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
+/*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)
 {
-
     SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 		pObj->m_rPosition.Width, pObj->m_rPosition.Height, 32, rmask, gmask, bmask, amask);
 
 	SDL_Rect SourceRect;
-	SourceRect.x = pObj->m_rPosition.Left(); SourceRect.y = pObj->m_rPosition.Top();
+	SourceRect.x = point.X + pObj->m_rPosition.Left(); SourceRect.y = point.Y + pObj->m_rPosition.Top();
 	SourceRect.w = pObj->m_rPosition.Width; SourceRect.h = pObj->m_rPosition.Height;
 
 	SDL_SetAlpha(m_pScreenImage, 0, 0);
@@ -402,27 +403,30 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 	return new SDLGraphic(this);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL::UpdateRect(PlutoRectangle rect)
+/*virtual*/ void OrbiterSDL::UpdateRect(PlutoRectangle rect, PlutoPoint point)
 {
 	//clipping the rectangle
-	//	SDL_UpdateRect dies in Linux if we are trying to update
-	//	a rectangle outside the screen
-	if(rect.X < 0)
-		rect.X = 0;
 
-	if(rect.Y < 0)
-		rect.Y = 0;
+    PlutoRectangle localrect = rect;
+    localrect.X += point.X;
+    localrect.Y += point.Y;
 
-	if(rect.Right() >= m_Width)
-		rect.Width = m_Width - rect.X - 1;
+	if(localrect.X < 0)
+		localrect.X = 0;
 
-	if(rect.Bottom() >= m_Height)
-		rect.Height = m_Height - rect.Y - 1;
+	if(localrect.Y < 0)
+		localrect.Y = 0;
+
+	if(localrect.Right() >= m_Width)
+		localrect.Width = m_Width - rect.X - 1;
+
+	if(localrect.Bottom() >= m_Height)
+		localrect.Height = m_Height - localrect.Y - 1;
 
 	PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
 #ifdef USE_ONLY_SCREEN_SURFACE
-	SDL_UpdateRect(Screen, rect.Left(), rect.Top(), rect.Width, rect.Height);
+	SDL_UpdateRect(Screen, localrect.Left(), localrect.Top(), localrect.Width, localrect.Height);
 #endif
 }
 //-----------------------------------------------------------------------------------------------------

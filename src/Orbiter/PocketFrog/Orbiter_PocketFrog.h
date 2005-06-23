@@ -61,19 +61,19 @@ public:
 	virtual void DrawLine(int x, int y, int width, int height, PlutoColor color, int Opacity = 100) {};
 	virtual void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor);
 	virtual void FloodFill(int x, int y, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
-	virtual void RenderText(class DesignObjText *Text,class TextStyle *pTextStyle);
-	virtual void SaveBackgroundForDeselect(DesignObj_Orbiter *pObj);
+	virtual void RenderText(class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0));
+	virtual void SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point);
 	virtual PlutoGraphic *CreateGraphic();
 
 	// Rendering
 	virtual void RenderScreen();
 	virtual void RedrawObjects();
 
-	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio);
+	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 
 	virtual void BeginPaint();
 	virtual void EndPaint();
-	virtual void UpdateRect(PlutoRectangle rect);
+	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point);
 
 	virtual void ShowProgress();
 	virtual void OnQuit();
