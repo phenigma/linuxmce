@@ -15,6 +15,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Command.h"
+#include "PlutoUtils/ProcessUtils.h"
 
 #define SOCKET_TIMEOUT		30
 
@@ -50,6 +51,9 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
 Slim_Server_Streamer::~Slim_Server_Streamer()
 //<-dceag-dest-e->
 {
+	vector<void *> vectvoid;
+	ProcessUtils::KillApplication("slimserver",vectvoid);
+
 	m_bQuit = true;
 	pthread_cond_signal(&m_stateChangedCondition);
 	pthread_join(m_threadPlaybackCompletedChecker, NULL);
@@ -428,6 +432,10 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
 void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streamer)
 {
     Slim_Server_Streamer *pStreamer = (Slim_Server_Streamer*)pSlim_Server_Streamer;
+
+	string sCmdParms="--audiodir\t/home/public/data/music\t-cliaddr\t127.0.0.1\t--d_protocol\t--d_cli\t--d_server";
+	if( !ProcessUtils::SpawnApplication("/usr/pluto/servers/SlimServer/slimserver.pl",sCmdParms,"slimserver") )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to spawn slimserver");
 
     while ( true )
     {

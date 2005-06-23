@@ -34,8 +34,6 @@ SlimServer_PlugIn::SlimServer_PlugIn(Command_Impl *pPrimaryDeviceCommand, Device
 SlimServer_PlugIn::~SlimServer_PlugIn()
 //<-dceag-dest-e->
 {
-	vector<void *> vectvoid;
-	ProcessUtils::KillApplication("slimserver",vectvoid);
 }
 
 //<-dceag-reg-b->
@@ -71,10 +69,6 @@ bool SlimServer_PlugIn::Register()
 	// so we yield priority for single destinations to a non-streaming type of media
 	for(size_t s=0;s<m_vectMediaHandlerInfo.size();++s)
 		m_vectMediaHandlerInfo[s]->m_bMultipleDestinations=true;
-
-	string sCmdParms="--audiodir\t/home/public/data/music\t-cliaddr\t127.0.0.1\t--d_protocol\t--d_cli\t--d_server";
-	if( !ProcessUtils::SpawnApplication("/usr/pluto/servers/SlimServer/slimserver.pl",sCmdParms,"slimserver") )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to spawn slimserver");
 
 	return Connect(PK_DeviceTemplate_get());
 }
