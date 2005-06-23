@@ -4764,6 +4764,8 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
+    HidePopups();
+
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
     string sDestScreen = SubstituteVariables( sPK_DesignObj, NULL, 0, 0 );
@@ -7069,4 +7071,14 @@ void Orbiter::CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,Message *p
 //<-dceag-c398-e->
 {
     HidePopup(sPK_DesignObj);
+}
+
+/*virtual*/ void Orbiter::HidePopups()
+{
+    for(size_t i = 0; i < m_vectPopups.size(); i++)
+    {
+        PlutoPopup *pPopup = m_vectPopups[i];
+        if(pPopup->m_bVisible)
+            pPopup->m_bVisible = false;
+    }
 }

@@ -250,6 +250,7 @@ protected:
     * @brief Hide a popup
     */
     virtual void HidePopup(string sPK_DesignObj);
+    virtual void HidePopups();
 
     /**
     * @brief Render a popup
