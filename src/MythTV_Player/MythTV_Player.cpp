@@ -395,7 +395,7 @@ void MythTV_Player::ProcessExited(int pid, int status)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Send go back to the caller!");
 		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"");
-		SendCommand(CMD_MH_Stop_Media);
+		SendCommand(CMD_MH_Stop_Media_Cat);
 	}
 }
 
