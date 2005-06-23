@@ -35,6 +35,7 @@
 #define VARIABLE_PK_DeviceGroup_CONST 32
 #define VARIABLE_Misc_Data_4_CONST 33
 #define VARIABLE_mobile_signal_strenght_CONST 34
+#define VARIABLE_Track_or_Playlist_Positio_CONST 35
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

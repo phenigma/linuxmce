@@ -165,6 +165,7 @@ protected:
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
 	string m_sCaptureKeyboard_InternalBuffer; /** < capture keyboard internal buffer */
 	string m_sNowPlaying; /** < set by the media engine, this is whatever media is currently playing */
+	int m_dwPK_Device_NowPlaying;  /** < set by the media engine, this is whatever media device is currently playing */
 	int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
 	time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */
     timespec m_tButtonDown;  
@@ -1321,11 +1322,15 @@ public:
 
 	/** @brief COMMAND: #242 - Set Now Playing */
 	/** Used by the media engine to set the "now playing" text on an orbiter.  If the orbiter is bound to the remote for an entertainment area it will get more updates than just media,  like cover art, but this is the basic information that is visible on screens */
+		/** @param #2 PK_Device */
+			/** The currently active media device */
 		/** @param #5 Value To Assign */
 			/** The description of the media */
+		/** @param #48 Value */
+			/** The track number or position in the playlist */
 
-	virtual void CMD_Set_Now_Playing(string sValue_To_Assign) { string sCMD_Result; CMD_Set_Now_Playing(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Set_Now_Playing(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sValue_To_Assign,int iValue) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sValue_To_Assign.c_str(),iValue,sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sValue_To_Assign,int iValue,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #254 - Bind Icon */

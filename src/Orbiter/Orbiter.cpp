@@ -178,6 +178,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 
 	m_pLocationInfo = NULL;
 	m_dwPK_Users = 0;
+	m_dwPK_Device_NowPlaying = 0;
 
 	m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
@@ -4132,7 +4133,15 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         else if(  Variable=="V" )
 			Output += string(VERSION) + "(" + g_szCompile_Date + ")";
         else if(  Variable=="NP" )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"SubstVar: CMD_Set_Now_Playing %s",m_sNowPlaying.c_str());
             Output += m_sNowPlaying;
+		}
+        else if(  Variable=="NPD" )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"SubstVar: CMD_Set_Now_Playing device %d",m_dwPK_Device_NowPlaying);
+			Output += StringUtils::itos(m_dwPK_Device_NowPlaying);
+		}
         else if(  Variable=="B" )
 			Output += "\t";
         else if(  Variable=="ND" )
@@ -6088,13 +6097,20 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHis
 
 	/** @brief COMMAND: #242 - Set Now Playing */
 	/** Used by the media engine to set the "now playing" text on an orbiter.  If the orbiter is bound to the remote for an entertainment area it will get more updates than just media,  like cover art, but this is the basic information that is visible on screens */
+		/** @param #2 PK_Device */
+			/** The currently active media device */
 		/** @param #5 Value To Assign */
 			/** The description of the media */
+		/** @param #48 Value */
+			/** The track number or position in the playlist */
 
-void Orbiter::CMD_Set_Now_Playing(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sValue_To_Assign,int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c242-e->
 {
 	m_sNowPlaying = sValue_To_Assign;
+	m_dwPK_Device_NowPlaying = iPK_Device;
+	m_mapVariable[VARIABLE_Track_or_Playlist_Positio_CONST]=StringUtils::itos(iValue);
+	g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Now_Playing %s",sValue_To_Assign.c_str());
 	CMD_Refresh("");
 }
 

@@ -196,6 +196,11 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		int ParamNum = atoi(pParamID);
 
 		size_t tSizeParmValue = 0;
+		if( i+1>=iNumArgs )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Message constructor malformed with missing argument");
+			return;
+		}
 		char *pParmValue = cArguments[i+1];
 		if( eType==ptBinary || eType==ptText )
 		{

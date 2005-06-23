@@ -1075,7 +1075,7 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 					else
 						pMediaDevice->m_iLastPlaybackSpeed = pMediaDevice->m_iLastPlaybackSpeed;
 				}
-				if( pMediaDevice->m_iLastPlaybackSpeed==1 )
+				if( pMediaDevice->m_iLastPlaybackSpeed==1000 )
 					OverrideNowPlaying(pEntertainArea->m_pMediaStream,pEntertainArea->m_pMediaStream->m_sMediaDescription);
 				else
 					OverrideNowPlaying(pEntertainArea->m_pMediaStream,"(" +
@@ -1256,7 +1256,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
         {
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
-                m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription );
+                m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, pMediaStream->m_iDequeMediaFile_Pos, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device );
         }
     }
 }
@@ -1271,7 +1271,7 @@ void Media_Plugin::OverrideNowPlaying(MediaStream *pMediaStream,string sNowPlayi
         {
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
-                m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, sNowPlaying );
+                m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, sNowPlaying, pMediaStream->m_iDequeMediaFile_Pos, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device );
         }
     }
 }
@@ -1409,7 +1409,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEnt
         if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
 		{
 g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
-            m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "" );
+            m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "", -1, 0 );
 		}
     }
 
@@ -2863,6 +2863,7 @@ void Media_Plugin::CMD_Move_Playlist_entry_Up(int iValue,string &sCMD_Result,Mes
 
 	// the playlist is reversed
 	pEntertainArea->m_pMediaStream->MoveEntryInPlaylist(iValue, -1);
+	MediaInfoChanged(pEntertainArea->m_pMediaStream,true);
 }
 
 //<-dceag-c270-b->
@@ -2880,7 +2881,7 @@ void Media_Plugin::CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,M
 	// Only an Orbiter will tell us to Mode media
 	vector<EntertainArea *> vectEntertainArea;
     DetermineEntArea(pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
-    if( vectEntertainArea.size()!=0 )
+    if( vectEntertainArea.size()==0 )
 	{
         g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Down() got a message from a device that is not a orbiter in an ent area. Ignoring!");
 		return;  // Don't know what area it should be played in
@@ -2895,6 +2896,7 @@ void Media_Plugin::CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,M
 
 	// the playlist is reversed
 	pEntertainArea->m_pMediaStream->MoveEntryInPlaylist(iValue, +1);
+	MediaInfoChanged(pEntertainArea->m_pMediaStream,true);
 }
 
 //<-dceag-c271-b->
@@ -2906,7 +2908,8 @@ void Media_Plugin::CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,M
 
 void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c271-e->
-{	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+{	
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	// Only an Orbiter will tell us to Mode media
 	vector<EntertainArea *> vectEntertainArea;
@@ -2925,6 +2928,21 @@ void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Mess
 	}
 
 	pEntertainArea->m_pMediaStream->DeleteEntryFromPlaylist(iValue);
+	if( pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()==0 )
+	{
+		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
+		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia after delete playlist" );
+		StreamEnded(pEntertainArea->m_pMediaStream);
+	}
+	else
+	{
+		if( pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>0 && pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>=pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() )
+			pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos--;
+
+		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from JumpPos (handler)");
+    	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
+		MediaInfoChanged(pEntertainArea->m_pMediaStream,true);  // we need the true to refresh the grid
+	}
 }
 //<-dceag-c331-b->
 

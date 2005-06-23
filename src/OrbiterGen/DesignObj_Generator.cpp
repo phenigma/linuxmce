@@ -91,9 +91,9 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1720 || m_pRow_DesignObj->PK_DesignObj_get()==1724 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==2211 || m_pRow_DesignObj->PK_DesignObj_get()==1724 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
 {
-    int k=2;
+    int k=2; 
 }
     // Put this at the top since we've got a goto below that may skip its initializatoin
     vector<Row_DesignObjVariation_DesignObj *> alArrays;
@@ -147,7 +147,7 @@ int k=2;
 				{
 					time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
 					time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
-					if( lModDate1==lModDate2 )
+					if( lModDate1==lModDate2 || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen )
 					{
 						string Filename = m_pOrbiterGenerator->m_sOutputPath + "screen " + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
 							StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
@@ -159,10 +159,14 @@ int k=2;
 								cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
 								return;
 							}
+int k4=3; // can't use cache
 						}
+int k5=3; // can't use cache
 					}
+int k2=3; // can't use cache
 				}
             }
+int k=2; // can't use cache
         }
         string Filespec = m_pOrbiterGenerator->m_sOutputPath + "*" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
             StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + ".*";

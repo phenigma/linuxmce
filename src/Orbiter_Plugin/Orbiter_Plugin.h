@@ -214,9 +214,9 @@ public:
 		SendCommand( CMD_Goto_Screen );
 	}
 
-	void SetNowPlaying( int dwPK_Device, string sNowPlaying )
+	void SetNowPlaying( int dwPK_Device, string sNowPlaying,int iPositionInPlaylist, int iPK_Device )
 	{
-		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, sNowPlaying );
+		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, iPK_Device, sNowPlaying, iPositionInPlaylist );
 		SendCommand( CMD_Set_Now_Playing );
 	}
 

@@ -416,11 +416,15 @@ bool VideoLan_PlugIn::StartStreaming(VideoLanMediaStream *pMediaStream)
 		return false;
 	}
 
+		string mediaURL = pMediaStream->GetFilenameToPlay("Empty file name");
+		if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
+			mediaURL = "dvdsimple:/" + mediaURL;
+
 g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-							pMediaStream->GetFilenameToPlay("Empty file name"),
+							mediaURL,
 							pMediaStream->m_iPK_MediaType,
 							pMediaStream->m_iStreamID_get( ),
 							0);//Mihai look into this please pMediaStream->GetMediaPosition()->m_iSavedPosition);
