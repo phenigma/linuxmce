@@ -1339,9 +1339,9 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &
 	g_pPlutoLogger->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", sName.c_str(), m_mediaDiskStatus, strParameters.c_str() );
 
 	string sResultMessage =
-		StringUtils::itos(m_dwPK_Device) + "\t-1001\t" + StringUtils::itos(MESSAGETYPE_EVENT) + 
-			"\t" + StringUtils::itos(EVENT_Ripping_Completed_CONST) + "\t" + StringUtils::itos(EVENTPARAMETER_Name_CONST) + "\t" +
-			sName + "\t" + StringUtils::itos(EVENTPARAMETER_Result_CONST) + "\t";
+		StringUtils::itos(m_dwPK_Device) + " -1001 " + StringUtils::itos(MESSAGETYPE_EVENT) + 
+			" " + StringUtils::itos(EVENT_Ripping_Completed_CONST) + " " + StringUtils::itos(EVENTPARAMETER_Name_CONST) + " " +
+			sName + " " + StringUtils::itos(EVENTPARAMETER_Result_CONST) + " ";
 
 	DCE::CMD_Spawn_Application_DT
 		spawnApplication(m_dwPK_Device,
