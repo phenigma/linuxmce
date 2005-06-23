@@ -13,7 +13,7 @@ $out='Here is all the software required for this device in the general order it 
 
 
 
-exec("/usr/pluto/bin/ConfirmDependencies -h localhost -D pluto_main -u $dbUser -p '$dbPass' -d $device list", $results);
+exec("/usr/pluto/bin/ConfirmDependencies -r -h localhost -D pluto_main -u $dbUser -p '$dbPass' -d $device list", $results);
 
 foreach($results AS $line){
 	if(strpos($line,'ConfirmDependencies')===false && strpos($line,'*ERROR*')===false){

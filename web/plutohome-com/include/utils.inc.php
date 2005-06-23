@@ -591,8 +591,8 @@ function GetActivationSh($code,$param='install',$otherParam='')
 
 
 	list($device, $pin) = explode("-", $code);
-#	echo("/usr/pluto/bin/ConfirmDependencies -h ".$dbPlutoMainServer." -u ".$dbPlutoMainUser." -p ".$dbPlutoMainPass." -d $device install");
-	exec("/usr/pluto/bin/ConfirmDependencies -D pluto_main -h $dbPlutoMainServer -u $dbPlutoMainUser -p $dbPlutoMainPass -d $device $otherParam $param", $result, $retcode);
+#	echo("/usr/pluto/bin/ConfirmDependencies -r -h ".$dbPlutoMainServer." -u ".$dbPlutoMainUser." -p ".$dbPlutoMainPass." -d $device install");
+	exec("/usr/pluto/bin/ConfirmDependencies -r -D pluto_main -h $dbPlutoMainServer -u $dbPlutoMainUser -p $dbPlutoMainPass -d $device $otherParam $param", $result, $retcode);
 	// || die("ERROR. Can't generate answer: $device:$pin");
 
 	if ($retcode == 0)
