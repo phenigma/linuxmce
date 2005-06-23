@@ -1338,7 +1338,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *pStream, string sFormat, int
     if ( imageFormat == XINE_IMGFMT_YUY2)
     {
         uint8_t *yuy2Data = imageData;
-        uint8_t *imageData = (uint8_t *)malloc (imageWidth * imageHeight * 2);
+        imageData = (uint8_t *)malloc (imageWidth * imageHeight * 2);
 
         yuy2toyv12 (
                 imageData,
@@ -1415,7 +1415,8 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *pStream, string sFormat, int
 	jpegEncoder.encodeIntoBuffer((char *)imageData, imageWidth, imageHeight, 3, pData, iDataSize);
 
 	g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): final image size: %d", iDataSize);
-
+	free(imageData);
+	
 	FILE * file;
     file = fopen("/tmp/file.jpg", "wb");
 	g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): temporary image filep %p", file);
