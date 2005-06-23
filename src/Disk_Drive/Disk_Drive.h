@@ -7,10 +7,6 @@
 #include "Gen_Devices/Disk_DriveBase.h"
 //<-dceag-d-e->
 
-extern "C" {
-#include <cddb/cddb.h>
-}
-
 #include <pthread.h>
 
 typedef enum {
@@ -78,17 +74,12 @@ public:
     int cdrom_lock( int lock );
     int cdrom_checkdrive( const char *filename, int *flag );
 
+	string getTracks (string mrl);  // We use cddb for nothing other than determining how many tracks there are
+
     bool internal_reset_drive(bool bFireEvent);
     bool internal_monitor_step(bool bFireEvent);
 
-    string cdrom_get_title (const int fd);
-    string dvd_read_name(const int fd);
-
-    int read_toc( int fd, cddb_conn_t *c, cddb_disc_t *d );
-    int cdrom_read_toc( int fd, cddb_conn_t *c, cddb_disc_t *d );
-
     int cdrom_has_dir (int fd, const char *directory);
-    string getTracks (string mrl, string &genre);
 	bool mountDVD(string fileName, string &strMediaUrl);
 
 public:

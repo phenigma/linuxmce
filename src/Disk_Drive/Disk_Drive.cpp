@@ -32,6 +32,8 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -523,411 +525,8 @@ int Disk_Drive::cdrom_checkdrive (const char *filename, int *flag)
     return 0;
 }
 
-string Disk_Drive::getTracks (string mrl, string &genre)
-{
-    g_pPlutoLogger->Write(LV_STATUS, "Finding CD tracks.");
-
-//     time_t startTime=time(NULL);
-
-    cddb_conn_t *conn = NULL;
-    cddb_disc_t *disc = NULL;
-
-    int fd = -1, status;
-    string tracks = "";
-
-    try {
-        g_pPlutoLogger->Write(LV_STATUS, "Opening drive first time.");
-
-        fd = open( m_sDrive.c_str(), O_RDONLY | O_NONBLOCK );
-        if (fd < 0)
-            throw string ("Failed to open CD device" + string (strerror (errno)));
-
-        g_pPlutoLogger->Write(LV_STATUS, "Checking media with ioctl");
-        status = ioctl( fd, CDROM_DISC_STATUS, CDSL_CURRENT );
-        if ( status != CDS_AUDIO && status != CDS_MIXED )
-            throw string ("Invalid media detected");
-
-        conn = cddb_new();
-        if (conn)
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Building cddb query parameters");
-//          cddb_set_email_address( conn, "anonymous@localhost" );
-//          cddb_set_server_name( conn, "freedb.freedb.org" );
-//          cddb_set_server_port( conn, 8880 );
-//          cddb_http_enable( conn, 0 );
-
-            g_pPlutoLogger->Write(LV_STATUS, "Creating cddb disk structure!");
-            disc = cddb_disc_new();
-            if (disc)
-            {
-                g_pPlutoLogger->Write(LV_STATUS, "Reading disk toc");
-                int result = read_toc( fd, conn, disc );
-                bool found = false;
-                if ( result < 0 )
-                    throw string("Failed to read CDROM TOC.");
-
-//              printf("before cddb_query(%ld) disc id: %d\n",time(NULL)-startTime,disc->discid);
-//              result = cddb_query( conn, disc );
-//              printf("cddb_query returned (%d)\n",(int) result);
-//              if ( result > 0 )
-//              {
-/*                  printf("before cddb_read(%ld)\n",time(NULL)-startTime);
-                    if ( cddb_read( conn, disc ) )
-                    {
-                        cddb_track_t *track = disc->tracks;
-                        int i = 1;
-                        ostringstream sb;
-
-                        // make discid stateful, so it can be used when ripping to lookup track keys
-                        m_discid = disc->discid;
-
-                        Query query = m_mysql.create_Query();
-                        query << "select item_dwID from DCL_item_attribute where s_attribute_type = 'FREEDB_ID' and attribute_val = '";
-                        query << disc->discid << "'";
-                        printf("executing query 1\n");
-                        pthread_mutex_lock (&sqlLock);
-                        Result_Store rows = query.store();
-                        pthread_mutex_unlock (&sqlLock);
-                        if (rows.size() > 0)
-                        {
-                            string itemID = rows[0][0];
-                            printf("query 1 has rows: ID is %s\n",itemID.c_str());
-                            ostringstream str;
-
-                            str << "";
-                            Query query = m_mysql.create_Query();
-                            query << "select attribute_val FROM DCL_item_attribute";
-                            query << " where item_dwID = " << itemID; //rows[0][0];
-                            query << " and s_attribute_type = 'CDTRACK'";
-                            query << " order by order_no";
-                            pthread_mutex_lock (&sqlLock);
-                            Result_Store rows = query.store();
-                            pthread_mutex_unlock (&sqlLock);
-
-                            for (Result_Store::iterator row = rows.begin(); row != rows.end(); ++row)
-                            {
-                                sb << mrl << i++ << "\t" << (*row)[0] << endl;
-                            }
-                            tracks = sb.str();
-                            found = true;
-
-                            printf("ready to execute query looking for genre\n");
-                            query.str("");
-                            query << "select attribute_val FROM DCL_item_attribute";
-                            query << " where item_dwID = " << itemID;
-                            query << " and s_attribute_type = 'CDDBGENRE'";
-
-                            pthread_mutex_lock (&sqlLock);
-                            Result_Store rows2 = query.store();
-                            pthread_mutex_unlock (&sqlLock);
-
-                            if( rows2.size() > 0 )
-                            {
-                                printf("Got it\n");
-                                genre=rows2[0][0];
-                                printf("Set genre to %s\n",genre.c_str());
-                            }
-
-                        }
-                        else
-                        {
-                            printf("query 1 has 0 rows\n");
-
-                            string title = string(disc->title);
-
-                            query.str("");
-                            query << "insert into DCL_item (title, s_item_type) values ('";
-                            query << StringUtils::Replace(&title, "'", "''") << "', 'CD')";
-                            pthread_mutex_lock (&sqlLock);
-                            Result_NoData queryResult = query.execute();
-                            pthread_mutex_unlock (&sqlLock);
-                            printf("executing query 2\n");
-                            if (queryResult.get_succeeded())
-                            {
-        printf("executing rest of queries to add new disc properties\n");
-        fflush(stdout);
-                                result = queryResult.get_insert_id();
-                                query.str("");
-                                query << "insert into DCL_item_instance (item_dwID, instance_no, owner_id, s_status_type) values (";
-                                query << result << ", 1, '1control', 'A')";
-        printf("query 1 - a\n");
-        fflush(stdout);
-                                pthread_mutex_lock (&sqlLock);
-        printf("query 1 - b\n");
-        fflush(stdout);
-                                query.execute();
-        printf("query 1 - c\n");
-        fflush(stdout);
-                                pthread_mutex_unlock (&sqlLock);
-
-                                query.str("");
-                                query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
-                                query << result << ", 'FREEDB_ID', 0, '" << disc->discid << "')";
-        printf("query 2 - a\n");
-        fflush(stdout);
-                                pthread_mutex_lock (&sqlLock);
-                                query.execute();
-                                pthread_mutex_unlock (&sqlLock);
-        printf("query 2 - b\n");
-        fflush(stdout);
-
-                                string artist(disc->artist);
-                                query.str("");
-                                query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
-                                query << result << ", 'ARTIST', 10, '";
-                                query << StringUtils::Replace(&artist, string("'"), string("''")).c_str() << "')";
-        printf("query 3 - a\n");
-        fflush(stdout);
-                                pthread_mutex_lock (&sqlLock);
-                                query.execute();
-                                pthread_mutex_unlock (&sqlLock);
-        printf("query 3 - b\n");
-        fflush(stdout);
-
-                                query.str("");
-                                genre = disc->genre;
-                                printf("setting disc genre to %s",genre.c_str());
-                                string s (disc->genre);
-                                str_to_lwr (s);
-                                query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
-                                query << result << ", 'CDDBGENRE', 30, '" << s << "')";
-        printf("query 4 - a\n");
-        fflush(stdout);
-                                pthread_mutex_lock (&sqlLock);
-                                query.execute();
-                                pthread_mutex_unlock (&sqlLock);
-        printf("query 4 - b\n");
-        fflush(stdout);
-
-                                query.str("");
-                                int mins = disc->length / 60;
-                                int secs = disc->length % 60;
-                                query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
-                                query << result << ", 'CDTIME', 31, '" << mins << ":" << secs << "')";
-        printf("query 5 - a\n");
-        fflush(stdout);
-                                pthread_mutex_lock (&sqlLock);
-                                query.execute();
-                                pthread_mutex_unlock (&sqlLock);
-        printf("query 5 - b\n");
-        fflush(stdout);
-
-        //printf("track: %d\n",track);
-        //fflush(stdout);
-                                int seq = 50;
-                                while (track)
-                                {
-                                    sb << mrl << i++ << "\t" << track->title << endl;
-
-                                    string title(track->title);
-                                    query.str("");
-                                    query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
-                                    query << result << ", 'CDTRACK', " << seq++ <<", '";
-                                    query << StringUtils::Replace(&title, string("'"), string("''")).c_str() << "')";
-        printf("query 6 track: %s\n",track->title);
-        fflush(stdout);
-                                    pthread_mutex_lock (&sqlLock);
-                                    query.execute();
-                                    pthread_mutex_unlock (&sqlLock);
-
-                                    track = track->next;
-                                }
-                                tracks = sb.str();
-        printf("found=true, tracks: %s\n",tracks.c_str());
-        fflush(stdout);
-                                found = true;
-                            }
-                        }
-                    }*/
-//                  }
-//              else
-//                  printf("cddb returned %d (%ld)\n",result,time(NULL)-startTime);
-
-                if (!found)
-                {
-                    g_pPlutoLogger->Write(LV_STATUS, "CD was not found in CDDB archive. (This is currently disabled in the code)");
-                    cddb_track_t *track = disc->tracks;
-                    int i = 1;
-                    ostringstream sb;
-
-                    while (track)
-                    {
-                        sb << mrl << i++ << endl;
-                        track = track->next;
-                    }
-
-                    tracks = sb.str().c_str();
-                }
-            }
-            else
-                throw string ("unable to create libcddb disc structure" );
-        }
-        else
-            throw string ("unable to initialize libcddb");
-    }
-    catch (string err)
-    {
-        g_pPlutoLogger->Write (LV_WARNING, "w1: %s",err.c_str());
-    }
-/*    catch (ex_base& e)
-    {
-        g_pPlutoLogger->Write (LV_WARNING, "w2: %s",e.what());
-    }*/
-    catch (...)
-    {
-        g_pPlutoLogger->Write (LV_WARNING, "Unknown error in getTracks()");
-    }
-
-    // printf("ready to destroy cddb info (%ld)\n",time(NULL)-startTime);
-    if (conn != NULL)
-        cddb_destroy( conn );
-    if (disc != NULL)
-        cddb_disc_destroy( disc );
-    if (fd != -1)
-        close( fd );
-
-    // printf("Returning %d byte string as tracks\n",tracks.length());
-
-    return tracks;
-}
-
-string Disk_Drive::cdrom_get_title (const int fd)
-{
-    cddb_conn_t *conn = NULL;
-    cddb_disc_t *disc = cddb_disc_new();
-    int result;
-    ostringstream title;
-    std::string fetched_name;
-
-    conn = cddb_new();
-    if (conn)
-    {
-        cddb_set_email_address( conn, "anonymous@localhost" );
-        cddb_set_server_name( conn, "freedb.freedb.org" );
-        cddb_set_server_port( conn, 8880 );
-        cddb_http_enable( conn );
-        disc = cddb_disc_new();
-        if (disc)
-        {
-            result = cdrom_read_toc (fd, conn, disc);
-            if (result < 0)
-            {
-                cddb_disc_destroy (disc);
-                return "";
-            }
-            result = cddb_query (conn, disc);
-            if (result <= 0)
-            {
-                //cddb_error_print (cddb_errno (conn) );
-                return "Unrecognized Audio CD";
-            }
-            if (cddb_read (conn, disc))
-            {
-                title << disc->artist << " - " << disc->title << std::ends;
-            }
-            else
-            {
-                title << "Unrecognized Audio CD" << std::ends;
-            }
-            cddb_disc_destroy (disc);
-        }
-        else
-        {
-            throw ("unable to create disc structure" );
-        }
-        cddb_destroy( conn );
-    }
-    else
-    {
-        throw "could not create cddb connection";
-    }
-    return title.str();
-}
-
-#define DVD_VIDEO_LB_LEN 2048
-
-string Disk_Drive::dvd_read_name(const int fd)
-{
-    int i;
-    off_t off;
-    uint8_t data[DVD_VIDEO_LB_LEN];
-    ostringstream title, id;
-    int result;
 
 
-      off = lseek( fd, 32 * (int64_t) DVD_VIDEO_LB_LEN, SEEK_SET );
-      if( off == ( 32 * (int64_t) DVD_VIDEO_LB_LEN ) ) {
-        off = read( fd, data, DVD_VIDEO_LB_LEN );
-        if (off == ( (int64_t) DVD_VIDEO_LB_LEN )) {
-          for(i=25; i < 73; i++ ) {
-            if((data[i] == 0)) break;
-            if((data[i] > 32) && (data[i] < 127)) {
-              title << (char) data[i];
-            }
-          }
-
-          for(i=73; i < 89; i++ ) {
-            if((data[i] == 0)) break;
-            if((data[i] > 32) && (data[i] < 127)) {
-                id << (char) data[i];
-            }
-          }
-
-          // Update the mysql media library
-/*          Query query = m_mysql.create_Query();
-          query << "select item_dwID from DCL_item_attribute where s_attribute_type = 'FREEDB_ID' and attribute_val = '";
-          query << id.str() << "'";
-          pthread_mutex_lock (&sqlLock);
-          Result_Store rows = query.store();
-          pthread_mutex_unlock (&sqlLock);
-          if (rows.size() == 0)
-          {
-              string strTitle(title.str());
-
-              query.str("");
-              query << "insert into DCL_item (title, s_item_type) values ('";
-              query << StringUtils::Replace(&strTitle, string("'"), string("''")).c_str() << "', 'DVD')";
-              pthread_mutex_lock (&sqlLock);
-              Result_NoData queryResult = query.execute();
-              pthread_mutex_unlock (&sqlLock);
-              if (queryResult.get_succeeded())
-              {
-                  result = queryResult.get_insert_id();
-                  m_what_is_ripping=result; // Set this now so it will be correct if we decide to rip it
-                  query.str("");
-                  query << "insert into DCL_item_instance (item_dwID, instance_no, owner_id, s_status_type) values (";
-                  query << result << ", 1, '1control', 'A')";
-                  pthread_mutex_lock (&sqlLock);
-                  query.execute();
-                  pthread_mutex_unlock (&sqlLock);
-
-                  query.str("");
-                  query << "insert into DCL_item_attribute (item_dwID, s_attribute_type, order_no, attribute_val) values (";
-                  query << result << ", 'FREEDB_ID', 0, '" << id.str() << "')";
-                  pthread_mutex_lock (&sqlLock);
-                  query.execute();
-                  pthread_mutex_unlock (&sqlLock);
-              }
-              else
-                  result = -1;*/
-//         } else {
-//             // We might rip a DVD that's already listed in the database
-//             int what_might_rip;
-//             what_might_rip=atoi(rows[0][0]);
-//             printf("DVD already in that might rip is %d\n",what_might_rip);
-//             m_what_is_ripping=what_might_rip;
-//         }
-
-        } else {
-          //fprintf(stderr, "Can't read name block. Probably not a DVD-ROM device.\n");
-            result = -1;
-        }
-      } else {
-        //fprintf(stderr, "Can't seek to block %u\n", 32 );
-          result = -1;
-      }
-      return title.str();
-}
 
 bool Disk_Drive::mountDVD(string fileName, string &strMediaUrl)
 {
@@ -1080,120 +679,9 @@ int Disk_Drive::cdrom_has_dir (int fd, const char *directory)
     return ret;
 }
 
-#define CD_SECONDS_PER_MINUTE   60
-#define CD_FRAMES_PER_SECOND    75
-#define CD_LEADOUT_TRACK        0xAA
-int Disk_Drive::read_toc( int fd, cddb_conn_t *c, cddb_disc_t *d )
-{
-    struct cdrom_tochdr tochdr;
-    struct cdrom_tocentry tocentry;
-    int i, total_tracks;
-    cddb_track_t *t = NULL;
-
-    /* fetch the table of contents */
-    if (ioctl(fd, CDROMREADTOCHDR, &tochdr) == -1)
-    {
-        perror("CDROMREADTOCHDR");
-        return errno;
-    }
-    total_tracks = tochdr.cdth_trk1 - tochdr.cdth_trk0 + 1;
-
-    /* fetch each toc entry */
-    for (i = tochdr.cdth_trk0; i <= tochdr.cdth_trk1; i++)
-    {
-        memset( &tocentry, 0, sizeof(tocentry) );
-
-        tocentry.cdte_track = i;
-        tocentry.cdte_format = CDROM_MSF;
-        if (ioctl(fd, CDROMREADTOCENTRY, &tocentry) == -1)
-        {
-            perror("CDROMREADTOCENTRY");
-            return errno;
-        }
-
-        t = cddb_track_new();
-        t->frame_offset =
-            (tocentry.cdte_addr.msf.minute * CD_SECONDS_PER_MINUTE * CD_FRAMES_PER_SECOND) +
-            (tocentry.cdte_addr.msf.second * CD_FRAMES_PER_SECOND) +
-            tocentry.cdte_addr.msf.frame;
-        cddb_disc_add_track( d, t );
-    }
-
-    /* fetch the leadout to get total duration */
-    memset( &tocentry, 0, sizeof(tocentry) );
-    tocentry.cdte_track = CD_LEADOUT_TRACK;
-    tocentry.cdte_format = CDROM_MSF;
-    if (ioctl(fd, CDROMREADTOCENTRY, &tocentry) == -1)
-    {
-        perror("CDROMREADTOCENTRY");
-        return errno;
-    }
-    d->length = tocentry.cdte_addr.msf.minute * CD_SECONDS_PER_MINUTE + tocentry.cdte_addr.msf.second;
-    d->discid = cddb_disc_calc_discid( d );
-
-    return 0;
-}
-
-
-/* subroutine from cdde */
-#define CD_SECONDS_PER_MINUTE   60
-#define CD_FRAMES_PER_SECOND    75
-#define CD_LEADOUT_TRACK        0xAA
-int Disk_Drive::cdrom_read_toc( int fd, cddb_conn_t *c, cddb_disc_t *d )
-{
-    struct cdrom_tochdr tochdr;
-    struct cdrom_tocentry tocentry;
-    int i, total_tracks;
-    cddb_track_t *t = NULL;
-
-    /* fetch the table of contents */
-    if (ioctl(fd, CDROMREADTOCHDR, &tochdr) == -1)
-    {
-        perror("CDROMREADTOCHDR");
-        return errno;
-    }
-    total_tracks = tochdr.cdth_trk1 - tochdr.cdth_trk0 + 1;
-
-    /* fetch each toc entry */
-    for (i = tochdr.cdth_trk0; i <= tochdr.cdth_trk1; i++)
-    {
-        memset( &tocentry, 0, sizeof(tocentry) );
-
-        tocentry.cdte_track = i;
-        tocentry.cdte_format = CDROM_MSF;
-        if (ioctl(fd, CDROMREADTOCENTRY, &tocentry) == -1)
-        {
-            perror("CDROMREADTOCENTRY");
-            return errno;
-        }
-
-        t = cddb_track_new();
-        t->frame_offset =
-            (tocentry.cdte_addr.msf.minute * CD_SECONDS_PER_MINUTE * CD_FRAMES_PER_SECOND) +
-            (tocentry.cdte_addr.msf.second * CD_FRAMES_PER_SECOND) +
-            tocentry.cdte_addr.msf.frame;
-        cddb_disc_add_track( d, t );
-    }
-
-    /* fetch the leadout to get total duration */
-    memset( &tocentry, 0, sizeof(tocentry) );
-    tocentry.cdte_track = CD_LEADOUT_TRACK;
-    tocentry.cdte_format = CDROM_MSF;
-    if (ioctl(fd, CDROMREADTOCENTRY, &tocentry) == -1)
-    {
-        perror("CDROMREADTOCENTRY");
-        return errno;
-    }
-    d->length = tocentry.cdte_addr.msf.minute * CD_SECONDS_PER_MINUTE + tocentry.cdte_addr.msf.second;
-    d->discid = cddb_disc_calc_discid( d );
-
-    return 0;
-}
-
 bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 {
     int status;
-    string genre;
     string mrl = ""; //, serverMRL, title;
 
     int result = cdrom_checkdrive( m_sDrive.c_str(), &m_mediaDiskStatus);
@@ -1216,18 +704,12 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
         {
             case DISCTYPE_CD_MIXED: // treat a mixed CD as an audio CD for now.
             case DISCTYPE_CD_AUDIO:
-                mrl = getTracks("cdda:/", genre).c_str();
-                // mrl = getTracks ("cdda:/", genre);
-//              serverMRL = getTracks ("cdda:/" + m_MyIPAddress + ":" + DVDCSS_SERVER_PORT + "/", genre);
-//              title = cdrom_get_title(fd);
+                mrl = getTracks("cdda:/").c_str();
                 status = MEDIATYPE_pluto_CD_CONST;
                 break;
 
             case DISCTYPE_DVD_VIDEO:
                 mrl = m_sDrive;
-                // "dvd:/";
-//              serverMRL = "dvd:/" + m_MyIPAddress + ": " + DVDCSS_SERVER_PORT + "/";
-//              title = dvd_read_name (fd);
                 status = MEDIATYPE_pluto_DVD_CONST;
                 break;
 
@@ -1354,4 +836,79 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &
 
     spawnApplication.m_pMessage->m_bRelativeToSender = true;
     SendCommand(spawnApplication);
+}
+
+string Disk_Drive::getTracks (string mrl)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "Finding CD tracks.");
+
+//     time_t startTime=time(NULL);
+
+    cddb_conn_t *conn = NULL;
+    cddb_disc_t *disc = NULL;
+
+    int fd = -1, status;
+    string tracks = "";
+
+    try {
+        g_pPlutoLogger->Write(LV_STATUS, "Opening drive first time.");
+
+        fd = open( m_sDrive.c_str(), O_RDONLY | O_NONBLOCK );
+        if (fd < 0)
+            throw string ("Failed to open CD device" + string (strerror (errno)));
+
+        g_pPlutoLogger->Write(LV_STATUS, "Checking media with ioctl");
+        status = ioctl( fd, CDROM_DISC_STATUS, CDSL_CURRENT );
+        if ( status != CDS_AUDIO && status != CDS_MIXED )
+            throw string ("Invalid media detected");
+
+        conn = cddb_new();
+        if (conn)
+        {
+            disc = cddb_disc_new();
+            if (disc)
+            {
+                g_pPlutoLogger->Write(LV_STATUS, "Reading disk toc");
+                int result = read_toc( fd, conn, disc );
+                if ( result < 0 )
+                    throw string("Failed to read CDROM TOC.");
+
+				cddb_track_t *track = disc->tracks;
+                int i = 1;
+                ostringstream sb;
+
+                while (track)
+                {
+                    sb << mrl << i++ << endl;
+                    track = track->next;
+                }
+
+                tracks = sb.str().c_str();
+            }
+            else
+                throw string ("unable to create libcddb disc structure" );
+        }
+        else
+            throw string ("unable to initialize libcddb");
+    }
+    catch (string err)
+    {
+        g_pPlutoLogger->Write (LV_WARNING, "w1: %s",err.c_str());
+    }
+    catch (...)
+    {
+        g_pPlutoLogger->Write (LV_WARNING, "Unknown error in getTracks()");
+    }
+
+    // printf("ready to destroy cddb info (%ld)\n",time(NULL)-startTime);
+    if (conn != NULL)
+        cddb_destroy( conn );
+    if (disc != NULL)
+        cddb_disc_destroy( disc );
+    if (fd != -1)
+        close( fd );
+
+    // printf("Returning %d byte string as tracks\n",tracks.length());
+
+    return tracks;
 }
