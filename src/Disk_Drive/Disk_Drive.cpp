@@ -844,9 +844,6 @@ string Disk_Drive::getTracks (string mrl)
 
 //     time_t startTime=time(NULL);
 
-    cddb_conn_t *conn = NULL;
-    cddb_disc_t *disc = NULL;
-
     int fd = -1, status;
     string tracks = "";
 
@@ -862,34 +859,21 @@ string Disk_Drive::getTracks (string mrl)
         if ( status != CDS_AUDIO && status != CDS_MIXED )
             throw string ("Invalid media detected");
 
-        conn = cddb_new();
-        if (conn)
-        {
-            disc = cddb_disc_new();
-            if (disc)
-            {
-                g_pPlutoLogger->Write(LV_STATUS, "Reading disk toc");
-                int result = read_toc( fd, conn, disc );
-                if ( result < 0 )
-                    throw string("Failed to read CDROM TOC.");
+		/* Code inspired from cd-discid - Start */
+		struct cdrom_tochdr hdr;
+		if (ioctl(fd, CDROMREADTOCHDR, &hdr) < 0)
+		{
+			throw string("Failed to read CDROM TOC.");
+		}
+		/* Code inspired from cd-discid - End */
 
-				cddb_track_t *track = disc->tracks;
-                int i = 1;
-                ostringstream sb;
+		ostringstream sb;
+		for (int i = 1; i <= hdr.cdth_trk1; i++)
+		{
+			sb << mrl << i << endl;
+		}
 
-                while (track)
-                {
-                    sb << mrl << i++ << endl;
-                    track = track->next;
-                }
-
-                tracks = sb.str().c_str();
-            }
-            else
-                throw string ("unable to create libcddb disc structure" );
-        }
-        else
-            throw string ("unable to initialize libcddb");
+		tracks = sb.str();
     }
     catch (string err)
     {
@@ -899,16 +883,6 @@ string Disk_Drive::getTracks (string mrl)
     {
         g_pPlutoLogger->Write (LV_WARNING, "Unknown error in getTracks()");
     }
-
-    // printf("ready to destroy cddb info (%ld)\n",time(NULL)-startTime);
-    if (conn != NULL)
-        cddb_destroy( conn );
-    if (disc != NULL)
-        cddb_disc_destroy( disc );
-    if (fd != -1)
-        close( fd );
-
-    // printf("Returning %d byte string as tracks\n",tracks.length());
 
     return tracks;
 }
