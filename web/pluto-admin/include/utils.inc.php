@@ -3368,12 +3368,10 @@ function processAudioSettings($deviceID,$dbADO)
 
 function processVideoSettings($deviceID,$dbADO)
 {
-	$dbADO->debug=true;
 	if(isset($_POST['videoSettings_'.$deviceID]) && $_POST['videoSettings_'.$deviceID]!='0'){
 		$newVS=$_POST['videoSettings_'.$deviceID].'/'.$_POST['refresh_'.$deviceID];
 		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$deviceID,$GLOBALS['VideoSettings']));
 	}
-	$dbADO->debug=false;
 }
 
 function isCritical($deviceID)
@@ -3388,7 +3386,7 @@ function isCritical($deviceID)
 
 function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 {
-	$deviceDataBox='';
+	$deviceDataBox='<table width="240" cellpadding="2" cellspacing="0">';
 
 	foreach ($DeviceDataArray AS $rowDDforDevice){
 		
@@ -3398,7 +3396,10 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 		$ddValue=$rowDDforDevice['IK_DeviceData'];
 
 		if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='')){
-			$deviceDataBox.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle"> ':'');
+			$deviceDataBox.='
+				<tr>
+					<td width="270" align="right"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle"> ':'').'</td>
+					<td>';
 			switch($rowDDforDevice['typeParam']){
 				case 'int':
 				if(in_array($rowDDforDevice['dd_Description'],$GLOBALS['DeviceDataLinkedToTables'])){
@@ -3430,7 +3431,9 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 				break;
 				default:
 				if($rowDDforDevice['FK_DeviceData']==$GLOBALS['Port']){
-					$deviceDataBox.=serialPortsPulldown('deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'],@$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($deviceID,$dbADO));
+					$deviceDataBox.=@$ddValue;
+					$deviceDataBox.='<input type="hidden" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'">';
+					//$deviceDataBox.=serialPortsPulldown('deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'],@$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($deviceID,$dbADO));
 				}else{
 					$deviceDataBox.='<input type="text" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 				}
@@ -3439,13 +3442,97 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 			$deviceDataBox.='
 							<input type="hidden" name="oldDeviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.$ddValue.'">';					
 			unset($ddValue);
-			$deviceDataBox.='<br>';
+			$deviceDataBox.='
+					</td>
+				</tr>';
 		}
+
 	}
 	if($isIPBased==1){
-		$deviceDataBox.='<B>IP</B> <input type="text" name="ip_'.$deviceID.'" value="'.$rowD['IPaddress'].'"><br>
-								<B>MAC</B> <input type="text" name="mac_'.$deviceID.'" value="'.$rowD['MACaddress'].'">';
+		$deviceDataBox.='
+			<tr>
+				<td><B>IP</B></td>
+				<td><input type="text" name="ip_'.$deviceID.'" value="'.$rowD['IPaddress'].'"></td>
+			</tr>
+			<tr>
+				<td><B>MAC</B></td>
+				<td><input type="text" name="mac_'.$deviceID.'" value="'.$rowD['MACaddress'].'"></td>
+			</tr>';
 	}
+	$deviceDataBox.='</table>';
+	
+	return $deviceDataBox;
+}
+
+function formatNonEditDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
+{
+	$deviceDataBox='<table width="240" cellpadding="2" cellspacing="0">';
+
+	foreach ($DeviceDataArray AS $rowDDforDevice){
+		
+		if(!in_array($rowDDforDevice['FK_DeviceData'],$GLOBALS['DeviceDataToDisplay']))
+			$GLOBALS['DeviceDataToDisplay'][]=$rowDDforDevice['FK_DeviceData'];
+
+		$ddValue=$rowDDforDevice['IK_DeviceData'];
+
+		if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='')){
+			$deviceDataBox.='
+				<tr>
+					<td width="170" align="right"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b>&nbsp;'.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle">':'').'</td>
+					<td>';
+			
+			switch($rowDDforDevice['typeParam']){
+				case 'int':
+				if(in_array($rowDDforDevice['dd_Description'],$GLOBALS['DeviceDataLinkedToTables'])){
+					$tableName=str_replace('PK_','',$rowDDforDevice['dd_Description']);
+					$filterQuery='';
+					switch($tableName){
+						case 'Device':
+						$filterQuery=" WHERE FK_Installation='".$installationID."'";
+						break;
+						case 'FloorplanObjectType':
+						$filterQuery=" WHERE FK_FloorplanType='".@$specificFloorplanType."'";
+					}
+
+					$queryTable="SELECT * FROM $tableName $filterQuery WHERE ".$rowDDforDevice['dd_Description']."=$ddValue";
+					$resTable=$dbADO->Execute($queryTable);
+					if($resTable->RecordCount()>0){
+						$row=$resTable->FetchRow();
+						$ddLabel=$row['Description'];
+					}else{
+						$ddLabel='&nbsp;';
+					}
+					
+					$deviceDataBox.=$ddLabel;
+				}
+				else
+					$deviceDataBox.=@$ddValue;
+				break;
+				case 'bool':
+					$deviceDataBox.=((@$ddValue!=0)?'Y':'N');
+				break;
+				default:
+					$deviceDataBox.=@$ddValue;
+			}
+
+			unset($ddValue);
+			$deviceDataBox.='</td>
+				</tr>';
+		}
+
+	}
+	if($isIPBased==1){
+		$deviceDataBox.='
+			<tr>
+				<td><B>IP</B></td>
+				<td>'.$rowD['IPaddress'].'</td>
+			</tr>
+			<tr>
+				<td><B>MAC</B></td>
+				<td>'.$rowD['MACaddress'].'</td>
+			</tr>';
+	}
+	$deviceDataBox.='</table>';
 	
 	return $deviceDataBox;
 }

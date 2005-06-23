@@ -306,7 +306,7 @@ function editMediaFile($output,$mediadbADO) {
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$error);			
 				exit();
 			}else{
-				exec('/usr/pluto/bin/UpdateMedia –d "'.$path.'"');
+				exec('/usr/pluto/bin/UpdateMedia -d "'.$path.'"');
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=The picture was uploaded.');			
 				exit();
 			}

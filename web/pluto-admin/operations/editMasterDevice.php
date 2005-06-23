@@ -282,7 +282,7 @@ $out='';
 													<td>#{$row['FK_DeviceData']} {$row['DD_desc']}({$row['PT_Desc']}) 
 													<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editDeviceData&from=editMasterDevice&deviceID=$deviceID&deviceDataID={$row['PK_DeviceData']}','status=0,resizable=1,width=500,height=250,toolbars=true');\">Edit</a></td>
 													<td><input type='text' value='{$row['Description']}' name='Data_Description_{$row['FK_DeviceData']}'></td>
-													<td><input type='text' value='{$row['IK_DeviceData']}' name='Data_DefaultValue_{$row['FK_DeviceData']}'></td>
+													<td><textarea name='Data_DefaultValue_{$row['FK_DeviceData']}' rows='1'>{$row['IK_DeviceData']}</textarea></td>
 													<td><input type='checkbox' value='1' name='Data_Required_{$row['FK_DeviceData']}' ".($row['Required']==1?' checked="checked" ':'')."></td>
 													<td><input type='checkbox' value='1' name='Data_AllowedToModify_{$row['FK_DeviceData']}' ".($row['AllowedToModify']==1?' checked="checked" ':'')."></td>
 													<td><input type='checkbox' value='1' name='Data_UseDeviceTemplateDefault_{$row['FK_DeviceData']}' ".($row['UseDeviceTemplateDefault']==1?' checked="checked" ':'')."></td>

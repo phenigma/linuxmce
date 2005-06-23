@@ -1160,7 +1160,12 @@ switch ($section) {
 	    include_once('operations/myDevices/mediaDirectors.php');
 	    mediaDirectors($output,$dbADO);
 	break;	
-	
+	case 'editPipes';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/editPipes.php');
+	    editPipes($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	
