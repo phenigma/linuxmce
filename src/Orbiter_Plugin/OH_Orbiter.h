@@ -2,6 +2,7 @@
 #define OH_Orbiter_h
 
 #include "OH_User.h"
+#include "Orbiter/Floorplan.h"
 
 namespace DCE
 {
@@ -41,6 +42,14 @@ namespace DCE
 			m_tSendAppTime=m_tRegenTime=0;
 			m_pOH_User=NULL;
 		}
+
+        bool NeedVMC();
+        void NeedVMC(bool bTrue);
+        bool NeedApp();
+        void NeedApp(bool bTrue);
+
+    protected:
+        void SetState(bool bNeedVmc, bool bNeedApp);
 	};
 }
 

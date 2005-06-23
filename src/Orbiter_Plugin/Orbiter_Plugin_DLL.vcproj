@@ -131,6 +131,9 @@
 				RelativePath="Main.cpp">
 			</File>
 			<File
+				RelativePath=".\OH_Orbiter.cpp">
+			</File>
+			<File
 				RelativePath="Orbiter_Plugin.cpp">
 			</File>
 			<File

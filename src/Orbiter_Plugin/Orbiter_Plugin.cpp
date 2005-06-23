@@ -23,13 +23,16 @@
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
+#include <map>
+#include <vector>
+#include <sstream>
 using namespace std;
 using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#include <sstream>
+#include "Orbiter/Floorplan.h"
 
 #include "pluto_security/Database_pluto_security.h"
 #include "pluto_security/Table_AlertType.h"
@@ -536,12 +539,11 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d (%d,%d,%d)", sMacAddress.c_str(),
                     pDeviceFrom->m_dwPK_Device, iOldSignalStrength, iCurrentSignalStrength, m_iThreshHold);
 
-				pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Reload(); // Just in case we changed this to resend the app to the phone
-				if( pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_get() == 1 )
+				if( pOH_Orbiter->NeedApp())
 					SendAppToPhone( pOH_Orbiter, pDeviceFrom );
 
                 string sVmcFileToSend = "";
-                if(pOH_Orbiter->m_pDeviceData_Router->m_sStatus_get() == "NEED VMC")
+                if(pOH_Orbiter->NeedVMC())
                 {
                     //we'll reset the status when we'll be sure that the connection is established
                     sVmcFileToSend = pOH_Orbiter->m_sUpdateVMCFile;
@@ -634,9 +636,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
 g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH_Orbiter,sVersion.c_str());
 
     Row_Device *pRow_Device = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device;
-	pRow_Device->Reload(); // Just in case we changed this to resend the app to the phone
-    //if( (pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion) && pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
-	if( pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion )
+	if( pOH_Orbiter->NeedApp() || sVersion != g_sLatestMobilePhoneVersion )
 	{
 		// It's possible that multiple detectors picked up the phone around the same time and we already
 		// are sending a new version to one, while another is detecting the phone.  Give the user 15 minutes
@@ -659,8 +659,8 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH
     SendCommand(CMD_Create_Mobile_Orbiter);
 
     //it's ok now to reset the status
-    if(pOH_Orbiter->m_pDeviceData_Router->m_sStatus_get() == "NEED VMC")
-        pOH_Orbiter->m_pDeviceData_Router->m_sStatus_set("");
+    if(pOH_Orbiter->NeedVMC())
+        pOH_Orbiter->NeedVMC(false);
 
 		// See if there's an ent group involved
 
@@ -942,14 +942,13 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
 	FileUtils::LaunchProcessInBackground(Cmd);
 	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
 
-    // todo -- need to restart the dce router automatically
     if( !pUnknownDeviceInfos || !pUnknownDeviceInfos->m_iDeviceIDFrom )
         g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
     else
     {
-		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
+        Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
 		pRow_Device->Reload(); // Just in case it's been changed
-		pRow_Device->NeedConfigure_set(0);
+		pRow_Device->State_set(""); //let's be sure no state is set
 		pRow_Device->Table_Device_get()->Commit();
 		
 		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
@@ -962,7 +961,6 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
             sMac_address,
             ""
         );
-
         SendCommand(CMD_Send_File_To_Device);
 
         g_pPlutoLogger->Write(LV_WARNING, "Sending command1 CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMac_address.c_str());
@@ -973,9 +971,7 @@ g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
     SendCommand(CMD_Remove_Screen_From_History_DL);
 
 	DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T1111%>",false);
-
 	m_bNoUnknownDeviceIsProcessing = false;
-
     ProcessUnknownDevice();
 }
 //<-dceag-c79-b->
@@ -1593,12 +1589,11 @@ void Orbiter_Plugin::SetBoundIcons(int iPK_Users,bool bOnOff,string sType)
 
 void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDevice_Dongle)
 {
-g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: / %s / %s",
-		(int) pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_get(),g_sLatestMobilePhoneVersion.c_str(),pOH_Orbiter->m_sVersion.c_str());
+    g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - NeedApp: %d, NeedVMC: %d,  version: / %s / %s",
+		(int) pOH_Orbiter->NeedApp(),(int) pOH_Orbiter->NeedVMC(),
+        g_sLatestMobilePhoneVersion.c_str(),pOH_Orbiter->m_sVersion.c_str());
 	pOH_Orbiter->m_sVersion = g_sLatestMobilePhoneVersion;
-	pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Reload(); // Just in case it's been changed
-    pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_set(0);
-    pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Table_Device_get()->Commit();
+	pOH_Orbiter->NeedApp(false);
 	pOH_Orbiter->m_tSendAppTime = time(NULL);
 
     Row_DeviceTemplate *pRow_DeviceTemplate = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->FK_DeviceTemplate_getrow();
