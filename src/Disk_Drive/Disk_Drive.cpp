@@ -1338,12 +1338,19 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &
 
 	g_pPlutoLogger->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", sName.c_str(), m_mediaDiskStatus, strParameters.c_str() );
 
+	string sResultMessage =
+		StringUtils::itos(m_dwPK_Device) + "\t-1001\t" + StringUtils::itos(MESSAGETYPE_EVENT) + 
+			"\t" + StringUtils::itos(EVENT_Ripping_Completed_CONST) + "\t" + StringUtils::itos(EVENTPARAMETER_Name_CONST) + "\t" +
+			sName + "\t" + StringUtils::itos(EVENTPARAMETER_Result_CONST) + "\t";
+
 	DCE::CMD_Spawn_Application_DT
 		spawnApplication(m_dwPK_Device,
 						DEVICETEMPLATE_App_Server_CONST,
 						BL_SameComputer,
 						"/usr/pluto/bin/ripDiskWrapper.sh", sName, strParameters,
-						"", "", "0");
+						sResultMessage + StringUtils::itos(RIP_RESULT_FAILURE),
+						sResultMessage + StringUtils::itos(RIP_RESULT_SUCCESS),
+						"0");
 
     spawnApplication.m_pMessage->m_bRelativeToSender = true;
     SendCommand(spawnApplication);
