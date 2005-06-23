@@ -755,7 +755,7 @@ m_bNoEffects = true;
 			if( o->size()>0 )
 			{
 				DesignObj_Generator *oco = o->front();
-	if( oco->m_ObjectID.find("3290.")!=string::npos )
+	if( oco->m_pRow_DesignObj->PK_DesignObj_get()==1724 )
 	{
 	int k=2;
 	}
@@ -883,8 +883,24 @@ m_bNoEffects = true;
 		}
 	}
 
-
 	list<Row_DesignObj *>::iterator itno;
+	list<Row_DesignObj *> alNewDesignObjsToGenerate2;  // Create a second list of any new dependencies we drug in
+	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
+	{
+		Row_DesignObj *pRow_DesignObj = *itno;
+		vector<Row_DesignObj *> vectros;
+		pRow_DesignObj->DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(&vectros);
+		for(size_t s=0;s<vectros.size();++s)
+		{
+			Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];
+			alNewDesignObjsToGenerate2.push_back(m_pRow_DesignObjDependancy);
+		}
+	}
+
+	for(itno=alNewDesignObjsToGenerate2.begin();itno!=alNewDesignObjsToGenerate2.end();++itno)
+		alNewDesignObjsToGenerate.push_back(*itno); // Merge these back in
+
+
 	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
 	{
 		Row_DesignObj *m_pRow_DesignObjDependancy = *itno;

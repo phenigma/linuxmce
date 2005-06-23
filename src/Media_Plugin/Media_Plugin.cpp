@@ -3678,11 +3678,11 @@ void Media_Plugin::CMD_Get_Default_Ripping_Name(string sPK_EntertainArea,string 
 	}
 	if( pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 	{
-		(*sFilename) = pEntertainArea->m_pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Group_CONST];
+		(*sFilename) = m_pMediaAttributes->GetPrintableName(pEntertainArea->m_pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Group_CONST]);
 		if( sFilename->size() )
-			(*sFilename) += "/"; // We got a gropu
+			(*sFilename) += "/"; // We got a group
 
-		(*sFilename) += pEntertainArea->m_pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST];
+		(*sFilename) += m_pMediaAttributes->GetPrintableName(pEntertainArea->m_pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]);
 	}
 	else
 		(*sFilename) = pEntertainArea->m_pMediaStream->m_sMediaDescription;

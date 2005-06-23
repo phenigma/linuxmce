@@ -93,6 +93,7 @@ public:
 	string GetTabbedName(Row_Attribute *pRow_Attribute);
 	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);
 	string GetPrintableName(Row_Attribute *pRow_Attribute);
+	string GetPrintableName(int PK_Attribute);
 
     void MarkAsMissing(int iKey, string fileName);
 

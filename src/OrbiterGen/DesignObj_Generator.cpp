@@ -91,7 +91,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3412 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==1720 || m_pRow_DesignObj->PK_DesignObj_get()==1724 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
 {
     int k=2;
 }
@@ -231,13 +231,11 @@ int k=2;
 
         if( sGraphicFile.length()>0 )
         {
-cout << "1: " << sGraphicFile << " ne: " << m_pOrbiterGenerator->m_bNoEffects << endl;
             if( m_pOrbiterGenerator->m_bNoEffects )
             {
                 sGraphicFile = StringUtils::Replace(&sGraphicFile,".MNG",".PNG");
                 sGraphicFile = StringUtils::Replace(&sGraphicFile,".mng",".png");
             }
-cout << "2: " << sGraphicFile << endl;
             size_t scPos=0;
             for(;;)
             {

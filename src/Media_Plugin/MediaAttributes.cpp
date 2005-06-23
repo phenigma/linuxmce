@@ -1092,3 +1092,12 @@ string MediaAttributes::GetPrintableName(Row_Attribute *pRow_Attribute)
 	else
 		return pRow_Attribute->Name_get() + ", " + pRow_Attribute->FirstName_get();
 }
+
+string MediaAttributes::GetPrintableName(int PK_Attribute)
+{
+	Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
+	if( !pRow_Attribute )
+		return "";
+	return GetPrintableName(pRow_Attribute);
+}
+
