@@ -55,6 +55,9 @@ namespace DCE
 int iPK_Device=0;
 class CreateDevice *g_pCreateDevice;
 
+bool bSummary=false,bInteractive=true,g_bSkipConfirmRelations=false;
+map<int,bool> g_mapPackages_AlreadyChecked; // Don't check each package more than once
+
 class PackageInfo
 {
 public:
@@ -90,8 +93,13 @@ public:
 		m_pRow_RepositorySource_URL=pRow_RepositorySource_URL;
 		m_bMustBuild=bMustBuild;
 		m_pRow_Package_Directory_Compiled_Output=NULL;
-		Row_Package_Device *pRow_Package_Device = pRow_Package_Source_Compat->Table_Package_Source_Compat_get()->Database_pluto_main_get()->Package_Device_get()->GetRow(pRow_Package_Source->FK_Package_get(),iPK_Device);
-		m_bAlreadyInstalled = (pRow_Package_Device!=NULL);
+		if( !g_bSkipConfirmRelations )
+		{
+			Row_Package_Device *pRow_Package_Device = pRow_Package_Source_Compat->Table_Package_Source_Compat_get()->Database_pluto_main_get()->Package_Device_get()->GetRow(pRow_Package_Source->FK_Package_get(),iPK_Device);
+			m_bAlreadyInstalled = (pRow_Package_Device!=NULL);
+		}
+		else
+			m_bAlreadyInstalled = false;
 	}
 };
 
@@ -108,7 +116,6 @@ void AddAlternateSources(vector<Row_Package_Source_Compat *> &vectRow_Package_So
 string sCommand;
 int iPK_Distro=-1;
 Row_Installation *pRow_Installation;
-bool bSummary=false,bInteractive=true;;
 list<PackageInfo *> listPackageInfo;  // We need a list so we can keep them in the right order
 DCEConfig dceConfig;
 Row_Distro *pRow_Distro=NULL;
@@ -172,7 +179,7 @@ int main(int argc, char *argv[])
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/ConfirmDependencies.newlog");
 #endif
 
-	bool bError=false,bIncludeDisklessMD=true,bSourceCode=false,bSkipConfirmRelations=false; // An error parsing the command line
+	bool bError=false,bIncludeDisklessMD=true,bSourceCode=false; // An error parsing the command line
 	iPK_Device = dceConfig.m_iPK_Device_Computer;
 	char c;
 
@@ -254,7 +261,7 @@ int main(int argc, char *argv[])
 			bIncludeDisklessMD = false;
 			break;
 		case 'r':
-			bSkipConfirmRelations = true;
+			g_bSkipConfirmRelations = true;
 			break;
 		case 'n':
 			bInteractive = false;
@@ -318,7 +325,7 @@ int main(int argc, char *argv[])
 	PrintCmd(argc, argv);
 	pRow_Installation = pRow_Device->FK_Installation_getrow();
 
-	if( !bSkipConfirmRelations )
+	if( !g_bSkipConfirmRelations )
 	{
 		CreateDevice createDevice(pRow_Installation->PK_Installation_get(),dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
 		createDevice.ConfirmRelations(pRow_Device->PK_Device_get(),true);
@@ -713,8 +720,10 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 		Row_Package_Package *pRow_Package_Package = vectRow_Package_Package[s];
 
 		// Skip this package if it's for development only and this is not a development box
-		if( pRow_Package_Package->OnlyToBuild_get()==1 && !bDevelopment )
+		if( pRow_Package_Package->OnlyToBuild_get()==1 && !bDevelopment || g_mapPackages_AlreadyChecked[pRow_Package_Package->FK_Package_DependsOn_get()])
 			continue;
+
+		g_mapPackages_AlreadyChecked[pRow_Package_Package->FK_Package_DependsOn_get()]=true;
 
 		// Development = false because we only assume the first level of packages are intended to be built
 		// from source
