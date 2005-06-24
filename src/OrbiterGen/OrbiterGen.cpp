@@ -617,6 +617,20 @@ m_bNoEffects = true;
 		};
 	}
 
+	// We need to know which objects have arrays that are room specific so we can generate
+	// one for each location
+	string sql = "select DISTINCT FK_DesignObjVariation_Parent FROM DesignObjVariation_DesignObjParameter"
+		" JOIN DesignObjVariation ON PK_DesignObjVariation=FK_DesignObjVariation"
+		" JOIN DesignObj ON PK_DesignObj=FK_DesignObj"
+		" JOIN DesignObjVariation_DesignObj ON FK_DesignObj_Child=PK_DesignObj"
+		" WHERE FK_DesignObjParameter=11 AND FK_DesignObjType=3 AND Value IN ('1','2','3','4','5','16','21')";
+	PlutoSqlResult result_set_array;
+	MYSQL_ROW row;
+	if( (result_set_array.r=mysql_query_result(sql)) )
+	{
+		while ((row = mysql_fetch_row(result_set_array.r)))
+			m_mapDesignObjVariation_WithArrays[ atoi(row[0]) ] = true;
+	}
 
 	for(size_t s=0;s<vectRow_Room.size();++s)
 	{
@@ -788,7 +802,7 @@ m_bNoEffects = true;
 		}
 	}
 
-	string sql = string("SELECT ") + COMMANDGROUP_COMMAND_COMMANDPARAMETER_IK_COMMANDPARAMETER_TABLE_FIELD + " FROM " +
+	sql = string("SELECT ") + COMMANDGROUP_COMMAND_COMMANDPARAMETER_IK_COMMANDPARAMETER_TABLE_FIELD + " FROM " +
 		EVENTHANDLER_TABLE + " JOIN " + COMMANDGROUP_COMMAND_TABLE + " ON " + COMMANDGROUP_COMMAND_FK_COMMANDGROUP_TABLE_FIELD + "=" +
 		EVENTHANDLER_FK_COMMANDGROUP_TABLE_FIELD + " JOIN " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_TABLE + " ON " +
 		COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDGROUP_COMMAND_FIELD + "=" + COMMANDGROUP_COMMAND_PK_COMMANDGROUP_COMMAND_FIELD +
@@ -796,7 +810,6 @@ m_bNoEffects = true;
 		"=" + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " AND " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDPARAMETER_FIELD + "=" + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST);
 
 	PlutoSqlResult result_set3;
-	MYSQL_ROW row;
 	if( (result_set3.r=mysql_query_result(sql)) )
 	{
 		while ((row = mysql_fetch_row(result_set3.r)))

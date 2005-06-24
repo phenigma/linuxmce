@@ -91,7 +91,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2211 || m_pRow_DesignObj->PK_DesignObj_get()==1724 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==1269 || m_pRow_DesignObj->PK_DesignObj_get()==1255 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
 {
     int k=2; 
 }
@@ -107,21 +107,15 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2211 || m_pRow_DesignObj->PK_DesignObj
         return;
     }
 
-	// If this is the main menu, there will be an array of them
-    if( m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() ||
-		m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping->PK_DesignObj_get() ||
-		m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuLights_CONST ||
-		m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuMedia_CONST ||
-		m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuClimate_CONST ||
-		m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuSecurity_CONST ||
-		m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuTelephony_CONST )
-    {
+	if( m_pOrbiterGenerator->m_mapDesignObjVariation_WithArrays.find(m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get())!=
+		m_pOrbiterGenerator->m_mapDesignObjVariation_WithArrays.end() )
+	{
 		bAddToGenerated = true;
 		m_bDontShare = true;
         m_iVersion = m_pOrbiterGenerator->m_iLocation;
     }
 
-    if( bAddToGenerated )
+	if( bAddToGenerated )
     {
 		cout << "Generating screen: " << drDesignObj->PK_DesignObj_get() << " in orbiter: " << pGenerator->m_pRow_Device->PK_Device_get() << endl;
         listDesignObj_Generator *al = m_pOrbiterGenerator->m_htGeneratedScreens[drDesignObj->PK_DesignObj_get()];
@@ -143,7 +137,7 @@ int k=2;
             if( pdrCachedScreen && pdrCachedScreen->Schema_get()==ORBITER_SCHEMA &&
 				(!m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen!=m_pRow_DesignObj->PK_DesignObj_get()) )
             {
-				if( m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || (!m_bDontShare && (pdrCachedScreen->ContainsArrays_get()==0 || m_pOrbiterGenerator->m_bDontAutoRegenArrays)) )
+				if( m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || pdrCachedScreen->ContainsArrays_get()==0 )
 				{
 					time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
 					time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());

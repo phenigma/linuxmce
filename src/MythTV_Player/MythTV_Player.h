@@ -25,6 +25,7 @@ namespace DCE
 //<-dceag-decl-e->
     private:
         long unsigned int            m_iMythFrontendWindowId;
+	    pluto_pthread_mutex_t m_MythMutex;
 
         /** Private member variables */
         int                          m_iControllingDevice;

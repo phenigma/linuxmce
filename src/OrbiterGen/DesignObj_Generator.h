@@ -60,6 +60,9 @@ public:
 	string GetParm(int PK_Parameter,class Row_DesignObjVariation * drDesignObjVariation,bool bReplaceNulls);
 
 	string SubstituteVariables(string Text,bool *bContainsRunTimeVariables);
+
+	DesignObj_Generator *GetTopMostObject(DesignObj_Generator *pObj) {return pObj->m_ocoParent ? GetTopMostObject(pObj->m_ocoParent) : pObj;}
+
 };
 
 #endif

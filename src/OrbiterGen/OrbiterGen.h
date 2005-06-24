@@ -29,6 +29,7 @@ public:
 	map<int,int> m_mapUsedOrbiterCriteria;
 	map<int,listDesignObj_Generator *> m_htGeneratedScreens;
 	map<int,class TextStyle *> m_htStylesUsedInOrbiterText;
+	map<int,bool> m_mapDesignObjVariation_WithArrays;
 //	Hashtable m_htUsedDevices;
 //	StringWriter m_swErrors;
 	bool m_bOrbiterChanged,m_bIsMobilePhone;

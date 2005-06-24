@@ -92,7 +92,7 @@ class RatPoisonWrapper : public RatpoisonHandler<RatPoisonWrapper>
 public:
     RatPoisonWrapper(Display *display) : display(display) {}
     Display *getDisplay() { return display; }
-    void commandRatPoison(string command) { RatpoisonHandler<RatPoisonWrapper>::commandRatPoison(command); }
+    bool commandRatPoison(string command) { return RatpoisonHandler<RatPoisonWrapper>::commandRatPoison(command); }
 };
 
 // MythContext *gContext;
@@ -102,7 +102,9 @@ public:
 MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: MythTV_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	,m_MythMutex("myth")
 {
+	m_MythMutex.Init(NULL);
     m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
     m_iMythFrontendWindowId = 0;
@@ -171,6 +173,7 @@ bool MythTV_Player::checkXServerConnection()
 }
 void MythTV_Player::CreateChildren()
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
 
@@ -293,6 +296,7 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c75-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
 
@@ -314,6 +318,7 @@ void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c76-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
 
@@ -334,6 +339,7 @@ void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c187-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
 
@@ -382,6 +388,7 @@ void MythTV_Player::KillSpawnedDevices()
 
 void MythTV_Player::ProcessExited(int pid, int status)
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	g_pPlutoLogger->Write(LV_STATUS, "Process exited %d %d", pid, status);
 
 	void *data;
@@ -419,6 +426,7 @@ void MythTV_Player::ProcessExited(int pid, int status)
 void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Method was called here");
 //     if ( m_pMythTV == NULL || m_pMythTV->GetState() != kState_WatchingLiveTV )
 //     {
@@ -467,6 +475,7 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c129-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
 
@@ -481,6 +490,7 @@ void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c130-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
 
@@ -494,6 +504,7 @@ void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	processKeyBoardInputRequest(XK_Return);
 }
 
@@ -505,6 +516,7 @@ void MythTV_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	processKeyBoardInputRequest(XK_Up);
 }
 
@@ -516,6 +528,7 @@ void MythTV_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	processKeyBoardInputRequest(XK_Down);
 }
 
@@ -527,6 +540,7 @@ void MythTV_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_Left);
 }
 
@@ -538,6 +552,7 @@ void MythTV_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_Right);
 }
 
@@ -549,6 +564,7 @@ void MythTV_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 //<-dceag-c204-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_0);
 }
 
@@ -560,6 +576,7 @@ void MythTV_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 //<-dceag-c205-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_1);
 }
 
@@ -571,6 +588,7 @@ void MythTV_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 //<-dceag-c206-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_2);
 }
 
@@ -582,6 +600,7 @@ void MythTV_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 //<-dceag-c207-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_3);
 }
 
@@ -593,6 +612,7 @@ void MythTV_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 //<-dceag-c208-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_4);
 }
 
@@ -604,6 +624,7 @@ void MythTV_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 //<-dceag-c209-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_5);
 }
 
@@ -615,6 +636,7 @@ void MythTV_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 //<-dceag-c210-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_6);
 }
 
@@ -626,6 +648,7 @@ void MythTV_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 //<-dceag-c211-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_7);
 }
 
@@ -637,6 +660,7 @@ void MythTV_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 //<-dceag-c212-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_8);
 }
 
@@ -648,6 +672,7 @@ void MythTV_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 //<-dceag-c213-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_9);
 }
 
@@ -659,6 +684,7 @@ void MythTV_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 //<-dceag-c240-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     processKeyBoardInputRequest(XK_Escape);
 }
 //<-dceag-createinst-b->!
