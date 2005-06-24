@@ -189,6 +189,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_bRerenderScreen=false;
 	m_bWeCanRepeat=false;
 	m_bRepeatingObject=false;
+    m_bShowShortcuts = false;
 
     m_pScreenHistory_Current=NULL;
     m_pObj_LastSelected=m_pObj_Highlighted=NULL;
@@ -461,9 +462,9 @@ if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
         RenderObject( m_pScreenHistory_Current->m_pObj,  m_pScreenHistory_Current->m_pObj);
     }
 
-    for(int i = m_vectPopups.size() - 1; i >= 0 ; i--)
+    for(size_t i = 0; i < m_vectPopups.size(); i++)
     {
-        PlutoPopup *pPopup = m_vectPopups[i];
+        PlutoPopup *pPopup = m_vectPopups[m_vectPopups.size() - i - 1];
         if(pPopup->m_bVisible)
             RenderPopup(pPopup->m_sPK_DesignObj, pPopup->m_Position, pPopup->m_sName);
     }
@@ -920,6 +921,31 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
         //force an update because the object boundaries are not respected
         PlutoRectangle rect(point.X + pObj->m_rBackgroundPosition.X-i, point.Y + pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i);
         UpdateRect(rect, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
+    }
+
+    if(m_bShowShortcuts)
+    {
+        string sCharToRender;
+        if(pObj->m_iPK_Button >= BUTTON_1_CONST && pObj->m_iPK_Button <= BUTTON_9_CONST)
+            sCharToRender += '0' + pObj->m_iPK_Button - BUTTON_1_CONST + 1;
+        else if(pObj->m_iPK_Button == BUTTON_0_CONST)
+            sCharToRender += '0';
+                
+        if(sCharToRender != "")
+        {
+            PlutoPoint AbsPos = NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0);
+            PlutoPoint textPos(AbsPos.X + pObj->m_rPosition.X + 5, AbsPos.Y + pObj->m_rPosition.Y + 5);
+
+            PlutoRectangle rect(textPos.X, textPos.Y, 20, 20);
+            DesignObjText text(m_pScreenHistory_Current->m_pObj);
+            text.m_sText = sCharToRender;
+            text.m_rPosition = rect;
+            TextStyle *pTextStyle = m_mapTextStyle_Find(1);
+            PlutoColor OldColor = pTextStyle->m_ForeColor;
+            pTextStyle->m_ForeColor.m_Value = 0x808080;
+            RenderText(&text, pTextStyle);
+            pTextStyle->m_ForeColor = OldColor;
+        }
     }
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -3569,7 +3595,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
                 pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopupObj->m_rPosition.Bottom()
             )
             {
-                m_pScreenHistory_Current->m_pObj = pPopupObj;
+                pTopMostObject = pPopupObj;
                 RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
                 m_pActivePopup = pPopup;
                 break;
@@ -3577,7 +3603,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
         }
     }
 
-    bHandled=ClickedRegion( m_pScreenHistory_Current->m_pObj, RelativePoint.X, RelativePoint.Y, pTopMostAnimatedObject );
+    bHandled=ClickedRegion( pTopMostObject, RelativePoint.X, RelativePoint.Y, pTopMostAnimatedObject );
 
 #if ( defined( PROFILING ) )
     clock_t clkFinished = clock(  );
@@ -6803,18 +6829,6 @@ void Orbiter::CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,Message *pMes
 void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 //<-dceag-c192-e->
 {
-	/*
-	BeginPaint();
-	PlutoColor color(200, 200, 200, 100);
-	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
-	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
-	DesignObjText text(m_pScreenHistory_Current->m_pObj);
-	text.m_sText = "Display is ON";
-	text.m_rPosition = rect;
-	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
-	RenderText(&text, pTextStyle);
-	EndPaint();
-	*/
 }
 
 //<-dceag-c193-b->
@@ -7060,18 +7074,22 @@ PlutoPopup *Orbiter::FindPopupByName(string sPopupName)
 		/** @param #3 PK_DesignObj */
 			/** The ID of the screen */
 		/** @param #11 Position X */
-			/** X position */
+			/** X position (orbiter width will be considered to have 10000 units). So X is actually a percentage. */
 		/** @param #12 Position Y */
-			/** Y position */
+			/** Y position (orbiter height will be considered to have 10000 units). So Y is actually a percentage. */
 		/** @param #50 Name */
 			/** The popup name */
 
 void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
+    PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+    double dPercentX = iPosition_X / 10000.;
+    double dPercentY = iPosition_Y / 10000.;
+
     PlutoPopup *pPopup = NULL;
     if(NULL == (pPopup = FindPopupByID(sPK_DesignObj)))
-        m_vectPopups.push_back(new PlutoPopup(sPK_DesignObj, sName, PlutoPoint(iPosition_X, iPosition_Y), true));
+        m_vectPopups.push_back(new PlutoPopup(sPK_DesignObj, sName, PlutoPoint(int(m_iImageWidth * dPercentX), int(m_iImageHeight * dPercentY)), true));
 
     ShowPopup(sPK_DesignObj);
 }
@@ -7079,22 +7097,42 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 //<-dceag-c398-b->
 
 	/** @brief COMMAND: #398 - Hide Popup */
-	/**  */
+	/** Hides a popup. */
 		/** @param #3 PK_DesignObj */
-			/** The ID of the object (popup) */
+			/** The ID of the object (popup). If ID is zero, all the popups will be hidden. */
 
 void Orbiter::CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
 //<-dceag-c398-e->
 {
-    HidePopup(sPK_DesignObj);
+    PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+    if(sPK_DesignObj != "")
+        HidePopup(sPK_DesignObj);
+    else
+        HidePopups();
 }
 
 /*virtual*/ void Orbiter::HidePopups()
 {
+    PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
     for(size_t i = 0; i < m_vectPopups.size(); i++)
     {
         PlutoPopup *pPopup = m_vectPopups[i];
         if(pPopup->m_bVisible)
             pPopup->m_bVisible = false;
     }
+}
+
+//<-dceag-c399-b->
+
+	/** @brief COMMAND: #399 - Show Shortcuts */
+	/** Shows/hides the shortcuts */
+		/** @param #119 True/False */
+			/** if this is true, the shortcuts will be visible. */
+
+void Orbiter::CMD_Show_Shortcuts(bool bTrueFalse,string &sCMD_Result,Message *pMessage)
+//<-dceag-c399-e->
+{
+    PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+    m_bShowShortcuts = bTrueFalse;
+    RenderScreen();
 }

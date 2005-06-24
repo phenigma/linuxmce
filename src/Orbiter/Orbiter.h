@@ -160,6 +160,7 @@ protected:
 	bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
 	bool m_bRestrictedOp_IsUser;
 	int m_iRestrictedOp_ID;
+    bool m_bShowShortcuts;
 
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
@@ -1432,9 +1433,9 @@ public:
 		/** @param #3 PK_DesignObj */
 			/** The ID of the screen */
 		/** @param #11 Position X */
-			/** X position */
+			/** X position (orbiter width will be considered to have 10000 units). So X is actually a percentage. */
 		/** @param #12 Position Y */
-			/** Y position */
+			/** Y position (orbiter height will be considered to have 10000 units). So Y is actually a percentage. */
 		/** @param #50 Name */
 			/** The popup name */
 
@@ -1443,12 +1444,21 @@ public:
 
 
 	/** @brief COMMAND: #398 - Hide Popup */
-	/**  */
+	/** Hides a popup. */
 		/** @param #3 PK_DesignObj */
-			/** The ID of the object (popup) */
+			/** The ID of the object (popup). If ID is zero, all the popups will be hidden. */
 
 	virtual void CMD_Hide_Popup(string sPK_DesignObj) { string sCMD_Result; CMD_Hide_Popup(sPK_DesignObj.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #399 - Show Shortcuts */
+	/** Shows/hides the shortcuts */
+		/** @param #119 True/False */
+			/** if this is true, the shortcuts will be visible. */
+
+	virtual void CMD_Show_Shortcuts(bool bTrueFalse) { string sCMD_Result; CMD_Show_Shortcuts(bTrueFalse,sCMD_Result,NULL);};
+	virtual void CMD_Show_Shortcuts(bool bTrueFalse,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -6341,5 +6341,21 @@ namespace DCE
 	public:
 		CMD_Hide_Popup_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_DesignObj) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,398,1,3,sPK_DesignObj.c_str()); }
 	};
+	class CMD_Show_Shortcuts : public PreformedCommand {
+	public:
+		CMD_Show_Shortcuts(long DeviceIDFrom, long DeviceIDTo,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,399,1,119,(bTrueFalse ? "1" : "0")); }
+	};
+	class CMD_Show_Shortcuts_DL : public PreformedCommand {
+	public:
+		CMD_Show_Shortcuts_DL(long DeviceIDFrom, string DeviceIDTo,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,399,1,119,(bTrueFalse ? "1" : "0")); }
+	};
+	class CMD_Show_Shortcuts_DT : public PreformedCommand {
+	public:
+		CMD_Show_Shortcuts_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,399,1,119,(bTrueFalse ? "1" : "0")); }
+	};
+	class CMD_Show_Shortcuts_Cat : public PreformedCommand {
+	public:
+		CMD_Show_Shortcuts_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,399,1,119,(bTrueFalse ? "1" : "0")); }
+	};
 }
 #endif
