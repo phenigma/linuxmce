@@ -252,7 +252,7 @@ function editMediaFile($output,$mediadbADO) {
 			$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File=?',$fileID);
 			$mediadbADO->Execute('DELETE FROM File WHERE PK_File=?',$fileID);
 			
-			exec('/usr/pluto/bin/UpdateMedia -d "'.$oldPath.'"');
+			exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$oldPath.'"');
 			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($oldPath).'&msg=Media file was deleted.');			
 			exit();
 
@@ -274,7 +274,7 @@ function editMediaFile($output,$mediadbADO) {
 			}
 			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, FK_Type=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
 			
-			exec('/usr/pluto/bin/UpdateMedia -d "'.$path.'"');
+			exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"');
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			
 			exit();
 		}
@@ -306,7 +306,7 @@ function editMediaFile($output,$mediadbADO) {
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$error);			
 				exit();
 			}else{
-				exec('/usr/pluto/bin/UpdateMedia -d "'.$path.'"');
+				exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"');
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=The picture was uploaded.');			
 				exit();
 			}

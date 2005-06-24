@@ -83,8 +83,8 @@ function moveFile($output,$mediadbADO) {
 			$newDir=(substr(urldecode($_POST['newPath']),-1)=='/')?substr(urldecode($_POST['newPath']),0,-1):urldecode($_POST['newPath']);
 			$mediadbADO->Execute('UPDATE File SET Path=? WHERE PK_File=?',array($newDir,$fileID));
 			
-			exec('/usr/pluto/bin/UpdateMedia -d "'.$oldDir.'"');
-			exec('/usr/pluto/bin/UpdateMedia -d "'.$newDir.'"');
+			exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$oldDir.'"');
+			exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$newDir.'"');
 		}
 		
 		$out.='
