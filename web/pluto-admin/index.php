@@ -1166,6 +1166,13 @@ switch ($section) {
 	    include_once('operations/myDevices/editPipes.php');
 	    editPipes($output,$dbADO);
 	break;	
+	case 'editDeviceDeviceData';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/editDeviceDeviceData.php');
+	    editDeviceDeviceData($output,$dbADO);
+	break;	
+
 	
 	case '';
 		$output = new Template($dbADO);	

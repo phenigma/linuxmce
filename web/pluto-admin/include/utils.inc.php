@@ -3432,7 +3432,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 				default:
 				if($rowDDforDevice['FK_DeviceData']==$GLOBALS['Port']){
 					$deviceDataBox.=@$ddValue;
-					$deviceDataBox.='<input type="hidden" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'">';
+					$deviceDataBox.='<input type="hidden" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'">&nbsp;<a href="javascript:windowOpen(\'index.php?section=editDeviceDeviceData&deviceID='.$deviceID.'&dd='.$rowDDforDevice['FK_DeviceData'].'&from=avWizard\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');">Edit</a>';
 					//$deviceDataBox.=serialPortsPulldown('deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'],@$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($deviceID,$dbADO));
 				}else{
 					$deviceDataBox.='<input type="text" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';

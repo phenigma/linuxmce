@@ -50,6 +50,15 @@ function wizardOrbiters($output,$dbADO) {
 	<input type="hidden" name="action" value="add">	
 	<h3  align="left">Orbiters</h3>
 	Download <a href="index.php?section=orbitersWin">Orbiter Win Installer</a>
+		<div id="preloader" style="display:;">
+			<table width="100%">
+				<tr>
+					<td align="center">Loading, please wait ...</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div id="content" style="display:none;">
 		<table border="0">
 			<tr>
 				<td colspan="2" align="center"><input type="submit" class="button" name="QuickRegenAll" value="Quick Regen All"> <input type="submit" class="button" name="FullRegenAll" value="Full Regen All"> <input type="checkbox" name="reset_all" value="1"> Reset Router when done regenerating</td>
@@ -238,6 +247,7 @@ function wizardOrbiters($output,$dbADO) {
 					<input type="submit" class="button" name="add" value="Add orbiter"  ></td>
 				</tr>
 			</table>
+			</div>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("devices");
@@ -247,6 +257,7 @@ function wizardOrbiters($output,$dbADO) {
 	
 	</form>
 	';
+		$output->setScriptInBody('onLoad="document.getElementById(\'preloader\').style.display=\'none\';document.getElementById(\'content\').style.display=\'\';";');			
 	} else {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);

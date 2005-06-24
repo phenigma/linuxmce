@@ -106,6 +106,16 @@ function devices($output,$dbADO) {
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">	
 	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>
+		
+		<div id="preloader" style="display:;">
+			<table width="100%">
+				<tr>
+					<td align="center">Loading, please wait ...</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div id="content" style="display:none;">
 		<table align="center" cellpadding="3" cellspacing="0">
 				<tr>
 					<td align="center"><B>Type of Device</B></td>
@@ -291,6 +301,7 @@ function devices($output,$dbADO) {
 					<td colspan="5" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.devices.action.value=\'externalSubmit\';document.devices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">'.$addGC100Btn.'</td>
 				</tr>
 			</table>
+			</div>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("devices");
@@ -300,6 +311,7 @@ function devices($output,$dbADO) {
 	
 	</form>
 	';
+		$output->setScriptInBody('onLoad="document.getElementById(\'preloader\').style.display=\'none\';document.getElementById(\'content\').style.display=\'\';";');			
 	} else {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);

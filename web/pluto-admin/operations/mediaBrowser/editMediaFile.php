@@ -274,7 +274,7 @@ function editMediaFile($output,$mediadbADO) {
 			}
 			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, FK_Type=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
 			
-			exec('/usr/pluto/bin/UpdateMedia –d "'.$path.'"');
+			exec('/usr/pluto/bin/UpdateMedia -d "'.$path.'"');
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			
 			exit();
 		}
