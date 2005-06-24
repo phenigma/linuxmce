@@ -252,6 +252,7 @@ bool ProcessUtils::ApplicationIsLaunchedByMe(string applicationName)
 {
 	pthread_mutex_lock(&mutexDataStructure);
 
+	printf("ApplicationIsLaunchedByMe %s size: %d",applicationName.c_str(),(int) g_mapIdentifierToPidData.size());
 	if ( g_mapIdentifierToPidData.find(applicationName) == g_mapIdentifierToPidData.end() )
 	{
 		pthread_mutex_unlock(&mutexDataStructure);

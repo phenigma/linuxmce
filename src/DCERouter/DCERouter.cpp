@@ -880,7 +880,6 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 			case SYSCOMMAND_RELOAD_FORCED:
 				{
 					g_pPlutoLogger->Write(LV_STATUS,"Received reload command");
-					system( (string("lsof >> /var/log/pluto/lsof_RELOAD_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
 					if( (*SafetyMessage)->m_dwID!=SYSCOMMAND_RELOAD_FORCED )
 					{
 						map<int,class Command_Impl *>::iterator it;

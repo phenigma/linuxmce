@@ -106,7 +106,8 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 App_Server::~App_Server()
 //<-dceag-dest-e->
 {
-
+	vector<void *> data;
+	ProcessUtils::KillApplication(LOGO_APPLICATION_NAME, data);
 }
 
 //<-dceag-reg-b->
@@ -366,7 +367,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 
 	// See who sent this to us.  If it wasn't GeneralInfoPlugin we want to forward it to it
 	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_From);
-	if( pDeviceData_Base )
+	if( !pDeviceData_Base || pDeviceData_Base->m_dwPK_Device_Category!=DEVICECATEGORY_General_Info_Plugins_CONST )
 	{
 		Message *pMessageCopy = new Message(pMessage);
 		pMessageCopy->m_dwPK_Device_To=0;
