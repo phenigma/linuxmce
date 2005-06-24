@@ -10,6 +10,57 @@
 *
 */
 
+
+/*
+
+aaronbaalbergen: can I ask you a question?  Where can we read about what those 'desktop on' and 'desktop off' commands are supposed to be doing and how to use them?  For some reason, without anybody making changes as far as I can tell, when we launch myth it's no longer selected.  It is launched, and it is running.  It's just the window isn't selected.  I ran the ratpoison command "select mythfrontend" from a ssh shell, and it does not select it there either.  But just through experimenting I found that if I do 'desktop off', then do 'select', then 'desktop on', then it does select myth.  But the app never gets keyboard or mouse.  And I can't find any docs.  Can you tell me where we need to go to see how this is supposed to work?
+
+mtoader : desktop on = make the current selected window be treated as the desktop  window (aka make it will screen and removed from the internal list of windows managed by ratopison ) 
+
+mtoader : desktop off = undo the desktop on (aka if there is a window set as desktop then unset it and add to the internal list of managed windows and at the same time resize to the actual desktop size as ratpoison sees it ).
+
+aaronbaalbergen: so that's why sometimes SDL_App shows up when you do a ratpoison windows, and sometimes it doesn't.  When it's not showing up, it's because it's the desktop, right?  But then why when I see I do:
+./ratpoison -d :0 -c windows
+and I *do* see myth in the window list, why doesn't select X work, unless I first do a desktop off?
+
+mtoader : when SDL_App shows in the list of managed windows it means it isn't a desktop window
+
+aaronbaalbergen: I assume I should never do a desktop off, just leaving Orbiter (SDL_App) as the desktop.  But for some reason, select does not work without first doing a desktop off, and then a desktop on.  which I guess means by doing that I'm making Myth the desktop.
+
+mtoader : if SDL_App would be teh desktop window than it shouldn't be in the list of managed windows..
+
+mtoader : yes
+
+mtoader : i don;t know why select doesn't work 
+
+mtoader : select is the internal command in ratpoison 
+
+mtoader : i didn't played with ti .. 
+
+aaronbaalbergen: OK, so bottom line is i should never touch 'desktop off/on'.  Only do a select.
+
+mtoader : 
+
+mtoader : yes
+
+aaronbaalbergen: And somehow ratpoison is broken that select doesn't work.
+
+aaronbaalbergen: and your keyboard/mouse sharing code, is that also in desktop.c?
+
+aaronbaalbergen: Or that's someplace else?
+
+mtoader : Orbiter is doing the desktop on when it starts up 
+
+mtoader : that's inside the orbiter 
+
+aaronbaalbergen: OK, it's a bit clearer then.  Thx for the help.  
+
+mtoader : becasue  the orbiter is the observer of the events in this case
+
+mtoader : np-
+
+*/
+
 #include <string.h>
 #include "ratpoison.h"
 

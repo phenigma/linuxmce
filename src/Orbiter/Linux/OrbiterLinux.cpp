@@ -144,7 +144,7 @@ Window OrbiterLinux::getWindow()
 	return 0;
 }
 
-bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point );
+bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point )
 {
     vector<int> vectButtonMaps;
     GetButtonsInObject(pObj,vectButtonMaps);
