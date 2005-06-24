@@ -42,6 +42,7 @@ using namespace std;
 #include "Table_Device_Users.h"
 #include "Table_InfraredGroup_Command.h"
 #include "Table_Package_Device.h"
+#include "Table_PaidLicense.h"
 
 
 void Database_pluto_main::CreateTable_Device()
@@ -1637,6 +1638,13 @@ void Row_Device::Package_Device_FK_Device_getrows(vector <class Row_Package_Devi
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Package_Device *pTable = table->database->Package_Device_get();
+pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
+}
+void Row_Device::PaidLicense_FK_Device_getrows(vector <class Row_PaidLicense*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_PaidLicense *pTable = table->database->PaidLicense_get();
 pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
 }
 

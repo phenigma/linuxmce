@@ -95,13 +95,14 @@ short int m_InheritsMacFromPC;
 string m_ConfigureScript;
 string m_ManufacturerURL;
 string m_InternalURLSuffix;
+short int m_Licensing;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[28];
+		bool is_null[29];
 	
 	public:
 		long int PK_DeviceTemplate_get();
@@ -127,6 +128,7 @@ short int InheritsMacFromPC_get();
 string ConfigureScript_get();
 string ManufacturerURL_get();
 string InternalURLSuffix_get();
+short int Licensing_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -157,6 +159,7 @@ void InheritsMacFromPC_set(short int val);
 void ConfigureScript_set(string val);
 void ManufacturerURL_set(string val);
 void InternalURLSuffix_set(string val);
+void Licensing_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -251,7 +254,7 @@ void StartupScript_FK_DeviceTemplate_getrows(vector <class Row_StartupScript*> *
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DeviceTemplate+ m_Description+ m_Comments+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Define+ m_ImplementsDCE+ m_IsEmbedded+ m_CommandLine+ m_IsPlugAndPlay+ m_IsIPBased+ m_IsPlugIn+ m_IRFrequency+ m_FK_StabilityStatus+ m_FK_Package+ m_DestinationDir+ m_FK_Users_Maintainer+ m_FK_OperatingSystem+ m_FK_Distro+ m_InheritsMacFromPC+ m_ConfigureScript+ m_ManufacturerURL+ m_InternalURLSuffix+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DeviceTemplate+ m_Description+ m_Comments+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Define+ m_ImplementsDCE+ m_IsEmbedded+ m_CommandLine+ m_IsPlugAndPlay+ m_IsIPBased+ m_IsPlugIn+ m_IRFrequency+ m_FK_StabilityStatus+ m_FK_Package+ m_DestinationDir+ m_FK_Users_Maintainer+ m_FK_OperatingSystem+ m_FK_Distro+ m_InheritsMacFromPC+ m_ConfigureScript+ m_ManufacturerURL+ m_InternalURLSuffix+ m_Licensing+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -279,6 +282,7 @@ string InheritsMacFromPC_asSQL();
 string ConfigureScript_asSQL();
 string ManufacturerURL_asSQL();
 string InternalURLSuffix_asSQL();
+string Licensing_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -216,6 +216,7 @@ void Device_StartupScript_FK_Device_getrows(vector <class Row_Device_StartupScri
 void Device_Users_FK_Device_getrows(vector <class Row_Device_Users*> *rows);
 void InfraredGroup_Command_FK_Device_getrows(vector <class Row_InfraredGroup_Command*> *rows);
 void Package_Device_FK_Device_getrows(vector <class Row_Package_Device*> *rows);
+void PaidLicense_FK_Device_getrows(vector <class Row_PaidLicense*> *rows);
 
 
 		// Setup binary serialization

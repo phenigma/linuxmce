@@ -1245,6 +1245,12 @@
 #define DESIGNOBJ_vlc_dvd_full_screen_CONST 3451
 #define DESIGNOBJ_vlc_dvd_full_screen_with_optio_CONST 3452
 #define DESIGNOBJ_grpMediaNavigationVLC_CONST 3453
+#define DESIGNOBJ_mnuMainMenu2_CONST 3454
+#define DESIGNOBJ_objGotoLightingOptions_CONST 3456
+#define DESIGNOBJ_objGotoMediaOptions_CONST 3457
+#define DESIGNOBJ_objGotoSecurityOptions_CONST 3458
+#define DESIGNOBJ_objGotoTelecomOptions_CONST 3459
+#define DESIGNOBJ_popLights_CONST 3460
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
