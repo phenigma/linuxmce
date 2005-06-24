@@ -41,7 +41,7 @@ private:
 
 protected:
     // virtual bool forkAndWait(char * const args[], int millis);
-    virtual bool RenderDesktop(class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal);
+	virtual bool RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point = PlutoPoint(0, 0) );
 
     virtual bool resizeMoveDesktop(int x, int y, int width, int height);
     virtual bool setDesktopVisible(bool visible = true);
