@@ -266,22 +266,34 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 	if(lirc_init("irexec",1)==-1) return 1;
 
 	char *code;
+	struct timeval last_time = {0, 0}, this_time, time_diff;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Leeching"); 
 	while(lirc_nextcode(&code)==0)
 	{
+		gettimeofday(&this_time, NULL);
+		time_diff = this_time - last_time;
+
 		string sCode = string(code);
 		vector<string> vectTrimmed;
 		
 		StringUtils::Tokenize(sCode," ",vectTrimmed);
+		int iRepeat = atoi(vectTrimmed[1].c_str());
 		string sToken = vectTrimmed[2];
-		g_pPlutoLogger->Write(LV_STATUS, "Key Pressed. %s (%s)",sToken.c_str(),sCode.c_str()); 
+		g_pPlutoLogger->Write(LV_STATUS, "Key Pressed. %s (%s), repeat %d, time diff %lds%ldus",
+				sToken.c_str(), sCode.c_str(), iRepeat, time_diff.tv_sec, time_diff.tv_usec);
+		
+		// ignore repeats and keys received in less than 100ms since the previous (processed) key
+		if (iRepeat != 0 || (time_diff.tv_sec == 0 && time_diff.tv_usec < 100000))
+			continue;
+		last_time = this_time;
 		
 		map<string,Message *>::iterator it=m_mapMessages.find(StringUtils::ToUpper(sToken));
 		if(it!=m_mapMessages.end() && it->second )
 			QueueMessageToRouter(it->second);
 		else
 			g_pPlutoLogger->Write(LV_WARNING, "Error Invalid Key."); 
+		free(code);
 	}
 	lirc_deinit();
 #endif
