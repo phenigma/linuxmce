@@ -362,6 +362,7 @@
 #define COMMAND_Check_for_updates_done_CONST 396
 #define COMMAND_Show_Popup_CONST 397
 #define COMMAND_Hide_Popup_CONST 398
+#define COMMAND_Show_Shortcuts_CONST 399
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
