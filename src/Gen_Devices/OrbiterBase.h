@@ -170,7 +170,7 @@ public:
 	virtual void CMD_Send_Message(string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Show_Shortcuts(bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Show_Shortcuts(string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -1592,8 +1592,7 @@ public:
 				case 399:
 					{
 						string sCMD_Result="OK";
-					bool bTrueFalse=(pMessage->m_mapParameters[119]=="1" ? true : false);
-						CMD_Show_Shortcuts(bTrueFalse,sCMD_Result,pMessage);
+						CMD_Show_Shortcuts(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1610,7 +1609,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Show_Shortcuts(bTrueFalse,sCMD_Result,pMessage);
+								CMD_Show_Shortcuts(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1646,7 +1645,7 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 						SendString(sCMD_Result);
 						}
-					if( sCMD_Result!="UNHANDLED" )
+					if( sCMD_Result!="UNHANDLED" && sCMD_Result!="UNKNOWN DEVICE" )
 						iHandled++;
 				}
 			}

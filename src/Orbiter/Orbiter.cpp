@@ -7122,7 +7122,7 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	/** @brief COMMAND: #398 - Hide Popup */
 	/** Hides a popup. */
 		/** @param #3 PK_DesignObj */
-			/** The ID of the object (popup). If ID is zero, all the popups will be hidden. */
+			/** The ID of the object (popup). If the ID is not specified, all the popups will be hidden. */
 
 void Orbiter::CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
 //<-dceag-c398-e->
@@ -7148,11 +7148,9 @@ void Orbiter::CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,Message *p
 //<-dceag-c399-b->
 
 	/** @brief COMMAND: #399 - Show Shortcuts */
-	/** Shows/hides the shortcuts */
-		/** @param #119 True/False */
-			/** if this is true, the shortcuts will be visible. */
+	/** Shows keyboard shortcuts for 10 seconds or until the screen changes. */
 
-void Orbiter::CMD_Show_Shortcuts(bool bTrueFalse,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Show_Shortcuts(string &sCMD_Result,Message *pMessage)
 //<-dceag-c399-e->
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );

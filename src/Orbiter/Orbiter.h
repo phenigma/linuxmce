@@ -1446,19 +1446,17 @@ public:
 	/** @brief COMMAND: #398 - Hide Popup */
 	/** Hides a popup. */
 		/** @param #3 PK_DesignObj */
-			/** The ID of the object (popup). If ID is zero, all the popups will be hidden. */
+			/** The ID of the object (popup). If the ID is not specified, all the popups will be hidden. */
 
 	virtual void CMD_Hide_Popup(string sPK_DesignObj) { string sCMD_Result; CMD_Hide_Popup(sPK_DesignObj.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #399 - Show Shortcuts */
-	/** Shows/hides the shortcuts */
-		/** @param #119 True/False */
-			/** if this is true, the shortcuts will be visible. */
+	/** Shows keyboard shortcuts for 10 seconds or until the screen changes. */
 
-	virtual void CMD_Show_Shortcuts(bool bTrueFalse) { string sCMD_Result; CMD_Show_Shortcuts(bTrueFalse,sCMD_Result,NULL);};
-	virtual void CMD_Show_Shortcuts(bool bTrueFalse,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Show_Shortcuts() { string sCMD_Result; CMD_Show_Shortcuts(sCMD_Result,NULL);};
+	virtual void CMD_Show_Shortcuts(string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
