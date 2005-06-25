@@ -73,6 +73,9 @@
 #define DEVICEDATA_Audio_settings_CONST 88
 #define DEVICEDATA_Video_settings_CONST 89
 #define DEVICEDATA_PK_DesignObj_CONST 91
+#define DEVICEDATA_Subtitles_CONST 92
+#define DEVICEDATA_Audio_Tracks_CONST 93
+#define DEVICEDATA_Angles_CONST 94
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

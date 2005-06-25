@@ -631,9 +631,6 @@
 				RelativePath=".\Table_VertAlignment.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_groupaddresses.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_psc_constants_batdet.cpp">
 			</File>
 			<File

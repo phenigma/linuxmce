@@ -196,7 +196,6 @@ class Table_Users* tblUsers;
 class Table_Variable* tblVariable;
 class Table_Version* tblVersion;
 class Table_VertAlignment* tblVertAlignment;
-class Table_groupaddresses* tblgroupaddresses;
 class Table_psc_constants_batdet* tblpsc_constants_batdet;
 class Table_psc_constants_bathdr* tblpsc_constants_bathdr;
 class Table_psc_constants_batuser* tblpsc_constants_batuser;
@@ -411,7 +410,6 @@ class Table_Users* Users_get() { if( !tblUsers ) CreateTable_Users(); return tbl
 class Table_Variable* Variable_get() { if( !tblVariable ) CreateTable_Variable(); return tblVariable; }
 class Table_Version* Version_get() { if( !tblVersion ) CreateTable_Version(); return tblVersion; }
 class Table_VertAlignment* VertAlignment_get() { if( !tblVertAlignment ) CreateTable_VertAlignment(); return tblVertAlignment; }
-class Table_groupaddresses* groupaddresses_get() { if( !tblgroupaddresses ) CreateTable_groupaddresses(); return tblgroupaddresses; }
 class Table_psc_constants_batdet* psc_constants_batdet_get() { if( !tblpsc_constants_batdet ) CreateTable_psc_constants_batdet(); return tblpsc_constants_batdet; }
 class Table_psc_constants_bathdr* psc_constants_bathdr_get() { if( !tblpsc_constants_bathdr ) CreateTable_psc_constants_bathdr(); return tblpsc_constants_bathdr; }
 class Table_psc_constants_batuser* psc_constants_batuser_get() { if( !tblpsc_constants_batuser ) CreateTable_psc_constants_batuser(); return tblpsc_constants_batuser; }
@@ -630,7 +628,6 @@ void CreateTable_Users();
 void CreateTable_Variable();
 void CreateTable_Version();
 void CreateTable_VertAlignment();
-void CreateTable_groupaddresses();
 void CreateTable_psc_constants_batdet();
 void CreateTable_psc_constants_bathdr();
 void CreateTable_psc_constants_batuser();
@@ -844,7 +841,6 @@ void DeleteTable_Users();
 void DeleteTable_Variable();
 void DeleteTable_Version();
 void DeleteTable_VertAlignment();
-void DeleteTable_groupaddresses();
 void DeleteTable_psc_constants_batdet();
 void DeleteTable_psc_constants_bathdr();
 void DeleteTable_psc_constants_batuser();
