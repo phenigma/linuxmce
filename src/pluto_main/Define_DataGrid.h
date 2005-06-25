@@ -2,7 +2,7 @@
 #define __Define_DataGrid_H__
 
 #define DATAGRID_Directory_Listing_CONST 1
-#define DATAGRID_DVD_Subtitles_CONST 2
+#define DATAGRID_Media_Tracksobsoleted_CONST 2
 #define DATAGRID_Mozilla_Bookmarks_CONST 3
 #define DATAGRID_Lighting_Scenarios_CONST 4
 #define DATAGRID_Media_Scenarios_CONST 5
@@ -33,8 +33,6 @@
 #define DATAGRID_Devices__Pipes_CONST 30
 #define DATAGRID_Media_Attr_Cur_Stream_CONST 31
 #define DATAGRID_Pending_Tasks_CONST 32
-#define DATAGRID_DVD_Audio_Tracks_CONST 33
-#define DATAGRID_DVD_Angles_CONST 34
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
