@@ -15,6 +15,14 @@
 
  */
 
+/*
+	Shortcut keys:
+	F1 = help
+	F2 = main menu, or 'now playing'
+	F3 = power off
+*/
+
+
 //<-dceag-d-b->
 #include "Orbiter.h"
 #include "DCE/Logger.h"
@@ -1198,6 +1206,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s (%d)",
 
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
     m_bRerenderScreen=true;
+	m_bShowShortcuts=false;
     // The framework will call this when it's time to change screens.  This immediately calls RenderScreen.
 
 	// ATTEN: The siganture was changed from RegionUp() -> RegionUp(int x, int y);
@@ -7154,6 +7163,15 @@ void Orbiter::CMD_Show_Shortcuts(string &sCMD_Result,Message *pMessage)
 //<-dceag-c399-e->
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-    m_bShowShortcuts = bTrueFalse;
-    RenderScreen();
+    m_bShowShortcuts = true;
+	CallMaintenanceInMiliseconds( 10000, &Orbiter::RemoveShortcuts, NULL, pe_ALL );
+    CMD_Refresh("");
+}
+
+void Orbiter::RemoveShortcuts( void *data )
+{
+	if( m_bQuit )
+		return;
+    m_bShowShortcuts = false;
+    CMD_Refresh("");
 }

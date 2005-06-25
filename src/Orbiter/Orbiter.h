@@ -284,6 +284,9 @@ protected:
 	 */
 	void RealRedraw( void *iData );
 
+	// Don't show shortcuts anymore
+	void RemoveShortcuts( void *iData );
+
 	void RedrawObject( void *iData );
 
 	// Reselect the given object, used for repeating buttons
