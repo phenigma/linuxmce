@@ -20,19 +20,22 @@ using namespace DCE;
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef WIN32
 #include <sys/fcntl.h>
+#endif
 
-//<-dceag-const-b->!
+//<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: LIRC_DCE_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_Virtual_Device_Translator(m_pData)
+	: LIRC_DCE_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_Virtual_Device_Translator(m_pData)
 {
 	vector<string> vectMapping,vectConfiguration;
 	string sMapping = DATA_Get_Mapping();
 	StringUtils::Tokenize(sMapping,"\r\n",vectMapping);	
 
-	// Find all our sibblings that are remote controls
+	// Find all our sibblings that are remote controls or Orbiters
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
 		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
 	{
@@ -59,7 +62,10 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 			continue;
 		}
 		if( StringUtils::ToUpper(vectConfiguration[s]).find("END CODES")!=string::npos )
-			break;
+		{
+			bCodesBegan=false;
+			continue;
+		}
 
 		// We've got a valid code.  Trim it, and find the first white space
 		StringUtils::TrimSpaces(vectConfiguration[s]);
@@ -95,6 +101,7 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 					{
 						g_pPlutoLogger->Write(LV_STATUS,"LIRC button: %s will fire: %s",sToken.c_str(),vectMapping[s].substr(pos+1).c_str());
 						Message *pMessage = new Message(iNumberOfArguments,pArgs,m_dwPK_Device);
+						pMessage->m_dwPK_Device_To = m_Virtual_Device_Translator.TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
 // TODO: Dan, if you want hex codes rather than strings, we can do the conversion here
 						m_mapMessages[ (*it).first ] = pMessage;
 					}
@@ -122,7 +129,7 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 		g_pPlutoLogger->Write(LV_STATUS, "->Found Serial 2 in database");
 	} else {
 		struct stat buf;
-		
+#ifndef WIN32		
 		if (stat("/dev/lirc", &buf) != -1 && S_ISCHR(buf.st_mode))
 		{
 			sSerialPort = "/dev/lirc";
@@ -136,7 +143,7 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 			g_pPlutoLogger->Write(LV_CRITICAL, "No SerialPort selected and no default entry found. Exiting.");
 			exit(0);
 		}
-
+#endif
 		g_pPlutoLogger->Write(LV_STATUS, "No SerialPort selected, selecting default %s", sSerialPort.c_str());
 	}
 	
@@ -290,7 +297,7 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 		
 		map<string,Message *>::iterator it=m_mapMessages.find(StringUtils::ToUpper(sToken));
 		if(it!=m_mapMessages.end() && it->second )
-			QueueMessageToRouter(it->second);
+			QueueMessageToRouter(new Message(it->second));
 		else
 			g_pPlutoLogger->Write(LV_WARNING, "Error Invalid Key."); 
 		free(code);
@@ -299,3 +306,5 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 #endif
 	return 0;
 }
+
+

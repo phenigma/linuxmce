@@ -235,6 +235,27 @@ bool Orbiter_Plugin::Register()
 			}
         }
     }
+	// Check for remote controls
+    for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
+    {
+        DeviceData_Router *pDeviceData_Router=(*it).second;
+        if( pDeviceData_Router->WithinCategory(DEVICECATEGORY_Remote_Controls_CONST) || pDeviceData_Router->WithinCategory(DEVICECATEGORY_Infrared_Receivers_CONST) )
+        {
+			vector<DeviceData_Router *> vectDeviceData_Router;
+			// The remote should have a sibbling that is an on screen orbiter
+			if( pDeviceData_Router->m_pDevice_ControlledVia )
+				((DeviceData_Router *) pDeviceData_Router->m_pDevice_ControlledVia)->FindChildrenWithinCategory(DEVICECATEGORY_Standard_Orbiter_CONST,vectDeviceData_Router);
+
+			OH_Orbiter *pOH_Orbiter=NULL;
+			if( vectDeviceData_Router.size() )
+				pOH_Orbiter = m_mapOH_Orbiter_Find(vectDeviceData_Router[0]->m_dwPK_Device);
+
+			if( !pOH_Orbiter )
+				g_pPlutoLogger->Write(LV_WARNING,"Remote Control %d has no orbiter",pDeviceData_Router->m_dwPK_Device);
+			else
+				m_mapRemote_2_Orbiter[pDeviceData_Router->m_dwPK_Device] = pOH_Orbiter;
+        }
+    }
 
     GenerateVMCFiles();
     GeneratePlutoMOConfig();

@@ -2033,6 +2033,7 @@ void Router::Configure()
 				pRow_Device_DeviceData->FK_DeviceData_set( pRow_DeviceTemplate_DeviceData->FK_DeviceData_get() );
 				pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceTemplate_DeviceData->IK_DeviceData_get() );
 				pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+				pDevice->m_mapParameters[pRow_DeviceTemplate_DeviceData->FK_DeviceData_get()] = pRow_DeviceTemplate_DeviceData->IK_DeviceData_get();
 			}
 			else if( pRow_DeviceTemplate_DeviceData->UseDeviceTemplateDefault_get()==1 && 
 				pRow_DeviceTemplate_DeviceData->IK_DeviceData_get()!=pDevice->m_mapParameters[pRow_DeviceTemplate_DeviceData->FK_DeviceData_get()] )
@@ -2042,6 +2043,7 @@ void Router::Configure()
 					pRow_DeviceTemplate_DeviceData->FK_DeviceData_get());
 				pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceTemplate_DeviceData->IK_DeviceData_get() );
 				pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+				pDevice->m_mapParameters[pRow_DeviceTemplate_DeviceData->FK_DeviceData_get()] = pRow_DeviceTemplate_DeviceData->IK_DeviceData_get();
 			}
 		}
 
@@ -2062,6 +2064,7 @@ void Router::Configure()
 					pRow_Device_DeviceData->FK_DeviceData_set( pRow_DeviceCategory_DeviceData->FK_DeviceData_get() );
 					pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceCategory_DeviceData->IK_DeviceData_get() );
 					pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+					pDevice->m_mapParameters[pRow_DeviceCategory_DeviceData->FK_DeviceData_get()] = pRow_DeviceCategory_DeviceData->IK_DeviceData_get();
 				}
 				else if( pRow_DeviceCategory_DeviceData->UseDeviceCategoryDefault_get()==1 && 
 					pRow_DeviceCategory_DeviceData->IK_DeviceData_get()!=pDevice->m_mapParameters[pRow_DeviceCategory_DeviceData->FK_DeviceData_get()] )
@@ -2071,6 +2074,7 @@ void Router::Configure()
 						pRow_DeviceCategory_DeviceData->FK_DeviceData_get());
 					pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceCategory_DeviceData->IK_DeviceData_get() );
 					pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+					pDevice->m_mapParameters[pRow_DeviceCategory_DeviceData->FK_DeviceData_get()] = pRow_DeviceCategory_DeviceData->IK_DeviceData_get();
 				}
 			}
 			pRow_DeviceCategory=pRow_DeviceCategory->FK_DeviceCategory_Parent_getrow();

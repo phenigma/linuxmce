@@ -58,6 +58,7 @@ extern Command_Impl *g_pCommand_Impl;
 
 #define PROFILING_GRID
 
+
 #ifdef WINCE
     #include "wince.h"
 
@@ -2299,6 +2300,7 @@ void Orbiter::FindObjectToHighlight(
 					if(  pDesignObj_DataGrid->m_GridCurRow+pDesignObj_DataGrid->m_iHighlightedRow + 1 < pDesignObj_DataGrid->m_pDataGridTable->GetRows(  )  )  // Add 1 since the highlight is 0 based and get rows is not, add 2 if the last row is just a 'scroll down'
                     {
                         pDesignObj_DataGrid->m_iHighlightedRow++;
+pfoo=pDesignObj_DataGrid;
                         // See if we've scrolled past the visible end, in which case we need to page.  Subtract 1 or 2 cells for the scroll up/down cells if any
                         if(  pDesignObj_DataGrid->m_iHighlightedRow>=pDesignObj_DataGrid->m_MaxRow - (pDesignObj_DataGrid->m_dwIDownRow >= 0 ? 1 : 0) - (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0) )
                         {
@@ -2309,7 +2311,7 @@ void Orbiter::FindObjectToHighlight(
                     }
                     break;
                 case DIRECTION_Left_CONST:
-                    if(  pDesignObj_DataGrid->m_iHighlightedRow>0 || pDesignObj_DataGrid->m_GridCurRow>0  )
+                    if(  pDesignObj_DataGrid->m_iHighlightedColumn>0 || pDesignObj_DataGrid->m_GridCurCol>0  )
                     {
                         pDesignObj_DataGrid->m_iHighlightedColumn--;
                         if(  pDesignObj_DataGrid->m_iHighlightedColumn<0  )
@@ -3230,7 +3232,29 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 
     if(  PK_Button == BUTTON_Enter_CONST  )
     {
-        if(  m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden(  )  )
+		// See if we're capturing arrows for a grid.  That takes precedence
+	    PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+		vector<DesignObj_DataGrid *> vectObj_SelectedGrids;
+		size_t s;
+		for( s=0;s<m_vectObjs_GridsOnScreen.size(  );++s )
+		{
+			DesignObj_DataGrid *pDesignObj_DataGrid = m_vectObjs_GridsOnScreen[s];
+			if(  pDesignObj_DataGrid->IsHidden(  )  )
+				continue;
+			if(  pDesignObj_DataGrid->m_pDataGridTable && pDesignObj_DataGrid->m_sExtraInfo.find( 'A' )!=string::npos  )
+			{
+//                    if(  pDesignObj_DataGrid->m_iHighlightedRow>0 || pDesignObj_DataGrid->m_GridCurRow>0  )
+  //                  if(  pDesignObj_DataGrid->m_iHighlightedColumn>0 || pDesignObj_DataGrid->m_GridCurColumn>0  )
+				DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
+					pDesignObj_DataGrid->m_iHighlightedColumn==-1 ? 0 : pDesignObj_DataGrid->m_iHighlightedColumn,
+					pDesignObj_DataGrid->m_iHighlightedRow==-1 ? 0 : pDesignObj_DataGrid->m_iHighlightedRow);
+				if( pCell )
+					SelectedGrid( pDesignObj_DataGrid,  pCell );
+				return true;
+			}
+		}
+		
+		if(  m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden(  )  )
         {
             SelectedObject( m_pObj_Highlighted );
             bHandled=true;

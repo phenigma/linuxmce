@@ -987,7 +987,10 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
         // We didn't handle it. Give it to the appropriate plug-in. Assume it's coming from an orbiter
         class EntertainArea *pEntertainArea;
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
-        if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea || !pOH_Orbiter->m_pEntertainArea->m_pMediaStream  )
+		if( !pOH_Orbiter ) // It could be a remote control
+			pOH_Orbiter = m_pOrbiter_Plugin->m_mapRemote_2_Orbiter_Find( pMessage->m_dwPK_Device_From );
+
+		if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea || !pOH_Orbiter->m_pEntertainArea->m_pMediaStream  )
         {
             g_pPlutoLogger->Write( LV_CRITICAL, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
             return false;
@@ -2193,6 +2196,8 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
     if( sPK_EntertainArea.size()==0 )
     {
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( iPK_Device_Orbiter );
+		if( !pOH_Orbiter ) // It could be a remote control
+			pOH_Orbiter = m_pOrbiter_Plugin->m_mapRemote_2_Orbiter_Find( iPK_Device_Orbiter );
 		MediaDevice *pMediaDevice;
 		if( iPK_Device && (pMediaDevice = m_mapMediaDevice_Find(iPK_Device))!=NULL )
 		{
@@ -2431,6 +2436,32 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
         g_pPlutoLogger->Write(LV_STATUS, "Can't jump in an empty queue");
         return;
     }
+
+	// If we don't have multiple files in the queue, this is treated as a skip forward/back to jump through chapters
+	if( pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()<2 )
+	{
+		int iRepeat=atoi(sValue_To_Assign.c_str());
+		bool bSkipBack=false;
+		if( sValue_To_Assign.size() && sValue_To_Assign[0]=='-' )
+		{
+			iRepeat *= -1;
+			bSkipBack=true;
+		}
+
+		if( bSkipBack )
+		{
+			DCE::CMD_Skip_Back_ChannelTrack_Lower CMD_Skip_Back_ChannelTrack_Lower(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+			CMD_Skip_Back_ChannelTrack_Lower.m_pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST] = StringUtils::itos(iRepeat);
+			SendCommand(CMD_Skip_Back_ChannelTrack_Lower);
+		}
+		else
+		{
+			DCE::CMD_Skip_Fwd_ChannelTrack_Greater CMD_Skip_Fwd_ChannelTrack_Greater(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+			CMD_Skip_Fwd_ChannelTrack_Greater.m_pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST] = StringUtils::itos(iRepeat);
+			SendCommand(CMD_Skip_Fwd_ChannelTrack_Greater);
+		}
+		return;
+	}
 
 	if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo )
 	{
