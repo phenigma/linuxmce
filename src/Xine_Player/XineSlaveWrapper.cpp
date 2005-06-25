@@ -594,6 +594,8 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 {
     XineStream *xineStream = (XineStream *)userData;
 
+g_pPlutoLogger->Write(LV_STATUS, "xineEventListener %d",(int) event->type);
+
     switch(event->type)
     {
         case XINE_EVENT_UI_PLAYBACK_FINISHED:
@@ -708,7 +710,102 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 
 		case XINE_EVENT_UI_CHANNELS_CHANGED:
 			g_pPlutoLogger->Write(LV_STATUS, "Stream info audio channels %d", xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_MAX_AUDIO_CHANNEL));
-			break;
+			{
+				int iNum = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_MAX_AUDIO_CHANNEL);
+				string sAudioTracks;
+				for(int i=0;i<iNum;++i)
+				{
+					char lang[XINE_LANG_MAX];
+					strcpy(lang,"**error**");
+					xine_get_audio_lang(xineStream->m_pStream,i,lang);
+					sAudioTracks += xineStream->m_pOwner->TranslateLanguage(lang) + "\n";
+				}
+				iNum = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_MAX_SPU_CHANNEL);
+				string sSubtitles;
+				for(int i=0;i<iNum;++i)
+				{
+					char lang[XINE_LANG_MAX];
+					strcpy(lang,"**error**");
+					xine_get_spu_lang(xineStream->m_pStream,i,lang);
+					sSubtitles += xineStream->m_pOwner->TranslateLanguage(lang) + "\n";
+				}
+				xineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Audio_Tracks(sAudioTracks);
+				xineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Subtitles(sSubtitles);
+	g_pPlutoLogger->Write(LV_STATUS, "Subtitles set to %s",sSubtitles.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "audi set to %s",sAudioTracks.c_str());
+			}
+	
+{	
+	uint32_t u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_AUDIO_CHANNELS);
+const char *sz = xine_get_meta_info   (xineStream->m_pStream, XINE_STREAM_INFO_AUDIO_CHANNELS);
+g_pPlutoLogger->Write(LV_STATUS, "Stream info audio channels current  %d %s",u,sz);
+
+u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_MAX_AUDIO_CHANNEL);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_MAX_AUDIO_CHANNEL  %d",u);
+
+for(int i=0;i<u;++i)
+{
+	char lang[XINE_LANG_MAX];
+	strcpy(lang,"none");
+	int iResult = xine_get_audio_lang(xineStream->m_pStream,i,lang);
+g_pPlutoLogger->Write(LV_STATUS, "res: %d i %d lang %s",iResult,i,lang);
+}
+
+u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_MAX_SPU_CHANNEL);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_MAX_SPU_CHANNEL  %d",u);
+
+for(int i=0;i<u;++i)
+{
+	char lang[XINE_LANG_MAX];
+	strcpy(lang,"none");
+	int iResult = xine_get_spu_lang(xineStream->m_pStream,i,lang);
+g_pPlutoLogger->Write(LV_STATUS, "res: %d i %d lang %s",iResult,i,lang);
+}
+
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_TITLE);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_TITLE  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_COMMENT);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_COMMENT  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_ARTIST);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_ARTIST  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_GENRE);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_GENRE  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_ALBUM);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_ALBUM  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_YEAR);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_YEAR  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_VIDEOCODEC);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_VIDEOCODEC  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_AUDIOCODEC);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_AUDIOCODEC  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_SYSTEMLAYER);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_SYSTEMLAYER  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_INPUT_PLUGIN);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_INPUT_PLUGIN  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_CDINDEX_DISCID);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_CDINDEX_DISCID  %s",sz);
+sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_TRACK_NUMBER);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_TRACK_NUMBER  %s",sz);
+
+u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_BITRATE);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_BITRATE  %d",u);
+u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_SEEKABLE);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_SEEKABLE  %d",u);
+u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_VIDEO_WIDTH);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_VIDEO_WIDTH  %d",u);
+u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_VIDEO_HEIGHT);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_VIDEO_HEIGHT  %d",u);
+u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_AUDIO_MODE);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_AUDIO_MODE  %d",u);
+u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_VIDEO_CHANNELS);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_VIDEO_CHANNELS  %d",u);
+u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_SKIPPED_FRAMES);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_SKIPPED_FRAMES  %d",u);
+u = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_DISCARDED_FRAMES);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_DISCARDED_FRAMES  %d",u);
+
+}
+break;
 
         default:
             g_pPlutoLogger->Write(LV_STATUS, "Got unprocessed Xine playback event: %d", event->type);
@@ -1015,6 +1112,50 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
 
     if ( (pStream = getStreamForId(iStreamID, "Can't set the speed of a non existent stream (%d)!")) == NULL)
         return;
+
+
+{
+uint32_t u = xine_get_stream_info (pStream->m_pStream, XINE_STREAM_INFO_AUDIO_CHANNELS);
+const char *sz = xine_get_meta_info   (pStream->m_pStream, XINE_STREAM_INFO_AUDIO_CHANNELS);
+g_pPlutoLogger->Write(LV_STATUS, "Stream info audio channels2  %d %s",u,sz);
+
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_TITLE);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_TITLE  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_COMMENT);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_COMMENT  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_ARTIST);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_ARTIST  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_GENRE);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_GENRE  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_ALBUM);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_ALBUM  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_YEAR);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_YEAR  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_VIDEOCODEC);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_VIDEOCODEC  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_AUDIOCODEC);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_AUDIOCODEC  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_SYSTEMLAYER);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_SYSTEMLAYER  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_INPUT_PLUGIN);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_INPUT_PLUGIN  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_CDINDEX_DISCID);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_CDINDEX_DISCID  %s",sz);
+sz = xine_get_meta_info   (pStream->m_pStream, XINE_META_INFO_TRACK_NUMBER);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_TRACK_NUMBER  %s",sz);
+
+u = xine_get_stream_info (pStream->m_pStream, XINE_STREAM_INFO_BITRATE);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_BITRATE  %d",u);
+u = xine_get_stream_info (pStream->m_pStream, XINE_STREAM_INFO_SEEKABLE);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_SEEKABLE  %d",u);
+u = xine_get_stream_info (pStream->m_pStream, XINE_STREAM_INFO_VIDEO_WIDTH);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_VIDEO_WIDTH  %d",u);
+u = xine_get_stream_info (pStream->m_pStream, XINE_STREAM_INFO_VIDEO_HEIGHT);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_VIDEO_HEIGHT  %d",u);
+u = xine_get_stream_info (pStream->m_pStream, XINE_STREAM_INFO_VIDEO_CHANNELS);
+g_pPlutoLogger->Write(LV_STATUS, "XINE_STREAM_INFO_VIDEO_CHANNELS  %d",u);
+}
+
 
     int xineSpeed = XINE_SPEED_PAUSE;
     switch ( desiredSpeed )
@@ -1814,3 +1955,12 @@ void XineSlaveWrapper::setSlimClient(bool isSlimClient)
 	m_isSlimClient = isSlimClient;
 }
 
+const char *XineSlaveWrapper::TranslateLanguage(const char *abbreviation)
+{
+	if( strcmp(abbreviation,"en")==0 )
+		return "English";
+	else if( strcmp(abbreviation,"de")==0 )
+		return "Deutch";
+	else if( strcmp(abbreviation,"fr")==0 )
+		return "Francais";
+}

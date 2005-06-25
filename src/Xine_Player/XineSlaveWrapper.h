@@ -203,6 +203,11 @@ private:
 
     void make_snapshot(xine_stream_t *stream, string sFormat, int iWidth, int iHeight, bool bKeepAspect, char*&pData, int &iDataSize);
 
+    /**
+     * @brief Translate from the abbreviated language into the full spelling
+     */
+	const char *TranslateLanguage(const char *abbreviation);
+
 	/**
 	 * @brief Translate a PlutoKey definition into a XKeySym definition
 	 */

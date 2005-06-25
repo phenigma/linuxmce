@@ -1134,6 +1134,9 @@ g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
 						(pCommand->m_dwPK_Command==COMMAND_Vol_Up_CONST || pCommand->m_dwPK_Command==COMMAND_Vol_Down_CONST || pCommand->m_dwPK_Command==COMMAND_Set_Volume_CONST) // It's a volume command
 						)
 					{
+DeviceData_Router *pfoo = m_pRouter->m_mapDeviceData_Router_Find(19865);
+pfoo->get
+
 						MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD); // We have an app server to control the volume
 						if( pMediaDevice && pMediaDevice->m_pDevice_App_Server_Volume )  // We have an MD and it uses appserver for the volume
 						{

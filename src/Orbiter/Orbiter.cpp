@@ -5158,11 +5158,12 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 	// We may have a pending render going already.  If so, wait a moment to be sure we're done,
 	// otherwise we may have changed something, causing this refresh, but already drawn it since
 	// we're in the middle of another render.
-	while( g_iDontRender )
-	{
-g_pPlutoLogger->Write(LV_WARNING,"CMD_Set_Now_Playing Waiting for g_iDontRender flag");
-		Sleep(100);
-	}
+//	while( g_iDontRender )
+//	{
+//int x=g_iDontRender;
+//g_pPlutoLogger->Write(LV_WARNING,"CMD_Set_Now_Playing Waiting for g_iDontRender flag");
+//		Sleep(100);
+//	}
 
 	if( sDataGrid_ID.length()==0 )
 	    m_bRerenderScreen = true;

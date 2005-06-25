@@ -45,6 +45,12 @@ public:
 	virtual const char *GetDeviceDescription() { return "Xine_Player"; } ;
 	string Get_Output_Speaker_arrangement() { return m_mapParameters[71];}
 	string Get_Alsa_Output_Device() { return m_mapParameters[74];}
+	string Get_Subtitles() { return m_mapParameters[92];}
+	void Set_Subtitles(string Value) { SetParm(92,Value.c_str()); }
+	string Get_Audio_Tracks() { return m_mapParameters[93];}
+	void Set_Audio_Tracks(string Value) { SetParm(93,Value.c_str()); }
+	string Get_Angles() { return m_mapParameters[94];}
+	void Set_Angles(string Value) { SetParm(94,Value.c_str()); }
 };
 
 
@@ -89,6 +95,12 @@ public:
 	//Data accessors
 	string DATA_Get_Output_Speaker_arrangement() { return GetData()->Get_Output_Speaker_arrangement(); }
 	string DATA_Get_Alsa_Output_Device() { return GetData()->Get_Alsa_Output_Device(); }
+	string DATA_Get_Subtitles() { return GetData()->Get_Subtitles(); }
+	void DATA_Set_Subtitles(string Value) { GetData()->Set_Subtitles(Value); }
+	string DATA_Get_Audio_Tracks() { return GetData()->Get_Audio_Tracks(); }
+	void DATA_Set_Audio_Tracks(string Value) { GetData()->Set_Audio_Tracks(Value); }
+	string DATA_Get_Angles() { return GetData()->Get_Angles(); }
+	void DATA_Set_Angles(string Value) { GetData()->Set_Angles(Value); }
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }

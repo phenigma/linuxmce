@@ -320,6 +320,11 @@ namespace DCE
 		virtual bool SetStatus( string sStatus, int dwPK_Device=0 );
 
 		/**
+		 * @brief Gets the current value of a given device data directly from the device
+		 */
+		string GetCurrentDeviceData( int PK_Device, int PK_DeviceData );
+
+		/**
 		 * 
 		 * Watchdog will kill the connection if it exceeds Timeout.
 		 * Eventually SendMessage will need to be overridden to create

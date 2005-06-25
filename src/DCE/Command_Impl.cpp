@@ -473,18 +473,20 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST && pMessage->m_dwPK_Device_To == m_dwPK_Device )
 	{
-			/** @todo:
-			p = m_pData->m_mapParameters.find(pMessage->m_dwID);
-			if (p==m_pData->m_mapParameters.end())
-			{
-				SendString("ERR Parameter not found");
-			}
-			else
-			{
-				RequestingParameter(pMessage->m_dwID);
-				SendMessage(new Message(m_dwPK_Device, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, (*p).second.c_str()));
-			}
-			*/
+		map<int, string>::iterator p = m_pData->m_mapParameters.find(pMessage->m_dwID);
+		pMessage->m_bRespondedToMessage = true;
+		if (p==m_pData->m_mapParameters.end())
+		{
+			SendMessage(new Message(m_dwPK_Device, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, "ERR Parameter not found"));
+g_pPlutoLogger->Write(LV_CRITICAL,"Got a data parm request %d returning **not found**");
+		}
+		else
+		{
+			RequestingParameter(pMessage->m_dwID);
+			SendMessage(new Message(m_dwPK_Device, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, (*p).second.c_str()));
+g_pPlutoLogger->Write(LV_CRITICAL,"Got a data parm request %d returning %s",pMessage->m_dwID,(*p).second.c_str());
+		}
+
 		return true;
 	}
 	else
@@ -714,6 +716,20 @@ bool Command_Impl::SetStatus( string sStatus, int dwPK_Device )
 		return false;
 
 	return m_pcRequestSocket->m_pClientSocket->SendString("SET_STATUS " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) + " " + sStatus );
+}
+
+string Command_Impl::GetCurrentDeviceData( int PK_Device, int PK_DeviceData )
+{
+	Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_REQUEST,PK_DeviceData,0);
+	Message *pResponse = m_pEvent->SendReceiveMessage(pMessage);
+
+g_pPlutoLogger->Write(LV_CRITICAL,"Sent parm request %d to %d got %p",PK_Device, PK_DeviceData, pResponse);
+if( pResponse )
+{
+g_pPlutoLogger->Write(LV_CRITICAL,"returning %s",pResponse->m_mapParameters[PK_DeviceData].c_str());
+	return pResponse->m_mapParameters[PK_DeviceData];
+}
+return "";
 }
 
 extern pluto_pthread_mutex_t *m_LL_DEBUG_Mutex;
